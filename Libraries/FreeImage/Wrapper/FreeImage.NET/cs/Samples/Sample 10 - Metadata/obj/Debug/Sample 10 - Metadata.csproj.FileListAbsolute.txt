@@ -1,0 +1,3 @@
+C:\Users\David\Documents\Repositories\Praxis\Praxis\Libraries\FreeImage\Wrapper\FreeImage.NET\cs\Samples\Sample 10 - Metadata\obj\Debug\Sample 10 - Metadata.csprojResolveAssemblyReference.cache
+C:\Users\David\Documents\Repositories\Praxis\Praxis\Libraries\FreeImage\Wrapper\FreeImage.NET\cs\Samples\Sample 10 - Metadata\obj\Debug\Sample10.MainForm.resources
+C:\Users\David\Documents\Repositories\Praxis\Praxis\Libraries\FreeImage\Wrapper\FreeImage.NET\cs\Samples\Sample 10 - Metadata\obj\Debug\Sample 10 - Metadata.csproj.GenerateResource.Cache

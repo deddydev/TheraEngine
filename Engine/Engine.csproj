@@ -59,9 +59,16 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Interfaces.cs" />
     <Compile Include="Rendering\Animation\AnimationStringNode.cs" />
     <Compile Include="Rendering\Animation\AnimationBoolNode.cs" />
-    <Compile Include="Rendering\Animation\AnimationDoubleNode.cs" />
+    <Compile Include="Rendering\Animation\AnimationInterpNode.cs" />
+    <Compile Include="Rendering\Models\Meshes\BoneWeight.cs" />
+    <Compile Include="Rendering\Models\Meshes\Influence.cs" />
+    <Compile Include="System\Extensions\Matrix4Extension.cs" />
+    <Compile Include="System\Extensions\Int32Extension.cs" />
+    <Compile Include="System\Extensions\UInt32Extension.cs" />
+    <Compile Include="System\Extensions\SingleExtension.cs" />
     <Compile Include="System\ObjectBase.cs" />
     <Compile Include="System\Reflection\CustomAttribute.cs" />
     <Compile Include="System\Capsule.cs" />
@@ -80,8 +87,9 @@
     <Compile Include="Input\Controller.cs" />
     <Compile Include="Input\PlayerController.cs" />
     <Compile Include="CustomGameForm.cs" />
-    <Compile Include="Math\PraxisMath.cs" />
+    <Compile Include="Math\CustomMath.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="World\Map.cs" />
     <Compile Include="World\WorldBase.cs" />
     <Compile Include="Rendering\Animation\PropertyAnimation.cs" />
     <Compile Include="Rendering\Models\FrameState.cs" />
@@ -93,6 +101,7 @@
     <Compile Include="Rendering\Models\Skeleton\Skeleton.cs" />
     <Compile Include="Rendering\Textures\RGBAPixel.cs" />
     <Compile Include="Rendering\Textures\Texture.cs" />
+    <Compile Include="World\WorldSettings.cs" />
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>

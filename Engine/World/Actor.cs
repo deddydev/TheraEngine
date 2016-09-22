@@ -1,9 +1,15 @@
 ﻿using CustomEngine.Components;
 using System.Collections.Generic;
 using System.Collections;
+using CustomEngine.Rendering.Models;
 
 namespace CustomEngine.World
 {
+    public enum EActorType
+    {
+        Static, //This actor is part of the map
+        Dynamic, //This actor can be changed/manipulated
+    }
     public class Actor : IEnumerable<Component>
     {
         public Actor() { SetupComponents(); }
@@ -14,16 +20,23 @@ namespace CustomEngine.World
         public List<Component> _components = new List<Component>();
         public int _spawnIndex = -1;
         private WorldBase _owningWorld;
+        private FrameState _transform;
+
+        public void OnOriginRebased()
+        {
+
+        }
 
         protected virtual void SetupComponents() { }
 
-        public void Tick(double deltaTime)
+        public virtual void UpdateTick(double deltaTime)
         {
             
         }
-        public void RenderTick(double deltaTime)
+        public virtual void RenderTick(double deltaTime)
         {
-
+            foreach (Component comp in _components)
+                comp.RenderTick(deltaTime);
         }
 
         public void Despawn()

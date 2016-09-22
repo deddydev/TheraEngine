@@ -2,8 +2,11 @@
 
 namespace CustomGame.Worlds
 {
-    public class WorldMainMenu : World
+    public class WorldMainMenu : WorldBase
     {
+        WorldMainMenu() : base("MainMenu")
+        {
 
+        }
     }
 }

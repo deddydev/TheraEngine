@@ -2,8 +2,11 @@
 
 namespace CustomGame.Worlds
 {
-    public class WorldTest : World
+    public class WorldTest : WorldBase
     {
+        WorldTest() : base("Test")
+        {
 
+        }
     }
 }

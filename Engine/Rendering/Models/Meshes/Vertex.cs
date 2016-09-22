@@ -1,4 +1,5 @@
-﻿using OpenTK;
+﻿using CustomEngine.Rendering.Textures;
+using OpenTK;
 
 namespace CustomEngine.Rendering.Models.Meshes
 {
@@ -9,7 +10,7 @@ namespace CustomEngine.Rendering.Models.Meshes
 
         Vector3 _position;
         Vector3 _normal;
-        Vector2[] _uv;
-        
+        Vector2[] _uvs;
+        RGBAPixel[] _colors;
     }
 }

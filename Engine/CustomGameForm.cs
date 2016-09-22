@@ -5,11 +5,15 @@ namespace CustomEngine
 {
     public partial class CustomGameForm : GameWindow
     {
-        public World _currentWorld = null;
+        public static CustomGameForm Instance { get { return _instance ?? new CustomGameForm("ERROR"); } }
+        private static CustomGameForm _instance;
+
+        public WorldBase _currentWorld = null;
 
         public CustomGameForm(string title)
         {
             Title = title;
+            _instance = this;
         }
 
         protected override void OnUpdateFrame(FrameEventArgs e)
@@ -24,7 +28,7 @@ namespace CustomEngine
             _currentWorld.RenderTick(e.Time);
         }
 
-        public void LoadWorld(World world)
+        public void LoadWorld(WorldBase world)
         {
             if (_currentWorld != null)
                 _currentWorld.OnUnload();

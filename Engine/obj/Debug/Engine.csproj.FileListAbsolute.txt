@@ -9,3 +9,6 @@ C:\Users\David\Documents\Repositories\CustomEngine\Engine\obj\Debug\PraxisEngine
 C:\Users\David\Documents\Repositories\CustomEngine\Engine\obj\Debug\Engine.csproj.GenerateResource.Cache
 C:\Users\David\Documents\Repositories\CustomEngine\Engine\obj\Debug\PraxisEngine.dll
 C:\Users\David\Documents\Repositories\CustomEngine\Engine\obj\Debug\PraxisEngine.pdb
+X:\Repositories\CustomEngine\Engine\obj\Debug\Engine.csprojResolveAssemblyReference.cache
+X:\Repositories\CustomEngine\Engine\obj\Debug\CustomEngine.Properties.Resources.resources
+X:\Repositories\CustomEngine\Engine\obj\Debug\Engine.csproj.GenerateResource.Cache

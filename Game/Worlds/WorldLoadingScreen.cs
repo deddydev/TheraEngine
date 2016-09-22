@@ -4,6 +4,9 @@ namespace CustomGame.Worlds
 {
     public class WorldLoadingScreen : WorldBase
     {
+        WorldLoadingScreen() : base("LoadingScreen")
+        {
 
+        }
     }
 }

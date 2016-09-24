@@ -1,1 +1,8 @@
 X:\Repositories\CustomEngine\Editor\bin\Debug\Editor.exe.config
+C:\Users\David\Documents\Repositories\CustomEngine\Editor\bin\Debug\Editor.exe.config
+C:\Users\David\Documents\Repositories\CustomEngine\Editor\obj\Debug\Editor.csprojResolveAssemblyReference.cache
+C:\Users\David\Documents\Repositories\CustomEngine\Editor\obj\Debug\MainWindow.g.cs
+C:\Users\David\Documents\Repositories\CustomEngine\Editor\obj\Debug\App.g.cs
+C:\Users\David\Documents\Repositories\CustomEngine\Editor\obj\Debug\Editor_MarkupCompile.cache
+C:\Users\David\Documents\Repositories\CustomEngine\Editor\obj\Debug\Editor_MarkupCompile.lref
+C:\Users\David\Documents\Repositories\CustomEngine\Editor\obj\Debug\Controls\ColorPanel.g.cs

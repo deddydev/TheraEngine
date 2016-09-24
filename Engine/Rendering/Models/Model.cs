@@ -1,29 +1,20 @@
 ﻿using CustomEngine.Rendering.Animation;
 using CustomEngine.Rendering.Models.Meshes;
 using CustomEngine.Rendering.Models.Skeleton;
-using CustomEngine.System;
+using System;
 using System.Collections.Generic;
 
 namespace CustomEngine.Rendering.Meshes
 {
     public class Model : ObjectBase
     {
-        private List<Mesh> _meshes;
+        private List<Mesh> _meshes = new List<Mesh>();
         private Skeleton _skeleton;
 
         public void Render()
         {
-
-        }
-
-        public void ApplyAnimation(PropertyAnimation animation, float frame)
-        {
-            if (animation is BoneAnimation)
-                _skeleton.ApplyAnimation((BoneAnimation)animation);
-            else
-            {
-
-            }
+            if (_skeleton == null)
+                return;
         }
 
         public void SetSkeleton(Skeleton skeleton)

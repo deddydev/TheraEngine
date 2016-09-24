@@ -2,7 +2,7 @@
 
 namespace CustomEngine.Components
 {
-    public class MovementComponent
+    public class MovementComponent : Component
     {
         protected Vector3 _positionOffset;
 

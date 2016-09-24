@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,15 +7,9 @@ using System.Threading.Tasks;
 
 namespace CustomEngine.Rendering.Animation
 {
-    public class AnimationBoolNode : PropertyAnim
+    public class AnimationBoolNode : PropertyAnimation<AnimBoolKeyFrame>, IEnumerable<AnimBoolKeyFrame>
     {
-        KeyframeTrack<AnimBoolKeyFrame> _keyframes;
         bool[] _baked;
-
-        public override IEnumerator GetEnumerator()
-        {
-            return ((IEnumerable)_keyframes).GetEnumerator();
-        }
 
         public override void Bake()
         {
@@ -31,12 +26,22 @@ namespace CustomEngine.Rendering.Animation
             throw new NotImplementedException();
         }
 
-        public override void Append(PropertyAnim other)
+        public override void Append(PropertyAnimation<AnimBoolKeyFrame> other)
         {
             throw new NotImplementedException();
         }
+
+        public IEnumerator<AnimBoolKeyFrame> GetEnumerator()
+        {
+            return ((IEnumerable<AnimBoolKeyFrame>)_keyframes).GetEnumerator();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return ((IEnumerable<AnimBoolKeyFrame>)_keyframes).GetEnumerator();
+        }
     }
-    public class AnimBoolKeyFrame : AnimKeyFrame
+    public class AnimBoolKeyFrame : Keyframe
     {
         protected bool _value;
 

@@ -1,7 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Collections;
 using System;
-using CustomEngine.System;
+using System;
+using CustomEngine.Input;
 
 namespace CustomEngine.World
 {
@@ -9,7 +10,9 @@ namespace CustomEngine.World
     {
         public int ActorCount { get { return _actors.Count; } }
         protected List<Actor> _actors = new List<Actor>();
-
+        protected List<Map> _allMaps = new List<Map>();
+        protected List<Map> _spawnedMaps = new List<Map>();
+        
         private WorldSettings _settings;
         private string _name;
 
@@ -30,33 +33,26 @@ namespace CustomEngine.World
                 _actors.Remove(actor);
             actor.OnDespawned();
         }
-        public void Tick(double deltaTime)
+        public void UpdateTick(double deltaTime)
         {
             foreach (Actor actor in _actors)
-            {
-                actor.Tick(deltaTime);
-            }
+                actor.Update();
         }
         public void RenderTick(double deltaTime)
         {
             foreach (Actor actor in _actors)
-            {
-                actor.RenderTick(deltaTime);
-            }
+                if (actor.IsSpawned)
+                    actor.Render();
         }
         public void OnUnload()
         {
             foreach (Actor a in _actors)
-            {
                 a.Despawn();
-            }
         }
         public void OnLoad()
         {
             foreach (Actor a in _actors)
-            {
                 a.OnSpawned(this);
-            }
         }
         public void SerializeState(string path)
         {

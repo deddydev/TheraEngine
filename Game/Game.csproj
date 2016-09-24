@@ -38,6 +38,9 @@
     </StartupObject>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="OpenTK">
+      <HintPath>..\..\Praxis\Praxis\Libraries\OpenTK.dll</HintPath>
+    </Reference>
     <Reference Include="OpenTK.GLControl">
       <HintPath>..\Libraries\OpenTK.GLControl.dll</HintPath>
     </Reference>
@@ -87,10 +90,6 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\OpenTK\src\OpenTK\OpenTK.csproj">
-      <Project>{a37a7e14-0000-0000-0000-000000000000}</Project>
-      <Name>OpenTK</Name>
-    </ProjectReference>
     <ProjectReference Include="..\Engine\Engine.csproj">
       <Project>{3ba74071-a8fb-473a-9388-0c8f75872f41}</Project>
       <Name>Engine</Name>

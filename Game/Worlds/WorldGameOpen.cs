@@ -4,7 +4,7 @@ namespace CustomGame.Worlds
 {
     public class WorldGameOpen : WorldBase
     {
-        WorldGameOpen() : base("GameOpen")
+        public WorldGameOpen() : base("GameOpen")
         {
 
         }

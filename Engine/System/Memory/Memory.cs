@@ -1,0 +1,31 @@
+﻿using System.IO;
+
+namespace System
+{
+    public unsafe static class Memory
+    {
+        public static unsafe void Move(VoidPtr dst, VoidPtr src, uint size)
+        {
+            switch (Environment.OSVersion.Platform)
+            {
+                case PlatformID.Win32NT:
+                    Win32.MoveMemory(dst, src, size);
+                    break;
+                default:
+                    Engine.Show(Environment.OSVersion.Platform.ToString() + " not supported.");
+            }
+        }
+
+        internal static unsafe void Fill(VoidPtr dest, uint length, byte value)
+        {
+            switch (Environment.OSVersion.Platform)
+            {
+                case PlatformID.Win32NT:
+                    {
+                        Win32.FillMemory(dest, length, value);
+                        break;
+                    }
+            }
+        }
+    }
+}

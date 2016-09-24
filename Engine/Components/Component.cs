@@ -1,5 +1,5 @@
 ﻿using CustomEngine.World;
-using CustomEngine.System;
+using System;
 
 namespace CustomEngine.Components
 {
@@ -13,6 +13,5 @@ namespace CustomEngine.Components
 
         public virtual void OnSpawned() { _isSpawned = true; }
         public virtual void OnDespawned() { _isSpawned = false; }
-        public virtual void RenderTick(double deltaTime) { }
     }
 }

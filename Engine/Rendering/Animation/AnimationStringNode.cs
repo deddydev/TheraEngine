@@ -7,15 +7,9 @@ using System.Threading.Tasks;
 
 namespace CustomEngine.Rendering.Animation
 {
-    public class AnimationStringNode : PropertyAnim
+    public class AnimationStringNode : PropertyAnimation<AnimStringKeyFrame>, IEnumerable<AnimStringKeyFrame>
     {
-        KeyframeTrack<AnimStringKeyFrame> _keyframes;
         string[] _baked;
-
-        public override IEnumerator GetEnumerator()
-        {
-            return ((IEnumerable)_keyframes).GetEnumerator();
-        }
 
         public override void Bake()
         {
@@ -32,12 +26,22 @@ namespace CustomEngine.Rendering.Animation
             throw new NotImplementedException();
         }
 
-        public override void Append(PropertyAnim other)
+        public override void Append(PropertyAnimation<AnimStringKeyFrame> other)
         {
             throw new NotImplementedException();
         }
+
+        public IEnumerator<AnimStringKeyFrame> GetEnumerator()
+        {
+            return ((IEnumerable<AnimStringKeyFrame>)_keyframes).GetEnumerator();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return ((IEnumerable<AnimStringKeyFrame>)_keyframes).GetEnumerator();
+        }
     }
-    public class AnimStringKeyFrame : AnimKeyFrame
+    public class AnimStringKeyFrame : Keyframe
     {
         protected string _value;
 

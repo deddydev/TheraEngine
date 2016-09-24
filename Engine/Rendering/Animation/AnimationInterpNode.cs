@@ -7,35 +7,33 @@ using System.Threading.Tasks;
 
 namespace CustomEngine.Rendering.Animation
 {
-    public class AnimationInterpNode : PropertyAnim
+    public class AnimationInterpNode : PropertyAnimation<AnimInterpKeyFrame>, IEnumerable<AnimInterpKeyFrame>
     {
-        KeyframeTrack<AnimInterpKeyFrame> _keyframes;
         float[] _baked;
 
         public AnimationInterpNode()
         {
             _keyframes = new KeyframeTrack<AnimInterpKeyFrame>(this);
         }
-
-        public float GetOutValue(int frameIndex)
+        public float GetValueGame(int frameIndex)
         {
-            return _keyframes.GetKeyframe(frameIndex).OutValue;
+            return _baked[frameIndex];
         }
-        public float GetInValue(int frameIndex)
+        public float GetValueEditor(float frameIndex)
         {
-            return _keyframes.GetKeyframe(frameIndex).InValue;
+            AnimInterpKeyFrame key = _keyframes.GetKeyBefore(frameIndex);
+            if (key != null)
+                return key.Interpolate(frameIndex);
+            throw new Exception("ERROR");
         }
-
-        public override IEnumerator GetEnumerator()
-        {
-            return ((IEnumerable)_keyframes).GetEnumerator();
-        }
-
+        /// <summary>
+        /// Bakes the interpolated data for fastest access by the game.
+        /// </summary>
         public override void Bake()
         {
             _baked = new float[FrameCount];
             for (int i = 0; i < FrameCount; ++i)
-                _baked[i] = GetValue(i);
+                _baked[i] = GetValueEditor(i);
         }
 
         public override void Resize(int newSize)
@@ -48,12 +46,22 @@ namespace CustomEngine.Rendering.Animation
             throw new NotImplementedException();
         }
 
-        public override void Append(PropertyAnim other)
+        public override void Append(PropertyAnimation other)
         {
             throw new NotImplementedException();
         }
+
+        public IEnumerator<AnimInterpKeyFrame> GetEnumerator()
+        {
+            return ((IEnumerable<AnimInterpKeyFrame>)_keyframes).GetEnumerator();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return ((IEnumerable<AnimInterpKeyFrame>)_keyframes).GetEnumerator();
+        }
     }
-    public class AnimInterpKeyFrame : AnimKeyFrame
+    public class AnimInterpKeyFrame : Keyframe
     {
         protected float _inValue;
         protected float _inTangent;
@@ -70,12 +78,17 @@ namespace CustomEngine.Rendering.Animation
         public new AnimInterpKeyFrame Next { get { return _next as AnimInterpKeyFrame; } set { _next = value; } }
         public new AnimInterpKeyFrame Prev { get { return _prev as AnimInterpKeyFrame; } set { _prev = value; } }
 
-        public float Interpolate(int frameIndex)
+        public float Interpolate(float frameIndex)
         {
-            float t = (float)(frameIndex - _frameIndex) / (_next.FrameIndex - _frameIndex);
+            if (frameIndex < _frameIndex)
+                return Prev.Interpolate(frameIndex);
+            if (frameIndex > _next._frameIndex)
+                return Next.Interpolate(frameIndex);
+
+            float t = (frameIndex - _frameIndex) / (_next._frameIndex - _frameIndex);
             float t2 = t * t;
             float t3 = t2 * t;
-            return (2.0f * t3 - 3.0f * t2 + 1) * _outValue +
+            return (2.0f * t3 - 3.0f * t2 + 1.0f) * _outValue +
                 (t3 - 2.0f * t2 + t) * _outTangent +
                 (-2.0f * t3 + 3.0f * t2) * Next._inValue +
                 (t3 - t2) * Next._inTangent;

@@ -4,7 +4,7 @@ namespace CustomGame.Worlds
 {
     public class WorldTest : WorldBase
     {
-        WorldTest() : base("Test")
+        public WorldTest() : base("Test")
         {
 
         }

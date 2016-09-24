@@ -4,7 +4,7 @@ using System.Reflection;
 
 namespace CustomEngine.Components
 {
-    public class ModelComponent : Component
+    public class ModelComponent : SceneComponent
     {
         public Model Model
         {
@@ -16,11 +16,6 @@ namespace CustomEngine.Components
             }
         }
         private Model _model;
-
-        public override void RenderTick(float deltaTime)
-        {
-            if (IsSpawned)
-                _model?.Render();
-        }
+        protected override void OnRender() { _model?.Render(); }
     }
 }

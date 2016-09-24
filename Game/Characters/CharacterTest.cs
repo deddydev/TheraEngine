@@ -1,4 +1,4 @@
-﻿using CustomEngine.World.Defaults;
+﻿using CustomEngine.World.Actors;
 
 namespace CustomGame.Characters
 {

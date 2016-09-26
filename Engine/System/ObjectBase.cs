@@ -1,4 +1,5 @@
 ﻿using CustomEngine;
+using CustomEngine.Rendering;
 using CustomEngine.Rendering.Animation;
 using CustomEngine.World;
 using System;
@@ -15,6 +16,8 @@ namespace System
         public static List<ObjectBase> _changedObjects = new List<ObjectBase>();
 
         protected bool _changed;
+
+        public RenderContext Renderer { get { return Engine.Renderer; } }
        
         protected void Changed(MethodBase property)
         {

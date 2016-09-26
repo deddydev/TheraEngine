@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace CustomEngine.Rendering.Animation
 {
-    public class AnimationStringNode : PropertyAnimation<AnimStringKeyFrame>, IEnumerable<AnimStringKeyFrame>
+    public class AnimationStringNode : PropertyAnimation<StringKeyframe>, IEnumerable<StringKeyframe>
     {
         string[] _baked;
 
@@ -26,27 +26,26 @@ namespace CustomEngine.Rendering.Animation
             throw new NotImplementedException();
         }
 
-        public override void Append(PropertyAnimation<AnimStringKeyFrame> other)
+        public override void Append(PropertyAnimation<StringKeyframe> other)
         {
             throw new NotImplementedException();
         }
 
-        public IEnumerator<AnimStringKeyFrame> GetEnumerator()
+        public IEnumerator<StringKeyframe> GetEnumerator()
         {
-            return ((IEnumerable<AnimStringKeyFrame>)_keyframes).GetEnumerator();
+            return ((IEnumerable<StringKeyframe>)_keyframes).GetEnumerator();
         }
 
         IEnumerator IEnumerable.GetEnumerator()
         {
-            return ((IEnumerable<AnimStringKeyFrame>)_keyframes).GetEnumerator();
+            return ((IEnumerable<StringKeyframe>)_keyframes).GetEnumerator();
         }
     }
-    public class AnimStringKeyFrame : Keyframe
+    public class StringKeyframe : Keyframe
     {
         protected string _value;
 
-        public new AnimStringKeyFrame Next { get { return _next as AnimStringKeyFrame; } set { _next = value; } }
-        public new AnimStringKeyFrame Prev { get { return _prev as AnimStringKeyFrame; } set { _prev = value; } }
-
+        public new StringKeyframe Next { get { return _next as StringKeyframe; } set { _next = value; } }
+        public new StringKeyframe Prev { get { return _prev as StringKeyframe; } set { _prev = value; } }
     }
 }

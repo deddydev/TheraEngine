@@ -72,12 +72,7 @@ namespace CustomEngine.Rendering.Models
             _scale = scale;
             CreateTransform();
         }
-
-        internal void MultMatrix()
-        {
-            GL.MultMatrix(ref _transform);
-        }
-
+        public void MultMatrix() { Engine.Renderer.MultMatrix(_transform); }
         public void CreateTransform()
         {
             Matrix4 scale = Matrix4.CreateScale(_scale);

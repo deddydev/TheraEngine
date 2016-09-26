@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace CustomEngine.Rendering.Animation
 {
-    public class AnimationBoolNode : PropertyAnimation<AnimBoolKeyFrame>, IEnumerable<AnimBoolKeyFrame>
+    public class AnimationBoolNode : PropertyAnimation<BoolKeyframe>, IEnumerable<BoolKeyframe>
     {
         bool[] _baked;
 
@@ -26,27 +26,27 @@ namespace CustomEngine.Rendering.Animation
             throw new NotImplementedException();
         }
 
-        public override void Append(PropertyAnimation<AnimBoolKeyFrame> other)
+        public override void Append(PropertyAnimation<BoolKeyframe> other)
         {
             throw new NotImplementedException();
         }
 
-        public IEnumerator<AnimBoolKeyFrame> GetEnumerator()
+        public IEnumerator<BoolKeyframe> GetEnumerator()
         {
-            return ((IEnumerable<AnimBoolKeyFrame>)_keyframes).GetEnumerator();
+            return ((IEnumerable<BoolKeyframe>)_keyframes).GetEnumerator();
         }
 
         IEnumerator IEnumerable.GetEnumerator()
         {
-            return ((IEnumerable<AnimBoolKeyFrame>)_keyframes).GetEnumerator();
+            return ((IEnumerable<BoolKeyframe>)_keyframes).GetEnumerator();
         }
     }
-    public class AnimBoolKeyFrame : Keyframe
+    public class BoolKeyframe : Keyframe
     {
         protected bool _value;
 
-        public new AnimBoolKeyFrame Next { get { return _next as AnimBoolKeyFrame; } set { _next = value; } }
-        public new AnimBoolKeyFrame Prev { get { return _prev as AnimBoolKeyFrame; } set { _prev = value; } }
+        public new BoolKeyframe Next { get { return _next as BoolKeyframe; } set { _next = value; } }
+        public new BoolKeyframe Prev { get { return _prev as BoolKeyframe; } set { _prev = value; } }
 
     }
 }

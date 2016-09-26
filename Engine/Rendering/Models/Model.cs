@@ -6,7 +6,7 @@ using System.Collections.Generic;
 
 namespace CustomEngine.Rendering.Meshes
 {
-    public class Model : ObjectBase
+    public class Model : ObjectBase, IRenderable
     {
         private List<Mesh> _meshes = new List<Mesh>();
         private Skeleton _skeleton;

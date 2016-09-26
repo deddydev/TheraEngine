@@ -41,13 +41,8 @@
     <Reference Include="FreeImageNET">
       <HintPath>..\Libraries\FreeImageNET.dll</HintPath>
     </Reference>
-    <Reference Include="OpenTK, Version=1.1.0.0, Culture=neutral, PublicKeyToken=bad199fe84eb3df4, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\Praxis\Praxis\Libraries\OpenTK.dll</HintPath>
-    </Reference>
-    <Reference Include="OpenTK.GLControl, Version=1.1.0.0, Culture=neutral, PublicKeyToken=bad199fe84eb3df4, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\Libraries\OpenTK.GLControl.dll</HintPath>
+    <Reference Include="OpenTK">
+      <HintPath>..\Libraries\OpenTK.dll</HintPath>
     </Reference>
     <Reference Include="SlimDX, Version=2.0.13.43, Culture=neutral, PublicKeyToken=b1b0c32fd1ffe4f9, processorArchitecture=AMD64" />
     <Reference Include="System" />
@@ -146,6 +141,7 @@
     <Compile Include="Rendering\Models\Meshes\Mesh.cs" />
     <Compile Include="Rendering\Models\Skeleton\Skeleton.cs" />
     <Compile Include="Rendering\Textures\Texture.cs" />
+    <Compile Include="World\WorldDefaults.cs" />
     <Compile Include="World\WorldSettings.cs" />
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>

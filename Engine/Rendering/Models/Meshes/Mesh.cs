@@ -1,9 +1,15 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace CustomEngine.Rendering.Models.Meshes
 {
-    public class Mesh
+    public class Mesh : IRenderable
     {
         public List<Face> _faces;
+
+        public void Render()
+        {
+            
+        }
     }
 }

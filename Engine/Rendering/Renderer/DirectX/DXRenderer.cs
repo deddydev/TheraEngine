@@ -35,12 +35,47 @@ namespace CustomEngine.Rendering
             throw new NotImplementedException();
         }
 
+        public override void MultMatrix(Matrix4 matrix)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void PopMatrix()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void PushMatrix()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void Rotate(Quaternion rotation)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void Rotate(float x, float y, float z)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void Scale(float x, float y, float z)
+        {
+            throw new NotImplementedException();
+        }
+
         public override void SetLineSize(float size)
         {
             throw new NotImplementedException();
         }
 
         public override void SetPointSize(float size)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void Translate(float x, float y, float z)
         {
             throw new NotImplementedException();
         }

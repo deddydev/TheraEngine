@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections;
 using CustomEngine.Rendering.Models;
 using OpenTK;
+using System;
 
 namespace CustomEngine.World
 {
@@ -22,19 +23,20 @@ namespace CustomEngine.World
 
         public bool IsSpawned { get { return _spawnIndex >= 0; } }
         public WorldBase OwningWorld { get { return _owningWorld; } }
-        
+
+        public DateTime _lastRendered;
         public int _spawnIndex = -1;
         private WorldBase _owningWorld;
         private SceneComponent _rootSceneComponent;
         private List<Component> _instanceComponents;
 
-        public FrameState? Transform
+        public FrameState Transform
         {
-            get { return _rootSceneComponent?.Transform; }
+            get { return _rootSceneComponent != null ? _rootSceneComponent.Transform : FrameState.Identity; }
             set
             {
                 if (_rootSceneComponent != null)
-                    _rootSceneComponent.Transform = value.GetValueOrDefault();
+                    _rootSceneComponent.Transform = value;
             }
         }
 
@@ -45,13 +47,22 @@ namespace CustomEngine.World
 
         protected virtual void SetupComponents() { }
 
+        public void AddComponent(Component c)
+        {
+
+        }
+
         public virtual void Update()
         {
             _rootSceneComponent.Update();
             foreach (Component c in _instanceComponents)
                 c.Update();
         }
-        public virtual void Render() { _rootSceneComponent?.Render(); }
+        public virtual void Render()
+        {
+            _lastRendered = DateTime.Now;
+            _rootSceneComponent?.Render();
+        }
 
         public void Despawn()
         {

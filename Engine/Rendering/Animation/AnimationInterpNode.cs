@@ -7,13 +7,13 @@ using System.Threading.Tasks;
 
 namespace CustomEngine.Rendering.Animation
 {
-    public class AnimationInterpNode : PropertyAnimation<AnimInterpKeyFrame>, IEnumerable<AnimInterpKeyFrame>
+    public class AnimationInterpNode : PropertyAnimation<InterpKeyframe>, IEnumerable<InterpKeyframe>
     {
         float[] _baked;
 
         public AnimationInterpNode()
         {
-            _keyframes = new KeyframeTrack<AnimInterpKeyFrame>(this);
+            _keyframes = new KeyframeTrack<InterpKeyframe>(this);
         }
         public float GetValueGame(int frameIndex)
         {
@@ -21,10 +21,10 @@ namespace CustomEngine.Rendering.Animation
         }
         public float GetValueEditor(float frameIndex)
         {
-            AnimInterpKeyFrame key = _keyframes.GetKeyBefore(frameIndex);
+            InterpKeyframe key = _keyframes.GetKeyBefore(frameIndex);
             if (key != null)
                 return key.Interpolate(frameIndex);
-            throw new Exception("ERROR");
+            throw new Exception("Invalid frame index.");
         }
         /// <summary>
         /// Bakes the interpolated data for fastest access by the game.
@@ -46,22 +46,22 @@ namespace CustomEngine.Rendering.Animation
             throw new NotImplementedException();
         }
 
-        public override void Append(PropertyAnimation other)
+        public override void Append(PropertyAnimation<InterpKeyframe> other)
         {
             throw new NotImplementedException();
         }
 
-        public IEnumerator<AnimInterpKeyFrame> GetEnumerator()
+        public IEnumerator<InterpKeyframe> GetEnumerator()
         {
-            return ((IEnumerable<AnimInterpKeyFrame>)_keyframes).GetEnumerator();
+            return ((IEnumerable<InterpKeyframe>)_keyframes).GetEnumerator();
         }
 
         IEnumerator IEnumerable.GetEnumerator()
         {
-            return ((IEnumerable<AnimInterpKeyFrame>)_keyframes).GetEnumerator();
+            return ((IEnumerable<InterpKeyframe>)_keyframes).GetEnumerator();
         }
     }
-    public class AnimInterpKeyFrame : Keyframe
+    public class InterpKeyframe : Keyframe
     {
         protected float _inValue;
         protected float _inTangent;
@@ -75,8 +75,8 @@ namespace CustomEngine.Rendering.Animation
         public float InTanget { get { return _inTangent; } set { _inTangent = value; } }
         public float OutTangent { get { return _outTangent; } set { _outTangent = value; } }
 
-        public new AnimInterpKeyFrame Next { get { return _next as AnimInterpKeyFrame; } set { _next = value; } }
-        public new AnimInterpKeyFrame Prev { get { return _prev as AnimInterpKeyFrame; } set { _prev = value; } }
+        public new InterpKeyframe Next { get { return _next as InterpKeyframe; } set { _next = value; } }
+        public new InterpKeyframe Prev { get { return _prev as InterpKeyframe; } set { _prev = value; } }
 
         public float Interpolate(float frameIndex)
         {

@@ -15,32 +15,42 @@ namespace CustomEngine.Components
         private FrameState _transform;
         private List<SceneComponent> _childComponents = new List<SceneComponent>();
 
+        private bool _visibleByDefault = true;
+        private bool _hiddenInGame = false;
+        private bool _overrideParentRenderState = false;
+        private bool _isRendering = false;
+
+        [EngineFlags(EEngineFlags.State | EEngineFlags.Getter)]
+        public bool IsSpawned { get { return Owner.IsSpawned; } }
+        [EngineFlags(EEngineFlags.Default)]
+        public bool VisibleByDefault { get { return _visibleByDefault; } set { _visibleByDefault = value; } }
+        [EngineFlags(EEngineFlags.Default)]
+        public bool HiddenInGame { get { return _hiddenInGame; } set { _hiddenInGame = value; } }
+        [EngineFlags(EEngineFlags.State)]
+        public bool IsRendering { get { return _isRendering; } set { _isRendering = value; } }
+        [EngineFlags(EEngineFlags.State)]
         public FrameState Transform
         {
             get { return _transform; }
             set { _transform = value; }
         }
 
-        public IEnumerator<SceneComponent> GetEnumerator()
-        {
-            return ((IEnumerable<SceneComponent>)_childComponents).GetEnumerator();
-        }
-
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return ((IEnumerable<SceneComponent>)_childComponents).GetEnumerator();
-        }
+        public virtual void OnSpawned() { _isRendering = _hiddenInGame ? false : _visibleByDefault; }
+        public virtual void OnDespawned() { _isRendering = false; }
 
         public void Render()
         {
-            GL.PushMatrix();
+            Renderer.PushMatrix();
             Transform.MultMatrix();
             OnRender();
             foreach (SceneComponent comp in _childComponents)
                 comp.Render();
-            GL.PopMatrix();
+            Renderer.PopMatrix();
         }
 
         protected virtual void OnRender() { }
+
+        public IEnumerator<SceneComponent> GetEnumerator() { return ((IEnumerable<SceneComponent>)_childComponents).GetEnumerator(); }
+        IEnumerator IEnumerable.GetEnumerator() { return ((IEnumerable<SceneComponent>)_childComponents).GetEnumerator(); }
     }
 }

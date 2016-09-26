@@ -17,5 +17,9 @@ namespace CustomEngine
         public static double RenderDelta { get { return Form.RenderTime; } }
         public static double UpdateDelta { get { return Form.UpdateTime; } }
         public static RenderContext Renderer { get { return _renderContext; } }
+        public static void ShowMessage(string message, int viewport = -1)
+        {
+            
+        }
     }
 }

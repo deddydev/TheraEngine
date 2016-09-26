@@ -5,6 +5,7 @@ using CustomEngine.World;
 using OpenTK;
 using System.Collections.Generic;
 using OpenTK.Graphics.OpenGL;
+using CustomEngine.Rendering.HUD;
 
 namespace CustomEngine
 {
@@ -13,6 +14,7 @@ namespace CustomEngine
         public static CustomGameForm Instance { get { return _instance ?? new CustomGameForm("ERROR"); } }
         private static CustomGameForm _instance;
 
+        public HudManager _overallHud;
         public List<Viewport> _viewports = new List<Viewport>();
         public List<WorldBase> _loadedWorlds = new List<WorldBase>();
         public WorldBase _currentWorld = null;
@@ -41,7 +43,8 @@ namespace CustomEngine
 
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
             foreach (Viewport v in _viewports)
-                v.RenderTick(e.Time);
+                v.Render();
+            _overallHud.Render();
         }
 
         protected override void OnResize(EventArgs e)

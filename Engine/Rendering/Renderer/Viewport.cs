@@ -8,7 +8,7 @@ using System.Drawing;
 
 namespace CustomEngine.Rendering
 {
-    public class Viewport : IPanel
+    public class Viewport : IPanel, IRenderable
     {
         private HudManager _hud;
         private int _viewportNumber = 0;
@@ -28,9 +28,9 @@ namespace CustomEngine.Rendering
 
         public void OnResized() { }
 
-        public void RenderTick(double deltaTime)
+        public void Render()
         {
-            Form._currentWorld.RenderTick(deltaTime);
+            Form._currentWorld.Render();
         }
     }
 }

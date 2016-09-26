@@ -1,18 +1,16 @@
 ﻿using System.Collections.Generic;
 using System.Collections;
 using System;
-using System;
 using CustomEngine.Input;
 
 namespace CustomEngine.World
 {
-    public abstract class WorldBase : IEnumerable<Actor>
+    public abstract class WorldBase : IRenderable, IEnumerable<Actor>
     {
-        public int ActorCount { get { return _actors.Count; } }
-        protected List<Actor> _actors = new List<Actor>();
-        protected List<Map> _allMaps = new List<Map>();
         protected List<Map> _spawnedMaps = new List<Map>();
-        
+        private List<Actor> _actors;
+
+        private WorldDefaults _defaults;
         private WorldSettings _settings;
         private string _name;
 
@@ -33,12 +31,12 @@ namespace CustomEngine.World
                 _actors.Remove(actor);
             actor.OnDespawned();
         }
-        public void UpdateTick(double deltaTime)
+        public void Update()
         {
             foreach (Actor actor in _actors)
                 actor.Update();
         }
-        public void RenderTick(double deltaTime)
+        public void Render()
         {
             foreach (Actor actor in _actors)
                 if (actor.IsSpawned)

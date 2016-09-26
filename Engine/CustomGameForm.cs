@@ -16,10 +16,6 @@ namespace CustomEngine
 
         public HudManager _overallHud;
         public List<Viewport> _viewports = new List<Viewport>();
-        public List<WorldBase> _loadedWorlds = new List<WorldBase>();
-        public WorldBase _currentWorld = null;
-        public List<Timer> _activeTimers = new List<Timer>();
-        public List<Controller> _activeControllers = new List<Controller>();
 
         public CustomGameForm(string title)
         {
@@ -30,11 +26,7 @@ namespace CustomEngine
         protected override void OnUpdateFrame(FrameEventArgs e)
         {
             base.OnUpdateFrame(e);
-            foreach (Timer timer in _activeTimers)
-                timer.UpdateTick(e.Time);
-            foreach (Controller c in _activeControllers)
-                c.UpdateTick(e.Time);
-            _currentWorld.UpdateTick(e.Time);
+            Engine.Update();
         }
 
         protected override void OnRenderFrame(FrameEventArgs e)
@@ -45,6 +37,11 @@ namespace CustomEngine
             foreach (Viewport v in _viewports)
                 v.Render();
             _overallHud.Render();
+        }
+
+        public Viewport GetViewport(int viewport)
+        {
+            return _viewports[viewport.Clamp(0, _viewports.Count - 1)];
         }
 
         protected override void OnResize(EventArgs e)

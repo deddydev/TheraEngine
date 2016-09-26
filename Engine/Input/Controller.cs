@@ -10,12 +10,12 @@ namespace CustomEngine.Input
     {
         public Controller()
         {
-            Form._activeControllers.Add(this);
+            Engine.ActiveControllers.Add(this);
         }
         ~Controller()
         {
-            if (Form._activeControllers.Contains(this))
-                Form._activeControllers.Remove(this);
+            if (Engine.ActiveControllers.Contains(this))
+                Engine.ActiveControllers.Remove(this);
         }
 
         public MovementComponent _controlledComp;

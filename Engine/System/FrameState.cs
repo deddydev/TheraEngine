@@ -25,6 +25,11 @@ namespace CustomEngine.Rendering.Models
             _translation += translation;
             CreateTransform();
         }
+        public void Rotate(Vector3 rotation)
+        {
+            _rotation *= Quaternion.FromEulerAngles(rotation);
+            CreateTransform();
+        }
         public void Rotate(Quaternion rotation)
         {
             _rotation *= rotation;
@@ -75,12 +80,7 @@ namespace CustomEngine.Rendering.Models
         public void MultMatrix() { Engine.Renderer.MultMatrix(_transform); }
         public void CreateTransform()
         {
-            Matrix4 scale = Matrix4.CreateScale(_scale);
-            Matrix4 rotation = Matrix4.CreateFromQuaternion(_rotation);
-            Matrix4 translation = Matrix4.CreateTranslation(_translation);
-
-            //TRS order: translate into position, orient, and then scale to size
-            _transform = translation * rotation * scale;
+            _transform = Matrix4.TransformMatrix(_scale, _rotation, _translation);
         }
     }
 }

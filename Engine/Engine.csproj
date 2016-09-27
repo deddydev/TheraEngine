@@ -41,9 +41,6 @@
     <Reference Include="FreeImageNET">
       <HintPath>..\Libraries\FreeImageNET.dll</HintPath>
     </Reference>
-    <Reference Include="OpenTK">
-      <HintPath>..\Libraries\OpenTK.dll</HintPath>
-    </Reference>
     <Reference Include="SlimDX, Version=2.0.13.43, Culture=neutral, PublicKeyToken=b1b0c32fd1ffe4f9, processorArchitecture=AMD64" />
     <Reference Include="System" />
     <Reference Include="System.Activities" />
@@ -62,11 +59,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Components\SceneComponent.cs" />
-    <Compile Include="Components\ShapeComponents\CapsuleComponent.cs" />
-    <Compile Include="Components\ShapeComponents\BoxComponent.cs" />
+    <Compile Include="Cutscenes\Cutscene.cs" />
+    <Compile Include="World\Actors\Components\DecalComponent.cs" />
+    <Compile Include="World\Actors\Components\SceneComponent.cs" />
+    <Compile Include="World\Actors\Components\ShapeComponents\CapsuleComponent.cs" />
+    <Compile Include="World\Actors\Components\ShapeComponents\BoxComponent.cs" />
     <Compile Include="Engine.cs" />
-    <Compile Include="Files\ContentWatcher.cs" />
+    <Compile Include="Files\DirectoryWatcher.cs" />
     <Compile Include="GameModes\GameMode.cs" />
     <Compile Include="Rendering\Animation\AnimationContainer.cs" />
     <Compile Include="Rendering\Animation\KeyframeTrack.cs" />
@@ -80,6 +79,7 @@
     <Compile Include="Rendering\Renderer\OpenGL\GLWindowInfo.cs" />
     <Compile Include="Rendering\Renderer\Renderer.cs" />
     <Compile Include="Rendering\Renderer\RenderWindowInfo.cs" />
+    <Compile Include="Rendering\Textures\Decal.cs" />
     <Compile Include="Sound\AmbientSound.cs" />
     <Compile Include="Sound\DynamicSoundEffect.cs" />
     <Compile Include="Sound\SoundDataBase.cs" />
@@ -90,7 +90,6 @@
     <Compile Include="Rendering\Models\Meshes\BoneWeight.cs" />
     <Compile Include="Rendering\Models\Meshes\Influence.cs" />
     <Compile Include="System\Extensions\BitmapExtension.cs" />
-    <Compile Include="System\Extensions\Vector3Extension.cs" />
     <Compile Include="System\Extensions\Numbers\SByteExtension.cs" />
     <Compile Include="System\Extensions\Numbers\DoubleExtension.cs" />
     <Compile Include="System\Extensions\Numbers\ByteExtension.cs" />
@@ -101,12 +100,11 @@
     <Compile Include="System\Memory\BigEndianTypes.cs" />
     <Compile Include="System\Memory\Memory.cs" />
     <Compile Include="System\Texturing\Color.cs" />
-    <Compile Include="System\Extensions\Matrix4Extension.cs" />
     <Compile Include="System\Extensions\Numbers\Int32Extension.cs" />
     <Compile Include="System\Extensions\Numbers\UInt32Extension.cs" />
     <Compile Include="System\Extensions\Numbers\SingleExtension.cs" />
     <Compile Include="System\ObjectBase.cs" />
-    <Compile Include="System\Reflection\EngineFlagsAttribute.cs" />
+    <Compile Include="System\Reflection\Attributes\EngineFlagsAttribute.cs" />
     <Compile Include="System\Shapes\Capsule.cs" />
     <Compile Include="System\Shapes\Box.cs" />
     <Compile Include="System\Memory\DataSource.cs" />
@@ -118,10 +116,10 @@
     <Compile Include="World\Actors\Types\Character.cs" />
     <Compile Include="World\Actors\Types\Pawn.cs" />
     <Compile Include="World\Actors\Types\Vehicle.cs" />
-    <Compile Include="Components\Component.cs" />
-    <Compile Include="Components\InteractionComponent.cs" />
-    <Compile Include="Components\ModelComponent.cs" />
-    <Compile Include="Components\MovementComponent.cs" />
+    <Compile Include="World\Actors\Components\Component.cs" />
+    <Compile Include="World\Actors\Components\InteractionComponent.cs" />
+    <Compile Include="World\Actors\Components\ModelComponent.cs" />
+    <Compile Include="World\Actors\Components\MovementComponent.cs" />
     <Compile Include="Rendering\HUD\HudManager.cs" />
     <Compile Include="Input\AIController.cs" />
     <Compile Include="Input\Controller.cs" />
@@ -129,6 +127,7 @@
     <Compile Include="CustomGameForm.cs" />
     <Compile Include="Math\CustomMath.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="World\Camera.cs" />
     <Compile Include="World\Maps\Map.cs" />
     <Compile Include="World\Maps\MapSettings.cs" />
     <Compile Include="World\WorldBase.cs" />
@@ -171,6 +170,12 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="OpenTK.GLControl.dll" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Libraries\OpenTK\OpenTK.csproj">
+      <Project>{a37a7e14-0000-0000-0000-000000000000}</Project>
+      <Name>OpenTK</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

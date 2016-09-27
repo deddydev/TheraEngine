@@ -12,7 +12,7 @@ namespace CustomEngine.World
         Static, //This actor is part of the map
         Dynamic, //This actor can be changed/manipulated
     }
-    public class Actor : IEnumerable<Component>
+    public abstract class Actor : IEnumerable<Component>
     {
         public Actor()
         {
@@ -45,7 +45,7 @@ namespace CustomEngine.World
             _rootSceneComponent?.Transform.Translate(delta);
         }
 
-        protected virtual void SetupComponents() { }
+        protected abstract void SetupComponents();
 
         public void AddComponent(Component c)
         {

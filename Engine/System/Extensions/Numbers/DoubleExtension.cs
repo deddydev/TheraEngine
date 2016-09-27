@@ -56,5 +56,9 @@ namespace System
 
             return value;
         }
+        public static bool CompareEquality(this Double value, Double other, Double tolerance = 0.0001f)
+        {
+            return Math.Abs(value - other) < tolerance;
+        }
     }
 }

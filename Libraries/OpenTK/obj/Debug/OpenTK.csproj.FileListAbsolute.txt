@@ -1,0 +1,7 @@
+X:\Repositories\OpenTK\src\OpenTK\bin\Debug\OpenTK.dll.config
+X:\Repositories\OpenTK\src\OpenTK\bin\Debug\OpenTK.xml
+X:\Repositories\OpenTK\src\OpenTK\bin\Debug\OpenTK.dll
+X:\Repositories\OpenTK\src\OpenTK\bin\Debug\OpenTK.pdb
+X:\Repositories\OpenTK\src\OpenTK\obj\Debug\OpenTK.csprojResolveAssemblyReference.cache
+X:\Repositories\OpenTK\src\OpenTK\obj\Debug\OpenTK.dll
+X:\Repositories\OpenTK\src\OpenTK\obj\Debug\OpenTK.pdb

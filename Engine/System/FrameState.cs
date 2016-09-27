@@ -4,7 +4,10 @@ using OpenTK.Graphics.OpenGL;
 
 namespace CustomEngine.Rendering.Models
 {
-    public struct FrameState
+    public delegate void TranslateChanged(Vector3 oldTranslation);
+    public delegate void RotateChanged(Quaternion oldRotate);
+    public delegate void ScaleChanged(Vector3 oldScale);
+    public class FrameState
     {
         public static readonly FrameState Identity = new FrameState(new Vector3(), Quaternion.Identity, new Vector3(1.0f));
         public FrameState(Vector3 translate, Quaternion rotate, Vector3 scale)
@@ -22,69 +25,79 @@ namespace CustomEngine.Rendering.Models
         private Matrix4 _transform;
         private Matrix4 _inverseTransform;
 
-        public void Translate(Vector3 translation)
-        {
-            _translation += translation;
-            CreateTransform();
-        }
-        public void Rotate(Vector3 rotation)
-        {
-            _rotation *= Quaternion.FromEulerAngles(rotation);
-            CreateTransform();
-        }
-        public void Rotate(Quaternion rotation)
-        {
-            _rotation *= rotation;
-            CreateTransform();
-        }
-        public void ApplyScale(Vector3 scale)
-        {
-            _scale *= scale;
-            CreateTransform();
-        }
+        public event TranslateChanged OnTranslateChanged;
+        public event RotateChanged OnRotateChanged;
+        public event ScaleChanged OnScaleChanged;
 
+        public Matrix4 Transform { get { return _transform; } }
+        public Matrix4 InverseTransform { get { return _inverseTransform; } }
         public Vector3 Translation
         {
             get { return _translation; }
-            set
-            {
-                _translation = value;
-                CreateTransform();
-            }
+            set { SetTranslate(value); }
         }
         public Quaternion Rotation
         {
             get { return _rotation; }
-            set
-            {
-                _rotation = value;
-                CreateTransform();
-            }
+            set { SetRotate(value); }
         }
         public Vector3 Scale
         {
             get { return _scale; }
-            set
-            {
-                _scale = value;
-                CreateTransform();
-            }
+            set { SetScale(value); }
         }
-        public Matrix4 Transform { get { return _transform; } }
-        public Matrix4 InverseTransform { get { return _inverseTransform; } }
+
+        private void SetTranslate(Vector3 value)
+        {
+            Vector3 oldTranslation = _translation;
+            _translation = value;
+            CreateTransform();
+            OnTranslateChanged?.Invoke(oldTranslation);
+        }
+        private void SetRotate(Quaternion value)
+        {
+            Quaternion oldRotation = _rotation;
+            _rotation = value;
+            CreateTransform();
+            OnRotateChanged?.Invoke(oldRotation);
+        }
+        private void SetScale(Vector3 value)
+        {
+            Vector3 oldScale = _scale;
+            _scale = value;
+            CreateTransform();
+            OnScaleChanged?.Invoke(oldScale);
+        }
+
+        public void AddTranslation(Vector3 translation)
+        {
+            SetTranslate(_translation + translation);
+        }
+        public void ApplyRotation(Vector3 rotation)
+        {
+            SetRotate(_rotation * Quaternion.FromEulerAngles(rotation));
+        }
+        public void ApplyRotation(Quaternion rotation)
+        {
+            SetRotate(_rotation * rotation);
+        }
+        public void MultiplyScale(Vector3 scale)
+        {
+            SetScale(_scale * scale);
+        }
         public void SetAll(Vector3 translation, Quaternion rotation, Vector3 scale)
         {
-            _translation = translation;
-            _rotation = rotation;
-            _scale = scale;
+            SetTranslate(translation);
+            SetRotate(rotation);
+            SetScale(scale);
             CreateTransform();
         }
-        public void MultMatrix() { Engine.Renderer.MultMatrix(_transform); }
-        public void MultInvMatrix() { Engine.Renderer.MultMatrix(_inverseTransform); }
         public void CreateTransform()
         {
             _transform = Matrix4.TransformMatrix(_scale, _rotation, _translation);
             _inverseTransform = Matrix4.InverseTransformMatrix(_scale, _rotation, _translation);
         }
+        public void MultMatrix() { Engine.Renderer.MultMatrix(_transform); }
+        public void MultInvMatrix() { Engine.Renderer.MultMatrix(_inverseTransform); }
     }
 }

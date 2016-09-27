@@ -3,6 +3,13 @@ using OpenTK;
 
 namespace CustomEngine.Rendering
 {
+    public enum MtxMode
+    {
+        Modelview,
+        Projection,
+        Texture,
+        Color
+    }
     public abstract class RenderContext
     {
         public void DrawBoxWireframe(Box box) { DrawBoxWireframe(box.Minimum, box.Maximum); }
@@ -15,8 +22,6 @@ namespace CustomEngine.Rendering
         public void DrawCapsuleSolid(Capsule capsule) { DrawCapsuleSolid(capsule.Radius, capsule.HalfHeight); }
         public abstract void DrawCapsuleSolid(float radius, float halfHeight);
 
-        public abstract void PushMatrix();
-        public abstract void PopMatrix();
         public abstract void SetPointSize(float size);
         public abstract void SetLineSize(float size);
 
@@ -32,6 +37,11 @@ namespace CustomEngine.Rendering
         public abstract void Rotate(float x, float y, float z);
         public abstract void Rotate(Quaternion rotation);
 
+        public abstract void PushMatrix();
+        public abstract void PopMatrix();
         public abstract void MultMatrix(Matrix4 matrix);
+        public abstract void MatrixMode(MtxMode modelview);
+        public void LoadIdentity() { LoadMatrix(Matrix4.Identity); }
+        public abstract void LoadMatrix(Matrix4 matrix);
     }
 }

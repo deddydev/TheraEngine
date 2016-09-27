@@ -1,4 +1,5 @@
-﻿using CustomEngine.Rendering.Models;
+﻿using CustomEngine.Rendering;
+using CustomEngine.Rendering.Models;
 using OpenTK;
 using OpenTK.Graphics.OpenGL;
 using System;
@@ -60,25 +61,31 @@ namespace CustomEngine.World
             _matrixInverse = Matrix4.TransformMatrix(_scale, _rotation, _defaultTranslate);
         }
 
-        public Vector3 GetPoint() { return MatrixInverse.Multiply(new Vector3()); }
+        public Vector3 Point
+        {
+            get { return _currentTransform.Translation; }
+            set { _currentTransform.Translation = value; PositionChanged(); }
+        }
+        public Quaternion Rotation { get { return _currentTransform.Rotation; } }
+        public Vector3 Scale { get { return _currentTransform.Scale; } }
 
         public void Scale(float x, float y, float z) { Scale(new Vector3(x, y, z)); }
         public void Scale(Vector3 v)
         {
-            _scale *= v;
+            _currentTransform.MultiplyScale(v);
             Apply();
         }
         public void Zoom(float amt)
         {
             if (_ortho)
             {
-                float scale = (amt >= 0 ? amt / 2.0f : 2.0f / -amt);
+                float scale = amt >= 0 ? amt : 1.0f / -amt;
                 Scale(scale, scale, scale);
             }
             else
                 Translate(0.0f, 0.0f, amt);
         }
-        public void Translate(Vector3 v) { Translate(v._x, v._y, v._z); }
+        public void Translate(Vector3 v) { Translate(v.X, v.Y, v.Z); }
         public void Translate(float x, float y, float z)
         {
             _matrix = Matrix.TranslationMatrix(-x, -y, -z) * Matrix;
@@ -230,17 +237,17 @@ namespace CustomEngine.World
             Vector3 point;
 
             //Get ray points
-            Vector3 ray1 = UnProject(screenPoint._x, screenPoint._y, 0.0f);
-            Vector3 ray2 = UnProject(screenPoint._x, screenPoint._y, 1.0f);
+            Vector3 ray1 = UnProject(screenPoint.X, screenPoint.Y, 0.0f);
+            Vector3 ray2 = UnProject(screenPoint.X, screenPoint.Y, 1.0f);
 
-            if (!Maths.LineSphereIntersect(ray1, ray2, center, radius, out point))
+            if (!CustomMath.LineSphereIntersect(ray1, ray2, center, radius, out point))
             {
                 //If no intersect is found, project the ray through the plane perpendicular to the camera.
-                Maths.LinePlaneIntersect(ray1, ray2, center, GetPoint().Normalize(center), out point);
+                CustomMath.LinePlaneIntersect(ray1, ray2, center, GetPoint().Normalize(center), out point);
 
                 //Clamp the point to edge of the sphere
                 if (clamp)
-                    point = Maths.PointAtLineDistance(center, point, radius);
+                    point = CustomMath.PointAtLineDistance(center, point, radius);
             }
 
             return point;
@@ -251,7 +258,7 @@ namespace CustomEngine.World
             Vector3 ray1 = UnProject(screenPoint.X, screenPoint.Y, 0.0f);
             Vector3 ray2 = UnProject(screenPoint.X, screenPoint.Y, 1.0f);
 
-            Vector3 center = transform.GetPoint();
+            Vector3 center = transform.ExtractTranslation();
 
             CustomMath.LinePlaneIntersect(ray1, ray2, center, (transform * Vector3.UnitX).Normalize(center), out yz);
             CustomMath.LinePlaneIntersect(ray1, ray2, center, (transform * Vector3.UnitY).Normalize(center), out xz);
@@ -260,17 +267,13 @@ namespace CustomEngine.World
 
         public void LoadProjection()
         {
-            GL.MatrixMode(MatrixMode.Projection);
-            GL.LoadIdentity();
-            fixed (Matrix* p = &_projectionMatrix)
-                GL.LoadMatrix((float*)p);
+            Engine.Renderer.MatrixMode(MtxMode.Projection);
+            Engine.Renderer.LoadMatrix(_projectionMatrix);
         }
         public void LoadModelView()
         {
-            GL.MatrixMode(MatrixMode.Modelview);
-            GL.LoadIdentity();
-            fixed (Matrix* p = &_matrix)
-                GL.LoadMatrix((float*)p);
+            Engine.Renderer.MatrixMode(MtxMode.Modelview);
+            Engine.Renderer.LoadMatrix(Matrix);
         }
 
         public unsafe void ZoomExtents(Vector3 point, float distance)

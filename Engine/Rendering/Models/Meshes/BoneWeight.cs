@@ -31,5 +31,9 @@ namespace CustomEngine.Rendering.Models.Meshes
         {
             return other != null ? (other.Bone == Bone && Weight.CompareEquality(other.Weight, weightTolerance) && Locked == other.Locked) : false;
         }
+        public override int GetHashCode()
+        {
+            return _bone.GetHashCode() ^ _weight.GetHashCode() ^ _locked.GetHashCode();
+        }
     }
 }

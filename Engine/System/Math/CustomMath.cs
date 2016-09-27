@@ -90,7 +90,7 @@ namespace System
         public static Vector3 PointAtLineDistance(Vector3 start, Vector3 end, float distance)
         {
             Vector3 diff = end - start;
-            return start + (diff * (distance / diff.TrueDistance()));
+            return start + (diff * (distance / diff.LengthFast));
         }
         public static Vector3 PointLineIntersect(Vector3 start, Vector3 end, Vector3 point)
         {

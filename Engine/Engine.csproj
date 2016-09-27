@@ -60,12 +60,15 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Cutscenes\Cutscene.cs" />
-    <Compile Include="Rendering\Camera\PerspectiveCamera.cs" />
-    <Compile Include="Rendering\Camera\OrthographicCamera.cs" />
-    <Compile Include="World\Actors\Components\DecalComponent.cs" />
+    <Compile Include="World\Actors\Components\InstanceComponent.cs" />
+    <Compile Include="World\Actors\Components\Scene\BoomComponent.cs" />
+    <Compile Include="World\Actors\Components\Scene\CameraComponent.cs" />
+    <Compile Include="World\Actors\Components\Scene\DecalComponent.cs" />
+    <Compile Include="World\Actors\Components\Logic\MovementComponents\TransformMovementComponent.cs" />
+    <Compile Include="World\Actors\Components\Logic\MovementComponents\CharacterMovementComponent.cs" />
     <Compile Include="World\Actors\Components\SceneComponent.cs" />
-    <Compile Include="World\Actors\Components\ShapeComponents\CapsuleComponent.cs" />
-    <Compile Include="World\Actors\Components\ShapeComponents\BoxComponent.cs" />
+    <Compile Include="World\Actors\Components\Scene\ShapeComponents\CapsuleComponent.cs" />
+    <Compile Include="World\Actors\Components\Scene\ShapeComponents\BoxComponent.cs" />
     <Compile Include="Engine.cs" />
     <Compile Include="Files\DirectoryWatcher.cs" />
     <Compile Include="GameModes\GameMode.cs" />
@@ -120,9 +123,9 @@
     <Compile Include="World\Actors\Types\PhysicsState.cs" />
     <Compile Include="World\Actors\Types\Vehicle.cs" />
     <Compile Include="World\Actors\Components\Component.cs" />
-    <Compile Include="World\Actors\Components\InteractionComponent.cs" />
-    <Compile Include="World\Actors\Components\ModelComponent.cs" />
-    <Compile Include="World\Actors\Components\MovementComponent.cs" />
+    <Compile Include="World\Actors\Components\Logic\InteractionComponent.cs" />
+    <Compile Include="World\Actors\Components\Scene\ModelComponent.cs" />
+    <Compile Include="World\Actors\Components\Logic\MovementComponent.cs" />
     <Compile Include="Rendering\HUD\HudManager.cs" />
     <Compile Include="Input\AIController.cs" />
     <Compile Include="Input\Controller.cs" />
@@ -130,7 +133,7 @@
     <Compile Include="CustomGameForm.cs" />
     <Compile Include="System\Math\CustomMath.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Rendering\Camera\Camera.cs" />
+    <Compile Include="World\Camera.cs" />
     <Compile Include="World\Maps\Map.cs" />
     <Compile Include="World\Maps\MapSettings.cs" />
     <Compile Include="World\WorldBase.cs" />

@@ -126,7 +126,7 @@
     <Compile Include="Input\Controller.cs" />
     <Compile Include="Input\PlayerController.cs" />
     <Compile Include="CustomGameForm.cs" />
-    <Compile Include="Math\CustomMath.cs" />
+    <Compile Include="System\Math\CustomMath.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="World\Camera.cs" />
     <Compile Include="World\Maps\Map.cs" />

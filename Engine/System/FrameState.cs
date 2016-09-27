@@ -13,12 +13,14 @@ namespace CustomEngine.Rendering.Models
             _rotation = rotate;
             _scale = scale;
             _transform = Matrix4.Identity;
+            _inverseTransform = Matrix4.Identity;
         }
 
         private Vector3 _translation;
         private Quaternion _rotation;
         private Vector3 _scale;
         private Matrix4 _transform;
+        private Matrix4 _inverseTransform;
 
         public void Translate(Vector3 translation)
         {
@@ -69,7 +71,7 @@ namespace CustomEngine.Rendering.Models
             }
         }
         public Matrix4 Transform { get { return _transform; } }
-
+        public Matrix4 InverseTransform { get { return _inverseTransform; } }
         public void SetAll(Vector3 translation, Quaternion rotation, Vector3 scale)
         {
             _translation = translation;
@@ -78,9 +80,11 @@ namespace CustomEngine.Rendering.Models
             CreateTransform();
         }
         public void MultMatrix() { Engine.Renderer.MultMatrix(_transform); }
+        public void MultInvMatrix() { Engine.Renderer.MultMatrix(_inverseTransform); }
         public void CreateTransform()
         {
             _transform = Matrix4.TransformMatrix(_scale, _rotation, _translation);
+            _inverseTransform = Matrix4.InverseTransformMatrix(_scale, _rotation, _translation);
         }
     }
 }

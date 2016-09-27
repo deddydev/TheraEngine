@@ -874,6 +874,15 @@ namespace OpenTK
         {
             return left.X * right.X + left.Y * right.Y + left.Z * right.Z;
         }
+        /// <summary>
+        /// Calculate the dot (scalar) product of this and another vector
+        /// </summary>
+        /// <param name="right"></param>
+        /// <returns></returns>
+        public float Dot(Vector3 right)
+        {
+            return X * right.X + Y * right.Y + Z * right.Z;
+        }
 
         /// <summary>
         /// Calculate the dot (scalar) product of two vectors
@@ -1227,7 +1236,7 @@ namespace OpenTK
         /// <param name="result">The transformed vector</param>
         public static void TransformPerspective(ref Vector3 vec, ref Matrix4 mat, out Vector3 result)
         {
-            Vector4 v = new Vector4(vec, 1);
+            Vector4 v = new Vector4(vec, 1.0f);
             Vector4.Transform(ref v, ref mat, out v);
             result.X = v.X / v.W;
             result.Y = v.Y / v.W;
@@ -1599,15 +1608,6 @@ namespace OpenTK
             return vec;
         }
 
-        public static Vector3 operator /(float scale, Vector3 vec)
-        {
-            return new Vector3(scale) / vec;
-        }
-        public static Vector3 operator /(Vector3 vec1, Vector3 vec2)
-        {
-            return new Vector3(vec1.X / vec2.X, vec1.Y / vec2.Y, vec1.Z / vec2.Z);
-        }
-
         /// <summary>
         /// Compares two instances for equality.
         /// </summary>
@@ -1645,6 +1645,26 @@ namespace OpenTK
         public static bool operator >=(Vector3 left, Vector3 right)
         {
             return left.X >= right.X && left.Y >= right.Y && left.Z >= right.Z;
+        }
+        public static Vector3 operator /(float scale, Vector3 vec)
+        {
+            return new Vector3(scale) / vec;
+        }
+        public static Vector3 operator /(Vector3 vec1, Vector3 vec2)
+        {
+            return new Vector3(vec1.X / vec2.X, vec1.Y / vec2.Y, vec1.Z / vec2.Z);
+        }
+        public static Vector3 operator *(Matrix4 left, Vector3 right)
+        {
+            return TransformPerspective(right, left);
+        }
+        public static Vector3 operator *(Vector3 left, Matrix4 right)
+        {
+            return TransformPerspective(left, right);
+        }
+        public static explicit operator Vector3(Vector2 v)
+        {
+            return new Vector3(v.X, v.Y, 0.0f);
         }
 
         #endregion

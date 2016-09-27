@@ -7,14 +7,16 @@ namespace CustomEngine.World
 {
     public unsafe class Camera
     {
-        public Matrix4 _matrix;
-        public Matrix4 _matrixInverse;
+        public Matrix4 Matrix { get { return _currentTransform.InverseTransform; } }
+        public Matrix4 MatrixInverse { get { return _currentTransform.Transform; } }
+
         public Matrix4 _projectionMatrix;
         public Matrix4 _projectionInverse;
 
-        private FrameState _transform;
-        private Vector3 _euler;
+        private FrameState _currentTransform;
+        private FrameState _defaultTransform;
 
+        public Vector4 _orthoDimensions = new Vector4(0, 1, 0, 1);
         public bool _ortho, _restrictXRot, _restrictYRot, _restrictZRot;
         public float
             _fovY = 45.0f,
@@ -23,12 +25,6 @@ namespace CustomEngine.World
             _width = 1,
             _height = 1,
             _aspect = 1;
-
-        public Vector4 _orthoDimensions = new Vector4(0, 1, 0, 1);
-
-        public Vector3 _defaultTranslate;
-        public Vector3 _defaultRotate;
-        public Vector3 _defaultScale = new Vector3(1);
 
         public void SetProjectionParams(float aspect, float fovy, float farz, float nearz)
         {
@@ -64,7 +60,7 @@ namespace CustomEngine.World
             _matrixInverse = Matrix4.TransformMatrix(_scale, _rotation, _defaultTranslate);
         }
 
-        public Vector3 GetPoint() { return _matrixInverse.Multiply(new Vector3()); }
+        public Vector3 GetPoint() { return MatrixInverse.Multiply(new Vector3()); }
 
         public void Scale(float x, float y, float z) { Scale(new Vector3(x, y, z)); }
         public void Scale(Vector3 v)
@@ -85,8 +81,8 @@ namespace CustomEngine.World
         public void Translate(Vector3 v) { Translate(v._x, v._y, v._z); }
         public void Translate(float x, float y, float z)
         {
-            _matrix = Matrix.TranslationMatrix(-x, -y, -z) * _matrix;
-            _matrixInverse.Translate(x, y, z);
+            _matrix = Matrix.TranslationMatrix(-x, -y, -z) * Matrix;
+            MatrixInverse.Translate(x, y, z);
 
             PositionChanged();
         }
@@ -200,7 +196,7 @@ namespace CustomEngine.World
         {
             //This needs to be a Vector4 converted to a Vector3 in order to work
             //Also the order of the matrix multiplication matters
-            return (Vector3)(_matrixInverse * _projectionInverse * new Vector4(
+            return (Vector3)(MatrixInverse * _projectionInverse * new Vector4(
                 2.0f * (x / Width) - 1.0f,
                 2.0f * ((Height - y) / Height) - 1.0f,
                 2.0f * z - 1.0f,
@@ -219,7 +215,7 @@ namespace CustomEngine.World
         {
             //This needs to be converted to a Vector4 in order to work
             //Also the order of the matrix multiplication matters
-            Vector4 t1 = _matrix * (Vector4)source;
+            Vector4 t1 = Matrix * (Vector4)source;
             Vector4 t2 = _projectionMatrix * t1;
             if (t2._w == 0) return new Vector3();
             Vector3 v = (Vector3)t2;
@@ -250,16 +246,16 @@ namespace CustomEngine.World
             return point;
         }
 
-        public void ProjectCameraPlanes(Vector2 screenPoint, Matrix transform, out Vector3 xy, out Vector3 yz, out Vector3 xz)
+        public void ProjectCameraPlanes(Vector2 screenPoint, Matrix4 transform, out Vector3 xy, out Vector3 yz, out Vector3 xz)
         {
-            Vector3 ray1 = UnProject(screenPoint._x, screenPoint._y, 0.0f);
-            Vector3 ray2 = UnProject(screenPoint._x, screenPoint._y, 1.0f);
+            Vector3 ray1 = UnProject(screenPoint.X, screenPoint.Y, 0.0f);
+            Vector3 ray2 = UnProject(screenPoint.X, screenPoint.Y, 1.0f);
 
             Vector3 center = transform.GetPoint();
 
-            Maths.LinePlaneIntersect(ray1, ray2, center, (transform * Vector3.UnitX).Normalize(center), out yz);
-            Maths.LinePlaneIntersect(ray1, ray2, center, (transform * Vector3.UnitY).Normalize(center), out xz);
-            Maths.LinePlaneIntersect(ray1, ray2, center, (transform * Vector3.UnitZ).Normalize(center), out xy);
+            CustomMath.LinePlaneIntersect(ray1, ray2, center, (transform * Vector3.UnitX).Normalize(center), out yz);
+            CustomMath.LinePlaneIntersect(ray1, ray2, center, (transform * Vector3.UnitY).Normalize(center), out xz);
+            CustomMath.LinePlaneIntersect(ray1, ray2, center, (transform * Vector3.UnitZ).Normalize(center), out xy);
         }
 
         public void LoadProjection()

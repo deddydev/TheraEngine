@@ -707,6 +707,20 @@ namespace OpenTK
             return result;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="angles"></param>
+        /// <returns></returns>
+        public static Matrix4 CreateFromEuler(Vector3 angles)
+        {
+            return CreateFromQuaternion(Quaternion.FromEulerAngles(angles));
+            //Matrix4 x = CreateRotationX(angles.X);
+            //Matrix4 y = CreateRotationY(angles.Y);
+            //Matrix4 z = CreateRotationZ(angles.Z);
+            //return x * y * z;
+        }
+
         #endregion
 
         #region CreateTranslation

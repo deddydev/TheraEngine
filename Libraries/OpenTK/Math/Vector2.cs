@@ -1111,6 +1111,11 @@ namespace OpenTK
             return !left.Equals(right);
         }
 
+        public static explicit operator Vector2(Vector3 v)
+        {
+            return new Vector2(v.X, v.Y);
+        }
+
         #endregion
 
         #region Overrides

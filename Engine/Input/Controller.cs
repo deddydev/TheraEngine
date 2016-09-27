@@ -1,5 +1,5 @@
-﻿using CustomEngine.Components;
-using System.Collections.Generic;
+﻿using CustomEngine.World.Actors;
+using CustomEngine.World.Actors.Components;
 using System;
 
 namespace CustomEngine.Input
@@ -18,7 +18,7 @@ namespace CustomEngine.Input
                 Engine.ActiveControllers.Remove(this);
         }
 
-        public MovementComponent _controlledComp;
+        public Pawn _controlledComp;
 
         public virtual void UpdateTick(double deltaTime) { }
     }

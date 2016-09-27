@@ -1,9 +1,9 @@
-﻿using CustomEngine.Components;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Collections;
 using CustomEngine.Rendering.Models;
 using OpenTK;
 using System;
+using CustomEngine.World.Actors.Components;
 
 namespace CustomEngine.World
 {
@@ -28,7 +28,8 @@ namespace CustomEngine.World
         public int _spawnIndex = -1;
         private WorldBase _owningWorld;
         private SceneComponent _rootSceneComponent;
-        private List<Component> _instanceComponents;
+        private List<SceneComponent> _sceneComponentCache;
+        private List<InstanceComponent> _instanceComponents;
 
         public FrameState Transform
         {
@@ -47,7 +48,11 @@ namespace CustomEngine.World
 
         protected abstract void SetupComponents();
 
-        public void AddComponent(Component c)
+        public void AddComponent(InstanceComponent c)
+        {
+            _instanceComponents.Add(c);
+        }
+        public void SetRootComponent(SceneComponent c)
         {
 
         }

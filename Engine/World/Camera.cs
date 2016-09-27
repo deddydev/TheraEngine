@@ -26,6 +26,8 @@ namespace CustomEngine.World
             _height = 1,
             _aspect = 1;
 
+        bool _updating;
+
         public void SetProjectionParams(float aspect, float fovy, float farz, float nearz)
         {
             _aspect = aspect;
@@ -45,23 +47,14 @@ namespace CustomEngine.World
         public bool Orthographic { get { return _ortho; } set { if (_ortho == value) return; _ortho = value; CalculateProjection(); } }
 
         public Camera() { Reset(); }
-        public Camera(float width, float height, Vector3 defaultTranslate, Vector3 defaultRotate, Vector3 defaultScale)
+        public Camera(float width, float height, Vector3 defaultTranslate, Quaternion defaultRotate, Vector3 defaultScale)
         {
             _width = width;
             _height = height;
-
+            _currentTransform = _defaultTransform = new FrameState(defaultTranslate, defaultRotate, defaultScale);
             _orthoDimensions = new Vector4(-_width / 2.0f, _width / 2.0f, _height / 2.0f, -_height / 2.0f);
-
-            _scale = _defaultScale = defaultScale;
-            _rotation = _defaultRotate = defaultRotate;
-            _defaultTranslate = defaultTranslate;
-            
-            _matrix = Matrix4.InverseTransformMatrix(_scale, _rotation, _defaultTranslate);
-            _matrixInverse = Matrix4.TransformMatrix(_scale, _rotation, _defaultTranslate);
         }
-
-        public Vector3 GetPoint() { return MatrixInverse.Multiply(new Vector3()); }
-
+        
         public void Scale(float x, float y, float z) { Scale(new Vector3(x, y, z)); }
         public void Scale(Vector3 v)
         {
@@ -126,28 +119,17 @@ namespace CustomEngine.World
         }
 
         public void Set(Vector3 translate, Vector3 rotate, Vector3 scale) { }
-        public void Set(Vector3 translate, Vector3 rotate, Vector3 scale)
+        public void Set(Vector3 translate, Quaternion rotate, Vector3 scale)
         {
-            _scale = scale;
-            _rotation = Quaternion.FromEulerAngles(rotate);
-
-            _matrix = Matrix4.InverseTransformMatrix(_scale, _rotation, translate);
-            _matrixInverse = Matrix4.TransformMatrix(_scale, _rotation, translate);
-
+            _currentTransform.SetAll(translate, rotate, scale);
             PositionChanged();
         }
 
         public void Reset()
         {
-            _rotation = _defaultRotate;
-            _scale = _defaultScale;
-            _matrix = Matrix.ReverseTransformMatrix(_scale, _rotation, _defaultTranslate);
-            _matrixInverse = Matrix.TransformMatrix(_scale, _rotation, _defaultTranslate);
-
+            _currentTransform = _defaultTransform;
             PositionChanged();
         }
-
-        bool _updating;
         private void PositionChanged()
         {
             if (!_updating && OnPositionChanged != null)
@@ -187,20 +169,17 @@ namespace CustomEngine.World
         /// Projects a screen point to world coordinates.
         /// </summary>
         /// <returns>3D world point perpendicular to the camera with a depth value of z (z is not a distance value!)</returns>
-        public Vector3 UnProject(Vector3 point) { return UnProject(point._x, point._y, point._z); }
+        public Vector3 UnProject(Vector3 point)
+        {
+            return Vector3.Unproject(point, 0, 0, Width, Height, NearDepth, FarDepth, MatrixInverse * _projectionInverse);
+        }
         /// <summary>
         /// Projects a screen point to world coordinates.
         /// </summary>
         /// <returns>3D world point perpendicular to the camera with a depth value of z (z is not a distance value!)</returns>
         public Vector3 UnProject(float x, float y, float z)
         {
-            //This needs to be a Vector4 converted to a Vector3 in order to work
-            //Also the order of the matrix multiplication matters
-            return (Vector3)(MatrixInverse * _projectionInverse * new Vector4(
-                2.0f * (x / Width) - 1.0f,
-                2.0f * ((Height - y) / Height) - 1.0f,
-                2.0f * z - 1.0f,
-                1.0f));
+            return UnProject(new Vector3(x, y, z));
         }
         /// <summary>
         /// Projects a world point to screen coordinates.
@@ -213,16 +192,7 @@ namespace CustomEngine.World
         /// <returns>2D coordinate on the screen with z as depth (z is not a distance value!)</returns>
         public Vector3 Project(Vector3 source)
         {
-            //This needs to be converted to a Vector4 in order to work
-            //Also the order of the matrix multiplication matters
-            Vector4 t1 = Matrix * (Vector4)source;
-            Vector4 t2 = _projectionMatrix * t1;
-            if (t2._w == 0) return new Vector3();
-            Vector3 v = (Vector3)t2;
-            return new Vector3(
-                (v._x / 2.0f + 0.5f) * Width,
-                Height - ((v._y / 2.0f + 0.5f) * Height),
-                (v._z + 1.0f) / 2.0f);
+            return Vector3.Project(source, 0, 0, Width, Height, NearDepth, FarDepth, _projectionMatrix * Matrix);
         }
 
         public Vector3 ProjectCameraSphere(Vector2 screenPoint, Vector3 center, float radius, bool clamp)
@@ -230,17 +200,17 @@ namespace CustomEngine.World
             Vector3 point;
 
             //Get ray points
-            Vector3 ray1 = UnProject(screenPoint._x, screenPoint._y, 0.0f);
-            Vector3 ray2 = UnProject(screenPoint._x, screenPoint._y, 1.0f);
+            Vector3 ray1 = UnProject(screenPoint.X, screenPoint.Y, 0.0f);
+            Vector3 ray2 = UnProject(screenPoint.X, screenPoint.Y, 1.0f);
 
-            if (!Maths.LineSphereIntersect(ray1, ray2, center, radius, out point))
+            if (!CustomMath.LineSphereIntersect(ray1, ray2, center, radius, out point))
             {
                 //If no intersect is found, project the ray through the plane perpendicular to the camera.
-                Maths.LinePlaneIntersect(ray1, ray2, center, GetPoint().Normalize(center), out point);
+                CustomMath.LinePlaneIntersect(ray1, ray2, center, GetPoint().Normalize(center), out point);
 
                 //Clamp the point to edge of the sphere
                 if (clamp)
-                    point = Maths.PointAtLineDistance(center, point, radius);
+                    point = CustomMath.PointAtLineDistance(center, point, radius);
             }
 
             return point;

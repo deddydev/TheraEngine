@@ -1,5 +1,4 @@
-﻿using CustomEngine.Rendering.Textures;
-using OpenTK;
+﻿using OpenTK;
 using System;
 
 namespace CustomEngine.Rendering.Models.Meshes

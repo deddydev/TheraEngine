@@ -1,14 +1,23 @@
-﻿using OpenTK;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System;
 
 namespace CustomEngine.World.Actors
 {
-    public class Pawn : Actor
+    public abstract class Pawn : Actor
     {
         private PhysicsState _physicsState;
+
+        protected void OnPosessed()
+        {
+
+        }
+        protected void OnUnPosessed()
+        {
+
+        }
+
+        protected override void SetupComponents()
+        {
+            AddComponent();
+        }
     }
 }

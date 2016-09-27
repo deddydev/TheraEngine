@@ -1,27 +1,25 @@
-﻿using CustomEngine.Rendering.Meshes;
-using System;
-using System.ComponentModel;
+﻿using System;
 using System.Reflection;
 
 namespace CustomEngine.World.Actors.Components
 {
-    public class CapsuleComponent : SceneComponent
+    public class BoxComponent : SceneComponent
     {
-        public Capsule Capsule
+        public Box Box
         {
-            get { return _capsule; }
+            get { return _box; }
             set
             {
-                _capsule = value;
+                _box = value;
                 Changed(MethodBase.GetCurrentMethod());
             }
         }
-        private Capsule _capsule;
+        private Box _box;
 
         protected override void OnRender()
         {
             base.OnRender();
-            _capsule?.Render();
+            _box?.Render();
         }
     }
 }

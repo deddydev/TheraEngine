@@ -1,6 +1,4 @@
-﻿using System.IO;
-
-namespace System
+﻿namespace System
 {
     public unsafe static class Memory
     {

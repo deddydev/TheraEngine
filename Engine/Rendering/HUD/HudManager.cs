@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace CustomEngine.Rendering.HUD
+﻿namespace CustomEngine.Rendering.HUD
 {
     /// <summary>
     /// Each viewport has a hud manager. 

@@ -1,12 +1,7 @@
 ﻿using CustomEngine.Rendering.Models;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Collections;
-using OpenTK.Graphics;
-using OpenTK.Graphics.OpenGL;
 
 namespace CustomEngine.World.Actors.Components
 {

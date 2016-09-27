@@ -1,7 +1,5 @@
 ﻿using OpenTK;
 using static System.Math;
-using System;
-using CustomEngine.Rendering;
 using CustomEngine;
 
 namespace System

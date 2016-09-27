@@ -1,9 +1,5 @@
 ﻿using CustomEngine.World;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using CustomEngine.Rendering;
 using CustomEngine.Input;
 using System.ComponentModel;
@@ -15,10 +11,11 @@ namespace CustomEngine
         private static RenderContext _renderContext;
 
         public static BindingList<WorldBase> LoadedWorlds = new BindingList<WorldBase>();
-        public static WorldBase World = null;
+        private static WorldBase _currentWorld = null;
         public static BindingList<Timer> ActiveTimers = new BindingList<Timer>();
         public static BindingList<Controller> ActiveControllers = new BindingList<Controller>();
 
+        public static WorldBase World { get { return _currentWorld; } }
         public static CustomGameForm Form { get { return CustomGameForm.Instance; } }
         public static double RenderDelta { get { return Form.RenderTime; } }
         public static double UpdateDelta { get { return Form.UpdateTime; } }
@@ -37,6 +34,13 @@ namespace CustomEngine
                 c.UpdateTick(UpdateDelta);
             World.Update();
         }
-
+        public static void LoadWorld(WorldBase world)
+        {
+            if (_currentWorld != null)
+                _currentWorld.OnUnload();
+            _currentWorld = world;
+            if (_currentWorld != null)
+                _currentWorld.OnLoad();
+        }
     }
 }

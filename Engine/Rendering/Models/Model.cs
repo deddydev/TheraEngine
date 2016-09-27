@@ -1,5 +1,4 @@
-﻿using CustomEngine.Rendering.Animation;
-using CustomEngine.Rendering.Models.Meshes;
+﻿using CustomEngine.Rendering.Models.Meshes;
 using CustomEngine.Rendering.Models.Skeleton;
 using System;
 using System.Collections.Generic;

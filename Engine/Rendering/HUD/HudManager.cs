@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+﻿using System;
 
 namespace CustomEngine.Rendering.HUD
 {
@@ -17,6 +17,11 @@ namespace CustomEngine.Rendering.HUD
         protected override void OnRender()
         {
             base.OnRender();
+        }
+
+        public void ShowMessage(string message)
+        {
+            
         }
     }
 }

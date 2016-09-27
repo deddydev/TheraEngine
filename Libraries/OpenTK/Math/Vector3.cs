@@ -302,6 +302,15 @@ namespace OpenTK
             Y *= scale;
             Z *= scale;
         }
+        /// <summary>
+        /// Returns a copy of the Vector3 scaled to unit length relative to an origin.
+        /// </summary>
+        /// <param name="origin"></param>
+        /// <returns></returns>
+        public Vector3 Normalized(Vector3 origin)
+        {
+            return (this - origin).Normalized();
+        }
 
         #endregion
 

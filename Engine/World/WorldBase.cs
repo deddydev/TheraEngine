@@ -1,7 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Collections;
-using System;
-using CustomEngine.Input;
 
 namespace CustomEngine.World
 {
@@ -13,6 +11,8 @@ namespace CustomEngine.World
         private WorldDefaults _defaults;
         private WorldSettings _settings;
         private string _name;
+
+        public int ActorCount { get { return _actors.Count; } }
 
         public WorldBase(string name)
         {

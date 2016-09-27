@@ -60,6 +60,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Cutscenes\Cutscene.cs" />
+    <Compile Include="Rendering\Camera\PerspectiveCamera.cs" />
+    <Compile Include="Rendering\Camera\OrthographicCamera.cs" />
     <Compile Include="World\Actors\Components\DecalComponent.cs" />
     <Compile Include="World\Actors\Components\SceneComponent.cs" />
     <Compile Include="World\Actors\Components\ShapeComponents\CapsuleComponent.cs" />
@@ -128,7 +130,7 @@
     <Compile Include="CustomGameForm.cs" />
     <Compile Include="System\Math\CustomMath.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="World\Camera.cs" />
+    <Compile Include="Rendering\Camera\Camera.cs" />
     <Compile Include="World\Maps\Map.cs" />
     <Compile Include="World\Maps\MapSettings.cs" />
     <Compile Include="World\WorldBase.cs" />

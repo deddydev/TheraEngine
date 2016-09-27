@@ -1,8 +1,4 @@
-﻿using System;
-using CustomEngine.Rendering.Models;
-using OpenTK;
-using OpenTK.Graphics.OpenGL;
-using CustomEngine.Rendering;
+﻿using OpenTK;
 using CustomEngine;
 
 namespace System

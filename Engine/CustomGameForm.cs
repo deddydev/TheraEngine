@@ -1,5 +1,4 @@
-﻿using CustomEngine.Input;
-using CustomEngine.Rendering;
+﻿using CustomEngine.Rendering;
 using System;
 using CustomEngine.World;
 using OpenTK;
@@ -47,17 +46,6 @@ namespace CustomEngine
         protected override void OnResize(EventArgs e)
         {
             base.OnResize(e);
-        }
-
-        public void LoadWorld(WorldBase world)
-        {
-            if (_currentWorld != null)
-                _currentWorld.OnUnload();
-
-            _currentWorld = world;
-
-            if (_currentWorld != null)
-                _currentWorld.OnLoad();
         }
     }
 }

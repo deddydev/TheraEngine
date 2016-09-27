@@ -1,6 +1,6 @@
 ﻿namespace CustomEngine.World.Actors.Components
 {
-    public class InteractionComponent : Component
+    public class InteractionComponent : InstanceComponent
     {
 
     }

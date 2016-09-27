@@ -1,19 +1,18 @@
 ﻿using CustomEngine.Rendering.HUD;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Drawing;
+using System;
+using CustomEngine.World;
 
 namespace CustomEngine.Rendering
 {
     public class Viewport : IPanel, IRenderable
     {
+        public Camera _currentCamera;
         private HudManager _hud;
         private int _viewportNumber = 0;
         private RectangleF _region;
 
+        public Camera Camera { get { return _currentCamera ?? new Camera(); } }
         public HudManager HUD { get { return _hud; } }
         public int ViewportNumber { get { return _viewportNumber; } }
         CustomGameForm Form { get { return CustomGameForm.Instance; } }
@@ -24,13 +23,23 @@ namespace CustomEngine.Rendering
         public float Y { get { return _region.Y; } set { } }
         public RectangleF Region { get { return _region; } set { } }
 
-        public Viewport() { _hud = new HudManager(this); }
+        public Viewport()
+        {
+            _hud = new HudManager(this);
+        }
 
-        public void OnResized() { }
-
+        public void OnResized()
+        {
+            Camera.Resize(Width, Height);
+        }
         public void Render()
         {
-            Form._currentWorld.Render();
+            _hud.Render();
+            Engine.World.Render();
+        }
+        public void ShowMessage(string message)
+        {
+            _hud.ShowMessage(message);
         }
     }
 }

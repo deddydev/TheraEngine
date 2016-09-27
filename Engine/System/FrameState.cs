@@ -1,6 +1,4 @@
-﻿using System;
-using OpenTK;
-using OpenTK.Graphics.OpenGL;
+﻿using OpenTK;
 
 namespace CustomEngine.Rendering.Models
 {

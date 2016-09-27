@@ -1,5 +1,4 @@
-﻿using CustomEngine.World;
-using System;
+﻿using System;
 
 namespace CustomEngine.World.Actors.Components
 {

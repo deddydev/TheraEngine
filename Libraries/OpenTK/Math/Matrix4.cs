@@ -524,12 +524,35 @@ namespace OpenTK
             return Column3;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="v"></param>
+        public void Translate(Vector3 v) { Translate(v.X, v.Y, v.Z); }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="x"></param>
+        /// <param name="y"></param>
+        /// <param name="z"></param>
+        public unsafe void Translate(float x, float y, float z)
+        {
+            fixed (Matrix4* m = &this)
+            {
+                float* p = (float*)m;
+                p[12] += (p[0] * x) + (p[4] * y) + (p[8] * z);
+                p[13] += (p[1] * x) + (p[5] * y) + (p[9] * z);
+                p[14] += (p[2] * x) + (p[6] * y) + (p[10] * z);
+                p[15] += (p[3] * x) + (p[7] * y) + (p[11] * z);
+            }
+        }
+
         #endregion
 
         #region Static
-        
+
         #region CreateFromAxisAngle
-        
+
         /// <summary>
         /// Build a rotation matrix from the specified axis/angle rotation.
         /// </summary>

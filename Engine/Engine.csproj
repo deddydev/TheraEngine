@@ -115,6 +115,7 @@
     <Compile Include="World\Actors\Actor.cs" />
     <Compile Include="World\Actors\Types\Character.cs" />
     <Compile Include="World\Actors\Types\Pawn.cs" />
+    <Compile Include="World\Actors\Types\PhysicsState.cs" />
     <Compile Include="World\Actors\Types\Vehicle.cs" />
     <Compile Include="World\Actors\Components\Component.cs" />
     <Compile Include="World\Actors\Components\InteractionComponent.cs" />

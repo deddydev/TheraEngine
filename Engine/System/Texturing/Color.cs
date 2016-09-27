@@ -1,5 +1,4 @@
-﻿using System.UITypeEditors;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Design;
 using System.Runtime.InteropServices;
@@ -7,7 +6,7 @@ using System.Runtime.InteropServices;
 namespace System
 {
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    [Editor(typeof(PropertyGridColorEditor), typeof(UITypeEditor))]
+    //[Editor(typeof(PropertyGridColorEditor), typeof(UITypeEditor))]
     public class ColorF
     {
         public float R, G, B, A;

@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CustomEngine.Rendering.Camera
+namespace CustomEngine.Rendering.Cameras
 {
-    public class OrthographicCamera : Camera
+    public class PerspectiveCamera : Camera
     {
         public override void Zoom(float amount)
         {

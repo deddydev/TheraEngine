@@ -5,7 +5,7 @@ using OpenTK.Graphics.OpenGL;
 using System;
 using System.Drawing;
 
-namespace CustomEngine.Rendering.Camera
+namespace CustomEngine.Rendering.Cameras
 {
     public abstract class Camera
     {

@@ -2,7 +2,7 @@
 
 namespace CustomEngine.Input
 {
-    public class PlayerController : Controller
+    public class PlayerController : PawnController
     {
         PlayerInfo _playerInfo;
     }

@@ -8,6 +8,8 @@ namespace CustomEngine.World.Actors.Components
     public class SceneComponent : Component, IRenderable, ITransformable, IEnumerable<SceneComponent>
     {
         private FrameState _transform;
+
+        private SceneComponent _parent;
         private List<SceneComponent> _childComponents = new List<SceneComponent>();
 
         private bool _visibleByDefault = true;
@@ -41,6 +43,30 @@ namespace CustomEngine.World.Actors.Components
             foreach (SceneComponent comp in _childComponents)
                 comp.Render();
             Renderer.PopMatrix();
+        }
+
+        public void AddChildComponent(SceneComponent comp)
+        {
+            _childComponents.Add(comp);
+            comp._parent = this;
+            comp.Owner = Owner;
+            Owner.GenerateSceneComponentCache();
+        }
+
+        public List<SceneComponent> GenerateChildCache()
+        {
+            List<SceneComponent> cache = new List<SceneComponent>();
+            cache.Add(this);
+            foreach (SceneComponent c in _childComponents)
+                c.GenerateChildCache(cache);
+            return cache;
+                
+        }
+        private void GenerateChildCache(List<SceneComponent> cache)
+        {
+            cache.Add(this);
+            foreach (SceneComponent c in _childComponents)
+                c.GenerateChildCache(cache);
         }
 
         protected virtual void OnRender() { }

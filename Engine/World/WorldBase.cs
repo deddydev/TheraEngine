@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Collections;
+using eyecm.PhysX;
 
 namespace CustomEngine.World
 {
@@ -8,6 +9,7 @@ namespace CustomEngine.World
         protected List<Map> _spawnedMaps = new List<Map>();
         private List<Actor> _actors;
 
+        private Scene _physicsScene;
         private WorldDefaults _defaults;
         private WorldSettings _settings;
         private string _name;

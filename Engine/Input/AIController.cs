@@ -1,6 +1,6 @@
 ﻿namespace CustomEngine.Input
 {
-    public class AIController : Controller
+    public class AIController : PawnController
     {
 
     }

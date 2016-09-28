@@ -16,20 +16,32 @@ namespace CustomEngine.World
     {
         public Actor()
         {
-            _instanceComponents = new List<Component>();
-            
             SetupComponents();
         }
 
         public bool IsSpawned { get { return _spawnIndex >= 0; } }
         public WorldBase OwningWorld { get { return _owningWorld; } }
 
+        public SceneComponent RootComponent
+        {
+            get { return _rootSceneComponent; }
+            set
+            {
+                _rootSceneComponent = value;
+                GenerateSceneComponentCache();
+            }
+        }
+        public void GenerateSceneComponentCache()
+        {
+            _sceneComponentCache = _rootSceneComponent.GenerateChildCache();
+        }
+
         public DateTime _lastRendered;
         public int _spawnIndex = -1;
         private WorldBase _owningWorld;
         private SceneComponent _rootSceneComponent;
-        private List<SceneComponent> _sceneComponentCache;
-        private List<InstanceComponent> _instanceComponents;
+        private List<SceneComponent> _sceneComponentCache = new List<SceneComponent>();
+        private List<InstanceComponent> _instanceComponents = new List<InstanceComponent>();
 
         public FrameState Transform
         {
@@ -40,21 +52,14 @@ namespace CustomEngine.World
                     _rootSceneComponent.Transform = value;
             }
         }
-
+        protected abstract void SetupComponents();
         public void OnOriginRebased(Vector3 delta)
         {
-            _rootSceneComponent?.Transform.Translate(delta);
+            _rootSceneComponent?.Transform.AddTranslation(delta);
         }
-
-        protected abstract void SetupComponents();
-
         public void AddComponent(InstanceComponent c)
         {
             _instanceComponents.Add(c);
-        }
-        public void SetRootComponent(SceneComponent c)
-        {
-
         }
 
         public virtual void Update()
@@ -84,7 +89,7 @@ namespace CustomEngine.World
             _owningWorld = world;
 
             _rootSceneComponent.OnSpawned();
-            foreach (Component comp in _instanceComponents)
+            foreach (InstanceComponent comp in _instanceComponents)
                 comp.OnSpawned();
         }
         public virtual void OnDespawned()
@@ -92,7 +97,7 @@ namespace CustomEngine.World
             if (!IsSpawned)
                 return;
 
-            foreach (Component comp in _instanceComponents)
+            foreach (InstanceComponent comp in _instanceComponents)
                 comp.OnDespawned();
             _rootSceneComponent.OnDespawned();
             

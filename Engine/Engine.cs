@@ -3,6 +3,7 @@ using System;
 using CustomEngine.Rendering;
 using CustomEngine.Input;
 using System.ComponentModel;
+using eyecm.PhysX;
 
 namespace CustomEngine
 {
@@ -13,7 +14,7 @@ namespace CustomEngine
         public static BindingList<WorldBase> LoadedWorlds = new BindingList<WorldBase>();
         private static WorldBase _currentWorld = null;
         public static BindingList<Timer> ActiveTimers = new BindingList<Timer>();
-        public static BindingList<Controller> ActiveControllers = new BindingList<Controller>();
+        public static BindingList<PawnController> ActiveControllers = new BindingList<PawnController>();
 
         public static WorldBase World { get { return _currentWorld; } }
         public static CustomGameForm Form { get { return CustomGameForm.Instance; } }
@@ -26,12 +27,12 @@ namespace CustomEngine
                 Form.GetViewport(viewport)?.ShowMessage(message);
             Form._overallHud.ShowMessage(message);
         }
-        internal static void Update()
+        public static void Update()
         {
-            foreach (Timer timer in Engine.ActiveTimers)
+            foreach (Timer timer in ActiveTimers)
                 timer.UpdateTick(UpdateDelta);
-            foreach (Controller c in Engine.ActiveControllers)
-                c.UpdateTick(UpdateDelta);
+            foreach (PawnController c in ActiveControllers)
+                c.Update();
             World.Update();
         }
         public static void LoadWorld(WorldBase world)

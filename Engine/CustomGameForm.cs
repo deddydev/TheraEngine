@@ -32,7 +32,7 @@ namespace CustomEngine
         {
             base.OnRenderFrame(e);
 
-            GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
+            Engine.Renderer.Clear(BufferClear.Color | BufferClear.Depth);
             foreach (Viewport v in _viewports)
                 v.Render();
             _overallHud.Render();
@@ -46,6 +46,8 @@ namespace CustomEngine
         protected override void OnResize(EventArgs e)
         {
             base.OnResize(e);
+            foreach (Viewport v in _viewports)
+                v.OnResized();
         }
     }
 }

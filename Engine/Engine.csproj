@@ -38,6 +38,9 @@
     <StartupObject />
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="eyecm.PhysX">
+      <HintPath>..\Libraries\eyecm-physx-xna-090201\eyecm.PhysX.dll</HintPath>
+    </Reference>
     <Reference Include="FreeImageNET">
       <HintPath>..\Libraries\FreeImageNET.dll</HintPath>
     </Reference>
@@ -60,6 +63,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Cutscenes\Cutscene.cs" />
+    <Compile Include="System\Collision\Tracing.cs" />
     <Compile Include="World\Actors\Components\InstanceComponent.cs" />
     <Compile Include="World\Actors\Components\Scene\BoomComponent.cs" />
     <Compile Include="World\Actors\Components\Scene\CameraComponent.cs" />

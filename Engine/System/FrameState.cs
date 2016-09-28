@@ -45,6 +45,17 @@ namespace CustomEngine.Rendering.Models
             set { SetScale(value); }
         }
 
+        public void ApplyRelativeTranslation(Vector3 translation)
+        {
+            _transform.Translate(translation);
+            SetTranslate(_transform.ExtractTranslation());
+        }
+        public void SetRelativeTranslation(Vector3 translation)
+        {
+            _transform.ClearTranslation();
+            ApplyRelativeTranslation(translation);
+        }
+
         private void SetTranslate(Vector3 value)
         {
             Vector3 oldTranslation = _translation;

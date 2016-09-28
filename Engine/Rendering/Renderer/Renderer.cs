@@ -1,5 +1,6 @@
 ﻿using System;
 using OpenTK;
+using OpenTK.Graphics.OpenGL;
 
 namespace CustomEngine.Rendering
 {
@@ -9,6 +10,13 @@ namespace CustomEngine.Rendering
         Projection,
         Texture,
         Color
+    }
+    [Flags]
+    public enum BufferClear
+    {
+        Color,
+        Depth,
+        Stencil
     }
     public abstract class RenderContext
     {
@@ -25,6 +33,7 @@ namespace CustomEngine.Rendering
         public abstract void SetPointSize(float size);
         public abstract void SetLineSize(float size);
 
+        public abstract void Clear(BufferClear clearBufferMask);
         public abstract void CompileShader(string shader);
 
         public void Translate(Vector3 translation) { Translate(translation.X, translation.Y, translation.Z); }

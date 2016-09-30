@@ -940,9 +940,9 @@ namespace System
         public static Vector3 TransformVector(Vector3 vec, Matrix4 mat)
         {
             Vector3 v;
-            v.X = Vector3.Dot(vec, new Vector3(mat.Column0));
-            v.Y = Vector3.Dot(vec, new Vector3(mat.Column1));
-            v.Z = Vector3.Dot(vec, new Vector3(mat.Column2));
+            v.X = Dot(vec, new Vector3(mat.Column0));
+            v.Y = Dot(vec, new Vector3(mat.Column1));
+            v.Z = Dot(vec, new Vector3(mat.Column2));
             return v;
         }
 
@@ -991,8 +991,8 @@ namespace System
         /// <param name="result">The transformed normal</param>
         public static void TransformNormal(ref Vector3 norm, ref Matrix4 mat, out Vector3 result)
         {
-            Matrix4 Inverse = Matrix4.Invert(mat);
-            Vector3.TransformNormalInverse(ref norm, ref Inverse, out result);
+            Matrix4 Inverse = mat.Inverted();
+            TransformNormalInverse(ref norm, ref Inverse, out result);
         }
 
         /// <summary>Transform a Normal by the (transpose of the) given Matrix</summary>
@@ -1006,9 +1006,9 @@ namespace System
         public static Vector3 TransformNormalInverse(Vector3 norm, Matrix4 invMat)
         {
             Vector3 n;
-            n.X = Vector3.Dot(norm, new Vector3(invMat.Row0));
-            n.Y = Vector3.Dot(norm, new Vector3(invMat.Row1));
-            n.Z = Vector3.Dot(norm, new Vector3(invMat.Row2));
+            n.X = Dot(norm, new Vector3(invMat.Row0));
+            n.Y = Dot(norm, new Vector3(invMat.Row1));
+            n.Z = Dot(norm, new Vector3(invMat.Row2));
             return n;
         }
 
@@ -1042,9 +1042,9 @@ namespace System
         public static Vector3 TransformPosition(Vector3 pos, Matrix4 mat)
         {
             Vector3 p;
-            p.X = Vector3.Dot(pos, new Vector3(mat.Column0)) + mat.Row3.X;
-            p.Y = Vector3.Dot(pos, new Vector3(mat.Column1)) + mat.Row3.Y;
-            p.Z = Vector3.Dot(pos, new Vector3(mat.Column2)) + mat.Row3.Z;
+            p.X = Dot(pos, new Vector3(mat.Column0)) + mat.Row3.X;
+            p.Y = Dot(pos, new Vector3(mat.Column1)) + mat.Row3.Y;
+            p.Z = Dot(pos, new Vector3(mat.Column2)) + mat.Row3.Z;
             return p;
         }
 
@@ -1646,8 +1646,6 @@ namespace System
 
             return this.Equals((Vector3)obj);
         }
-
-        #endregion
 
         #endregion
 

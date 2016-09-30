@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 using System.Xml.Serialization;
+using static System.CustomMath;
+using static System.Math;
 
 namespace System
 {
@@ -39,8 +41,8 @@ namespace System
             }
         }
 
-        public float Length { get { return (float)System.Math.Sqrt(X * X + Y * Y); } }
-        public float LengthFast { get { return 1.0f / CustomMath.InverseSqrtFast(X * X + Y * Y); } }
+        public float Length { get { return (float)Sqrt(X * X + Y * Y); } }
+        public float LengthFast { get { return 1.0f / InverseSqrtFast(X * X + Y * Y); } }
         public float LengthSquared { get { return X * X + Y * Y; } }
 
         /// <summary>
@@ -51,31 +53,6 @@ namespace System
         /// Gets the perpendicular vector on the left side of this vector.
         /// </summary>
         public Vector2 PerpendicularLeft { get { return new Vector2(-Y, X); } }
-
-        public Vector2 Normalized()
-        {
-            Vector2 v = this;
-            v.Normalize();
-            return v;
-        }
-        public void Normalize()
-        {
-            float scale = 1.0f / Length;
-            X *= scale;
-            Y *= scale;
-        }
-        public Vector2 NormalizedFast()
-        {
-            Vector2 v = this;
-            v.NormalizeFast();
-            return v;
-        }
-        public void NormalizeFast()
-        {
-            float scale = CustomMath.InverseSqrtFast(X * X + Y * Y);
-            X *= scale;
-            Y *= scale;
-        }
 
         public static readonly Vector2 UnitX = new Vector2(1.0f, 0.0f);
         public static readonly Vector2 UnitY = new Vector2(0.0f, 1.0f);
@@ -110,27 +87,30 @@ namespace System
             vec.Y = vec.Y < min.Y ? min.Y : vec.Y > max.Y ? max.Y : vec.Y;
             return vec;
         }
-        public static Vector2 Normalize(Vector2 vec)
+        public Vector2 Normalized()
         {
-            float scale = 1.0f / vec.Length;
-            vec.X *= scale;
-            vec.Y *= scale;
-            return vec;
+            Vector2 v = this;
+            v.Normalize();
+            return v;
         }
-        public static Vector2 NormalizeFast(Vector2 vec)
+        public Vector2 NormalizedFast()
         {
-            float scale = CustomMath.InverseSqrtFast(vec.X * vec.X + vec.Y * vec.Y);
-            vec.X *= scale;
-            vec.Y *= scale;
-            return vec;
+            Vector2 v = this;
+            v.NormalizeFast();
+            return v;
         }
-        public static void NormalizeFast(ref Vector2 vec, out Vector2 result)
+        public void Normalize()
         {
-            float scale = CustomMath.InverseSqrtFast(vec.X * vec.X + vec.Y * vec.Y);
-            result.X = vec.X * scale;
-            result.Y = vec.Y * scale;
+            float scale = 1.0f / Length;
+            X *= scale;
+            Y *= scale;
         }
-
+        public void NormalizeFast()
+        {
+            float scale = InverseSqrtFast(X * X + Y * Y);
+            X *= scale;
+            Y *= scale;
+        }
         public static float Dot(Vector2 left, Vector2 right)
         {
             return left.X * right.X + left.Y * right.Y;

@@ -12,6 +12,13 @@ namespace System
         {
             return radians * 180.0f / (float)Math.PI;
         }
+        /// <summary>
+        /// Gets an approximation of the vector length (magnitude).
+        /// </summary>
+        /// <remarks>
+        /// This function uses an approximation of the square root function to calculate vector magnitude, with
+        /// an upper error bound of 0.001.
+        /// </remarks>
         public static float InverseSqrtFast(float x)
         {
             float xhalf = 0.5f * x;

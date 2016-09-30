@@ -188,6 +188,8 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="AI\" />
+    <Folder Include="System\Windows\Controls\" />
+    <Folder Include="System\Windows\Forms\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="OpenTK.GLControl.dll" />

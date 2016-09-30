@@ -1,20 +1,24 @@
 ﻿using System.Collections.Generic;
 using System.Collections;
 using eyecm.PhysX;
+using System.Threading.Tasks;
 
 namespace CustomEngine.World
 {
     public abstract class WorldBase : IRenderable, IEnumerable<Actor>
     {
         protected List<Map> _spawnedMaps = new List<Map>();
-        private List<Actor> _actors;
+        protected List<Actor> _spawnedActors;
+
+        protected List<Map> _allMaps;
 
         private Scene _physicsScene;
         private WorldDefaults _defaults;
         private WorldSettings _settings;
         private string _name;
+        private bool _visible;
 
-        public int ActorCount { get { return _actors.Count; } }
+        public int ActorCount { get { return _spawnedActors.Count; } }
 
         public WorldBase(string name)
         {
@@ -23,37 +27,56 @@ namespace CustomEngine.World
 
         public void SpawnActor(Actor actor)
         {
-            if (!_actors.Contains(actor))
-                _actors.Add(actor);
+            if (!_spawnedActors.Contains(actor))
+                _spawnedActors.Add(actor);
             actor.OnSpawned(this);
         }
         public void DespawnActor(Actor actor)
         {
-            if (_actors.Contains(actor))
-                _actors.Remove(actor);
+            if (_spawnedActors.Contains(actor))
+                _spawnedActors.Remove(actor);
             actor.OnDespawned();
         }
         public void Update()
         {
-            foreach (Actor actor in _actors)
+            foreach (Actor actor in _spawnedActors)
                 actor.Update();
         }
         public void Render()
         {
-            foreach (Actor actor in _actors)
+            foreach (Actor actor in _spawnedActors)
                 if (actor.IsSpawned)
                     actor.Render();
         }
-        public void OnUnload()
+        public static async Task Unload()
         {
-            foreach (Actor a in _actors)
-                a.Despawn();
+            
         }
-        public void OnLoad()
+        public static async Task Load()
         {
-            foreach (Actor a in _actors)
-                a.OnSpawned(this);
+            
         }
+        public bool Visible
+        {
+            get { return _visible; }
+            set
+            {
+                if (_visible == value)
+                    return;
+
+                if (_visible = value)
+                {
+//                     foreach (Map m in _allMaps)
+//                         m.Visible = m.
+                }
+                else
+                {
+                    foreach (Actor a in _spawnedActors)
+                        DespawnActor(a);
+                }
+            }
+        }
+
         public void SerializeState(string path)
         {
             
@@ -64,10 +87,10 @@ namespace CustomEngine.World
         }
         public Actor this[int index]
         {
-            get { return _actors[index]; }
-            set { _actors[index] = value; }
+            get { return _spawnedActors[index]; }
+            set { _spawnedActors[index] = value; }
         }
-        public IEnumerator<Actor> GetEnumerator() { return ((IEnumerable<Actor>)_actors).GetEnumerator(); }
-        IEnumerator IEnumerable.GetEnumerator() { return ((IEnumerable<Actor>)_actors).GetEnumerator(); }
+        public IEnumerator<Actor> GetEnumerator() { return ((IEnumerable<Actor>)_spawnedActors).GetEnumerator(); }
+        IEnumerator IEnumerable.GetEnumerator() { return ((IEnumerable<Actor>)_spawnedActors).GetEnumerator(); }
     }
 }

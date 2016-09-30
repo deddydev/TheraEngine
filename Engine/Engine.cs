@@ -4,12 +4,15 @@ using CustomEngine.Rendering;
 using CustomEngine.Input;
 using System.ComponentModel;
 using eyecm.PhysX;
+using System.Threading.Tasks;
 
 namespace CustomEngine
 {
     public static class Engine
     {
         private static RenderContext _renderContext;
+
+        private static WorldBase _transitionMap = null;
 
         public static BindingList<WorldBase> LoadedWorlds = new BindingList<WorldBase>();
         private static WorldBase _currentWorld = null;
@@ -25,7 +28,8 @@ namespace CustomEngine
         {
             if (viewport >= 0)
                 Form.GetViewport(viewport)?.ShowMessage(message);
-            Form._overallHud.ShowMessage(message);
+            else
+                Form._overallHud.ShowMessage(message);
         }
         public static void Update()
         {
@@ -35,13 +39,19 @@ namespace CustomEngine
                 c.Update();
             World.Update();
         }
-        public static void LoadWorld(WorldBase world)
+        public static void LoadWorld(string path)
         {
             if (_currentWorld != null)
-                _currentWorld.OnUnload();
+            {
+                _currentWorld.Visible = false;
+                Task unload = _currentWorld.Unload(path);
+            }
             _currentWorld = world;
             if (_currentWorld != null)
-                _currentWorld.OnLoad();
+            {
+                _currentWorld.Load();
+                _currentWorld.Visible = true;
+            }
         }
     }
 }

@@ -89,16 +89,16 @@ namespace CustomEngine.World
             _owningWorld = world;
 
             _rootSceneComponent.OnSpawned();
-            foreach (InstanceComponent comp in _instanceComponents)
-                comp.OnSpawned();
+            //foreach (InstanceComponent comp in _instanceComponents)
+            //    comp.OnSpawned();
         }
         public virtual void OnDespawned()
         {
             if (!IsSpawned)
                 return;
 
-            foreach (InstanceComponent comp in _instanceComponents)
-                comp.OnDespawned();
+            //foreach (InstanceComponent comp in _instanceComponents)
+            //    comp.OnDespawned();
             _rootSceneComponent.OnDespawned();
             
             _spawnIndex = -1;

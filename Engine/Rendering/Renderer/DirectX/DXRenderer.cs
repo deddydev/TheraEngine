@@ -5,6 +5,11 @@ namespace CustomEngine.Rendering
 {
     public class DXRenderer : RenderContext
     {
+        public override void Clear(BufferClear clearBufferMask)
+        {
+            throw new NotImplementedException();
+        }
+
         public override void CompileShader(string shader)
         {
             throw new NotImplementedException();
@@ -26,6 +31,26 @@ namespace CustomEngine.Rendering
         }
 
         public override void DrawCapsuleWireframe(float radius, float halfHeight)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void DrawSphereSolid(System.Single radius)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void DrawSphereWireframe(System.Single radius)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void LoadMatrix(Matrix4 matrix)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void MatrixMode(MtxMode modelview)
         {
             throw new NotImplementedException();
         }

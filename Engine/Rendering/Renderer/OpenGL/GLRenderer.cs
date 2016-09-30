@@ -129,6 +129,31 @@ namespace CustomEngine.Rendering
         {
             MultMatrix(Matrix4.CreateFromQuaternion(rotation));
         }
+
+        public override void DrawSphereWireframe(float radius)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void DrawSphereSolid(float radius)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void Clear(BufferClear clearBufferMask)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void MatrixMode(MtxMode modelview)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void LoadMatrix(Matrix4 matrix)
+        {
+            throw new NotImplementedException();
+        }
         #endregion
     }
 }

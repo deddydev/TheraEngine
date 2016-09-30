@@ -1,4 +1,6 @@
-﻿namespace System
+﻿using CustomEngine;
+
+namespace System
 {
     public unsafe static class Memory
     {
@@ -7,10 +9,11 @@
             switch (Environment.OSVersion.Platform)
             {
                 case PlatformID.Win32NT:
-                    Win32.MoveMemory(dst, src, size);
+                    //Win32.MoveMemory(dst, src, size);
                     break;
                 default:
-                    Engine.Show(Environment.OSVersion.Platform.ToString() + " not supported.");
+                    Engine.ShowMessage(Environment.OSVersion.Platform.ToString() + " not supported.");
+                    break;
             }
         }
 
@@ -19,10 +22,8 @@
             switch (Environment.OSVersion.Platform)
             {
                 case PlatformID.Win32NT:
-                    {
-                        Win32.FillMemory(dest, length, value);
-                        break;
-                    }
+                    //Win32.FillMemory(dest, length, value);
+                    break;
             }
         }
     }

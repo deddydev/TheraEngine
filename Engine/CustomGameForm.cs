@@ -47,7 +47,7 @@ namespace CustomEngine
         {
             base.OnResize(e);
             foreach (Viewport v in _viewports)
-                v.OnResized();
+                v.Resize(Width, Height);
         }
     }
 }

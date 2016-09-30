@@ -17,7 +17,7 @@ namespace CustomEngine.World.Actors
 
         protected override void SetupComponents()
         {
-            AddComponent();
+            //AddComponent();
         }
     }
 }

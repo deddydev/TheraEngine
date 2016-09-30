@@ -1,6 +1,4 @@
-C:\Users\David\Documents\Repositories\CustomEngine\Game\bin\Debug\PraxisGame.exe.config
 C:\Users\David\Documents\Repositories\CustomEngine\Game\obj\Debug\Game.csprojResolveAssemblyReference.cache
-C:\Users\David\Documents\Repositories\CustomEngine\Game\obj\Debug\PraxisGame.Properties.Resources.resources
 C:\Users\David\Documents\Repositories\CustomEngine\Game\obj\Debug\Game.csproj.GenerateResource.Cache
 X:\Repositories\CustomEngine\Game\bin\Debug\Game.exe.config
 X:\Repositories\CustomEngine\Game\obj\Debug\Game.csprojResolveAssemblyReference.cache
@@ -9,3 +7,13 @@ X:\Repositories\CustomEngine\Game\obj\Debug\Game.Properties.Resources.resources
 X:\Repositories\CustomEngine\Game\obj\Debug\Game.csproj.GenerateResource.Cache
 C:\Users\David\Documents\Repositories\CustomEngine\Game\bin\Debug\Game.exe.config
 C:\Users\David\Documents\Repositories\CustomEngine\Game\obj\Debug\Game.Properties.Resources.resources
+C:\Users\David\Documents\Repositories\CustomEngine\Game\bin\Debug\OpenTK.dll.config
+C:\Users\David\Documents\Repositories\CustomEngine\Game\bin\Debug\Game.exe
+C:\Users\David\Documents\Repositories\CustomEngine\Game\bin\Debug\Game.pdb
+C:\Users\David\Documents\Repositories\CustomEngine\Game\bin\Debug\CustomEngine.dll
+C:\Users\David\Documents\Repositories\CustomEngine\Game\bin\Debug\OpenTK.dll
+C:\Users\David\Documents\Repositories\CustomEngine\Game\bin\Debug\eyecm.PhysX.dll
+C:\Users\David\Documents\Repositories\CustomEngine\Game\bin\Debug\CustomEngine.pdb
+C:\Users\David\Documents\Repositories\CustomEngine\Game\bin\Debug\OpenTK.pdb
+C:\Users\David\Documents\Repositories\CustomEngine\Game\obj\Debug\Game.exe
+C:\Users\David\Documents\Repositories\CustomEngine\Game\obj\Debug\Game.pdb

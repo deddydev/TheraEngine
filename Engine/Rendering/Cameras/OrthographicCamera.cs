@@ -1,4 +1,5 @@
-﻿using System;
+﻿using OpenTK;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,10 +9,75 @@ namespace CustomEngine.Rendering.Cameras
 {
     public class OrthographicCamera : Camera
     {
+        public float Width { get { return Math.Abs(_orthoRight - _orthoLeft); } }
+        public float Height { get { return Math.Abs(_orthoTop - _orthoBottom); } }
+
+        private float 
+            _orthoLeft = 0.0f, 
+            _orthoRight = 1.0f, 
+            _orthoBottom = 0.0f, 
+            _orthoTop = 1.0f;
+        private float
+            _orthoLeftPercentage = 0.0f,
+            _orthoRightPercentage = 1.0f, 
+            _orthoBottomPercentage = 0.0f, 
+            _orthoTopPercentage = 1.0f;
+        private float
+            _originX,
+            _originY;
+        private float 
+            _originXPercentage,
+            _originYPercentage;
+
+        public void SetCenteredStyle() { SetOriginPercentages(0.5f, 0.5f); }
+        public void SetGraphStyle() { SetOriginPercentages(0.0f, 0.0f); }
+        public void SetOriginPercentages(float xPercentage, float yPercentage)
+        {
+            _originXPercentage = xPercentage;
+            _originYPercentage = yPercentage;
+
+            _orthoLeftPercentage = 0.0f - xPercentage;
+            _orthoRightPercentage = 1.0f - xPercentage;
+            _orthoBottomPercentage = 0.0f - yPercentage;
+            _orthoTopPercentage = 1.0f - yPercentage;
+        }
         public override void Zoom(float amount)
         {
             float scale = amount >= 0 ? amount : 1.0f / -amount;
-            Scale(scale, scale, scale);
+            Scale = Scale * new Vector3(scale);
+        }
+        public override void CalculateProjection()
+        {
+            _projectionMatrix = Matrix4.CreateOrthographicOffCenter(_orthoLeft, _orthoRight, _orthoBottom, _orthoTop, _nearZ, _farZ);
+            _projectionInverse = Matrix4.CreateInverseOrthographicOffCenter(_orthoLeft, _orthoRight, _orthoBottom, _orthoTop, _nearZ, _farZ);
+        }
+        public void SetProjectionParams(float farz, float nearz)
+        {
+            _farZ = farz;
+            _nearZ = nearz;
+            CalculateProjection();
+        }
+        public override void Resize(float width, float height)
+        {
+            _orthoLeft = _orthoLeftPercentage * width;
+            _orthoRight = _orthoRightPercentage * width;
+            _orthoBottom = _orthoBottomPercentage * height;
+            _orthoTop = _orthoTopPercentage * height;
+
+            _originX = _originXPercentage * width;
+            _originY = _originYPercentage * height;
+
+            base.Resize(width, height);
+        }
+        protected override float GetWidth() { return Width; }
+        protected override float GetHeight() { return Height; }
+        protected override Vector3 AlignScreenPoint(Vector3 screenPoint)
+        {
+            return new Vector3(screenPoint.X + _orthoLeft, screenPoint.Y + _orthoBottom, screenPoint.Z);
+        }
+        protected override Vector3 UnAlignScreenPoint(Vector3 screenPoint)
+        {
+            return new Vector3(screenPoint.X - _orthoLeft, screenPoint.Y - _orthoBottom, screenPoint.Z);
         }
     }
 }

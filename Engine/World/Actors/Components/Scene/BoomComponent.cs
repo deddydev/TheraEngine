@@ -1,5 +1,5 @@
 ﻿using CustomEngine.Rendering.Textures;
-using CustomEngine.System.Collision;
+using CustomEngine.Collision;
 using OpenTK;
 using eyecm.PhysX;
 
@@ -10,6 +10,11 @@ namespace CustomEngine.World.Actors.Components
         private Vector3 _startOffset;
         private Vector3 _endOffset;
         private float _length;
+
+        public BoomComponent()
+        {
+            _hiddenInGame = true;
+        }
 
         public void OnTraceHit(HitInfo hit)
         {
@@ -25,8 +30,7 @@ namespace CustomEngine.World.Actors.Components
         public override void Update()
         {
             base.Update();
-            eyecm.PhysX.Scene.RaycastAllShapes()
-            
+            //eyecm.PhysX.Scene.RaycastAllShapes()
         }
     }
 }

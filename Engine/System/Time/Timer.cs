@@ -1,10 +1,13 @@
-﻿using System.Linq;
+﻿using CustomEngine;
+using System.Linq;
 
 namespace System
 {
     public delegate void MultiFireAction(float totalElapsed, int fireNumber);
     public class Timer : ObjectBase
     {
+        public bool IsRunning { get { return _isRunning; } }
+
         //Set on start
         private MultiFireAction _multiMethod;
         private Action _singleMethod;
@@ -33,13 +36,15 @@ namespace System
         {
             Reset();
             _isRunning = false;
-            if (Form._activeTimers.Contains(this))
-                Form._activeTimers.Remove(this);
+
+            if (Engine.ActiveTimers.Contains(this))
+                Engine.ActiveTimers.Remove(this);
         }
         public void RunSingleFire(Action method, float seconds)
         {
             Reset();
 
+            _isRunning = true;
             _singleMethod = method;
             _startSeconds = seconds;
         }
@@ -52,8 +57,9 @@ namespace System
 
             _startSeconds = startSeconds;
             _isRunning = true;
-            if (!Form._activeTimers.Contains(this))
-                Form._activeTimers.Add(this);
+
+            if (!Engine.ActiveTimers.Contains(this))
+                Engine.ActiveTimers.Add(this);
         }
         public void UpdateTick(double deltaTime)
         {

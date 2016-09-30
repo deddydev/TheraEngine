@@ -18,8 +18,8 @@ namespace CustomGame
             using (CustomGameForm game = new CustomGameForm("Custom Game"))
             {
                 game.VSync = OpenTK.VSyncMode.Adaptive;
-                game.Run(60.0f);
-                game.LoadWorld(new Worlds.WorldGameOpen());
+                game.Run();
+                Engine.LoadWorld(new Worlds.WorldGameOpen());
             }
         }
     }

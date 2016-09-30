@@ -21,8 +21,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
 #endregion
-
-using CustomEngine.Rendering.Models.Meshes;
+ 
 using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;

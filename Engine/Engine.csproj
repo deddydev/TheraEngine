@@ -63,7 +63,19 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Cutscenes\Cutscene.cs" />
-    <Compile Include="System\Collision\Tracing.cs" />
+    <Compile Include="Rendering\Cameras\Camera.cs" />
+    <Compile Include="Rendering\Cameras\OrthographicCamera.cs" />
+    <Compile Include="Rendering\Cameras\PerspectiveCamera.cs" />
+    <Compile Include="System\Math\Collision\Tracing.cs" />
+    <Compile Include="System\Math\Enums.cs" />
+    <Compile Include="System\Math\Shapes\Plane.cs" />
+    <Compile Include="System\Math\Shapes\Ray.cs" />
+    <Compile Include="System\Math\Shapes\Sphere.cs" />
+    <Compile Include="System\Math\Transforms\Matrix.cs" />
+    <Compile Include="System\Math\Transforms\Quaternion.cs" />
+    <Compile Include="System\Math\Transforms\Vector2.cs" />
+    <Compile Include="System\Math\Transforms\Vector3.cs" />
+    <Compile Include="System\Math\Transforms\Vector4.cs" />
     <Compile Include="World\Actors\Components\InstanceComponent.cs" />
     <Compile Include="World\Actors\Components\Scene\BoomComponent.cs" />
     <Compile Include="World\Actors\Components\Scene\CameraComponent.cs" />
@@ -114,8 +126,8 @@
     <Compile Include="System\Extensions\Numbers\SingleExtension.cs" />
     <Compile Include="System\ObjectBase.cs" />
     <Compile Include="System\Reflection\Attributes\EngineFlagsAttribute.cs" />
-    <Compile Include="System\Shapes\Capsule.cs" />
-    <Compile Include="System\Shapes\Box.cs" />
+    <Compile Include="System\Math\Shapes\Capsule.cs" />
+    <Compile Include="System\Math\Shapes\Box.cs" />
     <Compile Include="System\Memory\DataSource.cs" />
     <Compile Include="System\Memory\FileMap.cs" />
     <Compile Include="System\Time\Timer.cs" />
@@ -132,12 +144,11 @@
     <Compile Include="World\Actors\Components\Logic\MovementComponent.cs" />
     <Compile Include="Rendering\HUD\HudManager.cs" />
     <Compile Include="Input\AIController.cs" />
-    <Compile Include="Input\Controller.cs" />
+    <Compile Include="Input\PawnController.cs" />
     <Compile Include="Input\PlayerController.cs" />
     <Compile Include="CustomGameForm.cs" />
     <Compile Include="System\Math\CustomMath.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="World\Camera.cs" />
     <Compile Include="World\Maps\Map.cs" />
     <Compile Include="World\Maps\MapSettings.cs" />
     <Compile Include="World\WorldBase.cs" />

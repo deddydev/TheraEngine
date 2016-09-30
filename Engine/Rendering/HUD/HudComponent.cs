@@ -47,7 +47,7 @@ namespace CustomEngine.Rendering.HUD
             foreach (HudComponent c in _children)
                 c.OnResized();
         }
-        public void Render()
+        public virtual void Render()
         {
             Renderer.PushMatrix();
             Renderer.Translate(X, Y, 0);

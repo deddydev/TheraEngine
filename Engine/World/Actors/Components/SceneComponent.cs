@@ -12,10 +12,10 @@ namespace CustomEngine.World.Actors.Components
         private SceneComponent _parent;
         private List<SceneComponent> _childComponents = new List<SceneComponent>();
 
-        private bool _visibleByDefault = true;
-        private bool _hiddenInGame = false;
-        private bool _overrideParentRenderState = false;
-        private bool _isRendering = false;
+        protected bool _visibleByDefault = true;
+        protected bool _hiddenInGame = false;
+        protected bool _overrideParentRenderState = false;
+        protected bool _isRendering = false;
 
         [EngineFlags(EEngineFlags.State | EEngineFlags.Getter)]
         public bool IsSpawned { get { return Owner.IsSpawned; } }

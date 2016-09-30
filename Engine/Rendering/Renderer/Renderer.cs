@@ -20,15 +20,20 @@ namespace CustomEngine.Rendering
     }
     public abstract class RenderContext
     {
-        public void DrawBoxWireframe(Box box) { DrawBoxWireframe(box.Minimum, box.Maximum); }
-        public abstract void DrawBoxWireframe(Vector3 min, Vector3 max);
+        public void DrawBoxWireframe(Box box) { DrawBoxWireframe(box.Minimum, box.Maximum); } 
         public void DrawBoxSolid(Box box) { DrawBoxSolid(box.Minimum, box.Maximum); }
+        public abstract void DrawBoxWireframe(Vector3 min, Vector3 max);
         public abstract void DrawBoxSolid(Vector3 min, Vector3 max);
 
         public void DrawCapsuleWireframe(Capsule capsule) { DrawCapsuleWireframe(capsule.Radius, capsule.HalfHeight); }
-        public abstract void DrawCapsuleWireframe(float radius, float halfHeight);
         public void DrawCapsuleSolid(Capsule capsule) { DrawCapsuleSolid(capsule.Radius, capsule.HalfHeight); }
+        public abstract void DrawCapsuleWireframe(float radius, float halfHeight);
         public abstract void DrawCapsuleSolid(float radius, float halfHeight);
+
+        public void DrawSphereWireframe(Sphere sphere) { DrawSphereWireframe(sphere.Radius); }
+        public void DrawSphereSolid(Sphere sphere) { DrawSphereSolid(sphere.Radius); }
+        public abstract void DrawSphereWireframe(float radius);
+        public abstract void DrawSphereSolid(float radius);
 
         public abstract void SetPointSize(float size);
         public abstract void SetLineSize(float size);

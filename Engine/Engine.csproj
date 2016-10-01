@@ -44,7 +44,12 @@
     <Reference Include="FreeImageNET">
       <HintPath>..\Libraries\FreeImageNET.dll</HintPath>
     </Reference>
-    <Reference Include="SlimDX, Version=2.0.13.43, Culture=neutral, PublicKeyToken=b1b0c32fd1ffe4f9, processorArchitecture=AMD64" />
+    <Reference Include="PresentationCore" />
+    <Reference Include="PresentationFramework" />
+    <Reference Include="SlimDX, Version=4.0.13.43, Culture=neutral, PublicKeyToken=b1b0c32fd1ffe4f9, processorArchitecture=AMD64">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Libraries\SlimDX.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Activities" />
     <Reference Include="System.Core" />
@@ -60,12 +65,19 @@
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
+    <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Cutscenes\Cutscene.cs" />
+    <Compile Include="EngineSettings.cs" />
+    <Compile Include="Files\FileExtensionManager.cs" />
+    <Compile Include="Input\Gamepad\GamepadManager.cs" />
     <Compile Include="Rendering\Cameras\Camera.cs" />
     <Compile Include="Rendering\Cameras\OrthographicCamera.cs" />
     <Compile Include="Rendering\Cameras\PerspectiveCamera.cs" />
+    <Compile Include="Rendering\Renderer\DisplayList.cs" />
+    <Compile Include="System\Extensions\ArrayExtension.cs" />
+    <Compile Include="System\Extensions\XmlExtension.cs" />
     <Compile Include="System\Math\Collision\Tracing.cs" />
     <Compile Include="System\Math\Enums.cs" />
     <Compile Include="System\Math\Shapes\Plane.cs" />
@@ -76,6 +88,17 @@
     <Compile Include="System\Math\Transforms\Vector2.cs" />
     <Compile Include="System\Math\Transforms\Vector3.cs" />
     <Compile Include="System\Math\Transforms\Vector4.cs" />
+    <Compile Include="System\Time\GlobalTimer.cs" />
+    <Compile Include="System\Windows\Controls\GamePanel.xaml.cs">
+      <DependentUpon>GamePanel.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="System\Windows\Controls\RenderPanel.cs" />
+    <Compile Include="System\Windows\Forms\RenderForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="System\Windows\Forms\RenderForm.Designer.cs">
+      <DependentUpon>RenderForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="World\Actors\Components\InstanceComponent.cs" />
     <Compile Include="World\Actors\Components\Scene\BoomComponent.cs" />
     <Compile Include="World\Actors\Components\Scene\CameraComponent.cs" />
@@ -86,7 +109,6 @@
     <Compile Include="World\Actors\Components\Scene\ShapeComponents\CapsuleComponent.cs" />
     <Compile Include="World\Actors\Components\Scene\ShapeComponents\BoxComponent.cs" />
     <Compile Include="Engine.cs" />
-    <Compile Include="Files\DirectoryWatcher.cs" />
     <Compile Include="GameModes\GameMode.cs" />
     <Compile Include="Rendering\Animation\AnimationContainer.cs" />
     <Compile Include="Rendering\Animation\KeyframeTrack.cs" />
@@ -95,11 +117,11 @@
     <Compile Include="Interfaces.cs" />
     <Compile Include="Players\PlayerInfo.cs" />
     <Compile Include="Rendering\Renderer\DirectX\DXRenderer.cs" />
-    <Compile Include="Rendering\Renderer\DirectX\DXWindowInfo.cs" />
+    <Compile Include="Rendering\Renderer\DirectX\DXWindowContext.cs" />
     <Compile Include="Rendering\Renderer\OpenGL\GLRenderer.cs" />
-    <Compile Include="Rendering\Renderer\OpenGL\GLWindowInfo.cs" />
-    <Compile Include="Rendering\Renderer\Renderer.cs" />
-    <Compile Include="Rendering\Renderer\RenderWindowInfo.cs" />
+    <Compile Include="Rendering\Renderer\OpenGL\GLWindowContext.cs" />
+    <Compile Include="Rendering\Renderer\AbstractRenderer.cs" />
+    <Compile Include="Rendering\Renderer\RenderWindowContext.cs" />
     <Compile Include="Rendering\Textures\Decal.cs" />
     <Compile Include="Sound\AmbientSound.cs" />
     <Compile Include="Sound\DynamicSoundEffect.cs" />
@@ -130,7 +152,7 @@
     <Compile Include="System\Math\Shapes\Box.cs" />
     <Compile Include="System\Memory\DataSource.cs" />
     <Compile Include="System\Memory\FileMap.cs" />
-    <Compile Include="System\Time\Timer.cs" />
+    <Compile Include="System\Time\GameTimer.cs" />
     <Compile Include="Rendering\Renderer\Viewport.cs" />
     <Compile Include="System\Memory\VoidPtr.cs" />
     <Compile Include="World\Actors\Actor.cs" />
@@ -146,7 +168,6 @@
     <Compile Include="Input\AIController.cs" />
     <Compile Include="Input\PawnController.cs" />
     <Compile Include="Input\PlayerController.cs" />
-    <Compile Include="CustomGameForm.cs" />
     <Compile Include="System\Math\CustomMath.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="World\Maps\Map.cs" />
@@ -188,8 +209,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="AI\" />
-    <Folder Include="System\Windows\Controls\" />
-    <Folder Include="System\Windows\Forms\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="OpenTK.GLControl.dll" />
@@ -199,6 +218,12 @@
       <Project>{a37a7e14-0000-0000-0000-000000000000}</Project>
       <Name>OpenTK</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Page Include="System\Windows\Controls\GamePanel.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

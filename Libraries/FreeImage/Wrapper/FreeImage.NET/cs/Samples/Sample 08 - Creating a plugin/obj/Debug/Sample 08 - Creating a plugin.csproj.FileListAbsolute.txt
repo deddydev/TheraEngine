@@ -1,3 +1,0 @@
-C:\Users\David\Documents\Repositories\Praxis\Praxis\Libraries\FreeImage\Wrapper\FreeImage.NET\cs\Samples\Sample 08 - Creating a plugin\obj\Debug\Sample 08 - Creating a plugin.csprojResolveAssemblyReference.cache
-C:\Users\David\Documents\Repositories\Praxis\Praxis\Libraries\FreeImage\Wrapper\FreeImage.NET\cs\Samples\Sample 08 - Creating a plugin\obj\Debug\Sample08.SampleForm.resources
-C:\Users\David\Documents\Repositories\Praxis\Praxis\Libraries\FreeImage\Wrapper\FreeImage.NET\cs\Samples\Sample 08 - Creating a plugin\obj\Debug\Sample 08 - Creating a plugin.csproj.GenerateResource.Cache

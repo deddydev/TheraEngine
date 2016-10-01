@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CustomEngine.World.Actors.Components
+namespace CustomEngine.Worlds.Actors.Components
 {
     public enum MovementMode
     {

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace CustomEngine.World.Actors
+namespace CustomEngine.Worlds.Actors
 {
     public abstract class Pawn : Actor
     {

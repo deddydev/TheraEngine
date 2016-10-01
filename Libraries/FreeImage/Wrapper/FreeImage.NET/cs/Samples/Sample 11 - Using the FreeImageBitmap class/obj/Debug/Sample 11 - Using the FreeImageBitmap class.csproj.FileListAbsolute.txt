@@ -1,3 +1,0 @@
-C:\Users\David\Documents\Repositories\Praxis\Praxis\Libraries\FreeImage\Wrapper\FreeImage.NET\cs\Samples\Sample 11 - Using the FreeImageBitmap class\obj\Debug\Sample11.MainForm.resources
-C:\Users\David\Documents\Repositories\Praxis\Praxis\Libraries\FreeImage\Wrapper\FreeImage.NET\cs\Samples\Sample 11 - Using the FreeImageBitmap class\obj\Debug\Sample11.MetaDataFrame.resources
-C:\Users\David\Documents\Repositories\Praxis\Praxis\Libraries\FreeImage\Wrapper\FreeImage.NET\cs\Samples\Sample 11 - Using the FreeImageBitmap class\obj\Debug\Sample 11 - Using the FreeImageBitmap class.csproj.GenerateResource.Cache

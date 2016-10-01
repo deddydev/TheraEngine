@@ -1,6 +1,0 @@
-C:\Users\David\Documents\Repositories\Praxis\Praxis\Libraries\FreeImage\Wrapper\FreeImage.NET\cs\SourceFileMerger\bin\Debug\FreeImage.cs.template
-C:\Users\David\Documents\Repositories\Praxis\Praxis\Libraries\FreeImage\Wrapper\FreeImage.NET\cs\SourceFileMerger\bin\Debug\sourcefilemerger.exe
-C:\Users\David\Documents\Repositories\Praxis\Praxis\Libraries\FreeImage\Wrapper\FreeImage.NET\cs\SourceFileMerger\bin\Debug\sourcefilemerger.pdb
-C:\Users\David\Documents\Repositories\Praxis\Praxis\Libraries\FreeImage\Wrapper\FreeImage.NET\cs\SourceFileMerger\obj\Debug\SourceFileMerger.csprojResolveAssemblyReference.cache
-C:\Users\David\Documents\Repositories\Praxis\Praxis\Libraries\FreeImage\Wrapper\FreeImage.NET\cs\SourceFileMerger\obj\Debug\sourcefilemerger.exe
-C:\Users\David\Documents\Repositories\Praxis\Praxis\Libraries\FreeImage\Wrapper\FreeImage.NET\cs\SourceFileMerger\obj\Debug\sourcefilemerger.pdb

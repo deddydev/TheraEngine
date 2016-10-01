@@ -1,6 +1,6 @@
 ﻿using CustomEngine.Rendering.Models.Meshes;
+using System;
 using System.Collections.Generic;
-using OpenTK;
 
 namespace CustomEngine.Rendering.Models.Skeleton
 {

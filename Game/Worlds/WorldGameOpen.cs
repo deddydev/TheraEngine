@@ -1,8 +1,8 @@
-﻿using CustomEngine.World;
+﻿using CustomEngine.Worlds;
 
 namespace CustomGame.Worlds
 {
-    public class WorldGameOpen : WorldBase
+    public class WorldGameOpen : World
     {
         public WorldGameOpen() : base("GameOpen")
         {

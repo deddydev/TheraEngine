@@ -1,7 +1,7 @@
 ﻿using CustomEngine.Rendering.Cameras;
 using CustomEngine.Rendering.Textures;
 
-namespace CustomEngine.World.Actors.Components
+namespace CustomEngine.Worlds.Actors.Components
 {
     public class CameraComponent : SceneComponent
     {

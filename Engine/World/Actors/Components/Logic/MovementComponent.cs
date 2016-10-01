@@ -1,6 +1,6 @@
 ﻿using OpenTK;
 
-namespace CustomEngine.World.Actors.Components
+namespace CustomEngine.Worlds.Actors.Components
 {
     public class MovementComponent : InstanceComponent
     {

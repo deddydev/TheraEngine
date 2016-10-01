@@ -194,9 +194,10 @@ namespace System
                 Data[(columnIndex << 2) + rowIndex] = value;
             }
         }
-        public void Transpose()
+        public void Transpose() { this = Transposed(); }
+        public Matrix4 Transposed()
         {
-            this = Transpose(this);
+            return new Matrix4(Column0, Column1, Column2, Column3);
         }
         public Matrix4 Normalized()
         {
@@ -615,29 +616,27 @@ namespace System
         /// <returns>A Matrix4 that transforms world space to camera space</returns>
         public static Matrix4 LookAt(Vector3 eye, Vector3 target, Vector3 up)
         {
-            Vector3 z = Vector3.Normalize(eye - target);
-            Vector3 x = Vector3.Normalize(Vector3.Cross(up, z));
-            Vector3 y = Vector3.Normalize(Vector3.Cross(z, x));
+            Vector3 z = eye.NormalizedFast(target);
+            Vector3 x = up.Cross(z).NormalizedFast();
+            Vector3 y = z.Cross(x).NormalizedFast();
 
             Matrix4 result;
-
             result.Row0.X = x.X;
             result.Row0.Y = y.X;
             result.Row0.Z = z.X;
-            result.Row0.W = 0;
+            result.Row0.W = 0.0f;
             result.Row1.X = x.Y;
             result.Row1.Y = y.Y;
             result.Row1.Z = z.Y;
-            result.Row1.W = 0;
+            result.Row1.W = 0.0f;
             result.Row2.X = x.Z;
             result.Row2.Y = y.Z;
             result.Row2.Z = z.Z;
-            result.Row2.W = 0;
+            result.Row2.W = 0.0f;
             result.Row3.X = -((x.X * eye.X) + (x.Y * eye.Y) + (x.Z * eye.Z));
             result.Row3.Y = -((y.X * eye.X) + (y.Y * eye.Y) + (y.Z * eye.Z));
             result.Row3.Z = -((z.X * eye.X) + (z.Y * eye.Y) + (z.Z * eye.Z));
-            result.Row3.W = 1;
-
+            result.Row3.W = 1.0f;
             return result;
         }
 
@@ -785,10 +784,6 @@ namespace System
             Row3.Z = inverse[3, 2];
             Row3.W = inverse[3, 3];
         }
-        public static Matrix4 Transpose(Matrix4 mat)
-        {
-            return new Matrix4(mat.Column0, mat.Column1, mat.Column2, mat.Column3);
-        }
         
         /// <summary>
         /// Creates a transform matrix.
@@ -825,34 +820,23 @@ namespace System
         }
         public static Matrix4 operator *(Matrix4 left, Matrix4 right)
         {
-            float 
-                lM11 = left.Row0.X, lM12 = left.Row0.Y, lM13 = left.Row0.Z, lM14 = left.Row0.W,
-                lM21 = left.Row1.X, lM22 = left.Row1.Y, lM23 = left.Row1.Z, lM24 = left.Row1.W,
-                lM31 = left.Row2.X, lM32 = left.Row2.Y, lM33 = left.Row2.Z, lM34 = left.Row2.W,
-                lM41 = left.Row3.X, lM42 = left.Row3.Y, lM43 = left.Row3.Z, lM44 = left.Row3.W,
-                rM11 = right.Row0.X, rM12 = right.Row0.Y, rM13 = right.Row0.Z, rM14 = right.Row0.W,
-                rM21 = right.Row1.X, rM22 = right.Row1.Y, rM23 = right.Row1.Z, rM24 = right.Row1.W,
-                rM31 = right.Row2.X, rM32 = right.Row2.Y, rM33 = right.Row2.Z, rM34 = right.Row2.W,
-                rM41 = right.Row3.X, rM42 = right.Row3.Y, rM43 = right.Row3.Z, rM44 = right.Row3.W;
+            Matrix4 nm;
+            float*
+                leftMtx = (float*)&left,
+                rightMtx = (float*)&right, 
+                dPtr = (float*)&nm;
+            
+            float val;
+            for (int rowIndex = 0; rowIndex < 16; rowIndex += 4)
+                for (int colIndex = 0; colIndex < 4; ++colIndex)
+                {
+                    val = 0.0f;
+                    for (int x = rowIndex, y = colIndex; y < 16; ++x, y += 4)
+                        val += rightMtx[x] * leftMtx[y];
+                    dPtr[rowIndex + colIndex] = val;
+                }
 
-            Matrix4 result = Identity;
-            result.Row0.X = (((lM11 * rM11) + (lM12 * rM21)) + (lM13 * rM31)) + (lM14 * rM41);
-            result.Row0.Y = (((lM11 * rM12) + (lM12 * rM22)) + (lM13 * rM32)) + (lM14 * rM42);
-            result.Row0.Z = (((lM11 * rM13) + (lM12 * rM23)) + (lM13 * rM33)) + (lM14 * rM43);
-            result.Row0.W = (((lM11 * rM14) + (lM12 * rM24)) + (lM13 * rM34)) + (lM14 * rM44);
-            result.Row1.X = (((lM21 * rM11) + (lM22 * rM21)) + (lM23 * rM31)) + (lM24 * rM41);
-            result.Row1.Y = (((lM21 * rM12) + (lM22 * rM22)) + (lM23 * rM32)) + (lM24 * rM42);
-            result.Row1.Z = (((lM21 * rM13) + (lM22 * rM23)) + (lM23 * rM33)) + (lM24 * rM43);
-            result.Row1.W = (((lM21 * rM14) + (lM22 * rM24)) + (lM23 * rM34)) + (lM24 * rM44);
-            result.Row2.X = (((lM31 * rM11) + (lM32 * rM21)) + (lM33 * rM31)) + (lM34 * rM41);
-            result.Row2.Y = (((lM31 * rM12) + (lM32 * rM22)) + (lM33 * rM32)) + (lM34 * rM42);
-            result.Row2.Z = (((lM31 * rM13) + (lM32 * rM23)) + (lM33 * rM33)) + (lM34 * rM43);
-            result.Row2.W = (((lM31 * rM14) + (lM32 * rM24)) + (lM33 * rM34)) + (lM34 * rM44);
-            result.Row3.X = (((lM41 * rM11) + (lM42 * rM21)) + (lM43 * rM31)) + (lM44 * rM41);
-            result.Row3.Y = (((lM41 * rM12) + (lM42 * rM22)) + (lM43 * rM32)) + (lM44 * rM42);
-            result.Row3.Z = (((lM41 * rM13) + (lM42 * rM23)) + (lM43 * rM33)) + (lM44 * rM43);
-            result.Row3.W = (((lM41 * rM14) + (lM42 * rM24)) + (lM43 * rM34)) + (lM44 * rM44);
-            return result;
+            return nm;
         }
         public static Matrix4 operator *(Matrix4 left, float right)
         {
@@ -894,10 +878,10 @@ namespace System
         {
             unchecked
             {
-                var hashCode = this.Row0.GetHashCode();
-                hashCode = (hashCode * 397) ^ this.Row1.GetHashCode();
-                hashCode = (hashCode * 397) ^ this.Row2.GetHashCode();
-                hashCode = (hashCode * 397) ^ this.Row3.GetHashCode();
+                int hashCode = Row0.GetHashCode();
+                hashCode = (hashCode * 397) ^ Row1.GetHashCode();
+                hashCode = (hashCode * 397) ^ Row2.GetHashCode();
+                hashCode = (hashCode * 397) ^ Row3.GetHashCode();
                 return hashCode;
             }
         }

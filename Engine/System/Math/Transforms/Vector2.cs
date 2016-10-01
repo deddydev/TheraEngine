@@ -41,8 +41,8 @@ namespace System
             }
         }
 
-        public float Length { get { return (float)Sqrt(X * X + Y * Y); } }
-        public float LengthFast { get { return 1.0f / InverseSqrtFast(X * X + Y * Y); } }
+        public float Length { get { return (float)Sqrt(LengthSquared); } }
+        public float LengthFast { get { return 1.0f / InverseSqrtFast(LengthSquared); } }
         public float LengthSquared { get { return X * X + Y * Y; } }
 
         /// <summary>
@@ -58,7 +58,6 @@ namespace System
         public static readonly Vector2 UnitY = new Vector2(0.0f, 1.0f);
         public static readonly Vector2 Zero = new Vector2(0.0f, 0.0f);
         public static readonly Vector2 One = new Vector2(1.0f, 1.0f);
-
         public static readonly int SizeInBytes = Marshal.SizeOf(new Vector2());
         
         public static Vector2 ComponentMin(Vector2 a, Vector2 b)
@@ -141,34 +140,10 @@ namespace System
         {
             result = left.X * right.Y - left.Y * right.X;
         }
-
-        /// <summary>
-        /// Returns a new Vector that is the linear blend of the 2 given Vectors
-        /// </summary>
-        /// <param name="a">First input vector</param>
-        /// <param name="b">Second input vector</param>
-        /// <param name="blend">The blend factor. a when blend=0, b when blend=1.</param>
-        /// <returns>a when blend=0, b when blend=1, and a linear combination otherwise</returns>
-        public static Vector2 Lerp(Vector2 a, Vector2 b, float blend)
+        public static Vector2 Lerp(Vector2 a, Vector2 b, float time)
         {
-            a.X = blend * (b.X - a.X) + a.X;
-            a.Y = blend * (b.Y - a.Y) + a.Y;
-            return a;
+            return a + (b - a) * time;
         }
-
-        /// <summary>
-        /// Returns a new Vector that is the linear blend of the 2 given Vectors
-        /// </summary>
-        /// <param name="a">First input vector</param>
-        /// <param name="b">Second input vector</param>
-        /// <param name="blend">The blend factor. a when blend=0, b when blend=1.</param>
-        /// <param name="result">a when blend=0, b when blend=1, and a linear combination otherwise</param>
-        public static void Lerp(ref Vector2 a, ref Vector2 b, float blend, out Vector2 result)
-        {
-            result.X = blend * (b.X - a.X) + a.X;
-            result.Y = blend * (b.Y - a.Y) + a.Y;
-        }
-
         /// <summary>
         /// Interpolate 3 Vectors using Barycentric coordinates
         /// </summary>

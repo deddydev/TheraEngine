@@ -20,7 +20,6 @@ namespace System
         public static readonly Vector4 UnitW = new Vector4(0.0f, 0.0f, 0.0f, 1.0f);
         public static readonly Vector4 Zero = new Vector4(0.0f, 0.0f, 0.0f, 0.0f);
         public static readonly Vector4 One = new Vector4(1.0f, 1.0f, 1.0f, 1.0f);
-
         public static readonly int SizeInBytes = Marshal.SizeOf(new Vector4());
         
         public Vector4(float value)
@@ -81,8 +80,8 @@ namespace System
                 Data[index] = value;
             }
         }
-        public float Length { get { return (float)Sqrt(X * X + Y * Y + Z * Z + W * W); } }
-        public float LengthFast { get { return 1.0f / InverseSqrtFast(X * X + Y * Y + Z * Z + W * W); } }
+        public float Length { get { return (float)Sqrt(LengthSquared); } }
+        public float LengthFast { get { return 1.0f / InverseSqrtFast(LengthSquared); } }
         public float LengthSquared { get { return X * X + Y * Y + Z * Z + W * W; } }
 
         public Vector4 Normalized()
@@ -132,34 +131,9 @@ namespace System
         {
             return X * right.X + Y * right.Y + Z * right.Z + W * right.W;
         }
-        /// <summary>
-        /// Returns a new Vector that is the linear blend of the 2 given Vectors
-        /// </summary>
-        /// <param name="a">First input vector</param>
-        /// <param name="b">Second input vector</param>
-        /// <param name="blend">The blend factor. a when blend=0, b when blend=1.</param>
-        /// <returns>a when blend=0, b when blend=1, and a linear combination otherwise</returns>
-        public static Vector4 Lerp(Vector4 a, Vector4 b, float blend)
+        public static Vector4 Lerp(Vector4 a, Vector4 b, float time)
         {
-            a.X = blend * (b.X - a.X) + a.X;
-            a.Y = blend * (b.Y - a.Y) + a.Y;
-            a.Z = blend * (b.Z - a.Z) + a.Z;
-            a.W = blend * (b.W - a.W) + a.W;
-            return a;
-        }
-        /// <summary>
-        /// Returns a new Vector that is the linear blend of the 2 given Vectors
-        /// </summary>
-        /// <param name="a">First input vector</param>
-        /// <param name="b">Second input vector</param>
-        /// <param name="blend">The blend factor. a when blend=0, b when blend=1.</param>
-        /// <param name="result">a when blend=0, b when blend=1, and a linear combination otherwise</param>
-        public static void Lerp(ref Vector4 a, ref Vector4 b, float blend, out Vector4 result)
-        {
-            result.X = blend * (b.X - a.X) + a.X;
-            result.Y = blend * (b.Y - a.Y) + a.Y;
-            result.Z = blend * (b.Z - a.Z) + a.Z;
-            result.W = blend * (b.W - a.W) + a.W;
+            return a + (b - a) * time;
         }
         /// <summary>
         /// Interpolate 3 Vectors using Barycentric coordinates
@@ -177,20 +151,40 @@ namespace System
         /// <summary>Transform a Vector by the given Matrix</summary>
         public static Vector4 operator *(Vector4 vec, Matrix4 mat)
         {
-            return new Vector4(
-                vec.X * mat.Row0.X + vec.Y * mat.Row1.X + vec.Z * mat.Row2.X + vec.W * mat.Row3.X,
-                vec.X * mat.Row0.Y + vec.Y * mat.Row1.Y + vec.Z * mat.Row2.Y + vec.W * mat.Row3.Y,
-                vec.X * mat.Row0.Z + vec.Y * mat.Row1.Z + vec.Z * mat.Row2.Z + vec.W * mat.Row3.Z,
-                vec.X * mat.Row0.W + vec.Y * mat.Row1.W + vec.Z * mat.Row2.W + vec.W * mat.Row3.W);
+            Vector4 nv;
+            float* dPtr = (float*)&nv;
+            float* sPtr = (float*)&vec;
+            float* 
+                row1 = (float*)&mat, 
+                row2 = row1 + 4, 
+                row3 = row2 + 4, 
+                row4 = row3 + 4;
+
+            for (int i = 0; i < 4; i++)
+                dPtr[i] = 
+                    row1[i] * sPtr[0] + 
+                    row2[i] * sPtr[1] + 
+                    row3[i] * sPtr[2] + 
+                    row4[i] * sPtr[3];
+
+            return nv;
         }
         /// <summary>Transform a Vector by the given Matrix using right-handed notation</summary>
         public static Vector4 operator *(Matrix4 mat, Vector4 vec)
         {
-            return new Vector4(
-                mat.Row0.X * vec.X + mat.Row0.Y * vec.Y + mat.Row0.Z * vec.Z + mat.Row0.W * vec.W,
-                mat.Row1.X * vec.X + mat.Row1.Y * vec.Y + mat.Row1.Z * vec.Z + mat.Row1.W * vec.W,
-                mat.Row2.X * vec.X + mat.Row2.Y * vec.Y + mat.Row2.Z * vec.Z + mat.Row2.W * vec.W,
-                mat.Row3.X * vec.X + mat.Row3.Y * vec.Y + mat.Row3.Z * vec.Z + mat.Row3.W * vec.W);
+            Vector4 nv;
+            float* dPtr = (float*)&nv;
+            float* sPtr = (float*)&vec;
+            Vector4* row = (Vector4*)&mat;
+
+            for (int i = 0; i < 4; i++)
+                dPtr[i] =
+                    row[i].X * sPtr[0] +
+                    row[i].Y * sPtr[1] +
+                    row[i].Z * sPtr[2] +
+                    row[i].W * sPtr[3];
+
+            return nv;
         }
         
         [XmlIgnore]

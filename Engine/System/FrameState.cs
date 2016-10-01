@@ -1,4 +1,4 @@
-﻿using OpenTK;
+﻿using System;
 
 namespace CustomEngine.Rendering.Models
 {

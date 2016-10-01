@@ -1,6 +1,6 @@
 ﻿using CustomEngine.Rendering.Textures;
 
-namespace CustomEngine.World.Actors.Components
+namespace CustomEngine.Worlds.Actors.Components
 {
     public class DecalComponent : SceneComponent
     {

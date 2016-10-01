@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections;
 
-namespace CustomEngine.World.Actors.Components
+namespace CustomEngine.Worlds.Actors.Components
 {
     public class SceneComponent : Component, IRenderable, ITransformable, IEnumerable<SceneComponent>
     {

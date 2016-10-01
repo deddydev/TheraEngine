@@ -1,6 +1,5 @@
 ﻿using CustomEngine.Rendering.Meshes;
-using CustomEngine.World;
-using OpenTK;
+using CustomEngine.Worlds;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,7 +14,7 @@ namespace CustomEngine.Collision
     {
         public Vector3 _hitNormal;
         public Vector3 _location;
-        public World.Actor _hitActor;
+        public Worlds.Actor _hitActor;
         public Model _hitModel;
     }
 }

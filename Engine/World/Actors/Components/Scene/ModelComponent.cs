@@ -2,7 +2,7 @@
 using System;
 using System.Reflection;
 
-namespace CustomEngine.World.Actors.Components
+namespace CustomEngine.Worlds.Actors.Components
 {
     public class ModelComponent : SceneComponent
     {

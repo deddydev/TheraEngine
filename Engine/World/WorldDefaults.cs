@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace CustomEngine.World
+namespace CustomEngine.Worlds
 {
     public class WorldDefaults
     {

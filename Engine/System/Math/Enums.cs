@@ -18,4 +18,9 @@ namespace System
         Partial,
         No
     }
+    public enum RenderLibrary
+    {
+        OpenGL,
+        DirectX
+    }
 }

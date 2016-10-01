@@ -2,10 +2,11 @@
 using System.Collections;
 using eyecm.PhysX;
 using System.Threading.Tasks;
+using System;
 
-namespace CustomEngine.World
+namespace CustomEngine.Worlds
 {
-    public abstract class WorldBase : IRenderable, IEnumerable<Actor>
+    public class World : IRenderable, ILoadable, IEnumerable<Actor>
     {
         protected List<Map> _spawnedMaps = new List<Map>();
         protected List<Actor> _spawnedActors;
@@ -20,9 +21,11 @@ namespace CustomEngine.World
 
         public int ActorCount { get { return _spawnedActors.Count; } }
 
-        public WorldBase(string name)
+        public World(string name, string filePath)
         {
             _name = name;
+            _filePath = filePath;
+            _isLoaded = false;
         }
 
         public void SpawnActor(Actor actor)
@@ -47,14 +50,6 @@ namespace CustomEngine.World
             foreach (Actor actor in _spawnedActors)
                 if (actor.IsSpawned)
                     actor.Render();
-        }
-        public static async Task Unload()
-        {
-            
-        }
-        public static async Task Load()
-        {
-            
         }
         public bool Visible
         {
@@ -85,6 +80,22 @@ namespace CustomEngine.World
         {
 
         }
+
+        #region ILoadable Interface
+        private bool _isLoaded;
+        private string _filePath;
+        public void Unload()
+        {
+            _isLoaded = false;
+        }
+        public void Load()
+        {
+            _isLoaded = true;
+        }
+        public string FilePath { get { return _filePath; } }
+        public bool IsLoaded { get { return _isLoaded; } }
+        #endregion
+
         public Actor this[int index]
         {
             get { return _spawnedActors[index]; }

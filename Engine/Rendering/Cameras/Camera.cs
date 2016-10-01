@@ -1,7 +1,5 @@
 ﻿using CustomEngine.Rendering;
 using CustomEngine.Rendering.Models;
-using OpenTK;
-using OpenTK.Graphics.OpenGL;
 using System;
 using System.Drawing;
 

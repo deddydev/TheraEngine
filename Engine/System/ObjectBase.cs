@@ -11,7 +11,7 @@ namespace System
 
         protected bool _changed;
 
-        public RenderContext Renderer { get { return Engine.Renderer; } }
+        public AbstractRenderer Renderer { get { return Engine.Renderer; } }
        
         protected void Changed(MethodBase property)
         {

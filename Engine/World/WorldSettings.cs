@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace CustomEngine.World
+namespace CustomEngine.Worlds
 {
     public class WorldSettings
     {

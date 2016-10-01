@@ -20,4 +20,15 @@ namespace CustomEngine
     {
 
     }
+    public interface ILoadable
+    {
+        void Load();
+        void Unload();
+        string FilePath { get; }
+        bool IsLoaded { get; }
+    }
+    public interface IRenderState
+    {
+
+    }
 }

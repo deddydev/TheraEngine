@@ -1,11 +1,10 @@
 ﻿using System.Collections.Generic;
 using System.Collections;
 using CustomEngine.Rendering.Models;
-using OpenTK;
 using System;
-using CustomEngine.World.Actors.Components;
+using CustomEngine.Worlds.Actors.Components;
 
-namespace CustomEngine.World
+namespace CustomEngine.Worlds
 {
     public enum EActorType
     {
@@ -20,7 +19,7 @@ namespace CustomEngine.World
         }
 
         public bool IsSpawned { get { return _spawnIndex >= 0; } }
-        public WorldBase OwningWorld { get { return _owningWorld; } }
+        public World OwningWorld { get { return _owningWorld; } }
 
         public SceneComponent RootComponent
         {
@@ -38,7 +37,7 @@ namespace CustomEngine.World
 
         public DateTime _lastRendered;
         public int _spawnIndex = -1;
-        private WorldBase _owningWorld;
+        private World _owningWorld;
         private SceneComponent _rootSceneComponent;
         private List<SceneComponent> _sceneComponentCache = new List<SceneComponent>();
         private List<InstanceComponent> _instanceComponents = new List<InstanceComponent>();
@@ -79,7 +78,7 @@ namespace CustomEngine.World
             if (IsSpawned && OwningWorld != null)
                 OwningWorld.DespawnActor(this);
         }
-        public virtual void OnSpawned(WorldBase world)
+        public virtual void OnSpawned(World world)
         {
             if (IsSpawned)
                 return;

@@ -1,4 +1,4 @@
-﻿namespace CustomEngine.World.Actors
+﻿namespace CustomEngine.Worlds.Actors
 {
     public class Character : Pawn
     {

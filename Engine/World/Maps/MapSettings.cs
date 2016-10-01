@@ -1,4 +1,4 @@
-﻿namespace CustomEngine.World.Maps
+﻿namespace CustomEngine.Worlds.Maps
 {
     public class MapSettings
     {

@@ -20,7 +20,6 @@ namespace CustomEngine.Rendering
         public Camera Camera { get { return _player.CurrentCamera; } }
         public HudManager HUD { get { return _hud; } }
         public int ViewportNumber { get { return _player.Number; } }
-        CustomGameForm Form { get { return CustomGameForm.Instance; } }
 
         public float Height { get { return _region.Height; } }
         public float Width { get { return _region.Width; } }

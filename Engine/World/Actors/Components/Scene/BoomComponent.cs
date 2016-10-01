@@ -3,7 +3,7 @@ using CustomEngine.Collision;
 using OpenTK;
 using eyecm.PhysX;
 
-namespace CustomEngine.World.Actors.Components
+namespace CustomEngine.Worlds.Actors.Components
 {
     public class BoomComponent : SceneComponent
     {

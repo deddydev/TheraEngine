@@ -1,13 +1,20 @@
 ﻿using System;
 using OpenTK.Graphics.OpenGL;
 using OpenTK;
+using System.Windows.Controls;
 
 namespace CustomEngine.Rendering
 {
-    public class GLRenderer : RenderContext
+    public unsafe class GLRenderer : AbstractRenderer
     {
+        public static GLRenderer Instance = new GLRenderer();
+        public GLRenderer()
+        {
+            
+        }
+
         #region Shapes
-        public override void DrawBoxWireframe(Vector3 min, Vector3 max)
+        public override void DrawBoxWireframe(System.Vector3 min, System.Vector3 max)
         {
             GL.Begin(PrimitiveType.LineStrip);
 
@@ -38,7 +45,7 @@ namespace CustomEngine.Rendering
 
             GL.End();
         }
-        public override void DrawBoxSolid(Vector3 min, Vector3 max)
+        public override void DrawBoxSolid(System.Vector3 min, System.Vector3 max)
         {
             GL.Begin(PrimitiveType.QuadStrip);
             
@@ -101,9 +108,10 @@ namespace CustomEngine.Rendering
         {
             GL.PopAttrib();
         }
-        public override void MultMatrix(Matrix4 matrix)
+        public override void MultMatrix(System.Matrix4 matrix)
         {
-            GL.MultMatrix(ref matrix);
+            OpenTK.Matrix4 m = GLMat4(matrix);
+            GL.MultMatrix(ref m);
         }
         public override void Translate(float x, float y, float z)
         {
@@ -117,17 +125,17 @@ namespace CustomEngine.Rendering
         {
             //TODO: which method is faster?
             //Method 1:
-            Matrix4 rotX = Matrix4.CreateRotationX(roll);
-            Matrix4 rotY = Matrix4.CreateRotationY(pitch);
-            Matrix4 rotZ = Matrix4.CreateRotationZ(yaw);
+            System.Matrix4 rotX = System.Matrix4.CreateRotationX(roll);
+            System.Matrix4 rotY = System.Matrix4.CreateRotationY(pitch);
+            System.Matrix4 rotZ = System.Matrix4.CreateRotationZ(yaw);
             MultMatrix(rotX * rotY * rotZ);
 
             //Method 2:
             //Rotate(Quaternion.FromEulerAngles(pitch, yaw, roll));
         }
-        public override void Rotate(Quaternion rotation)
+        public override void Rotate(System.Quaternion rotation)
         {
-            MultMatrix(Matrix4.CreateFromQuaternion(rotation));
+            MultMatrix(System.Matrix4.CreateFromQuaternion(rotation));
         }
 
         public override void DrawSphereWireframe(float radius)
@@ -150,10 +158,67 @@ namespace CustomEngine.Rendering
             throw new NotImplementedException();
         }
 
-        public override void LoadMatrix(Matrix4 matrix)
+        public override void LoadMatrix(System.Matrix4 matrix)
         {
             throw new NotImplementedException();
         }
         #endregion
+
+        #region Conversion
+        private OpenTK.Matrix4 GLMat4(System.Matrix4 matrix4)
+        {
+            //OpenTK.Matrix4 m = new OpenTK.Matrix4();
+            //float* sPtr = (float*)&m;
+            //float* dPtr = (float*)&matrix4;
+            //for (int i = 0; i < 16; ++i)
+            //    *dPtr++ = *sPtr++;
+            //return m;
+            return *(OpenTK.Matrix4*)&matrix4;
+        }
+        private OpenTK.Vector4 GLVec4(System.Vector4 vec4)
+        {
+            return *(OpenTK.Vector4*)&vec4;
+        }
+        private OpenTK.Vector3 GLVec3(System.Vector3 vec3)
+        {
+            return *(OpenTK.Vector3*)&vec3;
+        }
+        private OpenTK.Vector2 GLVec2(System.Vector2 vec2)
+        {
+            return *(OpenTK.Vector2*)&vec2;
+        }
+        private OpenTK.Quaternion GLQuat(System.Quaternion quat)
+        {
+            return *(OpenTK.Quaternion*)&quat;
+        }
+        #endregion
+
+        public override float GetDepth(float x, float y)
+        {
+            float val = 0;
+            GL.ReadPixels((int)x, (int)(Engine.CurrentPanel.Height - y), 1, 1, PixelFormat.DepthComponent, PixelType.Float, ref val);
+            return val;
+        }
+
+        public override int CreateDisplayList()
+        {
+            return GL.GenLists(1);
+        }
+        public override void BeginDisplayList(int id, DisplayListMode mode)
+        {
+            GL.NewList(id, mode == DisplayListMode.Compile ? ListMode.Compile : ListMode.CompileAndExecute);
+        }
+        public override void EndDisplayList()
+        {
+            GL.EndList();
+        }
+        public override void CallDisplayList(int id)
+        {
+            GL.CallList(id);
+        }
+        public override void DeleteDisplayList(int id)
+        {
+            GL.DeleteLists(id, 1);
+        }
     }
 }

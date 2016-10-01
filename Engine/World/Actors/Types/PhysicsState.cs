@@ -1,6 +1,6 @@
 ﻿using OpenTK;
 
-namespace CustomEngine.World.Actors
+namespace CustomEngine.Worlds.Actors
 {
     public class PhysicsState
     {

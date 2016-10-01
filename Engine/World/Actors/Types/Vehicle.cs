@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace CustomEngine.World.Actors
+namespace CustomEngine.Worlds.Actors
 {
     public class Vehicle
     {

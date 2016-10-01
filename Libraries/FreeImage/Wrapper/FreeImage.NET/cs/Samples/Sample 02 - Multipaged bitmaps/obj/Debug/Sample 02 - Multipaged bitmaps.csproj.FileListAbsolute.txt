@@ -1,1 +1,0 @@
-C:\Users\David\Documents\Repositories\Praxis\Praxis\Libraries\FreeImage\Wrapper\FreeImage.NET\cs\Samples\Sample 02 - Multipaged bitmaps\obj\Debug\Sample 02 - Multipaged bitmaps.csprojResolveAssemblyReference.cache

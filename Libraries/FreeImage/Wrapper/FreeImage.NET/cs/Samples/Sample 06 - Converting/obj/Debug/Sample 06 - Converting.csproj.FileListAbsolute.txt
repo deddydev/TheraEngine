@@ -1,3 +1,0 @@
-C:\Users\David\Documents\Repositories\Praxis\Praxis\Libraries\FreeImage\Wrapper\FreeImage.NET\cs\Samples\Sample 06 - Converting\obj\Debug\Sample 06 - Converting.csprojResolveAssemblyReference.cache
-C:\Users\David\Documents\Repositories\Praxis\Praxis\Libraries\FreeImage\Wrapper\FreeImage.NET\cs\Samples\Sample 06 - Converting\obj\Debug\Sample06.MainForm.resources
-C:\Users\David\Documents\Repositories\Praxis\Praxis\Libraries\FreeImage\Wrapper\FreeImage.NET\cs\Samples\Sample 06 - Converting\obj\Debug\Sample 06 - Converting.csproj.GenerateResource.Cache

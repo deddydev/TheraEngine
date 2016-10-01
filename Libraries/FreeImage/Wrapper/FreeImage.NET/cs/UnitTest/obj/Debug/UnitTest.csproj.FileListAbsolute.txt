@@ -1,1 +1,0 @@
-C:\Users\David\Documents\Repositories\Praxis\Praxis\Libraries\FreeImage\Wrapper\FreeImage.NET\cs\UnitTest\obj\Debug\UnitTest.csprojResolveAssemblyReference.cache

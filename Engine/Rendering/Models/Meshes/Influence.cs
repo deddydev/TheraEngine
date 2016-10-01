@@ -1,5 +1,4 @@
 ﻿using CustomEngine.Rendering.Models.Skeleton;
-using OpenTK;
 using System;
 using System.Collections;
 using System.Collections.Generic;

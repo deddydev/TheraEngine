@@ -1,6 +1,0 @@
-C:\Users\David\Documents\Repositories\Praxis\Praxis\Libraries\FreeImage\Wrapper\FreeImage.NET\cs\Library\bin\Debug\FreeImageNET.XML
-C:\Users\David\Documents\Repositories\Praxis\Praxis\Libraries\FreeImage\Wrapper\FreeImage.NET\cs\Library\obj\Debug\Library.csprojResolveAssemblyReference.cache
-C:\Users\David\Documents\Repositories\CustomEngine\Libraries\FreeImage\Wrapper\FreeImage.NET\cs\Library\bin\Debug\FreeImageNET.dll
-C:\Users\David\Documents\Repositories\CustomEngine\Libraries\FreeImage\Wrapper\FreeImage.NET\cs\Library\bin\Debug\FreeImageNET.pdb
-C:\Users\David\Documents\Repositories\CustomEngine\Libraries\FreeImage\Wrapper\FreeImage.NET\cs\Library\obj\Debug\FreeImageNET.dll
-C:\Users\David\Documents\Repositories\CustomEngine\Libraries\FreeImage\Wrapper\FreeImage.NET\cs\Library\obj\Debug\FreeImageNET.pdb

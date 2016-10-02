@@ -86,10 +86,18 @@ namespace CustomEngine.Worlds
         private string _filePath;
         public void Unload()
         {
+            if (!_isLoaded)
+                return;
+
             _isLoaded = false;
         }
         public void Load()
         {
+            if (_isLoaded)
+                return;
+            foreach (Map m in _allMaps)
+                if (m.VisibleByDefault)
+                    m.Load();
             _isLoaded = true;
         }
         public string FilePath { get { return _filePath; } }

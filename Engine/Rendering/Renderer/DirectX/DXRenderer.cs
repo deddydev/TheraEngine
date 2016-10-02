@@ -150,5 +150,75 @@ namespace CustomEngine.Rendering
         {
             throw new NotImplementedException();
         }
+
+        public override int CreateDisplayList()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void BeginDisplayList(int id, DisplayListMode mode)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void EndDisplayList()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void CallDisplayList(int id)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void DeleteDisplayList(int id)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void Begin(EPrimitive type)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void Vertex3(System.Vector3 value)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void Vertex2(System.Vector2 value)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void Normal3(System.Vector3 value)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void TexCoord2(System.Vector2 value)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void MultiTexCoord2(int unit, System.Vector2 value)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void End()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void AttachShader(int programHandle, int shaderHandle)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void LinkProgram(int programHandle)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

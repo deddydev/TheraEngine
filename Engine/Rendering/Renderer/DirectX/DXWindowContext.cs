@@ -1,21 +1,17 @@
 ﻿using System;
 using System.Drawing;
 using System.Windows.Forms;
-
-using SlimDX;
-using SlimDX.DXGI;
-using SlimDX.Direct3D11;
-using SlimDX.Direct2D;
-using SlimDX.Windows;
-using Device = SlimDX.Direct3D11.Device;
 using System.Windows.Controls;
 using System.Windows;
+using SlimDX.Direct3D11;
+using SlimDX.DXGI;
+using SlimDX;
 
 namespace CustomEngine.Rendering.DirectX
 {
     public class DXWindowContext : RenderWindowContext
     {
-        private static Device _device;
+        private static SlimDX.Direct3D11.Device _device;
         private static SwapChain _swapChain;
         private static RenderTargetView _renderTarget;
         private static Texture2D _resource;
@@ -41,7 +37,7 @@ namespace CustomEngine.Rendering.DirectX
                 SwapEffect = SwapEffect.Discard
             };
 
-            Device.CreateWithSwapChain(DriverType.Hardware, DeviceCreationFlags.None, swapChainDesc, out _device, out _swapChain);
+            SlimDX.Direct3D11.Device.CreateWithSwapChain(DriverType.Hardware, DeviceCreationFlags.None, swapChainDesc, out _device, out _swapChain);
         }
 
         protected override AbstractRenderer GetRendererInstance() { return DXRenderer.Instance; }
@@ -139,18 +135,18 @@ namespace CustomEngine.Rendering.DirectX
                }
             );
 
-            _context.OutputMerger.DepthStencilState = DepthStencilState.FromDescription(
-                _device,
-                new DepthStencilStateDescription()
-                {
-                    DepthComparison = Comparison.Always,
-                    DepthWriteMask = DepthWriteMask.All,
-                    IsDepthEnabled = true,
-                    IsStencilEnabled = false
-                }
-            );
+            //_context.OutputMerger.DepthStencilState = DepthStencilState.FromDescription(
+            //    _device,
+            //    new DepthStencilStateDescription()
+            //    {
+            //        DepthComparison = Comparison.Always,
+            //        DepthWriteMask = DepthWriteMask.All,
+            //        IsDepthEnabled = true,
+            //        IsStencilEnabled = false
+            //    }
+            //);
 
-            _context.OutputMerger.SetTargets(depthStencil, renderTarget);
+            //_context.OutputMerger.SetTargets(_depthStencil, _renderTarget);
 
             DepthStencilStateDescription dssd = new DepthStencilStateDescription
             {
@@ -160,9 +156,9 @@ namespace CustomEngine.Rendering.DirectX
                 DepthComparison = Comparison.Less,
             };
 
-            DepthStencilState depthStencilStateNormal;
-            depthStencilStateNormal = DepthStencilState.FromDescription(DeviceManager.Instance.device, dssd);
-            DeviceManager.Instance.context.OutputMerger.DepthStencilState = depthStencilStateNormal;
+            //DepthStencilState depthStencilStateNormal;
+            //depthStencilStateNormal = DepthStencilState.FromDescription(DeviceManager.Instance.device, dssd);
+            //DeviceManager.Instance.context.OutputMerger.DepthStencilState = depthStencilStateNormal;
         }
 
         public override void Dispose()

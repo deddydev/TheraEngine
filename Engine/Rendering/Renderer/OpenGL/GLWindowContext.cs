@@ -3,6 +3,8 @@ using OpenTK.Graphics.OpenGL;
 using OpenTK.Platform;
 using System.Windows.Controls;
 using System.Windows.Forms;
+using System;
+using System.Windows;
 
 namespace CustomEngine.Rendering.OpenGL
 {
@@ -19,12 +21,6 @@ namespace CustomEngine.Rendering.OpenGL
             _context = new GraphicsContext(GraphicsMode.Default, _winInfo);
             _context.MakeCurrent(WindowInfo);
             _context.LoadAll();
-        }
-
-        protected override void OnResized(object sender, System.EventArgs e)
-        {
-            OnUpdated();
-            _control.Invalidate();
         }
         public override bool IsCurrent()
         {
@@ -69,7 +65,7 @@ namespace CustomEngine.Rendering.OpenGL
 
         public override void Initialize()
         {
-            System.Vector3 v = (System.Vector3)_control.BackColor;
+            Vector3 v = (Vector3)_control.BackColor;
             GL.ClearColor(v.X, v.Y, v.Z, 0.0f);
             GL.ClearDepth(1.0);
 
@@ -108,6 +104,12 @@ namespace CustomEngine.Rendering.OpenGL
         public override void EndDraw()
         {
 
+        }
+
+        protected override void OnResized(object sender, SizeChangedEventArgs e)
+        {
+            OnUpdated();
+            _control.Redraw();
         }
     }
 }

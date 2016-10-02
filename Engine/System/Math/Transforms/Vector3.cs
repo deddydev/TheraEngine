@@ -444,6 +444,10 @@ namespace System
         {
             return new Vector3(v.X, v.Y, 0.0f);
         }
+        public static explicit operator Vector3(ColorF v)
+        {
+            return new Vector3(v.R, v.G, v.B);
+        }
         private const float _colorFactor = 1.0f / 255.0f;
         public static explicit operator Vector3(Color c) { return new Vector3(c.R * _colorFactor, c.G * _colorFactor, c.B * _colorFactor); }
         public static explicit operator Color(Vector3 v) { return Color.FromArgb((int)(v.X / _colorFactor), (int)(v.Y / _colorFactor), (int)(v.Z / _colorFactor)); }
@@ -468,7 +472,7 @@ namespace System
             if (!(obj is Vector3))
                 return false;
 
-            return this.Equals((Vector3)obj);
+            return Equals((Vector3)obj);
         }
         public bool Equals(Vector3 other)
         {

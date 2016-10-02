@@ -15,6 +15,8 @@ namespace System
         public static implicit operator ColorF(RGBAPixel p) { return new ColorF() { A = p.A / 255.0f, B = p.B / 255.0f, G = p.G / 255.0f, R = p.R / 255.0f }; }
         public static implicit operator ColorF(ARGBPixel p) { return new ColorF() { A = p.A / 255.0f, B = p.B / 255.0f, G = p.G / 255.0f, R = p.R / 255.0f }; }
         public static implicit operator ColorF(Color p) { return new ColorF() { A = p.A / 255.0f, B = p.B / 255.0f, G = p.G / 255.0f, R = p.R / 255.0f }; }
+        public static implicit operator ColorF(Vector3 v) { return new ColorF(v.X, v.Y, v.Z, 1.0f); }
+        public static implicit operator ColorF(Vector4 v) { return new ColorF(v.X, v.Y, v.Z, v.W); }
     }
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public struct RGBAPixel
@@ -25,7 +27,7 @@ namespace System
 
         public static implicit operator RGBAPixel(ColorF p) { return new RGBAPixel() { A = (byte)(p.A * 255.0f), B = (byte)(p.B * 255.0f), G = (byte)(p.G * 255.0f), R = (byte)(p.R * 255.0f) }; }
         public static implicit operator RGBAPixel(ARGBPixel p) { return new RGBAPixel() { A = p.A, B = p.B, G = p.G, R = p.R }; }
-        public static explicit operator RGBAPixel(Color p) { return new RGBAPixel() { A = p.A, B = p.B, G = p.G, R = p.R }; }
+        public static implicit operator RGBAPixel(Color p) { return new RGBAPixel() { A = p.A, B = p.B, G = p.G, R = p.R }; }
     }
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public struct ARGBPixel
@@ -36,7 +38,7 @@ namespace System
 
         public static implicit operator ARGBPixel(ColorF p) { return new ARGBPixel() { A = (byte)(p.A * 255.0f), B = (byte)(p.B * 255.0f), G = (byte)(p.G * 255.0f), R = (byte)(p.R * 255.0f) }; }
         public static implicit operator ARGBPixel(RGBAPixel p) { return new ARGBPixel() { A = p.A, B = p.B, G = p.G, R = p.R }; }
-        public static explicit operator ARGBPixel(Color p) { return new ARGBPixel() { A = p.A, B = p.B, G = p.G, R = p.R }; }
+        public static implicit operator ARGBPixel(Color p) { return new ARGBPixel() { A = p.A, B = p.B, G = p.G, R = p.R }; }
     }
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public unsafe struct HSVPixel

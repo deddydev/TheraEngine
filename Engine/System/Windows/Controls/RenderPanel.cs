@@ -36,6 +36,9 @@ namespace System.Windows.Controls
             }
         }
 
+        public ColorF BackColor { get { return _backColor; } set { _backColor = value; } }
+        private ColorF _backColor = Drawing.Color.Lavender;
+
         public RenderPanel()
         {
             //SetStyle(
@@ -59,8 +62,8 @@ namespace System.Windows.Controls
             }
         }
         public void BeginUpdate() { ++_updateCounter; }
-        public void EndUpdate() { if ((_updateCounter = Math.Max(_updateCounter - 1, 0)) == 0) DrawScene(); }
-        public void DrawScene() { InvalidateVisual(); }
+        public void EndUpdate() { if ((_updateCounter = Math.Max(_updateCounter - 1, 0)) == 0) Redraw(); }
+        public void Redraw() { InvalidateVisual(); }
         protected override void OnRender(DrawingContext drawingContext)
         {
             if (_updateCounter > 0)

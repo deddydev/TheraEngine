@@ -14,6 +14,8 @@ namespace CustomEngine
     {
         public const string SettingsPath = "/Config/EngineSettings.xml";
 
+        const float UpdateRate = 0.0f;
+
         public static AbstractRenderer Renderer { get { return _renderer; } set { _renderer = value; } }
         private static AbstractRenderer _renderer;
 
@@ -23,7 +25,11 @@ namespace CustomEngine
 
         public static World TransitionWorld { get { return _transitionWorld; } set { _transitionWorld = value; } }
         private static World _transitionWorld = null;
-        public static World CurrentWorld { get { return _currentWorld; } set { _currentWorld = value; } }
+        public static World CurrentWorld
+        {
+            get { return _currentWorld; }
+            set { _currentWorld = value; }
+        }
         private static World _currentWorld = null;
 
         public static BindingList<World> LoadedWorlds = new BindingList<World>();
@@ -45,7 +51,7 @@ namespace CustomEngine
         static Engine()
         {
             _timer = new GlobalTimer();
-            _timer.Run(60.0f);
+            _timer.Run(0.0f, 60.0f);
             LoadDefaults();
         }
         public static void LoadDefaults()
@@ -54,22 +60,7 @@ namespace CustomEngine
             _transitionWorld = new World("TransitionWorld", s._transitionWorldPath);
             _transitionWorld.Load();
         }
-
-        private static void _contentWatcher_Deleted(object sender, FileSystemEventArgs e)
-        {
-            throw new NotImplementedException();
-        }
-
-        private static void _contentWatcher_Created(object sender, FileSystemEventArgs e)
-        {
-            throw new NotImplementedException();
-        }
-
-        private static void _contentWatcher_Changed(object sender, FileSystemEventArgs e)
-        {
-            throw new NotImplementedException();
-        }
-
+        public static void Run(float fps) { _timer.Run(UpdateRate, fps); }
         public static void ShowMessage(string message,  int viewport = -1)
         {
             GamePanel panel = CurrentPanel;
@@ -88,19 +79,11 @@ namespace CustomEngine
                 c.Update();
             World.Update();
         }
-        public static void SetCurrentWorld(World path)
+        public static void SetCurrentWorld(World world)
         {
-            //if (_currentWorld != null)
-            //{
-            //    _currentWorld.Visible = false;
-            //    Task unload = _currentWorld.Unload(path);
-            //}
-            //_currentWorld = world;
-            //if (_currentWorld != null)
-            //{
-            //    _currentWorld.Load();
-            //    _currentWorld.Visible = true;
-            //}
+            if (world != null && !world.IsLoaded)
+                world.Load();
+            CurrentWorld = world;
         }
     }
 }

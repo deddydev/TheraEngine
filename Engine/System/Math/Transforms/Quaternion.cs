@@ -214,7 +214,7 @@ namespace System
             else if (q2.LengthSquared == 0.0f)
                 return q1;
 
-            float cosHalfAngle = q1.W * q2.W + Vector3.Dot(q1.Xyz, q2.Xyz);
+            float cosHalfAngle = q1.W * q2.W + q1.Xyz.Dot(q2.Xyz);
             if (cosHalfAngle >= 1.0f || cosHalfAngle <= -1.0f)
             {
                 // angle = 0.0f, so just return one input.
@@ -264,8 +264,8 @@ namespace System
         public static Quaternion operator *(Quaternion left, Quaternion right)
         {
             return new Quaternion(
-                right.W * left.Xyz + left.W * right.Xyz + Vector3.Cross(left.Xyz, right.Xyz),
-                left.W * right.W - Vector3.Dot(left.Xyz, right.Xyz));
+                right.W * left.Xyz + left.W * right.Xyz + left.Xyz.Cross(right.Xyz),
+                left.W * right.W - left.Xyz.Dot(right.Xyz));
         }
         public static Quaternion operator *(Quaternion quaternion, float scale)
         {

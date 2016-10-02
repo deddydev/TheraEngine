@@ -3,7 +3,7 @@ using System.Reflection;
 
 namespace CustomEngine.Worlds.Actors.Components
 {
-    public class CapsuleComponent : SceneComponent
+    public class CapsuleComponent : ShapeComponent
     {
         public Capsule Capsule
         {

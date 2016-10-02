@@ -96,7 +96,7 @@ namespace CustomEngine.Rendering
         }
         public override void CompileShader(System.String shader)
         {
-            throw new NotImplementedException();
+            
         }
 
         #region Matrices
@@ -219,6 +219,44 @@ namespace CustomEngine.Rendering
         public override void DeleteDisplayList(int id)
         {
             GL.DeleteLists(id, 1);
+        }
+        public override void Begin(EPrimitive type)
+        {
+            GL.Begin((PrimitiveType)(int)type);
+        }
+        public override void Vertex3(System.Vector3 value)
+        {
+            GL.Vertex3(value.X, value.Y, value.Z);
+        }
+        public override void Vertex2(System.Vector2 value)
+        {
+            GL.Vertex2(value.X, value.Y);
+        }
+        public override void Normal3(System.Vector3 value)
+        {
+            GL.Normal3(value.X, value.Y, value.Z);
+        }
+        public override void TexCoord2(System.Vector2 value)
+        {
+            GL.TexCoord2(value.X, value.Y);
+        }
+        public override void MultiTexCoord2(int unit, System.Vector2 value)
+        {
+            GL.MultiTexCoord2(TextureUnit.Texture0 + unit, value.X, value.Y);
+        }
+        public override void End()
+        {
+            GL.End();
+        }
+
+        public override void AttachShader(int programHandle, int shaderHandle)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void LinkProgram(int programHandle)
+        {
+            throw new NotImplementedException();
         }
     }
 }

@@ -23,6 +23,8 @@ namespace CustomEngine.Worlds
         }
         public string FilePath { get { return _filePath; } }
         public bool IsLoaded { get { return _isLoaded; } }
+
+        public System.Boolean VisibleByDefault { get; internal set; }
         #endregion
     }
 }

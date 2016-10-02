@@ -3,7 +3,7 @@ using System.Reflection;
 
 namespace CustomEngine.Worlds.Actors.Components
 {
-    public class BoxComponent : SceneComponent
+    public class BoxComponent : ShapeComponent
     {
         public Box Box
         {
@@ -20,6 +20,11 @@ namespace CustomEngine.Worlds.Actors.Components
         {
             base.OnRender();
             _box?.Render();
+        }
+
+        public virtual void OnOverlapped()
+        {
+
         }
     }
 }

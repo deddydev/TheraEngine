@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using CustomEngine;
 
 namespace System.Windows.Forms
 {
@@ -15,6 +16,7 @@ namespace System.Windows.Forms
         public RenderForm()
         {
             InitializeComponent();
+            Engine.Run(60.0f);
         }
     }
 }

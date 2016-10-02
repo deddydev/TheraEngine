@@ -66,7 +66,7 @@ namespace CustomEngine.Rendering
 
         #region Drawing
 
-        public abstract void Begin(PrimitiveType type);
+        public abstract void Begin(EPrimitive type);
         public abstract void Vertex3(Vector3 value);
         public abstract void Vertex2(Vector2 value);
         public abstract void Normal3(Vector3 value);
@@ -78,9 +78,13 @@ namespace CustomEngine.Rendering
 
         public abstract void SetPointSize(float size);
         public abstract void SetLineSize(float size);
+
         public abstract void Clear(BufferClear clearBufferMask);
-        public abstract void CompileShader(string shader);
         public abstract float GetDepth(float x, float y);
+        
+        public abstract void CompileShader(string shaderHandle);
+        public abstract void AttachShader(int programHandle, int shaderHandle);
+        public abstract void LinkProgram(int programHandle);
 
         public void Dispose()
         {
@@ -109,7 +113,7 @@ namespace CustomEngine.Rendering
         //Means this displaylist should be applied while compiling.
         CompileAndExecute,
     }
-    public enum PrimitiveType
+    public enum EPrimitive
     {
         Points = 0,
         Lines = 1,
@@ -120,10 +124,5 @@ namespace CustomEngine.Rendering
         TriangleFan = 6,
         Quads = 7,
         QuadStrip = 8,
-        Polygon = 9,
-        LinesAdjacency = 10,
-        LineStripAdjacency = 11,
-        TrianglesAdjacency = 12,
-        TriangleStripAdjacency = 13
     }
 }

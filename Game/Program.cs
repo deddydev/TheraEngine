@@ -14,13 +14,7 @@ namespace CustomGame
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-
-            using (CustomGameForm game = new CustomGameForm("Custom Game"))
-            {
-                game.VSync = OpenTK.VSyncMode.Adaptive;
-                game.Run();
-                Engine.LoadWorld(new Worlds.WorldGameOpen());
-            }
+            Application.Run(new RenderForm());
         }
     }
 }

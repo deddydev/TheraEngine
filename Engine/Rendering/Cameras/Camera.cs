@@ -140,7 +140,7 @@ namespace CustomEngine.Rendering.Cameras
         public Vector3 GetWorldPoint(Vector3 screenPoint)
         {
             screenPoint = AlignScreenPoint(screenPoint);
-            return Vector3.Unproject(screenPoint, 0, 0, GetWidth(), GetHeight(), NearDepth, FarDepth, MatrixInverse * _projectionInverse);
+            return screenPoint.Unproject(0, 0, GetWidth(), GetHeight(), NearDepth, FarDepth, MatrixInverse * _projectionInverse);
         }
 
         /// <summary>
@@ -162,7 +162,7 @@ namespace CustomEngine.Rendering.Cameras
         /// <returns>2D coordinate on the screen with z as depth (z is not a distance value!)</returns>
         public Vector3 GetScreenPoint(Vector3 worldPoint)
         {
-            return UnAlignScreenPoint(Vector3.Project(worldPoint, 0, 0, GetWidth(), GetHeight(), NearDepth, FarDepth, _projectionMatrix * Matrix));
+            return UnAlignScreenPoint(worldPoint.Project(0, 0, GetWidth(), GetHeight(), NearDepth, FarDepth, _projectionMatrix * Matrix));
         }
 
         public Ray GetWorldRay(Vector2 screenPoint)

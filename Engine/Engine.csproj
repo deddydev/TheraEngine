@@ -76,6 +76,7 @@
     <Compile Include="Rendering\Cameras\OrthographicCamera.cs" />
     <Compile Include="Rendering\Cameras\PerspectiveCamera.cs" />
     <Compile Include="Rendering\Renderer\DisplayList.cs" />
+    <Compile Include="Rendering\Renderer\Shader.cs" />
     <Compile Include="System\Extensions\ArrayExtension.cs" />
     <Compile Include="System\Extensions\XmlExtension.cs" />
     <Compile Include="System\Math\Collision\Tracing.cs" />
@@ -106,6 +107,8 @@
     <Compile Include="World\Actors\Components\Logic\MovementComponents\TransformMovementComponent.cs" />
     <Compile Include="World\Actors\Components\Logic\MovementComponents\CharacterMovementComponent.cs" />
     <Compile Include="World\Actors\Components\SceneComponent.cs" />
+    <Compile Include="World\Actors\Components\Scene\LoadingZoneComponent.cs" />
+    <Compile Include="World\Actors\Components\Scene\ShapeComponents\ShapeComponent.cs" />
     <Compile Include="World\Actors\Components\Scene\ShapeComponents\CapsuleComponent.cs" />
     <Compile Include="World\Actors\Components\Scene\ShapeComponents\BoxComponent.cs" />
     <Compile Include="Engine.cs" />

@@ -5,18 +5,35 @@ namespace System
 {
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     //[Editor(typeof(PropertyGridColorEditor), typeof(UITypeEditor))]
-    public class ColorF
+    public class ColorF4
     {
         public float R, G, B, A;
 
-        public ColorF() { }
-        public ColorF(float r, float g, float b, float a) { R = r; G = g; B = b; A = a; }
+        public ColorF4() { }
+        public ColorF4(float r, float g, float b, float a) { R = r; G = g; B = b; A = a; }
 
-        public static implicit operator ColorF(RGBAPixel p) { return new ColorF() { A = p.A / 255.0f, B = p.B / 255.0f, G = p.G / 255.0f, R = p.R / 255.0f }; }
-        public static implicit operator ColorF(ARGBPixel p) { return new ColorF() { A = p.A / 255.0f, B = p.B / 255.0f, G = p.G / 255.0f, R = p.R / 255.0f }; }
-        public static implicit operator ColorF(Color p) { return new ColorF() { A = p.A / 255.0f, B = p.B / 255.0f, G = p.G / 255.0f, R = p.R / 255.0f }; }
-        public static implicit operator ColorF(Vector3 v) { return new ColorF(v.X, v.Y, v.Z, 1.0f); }
-        public static implicit operator ColorF(Vector4 v) { return new ColorF(v.X, v.Y, v.Z, v.W); }
+        public static implicit operator ColorF4(RGBAPixel p) { return new ColorF4() { A = p.A / 255.0f, B = p.B / 255.0f, G = p.G / 255.0f, R = p.R / 255.0f }; }
+        public static implicit operator ColorF4(ARGBPixel p) { return new ColorF4() { A = p.A / 255.0f, B = p.B / 255.0f, G = p.G / 255.0f, R = p.R / 255.0f }; }
+        public static implicit operator ColorF4(Color p) { return new ColorF4() { A = p.A / 255.0f, B = p.B / 255.0f, G = p.G / 255.0f, R = p.R / 255.0f }; }
+        public static implicit operator ColorF4(Vector3 v) { return new ColorF4(v.X, v.Y, v.Z, 1.0f); }
+        public static implicit operator ColorF4(Vector4 v) { return new ColorF4(v.X, v.Y, v.Z, v.W); }
+        public static implicit operator ColorF4(ColorF3 p) { return new ColorF4(p.R, p.G, p.B, 1.0f); }
+    }
+    [StructLayout(LayoutKind.Sequential, Pack = 1)]
+    //[Editor(typeof(PropertyGridColorEditor), typeof(UITypeEditor))]
+    public class ColorF3
+    {
+        public float R, G, B;
+
+        public ColorF3() { }
+        public ColorF3(float r, float g, float b) { R = r; G = g; B = b; }
+
+        public static implicit operator ColorF3(RGBAPixel p) { return new ColorF3() { B = p.B / 255.0f, G = p.G / 255.0f, R = p.R / 255.0f }; }
+        public static implicit operator ColorF3(ARGBPixel p) { return new ColorF3() { B = p.B / 255.0f, G = p.G / 255.0f, R = p.R / 255.0f }; }
+        public static implicit operator ColorF3(Color p) { return new ColorF3() { B = p.B / 255.0f, G = p.G / 255.0f, R = p.R / 255.0f }; }
+        public static implicit operator ColorF3(Vector3 v) { return new ColorF3(v.X, v.Y, v.Z); }
+        public static implicit operator ColorF3(Vector4 v) { return new ColorF3(v.X, v.Y, v.Z); }
+        public static implicit operator ColorF3(ColorF4 p) { return new ColorF3(p.R, p.G, p.B); }
     }
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public struct RGBAPixel
@@ -25,7 +42,7 @@ namespace System
         
         public RGBAPixel(byte r, byte g, byte b, byte a) { R = r; G = g; B = b; A = a; }
 
-        public static implicit operator RGBAPixel(ColorF p) { return new RGBAPixel() { A = (byte)(p.A * 255.0f), B = (byte)(p.B * 255.0f), G = (byte)(p.G * 255.0f), R = (byte)(p.R * 255.0f) }; }
+        public static implicit operator RGBAPixel(ColorF4 p) { return new RGBAPixel() { A = (byte)(p.A * 255.0f), B = (byte)(p.B * 255.0f), G = (byte)(p.G * 255.0f), R = (byte)(p.R * 255.0f) }; }
         public static implicit operator RGBAPixel(ARGBPixel p) { return new RGBAPixel() { A = p.A, B = p.B, G = p.G, R = p.R }; }
         public static implicit operator RGBAPixel(Color p) { return new RGBAPixel() { A = p.A, B = p.B, G = p.G, R = p.R }; }
     }
@@ -36,7 +53,7 @@ namespace System
         
         public ARGBPixel(byte a, byte r, byte g, byte b) { A = a; R = r; G = g; B = b; }
 
-        public static implicit operator ARGBPixel(ColorF p) { return new ARGBPixel() { A = (byte)(p.A * 255.0f), B = (byte)(p.B * 255.0f), G = (byte)(p.G * 255.0f), R = (byte)(p.R * 255.0f) }; }
+        public static implicit operator ARGBPixel(ColorF4 p) { return new ARGBPixel() { A = (byte)(p.A * 255.0f), B = (byte)(p.B * 255.0f), G = (byte)(p.G * 255.0f), R = (byte)(p.R * 255.0f) }; }
         public static implicit operator ARGBPixel(RGBAPixel p) { return new ARGBPixel() { A = p.A, B = p.B, G = p.G, R = p.R }; }
         public static implicit operator ARGBPixel(Color p) { return new ARGBPixel() { A = p.A, B = p.B, G = p.G, R = p.R }; }
     }

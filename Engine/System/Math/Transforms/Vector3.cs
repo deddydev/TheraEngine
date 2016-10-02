@@ -444,7 +444,7 @@ namespace System
         {
             return new Vector3(v.X, v.Y, 0.0f);
         }
-        public static explicit operator Vector3(ColorF v)
+        public static explicit operator Vector3(ColorF4 v)
         {
             return new Vector3(v.R, v.G, v.B);
         }

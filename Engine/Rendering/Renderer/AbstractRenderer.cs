@@ -24,7 +24,7 @@ namespace CustomEngine.Rendering
         }
 
         #region Shapes
-        public void DrawBoxWireframe(Box box) { DrawBoxWireframe(box.Minimum, box.Maximum); } 
+        public void DrawBoxWireframe(Box box) { DrawBoxWireframe(box.Minimum, box.Maximum); }
         public void DrawBoxSolid(Box box) { DrawBoxSolid(box.Minimum, box.Maximum); }
         public abstract void DrawBoxWireframe(Vector3 min, Vector3 max);
         public abstract void DrawBoxSolid(Vector3 min, Vector3 max);
@@ -72,6 +72,8 @@ namespace CustomEngine.Rendering
         public abstract void Normal3(Vector3 value);
         public abstract void TexCoord2(Vector2 value);
         public abstract void MultiTexCoord2(int unit, Vector2 value);
+        public abstract void Color4(ColorF4 value);
+        public abstract void Color3(ColorF3 value);
         public abstract void End();
 
         #endregion

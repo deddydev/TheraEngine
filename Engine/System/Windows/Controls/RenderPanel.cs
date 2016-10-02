@@ -36,8 +36,8 @@ namespace System.Windows.Controls
             }
         }
 
-        public ColorF BackColor { get { return _backColor; } set { _backColor = value; } }
-        private ColorF _backColor = Drawing.Color.Lavender;
+        public ColorF4 BackColor { get { return _backColor; } set { _backColor = value; } }
+        private ColorF4 _backColor = Drawing.Color.Lavender;
 
         public RenderPanel()
         {

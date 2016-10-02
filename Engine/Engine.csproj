@@ -75,6 +75,7 @@
     <Compile Include="Rendering\Cameras\Camera.cs" />
     <Compile Include="Rendering\Cameras\OrthographicCamera.cs" />
     <Compile Include="Rendering\Cameras\PerspectiveCamera.cs" />
+    <Compile Include="Rendering\Renderer\DirectX\DXDisplayList.cs" />
     <Compile Include="Rendering\Renderer\DisplayList.cs" />
     <Compile Include="Rendering\Renderer\Shader.cs" />
     <Compile Include="System\Extensions\ArrayExtension.cs" />

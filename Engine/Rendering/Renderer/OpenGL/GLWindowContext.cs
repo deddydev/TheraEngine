@@ -54,7 +54,10 @@ namespace CustomEngine.Rendering.OpenGL
             _winInfo = null;
         }
 
-        protected override AbstractRenderer GetRendererInstance() { return GLRenderer.Instance; }
+        protected override AbstractRenderer GetRendererInstance()
+        {
+            return GLRenderer.Instance ?? (GLRenderer.Instance = new GLRenderer());
+        }
 
         public override void ErrorCheck()
         {

@@ -10,6 +10,6 @@ namespace CustomEngine.Rendering.Models.Meshes
         Vector3 _position;
         Vector3 _normal;
         Vector2[] _uvs;
-        ColorF[] _colors;
+        ColorF4[] _colors;
     }
 }

@@ -40,7 +40,10 @@ namespace CustomEngine.Rendering.DirectX
             SlimDX.Direct3D11.Device.CreateWithSwapChain(DriverType.Hardware, DeviceCreationFlags.None, swapChainDesc, out _device, out _swapChain);
         }
 
-        protected override AbstractRenderer GetRendererInstance() { return DXRenderer.Instance; }
+        protected override AbstractRenderer GetRendererInstance()
+        {
+            return DXRenderer.Instance ?? (DXRenderer.Instance = new DXRenderer());
+        }
 
         public override bool IsCurrent()
         {
@@ -87,21 +90,6 @@ namespace CustomEngine.Rendering.DirectX
         public override void EndDraw()
         {
             //_renderTarget.EndDraw();
-        }
-
-        protected override void OnResized(object sender, SizeChangedEventArgs e)
-        {
-            if (_renderTarget != null)
-                _renderTarget.Dispose();
-            if (_resource != null)
-                _resource.Dispose();
-            if (_depthStencil != null)
-                _depthStencil.Dispose();
-
-            _swapChain.ResizeBuffers(2, (int)_control.Width, (int)_control.Height, Format.R8G8B8A8_UNorm, SwapChainFlags.AllowModeSwitch);
-
-            _resource = SlimDX.Direct3D11.Resource.FromSwapChain<Texture2D>(_swapChain, 0);
-            _renderTarget = new RenderTargetView(_device, _resource);
         }
 
         private void CreateDepthStencilBuffer(int width, int height)
@@ -166,6 +154,21 @@ namespace CustomEngine.Rendering.DirectX
             _renderTarget.Dispose();
             _swapChain.Dispose();
             _device.Dispose();
+        }
+
+        protected override void OnResized(object sender, SizeChangedEventArgs e)
+        {
+            if (_renderTarget != null)
+                _renderTarget.Dispose();
+            if (_resource != null)
+                _resource.Dispose();
+            if (_depthStencil != null)
+                _depthStencil.Dispose();
+
+            _swapChain.ResizeBuffers(2, (int)_control.Width, (int)_control.Height, Format.R8G8B8A8_UNorm, SwapChainFlags.AllowModeSwitch);
+
+            _resource = SlimDX.Direct3D11.Resource.FromSwapChain<Texture2D>(_swapChain, 0);
+            _renderTarget = new RenderTargetView(_device, _resource);
         }
     }
 }

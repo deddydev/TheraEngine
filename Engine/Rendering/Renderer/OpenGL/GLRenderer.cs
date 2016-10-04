@@ -244,6 +244,14 @@ namespace CustomEngine.Rendering
         {
             GL.MultiTexCoord2(TextureUnit.Texture0 + unit, value.X, value.Y);
         }
+        public override void Color4(ColorF4 value)
+        {
+            GL.Color4(value.R, value.G, value.B, value.A);
+        }
+        public override void Color3(ColorF3 value)
+        {
+            GL.Color3(value.R, value.G, value.B);
+        }
         public override void End()
         {
             GL.End();

@@ -108,8 +108,7 @@ namespace CustomEngine.Rendering.OpenGL
         {
 
         }
-
-        protected override void OnResized(object sender, SizeChangedEventArgs e)
+        protected override void OnResized(object sender, EventArgs e)
         {
             OnUpdated();
             _control.Redraw();

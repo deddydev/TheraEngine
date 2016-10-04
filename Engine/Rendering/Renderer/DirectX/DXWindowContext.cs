@@ -155,8 +155,7 @@ namespace CustomEngine.Rendering.DirectX
             _swapChain.Dispose();
             _device.Dispose();
         }
-
-        protected override void OnResized(object sender, SizeChangedEventArgs e)
+        protected override void OnResized(object sender, EventArgs e)
         {
             if (_renderTarget != null)
                 _renderTarget.Dispose();

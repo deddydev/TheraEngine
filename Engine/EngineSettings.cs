@@ -12,6 +12,7 @@ namespace CustomEngine
     public class EngineSettings
     {
         public string _transitionWorldPath;
+        public string _openingWorldPath;
         public string _contentPath;
 
         public void SaveXML(string path)

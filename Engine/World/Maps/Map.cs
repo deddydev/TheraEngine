@@ -1,5 +1,7 @@
 ﻿using CustomEngine.Worlds.Maps;
 using System.Collections.Generic;
+using CustomEngine.Rendering.Models;
+using System;
 
 namespace CustomEngine.Worlds
 {
@@ -9,6 +11,7 @@ namespace CustomEngine.Worlds
         private bool _visibleByDefault;
         private List<Actor> _defaultActors = new List<Actor>();
         private MapSettings _settings;
+        private Vector3 _transform;
 
         #region ILoadable Interface
         private bool _isLoaded;

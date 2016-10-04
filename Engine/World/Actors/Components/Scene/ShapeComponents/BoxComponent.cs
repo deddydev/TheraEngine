@@ -21,10 +21,5 @@ namespace CustomEngine.Worlds.Actors.Components
             base.OnRender();
             _box?.Render();
         }
-
-        public virtual void OnOverlapped()
-        {
-
-        }
     }
 }

@@ -13,7 +13,9 @@ namespace CustomEngine.Rendering.HUD
 
         public HudComponent(HudComponent owner) { _owner = owner; }
 
+        [EngineFlags(EEngineFlags.Transient | EEngineFlags.Animatable)]
         public RectangleF Region { get { return _region; } set { _region = value; OnResized(); } }
+        [EngineFlags(EEngineFlags.Transient | EEngineFlags.Animatable)]
         public float Height
         {
             get { return _region.Height; }
@@ -23,6 +25,7 @@ namespace CustomEngine.Rendering.HUD
                 OnResized();
             }
         }
+        [EngineFlags(EEngineFlags.Transient | EEngineFlags.Animatable)]
         public float Width
         {
             get { return _region.Width; }
@@ -32,11 +35,13 @@ namespace CustomEngine.Rendering.HUD
                 OnResized();
             }
         }
+        [EngineFlags(EEngineFlags.Transient | EEngineFlags.Animatable)]
         public float X
         {
             get { return _region.X; }
             set { _region.X = value; }
         }
+        [EngineFlags(EEngineFlags.Transient | EEngineFlags.Animatable)]
         public float Y
         {
             get { return _region.Y; }
@@ -58,15 +63,8 @@ namespace CustomEngine.Rendering.HUD
         }
         protected virtual void OnRender() { }
 
-        public IEnumerator<HudComponent> GetEnumerator()
-        {
-            return ((IEnumerable<HudComponent>)_children).GetEnumerator();
-        }
-
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return ((IEnumerable<HudComponent>)_children).GetEnumerator();
-        }
+        public IEnumerator<HudComponent> GetEnumerator() { return ((IEnumerable<HudComponent>)_children).GetEnumerator(); }
+        IEnumerator IEnumerable.GetEnumerator() { return ((IEnumerable<HudComponent>)_children).GetEnumerator(); }
     }
     [Flags]
     public enum AnchorFlags

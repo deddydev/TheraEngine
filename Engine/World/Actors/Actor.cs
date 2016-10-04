@@ -52,9 +52,10 @@ namespace CustomEngine.Worlds
             }
         }
         protected abstract void SetupComponents();
-        public void OnOriginRebased(Vector3 delta)
+        public void OnOriginRebased(Vector3 newOrigin)
         {
-            _rootSceneComponent?.Transform.AddTranslation(delta);
+            _rootSceneComponent?.Transform.AddTranslation(-newOrigin);
+            //TODO: update child transforms here or wait?
         }
         public void AddComponent(InstanceComponent c)
         {

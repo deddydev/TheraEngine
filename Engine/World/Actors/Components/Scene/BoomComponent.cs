@@ -1,7 +1,7 @@
 ﻿using CustomEngine.Rendering.Textures;
 using CustomEngine.Collision;
-using OpenTK;
 using eyecm.PhysX;
+using System;
 
 namespace CustomEngine.Worlds.Actors.Components
 {

@@ -17,7 +17,16 @@ namespace CustomEngine.Worlds.Actors
 
         protected override void SetupComponents()
         {
-            //AddComponent();
+            
+        }
+
+        public override void Update()
+        {
+            Box bounds = Engine.World._settings.OriginRebaseBounds;
+            if (!bounds.ContainsPoint(RootComponent.Transform.Translation))
+            {
+                Engine.World.RebaseOrigin(RootComponent.Transform.Translation);
+            }
         }
     }
 }

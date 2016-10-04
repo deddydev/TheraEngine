@@ -8,18 +8,38 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using CustomEngine.Rendering;
-using CustomEngine.Rendering.OpenGL;
-using CustomEngine.Rendering.DirectX;
 using CustomEngine.Rendering.HUD;
+using CustomEngine.Rendering.DirectX;
+using System.Security.Permissions;
+using System.Reflection;
+using CustomEngine.Rendering.OpenGL;
 using System.Threading;
-using CustomEngine;
-using System.Windows.Media;
-using System.Windows.Interop;
 
 namespace System.Windows.Controls
 {
-    public class RenderPanel : Control
+    public static class ControlExtension
     {
+        [ReflectionPermission(SecurityAction.Demand, MemberAccess = true)]
+        public static void Reset(this Control c)
+        {
+            typeof(Control).InvokeMember("SetState", BindingFlags.NonPublic |
+            BindingFlags.InvokeMethod | BindingFlags.Instance, null,
+            c, new object[] { 0x400000, false });
+        }
+    }
+    public partial class RenderPanel : System.Windows.Forms.Control
+    {
+        public RenderPanel()
+        {
+            SetStyle(
+               ControlStyles.UserPaint |
+               ControlStyles.AllPaintingInWmPaint |
+               ControlStyles.Opaque |
+               ControlStyles.ResizeRedraw,
+               true);
+            SetRenderLibrary(RenderLibrary.OpenGL);
+        }
+
         private RenderLibrary _currentRenderer;
         private RenderWindowContext _context;
         protected int _updateCounter;
@@ -27,30 +47,12 @@ namespace System.Windows.Controls
         public HudManager _overallHud;
         public List<Viewport> _viewports = new List<Viewport>();
 
-        public IntPtr Handle
-        {
-            get
-            {
-                HwndSource source = (HwndSource)PresentationSource.FromVisual(this);
-                return source.Handle;
-            }
-        }
-
-        public ColorF4 BackColor { get { return _backColor; } set { _backColor = value; } }
+        public new ColorF4 BackColor { get { return _backColor; } set { _backColor = value; } }
         private ColorF4 _backColor = Drawing.Color.Lavender;
 
-        public RenderPanel()
-        {
-            //SetStyle(
-            //    ControlStyles.UserPaint |
-            //    ControlStyles.AllPaintingInWmPaint |
-            //    ControlStyles.Opaque |
-            //    ControlStyles.ResizeRedraw,
-            //    true);
-            SetRenderLibrary(RenderLibrary.OpenGL);
-        }
         public void SetRenderLibrary(RenderLibrary library)
         {
+            _currentRenderer = library;
             switch (library)
             {
                 case RenderLibrary.OpenGL:
@@ -63,26 +65,31 @@ namespace System.Windows.Controls
         }
         public void BeginUpdate() { ++_updateCounter; }
         public void EndUpdate() { if ((_updateCounter = Math.Max(_updateCounter - 1, 0)) == 0) Redraw(); }
-        public void Redraw() { InvalidateVisual(); }
-        protected override void OnRender(DrawingContext drawingContext)
+        public void Redraw() { Invalidate(); }
+        protected override void OnResize(EventArgs e)
+        {
+            base.OnResize(e);
+            foreach (Viewport v in _viewports)
+                v.Resize(Width, Height);
+        }
+        public void SetCurrent()
+        {
+            RenderWindowContext.CurrentContext = _context;
+        }
+        protected override void OnPaint(PaintEventArgs e)
         {
             if (_updateCounter > 0)
                 return;
 
             BeginUpdate();
             if (_context == null || _context.IsContextDisposed())
-                base.OnRender(drawingContext);
+                base.OnPaint(e);
             else if (Monitor.TryEnter(_context))
             {
                 try
                 {
                     _context.Capture();
-                    _context.BeginDraw();
-
-                    foreach (Viewport v in _viewports)
-                        v.Render();
-
-                    _context.EndDraw();
+                    OnRender(e);
                     _context.Swap();
                     _context.ErrorCheck();
                 }
@@ -90,22 +97,54 @@ namespace System.Windows.Controls
             }
             EndUpdate();
         }
-        protected override void OnRenderSizeChanged(SizeChangedInfo sizeInfo)
+        protected virtual void OnRender(PaintEventArgs e)
         {
-            base.OnRenderSizeChanged(sizeInfo);
+            _context.BeginDraw();
             foreach (Viewport v in _viewports)
-                v.Resize((float)Width, (float)Height);
+                v.Render();
+            _context.EndDraw();
         }
-        public override void BeginInit() { base.BeginInit(); }
-        protected override void OnInitialized(EventArgs e)
+        protected override void OnPaintBackground(PaintEventArgs e) { }
+        protected override void OnHandleCreated(EventArgs e)
         {
-            if (_context != null)
-                _context.Initialize();
+            if (_context == null)
+                SetRenderLibrary(RenderLibrary.OpenGL);
+            _context.ContextChanged += OnContextChanged;
+            _context.ResetOccured += OnReset;
+            _context.Initialize();
         }
-        public override void EndInit()
+        protected override void DestroyHandle()
+        {
+            DisposeContext();
+            base.DestroyHandle();
+        }
+        protected override void OnHandleDestroyed(EventArgs e)
+        {
+            DisposeContext();
+            base.OnHandleDestroyed(e);
+        }
+        protected virtual void OnReset(object sender, EventArgs e)
+        {
+            _context.Initialize();
+        }
+        protected virtual void OnContextChanged(bool isNowCurrent)
+        {
+            //Don't update anything if this context has just been released
+            if (isNowCurrent)
+                OnResize(EventArgs.Empty);
+
+            //_currentPanel = isNowCurrent ? this : null;
+        }
+        protected override void Dispose(bool disposing)
+        {
+            DisposeContext();
+            base.Dispose(disposing);
+        }
+        private void DisposeContext()
         {
             if (_context != null)
             {
+                _context.Unbind();
                 _context.Dispose();
                 _context = null;
             }

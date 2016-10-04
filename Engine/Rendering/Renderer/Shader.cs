@@ -14,6 +14,7 @@ namespace CustomEngine.Rendering.Renderer
     public class Shader
     {
         private string _code;
+        private int _handle, _programHandle;
         private ShaderType _type;
         public Shader(ShaderType type)
         {

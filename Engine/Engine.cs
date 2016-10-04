@@ -15,17 +15,25 @@ namespace CustomEngine
         public const string SettingsPath = "/Config/EngineSettings.xml";
 
         const float UpdateRate = 0.0f;
+        const float RenderRate = 60.0f;
 
         public static AbstractRenderer Renderer { get { return _renderer; } set { _renderer = value; } }
+
+        public static void Initialize()
+        {
+            LoadDefaults();
+            Run();
+        }
+
         private static AbstractRenderer _renderer;
 
         public static float RenderDelta { get { return (float)_timer.RenderTime; } }
         public static float UpdateDelta { get { return (float)_timer.UpdateTime; } }
-        private static GlobalTimer _timer;
+        private static GlobalTimer _timer = new GlobalTimer();
 
         public static World TransitionWorld { get { return _transitionWorld; } set { _transitionWorld = value; } }
         private static World _transitionWorld = null;
-        public static World CurrentWorld
+        public static World World
         {
             get { return _currentWorld; }
             set { _currentWorld = value; }
@@ -35,35 +43,37 @@ namespace CustomEngine
         public static BindingList<World> LoadedWorlds = new BindingList<World>();
         public static BindingList<GameTimer> ActiveTimers = new BindingList<GameTimer>();
         public static BindingList<PawnController> ActiveControllers = new BindingList<PawnController>();
-        
-        public static World World { get { return _currentWorld; } }
-        public static GamePanel CurrentPanel
+        internal static int PhysicsSubsteps = 10;
+
+        public static RenderPanel CurrentPanel
         {
             get
             {
                 RenderWindowContext ctx = RenderWindowContext.CurrentContext;
                 if (ctx != null)
-                    return ctx.Control as GamePanel;
+                    return ctx.Control;
                 return null;
             }
         }
-
-        static Engine()
-        {
-            _timer = new GlobalTimer();
-            _timer.Run(0.0f, 60.0f);
-            LoadDefaults();
-        }
         public static void LoadDefaults()
         {
-            EngineSettings s = EngineSettings.FromXML(SettingsPath);
-            _transitionWorld = new World("TransitionWorld", s._transitionWorldPath);
+            EngineSettings settings = null;
+            if (!File.Exists(SettingsPath))
+            {
+                settings = new EngineSettings();
+                settings.SaveXML(SettingsPath);
+            }
+            else
+                settings = EngineSettings.FromXML(SettingsPath);
+
+            _transitionWorld = new World(settings._transitionWorldPath);
             _transitionWorld.Load();
         }
-        public static void Run(float fps) { _timer.Run(UpdateRate, fps); }
+        public static void Run() { _timer.Run(UpdateRate, RenderRate); }
+        public static void Stop() { _timer.Stop(); }
         public static void ShowMessage(string message,  int viewport = -1)
         {
-            GamePanel panel = CurrentPanel;
+            RenderPanel panel = CurrentPanel;
             if (panel == null)
                 return;
             if (viewport >= 0)
@@ -77,13 +87,13 @@ namespace CustomEngine
                 timer.UpdateTick(UpdateDelta);
             foreach (PawnController c in ActiveControllers)
                 c.Update();
-            World.Update();
+            Worlds.World.Update();
         }
         public static void SetCurrentWorld(World world)
         {
             if (world != null && !world.IsLoaded)
                 world.Load();
-            CurrentWorld = world;
+            World = world;
         }
     }
 }

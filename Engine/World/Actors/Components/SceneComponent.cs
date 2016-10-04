@@ -17,15 +17,15 @@ namespace CustomEngine.Worlds.Actors.Components
         protected bool _overrideParentRenderState = false;
         protected bool _isRendering = false;
 
-        [EngineFlags(EEngineFlags.State | EEngineFlags.Getter)]
+        [EngineFlags(EEngineFlags.Transient | EEngineFlags.Getter)]
         public bool IsSpawned { get { return Owner.IsSpawned; } }
         [EngineFlags(EEngineFlags.Default)]
         public bool VisibleByDefault { get { return _visibleByDefault; } set { _visibleByDefault = value; } }
-        [EngineFlags(EEngineFlags.Default)]
+        [EngineFlags(EEngineFlags.Default | EEngineFlags.EditorOnly)]
         public bool HiddenInGame { get { return _hiddenInGame; } set { _hiddenInGame = value; } }
-        [EngineFlags(EEngineFlags.State)]
+        [EngineFlags(EEngineFlags.Transient)]
         public bool IsRendering { get { return _isRendering; } set { _isRendering = value; } }
-        [EngineFlags(EEngineFlags.State)]
+        [EngineFlags(EEngineFlags.Transient)]
         public FrameState Transform
         {
             get { return _transform; }

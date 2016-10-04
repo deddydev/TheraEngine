@@ -48,12 +48,11 @@ namespace CustomEngine.Rendering
         public RenderWindowContext(RenderPanel c)
         {
             _control = c;
-            _control.SizeChanged += OnResized;
-
+            _control.Resize += OnResized;
             BoundContexts.Add(this);
         }
 
-        protected abstract void OnResized(object sender, System.Windows.SizeChangedEventArgs e);
+        protected abstract void OnResized(object sender, EventArgs e);
         protected abstract AbstractRenderer GetRendererInstance();
         public abstract void ErrorCheck();
         public abstract bool IsCurrent();
@@ -126,5 +125,6 @@ namespace CustomEngine.Rendering
         public abstract void Initialize();
         public abstract void BeginDraw();
         public abstract void EndDraw();
+        public virtual void Unbind() { }
     }
 }

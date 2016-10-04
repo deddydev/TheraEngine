@@ -8,15 +8,19 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using CustomEngine;
+using System.Threading;
+using CustomEngine.Worlds;
 
 namespace System.Windows.Forms
 {
     public partial class RenderForm : Form
     {
+        Thread EngineThread;
         public RenderForm()
         {
             InitializeComponent();
-            Engine.Run(60.0f);
+            EngineThread = new Thread(Engine.Initialize);
+            EngineThread.Start();
         }
     }
 }

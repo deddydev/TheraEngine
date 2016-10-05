@@ -12,8 +12,8 @@ namespace CustomEngine.Collision
     public delegate void OnTraceHit(HitInfo hit);
     public class HitInfo
     {
-        public Vector3 _hitNormal;
-        public Vector3 _location;
+        public Vec3 _hitNormal;
+        public Vec3 _location;
         public Worlds.Actor _hitActor;
         public Model _hitModel;
     }

@@ -18,6 +18,18 @@ namespace CustomEngine.Worlds
             SetupComponents();
         }
 
+        private bool _prePhysicsTick = false, _postPhysicsTick = true;
+        public bool WantsPrePhysicsTick
+        {
+            get { return _prePhysicsTick; }
+            set { _prePhysicsTick = value; }
+        }
+        public bool WantsPostPhysicsTick
+        {
+            get { return _postPhysicsTick; }
+            set { _postPhysicsTick = value; }
+        }
+
         public bool IsSpawned { get { return _spawnIndex >= 0; } }
         public World OwningWorld { get { return _owningWorld; } }
 
@@ -52,7 +64,7 @@ namespace CustomEngine.Worlds
             }
         }
         protected abstract void SetupComponents();
-        public void OnOriginRebased(Vector3 newOrigin)
+        public void OnOriginRebased(Vec3 newOrigin)
         {
             _rootSceneComponent?.Transform.AddTranslation(-newOrigin);
             //TODO: update child transforms here or wait?
@@ -73,7 +85,6 @@ namespace CustomEngine.Worlds
             _lastRendered = DateTime.Now;
             _rootSceneComponent?.Render();
         }
-
         public void Despawn()
         {
             if (IsSpawned && OwningWorld != null)

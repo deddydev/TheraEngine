@@ -51,12 +51,12 @@ namespace CustomEngine.Rendering
             throw new NotImplementedException();
         }
 
-        public override void DrawBoxSolid(System.Vector3 min, System.Vector3 max)
+        public override void DrawBoxSolid(System.Vec3 min, System.Vec3 max)
         {
             throw new NotImplementedException();
         }
 
-        public override void DrawBoxWireframe(System.Vector3 min, System.Vector3 max)
+        public override void DrawBoxWireframe(System.Vec3 min, System.Vec3 max)
         {
             throw new NotImplementedException();
         }
@@ -147,15 +147,15 @@ namespace CustomEngine.Rendering
             //return m;
             return *(SlimDX.Matrix*)&matrix4;
         }
-        private SlimDX.Vector4 DXVec4(System.Vector4 vec4)
+        private SlimDX.Vector4 DXVec4(System.Vec4 vec4)
         {
             return *(SlimDX.Vector4*)&vec4;
         }
-        private SlimDX.Vector3 DXVec3(System.Vector3 vec3)
+        private SlimDX.Vector3 DXVec3(System.Vec3 vec3)
         {
             return *(SlimDX.Vector3*)&vec3;
         }
-        private SlimDX.Vector2 DXVec2(System.Vector2 vec2)
+        private SlimDX.Vector2 DXVec2(System.Vec2 vec2)
         {
             return *(SlimDX.Vector2*)&vec2;
         }
@@ -210,27 +210,27 @@ namespace CustomEngine.Rendering
             if (CurrentList == null)
                 BeginTempDisplayList(CreateDisplayList());
         }
-        public override void Vertex3(System.Vector3 value)
+        public override void Vertex3(System.Vec3 value)
         {
             if (CurrentList == null)
                 return;
         }
-        public override void Vertex2(System.Vector2 value)
+        public override void Vertex2(System.Vec2 value)
         {
             if (CurrentList == null)
                 return;
         }
-        public override void Normal3(System.Vector3 value)
+        public override void Normal3(System.Vec3 value)
         {
             if (CurrentList == null)
                 return;
         }
-        public override void TexCoord2(System.Vector2 value)
+        public override void TexCoord2(System.Vec2 value)
         {
             if (CurrentList == null)
                 return;
         }
-        public override void MultiTexCoord2(int unit, System.Vector2 value)
+        public override void MultiTexCoord2(int unit, System.Vec2 value)
         {
             if (CurrentList == null)
                 return;

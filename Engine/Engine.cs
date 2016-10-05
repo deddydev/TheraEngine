@@ -87,7 +87,7 @@ namespace CustomEngine
                 timer.UpdateTick(UpdateDelta);
             foreach (PawnController c in ActiveControllers)
                 c.Update();
-            Worlds.World.Update();
+            World.Update();
         }
         public static void SetCurrentWorld(World world)
         {

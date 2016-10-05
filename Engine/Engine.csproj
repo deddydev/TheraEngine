@@ -38,8 +38,8 @@
     <StartupObject />
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="eyecm.PhysX">
-      <HintPath>..\Libraries\eyecm-physx-xna-090201\eyecm.PhysX.dll</HintPath>
+    <Reference Include="BulletSharp">
+      <HintPath>..\Libraries\BulletSharp.dll</HintPath>
     </Reference>
     <Reference Include="FreeImageNET">
       <HintPath>..\Libraries\FreeImageNET.dll</HintPath>

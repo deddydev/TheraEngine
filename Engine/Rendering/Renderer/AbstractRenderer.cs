@@ -26,8 +26,8 @@ namespace CustomEngine.Rendering
         #region Shapes
         public void DrawBoxWireframe(Box box) { DrawBoxWireframe(box.Minimum, box.Maximum); }
         public void DrawBoxSolid(Box box) { DrawBoxSolid(box.Minimum, box.Maximum); }
-        public abstract void DrawBoxWireframe(Vector3 min, Vector3 max);
-        public abstract void DrawBoxSolid(Vector3 min, Vector3 max);
+        public abstract void DrawBoxWireframe(Vec3 min, Vec3 max);
+        public abstract void DrawBoxSolid(Vec3 min, Vec3 max);
 
         public void DrawCapsuleWireframe(Capsule capsule) { DrawCapsuleWireframe(capsule.Radius, capsule.HalfHeight); }
         public void DrawCapsuleSolid(Capsule capsule) { DrawCapsuleSolid(capsule.Radius, capsule.HalfHeight); }
@@ -41,11 +41,11 @@ namespace CustomEngine.Rendering
         #endregion
 
         #region Matrices
-        public void Translate(Vector3 translation) { Translate(translation.X, translation.Y, translation.Z); }
+        public void Translate(Vec3 translation) { Translate(translation.X, translation.Y, translation.Z); }
         public abstract void Translate(float x, float y, float z);
-        public void Scale(Vector3 scale) { Scale(scale.X, scale.Y, scale.Z); }
+        public void Scale(Vec3 scale) { Scale(scale.X, scale.Y, scale.Z); }
         public abstract void Scale(float x, float y, float z);
-        public void Rotate(Vector3 rotation) { Rotate(rotation.X, rotation.Y, rotation.Z); }
+        public void Rotate(Vec3 rotation) { Rotate(rotation.X, rotation.Y, rotation.Z); }
         public abstract void Rotate(float x, float y, float z);
         public abstract void Rotate(Quaternion rotation);
         public abstract void PushMatrix();
@@ -67,11 +67,11 @@ namespace CustomEngine.Rendering
         #region Drawing
 
         public abstract void Begin(EPrimitive type);
-        public abstract void Vertex3(Vector3 value);
-        public abstract void Vertex2(Vector2 value);
-        public abstract void Normal3(Vector3 value);
-        public abstract void TexCoord2(Vector2 value);
-        public abstract void MultiTexCoord2(int unit, Vector2 value);
+        public abstract void Vertex3(Vec3 value);
+        public abstract void Vertex2(Vec2 value);
+        public abstract void Normal3(Vec3 value);
+        public abstract void TexCoord2(Vec2 value);
+        public abstract void MultiTexCoord2(int unit, Vec2 value);
         public abstract void Color4(ColorF4 value);
         public abstract void Color3(ColorF3 value);
         public abstract void End();

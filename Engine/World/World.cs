@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Collections;
-using eyecm.PhysX;
-using System.Threading.Tasks;
+using BulletSharp;
 using System;
 
 namespace CustomEngine.Worlds
@@ -13,7 +12,7 @@ namespace CustomEngine.Worlds
 
         protected List<Map> _allMaps;
 
-        private Scene _physicsScene;
+        private DiscreteDynamicsWorld _bulletScene;
         public WorldDefaults _defaults;
         public WorldSettings _settings;
         private string _name;
@@ -25,11 +24,16 @@ namespace CustomEngine.Worlds
         {
             _filePath = filePath;
             _isLoaded = false;
-            _physicsScene = new Scene();
+
+            BroadphaseInterface broadphase = new DbvtBroadphase();
+            DefaultCollisionConfiguration config = new DefaultCollisionConfiguration();
+            CollisionDispatcher dispatcher = new CollisionDispatcher(config);
+            SequentialImpulseConstraintSolver solver = new SequentialImpulseConstraintSolver();
+            _bulletScene = new DiscreteDynamicsWorld(dispatcher, broadphase, solver, config);
+            _bulletScene.Gravity = _settings.Gravity;
         }
-        public void RebaseOrigin(Vector3 newOrigin)
+        public void RebaseOrigin(Vec3 newOrigin)
         {
-            _physicsScene.ShiftOrigin();
             foreach (Actor a in _spawnedActors)
                 a.OnOriginRebased(newOrigin);
         }
@@ -54,12 +58,9 @@ namespace CustomEngine.Worlds
             for (int i = 0; i < Engine.PhysicsSubsteps; i++)
             {
                 PrePhysicsTick?.Invoke(delta);
-                _physicsScene.Simulate(delta);
-                _physicsScene.FetchResults(SimulationStatuses.AllFinished, true);
+                _bulletScene.StepSimulation(delta);
                 PostPhysicsTick?.Invoke(delta);
             }
-            foreach (Actor actor in _spawnedActors)
-                actor.Update();
         }
         public void Render()
         {

@@ -68,7 +68,7 @@ namespace CustomEngine.Rendering.OpenGL
 
         public override void Initialize()
         {
-            Vector3 v = (Vector3)_control.BackColor;
+            Vec3 v = (Vec3)_control.BackColor;
             GL.ClearColor(v.X, v.Y, v.Z, 0.0f);
             GL.ClearDepth(1.0);
 

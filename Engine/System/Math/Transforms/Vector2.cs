@@ -8,18 +8,18 @@ namespace System
 {
     [Serializable]
     [StructLayout(LayoutKind.Sequential)]
-    public unsafe struct Vector2 : IEquatable<Vector2>
+    public unsafe struct Vec2 : IEquatable<Vec2>
     {
         public float X, Y;
 
         public float* Data { get { fixed (void* p = &this) return (float*)p; } }
 
-        public Vector2(float value)
+        public Vec2(float value)
         {
             X = value;
             Y = value;
         }
-        public Vector2(float x, float y)
+        public Vec2(float x, float y)
         {
             X = x;
             Y = y;
@@ -48,53 +48,53 @@ namespace System
         /// <summary>
         /// Gets the perpendicular vector on the right side of this vector.
         /// </summary>
-        public Vector2 PerpendicularRight { get { return new Vector2(Y, -X); } }
+        public Vec2 PerpendicularRight { get { return new Vec2(Y, -X); } }
         /// <summary>
         /// Gets the perpendicular vector on the left side of this vector.
         /// </summary>
-        public Vector2 PerpendicularLeft { get { return new Vector2(-Y, X); } }
+        public Vec2 PerpendicularLeft { get { return new Vec2(-Y, X); } }
 
-        public static readonly Vector2 UnitX = new Vector2(1.0f, 0.0f);
-        public static readonly Vector2 UnitY = new Vector2(0.0f, 1.0f);
-        public static readonly Vector2 Zero = new Vector2(0.0f, 0.0f);
-        public static readonly Vector2 One = new Vector2(1.0f, 1.0f);
-        public static readonly int SizeInBytes = Marshal.SizeOf(new Vector2());
+        public static readonly Vec2 UnitX = new Vec2(1.0f, 0.0f);
+        public static readonly Vec2 UnitY = new Vec2(0.0f, 1.0f);
+        public static readonly Vec2 Zero = new Vec2(0.0f, 0.0f);
+        public static readonly Vec2 One = new Vec2(1.0f, 1.0f);
+        public static readonly int SizeInBytes = Marshal.SizeOf(new Vec2());
         
-        public static Vector2 ComponentMin(Vector2 a, Vector2 b)
+        public static Vec2 ComponentMin(Vec2 a, Vec2 b)
         {
             a.X = a.X < b.X ? a.X : b.X;
             a.Y = a.Y < b.Y ? a.Y : b.Y;
             return a;
         }
-        public static Vector2 ComponentMax(Vector2 a, Vector2 b)
+        public static Vec2 ComponentMax(Vec2 a, Vec2 b)
         {
             a.X = a.X > b.X ? a.X : b.X;
             a.Y = a.Y > b.Y ? a.Y : b.Y;
             return a;
         }
-        public static Vector2 MagnitudeMin(Vector2 left, Vector2 right)
+        public static Vec2 MagnitudeMin(Vec2 left, Vec2 right)
         {
             return left.LengthSquared < right.LengthSquared ? left : right;
         }
-        public static Vector2 MagnitudeMax(Vector2 left, Vector2 right)
+        public static Vec2 MagnitudeMax(Vec2 left, Vec2 right)
         {
             return left.LengthSquared >= right.LengthSquared ? left : right;
         }
-        public static Vector2 Clamp(Vector2 vec, Vector2 min, Vector2 max)
+        public static Vec2 Clamp(Vec2 vec, Vec2 min, Vec2 max)
         {
             vec.X = vec.X < min.X ? min.X : vec.X > max.X ? max.X : vec.X;
             vec.Y = vec.Y < min.Y ? min.Y : vec.Y > max.Y ? max.Y : vec.Y;
             return vec;
         }
-        public Vector2 Normalized()
+        public Vec2 Normalized()
         {
-            Vector2 v = this;
+            Vec2 v = this;
             v.Normalize();
             return v;
         }
-        public Vector2 NormalizedFast()
+        public Vec2 NormalizedFast()
         {
-            Vector2 v = this;
+            Vec2 v = this;
             v.NormalizeFast();
             return v;
         }
@@ -110,11 +110,11 @@ namespace System
             X *= scale;
             Y *= scale;
         }
-        public static float Dot(Vector2 left, Vector2 right)
+        public static float Dot(Vec2 left, Vec2 right)
         {
             return left.X * right.X + left.Y * right.Y;
         }
-        public static void Dot(ref Vector2 left, ref Vector2 right, out float result)
+        public static void Dot(ref Vec2 left, ref Vec2 right, out float result)
         {
             result = left.X * right.X + left.Y * right.Y;
         }
@@ -125,7 +125,7 @@ namespace System
         /// <param name="left">First operand</param>
         /// <param name="right">Second operand</param>
         /// <returns>The perpendicular dot product of the two inputs</returns>
-        public static float PerpDot(Vector2 left, Vector2 right)
+        public static float PerpDot(Vec2 left, Vec2 right)
         {
             return left.X * right.Y - left.Y * right.X;
         }
@@ -136,11 +136,11 @@ namespace System
         /// <param name="left">First operand</param>
         /// <param name="right">Second operand</param>
         /// <param name="result">The perpendicular dot product of the two inputs</param>
-        public static void PerpDot(ref Vector2 left, ref Vector2 right, out float result)
+        public static void PerpDot(ref Vec2 left, ref Vec2 right, out float result)
         {
             result = left.X * right.Y - left.Y * right.X;
         }
-        public static Vector2 Lerp(Vector2 a, Vector2 b, float time)
+        public static Vec2 Lerp(Vec2 a, Vec2 b, float time)
         {
             return a + (b - a) * time;
         }
@@ -153,7 +153,7 @@ namespace System
         /// <param name="u">First Barycentric Coordinate</param>
         /// <param name="v">Second Barycentric Coordinate</param>
         /// <returns>a when u=v=0, b when u=1,v=0, c when u=0,v=1, and a linear combination of a,b,c otherwise</returns>
-        public static Vector2 BaryCentric(Vector2 a, Vector2 b, Vector2 c, float u, float v)
+        public static Vec2 BaryCentric(Vec2 a, Vec2 b, Vec2 c, float u, float v)
         {
             return a + u * (b - a) + v * (c - a);
         }
@@ -163,76 +163,76 @@ namespace System
         /// <param name="vec">The vector to transform.</param>
         /// <param name="quat">The quaternion to rotate the vector by.</param>
         /// <returns>The result of the operation.</returns>
-        public static Vector2 Transform(Vector2 vec, Quaternion quat)
+        public static Vec2 Transform(Vec2 vec, Quaternion quat)
         {
             Quaternion v = new Quaternion(vec.X, vec.Y, 0, 0);
             Quaternion t = quat * v;
             v = t * quat.Inverted();
-            return new Vector2(v.X, v.Y);
+            return new Vec2(v.X, v.Y);
         }
 
         [XmlIgnore]
-        public Vector2 Yx { get { return new Vector2(Y, X); } set { Y = value.X; X = value.Y; } }
+        public Vec2 Yx { get { return new Vec2(Y, X); } set { Y = value.X; X = value.Y; } }
 
-        public static Vector2 operator +(Vector2 left, Vector2 right)
+        public static Vec2 operator +(Vec2 left, Vec2 right)
         {
             left.X += right.X;
             left.Y += right.Y;
             return left;
         }
-        public static Vector2 operator -(Vector2 left, Vector2 right)
+        public static Vec2 operator -(Vec2 left, Vec2 right)
         {
             left.X -= right.X;
             left.Y -= right.Y;
             return left;
         }
-        public static Vector2 operator -(Vector2 vec)
+        public static Vec2 operator -(Vec2 vec)
         {
             vec.X = -vec.X;
             vec.Y = -vec.Y;
             return vec;
         }
-        public static Vector2 operator *(Vector2 vec, float scale)
+        public static Vec2 operator *(Vec2 vec, float scale)
         {
             vec.X *= scale;
             vec.Y *= scale;
             return vec;
         }
-        public static Vector2 operator *(float scale, Vector2 vec)
+        public static Vec2 operator *(float scale, Vec2 vec)
         {
             vec.X *= scale;
             vec.Y *= scale;
             return vec;
         }
-        public static Vector2 operator *(Vector2 vec1, Vector2 vec2)
+        public static Vec2 operator *(Vec2 vec1, Vec2 vec2)
         {
             vec1.X *= vec2.X;
             vec1.Y *= vec2.Y;
             return vec1;
         }
-        public static Vector2 operator /(Vector2 vec1, Vector2 vec2)
+        public static Vec2 operator /(Vec2 vec1, Vec2 vec2)
         {
             vec1.X /= vec2.X;
             vec1.Y /= vec2.Y;
             return vec1;
         }
-        public static Vector2 operator /(Vector2 vec, float scale)
+        public static Vec2 operator /(Vec2 vec, float scale)
         {
             vec.X /= scale;
             vec.Y /= scale;
             return vec;
         }
-        public static Vector2 operator /(float scale, Vector2 vec)
+        public static Vec2 operator /(float scale, Vec2 vec)
         {
             vec.X = scale / vec.X;
             vec.Y = scale / vec.Y;
             return vec;
         }
-        public static bool operator ==(Vector2 left, Vector2 right) { return left.Equals(right); }
-        public static bool operator !=(Vector2 left, Vector2 right) { return !left.Equals(right); }
-        public static explicit operator Vector2(Vector3 v) { return new Vector2(v.X, v.Y); }
-        public static explicit operator Vector2(Vector4 v) { return new Vector2(v.X, v.Y); }
-        
+        public static bool operator ==(Vec2 left, Vec2 right) { return left.Equals(right); }
+        public static bool operator !=(Vec2 left, Vec2 right) { return !left.Equals(right); }
+        public static explicit operator Vec2(Vec3 v) { return new Vec2(v.X, v.Y); }
+        public static explicit operator Vec2(Vec4 v) { return new Vec2(v.X, v.Y); }
+
         private static string listSeparator = Globalization.CultureInfo.CurrentCulture.TextInfo.ListSeparator;
         public override string ToString()
         {
@@ -247,12 +247,12 @@ namespace System
         }
         public override bool Equals(object obj)
         {
-            if (!(obj is Vector2))
+            if (!(obj is Vec2))
                 return false;
 
-            return Equals((Vector2)obj);
+            return Equals((Vec2)obj);
         }
-        public bool Equals(Vector2 other)
+        public bool Equals(Vec2 other)
         {
             return
                 X == other.X &&

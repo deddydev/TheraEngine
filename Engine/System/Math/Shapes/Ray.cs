@@ -10,26 +10,26 @@ namespace System
     public class Ray
     {
         public Ray() { }
-        public Ray(Vector3 startPoint, Vector3 endPoint)
+        public Ray(Vec3 startPoint, Vec3 endPoint)
         {
             _startPoint = startPoint;
             _endPoint = endPoint;
         }
         
-        public Vector3 StartPoint { get { return _startPoint; }set { _startPoint = value; } }
-        public Vector3 EndPoint { get { return _endPoint; } set { _endPoint = value; } }
-        public Vector3 Direction
+        public Vec3 StartPoint { get { return _startPoint; }set { _startPoint = value; } }
+        public Vec3 EndPoint { get { return _endPoint; } set { _endPoint = value; } }
+        public Vec3 Direction
         {
             get { return _endPoint - _startPoint; }
             set { _endPoint = _startPoint + value; }
         }
 
-        private Vector3 _startPoint;
-        private Vector3 _endPoint;
+        private Vec3 _startPoint;
+        private Vec3 _endPoint;
 
-        public bool LineSphereIntersect(Vector3 center, float radius, out Vector3 result)
+        public bool LineSphereIntersect(Vec3 center, float radius, out Vec3 result)
         {
-            Vector3 diff = Direction;
+            Vec3 diff = Direction;
             float a = diff.LengthSquared;
             if (a > 0.0f)
             {
@@ -49,36 +49,36 @@ namespace System
                 }
             }
 
-            result = new Vector3();
+            result = new Vec3();
             return false;
         }
-        public bool LinePlaneIntersect(Vector3 planePoint, Vector3 planeNormal, out Vector3 result)
+        public bool LinePlaneIntersect(Vec3 planePoint, Vec3 planeNormal, out Vec3 result)
         {
-            Vector3 diff = Direction;
+            Vec3 diff = Direction;
             float scale = -planeNormal.Dot(StartPoint - planePoint) / planeNormal.Dot(diff);
 
             if (float.IsNaN(scale) || scale < 0.0f || scale > 1.0f)
             {
-                result = new Vector3();
+                result = new Vec3();
                 return false;
             }
 
             result = StartPoint + (diff * scale);
             return true;
         }
-        public Vector3 PointAtLineDistance(float distance)
+        public Vec3 PointAtLineDistance(float distance)
         {
-            Vector3 diff = Direction;
+            Vec3 diff = Direction;
             return StartPoint + (diff * (distance / diff.LengthFast));
         }
-        public static Vector3 PointAtLineDistance(Vector3 startPoint, Vector3 endPoint, float distance)
+        public static Vec3 PointAtLineDistance(Vec3 startPoint, Vec3 endPoint, float distance)
         {
-            Vector3 diff = endPoint - startPoint;
+            Vec3 diff = endPoint - startPoint;
             return startPoint + (diff * (distance / diff.LengthFast));
         }
-        public Vector3 PointLineIntersect(Vector3 point)
+        public Vec3 PointLineIntersect(Vec3 point)
         {
-            Vector3 diff = Direction;
+            Vec3 diff = Direction;
             return StartPoint + (diff * (diff.Dot(point - StartPoint) / diff.LengthSquared));
         }
     }

@@ -14,7 +14,7 @@ namespace CustomEngine.Rendering
         }
 
         #region Shapes
-        public override void DrawBoxWireframe(System.Vector3 min, System.Vector3 max)
+        public override void DrawBoxWireframe(System.Vec3 min, System.Vec3 max)
         {
             GL.Begin(PrimitiveType.LineStrip);
 
@@ -45,7 +45,7 @@ namespace CustomEngine.Rendering
 
             GL.End();
         }
-        public override void DrawBoxSolid(System.Vector3 min, System.Vector3 max)
+        public override void DrawBoxSolid(System.Vec3 min, System.Vec3 max)
         {
             GL.Begin(PrimitiveType.QuadStrip);
             
@@ -175,15 +175,15 @@ namespace CustomEngine.Rendering
             //return m;
             return *(OpenTK.Matrix4*)&matrix4;
         }
-        private OpenTK.Vector4 GLVec4(System.Vector4 vec4)
+        private OpenTK.Vector4 GLVec4(System.Vec4 vec4)
         {
             return *(OpenTK.Vector4*)&vec4;
         }
-        private OpenTK.Vector3 GLVec3(System.Vector3 vec3)
+        private OpenTK.Vector3 GLVec3(System.Vec3 vec3)
         {
             return *(OpenTK.Vector3*)&vec3;
         }
-        private OpenTK.Vector2 GLVec2(System.Vector2 vec2)
+        private OpenTK.Vector2 GLVec2(System.Vec2 vec2)
         {
             return *(OpenTK.Vector2*)&vec2;
         }
@@ -224,23 +224,23 @@ namespace CustomEngine.Rendering
         {
             GL.Begin((PrimitiveType)(int)type);
         }
-        public override void Vertex3(System.Vector3 value)
+        public override void Vertex3(System.Vec3 value)
         {
             GL.Vertex3(value.X, value.Y, value.Z);
         }
-        public override void Vertex2(System.Vector2 value)
+        public override void Vertex2(System.Vec2 value)
         {
             GL.Vertex2(value.X, value.Y);
         }
-        public override void Normal3(System.Vector3 value)
+        public override void Normal3(System.Vec3 value)
         {
             GL.Normal3(value.X, value.Y, value.Z);
         }
-        public override void TexCoord2(System.Vector2 value)
+        public override void TexCoord2(System.Vec2 value)
         {
             GL.TexCoord2(value.X, value.Y);
         }
-        public override void MultiTexCoord2(int unit, System.Vector2 value)
+        public override void MultiTexCoord2(int unit, System.Vec2 value)
         {
             GL.MultiTexCoord2(TextureUnit.Texture0 + unit, value.X, value.Y);
         }

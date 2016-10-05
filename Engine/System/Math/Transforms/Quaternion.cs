@@ -12,7 +12,7 @@ namespace System
 
         public float X, Y, Z, W;
 
-        public Quaternion(Vector3 v, float w)
+        public Quaternion(Vec3 v, float w)
         {
             X = v.X;
             Y = v.Y;
@@ -44,27 +44,27 @@ namespace System
             Y = s1 * c2 * c3 + c1 * s2 * s3;
             Z = c1 * s2 * c3 - s1 * c2 * s3;
         }
-        public Quaternion(Vector3 eulerAngles) : this(eulerAngles.X, eulerAngles.Y, eulerAngles.Z) { }
+        public Quaternion(Vec3 eulerAngles) : this(eulerAngles.X, eulerAngles.Y, eulerAngles.Z) { }
 
         public float* Data { get { fixed (void* p = &this) return (float*)p; } }
-        public Vector3 Xyz { get { return new Vector3(X, Y, Z); } set { X = value.X; Y = value.Y; Z = value.Z; } }
-        public Vector4 Xyzw { get { return new Vector4(X, Y, Z, W); } set { X = value.X; Y = value.Y; Z = value.Z; W = value.W; } }
+        public Vec3 Xyz { get { return new Vec3(X, Y, Z); } set { X = value.X; Y = value.Y; Z = value.Z; } }
+        public Vec4 Xyzw { get { return new Vec4(X, Y, Z, W); } set { X = value.X; Y = value.Y; Z = value.Z; W = value.W; } }
         public float Length { get { return (float)System.Math.Sqrt(W * W + Xyz.LengthSquared); } }
         public float LengthSquared { get { return W * W + Xyz.LengthSquared; } }
 
-        public void ToAxisAngle(out Vector3 axis, out float angle)
+        public void ToAxisAngle(out Vec3 axis, out float angle)
         {
-            Vector4 result = ToAxisAngle();
+            Vec4 result = ToAxisAngle();
             axis = result.Xyz;
             angle = result.W;
         }
-        public Vector4 ToAxisAngle()
+        public Vec4 ToAxisAngle()
         {
             Quaternion q = this;
             if (Math.Abs(q.W) > 1.0f)
                 q.Normalize();
 
-            Vector4 result = new Vector4();
+            Vec4 result = new Vec4();
 
             result.W = 2.0f * (float)System.Math.Acos(q.W); // angle
             float den = (float)System.Math.Sqrt(1.0 - q.W * q.W);
@@ -73,7 +73,7 @@ namespace System
             else
                 // This occurs when the angle is zero. 
                 // Not a problem: just set an arbitrary normalized axis.
-                result.Xyz = Vector3.UnitX;
+                result.Xyz = Vec3.UnitX;
             return result;
         }
         public Quaternion Normalized()
@@ -114,7 +114,7 @@ namespace System
         {
             return new Quaternion(-q.Xyz, q.W);
         }
-        public static Quaternion FromAxisAngle(Vector3 axis, float angle)
+        public static Quaternion FromAxisAngle(Vec3 axis, float angle)
         {
             if (axis.LengthSquared == 0.0f)
                 return Identity;
@@ -139,7 +139,7 @@ namespace System
         {
             return new Quaternion(pitch, yaw, roll);
         }
-        public static Quaternion FromEulerAngles(Vector3 eulerAngles)
+        public static Quaternion FromEulerAngles(Vec3 eulerAngles)
         {
             return new Quaternion(eulerAngles);
         }

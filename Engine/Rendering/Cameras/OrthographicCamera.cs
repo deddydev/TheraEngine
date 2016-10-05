@@ -43,7 +43,7 @@ namespace CustomEngine.Rendering.Cameras
         public override void Zoom(float amount)
         {
             float scale = amount >= 0 ? amount : 1.0f / -amount;
-            Scale = Scale * new Vector3(scale);
+            Scale = Scale * new Vec3(scale);
         }
         public override void CalculateProjection()
         {
@@ -70,13 +70,13 @@ namespace CustomEngine.Rendering.Cameras
         }
         protected override float GetWidth() { return Width; }
         protected override float GetHeight() { return Height; }
-        protected override Vector3 AlignScreenPoint(Vector3 screenPoint)
+        protected override Vec3 AlignScreenPoint(Vec3 screenPoint)
         {
-            return new Vector3(screenPoint.X + _orthoLeft, screenPoint.Y + _orthoBottom, screenPoint.Z);
+            return new Vec3(screenPoint.X + _orthoLeft, screenPoint.Y + _orthoBottom, screenPoint.Z);
         }
-        protected override Vector3 UnAlignScreenPoint(Vector3 screenPoint)
+        protected override Vec3 UnAlignScreenPoint(Vec3 screenPoint)
         {
-            return new Vector3(screenPoint.X - _orthoLeft, screenPoint.Y - _orthoBottom, screenPoint.Z);
+            return new Vec3(screenPoint.X - _orthoLeft, screenPoint.Y - _orthoBottom, screenPoint.Z);
         }
     }
 }

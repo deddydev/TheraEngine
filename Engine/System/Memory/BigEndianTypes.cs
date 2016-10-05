@@ -162,8 +162,8 @@ namespace System
 
         public override string ToString() { return String.Format("({0}, {1})", (float)_x, (float)_y); }
 
-        public static implicit operator Vector2(BVec2 v) { return new Vector2(v._x, v._y); }
-        public static implicit operator BVec2(Vector2 v) { return new BVec2(v.X, v.Y); }
+        public static implicit operator Vec2(BVec2 v) { return new Vec2(v._x, v._y); }
+        public static implicit operator BVec2(Vec2 v) { return new BVec2(v.X, v.Y); }
     }
 
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
@@ -177,11 +177,11 @@ namespace System
 
         public override string ToString() { return String.Format("({0}, {1}, {2})", (float)_x, (float)_y, (float)_z); }
 
-        public static implicit operator Vector3(BVec3 v) { return new Vector3(v._x, v._y, v._z); }
-        public static implicit operator BVec3(Vector3 v) { return new BVec3(v.X, v.Y, v.Z); }
+        public static implicit operator Vec3(BVec3 v) { return new Vec3(v._x, v._y, v._z); }
+        public static implicit operator BVec3(Vec3 v) { return new BVec3(v.X, v.Y, v.Z); }
 
-        public static implicit operator Vector4(BVec3 v) { return new Vector4(v._x, v._y, v._z, 1); }
-        public static implicit operator BVec3(Vector4 v) { return new BVec3(v.X / v.W, v.Y / v.W, v.Z / v.W); }
+        public static implicit operator Vec4(BVec3 v) { return new Vec4(v._x, v._y, v._z, 1); }
+        public static implicit operator BVec3(Vec4 v) { return new BVec3(v.X / v.W, v.Y / v.W, v.Z / v.W); }
     }
 
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
@@ -196,8 +196,8 @@ namespace System
 
         public override string ToString() { return String.Format("({0}, {1}, {2}, {3})", (float)_x, (float)_y, (float)_z, (float)_w); }
 
-        public static implicit operator Vector4(BVec4 v) { return new Vector4(v._x, v._y, v._z, v._w); }
-        public static implicit operator BVec4(Vector4 v) { return new BVec4(v.X, v.Y, v.Z, v.W); }
+        public static implicit operator Vec4(BVec4 v) { return new Vec4(v._x, v._y, v._z, v._w); }
+        public static implicit operator BVec4(Vec4 v) { return new BVec4(v.X, v.Y, v.Z, v.W); }
     }
 
     [StructLayout(LayoutKind.Sequential)]

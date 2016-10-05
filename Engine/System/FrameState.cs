@@ -2,13 +2,13 @@
 
 namespace CustomEngine.Rendering.Models
 {
-    public delegate void TranslateChanged(Vector3 oldTranslation);
+    public delegate void TranslateChanged(Vec3 oldTranslation);
     public delegate void RotateChanged(Quaternion oldRotate);
-    public delegate void ScaleChanged(Vector3 oldScale);
+    public delegate void ScaleChanged(Vec3 oldScale);
     public class FrameState
     {
-        public static readonly FrameState Identity = new FrameState(new Vector3(), Quaternion.Identity, new Vector3(1.0f));
-        public FrameState(Vector3 translate, Quaternion rotate, Vector3 scale)
+        public static readonly FrameState Identity = new FrameState(new Vec3(), Quaternion.Identity, new Vec3(1.0f));
+        public FrameState(Vec3 translate, Quaternion rotate, Vec3 scale)
         {
             _translation = translate;
             _rotation = rotate;
@@ -17,9 +17,9 @@ namespace CustomEngine.Rendering.Models
             _inverseTransform = Matrix4.Identity;
         }
 
-        private Vector3 _translation;
+        private Vec3 _translation;
         private Quaternion _rotation;
-        private Vector3 _scale;
+        private Vec3 _scale;
         private Matrix4 _transform;
         private Matrix4 _inverseTransform;
 
@@ -29,7 +29,7 @@ namespace CustomEngine.Rendering.Models
 
         public Matrix4 Transform { get { return _transform; } }
         public Matrix4 InverseTransform { get { return _inverseTransform; } }
-        public Vector3 Translation
+        public Vec3 Translation
         {
             get { return _translation; }
             set { SetTranslate(value); }
@@ -39,26 +39,26 @@ namespace CustomEngine.Rendering.Models
             get { return _rotation; }
             set { SetRotate(value); }
         }
-        public Vector3 Scale
+        public Vec3 Scale
         {
             get { return _scale; }
             set { SetScale(value); }
         }
 
-        public void ApplyRelativeTranslation(Vector3 translation)
+        public void ApplyRelativeTranslation(Vec3 translation)
         {
             _transform.Translate(translation);
             SetTranslate(_transform.ExtractTranslation());
         }
-        public void SetRelativeTranslation(Vector3 translation)
+        public void SetRelativeTranslation(Vec3 translation)
         {
             _transform.ClearTranslation();
             ApplyRelativeTranslation(translation);
         }
 
-        private void SetTranslate(Vector3 value)
+        private void SetTranslate(Vec3 value)
         {
-            Vector3 oldTranslation = _translation;
+            Vec3 oldTranslation = _translation;
             _translation = value;
             CreateTransform();
             OnTranslateChanged?.Invoke(oldTranslation);
@@ -70,19 +70,19 @@ namespace CustomEngine.Rendering.Models
             CreateTransform();
             OnRotateChanged?.Invoke(oldRotation);
         }
-        private void SetScale(Vector3 value)
+        private void SetScale(Vec3 value)
         {
-            Vector3 oldScale = _scale;
+            Vec3 oldScale = _scale;
             _scale = value;
             CreateTransform();
             OnScaleChanged?.Invoke(oldScale);
         }
 
-        public void AddTranslation(Vector3 translation)
+        public void AddTranslation(Vec3 translation)
         {
             SetTranslate(_translation + translation);
         }
-        public void ApplyRotation(Vector3 rotation)
+        public void ApplyRotation(Vec3 rotation)
         {
             SetRotate(_rotation * Quaternion.FromEulerAngles(rotation));
         }
@@ -90,11 +90,11 @@ namespace CustomEngine.Rendering.Models
         {
             SetRotate(_rotation * rotation);
         }
-        public void MultiplyScale(Vector3 scale)
+        public void MultiplyScale(Vec3 scale)
         {
             SetScale(_scale * scale);
         }
-        public void SetAll(Vector3 translation, Quaternion rotation, Vector3 scale)
+        public void SetAll(Vec3 translation, Quaternion rotation, Vec3 scale)
         {
             SetTranslate(translation);
             SetRotate(rotation);

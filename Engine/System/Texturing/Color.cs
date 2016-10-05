@@ -15,8 +15,8 @@ namespace System
         public static implicit operator ColorF4(RGBAPixel p) { return new ColorF4() { A = p.A / 255.0f, B = p.B / 255.0f, G = p.G / 255.0f, R = p.R / 255.0f }; }
         public static implicit operator ColorF4(ARGBPixel p) { return new ColorF4() { A = p.A / 255.0f, B = p.B / 255.0f, G = p.G / 255.0f, R = p.R / 255.0f }; }
         public static implicit operator ColorF4(Color p) { return new ColorF4() { A = p.A / 255.0f, B = p.B / 255.0f, G = p.G / 255.0f, R = p.R / 255.0f }; }
-        public static implicit operator ColorF4(Vector3 v) { return new ColorF4(v.X, v.Y, v.Z, 1.0f); }
-        public static implicit operator ColorF4(Vector4 v) { return new ColorF4(v.X, v.Y, v.Z, v.W); }
+        public static implicit operator ColorF4(Vec3 v) { return new ColorF4(v.X, v.Y, v.Z, 1.0f); }
+        public static implicit operator ColorF4(Vec4 v) { return new ColorF4(v.X, v.Y, v.Z, v.W); }
         public static implicit operator ColorF4(ColorF3 p) { return new ColorF4(p.R, p.G, p.B, 1.0f); }
     }
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
@@ -31,8 +31,8 @@ namespace System
         public static implicit operator ColorF3(RGBAPixel p) { return new ColorF3() { B = p.B / 255.0f, G = p.G / 255.0f, R = p.R / 255.0f }; }
         public static implicit operator ColorF3(ARGBPixel p) { return new ColorF3() { B = p.B / 255.0f, G = p.G / 255.0f, R = p.R / 255.0f }; }
         public static implicit operator ColorF3(Color p) { return new ColorF3() { B = p.B / 255.0f, G = p.G / 255.0f, R = p.R / 255.0f }; }
-        public static implicit operator ColorF3(Vector3 v) { return new ColorF3(v.X, v.Y, v.Z); }
-        public static implicit operator ColorF3(Vector4 v) { return new ColorF3(v.X, v.Y, v.Z); }
+        public static implicit operator ColorF3(Vec3 v) { return new ColorF3(v.X, v.Y, v.Z); }
+        public static implicit operator ColorF3(Vec4 v) { return new ColorF3(v.X, v.Y, v.Z); }
         public static implicit operator ColorF3(ColorF4 p) { return new ColorF3(p.R, p.G, p.B); }
     }
     [StructLayout(LayoutKind.Sequential, Pack = 1)]

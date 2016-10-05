@@ -10,13 +10,13 @@ namespace System
         public float Radius { get { return _radius; } set { _radius = value; } }
         public Sphere(float radius) { _radius = Abs(radius); }
 
-        public bool ContainsPoint(Vector3 point)
+        public bool ContainsPoint(Vec3 point)
         {
             return Abs(point.LengthSquared) <= _radius * _radius;
         }
         public ContainsShape ContainsBox(Box box)
         {
-            Vector3[] p = new Vector3[8];
+            Vec3[] p = new Vec3[8];
             box.GetCorners(out p[0], out p[1], out p[2], out p[3], out p[4], out p[5], out p[6], out p[7]);
             bool temp = false;
             for (int i = 0; i < 8; ++i)

@@ -7,8 +7,8 @@ namespace CustomEngine.Worlds.Actors.Components
 {
     public class BoomComponent : SceneComponent
     {
-        private Vector3 _startOffset;
-        private Vector3 _endOffset;
+        private Vec3 _startOffset;
+        private Vec3 _endOffset;
         private float _length;
 
         public BoomComponent()

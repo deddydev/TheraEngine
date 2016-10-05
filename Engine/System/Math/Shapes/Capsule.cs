@@ -16,7 +16,7 @@ namespace System
             _radius = Abs(radius);
             _halfHeight = Abs(halfHeight);
         }
-        public bool ContainsPoint(Vector3 point)
+        public bool ContainsPoint(Vec3 point)
         {
             float totalHalfHeight = GetTotalHalfHeight();
             if (point.Z < totalHalfHeight && point.Z > -totalHalfHeight)

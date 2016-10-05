@@ -25,7 +25,7 @@ namespace CustomEngine.Rendering.Cameras
             get { return _defaultTransform; }
             set { _defaultTransform = value; }
         }
-        public Vector3 Translation
+        public Vec3 Translation
         {
             get { return _currentTransform.Translation; }
             set { _currentTransform.Translation = value; }
@@ -35,7 +35,7 @@ namespace CustomEngine.Rendering.Cameras
             get { return _currentTransform.Rotation; }
             set { _currentTransform.Rotation = value; }
         }
-        public Vector3 Scale
+        public Vec3 Scale
         {
             get { return _currentTransform.Scale; }
             set { _currentTransform.Scale = value; }
@@ -60,7 +60,7 @@ namespace CustomEngine.Rendering.Cameras
         {
             Reset();
         }
-        public Camera(Vector3 defaultTranslate, Quaternion defaultRotate, Vector3 defaultScale)
+        public Camera(Vec3 defaultTranslate, Quaternion defaultRotate, Vec3 defaultScale)
         {
             _currentTransform = _defaultTransform = new FrameState(defaultTranslate, defaultRotate, defaultScale);
         }
@@ -71,8 +71,8 @@ namespace CustomEngine.Rendering.Cameras
 
         protected abstract float GetWidth();
         protected abstract float GetHeight();
-        protected virtual Vector3 AlignScreenPoint(Vector3 screenPoint) { return screenPoint; }
-        protected virtual Vector3 UnAlignScreenPoint(Vector3 screenPoint) { return screenPoint; }
+        protected virtual Vec3 AlignScreenPoint(Vec3 screenPoint) { return screenPoint; }
+        protected virtual Vec3 UnAlignScreenPoint(Vec3 screenPoint) { return screenPoint; }
         public abstract void Zoom(float amount);
         public abstract void CalculateProjection();
         public virtual void Resize(float width, float height)
@@ -81,14 +81,14 @@ namespace CustomEngine.Rendering.Cameras
             OnResized?.Invoke();
         }
 
-        public void TranslateRelative(Vector3 v) { TranslateRelative(v.X, v.Y, v.Z); }
+        public void TranslateRelative(Vec3 v) { TranslateRelative(v.X, v.Y, v.Z); }
         public void TranslateRelative(float x, float y, float z)
         {
             MatrixInverse.Translate(x, y, z);
             _currentTransform.Translation = MatrixInverse.ExtractTranslation();
         }
-        public void Rotate(float x, float y, float z) { Rotate(new Vector3(x, y, z)); }
-        public void Rotate(Vector3 v)
+        public void Rotate(float x, float y, float z) { Rotate(new Vec3(x, y, z)); }
+        public void Rotate(Vec3 v)
         {
             //Fix for left and right dragging when the camera is upside down
             //if (_rotation._x < -90.0f || _rotation._x > 90.0f)
@@ -121,11 +121,11 @@ namespace CustomEngine.Rendering.Cameras
             OnTransformChanged?.Invoke();
         }
 
-        public void SetTransform(Vector3 translate, Vector3 rotate, Vector3 scale)
+        public void SetTransform(Vec3 translate, Vec3 rotate, Vec3 scale)
         {
             _currentTransform.SetAll(translate, Quaternion.FromEulerAngles(rotate), scale);
         }
-        public void SetTransform(Vector3 translate, Quaternion rotate, Vector3 scale)
+        public void SetTransform(Vec3 translate, Quaternion rotate, Vec3 scale)
         {
             _currentTransform.SetAll(translate, rotate, scale);
         }
@@ -137,7 +137,7 @@ namespace CustomEngine.Rendering.Cameras
         /// Projects a screen point to world coordinates.
         /// </summary>
         /// <returns>3D world point perpendicular to the camera with a depth value of z (z is not a distance value!)</returns>
-        public Vector3 GetWorldPoint(Vector3 screenPoint)
+        public Vec3 GetWorldPoint(Vec3 screenPoint)
         {
             screenPoint = AlignScreenPoint(screenPoint);
             return screenPoint.Unproject(0, 0, GetWidth(), GetHeight(), NearDepth, FarDepth, MatrixInverse * _projectionInverse);
@@ -147,34 +147,34 @@ namespace CustomEngine.Rendering.Cameras
         /// Projects a screen point to world coordinates.
         /// </summary>
         /// <returns>3D world point perpendicular to the camera with a depth value of z (z is not a distance value!)</returns>
-        public Vector3 GetWorldPoint(float x, float y, float z)
+        public Vec3 GetWorldPoint(float x, float y, float z)
         {
-            return GetWorldPoint(new Vector3(x, y, z));
+            return GetWorldPoint(new Vec3(x, y, z));
         }
         /// <summary>
         /// Projects a world point to screen coordinates.
         /// </summary>
         /// <returns>2D coordinate on the screen with z as depth (z is not a distance value!)</returns>
-        public Vector3 GetScreenPoint(float x, float y, float z) { return GetScreenPoint(new Vector3(x, y, z)); }
+        public Vec3 GetScreenPoint(float x, float y, float z) { return GetScreenPoint(new Vec3(x, y, z)); }
         /// <summary>
         /// Projects a world point to screen coordinates.
         /// </summary>
         /// <returns>2D coordinate on the screen with z as depth (z is not a distance value!)</returns>
-        public Vector3 GetScreenPoint(Vector3 worldPoint)
+        public Vec3 GetScreenPoint(Vec3 worldPoint)
         {
             return UnAlignScreenPoint(worldPoint.Project(0, 0, GetWidth(), GetHeight(), NearDepth, FarDepth, _projectionMatrix * Matrix));
         }
 
-        public Ray GetWorldRay(Vector2 screenPoint)
+        public Ray GetWorldRay(Vec2 screenPoint)
         {
-            Vector3 ray1 = GetWorldPoint(screenPoint.X, screenPoint.Y, 0.0f);
-            Vector3 ray2 = GetWorldPoint(screenPoint.X, screenPoint.Y, 1.0f);
+            Vec3 ray1 = GetWorldPoint(screenPoint.X, screenPoint.Y, 0.0f);
+            Vec3 ray2 = GetWorldPoint(screenPoint.X, screenPoint.Y, 1.0f);
             return new Ray(ray1, ray2);
         }
 
-        public Vector3 ProjectCameraSphere(Vector2 screenPoint, Vector3 center, float radius, bool clamp)
+        public Vec3 ProjectCameraSphere(Vec2 screenPoint, Vec3 center, float radius, bool clamp)
         {
-            Vector3 point;
+            Vec3 point;
 
             //Get ray points
             Ray ray = GetWorldRay(screenPoint);
@@ -191,15 +191,15 @@ namespace CustomEngine.Rendering.Cameras
             return point;
         }
 
-        public void ProjectCameraPlanes(Vector2 screenPoint, Matrix4 transform, out Vector3 xy, out Vector3 yz, out Vector3 xz)
+        public void ProjectCameraPlanes(Vec2 screenPoint, Matrix4 transform, out Vec3 xy, out Vec3 yz, out Vec3 xz)
         {
             Ray ray = GetWorldRay(screenPoint);
 
-            Vector3 center = transform.ExtractTranslation();
+            Vec3 center = transform.ExtractTranslation();
 
-            ray.LinePlaneIntersect(center, (transform * Vector3.UnitX).Normalized(center), out yz);
-            ray.LinePlaneIntersect(center, (transform * Vector3.UnitY).Normalized(center), out xz);
-            ray.LinePlaneIntersect(center, (transform * Vector3.UnitZ).Normalized(center), out xy);
+            ray.LinePlaneIntersect(center, (transform * Vec3.UnitX).Normalized(center), out yz);
+            ray.LinePlaneIntersect(center, (transform * Vec3.UnitY).Normalized(center), out xz);
+            ray.LinePlaneIntersect(center, (transform * Vec3.UnitZ).Normalized(center), out xy);
         }
 
         public void LoadProjection()

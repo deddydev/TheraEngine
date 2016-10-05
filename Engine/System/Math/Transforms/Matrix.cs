@@ -10,16 +10,16 @@ namespace System
     [StructLayout(LayoutKind.Sequential)]
     public unsafe struct Matrix4 : IEquatable<Matrix4>
     {
-        public Vector4 Row0;
-        public Vector4 Row1;
-        public Vector4 Row2;
-        public Vector4 Row3;
+        public Vec4 Row0;
+        public Vec4 Row1;
+        public Vec4 Row2;
+        public Vec4 Row3;
 
         public float* Data { get { fixed (Matrix4* p = &this) return (float*)p; } }
 
-        public static readonly Matrix4 Identity = new Matrix4(Vector4.UnitX, Vector4.UnitY, Vector4.UnitZ, Vector4.UnitW);
-        public static readonly Matrix4 Zero = new Matrix4(Vector4.Zero, Vector4.Zero, Vector4.Zero, Vector4.Zero);
-        public Matrix4(Vector4 row0, Vector4 row1, Vector4 row2, Vector4 row3)
+        public static readonly Matrix4 Identity = new Matrix4(Vec4.UnitX, Vec4.UnitY, Vec4.UnitZ, Vec4.UnitW);
+        public static readonly Matrix4 Zero = new Matrix4(Vec4.Zero, Vec4.Zero, Vec4.Zero, Vec4.Zero);
+        public Matrix4(Vec4 row0, Vec4 row1, Vec4 row2, Vec4 row3)
         {
             Row0 = row0;
             Row1 = row1;
@@ -51,10 +51,10 @@ namespace System
             float m20, float m21, float m22, float m23,
             float m30, float m31, float m32, float m33)
         {
-            Row0 = new Vector4(m00, m01, m02, m03);
-            Row1 = new Vector4(m10, m11, m12, m13);
-            Row2 = new Vector4(m20, m21, m22, m23);
-            Row3 = new Vector4(m30, m31, m32, m33);
+            Row0 = new Vec4(m00, m01, m02, m03);
+            Row1 = new Vec4(m10, m11, m12, m13);
+            Row2 = new Vec4(m20, m21, m22, m23);
+            Row3 = new Vec4(m30, m31, m32, m33);
         }
         public float Determinant
         {
@@ -74,24 +74,24 @@ namespace System
                   - m14 * m22 * m33 * m41 + m14 * m22 * m31 * m43 - m14 * m23 * m31 * m42 + m14 * m23 * m32 * m41;
             }
         }
-        public Vector4 Column0
+        public Vec4 Column0
         {
-            get { return new Vector4(Row0.X, Row1.X, Row2.X, Row3.X); }
+            get { return new Vec4(Row0.X, Row1.X, Row2.X, Row3.X); }
             set { Row0.X = value.X; Row1.X = value.Y; Row2.X = value.Z; Row3.X = value.W; }
         }
-        public Vector4 Column1
+        public Vec4 Column1
         {
-            get { return new Vector4(Row0.Y, Row1.Y, Row2.Y, Row3.Y); }
+            get { return new Vec4(Row0.Y, Row1.Y, Row2.Y, Row3.Y); }
             set { Row0.Y = value.X; Row1.Y = value.Y; Row2.Y = value.Z; Row3.Y = value.W; }
         }
-        public Vector4 Column2
+        public Vec4 Column2
         {
-            get { return new Vector4(Row0.Z, Row1.Z, Row2.Z, Row3.Z); }
+            get { return new Vec4(Row0.Z, Row1.Z, Row2.Z, Row3.Z); }
             set { Row0.Z = value.X; Row1.Z = value.Y; Row2.Z = value.Z; Row3.Z = value.W; }
         }
-        public Vector4 Column3
+        public Vec4 Column3
         {
-            get { return new Vector4(Row0.W, Row1.W, Row2.W, Row3.W); }
+            get { return new Vec4(Row0.W, Row1.W, Row2.W, Row3.W); }
             set { Row0.W = value.X; Row1.W = value.Y; Row2.W = value.Z; Row3.W = value.W; }
         }
         /// <summary>
@@ -162,9 +162,9 @@ namespace System
         /// <summary>
         /// Gets or sets the values along the main diagonal of the matrix.
         /// </summary>
-        public Vector4 Diagonal
+        public Vec4 Diagonal
         {
-            get { return new Vector4(Row0.X, Row1.Y, Row2.Z, Row3.W); }
+            get { return new Vec4(Row0.X, Row1.Y, Row2.Z, Row3.W); }
             set
             {
                 Row0.X = value.X;
@@ -216,7 +216,7 @@ namespace System
         public Matrix4 ClearTranslation()
         {
             Matrix4 m = this;
-            m.Row3.Xyz = Vector3.Zero;
+            m.Row3.Xyz = Vec3.Zero;
             return m;
         }
         public Matrix4 ClearScale()
@@ -230,19 +230,19 @@ namespace System
         public Matrix4 ClearRotation()
         {
             Matrix4 m = this;
-            m.Row0.Xyz = new Vector3(m.Row0.Xyz.Length, 0, 0);
-            m.Row1.Xyz = new Vector3(0, m.Row1.Xyz.Length, 0);
-            m.Row2.Xyz = new Vector3(0, 0, m.Row2.Xyz.Length);
+            m.Row0.Xyz = new Vec3(m.Row0.Xyz.Length, 0, 0);
+            m.Row1.Xyz = new Vec3(0, m.Row1.Xyz.Length, 0);
+            m.Row2.Xyz = new Vec3(0, 0, m.Row2.Xyz.Length);
             return m;
         }
         public Matrix4 ClearProjection()
         {
             Matrix4 m = this;
-            m.Column3 = Vector4.Zero;
+            m.Column3 = Vec4.Zero;
             return m;
         }
-        public Vector3 ExtractTranslation() { return Row3.Xyz; }
-        public Vector3 ExtractScale() { return new Vector3(Row0.Xyz.Length, Row1.Xyz.Length, Row2.Xyz.Length); }
+        public Vec3 ExtractTranslation() { return Row3.Xyz; }
+        public Vec3 ExtractScale() { return new Vec3(Row0.Xyz.Length, Row1.Xyz.Length, Row2.Xyz.Length); }
 
         /// <summary>
         /// Returns the rotation component of this instance. Quite slow.
@@ -310,9 +310,9 @@ namespace System
             q.Normalize();
             return q;
         }
-        public Vector4 ExtractProjection() { return Column3; }
+        public Vec4 ExtractProjection() { return Column3; }
         
-        public void Translate(Vector3 v) { Translate(v.X, v.Y, v.Z); }
+        public void Translate(Vec3 v) { Translate(v.X, v.Y, v.Z); }
         public unsafe void Translate(float x, float y, float z)
         {
             fixed (Matrix4* m = &this)
@@ -330,7 +330,7 @@ namespace System
         /// <param name="axis">The axis to rotate about.</param>
         /// <param name="angle">Angle in radians to rotate counter-clockwise (looking in the direction of the given axis).</param>
         /// <param name="result">A matrix instance.</param>
-        public static void CreateFromAxisAngle(Vector3 axis, float angle, out Matrix4 result)
+        public static void CreateFromAxisAngle(Vec3 axis, float angle, out Matrix4 result)
         {
             // normalize and create a local copy of the vector.
             axis.Normalize();
@@ -365,7 +365,7 @@ namespace System
             result.Row2.Y = tYZ + sinX;
             result.Row2.Z = tZZ + cos;
             result.Row2.W = 0;
-            result.Row3 = Vector4.UnitW;
+            result.Row3 = Vec4.UnitW;
         }
         /// <summary>
         /// Build a rotation matrix from the specified axis/angle rotation.
@@ -373,7 +373,7 @@ namespace System
         /// <param name="axis">The axis to rotate about.</param>
         /// <param name="angle">Angle in radians to rotate counter-clockwise (looking in the direction of the given axis).</param>
         /// <returns>A matrix instance.</returns>
-        public static Matrix4 CreateFromAxisAngle(Vector3 axis, float angle)
+        public static Matrix4 CreateFromAxisAngle(Vec3 axis, float angle)
         {
             Matrix4 result;
             CreateFromAxisAngle(axis, angle, out result);
@@ -381,7 +381,7 @@ namespace System
         }
         public static Matrix4 CreateFromQuaternion(Quaternion q)
         {
-            Vector3 axis;
+            Vec3 axis;
             float angle;
             q.ToAxisAngle(out axis, out angle);
             return CreateFromAxisAngle(axis, angle);
@@ -443,7 +443,7 @@ namespace System
             result.Row1.Y = cos;
             return result;
         }
-        public static Matrix4 CreateFromEuler(Vector3 angles)
+        public static Matrix4 CreateFromEuler(Vec3 angles)
         {
             return CreateFromQuaternion(Quaternion.FromEulerAngles(angles));
             //Matrix4 x = CreateRotationX(angles.X);
@@ -459,22 +459,22 @@ namespace System
             result.Row3.Z = z;
             return result;
         }
-        public static Matrix4 CreateTranslation(Vector3 translation)
+        public static Matrix4 CreateTranslation(Vec3 translation)
         {
             return CreateTranslation(translation.X, translation.Y, translation.Z);
         }
         public static Matrix4 CreateScale(float scale)
         {
-            return CreateScale(new Vector3(scale));
+            return CreateScale(new Vec3(scale));
         }
         public static Matrix4 CreateScale(float x, float y, float z)
         {
-            return CreateScale(new Vector3(x, y, z));
+            return CreateScale(new Vec3(x, y, z));
         }
-        public static Matrix4 CreateScale(Vector3 scale)
+        public static Matrix4 CreateScale(Vec3 scale)
         {
             Matrix4 result = Zero;
-            result.Diagonal = new Vector4(scale, 1.0f);
+            result.Diagonal = new Vec4(scale, 1.0f);
             return result;
         }
         public static Matrix4 CreateOrthographic(float width, float height, float zNear, float zFar)
@@ -614,11 +614,11 @@ namespace System
         /// <param name="target">Target position in world space</param>
         /// <param name="up">Up vector in world space (should not be parallel to the camera direction, that is target - eye)</param>
         /// <returns>A Matrix4 that transforms world space to camera space</returns>
-        public static Matrix4 LookAt(Vector3 eye, Vector3 target, Vector3 up)
+        public static Matrix4 LookAt(Vec3 eye, Vec3 target, Vec3 up)
         {
-            Vector3 z = eye.NormalizedFast(target);
-            Vector3 x = up.Cross(z).NormalizedFast();
-            Vector3 y = z.Cross(x).NormalizedFast();
+            Vec3 z = eye.NormalizedFast(target);
+            Vec3 x = up.Cross(z).NormalizedFast();
+            Vec3 y = z.Cross(x).NormalizedFast();
 
             Matrix4 result;
             result.Row0.X = x.X;
@@ -655,7 +655,7 @@ namespace System
         /// <returns>A Matrix4 that transforms world space to camera space</returns>
         public static Matrix4 LookAt(float eyeX, float eyeY, float eyeZ, float targetX, float targetY, float targetZ, float upX, float upY, float upZ)
         {
-            return LookAt(new Vector3(eyeX, eyeY, eyeZ), new Vector3(targetX, targetY, targetZ), new Vector3(upX, upY, upZ));
+            return LookAt(new Vec3(eyeX, eyeY, eyeZ), new Vec3(targetX, targetY, targetZ), new Vec3(upX, upY, upZ));
         }
         public Matrix4 Inverted()
         {
@@ -792,7 +792,7 @@ namespace System
         /// <param name="rotate">The rotation of the matrix</param>
         /// <param name="translate">The translation of the matrix</param>
         /// <returns>A transform matrix</returns>
-        public static Matrix4 TransformMatrix(Vector3 scale, Quaternion rotate, Vector3 translate)
+        public static Matrix4 TransformMatrix(Vec3 scale, Quaternion rotate, Vec3 translate)
         {
             Matrix4 s = CreateScale(scale);
             Matrix4 r = CreateFromQuaternion(rotate);
@@ -809,7 +809,7 @@ namespace System
         /// <param name="rotate">The rotation of the matrix</param>
         /// <param name="translate">The translation of the matrix</param>
         /// <returns>A transform matrix</returns>
-        public static Matrix4 InverseTransformMatrix(Vector3 scale, Quaternion rotate, Vector3 translate)
+        public static Matrix4 InverseTransformMatrix(Vec3 scale, Quaternion rotate, Vec3 translate)
         {
             Matrix4 s = CreateScale(1.0f / scale);
             Matrix4 r = CreateFromQuaternion(rotate.Inverted());

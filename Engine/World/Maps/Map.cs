@@ -11,7 +11,7 @@ namespace CustomEngine.Worlds
         private bool _visibleByDefault;
         private List<Actor> _defaultActors = new List<Actor>();
         private MapSettings _settings;
-        private Vector3 _transform;
+        private Vec3 _transform;
 
         #region ILoadable Interface
         private bool _isLoaded;

@@ -60,27 +60,27 @@ namespace System
         {
             return from + (to - from) * time * speed;
         }
-        public static Vector3 RotateAboutPoint(Vector3 point, Vector3 center, Vector3 angles)
+        public static Vec3 RotateAboutPoint(Vec3 point, Vec3 center, Vec3 angles)
         {
             return point * Matrix4.CreateTranslation(-center) * Matrix4.CreateFromEuler(angles) * Matrix4.CreateTranslation(center);
         }
-        public static Vector3 RotateAboutPoint(Vector3 point, Vector3 center, Quaternion angles)
+        public static Vec3 RotateAboutPoint(Vec3 point, Vec3 center, Quaternion angles)
         {
             return point * Matrix4.CreateTranslation(-center) * Matrix4.CreateFromQuaternion(angles) * Matrix4.CreateTranslation(center);
         }
-        public static Vector2 RotateAboutPoint(Vector2 point, Vector2 center, float angle)
+        public static Vec2 RotateAboutPoint(Vec2 point, Vec2 center, float angle)
         {
-            return (Vector2)((Vector3)point * Matrix4.CreateTranslation((Vector3)(-center)) * Matrix4.CreateRotationZ(angle) * Matrix4.CreateTranslation((Vector3)center));
+            return (Vec2)((Vec3)point * Matrix4.CreateTranslation((Vec3)(-center)) * Matrix4.CreateRotationZ(angle) * Matrix4.CreateTranslation((Vec3)center));
         }
-        public static Vector3 ScaleAboutPoint(Vector3 point, Vector3 center, Vector3 scale)
+        public static Vec3 ScaleAboutPoint(Vec3 point, Vec3 center, Vec3 scale)
         {
             return point * Matrix4.CreateTranslation(-center) * Matrix4.CreateScale(scale) * Matrix4.CreateTranslation(center);
         }
-        public static Vector2 ScaleAboutPoint(Vector2 point, Vector2 center, Vector2 scale)
+        public static Vec2 ScaleAboutPoint(Vec2 point, Vec2 center, Vec2 scale)
         {
-            return (Vector2)((Vector3)point * Matrix4.CreateTranslation((Vector3)(-center)) * Matrix4.CreateScale(scale.X, scale.Y, 1.0f) * Matrix4.CreateTranslation((Vector3)center));
+            return (Vec2)((Vec3)point * Matrix4.CreateTranslation((Vec3)(-center)) * Matrix4.CreateScale(scale.X, scale.Y, 1.0f) * Matrix4.CreateTranslation((Vec3)center));
         }
-        public static Vector3 TransformAboutPoint(Vector3 point, Vector3 center, Matrix4 transform)
+        public static Vec3 TransformAboutPoint(Vec3 point, Vec3 center, Matrix4 transform)
         {
             return point * Matrix4.CreateTranslation(-center) * transform * Matrix4.CreateTranslation(center);
         }

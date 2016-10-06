@@ -6,10 +6,5 @@ namespace CustomEngine.Worlds.Actors.Components
     {
         private Actor _owner;
         public Actor Owner { get { return _owner; } set { _owner = value; } }
-
-        public virtual void Update()
-        {
-
-        }
     }
 }

@@ -3,6 +3,7 @@ using System.Collections;
 using CustomEngine.Rendering.Models;
 using System;
 using CustomEngine.Worlds.Actors.Components;
+using System.Collections.ObjectModel;
 
 namespace CustomEngine.Worlds
 {
@@ -11,27 +12,25 @@ namespace CustomEngine.Worlds
         Static, //This actor is part of the map
         Dynamic, //This actor can be changed/manipulated
     }
-    public abstract class Actor : IEnumerable<Component>
+    public abstract class Actor : ObjectBase
     {
         public Actor()
         {
+            SetDefaults();
             SetupComponents();
         }
+        protected virtual void SetDefaults() { }
+        protected virtual void SetupComponents() { }
 
-        private bool _prePhysicsTick = false, _postPhysicsTick = true;
-        public bool WantsPrePhysicsTick
-        {
-            get { return _prePhysicsTick; }
-            set { _prePhysicsTick = value; }
-        }
-        public bool WantsPostPhysicsTick
-        {
-            get { return _postPhysicsTick; }
-            set { _postPhysicsTick = value; }
-        }
-
+        [State]
         public bool IsSpawned { get { return _spawnIndex >= 0; } }
+        [State]
         public World OwningWorld { get { return _owningWorld; } }
+        [Default]
+        public override Type[] ChildTypes
+        {
+            get { return new Type[] { typeof(InstanceComponent) }; }
+        }
 
         public SceneComponent RootComponent
         {
@@ -45,6 +44,14 @@ namespace CustomEngine.Worlds
         public void GenerateSceneComponentCache()
         {
             _sceneComponentCache = _rootSceneComponent.GenerateChildCache();
+        }
+
+        public new ReadOnlyCollection<InstanceComponent> Children
+        {
+            get
+            {
+                return base.Children;
+            }
         }
 
         public DateTime _lastRendered;
@@ -63,7 +70,6 @@ namespace CustomEngine.Worlds
                     _rootSceneComponent.Transform = value;
             }
         }
-        protected abstract void SetupComponents();
         public void OnOriginRebased(Vec3 newOrigin)
         {
             _rootSceneComponent?.Transform.AddTranslation(-newOrigin);
@@ -73,12 +79,11 @@ namespace CustomEngine.Worlds
         {
             _instanceComponents.Add(c);
         }
-
-        public virtual void Update()
+        public override void Tick(float delta)
         {
-            _rootSceneComponent.Update();
+            _rootSceneComponent.Tick(delta);
             foreach (Component c in _instanceComponents)
-                c.Update();
+                c.Tick(delta);
         }
         public virtual void Render()
         {

@@ -1,10 +1,9 @@
-﻿using CustomEngine.Rendering.Models.Skeleton;
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace CustomEngine.Rendering.Models.Meshes
+namespace CustomEngine.Rendering.Models
 {
     public class Influence : IEnumerable<BoneWeight>
     {

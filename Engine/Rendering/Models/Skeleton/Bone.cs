@@ -1,12 +1,10 @@
-﻿using CustomEngine.Rendering.Models.Meshes;
-using System;
+﻿using System;
 using System.Collections.Generic;
 
-namespace CustomEngine.Rendering.Models.Skeleton
+namespace CustomEngine.Rendering.Models
 {
-    public class Bone
+    public class Bone : ObjectBase
     {
-        public List<Bone> _children;
         public List<Vertex> _influencedVertices;
 
         //frame state is the bone's transform with an animation applied.
@@ -20,5 +18,10 @@ namespace CustomEngine.Rendering.Models.Skeleton
         public Matrix4 BindMatrix { get { return _bindMatrix; } }
         public Matrix4 InverseFrameMatrix { get { return _inverseFrameMatrix; } }
         public Matrix4 InverseBindMatrix { get { return _inverseBindMatrix; } }
+
+        protected override bool OnInitialize()
+        {
+            return base.OnInitialize();
+        }
     }
 }

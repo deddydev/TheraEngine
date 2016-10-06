@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace CustomEngine.Worlds
 {
-    public class World : ObjectBase, IRenderable, ILoadable, IEnumerable<Actor>
+    public class World : ObjectBase, IRenderable, ILoadable
     {
         protected List<Map> _spawnedMaps = new List<Map>();
         protected List<Actor> _spawnedActors;
@@ -48,54 +48,13 @@ namespace CustomEngine.Worlds
                 _spawnedActors.Remove(actor);
             actor.OnDespawned();
         }
-        public delegate void PhysicsTick(float subDeltaTime);
-        public event PhysicsTick PrePhysicsTick;
-        public event PhysicsTick DuringPhysicsTick;
-        public event PhysicsTick PostPhysicsTick;
-        public override async void Tick(float delta)
-        {
-            delta /= Engine.PhysicsSubsteps;
-            Task t = DuringPhysics(delta);
-            for (int i = 0; i < Engine.PhysicsSubsteps; i++)
-            {
-                PrePhysicsTick?.Invoke(delta);
-                _bulletScene.StepSimulation(delta);
-                PostPhysicsTick?.Invoke(delta);
-            }
-            await t;
-        }
-        public async Task DuringPhysics(float delta)
-        {
-            if (DuringPhysicsTick != null)
-            await Task.Run(DuringPhysicsTick(delta));
-        }
+        public void StepSimulation(float delta) { _bulletScene.StepSimulation(delta); }
         public void Render()
         {
             foreach (Actor actor in _spawnedActors)
                 if (actor.IsSpawned)
                     actor.Render();
         }
-        public bool Visible
-        {
-            get { return _visible; }
-            set
-            {
-                if (_visible == value)
-                    return;
-
-                if (_visible = value)
-                {
-//                     foreach (Map m in _allMaps)
-//                         m.Visible = m.
-                }
-                else
-                {
-                    foreach (Actor a in _spawnedActors)
-                        DespawnActor(a);
-                }
-            }
-        }
-
         public void SerializeState(string path)
         {
             
@@ -138,7 +97,5 @@ namespace CustomEngine.Worlds
             get { return _spawnedActors[index]; }
             set { _spawnedActors[index] = value; }
         }
-        public IEnumerator<Actor> GetEnumerator() { return ((IEnumerable<Actor>)_spawnedActors).GetEnumerator(); }
-        IEnumerator IEnumerable.GetEnumerator() { return ((IEnumerable<Actor>)_spawnedActors).GetEnumerator(); }
     }
 }

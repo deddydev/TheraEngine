@@ -13,6 +13,7 @@ namespace CustomEngine.Files
             new SupportedFileInfo(true, "Actor", "cactor"),
             new SupportedFileInfo(true, "Component", "ccomp"),
             new SupportedFileInfo(true, "Camera", "ccam"),
+            new SupportedFileInfo(true, "Shape", "cshape"),
             new SupportedFileInfo(true, "Property Animation Group", "cpag"),
             new SupportedFileInfo(true, "Property Animation", "cpa"),
 

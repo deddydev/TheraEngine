@@ -83,9 +83,13 @@
     <Compile Include="Rendering\Cameras\Camera.cs" />
     <Compile Include="Rendering\Cameras\OrthographicCamera.cs" />
     <Compile Include="Rendering\Cameras\PerspectiveCamera.cs" />
+    <Compile Include="Rendering\Models\Materials\Material.cs" />
+    <Compile Include="Rendering\Models\Materials\MaterialInstance.cs" />
+    <Compile Include="Rendering\Models\Materials\MaterialProperty.cs" />
     <Compile Include="Rendering\Renderer\DirectX\DXDisplayList.cs" />
     <Compile Include="Rendering\Renderer\DisplayList.cs" />
     <Compile Include="Rendering\Renderer\Shader.cs" />
+    <Compile Include="ResourceType.cs" />
     <Compile Include="System\Extensions\ArrayExtension.cs" />
     <Compile Include="System\Extensions\XmlExtension.cs" />
     <Compile Include="System\Math\Collision\Tracing.cs" />
@@ -102,6 +106,7 @@
     <Compile Include="System\Platform\OSX.cs" />
     <Compile Include="System\Platform\Win32.cs" />
     <Compile Include="System\Reflection\Attributes\PropertyChangedEventAttribute.cs" />
+    <Compile Include="System\Reflection\CustomPropertyCollection.cs" />
     <Compile Include="System\Time\GlobalTimer.cs" />
     <Compile Include="System\Windows\Controls\RenderPanel.cs" />
     <Compile Include="System\Windows\Forms\RenderForm.cs">

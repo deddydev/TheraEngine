@@ -8,7 +8,7 @@
         xmlns:s="clr-namespace:System;assembly=mscorlib"
         xmlns:local="clr-namespace:Editor"
         mc:Ignorable="d"
-        Title="MainWindow" Height="515.912" Width="699.18">
+        Title="MainWindow" Height="458.76" Width="811.431" Loaded="Window_Loaded">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
@@ -37,7 +37,7 @@
             </ComboBox>
         </StackPanel>
 
-        <xcad:DockingManager Grid.Row="1" MaxHeight="425"
+        <xcad:DockingManager Grid.Row="1"
                            AllowMixedOrientation="True"
                            BorderBrush="Black"
                            BorderThickness="1"
@@ -59,10 +59,10 @@
                         SelectedObject="{Binding ElementName=_layoutRoot, Path=LastFocusedDocument.Content}"/>
                         </xcad:LayoutAnchorable>
                     </xcad:LayoutAnchorablePane>
-                    <xcad:LayoutDocumentPaneGroup >
+                    <xcad:LayoutDocumentPaneGroup>
                         <xcad:LayoutDocumentPane>
-                            <xcad:LayoutDocument ContentId="document1" Title="Document 1" >
-                                <Button Content="Document 1 Content" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            <xcad:LayoutDocument ContentId="document1" Title="Document 1">
+                                <TextBox Text="Document 1 Content" AcceptsReturn="True"/>
                             </xcad:LayoutDocument>
                             <xcad:LayoutDocument ContentId="document2" Title="Document 2">
                                 <TextBox Text="Document 2 Content" AcceptsReturn="True"/>

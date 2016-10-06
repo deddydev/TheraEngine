@@ -1,7 +1,6 @@
-﻿using CustomEngine.Rendering.Models.Skeleton;
-using System;
+﻿using System;
 
-namespace CustomEngine.Rendering.Models.Meshes
+namespace CustomEngine.Rendering.Models
 {
     public class BoneWeight
     {

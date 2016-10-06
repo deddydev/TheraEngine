@@ -1,8 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
-namespace CustomEngine.Rendering.Models.Skeleton
+namespace CustomEngine.Rendering.Models
 {
-    public class Skeleton
+    public class Skeleton : ObjectBase
     {
         public Dictionary<string, Bone> _boneCache;
 

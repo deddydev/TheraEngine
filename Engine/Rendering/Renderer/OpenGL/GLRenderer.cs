@@ -1,4 +1,5 @@
 ﻿using System;
+using CustomEngine.Rendering.Models.Meshes;
 using OpenTK.Graphics.OpenGL;
 
 namespace CustomEngine.Rendering
@@ -257,12 +258,39 @@ namespace CustomEngine.Rendering
 
         public override void AttachShader(int programHandle, int shaderHandle)
         {
-            throw new NotImplementedException();
+            GL.AttachShader(programHandle, shaderHandle);
         }
 
         public override void LinkProgram(int programHandle)
         {
-            throw new NotImplementedException();
+            GL.LinkProgram(programHandle);
+        }
+
+        public override void PrepareMesh(Mesh mesh)
+        {
+            GL.BindVertexArray(mesh._vao);
+
+            // layout(location = 0) in vec3 position;
+            GL.EnableVertexAttribArray(0);
+            GL.VertexAttribFormat(0, 3, VertexAttribType.Float, false, 0);
+            GL.VertexAttribBinding(0, 0); // bind to first vertex buffer
+
+            // layout(location = 2) in vec3 normal;
+            GL.EnableVertexAttribArray(2);
+            GL.VertexAttribFormat(2, 3, VertexAttribType.Float, false, 0);
+            GL.VertexAttribBinding(2, 1); // bind to second vertex buffer
+
+            GL.BindVertexArray(0);
+        }
+
+        public override void RenderMesh(Mesh mesh)
+        {
+            GL.BindVertexArray(mesh._vao);
+
+            GL.BindVertexBuffers(0, mesh._bufferCount, );
+            GL.DrawArrays(PrimitiveType.Triangles, 0, mesh._faces.Count * 3);
+
+            GL.BindVertexArray(0);
         }
     }
 }

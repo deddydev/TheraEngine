@@ -26,6 +26,8 @@ namespace Editor
         }
         public static EditorSettings FromXML(string path)
         {
+            if (!File.Exists(path))
+                return;
             using (FileStream stream = File.OpenRead(path))
             {
                 XmlSerializer serializer = new XmlSerializer(typeof(EditorSettings));

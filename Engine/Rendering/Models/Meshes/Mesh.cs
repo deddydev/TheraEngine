@@ -1,10 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
-namespace CustomEngine.Rendering.Models.Meshes
+namespace CustomEngine.Rendering.Models
 {
-    public class Mesh : IRenderable
+    public class Mesh : ObjectBase, IRenderable
     {
-        public List<Face> _faces;
+        public int _vao, _bufferCount;
 
         public void Render()
         {

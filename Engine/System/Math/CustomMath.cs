@@ -1,6 +1,4 @@
-﻿using OpenTK;
-
-namespace System
+﻿namespace System
 {
     public unsafe static class CustomMath
     {

@@ -12,6 +12,8 @@ namespace Editor
     public class EditorSettings
     {
         public string _contentMonitorPath;
+        public bool _outlineHovered;
+        public bool _outlineSelected;
         
         public void SaveXML(string path)
         {

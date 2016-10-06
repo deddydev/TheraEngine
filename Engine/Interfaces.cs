@@ -1,5 +1,7 @@
 ﻿using CustomEngine.Rendering.Models;
+using System;
 using System.Drawing;
+using System.Threading.Tasks;
 
 namespace CustomEngine
 {
@@ -22,13 +24,22 @@ namespace CustomEngine
     }
     public interface ILoadable
     {
-        void Load();
-        void Unload();
+        Task Load();
+        Task Unload();
         string FilePath { get; }
+        bool IsLoading { get; }
         bool IsLoaded { get; }
     }
     public interface IRenderState
     {
 
+    }
+    public interface INameable
+    {
+        string Name { get; set; }
+    }
+    public interface IShape : IRenderable
+    {
+        bool ContainsPoint(Vec3 point);
     }
 }

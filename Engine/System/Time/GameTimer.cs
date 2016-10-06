@@ -1,5 +1,4 @@
 ﻿using CustomEngine;
-using System.Linq;
 
 namespace System
 {
@@ -61,7 +60,7 @@ namespace System
             if (!Engine.ActiveTimers.Contains(this))
                 Engine.ActiveTimers.Add(this);
         }
-        public void UpdateTick(double deltaTime)
+        public void Tick(double deltaTime)
         {
             _totalElapsed += deltaTime;
             _elapsedSinceLastFire += deltaTime;

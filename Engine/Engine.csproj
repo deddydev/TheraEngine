@@ -13,6 +13,7 @@
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <TargetFrameworkProfile />
+    <DontImportPostSharp>True</DontImportPostSharp>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -48,6 +49,10 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\Libraries\OpenTK.dll</HintPath>
     </Reference>
+    <Reference Include="PostSharp, Version=4.3.21.0, Culture=neutral, PublicKeyToken=b13fd38b8f9c99d7, processorArchitecture=MSIL">
+      <HintPath>..\packages\PostSharp.4.3.21\lib\net35-client\PostSharp.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
     <Reference Include="SlimDX, Version=4.0.13.43, Culture=neutral, PublicKeyToken=b1b0c32fd1ffe4f9, processorArchitecture=AMD64">
@@ -74,7 +79,6 @@
   <ItemGroup>
     <Compile Include="Cutscenes\Cutscene.cs" />
     <Compile Include="EngineSettings.cs" />
-    <Compile Include="Files\FileExtensionManager.cs" />
     <Compile Include="Input\Gamepad\GamepadManager.cs" />
     <Compile Include="Rendering\Cameras\Camera.cs" />
     <Compile Include="Rendering\Cameras\OrthographicCamera.cs" />
@@ -94,6 +98,10 @@
     <Compile Include="System\Math\Transforms\Vector2.cs" />
     <Compile Include="System\Math\Transforms\Vector3.cs" />
     <Compile Include="System\Math\Transforms\Vector4.cs" />
+    <Compile Include="System\Platform\Linux.cs" />
+    <Compile Include="System\Platform\OSX.cs" />
+    <Compile Include="System\Platform\Win32.cs" />
+    <Compile Include="System\Reflection\Attributes\PropertyChangedEventAttribute.cs" />
     <Compile Include="System\Time\GlobalTimer.cs" />
     <Compile Include="System\Windows\Controls\RenderPanel.cs" />
     <Compile Include="System\Windows\Forms\RenderForm.cs">
@@ -110,9 +118,7 @@
     <Compile Include="World\Actors\Components\Logic\MovementComponents\CharacterMovementComponent.cs" />
     <Compile Include="World\Actors\Components\SceneComponent.cs" />
     <Compile Include="World\Actors\Components\Scene\LoadingZoneComponent.cs" />
-    <Compile Include="World\Actors\Components\Scene\ShapeComponents\ShapeComponent.cs" />
-    <Compile Include="World\Actors\Components\Scene\ShapeComponents\CapsuleComponent.cs" />
-    <Compile Include="World\Actors\Components\Scene\ShapeComponents\BoxComponent.cs" />
+    <Compile Include="World\Actors\Components\Scene\ShapeComponent.cs" />
     <Compile Include="Engine.cs" />
     <Compile Include="GameModes\GameMode.cs" />
     <Compile Include="Rendering\Animation\AnimationContainer.cs" />
@@ -187,7 +193,6 @@
     <Compile Include="Rendering\Models\Meshes\Mesh.cs" />
     <Compile Include="Rendering\Models\Skeleton\Skeleton.cs" />
     <Compile Include="Rendering\Textures\Texture.cs" />
-    <Compile Include="World\WorldDefaults.cs" />
     <Compile Include="World\WorldSettings.cs" />
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
@@ -202,6 +207,7 @@
     <EmbeddedResource Include="System\Windows\Forms\RenderForm.resx">
       <DependentUpon>RenderForm.cs</DependentUpon>
     </EmbeddedResource>
+    <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
@@ -219,6 +225,11 @@
     <Folder Include="AI\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Import Project="..\packages\PostSharp.4.3.21\tools\PostSharp.targets" Condition="Exists('..\packages\PostSharp.4.3.21\tools\PostSharp.targets')" />
+  <Target Name="EnsurePostSharpImported" BeforeTargets="BeforeBuild" Condition="'$(PostSharp30Imported)' == ''">
+    <Error Condition="!Exists('..\packages\PostSharp.4.3.21\tools\PostSharp.targets')" Text="This project references NuGet package(s) that are missing on this computer. Enable NuGet Package Restore to download them.  For more information, see http://www.postsharp.net/links/nuget-restore." />
+    <Error Condition="Exists('..\packages\PostSharp.4.3.21\tools\PostSharp.targets')" Text="The build restored NuGet packages. Build the project again to include these packages in the build. For more information, see http://www.postsharp.net/links/nuget-restore." />
+  </Target>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

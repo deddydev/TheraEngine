@@ -1,5 +1,4 @@
-﻿using System;
-using System.Runtime.InteropServices;
+﻿using System.Runtime.InteropServices;
 using static System.Math;
 using static System.CustomMath;
 using System.Xml.Serialization;

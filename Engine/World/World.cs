@@ -2,18 +2,18 @@
 using System.Collections;
 using BulletSharp;
 using System;
+using System.Threading.Tasks;
 
 namespace CustomEngine.Worlds
 {
-    public class World : IRenderable, ILoadable, IEnumerable<Actor>
+    public class World : ObjectBase, IRenderable, ILoadable, IEnumerable<Actor>
     {
         protected List<Map> _spawnedMaps = new List<Map>();
         protected List<Actor> _spawnedActors;
 
-        protected List<Map> _allMaps;
+        protected List<Map> _allMaps = new List<Map>();
 
         private DiscreteDynamicsWorld _bulletScene;
-        public WorldDefaults _defaults;
         public WorldSettings _settings;
         private string _name;
         private bool _visible;
@@ -30,7 +30,6 @@ namespace CustomEngine.Worlds
             CollisionDispatcher dispatcher = new CollisionDispatcher(config);
             SequentialImpulseConstraintSolver solver = new SequentialImpulseConstraintSolver();
             _bulletScene = new DiscreteDynamicsWorld(dispatcher, broadphase, solver, config);
-            _bulletScene.Gravity = _settings.Gravity;
         }
         public void RebaseOrigin(Vec3 newOrigin)
         {
@@ -51,16 +50,24 @@ namespace CustomEngine.Worlds
         }
         public delegate void PhysicsTick(float subDeltaTime);
         public event PhysicsTick PrePhysicsTick;
+        public event PhysicsTick DuringPhysicsTick;
         public event PhysicsTick PostPhysicsTick;
-        public void Update()
+        public override async void Tick(float delta)
         {
-            float delta = Engine.UpdateDelta / Engine.PhysicsSubsteps;
+            delta /= Engine.PhysicsSubsteps;
+            Task t = DuringPhysics(delta);
             for (int i = 0; i < Engine.PhysicsSubsteps; i++)
             {
                 PrePhysicsTick?.Invoke(delta);
                 _bulletScene.StepSimulation(delta);
                 PostPhysicsTick?.Invoke(delta);
             }
+            await t;
+        }
+        public async Task DuringPhysics(float delta)
+        {
+            if (DuringPhysicsTick != null)
+            await Task.Run(DuringPhysicsTick(delta));
         }
         public void Render()
         {
@@ -99,25 +106,30 @@ namespace CustomEngine.Worlds
         }
 
         #region ILoadable Interface
-        private bool _isLoaded;
+        private bool _isLoaded, _isLoading;
         private string _filePath;
-        public void Unload()
+        public async Task Unload()
         {
             if (!_isLoaded)
                 return;
 
             _isLoaded = false;
         }
-        public void Load()
+        public async Task Load()
         {
             if (_isLoaded)
                 return;
+            _isLoading = true;
+            FileMap map = FileMap.FromFile(_filePath);
+            
             foreach (Map m in _allMaps)
                 if (m.VisibleByDefault)
-                    m.Load();
+                    await Task.Run(m.Load);
+            _isLoading = false;
             _isLoaded = true;
         }
         public string FilePath { get { return _filePath; } }
+        public bool IsLoading { get { return _isLoading; } }
         public bool IsLoaded { get { return _isLoaded; } }
         #endregion
 

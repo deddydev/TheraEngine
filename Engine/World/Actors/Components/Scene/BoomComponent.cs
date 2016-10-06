@@ -1,6 +1,4 @@
-﻿using CustomEngine.Rendering.Textures;
-using CustomEngine.Collision;
-using eyecm.PhysX;
+﻿using CustomEngine.Collision;
 using System;
 
 namespace CustomEngine.Worlds.Actors.Components
@@ -25,12 +23,6 @@ namespace CustomEngine.Worlds.Actors.Components
         protected override void OnRender()
         {
             base.OnRender();
-        }
-
-        public override void Update()
-        {
-            base.Update();
-            //eyecm.PhysX.Scene.RaycastAllShapes()
         }
     }
 }

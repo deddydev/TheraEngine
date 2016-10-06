@@ -17,15 +17,12 @@ namespace CustomEngine.Worlds.Actors.Components
         protected bool _overrideParentRenderState = false;
         protected bool _isRendering = false;
 
-        [EngineFlags(EEngineFlags.Transient | EEngineFlags.Getter)]
-        public bool IsSpawned { get { return Owner.IsSpawned; } }
-        [EngineFlags(EEngineFlags.Default)]
-        public bool VisibleByDefault { get { return _visibleByDefault; } set { _visibleByDefault = value; } }
-        [EngineFlags(EEngineFlags.Default | EEngineFlags.EditorOnly)]
+        [EditorOnly]
         public bool HiddenInGame { get { return _hiddenInGame; } set { _hiddenInGame = value; } }
-        [EngineFlags(EEngineFlags.Transient)]
+
+        public bool IsSpawned { get { return Owner.IsSpawned; } }
+        public bool VisibleByDefault { get { return _visibleByDefault; } set { _visibleByDefault = value; } }
         public bool IsRendering { get { return _isRendering; } set { _isRendering = value; } }
-        [EngineFlags(EEngineFlags.Transient)]
         public FrameState Transform
         {
             get { return _transform; }
@@ -69,7 +66,10 @@ namespace CustomEngine.Worlds.Actors.Components
                 c.GenerateChildCache(cache);
         }
 
-        protected virtual void OnRender() { }
+        protected virtual void OnRender()
+        {
+            //Do nothing - this component is only used to transform the components it owns
+        }
 
         public IEnumerator<SceneComponent> GetEnumerator() { return ((IEnumerable<SceneComponent>)_childComponents).GetEnumerator(); }
         IEnumerator IEnumerable.GetEnumerator() { return ((IEnumerable<SceneComponent>)_childComponents).GetEnumerator(); }

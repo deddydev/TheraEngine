@@ -2,9 +2,7 @@
 using OpenTK.Graphics.OpenGL;
 using OpenTK.Platform;
 using System.Windows.Controls;
-using System.Windows.Forms;
 using System;
-using System.Windows;
 
 namespace CustomEngine.Rendering.OpenGL
 {

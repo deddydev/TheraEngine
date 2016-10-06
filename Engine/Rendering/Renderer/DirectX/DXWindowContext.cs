@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Drawing;
-using System.Windows.Forms;
 using System.Windows.Controls;
-using System.Windows;
 using SlimDX.Direct3D11;
 using SlimDX.DXGI;
 using SlimDX;

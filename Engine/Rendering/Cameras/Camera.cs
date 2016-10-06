@@ -1,7 +1,5 @@
-﻿using CustomEngine.Rendering;
-using CustomEngine.Rendering.Models;
+﻿using CustomEngine.Rendering.Models;
 using System;
-using System.Drawing;
 
 namespace CustomEngine.Rendering.Cameras
 {

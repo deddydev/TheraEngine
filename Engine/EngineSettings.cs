@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Xml.Serialization;
 
 namespace CustomEngine
@@ -17,6 +13,9 @@ namespace CustomEngine
 
         public void SaveXML(string path)
         {
+            string directory = Path.GetDirectoryName(path);
+            if (!Directory.Exists(directory))
+                Directory.CreateDirectory(directory);
             using (StreamWriter writer = new StreamWriter(path))
             {
                 XmlSerializer serializer = new XmlSerializer(GetType());
@@ -26,6 +25,8 @@ namespace CustomEngine
         }
         public static EngineSettings FromXML(string path)
         {
+            if (!File.Exists(path))
+                return null;
             using (FileStream stream = File.OpenRead(path))
             {
                 XmlSerializer serializer = new XmlSerializer(typeof(EngineSettings));

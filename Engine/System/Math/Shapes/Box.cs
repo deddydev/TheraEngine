@@ -3,7 +3,7 @@ using CustomEngine;
 
 namespace System
 {
-    public class Box : IRenderable
+    public class Box : IShape
     {
         public Vec3 _min, _max;
         

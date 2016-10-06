@@ -28,17 +28,17 @@ namespace Editor
         {
             InitializeComponent();
 
-            EditorSettings s = EditorSettings.FromXML("");
-            _contentWatcher = new FileSystemWatcher()
-            {
-                Filter = FileExtensionManager.GetListFilter(),
-                EnableRaisingEvents = true,
-                IncludeSubdirectories = true,
-                Path = s._contentMonitorPath,
-            };
-            _contentWatcher.Changed += _contentWatcher_Changed;
-            _contentWatcher.Created += _contentWatcher_Created;
-            _contentWatcher.Deleted += _contentWatcher_Deleted;
+            //EditorSettings s = EditorSettings.FromXML("");
+            //_contentWatcher = new FileSystemWatcher()
+            //{
+            //    Filter = FileExtensionManager.GetListFilter(),
+            //    EnableRaisingEvents = true,
+            //    IncludeSubdirectories = true,
+            //    Path = s._contentMonitorPath,
+            //};
+            //_contentWatcher.Changed += _contentWatcher_Changed;
+            //_contentWatcher.Created += _contentWatcher_Created;
+            //_contentWatcher.Deleted += _contentWatcher_Deleted;
         }
 
         private void _contentWatcher_Deleted(object sender, FileSystemEventArgs e)

@@ -14,7 +14,6 @@ namespace CustomEngine.Sound
             set
             {
                 _looped = value;
-                Changed(MethodBase.GetCurrentMethod());
             }
         }
 

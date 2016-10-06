@@ -11,13 +11,14 @@ namespace CustomEngine.Rendering
         private HudManager _hud;
         private int _viewportNumber = 0;
         private RectangleF _region;
+        private Camera _worldCamera;
 
         public float _leftPercentage = 0.0f;
         public float _rightPercentage = 1.0f;
         public float _bottomPercentage = 0.0f;
         public float _topPercentage = 1.0f;
         
-        public Camera Camera { get { return _player.CurrentCamera; } }
+        public Camera Camera { get { return _worldCamera; } set { _worldCamera = value; } }
         public HudManager HUD { get { return _hud; } }
         public int ViewportNumber { get { return _player.Number; } }
 

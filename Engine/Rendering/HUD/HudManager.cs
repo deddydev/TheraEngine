@@ -1,5 +1,4 @@
 ﻿using CustomEngine.Rendering.Cameras;
-using System;
 
 namespace CustomEngine.Rendering.HUD
 {

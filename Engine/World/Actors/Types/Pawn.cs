@@ -1,18 +1,22 @@
-﻿using System;
+﻿using CustomEngine.Input;
+using System;
 
 namespace CustomEngine.Worlds.Actors
 {
     public abstract class Pawn : Actor
     {
         private PhysicsState _physicsState;
+        private PawnController _controller;
 
-        protected void OnPosessed()
+        public PawnController Controller { get { return _controller; } }
+
+        public void OnPossessed(PawnController c)
         {
-
+            _controller = c;
         }
-        protected void OnUnPosessed()
+        public void OnUnPossessed()
         {
-
+            _controller = null;
         }
 
         protected override void SetupComponents()

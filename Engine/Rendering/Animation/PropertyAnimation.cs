@@ -3,13 +3,14 @@ using System.Reflection;
 
 namespace CustomEngine.Rendering.Animation
 {
-    public abstract class PropertyAnimation<T> : ObjectBase where T : Keyframe
+    public abstract class PropertyAnimation<T> : ObjectBase, INameable where T : Keyframe
     {
         protected KeyframeTrack<T> _keyframes;
 
         public PropertyAnimation() { _keyframes = new KeyframeTrack<T>(this); }
 
         private int _frameCount;
+        [Event("FrameCountUpdated")]
         public int FrameCount
         {
             get { return _frameCount; }
@@ -18,7 +19,19 @@ namespace CustomEngine.Rendering.Animation
                 int oldCount = _frameCount;
                 _frameCount = value;
                 FrameCountUpdated(oldCount);
-                Changed(MethodBase.GetCurrentMethod());
+            }
+        }
+
+        public string Name
+        {
+            get
+            {
+                throw new NotImplementedException();
+            }
+
+            set
+            {
+                throw new NotImplementedException();
             }
         }
 

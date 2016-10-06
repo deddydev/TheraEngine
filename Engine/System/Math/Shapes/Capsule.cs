@@ -1,10 +1,9 @@
-﻿using OpenTK;
-using static System.Math;
+﻿using static System.Math;
 using CustomEngine;
 
 namespace System
 {
-    public class Capsule : IRenderable
+    public class Capsule : IShape
     {
         public float _radius, _halfHeight;
         

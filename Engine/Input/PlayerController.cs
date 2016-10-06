@@ -8,8 +8,23 @@ namespace CustomEngine.Input
     {
         PlayerInfo _playerInfo;
         Viewport _viewport;
+        internal int _number;
 
-        public Camera CurrentCamera { get; set; }
-        public int Number { get; set; }
+        public PlayerController()
+        {
+            Engine.ActivePlayers.Add(this);
+            Engine.RemakePlayerNumbers();
+        }
+        ~PlayerController()
+        {
+            if (Engine.ActivePlayers.Contains(this))
+            {
+                Engine.ActivePlayers.Remove(this);
+                Engine.RemakePlayerNumbers();
+            }
+        }
+
+        public Camera CurrentCamera { get { return _viewport.Camera; } set { _viewport.Camera = value; } }
+        public int Number { get { return _number; } }
     }
 }

@@ -1,5 +1,4 @@
-﻿using OpenTK;
-using static System.Math;
+﻿using static System.Math;
 using CustomEngine;
 
 namespace System

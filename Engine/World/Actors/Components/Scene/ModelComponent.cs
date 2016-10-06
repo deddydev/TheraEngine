@@ -7,15 +7,13 @@ namespace CustomEngine.Worlds.Actors.Components
     public class ModelComponent : SceneComponent
     {
         private Model _model;
-
-        [EngineFlagsAttribute(EEngineFlags.Default)]
+        
         public Model Model
         {
             get { return _model; }
             set
             {
                 _model = value;
-                Changed(MethodBase.GetCurrentMethod());
             }
         }
 

@@ -1,7 +1,5 @@
 ﻿using System;
 using OpenTK.Graphics.OpenGL;
-using OpenTK;
-using System.Windows.Controls;
 
 namespace CustomEngine.Rendering
 {

@@ -11,7 +11,6 @@ namespace CustomEngine.Sound
             set
             {
                 _looped = value;
-                Changed(MethodBase.GetCurrentMethod());
             }
         }
         public void Play(Vector3 worldPosition, float loudness)

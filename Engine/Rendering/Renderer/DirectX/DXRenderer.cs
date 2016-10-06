@@ -1,15 +1,4 @@
 ﻿using System;
-using System.Drawing;
-using System.Windows.Forms;
-
-using SlimDX;
-using SlimDX.DXGI;
-using SlimDX.Direct3D11;
-using SlimDX.Direct2D;
-using SlimDX.Windows;
-using Device = SlimDX.Direct3D11.Device;
-using FactoryD2D = SlimDX.Direct2D.Factory;
-using FactoryDXGI = SlimDX.DXGI.Factory;
 using CustomEngine.Rendering.DirectX;
 using System.Collections.Generic;
 

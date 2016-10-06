@@ -1,11 +1,6 @@
 ﻿using CustomEngine.Rendering.Meshes;
 using CustomEngine.Worlds;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using eyecm.PhysX;
 
 namespace CustomEngine.Collision
 {
@@ -14,7 +9,7 @@ namespace CustomEngine.Collision
     {
         public Vec3 _hitNormal;
         public Vec3 _location;
-        public Worlds.Actor _hitActor;
+        public Actor _hitActor;
         public Model _hitModel;
     }
 }

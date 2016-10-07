@@ -3,7 +3,7 @@ using System.Collections;
 
 namespace CustomEngine.Rendering.Animation
 {
-    public class KeyframeTrack<T> : IEnumerable<T> where T : Keyframe
+    public class KeyframeTrack<T> : IKeyframeTrack, IEnumerable<T> where T : Keyframe
     {
         PropertyAnimation<T> _owner;
 

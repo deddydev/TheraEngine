@@ -4,16 +4,16 @@
 winexe
 C#
 .cs
-C:\Users\David\Documents\Repositories\CustomEngine\Editor\obj\Debug\
+C:\Users\David\Documents\Repositories\CustomEngine\Editor\obj\Release\
 Editor
 none
 false
-TRACE;DEBUG
+TRACE
 C:\Users\David\Documents\Repositories\CustomEngine\Editor\App.xaml
 3957969232
 
-17880349783
-25854916146
+171770832298
+25-1085934642
 Controls\ColorPanel.xaml;MainWindow.xaml;SettingsWindow.xaml;
 
 True

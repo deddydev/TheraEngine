@@ -20,7 +20,11 @@ namespace CustomEngine
     }
     public interface IPropertyAnimation
     {
-
+        IKeyframeTrack Keyframes { get; }
+        int FrameCount { get; set; }
+    }
+    public interface IKeyframeTrack
+    {
     }
     public interface ILoadable
     {
@@ -30,13 +34,20 @@ namespace CustomEngine
         bool IsLoading { get; }
         bool IsLoaded { get; }
     }
+    public interface ISaveable
+    {
+        Task Save(string path);
+        Task<int> CalculateSize();
+        Task<int> OnCalculateSize();
+        Task Write(VoidPtr address, IProgress<float> progress);
+        int CalculatedSize { get; }
+        bool IsSaving { get; }
+        bool IsCalculatingSize { get; }
+        bool IsWriting { get; }
+    }
     public interface IRenderState
     {
 
-    }
-    public interface INameable
-    {
-        string Name { get; set; }
     }
     public interface IShape : IRenderable
     {

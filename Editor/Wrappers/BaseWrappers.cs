@@ -45,6 +45,15 @@ namespace Editor.Wrappers
         protected BaseWrapper() { }
         //protected BaseWrapper(ResourceNode resourceNode) { Link(resourceNode); }
 
+        protected static void SetMenuEnabled(System.Windows.Controls.ContextMenu m, bool enabled, params int[] items)
+        {
+            foreach (int i in items)
+            {
+                MenuItem mi = m.Items[i] as MenuItem;
+                if (mi != null)
+                    mi.Enabled = enabled;
+            }
+        }
         protected static T GetInstance<T>() where T : BaseWrapper
         {
             return MainWindow.Instance.resourceTree.SelectedNode as T;
@@ -118,8 +127,8 @@ namespace Editor.Wrappers
                 res.MovedUp += OnMovedUp;
                 res.MovedDown += OnMovedDown;
                 res.PropertyChanged += OnPropertyChanged;
-                res.UpdateProps += OnUpdateProperties;
-                res.UpdateControl += OnUpdateCurrentControl;
+                res.UpdateProperties += OnUpdateProperties;
+                res.UpdateEditor += OnUpdateCurrentControl;
             }
             _resource = res;
         }
@@ -137,8 +146,8 @@ namespace Editor.Wrappers
                 _resource.MovedUp -= OnMovedUp;
                 _resource.MovedDown -= OnMovedDown;
                 _resource.PropertyChanged -= OnPropertyChanged;
-                _resource.UpdateProps -= OnUpdateProperties;
-                _resource.UpdateControl -= OnUpdateCurrentControl;
+                _resource.UpdateProperties -= OnUpdateProperties;
+                _resource.UpdateEditor -= OnUpdateCurrentControl;
                 _resource = null;
             }
 

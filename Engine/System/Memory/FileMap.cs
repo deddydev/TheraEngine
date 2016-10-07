@@ -159,8 +159,6 @@ namespace System
             base.Dispose();
         }
     }
-
-
     public unsafe class cFileMap : FileMap
     {
         protected MemoryMappedFile _mappedFile;

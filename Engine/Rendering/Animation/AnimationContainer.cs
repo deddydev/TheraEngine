@@ -7,11 +7,11 @@ namespace CustomEngine.Rendering.Animation
     {
         event EventHandler AnimationStarted;
         event EventHandler AnimationEnded;
-
-        public class SubPropertyNode
+        
+        public class Folder
         {
             public string _propertyName;
-            public List<SubPropertyNode> _children;
+            public List<Folder> _children;
             public IPropertyAnimation _animation;
 
             public void CollectAnimations(string path, Dictionary<string, IPropertyAnimation> animations)
@@ -22,12 +22,12 @@ namespace CustomEngine.Rendering.Animation
                     path += ".{_propertyName}";
                 if (_animation != null)
                     animations.Add(path, _animation);
-                foreach (SubPropertyNode p in _children)
+                foreach (Folder p in _children)
                     p.CollectAnimations(path, animations);
             }
         }
 
-        SubPropertyNode _root;
+        Folder _root;
         int _frameCount;
         public double _currentFrame;
         bool _isPlaying = false;

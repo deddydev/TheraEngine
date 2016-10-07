@@ -4,7 +4,7 @@
 winexe
 C#
 .cs
-C:\Users\David\Documents\Repositories\CustomEngine\Editor\obj\Debug\
+C:\Users\David\Documents\Repositories\CustomEngine\Editor\obj\DebugEditor\
 Editor
 none
 false
@@ -12,8 +12,8 @@ TRACE;DEBUG
 C:\Users\David\Documents\Repositories\CustomEngine\Editor\App.xaml
 3957969232
 
-17880349783
-25854916146
+17-1367490641
+25-109988908
 Controls\ColorPanel.xaml;MainWindow.xaml;SettingsWindow.xaml;
 
 True

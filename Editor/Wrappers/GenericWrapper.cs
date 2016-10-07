@@ -3,48 +3,52 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Controls;
+using System.Windows;
+using System.Windows.Input;
 
 namespace Editor.Wrappers
 {
-//Contains generic members inherited by all sub-classed nodes
+    //Contains generic members inherited by all sub-classed nodes
     class GenericWrapper : BaseWrapper
     {
         #region Menu
-
-        private static ContextMenuStrip _menu;
+        private static ContextMenu _menu;
         static GenericWrapper()
         {
-            _menu = new ContextMenuStrip();
-            _menu.Items.Add(new ToolStripMenuItem("&Export", null, ExportAction, Keys.Control | Keys.E));
-            _menu.Items.Add(new ToolStripMenuItem("&Replace", null, ReplaceAction, Keys.Control | Keys.R));
-            _menu.Items.Add(new ToolStripMenuItem("Res&tore", null, RestoreAction, Keys.Control | Keys.T));
-            _menu.Items.Add(new ToolStripSeparator());
-            _menu.Items.Add(new ToolStripMenuItem("Move &Up", null, MoveUpAction, Keys.Control | Keys.Up));
-            _menu.Items.Add(new ToolStripMenuItem("Move D&own", null, MoveDownAction, Keys.Control | Keys.Down));
-            _menu.Items.Add(new ToolStripMenuItem("Re&name", null, RenameAction, Keys.Control | Keys.N));
-            _menu.Items.Add(new ToolStripSeparator());
-            _menu.Items.Add(new ToolStripMenuItem("&Delete", null, DeleteAction, Keys.Control | Keys.Delete));
-            _menu.Opening += MenuOpening;
-            _menu.Closing += MenuClosing;
+            _menu = new ContextMenu();
+            _menu.Items.Add(new CustomMenuItem("Export", ExportAction, Key.LeftCtrl, Key.E));
+            _menu.Items.Add(new CustomMenuItem("Replace", ReplaceAction, Key.LeftCtrl, Key.R));
+            _menu.Items.Add(new CustomMenuItem("Restore", RestoreAction, Key.LeftCtrl, Key.T));
+            _menu.Items.Add(new Separator());
+            _menu.Items.Add(new CustomMenuItem("Move Up", MoveUpAction, Key.LeftCtrl, Key.Up));
+            _menu.Items.Add(new CustomMenuItem("Move Down", MoveDownAction, Key.LeftCtrl, Key.Down));
+            _menu.Items.Add(new CustomMenuItem("Rename", RenameAction, Key.LeftCtrl, Key.N));
+            _menu.Items.Add(new Separator());
+            _menu.Items.Add(new CustomMenuItem("Delete", DeleteAction, Key.LeftCtrl, Key.Delete));
+            _menu.Opened += MenuOpened;
+            _menu.Closed += MenuClosed;
         }
-        protected static void MoveUpAction(object sender, EventArgs e) { GetInstance<GenericWrapper>().MoveUp(); }
-        protected static void MoveDownAction(object sender, EventArgs e) { GetInstance<GenericWrapper>().MoveDown(); }
-        protected static void ExportAction(object sender, EventArgs e) { GetInstance<GenericWrapper>().Export(); }
-        protected static void ReplaceAction(object sender, EventArgs e) { GetInstance<GenericWrapper>().Replace(); }
-        protected static void RestoreAction(object sender, EventArgs e) { GetInstance<GenericWrapper>().Restore(); }
-        protected static void DeleteAction(object sender, EventArgs e) { GetInstance<GenericWrapper>().Delete(); }
-        protected static void RenameAction(object sender, EventArgs e) { GetInstance<GenericWrapper>().Rename(); }
-        private static void MenuClosing(object sender, ToolStripDropDownClosingEventArgs e)
+
+        protected static void MoveUpAction() { GetInstance<GenericWrapper>().MoveUp(); }
+        protected static void MoveDownAction() { GetInstance<GenericWrapper>().MoveDown(); }
+        protected static void ExportAction() { GetInstance<GenericWrapper>().Export(); }
+        protected static void ReplaceAction() { GetInstance<GenericWrapper>().Replace(); }
+        protected static void RestoreAction() { GetInstance<GenericWrapper>().Restore(); }
+        protected static void DeleteAction() { GetInstance<GenericWrapper>().Delete(); }
+        protected static void RenameAction() { GetInstance<GenericWrapper>().Rename(); }
+
+        private static void MenuClosed(object sender, RoutedEventArgs e)
         {
-            _menu.Items[1].Enabled = _menu.Items[2].Enabled = _menu.Items[4].Enabled = _menu.Items[5].Enabled = _menu.Items[8].Enabled = true;
+            SetMenuEnabled(_menu, true, 1, 2, 4, 5, 8);
         }
-        private static void MenuOpening(object sender, CancelEventArgs e)
+        private static void MenuOpened(object sender, RoutedEventArgs e)
         {
             GenericWrapper w = GetInstance<GenericWrapper>();
-            _menu.Items[1].Enabled = _menu.Items[8].Enabled = w.Parent != null;
-            _menu.Items[2].Enabled = ((w._resource.IsDirty) || (w._resource.IsBranch));
-            _menu.Items[4].Enabled = w.PrevNode != null;
-            _menu.Items[5].Enabled = w.NextNode != null;
+            SetMenuEnabled(_menu, w.Parent != null, 1, 8);
+            SetMenuEnabled(_menu, w._resource.IsDirty || w._resource.IsBranch, 2);
+            SetMenuEnabled(_menu, w.PrevNode != null, 4);
+            SetMenuEnabled(_menu, w.NextNode != null, 5);
         }
 
         #endregion

@@ -15,18 +15,18 @@
     <TargetFrameworkProfile />
     <DontImportPostSharp>True</DontImportPostSharp>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'DebugGame|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;EDITOR</DefineConstants>
+    <DefineConstants>TRACE;DEBUG</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'ReleaseGame|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
@@ -37,6 +37,25 @@
   </PropertyGroup>
   <PropertyGroup>
     <StartupObject />
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'DebugEditor|AnyCPU'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\DebugEditor\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;EDITOR</DefineConstants>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <DebugType>full</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'ReleaseEditor|AnyCPU'">
+    <OutputPath>bin\ReleaseEditor\</OutputPath>
+    <DefineConstants>TRACE;EDITOR</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="BulletSharp">
@@ -79,6 +98,8 @@
   <ItemGroup>
     <Compile Include="Cutscenes\Cutscene.cs" />
     <Compile Include="EngineSettings.cs" />
+    <Compile Include="Files\FileExtensionManager.cs" />
+    <Compile Include="Files\FileFilters.cs" />
     <Compile Include="Input\Gamepad\GamepadManager.cs" />
     <Compile Include="Rendering\Cameras\Camera.cs" />
     <Compile Include="Rendering\Cameras\OrthographicCamera.cs" />
@@ -107,6 +128,7 @@
     <Compile Include="System\Platform\Win32.cs" />
     <Compile Include="System\Reflection\Attributes\PropertyChangedEventAttribute.cs" />
     <Compile Include="System\Reflection\CustomPropertyCollection.cs" />
+    <Compile Include="System\SaveableObject.cs" />
     <Compile Include="System\Time\GlobalTimer.cs" />
     <Compile Include="System\Windows\Controls\RenderPanel.cs" />
     <Compile Include="System\Windows\Forms\RenderForm.cs">

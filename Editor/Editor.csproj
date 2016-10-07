@@ -87,6 +87,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="CustomMenuItem.cs" />
     <Compile Include="Files\FileExtensionManager.cs" />
     <Compile Include="Files\FileFilters.cs" />
     <Compile Include="SettingsWindow.xaml.cs">

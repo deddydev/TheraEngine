@@ -25,25 +25,24 @@ namespace CustomEngine
         const float RenderRate = 60.0f;
         public static int PhysicsSubsteps = 10;
 
-        public static Dictionary<TickGroup, List<ObjectBase>> _prePhysicsTick = new Dictionary<TickGroup, List<ObjectBase>>();
-        public static Dictionary<TickGroup, List<ObjectBase>> _postPhysicsTick = new Dictionary<TickGroup, List<ObjectBase>>();
+        public static Dictionary<TickOrder, Dictionary<TickGroup, List<ObjectBase>>> _tick = 
+            new Dictionary<TickOrder, Dictionary<TickGroup, List<ObjectBase>>>();
         
         static Engine()
         {
-            _prePhysicsTick.Add(TickGroup.Timers, new List<ObjectBase>());
-            _prePhysicsTick.Add(TickGroup.Input, new List<ObjectBase>());
-            _prePhysicsTick.Add(TickGroup.Logic, new List<ObjectBase>());
-            _prePhysicsTick.Add(TickGroup.Scene, new List<ObjectBase>());
-
-            _postPhysicsTick.Add(TickGroup.Timers, new List<ObjectBase>());
-            _postPhysicsTick.Add(TickGroup.Input, new List<ObjectBase>());
-            _postPhysicsTick.Add(TickGroup.Logic, new List<ObjectBase>());
-            _postPhysicsTick.Add(TickGroup.Scene, new List<ObjectBase>());
+            for (int i = 0; i < 2; ++i)
+            {
+                TickOrder order = (TickOrder)i;
+                _tick.Add(order, new Dictionary<TickGroup, List<ObjectBase>>());
+                for (int j = 0; j < 4; ++j)
+                    _tick[order].Add((TickGroup)j, new List<ObjectBase>());
+            }
         }
 
         public static AbstractRenderer Renderer { get { return _renderer; } set { _renderer = value; } }
         public static float RenderDelta { get { return (float)_timer.RenderTime; } }
         public static float UpdateDelta { get { return (float)_timer.UpdateTime; } }
+        [Default]
         public static World TransitionWorld { get { return _transitionWorld; } set { _transitionWorld = value; } }
         public static World World
         {
@@ -55,13 +54,6 @@ namespace CustomEngine
         public static BindingList<GameTimer> ActiveTimers = new BindingList<GameTimer>();
         public static BindingList<PlayerController> ActivePlayers = new BindingList<PlayerController>();
         public static BindingList<AIController> ActiveAI = new BindingList<AIController>();
-
-        public static void RemakePlayerNumbers()
-        {
-            int i = 0;
-            foreach (PlayerController pc in ActivePlayers)
-                pc._number = i++;
-        }
 
         private static World _transitionWorld = null;
         private static World _currentWorld = null;
@@ -78,53 +70,51 @@ namespace CustomEngine
                 return null;
             }
         }
-        private static void PrePhysicsTick(float delta)
+        public static void Run() { _timer.Run(UpdateRate, RenderRate); }
+        public static void Stop() { _timer.Stop(); }
+        private static void PhysicsTick(TickOrder order, float delta)
         {
-            foreach (TickGroup g in _prePhysicsTick.Keys)
-                foreach (ObjectBase b in _prePhysicsTick[g])
-                    b.Tick(delta);
-        }
-        private static void PostPhysicsTick(float delta)
-        {
-            foreach (TickGroup g in _postPhysicsTick.Keys)
-                foreach (ObjectBase b in _postPhysicsTick[g])
+            foreach (var g in _tick[order])
+                foreach (ObjectBase b in g.Value)
                     b.Tick(delta);
         }
         public static void RegisterTick(ObjectBase obj)
         {
             if (obj.TickOrder != null && obj.TickGroup != null)
             {
+                TickOrder order = obj.TickOrder.Value;
                 TickGroup group = obj.TickGroup.Value;
-                switch (obj.TickOrder)
-                {
-                    case TickOrder.PrePhysics:
-                        if (!_prePhysicsTick[group].Contains(obj))
-                            _prePhysicsTick[group].Add(obj);
-                        break;
-                    case TickOrder.PostPhysics:
-                        if (!_postPhysicsTick[group].Contains(obj))
-                            _postPhysicsTick[group].Add(obj);
-                        break;
-                }
+                if (!_tick[order][group].Contains(obj))
+                    _tick[order][group].Add(obj);
             }
         }
         public static void UnregisterTick(ObjectBase obj)
         {
             if (obj.TickOrder != null && obj.TickGroup != null)
             {
+                TickOrder order = obj.TickOrder.Value;
                 TickGroup group = obj.TickGroup.Value;
-                switch (obj.TickOrder)
-                {
-                    case TickOrder.PrePhysics:
-                        if (_prePhysicsTick[group].Contains(obj))
-                            _prePhysicsTick[group].Remove(obj);
-                        break;
-                    case TickOrder.PostPhysics:
-                        if (_postPhysicsTick[group].Contains(obj))
-                            _postPhysicsTick[group].Remove(obj);
-                        break;
-                }
+                if (_tick[order][group].Contains(obj))
+                    _tick[order][group].Remove(obj);
             }
+        }
+        public static void Tick(float delta)
+        {
+            foreach (GameTimer timer in ActiveTimers)
+                timer.Tick(delta);
+            foreach (PlayerController c in ActivePlayers)
+                c.Tick(delta);
+            foreach (AIController c in ActiveAI)
+                c.Tick(delta);
+            //Task t = DuringPhysics(delta);
+            delta /= PhysicsSubsteps;
+            for (int i = 0; i < PhysicsSubsteps; i++)
+            {
+                PhysicsTick(TickOrder.PrePhysics, delta);
+                World.StepSimulation(delta);
+                PhysicsTick(TickOrder.PostPhysics, delta);
+            }
+            //await t;
         }
         public static void Initialize()
         {
@@ -149,8 +139,12 @@ namespace CustomEngine
             else
                 return EngineSettings.FromXML(SettingsPath);
         }
-        public static void Run() { _timer.Run(UpdateRate, RenderRate); }
-        public static void Stop() { _timer.Stop(); }
+        public static void RemakePlayerNumbers()
+        {
+            int i = 0;
+            foreach (PlayerController pc in ActivePlayers)
+                pc._number = i++;
+        }
         public static void ShowMessage(string message, int viewport = -1)
         {
             RenderPanel panel = CurrentPanel;
@@ -161,30 +155,14 @@ namespace CustomEngine
             else
                 panel._overallHud.ShowMessage(message);
         }
-        public static void Tick(float delta)
-        {
-            foreach (GameTimer timer in ActiveTimers)
-                timer.Tick(delta);
-            foreach (PlayerController c in ActivePlayers)
-                c.Tick(delta);
-            foreach (AIController c in ActiveAI)
-                c.Tick(delta);
-
-            //Task t = DuringPhysics(delta);
-            delta /= PhysicsSubsteps;
-            for (int i = 0; i < PhysicsSubsteps; i++)
-            {
-                PrePhysicsTick(delta);
-                World.StepSimulation(delta);
-                PostPhysicsTick(delta);
-            }
-            //await t;
-        }
         public static async void SetCurrentWorld(World world)
         {
+            Task load = null;
             if (world != null && !world.IsLoaded)
-                await Task.Run(world.Load);
+                load = world.Load();
             World = world;
+            if (load != null)
+                await load;
         }
     }
 }

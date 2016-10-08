@@ -97,10 +97,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Cutscenes\Cutscene.cs" />
-    <Compile Include="EngineSettings.cs" />
-    <Compile Include="Files\FileExtensionManager.cs" />
-    <Compile Include="Files\FileFilters.cs" />
+    <Compile Include="Engine\EngineSettings.cs" />
     <Compile Include="Input\Gamepad\GamepadManager.cs" />
+    <Compile Include="Particles\Emitter.cs" />
+    <Compile Include="Particles\ParticleState.cs" />
+    <Compile Include="Particles\Particle.cs" />
+    <Compile Include="Particles\ParticleManager.cs" />
     <Compile Include="Rendering\Cameras\Camera.cs" />
     <Compile Include="Rendering\Cameras\OrthographicCamera.cs" />
     <Compile Include="Rendering\Cameras\PerspectiveCamera.cs" />
@@ -137,22 +139,24 @@
     <Compile Include="System\Windows\Forms\RenderForm.Designer.cs">
       <DependentUpon>RenderForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="World\Actors\Components\InstanceComponent.cs" />
-    <Compile Include="World\Actors\Components\Scene\BoomComponent.cs" />
-    <Compile Include="World\Actors\Components\Scene\CameraComponent.cs" />
-    <Compile Include="World\Actors\Components\Scene\DecalComponent.cs" />
-    <Compile Include="World\Actors\Components\Logic\MovementComponents\TransformMovementComponent.cs" />
-    <Compile Include="World\Actors\Components\Logic\MovementComponents\CharacterMovementComponent.cs" />
-    <Compile Include="World\Actors\Components\SceneComponent.cs" />
-    <Compile Include="World\Actors\Components\Scene\LoadingZoneComponent.cs" />
-    <Compile Include="World\Actors\Components\Scene\ShapeComponent.cs" />
-    <Compile Include="Engine.cs" />
+    <Compile Include="Worlds\Actors\ActorState.cs" />
+    <Compile Include="Worlds\Actors\Components\ComponentState.cs" />
+    <Compile Include="Worlds\Actors\Components\LogicComponent.cs" />
+    <Compile Include="Worlds\Actors\Components\Scene\BoomComponent.cs" />
+    <Compile Include="Worlds\Actors\Components\Scene\CameraComponent.cs" />
+    <Compile Include="Worlds\Actors\Components\Scene\DecalComponent.cs" />
+    <Compile Include="Worlds\Actors\Components\Logic\MovementComponents\TransformMovementComponent.cs" />
+    <Compile Include="Worlds\Actors\Components\Logic\MovementComponents\CharacterMovementComponent.cs" />
+    <Compile Include="Worlds\Actors\Components\SceneComponent.cs" />
+    <Compile Include="Worlds\Actors\Components\Scene\LoadingZoneComponent.cs" />
+    <Compile Include="Worlds\Actors\Components\Scene\ShapeComponent.cs" />
+    <Compile Include="Engine\Engine.cs" />
     <Compile Include="GameModes\GameMode.cs" />
     <Compile Include="Rendering\Animation\AnimationContainer.cs" />
     <Compile Include="Rendering\Animation\KeyframeTrack.cs" />
     <Compile Include="Rendering\HUD\HudComponent.cs" />
     <Compile Include="Rendering\HUD\HudPanel.cs" />
-    <Compile Include="Interfaces.cs" />
+    <Compile Include="System\Interfaces.cs" />
     <Compile Include="Players\PlayerInfo.cs" />
     <Compile Include="Rendering\Renderer\DirectX\DXRenderer.cs" />
     <Compile Include="Rendering\Renderer\DirectX\DXWindowContext.cs" />
@@ -193,24 +197,25 @@
     <Compile Include="System\Time\GameTimer.cs" />
     <Compile Include="Rendering\Renderer\Viewport.cs" />
     <Compile Include="System\Memory\VoidPtr.cs" />
-    <Compile Include="World\Actors\Actor.cs" />
-    <Compile Include="World\Actors\Types\Character.cs" />
-    <Compile Include="World\Actors\Types\Pawn.cs" />
-    <Compile Include="World\Actors\Types\PhysicsState.cs" />
-    <Compile Include="World\Actors\Types\Vehicle.cs" />
-    <Compile Include="World\Actors\Components\Component.cs" />
-    <Compile Include="World\Actors\Components\Logic\InteractionComponent.cs" />
-    <Compile Include="World\Actors\Components\Scene\ModelComponent.cs" />
-    <Compile Include="World\Actors\Components\Logic\MovementComponent.cs" />
+    <Compile Include="Worlds\Actors\Actor.cs" />
+    <Compile Include="Worlds\Actors\Types\Character.cs" />
+    <Compile Include="Worlds\Actors\Types\Pawn.cs" />
+    <Compile Include="Worlds\Actors\Types\PhysicsState.cs" />
+    <Compile Include="Worlds\Actors\Types\Vehicle.cs" />
+    <Compile Include="Worlds\Actors\Components\Component.cs" />
+    <Compile Include="Worlds\Actors\Components\Logic\InteractionComponent.cs" />
+    <Compile Include="Worlds\Actors\Components\Scene\ModelComponent.cs" />
+    <Compile Include="Worlds\Actors\Components\Logic\MovementComponent.cs" />
     <Compile Include="Rendering\HUD\HudManager.cs" />
     <Compile Include="Input\AIController.cs" />
     <Compile Include="Input\PawnController.cs" />
     <Compile Include="Input\PlayerController.cs" />
     <Compile Include="System\Math\CustomMath.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="World\Maps\Map.cs" />
-    <Compile Include="World\Maps\MapSettings.cs" />
-    <Compile Include="World\World.cs" />
+    <Compile Include="Worlds\Maps\Map.cs" />
+    <Compile Include="Worlds\Maps\MapSettings.cs" />
+    <Compile Include="Worlds\Maps\MapState.cs" />
+    <Compile Include="Worlds\World.cs" />
     <Compile Include="Rendering\Animation\PropertyAnimation.cs" />
     <Compile Include="System\FrameState.cs" />
     <Compile Include="Rendering\Models\Meshes\Face.cs" />
@@ -220,7 +225,8 @@
     <Compile Include="Rendering\Models\Meshes\Mesh.cs" />
     <Compile Include="Rendering\Models\Skeleton\Skeleton.cs" />
     <Compile Include="Rendering\Textures\Texture.cs" />
-    <Compile Include="World\WorldSettings.cs" />
+    <Compile Include="Worlds\WorldSettings.cs" />
+    <Compile Include="Worlds\WorldState.cs" />
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>

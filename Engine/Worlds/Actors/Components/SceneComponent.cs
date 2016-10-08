@@ -6,7 +6,7 @@ using System.ComponentModel;
 
 namespace CustomEngine.Worlds.Actors.Components
 {
-    public class SceneComponent : Component, IRenderable, ITransformable
+    public class SceneComponent : Component, IRenderable, IStateMonitor, ITransformable
     {
         private FrameState _transform;
         protected bool _visibleByDefault = true;

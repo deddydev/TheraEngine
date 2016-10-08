@@ -87,15 +87,42 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Controls\RenderPanel.xaml.cs">
+      <DependentUpon>RenderPanel.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\UVEditor.xaml.cs">
+      <DependentUpon>UVEditor.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\VertexEditor.xaml.cs">
+      <DependentUpon>VertexEditor.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\WeightEditor.xaml.cs">
+      <DependentUpon>WeightEditor.xaml</DependentUpon>
+    </Compile>
     <Compile Include="CustomMenuItem.cs" />
     <Compile Include="Files\FileExtensionManager.cs" />
-    <Compile Include="Files\FileFilters.cs" />
     <Compile Include="SettingsWindow.xaml.cs">
       <DependentUpon>SettingsWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Wrappers\BaseWrappers.cs" />
     <Compile Include="Wrappers\GenericWrapper.cs" />
     <Page Include="Controls\ColorPanel.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\RenderPanel.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\UVEditor.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\VertexEditor.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\WeightEditor.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

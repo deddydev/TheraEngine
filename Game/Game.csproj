@@ -49,6 +49,8 @@
   <ItemGroup>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Worlds\Actors\Components\Logic\InventoryComponent.cs" />
+    <Compile Include="Worlds\Actors\InteractableActor.cs" />
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
@@ -80,6 +82,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Maps\" />
+    <Folder Include="Worlds\Actors\Components\Scene\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -1,6 +1,6 @@
 ﻿namespace CustomEngine.Worlds.Actors.Components
 {
-    public class InteractionComponent : InstanceComponent
+    public class InteractionComponent : LogicComponent
     {
 
     }

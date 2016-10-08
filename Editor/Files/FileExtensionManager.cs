@@ -1,79 +1,120 @@
-﻿using System;
+﻿using CustomEngine;
+using CustomEngine.Cutscenes;
+using CustomEngine.Rendering.Animation;
+using CustomEngine.Rendering.Cameras;
+using CustomEngine.Rendering.Models;
+using CustomEngine.Rendering.Textures;
+using CustomEngine.Sound;
+using CustomEngine.Worlds;
+using CustomEngine.Worlds.Actors.Components;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 
-namespace CustomEngine.Files
+namespace Editor.Files
 {
     public static class FileExtensionManager
     {
-        public static readonly SupportedFileInfo[] Files =
+        public static IEnumerable<Type> FindDerivedTypes(Assembly assembly, Type baseType)
         {
-            new SupportedFileInfo(true, "World", "cworld"),
-            new SupportedFileInfo(true, "Map", "cmap"),
-            new SupportedFileInfo(true, "Actor", "cactor"),
-            new SupportedFileInfo(true, "Component", "ccomp"),
-            new SupportedFileInfo(true, "Camera", "ccam"),
-            new SupportedFileInfo(true, "Shape", "cshape"),
-            new SupportedFileInfo(true, "Property Animation Group", "cpag"),
-            new SupportedFileInfo(true, "Property Animation", "cpa"),
+            return assembly.GetTypes().Where(t => t != baseType && baseType.IsAssignableFrom(t));
+        }
 
-            new SupportedFileInfo(false, "Portable Network Graphics", "png"),
-            new SupportedFileInfo(false, "Truevision TARGA", "tga"),
-            new SupportedFileInfo(false, "Tagged Image File Format", "tif", "tiff"),
-            new SupportedFileInfo(false, "Bitmap", "bmp"),
-            new SupportedFileInfo(false, "JPEG Image", "jpg", "jpeg"),
-            new SupportedFileInfo(false, "Graphics Interchange Format", "gif"),
-            
-            new SupportedFileInfo(false, "Text File", "txt"),
-            new SupportedFileInfo(false, "Uncompressed PCM", "wav"),
-            new SupportedFileInfo(false, "3D Object Mesh", "obj"),
-            new SupportedFileInfo(false, "Raw Data", "*"),
-        };
-
+        const int MaxExtensionsInAllFilter = 5;
         private static string _allSupportedFilter = null;
         private static string _filterList = null;
-
-        private static string _allSupportedFilterEditable = null;
-        private static string _filterListEditable = null;
-
-        public static SupportedFileInfo[] GetInfo(params string[] extensions)
+        public static readonly Dictionary<Type, FilterInfo> Filters = new Dictionary<Type, FilterInfo>()
         {
-            SupportedFileInfo[] infoArray = new SupportedFileInfo[extensions.Length];
-            foreach (SupportedFileInfo fileInfo in Files)
-                foreach (string ext in fileInfo._extensions)
-                {
-                    int index = extensions.IndexOf(ext);
-                    if (index >= 0 && !infoArray.Contains(fileInfo))
-                    {
-                        infoArray[index] = fileInfo;
-                        extensions[index] = null;
-                    }
-                }
-
-            //Add remaining extensions not included in the supported formats array
-            string s;
-            for (int i = 0; i < extensions.Length; i++)
-                if (!String.IsNullOrEmpty(s = extensions[i]))
-                    infoArray[i] = new SupportedFileInfo(false, String.Format("{0} File", s.ToUpper()), s);
-
-            return infoArray;
-        }
-
-        public static string CompleteFilterEditableOnly { get { return GetAllSupportedFilter(true) + "|" + GetListFilter(true); } }
-
-        public static string CompleteFilter { get { return GetAllSupportedFilter(false) + "|" + GetListFilter(false); } }
-
-        public static string GetCompleteFilter(params string[] extensions)
+            { typeof(World), new FilterInfo("World", "cworld") },
+            { typeof(Map), new FilterInfo("Map", "cmap") },
+            { typeof(Actor), new FilterInfo("Actor", "cactor") },
+            { typeof(Component), new FilterInfo("Component", "ccomp") },
+            { typeof(Model), new FilterInfo("Model", "cmdl") },
+            { typeof(Camera), new FilterInfo("Camera", "ccam") },
+            { typeof(Cutscene), new FilterInfo("Cutscene", "ccut") },
+            { typeof(Component), new FilterInfo("Component", "ccomp") },
+            { typeof(AnimationContainer), new FilterInfo("Animation Archive", "cpac") },
+            { typeof(IPropertyAnimation), new FilterInfo("Property Animation", "cpa") },
+            { typeof(Texture), new FilterInfo("Texture", "ctex") },
+        };
+        public static List<FilterInfo> GenericInfo = new List<FilterInfo>()
         {
-            return GetCompleteFilter(GetInfo(extensions));
-        }
+            new FilterInfo("Portable Network Graphics", "png")
+            { _fileTypes = new Type[] { typeof(Texture) },
+                _canExport = true, _canImport = true },
 
+            new FilterInfo("Truevision TARGA", "tga")
+            { _fileTypes = new Type[] { typeof(Texture) },
+                _canExport = true, _canImport = true },
+
+            new FilterInfo("Tagged Image File Format", "tif", "tiff")
+            { _fileTypes = new Type[] { typeof(Texture) },
+                _canExport = true, _canImport = true },
+
+            new FilterInfo("Bitmap", "bmp")
+            { _fileTypes = new Type[] { typeof(Texture) },
+                _canExport = true, _canImport = true },
+
+            new FilterInfo("JPEG Image", "jpg", "jpeg")
+            { _fileTypes = new Type[] { typeof(Texture) },
+                _canExport = true, _canImport = true },
+
+            new FilterInfo("Graphics Interchange Format", "gif")
+            { _fileTypes = new Type[] { typeof(Texture) },
+                _canExport = true, _canImport = true },
+
+            new FilterInfo("Text File", "txt")
+            { _fileTypes = new Type[] {
+                typeof(AnimationInterpNode),
+                typeof(AnimationBoolNode),
+                typeof(AnimationStringNode),
+                typeof(AnimationContainer) },
+                _canExport = true, _canImport = true },
+
+            new FilterInfo("Uncompressed PCM", "wav")
+            { _fileTypes = new Type[] { typeof(SoundDataBase) },
+                _canExport = true, _canImport = true },
+
+            new FilterInfo("3D Mesh", "obj")
+            { _fileTypes = new Type[] { typeof(Model) },
+                _canExport = true, _canImport = true },
+
+            new FilterInfo("Autodesk Scene", "fbx")
+            { _fileTypes = new Type[] {
+                typeof(Model),
+                typeof(AnimationContainer) },
+                _canExport = true, _canImport = true },
+
+            new FilterInfo("Collada Scene", "dae")
+            { _fileTypes = new Type[] {
+                typeof(Model),
+                typeof(AnimationContainer) },
+                _canExport = true, _canImport = true },
+
+            new FilterInfo("Raw Data", "*"),
+        };
+        private static FilterInfo[] GetInfo(params Type[] types)
+        {
+            if (types == null || types.Length == 0)
+                return Filters.Values.ToArray();
+            return Filters.Where(x => types.Contains(x.Key)).Select(x => x.Value).ToArray();
+        }
+        public static string CompleteImportFilter { get { return GetAllSupportedFilter() + "|" + GetListFilter(); } }
+        public static string CompleteExportFilter { get { return GetAllSupportedFilter() + "|" + GetListFilter(); } }
         public static string GetCompleteFilter(params Type[] types)
         {
-            return GetCompleteFilter(GetInfo(extensions));
+            return GetCompleteFilter(GetInfo(types));
         }
-
-        public static string GetCompleteFilter(SupportedFileInfo[] files)
+        public static string GetAllSupportedFilter(params Type[] types)
+        {
+            return GetAllSupportedFilter(GetInfo(types));
+        }
+        public static string GetListFilter(params Type[] types)
+        {
+            return GetListFilter(GetInfo(types));
+        }
+        public static string GetCompleteFilter(FilterInfo[] files)
         {
             if (files.Length == 0)
                 return "All Files (*.*)|*.*";
@@ -84,23 +125,7 @@ namespace CustomEngine.Files
 
             return GetAllSupportedFilter(files) + "|" + GetListFilter(files);
         }
-
-        public static string GetAllSupportedFilter(bool editableOnly)
-        {
-            if (editableOnly && _allSupportedFilterEditable != null)
-                return _allSupportedFilterEditable;
-            else if (!editableOnly && _allSupportedFilter != null)
-                return _allSupportedFilter;
-
-            if (editableOnly)
-                return _allSupportedFilterEditable = GetAllSupportedFilter(Files, true);
-            else
-                return _allSupportedFilter = GetAllSupportedFilter(Files, false);
-        }
-
-        const int MaxExtensionsInAllFilter = 5;
-
-        public static string GetAllSupportedFilter(SupportedFileInfo[] files, bool editableOnly = false)
+        public static string GetAllSupportedFilter(FilterInfo[] files)
         {
             string filter = "All Supported Formats (";
             string filter2 = "|";
@@ -111,13 +136,7 @@ namespace CustomEngine.Files
             if (doNotAdd)
                 filter += "*.*";
 
-            IEnumerable<SupportedFileInfo> e;
-            if (editableOnly)
-                e = files.Where(x => x._forEditing);
-            else
-                e = files;
-
-            string[] fileTypeExtensions = e.Select(x => x.ExtensionsFilter).ToArray();
+            string[] fileTypeExtensions = files.Select(x => x.ExtensionsFilter).ToArray();
             for (int i = 0; i < fileTypeExtensions.Length; i++)
             {
                 string[] extensions = fileTypeExtensions[i].Split(';');
@@ -135,54 +154,72 @@ namespace CustomEngine.Files
             }
             return filter + ")" + filter2;
         }
-
-        public static string GetListFilter(params string[] extensions)
-        {
-            return GetListFilter(GetInfo(extensions));
-        }
-
-        public static string GetListFilter(bool editableOnly)
-        {
-            if (editableOnly && _filterListEditable != null)
-                return _filterListEditable;
-            else if (!editableOnly && _filterList != null)
-                return _filterList;
-
-            if (editableOnly)
-                return _filterListEditable = GetListFilter(Files, true);
-            else
-                return _filterList = GetListFilter(Files, false);
-        }
-
-        public static string GetListFilter(SupportedFileInfo[] files, bool editableOnly = false)
+        public static string GetListFilter(FilterInfo[] files)
         {
             string filter = "";
-
-            IEnumerable<SupportedFileInfo> e;
-            if (editableOnly)
-                e = files.Where(x => x._forEditing);
-            else
-                e = files;
-
-            string[] fileTypeExtensions = e.Select(x => x.Filter).ToArray();
+            string[] fileTypeExtensions = files.Select(x => x.Filter).ToArray();
             for (int i = 0; i < fileTypeExtensions.Length; i++)
                 filter += fileTypeExtensions[i] + (i == fileTypeExtensions.Length - 1 ? "" : "|");
             return filter;
         }
+        //public static FilterInfo[] GetInfo(params string[] extensions)
+        //{
+        //    FilterInfo[] infoArray = new FilterInfo[extensions.Length];
+        //    foreach (FilterInfo fileInfo in Files)
+        //        foreach (string ext in fileInfo._extensions)
+        //        {
+        //            int index = extensions.IndexOf(ext);
+        //            if (index >= 0 && !infoArray.Contains(fileInfo))
+        //            {
+        //                infoArray[index] = fileInfo;
+        //                extensions[index] = null;
+        //            }
+        //        }
+
+        //    //Add remaining extensions not included in the supported formats array
+        //    string s;
+        //    for (int i = 0; i < extensions.Length; i++)
+        //        if (!String.IsNullOrEmpty(s = extensions[i]))
+        //            infoArray[i] = new FilterInfo(String.Format("{0} File", s.ToUpper()), s);
+
+        //    return infoArray;
+        //}
+        //public static string GetCompleteFilter(params string[] extensions)
+        //{
+        //    return GetCompleteFilter(GetInfo(extensions));
+        //}
+        //public static string GetListFilter(params string[] extensions)
+        //{
+        //    return GetListFilter(GetInfo(extensions));
+        //}
+        //public static string GetListFilter(bool editableOnly)
+        //{
+        //    if (editableOnly && _filterListEditable != null)
+        //        return _filterListEditable;
+        //    else if (!editableOnly && _filterList != null)
+        //        return _filterList;
+
+        //    if (editableOnly)
+        //        return _filterListEditable = GetListFilter(Files, true);
+        //    else
+        //        return _filterList = GetListFilter(Files, false);
+        //}
     }
 
-    public class SupportedFileInfo
+    public class FilterInfo
     {
         public string _name;
         public string[] _extensions;
-        public bool _forEditing;
 
-        public SupportedFileInfo(bool forEditing, string name, params string[] extensions)
+        public Type[] _fileTypes;
+        public bool _canExport, _canImport;
+        
+        public string _exportExt;
+        public string _importExt;
+
+        public FilterInfo(string name, params string[] extensions)
         {
-            _forEditing = forEditing;
             _name = name;
-            if (extensions == null || extensions.Length == 0)
-                throw new Exception("No extensions for file type \"" + _name + "\".");
             _extensions = extensions;
         }
 
@@ -195,16 +232,14 @@ namespace CustomEngine.Files
                 bool first = true;
                 foreach (string ext in _extensions)
                 {
-                    if (!first)
+                    if (first)
+                    {
                         filter += ";";
-
-                    //In case of a specific file name
+                        first = false;
+                    }
                     if (!ext.Contains('.'))
                         filter += "*.";
-
                     filter += ext;
-
-                    first = false;
                 }
                 return filter;
             }

@@ -1,6 +1,6 @@
 ﻿namespace CustomEngine.Worlds.Actors.Components
 {
-    public abstract class InstanceComponent : Component
+    public abstract class LogicComponent : Component
     {
 
     }

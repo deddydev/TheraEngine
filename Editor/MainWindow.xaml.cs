@@ -1,21 +1,7 @@
-﻿using CustomEngine.Files;
+﻿using Editor.Files;
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using System.Windows.Forms;
-using System.Windows.Forms.Integration;
 
 namespace Editor
 {
@@ -50,7 +36,7 @@ namespace Editor
             {
                 _contentWatcher = new FileSystemWatcher()
                 {
-                    Filter = FileExtensionManager.GetListFilter(),
+                    Filter = FileExtensionManager.GetListFilter(true),
                     EnableRaisingEvents = true,
                     IncludeSubdirectories = true,
                     Path = settings._contentMonitorPath,
@@ -78,10 +64,10 @@ namespace Editor
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            WindowsFormsHost host = new WindowsFormsHost();
-            RenderPanel renderPanel = new RenderPanel();
-            host.Child = renderPanel;
-            this.grid1.Children.Add(host);
+            //WindowsFormsHost host = new WindowsFormsHost();
+            //RenderPanel renderPanel = new RenderPanel();
+            //host.Child = renderPanel;
+            //this.grid1.Children.Add(host);
         }
     }
 }

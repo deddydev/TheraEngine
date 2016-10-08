@@ -1,37 +1,40 @@
 ﻿using System;
-using System.Windows.Forms;
+using System.Windows.Controls;
+using CustomEngine;
 using System.Collections.Generic;
 using System.Reflection;
+using System.ComponentModel;
+using System.Windows;
 
 namespace Editor.Wrappers
 {
     [AttributeUsage(AttributeTargets.Class, Inherited = false, AllowMultiple = true)]
     sealed class NodeWrapperAttribute : Attribute
     {
-//         ResourceType _type;
-//         public NodeWrapperAttribute(ResourceType type) { _type = type; }
-//         public ResourceType WrappedType { get { return _type; } }
-// 
-//         private static Dictionary<ResourceType, Type> _wrappers;
-//         public static Dictionary<ResourceType, Type> Wrappers
-//         {
-//             get
-//             {
-//                 if (_wrappers == null)
-//                 {
-//                     _wrappers = new Dictionary<ResourceType, Type>();
-//                     foreach (Type t in Assembly.GetExecutingAssembly().GetTypes())
-//                         foreach (NodeWrapperAttribute attr in t.GetCustomAttributes(typeof(NodeWrapperAttribute), true))
-//                             _wrappers[attr._type] = t;
-//                 }
-//                 return _wrappers;
-//             }
-//         }
+        ResourceType _type;
+        public NodeWrapperAttribute(ResourceType type) { _type = type; }
+        public ResourceType WrappedType { get { return _type; } }
+
+        private static Dictionary<ResourceType, Type> _wrappers;
+        public static Dictionary<ResourceType, Type> Wrappers
+        {
+            get
+            {
+                if (_wrappers == null)
+                {
+                    _wrappers = new Dictionary<ResourceType, Type>();
+                    foreach (Type t in Assembly.GetExecutingAssembly().GetTypes())
+                        foreach (NodeWrapperAttribute attr in t.GetCustomAttributes(typeof(NodeWrapperAttribute), true))
+                            _wrappers[attr._type] = t;
+                }
+                return _wrappers;
+            }
+        }
     }
     [Serializable]
-    public abstract class BaseWrapper : TreeNode
+    public abstract class BaseWrapper : TreeViewItem
     {
-        protected static readonly ContextMenuStrip _emptyMenu = new ContextMenuStrip();
+        protected static readonly ContextMenu _emptyMenu = new ContextMenu();
 
         protected bool _discovered = false;
 
@@ -45,18 +48,19 @@ namespace Editor.Wrappers
         protected BaseWrapper() { }
         //protected BaseWrapper(ResourceNode resourceNode) { Link(resourceNode); }
 
-        protected static void SetMenuEnabled(System.Windows.Controls.ContextMenu m, bool enabled, params int[] items)
+        protected static void SetMenuEnabled(ContextMenu m, bool enabled, params int[] items)
         {
             foreach (int i in items)
             {
                 MenuItem mi = m.Items[i] as MenuItem;
                 if (mi != null)
-                    mi.Enabled = enabled;
+                    mi.IsEnabled = enabled;
             }
         }
         protected static T GetInstance<T>() where T : BaseWrapper
         {
-            return MainWindow.Instance.resourceTree.SelectedNode as T;
+            //return MainWindow.Instance.ResourceTree.SelectedNode as T;
+            return null;
         }
 
         public void Link(ObjectBase res)
@@ -64,18 +68,18 @@ namespace Editor.Wrappers
             Unlink();
             if (res != null)
             {
-                Text = res.Name;
-                TreeNodeCollection nodes = Nodes;
+                Header = res.Name;
+                ItemCollection nodes = Items;
 
                 //Should we continue down the tree?
-                if ((IsExpanded) && (res.HasChildren))
+                if (IsExpanded && (res.HasChildren))
                 {
                     //Add/link each resource node
                     foreach (ObjectBase n in res.Children)
                     {
                         bool found = false;
                         foreach (BaseWrapper tn in nodes)
-                            if (tn.Text == n.Name)
+                            if ((string)tn.Header == n.Name)
                             {
                                 tn.Link(n);
                                 found = true;
@@ -84,7 +88,6 @@ namespace Editor.Wrappers
                                 nodes.Add(tn);
                                 break;
                             }
-
                         if (!found)
                             nodes.Add(Wrap(_owner, n));
                     }
@@ -116,16 +119,7 @@ namespace Editor.Wrappers
                 }
 
                 //SelectedImageIndex = ImageIndex = (int)res.ResourceType & 0xFF;
-
-                res.SelectChild += OnSelectChild;
-                res.ChildAdded += OnChildAdded;
-                res.ChildRemoved += OnChildRemoved;
-                res.ChildInserted += OnChildInserted;
-                res.Replaced += OnReplaced;
-                res.Restored += OnRestored;
                 res.Renamed += OnRenamed;
-                res.MovedUp += OnMovedUp;
-                res.MovedDown += OnMovedDown;
                 res.PropertyChanged += OnPropertyChanged;
                 res.UpdateProperties += OnUpdateProperties;
                 res.UpdateEditor += OnUpdateCurrentControl;
@@ -136,34 +130,34 @@ namespace Editor.Wrappers
         {
             if (_resource != null)
             {
-                _resource.SelectChild -= OnSelectChild;
-                _resource.ChildAdded -= OnChildAdded;
-                _resource.ChildRemoved -= OnChildRemoved;
-                _resource.ChildInserted -= OnChildInserted;
-                _resource.Replaced -= OnReplaced;
-                _resource.Restored -= OnRestored;
                 _resource.Renamed -= OnRenamed;
-                _resource.MovedUp -= OnMovedUp;
-                _resource.MovedDown -= OnMovedDown;
                 _resource.PropertyChanged -= OnPropertyChanged;
                 _resource.UpdateProperties -= OnUpdateProperties;
                 _resource.UpdateEditor -= OnUpdateCurrentControl;
                 _resource = null;
             }
 
-            foreach (BaseWrapper n in Nodes)
+            foreach (BaseWrapper n in Items)
                 n.Unlink();
+        }
+        private void Remove()
+        {
+            throw new NotImplementedException();
+        }
+        internal void EnsureVisible()
+        {
+            throw new NotImplementedException();
         }
         internal protected virtual void OnSelectChild(int index)
         {
-            if (!(Nodes == null || index < 0 || index >= Nodes.Count))
-                TreeView.SelectedNode = Nodes[index];
+            //if (!(Items == null || index < 0 || index >= Items.Count))
+            //    TreeView.SelectedNode = Items[index];
         }
-        internal protected virtual void OnUpdateProperties(object sender, EventArgs e)
+        internal protected virtual void OnUpdateProperties(ObjectBase obj)
         {
-            MainWindow.Instance.propertyGrid1.Refresh();
+            //MainWindow.Instance.PropertyGrid.Refresh();
         }
-        internal protected virtual void OnUpdateCurrentControl(object sender, EventArgs e)
+        internal protected virtual void OnUpdateCurrentControl(ObjectBase obj)
         {
             MainWindow form = MainWindow.Instance;
             //var g = form.propertyGrid1.SelectedGridItem;
@@ -172,15 +166,15 @@ namespace Editor.Wrappers
         }
         internal protected virtual void OnChildAdded(ObjectBase parent, ObjectBase child)
         {
-            Nodes.Add(Wrap(_owner, child));
+            Items.Add(Wrap(_owner, child));
         }
         internal protected virtual void OnChildInserted(int index, ObjectBase parent, ObjectBase child)
         {
-            Nodes.Insert(index, Wrap(_owner, child));
+            Items.Insert(index, Wrap(_owner, child));
         }
         internal protected virtual void OnChildRemoved(ObjectBase parent, ObjectBase child)
         {
-            foreach (BaseWrapper w in Nodes)
+            foreach (BaseWrapper w in Items)
                 if (w != null)
                     if (w._resource == child)
                     {
@@ -192,21 +186,15 @@ namespace Editor.Wrappers
         {
             Link(node);
 
-            if ((TreeView != null) && (TreeView.SelectedNode == this))
-            {
-                ((ResourceTree)TreeView).SelectedNode = null;
-                TreeView.SelectedNode = this;
-            }
+            //if ((TreeView != null) && (TreeView.SelectedNode == this))
+            //{
+            //    ((ResourceTree)TreeView).SelectedNode = null;
+            //    TreeView.SelectedNode = this;
+            //}
         }
-        internal protected virtual void OnRestored(ObjectBase node)
-        {
-            RefreshView(node);
-        }
-        internal protected virtual void OnReplaced(ObjectBase node)
-        {
-            RefreshView(node);
-        }
-        internal protected virtual void OnRenamed(ObjectBase node) { Text = node.Name; }
+        internal protected virtual void OnRestored(ObjectBase node) { RefreshView(node); }
+        internal protected virtual void OnReplaced(ObjectBase node) { RefreshView(node); }
+        internal protected virtual void OnRenamed(ObjectBase node, string oldName) { Header = node.Name; }
 
         internal protected virtual void OnMovedUp(ObjectBase node, bool select)
         {
@@ -222,21 +210,21 @@ namespace Editor.Wrappers
             res.EnsureVisible();
             //res.TreeView.SelectedNode = res;
         }
-        internal protected virtual void OnPropertyChanged(ObjectBase node) { }
-
+        internal protected virtual void OnPropertyChanged(object sender, PropertyChangedEventArgs e) { }
+        
         internal protected virtual void OnExpand()
         {
-            if (!_discovered)
-            {
-                Nodes.Clear();
+            //if (!_discovered)
+            //{
+            //    Items.Clear();
 
-                if (_resource._isPopulating)
-                    while (_resource._isPopulating) { Application.DoEvents(); }
+            //    //if (_resource._isPopulating)
+            //    //    while (_resource._isPopulating) { System.Windows.Forms.Application.DoEvents(); }
 
-                foreach (ObjectBase n in _resource.Children)
-                    Nodes.Add(Wrap(_owner, n));
-                _discovered = true;
-            }
+            //    foreach (ObjectBase n in _resource.Children)
+            //        Items.Add(Wrap(_owner, n));
+            //    _discovered = true;
+            //}
         }
         internal protected virtual void OnDoubleClick() { }
 
@@ -248,7 +236,7 @@ namespace Editor.Wrappers
             else
             {
                 OnExpand();
-                foreach (BaseWrapper c in Nodes)
+                foreach (BaseWrapper c in Items)
                     if (c._resource == n)
                         return c;
                     else if ((searchChildren) && ((node = c.FindResource(n, true)) != null))
@@ -257,9 +245,9 @@ namespace Editor.Wrappers
             return null;
         }
 
-        public static IWin32Window _owner;
+        public static Control _owner;
         public static BaseWrapper Wrap(ObjectBase node) { return Wrap(null, node); }
-        public static BaseWrapper Wrap(IWin32Window owner, ObjectBase node)
+        public static BaseWrapper Wrap(Control owner, ObjectBase node)
         {
             _owner = owner;
             BaseWrapper w;

@@ -31,5 +31,8 @@ namespace CustomEngine
         Pawn                        = 0x2100,
         Character                   = 0x2200,
         Vehicle                     = 0x2300,
+        
+        Emitter                     = 0x3000,
+        Particle                    = 0x3100,
     }
 }

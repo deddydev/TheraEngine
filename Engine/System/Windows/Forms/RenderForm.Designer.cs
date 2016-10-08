@@ -1,4 +1,4 @@
-﻿namespace System.Windows.Forms
+﻿namespace CustomEngine
 {
     partial class RenderForm
     {

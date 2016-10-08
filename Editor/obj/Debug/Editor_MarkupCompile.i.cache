@@ -4,17 +4,17 @@
 winexe
 C#
 .cs
-C:\Users\David\Documents\Repositories\CustomEngine\Editor\obj\Debug\
+X:\Repositories\CustomEngine\Editor\obj\Debug\
 Editor
 none
 false
 TRACE;DEBUG
-C:\Users\David\Documents\Repositories\CustomEngine\Editor\App.xaml
-3957969232
+X:\Repositories\CustomEngine\Editor\App.xaml
+71063515401
 
-17880349783
-25854916146
-Controls\ColorPanel.xaml;MainWindow.xaml;SettingsWindow.xaml;
+20-1370234809
+25-556335359
+Controls\ColorPanel.xaml;Controls\RenderPanel.xaml;Controls\UVEditor.xaml;Controls\VertexEditor.xaml;Controls\WeightEditor.xaml;MainWindow.xaml;SettingsWindow.xaml;
 
-True
+False
 

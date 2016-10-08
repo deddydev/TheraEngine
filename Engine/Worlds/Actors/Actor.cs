@@ -26,32 +26,16 @@ namespace CustomEngine.Worlds
         public bool IsSpawned { get { return _spawnIndex >= 0; } }
         [State]
         public World OwningWorld { get { return _owningWorld; } }
-        [Default]
-        public override Type[] ChildTypes
-        {
-            get { return new Type[] { typeof(InstanceComponent) }; }
-        }
 
+        [PostChanged("GenerateSceneComponentCache")]
         public SceneComponent RootComponent
         {
             get { return _rootSceneComponent; }
-            set
-            {
-                _rootSceneComponent = value;
-                GenerateSceneComponentCache();
-            }
+            set { _rootSceneComponent = value; }
         }
         public void GenerateSceneComponentCache()
         {
             _sceneComponentCache = _rootSceneComponent.GenerateChildCache();
-        }
-
-        public new ReadOnlyCollection<InstanceComponent> Children
-        {
-            get
-            {
-                return base.Children;
-            }
         }
 
         public DateTime _lastRendered;
@@ -59,7 +43,7 @@ namespace CustomEngine.Worlds
         private World _owningWorld;
         private SceneComponent _rootSceneComponent;
         private List<SceneComponent> _sceneComponentCache = new List<SceneComponent>();
-        private List<InstanceComponent> _instanceComponents = new List<InstanceComponent>();
+        private List<LogicComponent> _instanceComponents = new List<LogicComponent>();
 
         public FrameState Transform
         {
@@ -75,7 +59,7 @@ namespace CustomEngine.Worlds
             _rootSceneComponent?.Transform.AddTranslation(-newOrigin);
             //TODO: update child transforms here or wait?
         }
-        public void AddComponent(InstanceComponent c)
+        public void AddComponent(LogicComponent c)
         {
             _instanceComponents.Add(c);
         }

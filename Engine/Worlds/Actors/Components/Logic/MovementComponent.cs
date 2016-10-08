@@ -2,7 +2,7 @@
 
 namespace CustomEngine.Worlds.Actors.Components
 {
-    public class MovementComponent : InstanceComponent
+    public class MovementComponent : LogicComponent
     {
         protected Vector3 _positionOffset;
 

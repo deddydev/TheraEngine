@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace CustomEngine.Worlds
 {
-    public class World : ObjectBase, IRenderable, ILoadable
+    public class World : FileObject, IRenderable
     {
         protected List<Map> _spawnedMaps = new List<Map>();
         protected List<Actor> _spawnedActors;
@@ -15,6 +15,7 @@ namespace CustomEngine.Worlds
 
         private DiscreteDynamicsWorld _bulletScene;
         public WorldSettings _settings;
+        public WorldState _state;
         private string _name;
         private bool _visible;
 
@@ -52,17 +53,17 @@ namespace CustomEngine.Worlds
         public void Render()
         {
             foreach (Actor actor in _spawnedActors)
-                if (actor.IsSpawned)
-                    actor.Render();
+                actor.Render();
         }
-        public void SerializeState(string path)
+        public async Task SaveState(string path)
         {
-            
+            await Task.Delay(100);
         }
-        public void ExportMapFile(string path)
+        public async Task LoadState(string path)
         {
+            await Task.Delay(100);
+        }
 
-        }
 
         #region ILoadable Interface
         private bool _isLoaded, _isLoading;

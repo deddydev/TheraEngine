@@ -56,7 +56,7 @@
                         <xcad:LayoutAnchorable ContentId="properties" Title="Properties" CanHide="False" CanClose="False"
                                             AutoHideWidth="240">
                             <xctk:PropertyGrid NameColumnWidth="110"
-                        SelectedObject="{Binding ElementName=_layoutRoot, Path=LastFocusedDocument.Content}"/>
+                        SelectedObject="{Binding ElementName=_layoutRoot, Path=LastFocusedDocument.Content}" Margin="0,0,0,0"/>
                         </xcad:LayoutAnchorable>
                     </xcad:LayoutAnchorablePane>
                     <xcad:LayoutDocumentPaneGroup>

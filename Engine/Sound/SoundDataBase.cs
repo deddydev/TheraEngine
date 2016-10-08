@@ -2,7 +2,7 @@
 
 namespace CustomEngine.Sound
 {
-    public class SoundDataBase : ObjectBase
+    public abstract class SoundDataBase : ObjectBase
     {
         protected bool _looped;
     }

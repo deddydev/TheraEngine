@@ -7,8 +7,9 @@ using System.Security.Permissions;
 using System.Reflection;
 using CustomEngine.Rendering.OpenGL;
 using System.Threading;
+using System;
 
-namespace System.Windows.Controls
+namespace CustomEngine
 {
     public static class ControlExtension
     {
@@ -20,7 +21,7 @@ namespace System.Windows.Controls
             c, new object[] { 0x400000, false });
         }
     }
-    public partial class RenderPanel : System.Windows.Forms.Control
+    public partial class RenderPanel : Control
     {
         public RenderPanel()
         {

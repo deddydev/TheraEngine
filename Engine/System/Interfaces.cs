@@ -25,25 +25,7 @@ namespace CustomEngine
     }
     public interface IKeyframeTrack
     {
-    }
-    public interface ILoadable
-    {
-        Task Load();
-        Task Unload();
-        string FilePath { get; }
-        bool IsLoading { get; }
-        bool IsLoaded { get; }
-    }
-    public interface ISaveable
-    {
-        Task Save(string path);
-        Task<int> CalculateSize();
-        Task<int> OnCalculateSize();
-        Task Write(VoidPtr address, IProgress<float> progress);
-        int CalculatedSize { get; }
-        bool IsSaving { get; }
-        bool IsCalculatingSize { get; }
-        bool IsWriting { get; }
+
     }
     public interface IRenderState
     {

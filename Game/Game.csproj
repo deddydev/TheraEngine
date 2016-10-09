@@ -49,7 +49,9 @@
   <ItemGroup>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Worlds\Actors\Components\Logic\InteractionZoneComponent.cs" />
     <Compile Include="Worlds\Actors\Components\Logic\InventoryComponent.cs" />
+    <Compile Include="Worlds\Actors\GameCharacter.cs" />
     <Compile Include="Worlds\Actors\InteractableActor.cs" />
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>

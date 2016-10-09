@@ -3,8 +3,10 @@ using System;
 
 namespace CustomEngine.Rendering.Cameras
 {
-    public abstract class Camera
+    public abstract class Camera : ObjectBase
     {
+        public override ResourceType ResourceType { get { return ResourceType.Camera; } }
+
         public float NearDepth { get { return _nearZ; } set { _nearZ = value; CalculateProjection(); } }
         public float FarDepth { get { return _farZ; } set { _farZ = value; CalculateProjection(); } }
         public Matrix4 Matrix { get { return _currentTransform.InverseTransform; } }
@@ -202,13 +204,13 @@ namespace CustomEngine.Rendering.Cameras
 
         public void LoadProjection()
         {
-            Engine.Renderer.MatrixMode(MtxMode.Projection);
-            Engine.Renderer.LoadMatrix(_projectionMatrix);
+            Renderer.MatrixMode(MtxMode.Projection);
+            Renderer.LoadMatrix(_projectionMatrix);
         }
         public void LoadModelView()
         {
-            Engine.Renderer.MatrixMode(MtxMode.Modelview);
-            Engine.Renderer.LoadMatrix(Matrix);
+            Renderer.MatrixMode(MtxMode.Modelview);
+            Renderer.LoadMatrix(Matrix);
         }
         public void SaveCurrentTransform()
         {

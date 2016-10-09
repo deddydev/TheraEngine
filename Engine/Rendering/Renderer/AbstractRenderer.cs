@@ -1,5 +1,4 @@
-﻿using CustomEngine.Rendering.Models.Meshes;
-using System;
+﻿using System;
 using System.Collections.Generic;
 
 namespace CustomEngine.Rendering
@@ -89,7 +88,7 @@ namespace CustomEngine.Rendering
         public abstract void AttachShader(int programHandle, int shaderHandle);
         public abstract void LinkProgram(int programHandle);
 
-        public abstract void RenderMesh(Mesh mesh);
+        public abstract void RenderMesh(Models.Mesh mesh);
 
         public void Dispose()
         {

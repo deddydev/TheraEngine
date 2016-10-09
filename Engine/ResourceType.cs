@@ -8,8 +8,8 @@ namespace CustomEngine
 {
     public enum ResourceType
     {
-        Undocumented                = 0xFF00,
-
+        Object                      = 0xFF00,
+        
         World                       = 0x0000,
         Map                         = 0x0100,
 

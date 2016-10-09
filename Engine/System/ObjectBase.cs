@@ -5,22 +5,24 @@ using System.Reflection;
 using System.ComponentModel;
 using PostSharp.Aspects;
 using PostSharp.Serialization;
-using System.Collections;
-using System.Collections.ObjectModel;
-using CustomEngine.Files;
-using System.Threading.Tasks;
-using System.IO;
 
 namespace System
 {
     public delegate void ResourceEventHandler(ObjectBase node);
     public delegate void RenamedEventHandler(ObjectBase node, string oldName);
     public delegate void ObjectPropertyChangedEventHandler(object sender, PropertyChangedEventArgs e);
+    public enum TickGroup
+    {
+        PrePhysics = 0,
+        //DuringPhysics,
+        PostPhysics = 1,
+    }
     public enum TickOrder
     {
-        PrePhysics,
-        //DuringPhysics,
-        PostPhysics,
+        Timers = 0,
+        Input = 1,
+        Logic = 2,
+        Scene = 3,
     }
     [NotifyPropertyChanged]
     public class ObjectBase : INotifyPropertyChanged
@@ -33,13 +35,18 @@ namespace System
 
         private string _name;
         protected bool _changed;
-        private TickGroup? _tickGroup = null;
-        private TickOrder? _tickOrder = null;
+        protected TickGroup? _tickGroup = null;
+        protected TickOrder? _tickOrder = null;
 
-        [Category("Info"), Default, Browsable(false)]
-        public virtual ResourceType ResourceType { get { return ResourceType.Undocumented; } }
-        
-        [Category("State"), Default, PostChanged("OnRenamed")]
+        [Browsable(false)]
+        public virtual ResourceType ResourceType { get { return ResourceType.Object; } }
+
+        public AbstractRenderer Renderer { get { return Engine.Renderer; } }
+
+        [Default]
+#if EDITOR
+        [Category("State"), PostChanged("OnRenamed")]
+#endif
         public string Name
         {
             get { return _name; }
@@ -47,12 +54,16 @@ namespace System
             set { _name = value; }
 #endif
         }
-        public AbstractRenderer Renderer { get { return Engine.Renderer; } }
+
+#if EDITOR
         [Category("Tick"), PreChanged("UnregisterTick"), PostChanged("RegisterTick")]
+#endif
         public TickGroup? TickGroup
         {
             get { return _tickGroup; }
+#if EDITOR
             set { _tickGroup = value; }
+#endif
         }
         [Category("Tick"), PreChanged("UnregisterTick"), PostChanged("RegisterTick")]
         public TickOrder? TickOrder
@@ -60,6 +71,11 @@ namespace System
             get { return _tickOrder; }
             set { _tickOrder = value; }
         }
+
+#if EDITOR
+        /// <summary>
+        /// 
+        /// </summary>
         [Category("State"), State, EditorOnly]
         public bool HasChanged
         {
@@ -75,11 +91,11 @@ namespace System
             get { return HasChanged; }
             set { HasChanged = value; }
         }
+#endif
 
         /// <summary>
         /// Specifies that this object wants tick calls.
         /// </summary>
-        /// <param name="order"></param>
         public void RegisterTick() { Engine.RegisterTick(this); }
         /// <summary>
         /// Specifies that this object will not have any tick calls.
@@ -89,7 +105,7 @@ namespace System
         /// Updates logic for this class
         /// </summary>
         /// <param name="delta">The amount of time that has passed since the last tick update</param>
-        public virtual void Tick(float delta) { }
+        internal virtual void Tick(float delta) { }
 
         public void OnPropertyChanged(PropertyInfo info, object previousValue)
         {

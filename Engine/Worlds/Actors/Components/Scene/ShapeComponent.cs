@@ -3,7 +3,6 @@
     public class ShapeComponent<T> : SceneComponent where T : IShape
     {
         private T _shape;
-
         public T Shape
         {
             get { return _shape; }
@@ -11,9 +10,13 @@
         }
 
         protected override void OnRender() { _shape?.Render(); }
-        public virtual void OnOverlapped()
+        public virtual void OnBeginOverlap()
         {
 
+        }
+        public virtual void OnEndOverlap()
+        {
+            
         }
     }
 }

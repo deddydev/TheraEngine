@@ -1,5 +1,4 @@
-﻿using CustomEngine.Files;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -57,8 +56,10 @@ namespace System
             _isLoading = false;
             _isLoaded = true;
         }
+        [Default]
         public string FilePath { get { return _filePath; } }
         public bool IsLoading { get { return _isLoading; } }
+        [State]
         public bool IsLoaded { get { return _isLoaded; } }
     }
 }

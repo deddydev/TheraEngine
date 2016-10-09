@@ -98,7 +98,9 @@
   <ItemGroup>
     <Compile Include="Cutscenes\Cutscene.cs" />
     <Compile Include="Engine\EngineSettings.cs" />
-    <Compile Include="Input\Gamepad\GamepadManager.cs" />
+    <Compile Include="Input\Gamepads\DXGamepadManager.cs" />
+    <Compile Include="Input\Gamepads\TKGamepadManager.cs" />
+    <Compile Include="Input\Gamepads\GamepadManager.cs" />
     <Compile Include="Particles\Emitter.cs" />
     <Compile Include="Particles\ParticleState.cs" />
     <Compile Include="Particles\Particle.cs" />
@@ -113,6 +115,8 @@
     <Compile Include="Rendering\Renderer\DisplayList.cs" />
     <Compile Include="Rendering\Renderer\Shader.cs" />
     <Compile Include="ResourceType.cs" />
+    <Compile Include="Sound\WaveFile.cs" />
+    <Compile Include="System\ComputerInfo.cs" />
     <Compile Include="System\Extensions\ArrayExtension.cs" />
     <Compile Include="System\Extensions\XmlExtension.cs" />
     <Compile Include="System\Math\Collision\Tracing.cs" />
@@ -125,6 +129,7 @@
     <Compile Include="System\Math\Transforms\Vector2.cs" />
     <Compile Include="System\Math\Transforms\Vector3.cs" />
     <Compile Include="System\Math\Transforms\Vector4.cs" />
+    <Compile Include="System\MonitoredList.cs" />
     <Compile Include="System\Platform\Linux.cs" />
     <Compile Include="System\Platform\OSX.cs" />
     <Compile Include="System\Platform\Win32.cs" />
@@ -132,11 +137,11 @@
     <Compile Include="System\Reflection\CustomPropertyCollection.cs" />
     <Compile Include="System\SaveableObject.cs" />
     <Compile Include="System\Time\GlobalTimer.cs" />
-    <Compile Include="System\Windows\Controls\RenderPanel.cs" />
-    <Compile Include="System\Windows\Forms\RenderForm.cs">
+    <Compile Include="System\RenderPanel.cs" />
+    <Compile Include="System\RenderForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="System\Windows\Forms\RenderForm.Designer.cs">
+    <Compile Include="System\RenderForm.Designer.cs">
       <DependentUpon>RenderForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Worlds\Actors\ActorState.cs" />
@@ -237,7 +242,7 @@
       <DependentUpon>Resources.resx</DependentUpon>
       <DesignTime>True</DesignTime>
     </Compile>
-    <EmbeddedResource Include="System\Windows\Forms\RenderForm.resx">
+    <EmbeddedResource Include="System\RenderForm.resx">
       <DependentUpon>RenderForm.cs</DependentUpon>
     </EmbeddedResource>
     <None Include="packages.config" />

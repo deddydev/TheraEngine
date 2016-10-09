@@ -4,13 +4,25 @@ using System.Xml.Serialization;
 
 namespace CustomEngine
 {
+    public enum EngineQuality
+    {
+        Lowest,
+        Low,
+        Medium,
+        High,
+        Highest
+    }
     [Serializable]
     public class EngineSettings
     {
         public string _transitionWorldPath;
         public string _openingWorldPath;
         public string _contentPath;
-
+        public EngineQuality _textureQuality;
+        public EngineQuality _modelQuality;
+        public EngineQuality _soundQuality;
+        public bool _vsync;
+        
         public void SaveXML(string path)
         {
             string directory = Path.GetDirectoryName(path);

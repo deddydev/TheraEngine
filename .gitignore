@@ -1,3 +1,5 @@
 Engine/obj/
 Engine/bin/
 *.manifest
+ipch/
+Libraries/fbx_d99936f11250/Backup/

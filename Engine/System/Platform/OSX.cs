@@ -16,7 +16,6 @@ namespace System
         [DllImport(libmName)]
         public static extern int munmap(VoidPtr addr, uint len);
 
-
         [Flags]
         public enum MMapProtect : int
         {

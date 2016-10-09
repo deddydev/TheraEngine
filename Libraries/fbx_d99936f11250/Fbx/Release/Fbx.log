@@ -1,0 +1,360 @@
+﻿C:\Program Files (x86)\MSBuild\Microsoft.Cpp\v4.0\V140\Microsoft.CppBuild.targets(392,5): warning MSB8028: The intermediate directory (Release\) contains files shared from another project (FbxSDK.vcxproj).  This can lead to incorrect clean and rebuild behavior.
+  Stdafx.cpp
+  AssemblyInfo.cpp
+AssemblyInfo.cpp(40): warning C4947: 'System::Security::Permissions::SecurityAction::RequestMinimum': marked as obsolete
+  AssemblyInfo.cpp(40): note: Message: 'Assembly level declarative security is obsolete and is no longer enforced by the CLR by default. See http://go.microsoft.com/fwlink/?LinkID=155570 for more information.'
+  FbxAccumulatorEntry.cpp
+x:\repositories\customengine\libraries\fbx_d99936f11250\fbx\FbxCreator.h(4): fatal error C1083: Cannot open include file: 'kfbxplugins/kfbxkfcurvefilters.h': No such file or directory
+  FbxAxisSystem.cpp
+x:\repositories\customengine\libraries\fbx_d99936f11250\fbx\FbxCreator.h(4): fatal error C1083: Cannot open include file: 'kfbxplugins/kfbxkfcurvefilters.h': No such file or directory
+  FbxBaseAllocator.cpp
+x:\repositories\customengine\libraries\fbx_d99936f11250\fbx\FbxCreator.h(4): fatal error C1083: Cannot open include file: 'kfbxplugins/kfbxkfcurvefilters.h': No such file or directory
+  FbxBindingTable.cpp
+x:\repositories\customengine\libraries\fbx_d99936f11250\fbx\FbxCreator.h(4): fatal error C1083: Cannot open include file: 'kfbxplugins/kfbxkfcurvefilters.h': No such file or directory
+  FbxBindingTableBase.cpp
+x:\repositories\customengine\libraries\fbx_d99936f11250\fbx\FbxCreator.h(4): fatal error C1083: Cannot open include file: 'kfbxplugins/kfbxkfcurvefilters.h': No such file or directory
+  FbxBindingTableEntry.cpp
+x:\repositories\customengine\libraries\fbx_d99936f11250\fbx\FbxCreator.h(4): fatal error C1083: Cannot open include file: 'kfbxplugins/kfbxkfcurvefilters.h': No such file or directory
+  FbxBoundary.cpp
+x:\repositories\customengine\libraries\fbx_d99936f11250\fbx\FbxCreator.h(4): fatal error C1083: Cannot open include file: 'kfbxplugins/kfbxkfcurvefilters.h': No such file or directory
+  FbxCache.cpp
+x:\repositories\customengine\libraries\fbx_d99936f11250\fbx\FbxCreator.h(4): fatal error C1083: Cannot open include file: 'kfbxplugins/kfbxkfcurvefilters.h': No such file or directory
+  FbxCamera.cpp
+x:\repositories\customengine\libraries\fbx_d99936f11250\fbx\FbxCreator.h(4): fatal error C1083: Cannot open include file: 'kfbxplugins/kfbxkfcurvefilters.h': No such file or directory
+  FbxCameraManipulator.cpp
+x:\repositories\customengine\libraries\fbx_d99936f11250\fbx\FbxCreator.h(4): fatal error C1083: Cannot open include file: 'kfbxplugins/kfbxkfcurvefilters.h': No such file or directory
+  FbxCameraSwitcher.cpp
+x:\repositories\customengine\libraries\fbx_d99936f11250\fbx\FbxCreator.h(4): fatal error C1083: Cannot open include file: 'kfbxplugins/kfbxkfcurvefilters.h': No such file or directory
+  FbxCharacter.cpp
+x:\repositories\customengine\libraries\fbx_d99936f11250\fbx\FbxCreator.h(4): fatal error C1083: Cannot open include file: 'kfbxplugins/kfbxkfcurvefilters.h': No such file or directory
+  FbxCharacterPose.cpp
+x:\repositories\customengine\libraries\fbx_d99936f11250\fbx\FbxCreator.h(4): fatal error C1083: Cannot open include file: 'kfbxplugins/kfbxkfcurvefilters.h': No such file or directory
+  FbxCharPtrSet.cpp
+x:\repositories\customengine\libraries\fbx_d99936f11250\fbx\FbxCreator.h(4): fatal error C1083: Cannot open include file: 'kfbxplugins/kfbxkfcurvefilters.h': No such file or directory
+  FbxClassId.cpp
+x:\repositories\customengine\libraries\fbx_d99936f11250\fbx\FbxCreator.h(4): fatal error C1083: Cannot open include file: 'kfbxplugins/kfbxkfcurvefilters.h': No such file or directory
+  FbxCloneManager.cpp
+x:\repositories\customengine\libraries\fbx_d99936f11250\fbx\FbxCreator.h(4): fatal error C1083: Cannot open include file: 'kfbxplugins/kfbxkfcurvefilters.h': No such file or directory
+  FbxCluster.cpp
+x:\repositories\customengine\libraries\fbx_d99936f11250\fbx\FbxCreator.h(4): fatal error C1083: Cannot open include file: 'kfbxplugins/kfbxkfcurvefilters.h': No such file or directory
+  FbxCollection.cpp
+x:\repositories\customengine\libraries\fbx_d99936f11250\fbx\FbxCreator.h(4): fatal error C1083: Cannot open include file: 'kfbxplugins/kfbxkfcurvefilters.h': No such file or directory
+  FbxColor.cpp
+x:\repositories\customengine\libraries\fbx_d99936f11250\fbx\FbxCreator.h(4): fatal error C1083: Cannot open include file: 'kfbxplugins/kfbxkfcurvefilters.h': No such file or directory
+  Generating Code...
+  Compiling...
+  FbxConstraint.cpp
+x:\repositories\customengine\libraries\fbx_d99936f11250\fbx\FbxCreator.h(4): fatal error C1083: Cannot open include file: 'kfbxplugins/kfbxkfcurvefilters.h': No such file or directory
+  FbxConstraintAim.cpp
+x:\repositories\customengine\libraries\fbx_d99936f11250\fbx\FbxCreator.h(4): fatal error C1083: Cannot open include file: 'kfbxplugins/kfbxkfcurvefilters.h': No such file or directory
+  FbxConstraintParent.cpp
+x:\repositories\customengine\libraries\fbx_d99936f11250\fbx\FbxCreator.h(4): fatal error C1083: Cannot open include file: 'kfbxplugins/kfbxkfcurvefilters.h': No such file or directory
+  FbxConstraintPosition.cpp
+x:\repositories\customengine\libraries\fbx_d99936f11250\fbx\FbxCreator.h(4): fatal error C1083: Cannot open include file: 'kfbxplugins/kfbxkfcurvefilters.h': No such file or directory
+  FbxConstraintRotation.cpp
+x:\repositories\customengine\libraries\fbx_d99936f11250\fbx\FbxCreator.h(4): fatal error C1083: Cannot open include file: 'kfbxplugins/kfbxkfcurvefilters.h': No such file or directory
+  FbxConstraintScale.cpp
+x:\repositories\customengine\libraries\fbx_d99936f11250\fbx\FbxCreator.h(4): fatal error C1083: Cannot open include file: 'kfbxplugins/kfbxkfcurvefilters.h': No such file or directory
+  FbxConstraintSingleChainIK.cpp
+x:\repositories\customengine\libraries\fbx_d99936f11250\fbx\FbxCreator.h(4): fatal error C1083: Cannot open include file: 'kfbxplugins/kfbxkfcurvefilters.h': No such file or directory
+  FbxControlSet.cpp
+x:\repositories\customengine\libraries\fbx_d99936f11250\fbx\FbxCreator.h(4): fatal error C1083: Cannot open include file: 'kfbxplugins/kfbxkfcurvefilters.h': No such file or directory
+  FbxCreator.cpp
+x:\repositories\customengine\libraries\fbx_d99936f11250\fbx\FbxCreator.h(4): fatal error C1083: Cannot open include file: 'kfbxplugins/kfbxkfcurvefilters.h': No such file or directory
+  FbxCurve.cpp
+x:\repositories\customengine\libraries\fbx_d99936f11250\fbx\FbxCreator.h(4): fatal error C1083: Cannot open include file: 'kfbxplugins/kfbxkfcurvefilters.h': No such file or directory
+  FbxCurveFilters.cpp
+x:\repositories\customengine\libraries\fbx_d99936f11250\fbx\FbxCreator.h(4): fatal error C1083: Cannot open include file: 'kfbxplugins/kfbxkfcurvefilters.h': No such file or directory
+  FbxCurveNode.cpp
+x:\repositories\customengine\libraries\fbx_d99936f11250\fbx\FbxCreator.h(4): fatal error C1083: Cannot open include file: 'kfbxplugins/kfbxkfcurvefilters.h': No such file or directory
+  FbxCurveUtils.cpp
+x:\repositories\customengine\libraries\fbx_d99936f11250\fbx\FbxCreator.h(4): fatal error C1083: Cannot open include file: 'kfbxplugins/kfbxkfcurvefilters.h': No such file or directory
+  FbxDataType.cpp
+x:\repositories\customengine\libraries\fbx_d99936f11250\fbx\FbxCreator.h(4): fatal error C1083: Cannot open include file: 'kfbxplugins/kfbxkfcurvefilters.h': No such file or directory
+  FbxDeformer.cpp
+x:\repositories\customengine\libraries\fbx_d99936f11250\fbx\FbxCreator.h(4): fatal error C1083: Cannot open include file: 'kfbxplugins/kfbxkfcurvefilters.h': No such file or directory
+  FbxDocument.cpp
+x:\repositories\customengine\libraries\fbx_d99936f11250\fbx\FbxCreator.h(4): fatal error C1083: Cannot open include file: 'kfbxplugins/kfbxkfcurvefilters.h': No such file or directory
+  FbxDocumentInfo.cpp
+x:\repositories\customengine\libraries\fbx_d99936f11250\fbx\FbxCreator.h(4): fatal error C1083: Cannot open include file: 'kfbxplugins/kfbxkfcurvefilters.h': No such file or directory
+  FbxDouble1.cpp
+x:\repositories\customengine\libraries\fbx_d99936f11250\fbx\FbxCreator.h(4): fatal error C1083: Cannot open include file: 'kfbxplugins/kfbxkfcurvefilters.h': No such file or directory
+  FbxDouble2.cpp
+x:\repositories\customengine\libraries\fbx_d99936f11250\fbx\FbxCreator.h(4): fatal error C1083: Cannot open include file: 'kfbxplugins/kfbxkfcurvefilters.h': No such file or directory
+  FbxDouble3.cpp
+x:\repositories\customengine\libraries\fbx_d99936f11250\fbx\FbxCreator.h(4): fatal error C1083: Cannot open include file: 'kfbxplugins/kfbxkfcurvefilters.h': No such file or directory
+  Generating Code...
+  Compiling...
+  FbxDouble4.cpp
+x:\repositories\customengine\libraries\fbx_d99936f11250\fbx\FbxCreator.h(4): fatal error C1083: Cannot open include file: 'kfbxplugins/kfbxkfcurvefilters.h': No such file or directory
+  FbxEmitter.cpp
+x:\repositories\customengine\libraries\fbx_d99936f11250\fbx\FbxCreator.h(4): fatal error C1083: Cannot open include file: 'kfbxplugins/kfbxkfcurvefilters.h': No such file or directory
+  FbxEqualityComparer.cpp
+x:\repositories\customengine\libraries\fbx_d99936f11250\fbx\FbxCreator.h(4): fatal error C1083: Cannot open include file: 'kfbxplugins/kfbxkfcurvefilters.h': No such file or directory
+  FbxError.cpp
+x:\repositories\customengine\libraries\fbx_d99936f11250\fbx\FbxCreator.h(4): fatal error C1083: Cannot open include file: 'kfbxplugins/kfbxkfcurvefilters.h': No such file or directory
+  FbxEvaluationInfo.cpp
+x:\repositories\customengine\libraries\fbx_d99936f11250\fbx\FbxCreator.h(4): fatal error C1083: Cannot open include file: 'kfbxplugins/kfbxkfcurvefilters.h': No such file or directory
+  FbxEventBase.cpp
+x:\repositories\customengine\libraries\fbx_d99936f11250\fbx\FbxCreator.h(4): fatal error C1083: Cannot open include file: 'kfbxplugins/kfbxkfcurvefilters.h': No such file or directory
+  FbxEventHandler.cpp
+x:\repositories\customengine\libraries\fbx_d99936f11250\fbx\FbxCreator.h(4): fatal error C1083: Cannot open include file: 'kfbxplugins/kfbxkfcurvefilters.h': No such file or directory
+  FbxExporter.cpp
+x:\repositories\customengine\libraries\fbx_d99936f11250\fbx\FbxCreator.h(4): fatal error C1083: Cannot open include file: 'kfbxplugins/kfbxkfcurvefilters.h': No such file or directory
+  FbxGenericNode.cpp
+x:\repositories\customengine\libraries\fbx_d99936f11250\fbx\FbxCreator.h(4): fatal error C1083: Cannot open include file: 'kfbxplugins/kfbxkfcurvefilters.h': No such file or directory
+  FbxGeometry.cpp
+x:\repositories\customengine\libraries\fbx_d99936f11250\fbx\FbxCreator.h(4): fatal error C1083: Cannot open include file: 'kfbxplugins/kfbxkfcurvefilters.h': No such file or directory
+  FbxGeometryBase.cpp
+x:\repositories\customengine\libraries\fbx_d99936f11250\fbx\FbxCreator.h(4): fatal error C1083: Cannot open include file: 'kfbxplugins/kfbxkfcurvefilters.h': No such file or directory
+  FbxGeometryConverter.cpp
+x:\repositories\customengine\libraries\fbx_d99936f11250\fbx\FbxCreator.h(4): fatal error C1083: Cannot open include file: 'kfbxplugins/kfbxkfcurvefilters.h': No such file or directory
+  FbxGeometryWeightedMap.cpp
+x:\repositories\customengine\libraries\fbx_d99936f11250\fbx\FbxCreator.h(4): fatal error C1083: Cannot open include file: 'kfbxplugins/kfbxkfcurvefilters.h': No such file or directory
+  FbxGlobalCameraSettings.cpp
+x:\repositories\customengine\libraries\fbx_d99936f11250\fbx\FbxCreator.h(4): fatal error C1083: Cannot open include file: 'kfbxplugins/kfbxkfcurvefilters.h': No such file or directory
+  FbxGlobalLightSettings.cpp
+x:\repositories\customengine\libraries\fbx_d99936f11250\fbx\FbxCreator.h(4): fatal error C1083: Cannot open include file: 'kfbxplugins/kfbxkfcurvefilters.h': No such file or directory
+  FbxGlobalSettings.cpp
+x:\repositories\customengine\libraries\fbx_d99936f11250\fbx\FbxCreator.h(4): fatal error C1083: Cannot open include file: 'kfbxplugins/kfbxkfcurvefilters.h': No such file or directory
+  FbxGlobalTimeSettings.cpp
+x:\repositories\customengine\libraries\fbx_d99936f11250\fbx\FbxCreator.h(4): fatal error C1083: Cannot open include file: 'kfbxplugins/kfbxkfcurvefilters.h': No such file or directory
+  FbxImporter.cpp
+x:\repositories\customengine\libraries\fbx_d99936f11250\fbx\FbxCreator.h(4): fatal error C1083: Cannot open include file: 'kfbxplugins/kfbxkfcurvefilters.h': No such file or directory
+  FbxIO.cpp
+x:\repositories\customengine\libraries\fbx_d99936f11250\fbx\FbxCreator.h(4): fatal error C1083: Cannot open include file: 'kfbxplugins/kfbxkfcurvefilters.h': No such file or directory
+  FbxIOPluginRegistry.cpp
+x:\repositories\customengine\libraries\fbx_d99936f11250\fbx\FbxCreator.h(4): fatal error C1083: Cannot open include file: 'kfbxplugins/kfbxkfcurvefilters.h': No such file or directory
+  Generating Code...
+  Compiling...
+  FbxIOSettings.cpp
+x:\repositories\customengine\libraries\fbx_d99936f11250\fbx\FbxCreator.h(4): fatal error C1083: Cannot open include file: 'kfbxplugins/kfbxkfcurvefilters.h': No such file or directory
+  FbxKEventBase.cpp
+x:\repositories\customengine\libraries\fbx_d99936f11250\fbx\FbxCreator.h(4): fatal error C1083: Cannot open include file: 'kfbxplugins/kfbxkfcurvefilters.h': No such file or directory
+  FbxKRenamingStrategy.cpp
+x:\repositories\customengine\libraries\fbx_d99936f11250\fbx\FbxCreator.h(4): fatal error C1083: Cannot open include file: 'kfbxplugins/kfbxkfcurvefilters.h': No such file or directory
+  FbxLayer.cpp
+x:\repositories\customengine\libraries\fbx_d99936f11250\fbx\FbxCreator.h(4): fatal error C1083: Cannot open include file: 'kfbxplugins/kfbxkfcurvefilters.h': No such file or directory
+  FbxLayerContainer.cpp
+x:\repositories\customengine\libraries\fbx_d99936f11250\fbx\FbxCreator.h(4): fatal error C1083: Cannot open include file: 'kfbxplugins/kfbxkfcurvefilters.h': No such file or directory
+  FbxLayeredTexture.cpp
+x:\repositories\customengine\libraries\fbx_d99936f11250\fbx\FbxCreator.h(4): fatal error C1083: Cannot open include file: 'kfbxplugins/kfbxkfcurvefilters.h': No such file or directory
+  FbxLayerElement.cpp
+x:\repositories\customengine\libraries\fbx_d99936f11250\fbx\FbxCreator.h(4): fatal error C1083: Cannot open include file: 'kfbxplugins/kfbxkfcurvefilters.h': No such file or directory
+  FbxLayerElementArray.cpp
+x:\repositories\customengine\libraries\fbx_d99936f11250\fbx\FbxCreator.h(4): fatal error C1083: Cannot open include file: 'kfbxplugins/kfbxkfcurvefilters.h': No such file or directory
+  FbxLayerElementArrayTemplateBool.cpp
+x:\repositories\customengine\libraries\fbx_d99936f11250\fbx\FbxCreator.h(4): fatal error C1083: Cannot open include file: 'kfbxplugins/kfbxkfcurvefilters.h': No such file or directory
+  FbxLayerElementArrayTemplateColor.cpp
+x:\repositories\customengine\libraries\fbx_d99936f11250\fbx\FbxCreator.h(4): fatal error C1083: Cannot open include file: 'kfbxplugins/kfbxkfcurvefilters.h': No such file or directory
+  FbxLayerElementArrayTemplateInt32.cpp
+x:\repositories\customengine\libraries\fbx_d99936f11250\fbx\FbxCreator.h(4): fatal error C1083: Cannot open include file: 'kfbxplugins/kfbxkfcurvefilters.h': No such file or directory
+  FbxLayerElementArrayTemplateSurfaceMaterial.cpp
+x:\repositories\customengine\libraries\fbx_d99936f11250\fbx\FbxCreator.h(4): fatal error C1083: Cannot open include file: 'kfbxplugins/kfbxkfcurvefilters.h': No such file or directory
+  FbxLayerElementArrayTemplateTexture.cpp
+x:\repositories\customengine\libraries\fbx_d99936f11250\fbx\FbxCreator.h(4): fatal error C1083: Cannot open include file: 'kfbxplugins/kfbxkfcurvefilters.h': No such file or directory
+  FbxLayerElementArrayTemplateVector2.cpp
+x:\repositories\customengine\libraries\fbx_d99936f11250\fbx\FbxCreator.h(4): fatal error C1083: Cannot open include file: 'kfbxplugins/kfbxkfcurvefilters.h': No such file or directory
+  FbxLayerElementArrayTemplateVector4.cpp
+x:\repositories\customengine\libraries\fbx_d99936f11250\fbx\FbxCreator.h(4): fatal error C1083: Cannot open include file: 'kfbxplugins/kfbxkfcurvefilters.h': No such file or directory
+  FbxLayerElementMaterial.cpp
+x:\repositories\customengine\libraries\fbx_d99936f11250\fbx\FbxCreator.h(4): fatal error C1083: Cannot open include file: 'kfbxplugins/kfbxkfcurvefilters.h': No such file or directory
+  FbxLayerElementNormal.cpp
+x:\repositories\customengine\libraries\fbx_d99936f11250\fbx\FbxCreator.h(4): fatal error C1083: Cannot open include file: 'kfbxplugins/kfbxkfcurvefilters.h': No such file or directory
+  FbxLayerElementPolygonGroup.cpp
+x:\repositories\customengine\libraries\fbx_d99936f11250\fbx\FbxCreator.h(4): fatal error C1083: Cannot open include file: 'kfbxplugins/kfbxkfcurvefilters.h': No such file or directory
+  FbxLayerElementSmoothing.cpp
+x:\repositories\customengine\libraries\fbx_d99936f11250\fbx\FbxCreator.h(4): fatal error C1083: Cannot open include file: 'kfbxplugins/kfbxkfcurvefilters.h': No such file or directory
+  FbxLayerElementTemplateBool.cpp
+x:\repositories\customengine\libraries\fbx_d99936f11250\fbx\FbxCreator.h(4): fatal error C1083: Cannot open include file: 'kfbxplugins/kfbxkfcurvefilters.h': No such file or directory
+  Generating Code...
+  Compiling...
+  FbxLayerElementTemplateColor.cpp
+x:\repositories\customengine\libraries\fbx_d99936f11250\fbx\FbxCreator.h(4): fatal error C1083: Cannot open include file: 'kfbxplugins/kfbxkfcurvefilters.h': No such file or directory
+  FbxLayerElementTemplateInt32.cpp
+x:\repositories\customengine\libraries\fbx_d99936f11250\fbx\FbxCreator.h(4): fatal error C1083: Cannot open include file: 'kfbxplugins/kfbxkfcurvefilters.h': No such file or directory
+  FbxLayerElementTemplateSurfaceMaterial.cpp
+x:\repositories\customengine\libraries\fbx_d99936f11250\fbx\FbxCreator.h(4): fatal error C1083: Cannot open include file: 'kfbxplugins/kfbxkfcurvefilters.h': No such file or directory
+  FbxLayerElementTemplateTexture.cpp
+x:\repositories\customengine\libraries\fbx_d99936f11250\fbx\FbxCreator.h(4): fatal error C1083: Cannot open include file: 'kfbxplugins/kfbxkfcurvefilters.h': No such file or directory
+  FbxLayerElementTemplateVector2.cpp
+x:\repositories\customengine\libraries\fbx_d99936f11250\fbx\FbxCreator.h(4): fatal error C1083: Cannot open include file: 'kfbxplugins/kfbxkfcurvefilters.h': No such file or directory
+  FbxLayerElementTemplateVector4.cpp
+x:\repositories\customengine\libraries\fbx_d99936f11250\fbx\FbxCreator.h(4): fatal error C1083: Cannot open include file: 'kfbxplugins/kfbxkfcurvefilters.h': No such file or directory
+  FbxLayerElementTexture.cpp
+x:\repositories\customengine\libraries\fbx_d99936f11250\fbx\FbxCreator.h(4): fatal error C1083: Cannot open include file: 'kfbxplugins/kfbxkfcurvefilters.h': No such file or directory
+  FbxLayerElementUserData.cpp
+x:\repositories\customengine\libraries\fbx_d99936f11250\fbx\FbxCreator.h(4): fatal error C1083: Cannot open include file: 'kfbxplugins/kfbxkfcurvefilters.h': No such file or directory
+  FbxLayerElementUV.cpp
+x:\repositories\customengine\libraries\fbx_d99936f11250\fbx\FbxCreator.h(4): fatal error C1083: Cannot open include file: 'kfbxplugins/kfbxkfcurvefilters.h': No such file or directory
+  FbxLayerElementVertexColor.cpp
+x:\repositories\customengine\libraries\fbx_d99936f11250\fbx\FbxCreator.h(4): fatal error C1083: Cannot open include file: 'kfbxplugins/kfbxkfcurvefilters.h': No such file or directory
+  FbxLayerElementVisibility.cpp
+x:\repositories\customengine\libraries\fbx_d99936f11250\fbx\FbxCreator.h(4): fatal error C1083: Cannot open include file: 'kfbxplugins/kfbxkfcurvefilters.h': No such file or directory
+  FbxLayerInfoRefArray.cpp
+x:\repositories\customengine\libraries\fbx_d99936f11250\fbx\FbxCreator.h(4): fatal error C1083: Cannot open include file: 'kfbxplugins/kfbxkfcurvefilters.h': No such file or directory
+  FbxLibrary.cpp
+x:\repositories\customengine\libraries\fbx_d99936f11250\fbx\FbxCreator.h(4): fatal error C1083: Cannot open include file: 'kfbxplugins/kfbxkfcurvefilters.h': No such file or directory
+  FbxLight.cpp
+x:\repositories\customengine\libraries\fbx_d99936f11250\fbx\FbxCreator.h(4): fatal error C1083: Cannot open include file: 'kfbxplugins/kfbxkfcurvefilters.h': No such file or directory
+  FbxLimits.cpp
+x:\repositories\customengine\libraries\fbx_d99936f11250\fbx\FbxCreator.h(4): fatal error C1083: Cannot open include file: 'kfbxplugins/kfbxkfcurvefilters.h': No such file or directory
+  FbxLimitsUtilities.cpp
+x:\repositories\customengine\libraries\fbx_d99936f11250\fbx\FbxCreator.h(4): fatal error C1083: Cannot open include file: 'kfbxplugins/kfbxkfcurvefilters.h': No such file or directory
+  FbxListener.cpp
+x:\repositories\customengine\libraries\fbx_d99936f11250\fbx\FbxCreator.h(4): fatal error C1083: Cannot open include file: 'kfbxplugins/kfbxkfcurvefilters.h': No such file or directory
+  FbxMarker.cpp
+x:\repositories\customengine\libraries\fbx_d99936f11250\fbx\FbxCreator.h(4): fatal error C1083: Cannot open include file: 'kfbxplugins/kfbxkfcurvefilters.h': No such file or directory
+  FbxMatrix.cpp
+x:\repositories\customengine\libraries\fbx_d99936f11250\fbx\FbxCreator.h(4): fatal error C1083: Cannot open include file: 'kfbxplugins/kfbxkfcurvefilters.h': No such file or directory
+  FbxMemoryAllocator.cpp
+x:\repositories\customengine\libraries\fbx_d99936f11250\fbx\FbxCreator.h(4): fatal error C1083: Cannot open include file: 'kfbxplugins/kfbxkfcurvefilters.h': No such file or directory
+  Generating Code...
+  Compiling...
+  FbxMesh.cpp
+x:\repositories\customengine\libraries\fbx_d99936f11250\fbx\FbxCreator.h(4): fatal error C1083: Cannot open include file: 'kfbxplugins/kfbxkfcurvefilters.h': No such file or directory
+  FbxMutex.cpp
+x:\repositories\customengine\libraries\fbx_d99936f11250\fbx\FbxCreator.h(4): fatal error C1083: Cannot open include file: 'kfbxplugins/kfbxkfcurvefilters.h': No such file or directory
+  FbxName.cpp
+x:\repositories\customengine\libraries\fbx_d99936f11250\fbx\FbxCreator.h(4): fatal error C1083: Cannot open include file: 'kfbxplugins/kfbxkfcurvefilters.h': No such file or directory
+  FbxNode.cpp
+x:\repositories\customengine\libraries\fbx_d99936f11250\fbx\FbxCreator.h(4): fatal error C1083: Cannot open include file: 'kfbxplugins/kfbxkfcurvefilters.h': No such file or directory
+  FbxNodeAttribute.cpp
+x:\repositories\customengine\libraries\fbx_d99936f11250\fbx\FbxCreator.h(4): fatal error C1083: Cannot open include file: 'kfbxplugins/kfbxkfcurvefilters.h': No such file or directory
+  FbxNodeFinder.cpp
+x:\repositories\customengine\libraries\fbx_d99936f11250\fbx\FbxCreator.h(4): fatal error C1083: Cannot open include file: 'kfbxplugins/kfbxkfcurvefilters.h': No such file or directory
+  FbxNodeFinderDuplicateName.cpp
+x:\repositories\customengine\libraries\fbx_d99936f11250\fbx\FbxCreator.h(4): fatal error C1083: Cannot open include file: 'kfbxplugins/kfbxkfcurvefilters.h': No such file or directory
+  FbxNodeIterator.cpp
+x:\repositories\customengine\libraries\fbx_d99936f11250\fbx\FbxCreator.h(4): fatal error C1083: Cannot open include file: 'kfbxplugins/kfbxkfcurvefilters.h': No such file or directory
+  FbxNull.cpp
+x:\repositories\customengine\libraries\fbx_d99936f11250\fbx\FbxCreator.h(4): fatal error C1083: Cannot open include file: 'kfbxplugins/kfbxkfcurvefilters.h': No such file or directory
+  FbxNurb.cpp
+x:\repositories\customengine\libraries\fbx_d99936f11250\fbx\FbxCreator.h(4): fatal error C1083: Cannot open include file: 'kfbxplugins/kfbxkfcurvefilters.h': No such file or directory
+  FbxNurbsCurve.cpp
+x:\repositories\customengine\libraries\fbx_d99936f11250\fbx\FbxCreator.h(4): fatal error C1083: Cannot open include file: 'kfbxplugins/kfbxkfcurvefilters.h': No such file or directory
+  FbxNurbsSurface.cpp
+x:\repositories\customengine\libraries\fbx_d99936f11250\fbx\FbxCreator.h(4): fatal error C1083: Cannot open include file: 'kfbxplugins/kfbxkfcurvefilters.h': No such file or directory
+  FbxObject.cpp
+x:\repositories\customengine\libraries\fbx_d99936f11250\fbx\FbxCreator.h(4): fatal error C1083: Cannot open include file: 'kfbxplugins/kfbxkfcurvefilters.h': No such file or directory
+  FbxObjectFilter.cpp
+x:\repositories\customengine\libraries\fbx_d99936f11250\fbx\FbxCreator.h(4): fatal error C1083: Cannot open include file: 'kfbxplugins/kfbxkfcurvefilters.h': No such file or directory
+  FbxObjectMetaData.cpp
+x:\repositories\customengine\libraries\fbx_d99936f11250\fbx\FbxCreator.h(4): fatal error C1083: Cannot open include file: 'kfbxplugins/kfbxkfcurvefilters.h': No such file or directory
+  FbxOpticalReference.cpp
+x:\repositories\customengine\libraries\fbx_d99936f11250\fbx\FbxCreator.h(4): fatal error C1083: Cannot open include file: 'kfbxplugins/kfbxkfcurvefilters.h': No such file or directory
+  FbxPatch.cpp
+x:\repositories\customengine\libraries\fbx_d99936f11250\fbx\FbxCreator.h(4): fatal error C1083: Cannot open include file: 'kfbxplugins/kfbxkfcurvefilters.h': No such file or directory
+  FbxPeripheral.cpp
+x:\repositories\customengine\libraries\fbx_d99936f11250\fbx\FbxCreator.h(4): fatal error C1083: Cannot open include file: 'kfbxplugins/kfbxkfcurvefilters.h': No such file or directory
+  FbxPlug.cpp
+x:\repositories\customengine\libraries\fbx_d99936f11250\fbx\FbxCreator.h(4): fatal error C1083: Cannot open include file: 'kfbxplugins/kfbxkfcurvefilters.h': No such file or directory
+  FbxPose.cpp
+x:\repositories\customengine\libraries\fbx_d99936f11250\fbx\FbxCreator.h(4): fatal error C1083: Cannot open include file: 'kfbxplugins/kfbxkfcurvefilters.h': No such file or directory
+  Generating Code...
+  Compiling...
+  FbxProceduralGeometry.cpp
+x:\repositories\customengine\libraries\fbx_d99936f11250\fbx\FbxCreator.h(4): fatal error C1083: Cannot open include file: 'kfbxplugins/kfbxkfcurvefilters.h': No such file or directory
+  FbxProductInfo.cpp
+x:\repositories\customengine\libraries\fbx_d99936f11250\fbx\FbxCreator.h(4): fatal error C1083: Cannot open include file: 'kfbxplugins/kfbxkfcurvefilters.h': No such file or directory
+  FbxProperty.cpp
+x:\repositories\customengine\libraries\fbx_d99936f11250\fbx\FbxCreator.h(4): fatal error C1083: Cannot open include file: 'kfbxplugins/kfbxkfcurvefilters.h': No such file or directory
+  FbxPropertydef.cpp
+x:\repositories\customengine\libraries\fbx_d99936f11250\fbx\FbxCreator.h(4): fatal error C1083: Cannot open include file: 'kfbxplugins/kfbxkfcurvefilters.h': No such file or directory
+  FbxPropertyHandle.cpp
+x:\repositories\customengine\libraries\fbx_d99936f11250\fbx\FbxCreator.h(4): fatal error C1083: Cannot open include file: 'kfbxplugins/kfbxkfcurvefilters.h': No such file or directory
+  FbxQuaternion.cpp
+x:\repositories\customengine\libraries\fbx_d99936f11250\fbx\FbxCreator.h(4): fatal error C1083: Cannot open include file: 'kfbxplugins/kfbxkfcurvefilters.h': No such file or directory
+  FbxQuery.cpp
+x:\repositories\customengine\libraries\fbx_d99936f11250\fbx\FbxCreator.h(4): fatal error C1083: Cannot open include file: 'kfbxplugins/kfbxkfcurvefilters.h': No such file or directory
+  FbxReader.cpp
+x:\repositories\customengine\libraries\fbx_d99936f11250\fbx\FbxCreator.h(4): fatal error C1083: Cannot open include file: 'kfbxplugins/kfbxkfcurvefilters.h': No such file or directory
+  FbxRenamingStrategy.cpp
+x:\repositories\customengine\libraries\fbx_d99936f11250\fbx\FbxCreator.h(4): fatal error C1083: Cannot open include file: 'kfbxplugins/kfbxkfcurvefilters.h': No such file or directory
+  FbxRootNodeUtility.cpp
+x:\repositories\customengine\libraries\fbx_d99936f11250\fbx\FbxCreator.h(4): fatal error C1083: Cannot open include file: 'kfbxplugins/kfbxkfcurvefilters.h': No such file or directory
+  FbxScene.cpp
+x:\repositories\customengine\libraries\fbx_d99936f11250\fbx\FbxCreator.h(4): fatal error C1083: Cannot open include file: 'kfbxplugins/kfbxkfcurvefilters.h': No such file or directory
+  FbxSdkManager.cpp
+x:\repositories\customengine\libraries\fbx_d99936f11250\fbx\FbxCreator.h(4): fatal error C1083: Cannot open include file: 'kfbxplugins/kfbxkfcurvefilters.h': No such file or directory
+  FbxSet.cpp
+x:\repositories\customengine\libraries\fbx_d99936f11250\fbx\FbxCreator.h(4): fatal error C1083: Cannot open include file: 'kfbxplugins/kfbxkfcurvefilters.h': No such file or directory
+  FbxShadingNode.cpp
+x:\repositories\customengine\libraries\fbx_d99936f11250\fbx\FbxCreator.h(4): fatal error C1083: Cannot open include file: 'kfbxplugins/kfbxkfcurvefilters.h': No such file or directory
+  FbxShadingObject.cpp
+x:\repositories\customengine\libraries\fbx_d99936f11250\fbx\FbxCreator.h(4): fatal error C1083: Cannot open include file: 'kfbxplugins/kfbxkfcurvefilters.h': No such file or directory
+  FbxShape.cpp
+x:\repositories\customengine\libraries\fbx_d99936f11250\fbx\FbxCreator.h(4): fatal error C1083: Cannot open include file: 'kfbxplugins/kfbxkfcurvefilters.h': No such file or directory
+  FbxSkeleton.cpp
+x:\repositories\customengine\libraries\fbx_d99936f11250\fbx\FbxCreator.h(4): fatal error C1083: Cannot open include file: 'kfbxplugins/kfbxkfcurvefilters.h': No such file or directory
+  FbxSkin.cpp
+x:\repositories\customengine\libraries\fbx_d99936f11250\fbx\FbxCreator.h(4): fatal error C1083: Cannot open include file: 'kfbxplugins/kfbxkfcurvefilters.h': No such file or directory
+  FbxStatics.cpp
+x:\repositories\customengine\libraries\fbx_d99936f11250\fbx\FbxCreator.h(4): fatal error C1083: Cannot open include file: 'kfbxplugins/kfbxkfcurvefilters.h': No such file or directory
+  FbxStream.cpp
+x:\repositories\customengine\libraries\fbx_d99936f11250\fbx\FbxCreator.h(4): fatal error C1083: Cannot open include file: 'kfbxplugins/kfbxkfcurvefilters.h': No such file or directory
+  Generating Code...
+  Compiling...
+  FbxStreamOptions.cpp
+x:\repositories\customengine\libraries\fbx_d99936f11250\fbx\FbxCreator.h(4): fatal error C1083: Cannot open include file: 'kfbxplugins/kfbxkfcurvefilters.h': No such file or directory
+  FbxStreamOptions3ds.cpp
+x:\repositories\customengine\libraries\fbx_d99936f11250\fbx\FbxCreator.h(4): fatal error C1083: Cannot open include file: 'kfbxplugins/kfbxkfcurvefilters.h': No such file or directory
+  FbxStreamOptionsCollada.cpp
+x:\repositories\customengine\libraries\fbx_d99936f11250\fbx\FbxCreator.h(4): fatal error C1083: Cannot open include file: 'kfbxplugins/kfbxkfcurvefilters.h': No such file or directory
+  FbxStreamOptionsDxf.cpp
+x:\repositories\customengine\libraries\fbx_d99936f11250\fbx\FbxCreator.h(4): fatal error C1083: Cannot open include file: 'kfbxplugins/kfbxkfcurvefilters.h': No such file or directory
+  FbxStreamOptionsFbx.cpp
+x:\repositories\customengine\libraries\fbx_d99936f11250\fbx\FbxCreator.h(4): fatal error C1083: Cannot open include file: 'kfbxplugins/kfbxkfcurvefilters.h': No such file or directory
+  FbxStreamOptionsObj.cpp
+x:\repositories\customengine\libraries\fbx_d99936f11250\fbx\FbxCreator.h(4): fatal error C1083: Cannot open include file: 'kfbxplugins/kfbxkfcurvefilters.h': No such file or directory
+  FbxString.cpp
+x:\repositories\customengine\libraries\fbx_d99936f11250\fbx\FbxCreator.h(4): fatal error C1083: Cannot open include file: 'kfbxplugins/kfbxkfcurvefilters.h': No such file or directory
+  FbxStringRefArray.cpp
+x:\repositories\customengine\libraries\fbx_d99936f11250\fbx\FbxCreator.h(4): fatal error C1083: Cannot open include file: 'kfbxplugins/kfbxkfcurvefilters.h': No such file or directory
+  FbxSubDeformer.cpp
+x:\repositories\customengine\libraries\fbx_d99936f11250\fbx\FbxCreator.h(4): fatal error C1083: Cannot open include file: 'kfbxplugins/kfbxkfcurvefilters.h': No such file or directory
+  FbxSurfaceEvaluator.cpp
+x:\repositories\customengine\libraries\fbx_d99936f11250\fbx\FbxCreator.h(4): fatal error C1083: Cannot open include file: 'kfbxplugins/kfbxkfcurvefilters.h': No such file or directory
+  FbxSurfaceLambert.cpp
+x:\repositories\customengine\libraries\fbx_d99936f11250\fbx\FbxCreator.h(4): fatal error C1083: Cannot open include file: 'kfbxplugins/kfbxkfcurvefilters.h': No such file or directory
+  FbxSurfaceMaterial.cpp
+x:\repositories\customengine\libraries\fbx_d99936f11250\fbx\FbxCreator.h(4): fatal error C1083: Cannot open include file: 'kfbxplugins/kfbxkfcurvefilters.h': No such file or directory
+  FbxSurfacePhong.cpp
+x:\repositories\customengine\libraries\fbx_d99936f11250\fbx\FbxCreator.h(4): fatal error C1083: Cannot open include file: 'kfbxplugins/kfbxkfcurvefilters.h': No such file or directory
+  FbxSystemUnit.cpp
+x:\repositories\customengine\libraries\fbx_d99936f11250\fbx\FbxCreator.h(4): fatal error C1083: Cannot open include file: 'kfbxplugins/kfbxkfcurvefilters.h': No such file or directory
+  FbxTakeInfo.cpp
+x:\repositories\customengine\libraries\fbx_d99936f11250\fbx\FbxCreator.h(4): fatal error C1083: Cannot open include file: 'kfbxplugins/kfbxkfcurvefilters.h': No such file or directory
+  FbxTakeNode.cpp
+x:\repositories\customengine\libraries\fbx_d99936f11250\fbx\FbxCreator.h(4): fatal error C1083: Cannot open include file: 'kfbxplugins/kfbxkfcurvefilters.h': No such file or directory
+  FbxTakeNodeContainer.cpp
+x:\repositories\customengine\libraries\fbx_d99936f11250\fbx\FbxCreator.h(4): fatal error C1083: Cannot open include file: 'kfbxplugins/kfbxkfcurvefilters.h': No such file or directory
+  FbxTexture.cpp
+x:\repositories\customengine\libraries\fbx_d99936f11250\fbx\FbxCreator.h(4): fatal error C1083: Cannot open include file: 'kfbxplugins/kfbxkfcurvefilters.h': No such file or directory
+  FbxThumbnail.cpp
+x:\repositories\customengine\libraries\fbx_d99936f11250\fbx\FbxCreator.h(4): fatal error C1083: Cannot open include file: 'kfbxplugins/kfbxkfcurvefilters.h': No such file or directory
+  FbxTime.cpp
+x:\repositories\customengine\libraries\fbx_d99936f11250\fbx\FbxCreator.h(4): fatal error C1083: Cannot open include file: 'kfbxplugins/kfbxkfcurvefilters.h': No such file or directory
+  Generating Code...
+  Compiling...
+  FbxTypedProperty.cpp
+x:\repositories\customengine\libraries\fbx_d99936f11250\fbx\FbxCreator.h(4): fatal error C1083: Cannot open include file: 'kfbxplugins/kfbxkfcurvefilters.h': No such file or directory
+  FbxVector2.cpp
+x:\repositories\customengine\libraries\fbx_d99936f11250\fbx\FbxCreator.h(4): fatal error C1083: Cannot open include file: 'kfbxplugins/kfbxkfcurvefilters.h': No such file or directory
+  FbxVector4.cpp
+x:\repositories\customengine\libraries\fbx_d99936f11250\fbx\FbxCreator.h(4): fatal error C1083: Cannot open include file: 'kfbxplugins/kfbxkfcurvefilters.h': No such file or directory
+  FbxVertexCacheDeformer.cpp
+x:\repositories\customengine\libraries\fbx_d99936f11250\fbx\FbxCreator.h(4): fatal error C1083: Cannot open include file: 'kfbxplugins/kfbxkfcurvefilters.h': No such file or directory
+  FbxVideo.cpp
+x:\repositories\customengine\libraries\fbx_d99936f11250\fbx\FbxCreator.h(4): fatal error C1083: Cannot open include file: 'kfbxplugins/kfbxkfcurvefilters.h': No such file or directory
+  FbxWeightedMapping.cpp
+x:\repositories\customengine\libraries\fbx_d99936f11250\fbx\FbxCreator.h(4): fatal error C1083: Cannot open include file: 'kfbxplugins/kfbxkfcurvefilters.h': No such file or directory
+  FbxWriter.cpp
+x:\repositories\customengine\libraries\fbx_d99936f11250\fbx\FbxCreator.h(4): fatal error C1083: Cannot open include file: 'kfbxplugins/kfbxkfcurvefilters.h': No such file or directory
+  FbxXMatrix.cpp
+x:\repositories\customengine\libraries\fbx_d99936f11250\fbx\FbxCreator.h(4): fatal error C1083: Cannot open include file: 'kfbxplugins/kfbxkfcurvefilters.h': No such file or directory
+  FbxXRefManager.cpp
+x:\repositories\customengine\libraries\fbx_d99936f11250\fbx\FbxCreator.h(4): fatal error C1083: Cannot open include file: 'kfbxplugins/kfbxkfcurvefilters.h': No such file or directory
+  ImageConverterBuffer.cpp
+x:\repositories\customengine\libraries\fbx_d99936f11250\fbx\FbxCreator.h(4): fatal error C1083: Cannot open include file: 'kfbxplugins/kfbxkfcurvefilters.h': No such file or directory
+  Generating Code...

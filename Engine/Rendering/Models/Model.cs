@@ -1,10 +1,12 @@
-﻿using CustomEngine.Worlds.Actors.Components;
-using System;
+﻿using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace CustomEngine.Rendering.Models
 {
-    public class Model : ObjectBase, IRenderable
+    public class Model : FileObject, IRenderable
     {
+        private List<Mesh> _meshes = new List<Mesh>();
         private Skeleton _skeleton;
 
         public void Render()
@@ -12,8 +14,14 @@ namespace CustomEngine.Rendering.Models
             if (_skeleton == null)
                 return;
 
-            foreach (Mesh m in Children)
+            foreach (Mesh m in _meshes)
                 m.Render();
+        }
+
+        public override Task Load()
+        {
+            Task t = new Task(Skill.FbxSDK.IO);
+            return base.Load();
         }
 
         public void SetSkeleton(Skeleton skeleton)

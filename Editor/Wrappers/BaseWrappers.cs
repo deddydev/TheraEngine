@@ -65,65 +65,65 @@ namespace Editor.Wrappers
 
         public void Link(ObjectBase res)
         {
-            Unlink();
-            if (res != null)
-            {
-                Header = res.Name;
-                ItemCollection nodes = Items;
+            //Unlink();
+            //if (res != null)
+            //{
+            //    Header = res.Name;
+            //    ItemCollection nodes = Items;
 
-                //Should we continue down the tree?
-                if (IsExpanded && (res.HasChildren))
-                {
-                    //Add/link each resource node
-                    foreach (ObjectBase n in res.Children)
-                    {
-                        bool found = false;
-                        foreach (BaseWrapper tn in nodes)
-                            if ((string)tn.Header == n.Name)
-                            {
-                                tn.Link(n);
-                                found = true;
-                                // Move node to bottom, to ensure that nodes are shown and saved in the same order as in the original data
-                                nodes.Remove(tn);
-                                nodes.Add(tn);
-                                break;
-                            }
-                        if (!found)
-                            nodes.Add(Wrap(_owner, n));
-                    }
+            //    //Should we continue down the tree?
+            //    if (IsExpanded && (res.HasChildren))
+            //    {
+            //        //Add/link each resource node
+            //        foreach (ObjectBase n in res.Children)
+            //        {
+            //            bool found = false;
+            //            foreach (BaseWrapper tn in nodes)
+            //                if ((string)tn.Header == n.Name)
+            //                {
+            //                    tn.Link(n);
+            //                    found = true;
+            //                    // Move node to bottom, to ensure that nodes are shown and saved in the same order as in the original data
+            //                    nodes.Remove(tn);
+            //                    nodes.Add(tn);
+            //                    break;
+            //                }
+            //            if (!found)
+            //                nodes.Add(Wrap(_owner, n));
+            //        }
 
-                    //Remove empty nodes
-                    for (int i = 0; i < nodes.Count;)
-                    {
-                        BaseWrapper n = nodes[i] as BaseWrapper;
-                        if (n._resource == null)
-                            n.Remove();
-                        else
-                            i++;
-                    }
+            //        //Remove empty nodes
+            //        for (int i = 0; i < nodes.Count;)
+            //        {
+            //            BaseWrapper n = nodes[i] as BaseWrapper;
+            //            if (n._resource == null)
+            //                n.Remove();
+            //            else
+            //                i++;
+            //        }
 
-                    _discovered = true;
-                }
-                else
-                {
-                    //Node will be reset and undiscovered
-                    nodes.Clear();
-                    //Collapse();
-                    if (res.HasChildren)
-                    {
-                        nodes.Add(new GenericWrapper());
-                        _discovered = false;
-                    }
-                    else
-                        _discovered = true;
-                }
+            //        _discovered = true;
+            //    }
+            //    else
+            //    {
+            //        //Node will be reset and undiscovered
+            //        nodes.Clear();
+            //        //Collapse();
+            //        if (res.HasChildren)
+            //        {
+            //            nodes.Add(new GenericWrapper());
+            //            _discovered = false;
+            //        }
+            //        else
+            //            _discovered = true;
+            //    }
 
-                //SelectedImageIndex = ImageIndex = (int)res.ResourceType & 0xFF;
-                res.Renamed += OnRenamed;
-                res.PropertyChanged += OnPropertyChanged;
-                res.UpdateProperties += OnUpdateProperties;
-                res.UpdateEditor += OnUpdateCurrentControl;
-            }
+            //    //SelectedImageIndex = ImageIndex = (int)res.ResourceType & 0xFF;
+            //    res.Renamed += OnRenamed;
+            //    res.PropertyChanged += OnPropertyChanged;
+            //    res.UpdateProperties += OnUpdateProperties;
+            //    res.UpdateEditor += OnUpdateCurrentControl;
+            //}
             _resource = res;
         }
         public void Unlink()

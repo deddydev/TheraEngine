@@ -6,23 +6,34 @@ using System.ComponentModel;
 
 namespace CustomEngine.Worlds.Actors.Components
 {
-    public class SceneComponent : Component, IRenderable, IStateMonitor, ITransformable
+    public class SceneComponent : Component, IRenderable, ITransformable
     {
         private FrameState _transform;
-        protected bool _visibleByDefault = true;
+        protected MonitoredList<SceneComponent> _children = new MonitoredList<SceneComponent>();
+        protected bool _visible;
         protected bool _hiddenInGame = false;
         protected bool _overrideParentRenderState = false;
         protected bool _isRendering = false;
 
-        [Category("Rendering"), Default, EditorOnly]
-        public bool HiddenInGame { get { return _hiddenInGame; } set { _hiddenInGame = value; } }
-        [Category("Rendering"), Default]
-        public bool VisibleByDefault { get { return _visibleByDefault; } set { _visibleByDefault = value; } }
+        [Category("Rendering"), State]
+        public bool IsRendering { get { return _isRendering; } }
         [Category("Rendering"), State]
         public bool IsSpawned { get { return Owner.IsSpawned; } }
-        [Category("Rendering"), State, Animatable]
-        public bool IsRendering { get { return _isRendering; } set { _isRendering = value; } }
-        [Category("Rendering"), State, Animatable]
+
+        [Category("Rendering"), Default, EditorOnly]
+        public bool HiddenInGame
+        {
+            get { return _hiddenInGame; }
+            set { _hiddenInGame = value; }
+        }
+
+        [Category("Rendering"), Default, State, Animatable]
+        public bool Visible
+        {
+            get { return _hiddenInGame ? false : _visible; }
+            set { _visible = value; }
+        }
+        [Category("Rendering"), Default, State, Animatable]
         public FrameState Transform
         {
             get { return _transform; }
@@ -31,28 +42,27 @@ namespace CustomEngine.Worlds.Actors.Components
 
         public virtual void OnSpawned()
         {
-            _isRendering = _hiddenInGame ? false : _visibleByDefault;
+            _visible = true;
         }
         public virtual void OnDespawned()
         {
-            _isRendering = false;
+            _visible = false;
         }
 
         public void Render()
         {
             Renderer.PushMatrix();
             Transform.MultMatrix();
-            OnRender();
-            foreach (SceneComponent comp in Children)
+            if (Visible)
+                OnRender();
+            foreach (SceneComponent comp in _children)
                 comp.Render();
             Renderer.PopMatrix();
         }
 
-        protected override void OnChildAdded(ObjectBase obj)
+        protected void OnChildAdded(SceneComponent s)
         {
-            base.OnChildAdded(obj);
-
-            ((SceneComponent)obj).Owner = Owner;
+            s.Owner = Owner;
             Owner.GenerateSceneComponentCache();
         }
 

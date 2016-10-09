@@ -1,0 +1,484 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectName>ManagedFBX</ProjectName>
+    <ProjectGuid>{D8BCDE8D-4A1D-4471-898C-D98C8B26E471}</ProjectGuid>
+    <RootNamespace>Fbx</RootNamespace>
+    <Keyword>ManagedCProj</Keyword>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <PlatformToolset>v140</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+    <CLRSupport>true</CLRSupport>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <PlatformToolset>v140</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+    <CLRSupport>true</CLRSupport>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>14.0.25420.1</_ProjectFileVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <OutDir>$(SolutionDir)$(Configuration)\</OutDir>
+    <IntDir>$(Configuration)\</IntDir>
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <OutDir>$(SolutionDir)$(Configuration)\</OutDir>
+    <IntDir>$(Configuration)\</IntDir>
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>C:\Program Files\Autodesk\FBX\FbxSdk\2009.1\include\kbaselib;C:\Program Files\Autodesk\FBX\FbxSdk\2009.1\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <GenerateXMLDocumentationFiles>false</GenerateXMLDocumentationFiles>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>fbxsdk_md2008d.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:\Program Files\Autodesk\FBX\FbxSdk\2009.1\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AssemblyDebug>true</AssemblyDebug>
+      <RandomizedBaseAddress>false</RandomizedBaseAddress>
+      <DataExecutionPrevention />
+      <TargetMachine>MachineX86</TargetMachine>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>X:\Program Files\Autodesk\FBX\FBX SDK\2017.0.1\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>fbxsdk_md2008.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>X:\Program Files\Autodesk\FBX\FBX SDK\2017.0.1\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <RandomizedBaseAddress>false</RandomizedBaseAddress>
+      <DataExecutionPrevention />
+      <TargetMachine>MachineX86</TargetMachine>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <Reference Include="System">
+      <CopyLocalSatelliteAssemblies>true</CopyLocalSatelliteAssemblies>
+      <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+    </Reference>
+    <Reference Include="System.Data">
+      <CopyLocalSatelliteAssemblies>true</CopyLocalSatelliteAssemblies>
+      <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+    </Reference>
+    <Reference Include="System.Xml">
+      <CopyLocalSatelliteAssemblies>true</CopyLocalSatelliteAssemblies>
+      <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="AssemblyInfo.cpp" />
+    <ClCompile Include="FbxAccumulatorEntry.cpp" />
+    <ClCompile Include="FbxAxisSystem.cpp" />
+    <ClCompile Include="FbxBaseAllocator.cpp" />
+    <ClCompile Include="FbxBindingTable.cpp" />
+    <ClCompile Include="FbxBindingTableBase.cpp" />
+    <ClCompile Include="FbxBindingTableEntry.cpp" />
+    <ClCompile Include="FbxBoundary.cpp" />
+    <ClCompile Include="FbxCache.cpp" />
+    <ClCompile Include="FbxCamera.cpp" />
+    <ClCompile Include="FbxCameraManipulator.cpp" />
+    <ClCompile Include="FbxCameraSwitcher.cpp" />
+    <ClCompile Include="FbxCharacter.cpp" />
+    <ClCompile Include="FbxCharacterPose.cpp" />
+    <ClCompile Include="FbxCharPtrSet.cpp" />
+    <ClCompile Include="FbxClassId.cpp" />
+    <ClCompile Include="FbxCloneManager.cpp" />
+    <ClCompile Include="FbxCluster.cpp" />
+    <ClCompile Include="FbxCollection.cpp" />
+    <ClCompile Include="FbxColor.cpp" />
+    <ClCompile Include="FbxConstraint.cpp" />
+    <ClCompile Include="FbxConstraintAim.cpp" />
+    <ClCompile Include="FbxConstraintParent.cpp" />
+    <ClCompile Include="FbxConstraintPosition.cpp" />
+    <ClCompile Include="FbxConstraintRotation.cpp" />
+    <ClCompile Include="FbxConstraintScale.cpp" />
+    <ClCompile Include="FbxConstraintSingleChainIK.cpp" />
+    <ClCompile Include="FbxControlSet.cpp" />
+    <ClCompile Include="FbxCreator.cpp" />
+    <ClCompile Include="FbxCurve.cpp" />
+    <ClCompile Include="FbxCurveFilters.cpp" />
+    <ClCompile Include="FbxCurveNode.cpp" />
+    <ClCompile Include="FbxCurveUtils.cpp" />
+    <ClCompile Include="FbxDataType.cpp" />
+    <ClCompile Include="FbxDeformer.cpp" />
+    <ClCompile Include="FbxDocument.cpp" />
+    <ClCompile Include="FbxDocumentInfo.cpp" />
+    <ClCompile Include="FbxDouble1.cpp" />
+    <ClCompile Include="FbxDouble2.cpp" />
+    <ClCompile Include="FbxDouble3.cpp" />
+    <ClCompile Include="FbxDouble4.cpp" />
+    <ClCompile Include="FbxEmitter.cpp" />
+    <ClCompile Include="FbxEqualityComparer.cpp" />
+    <ClCompile Include="FbxError.cpp" />
+    <ClCompile Include="FbxEvaluationInfo.cpp" />
+    <ClCompile Include="FbxEventBase.cpp" />
+    <ClCompile Include="FbxEventHandler.cpp" />
+    <ClCompile Include="FbxExporter.cpp" />
+    <ClCompile Include="FbxGenericNode.cpp" />
+    <ClCompile Include="FbxGeometry.cpp" />
+    <ClCompile Include="FbxGeometryBase.cpp" />
+    <ClCompile Include="FbxGeometryConverter.cpp" />
+    <ClCompile Include="FbxGeometryWeightedMap.cpp" />
+    <ClCompile Include="FbxGlobalCameraSettings.cpp" />
+    <ClCompile Include="FbxGlobalLightSettings.cpp" />
+    <ClCompile Include="FbxGlobalSettings.cpp" />
+    <ClCompile Include="FbxGlobalTimeSettings.cpp" />
+    <ClCompile Include="FbxImporter.cpp" />
+    <ClCompile Include="FbxIO.cpp" />
+    <ClCompile Include="FbxIOPluginRegistry.cpp" />
+    <ClCompile Include="FbxIOSettings.cpp" />
+    <ClCompile Include="FbxKEventBase.cpp" />
+    <ClCompile Include="FbxKRenamingStrategy.cpp" />
+    <ClCompile Include="FbxLayer.cpp" />
+    <ClCompile Include="FbxLayerContainer.cpp" />
+    <ClCompile Include="FbxLayeredTexture.cpp" />
+    <ClCompile Include="FbxLayerElement.cpp" />
+    <ClCompile Include="FbxLayerElementArray.cpp" />
+    <ClCompile Include="FbxLayerElementArrayTemplateBool.cpp" />
+    <ClCompile Include="FbxLayerElementArrayTemplateColor.cpp" />
+    <ClCompile Include="FbxLayerElementArrayTemplateInt32.cpp" />
+    <ClCompile Include="FbxLayerElementArrayTemplateSurfaceMaterial.cpp" />
+    <ClCompile Include="FbxLayerElementArrayTemplateTexture.cpp" />
+    <ClCompile Include="FbxLayerElementArrayTemplateVector2.cpp" />
+    <ClCompile Include="FbxLayerElementArrayTemplateVector4.cpp" />
+    <ClCompile Include="FbxLayerElementMaterial.cpp" />
+    <ClCompile Include="FbxLayerElementNormal.cpp" />
+    <ClCompile Include="FbxLayerElementPolygonGroup.cpp" />
+    <ClCompile Include="FbxLayerElementSmoothing.cpp" />
+    <ClCompile Include="FbxLayerElementTemplateBool.cpp" />
+    <ClCompile Include="FbxLayerElementTemplateColor.cpp" />
+    <ClCompile Include="FbxLayerElementTemplateInt32.cpp" />
+    <ClCompile Include="FbxLayerElementTemplateSurfaceMaterial.cpp" />
+    <ClCompile Include="FbxLayerElementTemplateTexture.cpp" />
+    <ClCompile Include="FbxLayerElementTemplateVector2.cpp" />
+    <ClCompile Include="FbxLayerElementTemplateVector4.cpp" />
+    <ClCompile Include="FbxLayerElementTexture.cpp" />
+    <ClCompile Include="FbxLayerElementUserData.cpp" />
+    <ClCompile Include="FbxLayerElementUV.cpp" />
+    <ClCompile Include="FbxLayerElementVertexColor.cpp" />
+    <ClCompile Include="FbxLayerElementVisibility.cpp" />
+    <ClCompile Include="FbxLayerInfoRefArray.cpp" />
+    <ClCompile Include="FbxLibrary.cpp" />
+    <ClCompile Include="FbxLight.cpp" />
+    <ClCompile Include="FbxLimits.cpp" />
+    <ClCompile Include="FbxLimitsUtilities.cpp" />
+    <ClCompile Include="FbxListener.cpp" />
+    <ClCompile Include="FbxMarker.cpp" />
+    <ClCompile Include="FbxMatrix.cpp" />
+    <ClCompile Include="FbxMemoryAllocator.cpp" />
+    <ClCompile Include="FbxMesh.cpp" />
+    <ClCompile Include="FbxMutex.cpp" />
+    <ClCompile Include="FbxName.cpp" />
+    <ClCompile Include="FbxNode.cpp" />
+    <ClCompile Include="FbxNodeAttribute.cpp" />
+    <ClCompile Include="FbxNodeFinder.cpp" />
+    <ClCompile Include="FbxNodeFinderDuplicateName.cpp" />
+    <ClCompile Include="FbxNodeIterator.cpp" />
+    <ClCompile Include="FbxNull.cpp" />
+    <ClCompile Include="FbxNurb.cpp" />
+    <ClCompile Include="FbxNurbsCurve.cpp" />
+    <ClCompile Include="FbxNurbsSurface.cpp" />
+    <ClCompile Include="FbxObject.cpp" />
+    <ClCompile Include="FbxObjectFilter.cpp" />
+    <ClCompile Include="FbxObjectMetaData.cpp" />
+    <ClCompile Include="FbxOpticalReference.cpp" />
+    <ClCompile Include="FbxPatch.cpp" />
+    <ClCompile Include="FbxPeripheral.cpp" />
+    <ClCompile Include="FbxPlug.cpp" />
+    <ClCompile Include="FbxPose.cpp" />
+    <ClCompile Include="FbxProceduralGeometry.cpp" />
+    <ClCompile Include="FbxProductInfo.cpp" />
+    <ClCompile Include="FbxProperty.cpp" />
+    <ClCompile Include="FbxPropertydef.cpp" />
+    <ClCompile Include="FbxPropertyHandle.cpp" />
+    <ClCompile Include="FbxQuaternion.cpp" />
+    <ClCompile Include="FbxQuery.cpp" />
+    <ClCompile Include="FbxReader.cpp" />
+    <ClCompile Include="FbxReader5.cpp" />
+    <ClCompile Include="FbxRenamingStrategy.cpp" />
+    <ClCompile Include="FbxRootNodeUtility.cpp" />
+    <ClCompile Include="FbxScene.cpp" />
+    <ClCompile Include="FbxSdkManager.cpp" />
+    <ClCompile Include="FbxSet.cpp" />
+    <ClCompile Include="FbxShadingNode.cpp" />
+    <ClCompile Include="FbxShadingObject.cpp" />
+    <ClCompile Include="FbxShape.cpp" />
+    <ClCompile Include="FbxSkeleton.cpp" />
+    <ClCompile Include="FbxSkin.cpp" />
+    <ClCompile Include="FbxStatics.cpp" />
+    <ClCompile Include="FbxStream.cpp" />
+    <ClCompile Include="FbxStreamOptions.cpp" />
+    <ClCompile Include="FbxStreamOptions3ds.cpp" />
+    <ClCompile Include="FbxStreamOptionsCollada.cpp" />
+    <ClCompile Include="FbxStreamOptionsDxf.cpp" />
+    <ClCompile Include="FbxStreamOptionsFbx.cpp" />
+    <ClCompile Include="FbxStreamOptionsObj.cpp" />
+    <ClCompile Include="FbxString.cpp" />
+    <ClCompile Include="FbxStringRefArray.cpp" />
+    <ClCompile Include="FbxSubDeformer.cpp" />
+    <ClCompile Include="FbxSurfaceEvaluator.cpp" />
+    <ClCompile Include="FbxSurfaceLambert.cpp" />
+    <ClCompile Include="FbxSurfaceMaterial.cpp" />
+    <ClCompile Include="FbxSurfacePhong.cpp" />
+    <ClCompile Include="FbxSystemUnit.cpp" />
+    <ClCompile Include="FbxTakeInfo.cpp" />
+    <ClCompile Include="FbxTakeNode.cpp" />
+    <ClCompile Include="FbxTakeNodeContainer.cpp" />
+    <ClCompile Include="FbxTexture.cpp" />
+    <ClCompile Include="FbxThumbnail.cpp" />
+    <ClCompile Include="FbxTime.cpp" />
+    <ClCompile Include="FbxTypedProperty.cpp" />
+    <ClCompile Include="FbxVector2.cpp" />
+    <ClCompile Include="FbxVector4.cpp" />
+    <ClCompile Include="FbxVertexCacheDeformer.cpp" />
+    <ClCompile Include="FbxVideo.cpp" />
+    <ClCompile Include="FbxWeightedMapping.cpp" />
+    <ClCompile Include="FbxWriter.cpp" />
+    <ClCompile Include="FbxXMatrix.cpp" />
+    <ClCompile Include="FbxXRefManager.cpp" />
+    <ClCompile Include="ImageConverterBuffer.cpp" />
+    <ClCompile Include="Stdafx.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="C:\Documents and Settings\Hamed\Desktop\New Folder\FbxLayerElementSmoothing.h" />
+    <ClInclude Include="C:\Documents and Settings\Hamed\Desktop\New Folder\FbxLayerElementTemplateColor.h" />
+    <ClInclude Include="C:\Documents and Settings\Hamed\Desktop\New Folder\FbxLayerElementTemplateInt32.h" />
+    <ClInclude Include="C:\Documents and Settings\Hamed\Desktop\New Folder\FbxLayerElementVertexColor.h" />
+    <ClInclude Include="Fbx.h" />
+    <ClInclude Include="FbxAccumulatorEntry.h" />
+    <ClInclude Include="FbxAxisSystem.h" />
+    <ClInclude Include="FbxBaseAllocator.h" />
+    <ClInclude Include="FbxBindingTable.h" />
+    <ClInclude Include="FbxBindingTableBase.h" />
+    <ClInclude Include="FbxBindingTableEntry.h" />
+    <ClInclude Include="FbxBoundary.h" />
+    <ClInclude Include="FbxCache.h" />
+    <ClInclude Include="FbxCamera.h" />
+    <ClInclude Include="FbxCameraManipulator.h" />
+    <ClInclude Include="FbxCameraSwitcher.h" />
+    <ClInclude Include="FbxCharacter.h" />
+    <ClInclude Include="FbxCharacterEnums.h" />
+    <ClInclude Include="FbxCharacterPose.h" />
+    <ClInclude Include="FbxCharPtrSet.h" />
+    <ClInclude Include="FbxClassId.h" />
+    <ClInclude Include="FbxCloneManager.h" />
+    <ClInclude Include="FbxCluster.h" />
+    <ClInclude Include="FbxCollection.h" />
+    <ClInclude Include="FbxColor.h" />
+    <ClInclude Include="FbxCommon.h" />
+    <ClInclude Include="FbxConstraint.h" />
+    <ClInclude Include="FbxConstraintAim.h" />
+    <ClInclude Include="FbxConstraintParent.h" />
+    <ClInclude Include="FbxConstraintPosition.h" />
+    <ClInclude Include="FbxConstraintRotation.h" />
+    <ClInclude Include="FbxConstraintScale.h" />
+    <ClInclude Include="FbxConstraintSingleChainIK.h" />
+    <ClInclude Include="FbxControlSet.h" />
+    <ClInclude Include="FbxCreator.h" />
+    <ClInclude Include="FbxCurve.h" />
+    <ClInclude Include="FbxCurveFilters.h" />
+    <ClInclude Include="FbxCurveNode.h" />
+    <ClInclude Include="FbxCurveUtils.h" />
+    <ClInclude Include="FbxDataType.h" />
+    <ClInclude Include="FbxDeformer.h" />
+    <ClInclude Include="FbxDocument.h" />
+    <ClInclude Include="FbxDocumentInfo.h" />
+    <ClInclude Include="FbxDouble1.h" />
+    <ClInclude Include="FbxDouble2.h" />
+    <ClInclude Include="FbxDouble3.h" />
+    <ClInclude Include="FbxDouble4.h" />
+    <ClInclude Include="FbxEmitter.h" />
+    <ClInclude Include="FbxEqualityComparer.h" />
+    <ClInclude Include="FbxError.h" />
+    <ClInclude Include="FbxEvaluationInfo.h" />
+    <ClInclude Include="FbxEventBase.h" />
+    <ClInclude Include="FbxEventHandler.h" />
+    <ClInclude Include="FbxExporter.h" />
+    <ClInclude Include="FbxFilterSetEnum.h" />
+    <ClInclude Include="FbxGenericNode.h" />
+    <ClInclude Include="FbxGeometry.h" />
+    <ClInclude Include="FbxGeometryBase.h" />
+    <ClInclude Include="FbxGeometryConverter.h" />
+    <ClInclude Include="FbxGeometryWeightedMap.h" />
+    <ClInclude Include="FbxGlobalCameraSettings.h" />
+    <ClInclude Include="FbxGlobalLightSettings.h" />
+    <ClInclude Include="FbxGlobalSettings.h" />
+    <ClInclude Include="FbxGlobalTimeSettings.h" />
+    <ClInclude Include="FbxImageConverterBuffer.h" />
+    <ClInclude Include="FbxImporter.h" />
+    <ClInclude Include="FbxIO.h" />
+    <ClInclude Include="FbxIOPluginRegistry.h" />
+    <ClInclude Include="FbxIOSettings.h" />
+    <ClInclude Include="FbxKEventBase.h" />
+    <ClInclude Include="FbxKRenamingStrategy.h" />
+    <ClInclude Include="FbxLayer.h" />
+    <ClInclude Include="FbxLayerContainer.h" />
+    <ClInclude Include="FbxLayeredTexture.h" />
+    <ClInclude Include="FbxLayerElement.h" />
+    <ClInclude Include="FbxLayerElementArray.h" />
+    <ClInclude Include="FbxLayerElementArrayTemplateBool.h" />
+    <ClInclude Include="FbxLayerElementArrayTemplateColor.h" />
+    <ClInclude Include="FbxLayerElementArrayTemplateInt32.h" />
+    <ClInclude Include="FbxLayerElementArrayTemplateSurfaceMaterial.h" />
+    <ClInclude Include="FbxLayerElementArrayTemplateTexture.h" />
+    <ClInclude Include="FbxLayerElementArrayTemplateVector2.h" />
+    <ClInclude Include="FbxLayerElementArrayTemplateVector4.h" />
+    <ClInclude Include="FbxLayerElementMaterial.h" />
+    <ClInclude Include="FbxLayerElementNormal.h" />
+    <ClInclude Include="FbxLayerElementPolygonGroup.h" />
+    <ClInclude Include="FbxLayerElementSmoothing.h" />
+    <ClInclude Include="FbxLayerElementTemplateBool.h" />
+    <ClInclude Include="FbxLayerElementTemplateColor.h" />
+    <ClInclude Include="FbxLayerElementTemplateInt32.h" />
+    <ClInclude Include="FbxLayerElementTemplateSurfaceMaterial.h" />
+    <ClInclude Include="FbxLayerElementTemplateTexture.h" />
+    <ClInclude Include="FbxLayerElementTemplateVector2.h" />
+    <ClInclude Include="FbxLayerElementTemplateVector4.h" />
+    <ClInclude Include="FbxLayerElementTexture.h" />
+    <ClInclude Include="FbxLayerElementUserData.h" />
+    <ClInclude Include="FbxLayerElementUV.h" />
+    <ClInclude Include="FbxLayerElementVertexColor.h" />
+    <ClInclude Include="FbxLayerElementVisibility.h" />
+    <ClInclude Include="FbxLayerInfoRefArray.h" />
+    <ClInclude Include="FbxLibrary.h" />
+    <ClInclude Include="FbxLight.h" />
+    <ClInclude Include="FbxLimits.h" />
+    <ClInclude Include="FbxLimitsUtilities.h" />
+    <ClInclude Include="FbxListener.h" />
+    <ClInclude Include="FbxLockAccessStatus.h" />
+    <ClInclude Include="FbxMarker.h" />
+    <ClInclude Include="FbxMatrix.h" />
+    <ClInclude Include="FbxMemoryAllocator.h" />
+    <ClInclude Include="FbxMesh.h" />
+    <ClInclude Include="FbxMutex.h" />
+    <ClInclude Include="FbxName.h" />
+    <ClInclude Include="FbxNativePointer.h" />
+    <ClInclude Include="FbxNode.h" />
+    <ClInclude Include="FbxNodeAttribute.h" />
+    <ClInclude Include="FbxNodeFinder.h" />
+    <ClInclude Include="FbxNodeFinderDuplicateName.h" />
+    <ClInclude Include="FbxNodeIterator.h" />
+    <ClInclude Include="FbxNull.h" />
+    <ClInclude Include="FbxNurb.h" />
+    <ClInclude Include="FbxNurbsCurve.h" />
+    <ClInclude Include="FbxNurbsSurface.h" />
+    <ClInclude Include="FbxObject.h" />
+    <ClInclude Include="FbxObjectFilter.h" />
+    <ClInclude Include="FbxObjectMetaData.h" />
+    <ClInclude Include="FbxOpticalReference.h" />
+    <ClInclude Include="FbxPatch.h" />
+    <ClInclude Include="FbxPeripheral.h" />
+    <ClInclude Include="FbxPlug.h" />
+    <ClInclude Include="FbxPose.h" />
+    <ClInclude Include="FbxProceduralGeometry.h" />
+    <ClInclude Include="FbxProductInfo.h" />
+    <ClInclude Include="FbxProperty.h" />
+    <ClInclude Include="FbxPropertyDef.h" />
+    <ClInclude Include="FbxPropertyHandle.h" />
+    <ClInclude Include="FbxQuaternion.h" />
+    <ClInclude Include="FbxQuery.h" />
+    <ClInclude Include="FbxReader.h" />
+    <ClInclude Include="FbxReader5.h" />
+    <ClInclude Include="FbxRenamingStrategy.h" />
+    <ClInclude Include="FbxRootNodeUtility.h" />
+    <ClInclude Include="FbxScene.h" />
+    <ClInclude Include="FbxSdkManager.h" />
+    <ClInclude Include="FbxSet.h" />
+    <ClInclude Include="FbxShadingNode.h" />
+    <ClInclude Include="FbxShadingObject.h" />
+    <ClInclude Include="FbxShape.h" />
+    <ClInclude Include="FbxSkeleton.h" />
+    <ClInclude Include="FbxSkin.h" />
+    <ClInclude Include="FbxStatics.h" />
+    <ClInclude Include="FbxStream.h" />
+    <ClInclude Include="FbxStreamOptions.h" />
+    <ClInclude Include="FbxStreamOptions3ds.h" />
+    <ClInclude Include="FbxStreamOptionsCollada.h" />
+    <ClInclude Include="FbxStreamOptionsDxf.h" />
+    <ClInclude Include="FbxStreamOptionsFbx.h" />
+    <ClInclude Include="FbxStreamOptionsObj.h" />
+    <ClInclude Include="FbxString.h" />
+    <ClInclude Include="FbxStringRefArray.h" />
+    <ClInclude Include="FbxSubDeformer.h" />
+    <ClInclude Include="FbxSurfaceEvaluator.h" />
+    <ClInclude Include="FbxSurfaceLambert.h" />
+    <ClInclude Include="FbxSurfaceMaterial.h" />
+    <ClInclude Include="FbxSurfacePhong.h" />
+    <ClInclude Include="FbxSystemUnit.h" />
+    <ClInclude Include="FbxTakeInfo.h" />
+    <ClInclude Include="FbxTakeNode.h" />
+    <ClInclude Include="FbxTakeNodeContainer.h" />
+    <ClInclude Include="FbxTexture.h" />
+    <ClInclude Include="FbxThumbnail.h" />
+    <ClInclude Include="FbxTime.h" />
+    <ClInclude Include="FbxTransformation.h" />
+    <ClInclude Include="FbxType.h" />
+    <ClInclude Include="FbxTypedProperty.h" />
+    <ClInclude Include="FbxVector2.h" />
+    <ClInclude Include="FbxVector4.h" />
+    <ClInclude Include="FbxVertexCacheDeformer.h" />
+    <ClInclude Include="FbxVideo.h" />
+    <ClInclude Include="FbxWeightedMapping.h" />
+    <ClInclude Include="FbxWriter.h" />
+    <ClInclude Include="FbxXMatrix.h" />
+    <ClInclude Include="FbxXRefManager.h" />
+    <ClInclude Include="resource.h" />
+    <ClInclude Include="Stdafx.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="app.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="app.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="ReadMe.txt" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

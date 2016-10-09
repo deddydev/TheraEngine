@@ -5,6 +5,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Collections.ObjectModel;
+using CustomEngine.Worlds.Actors.Components;
+using CustomEngine;
 
 namespace Game.Worlds.Actors
 {

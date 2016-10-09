@@ -7,6 +7,28 @@ namespace CustomEngine.Rendering.Models
     {
         public Dictionary<string, Bone> _boneCache;
 
-        public Bone _rootBone;
+        private Bone _rootBone;
+
+        [PreChanged("PreLink"), PostChanged("PostLink")]
+        public Bone RootBone
+        {
+            get { return _rootBone; }
+            set { _rootBone = value; }
+        }
+
+        protected void PreLink()
+        {
+            
+        }
+        protected void PostLink(Bone previous)
+        {
+
+        }
+
+        public void CalcFrameMatrices()
+        {
+            if (_rootBone != null)
+                _rootBone.CalcFrameMatrix();
+        }
     }
 }

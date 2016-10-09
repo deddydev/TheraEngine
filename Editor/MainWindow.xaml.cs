@@ -36,7 +36,7 @@ namespace Editor
             {
                 _contentWatcher = new FileSystemWatcher()
                 {
-                    Filter = FileExtensionManager.GetListFilter(true),
+                    Filter = FileExtensionManager.GetListFilter(),
                     EnableRaisingEvents = true,
                     IncludeSubdirectories = true,
                     Path = settings._contentMonitorPath,

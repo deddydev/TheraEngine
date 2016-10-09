@@ -10,32 +10,25 @@ using System.Collections.Generic;
 
 namespace CustomEngine
 {
-    public enum TickGroup
-    {
-        Timers = 0,
-        Input = 1,
-        Logic = 2,
-        Scene = 3,
-    }
     public static class Engine
     {
         public const string SettingsPath = "/Config/EngineSettings.xml";
 
-        const float UpdateRate = 120.0f;
-        const float RenderRate = 60.0f;
         public static int PhysicsSubsteps = 10;
+        private static ComputerInfo _computerInfo;
 
-        public static Dictionary<TickOrder, Dictionary<TickGroup, List<ObjectBase>>> _tick = 
-            new Dictionary<TickOrder, Dictionary<TickGroup, List<ObjectBase>>>();
-        
+        public static Dictionary<TickGroup, Dictionary<TickOrder, List<ObjectBase>>> _tick = 
+            new Dictionary<TickGroup, Dictionary<TickOrder, List<ObjectBase>>>();
+
         static Engine()
         {
+            _timer = new GlobalTimer();
             for (int i = 0; i < 2; ++i)
             {
-                TickOrder order = (TickOrder)i;
-                _tick.Add(order, new Dictionary<TickGroup, List<ObjectBase>>());
+                TickGroup order = (TickGroup)i;
+                _tick.Add(order, new Dictionary<TickOrder, List<ObjectBase>>());
                 for (int j = 0; j < 4; ++j)
-                    _tick[order].Add((TickGroup)j, new List<ObjectBase>());
+                    _tick[order].Add((TickOrder)j, new List<ObjectBase>());
             }
         }
 
@@ -44,10 +37,11 @@ namespace CustomEngine
         public static float UpdateDelta { get { return (float)_timer.UpdateTime; } }
         [Default]
         public static World TransitionWorld { get { return _transitionWorld; } set { _transitionWorld = value; } }
+        [State]
         public static World World
         {
             get { return _currentWorld; }
-            set { _currentWorld = value; }
+            internal set { SetCurrentWorld(value); }
         }
         
         public static BindingList<World> LoadedWorlds = new BindingList<World>();
@@ -60,6 +54,26 @@ namespace CustomEngine
         private static GlobalTimer _timer = new GlobalTimer();
         private static AbstractRenderer _renderer;
 
+        /// <summary>
+        /// Class containing this computer's specs. Use to adjust engine settings accordingly.
+        /// </summary>
+        public static ComputerInfo ComputerInfo { get { return _computerInfo; } }
+        /// <summary>
+        /// Frames per second that the game will try to render at.
+        /// </summary>
+        public static double RenderRate
+        {
+            get { return _timer.TargetRenderFrequency; }
+            set { _timer.TargetRenderFrequency = value; }
+        }
+        /// <summary>
+        /// Updates per second that the game will try to run logic at.
+        /// </summary>
+        public static double UpdateRate
+        {
+            get { return _timer.TargetRenderFrequency; }
+            set { _timer.TargetRenderFrequency = value; }
+        }
         public static RenderPanel CurrentPanel
         {
             get
@@ -70,9 +84,9 @@ namespace CustomEngine
                 return null;
             }
         }
-        public static void Run() { _timer.Run(UpdateRate, RenderRate); }
+        public static void Run(double updateRate, double frameRate) { _timer.Run(updateRate, frameRate); }
         public static void Stop() { _timer.Stop(); }
-        private static void PhysicsTick(TickOrder order, float delta)
+        private static void PhysicsTick(TickGroup order, float delta)
         {
             foreach (var g in _tick[order])
                 foreach (ObjectBase b in g.Value)
@@ -84,9 +98,11 @@ namespace CustomEngine
             {
                 TickOrder order = obj.TickOrder.Value;
                 TickGroup group = obj.TickGroup.Value;
-                if (!_tick[order][group].Contains(obj))
-                    _tick[order][group].Add(obj);
+                if (!_tick[group][order].Contains(obj))
+                    _tick[group][order].Add(obj);
             }
+            else
+                UnregisterTick(obj);
         }
         public static void UnregisterTick(ObjectBase obj)
         {
@@ -94,8 +110,8 @@ namespace CustomEngine
             {
                 TickOrder order = obj.TickOrder.Value;
                 TickGroup group = obj.TickGroup.Value;
-                if (_tick[order][group].Contains(obj))
-                    _tick[order][group].Remove(obj);
+                if (_tick[group][order].Contains(obj))
+                    _tick[group][order].Remove(obj);
             }
         }
         public static void Tick(float delta)
@@ -110,14 +126,16 @@ namespace CustomEngine
             delta /= PhysicsSubsteps;
             for (int i = 0; i < PhysicsSubsteps; i++)
             {
-                PhysicsTick(TickOrder.PrePhysics, delta);
+                PhysicsTick(TickGroup.PrePhysics, delta);
                 World.StepSimulation(delta);
-                PhysicsTick(TickOrder.PostPhysics, delta);
+                PhysicsTick(TickGroup.PostPhysics, delta);
             }
             //await t;
         }
         public static void Initialize()
         {
+            _computerInfo = ComputerInfo.Analyze();
+
             EngineSettings s = LoadSettings();
 
             _currentWorld = new World(s._openingWorldPath);

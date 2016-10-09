@@ -43,7 +43,9 @@ namespace CustomEngine.Worlds
         private World _owningWorld;
         private SceneComponent _rootSceneComponent;
         private List<SceneComponent> _sceneComponentCache = new List<SceneComponent>();
-        private List<LogicComponent> _instanceComponents = new List<LogicComponent>();
+        private MonitoredList<LogicComponent> _logicComponents = new MonitoredList<LogicComponent>();
+
+        public MonitoredList<LogicComponent> LogicComponents { get { return _logicComponents; } }
 
         public FrameState Transform
         {
@@ -59,14 +61,10 @@ namespace CustomEngine.Worlds
             _rootSceneComponent?.Transform.AddTranslation(-newOrigin);
             //TODO: update child transforms here or wait?
         }
-        public void AddComponent(LogicComponent c)
-        {
-            _instanceComponents.Add(c);
-        }
-        public override void Tick(float delta)
+        internal override void Tick(float delta)
         {
             _rootSceneComponent.Tick(delta);
-            foreach (Component c in _instanceComponents)
+            foreach (Component c in _logicComponents)
                 c.Tick(delta);
         }
         public virtual void Render()
@@ -104,8 +102,5 @@ namespace CustomEngine.Worlds
             _spawnIndex = -1;
             _owningWorld = null;
         }
-
-        public IEnumerator<Component> GetEnumerator() { return ((IEnumerable<Component>)_instanceComponents).GetEnumerator(); }
-        IEnumerator IEnumerable.GetEnumerator() { return ((IEnumerable<Component>)_instanceComponents).GetEnumerator(); }
     }
 }

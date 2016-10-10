@@ -3,7 +3,7 @@
 #include "Fbx.h"
 #include <object/e/keventbase.h>
 
-namespace Skill
+
 {
 	namespace FbxSDK
 	{		

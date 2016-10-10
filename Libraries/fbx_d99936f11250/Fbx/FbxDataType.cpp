@@ -4,55 +4,55 @@
 #include "FbxType.h"
 #include "FbxString.h"
 
-namespace Skill
+
 {
 	namespace FbxSDK
 	{				
 
-		void FbxDataType::CollectManagedMemory()
+		void FbxDataTypeManaged::CollectManagedMemory()
 		{
 		}
 		
-		FbxDataType^ FbxDataType::Create(String^ name,FbxType type)
+		FbxDataTypeManaged^ FbxDataTypeManaged::Create(String^ name,FbxType type)
 		{
 			STRINGTO_CONSTCHAR_ANSI(n,name);			
 			KFbxDataType d = KFbxDataType::Create(n,(EFbxType)type);
 			FREECHARPOINTER(n);
-			return gcnew FbxDataType(d);
+			return gcnew FbxDataTypeManaged(d);
 		}
-		FbxDataType^ FbxDataType::Create(String^ name,FbxDataType^ dataType)
+		FbxDataTypeManaged^ FbxDataTypeManaged::Create(String^ name,FbxDataTypeManaged^ dataType)
 		{
 			STRINGTO_CONSTCHAR_ANSI(n,name);			
 			KFbxDataType d = KFbxDataType::Create(n,*dataType->_Ref());
 			FREECHARPOINTER(n);
-			return gcnew FbxDataType(d);
+			return gcnew FbxDataTypeManaged(d);
 		}			
 
-		FbxDataType::FbxDataType( FbxDataType^ dataType )
+		FbxDataTypeManaged::FbxDataTypeManaged( FbxDataTypeManaged^ dataType )
 		{
 			_SetPointer(new KFbxDataType(*dataType->_Ref()),true);
 		}			
-		void FbxDataType::Destroy()
+		void FbxDataTypeManaged::Destroy()
 		{
 			_Ref()->Destroy();
 		}
-		void FbxDataType::CopyFrom(FbxDataType^ dataType)
+		void FbxDataTypeManaged::CopyFrom(FbxDataTypeManaged^ dataType)
 		{
 			*this->_Ref() = *dataType->_Ref();
 		}			
-		bool FbxDataType::IsValid::get()
+		bool FbxDataTypeManaged::IsValid::get()
 		{			
 			return _Ref()->Valid();
 		}
-		bool FbxDataType::Is(FbxDataType^ dataType)
+		bool FbxDataTypeManaged::Is(FbxDataTypeManaged^ dataType)
 		{
 			return _Ref()->Is(*dataType->_Ref());
 		}
-		FbxType FbxDataType::Type::get()
+		FbxType FbxDataTypeManaged::Type::get()
 		{
 			return (FbxType)_Ref()->GetType();
 		}			
-		String^ FbxDataType::Name::get()
+		String^ FbxDataTypeManaged::Name::get()
 		{
 			return gcnew String(_Ref()->GetName());
 		}			

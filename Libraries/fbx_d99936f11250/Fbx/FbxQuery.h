@@ -2,11 +2,11 @@
 #include "stdafx.h"
 #include "FbxPropertyDef.h"
 
-namespace Skill
+
 {
 	namespace FbxSDK
 	{		
-		ref class FbxProperty;
+		ref class FbxPropertyManaged;
 		/**	\brief Class to manage query.
 		* \nosubgrouping
 		*/
@@ -23,9 +23,9 @@ namespace Skill
 			virtual VALUE_PROPERTY_GET_DECLARE(kFbxFilterId ,UniqueId);
 
 			//! Judge if the given property is valid.
-			virtual bool IsPropertyValid(FbxProperty^ p);
+			virtual bool IsPropertyValid(FbxPropertyManaged^ p);
 			//! Judge if the given property and connection type are valid.
-			virtual bool IsPropertyValid(FbxProperty^ p,FbxConnectionType type);
+			virtual bool IsPropertyValid(FbxPropertyManaged^ p,FbxConnectionType type);
 
 			/**This compares whether two KFbxQuery are the same, NOT whether the query
 			* matches or not.  It's strictly the equivalent of an operator==, but virtual.

@@ -4,7 +4,7 @@
 #include "FbxTime.h"
 #include "KFbxIO/kfbxstreamoptionsCollada.h"
 
-namespace Skill
+
 {
 	namespace FbxSDK
 	{		

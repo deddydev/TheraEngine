@@ -4,7 +4,7 @@
 
 using namespace System::Runtime::InteropServices;
 
-namespace Skill
+
 {
 	namespace FbxSDK
 	{

@@ -5,7 +5,7 @@
 #include <kfbxplugins/kfbxnodefinder.h>
 
 
-namespace Skill
+
 {
 	namespace FbxSDK
 	{
@@ -21,10 +21,10 @@ namespace Skill
 	}
 }
 
-using namespace Skill::FbxSDK::IO;
-using namespace Skill::FbxSDK::Events;
+using ::FbxSDK::IO;
+using ::FbxSDK::Events;
 
-namespace Skill
+
 {
 	namespace FbxSDK
 	{	

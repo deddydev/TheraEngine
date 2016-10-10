@@ -4,7 +4,7 @@
 #include "FbxTransformation.h"
 
 
-namespace Skill
+
 {
 	namespace FbxSDK
 	{

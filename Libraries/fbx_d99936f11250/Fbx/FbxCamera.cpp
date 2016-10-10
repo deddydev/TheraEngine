@@ -23,7 +23,7 @@
 	void FbxCamera::PropName::set(PropType value){_Ref()->PropName.Set((NativeType)value);}
 
 
-namespace Skill
+
 {
 	namespace FbxSDK
 	{		

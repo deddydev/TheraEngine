@@ -6,7 +6,7 @@
 
 using namespace System::Runtime::InteropServices;
 
-namespace Skill
+
 {
 	namespace FbxSDK
 	{		
@@ -14,7 +14,7 @@ namespace Skill
 		ref class FbxNode;
 		ref class FbxStringManaged;
 		ref class FbxVector4;
-		ref class FbxProperty;
+		ref class FbxPropertyManaged;
 		ref class FbxLimits;
 		ref class FbxStringManaged;
 		ref class FbxDouble3TypedProperty;		
@@ -93,12 +93,12 @@ namespace Skill
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS	
 
-			REF_PROPERTY_GETSET_DECLARE(FbxProperty,PropertyLink);
-			REF_PROPERTY_GETSET_DECLARE(FbxProperty,PropertyOffsetT);
-			REF_PROPERTY_GETSET_DECLARE(FbxProperty,PropertyOffsetR);
-			REF_PROPERTY_GETSET_DECLARE(FbxProperty,PropertyOffsetS);
-			REF_PROPERTY_GETSET_DECLARE(FbxProperty,PropertyParentOffsetR);
-			REF_PROPERTY_GETSET_DECLARE(FbxProperty,PropertyTemplateName);			
+			REF_PROPERTY_GETSET_DECLARE(FbxPropertyManaged,PropertyLink);
+			REF_PROPERTY_GETSET_DECLARE(FbxPropertyManaged,PropertyOffsetT);
+			REF_PROPERTY_GETSET_DECLARE(FbxPropertyManaged,PropertyOffsetR);
+			REF_PROPERTY_GETSET_DECLARE(FbxPropertyManaged,PropertyOffsetS);
+			REF_PROPERTY_GETSET_DECLARE(FbxPropertyManaged,PropertyParentOffsetR);
+			REF_PROPERTY_GETSET_DECLARE(FbxPropertyManaged,PropertyTemplateName);			
 
 #endif // #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

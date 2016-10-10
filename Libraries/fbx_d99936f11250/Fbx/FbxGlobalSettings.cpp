@@ -8,7 +8,7 @@
 #include "FbxScene.h"
 
 
-namespace Skill
+
 {
 	namespace FbxSDK
 	{

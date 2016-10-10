@@ -3,7 +3,7 @@
 #include "Fbx.h"
 #include <kfbxplugins/kfbxproductinfo.h>
 
-namespace Skill
+
 {
 	namespace FbxSDK
 	{		

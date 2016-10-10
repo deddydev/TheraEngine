@@ -29,7 +29,7 @@
 		SetClass Fbx##Class##TypedProperty::Get(){return _Ref()->Get();}\
 		SetClass Fbx##Class##TypedProperty::Get(FbxEvaluationInfo^ info){return _Ref()->Get(info->_Ref());}\
 
-namespace Skill
+
 {
 	namespace FbxSDK
 	{		
@@ -45,12 +45,12 @@ namespace Skill
 		FBXTYPEDPEROPERTY_DECLARE(Double2,fbxDouble2,FbxDouble2^);
 		
 
-		public ref class FbxDouble1TypedProperty : FbxProperty
+		public ref class FbxDouble1TypedProperty : FbxPropertyManaged
 		{
-			REF_DECLARE(FbxProperty,KFbxTypedProperty<fbxDouble1>);
+			REF_DECLARE(FbxPropertyManaged,KFbxTypedProperty<fbxDouble1>);
 		internal:
 			FbxDouble1TypedProperty(KFbxTypedProperty<fbxDouble1>* instance)
-				:FbxProperty(instance)
+				:FbxPropertyManaged(instance)
 			{
 				_Free = false;
 			}
@@ -64,12 +64,12 @@ namespace Skill
 		};
 
 
-		public ref class FbxInteger1TypedProperty : FbxProperty
+		public ref class FbxInteger1TypedProperty : FbxPropertyManaged
 		{
-			REF_DECLARE(FbxProperty,KFbxTypedProperty<fbxInteger1>);
+			REF_DECLARE(FbxPropertyManaged,KFbxTypedProperty<fbxInteger1>);
 		internal:
 			FbxInteger1TypedProperty(KFbxTypedProperty<fbxInteger1>* instance)
-				:FbxProperty(instance)
+				:FbxPropertyManaged(instance)
 			{
 				_Free = false;
 			}

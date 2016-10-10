@@ -10,7 +10,7 @@
 #include "FbxXMatrix.h"
 
 
-namespace Skill
+
 {
 	namespace FbxSDK
 	{

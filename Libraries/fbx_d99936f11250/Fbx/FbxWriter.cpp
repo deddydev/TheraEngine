@@ -12,7 +12,7 @@
 #include "FbxNode.h"
 #include "FbxSystemUnit.h"
 
-namespace Skill
+
 {
 	namespace FbxSDK
 	{

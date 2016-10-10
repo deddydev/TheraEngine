@@ -3,7 +3,7 @@
 #include "FbxObjectFilter.h"
 #include "FbxObject.h"
 
-namespace Skill
+
 {
 	namespace FbxSDK
 	{	

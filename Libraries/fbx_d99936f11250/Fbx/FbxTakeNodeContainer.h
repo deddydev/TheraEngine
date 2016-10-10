@@ -2,13 +2,13 @@
 #include "stdafx.h"
 #include "FbxObject.h"
 
-namespace Skill
+
 {
 	namespace FbxSDK
 	{
 		ref class FbxTakeNode;
 		ref class FbxTime;
-		ref class FbxProperty;
+		ref class FbxPropertyManaged;
 		/**	\brief This class is a container for take nodes which contain animation data.
 		* \nosubgrouping
 		* A take node contains the animation keys of the container for a given take.
@@ -131,11 +131,11 @@ namespace Skill
 			void Init();
 			void Reset();
 
-			virtual void PropertyAdded(FbxProperty^ prop);
-			virtual void PropertyRemoved(FbxProperty^ prop);		        
+			virtual void PropertyAdded(FbxPropertyManaged^ prop);
+			virtual void PropertyRemoved(FbxPropertyManaged^ prop);		        
 
-			void UpdateFCurveFromProperty(FbxProperty^ prop,FbxTakeNode^ takeNode);
-			void CreateChannelsForProperty(FbxProperty^ prop,FbxTakeNode^ takeNode);
+			void UpdateFCurveFromProperty(FbxPropertyManaged^ prop,FbxTakeNode^ takeNode);
+			void CreateChannelsForProperty(FbxPropertyManaged^ prop,FbxTakeNode^ takeNode);
 
 			//void UnregisterDefaultTakeCallback(FbxDefaultTakeCallback*& pTC);
 			void UnregisterAllDefaultTakeCallback();

@@ -3,7 +3,7 @@
 #include "FbxNodeFinder.h"
 #include <kfbxplugins/kfbxnodefinderduplicatename.h>
 
-namespace Skill
+
 {
 	namespace FbxSDK
 	{

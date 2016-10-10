@@ -7,7 +7,7 @@
 #include "FbxQuery.h"
 
 
-namespace Skill
+
 {
 	namespace FbxSDK
 	{		

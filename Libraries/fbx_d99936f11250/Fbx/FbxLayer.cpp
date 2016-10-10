@@ -13,7 +13,7 @@
 #include "FbxLayerElementVisibility.h"
 #include "FbxLayerElementTexture.h"
 
-namespace Skill
+
 {
 	namespace FbxSDK
 	{						

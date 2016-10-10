@@ -4,7 +4,7 @@
 #include "FbxVector4.h"
 #include "FbxQuaternion.h"
 
-namespace Skill
+
 {
 	namespace FbxSDK
 	{		

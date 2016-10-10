@@ -4,7 +4,7 @@
 
 using System::Runtime::InteropServices::OutAttribute;
 
-namespace Skill
+
 {
 	namespace FbxSDK
 	{		

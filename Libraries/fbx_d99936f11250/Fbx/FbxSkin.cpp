@@ -7,7 +7,7 @@
 #include "FbxGeometry.h"
 #include "FbxCluster.h"
 
-namespace Skill
+
 {
 	namespace FbxSDK
 	{	

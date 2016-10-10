@@ -14,7 +14,7 @@
 	if(!_##Name) _##Name = gcnew FbxDouble3TypedProperty(&_Ref()->Name);\
 	else _##Name->pro = &_Ref()->Name ;return _##Name;}\
 
-namespace Skill
+
 {
 	namespace FbxSDK
 	{

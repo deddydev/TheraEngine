@@ -2,7 +2,7 @@
 #include "stdafx.h"
 #include "FbxCollection.h"
 
-namespace Skill
+
 {
 	namespace FbxSDK
 	{
@@ -13,10 +13,10 @@ namespace Skill
 	}
 }
 
-using namespace Skill::FbxSDK::Arrays;
+using ::FbxSDK::Arrays;
 
 
-namespace Skill
+
 {
 	namespace FbxSDK
 	{		

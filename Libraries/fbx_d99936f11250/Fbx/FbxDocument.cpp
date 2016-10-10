@@ -10,7 +10,7 @@
 #include "FbxSdkManager.h"
 #include "FbxStringRefArray.h"
 
-namespace Skill
+
 {
 	namespace FbxSDK
 	{

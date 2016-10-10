@@ -17,7 +17,7 @@
 	Fbx##PropType FbxCharacter::PropName::get(){return (Fbx##PropType)_Ref()->PropName.Get();}\
 	void FbxCharacter::PropName::set(Fbx##PropType value){_Ref()->PropName.Set((KCHARACTERDEF_NAMESPACE::k##PropType)value);}
 
-namespace Skill
+
 {
 	namespace FbxSDK
 	{					
@@ -77,17 +77,17 @@ namespace Skill
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS	
 
-		REF_PROPERTY_GETSET_DEFINATION_FROM_VALUE(FbxCharacterLink,mPropertyLink,FbxProperty,PropertyLink);
+		REF_PROPERTY_GETSET_DEFINATION_FROM_VALUE(FbxCharacterLink,mPropertyLink,FbxPropertyManaged,PropertyLink);
 
-		REF_PROPERTY_GETSET_DEFINATION_FROM_VALUE(FbxCharacterLink,mPropertyOffsetT,FbxProperty,PropertyOffsetT);
+		REF_PROPERTY_GETSET_DEFINATION_FROM_VALUE(FbxCharacterLink,mPropertyOffsetT,FbxPropertyManaged,PropertyOffsetT);
 
-		REF_PROPERTY_GETSET_DEFINATION_FROM_VALUE(FbxCharacterLink,mPropertyOffsetR,FbxProperty,PropertyOffsetR);
+		REF_PROPERTY_GETSET_DEFINATION_FROM_VALUE(FbxCharacterLink,mPropertyOffsetR,FbxPropertyManaged,PropertyOffsetR);
 
-		REF_PROPERTY_GETSET_DEFINATION_FROM_VALUE(FbxCharacterLink,mPropertyOffsetS,FbxProperty,PropertyOffsetS);
+		REF_PROPERTY_GETSET_DEFINATION_FROM_VALUE(FbxCharacterLink,mPropertyOffsetS,FbxPropertyManaged,PropertyOffsetS);
 
-		REF_PROPERTY_GETSET_DEFINATION_FROM_VALUE(FbxCharacterLink,mPropertyParentOffsetR,FbxProperty,PropertyParentOffsetR);
+		REF_PROPERTY_GETSET_DEFINATION_FROM_VALUE(FbxCharacterLink,mPropertyParentOffsetR,FbxPropertyManaged,PropertyParentOffsetR);
 
-		REF_PROPERTY_GETSET_DEFINATION_FROM_VALUE(FbxCharacterLink,mPropertyTemplateName,FbxProperty,PropertyTemplateName);					
+		REF_PROPERTY_GETSET_DEFINATION_FROM_VALUE(FbxCharacterLink,mPropertyTemplateName,FbxPropertyManaged,PropertyTemplateName);					
 
 #endif // #ifndef DOXYGEN_SHOULD_SKIP_THIS		
 

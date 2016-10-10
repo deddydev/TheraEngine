@@ -3,7 +3,7 @@
 #include "Fbx.h"
 #include "FbxLayerInfoRefArray.h"
 
-namespace Skill
+
 {
 	namespace FbxSDK
 	{

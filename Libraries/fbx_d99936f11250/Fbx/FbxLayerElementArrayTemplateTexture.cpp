@@ -3,7 +3,7 @@
 #include "FbxLayerElementArrayTemplateTexture.h"
 #include "FbxTexture.h"
 
-namespace Skill
+
 {
 	namespace FbxSDK
 	{		

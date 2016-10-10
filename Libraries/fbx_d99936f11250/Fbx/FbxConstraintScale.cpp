@@ -9,7 +9,7 @@
 	VALUE_PROPERTY_GET_DEFINATION(FbxConstraintScale,Get##PropName(),PropType,PropName);\
 	void FbxConstraintScale::PropName::set(PropType value){ _Ref()->Set##PropName(value);}
 
-namespace Skill
+
 {
 	namespace FbxSDK
 	{		

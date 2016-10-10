@@ -7,7 +7,7 @@
 	public: static property System::String^ FBXCURVE_##PropName { System::String^ get(){ return Value;}}
 
 
-namespace Skill
+
 {
 	namespace FbxSDK
 	{

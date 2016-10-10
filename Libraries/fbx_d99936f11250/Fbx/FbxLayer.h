@@ -5,7 +5,7 @@
 #define CREATE_DECLARE(classDesc)\
 	static Fbx##classDesc^ Create(FbxLayerContainer^ owner, String^ name);
 
-namespace Skill
+
 {
 	namespace FbxSDK
 	{

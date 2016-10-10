@@ -4,8 +4,6 @@
 #include "FbxProperty.h"
 #include "FbxString.h"
 
-namespace Skill
-{
 	namespace FbxSDK
 	{
 		namespace IO
@@ -38,18 +36,18 @@ namespace Skill
 			{
 				_Ref()->Reset();
 			}
-			FbxProperty^ FbxStreamOptionsManaged::GetOption(FbxString^ name)
+			FbxPropertyManaged^ FbxStreamOptionsManaged::GetOption(FbxString^ name)
 			{
-				return gcnew FbxProperty(_Ref()->GetOption(*name->_Ref()));
+				return gcnew FbxPropertyManaged(_Ref()->GetOption(*name->_Ref()));
 			}
-			FbxProperty^ FbxStreamOptionsManaged::GetOption(String^ name)
+			FbxPropertyManaged^ FbxStreamOptionsManaged::GetOption(String^ name)
 			{				
 				STRINGTO_CONSTCHAR_ANSI(n,name);
-				FbxProperty^ p = gcnew FbxProperty(&_Ref()->GetOption(n));
+				FbxPropertyManaged^ p = gcnew FbxPropertyManaged(&_Ref()->GetOption(n));
 				FREECHARPOINTER(n);
 				return p;
 			}
-			bool FbxStreamOptionsManaged::SetOption(FbxProperty^ fProperty)
+			bool FbxStreamOptionsManaged::SetOption(FbxPropertyManaged^ fProperty)
 			{
 				return _Ref()->SetOption(*fProperty->_Ref());
 			}
@@ -63,4 +61,3 @@ namespace Skill
 #endif // #ifndef DOXYGEN_SHOULD_SKIP_THIS			
 		}
 	}
-}

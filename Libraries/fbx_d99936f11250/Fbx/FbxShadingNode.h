@@ -3,7 +3,7 @@
 #include "FbxShadingObject.h"
 
 
-namespace Skill
+
 {
 	namespace FbxSDK
 	{

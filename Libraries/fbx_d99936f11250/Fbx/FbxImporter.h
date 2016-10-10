@@ -2,7 +2,7 @@
 #include "stdafx.h"
 #include "FbxIO.h"
 
-namespace Skill
+
 {
 	namespace FbxSDK
 	{

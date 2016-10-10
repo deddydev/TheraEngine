@@ -3,7 +3,7 @@
 #include "FbxPlug.h"
 #include "FbxPropertyDef.h"
 
-namespace Skill
+
 {
 	namespace FbxSDK
 	{
@@ -12,7 +12,7 @@ namespace Skill
 		ref class FbxStringManaged;
 		ref class FbxStream;
 		ref class FbxEvaluationInfo;
-		ref class FbxProperty;
+		ref class FbxPropertyManaged;
 		ref class FbxDataType;
 		ref class FbxDocument;
 		ref class FbxScene;
@@ -246,7 +246,7 @@ namespace Skill
 			/**
 			* \name Evaluation Info
 			*/			
-			virtual bool Evaluate(FbxProperty^ prop,FbxEvaluationInfo^ evaluationInfo);			
+			virtual bool Evaluate(FbxPropertyManaged^ prop,FbxEvaluationInfo^ evaluationInfo);			
 
 
 			/**
@@ -254,9 +254,9 @@ namespace Skill
 			*/
 			//@{
 		
-			FbxProperty^ GetFirstProperty();
+			FbxPropertyManaged^ GetFirstProperty();
 
-			FbxProperty^ GetNextProperty(FbxProperty^ prop);
+			FbxPropertyManaged^ GetNextProperty(FbxPropertyManaged^ prop);
 
 			/** Find a property using its name and its data type.
 			* \param pName The name of the property as a \c NULL terminated string.
@@ -264,21 +264,21 @@ namespace Skill
 			* \return A valid KFbxProperty if the property was found, else
 			*         an invalid KFbxProperty. See KFbxProperty::IsValid()
 			*/
-			FbxProperty^ FindProperty(String^ name, bool caseSensitive);
-			FbxProperty^ FindProperty(String^ name)
+			FbxPropertyManaged^ FindProperty(String^ name, bool caseSensitive);
+			FbxPropertyManaged^ FindProperty(String^ name)
 			{
 				return FindProperty(name, true);
 			}
 
-			FbxProperty^ FindProperty(String^ name, FbxDataType^ dataType, bool caseSensitive);
-			FbxProperty^ FindProperty(String^ name, FbxDataType^ dataType)
+			FbxPropertyManaged^ FindProperty(String^ name, FbxDataType^ dataType, bool caseSensitive);
+			FbxPropertyManaged^ FindProperty(String^ name, FbxDataType^ dataType)
 			{
 				return FindProperty(name,dataType,false);
 			}
 
 			
-			FbxProperty^ FindPropertyHierarchical(String^ name, bool caseSensitive);
-			FbxProperty^ FindPropertyHierarchical(String^ name)
+			FbxPropertyManaged^ FindPropertyHierarchical(String^ name, bool caseSensitive);
+			FbxPropertyManaged^ FindPropertyHierarchical(String^ name)
 			{
 				return FindPropertyHierarchical(name, true);
 			}
@@ -289,8 +289,8 @@ namespace Skill
 				return FindPropertyHierarchical(name,dataType,true);
 			}*/
 			
-			FbxProperty^ GetRootProperty();			
-			FbxProperty^ GetClassRootProperty();
+			FbxPropertyManaged^ GetRootProperty();			
+			FbxPropertyManaged^ GetClassRootProperty();
 		public:
 			// SrcObjects
 			bool ConnectSrcObject(FbxObjectManaged^ obj,FbxConnectionType type);

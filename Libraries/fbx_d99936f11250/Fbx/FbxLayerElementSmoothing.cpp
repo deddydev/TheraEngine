@@ -3,7 +3,7 @@
 #include "FbxLayerElementSmoothing.h"
 #include "FbxLayerContainer.h"
 
-namespace Skill
+
 {
 	namespace FbxSDK
 	{		

@@ -2,11 +2,11 @@
 #include "stdafx.h"
 #include "FbxObject.h"
 
-namespace Skill
+
 {
 	namespace FbxSDK
 	{		
-		ref class FbxProperty;
+		ref class FbxPropertyManaged;
 		ref class FbxStringManaged;
 		ref class FbxClassId;
 		ref class FbxSdkManagerManaged;
@@ -41,7 +41,7 @@ namespace Skill
 			// 
 			// Below are the default properties, but application vendors can add new
 			// properties under this parent property.
-			REF_PROPERTY_GETSET_DECLARE(FbxProperty,Original);
+			REF_PROPERTY_GETSET_DECLARE(FbxPropertyManaged,Original);
 
 
 			// "CompanyName"
@@ -65,7 +65,7 @@ namespace Skill
 			//				// It is up to the file creator to set both the 'Original' and
 			//				// 'Last Saved' properties.	
 
-			REF_PROPERTY_GETSET_DECLARE(FbxProperty,LastSaved);
+			REF_PROPERTY_GETSET_DECLARE(FbxPropertyManaged,LastSaved);
 
 
 

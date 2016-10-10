@@ -14,7 +14,7 @@
 #include "FbxQuery.h"
 #include "FbxObjectMetaData.h"
 
-namespace Skill
+
 {
 	namespace FbxSDK
 	{
@@ -205,48 +205,48 @@ namespace Skill
 			_Ref()->SetSelected(value);
 		}
 
-		bool FbxObjectManaged::Evaluate(FbxProperty^ prop,FbxEvaluationInfo^ evaluationInfo)
+		bool FbxObjectManaged::Evaluate(FbxPropertyManaged^ prop,FbxEvaluationInfo^ evaluationInfo)
 		{
 			return _Ref()->Evaluate(*prop->_Ref(),evaluationInfo->_Ref());
 		}
 
-		FbxProperty^ FbxObjectManaged::GetFirstProperty()
+		FbxPropertyManaged^ FbxObjectManaged::GetFirstProperty()
 		{
 			KFbxProperty p = _Ref()->GetFirstProperty();
-			FbxProperty^ pro = gcnew FbxProperty();
+			FbxPropertyManaged^ pro = gcnew FbxPropertyManaged();
 			*pro->_FbxProperty = p;
 			return pro;
 		}
-		FbxProperty^ FbxObjectManaged::GetNextProperty(FbxProperty^ prop)
+		FbxPropertyManaged^ FbxObjectManaged::GetNextProperty(FbxPropertyManaged^ prop)
 		{
 			KFbxProperty p = _Ref()->GetNextProperty(*prop->_Ref());
-			FbxProperty^ pro = gcnew FbxProperty();
+			FbxPropertyManaged^ pro = gcnew FbxPropertyManaged();
 			*pro->_FbxProperty = p;
 			return pro;
 		}
-		FbxProperty^ FbxObjectManaged::FindProperty(String^ name, bool caseSensitive)
+		FbxPropertyManaged^ FbxObjectManaged::FindProperty(String^ name, bool caseSensitive)
 		{
 			STRINGTO_CONSTCHAR_ANSI(n,name);
 			KFbxProperty p = _Ref()->FindProperty(n,caseSensitive);
-			FbxProperty^ pro = gcnew FbxProperty();
+			FbxPropertyManaged^ pro = gcnew FbxPropertyManaged();
 			*pro->_FbxProperty = p;
 			FREECHARPOINTER(n);
 			return pro;
 		}
-		FbxProperty^ FbxObjectManaged::FindProperty(String^ name, FbxDataType^ dataType, bool caseSensitive)
+		FbxPropertyManaged^ FbxObjectManaged::FindProperty(String^ name, FbxDataType^ dataType, bool caseSensitive)
 		{
 			STRINGTO_CONSTCHAR_ANSI(n,name);
 			KFbxProperty p = _Ref()->FindProperty(n,*dataType->_Ref(),caseSensitive);
-			FbxProperty^ pro = gcnew FbxProperty();
+			FbxPropertyManaged^ pro = gcnew FbxPropertyManaged();
 			*pro->_FbxProperty = p;
 			FREECHARPOINTER(n);
 			return pro;
 		}
-		FbxProperty^ FbxObjectManaged::FindPropertyHierarchical(String^ name, bool caseSensitive)
+		FbxPropertyManaged^ FbxObjectManaged::FindPropertyHierarchical(String^ name, bool caseSensitive)
 		{
 			STRINGTO_CONSTCHAR_ANSI(n,name);
 			KFbxProperty p = _Ref()->FindPropertyHierarchical(n,caseSensitive);
-			FbxProperty^ pro = gcnew FbxProperty();
+			FbxPropertyManaged^ pro = gcnew FbxPropertyManaged();
 			*pro->_FbxProperty = p;
 			FREECHARPOINTER(n);
 			return pro;
@@ -261,17 +261,17 @@ namespace Skill
 			FREECHARPOINTER(n);
 			return pro;
 		}*/
-		FbxProperty^ FbxObjectManaged::GetRootProperty()
+		FbxPropertyManaged^ FbxObjectManaged::GetRootProperty()
 		{
 			KFbxProperty p = _Ref()->GetRootProperty();
-			FbxProperty^ pro = gcnew FbxProperty();
+			FbxPropertyManaged^ pro = gcnew FbxPropertyManaged();
 			*pro->_FbxProperty = p;
 			return pro;
 		}
-		FbxProperty^ FbxObjectManaged::GetClassRootProperty()
+		FbxPropertyManaged^ FbxObjectManaged::GetClassRootProperty()
 		{
 			KFbxProperty p = _Ref()->GetClassRootProperty();
-			FbxProperty^ pro = gcnew FbxProperty();
+			FbxPropertyManaged^ pro = gcnew FbxPropertyManaged();
 			*pro->_FbxProperty = p;
 			return pro;
 		}

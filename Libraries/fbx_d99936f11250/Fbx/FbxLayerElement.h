@@ -5,7 +5,7 @@
 #include "FbxNativePointer.h"
 
 
-namespace Skill
+
 {
 	namespace FbxSDK
 	{

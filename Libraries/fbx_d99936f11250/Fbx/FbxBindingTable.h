@@ -2,7 +2,7 @@
 #include "stdafx.h"
 #include "FbxBindingTableBase.h"
 
-namespace Skill
+
 {
 	namespace FbxSDK
 	{		

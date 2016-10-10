@@ -6,7 +6,7 @@
 #include "FbxCache.h"
 
 
-namespace Skill
+
 {
 	namespace FbxSDK
 	{		

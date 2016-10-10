@@ -6,7 +6,7 @@
 #include "FbxString.h"
 #include "FbxPropertyHandle.h"
 
-namespace Skill
+
 {
 	namespace FbxSDK
 	{							

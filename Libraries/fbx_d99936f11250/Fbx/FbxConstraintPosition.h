@@ -3,7 +3,7 @@
 #include "FbxConstraint.h"
 
 
-namespace Skill
+
 {
 	namespace FbxSDK
 	{		

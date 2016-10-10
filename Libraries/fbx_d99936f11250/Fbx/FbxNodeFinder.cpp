@@ -3,7 +3,7 @@
 #include "FbxNodeFinder.h"
 #include "FbxNode.h"
 
-namespace Skill
+
 {
 	namespace FbxSDK
 	{		

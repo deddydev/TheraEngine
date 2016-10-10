@@ -4,7 +4,7 @@
 #include "FbxDouble3.h"
 
 
-namespace Skill
+
 {
 	namespace FbxSDK
 	{
@@ -12,7 +12,7 @@ namespace Skill
 		ref class FbxClassId;
 		ref class FbxColor;
 		ref class FbxDouble3TypedProperty;
-		ref class FbxProperty;
+		ref class FbxPropertyManaged;
 		/**	This node attribute contains the properties of a marker.
 		* \nosubgrouping
 		*/
@@ -240,18 +240,18 @@ namespace Skill
 			* \remark If the marker is not of type Optical or the property
 			* is invalid, return NULL
 			*/
-			REF_PROPERTY_GET_DECLARE(FbxProperty,Occlusion);
+			REF_PROPERTY_GET_DECLARE(FbxPropertyManaged,Occlusion);
 
 			/** This method grants access to the IKReachTranslation property.
 			* \remark If the marker is not of type IK Effector or the property
 			* is invalid, return NULL
 			*/			
-			REF_PROPERTY_GET_DECLARE(FbxProperty,IKReachTranslation);
+			REF_PROPERTY_GET_DECLARE(FbxPropertyManaged,IKReachTranslation);
 			/** This method grants access to the IKReachRotation property.
 			* \remark If the marker is not of type IK Effector or the property
 			* is invalid, return NULL
 			*/
-			REF_PROPERTY_GET_DECLARE(FbxProperty,IKReachRotation);			
+			REF_PROPERTY_GET_DECLARE(FbxPropertyManaged,IKReachRotation);			
 
 			///////////////////////////////////////////////////////////////////////////////
 			//

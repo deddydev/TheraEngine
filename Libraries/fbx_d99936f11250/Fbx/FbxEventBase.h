@@ -3,7 +3,7 @@
 #include "Fbx.h"
 #include "kfbxevents/includes.h"
 
-namespace Skill
+
 {
 	namespace FbxSDK
 	{

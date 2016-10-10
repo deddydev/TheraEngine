@@ -5,7 +5,7 @@
 #include "FbxLayerElementArrayTemplateVector4.h"
 
 
-namespace Skill
+
 {
 	namespace FbxSDK
 	{

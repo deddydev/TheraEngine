@@ -11,7 +11,7 @@
 #include "FbxScene.h"
 #include "FbxIOSettings.h"
 
-namespace Skill
+
 {
 	namespace FbxSDK
 	{	

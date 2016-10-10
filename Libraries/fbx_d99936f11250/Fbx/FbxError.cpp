@@ -3,7 +3,7 @@
 #include "FbxError.h"
 #include "FbxString.h"
 
-namespace Skill
+
 {
 	namespace FbxSDK
 	{

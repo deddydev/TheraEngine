@@ -3,7 +3,7 @@
 #include "Fbx.h"
 #include  <kfcurve/KFCurveNode.h>
 
-namespace Skill
+
 {
 	namespace FbxSDK
 	{	

@@ -4,7 +4,7 @@
 #include <kfbxplugins/kfbxkfcurvefilters.h>
 
 
-namespace Skill
+
 {
 	namespace FbxSDK
 	{

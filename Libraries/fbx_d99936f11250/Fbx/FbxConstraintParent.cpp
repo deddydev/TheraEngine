@@ -10,7 +10,7 @@
 	void FbxConstraintParent::PropName::set(PropType value){ _Ref()->Set##PropName(value);}
 
 
-namespace Skill
+
 {
 	namespace FbxSDK
 	{		

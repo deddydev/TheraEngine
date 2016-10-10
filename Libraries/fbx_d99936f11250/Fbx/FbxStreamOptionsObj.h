@@ -3,7 +3,7 @@
 #include "FbxStreamOptions.h"
 #include "kfbxio/kfbxstreamoptionsobj.h"
 
-namespace Skill
+
 {
 	namespace FbxSDK
 	{

@@ -5,7 +5,7 @@
 #include "FbxClassId.h"
 #include "FbxSdkManager.h"
 
-namespace Skill
+
 {
 	namespace FbxSDK
 	{		

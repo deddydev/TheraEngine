@@ -2,7 +2,7 @@
 #include "stdafx.h"
 #include "FbxLayerElementTemplateInt32.h"
 
-namespace Skill
+
 {
 	namespace FbxSDK
 	{	

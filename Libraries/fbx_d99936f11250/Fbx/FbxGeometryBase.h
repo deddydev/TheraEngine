@@ -2,7 +2,7 @@
 #include "stdafx.h"
 #include "FbxLayerContainer.h"
 using namespace System::Runtime::InteropServices;
-namespace Skill
+
 {
 	namespace FbxSDK
 	{

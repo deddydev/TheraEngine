@@ -6,7 +6,7 @@
 using namespace std;
 using namespace System;
 
-namespace Skill
+
 {
 	namespace FbxSDK
 	{		

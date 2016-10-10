@@ -2,7 +2,7 @@
 #include "stdafx.h"
 #include "FbxGeometryBase.h"
 
-namespace Skill
+
 {
 	namespace FbxSDK
 	{	

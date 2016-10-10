@@ -3,7 +3,7 @@
 #include "FbxLayerElementArrayTemplateVector2.h"
 #include "FbxVector2.h"
 
-namespace Skill
+
 {
 	namespace FbxSDK
 	{

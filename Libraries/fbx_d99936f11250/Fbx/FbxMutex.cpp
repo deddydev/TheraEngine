@@ -2,7 +2,7 @@
 #include "stdafx.h"
 #include "FbxMutex.h"
 
-namespace Skill
+
 {
 	namespace FbxSDK
 	{

@@ -14,7 +14,7 @@
 	REF_PROPERTY_GET_DEFINATION_FROM_VALUE(FbxLight,PropName,PropType,PropName);
 
 
-namespace Skill
+
 {
 	namespace FbxSDK
 	{

@@ -8,7 +8,7 @@
 #include "FbxDouble3.h"
 #include "FbxDouble2.h"
 
-namespace Skill
+
 {
 	namespace FbxSDK
 	{		
@@ -25,7 +25,7 @@ namespace Skill
 
 
 		FbxDouble1TypedProperty::FbxDouble1TypedProperty()
-			: FbxProperty(new KFbxTypedProperty<fbxDouble1>())
+			: FbxPropertyManaged(new KFbxTypedProperty<fbxDouble1>())
 		{
 			_Free = true;
 		}
@@ -57,7 +57,7 @@ namespace Skill
 
 
 		FbxInteger1TypedProperty::FbxInteger1TypedProperty()
-			: FbxProperty(new KFbxTypedProperty<fbxInteger1>())
+			: FbxPropertyManaged(new KFbxTypedProperty<fbxInteger1>())
 		{
 			_Free = true;
 		}

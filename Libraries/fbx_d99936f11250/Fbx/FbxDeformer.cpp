@@ -4,7 +4,7 @@
 #include "FbxError.h"
 
 
-namespace Skill
+
 {
 	namespace FbxSDK
 	{	

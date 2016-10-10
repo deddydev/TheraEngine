@@ -4,7 +4,7 @@
 #include "FbxEventBase.h"
 #include "FbxListener.h"
 
-namespace Skill
+
 {
 	namespace FbxSDK
 	{

@@ -6,7 +6,7 @@
 #include "FbxDataType.h"
 
 
-namespace Skill
+
 {
 	namespace FbxSDK
 	{	

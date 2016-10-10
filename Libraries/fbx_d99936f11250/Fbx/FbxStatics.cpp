@@ -22,7 +22,7 @@
 	Class^ FbxStatics::_##Class::FbxGetDst(FbxObject^ obj,int index,FbxClassId^ classId){NativeClass* d = KFbxGetDst<NativeClass>(obj->_Ref(),index,*classId->_Ref());if(d)return gcnew Class(d);	return nullptr;}
 
 
-namespace Skill
+
 {
 	namespace FbxSDK
 	{		

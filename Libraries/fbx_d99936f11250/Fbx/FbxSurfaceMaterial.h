@@ -2,7 +2,7 @@
 #include "stdafx.h"
 #include "FbxShadingObject.h"
 
-namespace Skill
+
 {
 	namespace FbxSDK
 	{	

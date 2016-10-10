@@ -3,7 +3,7 @@
 #include "FbxQuaternion.h"
 #include "FbxVector4.h"
 
-namespace Skill
+
 {
 	namespace FbxSDK
 	{		

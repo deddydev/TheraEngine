@@ -6,7 +6,7 @@
 
 
 
-namespace Skill
+
 {
 	namespace FbxSDK
 	{

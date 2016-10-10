@@ -4,14 +4,14 @@
 #include "FbxTime.h"
 #include "FbxPropertyDef.h"
 
-namespace Skill
+
 {
 	namespace FbxSDK
 	{
 		ref class FbxTime;
 		ref class FbxClassId;
 		ref class FbxSdkManagerManaged;
-		ref class FbxProperty;
+		ref class FbxPropertyManaged;
 		ref class FbxDataType;
 		ref class FbxStringManaged;		
 		namespace IO
@@ -125,18 +125,18 @@ namespace Skill
 				//virtual void Clear() override;
 
 				//! Add a property group under the root prop
-				FbxProperty^ AddPropertyGroup(String^ name, FbxDataType^ dataType, String^ label);
-				FbxProperty^ AddPropertyGroup(String^ name);
+				FbxPropertyManaged^ AddPropertyGroup(String^ name, FbxDataType^ dataType, String^ label);
+				FbxPropertyManaged^ AddPropertyGroup(String^ name);
 
 				//! Add a property group under another parent prop
-				FbxProperty^ AddPropertyGroup(	FbxProperty^ parentProperty, 
+				FbxPropertyManaged^ AddPropertyGroup(	FbxPropertyManaged^ parentProperty, 
 					String^ name,
 					FbxDataType^ dataType, 
 					String^ label,
 					bool visible,
 					bool savable,
 					bool enabled);
-				FbxProperty^ AddPropertyGroup(	FbxProperty^ parentProperty, 
+				FbxPropertyManaged^ AddPropertyGroup(	FbxPropertyManaged^ parentProperty, 
 					String^ name);
 
 				//! Add a property under another parent prop with a value to set
@@ -167,10 +167,10 @@ namespace Skill
 
 
 				//! get a prop by description ex: "Export|Animation|Bake"
-				FbxProperty^ GetProperty(String^ name);
+				FbxPropertyManaged^ GetProperty(String^ name);
 
 				//! get prop by description from a parent property
-				FbxProperty^ GetProperty(FbxProperty^ parentProperty,String^ name);
+				FbxPropertyManaged^ GetProperty(FbxPropertyManaged^ parentProperty,String^ name);
 
 				//! get/set a bool prop by prop path
 				bool GetBoolProp(String^ name, bool defValue);
@@ -309,12 +309,12 @@ namespace Skill
 				}				
 
 				//FbxPropInfo^ GetPropInfo(FbxProperty^ prop);
-				String^ GetLanguageLabel(FbxProperty^ prop);
-				void SetLanguageLabel(FbxProperty^ prop, String^ label);
+				String^ GetLanguageLabel(FbxPropertyManaged^ prop);
+				void SetLanguageLabel(FbxPropertyManaged^ prop, String^ label);
 				FbxUILanguage GetMaxRuntimeLanguage(String^ regLocation);
 
-				bool IsEnumExist(FbxProperty^ prop, String^ enumString);
-				int GetEnumIndex(FbxProperty^ prop, String^ enumString, bool noCase);
+				bool IsEnumExist(FbxPropertyManaged^ prop, String^ enumString);
+				int GetEnumIndex(FbxPropertyManaged^ prop, String^ enumString, bool noCase);
 
 				CLONE_DECLARE();
 			};

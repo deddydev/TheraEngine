@@ -16,7 +16,7 @@ ref class _##Class abstract sealed { public:\
 	static Class^ FbxGetDst(FbxObject^ obj,int index);\
 	static Class^ FbxGetDst(FbxObject^ obj,int index,FbxClassId^ classId);}
 
-namespace Skill
+
 {
 
 	namespace FbxSDK

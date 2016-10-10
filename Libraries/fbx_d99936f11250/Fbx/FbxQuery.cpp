@@ -4,7 +4,7 @@
 #include "FbxProperty.h"
 #include "FbxClassId.h"
 
-namespace Skill
+
 {
 	namespace FbxSDK
 	{	
@@ -16,11 +16,11 @@ namespace Skill
 		{
 			return _Ref()->GetUniqueId();
 		}
-		bool FbxQuery::IsPropertyValid(FbxProperty^ p)
+		bool FbxQuery::IsPropertyValid(FbxPropertyManaged^ p)
 		{
 			return _Ref()->IsValid(*p->_Ref());
 		}			
-		bool FbxQuery::IsPropertyValid(FbxProperty^ p,FbxConnectionType type)
+		bool FbxQuery::IsPropertyValid(FbxPropertyManaged^ p,FbxConnectionType type)
 		{
 			return _Ref()->IsValid(*p->_Ref(),(kFbxConnectionType)type);
 		}

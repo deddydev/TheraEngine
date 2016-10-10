@@ -4,7 +4,7 @@
 #include "FbxPlug.h"
 #include <kfbxplugins/kfbxplug.h>
 
-namespace Skill
+
 {
 	namespace FbxSDK
 	{			

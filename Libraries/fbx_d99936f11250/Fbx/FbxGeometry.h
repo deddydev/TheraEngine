@@ -3,7 +3,7 @@
 #include "FbxGeometryBase.h"
 #include "FbxDeformer.h"
 
-namespace Skill
+
 {
 	namespace FbxSDK
 	{		

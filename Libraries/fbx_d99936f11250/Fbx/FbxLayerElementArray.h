@@ -4,7 +4,7 @@
 #include "FbxLockAccessStatus.h"
 
 
-namespace Skill
+
 {
 	namespace FbxSDK
 	{

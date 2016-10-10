@@ -3,7 +3,7 @@
 #include "FbxSurfaceEvaluator.h"
 #include "FbxWeightedMapping.h"
 
-namespace Skill
+
 {
 	namespace FbxSDK
 	{			

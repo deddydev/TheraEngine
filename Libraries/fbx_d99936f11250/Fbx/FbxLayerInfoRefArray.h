@@ -3,7 +3,7 @@
 #include "Fbx.h"
 #include "FbxTakeInfo.h"
 
-namespace Skill
+
 {
 	namespace FbxSDK
 	{

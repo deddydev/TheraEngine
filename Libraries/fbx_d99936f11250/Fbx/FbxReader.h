@@ -1,6 +1,6 @@
 #pragma once
 #include "stdafx.h"
-namespace Skill
+
 {
 	namespace FbxSDK
 	{

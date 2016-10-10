@@ -34,7 +34,7 @@
 #define FBXNODE_PROP_GETSET_DEFINE(Type,Name)Type FbxNode::Name::get(){	return _Ref()->Name.Get();}\
 	void FbxNode::Name::set(Type value){_Ref()->Name.Set(value);}\
 
-namespace Skill
+
 {
 	namespace FbxSDK
 	{

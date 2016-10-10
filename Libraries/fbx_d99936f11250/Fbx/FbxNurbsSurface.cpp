@@ -6,7 +6,7 @@
 #include "FbxNode.h"
 
 
-namespace Skill
+
 {
 	namespace FbxSDK
 	{

@@ -4,7 +4,7 @@
 #include "FbxLayer.h"
 
 
-namespace Skill
+
 {
 	namespace FbxSDK
 	{

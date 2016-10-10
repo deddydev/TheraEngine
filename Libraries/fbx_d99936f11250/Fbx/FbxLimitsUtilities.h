@@ -4,7 +4,7 @@
 #include <kfbxplugins/kfbxlimitsutilities.h>
 
 
-namespace Skill
+
 {
 	namespace FbxSDK
 	{

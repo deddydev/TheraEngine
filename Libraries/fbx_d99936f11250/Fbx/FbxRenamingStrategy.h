@@ -2,7 +2,7 @@
 #include "stdafx.h"
 #include "FbxKRenamingStrategy.h"
 
-namespace Skill
+
 {
 	namespace FbxSDK
 	{		

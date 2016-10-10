@@ -4,7 +4,7 @@
 #include "FbxSubDeformer.h"
 
 
-namespace Skill
+
 {
 	namespace FbxSDK
 	{

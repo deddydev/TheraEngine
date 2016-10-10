@@ -3,7 +3,7 @@
 #include "FbxLayerElementNormal.h"
 #include "FbxLayerContainer.h"
 
-namespace Skill
+
 {
 	namespace FbxSDK
 	{

@@ -10,7 +10,7 @@
 #include "FbxAxisSystem.h"
 #include "FbxSystemUnit.h"
 
-namespace Skill
+
 {
 	namespace FbxSDK
 	{

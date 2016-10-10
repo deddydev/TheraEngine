@@ -4,7 +4,7 @@
 #include "FbxNodeAttribute.h"
 
 
-namespace Skill
+
 {
 	namespace FbxSDK
 	{

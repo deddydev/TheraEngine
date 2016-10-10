@@ -5,14 +5,14 @@
 #include "FbxString.h"
 #include "FbxDocument.h"
 
-namespace Skill
+
 {
 	namespace FbxSDK
 	{	
 		void FbxXRefManager::CollectManagedMemory()
 		{
 		}
-		int FbxXRefManager::GetUrlCount(FbxProperty^ p)
+		int FbxXRefManager::GetUrlCount(FbxPropertyManaged^ p)
 		{
 			return KFbxXRefManager::GetUrlCount(*p->_Ref());
 		}
@@ -28,18 +28,18 @@ namespace Skill
 			return KFbxXRefManager::GetUrlCount(s);
 		}
 
-		bool FbxXRefManager::IsRelativeUrl(FbxProperty^ p,int index)
+		bool FbxXRefManager::IsRelativeUrl(FbxPropertyManaged^ p,int index)
 		{
 			return KFbxXRefManager::IsRelativeUrl(*p->_Ref(),index);
 		}
 
-		String^ FbxXRefManager::GetUrl(FbxProperty^ p,int index)
+		String^ FbxXRefManager::GetUrl(FbxPropertyManaged^ p,int index)
 		{
 			FbxString s = KFbxXRefManager::GetUrl(*p->_Ref(),index);
 			CONVERT_FbxString_TO_STRING(s,str);
 			return str;
 		}
-		void FbxXRefManager::GetUrl(FbxProperty^ p,int index,FbxStringManaged^ urlOut)
+		void FbxXRefManager::GetUrl(FbxPropertyManaged^ p,int index,FbxStringManaged^ urlOut)
 		{
 			*urlOut->_Ref() = KFbxXRefManager::GetUrl(*p->_Ref(),index);			
 		}
@@ -48,11 +48,11 @@ namespace Skill
 		* upon return the pXRefProject will return the name of the XRef Project closest to the Url of the property
 		* \return The Url if it is valid relative
 		*/
-		bool FbxXRefManager::GetResolvedUrl(FbxProperty^ p ,int index,FbxStringManaged^ resolvedPath)
+		bool FbxXRefManager::GetResolvedUrl(FbxPropertyManaged^ p ,int index,FbxStringManaged^ resolvedPath)
 		{
 			return _Ref()->GetResolvedUrl(*p->_Ref(),index,*resolvedPath->_Ref());
 		}
-		bool FbxXRefManager::GetResolvedUrl(FbxProperty^ p ,int index,String^ resolvedPath)
+		bool FbxXRefManager::GetResolvedUrl(FbxPropertyManaged^ p ,int index,String^ resolvedPath)
 		{
 			STRINGTO_CONSTCHAR_ANSI(r,resolvedPath);
 			FbxString s(r);

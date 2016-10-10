@@ -10,7 +10,7 @@
 	VALUE_PROPERTY_GET_DEFINATION(FbxConstraintSingleChainIK,Get##PropName(),PropType,PropName);\
 	void FbxConstraintSingleChainIK::PropName::set(PropType value){ _Ref()->Set##PropName(value);}
 
-namespace Skill
+
 {
 	namespace FbxSDK
 	{		

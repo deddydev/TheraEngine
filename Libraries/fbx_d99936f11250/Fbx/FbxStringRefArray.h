@@ -3,7 +3,7 @@
 #include "Fbx.h"
 
 
-namespace Skill
+
 {
 	namespace FbxSDK
 	{
@@ -18,7 +18,7 @@ typedef  FbxStringManaged RefStringClass;
 
 using namespace System::Collections::Generic;
 
-namespace Skill
+
 {
 	namespace FbxSDK
 	{

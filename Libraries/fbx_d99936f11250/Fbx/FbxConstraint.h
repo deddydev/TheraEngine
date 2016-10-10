@@ -4,7 +4,7 @@
 #include "FbxTakeNodeContainer.h"
 
 
-namespace Skill
+
 {
 	namespace FbxSDK
 	{		

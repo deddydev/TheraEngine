@@ -7,7 +7,7 @@
 #include "FbxTime.h"
 #include "FbxVector4.h"
 
-namespace Skill
+
 {
 	namespace FbxSDK
 	{	

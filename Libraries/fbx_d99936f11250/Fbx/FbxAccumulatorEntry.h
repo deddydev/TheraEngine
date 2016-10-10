@@ -4,7 +4,7 @@
 #include <kfbxplugins/kfbxusernotification.h>
 
 
-namespace Skill
+
 {
 	namespace FbxSDK
 	{	

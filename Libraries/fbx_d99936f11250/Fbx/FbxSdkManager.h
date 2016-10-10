@@ -4,7 +4,7 @@
 #include "FbxType.h"
 #include "FbxNativePointer.h"
 
-namespace Skill
+
 {
 	namespace FbxSDK
 	{
@@ -15,9 +15,9 @@ namespace Skill
 	}
 }
 
-using namespace Skill::FbxSDK::IO;
+using ::FbxSDK::IO;
 
-namespace Skill
+
 {
 	namespace FbxSDK
 	{	

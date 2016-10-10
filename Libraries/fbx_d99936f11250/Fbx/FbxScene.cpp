@@ -21,7 +21,7 @@
 #include "FbxTakeNodeContainer.h"
 #include "FbxClassId.h"
 
-namespace Skill
+
 {
 	namespace FbxSDK
 	{	

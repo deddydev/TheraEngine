@@ -3,7 +3,7 @@
 #include "FbxKRenamingStrategy.h"
 #include "FbxName.h"
 
-namespace Skill
+
 {
 	namespace FbxSDK
 	{		

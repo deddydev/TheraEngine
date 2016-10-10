@@ -13,7 +13,7 @@
 	else _##PropName = gcnew PropType(&_Ref()->NativePtr);return _##PropName;}\
 	void Class::PropName::set(PropType^ value){_Ref()->NativePtr = *value->_Ref();}
 
-namespace Skill
+
 {
 	namespace FbxSDK
 	{	

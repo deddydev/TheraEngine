@@ -3,7 +3,7 @@
 #include "FbxColor.h"
 
 
-namespace Skill
+
 {
 	namespace FbxSDK
 	{		

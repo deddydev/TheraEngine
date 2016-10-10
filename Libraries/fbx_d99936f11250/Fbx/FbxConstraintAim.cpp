@@ -9,7 +9,7 @@
 	PropType FbxConstraintAim::PropName::get(){return _Ref()->PropName.Get();}\
 	void FbxConstraintAim::PropName::set(PropType value){ _Ref()->PropName.Set(value);}
 
-namespace Skill
+
 {
 	namespace FbxSDK
 	{

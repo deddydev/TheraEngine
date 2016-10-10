@@ -7,7 +7,7 @@
 #include "FbxDataType.h"
 #include "FbxString.h"
 
-namespace Skill
+
 {
 	namespace FbxSDK
 	{
@@ -81,28 +81,28 @@ namespace Skill
 				return refIO;				
 			}		
 
-			FbxProperty^ FbxIOSettingsManaged::AddPropertyGroup(String^ name, FbxDataType^ dataType, String^ label)
+			FbxPropertyManaged^ FbxIOSettingsManaged::AddPropertyGroup(String^ name, FbxDataType^ dataType, String^ label)
 			{
 				STRINGTO_CONSTCHAR_ANSI(n,name);
 				STRINGTO_CONSTCHAR_ANSI(l,label);
 
 				KFbxProperty p = _Ref()->AddPropertyGroup(n,*dataType->_Ref(),l);
-				FbxProperty^ p1 = gcnew FbxProperty(p);				
+				FbxPropertyManaged^ p1 = gcnew FbxPropertyManaged(p);				
 				FREECHARPOINTER(n);
 				FREECHARPOINTER(l);
 				return p1;
 			}
 
-			FbxProperty^ FbxIOSettingsManaged::AddPropertyGroup(String^ name)
+			FbxPropertyManaged^ FbxIOSettingsManaged::AddPropertyGroup(String^ name)
 			{
 				STRINGTO_CONSTCHAR_ANSI(n,name);				
 				KFbxProperty p = _Ref()->AddPropertyGroup(n);
-				FbxProperty^ p1 = gcnew FbxProperty(p);
+				FbxPropertyManaged^ p1 = gcnew FbxPropertyManaged(p);
 				FREECHARPOINTER(n);				
 				return p1;
 			}
 
-			FbxProperty^ FbxIOSettingsManaged::AddPropertyGroup(FbxProperty^ parentProperty, 
+			FbxPropertyManaged^ FbxIOSettingsManaged::AddPropertyGroup(FbxPropertyManaged^ parentProperty, 
 				String^ name,
 				FbxDataType^ dataType, 
 				String^ label,
@@ -114,35 +114,35 @@ namespace Skill
 				STRINGTO_CONSTCHAR_ANSI(l,label);
 
 				KFbxProperty p = _Ref()->AddPropertyGroup(*parentProperty->_Ref(),n,*dataType->_Ref(),l,visible,savable,enabled);
-				FbxProperty^ p1 = gcnew FbxProperty(p);
+				FbxPropertyManaged^ p1 = gcnew FbxPropertyManaged(p);
 				FREECHARPOINTER(n);
 				FREECHARPOINTER(l);
 				return p1;
 			}
 
-			FbxProperty^ FbxIOSettingsManaged::AddPropertyGroup(FbxProperty^ parentProperty, 
+			FbxPropertyManaged^ FbxIOSettingsManaged::AddPropertyGroup(FbxPropertyManaged^ parentProperty, 
 				String^ name)
 			{
 				STRINGTO_CONSTCHAR_ANSI(n,name);				
 				KFbxProperty p = _Ref()->AddPropertyGroup(*parentProperty->_Ref(),n);
-				FbxProperty^ p1 = gcnew FbxProperty(p);
+				FbxPropertyManaged^ p1 = gcnew FbxPropertyManaged(p);
 				FREECHARPOINTER(n);				
 				return p1;
 			}
 
-			FbxProperty^ FbxIOSettingsManaged::GetProperty(String^ name)
+			FbxPropertyManaged^ FbxIOSettingsManaged::GetProperty(String^ name)
 			{
 				STRINGTO_CONSTCHAR_ANSI(n,name);				
 				KFbxProperty p = _Ref()->GetProperty(n);
-				FbxProperty^ p1 = gcnew FbxProperty(p);
+				FbxPropertyManaged^ p1 = gcnew FbxPropertyManaged(p);
 				FREECHARPOINTER(n);				
 				return p1;
 			}
-			FbxProperty^ FbxIOSettingsManaged::GetProperty(FbxProperty^ parentProperty,String^ name)
+			FbxPropertyManaged^ FbxIOSettingsManaged::GetProperty(FbxPropertyManaged^ parentProperty,String^ name)
 			{
 				STRINGTO_CONSTCHAR_ANSI(n,name);				
 				KFbxProperty p = _Ref()->GetProperty(*parentProperty->_Ref(),n);
-				FbxProperty^ p1 = gcnew FbxProperty(p);
+				FbxPropertyManaged^ p1 = gcnew FbxPropertyManaged(p);
 				FREECHARPOINTER(n);				
 				return p1;
 			}
@@ -370,13 +370,13 @@ namespace Skill
 			{
 				_Ref()->UILanguage = (FBXUILANGUAGE)value;
 			}
-			String^ FbxIOSettingsManaged::GetLanguageLabel(FbxProperty^ prop)
+			String^ FbxIOSettingsManaged::GetLanguageLabel(FbxPropertyManaged^ prop)
 			{
 				FbxString kstr = _Ref()->GetLanguageLabel(*prop->_Ref());
 				CONVERT_FbxString_TO_STRING(kstr,str);
 				return str;
 			}
-			void FbxIOSettingsManaged::SetLanguageLabel(FbxProperty^ prop, String^ label)
+			void FbxIOSettingsManaged::SetLanguageLabel(FbxPropertyManaged^ prop, String^ label)
 			{				
 				STRINGTO_CONSTCHAR_ANSI(l,label);
 				FbxString kstr(l);
@@ -388,13 +388,13 @@ namespace Skill
 				FbxString kstr(rl);
 				return (FbxUILanguage)_Ref()->Get_Max_Runtime_Language(kstr);
 			}
-			bool FbxIOSettingsManaged::IsEnumExist(FbxProperty^ prop, String^ enumString)
+			bool FbxIOSettingsManaged::IsEnumExist(FbxPropertyManaged^ prop, String^ enumString)
 			{
 				STRINGTO_CONSTCHAR_ANSI(es,enumString);
 				FbxString kstr(es);
 				return _Ref()->IsEnumExist(*prop->_Ref(),kstr);
 			}
-			int  FbxIOSettingsManaged::GetEnumIndex(FbxProperty^ prop, String^ enumString, bool noCase)
+			int  FbxIOSettingsManaged::GetEnumIndex(FbxPropertyManaged^ prop, String^ enumString, bool noCase)
 			{
 				STRINGTO_CONSTCHAR_ANSI(es,enumString);
 				FbxString kstr(es);

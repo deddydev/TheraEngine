@@ -4,7 +4,7 @@
 #include "kfcurve/kfcurveutils.h"
 
 
-namespace Skill
+
 {
 	namespace FbxSDK
 	{		

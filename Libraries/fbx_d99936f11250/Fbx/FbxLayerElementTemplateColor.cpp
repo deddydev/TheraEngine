@@ -5,7 +5,7 @@
 #include "FbxLayerElementArrayTemplateColor.h"
 
 
-namespace Skill
+
 {
 	namespace FbxSDK
 	{

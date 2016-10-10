@@ -9,7 +9,7 @@
 	VALUE_PROPERTY_GET_DEFINATION(FbxConstraintRotation,Get##PropName(),PropType,PropName);\
 	void FbxConstraintRotation::PropName::set(PropType value){ _Ref()->Set##PropName(value);}
 
-namespace Skill
+
 {
 	namespace FbxSDK
 	{	

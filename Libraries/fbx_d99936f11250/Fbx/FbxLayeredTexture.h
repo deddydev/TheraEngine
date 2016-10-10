@@ -3,7 +3,7 @@
 #include "FbxTexture.h"
 
 
-namespace Skill
+
 {
 	namespace FbxSDK
 	{

@@ -15,7 +15,7 @@
 	for(int i=0; i < nodes->Length; i++){nodes[i] = gcnew ManagedType(arr[i]);}\
 	return nodes;}return nullptr;}
 
-namespace Skill
+
 {
 	namespace FbxSDK
 	{

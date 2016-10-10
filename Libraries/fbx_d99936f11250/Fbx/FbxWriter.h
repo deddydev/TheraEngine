@@ -4,7 +4,7 @@
 #include "FbxRenamingStrategy.h"
 #include "kfbxio/kfbxwriter.h"
 
-namespace Skill
+
 {
 	namespace FbxSDK
 	{

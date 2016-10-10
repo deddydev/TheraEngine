@@ -2,11 +2,11 @@
 #include "stdafx.h"
 #include "Fbx.h"
 
-namespace Skill
+
 {
 	namespace FbxSDK
 	{		
-		ref class FbxProperty;
+		ref class FbxPropertyManaged;
 		ref class FbxStringManaged;
 		ref class FbxDocumentManaged;
 		/** This class manages external references to files.
@@ -53,7 +53,7 @@ namespace Skill
 				/** Get the number of Urls stored in a property
 				* \return The Url Count
 				*/
-				static int GetUrlCount(FbxProperty^ p);
+				static int GetUrlCount(FbxPropertyManaged^ p);
 				static int GetUrlCount(FbxStringManaged^ url);
 				static int GetUrlCount(String^ url);
 
@@ -61,20 +61,20 @@ namespace Skill
 				* upon return the pXRefProject will return the name of the XRef Project closest to the Url of the property
 				* \return The Url if it is valid relative
 				*/
-				static bool IsRelativeUrl(FbxProperty^ p,int index);
+				static bool IsRelativeUrl(FbxPropertyManaged^ p,int index);
 
 				/** Return The nth Url stored in the property
 				* \return The Url
 				*/
-				static String^ GetUrl(FbxProperty^ p,int index);
-				static void GetUrl(FbxProperty^ p,int index,FbxStringManaged^ urlOut);
+				static String^ GetUrl(FbxPropertyManaged^ p,int index);
+				static void GetUrl(FbxPropertyManaged^ p,int index,FbxStringManaged^ urlOut);
 
 				/** Return The nth Relative Url stored in the property
 				* upon return the pXRefProject will return the name of the XRef Project closest to the Url of the property
 				* \return The Url if it is valid relative
 				*/
-				bool GetResolvedUrl(FbxProperty^ p ,int index,FbxStringManaged^ resolvedPath);
-				bool GetResolvedUrl(FbxProperty^ p ,int index,String^ resolvedPath);
+				bool GetResolvedUrl(FbxPropertyManaged^ p ,int index,FbxStringManaged^ resolvedPath);
+				bool GetResolvedUrl(FbxPropertyManaged^ p ,int index,String^ resolvedPath);
 				//@}
 
 

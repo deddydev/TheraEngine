@@ -5,7 +5,7 @@
 #include "FbxTime.h"
 #include "FbxProperty.h"
 
-namespace Skill
+
 {
 	namespace FbxSDK
 	{		
@@ -75,20 +75,20 @@ namespace Skill
 		{
 			_Ref()->Reset();
 		}
-		void FbxTakeNodeContainer::PropertyAdded(FbxProperty^ prop)
+		void FbxTakeNodeContainer::PropertyAdded(FbxPropertyManaged^ prop)
 		{
 			_Ref()->PropertyAdded(prop->_Ref());
 		}
-		void FbxTakeNodeContainer::PropertyRemoved(FbxProperty^ prop)
+		void FbxTakeNodeContainer::PropertyRemoved(FbxPropertyManaged^ prop)
 		{
 			_Ref()->PropertyRemoved(prop->_Ref());
 		}
 
-		void FbxTakeNodeContainer::UpdateFCurveFromProperty(FbxProperty^ prop,FbxTakeNode^ takeNode)
+		void FbxTakeNodeContainer::UpdateFCurveFromProperty(FbxPropertyManaged^ prop,FbxTakeNode^ takeNode)
 		{
 			_Ref()->UpdateFCurveFromProperty(*prop->_Ref(),(takeNode)?takeNode->_Ref() : NULL);
 		}
-		void FbxTakeNodeContainer::CreateChannelsForProperty(FbxProperty^ prop,FbxTakeNode^ takeNode)
+		void FbxTakeNodeContainer::CreateChannelsForProperty(FbxPropertyManaged^ prop,FbxTakeNode^ takeNode)
 		{
 			_Ref()->CreateChannelsForProperty(prop->_Ref(),(takeNode)?takeNode->_Ref() : NULL);
 		}

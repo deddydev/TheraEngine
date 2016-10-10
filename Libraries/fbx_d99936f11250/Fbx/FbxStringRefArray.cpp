@@ -3,7 +3,7 @@
 #include "FbxStringRefArray.h"
 #include "FbxString.h"
 
-namespace Skill
+
 {
 	namespace FbxSDK
 	{

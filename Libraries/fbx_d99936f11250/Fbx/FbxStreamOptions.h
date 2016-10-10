@@ -3,11 +3,11 @@
 #include "FbxObject.h"
 #include "KFbxIO/kfbxstreamoptions.h"
 
-namespace Skill
+
 {
 	namespace FbxSDK
 	{		
-		ref class FbxProperty;
+		ref class FbxPropertyManaged;
 		ref class FbxStringManaged;
 		namespace IO
 		{
@@ -37,14 +37,14 @@ namespace Skill
 				* \return          A KFbxProperty if the name is valid.
 				* \remarks         In the last case, an assert is raised
 				*/
-				FbxProperty^ GetOption(FbxStringManaged^ name);
+				FbxPropertyManaged^ GetOption(FbxStringManaged^ name);
 
 
 				/** Get a Stream Option by Stream Option Name.
 				* \return     A KFbxProperty if the name is valid.
 				* \remarks    In the last case, an assert is raised
 				*/
-				FbxProperty^ GetOption(String^ name);											
+				FbxPropertyManaged^ GetOption(String^ name);											
 
 				/** Set a Stream Option by Stream Option Name and a Value.
 				* \param pName     Name of the option where a change is needed.
@@ -60,7 +60,7 @@ namespace Skill
 				* \param pProperty     Property containing the value to be set.
 				* \return              \c true if the Property has been set, otherwise \c false.
 				*/
-				bool SetOption(FbxProperty^ fProperty);
+				bool SetOption(FbxPropertyManaged^ fProperty);
 
 				/** Copies the properties of another KFbxStreamOptions.
 				* \param pKFbxStreamOptionsSrc     Contains the properties to be copied

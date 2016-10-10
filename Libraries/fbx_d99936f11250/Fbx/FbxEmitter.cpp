@@ -3,7 +3,7 @@
 #include "FbxEmitter.h"
 #include "FbxEventHandler.h"
 
-namespace Skill
+
 {
 	namespace FbxSDK
 	{

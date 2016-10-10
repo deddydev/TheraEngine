@@ -8,7 +8,7 @@
 #include "FbxThumbnail.h"
 #include "FbxTypedProperty.h"
 
-namespace Skill
+
 {
 	namespace FbxSDK
 	{					
@@ -34,7 +34,7 @@ namespace Skill
 		REF_PROPERTY_GET_DEFINATION_FROM_VALUE(FbxDocumentInfo,Url,FbxStringTypedProperty,Url);	*/	
 
 
-		REF_PROPERTY_GETSET_DEFINATION_FROM_VALUE(FbxDocumentInfo,Original,FbxProperty,Original);
+		REF_PROPERTY_GETSET_DEFINATION_FROM_VALUE(FbxDocumentInfo,Original,FbxPropertyManaged,Original);
 
 		
 		REF_PROPERTY_GET_DEFINATION_FROM_VALUE(FbxDocumentInfo,Original_ApplicationVendor,FbxStringTypedProperty,Original_ApplicationVendor);
@@ -46,7 +46,7 @@ namespace Skill
 		REF_PROPERTY_GET_DEFINATION_FROM_VALUE(FbxDocumentInfo,Original_FileName,FbxStringTypedProperty,Original_FileName);		
 		
 
-		REF_PROPERTY_GETSET_DEFINATION_FROM_VALUE(FbxDocumentInfo,LastSaved,FbxProperty,LastSaved);		
+		REF_PROPERTY_GETSET_DEFINATION_FROM_VALUE(FbxDocumentInfo,LastSaved,FbxPropertyManaged,LastSaved);		
 		
 		REF_PROPERTY_GET_DEFINATION_FROM_VALUE(FbxDocumentInfo,LastSaved_ApplicationVendor,FbxStringTypedProperty,LastSaved_ApplicationVendor);	
 		

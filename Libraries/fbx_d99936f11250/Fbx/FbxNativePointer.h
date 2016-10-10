@@ -1,26 +1,20 @@
 #pragma once
 #include "stdafx.h"
 
-
-namespace Skill
-{
-	namespace FbxSDK
-	{			
-		public interface class IFbxNativePointer
+namespace FbxSDK
+{			
+	public interface class IFbxNativePointer
+	{
+	public:			
+		property IntPtr NativePointer
 		{
-		public:			
-			property IntPtr NativePointer
-			{
-				IntPtr get();
-				void set(IntPtr value);
-			}			
-
-			property bool IsValid
-			{
-				bool get();
-			}
-
-			bool IsSameAs(IFbxNativePointer^ other);
-		};
-	}
+			IntPtr get();
+			void set(IntPtr value);
+		}			
+		property bool IsValid
+		{
+			bool get();
+		}
+		bool IsSameAs(IFbxNativePointer^ other);
+	};
 }

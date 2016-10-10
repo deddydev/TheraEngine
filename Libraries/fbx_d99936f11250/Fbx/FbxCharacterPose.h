@@ -5,7 +5,7 @@
 #include "FbxCharacterEnums.h"
 
 
-namespace Skill
+
 {
 	namespace FbxSDK
 	{

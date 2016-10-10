@@ -4,7 +4,7 @@
 #include "FbxNativePointer.h"
 #include "kfbxevents/kfbxemitter.h"
 
-namespace Skill
+
 {
 	namespace FbxSDK
 	{

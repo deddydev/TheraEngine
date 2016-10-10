@@ -2,7 +2,7 @@
 #include "stdafx.h"
 #include "FbxBaseAllocator.h"
 
-namespace Skill
+
 {
 	namespace FbxSDK
 	{					

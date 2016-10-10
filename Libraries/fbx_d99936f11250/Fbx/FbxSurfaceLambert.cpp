@@ -6,7 +6,7 @@
 #include "FbxDouble3.h"
 
 
-namespace Skill
+
 {
 	namespace FbxSDK
 	{	

@@ -8,7 +8,7 @@
 #include "FbxProperty.h"
 
 
-namespace Skill
+
 {
 	namespace FbxSDK
 	{
@@ -104,9 +104,9 @@ namespace Skill
 
 		REF_PROPERTY_GET_DEFINATION_FROM_VALUE(FbxMarker,IKPivot,FbxDouble3TypedProperty,IKPivot);
 
-		REF_PROPERTY_GET_DEFINATION_FROM_REF(FbxMarker,KFbxProperty,GetOcclusion(),FbxProperty,Occlusion);
-		REF_PROPERTY_GET_DEFINATION_FROM_REF(FbxMarker,KFbxProperty,GetIKReachTranslation(),FbxProperty,IKReachTranslation);
-		REF_PROPERTY_GET_DEFINATION_FROM_REF(FbxMarker,KFbxProperty,GetIKReachRotation(),FbxProperty,IKReachRotation);
+		REF_PROPERTY_GET_DEFINATION_FROM_REF(FbxMarker,KFbxProperty,GetOcclusion(),FbxPropertyManaged,Occlusion);
+		REF_PROPERTY_GET_DEFINATION_FROM_REF(FbxMarker,KFbxProperty,GetIKReachTranslation(),FbxPropertyManaged,IKReachTranslation);
+		REF_PROPERTY_GET_DEFINATION_FROM_REF(FbxMarker,KFbxProperty,GetIKReachRotation(),FbxPropertyManaged,IKReachRotation);
 	
 #ifndef DOXYGEN_SHOULD_SKIP_THIS	
 

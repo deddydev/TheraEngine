@@ -11,7 +11,7 @@
 	PropType Class::PropName::get(){return (PropType)_Ref()->PropName.Get();}\
 	void Class::PropName::set(PropType value){_Ref()->PropName.Set((NativeType)value);}	
 
-namespace Skill
+
 {
 	namespace FbxSDK
 	{		

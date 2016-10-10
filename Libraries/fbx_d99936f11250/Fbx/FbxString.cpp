@@ -3,7 +3,7 @@
 #include "FbxString.h"
 #include "FbxMemoryAllocator.h"
 
-namespace Skill
+
 {
 	namespace FbxSDK
 	{		

@@ -4,7 +4,7 @@
 #include "FbxVector2.h"
 #include "FbxSurfaceMaterial.h"
 
-namespace Skill
+
 {
 	namespace FbxSDK
 	{

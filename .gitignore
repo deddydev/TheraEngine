@@ -9,3 +9,5 @@ Libraries/fbx_d99936f11250/Backup/
 *.cache
 *.pch
 *.db
+AutoWrapper/obj/
+AutoWrapper/bin/

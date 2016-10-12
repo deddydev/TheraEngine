@@ -16,13 +16,25 @@ namespace AutoWrapper
             string outPathCode = outputDir + "\\" + fileName + ".cpp";
             string origFile = File.ReadAllText(inPath);
 
-            List<string> code = origFile.Split(new string[] { Environment.NewLine, ";" }, StringSplitOptions.RemoveEmptyEntries).ToList();
-            Clean(ref code, true, true);
+            List<string> code = origFile.Split(new string[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries).ToList();
+            Clean(ref code);
 
-            File.WriteAllText(outPathHeader, string.Join(Environment.NewLine, code));
+            string joined = string.Join(Environment.NewLine, code);
+            Interpret(ref joined);
+
+            File.WriteAllText(outPathHeader, joined);
         }
-        private static void Clean(ref List<string> input, bool removeComments, bool removeWhitespace)
+
+        private static void Interpret(ref string joined)
         {
+            
+        }
+
+        private static void Clean(ref List<string> input)
+        {
+            const bool removeComments = true;
+            const bool removeWhitespace = true;
+
             bool comment = false;
             for (int i = 0; i < input.Count; ++i)
             {
@@ -77,12 +89,11 @@ namespace AutoWrapper
                         }
                         s = s.Substring(0, index);
                     }
-                }
-                if (s.Contains("private:") || s.Contains("protected:"))
-                {
 
                 }
 
+                s = s.Replace("\t", "");
+               
                 if (removeWhitespace && String.IsNullOrWhiteSpace(s))
                     input.RemoveAt(i--);
                 else

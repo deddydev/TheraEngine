@@ -20,6 +20,7 @@ namespace AutoWrapper
 
             string rootPath;
             Folder root = null;
+
             FolderBrowserDialog fbd = new FolderBrowserDialog();
             fbd.Description = "Select the C++ directory";
             if (fbd.ShowDialog() == DialogResult.OK)
@@ -29,7 +30,9 @@ namespace AutoWrapper
                 Application.Exit();
                 return;
             }
+
             root._name = null;
+
             fbd.Description = "Select the output CLR directory";
             if (fbd.ShowDialog() == DialogResult.OK)
                 WriteFolders(root, rootPath, fbd.SelectedPath);
@@ -42,13 +45,14 @@ namespace AutoWrapper
                 _name = Path.GetFileName(path),
                 _parentFolder = parent
             };
-            IEnumerable<string> files = Directory.EnumerateFiles(path);
-            foreach (string p in files)
+
+            foreach (string p in Directory.EnumerateFiles(path))
                 if (Path.GetExtension(p).ToLower().Equals(".h"))
                     f._headerNames.Add(Path.GetFileNameWithoutExtension(p));
-            IEnumerable<string> dirs = Directory.EnumerateDirectories(path);
-            foreach (string dir in dirs)
+
+            foreach (string dir in Directory.EnumerateDirectories(path))
                 f._childFolders.Add(GetFolders(f, dir));
+
             return f;
         }
 

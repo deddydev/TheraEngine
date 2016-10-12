@@ -5,12 +5,18 @@
 
 namespace FbxSDK
 {
-	ref class FbxDocumentManaged;	
-	ref class FbxStringManaged;
-	ref class FbxSdkManagerManaged;
-	ref class FbxClassId;
+	//ref class FbxDocumentManaged;	
+	//ref class FbxStringManaged;
+	//ref class FbxSdkManagerManaged;
+	//ref class FbxClassId;
+
+	ref class FbxIOManaged;
+	ref class FbxIOFileHeaderInfoManaged;
+	ref class FbxThreadManaged;
+	ref class FbxWriterManaged;
+
 	namespace IO
-	{	
+	{
 		ref class FbxStreamOptionsManaged;
 		public enum class FileFormat : int
 		{
@@ -24,65 +30,11 @@ namespace FbxSDK
 			AliasOBJ = 7,
 			ColladaDAE = 8
 		};			
-
-		/** Class to export SDK objects into an FBX file.
-		* Normally this class is used as is. But for very special needs
-		* a user can override Initialize() for special purpose.
-		*
-		* An exporter will select the appropriate writer to a particular file.
-		* Ex: When an exporter must export an FBX 7 file,
-		* the exporter will ask for all registered writers if an FBX 7 file writer is available,
-		* then if a writer is found, the exporter will create
-		* the specialized FBX 7 writer and write the file.
-		* This way, an exporter can "write" many different type of files like FBX 5/6/7, 3DS, Obj, Dxf, Collada, etc.
-		* \see FbxWriter
-		*
-		* Typical workflow for using the FbxExporter class:
-		* -# create a SDKManager
-		* -# create an IOSettings object
-		* -# create an empty scene
-		* -# create an exporter
-		* -# initialize it with a file name
-		* -# set numerous options to control how the exporter will behave.\n
-		*    ex: set IOSettings values to export Materials or Textures.
-		* -# call FbxExporter::Export() with the entity to export.
-		*
-		* \code
-		* // ex:
-		* // create a SdkManager
-		* FbxManager* lSdkManager = FbxManager::Create();
-		*
-		* // create an IOSettings object
-		* FbxIOSettings* ios = FbxIOSettings::Create(lSdkManager, IOSROOT);
-		*
-		* // set some IOSettings options
-		* ios->SetBoolProp(EXP_FBX_MATERIAL, true);
-		* ios->SetBoolProp(EXP_FBX_TEXTURE,  true);
-		*
-		* // create an empty scene
-		* FbxScene* lScene = FbxScene::Create(lSdkManager, "");
-		*
-		* // create an exporter.
-		* FbxExporter* lExporter = FbxExporter::Create(lSdkManager, "");
-		*
-		* // initialize the exporter by providing a filename and the IOSettings to use
-		* lExporter->Initialize("C:\\myfile.fbx", -1, ios);
-		*
-		* // export the scene.
-		* lExporter->Export(lScene);
-		*
-		* // destroy the exporter
-		* lExporter->Destroy();
-		* \endcode
-		*
-		* \remarks According to the file suffix, a specialized writer will be created internally.\n
-		* 		 Ex: for .fbx files a FBX Writer, for .3ds files, a 3ds writer, etc.\n
-		*          Supported files formats: FBX 5/6/7 Binary & ASCII, Collada, DXF, OBJ, 3DS
-		* \nosubgrouping
-		*/
 		public ref class FbxExporterManaged : FbxIOManaged
 		{
-			REF_DECLARE(FbxEmitter, FbxExporter);
+			//REF_DECLARE(FbxEmitter, FbxExporter);
+		private:
+			FbxExporter* _FbxExporter;
 		internal:
 			FbxExporterManaged(FbxExporter* instance) : FbxIOManaged(instance)
 			{

@@ -1,0 +1,1 @@
+C:\Users\David\Documents\Repositories\CustomEngine\Editor\bin\Release\Editor.exe.config

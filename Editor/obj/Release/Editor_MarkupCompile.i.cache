@@ -10,11 +10,11 @@ none
 false
 TRACE
 C:\Users\David\Documents\Repositories\CustomEngine\Editor\App.xaml
-3957969232
+71063515401
 
-171770832298
-25-1085934642
-Controls\ColorPanel.xaml;MainWindow.xaml;SettingsWindow.xaml;
+20-479752294
+25-2067007256
+Controls\ColorPanel.xaml;Controls\RenderPanel.xaml;Controls\UVEditor.xaml;Controls\VertexEditor.xaml;Controls\WeightEditor.xaml;MainWindow.xaml;SettingsWindow.xaml;
 
 True
 

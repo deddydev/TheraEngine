@@ -21,21 +21,21 @@ namespace AutoWrapper
             string rootPath;
             Folder root = null;
 
-            FolderBrowserDialog fbd = new FolderBrowserDialog();
-            fbd.Description = "Select the C++ directory";
-            if (fbd.ShowDialog() == DialogResult.OK)
-                root = GetFolders(null, rootPath = fbd.SelectedPath);
-            else
-            {
-                Application.Exit();
-                return;
-            }
+            //FolderBrowserDialog fbd = new FolderBrowserDialog();
+            //fbd.Description = "Select the C++ directory";
+            //if (fbd.ShowDialog() == DialogResult.OK)
+                root = GetFolders(null, rootPath = "C:\\Program Files\\Autodesk\\FBX\\FBX SDK\\2017.0.1\\include" /*fbd.SelectedPath*/);
+            //else
+            //{
+            //    Application.Exit();
+            //    return;
+            //}
 
             root._name = null;
 
-            fbd.Description = "Select the output CLR directory";
-            if (fbd.ShowDialog() == DialogResult.OK)
-                WriteFolders(root, rootPath, fbd.SelectedPath);
+            //fbd.Description = "Select the output CLR directory";
+            //if (fbd.ShowDialog() == DialogResult.OK)
+                WriteFolders(root, rootPath, "C:\\Users\\David\\Desktop\\New Folder" /*fbd.SelectedPath*/);
         }
 
         private static Folder GetFolders(Folder parent, string path)
@@ -89,7 +89,7 @@ namespace AutoWrapper
         {
             if (_name == null)
                 return rootPath;
-            return rootPath + "\\" + GetRelativePath();
+            return rootPath + GetRelativePath();
         }
     }
 }

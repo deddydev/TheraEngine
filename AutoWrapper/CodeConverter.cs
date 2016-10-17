@@ -89,7 +89,7 @@ namespace AutoWrapper
                 if (s.StartsWith("class") || (isStruct = s.StartsWith("struct")))
                 {
                     //cut out 'class' or 'struct' from the string
-                    s = s.Substring(s.IndexOfNotAfter(' ', isStruct ? 6 : 5)).Trim();
+                    s = s.Substring(s.IndexOfNotAfter(' ', isStruct ? 5 : 4)).Trim();
 
                     int spaceIndex = s.IndexOf(' ');
                     if (spaceIndex > 0)
@@ -104,7 +104,6 @@ namespace AutoWrapper
                     else
                     {
                         //actual class
-                        s = s.Substring(s.IndexOfNotAfter(' '));
                         _namespaces.Push(new CClass() { _name = s, _isStruct = isStruct });
                         if (input[i + 1].Contains("{"))
                             ++i; //Skip open bracket
@@ -144,6 +143,9 @@ namespace AutoWrapper
         private static void SkipCode(ref int i)
         {
             int temp = 0;
+
+            if (input[i].Contains(';'))
+                return;
 
             //find first open bracket
             while (!input[i + temp].Contains("{"))

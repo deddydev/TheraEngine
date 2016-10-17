@@ -26,7 +26,7 @@ namespace AutoWrapper
         }
 
         public string _name;
-        public string _returnType;
+        public CType _returnType;
         public MethodType _type;
         public List<CParam> _parameters = new List<CParam>();
 
@@ -39,7 +39,10 @@ namespace AutoWrapper
                 s = s.Substring(0, colonIndex);
 
             CMethod method = new CMethod();
-            int opening = s.IndexOf('(');
+            
+            int paramEnding = s.LastIndexOf(')');
+            int paramOpening = s.IndexOfBefore('(', paramEnding);
+
             MethodType mType = MethodType.Regular;
             int nameIndex = 0;
             if (s.StartsWith("~"))
@@ -57,7 +60,7 @@ namespace AutoWrapper
                 }
                 else
                 {
-                    int lastSpace = s.IndexOfBefore(' ', opening);
+                    int lastSpace = s.IndexOfBefore(' ', paramOpening);
                     if (lastSpace < 0)
                     {
                         nameIndex = 0;
@@ -67,15 +70,12 @@ namespace AutoWrapper
                         nameIndex = lastSpace + 1;
                 }
             }
-            method._name = s.Substring(nameIndex, opening - nameIndex).Trim();
+            method._name = s.Substring(nameIndex, paramOpening - nameIndex).Trim();
             method._type = mType;
-
-            int paramIndex1 = opening + 1;
-            int paramIndex2 = s.LastIndexOf(')');
 
             int startIndex = mType == MethodType.Destructor ? 1 : 0;
             List<string> modifiers = s.Substring(startIndex, nameIndex - startIndex).Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries).ToList();
-            List<string> parameters = s.Substring(paramIndex1, paramIndex2 - paramIndex1).Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries).ToList();
+            List<string> parameters = s.Substring(paramOpening + 1, paramEnding - (paramOpening + 1)).Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries).ToList();
 
             if (mType == MethodType.Operator)
             {
@@ -110,7 +110,7 @@ namespace AutoWrapper
                     if (mType == MethodType.Constructor ||
                         mType == MethodType.Destructor)
                         throw new Exception();
-                    method._returnType = modifiers[0];
+                    method._returnType = new CType(modifiers[0]);
                 }
                 foreach (string p in parameters)
                     method._parameters.Add(CParam.ParseSegment(p));
@@ -118,13 +118,33 @@ namespace AutoWrapper
             return method;
         }
     }
-    public class CParam
+    public class CType
     {
         public int _pointerCount;
         public bool _byReference;
-        public bool _const;
-
         public string _type;
+
+        public CType(string fullType)
+        {
+            List<int> pointerIndices = fullType.OccurrencesOf('*');
+            int refIndex = fullType.IndexOf('&');
+
+            _pointerCount = pointerIndices.Count;
+
+            pointerIndices.Sort();
+            for (int i = 0; i < pointerIndices.Count; ++i)
+                fullType = fullType.Remove(pointerIndices[i] - i, 1);
+            
+            if (_byReference = refIndex >= 0)
+                fullType = fullType.Remove(refIndex, 1);
+
+            _type = fullType;
+        }
+    }
+    public class CParam
+    {
+        public bool _const;
+        public CType _type;
         public string _name;
         public string _value;
 
@@ -133,8 +153,6 @@ namespace AutoWrapper
             CParam param = new CParam();
 
             p = p.Trim();
-            param._pointerCount = p.OccurrencesOf('*').Count;
-            param._byReference = p.Contains('&');
 
             if (param._const = p.StartsWith("const"))
                 p = p.Substring(5).Trim();
@@ -151,7 +169,7 @@ namespace AutoWrapper
             else
             {
                 param._name = p.Substring(p.LastIndexOf(' ')).Trim();
-                param._type = p.Substring(0, p.IndexOf(' ')).Trim();
+                param._type = new CType(p.Substring(0, p.IndexOf(' ')).Trim());
             }
 
             return param;
@@ -207,7 +225,7 @@ namespace AutoWrapper
             }
             if (modifiers.Count == 1)
             {
-                field._type = modifiers[0];
+                field._type = new CType(modifiers[0]);
             }
             else
             {

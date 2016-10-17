@@ -30,13 +30,34 @@ namespace AutoWrapper
         public MethodType _type;
         public List<CParam> _parameters = new List<CParam>();
 
-        public static CMethod ParseLine(string s)
+        public static CMethod ParseLine(ref int i, ref List<string> input)
         {
+            int bracketIndex = CodeConverter.FindOpenBracket(i);
+            int closingP;
+            for (int x = bracketIndex; x >= i; --x)
+            {
+                int pIndex = input[x].IndexOf('(');
+                if (pIndex >= 0)
+                {
+                    int colonIndex = input[x].IndexOf(':');
+                    if (colonIndex >= 0)
+                    {
+                        if (pIndex < colonIndex)
+                        {
+                            closingP = pIndex;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            string s = input[i];
+
             //Ignore everything after the colon
             //this is for setting parameters or calling another method, which we don't need
-            int colonIndex = s.IndexOf(':');
-            if (colonIndex > 0)
-                s = s.Substring(0, colonIndex);
+            //int colonIndex = s.IndexOf(": ");
+            //if (colonIndex > 0)
+            //    s = s.Substring(0, colonIndex);
 
             CMethod method = new CMethod();
             
@@ -127,14 +148,14 @@ namespace AutoWrapper
         public CType(string fullType)
         {
             List<int> pointerIndices = fullType.OccurrencesOf('*');
-            int refIndex = fullType.IndexOf('&');
 
             _pointerCount = pointerIndices.Count;
 
             pointerIndices.Sort();
             for (int i = 0; i < pointerIndices.Count; ++i)
                 fullType = fullType.Remove(pointerIndices[i] - i, 1);
-            
+
+            int refIndex = fullType.IndexOf('&');
             if (_byReference = refIndex >= 0)
                 fullType = fullType.Remove(refIndex, 1);
 

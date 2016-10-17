@@ -123,10 +123,10 @@ namespace AutoWrapper
                         ignore = false;
                         continue;
                     }
-                    else if (s.Contains('(') && s.Contains(')'))
+                    else if (s.Contains('('))
                     {
                         //this is a method
-                        AddItem(CMethod.ParseLine(s));
+                        AddItem(CMethod.ParseLine(ref i, ref input));
                         SkipCode(ref i);
                         continue;
                     }
@@ -140,23 +140,32 @@ namespace AutoWrapper
             return _namespaces.Pop();
         }
 
-        private static void SkipCode(ref int i)
+        public static int FindOpenBracket(int i)
         {
             int temp = 0;
-
-            if (input[i].Contains(';'))
-                return;
 
             //find first open bracket
             while (!input[i + temp].Contains("{"))
             {
                 ++temp;
-                if (temp > 3)
+                if (temp > 15)
                     throw new Exception("open bracket not found");
             }
 
-            if (input[i + temp].Contains('}'))
+            return i + temp;
+        }
+
+        private static void SkipCode(ref int i)
+        {
+            if (input[i].Contains(';'))
                 return;
+
+            int newIndex = FindOpenBracket(i);
+
+            if (input[newIndex].Contains('}'))
+                return;
+
+            i = newIndex;
 
             int openSections = 0;
             do
@@ -190,7 +199,7 @@ namespace AutoWrapper
                         if (removeComments)
                         {
                             index += 2;
-                            if (index >= s.Length - 1)
+                            if (index >= s.Length)
                             {
                                 input.RemoveAt(i--);
                                 continue;
@@ -216,7 +225,7 @@ namespace AutoWrapper
                         {
                             comment = false;
                             index2 += 2;
-                            if (index2 >= s.Length - 1)
+                            if (index2 >= s.Length)
                             {
                                 if (index == 0)
                                 {

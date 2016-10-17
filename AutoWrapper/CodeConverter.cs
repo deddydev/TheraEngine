@@ -143,25 +143,18 @@ namespace AutoWrapper
 
         private static void SkipCode(ref int i)
         {
+            int temp = 0;
+
             //find first open bracket
-            if (input[i].Contains('{'))
+            while (!input[i + temp].Contains("{"))
             {
-                if (input[i].Contains('}'))
-                    return;
+                ++temp;
+                if (temp > 3)
+                    throw new Exception("open bracket not found");
             }
 
-            while (!input[i].Contains("{"))
-            {
-
-            }
-
-            if (input[i].Contains(':') ||
-                input[i + 1].Contains(':'))
-                ++i;
-            if (input[i + 1] == "{")
-
-                if (!input[++i].Contains('{'))
-                throw new Exception("not an open bracket");
+            if (input[i + temp].Contains('}'))
+                return;
 
             int openSections = 0;
             do

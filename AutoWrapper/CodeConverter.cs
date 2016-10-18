@@ -50,6 +50,14 @@ namespace AutoWrapper
                 string s = input[i];
                 if (s.StartsWith("#"))
                 {
+                    if (s.StartsWith("#define"))
+                    {
+                        CDef d = new CDef();
+                        while (input[i].Contains("\\\\"))
+                            d._lines.Add(input[i++]);
+                        if (d._lines.Count > 0)
+                            AddItem(d);
+                    }
                     if (!InClass() && s.Substring(1).StartsWith("include"))
                     {
                         //Utilize include path or ignore?
@@ -61,6 +69,21 @@ namespace AutoWrapper
                 if (s.StartsWith("typedef"))
                 {
                     s = "//" + s;
+                    continue;
+                }
+                if (s.StartsWith("template"))
+                {
+                    int closeIndex = s.IndexOf('>');
+                    s = s.Substring(closeIndex + 1);
+                    if (!string.IsNullOrWhiteSpace(s))
+                    {
+                        int startIndex = i;
+                        SkipCode(ref i);
+                        string r = string.Join(" ", input.GetRange(startIndex, i - startIndex + 1));
+                        closeIndex = r.IndexOf('>');
+                        r = r.Substring(closeIndex + 1);
+                        AddItem(CMethod.ParseLine(r));
+                    }
                     continue;
                 }
                 if (s.Contains("}"))
@@ -126,8 +149,9 @@ namespace AutoWrapper
                     else if (s.Contains('('))
                     {
                         //this is a method
-                        AddItem(CMethod.ParseLine(ref i, ref input));
+                        int startIndex = i;
                         SkipCode(ref i);
+                        AddItem(CMethod.ParseLine(string.Join(" ", input.GetRange(startIndex, i - startIndex + 1))));
                         continue;
                     }
                     else
@@ -140,16 +164,18 @@ namespace AutoWrapper
             return _namespaces.Pop();
         }
 
-        public static int FindOpenBracket(int i)
+        public static int FindParamEnd(int i, out bool isSemicolon)
         {
             int temp = 0;
-
+            isSemicolon = false;
+            
             //find first open bracket
-            while (!input[i + temp].Contains("{"))
+            while (!input[i + temp].Contains("{") && 
+                !(isSemicolon = input[i + temp].Contains(";")))
             {
                 ++temp;
                 if (temp > 15)
-                    throw new Exception("open bracket not found");
+                    throw new Exception("nothing found");
             }
 
             return i + temp;
@@ -160,12 +186,16 @@ namespace AutoWrapper
             if (input[i].Contains(';'))
                 return;
 
-            int newIndex = FindOpenBracket(i);
+            bool semicolon;
+            int newIndex = FindParamEnd(i, out semicolon);
+
+            i = newIndex;
+
+            if (semicolon)
+                return;
 
             if (input[newIndex].Contains('}'))
                 return;
-
-            i = newIndex;
 
             int openSections = 0;
             do

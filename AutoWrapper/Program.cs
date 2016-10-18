@@ -25,7 +25,8 @@ namespace AutoWrapper
             //fbd.Description = "Select the C++ directory";
             //if (fbd.ShowDialog() == DialogResult.OK)
                 root = GetFolders(null, rootPath =
-                    //"X:\\Program Files\\Autodesk\\FBX\\FBX SDK\\2017.0.1\\include"
+                    Environment.MachineName == "DAVID-DESKTOP" ?
+                    "X:\\Program Files\\Autodesk\\FBX\\FBX SDK\\2017.0.1\\include" :
                     "C:\\Program Files\\Autodesk\\FBX\\FBX SDK\\2017.0.1\\include" 
                     /*fbd.SelectedPath*/);
             //else
@@ -39,7 +40,8 @@ namespace AutoWrapper
             //fbd.Description = "Select the output CLR directory";
             //if (fbd.ShowDialog() == DialogResult.OK)
                 WriteFolders(root, rootPath,
-                    //"X:\\Desktop\\New Folder (2)"
+                    Environment.MachineName == "DAVID-DESKTOP" ?
+                    "X:\\Desktop\\New Folder (2)" :
                     "C:\\Users\\David\\Desktop\\New Folder" 
                     /*fbd.SelectedPath*/);
         }

@@ -30,34 +30,17 @@ namespace AutoWrapper
         public MethodType _type;
         public List<CParam> _parameters = new List<CParam>();
 
-        public static CMethod ParseLine(ref int i, ref List<string> input)
+        public static CMethod ParseLine(string s)
         {
-            int bracketIndex = CodeConverter.FindOpenBracket(i);
-            int closingP;
-            for (int x = bracketIndex; x >= i; --x)
-            {
-                int pIndex = input[x].IndexOf('(');
-                if (pIndex >= 0)
-                {
-                    int colonIndex = input[x].IndexOf(':');
-                    if (colonIndex >= 0)
-                    {
-                        if (pIndex < colonIndex)
-                        {
-                            closingP = pIndex;
-                            break;
-                        }
-                    }
-                }
-            }
-
-            string s = input[i];
+            //Ignore all code after the open bracket
+            int pIndex = s.IndexOf("{");
+            if (pIndex > 0)
+                s = s.Substring(0, pIndex);
 
             //Ignore everything after the colon
-            //this is for setting parameters or calling another method, which we don't need
-            //int colonIndex = s.IndexOf(": ");
-            //if (colonIndex > 0)
-            //    s = s.Substring(0, colonIndex);
+            int colonIndex = s.IndexOf(": ");
+            if (colonIndex > 0)
+                s = s.Substring(0, colonIndex);
 
             CMethod method = new CMethod();
             
@@ -107,7 +90,8 @@ namespace AutoWrapper
 
             if (modifiers.Contains("template"))
             {
-                s = "//" + s;
+                throw new Exception();
+                //s = "//" + s;
             }
             else
             {
@@ -333,6 +317,10 @@ namespace AutoWrapper
     {
         public string _name;
         public bool _isStruct;
+    }
+    public class CDef : IClassItem
+    {
+        public List<string> _lines = new List<string>();
     }
     public interface INamespaceItem
     {

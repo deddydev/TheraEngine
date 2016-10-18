@@ -45,3 +45,7 @@ X:\Repositories\CustomEngine\Editor\obj\Debug\SettingsWindow.g.cs
 X:\Repositories\CustomEngine\Editor\obj\Debug\App.g.cs
 X:\Repositories\CustomEngine\Editor\obj\Debug\Editor_MarkupCompile.cache
 X:\Repositories\CustomEngine\Editor\obj\Debug\Editor_MarkupCompile.lref
+X:\Repositories\CustomEngine\Editor\obj\Debug\Controls\RenderPanel.g.cs
+X:\Repositories\CustomEngine\Editor\obj\Debug\Controls\UVEditor.g.cs
+X:\Repositories\CustomEngine\Editor\obj\Debug\Controls\VertexEditor.g.cs
+X:\Repositories\CustomEngine\Editor\obj\Debug\Controls\WeightEditor.g.cs

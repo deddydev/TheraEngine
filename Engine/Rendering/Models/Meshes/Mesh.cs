@@ -8,17 +8,11 @@ namespace CustomEngine.Rendering.Models
     {
         private int _vao, _bufferCount;
         public CollisionShape _collision;
-        public List<Polygon> _faceIndices;
-        public List<Vertex> _facePoints;
+        public PrimitiveManager _manager;
 
         public void Render()
         {
             
-        }
-
-        public static Mesh FromShape(IShape shape)
-        {
-
         }
     }
 }

@@ -10,11 +10,11 @@ none
 false
 TRACE;DEBUG
 X:\Repositories\CustomEngine\Editor\App.xaml
-3957969232
+71063515401
 
-111547672466
-25-1350339303
-Controls\ColorPanel.xaml;MainWindow.xaml;SettingsWindow.xaml;
+30-294409213
+261891085329
+Controls\ColorPanel.xaml;Controls\RenderPanel.xaml;Controls\UVEditor.xaml;Controls\VertexEditor.xaml;Controls\WeightEditor.xaml;MainWindow.xaml;SettingsWindow.xaml;
 
 True
 

@@ -120,6 +120,7 @@
     <Compile Include="Rendering\Models\Meshes\Faces\Line.cs" />
     <Compile Include="Rendering\Models\Meshes\Faces\TriangleFan.cs" />
     <Compile Include="Rendering\Models\Meshes\Faces\TriangleStrip.cs" />
+    <Compile Include="Rendering\Models\Meshes\PrimitiveManager.cs" />
     <Compile Include="Rendering\Renderer\DirectX\DXDisplayList.cs" />
     <Compile Include="Rendering\Renderer\DisplayList.cs" />
     <Compile Include="Rendering\Renderer\Shader.cs" />

@@ -6,12 +6,19 @@ namespace CustomEngine.Rendering.Models
 {
     public class Mesh : ObjectBase, IRenderable
     {
-        public int _vao, _bufferCount;
+        private int _vao, _bufferCount;
         public CollisionShape _collision;
+        public List<Polygon> _faceIndices;
+        public List<Vertex> _facePoints;
 
         public void Render()
         {
             
+        }
+
+        public static Mesh FromShape(IShape shape)
+        {
+
         }
     }
 }

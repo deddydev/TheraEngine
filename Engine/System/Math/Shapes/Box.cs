@@ -1,5 +1,6 @@
 ﻿using OpenTK;
 using CustomEngine;
+using CustomEngine.Rendering.Models;
 
 namespace System
 {
@@ -91,6 +92,10 @@ namespace System
                 Engine.Renderer.DrawBoxSolid(this);
             else
                 Engine.Renderer.DrawBoxWireframe(this);
+        }
+        public List<Triangle> GetFaces()
+        {
+            Quad left = new Quad();
         }
     }
 }

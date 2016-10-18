@@ -109,6 +109,20 @@
     <Compile Include="SettingsWindow.xaml.cs">
       <DependentUpon>SettingsWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Triangle Converter\CacheSimulator.cs" />
+    <Compile Include="Triangle Converter\Deque\Deque.cs" />
+    <Compile Include="Triangle Converter\Deque\GenericDeque.cs" />
+    <Compile Include="Triangle Converter\Deque\GenericDeque.Enumerator.cs" />
+    <Compile Include="Triangle Converter\Deque\GenericDeque.Node.cs" />
+    <Compile Include="Triangle Converter\Deque\GenericDeque.Synchronized.cs" />
+    <Compile Include="Triangle Converter\Deque\GenericTester.cs" />
+    <Compile Include="Triangle Converter\Deque\Tester.cs" />
+    <Compile Include="Triangle Converter\GraphArray.cs" />
+    <Compile Include="Triangle Converter\HeapArray.cs" />
+    <Compile Include="Triangle Converter\Policy.cs" />
+    <Compile Include="Triangle Converter\TriangleConverter.cs" />
+    <Compile Include="Triangle Converter\TriStripper.cs" />
+    <Compile Include="Triangle Converter\Types.cs" />
     <Compile Include="Wrappers\BaseWrappers.cs" />
     <Compile Include="Wrappers\GenericWrapper.cs" />
     <Page Include="Controls\ColorPanel.xaml">

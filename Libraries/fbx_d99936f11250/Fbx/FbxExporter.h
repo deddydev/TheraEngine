@@ -11,13 +11,13 @@ namespace FbxSDK
 
 	namespace fileio
 	{
-		public ref class FbxExporterManaged : FbxIOBaseM
+		public ref class FbxExporterM : FbxIOBaseM
 		{
-			
+			REF_DECLARE(FbxEmitter,FbxExporter);
 		private:
 			FbxExporter* _FbxExporter;
 		internal:
-			FbxExporterManaged(FbxExporter* instance) : FbxIOBaseM(instance)
+			FbxExporterM(FbxExporter* instance) : FbxIOBaseM(instance)
 			{
 				_Free = false;
 			}
@@ -75,32 +75,28 @@ namespace FbxSDK
 					return Ref()->IsFBX();
 				}
 			}
-			bool IsFBX()
-			{ 
-				return ; 
-			}
 			char const* const* GetCurrentWritableVersions()
 			{
 				return _FbxExporter->GetCurrentWritableVersions();
 			}
-			bool SetFileExportVersion(FbxString pVersion, FbxSceneRenamerM::ERenamingMode pRenamingMode = FbxSceneRenamerM::ERenamingMode::eNone);
+			bool SetFileExportVersion(System::String pVersion, FbxSceneRenamerM::ERenamingMode pRenamingMode = FbxSceneRenamerM::ERenamingMode::eNone);
 			void SetResamplingRate(double pResamplingRate)
 			{
 				_FbxExporter->SetResamplingRate(pResamplingRate);
 			}
-			void SetDefaultRenderResolution(FbxString pCamName, FbxString pResolutionMode, double pW, double pH)
+			void SetDefaultRenderResolution(System::String pCamName, System::String pResolutionMode, double pW, double pH)
+			{
+				_FbxExporter->SetDefaultRenderResolution(pCamName, pResolutionMode, pW, pH);
+			}
+			FbxIOFileHeaderInfoM^ GetFileHeaderInfo()
+			{
+				return gcnew FbxIOFileHeaderInfoM(_FbxExporter->GetFileHeaderInfo());
+			}
+			bool GetExportOptions(FbxIOM^ pFbxObject)
 			{
 
 			}
-			FbxIOFileHeaderInfo* GetFileHeaderInfo()
-			{
-
-			}
-			bool GetExportOptions(FbxIOManaged* pFbxObject)
-			{
-
-			}
-			bool Export(FbxDocumentManaged* pDocument, FbxIOManaged* pFbxObject)
+			bool Export(FbxDocumentM^ pDocument, FbxIOM^ pFbxObject)
 			{
 
 			}

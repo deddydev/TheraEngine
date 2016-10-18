@@ -111,6 +111,15 @@
     <Compile Include="Rendering\Models\Materials\Material.cs" />
     <Compile Include="Rendering\Models\Materials\MaterialInstance.cs" />
     <Compile Include="Rendering\Models\Materials\MaterialProperty.cs" />
+    <Compile Include="Rendering\Models\Meshes\Faces\Point.cs" />
+    <Compile Include="Rendering\Models\Meshes\Faces\LineStrip.cs" />
+    <Compile Include="Rendering\Models\Meshes\Faces\Polygon.cs" />
+    <Compile Include="Rendering\Models\Meshes\Faces\QuadStrip.cs" />
+    <Compile Include="Rendering\Models\Meshes\Faces\Quad.cs" />
+    <Compile Include="Rendering\Models\Meshes\Faces\Ngon.cs" />
+    <Compile Include="Rendering\Models\Meshes\Faces\Line.cs" />
+    <Compile Include="Rendering\Models\Meshes\Faces\TriangleFan.cs" />
+    <Compile Include="Rendering\Models\Meshes\Faces\TriangleStrip.cs" />
     <Compile Include="Rendering\Renderer\DirectX\DXDisplayList.cs" />
     <Compile Include="Rendering\Renderer\DisplayList.cs" />
     <Compile Include="Rendering\Renderer\Shader.cs" />
@@ -144,6 +153,7 @@
     <Compile Include="System\RenderForm.Designer.cs">
       <DependentUpon>RenderForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="System\Tools\Remapper.cs" />
     <Compile Include="Worlds\Actors\ActorState.cs" />
     <Compile Include="Worlds\Actors\Components\ComponentState.cs" />
     <Compile Include="Worlds\Actors\Components\LogicComponent.cs" />
@@ -223,7 +233,7 @@
     <Compile Include="Worlds\World.cs" />
     <Compile Include="Rendering\Animation\PropertyAnimation.cs" />
     <Compile Include="System\FrameState.cs" />
-    <Compile Include="Rendering\Models\Meshes\Face.cs" />
+    <Compile Include="Rendering\Models\Meshes\Faces\Triangle.cs" />
     <Compile Include="Rendering\Models\Meshes\Vertex.cs" />
     <Compile Include="Rendering\Models\Skeleton\Bone.cs" />
     <Compile Include="Rendering\Models\Model.cs" />

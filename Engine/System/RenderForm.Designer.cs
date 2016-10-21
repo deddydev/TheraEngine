@@ -28,7 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.renderPanel1 = new System.Windows.Controls.RenderPanel();
+            this.renderPanel1 = new RenderPanel();
             this.SuspendLayout();
             // 
             // renderPanel1
@@ -53,6 +53,6 @@
 
         #endregion
 
-        private Controls.RenderPanel renderPanel1;
+        private RenderPanel renderPanel1;
     }
 }

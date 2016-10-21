@@ -11,12 +11,11 @@ namespace CustomEngine.Rendering.Models
 
         }
 
-        public override FaceType Type
+        public override FaceType Type { get { return FaceType.Ngon; } }
+
+        public override List<Triangle> ToTriangles()
         {
-            get
-            {
-                return FaceType.Ngon;
-            }
+            throw new Exception("");
         }
     }
 }

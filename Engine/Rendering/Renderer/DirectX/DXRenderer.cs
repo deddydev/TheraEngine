@@ -1,6 +1,7 @@
 ﻿using System;
 using CustomEngine.Rendering.DirectX;
 using System.Collections.Generic;
+using CustomEngine.Rendering.Models;
 
 namespace CustomEngine.Rendering
 {
@@ -246,6 +247,11 @@ namespace CustomEngine.Rendering
         }
 
         public override void LinkProgram(int programHandle)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void RenderMesh(Mesh mesh)
         {
             throw new NotImplementedException();
         }

@@ -49,3 +49,8 @@ X:\Repositories\CustomEngine\Editor\obj\Debug\Controls\RenderPanel.g.cs
 X:\Repositories\CustomEngine\Editor\obj\Debug\Controls\UVEditor.g.cs
 X:\Repositories\CustomEngine\Editor\obj\Debug\Controls\VertexEditor.g.cs
 X:\Repositories\CustomEngine\Editor\obj\Debug\Controls\WeightEditor.g.cs
+C:\Users\David\Documents\Repositories\CustomEngine\Editor\obj\Debug\Controls\RenderPanel.g.cs
+C:\Users\David\Documents\Repositories\CustomEngine\Editor\obj\Debug\Controls\UVEditor.g.cs
+C:\Users\David\Documents\Repositories\CustomEngine\Editor\obj\Debug\Controls\VertexEditor.g.cs
+C:\Users\David\Documents\Repositories\CustomEngine\Editor\obj\Debug\Controls\WeightEditor.g.cs
+C:\Users\David\Documents\Repositories\CustomEngine\Editor\obj\Debug\SettingsWindow.g.cs

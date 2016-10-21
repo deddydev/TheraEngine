@@ -70,7 +70,7 @@ namespace CustomEngine.Worlds.Actors.Components
         {
             List<SceneComponent> cache = new List<SceneComponent>();
             cache.Add(this);
-            foreach (SceneComponent c in Children)
+            foreach (SceneComponent c in _children)
                 c.GenerateChildCache(cache);
             return cache;
                 
@@ -78,7 +78,7 @@ namespace CustomEngine.Worlds.Actors.Components
         private void GenerateChildCache(List<SceneComponent> cache)
         {
             cache.Add(this);
-            foreach (SceneComponent c in Children)
+            foreach (SceneComponent c in _children)
                 c.GenerateChildCache(cache);
         }
 

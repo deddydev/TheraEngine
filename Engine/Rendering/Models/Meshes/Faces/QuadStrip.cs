@@ -8,12 +8,17 @@ namespace CustomEngine.Rendering.Models
 {
     public class QuadStrip : Polygon
     {
-        public QuadStrip() { _quads = new List<Quad>(); }
-        public QuadStrip(params Quad[] quads)
+        public override FaceType Type { get { return FaceType.QuadStrip; } }
+
+        public QuadStrip() { }
+        public QuadStrip(params Point[] points)
         {
-            _quads = quads.ToList();
+
         }
 
-        List<Quad> _quads = new List<Quad>();
+        public override List<Triangle> ToTriangles()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

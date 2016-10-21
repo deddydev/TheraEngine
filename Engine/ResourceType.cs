@@ -12,6 +12,8 @@ namespace CustomEngine
         
         World                       = 0x0000,
         Map                         = 0x0100,
+        Shape                       = 0x0200,
+        Camera                      = 0x0300,
 
         Component                   = 0x1000,
         InstanceComponent           = 0x1100,

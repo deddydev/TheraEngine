@@ -12,15 +12,15 @@ namespace DequeTest
 		/// <summary>
 		/// The main entry point for the application.
 		/// </summary>
-		[STAThread]
-		static void Main(string[] args)
-		{ 
-            TestDeque(new Deque());
-            TestDeque(Deque.Synchronized(new Deque()));
+		//[STAThread]
+		//static void Main(string[] args)
+		//{ 
+  //          TestDeque(new Deque());
+  //          TestDeque(Deque.Synchronized(new Deque()));
 
-            GenericTester.TestDeque(new Deque<int>());
-            GenericTester.TestDeque(Deque<int>.Synchronized(new Deque<int>()));
-		}
+  //          GenericTester.TestDeque(new Deque<int>());
+  //          GenericTester.TestDeque(Deque<int>.Synchronized(new Deque<int>()));
+		//}
 
         private static void TestDeque(Deque deque)
         {

@@ -8,6 +8,7 @@ namespace CustomEngine.Rendering.Models.Materials
 {
     public class Material
     {
-        public List<MaterialProperty> _properties;
+        private List<MaterialProperty> _properties = new List<MaterialProperty>();
+        private bool _cullFront = false, _cullBack = true;
     }
 }

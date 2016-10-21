@@ -9,6 +9,8 @@ namespace CustomEngine.Rendering.Models
         {
             _point1 = point1;
             _point2 = point2;
+
+            _point1.LinkTo(_point2);
         }
 
         Point _point1, _point2;

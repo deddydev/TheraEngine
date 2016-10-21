@@ -7,9 +7,9 @@ namespace CustomEngine.Input.Gamepads
     {
         public TKGamepadManager() : base() { }
 
-        public override void Vibrate(bool left)
+        public override void Vibrate(float left, float right)
         {
-            throw new NotImplementedException();
+            GamePad.SetVibration(_controllerIndex, left, right);
         }
 
         protected override void CreateStates()
@@ -17,14 +17,15 @@ namespace CustomEngine.Input.Gamepads
             GamePadCapabilities c = GamePad.GetCapabilities(_controllerIndex);
             _buttonStates.Add(GamePadButton.FaceDown, new ButtonState(c.HasAButton));
             _buttonStates.Add(GamePadButton.FaceUp, new ButtonState(c.HasYButton));
-            _buttonStates.Add(GamePadButton.FaceDown, new ButtonState(c.HasAButton));
-            _buttonStates.Add(GamePadButton.FaceDown, new ButtonState(c.HasAButton));
+            _buttonStates.Add(GamePadButton.FaceLeft, new ButtonState(c.HasBButton));
+            _buttonStates.Add(GamePadButton.FaceRight, new ButtonState(c.HasXButton));
         }
 
         protected override void UpdateStates()
         {
             GamePadState state = GamePad.GetState(_controllerIndex);
-            IsConnected = state.IsConnected;
+            _isConnected = state.IsConnected;
+            _buttonStates[GamePadButton.FaceUp].Update(state.Buttons.A == OpenTK.Input.ButtonState.Pressed);
         }
     }
 }

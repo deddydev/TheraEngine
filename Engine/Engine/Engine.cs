@@ -33,8 +33,11 @@ namespace CustomEngine
         }
 
         public static AbstractRenderer Renderer { get { return _renderer; } set { _renderer = value; } }
+        public static AbstractAudio AudioManager { get { return _audioManager; } set { _audioManager = value; } }
+
         public static float RenderDelta { get { return (float)_timer.RenderTime; } }
         public static float UpdateDelta { get { return (float)_timer.UpdateTime; } }
+
         [Default]
         public static World TransitionWorld { get { return _transitionWorld; } set { _transitionWorld = value; } }
         [State]
@@ -53,6 +56,7 @@ namespace CustomEngine
         private static World _currentWorld = null;
         private static GlobalTimer _timer = new GlobalTimer();
         private static AbstractRenderer _renderer;
+        private static AbstractAudio _audioManager;
 
         /// <summary>
         /// Class containing this computer's specs. Use to adjust engine settings accordingly.
@@ -143,7 +147,7 @@ namespace CustomEngine
 
             var task = _transitionWorld.Load();
             Task.Run(_currentWorld.Load);
-            Run();
+            Run(60.0f, 60.0f);
             task.Wait();
         }
         public static EngineSettings LoadSettings()

@@ -69,7 +69,7 @@ namespace CustomEngine.Input.Gamepads
         internal override void Tick(float delta) { UpdateStates(); }
         protected abstract void UpdateStates();
         protected abstract void CreateStates();
-        public abstract void Vibrate(bool left);
+        public abstract void Vibrate(float left, float right);
     }
     public class ButtonState
     {
@@ -81,7 +81,10 @@ namespace CustomEngine.Input.Gamepads
         private float _holdDelaySeconds = 0.2f;
         private float _secondsBetweenTaps = 0.1f;
 
+        private float _timer;
+
         private bool _isPressed;
+        private bool _pressedStateChanged;
         private bool _exists;
 
         public event Action Pressed;
@@ -91,6 +94,40 @@ namespace CustomEngine.Input.Gamepads
         
         public bool Exists { get { return _exists; } }
         public bool IsPressed { get { return _isPressed; } }
+
+        internal void Update(bool isPressed)
+        {
+            if (_isPressed == isPressed)
+                return;
+
+            _timer = 0.0f;
+            _pressedStateChanged = true;
+
+            if (_isPressed = isPressed)
+            {
+                Pressed?.Invoke();
+            }
+            else
+            {
+                Released?.Invoke();
+            }
+        }
+
+        internal void Tick(float delta)
+        {
+            _timer += delta;
+            if (_isPressed)
+            {
+                if (_timer >= _holdDelaySeconds)
+                {
+
+                }
+            }
+            else
+            {
+
+            }
+        }
     }
     public class AxisState
     {

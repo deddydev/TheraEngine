@@ -15,9 +15,9 @@ namespace CustomEngine.Rendering.HUD
 
         public HudComponent(HudComponent owner) { _owner = owner; }
 
-        [Category("Transform"), Transient, Animatable]
+        [Category("Transform"), Default, Animatable]
         public RectangleF Region { get { return _region; } set { _region = value; OnResized(); } }
-        [Category("Transform"), Transient, Animatable]
+        [Category("Transform"), State, Animatable]
         public float Height
         {
             get { return _region.Height; }
@@ -27,7 +27,7 @@ namespace CustomEngine.Rendering.HUD
                 OnResized();
             }
         }
-        [Category("Transform"), Transient, Animatable]
+        [Category("Transform"), State, Animatable]
         public float Width
         {
             get { return _region.Width; }
@@ -37,13 +37,13 @@ namespace CustomEngine.Rendering.HUD
                 OnResized();
             }
         }
-        [Category("Transform"), Transient, Animatable]
+        [Category("Transform"), State, Animatable]
         public float X
         {
             get { return _region.X; }
             set { _region.X = value; }
         }
-        [Category("Transform"), Transient, Animatable]
+        [Category("Transform"), State, Animatable]
         public float Y
         {
             get { return _region.Y; }
@@ -52,7 +52,7 @@ namespace CustomEngine.Rendering.HUD
         /// <summary>
         /// The rotation angle of the component in degrees.
         /// </summary>
-        [Category("Transform"), Transient, Animatable]
+        [Category("Transform"), Default, State, Animatable]
         public float RotationAngle
         {
             get { return _rotationAngle; }
@@ -61,7 +61,7 @@ namespace CustomEngine.Rendering.HUD
         /// <summary>
         /// The origin of the component's rotation angle.
         /// </summary>
-        [Category("Transform"), Transient, Animatable]
+        [Category("Transform"), Default, State, Animatable]
         public float RotationLocalOrigin
         {
             get { return _rotationLocalOrigin; }

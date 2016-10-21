@@ -6,7 +6,7 @@ namespace CustomEngine.Input.Gamepads
     {
         public DXGamepadManager() : base() { }
 
-        public override void Vibrate(bool left)
+        public override void Vibrate(float left, float right)
         {
             throw new NotImplementedException();
         }

@@ -8,7 +8,7 @@ namespace CustomEngine.Rendering.Models
     {
         private Bone _parent;
         private List<Bone> _children;
-        private List<Vertex> _influencedVertices;
+        private List<FacePoint> _influencedVertices;
 
         //frame state is the bone's transform with an animation applied.
         //bind state is the bone's default transform.

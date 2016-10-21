@@ -1,6 +1,7 @@
 ﻿using OpenTK;
 using CustomEngine;
 using CustomEngine.Rendering.Models;
+using System.Collections.Generic;
 
 namespace System
 {
@@ -93,9 +94,34 @@ namespace System
             else
                 Engine.Renderer.DrawBoxWireframe(this);
         }
-        public List<Triangle> GetFaces()
+        public unsafe PrimitiveData GetPrimitives()
         {
+            const string p = "Positions";
+            const string n = "Normals";
+
+            PrimitiveData data = new PrimitiveData();
+            data[p] = new VertexBuffer(0, 8, VertexBuffer.ComponentType.Float, 3, false);
+            data[n] = new VertexBuffer(0, 6, VertexBuffer.ComponentType.Float, 3, false);
+
+            Vec3 TBL, TBR, TFL, TFR, BBL, BBR, BFL, BFR;
+            GetCorners(out TBL, out TBR, out TFL, out TFR, out BBL, out BBR, out BFL, out BFR);
+            Vec3* dPtr = (Vec3*)(VoidPtr)data[p];
+            *dPtr++ = TBL;
+            *dPtr++ = TBR;
+            *dPtr++ = TFL;
+            *dPtr++ = TFR;
+            *dPtr++ = BBL;
+            *dPtr++ = BBR;
+            *dPtr++ = BFL;
+            *dPtr++ = BFR;
+            dPtr = (Vec3*)(VoidPtr)data[n];
+
+
             Quad left = new Quad();
+
+
+
+            left.ToTriangles();
         }
     }
 }

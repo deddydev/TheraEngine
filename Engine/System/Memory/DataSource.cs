@@ -11,10 +11,21 @@ namespace System
         public int Length { get { return _length; } }
         public IntPtr Address { get { return _address; } }
 
+        public event Action Modified;
+
         public DataSource(IntPtr address, int length)
         {
+            if (length < 0)
+                throw new Exception("Cannot have a source with a negative size.");
             _length = length;
             _address = address;
+        }
+        public DataSource(int length)
+        {
+            if (length < 0)
+                throw new Exception("Cannot allocate a negative size.");
+            _length = length;
+            _address = Marshal.AllocHGlobal(_length);
         }
         ~DataSource() { Dispose(); }
 
@@ -36,5 +47,6 @@ namespace System
             }
             catch (Exception e) { Console.WriteLine(e.ToString()); }
         }
+        public void NotifyModified() { Modified?.Invoke(); }
     }
 }

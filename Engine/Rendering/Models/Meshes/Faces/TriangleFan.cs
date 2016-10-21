@@ -5,12 +5,12 @@ namespace CustomEngine.Rendering.Models
 {
     public class TriangleFan : ObjectBase
     {
-        public TriangleFan(Vertex midPoint, params Vertex[] points)
+        public TriangleFan(FacePoint midPoint, params FacePoint[] points)
         {
             _points.Add(midPoint);
         }
 
-        public Vertex _midPoint;
-        public List<Vertex> _points = new List<Vertex>();
+        public FacePoint _midPoint;
+        public List<FacePoint> _points = new List<FacePoint>();
     }
 }

@@ -9,11 +9,24 @@ namespace CustomEngine.Rendering.Models
         public override FaceType Type { get { return FaceType.TriangleStrip; } }
 
         public TriangleStrip() { }
+        /// <summary>
+        /// Clockwise, Counter-Clockwise, repeat
+        ///    1-----3
+        ///   / \   / \
+        ///  /   \ /   \
+        /// 0-----2-----4
+        /// </summary>
         public TriangleStrip(params Point[] points)
         {
             if (points.Length < 3)
                 throw new Exception("A triangle strip needs 3 or more points.");
             _points = points.ToList();
+            for (int i = 0; i < _points.Count - 1; ++i)
+            {
+                _points[i].LinkTo(_points[i + 1]);
+                if (i + 2 < _points.Count)
+                    _points[i].LinkTo(_points[i + 2]);
+            }
         }
 
         public override List<Triangle> ToTriangles()

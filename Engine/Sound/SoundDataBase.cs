@@ -8,15 +8,15 @@ namespace CustomEngine.Sound
 
         public void Play()
         {
-            Engine.AudioManager.Play(source);
+            Engine.AudioManager.Play(this);
         }
         public void Stop()
         {
-            Engine.AudioManager.Stop(source);
+            Engine.AudioManager.Stop(this);
         }
         public void Pause()
         {
-            Engine.AudioManager.Pause(source);
+            Engine.AudioManager.Pause(this);
         }
     }
 }

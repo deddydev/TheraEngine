@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CustomEngine.Rendering.Models.Materials;
+using System;
 using System.Collections.Generic;
 
 namespace CustomEngine.Rendering
@@ -7,8 +8,9 @@ namespace CustomEngine.Rendering
     /// <summary>
     /// This class is meant to be overridden with an implementation such as OpenTK or DirectX
     /// </summary>
-    public abstract class AbstractRenderer : IDisposable
+    public abstract class AbstractRenderer
     {
+        protected int _programHandle;
         private static List<DisplayList> _displayLists = new List<DisplayList>();
 
         public static T FindOrCreate<T>(string name, GLCreateHandler<T> handler) where T : IRenderState
@@ -65,7 +67,6 @@ namespace CustomEngine.Rendering
         #endregion
 
         #region Drawing
-
         public abstract void Begin(EPrimitive type);
         public abstract void Vertex3(Vec3 value);
         public abstract void Vertex2(Vec2 value);
@@ -76,24 +77,66 @@ namespace CustomEngine.Rendering
         public abstract void Color3(ColorF3 value);
         public abstract void End();
 
-        #endregion
-
+        public abstract void RenderMesh(Models.Mesh mesh);
         public abstract void SetPointSize(float size);
         public abstract void SetLineSize(float size);
+        #endregion
+
+        #region Shaders
+        /*
+         * ---Shader initialization routine---
+         * 
+         * Per shader:
+         * - GL.CreateShader
+         * - GL.ShaderSource
+         * - GL.CompileShader
+         * - optional debug: GL.GetShader, GL.GetShaderInfoLog
+         * 
+         * GL.CreateProgram
+         * GL.AttachShader(s)
+         * GL.LinkProgram
+         * 
+         * ---Render usage---
+         * 
+         * GL.UseProgram
+         * 
+         * Per Uniform:
+         * GL.GetUniformLocation
+         * GL.Uniform
+         * 
+         */
+
+        /// <summary>
+        /// Creates a new shader.
+        /// </summary>
+        /// <param name="type">The type of shader</param>
+        /// <param name="source">The code for the shader</param>
+        /// <returns>The shader's handle.</returns>
+        public abstract int GenerateShader(Shader shader);
+        /// <summary>
+        /// Creates a new shader program with the given shaders.
+        /// </summary>
+        /// <param name="shaderHandles">The handles of the shaders for this program to use.</param>
+        /// <returns></returns>
+        public abstract int GenerateProgram(params int[] shaderHandles);
+
+        public virtual void UseProgram(int handle) { _programHandle = handle; }
+
+        public abstract void Uniform(string name, params IUniformable4Int[] p);
+        public abstract void Uniform(string name, params IUniformable3Int[] p);
+        public abstract void Uniform(string name, params IUniformable2Int[] p);
+        public abstract void Uniform(string name, params IUniformable1Int[] p);
+        public abstract void Uniform(string name, params IUniformable4Float[] p);
+        public abstract void Uniform(string name, params IUniformable3Float[] p);
+        public abstract void Uniform(string name, params IUniformable2Float[] p);
+        public abstract void Uniform(string name, params IUniformable1Float[] p);
+        public abstract void Uniform(string name, params int[] p);
+        public abstract void Uniform(string name, params float[] p);
+
+        #endregion
 
         public abstract void Clear(BufferClear clearBufferMask);
         public abstract float GetDepth(float x, float y);
-        
-        public abstract void CompileShader(string shaderHandle);
-        public abstract void AttachShader(int programHandle, int shaderHandle);
-        public abstract void LinkProgram(int programHandle);
-
-        public abstract void RenderMesh(Models.Mesh mesh);
-
-        public void Dispose()
-        {
-            _displayLists = null;
-        }
     }
 
     public enum MtxMode

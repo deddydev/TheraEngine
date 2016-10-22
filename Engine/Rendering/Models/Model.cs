@@ -20,7 +20,6 @@ namespace CustomEngine.Rendering.Models
 
         public override Task Load()
         {
-            //Task t = new Task(Skill.FbxSDK.IO);
             return base.Load();
         }
 

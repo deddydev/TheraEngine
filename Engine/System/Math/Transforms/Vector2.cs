@@ -257,5 +257,11 @@ namespace System
                 X == other.X &&
                 Y == other.Y;
         }
+        public bool Equals(Vec2 other, float precision)
+        {
+            return
+                Abs(X - other.X) < precision &&
+                Abs(Y - other.Y) < precision;
+        }
     }
 }

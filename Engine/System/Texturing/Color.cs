@@ -1,17 +1,19 @@
-﻿using System.Drawing;
+﻿using CustomEngine;
+using System.Drawing;
 using System.Runtime.InteropServices;
 
 namespace System
 {
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     //[Editor(typeof(PropertyGridColorEditor), typeof(UITypeEditor))]
-    public class ColorF4
+    public struct ColorF4 : IUniformable4Float
     {
         public float R, G, B, A;
-
-        public ColorF4() { }
+        
         public ColorF4(float r, float g, float b, float a) { R = r; G = g; B = b; A = a; }
 
+        public unsafe float* Address { get { fixed (void* p = &this) return (float*)p; } }
+        
         public static implicit operator ColorF4(RGBAPixel p) { return new ColorF4() { A = p.A / 255.0f, B = p.B / 255.0f, G = p.G / 255.0f, R = p.R / 255.0f }; }
         public static implicit operator ColorF4(ARGBPixel p) { return new ColorF4() { A = p.A / 255.0f, B = p.B / 255.0f, G = p.G / 255.0f, R = p.R / 255.0f }; }
         public static implicit operator ColorF4(Color p) { return new ColorF4() { A = p.A / 255.0f, B = p.B / 255.0f, G = p.G / 255.0f, R = p.R / 255.0f }; }
@@ -21,11 +23,10 @@ namespace System
     }
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     //[Editor(typeof(PropertyGridColorEditor), typeof(UITypeEditor))]
-    public class ColorF3
+    public struct ColorF3
     {
         public float R, G, B;
-
-        public ColorF3() { }
+        
         public ColorF3(float r, float g, float b) { R = r; G = g; B = b; }
 
         public static implicit operator ColorF3(RGBAPixel p) { return new ColorF3() { B = p.B / 255.0f, G = p.G / 255.0f, R = p.R / 255.0f }; }

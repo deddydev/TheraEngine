@@ -158,8 +158,13 @@ namespace CustomEngine.Rendering.Models
 
     public class PrimitiveData
     {
-        public List<FacePoint> _facePoints = new List<FacePoint>();
+        //Faces have indices that refer to face points.
         public List<Triangle> _faces = new List<Triangle>();
+
+        //Face points have indices that refer to each buffer.
+        public List<FacePoint> _facePoints = new List<FacePoint>();
+
+        //This is the array data that will be passed through the shader.
         public Dictionary<string, VertexBuffer> _buffers = new Dictionary<string, VertexBuffer>();
         
         public VertexBuffer this[string name]
@@ -182,6 +187,21 @@ namespace CustomEngine.Rendering.Models
         {
             foreach (VertexBuffer b in _buffers.Values)
                 b?.Destroy();
+        }
+
+        public static PrimitiveData FromTriangles(List<VertexTriangle> triangles)
+        {
+            PrimitiveData d = new PrimitiveData();
+            List<VertexBuffer> texCoords = new List<VertexBuffer>();
+            List<VertexBuffer> uvs = new List<VertexBuffer>();
+            VertexBuffer _positions, _normals;
+
+            Remapper p = new Remapper();
+            List<Vertex> vertices;
+            foreach (VertexTriangle t in triangles)
+            {
+                t.GetVertexList();
+            }
         }
     }
 

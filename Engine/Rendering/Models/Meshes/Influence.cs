@@ -16,11 +16,6 @@ namespace CustomEngine.Rendering.Models
         public bool IsSingleBound { get { return _weights.Count == 1; } }
         public bool IsWeighted { get { return _weights.Count > 1; } }
 
-        public void AddWeight(BoneWeight weight)
-        {
-            _weights.Add(weight);
-            Normalize();
-        }
         public void CalcMatrix()
         {
             if (IsWeighted)
@@ -51,6 +46,13 @@ namespace CustomEngine.Rendering.Models
                 if (w.Bone != null)
                     value += (w.Bone.InverseFrameMatrix * w.Bone.BindMatrix) * w.Weight;
             return value;
+        }
+
+#if EDITOR
+        public void AddWeight(BoneWeight weight)
+        {
+            _weights.Add(weight);
+            Normalize();
         }
         public void Optimize(int maxWeights)
         {
@@ -85,6 +87,7 @@ namespace CustomEngine.Rendering.Models
                     if (!b.Locked) //Only normalize unlocked weights used in the calculation
                         b.Weight = (float)Math.Round(b.Weight / denom * num, weightDecimalPlaces);
         }
+#endif
 
         public IEnumerator<BoneWeight> GetEnumerator() { return ((IEnumerable<BoneWeight>)_weights).GetEnumerator(); }
         IEnumerator IEnumerable.GetEnumerator() { return ((IEnumerable<BoneWeight>)_weights).GetEnumerator(); }

@@ -28,7 +28,7 @@ namespace CustomEngine.Rendering.Models
             if (_bufferIndices.Count > 0)
                 vtx += ": ";
             foreach (var c in _bufferIndices)
-                vtx += "";
+                vtx += "(" + c.Key + ": " + c.Value + ")";
             return vtx;
         }
         public override int GetHashCode()

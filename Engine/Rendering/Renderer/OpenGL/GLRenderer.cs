@@ -1,16 +1,17 @@
 ﻿using System;
 using CustomEngine.Rendering.Models;
 using OpenTK.Graphics.OpenGL;
+using CustomEngine.Rendering.Models.Materials;
+using System.Linq;
 
 namespace CustomEngine.Rendering
 {
     public unsafe class GLRenderer : AbstractRenderer
     {
+        // https://www.opengl.org/wiki/Rendering_Pipeline_Overview
+
         public static GLRenderer Instance = new GLRenderer();
-        public GLRenderer()
-        {
-            
-        }
+        public GLRenderer() { }
 
         #region Shapes
         public override void DrawBoxWireframe(System.Vec3 min, System.Vec3 max)
@@ -84,19 +85,6 @@ namespace CustomEngine.Rendering
             throw new NotImplementedException();
         }
         #endregion
-
-        public override void SetPointSize(System.Single size)
-        {
-            GL.PointSize(size);
-        }
-        public override void SetLineSize(System.Single size)
-        {
-            GL.LineWidth(size);
-        }
-        public override void CompileShader(System.String shader)
-        {
-            
-        }
 
         #region Matrices
         public override void PushMatrix()
@@ -192,13 +180,7 @@ namespace CustomEngine.Rendering
         }
         #endregion
 
-        public override float GetDepth(float x, float y)
-        {
-            float val = 0;
-            GL.ReadPixels((int)x, (int)(Engine.CurrentPanel.Height - y), 1, 1, PixelFormat.DepthComponent, PixelType.Float, ref val);
-            return val;
-        }
-
+        #region Display Lists
         public override int CreateDisplayList()
         {
             return GL.GenLists(1);
@@ -219,27 +201,30 @@ namespace CustomEngine.Rendering
         {
             GL.DeleteLists(id, 1);
         }
+        #endregion
+
+        #region Drawing
         public override void Begin(EPrimitive type)
         {
             GL.Begin((PrimitiveType)(int)type);
         }
-        public override void Vertex3(System.Vec3 value)
+        public override void Vertex3(Vec3 value)
         {
             GL.Vertex3(value.X, value.Y, value.Z);
         }
-        public override void Vertex2(System.Vec2 value)
+        public override void Vertex2(Vec2 value)
         {
             GL.Vertex2(value.X, value.Y);
         }
-        public override void Normal3(System.Vec3 value)
+        public override void Normal3(Vec3 value)
         {
             GL.Normal3(value.X, value.Y, value.Z);
         }
-        public override void TexCoord2(System.Vec2 value)
+        public override void TexCoord2(Vec2 value)
         {
             GL.TexCoord2(value.X, value.Y);
         }
-        public override void MultiTexCoord2(int unit, System.Vec2 value)
+        public override void MultiTexCoord2(int unit, Vec2 value)
         {
             GL.MultiTexCoord2(TextureUnit.Texture0 + unit, value.X, value.Y);
         }
@@ -255,20 +240,219 @@ namespace CustomEngine.Rendering
         {
             GL.End();
         }
-
-        public override void AttachShader(int programHandle, int shaderHandle)
-        {
-            GL.AttachShader(programHandle, shaderHandle);
-        }
-
-        public override void LinkProgram(int programHandle)
-        {
-            GL.LinkProgram(programHandle);
-        }
-
         public override void RenderMesh(Mesh mesh)
         {
 
+        }
+        public override void SetPointSize(float size)
+        {
+            GL.PointSize(size);
+        }
+        public override void SetLineSize(float size)
+        {
+            GL.LineWidth(size);
+        }
+
+        #endregion
+
+        #region Shaders
+        public override int GenerateShader(Shader shader)
+        {
+            OpenTK.Graphics.OpenGL.ShaderType sType;
+            switch (shader._type)
+            {
+                case Models.Materials.ShaderType.Fragment:
+                    sType = OpenTK.Graphics.OpenGL.ShaderType.FragmentShader;
+                    break;
+                case Models.Materials.ShaderType.Vertex:
+                    sType = OpenTK.Graphics.OpenGL.ShaderType.VertexShader;
+                    break;
+                case Models.Materials.ShaderType.Geometry:
+                    sType = OpenTK.Graphics.OpenGL.ShaderType.GeometryShader;
+                    break;
+                case Models.Materials.ShaderType.TessControl:
+                    sType = OpenTK.Graphics.OpenGL.ShaderType.TessControlShader;
+                    break;
+                case Models.Materials.ShaderType.TessEvaluation:
+                    sType = OpenTK.Graphics.OpenGL.ShaderType.TessEvaluationShader;
+                    break;
+                case Models.Materials.ShaderType.Compute:
+                    sType = OpenTK.Graphics.OpenGL.ShaderType.ComputeShader;
+                    break;
+                default:
+                    return -1;
+            }
+            int handle = GL.CreateShader(sType);
+            GL.ShaderSource(handle, shader._source);
+            GL.CompileShader(handle);
+#if DEBUG
+            int status;
+            GL.GetShader(handle, ShaderParameter.CompileStatus, out status);
+            if (status == 0)
+            {
+                string info;
+                GL.GetShaderInfoLog(handle, out info);
+                Console.WriteLine(info + "\n\n");
+
+                //Split the source by new lines
+                string[] s = shader._source.Split(new string[] { Environment.NewLine }, StringSplitOptions.None);
+
+                //Add the line number to the source so we can go right to errors on specific lines
+                int lineNumber = 1;
+                foreach (string line in s)
+                    Console.WriteLine(String.Format("{0}: {1}", (lineNumber++).ToString().PadLeft(s.Length.ToString().Length, '0'), line));
+
+                Console.WriteLine("\n\n");
+            }
+#endif
+            return handle;
+        }
+        public override int GenerateProgram(params int[] shaderHandles)
+        {
+            int handle = GL.CreateProgram();
+            foreach (int i in shaderHandles)
+                GL.AttachShader(handle, i);
+            GL.LinkProgram(handle);
+            //We don't need these anymore now that they're part of the program
+            foreach (int i in shaderHandles)
+            {
+                GL.DetachShader(handle, i);
+                GL.DeleteShader(i);
+            }
+            return handle;
+        }
+        public override void UseProgram(int handle)
+        {
+            base.UseProgram(handle);
+            GL.UseProgram(_programHandle);
+        }
+
+        #region Uniforms
+        public override void Uniform(string name, params IUniformable4Int[] p)
+        {
+            const int count = 4;
+
+            int u = GL.GetUniformLocation(_programHandle, name);
+            if (u < 0)
+                return;
+
+            int[] values = new int[p.Length << 2];
+
+            for (int i = 0; i < p.Length; ++i)
+                for (int x = 0; x < count; ++x)
+                    values[i << 2 + x] = p[i].Address[x];
+
+            GL.Uniform3(u, p.Length, values);
+        }
+        public override void Uniform(string name, params IUniformable4Float[] p)
+        {
+            const int count = 4;
+
+            int u = GL.GetUniformLocation(_programHandle, name);
+            if (u < 0)
+                return;
+
+            float[] values = new float[p.Length << 2];
+
+            for (int i = 0; i < p.Length; ++i)
+                for (int x = 0; x < count; ++x)
+                    values[i << 2 + x] = p[i].Address[x];
+
+            GL.Uniform3(u, p.Length, values);
+        }
+        public override void Uniform(string name, params IUniformable3Int[] p)
+        {
+            const int count = 3;
+
+            int u = GL.GetUniformLocation(_programHandle, name);
+            if (u < 0)
+                return;
+
+            int[] values = new int[p.Length * 3];
+
+            for (int i = 0; i < p.Length; ++i)
+                for (int x = 0; x < count; ++x)
+                    values[i * 3 + x] = p[i].Address[x];
+
+            GL.Uniform3(u, p.Length, values);
+        }
+        public override void Uniform(string name, params IUniformable3Float[] p)
+        {
+            const int count = 3;
+
+            int u = GL.GetUniformLocation(_programHandle, name);
+            if (u < 0)
+                return;
+
+            float[] values = new float[p.Length * 3];
+
+            for (int i = 0; i < p.Length; ++i)
+                for (int x = 0; x < count; ++x)
+                    values[i * 3 + x] = p[i].Address[x];
+
+            GL.Uniform3(u, p.Length, values);
+        }
+        public override void Uniform(string name, params IUniformable2Int[] p)
+        {
+            const int count = 2;
+
+            int u = GL.GetUniformLocation(_programHandle, name);
+            if (u < 0)
+                return;
+
+            int[] values = new int[p.Length << 1];
+
+            for (int i = 0; i < p.Length; ++i)
+                for (int x = 0; x < count; ++x)
+                    values[i << 1 + x] = p[i].Address[x];
+
+            GL.Uniform2(u, p.Length, values);
+        }
+        public override void Uniform(string name, params IUniformable2Float[] p)
+        {
+            const int count = 2;
+
+            int u = GL.GetUniformLocation(_programHandle, name);
+            if (u < 0)
+                return;
+
+            float[] values = new float[p.Length << 1];
+            
+            for (int i = 0; i < p.Length; ++i)
+                for (int x = 0; x < count; ++x)
+                    values[i << 1 + x] = p[i].Address[x];
+
+            GL.Uniform2(u, p.Length, values);
+        }
+        public override void Uniform(string name, params IUniformable1Int[] p)
+        {
+            int u = GL.GetUniformLocation(_programHandle, name);
+            if (u > -1) GL.Uniform1(u, p.Length, p.Select(x => *x.Address).ToArray());
+        }
+        public override void Uniform(string name, params IUniformable1Float[] p)
+        {
+            int u = GL.GetUniformLocation(_programHandle, name);
+            if (u > -1) GL.Uniform1(u, p.Length, p.Select(x => *x.Address).ToArray());
+        }
+        public override void Uniform(string name, params int[] p)
+        {
+            int u = GL.GetUniformLocation(_programHandle, name);
+            if (u > -1) GL.Uniform1(u, p.Length, p);
+        }
+        public override void Uniform(string name, params float[] p)
+        {
+            int u = GL.GetUniformLocation(_programHandle, name);
+            if (u > -1) GL.Uniform1(u, p.Length, p);
+        }
+        #endregion
+
+        #endregion
+
+        public override float GetDepth(float x, float y)
+        {
+            float val = 0;
+            GL.ReadPixels((int)x, (int)(Engine.CurrentPanel.Height - y), 1, 1, PixelFormat.DepthComponent, PixelType.Float, ref val);
+            return val;
         }
     }
 }

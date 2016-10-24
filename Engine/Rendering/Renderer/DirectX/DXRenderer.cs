@@ -2,6 +2,7 @@
 using CustomEngine.Rendering.DirectX;
 using System.Collections.Generic;
 using CustomEngine.Rendering.Models;
+using CustomEngine.Rendering.Models.Materials;
 
 namespace CustomEngine.Rendering
 {
@@ -32,11 +33,6 @@ namespace CustomEngine.Rendering
         public DXDisplayList CurrentList { get { return _compilingDisplayLists.Count > 0 && _displayLists.Count > 0 ? _displayLists[_compilingDisplayLists.Peek()._id] : null; } }
 
         public override void Clear(BufferClear clearBufferMask)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void CompileShader(string shader)
         {
             throw new NotImplementedException();
         }
@@ -241,17 +237,67 @@ namespace CustomEngine.Rendering
                 EndDisplayList();
         }
 
-        public override void AttachShader(int programHandle, int shaderHandle)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void LinkProgram(int programHandle)
-        {
-            throw new NotImplementedException();
-        }
-
         public override void RenderMesh(Mesh mesh)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override int GenerateShader(Shader shader)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override int GenerateProgram(params int[] shaderHandles)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void Uniform(string name, params float[] p)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void Uniform(string name, params int[] p)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void Uniform(string name, params IUniformable4Int[] p)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void Uniform(string name, params IUniformable3Int[] p)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void Uniform(string name, params IUniformable2Int[] p)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void Uniform(string name, params IUniformable1Int[] p)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void Uniform(string name, params IUniformable4Float[] p)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void Uniform(string name, params IUniformable3Float[] p)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void Uniform(string name, params IUniformable2Float[] p)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void Uniform(string name, params IUniformable1Float[] p)
         {
             throw new NotImplementedException();
         }

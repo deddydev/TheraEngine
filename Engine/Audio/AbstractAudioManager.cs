@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using CustomEngine.Sound;
 
-namespace CustomEngine.Rendering
+namespace CustomEngine.Audio
 {
-    public abstract class AbstractAudio
+    public abstract class AbstractAudioManager
     {
         public abstract void Play(SoundDataBase sound);
         public abstract void Stop(SoundDataBase sound);

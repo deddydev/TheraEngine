@@ -1,13 +1,10 @@
-﻿using OpenTK;
+﻿using System;
 using System.Reflection;
 
-namespace CustomEngine.Sound
+namespace CustomEngine.Audio
 {
-    public class StaticSoundEffect : SoundDataBase
+    public class DynamicSoundEffect : SoundDataBase
     {
-        Vector3 worldPosition;
-        float loudness;
-
         public bool Looped
         {
             get { return _looped; }
@@ -16,10 +13,9 @@ namespace CustomEngine.Sound
                 _looped = value;
             }
         }
-
-        public void Play()
+        public void Play(Vec3 worldPosition, float loudness)
         {
-
+            
         }
     }
 }

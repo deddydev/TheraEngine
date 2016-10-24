@@ -96,32 +96,31 @@ namespace System
         }
         public unsafe PrimitiveData GetPrimitives()
         {
-            const string p = "Positions";
-            const string n = "Normals";
-
-            PrimitiveData data = new PrimitiveData();
-            data[p] = new VertexBuffer(0, 8, VertexBuffer.ComponentType.Float, 3, false);
-            data[n] = new VertexBuffer(0, 6, VertexBuffer.ComponentType.Float, 3, false);
-
-            Vec3 TBL, TBR, TFL, TFR, BBL, BBR, BFL, BFR;
-            GetCorners(out TBL, out TBR, out TFL, out TFR, out BBL, out BBR, out BFL, out BFR);
-            Vec3* dPtr = (Vec3*)(VoidPtr)data[p];
-            *dPtr++ = TBL;
-            *dPtr++ = TBR;
-            *dPtr++ = TFL;
-            *dPtr++ = TFR;
-            *dPtr++ = BBL;
-            *dPtr++ = BBR;
-            *dPtr++ = BFL;
-            *dPtr++ = BFR;
-            dPtr = (Vec3*)(VoidPtr)data[n];
-
-
-            Quad left = new Quad();
-
-
-
-            left.ToTriangles();
+            return null;
+//             const string p = "Positions";
+//             const string n = "Normals";
+// 
+//             PrimitiveData data = new PrimitiveData();
+// 
+//             VertexQuad left = new VertexQuad();
+// 
+//             data[p] = new VertexBuffer(0, 8, VertexBuffer.ComponentType.Float, 3, false);
+//             data[n] = new VertexBuffer(0, 6, VertexBuffer.ComponentType.Float, 3, false);
+// 
+//             Vec3 TBL, TBR, TFL, TFR, BBL, BBR, BFL, BFR;
+//             GetCorners(out TBL, out TBR, out TFL, out TFR, out BBL, out BBR, out BFL, out BFR);
+//             Vec3* dPtr = (Vec3*)(VoidPtr)data[p];
+//             *dPtr++ = TBL;
+//             *dPtr++ = TBR;
+//             *dPtr++ = TFL;
+//             *dPtr++ = TFR;
+//             *dPtr++ = BBL;
+//             *dPtr++ = BBR;
+//             *dPtr++ = BFL;
+//             *dPtr++ = BFR;
+//             dPtr = (Vec3*)(VoidPtr)data[n];
+// 
+//             left.ToTriangles();
         }
     }
 }

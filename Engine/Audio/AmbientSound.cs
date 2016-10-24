@@ -1,4 +1,4 @@
-﻿namespace CustomEngine.Sound
+﻿namespace CustomEngine.Audio
 {
     public class AmbientSound : SoundDataBase
     {

@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using System.Windows.Controls;
 using System.IO;
 using System.Collections.Generic;
+using CustomEngine.Audio;
 
 namespace CustomEngine
 {
@@ -33,7 +34,7 @@ namespace CustomEngine
         }
 
         public static AbstractRenderer Renderer { get { return _renderer; } set { _renderer = value; } }
-        public static AbstractAudio AudioManager { get { return _audioManager; } set { _audioManager = value; } }
+        public static AbstractAudioManager AudioManager { get { return _audioManager; } set { _audioManager = value; } }
 
         public static float RenderDelta { get { return (float)_timer.RenderTime; } }
         public static float UpdateDelta { get { return (float)_timer.UpdateTime; } }
@@ -56,7 +57,7 @@ namespace CustomEngine
         private static World _currentWorld = null;
         private static GlobalTimer _timer = new GlobalTimer();
         private static AbstractRenderer _renderer;
-        private static AbstractAudio _audioManager;
+        private static AbstractAudioManager _audioManager;
 
         /// <summary>
         /// Class containing this computer's specs. Use to adjust engine settings accordingly.

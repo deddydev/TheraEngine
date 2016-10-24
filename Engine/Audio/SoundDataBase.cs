@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace CustomEngine.Sound
+namespace CustomEngine.Audio
 {
     public abstract class SoundDataBase : FileObject
     {

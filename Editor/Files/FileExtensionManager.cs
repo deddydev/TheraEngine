@@ -4,7 +4,7 @@ using CustomEngine.Rendering.Animation;
 using CustomEngine.Rendering.Cameras;
 using CustomEngine.Rendering.Models;
 using CustomEngine.Rendering.Textures;
-using CustomEngine.Sound;
+using CustomEngine.Audio;
 using CustomEngine.Worlds;
 using CustomEngine.Worlds.Actors.Components;
 using System;

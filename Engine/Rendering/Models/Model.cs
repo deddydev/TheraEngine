@@ -9,8 +9,8 @@ namespace CustomEngine.Rendering.Models
     {
         private List<ModelComponent> _linkedComponents = new List<ModelComponent>();
 
-        private List<Mesh> _meshes = new List<Mesh>();
-        private Skeleton _skeleton;
+        public List<Mesh> _meshes = new List<Mesh>();
+        public Skeleton _skeleton;
 
         public void Render(float delta)
         {
@@ -29,13 +29,17 @@ namespace CustomEngine.Rendering.Models
             if (_linkedComponents.Contains(comp))
                 _linkedComponents.Remove(comp);
         }
-        public override Task Load()
+        public override void Load()
         {
-            return base.Load();
+            base.Load();
         }
         public void SetSkeleton(Skeleton skeleton)
         {
             _skeleton = skeleton;
+        }
+        public void AddMesh(Mesh m)
+        {
+            _meshes.Add(m);
         }
     }
 }

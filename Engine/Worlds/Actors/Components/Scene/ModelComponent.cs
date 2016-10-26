@@ -7,7 +7,10 @@ namespace CustomEngine.Worlds.Actors.Components
     public class ModelComponent : SceneComponent
     {
         private Model _model;
-        
+
+        public ModelComponent() { }
+        public ModelComponent(Model m) { Model = m; }
+
         public Model Model
         {
             get { return _model; }
@@ -22,6 +25,6 @@ namespace CustomEngine.Worlds.Actors.Components
             }
         }
 
-        protected override void OnRender() { _model?.Render(); }
+        protected override void OnRender(float delta) { _model?.Render(delta); }
     }
 }

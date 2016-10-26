@@ -6,9 +6,9 @@ namespace CustomEngine.Worlds.Actors.Components
     {
         private Texture _texture;
 
-        protected override void OnRender()
+        protected override void OnRender(float delta)
         {
-            base.OnRender();
+            base.OnRender(delta);
         }
     }
 }

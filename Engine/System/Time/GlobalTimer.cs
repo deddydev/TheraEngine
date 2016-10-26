@@ -29,6 +29,8 @@ namespace System
         public event EventHandler<FrameEventArgs> RenderFrame = delegate { };
         public event EventHandler<FrameEventArgs> UpdateFrame = delegate { };
 
+        Thread TimerThread;
+        
         /// <summary>
         /// Runs the timer until Stop() is called.
         /// Do note that the function that calls this will be suspended until the timer is stopped.
@@ -36,29 +38,20 @@ namespace System
         /// </summary>
         /// <param name="updatesPerSec">FPS of update events.</param>
         /// <param name="framesPerSec">FPS of render events.</param>
-        public void Run(double updates_per_second, double frames_per_second)
+        public void Run()
         {
             _running = true;
-
-            if (updates_per_second < 0.0 || updates_per_second > 200.0)
-                throw new ArgumentOutOfRangeException("updates_per_second", updates_per_second,
-                                                        "Parameter should be inside the range [0.0, 200.0]");
-            if (frames_per_second < 0.0 || frames_per_second > 200.0)
-                throw new ArgumentOutOfRangeException("frames_per_second", frames_per_second,
-                                                        "Parameter should be inside the range [0.0, 200.0]");
-
-            if (updates_per_second != 0)
-                TargetUpdateFrequency = updates_per_second;
-            if (frames_per_second != 0)
-                TargetRenderFrequency = frames_per_second;
-                
             watch.Start();
+            TimerThread = new Thread(RunInternal);
+            TimerThread.Start();
+        }
+        private void RunInternal()
+        {
             while (_running)
             {
                 ProcessEvents();
                 DispatchUpdateAndRenderFrame(this, EventArgs.Empty);
             }
-            
         }
         void DispatchUpdateAndRenderFrame(object sender, EventArgs e)
         {

@@ -3,8 +3,9 @@ using CustomEngine.Rendering.DirectX;
 using System.Collections.Generic;
 using CustomEngine.Rendering.Models;
 using CustomEngine.Rendering.Models.Materials;
+using System.Drawing;
 
-namespace CustomEngine.Rendering
+namespace CustomEngine.Rendering.DirectX
 {
     public unsafe class DXRenderer : AbstractRenderer
     {
@@ -13,6 +14,8 @@ namespace CustomEngine.Rendering
         {
 
         }
+
+        public override RenderLibrary RenderLibrary { get { return RenderLibrary.DirectX; } }
 
         private class DLCompileInfo
         {
@@ -66,58 +69,13 @@ namespace CustomEngine.Rendering
         {
             throw new NotImplementedException();
         }
-
-        public override void LoadMatrix(System.Matrix4 matrix)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void MatrixMode(MtxMode modelview)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void MultMatrix(System.Matrix4 matrix)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void PopMatrix()
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void PushMatrix()
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void Rotate(System.Quaternion rotation)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void Rotate(float x, float y, float z)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void Scale(float x, float y, float z)
-        {
-            throw new NotImplementedException();
-        }
-
+        
         public override void SetLineSize(float size)
         {
             throw new NotImplementedException();
         }
 
         public override void SetPointSize(float size)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void Translate(float x, float y, float z)
         {
             throw new NotImplementedException();
         }
@@ -298,6 +256,16 @@ namespace CustomEngine.Rendering
         }
 
         public override void Uniform(string name, params IUniformable1Float[] p)
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override void SetRenderArea(Rectangle region)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void CropRenderArea(Rectangle region)
         {
             throw new NotImplementedException();
         }

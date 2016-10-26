@@ -49,14 +49,14 @@ namespace CustomEngine.Worlds.Actors.Components
             _visible = false;
         }
 
-        public void Render()
+        public void Render(float delta)
         {
             Renderer.PushMatrix();
             Transform.MultMatrix();
             if (Visible)
-                OnRender();
+                OnRender(delta);
             foreach (SceneComponent comp in _children)
-                comp.Render();
+                comp.Render(delta);
             Renderer.PopMatrix();
         }
 
@@ -82,7 +82,7 @@ namespace CustomEngine.Worlds.Actors.Components
                 c.GenerateChildCache(cache);
         }
 
-        protected virtual void OnRender()
+        protected virtual void OnRender(float delta)
         {
             //Do nothing - this component is only used to transform the components it owns
         }

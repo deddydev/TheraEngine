@@ -66,12 +66,7 @@ namespace CustomEngine.Rendering.OpenGL
 
         public override void Initialize()
         {
-            Vec3 v = (Vec3)_control.BackColor;
-            GL.ClearColor(v.X, v.Y, v.Z, 0.0f);
             GL.ClearDepth(1.0);
-
-            GL.Enable(EnableCap.DepthTest);
-            GL.DepthFunc(DepthFunction.Less);
 
             GL.ShadeModel(ShadingModel.Smooth);
 
@@ -81,22 +76,22 @@ namespace CustomEngine.Rendering.OpenGL
             GL.Hint(HintTarget.PolygonSmoothHint, HintMode.Nicest);
             GL.Hint(HintTarget.GenerateMipmapHint, HintMode.Nicest);
 
+            GL.Enable(EnableCap.Normalize);
+            GL.Enable(EnableCap.DepthTest);
+            GL.Enable(EnableCap.Dither);
             GL.Enable(EnableCap.Blend);
-            GL.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
-
             GL.Enable(EnableCap.AlphaTest);
-            GL.AlphaFunc(AlphaFunction.Gequal, 0.1f);
-
-            GL.Enable(EnableCap.Lighting);
-            GL.Enable(EnableCap.Light0);
-
-            GL.PointSize(3.0f);
-            GL.LineWidth(2.0f);
+            GL.Enable(EnableCap.CullFace);
+            GL.Enable(EnableCap.ScissorTest);
+            GL.Disable(EnableCap.Lighting); //Lighting will by done by shaders
             GL.Disable(EnableCap.PointSmooth);
             GL.Disable(EnableCap.PolygonSmooth);
             GL.Disable(EnableCap.LineSmooth);
 
-            GL.Enable(EnableCap.Normalize);
+            GL.DepthFunc(DepthFunction.Less);
+            GL.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
+            GL.AlphaFunc(AlphaFunction.Gequal, 0.1f);
+            GL.CullFace(CullFaceMode.Back);
         }
         public override void BeginDraw()
         {

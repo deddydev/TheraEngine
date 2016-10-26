@@ -4,6 +4,7 @@ using CustomEngine.Rendering.Models;
 using System;
 using CustomEngine.Worlds.Actors.Components;
 using System.Collections.ObjectModel;
+using System.Linq;
 
 namespace CustomEngine.Worlds
 {
@@ -12,12 +13,17 @@ namespace CustomEngine.Worlds
         Static, //This actor is part of the map
         Dynamic, //This actor can be changed/manipulated
     }
-    public abstract class Actor : ObjectBase
+    public class Actor : ObjectBase
     {
         public Actor()
         {
             SetDefaults();
             SetupComponents();
+        }
+        public Actor(SceneComponent root, params LogicComponent[] logicComponents)
+        {
+            RootComponent = root;
+            _logicComponents = (MonitoredList<LogicComponent>)logicComponents.ToList();
         }
         protected virtual void SetDefaults() { }
         protected virtual void SetupComponents() { }
@@ -70,7 +76,7 @@ namespace CustomEngine.Worlds
         public virtual void Render(float delta)
         {
             _lastRendered = DateTime.Now;
-            _rootSceneComponent?.Render();
+            _rootSceneComponent?.Render(delta);
         }
         public void Despawn()
         {

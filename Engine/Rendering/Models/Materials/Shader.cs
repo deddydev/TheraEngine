@@ -35,7 +35,7 @@ namespace CustomEngine.Rendering.Models.Materials
             _source = source;
         }
 
-        internal void Compile(ResultBasicFunc _resultCommand)
+        public void Compile(ResultBasicFunc resultFunction)
         {
             
         }

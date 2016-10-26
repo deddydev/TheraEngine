@@ -3,11 +3,20 @@ using System.Collections.Generic;
 using System;
 using System.Threading.Tasks;
 using System.Reflection;
+using System.Linq;
 
 namespace CustomEngine.Worlds
 {
     public class Map : FileObject
     {
+        public Map(bool visible, Vec3 spawnOrigin, MapSettings settings, params Actor[] actors)
+        {
+            _visibleByDefault = _visible = visible;
+            _settings = settings;
+            _position = spawnOrigin;
+            _defaultActors = actors.ToList();
+        }
+
         private bool _visible;
         private bool _visibleByDefault;
         private List<Actor> _defaultActors = new List<Actor>();

@@ -9,7 +9,7 @@
             set { _shape = value; }
         }
 
-        protected override void OnRender() { _shape?.Render(); }
+        protected override void OnRender(float delta) { _shape?.Render(delta); }
         public virtual void OnBeginOverlap()
         {
 

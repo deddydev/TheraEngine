@@ -8,6 +8,9 @@ using System.Windows.Controls;
 using System.IO;
 using System.Collections.Generic;
 using CustomEngine.Audio;
+using CustomEngine.Worlds.Maps;
+using CustomEngine.Worlds.Actors.Components;
+using CustomEngine.Rendering.Models;
 
 namespace CustomEngine
 {
@@ -39,19 +42,38 @@ namespace CustomEngine
             _timer.RenderFrame += func;
         }
 
-        public static AbstractRenderer Renderer { get { return _renderer; } set { _renderer = value; } }
+        public static AbstractRenderer Renderer
+        {
+            get { return _renderer; }
+            internal set { _renderer = value; }
+        }
         public static AbstractAudioManager AudioManager { get { return _audioManager; } set { _audioManager = value; } }
 
         public static float RenderDelta { get { return (float)_timer.RenderTime; } }
         public static float UpdateDelta { get { return (float)_timer.UpdateTime; } }
 
+        public static double TargetRenderFreq
+        {
+            get { return _timer.TargetRenderFrequency; }
+            set { _timer.TargetRenderFrequency = value; }
+        }
+        public static double TargetUpdateFreq
+        {
+            get { return _timer.TargetUpdateFrequency; }
+            set { _timer.TargetUpdateFrequency = value; }
+        }
+
         [Default]
-        public static World TransitionWorld { get { return _transitionWorld; } set { _transitionWorld = value; } }
+        public static World TransitionWorld
+        {
+            get { return _transitionWorld; }
+            set { _transitionWorld = value; }
+        }
         [State]
         public static World World
         {
             get { return _currentWorld; }
-            internal set { SetCurrentWorld(value); }
+            set { SetCurrentWorld(value); }
         }
         
         public static BindingList<World> LoadedWorlds = new BindingList<World>();
@@ -95,8 +117,10 @@ namespace CustomEngine
                 return null;
             }
         }
-        public static void Run(double updateRate, double frameRate) { _timer.Run(updateRate, frameRate); }
+        public static void Run() { _timer.Run(); }
         public static void Stop() { _timer.Stop(); }
+
+        #region Tick
         private static void PhysicsTick(TickGroup order, float delta)
         {
             foreach (var g in _tick[order])
@@ -144,20 +168,43 @@ namespace CustomEngine
             }
             //await t;
         }
+        #endregion
+
         public static void Initialize()
         {
             _computerInfo = ComputerInfo.Analyze();
 
             EngineSettings s = LoadSettings();
 
-            _currentWorld = new World(s._openingWorldPath);
-            _transitionWorld = new World(s._transitionWorldPath);
+#if DEBUG
+            Model boxModel = new Model();
+            Mesh m = new Box(new Vec3(-20.0f, -20.0f, -20.0f), new Vec3(20.0f, 20.0f, 20.0f));
+            Skeleton skel = new Skeleton();
+            boxModel.AddMesh(m);
+            boxModel.SetSkeleton(skel);
+            ModelComponent modelComp = new ModelComponent(boxModel);
+            Actor actor = new Actor(modelComp);
+            Map map = new Map(true, Vec3.Zero, new MapSettings(), actor);
+            World world = new World(new WorldSettings(map));
 
-            var task = _transitionWorld.Load();
-            Task.Run(_currentWorld.Load);
-            Run(60.0f, 60.0f);
-            task.Wait();
-            Console.WriteLine("Finished loading current world.");
+            _currentWorld = world;
+#else
+            _currentWorld = new World(s.OpeningWorldPath);
+            _transitionWorld = new World(s.TransitionWorldPath);
+
+            _transitionWorld.Load();
+            _currentWorld.Load();
+#endif
+
+            TargetRenderFreq = 60.0f;
+            TargetUpdateFreq = 90.0f;
+            Run();
+        }
+        public static void ShutDown()
+        {
+            Stop();
+            foreach (RenderWindowContext c in RenderWindowContext.BoundContexts)
+                c?.Dispose();
         }
         public static EngineSettings LoadSettings()
         {
@@ -186,14 +233,14 @@ namespace CustomEngine
             else
                 panel._overallHud.ShowMessage(message);
         }
-        public static async void SetCurrentWorld(World world)
+        public static void SetCurrentWorld(World world)
         {
-            Task load = null;
+            World oldCurrent = _currentWorld;
             if (world != null && !world.IsLoaded)
-                load = world.Load();
-            World = world;
-            if (load != null)
-                await load;
+                world.Load();
+            _currentWorld = world;
+            if (oldCurrent != null && oldCurrent.IsLoaded)
+                oldCurrent.Unload();
         }
     }
 }

@@ -3,7 +3,7 @@ using System;
 
 namespace CustomEngine.Rendering.Cameras
 {
-    public abstract class Camera : ObjectBase
+    public abstract class Camera : FileObject
     {
         public override ResourceType ResourceType { get { return ResourceType.Camera; } }
 
@@ -58,6 +58,7 @@ namespace CustomEngine.Rendering.Cameras
 
         public Camera()
         {
+            _defaultTransform = FrameState.Identity;
             Reset();
         }
         public Camera(Vec3 defaultTranslate, Quaternion defaultRotate, Vec3 defaultScale)
@@ -202,16 +203,11 @@ namespace CustomEngine.Rendering.Cameras
             ray.LinePlaneIntersect(center, (transform * Vec3.UnitZ).Normalized(center), out xy);
         }
 
-        public void LoadProjection()
+        public void SetCurrent()
         {
-            Renderer.MatrixMode(MtxMode.Projection);
-            Renderer.LoadMatrix(_projectionMatrix);
+            Engine.Renderer.SetRenderCamera(this);
         }
-        public void LoadModelView()
-        {
-            Renderer.MatrixMode(MtxMode.Modelview);
-            Renderer.LoadMatrix(Matrix);
-        }
+
         public void SaveCurrentTransform()
         {
             _defaultTransform = _currentTransform;

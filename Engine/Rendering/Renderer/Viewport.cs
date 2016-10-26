@@ -10,7 +10,7 @@ namespace CustomEngine.Rendering
         private PlayerController _player;
         private HudManager _hud;
         private int _viewportNumber = 0;
-        private RectangleF _region;
+        private Rectangle _region;
         private Camera _worldCamera;
 
         public float _leftPercentage = 0.0f;
@@ -22,29 +22,36 @@ namespace CustomEngine.Rendering
         public HudManager HUD { get { return _hud; } }
         public int ViewportNumber { get { return _player.Number; } }
 
-        public float Height { get { return _region.Height; } }
-        public float Width { get { return _region.Width; } }
-        public float X { get { return _region.X; } }
-        public float Y { get { return _region.Y; } }
+        public int Height { get { return _region.Height; } }
+        public int Width { get { return _region.Width; } }
+        public int X { get { return _region.X; } }
+        public int Y { get { return _region.Y; } }
 
         public Viewport()
         {
             _hud = new HudManager(this);
+            _worldCamera = new PerspectiveCamera();
         }
         public void Resize(float parentWidth, float parentHeight)
         {
-            _region.X = _leftPercentage * parentWidth;
-            _region.Y = _bottomPercentage * parentHeight;
-            _region.Width = _rightPercentage * parentWidth - _region.X;
-            _region.Height = _topPercentage * parentHeight - _region.Y;
+            _region.X = (int)(_leftPercentage * parentWidth);
+            _region.Y = (int)(_bottomPercentage * parentHeight);
+            _region.Width = (int)(_rightPercentage * parentWidth - _region.X);
+            _region.Height = (int)(_topPercentage * parentHeight - _region.Y);
 
             Camera.Resize(Width, Height);
             _hud.Resize(Width, Width);
         }
         public void Render(float delta)
         {
-            _hud.Render();
-            Engine.World.Render(delta);
+            Engine.Renderer.PushRenderArea(_region);
+
+            _hud.Render(delta);
+
+            _worldCamera.SetCurrent();
+            Engine.World?.Render(delta);
+
+            Engine.Renderer.PopRenderArea();
         }
         public void ShowMessage(string message)
         {

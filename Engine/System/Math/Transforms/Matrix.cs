@@ -541,6 +541,8 @@ namespace System
         }
         public static Matrix4 CreateInversePerspectiveFieldOfView(float fovy, float aspect, float zNear, float zFar)
         {
+            fovy = DegToRad(fovy);
+
             if (fovy <= 0 || fovy > PI)
                 throw new ArgumentOutOfRangeException("fovy");
             if (aspect <= 0)

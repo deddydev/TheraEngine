@@ -45,11 +45,11 @@ namespace System
 #endif
         protected bool _isLoaded, _isLoading;
         protected string _filePath;
-        public virtual async Task Unload()
+        public virtual void Unload()
         {
             _isLoaded = false;
         }
-        public virtual async Task Load()
+        public virtual void Load()
         {
             _isLoading = true;
 

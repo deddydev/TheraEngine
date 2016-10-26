@@ -3,14 +3,19 @@ using CustomEngine.Rendering.Models;
 using OpenTK.Graphics.OpenGL;
 using CustomEngine.Rendering.Models.Materials;
 using System.Linq;
+using System.Drawing;
+using System.Collections.Generic;
 
-namespace CustomEngine.Rendering
+namespace CustomEngine.Rendering.OpenGL
 {
     public unsafe class GLRenderer : AbstractRenderer
     {
         // https://www.opengl.org/wiki/Rendering_Pipeline_Overview
 
         public static GLRenderer Instance = new GLRenderer();
+
+        public override RenderLibrary RenderLibrary { get { return RenderLibrary.OpenGL; } }
+
         public GLRenderer() { }
 
         #region Shapes
@@ -85,46 +90,7 @@ namespace CustomEngine.Rendering
             throw new NotImplementedException();
         }
         #endregion
-
-        #region Matrices
-        public override void PushMatrix()
-        {
-            GL.PushMatrix();
-        }
-        public override void PopMatrix()
-        {
-            GL.PopAttrib();
-        }
-        public override void MultMatrix(System.Matrix4 matrix)
-        {
-            OpenTK.Matrix4 m = GLMat4(matrix);
-            GL.MultMatrix(ref m);
-        }
-        public override void Translate(float x, float y, float z)
-        {
-            GL.Translate(x, y, z);
-        }
-        public override void Scale(float x, float y, float z)
-        {
-            GL.Scale(x, y, z);
-        }
-        public override void Rotate(float roll, float pitch, float yaw)
-        {
-            //TODO: which method is faster?
-            //Method 1:
-            System.Matrix4 rotX = System.Matrix4.CreateRotationX(roll);
-            System.Matrix4 rotY = System.Matrix4.CreateRotationY(pitch);
-            System.Matrix4 rotZ = System.Matrix4.CreateRotationZ(yaw);
-            MultMatrix(rotX * rotY * rotZ);
-
-            //Method 2:
-            //Rotate(Quaternion.FromEulerAngles(pitch, yaw, roll));
-        }
-        public override void Rotate(System.Quaternion rotation)
-        {
-            MultMatrix(System.Matrix4.CreateFromQuaternion(rotation));
-        }
-
+        
         public override void DrawSphereWireframe(float radius)
         {
             throw new NotImplementedException();
@@ -135,24 +101,22 @@ namespace CustomEngine.Rendering
             throw new NotImplementedException();
         }
 
-        public override void Clear(BufferClear clearBufferMask)
+        public override void Clear(BufferClear mask)
         {
-            throw new NotImplementedException();
+            ClearBufferMask newMask = 0;
+            if (mask.HasFlag(BufferClear.Color))
+                newMask |= ClearBufferMask.ColorBufferBit;
+            if (mask.HasFlag(BufferClear.Depth))
+                newMask |= ClearBufferMask.DepthBufferBit;
+            if (mask.HasFlag(BufferClear.Stencil))
+                newMask |= ClearBufferMask.StencilBufferBit;
+            if (mask.HasFlag(BufferClear.Accum))
+                newMask |= ClearBufferMask.AccumBufferBit;
+            GL.Clear(newMask);
         }
-
-        public override void MatrixMode(MtxMode modelview)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void LoadMatrix(System.Matrix4 matrix)
-        {
-            throw new NotImplementedException();
-        }
-        #endregion
 
         #region Conversion
-        private OpenTK.Matrix4 GLMat4(System.Matrix4 matrix4)
+        private OpenTK.Matrix4 GLMat4(Matrix4 matrix4)
         {
             //OpenTK.Matrix4 m = new OpenTK.Matrix4();
             //float* sPtr = (float*)&m;
@@ -453,6 +417,14 @@ namespace CustomEngine.Rendering
             float val = 0;
             GL.ReadPixels((int)x, (int)(Engine.CurrentPanel.Height - y), 1, 1, PixelFormat.DepthComponent, PixelType.Float, ref val);
             return val;
+        }
+        protected override void SetRenderArea(Rectangle region)
+        {
+            GL.Viewport(region);
+        }
+        public override void CropRenderArea(Rectangle region)
+        {
+            GL.Scissor(region.X, region.Y, region.Width, region.Height);
         }
     }
 }

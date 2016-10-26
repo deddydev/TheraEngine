@@ -15,13 +15,13 @@ namespace CustomEngine
     [Serializable]
     public class EngineSettings
     {
-        public string _transitionWorldPath;
-        public string _openingWorldPath;
-        public string _contentPath;
-        public EngineQuality _textureQuality;
-        public EngineQuality _modelQuality;
-        public EngineQuality _soundQuality;
-        public bool _vsync;
+        public string TransitionWorldPath;
+        public string OpeningWorldPath;
+        public string ContentPath;
+        public EngineQuality TextureQuality;
+        public EngineQuality ModelQuality;
+        public EngineQuality SoundQuality;
+        public bool VSync;
         
         public void SaveXML(string path)
         {

@@ -22,16 +22,15 @@ namespace CustomEngine.Rendering.HUD
             OnResized();
         }
 
-        public override void Render()
+        public override void Render(float delta)
         {
-            _camera.LoadProjection();
-            _camera.LoadModelView();
-            base.Render();
+            _camera.SetCurrent();
+            base.Render(delta);
         }
 
-        protected override void OnRender()
+        protected override void OnRender(float delta)
         {
-            base.OnRender();
+            base.OnRender(delta);
         }
 
         public void ShowMessage(string message)

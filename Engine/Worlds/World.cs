@@ -3,15 +3,14 @@ using System.Collections;
 using BulletSharp;
 using System;
 using System.Threading.Tasks;
+using System.Linq;
 
 namespace CustomEngine.Worlds
 {
     public class World : FileObject, IRenderable
     {
         protected List<Map> _spawnedMaps = new List<Map>();
-        protected List<Actor> _spawnedActors;
-
-        protected List<Map> _allMaps = new List<Map>();
+        protected List<Actor> _spawnedActors = new List<Actor>();
 
         private DiscreteDynamicsWorld _bulletScene;
         public WorldSettings _settings;
@@ -25,13 +24,27 @@ namespace CustomEngine.Worlds
         {
             _filePath = filePath;
             _isLoaded = false;
+            CreatePhysicsScene();
+        }
 
+        public World(WorldSettings settings)
+        {
+            _filePath = null;
+            _isLoaded = true;
+            CreatePhysicsScene();
+
+            _settings = settings;
+        }
+
+        private void CreatePhysicsScene()
+        {
             BroadphaseInterface broadphase = new DbvtBroadphase();
             DefaultCollisionConfiguration config = new DefaultCollisionConfiguration();
             CollisionDispatcher dispatcher = new CollisionDispatcher(config);
             SequentialImpulseConstraintSolver solver = new SequentialImpulseConstraintSolver();
             _bulletScene = new DiscreteDynamicsWorld(dispatcher, broadphase, solver, config);
         }
+
         public void RebaseOrigin(Vec3 newOrigin)
         {
             foreach (Actor a in _spawnedActors)
@@ -64,23 +77,25 @@ namespace CustomEngine.Worlds
             await Task.Delay(100);
         }
         #region ILoadable Interface
-        public override async Task Unload()
+        public override void Unload()
         {
             if (!_isLoaded)
                 return;
 
             _isLoaded = false;
         }
-        public override async Task Load()
+        public override void Load()
         {
             if (_isLoaded)
                 return;
             _isLoading = true;
-            FileMap map = FileMap.FromFile(_filePath);
-
-            foreach (Map m in _allMaps)
-                if (m.VisibleByDefault)
-                    await Task.Run(m.Load);
+            if (!string.IsNullOrEmpty(_filePath))
+            {
+                FileMap map = FileMap.FromFile(_filePath);
+                foreach (Map m in _settings._maps)
+                    if (m.VisibleByDefault)
+                        m.Load();
+            }
             _isLoading = false;
             _isLoaded = true;
         }

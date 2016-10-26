@@ -20,9 +20,9 @@ namespace CustomEngine.Worlds.Actors.Components
             Transform.ApplyRelativeTranslation(_endOffset);
         }
 
-        protected override void OnRender()
+        protected override void OnRender(float delta)
         {
-            base.OnRender();
+            base.OnRender(delta);
         }
     }
 }

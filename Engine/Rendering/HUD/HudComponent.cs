@@ -9,7 +9,8 @@ namespace CustomEngine.Rendering.HUD
     public abstract class HudComponent : ObjectBase, IPanel, IRenderable, IEnumerable<HudComponent>
     {
         private RectangleF _region = new RectangleF();
-        private float _rotationAngle, _rotationLocalOrigin;
+        private float _rotationAngle;
+        private PointF _rotationLocalOrigin;
         public HudComponent _owner;
         public List<HudComponent> _children = new List<HudComponent>();
 
@@ -17,6 +18,18 @@ namespace CustomEngine.Rendering.HUD
 
         [Category("Transform"), Default, Animatable]
         public RectangleF Region { get { return _region; } set { _region = value; OnResized(); } }
+        [Category("Transform"), State, Animatable]
+        public SizeF Size
+        {
+            get { return _region.Size; }
+            set { _region.Size = value; }
+        }
+        [Category("Transform"), State, Animatable]
+        public PointF Location
+        {
+            get { return _region.Location; }
+            set { _region.Location = value; }
+        }
         [Category("Transform"), State, Animatable]
         public float Height
         {
@@ -56,13 +69,14 @@ namespace CustomEngine.Rendering.HUD
         public float RotationAngle
         {
             get { return _rotationAngle; }
-            set { _rotationAngle = value; }
+            set { _rotationAngle = value.RemapToRange(0.0f, 360.0f); }
         }
         /// <summary>
-        /// The origin of the component's rotation angle.
+        /// The origin of the component's rotation angle, as a percentage.
+        /// 0,0 is bottom left, 0.5,0.5 is center, 1.0,1.0 is top right.
         /// </summary>
         [Category("Transform"), Default, State, Animatable]
-        public float RotationLocalOrigin
+        public PointF RotationLocalOrigin
         {
             get { return _rotationLocalOrigin; }
             set { _rotationLocalOrigin = value; }
@@ -72,16 +86,16 @@ namespace CustomEngine.Rendering.HUD
             foreach (HudComponent c in _children)
                 c.OnResized();
         }
-        public virtual void Render()
+        public virtual void Render(float delta)
         {
             Renderer.PushMatrix();
-            Renderer.Translate(X, Y, 0);
-            OnRender();
+            Renderer.MultMatrix(Matrix4.CreateTranslation(X, Y, 0));
+            OnRender(delta);
             foreach (HudComponent comp in _children)
-                comp.Render();
+                comp.Render(delta);
             Renderer.PopMatrix();
         }
-        protected virtual void OnRender() { }
+        protected virtual void OnRender(float delta) { }
 
         public IEnumerator<HudComponent> GetEnumerator() { return ((IEnumerable<HudComponent>)_children).GetEnumerator(); }
         IEnumerator IEnumerable.GetEnumerator() { return ((IEnumerable<HudComponent>)_children).GetEnumerator(); }

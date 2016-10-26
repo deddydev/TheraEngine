@@ -35,6 +35,7 @@ namespace CustomEngine
     public interface IShape : IRenderable
     {
         bool ContainsPoint(Vec3 point);
+        PrimitiveData GetPrimitives();
     }
 
     public interface IBufferable

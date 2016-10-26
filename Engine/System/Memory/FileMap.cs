@@ -36,25 +36,25 @@ namespace System
         {
             FileStream stream;
             FileMap map;
-            try
-            {
+            //try
+            //{
                 stream = new FileStream(path, FileMode.Open, (prot == FileMapProtect.ReadWrite) ? FileAccess.ReadWrite : FileAccess.Read, FileShare.Read, 8, options);
-            }
-            catch //File is currently in use, but we can copy it to a temp location and read that
-            {
-                string tempPath = Path.GetTempFileName();
-                File.Copy(path, tempPath, true);
-                stream = new FileStream(tempPath, FileMode.Open, FileAccess.ReadWrite, FileShare.Read, 8, options | FileOptions.DeleteOnClose);
-            }
-            try
-            {
+            //}
+            //catch //File is currently in use, but we can copy it to a temp location and read that
+            //{
+            //    string tempPath = Path.GetTempFileName();
+            //    File.Copy(path, tempPath, true);
+            //    stream = new FileStream(tempPath, FileMode.Open, FileAccess.ReadWrite, FileShare.Read, 8, options | FileOptions.DeleteOnClose);
+            //}
+            //try
+            //{
                 map = FromStreamInternal(stream, prot, offset, length);
-            }
-            catch (Exception x)
-            {
-                stream.Dispose();
-                throw x;
-            }
+            //}
+            //catch (Exception x)
+            //{
+            //    stream.Dispose();
+            //    throw x;
+            //}
             map._path = path; //In case we're using a temp file
             return map;
         }
@@ -66,15 +66,15 @@ namespace System
         public static FileMap FromTempFile(int length, out string path)
         {
             FileStream stream = new FileStream(path = Path.GetTempFileName(), FileMode.Open, FileAccess.ReadWrite, FileShare.Read, 8, FileOptions.RandomAccess | FileOptions.DeleteOnClose);
-            try
-            {
+            //try
+            //{
                 return FromStreamInternal(stream, FileMapProtect.ReadWrite, 0, length);
-            }
-            catch (Exception x)
-            {
-                stream.Dispose();
-                throw x;
-            }
+            //}
+            //catch (Exception x)
+            //{
+            //    stream.Dispose();
+            //    throw x;
+            //}
         }
 
         public static FileMap FromStream(FileStream stream) { return FromStream(stream, FileMapProtect.ReadWrite, 0, 0); }

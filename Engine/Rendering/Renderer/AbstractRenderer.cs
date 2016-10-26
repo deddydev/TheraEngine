@@ -1,6 +1,8 @@
-﻿using CustomEngine.Rendering.Models.Materials;
+﻿using CustomEngine.Rendering.Cameras;
+using CustomEngine.Rendering.Models.Materials;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 
 namespace CustomEngine.Rendering
 {
@@ -25,6 +27,11 @@ namespace CustomEngine.Rendering
             return obj;
         }
 
+        private Stack<Rectangle> _renderAreaStack = new Stack<Rectangle>();
+        protected Camera _currentCamera;
+        protected Stack<Matrix4> _modelMatrix, _textureMatrix, _colorMatrix;
+        protected MtxMode _matrixMode;
+
         #region Shapes
         public void DrawBoxWireframe(Box box) { DrawBoxWireframe(box.Minimum, box.Maximum); }
         public void DrawBoxSolid(Box box) { DrawBoxSolid(box.Minimum, box.Maximum); }
@@ -43,21 +50,69 @@ namespace CustomEngine.Rendering
         #endregion
 
         #region Matrices
-        public void Translate(Vec3 translation) { Translate(translation.X, translation.Y, translation.Z); }
-        public abstract void Translate(float x, float y, float z);
-        public void Scale(Vec3 scale) { Scale(scale.X, scale.Y, scale.Z); }
-        public abstract void Scale(float x, float y, float z);
-        public void Rotate(Vec3 rotation) { Rotate(rotation.X, rotation.Y, rotation.Z); }
-        public abstract void Rotate(float x, float y, float z);
-        public abstract void Rotate(Quaternion rotation);
-        public abstract void PushMatrix();
-        public abstract void PopMatrix();
-        public abstract void MultMatrix(Matrix4 matrix);
-        public abstract void MatrixMode(MtxMode modelview);
-        public void LoadIdentity() { LoadMatrix(Matrix4.Identity); }
-        public abstract void LoadMatrix(Matrix4 matrix);
+        public Matrix4 ModelMatrix { get { return _modelMatrix.Count > 0 ? _modelMatrix.Peek() : Matrix4.Identity; } }
+        public Matrix4 TextureMatrix { get { return _textureMatrix.Count > 0 ? _textureMatrix.Peek() : Matrix4.Identity; } }
+        public Matrix4 ColorMatrix { get { return _colorMatrix.Count > 0 ? _colorMatrix.Peek() : Matrix4.Identity; } }
+        Stack<Matrix4> CurrentMatrixStack
+        {
+            get
+            {
+                switch (_matrixMode)
+                {
+                    case MtxMode.Model:
+                        return _modelMatrix;
+                    case MtxMode.Color:
+                        return _modelMatrix;
+                    case MtxMode.Texture:
+                        return _modelMatrix;
+                }
+                return null;
+            }
+        }
+        public void PushMatrix()
+        {
+            if (CurrentMatrixStack == null)
+                return;
+            if (CurrentMatrixStack.Count > 0)
+            {
+                Matrix4 current = CurrentMatrixStack.Peek();
+                CurrentMatrixStack.Push(current);
+            }
+            else
+                CurrentMatrixStack.Push(Matrix4.Identity);
+        }
+        public void PopMatrix()
+        {
+            if (CurrentMatrixStack != null && CurrentMatrixStack.Count > 0)
+                CurrentMatrixStack.Pop();
+        }
+        public void MultMatrix(Matrix4 matrix)
+        {
+            if (CurrentMatrixStack == null)
+                return;
+            if (CurrentMatrixStack.Count > 0)
+            {
+                Matrix4 current = CurrentMatrixStack.Pop();
+                CurrentMatrixStack.Push(current * matrix);
+            }
+            else
+                CurrentMatrixStack.Push(matrix);
+        }
+        public void MatrixMode(MtxMode mode)
+        {
+            _matrixMode = mode;
+        }
+        public void SetIdentity() { SetMatrix(Matrix4.Identity); }
+        public void SetMatrix(Matrix4 matrix)
+        {
+            if (CurrentMatrixStack == null)
+                return;
+            if (CurrentMatrixStack.Count > 0)
+                CurrentMatrixStack.Pop();
+            CurrentMatrixStack.Push(matrix);
+        }
         #endregion
-
+        
         #region Display Lists
         public abstract int CreateDisplayList();
         public abstract void BeginDisplayList(int id, DisplayListMode mode);
@@ -135,23 +190,51 @@ namespace CustomEngine.Rendering
 
         #endregion
 
-        public abstract void Clear(BufferClear clearBufferMask);
+        public abstract void Clear(BufferClear mask);
         public abstract float GetDepth(float x, float y);
+
+        /// <summary>
+        /// Set the current render camera.
+        /// This camera's projection and view matrix will be passed to shaders.
+        /// </summary>
+        public void SetRenderCamera(Camera camera)
+        {
+            _currentCamera = camera;
+        }
+
+        public virtual void PushRenderArea(Rectangle region)
+        {
+            _renderAreaStack.Push(region);
+            SetRenderArea(region);
+        }
+        public virtual void PopRenderArea()
+        {
+            if (_renderAreaStack.Count > 0)
+            {
+                _renderAreaStack.Pop();
+                if (_renderAreaStack.Count > 0)
+                    SetRenderArea(_renderAreaStack.Peek());
+            }
+        }
+        protected abstract void SetRenderArea(Rectangle region);
+        public abstract void CropRenderArea(Rectangle region);
+
+        public abstract RenderLibrary RenderLibrary { get; }
     }
 
     public enum MtxMode
     {
-        Modelview,
-        Projection,
+        Model,
         Texture,
         Color
     }
     [Flags]
     public enum BufferClear
     {
-        Color,
-        Depth,
-        Stencil
+        Color = 1,
+        Depth = 2,
+        Stencil = 4,
+        Accum = 8,
     }
     public enum DisplayListMode
     {

@@ -28,23 +28,26 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.renderPanel1 = new RenderPanel();
+            this.renderPanel1 = new CustomEngine.RenderPanel();
             this.SuspendLayout();
             // 
             // renderPanel1
             // 
-            this.renderPanel1.Location = new System.Drawing.Point(360, 199);
+            this.renderPanel1.Location = new System.Drawing.Point(11, -1);
+            this.renderPanel1.Margin = new System.Windows.Forms.Padding(2);
             this.renderPanel1.Name = "renderPanel1";
-            this.renderPanel1.Size = new System.Drawing.Size(75, 23);
+            this.renderPanel1.Size = new System.Drawing.Size(341, 300);
             this.renderPanel1.TabIndex = 0;
             this.renderPanel1.Text = "renderPanel1";
+            this.renderPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
             // 
             // RenderForm
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(506, 381);
+            this.ClientSize = new System.Drawing.Size(380, 310);
             this.Controls.Add(this.renderPanel1);
+            this.Margin = new System.Windows.Forms.Padding(2);
             this.Name = "RenderForm";
             this.Text = "RenderForm";
             this.ResumeLayout(false);

@@ -1,4 +1,6 @@
-﻿using System.Runtime.InteropServices;
+﻿using CustomEngine;
+using CustomEngine.Rendering.Models;
+using System.Runtime.InteropServices;
 using System.Xml.Serialization;
 using static System.CustomMath;
 using static System.Math;
@@ -7,11 +9,21 @@ namespace System
 {
     [Serializable]
     [StructLayout(LayoutKind.Sequential)]
-    public unsafe struct Vec2 : IEquatable<Vec2>
+    public unsafe struct Vec2 : IEquatable<Vec2>, IUniformable2Float, IBufferable
     {
         public float X, Y;
 
-        public float* Data { get { fixed (void* p = &this) return (float*)p; } }
+        public float* Data { get { return (float*)Address; } }
+        public VoidPtr Address { get { fixed (void* p = &this) return p; } }
+        public VertexBuffer.ComponentType ComponentType { get { return VertexBuffer.ComponentType.Float; } }
+        public int ComponentCount { get { return 2; } }
+        bool IBufferable.Normalize { get { return false; } }
+        public void Write(VoidPtr address)
+        {
+            float* data = (float*)address;
+            for (int i = 0; i < ComponentCount; ++i)
+                *data++ = Data[i];
+        }
 
         public Vec2(float value)
         {

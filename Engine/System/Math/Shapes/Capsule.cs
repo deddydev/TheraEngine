@@ -41,8 +41,8 @@ namespace System
         {
             return GetTotalHalfHeight() * 2.0f;
         }
-        public void Render() { Render(false); }
-        public void Render(bool solid)
+        public void Render(float delta) { Render(delta, false); }
+        public void Render(float delta, bool solid)
         {
             if (solid)
                 Engine.Renderer.DrawCapsuleSolid(this);

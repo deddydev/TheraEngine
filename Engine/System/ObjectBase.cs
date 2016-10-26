@@ -27,7 +27,7 @@ namespace System
     [NotifyPropertyChanged]
     public class ObjectBase : INotifyPropertyChanged
     {
-        public static List<ObjectBase> _changedObjects = new List<ObjectBase>();
+        //public static List<ObjectBase> _changedObjects = new List<ObjectBase>();
 
         public event PropertyChangedEventHandler PropertyChanged;
         public event RenamedEventHandler Renamed;
@@ -113,7 +113,7 @@ namespace System
             Console.WriteLine(output);
 
             _changed = true;
-            _changedObjects.Add(this);
+            //_changedObjects.Add(this);
 
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(info.Name));
         }

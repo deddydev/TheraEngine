@@ -10,101 +10,100 @@ namespace Editor.TriangleConverter
 {
     public class GraphArray<T> : IEnumerable
     {
-        protected List<Node> m_Nodes;
-        protected List<Arc> m_Arcs;
+        protected List<Node> _nodes;
+        protected List<Arc> _arcs;
 
 	    public class Arc
         {
-            public Arc(Node Terminal) { m_Terminal = Terminal; }
-            public Node Terminal { get { return m_Terminal; } }
-            public Node m_Terminal;
+            public Arc(Node Terminal) { _terminal = Terminal; }
+            public Node Terminal { get { return _terminal; } }
+            public Node _terminal;
 	    }
 
 	    public class Node
 	    {
-            public bool Marked { get { return m_Marker; } set { m_Marker = value; } }
-            public bool Empty { get { return (m_Begin == m_End); } }
-            public uint Size { get { return (m_End - m_Begin); } }
+            public bool Marked { get { return _marker; } set { _marker = value; } }
+            public bool Empty { get { return (_begin == _end); } }
+            public uint Size { get { return (_end - _begin); } }
+            public List<Arc> Arcs { get { return _graph._arcs; } }
+
+            public GraphArray<T> _graph;
+            public uint _begin;
+            public uint _end;
+
+            public T _elem;
+            private bool _marker;
 
             public Node(GraphArray<T> graph)
             {
-                m_Graph = graph;
-                m_Begin = uint.MaxValue;
-                m_End = uint.MaxValue;
-                m_Marker = false;
+                _graph = graph;
+                _begin = uint.MaxValue;
+                _end = uint.MaxValue;
+                _marker = false;
             }
-
-            public List<Arc> Arcs { get { return m_Graph.m_Arcs; } }
-
-            public GraphArray<T> m_Graph;
-            public uint m_Begin;
-            public uint m_End;
-
-            public T _elem;
-            private bool m_Marker;
-	    }
+        }
 
 	    public GraphArray(){ }
-	    public GraphArray(uint NbNodes)
+	    public GraphArray(uint numNodes)
         {
-            m_Nodes = new List<Node>();
-            for (int i = 0; i < NbNodes; i++)
-                m_Nodes.Add(new Node(this));
-            m_Arcs = new List<Arc>();
+            _nodes = new List<Node>();
+            for (int i = 0; i < numNodes; i++)
+                _nodes.Add(new Node(this));
+            _arcs = new List<Arc>();
         }
 
 	    //Node related member functions
-	    public bool Empty { get { return m_Nodes.Count == 0; } }
-	    public uint Count { get { return (uint)m_Nodes.Count; } }
+	    public bool Empty { get { return _nodes.Count == 0; } }
+	    public uint Count { get { return (uint)_nodes.Count; } }
 	    public Node this[uint i]
         {
             get
             {
                 Debug.Assert(i < Count);
-                return m_Nodes[(int)i];
+                return _nodes[(int)i];
             }
         }
 
 	    // Arc related member functions
-	    public Arc InsertArc(uint Initial, uint Terminal)
+	    public Arc InsertArc(uint initial, uint terminal)
         {
-            Debug.Assert(Initial < Count, "Initial is greater than count");
-            Debug.Assert(Terminal < Count, "Terminal is greater than count");
+            Debug.Assert(initial < Count, "Initial is greater than count");
+            Debug.Assert(terminal < Count, "Terminal is greater than count");
 
-            Arc r = new Arc(m_Nodes[(int)Terminal]);
-	        m_Arcs.Add(r);
+            Arc r = new Arc(_nodes[(int)terminal]);
+	        _arcs.Add(r);
 
-            Node Node = m_Nodes[(int)Initial];
+            Node Node = _nodes[(int)initial];
 	        if (Node.Empty)
             {
-		        Node.m_Begin = (uint)m_Arcs.Count - 1;
-                Node.m_End = (uint)m_Arcs.Count;
+		        Node._begin = (uint)_arcs.Count - 1;
+                Node._end = (uint)_arcs.Count;
 	        }
             else
             {
-                Node.m_End++;
+                Node._end++;
 
 		        // we optimise here for make_connectivity_graph()
 		        // we know all the arcs for a given node are successively and sequentially added
-		        Debug.Assert(Node.m_End == m_Arcs.Count);
+		        Debug.Assert(Node._end == _arcs.Count);
 	        }
             return r;
         }
 
 	    // Optimized (overloaded) functions
-	    public void Swap(GraphArray<T> Right)
+	    public void Swap(GraphArray<T> right)
         {
-            List<Node> n = m_Nodes;
-            List<Arc> a = m_Arcs;
-            m_Nodes = Right.m_Nodes;
-            m_Arcs = Right.m_Arcs;
-            Right.m_Nodes = n;
-            Right.m_Arcs = a;
+            List<Node> n = _nodes;
+            List<Arc> a = _arcs;
+            _nodes = right._nodes;
+            _arcs = right._arcs;
+            right._nodes = n;
+            right._arcs = a;
         }
 
         public IEnumerator GetEnumerator()
         {
-            return m_Nodes.GetEnumerator();
+            return _nodes.GetEnumerator();
         }
     }
 }

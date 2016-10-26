@@ -3,17 +3,17 @@
 namespace System
 {
     //Stores a reference to unmanaged data
-    public class DataSource
+    public class DataSource : IDisposable
     {
         private int _length;
-        private IntPtr _address;
+        private VoidPtr _address;
 
         public int Length { get { return _length; } }
-        public IntPtr Address { get { return _address; } }
+        public VoidPtr Address { get { return _address; } }
 
         public event Action Modified;
 
-        public DataSource(IntPtr address, int length)
+        public DataSource(VoidPtr address, int length)
         {
             if (length < 0)
                 throw new Exception("Cannot have a source with a negative size.");

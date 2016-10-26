@@ -9,70 +9,70 @@ namespace Editor.TriangleConverter
 {
     class CacheSimulator
     {
-        protected Deque<uint> m_Cache;
-	    protected uint m_NbHits;
-	    protected bool m_PushHits;
+        protected Deque<uint> _cache;
+	    protected uint _numHits;
+	    protected bool _pushHits;
 
 	    public CacheSimulator() 
         {
-            m_NbHits = 0;
-            m_PushHits = true;
-            m_Cache = new Deque<uint>();
+            _numHits = 0;
+            _pushHits = true;
+            _cache = new Deque<uint>();
         }
 	    public void Clear()
         {
             ResetHitCount();
-	        m_Cache.Clear();
+	        _cache.Clear();
         }
 	    public void Resize(uint Size)
         {
-            //m_Cache.Resize(Size, uint.MaxValue);
+            //_Cache.Resize(Size, uint.MaxValue);
 
-            m_Cache.Clear();
+            _cache.Clear();
             for (int x = 0; x < Size; x++)
-                m_Cache.PushFront(uint.MaxValue);
+                _cache.PushFront(uint.MaxValue);
         }
 	    public void Reset()
         {
-            m_Cache.Clear();
+            _cache.Clear();
 
-            for (int x = 0; x < m_Cache.Count; x++)
-                m_Cache.PushFront(uint.MaxValue);
+            for (int x = 0; x < _cache.Count; x++)
+                _cache.PushFront(uint.MaxValue);
                
 	        ResetHitCount();
         }
-	    public void PushCacheHits(bool Enabled = true)
+	    public void PushCacheHits(bool enabled = true)
         {
-            m_PushHits = Enabled;
+            _pushHits = enabled;
         }
-	    public uint Size { get { return (uint)m_Cache.Count; } }
-	    public void Push(uint i, bool CountCacheHit = false)
+	    public uint Size { get { return (uint)_cache.Count; } }
+	    public void Push(uint i, bool countCacheHit = false)
         {
-            if ((CountCacheHit || m_PushHits) && m_Cache.Contains(i))
+            if ((countCacheHit || _pushHits) && _cache.Contains(i))
             {
 			    // Should we count the cache hits?
-			    if (CountCacheHit) m_NbHits++;
+			    if (countCacheHit) _numHits++;
 			
 			    // Should we not push the index into the cache if it's a cache hit?
-			    if (!m_PushHits)
+			    if (!_pushHits)
 				    return;
 		    }
 	        
 	        // Manage the indices cache as a FIFO structure
-	        m_Cache.PushFront(i);
-	        m_Cache.PopBack();
+	        _cache.PushFront(i);
+	        _cache.PopBack();
         }
-	    public void Merge(CacheSimulator Backward, uint PossibleOverlap)
+	    public void Merge(CacheSimulator backward, uint possibleOverlap)
         {
-            uint Overlap = Math.Min(PossibleOverlap, Size);
+            uint Overlap = Math.Min(possibleOverlap, Size);
 
 	        for (uint i = 0; i < Overlap; ++i)
-		        Push(Backward.m_Cache[i], true);
+		        Push(backward._cache[i], true);
 
-	        m_NbHits += Backward.m_NbHits;
+	        _numHits += backward._numHits;
         }
 
-        public void ResetHitCount() { m_NbHits = 0; }
-        public uint HitCount { get { return m_NbHits; } }
+        public void ResetHitCount() { _numHits = 0; }
+        public uint HitCount { get { return _numHits; } }
     }
 }

@@ -36,18 +36,18 @@ namespace CustomEngine.Rendering.Models
             else
                 point2.LinkTo(point3);
         }
-        public override List<Triangle> ToTriangles()
+        public override List<IndexTriangle> ToTriangles()
         {
-            List<Triangle> triangles = new List<Triangle>();
+            List<IndexTriangle> triangles = new List<IndexTriangle>();
             if (_forwardSlash)
             {
-                triangles.Add(new Triangle(_points[0], _points[1], _points[3]));
-                triangles.Add(new Triangle(_points[0], _points[3], _points[2]));
+                triangles.Add(new IndexTriangle(_points[0], _points[1], _points[3]));
+                triangles.Add(new IndexTriangle(_points[0], _points[3], _points[2]));
             }
             else
             {
-                triangles.Add(new Triangle(_points[0], _points[1], _points[2]));
-                triangles.Add(new Triangle(_points[2], _points[1], _points[3]));
+                triangles.Add(new IndexTriangle(_points[0], _points[1], _points[2]));
+                triangles.Add(new IndexTriangle(_points[2], _points[1], _points[3]));
             }
             return triangles;
         }

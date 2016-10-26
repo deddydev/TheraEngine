@@ -19,53 +19,53 @@ namespace Editor.TriangleConverter
         {
             public Linker(uint Elem, uint i)
             {
-                m_Elem = Elem;
-                m_Index = i;
+                _Elem = Elem;
+                _Index = i;
             }
 
-            public uint m_Elem;
-            public uint m_Index;
+            public uint _Elem;
+            public uint _Index;
         }
 
-        protected List<Linker> m_Heap;
-        protected List<uint> m_Finder;
-        protected CompareType m_Compare = CompareType.Greater;
-        protected bool m_Locked;
+        protected List<Linker> _Heap;
+        protected List<uint> _Finder;
+        protected CompareType _Compare = CompareType.Greater;
+        protected bool _Locked;
 
         // Pre = PreCondition, Post = PostCondition 
         public HeapArray(CompareType c) // Post: ((size() == 0) && ! locked())
         {
-            m_Heap = new List<Linker>();
-            m_Finder = new List<uint>();
-            m_Locked = false;
-            m_Compare = c;
+            _Heap = new List<Linker>();
+            _Finder = new List<uint>();
+            _Locked = false;
+            _Compare = c;
         }
 
         public void Clear()	// Post: ((size() == 0) && ! locked())
         {
-            m_Heap.Clear();
-            m_Finder.Clear();
-            m_Locked = false;
+            _Heap.Clear();
+            _Finder.Clear();
+            _Locked = false;
         }
 
         public void Reserve(uint Size)
         {
-            //m_Heap.Capacity = (int)Size;
-            //m_Finder.Capacity = (int)Size;
+            //_Heap.Capacity = (int)Size;
+            //_Finder.Capacity = (int)Size;
         }
-        public uint Size { get { return (uint)m_Heap.Count; } }
-        public bool Empty { get { return m_Heap.Count == 0; } }
-        public bool Locked { get { return m_Locked; } }
+        public uint Size { get { return (uint)_Heap.Count; } }
+        public bool Empty { get { return _Heap.Count == 0; } }
+        public bool Locked { get { return _Locked; } }
         public bool Removed(uint i)	// Pre: (valid(i))
         {
             Debug.Assert(Valid(i));
-            return m_Finder[(int)i] >= m_Heap.Count;
+            return _Finder[(int)i] >= _Heap.Count;
         }
-        public bool Valid(uint i) { return i < m_Finder.Count; }
+        public bool Valid(uint i) { return i < _Finder.Count; }
         public uint Position(uint i) // Pre: (valid(i))
         {
             Debug.Assert(Valid(i));
-            return m_Heap[(int)i].m_Index;
+            return _Heap[(int)i]._Index;
         }
 
         public uint Top // Pre: (! empty())
@@ -73,7 +73,7 @@ namespace Editor.TriangleConverter
             get
             {
                 Debug.Assert(!Empty);
-                return m_Heap[0].m_Elem;
+                return _Heap[0]._Elem;
             }
         }
 
@@ -82,22 +82,22 @@ namespace Editor.TriangleConverter
             get
             {
                 Debug.Assert(!Removed(i));
-                return m_Heap[(int)m_Finder[(int)i]].m_Elem;
+                return _Heap[(int)_Finder[(int)i]]._Elem;
             }
         }
 
         public void Lock() // Pre: (! locked())   Post: (locked())
         {
             Debug.Assert(!Locked);
-            m_Locked = true;
+            _Locked = true;
         }
         public uint Push(uint Elem) // Pre: (! locked())
         {
             Debug.Assert(!Locked);
 
             uint Id = Size;
-            m_Finder.Add(Id);
-            m_Heap.Add(new Linker(Elem, Id));
+            _Finder.Add(Id);
+            _Heap.Add(new Linker(Elem, Id));
             Adjust(Id);
 
             return Id;
@@ -109,7 +109,7 @@ namespace Editor.TriangleConverter
             Debug.Assert(!Empty);
 
             Swap(0, (int)Size - 1);
-            m_Heap.RemoveAt(m_Heap.Count - 1);
+            _Heap.RemoveAt(_Heap.Count - 1);
 
             if (!Empty)
                 Adjust(0);
@@ -120,9 +120,9 @@ namespace Editor.TriangleConverter
             Debug.Assert(Locked);
             Debug.Assert(!Removed(i));
 
-            uint j = m_Finder[(int)i];
+            uint j = _Finder[(int)i];
             Swap((int)j, (int)Size - 1);
-            m_Heap.RemoveAt(m_Heap.Count - 1);
+            _Heap.RemoveAt(_Heap.Count - 1);
 
             if (j != Size)
                 Adjust(j);
@@ -132,8 +132,8 @@ namespace Editor.TriangleConverter
             Debug.Assert(Locked);
             Debug.Assert(!Removed(i));
 
-            uint j = m_Finder[(int)i];
-            m_Heap[(int)j].m_Elem = Elem;
+            uint j = _Finder[(int)i];
+            _Heap[(int)j]._Elem = Elem;
             Adjust(j);
         }
 
@@ -141,21 +141,21 @@ namespace Editor.TriangleConverter
         {
             int i = (int)z;
 
-            Debug.Assert(i < m_Heap.Count);
+            Debug.Assert(i < _Heap.Count);
 
             int j;
 
             // Check the upper part of the heap
-            for (j = i; (j > 0) && (Comp(m_Heap[(j - 1) / 2], m_Heap[j])); j = ((j - 1) / 2))
+            for (j = i; (j > 0) && (Comp(_Heap[(j - 1) / 2], _Heap[j])); j = ((j - 1) / 2))
                 Swap(j, (j - 1) / 2);
 
             // Check the lower part of the heap
             for (i = j; (j = 2 * i + 1) < Size; i = j)
             {
-                if ((j + 1 < Size) && (Comp(m_Heap[j], m_Heap[j + 1])))
+                if ((j + 1 < Size) && (Comp(_Heap[j], _Heap[j + 1])))
                     ++j;
 
-                if (Comp(m_Heap[j], m_Heap[i]))
+                if (Comp(_Heap[j], _Heap[i]))
                     return;
 
                 Swap(i, j);
@@ -163,21 +163,21 @@ namespace Editor.TriangleConverter
         }
         protected void Swap(int a, int b)
         {
-            Linker r = m_Heap[b];
-            m_Heap[b] = m_Heap[a];
-            m_Heap[a] = r;
+            Linker r = _Heap[b];
+            _Heap[b] = _Heap[a];
+            _Heap[a] = r;
 
-            m_Finder[(int)m_Heap[a].m_Index] = (uint)a;
-            m_Finder[(int)m_Heap[b].m_Index] = (uint)b;
+            _Finder[(int)_Heap[a]._Index] = (uint)a;
+            _Finder[(int)_Heap[b]._Index] = (uint)b;
         }
         protected bool Comp(Linker a, Linker b)
         {
-            switch (m_Compare)
+            switch (_Compare)
             {
                 case CompareType.Less:
-                    return a.m_Elem < b.m_Elem;
+                    return a._Elem < b._Elem;
                 default:
-                    return a.m_Elem > b.m_Elem;
+                    return a._Elem > b._Elem;
             }
         }
     }

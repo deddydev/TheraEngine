@@ -31,54 +31,54 @@ namespace Editor.TriangleConverter
 
     public class TriStripper
     {
-        private List<Primitive> m_PrimitivesVector;
-        private GraphArray<Triangle> m_Triangles;
-        private HeapArray m_TriHeap;
-        private List<uint> m_Candidates;
-        private CacheSimulator m_Cache;
-        private CacheSimulator m_BackCache;
-        private uint m_StripID;
-        private uint m_MinStripSize;
-        private bool m_BackwardSearch;
-        private bool m_FirstRun;
-        private ushort[] m_Nodes;
-        private int[] m_ImpTable;
-        private List<ushort> m_CurrentNodes;
+        private List<Primitive> _PrimitivesVector;
+        private GraphArray<Triangle> _Triangles;
+        private HeapArray _TriHeap;
+        private List<uint> _Candidates;
+        private CacheSimulator _Cache;
+        private CacheSimulator _BackCache;
+        private uint _StripID;
+        private uint _MinStripSize;
+        private bool _BackwardSearch;
+        private bool _FirstRun;
+        private ushort[] _Nodes;
+        private int[] _ImpTable;
+        private List<ushort> _CurrentNodes;
 
         public TriStripper(uint[] TriIndices, ushort[] NodeIds, int[] ImpTable)
         {
-            m_ImpTable = ImpTable;
-            m_Nodes = NodeIds;
-            m_Triangles = new GraphArray<Triangle>((uint)TriIndices.Length / 3);
-            m_StripID = 0;
-            m_FirstRun = true;
-            m_PrimitivesVector = new List<Primitive>();
-            m_TriHeap = new HeapArray(CompareType.Less);
-            m_Candidates = new List<uint>();
-            m_Cache = new CacheSimulator();
-            m_BackCache = new CacheSimulator();
+            _ImpTable = ImpTable;
+            _Nodes = NodeIds;
+            _Triangles = new GraphArray<Triangle>((uint)TriIndices.Length / 3);
+            _StripID = 0;
+            _FirstRun = true;
+            _PrimitivesVector = new List<Primitive>();
+            _TriHeap = new HeapArray(CompareType.Less);
+            _Candidates = new List<uint>();
+            _Cache = new CacheSimulator();
+            _BackCache = new CacheSimulator();
 
             SetCacheSize();
             SetMinStripSize();
             SetBackwardSearch();
             SetPushCacheHits();
 
-            MakeConnectivityGraph(m_Triangles, TriIndices);
+            MakeConnectivityGraph(_Triangles, TriIndices);
         }
 
         private bool Cache { get { return (CacheSize != 0); } }
-        private uint CacheSize { get { return m_Cache.Size; } }
+        private uint CacheSize { get { return _Cache.Size; } }
 
 	    public List<Primitive> Strip()
         {
-	        if (!m_FirstRun) 
+	        if (!_FirstRun) 
             {
-		        UnmarkNodes(m_Triangles);
+		        UnmarkNodes(_Triangles);
 		        ResetStripIDs();
-		        m_Cache.Reset();
-		        m_TriHeap.Clear();
-		        m_Candidates.Clear();
-		        m_StripID = 0;
+		        _Cache.Reset();
+		        _TriHeap.Clear();
+		        _Candidates.Clear();
+		        _StripID = 0;
 	        }
 
 	        InitTriHeap();
@@ -86,8 +86,8 @@ namespace Editor.TriangleConverter
 	        Stripify();
 	        AddRemainingTriangles();
 
-            m_FirstRun = false;
-	        return m_PrimitivesVector.ToList();
+            _FirstRun = false;
+	        return _PrimitivesVector.ToList();
         }
 
         #region Stripifier Algorithm Settings
@@ -95,8 +95,8 @@ namespace Editor.TriangleConverter
 	    //Set the post-T&L cache size (0 disables the cache optimizer).
 	    public void SetCacheSize(uint CacheSize = 10)
         {
-            m_Cache.Resize(CacheSize);
-            m_BackCache.Resize(CacheSize);
+            _Cache.Resize(CacheSize);
+            _BackCache.Resize(CacheSize);
         }
 
 	    //Set the minimum size of a triangle strip (should be at least 2 triangles).
@@ -104,9 +104,9 @@ namespace Editor.TriangleConverter
         public void SetMinStripSize(uint MinStripSize = 2)
         {
             if (MinStripSize < 2)
-                m_MinStripSize = 2;
+                _MinStripSize = 2;
             else
-                m_MinStripSize = MinStripSize;
+                _MinStripSize = MinStripSize;
         }
 
 	    //Set the backward search mode in addition to the forward search mode.
@@ -117,7 +117,7 @@ namespace Editor.TriangleConverter
 	    //Note: Do *NOT* use this when the cache optimizer is enabled; it only gives worse results.
         public void SetBackwardSearch(bool Enabled = false)
         {
-            m_BackwardSearch = Enabled;
+            _BackwardSearch = Enabled;
         }
 
         //Set the cache simulator FIFO behavior (does nothing if the cache optimizer is disabled).
@@ -126,51 +126,51 @@ namespace Editor.TriangleConverter
 	    //This allows simulating some GPUs that do not duplicate cache entries (e.g. NV25 or greater).
         public void SetPushCacheHits(bool Enabled = true)
         {
-            m_Cache.PushCacheHits(Enabled);
+            _Cache.PushCacheHits(Enabled);
         }
 
     #endregion
 
         private	void InitTriHeap()
         {
-            m_TriHeap.Reserve(m_Triangles.Count);
+            _TriHeap.Reserve(_Triangles.Count);
 
 	        //Set up the triangles priority queue
 	        //The lower the number of available neighbour triangles, the higher the priority.
-	        for (uint i = 0; i < m_Triangles.Count; i++)
-		        m_TriHeap.Push(m_Triangles[i].Size);
+	        for (uint i = 0; i < _Triangles.Count; i++)
+		        _TriHeap.Push(_Triangles[i].Size);
 
 	        //We're not going to add new elements anymore
-            m_TriHeap.Lock();
+            _TriHeap.Lock();
 
 	        //Remove useless triangles
 	        //Note: we had to put all of them into the heap before to ensure coherency of the heap_array object
-	        while ((!m_TriHeap.Empty) && (m_TriHeap.Top == 0))
-		        m_TriHeap.Pop();
+	        while ((!_TriHeap.Empty) && (_TriHeap.Top == 0))
+		        _TriHeap.Pop();
         }
         private	void Stripify()
         {
-            while (!m_TriHeap.Empty)
+            while (!_TriHeap.Empty)
             {
                 //There is no triangle in the candidates list, refill it with the loneliest triangle
-                uint HeapTop = m_TriHeap.Position(0);
-                m_Candidates.Add(HeapTop);
+                uint HeapTop = _TriHeap.Position(0);
+                _Candidates.Add(HeapTop);
 
-                while (m_Candidates.Count != 0)
+                while (_Candidates.Count != 0)
                 {
                     //Note: FindBestStrip empties the candidate list, while BuildStrip refills it
                     Strip TriStrip = FindBestStrip();
 
-                    if (TriStrip.Size >= m_MinStripSize)
+                    if (TriStrip.Size >= _MinStripSize)
                         BuildStrip(TriStrip);
                 }
 
-                if (!m_TriHeap.Removed(HeapTop))
-                    m_TriHeap.Erase(HeapTop);
+                if (!_TriHeap.Removed(HeapTop))
+                    _TriHeap.Erase(HeapTop);
 
                 //Eliminate all the triangles that have now become useless
-                while ((!m_TriHeap.Empty) && (m_TriHeap.Top == 0))
-                    m_TriHeap.Pop();
+                while ((!_TriHeap.Empty) && (_TriHeap.Top == 0))
+                    _TriHeap.Pop();
             }
         }
         private	void AddRemainingTriangles()
@@ -178,67 +178,67 @@ namespace Editor.TriangleConverter
             //Create the last indices array and fill it with all the triangles that couldn't be stripped
             Primitive p = new Primitive(PrimType.TriangleList);
 
-            for (uint i = 0; i < m_Triangles.Count; i++)
-                if (!m_Triangles[i].Marked)
+            for (uint i = 0; i < _Triangles.Count; i++)
+                if (!_Triangles[i].Marked)
                 {
-                    p.Indices.Add(m_Triangles[i]._elem.A);
-                    p.Indices.Add(m_Triangles[i]._elem.B);
-                    p.Indices.Add(m_Triangles[i]._elem.C);
+                    p.Indices.Add(_Triangles[i]._elem.A);
+                    p.Indices.Add(_Triangles[i]._elem.B);
+                    p.Indices.Add(_Triangles[i]._elem.C);
                 }
 
             if (p.Indices.Count > 0)
-                m_PrimitivesVector.Add(p);
+                _PrimitivesVector.Add(p);
         }
         private	void ResetStripIDs()
         {
-            foreach (Triangle r in m_Triangles)
+            foreach (Triangle r in _Triangles)
 		        r.ResetStripID();
         }
 
         private	Strip FindBestStrip()
         {
             //Allow to restore the cache (modified by ExtendTriToStrip) and implicitly reset the cache hit count
-	        CacheSimulator CacheBackup = m_Cache;
+	        CacheSimulator CacheBackup = _Cache;
 
-	        Policy policy = new Policy(m_MinStripSize, Cache);
+	        Policy policy = new Policy(_MinStripSize, Cache);
 
-	        while (m_Candidates.Count != 0) 
+	        while (_Candidates.Count != 0) 
             {
-		        uint Candidate = m_Candidates[m_Candidates.Count - 1];
-                m_Candidates.RemoveAt(m_Candidates.Count - 1);
+		        uint Candidate = _Candidates[_Candidates.Count - 1];
+                _Candidates.RemoveAt(_Candidates.Count - 1);
 
 		        //Discard useless triangles from the candidate list
-		        if ((m_Triangles[Candidate].Marked) || (m_TriHeap[Candidate] == 0))
+		        if ((_Triangles[Candidate].Marked) || (_TriHeap[Candidate] == 0))
 			        continue;
 
 		        //Try to extend the triangle in the 3 possible forward directions
 		        for (uint i = 0; i < 3; i++)
                 {
 			        Strip Strip = ExtendToStrip(Candidate, (TriOrder)i);
-                    policy.Challenge(Strip, m_TriHeap[Strip.Start], m_Cache.HitCount);
+                    policy.Challenge(Strip, _TriHeap[Strip.Start], _Cache.HitCount);
 
-                    m_Cache = CacheBackup;
+                    _Cache = CacheBackup;
 		        }
 
 		        //Try to extend the triangle in the 6 possible backward directions
-		        if (m_BackwardSearch) 
+		        if (_BackwardSearch) 
                 {
 			        for (uint i = 0; i < 3; i++) 
                     {
 				        Strip Strip = BackExtendToStrip(Candidate, (TriOrder)i, false);
                         if (Strip != null)
-				            policy.Challenge(Strip, m_TriHeap[Strip.Start], m_Cache.HitCount);
+				            policy.Challenge(Strip, _TriHeap[Strip.Start], _Cache.HitCount);
 
-                        m_Cache = CacheBackup;
+                        _Cache = CacheBackup;
 			        }
 
 			        for (uint i = 0; i < 3; i++)
                     {
 				        Strip Strip = BackExtendToStrip(Candidate, (TriOrder)i, true);
                         if (Strip != null)
-                            policy.Challenge(Strip, m_TriHeap[Strip.Start], m_Cache.HitCount);
+                            policy.Challenge(Strip, _TriHeap[Strip.Start], _Cache.HitCount);
 
-                        m_Cache = CacheBackup;
+                        _Cache = CacheBackup;
 			        }
 		        }
 	        }
@@ -248,12 +248,12 @@ namespace Editor.TriangleConverter
         {
             TriOrder StartOrder = Order;
 
-            m_CurrentNodes = new List<ushort>();
+            _CurrentNodes = new List<ushort>();
             _checkNodes = true;
 
             //Begin a new strip
-            Triangle tri = m_Triangles[Start]._elem;
-            tri.SetStripID(++m_StripID);
+            Triangle tri = _Triangles[Start]._elem;
+            tri.SetStripID(++_StripID);
             AddTriangle(tri, Order, false);
 
             TryAddNode(tri.A);
@@ -264,48 +264,48 @@ namespace Editor.TriangleConverter
             bool ClockWise = false;
 
             //Loop while we can further extend the strip
-            for (uint i = Start; (i < m_Triangles.Count) && (!Cache || ((Size + 2) < CacheSize)); Size++)
+            for (uint i = Start; (i < _Triangles.Count) && (!Cache || ((Size + 2) < CacheSize)); Size++)
             {
-                var Node = m_Triangles[i];
+                var Node = _Triangles[i];
                 var Link = LinkToNeighbour(Node, ClockWise, ref Order, false);
 
                 // Is it the end of the strip?
                 if (Link == null)
                 {
                     Size--;
-                    i = m_Triangles.Count;
+                    i = _Triangles.Count;
                 }
                 else
                 {
                     i = (Node = Link.Terminal)._elem._index;
 
-                    Node._elem.SetStripID(m_StripID);
+                    Node._elem.SetStripID(_StripID);
                     ClockWise = !ClockWise;
                 }
             }
 
             _checkNodes = false;
-            m_CurrentNodes.Clear();
+            _CurrentNodes.Clear();
 
             return new Strip(Start, StartOrder, Size);
         }
         private	Strip BackExtendToStrip(uint Start, TriOrder Order, bool ClockWise)
         {
-            m_CurrentNodes = new List<ushort>();
+            _CurrentNodes = new List<ushort>();
             _checkNodes = true;
 
             //Begin a new strip
-            Triangle tri = m_Triangles[Start]._elem;
+            Triangle tri = _Triangles[Start]._elem;
             uint b = LastEdge(tri, Order).B;
             if (TryAddNode(b))
             {
-                tri.SetStripID(++m_StripID);
+                tri.SetStripID(++_StripID);
                 BackAddIndex(b);
             }
             else
             {
                 _checkNodes = false;
-                m_CurrentNodes.Clear();
+                _CurrentNodes.Clear();
                 return null;
             }
 
@@ -315,7 +315,7 @@ namespace Editor.TriangleConverter
             //Loop while we can further extend the strip
             for (uint i = Start; !Cache || ((Size + 2) < CacheSize); Size++)
             {
-                Node = m_Triangles[i];
+                Node = _Triangles[i];
                 var Link = BackLinkToNeighbour(Node, ClockWise, ref Order);
 
                 //Is it the end of the strip?
@@ -325,13 +325,13 @@ namespace Editor.TriangleConverter
                 {
                     i = (Node = Link.Terminal)._elem._index;
 
-                    Node._elem.SetStripID(m_StripID);
+                    Node._elem.SetStripID(_StripID);
                     ClockWise = !ClockWise;
                 }
             }
 
             _checkNodes = false;
-            m_CurrentNodes.Clear();
+            _CurrentNodes.Clear();
 
             //We have to start from a counterclockwise triangle.
             //Simply return an empty strip in the case where the first triangle is clockwise.
@@ -342,8 +342,8 @@ namespace Editor.TriangleConverter
 
             if (Cache)
             {
-                m_Cache.Merge(m_BackCache, Size);
-                m_BackCache.Reset();
+                _Cache.Merge(_BackCache, Size);
+                _BackCache.Reset();
             }
 
             return new Strip(Node._elem._index, Order, Size);
@@ -354,19 +354,19 @@ namespace Editor.TriangleConverter
             if (!_checkNodes)
                 return true;
 
-            //ushort node = m_Nodes[m_ImpTable[index]];
-            //if (!m_CurrentNodes.Contains(node))
+            //ushort node = _Nodes[_ImpTable[index]];
+            //if (!_CurrentNodes.Contains(node))
             //{
-            //    if (m_CurrentNodes.Count == PrimitiveGroup._nodeCountMax)
+            //    if (_CurrentNodes.Count == PrimitiveGroup._nodeCountMax)
             //        return false;
-            //    m_CurrentNodes.Add(node);
+            //    _CurrentNodes.Add(node);
             //}
             return true;
         }
         private GraphArray<Triangle>.Arc LinkToNeighbour(GraphArray<Triangle>.Node Node, bool ClockWise, ref TriOrder Order, bool NotSimulation)
         {
             TriangleEdge Edge = LastEdge(Node._elem, Order);
-            for (uint i = Node.m_Begin; i < Node.m_End; i++)
+            for (uint i = Node._begin; i < Node._end; i++)
             {
                 var Link = Node.Arcs[(int)i];
 
@@ -374,7 +374,7 @@ namespace Editor.TriangleConverter
                 Triangle Tri = Link.Terminal._elem;
 
                 //Check whether it's already been used
-                if ((NotSimulation || (Tri.StripID != m_StripID)) && !Link.Terminal.Marked)
+                if ((NotSimulation || (Tri.StripID != _StripID)) && !Link.Terminal.Marked)
                 {
                     //Does the current candidate triangle match the required position for the strip?
                     if (Edge.B == Tri.A && Edge.A == Tri.B && TryAddNode(Tri.C))
@@ -402,7 +402,7 @@ namespace Editor.TriangleConverter
         private GraphArray<Triangle>.Arc BackLinkToNeighbour(GraphArray<Triangle>.Node Node, bool ClockWise, ref TriOrder Order)
         {
             TriangleEdge Edge = FirstEdge(Node._elem, Order);
-            for (uint i = Node.m_Begin; i < Node.m_End; i++)
+            for (uint i = Node._begin; i < Node._end; i++)
             {
                 var Link = Node.Arcs[(int)i];
 
@@ -410,7 +410,7 @@ namespace Editor.TriangleConverter
 		        Triangle Tri = Link.Terminal._elem;
 
 		        //Check whether it's already been used
-                if ((Tri.StripID != m_StripID) && !Link.Terminal.Marked) 
+                if ((Tri.StripID != _StripID) && !Link.Terminal.Marked) 
                 {
 			        //Does the current candidate triangle match the required position for the strip?
                     if (Edge.B == Tri.A && Edge.A == Tri.B && TryAddNode(Tri.C)) 
@@ -444,12 +444,12 @@ namespace Editor.TriangleConverter
 
             //Create a new strip
             Primitive p = new Primitive(PrimType.TriangleStrip);
-            m_PrimitivesVector.Add(p);
-            AddTriangle(m_Triangles[Start]._elem, Order, true);
+            _PrimitivesVector.Add(p);
+            AddTriangle(_Triangles[Start]._elem, Order, true);
             MarkTriAsTaken(Start);
 
             //Loop while we can further extend the strip
-            var Node = m_Triangles[Start];
+            var Node = _Triangles[Start];
 
             for (uint Size = 1; Size < Strip.Size; Size++)
             {
@@ -467,28 +467,28 @@ namespace Editor.TriangleConverter
         private	void MarkTriAsTaken(uint i)
         {
 	        //Mark the triangle node
-	        m_Triangles[i].Marked = true;
+	        _Triangles[i].Marked = true;
 
 	        //Remove triangle from priority queue if it isn't yet
-	        if (!m_TriHeap.Removed(i))
-		        m_TriHeap.Erase(i);
+	        if (!_TriHeap.Removed(i))
+		        _TriHeap.Erase(i);
 
 	        //Adjust the degree of available neighbour triangles
-            var Node = m_Triangles[i];
-            for (uint x = Node.m_Begin; x < Node.m_End; x++)
+            var Node = _Triangles[i];
+            for (uint x = Node._begin; x < Node._end; x++)
             {
                 var Link = Node.Arcs[(int)x];
 
 		        uint j = Link.Terminal._elem._index;
-		        if ((!m_Triangles[j].Marked) && (!m_TriHeap.Removed(j))) 
+		        if ((!_Triangles[j].Marked) && (!_TriHeap.Removed(j))) 
                 {
-			        uint NewDegree = m_TriHeap[j];
+			        uint NewDegree = _TriHeap[j];
 			        NewDegree = NewDegree - 1;
-			        m_TriHeap.Update(j, NewDegree);
+			        _TriHeap.Update(j, NewDegree);
 
 			        //Update the candidate list if cache is enabled
 			        if (Cache && (NewDegree > 0))
-				        m_Candidates.Add(j);
+				        _Candidates.Add(j);
 		        }
 	        }
         }
@@ -496,16 +496,16 @@ namespace Editor.TriangleConverter
         private	void AddIndex(uint i, bool NotSimulation)
         {
             if (Cache)
-                m_Cache.Push(i, !NotSimulation);
+                _Cache.Push(i, !NotSimulation);
 
             if (NotSimulation)
-                m_PrimitivesVector[m_PrimitivesVector.Count - 1].Indices.Add(i);
+                _PrimitivesVector[_PrimitivesVector.Count - 1].Indices.Add(i);
         }
 
         private	void BackAddIndex(uint i)
         {
             if (Cache)
-                m_BackCache.Push(i, true);
+                _BackCache.Push(i, true);
         }
 
 	    private void AddTriangle(Triangle Tri, TriOrder Order, bool NotSimulation)

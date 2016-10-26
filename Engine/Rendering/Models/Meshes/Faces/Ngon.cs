@@ -13,7 +13,7 @@ namespace CustomEngine.Rendering.Models
 
         public override FaceType Type { get { return FaceType.Ngon; } }
 
-        public override List<Triangle> ToTriangles()
+        public override List<IndexTriangle> ToTriangles()
         {
             throw new Exception("");
         }

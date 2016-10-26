@@ -101,6 +101,7 @@ namespace CustomEngine.Rendering.OpenGL
         public override void BeginDraw()
         {
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
+            GL.ClearColor(Control.BackColor.R, Control.BackColor.G, Control.BackColor.B, Control.BackColor.A);
         }
         public override void EndDraw()
         {

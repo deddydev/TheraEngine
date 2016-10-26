@@ -6,6 +6,12 @@ namespace CustomEngine.Audio
     {
         protected bool _looped;
 
+        public virtual bool Looped
+        {
+            get { return _looped; }
+            set { _looped = value; }
+        }
+
         public void Play()
         {
             Engine.AudioManager.Play(this);

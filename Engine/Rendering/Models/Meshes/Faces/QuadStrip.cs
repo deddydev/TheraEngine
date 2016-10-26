@@ -16,7 +16,7 @@ namespace CustomEngine.Rendering.Models
 
         }
 
-        public override List<Triangle> ToTriangles()
+        public override List<IndexTriangle> ToTriangles()
         {
             throw new NotImplementedException();
         }

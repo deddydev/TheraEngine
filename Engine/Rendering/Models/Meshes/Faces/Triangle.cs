@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace CustomEngine.Rendering.Models
 {
-    public class Triangle : Polygon
+    public class IndexTriangle : Polygon
     {
         public override FaceType Type { get { return FaceType.Triangles; } }
 
@@ -20,7 +20,7 @@ namespace CustomEngine.Rendering.Models
             get { return _points[2]; }
         }
 
-        public Triangle() { }
+        public IndexTriangle() { }
         /// <summary>
         /// Counter-Clockwise winding
         ///     2
@@ -28,7 +28,7 @@ namespace CustomEngine.Rendering.Models
         ///   /   \
         ///  0-----1
         /// </summary>
-        public Triangle(Point point1, Point point2, Point point3)
+        public IndexTriangle(Point point1, Point point2, Point point3)
         {
             _points.Add(point1);
             _points.Add(point2);
@@ -39,9 +39,9 @@ namespace CustomEngine.Rendering.Models
             point3.LinkTo(point1);
         }
 
-        public override List<Triangle> ToTriangles()
+        public override List<IndexTriangle> ToTriangles()
         {
-            return new List<Triangle>() { this };
+            return new List<IndexTriangle>() { this };
         }
     }
 }

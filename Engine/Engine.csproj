@@ -96,6 +96,12 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Audio\AbstractAudioManager.cs" />
+    <Compile Include="Audio\AmbientSound.cs" />
+    <Compile Include="Audio\DynamicSoundEffect.cs" />
+    <Compile Include="Audio\SoundDataBase.cs" />
+    <Compile Include="Audio\StaticSoundEffect.cs" />
+    <Compile Include="Audio\WaveFile.cs" />
     <Compile Include="Cutscenes\Cutscene.cs" />
     <Compile Include="Engine\EngineSettings.cs" />
     <Compile Include="Input\Gamepads\DXGamepadManager.cs" />
@@ -125,7 +131,8 @@
     <Compile Include="Rendering\Models\Materials\GLSL Variable Types\GLVec4.cs" />
     <Compile Include="Rendering\Models\Materials\GLSL Variable Types\GLVar.cs" />
     <Compile Include="Rendering\Models\Materials\GLSL Variable Types\GLFloat.cs" />
-    <Compile Include="Rendering\Models\Meshes\Vertex.cs" />
+    <Compile Include="Rendering\Models\Meshes\Primitives\PrimitiveData.cs" />
+    <Compile Include="Rendering\Models\Meshes\Primitives\Vertex.cs" />
     <Compile Include="Rendering\Models\Meshes\Faces\Point.cs" />
     <Compile Include="Rendering\Models\Meshes\Faces\LineStrip.cs" />
     <Compile Include="Rendering\Models\Meshes\Faces\Polygon.cs" />
@@ -135,13 +142,12 @@
     <Compile Include="Rendering\Models\Meshes\Faces\Line.cs" />
     <Compile Include="Rendering\Models\Meshes\Faces\TriangleFan.cs" />
     <Compile Include="Rendering\Models\Meshes\Faces\TriangleStrip.cs" />
-    <Compile Include="Rendering\Models\Meshes\PrimitiveManager.cs" />
-    <Compile Include="Rendering\Renderer\AbstractAudio.cs" />
+    <Compile Include="Rendering\Models\Meshes\Primitives\PrimitiveManager.cs" />
+    <Compile Include="Rendering\Models\Meshes\Primitives\VertexBuffer.cs" />
     <Compile Include="Rendering\Renderer\DirectX\DXDisplayList.cs" />
     <Compile Include="Rendering\Renderer\DisplayList.cs" />
     <Compile Include="Rendering\Renderer\Shader.cs" />
     <Compile Include="ResourceType.cs" />
-    <Compile Include="Sound\WaveFile.cs" />
     <Compile Include="System\ComputerInfo.cs" />
     <Compile Include="System\Extensions\ArrayExtension.cs" />
     <Compile Include="System\Extensions\XmlExtension.cs" />
@@ -197,10 +203,6 @@
     <Compile Include="Rendering\Renderer\AbstractRenderer.cs" />
     <Compile Include="Rendering\Renderer\RenderWindowContext.cs" />
     <Compile Include="Rendering\Textures\Decal.cs" />
-    <Compile Include="Sound\AmbientSound.cs" />
-    <Compile Include="Sound\DynamicSoundEffect.cs" />
-    <Compile Include="Sound\SoundDataBase.cs" />
-    <Compile Include="Sound\StaticSoundEffect.cs" />
     <Compile Include="Rendering\Animation\AnimationStringNode.cs" />
     <Compile Include="Rendering\Animation\AnimationBoolNode.cs" />
     <Compile Include="Rendering\Animation\AnimationInterpNode.cs" />
@@ -251,7 +253,7 @@
     <Compile Include="Rendering\Animation\PropertyAnimation.cs" />
     <Compile Include="System\FrameState.cs" />
     <Compile Include="Rendering\Models\Meshes\Faces\Triangle.cs" />
-    <Compile Include="Rendering\Models\Meshes\FacePoint.cs" />
+    <Compile Include="Rendering\Models\Meshes\Primitives\FacePoint.cs" />
     <Compile Include="Rendering\Models\Skeleton\Bone.cs" />
     <Compile Include="Rendering\Models\Model.cs" />
     <Compile Include="Rendering\Models\Meshes\Mesh.cs" />

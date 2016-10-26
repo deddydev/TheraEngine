@@ -43,8 +43,8 @@ namespace System
             throw new NotImplementedException();
         }
 #endif
-        private bool _isLoaded, _isLoading;
-        private string _filePath;
+        protected bool _isLoaded, _isLoading;
+        protected string _filePath;
         public virtual async Task Unload()
         {
             _isLoaded = false;

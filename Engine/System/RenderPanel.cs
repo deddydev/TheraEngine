@@ -98,7 +98,7 @@ namespace CustomEngine
         {
             _context.BeginDraw();
             foreach (Viewport v in _viewports)
-                v.Render();
+                v.Render(Engine.RenderDelta);
             _context.EndDraw();
         }
         protected override void OnPaintBackground(PaintEventArgs e) { }

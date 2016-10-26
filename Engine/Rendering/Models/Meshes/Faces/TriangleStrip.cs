@@ -29,13 +29,13 @@ namespace CustomEngine.Rendering.Models
             }
         }
 
-        public override List<Triangle> ToTriangles()
+        public override List<IndexTriangle> ToTriangles()
         {
-            List<Triangle> triangles = new List<Triangle>();
+            List<IndexTriangle> triangles = new List<IndexTriangle>();
             for (int i = 2; i < _points.Count; ++i)
             {
                 bool cw = (i & 1) == 0;
-                triangles.Add(new Triangle(
+                triangles.Add(new IndexTriangle(
                     _points[i - 2], 
                     _points[cw ? i : i - 1], 
                     _points[cw ? i - 1 : i]));

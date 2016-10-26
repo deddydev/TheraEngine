@@ -6,13 +6,5 @@
         {
             _looped = true;
         }
-        public void Start()
-        {
-
-        }
-        public void Stop()
-        {
-
-        }
     }
 }

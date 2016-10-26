@@ -21,6 +21,6 @@ namespace CustomEngine.Rendering.Models
 
         public abstract FaceType Type { get; }
         public ReadOnlyCollection<Point> Points { get { return _points.AsReadOnly(); } }
-        public abstract List<Triangle> ToTriangles();
+        public abstract List<IndexTriangle> ToTriangles();
     }
 }

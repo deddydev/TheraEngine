@@ -7,19 +7,5 @@ namespace CustomEngine.Audio
     {
         Vector3 worldPosition;
         float loudness;
-
-        public bool Looped
-        {
-            get { return _looped; }
-            set
-            {
-                _looped = value;
-            }
-        }
-
-        public void Play()
-        {
-
-        }
     }
 }

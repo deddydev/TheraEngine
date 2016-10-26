@@ -24,6 +24,7 @@ namespace CustomEngine
         static Engine()
         {
             _timer = new GlobalTimer();
+            _timer.UpdateFrame += Tick;
             for (int i = 0; i < 2; ++i)
             {
                 TickGroup order = (TickGroup)i;
@@ -31,6 +32,11 @@ namespace CustomEngine
                 for (int j = 0; j < 4; ++j)
                     _tick[order].Add((TickOrder)j, new List<ObjectBase>());
             }
+        }
+
+        public static void RegisterRenderTick(EventHandler<FrameEventArgs> func)
+        {
+            _timer.RenderFrame += func;
         }
 
         public static AbstractRenderer Renderer { get { return _renderer; } set { _renderer = value; } }
@@ -119,8 +125,9 @@ namespace CustomEngine
                     _tick[group][order].Remove(obj);
             }
         }
-        public static void Tick(float delta)
+        private static void Tick(object sender, FrameEventArgs e)
         {
+            float delta = (float)e.Time;
             foreach (GameTimer timer in ActiveTimers)
                 timer.Tick(delta);
             foreach (PlayerController c in ActivePlayers)
@@ -150,6 +157,7 @@ namespace CustomEngine
             Task.Run(_currentWorld.Load);
             Run(60.0f, 60.0f);
             task.Wait();
+            Console.WriteLine("Finished loading current world.");
         }
         public static EngineSettings LoadSettings()
         {

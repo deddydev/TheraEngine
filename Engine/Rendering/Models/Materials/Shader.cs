@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using CustomEngine.Rendering.Models.Materials.MaterialCommands;
 
 namespace CustomEngine.Rendering.Models.Materials
 {
@@ -47,6 +46,7 @@ namespace CustomEngine.Rendering.Models.Materials
             {
                 
             }
+            return null;
         }
     }
 }

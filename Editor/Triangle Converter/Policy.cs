@@ -9,47 +9,47 @@ namespace Editor.TriangleConverter
     {
         public Policy(uint MinStripSize, bool Cache)
         {
-            m_MinStripSize = MinStripSize;
-            m_Cache = Cache;
+            _MinStripSize = MinStripSize;
+            _Cache = Cache;
         }
 
-        public Strip BestStrip { get { return m_Strip; } }
+        public Strip BestStrip { get { return _Strip; } }
         public void Challenge(Strip Strip, uint Degree, uint CacheHits)
         {
-            if (Strip.Size < m_MinStripSize)
+            if (Strip.Size < _MinStripSize)
                 return;
 
-            if (!m_Cache)
+            if (!_Cache)
             {
                 //Cache is disabled, take the longest strip
-                if (Strip.Size > m_Strip.Size)
-                    m_Strip = Strip;
+                if (Strip.Size > _Strip.Size)
+                    _Strip = Strip;
             }
             else
             {
                 //Cache simulator enabled
-                if (CacheHits > m_CacheHits)
+                if (CacheHits > _CacheHits)
                 {
                     //Priority 1: Keep the strip with the best cache hit count
-                    m_Strip = Strip;
-                    m_Degree = Degree;
-                    m_CacheHits = CacheHits;
+                    _Strip = Strip;
+                    _Degree = Degree;
+                    _CacheHits = CacheHits;
                 }
-                else if ((CacheHits == m_CacheHits) && (((m_Strip.Size != 0) && (Degree < m_Degree)) || (Strip.Size > m_Strip.Size)))
+                else if ((CacheHits == _CacheHits) && (((_Strip.Size != 0) && (Degree < _Degree)) || (Strip.Size > _Strip.Size)))
                 {
                     //Priority 2: Keep the strip with the loneliest start triangle
                     //Priority 3: Keep the longest strip
-                    m_Strip = Strip;
-                    m_Degree = Degree;
+                    _Strip = Strip;
+                    _Degree = Degree;
                 }
             }
         }
 
-        private Strip m_Strip = new Strip();
-        private uint m_Degree;
-        private uint m_CacheHits;
+        private Strip _Strip = new Strip();
+        private uint _Degree;
+        private uint _CacheHits;
 
-        private uint m_MinStripSize;
-        private bool m_Cache;
+        private uint _MinStripSize;
+        private bool _Cache;
     }
 }

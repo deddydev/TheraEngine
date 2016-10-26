@@ -36,10 +36,10 @@ namespace Editor.TriangleConverter
 
     public class TriangleEdge
     {
-        public TriangleEdge(uint A, uint B) { m_A = A; m_B = B; }
+        public TriangleEdge(uint A, uint B) { _A = A; _B = B; }
 
-        public uint A { get { return m_A; } }
-        public uint B { get { return m_B; } }
+        public uint A { get { return _A; } }
+        public uint B { get { return _B; } }
 
         public static bool operator ==(TriangleEdge left, TriangleEdge right)
         {
@@ -60,23 +60,23 @@ namespace Editor.TriangleConverter
 
         public override int GetHashCode()
         {
-            return m_A.GetHashCode() ^ m_B.GetHashCode();
+            return _A.GetHashCode() ^ _B.GetHashCode();
         }
 
-        public uint m_A;
-        public uint m_B;
+        public uint _A;
+        public uint _B;
 
         public override string ToString()
         {
-            return String.Format("{0} {1}", m_A, m_B);
+            return String.Format("{0} {1}", _A, _B);
         }
     }
 
     public class TriEdge : TriangleEdge
     {
-        public TriEdge(uint A, uint B, uint TriPos) : base(A, B) { m_TriPos = TriPos; }
-        public uint TriPos { get { return m_TriPos; } }
-        private uint m_TriPos;
+        public TriEdge(uint A, uint B, uint TriPos) : base(A, B) { _TriPos = TriPos; }
+        public uint TriPos { get { return _TriPos; } }
+        private uint _TriPos;
 
         public static bool operator ==(TriEdge left, TriEdge right)
         {
@@ -96,12 +96,12 @@ namespace Editor.TriangleConverter
 
         public override int GetHashCode()
         {
-            return m_A.GetHashCode() ^ m_B.GetHashCode();
+            return _A.GetHashCode() ^ _B.GetHashCode();
         }
 
         public override string ToString()
         {
-            return String.Format("{0} {1} {2}", m_A, m_B, m_TriPos);
+            return String.Format("{0} {1} {2}", _A, _B, _TriPos);
         }
     }
 

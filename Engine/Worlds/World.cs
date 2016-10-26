@@ -50,10 +50,10 @@ namespace CustomEngine.Worlds
             actor.OnDespawned();
         }
         public void StepSimulation(float delta) { _bulletScene.StepSimulation(delta); }
-        public void Render()
+        public void Render(float delta)
         {
             foreach (Actor actor in _spawnedActors)
-                actor.Render();
+                actor.Render(delta);
         }
         public async Task SaveState(string path)
         {
@@ -63,34 +63,27 @@ namespace CustomEngine.Worlds
         {
             await Task.Delay(100);
         }
-
-
         #region ILoadable Interface
-        private bool _isLoaded, _isLoading;
-        private string _filePath;
-        public async Task Unload()
+        public override async Task Unload()
         {
             if (!_isLoaded)
                 return;
 
             _isLoaded = false;
         }
-        public async Task Load()
+        public override async Task Load()
         {
             if (_isLoaded)
                 return;
             _isLoading = true;
             FileMap map = FileMap.FromFile(_filePath);
-            
+
             foreach (Map m in _allMaps)
                 if (m.VisibleByDefault)
                     await Task.Run(m.Load);
             _isLoading = false;
             _isLoaded = true;
         }
-        public string FilePath { get { return _filePath; } }
-        public bool IsLoading { get { return _isLoading; } }
-        public bool IsLoaded { get { return _isLoaded; } }
         #endregion
 
         public Actor this[int index]

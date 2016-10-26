@@ -13,7 +13,12 @@ namespace CustomEngine.Worlds.Actors.Components
             get { return _model; }
             set
             {
-                _model = value;
+                if (_model == value)
+                    return;
+                if (_model != null)
+                    _model.UnlinkComponent(this);
+                if ((_model = value) != null)
+                    _model.LinkComponent(this);
             }
         }
 

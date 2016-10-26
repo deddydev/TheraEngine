@@ -1,4 +1,5 @@
 ﻿using CustomEngine;
+using CustomEngine.Rendering.Models;
 using System.Drawing;
 using System.Runtime.InteropServices;
 
@@ -6,20 +7,39 @@ namespace System
 {
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     //[Editor(typeof(PropertyGridColorEditor), typeof(UITypeEditor))]
-    public struct ColorF4 : IUniformable4Float
+    public unsafe struct ColorF4 : IUniformable4Float, IBufferable
     {
         public float R, G, B, A;
         
         public ColorF4(float r, float g, float b, float a) { R = r; G = g; B = b; A = a; }
 
-        public unsafe float* Address { get { fixed (void* p = &this) return (float*)p; } }
-        
+        public float* Data { get { return (float*)Address; } }
+        public VoidPtr Address { get { fixed (void* p = &this) return p; } }
+        public VertexBuffer.ComponentType ComponentType { get { return VertexBuffer.ComponentType.Float; } }
+        public int ComponentCount { get { return 4; } }
+        bool IBufferable.Normalize { get { return false; } }
+        public void Write(VoidPtr address)
+        {
+            float* data = (float*)address;
+            for (int i = 0; i < ComponentCount; ++i)
+                *data++ = Data[i];
+        }
+
         public static implicit operator ColorF4(RGBAPixel p) { return new ColorF4() { A = p.A / 255.0f, B = p.B / 255.0f, G = p.G / 255.0f, R = p.R / 255.0f }; }
         public static implicit operator ColorF4(ARGBPixel p) { return new ColorF4() { A = p.A / 255.0f, B = p.B / 255.0f, G = p.G / 255.0f, R = p.R / 255.0f }; }
         public static implicit operator ColorF4(Color p) { return new ColorF4() { A = p.A / 255.0f, B = p.B / 255.0f, G = p.G / 255.0f, R = p.R / 255.0f }; }
         public static implicit operator ColorF4(Vec3 v) { return new ColorF4(v.X, v.Y, v.Z, 1.0f); }
         public static implicit operator ColorF4(Vec4 v) { return new ColorF4(v.X, v.Y, v.Z, v.W); }
         public static implicit operator ColorF4(ColorF3 p) { return new ColorF4(p.R, p.G, p.B, 1.0f); }
+
+        public bool Equals(ColorF4 other, float precision)
+        {
+            return
+                Math.Abs(R - other.R) < precision &&
+                Math.Abs(G - other.G) < precision &&
+                Math.Abs(B - other.B) < precision &&
+                Math.Abs(A - other.A) < precision;
+        }
     }
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     //[Editor(typeof(PropertyGridColorEditor), typeof(UITypeEditor))]

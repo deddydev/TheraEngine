@@ -67,7 +67,7 @@ namespace CustomEngine.Worlds
             foreach (Component c in _logicComponents)
                 c.Tick(delta);
         }
-        public virtual void Render()
+        public virtual void Render(float delta)
         {
             _lastRendered = DateTime.Now;
             _rootSceneComponent?.Render();

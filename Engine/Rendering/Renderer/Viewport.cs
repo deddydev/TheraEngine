@@ -41,10 +41,10 @@ namespace CustomEngine.Rendering
             Camera.Resize(Width, Height);
             _hud.Resize(Width, Width);
         }
-        public void Render()
+        public void Render(float delta)
         {
             _hud.Render();
-            Engine.World.Render();
+            Engine.World.Render(delta);
         }
         public void ShowMessage(string message)
         {

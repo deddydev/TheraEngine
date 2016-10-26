@@ -3,16 +3,28 @@ using static System.Math;
 using static System.CustomMath;
 using System.Xml.Serialization;
 using System.Drawing;
+using CustomEngine;
+using CustomEngine.Rendering.Models;
 
 namespace System
 {
     [Serializable]
     [StructLayout(LayoutKind.Sequential)]
-    public unsafe struct Vec3 : IEquatable<Vec3>
+    public unsafe struct Vec3 : IEquatable<Vec3>, IUniformable3Float, IBufferable
     {
         public float X, Y, Z;
 
-        public float* Data { get { fixed (void* p = &this) return (float*)p; } }
+        public float* Data { get { return (float*)Address; } }
+        public VoidPtr Address { get { fixed (void* p = &this) return p; } }
+        public VertexBuffer.ComponentType ComponentType { get { return VertexBuffer.ComponentType.Float; } }
+        public int ComponentCount { get { return 3; } }
+        bool IBufferable.Normalize { get { return false; } }
+        public void Write(VoidPtr address)
+        {
+            float* data = (float*)address;
+            for (int i = 0; i < ComponentCount; ++i)
+                *data++ = Data[i];
+        }
 
         public Vec3(float x, float y, float z) { X = x; Y = y; Z = z; }
         public Vec3(float value) : this(value, value, value) { }

@@ -13,7 +13,7 @@ namespace CustomEngine
         Highest
     }
     [Serializable]
-    public class EngineSettings
+    public class EngineSettings : FileObject
     {
         public string TransitionWorldPath;
         public string OpeningWorldPath;
@@ -23,27 +23,9 @@ namespace CustomEngine
         public EngineQuality SoundQuality;
         public bool VSync;
         
-        public void SaveXML(string path)
+        public static EngineSettings FromXML(string filePath)
         {
-            string directory = Path.GetDirectoryName(path);
-            if (!Directory.Exists(directory))
-                Directory.CreateDirectory(directory);
-            using (StreamWriter writer = new StreamWriter(path))
-            {
-                XmlSerializer serializer = new XmlSerializer(GetType());
-                serializer.Serialize(writer, this);
-                writer.Flush();
-            }
-        }
-        public static EngineSettings FromXML(string path)
-        {
-            if (!File.Exists(path))
-                return null;
-            using (FileStream stream = File.OpenRead(path))
-            {
-                XmlSerializer serializer = new XmlSerializer(typeof(EngineSettings));
-                return serializer.Deserialize(stream) as EngineSettings;
-            }
+            return FromXML<EngineSettings>(filePath);
         }
     }
 }

@@ -3,6 +3,7 @@ using CustomEngine.Rendering.Models.Materials;
 using System;
 using System.Drawing;
 using System.Threading.Tasks;
+using CustomEngine.Rendering.Animation;
 
 namespace CustomEngine
 {
@@ -18,15 +19,6 @@ namespace CustomEngine
     {
         RectangleF Region { get; set; }
         void OnResized();
-    }
-    public interface IPropertyAnimation
-    {
-        IKeyframeTrack Keyframes { get; }
-        int FrameCount { get; set; }
-    }
-    public interface IKeyframeTrack
-    {
-
     }
     public interface IRenderState
     {

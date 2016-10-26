@@ -58,6 +58,7 @@
     <Compile Include="Worlds\Actors\Components\Logic\InventoryComponent.cs" />
     <Compile Include="Worlds\Actors\GameCharacter.cs" />
     <Compile Include="Worlds\Actors\InteractableActor.cs" />
+    <Compile Include="Worlds\TestWorld.cs" />
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>

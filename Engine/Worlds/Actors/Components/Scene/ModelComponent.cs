@@ -1,6 +1,7 @@
 ﻿using CustomEngine.Rendering.Models;
 using System;
 using System.Reflection;
+using CustomEngine.Rendering.Animation;
 
 namespace CustomEngine.Worlds.Actors.Components
 {

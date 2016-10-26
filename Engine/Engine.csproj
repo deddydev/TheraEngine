@@ -168,7 +168,7 @@
     <Compile Include="System\Platform\Win32.cs" />
     <Compile Include="System\Reflection\Attributes\PropertyChangedEventAttribute.cs" />
     <Compile Include="System\Reflection\CustomPropertyCollection.cs" />
-    <Compile Include="System\SaveableObject.cs" />
+    <Compile Include="System\FileObject.cs" />
     <Compile Include="System\Time\GlobalTimer.cs" />
     <Compile Include="System\RenderPanel.cs" />
     <Compile Include="System\RenderForm.cs">

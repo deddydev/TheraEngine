@@ -7,13 +7,13 @@ namespace CustomEngine.Rendering.Models
     {
         public Dictionary<string, Bone> _boneCache;
 
-        private Bone _rootBone = new Bone();
+        private Bone _rootBone;
 
         [PreChanged("PreLink"), PostChanged("PostLink")]
         public Bone RootBone
         {
             get { return _rootBone; }
-            set { _rootBone = value ?? new Bone(); }
+            set { _rootBone = value; }
         }
 
         protected void PreLink()

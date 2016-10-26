@@ -5,7 +5,7 @@ namespace CustomEngine.Rendering.Models
     public delegate void TranslateChanged(Vec3 oldTranslation);
     public delegate void RotateChanged(Quaternion oldRotate);
     public delegate void ScaleChanged(Vec3 oldScale);
-    public class FrameState
+    public class FrameState : ObjectBase
     {
         public static readonly FrameState Identity = new FrameState(new Vec3(), Quaternion.Identity, new Vec3(1.0f));
         public FrameState(Vec3 translate, Quaternion rotate, Vec3 scale)
@@ -19,6 +19,7 @@ namespace CustomEngine.Rendering.Models
 
         private Vec3 _translation;
         private Quaternion _rotation;
+        private Vec3 _eulerRotation;
         private Vec3 _scale;
         private Matrix4 _transform;
         private Matrix4 _inverseTransform;
@@ -44,7 +45,11 @@ namespace CustomEngine.Rendering.Models
             get { return _scale; }
             set { SetScale(value); }
         }
-
+        public Vec3 EulerRotation
+        {
+            get { return _eulerRotation; }
+            set { SetRotate(value); }
+        }
         public void ApplyRelativeTranslation(Vec3 translation)
         {
             _transform.Translate(translation);
@@ -67,6 +72,14 @@ namespace CustomEngine.Rendering.Models
         {
             Quaternion oldRotation = _rotation;
             _rotation = value;
+            CreateTransform();
+            OnRotateChanged?.Invoke(oldRotation);
+        }
+        private void SetRotate(Vec3 value)
+        {
+            Quaternion oldRotation = _rotation;
+            _eulerRotation = value;
+            _rotation = Quaternion.FromEulerAngles(value);
             CreateTransform();
             OnRotateChanged?.Invoke(oldRotation);
         }

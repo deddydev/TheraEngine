@@ -35,7 +35,7 @@ namespace Editor.Files
             { typeof(Cutscene), new FilterInfo("Cutscene", "ccut") },
             { typeof(Component), new FilterInfo("Component", "ccomp") },
             { typeof(AnimationContainer), new FilterInfo("Animation Archive", "cpac") },
-            { typeof(IPropertyAnimation), new FilterInfo("Property Animation", "cpa") },
+            { typeof(BasePropertyAnimation), new FilterInfo("Property Animation", "cpa") },
             { typeof(Texture), new FilterInfo("Texture", "ctex") },
         };
         public static List<FilterInfo> GenericInfo = new List<FilterInfo>()

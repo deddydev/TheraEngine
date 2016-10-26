@@ -1,5 +1,6 @@
 ﻿using static System.Math;
 using CustomEngine;
+using CustomEngine.Rendering.Models;
 
 namespace System
 {
@@ -48,6 +49,11 @@ namespace System
                 Engine.Renderer.DrawCapsuleSolid(this);
             else
                 Engine.Renderer.DrawCapsuleWireframe(this);
+        }
+
+        public PrimitiveData GetPrimitives()
+        {
+            throw new NotImplementedException();
         }
     }
 }

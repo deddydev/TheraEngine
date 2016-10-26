@@ -176,25 +176,11 @@ namespace CustomEngine
 
             EngineSettings s = LoadSettings();
 
-#if DEBUG
-            Model boxModel = new Model();
-            Mesh m = new Box(new Vec3(-20.0f, -20.0f, -20.0f), new Vec3(20.0f, 20.0f, 20.0f));
-            Skeleton skel = new Skeleton();
-            boxModel.AddMesh(m);
-            boxModel.SetSkeleton(skel);
-            ModelComponent modelComp = new ModelComponent(boxModel);
-            Actor actor = new Actor(modelComp);
-            Map map = new Map(true, Vec3.Zero, new MapSettings(), actor);
-            World world = new World(new WorldSettings(map));
-
-            _currentWorld = world;
-#else
             _currentWorld = new World(s.OpeningWorldPath);
             _transitionWorld = new World(s.TransitionWorldPath);
 
             _transitionWorld.Load();
             _currentWorld.Load();
-#endif
 
             TargetRenderFreq = 60.0f;
             TargetUpdateFreq = 90.0f;
@@ -211,7 +197,7 @@ namespace CustomEngine
             if (!File.Exists(SettingsPath))
             {
                 EngineSettings settings = new EngineSettings();
-                settings.SaveXML(SettingsPath);
+                settings.ToXML(SettingsPath);
                 return settings;
             }
             else

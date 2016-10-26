@@ -5,6 +5,7 @@ using System.Reflection;
 using System.ComponentModel;
 using PostSharp.Aspects;
 using PostSharp.Serialization;
+using CustomEngine.Rendering.Animation;
 
 namespace System
 {
@@ -33,7 +34,7 @@ namespace System
         public event RenamedEventHandler Renamed;
         public event ResourceEventHandler Disposing, UpdateProperties, UpdateEditor;
 
-        private string _name;
+        protected string _name;
         protected bool _changed;
         protected TickGroup? _tickGroup = null;
         protected TickOrder? _tickOrder = null;
@@ -105,7 +106,11 @@ namespace System
         /// Updates logic for this class
         /// </summary>
         /// <param name="delta">The amount of time that has passed since the last tick update</param>
-        internal virtual void Tick(float delta) { }
+        internal virtual void Tick(float delta)
+        {
+            foreach (AnimationContainer anim in _animations)
+                anim.Tick(delta, this);
+        }
 
         public void OnPropertyChanged(PropertyInfo info, object previousValue)
         {
@@ -121,6 +126,23 @@ namespace System
         protected virtual void OnUpdateEditor() { UpdateEditor?.Invoke(this); }
         protected virtual void OnDisposing() { Disposing?.Invoke(this); }
         protected virtual void OnRenamed(string oldName) { Renamed?.Invoke(this, oldName); }
+
+        private List<AnimationContainer> _animations = new List<AnimationContainer>();
+        public void AddAnimation(AnimationContainer anim)
+        {
+            anim.AnimationEnded += Anim_AnimationEnded;
+            _animations.Add(anim);
+        }
+
+        private void Anim_AnimationEnded(object sender, EventArgs e)
+        {
+            RemoveAnimation(sender as AnimationContainer);
+        }
+
+        public void RemoveAnimation(AnimationContainer anim)
+        {
+            _animations.Remove(anim);
+        }
     }
     [PSerializable]
     public class NotifyPropertyChangedAttribute : LocationInterceptionAspect

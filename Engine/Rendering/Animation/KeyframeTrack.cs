@@ -1,20 +1,44 @@
 ﻿using System.Collections.Generic;
 using System.Collections;
+using System;
 
 namespace CustomEngine.Rendering.Animation
 {
-    public class KeyframeTrack<T> : IKeyframeTrack, IEnumerable<T> where T : Keyframe
+    public abstract class BaseKeyframeTrack : FileObject
+    {
+        protected int _fps = 60;
+        protected int _keyCount = 0;
+
+        public abstract BasePropertyAnimation Owner { get; }
+        public float FrameCount { get { return Owner.FrameCount; } }
+        public int KeyCount { get { return _keyCount; } }
+        public int FPS
+        {
+            get { return _fps; }
+            set
+            {
+                float ratio = _fps / value;
+                Keyframe key = FirstKey;
+                while (key != null)
+                {
+                    key._frameIndex *= ratio;
+                    key = key.Next;
+                }
+            }
+        }
+        protected abstract Keyframe FirstKey { get; }
+    }
+    public class KeyframeTrack<T> : BaseKeyframeTrack, IEnumerable<T> where T : Keyframe
     {
         PropertyAnimation<T> _owner;
-
-        private int _fps = 60; //Game default is 60
-        private int FrameCount { get { return _owner.FrameCount; } }
+        
         private T _first = null;
-        private int _count = 0;
 
         public T First { get { return _first; } }
         public T Last { get { return (T)_first.Prev; } }
-        public int Count { get { return _count; } }
+
+        public override BasePropertyAnimation Owner { get { return _owner; } }
+        protected override Keyframe FirstKey { get { return First; } }
 
         public KeyframeTrack(PropertyAnimation<T> node) { _owner = node; }
 
@@ -26,7 +50,7 @@ namespace CustomEngine.Rendering.Animation
             if (_first == null)
             {
                 _first = key;
-                ++_count;
+                ++_keyCount;
                 return true;
             }
             else
@@ -37,7 +61,7 @@ namespace CustomEngine.Rendering.Animation
                     if (key._frameIndex >= node._frameIndex)
                     {
                         node.LinkNext(key);
-                        ++_count;
+                        ++_keyCount;
                         return true;
                     }
                     node = node.Next;
@@ -57,7 +81,7 @@ namespace CustomEngine.Rendering.Animation
                 if (key == node)
                 {
                     node.Unlink();
-                    --_count;
+                    --_keyCount;
                     return true;
                 }
                 node = node.Next;
@@ -74,7 +98,7 @@ namespace CustomEngine.Rendering.Animation
                 _first = null;
             else
                 Last.Unlink();
-            --_count;
+            --_keyCount;
         }
         public void RemoveFirst()
         {
@@ -89,7 +113,7 @@ namespace CustomEngine.Rendering.Animation
                 First.Unlink();
                 _first = (T)newFirst;
             }
-            --_count;
+            --_keyCount;
         }
         public void AddLast(T key)
         {
@@ -97,7 +121,7 @@ namespace CustomEngine.Rendering.Animation
                 _first = key;
             else
                 _first.LinkPrev(key);
-            ++_count;
+            ++_keyCount;
         }
         public void AddFirst(T key)
         {
@@ -108,7 +132,7 @@ namespace CustomEngine.Rendering.Animation
                 _first.LinkPrev(key);
                 _first = key;
             }
-            ++_count;
+            ++_keyCount;
         }
         public T GetKeyBefore(float frameIndex)
         {
@@ -117,33 +141,29 @@ namespace CustomEngine.Rendering.Animation
                     return key;
             return null;
         }
-        public void ConvertFPS(float newFPS)
-        {
-            float ratio = _fps / newFPS;
-            foreach (T key in this)
-                key._frameIndex *= ratio;
-        }
         public IEnumerator GetEnumerator()
         {
             Keyframe node = _first;
-            while (node != null)
+            do
             {
                 if (node == null)
                     break;
                 yield return node;
                 node = node.Next;
             }
+            while (node != _first);
         }
         IEnumerator<T> IEnumerable<T>.GetEnumerator()
         {
             Keyframe node = _first;
-            while (node != null)
+            do
             {
                 if (node == null)
                     break;
                 yield return (T)node;
                 node = node.Next;
             }
+            while (node != _first);
         }
     }
     public abstract class Keyframe

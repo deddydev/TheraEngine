@@ -114,7 +114,10 @@ namespace System
 
         public void OnPropertyChanged(PropertyInfo info, object previousValue)
         {
-            string output = "Changed property " + info.Name + " in " + GetType().ToString() + " \"{Name}\"";
+            if (info.Name == "_changed")
+                return;
+
+            string output = "Changed property " + info.Name + " in " + GetType().ToString() + " \"" + Name + "\"";
             Console.WriteLine(output);
 
             _changed = true;

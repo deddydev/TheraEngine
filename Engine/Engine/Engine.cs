@@ -170,17 +170,22 @@ namespace CustomEngine
         }
         #endregion
 
-        public static void Initialize()
+        public static void Initialize(World startupWorld)
         {
             _computerInfo = ComputerInfo.Analyze();
 
             EngineSettings s = LoadSettings();
 
-            _currentWorld = new World(s.OpeningWorldPath);
-            _transitionWorld = new World(s.TransitionWorldPath);
+            if (startupWorld == null)
+            {
+                _currentWorld = new World(s.OpeningWorldPath);
+                _transitionWorld = new World(s.TransitionWorldPath);
 
-            _transitionWorld.Load();
-            _currentWorld.Load();
+                _transitionWorld.Load();
+                _currentWorld.Load();
+            }
+            else
+                _currentWorld = startupWorld;
 
             TargetRenderFreq = 60.0f;
             TargetUpdateFreq = 90.0f;
@@ -189,8 +194,8 @@ namespace CustomEngine
         public static void ShutDown()
         {
             Stop();
-            foreach (RenderWindowContext c in RenderWindowContext.BoundContexts)
-                c?.Dispose();
+            //foreach (RenderWindowContext c in RenderWindowContext.BoundContexts)
+            //    c?.Dispose();
         }
         public static EngineSettings LoadSettings()
         {

@@ -67,7 +67,7 @@ namespace System
         public static T FromXML<T>(string filePath) where T : FileObject
         {
             if (!File.Exists(filePath))
-                return null;
+                return default(T);
             using (FileStream stream = File.OpenRead(filePath))
             {
                 XmlSerializer serializer = new XmlSerializer(typeof(T));

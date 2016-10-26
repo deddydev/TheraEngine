@@ -4,6 +4,7 @@ using System.Windows.Forms;
 using System;
 using System.Drawing;
 using System.IO;
+using CustomEngine.Worlds;
 
 namespace CustomEngine
 {
@@ -11,13 +12,22 @@ namespace CustomEngine
     {
         public RenderForm(string name, string iconPath)
         {
+            Initialize(name, iconPath, null);
+        }
+        public RenderForm(string name, string iconPath, World world)
+        {
+            Initialize(name, iconPath, world);
+        }
+
+        public void Initialize(string name, string iconPath, World startupWorld)
+        {
             InitializeComponent();
 
             Text = name;
             if (!string.IsNullOrEmpty(iconPath) && File.Exists(iconPath))
                 Icon = new Icon(iconPath);
 
-            Engine.Initialize();
+            Engine.Initialize(startupWorld);
             Engine.RegisterRenderTick(RenderTick);
         }
 

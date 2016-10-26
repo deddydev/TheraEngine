@@ -1,4 +1,5 @@
 ﻿using CustomEngine;
+using Game.Worlds;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,7 +18,7 @@ namespace Game
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new RenderForm("Thera", null));
+            Application.Run(new RenderForm("Thera", null, new TestWorld()));
         }
     }
 }

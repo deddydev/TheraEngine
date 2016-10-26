@@ -16,18 +16,26 @@ namespace CustomEngine.Worlds
         public List<Map> _maps;
         public WorldState _state;
 
-        public WorldSettings(string name, params Map[] maps)
+        public WorldSettings(string name, WorldState state, params Map[] maps)
         {
             _maps = maps.ToList();
             _originRebaseBounds = _worldBounds;
             _name = name;
+            _state = state;
         }
-
+        public WorldSettings(string name, WorldState state)
+        {
+            _originRebaseBounds = _worldBounds;
+            _maps = new List<Map>();
+            _name = name;
+            _state = state;
+        }
         public WorldSettings(string name)
         {
             _originRebaseBounds = _worldBounds;
             _maps = new List<Map>();
             _name = name;
+            _state = new WorldState();
         }
 
         public void SetOriginRebaseDistance(float distance)

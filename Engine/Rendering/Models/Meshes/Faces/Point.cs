@@ -16,7 +16,7 @@ namespace CustomEngine.Rendering.Models
         public ReadOnlyCollection<Point> ConnectedPoints { get { return _connectedPoints.AsReadOnly(); } }
 
         int _vertexIndex;
-        List<Point> _connectedPoints;
+        List<Point> _connectedPoints = new List<Point>();
 
         public void LinkTo(Point otherPoint)
         {

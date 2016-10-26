@@ -23,7 +23,7 @@ namespace CustomEngine.Worlds
         public Actor(SceneComponent root, params LogicComponent[] logicComponents)
         {
             RootComponent = root;
-            _logicComponents = (MonitoredList<LogicComponent>)logicComponents.ToList();
+            _logicComponents = new MonitoredList<LogicComponent>(logicComponents.ToList());
         }
         protected virtual void SetDefaults() { }
         protected virtual void SetupComponents() { }

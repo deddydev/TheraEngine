@@ -113,6 +113,7 @@ namespace CustomEngine.Input.Gamepads
         {
             if (_isPressed != isPressed)
             {
+                Console.WriteLine("Press state changed:" + _isPressed.ToString());
                 if (_isPressed = isPressed)
                 {
                     if (_timer <= _maxSecondsBetweenPresses)
@@ -189,7 +190,10 @@ namespace CustomEngine.Input.Gamepads
             _value = value;
 
             if (_continuousUpdates || Math.Abs(_value - _prevValue) > _updateThreshold)
+            {
+                Console.WriteLine("Axis state changed:" + _value.ToString());
                 AxisUpdated?.Invoke(_value);
+            }
 
             if (wasPressed != nowPressed)
             {

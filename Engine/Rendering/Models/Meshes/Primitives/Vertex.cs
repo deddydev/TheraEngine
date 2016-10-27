@@ -18,7 +18,7 @@ namespace CustomEngine.Rendering.Models
             {
                 foreach (int i in facepoint.Indices)
                 {
-
+                    //TODO
                 }
             }
         }

@@ -14,19 +14,26 @@ namespace CustomEngine.Rendering.Models
     {
         PrimitiveData _data;
 
-        private bool[] _dirty;
-        private DataSource _indexBuffer;
-        private Primitive _primitives;
+        public int[] _bindingIds;
+        public IntPtr[] _offsets;
+        public int[] _strides;
 
-        private int _vaoId, _indexBufferId, _programId, _instanceCount;
+        VertexBuffer _indexBuffer;
+        private Primitive _triangles;
+
+        private int _vaoId;
+
+        public PrimitiveManager() { }
 
         public void SetPrimitiveData(PrimitiveData data)
         {
             if (_data != null)
+                Destroy();
+            if ((_data = data) != null)
             {
-                _data.Dispose();
+                _bindingIds = _data._buffers.Select(x => x.BindingId).ToArray();
+                Initialize();
             }
-            _data = data;
         }
 
         public void Initialize()
@@ -36,20 +43,27 @@ namespace CustomEngine.Rendering.Models
 
             _data.Initialize();
 
-            _indexBufferId = GL.GenBuffer();
+            _triangles = new Primitive(
+                _data._faces.Count * 3, 
+                _data._facePoints.Count, 
+                PrimitiveType.Triangles);
 
-            GL.BindBuffer(BufferTarget.ElementArrayBuffer, _indexBufferId);
-            GL.VertexAttribPointer(0, 3, VertexAttribPointerType.Float, false, 0, 0);
+            _indexBuffer = new VertexBuffer(_data._buffers.Count, "IndexBuffer", BufferTarget.ElementArrayBuffer);
+            _indexBuffer.SetData(_data.GetFaceIndices(), false);
 
             GL.BindVertexArray(0);
         }
 
-        public void Render()
+        public void Render(int programId)
         {
-            GL.UseProgram(_programId);
+            if (_data == null)
+                return;
+
+            GL.UseProgram(programId);
             GL.BindVertexArray(_vaoId);
 
-            _primitives.Render();
+            GL.BindVertexBuffers(0, _data._buffers.Count, _bindingIds, new IntPtr[_data._buffers.Count], _data._buffers.Select(x => x.Stride).ToArray());
+            _triangles.Render();
 
             GL.BindVertexArray(0);
             GL.UseProgram(0);
@@ -57,8 +71,9 @@ namespace CustomEngine.Rendering.Models
 
         public void Destroy()
         {
-            _data.Destroy();
-            GL.DeleteBuffer(_indexBufferId);
+            _triangles = null;
+            _data.Dispose();
+            _indexBuffer.Dispose();
             GL.DeleteVertexArray(_vaoId);
         }
 
@@ -75,7 +90,7 @@ namespace CustomEngine.Rendering.Models
 
     public class Primitive
     {
-        int _indexCount, _indexOffset;
+        int _indexCount;//, _indexOffset;
         //DataSource _indexBuffer;
         DrawElementsType _elementType;
         PrimitiveType _type;
@@ -102,7 +117,7 @@ namespace CustomEngine.Rendering.Models
 
         public unsafe void Render()
         {
-            GL.DrawElements(_type, _indexCount, _elementType, _indexOffset);
+            GL.DrawElements(_type, _indexCount, _elementType, 0);
         }
     }
 }

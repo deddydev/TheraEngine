@@ -8,7 +8,7 @@ namespace CustomEngine.Worlds.Actors.Components
 {
     public class SceneComponent : Component, IRenderable, ITransformable
     {
-        private FrameState _transform;
+        private FrameState _transform = FrameState.Identity;
         protected MonitoredList<SceneComponent> _children = new MonitoredList<SceneComponent>();
         protected bool _visible;
         protected bool _hiddenInGame = false;

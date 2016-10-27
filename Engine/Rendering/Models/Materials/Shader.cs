@@ -17,6 +17,8 @@ namespace CustomEngine.Rendering.Models.Materials
     }
     public class Shader
     {
+        bool _sourceChanged = false;
+        int _shaderBindingId;
         public ShaderType _type;
         public string _source;
 
@@ -33,11 +35,18 @@ namespace CustomEngine.Rendering.Models.Materials
         public void SetSource(string source)
         {
             _source = source;
+            _sourceChanged = true;
         }
 
-        public void Compile(ResultBasicFunc resultFunction)
+        public void Generate(ResultBasicFunc resultFunction)
         {
-            
+            _source = "";
+        }
+
+        public int Compile()
+        {
+            _sourceChanged = false;
+            return Engine.Renderer.GenerateShader(this);
         }
 
         public List<MaterialParameter> CollectUniformCommands(MaterialFunction cmd)

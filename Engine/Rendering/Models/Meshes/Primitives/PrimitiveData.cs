@@ -41,11 +41,6 @@ namespace CustomEngine.Rendering.Models
             foreach (VertexBuffer b in _buffers)
                 b?.Initialize();
         }
-        public void Destroy()
-        {
-            foreach (VertexBuffer b in _buffers)
-                b?.Destroy();
-        }
         public int[] GetFaceIndices()
         {
             return _faces != null ? _faces.SelectMany(x => new int[] { x.Point0, x.Point1, x.Point2 }).ToArray() : null;

@@ -10,18 +10,29 @@ namespace CustomEngine.Rendering.Models.Materials
     {
         private List<MaterialProperty> _properties = new List<MaterialProperty>();
         private bool _cullFront = false, _cullBack = true;
-        public Shader _vertexShader, _fragmentShader, _geometryShader;
-        
+        public int _programId = 0;
+        public List<Shader> _shaders = new List<Shader>();
+
         public bool CullFront { get { return _cullFront; } set { _cullFront = true; } }
         public bool CullBack { get { return _cullBack; } set { _cullBack = true; } }
-        public Shader FragmentShader { get { return _fragmentShader; } set { _fragmentShader = value; } }
-        public Shader GeometryShader { get { return _geometryShader; } set { _geometryShader = value; } }
-        public Shader VertexShader { get { return _vertexShader; } set { _vertexShader = value; } }
-        
-        public void Compile(ResultBasicFunc resultFunction)
+
+        public Material() { }
+        public Material(params Shader[] shaders) { AddShaders(shaders); }
+
+        public void AddShaders(params Shader[] shaders) { _shaders.AddRange(shaders); }
+        public void Compile()
         {
-            _vertexShader.Compile(resultFunction);
-            _fragmentShader.Compile(resultFunction);
+            if (_programId > 0)
+                Engine.Renderer.DeleteProgram(_programId);
+            int[] ids = _shaders.Select(x => x.Compile()).ToArray();
+            _programId = Engine.Renderer.GenerateProgram(ids);
+        }
+        public void Generate(ResultBasicFunc resultFunction)
+        {
+            _shaders.Clear();
+            //TODO: determine shader types needed
+            foreach (Shader s in _shaders)
+                s.Generate(resultFunction);
         }
     }
 }

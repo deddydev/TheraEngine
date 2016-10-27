@@ -16,7 +16,7 @@ namespace CustomEngine.Rendering.Models
             _manager.SetPrimitiveData(data);
         }
 
-        public void Render(float delta) { _manager.Render(); }
+        public void Render(float delta) { _manager.Render(_material._programId); }
 
         public static implicit operator Mesh(Box b) { Mesh m = new Mesh(); m.SetPrimitiveData(b.GetPrimitives()); return m; }
     }

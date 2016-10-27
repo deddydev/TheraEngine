@@ -290,6 +290,11 @@ namespace CustomEngine.Rendering.OpenGL
             base.UseProgram(handle);
             GL.UseProgram(_programHandle);
         }
+        public override void DeleteProgram(int handle)
+        {
+            base.DeleteProgram(handle);
+            GL.DeleteProgram(handle);
+        }
 
         #region Uniforms
         public override void Uniform(string name, params IUniformable4Int[] p)

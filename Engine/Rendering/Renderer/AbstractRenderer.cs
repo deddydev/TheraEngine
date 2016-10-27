@@ -176,6 +176,11 @@ namespace CustomEngine.Rendering
         public abstract int GenerateProgram(params int[] shaderHandles);
 
         public virtual void UseProgram(int handle) { _programHandle = handle; }
+        public virtual void DeleteProgram(int handle)
+        {
+            if (_programHandle == handle)
+                _programHandle = 0;
+        }
 
         public abstract void Uniform(string name, params IUniformable4Int[] p);
         public abstract void Uniform(string name, params IUniformable3Int[] p);

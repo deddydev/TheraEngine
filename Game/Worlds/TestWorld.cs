@@ -9,11 +9,13 @@ using CustomEngine.Worlds.Actors.Components;
 using CustomEngine.Worlds.Maps;
 using CustomEngine.Rendering;
 using CustomEngine.Rendering.Animation;
+using CustomEngine.Input.Gamepads;
 
 namespace Game.Worlds
 {
     public class TestWorld : World
     {
+        GamepadManager g;
         public TestWorld() : base(new WorldSettings("TestWorld"))
         {
             Model boxModel = new Model();
@@ -39,6 +41,10 @@ namespace Game.Worlds
             AnimFolder root = new AnimFolder("Transform", null, new AnimFolder("EulerRotation", null, new AnimFolder("Z", propertyAnim)));
             AnimationContainer anim = new AnimationContainer(root);
             modelComp.AddAnimation(anim);
+
+            SpawnActor(actor);
+
+            g = new TKGamepadManager(0);
         }
     }
 }

@@ -23,7 +23,7 @@ namespace CustomEngine.Rendering.Models
         
         private bool _initialized = false;
 
-        public PrimitiveManager() : base(GenType.VertexArray) { }
+        public PrimitiveManager(string name) : base(name, GenType.VertexArray) { }
 
         public void SetPrimitiveData(PrimitiveData data)
         {
@@ -44,22 +44,13 @@ namespace CustomEngine.Rendering.Models
                 Generate();
 
             GL.UseProgram(programId);
-            GL.BindVertexArray(_bindingId);
+            GL.BindVertexArray(BindingId);
 
             GL.BindVertexBuffers(0, _data._buffers.Count, _bindingIds, new IntPtr[_data._buffers.Count], _data._buffers.Select(x => x.Stride).ToArray());
             _triangles.Render();
 
             GL.BindVertexArray(0);
             GL.UseProgram(0);
-        }
-
-        public void Destroy()
-        {
-            _initialized = false;
-            _triangles = null;
-            _data.Dispose();
-            _indexBuffer.Dispose();
-            Delete();
         }
 
         public VoidPtr PreModifyVertices()
@@ -72,12 +63,11 @@ namespace CustomEngine.Rendering.Models
             //Unmap buffers
         }
 
-        public void Initialize()
+        protected override void OnGenerated()
         {
             _initialized = true;
             
-            _bindingId = GL.GenVertexArray();
-            GL.BindVertexArray(_bindingId);
+            GL.BindVertexArray(BindingId);
 
             _data.Initialize();
 
@@ -90,6 +80,13 @@ namespace CustomEngine.Rendering.Models
             _indexBuffer.SetDataNumeric(_data.GetFaceIndices(), false);
 
             GL.BindVertexArray(0);
+        }
+        protected override void OnDeleted()
+        {
+            _initialized = false;
+            _triangles = null;
+            _data.Dispose();
+            _indexBuffer.Dispose();
         }
     }
 

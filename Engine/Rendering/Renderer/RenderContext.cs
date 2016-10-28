@@ -34,6 +34,7 @@ namespace CustomEngine.Rendering
                 {
                     _current.SetCurrent(true);
                     Engine.Renderer = _current.GetRendererInstance();
+                    _current.ContextChanged?.Invoke(false);
                 }
             }
         }
@@ -67,7 +68,6 @@ namespace CustomEngine.Rendering
                     if (force)
                         Current = null;
                     Current = this;
-                    ContextChanged?.Invoke(false);
                 }
             }
             catch { Reset(); }
@@ -117,9 +117,12 @@ namespace CustomEngine.Rendering
         protected abstract void OnUpdated();
         public virtual void Dispose()
         {
-            Release();
+            Capture();
+            foreach (BaseRenderState state in _states.Values)
+                state.Destroy();
             if (BoundContexts.Contains(this))
                 BoundContexts.Remove(this);
+            Release();
         }
 
         public abstract void Initialize();

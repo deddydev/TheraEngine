@@ -15,55 +15,48 @@ namespace CustomEngine.Rendering.Models.Materials
         TessControl,        // https://www.opengl.org/wiki/Tessellation_Control_Shader
         Compute             // https://www.opengl.org/wiki/Compute_Shader
     }
-    public class Shader : BaseRenderState
+    public class Shader
     {
+        public event EventHandler Compiled;
+
+        public bool NeedsCompile { get { return _sourceChanged; } }
+
         bool _sourceChanged = false;
         public ShaderMode _type;
         public string _source;
 
-        public bool NeedsCompile { get { return _sourceChanged; } }
-
-        public Shader(ShaderMode type) : base(GenType.Shader)
+        public Shader(ShaderMode type)
         {
             _type = type;
         }
-        public Shader(ShaderMode type, string source) : base(GenType.Shader)
+        public Shader(ShaderMode type, string source)
         {
             _type = type;
             _source = source;
             _sourceChanged = true;
         }
-
         public void SetSource(string source)
         {
             _source = source;
             _sourceChanged = true;
         }
-
         public void Generate(ResultBasicFunc resultFunction)
         {
             _source = "";
         }
-
-        public event EventHandler Compiled;
         public int Compile()
         {
             if (!_sourceChanged)
                 return 0;
 
             _sourceChanged = false;
-            int id = Engine.Renderer.GenerateShader(this);
+
+            Engine.Renderer.SetShaderMode(_type);
+            int id = Engine.Renderer.GenerateShader(_source);
+
+            Compiled?.Invoke(this, null);
 
             return id;
-        }
-
-        public List<MaterialParameter> CollectUniformCommands(MaterialFunction cmd)
-        {
-            foreach (GLVar arg in cmd.InputArguments)
-            {
-                
-            }
-            return null;
         }
     }
 }

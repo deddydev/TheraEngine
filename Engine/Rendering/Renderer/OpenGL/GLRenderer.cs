@@ -202,10 +202,6 @@ namespace CustomEngine.Rendering.OpenGL
         {
             GL.End();
         }
-        public override void RenderMesh(Mesh mesh)
-        {
-
-        }
         public override void SetPointSize(float size)
         {
             GL.PointSize(size);
@@ -218,10 +214,10 @@ namespace CustomEngine.Rendering.OpenGL
         #endregion
 
         #region Shaders
-        public override int GenerateShader(Shader shader)
+        public override int GenerateShader(string source)
         {
-            int handle = GL.CreateShader(sType);
-            GL.ShaderSource(handle, shader._source);
+            int handle = GL.CreateShader(_currentShaderMode);
+            GL.ShaderSource(handle, source);
             GL.CompileShader(handle);
 #if DEBUG
             int status;
@@ -233,7 +229,7 @@ namespace CustomEngine.Rendering.OpenGL
                 Console.WriteLine(info + "\n\n");
 
                 //Split the source by new lines
-                string[] s = shader._source.Split(new string[] { Environment.NewLine }, StringSplitOptions.None);
+                string[] s = source.Split(new string[] { Environment.NewLine }, StringSplitOptions.None);
 
                 //Add the line number to the source so we can go right to errors on specific lines
                 int lineNumber = 1;
@@ -472,6 +468,51 @@ namespace CustomEngine.Rendering.OpenGL
                     break;
             }
         }
+        public override void DeleteObjects(GenType type, int[] bindingIds)
+        {
+            switch (type)
+            {
+                case GenType.Buffer:
+                    GL.DeleteBuffers(bindingIds.Length, bindingIds);
+                    break;
+                case GenType.DisplayList:
+                    foreach (int i in bindingIds)
+                        GL.DeleteLists(i, 1);
+                    break;
+                case GenType.Framebuffer:
+                    GL.DeleteFramebuffers(bindingIds.Length, bindingIds);
+                    break;
+                case GenType.Program:
+                    foreach (int i in bindingIds)
+                        GL.DeleteProgram(i);
+                    break;
+                case GenType.ProgramPipeline:
+                    GL.DeleteProgramPipelines(bindingIds.Length, bindingIds);
+                    break;
+                case GenType.Query:
+                    GL.DeleteQueries(bindingIds.Length, bindingIds);
+                    break;
+                case GenType.Renderbuffer:
+                    GL.DeleteRenderbuffers(bindingIds.Length, bindingIds);
+                    break;
+                case GenType.Sampler:
+                    GL.DeleteSamplers(bindingIds.Length, bindingIds);
+                    break;
+                case GenType.Texture:
+                    GL.DeleteTextures(bindingIds.Length, bindingIds);
+                    break;
+                case GenType.TransformFeedback:
+                    GL.DeleteTransformFeedbacks(bindingIds.Length, bindingIds);
+                    break;
+                case GenType.VertexArray:
+                    GL.DeleteVertexArrays(bindingIds.Length, bindingIds);
+                    break;
+                case GenType.Shader:
+                    foreach (int i in bindingIds)
+                        GL.DeleteShader(i);
+                    break;
+            }
+        }
         public override int GenObject(GenType type)
         {
             switch (type)
@@ -487,9 +528,54 @@ namespace CustomEngine.Rendering.OpenGL
                 case GenType.Texture: return GL.GenTexture();
                 case GenType.TransformFeedback: return GL.GenTransformFeedback();
                 case GenType.VertexArray: return GL.GenVertexArray();
-                case GenType.Shader: return GL.CreateShader();
+                case GenType.Shader: return GL.CreateShader(_currentShaderMode);
             }
             return 0;
+        }
+        public override int[] GenObjects(GenType type, int count)
+        {
+            int[] ids = new int[count];
+            switch (type)
+            {
+                case GenType.Buffer:
+                    GL.GenBuffers(count, ids);
+                    break;
+                case GenType.Framebuffer:
+                    GL.GenFramebuffers(count, ids);
+                    break;
+                case GenType.Program:
+                    for (int i = 0; i < count; ++i)
+                        ids[i] = GL.CreateProgram();
+                    break;
+                case GenType.ProgramPipeline:
+                    GL.GenProgramPipelines(count, ids);
+                    break;
+                case GenType.Query:
+                    GL.GenQueries(count, ids);
+                    break;
+                case GenType.Renderbuffer: 
+                    GL.GenRenderbuffers(count, ids);
+                    break;
+                case GenType.Sampler: 
+                    GL.GenSamplers(count, ids);
+                    break;
+                case GenType.Texture: 
+                    GL.GenTextures(count, ids);
+                    break;
+                case GenType.TransformFeedback: 
+                    GL.GenTransformFeedbacks(count, ids);
+                    break;
+                case GenType.VertexArray: 
+                    GL.GenVertexArrays(count, ids);
+                    break;
+                case GenType.Shader:
+                    for (int i = 0; i < count; ++i)
+                        ids[i] = GL.CreateShader(_currentShaderMode);
+                    break;
+                case GenType.DisplayList:
+                    return new int[] { GL.GenLists(count) };
+            }
+            return ids;
         }
     }
 }

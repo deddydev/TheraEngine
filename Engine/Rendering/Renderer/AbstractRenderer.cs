@@ -12,8 +12,15 @@ namespace CustomEngine.Rendering
     /// </summary>
     public abstract class AbstractRenderer
     {
+        public abstract RenderLibrary RenderLibrary { get; }
+        public RenderContext CurrentContext { get { return RenderContext.Current; } }
+
         protected int _programHandle;
         private static List<DisplayList> _displayLists = new List<DisplayList>();
+        private Stack<Rectangle> _renderAreaStack = new Stack<Rectangle>();
+        protected Camera _currentCamera;
+        protected Stack<Matrix4> _modelMatrix, _textureMatrix, _colorMatrix;
+        protected MtxMode _matrixMode;
 
         public T FindOrCreate<T>(string name, StateCreateHandler<T> handler) where T : BaseRenderState
         {
@@ -24,7 +31,7 @@ namespace CustomEngine.Rendering
                 return (T)GetState(name);
 
             T obj = handler();
-            AddRenderState(obj);
+            AddRenderState(name, obj);
             return obj;
         }
 
@@ -36,24 +43,20 @@ namespace CustomEngine.Rendering
         {
             return RenderContext.Current._states.ContainsKey(name);
         }
-        public void AddRenderState(BaseRenderState state)
+        public void AddRenderState(string name, BaseRenderState state)
         {
             
         }
-        public void RemoveRenderState(BaseRenderState state)
+        public void RemoveRenderState(string name, BaseRenderState state)
         {
 
         }
 
         public abstract int GenObject(GenType type);
+        public abstract int[] GenObjects(GenType type, int count);
         public abstract void DeleteObject(GenType type, int bindingId);
+        public abstract void DeleteObjects(GenType type, int[] bindingIds);
 
-        private Stack<Rectangle> _renderAreaStack = new Stack<Rectangle>();
-        protected Camera _currentCamera;
-        protected Stack<Matrix4> _modelMatrix, _textureMatrix, _colorMatrix;
-        protected MtxMode _matrixMode;
-
-        public abstract void SetShaderMode(ShaderMode type);
 
         #region Shapes
         public void DrawBoxWireframe(Box box) { DrawBoxWireframe(box.Minimum, box.Maximum); }
@@ -154,8 +157,7 @@ namespace CustomEngine.Rendering
         public abstract void Color4(ColorF4 value);
         public abstract void Color3(ColorF3 value);
         public abstract void End();
-
-        public abstract void RenderMesh(Models.Mesh mesh);
+        
         public abstract void SetPointSize(float size);
         public abstract void SetLineSize(float size);
         #endregion
@@ -184,13 +186,14 @@ namespace CustomEngine.Rendering
          * 
          */
 
+        public abstract void SetShaderMode(ShaderMode type);
         /// <summary>
         /// Creates a new shader.
         /// </summary>
         /// <param name="type">The type of shader</param>
         /// <param name="source">The code for the shader</param>
         /// <returns>The shader's handle.</returns>
-        public abstract int GenerateShader(Shader shader);
+        public abstract int GenerateShader(string source);
         /// <summary>
         /// Creates a new shader program with the given shaders.
         /// </summary>
@@ -246,8 +249,6 @@ namespace CustomEngine.Rendering
         }
         protected abstract void SetRenderArea(Rectangle region);
         public abstract void CropRenderArea(Rectangle region);
-
-        public abstract RenderLibrary RenderLibrary { get; }
     }
 
     public enum MtxMode

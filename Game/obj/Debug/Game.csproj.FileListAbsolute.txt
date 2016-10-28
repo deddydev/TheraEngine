@@ -16,3 +16,6 @@ C:\Users\David\Documents\Repositories\CustomEngine\Game\obj\Debug\Game.exe.posts
 C:\Users\David\Documents\Repositories\CustomEngine\Game\obj\Debug\Game.exe
 C:\Users\David\Documents\Repositories\CustomEngine\Game\obj\Debug\Game.pdb
 C:\Users\David\Documents\Repositories\CustomEngine\Game\obj\Debug\PostSharpHost.config
+X:\Repositories\CustomEngine\Game\bin\Debug\Game.exe.config
+X:\Repositories\CustomEngine\Game\obj\Debug\Game.exe
+X:\Repositories\CustomEngine\Game\obj\Debug\Game.pdb

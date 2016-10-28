@@ -127,7 +127,6 @@
     <Compile Include="Rendering\Models\Materials\Material Functions\Parameters\FloatParameter.cs" />
     <Compile Include="Rendering\Models\Materials\MaterialInstance.cs" />
     <Compile Include="Rendering\Models\Materials\MaterialProperty.cs" />
-    <Compile Include="Rendering\Models\Materials\ShaderProgram.cs" />
     <Compile Include="Rendering\Models\Materials\Shader.cs" />
     <Compile Include="Rendering\Models\Materials\GLSL Variable Types\GLVec4.cs" />
     <Compile Include="Rendering\Models\Materials\GLSL Variable Types\GLVar.cs" />
@@ -143,6 +142,7 @@
     <Compile Include="Rendering\Models\Meshes\Faces\Line.cs" />
     <Compile Include="Rendering\Models\Meshes\Faces\TriangleFan.cs" />
     <Compile Include="Rendering\Models\Meshes\Faces\TriangleStrip.cs" />
+    <Compile Include="Rendering\Renderer\States\BaseRenderState.cs" />
     <Compile Include="Rendering\Renderer\States\PrimitiveManager.cs" />
     <Compile Include="Rendering\Models\Meshes\Primitives\VertexBuffer.cs" />
     <Compile Include="Rendering\Renderer\DirectX\DXDisplayList.cs" />

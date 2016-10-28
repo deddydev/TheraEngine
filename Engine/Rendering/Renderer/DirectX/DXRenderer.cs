@@ -195,12 +195,7 @@ namespace CustomEngine.Rendering.DirectX
                 EndDisplayList();
         }
 
-        public override void RenderMesh(Mesh mesh)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override int GenerateShader(Shader shader)
+        public override int GenerateShader(string source)
         {
             throw new NotImplementedException();
         }
@@ -266,6 +261,26 @@ namespace CustomEngine.Rendering.DirectX
         }
 
         public override void CropRenderArea(Rectangle region)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override int GenObject(GenType type)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void DeleteObject(GenType type, int bindingId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void SetShaderMode(ShaderMode type)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override int[] GenObjects(GenType type, int count)
         {
             throw new NotImplementedException();
         }

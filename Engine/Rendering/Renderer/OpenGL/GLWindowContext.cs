@@ -83,7 +83,7 @@ namespace CustomEngine.Rendering.OpenGL
             GL.Enable(EnableCap.AlphaTest);
             GL.Enable(EnableCap.CullFace);
             GL.Enable(EnableCap.ScissorTest);
-            GL.Disable(EnableCap.Lighting); //Lighting will by done by shaders
+            GL.Disable(EnableCap.Lighting);
             GL.Disable(EnableCap.PointSmooth);
             GL.Disable(EnableCap.PolygonSmooth);
             GL.Disable(EnableCap.LineSmooth);

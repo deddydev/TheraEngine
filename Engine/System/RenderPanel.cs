@@ -78,20 +78,7 @@ namespace CustomEngine
         /// Redraws all viewports in this panel.
         /// </summary>
         public void Redraw() { Invalidate(); }
-        protected override void OnResize(EventArgs e)
-        {
-            base.OnResize(e);
-            foreach (Viewport v in _viewports)
-                v.Resize(Width, Height);
-            Rectangle region = new Rectangle(0, 0, Width, Height);
-            Engine.Renderer.PopRenderArea();
-            Engine.Renderer.PushRenderArea(region);
-            Engine.Renderer.CropRenderArea(region);
-        }
-        public void SetCurrent()
-        {
-            RenderContext.Current = _context;
-        }
+        public void CaptureContext() { _context?.Capture(); }
         protected override void OnPaint(PaintEventArgs e)
         {
             if (_updateCounter > 0)
@@ -119,6 +106,16 @@ namespace CustomEngine
             foreach (Viewport v in _viewports)
                 v.Render(Engine.RenderDelta);
             _context.EndDraw();
+        }
+        protected override void OnResize(EventArgs e)
+        {
+            base.OnResize(e);
+            foreach (Viewport v in _viewports)
+                v.Resize(Width, Height);
+            Rectangle region = new Rectangle(0, 0, Width, Height);
+            Engine.Renderer.PopRenderArea();
+            Engine.Renderer.PushRenderArea(region);
+            Engine.Renderer.CropRenderArea(region);
         }
         protected override void OnPaintBackground(PaintEventArgs e) { }
         protected override void OnHandleCreated(EventArgs e)

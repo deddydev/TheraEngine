@@ -6,31 +6,39 @@ using System.Threading.Tasks;
 
 namespace CustomEngine.Rendering.Models.Materials
 {
-    public class Material
+    public class Material : BaseRenderState
     {
         private List<MaterialProperty> _properties = new List<MaterialProperty>();
         private bool _cullFront = false, _cullBack = true;
-        public int _programId = 0;
         public List<Shader> _shaders = new List<Shader>();
 
         public bool CullFront { get { return _cullFront; } set { _cullFront = true; } }
         public bool CullBack { get { return _cullBack; } set { _cullBack = true; } }
 
-        public Material() { }
-        public Material(params Shader[] shaders) { AddShaders(shaders); }
+        public Material(string name) : base(name, GenType.Program) { }
+        public Material(string name, params Shader[] shaders) : base(name, GenType.Program)
+        {
+            AddShaders(shaders);
+        }
 
         public void AddShaders(params Shader[] shaders) { _shaders.AddRange(shaders); }
-        public void Compile()
+        public void Compile() { Generate(); }
+        protected override int CreateObject()
         {
-            if (_programId > 0)
-                Engine.Renderer.DeleteProgram(_programId);
             int[] ids = _shaders.Select(x => x.Compile()).ToArray();
-            _programId = Engine.Renderer.GenerateProgram(ids);
+            return Engine.Renderer.GenerateProgram(ids);
         }
         public void Generate(ResultBasicFunc resultFunction)
         {
             _shaders.Clear();
+            if (resultFunction == null)
+                return;
+
             //TODO: determine shader types needed
+            foreach (GLVar arg in resultFunction.InputArguments)
+            {
+
+            }
             foreach (Shader s in _shaders)
                 s.Generate(resultFunction);
         }

@@ -11,13 +11,15 @@ namespace CustomEngine.Rendering.Models.Materials
         private List<MaterialProperty> _properties = new List<MaterialProperty>();
         private bool _cullFront = false, _cullBack = true;
         public List<Shader> _shaders = new List<Shader>();
+        private string _name;
 
         public bool CullFront { get { return _cullFront; } set { _cullFront = true; } }
         public bool CullBack { get { return _cullBack; } set { _cullBack = true; } }
 
-        public Material(string name) : base(name, GenType.Program) { }
-        public Material(string name, params Shader[] shaders) : base(name, GenType.Program)
+        public Material(string name) : base(GenType.Program) { _name = name; }
+        public Material(string name, params Shader[] shaders) : base(GenType.Program)
         {
+            _name = name;
             AddShaders(shaders);
         }
 

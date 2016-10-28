@@ -6,7 +6,6 @@ using System.Drawing;
 
 namespace CustomEngine.Rendering
 {
-    public delegate T StateCreateHandler<T>() where T : BaseRenderState;
     /// <summary>
     /// This class is meant to be overridden with an implementation such as OpenTK or DirectX
     /// </summary>
@@ -21,36 +20,6 @@ namespace CustomEngine.Rendering
         protected Camera _currentCamera;
         protected Stack<Matrix4> _modelMatrix, _textureMatrix, _colorMatrix;
         protected MtxMode _matrixMode;
-
-        public T FindOrCreate<T>(string name, StateCreateHandler<T> handler) where T : BaseRenderState
-        {
-            if (RenderContext.Current == null)
-                return default(T);
-
-            if (HasState(name))
-                return (T)GetState(name);
-
-            T obj = handler();
-            AddRenderState(name, obj);
-            return obj;
-        }
-
-        public BaseRenderState GetState(string name)
-        {
-            return HasState(name) ? RenderContext.Current._states[name] : null;
-        }
-        public bool HasState(string name)
-        {
-            return RenderContext.Current._states.ContainsKey(name);
-        }
-        public void AddRenderState(string name, BaseRenderState state)
-        {
-            
-        }
-        public void RemoveRenderState(string name, BaseRenderState state)
-        {
-
-        }
 
         public abstract int GenObject(GenType type);
         public abstract int[] GenObjects(GenType type, int count);

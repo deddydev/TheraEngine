@@ -34,9 +34,13 @@ namespace CustomEngine.Rendering.Models
             _points.Add(point1);
             _points.Add(point2);
 
-            point0.LinkTo(point1);
-            point1.LinkTo(point2);
-            point2.LinkTo(point0);
+            Line e01 = point0.LinkTo(point1);
+            Line e12 = point1.LinkTo(point2);
+            Line e20 = point2.LinkTo(point0);
+
+            e01.AddFace(this);
+            e12.AddFace(this);
+            e20.AddFace(this);
         }
 
         public override List<IndexTriangle> ToTriangles()

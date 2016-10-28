@@ -18,23 +18,37 @@ namespace CustomEngine.Rendering.Models
         int _vertexIndex;
         List<Line> _connectedEdges = new List<Line>();
 
-        public void LinkTo(Point otherPoint, bool noCheck = false)
+        internal void AddLine(Line edge)
         {
-            if (!noCheck)
-                foreach (Line edge in _connectedEdges)
-                    if (edge.Point1 == otherPoint)
-                        return;
-            _connectedEdges.Add(new Line(this, otherPoint));
-            if (!noCheck)
-                otherPoint.LinkTo(this, true);
+            if (!_connectedEdges.Contains(edge))
+                _connectedEdges.Add(edge);
         }
-        public void UnlinkFrom(Point otherPoint, bool noCheck = false)
+
+        internal void RemoveLine(Line edge)
         {
-            if (_connectedEdges.Contains(otherPoint))
-            {
-                _connectedEdges.Remove(otherPoint);
-                otherPoint.UnlinkFrom(this);
-            }
+            if (_connectedEdges.Contains(edge))
+                _connectedEdges.Remove(edge);
+        }
+
+        public Line LinkTo(Point otherPoint)
+        {
+            foreach (Line edge in _connectedEdges)
+                if (edge.Point0 == otherPoint || 
+                    edge.Point1 == otherPoint)
+                    return edge;
+
+            //Creating a new line automatically links the points.
+            return new Line(this, otherPoint);
+        }
+        public void UnlinkFrom(Point otherPoint)
+        {
+            for (int i = 0; i < _connectedEdges.Count; ++i)
+                if (_connectedEdges[i].Point0 == otherPoint ||
+                    _connectedEdges[i].Point1 == otherPoint)
+                {
+                    _connectedEdges[i].Unlink();
+                    return;
+                }
         }
 
         public static implicit operator Point(int i) { return new Point(i); }

@@ -100,7 +100,6 @@ namespace CustomEngine.Input.Gamepads
         private float _maxSecondsBetweenPresses = 0.1f;
         private float _timer;
         private bool _isPressed;
-        private bool _pressedStateChanged;
 
         public event Action Pressed;
         public event Action Released;

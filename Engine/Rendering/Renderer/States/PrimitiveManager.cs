@@ -12,27 +12,23 @@ namespace CustomEngine.Rendering.Models
     /// </summary>
     public class PrimitiveManager : BaseRenderState
     {
-        PrimitiveData _data;
-
         public int[] _bindingIds;
         public IntPtr[] _offsets;
         public int[] _strides;
 
-        VertexBuffer _indexBuffer;
+        private PrimitiveData _data;
+        private VertexBuffer _indexBuffer;
         private Primitive _triangles;
         
         private bool _initialized = false;
 
-        public PrimitiveManager(string name) : base(name, GenType.VertexArray) { }
+        public PrimitiveManager() : base(GenType.VertexArray) { }
 
         public void SetPrimitiveData(PrimitiveData data)
         {
             if (_data != null)
                 Destroy();
-            if ((_data = data) != null)
-            {
-                _bindingIds = _data._buffers.Select(x => x.BindingId).ToArray();
-            }
+            _data = data;
         }
 
         public void Render(int programId)
@@ -69,8 +65,7 @@ namespace CustomEngine.Rendering.Models
             
             GL.BindVertexArray(BindingId);
 
-            _data.Initialize();
-
+            _bindingIds = _data.Initialize();
             _triangles = new Primitive(
                 _data._faces.Count * 3,
                 _data._facePoints.Count,

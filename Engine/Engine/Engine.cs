@@ -194,7 +194,7 @@ namespace CustomEngine
         public static void ShutDown()
         {
             Stop();
-            var v = RenderContext.BoundContexts;
+            var v = new MonitoredList<RenderContext>(RenderContext.BoundContexts);
             foreach (RenderContext c in v)
                 c?.Dispose();
         }

@@ -284,5 +284,10 @@ namespace CustomEngine.Rendering.DirectX
         {
             throw new NotImplementedException();
         }
+
+        public override void DeleteObjects(GenType type, int[] bindingIds)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

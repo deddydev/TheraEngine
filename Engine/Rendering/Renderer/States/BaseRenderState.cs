@@ -20,15 +20,10 @@ namespace CustomEngine.Rendering
         }
 
         private GenType _type;
-        private string _name;
         private List<ContextBind> _owners = new List<ContextBind>();
         private ContextBind _currentBind = new ContextBind(null);
-
-        public BaseRenderState(string name, GenType type)
-        {
-            _name = name;
-            _type = type;
-        }
+        
+        public BaseRenderState(GenType type) { _type = type; }
         ~BaseRenderState()
         {
             foreach (ContextBind b in _owners)
@@ -42,7 +37,6 @@ namespace CustomEngine.Rendering
         public bool IsBound { get { return BindingId > 0; } }
         public int BindingId { get { return _currentBind._bindingId; } }
         public GenType Type { get { return _type; } }
-        public string Name { get { return _name; } }
 
         /// <summary>
         /// Performs all checks needed and creates this render object on the current render context if need be.

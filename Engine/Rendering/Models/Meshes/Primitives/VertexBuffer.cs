@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace CustomEngine.Rendering.Models
 {
-    public class VertexBuffer : IDisposable
+    public class VertexBuffer : BaseRenderState, IDisposable
     {
         public const string PositionsName = "Positions";
         public const string NormalsName = "Normals";
@@ -46,9 +46,8 @@ namespace CustomEngine.Rendering.Models
 
         private bool _isDirty;
         private int _index;
-        private int _bindingId;
-        private string _name;
         private BufferTarget _target;
+        private string _name;
 
         public VertexBuffer(
             int index,
@@ -57,11 +56,11 @@ namespace CustomEngine.Rendering.Models
             int elementCount,
             ComponentType componentType,
             int componentCount,
-            bool normalize)
+            bool normalize) : base(GenType.Buffer)
         {
             _index = index;
-            _name = name;
             _target = target;
+            _name = name;
 
             _componentType = componentType;
             _componentCount = componentCount;
@@ -70,15 +69,16 @@ namespace CustomEngine.Rendering.Models
 
             _data = DataSource.Allocate(DataLength);
         }
-        public VertexBuffer(int index, string name, BufferTarget target)
+        public VertexBuffer(
+            int index, 
+            string name,
+            BufferTarget target) : base(GenType.Buffer)
         {
             _index = index;
-            _name = name;
             _target = target;
+            _name = name;
         }
-
-        public int BindingId { get { return _bindingId; } set { _bindingId = value; } }
-        public string Name { get { return _name; } set { _name = value; } }
+        
         public bool HasChanged { get { return _isDirty; } set { _isDirty = value; } }
 
         public VoidPtr Data { get { return _data.Address; } }
@@ -107,16 +107,19 @@ namespace CustomEngine.Rendering.Models
             }
         }
 
-        public bool IsPositionsBuffer() { return _name == PositionsName; }
-        public bool IsNormalsBuffer() { return _name == NormalsName; }
-        public bool IsTexCoordBuffer() { return _name.StartsWith(TexCoordName); }
-        public bool IsColorBuffer() { return _name.StartsWith(ColorName); }
-        public void Initialize()
+        public string Name { get { return _name; } set { _name = value; } }
+
+        public bool IsPositionsBuffer() { return Name == PositionsName; }
+        public bool IsNormalsBuffer() { return Name == NormalsName; }
+        public bool IsTexCoordBuffer() { return Name.StartsWith(TexCoordName); }
+        public bool IsColorBuffer() { return Name.StartsWith(ColorName); }
+        public int Initialize()
         {
             Generate();
             Bind();
             BindVertexAttrib();
             PushData();
+            return BindingId;
         }
         /// <summary>
         /// Determines how the currently bound buffer should be read.
@@ -130,15 +133,7 @@ namespace CustomEngine.Rendering.Models
             GL.VertexAttribFormat(_index, _componentCount, VertexAttribType.Byte + (int)_componentType, _normalize, 0);
             GL.VertexAttribBinding(_index, _index);
         }
-        /// <summary>
-        /// Creates this buffer. Only call during initialization.
-        /// </summary>
-        public void Generate() { _bindingId = GL.GenBuffer(); }
-        private void DestroyBinding() { GL.DeleteBuffer(_bindingId); }
-        /// <summary>
-        /// Binds this buffer for modification.
-        /// </summary>
-        public void Bind() { GL.BindBuffer(_target, _bindingId); }
+        public void Bind() { GL.BindBuffer(_target, BindingId); }
         /// <summary>
         /// Pushes this buffer's data to the currently bound buffer 
         /// Call Bind() before this to set the current buffer.
@@ -232,13 +227,13 @@ namespace CustomEngine.Rendering.Models
         }
         public void Dispose()
         {
-            DestroyBinding();
-            _bindingId = 0;
-            _data.Dispose();
-            _data = null;
+            if (_data != null)
+            {
+                _data.Dispose();
+                _data = null;
+            }
         }
         ~VertexBuffer() { Dispose(); }
-
         public static implicit operator VoidPtr(VertexBuffer b) { return b.Data; }
     }
 }

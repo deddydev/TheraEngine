@@ -38,10 +38,12 @@ namespace CustomEngine.Rendering.Models
                     throw new IndexOutOfRangeException();
             }
         }
-        public void Initialize()
+        public int[] Initialize()
         {
+            List<int> bindingIds = new List<int>();
             foreach (VertexBuffer b in _buffers)
-                b?.Initialize();
+                bindingIds.Add(b != null ? b.Initialize() : 0);
+            return bindingIds.ToArray();
         }
         public int[] GetFaceIndices()
         {

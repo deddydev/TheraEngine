@@ -20,21 +20,33 @@ namespace CustomEngine.Rendering.Models
         ///|  |      / |       |/        | \          \|
         ///0--1     0--1       0         0--1          1
         /// </summary>
-        public Quad(Point point1, Point point2, Point point3, Point point4, bool forwardSlash = false)
+        public Quad(Point point0, Point point1, Point point2, Point point3, bool forwardSlash = false)
         {
+            _points.Add(point0);
             _points.Add(point1);
             _points.Add(point2);
             _points.Add(point3);
-            _points.Add(point4);
 
-            point1.LinkTo(point2);
-            point2.LinkTo(point4);
-            point4.LinkTo(point3);
-            point3.LinkTo(point1);
-            if (_forwardSlash = forwardSlash)
-                point1.LinkTo(point4);
-            else
-                point2.LinkTo(point3);
+            Line e01 = point0.LinkTo(point1);
+            Line e13 = point1.LinkTo(point3);
+            Line e32 = point3.LinkTo(point2);
+            Line e20 = point2.LinkTo(point0);
+
+            e01.AddFace(this);
+            e13.AddFace(this);
+            e32.AddFace(this);
+            e20.AddFace(this);
+
+            _forwardSlash = forwardSlash;
+
+            //if (_forwardSlash)
+            //{
+            //    Line e03 = point0.LinkTo(point3);
+            //}
+            //else
+            //{
+            //    Line e12 = point1.LinkTo(point2);
+            //}
         }
         public override List<IndexTriangle> ToTriangles()
         {

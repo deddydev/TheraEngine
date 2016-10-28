@@ -4,10 +4,13 @@ namespace CustomEngine.Rendering
 {
     public class DisplayList : BaseRenderState
     {
-        public DisplayList(string name) : base(name, GenType.DisplayList) { }
+        public DisplayList(string name) : base(GenType.DisplayList) { _name = name; }
 
         bool _hasStarted = false;
         bool _hasFinished = false;
+        string _name;
+
+        public string Name { get { return _name; } set { _name = value; } }
 
         public void Begin()
         {

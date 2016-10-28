@@ -174,6 +174,7 @@ namespace CustomEngine.Rendering.Models
                 Remapper remapper = new Remapper();
                 remapper.Remap(list, null);
                 _elementCount = remapper.ImplementationLength;
+                _data = DataSource.Allocate(DataLength);
                 int stride = Stride;
                 int elementSize = ElementSize;
                 for (int i = 0; i < remapper.ImplementationLength; ++i)
@@ -213,6 +214,7 @@ namespace CustomEngine.Rendering.Models
                 Remapper remapper = new Remapper();
                 remapper.Remap(list, null);
                 _elementCount = remapper.ImplementationLength;
+                _data = DataSource.Allocate(DataLength);
                 int stride = Stride;
                 for (int i = 0; i < remapper.ImplementationLength; ++i)
                     list[remapper.ImplementationTable[i]].Write(_data.Address[i, stride]);

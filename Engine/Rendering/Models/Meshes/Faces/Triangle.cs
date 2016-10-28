@@ -28,15 +28,15 @@ namespace CustomEngine.Rendering.Models
         ///   /   \
         ///  0-----1
         /// </summary>
-        public IndexTriangle(Point point1, Point point2, Point point3)
+        public IndexTriangle(Point point0, Point point1, Point point2)
         {
+            _points.Add(point0);
             _points.Add(point1);
             _points.Add(point2);
-            _points.Add(point3);
 
+            point0.LinkTo(point1);
             point1.LinkTo(point2);
-            point2.LinkTo(point3);
-            point3.LinkTo(point1);
+            point2.LinkTo(point0);
         }
 
         public override List<IndexTriangle> ToTriangles()

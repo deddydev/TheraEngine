@@ -20,10 +20,6 @@ namespace CustomEngine
         RectangleF Region { get; set; }
         void OnResized();
     }
-    public interface IRenderState
-    {
-
-    }
     public interface IShape : IRenderable
     {
         bool ContainsPoint(Vec3 point);

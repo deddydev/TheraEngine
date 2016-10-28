@@ -9,16 +9,17 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>AutoWrapper</RootNamespace>
     <AssemblyName>AutoWrapper</AssemblyName>
-    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
+    <OutputPath>bin\x86\Debug\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -31,6 +32,28 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x86\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <Prefer32Bit>true</Prefer32Bit>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
+    <OutputPath>bin\x86\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <Prefer32Bit>true</Prefer32Bit>
+    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -59,6 +82,7 @@
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
     </Compile>
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
@@ -72,6 +96,48 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\CppSharp\build\vs2015\projects\CppSharp.CppParser.vcxproj">
+      <Project>{6403af81-50e7-6fd7-b947-6a2aa54a5a59}</Project>
+      <Name>CppSharp.CppParser</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\CppSharp\build\vs2015\projects\CppSharp.Parser.CLI.vcxproj">
+      <Project>{c75eb680-33c0-938e-bc2d-da40288eca4d}</Project>
+      <Name>CppSharp.Parser.CLI</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\CppSharp\src\AST\CppSharp.AST.csproj">
+      <Project>{bc4c5c41-a8af-ebe5-5135-249c3d77b768}</Project>
+      <Name>CppSharp.AST</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\CppSharp\src\Core\CppSharp.csproj">
+      <Project>{c600c309-b2cd-1d15-dbe6-0bbdc71253a3}</Project>
+      <Name>CppSharp</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\CppSharp\src\CppParser\Bindings\CSharp\CppSharp.Parser.CSharp.csproj">
+      <Project>{70148081-5c0e-a9d3-457b-3fe431140f40}</Project>
+      <Name>CppSharp.Parser.CSharp</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\CppSharp\src\CppParser\ParserGen\CppSharp.Parser.Gen.csproj">
+      <Project>{2973b680-95d4-938e-1e42-da408aa2ca4d}</Project>
+      <Name>CppSharp.Parser.Gen</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\CppSharp\src\Generator.Tests\CppSharp.Generator.Tests.csproj">
+      <Project>{7cabf2e6-68d0-4167-911b-27f77d9f4085}</Project>
+      <Name>CppSharp.Generator.Tests</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\CppSharp\src\Generator\CppSharp.Generator.csproj">
+      <Project>{1bd1fec4-07b5-bf1a-7015-ba6d5c18aa9c}</Project>
+      <Name>CppSharp.Generator</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\CppSharp\src\Parser\CppSharp.Parser.csproj">
+      <Project>{c105fd61-2d91-6a26-36a2-ed1aa2acc626}</Project>
+      <Name>CppSharp.Parser</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\CppSharp\src\Runtime\CppSharp.Runtime.csproj">
+      <Project>{189ff169-0498-10bc-2dca-f5401922f0c7}</Project>
+      <Name>CppSharp.Runtime</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

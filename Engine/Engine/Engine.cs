@@ -111,7 +111,7 @@ namespace CustomEngine
         {
             get
             {
-                RenderWindowContext ctx = RenderWindowContext.CurrentContext;
+                RenderContext ctx = RenderContext.Current;
                 if (ctx != null)
                     return ctx.Control;
                 return null;
@@ -194,8 +194,9 @@ namespace CustomEngine
         public static void ShutDown()
         {
             Stop();
-            //foreach (RenderWindowContext c in RenderWindowContext.BoundContexts)
-            //    c?.Dispose();
+            var v = RenderContext.BoundContexts;
+            foreach (RenderContext c in v)
+                c?.Dispose();
         }
         public static EngineSettings LoadSettings()
         {

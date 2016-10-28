@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.IO;
+using CppSharp;
 
 namespace AutoWrapper
 {
@@ -36,14 +37,15 @@ namespace AutoWrapper
             //}
 
             root._name = null;
+            ConsoleDriver.Run(new TestLibrary(root, rootPath));
 
-            //fbd.Description = "Select the output CLR directory";
-            //if (fbd.ShowDialog() == DialogResult.OK)
-                WriteFolders(root, rootPath,
-                    Environment.MachineName == "DAVID-DESKTOP" ?
-                    "X:\\Desktop\\New Folder (2)" :
-                    "C:\\Users\\David\\Desktop\\New Folder" 
-                    /*fbd.SelectedPath*/);
+            ////fbd.Description = "Select the output CLR directory";
+            ////if (fbd.ShowDialog() == DialogResult.OK)
+            //    WriteFolders(root, rootPath,
+            //        Environment.MachineName == "DAVID-DESKTOP" ?
+            //        "X:\\Desktop\\New Folder (2)" :
+            //        "C:\\Users\\David\\Desktop\\New Folder" 
+            //        /*fbd.SelectedPath*/);
         }
 
         private static Folder GetFolders(Folder parent, string path)
@@ -56,7 +58,7 @@ namespace AutoWrapper
 
             foreach (string p in Directory.EnumerateFiles(path))
                 if (Path.GetExtension(p).ToLower().Equals(".h"))
-                    f._headerNames.Add(Path.GetFileNameWithoutExtension(p));
+                    f._headerNames.Add(Path.GetFileName(p));
 
             foreach (string dir in Directory.EnumerateDirectories(path))
                 f._childFolders.Add(GetFolders(f, dir));
@@ -76,6 +78,56 @@ namespace AutoWrapper
 
             foreach (Folder f in folder._childFolders)
                 WriteFolders(f, inputRootDir, outputRootDir);
+        }
+    }
+
+    public class TestLibrary : ILibrary
+    {
+        Folder _root;
+        string _rootPath;
+        public TestLibrary(Folder root, string rootPath)
+        {
+            _root = root;
+            _rootPath = rootPath;
+        }
+
+        public void Postprocess(Driver driver, CppSharp.AST.ASTContext ctx)
+        {
+
+        }
+
+        public void Preprocess(Driver driver, CppSharp.AST.ASTContext ctx)
+        {
+
+        }
+
+        public void Setup(Driver driver)
+        {
+            DriverOptions options = driver.Options;
+            options.OutputDir =
+                Environment.MachineName == "DAVID-DESKTOP" ?
+                    "X:\\Desktop\\New Folder (2)" :
+                    "C:\\Users\\David\\Desktop\\New Folder";
+            options.GeneratorKind = CppSharp.Generators.GeneratorKind.CSharp;
+            options.LibraryName = "libfbxsdk";
+            //options.Libraries.Add("libfbxsdk.lib");
+            options.UseHeaderDirectories = true;
+            AddFolder(options, _root, _rootPath);
+            driver.ParserOptions.NoBuiltinIncludes = false;
+            driver.ParserOptions.Verbose = true;
+        }
+
+        private void AddFolder(DriverOptions o, Folder f, string rootPath)
+        {
+            string path = f.GetFullDirectoryPath(rootPath);
+            o.Headers.AddRange(f._headerNames.Select(x => path + "\\" + x));
+            foreach (Folder c in f._childFolders)
+                AddFolder(o, c, rootPath);
+        }
+
+        public void SetupPasses(Driver driver)
+        {
+
         }
     }
 

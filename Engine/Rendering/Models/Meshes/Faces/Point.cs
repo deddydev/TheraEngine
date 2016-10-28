@@ -13,24 +13,26 @@ namespace CustomEngine.Rendering.Models
         }
 
         public int VertexIndex { get { return _vertexIndex; } }
-        public ReadOnlyCollection<Point> ConnectedPoints { get { return _connectedPoints.AsReadOnly(); } }
-
+        public ReadOnlyCollection<Line> ConnectedEdges { get { return _connectedEdges.AsReadOnly(); } }
+        
         int _vertexIndex;
-        List<Point> _connectedPoints = new List<Point>();
+        List<Line> _connectedEdges = new List<Line>();
 
-        public void LinkTo(Point otherPoint)
+        public void LinkTo(Point otherPoint, bool noCheck = false)
         {
-            if (!_connectedPoints.Contains(otherPoint))
-            {
-                _connectedPoints.Add(otherPoint);
-                otherPoint.LinkTo(this);
-            }
+            if (!noCheck)
+                foreach (Line edge in _connectedEdges)
+                    if (edge.Point1 == otherPoint)
+                        return;
+            _connectedEdges.Add(new Line(this, otherPoint));
+            if (!noCheck)
+                otherPoint.LinkTo(this, true);
         }
-        public void UnlinkFrom(Point otherPoint)
+        public void UnlinkFrom(Point otherPoint, bool noCheck = false)
         {
-            if (_connectedPoints.Contains(otherPoint))
+            if (_connectedEdges.Contains(otherPoint))
             {
-                _connectedPoints.Remove(otherPoint);
+                _connectedEdges.Remove(otherPoint);
                 otherPoint.UnlinkFrom(this);
             }
         }

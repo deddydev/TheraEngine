@@ -6,7 +6,7 @@ using System.Drawing;
 
 namespace CustomEngine.Rendering
 {
-    public delegate T GLCreateHandler<T>() where T : IRenderState;
+    public delegate T StateCreateHandler<T>() where T : BaseRenderState;
     /// <summary>
     /// This class is meant to be overridden with an implementation such as OpenTK or DirectX
     /// </summary>
@@ -15,22 +15,45 @@ namespace CustomEngine.Rendering
         protected int _programHandle;
         private static List<DisplayList> _displayLists = new List<DisplayList>();
 
-        public static T FindOrCreate<T>(string name, GLCreateHandler<T> handler) where T : IRenderState
+        public T FindOrCreate<T>(string name, StateCreateHandler<T> handler) where T : BaseRenderState
         {
-            if (RenderWindowContext.CurrentContext == null)
+            if (RenderContext.Current == null)
                 return default(T);
 
-            if (RenderWindowContext.CurrentContext._states.ContainsKey(name))
-                return (T)RenderWindowContext.CurrentContext._states[name];
+            if (HasState(name))
+                return (T)GetState(name);
+
             T obj = handler();
-            RenderWindowContext.CurrentContext._states[name] = obj;
+            AddRenderState(obj);
             return obj;
         }
+
+        public BaseRenderState GetState(string name)
+        {
+            return HasState(name) ? RenderContext.Current._states[name] : null;
+        }
+        public bool HasState(string name)
+        {
+            return RenderContext.Current._states.ContainsKey(name);
+        }
+        public void AddRenderState(BaseRenderState state)
+        {
+            
+        }
+        public void RemoveRenderState(BaseRenderState state)
+        {
+
+        }
+
+        public abstract int GenObject(GenType type);
+        public abstract void DeleteObject(GenType type, int bindingId);
 
         private Stack<Rectangle> _renderAreaStack = new Stack<Rectangle>();
         protected Camera _currentCamera;
         protected Stack<Matrix4> _modelMatrix, _textureMatrix, _colorMatrix;
         protected MtxMode _matrixMode;
+
+        public abstract void SetShaderMode(ShaderMode type);
 
         #region Shapes
         public void DrawBoxWireframe(Box box) { DrawBoxWireframe(box.Minimum, box.Maximum); }

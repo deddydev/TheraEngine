@@ -6,7 +6,7 @@ using System;
 
 namespace CustomEngine.Rendering.OpenGL
 {
-    public class GLWindowContext : RenderWindowContext
+    public class GLWindowContext : RenderContext
     {
         private IGraphicsContext _context;
         private IWindowInfo _winInfo = null;

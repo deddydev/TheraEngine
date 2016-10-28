@@ -41,7 +41,7 @@ namespace CustomEngine
         }
 
         private RenderLibrary _currentRenderer;
-        private RenderWindowContext _context;
+        private RenderContext _context;
         protected int _updateCounter;
 
         public HudManager _overallHud;
@@ -90,7 +90,7 @@ namespace CustomEngine
         }
         public void SetCurrent()
         {
-            RenderWindowContext.CurrentContext = _context;
+            RenderContext.Current = _context;
         }
         protected override void OnPaint(PaintEventArgs e)
         {

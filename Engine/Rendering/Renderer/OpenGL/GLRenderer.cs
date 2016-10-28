@@ -1,10 +1,8 @@
 ﻿using System;
-using CustomEngine.Rendering.Models;
 using OpenTK.Graphics.OpenGL;
-using CustomEngine.Rendering.Models.Materials;
 using System.Linq;
 using System.Drawing;
-using System.Collections.Generic;
+using CustomEngine.Rendering.Models.Materials;
 
 namespace CustomEngine.Rendering.OpenGL
 {
@@ -222,30 +220,6 @@ namespace CustomEngine.Rendering.OpenGL
         #region Shaders
         public override int GenerateShader(Shader shader)
         {
-            OpenTK.Graphics.OpenGL.ShaderType sType;
-            switch (shader._type)
-            {
-                case Models.Materials.ShaderType.Fragment:
-                    sType = OpenTK.Graphics.OpenGL.ShaderType.FragmentShader;
-                    break;
-                case Models.Materials.ShaderType.Vertex:
-                    sType = OpenTK.Graphics.OpenGL.ShaderType.VertexShader;
-                    break;
-                case Models.Materials.ShaderType.Geometry:
-                    sType = OpenTK.Graphics.OpenGL.ShaderType.GeometryShader;
-                    break;
-                case Models.Materials.ShaderType.TessControl:
-                    sType = OpenTK.Graphics.OpenGL.ShaderType.TessControlShader;
-                    break;
-                case Models.Materials.ShaderType.TessEvaluation:
-                    sType = OpenTK.Graphics.OpenGL.ShaderType.TessEvaluationShader;
-                    break;
-                case Models.Materials.ShaderType.Compute:
-                    sType = OpenTK.Graphics.OpenGL.ShaderType.ComputeShader;
-                    break;
-                default:
-                    return -1;
-            }
             int handle = GL.CreateShader(sType);
             GL.ShaderSource(handle, shader._source);
             GL.CompileShader(handle);
@@ -430,6 +404,92 @@ namespace CustomEngine.Rendering.OpenGL
         public override void CropRenderArea(Rectangle region)
         {
             GL.Scissor(region.X, region.Y, region.Width, region.Height);
+        }
+        private ShaderType _currentShaderMode;
+        public override void SetShaderMode(ShaderMode type)
+        {
+            switch (type)
+            {
+                case ShaderMode.Fragment:
+                    _currentShaderMode = ShaderType.FragmentShader;
+                    break;
+                case ShaderMode.Vertex:
+                    _currentShaderMode = ShaderType.VertexShader;
+                    break;
+                case ShaderMode.Geometry:
+                    _currentShaderMode = ShaderType.GeometryShader;
+                    break;
+                case ShaderMode.TessControl:
+                    _currentShaderMode = ShaderType.TessControlShader;
+                    break;
+                case ShaderMode.TessEvaluation:
+                    _currentShaderMode = ShaderType.TessEvaluationShader;
+                    break;
+                case ShaderMode.Compute:
+                    _currentShaderMode = ShaderType.ComputeShader;
+                    break;
+            }
+        }
+        public override void DeleteObject(GenType type, int bindingId)
+        {
+            switch (type)
+            {
+                case GenType.Buffer:
+                    GL.DeleteBuffer(bindingId);
+                    break;
+                case GenType.DisplayList:
+                    GL.DeleteLists(bindingId, 1);
+                    break;
+                case GenType.Framebuffer:
+                    GL.DeleteFramebuffer(bindingId);
+                    break;
+                case GenType.Program:
+                    GL.DeleteProgram(bindingId);
+                    break;
+                case GenType.ProgramPipeline:
+                    GL.DeleteProgramPipeline(bindingId);
+                    break;
+                case GenType.Query:
+                    GL.DeleteQuery(bindingId);
+                    break;
+                case GenType.Renderbuffer:
+                    GL.DeleteRenderbuffer(bindingId);
+                    break;
+                case GenType.Sampler:
+                    GL.DeleteSampler(bindingId);
+                    break;
+                case GenType.Texture:
+                    GL.DeleteTexture(bindingId);
+                    break;
+                case GenType.TransformFeedback:
+                    GL.DeleteTransformFeedback(bindingId);
+                    break;
+                case GenType.VertexArray:
+                    GL.DeleteVertexArray(bindingId);
+                    break;
+                case GenType.Shader:
+                    GL.DeleteShader(bindingId);
+                    break;
+            }
+        }
+        public override int GenObject(GenType type)
+        {
+            switch (type)
+            {
+                case GenType.Buffer: return GL.GenBuffer();
+                case GenType.DisplayList: return GL.GenLists(1);
+                case GenType.Framebuffer: return GL.GenFramebuffer();
+                case GenType.Program: return GL.CreateProgram();
+                case GenType.ProgramPipeline: return GL.GenProgramPipeline();
+                case GenType.Query: return GL.GenQuery();
+                case GenType.Renderbuffer: return GL.GenRenderbuffer();
+                case GenType.Sampler: return GL.GenSampler();
+                case GenType.Texture: return GL.GenTexture();
+                case GenType.TransformFeedback: return GL.GenTransformFeedback();
+                case GenType.VertexArray: return GL.GenVertexArray();
+                case GenType.Shader: return GL.CreateShader();
+            }
+            return 0;
         }
     }
 }

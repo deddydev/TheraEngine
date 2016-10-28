@@ -6,7 +6,7 @@ using SlimDX;
 
 namespace CustomEngine.Rendering.DirectX
 {
-    public class DXWindowContext : RenderWindowContext
+    public class DXWindowContext : RenderContext
     {
         private static SlimDX.Direct3D11.Device _device;
         private static SwapChain _swapChain;

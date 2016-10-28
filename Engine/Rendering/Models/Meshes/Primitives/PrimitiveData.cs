@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using OpenTK.Graphics;
+using OpenTK.Graphics.OpenGL;
 
 namespace CustomEngine.Rendering.Models
 {
@@ -118,24 +120,24 @@ namespace CustomEngine.Rendering.Models
                         return b;
             return null;
         }
-        private void AddBuffer<T>(List<T> bufferData, string name) where T : IBufferable
+        private void AddBuffer<T>(List<T> bufferData, string name, BufferTarget target = BufferTarget.ArrayBuffer) where T : IBufferable
         {
             if (_buffers == null)
                 _buffers = new List<VertexBuffer>();
 
             int bufferIndex = _buffers.Count;
-            VertexBuffer buffer = new VertexBuffer(bufferIndex, name);
+            VertexBuffer buffer = new VertexBuffer(bufferIndex, name, target);
             Remapper posRemap = buffer.SetData(bufferData);
             for (int i = 0; i < bufferData.Count; ++i)
                 _facePoints[i].Indices.Add(posRemap.ImplementationTable[posRemap.RemapTable[i]]);
             _buffers.Add(buffer);
         }
-        private void ReplaceBuffer<T>(List<T> bufferData, int bufferIndex, string name) where T : IBufferable
+        private void ReplaceBuffer<T>(List<T> bufferData, int bufferIndex, string name, BufferTarget target = BufferTarget.ArrayBuffer) where T : IBufferable
         {
             if (_buffers == null || bufferIndex < 0 || bufferIndex >= _buffers.Count)
                 throw new IndexOutOfRangeException();
 
-            VertexBuffer buffer = new VertexBuffer(bufferIndex, name);
+            VertexBuffer buffer = new VertexBuffer(bufferIndex, name, target);
             Remapper posRemap = buffer.SetData(bufferData);
             for (int i = 0; i < bufferData.Count; ++i)
                 _facePoints[i].Indices[bufferIndex] = posRemap.ImplementationTable[posRemap.RemapTable[i]];

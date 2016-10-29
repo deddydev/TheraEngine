@@ -7,16 +7,19 @@ namespace CustomEngine.Worlds.Actors.Components
     {
         private Camera _camera;
 
+        public CameraComponent(bool orthographic)
+        {
+            _camera = orthographic ? (Camera)new OrthographicCamera() : new PerspectiveCamera();
+        }
+
         public void SetCurrent()
         {
             Pawn pawn = Owner as Pawn;
             if (pawn != null)
             {
-                PlayerController controller = pawn.Controller as PlayerController;
+                LocalPlayerController controller = pawn.Controller as LocalPlayerController;
                 if (controller != null)
-                {
                     controller.CurrentCamera = _camera;
-                }
             }
         }
 

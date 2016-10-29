@@ -36,8 +36,8 @@ namespace System
 
         protected string _name;
         protected bool _changed;
-        protected TickGroup? _tickGroup = null;
-        protected TickOrder? _tickOrder = null;
+        private TickGroup? _tickGroup = null;
+        private TickOrder? _tickOrder = null;
 
         [Browsable(false)]
         public virtual ResourceType ResourceType { get { return ResourceType.Object; } }
@@ -55,22 +55,18 @@ namespace System
             set { _name = value; }
 #endif
         }
-
-#if EDITOR
-        [Category("Tick"), PreChanged("UnregisterTick"), PostChanged("RegisterTick")]
-#endif
+        
+        //[Category("Tick"), PreChanged("UnregisterTick"), PostChanged("RegisterTick")]
         public TickGroup? TickGroup
         {
             get { return _tickGroup; }
-#if EDITOR
-            set { _tickGroup = value; }
-#endif
+            internal set { _tickGroup = value; }
         }
-        [Category("Tick"), PreChanged("UnregisterTick"), PostChanged("RegisterTick")]
+        //[Category("Tick"), PreChanged("UnregisterTick"), PostChanged("RegisterTick")]
         public TickOrder? TickOrder
         {
             get { return _tickOrder; }
-            set { _tickOrder = value; }
+            internal set { _tickOrder = value; }
         }
 
 #if EDITOR
@@ -97,7 +93,10 @@ namespace System
         /// <summary>
         /// Specifies that this object wants tick calls.
         /// </summary>
-        public void RegisterTick() { Engine.RegisterTick(this); }
+        public void RegisterTick(TickGroup group, TickOrder order)
+        {
+            Engine.RegisterTick(this, group, order);
+        }
         /// <summary>
         /// Specifies that this object will not have any tick calls.
         /// </summary>
@@ -136,12 +135,10 @@ namespace System
             anim.AnimationEnded += Anim_AnimationEnded;
             _animations.Add(anim);
         }
-
         private void Anim_AnimationEnded(object sender, EventArgs e)
         {
             RemoveAnimation(sender as AnimationContainer);
         }
-
         public void RemoveAnimation(AnimationContainer anim)
         {
             _animations.Remove(anim);
@@ -185,6 +182,12 @@ namespace System
                     MethodInfo method = GetType().GetMethod(post._methodName).MakeGenericMethod(info.PropertyType);
                     if (method != null)
                         method.Invoke(this, new object[] { args.Value });
+                    else
+                    {
+                        method = GetType().GetMethod(post._methodName).MakeGenericMethod(info.PropertyType);
+                        if (method != null)
+                            method.Invoke(this, new object[] { args.Value });
+                    }
                 }
 
                 ((ObjectBase)args.Instance).OnPropertyChanged(args.Location.PropertyInfo, currentValue);

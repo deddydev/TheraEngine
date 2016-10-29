@@ -10,11 +10,11 @@ namespace CustomEngine.Worlds.Actors
 
         public PawnController Controller { get { return _controller; } }
 
-        public void OnPossessed(PawnController c)
+        public virtual void OnPossessed(PawnController c)
         {
             _controller = c;
         }
-        public void OnUnPossessed()
+        public virtual void OnUnPossessed()
         {
             _controller = null;
         }
@@ -26,7 +26,10 @@ namespace CustomEngine.Worlds.Actors
 
         internal override void Tick(float delta)
         {
-            Box bounds = Engine.World._settings.OriginRebaseBounds;
+            if (Engine.World == null)
+                return;
+
+            Box bounds = Engine.World.Settings.OriginRebaseBounds;
             if (!bounds.ContainsPoint(RootComponent.Transform.Translation))
                 Engine.World.RebaseOrigin(RootComponent.Transform.Translation);
         }

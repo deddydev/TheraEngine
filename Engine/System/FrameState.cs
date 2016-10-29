@@ -2,31 +2,36 @@
 
 namespace CustomEngine.Rendering.Models
 {
-    public delegate void TranslateChanged(Vec3 oldTranslation);
-    public delegate void RotateChanged(Quaternion oldRotate);
-    public delegate void ScaleChanged(Vec3 oldScale);
+    public delegate void TranslateChange(Vec3 oldTranslation);
+    public delegate void RotateChange(Quaternion oldRotation);
+    public delegate void ScaleChange(Vec3 oldScale);
     public class FrameState : ObjectBase
     {
         public static readonly FrameState Identity = new FrameState(new Vec3(), Quaternion.Identity, new Vec3(1.0f));
-        public FrameState(Vec3 translate, Quaternion rotate, Vec3 scale)
+        public FrameState(
+            Vec3 translate, 
+            Quaternion rotate, 
+            Vec3 scale, 
+            Matrix4.MultiplyOrder order = Matrix4.MultiplyOrder.SRT)
         {
             _translation = translate;
             _rotation = rotate;
             _scale = scale;
             _transform = Matrix4.Identity;
             _inverseTransform = Matrix4.Identity;
+            _order = order;
         }
 
         private Vec3 _translation;
         private Quaternion _rotation;
-        private Vec3 _eulerRotation;
         private Vec3 _scale;
         private Matrix4 _transform;
         private Matrix4 _inverseTransform;
+        private Matrix4.MultiplyOrder _order;
 
-        public event TranslateChanged OnTranslateChanged;
-        public event RotateChanged OnRotateChanged;
-        public event ScaleChanged OnScaleChanged;
+        public event TranslateChange OnTranslateChanged;
+        public event RotateChange OnRotateChanged;
+        public event ScaleChange OnScaleChanged;
 
         public Matrix4 Transform { get { return _transform; } }
         public Matrix4 InverseTransform { get { return _inverseTransform; } }
@@ -45,22 +50,24 @@ namespace CustomEngine.Rendering.Models
             get { return _scale; }
             set { SetScale(value); }
         }
+        /// <summary>
+        /// Pitch, yaw, roll
+        /// </summary>
         public Vec3 EulerRotation
         {
-            get { return _eulerRotation; }
+            get { return _rotation.ToEuler(); }
             set { SetRotate(value); }
         }
-        public void ApplyRelativeTranslation(Vec3 translation)
+        public void ApplyForwardTranslation(Vec3 translation)
         {
-            _transform.Translate(translation);
+            _transform.TranslateRelative(translation);
             SetTranslate(_transform.ExtractTranslation());
         }
-        public void SetRelativeTranslation(Vec3 translation)
+        public void SetForwardTranslation(Vec3 translation)
         {
             _transform.ClearTranslation();
-            ApplyRelativeTranslation(translation);
+            ApplyForwardTranslation(translation);
         }
-
         private void SetTranslate(Vec3 value)
         {
             Vec3 oldTranslation = _translation;
@@ -78,7 +85,6 @@ namespace CustomEngine.Rendering.Models
         private void SetRotate(Vec3 value)
         {
             Quaternion oldRotation = _rotation;
-            _eulerRotation = value;
             _rotation = Quaternion.FromEulerAngles(value);
             CreateTransform();
             OnRotateChanged?.Invoke(oldRotation);
@@ -116,8 +122,8 @@ namespace CustomEngine.Rendering.Models
         }
         public void CreateTransform()
         {
-            _transform = Matrix4.TransformMatrix(_scale, _rotation, _translation);
-            _inverseTransform = Matrix4.InverseTransformMatrix(_scale, _rotation, _translation);
+            _transform = Matrix4.TransformMatrix(_scale, _rotation, _translation, _order);
+            _inverseTransform = Matrix4.InverseTransformMatrix(_scale, _rotation, _translation, _order);
         }
         public void MultMatrix() { Engine.Renderer.MultMatrix(_transform); }
         public void MultInvMatrix() { Engine.Renderer.MultMatrix(_inverseTransform); }

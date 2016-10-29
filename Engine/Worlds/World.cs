@@ -12,6 +12,12 @@ namespace CustomEngine.Worlds
         private DiscreteDynamicsWorld _bulletScene;
         public WorldSettings _settings;
 
+        public WorldSettings Settings
+        {
+            get { return _settings; }
+            set { _settings = value; }
+        }
+
         public World(string filePath)
         {
             _settings = WorldSettings.FromXML(filePath);
@@ -22,7 +28,6 @@ namespace CustomEngine.Worlds
             _settings = settings;
             CreatePhysicsScene();
         }
-
         private void CreatePhysicsScene()
         {
             BroadphaseInterface broadphase = new DbvtBroadphase();

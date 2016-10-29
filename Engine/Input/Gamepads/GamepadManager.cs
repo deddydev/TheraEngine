@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace CustomEngine.Input.Gamepads
 {
@@ -30,8 +31,43 @@ namespace CustomEngine.Input.Gamepads
         RightThumbstickY,
     }
     public delegate void ConnectedStateChange(bool nowConnected);
+    public abstract class GamepadAwaiter : ObjectBase, IDisposable
+    {
+        protected static List<GamepadAwaiter> CurrentAwaiters = new List<GamepadAwaiter>();
+
+        public event Action<int> FoundController;
+
+        public GamepadAwaiter(Action<int> uponFound)
+        {
+            FoundController += uponFound;
+            RegisterTick(System.TickGroup.PrePhysics, System.TickOrder.Input);
+        }
+        ~GamepadAwaiter() { Dispose(); }
+
+        public void Dispose()
+        {
+            CurrentAwaiters.Remove(this);
+            UnregisterTick();
+        }
+
+        internal override void Tick(float delta)
+        {
+            List<int> connected = GetConnected();
+            List<int> alreadyBound = GamepadManager.CurrentGamepads.Select(x => x.ControllerIndex).ToList();
+            foreach (int i in connected)
+                if (!alreadyBound.Contains(i))
+                {
+                    FoundController?.Invoke(i);
+                    Dispose();
+                }
+        }
+
+        protected abstract List<int> GetConnected();
+    }
     public abstract class GamepadManager : ObjectBase
     {
+        public static List<GamepadManager> CurrentGamepads = new List<GamepadManager>();
+
         protected bool _isConnected;
         protected int _controllerIndex;
         protected ButtonState[] _buttonStates = new ButtonState[14];
@@ -40,6 +76,7 @@ namespace CustomEngine.Input.Gamepads
 
         public ConnectedStateChange ConnectionStateChanged;
 
+        public int ControllerIndex { get { return _controllerIndex; } }
         public bool IsConnected { get { return _isConnected; } }
 
         public ButtonState DPadUp { get { return _buttonStates[(int)GamePadButton.DPadUp]; } }
@@ -70,11 +107,11 @@ namespace CustomEngine.Input.Gamepads
         public GamepadManager(int controllerIndex)
         {
             _controllerIndex = controllerIndex;
-            _tickGroup = System.TickGroup.PrePhysics;
-            _tickOrder = System.TickOrder.Input;
             CreateStates();
-            RegisterTick();
+            RegisterTick(System.TickGroup.PrePhysics, System.TickOrder.Input);
+            CurrentGamepads.Add(this);
         }
+        ~GamepadManager() { CurrentGamepads.Remove(this); }
         protected void SetButton(GamePadButton b, bool exists)
         {
             _buttonStates[(int)b] = exists ? new ButtonState(b) : null;

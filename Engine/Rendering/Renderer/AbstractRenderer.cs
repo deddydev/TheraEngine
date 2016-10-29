@@ -14,10 +14,13 @@ namespace CustomEngine.Rendering
         public abstract RenderLibrary RenderLibrary { get; }
         public RenderContext CurrentContext { get { return RenderContext.Current; } }
 
+        public Viewport CurrentlyRenderingViewport { get { return Viewport.CurrentlyRendering; } }
+        public Camera CurrentCamera { get { return _currentCamera; } internal set { _currentCamera = value; } }
+
+        protected Camera _currentCamera;
         protected int _programHandle;
         private static List<DisplayList> _displayLists = new List<DisplayList>();
         private Stack<Rectangle> _renderAreaStack = new Stack<Rectangle>();
-        protected Camera _currentCamera;
         protected Stack<Matrix4> _modelMatrix, _textureMatrix, _colorMatrix;
         protected MtxMode _matrixMode;
 
@@ -66,32 +69,40 @@ namespace CustomEngine.Rendering
         }
         public void PushMatrix()
         {
-            if (CurrentMatrixStack == null)
+            var stack = CurrentMatrixStack;
+            if (stack == null)
                 return;
-            if (CurrentMatrixStack.Count > 0)
+            if (stack.Count > 0)
             {
-                Matrix4 current = CurrentMatrixStack.Peek();
-                CurrentMatrixStack.Push(current);
+                Matrix4 current = stack.Peek();
+                stack.Push(current);
             }
             else
-                CurrentMatrixStack.Push(Matrix4.Identity);
+                stack.Push(Matrix4.Identity);
         }
         public void PopMatrix()
         {
-            if (CurrentMatrixStack != null && CurrentMatrixStack.Count > 0)
-                CurrentMatrixStack.Pop();
+            var stack = CurrentMatrixStack;
+            if (stack != null && stack.Count > 0)
+                stack.Pop();
         }
         public void MultMatrix(Matrix4 matrix)
         {
-            if (CurrentMatrixStack == null)
+            var stack = CurrentMatrixStack;
+            if (stack == null)
                 return;
-            if (CurrentMatrixStack.Count > 0)
+            if (stack.Count > 0)
             {
-                Matrix4 current = CurrentMatrixStack.Pop();
-                CurrentMatrixStack.Push(current * matrix);
+                Matrix4 current = stack.Pop();
+                stack.Push(matrix * current);
             }
             else
-                CurrentMatrixStack.Push(matrix);
+                stack.Push(matrix);
+        }
+        public Matrix4 GetCurrentMatrix()
+        {
+            var stack = CurrentMatrixStack;
+            return stack.Count > 0 ? stack.Peek() : Matrix4.Identity;
         }
         public void MatrixMode(MtxMode mode)
         {
@@ -100,11 +111,12 @@ namespace CustomEngine.Rendering
         public void SetIdentity() { SetMatrix(Matrix4.Identity); }
         public void SetMatrix(Matrix4 matrix)
         {
-            if (CurrentMatrixStack == null)
+            var stack = CurrentMatrixStack;
+            if (stack == null)
                 return;
-            if (CurrentMatrixStack.Count > 0)
-                CurrentMatrixStack.Pop();
-            CurrentMatrixStack.Push(matrix);
+            if (stack.Count > 0)
+                stack.Pop();
+            stack.Push(matrix);
         }
         #endregion
         
@@ -192,15 +204,6 @@ namespace CustomEngine.Rendering
 
         public abstract void Clear(BufferClear mask);
         public abstract float GetDepth(float x, float y);
-
-        /// <summary>
-        /// Set the current render camera.
-        /// This camera's projection and view matrix will be passed to shaders.
-        /// </summary>
-        public void SetRenderCamera(Camera camera)
-        {
-            _currentCamera = camera;
-        }
 
         public virtual void PushRenderArea(Rectangle region)
         {

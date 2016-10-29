@@ -11,15 +11,26 @@ using CustomEngine.Audio;
 using CustomEngine.Worlds.Maps;
 using CustomEngine.Worlds.Actors.Components;
 using CustomEngine.Rendering.Models;
+using System.Windows.Forms;
 
 namespace CustomEngine
 {
     public static class Engine
     {
-        public const string SettingsPath = "/Config/EngineSettings.xml";
+        public const string EngineSettingsPath = "\\Config\\EngineSettings.xml";
+        public const string UserSettingsPath = "\\Config\\UserSettings.xml";
 
         public static int PhysicsSubsteps = 10;
         private static ComputerInfo _computerInfo;
+        public static List<World> LoadedWorlds = new List<World>();
+        public static List<GameTimer> ActiveTimers = new List<GameTimer>();
+        public static List<LocalPlayerController> ActivePlayers = new List<LocalPlayerController>();
+        public static List<AIController> ActiveAI = new List<AIController>();
+        private static World _transitionWorld = null;
+        private static World _currentWorld = null;
+        private static GlobalTimer _timer = new GlobalTimer();
+        private static AbstractRenderer _renderer;
+        private static AbstractAudioManager _audioManager;
 
         public static Dictionary<TickGroup, Dictionary<TickOrder, List<ObjectBase>>> _tick = 
             new Dictionary<TickGroup, Dictionary<TickOrder, List<ObjectBase>>>();
@@ -47,20 +58,38 @@ namespace CustomEngine
             get { return _renderer; }
             internal set { _renderer = value; }
         }
-        public static AbstractAudioManager AudioManager { get { return _audioManager; } set { _audioManager = value; } }
+        public static AbstractAudioManager AudioManager
+        {
+            get { return _audioManager; }
+            internal set { _audioManager = value; }
+        }
 
         public static float RenderDelta { get { return (float)_timer.RenderTime; } }
         public static float UpdateDelta { get { return (float)_timer.UpdateTime; } }
 
+        /// <summary>
+        /// Frames per second that the game will try to render at.
+        /// </summary>
         public static double TargetRenderFreq
         {
             get { return _timer.TargetRenderFrequency; }
             set { _timer.TargetRenderFrequency = value; }
         }
+        /// <summary>
+        /// Frames per second that the game will try to update at.
+        /// </summary>
         public static double TargetUpdateFreq
         {
             get { return _timer.TargetUpdateFrequency; }
             set { _timer.TargetUpdateFrequency = value; }
+        }
+        /// <summary>
+        /// How fast/slow the game time looks
+        /// </summary>
+        public static double TimeDilation
+        {
+            get { return _timer.TimeDilation; }
+            set { _timer.TimeDilation = value; }
         }
 
         [Default]
@@ -75,38 +104,11 @@ namespace CustomEngine
             get { return _currentWorld; }
             set { SetCurrentWorld(value); }
         }
-        
-        public static BindingList<World> LoadedWorlds = new BindingList<World>();
-        public static BindingList<GameTimer> ActiveTimers = new BindingList<GameTimer>();
-        public static BindingList<PlayerController> ActivePlayers = new BindingList<PlayerController>();
-        public static BindingList<AIController> ActiveAI = new BindingList<AIController>();
-
-        private static World _transitionWorld = null;
-        private static World _currentWorld = null;
-        private static GlobalTimer _timer = new GlobalTimer();
-        private static AbstractRenderer _renderer;
-        private static AbstractAudioManager _audioManager;
 
         /// <summary>
         /// Class containing this computer's specs. Use to adjust engine settings accordingly.
         /// </summary>
         public static ComputerInfo ComputerInfo { get { return _computerInfo; } }
-        /// <summary>
-        /// Frames per second that the game will try to render at.
-        /// </summary>
-        public static double RenderRate
-        {
-            get { return _timer.TargetRenderFrequency; }
-            set { _timer.TargetRenderFrequency = value; }
-        }
-        /// <summary>
-        /// Updates per second that the game will try to run logic at.
-        /// </summary>
-        public static double UpdateRate
-        {
-            get { return _timer.TargetRenderFrequency; }
-            set { _timer.TargetRenderFrequency = value; }
-        }
         public static RenderPanel CurrentPanel
         {
             get
@@ -117,6 +119,37 @@ namespace CustomEngine
                 return null;
             }
         }
+
+        private static RenderLibrary _renderLibrary;
+        private static AudioLibrary _audioLibrary;
+        private static InputLibrary _inputLibrary;
+        public static RenderLibrary RenderLibrary
+        {
+            get { return _renderLibrary; }
+            set
+            {
+                _renderLibrary = value;
+                List<RenderContext> contexts = new List<RenderContext>(RenderContext.BoundContexts);
+                foreach (RenderContext c in contexts)
+                    c.Control?.SetRenderLibrary();
+            }
+        }
+        public static AudioLibrary AudioLibrary
+        {
+            get { return _audioLibrary; }
+            set { _audioLibrary = value; }
+        }
+        public static InputLibrary InputLibrary
+        {
+            get { return _inputLibrary; }
+            set
+            {
+                _inputLibrary = value;
+                foreach (LocalPlayerController c in ActivePlayers)
+                    c.SetInputLibrary();
+            }
+        }
+
         public static void Run() { _timer.Run(); }
         public static void Stop() { _timer.Stop(); }
 
@@ -127,26 +160,26 @@ namespace CustomEngine
                 foreach (ObjectBase b in g.Value)
                     b.Tick(delta);
         }
-        public static void RegisterTick(ObjectBase obj)
+        public static void RegisterTick(ObjectBase obj, TickGroup group, TickOrder order)
         {
-            if (obj.TickOrder != null && obj.TickGroup != null)
+            if (obj != null)
             {
-                TickOrder order = obj.TickOrder.Value;
-                TickGroup group = obj.TickGroup.Value;
+                obj.TickGroup = group;
+                obj.TickOrder = order;
                 if (!_tick[group][order].Contains(obj))
                     _tick[group][order].Add(obj);
             }
-            else
-                UnregisterTick(obj);
         }
         public static void UnregisterTick(ObjectBase obj)
         {
-            if (obj.TickOrder != null && obj.TickGroup != null)
+            if (obj != null && obj.TickOrder != null && obj.TickGroup != null)
             {
                 TickOrder order = obj.TickOrder.Value;
                 TickGroup group = obj.TickGroup.Value;
                 if (_tick[group][order].Contains(obj))
                     _tick[group][order].Remove(obj);
+                obj.TickOrder = null;
+                obj.TickGroup = null;
             }
         }
         private static void Tick(object sender, FrameEventArgs e)
@@ -174,12 +207,17 @@ namespace CustomEngine
         {
             _computerInfo = ComputerInfo.Analyze();
 
-            EngineSettings s = LoadSettings();
+            EngineSettings engineSettings = LoadEngineSettings();
+            UserSettings userSettings = LoadUserSettings();
+
+            RenderLibrary = userSettings.RenderLibrary;
+            AudioLibrary = userSettings.AudioLibrary;
+            InputLibrary = userSettings.InputLibrary;
 
             if (startupWorld == null)
             {
-                _currentWorld = new World(s.OpeningWorldPath);
-                _transitionWorld = new World(s.TransitionWorldPath);
+                _currentWorld = new World(engineSettings.OpeningWorldPath);
+                _transitionWorld = new World(engineSettings.TransitionWorldPath);
 
                 _transitionWorld.Load();
                 _currentWorld.Load();
@@ -194,26 +232,40 @@ namespace CustomEngine
         public static void ShutDown()
         {
             Stop();
-            var v = new MonitoredList<RenderContext>(RenderContext.BoundContexts);
+            var v = new List<RenderContext>(RenderContext.BoundContexts);
             foreach (RenderContext c in v)
                 c?.Dispose();
         }
-        public static EngineSettings LoadSettings()
+        public static EngineSettings LoadEngineSettings()
         {
-            if (!File.Exists(SettingsPath))
+            string path = Application.StartupPath + EngineSettingsPath;
+            if (!File.Exists(path))
             {
                 EngineSettings settings = new EngineSettings();
-                settings.ToXML(SettingsPath);
+                settings.ToXML(path);
                 return settings;
             }
             else
-                return EngineSettings.FromXML(SettingsPath);
+                return EngineSettings.FromXML(path);
         }
-        public static void RemakePlayerNumbers()
+        public static UserSettings LoadUserSettings()
         {
-            int i = 0;
-            foreach (PlayerController pc in ActivePlayers)
-                pc._number = i++;
+            string path = Application.StartupPath + UserSettingsPath;
+            if (!File.Exists(path))
+            {
+                UserSettings settings = new UserSettings();
+                settings.ToXML(path);
+                return settings;
+            }
+            else
+                return UserSettings.FromXML(path);
+        }
+        public static Viewport GetViewport(int index)
+        {
+            RenderPanel panel = CurrentPanel;
+            if (panel == null)
+                return null;
+            return panel.GetViewport(index);
         }
         public static void ShowMessage(string message, int viewport = -1)
         {
@@ -223,7 +275,7 @@ namespace CustomEngine
             if (viewport >= 0)
                 panel.GetViewport(viewport)?.ShowMessage(message);
             else
-                panel._overallHud.ShowMessage(message);
+                panel.GlobalHud.ShowMessage(message);
         }
         public static void SetCurrentWorld(World world)
         {

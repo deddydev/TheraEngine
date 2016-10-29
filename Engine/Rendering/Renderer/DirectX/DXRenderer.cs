@@ -15,7 +15,7 @@ namespace CustomEngine.Rendering.DirectX
 
         }
 
-        public override RenderLibrary RenderLibrary { get { return RenderLibrary.DirectX; } }
+        public override RenderLibrary RenderLibrary { get { return RenderLibrary.Direct3D11; } }
 
         private class DLCompileInfo
         {

@@ -205,11 +205,11 @@ namespace System
         }
         public void Normalize()
         {
-            float determinant = Determinant;
-            Row0 /= determinant;
-            Row1 /= determinant;
-            Row2 /= determinant;
-            Row3 /= determinant;
+            float determinant = 1.0f / Determinant;
+            Row0 *= determinant;
+            Row1 *= determinant;
+            Row2 *= determinant;
+            Row3 *= determinant;
         }
         public Matrix4 ClearTranslation()
         {
@@ -310,8 +310,8 @@ namespace System
         }
         public Vec4 ExtractProjection() { return Column3; }
         
-        public void Translate(Vec3 v) { Translate(v.X, v.Y, v.Z); }
-        public unsafe void Translate(float x, float y, float z)
+        public void TranslateRelative(Vec3 v) { TranslateRelative(v.X, v.Y, v.Z); }
+        public unsafe void TranslateRelative(float x, float y, float z)
         {
             fixed (Matrix4* m = &this)
             {
@@ -785,21 +785,51 @@ namespace System
             Row3.W = inverse[3, 3];
         }
         
+        public enum MultiplyOrder
+        {
+            TRS,
+            TSR,
+            RST,
+            RTS,
+            STR,
+            SRT,
+        }
+
         /// <summary>
         /// Creates a transform matrix.
         /// </summary>
         /// <param name="scale">The scale of the matrix</param>
         /// <param name="rotate">The rotation of the matrix</param>
         /// <param name="translate">The translation of the matrix</param>
+        /// <param name="order">The order to apply the components of the matrix</param>
         /// <returns>A transform matrix</returns>
-        public static Matrix4 TransformMatrix(Vec3 scale, Quaternion rotate, Vec3 translate)
+        public static Matrix4 TransformMatrix(
+            Vec3 scale,
+            Quaternion rotate,
+            Vec3 translate,
+            MultiplyOrder order = MultiplyOrder.SRT)
         {
             Matrix4 s = CreateScale(scale);
             Matrix4 r = CreateFromQuaternion(rotate);
             Matrix4 t = CreateTranslation(translate);
 
-            //TRS order: translate into position, orient, and then scale to size
-            return t * r * s;
+            //Matrix multiplication works backwards
+            switch (order)
+            {
+                case MultiplyOrder.SRT:
+                    return t * r * s;
+                case MultiplyOrder.STR:
+                    return r * t * s;
+                case MultiplyOrder.TRS:
+                    return s * r * t * CreateScale(Vec3.One);
+                case MultiplyOrder.TSR:
+                    return r * s * t * CreateScale(Vec3.One);
+                case MultiplyOrder.RTS:
+                    return s * t * r * CreateScale(Vec3.One);
+                case MultiplyOrder.RST:
+                    return t * s * r * CreateScale(Vec3.One);
+            }
+            return Identity;
         }
 
         /// <summary>
@@ -809,14 +839,33 @@ namespace System
         /// <param name="rotate">The rotation of the matrix</param>
         /// <param name="translate">The translation of the matrix</param>
         /// <returns>A transform matrix</returns>
-        public static Matrix4 InverseTransformMatrix(Vec3 scale, Quaternion rotate, Vec3 translate)
+        public static Matrix4 InverseTransformMatrix(
+            Vec3 scale,
+            Quaternion rotate,
+            Vec3 translate, 
+            MultiplyOrder order = MultiplyOrder.SRT)
         {
             Matrix4 s = CreateScale(1.0f / scale);
             Matrix4 r = CreateFromQuaternion(rotate.Inverted());
             Matrix4 t = CreateTranslation(-translate);
 
-            //TRS order: translate into position, orient, and then scale to size
-            return t * r * s;
+            //Matrix multiplication works backwards
+            switch (order)
+            {
+                case MultiplyOrder.SRT:
+                    return t * r * s;
+                case MultiplyOrder.STR:
+                    return r * t * s;
+                case MultiplyOrder.TRS:
+                    return s * r * t * CreateScale(Vec3.One);
+                case MultiplyOrder.TSR:
+                    return r * s * t * CreateScale(Vec3.One);
+                case MultiplyOrder.RTS:
+                    return s * t * r * CreateScale(Vec3.One);
+                case MultiplyOrder.RST:
+                    return t * s * r * CreateScale(Vec3.One);
+            }
+            return Identity;
         }
         public static Matrix4 operator *(Matrix4 left, Matrix4 right)
         {

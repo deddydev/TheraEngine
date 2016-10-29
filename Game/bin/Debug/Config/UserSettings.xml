@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<UserSettings xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <TickGroup xsi:nil="true" />
+  <TickOrder xsi:nil="true" />
+  <HasChanged>false</HasChanged>
+  <IsDirty>false</IsDirty>
+  <VSync>false</VSync>
+  <TextureQuality>Lowest</TextureQuality>
+  <ModelQuality>Lowest</ModelQuality>
+  <SoundQuality>Lowest</SoundQuality>
+  <RenderLibrary>OpenGL</RenderLibrary>
+  <AudioLibrary>OpenAL</AudioLibrary>
+  <InputLibary>OpenTK</InputLibary>
+</UserSettings>

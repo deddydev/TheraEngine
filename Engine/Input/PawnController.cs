@@ -7,14 +7,16 @@ namespace CustomEngine.Input
     //Input can come from a player's gamepad or an AI (these are subclasses to controller).
     public abstract class PawnController : ObjectBase
     {
-        public Pawn _controlledPawn;
-
-        public void Possess(Pawn p)
+        private Pawn _controlledPawn;
+        public Pawn ControlledPawn
         {
-            if (_controlledPawn != null)
-                _controlledPawn.OnUnPossessed();
-            _controlledPawn = p;
-            _controlledPawn.OnPossessed(this);
+            get { return _controlledPawn; }
+            set
+            {
+                _controlledPawn?.OnUnPossessed();
+                _controlledPawn = value;
+                _controlledPawn?.OnPossessed(this);
+            }
         }
     }
 }

@@ -9,6 +9,8 @@ using CustomEngine.Rendering.OpenGL;
 using System.Threading;
 using System;
 using System.Drawing;
+using CustomEngine.Input;
+using System.Linq;
 
 namespace CustomEngine
 {
@@ -35,30 +37,38 @@ namespace CustomEngine
                ControlStyles.Opaque |
                ControlStyles.ResizeRedraw,
                true);
-            SetRenderLibrary(RenderLibrary.OpenGL);
-            _viewports.Add(new Viewport());
-            
+            SetRenderLibrary();
+            AddViewport(new LocalPlayerController());
         }
-
-        private RenderLibrary _currentRenderer;
+        
         private RenderContext _context;
         protected int _updateCounter;
-
-        public HudManager _overallHud;
+        private HudManager _globalHud;
         public List<Viewport> _viewports = new List<Viewport>();
+        private ColorF4 _backColor = Color.Black;
 
-        public new ColorF4 BackColor { get { return _backColor; } set { _backColor = value; } }
-        private ColorF4 _backColor = Color.Lavender;
-
-        public void SetRenderLibrary(RenderLibrary library)
+        public HudManager GlobalHud
         {
-            _currentRenderer = library;
-            switch (library)
+            get { return _globalHud; }
+            set { _globalHud = value; }
+        }
+        public new ColorF4 BackColor { get { return _backColor; } set { _backColor = value; } }
+        public void SetRenderLibrary()
+        {
+            switch (Engine.RenderLibrary)
             {
                 case RenderLibrary.OpenGL:
+                    if (_context is GLWindowContext)
+                        return;
+                    else
+                        _context?.Dispose();
                     _context = new GLWindowContext(this);
                     break;
-                case RenderLibrary.DirectX:
+                case RenderLibrary.Direct3D11:
+                    if (_context is DXWindowContext)
+                        return;
+                    else
+                        _context?.Dispose();
                     _context = new DXWindowContext(this);
                     break;
                 default:
@@ -121,7 +131,7 @@ namespace CustomEngine
         protected override void OnHandleCreated(EventArgs e)
         {
             if (_context == null)
-                SetRenderLibrary(RenderLibrary.OpenGL);
+                SetRenderLibrary();
             _context.ContextChanged += OnContextChanged;
             _context.ResetOccured += OnReset;
             _context.Initialize();
@@ -162,9 +172,18 @@ namespace CustomEngine
                 _context = null;
             }
         }
-        public Viewport GetViewport(int viewport)
+        public void AddViewport(LocalPlayerController owner)
         {
-            return _viewports[viewport.Clamp(0, _viewports.Count - 1)];
+            _viewports.Add(new Viewport(owner, _viewports.Count));
+        }
+        public Viewport GetViewport(int index)
+        {
+            return index >= 0 && index < _viewports.Count ? _viewports[index] : null;
+        }
+        public void RemoveViewport(LocalPlayerController owner)
+        {
+            if (_viewports.Contains(owner.Viewport))
+                _viewports.Remove(owner.Viewport);
         }
     }
 }

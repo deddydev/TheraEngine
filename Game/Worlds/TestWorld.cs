@@ -27,9 +27,7 @@ namespace Game.Worlds
 
             ModelComponent modelComp = new ModelComponent(boxModel);
             Actor actor = new Actor(modelComp);
-
-            Map map = new Map(new MapSettings(true, Vec3.Zero, actor));
-            _settings._maps.Add(map);
+            _settings._maps.Add(new Map(new MapSettings(actor)));
 
             AnimationInterpNode propertyAnim = new AnimationInterpNode(360);
             InterpKeyframe start = new InterpKeyframe(0.0f, 0.0f, 0.0f);
@@ -38,13 +36,10 @@ namespace Game.Worlds
             propertyAnim.Keyframes.AddLast(end);
             start.MakeOutLinear();
             end.MakeInLinear();
-            AnimFolder root = new AnimFolder("Transform", null, new AnimFolder("EulerRotation", null, new AnimFolder("Z", propertyAnim)));
-            AnimationContainer anim = new AnimationContainer(root);
-            modelComp.AddAnimation(anim);
+            
+            modelComp.AddAnimation(new AnimationContainer("Transform.EulerRotation.Z", propertyAnim));
 
             SpawnActor(actor);
-
-            g = new DXGamepadManager(0);
         }
     }
 }

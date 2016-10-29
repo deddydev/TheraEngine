@@ -47,7 +47,7 @@ namespace System
         public float* Data { get { fixed (void* p = &this) return (float*)p; } }
         public Vec3 Xyz { get { return new Vec3(X, Y, Z); } set { X = value.X; Y = value.Y; Z = value.Z; } }
         public Vec4 Xyzw { get { return new Vec4(X, Y, Z, W); } set { X = value.X; Y = value.Y; Z = value.Z; W = value.W; } }
-        public float Length { get { return (float)System.Math.Sqrt(W * W + Xyz.LengthSquared); } }
+        public float Length { get { return (float)Math.Sqrt(W * W + Xyz.LengthSquared); } }
         public float LengthSquared { get { return W * W + Xyz.LengthSquared; } }
 
         public void ToAxisAngle(out Vec3 axis, out float angle)
@@ -64,8 +64,8 @@ namespace System
 
             Vec4 result = new Vec4();
 
-            result.W = 2.0f * (float)System.Math.Acos(q.W); // angle
-            float den = (float)System.Math.Sqrt(1.0 - q.W * q.W);
+            result.W = 2.0f * (float)Math.Acos(q.W); // angle
+            float den = (float)Math.Sqrt(1.0 - q.W * q.W);
             if (den > 0.0001f)
                 result.Xyz = q.Xyz / den;
             else
@@ -73,6 +73,40 @@ namespace System
                 // Not a problem: just set an arbitrary normalized axis.
                 result.Xyz = Vec3.UnitX;
             return result;
+        }
+        /// <summary>
+        /// Returns a euler rotation in the order of pitch, yaw, roll.
+        /// </summary>
+        public Vec3 ToEuler()
+        {
+            float sqx = X * X;
+            float sqy = Y * Y;
+            float sqz = Z * Z;
+            float sqw = W * W;
+            float unit = sqx + sqy + sqz + sqw;
+            float test = X * Y + Z * W;
+            float yaw, pitch, roll;
+            if (test > 0.499f * unit)
+            {
+                //North pole singularity
+                yaw = 2.0f * (float)Math.Atan2(X, W);
+                pitch = (float)Math.PI / 2.0f;
+                roll = 0.0f;
+            }
+            else if (test < -0.499f * unit)
+            {
+                //South pole singularity
+                yaw = -2.0f * (float)Math.Atan2(X, W);
+                pitch = (float)-Math.PI / 2.0f;
+                roll = 0.0f;
+            }
+            else
+            {
+                yaw = (float)Math.Atan2(2.0f * Y * W - 2.0f * X * Z, sqx - sqy - sqz + sqw);
+                pitch = (float)Math.Asin(2.0f * test / unit);
+                roll = (float)Math.Atan2(2.0f * X * W - 2.0f * Y * Z, -sqx + sqy - sqz + sqw);
+            }
+            return new Vec3(pitch, yaw, roll);
         }
         public Quaternion Normalized()
         {
@@ -121,8 +155,8 @@ namespace System
 
             angle *= 0.5f;
             axis.Normalize();
-            result.Xyz = axis * (float)System.Math.Sin(angle);
-            result.W = (float)System.Math.Cos(angle);
+            result.Xyz = axis * (float)Math.Sin(angle);
+            result.W = (float)Math.Cos(angle);
 
             return result.Normalized();
         }

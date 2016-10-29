@@ -7,24 +7,16 @@ namespace CustomEngine.Input
     public class PlayerController : PawnController
     {
         PlayerInfo _playerInfo;
-        Viewport _viewport;
-        internal int _number;
 
+        public int ServerPlayerIndex { get { return _playerInfo != null ? _playerInfo.Index : -1; } }
+        
         public PlayerController()
         {
-            Engine.ActivePlayers.Add(this);
-            Engine.RemakePlayerNumbers();
+
         }
         ~PlayerController()
         {
-            if (Engine.ActivePlayers.Contains(this))
-            {
-                Engine.ActivePlayers.Remove(this);
-                Engine.RemakePlayerNumbers();
-            }
-        }
 
-        public Camera CurrentCamera { get { return _viewport.Camera; } set { _viewport.Camera = value; } }
-        public int Number { get { return _number; } }
+        }
     }
 }

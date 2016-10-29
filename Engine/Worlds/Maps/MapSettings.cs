@@ -10,11 +10,17 @@ namespace CustomEngine.Worlds.Maps
         private List<Actor> _defaultActors;
         private Vec3 _spawnPosition;
 
+        public MapSettings(params Actor[] actors)
+        {
+            _visibleByDefault = true;
+            _spawnPosition = Vec3.Zero;
+            _defaultActors = actors.ToList();
+        }
         public MapSettings(bool visible, Vec3 spawnOrigin, params Actor[] actors)
         {
             _visibleByDefault = visible;
-            _defaultActors = actors.ToList();
             _spawnPosition = spawnOrigin;
+            _defaultActors = actors.ToList();
         }
 
         public void SetDefaultActors(params Actor[] actors)

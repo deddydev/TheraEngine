@@ -13,6 +13,7 @@ namespace System
 
         double update_time; // length of last UpdateFrame event
         double render_time; // length of last RenderFrame event
+        double time_dilation = 1.0;
 
         double update_timestamp; // timestamp of last UpdateFrame event
         double render_timestamp; // timestamp of last RenderFrame event
@@ -98,6 +99,8 @@ namespace System
         }
         void RaiseUpdateFrame(double elapsed, ref double timestamp)
         {
+            elapsed *= time_dilation;
+
             // Raise UpdateFrame event
             update_args.Time = elapsed;
             OnUpdateFrameInternal(update_args);
@@ -367,6 +370,8 @@ namespace System
         }
 
         #endregion
+
+        public double TimeDilation { get; internal set; }
 
         #endregion
     }

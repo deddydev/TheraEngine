@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -8,18 +9,32 @@ namespace CustomEngine.Rendering.Models.Materials
 {
     public class Material : BaseRenderState
     {
-        private List<MaterialProperty> _properties = new List<MaterialProperty>();
-        private bool _cullFront = false, _cullBack = true;
         public List<Shader> _shaders = new List<Shader>();
         private string _name;
+        private MaterialSettings _settings;
 
-        public bool CullFront { get { return _cullFront; } set { _cullFront = true; } }
-        public bool CullBack { get { return _cullBack; } set { _cullBack = true; } }
+        [Category("Material")]
+        public string Name
+        {
+            get { return _name; }
+            set { _name = value; }
+        }
+        [Category("Material")]
+        public MaterialSettings Settings
+        {
+            get { return _settings; }
+            set { _settings = value; }
+        }
 
-        public Material(string name) : base(GenType.Program) { _name = name; }
-        public Material(string name, params Shader[] shaders) : base(GenType.Program)
+        public Material(string name, MaterialSettings settings) : base(GenType.Program)
         {
             _name = name;
+            _settings = settings;
+        }
+        public Material(string name, MaterialSettings settings, params Shader[] shaders) : base(GenType.Program)
+        {
+            _name = name;
+            _settings = settings;
             AddShaders(shaders);
         }
 

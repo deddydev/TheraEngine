@@ -63,13 +63,12 @@ namespace CustomEngine.Rendering.Animation
             _isPlaying = false;
             AnimationEnded?.Invoke(this, null);
         }
-        public void Tick(object obj, string propertyName, float delta)
+        public void Tick(object obj, PropertyInfo property, float delta)
         {
             if (!_isPlaying)
                 return;
-
-            PropertyInfo property = obj.GetType().GetProperty(propertyName);
-            property?.SetValue(obj, GetValue(_currentFrame));
+            
+            property.SetValue(obj, GetValue(_currentFrame));
 
             _currentFrame += delta;
             if (_currentFrame > _frameCount - 1)

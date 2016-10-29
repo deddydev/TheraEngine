@@ -1,8 +1,32 @@
 ﻿using SlimDX.XInput;
 using System;
+using System.Collections.Generic;
 
 namespace CustomEngine.Input.Gamepads
 {
+    public class DXGamepadAwaiter : GamepadAwaiter
+    {
+        Controller[] _controllers = new Controller[] 
+        {
+            new Controller(UserIndex.One),
+            new Controller(UserIndex.Two),
+            new Controller(UserIndex.Three),
+            new Controller(UserIndex.Four),
+        };
+        public DXGamepadAwaiter(Action<int> uponFound) : base(uponFound) { }
+        public static void Await(Action<int> uponFound)
+        {
+            CurrentAwaiters.Add(new DXGamepadAwaiter(uponFound));
+        }
+        protected override List<int> GetConnected()
+        {
+            List<int> connected = new List<int>();
+            for (int i = 0; i < _controllers.Length; ++i)
+                if (_controllers[i].IsConnected)
+                    connected.Add(i);
+            return connected;
+        }
+    }
     public class DXGamepadManager : GamepadManager
     {
         const float ByteDiv = 1.0f / byte.MaxValue;

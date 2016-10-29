@@ -103,10 +103,12 @@
     <Compile Include="Audio\StaticSoundEffect.cs" />
     <Compile Include="Audio\WaveFile.cs" />
     <Compile Include="Cutscenes\Cutscene.cs" />
+    <Compile Include="Engine\UserSettings.cs" />
     <Compile Include="Engine\EngineSettings.cs" />
     <Compile Include="Input\Gamepads\DXGamepadManager.cs" />
     <Compile Include="Input\Gamepads\TKGamepadManager.cs" />
     <Compile Include="Input\Gamepads\GamepadManager.cs" />
+    <Compile Include="Input\LocalPlayerController.cs" />
     <Compile Include="Particles\Emitter.cs" />
     <Compile Include="Particles\ParticleState.cs" />
     <Compile Include="Particles\Particle.cs" />
@@ -114,8 +116,10 @@
     <Compile Include="Rendering\Cameras\Camera.cs" />
     <Compile Include="Rendering\Cameras\OrthographicCamera.cs" />
     <Compile Include="Rendering\Cameras\PerspectiveCamera.cs" />
+    <Compile Include="Rendering\Cameras\PostProcessSettings.cs" />
     <Compile Include="Rendering\Models\Materials\GLSL Variable Types\GLVec2.cs" />
     <Compile Include="Rendering\Models\Materials\GLSL Variable Types\GLVec3.cs" />
+    <Compile Include="Rendering\Models\Materials\MaterialSettings.cs" />
     <Compile Include="Rendering\Models\Materials\Material.cs" />
     <Compile Include="Rendering\Models\Materials\MaterialFunction.cs" />
     <Compile Include="Rendering\Models\Materials\Material Functions\Results\ResultBasic.cs" />

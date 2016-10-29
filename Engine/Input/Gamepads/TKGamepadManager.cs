@@ -1,8 +1,31 @@
 ﻿using System;
+using System.Collections.Generic;
 using OpenTK.Input;
 
 namespace CustomEngine.Input.Gamepads
 {
+    public class TKGamepadAwaiter : GamepadAwaiter
+    {
+        public const int MaxControllers = 4;
+
+        public TKGamepadAwaiter(Action<int> uponFound) : base(uponFound) { }
+        public static void Await(Action<int> uponFound)
+        {
+            CurrentAwaiters.Add(new TKGamepadAwaiter(uponFound));
+        }
+        protected override List<int> GetConnected()
+        {
+            List<int> connected = new List<int>();
+            for (int i = 0; i < MaxControllers; ++i)
+            {
+                GamePadState state = GamePad.GetState(i);
+                if (state.IsConnected)
+                    connected.Add(i);
+            }
+            return connected;
+        }
+    }
+
     public class TKGamepadManager : GamepadManager
     {
         public TKGamepadManager(int controllerIndex) : base(controllerIndex) { }

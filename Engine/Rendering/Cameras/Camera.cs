@@ -7,8 +7,25 @@ namespace CustomEngine.Rendering.Cameras
     {
         public override ResourceType ResourceType { get { return ResourceType.Camera; } }
 
-        public float NearDepth { get { return _nearZ; } set { _nearZ = value; CalculateProjection(); } }
-        public float FarDepth { get { return _farZ; } set { _farZ = value; CalculateProjection(); } }
+        private PostProcessSettings _postProcessSettings;
+
+        public PostProcessSettings PostProcessSettings
+        {
+            get { return _postProcessSettings; }
+            set { _postProcessSettings = value; }
+        }
+        [PostCall("CalculateProjection")]
+        public float NearDepth
+        {
+            get { return _nearZ; }
+            set { _nearZ = value; }
+        }
+        [PostCall("CalculateProjection")]
+        public float FarDepth
+        {
+            get { return _farZ; }
+            set { _farZ = value; }
+        }
         public Matrix4 Matrix { get { return _currentTransform.InverseTransform; } }
         public Matrix4 MatrixInverse { get { return _currentTransform.Transform; } }
         public FrameState CurrentTransform
@@ -17,7 +34,7 @@ namespace CustomEngine.Rendering.Cameras
             set
             {
                 _currentTransform = value;
-                OnTransformChanged?.Invoke();
+                TransformChanged?.Invoke();
             }
         }
         public FrameState DefaultTransform
@@ -50,11 +67,17 @@ namespace CustomEngine.Rendering.Cameras
         protected bool _restrictXRot, _restrictYRot, _restrictZRot;
         protected float _nearZ = 1.0f, _farZ = 200000.0f;
 
-        public event TranslateChanged OnTranslateChanged;
-        public event RotateChanged OnRotateChanged;
-        public event ScaleChanged OnScaleChanged;
-        public event Action OnResized;
-        public event Action OnTransformChanged;
+        public event TranslateChange TranslateChanged;
+        public event RotateChange RotateChanged;
+        public event ScaleChange ScaleChanged;
+        public event Action Resized;
+        public event Action TransformChanged;
+
+        protected void OnResized() { Resized?.Invoke(); }
+        protected void OnTransformChanged() { TransformChanged?.Invoke(); }
+        protected void OnTranslateChanged(Vec3 oldTranslation) { TranslateChanged?.Invoke(oldTranslation); }
+        protected void OnRotateChanged(Quaternion oldRotation) { RotateChanged?.Invoke(oldRotation); }
+        protected void OnScaleChanged(Vec3 oldScale) { ScaleChanged?.Invoke(oldScale); }
 
         public Camera()
         {
@@ -79,13 +102,13 @@ namespace CustomEngine.Rendering.Cameras
         public virtual void Resize(float width, float height)
         {
             CalculateProjection();
-            OnResized?.Invoke();
+            OnResized();
         }
 
         public void TranslateRelative(Vec3 v) { TranslateRelative(v.X, v.Y, v.Z); }
         public void TranslateRelative(float x, float y, float z)
         {
-            MatrixInverse.Translate(x, y, z);
+            MatrixInverse.TranslateRelative(x, y, z);
             _currentTransform.Translation = MatrixInverse.ExtractTranslation();
         }
         public void Rotate(float x, float y, float z) { Rotate(new Vec3(x, y, z)); }
@@ -119,7 +142,7 @@ namespace CustomEngine.Rendering.Cameras
         private void EndUpdate()
         {
             _updating = false;
-            OnTransformChanged?.Invoke();
+            TransformChanged?.Invoke();
         }
 
         public void SetTransform(Vec3 translate, Vec3 rotate, Vec3 scale)
@@ -148,10 +171,7 @@ namespace CustomEngine.Rendering.Cameras
         /// Projects a screen point to world coordinates.
         /// </summary>
         /// <returns>3D world point perpendicular to the camera with a depth value of z (z is not a distance value!)</returns>
-        public Vec3 GetWorldPoint(float x, float y, float z)
-        {
-            return GetWorldPoint(new Vec3(x, y, z));
-        }
+        public Vec3 GetWorldPoint(float x, float y, float z) { return GetWorldPoint(new Vec3(x, y, z)); }
         /// <summary>
         /// Projects a world point to screen coordinates.
         /// </summary>
@@ -165,14 +185,12 @@ namespace CustomEngine.Rendering.Cameras
         {
             return UnAlignScreenPoint(worldPoint.Project(0, 0, GetWidth(), GetHeight(), NearDepth, FarDepth, _projectionMatrix * Matrix));
         }
-
         public Ray GetWorldRay(Vec2 screenPoint)
         {
             Vec3 ray1 = GetWorldPoint(screenPoint.X, screenPoint.Y, 0.0f);
             Vec3 ray2 = GetWorldPoint(screenPoint.X, screenPoint.Y, 1.0f);
             return new Ray(ray1, ray2);
         }
-
         public Vec3 ProjectCameraSphere(Vec2 screenPoint, Vec3 center, float radius, bool clamp)
         {
             Vec3 point;
@@ -202,15 +220,7 @@ namespace CustomEngine.Rendering.Cameras
             ray.LinePlaneIntersect(center, (transform * Vec3.UnitY).Normalized(center), out xz);
             ray.LinePlaneIntersect(center, (transform * Vec3.UnitZ).Normalized(center), out xy);
         }
-
-        public void SetCurrent()
-        {
-            Engine.Renderer.SetRenderCamera(this);
-        }
-
-        public void SaveCurrentTransform()
-        {
-            _defaultTransform = _currentTransform;
-        }
+        public void SetCurrent() { Engine.Renderer.CurrentCamera = this; }
+        public void SaveCurrentTransform() { _defaultTransform = _currentTransform; }
     }
 }

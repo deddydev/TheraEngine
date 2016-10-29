@@ -5,10 +5,7 @@ namespace CustomEngine.Input.Gamepads
 {
     public class TKGamepadManager : GamepadManager
     {
-        public TKGamepadManager(int controllerIndex) : base(controllerIndex)
-        {
-
-        }
+        public TKGamepadManager(int controllerIndex) : base(controllerIndex) { }
 
         public override void Vibrate(float left, float right)
         {
@@ -42,17 +39,17 @@ namespace CustomEngine.Input.Gamepads
             SetAxis(GamePadAxis.LeftThumbstickY, c.HasLeftYThumbStick);
             SetAxis(GamePadAxis.RightThumbstickX, c.HasRightXThumbStick);
             SetAxis(GamePadAxis.RightThumbstickY, c.HasRightYThumbStick);
+
+            _hasCreatedStates = true;
+            Console.WriteLine("Gamepad input states created.");
         }
         public bool IsPressed(OpenTK.Input.ButtonState state) { return state == OpenTK.Input.ButtonState.Pressed; }
         protected override void UpdateStates(float delta)
         {
             GamePadState state = GamePad.GetState(_controllerIndex);
 
-            if (_isConnected != state.IsConnected)
-            {
-                _isConnected = state.IsConnected;
-                ConnectionStateChanged?.Invoke(_isConnected);
-            }
+            if (!UpdateConnected(state.IsConnected))
+                return;
 
             FaceDown?.Tick(IsPressed(state.Buttons.A), delta);
             FaceRight?.Tick(IsPressed(state.Buttons.B), delta);

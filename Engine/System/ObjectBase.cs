@@ -15,15 +15,15 @@ namespace System
     public enum TickGroup
     {
         PrePhysics = 0,
-        //DuringPhysics,
         PostPhysics = 1,
+        DuringPhysics = 2,
     }
     public enum TickOrder
     {
-        Timers = 0,
-        Input = 1,
-        Logic = 2,
-        Scene = 3,
+        Timers = 0, //Call timing events
+        Input = 1, //Call input events
+        Logic = 2, //Call update tick
+        Scene = 3, //Render scene
     }
     [NotifyPropertyChanged]
     public class ObjectBase : INotifyPropertyChanged

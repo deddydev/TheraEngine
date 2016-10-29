@@ -10,10 +10,7 @@ namespace CustomEngine.Input.Gamepads
 
         private Controller _controller;
 
-        public DXGamepadManager(int controllerIndex) : base(controllerIndex)
-        {
-            _controller = new Controller(UserIndex.One + controllerIndex);
-        }
+        public DXGamepadManager(int controllerIndex) : base(controllerIndex) { }
 
         public override void Vibrate(float left, float right)
         {
@@ -25,7 +22,15 @@ namespace CustomEngine.Input.Gamepads
 
         protected override void CreateStates()
         {
+            _controller = new Controller(UserIndex.One + _controllerIndex);
+
+            if (!_controller.IsConnected)
+                return;
+
             Capabilities c = _controller.GetCapabilities(DeviceQueryType.Gamepad);
+
+            _buttonStates = new ButtonState[14];
+            _axisStates = new AxisState[6];
 
             SetButton(GamePadButton.FaceDown, c.Gamepad.Buttons.HasFlag(GamepadButtonFlags.A));
             SetButton(GamePadButton.FaceRight, c.Gamepad.Buttons.HasFlag(GamepadButtonFlags.B));
@@ -44,22 +49,22 @@ namespace CustomEngine.Input.Gamepads
             SetButton(GamePadButton.SpecialLeft, c.Gamepad.Buttons.HasFlag(GamepadButtonFlags.Back));
             SetButton(GamePadButton.SpecialRight, c.Gamepad.Buttons.HasFlag(GamepadButtonFlags.Start));
 
-            SetAxis(GamePadAxis.LeftTrigger, c.Gamepad.LeftTrigger > 0);
-            SetAxis(GamePadAxis.RightTrigger, c.Gamepad.RightTrigger > 0);
-            SetAxis(GamePadAxis.LeftThumbstickX, c.Gamepad.LeftThumbX > 0);
-            SetAxis(GamePadAxis.LeftThumbstickY, c.Gamepad.LeftThumbY > 0);
-            SetAxis(GamePadAxis.RightThumbstickX, c.Gamepad.RightThumbX > 0);
-            SetAxis(GamePadAxis.RightThumbstickY, c.Gamepad.RightThumbY > 0);
+            SetAxis(GamePadAxis.LeftTrigger, c.Gamepad.LeftTrigger != 0);
+            SetAxis(GamePadAxis.RightTrigger, c.Gamepad.RightTrigger != 0);
+            SetAxis(GamePadAxis.LeftThumbstickX, c.Gamepad.LeftThumbX != 0);
+            SetAxis(GamePadAxis.LeftThumbstickY, c.Gamepad.LeftThumbY != 0);
+            SetAxis(GamePadAxis.RightThumbstickX, c.Gamepad.RightThumbX != 0);
+            SetAxis(GamePadAxis.RightThumbstickY, c.Gamepad.RightThumbY != 0);
+
+            _hasCreatedStates = true;
+            Console.WriteLine("Gamepad input states created.");
         }
         protected override void UpdateStates(float delta)
         {
-            SlimDX.XInput.State state = _controller.GetState();
+            if (!UpdateConnected(_controller.IsConnected))
+                return;
 
-            if (_isConnected != _controller.IsConnected)
-            {
-                _isConnected = _controller.IsConnected;
-                ConnectionStateChanged?.Invoke(_isConnected);
-            }
+            SlimDX.XInput.State state = _controller.GetState();
 
             FaceDown?.Tick(state.Gamepad.Buttons.HasFlag(GamepadButtonFlags.A), delta);
             FaceRight?.Tick(state.Gamepad.Buttons.HasFlag(GamepadButtonFlags.B), delta);

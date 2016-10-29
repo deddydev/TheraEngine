@@ -36,6 +36,7 @@ namespace CustomEngine.Input.Gamepads
         protected int _controllerIndex;
         protected ButtonState[] _buttonStates = new ButtonState[14];
         protected AxisState[] _axisStates = new AxisState[6];
+        protected bool _hasCreatedStates = false;
 
         public ConnectedStateChange ConnectionStateChanged;
 
@@ -76,14 +77,40 @@ namespace CustomEngine.Input.Gamepads
         }
         protected void SetButton(GamePadButton b, bool exists)
         {
-            _buttonStates[(int)b] = exists ? new ButtonState() : null;
+            _buttonStates[(int)b] = exists ? new ButtonState(b) : null;
         }
         protected void SetAxis(GamePadAxis a, bool exists)
         {
-            _axisStates[(int)a] = exists ? new AxisState() : null;
+            _axisStates[(int)a] = exists ? new AxisState(a) : null;
         }
         protected abstract void CreateStates();
         protected abstract void UpdateStates(float delta);
+        /// <summary>
+        /// Returns true if connected.
+        /// </summary>
+        protected bool UpdateConnected(bool isConnected)
+        {
+            if (_isConnected == isConnected)
+                return _isConnected;
+           
+            _isConnected = isConnected;
+            ConnectionStateChanged?.Invoke(_isConnected);
+
+            if (_isConnected)
+            {
+                if (!_hasCreatedStates)
+                    CreateStates();
+                return true;
+            }
+            else if (_hasCreatedStates)
+            {
+                _buttonStates = new ButtonState[14];
+                _axisStates = new AxisState[6];
+                _hasCreatedStates = false;
+                Console.WriteLine("Gamepad input states destroyed.");
+            }
+            return false;
+        }
         internal override void Tick(float delta) { UpdateStates(delta); }
         /// <summary>
         /// Left motor is low freq, right motor is high freq.
@@ -96,10 +123,15 @@ namespace CustomEngine.Input.Gamepads
     }
     public class ButtonState
     {
+        public ButtonState(GamePadButton button) { _button = button; }
+
+        private const float TimerMax = 0.5f;
+
         private float _holdDelaySeconds = 0.2f;
-        private float _maxSecondsBetweenPresses = 0.1f;
+        private float _maxSecondsBetweenPresses = 0.2f;
         private float _timer;
         private bool _isPressed;
+        private GamePadButton _button;
 
         public event Action Pressed;
         public event Action Released;
@@ -112,46 +144,58 @@ namespace CustomEngine.Input.Gamepads
         {
             if (_isPressed != isPressed)
             {
-                Console.WriteLine("Press state changed:" + _isPressed.ToString());
                 if (_isPressed = isPressed)
                 {
                     if (_timer <= _maxSecondsBetweenPresses)
+                    {
                         DoublePressed?.Invoke();
+                        Console.WriteLine(_button + " DOUBLECLICKED");
+                    }
 
                     _timer = 0.0f;
                     Pressed?.Invoke();
                 }
                 else
                     Released?.Invoke();
+                Console.WriteLine(_button + ": " + _isPressed.ToString());
             }
-            else
+            else if (_timer < TimerMax)
             {
                 _timer += delta;
                 if (_isPressed && _timer >= _holdDelaySeconds)
+                {
+                    _timer = TimerMax;
                     Held?.Invoke();
+                    Console.WriteLine(_button + " HELD");
+                }
             }
         }
     }
     public delegate void AxisUpdate(float value);
     public class AxisState
     {
+        public AxisState(GamePadAxis axis) { _axis = axis; }
+
+        private const float TimerMax = 0.5f;
+
         private float _updateThreshold = 0.0001f;
         private float _holdDelaySeconds = 0.2f;
-        private float _maxSecondsBetweenPresses = 0.1f;
+        private float _maxSecondsBetweenPresses = 0.2f;
         private float _pressedThreshold = 0.95f;
         private float _deadZoneThreshold = 0.05f;
         private float _value = 0.0f, _prevValue = 0.0f;
         private float _timer;
         private bool _isPressed;
         private bool _continuousUpdates = false;
+        private GamePadAxis _axis;
 
         public float Value
         {
-            get { return _value > _deadZoneThreshold ? _value : 0.0f; }
+            get { return Math.Abs(_value) > _deadZoneThreshold ? _value : 0.0f; }
         }
         public float PreviousValue
         {
-            get { return _prevValue > _deadZoneThreshold ? _prevValue : 0.0f; }
+            get { return Math.Abs(_prevValue) > _deadZoneThreshold ? _prevValue : 0.0f; }
         }
         public float PressedThreshold
         {
@@ -183,15 +227,19 @@ namespace CustomEngine.Input.Gamepads
 
         internal void Tick(float value, float delta)
         {
-            bool wasPressed = _value > _pressedThreshold;
-            bool nowPressed = value > _pressedThreshold;
             _prevValue = _value;
             _value = value;
 
-            if (_continuousUpdates || Math.Abs(_value - _prevValue) > _updateThreshold)
+            float realValue = Value;
+            float realPrev = PreviousValue;
+
+            bool wasPressed = Math.Abs(realPrev) > _pressedThreshold;
+            bool nowPressed = Math.Abs(realValue) > _pressedThreshold;
+
+            if (_continuousUpdates || Math.Abs(realValue - realPrev) > _updateThreshold)
             {
-                Console.WriteLine("Axis state changed:" + _value.ToString());
-                AxisUpdated?.Invoke(_value);
+                AxisUpdated?.Invoke(realValue);
+                Console.WriteLine(_axis + ": " + realValue.ToString());
             }
 
             if (wasPressed != nowPressed)
@@ -199,23 +247,32 @@ namespace CustomEngine.Input.Gamepads
                 if (nowPressed)
                 {
                     if (_timer <= _maxSecondsBetweenPresses)
+                    {
                         DoublePressed?.Invoke();
+                        Console.WriteLine(_axis + " DOUBLECLICKED");
+                    }
 
                     _timer = 0.0f;
                     _isPressed = true;
                     Pressed?.Invoke();
+                    Console.WriteLine(_axis + " PRESSED");
                 }
                 else
                 {
                     _isPressed = false;
                     Released?.Invoke();
+                    Console.WriteLine(_axis + " RELEASED");
                 }
             }
-            else
+            else if (_timer < TimerMax)
             {
                 _timer += delta;
                 if (_isPressed && _timer >= _holdDelaySeconds)
+                {
+                    _timer = TimerMax;
                     Held?.Invoke();
+                    Console.WriteLine(_axis + " HELD");
+                }
             }
         }
     }

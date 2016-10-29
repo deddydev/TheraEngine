@@ -44,7 +44,7 @@ namespace Game.Worlds
 
             SpawnActor(actor);
 
-            g = new TKGamepadManager(0);
+            g = new DXGamepadManager(0);
         }
     }
 }

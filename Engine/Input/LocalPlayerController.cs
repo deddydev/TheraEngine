@@ -1,4 +1,5 @@
-﻿using CustomEngine.Input.Gamepads;
+﻿using System;
+using CustomEngine.Input.Gamepads;
 using CustomEngine.Players;
 using CustomEngine.Rendering;
 using CustomEngine.Rendering.Cameras;
@@ -8,57 +9,43 @@ namespace CustomEngine.Input
     public class LocalPlayerController : PlayerController
     {
         private Viewport _viewport;
-        private GamepadManager _gamepad;
-        
-        public GamepadManager Gamepad { get { return _gamepad; } }
+
+        public GamepadManager Gamepad { get { return _input as GamepadManager; } }
         public int LocalPlayerIndex { get { return _viewport.Index; } }
         public Viewport Viewport
         {
             get { return _viewport; }
             internal set { _viewport = value; }
         }
-        
+        public Camera CurrentCamera
+        {
+            get { return _viewport.Camera; }
+            set { _viewport.Camera = value; }
+        }
         internal void SetInputLibrary()
         {
+            if (Gamepad == null)
+                return;
+            int controllerIndex = Gamepad.ControllerIndex;
             switch (Engine.InputLibrary)
             {
                 case InputLibrary.OpenTK:
-                    TKGamepadAwaiter.Await(FoundGamepad);
+                    _input = new TKGamepadManager(controllerIndex);
                     break;
                 case InputLibrary.XInput:
-                    DXGamepadAwaiter.Await(FoundGamepad);
+                    _input = new DXGamepadManager(controllerIndex);
                     break;
             }
         }
-
-        private void FoundGamepad(int controllerIndex)
+        public LocalPlayerController(GamepadManager gamepad)
         {
-            switch (Engine.InputLibrary)
-            {
-                case InputLibrary.OpenTK:
-                    _gamepad = new TKGamepadManager(controllerIndex);
-                    break;
-                case InputLibrary.XInput:
-                    _gamepad = new DXGamepadManager(controllerIndex);
-                    break;
-            }
-        }
-
-        public LocalPlayerController()
-        {
+            _input = gamepad;
             Engine.ActivePlayers.Add(this);
-            SetInputLibrary();
         }
         ~LocalPlayerController()
         {
             if (Engine.ActivePlayers.Contains(this))
                 Engine.ActivePlayers.Remove(this);
-        }
-
-        public Camera CurrentCamera
-        {
-            get { return _viewport.Camera; }
-            set { _viewport.Camera = value; }
         }
     }
 }

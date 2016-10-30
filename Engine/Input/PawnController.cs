@@ -1,4 +1,5 @@
-﻿using CustomEngine.Worlds.Actors;
+﻿using CustomEngine.Input.Gamepads;
+using CustomEngine.Worlds.Actors;
 using System;
 
 namespace CustomEngine.Input
@@ -7,6 +8,9 @@ namespace CustomEngine.Input
     //Input can come from a player's gamepad or an AI (these are subclasses to controller).
     public abstract class PawnController : ObjectBase
     {
+        protected InputInterface _input;
+        public InputInterface Input { get { return _input; } }
+
         private Pawn _controlledPawn;
         public Pawn ControlledPawn
         {

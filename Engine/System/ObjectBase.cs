@@ -60,13 +60,13 @@ namespace System
         public TickGroup? TickGroup
         {
             get { return _tickGroup; }
-            internal set { _tickGroup = value; }
+            set { _tickGroup = value; }
         }
         //[Category("Tick"), PreChanged("UnregisterTick"), PostChanged("RegisterTick")]
         public TickOrder? TickOrder
         {
             get { return _tickOrder; }
-            internal set { _tickOrder = value; }
+            set { _tickOrder = value; }
         }
 
 #if EDITOR
@@ -188,6 +188,14 @@ namespace System
                         if (method != null)
                             method.Invoke(this, new object[] { args.Value });
                     }
+                }
+
+                PostCall call = info.GetCustomAttribute<PostCall>();
+                if (post != null)
+                {
+                    MethodInfo method = GetType().GetMethod(post._methodName).MakeGenericMethod(info.PropertyType);
+                    if (method != null)
+                        method.Invoke(this, new object[] { args.Value });
                 }
 
                 ((ObjectBase)args.Instance).OnPropertyChanged(args.Location.PropertyInfo, currentValue);

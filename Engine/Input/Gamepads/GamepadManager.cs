@@ -33,8 +33,6 @@ namespace CustomEngine.Input.Gamepads
     public delegate void ConnectedStateChange(bool nowConnected);
     public abstract class GamepadAwaiter : ObjectBase, IDisposable
     {
-        protected static List<GamepadAwaiter> CurrentAwaiters = new List<GamepadAwaiter>();
-
         public event Action<int> FoundController;
 
         public GamepadAwaiter(Action<int> uponFound)
@@ -44,11 +42,7 @@ namespace CustomEngine.Input.Gamepads
         }
         ~GamepadAwaiter() { Dispose(); }
 
-        public void Dispose()
-        {
-            CurrentAwaiters.Remove(this);
-            UnregisterTick();
-        }
+        public void Dispose() { UnregisterTick(); }
 
         internal override void Tick(float delta)
         {
@@ -56,15 +50,15 @@ namespace CustomEngine.Input.Gamepads
             List<int> alreadyBound = GamepadManager.CurrentGamepads.Select(x => x.ControllerIndex).ToList();
             foreach (int i in connected)
                 if (!alreadyBound.Contains(i))
-                {
                     FoundController?.Invoke(i);
-                    Dispose();
-                }
         }
 
         protected abstract List<int> GetConnected();
     }
-    public abstract class GamepadManager : ObjectBase
+    /// <summary>
+    /// Input for local
+    /// </summary>
+    public abstract class GamepadManager : InputInterface
     {
         public static List<GamepadManager> CurrentGamepads = new List<GamepadManager>();
 

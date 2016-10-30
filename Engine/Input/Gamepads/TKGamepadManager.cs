@@ -9,10 +9,6 @@ namespace CustomEngine.Input.Gamepads
         public const int MaxControllers = 4;
 
         public TKGamepadAwaiter(Action<int> uponFound) : base(uponFound) { }
-        public static void Await(Action<int> uponFound)
-        {
-            CurrentAwaiters.Add(new TKGamepadAwaiter(uponFound));
-        }
         protected override List<int> GetConnected()
         {
             List<int> connected = new List<int>();

@@ -106,6 +106,7 @@
     <Compile Include="Engine\UserSettings.cs" />
     <Compile Include="Engine\EngineSettings.cs" />
     <Compile Include="Input\Gamepads\DXGamepadManager.cs" />
+    <Compile Include="Input\Gamepads\InputInterface.cs" />
     <Compile Include="Input\Gamepads\TKGamepadManager.cs" />
     <Compile Include="Input\Gamepads\GamepadManager.cs" />
     <Compile Include="Input\LocalPlayerController.cs" />

@@ -12,6 +12,7 @@ using CustomEngine.Worlds.Maps;
 using CustomEngine.Worlds.Actors.Components;
 using CustomEngine.Rendering.Models;
 using System.Windows.Forms;
+using CustomEngine.Input.Gamepads;
 
 namespace CustomEngine
 {
@@ -145,20 +146,35 @@ namespace CustomEngine
             set
             {
                 _inputLibrary = value;
+                _awaiter?.Dispose();
+                switch (_inputLibrary)
+                {
+                    case InputLibrary.OpenTK:
+                        _awaiter = new TKGamepadAwaiter(FoundGamepad);
+                        break;
+                    case InputLibrary.XInput:
+                        _awaiter = new DXGamepadAwaiter(FoundGamepad);
+                        break;
+                }
                 foreach (LocalPlayerController c in ActivePlayers)
                     c.SetInputLibrary();
             }
         }
 
+        #region Tick        
         public static void Run() { _timer.Run(); }
         public static void Stop() { _timer.Stop(); }
-
-        #region Tick
         private static void PhysicsTick(TickGroup order, float delta)
         {
             foreach (var g in _tick[order])
-                foreach (ObjectBase b in g.Value)
+                for (int i = 0; i < g.Value.Count; ++i)
+                {
+                    ObjectBase b = g.Value[i];
+                    int oldCount = g.Value.Count;
                     b.Tick(delta);
+                    if (g.Value.Count < oldCount)
+                        --i;
+                }
         }
         public static void RegisterTick(ObjectBase obj, TickGroup group, TickOrder order)
         {
@@ -285,6 +301,21 @@ namespace CustomEngine
             _currentWorld = world;
             if (oldCurrent != null && oldCurrent.IsLoaded)
                 oldCurrent.Unload();
+        }
+        static GamepadAwaiter _awaiter;
+        internal static void FoundGamepad(int controllerIndex)
+        {
+            GamepadManager gamepad = null;
+            switch (InputLibrary)
+            {
+                case InputLibrary.OpenTK:
+                    gamepad = new TKGamepadManager(controllerIndex);
+                    break;
+                case InputLibrary.XInput:
+                    gamepad = new DXGamepadManager(controllerIndex);
+                    break;
+            }
+            LocalPlayerController controller = new LocalPlayerController(gamepad);
         }
     }
 }

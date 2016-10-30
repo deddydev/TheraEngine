@@ -14,10 +14,6 @@ namespace CustomEngine.Input.Gamepads
             new Controller(UserIndex.Four),
         };
         public DXGamepadAwaiter(Action<int> uponFound) : base(uponFound) { }
-        public static void Await(Action<int> uponFound)
-        {
-            CurrentAwaiters.Add(new DXGamepadAwaiter(uponFound));
-        }
         protected override List<int> GetConnected()
         {
             List<int> connected = new List<int>();

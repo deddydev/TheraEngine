@@ -1,4 +1,5 @@
 ﻿using CustomEngine.Input;
+using CustomEngine.Input.Gamepads;
 using System;
 
 namespace CustomEngine.Worlds.Actors
@@ -12,18 +13,26 @@ namespace CustomEngine.Worlds.Actors
 
         public virtual void OnPossessed(PawnController c)
         {
+            if (c == null)
+                OnUnPossessed();
+
             _controller = c;
+            RegisterInput(_controller.Input);
         }
         public virtual void OnUnPossessed()
         {
+            if (_controller == null)
+                return;
+
             _controller = null;
         }
 
         protected override void SetupComponents()
         {
-            
-        }
 
+        }
+        protected virtual void RegisterInput(InputInterface input) { }
+        
         internal override void Tick(float delta)
         {
             if (Engine.World == null)

@@ -1,5 +1,5 @@
 ﻿using System;
-using CustomEngine.Input.Gamepads;
+using CustomEngine.Input.Devices;
 using CustomEngine.Players;
 using CustomEngine.Rendering;
 using CustomEngine.Rendering.Cameras;
@@ -9,8 +9,8 @@ namespace CustomEngine.Input
     public class LocalPlayerController : PlayerController
     {
         private Viewport _viewport;
-
-        public GamepadManager Gamepad { get { return _input as GamepadManager; } }
+        private int _index;
+        
         public int LocalPlayerIndex { get { return _viewport.Index; } }
         public Viewport Viewport
         {
@@ -22,24 +22,24 @@ namespace CustomEngine.Input
             get { return _viewport.Camera; }
             set { _viewport.Camera = value; }
         }
-        internal void SetInputLibrary()
+        //internal void SetInputLibrary()
+        //{
+        //    if (Gamepad == null)
+        //        return;
+        //    int controllerIndex = Gamepad.ControllerIndex;
+        //    switch (Engine.InputLibrary)
+        //    {
+        //        case InputLibrary.OpenTK:
+        //            _input = new TKGamepadManager(controllerIndex);
+        //            break;
+        //        case InputLibrary.XInput:
+        //            _input = new DXGamepadManager(controllerIndex);
+        //            break;
+        //    }
+        //}
+        public LocalPlayerController()
         {
-            if (Gamepad == null)
-                return;
-            int controllerIndex = Gamepad.ControllerIndex;
-            switch (Engine.InputLibrary)
-            {
-                case InputLibrary.OpenTK:
-                    _input = new TKGamepadManager(controllerIndex);
-                    break;
-                case InputLibrary.XInput:
-                    _input = new DXGamepadManager(controllerIndex);
-                    break;
-            }
-        }
-        public LocalPlayerController(GamepadManager gamepad)
-        {
-            _input = gamepad;
+            _index = Engine.ActivePlayers.Count;
             Engine.ActivePlayers.Add(this);
         }
         ~LocalPlayerController()

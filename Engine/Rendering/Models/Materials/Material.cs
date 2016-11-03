@@ -1,4 +1,5 @@
-﻿using System;
+﻿using OpenTK.Graphics.OpenGL;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -45,6 +46,12 @@ namespace CustomEngine.Rendering.Models.Materials
             int[] ids = _shaders.Select(x => x.Compile()).ToArray();
             return Engine.Renderer.GenerateProgram(ids);
         }
+
+        public void SetUniforms()
+        {
+            Engine.Renderer.SetBindFragDataLocation(BindingId, 0, "diffuseColor");
+        }
+
         public void Generate(ResultBasicFunc resultFunction)
         {
             _shaders.Clear();

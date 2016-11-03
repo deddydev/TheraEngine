@@ -5,27 +5,23 @@ using CustomEngine.Rendering.Animation;
 
 namespace CustomEngine.Worlds.Actors.Components
 {
-    public class ModelComponent : SceneComponent
+    public class ModelComponent : PrimitiveComponent<Model>
     {
-        private Model _model;
-
         public ModelComponent() { }
         public ModelComponent(Model m) { Model = m; }
 
         public Model Model
         {
-            get { return _model; }
+            get { return _primitive; }
             set
             {
-                if (_model == value)
+                if (_primitive == value)
                     return;
-                if (_model != null)
-                    _model.UnlinkComponent(this);
-                if ((_model = value) != null)
-                    _model.LinkComponent(this);
+                if (_primitive != null)
+                    _primitive.UnlinkComponent(this);
+                if ((_primitive = value) != null)
+                    _primitive.LinkComponent(this);
             }
         }
-
-        protected override void OnRender(float delta) { _model?.Render(delta); }
     }
 }

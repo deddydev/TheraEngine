@@ -4,6 +4,7 @@ using System;
 using System.Drawing;
 using System.Threading.Tasks;
 using CustomEngine.Rendering.Animation;
+using System.Collections.Generic;
 
 namespace CustomEngine
 {
@@ -20,10 +21,13 @@ namespace CustomEngine
         RectangleF Region { get; set; }
         void OnResized();
     }
-    public interface IShape : IRenderable
+    public interface IPrimitive : IRenderable
+    {
+        List<PrimitiveData> GetPrimitives();
+    }
+    public interface IShape : IPrimitive
     {
         bool ContainsPoint(Vec3 point);
-        PrimitiveData GetPrimitives();
     }
 
     public interface IBufferable

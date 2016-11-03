@@ -33,6 +33,7 @@ namespace CustomEngine.Rendering
         #region Shapes
         public void DrawBoxWireframe(Box box) { DrawBoxWireframe(box.Minimum, box.Maximum); }
         public void DrawBoxSolid(Box box) { DrawBoxSolid(box.Minimum, box.Maximum); }
+
         public abstract void DrawBoxWireframe(Vec3 min, Vec3 max);
         public abstract void DrawBoxSolid(Vec3 min, Vec3 max);
 
@@ -167,6 +168,7 @@ namespace CustomEngine.Rendering
          * 
          */
 
+        public abstract void SetBindFragDataLocation(int bindingId, int location, string name);
         public abstract void SetShaderMode(ShaderMode type);
         /// <summary>
         /// Creates a new shader.
@@ -182,7 +184,7 @@ namespace CustomEngine.Rendering
         /// <returns></returns>
         public abstract int GenerateProgram(params int[] shaderHandles);
 
-        public virtual void UseProgram(int handle) { _programHandle = handle; }
+        public virtual void UseMaterial(int handle) { _programHandle = handle; }
         public virtual void DeleteProgram(int handle)
         {
             if (_programHandle == handle)

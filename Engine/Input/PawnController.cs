@@ -1,4 +1,4 @@
-﻿using CustomEngine.Input.Gamepads;
+﻿using CustomEngine.Input.Devices;
 using CustomEngine.Worlds.Actors;
 using System;
 

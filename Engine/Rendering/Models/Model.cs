@@ -2,15 +2,28 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using CustomEngine.Worlds.Actors.Components;
+using System.Linq;
 
 namespace CustomEngine.Rendering.Models
 {
-    public class Model : FileObject, IRenderable
+    public class Model : FileObject, IPrimitive
     {
         private List<ModelComponent> _linkedComponents = new List<ModelComponent>();
 
-        public List<Mesh> _meshes = new List<Mesh>();
-        public Skeleton _skeleton;
+        private List<Mesh> _meshes = new List<Mesh>();
+        private Skeleton _skeleton;
+        private bool _simulatePhysics;
+
+        public Skeleton Skeleton
+        {
+            get { return _skeleton; }
+            set { _skeleton = value; }
+        }
+        public bool SimulatePhysics
+        {
+            get { return _simulatePhysics; }
+            set { _simulatePhysics = value; }
+        }
 
         public void Render(float delta)
         {
@@ -33,13 +46,14 @@ namespace CustomEngine.Rendering.Models
         {
             base.Load();
         }
-        public void SetSkeleton(Skeleton skeleton)
-        {
-            _skeleton = skeleton;
-        }
         public void AddMesh(Mesh m)
         {
             _meshes.Add(m);
+        }
+
+        public List<PrimitiveData> GetPrimitives()
+        {
+            return _meshes.Select(x => x._manager.Data).ToList();
         }
     }
 }

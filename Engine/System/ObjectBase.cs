@@ -12,13 +12,13 @@ namespace System
     public delegate void ResourceEventHandler(ObjectBase node);
     public delegate void RenamedEventHandler(ObjectBase node, string oldName);
     public delegate void ObjectPropertyChangedEventHandler(object sender, PropertyChangedEventArgs e);
-    public enum TickGroup
+    public enum ETickGroup
     {
         PrePhysics = 0,
         PostPhysics = 1,
         DuringPhysics = 2,
     }
-    public enum TickOrder
+    public enum ETickOrder
     {
         Timers = 0, //Call timing events
         Input = 1, //Call input events
@@ -36,8 +36,8 @@ namespace System
 
         protected string _name;
         protected bool _changed;
-        private TickGroup? _tickGroup = null;
-        private TickOrder? _tickOrder = null;
+        private ETickGroup? _tickGroup = null;
+        private ETickOrder? _tickOrder = null;
 
         [Browsable(false)]
         public virtual ResourceType ResourceType { get { return ResourceType.Object; } }
@@ -57,13 +57,13 @@ namespace System
         }
         
         //[Category("Tick"), PreChanged("UnregisterTick"), PostChanged("RegisterTick")]
-        public TickGroup? TickGroup
+        public ETickGroup? TickGroup
         {
             get { return _tickGroup; }
             set { _tickGroup = value; }
         }
         //[Category("Tick"), PreChanged("UnregisterTick"), PostChanged("RegisterTick")]
-        public TickOrder? TickOrder
+        public ETickOrder? TickOrder
         {
             get { return _tickOrder; }
             set { _tickOrder = value; }
@@ -93,7 +93,7 @@ namespace System
         /// <summary>
         /// Specifies that this object wants tick calls.
         /// </summary>
-        public void RegisterTick(TickGroup group, TickOrder order)
+        public void RegisterTick(ETickGroup group, ETickOrder order)
         {
             Engine.RegisterTick(this, group, order);
         }

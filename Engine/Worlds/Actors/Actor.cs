@@ -65,7 +65,6 @@ namespace CustomEngine.Worlds
         public void OnOriginRebased(Vec3 newOrigin)
         {
             _rootSceneComponent?.Transform.AddTranslation(-newOrigin);
-            //TODO: update child transforms here or wait?
         }
         internal override void Tick(float delta)
         {

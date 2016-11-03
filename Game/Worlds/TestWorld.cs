@@ -9,13 +9,13 @@ using CustomEngine.Worlds.Actors.Components;
 using CustomEngine.Worlds.Maps;
 using CustomEngine.Rendering;
 using CustomEngine.Rendering.Animation;
-using CustomEngine.Input.Gamepads;
+using CustomEngine.Input.Devices;
 
 namespace Game.Worlds
 {
     public class TestWorld : World
     {
-        GamepadManager g;
+        Gamepad g;
         public TestWorld() : base(new WorldSettings("TestWorld"))
         {
             Model boxModel = new Model();
@@ -23,7 +23,7 @@ namespace Game.Worlds
             Skeleton skel = new Skeleton();
             skel.RootBone = new Bone("Root", FrameState.Identity);
             boxModel.AddMesh(mesh);
-            boxModel.SetSkeleton(skel);
+            boxModel.Skeleton = skel;
 
             ModelComponent modelComp = new ModelComponent(boxModel);
             Actor actor = new Actor(modelComp);

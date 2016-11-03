@@ -1,18 +1,14 @@
-﻿using CustomEngine.Worlds;
-using System;
-using CustomEngine.Rendering;
-using CustomEngine.Input;
-using System.ComponentModel;
-using System.Threading.Tasks;
-using System.Windows.Controls;
+﻿using System;
 using System.IO;
-using System.Collections.Generic;
-using CustomEngine.Audio;
-using CustomEngine.Worlds.Maps;
-using CustomEngine.Worlds.Actors.Components;
-using CustomEngine.Rendering.Models;
 using System.Windows.Forms;
-using CustomEngine.Input.Gamepads;
+using System.Collections.Generic;
+using CustomEngine.Rendering;
+using CustomEngine.Worlds;
+using CustomEngine.Input;
+using CustomEngine.Audio;
+using CustomEngine.Input.Devices;
+using CustomEngine.Input.Devices.OpenTK;
+using CustomEngine.Input.Devices.DirectX;
 
 namespace CustomEngine
 {
@@ -33,8 +29,8 @@ namespace CustomEngine
         private static AbstractRenderer _renderer;
         private static AbstractAudioManager _audioManager;
 
-        public static Dictionary<TickGroup, Dictionary<TickOrder, List<ObjectBase>>> _tick = 
-            new Dictionary<TickGroup, Dictionary<TickOrder, List<ObjectBase>>>();
+        public static Dictionary<ETickGroup, Dictionary<ETickOrder, List<ObjectBase>>> _tick = 
+            new Dictionary<ETickGroup, Dictionary<ETickOrder, List<ObjectBase>>>();
 
         static Engine()
         {
@@ -42,10 +38,10 @@ namespace CustomEngine
             _timer.UpdateFrame += Tick;
             for (int i = 0; i < 2; ++i)
             {
-                TickGroup order = (TickGroup)i;
-                _tick.Add(order, new Dictionary<TickOrder, List<ObjectBase>>());
+                ETickGroup order = (ETickGroup)i;
+                _tick.Add(order, new Dictionary<ETickOrder, List<ObjectBase>>());
                 for (int j = 0; j < 4; ++j)
-                    _tick[order].Add((TickOrder)j, new List<ObjectBase>());
+                    _tick[order].Add((ETickOrder)j, new List<ObjectBase>());
             }
         }
 
@@ -146,25 +142,25 @@ namespace CustomEngine
             set
             {
                 _inputLibrary = value;
-                _awaiter?.Dispose();
+                _inputAwaiter?.Dispose();
                 switch (_inputLibrary)
                 {
                     case InputLibrary.OpenTK:
-                        _awaiter = new TKGamepadAwaiter(FoundGamepad);
+                        _inputAwaiter = new TKInputAwaiter(FoundInput);
                         break;
                     case InputLibrary.XInput:
-                        _awaiter = new DXGamepadAwaiter(FoundGamepad);
+                        _inputAwaiter = new DXInputAwaiter(FoundInput);
                         break;
                 }
-                foreach (LocalPlayerController c in ActivePlayers)
-                    c.SetInputLibrary();
+                //foreach (LocalPlayerController c in ActivePlayers)
+                //    c.SetInputLibrary();
             }
         }
 
         #region Tick        
         public static void Run() { _timer.Run(); }
         public static void Stop() { _timer.Stop(); }
-        private static void PhysicsTick(TickGroup order, float delta)
+        private static void PhysicsTick(ETickGroup order, float delta)
         {
             foreach (var g in _tick[order])
                 for (int i = 0; i < g.Value.Count; ++i)
@@ -176,7 +172,7 @@ namespace CustomEngine
                         --i;
                 }
         }
-        public static void RegisterTick(ObjectBase obj, TickGroup group, TickOrder order)
+        public static void RegisterTick(ObjectBase obj, ETickGroup group, ETickOrder order)
         {
             if (obj != null)
             {
@@ -190,8 +186,8 @@ namespace CustomEngine
         {
             if (obj != null && obj.TickOrder != null && obj.TickGroup != null)
             {
-                TickOrder order = obj.TickOrder.Value;
-                TickGroup group = obj.TickGroup.Value;
+                ETickOrder order = obj.TickOrder.Value;
+                ETickGroup group = obj.TickGroup.Value;
                 if (_tick[group][order].Contains(obj))
                     _tick[group][order].Remove(obj);
                 obj.TickOrder = null;
@@ -211,9 +207,9 @@ namespace CustomEngine
             delta /= PhysicsSubsteps;
             for (int i = 0; i < PhysicsSubsteps; i++)
             {
-                PhysicsTick(TickGroup.PrePhysics, delta);
+                PhysicsTick(ETickGroup.PrePhysics, delta);
                 World.StepSimulation(delta);
-                PhysicsTick(TickGroup.PostPhysics, delta);
+                PhysicsTick(ETickGroup.PostPhysics, delta);
             }
             //await t;
         }
@@ -302,20 +298,10 @@ namespace CustomEngine
             if (oldCurrent != null && oldCurrent.IsLoaded)
                 oldCurrent.Unload();
         }
-        static GamepadAwaiter _awaiter;
-        internal static void FoundGamepad(int controllerIndex)
+        static InputAwaiter _inputAwaiter;
+        internal static void FoundInput(InputDevice device)
         {
-            GamepadManager gamepad = null;
-            switch (InputLibrary)
-            {
-                case InputLibrary.OpenTK:
-                    gamepad = new TKGamepadManager(controllerIndex);
-                    break;
-                case InputLibrary.XInput:
-                    gamepad = new DXGamepadManager(controllerIndex);
-                    break;
-            }
-            LocalPlayerController controller = new LocalPlayerController(gamepad);
+            LocalPlayerController controller = new LocalPlayerController();
         }
     }
 }

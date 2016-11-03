@@ -17,11 +17,12 @@ namespace CustomEngine.Rendering.Models.Materials
     }
     public abstract class GLVar : IGLVarOwner
     {
-        GLTypeName _typeName;
-        string _name;
-        bool _isOutput;
-        GLVar _connectedTo;
-        IGLVarOwner _owner;
+        protected GLTypeName _typeName;
+        protected string _name;
+        protected bool _isOutput;
+        protected GLVar _connectedTo;
+        protected IGLVarOwner _owner;
+        protected bool _isArrayType, _isBooleanType;
         protected List<GLVar> _fields = new List<GLVar>();
 
         public GLVar(GLTypeName typeName, string name)
@@ -63,6 +64,16 @@ namespace CustomEngine.Rendering.Models.Materials
             if (other._typeName != _typeName)
                 return false;
             return true;
+        }
+        public string GetGlobalFieldLine(int layoutId, EQualifier qualifier)
+        {
+            return string.Format("layout (location = {0}) {1} {2} {3};", 
+                layoutId, qualifier.ToString().Substring(1), _typeName.ToString().Substring(1), _name);
+        }
+        public string GetGlobalFieldLine(int layoutId, EQualifier qualifier)
+        {
+            return string.Format("layout (location = {0}) {1} {2} {3};",
+                layoutId, qualifier.ToString().Substring(1), _typeName.ToString().Substring(1), _name);
         }
     }
 }

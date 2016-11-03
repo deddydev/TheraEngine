@@ -106,16 +106,15 @@ namespace System
             else
                 Engine.Renderer.DrawBoxWireframe(this);
         }
-        public unsafe PrimitiveData GetPrimitives()
+        public unsafe List<PrimitiveData> GetPrimitives()
         {
             Func<Vec3, Vec3, Vec3, Vec3, Vec3, VertexQuad> MakeQuad = (p0, p1, p2, p3, normal) =>
             {
                 return new VertexQuad(
                     new Vertex(p0) { _normal = normal, _texCoords = new List<Vec2>() { new Vec2(0.0f, 0.0f) } },
                     new Vertex(p1) { _normal = normal, _texCoords = new List<Vec2>() { new Vec2(1.0f, 0.0f) } },
-                    new Vertex(p2) { _normal = normal, _texCoords = new List<Vec2>() { new Vec2(0.0f, 1.0f) } },
-                    new Vertex(p3) { _normal = normal, _texCoords = new List<Vec2>() { new Vec2(1.0f, 1.0f) } },
-                    OutsideDirection.Toward);
+                    new Vertex(p2) { _normal = normal, _texCoords = new List<Vec2>() { new Vec2(1.0f, 1.0f) } },
+                    new Vertex(p3) { _normal = normal, _texCoords = new List<Vec2>() { new Vec2(0.0f, 1.0f) } });
             };
 
             VertexQuad left, right, top, bottom, front, back;
@@ -137,7 +136,7 @@ namespace System
             front = MakeQuad(BFL, BFR, TFL, TFR, frontNormal);
             back = MakeQuad(BBR, BBL, TBR, TBL, backNormal);
 
-            return PrimitiveData.FromQuads(left, right, top, bottom, front, back);
+            return new List<PrimitiveData>() { PrimitiveData.FromQuads(left, right, top, bottom, front, back) };
         }
     }
 }

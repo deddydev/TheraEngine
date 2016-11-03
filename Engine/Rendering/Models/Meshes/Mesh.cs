@@ -19,7 +19,7 @@ namespace CustomEngine.Rendering.Models
 
         private Model _owner;
         private CollisionShape _collision;
-        private PrimitiveManager _manager = new PrimitiveManager();
+        internal PrimitiveManager _manager = new PrimitiveManager();
         private Material _material;
 
         public CollisionShape CollisionShape
@@ -46,13 +46,13 @@ namespace CustomEngine.Rendering.Models
         public void Render(float delta)
         {
             if (_material != null)
-                _manager.Render(_material.BindingId);
+                _manager.Render(_material);
         }
 
         public static implicit operator Mesh(Box b)
         {
             Mesh m = new Mesh("Box");
-            m.SetPrimitiveData(b.GetPrimitives());
+            m.SetPrimitiveData(b.GetPrimitives()[0]);
             return m;
         }
     }

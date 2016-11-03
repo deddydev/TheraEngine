@@ -255,15 +255,10 @@ namespace CustomEngine.Rendering.OpenGL
             }
             return handle;
         }
-        public override void UseProgram(int handle)
+        public override void UseMaterial(int handle)
         {
-            base.UseProgram(handle);
+            base.UseMaterial(handle);
             GL.UseProgram(_programHandle);
-        }
-        public override void DeleteProgram(int handle)
-        {
-            base.DeleteProgram(handle);
-            GL.DeleteProgram(handle);
         }
 
         #region Uniforms

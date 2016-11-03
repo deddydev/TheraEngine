@@ -66,14 +66,14 @@ namespace CustomEngine.Rendering.Models
         }
         public static PrimitiveData FromQuadList(IEnumerable<VertexQuad> quads)
         {
-            return FromTriangles(quads.SelectMany(x => x.GetTriangleList()).ToList());
+            return FromTriangles(quads.SelectMany(x => x.ToTriangles()).ToList());
         }
         public static unsafe PrimitiveData FromTriangles(IEnumerable<VertexTriangle> triangles)
         {
             bool hasNormals = false;
             int texCoordCount = 0, colorCount = 0;
 
-            List<Vertex> vertices = triangles.SelectMany(x => x.GetVertexList(false)).ToList();
+            List<Vertex> vertices = triangles.SelectMany(x => x.Vertices).ToList();
             if (vertices.Any(x => x._normal != null))
                 hasNormals = true;
             foreach (Vertex v in vertices)
@@ -129,9 +129,9 @@ namespace CustomEngine.Rendering.Models
 
             int bufferIndex = _buffers.Count;
             VertexBuffer buffer = new VertexBuffer(bufferIndex, name, target);
-            Remapper posRemap = buffer.SetData(bufferData);
+            Remapper remapper = buffer.SetData(bufferData);
             for (int i = 0; i < bufferData.Count; ++i)
-                _facePoints[i].Indices.Add(posRemap.ImplementationTable[posRemap.RemapTable[i]]);
+                _facePoints[i].Indices.Add(remapper.ImplementationTable[remapper.RemapTable[i]]);
             _buffers.Add(buffer);
         }
         private void ReplaceBuffer<T>(List<T> bufferData, int bufferIndex, string name, BufferTarget target = BufferTarget.ArrayBuffer) where T : IBufferable

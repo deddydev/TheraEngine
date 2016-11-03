@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Runtime.InteropServices;
 
 namespace CustomEngine.Rendering.Models
 {
@@ -13,6 +14,7 @@ namespace CustomEngine.Rendering.Models
         public const string NormalsName = "Normals";
         public const string TexCoordName = "TexCoord";
         public const string ColorName = "Color";
+        public const string SpecialName = "Special";
 
         public enum BufferUsage
         {
@@ -113,6 +115,7 @@ namespace CustomEngine.Rendering.Models
         public bool IsNormalsBuffer() { return Name == NormalsName; }
         public bool IsTexCoordBuffer() { return Name.StartsWith(TexCoordName); }
         public bool IsColorBuffer() { return Name.StartsWith(ColorName); }
+        public bool IsSpecialBuffer() { return Name.StartsWith(SpecialName); }
         public int Initialize()
         {
             Generate();
@@ -141,6 +144,12 @@ namespace CustomEngine.Rendering.Models
         public void PushData(BufferUsage usage = BufferUsage.StaticDraw)
         {
             GL.BufferData(_target, (IntPtr)_data.Length, _data.Address, BufferUsageHint.StreamDraw + (int)usage);
+        }
+        public T Get<T>(int offset) where T : struct
+        {
+            T value = default(T);
+            Marshal.PtrToStructure(_data.Address + offset, value);
+            return value;
         }
         public unsafe Remapper SetDataNumeric<T>(IList<T> list, bool remap = true) where T : struct
         {
@@ -176,7 +185,7 @@ namespace CustomEngine.Rendering.Models
                 {
                     VoidPtr addr = _data.Address[i, stride];
                     T value = list[remapper.ImplementationTable[i]];
-                    System.Runtime.InteropServices.Marshal.StructureToPtr(value, addr, true);
+                    Marshal.StructureToPtr(value, addr, true);
                 }
                 return remapper;
             }
@@ -190,7 +199,7 @@ namespace CustomEngine.Rendering.Models
                 {
                     VoidPtr addr = _data.Address[i, stride];
                     T value = list[i];
-                    System.Runtime.InteropServices.Marshal.StructureToPtr(value, addr, true);
+                    Marshal.StructureToPtr(value, addr, true);
                 }
                 return null;
             }

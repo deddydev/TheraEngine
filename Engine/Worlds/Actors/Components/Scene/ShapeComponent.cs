@@ -1,15 +1,13 @@
 ﻿namespace CustomEngine.Worlds.Actors.Components
 {
-    public class ShapeComponent<T> : SceneComponent where T : IShape
+    public class ShapeComponent<T> : PrimitiveComponent<T> where T : IShape
     {
-        private T _shape;
         public T Shape
         {
-            get { return _shape; }
-            set { _shape = value; }
+            get { return _primitive; }
+            set { _primitive = value; }
         }
 
-        protected override void OnRender(float delta) { _shape?.Render(delta); }
         public virtual void OnBeginOverlap()
         {
 

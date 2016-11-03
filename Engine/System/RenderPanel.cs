@@ -11,6 +11,7 @@ using System;
 using System.Drawing;
 using CustomEngine.Input;
 using System.Linq;
+using CustomEngine.Input.Devices;
 
 namespace CustomEngine
 {

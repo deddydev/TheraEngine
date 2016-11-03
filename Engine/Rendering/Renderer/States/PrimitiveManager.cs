@@ -1,4 +1,5 @@
-﻿using OpenTK.Graphics.OpenGL;
+﻿using CustomEngine.Rendering.Models.Materials;
+using OpenTK.Graphics.OpenGL;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -24,6 +25,12 @@ namespace CustomEngine.Rendering.Models
 
         public PrimitiveManager() : base(GenType.VertexArray) { }
 
+        public PrimitiveData Data
+        {
+            get { return _data; }
+            set { Destroy(); _data = value; }
+        }
+
         public void SetPrimitiveData(PrimitiveData data)
         {
             if (_data != null)
@@ -31,7 +38,7 @@ namespace CustomEngine.Rendering.Models
             _data = data;
         }
 
-        public void Render(int programId)
+        public void Render(Material material)
         {
             if (_data == null)
                 return;
@@ -39,14 +46,18 @@ namespace CustomEngine.Rendering.Models
             if (!_initialized)
                 Generate();
 
-            GL.UseProgram(programId);
+            Engine.Renderer.UseMaterial(material.BindingId);
+
+            material.SetUniforms();
+
             GL.BindVertexArray(BindingId);
 
             GL.BindVertexBuffers(0, _data._buffers.Count, _bindingIds, new IntPtr[_data._buffers.Count], _data._buffers.Select(x => x.Stride).ToArray());
             _triangles.Render();
 
             GL.BindVertexArray(0);
-            GL.UseProgram(0);
+
+            Engine.Renderer.UseMaterial(0);
         }
 
         public VoidPtr PreModifyVertices()

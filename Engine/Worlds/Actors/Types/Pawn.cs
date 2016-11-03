@@ -1,5 +1,5 @@
 ﻿using CustomEngine.Input;
-using CustomEngine.Input.Gamepads;
+using CustomEngine.Input.Devices;
 using System;
 
 namespace CustomEngine.Worlds.Actors

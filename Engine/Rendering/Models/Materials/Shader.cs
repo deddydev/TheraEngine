@@ -58,5 +58,36 @@ namespace CustomEngine.Rendering.Models.Materials
 
             return id;
         }
+        public static Shader TestVertexShader()
+        {
+            string source = @"
+
+in vec4 Position;
+in vec3 Normal;
+in vec2 TexCoord;
+uniform mat4 ModelMatrix;
+uniform mat4 ViewMatrix;
+uniform mat4 ProjMatrix;
+
+void main()
+{
+    
+}
+";
+            return new Shader(ShaderMode.Vertex, source);
+        }
+        public static Shader TestFragmentShader()
+        {
+            string source = @"
+
+layout (location = 0) out vec4 diffuseColor;
+
+void main()
+{
+    diffuseColor = vec4(1.0, 0.0, 0.0, 1.0);
+}
+";
+            return new Shader(ShaderMode.Fragment, source);
+        }
     }
 }

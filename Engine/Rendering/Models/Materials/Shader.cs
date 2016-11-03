@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CustomEngine.Rendering.Models.Materials;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -21,9 +22,10 @@ namespace CustomEngine.Rendering.Models.Materials
 
         public bool NeedsCompile { get { return _sourceChanged; } }
 
-        bool _sourceChanged = false;
-        public ShaderMode _type;
-        public string _source;
+        private bool _sourceChanged = false;
+        private ShaderMode _type;
+        private string _source;
+        private List<Uniform> _uniforms;
 
         public Shader(ShaderMode type)
         {
@@ -42,7 +44,7 @@ namespace CustomEngine.Rendering.Models.Materials
         }
         public void Generate(ResultBasicFunc resultFunction)
         {
-            _source = "";
+            _source = resultFunction.Generate(_type);
         }
         public int Compile()
         {

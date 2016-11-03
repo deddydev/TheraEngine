@@ -10,7 +10,7 @@ namespace CustomEngine.Rendering.Models.Materials
     {
         T _data;
 
-        public Uniform(GLTypeName type, string name, int index, T data) : base(type, name, index, EQualifier._uniform)
+        public Uniform(GLTypeName type, string name, int index, T data) : base(type, name, index)
         {
             _data = data;
         }

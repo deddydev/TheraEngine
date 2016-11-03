@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CustomEngine.Rendering.Models.Materials.ShaderGenerator;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -11,6 +12,15 @@ namespace CustomEngine.Rendering.Models.Materials
     /// </summary>
     public class ResultBasicFunc : MaterialFunction
     {
+        private GLVec4 OutputColor { get { return InputArguments[0] as GLVec4; } }
+        protected override List<GLVar> GetInputArguments()
+        {
+            return new List<GLVar>()
+            {
+                new GLVec4("OutputColor", FragmentShaderGenerator.OutputColorName),
+            };
+        }
+
         protected override List<string> GetKeywords()
         {
             return new List<string>()
@@ -24,15 +34,12 @@ namespace CustomEngine.Rendering.Models.Materials
 
         protected override string GetOperation()
         {
-            return "";
+            GLVec4 output = OutputColor;
+            return string.Format("{0} = {1}", output, output.Prev.AccessorTree());
         }
-
-        protected override List<GLVar> GetInputArguments()
+        public string Generate(ShaderMode type)
         {
-            return new List<GLVar>()
-            {
-                new GLVec4("OutputColor")
-            };
+
         }
     }
 }

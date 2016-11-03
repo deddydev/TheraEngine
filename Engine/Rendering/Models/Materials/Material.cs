@@ -49,7 +49,7 @@ namespace CustomEngine.Rendering.Models.Materials
 
         public void SetUniforms()
         {
-            Engine.Renderer.SetBindFragDataLocation(BindingId, 0, "diffuseColor");
+
         }
 
         public void Generate(ResultBasicFunc resultFunction)

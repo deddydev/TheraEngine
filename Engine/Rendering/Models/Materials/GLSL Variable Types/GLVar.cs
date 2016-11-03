@@ -15,20 +15,52 @@ namespace CustomEngine.Rendering.Models.Materials
         _mat3,
         _mat4,
     }
-    public abstract class GLVar : IGLVarOwner
+    public class GLVar : IGLVarOwner
     {
         protected GLTypeName _typeName;
-        protected string _name;
+        protected string _userName;
         protected bool _isOutput;
         protected GLVar _connectedTo;
         protected IGLVarOwner _owner;
         protected bool _isArrayType, _isBooleanType;
-        protected List<GLVar> _fields = new List<GLVar>();
+        protected List<GLSubVar> _fields = new List<GLSubVar>();
 
-        public GLVar(GLTypeName typeName, string name)
+        public GLVar(GLTypeName typeName, string userName)
         {
             _typeName = typeName;
-            _name = name;
+            _userName = userName;
+
+            switch (typeName)
+            {
+                case GLTypeName._float:
+                    break;
+                case GLTypeName._vec2:
+                    _fields.Add(new GLSubVar(GLTypeName._float, "X", ".x"));
+                    _fields.Add(new GLSubVar(GLTypeName._float, "Y", ".y"));
+                    break;
+                case GLTypeName._vec3:
+                    _fields.Add(new GLSubVar(GLTypeName._float, "X", ".x"));
+                    _fields.Add(new GLSubVar(GLTypeName._float, "Y", ".y"));
+                    _fields.Add(new GLSubVar(GLTypeName._float, "Z", ".z"));
+                    break;
+                case GLTypeName._vec4:
+                    _fields.Add(new GLSubVar(GLTypeName._float, "X", ".x"));
+                    _fields.Add(new GLSubVar(GLTypeName._float, "Y", ".y"));
+                    _fields.Add(new GLSubVar(GLTypeName._float, "Z", ".z"));
+                    _fields.Add(new GLSubVar(GLTypeName._float, "W", ".w"));
+                    break;
+                case GLTypeName._mat3:
+                    _fields.Add(new GLSubVar(GLTypeName._vec3, "Column0", "[0]"));
+                    _fields.Add(new GLSubVar(GLTypeName._vec3, "Column1", "[1]"));
+                    _fields.Add(new GLSubVar(GLTypeName._vec3, "Column2", "[2]"));
+                    break;
+                case GLTypeName._mat4:
+                    _fields.Add(new GLSubVar(GLTypeName._vec4, "Column0", "[0]"));
+                    _fields.Add(new GLSubVar(GLTypeName._vec4, "Column1", "[1]"));
+                    _fields.Add(new GLSubVar(GLTypeName._vec4, "Column2", "[2]"));
+                    _fields.Add(new GLSubVar(GLTypeName._vec4, "Column3", "[3]"));
+                    break;
+            }
         }
 
         public void Setup(bool output, MaterialFunction owner)
@@ -38,16 +70,49 @@ namespace CustomEngine.Rendering.Models.Materials
         }
 
         public GLTypeName TypeName { get { return _typeName; } }
-        public string Name { get { return _name; } }
+        public string Name { get { return _userName; } }
 
         public bool IsOutput { get { return _isOutput; } }
         public IGLVarOwner Owner { get { return _owner; } }
 
-        public GLVar ConnectedTo
+        public GLVar Prev
+        {
+            get
+            {
+                if (_isOutput)
+                    throw new Exception("Assumed this was an input var.");
+                return ConnectedTo;
+            }
+            set
+            {
+                if (_isOutput)
+                    throw new Exception("Assumed this was an input var.");
+                ConnectedTo = value;
+            }
+        }
+        public GLVar Next
+        {
+            get
+            {
+                if (!_isOutput)
+                    throw new Exception("Assumed this was an output var.");
+                return ConnectedTo;
+            }
+            set
+            {
+                if (!_isOutput)
+                    throw new Exception("Assumed this was an output var.");
+                ConnectedTo = value;
+            }
+        }
+        protected GLVar ConnectedTo
         {
             get { return _connectedTo; }
             set { _connectedTo = FindConnectable(value, this); }
         }
+        /// <summary>
+        /// Finds 
+        /// </summary>
         public GLVar FindConnectable(GLVar target, GLVar compared)
         {
             if (target.CanConnectTo(compared))
@@ -65,15 +130,44 @@ namespace CustomEngine.Rendering.Models.Materials
                 return false;
             return true;
         }
+        /// <summary>
+        /// Ex: layout (location = 0) uniform float potato;
+        /// </summary>
         public string GetGlobalFieldLine(int layoutId, EQualifier qualifier)
         {
-            return string.Format("layout (location = {0}) {1} {2} {3};", 
-                layoutId, qualifier.ToString().Substring(1), _typeName.ToString().Substring(1), _name);
+            return string.Format("layout (location = {0}) {1} {2};", 
+                layoutId, qualifier.ToString().Substring(1), GetDeclaration());
         }
-        public string GetGlobalFieldLine(int layoutId, EQualifier qualifier)
+        /// <summary>
+        /// Ex: uniform float potato -> "float potato"
+        /// </summary>
+        public string GetDeclaration()
         {
-            return string.Format("layout (location = {0}) {1} {2} {3};",
-                layoutId, qualifier.ToString().Substring(1), _typeName.ToString().Substring(1), _name);
+            return string.Format("{0} {1}", _typeName.ToString().Substring(1), _accessorName);
         }
+        /// <summary>
+        /// Ex: uniform float potato -> "potato"
+        /// </summary>
+        public string GetVarName()
+        {
+            return _accessorName;
+        }
+        /// <summary>
+        /// Ex: this is float '.x', parent is vec4 '[0]', parent is mat4 'tomato': tomato[0].x
+        /// </summary>
+        /// <returns></returns>
+        public string AccessorTree()
+        {
+            string s = _accessorName;
+            IGLVarOwner owner = _owner;
+            while (owner != null && owner is GLVar)
+            {
+                GLVar owningVar = (GLVar)owner;
+                s = owningVar._accessorName + s;
+                owner = owningVar.Owner;
+            }
+            return s;
+        }
+        public override string ToString() { return GetVarName(); }
     }
 }

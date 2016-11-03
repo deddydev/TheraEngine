@@ -10,6 +10,7 @@ using CustomEngine.Worlds.Maps;
 using CustomEngine.Rendering;
 using CustomEngine.Rendering.Animation;
 using CustomEngine.Input.Devices;
+using CustomEngine.Rendering.Models.Materials;
 
 namespace Game.Worlds
 {
@@ -20,6 +21,16 @@ namespace Game.Worlds
         {
             Model boxModel = new Model();
             Mesh mesh = new Box(new Vec3(-20.0f, -20.0f, -20.0f), new Vec3(20.0f, 20.0f, 20.0f));
+
+            ResultBasicFunc materialResult = new ResultBasicFunc();
+
+            Shader vert = new Shader(ShaderMode.Vertex);
+            Shader frag = new Shader(ShaderMode.Fragment);
+            vert.Generate(materialResult);
+            frag.Generate(materialResult);
+
+            mesh.Material = new Material("Mat_Green", new MaterialSettings());
+
             Skeleton skel = new Skeleton();
             skel.RootBone = new Bone("Root", FrameState.Identity);
             boxModel.AddMesh(mesh);

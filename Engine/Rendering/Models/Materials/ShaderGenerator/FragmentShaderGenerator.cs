@@ -8,6 +8,8 @@ namespace CustomEngine.Rendering.Models.Materials.ShaderGenerator
 {
     public class FragmentShaderGenerator : ShaderGenerator
     {
+        public static readonly string OutputColorName = "OutColor";
+
         public override string Generate(ResultBasicFunc end)
         {
             throw new NotImplementedException();

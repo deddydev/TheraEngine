@@ -11,7 +11,7 @@ namespace CustomEngine.Rendering.Models.Materials
     {
         protected string _operation;
         private List<string> _keywords = new List<string>();
-        private List<GLVar> 
+        protected List<GLVar> 
             _inputs = new List<GLVar>(), 
             _outputs = new List<GLVar>();
 
@@ -27,12 +27,17 @@ namespace CustomEngine.Rendering.Models.Materials
             _keywords = GetKeywords();
             AddInput(GetInputArguments());
             AddOutput(GetOutputArguments());
-            _operation = GetOperation();
+            _operation = string.Format(GetOperation(), InputArguments, OutputArguments);
         }
 
         protected virtual List<GLVar> GetInputArguments() { return null; }
         protected virtual List<GLVar> GetOutputArguments() { return null; }
         protected abstract List<string> GetKeywords();
+
+        /// <summary>
+        /// Returns the base operation for string.Format.
+        /// </summary>
+        /// <returns></returns>
         protected abstract string GetOperation();
 
         protected void AddInput(List<GLVar> input)

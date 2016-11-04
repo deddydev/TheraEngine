@@ -6,16 +6,20 @@ using System.ComponentModel;
 
 namespace CustomEngine.Rendering.HUD
 {
-    public abstract class HudComponent : ObjectBase, IPanel, IRenderable, IEnumerable<HudComponent>
+    public class HudComponent : ObjectBase, IPanel, IRenderable, IEnumerable<HudComponent>
     {
         public HudComponent(HudComponent owner) { _owner = owner; }
 
-        private RectangleF _region = new RectangleF();
-        private float _rotationAngle;
-        private PointF _rotationLocalOrigin;
         public HudComponent _owner;
         public List<HudComponent> _children = new List<HudComponent>();
+
+        public HudDockStyle _dockStyle;
+        public AnchorFlags _anchorFlags;
+
         Matrix4 _transform = Matrix4.Identity;
+        private RectangleF _region = new RectangleF();
+        private float _rotationAngle = 0.0f;
+        private Vec2 _rotationLocalOrigin = new Vec2(0.5f);
         public Vec2 _scale = Vec2.One;
         
         [Category("Transform"), Default, Animatable, PostCall("OnResized")]
@@ -74,7 +78,7 @@ namespace CustomEngine.Rendering.HUD
         /// 0,0 is bottom left, 0.5,0.5 is center, 1.0,1.0 is top right.
         /// </summary>
         [Category("Transform"), Default, State, Animatable, PostCall("OnTransformed")]
-        public PointF RotationLocalOrigin
+        public Vec2 RotationLocalOrigin
         {
             get { return _rotationLocalOrigin; }
             set { _rotationLocalOrigin = value; }
@@ -99,19 +103,108 @@ namespace CustomEngine.Rendering.HUD
         }
         public void OnTransformed()
         {
+            //step 1: set identity matrix
+            //step 2: translate into position (bottom left corner)
+            //step 3: rotate in position
+            //step 4: translate backward, relative to the rotation, by the local rotation origin to center on the rotation point
+            //step 5: scale the component
+
+            Matrix4 rotation = Matrix4.Identity;
+
+            //Ignore rotations if docked or anchored
+            if (_dockStyle == HudDockStyle.None && _anchorFlags == AnchorFlags.None)
+                rotation =
+                    Matrix4.CreateTranslation(-_rotationLocalOrigin.X * Width, -_rotationLocalOrigin.Y * Height, 0.0f) *
+                    Matrix4.CreateRotationZ(RotationAngle);
+
             _transform =
-                Matrix4.CreateScale(ScaleX, ScaleY, 1.0f) * 
-                Matrix4.TransformMatrix(
-                Vec3.One, 
-                Quaternion.FromAxisAngle(Vec3.UnitZ, RotationAngle), 
-                new Vec3(TranslationX, TranslationY, 0.0f), 
-                Matrix4.MultiplyOrder.STR);
+                Matrix4.CreateScale(ScaleX, ScaleY, 1.0f) *
+                rotation *
+                Matrix4.CreateTranslation(TranslationX, TranslationY, 0.0f);
         }
-        public virtual void OnResized()
+        /// <summary>
+        /// Returns the available real estate for the next components to use.
+        /// </summary>
+        public virtual RectangleF OnResized(RectangleF parentRegion)
         {
+            RectangleF leftOver = parentRegion;
+            if (_dockStyle != HudDockStyle.None || _anchorFlags != AnchorFlags.None)
+            {
+                bool allowLeft = true, allowRight = true, allowTop = true, allowBottom = true;
+                if (_dockStyle != HudDockStyle.None)
+                {
+                    allowLeft = false;
+                    allowRight = false;
+                    allowTop = false;
+                    allowBottom = false;
+                    switch (_dockStyle)
+                    {
+                        case HudDockStyle.Fill:
+                            _region.Size = parentRegion.Size;
+                            _region.Location = parentRegion.Location;
+                            break;
+                        case HudDockStyle.Bottom:
+                            _region.Location = parentRegion.Location;
+                            _region.Width = parentRegion.Width;
+                            allowTop = true;
+                            break;
+                        case HudDockStyle.Top:
+                            _region.Location = parentRegion.Location;
+                            _region.Y += parentRegion.Height - _region.Height;
+                            _region.Width = parentRegion.Width;
+                            allowBottom = true;
+                            break;
+                        case HudDockStyle.Left:
+                            _region.Location = parentRegion.Location;
+                            _region.Height = parentRegion.Height;
+                            allowRight = true;
+                            break;
+                        case HudDockStyle.Right:
+                            _region.Location = parentRegion.Location;
+                            _region.X += parentRegion.Width - _region.Width;
+                            _region.Height = parentRegion.Height;
+                            allowLeft = true;
+                            break;
+                    }
+                }
+                if (_anchorFlags != AnchorFlags.None)
+                {
+                    if ((_anchorFlags & AnchorFlags.Bottom) != 0 && allowBottom)
+                    {
+
+                    }
+                    if ((_anchorFlags & AnchorFlags.Top) != 0 && allowTop)
+                    {
+
+                    }
+                    if ((_anchorFlags & AnchorFlags.Left) != 0 && allowLeft)
+                    {
+
+                    }
+                    if ((_anchorFlags & AnchorFlags.Right) != 0 && allowRight)
+                    {
+
+                    }
+                }
+                leftOver = RegionComplement(parentRegion, Region);
+            }
+
+            RectangleF region = Region;
             foreach (HudComponent c in _children)
-                c.OnResized();
+                region = c.OnResized(region);
+
+            return leftOver;
         }
+
+        private RectangleF RegionComplement(RectangleF parentRegion, RectangleF region)
+        {
+            RectangleF leftOver = new RectangleF();
+
+
+
+            return leftOver;
+        }
+
         public virtual void Render(float delta)
         {
             Renderer.PushMatrix();
@@ -129,11 +222,11 @@ namespace CustomEngine.Rendering.HUD
     [Flags]
     public enum AnchorFlags
     {
-        None,
-        Top,
-        Bottom,
-        Left,
-        Right,
+        None = 0,
+        Top = 1,
+        Bottom = 2,
+        Left = 4,
+        Right = 8,
     }
     public enum HudDockStyle
     {

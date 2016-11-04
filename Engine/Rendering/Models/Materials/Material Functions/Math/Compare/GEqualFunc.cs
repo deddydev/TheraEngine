@@ -8,7 +8,7 @@ namespace CustomEngine.Rendering.Models.Materials
 {
     public class GEqualFunc : TwoArgFunc
     {
-        public GEqualFunc(GLTypeName argTypes) : base(argTypes, GLTypeName._bool) { }
+        public GEqualFunc(GLTypeName argTypes) : base(argTypes, argTypes, GLTypeName._bool) { }
         protected override string GetOperator() { return ">="; }
         public static MaterialFuncInfo GetInfo()
         {

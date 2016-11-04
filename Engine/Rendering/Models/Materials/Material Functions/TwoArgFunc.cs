@@ -15,12 +15,12 @@ namespace CustomEngine.Rendering.Models.Materials
             _bType = bType;
         }
 
-        protected override List<GLVar> GetInputArguments()
+        protected override List<GLArgument> GetArguments()
         {
-            return new List<GLVar>()
+            return new List<GLArgument>()
             {
-                new GLVar(_aType, "A"),
-                new GLVar(_bType, "B"),
+                new GLArgument(_aType, "A", this),
+                new GLArgument(_bType, "B", this),
             };
         }
 
@@ -32,7 +32,7 @@ namespace CustomEngine.Rendering.Models.Materials
         protected virtual string GetOperator() { return "UNSPECIFIED"; }
         protected override string GetOperation()
         {
-            return base.GetOperation() + "{0} " + GetOperator() + " {1}";
+            return base.GetOperation() + "{0} " + GetOperator() + " {1};";
         }
     }
 }

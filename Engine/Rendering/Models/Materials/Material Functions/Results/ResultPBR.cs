@@ -31,7 +31,7 @@ namespace CustomEngine.Rendering.Models.Materials
             return base.GetOperation();
         }
 
-        protected override List<GLVar> GetInputArguments()
+        protected override List<GLVar> GetArguments()
         {
             return new List<GLVar>()
             {

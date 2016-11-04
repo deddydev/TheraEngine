@@ -29,7 +29,7 @@ namespace Game.Worlds
             vert.Generate(materialResult);
             frag.Generate(materialResult);
 
-            mesh.Material = new Material("Mat_Green", new MaterialSettings());
+            mesh.Material = new Material("Mat_Green", new MaterialSettings(), vert, frag);
 
             Skeleton skel = new Skeleton();
             skel.RootBone = new Bone("Root", FrameState.Identity);

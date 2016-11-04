@@ -12,34 +12,23 @@ namespace CustomEngine.Rendering.Models.Materials
     /// </summary>
     public class ResultBasicFunc : MaterialFunction
     {
-        private GLVec4 OutputColor { get { return InputArguments[0] as GLVec4; } }
-        protected override List<GLVar> GetInputArguments()
+        private GLArgument OutputColor { get { return InputArguments[0]; } }
+        protected override List<GLVar> GetArguments()
         {
             return new List<GLVar>()
             {
-                new GLVec4("OutputColor", FragmentShaderGenerator.OutputColorName),
+                new GLArgument(GLTypeName._vec4, "FinalColor", this),
             };
         }
-
-        protected override List<string> GetKeywords()
+        public static MaterialFuncInfo GetInfo()
         {
-            return new List<string>()
-            {
-                "result",
-                "output",
-                "final",
-                "return",
-            };
+            return new MaterialFuncInfo(
+                "Outputs the given vec4 color as the color for this fragment.", 
+                "result output final return");
         }
-
         protected override string GetOperation()
         {
-            GLVec4 output = OutputColor;
-            return string.Format("{0} = {1}", output, output.Prev.AccessorTree());
-        }
-        public string Generate(ShaderMode type)
-        {
-
+            return FragmentShaderGenerator.OutputColorName + " = {0};";
         }
     }
 }

@@ -13,11 +13,11 @@ namespace CustomEngine.Rendering.Models.Materials
         {
             _outType = outType;
         }
-        protected override List<GLVar> GetOutputArguments()
+        protected override List<GLArgument> GetOutputArguments()
         {
-            return new List<GLVar>()
+            return new List<GLArgument>()
             {
-                new GLVar(_outType, "Output")
+                new GLArgument(_outType, "Output", this, true)
             };
         }
         protected override string GetOperation()

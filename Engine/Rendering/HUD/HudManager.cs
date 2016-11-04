@@ -19,7 +19,8 @@ namespace CustomEngine.Rendering.HUD
         public void Resize(float width, float height)
         {
             _camera.Resize(width, height);
-            OnResized();
+            if (_owningViewport != null)
+                OnResized(_owningViewport.Region);
         }
 
         public override void Render(float delta)

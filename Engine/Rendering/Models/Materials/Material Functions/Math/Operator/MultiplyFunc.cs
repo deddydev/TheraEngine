@@ -8,13 +8,13 @@ namespace CustomEngine.Rendering.Models.Materials
 {
     public class MultiplyFunc : TwoArgFunc
     {
-        public MultiplyFunc(GLTypeName argTypes) : base(argTypes, argTypes) { }
-        protected override string GetOperator() { return "=="; }
+        public MultiplyFunc(GLTypeName argTypes) : base(argTypes, argTypes, argTypes) { }
+        protected override string GetOperator() { return "*"; }
         public static MaterialFuncInfo GetInfo()
         {
             return new MaterialFuncInfo(
-                "Returns true bool/bvec if A's and B's individual components are equal.",
-                "equals ==");
+                "Returns A * B.",
+                "multiply multiplied by *");
         }
     }
 }

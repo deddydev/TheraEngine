@@ -15,13 +15,13 @@ namespace CustomEngine.Rendering.Models.Materials
         {
             return "mix({1}, {2}, {0})";
         }
-        protected override List<GLVar> GetInputArguments()
+        protected override List<GLVar> GetArguments()
         {
             List<GLVar> list = new List<GLVar>()
             {
                 new GLVar(GLTypeName._float, "Time"),
             };
-            list.AddRange(base.GetInputArguments());
+            list.AddRange(base.GetArguments());
             return list;
         }
         public static MaterialFuncInfo GetInfo()

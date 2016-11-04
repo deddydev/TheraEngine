@@ -16,6 +16,12 @@ namespace CustomEngine.Rendering.Models.Materials
         TessControl,        // https://www.opengl.org/wiki/Tessellation_Control_Shader
         Compute             // https://www.opengl.org/wiki/Compute_Shader
     }
+    public enum EQualifier
+    {
+        _uniform,
+        _out,
+        _in
+    }
     public class Shader
     {
         public event EventHandler Compiled;
@@ -25,7 +31,7 @@ namespace CustomEngine.Rendering.Models.Materials
         private bool _sourceChanged = false;
         private ShaderMode _type;
         private string _source;
-        private List<Uniform> _uniforms;
+        private List<GLVar> _uniforms = new List<GLVar>();
 
         public Shader(ShaderMode type)
         {

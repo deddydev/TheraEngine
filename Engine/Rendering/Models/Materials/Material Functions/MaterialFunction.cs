@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CustomEngine.Rendering.HUD;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -10,20 +11,27 @@ namespace CustomEngine.Rendering.Models.Materials
 {
     public class MaterialFuncInfo
     {
-        public MaterialFuncInfo(string description, string keywords)
+        public MaterialFuncInfo(string category, string description, string keywords)
         {
             _keywords = keywords.Split(' ').ToList();
             _description = description;
         }
 
         public List<string> _keywords;
-        public string _description;
+        public string _description, _category;
     }
-    public abstract class MaterialFunction : IGLVarOwner
+    public abstract class MaterialFunction : HudPanel, IGLVarOwner
     {
         private static Dictionary<Type, MaterialFuncInfo> _info = new Dictionary<Type, MaterialFuncInfo>();
 
-        public List<Type> FindFunctions(string keywords)
+        public static MaterialFunction Instantiate(Type t, HudComponent owner)
+        {
+            if (!t.IsAssignableFrom(typeof(MaterialFunction)))
+                return null;
+
+            return Activator.CreateInstance(t, owner) as MaterialFunction;
+        }
+        public static List<Type> FindFunctions(string keywords)
         {
             string[] keyArray = keywords.Split(' ');
             Dictionary<int, List<Type>> types = new Dictionary<int, List<Type>>();
@@ -52,14 +60,9 @@ namespace CustomEngine.Rendering.Models.Materials
         }
 
         protected string _operation;
-        
-        protected List<GLVar> 
-            _inputs = new List<GLVar>(), 
-            _outputs = new List<GLVar>();
+        protected List<BaseGLArgument> _inputs = new List<BaseGLArgument>();
 
-        public List<GLVar> InputArguments { get { return _inputs; } }
-        public List<GLVar> OutputArguments { get { return _outputs; } }
-
+        public List<BaseGLArgument> InputArguments { get { return _inputs; } }
         public ReadOnlyCollection<string> Keywords
         {
             get
@@ -96,15 +99,13 @@ namespace CustomEngine.Rendering.Models.Materials
             }
         }
 
-        public MaterialFunction()
+        public MaterialFunction(HudComponent owner) : base(owner)
         {
-            AddInput(GetInputArguments());
-            AddOutput(GetOutputArguments());
-            _operation = string.Format(GetOperation(), InputArguments, OutputArguments);
+            AddInput(GetArguments());
+            _operation = string.Format(GetOperation(), InputArguments);
         }
 
-        protected virtual List<GLVar> GetInputArguments() { return null; }
-        protected virtual List<GLVar> GetOutputArguments() { return null; }
+        protected virtual List<BaseGLArgument> GetArguments() { return new List<BaseGLArgument>(); }
         
         /// <summary>
         /// Returns the base operation for string.Format.
@@ -112,27 +113,15 @@ namespace CustomEngine.Rendering.Models.Materials
         /// </summary>
         protected abstract string GetOperation();
 
-        protected void AddInput(List<GLVar> input)
+        protected void AddInput(List<BaseGLArgument> input)
         {
             if (input != null)
-                foreach (GLVar v in input)
+                foreach (BaseGLArgument v in input)
                     AddInput(v);
         }
-        protected void AddInput(GLVar input)
+        protected void AddInput(BaseGLArgument input)
         {
-            input.Setup(false, this);
             _inputs.Add(input);
-        }
-        protected void AddOutput(List<GLVar> output)
-        {
-            if (output != null)
-                foreach (GLVar v in output)
-                    AddOutput(v);
-        }
-        protected void AddOutput(GLVar output)
-        {
-            output.Setup(true, this);
-            _outputs.Add(output);
         }
         public override string ToString()
         {

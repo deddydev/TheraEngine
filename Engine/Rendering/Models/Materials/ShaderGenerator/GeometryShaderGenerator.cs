@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CustomEngine.Rendering.Models.Materials.ShaderGenerator
+namespace CustomEngine.Rendering.Models.Materials
 {
-    public class VertexShaderGenerator : ShaderGenerator
+    public class GeometryShaderGenerator : ShaderGenerator
     {
         public override string Generate(ResultBasicFunc end)
         {

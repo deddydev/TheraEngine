@@ -10,10 +10,27 @@ namespace CustomEngine.Rendering.Models.Materials
     {
         protected string _accessorSyntax;
 
-        public GLSubVar(GLTypeName typeName, string userName, string accessorSyntax) 
-            : base(typeName, userName)
+        public GLSubVar(
+            GLTypeName typeName, 
+            string name, 
+            string accessorSyntax,
+            IGLVarOwner owner) 
+            : base(typeName, name, owner)
         {
             _accessorSyntax = accessorSyntax;
+        }
+
+        public override string AccessorTree()
+        {
+            string s = Name;
+            IGLVarOwner owner = _owner;
+            while (owner != null && owner is GLSubVar)
+            {
+                GLSubVar owningVar = (GLSubVar)owner;
+                s = owningVar.Name + s;
+                owner = owningVar.Owner;
+            }
+            return s;
         }
     }
 }

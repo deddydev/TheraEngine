@@ -24,14 +24,6 @@ namespace CustomEngine.Rendering.Models
             get { return _simulatePhysics; }
             set { _simulatePhysics = value; }
         }
-
-        public void Render(float delta)
-        {
-            if (_skeleton == null)
-                return;
-            foreach (Mesh m in _meshes)
-                m.Render(delta);
-        }
         public void LinkComponent(ModelComponent comp)
         {
             if (!_linkedComponents.Contains(comp))

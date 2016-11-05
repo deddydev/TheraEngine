@@ -28,6 +28,9 @@ namespace CustomEngine
         private static GlobalTimer _timer = new GlobalTimer();
         private static AbstractRenderer _renderer;
         private static AbstractAudioManager _audioManager;
+        private static RenderLibrary _renderLibrary;
+        private static AudioLibrary _audioLibrary;
+        private static InputLibrary _inputLibrary;
 
         public static Dictionary<ETickGroup, Dictionary<ETickOrder, List<ObjectBase>>> _tick = 
             new Dictionary<ETickGroup, Dictionary<ETickOrder, List<ObjectBase>>>();
@@ -116,10 +119,6 @@ namespace CustomEngine
                 return null;
             }
         }
-
-        private static RenderLibrary _renderLibrary;
-        private static AudioLibrary _audioLibrary;
-        private static InputLibrary _inputLibrary;
         public static RenderLibrary RenderLibrary
         {
             get { return _renderLibrary; }
@@ -279,15 +278,21 @@ namespace CustomEngine
                 return null;
             return panel.GetViewport(index);
         }
-        public static void ShowMessage(string message, int viewport = -1)
+        public static void DebugPrint(string message, int viewport = -1)
         {
             RenderPanel panel = CurrentPanel;
             if (panel == null)
                 return;
             if (viewport >= 0)
-                panel.GetViewport(viewport)?.ShowMessage(message);
-            else
-                panel.GlobalHud.ShowMessage(message);
+            {
+                Viewport port = panel.GetViewport(viewport);
+                if (port != null)
+                {
+                    port.DebugPrint(message);
+                    return;
+                }
+            }
+            panel.GlobalHud.DebugPrint(message);
         }
         public static void SetCurrentWorld(World world)
         {

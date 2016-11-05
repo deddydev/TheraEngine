@@ -27,11 +27,11 @@ namespace CustomEngine.Rendering.Models.Materials
         public event EventHandler Compiled;
 
         public bool NeedsCompile { get { return _sourceChanged; } }
+        public ShaderMode ShaderType { get { return _type; } }
 
         private bool _sourceChanged = false;
         private ShaderMode _type;
         private string _source;
-        private List<GLVar> _uniforms = new List<GLVar>();
 
         public Shader(ShaderMode type)
         {
@@ -47,10 +47,6 @@ namespace CustomEngine.Rendering.Models.Materials
         {
             _source = source;
             _sourceChanged = true;
-        }
-        public void Generate(ResultBasicFunc resultFunction)
-        {
-            _source = resultFunction.Generate(_type);
         }
         public int Compile()
         {

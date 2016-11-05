@@ -89,5 +89,32 @@ namespace CustomEngine.Rendering.Models.Materials
             wl("}");
         }
         #endregion
+
+        public static Material GenerateMaterial(string name, ResultBasicFunc resultFunction)
+        {
+            if (resultFunction == null)
+                return null;
+
+            Material m = new Material(name, new MaterialSettings());
+
+            //TODO: determine shader types needed
+            foreach (GLVar arg in resultFunction.InputArguments)
+            {
+
+            }
+            foreach (Shader s in m._shaders)
+            {
+                switch (s.ShaderType)
+                {
+                    case ShaderMode.Fragment:
+                        new FragmentShaderGenerator().Generate(resultFunction);
+                        break;
+                    case ShaderMode.Vertex:
+                        new VertexShaderGenerator().Generate(resultFunction);
+                        break;
+                }
+            }
+            return m;
+        }
     }
 }

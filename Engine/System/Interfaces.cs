@@ -5,12 +5,13 @@ using System.Drawing;
 using System.Threading.Tasks;
 using CustomEngine.Rendering.Animation;
 using System.Collections.Generic;
+using CustomEngine.Rendering;
 
 namespace CustomEngine
 {
     public interface IRenderable
     {
-        void Render(float delta);
+        void Render();
     }
     public interface ITransformable
     {
@@ -19,9 +20,9 @@ namespace CustomEngine
     public interface IPanel
     {
         RectangleF Region { get; set; }
-        RectangleF OnResized(RectangleF parentRegion);
+        RectangleF ParentResized(RectangleF parentRegion);
     }
-    public interface IPrimitive : IRenderable
+    public interface IPrimitive
     {
         List<PrimitiveData> GetPrimitives();
     }

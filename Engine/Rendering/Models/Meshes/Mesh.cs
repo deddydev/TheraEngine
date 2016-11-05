@@ -7,6 +7,12 @@ namespace CustomEngine.Rendering.Models
 {
     public class Mesh : ObjectBase, IRenderable
     {
+        public Mesh(PrimitiveData data)
+        {
+            _manager.SetPrimitiveData(data);
+            _owner = null;
+            _name = null;
+        }
         public Mesh(string name, Model owner)
         {
             _owner = owner;
@@ -43,7 +49,7 @@ namespace CustomEngine.Rendering.Models
             _manager.SetPrimitiveData(data);
         }
 
-        public void Render(float delta)
+        public void Render()
         {
             if (_material != null)
                 _manager.Render(_material);

@@ -108,15 +108,6 @@ namespace System
         }
         public unsafe List<PrimitiveData> GetPrimitives()
         {
-            Func<Vec3, Vec3, Vec3, Vec3, Vec3, VertexQuad> MakeQuad = (p0, p1, p2, p3, normal) =>
-            {
-                return new VertexQuad(
-                    new Vertex(p0) { _normal = normal, _texCoords = new List<Vec2>() { new Vec2(0.0f, 0.0f) } },
-                    new Vertex(p1) { _normal = normal, _texCoords = new List<Vec2>() { new Vec2(1.0f, 0.0f) } },
-                    new Vertex(p2) { _normal = normal, _texCoords = new List<Vec2>() { new Vec2(1.0f, 1.0f) } },
-                    new Vertex(p3) { _normal = normal, _texCoords = new List<Vec2>() { new Vec2(0.0f, 1.0f) } });
-            };
-
             VertexQuad left, right, top, bottom, front, back;
             Vec3 TBL, TBR, TFL, TFR, BBL, BBR, BFL, BFR;
 
@@ -129,12 +120,12 @@ namespace System
             Vec3 backNormal = -frontNormal;
             Vec3 bottomNormal = -topNormal;
 
-            left = MakeQuad(BBL, BFL, TBL, TFL, leftNormal);
-            right = MakeQuad(BFR, BBR, TFR, TBR, rightNormal);
-            top = MakeQuad(TFL, TFR, TBL, TBR, topNormal);
-            bottom = MakeQuad(BBL, BBR, BFL, BFR, bottomNormal);
-            front = MakeQuad(BFL, BFR, TFL, TFR, frontNormal);
-            back = MakeQuad(BBR, BBL, TBR, TBL, backNormal);
+            left = VertexQuad.MakeQuad(BBL, BFL, TBL, TFL, leftNormal);
+            right = VertexQuad.MakeQuad(BFR, BBR, TFR, TBR, rightNormal);
+            top = VertexQuad.MakeQuad(TFL, TFR, TBL, TBR, topNormal);
+            bottom = VertexQuad.MakeQuad(BBL, BBR, BFL, BFR, bottomNormal);
+            front = VertexQuad.MakeQuad(BFL, BFR, TFL, TFR, frontNormal);
+            back = VertexQuad.MakeQuad(BBR, BBL, TBR, TBL, backNormal);
 
             return new List<PrimitiveData>() { PrimitiveData.FromQuads(left, right, top, bottom, front, back) };
         }

@@ -11,6 +11,8 @@ namespace CustomEngine.Rendering
     /// </summary>
     public abstract class AbstractRenderer
     {
+        public Dictionary<uint, Action> _commandQueue;
+
         public abstract RenderLibrary RenderLibrary { get; }
         public RenderContext CurrentContext { get { return RenderContext.Current; } }
 
@@ -28,7 +30,6 @@ namespace CustomEngine.Rendering
         public abstract int[] GenObjects(GenType type, int count);
         public abstract void DeleteObject(GenType type, int bindingId);
         public abstract void DeleteObjects(GenType type, int[] bindingIds);
-
 
         #region Shapes
         public void DrawBoxWireframe(Box box) { DrawBoxWireframe(box.Minimum, box.Maximum); }
@@ -100,6 +101,15 @@ namespace CustomEngine.Rendering
             else
                 stack.Push(matrix);
         }
+
+        public void RenderPanel()
+        {
+            if (_commandQueue == null)
+            {
+                _commandQueue = new Dictionary<uint, Action>();
+            }
+        }
+
         public Matrix4 GetCurrentMatrix()
         {
             var stack = CurrentMatrixStack;

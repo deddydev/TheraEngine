@@ -33,5 +33,14 @@ namespace CustomEngine.Rendering.Models
                 new VertexTriangle(Vertex3, Vertex1, Vertex2),
             };
         }
+
+        internal static VertexQuad MakeQuad(Vec3 bottomLeft, Vec3 bottomRight, Vec3 topRight, Vec3 topLeft, Vec3 normal)
+        {
+            return new VertexQuad(
+                new Vertex(bottomLeft) { _normal = normal, _texCoords = new List<Vec2>() { new Vec2(0.0f, 0.0f) } },
+                new Vertex(bottomRight) { _normal = normal, _texCoords = new List<Vec2>() { new Vec2(1.0f, 0.0f) } },
+                new Vertex(topRight) { _normal = normal, _texCoords = new List<Vec2>() { new Vec2(1.0f, 1.0f) } },
+                new Vertex(topLeft) { _normal = normal, _texCoords = new List<Vec2>() { new Vec2(0.0f, 1.0f) } });
+        }
     }
 }

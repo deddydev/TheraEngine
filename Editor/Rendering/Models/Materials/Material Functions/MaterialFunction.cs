@@ -20,7 +20,7 @@ namespace CustomEngine.Rendering.Models.Materials
         public List<string> _keywords;
         public string _description, _category;
     }
-    public abstract class MaterialFunction : HudPanel, IGLVarOwner
+    public abstract class MaterialFunction : HudComponent, IGLVarOwner
     {
         private static Dictionary<Type, MaterialFuncInfo> _info = new Dictionary<Type, MaterialFuncInfo>();
 
@@ -60,9 +60,9 @@ namespace CustomEngine.Rendering.Models.Materials
         }
 
         protected string _operation;
-        protected List<BaseGLArgument> _inputs = new List<BaseGLArgument>();
+        protected List<IGLArgument> _inputs = new List<IGLArgument>();
 
-        public List<BaseGLArgument> InputArguments { get { return _inputs; } }
+        public List<IGLArgument> InputArguments { get { return _inputs; } }
         public ReadOnlyCollection<string> Keywords
         {
             get
@@ -83,6 +83,16 @@ namespace CustomEngine.Rendering.Models.Materials
                 return null;
             }
         }
+        public string Category
+        {
+            get
+            {
+                Type t = GetType();
+                if (_info.ContainsKey(t))
+                    return _info[t]._category;
+                return null;
+            }
+        }
 
         static MaterialFunction()
         {
@@ -99,13 +109,19 @@ namespace CustomEngine.Rendering.Models.Materials
             }
         }
 
-        public MaterialFunction(HudComponent owner) : base(owner)
+        public void SetOwner(HudComponent comp)
+        {
+            _owner?.Remove(this);
+            comp.Add(this);
+        }
+
+        public MaterialFunction() : base(null)
         {
             AddInput(GetArguments());
             _operation = string.Format(GetOperation(), InputArguments);
         }
 
-        protected virtual List<BaseGLArgument> GetArguments() { return new List<BaseGLArgument>(); }
+        protected virtual List<IGLArgument> GetArguments() { return new List<IGLArgument>(); }
         
         /// <summary>
         /// Returns the base operation for string.Format.
@@ -113,13 +129,13 @@ namespace CustomEngine.Rendering.Models.Materials
         /// </summary>
         protected abstract string GetOperation();
 
-        protected void AddInput(List<BaseGLArgument> input)
+        protected void AddInput(List<IGLArgument> input)
         {
             if (input != null)
-                foreach (BaseGLArgument v in input)
+                foreach (IGLArgument v in input)
                     AddInput(v);
         }
-        protected void AddInput(BaseGLArgument input)
+        protected void AddInput(IGLArgument input)
         {
             _inputs.Add(input);
         }

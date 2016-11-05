@@ -114,8 +114,10 @@ namespace CustomEngine
         protected virtual void OnRender(PaintEventArgs e)
         {
             _context.BeginDraw();
-            foreach (Viewport v in _viewports)
-                v.Render(Engine.RenderDelta);
+            Engine.Renderer.RenderPanel();
+
+            //foreach (Viewport v in _viewports)
+            //    v.Render(Engine.RenderDelta);
             _context.EndDraw();
         }
         protected override void OnResize(EventArgs e)
@@ -176,6 +178,8 @@ namespace CustomEngine
         public void AddViewport(LocalPlayerController owner)
         {
             _viewports.Add(new Viewport(owner, _viewports.Count));
+            for (int i = 0; i < _viewports.Count; ++i)
+                _viewports[i].ViewportCountChanged(i, _viewports.Count);
         }
         public Viewport GetViewport(int index)
         {
@@ -184,7 +188,11 @@ namespace CustomEngine
         public void RemoveViewport(LocalPlayerController owner)
         {
             if (_viewports.Contains(owner.Viewport))
+            {
                 _viewports.Remove(owner.Viewport);
+                for (int i = 0; i < _viewports.Count; ++i)
+                    _viewports[i].ViewportCountChanged(i, _viewports.Count);
+            }
         }
     }
 }

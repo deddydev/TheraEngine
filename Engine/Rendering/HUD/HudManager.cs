@@ -1,4 +1,5 @@
 ﻿using CustomEngine.Rendering.Cameras;
+using System.Drawing;
 
 namespace CustomEngine.Rendering.HUD
 {
@@ -6,7 +7,7 @@ namespace CustomEngine.Rendering.HUD
     /// Each viewport has a hud manager. 
     /// The main form also has a hud manager to overlay over everything if necessary.
     /// </summary>
-    public class HudManager : HudComponent
+    public class HudManager : DockableHudComponent
     {
         private Viewport _owningViewport;
         private OrthographicCamera _camera;
@@ -16,25 +17,22 @@ namespace CustomEngine.Rendering.HUD
             _camera = new OrthographicCamera();
         }
 
-        public void Resize(float width, float height)
+        public override RectangleF ParentResized(RectangleF parentRegion)
         {
-            _camera.Resize(width, height);
-            if (_owningViewport != null)
-                OnResized(_owningViewport.Region);
+            RectangleF region = base.ParentResized(parentRegion);
+            _camera.Resize(Width, Height);
+            return region;
         }
-
+        
         public override void Render(float delta)
         {
             _camera.SetCurrent();
+            foreach (HudComponent comp in _children)
+                comp.Render(delta);
             base.Render(delta);
         }
 
-        protected override void OnRender(float delta)
-        {
-            base.OnRender(delta);
-        }
-
-        public void ShowMessage(string message)
+        public void DebugPrint(string message)
         {
             
         }

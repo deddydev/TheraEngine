@@ -3,24 +3,23 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Collections;
 using System.ComponentModel;
+using CustomEngine.Rendering.Models.Materials;
+using CustomEngine.Rendering.Models;
 
 namespace CustomEngine.Rendering.HUD
 {
-    public class HudComponent : ObjectBase, IPanel, IRenderable, IEnumerable<HudComponent>
+    public class HudComponent : ObjectBase, IPanel, IEnumerable<HudComponent>
     {
         public HudComponent(HudComponent owner) { _owner = owner; }
 
-        public HudComponent _owner;
-        public List<HudComponent> _children = new List<HudComponent>();
+        protected HudComponent _owner;
+        protected List<HudComponent> _children = new List<HudComponent>();
 
-        public HudDockStyle _dockStyle;
-        public AnchorFlags _anchorFlags;
-
-        Matrix4 _transform = Matrix4.Identity;
-        private RectangleF _region = new RectangleF();
-        private float _rotationAngle = 0.0f;
-        private Vec2 _rotationLocalOrigin = new Vec2(0.5f);
-        public Vec2 _scale = Vec2.One;
+        protected ushort _zIndex;
+        protected AnchorFlags _positionAnchorFlags;
+        protected Matrix4 _transform = Matrix4.Identity;
+        protected RectangleF _region = new RectangleF();
+        protected Vec2 _scale = Vec2.One;
         
         [Category("Transform"), Default, Animatable, PostCall("OnResized")]
         public RectangleF Region
@@ -64,25 +63,6 @@ namespace CustomEngine.Rendering.HUD
             get { return _region.Y; }
             set { _region.Y = value; }
         }
-        /// <summary>
-        /// The rotation angle of the component in degrees.
-        /// </summary>
-        [Category("Transform"), Default, State, Animatable, PostCall("OnTransformed")]
-        public float RotationAngle
-        {
-            get { return _rotationAngle; }
-            set { _rotationAngle = value.RemapToRange(0.0f, 360.0f); }
-        }
-        /// <summary>
-        /// The origin of the component's rotation angle, as a percentage.
-        /// 0,0 is bottom left, 0.5,0.5 is center, 1.0,1.0 is top right.
-        /// </summary>
-        [Category("Transform"), Default, State, Animatable, PostCall("OnTransformed")]
-        public Vec2 RotationLocalOrigin
-        {
-            get { return _rotationLocalOrigin; }
-            set { _rotationLocalOrigin = value; }
-        }
         [Category("Transform"), State, Animatable, PostCall("OnTransformed")]
         public Vec2 Scale
         {
@@ -101,110 +81,46 @@ namespace CustomEngine.Rendering.HUD
             get { return _scale.Y; }
             set { _scale.Y = value; }
         }
-        public void OnTransformed()
+
+        public virtual void OnTransformed()
         {
             //step 1: set identity matrix
             //step 2: translate into position (bottom left corner)
-            //step 3: rotate in position
-            //step 4: translate backward, relative to the rotation, by the local rotation origin to center on the rotation point
             //step 5: scale the component
 
-            Matrix4 rotation = Matrix4.Identity;
-
-            //Ignore rotations if docked or anchored
-            if (_dockStyle == HudDockStyle.None && _anchorFlags == AnchorFlags.None)
-                rotation =
-                    Matrix4.CreateTranslation(-_rotationLocalOrigin.X * Width, -_rotationLocalOrigin.Y * Height, 0.0f) *
-                    Matrix4.CreateRotationZ(RotationAngle);
-
-            _transform =
-                Matrix4.CreateScale(ScaleX, ScaleY, 1.0f) *
-                rotation *
-                Matrix4.CreateTranslation(TranslationX, TranslationY, 0.0f);
+            _transform = Matrix4.TransformMatrix(
+                new Vec3(ScaleX, ScaleY, 0.0f),
+                Quaternion.Identity, 
+                new Vec3(TranslationX, TranslationY, 0.0f), 
+                Matrix4.MultiplyOrder.TRS);
         }
+        public void Add(HudComponent child)
+        {
+            if (child == null)
+                return;
+            if (!_children.Contains(child))
+                _children.Add(child);
+            child._owner = this;
+        }
+        public void Remove(HudComponent child)
+        {
+            if (child == null)
+                return;
+            if (_children.Contains(child))
+                _children.Remove(child);
+            child._owner = null;
+        }
+
         /// <summary>
         /// Returns the available real estate for the next components to use.
         /// </summary>
-        public virtual RectangleF OnResized(RectangleF parentRegion)
+        public virtual RectangleF ParentResized(RectangleF parentRegion)
         {
-            RectangleF leftOver = parentRegion;
-            if (_dockStyle != HudDockStyle.None || _anchorFlags != AnchorFlags.None)
-            {
-                bool allowLeft = true, allowRight = true, allowTop = true, allowBottom = true;
-                if (_dockStyle != HudDockStyle.None)
-                {
-                    allowLeft = false;
-                    allowRight = false;
-                    allowTop = false;
-                    allowBottom = false;
-                    switch (_dockStyle)
-                    {
-                        case HudDockStyle.Fill:
-                            _region.Size = parentRegion.Size;
-                            _region.Location = parentRegion.Location;
-                            break;
-                        case HudDockStyle.Bottom:
-                            _region.Location = parentRegion.Location;
-                            _region.Width = parentRegion.Width;
-                            allowTop = true;
-                            break;
-                        case HudDockStyle.Top:
-                            _region.Location = parentRegion.Location;
-                            _region.Y += parentRegion.Height - _region.Height;
-                            _region.Width = parentRegion.Width;
-                            allowBottom = true;
-                            break;
-                        case HudDockStyle.Left:
-                            _region.Location = parentRegion.Location;
-                            _region.Height = parentRegion.Height;
-                            allowRight = true;
-                            break;
-                        case HudDockStyle.Right:
-                            _region.Location = parentRegion.Location;
-                            _region.X += parentRegion.Width - _region.Width;
-                            _region.Height = parentRegion.Height;
-                            allowLeft = true;
-                            break;
-                    }
-                }
-                if (_anchorFlags != AnchorFlags.None)
-                {
-                    if ((_anchorFlags & AnchorFlags.Bottom) != 0 && allowBottom)
-                    {
-
-                    }
-                    if ((_anchorFlags & AnchorFlags.Top) != 0 && allowTop)
-                    {
-
-                    }
-                    if ((_anchorFlags & AnchorFlags.Left) != 0 && allowLeft)
-                    {
-
-                    }
-                    if ((_anchorFlags & AnchorFlags.Right) != 0 && allowRight)
-                    {
-
-                    }
-                }
-                leftOver = RegionComplement(parentRegion, Region);
-            }
-
             RectangleF region = Region;
             foreach (HudComponent c in _children)
-                region = c.OnResized(region);
-
-            return leftOver;
+                region = c.ParentResized(region);
+            return parentRegion;
         }
-
-        private RectangleF RegionComplement(RectangleF parentRegion, RectangleF region)
-        {
-            RectangleF leftOver = new RectangleF();
-
-
-
-            return leftOver;
-        }
-
         public virtual void Render(float delta)
         {
             Renderer.PushMatrix();
@@ -227,14 +143,5 @@ namespace CustomEngine.Rendering.HUD
         Bottom = 2,
         Left = 4,
         Right = 8,
-    }
-    public enum HudDockStyle
-    {
-        None,
-        Fill,
-        Left,
-        Right,
-        Top,
-        Bottom,
     }
 }

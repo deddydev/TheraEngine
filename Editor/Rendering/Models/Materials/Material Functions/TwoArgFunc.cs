@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace CustomEngine.Rendering.Models.Materials
 {
-    public abstract class TwoArgFunc : OneOutFunc
+    public abstract class TwoArgFunc : MaterialFunction
     {
         protected GLTypeName _aType, _bType;
         public TwoArgFunc(GLTypeName aType, GLTypeName bType, GLTypeName outType) : base(outType)

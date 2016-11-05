@@ -51,20 +51,5 @@ namespace CustomEngine.Rendering.Models.Materials
         {
 
         }
-
-        public void Generate(ResultBasicFunc resultFunction)
-        {
-            _shaders.Clear();
-            if (resultFunction == null)
-                return;
-
-            //TODO: determine shader types needed
-            foreach (GLVar arg in resultFunction.InputArguments)
-            {
-
-            }
-            foreach (Shader s in _shaders)
-                s.Generate(resultFunction);
-        }
     }
 }

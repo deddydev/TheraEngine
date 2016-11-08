@@ -278,7 +278,7 @@ namespace CustomEngine.Rendering.Textures
             }
         }
 
-        public static Bitmap Decode(VoidPtr addr, int w, int h, int mipLevel, WiiPixelFormat fmt) { return Get(fmt).DecodeTexture(addr, w, h, mipLevel); }
+        public static Bitmap Decode(VoidPtr addr, int w, int h, int mipLevel, PixelFormat fmt) { return Get(fmt).DecodeTexture(addr, w, h, mipLevel); }
         public virtual Bitmap DecodeTexture(VoidPtr addr, int w, int h, int mipLevel)
         {
             addr += GetMipOffset(ref w, ref h, mipLevel);

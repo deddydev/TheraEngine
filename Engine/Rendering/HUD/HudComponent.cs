@@ -21,6 +21,7 @@ namespace CustomEngine.Rendering.HUD
         protected Matrix4 _globalTransform = Matrix4.Identity;
         protected RectangleF _region = new RectangleF();
         protected Vec2 _scale = Vec2.One;
+        protected Vec2 _translationLocalOrigin = Vec2.Zero;
         
         [Category("Transform"), Default, Animatable, PostCall("OnResized")]
         public RectangleF Region
@@ -38,37 +39,29 @@ namespace CustomEngine.Rendering.HUD
         public float Height
         {
             get { return _region.Height; }
-            set
-            {
-                if (value < 0)
-                {
-                    TranslationY += value;
-                    _region.Height = -value;
-                }
-                else
-                    _region.Height = value;
-            }
+            set { _region.Height = value; }
         }
         [Category("Transform"), State, Animatable, PostCall("OnResized")]
         public float Width
         {
             get { return _region.Width; }
-            set
-            {
-                if (value < 0)
-                {
-                    TranslationX += value;
-                    _region.Width = -value;
-                }
-                else
-                    _region.Width = value;
-            }
+            set { _region.Width = value; }
         }
         [Category("Transform"), State, Animatable, PostCall("OnTransformed")]
         public PointF Location
         {
             get { return _region.Location; }
             set { _region.Location = value; }
+        }
+        /// <summary>
+        /// The origin of the component's rotation angle, as a percentage.
+        /// 0,0 is bottom left, 0.5,0.5 is center, 1.0,1.0 is top right.
+        /// </summary>
+        [Category("Transform"), Default, State, Animatable, PostCall("OnTransformed")]
+        public Vec2 TranslationLocalOrigin
+        {
+            get { return _translationLocalOrigin; }
+            set { _translationLocalOrigin = value; }
         }
         [Category("Transform"), State, Animatable, PostCall("OnTransformed")]
         public float TranslationX

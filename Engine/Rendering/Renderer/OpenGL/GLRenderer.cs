@@ -605,10 +605,5 @@ namespace CustomEngine.Rendering.OpenGL
                     break;
             }
         }
-
-        public override void DrawBuffers(DrawBuffersAttachment[] attachments)
-        {
-            throw new NotImplementedException();
-        }
     }
 }

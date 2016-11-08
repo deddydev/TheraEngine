@@ -105,6 +105,9 @@
     <Compile Include="Cutscenes\Cutscene.cs" />
     <Compile Include="Rendering\HUD\TextureHudComponent.cs" />
     <Compile Include="Rendering\HUD\ModelHudComponent.cs" />
+    <Compile Include="Rendering\Renderer\GBuffer.cs" />
+    <Compile Include="Rendering\Renderer\OpenGL\GLEnumExtension.cs" />
+    <Compile Include="Rendering\Renderer\RenderEnums.cs" />
     <Compile Include="Rendering\Renderer\RenderKey.cs" />
     <Compile Include="Engine\UserSettings.cs" />
     <Compile Include="Engine\EngineSettings.cs" />
@@ -160,6 +163,9 @@
     <Compile Include="Rendering\Renderer\DirectX\DXDisplayList.cs" />
     <Compile Include="Rendering\Renderer\States\DisplayList.cs" />
     <Compile Include="Rendering\Renderer\OpenGL\GLEnums.cs" />
+    <Compile Include="Rendering\Textures\PixelTypes.cs" />
+    <Compile Include="Rendering\Textures\TextureConverter.cs" />
+    <Compile Include="Rendering\Textures\TextureData.cs" />
     <Compile Include="ResourceType.cs" />
     <Compile Include="System\ComputerInfo.cs" />
     <Compile Include="System\Extensions\StringExtension.cs" />
@@ -310,7 +316,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="AI\" />
-    <Folder Include="Rendering\Textures\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\PostSharp.4.3.21\tools\PostSharp.targets" Condition="Exists('..\packages\PostSharp.4.3.21\tools\PostSharp.targets')" />

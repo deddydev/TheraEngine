@@ -5,8 +5,15 @@ namespace CustomEngine.Rendering.Models
     public delegate void TranslateChange(Vec3 oldTranslation);
     public delegate void RotateChange(Quaternion oldRotation);
     public delegate void ScaleChange(Vec3 oldScale);
+    public delegate void MatrixChange(Matrix4 oldMatrix, Matrix4 oldInvMatrix);
     public class FrameState : ObjectBase
     {
+        public static FrameState GetIdentity(Matrix4.MultiplyOrder order)
+        {
+            FrameState identity = Identity;
+            identity._order = order;
+            return identity;
+        }
         public static readonly FrameState Identity = new FrameState(new Vec3(), Quaternion.Identity, new Vec3(1.0f));
         public FrameState(
             Vec3 translate, 
@@ -32,9 +39,10 @@ namespace CustomEngine.Rendering.Models
         public event TranslateChange OnTranslateChanged;
         public event RotateChange OnRotateChanged;
         public event ScaleChange OnScaleChanged;
+        public event MatrixChange MatrixChanged;
 
-        public Matrix4 Transform { get { return _transform; } }
-        public Matrix4 InverseTransform { get { return _inverseTransform; } }
+        public Matrix4 Matrix { get { return _transform; } }
+        public Matrix4 InverseMatrix { get { return _inverseTransform; } }
         public Vec3 Translation
         {
             get { return _translation; }
@@ -57,6 +65,11 @@ namespace CustomEngine.Rendering.Models
         {
             get { return _rotation.ToEuler(); }
             set { SetRotate(value); }
+        }
+        public Matrix4.MultiplyOrder TransformOrder
+        {
+            get { return _order; }
+            set { _order = value; CreateTransform(); }
         }
         public void ApplyForwardTranslation(Vec3 translation)
         {
@@ -122,8 +135,13 @@ namespace CustomEngine.Rendering.Models
         }
         public void CreateTransform()
         {
+            Matrix4 oldMatrix = _transform;
+            Matrix4 oldInvMatrix = _inverseTransform;
+
             _transform = Matrix4.TransformMatrix(_scale, _rotation, _translation, _order);
             _inverseTransform = Matrix4.InverseTransformMatrix(_scale, _rotation, _translation, _order);
+
+            MatrixChanged?.Invoke(oldMatrix, oldInvMatrix);
         }
         public void MultMatrix() { Engine.Renderer.MultMatrix(_transform); }
         public void MultInvMatrix() { Engine.Renderer.MultMatrix(_inverseTransform); }

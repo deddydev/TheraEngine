@@ -51,7 +51,17 @@ namespace CustomEngine.Rendering
             DrawLayer = dlayer;
             Viewport = viewport;
         }
-
+        public RenderKey(
+            EDrawLayer dlayer,
+            EViewport viewport,
+            EViewportLayer vlayer,
+            EPassType translucencyPass,
+            float depth,
+            uint materialId)
+        {
+            DrawLayer = dlayer;
+            Viewport = viewport;
+        }
 
         public void SetDepth(float depth, float nearDepth, float farDepth)
         {
@@ -76,85 +86,44 @@ namespace CustomEngine.Rendering
         }
         public EPassType Pass
         {
-            get { return (EPassType)_data[58, 1]; }
-            set { _data[58, 1] = (uint)value; }
-        }
-        public ushort Sequence
-        {
-            get { return (ushort)_data[42, 16]; }
-            set { _data[42, 16] = value; }
+            get { return (EPassType)_data[57, 2]; }
+            set { _data[57, 2] = (uint)value; }
         }
         public bool IsCommand
         {
-            get { return _data[25]; }
-            set { _data[25] = value; }
+            get { return _data[56]; }
+            set { _data[56] = value; }
         }
-
-        public ushort Depth { get { return (ushort)_data[24, 16]; } set { _data[24, 16] = value; } }
+        public ushort Sequence
+        {
+            get { return (ushort)_data[40, 16]; }
+            set { _data[40, 16] = value; }
+        }
+        public UInt24 Depth
+        {
+            get { return (UInt24)_data[24, 20]; }
+            set { _data[40, 16] = value; }
+        }
         public UInt24 MaterialId { get { return (UInt24)_data[0, 24]; } set { _data[0, 24] = value; } }
 
-        private void SortArrayWithRadixSort()
+        public static ulong[] RadixSort(ulong[] array)
         {
-            int[] array = { 7, 5, 3, 6, 76, 45, 32 };
-            int[] sortedArray = RadixSort(array);
-
-            // PrintResult(sortedArray);
-        }
-
-        public int[] RadixSort(int[] array)
-        {
-            bool isFinished = false;
-            int digitPosition = 0;
-
-            List<Queue<int>> buckets = new List<Queue<int>>();
-            InitializeBuckets(buckets);
-
-            while (!isFinished)
+            int id = Engine.StartDebugTimer();
+            Queue<ulong>[] buckets = new Queue<ulong>[15];
+            for (int i = 0; i < 0xF; i++)
+                buckets[i] = new Queue<ulong>();
+            for (int i = 60; i >= 0; i -= 4)
             {
-                isFinished = true;
-
-                foreach (int value in array)
-                {
-                    int bucketNumber = GetBucketNumber(value, digitPosition);
-                    if (bucketNumber > 0)
-                    {
-                        isFinished = false;
-                    }
-
-                    buckets[bucketNumber].Enqueue(value);
-                }
-
-                int i = 0;
-                foreach (Queue<int> bucket in buckets)
-                {
+                foreach (ulong value in array)
+                    buckets[(int)((value >> i) & 0xF)].Enqueue(value);
+                int x = 0;
+                foreach (Queue<ulong> bucket in buckets)
                     while (bucket.Count > 0)
-                    {
-                        array[i] = bucket.Dequeue();
-                        i++;
-                    }
-                }
-
-                digitPosition++;
+                        array[x++] = bucket.Dequeue();
             }
-
+            Engine.EndDebugTimer(id, "Radix Sort Time: ");
             return array;
         }
-
-        private int GetBucketNumber(int value, int digitPosition)
-        {
-            int bucketNumber = (value / (int)Math.Pow(10, digitPosition)) % 10;
-            return bucketNumber;
-        }
-
-        private static void InitializeBuckets(List<Queue<int>> buckets)
-        {
-            for (int i = 0; i < 10; i++)
-            {
-                Queue<int> q = new Queue<int>();
-                buckets.Add(q);
-            }
-        }
-
         public static implicit operator RenderKey(ulong value) { return new RenderKey(value); }
         public static implicit operator ulong(RenderKey value) { return value._data; }
     }

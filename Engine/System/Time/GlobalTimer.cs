@@ -43,10 +43,11 @@ namespace System
         {
             _running = true;
             watch.Start();
-            TimerThread = new Thread(RunInternal);
-            TimerThread.Start();
+            ThreadPool.QueueUserWorkItem(RunInternal);
+            //TimerThread = new Thread(RunInternal);
+            //TimerThread.Start();
         }
-        private void RunInternal()
+        private void RunInternal(object state)
         {
             while (_running)
             {

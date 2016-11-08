@@ -1,4 +1,5 @@
 ﻿using CustomEngine.GameModes;
+using CustomEngine.Rendering.Models.Materials;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,6 +16,11 @@ namespace CustomEngine.Worlds
         private Box _originRebaseBounds;
         public List<Map> _maps;
         public WorldState _state;
+
+        public List<Material> CollectDefaultMaterials()
+        {
+            
+        }
 
         public WorldSettings(string name, WorldState state, params Map[] maps)
         {
@@ -50,7 +56,7 @@ namespace CustomEngine.Worlds
 
             _isLoaded = false;
         }
-        public override void Load()
+        public override void Load(VoidPtr address)
         {
             if (_isLoaded)
                 return;
@@ -61,6 +67,7 @@ namespace CustomEngine.Worlds
                 foreach (Map m in _maps)
                     if (m.Settings.VisibleByDefault)
                         m.Load();
+                _state._activeMaterials = new HashSet<Material>(CollectDefaultMaterials());
             }
             _isLoading = false;
             _isLoaded = true;

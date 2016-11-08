@@ -1,9 +1,14 @@
 ﻿using FreeImageAPI;
 using System;
 using System.IO;
+using System.Linq;
 
 namespace CustomEngine.Rendering.Textures
 {
+    public enum TextureFormat
+    {
+
+    }
     public class Texture : BaseRenderState
     {
         private FreeImageBitmap _bitmap;
@@ -17,11 +22,37 @@ namespace CustomEngine.Rendering.Textures
             }
         }
 
+        public static Texture[] GenTextures(int count)
+        {
+            return Engine.Renderer.GenObjects<Texture>(GenType.Texture, count);
+        }
+        public void PushData()
+        {
+
+        }
+
+        public void AttachFrameBuffer(FramebufferType type, DrawBuffersAttachment attachment, TextureTarget target = TextureTarget.Texture2D, int mipLevel = 0)
+        {
+
+        }
+
+        internal void SetData(TextureData textureData)
+        {
+            
+        }
+
+        public Texture() : base(GenType.Texture) { }
+        public Texture(int bindingId) : base(GenType.Texture, bindingId) { }
         public Texture(FreeImageBitmap bitmap) : base(GenType.Texture) { _bitmap = bitmap; }
 
         protected override void OnGenerated()
         {
             base.OnGenerated();
+        }
+
+        public void Bind()
+        {
+            throw new NotImplementedException();
         }
 
         protected override void OnDeleted()

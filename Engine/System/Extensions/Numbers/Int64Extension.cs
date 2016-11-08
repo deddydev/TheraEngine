@@ -37,5 +37,13 @@
         {
             return value + (value % 2);
         }
+        public static int CountBits(this Int64 b)
+        {
+            int count = 0;
+            for (int i = 0; i < 64; i++)
+                if (((b >> i) & 1) != 0)
+                    ++count;
+            return count;
+        }
     }
 }

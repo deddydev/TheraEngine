@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace CustomEngine.Rendering.Models
 {
-    public class Skeleton : ObjectBase
+    public class Skeleton : FileObject
     {
         public Dictionary<string, Bone> _boneCache;
 
@@ -29,6 +29,11 @@ namespace CustomEngine.Rendering.Models
         {
             if (_rootBone != null)
                 _rootBone.CalcFrameMatrix();
+        }
+
+        internal override void Tick(float delta)
+        {
+            base.Tick(delta);
         }
     }
 }

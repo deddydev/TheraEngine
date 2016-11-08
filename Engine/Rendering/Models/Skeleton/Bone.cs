@@ -39,8 +39,8 @@ namespace CustomEngine.Rendering.Models
         public void CalcFrameMatrix() { CalcFrameMatrix(Matrix4.Identity, Matrix4.Identity); }
         public void CalcFrameMatrix(Matrix4 parentMatrix, Matrix4 inverseParentMatrix)
         {
-            _bindMatrix = parentMatrix * _bindState.Transform;
-            _inverseBindMatrix = _bindState.InverseTransform * inverseParentMatrix;
+            _bindMatrix = parentMatrix * _bindState.Matrix;
+            _inverseBindMatrix = _bindState.InverseMatrix * inverseParentMatrix;
 
             foreach (Bone b in _children)
                 b.CalcFrameMatrix(_frameMatrix, _inverseFrameMatrix);
@@ -54,8 +54,8 @@ namespace CustomEngine.Rendering.Models
             if (!updateMesh)
                 InfluenceAssets(false);
 
-            _bindMatrix = parentMatrix * _bindState.Transform;
-            _inverseBindMatrix = _bindState.InverseTransform * inverseParentMatrix;
+            _bindMatrix = parentMatrix * _bindState.Matrix;
+            _inverseBindMatrix = _bindState.InverseMatrix * inverseParentMatrix;
 
             if (!updateMesh)
                 InfluenceAssets(false);

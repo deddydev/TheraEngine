@@ -68,6 +68,17 @@ namespace System
         public static implicit operator RGBAPixel(Color p) { return new RGBAPixel() { A = p.A, B = p.B, G = p.G, R = p.R }; }
     }
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
+    public struct RGBPixel
+    {
+        public byte R, G, B;
+
+        public RGBPixel(byte r, byte g, byte b) { R = r; G = g; B = b; }
+        
+        public static implicit operator RGBPixel(ColorF4 p) { return new RGBPixel() { B = (byte)(p.B * 255.0f), G = (byte)(p.G * 255.0f), R = (byte)(p.R * 255.0f) }; }
+        public static implicit operator RGBPixel(ARGBPixel p) { return new RGBPixel() { B = p.B, G = p.G, R = p.R }; }
+        public static implicit operator RGBPixel(Color p) { return new RGBPixel() { B = p.B, G = p.G, R = p.R }; }
+    }
+    [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public struct ARGBPixel
     {
         public byte A, R, G, B;

@@ -24,6 +24,23 @@ namespace CustomEngine.Rendering
         private ContextBind _currentBind = new ContextBind(null);
         
         public BaseRenderState(GenType type) { _type = type; }
+        public BaseRenderState(GenType type, int bindingId)
+        {
+            _type = type;
+
+            //Make sure current bind is up to date
+            if (_currentBind._context != RenderContext.Current)
+            {
+                int index = _owners.Select(x => x._context).ToList().IndexOf(RenderContext.Current);
+                if (index >= 0)
+                    _currentBind = _owners[index];
+                else
+                    _owners.Add(_currentBind = new ContextBind(RenderContext.Current));
+            }
+
+            _currentBind._bindingId = bindingId;
+            OnGenerated();
+        }
         ~BaseRenderState()
         {
             foreach (ContextBind b in _owners)
@@ -34,7 +51,7 @@ namespace CustomEngine.Rendering
                 }
         }
 
-        public bool IsBound { get { return BindingId > 0; } }
+        public bool IsActive { get { return BindingId > 0; } }
         public int BindingId { get { return _currentBind._bindingId; } }
         public GenType Type { get { return _type; } }
 
@@ -42,7 +59,7 @@ namespace CustomEngine.Rendering
         /// Performs all checks needed and creates this render object on the current render context if need be.
         /// Call after capturing a context.
         /// </summary>
-        protected void Generate()
+        public void Generate()
         {
             if (RenderContext.Current == null)
                 return;
@@ -57,7 +74,7 @@ namespace CustomEngine.Rendering
                     _owners.Add(_currentBind = new ContextBind(RenderContext.Current));
             }
 
-            if (IsBound)
+            if (IsActive)
                 return;
 
             _currentBind._bindingId = CreateObject();
@@ -95,7 +112,7 @@ namespace CustomEngine.Rendering
                     _owners.RemoveAt(index);
             }
 
-            if (!IsBound)
+            if (!IsActive)
                 return;
 
             Engine.Renderer.DeleteObject(_type, BindingId);

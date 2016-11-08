@@ -16,13 +16,8 @@ namespace CustomEngine.Worlds.Actors.Components
 
         public void OnTraceHit(HitInfo hit)
         {
-            Transform.Translation = hit._location;
-            Transform.ApplyForwardTranslation(_endOffset);
-        }
-
-        protected override void OnRender(float delta)
-        {
-            base.OnRender(delta);
+            LocalTransform.Translation = hit._location;
+            LocalTransform.ApplyForwardTranslation(_endOffset);
         }
     }
 }

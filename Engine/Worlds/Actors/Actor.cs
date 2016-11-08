@@ -55,27 +55,22 @@ namespace CustomEngine.Worlds
 
         public FrameState Transform
         {
-            get { return _rootSceneComponent != null ? _rootSceneComponent.Transform : FrameState.Identity; }
+            get { return _rootSceneComponent != null ? _rootSceneComponent.LocalTransform : FrameState.Identity; }
             set
             {
                 if (_rootSceneComponent != null)
-                    _rootSceneComponent.Transform = value;
+                    _rootSceneComponent.LocalTransform = value;
             }
         }
         public void OnOriginRebased(Vec3 newOrigin)
         {
-            _rootSceneComponent?.Transform.AddTranslation(-newOrigin);
+            _rootSceneComponent?.LocalTransform.AddTranslation(-newOrigin);
         }
         internal override void Tick(float delta)
         {
             _rootSceneComponent.Tick(delta);
             foreach (Component c in _logicComponents)
                 c.Tick(delta);
-        }
-        public virtual void Render(float delta)
-        {
-            _lastRendered = DateTime.Now;
-            _rootSceneComponent?.Render(delta);
         }
         public void Despawn()
         {

@@ -34,15 +34,10 @@ namespace CustomEngine.Rendering.Models
             if (_linkedComponents.Contains(comp))
                 _linkedComponents.Remove(comp);
         }
-        public override void Load()
-        {
-            base.Load();
-        }
         public void AddMesh(Mesh m)
         {
             _meshes.Add(m);
         }
-
         public List<PrimitiveData> GetPrimitives()
         {
             return _meshes.Select(x => x._manager.Data).ToList();

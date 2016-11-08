@@ -3,6 +3,7 @@ using CustomEngine.Rendering.Models.Materials;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Linq;
 
 namespace CustomEngine.Rendering
 {
@@ -26,6 +27,10 @@ namespace CustomEngine.Rendering
         protected Stack<Matrix4> _modelMatrix, _textureMatrix, _colorMatrix;
         protected MtxMode _matrixMode;
 
+        public T[] GenObjects<T>(GenType type, int count) where T : BaseRenderState
+        {
+            return GenObjects(type, count).Select(x => Activator.CreateInstance(typeof(T), x) as T).ToArray();
+        }
         public abstract int GenObject(GenType type);
         public abstract int[] GenObjects(GenType type, int count);
         public abstract void DeleteObject(GenType type, int bindingId);
@@ -233,8 +238,20 @@ namespace CustomEngine.Rendering
         }
         protected abstract void SetRenderArea(Rectangle region);
         public abstract void CropRenderArea(Rectangle region);
-    }
+        public abstract void BindFrameBuffer(FramebufferType type, int bindingId);
+        public abstract void BindTextureData(int textureTargetEnum, int mipLevel, int pixelInternalFormatEnum, int width, int height, int pixelFormatEnum, int pixelTypeEnum, VoidPtr data);
 
+        /// <summary>
+        /// Draws textures connected to these frame buffer attachments.
+        /// </summary>
+        public abstract void DrawBuffers(DrawBuffersAttachment[] attachments);
+    }
+    public enum FramebufferType
+    {
+        Read,
+        Write,
+        ReadWrite,
+    }
     public enum MtxMode
     {
         Model,
@@ -267,5 +284,25 @@ namespace CustomEngine.Rendering
         TriangleFan = 6,
         Quads = 7,
         QuadStrip = 8,
+    }
+    public enum DrawBuffersAttachment : ushort
+    {
+        ColorAttachment0,
+        ColorAttachment1,
+        ColorAttachment2,
+        ColorAttachment3,
+        ColorAttachment4,
+        ColorAttachment5,
+        ColorAttachment6,
+        ColorAttachment7,
+        ColorAttachment8,
+        ColorAttachment9,
+        ColorAttachment10,
+        ColorAttachment11,
+        ColorAttachment12,
+        ColorAttachment13,
+        ColorAttachment14,
+        ColorAttachment15,
+        DepthAttachement,
     }
 }

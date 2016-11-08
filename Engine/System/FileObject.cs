@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
+using System.Reflection;
 
 namespace System
 {
@@ -30,6 +31,7 @@ namespace System
         public int OnCalculateSize()
         {
             int size = 0;
+            PropertyInfo[] infos = GetType().GetProperties(BindingFlags.Public);
             return size;
         }
         public void Rebuild()
@@ -51,7 +53,11 @@ namespace System
         {
             _isLoaded = false;
         }
-        public virtual void Load()
+        public void Load()
+        {
+            FileMap map = FileMap.FromFile(FilePath);
+        }
+        public virtual void Load(VoidPtr address)
         {
             _isLoading = true;
 

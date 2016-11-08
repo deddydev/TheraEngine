@@ -22,12 +22,12 @@ namespace Game.Worlds
             Model boxModel = new Model();
             Mesh mesh = new Box(new Vec3(-20.0f, -20.0f, -20.0f), new Vec3(20.0f, 20.0f, 20.0f));
 
-            ResultBasicFunc materialResult = new ResultBasicFunc();
+            //ResultBasicFunc materialResult = new ResultBasicFunc();
 
-            Shader vert = new Shader(ShaderMode.Vertex);
-            Shader frag = new Shader(ShaderMode.Fragment);
-            vert.Generate(materialResult);
-            frag.Generate(materialResult);
+            Shader vert = Shader.TestVertexShader();
+            Shader frag = Shader.TestFragmentShader();
+            //vert.Generate(materialResult);
+            //frag.Generate(materialResult);
 
             mesh.Material = new Material("Mat_Green", new MaterialSettings(), vert, frag);
 

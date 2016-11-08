@@ -23,7 +23,7 @@ namespace System
         Timers = 0, //Call timing events
         Input = 1, //Call input events
         Logic = 2, //Call update tick
-        Scene = 3, //Render scene
+        Scene = 3, //Update scene
     }
     [NotifyPropertyChanged]
     public class ObjectBase : INotifyPropertyChanged
@@ -41,9 +41,7 @@ namespace System
 
         [Browsable(false)]
         public virtual ResourceType ResourceType { get { return ResourceType.Object; } }
-
-        public AbstractRenderer Renderer { get { return Engine.Renderer; } }
-
+        
         [Default]
 #if EDITOR
         [Category("State"), PostChanged("OnRenamed")]
@@ -89,18 +87,23 @@ namespace System
             set { HasChanged = value; }
         }
 #endif
-
+        protected bool _hasRegisteredTick = false;
         /// <summary>
         /// Specifies that this object wants tick calls.
         /// </summary>
         public void RegisterTick(ETickGroup group, ETickOrder order)
         {
+            _hasRegisteredTick = true;
             Engine.RegisterTick(this, group, order);
         }
         /// <summary>
         /// Specifies that this object will not have any tick calls.
         /// </summary>
-        public void UnregisterTick() { Engine.UnregisterTick(this); }
+        public void UnregisterTick()
+        {
+            _hasRegisteredTick = false;
+            Engine.UnregisterTick(this);
+        }
         /// <summary>
         /// Updates logic for this class
         /// </summary>
@@ -142,6 +145,10 @@ namespace System
         public void RemoveAnimation(AnimationContainer anim)
         {
             _animations.Remove(anim);
+        }
+        public virtual void QueueCommand(RenderKey key, Action method)
+        {
+            
         }
     }
     [PSerializable]

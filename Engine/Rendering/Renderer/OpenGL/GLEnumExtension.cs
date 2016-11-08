@@ -1,0 +1,17 @@
+﻿using CustomEngine.Rendering;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace CustomEngine.Rendering.OpenGL
+{
+    public static class GLEnumExtension
+    {
+        public static Enum Convert(this Enum e, Type otherEnum)
+        {
+            return Enum.Parse(otherEnum, e.ToString()) as Enum;
+        }
+    }
+}

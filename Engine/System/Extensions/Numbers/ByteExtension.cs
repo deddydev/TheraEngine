@@ -18,7 +18,7 @@
             int count = 0;
             for (int i = 0; i < 8; i++)
                 if (((b >> i) & 1) != 0)
-                    count++;
+                    ++count;
             return count;
         }
         public static byte Clamp(this byte value, byte min, byte max)

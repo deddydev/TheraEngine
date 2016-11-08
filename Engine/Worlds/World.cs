@@ -4,10 +4,11 @@ using BulletSharp;
 using System;
 using System.Threading.Tasks;
 using System.Linq;
+using CustomEngine.Rendering.Models.Materials;
 
 namespace CustomEngine.Worlds
 {
-    public class World : ObjectBase, IRenderable
+    public class World : ObjectBase
     {
         private DiscreteDynamicsWorld _bulletScene;
         public WorldSettings _settings;
@@ -37,9 +38,9 @@ namespace CustomEngine.Worlds
             _bulletScene = new DiscreteDynamicsWorld(dispatcher, broadphase, solver, config);
             _bulletScene.Gravity = _settings.State.Gravity;
         }
-        public void SetTimeMultiplier(float mult)
+        public void SetTimeDilation(float multiplier)
         {
-            _settings.State.TimeMultiplier = mult;
+            _settings.State.TimeDilation = multiplier;
         }
         public void RebaseOrigin(Vec3 newOrigin)
         {

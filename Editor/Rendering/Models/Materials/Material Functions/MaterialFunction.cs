@@ -111,7 +111,7 @@ namespace CustomEngine.Rendering.Models.Materials
 
         public void SetOwner(HudComponent comp)
         {
-            _owner?.Remove(this);
+            _parent?.Remove(this);
             comp.Add(this);
         }
 

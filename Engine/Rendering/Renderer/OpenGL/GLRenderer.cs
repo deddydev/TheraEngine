@@ -3,6 +3,7 @@ using OpenTK.Graphics.OpenGL;
 using System.Linq;
 using System.Drawing;
 using CustomEngine.Rendering.Models.Materials;
+using System.Collections.Generic;
 
 namespace CustomEngine.Rendering.OpenGL
 {
@@ -51,7 +52,7 @@ namespace CustomEngine.Rendering.OpenGL
         public override void DrawBoxSolid(System.Vec3 min, System.Vec3 max)
         {
             GL.Begin(PrimitiveType.QuadStrip);
-            
+
             GL.Vertex3(min.X, min.Y, min.Z);
             GL.Vertex3(min.X, max.Y, min.Z);
             GL.Vertex3(max.X, min.Y, min.Z);
@@ -88,7 +89,7 @@ namespace CustomEngine.Rendering.OpenGL
             throw new NotImplementedException();
         }
         #endregion
-        
+
         public override void DrawSphereWireframe(float radius)
         {
             throw new NotImplementedException();
@@ -96,9 +97,20 @@ namespace CustomEngine.Rendering.OpenGL
 
         public override void DrawSphereSolid(float radius)
         {
+            
             throw new NotImplementedException();
         }
 
+        public override void BindTextureData(int textureTargetEnum, int mipLevel, int pixelInternalFormatEnum, int width, int height, int pixelFormatEnum, int pixelTypeEnum, VoidPtr data)
+        {
+            // https://www.opengl.org/sdk/docs/man/html/glTexImage2D.xhtml
+            GL.TexImage2D((TextureTarget)textureTargetEnum, mipLevel, (OpenTK.Graphics.OpenGL.PixelInternalFormat)pixelInternalFormatEnum, width, height, 0, (PixelFormat)pixelFormatEnum, (PixelType)pixelTypeEnum, data);
+        }
+
+        public override void DrawBuffers(DrawBuffersAttachment[] attachments)
+        {
+            GL.DrawBuffers(attachments.Length, attachments.Select(x => (DrawBuffersEnum)x.Convert(typeof(DrawBuffersEnum))).ToArray());
+        }
         public override void Clear(BufferClear mask)
         {
             ClearBufferMask newMask = 0;
@@ -351,7 +363,7 @@ namespace CustomEngine.Rendering.OpenGL
                 return;
 
             float[] values = new float[p.Length << 1];
-            
+
             for (int i = 0; i < p.Length; ++i)
                 for (int x = 0; x < count; ++x)
                     values[i << 1 + x] = p[i].Data[x];
@@ -548,19 +560,19 @@ namespace CustomEngine.Rendering.OpenGL
                 case GenType.Query:
                     GL.GenQueries(count, ids);
                     break;
-                case GenType.Renderbuffer: 
+                case GenType.Renderbuffer:
                     GL.GenRenderbuffers(count, ids);
                     break;
-                case GenType.Sampler: 
+                case GenType.Sampler:
                     GL.GenSamplers(count, ids);
                     break;
-                case GenType.Texture: 
+                case GenType.Texture:
                     GL.GenTextures(count, ids);
                     break;
-                case GenType.TransformFeedback: 
+                case GenType.TransformFeedback:
                     GL.GenTransformFeedbacks(count, ids);
                     break;
-                case GenType.VertexArray: 
+                case GenType.VertexArray:
                     GL.GenVertexArrays(count, ids);
                     break;
                 case GenType.Shader:
@@ -571,6 +583,32 @@ namespace CustomEngine.Rendering.OpenGL
                     return new int[] { GL.GenLists(count) };
             }
             return ids;
+        }
+
+        public override void SetBindFragDataLocation(int bindingId, int location, string name)
+        {
+            GL.BindFragDataLocation(bindingId, location, name);
+        }
+
+        public override void BindFrameBuffer(FramebufferType type, int bindingId)
+        {
+            switch (type)
+            {
+                case FramebufferType.ReadWrite:
+                    GL.BindFramebuffer(FramebufferTarget.Framebuffer, bindingId);
+                    break;
+                case FramebufferType.Read:
+                    GL.BindFramebuffer(FramebufferTarget.ReadFramebuffer, bindingId);
+                    break;
+                case FramebufferType.Write:
+                    GL.BindFramebuffer(FramebufferTarget.DrawFramebuffer, bindingId);
+                    break;
+            }
+        }
+
+        public override void DrawBuffers(DrawBuffersAttachment[] attachments)
+        {
+            throw new NotImplementedException();
         }
     }
 }

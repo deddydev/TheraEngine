@@ -42,7 +42,7 @@ namespace CustomEngine.Rendering.HUD
             //step 4: translate backward, relative to the rotation, by the local rotation origin to center on the rotation point
             //step 5: scale the component
 
-            _transform =
+            _localTransform =
                 Matrix4.CreateScale(ScaleX, ScaleY, 1.0f) *
                 Matrix4.CreateTranslation(-_rotationLocalOrigin.X * Width, -_rotationLocalOrigin.Y * Height, 0.0f) *
                 Matrix4.CreateRotationZ(RotationAngle) *

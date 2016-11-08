@@ -1,4 +1,5 @@
 ﻿using CustomEngine.GameModes;
+using CustomEngine.Rendering.Models.Materials;
 using CustomEngine.Worlds.Actors;
 using System;
 using System.Collections.Generic;
@@ -22,7 +23,7 @@ namespace CustomEngine.Worlds
         [PostChanged("OnGameModeChanged")]
         public GameMode GameMode { get { return _gameMode; } set { _gameMode = value; } }
         [PostChanged("OnTimeMultiplierChanged")]
-        public float TimeMultiplier { get { return _timeSpeed; } set { _timeSpeed = value; } }
+        public float TimeDilation { get { return _timeSpeed; } set { _timeSpeed = value; } }
         public List<Map> SpawnedMaps { get { return _spawnedMaps; } }
         public List<Actor> SpawnedActors { get { return _spawnedActors; } }
 
@@ -35,5 +36,6 @@ namespace CustomEngine.Worlds
         private Vec3 _gravity = new Vec3(0.0f, -9.81f, 0.0f);
         private GameMode _gameMode;
         private float _timeSpeed = 1.0f;
+        public HashSet<Material> _activeMaterials;
     }
 }

@@ -5,7 +5,7 @@ using CustomEngine.Input;
 
 namespace CustomEngine.Rendering
 {
-    public class Viewport : IRenderable
+    public class Viewport
     {
         private static Viewport _currentlyRendering = null;
         public static Viewport CurrentlyRendering { get { return _currentlyRendering; } }
@@ -63,49 +63,101 @@ namespace CustomEngine.Rendering
             _currentlyRendering = null;
         }
         public void DebugPrint(string message) { _hud.DebugPrint(message); }
-        public void ViewportCountChanged(int newIndex, int total)
+        private void SetTopLeft()
         {
-            bool _horizontalSplit = true;
-            bool _blankViewport = false;
-            bool _preferTop = true;
-
+            _leftPercentage = 0.0f;
+            _rightPercentage = 0.5f;
+            _topPercentage = 1.0f;
+            _bottomPercentage = 0.5f;
+        }
+        private void SetTopRight()
+        {
+            _leftPercentage = 0.0f;
+            _rightPercentage = 0.5f;
+            _topPercentage = 1.0f;
+            _bottomPercentage = 0.5f;
+        }
+        private void SetBottomLeft()
+        {
+            _leftPercentage = 0.0f;
+            _rightPercentage = 0.5f;
+            _topPercentage = 1.0f;
+            _bottomPercentage = 0.5f;
+        }
+        private void SetBottomRight()
+        {
+            _leftPercentage = 0.0f;
+            _rightPercentage = 0.5f;
+            _topPercentage = 1.0f;
+            _bottomPercentage = 0.5f;
+        }
+        private void SetTop()
+        {
+            _leftPercentage = 0.0f;
+            _rightPercentage = 1.0f;
+            _topPercentage = 1.0f;
+            _bottomPercentage = 0.5f;
+        }
+        private void SetBottom()
+        {
+            _leftPercentage = 0.0f;
+            _rightPercentage = 1.0f;
+            _topPercentage = 0.5f;
+            _bottomPercentage = 0.0f;
+        }
+        private void SetLeft()
+        {
+            _leftPercentage = 0.0f;
+            _rightPercentage = 0.5f;
+            _topPercentage = 1.0f;
+            _bottomPercentage = 0.0f;
+        }
+        private void SetRight()
+        {
+            _leftPercentage = 0.5f;
+            _rightPercentage = 1.0f;
+            _topPercentage = 1.0f;
+            _bottomPercentage = 0.0f;
+        }
+        private void SetFullScreen()
+        {
+            _leftPercentage = _bottomPercentage = 0.0f;
+            _rightPercentage = _topPercentage = 1.0f;
+        }
+        public enum TwoPlayerViewportPreference
+        {
+            SplitHorizontally,
+            SplitVertically,
+        }
+        public enum ThreePlayerViewportPreference
+        {
+            BlankBottomRight,
+            PreferFirstPlayer,
+            PreferSecondPlayer,
+            PreferThirdPlayer,
+        }
+        public void ViewportCountChanged(int newIndex, int total, TwoPlayerViewportPreference twoPlayerPref, ThreePlayerViewportPreference threePlayerPref)
+        {
             _index = newIndex;
             switch (total)
             {
                 case 1:
-                    _leftPercentage = _bottomPercentage = 0.0f;
-                    _rightPercentage = _topPercentage = 1.0f;
+                    SetFullScreen();
                     break;
                 case 2:
                     switch (newIndex)
                     {
                         case 0:
-                            _leftPercentage = 0.0f;
-                            _topPercentage = 1.0f;
-                            if (_horizontalSplit)
-                            {
-                                _rightPercentage = 1.0f;
-                                _bottomPercentage = 0.5f;
-                            }
+                            if (twoPlayerPref == TwoPlayerViewportPreference.SplitHorizontally)
+                                SetTop();
                             else
-                            {
-                                _rightPercentage = 0.5f;
-                                _bottomPercentage = 0.0f;
-                            }
+                                SetLeft();
                             break;
                         case 1:
-                            _rightPercentage = 1.0f;
-                            _bottomPercentage = 0.0f;
-                            if (_horizontalSplit)
-                            {
-                                _leftPercentage = 0.0f;
-                                _topPercentage = 0.5f;
-                            }
+                            if (twoPlayerPref == TwoPlayerViewportPreference.SplitHorizontally)
+                                SetBottom();
                             else
-                            {
-                                _leftPercentage = 0.5f;
-                                _topPercentage = 1.0f;
-                            }
+                                SetRight();
                             break;
                     }
                     break;
@@ -113,40 +165,65 @@ namespace CustomEngine.Rendering
                     switch (newIndex)
                     {
                         case 0:
+                            switch (threePlayerPref)
+                            {
+                                case ThreePlayerViewportPreference.BlankBottomRight:
+                                    SetTopLeft();
+                                    break;
+                                case ThreePlayerViewportPreference.PreferFirstPlayer:
+                                    SetTop();
+                                    break;
+                                case ThreePlayerViewportPreference.PreferSecondPlayer:
+                                    SetBottomLeft();
+                                    break;
+                                case ThreePlayerViewportPreference.PreferThirdPlayer:
+                                    SetTopLeft();
+                                    break;
+                            }
                             break;
                         case 1:
+                            switch (threePlayerPref)
+                            {
+                                case ThreePlayerViewportPreference.BlankBottomRight:
+                                    SetTopRight();
+                                    break;
+                                case ThreePlayerViewportPreference.PreferFirstPlayer:
+                                    SetBottomLeft();
+                                    break;
+                                case ThreePlayerViewportPreference.PreferSecondPlayer:
+                                    SetTop();
+                                    break;
+                                case ThreePlayerViewportPreference.PreferThirdPlayer:
+                                    SetTopRight();
+                                    break;
+                            }
                             break;
                         case 2:
+                            switch (threePlayerPref)
+                            {
+                                case ThreePlayerViewportPreference.BlankBottomRight:
+                                    SetBottomLeft();
+                                    break;
+                                case ThreePlayerViewportPreference.PreferFirstPlayer:
+                                    SetBottomRight();
+                                    break;
+                                case ThreePlayerViewportPreference.PreferSecondPlayer:
+                                    SetBottomRight();
+                                    break;
+                                case ThreePlayerViewportPreference.PreferThirdPlayer:
+                                    SetBottom();
+                                    break;
+                            }
                             break;
                     }
                     break;
                 case 4:
                     switch (newIndex)
                     {
-                        case 0:
-                            _leftPercentage = 0.0f;
-                            _rightPercentage = 0.5f;
-                            _topPercentage = 1.0f;
-                            _bottomPercentage = 0.5f;
-                            break;
-                        case 1:
-                            _leftPercentage = 0.0f;
-                            _rightPercentage = 0.5f;
-                            _topPercentage = 1.0f;
-                            _bottomPercentage = 0.5f;
-                            break;
-                        case 2:
-                            _leftPercentage = 0.0f;
-                            _rightPercentage = 0.5f;
-                            _topPercentage = 1.0f;
-                            _bottomPercentage = 0.5f;
-                            break;
-                        case 3:
-                            _leftPercentage = 0.0f;
-                            _rightPercentage = 0.5f;
-                            _topPercentage = 1.0f;
-                            _bottomPercentage = 0.5f;
-                            break;
+                        case 0: SetTopLeft(); break;
+                        case 1: SetTopRight(); break;
+                        case 2: SetBottomLeft(); break;
+                        case 3: SetBottomRight(); break;
                     }
                     break;
             }

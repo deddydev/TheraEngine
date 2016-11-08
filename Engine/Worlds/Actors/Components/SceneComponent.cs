@@ -6,9 +6,40 @@ using System.ComponentModel;
 
 namespace CustomEngine.Worlds.Actors.Components
 {
-    public class SceneComponent : Component, IRenderable, ITransformable
+    public class SceneComponent : Component, ITransformable
     {
-        private FrameState _transform = FrameState.Identity;
+        public SceneComponent(Matrix4.MultiplyOrder order = Matrix4.MultiplyOrder.SRT)
+        {
+            _localTransform = FrameState.GetIdentity(order);
+            _localTransform.MatrixChanged += _localTransform_MatrixChanged;
+        }
+
+        private void _localTransform_MatrixChanged(Matrix4 oldMatrix, Matrix4 oldInvMatrix)
+        {
+            RecalcGlobalTransform();
+        }
+        private void RecalcGlobalTransform()
+        {
+            Matrix4 parentTransform = _parent == null ? Matrix4.Identity : _parent._worldTransform;
+            Matrix4 parentInvTransform = _parent == null ? Matrix4.Identity : _parent._worldTransform;
+            _worldTransform = _localTransform.Matrix * parentTransform;
+            _invWorldTransform = _localTransform.InverseMatrix * parentInvTransform;
+            foreach (SceneComponent c in _children)
+                c.RecalcGlobalTransform();
+        }
+
+        /// <summary>
+        /// Gets the transformation of this component in relation to the actor's root component.
+        /// </summary>
+        public Matrix4 GetActorTransform() { return Owner.Transform.InverseMatrix * _worldTransform; }
+        /// <summary>
+        /// Gets the inverse transformation of this component in relation to the actor's root component.
+        /// </summary>
+        public Matrix4 GetInvActorTransform() { return Owner.Transform.Matrix * _invWorldTransform; }
+        private Matrix4 _invWorldTransform = Matrix4.Identity;
+        private Matrix4 _worldTransform = Matrix4.Identity;
+        private FrameState _localTransform = FrameState.Identity;
+        protected SceneComponent _parent;
         protected MonitoredList<SceneComponent> _children = new MonitoredList<SceneComponent>();
         protected bool _visible;
         protected bool _hiddenInGame = false;
@@ -34,10 +65,16 @@ namespace CustomEngine.Worlds.Actors.Components
             set { _visible = value; }
         }
         [Category("Rendering"), Default, State, Animatable]
-        public FrameState Transform
+        public FrameState LocalTransform
         {
-            get { return _transform; }
-            set { _transform = value; }
+            get { return _localTransform; }
+            set { _localTransform = value; }
+        }
+        [Category("Rendering"), Default, State, Animatable]
+        public Matrix4.MultiplyOrder TransformOrder
+        {
+            get { return _localTransform.TransformOrder; }
+            set { _localTransform.TransformOrder = value; }
         }
 
         public virtual void OnSpawned()
@@ -49,16 +86,16 @@ namespace CustomEngine.Worlds.Actors.Components
             _visible = false;
         }
 
-        public void Render(float delta)
-        {
-            Renderer.PushMatrix();
-            Transform.MultMatrix();
-            if (Visible)
-                OnRender(delta);
-            foreach (SceneComponent comp in _children)
-                comp.Render(delta);
-            Renderer.PopMatrix();
-        }
+        //public void Render(float delta)
+        //{
+        //    Renderer.PushMatrix();
+        //    Transform.MultMatrix();
+        //    if (Visible)
+        //        OnRender(delta);
+        //    foreach (SceneComponent comp in _children)
+        //        comp.Render(delta);
+        //    Renderer.PopMatrix();
+        //}
 
         protected void OnChildAdded(SceneComponent s)
         {

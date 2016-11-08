@@ -26,8 +26,8 @@ namespace CustomEngine.Rendering.Cameras
             get { return _farZ; }
             set { _farZ = value; }
         }
-        public Matrix4 Matrix { get { return _currentTransform.InverseTransform; } }
-        public Matrix4 MatrixInverse { get { return _currentTransform.Transform; } }
+        public Matrix4 Matrix { get { return _currentTransform.InverseMatrix; } }
+        public Matrix4 MatrixInverse { get { return _currentTransform.Matrix; } }
         public FrameState CurrentTransform
         {
             get { return _currentTransform; }

@@ -10,14 +10,15 @@ namespace CustomEngine.Rendering.HUD
 {
     public class HudComponent : ObjectBase, IPanel, IEnumerable<HudComponent>
     {
-        public HudComponent(HudComponent owner) { _owner = owner; }
+        public HudComponent(HudComponent owner) { _parent = owner; }
 
-        protected HudComponent _owner;
+        protected HudComponent _parent;
         protected List<HudComponent> _children = new List<HudComponent>();
 
         protected ushort _zIndex;
         protected AnchorFlags _positionAnchorFlags;
-        protected Matrix4 _transform = Matrix4.Identity;
+        protected Matrix4 _localTransform = Matrix4.Identity;
+        protected Matrix4 _globalTransform = Matrix4.Identity;
         protected RectangleF _region = new RectangleF();
         protected Vec2 _scale = Vec2.One;
         
@@ -37,13 +38,31 @@ namespace CustomEngine.Rendering.HUD
         public float Height
         {
             get { return _region.Height; }
-            set { _region.Height = value; }
+            set
+            {
+                if (value < 0)
+                {
+                    TranslationY += value;
+                    _region.Height = -value;
+                }
+                else
+                    _region.Height = value;
+            }
         }
         [Category("Transform"), State, Animatable, PostCall("OnResized")]
         public float Width
         {
             get { return _region.Width; }
-            set { _region.Width = value; }
+            set
+            {
+                if (value < 0)
+                {
+                    TranslationX += value;
+                    _region.Width = -value;
+                }
+                else
+                    _region.Width = value;
+            }
         }
         [Category("Transform"), State, Animatable, PostCall("OnTransformed")]
         public PointF Location
@@ -88,11 +107,20 @@ namespace CustomEngine.Rendering.HUD
             //step 2: translate into position (bottom left corner)
             //step 5: scale the component
 
-            _transform = Matrix4.TransformMatrix(
+            _localTransform = Matrix4.TransformMatrix(
                 new Vec3(ScaleX, ScaleY, 0.0f),
                 Quaternion.Identity, 
                 new Vec3(TranslationX, TranslationY, 0.0f), 
                 Matrix4.MultiplyOrder.TRS);
+
+            RecalcGlobalTransform();
+        }
+        private void RecalcGlobalTransform()
+        {
+            Matrix4 parentTransform = _parent == null ? Matrix4.Identity : _parent._globalTransform;
+            _globalTransform = _localTransform * parentTransform;
+            foreach (HudComponent c in _children)
+                c.RecalcGlobalTransform();
         }
         public void Add(HudComponent child)
         {
@@ -100,7 +128,8 @@ namespace CustomEngine.Rendering.HUD
                 return;
             if (!_children.Contains(child))
                 _children.Add(child);
-            child._owner = this;
+            child._parent = this;
+            child._zIndex = (ushort)(_zIndex + 1);
         }
         public void Remove(HudComponent child)
         {
@@ -108,7 +137,8 @@ namespace CustomEngine.Rendering.HUD
                 return;
             if (_children.Contains(child))
                 _children.Remove(child);
-            child._owner = null;
+            child._parent = null;
+            child._zIndex = 0;
         }
 
         /// <summary>
@@ -123,12 +153,12 @@ namespace CustomEngine.Rendering.HUD
         }
         public virtual void Render(float delta)
         {
-            Renderer.PushMatrix();
-            Renderer.MultMatrix(_transform);
-            OnRender(delta);
-            foreach (HudComponent comp in _children)
-                comp.Render(delta);
-            Renderer.PopMatrix();
+            //Renderer.PushMatrix();
+            //Renderer.MultMatrix(_localTransform);
+            //OnRender(delta);
+            //foreach (HudComponent comp in _children)
+            //    comp.Render(delta);
+            //Renderer.PopMatrix();
         }
         protected virtual void OnRender(float delta) { }
 

@@ -7,7 +7,7 @@ using System.Drawing;
 
 namespace CustomEngine.Rendering.DirectX
 {
-    public unsafe class DXRenderer : AbstractRenderer
+    internal unsafe class DXRenderer : AbstractRenderer
     {
         public static DXRenderer Instance;
         public DXRenderer()
@@ -286,6 +286,26 @@ namespace CustomEngine.Rendering.DirectX
         }
 
         public override void DeleteObjects(GenType type, int[] bindingIds)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void SetBindFragDataLocation(int bindingId, int location, string name)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void BindFrameBuffer(FramebufferType type, int bindingId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void BindTextureData(int textureTargetEnum, int mipLevel, int pixelInternalFormatEnum, int width, int height, int pixelFormatEnum, int pixelTypeEnum, VoidPtr data)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void DrawBuffers(DrawBuffersAttachment[] attachments)
         {
             throw new NotImplementedException();
         }

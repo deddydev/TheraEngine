@@ -15,7 +15,7 @@ namespace CustomEngine
     }
     public interface ITransformable
     {
-        FrameState Transform { get; set; }
+        FrameState LocalTransform { get; set; }
     }
     public interface IPanel
     {

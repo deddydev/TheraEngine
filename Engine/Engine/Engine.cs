@@ -9,6 +9,7 @@ using CustomEngine.Audio;
 using CustomEngine.Input.Devices;
 using CustomEngine.Input.Devices.OpenTK;
 using CustomEngine.Input.Devices.DirectX;
+using CustomEngine.Rendering.Models.Materials;
 
 namespace CustomEngine
 {
@@ -20,8 +21,7 @@ namespace CustomEngine
         public static int PhysicsSubsteps = 10;
         private static ComputerInfo _computerInfo;
         public static List<World> LoadedWorlds = new List<World>();
-        public static List<GameTimer> ActiveTimers = new List<GameTimer>();
-        public static List<LocalPlayerController> ActivePlayers = new List<LocalPlayerController>();
+        public static MonitoredList<LocalPlayerController> ActivePlayers = new MonitoredList<LocalPlayerController>();
         public static List<AIController> ActiveAI = new List<AIController>();
         private static World _transitionWorld = null;
         private static World _currentWorld = null;
@@ -46,6 +46,18 @@ namespace CustomEngine
                 for (int j = 0; j < 4; ++j)
                     _tick[order].Add((ETickOrder)j, new List<ObjectBase>());
             }
+            ActivePlayers.Added += ActivePlayers_Added;
+            ActivePlayers.Removed += ActivePlayers_Removed;
+        }
+
+        private static void ActivePlayers_Removed(LocalPlayerController item)
+        {
+            
+        }
+
+        private static void ActivePlayers_Added(LocalPlayerController item)
+        {
+            
         }
 
         public static void RegisterRenderTick(EventHandler<FrameEventArgs> func)
@@ -53,10 +65,10 @@ namespace CustomEngine
             _timer.RenderFrame += func;
         }
 
-        public static AbstractRenderer Renderer
+        internal static AbstractRenderer Renderer
         {
             get { return _renderer; }
-            internal set { _renderer = value; }
+            set { _renderer = value; }
         }
         public static AbstractAudioManager AudioManager
         {
@@ -75,6 +87,7 @@ namespace CustomEngine
             get { return _timer.TargetRenderFrequency; }
             set { _timer.TargetRenderFrequency = value; }
         }
+
         /// <summary>
         /// Frames per second that the game will try to update at.
         /// </summary>
@@ -83,6 +96,20 @@ namespace CustomEngine
             get { return _timer.TargetUpdateFrequency; }
             set { _timer.TargetUpdateFrequency = value; }
         }
+
+        static List<float> _debugTimers = new List<float>();
+        public static int StartDebugTimer()
+        {
+            int id = _debugTimers.Count;
+            _debugTimers.Add(0);
+            return id;
+        }
+        public static void EndDebugTimer(int id, string debugMessage = "")
+        {
+            DebugPrint(debugMessage + "Timer took " + _debugTimers[id].ToString() + " seconds.");
+            _debugTimers.RemoveAt(id);
+        }
+
         /// <summary>
         /// How fast/slow the game time looks
         /// </summary>
@@ -196,21 +223,16 @@ namespace CustomEngine
         private static void Tick(object sender, FrameEventArgs e)
         {
             float delta = (float)e.Time;
-            foreach (GameTimer timer in ActiveTimers)
-                timer.Tick(delta);
-            foreach (PlayerController c in ActivePlayers)
-                c.Tick(delta);
-            foreach (AIController c in ActiveAI)
-                c.Tick(delta);
-            //Task t = DuringPhysics(delta);
+            _debugTimers.ForEach(x => x += delta);
             delta /= PhysicsSubsteps;
             for (int i = 0; i < PhysicsSubsteps; i++)
             {
                 PhysicsTick(ETickGroup.PrePhysics, delta);
+                //Task t = PhysicsTick(ETickGroup.DuringPhysics, delta);
                 World.StepSimulation(delta);
+                //await t;
                 PhysicsTick(ETickGroup.PostPhysics, delta);
             }
-            //await t;
         }
         #endregion
 
@@ -306,7 +328,10 @@ namespace CustomEngine
         static InputAwaiter _inputAwaiter;
         internal static void FoundInput(InputDevice device)
         {
-            LocalPlayerController controller = new LocalPlayerController();
+            if (device.Index >= ActivePlayers.Count)
+            {
+                LocalPlayerController controller = new LocalPlayerController();
+            }
         }
     }
 }

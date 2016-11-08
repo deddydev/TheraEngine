@@ -75,7 +75,8 @@ uniform mat4 ProjMatrix;
 
 void main()
 {
-    
+    mat4 modelViewProj = ModelMatrix * ViewMatrix * ProjMatrix;
+    gl_Position = modelViewProj * Position;
 }
 ";
             return new Shader(ShaderMode.Vertex, source);

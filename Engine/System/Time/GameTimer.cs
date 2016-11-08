@@ -10,15 +10,15 @@ namespace System
         //Set on start
         private MultiFireAction _multiMethod;
         private Action _singleMethod;
-        private double _secondsPerFire;
-        private double _startSeconds;
+        private float _secondsPerFire;
+        private float _startSeconds;
         private int _fireCount;
 
         //State
         private int _fireNumber;
         private bool _isRunning;
-        private double _totalElapsed;
-        private double _elapsedSinceLastFire;
+        private float _totalElapsed;
+        private float _elapsedSinceLastFire;
 
         public void Reset()
         {
@@ -36,8 +36,7 @@ namespace System
             Reset();
             _isRunning = false;
 
-            if (Engine.ActiveTimers.Contains(this))
-                Engine.ActiveTimers.Remove(this);
+            UnregisterTick();
         }
         public void RunSingleFire(Action method, float seconds)
         {
@@ -46,6 +45,8 @@ namespace System
             _isRunning = true;
             _singleMethod = method;
             _startSeconds = seconds;
+
+            RegisterTick(ETickGroup.PrePhysics, ETickOrder.Timers);
         }
         public void RunMultiFire(MultiFireAction method, float secondsPerFire, int fireCount = 1, float startSeconds = 0.0f)
         {
@@ -57,17 +58,16 @@ namespace System
             _startSeconds = startSeconds;
             _isRunning = true;
 
-            if (!Engine.ActiveTimers.Contains(this))
-                Engine.ActiveTimers.Add(this);
+            RegisterTick(ETickGroup.PrePhysics, ETickOrder.Timers);
         }
-        public void Tick(double deltaTime)
+        internal override void Tick(float delta)
         {
-            _totalElapsed += deltaTime;
-            _elapsedSinceLastFire += deltaTime;
+            _totalElapsed += delta;
+            _elapsedSinceLastFire += delta;
             if ((_fireNumber == 0 && _elapsedSinceLastFire > _startSeconds) && _elapsedSinceLastFire > _secondsPerFire)
                 if (_multiMethod != null)
                 {
-                    _multiMethod((float)_totalElapsed, _fireNumber++);
+                    _multiMethod(_totalElapsed, _fireNumber++);
                     _elapsedSinceLastFire = 0;
                 }
                 else if (_singleMethod != null)

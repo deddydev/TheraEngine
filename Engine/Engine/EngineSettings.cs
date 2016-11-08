@@ -15,5 +15,15 @@ namespace CustomEngine
         {
             return FromXML<EngineSettings>(filePath);
         }
+
+        public override void Unload()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void Load(VoidPtr address)
+        {
+
+        }
     }
 }

@@ -39,8 +39,8 @@ namespace CustomEngine.Worlds.Actors
                 return;
 
             Box bounds = Engine.World.Settings.OriginRebaseBounds;
-            if (!bounds.ContainsPoint(RootComponent.Transform.Translation))
-                Engine.World.RebaseOrigin(RootComponent.Transform.Translation);
+            if (!bounds.ContainsPoint(RootComponent.LocalTransform.Translation))
+                Engine.World.RebaseOrigin(RootComponent.LocalTransform.Translation);
         }
     }
 }

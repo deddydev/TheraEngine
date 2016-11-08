@@ -22,10 +22,5 @@ namespace CustomEngine.Worlds.Actors.Components
                     controller.CurrentCamera = _camera;
             }
         }
-
-        protected override void OnRender(float delta)
-        {
-            base.OnRender(delta);
-        }
     }
 }

@@ -10,7 +10,7 @@ namespace CustomEngine.Particles
     public class ParticleState : ITransformable
     {
         FrameState _transform;
-        public FrameState Transform
+        public FrameState LocalTransform
         {
             get { return _transform; }
             set { _transform = value; }

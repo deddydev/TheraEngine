@@ -31,5 +31,13 @@
         {
             return (Int16)(value + (value % 2));
         }
+        public static int CountBits(this Int16 b)
+        {
+            int count = 0;
+            for (int i = 0; i < 16; i++)
+                if (((b >> i) & 1) != 0)
+                    ++count;
+            return count;
+        }
     }
 }

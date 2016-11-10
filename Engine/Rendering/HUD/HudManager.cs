@@ -23,15 +23,6 @@ namespace CustomEngine.Rendering.HUD
             _camera.Resize(Width, Height);
             return region;
         }
-        
-        public override void Render(float delta)
-        {
-            _camera.SetCurrent();
-            foreach (HudComponent comp in _children)
-                comp.Render(delta);
-            base.Render(delta);
-        }
-
         public void DebugPrint(string message)
         {
             

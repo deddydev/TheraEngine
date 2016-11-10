@@ -90,17 +90,6 @@ namespace CustomEngine.Rendering.OpenGL
         }
         #endregion
 
-        public override void DrawSphereWireframe(float radius)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void DrawSphereSolid(float radius)
-        {
-            
-            throw new NotImplementedException();
-        }
-
         public override void BindTextureData(int textureTargetEnum, int mipLevel, int pixelInternalFormatEnum, int width, int height, int pixelFormatEnum, int pixelTypeEnum, VoidPtr data)
         {
             // https://www.opengl.org/sdk/docs/man/html/glTexImage2D.xhtml
@@ -604,6 +593,16 @@ namespace CustomEngine.Rendering.OpenGL
                     GL.BindFramebuffer(FramebufferTarget.DrawFramebuffer, bindingId);
                     break;
             }
+        }
+
+        public override void DrawSphereWireframe(float radius)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void DrawSphereSolid(float radius)
+        {
+            throw new NotImplementedException();
         }
     }
 }

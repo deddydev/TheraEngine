@@ -12,7 +12,9 @@ namespace CustomEngine.Rendering
     /// </summary>
     public abstract class AbstractRenderer
     {
-        public Dictionary<uint, Action> _commandQueue;
+        private bool _commandsInvalidated;
+        private Dictionary<ulong, Action> _commands = new Dictionary<ulong, Action>();
+        private List<ulong> _sortedCommands = new List<ulong>();
 
         public abstract RenderLibrary RenderLibrary { get; }
         public RenderContext CurrentContext { get { return RenderContext.Current; } }
@@ -106,15 +108,6 @@ namespace CustomEngine.Rendering
             else
                 stack.Push(matrix);
         }
-
-        public void RenderPanel()
-        {
-            if (_commandQueue == null)
-            {
-                _commandQueue = new Dictionary<uint, Action>();
-            }
-        }
-
         public Matrix4 GetCurrentMatrix()
         {
             var stack = CurrentMatrixStack;
@@ -135,7 +128,7 @@ namespace CustomEngine.Rendering
             stack.Push(matrix);
         }
         #endregion
-        
+
         #region Display Lists
         public abstract int CreateDisplayList();
         public abstract void BeginDisplayList(int id, DisplayListMode mode);
@@ -219,6 +212,20 @@ namespace CustomEngine.Rendering
 
         #endregion
 
+        public void RenderCurrentPanel()
+        {
+            if (_commandsInvalidated)
+                RenderKey.RadixSort(ref _sortedCommands);
+            foreach (ulong key in _sortedCommands)
+                _commands[key]();
+        }
+        public void QueueCommand(RenderKey key, Action method)
+        {
+            _commandsInvalidated = true;
+            _sortedCommands.Add(key);
+            _commands.Add(key, method);
+        }
+
         public abstract void Clear(BufferClear mask);
         public abstract float GetDepth(float x, float y);
 
@@ -238,13 +245,14 @@ namespace CustomEngine.Rendering
         }
         protected abstract void SetRenderArea(Rectangle region);
         public abstract void CropRenderArea(Rectangle region);
-        public abstract void BindFrameBuffer(FramebufferType type, int bindingId);
+
         public abstract void BindTextureData(int textureTargetEnum, int mipLevel, int pixelInternalFormatEnum, int width, int height, int pixelFormatEnum, int pixelTypeEnum, VoidPtr data);
 
         /// <summary>
         /// Draws textures connected to these frame buffer attachments.
         /// </summary>
         public abstract void DrawBuffers(DrawBuffersAttachment[] attachments);
+        public abstract void BindFrameBuffer(FramebufferType type, int bindingId);
     }
     public enum FramebufferType
     {

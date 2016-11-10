@@ -10,6 +10,7 @@ using CustomEngine.Input.Devices;
 using CustomEngine.Input.Devices.OpenTK;
 using CustomEngine.Input.Devices.DirectX;
 using CustomEngine.Rendering.Models.Materials;
+using System.Threading.Tasks;
 
 namespace CustomEngine
 {
@@ -31,6 +32,11 @@ namespace CustomEngine
         private static RenderLibrary _renderLibrary;
         private static AudioLibrary _audioLibrary;
         private static InputLibrary _inputLibrary;
+
+        public static Viewport.TwoPlayerViewportPreference TwoPlayerPref = 
+            Viewport.TwoPlayerViewportPreference.SplitHorizontally;
+        public static Viewport.ThreePlayerViewportPreference ThreePlayerPref =
+            Viewport.ThreePlayerViewportPreference.PreferFirstPlayer;
 
         public static Dictionary<ETickGroup, Dictionary<ETickOrder, List<ObjectBase>>> _tick = 
             new Dictionary<ETickGroup, Dictionary<ETickOrder, List<ObjectBase>>>();
@@ -104,10 +110,11 @@ namespace CustomEngine
             _debugTimers.Add(0);
             return id;
         }
-        public static void EndDebugTimer(int id, string debugMessage = "")
+        public static float EndDebugTimer(int id)
         {
-            DebugPrint(debugMessage + "Timer took " + _debugTimers[id].ToString() + " seconds.");
+            float seconds = _debugTimers[id];
             _debugTimers.RemoveAt(id);
+            return seconds;
         }
 
         /// <summary>
@@ -183,7 +190,11 @@ namespace CustomEngine
             }
         }
 
-        #region Tick        
+        #region Tick
+        public static void Pause()
+        {
+
+        }
         public static void Run() { _timer.Run(); }
         public static void Stop() { _timer.Stop(); }
         private static void PhysicsTick(ETickGroup order, float delta)
@@ -197,6 +208,22 @@ namespace CustomEngine
                     if (g.Value.Count < oldCount)
                         --i;
                 }
+        }
+        public static async Task AsyncDuringPhysicsTick(float delta)
+        {
+            foreach (var g in _tick[ETickGroup.DuringPhysics])
+            {
+                for (int i = 0; i < g.Value.Count; ++i)
+                {
+                    ObjectBase b = g.Value[i];
+                    int oldCount = g.Value.Count;
+                    b.Tick(delta);
+                    if (g.Value.Count < oldCount)
+                        --i;
+
+                    await Task.Delay(100);
+                }
+            }
         }
         public static void RegisterTick(ObjectBase obj, ETickGroup group, ETickOrder order)
         {
@@ -220,7 +247,7 @@ namespace CustomEngine
                 obj.TickGroup = null;
             }
         }
-        private static void Tick(object sender, FrameEventArgs e)
+        private static async void Tick(object sender, FrameEventArgs e)
         {
             float delta = (float)e.Time;
             _debugTimers.ForEach(x => x += delta);
@@ -228,7 +255,7 @@ namespace CustomEngine
             for (int i = 0; i < PhysicsSubsteps; i++)
             {
                 PhysicsTick(ETickGroup.PrePhysics, delta);
-                //Task t = PhysicsTick(ETickGroup.DuringPhysics, delta);
+                //Task t = AsyncDuringPhysicsTick(delta);
                 World.StepSimulation(delta);
                 //await t;
                 PhysicsTick(ETickGroup.PostPhysics, delta);
@@ -326,6 +353,7 @@ namespace CustomEngine
                 oldCurrent.Unload();
         }
         static InputAwaiter _inputAwaiter;
+
         internal static void FoundInput(InputDevice device)
         {
             if (device.Index >= ActivePlayers.Count)

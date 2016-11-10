@@ -146,9 +146,9 @@ namespace System
         {
             _animations.Remove(anim);
         }
-        public virtual void QueueCommand(RenderKey key, Action method)
+        public void QueueCommand(RenderKey key, Action method)
         {
-            
+            Engine.Renderer.QueueCommand(key, method);
         }
     }
     [PSerializable]

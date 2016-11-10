@@ -11,51 +11,81 @@ namespace CustomEngine.Rendering.Models.Materials
     {
         public override GLTypeName TypeName { get { return GLTypeName._bvec2; } }
         public BVec2 Value { get { return _value; } set { _value = value; } }
-        
+        public override IUniformable UniformValue { get { return _value; } }
+
         private BVec2 _value;
 
         public GLBVec2(BVec2 defaultValue, string name, IGLVarOwner owner) 
-            : base(name, owner) { _value = defaultValue; }
+            : base(name, owner)
+        {
+            _value = defaultValue;
+            _fields.Add(".x", new GLBool(defaultValue.X, "X", this));
+            _fields.Add(".y", new GLBool(defaultValue.Y, "Y", this));
+        }
     }
     public class GLVec2 : GLVar
     {
         public override GLTypeName TypeName { get { return GLTypeName._vec2; } }
         public Vec2 Value { get { return _value; } set { _value = value; } }
+        public override IUniformable UniformValue { get { return _value; } }
 
         private Vec2 _value;
 
         public GLVec2(Vec2 defaultValue, string name, IGLVarOwner owner)
-            : base(name, owner) { _value = defaultValue; }
+            : base(name, owner)
+        {
+            _value = defaultValue;
+            _fields.Add(".x", new GLFloat(defaultValue.X, "X", this));
+            _fields.Add(".y", new GLFloat(defaultValue.Y, "Y", this));
+        }
     }
     public class GLDVec2 : GLVar
     {
         public override GLTypeName TypeName { get { return GLTypeName._dvec2; } }
         public DVec2 Value { get { return _value; } set { _value = value; } }
+        public override IUniformable UniformValue { get { return _value; } }
 
         private DVec2 _value;
 
         public GLDVec2(DVec2 defaultValue, string name, IGLVarOwner owner)
-            : base(name, owner) { _value = defaultValue; }
+            : base(name, owner)
+        {
+            _value = defaultValue;
+            _fields.Add(".x", new GLDouble(defaultValue.X, "X", this));
+            _fields.Add(".y", new GLDouble(defaultValue.Y, "Y", this));
+        }
     }
     public class GLIVec2 : GLVar
     {
         public override GLTypeName TypeName { get { return GLTypeName._ivec2; } }
         public IVec2 Value { get { return _value; } set { _value = value; } }
+        public override IUniformable UniformValue { get { return _value; } }
 
         private IVec2 _value;
 
         public GLIVec2(IVec2 defaultValue, string name, IGLVarOwner owner)
-            : base(name, owner) { _value = defaultValue; }
+            : base(name, owner)
+        {
+            _value = defaultValue;
+            _fields.Add(".x", new GLInt(defaultValue.X, "X", this));
+            _fields.Add(".y", new GLInt(defaultValue.Y, "Y", this));
+        }
     }
     public class GLUVec2 : GLVar
     {
         public override GLTypeName TypeName { get { return GLTypeName._uvec2; } }
         public UVec2 Value { get { return _value; } set { _value = value; } }
+        public override IUniformable UniformValue { get { return _value; } }
 
         private UVec2 _value;
 
         public GLUVec2(UVec2 defaultValue, string name, IGLVarOwner owner)
-            : base(name, owner) { _value = defaultValue; }
+            : base(name, owner)
+        {
+            _value = defaultValue;
+            _fields.Add(".x", new GLUInt(defaultValue.X, "X", this));
+            _fields.Add(".y", new GLUInt(defaultValue.Y, "Y", this));
+        }
     }
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public struct BVec2 : IUniformable2Bool

@@ -76,17 +76,17 @@ namespace CustomEngine.Rendering.OpenGL
             GL.Hint(HintTarget.PolygonSmoothHint, HintMode.Nicest);
             GL.Hint(HintTarget.GenerateMipmapHint, HintMode.Nicest);
 
-            GL.Enable(EnableCap.Normalize);
-            GL.Enable(EnableCap.DepthTest);
-            GL.Enable(EnableCap.Dither);
-            GL.Enable(EnableCap.Blend);
-            GL.Enable(EnableCap.AlphaTest);
-            GL.Enable(EnableCap.CullFace);
-            GL.Enable(EnableCap.ScissorTest);
-            GL.Disable(EnableCap.Lighting);
-            GL.Disable(EnableCap.PointSmooth);
-            GL.Disable(EnableCap.PolygonSmooth);
-            GL.Disable(EnableCap.LineSmooth);
+            GL.Enable(OpenTK.Graphics.OpenGL.EnableCap.Normalize);
+            GL.Enable(OpenTK.Graphics.OpenGL.EnableCap.DepthTest);
+            GL.Enable(OpenTK.Graphics.OpenGL.EnableCap.Dither);
+            GL.Enable(OpenTK.Graphics.OpenGL.EnableCap.Blend);
+            GL.Enable(OpenTK.Graphics.OpenGL.EnableCap.AlphaTest);
+            GL.Enable(OpenTK.Graphics.OpenGL.EnableCap.CullFace);
+            GL.Enable(OpenTK.Graphics.OpenGL.EnableCap.ScissorTest);
+            GL.Disable(OpenTK.Graphics.OpenGL.EnableCap.Lighting);
+            GL.Disable(OpenTK.Graphics.OpenGL.EnableCap.PointSmooth);
+            GL.Disable(OpenTK.Graphics.OpenGL.EnableCap.PolygonSmooth);
+            GL.Disable(OpenTK.Graphics.OpenGL.EnableCap.LineSmooth);
 
             GL.DepthFunc(DepthFunction.Less);
             GL.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);

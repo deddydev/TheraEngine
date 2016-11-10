@@ -10,15 +10,16 @@ namespace CustomEngine.Rendering.Models.Materials
     {
         protected override string GetOperation()
         {
-            
+            throw new NotImplementedException();
         }
-
-        protected override List<GLArgument> GetArguments()
+        protected override List<IGLArgument> GetArguments()
         {
-            return new List<GLArgument>()
+            return new List<IGLArgument>()
             {
-                new GLArgument(GLTypeName._int, "StartIndex", this),
-                new GLArgument(GLTypeName._bool, "Condition", this),
+                new GLArgument<GLInt>("Start Index"),
+                //TODO: condition needs to be built into the loop
+                new GLArgument<GLBool>("Condition"),
+                //TODO: material function argument for each loop?
             };
         }
     }

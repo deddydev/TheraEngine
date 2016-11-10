@@ -44,6 +44,9 @@ namespace CustomEngine.Input.Devices
         protected AxisManager[] _axisStates = new AxisManager[6];
         protected bool _hasCreatedStates = false;
 
+        public ButtonManager[] ButtonStates { get { return _buttonStates; } }
+        public AxisManager[] AxisStates { get { return _axisStates; } }
+
         public ConnectedStateChange ConnectionStateChanged;
 
         public int ControllerIndex { get { return _controllerIndex; } }
@@ -137,6 +140,57 @@ namespace CustomEngine.Input.Devices
         /// <param name="right">High frequency motor speed, 0 - 1.</param>
         public abstract void Vibrate(float left, float right);
         public void ClearVibration() { Vibrate(0.0f, 0.0f); }
+
+        public void RegisterButtonEvent(GamePadButton button, ButtonInputType type, Action func)
+        {
+            ButtonManager m = _buttonStates[(int)button];
+            switch (type)
+            {
+                case ButtonInputType.Pressed:
+                    m.Pressed += func;
+                    break;
+                case ButtonInputType.Released:
+                    m.Released += func;
+                    break;
+                case ButtonInputType.Held:
+                    m.Held += func;
+                    break;
+                case ButtonInputType.DoublePressed:
+                    m.DoublePressed += func;
+                    break;
+            }
+        }
+        public void RegisterButtonEvent(GamePadAxis axis, ButtonInputType type, Action func)
+        {
+            AxisManager m = _axisStates[(int)axis];
+            switch (type)
+            {
+                case ButtonInputType.Pressed:
+                    m.Pressed += func;
+                    break;
+                case ButtonInputType.Released:
+                    m.Released += func;
+                    break;
+                case ButtonInputType.Held:
+                    m.Held += func;
+                    break;
+                case ButtonInputType.DoublePressed:
+                    m.DoublePressed += func;
+                    break;
+            }
+        }
+        public void RegisterButtonPressed(GamePadButton button, Action<bool> func)
+        {
+            _buttonStates[(int)button].PressedState += func;
+        }
+        public void RegisterButtonPressed(GamePadAxis axis, Action<bool> func)
+        {
+            _axisStates[(int)axis].PressedState += func;
+        }
+        public void RegisterAxisUpdate(GamePadAxis axis, Action<float> func)
+        {
+            _axisStates[(int)axis].AxisUpdated += func;
+        }
     }
     public class ButtonManager
     {
@@ -154,7 +208,8 @@ namespace CustomEngine.Input.Devices
         public event Action Released;
         public event Action Held;
         public event Action DoublePressed;
-        
+        public event Action<bool> PressedState;
+
         public bool IsPressed { get { return _isPressed; } }
 
         internal void Tick(bool isPressed, float delta)
@@ -171,9 +226,13 @@ namespace CustomEngine.Input.Devices
 
                     _timer = 0.0f;
                     Pressed?.Invoke();
+                    PressedState?.Invoke(true);
                 }
                 else
+                {
                     Released?.Invoke();
+                    PressedState?.Invoke(false);
+                }
                 Console.WriteLine(_button + ": " + _isPressed.ToString());
             }
             else if (_timer < TimerMax)
@@ -188,7 +247,6 @@ namespace CustomEngine.Input.Devices
             }
         }
     }
-    public delegate void AxisUpdate(float value);
     public class AxisManager
     {
         public AxisManager(GamePadAxis axis) { _axis = axis; }
@@ -236,11 +294,12 @@ namespace CustomEngine.Input.Devices
         }
         public bool IsPressed { get { return _isPressed; } }
 
-        public event AxisUpdate AxisUpdated;
+        public event Action<float> AxisUpdated;
         public event Action Pressed;
         public event Action Released;
         public event Action Held;
         public event Action DoublePressed;
+        public event Action<bool> PressedState;
 
         internal void Tick(float value, float delta)
         {
@@ -272,12 +331,14 @@ namespace CustomEngine.Input.Devices
                     _timer = 0.0f;
                     _isPressed = true;
                     Pressed?.Invoke();
+                    PressedState?.Invoke(true);
                     Console.WriteLine(_axis + " PRESSED");
                 }
                 else
                 {
                     _isPressed = false;
                     Released?.Invoke();
+                    PressedState?.Invoke(false);
                     Console.WriteLine(_axis + " RELEASED");
                 }
             }

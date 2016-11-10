@@ -36,7 +36,7 @@ namespace CustomEngine.Rendering.Textures
         }
         public static TextureData EmptyDepthFrameBuffer(int width, int height)
         {
-            return new TextureData(TextureTarget.Texture2D, width, height, PixelInternalFormat.Rgb32f, PixelType.Float);
+            return new TextureData(TextureTarget.Texture2D, width, height, PixelInternalFormat.DepthComponent32f, PixelType.Float);
         }
     }
     public enum PixelFormat

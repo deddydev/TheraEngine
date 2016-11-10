@@ -19,7 +19,11 @@ namespace CustomEngine.Worlds
 
         public List<Material> CollectDefaultMaterials()
         {
-            
+            foreach (Map m in _maps)
+            {
+                
+            }
+            return null;
         }
 
         public WorldSettings(string name, WorldState state, params Map[] maps)

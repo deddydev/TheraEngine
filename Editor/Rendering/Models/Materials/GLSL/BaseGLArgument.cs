@@ -17,6 +17,8 @@ namespace CustomEngine.Rendering.Models.Materials
             _name = name;
         }
 
+        public abstract Type[] GetArgType();
+
         public bool CanConnectTo(BaseGLArgument other)
         {
             if (other == null)

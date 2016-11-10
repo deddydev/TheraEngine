@@ -10,7 +10,9 @@ namespace CustomEngine.Input
     {
         private Viewport _viewport;
         private int _index;
-        
+        protected InputInterface _input;
+
+        public InputInterface Input { get { return _input; } }
         public int LocalPlayerIndex { get { return _viewport.Index; } }
         public Viewport Viewport
         {
@@ -22,24 +24,10 @@ namespace CustomEngine.Input
             get { return _viewport.Camera; }
             set { _viewport.Camera = value; }
         }
-        //internal void SetInputLibrary()
-        //{
-        //    if (Gamepad == null)
-        //        return;
-        //    int controllerIndex = Gamepad.ControllerIndex;
-        //    switch (Engine.InputLibrary)
-        //    {
-        //        case InputLibrary.OpenTK:
-        //            _input = new TKGamepadManager(controllerIndex);
-        //            break;
-        //        case InputLibrary.XInput:
-        //            _input = new DXGamepadManager(controllerIndex);
-        //            break;
-        //    }
-        //}
         public LocalPlayerController()
         {
             _index = Engine.ActivePlayers.Count;
+            _input = new InputInterface(_index);
             Engine.ActivePlayers.Add(this);
         }
         ~LocalPlayerController()

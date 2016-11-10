@@ -31,16 +31,16 @@ namespace CustomEngine.Rendering.Models.Materials
             return base.GetOperation();
         }
 
-        protected override List<GLVar> GetArguments()
+        protected override List<IGLArgument> GetArguments()
         {
-            return new List<GLVar>()
+            return new List<IGLArgument>()
             {
-                new GLVec4("Diffuse"),
-                new GLFloat("Roughness"),
-                new GLFloat("Shininess"),
-                new GLFloat("Specularity"),
-                new GLFloat("Metallic"),
-                new GLFloat("Refraction"),
+                new GLArgument<GLVec4>("Diffuse"),
+                new GLArgument<GLFloat>("Roughness"),
+                new GLArgument<GLFloat>("Shininess"),
+                new GLArgument<GLFloat>("Specularity"),
+                new GLArgument<GLFloat>("Metallic"),
+                new GLArgument<GLFloat>("Refraction"),
             };
         }
     }

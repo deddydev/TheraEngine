@@ -8,11 +8,11 @@ using System.Text.RegularExpressions;
 
 namespace CustomEngine.Rendering.Models.Materials
 {
-    public class GLArgument<T> : BaseGLArgument where T : GLVar
+    public class GLMultiArgument : BaseGLArgument
     {
-        public GLArgument(string name) : base(name) { }
-
-        protected GLOutput<T> _connectedTo = null;
+        public GLMultiArgument(string name, params GLTypeName[] types) : base(name) { }
+        
+        protected BaseGLOutput _connectedTo = null;
         protected GLOutput<T> ConnectedTo
         {
             get { return _connectedTo; }
@@ -22,9 +22,10 @@ namespace CustomEngine.Rendering.Models.Materials
                     _connectedTo = value;
             }
         }
+
         public override Type[] GetArgType()
         {
-            return new Type[] { typeof(T) };
+            throw new NotImplementedException();
         }
     }
 }

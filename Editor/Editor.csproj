@@ -26,6 +26,7 @@
     <DefineConstants>TRACE;DEBUG</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -107,6 +108,7 @@
     <Compile Include="CustomMenuItem.cs" />
     <Compile Include="Files\FileExtensionManager.cs" />
     <Compile Include="Rendering\Models\Materials\GLSL\BaseGLArgument.cs" />
+    <Compile Include="Rendering\Models\Materials\GLSL\GLMultiArgument.cs" />
     <Compile Include="Rendering\Models\Materials\GLSL\GLArgument.cs" />
     <Compile Include="Rendering\Models\Materials\GLSL\GLOutput.cs" />
     <Compile Include="Rendering\Models\Materials\GLSL\GLVar.cs" />
@@ -120,7 +122,6 @@
     <Compile Include="Rendering\Models\Materials\Material Functions\Logic\ForLoopFunc.cs" />
     <Compile Include="Rendering\Models\Materials\Material Functions\Logic\IfFunc.cs" />
     <Compile Include="Rendering\Models\Materials\Material Functions\MaterialFunction.cs" />
-    <Compile Include="Rendering\Models\Materials\Material Functions\MaterialUniform.cs" />
     <Compile Include="Rendering\Models\Materials\Material Functions\Math\Compare\GEqualFunc.cs" />
     <Compile Include="Rendering\Models\Materials\Material Functions\Math\Compare\GreaterFunc.cs" />
     <Compile Include="Rendering\Models\Materials\Material Functions\Math\Compare\LEqualFunc.cs" />
@@ -132,14 +133,10 @@
     <Compile Include="Rendering\Models\Materials\Material Functions\Math\Operator\ExponentFunc.cs" />
     <Compile Include="Rendering\Models\Materials\Material Functions\Math\Operator\MultiplyFunc.cs" />
     <Compile Include="Rendering\Models\Materials\Material Functions\Math\Operator\SubtractFunc.cs" />
-    <Compile Include="Rendering\Models\Materials\Material Functions\Parameters\Mat3Uniform.cs" />
-    <Compile Include="Rendering\Models\Materials\Material Functions\Parameters\Mat4Uniform.cs" />
-    <Compile Include="Rendering\Models\Materials\Material Functions\Parameters\Vec2Uniform.cs" />
-    <Compile Include="Rendering\Models\Materials\Material Functions\Parameters\Vec3Uniform.cs" />
-    <Compile Include="Rendering\Models\Materials\Material Functions\Parameters\Vec4Uniform.cs" />
     <Compile Include="Rendering\Models\Materials\Material Functions\Results\ResultBasic.cs" />
     <Compile Include="Rendering\Models\Materials\Material Functions\Results\ResultPBR.cs" />
     <Compile Include="Rendering\Models\Materials\Material Functions\TwoArgFunc.cs" />
+    <Compile Include="Rendering\Models\Materials\Material Functions\Uniforms\UniformFloat.cs" />
     <Compile Include="Rendering\Models\Materials\ShaderGenerator\FragmentShaderGenerator.cs" />
     <Compile Include="Rendering\Models\Materials\ShaderGenerator\GeometryShaderGenerator.cs" />
     <Compile Include="Rendering\Models\Materials\ShaderGenerator\ShaderGenerator.cs" />

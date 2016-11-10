@@ -65,11 +65,6 @@ namespace CustomEngine.Worlds
             actor.OnDespawned();
         }
         public void StepSimulation(float delta) { _bulletScene.StepSimulation(delta); }
-        public void Render(float delta)
-        {
-            foreach (Actor actor in _settings.State.SpawnedActors)
-                actor.Render(delta);
-        }
         public Actor this[int index]
         {
             get { return _settings.State.SpawnedActors[index]; }

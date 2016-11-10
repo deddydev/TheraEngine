@@ -17,7 +17,6 @@ namespace CustomEngine.Worlds.Actors
                 OnUnPossessed();
 
             _controller = c;
-            RegisterInput(_controller.Input);
         }
         public virtual void OnUnPossessed()
         {

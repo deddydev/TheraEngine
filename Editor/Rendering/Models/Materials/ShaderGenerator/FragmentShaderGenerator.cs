@@ -12,7 +12,13 @@ namespace CustomEngine.Rendering.Models.Materials
 
         public override string Generate(ResultBasicFunc end)
         {
-            throw new NotImplementedException();
+
+
+            Reset();
+            WriteVersion();
+            wl("{0} = ", OutputColorName);
+            Begin();
+            return Finish();
         }
     }
 }

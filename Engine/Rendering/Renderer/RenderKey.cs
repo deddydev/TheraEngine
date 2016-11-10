@@ -37,9 +37,9 @@ namespace CustomEngine.Rendering
     }
     public class RenderKey
     {
-        private Bin64 _data;
+        private Bin32 _data;
         
-        public RenderKey(ulong data) { _data = data; }
+        public RenderKey(uint data) { _data = data; }
         public RenderKey(
             EDrawLayer dlayer,
             EViewport viewport,
@@ -61,52 +61,52 @@ namespace CustomEngine.Rendering
         {
             DrawLayer = dlayer;
             Viewport = viewport;
+            ViewportLayer = vlayer;
+            Pass = translucencyPass;
+            IsCommand = false;
+            Depth = (ushort)(depth * 0xFFF);
         }
-
-        public void SetDepth(float depth, float nearDepth, float farDepth)
-        {
-            float percentDepth = depth / (farDepth - nearDepth);
-
-        }
-
         public EDrawLayer DrawLayer
         {
-            get { return (EDrawLayer)_data[63, 1]; }
-            set { _data[63, 1] = (uint)value; }
+            get { return (EDrawLayer)_data[31, 1]; }
+            set { _data[31, 1] = (uint)value; }
         }
         public EViewport Viewport
         {
-            get { return (EViewport)_data[61, 2]; }
-            set { _data[61, 2] = (uint)value; }
+            get { return (EViewport)_data[29, 2]; }
+            set { _data[29, 2] = (uint)value; }
         }
         public EViewportLayer ViewportLayer
         {
-            get { return (EViewportLayer)_data[59, 2]; }
-            set { _data[59, 2] = (uint)value; }
+            get { return (EViewportLayer)_data[27, 2]; }
+            set { _data[27, 2] = (uint)value; }
         }
         public EPassType Pass
         {
-            get { return (EPassType)_data[57, 2]; }
-            set { _data[57, 2] = (uint)value; }
+            get { return (EPassType)_data[25, 2]; }
+            set { _data[25, 2] = (uint)value; }
         }
         public bool IsCommand
         {
-            get { return _data[56]; }
-            set { _data[56] = value; }
+            get { return _data[24]; }
+            set { _data[24] = value; }
         }
         public ushort Sequence
         {
-            get { return (ushort)_data[40, 16]; }
-            set { _data[40, 16] = value; }
+            get { return (ushort)_data[0, 24]; }
+            set { _data[0, 24] = value; }
         }
-        public UInt24 Depth
+        public ushort Depth
         {
-            get { return (UInt24)_data[24, 20]; }
-            set { _data[40, 16] = value; }
+            get { return (ushort)_data[12, 12]; }
+            set { _data[12, 12] = value; }
         }
-        public UInt24 MaterialId { get { return (UInt24)_data[0, 24]; } set { _data[0, 24] = value; } }
-
-        public static ulong[] RadixSort(ulong[] array)
+        public ushort MaterialId
+        {
+            get { return (ushort)_data[0, 12]; }
+            set { _data[0, 12] = value; }
+        }
+        public static void RadixSort(ref List<ulong> array)
         {
             int id = Engine.StartDebugTimer();
             Queue<ulong>[] buckets = new Queue<ulong>[15];
@@ -121,10 +121,14 @@ namespace CustomEngine.Rendering
                     while (bucket.Count > 0)
                         array[x++] = bucket.Dequeue();
             }
-            Engine.EndDebugTimer(id, "Radix Sort Time: ");
-            return array;
+            float seconds = Engine.EndDebugTimer(id);
+            Engine.DebugPrint("Radix Sort took " + seconds + " seconds.");
         }
-        public static implicit operator RenderKey(ulong value) { return new RenderKey(value); }
-        public static implicit operator ulong(RenderKey value) { return value._data; }
+        public override int GetHashCode()
+        {
+            unchecked { return (int)(uint)_data; }
+        }
+        public static implicit operator RenderKey(uint value) { return new RenderKey(value); }
+        public static implicit operator uint(RenderKey value) { return value._data; }
     }
 }

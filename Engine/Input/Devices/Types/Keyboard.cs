@@ -18,6 +18,16 @@ namespace CustomEngine.Input.Devices
                 return false;
             }
         }
+
+        public void RegisterButtonPressed(EKey axis, Action<bool> func)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void RegisterButtonEvent(EKey button, ButtonInputType type, Action func)
+        {
+            throw new NotImplementedException();
+        }
     }
     public enum EKey
     {

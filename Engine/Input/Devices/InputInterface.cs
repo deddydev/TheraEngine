@@ -4,13 +4,12 @@ using System.Linq;
 
 namespace CustomEngine.Input.Devices
 {
-    public enum InputType
+    public enum ButtonInputType
     {
         Pressed,
         Released,
         Held,
         DoublePressed,
-        AxisUpdate,
     }
     public enum InputDeviceType
     {
@@ -39,74 +38,101 @@ namespace CustomEngine.Input.Devices
             }
         }
 
+        Dictionary<string, List<EKey>> _namedKeys = new Dictionary<string, List<EKey>>();
+        Dictionary<string, List<GamePadButton>> _namedGamepadButtons = new Dictionary<string, List<GamePadButton>>();
+        Dictionary<string, List<GamePadAxis>> _namedGamepadAxes = new Dictionary<string, List<GamePadAxis>>();
+        Dictionary<string, List<EMouseButton>> _namedMouseButtons = new Dictionary<string, List<EMouseButton>>();
+
         public event DelWantsInputsRegistered WantsInputsRegistered;
         
         private int _playerIndex;
-        private List<InputDevice> _devices = new List<InputDevice>();
+        private Gamepad _gamepad;
+        private Keyboard _keyboard;
+        private Mouse _mouse;
 
-        public InputInterface(int playerIndex) { _playerIndex = playerIndex; }
+        public InputInterface(int playerIndex)
+        {
+            _playerIndex = playerIndex;
+            UpdateDevices();
+        }
 
         public void UpdateDevices()
         {
             UnregisterAll();
-            _devices = GetDevices();
+            GetDevices();
             WantsInputsRegistered?.Invoke(this);
         }
-        public List<InputDevice> GetDevices()
+        private void GetDevices()
         {
-            //List<InputDevice> devices = new List<InputDevice>();
-            //var gamepads = InputDevice.CurrentDevices[InputDeviceType.Gamepad];
-            //if (gamepads != null && _playerIndex < gamepads.Count)
-            //    devices.Add(gamepads[_playerIndex]);
-            //var keyboards = InputDevice.CurrentDevices[InputDeviceType.Keyboard];
-            //if (keyboards != null && _playerIndex < keyboards.Count)
-            //    devices.Add(keyboards[_playerIndex]);
-            //var mice = InputDevice.CurrentDevices[InputDeviceType.Mouse];
-            //if (mice != null && _playerIndex < mice.Count)
-            //    devices.Add(mice[_playerIndex]);
-            //return devices;
+            var gamepads = InputDevice.CurrentDevices[InputDeviceType.Gamepad];
+            if (gamepads != null && _playerIndex < gamepads.Count)
+                _gamepad = (Gamepad)gamepads[_playerIndex];
 
-            return InputDevice.CurrentDevices.Where(x => _playerIndex < x.Value.Count).Select(x => x.Value[_playerIndex]).ToList();
-        }
-        public void Register(string inputName, InputType type, Action func)
-        {
+            var keyboards = InputDevice.CurrentDevices[InputDeviceType.Keyboard];
+            if (keyboards != null && _playerIndex < keyboards.Count)
+                _keyboard = (Keyboard)keyboards[_playerIndex];
 
+            var mice = InputDevice.CurrentDevices[InputDeviceType.Mouse];
+            if (mice != null && _playerIndex < mice.Count)
+                _mouse = (Mouse)mice[_playerIndex];
         }
-        public void Register(string inputName, InputType type, Action<float> func)
-        {
 
-        }
-        public void Register(EKey key, InputType type, Action func)
+        #region Mouse input registration
+        public void RegisterButtonPressed(EMouseButton button, Action<bool> func)
         {
+            _mouse?.RegisterButtonPressed(button, func);
+        }
+        public void RegisterButtonEvent(EMouseButton button, ButtonInputType type, Action func)
+        {
+            _mouse?.RegisterButtonEvent(button, type, func);
+        }
+        #endregion
 
-        }
-        public void Register(EKey key, InputType type, Action<float> func)
+        #region Keyboard input registration
+        public void RegisterButtonPressed(EKey button, Action<bool> func)
         {
+            _keyboard?.RegisterButtonPressed(button, func);
+        }
+        public void RegisterButtonEvent(EKey button, ButtonInputType type, Action func)
+        {
+            _keyboard?.RegisterButtonEvent(button, type, func);
+        }
+        #endregion
 
-        }
-        public void Register(GamePadButton button, InputType type, Action func)
+        #region Gamepad input registration
+        public void RegisterButtonPressed(GamePadAxis axis, Action<bool> func)
         {
+            _gamepad?.RegisterButtonPressed(axis, func);
+        }
+        public void RegisterButtonPressed(GamePadButton button, Action<bool> func)
+        {
+            _gamepad?.RegisterButtonPressed(button, func);
+        }
+        public void RegisterButtonEvent(GamePadButton button, ButtonInputType type, Action func)
+        {
+            _gamepad?.RegisterButtonEvent(button, type, func);
+        }
+        public void RegisterButtonEvent(GamePadAxis button, ButtonInputType type, Action func)
+        {
+            _gamepad?.RegisterButtonEvent(button, type, func);
+        }
+        public void RegisterAxisUpdate(GamePadAxis axis, Action<float> func)
+        {
+            _gamepad?.RegisterAxisUpdate(axis, func);
+        }
+        #endregion
 
-        }
-        public void Register(GamePadButton button, InputType type, Action<float> func)
-        {
-
-        }
-        public void Register(GamePadAxis axis, InputType type, Action func)
-        {
-            
-        }
-        public void Register(GamePadAxis axis, InputType type, Action<float> func)
-        {
-
-        }
         public void UnregisterAll()
         {
-            foreach (InputDevice device in _devices)
-                UnregisterAllFrom(device);
+            UnregisterAllFrom(_gamepad);
+            UnregisterAllFrom(_keyboard);
+            UnregisterAllFrom(_mouse);
         }
         public void UnregisterAllFrom(InputDevice device)
         {
+            if (device == null)
+                return;
+
 
         }
     }

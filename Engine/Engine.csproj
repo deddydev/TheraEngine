@@ -103,6 +103,8 @@
     <Compile Include="Audio\StaticSoundEffect.cs" />
     <Compile Include="Audio\WaveFile.cs" />
     <Compile Include="Cutscenes\Cutscene.cs" />
+    <Compile Include="Rendering\HUD\RenderableHudComponent.cs" />
+    <Compile Include="Rendering\HUD\TextHudComponent.cs" />
     <Compile Include="Rendering\HUD\TextureHudComponent.cs" />
     <Compile Include="Rendering\HUD\ModelHudComponent.cs" />
     <Compile Include="Rendering\Renderer\GBuffer.cs" />
@@ -171,6 +173,7 @@
     <Compile Include="System\Extensions\StringExtension.cs" />
     <Compile Include="System\Extensions\ArrayExtension.cs" />
     <Compile Include="System\Extensions\XmlExtension.cs" />
+    <Compile Include="System\Fonts\TTF.cs" />
     <Compile Include="System\Math\Collision\Tracing.cs" />
     <Compile Include="System\Math\Enums.cs" />
     <Compile Include="System\Math\Shapes\Plane.cs" />
@@ -203,6 +206,7 @@
     </Compile>
     <Compile Include="System\Tools\Remapper.cs" />
     <Compile Include="System\UInt24.cs" />
+    <Compile Include="System\RenderHandler.cs" />
     <Compile Include="Worlds\Actors\ActorState.cs" />
     <Compile Include="Worlds\Actors\Components\ComponentState.cs" />
     <Compile Include="Worlds\Actors\Components\LogicComponent.cs" />
@@ -222,7 +226,7 @@
     <Compile Include="Rendering\HUD\HudComponent.cs" />
     <Compile Include="System\Interfaces.cs" />
     <Compile Include="Players\PlayerInfo.cs" />
-    <Compile Include="Rendering\Renderer\DirectX\DXRenderer.cs" />
+    <None Include="Rendering\Renderer\DirectX\DXRenderer.cs" />
     <Compile Include="Rendering\Renderer\DirectX\DXWindowContext.cs" />
     <Compile Include="Rendering\Renderer\OpenGL\GLRenderer.cs" />
     <Compile Include="Rendering\Renderer\OpenGL\GLWindowContext.cs" />

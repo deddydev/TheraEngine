@@ -3,12 +3,11 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Collections;
 using System.ComponentModel;
-using CustomEngine.Rendering.Models.Materials;
-using CustomEngine.Rendering.Models;
+using CustomEngine.Worlds.Actors;
 
 namespace CustomEngine.Rendering.HUD
 {
-    public class HudComponent : ObjectBase, IPanel, IEnumerable<HudComponent>
+    public class HudComponent : Pawn, IPanel, IEnumerable<HudComponent>
     {
         public HudComponent(HudComponent owner) { _parent = owner; }
 
@@ -22,7 +21,7 @@ namespace CustomEngine.Rendering.HUD
         protected RectangleF _region = new RectangleF();
         protected Vec2 _scale = Vec2.One;
         protected Vec2 _translationLocalOrigin = Vec2.Zero;
-        
+
         [Category("Transform"), Default, Animatable, PostCall("OnResized")]
         public RectangleF Region
         {
@@ -144,17 +143,6 @@ namespace CustomEngine.Rendering.HUD
                 region = c.ParentResized(region);
             return parentRegion;
         }
-        public virtual void Render(float delta)
-        {
-            //Renderer.PushMatrix();
-            //Renderer.MultMatrix(_localTransform);
-            //OnRender(delta);
-            //foreach (HudComponent comp in _children)
-            //    comp.Render(delta);
-            //Renderer.PopMatrix();
-        }
-        protected virtual void OnRender(float delta) { }
-
         public IEnumerator<HudComponent> GetEnumerator() { return ((IEnumerable<HudComponent>)_children).GetEnumerator(); }
         IEnumerator IEnumerable.GetEnumerator() { return ((IEnumerable<HudComponent>)_children).GetEnumerator(); }
     }

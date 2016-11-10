@@ -6,10 +6,10 @@ using System.Threading.Tasks;
 
 namespace CustomEngine.Rendering.Models.Materials
 {
-    public class ConstFloatFunc : MaterialFunction
+    public class UniformFloatFunc : MaterialFunction
     {
         float _value;
-
+        
         public float Value
         {
             get { return _value; }

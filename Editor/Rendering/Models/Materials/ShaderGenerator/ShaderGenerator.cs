@@ -55,7 +55,7 @@ namespace CustomEngine.Rendering.Models.Materials
         /// Writes the current line and increments to the next line.
         /// Do not use arguments if you need to include brackets in the string.
         /// </summary>
-        private void wl(string str = "", params object[] args)
+        protected void wl(string str = "", params object[] args)
         {
             str += NewLine;
 
@@ -80,11 +80,11 @@ namespace CustomEngine.Rendering.Models.Materials
             if (args.Length == 0)
                 tabCount += str.Count(x => x == '{');
         }
-        private void OpenBracket()
+        protected void OpenBracket()
         {
             wl("{");
         }
-        private void CloseBracket()
+        protected void CloseBracket()
         {
             wl("}");
         }

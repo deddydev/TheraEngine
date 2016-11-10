@@ -2,6 +2,7 @@
 using System.Drawing;
 using CustomEngine.Rendering.Cameras;
 using CustomEngine.Input;
+using System;
 
 namespace CustomEngine.Rendering
 {
@@ -49,18 +50,18 @@ namespace CustomEngine.Rendering
             _worldCamera.Resize(Width, Height);
             _hud.ParentResized(_region);
         }
-        public void Render(float delta)
+        public void CMD_SetViewport()
         {
-            _currentlyRendering = this;
-            Engine.Renderer.PushRenderArea(_region);
+            //_currentlyRendering = this;
+            //Engine.Renderer.PushRenderArea(_region);
 
-            _hud.Render(delta);
+            //_hud.Render(delta);
 
-            _worldCamera.SetCurrent();
-            Engine.World?.Render(delta);
+            //_worldCamera.SetCurrent();
+            //Engine.World?.Render(delta);
 
-            Engine.Renderer.PopRenderArea();
-            _currentlyRendering = null;
+            //Engine.Renderer.PopRenderArea();
+            //_currentlyRendering = null;
         }
         public void DebugPrint(string message) { _hud.DebugPrint(message); }
         private void SetTopLeft()

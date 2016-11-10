@@ -13,6 +13,7 @@ namespace CustomEngine.Rendering.Models.Materials
         public static MaterialFuncInfo GetInfo()
         {
             return new MaterialFuncInfo(
+                "Math",
                 "Returns A - B.",
                 "subtracted from -");
         }

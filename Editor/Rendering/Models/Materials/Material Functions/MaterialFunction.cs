@@ -143,5 +143,10 @@ namespace CustomEngine.Rendering.Models.Materials
         {
             return _operation;
         }
+        public string WriteGlobalMethod()
+        {
+            string s = "";
+            return s;
+        }
     }
 }

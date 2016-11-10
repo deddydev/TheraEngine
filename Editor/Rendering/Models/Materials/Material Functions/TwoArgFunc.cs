@@ -9,20 +9,12 @@ namespace CustomEngine.Rendering.Models.Materials
     public abstract class TwoArgFunc : MaterialFunction
     {
         protected GLTypeName _aType, _bType;
-        public TwoArgFunc(GLTypeName aType, GLTypeName bType, GLTypeName outType) : base(outType)
+        public TwoArgFunc(GLTypeName aType, GLTypeName bType, GLTypeName outType)
         {
             _aType = aType;
             _bType = bType;
         }
 
-        protected override List<GLArgument> GetArguments()
-        {
-            return new List<GLArgument>()
-            {
-                new GLArgument(_aType, "A", this),
-                new GLArgument(_bType, "B", this),
-            };
-        }
 
         /// <summary>
         /// Provides an option to compare as such: {0} {compare} {1}

@@ -39,7 +39,7 @@ namespace CustomEngine.Rendering.DirectX
 
         protected override AbstractRenderer GetRendererInstance()
         {
-            return DXRenderer.Instance ?? (DXRenderer.Instance = new DXRenderer());
+            return null; //DXRenderer.Instance ?? (DXRenderer.Instance = new DXRenderer());
         }
 
         public override bool IsCurrent()

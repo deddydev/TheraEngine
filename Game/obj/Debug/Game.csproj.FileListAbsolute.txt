@@ -35,3 +35,6 @@ C:\Users\David\Documents\Repositories\CustomEngine\Game\obj\Debug\Game.csproj.Ge
 C:\Users\David\Documents\Repositories\CustomEngine\Game\obj\Debug\Game.exe.postsharp
 C:\Users\David\Documents\Repositories\CustomEngine\Game\obj\Debug\PostSharpHost.config
 C:\Users\David\Documents\Repositories\CustomEngine\Game\bin\Debug\FreeImageNET.dll
+C:\Users\frosty\Documents\_Thera\Game\bin\Debug\Game.exe.config
+C:\Users\frosty\Documents\_Thera\Game\obj\Debug\Game.exe
+C:\Users\frosty\Documents\_Thera\Game\obj\Debug\Game.pdb

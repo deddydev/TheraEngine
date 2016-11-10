@@ -27,8 +27,8 @@ namespace CustomEngine
             if (!string.IsNullOrEmpty(iconPath) && File.Exists(iconPath))
                 Icon = new Icon(iconPath);
 
-            Engine.Initialize(startupWorld);
             Engine.RegisterRenderTick(RenderTick);
+            Engine.Initialize(startupWorld);
         }
 
         public void RenderTick(object sender, FrameEventArgs e)

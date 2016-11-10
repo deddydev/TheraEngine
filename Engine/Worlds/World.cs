@@ -5,10 +5,11 @@ using System;
 using System.Threading.Tasks;
 using System.Linq;
 using CustomEngine.Rendering.Models.Materials;
+using System.Runtime.InteropServices;
 
 namespace CustomEngine.Worlds
 {
-    public class World : ObjectBase
+    public unsafe class World : FileObject
     {
         private DiscreteDynamicsWorld _bulletScene;
         public WorldSettings _settings;
@@ -18,11 +19,13 @@ namespace CustomEngine.Worlds
             get { return _settings; }
             set { _settings = value; }
         }
+        public World(WorldHeader* header)
+        {
 
+        }
         public World(string filePath)
         {
             _settings = WorldSettings.FromXML(filePath);
-            CreatePhysicsScene();
         }
         public World(WorldSettings settings)
         {
@@ -49,9 +52,6 @@ namespace CustomEngine.Worlds
         }
         public int ActorCount { get { return _settings.State.SpawnedActors.Count; } }
 
-        public bool IsLoaded { get { return _settings.IsLoaded; } }
-        public bool IsLoading { get { return _settings.IsLoading; } }
-
         public void SpawnActor(Actor actor)
         {
             if (!_settings.State.SpawnedActors.Contains(actor))
@@ -71,13 +71,32 @@ namespace CustomEngine.Worlds
             set { _settings.State.SpawnedActors[index] = value; }
         }
 
-        public void Load()
+        public virtual void Load()
         {
-            
+            CreatePhysicsScene();
         }
-        public void Unload()
+        public virtual void Unload()
         {
 
         }
+        public virtual void EndPlay()
+        {
+
+        }
+        public virtual void BeginPlay()
+        {
+            foreach (Map m in _settings._maps)
+                m.BeginPlay();
+        }
+    }
+    [StructLayout(LayoutKind.Sequential, Pack = 1)]
+    public unsafe struct WorldHeader
+    {
+        public VoidPtr Address { get { fixed(void* ptr = &this) return (VoidPtr)ptr; } }
+    }
+    [StructLayout(LayoutKind.Sequential, Pack = 1)]
+    public unsafe struct WorldSettingsHeader
+    {
+        public VoidPtr Address { get { fixed (void* ptr = &this) return (VoidPtr)ptr; } }
     }
 }

@@ -4,6 +4,7 @@ using CustomEngine.Worlds.Actors;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -37,5 +38,10 @@ namespace CustomEngine.Worlds
         private GameMode _gameMode;
         private float _timeSpeed = 1.0f;
         public HashSet<Material> _activeMaterials;
+    }
+    [StructLayout(LayoutKind.Sequential, Pack = 1)]
+    public unsafe struct WorldStateHeader
+    {
+        public VoidPtr Address { get { fixed (void* ptr = &this) return ptr; } }
     }
 }

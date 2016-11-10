@@ -247,7 +247,7 @@ namespace CustomEngine
                 obj.TickGroup = null;
             }
         }
-        private static async void Tick(object sender, FrameEventArgs e)
+        private static /*async*/ void Tick(object sender, FrameEventArgs e)
         {
             float delta = (float)e.Time;
             _debugTimers.ForEach(x => x += delta);
@@ -283,7 +283,7 @@ namespace CustomEngine
                 _currentWorld.Load();
             }
             else
-                _currentWorld = startupWorld;
+                World = startupWorld;
 
             TargetRenderFreq = 60.0f;
             TargetUpdateFreq = 90.0f;
@@ -348,7 +348,9 @@ namespace CustomEngine
             World oldCurrent = _currentWorld;
             if (world != null && !world.IsLoaded)
                 world.Load();
+            _currentWorld?.EndPlay();
             _currentWorld = world;
+            _currentWorld.BeginPlay();
             if (oldCurrent != null && oldCurrent.IsLoaded)
                 oldCurrent.Unload();
         }

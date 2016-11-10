@@ -5,6 +5,7 @@ using System;
 using CustomEngine.Worlds.Actors.Components;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Runtime.InteropServices;
 
 namespace CustomEngine.Worlds
 {
@@ -102,5 +103,10 @@ namespace CustomEngine.Worlds
             _spawnIndex = -1;
             _owningWorld = null;
         }
+    }
+    [StructLayout(LayoutKind.Sequential, Pack = 1)]
+    public unsafe struct ActorHeader
+    {
+        public VoidPtr Address { get { fixed (void* ptr = &this) return (VoidPtr)ptr; } }
     }
 }

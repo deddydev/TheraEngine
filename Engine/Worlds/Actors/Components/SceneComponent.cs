@@ -85,18 +85,6 @@ namespace CustomEngine.Worlds.Actors.Components
         {
             _visible = false;
         }
-
-        //public void Render(float delta)
-        //{
-        //    Renderer.PushMatrix();
-        //    Transform.MultMatrix();
-        //    if (Visible)
-        //        OnRender(delta);
-        //    foreach (SceneComponent comp in _children)
-        //        comp.Render(delta);
-        //    Renderer.PopMatrix();
-        //}
-
         protected void OnChildAdded(SceneComponent s)
         {
             s.Owner = Owner;
@@ -117,11 +105,6 @@ namespace CustomEngine.Worlds.Actors.Components
             cache.Add(this);
             foreach (SceneComponent c in _children)
                 c.GenerateChildCache(cache);
-        }
-
-        protected virtual void OnRender(float delta)
-        {
-            //Do nothing - this component is only used to transform the components it owns
         }
     }
 }

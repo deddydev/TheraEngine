@@ -16,8 +16,12 @@ namespace Game.Worlds
 {
     public class TestWorld : World
     {
-        Gamepad g;
+        Actor _actor;
         public TestWorld() : base(new WorldSettings("TestWorld"))
+        {
+           
+        }
+        public override void Load()
         {
             Model boxModel = new Model();
             Mesh mesh = new Box(new Vec3(-20.0f, -20.0f, -20.0f), new Vec3(20.0f, 20.0f, 20.0f));
@@ -26,10 +30,10 @@ namespace Game.Worlds
 
             Shader vert = Shader.TestVertexShader();
             Shader frag = Shader.TestFragmentShader();
-            //vert.Generate(materialResult);
-            //frag.Generate(materialResult);
-
+            vert.Compile();
+            frag.Compile();
             mesh.Material = new Material("Mat_Green", new MaterialSettings(), vert, frag);
+            mesh.Material.Compile();
 
             Skeleton skel = new Skeleton();
             skel.RootBone = new Bone("Root", FrameState.Identity);
@@ -37,8 +41,8 @@ namespace Game.Worlds
             boxModel.Skeleton = skel;
 
             ModelComponent modelComp = new ModelComponent(boxModel);
-            Actor actor = new Actor(modelComp);
-            _settings._maps.Add(new Map(new MapSettings(actor)));
+            _actor = new Actor(modelComp);
+            _settings._maps.Add(new Map(new MapSettings(_actor)));
 
             AnimationInterpNode propertyAnim = new AnimationInterpNode(360);
             InterpKeyframe start = new InterpKeyframe(0.0f, 0.0f, 0.0f);
@@ -47,10 +51,10 @@ namespace Game.Worlds
             propertyAnim.Keyframes.AddLast(end);
             start.MakeOutLinear();
             end.MakeInLinear();
-            
-            modelComp.AddAnimation(new AnimationContainer("Transform.EulerRotation.Z", propertyAnim));
 
-            SpawnActor(actor);
+            modelComp.AddAnimation(new AnimationContainer("Transform.EulerRotationZ", propertyAnim));
+
+            SpawnActor(_actor);
         }
     }
 }

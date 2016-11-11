@@ -16,13 +16,10 @@ namespace Game.Worlds
 {
     public class TestWorld : World
     {
-        Actor _actor;
-        public TestWorld() : base(new WorldSettings("TestWorld"))
+        protected override void OnLoading()
         {
-           
-        }
-        public override void Load()
-        {
+            _settings = new WorldSettings("TestWorld");
+
             Model boxModel = new Model();
             Mesh mesh = new Box(new Vec3(-20.0f, -20.0f, -20.0f), new Vec3(20.0f, 20.0f, 20.0f));
 
@@ -39,10 +36,9 @@ namespace Game.Worlds
             skel.RootBone = new Bone("Root", FrameState.Identity);
             boxModel.AddMesh(mesh);
             boxModel.Skeleton = skel;
-
+            
             ModelComponent modelComp = new ModelComponent(boxModel);
-            _actor = new Actor(modelComp);
-            _settings._maps.Add(new Map(new MapSettings(_actor)));
+            _settings._maps.Add(new Map(this, new MapSettings(new Actor(modelComp))));
 
             AnimationInterpNode propertyAnim = new AnimationInterpNode(360);
             InterpKeyframe start = new InterpKeyframe(0.0f, 0.0f, 0.0f);
@@ -53,8 +49,6 @@ namespace Game.Worlds
             end.MakeInLinear();
 
             modelComp.AddAnimation(new AnimationContainer("Transform.EulerRotationZ", propertyAnim));
-
-            SpawnActor(_actor);
         }
     }
 }

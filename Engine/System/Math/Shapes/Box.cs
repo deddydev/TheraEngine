@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace System
 {
-    public class Box : IShape
+    public class Box : FileObject, IShape
     {
         public Vec3 _min, _max;
         

@@ -53,13 +53,12 @@ namespace CustomEngine.Rendering.Animation
         {
             throw new NotImplementedException();
         }
-        public IEnumerator<InterpKeyframe> GetEnumerator()
+        public IEnumerator<InterpKeyframe> GetEnumerator() { return ((IEnumerable<InterpKeyframe>)_keyframes).GetEnumerator(); }
+        IEnumerator IEnumerable.GetEnumerator() { return ((IEnumerable<InterpKeyframe>)_keyframes).GetEnumerator(); }
+
+        public override int CalculateSize()
         {
-            return ((IEnumerable<InterpKeyframe>)_keyframes).GetEnumerator();
-        }
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return ((IEnumerable<InterpKeyframe>)_keyframes).GetEnumerator();
+            throw new NotImplementedException();
         }
     }
     public class InterpKeyframe : Keyframe
@@ -86,6 +85,8 @@ namespace CustomEngine.Rendering.Animation
         public new InterpKeyframe Next { get { return _next as InterpKeyframe; } set { _next = value; } }
         public new InterpKeyframe Prev { get { return _prev as InterpKeyframe; } set { _prev = value; } }
 
+        delegate float DelInterpolate(float t, float p0, float p1, float t0, float t1);
+        private DelInterpolate _interpolate = CubicHermite;
         public float Interpolate(float frameIndex)
         {
             if (frameIndex < _frameIndex)
@@ -94,12 +95,18 @@ namespace CustomEngine.Rendering.Animation
                 return Next.Interpolate(frameIndex);
 
             float t = (frameIndex - _frameIndex) / (_next._frameIndex - _frameIndex);
+            return _interpolate(t, _outValue, Next._inValue, _outTangent, Next._inTangent);
+        }
+        
+        public static float CubicHermite(float t, float p0, float p1, float t0, float t1)
+        {
             float t2 = t * t;
             float t3 = t2 * t;
-            return (2.0f * t3 - 3.0f * t2 + 1.0f) * _outValue +
-                (t3 - 2.0f * t2 + t) * _outTangent +
-                (-2.0f * t3 + 3.0f * t2) * Next._inValue +
-                (t3 - t2) * Next._inTangent;
+            return 
+                (2.0f * t3 - 3.0f * t2 + 1.0f) * p0 +
+                (t3 - 2.0f * t2 + t) * t0 +
+                (-2.0f * t3 + 3.0f * t2) * p1 +
+                (t3 - t2) * t1;
         }
 
         public void AverageKeyframe()

@@ -1,4 +1,5 @@
 ﻿using System.Runtime.InteropServices;
+using static System.Math;
 
 namespace System
 {
@@ -30,12 +31,12 @@ namespace System
             pitch *= 0.5f;
             roll *= 0.5f;
 
-            float c1 = (float)Math.Cos(yaw);
-            float c2 = (float)Math.Cos(pitch);
-            float c3 = (float)Math.Cos(roll);
-            float s1 = (float)Math.Sin(yaw);
-            float s2 = (float)Math.Sin(pitch);
-            float s3 = (float)Math.Sin(roll);
+            float c1 = (float)Cos(yaw);
+            float c2 = (float)Cos(pitch);
+            float c3 = (float)Cos(roll);
+            float s1 = (float)Sin(yaw);
+            float s2 = (float)Sin(pitch);
+            float s3 = (float)Sin(roll);
 
             W = c1 * c2 * c3 - s1 * s2 * s3;
             X = s1 * s2 * c3 + c1 * c2 * s3;
@@ -47,7 +48,7 @@ namespace System
         public float* Data { get { fixed (void* p = &this) return (float*)p; } }
         public Vec3 Xyz { get { return new Vec3(X, Y, Z); } set { X = value.X; Y = value.Y; Z = value.Z; } }
         public Vec4 Xyzw { get { return new Vec4(X, Y, Z, W); } set { X = value.X; Y = value.Y; Z = value.Z; W = value.W; } }
-        public float Length { get { return (float)Math.Sqrt(W * W + Xyz.LengthSquared); } }
+        public float Length { get { return (float)Sqrt(W * W + Xyz.LengthSquared); } }
         public float LengthSquared { get { return W * W + Xyz.LengthSquared; } }
 
         public void ToAxisAngle(out Vec3 axis, out float angle)
@@ -59,13 +60,13 @@ namespace System
         public Vec4 ToAxisAngle()
         {
             Quaternion q = this;
-            if (Math.Abs(q.W) > 1.0f)
+            if (Abs(q.W) > 1.0f)
                 q.Normalize();
 
             Vec4 result = new Vec4();
 
-            result.W = 2.0f * (float)Math.Acos(q.W); // angle
-            float den = (float)Math.Sqrt(1.0 - q.W * q.W);
+            result.W = 2.0f * (float)Acos(q.W); // angle
+            float den = (float)Sqrt(1.0 - q.W * q.W);
             if (den > 0.0001f)
                 result.Xyz = q.Xyz / den;
             else
@@ -89,22 +90,22 @@ namespace System
             if (test > 0.499f * unit)
             {
                 //North pole singularity
-                yaw = 2.0f * (float)Math.Atan2(X, W);
-                pitch = (float)Math.PI / 2.0f;
+                yaw = 2.0f * (float)Atan2(X, W);
+                pitch = (float)PI / 2.0f;
                 roll = 0.0f;
             }
             else if (test < -0.499f * unit)
             {
                 //South pole singularity
-                yaw = -2.0f * (float)Math.Atan2(X, W);
-                pitch = (float)-Math.PI / 2.0f;
+                yaw = -2.0f * (float)Atan2(X, W);
+                pitch = (float)-PI / 2.0f;
                 roll = 0.0f;
             }
             else
             {
-                yaw = (float)Math.Atan2(2.0f * Y * W - 2.0f * X * Z, sqx - sqy - sqz + sqw);
-                pitch = (float)Math.Asin(2.0f * test / unit);
-                roll = (float)Math.Atan2(2.0f * X * W - 2.0f * Y * Z, -sqx + sqy - sqz + sqw);
+                yaw = (float)Atan2(2.0f * Y * W - 2.0f * X * Z, sqx - sqy - sqz + sqw);
+                pitch = (float)Asin(2.0f * test / unit);
+                roll = (float)Atan2(2.0f * X * W - 2.0f * Y * Z, -sqx + sqy - sqz + sqw);
             }
             return new Vec3(pitch, yaw, roll);
         }
@@ -155,10 +156,41 @@ namespace System
 
             angle *= 0.5f;
             axis.Normalize();
-            result.Xyz = axis * (float)Math.Sin(angle);
-            result.W = (float)Math.Cos(angle);
+            result.Xyz = axis * (float)Sin(angle);
+            result.W = (float)Cos(angle);
 
             return result.Normalized();
+        }
+        public enum MultiplyOrder
+        {
+            PYR,
+            PRY,
+            YRP,
+            YPR,
+            RPY,
+            RYP,
+        }
+        public static Quaternion FromEulerAngles(float pitch, float yaw, float roll, MultiplyOrder order = MultiplyOrder.YPR)
+        {
+            Quaternion p = FromAxisAngle(Vec3.UnitX, pitch);
+            Quaternion y = FromAxisAngle(Vec3.UnitZ, yaw);
+            Quaternion r = FromAxisAngle(Vec3.UnitY, roll);
+            switch (order)
+            {
+                case MultiplyOrder.PYR:
+                    return r * y * p;
+                case MultiplyOrder.PRY:
+                    return y * r * p;
+                case MultiplyOrder.YRP:
+                    return p * r * y;
+                case MultiplyOrder.YPR:
+                    return r * p * y;
+                case MultiplyOrder.RPY:
+                    return y * p * r;
+                case MultiplyOrder.RYP:
+                    return p * y * r;
+            }
+            return Quaternion.Identity;
         }
         /// <summary>
         /// Builds a Quaternion from the given euler angles
@@ -182,7 +214,7 @@ namespace System
 
             if (trace > 0)
             {
-                float s = (float)Math.Sqrt(trace + 1.0f) * 2.0f;
+                float s = (float)Sqrt(trace + 1.0f) * 2.0f;
                 float invS = 1.0f / s;
 
                 result.W = s * 0.25f;
@@ -196,7 +228,7 @@ namespace System
 
                 if (m00 > m11 && m00 > m22)
                 {
-                    float s = (float)Math.Sqrt(1 + m00 - m11 - m22) * 2.0f;
+                    float s = (float)Sqrt(1 + m00 - m11 - m22) * 2.0f;
                     float invS = 1.0f / s;
 
                     result.W = (matrix.Row2.Y - matrix.Row1.Z) * invS;
@@ -206,7 +238,7 @@ namespace System
                 }
                 else if (m11 > m22)
                 {
-                    float s = (float)Math.Sqrt(1 + m11 - m00 - m22) * 2.0f;
+                    float s = (float)Sqrt(1 + m11 - m00 - m22) * 2.0f;
                     float invS = 1.0f / s;
 
                     result.W = (matrix.Row0.Z - matrix.Row2.X) * invS;
@@ -216,7 +248,7 @@ namespace System
                 }
                 else
                 {
-                    float s = (float)Math.Sqrt(1.0f + m22 - m00 - m11) * 2.0f;
+                    float s = (float)Sqrt(1.0f + m22 - m00 - m11) * 2.0f;
                     float invS = 1.0f / s;
 
                     result.W = (matrix.Row1.X - matrix.Row0.Y) * invS;
@@ -264,11 +296,11 @@ namespace System
             if (cosHalfAngle < 0.99f)
             {
                 // do proper slerp for big angles
-                float halfAngle = (float)System.Math.Acos(cosHalfAngle);
-                float sinHalfAngle = (float)System.Math.Sin(halfAngle);
+                float halfAngle = (float)Acos(cosHalfAngle);
+                float sinHalfAngle = (float)Sin(halfAngle);
                 float oneOverSinHalfAngle = 1.0f / sinHalfAngle;
-                blendA = (float)System.Math.Sin(halfAngle * (1.0f - blend)) * oneOverSinHalfAngle;
-                blendB = (float)System.Math.Sin(halfAngle * blend) * oneOverSinHalfAngle;
+                blendA = (float)Sin(halfAngle * (1.0f - blend)) * oneOverSinHalfAngle;
+                blendB = (float)Sin(halfAngle * blend) * oneOverSinHalfAngle;
             }
             else
             {

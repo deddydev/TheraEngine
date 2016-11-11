@@ -4,24 +4,19 @@ using System.Xml.Serialization;
 using System.IO;
 namespace grendgine_collada
 {
-	
-	[System.SerializableAttribute()]
-	[System.Diagnostics.DebuggerStepThroughAttribute()]
-	[System.ComponentModel.DesignerCategoryAttribute("code")]
-	[System.Xml.Serialization.XmlTypeAttribute(AnonymousType=true)]
-	[System.Xml.Serialization.XmlRootAttribute(ElementName="COLLADA", Namespace="http://www.collada.org/2005/11/COLLADASchema", IsNullable=false)]
+	[Serializable()]
+	[System.Diagnostics.DebuggerStepThrough()]
+	[System.ComponentModel.DesignerCategory("code")]
+	[XmlType(AnonymousType=true)]
+	[XmlRoot(ElementName="COLLADA", Namespace="http://www.collada.org/2005/11/COLLADASchema", IsNullable=false)]
 	public partial class Grendgine_Collada
 	{
-		
-		[XmlAttribute("version")]
+        [XmlAttribute("version")]
 		public string Collada_Version;
-			
-			
+
 		[XmlElement(ElementName = "asset")]
 		public Grendgine_Collada_Asset Asset;
-		
-		
-		
+
 		//Core Elements
 		[XmlElement(ElementName = "library_animation_clips")]
 		public Grendgine_Collada_Library_Animation_Clips Library_Animation_Clips;
@@ -31,7 +26,6 @@ namespace grendgine_collada
 
 		[XmlElement(ElementName = "library_cameras")]
 		public Grendgine_Collada_Library_Cameras Library_Cameras;
-		
 
 		[XmlElement(ElementName = "library_controllers")]
 		public Grendgine_Collada_Library_Controllers Library_Controllers;
@@ -52,7 +46,6 @@ namespace grendgine_collada
 		public Grendgine_Collada_Library_Visual_Scenes Library_Visual_Scene;
 				
 		//Physics Elements
-
 		[XmlElement(ElementName = "library_force_fields")]
 		public Grendgine_Collada_Library_Force_Fields Library_Force_Fields;
 		
@@ -64,8 +57,7 @@ namespace grendgine_collada
 		
 		[XmlElement(ElementName = "library_physics_scenes")]
 		public Grendgine_Collada_Library_Physics_Scenes Library_Physics_Scenes;
-		
-		
+				
 		//FX Elements
 		[XmlElement(ElementName = "library_effects")]
 		public Grendgine_Collada_Library_Effects Library_Effects;
@@ -88,16 +80,16 @@ namespace grendgine_collada
 		
 		[XmlElement(ElementName = "library_kinematics_scenes")]
 		public Grendgine_Collada_Library_Kinematics_Scene Library_Kinematics_Scene;
-		
-		
-		
+	
+        //Other	
 		[XmlElement(ElementName = "scene")]
 		public Grendgine_Collada_Scene Scene;
 
 		[XmlElement(ElementName = "extra")]
 		public Grendgine_Collada_Extra[] Extra;
 		
-		public static Grendgine_Collada Grendgine_Load_File(string file_name){
+		public static Grendgine_Collada Grendgine_Load_File(string file_name)
+        {
             try
             {
 				Grendgine_Collada col_scenes = null;
@@ -113,7 +105,6 @@ namespace grendgine_collada
             catch (Exception ex)
             {
                 Console.WriteLine(ex.ToString());
-                Console.ReadLine();
 				return null;
             }			
 		}			

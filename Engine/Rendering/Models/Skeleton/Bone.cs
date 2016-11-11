@@ -4,15 +4,14 @@ using BulletSharp;
 
 namespace CustomEngine.Rendering.Models
 {
-    public class Bone : ObjectBase
+    public class Bone : FileObject
     {
         public Bone(string name, FrameState bindState)
         {
             _name = name;
             _frameState = _bindState = bindState;
         }
-
-        private string _name;
+        
         private Bone _parent;
         private List<Bone> _children;
         private List<Bone> _socketChildren;

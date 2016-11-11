@@ -24,8 +24,8 @@ namespace CustomEngine
         public static List<World> LoadedWorlds = new List<World>();
         public static MonitoredList<LocalPlayerController> ActivePlayers = new MonitoredList<LocalPlayerController>();
         public static List<AIController> ActiveAI = new List<AIController>();
-        private static World _transitionWorld = null;
-        private static World _currentWorld = null;
+        private static FileRef<World> _transitionWorld = null;
+        private static FileRef<World> _currentWorld = null;
         private static GlobalTimer _timer = new GlobalTimer();
         private static AbstractRenderer _renderer;
         private static AbstractAudioManager _audioManager;
@@ -130,7 +130,7 @@ namespace CustomEngine
         public static World TransitionWorld
         {
             get { return _transitionWorld; }
-            set { _transitionWorld = value; }
+            set { _transitionWorld.SetFile(value); }
         }
         [State]
         public static World World
@@ -276,11 +276,11 @@ namespace CustomEngine
 
             if (startupWorld == null)
             {
-                _currentWorld = new World(engineSettings.OpeningWorldPath);
-                _transitionWorld = new World(engineSettings.TransitionWorldPath);
+                //_currentWorld = World.FromXML(engineSettings.OpeningWorldPath);
+                //_transitionWorld = World.FromXML(engineSettings.TransitionWorldPath);
 
-                _transitionWorld.Load();
-                _currentWorld.Load();
+                //_transitionWorld.Load();
+                //_currentWorld.Load();
             }
             else
                 World = startupWorld;
@@ -348,9 +348,9 @@ namespace CustomEngine
             World oldCurrent = _currentWorld;
             if (world != null && !world.IsLoaded)
                 world.Load();
-            _currentWorld?.EndPlay();
-            _currentWorld = world;
-            _currentWorld.BeginPlay();
+            World?.EndPlay();
+            _currentWorld.SetFile(world);
+            World?.BeginPlay();
             if (oldCurrent != null && oldCurrent.IsLoaded)
                 oldCurrent.Unload();
         }

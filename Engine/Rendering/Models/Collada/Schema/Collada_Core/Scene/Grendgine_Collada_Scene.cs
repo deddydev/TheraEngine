@@ -8,8 +8,7 @@ namespace grendgine_collada
 	[System.Xml.Serialization.XmlTypeAttribute(AnonymousType=true)]
 	public partial class Grendgine_Collada_Scene
 	{
-		
-		[XmlElement(ElementName = "instance_visual_scene")]
+        [XmlElement(ElementName = "instance_visual_scene")]
 		public Grendgine_Collada_Instance_Visual_Scene Visual_Scene;
 			
 		[XmlElement(ElementName = "instance_physics_scene")]

@@ -56,7 +56,7 @@ namespace CustomEngine.Worlds
 
         public FrameState Transform
         {
-            get { return _rootSceneComponent != null ? _rootSceneComponent.LocalTransform : FrameState.Identity; }
+            get { return _rootSceneComponent != null ? _rootSceneComponent.LocalTransform : FrameState.GetIdentity(Matrix4.MultiplyOrder.SRT); }
             set
             {
                 if (_rootSceneComponent != null)

@@ -52,34 +52,19 @@ namespace CustomEngine.Worlds
         {
             _originRebaseBounds = new Box(distance, distance, distance);
         }
-        
-        public override void Unload()
+        protected override void Read(VoidPtr address)
         {
-            if (!_isLoaded)
-                return;
-
-            _isLoaded = false;
-        }
-        public override void Load(VoidPtr address)
-        {
-            if (_isLoaded)
-                return;
-            _isLoading = true;
-            if (!string.IsNullOrEmpty(_filePath))
-            {
-                FileMap map = FileMap.FromFile(_filePath);
-                foreach (Map m in _maps)
-                    if (m.Settings.VisibleByDefault)
-                        m.Load();
-                _state._activeMaterials = new HashSet<Material>(CollectDefaultMaterials());
-            }
-            _isLoading = false;
-            _isLoaded = true;
+            foreach (Map m in _maps)
+                if (m.Settings.VisibleByDefault)
+                    m.Load();
+            _state._activeMaterials = new HashSet<Material>(CollectDefaultMaterials());
         }
 
         public static WorldSettings FromXML(string filePath)
         {
             return FromXML<WorldSettings>(filePath);
         }
+
+        public static string GetTag() { return "WSET"; }
     }
 }

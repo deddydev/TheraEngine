@@ -19,19 +19,9 @@ namespace CustomEngine.Worlds
             get { return _settings; }
             set { _settings = value; }
         }
-        public World(WorldHeader* header)
-        {
 
-        }
-        public World(string filePath)
-        {
-            _settings = WorldSettings.FromXML(filePath);
-        }
-        public World(WorldSettings settings)
-        {
-            _settings = settings;
-            CreatePhysicsScene();
-        }
+        public static World FromXML(string path) { return FromXML<World>(path); }
+
         private void CreatePhysicsScene()
         {
             BroadphaseInterface broadphase = new DbvtBroadphase();
@@ -52,10 +42,11 @@ namespace CustomEngine.Worlds
         }
         public int ActorCount { get { return _settings.State.SpawnedActors.Count; } }
 
-        public void SpawnActor(Actor actor)
+        public void SpawnActor(Actor actor, Vec3 worldPosition)
         {
             if (!_settings.State.SpawnedActors.Contains(actor))
                 _settings.State.SpawnedActors.Add(actor);
+            actor.Transform.AddTranslation(worldPosition);
             actor.OnSpawned(this);
         }
         public void DespawnActor(Actor actor)
@@ -70,33 +61,28 @@ namespace CustomEngine.Worlds
             get { return _settings.State.SpawnedActors[index]; }
             set { _settings.State.SpawnedActors[index] = value; }
         }
-
-        public virtual void Load()
-        {
-            CreatePhysicsScene();
-        }
-        public virtual void Unload()
-        {
-
-        }
         public virtual void EndPlay()
         {
-
+            foreach (Map m in _settings._maps)
+                m.EndPlay();
+            _bulletScene = null;
         }
         public virtual void BeginPlay()
         {
+            CreatePhysicsScene();
             foreach (Map m in _settings._maps)
                 m.BeginPlay();
         }
+        public static string GetTag() { return "WRLD"; }
     }
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public unsafe struct WorldHeader
     {
-        public VoidPtr Address { get { fixed(void* ptr = &this) return (VoidPtr)ptr; } }
+        public VoidPtr Address { get { fixed(void* ptr = &this) return ptr; } }
     }
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public unsafe struct WorldSettingsHeader
     {
-        public VoidPtr Address { get { fixed (void* ptr = &this) return (VoidPtr)ptr; } }
+        public VoidPtr Address { get { fixed (void* ptr = &this) return ptr; } }
     }
 }

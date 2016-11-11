@@ -6,9 +6,9 @@ namespace CustomEngine.Worlds.Maps
 {
     public class MapSettings : FileObject
     {
-        private bool _visibleByDefault;
-        private List<Actor> _defaultActors;
-        private Vec3 _spawnPosition;
+        public bool _visibleByDefault;
+        public List<Actor> _defaultActors;
+        public Vec3 _spawnPosition;
 
         public MapSettings(params Actor[] actors)
         {

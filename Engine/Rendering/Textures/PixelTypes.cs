@@ -153,6 +153,11 @@ namespace CustomEngine.Rendering.Textures
             wRGB565Pixel p = (wRGB565Pixel)obj;
             return _data._data == p._data._data;
         }
+
+        public override int GetHashCode()
+        {
+            return _data;
+        }
     }
 
     [StructLayout(LayoutKind.Sequential, Pack = 1)]

@@ -38,3 +38,4 @@ C:\Users\David\Documents\Repositories\CustomEngine\Game\bin\Debug\FreeImageNET.d
 C:\Users\frosty\Documents\_Thera\Game\bin\Debug\Game.exe.config
 C:\Users\frosty\Documents\_Thera\Game\obj\Debug\Game.exe
 C:\Users\frosty\Documents\_Thera\Game\obj\Debug\Game.pdb
+X:\Repositories\CustomEngine\Game\bin\Debug\FreeImageNET.dll

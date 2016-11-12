@@ -6,9 +6,14 @@ using System.Threading.Tasks;
 using System.Linq;
 using CustomEngine.Rendering.Models.Materials;
 using System.Runtime.InteropServices;
+using CustomEngine.Files;
 
 namespace CustomEngine.Worlds
 {
+    public interface IWorld
+    {
+        WorldSettings Settings { get; set; }
+    }
     public unsafe class World : FileObject
     {
         private DiscreteDynamicsWorld _bulletScene;
@@ -19,9 +24,6 @@ namespace CustomEngine.Worlds
             get { return _settings; }
             set { _settings = value; }
         }
-
-        public static World FromXML(string path) { return FromXML<World>(path); }
-
         private void CreatePhysicsScene()
         {
             BroadphaseInterface broadphase = new DbvtBroadphase();

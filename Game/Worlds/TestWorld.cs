@@ -1,22 +1,16 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using CustomEngine.Worlds;
 using CustomEngine.Rendering.Models;
 using CustomEngine.Worlds.Actors.Components;
 using CustomEngine.Worlds.Maps;
-using CustomEngine.Rendering;
 using CustomEngine.Rendering.Animation;
-using CustomEngine.Input.Devices;
 using CustomEngine.Rendering.Models.Materials;
 
 namespace Game.Worlds
 {
     public class TestWorld : World
     {
-        protected override void OnLoading()
+        protected override void OnLoaded()
         {
             _settings = new WorldSettings("TestWorld");
 

@@ -1,4 +1,5 @@
 ﻿using CustomEngine;
+using CustomEngine.Files;
 using System.Xml.Serialization;
 
 namespace System
@@ -7,7 +8,6 @@ namespace System
     public delegate void RotateChange(Quaternion oldRotation);
     public delegate void ScaleChange(Vec3 oldScale);
     public delegate void MatrixChange(Matrix4 oldMatrix, Matrix4 oldInvMatrix);
-    [Serializable]
     public class FrameState : FileObject
     {
         public static FrameState GetIdentity(Matrix4.MultiplyOrder order)
@@ -45,20 +45,17 @@ namespace System
 
         public Matrix4 Matrix { get { return _transform; } }
         public Matrix4 InverseMatrix { get { return _inverseTransform; } }
-
-        [XmlElement]
+        
         public Vec3 Translation
         {
             get { return _translation; }
             set { SetTranslate(value); }
         }
-        [XmlElement]
         public Quaternion Rotation
         {
             get { return _rotation; }
             set { SetRotate(value); }
         }
-        [XmlElement]
         public Vec3 Scale
         {
             get { return _scale; }
@@ -72,7 +69,6 @@ namespace System
             get { return _rotation.ToEuler(); }
             set { SetRotate(value); }
         }
-        [XmlAttribute]
         public Matrix4.MultiplyOrder TransformOrder
         {
             get { return _order; }

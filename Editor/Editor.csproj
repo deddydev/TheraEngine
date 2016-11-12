@@ -106,7 +106,6 @@
       <DependentUpon>WeightEditor.xaml</DependentUpon>
     </Compile>
     <Compile Include="CustomMenuItem.cs" />
-    <Compile Include="Files\FileExtensionManager.cs" />
     <Compile Include="Rendering\Models\Materials\GLSL\BaseGLArgument.cs" />
     <Compile Include="Rendering\Models\Materials\GLSL\GLMultiArgument.cs" />
     <Compile Include="Rendering\Models\Materials\GLSL\GLArgument.cs" />

@@ -12,15 +12,6 @@ namespace CustomEngine
     {
         public RenderForm(string name, string iconPath)
         {
-            Initialize(name, iconPath, null);
-        }
-        public RenderForm(string name, string iconPath, World world)
-        {
-            Initialize(name, iconPath, world);
-        }
-
-        public void Initialize(string name, string iconPath, World startupWorld)
-        {
             InitializeComponent();
 
             Text = name;
@@ -28,14 +19,12 @@ namespace CustomEngine
                 Icon = new Icon(iconPath);
 
             Engine.RegisterRenderTick(RenderTick);
-            Engine.Initialize(startupWorld);
+            Engine.Initialize();
         }
-
         public void RenderTick(object sender, FrameEventArgs e)
         {
             renderPanel1.Redraw();
         }
-
         protected override void OnClosed(EventArgs e)
         {
             base.OnClosed(e);

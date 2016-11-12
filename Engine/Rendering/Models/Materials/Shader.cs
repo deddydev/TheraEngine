@@ -50,9 +50,6 @@ namespace CustomEngine.Rendering.Models.Materials
         }
         public int Compile()
         {
-            if (!_sourceChanged)
-                return 0;
-
             _sourceChanged = false;
 
             Engine.Renderer.SetShaderMode(_type);
@@ -85,7 +82,7 @@ void main()
         {
             string source = @"
 
-layout (location = 0) out vec4 diffuseColor;
+out vec4 diffuseColor;
 
 void main()
 {

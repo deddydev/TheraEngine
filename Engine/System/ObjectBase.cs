@@ -39,8 +39,8 @@ namespace System
         private ETickGroup? _tickGroup = null;
         private ETickOrder? _tickOrder = null;
 
-        [Browsable(false)]
-        public virtual ResourceType ResourceType { get { return ResourceType.Object; } }
+        //[Browsable(false)]
+        //public virtual ResourceType ResourceType { get { return ResourceType.Object; } }
         
         [Default]
 #if EDITOR

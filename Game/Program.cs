@@ -18,7 +18,10 @@ namespace Game
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new RenderForm("Thera", null, new TestWorld()));
+            EngineSettings settings = new EngineSettings();
+            settings.OpeningWorld = typeof(TestWorld);
+            Engine._engineSettings.SetFile(settings, false);
+            Application.Run(new RenderForm("Thera", null));
         }
     }
 }

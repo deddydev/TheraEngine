@@ -513,6 +513,8 @@
     <Compile Include="System\Extensions\ArrayExtension.cs" />
     <Compile Include="System\Extensions\XmlExtension.cs" />
     <Compile Include="Rendering\Fonts\TTF.cs" />
+    <Compile Include="System\Files\FileRef.cs" />
+    <Compile Include="System\Files\StringTable.cs" />
     <Compile Include="System\Math\Collision\Tracing.cs" />
     <Compile Include="System\Math\Enums.cs" />
     <Compile Include="System\Math\Shapes\Plane.cs" />
@@ -534,7 +536,7 @@
     <Compile Include="System\Platform\Win32.cs" />
     <Compile Include="System\Reflection\Attributes\PropertyChangedEventAttribute.cs" />
     <Compile Include="System\Reflection\CustomPropertyCollection.cs" />
-    <Compile Include="System\FileObject.cs" />
+    <Compile Include="System\Files\FileObject.cs" />
     <Compile Include="System\Time\GlobalTimer.cs" />
     <Compile Include="System\RenderPanel.cs" />
     <Compile Include="System\RenderForm.cs">
@@ -543,6 +545,7 @@
     <Compile Include="System\RenderForm.Designer.cs">
       <DependentUpon>RenderForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="System\Files\FileManager.cs" />
     <Compile Include="System\Tools\Remapper.cs" />
     <Compile Include="System\UInt24.cs" />
     <Compile Include="System\RenderHandler.cs" />

@@ -55,11 +55,6 @@ namespace CustomEngine.Rendering.Animation
         }
         public IEnumerator<InterpKeyframe> GetEnumerator() { return ((IEnumerable<InterpKeyframe>)_keyframes).GetEnumerator(); }
         IEnumerator IEnumerable.GetEnumerator() { return ((IEnumerable<InterpKeyframe>)_keyframes).GetEnumerator(); }
-
-        public override int CalculateSize()
-        {
-            throw new NotImplementedException();
-        }
     }
     public class InterpKeyframe : Keyframe
     {

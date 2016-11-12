@@ -1,12 +1,11 @@
-﻿using CustomEngine.Rendering.Models;
+﻿using CustomEngine.Files;
+using CustomEngine.Rendering.Models;
 using System;
 
 namespace CustomEngine.Rendering.Cameras
 {
     public abstract class Camera : FileObject
     {
-        public override ResourceType ResourceType { get { return ResourceType.Camera; } }
-
         private PostProcessSettings _postProcessSettings;
 
         public PostProcessSettings PostProcessSettings

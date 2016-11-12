@@ -60,7 +60,23 @@ namespace CustomEngine.Rendering.HUD
         public Vec2 TranslationLocalOrigin
         {
             get { return _translationLocalOrigin; }
-            set { _translationLocalOrigin = value; }
+            set
+            {
+                Vec2 diff = value - _translationLocalOrigin;
+                _region.X += diff.X;
+                _region.Y += diff.Y;
+                _translationLocalOrigin = value;
+            }
+        }
+        [Category("Transform"), PostCall("OnTransformed")]
+        public Vec2 BottomLeftTranslation
+        {
+            get { return new Vec2(TranslationX - _translationLocalOrigin.X * Width, TranslationY - _translationLocalOrigin.Y * Height); }
+            set
+            {
+                TranslationX = value.X + _translationLocalOrigin.X * Width;
+                TranslationY = value.Y + _translationLocalOrigin.Y * Height;
+            }
         }
         [Category("Transform"), State, Animatable, PostCall("OnTransformed")]
         public float TranslationX
@@ -102,7 +118,7 @@ namespace CustomEngine.Rendering.HUD
             _localTransform = Matrix4.TransformMatrix(
                 new Vec3(ScaleX, ScaleY, 0.0f),
                 Quaternion.Identity, 
-                new Vec3(TranslationX, TranslationY, 0.0f), 
+                new Vec3(BottomLeftTranslation),
                 Matrix4.MultiplyOrder.TRS);
 
             RecalcGlobalTransform();

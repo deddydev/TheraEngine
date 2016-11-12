@@ -11,32 +11,58 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using CustomEngine.Worlds.Actors;
+using CustomEngine.Worlds.Maps;
 
-namespace Editor.Files
+namespace CustomEngine.Files
 {
-    public static class FileExtensionManager
+    public static class FileManager
     {
         public static IEnumerable<Type> FindDerivedTypes(Assembly assembly, Type baseType)
         {
             return assembly.GetTypes().Where(t => t != baseType && baseType.IsAssignableFrom(t));
         }
-
+        public static string GetTag(Type type)
+        {
+            return Filters[type]._tag;
+        }
+        public static Type GetType(string tag)
+        {
+            return Filters.FirstOrDefault(x => x.Value._tag == tag).Key;
+        }
+        public static string GetExtension(Type type)
+        {
+            return Filters[type]._extensions[0];
+        }
+        public static Type GetTypeWithExtension(string ext)
+        {
+            return Filters.FirstOrDefault(x => x.Value._extensions[0] == ext).Key;
+        }
         const int MaxExtensionsInAllFilter = 5;
         private static string _allSupportedFilter = null;
         private static string _filterList = null;
         public static readonly Dictionary<Type, FilterInfo> Filters = new Dictionary<Type, FilterInfo>()
         {
-            { typeof(World), new FilterInfo("World", "cworld") },
-            { typeof(Map), new FilterInfo("Map", "cmap") },
-            { typeof(Actor), new FilterInfo("Actor", "cactor") },
-            { typeof(Component), new FilterInfo("Component", "ccomp") },
-            { typeof(Model), new FilterInfo("Model", "cmdl") },
-            { typeof(Camera), new FilterInfo("Camera", "ccam") },
-            { typeof(Cutscene), new FilterInfo("Cutscene", "ccut") },
-            { typeof(Component), new FilterInfo("Component", "ccomp") },
-            { typeof(AnimationContainer), new FilterInfo("Animation Archive", "cpac") },
-            { typeof(BasePropertyAnimation), new FilterInfo("Property Animation", "cpa") },
-            { typeof(Texture), new FilterInfo("Texture", "ctex") },
+            { typeof(WorldState), new FilterInfo("World State", "WSTA", "cstworld") },
+            { typeof(MapState), new FilterInfo("Map State", "MSTA", "cstmap") },
+            { typeof(ActorState), new FilterInfo("Actor State", "ASTA", "cstactor") },
+
+            { typeof(UserSettings), new FilterInfo("User Settings", "SUSR", "csuser") },
+            { typeof(EngineSettings), new FilterInfo("Engine Settings", "SENG", "csengine") },
+            { typeof(WorldSettings), new FilterInfo("World Settings", "SWRL", "csworld") },
+            { typeof(MapSettings), new FilterInfo("Map Settings", "SMAP", "csmap") },
+
+            { typeof(IFileRef), new FilterInfo("File Reference", "FREF", "cref") },
+            { typeof(World), new FilterInfo("World", "WRLD", "cworld") },
+            { typeof(Map), new FilterInfo("Map", "CMAP", "cmap") },
+            { typeof(Actor), new FilterInfo("Actor", "ACTR", "cactor") },
+            { typeof(Component), new FilterInfo("Component", "COMP", "ccomp") },
+            { typeof(Model), new FilterInfo("Model", "CMDL", "cmdl") },
+            { typeof(Camera), new FilterInfo("Camera", "CCAM", "ccam") },
+            { typeof(Cutscene), new FilterInfo("Cutscene", "CCUT", "ccut") },
+            { typeof(AnimationContainer), new FilterInfo("Animation Archive", "ANMA", "cpac") },
+            { typeof(BasePropertyAnimation), new FilterInfo("Property Animation", "PANM", "cpa") },
+            { typeof(Texture), new FilterInfo("Texture", "CTEX", "ctex") },
         };
         public static List<FilterInfo> GenericInfo = new List<FilterInfo>()
         {
@@ -94,6 +120,7 @@ namespace Editor.Files
 
             new FilterInfo("Raw Data", "*"),
         };
+
         private static FilterInfo[] GetInfo(params Type[] types)
         {
             if (types == null || types.Length == 0)
@@ -208,7 +235,7 @@ namespace Editor.Files
 
     public class FilterInfo
     {
-        public string _name;
+        public string _name, _tag;
         public string[] _extensions;
 
         public Type[] _fileTypes;
@@ -217,9 +244,10 @@ namespace Editor.Files
         public string _exportExt;
         public string _importExt;
 
-        public FilterInfo(string name, params string[] extensions)
+        public FilterInfo(string name, string tag, params string[] extensions)
         {
             _name = name;
+            _tag = tag;
             _extensions = extensions;
         }
 

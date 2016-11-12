@@ -1,4 +1,5 @@
-﻿using CustomEngine.GameModes;
+﻿using CustomEngine.Files;
+using CustomEngine.GameModes;
 using CustomEngine.Rendering.Models.Materials;
 using System;
 using System.Collections.Generic;
@@ -52,12 +53,12 @@ namespace CustomEngine.Worlds
         {
             _originRebaseBounds = new Box(distance, distance, distance);
         }
-        protected override void Read(VoidPtr address)
+        public override void Read(VoidPtr address)
         {
-            foreach (Map m in _maps)
-                if (m.Settings.VisibleByDefault)
-                    m.Load();
-            _state._activeMaterials = new HashSet<Material>(CollectDefaultMaterials());
+            //foreach (Map m in _maps)
+            //    if (m.Settings.VisibleByDefault)
+            //        m.Load();
+            //_state._activeMaterials = new HashSet<Material>(CollectDefaultMaterials());
         }
 
         public static WorldSettings FromXML(string filePath)

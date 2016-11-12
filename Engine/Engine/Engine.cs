@@ -11,21 +11,30 @@ using CustomEngine.Input.Devices.OpenTK;
 using CustomEngine.Input.Devices.DirectX;
 using CustomEngine.Rendering.Models.Materials;
 using System.Threading.Tasks;
+using CustomEngine.Files;
 
 namespace CustomEngine
 {
     public static class Engine
     {
-        public const string EngineSettingsPath = "\\Config\\EngineSettings.xml";
-        public const string UserSettingsPath = "\\Config\\UserSettings.xml";
+        public static string StartupPath = Application.StartupPath;
+        public static string ContentFolderRel = "\\Content";
+        public static string ConfigFolderRel = "\\Config";
+        public static string EngineSettingsPathRel = ConfigFolderRel + "\\EngineSettings.xml";
+        public static string UserSettingsPathRel = ConfigFolderRel + "\\UserSettings.xml";
+
+        private static World _transitionWorld = null;
+        private static World _currentWorld = null;
+        public static FileRef<EngineSettings> _engineSettings = new FileRef<EngineSettings>(EngineSettingsPathRel);
+        public static FileRef<UserSettings> _userSettings = new FileRef<UserSettings>(UserSettingsPathRel);
+
+        public static Dictionary<string, FileObject> LoadedFiles = new Dictionary<string, FileObject>();
 
         public static int PhysicsSubsteps = 10;
         private static ComputerInfo _computerInfo;
         public static List<World> LoadedWorlds = new List<World>();
         public static MonitoredList<LocalPlayerController> ActivePlayers = new MonitoredList<LocalPlayerController>();
         public static List<AIController> ActiveAI = new List<AIController>();
-        private static FileRef<World> _transitionWorld = null;
-        private static FileRef<World> _currentWorld = null;
         private static GlobalTimer _timer = new GlobalTimer();
         private static AbstractRenderer _renderer;
         private static AbstractAudioManager _audioManager;
@@ -130,13 +139,13 @@ namespace CustomEngine
         public static World TransitionWorld
         {
             get { return _transitionWorld; }
-            set { _transitionWorld.SetFile(value); }
+            set { _transitionWorld = value; }
         }
         [State]
         public static World World
         {
             get { return _currentWorld; }
-            set { SetCurrentWorld(value); }
+            set { SetCurrentWorld(value, true); }
         }
 
         /// <summary>
@@ -263,27 +272,28 @@ namespace CustomEngine
         }
         #endregion
 
-        public static void Initialize(World startupWorld)
+        public static void Initialize()
         {
             _computerInfo = ComputerInfo.Analyze();
 
-            EngineSettings engineSettings = LoadEngineSettings();
-            UserSettings userSettings = LoadUserSettings();
+            EngineSettings engineSettings;
+            if (_engineSettings.File == null)
+                _engineSettings.SetFile(engineSettings = new EngineSettings(), true);
+            else
+                engineSettings = _engineSettings;
+
+            UserSettings userSettings;
+            if (_userSettings.File == null)
+                _userSettings.SetFile(userSettings = new UserSettings(), true);
+            else
+                userSettings = _userSettings;
 
             RenderLibrary = userSettings.RenderLibrary;
             AudioLibrary = userSettings.AudioLibrary;
             InputLibrary = userSettings.InputLibrary;
 
-            if (startupWorld == null)
-            {
-                //_currentWorld = World.FromXML(engineSettings.OpeningWorldPath);
-                //_transitionWorld = World.FromXML(engineSettings.TransitionWorldPath);
-
-                //_transitionWorld.Load();
-                //_currentWorld.Load();
-            }
-            else
-                World = startupWorld;
+            World = engineSettings.OpeningWorld;
+            _transitionWorld = engineSettings.TransitionWorld;
 
             TargetRenderFreq = 60.0f;
             TargetUpdateFreq = 90.0f;
@@ -292,33 +302,12 @@ namespace CustomEngine
         public static void ShutDown()
         {
             Stop();
-            var v = new List<RenderContext>(RenderContext.BoundContexts);
-            foreach (RenderContext c in v)
+            var files = new List<FileObject>(LoadedFiles.Values);
+            foreach (FileObject o in files)
+                o?.Unload();
+            var contexts = new List<RenderContext>(RenderContext.BoundContexts);
+            foreach (RenderContext c in contexts)
                 c?.Dispose();
-        }
-        public static EngineSettings LoadEngineSettings()
-        {
-            string path = Application.StartupPath + EngineSettingsPath;
-            if (!File.Exists(path))
-            {
-                EngineSettings settings = new EngineSettings();
-                settings.ToXML(path);
-                return settings;
-            }
-            else
-                return EngineSettings.FromXML(path);
-        }
-        public static UserSettings LoadUserSettings()
-        {
-            string path = Application.StartupPath + UserSettingsPath;
-            if (!File.Exists(path))
-            {
-                UserSettings settings = new UserSettings();
-                settings.ToXML(path);
-                return settings;
-            }
-            else
-                return UserSettings.FromXML(path);
         }
         public static Viewport GetViewport(int index)
         {
@@ -343,16 +332,11 @@ namespace CustomEngine
             }
             panel.GlobalHud.DebugPrint(message);
         }
-        public static void SetCurrentWorld(World world)
+        public static void SetCurrentWorld(World world, bool unloadPrevious)
         {
-            World oldCurrent = _currentWorld;
-            if (world != null && !world.IsLoaded)
-                world.Load();
             World?.EndPlay();
-            _currentWorld.SetFile(world);
+            _currentWorld = world;
             World?.BeginPlay();
-            if (oldCurrent != null && oldCurrent.IsLoaded)
-                oldCurrent.Unload();
         }
         static InputAwaiter _inputAwaiter;
 

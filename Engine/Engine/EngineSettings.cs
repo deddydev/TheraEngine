@@ -1,23 +1,26 @@
-﻿using CustomEngine.Worlds;
+﻿using CustomEngine.Files;
+using CustomEngine.Worlds;
 using System;
 using System.IO;
 using System.Xml.Serialization;
+using System.Xml;
 
 namespace CustomEngine
 {
-    [Serializable]
     public class EngineSettings : FileObject
     {
-        [XmlElement(ElementName = "TransitionWorld")]
         public FileRef<World> TransitionWorld;
-        [XmlElement(ElementName = "OpeningWorld")]
         public FileRef<World> OpeningWorld;
-        [XmlElement(ElementName = "ContentFolder")]
         public string ContentPath;
-        
-        public static EngineSettings FromXML(string filePath)
+
+        public override void Read(XmlReader reader)
         {
-            return FromXML<EngineSettings>(filePath);
+            base.Read(reader);
+        }
+        public override void Write(XmlWriter writer)
+        {
+            base.Write(writer);
+            TransitionWorld.Write(writer);
         }
     }
 }

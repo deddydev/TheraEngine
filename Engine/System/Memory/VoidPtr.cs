@@ -58,6 +58,12 @@ namespace System
         public static implicit operator VoidPtr(IntPtr ptr) { return new VoidPtr() { address = (void*)ptr }; }
         public static implicit operator IntPtr(VoidPtr ptr) { return (IntPtr)ptr.address; }
 
+        //public static implicit operator sbyte*(VoidPtr ptr) { return (sbyte*)ptr.address; }
+        //public static implicit operator VoidPtr(sbyte* ptr) { return new VoidPtr() { address = ptr }; }
+
+        //public static implicit operator byte* (VoidPtr ptr) { return (byte*)ptr.address; }
+        //public static implicit operator VoidPtr(byte* ptr) { return new VoidPtr() { address = ptr }; }
+
         public override int GetHashCode() { return (int)address; }
         public override bool Equals(object obj) { return base.Equals(obj); }
 

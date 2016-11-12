@@ -15,6 +15,8 @@ namespace CustomEngine.Rendering.Models
         private Skeleton _skeleton;
         private bool _simulatePhysics;
 
+        public List<Mesh> Meshes { get { return _meshes; } }
+
         public Skeleton Skeleton
         {
             get { return _skeleton; }
@@ -35,13 +37,17 @@ namespace CustomEngine.Rendering.Models
             if (_linkedComponents.Contains(comp))
                 _linkedComponents.Remove(comp);
         }
-        public void AddMesh(Mesh m)
-        {
-            _meshes.Add(m);
-        }
         public List<PrimitiveData> GetPrimitives()
         {
             return _meshes.Select(x => x._manager.Data).ToList();
+        }
+        public void OnSpawned()
+        {
+            _meshes.ForEach(x => x.OnSpawned());
+        }
+        public void OnDespawned()
+        {
+            _meshes.ForEach(x => x.OnDespawned());
         }
     }
 }

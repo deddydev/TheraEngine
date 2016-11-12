@@ -68,9 +68,18 @@ namespace CustomEngine.Rendering.Animation
         {
             if (!_isPlaying)
                 return;
-            
             property.SetValue(obj, GetValue(_currentFrame));
-
+            OnTick(delta);
+        }
+        public void Tick(object obj, MethodInfo method, float delta)
+        {
+            if (!_isPlaying)
+                return;
+            method.Invoke(obj, new object[] { GetValue(_currentFrame) });
+            OnTick(delta);
+        }
+        private void OnTick(float delta)
+        {
             _currentFrame += delta;
             if (_currentFrame > _frameCount - 1)
                 if (_looped)
@@ -81,6 +90,7 @@ namespace CustomEngine.Rendering.Animation
                     return;
                 }
         }
+
         protected abstract void UseKeyframesChanged(bool oldUseKeyframes);
         protected abstract object GetValue(float frame);
         

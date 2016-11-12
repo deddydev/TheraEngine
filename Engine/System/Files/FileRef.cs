@@ -13,6 +13,7 @@ namespace CustomEngine.Files
     {
         string FilePathRelative { get; }
         FileObject File { get; set; }
+        void UnloadReference();
     }
     /// <summary>
     /// Indicates that this variable references a file that must be loaded.
@@ -77,6 +78,9 @@ namespace CustomEngine.Files
         }
         public void SetFile(T value, bool exportToPath)
         {
+            if (_file != null && _file._references.Contains(this))
+                _file._references.Remove(this);
+            
             _file = value;
             if (_file != null)
             {
@@ -91,7 +95,8 @@ namespace CustomEngine.Files
                     Engine.LoadedFiles[_relativePath] = _file;
                 else
                     Engine.LoadedFiles.Add(_relativePath, _file);
-                _file.Unloaded += FileUnloaded;
+
+                _file._references.Add(this);
             }
         }
         public T LoadFile()
@@ -120,9 +125,22 @@ namespace CustomEngine.Files
             }
 
             _file._filePath = _relativePath;
-            _file.Unloaded += FileUnloaded;
+            _file._references.Add(this);
 
             return _file;
+        }
+        public void UnloadReference()
+        {
+            if (_file != null)
+            {
+                if (_file._references.Contains(this))
+                    _file._references.Remove(this);
+                if (_file._references.Count == 0)
+                {
+                    _file.Unload();
+                }
+                _file = null;
+            }
         }
         private void FileUnloaded() { _file = null; }
         public override int CalculateSize(StringTable table)
@@ -152,7 +170,6 @@ namespace CustomEngine.Files
         {
             throw new NotImplementedException();
         }
-
         public static implicit operator T(FileRef<T> fileRef) { return fileRef == null ? null : fileRef.LoadFile(); }
         public static implicit operator FileRef<T>(T file) { return new FileRef<T>(file); }
         public static implicit operator FileRef<T>(Type type) { return new FileRef<T>(type); }

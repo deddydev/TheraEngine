@@ -9,7 +9,7 @@
             _endPoint = endPoint;
         }
         
-        public Vec3 StartPoint { get { return _startPoint; }set { _startPoint = value; } }
+        public Vec3 StartPoint { get { return _startPoint; } set { _startPoint = value; } }
         public Vec3 EndPoint { get { return _endPoint; } set { _endPoint = value; } }
         public Vec3 Direction
         {

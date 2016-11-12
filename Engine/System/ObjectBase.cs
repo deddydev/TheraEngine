@@ -146,10 +146,6 @@ namespace System
         {
             _animations.Remove(anim);
         }
-        public void QueueCommand(RenderKey key, Action method)
-        {
-            Engine.Renderer.QueueCommand(key, method);
-        }
     }
     [PSerializable]
     public class NotifyPropertyChangedAttribute : LocationInterceptionAspect

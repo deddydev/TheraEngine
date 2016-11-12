@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CustomEngine.Rendering.Models.Materials;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -7,18 +8,6 @@ using System.Threading.Tasks;
 namespace CustomEngine.Rendering
 {
     //Larger enum numbers mean we want to render this first.
-    public enum EDrawLayer : uint
-    {
-        Viewport = 1,
-        FullScreenHUD = 0,
-    }
-    public enum EViewport : uint
-    {
-        Viewport0 = 3,
-        Viewport1 = 2,
-        Viewport2 = 1,
-        Viewport3 = 0,
-    }
     public enum EViewportLayer : uint
     {
         Sky = 3,
@@ -40,42 +29,41 @@ namespace CustomEngine.Rendering
         private Bin32 _data;
         
         public RenderKey(uint data) { _data = data; }
-        public RenderKey(
-            EDrawLayer dlayer,
-            EViewport viewport,
-            EViewportLayer vlayer,
-            EPassType translucencyPass,
-            ERenderCommand command,
-            uint commandData)
-        {
-            DrawLayer = dlayer;
-            Viewport = viewport;
-        }
-        public RenderKey(
-            EDrawLayer dlayer,
-            EViewport viewport,
-            EViewportLayer vlayer,
-            EPassType translucencyPass,
-            float depth,
-            uint materialId)
-        {
-            DrawLayer = dlayer;
-            Viewport = viewport;
-            ViewportLayer = vlayer;
-            Pass = translucencyPass;
-            IsCommand = false;
-            Depth = (ushort)(depth * 0xFFF);
-        }
-        public EDrawLayer DrawLayer
-        {
-            get { return (EDrawLayer)_data[31, 1]; }
-            set { _data[31, 1] = (uint)value; }
-        }
-        public EViewport Viewport
-        {
-            get { return (EViewport)_data[29, 2]; }
-            set { _data[29, 2] = (uint)value; }
-        }
+        //public RenderKey(
+        //    EDrawLayer dlayer,
+        //    EViewport viewport,
+        //    EViewportLayer vlayer,
+        //    EPassType translucencyPass,
+        //    ERenderCommand command,
+        //    uint commandData)
+        //{
+        //    DrawLayer = dlayer;
+        //    Viewport = viewport;
+        //}
+        //public RenderKey(
+        //    EDrawLayer dlayer,
+        //    EViewport viewport,
+        //    EViewportLayer vlayer,
+        //    EPassType translucencyPass,
+        //    float depth)
+        //{
+        //    DrawLayer = dlayer;
+        //    Viewport = viewport;
+        //    ViewportLayer = vlayer;
+        //    Pass = translucencyPass;
+        //    IsCommand = false;
+        //    Depth = (uint)(depth * 0xFFFFFF);
+        //}
+        //public EDrawLayer DrawLayer
+        //{
+        //    get { return (EDrawLayer)_data[31, 1]; }
+        //    set { _data[31, 1] = (uint)value; }
+        //}
+        //public EViewport Viewport
+        //{
+        //    get { return (EViewport)_data[29, 2]; }
+        //    set { _data[29, 2] = (uint)value; }
+        //}
         public EViewportLayer ViewportLayer
         {
             get { return (EViewportLayer)_data[27, 2]; }
@@ -96,15 +84,10 @@ namespace CustomEngine.Rendering
             get { return (ushort)_data[0, 24]; }
             set { _data[0, 24] = value; }
         }
-        public ushort Depth
+        public UInt24 Depth
         {
-            get { return (ushort)_data[12, 12]; }
-            set { _data[12, 12] = value; }
-        }
-        public ushort MaterialId
-        {
-            get { return (ushort)_data[0, 12]; }
-            set { _data[0, 12] = value; }
+            get { return _data[0, 24]; }
+            set { _data[0, 24] = value; }
         }
         public static void RadixSort(ref List<ulong> array)
         {

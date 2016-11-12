@@ -74,5 +74,11 @@ namespace CustomEngine.Rendering.Cameras
         {
             return new Vec3(screenPoint.X - _orthoLeft, screenPoint.Y - _orthoBottom, screenPoint.Z);
         }
+
+        public override Frustrum GetFrustrum()
+        {
+            float w = Width / 2.0f, h = Height / 2.0f;
+            return new Box(new Vec3(-w, _nearZ, -h), new Vec3(w, _farZ, h)).AsFrustrum(CurrentTransform.Matrix);
+        }
     }
 }

@@ -27,6 +27,10 @@ namespace System
         }
         public Quaternion(float pitch, float yaw, float roll)
         {
+            pitch = CustomMath.DegToRad(pitch);
+            yaw = CustomMath.DegToRad(yaw);
+            roll = CustomMath.DegToRad(roll);
+
             yaw *= 0.5f;
             pitch *= 0.5f;
             roll *= 0.5f;
@@ -65,7 +69,7 @@ namespace System
 
             Vec4 result = new Vec4();
 
-            result.W = 2.0f * (float)Acos(q.W); // angle
+            result.W = CustomMath.RadToDeg(2.0f * (float)Acos(q.W)); // angle
             float den = (float)Sqrt(1.0 - q.W * q.W);
             if (den > 0.0001f)
                 result.Xyz = q.Xyz / den;
@@ -107,7 +111,7 @@ namespace System
                 pitch = (float)Asin(2.0f * test / unit);
                 roll = (float)Atan2(2.0f * X * W - 2.0f * Y * Z, -sqx + sqy - sqz + sqw);
             }
-            return new Vec3(pitch, yaw, roll);
+            return new Vec3(CustomMath.RadToDeg(pitch), CustomMath.RadToDeg(yaw), CustomMath.RadToDeg(roll));
         }
         public Quaternion Normalized()
         {
@@ -149,6 +153,8 @@ namespace System
         }
         public static Quaternion FromAxisAngle(Vec3 axis, float angle)
         {
+            angle = CustomMath.DegToRad(angle);
+
             if (axis.LengthSquared == 0.0f)
                 return Identity;
 

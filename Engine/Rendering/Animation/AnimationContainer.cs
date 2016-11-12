@@ -17,11 +17,13 @@ namespace CustomEngine.Rendering.Animation
         }
 
         private PropertyInfo _propertyCache;
+        private MethodInfo _methodCache;
         private bool _propertyNotFound;
 
         public string _propertyName;
         public List<AnimFolder> _children = new List<AnimFolder>();
         public BasePropertyAnimation _animation;
+        public bool _isMethod;
 
         public void CollectAnimations(string path, Dictionary<string, BasePropertyAnimation> animations)
         {
@@ -44,17 +46,31 @@ namespace CustomEngine.Rendering.Animation
             if (noObject || noProperty)
                 return;
 
-            if (_propertyCache == null && (_propertyCache = obj.GetType().GetProperty(_propertyName)) == null)
+            if (_isMethod)
             {
-                _propertyNotFound = true;
-                return;
+                if (_methodCache == null && (_methodCache = obj.GetType().GetMethod(_propertyName)) == null)
+                {
+                    _propertyNotFound = true;
+                    return;
+                }
+                _animation?.Tick(obj, _methodCache, delta);
             }
-
-            _animation?.Tick(obj, _propertyCache, delta);
-
-            object value = _propertyCache.GetValue(obj);
-            foreach (AnimFolder f in _children)
-                f.Tick(value, delta);
+            else
+            {
+                if (_propertyCache == null && (_propertyCache = obj.GetType().GetProperty(_propertyName)) == null)
+                {
+                    _propertyNotFound = true;
+                    return;
+                }
+                if (_animation != null)
+                    _animation?.Tick(obj, _propertyCache, delta);
+                else
+                {
+                    object value = _propertyCache.GetValue(obj);
+                    foreach (AnimFolder f in _children)
+                        f.Tick(value, delta);
+                }
+            }
         }
 
         public int Register(AnimationContainer container)
@@ -98,7 +114,7 @@ namespace CustomEngine.Rendering.Animation
         {
             RootFolder = rootFolder;
         }
-        public AnimationContainer(string propertyName, BasePropertyAnimation anim)
+        public AnimationContainer(string propertyName, bool method, BasePropertyAnimation anim)
         {
             string[] parts = propertyName.Split('.');
             bool first = true;
@@ -111,10 +127,17 @@ namespace CustomEngine.Rendering.Animation
                     first = false;
                 }
                 else
-                    last._children.Add(new AnimFolder(i, null));
+                {
+                    AnimFolder folder = new AnimFolder(i, null);
+                    last._children.Add(folder);
+                    last = folder;
+                }
             }
             if (last != null)
+            {
                 last._animation = anim;
+                last._isMethod = method;
+            }
         }
         public AnimFolder RootFolder
         {

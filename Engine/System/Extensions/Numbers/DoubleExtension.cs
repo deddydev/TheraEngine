@@ -2,6 +2,15 @@
 {
     public static class DoubleExtension
     {
+        public const Double ZeroTolerance = 1e-6f;
+        public static bool IsZero(this Double value)
+        {
+            return Math.Abs(value) < ZeroTolerance;
+        }
+        public static bool EqualTo(this Double value, Double other)
+        {
+            return Math.Abs(other - value) < ZeroTolerance;
+        }
         public static unsafe Double Reverse(this Double value)
         {
             *(uint*)(&value) = ((uint*)&value)->Reverse();

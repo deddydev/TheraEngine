@@ -1,6 +1,8 @@
-﻿namespace CustomEngine.Worlds.Actors.Components
+﻿using System;
+
+namespace CustomEngine.Worlds.Actors.Components
 {
-    public class ShapeComponent<T> : PrimitiveComponent<T> where T : IShape
+    public class ShapeComponent<T> : PrimitiveComponent<T> where T : Shape
     {
         public T Shape
         {

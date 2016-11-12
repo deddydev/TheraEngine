@@ -16,8 +16,8 @@ namespace CustomEngine.Files
     public abstract class FileObject : ObjectBase
     {
         public FileObject() { OnLoaded(); }
-
-        public event Action Unloaded;
+        
+        public List<IFileRef> _references = new List<IFileRef>();
         internal string _filePath;
 
         private int _calculatedSize;
@@ -46,7 +46,8 @@ namespace CustomEngine.Files
         {
             if (!string.IsNullOrEmpty(_filePath) && Engine.LoadedFiles.ContainsKey(_filePath))
                 Engine.LoadedFiles.Remove(_filePath);
-            Unloaded?.Invoke();
+            List<IFileRef> oldRefs = new List<IFileRef>(_references);
+            oldRefs.ForEach(x => x.UnloadReference());
             OnUnload();
         }
         protected virtual void OnUnload() { }

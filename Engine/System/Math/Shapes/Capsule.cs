@@ -5,35 +5,19 @@ using System.Collections.Generic;
 
 namespace System
 {
-    public class Capsule : IShape
+    public class Capsule : Shape
     {
         public float _radius, _halfHeight;
+        public Vec3 _position;
         
         public float Radius { get { return _radius; } set { _radius = value; } }
         public float HalfHeight { get { return _halfHeight; } set { _halfHeight = value; } }
-
+        public Vec3 Position { get { return _position; } set { _position = value; } }
+        
         public Capsule(float radius, float halfHeight)
         {
             _radius = Abs(radius);
             _halfHeight = Abs(halfHeight);
-        }
-        public bool ContainsPoint(Vec3 point)
-        {
-            float totalHalfHeight = GetTotalHalfHeight();
-            if (point.Z < totalHalfHeight && point.Z > -totalHalfHeight)
-            {
-                //Adjust Z to origin
-                if (point.Z > _halfHeight)
-                    point.Z -= _halfHeight;
-                else if (point.Z < -_halfHeight)
-                    point.Z += _halfHeight;
-                return Abs(point.LengthSquared) < _radius * _radius;
-            }
-            return false;
-        }
-        public ContainsShape ContainsBox(Box box)
-        {
-            return ContainsShape.No;
         }
         public float GetTotalHalfHeight()
         {
@@ -51,7 +35,7 @@ namespace System
             else
                 Engine.Renderer.DrawCapsuleWireframe(this);
         }
-        List<PrimitiveData> GetPrimitives()
+        public override List<PrimitiveData> GetPrimitives()
         {
             PrimitiveData data = new PrimitiveData();
 
@@ -139,10 +123,19 @@ namespace System
             //}
             return new List<PrimitiveData>() { data };
         }
-
-        List<PrimitiveData> IPrimitive.GetPrimitives()
+        public override bool Contains(Vec3 point)
         {
-            throw new NotImplementedException();
+            float totalHalfHeight = GetTotalHalfHeight();
+            if (point.Z < totalHalfHeight && point.Z > -totalHalfHeight)
+            {
+                //Adjust Z to origin
+                if (point.Z > _halfHeight)
+                    point.Z -= _halfHeight;
+                else if (point.Z < -_halfHeight)
+                    point.Z += _halfHeight;
+                return Abs(point.LengthSquared) < _radius * _radius;
+            }
+            return false;
         }
     }
 }

@@ -103,6 +103,7 @@
     <Compile Include="Audio\StaticSoundEffect.cs" />
     <Compile Include="Audio\WaveFile.cs" />
     <Compile Include="Cutscenes\Cutscene.cs" />
+    <Compile Include="Engine\EngineMethods.cs" />
     <Compile Include="Rendering\HUD\RenderableHudComponent.cs" />
     <Compile Include="Rendering\HUD\TextHudComponent.cs" />
     <Compile Include="Rendering\HUD\TextureHudComponent.cs" />
@@ -497,6 +498,7 @@
     <Compile Include="Rendering\Models\Meshes\Faces\Index\IndexLine.cs" />
     <Compile Include="Rendering\Models\Meshes\Faces\Index\IndexTriangleFan.cs" />
     <Compile Include="Rendering\Models\Meshes\Faces\Index\IndexTriangleStrip.cs" />
+    <Compile Include="Rendering\Renderer\SceneProcessor.cs" />
     <Compile Include="Rendering\Renderer\States\BaseRenderState.cs" />
     <Compile Include="Rendering\Renderer\States\FrameBuffer.cs" />
     <Compile Include="Rendering\Renderer\States\PrimitiveManager.cs" />
@@ -515,10 +517,13 @@
     <Compile Include="Rendering\Fonts\TTF.cs" />
     <Compile Include="System\Files\FileRef.cs" />
     <Compile Include="System\Files\StringTable.cs" />
+    <Compile Include="System\Math\Collision\Collision.cs" />
     <Compile Include="System\Math\Collision\Tracing.cs" />
     <Compile Include="System\Math\Enums.cs" />
+    <Compile Include="System\Math\Shapes\Frustrum.cs" />
     <Compile Include="System\Math\Shapes\Plane.cs" />
     <Compile Include="System\Math\Shapes\Ray.cs" />
+    <Compile Include="System\Math\Shapes\Shape.cs" />
     <Compile Include="System\Math\Shapes\Sphere.cs" />
     <Compile Include="System\Math\Transforms\Matrix.cs" />
     <Compile Include="System\Math\Transforms\Quaternion.cs" />
@@ -531,6 +536,7 @@
     <Compile Include="System\Memory\Bin24.cs" />
     <Compile Include="System\Memory\Bin32.cs" />
     <Compile Include="System\MonitoredList.cs" />
+    <Compile Include="System\Octree.cs" />
     <Compile Include="System\Platform\Linux.cs" />
     <Compile Include="System\Platform\OSX.cs" />
     <Compile Include="System\Platform\Win32.cs" />
@@ -561,7 +567,7 @@
     <Compile Include="Worlds\Actors\Components\Scene\LoadingZoneComponent.cs" />
     <Compile Include="Worlds\Actors\Components\Scene\PrimitiveComponent.cs" />
     <Compile Include="Worlds\Actors\Components\Scene\ShapeComponent.cs" />
-    <Compile Include="Engine\Engine.cs" />
+    <Compile Include="Engine\EngineProperties.cs" />
     <Compile Include="GameModes\GameMode.cs" />
     <Compile Include="Rendering\Animation\AnimationContainer.cs" />
     <Compile Include="Rendering\Animation\KeyframeTrack.cs" />

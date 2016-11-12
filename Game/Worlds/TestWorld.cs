@@ -28,7 +28,7 @@ namespace Game.Worlds
 
             Skeleton skel = new Skeleton();
             skel.RootBone = new Bone("Root", FrameState.Identity);
-            boxModel.AddMesh(mesh);
+            boxModel.Meshes.Add(mesh);
             boxModel.Skeleton = skel;
             
             ModelComponent modelComp = new ModelComponent(boxModel);
@@ -42,7 +42,7 @@ namespace Game.Worlds
             start.MakeOutLinear();
             end.MakeInLinear();
 
-            modelComp.AddAnimation(new AnimationContainer("Transform.EulerRotationZ", propertyAnim));
+            modelComp.AddAnimation(new AnimationContainer("Transform.Anim_SetRotationZ", true, propertyAnim));
         }
     }
 }

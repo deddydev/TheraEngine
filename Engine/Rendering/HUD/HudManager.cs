@@ -1,5 +1,6 @@
 ﻿using CustomEngine.Rendering.Cameras;
 using System.Drawing;
+using System;
 
 namespace CustomEngine.Rendering.HUD
 {
@@ -26,6 +27,10 @@ namespace CustomEngine.Rendering.HUD
         public void DebugPrint(string message)
         {
             
+        }
+        public void Render()
+        {
+
         }
     }
 }

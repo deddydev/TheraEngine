@@ -2,6 +2,15 @@
 {
     public static class SingleExtension
     {
+        public const Single ZeroTolerance = 1e-6f;
+        public static bool IsZero(this Single value)
+        {
+            return Math.Abs(value) < ZeroTolerance;
+        }
+        public static bool EqualTo(this Single value, Single other)
+        {
+            return Math.Abs(other - value) < ZeroTolerance;
+        }
         public static unsafe Single Reverse(this Single value)
         {
             *(uint*)(&value) = ((uint*)&value)->Reverse();

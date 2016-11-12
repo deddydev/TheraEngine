@@ -29,6 +29,9 @@ namespace System
         public Vec3(float x, float y, float z) { X = x; Y = y; Z = z; }
         public Vec3(float value) : this(value, value, value) { }
         public Vec3(Vec2 v) : this(v.X, v.Y, 0.0f) { }
+
+        public static float Dot(Vec3 ab, Vec3 ap) { return ab.Dot(ap); }
+
         public Vec3(Vec4 v) : this(v.X, v.Y, v.Z) { }
 
         public float this[int index]
@@ -92,12 +95,17 @@ namespace System
                 Z = other.Z;
             }
         }
-
         public static readonly Vec3 UnitX = new Vec3(1.0f, 0.0f, 0.0f);
         public static readonly Vec3 UnitY = new Vec3(0.0f, 1.0f, 0.0f);
         public static readonly Vec3 UnitZ = new Vec3(0.0f, 0.0f, 1.0f);
-        public static readonly Vec3 Zero = new Vec3(0.0f, 0.0f, 0.0f);
-        public static readonly Vec3 One = new Vec3(1.0f, 1.0f, 1.0f);
+        public static readonly Vec3 Zero = new Vec3(0.0f);
+        public static readonly Vec3 One = new Vec3(1.0f);
+        public static readonly Vec3 Right = UnitX;
+        public static readonly Vec3 Forward = UnitY;
+        public static readonly Vec3 Up = UnitZ;
+        public static readonly Vec3 Left = -Right;
+        public static readonly Vec3 Backward = -Forward;
+        public static readonly Vec3 Down = -Up;
         public static readonly int SizeInBytes = Marshal.SizeOf(new Vec3());
         
         public static Vec3 ComponentMin(Vec3 a, Vec3 b)
@@ -122,17 +130,40 @@ namespace System
         {
             return left.LengthSquared >= right.LengthSquared ? left : right;
         }
+        public static Vec3 Clamp(Vec3 value, Vec3 min, Vec3 max)
+        {
+            Vec3 v = new Vec3();
+            v.X = value.X < min.X ? min.X : value.X > max.X ? max.X : value.X;
+            v.Y = value.Y < min.Y ? min.Y : value.Y > max.Y ? max.Y : value.Y;
+            v.Z = value.Z < min.Z ? min.Z : value.Z > max.Z ? max.Z : value.Z;
+            return v;
+        }
         public void Clamp(Vec3 min, Vec3 max)
         {
             X = X < min.X ? min.X : X > max.X ? max.X : X;
             Y = Y < min.Y ? min.Y : Y > max.Y ? max.Y : Y;
             Z = Z < min.Z ? min.Z : Z > max.Z ? max.Z : Z;
         }
-
+        public Vec3 Clamped(Vec3 min, Vec3 max)
+        {
+            Vec3 v = new Vec3();
+            v.X = X < min.X ? min.X : X > max.X ? max.X : X;
+            v.Y = Y < min.Y ? min.Y : Y > max.Y ? max.Y : Y;
+            v.Z = Z < min.Z ? min.Z : Z > max.Z ? max.Z : Z;
+            return v;
+        }
         public float Dot(Vec3 right)
         {
             return X * right.X + Y * right.Y + Z * right.Z;
         }
+        /// <summary>
+        ///        
+        ///        |   
+        /// normal |  /
+        /// l x r, | / right
+        /// -r x l |/_______ 
+        ///            left
+        /// </summary>
         public Vec3 Cross(Vec3 right)
         {
             return new Vec3(
@@ -140,6 +171,8 @@ namespace System
                 Z * right.X - X * right.Z,
                 X * right.Y - Y * right.X);
         }
+        public static Vec3 Cross(Vec3 left, Vec3 right) { return left.Cross(right); }
+
         /// <summary>
         /// Returns a new Vector that is the linear blend of the 2 given Vectors
         /// </summary>
@@ -271,6 +304,19 @@ namespace System
         {
             Vec4 v = mat * new Vec4(vec, 1.0f);
             return v.Xyz / v.W;
+        }
+
+        public float DistanceTo(Vec3 point)
+        {
+            return (point - this).Length;
+        }
+        public float DistanceToFast(Vec3 point)
+        {
+            return (point - this).LengthFast;
+        }
+        public float DistanceToSquared(Vec3 point)
+        {
+            return (point - this).LengthSquared;
         }
 
         /// <summary>

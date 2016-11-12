@@ -12,6 +12,7 @@ using System.Drawing;
 using CustomEngine.Input;
 using System.Linq;
 using CustomEngine.Input.Devices;
+using System.Collections;
 
 namespace CustomEngine
 {
@@ -28,7 +29,7 @@ namespace CustomEngine
     /// <summary>
     /// Used for rendering using OpenGL or DirectX.
     /// </summary>
-    public partial class RenderPanel : Control
+    public partial class RenderPanel : Control, IEnumerable<Viewport>
     {
         public RenderPanel()
         {
@@ -114,7 +115,9 @@ namespace CustomEngine
         protected virtual void OnRender(PaintEventArgs e)
         {
             _context.BeginDraw();
-            Engine.Renderer.RenderCurrentPanel();
+            foreach (Viewport v in _viewports)
+                v.Render(Engine.Renderer.Scene);
+            _globalHud.Render();
             _context.EndDraw();
         }
         protected override void OnResize(EventArgs e)
@@ -190,6 +193,16 @@ namespace CustomEngine
                 for (int i = 0; i < _viewports.Count; ++i)
                     _viewports[i].ViewportCountChanged(i, _viewports.Count, Engine.TwoPlayerPref, Engine.ThreePlayerPref);
             }
+        }
+
+        public IEnumerator<Viewport> GetEnumerator()
+        {
+            return ((IEnumerable<Viewport>)_viewports).GetEnumerator();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return ((IEnumerable<Viewport>)_viewports).GetEnumerator();
         }
     }
 }

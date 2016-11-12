@@ -4,6 +4,9 @@
     {
         /*      
          * Represents a plane a certain distance from the origin.
+         * Ax + By + Cz + D = 0
+         * D is distance from the origin
+         * 
          *      ________
          *     /       /
          *    /   \   /
@@ -11,7 +14,7 @@
          *          \
          *          origin
          */
-        
+
         private Vec3 _normal;
         private float _distance;
 
@@ -43,21 +46,26 @@
         }
         /// <summary>
         /// Constructs a plane given three points.
+        /// Points must be specified in this order 
+        /// to ensure the normal points in the right direction.
+        ///   ^
+        ///   |   p2
+        /// n |  /
+        ///   | / u
+        ///   |/_______ p1
+        ///  p0    v
         /// </summary>
-        public Plane(Vec3 point1, Vec3 point2, Vec3 point3)
+        public Plane(Vec3 point0, Vec3 point1, Vec3 point2)
         {
-            float x1 = point2.X - point1.X;
-            float y1 = point2.Y - point1.Y;
-            float z1 = point2.Z - point1.Z;
-            float x2 = point3.X - point1.X;
-            float y2 = point3.Y - point1.Y;
-            float z2 = point3.Z - point1.Z;
-            float yz = (y1 * z2) - (z1 * y2);
-            float xz = (z1 * x2) - (x1 * z2);
-            float xy = (x1 * y2) - (y1 * x2);
-            float invPyth = 1.0f / (float)Math.Sqrt(yz * yz + xz * xz + xy * xy);
-            Normal = new Vec3(yz * invPyth, xz * invPyth, xy * invPyth);
-            _distance = -((Normal.X * point1.X) + (Normal.Y * point1.Y) + (Normal.Z * point1.Z));
+            Vec3 v = point1 - point0;
+            Vec3 u = point2 - point0;
+            _normal = v.Cross(u).NormalizedFast();
+            _distance = -point0.Dot(_normal);
+        }
+        public float Distance
+        {
+            get { return _distance; }
+            set { _distance = value; }
         }
         public Vec3 Point
         {
@@ -75,7 +83,7 @@
             _normal *= magnitude;
             _distance *= magnitude;
         }
-        public PlaneIntersection IntersectsBox(Box box)
+        public EPlaneIntersection IntersectsBox(Box box)
         {
             Vec3 min;
             Vec3 max;
@@ -88,24 +96,24 @@
             min.Z = (Normal.Z >= 0.0f) ? box.Maximum.Z : box.Minimum.Z;
 
             if (Normal.Dot(max) + _distance > 0.0f)
-                return PlaneIntersection.Front;
+                return EPlaneIntersection.Front;
 
             if (Normal.Dot(min) + _distance < 0.0f)
-                return PlaneIntersection.Back;
+                return EPlaneIntersection.Back;
 
-            return PlaneIntersection.Intersecting;
+            return EPlaneIntersection.Intersecting;
         }
-        public PlaneIntersection IntersectsSphere(float radius, Vec3 center)
+        public EPlaneIntersection IntersectsSphere(float radius, Vec3 center)
         {
             float dot = center.Dot(Normal) + _distance;
 
             if (dot > radius)
-                return PlaneIntersection.Front;
+                return EPlaneIntersection.Front;
 
             if (dot < -radius)
-                return PlaneIntersection.Back;
+                return EPlaneIntersection.Back;
 
-            return PlaneIntersection.Intersecting;
+            return EPlaneIntersection.Intersecting;
         }
     }
 }

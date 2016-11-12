@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections;
 using System.ComponentModel;
+using CustomEngine.Rendering;
 
 namespace CustomEngine.Worlds.Actors.Components
 {
@@ -14,28 +15,6 @@ namespace CustomEngine.Worlds.Actors.Components
             _localTransform.MatrixChanged += _localTransform_MatrixChanged;
         }
 
-        private void _localTransform_MatrixChanged(Matrix4 oldMatrix, Matrix4 oldInvMatrix)
-        {
-            RecalcGlobalTransform();
-        }
-        private void RecalcGlobalTransform()
-        {
-            Matrix4 parentTransform = _parent == null ? Matrix4.Identity : _parent._worldTransform;
-            Matrix4 parentInvTransform = _parent == null ? Matrix4.Identity : _parent._worldTransform;
-            _worldTransform = _localTransform.Matrix * parentTransform;
-            _invWorldTransform = _localTransform.InverseMatrix * parentInvTransform;
-            foreach (SceneComponent c in _children)
-                c.RecalcGlobalTransform();
-        }
-
-        /// <summary>
-        /// Gets the transformation of this component in relation to the actor's root component.
-        /// </summary>
-        public Matrix4 GetActorTransform() { return Owner.Transform.InverseMatrix * _worldTransform; }
-        /// <summary>
-        /// Gets the inverse transformation of this component in relation to the actor's root component.
-        /// </summary>
-        public Matrix4 GetInvActorTransform() { return Owner.Transform.Matrix * _invWorldTransform; }
         private Matrix4 _invWorldTransform = Matrix4.Identity;
         private Matrix4 _worldTransform = Matrix4.Identity;
         private FrameState _localTransform = FrameState.Identity;
@@ -45,6 +24,15 @@ namespace CustomEngine.Worlds.Actors.Components
         protected bool _hiddenInGame = false;
         protected bool _overrideParentRenderState = false;
         protected bool _isRendering = false;
+
+        /// <summary>
+        /// Gets the transformation of this component in relation to the actor's root component.
+        /// </summary>
+        public Matrix4 GetActorTransform() { return Owner.Transform.InverseMatrix * _worldTransform; }
+        /// <summary>
+        /// Gets the inverse transformation of this component in relation to the actor's root component.
+        /// </summary>
+        public Matrix4 GetInvActorTransform() { return Owner.Transform.Matrix * _invWorldTransform; }
 
         [Category("Rendering"), State]
         public bool IsRendering { get { return _isRendering; } }
@@ -76,7 +64,6 @@ namespace CustomEngine.Worlds.Actors.Components
             get { return _localTransform.TransformOrder; }
             set { _localTransform.TransformOrder = value; }
         }
-
         public virtual void OnSpawned()
         {
             _visible = true;
@@ -84,6 +71,19 @@ namespace CustomEngine.Worlds.Actors.Components
         public virtual void OnDespawned()
         {
             _visible = false;
+        }
+        private void _localTransform_MatrixChanged(Matrix4 oldMatrix, Matrix4 oldInvMatrix)
+        {
+            RecalcGlobalTransform();
+        }
+        private void RecalcGlobalTransform()
+        {
+            Matrix4 parentTransform = _parent == null ? Matrix4.Identity : _parent._worldTransform;
+            Matrix4 parentInvTransform = _parent == null ? Matrix4.Identity : _parent._worldTransform;
+            _worldTransform = _localTransform.Matrix * parentTransform;
+            _invWorldTransform = _localTransform.InverseMatrix * parentInvTransform;
+            foreach (SceneComponent c in _children)
+                c.RecalcGlobalTransform();
         }
         protected void OnChildAdded(SceneComponent s)
         {

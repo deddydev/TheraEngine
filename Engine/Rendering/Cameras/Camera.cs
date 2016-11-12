@@ -219,7 +219,8 @@ namespace CustomEngine.Rendering.Cameras
             ray.LinePlaneIntersect(center, (transform * Vec3.UnitY).Normalized(center), out xz);
             ray.LinePlaneIntersect(center, (transform * Vec3.UnitZ).Normalized(center), out xy);
         }
-        public void SetCurrent() { Engine.Renderer.CurrentCamera = this; }
         public void SaveCurrentTransform() { _defaultTransform = _currentTransform; }
+
+        public abstract Frustrum GetFrustrum();
     }
 }

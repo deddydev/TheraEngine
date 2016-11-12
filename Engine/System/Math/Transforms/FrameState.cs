@@ -43,6 +43,10 @@ namespace System
         public event ScaleChange OnScaleChanged;
         public event MatrixChange MatrixChanged;
 
+        public Vec3 GetForwardVector() { return _rotation * Vec3.Forward; }
+        public Vec3 GetUpVector() { return _rotation * Vec3.Up; }
+        public Vec3 GetRightVector() { return _rotation * Vec3.Right; }
+        
         public Matrix4 Matrix { get { return _transform; } }
         public Matrix4 InverseMatrix { get { return _inverseTransform; } }
         
@@ -148,5 +152,30 @@ namespace System
         }
         public void MultMatrix() { Engine.Renderer.MultMatrix(_transform); }
         public void MultInvMatrix() { Engine.Renderer.MultMatrix(_inverseTransform); }
+
+        public void Anim_SetRotationZ(float degreeAngle)
+        {
+            _rotation = Quaternion.FromAxisAngle(Vec3.UnitZ, degreeAngle);
+        }
+        public void Anim_SetRotationY(float degreeAngle)
+        {
+            _rotation = Quaternion.FromAxisAngle(Vec3.UnitY, degreeAngle);
+        }
+        public void Anim_SetRotationX(float degreeAngle)
+        {
+            _rotation = Quaternion.FromAxisAngle(Vec3.UnitX, degreeAngle);
+        }
+        public void Anim_AddRotationZ(float degreeAngle)
+        {
+            _rotation *= Quaternion.FromAxisAngle(Vec3.UnitZ, degreeAngle);
+        }
+        public void Anim_AddRotationY(float degreeAngle)
+        {
+            _rotation *= Quaternion.FromAxisAngle(Vec3.UnitY, degreeAngle);
+        }
+        public void Anim_AddRotationX(float degreeAngle)
+        {
+            _rotation *= Quaternion.FromAxisAngle(Vec3.UnitX, degreeAngle);
+        }
     }
 }

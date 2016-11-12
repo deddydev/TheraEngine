@@ -15,14 +15,18 @@ namespace CustomEngine.Rendering
         private HudManager _hud;
         private int _index;
         private Rectangle _region;
-        private Camera _worldCamera;
+        private Camera _worldCamera = new PerspectiveCamera();
 
         private float _leftPercentage = 0.0f;
         private float _rightPercentage = 1.0f;
         private float _bottomPercentage = 0.0f;
         private float _topPercentage = 1.0f;
 
-        public Camera Camera { get { return _worldCamera; } set { _worldCamera = value; } }
+        public Camera Camera
+        {
+            get { return _worldCamera; }
+            set { _worldCamera = value; }
+        }
         public HudManager HUD { get { return _hud; } }
         public LocalPlayerController OwningPlayer { get { return _owner; } }
         public Rectangle Region { get { return _region; } }
@@ -35,7 +39,6 @@ namespace CustomEngine.Rendering
         public Viewport(LocalPlayerController owner, int index)
         {
             _hud = new HudManager(this);
-            _worldCamera = new PerspectiveCamera();
             _index = index;
             _owner = owner;
             _owner.Viewport = this;
@@ -125,6 +128,21 @@ namespace CustomEngine.Rendering
             _leftPercentage = _bottomPercentage = 0.0f;
             _rightPercentage = _topPercentage = 1.0f;
         }
+
+        public void Render(SceneProcessor scene)
+        {
+            if (_worldCamera == null)
+                return;
+
+            _currentlyRendering = this;
+            Engine.Renderer.PushRenderArea(Region);
+            Engine.Renderer.CropRenderArea(Region);
+            scene.Render(_worldCamera);
+            _hud.Render();
+            Engine.Renderer.PopRenderArea();
+            _currentlyRendering = null;
+        }
+
         public enum TwoPlayerViewportPreference
         {
             SplitHorizontally,

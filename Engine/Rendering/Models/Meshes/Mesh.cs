@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using BulletSharp;
 using CustomEngine.Rendering.Models.Materials;
+using CustomEngine.Files;
 
 namespace CustomEngine.Rendering.Models
 {
@@ -26,8 +27,39 @@ namespace CustomEngine.Rendering.Models
         private Model _owner;
         private CollisionShape _collision;
         internal PrimitiveManager _manager = new PrimitiveManager();
-        private Material _material;
+        private FileRef<Material> _material;
+        protected uint? _renderKey = null;
+        protected bool _rendering = false, _visible = false, _visibleByDefault = true;
 
+        /// <summary>
+        /// True if this mesh is literally visible on screen at this moment in any viewport.
+        /// AKA: short-term visibility
+        /// </summary>
+        public bool IsRendering
+        {
+            get { return _rendering; }
+            set { _rendering = value; }
+        }
+        /// <summary>
+        /// Visible means this mesh will never be rendered, or will be rendered if placed onscreen.
+        /// AKA: long-term visibility
+        /// </summary>
+        public bool Visible
+        {
+            get { return _visible; }
+            set
+            {
+                if (_visible == value)
+                    return;
+
+                if (value)
+                    Engine.Renderer.Scene.AddRenderable(this);
+                else
+                    Engine.Renderer.Scene.RemoveRenderable(this);
+
+                _visible = value;
+            }
+        }
         public CollisionShape CollisionShape
         {
             get { return _collision; }
@@ -44,14 +76,38 @@ namespace CustomEngine.Rendering.Models
             set { _material = value; }
         }
 
-        public void SetPrimitiveData(PrimitiveData data)
+        public RenderKey RenderKey
         {
-            _manager.SetPrimitiveData(data);
+            get { return _renderKey; }
+            set { _renderKey = value; }
         }
 
+        public Box CullingVolume
+        {
+            get
+            {
+                return new Box(0.0f, 0.0f, 0.0f);
+            }
+        }
+
+        public void SetPrimitiveData(PrimitiveData data) => _manager.SetPrimitiveData(data);
+
+        public void OnSpawned()
+        {
+            _material.LoadFile();
+            Visible = _visibleByDefault;
+        }
+        public void OnDespawned()
+        {
+            _material.UnloadReference();
+            Visible = false;
+        }
         public void Render()
         {
-            if (_material != null)
+            if (!_visible || !_rendering)
+                return;
+
+            if (_material.File != null)
                 _manager.Render(_material);
         }
 

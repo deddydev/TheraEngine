@@ -9,7 +9,12 @@ using CustomEngine.Rendering;
 
 namespace CustomEngine
 {
-    public interface IRenderable
+    public interface IBounded
+    {
+        Box CullingVolume { get; }
+        bool IsRendering { get; set; }
+    }
+    public interface IRenderable : IBounded
     {
         void Render();
     }
@@ -25,12 +30,9 @@ namespace CustomEngine
     public interface IPrimitive
     {
         List<PrimitiveData> GetPrimitives();
+        void OnSpawned();
+        void OnDespawned();
     }
-    public interface IShape : IPrimitive
-    {
-        bool ContainsPoint(Vec3 point);
-    }
-
     public interface IBufferable
     {
         VertexBuffer.ComponentType ComponentType { get; }

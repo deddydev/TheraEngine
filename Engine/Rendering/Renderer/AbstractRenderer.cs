@@ -12,15 +12,13 @@ namespace CustomEngine.Rendering
     /// </summary>
     public abstract class AbstractRenderer
     {
-        private bool _commandsInvalidated;
-        private Dictionary<ulong, Action> _commands = new Dictionary<ulong, Action>();
-        private List<ulong> _sortedCommands = new List<ulong>();
+        private SceneProcessor _scene = new SceneProcessor();
+        public SceneProcessor Scene { get { return _scene; } }
 
         public abstract RenderLibrary RenderLibrary { get; }
         public RenderContext CurrentContext { get { return RenderContext.Current; } }
 
         public Viewport CurrentlyRenderingViewport { get { return Viewport.CurrentlyRendering; } }
-        public Camera CurrentCamera { get { return _currentCamera; } internal set { _currentCamera = value; } }
 
         protected Camera _currentCamera;
         protected int _programHandle;
@@ -211,20 +209,6 @@ namespace CustomEngine.Rendering
         public abstract void Uniform(string name, params float[] p);
 
         #endregion
-
-        public void RenderCurrentPanel()
-        {
-            if (_commandsInvalidated)
-                RenderKey.RadixSort(ref _sortedCommands);
-            foreach (ulong key in _sortedCommands)
-                _commands[key]();
-        }
-        public void QueueCommand(RenderKey key, Action method)
-        {
-            _commandsInvalidated = true;
-            _sortedCommands.Add(key);
-            _commands.Add(key, method);
-        }
 
         public abstract void Clear(BufferClear mask);
         public abstract float GetDepth(float x, float y);

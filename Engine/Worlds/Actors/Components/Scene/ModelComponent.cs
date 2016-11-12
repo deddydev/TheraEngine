@@ -2,6 +2,7 @@
 using System;
 using System.Reflection;
 using CustomEngine.Rendering.Animation;
+using CustomEngine.Rendering;
 
 namespace CustomEngine.Worlds.Actors.Components
 {

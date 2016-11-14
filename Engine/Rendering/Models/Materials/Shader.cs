@@ -63,9 +63,9 @@ namespace CustomEngine.Rendering.Models.Materials
         {
             string source = @"
 
-in vec4 Position;
-in vec3 Normal;
-in vec2 TexCoord;
+layout (location = 0) in vec4 Position;
+layout (location = 1) in vec3 Normal;
+layout (location = 2) in vec2 TexCoord0;
 uniform mat4 ModelMatrix;
 uniform mat4 ViewMatrix;
 uniform mat4 ProjMatrix;
@@ -82,11 +82,10 @@ void main()
         {
             string source = @"
 
-out vec4 diffuseColor;
-
+out vec4 OutColor;
 void main()
 {
-    diffuseColor = vec4(1.0, 0.0, 0.0, 1.0);
+    OutColor = vec4(0.0, 1.0, 0.0, 1.0);
 }
 ";
             return new Shader(ShaderMode.Fragment, source);

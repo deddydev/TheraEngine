@@ -1,6 +1,7 @@
 ﻿using CustomEngine.Input.Devices;
 using CustomEngine.Worlds.Actors;
 using System;
+using System.Collections.Generic;
 
 namespace CustomEngine.Input
 {
@@ -8,6 +9,18 @@ namespace CustomEngine.Input
     //Input can come from a player's gamepad or an AI (these are subclasses to controller).
     public abstract class PawnController : ObjectBase
     {
+        public PawnController()
+        {
+            _possessionQueue = new Queue<Pawn>();
+        }
+        public PawnController(Queue<Pawn> possessionQueue)
+        {
+            _possessionQueue = possessionQueue;
+            if (_possessionQueue.Count != 0)
+                ControlledPawn = _possessionQueue.Dequeue();
+        }
+
+        protected Queue<Pawn> _possessionQueue;
         private Pawn _controlledPawn;
         public Pawn ControlledPawn
         {
@@ -16,8 +29,19 @@ namespace CustomEngine.Input
             {
                 _controlledPawn?.OnUnPossessed();
                 _controlledPawn = value;
+
+                if (_controlledPawn == null && _possessionQueue.Count != 0)
+                    _controlledPawn = _possessionQueue.Dequeue();
+                
                 _controlledPawn?.OnPossessed(this);
             }
+        }
+        public void EnqueuePosession(Pawn pawn)
+        {
+            if (ControlledPawn == null)
+                ControlledPawn = pawn;
+            else
+                _possessionQueue.Enqueue(pawn);
         }
     }
 }

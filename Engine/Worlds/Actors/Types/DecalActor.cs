@@ -13,9 +13,9 @@ namespace CustomEngine.Rendering.Textures
             set { _decalComponent = value; }
         }
 
-        protected override void SetupComponents()
+        protected override SceneComponent SetupComponents()
         {
-            RootComponent = _decalComponent = new DecalComponent();
+            return _decalComponent = new DecalComponent();
         }
     }
 }

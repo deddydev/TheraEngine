@@ -12,6 +12,7 @@ using CustomEngine.Input.Devices.DirectX;
 using CustomEngine.Rendering.Models.Materials;
 using System.Threading.Tasks;
 using CustomEngine.Files;
+using CustomEngine.Worlds.Actors;
 
 namespace CustomEngine
 {
@@ -25,10 +26,10 @@ namespace CustomEngine
 
         private static World _transitionWorld = null;
         private static World _currentWorld = null;
-        public static FileRef<EngineSettings> _engineSettings = new FileRef<EngineSettings>(EngineSettingsPathRel);
-        public static FileRef<UserSettings> _userSettings = new FileRef<UserSettings>(UserSettingsPathRel);
+        public static SingleFileRef<EngineSettings> _engineSettings = new SingleFileRef<EngineSettings>(EngineSettingsPathRel);
+        public static SingleFileRef<UserSettings> _userSettings = new SingleFileRef<UserSettings>(UserSettingsPathRel);
 
-        public static Dictionary<string, FileObject> LoadedFiles = new Dictionary<string, FileObject>();
+        public static Dictionary<string, List<FileObject>> LoadedFiles = new Dictionary<string, List<FileObject>>();
 
         public static int PhysicsSubsteps = 10;
         private static ComputerInfo _computerInfo;
@@ -43,6 +44,7 @@ namespace CustomEngine
         private static InputLibrary _inputLibrary;
         private static List<float> _debugTimers = new List<float>();
         private static InputAwaiter _inputAwaiter;
+        public static Dictionary<PlayerIndex, Queue<Pawn>> _possessionQueue = new Dictionary<PlayerIndex, Queue<Pawn>>();
 
         public static Viewport.TwoPlayerViewportPreference TwoPlayerPref = 
             Viewport.TwoPlayerViewportPreference.SplitHorizontally;

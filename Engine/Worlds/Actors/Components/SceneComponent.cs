@@ -13,6 +13,12 @@ namespace CustomEngine.Worlds.Actors.Components
         {
             _localTransform = FrameState.GetIdentity(order);
             _localTransform.MatrixChanged += _localTransform_MatrixChanged;
+            _children.Added += _children_Added;
+            _children.AddedRange += _children_AddedRange;
+            _children.Inserted += _children_Inserted;
+            _children.InsertedRange += _children_InsertedRange;
+            _children.Removed += _children_Removed;
+            _children.RemovedRange += _children_RemovedRange;
         }
 
         private Matrix4 _invWorldTransform = Matrix4.Identity;
@@ -21,8 +27,6 @@ namespace CustomEngine.Worlds.Actors.Components
         protected SceneComponent _parent;
         protected MonitoredList<SceneComponent> _children = new MonitoredList<SceneComponent>();
         protected bool _visible;
-        protected bool _hiddenInGame = false;
-        protected bool _overrideParentRenderState = false;
         protected bool _isRendering = false;
 
         /// <summary>
@@ -39,17 +43,28 @@ namespace CustomEngine.Worlds.Actors.Components
         [Category("Rendering"), State]
         public bool IsSpawned { get { return Owner.IsSpawned; } }
 
-        [Category("Rendering"), Default, EditorOnly]
-        public bool HiddenInGame
-        {
-            get { return _hiddenInGame; }
-            set { _hiddenInGame = value; }
-        }
-
         [Category("Rendering"), Default, State, Animatable]
-        public bool Visible
+        public SceneComponent Parent
         {
-            get { return _hiddenInGame ? false : _visible; }
+            get { return _parent; }
+            set
+            {
+                if (_parent != null)
+                    _parent._children.Remove(this);
+                if (value != null)
+                    value._children.Add(this);
+                else
+                {
+                    _parent = null;
+                    Owner?.GenerateSceneComponentCache();
+                    Owner = null;
+                }
+            }
+        }
+        [Category("Rendering"), Default, State, Animatable]
+        public virtual bool Visible
+        {
+            get {  return _visible; }
             set { _visible = value; }
         }
         [Category("Rendering"), Default, State, Animatable]
@@ -66,17 +81,21 @@ namespace CustomEngine.Worlds.Actors.Components
         }
         public virtual void OnSpawned()
         {
-            _visible = true;
+            Visible = true;
+            foreach (SceneComponent c in _children)
+                c.OnSpawned();
         }
         public virtual void OnDespawned()
         {
-            _visible = false;
+            Visible = false;
+            foreach (SceneComponent c in _children)
+                c.OnDespawned();
         }
         private void _localTransform_MatrixChanged(Matrix4 oldMatrix, Matrix4 oldInvMatrix)
         {
             RecalcGlobalTransform();
         }
-        private void RecalcGlobalTransform()
+        public void RecalcGlobalTransform()
         {
             Matrix4 parentTransform = _parent == null ? Matrix4.Identity : _parent._worldTransform;
             Matrix4 parentInvTransform = _parent == null ? Matrix4.Identity : _parent._worldTransform;
@@ -85,26 +104,60 @@ namespace CustomEngine.Worlds.Actors.Components
             foreach (SceneComponent c in _children)
                 c.RecalcGlobalTransform();
         }
-        protected void OnChildAdded(SceneComponent s)
+        public override Actor Owner
         {
-            s.Owner = Owner;
-            Owner.GenerateSceneComponentCache();
+            get { return base.Owner; }
+            set
+            {
+                base.Owner = value;
+                foreach (SceneComponent c in _children)
+                    c.Owner = value;
+            }
         }
-
         public List<SceneComponent> GenerateChildCache()
         {
             List<SceneComponent> cache = new List<SceneComponent>();
-            cache.Add(this);
-            foreach (SceneComponent c in _children)
-                c.GenerateChildCache(cache);
+            GenerateChildCache(cache);
             return cache;
-                
         }
-        private void GenerateChildCache(List<SceneComponent> cache)
+        protected virtual void GenerateChildCache(List<SceneComponent> cache)
         {
             cache.Add(this);
             foreach (SceneComponent c in _children)
                 c.GenerateChildCache(cache);
+        }
+        private void _children_RemovedRange(IEnumerable<SceneComponent> items)
+        {
+            foreach (SceneComponent item in items)
+            {
+                item._parent = null;
+                item.Owner = null;
+            }
+            Owner?.GenerateSceneComponentCache();
+        }
+        private void _children_Removed(SceneComponent item)
+        {
+            item._parent = null;
+            item.Owner = null;
+            Owner?.GenerateSceneComponentCache();
+        }
+        private void _children_InsertedRange(IEnumerable<SceneComponent> items, int index) => _children_AddedRange(items);
+        private void _children_Inserted(SceneComponent item, int index) => _children_Added(item);
+        private void _children_AddedRange(IEnumerable<SceneComponent> items)
+        {
+            foreach (SceneComponent item in items)
+            {
+                item._parent = this;
+                item.Owner = Owner;
+            }
+            Owner?.GenerateSceneComponentCache();
+        }
+
+        private void _children_Added(SceneComponent item)
+        {
+            item._parent = this;
+            item.Owner = Owner;
+            Owner?.GenerateSceneComponentCache();
         }
     }
 }

@@ -49,7 +49,6 @@ namespace CustomEngine.Rendering.Models
         private bool _isDirty;
         private int _index;
         private BufferTarget _target;
-        private string _name;
 
         public VertexBuffer(
             int index,
@@ -108,9 +107,7 @@ namespace CustomEngine.Rendering.Models
                 return -1;
             }
         }
-
-        public string Name { get { return _name; } set { _name = value; } }
-
+        
         public bool IsPositionsBuffer() { return Name == PositionsName; }
         public bool IsNormalsBuffer() { return Name == NormalsName; }
         public bool IsTexCoordBuffer() { return Name.StartsWith(TexCoordName); }
@@ -169,6 +166,8 @@ namespace CustomEngine.Rendering.Models
                 _componentType = ComponentType.Float;
             else if (typeof(T) == typeof(double))
                 _componentType = ComponentType.Double;
+            else
+                throw new InvalidOperationException();
 
             _componentCount = 1;
             _normalize = false;
@@ -241,6 +240,7 @@ namespace CustomEngine.Rendering.Models
                 _data.Dispose();
                 _data = null;
             }
+            Destroy();
         }
         ~VertexBuffer() { Dispose(); }
         public static implicit operator VoidPtr(VertexBuffer b) { return b.Data; }

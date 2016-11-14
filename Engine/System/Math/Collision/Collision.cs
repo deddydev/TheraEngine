@@ -931,14 +931,10 @@ namespace System
             min.Y = (plane.Normal.Y >= 0.0f) ? box.Maximum.Y : box.Minimum.Y;
             min.Z = (plane.Normal.Z >= 0.0f) ? box.Maximum.Z : box.Minimum.Z;
 
-            float distance = Vec3.Dot(plane.Normal, max);
-
-            if (distance + plane.Distance > 0.0f)
+            if (Vec3.Dot(plane.Normal, max) + plane.Distance > 0.0f)
                 return EPlaneIntersection.Front;
 
-            distance = Vec3.Dot(plane.Normal, min);
-
-            if (distance + plane.Distance < 0.0f)
+            if (Vec3.Dot(plane.Normal, min) + plane.Distance < 0.0f)
                 return EPlaneIntersection.Back;
 
             return EPlaneIntersection.Intersecting;
@@ -1222,6 +1218,43 @@ namespace System
                 return EContainment.Intersects;
 
             return EContainment.Contains;
+        }
+        public static EContainment FrustrumContainsSphere(Frustrum frustrum, Sphere sphere)
+        {
+            float distance;
+            EContainment type = EContainment.Contains;
+            foreach (Plane p in frustrum)
+            {
+                distance = DistancePlanePoint(p, sphere.Center);
+                if (distance < -sphere.Radius)
+                    return EContainment.Disjoint;
+                else if (distance < sphere.Radius)
+                    type = EContainment.Intersects;
+            }
+            return type;
+        }
+        public static EContainment FrustrumContainsBox(Frustrum frustrum, Box box, Matrix4 transform)
+        {
+            EContainment result = EContainment.Contains;
+            int outCount, inCount;
+            Vec3[] corners = box.GetCorners(transform);
+            foreach (Plane p in frustrum)
+            {
+                outCount = 0;
+                inCount = 0;
+                for (int k = 0; k < 8 && (inCount == 0 || outCount == 0); k++)
+                {
+                    if (DistancePlanePoint(p, corners[k]) < 0)
+				        outCount++;
+			        else
+				        inCount++;
+                }
+                if (inCount == 0)
+			        return EContainment.Disjoint;
+		        else if (outCount != 0)
+			        result = EContainment.Intersects;
+            }
+	        return result;
         }
         public static EContainment FrustrumContainsBox(Frustrum frustrum, Box box)
         {

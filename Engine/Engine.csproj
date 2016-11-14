@@ -447,6 +447,7 @@
     <Compile Include="Rendering\Models\Collada\Schema\Types\Grendgine_Collada_SID_Name_Float.cs" />
     <Compile Include="Rendering\Models\Collada\Schema\Types\Grendgine_Collada_SID_Name_String.cs" />
     <Compile Include="Rendering\Models\Collada\Schema\Types\Grendgine_Collada_String_Array_String.cs" />
+    <Compile Include="Rendering\Models\Materials\Uniform.cs" />
     <Compile Include="Rendering\Renderer\GBuffer.cs" />
     <Compile Include="Rendering\Renderer\OpenGL\GLEnumExtension.cs" />
     <Compile Include="Rendering\Renderer\RenderEnums.cs" />
@@ -536,7 +537,7 @@
     <Compile Include="System\Memory\Bin24.cs" />
     <Compile Include="System\Memory\Bin32.cs" />
     <Compile Include="System\MonitoredList.cs" />
-    <Compile Include="System\Octree.cs" />
+    <Compile Include="Rendering\Renderer\RenderOctree.cs" />
     <Compile Include="System\Platform\Linux.cs" />
     <Compile Include="System\Platform\OSX.cs" />
     <Compile Include="System\Platform\Win32.cs" />

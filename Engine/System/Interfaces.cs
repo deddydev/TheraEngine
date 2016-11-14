@@ -11,11 +11,14 @@ namespace CustomEngine
 {
     public interface IBounded
     {
+        Matrix4 Transform { get; set; }
         Box CullingVolume { get; }
         bool IsRendering { get; set; }
     }
     public interface IRenderable : IBounded
     {
+        int InstanceCount { get; set; }
+        //Matrix4 Transform { get; set; }
         void Render();
     }
     public interface ITransformable
@@ -30,8 +33,6 @@ namespace CustomEngine
     public interface IPrimitive
     {
         List<PrimitiveData> GetPrimitives();
-        void OnSpawned();
-        void OnDespawned();
     }
     public interface IBufferable
     {

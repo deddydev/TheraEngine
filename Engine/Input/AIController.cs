@@ -2,7 +2,7 @@
 {
     public class AIController : PawnController
     {
-        public AIController()
+        public AIController() : base()
         {
             Engine.ActiveAI.Add(this);
         }

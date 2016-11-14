@@ -8,14 +8,13 @@ namespace CustomEngine.Rendering.Cameras
         public float Width { get { return _width; } set { _width = value; CalculateProjection(); } }
         public float Height { get { return _height; } set { _height = value; CalculateProjection(); } }
         public float Aspect { get { return _aspect; } set { _aspect = value; CalculateProjection(); } }
-
-        private float _width, _height, _fovY = 45.0f, _aspect;
-
         public float HorizontalFieldOfView
         {
             get { return 2.0f * CustomMath.RadToDeg((float)Math.Atan(Math.Tan(CustomMath.DegToRad(_fovY / 2.0f)) * _aspect)); }
-            set { _fovY = 2.0f * CustomMath.RadToDeg((float)Math.Atan(Math.Tan(CustomMath.DegToRad(value / 2.0f)) / _aspect)); }
+            set { VerticalFieldOfView = 2.0f * CustomMath.RadToDeg((float)Math.Atan(Math.Tan(CustomMath.DegToRad(value / 2.0f)) / _aspect)); }
         }
+
+        private float _width, _height, _fovY = 78.0f, _aspect;
 
         public override void Zoom(float amount)
         {
@@ -61,7 +60,7 @@ namespace CustomEngine.Rendering.Cameras
             Vec3 upDir = CurrentTransform.GetUpVector();
             Vec3 nearPos = pos + forwardDir * _nearZ;
             Vec3 farPos = pos + forwardDir * _farZ;
-            Vec3 ntl, /*ntr, */nbl, nbr, ftl, ftr, fbl/*, fbr*/;
+            Vec3 ntl, /*ntr, */nbl, nbr, ftl, ftr, fbl, fbr;
 
             Vec3 nX = rightDir * nearXDist;
             Vec3 fX = rightDir * farXDist;
@@ -75,15 +74,19 @@ namespace CustomEngine.Rendering.Cameras
             ftl = farPos + fY - fX;
             ftr = farPos + fY + fX;
             fbl = farPos - fY - fX;
-            //fbr = farPos - fY + fX;
+            fbr = farPos - fY + fX;
 
             Plane near, far, top, bottom, left, right;
+
             near = new Plane(nearPos, forwardDir);
             far = new Plane(farPos, -forwardDir);
+
             left = new Plane(nbl, fbl, ntl);
-            right = new Plane(fbl, nbl, ftl);
+            right = new Plane(fbr, nbr, ftr);
+
             top = new Plane(ftl, ftr, ntl);
             bottom = new Plane(nbl, nbr, fbl);
+
             return new Frustrum(near, far, top, bottom, left, right);
         }
     }

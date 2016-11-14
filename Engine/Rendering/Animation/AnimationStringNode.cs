@@ -17,7 +17,7 @@ namespace CustomEngine.Rendering.Animation
         {
             return _getValue(frame);
         }
-        protected override void UseKeyframesChanged(bool oldUseKeyframes)
+        protected override void UseKeyframesChanged()
         {
             if (_useKeyframes)
                 _getValue = GetValueKeyframed;

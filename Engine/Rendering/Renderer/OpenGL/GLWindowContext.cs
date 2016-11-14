@@ -81,7 +81,7 @@ namespace CustomEngine.Rendering.OpenGL
             GL.Enable(OpenTK.Graphics.OpenGL.EnableCap.Dither);
             GL.Enable(OpenTK.Graphics.OpenGL.EnableCap.Blend);
             GL.Enable(OpenTK.Graphics.OpenGL.EnableCap.AlphaTest);
-            GL.Enable(OpenTK.Graphics.OpenGL.EnableCap.CullFace);
+            GL.Disable(OpenTK.Graphics.OpenGL.EnableCap.CullFace);
             GL.Enable(OpenTK.Graphics.OpenGL.EnableCap.ScissorTest);
             GL.Disable(OpenTK.Graphics.OpenGL.EnableCap.Lighting);
             GL.Disable(OpenTK.Graphics.OpenGL.EnableCap.PointSmooth);
@@ -91,7 +91,7 @@ namespace CustomEngine.Rendering.OpenGL
             GL.DepthFunc(DepthFunction.Less);
             GL.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
             GL.AlphaFunc(AlphaFunction.Gequal, 0.1f);
-            GL.CullFace(CullFaceMode.Back);
+            //GL.CullFace(CullFaceMode.Back);
         }
         public override void BeginDraw()
         {

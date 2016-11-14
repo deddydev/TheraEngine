@@ -16,18 +16,30 @@ namespace CustomEngine.Worlds
     }
     public class Actor : ObjectBase
     {
+        private bool _isConstructing;
+        public bool IsConstructing { get { return _isConstructing; } }
         public Actor()
         {
+            _isConstructing = true;
             SetDefaults();
-            SetupComponents();
+            RootComponent = SetupComponents();
+            _isConstructing = false;
+            GenerateSceneComponentCache();
         }
         public Actor(SceneComponent root, params LogicComponent[] logicComponents)
         {
+            _isConstructing = true;
+            SetDefaults();
             RootComponent = root;
             _logicComponents = new MonitoredList<LogicComponent>(logicComponents.ToList());
+            _isConstructing = false;
+            GenerateSceneComponentCache();
         }
         protected virtual void SetDefaults() { }
-        protected virtual void SetupComponents() { }
+        protected virtual SceneComponent SetupComponents()
+        {
+            return new SceneComponent();
+        }
 
         [State]
         public bool IsSpawned { get { return _spawnIndex >= 0; } }
@@ -38,18 +50,31 @@ namespace CustomEngine.Worlds
         public SceneComponent RootComponent
         {
             get { return _rootSceneComponent; }
-            set { _rootSceneComponent = value; }
+            set
+            {
+                if (_rootSceneComponent != null)
+                    _rootSceneComponent.Owner = null;
+                
+                _rootSceneComponent = value;
+
+                if (_rootSceneComponent != null)
+                {
+                    _rootSceneComponent.Owner = this;
+                    _rootSceneComponent.RecalcGlobalTransform();
+                }
+                GenerateSceneComponentCache();
+            }
         }
         public void GenerateSceneComponentCache()
         {
-            _sceneComponentCache = _rootSceneComponent.GenerateChildCache();
+            if (!_isConstructing)
+                _sceneComponentCache = _rootSceneComponent == null ? new List<SceneComponent>() : _rootSceneComponent.GenerateChildCache();
         }
-
-        public DateTime _lastRendered;
+        
         public int _spawnIndex = -1;
         private World _owningWorld;
         private SceneComponent _rootSceneComponent;
-        private List<SceneComponent> _sceneComponentCache = new List<SceneComponent>();
+        protected List<SceneComponent> _sceneComponentCache = new List<SceneComponent>();
         private MonitoredList<LogicComponent> _logicComponents = new MonitoredList<LogicComponent>();
 
         public MonitoredList<LogicComponent> LogicComponents { get { return _logicComponents; } }

@@ -8,10 +8,5 @@ namespace CustomEngine.Worlds.Actors
         {
             
         }
-
-        protected override void SetupComponents()
-        {
-            
-        }
     }
 }

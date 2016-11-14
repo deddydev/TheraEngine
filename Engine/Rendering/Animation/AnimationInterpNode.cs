@@ -14,7 +14,7 @@ namespace CustomEngine.Rendering.Animation
         public AnimationInterpNode(int frameCount) : base(frameCount) { }
 
         protected override object GetValue(float frame) { return _getValue(frame); }
-        protected override void UseKeyframesChanged(bool oldUseKeyframes)
+        protected override void UseKeyframesChanged()
         {
             if (_useKeyframes)
                 _getValue = GetValueKeyframed;

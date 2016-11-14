@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using CustomEngine.Worlds.Actors;
 
 namespace CustomEngine
 {
@@ -125,6 +126,14 @@ namespace CustomEngine
                 PhysicsTick(ETickGroup.PostPhysics, delta);
             }
         }
+
+        internal static void AddLoadedFile<T>(string relativePath, T file) where T : FileObject
+        {
+            if (LoadedFiles.ContainsKey(relativePath))
+                LoadedFiles[relativePath].Add(file);
+            else
+                LoadedFiles.Add(relativePath, new List<FileObject>() { file });
+        }
         #endregion
 
         public static void Initialize()
@@ -157,7 +166,7 @@ namespace CustomEngine
         public static void ShutDown()
         {
             Stop();
-            var files = new List<FileObject>(LoadedFiles.Values);
+            var files = new List<FileObject>(LoadedFiles.SelectMany(x => x.Value));
             foreach (FileObject o in files)
                 o?.Unload();
             var contexts = new List<RenderContext>(RenderContext.BoundContexts);
@@ -192,16 +201,38 @@ namespace CustomEngine
             World previous = World;
             World?.EndPlay();
             _currentWorld = world;
+            Renderer.Scene.WorldChanged();
             World?.BeginPlay();
             if (unloadPrevious)
                 previous?.Unload();
         }
-
+        public static void QueuePossession(Pawn pawn, PlayerIndex possessor)
+        {
+            int index = (int)possessor;
+            if (index < ActivePlayers.Count)
+                ActivePlayers[index].EnqueuePosession(pawn);
+            else if (_possessionQueue.ContainsKey(possessor))
+                _possessionQueue[possessor].Enqueue(pawn);
+            else
+            {
+                Queue<Pawn> queue = new Queue<Pawn>();
+                queue.Enqueue(pawn);
+                _possessionQueue.Add(possessor, queue);
+            }
+        }
         internal static void FoundInput(InputDevice device)
         {
             if (device.Index >= ActivePlayers.Count)
             {
-                LocalPlayerController controller = new LocalPlayerController();
+                LocalPlayerController controller;
+                PlayerIndex index = (PlayerIndex)ActivePlayers.Count;
+                if (_possessionQueue.ContainsKey(index))
+                {
+                    controller = new LocalPlayerController(_possessionQueue[index]);
+                    _possessionQueue.Remove(controller.LocalPlayerIndex);
+                }
+                else
+                    controller = new LocalPlayerController();
             }
         }
     }

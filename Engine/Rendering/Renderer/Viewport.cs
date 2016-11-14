@@ -15,7 +15,7 @@ namespace CustomEngine.Rendering
         private HudManager _hud;
         private int _index;
         private Rectangle _region;
-        private Camera _worldCamera = new PerspectiveCamera();
+        private Camera _worldCamera;
 
         private float _leftPercentage = 0.0f;
         private float _rightPercentage = 1.0f;
@@ -25,7 +25,11 @@ namespace CustomEngine.Rendering
         public Camera Camera
         {
             get { return _worldCamera; }
-            set { _worldCamera = value; }
+            set
+            {
+                _worldCamera = value;
+                _worldCamera?.Resize(Width, Height);
+            }
         }
         public HudManager HUD { get { return _hud; } }
         public LocalPlayerController OwningPlayer { get { return _owner; } }
@@ -50,21 +54,8 @@ namespace CustomEngine.Rendering
             _region.Width = (int)(_rightPercentage * parentWidth - _region.X);
             _region.Height = (int)(_topPercentage * parentHeight - _region.Y);
 
-            _worldCamera.Resize(Width, Height);
+            _worldCamera?.Resize(Width, Height);
             _hud.ParentResized(_region);
-        }
-        public void CMD_SetViewport()
-        {
-            //_currentlyRendering = this;
-            //Engine.Renderer.PushRenderArea(_region);
-
-            //_hud.Render(delta);
-
-            //_worldCamera.SetCurrent();
-            //Engine.World?.Render(delta);
-
-            //Engine.Renderer.PopRenderArea();
-            //_currentlyRendering = null;
         }
         public void DebugPrint(string message) { _hud.DebugPrint(message); }
         private void SetTopLeft()

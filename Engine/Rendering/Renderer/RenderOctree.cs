@@ -7,22 +7,23 @@ using System.Threading.Tasks;
 
 namespace System
 {
-    public class Octree<T> where T : IRenderable
+    public class RenderOctree
     {
         Box _totalBounds;
         OctreeNode _head;
         
-        public Octree(Box bounds) { _totalBounds = bounds; }
+        public RenderOctree(Box bounds) { _totalBounds = bounds; }
 
+        public void Render() { _head?.Render(); }
         public void Cull(Frustrum frustrum) { _head?.Cull(frustrum); }
-        public List<T> FindClosest(Vec3 point) { return _head.FindClosest(point); }
-        public void Add(T value)
+        public List<IRenderable> FindClosest(Vec3 point) { return _head.FindClosest(point); }
+        public void Add(IRenderable value)
         {
             if (_head == null)
                 _head = new OctreeNode(_totalBounds);
             _head.Add(value);
         }
-        public bool Remove(T value)
+        public bool Remove(IRenderable value)
         {
             if (_head == null)
                 return false;
@@ -38,10 +39,10 @@ namespace System
         {
             private bool _visible;
             private Box _bounds;
-            public List<T> _items = new List<T>();
+            public List<IRenderable> _items = new List<IRenderable>();
             public OctreeNode[] _subNodes;
             
-            public List<T> Items { get { return _items; } }
+            public List<IRenderable> Items { get { return _items; } }
             public Box Bounds { get { return _bounds; } }
             public Vec3 Center { get { return _bounds.CenterPoint; } }
             public Vec3 Min { get { return _bounds.Minimum; } }
@@ -56,7 +57,7 @@ namespace System
                         return;
 
                     _visible = value;
-                    foreach (T item in _items)
+                    foreach (IRenderable item in _items)
                         item.IsRendering = _visible;
                     if (_subNodes != null)
                         foreach (OctreeNode node in _subNodes)
@@ -64,11 +65,28 @@ namespace System
                                 node.Visible = _visible;
                 }
             }
-            public List<T> FindClosest(Vec3 point)
+            public List<IRenderable> FindClosest(Vec3 point)
             {
                 if (_bounds.Contains(point))
                 {
+                    List<IRenderable> list = null;
+                    foreach (OctreeNode node in _subNodes)
+                        if (node != null)
+                        {
+                            list = node.FindClosest(point);
+                            if (list != null)
+                                return list;
+                        }
 
+                    if (_items.Count == 0)
+                        return null;
+
+                    list = new List<IRenderable>(_items);
+                    for (int i = 0; i < list.Count; ++i)
+                        if (!list[i].CullingVolume.Contains(point))
+                            list.RemoveAt(i--);
+
+                    return list;
                 }
                 else
                     return null;
@@ -82,17 +100,18 @@ namespace System
                     Visible = false;
                 else //Bounds is intersecting edge of frustrum
                 {
-                    foreach (T item in _items)
+                    foreach (IRenderable item in _items)
                         item.IsRendering = item.CullingVolume.WithinFrustrum(frustrum) != EContainment.Disjoint;
-                    foreach (OctreeNode n in _subNodes)
-                        n.Cull(frustrum);
+                    if (_subNodes != null)
+                        foreach (OctreeNode n in _subNodes)
+                            n.Cull(frustrum);
                 }
             }
             /// <summary>
             /// shouldDestroy returns true if this node has no items contained within it or its subdivisions.
             /// returns true if the value was found and removed.
             /// </summary>
-            public bool Remove(T value, out bool shouldDestroy)
+            public bool Remove(IRenderable value, out bool shouldDestroy)
             {
                 bool hasBeenRemoved = false;
                 if (_items.Contains(value))
@@ -126,7 +145,7 @@ namespace System
                 shouldDestroy = _items.Count == 0 && _subNodes == null;
                 return hasBeenRemoved;
             }
-            public void Add(T item)
+            public void Add(IRenderable item)
             {
                 if (item == null)
                     return;
@@ -179,7 +198,14 @@ namespace System
                 }
                 return null;
             }
-
+            public void Render()
+            {
+                foreach (IRenderable r in _items)
+                    r.Render();
+                if (_subNodes != null)
+                    foreach (OctreeNode node in _subNodes)
+                        node.Render();
+            }
             public static implicit operator OctreeNode(Box bounds) { return new OctreeNode(bounds); }
         }
     }

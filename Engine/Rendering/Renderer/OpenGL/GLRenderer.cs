@@ -263,12 +263,15 @@ namespace CustomEngine.Rendering.OpenGL
         }
 
         #region Uniforms
-        public override void Uniform(string name, params IUniformable4Int[] p)
+        public override int GetUniformLocation(string name)
+        {
+            return GL.GetUniformLocation(_programHandle, name);
+        }
+        public override void Uniform(int location, params IUniformable4Int[] p)
         {
             const int count = 4;
-
-            int u = GL.GetUniformLocation(_programHandle, name);
-            if (u < 0)
+            
+            if (location < 0)
                 return;
 
             int[] values = new int[p.Length << 2];
@@ -277,14 +280,13 @@ namespace CustomEngine.Rendering.OpenGL
                 for (int x = 0; x < count; ++x)
                     values[i << 2 + x] = p[i].Data[x];
 
-            GL.Uniform3(u, p.Length, values);
+            GL.Uniform3(location, p.Length, values);
         }
-        public override void Uniform(string name, params IUniformable4Float[] p)
+        public override void Uniform(int location, params IUniformable4Float[] p)
         {
             const int count = 4;
-
-            int u = GL.GetUniformLocation(_programHandle, name);
-            if (u < 0)
+            
+            if (location < 0)
                 return;
 
             float[] values = new float[p.Length << 2];
@@ -293,14 +295,13 @@ namespace CustomEngine.Rendering.OpenGL
                 for (int x = 0; x < count; ++x)
                     values[i << 2 + x] = p[i].Data[x];
 
-            GL.Uniform3(u, p.Length, values);
+            GL.Uniform3(location, p.Length, values);
         }
-        public override void Uniform(string name, params IUniformable3Int[] p)
+        public override void Uniform(int location, params IUniformable3Int[] p)
         {
             const int count = 3;
-
-            int u = GL.GetUniformLocation(_programHandle, name);
-            if (u < 0)
+            
+            if (location < 0)
                 return;
 
             int[] values = new int[p.Length * 3];
@@ -309,14 +310,13 @@ namespace CustomEngine.Rendering.OpenGL
                 for (int x = 0; x < count; ++x)
                     values[i * 3 + x] = p[i].Data[x];
 
-            GL.Uniform3(u, p.Length, values);
+            GL.Uniform3(location, p.Length, values);
         }
-        public override void Uniform(string name, params IUniformable3Float[] p)
+        public override void Uniform(int location, params IUniformable3Float[] p)
         {
             const int count = 3;
-
-            int u = GL.GetUniformLocation(_programHandle, name);
-            if (u < 0)
+            
+            if (location < 0)
                 return;
 
             float[] values = new float[p.Length * 3];
@@ -325,14 +325,13 @@ namespace CustomEngine.Rendering.OpenGL
                 for (int x = 0; x < count; ++x)
                     values[i * 3 + x] = p[i].Data[x];
 
-            GL.Uniform3(u, p.Length, values);
+            GL.Uniform3(location, p.Length, values);
         }
-        public override void Uniform(string name, params IUniformable2Int[] p)
+        public override void Uniform(int location, params IUniformable2Int[] p)
         {
             const int count = 2;
-
-            int u = GL.GetUniformLocation(_programHandle, name);
-            if (u < 0)
+            
+            if (location < 0)
                 return;
 
             int[] values = new int[p.Length << 1];
@@ -341,14 +340,13 @@ namespace CustomEngine.Rendering.OpenGL
                 for (int x = 0; x < count; ++x)
                     values[i << 1 + x] = p[i].Data[x];
 
-            GL.Uniform2(u, p.Length, values);
+            GL.Uniform2(location, p.Length, values);
         }
-        public override void Uniform(string name, params IUniformable2Float[] p)
+        public override void Uniform(int location, params IUniformable2Float[] p)
         {
             const int count = 2;
-
-            int u = GL.GetUniformLocation(_programHandle, name);
-            if (u < 0)
+            
+            if (location < 0)
                 return;
 
             float[] values = new float[p.Length << 1];
@@ -357,27 +355,32 @@ namespace CustomEngine.Rendering.OpenGL
                 for (int x = 0; x < count; ++x)
                     values[i << 1 + x] = p[i].Data[x];
 
-            GL.Uniform2(u, p.Length, values);
+            GL.Uniform2(location, p.Length, values);
         }
-        public override void Uniform(string name, params IUniformable1Int[] p)
+        public override void Uniform(int location, params IUniformable1Int[] p)
         {
-            int u = GL.GetUniformLocation(_programHandle, name);
-            if (u > -1) GL.Uniform1(u, p.Length, p.Select(x => *x.Data).ToArray());
+            if (location > -1)
+                GL.Uniform1(location, p.Length, p.Select(x => *x.Data).ToArray());
         }
-        public override void Uniform(string name, params IUniformable1Float[] p)
+        public override void Uniform(int location, params IUniformable1Float[] p)
         {
-            int u = GL.GetUniformLocation(_programHandle, name);
-            if (u > -1) GL.Uniform1(u, p.Length, p.Select(x => *x.Data).ToArray());
+            if (location > -1)
+                GL.Uniform1(location, p.Length, p.Select(x => *x.Data).ToArray());
         }
-        public override void Uniform(string name, params int[] p)
+        public override void Uniform(int location, params int[] p)
         {
-            int u = GL.GetUniformLocation(_programHandle, name);
-            if (u > -1) GL.Uniform1(u, p.Length, p);
+            if (location > -1)
+                GL.Uniform1(location, p.Length, p);
         }
-        public override void Uniform(string name, params float[] p)
+        public override void Uniform(int location, params float[] p)
         {
-            int u = GL.GetUniformLocation(_programHandle, name);
-            if (u > -1) GL.Uniform1(u, p.Length, p);
+            if (location > -1)
+                GL.Uniform1(location, p.Length, p);
+        }
+        public override void Uniform(int location, Matrix4 p)
+        {
+            if (location > -1)
+                GL.UniformMatrix4(location, 1, false, p.Data);
         }
         #endregion
 

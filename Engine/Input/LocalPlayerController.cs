@@ -1,19 +1,21 @@
 ﻿using System;
+using System.Collections.Generic;
 using CustomEngine.Input.Devices;
 using CustomEngine.Players;
 using CustomEngine.Rendering;
 using CustomEngine.Rendering.Cameras;
+using CustomEngine.Worlds.Actors;
 
 namespace CustomEngine.Input
 {
     public class LocalPlayerController : PlayerController
     {
         private Viewport _viewport;
-        private int _index;
+        private PlayerIndex _index;
         protected InputInterface _input;
 
         public InputInterface Input { get { return _input; } }
-        public int LocalPlayerIndex { get { return _viewport.Index; } }
+        public PlayerIndex LocalPlayerIndex { get { return (PlayerIndex)_viewport.Index; } }
         public Viewport Viewport
         {
             get { return _viewport; }
@@ -24,10 +26,18 @@ namespace CustomEngine.Input
             get { return _viewport.Camera; }
             set { _viewport.Camera = value; }
         }
+        public LocalPlayerController(Queue<Pawn> possessionQueue = null) : base(possessionQueue)
+        {
+            int index = Engine.ActivePlayers.Count;
+            _index = (PlayerIndex)index;
+            _input = new InputInterface(index);
+            Engine.ActivePlayers.Add(this);
+        }
         public LocalPlayerController()
         {
-            _index = Engine.ActivePlayers.Count;
-            _input = new InputInterface(_index);
+            int index = Engine.ActivePlayers.Count;
+            _index = (PlayerIndex)index;
+            _input = new InputInterface(index);
             Engine.ActivePlayers.Add(this);
         }
         ~LocalPlayerController()

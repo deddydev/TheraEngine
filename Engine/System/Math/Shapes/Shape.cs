@@ -13,15 +13,5 @@ namespace System
     {
         public abstract bool Contains(Vec3 point);
         public abstract List<PrimitiveData> GetPrimitives();
-        
-        public void OnDespawned()
-        {
-            throw new NotImplementedException();
-        }
-
-        public void OnSpawned()
-        {
-            throw new NotImplementedException();
-        }
     }
 }

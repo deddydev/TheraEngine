@@ -5,6 +5,8 @@ using CustomEngine.Worlds.Actors.Components;
 using CustomEngine.Worlds.Maps;
 using CustomEngine.Rendering.Animation;
 using CustomEngine.Rendering.Models.Materials;
+using CustomEngine.Worlds.Actors;
+using CustomEngine.Rendering.Cameras;
 
 namespace Game.Worlds
 {
@@ -15,7 +17,7 @@ namespace Game.Worlds
             _settings = new WorldSettings("TestWorld");
 
             Model boxModel = new Model();
-            Mesh mesh = new Box(new Vec3(-20.0f, -20.0f, -20.0f), new Vec3(20.0f, 20.0f, 20.0f));
+            Mesh mesh = new Box(new Vec3(-5.0f, -5.0f, -5.0f), new Vec3(5.0f, 5.0f, 5.0f));
 
             //ResultBasicFunc materialResult = new ResultBasicFunc();
 
@@ -32,9 +34,15 @@ namespace Game.Worlds
             boxModel.Skeleton = skel;
             
             ModelComponent modelComp = new ModelComponent(boxModel);
-            _settings._maps.Add(new Map(this, new MapSettings(new Actor(modelComp))));
+            Camera camera = new PerspectiveCamera();
+            camera.Translation = new Vec3(0.0f, -50.0f, 0.0f);
+            CameraComponent cameraComp = new CameraComponent(camera);
+            cameraComp.Parent = modelComp;
+            _settings._maps.Add(new Map(this, new MapSettings(new Pawn(PlayerIndex.One, modelComp))));
 
             AnimationInterpNode propertyAnim = new AnimationInterpNode(360);
+            propertyAnim.Looped = true;
+            propertyAnim.UseKeyframes = true;
             InterpKeyframe start = new InterpKeyframe(0.0f, 0.0f, 0.0f);
             InterpKeyframe end = new InterpKeyframe(360.0f, 360.0f, 360.0f);
             propertyAnim.Keyframes.AddFirst(start);
@@ -42,7 +50,9 @@ namespace Game.Worlds
             start.MakeOutLinear();
             end.MakeInLinear();
 
-            modelComp.AddAnimation(new AnimationContainer("Transform.Anim_SetRotationZ", true, propertyAnim));
+            AnimationContainer anim = new AnimationContainer("LocalTransform.Anim_SetRotationZ", true, propertyAnim);
+            modelComp.AddAnimation(anim);
+            anim.Start();
         }
     }
 }

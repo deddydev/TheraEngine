@@ -11,7 +11,7 @@ namespace CustomEngine.Worlds.Actors.Components
 
         public BoomComponent()
         {
-            _hiddenInGame = true;
+            //_hiddenInGame = true;
         }
 
         public void OnTraceHit(HitInfo hit)

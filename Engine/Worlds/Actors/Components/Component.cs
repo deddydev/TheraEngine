@@ -4,7 +4,11 @@ namespace CustomEngine.Worlds.Actors.Components
 {
     public abstract class Component : FileObject
     {
-        public Actor Owner { get { return _owner; } set { _owner = value; } }
+        public virtual Actor Owner
+        {
+            get { return _owner; }
+            set { _owner = value; }
+        }
         private Actor _owner;
 
         /// <summary>

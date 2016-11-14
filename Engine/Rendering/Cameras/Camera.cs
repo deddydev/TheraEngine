@@ -1,5 +1,6 @@
 ﻿using CustomEngine.Files;
 using CustomEngine.Rendering.Models;
+using CustomEngine.Rendering.Models.Materials;
 using System;
 
 namespace CustomEngine.Rendering.Cameras
@@ -13,17 +14,15 @@ namespace CustomEngine.Rendering.Cameras
             get { return _postProcessSettings; }
             set { _postProcessSettings = value; }
         }
-        [PostCall("CalculateProjection")]
         public float NearDepth
         {
             get { return _nearZ; }
-            set { _nearZ = value; }
+            set { _nearZ = value; CalculateProjection(); }
         }
-        [PostCall("CalculateProjection")]
         public float FarDepth
         {
             get { return _farZ; }
-            set { _farZ = value; }
+            set { _farZ = value; CalculateProjection(); }
         }
         public Matrix4 Matrix { get { return _currentTransform.InverseMatrix; } }
         public Matrix4 MatrixInverse { get { return _currentTransform.Matrix; } }
@@ -46,6 +45,13 @@ namespace CustomEngine.Rendering.Cameras
             get { return _currentTransform.Translation; }
             set { _currentTransform.Translation = value; }
         }
+
+        internal void SetUniforms()
+        {
+            Engine.Renderer.Uniform(Uniform.ViewMatrixUniform, Matrix);
+            Engine.Renderer.Uniform(Uniform.ProjMatrixUniform, _projectionMatrix);
+        }
+
         public Quaternion Rotation
         {
             get { return _currentTransform.Rotation; }

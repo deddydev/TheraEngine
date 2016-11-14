@@ -38,10 +38,11 @@ namespace System
         protected bool _changed;
         private ETickGroup? _tickGroup = null;
         private ETickOrder? _tickOrder = null;
+        protected bool _isTicking = false;
 
         //[Browsable(false)]
         //public virtual ResourceType ResourceType { get { return ResourceType.Object; } }
-        
+
         [Default]
 #if EDITOR
         [Category("State"), PostChanged("OnRenamed")]
@@ -87,13 +88,14 @@ namespace System
             set { HasChanged = value; }
         }
 #endif
-        protected bool _hasRegisteredTick = false;
         /// <summary>
         /// Specifies that this object wants tick calls.
         /// </summary>
         public void RegisterTick(ETickGroup group, ETickOrder order)
         {
-            _hasRegisteredTick = true;
+            if (_isTicking)
+                return;
+            _isTicking = true;
             Engine.RegisterTick(this, group, order);
         }
         /// <summary>
@@ -101,18 +103,16 @@ namespace System
         /// </summary>
         public void UnregisterTick()
         {
-            _hasRegisteredTick = false;
+            if (!_isTicking)
+                return;
+            _isTicking = false;
             Engine.UnregisterTick(this);
         }
         /// <summary>
         /// Updates logic for this class
         /// </summary>
         /// <param name="delta">The amount of time that has passed since the last tick update</param>
-        internal virtual void Tick(float delta)
-        {
-            foreach (AnimationContainer anim in _animations)
-                anim.Tick(delta, this);
-        }
+        internal virtual void Tick(float delta) { }
 
         public void OnPropertyChanged(PropertyInfo info, object previousValue)
         {
@@ -135,16 +135,14 @@ namespace System
         private List<AnimationContainer> _animations = new List<AnimationContainer>();
         public void AddAnimation(AnimationContainer anim)
         {
-            anim.AnimationEnded += Anim_AnimationEnded;
+            anim.AnimationEnded += RemoveAnimation;
             _animations.Add(anim);
-        }
-        private void Anim_AnimationEnded(object sender, EventArgs e)
-        {
-            RemoveAnimation(sender as AnimationContainer);
+            anim._owners.Add(this);
         }
         public void RemoveAnimation(AnimationContainer anim)
         {
             _animations.Remove(anim);
+            anim._owners.Remove(this);
         }
     }
     [PSerializable]

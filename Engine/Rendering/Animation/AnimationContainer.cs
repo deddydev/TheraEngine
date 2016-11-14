@@ -14,20 +14,22 @@ namespace CustomEngine.Rendering.Animation
             _animation = animation;
             if (children != null)
                 _children = children.ToList();
+            _tick = PropertyTick;
         }
 
         private PropertyInfo _propertyCache;
         private MethodInfo _methodCache;
-        private bool _propertyNotFound;
+
+        //TODO: need object, bool dictionary because multiple objs might tick in this anim
+        private bool _propertyNotFound = false;
 
         public string _propertyName;
         public List<AnimFolder> _children = new List<AnimFolder>();
         public BasePropertyAnimation _animation;
-        public bool _isMethod;
 
         public void CollectAnimations(string path, Dictionary<string, BasePropertyAnimation> animations)
         {
-            if (!String.IsNullOrEmpty(path))
+            if (!string.IsNullOrEmpty(path))
                 path += ".";
 
             path += _propertyName;
@@ -38,7 +40,8 @@ namespace CustomEngine.Rendering.Animation
                 p.CollectAnimations(path, animations);
         }
 
-        public void Tick(object obj, float delta)
+        internal Action<object, float> _tick = null;
+        public void MethodTick(object obj, float delta)
         {
             bool noObject = obj == null;
             bool noProperty = _propertyNotFound;
@@ -46,30 +49,49 @@ namespace CustomEngine.Rendering.Animation
             if (noObject || noProperty)
                 return;
 
-            if (_isMethod)
+            if (_methodCache == null)
             {
-                if (_methodCache == null && (_methodCache = obj.GetType().GetMethod(_propertyName)) == null)
+                Type type = obj.GetType();
+                while (type != null)
                 {
-                    _propertyNotFound = true;
-                    return;
+                    if ((_methodCache = type.GetMethod(_propertyName)) == null)
+                        type = type.BaseType;
+                    else
+                        break;
                 }
-                _animation?.Tick(obj, _methodCache, delta);
+                _propertyNotFound = _methodCache == null;
             }
+
+            _animation?.Tick(obj, _methodCache, delta);
+        }
+        public void PropertyTick(object obj, float delta)
+        {
+            bool noObject = obj == null;
+            bool noProperty = _propertyNotFound;
+
+            if (noObject || noProperty)
+                return;
+
+            if (_propertyCache == null)
+            {
+                Type type = obj.GetType();
+                while (type != null)
+                {
+                    if ((_propertyCache = type.GetProperty(_propertyName)) == null)
+                        type = type.BaseType;
+                    else
+                        break;
+                }
+                _propertyNotFound = _propertyCache == null;
+            }
+
+            if (_animation != null)
+                _animation?.Tick(obj, _propertyCache, delta);
             else
             {
-                if (_propertyCache == null && (_propertyCache = obj.GetType().GetProperty(_propertyName)) == null)
-                {
-                    _propertyNotFound = true;
-                    return;
-                }
-                if (_animation != null)
-                    _animation?.Tick(obj, _propertyCache, delta);
-                else
-                {
-                    object value = _propertyCache.GetValue(obj);
-                    foreach (AnimFolder f in _children)
-                        f.Tick(value, delta);
-                }
+                object value = _propertyCache.GetValue(obj);
+                foreach (AnimFolder f in _children)
+                    f._tick(value, delta);
             }
         }
 
@@ -101,14 +123,15 @@ namespace CustomEngine.Rendering.Animation
     }
     public class AnimationContainer : FileObject
     {
-        public event EventHandler AnimationStarted;
-        public event EventHandler AnimationEnded;
+        public event Action<AnimationContainer> AnimationStarted;
+        public event Action<AnimationContainer> AnimationEnded;
 
         private int _totalAnimCount = 0;
         private int _endedAnimations = 0;
         private bool _isPlaying;
         private AnimFolder _root;
-
+        public MonitoredList<ObjectBase> _owners = new MonitoredList<ObjectBase>();
+        
         public AnimationContainer() { }
         public AnimationContainer(AnimFolder rootFolder)
         {
@@ -116,6 +139,9 @@ namespace CustomEngine.Rendering.Animation
         }
         public AnimationContainer(string propertyName, bool method, BasePropertyAnimation anim)
         {
+            _owners.Removed += _owners_Removed;
+            _owners.Added += _owners_Added;
+
             string[] parts = propertyName.Split('.');
             bool first = true;
             AnimFolder last = null;
@@ -136,9 +162,22 @@ namespace CustomEngine.Rendering.Animation
             if (last != null)
             {
                 last._animation = anim;
-                last._isMethod = method;
+                last._tick = method ? (Action<object, float>)last.MethodTick : last.PropertyTick;
             }
         }
+
+        private void _owners_Removed(ObjectBase item)
+        {
+            if (_owners.Count == 0 && _isTicking)
+                UnregisterTick();
+        }
+
+        private void _owners_Added(ObjectBase item)
+        {
+            if (_owners.Count != 0 && !_isTicking)
+                RegisterTick(ETickGroup.PrePhysics, ETickOrder.Logic);
+        }
+
         public AnimFolder RootFolder
         {
             get { return _root; }
@@ -159,17 +198,18 @@ namespace CustomEngine.Rendering.Animation
             _root.CollectAnimations("", anims);
             return anims;
         }
-        private void Start()
+        public void Start()
         {
-            if (!_isPlaying)
+            if (_isPlaying)
                 return;
 
             _root?.StartAnimations();
 
             _isPlaying = true;
-            AnimationStarted?.Invoke(this, EventArgs.Empty);
+            AnimationStarted?.Invoke(this);
         }
-        private void Stop(bool animationsAllEnded = false)
+        public void Stop() => Stop(false);
+        private void Stop(bool animationsAllEnded)
         {
             if (!_isPlaying)
                 return;
@@ -178,12 +218,17 @@ namespace CustomEngine.Rendering.Animation
                 _root?.StopAnimations();
 
             _isPlaying = false;
-            AnimationEnded?.Invoke(this, EventArgs.Empty);
+            AnimationEnded?.Invoke(this);
+        }
+        internal override void Tick(float delta)
+        {
+            foreach (ObjectBase b in _owners)
+                Tick(delta, b);
         }
         internal void Tick(float delta, ObjectBase obj)
         {
             if (_isPlaying)
-                _root?.Tick(obj, delta);
+                _root?._tick(obj, delta);
         }
     }
 }

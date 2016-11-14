@@ -10,16 +10,19 @@ namespace CustomEngine.Rendering.Models.Materials
 {
     public class Material : BaseRenderState
     {
+        public int MaterialId
+        {
+            get
+            {
+                if (BindingId <= 0)
+                    Generate();
+                return BindingId;
+            }
+        }
+
         public List<Shader> _shaders = new List<Shader>();
-        private string _name;
         private MaterialSettings _settings;
 
-        [Category("Material")]
-        public string Name
-        {
-            get { return _name; }
-            set { _name = value; }
-        }
         [Category("Material")]
         public MaterialSettings Settings
         {

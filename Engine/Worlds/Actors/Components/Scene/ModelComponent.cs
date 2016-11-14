@@ -24,5 +24,38 @@ namespace CustomEngine.Worlds.Actors.Components
                     _primitive.LinkComponent(this);
             }
         }
+        /// <summary>
+        /// Visible means this mesh will never be rendered, or will be rendered if placed onscreen.
+        /// AKA: long-term visibility
+        /// </summary>
+        public override bool Visible
+        {
+            get { return base.Visible; }
+            set
+            {
+                if (_visible == value)
+                    return;
+
+                base.Visible = value;
+
+                foreach (Mesh m in _primitive)
+                {
+                    if (_visible)
+                        Engine.Renderer.Scene.AddRenderable(m);
+                    else
+                        Engine.Renderer.Scene.RemoveRenderable(m);
+                }
+            }
+        }
+        public override void OnSpawned()
+        {
+            base.OnSpawned();
+            _primitive.OnSpawned();
+        }
+        public override void OnDespawned()
+        {
+            base.OnDespawned();
+            _primitive.OnDespawned();
+        }
     }
 }

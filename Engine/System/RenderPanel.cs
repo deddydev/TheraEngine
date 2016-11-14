@@ -62,15 +62,13 @@ namespace CustomEngine
                 case RenderLibrary.OpenGL:
                     if (_context is GLWindowContext)
                         return;
-                    else
-                        _context?.Dispose();
+                    _context?.Dispose();
                     _context = new GLWindowContext(this);
                     break;
                 case RenderLibrary.Direct3D11:
                     if (_context is DXWindowContext)
                         return;
-                    else
-                        _context?.Dispose();
+                    _context?.Dispose();
                     _context = new DXWindowContext(this);
                     break;
                 default:
@@ -117,7 +115,7 @@ namespace CustomEngine
             _context.BeginDraw();
             foreach (Viewport v in _viewports)
                 v.Render(Engine.Renderer.Scene);
-            _globalHud.Render();
+            _globalHud?.Render();
             _context.EndDraw();
         }
         protected override void OnResize(EventArgs e)

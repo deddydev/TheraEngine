@@ -17,11 +17,11 @@ namespace CustomEngine.Rendering.Animation
         protected bool _isPlaying;
         protected bool _useKeyframes;
 
-        [Category("Property Animation"), Default, PostChanged("UseKeyframesChanged")]
+        [Category("Property Animation"), Default]
         public bool UseKeyframes
         {
             get { return _useKeyframes; }
-            set { _useKeyframes = value; }
+            set { _useKeyframes = value; UseKeyframesChanged(); }
         }
         [Category("Property Animation"), Default]
         public int FrameCount { get { return _frameCount; } }
@@ -91,7 +91,7 @@ namespace CustomEngine.Rendering.Animation
                 }
         }
 
-        protected abstract void UseKeyframesChanged(bool oldUseKeyframes);
+        protected abstract void UseKeyframesChanged();
         protected abstract object GetValue(float frame);
         
         [Category("Property Animation"), Default]

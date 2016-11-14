@@ -4,10 +4,11 @@ using System.Threading.Tasks;
 using CustomEngine.Worlds.Actors.Components;
 using System.Linq;
 using CustomEngine.Files;
+using System.Collections;
 
 namespace CustomEngine.Rendering.Models
 {
-    public class Model : FileObject, IPrimitive
+    public class Model : FileObject, IPrimitive, IEnumerable<Mesh>
     {
         private List<ModelComponent> _linkedComponents = new List<ModelComponent>();
 
@@ -49,5 +50,8 @@ namespace CustomEngine.Rendering.Models
         {
             _meshes.ForEach(x => x.OnDespawned());
         }
+
+        public IEnumerator<Mesh> GetEnumerator() { return ((IEnumerable<Mesh>)_meshes).GetEnumerator(); }
+        IEnumerator IEnumerable.GetEnumerator() { return ((IEnumerable<Mesh>)_meshes).GetEnumerator(); }
     }
 }

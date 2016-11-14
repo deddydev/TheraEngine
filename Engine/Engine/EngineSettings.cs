@@ -9,8 +9,8 @@ namespace CustomEngine
 {
     public class EngineSettings : FileObject
     {
-        public FileRef<World> TransitionWorld;
-        public FileRef<World> OpeningWorld;
+        public SingleFileRef<World> TransitionWorld;
+        public SingleFileRef<World> OpeningWorld;
         public string ContentPath;
 
         public override void Read(XmlReader reader)

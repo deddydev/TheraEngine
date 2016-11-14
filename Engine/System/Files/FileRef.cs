@@ -12,119 +12,93 @@ namespace CustomEngine.Files
     public interface IFileRef
     {
         string FilePathRelative { get; }
-        FileObject File { get; set; }
+        string FilePathAbsolute { get; }
+    }
+    public interface ISingleFileRef : IFileRef
+    {
         void UnloadReference();
     }
-    /// <summary>
-    /// Indicates that this variable references a file that must be loaded.
-    /// </summary>
-    public class FileRef<T> : FileObject, IFileRef where T : FileObject
+    public interface IMultiFileRef : IFileRef
     {
-        public FileRef()
-        {
-            _relativePath = null;
-            _file = null;
-            _subType = typeof(T);
-        }
-        public FileRef(T file)
-        {
-            _relativePath = null;
-            _file = file;
-            _subType = typeof(T);
-        }
-        public FileRef(Type type)
-        {
-            _relativePath = null;
-            _file = null;
-            if (type.IsSubclassOf(typeof(T)))
-                _subType = type;
-            else
-                throw new Exception(type.ToString() + " does not inherit " + typeof(T).ToString());
-        }
-        public FileRef(string relativePath, bool loadNow = false)
-        {
-            _relativePath = relativePath;
-            _subType = typeof(T);
-            if (loadNow)
-                LoadFile();
-        }
-        public FileRef(string relativePath, Type type, bool loadNow = false)
-        {
-            _relativePath = relativePath;
-            if (type.IsSubclassOf(typeof(T)))
-                _subType = type;
-            else
-                throw new Exception(type.ToString() + " does not inherit " + typeof(T).ToString());
-            if (loadNow)
-                LoadFile();
-        }
 
-        private Type _subType = null;
-        private string _relativePath;
-        private T _file;
-        
-        public string FilePathAbsolute { get { return Engine.StartupPath + _relativePath; } }
-        public string FilePathRelative { get { return _relativePath; } }
-        public FileObject File
+    }
+    /// <summary>
+    /// Allows only one loaded instance of this file
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    public class SingleFileRef<T> : FileRef<T>, ISingleFileRef where T : FileObject
+    {
+        T _file;
+
+        public SingleFileRef(Type type) : base(type) { }
+        public SingleFileRef(string relativeFilePath) : base(relativeFilePath) { }
+        public SingleFileRef(string relativeFilePath, Type type) : base(relativeFilePath, type) { }
+        public SingleFileRef(T file, string relativeFilePath) : base(relativeFilePath)
         {
-            get { return LoadFile(); }
-            set { SetFile(value as T, false); }
+            if (file != null)
+                file._filePath = relativeFilePath;
+            _file = file;
         }
-        public string Extension() { return Path.GetExtension(_relativePath).ToLower().Substring(1); }
-        public bool IsXML()
+        public SingleFileRef(T file) : base(file._filePath)
         {
-            string ext = Extension();
-            return ext == "xml" || ext.StartsWith("x");
+            _file = file;
+        }
+        public T File
+        {
+            get { return GetInstance(); }
+            set { SetFile(value, false); }
         }
         public void SetFile(T value, bool exportToPath)
         {
+            if (_file == value)
+            {
+                if (exportToPath)
+                    ExportFile();
+                return;
+            }
+
             if (_file != null && _file._references.Contains(this))
                 _file._references.Remove(this);
-            
+
             _file = value;
             if (_file != null)
             {
                 if (exportToPath)
-                {
-                    if (IsXML())
-                        _file.ToXML(FilePathAbsolute);
-                    else
-                        _file.ToBinary(FilePathAbsolute);
-                }
-                if (Engine.LoadedFiles.ContainsKey(_relativePath))
-                    Engine.LoadedFiles[_relativePath] = _file;
-                else
-                    Engine.LoadedFiles.Add(_relativePath, _file);
-
+                    ExportFile();
+                Engine.AddLoadedFile(_relativeRefPath, _file);
                 _file._references.Add(this);
             }
         }
-        public T LoadFile()
+        public void ExportFile()
+        {
+            string dir = Path.GetDirectoryName(RefPathAbsolute);
+            _file.Export(dir, IsXML());
+        }
+        public override T GetInstance()
         {
             if (_file != null)
                 return _file;
 
-            if (string.IsNullOrEmpty(_relativePath))
+            if (string.IsNullOrEmpty(_relativeRefPath))
                 _file = Activator.CreateInstance(_subType) as T;
             else
             {
-                string absolutePath = FilePathAbsolute;
-                if (!System.IO.File.Exists(absolutePath))
-                    throw new FileNotFoundException();
-
-                if (Engine.LoadedFiles.ContainsKey(_relativePath))
-                    _file = Engine.LoadedFiles[_relativePath] as T;
+                if (Engine.LoadedFiles.ContainsKey(_relativeRefPath))
+                    _file = Engine.LoadedFiles[_relativeRefPath] as T;
                 else
                 {
+                    string absolutePath = RefPathAbsolute;
+                    if (!System.IO.File.Exists(absolutePath))
+                        throw new FileNotFoundException();
                     if (IsXML())
                         _file = FromXML(_subType, absolutePath) as T;
                     else
                         _file = FromBinary(_subType, absolutePath) as T;
-                    Engine.LoadedFiles.Add(_relativePath, _file);
+                    Engine.AddLoadedFile(_relativeRefPath, _file);
                 }
             }
 
-            _file._filePath = _relativePath;
+            _file._filePath = _relativeRefPath;
             _file._references.Add(this);
 
             return _file;
@@ -136,16 +110,97 @@ namespace CustomEngine.Files
                 if (_file._references.Contains(this))
                     _file._references.Remove(this);
                 if (_file._references.Count == 0)
-                {
                     _file.Unload();
-                }
                 _file = null;
             }
         }
         private void FileUnloaded() { _file = null; }
+        public void Write(XmlWriter writer, bool writeInternal)
+        {
+            base.Write(writer);
+            if (writeInternal && File != null)
+                _file.Write(writer);
+            else
+                writer.WriteAttributeString("path", _relativeRefPath);
+            writer.WriteEndElement();
+        }
+        public override void Write(XmlWriter writer) { Write(writer, false); }
+        public static implicit operator T(SingleFileRef<T> fileRef) { return fileRef == null ? null : fileRef.GetInstance(); }
+        public static implicit operator SingleFileRef<T>(T file) { return new SingleFileRef<T>(file); }
+        public static implicit operator SingleFileRef<T>(Type type) { return new SingleFileRef<T>(type); }
+        public static implicit operator SingleFileRef<T>(string relativePath) { return new SingleFileRef<T>(relativePath); }
+    }
+    public class MultiFileRef<T> : FileRef<T>, IMultiFileRef where T : FileObject
+    {
+        public MultiFileRef(Type type) : base(type) { }
+        public MultiFileRef(string relativeFilePath) : base(relativeFilePath) { }
+        public MultiFileRef(string relativeFilePath, Type type) : base(relativeFilePath, type) { }
+        public override T GetInstance()
+        {
+            if (string.IsNullOrEmpty(_relativeRefPath))
+                return Activator.CreateInstance(_subType) as T;
+
+            string absolutePath = RefPathAbsolute;
+            if (!File.Exists(absolutePath))
+                throw new FileNotFoundException();
+
+            T file;
+            if (IsXML())
+                file = FromXML(_subType, absolutePath) as T;
+            else
+                file = FromBinary(_subType, absolutePath) as T;
+
+            file._references.Add(this);
+            return file;
+        }
+    }
+    /// <summary>
+    /// Indicates that this variable references a file that must be loaded.
+    /// </summary>
+    public abstract class FileRef<T> : FileObject where T : FileObject
+    {
+        public FileRef()
+        {
+            _relativeRefPath = null;
+            _subType = typeof(T);
+        }
+        public FileRef(Type type)
+        {
+            _relativeRefPath = null;
+            if (type.IsSubclassOf(typeof(T)))
+                _subType = type;
+            else
+                throw new Exception(type.ToString() + " does not inherit " + typeof(T).ToString());
+        }
+        public FileRef(string relativePath)
+        {
+            _relativeRefPath = relativePath;
+            _subType = typeof(T);
+        }
+        public FileRef(string relativePath, Type type)
+        {
+            _relativeRefPath = relativePath;
+            if (type.IsSubclassOf(typeof(T)))
+                _subType = type;
+            else
+                throw new Exception(type.ToString() + " does not inherit " + typeof(T).ToString());
+        }
+
+        protected Type _subType = null;
+        protected string _relativeRefPath;
+
+        public string RefPathAbsolute { get { return Engine.StartupPath + _relativeRefPath; } }
+        public string RefPathRelative { get { return _relativeRefPath; } }
+        public string Extension() { return Path.GetExtension(_relativeRefPath).ToLower().Substring(1); }
+        public bool IsXML()
+        {
+            string ext = Extension();
+            return ext == "xml" || ext.StartsWith("x");
+        }
+        public abstract T GetInstance();
         public override int CalculateSize(StringTable table)
         {
-            table.Add(_relativePath);
+            table.Add(_relativeRefPath);
             return FileRefHeader.Size;
         }
         public override void Write(VoidPtr address)
@@ -156,23 +211,10 @@ namespace CustomEngine.Files
         {
             throw new NotImplementedException();
         }
-        public void Write(XmlWriter writer, bool writeInternal)
-        {
-            base.Write(writer);
-            if (writeInternal && File != null)
-                _file.Write(writer);
-            else
-                writer.WriteAttributeString("path", _relativePath);
-            writer.WriteEndElement();
-        }
-        public override void Write(XmlWriter writer) { Write(writer, false); }
         public override void Read(XmlReader reader)
         {
             throw new NotImplementedException();
         }
-        public static implicit operator T(FileRef<T> fileRef) { return fileRef == null ? null : fileRef.LoadFile(); }
-        public static implicit operator FileRef<T>(T file) { return new FileRef<T>(file); }
-        public static implicit operator FileRef<T>(Type type) { return new FileRef<T>(type); }
     }
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public unsafe struct FileRefHeader

@@ -31,6 +31,12 @@ namespace CustomEngine.Rendering
         {
             return GenObjects(type, count).Select(x => Activator.CreateInstance(typeof(T), x) as T).ToArray();
         }
+
+        public void SetCommonUniforms()
+        {
+            Scene.CurrentCamera.SetUniforms();
+        }
+
         public abstract int GenObject(GenType type);
         public abstract int[] GenObjects(GenType type, int count);
         public abstract void DeleteObject(GenType type, int bindingId);
@@ -197,16 +203,31 @@ namespace CustomEngine.Rendering
                 _programHandle = 0;
         }
 
-        public abstract void Uniform(string name, params IUniformable4Int[] p);
-        public abstract void Uniform(string name, params IUniformable3Int[] p);
-        public abstract void Uniform(string name, params IUniformable2Int[] p);
-        public abstract void Uniform(string name, params IUniformable1Int[] p);
-        public abstract void Uniform(string name, params IUniformable4Float[] p);
-        public abstract void Uniform(string name, params IUniformable3Float[] p);
-        public abstract void Uniform(string name, params IUniformable2Float[] p);
-        public abstract void Uniform(string name, params IUniformable1Float[] p);
-        public abstract void Uniform(string name, params int[] p);
-        public abstract void Uniform(string name, params float[] p);
+        public abstract int GetUniformLocation(string name);
+
+        public void Uniform(string name, params IUniformable4Int[] p) => Uniform(GetUniformLocation(name), p);
+        public void Uniform(string name, params IUniformable3Int[] p) => Uniform(GetUniformLocation(name), p);
+        public void Uniform(string name, params IUniformable2Int[] p) => Uniform(GetUniformLocation(name), p);
+        public void Uniform(string name, params IUniformable1Int[] p) => Uniform(GetUniformLocation(name), p);
+        public void Uniform(string name, params IUniformable4Float[] p) => Uniform(GetUniformLocation(name), p);
+        public void Uniform(string name, params IUniformable3Float[] p) => Uniform(GetUniformLocation(name), p);
+        public void Uniform(string name, params IUniformable2Float[] p) => Uniform(GetUniformLocation(name), p);
+        public void Uniform(string name, params IUniformable1Float[] p) => Uniform(GetUniformLocation(name), p);
+        public void Uniform(string name, params int[] p) => Uniform(GetUniformLocation(name), p);
+        public void Uniform(string name, params float[] p) => Uniform(GetUniformLocation(name), p);
+        public void Uniform(string name, Matrix4 p) => Uniform(GetUniformLocation(name), p);
+
+        public abstract void Uniform(int location, params IUniformable4Int[] p);
+        public abstract void Uniform(int location, params IUniformable3Int[] p);
+        public abstract void Uniform(int location, params IUniformable2Int[] p);
+        public abstract void Uniform(int location, params IUniformable1Int[] p);
+        public abstract void Uniform(int location, params IUniformable4Float[] p);
+        public abstract void Uniform(int location, params IUniformable3Float[] p);
+        public abstract void Uniform(int location, params IUniformable2Float[] p);
+        public abstract void Uniform(int location, params IUniformable1Float[] p);
+        public abstract void Uniform(int location, params int[] p);
+        public abstract void Uniform(int location, params float[] p);
+        public abstract void Uniform(int location, Matrix4 p);
 
         #endregion
 

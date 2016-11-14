@@ -28,17 +28,24 @@ namespace CustomEngine.Rendering.Models
         public PrimitiveData Data
         {
             get { return _data; }
-            set { Destroy(); _data = value; }
-        }
-
-        public void SetPrimitiveData(PrimitiveData data)
-        {
-            if (_data != null)
+            set
+            {
                 Destroy();
-            _data = data;
+                if (_indexBuffer != null)
+                {
+                    _indexBuffer.Dispose();
+                    _indexBuffer = null;
+                }
+                _data = value;
+                if (_data != null)
+                {
+                    _indexBuffer = new VertexBuffer(_data._buffers.Count, "IndexBuffer", BufferTarget.ElementArrayBuffer);
+                    _indexBuffer.SetDataNumeric(_data.GetFaceIndices(), false);
+                }
+            }
         }
 
-        public void Render(Material material)
+        public void Render(Material material, Matrix4 transform)
         {
             if (_data == null)
                 return;
@@ -48,8 +55,10 @@ namespace CustomEngine.Rendering.Models
 
             Engine.Renderer.UseMaterial(material.BindingId);
 
+            Engine.Renderer.SetCommonUniforms();
+            Engine.Renderer.Uniform(Uniform.ModelMatrixUniform, transform);
             material.SetUniforms();
-
+            
             GL.BindVertexArray(BindingId);
 
             GL.BindVertexBuffers(0, _data._buffers.Count, _bindingIds, new IntPtr[_data._buffers.Count], _data._buffers.Select(x => x.Stride).ToArray());
@@ -58,6 +67,10 @@ namespace CustomEngine.Rendering.Models
             GL.BindVertexArray(0);
 
             Engine.Renderer.UseMaterial(0);
+
+            ErrorCode code = GL.GetError();
+            if (code != ErrorCode.NoError)
+                Console.WriteLine(code);
         }
 
         public VoidPtr PreModifyVertices()
@@ -82,8 +95,7 @@ namespace CustomEngine.Rendering.Models
                 _data._facePoints.Count,
                 PrimitiveType.Triangles);
 
-            _indexBuffer = new VertexBuffer(_data._buffers.Count, "IndexBuffer", BufferTarget.ElementArrayBuffer);
-            _indexBuffer.SetDataNumeric(_data.GetFaceIndices(), false);
+            _indexBuffer.Initialize();
 
             GL.BindVertexArray(0);
         }
@@ -120,7 +132,7 @@ namespace CustomEngine.Rendering.Models
 
         public int GetElementSize()
         {
-            return 1 << (((_elementType - DrawElementsType.UnsignedByte) - 1) / 2);
+            return 1 << (((_elementType - DrawElementsType.UnsignedByte) - 1) >> 1);
         }
 
         public unsafe void Render()

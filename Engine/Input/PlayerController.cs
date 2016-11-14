@@ -2,6 +2,8 @@
 using CustomEngine.Players;
 using CustomEngine.Rendering;
 using CustomEngine.Rendering.Cameras;
+using CustomEngine.Worlds.Actors;
+using System.Collections.Generic;
 
 namespace CustomEngine.Input
 {
@@ -11,6 +13,10 @@ namespace CustomEngine.Input
 
         public int ServerPlayerIndex { get { return _playerInfo != null ? _playerInfo.Index : -1; } }
 
+        public PlayerController(Queue<Pawn> possessionQueue) : base(possessionQueue)
+        {
+
+        }
         public PlayerController()
         {
 

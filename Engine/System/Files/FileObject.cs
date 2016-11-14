@@ -18,6 +18,9 @@ namespace CustomEngine.Files
         public FileObject() { OnLoaded(); }
         
         public List<IFileRef> _references = new List<IFileRef>();
+
+        public string FilePathAbsolute { get { return Engine.StartupPath + _filePath; } }
+        public string FilePathRelative { get { return _filePath; } }
         internal string _filePath;
 
         private int _calculatedSize;
@@ -47,10 +50,31 @@ namespace CustomEngine.Files
             if (!string.IsNullOrEmpty(_filePath) && Engine.LoadedFiles.ContainsKey(_filePath))
                 Engine.LoadedFiles.Remove(_filePath);
             List<IFileRef> oldRefs = new List<IFileRef>(_references);
-            oldRefs.ForEach(x => x.UnloadReference());
+            foreach (IFileRef r in oldRefs)
+                if (r is ISingleFileRef)
+                    ((ISingleFileRef)r).UnloadReference();
             OnUnload();
         }
         protected virtual void OnUnload() { }
+
+        public void Export(bool asXML)
+        {
+            if (string.IsNullOrEmpty(_filePath))
+                throw new Exception("No path to export to.");
+            string directory = Path.GetDirectoryName(_filePath);
+            if (asXML)
+                ToXML(directory);
+            else
+                ToBinary(directory);
+        }
+        public void Export(string directory, bool asXML)
+        {
+            if (asXML)
+                ToXML(directory);
+            else
+                ToBinary(directory);
+        }
+
         protected virtual void OnLoaded() { }
         public unsafe static T FromBinary<T>(string filePath) where T : FileObject
         {
@@ -70,7 +94,11 @@ namespace CustomEngine.Files
                 throw new Exception("Type mismatch: want " + t.ToString() + ", got " + t2.ToString());
 
             FileObject obj = Activator.CreateInstance(t) as FileObject;
+            obj._filePath = filePath;
             obj.Read(hdr->FileHeader);
+
+            Engine.AddLoadedFile(obj._filePath, obj);
+
             return obj;
         }
         public unsafe void ToBinary(string filePath)
@@ -110,7 +138,10 @@ namespace CustomEngine.Files
                 reader.MoveToContent();
 
                 FileObject obj = Activator.CreateInstance(t) as FileObject;
+                obj._filePath = filePath;
                 obj.Read(reader);
+
+                Engine.AddLoadedFile(obj._filePath, obj);
 
                 return obj;
             }

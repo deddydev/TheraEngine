@@ -35,7 +35,8 @@ namespace Game.Worlds
             
             ModelComponent modelComp = new ModelComponent(boxModel);
             Camera camera = new PerspectiveCamera();
-            camera.Translation = new Vec3(0.0f, -50.0f, 0.0f);
+            camera.Translation = new Vec3(0.0f, 0.0f, -50.0f);
+            camera.Rotation = Quaternion.LookAt(camera.Translation, Vec3.Zero);
             CameraComponent cameraComp = new CameraComponent(camera);
             cameraComp.Parent = modelComp;
             _settings._maps.Add(new Map(this, new MapSettings(new Pawn(PlayerIndex.One, modelComp))));

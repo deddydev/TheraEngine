@@ -139,8 +139,6 @@ namespace CustomEngine.Rendering
             //OpenTK.Graphics.OpenGL.GL.LoadMatrix((float*)&m2);
             //OpenTK.Graphics.OpenGL.GL.MatrixMode(OpenTK.Graphics.OpenGL.MatrixMode.Modelview);
 
-            OpenTK.Graphics.OpenGL.GL.Color4(Color.Red);
-
             //OpenTK.Graphics.OpenGL.GL.PopMatrix();
             //OpenTK.Graphics.OpenGL.GL.MatrixMode(OpenTK.Graphics.OpenGL.MatrixMode.Projection);
             //OpenTK.Graphics.OpenGL.GL.PopMatrix();

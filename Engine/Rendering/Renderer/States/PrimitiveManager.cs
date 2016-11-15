@@ -96,7 +96,7 @@ namespace CustomEngine.Rendering.Models
             GL.EnableClientState(ArrayCap.VertexArray);
 
             GL.VertexPointer(3, VertexPointerType.Float, 0, pos);
-            GL.DrawArrays(PrimitiveType.Triangles, 0, 2);
+            GL.DrawArrays(PrimitiveType.Triangles, 0, 6);
 
             //GL.VertexPointer(3, VertexPointerType.Float, _data._buffers[0].Stride, (IntPtr)_data._buffers[0].Data);
             //GL.DrawElements(PrimitiveType.Triangles, _data._faces.Count * 3, DrawElementsType.UnsignedByte, (IntPtr)_indexBuffer.Data);

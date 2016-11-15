@@ -77,8 +77,8 @@ namespace CustomEngine.Rendering.Models
         }
         public void Render()
         {
-            if (/*!_visible || */!_rendering)
-                return;
+            //if (/*!_visible || */!_rendering)
+            //    return;
 
             if (_material.File != null)
                 _manager.Render(_material, _transform);

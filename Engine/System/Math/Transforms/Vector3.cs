@@ -101,8 +101,8 @@ namespace System
         public static readonly Vec3 Zero = new Vec3(0.0f);
         public static readonly Vec3 One = new Vec3(1.0f);
         public static readonly Vec3 Right = UnitX;
-        public static readonly Vec3 Forward = UnitY;
-        public static readonly Vec3 Up = UnitZ;
+        public static readonly Vec3 Forward = UnitZ;
+        public static readonly Vec3 Up = UnitY;
         public static readonly Vec3 Left = -Right;
         public static readonly Vec3 Backward = -Forward;
         public static readonly Vec3 Down = -Up;

@@ -189,9 +189,9 @@ namespace System
         }
         public static Quaternion FromEulerAngles(float pitch, float yaw, float roll, MultiplyOrder order = MultiplyOrder.YPR)
         {
-            Quaternion p = FromAxisAngle(Vec3.UnitX, pitch);
-            Quaternion y = FromAxisAngle(Vec3.UnitZ, yaw);
-            Quaternion r = FromAxisAngle(Vec3.UnitY, roll);
+            Quaternion p = FromAxisAngle(Vec3.Right, pitch);
+            Quaternion y = FromAxisAngle(Vec3.Up, yaw);
+            Quaternion r = FromAxisAngle(Vec3.Forward, roll);
             switch (order)
             {
                 case MultiplyOrder.PYR:

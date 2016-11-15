@@ -143,9 +143,9 @@ namespace System
 
             GetCorners(out TBL, out TBR, out TFL, out TFR, out BBL, out BBR, out BFL, out BFR);
 
-            Vec3 rightNormal = Vec3.UnitX;
-            Vec3 frontNormal = Vec3.UnitY;
-            Vec3 topNormal = Vec3.UnitZ;
+            Vec3 rightNormal = Vec3.Right;
+            Vec3 frontNormal = Vec3.Forward;
+            Vec3 topNormal = Vec3.Up;
             Vec3 leftNormal = -rightNormal;
             Vec3 backNormal = -frontNormal;
             Vec3 bottomNormal = -topNormal;
@@ -210,9 +210,9 @@ namespace System
             Vec3 TBL, TBR, TFL, TFR, BBL, BBR, BFL, BFR;
             GetCorners(transform, out TBL, out TBR, out TFL, out TFR, out BBL, out BBR, out BFL, out BFR);
 
-            Vec3 rightNormal = rotation * Vec3.UnitX;
-            Vec3 frontNormal = rotation * Vec3.UnitY;
-            Vec3 topNormal = rotation * Vec3.UnitZ;
+            Vec3 rightNormal = rotation * Vec3.Right;
+            Vec3 frontNormal = rotation * Vec3.Forward;
+            Vec3 topNormal = rotation * Vec3.Up;
             Vec3 leftNormal = -rightNormal;
             Vec3 backNormal = -frontNormal;
             Vec3 bottomNormal = -topNormal;

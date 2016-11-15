@@ -47,7 +47,7 @@ namespace CustomEngine
         protected int _updateCounter;
         private HudManager _globalHud;
         public List<Viewport> _viewports = new List<Viewport>();
-        private ColorF4 _backColor = Color.Black;
+        private ColorF4 _backColor = Color.Lavender;
 
         public HudManager GlobalHud
         {

@@ -194,7 +194,7 @@ namespace CustomEngine.Rendering
         /// </summary>
         /// <param name="shaderHandles">The handles of the shaders for this program to use.</param>
         /// <returns></returns>
-        public abstract int GenerateProgram(params int[] shaderHandles);
+        public abstract int GenerateProgram(int[] shaderHandles, params string[] inAttributes);
 
         public virtual void UseMaterial(int handle) { _programHandle = handle; }
         public virtual void DeleteProgram(int handle)

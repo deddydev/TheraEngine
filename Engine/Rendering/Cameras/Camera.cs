@@ -24,6 +24,8 @@ namespace CustomEngine.Rendering.Cameras
             get { return _farZ; }
             set { _farZ = value; CalculateProjection(); }
         }
+        public Matrix4 ProjectionMatrix { get { return _projectionMatrix; } }
+        public Matrix4 ProjectionMatrixInverse { get { return _projectionInverse; } }
         public Matrix4 Matrix { get { return _currentTransform.InverseMatrix; } }
         public Matrix4 MatrixInverse { get { return _currentTransform.Matrix; } }
         public FrameState CurrentTransform
@@ -48,8 +50,8 @@ namespace CustomEngine.Rendering.Cameras
 
         internal void SetUniforms()
         {
-            Engine.Renderer.Uniform(Uniform.ViewMatrixUniform, Matrix);
-            Engine.Renderer.Uniform(Uniform.ProjMatrixUniform, _projectionMatrix);
+            Engine.Renderer.Uniform(Uniform.ViewMatrixName, Matrix);
+            Engine.Renderer.Uniform(Uniform.ProjMatrixName, _projectionMatrix);
         }
 
         public Quaternion Rotation

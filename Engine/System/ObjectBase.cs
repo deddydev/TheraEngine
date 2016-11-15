@@ -144,6 +144,10 @@ namespace System
             _animations.Remove(anim);
             anim._owners.Remove(this);
         }
+        public override string ToString()
+        {
+            return _name;
+        }
     }
     [PSerializable]
     public class NotifyPropertyChangedAttribute : LocationInterceptionAspect

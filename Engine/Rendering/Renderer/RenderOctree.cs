@@ -13,11 +13,22 @@ namespace System
         OctreeNode _head;
         
         public RenderOctree(Box bounds) { _totalBounds = bounds; }
+        public RenderOctree(Box bounds, List<IRenderable> items)
+        {
+            _totalBounds = bounds;
+            Add(items);
+        }
 
         public void Render() { _head?.Render(); }
         public void Cull(Frustrum frustrum) { _head?.Cull(frustrum); }
         public List<IRenderable> FindClosest(Vec3 point) { return _head.FindClosest(point); }
         public void Add(IRenderable value)
+        {
+            if (_head == null)
+                _head = new OctreeNode(_totalBounds);
+            _head.Add(value);
+        }
+        public void Add(List<IRenderable> value)
         {
             if (_head == null)
                 _head = new OctreeNode(_totalBounds);
@@ -145,6 +156,42 @@ namespace System
                 shouldDestroy = _items.Count == 0 && _subNodes == null;
                 return hasBeenRemoved;
             }
+            public void Add(List<IRenderable> value)
+            {
+                bool notSubdivided = true;
+                List<IRenderable> items;
+                for (int i = 0; i < 8; ++i)
+                {
+                    items = new List<IRenderable>();
+                    Box bounds = GetSubdivision(i);
+                    foreach (IRenderable item in value)
+                    {
+                        if (item == null)
+                            continue;
+                        if (bounds.Contains(item.CullingVolume) == EContainment.Contains)
+                        {
+                            notSubdivided = false;
+
+                            if (_subNodes == null)
+                            {
+                                _subNodes = new OctreeNode[8];
+                                _subNodes[i] = bounds;
+                            }
+                            else if (_subNodes[i] == null)
+                                _subNodes[i] = bounds;
+
+                            items.Add(item);
+
+                            break;
+                        }
+                    }
+                    if (_subNodes[i] != null && items.Count > 0)
+                        _subNodes[i].Add(items);
+                }
+
+                if (notSubdivided)
+                    Items.AddRange(value);
+            }
             public void Add(IRenderable item)
             {
                 if (item == null)
@@ -206,6 +253,7 @@ namespace System
                     foreach (OctreeNode node in _subNodes)
                         node.Render();
             }
+
             public static implicit operator OctreeNode(Box bounds) { return new OctreeNode(bounds); }
         }
     }

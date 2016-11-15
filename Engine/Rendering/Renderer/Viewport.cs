@@ -120,7 +120,7 @@ namespace CustomEngine.Rendering
             _rightPercentage = _topPercentage = 1.0f;
         }
 
-        public void Render(SceneProcessor scene)
+        public unsafe void Render(SceneProcessor scene)
         {
             if (_worldCamera == null)
                 return;
@@ -128,8 +128,26 @@ namespace CustomEngine.Rendering
             _currentlyRendering = this;
             Engine.Renderer.PushRenderArea(Region);
             Engine.Renderer.CropRenderArea(Region);
+
+            //OpenTK.Graphics.OpenGL.GL.MatrixMode(OpenTK.Graphics.OpenGL.MatrixMode.Modelview);
+            //Matrix4 m1 = _worldCamera.Matrix;
+            //OpenTK.Graphics.OpenGL.GL.PushMatrix();
+            //OpenTK.Graphics.OpenGL.GL.LoadMatrix((float*)&m1);
+            //OpenTK.Graphics.OpenGL.GL.MatrixMode(OpenTK.Graphics.OpenGL.MatrixMode.Projection);
+            //Matrix4 m2 = _worldCamera.ProjectionMatrix;
+            //OpenTK.Graphics.OpenGL.GL.PushMatrix();
+            //OpenTK.Graphics.OpenGL.GL.LoadMatrix((float*)&m2);
+            //OpenTK.Graphics.OpenGL.GL.MatrixMode(OpenTK.Graphics.OpenGL.MatrixMode.Modelview);
+
+            OpenTK.Graphics.OpenGL.GL.Color4(Color.Red);
+
+            //OpenTK.Graphics.OpenGL.GL.PopMatrix();
+            //OpenTK.Graphics.OpenGL.GL.MatrixMode(OpenTK.Graphics.OpenGL.MatrixMode.Projection);
+            //OpenTK.Graphics.OpenGL.GL.PopMatrix();
+            //OpenTK.Graphics.OpenGL.GL.MatrixMode(OpenTK.Graphics.OpenGL.MatrixMode.Modelview);
+
             scene.Render(_worldCamera);
-            _hud.Render();
+            //_hud.Render();
             Engine.Renderer.PopRenderArea();
             _currentlyRendering = null;
         }

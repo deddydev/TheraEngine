@@ -1,5 +1,6 @@
 ﻿using System.Runtime.InteropServices;
 using static System.Math;
+using static System.CustomMath;
 
 namespace System
 {
@@ -27,9 +28,9 @@ namespace System
         }
         public Quaternion(float pitch, float yaw, float roll)
         {
-            pitch = CustomMath.DegToRad(pitch);
-            yaw = CustomMath.DegToRad(yaw);
-            roll = CustomMath.DegToRad(roll);
+            pitch = DegToRad(pitch);
+            yaw = DegToRad(yaw);
+            roll = DegToRad(roll);
 
             yaw *= 0.5f;
             pitch *= 0.5f;
@@ -69,7 +70,7 @@ namespace System
 
             Vec4 result = new Vec4();
 
-            result.W = CustomMath.RadToDeg(2.0f * (float)Acos(q.W)); // angle
+            result.W = RadToDeg(2.0f * (float)Acos(q.W)); // angle
             float den = (float)Sqrt(1.0 - q.W * q.W);
             if (den > 0.0001f)
                 result.Xyz = q.Xyz / den;
@@ -111,7 +112,7 @@ namespace System
                 pitch = (float)Asin(2.0f * test / unit);
                 roll = (float)Atan2(2.0f * X * W - 2.0f * Y * Z, -sqx + sqy - sqz + sqw);
             }
-            return new Vec3(CustomMath.RadToDeg(pitch), CustomMath.RadToDeg(yaw), CustomMath.RadToDeg(roll));
+            return new Vec3(RadToDeg(pitch), RadToDeg(yaw), RadToDeg(roll));
         }
         public Quaternion Normalized()
         {
@@ -119,12 +120,7 @@ namespace System
             q.Normalize();
             return q;
         }
-        public void Normalize()
-        {
-            float scale = Length;
-            Xyz /= scale;
-            W /= scale;
-        }
+        public void Normalize() { Xyzw /= Length; }
         public void Invert() { W = -W; }
         public Quaternion Inverted()
         {
@@ -151,9 +147,24 @@ namespace System
         {
             return new Quaternion(-q.Xyz, q.W);
         }
+        public static Quaternion LookAt(Vec3 sourcePoint, Vec3 destPoint)
+        {
+            Vec3 forwardVector = (destPoint - sourcePoint).NormalizedFast();
+
+            float dot = Vec3.Dot(Vec3.Forward, forwardVector);
+
+            if (Abs(dot - (-1.0f)) < 0.000001f)
+                return new Quaternion(Vec3.Up.X, Vec3.Up.Y, Vec3.Up.Z, PIf);
+            if (Abs(dot - (1.0f)) < 0.000001f)
+                return Identity;
+
+            float rotAngle = (float)Acos(dot);
+            Vec3 rotAxis = Vec3.Cross(Vec3.Forward, forwardVector).NormalizedFast();
+            return FromAxisAngle(rotAxis, rotAngle);
+        }
         public static Quaternion FromAxisAngle(Vec3 axis, float angle)
         {
-            angle = CustomMath.DegToRad(angle);
+            angle = DegToRad(angle);
 
             if (axis.LengthSquared == 0.0f)
                 return Identity;
@@ -355,7 +366,7 @@ namespace System
         }
         public override string ToString()
         {
-            return String.Format("V: {0}, W: {1}", Xyz, W);
+            return string.Format("V: {0}, W: {1}", Xyz, W);
         }
         public override bool Equals(object other)
         {

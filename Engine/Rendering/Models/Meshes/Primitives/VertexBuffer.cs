@@ -45,10 +45,11 @@ namespace CustomEngine.Rendering.Models
         private bool _normalize;
 
         private DataSource _data;
-
-        private bool _isDirty;
+        
         private int _index;
         private BufferTarget _target;
+
+        public int Index { get { return _index; } }
 
         public VertexBuffer(
             int index,
@@ -79,8 +80,6 @@ namespace CustomEngine.Rendering.Models
             _target = target;
             _name = name;
         }
-        
-        public bool HasChanged { get { return _isDirty; } set { _isDirty = value; } }
 
         public VoidPtr Data { get { return _data.Address; } }
         public int DataLength { get { return _elementCount * Stride; } }
@@ -148,6 +147,32 @@ namespace CustomEngine.Rendering.Models
             Marshal.PtrToStructure(_data.Address + offset, value);
             return value;
         }
+        public unsafe Remapper SetDataNumeric(IList<int> list, bool remap = true)
+        {
+            _componentType = ComponentType.Int;
+            _componentCount = 1;
+            _normalize = false;
+            if (remap)
+            {
+                Remapper remapper = new Remapper();
+                remapper.Remap(list, null);
+                _elementCount = remapper.ImplementationLength;
+                _data = DataSource.Allocate(DataLength);
+                int* dPtr = (int*)_data.Address;
+                for (int i = 0; i < remapper.ImplementationLength; ++i)
+                    *dPtr++ = list[remapper.ImplementationTable[i]];
+                return remapper;
+            }
+            else
+            {
+                _elementCount = list.Count;
+                _data = DataSource.Allocate(DataLength);
+                int* dPtr = (int*)_data.Address;
+                for (int i = 0; i < list.Count; ++i)
+                    *dPtr++ = list[i];
+                return null;
+            }
+        }
         public unsafe Remapper SetDataNumeric<T>(IList<T> list, bool remap = true) where T : struct
         {
             if (typeof(T) == typeof(sbyte))
@@ -171,7 +196,6 @@ namespace CustomEngine.Rendering.Models
 
             _componentCount = 1;
             _normalize = false;
-            _isDirty = true;
             if (remap)
             {
                 Remapper remapper = new Remapper();
@@ -210,8 +234,6 @@ namespace CustomEngine.Rendering.Models
             _componentCount = d.ComponentCount;
             _normalize = d.Normalize;
 
-            _isDirty = true;
-
             if (remap)
             {
                 Remapper remapper = new Remapper();
@@ -220,7 +242,11 @@ namespace CustomEngine.Rendering.Models
                 _data = DataSource.Allocate(DataLength);
                 int stride = Stride;
                 for (int i = 0; i < remapper.ImplementationLength; ++i)
-                    list[remapper.ImplementationTable[i]].Write(_data.Address[i, stride]);
+                {
+                    IBufferable b = list[remapper.ImplementationTable[i]];
+                    Console.WriteLine(b.ToString());
+                    b.Write(_data.Address[i, stride]);
+                }
                 return remapper;
             }
             else
@@ -244,5 +270,9 @@ namespace CustomEngine.Rendering.Models
         }
         ~VertexBuffer() { Dispose(); }
         public static implicit operator VoidPtr(VertexBuffer b) { return b.Data; }
+        public override string ToString()
+        {
+            return _name;
+        }
     }
 }

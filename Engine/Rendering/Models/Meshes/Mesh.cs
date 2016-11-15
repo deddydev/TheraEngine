@@ -77,7 +77,7 @@ namespace CustomEngine.Rendering.Models
         }
         public void Render()
         {
-            if (!_visible || !_rendering)
+            if (/*!_visible || */!_rendering)
                 return;
 
             if (_material.File != null)

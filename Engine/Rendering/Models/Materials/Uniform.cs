@@ -8,8 +8,8 @@ namespace CustomEngine.Rendering.Models.Materials
 {
     public class Uniform
     {
-        public const string ViewMatrixUniform = "ViewMatrix";
-        public const string ProjMatrixUniform = "ProjMatrix";
-        public const string ModelMatrixUniform = "ModelMatrix";
+        public const string ViewMatrixName = "ViewMatrix";
+        public const string ProjMatrixName = "ProjMatrix";
+        public const string ModelMatrixName = "ModelMatrix";
     }
 }

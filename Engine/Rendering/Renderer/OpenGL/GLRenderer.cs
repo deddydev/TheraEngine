@@ -235,25 +235,32 @@ namespace CustomEngine.Rendering.OpenGL
                 //Add the line number to the source so we can go right to errors on specific lines
                 int lineNumber = 1;
                 foreach (string line in s)
-                    Console.WriteLine(String.Format("{0}: {1}", (lineNumber++).ToString().PadLeft(s.Length.ToString().Length, '0'), line));
+                    Console.WriteLine(string.Format("{0}: {1}", (lineNumber++).ToString().PadLeft(s.Length.ToString().Length, '0'), line));
 
                 Console.WriteLine("\n\n");
             }
 #endif
             return handle;
         }
-        public override int GenerateProgram(params int[] shaderHandles)
+        public override int GenerateProgram(int[] shaderHandles, params string[] inAttributes)
         {
             int handle = GL.CreateProgram();
             foreach (int i in shaderHandles)
                 GL.AttachShader(handle, i);
+
+            //Have to bind 'in' attributes before linking
+            for (int i = 0; i < inAttributes.Length; ++i)
+                GL.BindAttribLocation(handle, i, inAttributes[i]);
+
             GL.LinkProgram(handle);
+
             //We don't need these anymore now that they're part of the program
             foreach (int i in shaderHandles)
             {
                 GL.DetachShader(handle, i);
                 GL.DeleteShader(i);
             }
+
             return handle;
         }
         public override void UseMaterial(int handle)

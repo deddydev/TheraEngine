@@ -2,6 +2,8 @@
 {
     public unsafe static class CustomMath
     {
+        public static readonly float PIf = (float)Math.PI;
+
         public static float DegToRad(float degrees)
         {
             return degrees * (float)Math.PI / 180.0f;

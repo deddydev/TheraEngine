@@ -20,9 +20,23 @@ namespace CustomEngine.Rendering.Cameras
         {
             TranslateRelative(0.0f, 0.0f, amount);
         }
-        public override void CalculateProjection()
+        public unsafe override void CalculateProjection()
         {
-            _projectionMatrix = Matrix4.CreatePerspectiveFieldOfView(_fovY, _aspect, _nearZ, _farZ);
+            Matrix4 m;
+
+            float* p = (float*)&m;
+
+            float cotan = (float)(1.0 / Math.Tan(_fovY / 2 * Math.PI / 180.0));
+
+            p[0] = cotan / _aspect;
+            p[5] = cotan;
+            p[10] = (_farZ + _nearZ) / (_nearZ - _farZ);
+            p[11] = -1.0f;
+            p[14] = (2.0f * _farZ * _nearZ) / (_nearZ - _farZ);
+
+            p[1] = p[2] = p[3] = p[4] = p[6] = p[7] = p[8] = p[9] = p[12] = p[13] = p[15] = 0.0f;
+
+            _projectionMatrix = m;//Matrix4.CreatePerspectiveFieldOfView(_fovY, _aspect, _nearZ, _farZ);
             _projectionInverse = Matrix4.CreateInversePerspectiveFieldOfView(_fovY, _aspect, _nearZ, _farZ);
         }
         public void SetProjectionParams(float aspect, float fovy, float farz, float nearz)

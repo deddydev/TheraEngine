@@ -48,12 +48,6 @@ namespace CustomEngine.Rendering.Models
                 }
             }
         }
-
-        Vec3[] pos = new Vec3[6]
-        {
-            new Vec3(-5, -5, 0), new Vec3(5, 0, 0), new Vec3(-5, 5, 0),
-            new Vec3(-5, 5, 0), new Vec3(5, 0, 0), new Vec3(5, 5, 0),
-        };
         public unsafe void Render(Material material, Matrix4 transform)
         {
             if (_data == null)
@@ -95,7 +89,7 @@ namespace CustomEngine.Rendering.Models
 
             GL.EnableClientState(ArrayCap.VertexArray);
 
-            GL.VertexPointer(3, VertexPointerType.Float, 0, pos);
+            //GL.VertexPointer(3, VertexPointerType.Float, 0, pos);
             GL.DrawArrays(PrimitiveType.Triangles, 0, 6);
 
             //GL.VertexPointer(3, VertexPointerType.Float, _data._buffers[0].Stride, (IntPtr)_data._buffers[0].Data);

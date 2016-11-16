@@ -113,9 +113,9 @@ namespace CustomEngine
         protected virtual void OnRender(PaintEventArgs e)
         {
             _context.BeginDraw();
-            foreach (Viewport v in _viewports)
-                v.Render(Engine.Renderer.Scene);
-            _globalHud?.Render();
+            //foreach (Viewport v in _viewports)
+            //    v.Render(Engine.Renderer.Scene);
+            //_globalHud?.Render();
             _context.EndDraw();
         }
         protected override void OnResize(EventArgs e)

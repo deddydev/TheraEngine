@@ -33,25 +33,38 @@ namespace Game.Worlds
             boxModel.Meshes.Add(mesh);
             boxModel.Skeleton = skel;
             
+            AnimationInterpNode camPropAnim = new AnimationInterpNode(1);
+            camPropAnim.Looped = true;
+            camPropAnim.UseKeyframes = true;
+            InterpKeyframe start = new InterpKeyframe(0.0f, 0.01f, 0.01f);
+            //InterpKeyframe end = new InterpKeyframe(1000.0f, 360.0f, 360.0f);
+            camPropAnim.Keyframes.AddFirst(start);
+            //camPropAnim.Keyframes.AddLast(end);
+            //start.MakeOutLinear();
+            //end.MakeInLinear();
+
+            AnimationContainer anim = new AnimationContainer("Anim_AddRotationY", true, camPropAnim);
+
             ModelComponent modelComp = new ModelComponent(boxModel);
             Camera camera = new PerspectiveCamera();
-            //camera.Translation = new Vec3(0.0f, 0.0f, 20.0f);
-            //camera.Rotation = Quaternion.LookAt(camera.Translation, Vec3.Zero);
+            camera.CurrentTransform = new FrameState(new Vec3(50,-50,200), Quaternion.Identity, Vec3.One);
+            camera.CurrentTransform.AddAnimation(anim);
+            anim.Start();
             CameraComponent cameraComp = new CameraComponent(camera);
             cameraComp.Parent = modelComp;
             _settings._maps.Add(new Map(this, new MapSettings(new Pawn(PlayerIndex.One, modelComp))));
 
-            AnimationInterpNode propertyAnim = new AnimationInterpNode(360);
-            propertyAnim.Looped = true;
-            propertyAnim.UseKeyframes = true;
-            InterpKeyframe start = new InterpKeyframe(0.0f, 0.0f, 0.0f);
-            InterpKeyframe end = new InterpKeyframe(360.0f, 360.0f, 360.0f);
-            propertyAnim.Keyframes.AddFirst(start);
-            propertyAnim.Keyframes.AddLast(end);
-            start.MakeOutLinear();
-            end.MakeInLinear();
+            //AnimationInterpNode propertyAnim = new AnimationInterpNode(360);
+            //propertyAnim.Looped = true;
+            //propertyAnim.UseKeyframes = true;
+            //start = new InterpKeyframe(0.0f, 0.0f, 0.0f);
+            //end = new InterpKeyframe(360.0f, 360.0f, 360.0f);
+            //propertyAnim.Keyframes.AddFirst(start);
+            //propertyAnim.Keyframes.AddLast(end);
+            //start.MakeOutLinear();
+            //end.MakeInLinear();
 
-            AnimationContainer anim = new AnimationContainer("LocalTransform.Anim_SetRotationZ", true, propertyAnim);
+            //anim = new AnimationContainer("LocalTransform.Anim_SetRotationZ", true, propertyAnim);
             //modelComp.AddAnimation(anim);
             //anim.Start();
         }

@@ -4,9 +4,17 @@ namespace CustomEngine.Rendering.Cameras
 {
     public class PerspectiveCamera : Camera
     {
+        public PerspectiveCamera() : base() { }
+        public PerspectiveCamera(Matrix4.MultiplyOrder order) : base(order) { }
+        public PerspectiveCamera(FrameState defaultTransform) : base(defaultTransform) { }
+        public PerspectiveCamera(Vec3 defaultTranslate, Quaternion defaultRotate, Vec3 defaultScale)
+            : base(defaultTranslate, defaultRotate, defaultScale) { }
+        public PerspectiveCamera(Vec3 defaultTranslate, Quaternion defaultRotate, Vec3 defaultScale, Matrix4.MultiplyOrder order)
+            : base(defaultTranslate, defaultRotate, defaultScale, order) { }
+        
         public float VerticalFieldOfView { get { return _fovY; } set { _fovY = value; CalculateProjection(); } }
-        public float Width { get { return _width; } set { _width = value; CalculateProjection(); } }
-        public float Height { get { return _height; } set { _height = value; CalculateProjection(); } }
+        public override float Width { get { return _width; } }
+        public override float Height { get { return _height; } }
         public float Aspect { get { return _aspect; } set { _aspect = value; CalculateProjection(); } }
         public float HorizontalFieldOfView
         {
@@ -18,25 +26,11 @@ namespace CustomEngine.Rendering.Cameras
 
         public override void Zoom(float amount)
         {
-            TranslateRelative(0.0f, 0.0f, amount);
+            
         }
-        public unsafe override void CalculateProjection()
+        protected unsafe override void CalculateProjection()
         {
-            Matrix4 m;
-
-            float* p = (float*)&m;
-
-            float cotan = (float)(1.0 / Math.Tan(_fovY / 2 * Math.PI / 180.0));
-
-            p[0] = cotan / _aspect;
-            p[5] = cotan;
-            p[10] = (_farZ + _nearZ) / (_nearZ - _farZ);
-            p[11] = -1.0f;
-            p[14] = (2.0f * _farZ * _nearZ) / (_nearZ - _farZ);
-
-            p[1] = p[2] = p[3] = p[4] = p[6] = p[7] = p[8] = p[9] = p[12] = p[13] = p[15] = 0.0f;
-
-            _projectionMatrix = m;//Matrix4.CreatePerspectiveFieldOfView(_fovY, _aspect, _nearZ, _farZ);
+            _projectionMatrix = Matrix4.CreatePerspectiveFieldOfView(_fovY, _aspect, _nearZ, _farZ);
             _projectionInverse = Matrix4.CreateInversePerspectiveFieldOfView(_fovY, _aspect, _nearZ, _farZ);
         }
         public void SetProjectionParams(float aspect, float fovy, float farz, float nearz)
@@ -55,10 +49,6 @@ namespace CustomEngine.Rendering.Cameras
             _aspect = _width / _height;
             base.Resize(width, height);
         }
-
-        protected override float GetWidth() { return Width; }
-        protected override float GetHeight() { return Height; }
-
         public override Frustrum GetFrustrum()
         {
             float upAngle = _fovY / 2.0f;

@@ -52,13 +52,19 @@ namespace CustomEngine.Worlds
             get { return _rootSceneComponent; }
             set
             {
+                MonitoredList<SceneComponent> children = null;
                 if (_rootSceneComponent != null)
+                {
                     _rootSceneComponent.Owner = null;
+                    children = _rootSceneComponent.Children;
+                    _rootSceneComponent.Children = null;
+                }
                 
                 _rootSceneComponent = value;
 
                 if (_rootSceneComponent != null)
                 {
+                    _rootSceneComponent.Children = children;
                     _rootSceneComponent.Owner = this;
                     _rootSceneComponent.RecalcGlobalTransform();
                 }

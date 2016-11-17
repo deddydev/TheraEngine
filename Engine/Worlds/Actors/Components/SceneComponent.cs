@@ -11,8 +11,8 @@ namespace CustomEngine.Worlds.Actors.Components
     {
         public SceneComponent(Matrix4.MultiplyOrder order = Matrix4.MultiplyOrder.SRT)
         {
-            _localTransform = FrameState.GetIdentity(order);
-            _localTransform.MatrixChanged += _localTransform_MatrixChanged;
+            LocalTransform = FrameState.GetIdentity(order);
+            LocalTransform.MatrixChanged += _localTransform_MatrixChanged;
             _children.Added += _children_Added;
             _children.AddedRange += _children_AddedRange;
             _children.Inserted += _children_Inserted;
@@ -28,6 +28,17 @@ namespace CustomEngine.Worlds.Actors.Components
         protected MonitoredList<SceneComponent> _children = new MonitoredList<SceneComponent>();
         protected bool _visible;
         protected bool _isRendering = false;
+
+        public MonitoredList<SceneComponent> Children
+        {
+            get { return _children; }
+            set
+            {
+                _children.Clear();
+
+                _children = value ?? new MonitoredList<SceneComponent>();
+            }
+        }
 
         /// <summary>
         /// Gets the transformation of this component in relation to the actor's root component.
@@ -68,7 +79,7 @@ namespace CustomEngine.Worlds.Actors.Components
             set { _visible = value; }
         }
         [Category("Rendering"), Default, State, Animatable]
-        public FrameState LocalTransform
+        public virtual FrameState LocalTransform
         {
             get { return _localTransform; }
             set { _localTransform = value; }
@@ -76,8 +87,8 @@ namespace CustomEngine.Worlds.Actors.Components
         [Category("Rendering"), Default, State, Animatable]
         public Matrix4.MultiplyOrder TransformOrder
         {
-            get { return _localTransform.TransformOrder; }
-            set { _localTransform.TransformOrder = value; }
+            get { return LocalTransform.TransformOrder; }
+            set { LocalTransform.TransformOrder = value; }
         }
         public virtual void OnSpawned()
         {
@@ -99,8 +110,8 @@ namespace CustomEngine.Worlds.Actors.Components
         {
             Matrix4 parentTransform = _parent == null ? Matrix4.Identity : _parent._worldTransform;
             Matrix4 parentInvTransform = _parent == null ? Matrix4.Identity : _parent._worldTransform;
-            _worldTransform = _localTransform.Matrix * parentTransform;
-            _invWorldTransform = _localTransform.InverseMatrix * parentInvTransform;
+            _worldTransform = LocalTransform.Matrix * parentTransform;
+            _invWorldTransform = LocalTransform.InverseMatrix * parentInvTransform;
             foreach (SceneComponent c in _children)
                 c.RecalcGlobalTransform();
         }

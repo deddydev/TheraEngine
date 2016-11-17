@@ -48,6 +48,16 @@ namespace CustomEngine.Rendering.Models
                 }
             }
         }
+        //Vec3[] pos = new Vec3[6]
+        //{
+        //    new Vec3(-50, -50, 200), new Vec3(50, -50, 200), new Vec3(-50, 50, 200),
+        //    new Vec3(-50, 50, 200), new Vec3(50, -50, 200), new Vec3(50, 50, 200),
+        //};
+        Vec3[] pos = new Vec3[6]
+        {
+            new Vec3(-50, -20, -50), new Vec3(50, -20, -50), new Vec3(-50, -20, 50),
+            new Vec3(-50, -20, 50), new Vec3(50, -20, -50), new Vec3(50, -20, 50),
+        };
         public unsafe void Render(Material material, Matrix4 transform)
         {
             if (_data == null)
@@ -59,28 +69,11 @@ namespace CustomEngine.Rendering.Models
             //TODO: set material and uniforms in render queue and then render ALL meshes that use it
             //order by depth FIRST though
             Engine.Renderer.UseMaterial(material.BindingId);
-            //Engine.Renderer.SetCommonUniforms();
+            Engine.Renderer.SetCommonUniforms();
             //material.SetUniforms();
 
             //This is a mesh-specific uniform
-            //Engine.Renderer.Uniform(Uniform.ModelMatrixName, transform);
-
-            //GL.MatrixMode(MatrixMode.Modelview);
-            //Matrix4 m1 = Engine.Renderer.Scene.CurrentCamera.Matrix;
-            //GL.PushMatrix();
-            //GL.LoadMatrix((float*)&m1);
-            //GL.MatrixMode(MatrixMode.Projection);
-            //Matrix4 m2 = Engine.Renderer.Scene.CurrentCamera.ProjectionMatrix;
-            //GL.PushMatrix();
-            //GL.LoadMatrix((float*)&m2);
-            //GL.MatrixMode(MatrixMode.Modelview);
-
-            //OpenTK.Graphics.OpenGL.GL.Begin(OpenTK.Graphics.OpenGL.PrimitiveType.Quads);
-            //OpenTK.Graphics.OpenGL.GL.Vertex3(-5, -5, 0);
-            //OpenTK.Graphics.OpenGL.GL.Vertex3(5, -5, 0);
-            //OpenTK.Graphics.OpenGL.GL.Vertex3(5, 5, 0);
-            //OpenTK.Graphics.OpenGL.GL.Vertex3(-5, 5, 0);
-            //OpenTK.Graphics.OpenGL.GL.End();
+            Engine.Renderer.Uniform(Uniform.ModelMatrixName, transform);
 
             //GL.BindVertexArray(BindingId);
             //GL.BindVertexBuffers(0, _data._buffers.Count, _bindingIds, new IntPtr[_data._buffers.Count], _data._buffers.Select(x => x.Stride).ToArray());
@@ -88,20 +81,11 @@ namespace CustomEngine.Rendering.Models
             //GL.BindVertexArray(0);
 
             GL.EnableClientState(ArrayCap.VertexArray);
-
-            //GL.VertexPointer(3, VertexPointerType.Float, 0, pos);
+            GL.VertexPointer(3, VertexPointerType.Float, 0, pos);
             GL.DrawArrays(PrimitiveType.Triangles, 0, 6);
-
-            //GL.VertexPointer(3, VertexPointerType.Float, _data._buffers[0].Stride, (IntPtr)_data._buffers[0].Data);
-            //GL.DrawElements(PrimitiveType.Triangles, _data._faces.Count * 3, DrawElementsType.UnsignedByte, (IntPtr)_indexBuffer.Data);
             GL.DisableClientState(ArrayCap.VertexArray);
 
             Engine.Renderer.UseMaterial(0);
-
-            //GL.PopMatrix();
-            //GL.MatrixMode(MatrixMode.Projection);
-            //GL.PopMatrix();
-            //GL.MatrixMode(MatrixMode.Modelview);
         }
 
         public VoidPtr PreModifyVertices()

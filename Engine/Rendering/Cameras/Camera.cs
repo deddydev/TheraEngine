@@ -7,7 +7,26 @@ namespace CustomEngine.Rendering.Cameras
 {
     public abstract class Camera : FileObject
     {
-        private PostProcessSettings _postProcessSettings;
+        public Camera()
+        {
+            _currentTransform = _defaultTransform = FrameState.Identity;
+        }
+        public Camera(Matrix4.MultiplyOrder order)
+        {
+            _currentTransform = _defaultTransform = FrameState.GetIdentity(order);
+        }
+        public Camera(FrameState defaultTransform)
+        {
+            _currentTransform = _defaultTransform = defaultTransform;
+        }
+        public Camera(Vec3 defaultTranslate, Quaternion defaultRotate, Vec3 defaultScale)
+        {
+            _currentTransform = _defaultTransform = new FrameState(defaultTranslate, defaultRotate, defaultScale);
+        }
+        public Camera(Vec3 defaultTranslate, Quaternion defaultRotate, Vec3 defaultScale, Matrix4.MultiplyOrder order)
+        {
+            _currentTransform = _defaultTransform = new FrameState(defaultTranslate, defaultRotate, defaultScale, order);
+        }
 
         public PostProcessSettings PostProcessSettings
         {
@@ -47,13 +66,6 @@ namespace CustomEngine.Rendering.Cameras
             get { return _currentTransform.Translation; }
             set { _currentTransform.Translation = value; }
         }
-
-        internal void SetUniforms()
-        {
-            Engine.Renderer.Uniform(Uniform.ViewMatrixName, Matrix);
-            Engine.Renderer.Uniform(Uniform.ProjMatrixName, _projectionMatrix);
-        }
-
         public Quaternion Rotation
         {
             get { return _currentTransform.Rotation; }
@@ -64,7 +76,9 @@ namespace CustomEngine.Rendering.Cameras
             get { return _currentTransform.Scale; }
             set { _currentTransform.Scale = value; }
         }
-
+        public abstract float Width { get; }
+        public abstract float Height { get; }
+        
         protected Matrix4 _projectionMatrix;
         protected Matrix4 _projectionInverse;
         protected FrameState _currentTransform;
@@ -73,6 +87,7 @@ namespace CustomEngine.Rendering.Cameras
         protected bool _updating;
         protected bool _restrictXRot, _restrictYRot, _restrictZRot;
         protected float _nearZ = 1.0f, _farZ = 200000.0f;
+        private PostProcessSettings _postProcessSettings;
 
         public event TranslateChange TranslateChanged;
         public event RotateChange RotateChanged;
@@ -86,38 +101,20 @@ namespace CustomEngine.Rendering.Cameras
         protected void OnRotateChanged(Quaternion oldRotation) { RotateChanged?.Invoke(oldRotation); }
         protected void OnScaleChanged(Vec3 oldScale) { ScaleChanged?.Invoke(oldScale); }
 
-        public Camera()
+        internal void SetUniforms()
         {
-            _defaultTransform = FrameState.Identity;
-            Reset();
+            Engine.Renderer.Uniform(Uniform.ViewMatrixName, Matrix);
+            Engine.Renderer.Uniform(Uniform.ProjMatrixName, _projectionMatrix);
         }
-        public Camera(Vec3 defaultTranslate, Quaternion defaultRotate, Vec3 defaultScale)
-        {
-            _currentTransform = _defaultTransform = new FrameState(defaultTranslate, defaultRotate, defaultScale);
-        }
-        public Camera(FrameState defaultTransform)
-        {
-            _currentTransform = _defaultTransform = defaultTransform;
-        }
-
-        protected abstract float GetWidth();
-        protected abstract float GetHeight();
         protected virtual Vec3 AlignScreenPoint(Vec3 screenPoint) { return screenPoint; }
         protected virtual Vec3 UnAlignScreenPoint(Vec3 screenPoint) { return screenPoint; }
-        public abstract void Zoom(float amount);
-        public abstract void CalculateProjection();
+        protected abstract void CalculateProjection();
         public virtual void Resize(float width, float height)
         {
             CalculateProjection();
             OnResized();
         }
-
-        public void TranslateRelative(Vec3 v) { TranslateRelative(v.X, v.Y, v.Z); }
-        public void TranslateRelative(float x, float y, float z)
-        {
-            MatrixInverse.TranslateRelative(x, y, z);
-            _currentTransform.Translation = MatrixInverse.ExtractTranslation();
-        }
+        public abstract void Zoom(float amount);
         public void Rotate(float x, float y, float z) { Rotate(new Vec3(x, y, z)); }
         public void Rotate(Vec3 v)
         {
@@ -171,7 +168,7 @@ namespace CustomEngine.Rendering.Cameras
         public Vec3 GetWorldPoint(Vec3 screenPoint)
         {
             screenPoint = AlignScreenPoint(screenPoint);
-            return screenPoint.Unproject(0, 0, GetWidth(), GetHeight(), NearDepth, FarDepth, MatrixInverse * _projectionInverse);
+            return screenPoint.Unproject(0, 0, Width, Height, NearDepth, FarDepth, MatrixInverse * _projectionInverse);
         }
 
         /// <summary>
@@ -190,7 +187,7 @@ namespace CustomEngine.Rendering.Cameras
         /// <returns>2D coordinate on the screen with z as depth (z is not a distance value!)</returns>
         public Vec3 GetScreenPoint(Vec3 worldPoint)
         {
-            return UnAlignScreenPoint(worldPoint.Project(0, 0, GetWidth(), GetHeight(), NearDepth, FarDepth, _projectionMatrix * Matrix));
+            return UnAlignScreenPoint(worldPoint.Project(0, 0, Width, Height, NearDepth, FarDepth, _projectionMatrix * Matrix));
         }
         public Ray GetWorldRay(Vec2 screenPoint)
         {

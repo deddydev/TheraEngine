@@ -19,6 +19,10 @@ namespace CustomEngine.Input.Devices
         {
             throw new NotImplementedException();
         }
+        public void RegisterScroll(Action<bool> func)
+        {
+            throw new NotImplementedException();
+        }
     }
     public enum EMouseButton
     {

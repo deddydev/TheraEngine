@@ -126,31 +126,12 @@ namespace CustomEngine.Rendering
                 return;
 
             _currentlyRendering = this;
-            //Engine.Renderer.PushRenderArea(Region);
-            //Engine.Renderer.CropRenderArea(Region);
-
-            GL.MatrixMode(MatrixMode.Projection);
-            Matrix4 m2 = _worldCamera.ProjectionMatrix;
-            GL.LoadMatrix((float*)&m2);
-            //GL.LoadIdentity();
-
-            GL.MatrixMode(MatrixMode.Modelview);
-            //Matrix4 mtx = Matrix4.LookAt(Vec3.Zero, new Vec3(0, 0, 20), Vec3.Up);
-            //Matrix4 m1 = mtx;
-            //GL.LoadMatrix((float*)&m1);
-            GL.LoadIdentity();
-
-            GL.Color4(Color.Red);
-            GL.EnableClientState(ArrayCap.VertexArray);
-
-            GL.VertexPointer(3, VertexPointerType.Float, 0, pos);
-            GL.DrawArrays(PrimitiveType.Triangles, 0, 6);
+            Engine.Renderer.PushRenderArea(Region);
+            Engine.Renderer.CropRenderArea(Region);
             
-            GL.DisableClientState(ArrayCap.VertexArray);
-
-            //scene.Render(_worldCamera);
+            scene.Render(_worldCamera);
             //_hud.Render();
-            //Engine.Renderer.PopRenderArea();
+            Engine.Renderer.PopRenderArea();
             _currentlyRendering = null;
         }
 

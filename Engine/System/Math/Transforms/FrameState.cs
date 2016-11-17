@@ -31,11 +31,11 @@ namespace System
         }
 
         private Vec3 _translation;
-        private Quaternion _rotation;
+        private Quaternion _rotation = Quaternion.Identity;
         private Vec3 _scale = Vec3.One;
-        private Matrix4 _transform;
-        private Matrix4 _inverseTransform;
-        private Matrix4.MultiplyOrder _order;
+        private Matrix4 _transform = Matrix4.Identity;
+        private Matrix4 _inverseTransform = Matrix4.Identity;
+        private Matrix4.MultiplyOrder _order = Matrix4.MultiplyOrder.SRT;
 
         public event TranslateChange TranslationChanged;
         public event RotateChange RotationChanged;
@@ -77,16 +77,6 @@ namespace System
             get { return _order; }
             set { _order = value; CreateTransform(); }
         }
-        public void ApplyForwardTranslation(Vec3 translation)
-        {
-            _transform.TranslateRelative(translation);
-            SetTranslate(_transform.ExtractTranslation());
-        }
-        public void SetForwardTranslation(Vec3 translation)
-        {
-            _transform.ClearTranslation();
-            ApplyForwardTranslation(translation);
-        }
         private void SetTranslate(Vec3 value)
         {
             Vec3 oldTranslation = _translation;
@@ -115,23 +105,7 @@ namespace System
             CreateTransform();
             ScaleChanged?.Invoke(oldScale);
         }
-
-        public void AddTranslation(Vec3 translation)
-        {
-            SetTranslate(_translation + translation);
-        }
-        public void ApplyRotation(Vec3 rotation)
-        {
-            SetRotate(_rotation * Quaternion.FromEulerAngles(rotation));
-        }
-        public void ApplyRotation(Quaternion rotation)
-        {
-            SetRotate(_rotation * rotation);
-        }
-        public void MultiplyScale(Vec3 scale)
-        {
-            SetScale(_scale * scale);
-        }
+        
         public void SetAll(Vec3 translation, Quaternion rotation, Vec3 scale)
         {
             SetTranslate(translation);
@@ -152,134 +126,269 @@ namespace System
         public void MultMatrix() { Engine.Renderer.MultMatrix(_transform); }
         public void MultInvMatrix() { Engine.Renderer.MultMatrix(_inverseTransform); }
 
+        public void RotateInPlace(Quaternion rotation)
+        {
+            switch (_order)
+            {
+                case Matrix4.MultiplyOrder.TRS:
+
+                    break;
+                case Matrix4.MultiplyOrder.TSR:
+
+                    break;
+                case Matrix4.MultiplyOrder.STR:
+
+                    break;
+                case Matrix4.MultiplyOrder.SRT:
+
+                    break;
+                case Matrix4.MultiplyOrder.RTS:
+
+                    break;
+                case Matrix4.MultiplyOrder.RST:
+
+                    break;
+            }
+        }
+        public void RotateAboutParent(Quaternion rotation, Vec3 point)
+        {
+            switch (_order)
+            {
+                case Matrix4.MultiplyOrder.TRS:
+
+                    break;
+                case Matrix4.MultiplyOrder.TSR:
+
+                    break;
+                case Matrix4.MultiplyOrder.STR:
+
+                    break;
+                case Matrix4.MultiplyOrder.SRT:
+
+                    break;
+                case Matrix4.MultiplyOrder.RTS:
+
+                    break;
+                case Matrix4.MultiplyOrder.RST:
+
+                    break;
+            }
+        }
+        public void RotateAboutPoint(Quaternion rotation, Vec3 point)
+        {
+            switch (_order)
+            {
+                case Matrix4.MultiplyOrder.TRS:
+
+                    break;
+                case Matrix4.MultiplyOrder.TSR:
+
+                    break;
+                case Matrix4.MultiplyOrder.STR:
+
+                    break;
+                case Matrix4.MultiplyOrder.SRT:
+
+                    break;
+                case Matrix4.MultiplyOrder.RTS:
+
+                    break;
+                case Matrix4.MultiplyOrder.RST:
+
+                    break;
+            }
+        }
+        //Translates relative to rotation.
+        public void TranslateRelative(Vec3 translation)
+        {
+            switch (_order)
+            {
+                case Matrix4.MultiplyOrder.SRT:
+                case Matrix4.MultiplyOrder.RST:
+                    Translation += translation;
+                    break;
+                case Matrix4.MultiplyOrder.RTS:
+                    Translation += translation / Scale;
+                    break;
+                case Matrix4.MultiplyOrder.STR:
+                    Translation += _rotation.Inverted() * translation;
+                    break;
+                case Matrix4.MultiplyOrder.TRS:
+                    Translation += (_rotation.Inverted() * translation) / Scale;
+                    break;
+                case Matrix4.MultiplyOrder.TSR:
+                    Translation += _rotation.Inverted() * (translation / Scale);
+                    break;
+            }
+        }
+        //Translates relative to parent space.
+        public void TranslateAbsolute(Vec3 translation)
+        {
+            switch (_order)
+            {
+                case Matrix4.MultiplyOrder.TRS:
+                case Matrix4.MultiplyOrder.TSR:
+                    Translation += translation;
+                    break;
+                case Matrix4.MultiplyOrder.STR:
+                    Translation += translation / Scale;
+                    break;
+                case Matrix4.MultiplyOrder.RTS:
+                    Translation += _rotation.Inverted() * translation;
+                    break;
+                case Matrix4.MultiplyOrder.SRT:
+                    Translation += (_rotation.Inverted() * translation) / Scale;
+                    break;
+                case Matrix4.MultiplyOrder.RST:
+                    Translation += _rotation.Inverted() * (translation / Scale);
+                    break;
+            }
+        }
+        public void AddTranslation(Vec3 translation)
+        {
+            SetTranslate(_translation + translation);
+        }
+        public void ApplyRotation(Vec3 rotation)
+        {
+            SetRotate(_rotation * Quaternion.FromEulerAngles(rotation));
+        }
+        public void ApplyRotation(Quaternion rotation)
+        {
+            SetRotate(_rotation * rotation);
+        }
+        public void MultiplyScale(Vec3 scale)
+        {
+            SetScale(_scale * scale);
+        }
+
         #region Animation
-        public void Anim_SetRotationZ(float degreeAngle)
+        public void SetRotationZ(float degreeAngle)
         {
             Rotation = Quaternion.FromAxisAngle(Vec3.UnitZ, degreeAngle);
         }
-        public void Anim_SetRotationY(float degreeAngle)
+        public void SetRotationY(float degreeAngle)
         {
             Rotation = Quaternion.FromAxisAngle(Vec3.UnitY, degreeAngle);
         }
-        public void Anim_SetRotationX(float degreeAngle)
+        public void SetRotationX(float degreeAngle)
         {
             Rotation = Quaternion.FromAxisAngle(Vec3.UnitX, degreeAngle);
         }
-        public void Anim_AddRotationZ(float degreeAngle)
+        public void AddRotationZ(float degreeAngle)
         {
             Rotation *= Quaternion.FromAxisAngle(Vec3.UnitZ, degreeAngle);
         }
-        public void Anim_AddRotationY(float degreeAngle)
+        public void AddRotationY(float degreeAngle)
         {
             Rotation *= Quaternion.FromAxisAngle(Vec3.UnitY, degreeAngle);
         }
-        public void Anim_AddRotationX(float degreeAngle)
+        public void AddRotationX(float degreeAngle)
         {
             Rotation *= Quaternion.FromAxisAngle(Vec3.UnitX, degreeAngle);
         }
-        public void Anim_SetTranslationZ(float value)
+        public void SetTranslationZ(float value)
         {
             Vec3 oldTranslation = _translation;
             _translation.Z = value;
             TranslationChanged?.Invoke(oldTranslation);
         }
-        public void Anim_SetTranslationY(float value)
+        public void SetTranslationY(float value)
         {
             Vec3 oldTranslation = _translation;
             _translation.Y = value;
             TranslationChanged?.Invoke(oldTranslation);
         }
-        public void Anim_SetTranslationX(float value)
+        public void SetTranslationX(float value)
         {
             Vec3 oldTranslation = _translation;
             _translation.X = value;
             TranslationChanged?.Invoke(oldTranslation);
         }
-        public void Anim_AddTranslationZ(float value)
+        public void AddTranslationZ(float value)
         {
             Vec3 oldTranslation = _translation;
             _translation.Z += value;
             TranslationChanged?.Invoke(oldTranslation);
         }
-        public void Anim_AddTranslationY(float value)
+        public void AddTranslationY(float value)
         {
             Vec3 oldTranslation = _translation;
             _translation.Y += value;
             TranslationChanged?.Invoke(oldTranslation);
         }
-        public void Anim_AddTranslationX(float value)
+        public void AddTranslationX(float value)
         {
             Vec3 oldTranslation = _translation;
             _translation.X += value;
             TranslationChanged?.Invoke(oldTranslation);
         }
-        public void Anim_MultTranslationZ(float value)
+        public void MultTranslationZ(float value)
         {
             Vec3 oldTranslation = _translation;
             _translation.Z *= value;
             TranslationChanged?.Invoke(oldTranslation);
         }
-        public void Anim_MultTranslationY(float value)
+        public void MultTranslationY(float value)
         {
             Vec3 oldTranslation = _translation;
             _translation.Y *= value;
             TranslationChanged?.Invoke(oldTranslation);
         }
-        public void Anim_MultTranslationX(float value)
+        public void MultTranslationX(float value)
         {
             Vec3 oldTranslation = _translation;
             _translation.X *= value;
             TranslationChanged?.Invoke(oldTranslation);
         }
-        public void Anim_SetScaleZ(float value)
+        public void SetScaleZ(float value)
         {
             Vec3 oldScale = _scale;
             _scale.Z = value;
             ScaleChanged?.Invoke(oldScale);
         }
-        public void Anim_SetScaleY(float value)
+        public void SetScaleY(float value)
         {
             Vec3 oldScale = _scale;
             _scale.Y = value;
             ScaleChanged?.Invoke(oldScale);
         }
-        public void Anim_SetScaleX(float value)
+        public void SetScaleX(float value)
         {
             Vec3 oldScale = _scale;
             _scale.X = value;
             ScaleChanged?.Invoke(oldScale);
         }
-        public void Anim_AddScaleZ(float value)
+        public void AddScaleZ(float value)
         {
             Vec3 oldScale = _scale;
             _scale.Z += value;
             ScaleChanged?.Invoke(oldScale);
         }
-        public void Anim_AddScaleY(float value)
+        public void AddScaleY(float value)
         {
             Vec3 oldScale = _scale;
             _scale.Y += value;
             ScaleChanged?.Invoke(oldScale);
         }
-        public void Anim_AddScaleX(float value)
+        public void AddScaleX(float value)
         {
             Vec3 oldScale = _scale;
             _scale.X += value;
             ScaleChanged?.Invoke(oldScale);
         }
-        public void Anim_MultScaleZ(float value)
+        public void MultScaleZ(float value)
         {
             Vec3 oldScale = _scale;
             _scale.Z *= value;
             ScaleChanged?.Invoke(oldScale);
         }
-        public void Anim_MultScaleY(float value)
+        public void MultScaleY(float value)
         {
             Vec3 oldScale = _scale;
             _scale.Y *= value;
             ScaleChanged?.Invoke(oldScale);
         }
-        public void Anim_MultScaleX(float value)
+        public void MultScaleX(float value)
         {
             Vec3 oldScale = _scale;
             _scale.X *= value;

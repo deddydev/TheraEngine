@@ -65,7 +65,7 @@ namespace CustomEngine.Rendering.OpenGL
             //    _control.Reset();
         }
 
-        public override void Initialize()
+        public unsafe override void Initialize()
         {
             GL.ClearDepth(1.0);
             GL.ShadeModel(ShadingModel.Smooth);
@@ -82,7 +82,7 @@ namespace CustomEngine.Rendering.OpenGL
             //GL.Disable(OpenTK.Graphics.OpenGL.EnableCap.Dither);
             //GL.Disable(OpenTK.Graphics.OpenGL.EnableCap.Blend);
             //GL.Disable(OpenTK.Graphics.OpenGL.EnableCap.AlphaTest);
-            //GL.Disable(OpenTK.Graphics.OpenGL.EnableCap.CullFace);
+            GL.Disable(OpenTK.Graphics.OpenGL.EnableCap.CullFace);
             //GL.Enable(OpenTK.Graphics.OpenGL.EnableCap.ScissorTest);
             //GL.Disable(OpenTK.Graphics.OpenGL.EnableCap.Lighting);
             //GL.Disable(OpenTK.Graphics.OpenGL.EnableCap.PointSmooth);
@@ -94,36 +94,10 @@ namespace CustomEngine.Rendering.OpenGL
             //GL.AlphaFunc(AlphaFunction.Gequal, 0.1f);
             //GL.CullFace(CullFaceMode.Back);
         }
-        Matrix4 mtx = Matrix4.Identity;
-        Vec3[] pos = new Vec3[6]
-{
-            new Vec3(-5, -5, 20), new Vec3(5, 0, 20), new Vec3(-5, 5, 20),
-            new Vec3(-5, 5, 20), new Vec3(5, 0, 20), new Vec3(5, 5, 20),
-};
         public unsafe override void BeginDraw()
         {
-            GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
-            //GL.ClearColor(Control.BackColor.R, Control.BackColor.G, Control.BackColor.B, Control.BackColor.A);
-
-            GL.MatrixMode(MatrixMode.Projection);
-            Matrix4 m2 = mtx;
-            GL.LoadMatrix((float*)&m2);
-            //GL.LoadIdentity();
-
-            GL.MatrixMode(MatrixMode.Modelview);
-            //Matrix4 mtx = Matrix4.LookAt(Vec3.Zero, new Vec3(0, 0, 20), Vec3.Up);
-            //Matrix4 m1 = mtx;
-            //GL.LoadMatrix((float*)&m1);
-            GL.LoadIdentity();
-
-            GL.Color4(Color.Red);
-            GL.EnableClientState(ArrayCap.VertexArray);
-
-            GL.VertexPointer(3, VertexPointerType.Float, 0, pos);
-            GL.DrawArrays(PrimitiveType.Triangles, 0, 6);
-
-            GL.DisableClientState(ArrayCap.VertexArray);
-
+            GL.Clear(ClearBufferMask.DepthBufferBit | ClearBufferMask.ColorBufferBit);
+            GL.ClearColor(Control.BackColor.R, Control.BackColor.G, Control.BackColor.B, Control.BackColor.A);
         }
         public override void EndDraw()
         {

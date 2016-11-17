@@ -1,6 +1,7 @@
 ﻿using CustomEngine.Rendering.Cameras;
 using CustomEngine.Input;
 using System.Collections.Generic;
+using System;
 
 namespace CustomEngine.Worlds.Actors.Components
 {
@@ -12,6 +13,11 @@ namespace CustomEngine.Worlds.Actors.Components
         {
             get { return _camera; }
             set { _camera = value; }
+        }
+        public override FrameState LocalTransform
+        {
+            get { return _camera.CurrentTransform; }
+            set { _camera.CurrentTransform = value; }
         }
 
         public CameraComponent()

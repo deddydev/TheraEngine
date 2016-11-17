@@ -23,6 +23,11 @@ namespace CustomEngine.Input.Devices
         string _label;
 
     }
+    public enum MouseMoveType
+    {
+        Relative,
+        Absolute,
+    }
     /// <summary>
     /// Input for server
     /// </summary>
@@ -36,6 +41,12 @@ namespace CustomEngine.Input.Devices
                 _playerIndex = value;
                 UpdateDevices();
             }
+        }
+        
+        
+        public void RegisterMouseMove(Action<float, float> func, MouseMoveType type)
+        {
+            throw new NotImplementedException();
         }
 
         Dictionary<string, List<EKey>> _namedKeys = new Dictionary<string, List<EKey>>();
@@ -86,6 +97,10 @@ namespace CustomEngine.Input.Devices
         {
             _mouse?.RegisterButtonEvent(button, type, func);
         }
+        public void RegisterMouseScroll(Action<bool> func)
+        {
+            _mouse?.RegisterScroll(func);
+        }
         #endregion
 
         #region Keyboard input registration
@@ -116,9 +131,9 @@ namespace CustomEngine.Input.Devices
         {
             _gamepad?.RegisterButtonEvent(button, type, func);
         }
-        public void RegisterAxisUpdate(GamePadAxis axis, Action<float> func)
+        public void RegisterAxisUpdate(GamePadAxis axis, Action<float> func, bool continuousUpdate)
         {
-            _gamepad?.RegisterAxisUpdate(axis, func);
+            _gamepad?.RegisterAxisUpdate(axis, func, continuousUpdate);
         }
         #endregion
 

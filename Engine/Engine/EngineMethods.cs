@@ -116,8 +116,8 @@ namespace CustomEngine
         {
             float delta = (float)e.Time;
             _debugTimers.ForEach(x => x += delta);
-            delta /= PhysicsSubsteps;
-            for (int i = 0; i < PhysicsSubsteps; i++)
+            //delta /= PhysicsSubsteps;
+            for (int i = 0; i < 1; i++)
             {
                 PhysicsTick(ETickGroup.PrePhysics, delta);
                 //Task t = AsyncDuringPhysicsTick(delta);

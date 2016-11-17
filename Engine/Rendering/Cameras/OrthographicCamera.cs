@@ -4,8 +4,16 @@ namespace CustomEngine.Rendering.Cameras
 {
     public class OrthographicCamera : Camera
     {
-        public float Width { get { return Math.Abs(_orthoRight - _orthoLeft); } }
-        public float Height { get { return Math.Abs(_orthoTop - _orthoBottom); } }
+        public OrthographicCamera() : base() { }
+        public OrthographicCamera(Matrix4.MultiplyOrder order) : base(order) { }
+        public OrthographicCamera(FrameState defaultTransform) : base(defaultTransform) { }
+        public OrthographicCamera(Vec3 defaultTranslate, Quaternion defaultRotate, Vec3 defaultScale)
+            : base(defaultTranslate, defaultRotate, defaultScale) { }
+        public OrthographicCamera(Vec3 defaultTranslate, Quaternion defaultRotate, Vec3 defaultScale, Matrix4.MultiplyOrder order)
+            : base(defaultTranslate, defaultRotate, defaultScale, order) { }
+
+        public override float Width { get { return Math.Abs(_orthoRight - _orthoLeft); } }
+        public override float Height { get { return Math.Abs(_orthoTop - _orthoBottom); } }
 
         private float 
             _orthoLeft = 0.0f, 
@@ -41,7 +49,7 @@ namespace CustomEngine.Rendering.Cameras
             float scale = amount >= 0 ? amount : 1.0f / -amount;
             Scale = Scale * new Vec3(scale);
         }
-        public override void CalculateProjection()
+        protected override void CalculateProjection()
         {
             _projectionMatrix = Matrix4.CreateOrthographicOffCenter(_orthoLeft, _orthoRight, _orthoBottom, _orthoTop, _nearZ, _farZ);
             _projectionInverse = Matrix4.CreateInverseOrthographicOffCenter(_orthoLeft, _orthoRight, _orthoBottom, _orthoTop, _nearZ, _farZ);
@@ -64,8 +72,6 @@ namespace CustomEngine.Rendering.Cameras
 
             base.Resize(width, height);
         }
-        protected override float GetWidth() { return Width; }
-        protected override float GetHeight() { return Height; }
         protected override Vec3 AlignScreenPoint(Vec3 screenPoint)
         {
             return new Vec3(screenPoint.X + _orthoLeft, screenPoint.Y + _orthoBottom, screenPoint.Z);

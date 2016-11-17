@@ -168,7 +168,7 @@ namespace System
         public override bool Contains(Vec3 point) { return Collision.BoxContainsPoint(this, point); }
         public EContainment Contains(Box box) { return Collision.BoxContainsBox(this, box); }
         public EContainment Contains(Sphere sphere) { return Collision.BoxContainsSphere(this, sphere); }
-        public EContainment WithinFrustrum(Frustrum frustrum) { return Collision.FrustrumContainsBox(frustrum, this); }
+        public EContainment WithinFrustrum(Frustrum frustrum) { return Collision.FrustrumContainsBox(frustrum, this, Matrix4.Identity); }
         public EContainment WithinFrustrum(Frustrum frustrum, Matrix4 transform) { return Collision.FrustrumContainsBox(frustrum, this, transform); }
         public static Box FromSphere(Sphere sphere)
         {

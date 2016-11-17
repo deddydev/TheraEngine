@@ -28,7 +28,7 @@ namespace CustomEngine.Rendering
                 return;
 
             _currentCamera = camera;
-            _renderTree.Cull(camera.GetFrustrum());
+            //_renderTree.Cull(camera.GetFrustrum());
             _renderTree.Render();
             _currentCamera = null;
             

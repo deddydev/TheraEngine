@@ -113,8 +113,8 @@ namespace CustomEngine
         protected virtual void OnRender(PaintEventArgs e)
         {
             _context.BeginDraw();
-            //foreach (Viewport v in _viewports)
-            //    v.Render(Engine.Renderer.Scene);
+            foreach (Viewport v in _viewports)
+                v.Render(Engine.Renderer.Scene);
             //_globalHud?.Render();
             _context.EndDraw();
         }
@@ -124,9 +124,9 @@ namespace CustomEngine
             foreach (Viewport v in _viewports)
                 v.Resize(Width, Height);
             Rectangle region = new Rectangle(0, 0, Width, Height);
-            Engine.Renderer.PopRenderArea();
-            Engine.Renderer.PushRenderArea(region);
-            Engine.Renderer.CropRenderArea(region);
+            //Engine.Renderer.PopRenderArea();
+            //Engine.Renderer.PushRenderArea(region);
+            //Engine.Renderer.CropRenderArea(region);
         }
         protected override void OnPaintBackground(PaintEventArgs e) { }
         protected override void OnHandleCreated(EventArgs e)

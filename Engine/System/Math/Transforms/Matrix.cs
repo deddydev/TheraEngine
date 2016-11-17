@@ -310,18 +310,18 @@ namespace System
         }
         public Vec4 ExtractProjection() { return Column3; }
         
-        public void TranslateRelative(Vec3 v) { TranslateRelative(v.X, v.Y, v.Z); }
-        public unsafe void TranslateRelative(float x, float y, float z)
-        {
-            fixed (Matrix4* m = &this)
-            {
-                float* p = (float*)m;
-                p[12] += (p[0] * x) + (p[4] * y) + (p[8] * z);
-                p[13] += (p[1] * x) + (p[5] * y) + (p[9] * z);
-                p[14] += (p[2] * x) + (p[6] * y) + (p[10] * z);
-                p[15] += (p[3] * x) + (p[7] * y) + (p[11] * z);
-            }
-        }
+        //public void TranslateRelative(Vec3 v) { TranslateRelative(v.X, v.Y, v.Z); }
+        //public unsafe void TranslateRelative(float x, float y, float z)
+        //{
+        //    fixed (Matrix4* m = &this)
+        //    {
+        //        float* p = (float*)m;
+        //        p[12] += (p[0] * x) + (p[4] * y) + (p[8] * z);
+        //        p[13] += (p[1] * x) + (p[5] * y) + (p[9] * z);
+        //        p[14] += (p[2] * x) + (p[6] * y) + (p[10] * z);
+        //        p[15] += (p[3] * x) + (p[7] * y) + (p[11] * z);
+        //    }
+        //}
         /// <summary>
         /// Build a rotation matrix from the specified axis/angle rotation.
         /// </summary>

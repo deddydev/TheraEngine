@@ -612,6 +612,7 @@
     <Compile Include="System\Memory\VoidPtr.cs" />
     <Compile Include="Worlds\Actors\Actor.cs" />
     <Compile Include="Worlds\Actors\Types\Character.cs" />
+    <Compile Include="Worlds\Actors\Types\CameraPawn.cs" />
     <Compile Include="Worlds\Actors\Types\Pawn.cs" />
     <Compile Include="Worlds\Actors\Types\PhysicsState.cs" />
     <Compile Include="Worlds\Actors\Types\Vehicle.cs" />

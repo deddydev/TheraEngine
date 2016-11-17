@@ -11,6 +11,7 @@ namespace CustomEngine.Rendering.Animation
         public event EventHandler AnimationStarted;
         public event EventHandler AnimationEnded;
 
+        protected float _fps = 60.0f;
         protected int _frameCount;
         protected float _currentFrame;
         protected bool _looped;
@@ -80,10 +81,10 @@ namespace CustomEngine.Rendering.Animation
         }
         private void OnTick(float delta)
         {
-            _currentFrame += delta;
+            _currentFrame += delta * _fps;
             if (_currentFrame > _frameCount - 1)
                 if (_looped)
-                    _currentFrame = _currentFrame.RemapToRange(0.0f, _frameCount);
+                    _currentFrame = _currentFrame.RemapToRange(0.0f, _frameCount - 1);
                 else
                 {
                     Stop();

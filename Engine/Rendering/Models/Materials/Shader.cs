@@ -66,9 +66,13 @@ namespace CustomEngine.Rendering.Models.Materials
 //in vec2 TexCoord0;
             string source = @"
 
+uniform mat4 ModelMatrix;
+uniform mat4 ViewMatrix;
+uniform mat4 ProjMatrix;
+
 void main()
 {
-    gl_Position = ftransform();
+    gl_Position = ProjMatrix * ViewMatrix * ModelMatrix * gl_Vertex;
 }
 ";
             return new Shader(ShaderMode.Vertex, source);
@@ -79,7 +83,7 @@ void main()
 
 void main()
 {
-    gl_FragColor = vec4(0.0, 1.0, 0.0, 1.0);
+    gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
 }
 ";
             return new Shader(ShaderMode.Fragment, source);

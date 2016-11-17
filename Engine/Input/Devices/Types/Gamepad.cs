@@ -187,9 +187,12 @@ namespace CustomEngine.Input.Devices
         {
             _axisStates[(int)axis].PressedState += func;
         }
-        public void RegisterAxisUpdate(GamePadAxis axis, Action<float> func)
+        public void RegisterAxisUpdate(GamePadAxis axis, Action<float> func, bool continuousUpdate)
         {
-            _axisStates[(int)axis].AxisUpdated += func;
+            if (continuousUpdate)
+                _axisStates[(int)axis].AxisValue += func;
+            else
+                _axisStates[(int)axis].AxisChanged += func;
         }
     }
     public class ButtonManager
@@ -261,7 +264,7 @@ namespace CustomEngine.Input.Devices
         private float _value = 0.0f, _prevValue = 0.0f;
         private float _timer;
         private bool _isPressed;
-        private bool _continuousUpdates = false;
+        //private bool _continuousUpdates = false;
         private GamePadAxis _axis;
 
         public float Value
@@ -287,14 +290,15 @@ namespace CustomEngine.Input.Devices
             get { return _updateThreshold; }
             set { _updateThreshold = value; }
         }
-        public bool ContinuousUpdates
-        {
-            get { return _continuousUpdates; }
-            set { _continuousUpdates = value; }
-        }
+        //public bool ContinuousUpdates
+        //{
+        //    get { return _continuousUpdates; }
+        //    set { _continuousUpdates = value; }
+        //}
         public bool IsPressed { get { return _isPressed; } }
 
-        public event Action<float> AxisUpdated;
+        public event Action<float> AxisChanged;
+        public event Action<float> AxisValue;
         public event Action Pressed;
         public event Action Released;
         public event Action Held;
@@ -312,9 +316,10 @@ namespace CustomEngine.Input.Devices
             bool wasPressed = Math.Abs(realPrev) > _pressedThreshold;
             bool nowPressed = Math.Abs(realValue) > _pressedThreshold;
 
-            if (_continuousUpdates || Math.Abs(realValue - realPrev) > _updateThreshold)
+            AxisValue?.Invoke(realValue);
+            if (Math.Abs(realValue - realPrev) > _updateThreshold)
             {
-                AxisUpdated?.Invoke(realValue);
+                AxisChanged?.Invoke(realValue);
                 Console.WriteLine(_axis + ": " + realValue.ToString());
             }
 

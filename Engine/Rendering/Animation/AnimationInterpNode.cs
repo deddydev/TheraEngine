@@ -85,7 +85,16 @@ namespace CustomEngine.Rendering.Animation
         public float Interpolate(float frameIndex)
         {
             if (frameIndex < _frameIndex)
+            {
+                if (_prev == this)
+                    return _inValue;
+
                 return Prev.Interpolate(frameIndex);
+            }
+
+            if (_next == this)
+                return _outValue;
+
             if (frameIndex > _next._frameIndex)
                 return Next.Interpolate(frameIndex);
 

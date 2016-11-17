@@ -131,7 +131,19 @@ namespace CustomEngine.Rendering.Animation
         private bool _isPlaying;
         private AnimFolder _root;
         public MonitoredList<ObjectBase> _owners = new MonitoredList<ObjectBase>();
-        
+
+        public AnimationContainer(Action<bool> func, AnimationBoolNode anim)
+        {
+
+        }
+        public AnimationContainer(Action<string> func, AnimationStringNode anim)
+        {
+
+        }
+        public AnimationContainer(Action<float> func, AnimationInterpNode anim)
+        {
+
+        }
         public AnimationContainer() { }
         public AnimationContainer(AnimFolder rootFolder)
         {

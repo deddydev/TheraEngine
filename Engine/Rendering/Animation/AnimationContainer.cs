@@ -59,7 +59,8 @@ namespace CustomEngine.Rendering.Animation
                     else
                         break;
                 }
-                _propertyNotFound = _methodCache == null;
+                if (_propertyNotFound = _methodCache == null)
+                    return;
             }
 
             _animation?.Tick(obj, _methodCache, delta);
@@ -82,7 +83,8 @@ namespace CustomEngine.Rendering.Animation
                     else
                         break;
                 }
-                _propertyNotFound = _propertyCache == null;
+                if (_propertyNotFound = _propertyCache == null)
+                    return;
             }
 
             if (_animation != null)

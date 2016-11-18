@@ -14,23 +14,20 @@ namespace CustomEngine.Worlds.Actors.Components
             get { return _camera; }
             set { _camera = value; }
         }
-        public override FrameState LocalTransform
-        {
-            get { return _camera.CurrentTransform; }
-            set { _camera.CurrentTransform = value; }
-        }
-
         public CameraComponent()
         {
             _camera = new PerspectiveCamera();
+            _camera.TransformChanged += RecalcGlobalTransform;
         }
         public CameraComponent(bool orthographic)
         {
             _camera = orthographic ? (Camera)new OrthographicCamera() : new PerspectiveCamera();
+            _camera.TransformChanged += RecalcGlobalTransform;
         }
         public CameraComponent(Camera camera)
         {
             _camera = camera;
+            _camera.TransformChanged += RecalcGlobalTransform;
         }
         protected override void GenerateChildCache(List<SceneComponent> cache)
         {
@@ -61,6 +58,15 @@ namespace CustomEngine.Worlds.Actors.Components
         {
             if (pawn != null)
                 pawn.CurrentCameraComponent = this;
+        }
+        public override void RecalcGlobalTransform()
+        {
+            Matrix4 parentTransform = _parent == null ? Matrix4.Identity : _parent.WorldTransform;
+            Matrix4 parentInvTransform = _parent == null ? Matrix4.Identity : _parent.WorldTransform;
+            _worldTransform = Camera.Matrix * parentTransform;
+            _invWorldTransform = Camera.InverseMatrix * parentInvTransform;
+            foreach (SceneComponent c in _children)
+                c.RecalcGlobalTransform();
         }
     }
 }

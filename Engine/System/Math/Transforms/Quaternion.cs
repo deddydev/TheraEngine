@@ -149,18 +149,20 @@ namespace System
         }
         public static Quaternion LookAt(Vec3 sourcePoint, Vec3 destPoint)
         {
-            Vec3 forwardVector = (destPoint - sourcePoint).NormalizedFast();
+            return FromMatrix(Matrix4.LookAt(sourcePoint, destPoint, Vec3.Up));
 
-            float dot = Vec3.Dot(Vec3.Forward, forwardVector);
+            //Vec3 forwardVector = (destPoint - sourcePoint).NormalizedFast();
 
-            if (Abs(dot - (-1.0f)) < 0.000001f)
-                return new Quaternion(Vec3.Up.X, Vec3.Up.Y, Vec3.Up.Z, PIf);
-            if (Abs(dot - (1.0f)) < 0.000001f)
-                return Identity;
+            //float dot = Vec3.Dot(Vec3.Forward, forwardVector);
 
-            float rotAngle = (float)Acos(dot);
-            Vec3 rotAxis = Vec3.Cross(Vec3.Forward, forwardVector).NormalizedFast();
-            return FromAxisAngle(rotAxis, rotAngle);
+            //if (Abs(dot - (-1.0f)) < 0.000001f)
+            //    return new Quaternion(Vec3.Up.X, Vec3.Up.Y, Vec3.Up.Z, PIf);
+            //if (Abs(dot - (1.0f)) < 0.000001f)
+            //    return Identity;
+
+            //float rotAngle = (float)Acos(dot);
+            //Vec3 rotAxis = Vec3.Cross(Vec3.Forward, forwardVector).NormalizedFast();
+            //return FromAxisAngle(rotAxis, rotAngle);
         }
         public static Quaternion FromAxisAngle(Vec3 axis, float angle)
         {

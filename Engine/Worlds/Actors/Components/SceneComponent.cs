@@ -21,9 +21,9 @@ namespace CustomEngine.Worlds.Actors.Components
             _children.RemovedRange += _children_RemovedRange;
         }
 
-        private Matrix4 _invWorldTransform = Matrix4.Identity;
-        private Matrix4 _worldTransform = Matrix4.Identity;
-        private FrameState _localTransform = FrameState.Identity;
+        protected Matrix4 _invWorldTransform = Matrix4.Identity;
+        protected Matrix4 _worldTransform = Matrix4.Identity;
+        protected FrameState _localTransform = FrameState.Identity;
         protected SceneComponent _parent;
         protected MonitoredList<SceneComponent> _children = new MonitoredList<SceneComponent>();
         protected bool _visible;
@@ -106,7 +106,7 @@ namespace CustomEngine.Worlds.Actors.Components
         {
             RecalcGlobalTransform();
         }
-        public void RecalcGlobalTransform()
+        public virtual void RecalcGlobalTransform()
         {
             Matrix4 parentTransform = _parent == null ? Matrix4.Identity : _parent._worldTransform;
             Matrix4 parentInvTransform = _parent == null ? Matrix4.Identity : _parent._worldTransform;
@@ -125,6 +125,9 @@ namespace CustomEngine.Worlds.Actors.Components
                     c.Owner = value;
             }
         }
+
+        public Matrix4 WorldTransform { get { return _worldTransform; } }
+
         public List<SceneComponent> GenerateChildCache()
         {
             List<SceneComponent> cache = new List<SceneComponent>();

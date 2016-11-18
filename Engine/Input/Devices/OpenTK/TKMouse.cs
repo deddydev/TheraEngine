@@ -11,15 +11,8 @@ namespace CustomEngine.Input.Devices.OpenTK
     {
         public TKMouse(int index) : base(index) { }
 
-        public void SetCursorPosition(double x, double y) { Mouse.SetPosition(x, y); }
-        protected override void CreateStates()
-        {
-            
-        }
-        protected override void DestroyStates()
-        {
+        public override void SetCursorPosition(float x, float y) { Mouse.SetPosition(x, y); }
 
-        }
         protected override void UpdateStates(float delta)
         {
             MouseState state = Mouse.GetState(_index);

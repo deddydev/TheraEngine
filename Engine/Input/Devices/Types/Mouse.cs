@@ -3,13 +3,17 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using OpenTK.Input;
 
 namespace CustomEngine.Input.Devices
 {
     public abstract class CMouse : InputDevice
     {
         public CMouse(int index) : base(index) { }
+
+        public abstract void SetCursorPosition(float x, float y);
+
+        protected override int GetAxisCount() { return 0; }
+        protected override int GetButtonCount() { return 0; }
 
         public void RegisterButtonPressed(EMouseButton button, Action<bool> func)
         {
@@ -31,21 +35,5 @@ namespace CustomEngine.Input.Devices
         MiddleClick,
         ScrollUp,
         ScrollDown,
-        LeftButton,
-        RightButton,
-        Keypad1,
-        Keypad2,
-        Keypad3,
-        Keypad4,
-        Keypad5,
-        Keypad6,
-        Keypad7,
-        Keypad8,
-        Keypad9,
-        Keypad10,
-        Keypad11,
-        Keypad12,
-        DpiUp,
-        DpiDown,
     }
 }

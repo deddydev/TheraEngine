@@ -43,13 +43,13 @@ namespace Game.Worlds
             //start.MakeOutLinear();
             //end.MakeInLinear();
 
-            AnimationContainer anim = new AnimationContainer("AddRotationY", true, camPropAnim);
+            AnimationContainer anim = new AnimationContainer("RotateYaw", true, camPropAnim);
 
             ModelComponent modelComp = new ModelComponent(boxModel);
             Camera camera = new PerspectiveCamera();
-            camera.CurrentTransform = new FrameState(new Vec3(50,-50,200), Quaternion.Identity, Vec3.One);
-            camera.CurrentTransform.AddAnimation(anim);
-            anim.Start();
+            //camera.Point = new Vec3(50, -50, 200);
+            //camera.AddAnimation(anim);
+            //anim.Start();
             CameraComponent cameraComp = new CameraComponent(camera);
             cameraComp.Parent = modelComp;
 

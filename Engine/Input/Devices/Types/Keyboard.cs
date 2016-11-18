@@ -19,6 +19,9 @@ namespace CustomEngine.Input.Devices
             }
         }
 
+        protected override int GetAxisCount() { return 0; }
+        protected override int GetButtonCount() { return 0; }
+
         public void RegisterButtonPressed(EKey axis, Action<bool> func)
         {
 

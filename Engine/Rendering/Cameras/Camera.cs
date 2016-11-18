@@ -7,27 +7,6 @@ namespace CustomEngine.Rendering.Cameras
 {
     public abstract class Camera : FileObject
     {
-        public Camera()
-        {
-            _currentTransform = _defaultTransform = FrameState.Identity;
-        }
-        public Camera(Matrix4.MultiplyOrder order)
-        {
-            _currentTransform = _defaultTransform = FrameState.GetIdentity(order);
-        }
-        public Camera(FrameState defaultTransform)
-        {
-            _currentTransform = _defaultTransform = defaultTransform;
-        }
-        public Camera(Vec3 defaultTranslate, Quaternion defaultRotate, Vec3 defaultScale)
-        {
-            _currentTransform = _defaultTransform = new FrameState(defaultTranslate, defaultRotate, defaultScale);
-        }
-        public Camera(Vec3 defaultTranslate, Quaternion defaultRotate, Vec3 defaultScale, Matrix4.MultiplyOrder order)
-        {
-            _currentTransform = _defaultTransform = new FrameState(defaultTranslate, defaultRotate, defaultScale, order);
-        }
-
         public PostProcessSettings PostProcessSettings
         {
             get { return _postProcessSettings; }
@@ -45,49 +24,83 @@ namespace CustomEngine.Rendering.Cameras
         }
         public Matrix4 ProjectionMatrix { get { return _projectionMatrix; } }
         public Matrix4 ProjectionMatrixInverse { get { return _projectionInverse; } }
-        public Matrix4 Matrix { get { return _currentTransform.InverseMatrix; } }
-        public Matrix4 MatrixInverse { get { return _currentTransform.Matrix; } }
-        public FrameState CurrentTransform
+        public Matrix4 Matrix { get { return _invTransform; } }
+        public Matrix4 InverseMatrix { get { return _transform; } }
+        public Vec3 Point
         {
-            get { return _currentTransform; }
-            set
-            {
-                _currentTransform = value;
-                TransformChanged?.Invoke();
-            }
+            get { return _point; }
+            set { _point = value; CreateTransform(); }
         }
-        public FrameState DefaultTransform
+        public Vec3 Direction
         {
-            get { return _defaultTransform; }
-            set { _defaultTransform = value; }
+            get { return _dir; }
+            set { _dir = value; CreateTransform(); }
         }
-        public Vec3 Translation
-        {
-            get { return _currentTransform.Translation; }
-            set { _currentTransform.Translation = value; }
-        }
-        public Quaternion Rotation
-        {
-            get { return _currentTransform.Rotation; }
-            set { _currentTransform.Rotation = value; }
-        }
-        public Vec3 Scale
-        {
-            get { return _currentTransform.Scale; }
-            set { _currentTransform.Scale = value; }
-        }
+
         public abstract float Width { get; }
         public abstract float Height { get; }
-        
-        protected Matrix4 _projectionMatrix;
-        protected Matrix4 _projectionInverse;
-        protected FrameState _currentTransform;
-        protected FrameState _defaultTransform;
 
         protected bool _updating;
         protected bool _restrictXRot, _restrictYRot, _restrictZRot;
         protected float _nearZ = 1.0f, _farZ = 200000.0f;
         private PostProcessSettings _postProcessSettings;
+
+        protected Matrix4 _projectionMatrix;
+        protected Matrix4 _projectionInverse;
+
+        protected Vec3 _point = Vec3.Zero, _dir = Vec3.Forward;
+        protected Quaternion _rotate = Quaternion.Identity;
+        protected Matrix4 _transform = Matrix4.Identity, _invTransform = Matrix4.Identity;
+        protected void CreateTransform()
+        {
+            _transform = Matrix4.LookAt(_point, _point + _dir, Vec3.Up);
+            _invTransform = _transform.Inverted();
+            _rotate = Quaternion.FromMatrix(_transform);
+            OnTransformChanged();
+        }
+        public void Zoom(float amount) => TranslateRelative(0.0f, 0.0f, amount);
+        public void TranslateRelative(float x, float y, float z) => TranslateRelative(new Vec3(x, y, z));
+        public void TranslateRelative(Vec3 translation)
+        {
+            _transform = Matrix4.CreateTranslation(translation) * _transform;
+            _invTransform = Matrix4.CreateTranslation(-translation) * _invTransform;
+            _point = _transform.ExtractTranslation();
+        }
+        public void TranslateAbsolute(float x, float y, float z) => TranslateAbsolute(new Vec3(x, y, z));
+        public void TranslateAbsolute(Vec3 translation)
+        {
+            _transform = _transform * Matrix4.CreateTranslation(translation);
+            _invTransform = _invTransform * Matrix4.CreateTranslation(-translation);
+            _point = _transform.ExtractTranslation();
+        }
+        public Vec3 GetUpVector() { return _rotate * Vec3.Up; }
+        public Vec3 GetForwardVector() { return _rotate * Vec3.Forward; }
+        public Vec3 GetRightVector() { return _rotate * Vec3.Right; }
+        public void Rotate(float yaw, float pitch) { Rotate(yaw, pitch, 0.0f); }
+        public void Rotate(Vec3 v) => Rotate(v.X, v.Y, v.Z);
+        public void Rotate(float yaw, float pitch, float roll)
+        {
+            if (!yaw.IsZero())
+                _dir = Quaternion.FromAxisAngle(Vec3.Up, yaw) * _dir;
+            if (!pitch.IsZero())
+                _dir = Quaternion.FromAxisAngle(Vec3.Right, pitch) * _dir;
+            if (!roll.IsZero())
+                _dir = Quaternion.FromAxisAngle(Vec3.Forward, roll) * _dir;
+            CreateTransform();
+        }
+        public void Pivot(float x, float y, float radius)
+        {
+            BeginUpdate();
+            Zoom(-radius);
+            Rotate(x, y);
+            Zoom(radius);
+            EndUpdate();
+        }
+        public void SetViewTarget(Vec3 target)
+        {
+            _dir = target - _point;
+            CreateTransform();
+        }
 
         public event TranslateChange TranslateChanged;
         public event RotateChange RotateChanged;
@@ -114,31 +127,6 @@ namespace CustomEngine.Rendering.Cameras
             CalculateProjection();
             OnResized();
         }
-        public abstract void Zoom(float amount);
-        public void Rotate(float x, float y, float z) { Rotate(new Vec3(x, y, z)); }
-        public void Rotate(Vec3 v)
-        {
-            //Fix for left and right dragging when the camera is upside down
-            //if (_rotation._x < -90.0f || _rotation._x > 90.0f)
-            //    v._y = -v._y;
-
-            if (_restrictXRot) v.X = 0.0f;
-            if (_restrictYRot) v.Y = 0.0f;
-            if (_restrictZRot) v.Z = 0.0f;
-
-            _currentTransform.ApplyRotation(v);
-        }
-
-        public void Rotate(float x, float y) { Rotate(x, y, 0); }
-        public void Pivot(float radius, float x, float y)
-        {
-            BeginUpdate();
-            Zoom(-radius);
-            Rotate(x, y);
-            Zoom(radius);
-            EndUpdate();
-        }
-
         private void BeginUpdate()
         {
             _updating = true;
@@ -148,18 +136,9 @@ namespace CustomEngine.Rendering.Cameras
             _updating = false;
             TransformChanged?.Invoke();
         }
-
-        public void SetTransform(Vec3 translate, Vec3 rotate, Vec3 scale)
-        {
-            _currentTransform.SetAll(translate, Quaternion.FromEulerAngles(rotate), scale);
-        }
-        public void SetTransform(Vec3 translate, Quaternion rotate, Vec3 scale)
-        {
-            _currentTransform.SetAll(translate, rotate, scale);
-        }
         public void Reset()
         {
-            _currentTransform = _defaultTransform;
+            
         }
         /// <summary>
         /// Projects a screen point to world coordinates.
@@ -168,7 +147,7 @@ namespace CustomEngine.Rendering.Cameras
         public Vec3 GetWorldPoint(Vec3 screenPoint)
         {
             screenPoint = AlignScreenPoint(screenPoint);
-            return screenPoint.Unproject(0, 0, Width, Height, NearDepth, FarDepth, MatrixInverse * _projectionInverse);
+            return screenPoint.Unproject(0, 0, Width, Height, NearDepth, FarDepth, InverseMatrix * _projectionInverse);
         }
 
         /// <summary>
@@ -204,7 +183,7 @@ namespace CustomEngine.Rendering.Cameras
             if (!ray.LineSphereIntersect(center, radius, out point))
             {
                 //If no intersect is found, project the ray through the plane perpendicular to the camera.
-                ray.LinePlaneIntersect(center, Translation.Normalized(center), out point);
+                ray.LinePlaneIntersect(center, Point.Normalized(center), out point);
 
                 //Clamp the point to edge of the sphere
                 if (clamp)
@@ -224,7 +203,7 @@ namespace CustomEngine.Rendering.Cameras
             ray.LinePlaneIntersect(center, (transform * Vec3.UnitY).Normalized(center), out xz);
             ray.LinePlaneIntersect(center, (transform * Vec3.UnitZ).Normalized(center), out xy);
         }
-        public void SaveCurrentTransform() { _defaultTransform = _currentTransform; }
+        public void SaveCurrentTransform() { }
 
         public abstract Frustrum GetFrustrum();
     }

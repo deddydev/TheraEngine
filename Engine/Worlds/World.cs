@@ -48,7 +48,7 @@ namespace CustomEngine.Worlds
         {
             if (!_settings.State.SpawnedActors.Contains(actor))
                 _settings.State.SpawnedActors.Add(actor);
-            actor.Transform.AddTranslation(worldPosition);
+            actor.Transform.TranslateAbsolute(worldPosition);
             actor.OnSpawned(this);
         }
         public void DespawnActor(Actor actor)

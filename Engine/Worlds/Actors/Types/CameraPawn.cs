@@ -10,7 +10,7 @@ namespace CustomEngine.Worlds.Actors
     public class CameraPawn : Pawn
     {
         float _linearSpeed = 1.0f, _linearRight = 0.0f, _linearForward = 0.0f, _linearUp = 0.0f;
-        float _radialSpeed = 0.1f, _pitch = 0.0f, _yaw = 0.0f, _roll = 0.0f;
+        float _radialSpeed = 0.05f, _pitch = 0.0f, _yaw = 0.0f, _roll = 0.0f;
         bool _rotating = false;
         bool _translating = false;
 
@@ -43,8 +43,6 @@ namespace CustomEngine.Worlds.Actors
             input.RegisterAxisUpdate(GamePadAxis.RightThumbstickY, OnRightStickY, false);
             input.RegisterButtonPressed(GamePadButton.RightBumper, OnRBPressed);
             input.RegisterButtonPressed(GamePadButton.LeftBumper, OnLBPressed);
-
-            Transform.Order = Matrix4.MultiplyOrder.TRS;
         }
         private void OnLBPressed(bool pressed) { _linearUp += pressed ? -1.0f : 1.0f; }
         private void OnRBPressed(bool pressed) { _linearUp += pressed ? 1.0f : -1.0f; }
@@ -86,13 +84,8 @@ namespace CustomEngine.Worlds.Actors
         }
         internal override void Tick(float delta)
         {
-            Transform.TranslateRelative(new Vec3(_linearRight, _linearUp, _linearForward) * _linearSpeed);
-            //Quaternion yaw = Quaternion.FromAxisAngle(Vec3.Up, _yaw * _radialSpeed);
-            //Quaternion pitch = Quaternion.FromAxisAngle(Vec3.Right, _pitch * _radialSpeed);
-            //Quaternion roll = Quaternion.FromAxisAngle(Vec3.Forward, _roll * _radialSpeed);
-            Vec3 euler = new Vec3(_pitch, _yaw, _roll) * _radialSpeed;
-            //Transform.RotateInPlace(roll * pitch * yaw);
-            Transform.EulerRotation += euler;
+            CameraComponent.Camera.TranslateRelative(new Vec3(_linearRight, _linearUp, _linearForward) * _linearSpeed);
+            CameraComponent.Camera.Rotate(_yaw * _radialSpeed, _pitch * _radialSpeed);
         }
     }
 }

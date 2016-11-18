@@ -13,18 +13,10 @@ namespace CustomEngine.Input.Devices.OpenTK
 
         public TKInputAwaiter(Action<InputDevice> uponFound) : base(uponFound) { }
 
-        public override CGamePad CreateGamepad(int index)
-        {
-            return new TKGamepad(index);
-        }
-        public override CKeyboard CreateKeyboard(int index)
-        {
-            return new TKKeyboard(index);
-        }
-        public override CMouse CreateMouse(int index)
-        {
-            return new TKMouse(index);
-        }
+        public override CGamePad CreateGamepad(int index) { return new TKGamepad(index); }
+        public override CKeyboard CreateKeyboard(int index) { return new TKKeyboard(index); }
+        public override CMouse CreateMouse(int index) { return new TKMouse(index); }
+
         internal override void Tick(float delta)
         {
             var gamepads = InputDevice.CurrentDevices[InputDeviceType.Gamepad];

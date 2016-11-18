@@ -59,6 +59,10 @@
             result = StartPoint + (diff * scale);
             return true;
         }
+        public Vec3 PointAtNormalizedLineDistance(float distance)
+        {
+            return StartPoint + Direction * distance;
+        }
         public Vec3 PointAtLineDistance(float distance)
         {
             Vec3 diff = Direction;

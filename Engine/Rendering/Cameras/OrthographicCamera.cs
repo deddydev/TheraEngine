@@ -4,14 +4,6 @@ namespace CustomEngine.Rendering.Cameras
 {
     public class OrthographicCamera : Camera
     {
-        public OrthographicCamera() : base() { }
-        public OrthographicCamera(Matrix4.MultiplyOrder order) : base(order) { }
-        public OrthographicCamera(FrameState defaultTransform) : base(defaultTransform) { }
-        public OrthographicCamera(Vec3 defaultTranslate, Quaternion defaultRotate, Vec3 defaultScale)
-            : base(defaultTranslate, defaultRotate, defaultScale) { }
-        public OrthographicCamera(Vec3 defaultTranslate, Quaternion defaultRotate, Vec3 defaultScale, Matrix4.MultiplyOrder order)
-            : base(defaultTranslate, defaultRotate, defaultScale, order) { }
-
         public override float Width { get { return Math.Abs(_orthoRight - _orthoLeft); } }
         public override float Height { get { return Math.Abs(_orthoTop - _orthoBottom); } }
 
@@ -44,11 +36,11 @@ namespace CustomEngine.Rendering.Cameras
             _orthoBottomPercentage = 0.0f - yPercentage;
             _orthoTopPercentage = 1.0f - yPercentage;
         }
-        public override void Zoom(float amount)
-        {
-            float scale = amount >= 0 ? amount : 1.0f / -amount;
-            Scale = Scale * new Vec3(scale);
-        }
+        //public override void Zoom(float amount)
+        //{
+        //    float scale = amount >= 0 ? amount : 1.0f / -amount;
+        //    Scale = Scale * new Vec3(scale);
+        //}
         protected override void CalculateProjection()
         {
             _projectionMatrix = Matrix4.CreateOrthographicOffCenter(_orthoLeft, _orthoRight, _orthoBottom, _orthoTop, _nearZ, _farZ);
@@ -84,7 +76,7 @@ namespace CustomEngine.Rendering.Cameras
         public override Frustrum GetFrustrum()
         {
             float w = Width / 2.0f, h = Height / 2.0f;
-            return new Box(new Vec3(-w, _nearZ, -h), new Vec3(w, _farZ, h)).AsFrustrum(CurrentTransform.Matrix);
+            return new Box(new Vec3(-w, _nearZ, -h), new Vec3(w, _farZ, h)).AsFrustrum(Matrix);
         }
     }
 }

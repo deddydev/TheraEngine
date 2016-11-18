@@ -10,12 +10,7 @@ namespace CustomEngine.Input.Devices.OpenTK
     {
         public DXMouse(int index) : base(index) { }
 
-        protected override void CreateStates()
-        {
-            throw new NotImplementedException();
-        }
-
-        protected override void DestroyStates()
+        public override void SetCursorPosition(float x, float y)
         {
             throw new NotImplementedException();
         }

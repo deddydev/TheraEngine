@@ -10,16 +10,6 @@ namespace CustomEngine.Input.Devices.OpenTK
     {
         public TKKeyboard(int index) : base(index) { }
 
-        protected override void CreateStates()
-        {
-
-        }
-
-        protected override void DestroyStates()
-        {
-
-        }
-
         protected override void UpdateStates(float delta)
         {
 

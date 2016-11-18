@@ -30,7 +30,7 @@
         }
         public static bool Quadratic(float a, float b, float c, out float answer1, out float answer2)
         {
-            if (a > 0.0f)
+            if (a != 0.0f)
             {
                 float mag = b * b - 4.0f * a * c;
                 if (!(mag < 0.0f))

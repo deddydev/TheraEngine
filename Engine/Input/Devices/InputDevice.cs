@@ -39,8 +39,6 @@ namespace CustomEngine.Input.Devices
         {
             _buttonStates = new ButtonManager[GetButtonCount()];
             _axisStates = new AxisManager[GetAxisCount()];
-            _activeButtons = new List<int>();
-            _activeAxes = new List<int>();
         }
         protected abstract void UpdateStates(float delta);
         /// <summary>

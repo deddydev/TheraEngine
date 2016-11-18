@@ -13,38 +13,46 @@ namespace System
         public static FrameState GetIdentity(Matrix4.MultiplyOrder order)
         {
             FrameState identity = Identity;
-            identity._order = order;
+            identity._transformOrder = order;
             return identity;
         }
-        public static readonly FrameState Identity = new FrameState(new Vec3(), Quaternion.Identity, new Vec3(1.0f));
+        public static readonly FrameState Identity = new FrameState(Vec3.Zero, Vec3.Zero, Vec3.One);
         public FrameState(
             Vec3 translate, 
-            Quaternion rotate, 
-            Vec3 scale, 
-            Matrix4.MultiplyOrder order = Matrix4.MultiplyOrder.SRT)
+            Vec3 rotate,
+            Vec3 scale,
+            Vec3.EulerOrder rotateOrder = Vec3.EulerOrder.YPR,
+            Matrix4.MultiplyOrder transformOrder = Matrix4.MultiplyOrder.SRT)
         {
             _translation = translate;
-            _rotation = rotate;
             _scale = scale;
-            _order = order;
+            _transformOrder = transformOrder;
+            _rotateOrder = rotateOrder;
             CreateTransform();
         }
 
-        private Vec3 _translation;
-        private Quaternion _rotation = Quaternion.Identity;
+        private Quaternion _yaw = Quaternion.Identity;
+        private Quaternion _pitch = Quaternion.Identity;
+        private Quaternion _roll = Quaternion.Identity;
+        private Quaternion _finalRotation = Quaternion.Identity;
+        private Vec3 _translation = Vec3.Zero;
         private Vec3 _scale = Vec3.One;
         private Matrix4 _transform = Matrix4.Identity;
         private Matrix4 _inverseTransform = Matrix4.Identity;
-        private Matrix4.MultiplyOrder _order = Matrix4.MultiplyOrder.SRT;
+        private Matrix4.MultiplyOrder _transformOrder = Matrix4.MultiplyOrder.SRT;
+        private Vec3.EulerOrder _rotateOrder = Vec3.EulerOrder.YPR;
 
         public event TranslateChange TranslationChanged;
+        public event RotateChange YawChanged;
+        public event RotateChange PitchChanged;
+        public event RotateChange RollChanged;
         public event RotateChange RotationChanged;
         public event ScaleChange ScaleChanged;
         public event MatrixChange MatrixChanged;
 
-        public Vec3 GetForwardVector() { return _rotation * Vec3.Forward; }
-        public Vec3 GetUpVector() { return _rotation * Vec3.Up; }
-        public Vec3 GetRightVector() { return _rotation * Vec3.Right; }
+        public Vec3 GetForwardVector() { return _finalRotation * Vec3.Forward; }
+        public Vec3 GetUpVector() { return _finalRotation * Vec3.Up; }
+        public Vec3 GetRightVector() { return _finalRotation * Vec3.Right; }
         
         public Matrix4 Matrix { get { return _transform; } }
         public Matrix4 InverseMatrix { get { return _inverseTransform; } }
@@ -54,28 +62,35 @@ namespace System
             get { return _translation; }
             set { SetTranslate(value); }
         }
-        public Quaternion Rotation
+        public Quaternion Yaw
         {
-            get { return _rotation; }
-            set { SetRotate(value); }
+            get { return _yaw; }
+            set { SetYaw(value); }
+        }
+        public Quaternion Pitch
+        {
+            get { return _pitch; }
+            set { SetPitch(value); }
+        }
+        public Quaternion Roll
+        {
+            get { return _roll; }
+            set { SetRoll(value); }
         }
         public Vec3 Scale
         {
             get { return _scale; }
             set { SetScale(value); }
         }
-        /// <summary>
-        /// Pitch, yaw, roll
-        /// </summary>
-        public Vec3 EulerRotation
-        {
-            get { return _rotation.ToEuler(); }
-            set { SetRotate(value); }
-        }
         public Matrix4.MultiplyOrder Order
         {
-            get { return _order; }
-            set { _order = value; CreateTransform(); }
+            get { return _transformOrder; }
+            set { _transformOrder = value; CreateTransform(); }
+        }
+        public Vec3.EulerOrder RotateOrder
+        {
+            get { return _rotateOrder; }
+            set { _rotateOrder = value; CreateTransform(); }
         }
         private void SetTranslate(Vec3 value)
         {
@@ -84,20 +99,34 @@ namespace System
             CreateTransform();
             TranslationChanged?.Invoke(oldTranslation);
         }
-        private void SetRotate(Quaternion value)
+        private void SetYaw(Quaternion value)
         {
-            Quaternion oldRotation = _rotation;
-            _rotation = value;
+            Quaternion oldRotation = _yaw;
+            _yaw = value;
             CreateTransform();
-            RotationChanged?.Invoke(oldRotation);
+            YawChanged?.Invoke(oldRotation);
         }
-        private void SetRotate(Vec3 value)
+        private void SetPitch(Quaternion value)
         {
-            Quaternion oldRotation = _rotation;
-            _rotation = Quaternion.FromEulerAngles(value);
+            Quaternion oldRotation = _pitch;
+            _pitch = value;
             CreateTransform();
-            RotationChanged?.Invoke(oldRotation);
+            PitchChanged?.Invoke(oldRotation);
         }
+        private void SetRoll(Quaternion value)
+        {
+            Quaternion oldRotation = _roll;
+            _roll = value;
+            CreateTransform();
+            RollChanged?.Invoke(oldRotation);
+        }
+        //private void SetRotate(Vec3 value)
+        //{
+        //    Quaternion oldRotation = _rotation;
+        //    _rotation = Quaternion.FromEulerAngles(value);
+        //    CreateTransform();
+        //    RotationChanged?.Invoke(oldRotation);
+        //}
         private void SetScale(Vec3 value)
         {
             Vec3 oldScale = _scale;
@@ -105,31 +134,52 @@ namespace System
             CreateTransform();
             ScaleChanged?.Invoke(oldScale);
         }
-        
-        public void SetAll(Vec3 translation, Quaternion rotation, Vec3 scale)
-        {
-            SetTranslate(translation);
-            SetRotate(rotation);
-            SetScale(scale);
-            CreateTransform();
-        }
         public void CreateTransform()
         {
             Matrix4 oldMatrix = _transform;
             Matrix4 oldInvMatrix = _inverseTransform;
 
-            _transform = Matrix4.TransformMatrix(_scale, _rotation, _translation, _order);
-            _inverseTransform = Matrix4.InverseTransformMatrix(_scale, _rotation, _translation, _order);
+            CreateFinalRotation();
+
+            _transform = Matrix4.TransformMatrix(_scale, _finalRotation, _translation, _transformOrder);
+            _inverseTransform = Matrix4.InverseTransformMatrix(_scale, _finalRotation, _translation, _transformOrder);
 
             MatrixChanged?.Invoke(oldMatrix, oldInvMatrix);
         }
+
+        private void CreateFinalRotation()
+        {
+            Quaternion oldRotation = _finalRotation;
+            switch (_rotateOrder)
+            {
+                case Vec3.EulerOrder.PRY:
+                    _finalRotation = _pitch * _roll * _yaw;
+                    break;
+                case Vec3.EulerOrder.PYR:
+                    _finalRotation = _pitch * _yaw * _roll;
+                    break;
+                case Vec3.EulerOrder.RPY:
+                    _finalRotation = _roll * _pitch * _yaw;
+                    break;
+                case Vec3.EulerOrder.RYP:
+                    _finalRotation = _roll * _yaw * _pitch;
+                    break;
+                case Vec3.EulerOrder.YPR:
+                    _finalRotation = _yaw * _pitch * _roll;
+                    break;
+                case Vec3.EulerOrder.YRP:
+                    _finalRotation = _yaw * _roll * _pitch;
+                    break;
+            }
+            RotationChanged?.Invoke(oldRotation);
+        }
+
         public void MultMatrix() { Engine.Renderer.MultMatrix(_transform); }
         public void MultInvMatrix() { Engine.Renderer.MultMatrix(_inverseTransform); }
 
         public void RotateInPlace(Quaternion rotation)
         {
-            Rotation *= rotation;
-            switch (_order)
+            switch (_transformOrder)
             {
                 case Matrix4.MultiplyOrder.TRS:
 
@@ -153,7 +203,7 @@ namespace System
         }
         public void RotateAboutParent(Quaternion rotation, Vec3 point)
         {
-            switch (_order)
+            switch (_transformOrder)
             {
                 case Matrix4.MultiplyOrder.TRS:
 
@@ -177,7 +227,7 @@ namespace System
         }
         public void RotateAboutPoint(Quaternion rotation, Vec3 point)
         {
-            switch (_order)
+            switch (_transformOrder)
             {
                 case Matrix4.MultiplyOrder.TRS:
 
@@ -202,7 +252,7 @@ namespace System
         //Translates relative to rotation.
         public void TranslateRelative(Vec3 translation)
         {
-            switch (_order)
+            switch (_transformOrder)
             {
                 case Matrix4.MultiplyOrder.SRT:
                 case Matrix4.MultiplyOrder.RST:
@@ -212,20 +262,20 @@ namespace System
                     Translation += translation / Scale;
                     break;
                 case Matrix4.MultiplyOrder.STR:
-                    Translation += _rotation.Inverted() * translation;
+                    Translation += _finalRotation.Inverted() * translation;
                     break;
                 case Matrix4.MultiplyOrder.TRS:
-                    Translation += (_rotation.Inverted() * translation) / Scale;
+                    Translation += (_finalRotation.Inverted() * translation) / Scale;
                     break;
                 case Matrix4.MultiplyOrder.TSR:
-                    Translation += _rotation.Inverted() * (translation / Scale);
+                    Translation += _finalRotation.Inverted() * (translation / Scale);
                     break;
             }
         }
         //Translates relative to parent space.
         public void TranslateAbsolute(Vec3 translation)
         {
-            switch (_order)
+            switch (_transformOrder)
             {
                 case Matrix4.MultiplyOrder.TRS:
                 case Matrix4.MultiplyOrder.TSR:
@@ -235,57 +285,41 @@ namespace System
                     Translation += translation / Scale;
                     break;
                 case Matrix4.MultiplyOrder.RTS:
-                    Translation += _rotation.Inverted() * translation;
+                    Translation += _finalRotation.Inverted() * translation;
                     break;
                 case Matrix4.MultiplyOrder.SRT:
-                    Translation += (_rotation.Inverted() * translation) / Scale;
+                    Translation += (_finalRotation.Inverted() * translation) / Scale;
                     break;
                 case Matrix4.MultiplyOrder.RST:
-                    Translation += _rotation.Inverted() * (translation / Scale);
+                    Translation += _finalRotation.Inverted() * (translation / Scale);
                     break;
             }
         }
-        public void AddTranslation(Vec3 translation)
-        {
-            SetTranslate(_translation + translation);
-        }
-        public void ApplyRotation(Vec3 rotation)
-        {
-            SetRotate(_rotation * Quaternion.FromEulerAngles(rotation));
-        }
-        public void ApplyRotation(Quaternion rotation)
-        {
-            SetRotate(_rotation * rotation);
-        }
-        public void MultiplyScale(Vec3 scale)
-        {
-            SetScale(_scale * scale);
-        }
 
         #region Animation
-        public void SetRotationZ(float degreeAngle)
+        public void SetRotationRoll(float degreeAngle)
         {
-            Rotation = Quaternion.FromAxisAngle(Vec3.UnitZ, degreeAngle);
+            Roll = Quaternion.FromAxisAngle(Vec3.Forward, degreeAngle);
         }
-        public void SetRotationY(float degreeAngle)
+        public void SetRotationYaw(float degreeAngle)
         {
-            Rotation = Quaternion.FromAxisAngle(Vec3.UnitY, degreeAngle);
+            Yaw = Quaternion.FromAxisAngle(Vec3.Up, degreeAngle);
         }
-        public void SetRotationX(float degreeAngle)
+        public void SetRotationPitch(float degreeAngle)
         {
-            Rotation = Quaternion.FromAxisAngle(Vec3.UnitX, degreeAngle);
+            Pitch = Quaternion.FromAxisAngle(Vec3.Right, degreeAngle);
         }
-        public void AddRotationZ(float degreeAngle)
+        public void AddRotationRoll(float degreeAngle)
         {
-            Rotation *= Quaternion.FromAxisAngle(Vec3.UnitZ, degreeAngle);
+            Roll *= Quaternion.FromAxisAngle(Vec3.Forward, degreeAngle);
         }
-        public void AddRotationY(float degreeAngle)
+        public void AddRotationYaw(float degreeAngle)
         {
-            Rotation *= Quaternion.FromAxisAngle(Vec3.UnitY, degreeAngle);
+            Yaw *= Quaternion.FromAxisAngle(Vec3.Up, degreeAngle);
         }
-        public void AddRotationX(float degreeAngle)
+        public void AddRotationPitch(float degreeAngle)
         {
-            Rotation *= Quaternion.FromAxisAngle(Vec3.UnitX, degreeAngle);
+            Pitch *= Quaternion.FromAxisAngle(Vec3.Right, degreeAngle);
         }
         public void SetTranslationZ(float value)
         {

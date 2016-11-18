@@ -4,14 +4,6 @@ namespace CustomEngine.Rendering.Cameras
 {
     public class PerspectiveCamera : Camera
     {
-        public PerspectiveCamera() : base() { }
-        public PerspectiveCamera(Matrix4.MultiplyOrder order) : base(order) { }
-        public PerspectiveCamera(FrameState defaultTransform) : base(defaultTransform) { }
-        public PerspectiveCamera(Vec3 defaultTranslate, Quaternion defaultRotate, Vec3 defaultScale)
-            : base(defaultTranslate, defaultRotate, defaultScale) { }
-        public PerspectiveCamera(Vec3 defaultTranslate, Quaternion defaultRotate, Vec3 defaultScale, Matrix4.MultiplyOrder order)
-            : base(defaultTranslate, defaultRotate, defaultScale, order) { }
-        
         public float VerticalFieldOfView { get { return _fovY; } set { _fovY = value; CalculateProjection(); } }
         public override float Width { get { return _width; } }
         public override float Height { get { return _height; } }
@@ -23,11 +15,6 @@ namespace CustomEngine.Rendering.Cameras
         }
 
         private float _width, _height, _fovY = 78.0f, _aspect;
-
-        public override void Zoom(float amount)
-        {
-            
-        }
         protected unsafe override void CalculateProjection()
         {
             _projectionMatrix = Matrix4.CreatePerspectiveFieldOfView(_fovY, _aspect, _nearZ, _farZ);
@@ -57,13 +44,12 @@ namespace CustomEngine.Rendering.Cameras
             float nearXDist = _aspect * nearYDist;
             float farYDist = tan * _farZ;
             float farXDist = _aspect * farYDist;
-
-            Vec3 pos = CurrentTransform.Translation;
-            Vec3 forwardDir = CurrentTransform.GetForwardVector();
-            Vec3 rightDir = CurrentTransform.GetRightVector();
-            Vec3 upDir = CurrentTransform.GetUpVector();
-            Vec3 nearPos = pos + forwardDir * _nearZ;
-            Vec3 farPos = pos + forwardDir * _farZ;
+            
+            Vec3 forwardDir = GetForwardVector();
+            Vec3 rightDir = GetRightVector();
+            Vec3 upDir = GetUpVector();
+            Vec3 nearPos = _point + forwardDir * _nearZ;
+            Vec3 farPos = _point + forwardDir * _farZ;
             Vec3 ntl, /*ntr, */nbl, nbr, ftl, ftr, fbl, fbr;
 
             Vec3 nX = rightDir * nearXDist;

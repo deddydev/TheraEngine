@@ -77,19 +77,16 @@ namespace CustomEngine.Input.Devices.OpenTK
             FaceRight?.Tick(IsPressed(state.Buttons.B), delta);
             FaceLeft?.Tick(IsPressed(state.Buttons.X), delta);
             FaceUp?.Tick(IsPressed(state.Buttons.Y), delta);
-
             DPadDown?.Tick(IsPressed(state.DPad.Down), delta);
             DPadRight?.Tick(IsPressed(state.DPad.Right), delta);
             DPadLeft?.Tick(IsPressed(state.DPad.Left), delta);
             DPadUp?.Tick(IsPressed(state.DPad.Up), delta);
-
             LeftBumper?.Tick(IsPressed(state.Buttons.LeftShoulder), delta);
             RightBumper?.Tick(IsPressed(state.Buttons.RightShoulder), delta);
             LeftStick?.Tick(IsPressed(state.Buttons.LeftStick), delta);
             RightStick?.Tick(IsPressed(state.Buttons.RightStick), delta);
             SpecialLeft?.Tick(IsPressed(state.Buttons.Back), delta);
             SpecialRight?.Tick(IsPressed(state.Buttons.Start), delta);
-
             LeftTrigger?.Tick(state.Triggers.Left, delta);
             RightTrigger?.Tick(state.Triggers.Right, delta);
             LeftThumbstickX?.Tick(state.ThumbSticks.Left.X, delta);

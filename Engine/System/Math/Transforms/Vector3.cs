@@ -548,5 +548,14 @@ namespace System
                 Abs(Y - other.Y) < precision &&
                 Abs(Z - other.Z) < precision;
         }
+        public enum EulerOrder
+        {
+            YPR,
+            YRP,
+            PRY,
+            PYR,
+            RPY,
+            RYP,
+        }
     }
 }

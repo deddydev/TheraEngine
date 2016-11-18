@@ -7,21 +7,21 @@ using OpenTK.Input;
 
 namespace CustomEngine.Input.Devices
 {
-    public class Mouse : InputDevice
+    public abstract class CMouse : InputDevice
     {
-        public Mouse(int index) : base(index) { }
+        public CMouse(int index) : base(index) { }
 
         public void RegisterButtonPressed(EMouseButton button, Action<bool> func)
         {
-            throw new NotImplementedException();
+
         }
         public void RegisterButtonEvent(EMouseButton button, ButtonInputType type, Action func)
         {
-            throw new NotImplementedException();
+
         }
         public void RegisterScroll(Action<bool> func)
         {
-            throw new NotImplementedException();
+
         }
     }
     public enum EMouseButton

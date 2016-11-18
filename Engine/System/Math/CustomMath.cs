@@ -49,6 +49,13 @@
         }
         //Smoothed interpolation between two points. Eases in and out.
         //time is a value from 0.0f to 1.0f symbolizing the time between the two points
+        public static Vec3 InterpCosineTo(Vec3 from, Vec3 to, float time, float speed = 1.0f)
+        {
+            float time2 = (1.0f - (float)Math.Cos(time * speed * (float)Math.PI)) / 2.0f;
+            return from * (1.0f - time2) + to * time2;
+        }
+        //Smoothed interpolation between two points. Eases in and out.
+        //time is a value from 0.0f to 1.0f symbolizing the time between the two points
         public static float InterpCosineTo(float from, float to, float time, float speed = 1.0f)
         {
             float time2 = (1.0f - (float)Math.Cos(time * speed * (float)Math.PI)) / 2.0f;

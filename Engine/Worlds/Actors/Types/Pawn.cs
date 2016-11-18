@@ -36,6 +36,7 @@ namespace CustomEngine.Worlds.Actors
         }
 
         public Pawn() : base() { }
+        public Pawn(PlayerIndex possessor) : base() { Engine.QueuePossession(this, possessor); }
         public Pawn(SceneComponent root, params LogicComponent[] logicComponents)
         : base (root, logicComponents) { }
         public Pawn(PlayerIndex possessor, SceneComponent root, params LogicComponent[] logicComponents)
@@ -59,7 +60,7 @@ namespace CustomEngine.Worlds.Actors
 
             _controller = null;
         }
-        protected virtual void RegisterInput(InputInterface input) { }
+        public virtual void RegisterInput(InputInterface input) { }
         internal override void Tick(float delta)
         {
             if (Engine.World == null)

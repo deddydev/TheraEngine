@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace CustomEngine.Input.Devices.DirectX
 {
-    public class DXGamepad : Gamepad
+    public class DXGamepad : CGamePad
     {
         const float ByteDiv = 1.0f / byte.MaxValue;
         const float ShortDiv = 1.0f / short.MaxValue;
@@ -23,7 +23,7 @@ namespace CustomEngine.Input.Devices.DirectX
 
         protected override void CreateStates()
         {
-            _controller = new Controller(UserIndex.One + _controllerIndex);
+            _controller = new Controller(UserIndex.One + _index);
 
             if (!_controller.IsConnected)
                 return;

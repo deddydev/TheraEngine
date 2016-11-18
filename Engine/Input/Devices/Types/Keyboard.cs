@@ -7,9 +7,9 @@ using OpenTK.Input;
 
 namespace CustomEngine.Input.Devices
 {
-    public class Keyboard : InputDevice
+    public abstract class CKeyboard : InputDevice
     {
-        public Keyboard(int index) : base(index) { }
+        public CKeyboard(int index) : base(index) { }
 
         public bool this[EKey key]
         {
@@ -21,12 +21,12 @@ namespace CustomEngine.Input.Devices
 
         public void RegisterButtonPressed(EKey axis, Action<bool> func)
         {
-            throw new NotImplementedException();
+
         }
 
         public void RegisterButtonEvent(EKey button, ButtonInputType type, Action func)
         {
-            throw new NotImplementedException();
+
         }
     }
     public enum EKey

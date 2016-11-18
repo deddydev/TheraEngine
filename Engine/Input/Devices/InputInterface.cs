@@ -43,10 +43,9 @@ namespace CustomEngine.Input.Devices
             }
         }
         
-        
         public void RegisterMouseMove(Action<float, float> func, MouseMoveType type)
         {
-            throw new NotImplementedException();
+
         }
 
         Dictionary<string, List<EKey>> _namedKeys = new Dictionary<string, List<EKey>>();
@@ -57,35 +56,28 @@ namespace CustomEngine.Input.Devices
         public event DelWantsInputsRegistered WantsInputsRegistered;
         
         private int _playerIndex;
-        private Gamepad _gamepad;
-        private Keyboard _keyboard;
-        private Mouse _mouse;
+        private CGamePad _gamepad;
+        private CKeyboard _keyboard;
+        private CMouse _mouse;
 
-        public InputInterface(int playerIndex)
-        {
-            _playerIndex = playerIndex;
-            UpdateDevices();
-        }
+        public InputInterface(int playerIndex) { PlayerIndex = playerIndex; }
 
         public void UpdateDevices()
         {
             UnregisterAll();
             GetDevices();
-            WantsInputsRegistered?.Invoke(this);
+            TryRegisterInput();
+        }
+        public void TryRegisterInput()
+        {
+            if (_gamepad != null || _keyboard != null || _mouse != null)
+                WantsInputsRegistered?.Invoke(this);
         }
         private void GetDevices()
         {
-            var gamepads = InputDevice.CurrentDevices[InputDeviceType.Gamepad];
-            if (gamepads != null && _playerIndex < gamepads.Count)
-                _gamepad = (Gamepad)gamepads[_playerIndex];
-
-            var keyboards = InputDevice.CurrentDevices[InputDeviceType.Keyboard];
-            if (keyboards != null && _playerIndex < keyboards.Count)
-                _keyboard = (Keyboard)keyboards[_playerIndex];
-
-            var mice = InputDevice.CurrentDevices[InputDeviceType.Mouse];
-            if (mice != null && _playerIndex < mice.Count)
-                _mouse = (Mouse)mice[_playerIndex];
+            _gamepad = InputDevice.CurrentDevices[InputDeviceType.Gamepad][_playerIndex] as CGamePad;
+            _keyboard = InputDevice.CurrentDevices[InputDeviceType.Keyboard][_playerIndex] as CKeyboard;
+            _mouse = InputDevice.CurrentDevices[InputDeviceType.Mouse][_playerIndex] as CMouse;
         }
 
         #region Mouse input registration
@@ -115,13 +107,13 @@ namespace CustomEngine.Input.Devices
         #endregion
 
         #region Gamepad input registration
-        public void RegisterButtonPressed(GamePadAxis axis, Action<bool> func)
+        public void RegisterButtonPressed(GamePadAxis axis, DelButtonState func)
         {
-            _gamepad?.RegisterButtonPressed(axis, func);
+            _gamepad?.RegisterButtonState(axis, func);
         }
-        public void RegisterButtonPressed(GamePadButton button, Action<bool> func)
+        public void RegisterButtonPressed(GamePadButton button, DelButtonState func)
         {
-            _gamepad?.RegisterButtonPressed(button, func);
+            _gamepad?.RegisterButtonState(button, func);
         }
         public void RegisterButtonEvent(GamePadButton button, ButtonInputType type, Action func)
         {
@@ -131,7 +123,7 @@ namespace CustomEngine.Input.Devices
         {
             _gamepad?.RegisterButtonEvent(button, type, func);
         }
-        public void RegisterAxisUpdate(GamePadAxis axis, Action<float> func, bool continuousUpdate)
+        public void RegisterAxisUpdate(GamePadAxis axis, DelAxisValue func, bool continuousUpdate)
         {
             _gamepad?.RegisterAxisUpdate(axis, func, continuousUpdate);
         }

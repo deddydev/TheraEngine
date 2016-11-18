@@ -18,21 +18,28 @@ namespace CustomEngine.Input.Devices
         ~InputAwaiter() { Dispose(); }
 
         public void Dispose() { UnregisterTick(); }
-
-        internal override void Tick(float delta)
-        {
-            //Dictionary<InputDeviceType, List<int>> connected = GetConnected();
-            //List<int> alreadyBound = InputInterface.CurrentInputs.Select(x => x.ControllerIndex).ToList();
-            //foreach (InputDeviceType t in connected.Keys)
-            //    foreach (int i in connected[t])
-            //        if (!alreadyBound.Contains(i))
-            //            FoundController?.Invoke(t, i);
-        }
         
-        public abstract Gamepad CreateGamepad(int index);
-        public abstract Keyboard CreateKeyboard(int index);
-        public abstract Mouse CreateMouse(int index);
+        public abstract CGamePad CreateGamepad(int index);
+        public abstract CKeyboard CreateKeyboard(int index);
+        public abstract CMouse CreateMouse(int index);
 
-        protected abstract Dictionary<InputDeviceType, List<int>> GetConnected();
+        protected void OnFoundGamepad(int index)
+        {
+            InputDevice device = CreateGamepad(index);
+            InputDevice.CurrentDevices[InputDeviceType.Gamepad][index] = device;
+            FoundInput?.Invoke(device);
+        }
+        protected void OnFoundKeyboard(int index)
+        {
+            InputDevice device = CreateKeyboard(index);
+            InputDevice.CurrentDevices[InputDeviceType.Keyboard][index] = device;
+            FoundInput?.Invoke(device);
+        }
+        protected void OnFoundMouse(int index)
+        {
+            InputDevice device = CreateMouse(index);
+            InputDevice.CurrentDevices[InputDeviceType.Mouse][index] = device;
+            FoundInput?.Invoke(device);
+        }
     }
 }

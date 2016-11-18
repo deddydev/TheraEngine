@@ -26,7 +26,8 @@ namespace CustomEngine
     public enum InputLibrary
     {
         OpenTK,
-        XInput
+        XInput,
+        Raw,
     }
     [Serializable]
     public class UserSettings : FileObject

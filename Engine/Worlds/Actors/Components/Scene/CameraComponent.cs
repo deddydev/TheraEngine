@@ -7,7 +7,7 @@ namespace CustomEngine.Worlds.Actors.Components
 {
     public class CameraComponent : SceneComponent
     {
-        private Camera _camera;
+        private Camera _camera = new PerspectiveCamera();
 
         public Camera Camera
         {

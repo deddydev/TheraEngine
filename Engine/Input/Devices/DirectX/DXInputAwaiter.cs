@@ -16,26 +16,22 @@ namespace CustomEngine.Input.Devices.DirectX
             new Controller(UserIndex.Three),
             new Controller(UserIndex.Four),
         };
-        public override Gamepad CreateGamepad(int controllerIndex)
+        public override CGamePad CreateGamepad(int controllerIndex)
         {
             return new DXGamepad(controllerIndex);
         }
-        public override Keyboard CreateKeyboard(int index)
+        public override CKeyboard CreateKeyboard(int index)
         {
             throw new NotImplementedException();
         }
-        public override Mouse CreateMouse(int index)
+        public override CMouse CreateMouse(int index)
         {
             throw new NotImplementedException();
+        }
+        internal override void Tick(float delta)
+        {
+            base.Tick(delta);
         }
         public DXInputAwaiter(Action<InputDevice> uponFound) : base(uponFound) { }
-        protected override Dictionary<InputDeviceType, List<int>> GetConnected()
-        {
-            Dictionary<InputDeviceType, List<int>> connected = new Dictionary<InputDeviceType, List<int>>();
-            //for (int i = 0; i < _controllers.Length; ++i)
-            //    if (_controllers[i].IsConnected)
-            //        connected.Add(i);
-            return connected;
-        }
     }
 }

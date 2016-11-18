@@ -96,7 +96,7 @@ namespace CustomEngine.Worlds
         }
         public void OnOriginRebased(Vec3 newOrigin)
         {
-            _rootSceneComponent?.LocalTransform.AddTranslation(-newOrigin);
+            _rootSceneComponent?.LocalTransform.TranslateAbsolute(-newOrigin);
         }
         internal override void Tick(float delta)
         {

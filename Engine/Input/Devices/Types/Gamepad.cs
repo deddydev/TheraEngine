@@ -36,21 +36,85 @@ namespace CustomEngine.Input.Devices
     /// <summary>
     /// Input for local
     /// </summary>
-    public abstract class Gamepad : InputDevice
+    public abstract class CGamePad : InputDevice
     {
-        protected bool _isConnected;
-        protected int _controllerIndex;
-        protected ButtonManager[] _buttonStates = new ButtonManager[14];
-        protected AxisManager[] _axisStates = new AxisManager[6];
-        protected bool _hasCreatedStates = false;
-
-        public ButtonManager[] ButtonStates { get { return _buttonStates; } }
-        public AxisManager[] AxisStates { get { return _axisStates; } }
-
-        public ConnectedStateChange ConnectionStateChanged;
-
-        public int ControllerIndex { get { return _controllerIndex; } }
-        public bool IsConnected { get { return _isConnected; } }
+        public CGamePad(int index) : base(index) { }
+        public static CGamePad NewInstance(int index)
+        {
+            switch (Engine.InputLibrary)
+            {
+                case InputLibrary.OpenTK: return new TKGamepad(index);
+                case InputLibrary.XInput: return new DXGamepad(index);
+            }
+            return null;
+        }
+        protected override int GetButtonCount() { return 14; }
+        protected override int GetAxisCount() { return 6; }
+        protected abstract bool ButtonExists(GamePadButton button);
+        protected abstract List<bool> ButtonsExist(List<GamePadButton> buttons);
+        protected abstract bool AxistExists(GamePadAxis axis);
+        protected abstract List<bool> AxesExist(List<GamePadAxis> axes);
+        private ButtonManager CacheButton(GamePadButton button)
+        {
+            int b = (int)button;
+            if (_buttonStates[b] == null && ButtonExists(button))
+               _buttonStates[b] = new ButtonManager(button.ToString());
+            return _buttonStates[b];
+        }
+        private AxisManager CacheAxis(GamePadAxis axis)
+        {
+            int a = (int)axis;
+            if (_axisStates[a] == null && AxistExists(axis))
+                _axisStates[a] = new AxisManager(axis.ToString());
+            return _axisStates[a];
+        }
+        private void RegisterButtonEvent(ButtonManager m, ButtonInputType type, Action func)
+        {
+            if (m != null)
+                switch (type)
+                {
+                    case ButtonInputType.Pressed:
+                        m.RegisterPressed(func);
+                        break;
+                    case ButtonInputType.Released:
+                        m.RegisterReleased(func);
+                        break;
+                    case ButtonInputType.Held:
+                        m.RegisterHeld(func);
+                        break;
+                    case ButtonInputType.DoublePressed:
+                        m.RegisterDoublePressed(func);
+                        break;
+                }
+        }
+        public void RegisterButtonEvent(GamePadButton button, ButtonInputType type, Action func)
+        {
+            RegisterButtonEvent(CacheButton(button), type, func);
+        }
+        public void RegisterButtonEvent(GamePadAxis axis, ButtonInputType type, Action func)
+        {
+            RegisterButtonEvent(CacheAxis(axis), type, func);
+        }
+        public void RegisterButtonState(GamePadButton button, DelButtonState func)
+        {
+            CacheButton(button)?.RegisterPressedState(func);
+        }
+        public void RegisterButtonState(GamePadAxis axis, DelButtonState func)
+        {
+            CacheAxis(axis)?.RegisterPressedState(func);
+        }
+        public void RegisterAxisUpdate(GamePadAxis axis, DelAxisValue func, bool continuousUpdate)
+        {
+            CacheAxis(axis)?.RegisterAxis(func, continuousUpdate);
+        }
+        /// <summary>
+        /// Left motor is low freq, right motor is high freq.
+        /// They are NOT the same.
+        /// </summary>
+        /// <param name="left">Low frequency motor speed, 0 - 1.</param>
+        /// <param name="right">High frequency motor speed, 0 - 1.</param>
+        public abstract void Vibrate(float lowFreq, float highFreq);
+        public void ClearVibration() { Vibrate(0.0f, 0.0f); }
 
         public ButtonManager DPadUp { get { return _buttonStates[(int)GamePadButton.DPadUp]; } }
         public ButtonManager DPadDown { get { return _buttonStates[(int)GamePadButton.DPadDown]; } }
@@ -76,143 +140,28 @@ namespace CustomEngine.Input.Devices
         public AxisManager LeftThumbstickX { get { return _axisStates[(int)GamePadAxis.LeftThumbstickX]; } }
         public AxisManager RightThumbstickY { get { return _axisStates[(int)GamePadAxis.RightThumbstickY]; } }
         public AxisManager RightThumbstickX { get { return _axisStates[(int)GamePadAxis.RightThumbstickX]; } }
-        
-        public static Gamepad NewInstance(int controllerIndex)
-        {
-            switch (Engine.InputLibrary)
-            {
-                case InputLibrary.OpenTK:
-                    return new TKGamepad(controllerIndex);
-                case InputLibrary.XInput:
-                    return new DXGamepad(controllerIndex);
-            }
-            return null;
-        } 
-
-        public Gamepad(int controllerIndex) : base(controllerIndex)
-        {
-            _controllerIndex = controllerIndex;
-            CreateStates();
-            RegisterTick(ETickGroup.PrePhysics, ETickOrder.Input);
-        }
-        protected void SetButton(GamePadButton b, bool exists)
-        {
-            _buttonStates[(int)b] = exists ? new ButtonManager(b) : null;
-        }
-        protected void SetAxis(GamePadAxis a, bool exists)
-        {
-            _axisStates[(int)a] = exists ? new AxisManager(a) : null;
-        }
-        protected abstract void CreateStates();
-        protected abstract void UpdateStates(float delta);
-        /// <summary>
-        /// Returns true if connected.
-        /// </summary>
-        protected bool UpdateConnected(bool isConnected)
-        {
-            if (_isConnected == isConnected)
-                return _isConnected;
-           
-            _isConnected = isConnected;
-            ConnectionStateChanged?.Invoke(_isConnected);
-
-            if (_isConnected)
-            {
-                if (!_hasCreatedStates)
-                    CreateStates();
-                return true;
-            }
-            else if (_hasCreatedStates)
-            {
-                _buttonStates = new ButtonManager[14];
-                _axisStates = new AxisManager[6];
-                _hasCreatedStates = false;
-                Console.WriteLine("Gamepad input states destroyed.");
-            }
-            return false;
-        }
-        internal override void Tick(float delta) { UpdateStates(delta); }
-        /// <summary>
-        /// Left motor is low freq, right motor is high freq.
-        /// They are NOT the same.
-        /// </summary>
-        /// <param name="left">Low frequency motor speed, 0 - 1.</param>
-        /// <param name="right">High frequency motor speed, 0 - 1.</param>
-        public abstract void Vibrate(float left, float right);
-        public void ClearVibration() { Vibrate(0.0f, 0.0f); }
-
-        public void RegisterButtonEvent(GamePadButton button, ButtonInputType type, Action func)
-        {
-            ButtonManager m = _buttonStates[(int)button];
-            switch (type)
-            {
-                case ButtonInputType.Pressed:
-                    m.Pressed += func;
-                    break;
-                case ButtonInputType.Released:
-                    m.Released += func;
-                    break;
-                case ButtonInputType.Held:
-                    m.Held += func;
-                    break;
-                case ButtonInputType.DoublePressed:
-                    m.DoublePressed += func;
-                    break;
-            }
-        }
-        public void RegisterButtonEvent(GamePadAxis axis, ButtonInputType type, Action func)
-        {
-            AxisManager m = _axisStates[(int)axis];
-            switch (type)
-            {
-                case ButtonInputType.Pressed:
-                    m.Pressed += func;
-                    break;
-                case ButtonInputType.Released:
-                    m.Released += func;
-                    break;
-                case ButtonInputType.Held:
-                    m.Held += func;
-                    break;
-                case ButtonInputType.DoublePressed:
-                    m.DoublePressed += func;
-                    break;
-            }
-        }
-        public void RegisterButtonPressed(GamePadButton button, Action<bool> func)
-        {
-            _buttonStates[(int)button].PressedState += func;
-        }
-        public void RegisterButtonPressed(GamePadAxis axis, Action<bool> func)
-        {
-            _axisStates[(int)axis].PressedState += func;
-        }
-        public void RegisterAxisUpdate(GamePadAxis axis, Action<float> func, bool continuousUpdate)
-        {
-            if (continuousUpdate)
-                _axisStates[(int)axis].AxisValue += func;
-            else
-                _axisStates[(int)axis].AxisChanged += func;
-        }
     }
+    public delegate void DelButtonState(bool pressed);
     public class ButtonManager
     {
-        public ButtonManager(GamePadButton button) { _button = button; }
+        public ButtonManager(string name) { _name = name; }
 
-        private const float TimerMax = 0.5f;
+        public List<Action>
+            _onPressed = new List<Action>(),
+            _onReleased = new List<Action>(),
+            _onHeld = new List<Action>(),
+            _onDoublePressed = new List<Action>();
+        public List<DelButtonState> _onStateChanged = new List<DelButtonState>();
+        
+        static readonly float TimerMax = 0.5f;
 
-        private float _holdDelaySeconds = 0.2f;
-        private float _maxSecondsBetweenPresses = 0.2f;
-        private float _timer;
-        private bool _isPressed;
-        private GamePadButton _button;
+        protected float _holdDelaySeconds = 0.2f;
+        protected float _maxSecondsBetweenPresses = 0.2f;
+        protected float _timer;
+        protected bool _isPressed;
+        protected string _name;
 
-        public event Action Pressed;
-        public event Action Released;
-        public event Action Held;
-        public event Action DoublePressed;
-        public event Action<bool> PressedState;
-
+        public string Name { get { return _name; } }
         public bool IsPressed { get { return _isPressed; } }
 
         internal void Tick(bool isPressed, float delta)
@@ -222,21 +171,13 @@ namespace CustomEngine.Input.Devices
                 if (_isPressed = isPressed)
                 {
                     if (_timer <= _maxSecondsBetweenPresses)
-                    {
-                        DoublePressed?.Invoke();
-                        Console.WriteLine(_button + " DOUBLECLICKED");
-                    }
+                        OnDoublePressed();
 
                     _timer = 0.0f;
-                    Pressed?.Invoke();
-                    PressedState?.Invoke(true);
+                    OnPressed();
                 }
                 else
-                {
-                    Released?.Invoke();
-                    PressedState?.Invoke(false);
-                }
-                Console.WriteLine(_button + ": " + _isPressed.ToString());
+                    OnReleased();
             }
             else if (_timer < TimerMax)
             {
@@ -244,36 +185,78 @@ namespace CustomEngine.Input.Devices
                 if (_isPressed && _timer >= _holdDelaySeconds)
                 {
                     _timer = TimerMax;
-                    Held?.Invoke();
-                    Console.WriteLine(_button + " HELD");
+                    OnHeld();
                 }
             }
         }
+        public void RegisterPressed(Action func)
+        {
+            _onPressed.Add(func);
+        }
+        public void RegisterReleased(Action func)
+        {
+            _onReleased.Add(func);
+        }
+        public void RegisterHeld(Action func)
+        {
+            _onHeld.Add(func);
+        }
+        public void RegisterDoublePressed(Action func)
+        {
+            _onDoublePressed.Add(func);
+        }
+        public void RegisterPressedState(DelButtonState func)
+        {
+            _onStateChanged.Add(func);
+        }
+        public virtual void UnregisterAll()
+        {
+            _onPressed.Clear();
+            _onReleased.Clear();
+            _onHeld.Clear();
+            _onDoublePressed.Clear();
+            _onStateChanged.Clear();
+        }
+        private void OnPressed()
+        {
+            _onPressed.ForEach(del => del());
+            _onStateChanged.ForEach(del => del(true));
+            Console.WriteLine(_name + " PRESSED");
+        }
+        private void OnReleased()
+        {
+            _onReleased.ForEach(del => del());
+            _onStateChanged.ForEach(del => del(false));
+            Console.WriteLine(_name + " RELEASED");
+        }
+        private void OnHeld()
+        {
+            _onHeld.ForEach(del => del());
+            Console.WriteLine(_name + " HELD");
+        }
+        private void OnDoublePressed()
+        {
+            _onDoublePressed.ForEach(del => del());
+            Console.WriteLine(_name + " DOUBLE PRESSED");
+        }
     }
-    public class AxisManager
+    public delegate void DelAxisValue(float value);
+    public class AxisManager : ButtonManager
     {
-        public AxisManager(GamePadAxis axis) { _axis = axis; }
+        public AxisManager(string name) : base(name) { }
 
-        private const float TimerMax = 0.5f;
+        public List<DelAxisValue> 
+            _continuous = new List<DelAxisValue>(), 
+            _onUpdate = new List<DelAxisValue>();
 
         private float _updateThreshold = 0.0001f;
-        private float _holdDelaySeconds = 0.2f;
-        private float _maxSecondsBetweenPresses = 0.2f;
-        private float _pressedThreshold = 0.95f;
-        private float _deadZoneThreshold = 0.05f;
-        private float _value = 0.0f, _prevValue = 0.0f;
-        private float _timer;
-        private bool _isPressed;
-        //private bool _continuousUpdates = false;
-        private GamePadAxis _axis;
+        private float _pressedThreshold = 0.9f;
+        private float _deadZoneThreshold = 0.15f;
+        private float _value = 0.0f;
 
         public float Value
         {
             get { return Math.Abs(_value) > _deadZoneThreshold ? _value : 0.0f; }
-        }
-        public float PreviousValue
-        {
-            get { return Math.Abs(_prevValue) > _deadZoneThreshold ? _prevValue : 0.0f; }
         }
         public float PressedThreshold
         {
@@ -290,73 +273,39 @@ namespace CustomEngine.Input.Devices
             get { return _updateThreshold; }
             set { _updateThreshold = value; }
         }
-        //public bool ContinuousUpdates
-        //{
-        //    get { return _continuousUpdates; }
-        //    set { _continuousUpdates = value; }
-        //}
-        public bool IsPressed { get { return _isPressed; } }
-
-        public event Action<float> AxisChanged;
-        public event Action<float> AxisValue;
-        public event Action Pressed;
-        public event Action Released;
-        public event Action Held;
-        public event Action DoublePressed;
-        public event Action<bool> PressedState;
-
         internal void Tick(float value, float delta)
         {
-            _prevValue = _value;
+            float prev = Value;
             _value = value;
-
             float realValue = Value;
-            float realPrev = PreviousValue;
 
-            bool wasPressed = Math.Abs(realPrev) > _pressedThreshold;
-            bool nowPressed = Math.Abs(realValue) > _pressedThreshold;
+            OnAxisValue(realValue);
+            if (Math.Abs(realValue - prev) > _updateThreshold)
+                OnAxisChanged(realValue);
 
-            AxisValue?.Invoke(realValue);
-            if (Math.Abs(realValue - realPrev) > _updateThreshold)
-            {
-                AxisChanged?.Invoke(realValue);
-                Console.WriteLine(_axis + ": " + realValue.ToString());
-            }
-
-            if (wasPressed != nowPressed)
-            {
-                if (nowPressed)
-                {
-                    if (_timer <= _maxSecondsBetweenPresses)
-                    {
-                        DoublePressed?.Invoke();
-                        Console.WriteLine(_axis + " DOUBLECLICKED");
-                    }
-
-                    _timer = 0.0f;
-                    _isPressed = true;
-                    Pressed?.Invoke();
-                    PressedState?.Invoke(true);
-                    Console.WriteLine(_axis + " PRESSED");
-                }
-                else
-                {
-                    _isPressed = false;
-                    Released?.Invoke();
-                    PressedState?.Invoke(false);
-                    Console.WriteLine(_axis + " RELEASED");
-                }
-            }
-            else if (_timer < TimerMax)
-            {
-                _timer += delta;
-                if (_isPressed && _timer >= _holdDelaySeconds)
-                {
-                    _timer = TimerMax;
-                    Held?.Invoke();
-                    Console.WriteLine(_axis + " HELD");
-                }
-            }
+            Tick(Math.Abs(realValue) > _pressedThreshold, delta);
+        }
+        public void RegisterAxis(DelAxisValue func, bool continuousUpdate)
+        {
+            if (continuousUpdate)
+                _continuous.Add(func);
+            else
+                _onUpdate.Add(func);
+        }
+        private void OnAxisChanged(float realValue)
+        {
+            _onUpdate.ForEach(del => del(realValue));
+            Console.WriteLine(_name + ": " + realValue.ToString());
+        }
+        private void OnAxisValue(float realValue)
+        {
+            _continuous.ForEach(del => del(realValue));
+        }
+        public override void UnregisterAll()
+        {
+            base.UnregisterAll();
+            _continuous.Clear();
+            _onUpdate.Clear();
         }
     }
 }

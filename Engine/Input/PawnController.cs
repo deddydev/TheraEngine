@@ -21,8 +21,8 @@ namespace CustomEngine.Input
         }
 
         protected Queue<Pawn> _possessionQueue;
-        private Pawn _controlledPawn;
-        public Pawn ControlledPawn
+        protected Pawn _controlledPawn;
+        public virtual Pawn ControlledPawn
         {
             get { return _controlledPawn; }
             set

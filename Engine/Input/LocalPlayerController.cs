@@ -26,12 +26,39 @@ namespace CustomEngine.Input
             get { return _viewport.Camera; }
             set { _viewport.Camera = value; }
         }
-        public LocalPlayerController(Queue<Pawn> possessionQueue = null) : base(possessionQueue)
+        public override Pawn ControlledPawn
+        {
+            get { return base.ControlledPawn; }
+            set
+            {
+                if (_controlledPawn != null)
+                {
+                    _controlledPawn.OnUnPossessed();
+                    _input.WantsInputsRegistered -= _controlledPawn.RegisterInput;
+                }
+
+                _controlledPawn = value;
+
+                if (_controlledPawn != null)
+                {
+                    _input.WantsInputsRegistered += _controlledPawn.RegisterInput;
+                    _input.TryRegisterInput();
+                }
+                else if (_possessionQueue.Count != 0)
+                    _controlledPawn = _possessionQueue.Dequeue();
+
+                _controlledPawn?.OnPossessed(this);
+            }
+        }
+        public LocalPlayerController(Queue<Pawn> possessionQueue = null) : base()
         {
             int index = Engine.ActivePlayers.Count;
             _index = (PlayerIndex)index;
             _input = new InputInterface(index);
             Engine.ActivePlayers.Add(this);
+            _possessionQueue = possessionQueue;
+            if (_possessionQueue.Count != 0)
+                ControlledPawn = _possessionQueue.Dequeue();
         }
         public LocalPlayerController()
         {
@@ -39,6 +66,9 @@ namespace CustomEngine.Input
             _index = (PlayerIndex)index;
             _input = new InputInterface(index);
             Engine.ActivePlayers.Add(this);
+            _possessionQueue = new Queue<Pawn>();
+            if (_possessionQueue.Count != 0)
+                ControlledPawn = _possessionQueue.Dequeue();
         }
         ~LocalPlayerController()
         {

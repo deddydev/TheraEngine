@@ -17,7 +17,7 @@ namespace CustomEngine.Input
         {
 
         }
-        public PlayerController()
+        public PlayerController() : base()
         {
 
         }

@@ -117,14 +117,14 @@ namespace CustomEngine
             float delta = (float)e.Time;
             _debugTimers.ForEach(x => x += delta);
             //delta /= PhysicsSubsteps;
-            for (int i = 0; i < 1; i++)
-            {
+            //for (int i = 0; i < 1; i++)
+            //{
                 PhysicsTick(ETickGroup.PrePhysics, delta);
                 //Task t = AsyncDuringPhysicsTick(delta);
                 World.StepSimulation(delta);
                 //await t;
                 PhysicsTick(ETickGroup.PostPhysics, delta);
-            }
+            //}
         }
 
         internal static void AddLoadedFile<T>(string relativePath, T file) where T : FileObject
@@ -234,6 +234,8 @@ namespace CustomEngine
                 else
                     controller = new LocalPlayerController();
             }
+            else
+                ActivePlayers[device.Index].Input.UpdateDevices();
         }
     }
 }

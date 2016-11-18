@@ -87,8 +87,8 @@ namespace CustomEngine.Worlds.Actors.Components
         [Category("Rendering"), Default, State, Animatable]
         public Matrix4.MultiplyOrder TransformOrder
         {
-            get { return LocalTransform.TransformOrder; }
-            set { LocalTransform.TransformOrder = value; }
+            get { return LocalTransform.Order; }
+            set { LocalTransform.Order = value; }
         }
         public virtual void OnSpawned()
         {

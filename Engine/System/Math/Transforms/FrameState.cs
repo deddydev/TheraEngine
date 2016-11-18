@@ -72,7 +72,7 @@ namespace System
             get { return _rotation.ToEuler(); }
             set { SetRotate(value); }
         }
-        public Matrix4.MultiplyOrder TransformOrder
+        public Matrix4.MultiplyOrder Order
         {
             get { return _order; }
             set { _order = value; CreateTransform(); }
@@ -128,6 +128,7 @@ namespace System
 
         public void RotateInPlace(Quaternion rotation)
         {
+            Rotation *= rotation;
             switch (_order)
             {
                 case Matrix4.MultiplyOrder.TRS:

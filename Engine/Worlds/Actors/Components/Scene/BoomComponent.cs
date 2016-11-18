@@ -17,7 +17,7 @@ namespace CustomEngine.Worlds.Actors.Components
         public void OnTraceHit(HitInfo hit)
         {
             LocalTransform.Translation = hit._location;
-            LocalTransform.ApplyForwardTranslation(_endOffset);
+            LocalTransform.TranslateRelative(_endOffset);
         }
     }
 }

@@ -43,7 +43,7 @@ namespace Game.Worlds
             //start.MakeOutLinear();
             //end.MakeInLinear();
 
-            AnimationContainer anim = new AnimationContainer("Anim_AddRotationY", true, camPropAnim);
+            AnimationContainer anim = new AnimationContainer("AddRotationY", true, camPropAnim);
 
             ModelComponent modelComp = new ModelComponent(boxModel);
             Camera camera = new PerspectiveCamera();
@@ -52,7 +52,11 @@ namespace Game.Worlds
             anim.Start();
             CameraComponent cameraComp = new CameraComponent(camera);
             cameraComp.Parent = modelComp;
-            _settings._maps.Add(new Map(this, new MapSettings(new Pawn(PlayerIndex.One, modelComp))));
+
+            CameraPawn cp = new CameraPawn(PlayerIndex.One);
+            _settings._maps.Add(new Map(this, new MapSettings(
+                new Pawn(modelComp),
+                cp)));
 
             //AnimationInterpNode propertyAnim = new AnimationInterpNode(360);
             //propertyAnim.Looped = true;

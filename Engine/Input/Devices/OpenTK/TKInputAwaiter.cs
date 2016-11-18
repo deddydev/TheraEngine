@@ -13,30 +13,44 @@ namespace CustomEngine.Input.Devices.OpenTK
 
         public TKInputAwaiter(Action<InputDevice> uponFound) : base(uponFound) { }
 
-        public override Gamepad CreateGamepad(int index)
+        public override CGamePad CreateGamepad(int index)
         {
             return new TKGamepad(index);
         }
-        public override Keyboard CreateKeyboard(int index)
+        public override CKeyboard CreateKeyboard(int index)
         {
             return new TKKeyboard(index);
         }
-        public override Mouse CreateMouse(int index)
+        public override CMouse CreateMouse(int index)
         {
             return new TKMouse(index);
         }
-
-        protected override Dictionary<InputDeviceType, List<int>> GetConnected()
+        internal override void Tick(float delta)
         {
-            Dictionary<InputDeviceType, List<int>> connected = new Dictionary<InputDeviceType, List<int>>();
-            connected.Add(InputDeviceType.Gamepad, new List<int>());
+            var gamepads = InputDevice.CurrentDevices[InputDeviceType.Gamepad];
+            var keyboards = InputDevice.CurrentDevices[InputDeviceType.Keyboard];
+            var mice = InputDevice.CurrentDevices[InputDeviceType.Mouse];
             for (int i = 0; i < MaxControllers; ++i)
             {
-                GamePadState state = GamePad.GetState(i);
-                //if (state.IsConnected && !InputDevice.CurrentDevices[InputDeviceType.Gamepad].Contains[i])
-                //    connected[InputDeviceType.Gamepad].Add(i);
+                if (gamepads[i] == null)
+                {
+                    GamePadState gamepadState = GamePad.GetState(i);
+                    if (gamepadState.IsConnected)
+                        OnFoundGamepad(i);
+                }
+                if (keyboards[i] == null)
+                {
+                    KeyboardState keyboardState = Keyboard.GetState(i);
+                    if (keyboardState.IsConnected)
+                        OnFoundKeyboard(i);
+                }
+                if (mice[i] == null)
+                {
+                    MouseState mouseState = Mouse.GetState(i);
+                    if (mouseState.IsConnected)
+                        OnFoundMouse(i);
+                }
             }
-            return connected;
         }
     }
 }

@@ -6,11 +6,11 @@
 
         public static float DegToRad(float degrees)
         {
-            return degrees * (float)Math.PI / 180.0f;
+            return degrees * PIf / 180.0f;
         }
         public static float RadToDeg(float radians)
         {
-            return radians * 180.0f / (float)Math.PI;
+            return radians * 180.0f / PIf;
         }
         /// <summary>
         /// Gets an approximation of the vector length (magnitude).

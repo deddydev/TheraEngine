@@ -39,6 +39,8 @@ namespace CustomEngine.Rendering.Cameras
 
         public abstract float Width { get; }
         public abstract float Height { get; }
+        public Vec2 Dimensions { get { return new Vec2(Width, Height); } }
+        public abstract Vec2 Origin { get; }
 
         protected bool _updating;
         protected bool _restrictXRot, _restrictYRot, _restrictZRot;
@@ -49,13 +51,29 @@ namespace CustomEngine.Rendering.Cameras
         protected Matrix4 _projectionInverse;
 
         protected Vec3 _point = Vec3.Zero, _dir = Vec3.Forward;
-        protected Quaternion _rotate = Quaternion.Identity;
+        protected float _roll = 0.0f;
         protected Matrix4 _transform = Matrix4.Identity, _invTransform = Matrix4.Identity;
+
+        public Vec3 WorldToScreen(Vec3 point)
+        {
+            Vec3 range = new Vec3(Dimensions, FarDepth - NearDepth);
+            Vec3 min = new Vec3(Origin, NearDepth);
+            return min + range * ((_projectionMatrix * (_transform * point)) + 1.0f) / 2.0f;
+        }
+        public Vec3 ScreenToWorld(Vec2 point, float depth) { return ScreenToWorld(point.X, point.Y, depth); }
+        public Vec3 ScreenToWorld(float x, float y, float depth) { return ScreenToWorld(new Vec3(x, y, depth)); }
+        public Vec3 ScreenToWorld(Vec3 screenPoint)
+        {
+            Vec3 range = new Vec3(Dimensions, FarDepth - NearDepth);
+            Vec3 min = new Vec3(Origin, NearDepth);
+            return _invTransform * (_projectionInverse * ((screenPoint - min) / range * 2.0f - 1.0f));
+        }
         protected void CreateTransform()
         {
             _transform = Matrix4.LookAt(_point, _point + _dir, Vec3.Up);
+            if (!_roll.IsZero())
+                _transform = Matrix4.CreateRotationZ(_roll) * _transform;
             _invTransform = _transform.Inverted();
-            _rotate = Quaternion.FromMatrix(_transform);
             OnTransformChanged();
         }
         public void Zoom(float amount) => TranslateRelative(0.0f, 0.0f, amount);
@@ -73,9 +91,10 @@ namespace CustomEngine.Rendering.Cameras
             _invTransform = _invTransform * Matrix4.CreateTranslation(-translation);
             _point = _transform.ExtractTranslation();
         }
-        public Vec3 GetUpVector() { return _rotate * Vec3.Up; }
-        public Vec3 GetForwardVector() { return _rotate * Vec3.Forward; }
-        public Vec3 GetRightVector() { return _rotate * Vec3.Right; }
+        public Vec3 RotateVector(Vec3 dir) { return _transform.GetRotationMatrix() * dir; }
+        public Vec3 GetUpVector() { return RotateVector(Vec3.Up); }
+        public Vec3 GetForwardVector() { return RotateVector(Vec3.Forward); }
+        public Vec3 GetRightVector() { return RotateVector(Vec3.Right); }
         public void Rotate(float yaw, float pitch) { Rotate(yaw, pitch, 0.0f); }
         public void Rotate(Vec3 v) => Rotate(v.X, v.Y, v.Z);
         public void Rotate(float yaw, float pitch, float roll)
@@ -84,8 +103,18 @@ namespace CustomEngine.Rendering.Cameras
                 _dir = Quaternion.FromAxisAngle(Vec3.Up, yaw) * _dir;
             if (!pitch.IsZero())
                 _dir = Quaternion.FromAxisAngle(Vec3.Right, pitch) * _dir;
-            if (!roll.IsZero())
-                _dir = Quaternion.FromAxisAngle(Vec3.Forward, roll) * _dir;
+            _roll = roll;
+            CreateTransform();
+        }
+        public void RotateAboutPoint(float yaw, float pitch, float roll, Vec3 point)
+        {
+            _point = CustomMath.RotateAboutPoint(_point, point, new Vec3(yaw, pitch, roll));
+            if (!yaw.IsZero())
+                _dir = Quaternion.FromAxisAngle(Vec3.Up, yaw) * _dir;
+            if (!pitch.IsZero())
+                _dir = Quaternion.FromAxisAngle(Vec3.Right, pitch) * _dir;
+            _roll = roll;
+
             CreateTransform();
         }
         public void Pivot(float x, float y, float radius)
@@ -101,6 +130,11 @@ namespace CustomEngine.Rendering.Cameras
             _dir = target - _point;
             CreateTransform();
         }
+        public void Reset()
+        {
+
+        }
+        public void SaveCurrentTransform() { }
 
         public event TranslateChange TranslateChanged;
         public event RotateChange RotateChanged;
@@ -119,8 +153,6 @@ namespace CustomEngine.Rendering.Cameras
             Engine.Renderer.Uniform(Uniform.ViewMatrixName, Matrix);
             Engine.Renderer.Uniform(Uniform.ProjMatrixName, _projectionMatrix);
         }
-        protected virtual Vec3 AlignScreenPoint(Vec3 screenPoint) { return screenPoint; }
-        protected virtual Vec3 UnAlignScreenPoint(Vec3 screenPoint) { return screenPoint; }
         protected abstract void CalculateProjection();
         public virtual void Resize(float width, float height)
         {
@@ -136,44 +168,13 @@ namespace CustomEngine.Rendering.Cameras
             _updating = false;
             TransformChanged?.Invoke();
         }
-        public void Reset()
-        {
-            
-        }
-        /// <summary>
-        /// Projects a screen point to world coordinates.
-        /// </summary>
-        /// <returns>3D world point perpendicular to the camera with a depth value of z (z is not a distance value!)</returns>
-        public Vec3 GetWorldPoint(Vec3 screenPoint)
-        {
-            screenPoint = AlignScreenPoint(screenPoint);
-            return screenPoint.Unproject(0, 0, Width, Height, NearDepth, FarDepth, InverseMatrix * _projectionInverse);
-        }
-
-        /// <summary>
-        /// Projects a screen point to world coordinates.
-        /// </summary>
-        /// <returns>3D world point perpendicular to the camera with a depth value of z (z is not a distance value!)</returns>
-        public Vec3 GetWorldPoint(float x, float y, float z) { return GetWorldPoint(new Vec3(x, y, z)); }
-        /// <summary>
-        /// Projects a world point to screen coordinates.
-        /// </summary>
-        /// <returns>2D coordinate on the screen with z as depth (z is not a distance value!)</returns>
-        public Vec3 GetScreenPoint(float x, float y, float z) { return GetScreenPoint(new Vec3(x, y, z)); }
-        /// <summary>
-        /// Projects a world point to screen coordinates.
-        /// </summary>
-        /// <returns>2D coordinate on the screen with z as depth (z is not a distance value!)</returns>
-        public Vec3 GetScreenPoint(Vec3 worldPoint)
-        {
-            return UnAlignScreenPoint(worldPoint.Project(0, 0, Width, Height, NearDepth, FarDepth, _projectionMatrix * Matrix));
-        }
         public Ray GetWorldRay(Vec2 screenPoint)
         {
-            Vec3 ray1 = GetWorldPoint(screenPoint.X, screenPoint.Y, 0.0f);
-            Vec3 ray2 = GetWorldPoint(screenPoint.X, screenPoint.Y, 1.0f);
-            return new Ray(ray1, ray2);
+            Vec3 start = ScreenToWorld(screenPoint, 0.0f);
+            Vec3 end = ScreenToWorld(screenPoint, 1.0f);
+            return new Ray(start, end);
         }
+
         public Vec3 ProjectCameraSphere(Vec2 screenPoint, Vec3 center, float radius, bool clamp)
         {
             Vec3 point;
@@ -192,7 +193,6 @@ namespace CustomEngine.Rendering.Cameras
 
             return point;
         }
-
         public void ProjectCameraPlanes(Vec2 screenPoint, Matrix4 transform, out Vec3 xy, out Vec3 yz, out Vec3 xz)
         {
             Ray ray = GetWorldRay(screenPoint);
@@ -203,8 +203,6 @@ namespace CustomEngine.Rendering.Cameras
             ray.LinePlaneIntersect(center, (transform * Vec3.UnitY).Normalized(center), out xz);
             ray.LinePlaneIntersect(center, (transform * Vec3.UnitZ).Normalized(center), out xy);
         }
-        public void SaveCurrentTransform() { }
-
         public abstract Frustrum GetFrustrum();
     }
 }

@@ -11,7 +11,11 @@ namespace CustomEngine.Input.Devices.OpenTK
     {
         public TKMouse(int index) : base(index) { }
 
-        public override void SetCursorPosition(float x, float y) { Mouse.SetPosition(x, y); }
+        public override void SetCursorPosition(float x, float y)
+        {
+            _cursor.Tick(x, y, 0.0f);
+            Mouse.SetPosition(x, y);
+        }
 
         protected override void UpdateStates(float delta)
         {
@@ -19,7 +23,7 @@ namespace CustomEngine.Input.Devices.OpenTK
             if (!UpdateConnected(state.IsConnected))
                 return;
 
-
+            _cursor.Tick(state.X, state.Y, delta);
         }
     }
 }

@@ -20,6 +20,7 @@ namespace CustomEngine.Rendering.OpenGL
             _context = new GraphicsContext(GraphicsMode.Default, _winInfo);
             _context.MakeCurrent(WindowInfo);
             _context.LoadAll();
+            _context.SwapInterval = 1;
         }
         public override bool IsCurrent()
         {

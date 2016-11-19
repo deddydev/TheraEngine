@@ -239,6 +239,24 @@ namespace System
             vec.Y = scale / vec.Y;
             return vec;
         }
+        public static Vec2 operator +(Vec2 vec, float amount)
+        {
+            vec.X = vec.X + amount;
+            vec.Y = vec.Y + amount;
+            return vec;
+        }
+        public static Vec2 operator -(Vec2 vec, float amount)
+        {
+            vec.X = vec.X - amount;
+            vec.Y = vec.Y - amount;
+            return vec;
+        }
+        public static Vec2 operator -(float amount, Vec2 vec)
+        {
+            vec.X = amount - vec.X;
+            vec.Y = amount - vec.Y;
+            return vec;
+        }
         public static bool operator ==(Vec2 left, Vec2 right) { return left.Equals(right); }
         public static bool operator !=(Vec2 left, Vec2 right) { return !left.Equals(right); }
         public static explicit operator Vec2(Vec3 v) { return new Vec2(v.X, v.Y); }

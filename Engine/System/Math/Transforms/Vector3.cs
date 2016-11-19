@@ -29,6 +29,8 @@ namespace System
         public Vec3(float x, float y, float z) { X = x; Y = y; Z = z; }
         public Vec3(float value) : this(value, value, value) { }
         public Vec3(Vec2 v) : this(v.X, v.Y, 0.0f) { }
+        public Vec3(Vec2 v, float z) : this(v.X, v.Y, z) { }
+        public Vec3(float x, Vec2 v) : this(x, v.X, v.Y) { }
 
         public static float Dot(Vec3 ab, Vec3 ap) { return ab.Dot(ap); }
 
@@ -348,7 +350,7 @@ namespace System
         /// </remarks>
         public Vec3 Project(float x, float y, float width, float height, float minZ, float maxZ, Matrix4 worldViewProjection)
         {
-            Vec3 result = this * worldViewProjection;
+            Vec3 result = worldViewProjection * this;
 
             result.X = x + (width * ((result.X + 1.0f) / 2.0f));
             result.Y = y + (height * ((result.Y + 1.0f) / 2.0f));
@@ -374,11 +376,21 @@ namespace System
         /// </remarks>
         public Vec3 Unproject(float x, float y, float width, float height, float minZ, float maxZ, Matrix4 inverseWorldViewProjection)
         {
-            return new Vec3(
+            return inverseWorldViewProjection * new Vec3(
                 (X - x) / width * 2.0f - 1.0f,
                 (Y - y) / height * 2.0f - 1.0f,
-                Z / (maxZ - minZ) * 2.0f - 1.0f) * inverseWorldViewProjection;
+                Z / (maxZ - minZ) * 2.0f - 1.0f);
         }
+
+        public Vec3 GetAngles() { return new Vec3(AngleX(), AngleY(), AngleZ()); }
+        public Vec3 GetAngles(Vec3 origin) { return (this - origin).GetAngles(); }
+
+        public Vec3 LookatAngles() { return new Vec3((float)Atan2(Y, Sqrt(X * X + Z * Z)), (float)Atan2(-X, -Z), 0.0f); }
+        public Vec3 LookatAngles(Vec3 origin) { return (this - origin).LookatAngles(); }
+
+        public float AngleX() { return (float)Atan2(Y, -Z); }
+        public float AngleY() { return (float)Atan2(-Z, X); }
+        public float AngleZ() { return (float)Atan2(Y, X); }
 
         [XmlIgnore]
         public Vec2 Xy { get { return new Vec2(X, Y); } set { X = value.X; Y = value.Y; } }
@@ -402,6 +414,28 @@ namespace System
         public Vec3 Zxy { get { return new Vec3(Z, X, Y); } set { Z = value.X; X = value.Y; Y = value.Z; } }
         [XmlIgnore]
         public Vec3 Zyx { get { return new Vec3(Z, Y, X); } set { Z = value.X; Y = value.Y; X = value.Z; } }
+
+        public static Vec3 operator +(Vec3 left, float right)
+        {
+            left.X += right;
+            left.Y += right;
+            left.Z += right;
+            return left;
+        }
+        public static Vec3 operator -(float left, Vec3 right)
+        {
+            right.X = left - right.X;
+            right.Y = left - right.Y;
+            right.Z = left - right.Z;
+            return right;
+        }
+        public static Vec3 operator -(Vec3 left, float right)
+        {
+            left.X -= right;
+            left.Y -= right;
+            left.Z -= right;
+            return left;
+        }
 
         public static Vec3 operator +(Vec3 left, Vec3 right)
         {

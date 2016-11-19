@@ -17,21 +17,21 @@ namespace CustomEngine.Rendering.HUD
         /// <summary>
         /// The rotation angle of the component in degrees.
         /// </summary>
-        [Category("Transform"), Default, State, Animatable, PostCall("OnTransformed")]
+        [Category("Transform"), Default, State, Animatable]
         public float RotationAngle
         {
             get { return _rotationAngle; }
-            set { _rotationAngle = value.RemapToRange(0.0f, 360.0f); }
+            set { _rotationAngle = value.RemapToRange(0.0f, 360.0f); OnTransformed(); }
         }
         /// <summary>
         /// The origin of the component's rotation angle, as a percentage.
         /// 0,0 is bottom left, 0.5,0.5 is center, 1.0,1.0 is top right.
         /// </summary>
-        [Category("Transform"), Default, State, Animatable, PostCall("OnTransformed")]
+        [Category("Transform"), Default, State, Animatable]
         public Vec2 RotationLocalOrigin
         {
             get { return _rotationLocalOrigin; }
-            set { _rotationLocalOrigin = value; }
+            set { _rotationLocalOrigin = value; OnTransformed(); }
         }
 
         public override void OnTransformed()

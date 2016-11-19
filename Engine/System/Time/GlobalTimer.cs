@@ -29,8 +29,6 @@ namespace System
 
         public event EventHandler<FrameEventArgs> RenderFrame = delegate { };
         public event EventHandler<FrameEventArgs> UpdateFrame = delegate { };
-
-        Thread TimerThread;
         
         /// <summary>
         /// Runs the timer until Stop() is called.
@@ -44,8 +42,6 @@ namespace System
             _running = true;
             watch.Start();
             ThreadPool.QueueUserWorkItem(RunInternal);
-            //TimerThread = new Thread(RunInternal);
-            //TimerThread.Start();
         }
         private void RunInternal(object state)
         {
@@ -134,10 +130,14 @@ namespace System
         void OnRenderFrame(FrameEventArgs e) { RenderFrame?.Invoke(this, e); }
         void OnUpdateFrame(FrameEventArgs e) { UpdateFrame?.Invoke(this, e); }
 
-        bool _running = false;
+        private bool _running = false;
         public bool IsRunning { get { return _running; } }
-        public void Stop() { _running = false; }
-
+        public void Stop()
+        {
+            _running = false;
+            watch.Stop();
+            Thread.CurrentThread.Abort();
+        }
         void ProcessEvents()
         {
             Application.DoEvents();

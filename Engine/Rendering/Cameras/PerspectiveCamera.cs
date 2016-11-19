@@ -4,17 +4,18 @@ namespace CustomEngine.Rendering.Cameras
 {
     public class PerspectiveCamera : Camera
     {
-        public float VerticalFieldOfView { get { return _fovY; } set { _fovY = value; CalculateProjection(); } }
+        private float _width, _height, _fovY = 78.0f, _aspect;
+
+        public override Vec2 Origin { get { return new Vec2(Width / 2.0f, Height / 2.0f); } }
         public override float Width { get { return _width; } }
         public override float Height { get { return _height; } }
         public float Aspect { get { return _aspect; } set { _aspect = value; CalculateProjection(); } }
+        public float VerticalFieldOfView { get { return _fovY; } set { _fovY = value; CalculateProjection(); } }
         public float HorizontalFieldOfView
         {
             get { return 2.0f * CustomMath.RadToDeg((float)Math.Atan(Math.Tan(CustomMath.DegToRad(_fovY / 2.0f)) * _aspect)); }
             set { VerticalFieldOfView = 2.0f * CustomMath.RadToDeg((float)Math.Atan(Math.Tan(CustomMath.DegToRad(value / 2.0f)) / _aspect)); }
         }
-
-        private float _width, _height, _fovY = 78.0f, _aspect;
         protected unsafe override void CalculateProjection()
         {
             _projectionMatrix = Matrix4.CreatePerspectiveFieldOfView(_fovY, _aspect, _nearZ, _farZ);
@@ -26,7 +27,6 @@ namespace CustomEngine.Rendering.Cameras
             _fovY = fovy;
             _farZ = farz;
             _nearZ = nearz;
-
             CalculateProjection();
         }
         public override void Resize(float width, float height)

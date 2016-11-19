@@ -42,11 +42,6 @@ namespace CustomEngine.Input.Devices
                 UpdateDevices();
             }
         }
-        
-        public void RegisterMouseMove(Action<float, float> func, MouseMoveType type)
-        {
-
-        }
 
         Dictionary<string, List<EKey>> _namedKeys = new Dictionary<string, List<EKey>>();
         Dictionary<string, List<GamePadButton>> _namedGamepadButtons = new Dictionary<string, List<GamePadButton>>();
@@ -92,6 +87,10 @@ namespace CustomEngine.Input.Devices
         public void RegisterMouseScroll(Action<bool> func)
         {
             _mouse?.RegisterScroll(func);
+        }
+        public void RegisterMouseMove(DelCursorUpdate func, bool continuousUpdate, bool relative)
+        {
+            _mouse?.RegisterMouseMove(func, continuousUpdate, relative);
         }
         #endregion
 

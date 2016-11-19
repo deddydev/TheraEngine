@@ -47,7 +47,7 @@ namespace Game.Worlds
 
             ModelComponent modelComp = new ModelComponent(boxModel);
             Camera camera = new PerspectiveCamera();
-            //camera.Point = new Vec3(50, -50, 200);
+            camera.Point = new Vec3(0, 0, -2000);
             //camera.AddAnimation(anim);
             //anim.Start();
             CameraComponent cameraComp = new CameraComponent(camera);

@@ -7,6 +7,8 @@ namespace CustomEngine.Rendering.Cameras
         public override float Width { get { return Math.Abs(_orthoRight - _orthoLeft); } }
         public override float Height { get { return Math.Abs(_orthoTop - _orthoBottom); } }
 
+        public override Vec2 Origin { get { return new Vec2(_originX, _originY); } }
+
         private float 
             _orthoLeft = 0.0f, 
             _orthoRight = 1.0f, 
@@ -30,7 +32,6 @@ namespace CustomEngine.Rendering.Cameras
         {
             _originXPercentage = xPercentage;
             _originYPercentage = yPercentage;
-
             _orthoLeftPercentage = 0.0f - xPercentage;
             _orthoRightPercentage = 1.0f - xPercentage;
             _orthoBottomPercentage = 0.0f - yPercentage;
@@ -58,21 +59,18 @@ namespace CustomEngine.Rendering.Cameras
             _orthoRight = _orthoRightPercentage * width;
             _orthoBottom = _orthoBottomPercentage * height;
             _orthoTop = _orthoTopPercentage * height;
-
             _originX = _originXPercentage * width;
             _originY = _originYPercentage * height;
-
             base.Resize(width, height);
         }
-        protected override Vec3 AlignScreenPoint(Vec3 screenPoint)
+        protected Vec3 AlignScreenPoint(Vec3 screenPoint)
         {
             return new Vec3(screenPoint.X + _orthoLeft, screenPoint.Y + _orthoBottom, screenPoint.Z);
         }
-        protected override Vec3 UnAlignScreenPoint(Vec3 screenPoint)
+        protected Vec3 UnAlignScreenPoint(Vec3 screenPoint)
         {
             return new Vec3(screenPoint.X - _orthoLeft, screenPoint.Y - _orthoBottom, screenPoint.Z);
         }
-
         public override Frustrum GetFrustrum()
         {
             float w = Width / 2.0f, h = Height / 2.0f;

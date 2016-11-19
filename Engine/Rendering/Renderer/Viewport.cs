@@ -40,6 +40,7 @@ namespace CustomEngine.Rendering
         public int X { get { return _region.X; } }
         public int Y { get { return _region.Y; } }
         public int Index { get { return _index; } }
+        public Vec2 Center { get { return new Vec2(Width / 2.0f, Height / 2.0f); } }
 
         public Viewport(LocalPlayerController owner, int index)
         {
@@ -48,7 +49,7 @@ namespace CustomEngine.Rendering
             _owner = owner;
             _owner.Viewport = this;
         }
-        public void Resize(float parentWidth, float parentHeight)
+        internal void Resize(float parentWidth, float parentHeight)
         {
             _region.X = (int)(_leftPercentage * parentWidth);
             _region.Y = (int)(_bottomPercentage * parentHeight);
@@ -120,6 +121,20 @@ namespace CustomEngine.Rendering
             _leftPercentage = _bottomPercentage = 0.0f;
             _rightPercentage = _topPercentage = 1.0f;
         }
+        public Vec3 ScreenToWorld(Vec2 viewportPoint, float depth) { return _worldCamera.ScreenToWorld(viewportPoint, depth); }
+        public Vec3 ScreenToWorld(Vec3 viewportPoint) { return _worldCamera.ScreenToWorld(viewportPoint); }
+        public Vec3 WorldToScreen(Vec3 worldPoint) { return _worldCamera.WorldToScreen(worldPoint); }
+        public Vec2 AbsoluteToRelative(Vec2 absolutePoint) { return new Vec2(absolutePoint.X - _region.X, absolutePoint.Y - _region.Y); }
+        public Vec2 RelativeToAbsolute(Vec2 viewportPoint) { return new Vec2(viewportPoint.X + _region.X, viewportPoint.Y + _region.Y); }
+        public float GetDepth(Vec2 viewportPoint)
+        {
+            Vec2 absolutePoint = RelativeToAbsolute(viewportPoint);
+            return Engine.Renderer.GetDepth(absolutePoint.X, absolutePoint.Y);
+        }
+        public Ray GetWorldRay(Vec2 viewportPoint)
+        {
+            return _worldCamera.GetWorldRay(viewportPoint);
+        }
         public unsafe void Render(SceneProcessor scene)
         {
             if (_worldCamera == null)
@@ -130,7 +145,7 @@ namespace CustomEngine.Rendering
             Engine.Renderer.CropRenderArea(Region);
             
             scene.Render(_worldCamera);
-            //_hud.Render();
+            _hud.Render();
             Engine.Renderer.PopRenderArea();
             _currentlyRendering = null;
         }

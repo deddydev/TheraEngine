@@ -1,5 +1,6 @@
 ﻿using CustomEngine.Worlds.Maps;
 using CustomEngine.Files;
+using System;
 
 namespace CustomEngine.Worlds
 {
@@ -32,7 +33,7 @@ namespace CustomEngine.Worlds
         public virtual void BeginPlay()
         {
             foreach (Actor actor in Settings._defaultActors)
-                _owningWorld.SpawnActor(actor, Settings.SpawnPosition);
+                _owningWorld.SpawnActor(actor, Matrix4.Identity);
         }
     }
 }

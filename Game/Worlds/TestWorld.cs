@@ -36,20 +36,18 @@ namespace Game.Worlds
             AnimationInterpNode camPropAnim = new AnimationInterpNode(1);
             camPropAnim.Looped = true;
             camPropAnim.UseKeyframes = true;
-            InterpKeyframe start = new InterpKeyframe(0.0f, 0.01f, 0.01f);
-            //InterpKeyframe end = new InterpKeyframe(1000.0f, 360.0f, 360.0f);
+            InterpKeyframe start = new InterpKeyframe(0.0f, 0.1f, 0.1f);
             camPropAnim.Keyframes.AddFirst(start);
-            //camPropAnim.Keyframes.AddLast(end);
-            //start.MakeOutLinear();
-            //end.MakeInLinear();
+            start.MakeOutLinear();
+            start.MakeInLinear();
 
-            AnimationContainer anim = new AnimationContainer("RotateYaw", true, camPropAnim);
+            AnimationContainer anim = new AnimationContainer("LocalTransform.AddRotationYaw", true, camPropAnim);
 
             ModelComponent modelComp = new ModelComponent(boxModel);
             Camera camera = new PerspectiveCamera();
             camera.Point = new Vec3(0, 0, -2000);
-            //camera.AddAnimation(anim);
-            //anim.Start();
+            modelComp.AddAnimation(anim);
+            anim.Start();
             CameraComponent cameraComp = new CameraComponent(camera);
             cameraComp.Parent = modelComp;
 
@@ -57,20 +55,6 @@ namespace Game.Worlds
             _settings._maps.Add(new Map(this, new MapSettings(
                 new Pawn(modelComp),
                 cp)));
-
-            //AnimationInterpNode propertyAnim = new AnimationInterpNode(360);
-            //propertyAnim.Looped = true;
-            //propertyAnim.UseKeyframes = true;
-            //start = new InterpKeyframe(0.0f, 0.0f, 0.0f);
-            //end = new InterpKeyframe(360.0f, 360.0f, 360.0f);
-            //propertyAnim.Keyframes.AddFirst(start);
-            //propertyAnim.Keyframes.AddLast(end);
-            //start.MakeOutLinear();
-            //end.MakeInLinear();
-
-            //anim = new AnimationContainer("LocalTransform.Anim_SetRotationZ", true, propertyAnim);
-            //modelComp.AddAnimation(anim);
-            //anim.Start();
         }
     }
 }

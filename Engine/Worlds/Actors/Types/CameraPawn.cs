@@ -229,7 +229,7 @@ namespace CustomEngine.Worlds.Actors
             {
 
             }
-            else if (actor.IsMovable && !actor.SimulatingPhysics)
+            else if (actor != null && actor.IsMovable && !actor.SimulatingPhysics)
             {
                 TransformTool tool = new TransformTool(actor);
                 Engine.World.SpawnActor(tool, actor.Transform.Matrix);

@@ -68,25 +68,6 @@ namespace CustomEngine.Input.Devices
                 _axisStates[a] = new AxisManager(axis.ToString());
             return _axisStates[a];
         }
-        private void RegisterButtonEvent(ButtonManager m, ButtonInputType type, Action func)
-        {
-            if (m != null)
-                switch (type)
-                {
-                    case ButtonInputType.Pressed:
-                        m.RegisterPressed(func);
-                        break;
-                    case ButtonInputType.Released:
-                        m.RegisterReleased(func);
-                        break;
-                    case ButtonInputType.Held:
-                        m.RegisterHeld(func);
-                        break;
-                    case ButtonInputType.DoublePressed:
-                        m.RegisterDoublePressed(func);
-                        break;
-                }
-        }
         public void RegisterButtonEvent(GamePadButton button, ButtonInputType type, Action func)
         {
             RegisterButtonEvent(CacheButton(button), type, func);

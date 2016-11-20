@@ -53,6 +53,25 @@ namespace CustomEngine.Input.Devices
             return _isConnected;
         }
         internal override void Tick(float delta) { UpdateStates(delta); }
+        public static void RegisterButtonEvent(ButtonManager m, ButtonInputType type, Action func)
+        {
+            if (m != null)
+                switch (type)
+                {
+                    case ButtonInputType.Pressed:
+                        m.RegisterPressed(func);
+                        break;
+                    case ButtonInputType.Released:
+                        m.RegisterReleased(func);
+                        break;
+                    case ButtonInputType.Held:
+                        m.RegisterHeld(func);
+                        break;
+                    case ButtonInputType.DoublePressed:
+                        m.RegisterDoublePressed(func);
+                        break;
+                }
+        }
     }
     public delegate void DelButtonState(bool pressed);
     public class ButtonManager
@@ -134,23 +153,23 @@ namespace CustomEngine.Input.Devices
         {
             _onPressed.ForEach(del => del());
             _onStateChanged.ForEach(del => del(true));
-            Console.WriteLine(_name + " PRESSED");
+            Console.WriteLine(_name + ": PRESSED");
         }
         private void OnReleased()
         {
             _onReleased.ForEach(del => del());
             _onStateChanged.ForEach(del => del(false));
-            Console.WriteLine(_name + " RELEASED");
+            Console.WriteLine(_name + ": RELEASED");
         }
         private void OnHeld()
         {
             _onHeld.ForEach(del => del());
-            Console.WriteLine(_name + " HELD");
+            Console.WriteLine(_name + ": HELD");
         }
         private void OnDoublePressed()
         {
             _onDoublePressed.ForEach(del => del());
-            Console.WriteLine(_name + " DOUBLE PRESSED");
+            Console.WriteLine(_name + ": DOUBLE PRESSED");
         }
     }
     public delegate void DelAxisValue(float value);

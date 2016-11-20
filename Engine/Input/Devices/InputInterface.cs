@@ -76,7 +76,7 @@ namespace CustomEngine.Input.Devices
         }
 
         #region Mouse input registration
-        public void RegisterButtonPressed(EMouseButton button, Action<bool> func)
+        public void RegisterButtonPressed(EMouseButton button, DelButtonState func)
         {
             _mouse?.RegisterButtonPressed(button, func);
         }
@@ -84,13 +84,13 @@ namespace CustomEngine.Input.Devices
         {
             _mouse?.RegisterButtonEvent(button, type, func);
         }
-        public void RegisterMouseScroll(Action<bool> func)
+        public void RegisterMouseScroll(DelMouseScroll func)
         {
             _mouse?.RegisterScroll(func);
         }
-        public void RegisterMouseMove(DelCursorUpdate func, bool continuousUpdate, bool relative)
+        public void RegisterMouseMove(DelCursorUpdate func, bool relative)
         {
-            _mouse?.RegisterMouseMove(func, continuousUpdate, relative);
+            _mouse?.RegisterMouseMove(func, relative);
         }
         #endregion
 

@@ -7,6 +7,7 @@ using System.Linq;
 using CustomEngine.Rendering;
 using System.Collections.Generic;
 using CustomEngine.Rendering.HUD;
+using CustomEngine.Worlds.Actors.Types;
 
 namespace CustomEngine.Worlds.Actors
 {
@@ -77,8 +78,16 @@ namespace CustomEngine.Worlds.Actors
                     _combos.Add(mod, func);
         }
 
-        float _linearSpeed = 1.0f, _linearRight = 0.0f, _linearForward = 0.0f, _linearUp = 0.0f;
-        float _radialSpeed = 0.05f, _pitch = 0.0f, _yaw = 0.0f, _roll = 0.0f;
+        float _linearRight = 0.0f, _linearForward = 0.0f, _linearUp = 0.0f;
+        float 
+            _scrollSpeed = 2.0f, 
+            _mouseRotateSpeed = 0.2f,
+            _mouseTranslateSpeed = 1.0f,
+            _gamepadRotateSpeed = 0.6f,
+            _gamepadTranslateSpeed = 2.0f,
+            _keyboardTranslateSpeed = 1.0f;
+
+        float _pitch = 0.0f, _yaw = 0.0f;
         bool _rotating = false;
         bool _translating = false;
         bool _ctrl = false, _alt = false, _shift = false;
@@ -100,10 +109,11 @@ namespace CustomEngine.Worlds.Actors
         public override void RegisterInput(InputInterface input)
         {
             input.RegisterMouseScroll(OnScrolled);
-            input.RegisterMouseMove(MouseMove, false, false);
+            input.RegisterMouseMove(MouseMove, false);
             input.RegisterButtonPressed(EMouseButton.RightClick, OnRightClick);
             input.RegisterButtonPressed(EMouseButton.LeftClick, OnLeftClick);
             input.RegisterButtonPressed(EMouseButton.MiddleClick, OnMiddleClick);
+
             input.RegisterButtonPressed(EKey.A, MoveLeft);
             input.RegisterButtonPressed(EKey.W, MoveForward);
             input.RegisterButtonPressed(EKey.S, MoveBackward);
@@ -116,71 +126,78 @@ namespace CustomEngine.Worlds.Actors
             input.RegisterButtonPressed(EKey.AltRight, OnAlt);
             input.RegisterButtonPressed(EKey.ShiftLeft, OnShift);
             input.RegisterButtonPressed(EKey.ShiftRight, OnShift);
+
             input.RegisterAxisUpdate(GamePadAxis.LeftThumbstickX, OnLeftStickX, false);
             input.RegisterAxisUpdate(GamePadAxis.LeftThumbstickY, OnLeftStickY, false);
             input.RegisterAxisUpdate(GamePadAxis.RightThumbstickX, OnRightStickX, false);
             input.RegisterAxisUpdate(GamePadAxis.RightThumbstickY, OnRightStickY, false);
             input.RegisterButtonPressed(GamePadButton.RightBumper, MoveUp);
             input.RegisterButtonPressed(GamePadButton.LeftBumper, MoveDown);
-            input.RegisterButtonEvent(GamePadButton.FaceDown, ButtonInputType.Pressed, SelectGamepad);
+            input.RegisterButtonEvent(GamePadButton.FaceDown, ButtonInputType.Pressed, OnGamepadSelect);
         }
-        private void MoveDown(bool pressed) { _linearUp += pressed ? -1.0f : 1.0f; }
-        private void MoveUp(bool pressed) { _linearUp += pressed ? 1.0f : -1.0f; }
-        private void MoveLeft(bool pressed) { _linearRight += pressed ? -1.0f : 1.0f; }
-        private void MoveRight(bool pressed) { _linearRight += pressed ? 1.0f : -1.0f; }
-        private void MoveBackward(bool pressed) { _linearForward += pressed ? -1.0f : 1.0f; }
-        private void MoveForward(bool pressed) { _linearForward += pressed ? 1.0f : -1.0f; }
-        private void OnLeftStickX(float value) { _linearRight = value; }
-        private void OnLeftStickY(float value) { _linearForward = value; }
-        private void OnRightStickX(float value) { _yaw = value; }
-        private void OnRightStickY(float value) { _pitch = value; }
+
+        private void MoveDown(bool pressed) { _linearUp += _keyboardTranslateSpeed * (pressed ? -1.0f : 1.0f); }
+        private void MoveUp(bool pressed) { _linearUp += _keyboardTranslateSpeed * (pressed ? 1.0f : -1.0f); }
+        private void MoveLeft(bool pressed) { _linearRight += _keyboardTranslateSpeed * (pressed ? -1.0f : 1.0f); }
+        private void MoveRight(bool pressed) { _linearRight += _keyboardTranslateSpeed * (pressed ? 1.0f : -1.0f); }
+        private void MoveBackward(bool pressed) { _linearForward += _keyboardTranslateSpeed * (pressed ? -1.0f : 1.0f); }
+        private void MoveForward(bool pressed) { _linearForward += _keyboardTranslateSpeed * (pressed ? 1.0f : -1.0f); }
+
+        private void OnLeftStickX(float value) { _linearRight = value * _gamepadTranslateSpeed; }
+        private void OnLeftStickY(float value) { _linearForward = value * _gamepadTranslateSpeed; }
+        private void OnRightStickX(float value) { _yaw = value * _gamepadRotateSpeed; }
+        private void OnRightStickY(float value) { _pitch = value * _gamepadRotateSpeed; }
+
         private void OnControl(bool pressed) { _ctrl = pressed; }
         private void OnAlt(bool pressed) { _alt = pressed; }
         private void OnShift(bool pressed) { _shift = pressed; }
-        private void OnScrolled(bool up) { CameraComponent.Camera.Zoom(up ? _linearSpeed : -_linearSpeed); }
-        private void OnLeftClick(bool pressed) { ExecuteCombo(EMouseButton.LeftClick, pressed); }
-        private void OnRightClick(bool pressed) { ExecuteCombo(EMouseButton.RightClick, pressed); }
-        private void OnMiddleClick(bool pressed) { ExecuteCombo(EMouseButton.MiddleClick, pressed); }
-        private void ExecuteCombo(EMouseButton button, bool pressed)
+
+        private void OnScrolled(bool up) { CameraComponent.Camera.Zoom(up ? _scrollSpeed : -_scrollSpeed); }
+        private void OnLeftClick(bool pressed)
         {
-            switch (button)
-            {
-                case EMouseButton.LeftClick:
-                    SelectMouse(pressed);
-                    break;
-                case EMouseButton.MiddleClick:
-                    if (pressed)
-                    {
-                        _rotating = _alt;
-                        _translating = !_alt;
-                    }
-                    else
-                        _translating = _rotating = false;
-                    break;
-                case EMouseButton.RightClick:
-                    ShowContextMenu();
-                    break;
-            }
-            //ComboModifier mod = GetModifier(button, _alt, _ctrl, _shift);
-            //if (_combos.ContainsKey(mod))
-            //    _combos[mod](pressed);
+            PickScene(false);
         }
+        private void OnGamepadSelect()
+        {
+            PickScene(true);
+        }
+        private void OnRightClick(bool pressed)
+        {
+            if (pressed)
+            {
+                _rotating = true;
+                //_translating = !_alt;
+            }
+            else
+                _translating = _rotating = false;
+        }
+        private void OnMiddleClick(bool pressed)
+        {
+            
+        }
+        //private void ExecuteCombo(EMouseButton button, bool pressed)
+        //{
+        //    //ComboModifier mod = GetModifier(button, _alt, _ctrl, _shift);
+        //    //if (_combos.ContainsKey(mod))
+        //    //    _combos[mod](pressed);
+        //}
         public void MouseMove(float x, float y)
         {
             if (_rotating)
             {
                 float xDiff = x - _cursorPos.X;
                 float yDiff = y - _cursorPos.Y;
-                CameraComponent.Camera.Rotate(xDiff * _radialSpeed, yDiff * _radialSpeed);
+                CameraComponent.Camera.Rotate(xDiff * _mouseRotateSpeed, yDiff * _mouseRotateSpeed);
             }
             else if (_translating)
             {
                 float xDiff = x - _cursorPos.X;
                 float yDiff = y - _cursorPos.Y;
-                CameraComponent.Camera.TranslateRelative(new Vec3(xDiff, yDiff, 0.0f) * _linearSpeed);
+                CameraComponent.Camera.TranslateRelative(new Vec3(-xDiff * _mouseTranslateSpeed, yDiff * _mouseTranslateSpeed, 0.0f));
             }
             _cursorPos.X = x;
             _cursorPos.Y = y;
+            HighlightScene(false);
         }
         public void ShowContextMenu()
         {
@@ -193,39 +210,36 @@ namespace CustomEngine.Worlds.Actors
                 return null;
             return player.Viewport;
         }
-        private void SelectGamepad()
-        {
-            Viewport v = GetViewport();
-            if (v != null)
-                Select(v, v.Center);
-        }
-        public void SelectMouse(bool pressed)
-        {
-            Viewport v = GetViewport();
-            if (v != null)
-                Select(v, v.AbsoluteToRelative(_cursorPos));
-        }
-        private void Select(Viewport v, Vec2 viewportPos)
+        private void HighlightScene(bool gamepad)
         {
 
         }
+        private void PickScene(bool gamepad)
+        {
+            Viewport v = GetViewport();
+            if (v == null)
+                return;
+            
+            Actor actor = v.PickScene(gamepad ? v.Center : v.AbsoluteToRelative(_cursorPos));
+            if (actor is TransformTool)
+            {
+
+            }
+            else if (actor is HudComponent)
+            {
+
+            }
+            else if (actor.IsMovable && !actor.SimulatingPhysics)
+            {
+                TransformTool tool = new TransformTool(actor);
+                Engine.World.SpawnActor(tool, actor.Transform.Matrix);
+            }
+        }
         internal override void Tick(float delta)
         {
-            if (_translating = 
-                !_linearRight.IsZero() || 
-                !_linearUp.IsZero() || 
-                !_linearForward.IsZero())
-            {
-                float linearSpeed = _linearSpeed * delta;
-                CameraComponent.Camera.TranslateRelative(new Vec3(_linearRight, _linearUp, _linearForward) * linearSpeed);
-            }
-            if (_rotating =
-                !_yaw.IsZero() || 
-                !_pitch.IsZero())
-            {
-                float radialSpeed = _radialSpeed * delta;
-                CameraComponent.Camera.Rotate(_yaw * radialSpeed, _pitch * radialSpeed);
-            }
+            CameraComponent.Camera.TranslateRelative(new Vec3(_linearRight, _linearUp, _linearForward) * delta);
+            CameraComponent.Camera.Rotate(_yaw * delta, _pitch * delta);
+            HighlightScene(true);
         }
     }
 }

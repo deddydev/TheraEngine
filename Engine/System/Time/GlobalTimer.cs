@@ -136,7 +136,7 @@ namespace System
         {
             _running = false;
             watch.Stop();
-            Thread.CurrentThread.Abort();
+            //Thread.CurrentThread.Abort();
         }
         void ProcessEvents()
         {

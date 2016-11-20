@@ -44,11 +44,11 @@ namespace CustomEngine.Worlds
         }
         public int ActorCount { get { return _settings.State.SpawnedActors.Count; } }
 
-        public void SpawnActor(Actor actor, Vec3 worldPosition)
+        public void SpawnActor(Actor actor, Matrix4 transform)
         {
             if (!_settings.State.SpawnedActors.Contains(actor))
                 _settings.State.SpawnedActors.Add(actor);
-            actor.Transform.TranslateAbsolute(worldPosition);
+            //actor.Transform.TranslateAbsolute(worldPosition);
             actor.OnSpawned(this);
         }
         public void DespawnActor(Actor actor)

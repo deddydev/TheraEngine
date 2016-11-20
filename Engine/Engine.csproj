@@ -615,6 +615,7 @@
     <Compile Include="Worlds\Actors\Types\CameraPawn.cs" />
     <Compile Include="Worlds\Actors\Types\Pawn.cs" />
     <Compile Include="Worlds\Actors\Types\PhysicsState.cs" />
+    <Compile Include="Worlds\Actors\Types\TransformTool.cs" />
     <Compile Include="Worlds\Actors\Types\Vehicle.cs" />
     <Compile Include="Worlds\Actors\Components\Component.cs" />
     <Compile Include="Worlds\Actors\Components\Logic\InteractionComponent.cs" />

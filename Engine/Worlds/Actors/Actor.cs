@@ -82,6 +82,7 @@ namespace CustomEngine.Worlds
         private SceneComponent _rootSceneComponent;
         protected List<SceneComponent> _sceneComponentCache = new List<SceneComponent>();
         private MonitoredList<LogicComponent> _logicComponents = new MonitoredList<LogicComponent>();
+        private bool _isMovable = true, _simulatingPhysics = false;
 
         public MonitoredList<LogicComponent> LogicComponents { get { return _logicComponents; } }
 
@@ -94,6 +95,10 @@ namespace CustomEngine.Worlds
                     _rootSceneComponent.LocalTransform = value;
             }
         }
+
+        public bool IsMovable { get { return _isMovable; } set { _isMovable = value; } }
+        public bool SimulatingPhysics { get { return _simulatingPhysics; } }
+
         public void OnOriginRebased(Vec3 newOrigin)
         {
             _rootSceneComponent?.LocalTransform.TranslateAbsolute(-newOrigin);

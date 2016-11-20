@@ -12,39 +12,49 @@ namespace CustomEngine.Input.Devices
         public CMouse(int index) : base(index) { }
 
         protected CursorManager _cursor = new CursorManager();
+        protected ScrollWheelManager _wheel = new ScrollWheelManager();
 
         public abstract void SetCursorPosition(float x, float y);
 
         protected override int GetAxisCount() { return 0; }
         protected override int GetButtonCount() { return 3; }
 
-        public void RegisterButtonPressed(EMouseButton button, Action<bool> func)
+        private ButtonManager CacheButton(EMouseButton button)
         {
-
+            int b = (int)button;
+            if (_buttonStates[b] == null)
+                _buttonStates[b] = new ButtonManager(button.ToString());
+            return _buttonStates[b];
+        }
+        public void RegisterButtonPressed(EMouseButton button, DelButtonState func)
+        {
+            CacheButton(button)?.RegisterPressedState(func);
         }
         public void RegisterButtonEvent(EMouseButton button, ButtonInputType type, Action func)
         {
-
+            RegisterButtonEvent(CacheButton(button), type, func);
         }
-        public void RegisterScroll(Action<bool> func)
+        public void RegisterScroll(DelMouseScroll func)
         {
-
+            _wheel.Register(func);
         }
-        public void RegisterMouseMove(DelCursorUpdate func, bool continuousUpdate, bool relative)
+        public void RegisterMouseMove(DelCursorUpdate func, bool relative)
         {
-            _cursor.Register(func, continuousUpdate, relative);
+            _cursor.Register(func, relative);
         }
+        public ButtonManager LeftClick { get { return _buttonStates[(int)EMouseButton.LeftClick]; } }
+        public ButtonManager RightClick { get { return _buttonStates[(int)EMouseButton.RightClick]; } }
+        public ButtonManager MiddleClick { get { return _buttonStates[(int)EMouseButton.MiddleClick]; } }
     }
+    public delegate void DelMouseScroll(bool up);
     public delegate void DelCursorUpdate(float x, float y);
     public class CursorManager
     {
         private float _x, _y;
 
         List<DelCursorUpdate>
-            _onUpdate = new List<DelCursorUpdate>(),
-            _continuous = new List<DelCursorUpdate>(),
-            _onUpdateRelative = new List<DelCursorUpdate>(),
-            _continuousRelative = new List<DelCursorUpdate>();
+            _onAbsolute = new List<DelCursorUpdate>(),
+            _onRelative = new List<DelCursorUpdate>();
 
         internal void Tick(float x, float y, float delta)
         {
@@ -52,52 +62,59 @@ namespace CustomEngine.Input.Devices
             float yDiff = y - _y;
             _x = x;
             _y = y;
-            OnContinuousAbsolute(x, y);
-            OnContinuousRelative(xDiff, yDiff);
-            if (!xDiff.IsZero() && !yDiff.IsZero())
-            {
-                OnUpdateRelative(xDiff, yDiff);
-                OnUpdateAbsolute(x, y);
-            }
+            OnAbsolute(x, y);
+            OnRelative(xDiff, yDiff);
         }
-        public void Register(DelCursorUpdate func, bool continuousUpdate, bool relative)
+        public void Register(DelCursorUpdate func, bool relative)
         {
             if (relative)
-            {
-                if (continuousUpdate)
-                    _continuousRelative.Add(func);
-                else
-                    _onUpdateRelative.Add(func);
-            }
+                _onRelative.Add(func);
             else
+                _onAbsolute.Add(func);
+        }
+        private void OnAbsolute(float x, float y)
+        {
+            _onAbsolute.ForEach(del => del(x, y));
+        }
+        private void OnRelative(float x, float y)
+        {
+            _onRelative.ForEach(del => del(x, y));
+        }
+    }
+    public class ScrollWheelManager
+    {
+        List<DelMouseScroll> _onUpdate = new List<DelMouseScroll>();
+
+        float _lastValue = 0.0f;
+
+        internal void Tick(float value, float delta)
+        {
+            if (value.EqualTo(_lastValue))
+                return;
+            if (value < _lastValue)
             {
-                if (continuousUpdate)
-                    _continuous.Add(func);
-                else
-                    _onUpdate.Add(func);
+                OnUpdate(true);
+                _lastValue = value;
+            }
+            else if (value > _lastValue)
+            {
+                OnUpdate(false);
+                _lastValue = value;
             }
         }
-        private void OnUpdateAbsolute(float x, float y)
+        public void Register(DelMouseScroll func)
         {
-            _onUpdate.ForEach(del => del(x, y));
+            _onUpdate.Add(func);
         }
-        private void OnUpdateRelative(float x, float y)
+        private void OnUpdate(bool up)
         {
-            _onUpdateRelative.ForEach(del => del(x, y));
-        }
-        private void OnContinuousAbsolute(float x, float y)
-        {
-            _continuous.ForEach(del => del(x, y));
-        }
-        private void OnContinuousRelative(float x, float y)
-        {
-            _continuousRelative.ForEach(del => del(x, y));
+            _onUpdate.ForEach(del => del(up));
         }
     }
     public enum EMouseButton
     {
-        LeftClick,
-        RightClick,
-        MiddleClick,
+        LeftClick   = 0,
+        RightClick  = 1,
+        MiddleClick = 2,
     }
 }

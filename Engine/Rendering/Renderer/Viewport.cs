@@ -4,6 +4,7 @@ using CustomEngine.Rendering.Cameras;
 using CustomEngine.Input;
 using System;
 using OpenTK.Graphics.OpenGL;
+using CustomEngine.Worlds;
 
 namespace CustomEngine.Rendering
 {
@@ -253,6 +254,11 @@ namespace CustomEngine.Rendering
                     }
                     break;
             }
+        }
+
+        public Actor PickScene(Vec2 vec2)
+        {
+            return null;
         }
     }
 }

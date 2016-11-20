@@ -18,6 +18,7 @@ namespace CustomEngine.Rendering.Cameras
         }
         protected unsafe override void CalculateProjection()
         {
+            base.CalculateProjection();
             _projectionMatrix = Matrix4.CreatePerspectiveFieldOfView(_fovY, _aspect, _nearZ, _farZ);
             _projectionInverse = Matrix4.CreateInversePerspectiveFieldOfView(_fovY, _aspect, _nearZ, _farZ);
         }

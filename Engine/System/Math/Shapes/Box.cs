@@ -52,7 +52,12 @@ namespace System
                 _min += diff;
                 _max += diff;
             }
-        }
+        }        
+        /// <summary>
+        /// T = top, B = bottom
+        /// B = back, F = front
+        /// L = left,  R = right
+        /// </summary>
         public void GetCorners(
             out Vec3 TBL,
             out Vec3 TBR,
@@ -150,12 +155,12 @@ namespace System
             Vec3 backNormal = -frontNormal;
             Vec3 bottomNormal = -topNormal;
 
-            left = VertexQuad.MakeQuad(BBL, BFL, TBL, TFL, leftNormal);
-            right = VertexQuad.MakeQuad(BFR, BBR, TFR, TBR, rightNormal);
-            top = VertexQuad.MakeQuad(TFL, TFR, TBL, TBR, topNormal);
-            bottom = VertexQuad.MakeQuad(BBL, BBR, BFL, BFR, bottomNormal);
-            front = VertexQuad.MakeQuad(BFL, BFR, TFL, TFR, frontNormal);
-            back = VertexQuad.MakeQuad(BBR, BBL, TBR, TBL, backNormal);
+            left = VertexQuad.MakeQuad(BBL, BFL, TFL, TBL, leftNormal);
+            right = VertexQuad.MakeQuad(BFR, BBR, TBR, TFR, rightNormal);
+            top = VertexQuad.MakeQuad(TFL, TFR, TBR, TBL, topNormal);
+            bottom = VertexQuad.MakeQuad(BBL, BBR, BFR, BFL, bottomNormal);
+            front = VertexQuad.MakeQuad(BFL, BFR, TFR, TFL, frontNormal);
+            back = VertexQuad.MakeQuad(BBR, BBL, TBL, TBR, backNormal);
 
             return new List<PrimitiveData>() { PrimitiveData.FromQuads(left, right, top, bottom, front, back) };
         }

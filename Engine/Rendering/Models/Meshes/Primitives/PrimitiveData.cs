@@ -68,7 +68,7 @@ namespace CustomEngine.Rendering.Models
         {
             return FromTriangles(quads.SelectMany(x => x.ToTriangles()).ToList());
         }
-        public static unsafe PrimitiveData FromTriangles(IEnumerable<VertexTriangle> triangles)
+        public static PrimitiveData FromTriangles(IEnumerable<VertexTriangle> triangles)
         {
             bool hasNormals = false;
             int texCoordCount = 0, colorCount = 0;
@@ -136,7 +136,9 @@ namespace CustomEngine.Rendering.Models
         }
         private void ReplaceBuffer<T>(List<T> bufferData, int bufferIndex, string name, BufferTarget target = BufferTarget.ArrayBuffer) where T : IBufferable
         {
-            if (_buffers == null || bufferIndex < 0 || bufferIndex >= _buffers.Count)
+            if (_buffers == null)
+                throw new InvalidOperationException();
+            if (bufferIndex < 0 || bufferIndex >= _buffers.Count)
                 throw new IndexOutOfRangeException();
 
             VertexBuffer buffer = new VertexBuffer(bufferIndex, name, target);

@@ -61,10 +61,12 @@ namespace CustomEngine.Rendering.Models.Materials
         }
         public static Shader TestVertexShader()
         {
-//in vec3 Position;
-//in vec3 Normal;
-//in vec2 TexCoord0;
             string source = @"
+#version 330
+
+layout (location = 0) in vec3 Position;
+layout (location = 1) in vec3 Normal;
+layout (location = 2) in vec2 TexCoord0;
 
 uniform mat4 ModelMatrix;
 uniform mat4 ViewMatrix;
@@ -72,7 +74,7 @@ uniform mat4 ProjMatrix;
 
 void main()
 {
-    gl_Position = ProjMatrix * ViewMatrix * ModelMatrix * gl_Vertex;
+    gl_Position = ProjMatrix * ViewMatrix * ModelMatrix * vec4(Position, 1.0);
 }
 ";
             return new Shader(ShaderMode.Vertex, source);
@@ -80,6 +82,7 @@ void main()
         public static Shader TestFragmentShader()
         {
             string source = @"
+ #version 330
 
 void main()
 {

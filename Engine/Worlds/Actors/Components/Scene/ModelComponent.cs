@@ -3,6 +3,7 @@ using System;
 using System.Reflection;
 using CustomEngine.Rendering.Animation;
 using CustomEngine.Rendering;
+using System.ComponentModel;
 
 namespace CustomEngine.Worlds.Actors.Components
 {
@@ -11,6 +12,7 @@ namespace CustomEngine.Worlds.Actors.Components
         public ModelComponent() { }
         public ModelComponent(Model m) { Model = m; }
 
+        [Category("Rendering")]
         public Model Model
         {
             get { return _primitive; }
@@ -28,6 +30,7 @@ namespace CustomEngine.Worlds.Actors.Components
         /// Visible means this mesh will never be rendered, or will be rendered if placed onscreen.
         /// AKA: long-term visibility
         /// </summary>
+        [Category("Rendering")]
         public override bool Visible
         {
             get { return base.Visible; }
@@ -46,6 +49,12 @@ namespace CustomEngine.Worlds.Actors.Components
                         Engine.Renderer.Scene.RemoveRenderable(m);
                 }
             }
+        }
+        [Category("Rendering")]
+        public FrameState LocalTransform
+        {
+            get { return _localState; }
+            set { _localState = value; RecalcLocalTransform(); }
         }
         public override void OnSpawned()
         {

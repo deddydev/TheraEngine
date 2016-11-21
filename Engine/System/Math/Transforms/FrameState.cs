@@ -82,12 +82,12 @@ namespace System
             get { return _scale; }
             set { SetScale(value); }
         }
-        public Matrix4.MultiplyOrder Order
+        public Matrix4.MultiplyOrder TransformationOrder
         {
             get { return _transformOrder; }
             set { _transformOrder = value; CreateTransform(); }
         }
-        public Vec3.EulerOrder RotateOrder
+        public Vec3.EulerOrder RotationOrder
         {
             get { return _rotateOrder; }
             set { _rotateOrder = value; CreateTransform(); }

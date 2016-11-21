@@ -68,10 +68,6 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\Libraries\OpenTK.dll</HintPath>
     </Reference>
-    <Reference Include="PostSharp, Version=4.3.21.0, Culture=neutral, PublicKeyToken=b13fd38b8f9c99d7, processorArchitecture=MSIL">
-      <HintPath>..\packages\PostSharp.4.3.21\lib\net35-client\PostSharp.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
     <Reference Include="SlimDX, Version=4.0.13.43, Culture=neutral, PublicKeyToken=b1b0c32fd1ffe4f9, processorArchitecture=AMD64">
@@ -558,6 +554,7 @@
     <Compile Include="System\RenderHandler.cs" />
     <Compile Include="Worlds\Actors\ActorState.cs" />
     <Compile Include="Worlds\Actors\Components\ComponentState.cs" />
+    <Compile Include="Worlds\Actors\Components\GenericSceneComponent.cs" />
     <Compile Include="Worlds\Actors\Components\LogicComponent.cs" />
     <Compile Include="Worlds\Actors\Components\Scene\BoomComponent.cs" />
     <Compile Include="Worlds\Actors\Components\Scene\CameraComponent.cs" />

@@ -36,17 +36,13 @@ namespace CustomEngine.Worlds
             GenerateSceneComponentCache();
         }
         protected virtual void SetDefaults() { }
-        protected virtual SceneComponent SetupComponents()
-        {
-            return new SceneComponent();
-        }
+        protected virtual SceneComponent SetupComponents() { return new GenericSceneComponent(); }
 
         [State]
         public bool IsSpawned { get { return _spawnIndex >= 0; } }
         [State]
         public World OwningWorld { get { return _owningWorld; } }
-
-        [PostChanged("GenerateSceneComponentCache")]
+        
         public SceneComponent RootComponent
         {
             get { return _rootSceneComponent; }
@@ -86,22 +82,26 @@ namespace CustomEngine.Worlds
 
         public MonitoredList<LogicComponent> LogicComponents { get { return _logicComponents; } }
 
-        public FrameState Transform
+        public Matrix4 WorldMatrix
         {
-            get { return _rootSceneComponent != null ? _rootSceneComponent.LocalTransform : FrameState.GetIdentity(Matrix4.MultiplyOrder.SRT); }
-            set
-            {
-                if (_rootSceneComponent != null)
-                    _rootSceneComponent.LocalTransform = value;
-            }
+            get { return _rootSceneComponent != null ? _rootSceneComponent.LocalMatrix : Matrix4.Identity; }
         }
-
+        public Matrix4 InverseWorldMatrix
+        {
+            get { return _rootSceneComponent != null ? _rootSceneComponent.InverseLocalMatrix : Matrix4.Identity; }
+        }
+        
         public bool IsMovable { get { return _isMovable; } set { _isMovable = value; } }
         public bool SimulatingPhysics { get { return _simulatingPhysics; } }
 
-        public void OnOriginRebased(Vec3 newOrigin)
+        internal void RebaseOrigin(Vec3 newOrigin)
         {
-            _rootSceneComponent?.LocalTransform.TranslateAbsolute(-newOrigin);
+            if (_rootSceneComponent != null)
+            {
+                Matrix4 mtx = Matrix4.CreateTranslation(-newOrigin) * _rootSceneComponent.LocalMatrix;
+                Matrix4 inv = _rootSceneComponent.InverseLocalMatrix * Matrix4.CreateTranslation(newOrigin);
+                _rootSceneComponent.SetLocalMatrix(mtx, inv);
+            }
         }
         internal override void Tick(float delta)
         {
@@ -124,18 +124,18 @@ namespace CustomEngine.Worlds
             _owningWorld = world;
 
             _rootSceneComponent.OnSpawned();
-            //foreach (InstanceComponent comp in _instanceComponents)
-            //    comp.OnSpawned();
+            foreach (LogicComponent comp in _logicComponents)
+                comp.OnSpawned();
         }
         public virtual void OnDespawned()
         {
             if (!IsSpawned)
                 return;
 
-            //foreach (InstanceComponent comp in _instanceComponents)
-            //    comp.OnDespawned();
+            foreach (LogicComponent comp in _logicComponents)
+                comp.OnDespawned();
             _rootSceneComponent.OnDespawned();
-            
+
             _spawnIndex = -1;
             _owningWorld = null;
         }

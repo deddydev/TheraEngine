@@ -28,7 +28,10 @@ namespace CustomEngine.Input.Devices.OpenTK
                 {
                     GamePadState gamepadState = GamePad.GetState(i);
                     if (gamepadState.IsConnected)
+                    {
+                        GamePadCapabilities c = GamePad.GetCapabilities(i);
                         OnFoundGamepad(i);
+                    }
                 }
                 if (keyboards[i] == null)
                 {

@@ -16,8 +16,8 @@ namespace CustomEngine.Input.Devices
             { InputDeviceType.Mouse, new InputDevice[4] },
         };
 
-        protected ButtonManager[] _buttonStates = new ButtonManager[14];
-        protected AxisManager[] _axisStates = new AxisManager[6];
+        protected ButtonManager[] _buttonStates;
+        protected AxisManager[] _axisStates;
 
         protected int _index;
         protected bool _isConnected;
@@ -32,6 +32,7 @@ namespace CustomEngine.Input.Devices
             _index = index;
             Console.WriteLine(GetType().ToString() + _index + " created.");
             RegisterTick(ETickGroup.PrePhysics, ETickOrder.Input);
+            ResetStates();
         }
         protected abstract int GetButtonCount();
         protected abstract int GetAxisCount();

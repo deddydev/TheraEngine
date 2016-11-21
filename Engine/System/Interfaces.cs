@@ -9,21 +9,20 @@ using CustomEngine.Rendering;
 
 namespace CustomEngine
 {
-    public interface IBounded
+    public interface ITransformable
     {
-        Matrix4 Transform { get; set; }
+        Matrix4 WorldMatrix { get; }
+        Matrix4 InverseWorldMatrix { get; }
+    }
+    public interface IBounded : ITransformable
+    {
         Box CullingVolume { get; }
         bool IsRendering { get; set; }
     }
     public interface IRenderable : IBounded
     {
         int InstanceCount { get; set; }
-        //Matrix4 Transform { get; set; }
         void Render();
-    }
-    public interface ITransformable
-    {
-        FrameState LocalTransform { get; set; }
     }
     public interface IPanel
     {

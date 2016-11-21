@@ -59,14 +59,11 @@ namespace CustomEngine.Worlds.Actors.Components
             if (pawn != null)
                 pawn.CurrentCameraComponent = this;
         }
-        public override void RecalcGlobalTransform()
+        public override void RecalcLocalTransform()
         {
-            Matrix4 parentTransform = _parent == null ? Matrix4.Identity : _parent.WorldTransform;
-            Matrix4 parentInvTransform = _parent == null ? Matrix4.Identity : _parent.WorldTransform;
-            _worldTransform = Camera.Matrix * parentTransform;
-            _invWorldTransform = Camera.InverseMatrix * parentInvTransform;
-            foreach (SceneComponent c in _children)
-                c.RecalcGlobalTransform();
+            _localTransform = Camera.Matrix;
+            _invLocalTransform = Camera.InverseMatrix;
+            RecalcGlobalTransform();
         }
     }
 }

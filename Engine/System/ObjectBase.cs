@@ -3,8 +3,6 @@ using CustomEngine.Rendering;
 using System.Collections.Generic;
 using System.Reflection;
 using System.ComponentModel;
-using PostSharp.Aspects;
-using PostSharp.Serialization;
 using CustomEngine.Rendering.Animation;
 
 namespace System
@@ -25,8 +23,7 @@ namespace System
         Logic = 2, //Call update tick
         Scene = 3, //Update scene
     }
-    [NotifyPropertyChanged]
-    public class ObjectBase : INotifyPropertyChanged
+    public class ObjectBase// : INotifyPropertyChanged
     {
         //public static List<ObjectBase> _changedObjects = new List<ObjectBase>();
 
@@ -45,13 +42,18 @@ namespace System
 
         [Default]
 #if EDITOR
-        [Category("State"), PostChanged("OnRenamed")]
+        [Category("State")]
 #endif
         public string Name
         {
             get { return _name; }
 #if EDITOR
-            set { _name = value; }
+            set
+            {
+                string oldName = _name;
+                _name = value;
+                OnRenamed(oldName);
+            }
 #endif
         }
         
@@ -149,62 +151,62 @@ namespace System
             return _name;
         }
     }
-    [PSerializable]
-    public class NotifyPropertyChangedAttribute : LocationInterceptionAspect
-    {
-        public override void OnSetValue(LocationInterceptionArgs args)
-        {
-            if (args.Value != args.GetCurrentValue())
-            {
-                PropertyInfo info = args.Location.PropertyInfo;
-                if (info == null)
-                    return;
+//    [PSerializable]
+//    public class NotifyPropertyChangedAttribute : LocationInterceptionAspect
+//    {
+//        public override void OnSetValue(LocationInterceptionArgs args)
+//        {
+//            if (args.Value != args.GetCurrentValue())
+//            {
+//                PropertyInfo info = args.Location.PropertyInfo;
+//                if (info == null)
+//                    return;
 
-                object currentValue = args.GetCurrentValue();
+//                object currentValue = args.GetCurrentValue();
 
-                Default def = info.GetCustomAttribute<Default>();
-                if (def != null)
-                {
-#if EDITOR
-                    return;
-#endif
-                }
+//                Default def = info.GetCustomAttribute<Default>();
+//                if (def != null)
+//                {
+//#if EDITOR
+//                    return;
+//#endif
+//                }
 
-                PreChanged pre = info.GetCustomAttribute<PreChanged>();
-                if (pre != null)
-                {
-                    MethodInfo method = GetType().GetMethod(pre._methodName).MakeGenericMethod(info.PropertyType);
-                    if (method != null)
-                        method.Invoke(this, new object[] { currentValue });
-                }
+//                PreChanged pre = info.GetCustomAttribute<PreChanged>();
+//                if (pre != null)
+//                {
+//                    MethodInfo method = GetType().GetMethod(pre._methodName).MakeGenericMethod(info.PropertyType);
+//                    if (method != null)
+//                        method.Invoke(this, new object[] { currentValue });
+//                }
 
-                args.Value = args.Value;
-                args.ProceedSetValue();
+//                args.Value = args.Value;
+//                args.ProceedSetValue();
 
-                PostChanged post = info.GetCustomAttribute<PostChanged>();
-                if (post != null)
-                {
-                    MethodInfo method = GetType().GetMethod(post._methodName).MakeGenericMethod(info.PropertyType);
-                    if (method != null)
-                        method.Invoke(this, new object[] { args.Value });
-                    else
-                    {
-                        method = GetType().GetMethod(post._methodName).MakeGenericMethod(info.PropertyType);
-                        if (method != null)
-                            method.Invoke(this, new object[] { args.Value });
-                    }
-                }
+//                PostChanged post = info.GetCustomAttribute<PostChanged>();
+//                if (post != null)
+//                {
+//                    MethodInfo method = GetType().GetMethod(post._methodName).MakeGenericMethod(info.PropertyType);
+//                    if (method != null)
+//                        method.Invoke(this, new object[] { args.Value });
+//                    else
+//                    {
+//                        method = GetType().GetMethod(post._methodName).MakeGenericMethod(info.PropertyType);
+//                        if (method != null)
+//                            method.Invoke(this, new object[] { args.Value });
+//                    }
+//                }
 
-                PostCall call = info.GetCustomAttribute<PostCall>();
-                if (post != null)
-                {
-                    MethodInfo method = GetType().GetMethod(post._methodName).MakeGenericMethod(info.PropertyType);
-                    if (method != null)
-                        method.Invoke(this, new object[] { args.Value });
-                }
+//                PostCall call = info.GetCustomAttribute<PostCall>();
+//                if (post != null)
+//                {
+//                    MethodInfo method = GetType().GetMethod(post._methodName).MakeGenericMethod(info.PropertyType);
+//                    if (method != null)
+//                        method.Invoke(this, new object[] { args.Value });
+//                }
 
-                ((ObjectBase)args.Instance).OnPropertyChanged(args.Location.PropertyInfo, currentValue);
-            }
-        }
-    }
+//                ((ObjectBase)args.Instance).OnPropertyChanged(args.Location.PropertyInfo, currentValue);
+//            }
+//        }
+//    }
 }

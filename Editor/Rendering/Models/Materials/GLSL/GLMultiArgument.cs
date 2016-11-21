@@ -13,7 +13,7 @@ namespace CustomEngine.Rendering.Models.Materials
         public GLMultiArgument(string name, params GLTypeName[] types) : base(name) { }
         
         protected BaseGLOutput _connectedTo = null;
-        protected GLOutput<T> ConnectedTo
+        protected BaseGLOutput ConnectedTo
         {
             get { return _connectedTo; }
             set

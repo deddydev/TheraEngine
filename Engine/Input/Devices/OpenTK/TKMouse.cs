@@ -25,9 +25,9 @@ namespace CustomEngine.Input.Devices.OpenTK
 
             _cursor.Tick(state.X, state.Y, delta);
             _wheel.Tick(state.WheelPrecise, delta);
-            LeftClick.Tick(state.LeftButton == ButtonState.Pressed, delta);
-            RightClick.Tick(state.RightButton == ButtonState.Pressed, delta);
-            MiddleClick.Tick(state.MiddleButton == ButtonState.Pressed, delta);
+            LeftClick?.Tick(state.LeftButton == ButtonState.Pressed, delta);
+            RightClick?.Tick(state.RightButton == ButtonState.Pressed, delta);
+            MiddleClick?.Tick(state.MiddleButton == ButtonState.Pressed, delta);
         }
     }
 }

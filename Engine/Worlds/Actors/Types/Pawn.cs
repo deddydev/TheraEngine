@@ -67,8 +67,9 @@ namespace CustomEngine.Worlds.Actors
                 return;
 
             Box bounds = Engine.World.Settings.OriginRebaseBounds;
-            if (!bounds.Contains(RootComponent.LocalTransform.Translation))
-                Engine.World.RebaseOrigin(RootComponent.LocalTransform.Translation);
+            Vec3 point = RootComponent.WorldMatrix.GetPoint();
+            if (!bounds.Contains(point))
+                Engine.World.RebaseOrigin(point);
         }
     }
 }

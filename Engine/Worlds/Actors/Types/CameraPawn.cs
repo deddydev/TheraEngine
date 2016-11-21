@@ -232,7 +232,7 @@ namespace CustomEngine.Worlds.Actors
             else if (actor != null && actor.IsMovable && !actor.SimulatingPhysics)
             {
                 TransformTool tool = new TransformTool(actor);
-                Engine.World.SpawnActor(tool, actor.Transform.Matrix);
+                Engine.World.SpawnActor(tool, actor.WorldMatrix);
             }
         }
         internal override void Tick(float delta)

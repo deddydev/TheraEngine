@@ -16,9 +16,13 @@ namespace CustomEngine.Worlds
     }
     public unsafe class World : FileObject
     {
-        private DiscreteDynamicsWorld _bulletScene;
+        internal DiscreteDynamicsWorld _physicsScene;
         public WorldSettings _settings;
 
+        public DiscreteDynamicsWorld PhysicsScene
+        {
+            get { return _physicsScene; }
+        }
         public WorldSettings Settings
         {
             get { return _settings; }
@@ -30,17 +34,20 @@ namespace CustomEngine.Worlds
             DefaultCollisionConfiguration config = new DefaultCollisionConfiguration();
             CollisionDispatcher dispatcher = new CollisionDispatcher(config);
             SequentialImpulseConstraintSolver solver = new SequentialImpulseConstraintSolver();
-            _bulletScene = new DiscreteDynamicsWorld(dispatcher, broadphase, solver, config);
-            _bulletScene.Gravity = _settings.State.Gravity;
+            _physicsScene = new DiscreteDynamicsWorld(dispatcher, broadphase, solver, config);
+            _physicsScene.Gravity = _settings.State.Gravity;
         }
         public void SetTimeDilation(float multiplier)
         {
             _settings.State.TimeDilation = multiplier;
         }
+        /// <summary>
+        /// Moves the origin to preserve float precision when traveling large distances from the origin.
+        /// </summary>
         public void RebaseOrigin(Vec3 newOrigin)
         {
             foreach (Actor a in _settings.State.SpawnedActors)
-                a.OnOriginRebased(newOrigin);
+                a.RebaseOrigin(newOrigin);
         }
         public int ActorCount { get { return _settings.State.SpawnedActors.Count; } }
 
@@ -57,7 +64,7 @@ namespace CustomEngine.Worlds
                 _settings.State.SpawnedActors.Remove(actor);
             actor.OnDespawned();
         }
-        public void StepSimulation(float delta) { _bulletScene.StepSimulation(delta); }
+        public void StepSimulation(float delta) { _physicsScene.StepSimulation(delta); }
         public Actor this[int index]
         {
             get { return _settings.State.SpawnedActors[index]; }
@@ -67,7 +74,7 @@ namespace CustomEngine.Worlds
         {
             foreach (Map m in _settings._maps)
                 m.EndPlay();
-            _bulletScene = null;
+            _physicsScene = null;
         }
         public virtual void BeginPlay()
         {

@@ -12,6 +12,16 @@ namespace CustomEngine.Rendering.Models
             _name = name;
             _frameState = _bindState = bindState;
         }
+        public Bone(string name)
+        {
+            _frameState = _bindState = FrameState.GetIdentity(Matrix4.MultiplyOrder.TRS);
+            _name = name;
+        }
+        public Bone()
+        {
+            _frameState = _bindState = FrameState.GetIdentity(Matrix4.MultiplyOrder.TRS);
+            _name = "NewBone";
+        }
         
         private Bone _parent;
         private List<Bone> _children;
@@ -34,7 +44,19 @@ namespace CustomEngine.Rendering.Models
         public Matrix4 InverseFrameMatrix { get { return _inverseFrameMatrix; } }
         public Matrix4 InverseBindMatrix { get { return _inverseBindMatrix; } }
 
-        public CollisionShape _collision;
+        private CollisionShape _collision;
+        public CollisionShape CollisionShape
+        {
+            get { return _collision; }
+            set
+            {
+                _collision = value;
+                if (_collision != null)
+                {
+                    _collision.UserObject = this;
+                }
+            }
+        }
 
         public void CalcFrameMatrix() { CalcFrameMatrix(Matrix4.Identity, Matrix4.Identity); }
         public void CalcFrameMatrix(Matrix4 parentMatrix, Matrix4 inverseParentMatrix)

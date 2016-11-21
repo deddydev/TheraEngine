@@ -155,8 +155,6 @@ namespace CustomEngine
                         _inputAwaiter = new DXInputAwaiter(FoundInput);
                         break;
                 }
-                //foreach (LocalPlayerController c in ActivePlayers)
-                //    c.SetInputLibrary();
             }
         }
     }

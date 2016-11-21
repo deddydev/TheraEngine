@@ -7,12 +7,10 @@ using CustomEngine.Rendering;
 
 namespace CustomEngine.Worlds.Actors.Components
 {
-    public class SceneComponent : Component, ITransformable
+    public abstract class SceneComponent : Component, ITransformable
     {
-        public SceneComponent(Matrix4.MultiplyOrder order = Matrix4.MultiplyOrder.SRT)
+        public SceneComponent()
         {
-            LocalTransform = FrameState.GetIdentity(order);
-            LocalTransform.MatrixChanged += _localTransform_MatrixChanged;
             _children.Added += _children_Added;
             _children.AddedRange += _children_AddedRange;
             _children.Inserted += _children_Inserted;
@@ -23,7 +21,9 @@ namespace CustomEngine.Worlds.Actors.Components
 
         protected Matrix4 _invWorldTransform = Matrix4.Identity;
         protected Matrix4 _worldTransform = Matrix4.Identity;
-        protected FrameState _localTransform = FrameState.Identity;
+        protected Matrix4 _localTransform = Matrix4.Identity;
+        protected Matrix4 _invLocalTransform = Matrix4.Identity;
+
         protected SceneComponent _parent;
         protected MonitoredList<SceneComponent> _children = new MonitoredList<SceneComponent>();
         protected bool _visible;
@@ -35,25 +35,26 @@ namespace CustomEngine.Worlds.Actors.Components
             set
             {
                 _children.Clear();
-
                 _children = value ?? new MonitoredList<SceneComponent>();
             }
         }
 
+        public Matrix4 ParentMatrix { get { return Parent == null ? Matrix4.Identity : Parent.WorldMatrix; } }
+        public Matrix4 ParentInvMatrix { get { return Parent == null ? Matrix4.Identity : Parent.InverseWorldMatrix; } }
+
         /// <summary>
         /// Gets the transformation of this component in relation to the actor's root component.
         /// </summary>
-        public Matrix4 GetActorTransform() { return Owner.Transform.InverseMatrix * _worldTransform; }
+        public Matrix4 GetActorTransform() { return WorldMatrix * Owner.InverseWorldMatrix; }
         /// <summary>
         /// Gets the inverse transformation of this component in relation to the actor's root component.
         /// </summary>
-        public Matrix4 GetInvActorTransform() { return Owner.Transform.Matrix * _invWorldTransform; }
+        public Matrix4 GetInvActorTransform() { return InverseWorldMatrix * Owner.WorldMatrix; }
 
         [Category("Rendering"), State]
         public bool IsRendering { get { return _isRendering; } }
         [Category("Rendering"), State]
         public bool IsSpawned { get { return Owner.IsSpawned; } }
-
         [Category("Rendering"), Default, State, Animatable]
         public SceneComponent Parent
         {
@@ -78,40 +79,23 @@ namespace CustomEngine.Worlds.Actors.Components
             get {  return _visible; }
             set { _visible = value; }
         }
-        [Category("Rendering"), Default, State, Animatable]
-        public virtual FrameState LocalTransform
-        {
-            get { return _localTransform; }
-            set { _localTransform = value; }
-        }
-        [Category("Rendering"), Default, State, Animatable]
-        public Matrix4.MultiplyOrder TransformOrder
-        {
-            get { return LocalTransform.Order; }
-            set { LocalTransform.Order = value; }
-        }
-        public virtual void OnSpawned()
+        public override void OnSpawned()
         {
             Visible = true;
             foreach (SceneComponent c in _children)
                 c.OnSpawned();
         }
-        public virtual void OnDespawned()
+        public override void OnDespawned()
         {
             Visible = false;
             foreach (SceneComponent c in _children)
                 c.OnDespawned();
         }
-        private void _localTransform_MatrixChanged(Matrix4 oldMatrix, Matrix4 oldInvMatrix)
+        public abstract void RecalcLocalTransform();
+        public void RecalcGlobalTransform()
         {
-            RecalcGlobalTransform();
-        }
-        public virtual void RecalcGlobalTransform()
-        {
-            Matrix4 parentTransform = _parent == null ? Matrix4.Identity : _parent._worldTransform;
-            Matrix4 parentInvTransform = _parent == null ? Matrix4.Identity : _parent._worldTransform;
-            _worldTransform = LocalTransform.Matrix * parentTransform;
-            _invWorldTransform = LocalTransform.InverseMatrix * parentInvTransform;
+            _worldTransform = ParentMatrix * LocalMatrix;
+            _invWorldTransform = InverseLocalMatrix * ParentInvMatrix;
             foreach (SceneComponent c in _children)
                 c.RecalcGlobalTransform();
         }
@@ -125,8 +109,24 @@ namespace CustomEngine.Worlds.Actors.Components
                     c.Owner = value;
             }
         }
+        
+        public Matrix4 WorldMatrix { get { return _worldTransform; } }
+        public Matrix4 InverseWorldMatrix { get { return _invWorldTransform; } }
+        public Matrix4 LocalMatrix { get { return _localTransform; } }
+        public Matrix4 InverseLocalMatrix { get { return _invLocalTransform; } }
 
-        public Matrix4 WorldTransform { get { return _worldTransform; } }
+        public void SetLocalMatrix(Matrix4 matrix, Matrix4 inverse)
+        {
+            _localTransform = matrix;
+            _invLocalTransform = inverse;
+            RecalcGlobalTransform();
+        }
+        public void SetLocalMatrix(Matrix4 matrix)
+        {
+            _localTransform = matrix;
+            _invLocalTransform = matrix.Inverted();
+            RecalcGlobalTransform();
+        }
 
         public List<SceneComponent> GenerateChildCache()
         {

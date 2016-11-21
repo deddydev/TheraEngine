@@ -128,7 +128,7 @@ namespace CustomEngine.Rendering.Models
         {
             GL.EnableVertexAttribArray(_index);
             //VertexAttribPointer is deprecated
-            //GL.VertexAttribPointer(_index, _componentCount, VertexAttribPointerType.Byte + (int)_componentType, _normalize, 0, 0);
+            GL.VertexAttribPointer(_index, _componentCount, VertexAttribPointerType.Byte + (int)_componentType, _normalize, 0, 0);
             GL.VertexAttribFormat(_index, _componentCount, VertexAttribType.Byte + (int)_componentType, _normalize, 0);
             GL.VertexAttribBinding(_index, _index);
         }
@@ -147,34 +147,10 @@ namespace CustomEngine.Rendering.Models
             Marshal.PtrToStructure(_data.Address + offset, value);
             return value;
         }
-        public unsafe Remapper SetDataNumeric(IList<int> list, bool remap = true)
-        {
-            _componentType = ComponentType.Int;
-            _componentCount = 1;
-            _normalize = false;
-            if (remap)
-            {
-                Remapper remapper = new Remapper();
-                remapper.Remap(list, null);
-                _elementCount = remapper.ImplementationLength;
-                _data = DataSource.Allocate(DataLength);
-                int* dPtr = (int*)_data.Address;
-                for (int i = 0; i < remapper.ImplementationLength; ++i)
-                    *dPtr++ = list[remapper.ImplementationTable[i]];
-                return remapper;
-            }
-            else
-            {
-                _elementCount = list.Count;
-                _data = DataSource.Allocate(DataLength);
-                int* dPtr = (int*)_data.Address;
-                for (int i = 0; i < list.Count; ++i)
-                    *dPtr++ = list[i];
-                return null;
-            }
-        }
         public unsafe Remapper SetDataNumeric<T>(IList<T> list, bool remap = true) where T : struct
         {
+            Console.WriteLine("\nSetting numeric vertex data for buffer " + Index + " - " + Name);
+
             if (typeof(T) == typeof(sbyte))
                 _componentType = ComponentType.SByte;
             else if (typeof(T) == typeof(byte))
@@ -192,7 +168,7 @@ namespace CustomEngine.Rendering.Models
             else if (typeof(T) == typeof(double))
                 _componentType = ComponentType.Double;
             else
-                throw new InvalidOperationException();
+                throw new InvalidOperationException("Not a proper numeric data type.");
 
             _componentCount = 1;
             _normalize = false;
@@ -208,8 +184,10 @@ namespace CustomEngine.Rendering.Models
                 {
                     VoidPtr addr = _data.Address[i, stride];
                     T value = list[remapper.ImplementationTable[i]];
+                    Console.Write(value.ToString() + " ");
                     Marshal.StructureToPtr(value, addr, true);
                 }
+                Console.WriteLine();
                 return remapper;
             }
             else
@@ -222,13 +200,17 @@ namespace CustomEngine.Rendering.Models
                 {
                     VoidPtr addr = _data.Address[i, stride];
                     T value = list[i];
+                    Console.Write(value.ToString() + " ");
                     Marshal.StructureToPtr(value, addr, true);
                 }
+                Console.WriteLine("\n");
                 return null;
             }
         }
         public Remapper SetData<T>(IList<T> list, bool remap = true) where T : IBufferable
         {
+            Console.WriteLine("\nSetting vertex data for buffer " + Index + " - " + Name);
+
             IBufferable d = default(T);
             _componentType = d.ComponentType;
             _componentCount = d.ComponentCount;

@@ -1,9 +1,15 @@
-﻿using CustomEngine.Rendering.Textures;
+﻿using System;
+using CustomEngine.Rendering.Textures;
 
 namespace CustomEngine.Worlds.Actors.Components
 {
     public class DecalComponent : SceneComponent
     {
         private Texture _texture;
+
+        public override void RecalcLocalTransform()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

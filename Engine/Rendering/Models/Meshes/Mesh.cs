@@ -21,10 +21,9 @@ namespace CustomEngine.Rendering.Models
         private CollisionShape _collision;
         internal PrimitiveManager _manager = new PrimitiveManager();
         private SingleFileRef<Material> _material;
-        protected uint? _renderKey = null;
         protected bool _rendering = false, _visible = false, _visibleByDefault = true;
         private Box _cullingVolume;
-        private Matrix4 _transform = Matrix4.Identity;
+        private Matrix4 _matrix = Matrix4.Identity, _invMatrix = Matrix4.Identity;
         int _instanceCount = 0;
 
         /// <summary>
@@ -39,7 +38,14 @@ namespace CustomEngine.Rendering.Models
         public CollisionShape CollisionShape
         {
             get { return _collision; }
-            set { _collision = value; }
+            set
+            {
+                _collision = value;
+                if (_collision != null)
+                {
+                    _collision.UserObject = this;
+                }
+            }
         }
         public Material Material
         {
@@ -56,10 +62,13 @@ namespace CustomEngine.Rendering.Models
             get { return _instanceCount; }
             set { _instanceCount = value; }
         }
-        public Matrix4 Transform
+        public Matrix4 WorldMatrix
         {
-            get { return _transform; }
-            set { _transform = value; }
+            get { return _matrix; }
+        }
+        public Matrix4 InverseWorldMatrix
+        {
+            get { return _invMatrix; }
         }
 
         public void SetPrimitiveData(PrimitiveData data) => _manager.Data = data;
@@ -81,7 +90,7 @@ namespace CustomEngine.Rendering.Models
             //    return;
 
             if (_material.File != null)
-                _manager.Render(_material, _transform);
+                _manager.Render(_material, _matrix);
         }
         public static implicit operator Mesh(Box b)
         {

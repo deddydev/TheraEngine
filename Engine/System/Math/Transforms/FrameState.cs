@@ -5,7 +5,7 @@ using System.Xml.Serialization;
 namespace System
 {
     public delegate void TranslateChange(Vec3 oldTranslation);
-    public delegate void RotateChange(Quaternion oldRotation);
+    public delegate void RotateChange(float oldRotation);
     public delegate void ScaleChange(Vec3 oldScale);
     public delegate void MatrixChange(Matrix4 oldMatrix, Matrix4 oldInvMatrix);
     public class FrameState : FileObject
@@ -19,41 +19,36 @@ namespace System
         public static readonly FrameState Identity = new FrameState(Vec3.Zero, Vec3.Zero, Vec3.One);
         public FrameState(
             Vec3 translate, 
-            Vec3 rotate,
+            Rotator rotate,
             Vec3 scale,
-            Vec3.EulerOrder rotateOrder = Vec3.EulerOrder.YPR,
             Matrix4.MultiplyOrder transformOrder = Matrix4.MultiplyOrder.SRT)
         {
             _translation = translate;
             _scale = scale;
             _transformOrder = transformOrder;
-            _rotateOrder = rotateOrder;
+            _rotation = rotate;
             CreateTransform();
         }
-
-        private Quaternion _yaw = Quaternion.Identity;
-        private Quaternion _pitch = Quaternion.Identity;
-        private Quaternion _roll = Quaternion.Identity;
-        private Quaternion _finalRotation = Quaternion.Identity;
+        
+        private Rotator _rotation;
         private Vec3 _translation = Vec3.Zero;
         private Vec3 _scale = Vec3.One;
         private Matrix4 _transform = Matrix4.Identity;
         private Matrix4 _inverseTransform = Matrix4.Identity;
         private Matrix4.MultiplyOrder _transformOrder = Matrix4.MultiplyOrder.SRT;
-        private Vec3.EulerOrder _rotateOrder = Vec3.EulerOrder.YPR;
 
         public event TranslateChange TranslationChanged;
         public event RotateChange YawChanged;
         public event RotateChange PitchChanged;
         public event RotateChange RollChanged;
-        public event RotateChange RotationChanged;
         public event ScaleChange ScaleChanged;
         public event MatrixChange MatrixChanged;
 
-        public Vec3 GetForwardVector() { return _finalRotation * Vec3.Forward; }
-        public Vec3 GetUpVector() { return _finalRotation * Vec3.Up; }
-        public Vec3 GetRightVector() { return _finalRotation * Vec3.Right; }
-        
+        public Vec3 GetForwardVector() { return _rotation.TransformVector(Vec3.Forward); }
+        public Vec3 GetUpVector() { return _rotation.TransformVector(Vec3.Up); }
+        public Vec3 GetRightVector() { return _rotation.TransformVector(Vec3.Right); }
+        public Matrix4 GetRotationMatrix() { return _rotation.GetMatrix(); }
+
         public Matrix4 Matrix { get { return _transform; } }
         public Matrix4 InverseMatrix { get { return _inverseTransform; } }
         
@@ -62,19 +57,19 @@ namespace System
             get { return _translation; }
             set { SetTranslate(value); }
         }
-        public Quaternion Yaw
+        public float Yaw
         {
-            get { return _yaw; }
+            get { return _rotation.Yaw; }
             set { SetYaw(value); }
         }
-        public Quaternion Pitch
+        public float Pitch
         {
-            get { return _pitch; }
+            get { return _rotation.Pitch; }
             set { SetPitch(value); }
         }
-        public Quaternion Roll
+        public float Roll
         {
-            get { return _roll; }
+            get { return _rotation.Roll; }
             set { SetRoll(value); }
         }
         public Vec3 Scale
@@ -87,10 +82,10 @@ namespace System
             get { return _transformOrder; }
             set { _transformOrder = value; CreateTransform(); }
         }
-        public Vec3.EulerOrder RotationOrder
+        public Rotator.Order RotationOrder
         {
-            get { return _rotateOrder; }
-            set { _rotateOrder = value; CreateTransform(); }
+            get { return _rotation.RotationOrder; }
+            set { _rotation.RotationOrder = value; CreateTransform(); }
         }
         private void SetTranslate(Vec3 value)
         {
@@ -99,24 +94,24 @@ namespace System
             CreateTransform();
             TranslationChanged?.Invoke(oldTranslation);
         }
-        private void SetYaw(Quaternion value)
+        private void SetYaw(float value)
         {
-            Quaternion oldRotation = _yaw;
-            _yaw = value;
+            float oldRotation = _rotation.Yaw;
+            _rotation.Yaw = value;
             CreateTransform();
             YawChanged?.Invoke(oldRotation);
         }
-        private void SetPitch(Quaternion value)
+        private void SetPitch(float value)
         {
-            Quaternion oldRotation = _pitch;
-            _pitch = value;
+            float oldRotation = _rotation.Pitch;
+            _rotation.Pitch = value;
             CreateTransform();
             PitchChanged?.Invoke(oldRotation);
         }
-        private void SetRoll(Quaternion value)
+        private void SetRoll(float value)
         {
-            Quaternion oldRotation = _roll;
-            _roll = value;
+            float oldRotation = _rotation.Roll;
+            _rotation.Roll = value;
             CreateTransform();
             RollChanged?.Invoke(oldRotation);
         }
@@ -139,39 +134,10 @@ namespace System
             Matrix4 oldMatrix = _transform;
             Matrix4 oldInvMatrix = _inverseTransform;
 
-            CreateFinalRotation();
-
-            _transform = Matrix4.TransformMatrix(_scale, _finalRotation, _translation, _transformOrder);
-            _inverseTransform = Matrix4.InverseTransformMatrix(_scale, _finalRotation, _translation, _transformOrder);
+            _transform = Matrix4.TransformMatrix(_scale, _rotation, _translation, _transformOrder);
+            _inverseTransform = Matrix4.InverseTransformMatrix(_scale, _rotation, _translation, _transformOrder);
 
             MatrixChanged?.Invoke(oldMatrix, oldInvMatrix);
-        }
-
-        private void CreateFinalRotation()
-        {
-            Quaternion oldRotation = _finalRotation;
-            switch (_rotateOrder)
-            {
-                case Vec3.EulerOrder.PRY:
-                    _finalRotation = _pitch * _roll * _yaw;
-                    break;
-                case Vec3.EulerOrder.PYR:
-                    _finalRotation = _pitch * _yaw * _roll;
-                    break;
-                case Vec3.EulerOrder.RPY:
-                    _finalRotation = _roll * _pitch * _yaw;
-                    break;
-                case Vec3.EulerOrder.RYP:
-                    _finalRotation = _roll * _yaw * _pitch;
-                    break;
-                case Vec3.EulerOrder.YPR:
-                    _finalRotation = _yaw * _pitch * _roll;
-                    break;
-                case Vec3.EulerOrder.YRP:
-                    _finalRotation = _yaw * _roll * _pitch;
-                    break;
-            }
-            RotationChanged?.Invoke(oldRotation);
         }
 
         public void MultMatrix() { Engine.Renderer.MultMatrix(_transform); }

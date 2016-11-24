@@ -444,6 +444,7 @@
     <Compile Include="Rendering\Models\Collada\Schema\Types\Grendgine_Collada_SID_Name_String.cs" />
     <Compile Include="Rendering\Models\Collada\Schema\Types\Grendgine_Collada_String_Array_String.cs" />
     <Compile Include="Rendering\Models\Materials\Uniform.cs" />
+    <Compile Include="Rendering\RenderableObject.cs" />
     <Compile Include="Rendering\Renderer\GBuffer.cs" />
     <Compile Include="Rendering\Renderer\OpenGL\GLEnumExtension.cs" />
     <Compile Include="Rendering\Renderer\RenderEnums.cs" />
@@ -517,7 +518,7 @@
     <Compile Include="System\Math\Collision\Collision.cs" />
     <Compile Include="System\Math\Collision\Tracing.cs" />
     <Compile Include="System\Math\Enums.cs" />
-    <Compile Include="System\Math\Shapes\Frustrum.cs" />
+    <Compile Include="System\Math\Shapes\Frustum.cs" />
     <Compile Include="System\Math\Shapes\Plane.cs" />
     <Compile Include="System\Math\Shapes\Ray.cs" />
     <Compile Include="System\Math\Shapes\Shape.cs" />
@@ -525,6 +526,7 @@
     <Compile Include="System\Math\Transforms\Matrix.cs" />
     <Compile Include="System\Math\Transforms\Quaternion.cs" />
     <Compile Include="System\Math\Transforms\Vector2.cs" />
+    <Compile Include="System\Math\Transforms\Rotator.cs" />
     <Compile Include="System\Math\Transforms\Vector3.cs" />
     <Compile Include="System\Math\Transforms\Vector4.cs" />
     <Compile Include="System\Memory\Bin64.cs" />
@@ -582,8 +584,8 @@
     <Compile Include="Rendering\Animation\AnimationStringNode.cs" />
     <Compile Include="Rendering\Animation\AnimationBoolNode.cs" />
     <Compile Include="Rendering\Animation\AnimationInterpNode.cs" />
-    <Compile Include="Rendering\Models\Meshes\BoneWeight.cs" />
-    <Compile Include="Rendering\Models\Meshes\Influence.cs" />
+    <Compile Include="Rendering\Models\Skeleton\BoneWeight.cs" />
+    <Compile Include="Rendering\Models\Skeleton\Influence.cs" />
     <Compile Include="System\Extensions\BitmapExtension.cs" />
     <Compile Include="System\Extensions\Numbers\SByteExtension.cs" />
     <Compile Include="System\Extensions\Numbers\DoubleExtension.cs" />
@@ -610,6 +612,7 @@
     <Compile Include="Worlds\Actors\Actor.cs" />
     <Compile Include="Worlds\Actors\Types\Character.cs" />
     <Compile Include="Worlds\Actors\Types\CameraPawn.cs" />
+    <Compile Include="Worlds\Actors\Types\LandscapeActor.cs" />
     <Compile Include="Worlds\Actors\Types\Pawn.cs" />
     <Compile Include="Worlds\Actors\Types\PhysicsState.cs" />
     <Compile Include="Worlds\Actors\Types\TransformTool.cs" />

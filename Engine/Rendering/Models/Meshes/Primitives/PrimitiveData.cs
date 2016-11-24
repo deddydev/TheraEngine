@@ -64,11 +64,15 @@ namespace CustomEngine.Rendering.Models
         {
             return FromQuadList(quads);
         }
+        public static PrimitiveData FromTriangles(params VertexTriangle[] triangles)
+        {
+            return FromTriangleList(triangles);
+        }
         public static PrimitiveData FromQuadList(IEnumerable<VertexQuad> quads)
         {
-            return FromTriangles(quads.SelectMany(x => x.ToTriangles()).ToList());
+            return FromTriangleList(quads.SelectMany(x => x.ToTriangles()).ToList());
         }
-        public static PrimitiveData FromTriangles(IEnumerable<VertexTriangle> triangles)
+        public static PrimitiveData FromTriangleList(IEnumerable<VertexTriangle> triangles)
         {
             bool hasNormals = false;
             int texCoordCount = 0, colorCount = 0;
@@ -84,27 +88,56 @@ namespace CustomEngine.Rendering.Models
                     colorCount = v._colors.Count;
             }
 
-            PrimitiveData data = new PrimitiveData();
-            Remapper vertexRemap = data.SetFaceIndices(vertices);
-            data.CreateFacePoints(vertexRemap.ImplementationLength);
-            
-            List<Vec3> positions = vertexRemap.ImplementationTable.Select(x => vertices[x]._position).ToList();
-            data.AddBuffer(positions, VertexBuffer.PositionsName);
+            bool remap = false;
 
-            if (hasNormals)
+            PrimitiveData data = new PrimitiveData();
+            if (remap)
             {
-                List<Vec3> normals = vertexRemap.ImplementationTable.Select(x => vertices[x]._normal.GetValueOrDefault()).ToList();
-                data.AddBuffer(normals, VertexBuffer.NormalsName);
+                Remapper remapper = data.SetFaceIndices(vertices);
+                data.CreateFacePoints(remapper.ImplementationLength);
+
+                List<Vec3> positions = remapper.ImplementationTable.Select(x => vertices[x]._position).ToList();
+                data.AddBuffer(positions, VertexBuffer.PositionsName);
+
+                if (hasNormals)
+                {
+                    List<Vec3> normals = remapper.ImplementationTable.Select(x => vertices[x]._normal.GetValueOrDefault()).ToList();
+                    data.AddBuffer(normals, VertexBuffer.NormalsName);
+                }
+                for (int i = 0; i < colorCount; ++i)
+                {
+                    List<ColorF4> colors = remapper.ImplementationTable.Select(x => i < vertices[x]._colors.Count ? vertices[x]._colors[i] : default(ColorF4)).ToList();
+                    data.AddBuffer(colors, VertexBuffer.ColorName + i.ToString());
+                }
+                for (int i = 0; i < texCoordCount; ++i)
+                {
+                    List<Vec2> texCoords = remapper.ImplementationTable.Select(x => i < vertices[x]._texCoords.Count ? vertices[x]._texCoords[i] : default(Vec2)).ToList();
+                    data.AddBuffer(texCoords, VertexBuffer.TexCoordName + i.ToString());
+                }
             }
-            for (int i = 0; i < colorCount; ++i)
+            else
             {
-                List<ColorF4> colors = vertexRemap.ImplementationTable.Select(x => i < vertices[x]._colors.Count ? vertices[x]._colors[i] : default(ColorF4)).ToList();
-                data.AddBuffer(colors, VertexBuffer.ColorName + i.ToString());
-            }
-            for (int i = 0; i < texCoordCount; ++i)
-            {
-                List<Vec2> texCoords = vertexRemap.ImplementationTable.Select(x => i < vertices[x]._texCoords.Count ? vertices[x]._texCoords[i] : default(Vec2)).ToList();
-                data.AddBuffer(texCoords, VertexBuffer.TexCoordName + i.ToString());
+                data.SetFaceIndices(vertices, false);
+                data.CreateFacePoints(vertices.Count);
+
+                List<Vec3> positions = vertices.Select(x => x._position).ToList();
+                data.AddBuffer(positions, VertexBuffer.PositionsName, false);
+
+                if (hasNormals)
+                {
+                    List<Vec3> normals = vertices.Select(x => x._normal.GetValueOrDefault()).ToList();
+                    data.AddBuffer(normals, VertexBuffer.NormalsName);
+                }
+                for (int i = 0; i < colorCount; ++i)
+                {
+                    List<ColorF4> colors = vertices.Select(x => i < x._colors.Count ? x._colors[i] : default(ColorF4)).ToList();
+                    data.AddBuffer(colors, VertexBuffer.ColorName + i.ToString());
+                }
+                for (int i = 0; i < texCoordCount; ++i)
+                {
+                    List<Vec2> texCoords = vertices.Select(x => i < x._texCoords.Count ? x._texCoords[i] : default(Vec2)).ToList();
+                    data.AddBuffer(texCoords, VertexBuffer.TexCoordName + i.ToString());
+                }
             }
             return data;
         }
@@ -122,19 +155,37 @@ namespace CustomEngine.Rendering.Models
                         return b;
             return null;
         }
-        private void AddBuffer<T>(List<T> bufferData, string name, BufferTarget target = BufferTarget.ArrayBuffer) where T : IBufferable
+        private void AddBuffer<T>(
+            List<T> bufferData,
+            string name,
+            bool remap = true,
+            BufferTarget target = BufferTarget.ArrayBuffer) where T : IBufferable
         {
             if (_buffers == null)
                 _buffers = new List<VertexBuffer>();
 
             int bufferIndex = _buffers.Count;
             VertexBuffer buffer = new VertexBuffer(bufferIndex, name, target);
-            Remapper remapper = buffer.SetData(bufferData);
-            for (int i = 0; i < bufferData.Count; ++i)
-                _facePoints[i].Indices.Add(remapper.ImplementationTable[remapper.RemapTable[i]]);
+            if (remap)
+            {
+                Remapper remapper = buffer.SetData(bufferData);
+                for (int i = 0; i < bufferData.Count; ++i)
+                    _facePoints[i].Indices.Add(remapper.ImplementationTable[remapper.RemapTable[i]]);
+            }
+            else
+            {
+                buffer.SetData(bufferData, false);
+                for (int i = 0; i < bufferData.Count; ++i)
+                    _facePoints[i].Indices.Add(i);
+            }
             _buffers.Add(buffer);
         }
-        private void ReplaceBuffer<T>(List<T> bufferData, int bufferIndex, string name, BufferTarget target = BufferTarget.ArrayBuffer) where T : IBufferable
+        private void ReplaceBuffer<T>(
+            List<T> bufferData,
+            int bufferIndex,
+            string name,
+            bool remap = true,
+            BufferTarget target = BufferTarget.ArrayBuffer) where T : IBufferable
         {
             if (_buffers == null)
                 throw new InvalidOperationException();
@@ -142,30 +193,46 @@ namespace CustomEngine.Rendering.Models
                 throw new IndexOutOfRangeException();
 
             VertexBuffer buffer = new VertexBuffer(bufferIndex, name, target);
-            Remapper posRemap = buffer.SetData(bufferData);
-            for (int i = 0; i < bufferData.Count; ++i)
-                _facePoints[i].Indices[bufferIndex] = posRemap.ImplementationTable[posRemap.RemapTable[i]];
+            if (remap)
+            {
+                Remapper remapper = buffer.SetData(bufferData);
+                for (int i = 0; i < bufferData.Count; ++i)
+                    _facePoints[i].Indices[bufferIndex] = remapper.ImplementationTable[remapper.RemapTable[i]];
+            }
+            else
+            {
+                buffer.SetData(bufferData, false);
+                for (int i = 0; i < bufferData.Count; ++i)
+                    _facePoints[i].Indices[bufferIndex] = i;
+            }
             _buffers[bufferIndex] = buffer;
         }
 
-        private Remapper SetFaceIndices(List<Vertex> vertices)
+        private Remapper SetFaceIndices(List<Vertex> vertices, bool remap = true)
         {
             if (vertices.Count % 3 != 0)
                 throw new Exception("Vertex list needs to be a multiple of 3.");
 
             _faces = new List<IndexTriangle>();
-            Remapper remapper = new Remapper();
-            remapper.Remap(vertices, null);
-
-            for (int i = 0; i < remapper.RemapTable.Length;)
+            if (remap)
             {
-                _faces.Add(new IndexTriangle(
-                    remapper.ImplementationTable[remapper.RemapTable[i++]],
-                    remapper.ImplementationTable[remapper.RemapTable[i++]],
-                    remapper.ImplementationTable[remapper.RemapTable[i++]]));
+                Remapper remapper = new Remapper();
+                remapper.Remap(vertices, null);
+                for (int i = 0; i < remapper.RemapTable.Length;)
+                {
+                    _faces.Add(new IndexTriangle(
+                        remapper.ImplementationTable[remapper.RemapTable[i++]],
+                        remapper.ImplementationTable[remapper.RemapTable[i++]],
+                        remapper.ImplementationTable[remapper.RemapTable[i++]]));
+                }
+                return remapper;
             }
-
-            return remapper;
+            else
+            {
+                for (int i = 0; i < vertices.Count; )
+                    _faces.Add(new IndexTriangle(i++, i++, i++));
+                return null;
+            }
         }
 
         #region IDisposable Support

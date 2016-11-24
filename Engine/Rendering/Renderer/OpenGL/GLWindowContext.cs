@@ -71,19 +71,19 @@ namespace CustomEngine.Rendering.OpenGL
             GL.ClearDepth(1.0);
             GL.ShadeModel(ShadingModel.Smooth);
             GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
+            GL.Enable(OpenTK.Graphics.OpenGL.EnableCap.CullFace);
+            GL.FrontFace(FrontFaceDirection.Ccw);
 
             //GL.Hint(HintTarget.PerspectiveCorrectionHint, HintMode.Nicest);
             //GL.Hint(HintTarget.LineSmoothHint, HintMode.Nicest);
             //GL.Hint(HintTarget.PointSmoothHint, HintMode.Nicest);
             //GL.Hint(HintTarget.PolygonSmoothHint, HintMode.Nicest);
             //GL.Hint(HintTarget.GenerateMipmapHint, HintMode.Nicest);
-
-            //GL.Enable(OpenTK.Graphics.OpenGL.EnableCap.Normalize);
+            
             //GL.Enable(OpenTK.Graphics.OpenGL.EnableCap.DepthTest);
             //GL.Disable(OpenTK.Graphics.OpenGL.EnableCap.Dither);
             //GL.Disable(OpenTK.Graphics.OpenGL.EnableCap.Blend);
             //GL.Disable(OpenTK.Graphics.OpenGL.EnableCap.AlphaTest);
-            GL.Disable(OpenTK.Graphics.OpenGL.EnableCap.CullFace);
             //GL.Enable(OpenTK.Graphics.OpenGL.EnableCap.ScissorTest);
             //GL.Disable(OpenTK.Graphics.OpenGL.EnableCap.Lighting);
             //GL.Disable(OpenTK.Graphics.OpenGL.EnableCap.PointSmooth);

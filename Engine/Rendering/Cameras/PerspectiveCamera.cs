@@ -4,6 +4,8 @@ namespace CustomEngine.Rendering.Cameras
 {
     public class PerspectiveCamera : Camera
     {
+        public PerspectiveCamera() : base() { }
+
         private float _width, _height, _fovY = 78.0f, _aspect;
 
         public override Vec2 Origin { get { return new Vec2(Width / 2.0f, Height / 2.0f); } }
@@ -37,48 +39,39 @@ namespace CustomEngine.Rendering.Cameras
             _aspect = _width / _height;
             base.Resize(width, height);
         }
-        public override Frustrum GetFrustrum()
+        public override void Zoom(float amount) { TranslateRelative(0.0f, 0.0f, amount); }
+        protected override Frustum CreateUntransformedFrustum()
         {
-            float upAngle = _fovY / 2.0f;
-            float tan = (float)Math.Tan(CustomMath.DegToRad(upAngle));
-            float nearYDist = tan * _nearZ;
-            float nearXDist = _aspect * nearYDist;
-            float farYDist = tan * _farZ;
-            float farXDist = _aspect * farYDist;
-            
-            Vec3 forwardDir = GetForwardVector();
-            Vec3 rightDir = GetRightVector();
-            Vec3 upDir = GetUpVector();
-            Vec3 nearPos = _point + forwardDir * _nearZ;
-            Vec3 farPos = _point + forwardDir * _farZ;
-            Vec3 ntl, /*ntr, */nbl, nbr, ftl, ftr, fbl, fbr;
+            const bool transformed = false;
 
-            Vec3 nX = rightDir * nearXDist;
-            Vec3 fX = rightDir * farXDist;
-            Vec3 nY = upDir * nearYDist;
-            Vec3 fY = upDir * farYDist;
+            float
+                tan = (float)Math.Tan(CustomMath.DegToRad(_fovY / 2.0f)),
+                nearYDist = tan * _nearZ,
+                nearXDist = _aspect * nearYDist,
+                farYDist = tan * _farZ,
+                farXDist = _aspect * farYDist;
 
-            ntl = nearPos + nY - nX;
-            //ntr = nearPos + nY + nX;
-            nbl = nearPos - nY - nX;
-            nbr = nearPos - nY + nX;
-            ftl = farPos + fY - fX;
-            ftr = farPos + fY + fX;
-            fbl = farPos - fY - fX;
-            fbr = farPos - fY + fX;
+            Vec3
+                point = transformed ? _point : Vec3.Zero,
+                forwardDir = transformed ? GetForwardVector() : Vec3.Forward,
+                rightDir = transformed ? GetRightVector() : Vec3.Right,
+                upDir = transformed ? GetUpVector() : Vec3.Up,
+                nearPos = point + forwardDir * _nearZ,
+                farPos = point + forwardDir * _farZ,
+                nX = rightDir * nearXDist,
+                fX = rightDir * farXDist,
+                nY = upDir * nearYDist,
+                fY = upDir * farYDist,
+                ntl = nearPos + nY - nX,
+                ntr = nearPos + nY + nX,
+                nbl = nearPos - nY - nX,
+                nbr = nearPos - nY + nX,
+                ftl = farPos + fY - fX,
+                ftr = farPos + fY + fX,
+                fbl = farPos - fY - fX,
+                fbr = farPos - fY + fX;
 
-            Plane near, far, top, bottom, left, right;
-
-            near = new Plane(nearPos, forwardDir);
-            far = new Plane(farPos, -forwardDir);
-
-            left = new Plane(nbl, fbl, ntl);
-            right = new Plane(fbr, nbr, ftr);
-
-            top = new Plane(ftl, ftr, ntl);
-            bottom = new Plane(nbl, nbr, fbl);
-
-            return new Frustrum(near, far, top, bottom, left, right);
+            return new Frustum(fbl, fbr, ftl, ftr, nbl, nbr, ntl, ntr);
         }
     }
 }

@@ -29,7 +29,7 @@ namespace CustomEngine.Rendering.Models
 
         public override string ToString()
         {
-            string vtx = "VTX{_index}";
+            string vtx = "VTX" + _index;
             if (_bufferIndices.Count > 0)
                 vtx += ": ";
             for (int i = 0; i < _bufferIndices.Count; ++i)

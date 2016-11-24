@@ -9,24 +9,36 @@ namespace CustomEngine.Rendering.Models
     {
         public Bone(string name, FrameState bindState)
         {
-            _name = name;
-            _frameState = _bindState = bindState;
+            Init(name, bindState);
         }
         public Bone(string name)
         {
-            _frameState = _bindState = FrameState.GetIdentity(Matrix4.MultiplyOrder.TRS);
-            _name = name;
+            Init(name, FrameState.GetIdentity(Matrix4.MultiplyOrder.TRS));
         }
         public Bone()
         {
-            _frameState = _bindState = FrameState.GetIdentity(Matrix4.MultiplyOrder.TRS);
-            _name = "NewBone";
+            Init("NewBone", FrameState.GetIdentity(Matrix4.MultiplyOrder.TRS));
+        }
+        private void Init(string name, FrameState bindState)
+        {
+            _frameState = _bindState = bindState;
+            _name = name;
         }
         
+        public Bone Parent
+        {
+            get { return _parent; }
+            set { _parent = value; }
+        }
+        public MonitoredList<Bone> Children
+        {
+            get { return _children; }
+            set { _children = value; }
+        }
+
         private Bone _parent;
-        private List<Bone> _children;
-        private List<Bone> _socketChildren;
-        private List<FacePoint> _influencedVertices;
+        private MonitoredList<Bone> _children = new MonitoredList<Bone>();
+        private List<FacePoint> _influencedVertices = new List<FacePoint>();
 
         //frame state is the bone's transform with an animation applied.
         //bind state is the bone's default transform.
@@ -61,8 +73,8 @@ namespace CustomEngine.Rendering.Models
         public void CalcFrameMatrix() { CalcFrameMatrix(Matrix4.Identity, Matrix4.Identity); }
         public void CalcFrameMatrix(Matrix4 parentMatrix, Matrix4 inverseParentMatrix)
         {
-            _bindMatrix = parentMatrix * _bindState.Matrix;
-            _inverseBindMatrix = _bindState.InverseMatrix * inverseParentMatrix;
+            _frameMatrix = parentMatrix * _frameState.Matrix;
+            _inverseFrameMatrix = _frameState.InverseMatrix * inverseParentMatrix;
 
             foreach (Bone b in _children)
                 b.CalcFrameMatrix(_frameMatrix, _inverseFrameMatrix);

@@ -5,19 +5,18 @@ using CustomEngine.Worlds.Actors.Components;
 using System.Linq;
 using CustomEngine.Files;
 using System.Collections;
+using System.Collections.ObjectModel;
 
 namespace CustomEngine.Rendering.Models
 {
-    public class Model : FileObject, IPrimitive, IEnumerable<Mesh>
+    public class Model : RenderableObjectContainer, IEnumerable<Mesh>
     {
-        private List<ModelComponent> _linkedComponents = new List<ModelComponent>();
-
         private List<Mesh> _meshes = new List<Mesh>();
         private Skeleton _skeleton;
         private bool _simulatePhysics;
+        private GenericPrimitiveComponent _linkedComponent;
 
         public List<Mesh> Meshes { get { return _meshes; } }
-
         public Skeleton Skeleton
         {
             get { return _skeleton; }
@@ -28,19 +27,12 @@ namespace CustomEngine.Rendering.Models
             get { return _simulatePhysics; }
             set { _simulatePhysics = value; }
         }
-        public void LinkComponent(ModelComponent comp)
+        public override Matrix4 GetWorldMatrix() { return _linkedComponent != null ? _linkedComponent.WorldMatrix : Matrix4.Identity; }
+        public override Matrix4 GetInverseWorldMatrix() { return _linkedComponent != null ? _linkedComponent.InverseWorldMatrix : Matrix4.Identity; }
+
+        public override List<PrimitiveData> GetPrimitives()
         {
-            if (!_linkedComponents.Contains(comp))
-                _linkedComponents.Add(comp);
-        }
-        public void UnlinkComponent(ModelComponent comp)
-        {
-            if (_linkedComponents.Contains(comp))
-                _linkedComponents.Remove(comp);
-        }
-        public List<PrimitiveData> GetPrimitives()
-        {
-            return _meshes.Select(x => x._manager.Data).ToList();
+            return _meshes.Select(x => x.GetPrimitiveData()).ToList();
         }
         public void OnSpawned()
         {

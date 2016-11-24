@@ -7,6 +7,11 @@ namespace CustomEngine.Rendering.Models
 {
     public class Influence : IEnumerable<BoneWeight>
     {
+        public Influence(Bone bone)
+        {
+            _weights.Add(new BoneWeight(bone));
+        }
+
         private List<BoneWeight> _weights = new List<BoneWeight>();
         private Matrix4 _matrix;
         private Matrix4? _invMatrix;

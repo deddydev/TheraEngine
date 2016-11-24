@@ -9,9 +9,9 @@ namespace CustomEngine.Rendering
 {
     public class SceneProcessor
     {
-        private bool _commandsInvalidated;
-        private Dictionary<ulong, Action> _commands = new Dictionary<ulong, Action>();
-        private List<ulong> _sortedCommands = new List<ulong>();
+        //private bool _commandsInvalidated;
+        //private Dictionary<ulong, Action> _commands = new Dictionary<ulong, Action>();
+        //private List<ulong> _sortedCommands = new List<ulong>();
         RenderOctree _renderTree;
         private Camera _currentCamera;
 
@@ -28,7 +28,7 @@ namespace CustomEngine.Rendering
                 return;
 
             _currentCamera = camera;
-            //_renderTree.Cull(camera.GetFrustrum());
+            _renderTree.Cull(camera.GetFrustum());
             _renderTree.Render();
             _currentCamera = null;
             
@@ -37,31 +37,25 @@ namespace CustomEngine.Rendering
             //foreach (ulong key in _sortedCommands)
             //    _commands[key]();
         }
-        public void AddRenderable(IRenderable obj)
+        public void AddRenderable(RenderableObject obj)
         {
             _renderTree.Add(obj);
-            ++obj.InstanceCount;
         }
-        public void RemoveRenderable(IRenderable obj)
+        public void RemoveRenderable(RenderableObject obj)
         {
-            if (obj.InstanceCount > 0)
-            {
-                _renderTree.Remove(obj);
-                --obj.InstanceCount;
-            }
+            _renderTree.Remove(obj);
         }
-        public void QueueCommand(RenderKey key, Action method)
-        {
-            _commandsInvalidated = true;
-            _sortedCommands.Add(key);
-            _commands.Add(key, method);
-        }
-        public void UnqueueCommand(RenderKey key)
-        {
-            _commandsInvalidated = true;
-            _sortedCommands.Remove(key);
-            _commands.Remove(key);
-        }
-
+        //public void QueueCommand(RenderKey key, Action method)
+        //{
+        //    _commandsInvalidated = true;
+        //    _sortedCommands.Add(key);
+        //    _commands.Add(key, method);
+        //}
+        //public void UnqueueCommand(RenderKey key)
+        //{
+        //    _commandsInvalidated = true;
+        //    _sortedCommands.Remove(key);
+        //    _commands.Remove(key);
+        //}
     }
 }

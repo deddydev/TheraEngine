@@ -13,8 +13,96 @@ namespace CustomEngine.Rendering.Models.Collada
         public static ModelScene Convert(Grendgine_Collada colladaFile)
         {
             Model m = new Model();
-            List<AnimationContainer> animations = new List<AnimationContainer>();
+            List<AnimationContainer> a = new List<AnimationContainer>();
 
+            GetTextures(m, colladaFile);
+            GetMeshes(m, colladaFile);
+            GetAnimations(a, colladaFile);
+
+            return new ModelScene(m, a);
+        }
+        private static void GetSkeleton(Model m, Grendgine_Collada colladaFile)
+        {
+            Skeleton s = new Skeleton();
+
+            foreach (var scene in colladaFile.Library_Visual_Scene.Visual_Scene)
+                foreach (var node in scene.Node)
+                    EnumNode(node, s, null);
+
+            m.Skeleton = s;
+        }
+        private static void EnumNode(Grendgine_Collada_Node node, Skeleton s, Bone parent)
+        {
+            if (node.Type == Grendgine_Collada_Node_Type.JOINT ||
+                node.Instance_Controller != null ||
+                node.Instance_Geometry != null ||
+                node.Instance_Node != null)
+            {
+                Influence inf = null;
+
+                Bone bone = new Bone();
+                bone.Name = node.Name != null ? node.Name : node.ID;
+
+                Matrix4 localMatrix = Matrix4.Identity;
+
+                bone._bindState = localMatrix.Derive();
+
+                parent.Children.Add(bone);
+                bone.Parent = parent;
+
+                parent = bone;
+
+                inf = new Influence(bone);
+
+                //if (inf != null)
+                //    s.Influences._influences.Add(inf);
+            }
+
+            //parentInvMatrix *= node._matrix.Invert();
+            //foreach (NodeEntry e in node._children)
+            //    EnumNode(e, parent, scene, model, shell, objects, bindMatrix, parentInvMatrix);
+
+            //foreach (InstanceEntry inst in node._instances)
+            //{
+            //    if (inst._type == InstanceType.Controller)
+            //    {
+            //        foreach (SkinEntry skin in shell._skins)
+            //            if (skin._id == inst._url)
+            //            {
+            //                foreach (GeometryEntry g in shell._geometry)
+            //                    if (g._id == skin._skinSource)
+            //                    {
+            //                        objects.Add(new ObjectInfo(true, g, bindMatrix, skin, scene, inst, parent, node));
+            //                        break;
+            //                    }
+            //                break;
+            //            }
+            //    }
+            //    else if (inst._type == InstanceType.Geometry)
+            //    {
+            //        foreach (GeometryEntry g in shell._geometry)
+            //            if (g._id == inst._url)
+            //            {
+            //                objects.Add(new ObjectInfo(false, g, bindMatrix, null, null, inst, parent, node));
+            //                break;
+            //            }
+            //    }
+            //    else
+            //        foreach (NodeEntry e in shell._nodes)
+            //            if (e._id == inst._url)
+            //                EnumNode(e, parent, scene, model, shell, objects, bindMatrix, parentInvMatrix);
+            //}
+        }
+        private static void GetMeshes(Model m, Grendgine_Collada colladaFile)
+        {
+
+        }
+        private static void GetAnimations(List<AnimationContainer> a, Grendgine_Collada colladaFile)
+        {
+            
+        }
+        private static void GetTextures(Model m, Grendgine_Collada colladaFile)
+        {
             var materials = colladaFile.Library_Materials.Material;
             foreach (var mat in materials)
             {
@@ -64,8 +152,6 @@ namespace CustomEngine.Rendering.Models.Collada
                     }
                 }
             }
-
-            return new ModelScene(m, animations);
         }
     }
 }

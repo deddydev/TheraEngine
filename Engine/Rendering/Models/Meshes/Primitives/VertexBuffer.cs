@@ -127,7 +127,6 @@ namespace CustomEngine.Rendering.Models
         public void BindVertexAttrib()
         {
             GL.EnableVertexAttribArray(_index);
-            //VertexAttribPointer is deprecated
             GL.VertexAttribPointer(_index, _componentCount, VertexAttribPointerType.Byte + (int)_componentType, _normalize, 0, 0);
             GL.VertexAttribFormat(_index, _componentCount, VertexAttribType.Byte + (int)_componentType, _normalize, 0);
             GL.VertexAttribBinding(_index, _index);
@@ -149,8 +148,6 @@ namespace CustomEngine.Rendering.Models
         }
         public unsafe Remapper SetDataNumeric<T>(IList<T> list, bool remap = true) where T : struct
         {
-            Console.WriteLine("\nSetting numeric vertex data for buffer " + Index + " - " + Name);
-
             if (typeof(T) == typeof(sbyte))
                 _componentType = ComponentType.SByte;
             else if (typeof(T) == typeof(byte))
@@ -169,6 +166,8 @@ namespace CustomEngine.Rendering.Models
                 _componentType = ComponentType.Double;
             else
                 throw new InvalidOperationException("Not a proper numeric data type.");
+
+            Console.WriteLine("\nSetting numeric vertex data for buffer " + Index + " - " + Name);
 
             _componentCount = 1;
             _normalize = false;

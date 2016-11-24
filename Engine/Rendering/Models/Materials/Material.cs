@@ -47,10 +47,11 @@ namespace CustomEngine.Rendering.Models.Materials
         protected override int CreateObject()
         {
             int[] ids = _shaders.Select(x => x.Compile()).ToArray();
-            return Engine.Renderer.GenerateProgram(ids, 
+            int id = Engine.Renderer.GenerateProgram(ids, 
                 VertexBuffer.PositionsName, 
                 VertexBuffer.NormalsName, 
                 VertexBuffer.TexCoordName + "0");
+            return id;
         }
 
         public void SetUniforms()

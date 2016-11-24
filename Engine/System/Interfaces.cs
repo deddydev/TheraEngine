@@ -6,32 +6,15 @@ using System.Threading.Tasks;
 using CustomEngine.Rendering.Animation;
 using System.Collections.Generic;
 using CustomEngine.Rendering;
+using CustomEngine.Worlds.Actors.Components;
+using System.Collections.ObjectModel;
 
 namespace CustomEngine
 {
-    public interface ITransformable
-    {
-        Matrix4 WorldMatrix { get; }
-        Matrix4 InverseWorldMatrix { get; }
-    }
-    public interface IBounded : ITransformable
-    {
-        Box CullingVolume { get; }
-        bool IsRendering { get; set; }
-    }
-    public interface IRenderable : IBounded
-    {
-        int InstanceCount { get; set; }
-        void Render();
-    }
     public interface IPanel
     {
         RectangleF Region { get; set; }
         RectangleF ParentResized(RectangleF parentRegion);
-    }
-    public interface IPrimitive
-    {
-        List<PrimitiveData> GetPrimitives();
     }
     public interface IBufferable
     {

@@ -41,41 +41,25 @@ namespace System
             if (_min.Z > _max.Z)
                 MathHelper.Swap(ref _min.Z, ref _max.Z);
         }
+
         public Vec3 CenterPoint
         {
-            get { return (_min + _max) / 2.0f; }
+            get { return Vec3.TransformPosition((_min + _max) / 2.0f, GetWorldMatrix()); }
             set
             {
-                Vec3 currentOrigin = CenterPoint;
-                Vec3 newOrigin = value;
+                Vec3 currentOrigin = (_min + _max) / 2.0f;
+                Vec3 newOrigin = Vec3.TransformPosition(value, GetInverseWorldMatrix());
                 Vec3 diff = newOrigin - currentOrigin;
                 _min += diff;
                 _max += diff;
             }
-        }        
-        /// <summary>
-        /// T = top, B = bottom
-        /// B = back, F = front
-        /// L = left,  R = right
-        /// </summary>
-        public void GetCorners(
-            out Vec3 TBL,
-            out Vec3 TBR,
-            out Vec3 TFL,
-            out Vec3 TFR,
-            out Vec3 BBL,
-            out Vec3 BBR,
-            out Vec3 BFL,
-            out Vec3 BFR)
-        {
-            GetCorners(Matrix4.Identity, out TBL, out TBR, out TFL, out TFR, out BBL, out BBR, out BFL, out BFR);
         }
         /// <summary>
         /// T = top, B = bottom
         /// B = back, F = front
         /// L = left,  R = right
         /// </summary>
-        public void GetCorners(Matrix4 transform,
+        public void GetUntransformedCorners(
             out Vec3 TBL,
             out Vec3 TBR,
             out Vec3 TFL,
@@ -85,10 +69,39 @@ namespace System
             out Vec3 BFL,
             out Vec3 BFR)
         {
-            float Top = _max.Z;
-            float Bottom = _min.Z;
-            float Front = _max.Y;
-            float Back = _min.Y;
+            GetTransformedCorners(Matrix4.Identity, out TBL, out TBR, out TFL, out TFR, out BBL, out BBR, out BFL, out BFR);
+        }
+        public void GetTransformedCorners(
+            out Vec3 TBL,
+            out Vec3 TBR,
+            out Vec3 TFL,
+            out Vec3 TFR,
+            out Vec3 BBL,
+            out Vec3 BBR,
+            out Vec3 BFL,
+            out Vec3 BFR)
+        {
+            GetTransformedCorners(GetWorldMatrix(), out TBL, out TBR, out TFL, out TFR, out BBL, out BBR, out BFL, out BFR);
+        }
+        /// <summary>
+        /// T = top, B = bottom
+        /// B = back, F = front
+        /// L = left,  R = right
+        /// </summary>
+        public void GetTransformedCorners(Matrix4 transform,
+            out Vec3 TBL,
+            out Vec3 TBR,
+            out Vec3 TFL,
+            out Vec3 TFR,
+            out Vec3 BBL,
+            out Vec3 BBR,
+            out Vec3 BFL,
+            out Vec3 BFR)
+        {
+            float Top = _max.Y;
+            float Bottom = _min.Y;
+            float Front = _min.Z;
+            float Back = _max.Z;
             float Right = _max.X;
             float Left = _min.X;
 
@@ -133,20 +146,20 @@ namespace System
             _min.SetLequalTo(point);
             _max.SetGequalTo(point);
         }
-        public void Render() { Render(false); }
-        public void Render(bool solid)
+        public override void Render() { Render(false); }
+        public override void Render(bool solid)
         {
             if (solid)
                 Engine.Renderer.DrawBoxSolid(this);
             else
                 Engine.Renderer.DrawBoxWireframe(this);
         }
-        public override List<PrimitiveData> GetPrimitives()
+        public override PrimitiveData GetPrimitiveData()
         {
             VertexQuad left, right, top, bottom, front, back;
             Vec3 TBL, TBR, TFL, TFR, BBL, BBR, BFL, BFR;
 
-            GetCorners(out TBL, out TBR, out TFL, out TFR, out BBL, out BBR, out BFL, out BFR);
+            GetUntransformedCorners(out TBL, out TBR, out TFL, out TFR, out BBL, out BBR, out BFL, out BFR);
 
             Vec3 rightNormal = Vec3.Right;
             Vec3 frontNormal = Vec3.Forward;
@@ -162,7 +175,15 @@ namespace System
             front = VertexQuad.MakeQuad(BFL, BFR, TFR, TFL, frontNormal);
             back = VertexQuad.MakeQuad(BBR, BBL, TBL, TBR, backNormal);
 
-            return new List<PrimitiveData>() { PrimitiveData.FromQuads(left, right, top, bottom, front, back) };
+            return PrimitiveData.FromQuads(left, right, top, bottom, front, back);
+        }
+        public Frustum AsFrustum(bool transformed = true)
+        {
+            Matrix4 m = transformed ? GetWorldMatrix() : Matrix4.Identity;
+
+            Vec3 ftl, ftr, ntl, ntr, fbl, fbr, nbl, nbr;
+            GetTransformedCorners(m, out ftl, out ftr, out ntl, out ntr, out fbl, out fbr, out nbl, out nbr);
+            return new Frustum(fbl, fbr, ftl, ftr, nbl, nbr, ntl, ntr);
         }
         public bool Intersects(Ray ray) { float distance; return Collision.RayIntersectsBoxDistance(ray, this, out distance); }
         public bool Intersects(Ray ray, out float distance) { return Collision.RayIntersectsBoxDistance(ray, this, out distance); }
@@ -171,10 +192,12 @@ namespace System
         public bool Intersects(Box box) { return Collision.BoxIntersectsBox(this, box); }
         public bool Intersects(Sphere sphere) { return Collision.BoxIntersectsSphere(this, sphere); }
         public override bool Contains(Vec3 point) { return Collision.BoxContainsPoint(this, point); }
-        public EContainment Contains(Box box) { return Collision.BoxContainsBox(this, box); }
-        public EContainment Contains(Sphere sphere) { return Collision.BoxContainsSphere(this, sphere); }
-        public EContainment WithinFrustrum(Frustrum frustrum) { return Collision.FrustrumContainsBox(frustrum, this, Matrix4.Identity); }
-        public EContainment WithinFrustrum(Frustrum frustrum, Matrix4 transform) { return Collision.FrustrumContainsBox(frustrum, this, transform); }
+        public override EContainment Contains(Box box) { return Collision.BoxContainsBox(this, box); }
+        public override EContainment Contains(Sphere sphere) { return Collision.BoxContainsSphere(this, sphere); }
+        public override EContainment Contains(Capsule capsule)
+        {
+            throw new NotImplementedException();
+        }
         public static Box FromSphere(Sphere sphere)
         {
             return new Box(
@@ -207,28 +230,13 @@ namespace System
             var strongValue = (Box)value;
             return Equals(ref strongValue);
         }
-        public Frustrum AsFrustrum(Matrix4 transform)
+        public override Matrix4 GetWorldMatrix()
         {
-            Quaternion rotation = transform.ExtractRotation();
-
-            Plane front, back, top, bottom, left, right;
-            Vec3 TBL, TBR, TFL, TFR, BBL, BBR, BFL, BFR;
-            GetCorners(transform, out TBL, out TBR, out TFL, out TFR, out BBL, out BBR, out BFL, out BFR);
-
-            Vec3 rightNormal = rotation * Vec3.Right;
-            Vec3 frontNormal = rotation * Vec3.Forward;
-            Vec3 topNormal = rotation * Vec3.Up;
-            Vec3 leftNormal = -rightNormal;
-            Vec3 backNormal = -frontNormal;
-            Vec3 bottomNormal = -topNormal;
-
-            front = new Plane(BFR, BFL, TFR);
-            back = new Plane(BBL, BBR, TBL);
-            top = new Plane(TBL, TBR, TFL);
-            bottom = new Plane(BFL, BFR, BBL);
-            left = new Plane(BFL, BBL, TFL);
-            right = new Plane(BBR, BFR, TBR);
-            return new Frustrum(front, back, top, bottom, left, right);
+            return LinkedComponent == null ? Matrix4.Identity : LinkedComponent.WorldMatrix;
+        }
+        public override Matrix4 GetInverseWorldMatrix()
+        {
+            return LinkedComponent == null ? Matrix4.Identity : LinkedComponent.InverseWorldMatrix;
         }
     }
 }

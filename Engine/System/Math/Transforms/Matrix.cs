@@ -24,6 +24,29 @@ namespace System
             Row2 = row2;
             Row3 = row3;
         }
+
+        internal FrameState Derive()
+        {
+            throw new NotImplementedException();
+        }
+
+        public static Matrix4 CreateFromRotator(Rotator rotator)
+        {
+            Matrix4 y = rotator.GetYawMatrix();
+            Matrix4 p = rotator.GetPitchMatrix();
+            Matrix4 r = rotator.GetRollMatrix();
+            switch (rotator.RotationOrder)
+            {
+                case Rotator.Order.YPR: return y * p * r;
+                case Rotator.Order.YRP: return y * r * p;
+                case Rotator.Order.PYR: return p * y * r;
+                case Rotator.Order.PRY: return p * r * y;
+                case Rotator.Order.RPY: return r * p * y;
+                case Rotator.Order.RYP: return r * y * p;
+            }
+            return Identity;
+        }
+
         /// <summary>
         /// Constructs a new instance.
         /// </summary>
@@ -322,19 +345,7 @@ namespace System
             return q;
         }
         public Vec4 ExtractProjection() { return Column3; }
-        
-        //public void TranslateRelative(Vec3 v) { TranslateRelative(v.X, v.Y, v.Z); }
-        //public unsafe void TranslateRelative(float x, float y, float z)
-        //{
-        //    fixed (Matrix4* m = &this)
-        //    {
-        //        float* p = (float*)m;
-        //        p[12] += (p[0] * x) + (p[4] * y) + (p[8] * z);
-        //        p[13] += (p[1] * x) + (p[5] * y) + (p[9] * z);
-        //        p[14] += (p[2] * x) + (p[6] * y) + (p[10] * z);
-        //        p[15] += (p[3] * x) + (p[7] * y) + (p[11] * z);
-        //    }
-        //}
+       
         /// <summary>
         /// Build a rotation matrix from the specified axis/angle rotation.
         /// </summary>
@@ -453,14 +464,6 @@ namespace System
             result.Row1.X = -sin;
             result.Row1.Y = cos;
             return result;
-        }
-        public static Matrix4 CreateFromEuler(Vec3 angles)
-        {
-            return CreateFromQuaternion(Quaternion.FromEulerAngles(angles));
-            //Matrix4 x = CreateRotationX(angles.X);
-            //Matrix4 y = CreateRotationY(angles.Y);
-            //Matrix4 z = CreateRotationZ(angles.Z);
-            //return x * y * z;
         }
         public static Matrix4 CreateTranslation(float x, float y, float z)
         {
@@ -807,6 +810,19 @@ namespace System
             STR,
             SRT,
         }
+        public static MultiplyOrder OppositeOf(MultiplyOrder order)
+        {
+            switch (order)
+            {
+                case MultiplyOrder.RST: return MultiplyOrder.TSR;
+                case MultiplyOrder.RTS: return MultiplyOrder.STR;
+                case MultiplyOrder.TSR: return MultiplyOrder.RST;
+                case MultiplyOrder.TRS: return MultiplyOrder.SRT;
+                case MultiplyOrder.STR: return MultiplyOrder.RTS;
+                case MultiplyOrder.SRT: return MultiplyOrder.TRS;
+                default: throw new Exception();
+            }
+        }
 
         /// <summary>
         /// Creates a transform matrix.
@@ -822,25 +838,33 @@ namespace System
             Vec3 translate,
             MultiplyOrder order = MultiplyOrder.SRT)
         {
+            return TransformMatrix(scale, CreateFromQuaternion(rotate), translate, order);
+        }
+        public static Matrix4 TransformMatrix(
+            Vec3 scale,
+            Rotator rotate,
+            Vec3 translate,
+            MultiplyOrder order = MultiplyOrder.SRT)
+        {
+            return TransformMatrix(scale, CreateFromRotator(rotate), translate, order);
+        }
+        public static Matrix4 TransformMatrix(
+            Vec3 scale,
+            Matrix4 rotate,
+            Vec3 translate,
+            MultiplyOrder order = MultiplyOrder.SRT)
+        {
             Matrix4 s = CreateScale(scale);
-            Matrix4 r = CreateFromQuaternion(rotate);
+            Matrix4 r = rotate.GetRotationMatrix();
             Matrix4 t = CreateTranslation(translate);
-
-            //Matrix multiplication works backwards
             switch (order)
             {
-                case MultiplyOrder.SRT:
-                    return t * r * s;
-                case MultiplyOrder.STR:
-                    return r * t * s;
-                case MultiplyOrder.TRS:
-                    return s * r * t * CreateScale(Vec3.One);
-                case MultiplyOrder.TSR:
-                    return r * s * t * CreateScale(Vec3.One);
-                case MultiplyOrder.RTS:
-                    return s * t * r * CreateScale(Vec3.One);
-                case MultiplyOrder.RST:
-                    return t * s * r * CreateScale(Vec3.One);
+                case MultiplyOrder.TRS: return t * r * s;
+                case MultiplyOrder.RTS: return r * t * s;
+                case MultiplyOrder.SRT: return s * r * t;
+                case MultiplyOrder.RST: return r * s * t;
+                case MultiplyOrder.STR: return s * t * r;
+                case MultiplyOrder.TSR: return t * s * r;
             }
             return Identity;
         }
@@ -858,27 +882,31 @@ namespace System
             Vec3 translate, 
             MultiplyOrder order = MultiplyOrder.SRT)
         {
-            Matrix4 s = CreateScale(1.0f / scale);
-            Matrix4 r = CreateFromQuaternion(rotate.Inverted());
-            Matrix4 t = CreateTranslation(-translate);
-
-            //Matrix multiplication works backwards
-            switch (order)
-            {
-                case MultiplyOrder.SRT:
-                    return t * r * s;
-                case MultiplyOrder.STR:
-                    return r * t * s;
-                case MultiplyOrder.TRS:
-                    return s * r * t * CreateScale(Vec3.One);
-                case MultiplyOrder.TSR:
-                    return r * s * t * CreateScale(Vec3.One);
-                case MultiplyOrder.RTS:
-                    return s * t * r * CreateScale(Vec3.One);
-                case MultiplyOrder.RST:
-                    return t * s * r * CreateScale(Vec3.One);
-            }
-            return Identity;
+            return InverseTransformMatrix(scale, CreateFromQuaternion(rotate.Inverted()), translate, order);
+        }
+        public static Matrix4 InverseTransformMatrix(
+            Vec3 scale,
+            Rotator rotate,
+            Vec3 translate,
+            MultiplyOrder order = MultiplyOrder.SRT)
+        {
+            return InverseTransformMatrix(scale, CreateFromRotator(rotate.Inverted()), translate, order);
+        }
+        /// <summary>
+        /// Rotate must already be inverted!
+        /// </summary>
+        /// <param name="scale"></param>
+        /// <param name="rotate"></param>
+        /// <param name="translate"></param>
+        /// <param name="order"></param>
+        /// <returns></returns>
+        public static Matrix4 InverseTransformMatrix(
+            Vec3 scale,
+            Matrix4 rotate,
+            Vec3 translate,
+            MultiplyOrder order = MultiplyOrder.SRT)
+        {
+            return TransformMatrix(1.0f / scale, rotate, -translate, OppositeOf(order));
         }
         public static Matrix4 operator *(Matrix4 left, Matrix4 right)
         {

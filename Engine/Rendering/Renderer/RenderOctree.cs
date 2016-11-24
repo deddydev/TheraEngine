@@ -1,4 +1,5 @@
 ﻿using CustomEngine;
+using CustomEngine.Rendering;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,32 +10,32 @@ namespace System
 {
     public class RenderOctree
     {
-        Box _totalBounds;
-        OctreeNode _head;
+        private Box _totalBounds;
+        private OctreeNode _head;
         
         public RenderOctree(Box bounds) { _totalBounds = bounds; }
-        public RenderOctree(Box bounds, List<IRenderable> items)
+        public RenderOctree(Box bounds, List<RenderableObject> items)
         {
             _totalBounds = bounds;
             Add(items);
         }
 
         public void Render() { _head?.Render(); }
-        public void Cull(Frustrum frustrum) { _head?.Cull(frustrum); }
-        public List<IRenderable> FindClosest(Vec3 point) { return _head.FindClosest(point); }
-        public void Add(IRenderable value)
+        public void Cull(Frustum frustum) { _head?.Cull(frustum); }
+        public List<RenderableObject> FindClosest(Vec3 point) { return _head.FindClosest(point); }
+        public void Add(RenderableObject value)
         {
             if (_head == null)
                 _head = new OctreeNode(_totalBounds);
             _head.Add(value);
         }
-        public void Add(List<IRenderable> value)
+        public void Add(List<RenderableObject> value)
         {
             if (_head == null)
                 _head = new OctreeNode(_totalBounds);
             _head.Add(value);
         }
-        public bool Remove(IRenderable value)
+        public bool Remove(RenderableObject value)
         {
             if (_head == null)
                 return false;
@@ -50,10 +51,10 @@ namespace System
         {
             private bool _visible;
             private Box _bounds;
-            public List<IRenderable> _items = new List<IRenderable>();
+            public List<RenderableObject> _items = new List<RenderableObject>();
             public OctreeNode[] _subNodes;
             
-            public List<IRenderable> Items { get { return _items; } }
+            public List<RenderableObject> Items { get { return _items; } }
             public Box Bounds { get { return _bounds; } }
             public Vec3 Center { get { return _bounds.CenterPoint; } }
             public Vec3 Min { get { return _bounds.Minimum; } }
@@ -68,7 +69,7 @@ namespace System
                         return;
 
                     _visible = value;
-                    foreach (IRenderable item in _items)
+                    foreach (RenderableObject item in _items)
                         item.IsRendering = _visible;
                     if (_subNodes != null)
                         foreach (OctreeNode node in _subNodes)
@@ -76,11 +77,11 @@ namespace System
                                 node.Visible = _visible;
                 }
             }
-            public List<IRenderable> FindClosest(Vec3 point)
+            public List<RenderableObject> FindClosest(Vec3 point)
             {
                 if (_bounds.Contains(point))
                 {
-                    List<IRenderable> list = null;
+                    List<RenderableObject> list = null;
                     foreach (OctreeNode node in _subNodes)
                         if (node != null)
                         {
@@ -92,9 +93,9 @@ namespace System
                     if (_items.Count == 0)
                         return null;
 
-                    list = new List<IRenderable>(_items);
+                    list = new List<RenderableObject>(_items);
                     for (int i = 0; i < list.Count; ++i)
-                        if (!list[i].CullingVolume.Contains(point))
+                        if (!list[i].GetCullingVolume().Contains(point))
                             list.RemoveAt(i--);
 
                     return list;
@@ -102,27 +103,27 @@ namespace System
                 else
                     return null;
             }
-            public void Cull(Frustrum frustrum)
+            public void Cull(Frustum frustum)
             {
-                EContainment c = _bounds.WithinFrustrum(frustrum);
+                EContainment c = frustum.Contains(_bounds);
                 if (c == EContainment.Contains)
                     Visible = true;
                 else if (c == EContainment.Disjoint)
                     Visible = false;
-                else //Bounds is intersecting edge of frustrum
+                else //Bounds is intersecting edge of frustum
                 {
-                    foreach (IRenderable item in _items)
-                        item.IsRendering = item.CullingVolume.WithinFrustrum(frustrum) != EContainment.Disjoint;
+                    foreach (RenderableObject item in _items)
+                        item.IsRendering = frustum.Contains(item.GetCullingVolume()) != EContainment.Disjoint;
                     if (_subNodes != null)
                         foreach (OctreeNode n in _subNodes)
-                            n.Cull(frustrum);
+                            n.Cull(frustum);
                 }
             }
             /// <summary>
             /// shouldDestroy returns true if this node has no items contained within it or its subdivisions.
             /// returns true if the value was found and removed.
             /// </summary>
-            public bool Remove(IRenderable value, out bool shouldDestroy)
+            public bool Remove(RenderableObject value, out bool shouldDestroy)
             {
                 bool hasBeenRemoved = false;
                 if (_items.Contains(value))
@@ -156,19 +157,19 @@ namespace System
                 shouldDestroy = _items.Count == 0 && _subNodes == null;
                 return hasBeenRemoved;
             }
-            public void Add(List<IRenderable> value)
+            public void Add(List<RenderableObject> value)
             {
                 bool notSubdivided = true;
-                List<IRenderable> items;
+                List<RenderableObject> items;
                 for (int i = 0; i < 8; ++i)
                 {
-                    items = new List<IRenderable>();
+                    items = new List<RenderableObject>();
                     Box bounds = GetSubdivision(i);
-                    foreach (IRenderable item in value)
+                    foreach (RenderableObject item in value)
                     {
                         if (item == null)
                             continue;
-                        if (bounds.Contains(item.CullingVolume) == EContainment.Contains)
+                        if (bounds.Contains(item.GetCullingVolume()) == EContainment.Contains)
                         {
                             notSubdivided = false;
 
@@ -192,7 +193,7 @@ namespace System
                 if (notSubdivided)
                     Items.AddRange(value);
             }
-            public void Add(IRenderable item)
+            public void Add(RenderableObject item)
             {
                 if (item == null)
                     return;
@@ -201,7 +202,7 @@ namespace System
                 for (int i = 0; i < 8; ++i)
                 {
                     Box bounds = GetSubdivision(i);
-                    if (bounds.Contains(item.CullingVolume) == EContainment.Contains)
+                    if (bounds.Contains(item.GetCullingVolume()) == EContainment.Contains)
                     {
                         notSubdivided = false;
 
@@ -247,7 +248,7 @@ namespace System
             }
             public void Render()
             {
-                foreach (IRenderable r in _items)
+                foreach (RenderableObject r in _items)
                     r.Render();
                 if (_subNodes != null)
                     foreach (OctreeNode node in _subNodes)

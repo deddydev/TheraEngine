@@ -4,6 +4,8 @@ namespace CustomEngine.Rendering.Cameras
 {
     public class OrthographicCamera : Camera
     {
+        public OrthographicCamera() : base() { }
+
         public override float Width { get { return Math.Abs(_orthoRight - _orthoLeft); } }
         public override float Height { get { return Math.Abs(_orthoTop - _orthoBottom); } }
 
@@ -37,11 +39,16 @@ namespace CustomEngine.Rendering.Cameras
             _orthoBottomPercentage = 0.0f - yPercentage;
             _orthoTopPercentage = 1.0f - yPercentage;
         }
-        //public override void Zoom(float amount)
-        //{
-        //    float scale = amount >= 0 ? amount : 1.0f / -amount;
-        //    Scale = Scale * new Vec3(scale);
-        //}
+        public override void Zoom(float amount)
+        {
+            float scale = amount >= 0 ? amount : 1.0f / -amount;
+
+            _transform = _transform * Matrix4.CreateScale(scale);
+            _invTransform = Matrix4.CreateScale(-scale) * _invTransform;
+            _point = _transform.GetPoint();
+            _transformedFrustum = _untransformedFrustum.TransformedBy(_transform);
+            OnTransformChanged();
+        }
         protected override void CalculateProjection()
         {
             base.CalculateProjection();
@@ -72,10 +79,10 @@ namespace CustomEngine.Rendering.Cameras
         {
             return new Vec3(screenPoint.X - _orthoLeft, screenPoint.Y - _orthoBottom, screenPoint.Z);
         }
-        public override Frustrum GetFrustrum()
+        protected override Frustum CreateUntransformedFrustum()
         {
             float w = Width / 2.0f, h = Height / 2.0f;
-            return new Box(new Vec3(-w, _nearZ, -h), new Vec3(w, _farZ, h)).AsFrustrum(Matrix);
+            return new Box(new Vec3(-w, _nearZ, -h), new Vec3(w, _farZ, h)).AsFrustum(false);
         }
     }
 }

@@ -8,12 +8,12 @@ namespace System
     public class Capsule : Shape
     {
         public float _radius, _halfHeight;
-        public Vec3 _position;
+        public Vec3 _center;
         
         public float Radius { get { return _radius; } set { _radius = value; } }
         public float HalfHeight { get { return _halfHeight; } set { _halfHeight = value; } }
-        public Vec3 Position { get { return _position; } set { _position = value; } }
-        
+        public Vec3 Position { get { return _center; } set { _center = value; } }
+
         public Capsule(float radius, float halfHeight)
         {
             _radius = Abs(radius);
@@ -27,15 +27,15 @@ namespace System
         {
             return GetTotalHalfHeight() * 2.0f;
         }
-        public void Render(float delta) { Render(delta, false); }
-        public void Render(float delta, bool solid)
+        public override void Render() { Render(false); }
+        public override void Render(bool solid)
         {
             if (solid)
                 Engine.Renderer.DrawCapsuleSolid(this);
             else
                 Engine.Renderer.DrawCapsuleWireframe(this);
         }
-        public override List<PrimitiveData> GetPrimitives()
+        public override PrimitiveData GetPrimitiveData()
         {
             PrimitiveData data = new PrimitiveData();
 
@@ -121,7 +121,7 @@ namespace System
             //        double X2 = Cos(xAngle + sideAngleInc);
             //    }
             //}
-            return new List<PrimitiveData>() { data };
+            return data;
         }
         public override bool Contains(Vec3 point)
         {
@@ -136,6 +136,28 @@ namespace System
                 return Abs(point.LengthSquared) < _radius * _radius;
             }
             return false;
+        }
+        public Sphere GetTopSphere()
+        {
+            return new Sphere(Radius, Vec3.Up * HalfHeight);
+        }
+        public Sphere GetBottomSphere()
+        {
+            return new Sphere(Radius, -Vec3.Up * HalfHeight);
+        }
+        public override EContainment Contains(Box box)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override EContainment Contains(Sphere sphere)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override EContainment Contains(Capsule capsule)
+        {
+            throw new NotImplementedException();
         }
     }
 }

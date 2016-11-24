@@ -146,13 +146,13 @@ namespace System
         /// is the 'closest' point of intersection. This can also be considered is the deepest point of
         /// intersection.
         /// </remarks>
-        public static Vec3 ClosestPointSphereSphere(Sphere sphere1, Vec3 sphere1Pos, Sphere sphere2, Vec3 sphere2Pos)
+        public static Vec3 ClosestPointSphereSphere(Sphere sphere1, Sphere sphere2)
         {
             //Source: Jorgy343
             //Reference: None
 
             //Get the unit direction from the first sphere's center to the second sphere's center.
-            Vec3 result = sphere2Pos - sphere1Pos;
+            Vec3 result = sphere2.Center - sphere1.Center;
             result.Normalize();
 
             //Multiply the unit direction by the first sphere's radius to get a vector
@@ -160,7 +160,7 @@ namespace System
             result *= sphere1.Radius;
 
             //Add the first sphere's center to the direction to get a point on the first sphere.
-            result += sphere1Pos;
+            result += sphere1.Center;
 
             return result;
         }
@@ -439,7 +439,7 @@ namespace System
 
             if (direction.IsZero())
             {
-                distance = 0f;
+                distance = 0.0f;
                 return false;
             }
 
@@ -1145,12 +1145,12 @@ namespace System
         /// <param name="sphere">The sphere to test.</param>
         /// <param name="point">The point to test.</param>
         /// <returns>The type of containment the two objects have.</returns>
-        public static EContainment SphereContainsPoint(Sphere sphere, Vec3 point)
+        public static bool SphereContainsPoint(Sphere sphere, Vec3 point)
         {
             if (point.DistanceToSquared(sphere.Center) <= sphere.Radius * sphere.Radius)
-                return EContainment.Contains;
+                return true;
 
-            return EContainment.Disjoint;
+            return false;
         }
 
         /// <summary>
@@ -1166,11 +1166,11 @@ namespace System
             //Source: Jorgy343
             //Reference: None
 
-            EContainment test1 = SphereContainsPoint(sphere, vertex1);
-            EContainment test2 = SphereContainsPoint(sphere, vertex2);
-            EContainment test3 = SphereContainsPoint(sphere, vertex3);
+            bool test1 = SphereContainsPoint(sphere, vertex1);
+            bool test2 = SphereContainsPoint(sphere, vertex2);
+            bool test3 = SphereContainsPoint(sphere, vertex3);
 
-            if (test1 == EContainment.Contains && test2 == EContainment.Contains && test3 == EContainment.Contains)
+            if (test1 && test2 && test3)
                 return EContainment.Contains;
 
             if (SphereIntersectsTriangle(sphere, vertex1, vertex2, vertex3))
@@ -1205,9 +1205,9 @@ namespace System
         /// <param name="sphere1">The first sphere to test.</param>
         /// <param name="sphere2">The second sphere to test.</param>
         /// <returns>The type of containment the two objects have.</returns>
-        public static EContainment SphereContainsSphere(Sphere sphere1, Vec3 sphere1Pos, Sphere sphere2, Vec3 sphere2Pos)
+        public static EContainment SphereContainsSphere(Sphere sphere1, Sphere sphere2)
         {
-            float distance = sphere1Pos.DistanceToSquared(sphere2Pos);
+            float distance = sphere1.Center.DistanceToSquared(sphere2.Center);
 
             float value = sphere1.Radius + sphere2.Radius;
             if (value * value < distance)
@@ -1219,11 +1219,11 @@ namespace System
 
             return EContainment.Contains;
         }
-        public static EContainment FrustrumContainsSphere(Frustrum frustrum, Sphere sphere)
+        public static EContainment FrustumContainsSphere(Frustum frustum, Sphere sphere)
         {
             float distance;
             EContainment type = EContainment.Contains;
-            foreach (Plane p in frustrum)
+            foreach (Plane p in frustum)
             {
                 distance = DistancePlanePoint(p, sphere.Center);
                 if (distance < -sphere.Radius)
@@ -1233,22 +1233,20 @@ namespace System
             }
             return type;
         }
-        public static EContainment FrustrumContainsBox(Frustrum frustrum, Box box, Matrix4 transform)
+        public static EContainment FrustumContainsBox(Frustum frustum, Box box, Matrix4 transform)
         {
             EContainment result = EContainment.Contains;
             int outCount, inCount;
             Vec3[] corners = box.GetCorners(transform);
-            foreach (Plane p in frustrum)
+            foreach (Plane p in frustum)
             {
                 outCount = 0;
                 inCount = 0;
                 for (int k = 0; k < 8 && (inCount == 0 || outCount == 0); k++)
-                {
                     if (DistancePlanePoint(p, corners[k]) < 0)
 				        outCount++;
 			        else
 				        inCount++;
-                }
                 if (inCount == 0)
 			        return EContainment.Disjoint;
 		        else if (outCount != 0)
@@ -1256,14 +1254,14 @@ namespace System
             }
 	        return result;
         }
-        public static EContainment FrustrumContainsBox(Frustrum frustrum, Box box)
+        public static EContainment FrustumContainsBox(Frustum frustum, Box box)
         {
-            EPlaneIntersection near = PlaneIntersectsBox(frustrum.Near, box);
-            EPlaneIntersection far = PlaneIntersectsBox(frustrum.Far, box);
-            EPlaneIntersection top = PlaneIntersectsBox(frustrum.Top, box);
-            EPlaneIntersection bottom = PlaneIntersectsBox(frustrum.Bottom, box);
-            EPlaneIntersection left = PlaneIntersectsBox(frustrum.Left, box);
-            EPlaneIntersection right = PlaneIntersectsBox(frustrum.Right, box);
+            EPlaneIntersection near = PlaneIntersectsBox(frustum.Near, box);
+            EPlaneIntersection far = PlaneIntersectsBox(frustum.Far, box);
+            EPlaneIntersection top = PlaneIntersectsBox(frustum.Top, box);
+            EPlaneIntersection bottom = PlaneIntersectsBox(frustum.Bottom, box);
+            EPlaneIntersection left = PlaneIntersectsBox(frustum.Left, box);
+            EPlaneIntersection right = PlaneIntersectsBox(frustum.Right, box);
 
             if (near == EPlaneIntersection.Back ||
                 far == EPlaneIntersection.Back ||

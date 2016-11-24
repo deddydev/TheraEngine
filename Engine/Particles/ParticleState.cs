@@ -7,7 +7,7 @@ using CustomEngine.Rendering.Models;
 
 namespace CustomEngine.Particles
 {
-    public class ParticleState : ITransformable
+    public class ParticleState
     {
         FrameState _transform;
 

@@ -56,6 +56,11 @@ namespace System
         public float Length { get { return (float)Sqrt(W * W + Xyz.LengthSquared); } }
         public float LengthSquared { get { return W * W + Xyz.LengthSquared; } }
 
+        public static Quaternion CreateFromRotator(Rotator rotator)
+        {
+            
+        }
+
         public void ToAxisAngle(out Vec3 axis, out float angle)
         {
             Vec4 result = ToAxisAngle();

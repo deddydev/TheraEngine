@@ -47,5 +47,11 @@ namespace CustomEngine.Rendering.Models
         {
             return new List<IndexTriangle>() { this };
         }
+
+        public override bool Equals(object obj)
+        {
+            IndexTriangle t = obj as IndexTriangle;
+            return t == null ? false : t.Point0 == Point0 && t.Point1 == Point1 && t.Point2 == Point2;
+        }
     }
 }

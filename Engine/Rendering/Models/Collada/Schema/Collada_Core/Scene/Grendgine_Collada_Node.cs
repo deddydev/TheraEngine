@@ -22,7 +22,7 @@ namespace grendgine_collada
 		public Grendgine_Collada_Node_Type Type;				
 
 		[XmlAttribute("layer")]
-		public string Layer;				
+		public string Layer;
 		
 		[XmlElement(ElementName = "lookat")]
 		public Grendgine_Collada_Lookat[] Lookat;

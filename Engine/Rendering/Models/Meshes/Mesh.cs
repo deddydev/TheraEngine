@@ -3,48 +3,37 @@ using System.Collections.Generic;
 using BulletSharp;
 using CustomEngine.Rendering.Models.Materials;
 using CustomEngine.Files;
+using CustomEngine.Worlds.Actors.Components;
 
 namespace CustomEngine.Rendering.Models
 {
-    public class Mesh : ObjectBase, IRenderable
+    public class Mesh : RenderableObject
     {
-        public Mesh(PrimitiveData data)
+        public Mesh() { }
+        public Mesh(PrimitiveData data) { _manager.Data = data; }
+        public Mesh(Shape shape)
         {
-            _manager.Data = data;
-            _name = null;
+            Name = shape.GetType().ToString();
+            SetPrimitiveData(shape.GetPrimitiveData());
+            SetCullingVolume(shape);
         }
-        public Mesh(string name)
-        {
-            _name = name;
-        }
-        
+
+        private Model _model;
         private CollisionShape _collision;
         internal PrimitiveManager _manager = new PrimitiveManager();
         private SingleFileRef<Material> _material;
-        protected bool _rendering = false, _visible = false, _visibleByDefault = true;
-        private Box _cullingVolume;
-        private Matrix4 _matrix = Matrix4.Identity, _invMatrix = Matrix4.Identity;
-        int _instanceCount = 0;
-
-        /// <summary>
-        /// True if this mesh is literally visible on screen at this moment in any viewport.
-        /// AKA: short-term visibility
-        /// </summary>
-        public bool IsRendering
-        {
-            get { return _rendering; }
-            set { _rendering = value; }
-        }
+        protected bool _visible = false, _visibleByDefault = true;
+        private Shape _cullingVolume;
         public CollisionShape CollisionShape
         {
             get { return _collision; }
             set
             {
+                if (_collision != null)
+                    _collision.UserObject = null;
                 _collision = value;
                 if (_collision != null)
-                {
                     _collision.UserObject = this;
-                }
             }
         }
         public Material Material
@@ -52,26 +41,9 @@ namespace CustomEngine.Rendering.Models
             get { return _material; }
             set { _material = value; }
         }
-        public Box CullingVolume
-        {
-            get { return _cullingVolume; }
-            set { _cullingVolume = value; }
-        }
-        public int InstanceCount
-        {
-            get { return _instanceCount; }
-            set { _instanceCount = value; }
-        }
-        public Matrix4 WorldMatrix
-        {
-            get { return _matrix; }
-        }
-        public Matrix4 InverseWorldMatrix
-        {
-            get { return _invMatrix; }
-        }
-
-        public void SetPrimitiveData(PrimitiveData data) => _manager.Data = data;
+        public override Matrix4 GetWorldMatrix() { return _model != null ? _model.GetWorldMatrix() : Matrix4.Identity; }
+        public override Matrix4 GetInverseWorldMatrix() { return _model != null ? _model.GetInverseWorldMatrix() : Matrix4.Identity; }
+        public override Shape GetCullingVolume() { return _cullingVolume; }
 
         public void OnSpawned()
         {
@@ -84,20 +56,24 @@ namespace CustomEngine.Rendering.Models
             _material.UnloadReference();
             //Visible = false;
         }
-        public void Render()
+        public override void Render()
         {
             //if (/*!_visible || */!_rendering)
             //    return;
 
             if (_material.File != null)
-                _manager.Render(_material, _matrix);
+                _manager.Render(_material, GetWorldMatrix());
         }
-        public static implicit operator Mesh(Box b)
+        public static implicit operator Mesh(Shape shape)
         {
-            Mesh m = new Mesh("Box");
-            m.SetPrimitiveData(b.GetPrimitives()[0]);
-            m.CullingVolume = b;
+            Mesh m = new Mesh();
+            m.Name = shape.GetType().ToString();
+            m.SetPrimitiveData(shape.GetPrimitiveData());
+            m.SetCullingVolume(shape);
             return m;
         }
+        public override PrimitiveData GetPrimitiveData() { return _manager.Data; }
+        public void SetPrimitiveData(PrimitiveData data) => _manager.Data = data;
+        public void SetCullingVolume(Shape volume) { _cullingVolume = volume; }
     }
 }

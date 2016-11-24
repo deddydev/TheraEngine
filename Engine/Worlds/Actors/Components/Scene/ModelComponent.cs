@@ -7,24 +7,19 @@ using System.ComponentModel;
 
 namespace CustomEngine.Worlds.Actors.Components
 {
-    public class ModelComponent : PrimitiveComponent<Model>
+    public class ModelComponent : GenericPrimitiveComponent
     {
-        public ModelComponent() { }
+        public ModelComponent(
+           Matrix4.MultiplyOrder transformationOrder = Matrix4.MultiplyOrder.TRS,
+           Vec3.EulerOrder rotationOrder = Vec3.EulerOrder.YPR) 
+                : base(transformationOrder, rotationOrder) { }
         public ModelComponent(Model m) { Model = m; }
 
         [Category("Rendering")]
         public Model Model
         {
-            get { return _primitive; }
-            set
-            {
-                if (_primitive == value)
-                    return;
-                if (_primitive != null)
-                    _primitive.UnlinkComponent(this);
-                if ((_primitive = value) != null)
-                    _primitive.LinkComponent(this);
-            }
+            get { return (Model)Primitive; }
+            set { Primitive = value; }
         }
         /// <summary>
         /// Visible means this mesh will never be rendered, or will be rendered if placed onscreen.
@@ -40,14 +35,11 @@ namespace CustomEngine.Worlds.Actors.Components
                     return;
 
                 base.Visible = value;
-
-                foreach (Mesh m in _primitive)
-                {
+                foreach (Mesh m in Model)
                     if (_visible)
                         Engine.Renderer.Scene.AddRenderable(m);
                     else
                         Engine.Renderer.Scene.RemoveRenderable(m);
-                }
             }
         }
         [Category("Rendering")]
@@ -59,12 +51,12 @@ namespace CustomEngine.Worlds.Actors.Components
         public override void OnSpawned()
         {
             base.OnSpawned();
-            _primitive.OnSpawned();
+            Model?.OnSpawned();
         }
         public override void OnDespawned()
         {
             base.OnDespawned();
-            _primitive.OnDespawned();
+            Model?.OnDespawned();
         }
     }
 }

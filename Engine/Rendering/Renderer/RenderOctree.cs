@@ -49,7 +49,7 @@ namespace System
 
         internal class OctreeNode
         {
-            private bool _visible;
+            private bool _visible = true;
             private Box _bounds;
             public List<RenderableObject> _items = new List<RenderableObject>();
             public OctreeNode[] _subNodes;
@@ -177,9 +177,13 @@ namespace System
                             {
                                 _subNodes = new OctreeNode[8];
                                 _subNodes[i] = bounds;
+                                _subNodes[i].Visible = Visible;
                             }
                             else if (_subNodes[i] == null)
+                            {
                                 _subNodes[i] = bounds;
+                                _subNodes[i].Visible = Visible;
+                            }
 
                             items.Add(item);
 
@@ -191,7 +195,10 @@ namespace System
                 }
 
                 if (notSubdivided)
+                {
                     Items.AddRange(value);
+                    value.ForEach(x => x.IsRendering = _visible);
+                }
             }
             public void Add(RenderableObject item)
             {
@@ -221,7 +228,10 @@ namespace System
                 }
 
                 if (notSubdivided)
+                {
                     Items.Add(item);
+                    item.IsRendering = _visible;
+                }
             }
             public OctreeNode(Box bounds)
             {

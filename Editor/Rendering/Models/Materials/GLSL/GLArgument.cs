@@ -1,10 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Text.RegularExpressions;
 
 namespace CustomEngine.Rendering.Models.Materials
 {
@@ -22,9 +16,12 @@ namespace CustomEngine.Rendering.Models.Materials
                     _connectedTo = value;
             }
         }
-        public override Type[] GetArgType()
+        public override Type GetArgType() { return typeof(T); }
+        public override Type[] GetPossibleArgTypes() { return new Type[] { GetArgType() }; }
+
+        public override GLTypeName GetTypeName()
         {
-            return new Type[] { typeof(T) };
+            throw new NotImplementedException();
         }
     }
 }

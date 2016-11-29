@@ -8,13 +8,19 @@ namespace CustomEngine.Rendering.Animation
 {
     public class AnimFolder
     {
-        public AnimFolder(string propertyName, BasePropertyAnimation animation, params AnimFolder[] children)
+        public AnimFolder(string propertyName, params AnimFolder[] children)
         {
             _propertyName = propertyName;
-            _animation = animation;
+            _animation = null;
             if (children != null)
                 _children = children.ToList();
             _tick = PropertyTick;
+        }
+        public AnimFolder(string propertyName, bool method, BasePropertyAnimation animation)
+        {
+            _propertyName = propertyName;
+            _animation = animation;
+            _tick = method ? (Action<object, float>)MethodTick : PropertyTick;
         }
 
         private PropertyInfo _propertyCache;
@@ -146,15 +152,15 @@ namespace CustomEngine.Rendering.Animation
         {
 
         }
-        public AnimationContainer() { }
+        public AnimationContainer() { RegisterOwners(); }
         public AnimationContainer(AnimFolder rootFolder)
         {
+            RegisterOwners();
             RootFolder = rootFolder;
         }
         public AnimationContainer(string propertyName, bool method, BasePropertyAnimation anim)
         {
-            _owners.Removed += _owners_Removed;
-            _owners.Added += _owners_Added;
+            RegisterOwners();
 
             string[] parts = propertyName.Split('.');
             bool first = true;
@@ -163,12 +169,12 @@ namespace CustomEngine.Rendering.Animation
             {
                 if (first)
                 {
-                    last = RootFolder = new AnimFolder(i, null);
+                    last = RootFolder = new AnimFolder(i);
                     first = false;
                 }
                 else
                 {
-                    AnimFolder folder = new AnimFolder(i, null);
+                    AnimFolder folder = new AnimFolder(i);
                     last._children.Add(folder);
                     last = folder;
                 }
@@ -179,16 +185,12 @@ namespace CustomEngine.Rendering.Animation
                 last._tick = method ? (Action<object, float>)last.MethodTick : last.PropertyTick;
             }
         }
-
-        private void _owners_Removed(ObjectBase item)
+        private void RegisterOwners() { _owners.Modified += OwnersModified; }
+        private void OwnersModified()
         {
             if (_owners.Count == 0 && _isTicking)
                 UnregisterTick();
-        }
-
-        private void _owners_Added(ObjectBase item)
-        {
-            if (_owners.Count != 0 && !_isTicking)
+            else if (_owners.Count != 0 && !_isTicking)
                 RegisterTick(ETickGroup.PrePhysics, ETickOrder.Logic);
         }
 

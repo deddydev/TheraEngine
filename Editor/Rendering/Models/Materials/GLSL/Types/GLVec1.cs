@@ -10,8 +10,9 @@ namespace CustomEngine.Rendering.Models.Materials
     {
         public override GLTypeName TypeName { get { return GLTypeName._bool; } }
         public bool Value { get { return _value; } set { _value = value; } }
-        public override IUniformable UniformValue { get { return this; } }
+        public override void SetUniform(int location) { Engine.Renderer.Uniform(location, _value); }
         public unsafe bool* Data { get { fixed (bool* ptr = &_value) return ptr; } }
+        public override string GetValueString() { return _value.ToString(); }
 
         private bool _value;
 
@@ -25,8 +26,9 @@ namespace CustomEngine.Rendering.Models.Materials
     {
         public override GLTypeName TypeName { get { return GLTypeName._float; } }
         public float Value { get { return _value; } set { _value = value; } }
-        public override IUniformable UniformValue { get { return this; } }
+        public override void SetUniform(int location) { Engine.Renderer.Uniform(location, _value); }
         public unsafe float* Data { get { fixed (float* ptr = &_value) return ptr; } }
+        public override string GetValueString() { return _value.ToString(); }
 
         private float _value;
 
@@ -40,8 +42,9 @@ namespace CustomEngine.Rendering.Models.Materials
     {
         public override GLTypeName TypeName { get { return GLTypeName._double; } }
         public double Value { get { return _value; } set { _value = value; } }
-        public override IUniformable UniformValue { get { return this; } }
+        public override void SetUniform(int location) { Engine.Renderer.Uniform(location, _value); }
         public unsafe double* Data { get { fixed (double* ptr = &_value) return ptr; } }
+        public override string GetValueString() { return _value.ToString(); }
 
         private double _value;
 
@@ -55,8 +58,9 @@ namespace CustomEngine.Rendering.Models.Materials
     {
         public override GLTypeName TypeName { get { return GLTypeName._int; } }
         public int Value { get { return _value; } set { _value = value; } }
-        public override IUniformable UniformValue { get { return this; } }
+        public override void SetUniform(int location) { Engine.Renderer.Uniform(location, _value); }
         public unsafe int* Data { get { fixed (int* ptr = &_value) return ptr; } }
+        public override string GetValueString() { return _value.ToString(); }
 
         private int _value;
 
@@ -70,8 +74,9 @@ namespace CustomEngine.Rendering.Models.Materials
     {
         public override GLTypeName TypeName { get { return GLTypeName._uint; } }
         public uint Value { get { return _value; } set { _value = value; } }
-        public override IUniformable UniformValue { get { return this; } }
+        public override void SetUniform(int location) { Engine.Renderer.Uniform(location, _value); }
         public unsafe uint* Data { get { fixed (uint* ptr = &_value) return ptr; } }
+        public override string GetValueString() { return _value.ToString(); }
 
         private uint _value;
 

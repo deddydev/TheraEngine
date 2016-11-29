@@ -1,15 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Text.RegularExpressions;
 
 namespace CustomEngine.Rendering.Models.Materials
 {
-    public interface IGLOutput { Type GetOutType(); }
-    public class GLOutput<T> : BaseGLArgument, IGLOutput where T : GLVar
+    public class GLOutput<T> : BaseGLOutput where T : GLVar
     {
         public GLOutput(string name) : base(name) { }
 
@@ -23,6 +16,12 @@ namespace CustomEngine.Rendering.Models.Materials
                     _connectedTo = value;
             }
         }
-        public Type GetOutType() { return typeof(T); }
+        public override Type GetOutType() { return typeof(T); }
+        public override Type[] GetPossibleOutTypes() { return new Type[] { GetOutType() }; }
+
+        public override GLTypeName GetTypeName()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

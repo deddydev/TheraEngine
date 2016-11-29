@@ -12,9 +12,9 @@ namespace CustomEngine.Rendering.Models.Materials
         {
             throw new NotImplementedException();
         }
-        protected override List<IGLArgument> GetArguments()
+        protected override List<BaseGLArgument> GetArguments()
         {
-            return new List<IGLArgument>()
+            return new List<BaseGLArgument>()
             {
                 new GLArgument<GLInt>("Start Index"),
                 //TODO: condition needs to be built into the loop

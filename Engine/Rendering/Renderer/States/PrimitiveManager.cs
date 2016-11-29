@@ -18,8 +18,9 @@ namespace CustomEngine.Rendering.Models
         public int[] _strides;
 
         private PrimitiveData _data;
-        private VertexBuffer _indexBuffer;
+        private VertexBuffer _indexBuffer, _matrixIndexBuffer, _matrixWeightBuffer;
         private Primitive _triangles;
+        private Bone[] _utilizedBones;
         
         private bool _initialized = false;
 
@@ -39,15 +40,72 @@ namespace CustomEngine.Rendering.Models
                 _data = value;
                 if (_data != null)
                 {
-                    _indexBuffer = new VertexBuffer(_data._buffers.Count, "IndexBuffer", BufferTarget.ElementArrayBuffer);
+                    _indexBuffer = new VertexBuffer(_data._buffers.Count + 2, "FaceIndices", BufferTarget.ElementArrayBuffer);
                     _triangles = new Primitive(_data._faces.Count * 3, _data._facePoints.Count, PrimitiveType.Triangles);
-                    if (_triangles._elementType == DrawElementsType.UnsignedInt)
-                        _indexBuffer.SetDataNumeric(_data.GetFaceIndices(), false);
-                    else if (_triangles._elementType == DrawElementsType.UnsignedShort)
-                        _indexBuffer.SetDataNumeric(_data.GetFaceIndices().Select(x => (ushort)x).ToList(), false);
-                    else if (_triangles._elementType == DrawElementsType.UnsignedByte)
-                        _indexBuffer.SetDataNumeric(_data.GetFaceIndices().Select(x => (byte)x).ToList(), false);
+                    switch (_triangles._elementType)
+                    {
+                        case DrawElementsType.UnsignedByte:
+                            _indexBuffer.SetDataNumeric(_data.GetFaceIndices().Select(x => (byte)x).ToList());
+                            break;
+                        case DrawElementsType.UnsignedShort:
+                            _indexBuffer.SetDataNumeric(_data.GetFaceIndices().Select(x => (ushort)x).ToList());
+                            break;
+                        case DrawElementsType.UnsignedInt:
+                            _indexBuffer.SetDataNumeric(_data.GetFaceIndices());
+                            break;
+                    }
                 }
+            }
+        }
+        public void SkeletonChanged(Skeleton skeleton)
+        {
+            _matrixIndexBuffer?.Dispose();
+            _matrixWeightBuffer?.Dispose();
+            _matrixIndexBuffer = null;
+            _matrixWeightBuffer = null;
+
+            if (skeleton != null)
+            {
+                _utilizedBones = _data._utilizedBones.Select(x => skeleton.BoneCache[x]).ToArray();
+
+                int infCount = _data._influences.Length;
+                IVec4[] matrixIndices = new IVec4[infCount];
+                Vec4[] matrixWeights = new Vec4[infCount];
+
+                for (int i = 0; i < infCount; ++i)
+                {
+                    matrixIndices[i] = new IVec4();
+                    matrixWeights[i] = new Vec4();
+                    Influence inf = _data._influences[i];
+                    for (int j = 0; j < 4; ++j)
+                    {
+                        BoneWeight b = inf.Weights[j];
+                        if (b == null)
+                        {
+                            matrixIndices[i][j] = 0;
+                            matrixWeights[i][j] = 0.0f;
+                        }
+                        else
+                        {
+                            matrixIndices[i][j] = _data._utilizedBones.IndexOf(b.Bone) + 1;
+                            matrixWeights[i][j] = b.Weight;
+                        }
+                    }
+                }
+
+                _matrixIndexBuffer = new VertexBuffer(_data._buffers.Count, "MatrixIDs", BufferTarget.ArrayBuffer);
+                _matrixIndexBuffer.SetData(matrixIndices);
+                _matrixWeightBuffer = new VertexBuffer(_data._buffers.Count + 1, "MatrixWeights", BufferTarget.ArrayBuffer);
+                _matrixWeightBuffer.SetData(matrixWeights);
+            }
+        }
+        private void SetBoneMatrixUniforms()
+        {
+            if (_utilizedBones != null)
+            {
+                List<Matrix4> boneMatrices = new List<Matrix4>() { Matrix4.Identity };
+                boneMatrices.AddRange(_utilizedBones.Select(b => b.VertexMatrix));
+                Engine.Renderer.Uniform(Uniform.BoneMatricesName, boneMatrices.ToArray());
             }
         }
         public unsafe void Render(Material material, Matrix4 transform)
@@ -63,6 +121,7 @@ namespace CustomEngine.Rendering.Models
             Engine.Renderer.UseMaterial(material.MaterialId);
             Engine.Renderer.SetCommonUniforms();
             material.SetUniforms();
+            SetBoneMatrixUniforms();
 
             //This is a mesh-specific uniform
             Engine.Renderer.Uniform(Uniform.ModelMatrixName, transform);

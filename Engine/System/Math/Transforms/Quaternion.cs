@@ -56,11 +56,6 @@ namespace System
         public float Length { get { return (float)Sqrt(W * W + Xyz.LengthSquared); } }
         public float LengthSquared { get { return W * W + Xyz.LengthSquared; } }
 
-        public static Quaternion CreateFromRotator(Rotator rotator)
-        {
-            
-        }
-
         public void ToAxisAngle(out Vec3 axis, out float angle)
         {
             Vec4 result = ToAxisAngle();
@@ -185,51 +180,31 @@ namespace System
 
             return result.Normalized();
         }
-        public enum MultiplyOrder
+        public static Quaternion FromRotator(Rotator rotator)
         {
-            PYR,
-            PRY,
-            YRP,
-            YPR,
-            RPY,
-            RYP,
+            return FromEulerAngles(rotator.Yaw, rotator.Pitch, rotator.Roll, rotator.RotationOrder);
         }
-        public static Quaternion FromEulerAngles(float pitch, float yaw, float roll, MultiplyOrder order = MultiplyOrder.YPR)
+        /// <summary>
+        /// Builds a Quaternion from the given euler angles
+        /// </summary>
+        /// <param name="yaw">The yaw (heading), rotation around Y axis</param>
+        /// <param name="pitch">The pitch (attitude), rotation around X axis</param>
+        /// <param name="roll">The roll (bank), rotation around Z axis</param>
+        public static Quaternion FromEulerAngles(float yaw, float pitch, float roll, Rotator.Order order = Rotator.Order.YPR)
         {
             Quaternion p = FromAxisAngle(Vec3.Right, pitch);
             Quaternion y = FromAxisAngle(Vec3.Up, yaw);
             Quaternion r = FromAxisAngle(Vec3.Forward, roll);
             switch (order)
             {
-                case MultiplyOrder.PYR:
-                    return r * y * p;
-                case MultiplyOrder.PRY:
-                    return y * r * p;
-                case MultiplyOrder.YRP:
-                    return p * r * y;
-                case MultiplyOrder.YPR:
-                    return r * p * y;
-                case MultiplyOrder.RPY:
-                    return y * p * r;
-                case MultiplyOrder.RYP:
-                    return p * y * r;
+                case Rotator.Order.RYP: return r * y * p;
+                case Rotator.Order.YRP: return y * r * p;
+                case Rotator.Order.PRY: return p * r * y;
+                case Rotator.Order.RPY: return r * p * y;
+                case Rotator.Order.YPR: return y * p * r;
+                case Rotator.Order.PYR: return p * y * r;
             }
-            return Quaternion.Identity;
-        }
-        /// <summary>
-        /// Builds a Quaternion from the given euler angles
-        /// </summary>
-        /// <param name="pitch">The pitch (attitude), rotation around X axis</param>
-        /// <param name="yaw">The yaw (heading), rotation around Y axis</param>
-        /// <param name="roll">The roll (bank), rotation around Z axis</param>
-        /// <returns></returns>
-        public static Quaternion FromEulerAngles(float pitch, float yaw, float roll)
-        {
-            return new Quaternion(pitch, yaw, roll);
-        }
-        public static Quaternion FromEulerAngles(Vec3 eulerAngles)
-        {
-            return new Quaternion(eulerAngles);
+            return Identity;
         }
         public static Quaternion FromMatrix(Matrix4 matrix)
         {

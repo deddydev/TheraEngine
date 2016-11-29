@@ -2,6 +2,7 @@
 using CustomEngine;
 using CustomEngine.Rendering.Models;
 using System.Collections.Generic;
+using BulletSharp;
 
 namespace System
 {
@@ -26,6 +27,10 @@ namespace System
         public float GetTotalHeight()
         {
             return GetTotalHalfHeight() * 2.0f;
+        }
+        public override CollisionShape GetCollisionShape()
+        {
+            return new CapsuleShape(Radius, HalfHeight * 2.0f);
         }
         public override void Render() { Render(false); }
         public override void Render(bool solid)

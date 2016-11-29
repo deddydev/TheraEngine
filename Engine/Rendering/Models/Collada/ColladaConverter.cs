@@ -45,14 +45,14 @@ namespace CustomEngine.Rendering.Models.Collada
 
                 Matrix4 localMatrix = Matrix4.Identity;
 
-                bone._bindState = localMatrix.Derive();
+                //bone.BindState = localMatrix.Derive();
 
                 parent.Children.Add(bone);
                 bone.Parent = parent;
 
                 parent = bone;
 
-                inf = new Influence(bone);
+                inf = new Influence(bone.Name);
 
                 //if (inf != null)
                 //    s.Influences._influences.Add(inf);

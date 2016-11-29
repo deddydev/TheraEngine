@@ -10,6 +10,7 @@ namespace CustomEngine.Rendering.Models
         public Vec3? _normal;
         public List<Vec2> _texCoords;
         public List<ColorF4> _colors;
+        public Influence _influence;
         public List<IBufferable> _specialData;
 
         public Vertex(Vec3 position) { _position = position; }
@@ -24,19 +25,19 @@ namespace CustomEngine.Rendering.Models
             {
                 VertexBuffer b = buffers[i];
                 int index = facepoint.Indices[i];
-                if (b.IsPositionsBuffer())
+                if (b.IsType(BufferType.Position))
                 {
                     _position = b.Get<Vec3>(index * 12);
                 }
-                else if (b.IsNormalsBuffer())
+                else if (b.IsType(BufferType.Normal))
                 {
                     _normal = b.Get<Vec3>(index * 12);
                 }
-                else if (b.IsColorBuffer())
+                else if (b.IsType(BufferType.Color))
                 {
                     _colors.Add(b.Get<ColorF4>(index * 16));
                 }
-                else if (b.IsTexCoordBuffer())
+                else if (b.IsType(BufferType.TexCoord))
                 {
                     _texCoords.Add(b.Get<Vec2>(index * 8));
                 }
@@ -55,6 +56,8 @@ namespace CustomEngine.Rendering.Models
         {
             const float precision = 0.00001f;
             if (other == null)
+                return false;
+            if (_influence != other._influence)
                 return false;
             if (!_position.Equals(other._position, precision))
                 return false;

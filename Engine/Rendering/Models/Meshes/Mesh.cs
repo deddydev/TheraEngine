@@ -7,7 +7,7 @@ using CustomEngine.Worlds.Actors.Components;
 
 namespace CustomEngine.Rendering.Models
 {
-    public class Mesh : RenderableObject
+    public class Mesh : RenderableObject, ICollidable
     {
         public Mesh() { }
         public Mesh(PrimitiveData data) { _manager.Data = data; }
@@ -19,21 +19,30 @@ namespace CustomEngine.Rendering.Models
         }
 
         private Model _model;
-        private CollisionShape _collision;
         internal PrimitiveManager _manager = new PrimitiveManager();
+
         private SingleFileRef<Material> _material;
         protected bool _visible = false, _visibleByDefault = true;
         private Shape _cullingVolume;
-        public CollisionShape CollisionShape
+        private RigidBody _collision;
+        public RigidBody CollisionObject
         {
             get { return _collision; }
             set
             {
                 if (_collision != null)
+                {
+                    if (_visible)
+                        Engine.World.PhysicsScene.AddRigidBody(_collision);
                     _collision.UserObject = null;
+                }
                 _collision = value;
                 if (_collision != null)
+                {
+                    if (_visible)
+                        Engine.World.PhysicsScene.AddRigidBody(_collision);
                     _collision.UserObject = this;
+                }
             }
         }
         public Material Material
@@ -41,6 +50,27 @@ namespace CustomEngine.Rendering.Models
             get { return _material; }
             set { _material = value; }
         }
+        public Model Model
+        {
+            get { return _model; }
+            set { _model = value; }
+        }
+        public bool Visible
+        {
+            get { return _visible; }
+            set
+            {
+                if (_visible == value)
+                    return;
+                
+                if (_visible && _collision != null)
+                    Engine.World.PhysicsScene.RemoveRigidBody(_collision);
+                _visible = value;
+                if (_visible && _collision != null)
+                    Engine.World.PhysicsScene.AddRigidBody(_collision);
+            }
+        }
+
         public override Matrix4 GetWorldMatrix() { return _model != null ? _model.GetWorldMatrix() : Matrix4.Identity; }
         public override Matrix4 GetInverseWorldMatrix() { return _model != null ? _model.GetInverseWorldMatrix() : Matrix4.Identity; }
         public override Shape GetCullingVolume() { return _cullingVolume; }
@@ -58,20 +88,15 @@ namespace CustomEngine.Rendering.Models
         }
         public override void Render()
         {
-            //if (/*!_visible || */!_rendering)
+            //if (!Visible || !IsRendering)
             //    return;
 
-            if (_material.File != null)
-                _manager.Render(_material, GetWorldMatrix());
+            if (_material.File == null)
+                return;
+
+            _manager.Render(_material, GetWorldMatrix());
         }
-        public static implicit operator Mesh(Shape shape)
-        {
-            Mesh m = new Mesh();
-            m.Name = shape.GetType().ToString();
-            m.SetPrimitiveData(shape.GetPrimitiveData());
-            m.SetCullingVolume(shape);
-            return m;
-        }
+        public static implicit operator Mesh(Shape shape) { return new Mesh(shape); }
         public override PrimitiveData GetPrimitiveData() { return _manager.Data; }
         public void SetPrimitiveData(PrimitiveData data) => _manager.Data = data;
         public void SetCullingVolume(Shape volume) { _cullingVolume = volume; }

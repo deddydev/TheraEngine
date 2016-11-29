@@ -13,6 +13,7 @@ namespace CustomEngine.Rendering.Models.Materials
         public static MaterialFuncInfo GetInfo()
         {
             return new MaterialFuncInfo(
+                "Math",
                 "Returns true bool/bvec if A's and B's individual components are not equal.",
                 "does not equals !=");
         }

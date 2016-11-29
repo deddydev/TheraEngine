@@ -23,7 +23,6 @@ C:\Users\David\Documents\Repositories\CustomEngine\Game\bin\Debug\Game.exe
 C:\Users\David\Documents\Repositories\CustomEngine\Game\bin\Debug\Game.pdb
 C:\Users\David\Documents\Repositories\CustomEngine\Game\bin\Debug\CustomEngine.dll
 C:\Users\David\Documents\Repositories\CustomEngine\Game\bin\Debug\PostSharp.dll
-C:\Users\David\Documents\Repositories\CustomEngine\Game\bin\Debug\BulletSharp.dll
 C:\Users\David\Documents\Repositories\CustomEngine\Game\bin\Debug\OpenTK.dll
 C:\Users\David\Documents\Repositories\CustomEngine\Game\bin\Debug\SlimDX.dll
 C:\Users\David\Documents\Repositories\CustomEngine\Game\bin\Debug\CustomEngine.pdb

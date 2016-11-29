@@ -10,40 +10,15 @@ namespace CustomEngine.Rendering.Models.Materials
 {
     public abstract class BaseGLArgument
     {
+        public string Name { get { return _name; } }
         protected string _name;
-
-        public BaseGLArgument(string name)
+        public BaseGLArgument(string name) { _name = name; }
+        public abstract GLTypeName GetTypeName();
+        public abstract Type GetArgType();
+        public abstract Type[] GetPossibleArgTypes();
+        public bool CanConnectTo(BaseGLOutput other)
         {
-            _name = name;
-        }
-
-        public abstract Type[] GetArgType();
-
-        public bool CanConnectTo(BaseGLArgument other)
-        {
-            if (other == null)
-                return true;
-
-            if ((this is IGLArgument && other is IGLArgument) || 
-                (this is IGLOutput && other is IGLOutput))
-                return false;
-
-            if (this is IGLArgument)
-            {
-                IGLArgument arg = (IGLArgument)this;
-                IGLOutput output = (IGLOutput)other;
-                if (arg.GetArgType() != output.GetOutType())
-                    return false;
-            }
-            else
-            {
-                IGLArgument arg = (IGLArgument)other;
-                IGLOutput output = (IGLOutput)this;
-                if (arg.GetArgType() != output.GetOutType())
-                    return false;
-            }
-
-            return true;
+            return other != null && GetArgType() == other.GetOutType();
         }
     }
 }

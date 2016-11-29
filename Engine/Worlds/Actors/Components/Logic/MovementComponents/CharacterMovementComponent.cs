@@ -9,8 +9,8 @@
     }
     public class CharacterMovementComponent : MovementComponent
     {
-        private MovementMode _currentMovementMode;
-        private bool _isCrouched;
+        private MovementMode _currentMovementMode = MovementMode.Falling;
+        private bool _isCrouched = false;
 
         public void Jump()
         {

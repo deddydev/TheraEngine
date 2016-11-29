@@ -4,6 +4,7 @@ using CustomEngine.Rendering.Models;
 using System.Collections.Generic;
 using CustomEngine.Files;
 using System.Globalization;
+using BulletSharp;
 
 namespace System
 {
@@ -54,6 +55,11 @@ namespace System
                 _max += diff;
             }
         }
+        public override CollisionShape GetCollisionShape()
+        {
+            Vec3 halfExtents = CenterPoint - _min;
+            return new BoxShape(halfExtents.X, halfExtents.Y, halfExtents.Z);
+        }
         /// <summary>
         /// T = top, B = bottom
         /// B = back, F = front
@@ -69,7 +75,7 @@ namespace System
             out Vec3 BFL,
             out Vec3 BFR)
         {
-            GetTransformedCorners(Matrix4.Identity, out TBL, out TBR, out TFL, out TFR, out BBL, out BBR, out BFL, out BFR);
+            GetCorners(Matrix4.Identity, out TBL, out TBR, out TFL, out TFR, out BBL, out BBR, out BFL, out BFR);
         }
         public void GetTransformedCorners(
             out Vec3 TBL,
@@ -81,14 +87,14 @@ namespace System
             out Vec3 BFL,
             out Vec3 BFR)
         {
-            GetTransformedCorners(GetWorldMatrix(), out TBL, out TBR, out TFL, out TFR, out BBL, out BBR, out BFL, out BFR);
+            GetCorners(GetWorldMatrix(), out TBL, out TBR, out TFL, out TFR, out BBL, out BBR, out BFL, out BFR);
         }
         /// <summary>
         /// T = top, B = bottom
         /// B = back, F = front
         /// L = left,  R = right
         /// </summary>
-        public void GetTransformedCorners(Matrix4 transform,
+        public void GetCorners(Matrix4 transform,
             out Vec3 TBL,
             out Vec3 TBR,
             out Vec3 TFL,
@@ -100,8 +106,8 @@ namespace System
         {
             float Top = _max.Y;
             float Bottom = _min.Y;
-            float Front = _min.Z;
-            float Back = _max.Z;
+            float Front = _max.Z;
+            float Back = _min.Z;
             float Right = _max.X;
             float Left = _min.X;
 
@@ -117,29 +123,13 @@ namespace System
             BFL = transform * new Vec3(Bottom, Front, Left);
             BFR = transform * new Vec3(Bottom, Front, Right);
         }
-        public Vec3[] GetCorners() { return GetCorners(Matrix4.Identity); }
+        public Vec3[] GetTransformedCorners() { return GetCorners(GetWorldMatrix()); }
+        public Vec3[] GetUntransformedCorners() { return GetCorners(Matrix4.Identity); }
         public Vec3[] GetCorners(Matrix4 transform)
         {
-            float Top = _max.Z;
-            float Bottom = _min.Z;
-            float Front = _max.Y;
-            float Back = _min.Y;
-            float Right = _max.X;
-            float Left = _min.X;
-            return new Vec3[8]
-            {
-                transform * new Vec3(Top, Back, Left),
-                transform * new Vec3(Top, Back, Right),
-
-                transform * new Vec3(Top, Front, Left),
-                transform * new Vec3(Top, Front, Right),
-
-                transform * new Vec3(Bottom, Back, Left),
-                transform * new Vec3(Bottom, Back, Right),
-
-                transform * new Vec3(Bottom, Front, Left),
-                transform * new Vec3(Bottom, Front, Right),
-            };
+            Vec3 TBL, TBR, TFL, TFR, BBL, BBR, BFL, BFR;
+            GetCorners(transform, out TBL, out TBR, out TFL, out TFR, out BBL, out BBR, out BFL, out BFR);
+            return new Vec3[] { TBL, TBR, TFL, TFR, BBL, BBR, BFL, BFR };
         }
         public void ExpandBounds(Vec3 point)
         {
@@ -182,7 +172,7 @@ namespace System
             Matrix4 m = transformed ? GetWorldMatrix() : Matrix4.Identity;
 
             Vec3 ftl, ftr, ntl, ntr, fbl, fbr, nbl, nbr;
-            GetTransformedCorners(m, out ftl, out ftr, out ntl, out ntr, out fbl, out fbr, out nbl, out nbr);
+            GetCorners(m, out ftl, out ftr, out ntl, out ntr, out fbl, out fbr, out nbl, out nbr);
             return new Frustum(fbl, fbr, ftl, ftr, nbl, nbr, ntl, ntr);
         }
         public bool Intersects(Ray ray) { float distance; return Collision.RayIntersectsBoxDistance(ray, this, out distance); }

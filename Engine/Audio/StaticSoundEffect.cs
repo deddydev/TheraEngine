@@ -6,7 +6,7 @@ namespace CustomEngine.Audio
 {
     public class StaticSoundEffect : SoundDataBase
     {
-        Vector3 worldPosition;
-        float loudness;
+        private Vector3 _worldPosition;
+        private float _loudness;
     }
 }

@@ -101,7 +101,7 @@ namespace System
                 _impTable = sorted;
             }
             else
-                Array.Resize<int>(ref _impTable, impCount);
+                Array.Resize(ref _impTable, impCount);
         }
     }
 }

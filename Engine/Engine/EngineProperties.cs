@@ -54,7 +54,7 @@ namespace CustomEngine
         public static Dictionary<ETickGroup, Dictionary<ETickOrder, List<ObjectBase>>> _tick = 
             new Dictionary<ETickGroup, Dictionary<ETickOrder, List<ObjectBase>>>();
 
-        internal static AbstractRenderer Renderer
+        public static AbstractRenderer Renderer
         {
             get { return _renderer; }
             set { _renderer = value; }

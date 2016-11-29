@@ -117,12 +117,6 @@ namespace CustomEngine.Rendering.OpenGL
         #region Conversion
         private OpenTK.Matrix4 GLMat4(Matrix4 matrix4)
         {
-            //OpenTK.Matrix4 m = new OpenTK.Matrix4();
-            //float* sPtr = (float*)&m;
-            //float* dPtr = (float*)&matrix4;
-            //for (int i = 0; i < 16; ++i)
-            //    *dPtr++ = *sPtr++;
-            //return m;
             return *(OpenTK.Matrix4*)&matrix4;
         }
         private OpenTK.Vector4 GLVec4(System.Vec4 vec4)
@@ -270,6 +264,10 @@ namespace CustomEngine.Rendering.OpenGL
         }
 
         #region Uniforms
+        public override int GetAttribLocation(string name)
+        {
+            return GL.GetAttribLocation(_programHandle, name);
+        }
         public override int GetUniformLocation(string name)
         {
             return GL.GetUniformLocation(_programHandle, name);
@@ -388,6 +386,17 @@ namespace CustomEngine.Rendering.OpenGL
         {
             if (location > -1)
                 GL.UniformMatrix4(location, 1, false, p.Data);
+        }
+        public override void Uniform(int location, params Matrix4[] p)
+        {
+            if (location > -1)
+            {
+                float[] values = new float[p.Length << 4];
+                for (int i = 0; i < p.Length; ++i)
+                    for (int x = 0; x < 16; ++x)
+                        values[i << 4 + x] = p[i].Data[x];
+                GL.UniformMatrix4(location, p.Length, false, values);
+            }
         }
         #endregion
 

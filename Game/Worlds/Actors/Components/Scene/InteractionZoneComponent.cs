@@ -20,7 +20,7 @@ namespace Game.Worlds.Actors.Components.Scene
 	    NonDominantOnly,
 	    NonDominantPreferred,
     }
-    public class InteractionZoneComponent : ShapeComponent<Box>
+    public class InteractionZoneComponent : BoxComponent
     {
         public InteractionZoneComponent()
         {

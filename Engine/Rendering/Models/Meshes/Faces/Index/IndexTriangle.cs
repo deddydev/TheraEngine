@@ -53,5 +53,9 @@ namespace CustomEngine.Rendering.Models
             IndexTriangle t = obj as IndexTriangle;
             return t == null ? false : t.Point0 == Point0 && t.Point1 == Point1 && t.Point2 == Point2;
         }
+        public override int GetHashCode()
+        {
+            return base.GetHashCode();
+        }
     }
 }

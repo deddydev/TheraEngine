@@ -48,8 +48,13 @@ namespace System
 
         public static readonly int SizeInBytes = Marshal.SizeOf(new Rotator());
 
-        public Quaternion GetQuaternion() { return Quaternion.CreateFromRotator(this); }
+        public static Rotator FromQuaternion()
+        {
+            throw new NotImplementedException();
+        }
+        public Quaternion GetQuaternion() { return Quaternion.FromRotator(this); }
         public Matrix4 GetMatrix() { return Matrix4.CreateFromRotator(this); }
+        public Matrix4 GetInverseMatrix() { return Matrix4.CreateFromRotator(Inverted()); }
         public Vec3 GetDirection() { return TransformVector(Vec3.Forward); }
         public Vec3 TransformVector(Vec3 vector) { return Vec3.TransformVector(vector, GetMatrix()); }
         public Matrix4 GetYawMatrix() { return Matrix4.CreateRotationY(Yaw); }
@@ -58,6 +63,37 @@ namespace System
         public Quaternion GetYawQuat() { return Quaternion.FromAxisAngle(Vec3.Up, Yaw); }
         public Quaternion GetPitchQuat() { return Quaternion.FromAxisAngle(Vec3.Right, Pitch); }
         public Quaternion GetRollQuat() { return Quaternion.FromAxisAngle(Vec3.Forward, Roll); }
+        public Rotator WithNegatedRotations()
+        {
+            return new Rotator(-Yaw, -Pitch, -Roll, RotationOrder);
+        }
+        public void NegateRotations()
+        {
+            Yaw = -Yaw;
+            Pitch = -Pitch;
+            Roll = -Roll;
+        }
+        public void ReverseRotations()
+        {
+            Yaw = Yaw + 180.0f;
+            Pitch = Pitch + 180.0f;
+            Roll = Roll + 180.0f;
+        }
+        public void ClearWinding()
+        {
+            Yaw = Yaw.RemapToRange(0.0f, 360.0f);
+            Pitch = Pitch.RemapToRange(0.0f, 360.0f);
+            Roll = Roll.RemapToRange(0.0f, 360.0f);
+        }
+        public int GetYawWindCount() { return (int)(Yaw / 360.0f); }
+        public int GetPitchWindCount() { return (int)(Pitch / 360.0f); }
+        public int GetRollWindCount() { return (int)(Roll / 360.0f); }
+        public void ReverseOrder() { RotationOrder = OppositeOf(RotationOrder); }
+        public void Invert()
+        {
+            NegateRotations();
+            ReverseOrder();
+        }
         public Rotator Inverted()
         {
             return new Rotator(-Yaw, -Pitch, -Roll, OppositeOf(RotationOrder));
@@ -66,20 +102,13 @@ namespace System
         {
             switch (order)
             {
-                case Order.PRY:
-                    return Order.YRP;
-                case Order.PYR:
-                    return Order.RYP;
-                case Order.RPY:
-                    return Order.YPR;
-                case Order.RYP:
-                    return Order.PYR;
-                case Order.YRP:
-                    return Order.PRY;
-                case Order.YPR:
-                    return Order.RPY;
-                default:
-                    throw new Exception();
+                case Order.PRY: return Order.YRP;
+                case Order.PYR: return Order.RYP;
+                case Order.RPY: return Order.YPR;
+                case Order.RYP: return Order.PYR;
+                case Order.YRP: return Order.PRY;
+                case Order.YPR: return Order.RPY;
+                default: throw new Exception();
             }
         }
 
@@ -152,6 +181,10 @@ namespace System
         public static implicit operator Rotator(Vec3 v) { return new Rotator(v.X, v.Y, v.Z, Order.YPR); }
 
         private static string listSeparator = Globalization.CultureInfo.CurrentCulture.TextInfo.ListSeparator;
+        public static Rotator GetZero(Order order = Order.YPR)
+        {
+           return  new Rotator(0.0f, 0.0f, 0.0f, order);
+        }
 
         public override string ToString()
         {

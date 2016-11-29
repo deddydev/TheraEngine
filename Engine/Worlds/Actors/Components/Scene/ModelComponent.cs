@@ -9,10 +9,6 @@ namespace CustomEngine.Worlds.Actors.Components
 {
     public class ModelComponent : GenericPrimitiveComponent
     {
-        public ModelComponent(
-           Matrix4.MultiplyOrder transformationOrder = Matrix4.MultiplyOrder.TRS,
-           Vec3.EulerOrder rotationOrder = Vec3.EulerOrder.YPR) 
-                : base(transformationOrder, rotationOrder) { }
         public ModelComponent(Model m) { Model = m; }
 
         [Category("Rendering")]
@@ -41,12 +37,6 @@ namespace CustomEngine.Worlds.Actors.Components
                     else
                         Engine.Renderer.Scene.RemoveRenderable(m);
             }
-        }
-        [Category("Rendering")]
-        public FrameState LocalTransform
-        {
-            get { return _localState; }
-            set { _localState = value; RecalcLocalTransform(); }
         }
         public override void OnSpawned()
         {

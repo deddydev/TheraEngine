@@ -7,7 +7,7 @@ using System.Windows.Controls;
 using System.Windows;
 using System.Windows.Input;
 using System.IO;
-using Editor.Files;
+using CustomEngine.Files;
 
 namespace Editor.Wrappers
 {
@@ -86,7 +86,7 @@ namespace Editor.Wrappers
             //    TreeView.EndUpdate();
         }
 
-        public virtual string ExportFilter { get { return FileExtensionManager.GetCompleteFilter(_resource.GetType()); } }
+        public virtual string ExportFilter { get { return FileManager.GetCompleteFilter(_resource.GetType()); } }
         public virtual string ImportFilter { get { return ExportFilter; } }
         public virtual string ReplaceFilter { get { return ImportFilter; } }
 

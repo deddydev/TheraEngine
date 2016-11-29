@@ -21,7 +21,6 @@ namespace CustomEngine.Input.Devices
     public class LabeledInput
     {
         string _label;
-
     }
     public enum MouseMoveType
     {

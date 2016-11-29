@@ -385,8 +385,8 @@ namespace System
         public Vec3 GetAngles() { return new Vec3(AngleX(), AngleY(), AngleZ()); }
         public Vec3 GetAngles(Vec3 origin) { return (this - origin).GetAngles(); }
 
-        public Vec3 LookatAngles() { return new Vec3((float)Atan2(Y, Sqrt(X * X + Z * Z)), (float)Atan2(-X, -Z), 0.0f); }
-        public Vec3 LookatAngles(Vec3 origin) { return (this - origin).LookatAngles(); }
+        public Rotator LookatAngles() { return new Rotator((float)Atan2(Y, Sqrt(X * X + Z * Z)), (float)Atan2(-X, -Z), 0.0f, Rotator.Order.YPR); }
+        public Rotator LookatAngles(Vec3 origin) { return (this - origin).LookatAngles(); }
 
         public float AngleX() { return (float)Atan2(Y, -Z); }
         public float AngleY() { return (float)Atan2(-Z, X); }

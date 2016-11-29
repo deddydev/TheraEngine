@@ -8,19 +8,11 @@ namespace CustomEngine.Worlds.Actors.Components
 {
     public abstract class GenericPrimitiveComponent : GenericSceneComponent
     {
-        public GenericPrimitiveComponent(
-            Matrix4.MultiplyOrder transformationOrder = Matrix4.MultiplyOrder.TRS,
-            Vec3.EulerOrder rotationOrder = Vec3.EulerOrder.YPR) 
-            : base(transformationOrder, rotationOrder) { }
-
-        public GenericPrimitiveComponent(
-            RenderableObjectContainer obj,
-            Matrix4.MultiplyOrder transformationOrder = Matrix4.MultiplyOrder.TRS,
-            Vec3.EulerOrder rotationOrder = Vec3.EulerOrder.YPR)
-            : base(transformationOrder, rotationOrder) { _primitive = obj; }
+        public GenericPrimitiveComponent() { }
+        public GenericPrimitiveComponent(RenderableObjectContainer obj) { _primitive = obj; }
 
         private RenderableObjectContainer _primitive;
-        public RenderableObjectContainer Primitive
+        internal RenderableObjectContainer Primitive
         {
             get { return _primitive; }
             set

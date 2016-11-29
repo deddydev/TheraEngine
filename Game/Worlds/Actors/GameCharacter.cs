@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Game.Worlds.Actors
 {
-    public class GameCharacter : Character
+    public class GameCharacter : CharacterPawn
     {
 
     }

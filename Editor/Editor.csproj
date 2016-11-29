@@ -107,6 +107,8 @@
     </Compile>
     <Compile Include="CustomMenuItem.cs" />
     <Compile Include="Rendering\Models\Materials\GLSL\BaseGLArgument.cs" />
+    <Compile Include="Rendering\Models\Materials\GLSL\BaseGLOutput.cs" />
+    <Compile Include="Rendering\Models\Materials\GLSL\GLMultiOutput.cs" />
     <Compile Include="Rendering\Models\Materials\GLSL\GLMultiArgument.cs" />
     <Compile Include="Rendering\Models\Materials\GLSL\GLArgument.cs" />
     <Compile Include="Rendering\Models\Materials\GLSL\GLOutput.cs" />
@@ -116,7 +118,9 @@
     <Compile Include="Rendering\Models\Materials\GLSL\Types\GLVec2.cs" />
     <Compile Include="Rendering\Models\Materials\GLSL\Types\GLVec3.cs" />
     <Compile Include="Rendering\Models\Materials\GLSL\Types\GLVec4.cs" />
-    <Compile Include="Rendering\Models\Materials\Material Functions\Constants\ConstFloat.cs" />
+    <Compile Include="Rendering\Models\Materials\Material Functions\Constants\ConstantFunc.cs" />
+    <Compile Include="Rendering\Models\Materials\Material Functions\Constants\CommonParameterFunc.cs" />
+    <Compile Include="Rendering\Models\Materials\Material Functions\Constants\ParameterFunc.cs" />
     <Compile Include="Rendering\Models\Materials\Material Functions\GlobalMaterialFunction.cs" />
     <Compile Include="Rendering\Models\Materials\Material Functions\Logic\ForLoopFunc.cs" />
     <Compile Include="Rendering\Models\Materials\Material Functions\Logic\IfFunc.cs" />
@@ -135,7 +139,6 @@
     <Compile Include="Rendering\Models\Materials\Material Functions\Results\ResultBasic.cs" />
     <Compile Include="Rendering\Models\Materials\Material Functions\Results\ResultPBR.cs" />
     <Compile Include="Rendering\Models\Materials\Material Functions\TwoArgFunc.cs" />
-    <Compile Include="Rendering\Models\Materials\Material Functions\Uniforms\UniformFloat.cs" />
     <Compile Include="Rendering\Models\Materials\ShaderGenerator\FragmentShaderGenerator.cs" />
     <Compile Include="Rendering\Models\Materials\ShaderGenerator\GeometryShaderGenerator.cs" />
     <Compile Include="Rendering\Models\Materials\ShaderGenerator\ShaderGenerator.cs" />

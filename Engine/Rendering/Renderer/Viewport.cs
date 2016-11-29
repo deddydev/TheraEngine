@@ -256,7 +256,7 @@ namespace CustomEngine.Rendering
             }
         }
 
-        public Actor PickScene(Vec2 vec2)
+        public Actor PickScene(Vec2 screenPoint)
         {
             return null;
         }

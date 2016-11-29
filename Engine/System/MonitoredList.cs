@@ -19,6 +19,7 @@ namespace System.Collections.Generic
         public event MultiHandler RemovedRange;
         public event SingleInsertHandler Inserted;
         public event MultiInsertHandler InsertedRange;
+        public event Action Modified;
 
         bool _updating = false;
 
@@ -34,20 +35,29 @@ namespace System.Collections.Generic
         {
             base.Add(item);
             if (!_updating)
+            {
                 Added?.Invoke(item);
+                Modified?.Invoke();
+            }
         }
         public new void AddRange(IEnumerable<T> collection)
         {
             base.AddRange(collection);
             if (!_updating)
+            {
                 AddedRange?.Invoke(collection);
+                Modified?.Invoke();
+            }
         }
         public new bool Remove(T item)
         {
             if (base.Remove(item))
             {
                 if (!_updating)
+                {
                     Removed?.Invoke(item);
+                    Modified?.Invoke();
+                }
                 return true;
             }
             return false;
@@ -57,40 +67,58 @@ namespace System.Collections.Generic
             IEnumerable<T> range = GetRange(index, count);
             base.RemoveRange(index, count);
             if (!_updating)
+            {
                 RemovedRange?.Invoke(range);
+                Modified?.Invoke();
+            }
         }
         public new void RemoveAt(int index)
         {
             T item = this[index];
             base.RemoveAt(index);
             if (!_updating)
+            {
                 Removed?.Invoke(item);
+                Modified?.Invoke();
+            }
         }
         public new void Clear()
         {
             IEnumerable<T> range = GetRange(0, Count);
             base.Clear();
             if (!_updating)
+            {
                 RemovedRange?.Invoke(range);
+                Modified?.Invoke();
+            }
         }
         public new void RemoveAll(Predicate<T> match)
         {
             IEnumerable<T> matches = FindAll(match);
             base.RemoveAll(match);
             if (!_updating)
+            {
                 RemovedRange?.Invoke(matches);
+                Modified?.Invoke();
+            }
         }
         public new void Insert(int index, T item)
         {
             base.Insert(index, item);
             if (!_updating)
+            {
                 Inserted?.Invoke(item, index);
+                Modified?.Invoke();
+            }
         }
         public new void InsertRange(int index, IEnumerable<T> collection)
         {
             base.InsertRange(index, collection);
             if (!_updating)
+            {
                 InsertedRange?.Invoke(collection, index);
+                Modified?.Invoke();
+            }
         }
     }
 }

@@ -25,14 +25,15 @@
         /// </summary>
         public Plane(Vec3 point)
         {
-            _normal = -point;
-            _distance = point.Length;
+            _normal = (-point).NormalizedFast();
+            _distance = point.LengthFast;
         }
         /// <summary>
         /// Constructs a plane given a normal and distance from the origin.
         /// </summary>
         public Plane(Vec3 normal, float distance)
         {
+            normal.NormalizeFast();
             _normal = normal;
             _distance = distance;
         }
@@ -41,6 +42,7 @@
         /// </summary>
         public Plane(Vec3 point, Vec3 normal)
         {
+            normal.NormalizeFast();
             _normal = normal;
             _distance = -point.Dot(normal);
         }
@@ -114,6 +116,13 @@
                 return EPlaneIntersection.Back;
 
             return EPlaneIntersection.Intersecting;
+        }
+
+        public Plane TransformedBy(Matrix4 transform)
+        {
+            Vec3 point = Point;
+            Vec3 normal = Normal;
+            return new Plane();
         }
     }
 }

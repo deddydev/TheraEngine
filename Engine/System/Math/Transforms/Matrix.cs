@@ -4,6 +4,12 @@ using static System.CustomMath;
 
 namespace System
 {
+    /// <summary>
+    /// Post-multiplying with column-major matrices produces the same result 
+    /// as pre-multiplying with row-major matrices.
+    /// In the case of this row major matrix class, post multiply (it's reversed).
+    /// However in GLSL shaders, you need to pre-multiply as per usual.
+    /// </summary>
     [Serializable]
     [StructLayout(LayoutKind.Sequential)]
     public unsafe struct Matrix4 : IEquatable<Matrix4>
@@ -880,7 +886,7 @@ namespace System
             Vec3 scale,
             Quaternion rotate,
             Vec3 translate, 
-            MultiplyOrder order = MultiplyOrder.SRT)
+            MultiplyOrder order = MultiplyOrder.TRS)
         {
             return InverseTransformMatrix(scale, CreateFromQuaternion(rotate.Inverted()), translate, order);
         }
@@ -888,7 +894,7 @@ namespace System
             Vec3 scale,
             Rotator rotate,
             Vec3 translate,
-            MultiplyOrder order = MultiplyOrder.SRT)
+            MultiplyOrder order = MultiplyOrder.TRS)
         {
             return InverseTransformMatrix(scale, CreateFromRotator(rotate.Inverted()), translate, order);
         }
@@ -904,7 +910,7 @@ namespace System
             Vec3 scale,
             Matrix4 rotate,
             Vec3 translate,
-            MultiplyOrder order = MultiplyOrder.SRT)
+            MultiplyOrder order = MultiplyOrder.TRS)
         {
             return TransformMatrix(1.0f / scale, rotate, -translate, OppositeOf(order));
         }
@@ -959,6 +965,10 @@ namespace System
         public static bool operator !=(Matrix4 left, Matrix4 right)
         {
             return !left.Equals(right);
+        }
+        public static implicit operator BulletSharp.Matrix(Matrix4 matrix)
+        {
+            return new BulletSharp.Matrix();
         }
         public override string ToString()
         {

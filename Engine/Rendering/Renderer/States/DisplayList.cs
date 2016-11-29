@@ -8,9 +8,6 @@ namespace CustomEngine.Rendering
 
         bool _hasStarted = false;
         bool _hasFinished = false;
-        string _name;
-
-        public string Name { get { return _name; } set { _name = value; } }
 
         public void Begin()
         {

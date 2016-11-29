@@ -23,6 +23,7 @@ namespace CustomEngine.Rendering.Models.Materials
     public abstract class MaterialFunction : HudComponent, IGLVarOwner
     {
         private static Dictionary<Type, MaterialFuncInfo> _info = new Dictionary<Type, MaterialFuncInfo>();
+        protected bool _inline = false;
 
         public static MaterialFunction Instantiate(Type t, HudComponent owner)
         {
@@ -60,9 +61,12 @@ namespace CustomEngine.Rendering.Models.Materials
         }
 
         protected string _operation;
-        protected List<IGLArgument> _inputs = new List<IGLArgument>();
+        protected List<BaseGLArgument> _inputs = new List<BaseGLArgument>();
+        protected List<BaseGLOutput> _outputs = new List<BaseGLOutput>();
+        
+        public List<BaseGLArgument> InputArguments { get { return _inputs; } }
+        public List<BaseGLOutput> OutputArguments { get { return _outputs; } }
 
-        public List<IGLArgument> InputArguments { get { return _inputs; } }
         public ReadOnlyCollection<string> Keywords
         {
             get
@@ -101,7 +105,7 @@ namespace CustomEngine.Rendering.Models.Materials
             {
                 MethodInfo method = t.GetMethod("GetInfo", BindingFlags.Static | BindingFlags.Public);
                 if (method == null)
-                    throw new Exception("public static List<string> GetInfo() not found in " + t.ToString());
+                    throw new Exception("public static MaterialFuncInfo GetInfo() not found in " + t.ToString());
                 MaterialFuncInfo info = method.Invoke(null, new object[0]) as MaterialFuncInfo;
                 if (info == null)
                     throw new Exception(t.ToString() + "'s GetInfo function did not return MaterialFuncInfo.");
@@ -121,21 +125,20 @@ namespace CustomEngine.Rendering.Models.Materials
             _operation = string.Format(GetOperation(), InputArguments);
         }
 
-        protected virtual List<IGLArgument> GetArguments() { return new List<IGLArgument>(); }
+        protected virtual List<BaseGLArgument> GetArguments() { return new List<BaseGLArgument>(); }
         
         /// <summary>
         /// Returns the base operation for string.Format.
-        /// Input args first, then output args.
         /// </summary>
         protected abstract string GetOperation();
 
-        protected void AddInput(List<IGLArgument> input)
+        protected void AddInput(List<BaseGLArgument> input)
         {
             if (input != null)
-                foreach (IGLArgument v in input)
+                foreach (BaseGLArgument v in input)
                     AddInput(v);
         }
-        protected void AddInput(IGLArgument input)
+        protected void AddInput(BaseGLArgument input)
         {
             _inputs.Add(input);
         }
@@ -145,7 +148,25 @@ namespace CustomEngine.Rendering.Models.Materials
         }
         public string WriteGlobalMethod()
         {
-            string s = "";
+            string s = "void " + Name + "(";
+            bool first = true;
+            foreach (BaseGLArgument arg in InputArguments)
+            {
+                if (first)
+                    first = false;
+                else
+                    s += ", ";
+                s += "in " + arg.GetTypeName().ToString().Substring(1) + " " + arg.Name;
+            }
+            foreach (BaseGLOutput arg in OutputArguments)
+            {
+                if (first)
+                    first = false;
+                else
+                    s += ", ";
+                s += "out " + arg.GetTypeName().ToString().Substring(1) + " " + arg.Name;
+            }
+            s += ")\n{\n" + GetOperation() + "\n}\n";
             return s;
         }
     }

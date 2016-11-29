@@ -8,14 +8,31 @@ using System.Runtime.InteropServices;
 
 namespace CustomEngine.Rendering.Models
 {
+    public enum BufferType
+    {
+        Position,
+        Normal,
+        //Binormal,
+        //Tangent,
+        TexCoord,
+        Color,
+    }
     public class VertexBuffer : BaseRenderState, IDisposable
     {
-        public const string PositionsName = "Positions";
-        public const string NormalsName = "Normals";
-        public const string TexCoordName = "TexCoord";
-        public const string ColorName = "Color";
-        public const string SpecialName = "Special";
-
+        public static string GetBufferName(BufferType type, int index = -1, bool morph = false)
+        {
+            string s = (morph ? "Morph" : "Base") + type.ToString();
+            if (morph = false && (type == BufferType.Position || type == BufferType.Normal))
+                return s;
+            return s + index.ToString();
+        }
+        public bool IsType(BufferType type, int index = -1, bool morph = false)
+        {
+            return Name.StartsWith(morph ? "Morph" : "Base") && 
+                Name.Contains(type.ToString()) &&
+                ((!morph && (type == BufferType.Position || type == BufferType.Normal)) || index < 0 ? true : Name.EndsWith(index.ToString()));
+        }
+        
         public enum BufferUsage
         {
             StreamDraw = 0,
@@ -106,12 +123,6 @@ namespace CustomEngine.Rendering.Models
                 return -1;
             }
         }
-        
-        public bool IsPositionsBuffer() { return Name == PositionsName; }
-        public bool IsNormalsBuffer() { return Name == NormalsName; }
-        public bool IsTexCoordBuffer() { return Name.StartsWith(TexCoordName); }
-        public bool IsColorBuffer() { return Name.StartsWith(ColorName); }
-        public bool IsSpecialBuffer() { return Name.StartsWith(SpecialName); }
         public int Initialize()
         {
             Generate();
@@ -146,7 +157,7 @@ namespace CustomEngine.Rendering.Models
             Marshal.PtrToStructure(_data.Address + offset, value);
             return value;
         }
-        public unsafe Remapper SetDataNumeric<T>(IList<T> list, bool remap = true) where T : struct
+        public unsafe Remapper SetDataNumeric<T>(IList<T> list, bool remap = false) where T : struct
         {
             if (typeof(T) == typeof(sbyte))
                 _componentType = ComponentType.SByte;
@@ -206,7 +217,7 @@ namespace CustomEngine.Rendering.Models
                 return null;
             }
         }
-        public Remapper SetData<T>(IList<T> list, bool remap = true) where T : IBufferable
+        public Remapper SetData<T>(IList<T> list, bool remap = false) where T : IBufferable
         {
             Console.WriteLine("\nSetting vertex data for buffer " + Index + " - " + Name);
 
@@ -236,7 +247,10 @@ namespace CustomEngine.Rendering.Models
                 _data = DataSource.Allocate(DataLength);
                 int stride = Stride;
                 for (int i = 0; i < list.Count; ++i)
+                {
+                    Console.WriteLine(list[i].ToString());
                     list[i].Write(_data.Address[i, stride]);
+                }
                 return null;
             }
         }

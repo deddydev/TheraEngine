@@ -67,9 +67,9 @@
         {
             return from + (to - from) * time * speed;
         }
-        public static Vec3 RotateAboutPoint(Vec3 point, Vec3 center, Vec3 angles)
+        public static Vec3 RotateAboutPoint(Vec3 point, Vec3 center, Rotator angles)
         {
-            return point * Matrix4.CreateTranslation(-center) * Matrix4.CreateFromEuler(angles) * Matrix4.CreateTranslation(center);
+            return point * Matrix4.CreateTranslation(-center) * angles.GetMatrix() * Matrix4.CreateTranslation(center);
         }
         public static Vec3 RotateAboutPoint(Vec3 point, Vec3 center, Quaternion angles)
         {

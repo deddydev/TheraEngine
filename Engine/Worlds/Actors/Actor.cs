@@ -6,6 +6,7 @@ using CustomEngine.Worlds.Actors.Components;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Runtime.InteropServices;
+using CustomEngine.Files;
 
 namespace CustomEngine.Worlds
 {
@@ -14,7 +15,7 @@ namespace CustomEngine.Worlds
         Static, //This actor is part of the map
         Dynamic, //This actor can be changed/manipulated
     }
-    public class Actor : ObjectBase
+    public class Actor : FileObject
     {
         private bool _isConstructing;
         public bool IsConstructing { get { return _isConstructing; } }
@@ -35,9 +36,6 @@ namespace CustomEngine.Worlds
             _isConstructing = false;
             GenerateSceneComponentCache();
         }
-        protected virtual void SetDefaults() { }
-        protected virtual SceneComponent SetupComponents() { return new GenericSceneComponent(); }
-
         [State]
         public bool IsSpawned { get { return _spawnIndex >= 0; } }
         [State]
@@ -67,11 +65,6 @@ namespace CustomEngine.Worlds
                 GenerateSceneComponentCache();
             }
         }
-        public void GenerateSceneComponentCache()
-        {
-            if (!_isConstructing)
-                _sceneComponentCache = _rootSceneComponent == null ? new List<SceneComponent>() : _rootSceneComponent.GenerateChildCache();
-        }
         
         public int _spawnIndex = -1;
         private World _owningWorld;
@@ -94,6 +87,13 @@ namespace CustomEngine.Worlds
         public bool IsMovable { get { return _isMovable; } set { _isMovable = value; } }
         public bool SimulatingPhysics { get { return _simulatingPhysics; } }
 
+        protected virtual void SetDefaults() { }
+        protected virtual SceneComponent SetupComponents() { return new GenericSceneComponent(); }
+        public void GenerateSceneComponentCache()
+        {
+            if (!_isConstructing)
+                _sceneComponentCache = _rootSceneComponent == null ? new List<SceneComponent>() : _rootSceneComponent.GenerateChildCache();
+        }
         internal void RebaseOrigin(Vec3 newOrigin)
         {
             if (_rootSceneComponent != null)

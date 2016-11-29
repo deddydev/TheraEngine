@@ -1,5 +1,4 @@
-﻿using CustomEngine.Rendering.Models.Materials.ShaderGenerator;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -13,9 +12,9 @@ namespace CustomEngine.Rendering.Models.Materials
     public class ResultBasicFunc : MaterialFunction
     {
         private GLArgument<GLVec4> OutputColor { get { return InputArguments[0] as GLArgument<GLVec4>; } }
-        protected override List<IGLArgument> GetArguments()
+        protected override List<BaseGLArgument> GetArguments()
         {
-            return new List<IGLArgument>()
+            return new List<BaseGLArgument>()
             {
                 new GLArgument<GLVec4>("FinalColor"),
             };

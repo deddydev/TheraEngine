@@ -68,20 +68,24 @@ namespace CustomEngine.Rendering.OpenGL
 
         public unsafe override void Initialize()
         {
-            GL.ClearDepth(1.0);
             GL.ShadeModel(ShadingModel.Smooth);
             GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
-            GL.Enable(OpenTK.Graphics.OpenGL.EnableCap.CullFace);
-            GL.FrontFace(FrontFaceDirection.Ccw);
+            GL.Disable(OpenTK.Graphics.OpenGL.EnableCap.CullFace);
+            GL.Disable(OpenTK.Graphics.OpenGL.EnableCap.Dither);
+            //GL.FrontFace(FrontFaceDirection.Ccw);
+            //GL.CullFace(CullFaceMode.Front);
+            GL.Enable(OpenTK.Graphics.OpenGL.EnableCap.DepthTest);
+            GL.ClearDepth(1.0);
+            GL.DepthFunc(DepthFunction.Less);
+            GL.DepthMask(true);
 
-            //GL.Hint(HintTarget.PerspectiveCorrectionHint, HintMode.Nicest);
-            //GL.Hint(HintTarget.LineSmoothHint, HintMode.Nicest);
-            //GL.Hint(HintTarget.PointSmoothHint, HintMode.Nicest);
-            //GL.Hint(HintTarget.PolygonSmoothHint, HintMode.Nicest);
-            //GL.Hint(HintTarget.GenerateMipmapHint, HintMode.Nicest);
-            
+            GL.Hint(HintTarget.PerspectiveCorrectionHint, HintMode.Nicest);
+            GL.Hint(HintTarget.LineSmoothHint, HintMode.Nicest);
+            GL.Hint(HintTarget.PointSmoothHint, HintMode.Nicest);
+            GL.Hint(HintTarget.PolygonSmoothHint, HintMode.Nicest);
+            GL.Hint(HintTarget.GenerateMipmapHint, HintMode.Nicest);
+
             //GL.Enable(OpenTK.Graphics.OpenGL.EnableCap.DepthTest);
-            //GL.Disable(OpenTK.Graphics.OpenGL.EnableCap.Dither);
             //GL.Disable(OpenTK.Graphics.OpenGL.EnableCap.Blend);
             //GL.Disable(OpenTK.Graphics.OpenGL.EnableCap.AlphaTest);
             //GL.Enable(OpenTK.Graphics.OpenGL.EnableCap.ScissorTest);
@@ -93,7 +97,6 @@ namespace CustomEngine.Rendering.OpenGL
             //GL.DepthFunc(DepthFunction.Less);
             //GL.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
             //GL.AlphaFunc(AlphaFunction.Gequal, 0.1f);
-            //GL.CullFace(CullFaceMode.Back);
         }
         public unsafe override void BeginDraw()
         {

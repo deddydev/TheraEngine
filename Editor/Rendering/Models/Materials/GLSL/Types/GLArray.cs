@@ -11,7 +11,12 @@ namespace CustomEngine.Rendering.Models.Materials
         public override GLTypeName TypeName { get { return _elementTypeName; } }
         public ArrayHandler<T> Value { get { return _value; } set { _value = value; } }
         public int Length { get { return _value.Length; } }
-        public override IUniformable UniformValue { get { return _value; } }
+        public override void SetUniform(int location)
+        {
+            throw new NotImplementedException();
+            //Engine.Renderer.Uniform();
+        }
+        public override string GetValueString() { return _value.ToString(); }
 
         public GLTypeName _elementTypeName;
         private ArrayHandler<T> _value;

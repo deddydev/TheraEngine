@@ -58,7 +58,7 @@ namespace CustomEngine.Rendering.Animation
     }
     public class InterpKeyframe : Keyframe
     {
-        public InterpKeyframe(float frameIndex, float inValue, float outValue)
+        public InterpKeyframe(float frameIndex, float inValue, float outValue) : base()
         {
             _frameIndex = frameIndex;
             _inValue = inValue;

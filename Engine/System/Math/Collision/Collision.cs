@@ -622,6 +622,9 @@ namespace System
             //Source: Real-Time Collision Detection by Christer Ericson
             //Reference: Page 179
 
+            //Transform ray to untransformed box space
+            ray = ray.TransformedBy(box.GetInverseWorldMatrix());
+
             distance = 0.0f;
             float tmax = float.MaxValue;
 
@@ -629,7 +632,7 @@ namespace System
             {
                 if (ray.StartPoint.X < box.Minimum.X || ray.StartPoint.X > box.Maximum.X)
                 {
-                    distance = 0f;
+                    distance = 0.0f;
                     return false;
                 }
             }
@@ -651,7 +654,7 @@ namespace System
 
                 if (distance > tmax)
                 {
-                    distance = 0f;
+                    distance = 0.0f;
                     return false;
                 }
             }
@@ -921,6 +924,9 @@ namespace System
             //Source: Real-Time Collision Detection by Christer Ericson
             //Reference: Page 161
 
+            //Transform plane into untransformed box space
+            plane = plane.TransformedBy(box.GetInverseWorldMatrix());
+
             Vec3 min;
             Vec3 max;
 
@@ -990,7 +996,7 @@ namespace System
         /// <param name="box1">The first box to test.</param>
         /// <param name="box2">The second box to test.</param>
         /// <returns>Whether the two objects intersected.</returns>
-        public static bool BoxIntersectsBox(Box box1, Box box2)
+        public static bool AABBIntersectsAABB(Box box1, Box box2)
         {
             if (box1.Minimum.X > box2.Maximum.X || box2.Minimum.X > box1.Maximum.X)
                 return false;
@@ -1000,8 +1006,13 @@ namespace System
 
             if (box1.Minimum.Z > box2.Maximum.Z || box2.Minimum.Z > box1.Maximum.Z)
                 return false;
-
+            
             return true;
+        }
+
+        public static bool BoxIntersectsBox(Box box1, Box box2)
+        {
+            return BoxContainsBox(box1, box2) == EContainment.Intersects;
         }
 
         /// <summary>
@@ -1015,8 +1026,9 @@ namespace System
             //Source: Real-Time Collision Detection by Christer Ericson
             //Reference: Page 166
 
-            Vec3 vector = sphere.Center.Clamped(box.Minimum, box.Maximum);
-            float distance = sphere.Center.DistanceToSquared(vector);
+            Vec3 pos = Vec3.TransformPosition(sphere.Center, box.GetInverseWorldMatrix());
+            Vec3 vector = pos.Clamped(box.Minimum, box.Maximum);
+            float distance = pos.DistanceToSquared(vector);
 
             return distance <= sphere.Radius * sphere.Radius;
         }
@@ -1046,10 +1058,10 @@ namespace System
         /// <param name="sphere1">First sphere to test.</param>
         /// <param name="sphere2">Second sphere to test.</param>
         /// <returns>Whether the two objects intersected.</returns>
-        public static bool SphereIntersectsSphere(Sphere sphere1, Vec3 sphere1Pos, Sphere sphere2, Vec3 sphere2Pos)
+        public static bool SphereIntersectsSphere(Sphere sphere1, Sphere sphere2)
         {
             float radiisum = sphere1.Radius + sphere2.Radius;
-            return sphere1Pos.DistanceToSquared(sphere2Pos) <= radiisum * radiisum;
+            return sphere1.Center.DistanceToSquared(sphere2.Center) <= radiisum * radiisum;
         }
 
         /// <summary>
@@ -1060,6 +1072,8 @@ namespace System
         /// <returns>The type of containment the two objects have.</returns>
         public static bool BoxContainsPoint(Box box, Vec3 point)
         {
+            //Transform point into untransformed box space
+            point = Vec3.TransformPosition(point, box.GetInverseWorldMatrix());
             if (box.Minimum.X <= point.X && box.Maximum.X >= point.X &&
                 box.Minimum.Y <= point.Y && box.Maximum.Y >= point.Y &&
                 box.Minimum.Z <= point.Z && box.Maximum.Z >= point.Z)
@@ -1089,14 +1103,17 @@ namespace System
             return EContainment.Disjoint;
         }
         */
-
+        public static EContainment BoxContainsBox(Box box1, Box box2)
+        {
+            return FrustumContainsBox1(box1.AsFrustum(true), box2);
+        }
         /// <summary>
         /// Determines whether a <see cref="Box"/> contains a <see cref="Box"/>.
         /// </summary>
         /// <param name="box1">The first box to test.</param>
         /// <param name="box2">The second box to test.</param>
         /// <returns>The type of containment the two objects have.</returns>
-        public static EContainment BoxContainsBox(Box box1, Box box2)
+        public static EContainment AABBContainsAABB(Box box1, Box box2)
         {
             if (box1.Maximum.X < box2.Minimum.X || box1.Minimum.X > box2.Maximum.X)
                 return EContainment.Disjoint;
@@ -1123,15 +1140,17 @@ namespace System
         /// <returns>The type of containment the two objects have.</returns>
         public static EContainment BoxContainsSphere(Box box, Sphere sphere)
         {
-            Vec3 vector = Vec3.Clamp(sphere.Center, box.Minimum, box.Maximum);
-            float distance = sphere.Center.DistanceToSquared(vector);
+            //Transform sphere into untransformed box space
+            Vec3 sphereCenter = Vec3.TransformPosition(sphere.Center, box.GetInverseWorldMatrix());
+            Vec3 vector = Vec3.Clamp(sphereCenter, box.Minimum, box.Maximum);
+            float distance = sphereCenter.DistanceToSquared(vector);
 
             if (distance > sphere.Radius * sphere.Radius)
                 return EContainment.Disjoint;
 
-            if ((((box.Minimum.X + sphere.Radius <= sphere.Center.X) && (sphere.Center.X <= box.Maximum.X - sphere.Radius)) && ((box.Maximum.X - box.Minimum.X > sphere.Radius) &&
-                (box.Minimum.Y + sphere.Radius <= sphere.Center.Y))) && (((sphere.Center.Y <= box.Maximum.Y - sphere.Radius) && (box.Maximum.Y - box.Minimum.Y > sphere.Radius)) &&
-                (((box.Minimum.Z + sphere.Radius <= sphere.Center.Z) && (sphere.Center.Z <= box.Maximum.Z - sphere.Radius)) && (box.Maximum.Z - box.Minimum.Z > sphere.Radius))))
+            if ((((box.Minimum.X + sphere.Radius <= sphereCenter.X) && (sphereCenter.X <= box.Maximum.X - sphere.Radius)) && ((box.Maximum.X - box.Minimum.X > sphere.Radius) &&
+                (box.Minimum.Y + sphere.Radius <= sphereCenter.Y))) && (((sphereCenter.Y <= box.Maximum.Y - sphere.Radius) && (box.Maximum.Y - box.Minimum.Y > sphere.Radius)) &&
+                (((box.Minimum.Z + sphere.Radius <= sphereCenter.Z) && (sphereCenter.Z <= box.Maximum.Z - sphere.Radius)) && (box.Maximum.Z - box.Minimum.Z > sphere.Radius))))
             {
                 return EContainment.Contains;
             }
@@ -1191,7 +1210,7 @@ namespace System
                 return EContainment.Disjoint;
 
             float r2 = sphere.Radius * sphere.Radius;
-            Vec3[] points = box.GetCorners();
+            Vec3[] points = box.GetTransformedCorners();
             foreach (Vec3 point in points)
                 if (sphere.Center.DistanceToSquared(point) > r2)
                     return EContainment.Intersects;
@@ -1233,28 +1252,28 @@ namespace System
             }
             return type;
         }
-        public static EContainment FrustumContainsBox(Frustum frustum, Box box, Matrix4 transform)
+        public static EContainment FrustumContainsBox1(Frustum frustum, Box box)
         {
             EContainment result = EContainment.Contains;
-            int outCount, inCount;
-            Vec3[] corners = box.GetCorners(transform);
+            int numOut, numIn;
+            Vec3[] corners = box.GetTransformedCorners();
             foreach (Plane p in frustum)
             {
-                outCount = 0;
-                inCount = 0;
-                for (int k = 0; k < 8 && (inCount == 0 || outCount == 0); k++)
-                    if (DistancePlanePoint(p, corners[k]) < 0)
-				        outCount++;
+                numOut = 0;
+                numIn = 0;
+                for (int i = 0; i < 8 && (numIn == 0 || numOut == 0); i++)
+                    if (DistancePlanePoint(p, corners[i]) < 0)
+				        numOut++;
 			        else
-				        inCount++;
-                if (inCount == 0)
+				        numIn++;
+                if (numIn == 0)
 			        return EContainment.Disjoint;
-		        else if (outCount != 0)
+		        else if (numOut != 0)
 			        result = EContainment.Intersects;
             }
 	        return result;
         }
-        public static EContainment FrustumContainsBox(Frustum frustum, Box box)
+        public static EContainment FrustumContainsBox2(Frustum frustum, Box box)
         {
             EPlaneIntersection near = PlaneIntersectsBox(frustum.Near, box);
             EPlaneIntersection far = PlaneIntersectsBox(frustum.Far, box);

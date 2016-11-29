@@ -1,6 +1,7 @@
 ﻿using static System.Math;
 using CustomEngine;
 using CustomEngine.Rendering.Models;
+using BulletSharp;
 
 namespace System
 {
@@ -25,7 +26,10 @@ namespace System
             _radius = Abs(radius);
             _center = center;
         }
-
+        public override CollisionShape GetCollisionShape()
+        {
+            return new SphereShape(Radius);
+        }
         public override void Render() { Render(true); }
         public override void Render(bool solid)
         {

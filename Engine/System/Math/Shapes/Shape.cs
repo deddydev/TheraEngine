@@ -1,9 +1,13 @@
-﻿using CustomEngine.Rendering;
+﻿using BulletSharp;
+using CustomEngine.Rendering;
+using CustomEngine;
 
 namespace System
 {
     public abstract class Shape : RenderableObject
     {
+        public event Action AttributeChanged;
+
         public EContainment IsWithin(Shape shape) { return shape == null ? EContainment.Disjoint : shape.Contains(this); }
         public EContainment Contains(Shape shape)
         {
@@ -29,5 +33,6 @@ namespace System
             return LinkedComponent != null ? LinkedComponent.InverseWorldMatrix : Matrix4.Identity;
         }
         public abstract void Render(bool solid);
+        public abstract CollisionShape GetCollisionShape();
     }
 }

@@ -203,31 +203,61 @@ namespace CustomEngine.Rendering
                 _programHandle = 0;
         }
 
+        public abstract int GetAttribLocation(string name);
         public abstract int GetUniformLocation(string name);
 
         public void Uniform(string name, params IUniformable4Int[] p) => Uniform(GetUniformLocation(name), p);
-        public void Uniform(string name, params IUniformable3Int[] p) => Uniform(GetUniformLocation(name), p);
-        public void Uniform(string name, params IUniformable2Int[] p) => Uniform(GetUniformLocation(name), p);
-        public void Uniform(string name, params IUniformable1Int[] p) => Uniform(GetUniformLocation(name), p);
         public void Uniform(string name, params IUniformable4Float[] p) => Uniform(GetUniformLocation(name), p);
+
+        public void Uniform(string name, params IUniformable3Int[] p) => Uniform(GetUniformLocation(name), p);
         public void Uniform(string name, params IUniformable3Float[] p) => Uniform(GetUniformLocation(name), p);
+
+        public void Uniform(string name, params IUniformable2Int[] p) => Uniform(GetUniformLocation(name), p);
         public void Uniform(string name, params IUniformable2Float[] p) => Uniform(GetUniformLocation(name), p);
+
+        public void Uniform(string name, params IUniformable1Int[] p) => Uniform(GetUniformLocation(name), p);
         public void Uniform(string name, params IUniformable1Float[] p) => Uniform(GetUniformLocation(name), p);
+
         public void Uniform(string name, params int[] p) => Uniform(GetUniformLocation(name), p);
         public void Uniform(string name, params float[] p) => Uniform(GetUniformLocation(name), p);
+        public void Uniform(string name, params uint[] p) => Uniform(GetUniformLocation(name), p);
+        public void Uniform(string name, params double[] p) => Uniform(GetUniformLocation(name), p);
+
         public void Uniform(string name, Matrix4 p) => Uniform(GetUniformLocation(name), p);
+        public void Uniform(string name, Matrix4[] p) => Uniform(GetUniformLocation(name), p);
 
         public abstract void Uniform(int location, params IUniformable4Int[] p);
-        public abstract void Uniform(int location, params IUniformable3Int[] p);
-        public abstract void Uniform(int location, params IUniformable2Int[] p);
-        public abstract void Uniform(int location, params IUniformable1Int[] p);
         public abstract void Uniform(int location, params IUniformable4Float[] p);
+        public void Uniform(int location, params IUniformable4Double[] p) { throw new NotImplementedException(); }
+        public void Uniform(int location, params IUniformable4UInt[] p) { throw new NotImplementedException(); }
+        public void Uniform(int location, params IUniformable4Bool[] p) { throw new NotImplementedException(); }
+
+        public abstract void Uniform(int location, params IUniformable3Int[] p);
         public abstract void Uniform(int location, params IUniformable3Float[] p);
+        public void Uniform(int location, params IUniformable3Double[] p) { throw new NotImplementedException(); }
+        public void Uniform(int location, params IUniformable3UInt[] p) { throw new NotImplementedException(); }
+        public void Uniform(int location, params IUniformable3Bool[] p) { throw new NotImplementedException(); }
+
+        public abstract void Uniform(int location, params IUniformable2Int[] p);
         public abstract void Uniform(int location, params IUniformable2Float[] p);
+        public void Uniform(int location, params IUniformable2Double[] p) { throw new NotImplementedException(); }
+        public void Uniform(int location, params IUniformable2UInt[] p) { throw new NotImplementedException(); }
+        public void Uniform(int location, params IUniformable2Bool[] p) { throw new NotImplementedException(); }
+
+        public abstract void Uniform(int location, params IUniformable1Int[] p);
         public abstract void Uniform(int location, params IUniformable1Float[] p);
+        public void Uniform(int location, params IUniformable1Double[] p) { throw new NotImplementedException(); }
+        public void Uniform(int location, params IUniformable1UInt[] p) { throw new NotImplementedException(); }
+        public void Uniform(int location, params IUniformable1Bool[] p) { throw new NotImplementedException(); }
+
         public abstract void Uniform(int location, params int[] p);
         public abstract void Uniform(int location, params float[] p);
+        public void Uniform(int location, params double[] p) { throw new NotImplementedException(); }
+        public void Uniform(int location, params uint[] p) { throw new NotImplementedException(); }
+        public void Uniform(int location, params bool[] p) { throw new NotImplementedException(); }
+
         public abstract void Uniform(int location, Matrix4 p);
+        public abstract void Uniform(int location, params Matrix4[] p);
 
         #endregion
 

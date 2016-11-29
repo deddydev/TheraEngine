@@ -7,10 +7,7 @@ namespace CustomEngine.Rendering.Cameras
 {
     public abstract class Camera : FileObject
     {
-        public Camera()
-        {
-            Resize(1.0f, 1.0f);
-        }
+        public Camera() { Resize(1.0f, 1.0f); }
 
         public PostProcessSettings PostProcessSettings
         {
@@ -36,17 +33,10 @@ namespace CustomEngine.Rendering.Cameras
             get { return _point; }
             set { _point = value; CreateTransform(); }
         }
-        public Vec3 Direction
+        public Rotator Rotation
         {
-            get { return GetForwardVector(); }
-            set
-            {
-                Vec3 angles = value.GetAngles();
-                _yaw = angles.Y;
-                _pitch = angles.X;
-                _roll = angles.Z;
-                CreateTransform();
-            }
+            get { return _rotate; }
+            set { _rotate = value; CreateTransform(); }
         }
 
         public abstract float Width { get; }
@@ -65,7 +55,7 @@ namespace CustomEngine.Rendering.Cameras
             _restrictZRot;
         protected float 
             _nearZ = 1.0f,
-            _farZ = 200000.0f;
+            _farZ = 2000.0f;
         private PostProcessSettings _postProcessSettings;
 
         protected Matrix4 _projectionMatrix = Matrix4.Identity;
@@ -91,20 +81,20 @@ namespace CustomEngine.Rendering.Cameras
         }
         protected void CreateTransform()
         {
+            Rotator rotation = _rotate.WithNegatedRotations();
+
             //Transform is the regular camera position, with the direction facing BEHIND the camera
             _transform =
-                Matrix4.CreateTranslation(_point) * 
-                Matrix4.CreateRotationY(-_yaw) *
-                Matrix4.CreateRotationX(-_pitch) *
-                Matrix4.CreateRotationZ(-_roll) *
+                Matrix4.CreateTranslation(_point) *
+                rotation.GetMatrix() *
                 Matrix4.CreateScale(_scale);
+
+            rotation.Invert();
 
             //The inverse is the absolute opposite calculations
             _invTransform =
                 Matrix4.CreateScale(1.0f / _scale) *
-                Matrix4.CreateRotationZ(_roll) *
-                Matrix4.CreateRotationX(_pitch) *
-                Matrix4.CreateRotationY(_yaw) *
+                rotation.GetMatrix() *
                 Matrix4.CreateTranslation(-_point);
 
             _transformedFrustum = _untransformedFrustum.TransformedBy(_transform);
@@ -173,7 +163,9 @@ namespace CustomEngine.Rendering.Cameras
         internal void SetUniforms()
         {
             Engine.Renderer.Uniform(Uniform.ViewMatrixName, Matrix);
-            Engine.Renderer.Uniform(Uniform.ProjMatrixName, _projectionMatrix);
+            Engine.Renderer.Uniform(Uniform.ProjMatrixName, ProjectionMatrix);
+            Engine.Renderer.Uniform(Uniform.ScreenWidthName, Width);
+            Engine.Renderer.Uniform(Uniform.ScreenHeightName, Height);
         }
         protected virtual void CalculateProjection()
         {

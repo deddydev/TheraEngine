@@ -8,9 +8,14 @@ using System.Collections.Generic;
 using CustomEngine.Rendering;
 using CustomEngine.Worlds.Actors.Components;
 using System.Collections.ObjectModel;
+using BulletSharp;
 
 namespace CustomEngine
 {
+    public interface ICollidable
+    {
+        RigidBody CollisionObject { get; set; }
+    }
     public interface IPanel
     {
         RectangleF Region { get; set; }

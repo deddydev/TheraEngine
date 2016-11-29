@@ -11,19 +11,12 @@ namespace CustomEngine.Rendering.Models.Materials
     /// </summary>
     public class ResultPBRFunc : ResultBasicFunc
     {
-        protected override List<string> GetKeywords()
+        public static new MaterialFuncInfo GetInfo()
         {
-            return new List<string>()
-            {
-                "result",
-                "output",
-                "final",
-                "return",
-                "physically",
-                "based",
-                "rendering",
-                "PBR",
-            };
+            return new MaterialFuncInfo(
+                "Output",
+                "Outputs the given vec4 color as the color for this fragment.",
+                "result output final return physically based rendering PBR");
         }
 
         protected override string GetOperation()
@@ -31,9 +24,9 @@ namespace CustomEngine.Rendering.Models.Materials
             return base.GetOperation();
         }
 
-        protected override List<IGLArgument> GetArguments()
+        protected override List<BaseGLArgument> GetArguments()
         {
-            return new List<IGLArgument>()
+            return new List<BaseGLArgument>()
             {
                 new GLArgument<GLVec4>("Diffuse"),
                 new GLArgument<GLFloat>("Roughness"),

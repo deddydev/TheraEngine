@@ -48,9 +48,9 @@ namespace CustomEngine.Rendering.Models.Materials
         {
             int[] ids = _shaders.Select(x => x.Compile()).ToArray();
             int id = Engine.Renderer.GenerateProgram(ids, 
-                VertexBuffer.PositionsName, 
-                VertexBuffer.NormalsName, 
-                VertexBuffer.TexCoordName + "0");
+                VertexBuffer.GetBufferName(BufferType.Position), 
+                VertexBuffer.GetBufferName(BufferType.Normal), 
+                VertexBuffer.GetBufferName(BufferType.TexCoord, 0));
             return id;
         }
 

@@ -92,7 +92,7 @@ namespace System
                 return Contains((Capsule)shape);
             return EContainment.Disjoint;
         }
-        public EContainment Contains(Box box) { return Collision.FrustumContainsBox(this, box); }
+        public EContainment Contains(Box box) { return Collision.FrustumContainsBox1(this, box); }
         public EContainment Contains(Sphere sphere) { return Collision.FrustumContainsSphere(this, sphere); }
         public EContainment Contains(Capsule capsule)
         {

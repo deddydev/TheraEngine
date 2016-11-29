@@ -20,6 +20,10 @@
         private Vec3 _startPoint;
         private Vec3 _endPoint;
 
+        public Ray TransformedBy(Matrix4 transform)
+        {
+            return new Ray(Vec3.TransformPosition(StartPoint, transform), Vec3.TransformPosition(EndPoint, transform));
+        }
         public bool LineSphereIntersect(Vec3 center, float radius, out Vec3 result)
         {
             Vec3 diff = Direction;

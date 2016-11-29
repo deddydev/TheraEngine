@@ -6,27 +6,31 @@ using System.Threading.Tasks;
 
 namespace CustomEngine.Rendering.Models.Materials
 {
-    public class LerpFunc : TwoArgFunc
+    /// <summary>
+    /// a * (1 − t) + b * t. 
+    /// </summary>
+    public class LerpFunc : MaterialFunction
     {
-        public GLVar Time { get { return InputArguments[0]; } }
+        public GLArgument<GLFloat> Time { get { return (GLArgument<GLFloat>)InputArguments[0]; } }
         
-        public LerpFunc(GLTypeName operandTypes) : base(operandTypes, operandTypes) { }
+        public LerpFunc(GLTypeName operandTypes) : base() { _inline = true; }
         protected override string GetOperation()
         {
-            return "mix({1}, {2}, {0})";
+            return "mix({0}, {1}, {2})";
         }
-        protected override List<GLVar> GetArguments()
+        protected override List<BaseGLArgument> GetArguments()
         {
-            List<GLVar> list = new List<GLVar>()
+            return new List<BaseGLArgument>()
             {
-                new GLVar(GLTypeName._float, "Time"),
+                new GLMultiArgument("A"),
+                new GLMultiArgument("B"),
+                new GLArgument<GLFloat>("Time"),
             };
-            list.AddRange(base.GetArguments());
-            return list;
         }
         public static MaterialFuncInfo GetInfo()
         {
             return new MaterialFuncInfo(
+                "Math",
                 "Linearly interpolates between A and B using Time: A + (B - A) * Time", 
                 "lerp mix linear interpolate blend");
         }

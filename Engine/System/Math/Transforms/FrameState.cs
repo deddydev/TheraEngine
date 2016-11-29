@@ -10,10 +10,11 @@ namespace System
     public delegate void MatrixChange(Matrix4 oldMatrix, Matrix4 oldInvMatrix);
     public class FrameState : FileObject
     {
-        public static FrameState GetIdentity(Matrix4.MultiplyOrder order)
+        public static FrameState GetIdentity(Matrix4.MultiplyOrder transformationOrder, Rotator.Order rotationOrder)
         {
             FrameState identity = Identity;
-            identity._transformOrder = order;
+            identity._transformOrder = transformationOrder;
+            identity.RotationOrder = rotationOrder;
             return identity;
         }
         public static readonly FrameState Identity = new FrameState(Vec3.Zero, Vec3.Zero, Vec3.One);
@@ -21,7 +22,7 @@ namespace System
             Vec3 translate, 
             Rotator rotate,
             Vec3 scale,
-            Matrix4.MultiplyOrder transformOrder = Matrix4.MultiplyOrder.SRT)
+            Matrix4.MultiplyOrder transformOrder = Matrix4.MultiplyOrder.TRS)
         {
             _translation = translate;
             _scale = scale;
@@ -35,7 +36,7 @@ namespace System
         private Vec3 _scale = Vec3.One;
         private Matrix4 _transform = Matrix4.Identity;
         private Matrix4 _inverseTransform = Matrix4.Identity;
-        private Matrix4.MultiplyOrder _transformOrder = Matrix4.MultiplyOrder.SRT;
+        private Matrix4.MultiplyOrder _transformOrder = Matrix4.MultiplyOrder.TRS;
 
         public event TranslateChange TranslationChanged;
         public event RotateChange YawChanged;
@@ -43,7 +44,14 @@ namespace System
         public event RotateChange RollChanged;
         public event ScaleChange ScaleChanged;
         public event MatrixChange MatrixChanged;
+        public void Lookat(Vec3 point)
+        {
+            SetForwardVector(point - _transform.GetPoint());
+        }
+        public void SetForwardVector(Vec3 direction)
+        {
 
+        }
         public Vec3 GetForwardVector() { return _rotation.TransformVector(Vec3.Forward); }
         public Vec3 GetUpVector() { return _rotation.TransformVector(Vec3.Up); }
         public Vec3 GetRightVector() { return _rotation.TransformVector(Vec3.Right); }
@@ -115,13 +123,6 @@ namespace System
             CreateTransform();
             RollChanged?.Invoke(oldRotation);
         }
-        //private void SetRotate(Vec3 value)
-        //{
-        //    Quaternion oldRotation = _rotation;
-        //    _rotation = Quaternion.FromEulerAngles(value);
-        //    CreateTransform();
-        //    RotationChanged?.Invoke(oldRotation);
-        //}
         private void SetScale(Vec3 value)
         {
             Vec3 oldScale = _scale;
@@ -143,150 +144,132 @@ namespace System
         public void MultMatrix() { Engine.Renderer.MultMatrix(_transform); }
         public void MultInvMatrix() { Engine.Renderer.MultMatrix(_inverseTransform); }
 
-        public void RotateInPlace(Quaternion rotation)
-        {
-            switch (_transformOrder)
-            {
-                case Matrix4.MultiplyOrder.TRS:
+        //public void RotateInPlace(Quaternion rotation)
+        //{
+        //    switch (_transformOrder)
+        //    {
+        //        case Matrix4.MultiplyOrder.TRS:
 
-                    break;
-                case Matrix4.MultiplyOrder.TSR:
+        //            break;
+        //        case Matrix4.MultiplyOrder.TSR:
 
-                    break;
-                case Matrix4.MultiplyOrder.STR:
+        //            break;
+        //        case Matrix4.MultiplyOrder.STR:
 
-                    break;
-                case Matrix4.MultiplyOrder.SRT:
+        //            break;
+        //        case Matrix4.MultiplyOrder.SRT:
 
-                    break;
-                case Matrix4.MultiplyOrder.RTS:
+        //            break;
+        //        case Matrix4.MultiplyOrder.RTS:
 
-                    break;
-                case Matrix4.MultiplyOrder.RST:
+        //            break;
+        //        case Matrix4.MultiplyOrder.RST:
 
-                    break;
-            }
-        }
-        public void RotateAboutParent(Quaternion rotation, Vec3 point)
-        {
-            switch (_transformOrder)
-            {
-                case Matrix4.MultiplyOrder.TRS:
+        //            break;
+        //    }
+        //}
+        //public void RotateAboutParent(Quaternion rotation, Vec3 point)
+        //{
+        //    switch (_transformOrder)
+        //    {
+        //        case Matrix4.MultiplyOrder.TRS:
 
-                    break;
-                case Matrix4.MultiplyOrder.TSR:
+        //            break;
+        //        case Matrix4.MultiplyOrder.TSR:
 
-                    break;
-                case Matrix4.MultiplyOrder.STR:
+        //            break;
+        //        case Matrix4.MultiplyOrder.STR:
 
-                    break;
-                case Matrix4.MultiplyOrder.SRT:
+        //            break;
+        //        case Matrix4.MultiplyOrder.SRT:
 
-                    break;
-                case Matrix4.MultiplyOrder.RTS:
+        //            break;
+        //        case Matrix4.MultiplyOrder.RTS:
 
-                    break;
-                case Matrix4.MultiplyOrder.RST:
+        //            break;
+        //        case Matrix4.MultiplyOrder.RST:
 
-                    break;
-            }
-        }
-        public void RotateAboutPoint(Quaternion rotation, Vec3 point)
-        {
-            switch (_transformOrder)
-            {
-                case Matrix4.MultiplyOrder.TRS:
+        //            break;
+        //    }
+        //}
+        //public void RotateAboutPoint(Quaternion rotation, Vec3 point)
+        //{
+        //    switch (_transformOrder)
+        //    {
+        //        case Matrix4.MultiplyOrder.TRS:
 
-                    break;
-                case Matrix4.MultiplyOrder.TSR:
+        //            break;
+        //        case Matrix4.MultiplyOrder.TSR:
 
-                    break;
-                case Matrix4.MultiplyOrder.STR:
+        //            break;
+        //        case Matrix4.MultiplyOrder.STR:
 
-                    break;
-                case Matrix4.MultiplyOrder.SRT:
+        //            break;
+        //        case Matrix4.MultiplyOrder.SRT:
 
-                    break;
-                case Matrix4.MultiplyOrder.RTS:
+        //            break;
+        //        case Matrix4.MultiplyOrder.RTS:
 
-                    break;
-                case Matrix4.MultiplyOrder.RST:
+        //            break;
+        //        case Matrix4.MultiplyOrder.RST:
 
-                    break;
-            }
-        }
-        //Translates relative to rotation.
-        public void TranslateRelative(Vec3 translation)
-        {
-            switch (_transformOrder)
-            {
-                case Matrix4.MultiplyOrder.SRT:
-                case Matrix4.MultiplyOrder.RST:
-                    Translation += translation;
-                    break;
-                case Matrix4.MultiplyOrder.RTS:
-                    Translation += translation / Scale;
-                    break;
-                case Matrix4.MultiplyOrder.STR:
-                    Translation += _finalRotation.Inverted() * translation;
-                    break;
-                case Matrix4.MultiplyOrder.TRS:
-                    Translation += (_finalRotation.Inverted() * translation) / Scale;
-                    break;
-                case Matrix4.MultiplyOrder.TSR:
-                    Translation += _finalRotation.Inverted() * (translation / Scale);
-                    break;
-            }
-        }
-        //Translates relative to parent space.
-        public void TranslateAbsolute(Vec3 translation)
-        {
-            switch (_transformOrder)
-            {
-                case Matrix4.MultiplyOrder.TRS:
-                case Matrix4.MultiplyOrder.TSR:
-                    Translation += translation;
-                    break;
-                case Matrix4.MultiplyOrder.STR:
-                    Translation += translation / Scale;
-                    break;
-                case Matrix4.MultiplyOrder.RTS:
-                    Translation += _finalRotation.Inverted() * translation;
-                    break;
-                case Matrix4.MultiplyOrder.SRT:
-                    Translation += (_finalRotation.Inverted() * translation) / Scale;
-                    break;
-                case Matrix4.MultiplyOrder.RST:
-                    Translation += _finalRotation.Inverted() * (translation / Scale);
-                    break;
-            }
-        }
+        //            break;
+        //    }
+        //}
+        ////Translates relative to rotation.
+        //public void TranslateRelative(Vec3 translation)
+        //{
+        //    switch (_transformOrder)
+        //    {
+        //        case Matrix4.MultiplyOrder.SRT:
+        //        case Matrix4.MultiplyOrder.RST:
+        //            Translation += translation;
+        //            break;
+        //        case Matrix4.MultiplyOrder.RTS:
+        //            Translation += translation / Scale;
+        //            break;
+        //        case Matrix4.MultiplyOrder.STR:
+        //            Translation += _finalRotation.Inverted() * translation;
+        //            break;
+        //        case Matrix4.MultiplyOrder.TRS:
+        //            Translation += (_finalRotation.Inverted() * translation) / Scale;
+        //            break;
+        //        case Matrix4.MultiplyOrder.TSR:
+        //            Translation += _finalRotation.Inverted() * (translation / Scale);
+        //            break;
+        //    }
+        //}
+        ////Translates relative to parent space.
+        //public void TranslateAbsolute(Vec3 translation)
+        //{
+        //    switch (_transformOrder)
+        //    {
+        //        case Matrix4.MultiplyOrder.TRS:
+        //        case Matrix4.MultiplyOrder.TSR:
+        //            Translation += translation;
+        //            break;
+        //        case Matrix4.MultiplyOrder.STR:
+        //            Translation += translation / Scale;
+        //            break;
+        //        case Matrix4.MultiplyOrder.RTS:
+        //            Translation += _finalRotation.Inverted() * translation;
+        //            break;
+        //        case Matrix4.MultiplyOrder.SRT:
+        //            Translation += (_finalRotation.Inverted() * translation) / Scale;
+        //            break;
+        //        case Matrix4.MultiplyOrder.RST:
+        //            Translation += _finalRotation.Inverted() * (translation / Scale);
+        //            break;
+        //    }
+        //}
 
         #region Animation
-        public void SetRotationRoll(float degreeAngle)
-        {
-            Roll = Quaternion.FromAxisAngle(Vec3.Forward, degreeAngle);
-        }
-        public void SetRotationYaw(float degreeAngle)
-        {
-            Yaw = Quaternion.FromAxisAngle(Vec3.Up, degreeAngle);
-        }
-        public void SetRotationPitch(float degreeAngle)
-        {
-            Pitch = Quaternion.FromAxisAngle(Vec3.Right, degreeAngle);
-        }
-        public void AddRotationRoll(float degreeAngle)
-        {
-            Roll *= Quaternion.FromAxisAngle(Vec3.Forward, degreeAngle);
-        }
-        public void AddRotationYaw(float degreeAngle)
-        {
-            Yaw *= Quaternion.FromAxisAngle(Vec3.Up, degreeAngle);
-        }
-        public void AddRotationPitch(float degreeAngle)
-        {
-            Pitch *= Quaternion.FromAxisAngle(Vec3.Right, degreeAngle);
-        }
+        public void SetRotationRoll(float degreeAngle) { Roll = degreeAngle; }
+        public void SetRotationYaw(float degreeAngle) { Yaw = degreeAngle; }
+        public void SetRotationPitch(float degreeAngle) { Pitch = degreeAngle; }
+        public void AddRotationRoll(float degreeAngle) { Roll += degreeAngle; }
+        public void AddRotationYaw(float degreeAngle) { Yaw += degreeAngle; }
+        public void AddRotationPitch(float degreeAngle) { Pitch += degreeAngle; }
         public void SetTranslationZ(float value)
         {
             Vec3 oldTranslation = _translation;

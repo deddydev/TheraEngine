@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using CustomEngine.Worlds.Actors.Components;
 
 namespace CustomEngine.Worlds.Actors.Types
 {
@@ -11,16 +12,15 @@ namespace CustomEngine.Worlds.Actors.Types
         Vec2 _dimensions;
         int _xCount, _yCount;
 
+        PositionComponent Root { get { return RootComponent as PositionComponent; } }
+
+        float BaseHeight { get { return Center.Y; } set { Center = new Vec3(Center.X, value, Center.Z); } }
         Vec3 Center
         {
-            get { return RootComponent.WorldMatrix.GetPoint(); }
-
+            get { return Root.Translation; }
+            set { Root.Translation = value; }
         }
-        float BaseHeight { get { return _center.Y; } set { _center.Y = value; } }
 
-        public float GetHeight(Vec2 position)
-        {
-
-        }
+        protected override SceneComponent SetupComponents() { return new PositionComponent(); }
     }
 }

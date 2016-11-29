@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CustomEngine.Files;
+using System;
 using System.IO;
 using System.Windows;
 
@@ -14,7 +15,7 @@ namespace Editor
 
         private static FileSystemWatcher _contentWatcher;
 
-        const string SettingsPath = "/Config/Settings.xml";
+        const string SettingsPath = "/Config/EditorSettings.xml";
 
         public MainWindow()
         {
@@ -23,7 +24,7 @@ namespace Editor
 
             string path = AppDomain.CurrentDomain.BaseDirectory + SettingsPath;
             EditorSettings settings;
-            if (!File.Exists(SettingsPath))
+            if (!File.Exists(path))
             {
                 settings = new EditorSettings();
                 settings.SaveXML(path);
@@ -35,7 +36,7 @@ namespace Editor
             {
                 _contentWatcher = new FileSystemWatcher()
                 {
-                    Filter = FileExtensionManager.GetListFilter(),
+                    Filter = FileManager.GetListFilter(),
                     EnableRaisingEvents = true,
                     IncludeSubdirectories = true,
                     Path = settings._contentMonitorPath,

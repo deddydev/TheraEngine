@@ -11,24 +11,43 @@ namespace CustomEngine.Rendering.Models
 {
     public class Model : RenderableObjectContainer, IEnumerable<Mesh>
     {
-        private List<Mesh> _meshes = new List<Mesh>();
-        private Skeleton _skeleton;
-        private bool _simulatePhysics;
-        private GenericPrimitiveComponent _linkedComponent;
+        public Model() : base()
+        {
+            _meshes.Added += _meshes_Added;
+            _meshes.Removed += _meshes_Removed;
+        }
+        private void _meshes_Removed(Mesh item) { item.Model = null; }
+        private void _meshes_Added(Mesh item) { item.Model = this; }
 
-        public List<Mesh> Meshes { get { return _meshes; } }
+        private MonitoredList<Mesh> _meshes = new MonitoredList<Mesh>();
+        private Skeleton _skeleton;
+        private bool _simulatePhysics = false, _collisionEnabled = true;
+
+        public MonitoredList<Mesh> Meshes { get { return _meshes; } }
         public Skeleton Skeleton
         {
             get { return _skeleton; }
-            set { _skeleton = value; }
+            set
+            {
+                if (value == _skeleton)
+                    return;
+                _skeleton = value;
+                foreach (Mesh m in _meshes)
+                    m._manager.SkeletonChanged(_skeleton);
+            }
         }
         public bool SimulatePhysics
         {
             get { return _simulatePhysics; }
             set { _simulatePhysics = value; }
         }
-        public override Matrix4 GetWorldMatrix() { return _linkedComponent != null ? _linkedComponent.WorldMatrix : Matrix4.Identity; }
-        public override Matrix4 GetInverseWorldMatrix() { return _linkedComponent != null ? _linkedComponent.InverseWorldMatrix : Matrix4.Identity; }
+        public bool CollisionEnabled
+        {
+            get { return _collisionEnabled; }
+            set { _collisionEnabled = value; }
+        }
+        public override Matrix4 GetWorldMatrix() { return LinkedComponent != null ? LinkedComponent.WorldMatrix : Matrix4.Identity; }
+        public override Matrix4 GetInverseWorldMatrix() { return LinkedComponent != null ? LinkedComponent.InverseWorldMatrix : Matrix4.Identity; }
 
         public override List<PrimitiveData> GetPrimitives()
         {

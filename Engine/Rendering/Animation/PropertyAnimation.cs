@@ -105,10 +105,12 @@ namespace CustomEngine.Rendering.Animation
     {
         protected KeyframeTrack<T> _keyframes;
 
-        public PropertyAnimation(int frameCount)
+        public PropertyAnimation(int frameCount, bool looped, bool useKeyframes)
         {
             _frameCount = frameCount;
             _keyframes = new KeyframeTrack<T>(this);
+            Looped = looped;
+            UseKeyframes = useKeyframes;
         }
 
         [Category("Property Animation"), Default]

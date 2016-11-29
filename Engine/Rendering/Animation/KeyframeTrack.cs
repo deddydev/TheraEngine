@@ -187,21 +187,25 @@ namespace CustomEngine.Rendering.Animation
             _prev.Next = Next;
             _next = _prev = this;
         }
-        public void LinkNext(Keyframe next)
+        public Keyframe LinkNext(Keyframe next)
         {
             next.Next = _next;
             next.Prev = this;
 
             _next._prev = next;
             _next = next;
+
+            return next;
         }
-        public void LinkPrev(Keyframe prev)
+        public Keyframe LinkPrev(Keyframe prev)
         {
             prev.Next = this;
             prev.Prev = _prev;
 
             _prev._next = prev;
             _prev = prev;
+
+            return prev;
         }
     }
 }

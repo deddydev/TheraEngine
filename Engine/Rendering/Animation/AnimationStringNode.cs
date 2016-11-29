@@ -11,7 +11,8 @@ namespace CustomEngine.Rendering.Animation
         string[] _baked;
         StringGetValue _getValue;
 
-        public AnimationStringNode(int frameCount) : base(frameCount) { }
+        public AnimationStringNode(int frameCount, bool looped, bool useKeyframes) 
+            : base(frameCount, looped, useKeyframes) { }
 
         protected override object GetValue(float frame)
         {

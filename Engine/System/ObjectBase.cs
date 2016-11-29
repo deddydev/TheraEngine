@@ -135,11 +135,13 @@ namespace System
         protected virtual void OnRenamed(string oldName) { Renamed?.Invoke(this, oldName); }
 
         private List<AnimationContainer> _animations = new List<AnimationContainer>();
-        public void AddAnimation(AnimationContainer anim)
+        public void AddAnimation(AnimationContainer anim, bool startNow = false)
         {
             anim.AnimationEnded += RemoveAnimation;
             _animations.Add(anim);
             anim._owners.Add(this);
+            if (startNow)
+                anim.Start();
         }
         public void RemoveAnimation(AnimationContainer anim)
         {

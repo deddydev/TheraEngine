@@ -11,10 +11,16 @@ namespace CustomEngine.Rendering.Models
 {
     public class Model : RenderableObjectContainer, IEnumerable<Mesh>
     {
-        public Model() : base()
+        public Model()
         {
             _meshes.Added += _meshes_Added;
             _meshes.Removed += _meshes_Removed;
+        }
+        public Model(Skeleton skeleton)
+        {
+            _meshes.Added += _meshes_Added;
+            _meshes.Removed += _meshes_Removed;
+            Skeleton = skeleton;
         }
         private void _meshes_Removed(Mesh item) { item.Model = null; }
         private void _meshes_Added(Mesh item) { item.Model = this; }

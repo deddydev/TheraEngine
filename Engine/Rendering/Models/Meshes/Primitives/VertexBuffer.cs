@@ -16,6 +16,7 @@ namespace CustomEngine.Rendering.Models
         //Tangent,
         TexCoord,
         Color,
+        Custom,
     }
     public class VertexBuffer : BaseRenderState, IDisposable
     {

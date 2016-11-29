@@ -11,7 +11,8 @@ namespace CustomEngine.Rendering.Animation
         float[] _baked;
         InterpGetValue _getValue;
 
-        public AnimationInterpNode(int frameCount) : base(frameCount) { }
+        public AnimationInterpNode(int frameCount, bool looped, bool useKeyframes) 
+            : base(frameCount, looped, useKeyframes) { }
 
         protected override object GetValue(float frame) { return _getValue(frame); }
         protected override void UseKeyframesChanged()

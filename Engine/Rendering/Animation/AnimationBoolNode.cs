@@ -11,7 +11,8 @@ namespace CustomEngine.Rendering.Animation
         bool[] _baked;
         BoolGetValue _getValue;
 
-        public AnimationBoolNode(int frameCount) : base(frameCount) { }
+        public AnimationBoolNode(int frameCount, bool looped, bool useKeyframes) 
+            : base(frameCount, looped, useKeyframes) { }
 
         protected override object GetValue(float frame) { return _getValue(frame); }
         protected override void UseKeyframesChanged()

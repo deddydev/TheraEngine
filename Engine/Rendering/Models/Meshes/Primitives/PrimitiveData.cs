@@ -8,6 +8,13 @@ using OpenTK.Graphics.OpenGL;
 
 namespace CustomEngine.Rendering.Models
 {
+    public enum Culling
+    {
+        None,
+        Back,
+        Front,
+        Both
+    }
     public class PrimitiveData : IDisposable
     {
         //Faces have indices that refer to face points.
@@ -28,6 +35,8 @@ namespace CustomEngine.Rendering.Models
         //This is the array data that will be passed through the shader.
         //Each buffer only has unique values.
         public List<VertexBuffer> _buffers = null;
+
+        private Culling _culling = Culling.Back;
 
         public VertexBuffer this[int index]
         {
@@ -67,19 +76,19 @@ namespace CustomEngine.Rendering.Models
             Vertex v2 = new Vertex(fp2, _buffers);
             return new VertexTriangle(v0, v1, v2);
         }
-        public static PrimitiveData FromQuads(params VertexQuad[] quads)
+        public static PrimitiveData FromQuads(Culling culling, params VertexQuad[] quads)
         {
-            return FromQuadList(quads);
+            return FromQuadList(culling, quads);
         }
-        public static PrimitiveData FromTriangles(params VertexTriangle[] triangles)
+        public static PrimitiveData FromTriangles(Culling culling, params VertexTriangle[] triangles)
         {
-            return FromTriangleList(triangles);
+            return FromTriangleList(culling, triangles);
         }
-        public static PrimitiveData FromQuadList(IEnumerable<VertexQuad> quads)
+        public static PrimitiveData FromQuadList(Culling culling, IEnumerable<VertexQuad> quads)
         {
-            return FromTriangleList(quads.SelectMany(x => x.ToTriangles()).ToList());
+            return FromTriangleList(culling, quads.SelectMany(x => x.ToTriangles()).ToList());
         }
-        public static PrimitiveData FromTriangleList(IEnumerable<VertexTriangle> triangles)
+        public static PrimitiveData FromTriangleList(Culling culling, IEnumerable<VertexTriangle> triangles)
         {
             bool hasNormals = false;
             int texCoordCount = 0, colorCount = 0;
@@ -96,13 +105,14 @@ namespace CustomEngine.Rendering.Models
             }
             
             PrimitiveData data = new PrimitiveData();
+            data._culling = culling;
             data.SetInfluences(triangles.SelectMany(x => x.Vertices.Select(y => y._influence)).ToArray());
 
             Remapper remapper = data.SetFaceIndices(vertices);
             data.CreateFacePoints(remapper.ImplementationLength);
 
             List<Vec3> positions = remapper.ImplementationTable.Select(x => vertices[x]._position).ToList();
-            data.AddBuffer(positions, VertexBuffer.GetBufferName(BufferType.Position));
+            data.AddBuffer(positions, new VertexAttribInfo(BufferType.Position));
 
             if (hasNormals)
             {
@@ -150,7 +160,7 @@ namespace CustomEngine.Rendering.Models
         }
         private void AddBuffer<T>(
             List<T> bufferData,
-            string name,
+            VertexAttribInfo info,
             bool remap = false,
             BufferTarget target = BufferTarget.ArrayBuffer) where T : IBufferable
         {
@@ -158,7 +168,7 @@ namespace CustomEngine.Rendering.Models
                 _buffers = new List<VertexBuffer>();
 
             int bufferIndex = _buffers.Count;
-            VertexBuffer buffer = new VertexBuffer(bufferIndex, name, target);
+            VertexBuffer buffer = new VertexBuffer(bufferIndex, info, target);
             if (remap)
             {
                 Remapper remapper = buffer.SetData(bufferData, true);
@@ -176,7 +186,7 @@ namespace CustomEngine.Rendering.Models
         private void ReplaceBuffer<T>(
             List<T> bufferData,
             int bufferIndex,
-            string name,
+            VertexAttribInfo info,
             bool remap = false,
             BufferTarget target = BufferTarget.ArrayBuffer) where T : IBufferable
         {
@@ -185,7 +195,7 @@ namespace CustomEngine.Rendering.Models
             if (bufferIndex < 0 || bufferIndex >= _buffers.Count)
                 throw new IndexOutOfRangeException();
 
-            VertexBuffer buffer = new VertexBuffer(bufferIndex, name, target);
+            VertexBuffer buffer = new VertexBuffer(bufferIndex, info, target);
             if (remap)
             {
                 Remapper remapper = buffer.SetData(bufferData, true);

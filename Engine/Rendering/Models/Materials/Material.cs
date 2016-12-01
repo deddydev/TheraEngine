@@ -47,10 +47,7 @@ namespace CustomEngine.Rendering.Models.Materials
         protected override int CreateObject()
         {
             int[] ids = _shaders.Select(x => x.Compile()).ToArray();
-            int id = Engine.Renderer.GenerateProgram(ids, 
-                VertexBuffer.GetBufferName(BufferType.Position), 
-                VertexBuffer.GetBufferName(BufferType.Normal), 
-                VertexBuffer.GetBufferName(BufferType.TexCoord, 0));
+            int id = Engine.Renderer.GenerateProgram(ids);
             return id;
         }
 

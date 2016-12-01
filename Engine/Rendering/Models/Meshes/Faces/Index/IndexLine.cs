@@ -16,7 +16,7 @@ namespace CustomEngine.Rendering.Models
         }
 
         Point _point0, _point1;
-        public List<IndexPolygon> _connectedFaces = new List<IndexPolygon>();
+        public List<IndexPrimitive> _connectedFaces = new List<IndexPrimitive>();
 
         public Point Point0 { get { return _point0; } }
         public Point Point1 { get { return _point1; } }
@@ -27,13 +27,13 @@ namespace CustomEngine.Rendering.Models
             _point1.RemoveLine(this);
         }
 
-        internal void AddFace(IndexPolygon poly)
+        internal void AddFace(IndexPrimitive poly)
         {
             if (!_connectedFaces.Contains(poly))
                 _connectedFaces.Add(poly);
         }
 
-        internal void RemoveFace(IndexPolygon poly)
+        internal void RemoveFace(IndexPrimitive poly)
         {
             if (_connectedFaces.Contains(poly))
                 _connectedFaces.Remove(poly);

@@ -21,6 +21,7 @@ namespace CustomEngine.Rendering.Models
         private VertexBuffer _indexBuffer, _matrixIndexBuffer, _matrixWeightBuffer;
         private Primitive _triangles;
         private Bone[] _utilizedBones;
+        private Shader _vertexShader;
         
         private bool _initialized = false;
 
@@ -61,8 +62,6 @@ namespace CustomEngine.Rendering.Models
         {
             _matrixIndexBuffer?.Dispose();
             _matrixWeightBuffer?.Dispose();
-            _matrixIndexBuffer = null;
-            _matrixWeightBuffer = null;
 
             if (skeleton != null)
             {
@@ -94,19 +93,27 @@ namespace CustomEngine.Rendering.Models
                 }
 
                 _matrixIndexBuffer = new VertexBuffer(_data._buffers.Count, "MatrixIDs", BufferTarget.ArrayBuffer);
-                _matrixIndexBuffer.SetData(matrixIndices);
                 _matrixWeightBuffer = new VertexBuffer(_data._buffers.Count + 1, "MatrixWeights", BufferTarget.ArrayBuffer);
+
+                _matrixIndexBuffer.SetData(matrixIndices);
                 _matrixWeightBuffer.SetData(matrixWeights);
+
+                _vertexShader = Shader.WeightedVertexShader(_utilizedBones.Length);
+            }
+            else
+            {
+                _matrixIndexBuffer = null;
+                _matrixWeightBuffer = null;
             }
         }
         private void SetBoneMatrixUniforms()
         {
-            if (_utilizedBones != null)
-            {
-                List<Matrix4> boneMatrices = new List<Matrix4>() { Matrix4.Identity };
-                boneMatrices.AddRange(_utilizedBones.Select(b => b.VertexMatrix));
-                Engine.Renderer.Uniform(Uniform.BoneMatricesName, boneMatrices.ToArray());
-            }
+            if (_utilizedBones == null)
+                return;
+            
+            List<Matrix4> boneMatrices = new List<Matrix4>() { Matrix4.Identity };
+            boneMatrices.AddRange(_utilizedBones.Select(b => b.VertexMatrix));
+            Engine.Renderer.Uniform(Uniform.BoneMatricesName, boneMatrices.ToArray());
         }
         public unsafe void Render(Material material, Matrix4 transform)
         {

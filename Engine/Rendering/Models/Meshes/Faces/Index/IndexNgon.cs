@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace CustomEngine.Rendering.Models
 {
-    public class IndexNgon : IndexPolygon
+    public class IndexNgon : IndexPrimitive
     {
         public IndexNgon() { }
         public IndexNgon(params Point[] points)

@@ -43,6 +43,32 @@ namespace CustomEngine.Rendering.Models.Materials
     }
     public abstract class GLVar : IGLVarOwner
     {
+        public static Dictionary<Type, GLTypeName> _typeAssociations = new Dictionary<Type, GLTypeName>()
+        {
+            { typeof(GLBool), GLTypeName._bool },
+            { typeof(GLInt), GLTypeName._int },
+            { typeof(GLUInt), GLTypeName._uint },
+            { typeof(GLFloat), GLTypeName._float },
+            { typeof(GLDouble), GLTypeName._double },
+            { typeof(GLVec2), GLTypeName._vec2 },
+            { typeof(GLVec3), GLTypeName._vec3 },
+            { typeof(GLVec4), GLTypeName._vec4 },
+            { typeof(GLMat3), GLTypeName._mat3 },
+            { typeof(GLMat4), GLTypeName._mat4 },
+            { typeof(GLIVec2), GLTypeName._ivec2 },
+            { typeof(GLIVec3), GLTypeName._ivec3 },
+            { typeof(GLIVec4), GLTypeName._ivec4 },
+            { typeof(GLUVec2), GLTypeName._uvec2 },
+            { typeof(GLUVec3), GLTypeName._uvec3 },
+            { typeof(GLUVec4), GLTypeName._uvec4 },
+            { typeof(GLDVec2), GLTypeName._dvec2 },
+            { typeof(GLDVec3), GLTypeName._dvec3 },
+            { typeof(GLDVec4), GLTypeName._dvec4 },
+            { typeof(GLBVec2), GLTypeName._bvec2 },
+            { typeof(GLBVec3), GLTypeName._bvec3 },
+            { typeof(GLBVec4), GLTypeName._bvec4 },
+        };
+
         protected IGLVarOwner _owner;
         protected string _name;
         protected Dictionary<string, GLVar> _fields = new Dictionary<string, GLVar>();

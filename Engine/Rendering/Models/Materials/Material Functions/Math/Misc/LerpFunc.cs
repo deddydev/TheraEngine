@@ -14,17 +14,14 @@ namespace CustomEngine.Rendering.Models.Materials
         public GLArgument<GLFloat> Time { get { return (GLArgument<GLFloat>)InputArguments[0]; } }
         
         public LerpFunc(GLTypeName operandTypes) : base() { _inline = true; }
-        protected override string GetOperation()
-        {
-            return "mix({0}, {1}, {2})";
-        }
+        protected override string GetOperation() { return "mix({0}, {1}, {2})"; }
         protected override List<BaseGLArgument> GetArguments()
         {
+            GLMultiArgument a = new GLMultiArgument("A", GLTypeName._float, GLTypeName._vec2, GLTypeName._vec3, GLTypeName._vec4);
+            GLMultiArgument b = new GLMultiArgument("B", a);
             return new List<BaseGLArgument>()
             {
-                new GLMultiArgument("A"),
-                new GLMultiArgument("B"),
-                new GLArgument<GLFloat>("Time"),
+                a, b, new GLArgument<GLFloat>("Time"),
             };
         }
         public static MaterialFuncInfo GetInfo()

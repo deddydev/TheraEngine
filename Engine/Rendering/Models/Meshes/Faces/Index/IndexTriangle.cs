@@ -3,22 +3,13 @@ using System.Collections.Generic;
 
 namespace CustomEngine.Rendering.Models
 {
-    public class IndexTriangle : IndexPolygon
+    public class IndexTriangle : IndexPrimitive
     {
         public override FaceType Type { get { return FaceType.Triangles; } }
 
-        public Point Point0
-        {
-            get { return _points[0]; }
-        }
-        public Point Point1
-        {
-            get { return _points[1]; }
-        }
-        public Point Point2
-        {
-            get { return _points[2]; }
-        }
+        public Point Point0 { get { return _points[0]; } }
+        public Point Point1 { get { return _points[1]; } }
+        public Point Point2 { get { return _points[2]; } }
 
         public IndexTriangle() { }
         /// <summary>

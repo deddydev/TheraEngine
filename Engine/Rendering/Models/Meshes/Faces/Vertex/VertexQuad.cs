@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace CustomEngine.Rendering.Models
 {
-    public class VertexQuad : VertexPolygon
+    public class VertexQuad : VertexPrimitive
     {
         public Vertex Vertex0 { get { return _vertices[0]; } }
         public Vertex Vertex1 { get { return _vertices[1]; } }

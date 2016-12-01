@@ -16,15 +16,21 @@ namespace CustomEngine.Rendering.Models
         QuadStrip,
         Ngon
     }
-    public abstract class IndexPolygon : ObjectBase
+    public abstract class IndexPrimitive : ObjectBase
     {
         protected List<Point> _points = new List<Point>();
 
-        public IndexPolygon(params Point[] points)
+        public IndexPrimitive(params Point[] points)
         {
             _points = points.ToList();
         }
 
+        public abstract FaceType Type { get; }
+        public ReadOnlyCollection<Point> Points { get { return _points.AsReadOnly(); } }
+    }
+    public abstract class IndexPolygon : IndexPrimitive
+    {
+        public abstract List<IndexTriangle> ToTriangles();
         public bool ContainsEdge(IndexLine edge, out bool polygonIsCCW)
         {
             for (int i = 0; i < _points.Count; ++i)
@@ -46,9 +52,5 @@ namespace CustomEngine.Rendering.Models
             polygonIsCCW = true;
             return false;
         }
-
-        public abstract FaceType Type { get; }
-        public ReadOnlyCollection<Point> Points { get { return _points.AsReadOnly(); } }
-        public abstract List<IndexTriangle> ToTriangles();
     }
 }

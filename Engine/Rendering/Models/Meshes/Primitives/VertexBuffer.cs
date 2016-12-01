@@ -12,28 +12,29 @@ namespace CustomEngine.Rendering.Models
     {
         Position,
         Normal,
-        //Binormal,
-        //Tangent,
+        Binormal,
+        Tangent,
         TexCoord,
         Color,
-        Custom,
     }
-    public class VertexBuffer : BaseRenderState, IDisposable
+    public class VertexAttribInfo
     {
-        public static string GetBufferName(BufferType type, int index = -1, bool morph = false)
+        public static readonly int MaxBufferCount = 64;
+
+        public VertexAttribInfo(BufferType type, int index = 0)
         {
-            string s = (morph ? "Morph" : "Base") + type.ToString();
-            if (morph = false && (type == BufferType.Position || type == BufferType.Normal))
-                return s;
-            return s + index.ToString();
+            _type = type;
+            _index = index.Clamp(0, MaxBufferCount);
         }
-        public bool IsType(BufferType type, int index = -1, bool morph = false)
-        {
-            return Name.StartsWith(morph ? "Morph" : "Base") && 
-                Name.Contains(type.ToString()) &&
-                ((!morph && (type == BufferType.Position || type == BufferType.Normal)) || index < 0 ? true : Name.EndsWith(index.ToString()));
-        }
-        
+
+        public BufferType _type;
+        public int _index;
+
+        public string GetAttribName() { return _type.ToString() + _index; }
+        public int GetLocation() { return (int)_type * MaxBufferCount + _index; }
+    }
+    public abstract class VertexBuffer : BaseRenderState, IDisposable
+    {
         public enum BufferUsage
         {
             StreamDraw = 0,
@@ -66,12 +67,14 @@ namespace CustomEngine.Rendering.Models
         
         private int _index;
         private BufferTarget _target;
+        protected VertexAttribInfo _info;
 
+        public VertexAttribInfo Info { get { return _info; } }
         public int Index { get { return _index; } }
 
         public VertexBuffer(
             int index,
-            string name,
+            VertexAttribInfo info,
             BufferTarget target,
             int elementCount,
             ComponentType componentType,
@@ -80,7 +83,7 @@ namespace CustomEngine.Rendering.Models
         {
             _index = index;
             _target = target;
-            _name = name;
+            _name = info.GetAttribName();
 
             _componentType = componentType;
             _componentCount = componentCount;

@@ -16,12 +16,6 @@ namespace CustomEngine.Rendering.Models.Materials
         TessControl,        // https://www.opengl.org/wiki/Tessellation_Control_Shader
         Compute             // https://www.opengl.org/wiki/Compute_Shader
     }
-    public enum EQualifier
-    {
-        _uniform,
-        _out,
-        _in
-    }
     public class Shader
     {
         public event EventHandler Compiled;
@@ -62,7 +56,7 @@ namespace CustomEngine.Rendering.Models.Materials
         public static Shader WeightedVertexShader(int boneCount)
         {
             string source = @"
-#version 410
+#version 450
 
 in vec3 BasePosition;
 in vec3 BaseNormal;
@@ -93,10 +87,12 @@ void main()
 }";
             return new Shader(ShaderMode.Vertex, source);
         }
-        public static Shader TestVertexShader()
+        public static Shader UnweightedVertexShader(string[] bufferNames)
         {
+            
+
             string source = @"
-#version 410
+#version 450
 in vec3 BasePosition;
 in vec3 BaseNormal;
 in vec2 BaseTexCoord0;
@@ -120,7 +116,7 @@ void main()
         public static Shader TestFragmentShader()
         {
             string source = @"
-#version 410
+#version 450
 
 in vec3 color;
 
@@ -140,7 +136,7 @@ void main()
         {
             string source = @"
 
-#version 330
+#version 450
 
 out vec4 OutColor;
 in vec2 TexCoords;

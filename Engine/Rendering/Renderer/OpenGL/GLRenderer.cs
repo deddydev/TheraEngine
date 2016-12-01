@@ -4,6 +4,7 @@ using System.Linq;
 using System.Drawing;
 using CustomEngine.Rendering.Models.Materials;
 using System.Collections.Generic;
+using CustomEngine.Rendering.Models;
 
 namespace CustomEngine.Rendering.OpenGL
 {
@@ -95,11 +96,6 @@ namespace CustomEngine.Rendering.OpenGL
             // https://www.opengl.org/sdk/docs/man/html/glTexImage2D.xhtml
             GL.TexImage2D((TextureTarget)textureTargetEnum, mipLevel, (OpenTK.Graphics.OpenGL.PixelInternalFormat)pixelInternalFormatEnum, width, height, 0, (PixelFormat)pixelFormatEnum, (PixelType)pixelTypeEnum, data);
         }
-
-        public override void DrawBuffers(DrawBuffersAttachment[] attachments)
-        {
-            GL.DrawBuffers(attachments.Length, attachments.Select(x => (DrawBuffersEnum)x.Convert(typeof(DrawBuffersEnum))).ToArray());
-        }
         public override void Clear(BufferClear mask)
         {
             ClearBufferMask newMask = 0;
@@ -114,26 +110,192 @@ namespace CustomEngine.Rendering.OpenGL
             GL.Clear(newMask);
         }
 
-        #region Conversion
-        private OpenTK.Matrix4 GLMat4(Matrix4 matrix4)
+        //#region Conversion
+        //private OpenTK.Matrix4 GLMat4(Matrix4 matrix4)
+        //{
+        //    return *(OpenTK.Matrix4*)&matrix4;
+        //}
+        //private OpenTK.Vector4 GLVec4(System.Vec4 vec4)
+        //{
+        //    return *(OpenTK.Vector4*)&vec4;
+        //}
+        //private OpenTK.Vector3 GLVec3(System.Vec3 vec3)
+        //{
+        //    return *(OpenTK.Vector3*)&vec3;
+        //}
+        //private OpenTK.Vector2 GLVec2(System.Vec2 vec2)
+        //{
+        //    return *(OpenTK.Vector2*)&vec2;
+        //}
+        //private OpenTK.Quaternion GLQuat(System.Quaternion quat)
+        //{
+        //    return *(OpenTK.Quaternion*)&quat;
+        //}
+        //#endregion
+
+        #region Objects
+        public override void DeleteObject(GenType type, int bindingId)
         {
-            return *(OpenTK.Matrix4*)&matrix4;
+            switch (type)
+            {
+                case GenType.Buffer:
+                    GL.DeleteBuffer(bindingId);
+                    break;
+                case GenType.DisplayList:
+                    GL.DeleteLists(bindingId, 1);
+                    break;
+                case GenType.Framebuffer:
+                    GL.DeleteFramebuffer(bindingId);
+                    break;
+                case GenType.Program:
+                    GL.DeleteProgram(bindingId);
+                    break;
+                case GenType.ProgramPipeline:
+                    GL.DeleteProgramPipeline(bindingId);
+                    break;
+                case GenType.Query:
+                    GL.DeleteQuery(bindingId);
+                    break;
+                case GenType.Renderbuffer:
+                    GL.DeleteRenderbuffer(bindingId);
+                    break;
+                case GenType.Sampler:
+                    GL.DeleteSampler(bindingId);
+                    break;
+                case GenType.Texture:
+                    GL.DeleteTexture(bindingId);
+                    break;
+                case GenType.TransformFeedback:
+                    GL.DeleteTransformFeedback(bindingId);
+                    break;
+                case GenType.VertexArray:
+                    GL.DeleteVertexArray(bindingId);
+                    break;
+                case GenType.Shader:
+                    GL.DeleteShader(bindingId);
+                    break;
+            }
         }
-        private OpenTK.Vector4 GLVec4(System.Vec4 vec4)
+        public override void DeleteObjects(GenType type, int[] bindingIds)
         {
-            return *(OpenTK.Vector4*)&vec4;
+            switch (type)
+            {
+                case GenType.Buffer:
+                    GL.DeleteBuffers(bindingIds.Length, bindingIds);
+                    break;
+                case GenType.DisplayList:
+                    foreach (int i in bindingIds)
+                        GL.DeleteLists(i, 1);
+                    break;
+                case GenType.Framebuffer:
+                    GL.DeleteFramebuffers(bindingIds.Length, bindingIds);
+                    break;
+                case GenType.Program:
+                    foreach (int i in bindingIds)
+                        GL.DeleteProgram(i);
+                    break;
+                case GenType.ProgramPipeline:
+                    GL.DeleteProgramPipelines(bindingIds.Length, bindingIds);
+                    break;
+                case GenType.Query:
+                    GL.DeleteQueries(bindingIds.Length, bindingIds);
+                    break;
+                case GenType.Renderbuffer:
+                    GL.DeleteRenderbuffers(bindingIds.Length, bindingIds);
+                    break;
+                case GenType.Sampler:
+                    GL.DeleteSamplers(bindingIds.Length, bindingIds);
+                    break;
+                case GenType.Texture:
+                    GL.DeleteTextures(bindingIds.Length, bindingIds);
+                    break;
+                case GenType.TransformFeedback:
+                    GL.DeleteTransformFeedbacks(bindingIds.Length, bindingIds);
+                    break;
+                case GenType.VertexArray:
+                    GL.DeleteVertexArrays(bindingIds.Length, bindingIds);
+                    break;
+                case GenType.Shader:
+                    foreach (int i in bindingIds)
+                        GL.DeleteShader(i);
+                    break;
+            }
         }
-        private OpenTK.Vector3 GLVec3(System.Vec3 vec3)
+        public override int GenObject(GenType type)
         {
-            return *(OpenTK.Vector3*)&vec3;
+            switch (type)
+            {
+                case GenType.Buffer:
+                    return GL.GenBuffer();
+                case GenType.DisplayList:
+                    return GL.GenLists(1);
+                case GenType.Framebuffer:
+                    return GL.GenFramebuffer();
+                case GenType.Program:
+                    return GL.CreateProgram();
+                case GenType.ProgramPipeline:
+                    return GL.GenProgramPipeline();
+                case GenType.Query:
+                    return GL.GenQuery();
+                case GenType.Renderbuffer:
+                    return GL.GenRenderbuffer();
+                case GenType.Sampler:
+                    return GL.GenSampler();
+                case GenType.Texture:
+                    return GL.GenTexture();
+                case GenType.TransformFeedback:
+                    return GL.GenTransformFeedback();
+                case GenType.VertexArray:
+                    return GL.GenVertexArray();
+                case GenType.Shader:
+                    return GL.CreateShader(_currentShaderMode);
+            }
+            return 0;
         }
-        private OpenTK.Vector2 GLVec2(System.Vec2 vec2)
+        public override int[] GenObjects(GenType type, int count)
         {
-            return *(OpenTK.Vector2*)&vec2;
-        }
-        private OpenTK.Quaternion GLQuat(System.Quaternion quat)
-        {
-            return *(OpenTK.Quaternion*)&quat;
+            int[] ids = new int[count];
+            switch (type)
+            {
+                case GenType.Buffer:
+                    GL.GenBuffers(count, ids);
+                    break;
+                case GenType.Framebuffer:
+                    GL.GenFramebuffers(count, ids);
+                    break;
+                case GenType.Program:
+                    for (int i = 0; i < count; ++i)
+                        ids[i] = GL.CreateProgram();
+                    break;
+                case GenType.ProgramPipeline:
+                    GL.GenProgramPipelines(count, ids);
+                    break;
+                case GenType.Query:
+                    GL.GenQueries(count, ids);
+                    break;
+                case GenType.Renderbuffer:
+                    GL.GenRenderbuffers(count, ids);
+                    break;
+                case GenType.Sampler:
+                    GL.GenSamplers(count, ids);
+                    break;
+                case GenType.Texture:
+                    GL.GenTextures(count, ids);
+                    break;
+                case GenType.TransformFeedback:
+                    GL.GenTransformFeedbacks(count, ids);
+                    break;
+                case GenType.VertexArray:
+                    GL.GenVertexArrays(count, ids);
+                    break;
+                case GenType.Shader:
+                    for (int i = 0; i < count; ++i)
+                        ids[i] = GL.CreateShader(_currentShaderMode);
+                    break;
+                case GenType.DisplayList:
+                    return new int[] { GL.GenLists(count) };
+            }
+            return ids;
         }
         #endregion
 
@@ -209,6 +371,35 @@ namespace CustomEngine.Rendering.OpenGL
         #endregion
 
         #region Shaders
+        private ShaderType _currentShaderMode;
+        public override void SetShaderMode(ShaderMode type)
+        {
+            switch (type)
+            {
+                case ShaderMode.Fragment:
+                    _currentShaderMode = ShaderType.FragmentShader;
+                    break;
+                case ShaderMode.Vertex:
+                    _currentShaderMode = ShaderType.VertexShader;
+                    break;
+                case ShaderMode.Geometry:
+                    _currentShaderMode = ShaderType.GeometryShader;
+                    break;
+                case ShaderMode.TessControl:
+                    _currentShaderMode = ShaderType.TessControlShader;
+                    break;
+                case ShaderMode.TessEvaluation:
+                    _currentShaderMode = ShaderType.TessEvaluationShader;
+                    break;
+                case ShaderMode.Compute:
+                    _currentShaderMode = ShaderType.ComputeShader;
+                    break;
+            }
+        }
+        public override void SetBindFragDataLocation(int bindingId, int location, string name)
+        {
+            GL.BindFragDataLocation(bindingId, location, name);
+        }
         public override int GenerateShader(string source)
         {
             int handle = GL.CreateShader(_currentShaderMode);
@@ -236,7 +427,7 @@ namespace CustomEngine.Rendering.OpenGL
 #endif
             return handle;
         }
-        public override int GenerateProgram(int[] shaderHandles, params string[] inAttributes)
+        public override int GenerateProgram(int[] shaderHandles, params VertexAttribInfo[] inAttributes)
         {
             int handle = GL.CreateProgram();
             foreach (int i in shaderHandles)
@@ -244,7 +435,7 @@ namespace CustomEngine.Rendering.OpenGL
 
             //Have to bind 'in' attributes before linking
             for (int i = 0; i < inAttributes.Length; ++i)
-                GL.BindAttribLocation(handle, i, inAttributes[i]);
+                GL.BindAttribLocation(handle, inAttributes[i].GetLocation(), inAttributes[i].GetAttribName());
 
             GL.LinkProgram(handle);
 
@@ -398,9 +589,30 @@ namespace CustomEngine.Rendering.OpenGL
                 GL.UniformMatrix4(location, p.Length, false, values);
             }
         }
+        public override void Uniform(int location, Matrix3 p)
+        {
+            if (location > -1)
+                GL.UniformMatrix3(location, 1, false, p.Data);
+        }
+        public override void Uniform(int location, params Matrix3[] p)
+        {
+            if (location > -1)
+            {
+                float[] values = new float[p.Length * 9];
+                for (int i = 0; i < p.Length; ++i)
+                    for (int x = 0; x < 9; ++x)
+                        values[i * 9 + x] = p[i].Data[x];
+                GL.UniformMatrix3(location, p.Length, false, values);
+            }
+        }
         #endregion
 
         #endregion
+
+        public override void DrawBuffers(DrawBuffersAttachment[] attachments)
+        {
+            GL.DrawBuffers(attachments.Length, attachments.Select(x => (DrawBuffersEnum)x.Convert(typeof(DrawBuffersEnum))).ToArray());
+        }
 
         public override float GetDepth(float x, float y)
         {
@@ -416,188 +628,6 @@ namespace CustomEngine.Rendering.OpenGL
         {
             GL.Scissor(region.X, region.Y, region.Width, region.Height);
         }
-        private ShaderType _currentShaderMode;
-        public override void SetShaderMode(ShaderMode type)
-        {
-            switch (type)
-            {
-                case ShaderMode.Fragment:
-                    _currentShaderMode = ShaderType.FragmentShader;
-                    break;
-                case ShaderMode.Vertex:
-                    _currentShaderMode = ShaderType.VertexShader;
-                    break;
-                case ShaderMode.Geometry:
-                    _currentShaderMode = ShaderType.GeometryShader;
-                    break;
-                case ShaderMode.TessControl:
-                    _currentShaderMode = ShaderType.TessControlShader;
-                    break;
-                case ShaderMode.TessEvaluation:
-                    _currentShaderMode = ShaderType.TessEvaluationShader;
-                    break;
-                case ShaderMode.Compute:
-                    _currentShaderMode = ShaderType.ComputeShader;
-                    break;
-            }
-        }
-        public override void DeleteObject(GenType type, int bindingId)
-        {
-            switch (type)
-            {
-                case GenType.Buffer:
-                    GL.DeleteBuffer(bindingId);
-                    break;
-                case GenType.DisplayList:
-                    GL.DeleteLists(bindingId, 1);
-                    break;
-                case GenType.Framebuffer:
-                    GL.DeleteFramebuffer(bindingId);
-                    break;
-                case GenType.Program:
-                    GL.DeleteProgram(bindingId);
-                    break;
-                case GenType.ProgramPipeline:
-                    GL.DeleteProgramPipeline(bindingId);
-                    break;
-                case GenType.Query:
-                    GL.DeleteQuery(bindingId);
-                    break;
-                case GenType.Renderbuffer:
-                    GL.DeleteRenderbuffer(bindingId);
-                    break;
-                case GenType.Sampler:
-                    GL.DeleteSampler(bindingId);
-                    break;
-                case GenType.Texture:
-                    GL.DeleteTexture(bindingId);
-                    break;
-                case GenType.TransformFeedback:
-                    GL.DeleteTransformFeedback(bindingId);
-                    break;
-                case GenType.VertexArray:
-                    GL.DeleteVertexArray(bindingId);
-                    break;
-                case GenType.Shader:
-                    GL.DeleteShader(bindingId);
-                    break;
-            }
-        }
-        public override void DeleteObjects(GenType type, int[] bindingIds)
-        {
-            switch (type)
-            {
-                case GenType.Buffer:
-                    GL.DeleteBuffers(bindingIds.Length, bindingIds);
-                    break;
-                case GenType.DisplayList:
-                    foreach (int i in bindingIds)
-                        GL.DeleteLists(i, 1);
-                    break;
-                case GenType.Framebuffer:
-                    GL.DeleteFramebuffers(bindingIds.Length, bindingIds);
-                    break;
-                case GenType.Program:
-                    foreach (int i in bindingIds)
-                        GL.DeleteProgram(i);
-                    break;
-                case GenType.ProgramPipeline:
-                    GL.DeleteProgramPipelines(bindingIds.Length, bindingIds);
-                    break;
-                case GenType.Query:
-                    GL.DeleteQueries(bindingIds.Length, bindingIds);
-                    break;
-                case GenType.Renderbuffer:
-                    GL.DeleteRenderbuffers(bindingIds.Length, bindingIds);
-                    break;
-                case GenType.Sampler:
-                    GL.DeleteSamplers(bindingIds.Length, bindingIds);
-                    break;
-                case GenType.Texture:
-                    GL.DeleteTextures(bindingIds.Length, bindingIds);
-                    break;
-                case GenType.TransformFeedback:
-                    GL.DeleteTransformFeedbacks(bindingIds.Length, bindingIds);
-                    break;
-                case GenType.VertexArray:
-                    GL.DeleteVertexArrays(bindingIds.Length, bindingIds);
-                    break;
-                case GenType.Shader:
-                    foreach (int i in bindingIds)
-                        GL.DeleteShader(i);
-                    break;
-            }
-        }
-        public override int GenObject(GenType type)
-        {
-            switch (type)
-            {
-                case GenType.Buffer: return GL.GenBuffer();
-                case GenType.DisplayList: return GL.GenLists(1);
-                case GenType.Framebuffer: return GL.GenFramebuffer();
-                case GenType.Program: return GL.CreateProgram();
-                case GenType.ProgramPipeline: return GL.GenProgramPipeline();
-                case GenType.Query: return GL.GenQuery();
-                case GenType.Renderbuffer: return GL.GenRenderbuffer();
-                case GenType.Sampler: return GL.GenSampler();
-                case GenType.Texture: return GL.GenTexture();
-                case GenType.TransformFeedback: return GL.GenTransformFeedback();
-                case GenType.VertexArray: return GL.GenVertexArray();
-                case GenType.Shader: return GL.CreateShader(_currentShaderMode);
-            }
-            return 0;
-        }
-        public override int[] GenObjects(GenType type, int count)
-        {
-            int[] ids = new int[count];
-            switch (type)
-            {
-                case GenType.Buffer:
-                    GL.GenBuffers(count, ids);
-                    break;
-                case GenType.Framebuffer:
-                    GL.GenFramebuffers(count, ids);
-                    break;
-                case GenType.Program:
-                    for (int i = 0; i < count; ++i)
-                        ids[i] = GL.CreateProgram();
-                    break;
-                case GenType.ProgramPipeline:
-                    GL.GenProgramPipelines(count, ids);
-                    break;
-                case GenType.Query:
-                    GL.GenQueries(count, ids);
-                    break;
-                case GenType.Renderbuffer:
-                    GL.GenRenderbuffers(count, ids);
-                    break;
-                case GenType.Sampler:
-                    GL.GenSamplers(count, ids);
-                    break;
-                case GenType.Texture:
-                    GL.GenTextures(count, ids);
-                    break;
-                case GenType.TransformFeedback:
-                    GL.GenTransformFeedbacks(count, ids);
-                    break;
-                case GenType.VertexArray:
-                    GL.GenVertexArrays(count, ids);
-                    break;
-                case GenType.Shader:
-                    for (int i = 0; i < count; ++i)
-                        ids[i] = GL.CreateShader(_currentShaderMode);
-                    break;
-                case GenType.DisplayList:
-                    return new int[] { GL.GenLists(count) };
-            }
-            return ids;
-        }
-
-        public override void SetBindFragDataLocation(int bindingId, int location, string name)
-        {
-            GL.BindFragDataLocation(bindingId, location, name);
-        }
-
         public override void BindFrameBuffer(FramebufferType type, int bindingId)
         {
             switch (type)
@@ -612,16 +642,6 @@ namespace CustomEngine.Rendering.OpenGL
                     GL.BindFramebuffer(FramebufferTarget.DrawFramebuffer, bindingId);
                     break;
             }
-        }
-
-        public override void DrawSphereWireframe(float radius)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void DrawSphereSolid(float radius)
-        {
-            throw new NotImplementedException();
         }
     }
 }

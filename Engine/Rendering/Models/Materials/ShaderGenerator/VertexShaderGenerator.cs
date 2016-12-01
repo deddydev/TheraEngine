@@ -12,5 +12,15 @@ namespace CustomEngine.Rendering.Models.Materials
         {
             throw new NotImplementedException();
         }
+        public string Generate(bool weighted, string[] bufferNames)
+        {
+            WriteVersion();
+            foreach (GLVar u in Uniform.CommonUniforms)
+            {
+
+            }
+            Begin();
+            return Finish();
+        }
     }
 }

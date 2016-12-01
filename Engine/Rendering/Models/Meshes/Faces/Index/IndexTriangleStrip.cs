@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace CustomEngine.Rendering.Models
 {
-    public class IndexTriangleStrip : IndexPolygon
+    public class IndexTriangleStrip : IndexPrimitive
     {
         public override FaceType Type { get { return FaceType.TriangleStrip; } }
 

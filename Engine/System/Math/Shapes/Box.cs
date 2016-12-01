@@ -1,5 +1,4 @@
-﻿using OpenTK;
-using CustomEngine;
+﻿using CustomEngine;
 using CustomEngine.Rendering.Models;
 using System.Collections.Generic;
 using CustomEngine.Files;
@@ -36,11 +35,11 @@ namespace System
         private void CheckValid()
         {
             if (_min.X > _max.X)
-                MathHelper.Swap(ref _min.X, ref _max.X);
+                CustomMath.Swap(ref _min.X, ref _max.X);
             if (_min.Y > _max.Y)
-                MathHelper.Swap(ref _min.Y, ref _max.Y);
+                CustomMath.Swap(ref _min.Y, ref _max.Y);
             if (_min.Z > _max.Z)
-                MathHelper.Swap(ref _min.Z, ref _max.Z);
+                CustomMath.Swap(ref _min.Z, ref _max.Z);
         }
 
         public Vec3 CenterPoint

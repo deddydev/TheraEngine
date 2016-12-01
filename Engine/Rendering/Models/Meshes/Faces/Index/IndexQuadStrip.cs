@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace CustomEngine.Rendering.Models
 {
-    public class IndexQuadStrip : IndexPolygon
+    public class IndexQuadStrip : IndexPrimitive
     {
         public override FaceType Type { get { return FaceType.QuadStrip; } }
 

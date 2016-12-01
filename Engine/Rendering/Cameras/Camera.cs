@@ -160,12 +160,12 @@ namespace CustomEngine.Rendering.Cameras
         protected void OnTranslateChanged(Vec3 oldTranslation) { TranslateChanged?.Invoke(oldTranslation); }
         protected void OnScaleChanged(Vec3 oldScale) { ScaleChanged?.Invoke(oldScale); }
 
-        internal void SetUniforms()
+        internal virtual void SetUniforms()
         {
             Engine.Renderer.Uniform(Uniform.ViewMatrixName, Matrix);
             Engine.Renderer.Uniform(Uniform.ProjMatrixName, ProjectionMatrix);
-            Engine.Renderer.Uniform(Uniform.ScreenWidthName, Width);
-            Engine.Renderer.Uniform(Uniform.ScreenHeightName, Height);
+            Engine.Renderer.Uniform(ECommonUniform.ScreenWidth.ToString(), Width);
+            Engine.Renderer.Uniform(ECommonUniform.ScreenHeight.ToString(), Height);
         }
         protected virtual void CalculateProjection()
         {

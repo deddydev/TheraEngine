@@ -13,11 +13,7 @@ namespace CustomEngine.Rendering
         {
             public int _bindingId = 0;
             public RenderContext _context = null;
-
-            public ContextBind(RenderContext c)
-            {
-                _context = c;
-            }
+            public ContextBind(RenderContext c) { _context = c; }
         }
 
         private GenType _type;

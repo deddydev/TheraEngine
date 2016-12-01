@@ -11,7 +11,7 @@ namespace System
     /// However in GLSL shaders, you need to pre-multiply as per usual.
     /// </summary>
     [Serializable]
-    [StructLayout(LayoutKind.Sequential)]
+    [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public unsafe struct Matrix4 : IEquatable<Matrix4>
     {
         public Vec4 Row0;

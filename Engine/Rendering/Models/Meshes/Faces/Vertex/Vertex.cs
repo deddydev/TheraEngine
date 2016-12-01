@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 
 namespace CustomEngine.Rendering.Models
 {
@@ -48,6 +49,42 @@ namespace CustomEngine.Rendering.Models
             }
         }
 
+        public ReadOnlyCollection<VertexLine> ConnectedEdges { get { return _connectedEdges.AsReadOnly(); } }
+
+        List<VertexLine> _connectedEdges = new List<VertexLine>();
+
+        internal void AddLine(VertexLine edge)
+        {
+            if (!_connectedEdges.Contains(edge))
+                _connectedEdges.Add(edge);
+        }
+
+        internal void RemoveLine(VertexLine edge)
+        {
+            if (_connectedEdges.Contains(edge))
+                _connectedEdges.Remove(edge);
+        }
+
+        public VertexLine LinkTo(Vertex otherPoint)
+        {
+            foreach (VertexLine edge in _connectedEdges)
+                if (edge.Vertex0 == otherPoint ||
+                    edge.Vertex0 == otherPoint)
+                    return edge;
+
+            //Creating a new line automatically links the points.
+            return new VertexLine(this, otherPoint);
+        }
+        public void UnlinkFrom(Vertex otherPoint)
+        {
+            for (int i = 0; i < _connectedEdges.Count; ++i)
+                if (_connectedEdges[i].Point0 == otherPoint ||
+                    _connectedEdges[i].Point1 == otherPoint)
+                {
+                    _connectedEdges[i].Unlink();
+                    return;
+                }
+        }
         public override bool Equals(object obj)
         {
             return obj is Vertex ? Equals(obj as Vertex) : false;

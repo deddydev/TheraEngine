@@ -6,36 +6,27 @@ using System.Threading.Tasks;
 
 namespace CustomEngine.Rendering.Models.Materials
 {
-    public enum CommonParameter
-    {
-        ScreenWidth,
-        ScreenHeight,
-        FovY,
-        FovX,
-        Aspect,
-        RenderDelta,
-    }
     public class CommonParameterFunc : MaterialFunction
     {
         public CommonParameterFunc() : base() { }
-        public CommonParameterFunc(CommonParameter value) { _value = value; }
+        public CommonParameterFunc(ECommonUniform value) { _value = value; }
 
-        CommonParameter _value;
+        ECommonUniform _value;
         GLTypeName _type;
 
-        public CommonParameter Value
+        public ECommonUniform Value
         {
             get { return _value; }
             set
             {
                 switch (_value = value)
                 {
-                    case CommonParameter.ScreenHeight:
-                    case CommonParameter.ScreenWidth:
-                    case CommonParameter.FovY:
-                    case CommonParameter.FovX:
-                    case CommonParameter.Aspect:
-                    case CommonParameter.RenderDelta:
+                    case ECommonUniform.ScreenHeight:
+                    case ECommonUniform.ScreenWidth:
+                    case ECommonUniform.FovY:
+                    case ECommonUniform.FovX:
+                    case ECommonUniform.Aspect:
+                    case ECommonUniform.RenderDelta:
                         _type = GLTypeName._float;
                         break;
                 }

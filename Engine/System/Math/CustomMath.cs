@@ -28,6 +28,18 @@
             x = x * (1.5f - xhalf * x * x); // Perform left single Newton-Raphson step.
             return x;
         }
+        public static void Swap(ref float value1, ref float value2)
+        {
+            float temp = value1;
+            value1 = value2;
+            value2 = temp;
+        }
+        public static void Swap(ref int value1, ref int value2)
+        {
+            int temp = value1;
+            value1 = value2;
+            value2 = temp;
+        }
         public static bool Quadratic(float a, float b, float c, out float answer1, out float answer2)
         {
             if (a != 0.0f)

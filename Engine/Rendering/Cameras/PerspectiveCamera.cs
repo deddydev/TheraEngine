@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CustomEngine.Rendering.Models.Materials;
+using System;
 
 namespace CustomEngine.Rendering.Cameras
 {
@@ -6,17 +7,31 @@ namespace CustomEngine.Rendering.Cameras
     {
         public PerspectiveCamera() : base() { }
 
-        private float _width, _height, _fovY = 78.0f, _aspect;
+        private float _width, _height, _fovX = 90.0f, _fovY = 78.0f, _aspect;
 
         public override Vec2 Origin { get { return new Vec2(Width / 2.0f, Height / 2.0f); } }
         public override float Width { get { return _width; } }
         public override float Height { get { return _height; } }
         public float Aspect { get { return _aspect; } set { _aspect = value; CalculateProjection(); } }
-        public float VerticalFieldOfView { get { return _fovY; } set { _fovY = value; CalculateProjection(); } }
+        public float VerticalFieldOfView
+        {
+            get { return _fovY; }
+            set
+            {
+                _fovY = value;
+                _fovX = 2.0f * CustomMath.RadToDeg((float)Math.Atan(Math.Tan(CustomMath.DegToRad(_fovY / 2.0f)) * _aspect));
+                CalculateProjection();
+            }
+        }
         public float HorizontalFieldOfView
         {
-            get { return 2.0f * CustomMath.RadToDeg((float)Math.Atan(Math.Tan(CustomMath.DegToRad(_fovY / 2.0f)) * _aspect)); }
-            set { VerticalFieldOfView = 2.0f * CustomMath.RadToDeg((float)Math.Atan(Math.Tan(CustomMath.DegToRad(value / 2.0f)) / _aspect)); }
+            get { return _fovX; }
+            set
+            {
+                _fovX = value;
+                _fovY = 2.0f * CustomMath.RadToDeg((float)Math.Atan(Math.Tan(CustomMath.DegToRad(value / 2.0f)) / _aspect));
+                CalculateProjection();
+            }
         }
         protected unsafe override void CalculateProjection()
         {
@@ -27,11 +42,17 @@ namespace CustomEngine.Rendering.Cameras
         public void SetProjectionParams(float aspect, float fovy, float farz, float nearz)
         {
             _aspect = aspect;
-            _fovY = fovy;
             _farZ = farz;
             _nearZ = nearz;
+            VerticalFieldOfView = fovy;
             CalculateProjection();
         }
+        internal override void SetUniforms()
+        {
+            base.SetUniforms();
+            Uniform.RegisterCommonUniform(ECommonUniform.FovX, UniformFovX);
+        }
+        private void UniformFovX() { Engine.Renderer.Uniform(); }
         public override void Resize(float width, float height)
         {
             _width = width;

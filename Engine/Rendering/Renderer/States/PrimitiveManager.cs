@@ -111,6 +111,7 @@ namespace CustomEngine.Rendering.Models
             {
                 _matrixIndexBuffer = null;
                 _matrixWeightBuffer = null;
+                _vertexShader = Shader.UnweightedVertexShader();
             }
 
         }

@@ -15,6 +15,15 @@ namespace CustomEngine.Rendering.Models
         Front,
         Both
     }
+    public class PrimitiveBufferInfo
+    {
+        public int _positionCount = 1;
+        public int _normalCount = 1;
+        public int _binormalCount = 0;
+        public int _tangentCount = 0;
+        public int _texcoordCount = 1;
+        public int _colorCount = 0;
+    }
     public class PrimitiveData : IDisposable
     {
         public bool HasSkinning { get { return _utilizedBones.Length > 0; } }
@@ -200,16 +209,6 @@ namespace CustomEngine.Rendering.Models
         public static PrimitiveData FromTriangleList(Culling culling, PrimitiveBufferInfo info, IEnumerable<VertexTriangle> triangles)
         {
             return new PrimitiveData(culling, info, triangles);
-        }
-
-        public class PrimitiveBufferInfo
-        {
-            public int _positionCount = 1;
-            public int _normalCount = 1;
-            public int _binormalCount = 0;
-            public int _tangentCount = 0;
-            public int _texcoordCount = 1;
-            public int _colorCount = 0;
         }
         
         public PrimitiveData(Culling culling, PrimitiveBufferInfo info, IEnumerable<VertexTriangle> triangles)

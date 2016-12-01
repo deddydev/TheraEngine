@@ -16,6 +16,8 @@ namespace CustomEngine.Rendering.Models
         Tangent,
         TexCoord,
         Color,
+        MatrixIds,
+        MatrixWeights
     }
     public class VertexAttribInfo
     {
@@ -34,12 +36,11 @@ namespace CustomEngine.Rendering.Models
     public class VertexBuffer : BaseRenderState, IDisposable
     {
         public static readonly int MaxBufferCountPerType = 64;
-        public static readonly int BufferTypeCount = 6;
-
-        //MatrixIds, MatrixWeights, 
+        public static readonly int BufferTypeCount = 8;
+        
         //TransformedPosition, TransformedNormal, TransformedBinormal, TransformedTangent
         //TransformedTexCoord, TransformedColor
-        public static readonly int SkinningBufferCount = 8; 
+        public static readonly int SkinningBufferCount = 6; 
         public static readonly int MaxBufferCount = MaxBufferCountPerType * BufferTypeCount + SkinningBufferCount;
 
         public enum BufferUsage
@@ -89,8 +90,8 @@ namespace CustomEngine.Rendering.Models
             bool normalize) : base(GenType.Buffer)
         {
             _index = index;
-            _location = info.GetLocation();
             _target = target;
+            _location = info.GetLocation();
             _name = info.GetAttribName();
 
             _componentType = componentType;
@@ -101,7 +102,7 @@ namespace CustomEngine.Rendering.Models
             _data = DataSource.Allocate(DataLength);
         }
         public VertexBuffer(
-            int index, 
+            int index,
             string name,
             BufferTarget target) : base(GenType.Buffer)
         {
@@ -109,6 +110,16 @@ namespace CustomEngine.Rendering.Models
             _location = -1;
             _target = target;
             _name = name;
+        }
+        public VertexBuffer(
+           int index,
+           VertexAttribInfo info,
+           BufferTarget target) : base(GenType.Buffer)
+        {
+            _index = index;
+            _target = target;
+            _location = info.GetLocation();
+            _name = info.GetAttribName();
         }
 
         public VoidPtr Data { get { return _data.Address; } }
@@ -172,6 +183,10 @@ namespace CustomEngine.Rendering.Models
             T value = default(T);
             Marshal.PtrToStructure(_data.Address + offset, value);
             return value;
+        }
+        public void Set<T>(int offset, T value) where T : struct
+        {
+            Marshal.StructureToPtr(value, _data.Address + offset, true);
         }
         public unsafe Remapper SetDataNumeric<T>(IList<T> list, bool remap = false) where T : struct
         {

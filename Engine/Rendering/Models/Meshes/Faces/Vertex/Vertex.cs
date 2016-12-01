@@ -4,22 +4,37 @@ using System.Collections.ObjectModel;
 
 namespace CustomEngine.Rendering.Models
 {
-    public class Vertex : ObjectBase
+    //Contains final transformed information
+    //using transform feedback from the gpu
+    public class FinalVertex : ObjectBase
+    {
+        public Vec3 _position, _normal, _tangent, _binormal;
+        public Vec2 _texCoord;
+        public ColorF4 _color;
+    }
+    public class MorphableVertex
+    {
+        public MorphableVertex(Vertex baseVertex, params Vertex[] morphVertices)
+        {
+            _baseVertex = baseVertex;
+            _morphVertices = morphVertices;
+        }
+        public Vertex _baseVertex;
+        public Vertex[] _morphVertices = new Vertex[VertexBuffer.MaxBufferCountPerType];
+    }
+    public class Vertex
     {
         public int _index;
         public Influence _influence;
-        public List<Vec3>
-            _positions = new List<Vec3>(VertexAttribInfo.MaxTypeBufferCount),
-            _normals = new List<Vec3>(VertexAttribInfo.MaxTypeBufferCount),
-            _binormals = new List<Vec3>(VertexAttribInfo.MaxTypeBufferCount),
-            _tangents = new List<Vec3>(VertexAttribInfo.MaxTypeBufferCount);
-        public List<Vec2> _texCoords = new List<Vec2>(VertexAttribInfo.MaxTypeBufferCount);
-        public List<ColorF4> _colors = new List<ColorF4>(VertexAttribInfo.MaxTypeBufferCount);
+        public Vec3 _position, _normal, _tangent, _binormal;
+        public Vec2 _texCoord;
+        public ColorF4 _color;
 
-        //Set using transform feedback from the gpu
-        public Vec3 _transformedPosition;
-
-        public Vertex(Vec3 position) { _positions.Add(position); }
+        public Vertex(Vec3 position) { _position = position; }
+        public Vertex(Vec3 position, Vec3 normal) : this(position) { _normal = normal; }
+        public Vertex(Vec3 position, Vec3 normal, Vec2 texCoord) : this(position, normal) { _texCoord = texCoord; }
+        public Vertex(Vec3 position, Vec3 normal, Vec2 texCoord, ColorF4 color) : this(position, normal, texCoord) { _color = color; }
+        public Vertex(Vec3 position, Vec3 normal, Vec3 binormal, Vec3 tangent, Vec2 texCoord, ColorF4 color) : this(position, normal, texCoord, color) { _binormal = binormal; _tangent = tangent; }
         public Vertex(FacePoint facepoint, List<VertexBuffer> buffers)
         {
             if (facepoint.Indices == null)
@@ -32,43 +47,23 @@ namespace CustomEngine.Rendering.Models
                 switch (info._type)
                 {
                     case BufferType.Position:
-                        _positions.Add(b.Get<Vec3>(index * 12));
+                        _position = b.Get<Vec3>(index * 12);
                         break;
                     case BufferType.Normal:
-                        _normals.Add(b.Get<Vec3>(index * 12));
+                        _normal = b.Get<Vec3>(index * 12);
                         break;
                     case BufferType.Binormal:
-                        _binormals.Add(b.Get<Vec3>(index * 12));
+                        _binormal = b.Get<Vec3>(index * 12);
                         break;
                     case BufferType.Tangent:
-                        _tangents.Add(b.Get<Vec3>(index * 12));
+                        _tangent = b.Get<Vec3>(index * 12);
                         break;
                     case BufferType.Color:
-                        _texCoords.Add(b.Get<Vec2>(index << 4));
+                        _texCoord = b.Get<Vec2>(index << 4);
                         break;
                     case BufferType.TexCoord:
-                        _texCoords.Add(b.Get<Vec2>(index << 3));
+                        _texCoord = b.Get<Vec2>(index << 3);
                         break;
-                }
-                if (b.IsType(BufferType.Position))
-                {
-                    _position = ;
-                }
-                else if (b.IsType(BufferType.Normal))
-                {
-                    _normal = b.Get<Vec3>(index * 12);
-                }
-                else if (b.IsType(BufferType.Color))
-                {
-                    _colors.Add(b.Get<ColorF4>(index * 16));
-                }
-                else if (b.IsType(BufferType.TexCoord))
-                {
-                    _texCoords.Add();
-                }
-                else
-                {
-
                 }
             }
         }

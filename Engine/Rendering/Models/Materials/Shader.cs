@@ -88,10 +88,11 @@ void main()
 }";
             return new Shader(ShaderMode.Vertex, source);
         }
-        public static Shader UnweightedVertexShader(string[] bufferNames)
+        public static Shader UnweightedVertexShader(PrimitiveBufferInfo info)
         {
             string source = @"
 #version 450
+
 in vec3 Position0;
 in vec3 Normal0;
 in vec2 TexCoord0;

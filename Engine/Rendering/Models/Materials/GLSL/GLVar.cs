@@ -43,7 +43,7 @@ namespace CustomEngine.Rendering.Models.Materials
     }
     public abstract class GLVar : IGLVarOwner
     {
-        public static Dictionary<Type, GLTypeName> _typeAssociations = new Dictionary<Type, GLTypeName>()
+        public static Dictionary<Type, GLTypeName> TypeAssociations = new Dictionary<Type, GLTypeName>()
         {
             { typeof(GLBool), GLTypeName._bool },
             { typeof(GLInt), GLTypeName._int },

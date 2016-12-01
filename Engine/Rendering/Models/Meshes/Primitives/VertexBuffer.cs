@@ -19,22 +19,29 @@ namespace CustomEngine.Rendering.Models
     }
     public class VertexAttribInfo
     {
-        public static readonly int MaxBufferCount = 64;
-
         public VertexAttribInfo(BufferType type, int index = 0)
         {
             _type = type;
-            _index = index.Clamp(0, MaxBufferCount);
+            _index = index.Clamp(0, VertexBuffer.MaxBufferCountPerType);
         }
 
         public BufferType _type;
         public int _index;
 
         public string GetAttribName() { return _type.ToString() + _index; }
-        public int GetLocation() { return (int)_type * MaxBufferCount + _index; }
+        public int GetLocation() { return (int)_type * VertexBuffer.MaxBufferCountPerType + _index; }
     }
-    public abstract class VertexBuffer : BaseRenderState, IDisposable
+    public class VertexBuffer : BaseRenderState, IDisposable
     {
+        public static readonly int MaxBufferCountPerType = 64;
+        public static readonly int BufferTypeCount = 6;
+
+        //MatrixIds, MatrixWeights, 
+        //TransformedPosition, TransformedNormal, TransformedBinormal, TransformedTangent
+        //TransformedTexCoord, TransformedColor
+        public static readonly int SkinningBufferCount = 8; 
+        public static readonly int MaxBufferCount = MaxBufferCountPerType * BufferTypeCount + SkinningBufferCount;
+
         public enum BufferUsage
         {
             StreamDraw = 0,
@@ -65,7 +72,7 @@ namespace CustomEngine.Rendering.Models
 
         private DataSource _data;
         
-        private int _index;
+        private int _index, _location;
         private BufferTarget _target;
         protected VertexAttribInfo _info;
 
@@ -82,6 +89,7 @@ namespace CustomEngine.Rendering.Models
             bool normalize) : base(GenType.Buffer)
         {
             _index = index;
+            _location = info.GetLocation();
             _target = target;
             _name = info.GetAttribName();
 
@@ -98,6 +106,7 @@ namespace CustomEngine.Rendering.Models
             BufferTarget target) : base(GenType.Buffer)
         {
             _index = index;
+            _location = -1;
             _target = target;
             _name = name;
         }
@@ -141,10 +150,13 @@ namespace CustomEngine.Rendering.Models
         /// </summary>
         public void BindVertexAttrib()
         {
-            GL.EnableVertexAttribArray(_index);
-            GL.VertexAttribPointer(_index, _componentCount, VertexAttribPointerType.Byte + (int)_componentType, _normalize, 0, 0);
-            GL.VertexAttribFormat(_index, _componentCount, VertexAttribType.Byte + (int)_componentType, _normalize, 0);
-            GL.VertexAttribBinding(_index, _index);
+            if (_location >= 0)
+            {
+                GL.EnableVertexAttribArray(_index);
+                GL.VertexAttribPointer(_index, _componentCount, VertexAttribPointerType.Byte + (int)_componentType, _normalize, 0, 0);
+                GL.VertexAttribFormat(_location, _componentCount, VertexAttribType.Byte + (int)_componentType, _normalize, 0);
+                GL.VertexAttribBinding(_location, _index);
+            }
         }
         public void Bind() { GL.BindBuffer(_target, BindingId); }
         /// <summary>

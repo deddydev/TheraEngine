@@ -40,7 +40,6 @@ namespace CustomEngine.Rendering
             set { _isRendering = value; }
         }
         public abstract void Render();
-
         public abstract Shape GetCullingVolume();
         public abstract PrimitiveData GetPrimitiveData();
         public override List<PrimitiveData> GetPrimitives()

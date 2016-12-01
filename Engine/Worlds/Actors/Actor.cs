@@ -40,7 +40,8 @@ namespace CustomEngine.Worlds
         public bool IsSpawned { get { return _spawnIndex >= 0; } }
         [State]
         public World OwningWorld { get { return _owningWorld; } }
-        
+
+        public ReadOnlyCollection<SceneComponent> SceneComponentCache { get { return _sceneComponentCache; } }
         public SceneComponent RootComponent
         {
             get { return _rootSceneComponent; }
@@ -65,11 +66,11 @@ namespace CustomEngine.Worlds
                 GenerateSceneComponentCache();
             }
         }
-        
+
         public int _spawnIndex = -1;
         private World _owningWorld;
         private SceneComponent _rootSceneComponent;
-        protected List<SceneComponent> _sceneComponentCache = new List<SceneComponent>();
+        protected ReadOnlyCollection<SceneComponent> _sceneComponentCache;
         private MonitoredList<LogicComponent> _logicComponents = new MonitoredList<LogicComponent>();
         private bool _isMovable = true, _simulatingPhysics = false;
 
@@ -92,7 +93,7 @@ namespace CustomEngine.Worlds
         public void GenerateSceneComponentCache()
         {
             if (!_isConstructing)
-                _sceneComponentCache = _rootSceneComponent == null ? new List<SceneComponent>() : _rootSceneComponent.GenerateChildCache();
+                _sceneComponentCache = _rootSceneComponent == null ? new ReadOnlyCollection<SceneComponent>() : _rootSceneComponent.GenerateChildCache().AsReadOnly();
         }
         internal void RebaseOrigin(Vec3 newOrigin)
         {

@@ -1,23 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Text.RegularExpressions;
-
-namespace CustomEngine.Rendering.Models.Materials
+﻿namespace CustomEngine.Rendering.Models.Materials
 {
     public abstract class BaseGLArgument
     {
         public BaseGLArgument(string name) { _name = name; }
 
         public string Name { get { return _name; } }
-        public bool IsOutput { get { return _isOutput; } }
-        public BaseGLArgument ConnectedTo { get { return _connectedTo; } }
+        public abstract bool IsOutput { get; }
 
-        protected BaseGLArgument _connectedTo = null;
-        protected bool _isOutput;
         protected string _name;
         public abstract GLTypeName GetArgType();
 
@@ -28,12 +17,12 @@ namespace CustomEngine.Rendering.Models.Materials
             DoConnection(other);
             return true;
         }
+        public abstract void ClearConnection(BaseGLArgument other);
+
         protected virtual void DoConnection(BaseGLArgument other)
         {
             if (_connectedTo != null)
-            {
-                _connectedTo.ClearConnection();
-            }
+                _connectedTo.ClearConnection(this);
             _connectedTo = other;
         }
         public virtual bool CanConnectTo(BaseGLArgument other)

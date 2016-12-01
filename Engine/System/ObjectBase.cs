@@ -36,6 +36,7 @@ namespace System
         private ETickGroup? _tickGroup = null;
         private ETickOrder? _tickOrder = null;
         protected bool _isTicking = false;
+        private List<AnimationContainer> _animations = new List<AnimationContainer>();
 
         //[Browsable(false)]
         //public virtual ResourceType ResourceType { get { return ResourceType.Object; } }
@@ -134,7 +135,6 @@ namespace System
         protected virtual void OnDisposing() { Disposing?.Invoke(this); }
         protected virtual void OnRenamed(string oldName) { Renamed?.Invoke(this, oldName); }
 
-        private List<AnimationContainer> _animations = new List<AnimationContainer>();
         public void AddAnimation(AnimationContainer anim, bool startNow = false)
         {
             anim.AnimationEnded += RemoveAnimation;
@@ -148,10 +148,7 @@ namespace System
             _animations.Remove(anim);
             anim._owners.Remove(this);
         }
-        public override string ToString()
-        {
-            return _name;
-        }
+        public override string ToString() { return _name; }
     }
 //    [PSerializable]
 //    public class NotifyPropertyChangedAttribute : LocationInterceptionAspect

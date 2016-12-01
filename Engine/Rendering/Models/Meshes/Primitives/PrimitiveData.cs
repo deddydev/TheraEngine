@@ -17,6 +17,9 @@ namespace CustomEngine.Rendering.Models
     }
     public class PrimitiveData : IDisposable
     {
+        public bool HasSkinning { get { return _utilizedBones.Length > 0; } }
+        public Culling Culling { get { return _culling; } }
+
         //Faces have indices that refer to face points.
         //These may contain repeat vertex indices but each triangle is unique.
         public List<IndexTriangle> _faces = null;
@@ -26,17 +29,18 @@ namespace CustomEngine.Rendering.Models
         public Influence[] _influences;
         public string[] _utilizedBones;
 
-        public bool HasSkinning { get { return _utilizedBones.Length > 0; } }
-
         //Face points have indices that refer to each buffer.
-        //These may contain repeat buffer indicies but each point is unique.
+        //These may contain repeat buffer indices but each point is unique.
         public List<FacePoint> _facePoints = null;
 
         //This is the array data that will be passed through the shader.
-        //Each buffer only has unique values.
+        //Each buffer may have repeated values, as there must be a value for each remapped face point.
         public List<VertexBuffer> _buffers = null;
 
         private Culling _culling = Culling.Back;
+
+        //Contains the human-understandable mesh information.
+        MonitoredList<VertexTriangle> _triangles;
 
         public VertexBuffer this[int index]
         {
@@ -76,63 +80,6 @@ namespace CustomEngine.Rendering.Models
             Vertex v2 = new Vertex(fp2, _buffers);
             return new VertexTriangle(v0, v1, v2);
         }
-        public static PrimitiveData FromQuads(Culling culling, params VertexQuad[] quads)
-        {
-            return FromQuadList(culling, quads);
-        }
-        public static PrimitiveData FromTriangles(Culling culling, params VertexTriangle[] triangles)
-        {
-            return FromTriangleList(culling, triangles);
-        }
-        public static PrimitiveData FromQuadList(Culling culling, IEnumerable<VertexQuad> quads)
-        {
-            return FromTriangleList(culling, quads.SelectMany(x => x.ToTriangles()).ToList());
-        }
-        public static PrimitiveData FromTriangleList(Culling culling, IEnumerable<VertexTriangle> triangles)
-        {
-            bool hasNormals = false;
-            int texCoordCount = 0, colorCount = 0;
-
-            List<Vertex> vertices = triangles.SelectMany(x => x.Vertices).ToList();
-            if (vertices.Any(x => x._normal != null))
-                hasNormals = true;
-            foreach (Vertex v in vertices)
-            {
-                if (v._texCoords != null && v._texCoords.Count > texCoordCount)
-                    texCoordCount = v._texCoords.Count;
-                if (v._colors != null && v._colors.Count > colorCount)
-                    colorCount = v._colors.Count;
-            }
-            
-            PrimitiveData data = new PrimitiveData();
-            data._culling = culling;
-            data.SetInfluences(triangles.SelectMany(x => x.Vertices.Select(y => y._influence)).ToArray());
-
-            Remapper remapper = data.SetFaceIndices(vertices);
-            data.CreateFacePoints(remapper.ImplementationLength);
-
-            List<Vec3> positions = remapper.ImplementationTable.Select(x => vertices[x]._position).ToList();
-            data.AddBuffer(positions, new VertexAttribInfo(BufferType.Position));
-
-            if (hasNormals)
-            {
-                List<Vec3> normals = remapper.ImplementationTable.Select(x => vertices[x]._normal.GetValueOrDefault()).ToList();
-                data.AddBuffer(normals, VertexBuffer.GetBufferName(BufferType.Normal));
-            }
-            for (int i = 0; i < colorCount; ++i)
-            {
-                List<ColorF4> colors = remapper.ImplementationTable.Select(x => i < vertices[x]._colors.Count ? vertices[x]._colors[i] : default(ColorF4)).ToList();
-                data.AddBuffer(colors, VertexBuffer.GetBufferName(BufferType.Color, i));
-            }
-            for (int i = 0; i < texCoordCount; ++i)
-            {
-                List<Vec2> texCoords = remapper.ImplementationTable.Select(x => i < vertices[x]._texCoords.Count ? vertices[x]._texCoords[i] : default(Vec2)).ToList();
-                data.AddBuffer(texCoords, VertexBuffer.GetBufferName(BufferType.TexCoord, i));
-            }
-            
-            return data;
-        }
-
         private void SetInfluences(params Influence[] influences)
         {
             _influences = influences;
@@ -235,6 +182,77 @@ namespace CustomEngine.Rendering.Models
                 for (int i = 0; i < vertices.Count; )
                     _faces.Add(new IndexTriangle(i++, i++, i++));
                 return null;
+            }
+        }
+
+        public static PrimitiveData FromQuads(Culling culling, PrimitiveBufferInfo info, params VertexQuad[] quads)
+        {
+            return FromQuadList(culling, info, quads);
+        }
+        public static PrimitiveData FromTriangles(Culling culling, PrimitiveBufferInfo info, params VertexTriangle[] triangles)
+        {
+            return FromTriangleList(culling, info, triangles);
+        }
+        public static PrimitiveData FromQuadList(Culling culling, PrimitiveBufferInfo info, IEnumerable<VertexQuad> quads)
+        {
+            return FromTriangleList(culling, info, quads.SelectMany(x => x.ToTriangles()));
+        }
+        public static PrimitiveData FromTriangleList(Culling culling, PrimitiveBufferInfo info, IEnumerable<VertexTriangle> triangles)
+        {
+            return new PrimitiveData(culling, info, triangles);
+        }
+
+        public class PrimitiveBufferInfo
+        {
+            public int _positionCount = 1;
+            public int _normalCount = 1;
+            public int _binormalCount = 0;
+            public int _tangentCount = 0;
+            public int _texcoordCount = 1;
+            public int _colorCount = 0;
+        }
+        
+        public PrimitiveData(Culling culling, PrimitiveBufferInfo info, IEnumerable<VertexTriangle> triangles)
+        {
+            _culling = culling;
+            _triangles = new MonitoredList<VertexTriangle>(triangles);
+
+            List<Vertex> vertices = triangles.SelectMany(x => x.Vertices).ToList();
+            Influence[] influences = vertices.Select(y => y._influence).ToArray();
+
+            Remapper remapper = SetFaceIndices(vertices);
+            CreateFacePoints(remapper.ImplementationLength);
+            SetInfluences(remapper.ImplementationTable.Select(x => influences[x]).ToArray());
+
+            for (int i = 0; i < info._positionCount; ++i)
+            {
+                var data = remapper.ImplementationTable.Select(x => vertices[x]._positions[i]).ToList();
+                AddBuffer(data, new VertexAttribInfo(BufferType.Position, i));
+            }
+            for (int i = 0; i < info._normalCount; ++i)
+            {
+                var data = remapper.ImplementationTable.Select(x => vertices[x]._normals[i]).ToList();
+                AddBuffer(data, new VertexAttribInfo(BufferType.Normal, i));
+            }
+            for (int i = 0; i < info._binormalCount; ++i)
+            {
+                var data = remapper.ImplementationTable.Select(x => vertices[x]._binormals[i]).ToList();
+                AddBuffer(data, new VertexAttribInfo(BufferType.Binormal, i));
+            }
+            for (int i = 0; i < info._tangentCount; ++i)
+            {
+                var data = remapper.ImplementationTable.Select(x => vertices[x]._tangents[i]).ToList();
+                AddBuffer(data, new VertexAttribInfo(BufferType.Tangent, i));
+            }
+            for (int i = 0; i < info._texcoordCount; ++i)
+            {
+                var data = remapper.ImplementationTable.Select(x => vertices[x]._texCoords[i]).ToList();
+                AddBuffer(data, new VertexAttribInfo(BufferType.TexCoord, i));
+            }
+            for (int i = 0; i < info._colorCount; ++i)
+            {
+                var data = remapper.ImplementationTable.Select(x => vertices[x]._colors[i]).ToList();
+                AddBuffer(data, new VertexAttribInfo(BufferType.Color, i));
             }
         }
 

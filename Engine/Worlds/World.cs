@@ -14,7 +14,7 @@ namespace CustomEngine.Worlds
     {
         WorldSettings Settings { get; set; }
     }
-    public unsafe class World : FileObject
+    public unsafe class World : FileObject, IEnumerable<Actor>
     {
         internal DiscreteDynamicsWorld _physicsScene;
         public WorldSettings _settings;
@@ -37,19 +37,17 @@ namespace CustomEngine.Worlds
             _physicsScene = new DiscreteDynamicsWorld(dispatcher, broadphase, solver, config);
             _physicsScene.Gravity = _settings.State.Gravity;
         }
-        public void SetTimeDilation(float multiplier)
-        {
-            _settings.State.TimeDilation = multiplier;
-        }
         /// <summary>
         /// Moves the origin to preserve float precision when traveling large distances from the origin.
         /// </summary>
         public void RebaseOrigin(Vec3 newOrigin)
         {
-            foreach (Actor a in _settings.State.SpawnedActors)
+            foreach (Actor a in State.SpawnedActors)
                 a.RebaseOrigin(newOrigin);
         }
         public int ActorCount { get { return _settings.State.SpawnedActors.Count; } }
+
+        public WorldState State { get { return _settings.State; } }
 
         public void SpawnActor(Actor actor, Matrix4 transform)
         {
@@ -82,7 +80,8 @@ namespace CustomEngine.Worlds
             foreach (Map m in _settings._maps)
                 m.BeginPlay();
         }
-        public static string GetTag() { return "WRLD"; }
+        public IEnumerator<Actor> GetEnumerator() { return State.SpawnedActors.GetEnumerator(); }
+        IEnumerator IEnumerable.GetEnumerator() { return State.SpawnedActors.GetEnumerator(); }
     }
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public unsafe struct WorldHeader

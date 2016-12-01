@@ -102,6 +102,8 @@ namespace System
         public static readonly Vec3 UnitZ = new Vec3(0.0f, 0.0f, 1.0f);
         public static readonly Vec3 Zero = new Vec3(0.0f);
         public static readonly Vec3 One = new Vec3(1.0f);
+        public static readonly Vec3 Min = new Vec3(float.MinValue);
+        public static readonly Vec3 Max = new Vec3(float.MaxValue);
         public static readonly Vec3 Right = UnitX;
         public static readonly Vec3 Forward = UnitZ;
         public static readonly Vec3 Up = UnitY;

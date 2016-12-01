@@ -44,15 +44,22 @@ namespace CustomEngine.Rendering.Cameras
             _aspect = aspect;
             _farZ = farz;
             _nearZ = nearz;
+
+            //This will set _fovX too
             VerticalFieldOfView = fovy;
+
             CalculateProjection();
         }
-        internal override void SetUniforms()
+        internal override void RegisterUniforms()
         {
-            base.SetUniforms();
-            Uniform.RegisterCommonUniform(ECommonUniform.FovX, UniformFovX);
+            base.RegisterUniforms();
+            Uniform.ProvideUniform(ECommonUniform.FovX, UniformFovX);
+            Uniform.ProvideUniform(ECommonUniform.FovY, UniformFovY);
+            Uniform.ProvideUniform(ECommonUniform.Aspect, UniformAspect);
         }
-        private void UniformFovX() { Engine.Renderer.Uniform(); }
+        private void UniformFovX(int mId) { Engine.Renderer.Uniform(mId, Uniform.GetLocation(ECommonUniform.FovX), _fovX); }
+        private void UniformFovY(int mId) { Engine.Renderer.Uniform(mId, Uniform.GetLocation(ECommonUniform.FovY), _fovY); }
+        private void UniformAspect(int mId) { Engine.Renderer.Uniform(mId, Uniform.GetLocation(ECommonUniform.Aspect), _aspect); }
         public override void Resize(float width, float height)
         {
             _width = width;

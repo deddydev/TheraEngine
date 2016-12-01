@@ -16,9 +16,9 @@ namespace CustomEngine.Rendering.Models.Materials
         {
             return new List<BaseGLArgument>()
             {
-                new GLArgument<GLInt>("Start Index"),
+                new GLInput<GLInt>("Start Index"),
                 //TODO: condition needs to be built into the loop
-                new GLArgument<GLBool>("Condition"),
+                new GLInput<GLBool>("Condition"),
                 //TODO: material function argument for each loop?
             };
         }

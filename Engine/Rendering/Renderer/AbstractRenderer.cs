@@ -33,33 +33,10 @@ namespace CustomEngine.Rendering
             return GenObjects(type, count).Select(x => Activator.CreateInstance(typeof(T), x) as T).ToArray();
         }
 
-        public void SetCommonUniforms()
-        {
-            Scene.CurrentCamera.SetUniforms();
-        }
-
         public abstract int GenObject(GenType type);
         public abstract int[] GenObjects(GenType type, int count);
         public abstract void DeleteObject(GenType type, int bindingId);
         public abstract void DeleteObjects(GenType type, int[] bindingIds);
-
-        #region Shapes
-        public void DrawBoxWireframe(Box box) { DrawBoxWireframe(box.Minimum, box.Maximum); }
-        public void DrawBoxSolid(Box box) { DrawBoxSolid(box.Minimum, box.Maximum); }
-
-        public abstract void DrawBoxWireframe(Vec3 min, Vec3 max);
-        public abstract void DrawBoxSolid(Vec3 min, Vec3 max);
-
-        public void DrawCapsuleWireframe(Capsule capsule) { DrawCapsuleWireframe(capsule.Radius, capsule.HalfHeight); }
-        public void DrawCapsuleSolid(Capsule capsule) { DrawCapsuleSolid(capsule.Radius, capsule.HalfHeight); }
-        public abstract void DrawCapsuleWireframe(float radius, float halfHeight);
-        public abstract void DrawCapsuleSolid(float radius, float halfHeight);
-
-        public void DrawSphereWireframe(Sphere sphere) { DrawSphereWireframe(sphere.Radius); }
-        public void DrawSphereSolid(Sphere sphere) { DrawSphereSolid(sphere.Radius); }
-        public abstract void DrawSphereWireframe(float radius);
-        public abstract void DrawSphereSolid(float radius);
-        #endregion
 
         #region Matrices
         public Matrix4 ModelMatrix { get { return _modelMatrix.Count > 0 ? _modelMatrix.Peek() : Matrix4.Identity; } }
@@ -316,6 +293,14 @@ namespace CustomEngine.Rendering
         public abstract void Uniform(int matID, int location, params Matrix4[] p);
         public abstract void Uniform(int matID, int location, Matrix3 p);
         public abstract void Uniform(int matID, int location, params Matrix3[] p);
+
+        public void Uniform(int matID, int location, params IUniformable[] p)
+        {
+            foreach (IUniformable u in p)
+            {
+
+            }
+        }
 
         #endregion
 

@@ -1,6 +1,7 @@
 ﻿using System.Runtime.InteropServices;
 using static System.Math;
 using static System.CustomMath;
+using CustomEngine;
 
 namespace System
 {
@@ -12,7 +13,7 @@ namespace System
     /// </summary>
     [Serializable]
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    public unsafe struct Matrix4 : IEquatable<Matrix4>
+    public unsafe struct Matrix4 : IEquatable<Matrix4>, IUniformable
     {
         public Vec4 Row0;
         public Vec4 Row1;

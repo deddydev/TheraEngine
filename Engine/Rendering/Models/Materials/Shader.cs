@@ -58,30 +58,31 @@ namespace CustomEngine.Rendering.Models.Materials
             string source = @"
 #version 450
 
-in vec3 BasePosition;
-in vec3 BaseNormal;
-in vec2 BaseTexCoord0;
+in vec3 Position0;
+in vec3 Normal0;
+in vec2 TexCoord0;
 
 uniform mat4 ModelMatrix;
 uniform mat4 ViewMatrix;
 uniform mat4 ProjMatrix;
 
-#define MAX_BONES " + boneCount.ToString() + @"
 in ivec4 MatrixIDs;
 in vec4 MatrixWeights;
-uniform mat4 BoneMatrices[MAX_BONES];
+uniform mat4 BoneMatrices[" + boneCount.ToString() + @"];
 
 out vec3 color;
+out vec3 TransformedPosition;
 
 void main()
 {
     mat4 modelView = ViewMatrix * ModelMatrix;
-    vec4 pos = vec4(BasePosition, 1.0);
+    vec4 pos = vec4(Position, 1.0);
     vec4 weightedPos = vec4(0.0);
     for (int i = 0; i < 4; i++)
     {
         weightedPos += (BoneMatrices[MatrixIDs[i]] * pos) * MatrixWeights[i];
     }
+    TransformedPosition = weightedPos.xyz;
     gl_Position = ProjMatrix * modelView * weightedPos;
     color = vec3(BaseTexCoord0, 0.0);
 }";
@@ -89,13 +90,11 @@ void main()
         }
         public static Shader UnweightedVertexShader(string[] bufferNames)
         {
-            
-
             string source = @"
 #version 450
-in vec3 BasePosition;
-in vec3 BaseNormal;
-in vec2 BaseTexCoord0;
+in vec3 Position0;
+in vec3 Normal0;
+in vec2 TexCoord0;
 
 uniform mat4 ModelMatrix;
 uniform mat4 ViewMatrix;
@@ -106,9 +105,8 @@ out vec3 color;
 void main()
 {
     mat4 modelView = ViewMatrix * ModelMatrix;
-    vec4 pos = vec4(BasePosition, 1.0);
-    gl_Position = ProjMatrix * modelView * pos;
-    color = vec3(BaseTexCoord0, 0.0);
+    gl_Position = ProjMatrix * modelView * vec4(Position0, 1.0);
+    color = vec3(TexCoord0, 0.0);
 }
 ";
             return new Shader(ShaderMode.Vertex, source);

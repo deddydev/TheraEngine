@@ -11,12 +11,12 @@ namespace CustomEngine.Rendering.Models.Materials
     /// </summary>
     public class ResultBasicFunc : MaterialFunction
     {
-        private GLArgument<GLVec4> OutputColor { get { return InputArguments[0] as GLArgument<GLVec4>; } }
+        private GLInput<GLVec4> OutputColor { get { return InputArguments[0] as GLInput<GLVec4>; } }
         protected override List<BaseGLArgument> GetArguments()
         {
             return new List<BaseGLArgument>()
             {
-                new GLArgument<GLVec4>("FinalColor"),
+                new GLInput<GLVec4>("FinalColor"),
             };
         }
         public static MaterialFuncInfo GetInfo()

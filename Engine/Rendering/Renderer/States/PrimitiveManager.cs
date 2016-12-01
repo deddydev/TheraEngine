@@ -18,7 +18,11 @@ namespace CustomEngine.Rendering.Models
         public int[] _strides;
 
         private PrimitiveData _data;
-        private VertexBuffer _indexBuffer, _matrixIndexBuffer, _matrixWeightBuffer;
+        private VertexBuffer 
+            _indexBuffer, 
+            _matrixIndexBuffer,
+            _matrixWeightBuffer,
+            _transformedPositionsBuffer;
         private Primitive _triangles;
         private Bone[] _utilizedBones;
         private Shader _vertexShader;
@@ -41,7 +45,7 @@ namespace CustomEngine.Rendering.Models
                 _data = value;
                 if (_data != null)
                 {
-                    _indexBuffer = new VertexBuffer(_data._buffers.Count + 2, "FaceIndices", BufferTarget.ElementArrayBuffer);
+                    _indexBuffer = new VertexBuffer(-1, "FaceIndices", BufferTarget.ElementArrayBuffer);
                     _triangles = new Primitive(_data._faces.Count * 3, _data._facePoints.Count, PrimitiveType.Triangles);
                     switch (_triangles._elementType)
                     {
@@ -92,8 +96,11 @@ namespace CustomEngine.Rendering.Models
                     }
                 }
 
-                _matrixIndexBuffer = new VertexBuffer(_data._buffers.Count, "MatrixIDs", BufferTarget.ArrayBuffer);
-                _matrixWeightBuffer = new VertexBuffer(_data._buffers.Count + 1, "MatrixWeights", BufferTarget.ArrayBuffer);
+                int location = VertexBuffer.MaxBufferCount - VertexBuffer.SkinningBufferCount;
+
+                _matrixIndexBuffer = new VertexBuffer(location, "MatrixIDs", BufferTarget.ArrayBuffer);
+                _matrixWeightBuffer = new VertexBuffer(location + 1, "MatrixWeights", BufferTarget.ArrayBuffer);
+                _transformedPositionsBuffer = new VertexBuffer(location + 2, "TransformedPosition", BufferTarget.TransformFeedbackBuffer);
 
                 _matrixIndexBuffer.SetData(matrixIndices);
                 _matrixWeightBuffer.SetData(matrixWeights);
@@ -105,6 +112,7 @@ namespace CustomEngine.Rendering.Models
                 _matrixIndexBuffer = null;
                 _matrixWeightBuffer = null;
             }
+
         }
         private void SetBoneMatrixUniforms()
         {
@@ -126,12 +134,12 @@ namespace CustomEngine.Rendering.Models
             //TODO: set material and uniforms in render queue and then render ALL meshes that use it
             //order by depth FIRST though
             Engine.Renderer.UseMaterial(material.MaterialId);
-            Engine.Renderer.SetCommonUniforms();
             material.SetUniforms();
             SetBoneMatrixUniforms();
 
             //This is a mesh-specific uniform
-            Engine.Renderer.Uniform(Uniform.ModelMatrixName, transform);
+            Uniform.ProvideUniform(ECommonUniform.ModelMatrix, 
+                mId => Engine.Renderer.Uniform(mId, Uniform.GetLocation(ECommonUniform.ModelMatrix), transform));
 
             GL.BindVertexArray(BindingId);
             //GL.BindVertexBuffers(0, _data._buffers.Count, _bindingIds, new IntPtr[_data._buffers.Count], _data._buffers.Select(x => x.Stride).ToArray());
@@ -140,7 +148,6 @@ namespace CustomEngine.Rendering.Models
 
             Engine.Renderer.UseMaterial(0);
         }
-
         public VoidPtr PreModifyVertices()
         {
             //Map buffers

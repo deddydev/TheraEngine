@@ -9,25 +9,20 @@ namespace CustomEngine.Rendering.Cameras
     {
         public Camera() { Resize(1.0f, 1.0f); }
 
-        public PostProcessSettings PostProcessSettings
-        {
-            get { return _postProcessSettings; }
-            set { _postProcessSettings = value; }
-        }
-        public float NearDepth
-        {
-            get { return _nearZ; }
-            set { _nearZ = value; CalculateProjection(); }
-        }
-        public float FarDepth
-        {
-            get { return _farZ; }
-            set { _farZ = value; CalculateProjection(); }
-        }
         public Matrix4 ProjectionMatrix { get { return _projectionMatrix; } }
         public Matrix4 ProjectionMatrixInverse { get { return _projectionInverse; } }
         public Matrix4 Matrix { get { return _invTransform; } }
         public Matrix4 InverseMatrix { get { return _transform; } }
+        public float NearZ
+        {
+            get { return _nearZ; }
+            set { _nearZ = value; CalculateProjection(); }
+        }
+        public float FarZ
+        {
+            get { return _farZ; }
+            set { _farZ = value; CalculateProjection(); }
+        }
         public Vec3 Point
         {
             get { return _point; }
@@ -38,40 +33,49 @@ namespace CustomEngine.Rendering.Cameras
             get { return _rotate; }
             set { _rotate = value; CreateTransform(); }
         }
+        public PostProcessSettings PostProcessSettings
+        {
+            get { return _postProcessSettings; }
+            set { _postProcessSettings = value; }
+        }
+        public bool IsActive
+        {
+            get { return _isActive; }
+            internal set
+            {
+                if (_isActive == value)
+                    return;
 
+                if (_isActive = value)
+                    RegisterUniforms();
+                else
+                    UnregisterUniforms();
+            }
+        }
         public abstract float Width { get; }
         public abstract float Height { get; }
         public Vec2 Dimensions { get { return new Vec2(Width, Height); } }
         public abstract Vec2 Origin { get; }
 
+        private bool _isActive = false;
         private Vec3 _projectionRange;
         private Vec3 _projectionOrigin;
         protected Frustum _untransformedFrustum, _transformedFrustum;
         
         protected bool _updating = false;
-        protected bool 
-            _restrictXRot,
-            _restrictYRot,
-            _restrictZRot;
-        protected float 
-            _nearZ = 1.0f,
-            _farZ = 2000.0f;
+        protected float _nearZ = 1.0f, _farZ = 2000.0f;
         private PostProcessSettings _postProcessSettings;
 
-        protected Matrix4 _projectionMatrix = Matrix4.Identity;
-        protected Matrix4 _projectionInverse = Matrix4.Identity;
+        protected Matrix4 
+            _projectionMatrix = Matrix4.Identity,
+            _projectionInverse = Matrix4.Identity,
+            _transform = Matrix4.Identity,
+            _invTransform = Matrix4.Identity;
 
         protected Vec3 _scale = Vec3.One;
         protected Vec3 _point = Vec3.Zero;
         protected Rotator _rotate = new Rotator(Rotator.Order.YPR);
-        protected Matrix4 _transform = Matrix4.Identity, _invTransform = Matrix4.Identity;
 
-        public Vec3 ScreenToWorld(Vec2 point, float depth) { return ScreenToWorld(point.X, point.Y, depth); }
-        public Vec3 ScreenToWorld(float x, float y, float depth) { return ScreenToWorld(new Vec3(x, y, depth)); }
-        public Vec3 ScreenToWorld(Vec3 screenPoint)
-        {
-            return _invTransform * (_projectionInverse * ((screenPoint - _projectionOrigin) / _projectionRange * 2.0f - 1.0f));
-        }
         /// <summary>
         /// Returns an X, Y coordinate relative to the camera's Origin, with Z being the normalized depth from NearDepth to FarDepth.
         /// </summary>
@@ -79,19 +83,26 @@ namespace CustomEngine.Rendering.Cameras
         {
             return _projectionOrigin + _projectionRange * ((_projectionMatrix * (_transform * point)) + 1.0f) / 2.0f;
         }
+        public Vec3 ScreenToWorld(Vec2 point, float depth) { return ScreenToWorld(point.X, point.Y, depth); }
+        public Vec3 ScreenToWorld(float x, float y, float depth) { return ScreenToWorld(new Vec3(x, y, depth)); }
+        public Vec3 ScreenToWorld(Vec3 screenPoint)
+        {
+            return _invTransform * (_projectionInverse * ((screenPoint - _projectionOrigin) / _projectionRange * 2.0f - 1.0f));
+        }
         protected void CreateTransform()
         {
+            //The rotation of the camera points behind it.
+            //For example, if the upward rotation increases, 
+            //we want the back of the camera to rotate down the same amount
             Rotator rotation = _rotate.WithNegatedRotations();
-
-            //Transform is the regular camera position, with the direction facing BEHIND the camera
+            
             _transform =
                 Matrix4.CreateTranslation(_point) *
                 rotation.GetMatrix() *
                 Matrix4.CreateScale(_scale);
 
             rotation.Invert();
-
-            //The inverse is the absolute opposite calculations
+            
             _invTransform =
                 Matrix4.CreateScale(1.0f / _scale) *
                 rotation.GetMatrix() *
@@ -142,7 +153,7 @@ namespace CustomEngine.Rendering.Cameras
         }
         public void SetViewTarget(Vec3 target)
         {
-            Vec3 angles = _point.LookatAngles(target);
+            _rotate = _point.LookatAngles(target);
             CreateTransform();
         }
         public void Reset()
@@ -160,17 +171,32 @@ namespace CustomEngine.Rendering.Cameras
         protected void OnTranslateChanged(Vec3 oldTranslation) { TranslateChanged?.Invoke(oldTranslation); }
         protected void OnScaleChanged(Vec3 oldScale) { ScaleChanged?.Invoke(oldScale); }
 
-        internal virtual void SetUniforms()
+        internal virtual void UnregisterUniforms()
         {
-            Engine.Renderer.Uniform(Uniform.ViewMatrixName, Matrix);
-            Engine.Renderer.Uniform(Uniform.ProjMatrixName, ProjectionMatrix);
-            Engine.Renderer.Uniform(ECommonUniform.ScreenWidth.ToString(), Width);
-            Engine.Renderer.Uniform(ECommonUniform.ScreenHeight.ToString(), Height);
+            Uniform.ClearUniforms(
+                ECommonUniform.ViewMatrix,
+                ECommonUniform.ProjMatrix, 
+                ECommonUniform.ScreenWidth, 
+                ECommonUniform.ScreenHeight,
+                ECommonUniform.ScreenOrigin);
         }
+        internal virtual void RegisterUniforms()
+        {
+            Uniform.ProvideUniform(ECommonUniform.ViewMatrix, UniformViewMatrix);
+            Uniform.ProvideUniform(ECommonUniform.ProjMatrix, UniformProjMatrix);
+            Uniform.ProvideUniform(ECommonUniform.ScreenWidth, UniformScreenWidth);
+            Uniform.ProvideUniform(ECommonUniform.ScreenHeight, UniformScreenHeight);
+            Uniform.ProvideUniform(ECommonUniform.ScreenOrigin, UniformScreenOrigin);
+        }
+        private void UniformViewMatrix(int mId) { Engine.Renderer.Uniform(mId, Uniform.GetLocation(ECommonUniform.ViewMatrix), Matrix); }
+        private void UniformProjMatrix(int mId) { Engine.Renderer.Uniform(mId, Uniform.GetLocation(ECommonUniform.ProjMatrix), ProjectionMatrix); }
+        private void UniformScreenWidth(int mId) { Engine.Renderer.Uniform(mId, Uniform.GetLocation(ECommonUniform.ScreenWidth), Width); }
+        private void UniformScreenHeight(int mId) { Engine.Renderer.Uniform(mId, Uniform.GetLocation(ECommonUniform.ScreenHeight), Height); }
+        private void UniformScreenOrigin(int mId) { Engine.Renderer.Uniform(mId, Uniform.GetLocation(ECommonUniform.ScreenOrigin), Origin); }
         protected virtual void CalculateProjection()
         {
-            _projectionRange = new Vec3(Dimensions, FarDepth - NearDepth);
-            _projectionOrigin = new Vec3(Origin, NearDepth);
+            _projectionRange = new Vec3(Dimensions, FarZ - NearZ);
+            _projectionOrigin = new Vec3(Origin, NearZ);
             _untransformedFrustum = CreateUntransformedFrustum();
             _transformedFrustum = _untransformedFrustum.TransformedBy(_transform);
         }

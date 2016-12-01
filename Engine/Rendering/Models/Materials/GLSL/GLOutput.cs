@@ -1,13 +1,16 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace CustomEngine.Rendering.Models.Materials
 {
-    public class GLOutput<T> : BaseGLOutput where T : GLVar
+    public class GLOutput<T> : BaseGLArgument where T : GLVar
     {
         public GLOutput(string name) : base(name) { }
 
-        protected GLArgument<T> _connectedTo = null;
-        protected GLArgument<T> ConnectedTo
+        public override bool IsOutput { get { return true; } }
+
+        protected List<BaseGLArgument> _connectedTo = null;
+        protected List<BaseGLArgument> ConnectedTo
         {
             get { return _connectedTo; }
             set
@@ -16,12 +19,6 @@ namespace CustomEngine.Rendering.Models.Materials
                     _connectedTo = value;
             }
         }
-        public override Type GetOutType() { return typeof(T); }
-        public override Type[] GetPossibleOutTypes() { return new Type[] { GetOutType() }; }
-
-        public override GLTypeName GetTypeName()
-        {
-            throw new NotImplementedException();
-        }
+        public override GLTypeName GetArgType() { return GLVar.TypeAssociations[GetType()]; }
     }
 }

@@ -19,8 +19,9 @@ namespace CustomEngine.Rendering.Models.Materials
                 return BindingId;
             }
         }
+        public override int GetHashCode() { return MaterialId; }
 
-        public List<Shader> _shaders = new List<Shader>();
+        public Shader[] _shaders;
         private MaterialSettings _settings;
 
         [Category("Material")]
@@ -39,10 +40,10 @@ namespace CustomEngine.Rendering.Models.Materials
         {
             _name = name;
             _settings = settings;
-            AddShaders(shaders);
+            SetShaders(shaders);
         }
 
-        public void AddShaders(params Shader[] shaders) { _shaders.AddRange(shaders); }
+        public void SetShaders(params Shader[] shaders) { _shaders = shaders; }
         public void Compile() { Generate(); }
         protected override int CreateObject()
         {

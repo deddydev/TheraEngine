@@ -65,7 +65,5 @@ namespace CustomEngine.Worlds
         {
             return FromXML<WorldSettings>(filePath);
         }
-
-        public static string GetTag() { return "WSET"; }
     }
 }

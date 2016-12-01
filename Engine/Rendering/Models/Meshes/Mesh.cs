@@ -13,7 +13,7 @@ namespace CustomEngine.Rendering.Models
         public Mesh(PrimitiveData data) { _manager.Data = data; }
         public Mesh(Shape shape)
         {
-            Name = shape.GetType().ToString();
+            _name = shape.GetType().ToString();
             SetPrimitiveData(shape.GetPrimitiveData());
             SetCullingVolume(shape);
         }

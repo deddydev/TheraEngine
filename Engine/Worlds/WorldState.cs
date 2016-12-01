@@ -62,8 +62,6 @@ namespace CustomEngine.Worlds
         private GameMode _gameMode;
         private float _timeSpeed = 1.0f;
         public HashSet<Material> _activeMaterials;
-
-        public static string GetTag() { return "WSTA"; }
     }
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public unsafe struct WorldStateHeader

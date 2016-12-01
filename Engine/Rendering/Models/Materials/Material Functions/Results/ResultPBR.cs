@@ -28,12 +28,12 @@ namespace CustomEngine.Rendering.Models.Materials
         {
             return new List<BaseGLArgument>()
             {
-                new GLArgument<GLVec4>("Diffuse"),
-                new GLArgument<GLFloat>("Roughness"),
-                new GLArgument<GLFloat>("Shininess"),
-                new GLArgument<GLFloat>("Specularity"),
-                new GLArgument<GLFloat>("Metallic"),
-                new GLArgument<GLFloat>("Refraction"),
+                new GLInput<GLVec4>("Diffuse"),
+                new GLInput<GLFloat>("Roughness"),
+                new GLInput<GLFloat>("Shininess"),
+                new GLInput<GLFloat>("Specularity"),
+                new GLInput<GLFloat>("Metallic"),
+                new GLInput<GLFloat>("Refraction"),
             };
         }
     }

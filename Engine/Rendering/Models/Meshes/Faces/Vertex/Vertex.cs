@@ -7,28 +7,52 @@ namespace CustomEngine.Rendering.Models
     public class Vertex : ObjectBase
     {
         public int _index;
-        public Vec3 _position;
-        public Vec3? _normal;
-        public List<Vec2> _texCoords;
-        public List<ColorF4> _colors;
         public Influence _influence;
-        public List<IBufferable> _specialData;
+        public List<Vec3>
+            _positions = new List<Vec3>(VertexAttribInfo.MaxTypeBufferCount),
+            _normals = new List<Vec3>(VertexAttribInfo.MaxTypeBufferCount),
+            _binormals = new List<Vec3>(VertexAttribInfo.MaxTypeBufferCount),
+            _tangents = new List<Vec3>(VertexAttribInfo.MaxTypeBufferCount);
+        public List<Vec2> _texCoords = new List<Vec2>(VertexAttribInfo.MaxTypeBufferCount);
+        public List<ColorF4> _colors = new List<ColorF4>(VertexAttribInfo.MaxTypeBufferCount);
 
-        public Vertex(Vec3 position) { _position = position; }
+        //Set using transform feedback from the gpu
+        public Vec3 _transformedPosition;
+
+        public Vertex(Vec3 position) { _positions.Add(position); }
         public Vertex(FacePoint facepoint, List<VertexBuffer> buffers)
         {
-            _normal = null;
-            _texCoords = new List<Vec2>();
-            _colors = new List<ColorF4>();
             if (facepoint.Indices == null)
                 return;
             for (int i = 0; i < facepoint.Indices.Count; ++i)
             {
                 VertexBuffer b = buffers[i];
                 int index = facepoint.Indices[i];
+                VertexAttribInfo info = b.Info;
+                switch (info._type)
+                {
+                    case BufferType.Position:
+                        _positions.Add(b.Get<Vec3>(index * 12));
+                        break;
+                    case BufferType.Normal:
+                        _normals.Add(b.Get<Vec3>(index * 12));
+                        break;
+                    case BufferType.Binormal:
+                        _binormals.Add(b.Get<Vec3>(index * 12));
+                        break;
+                    case BufferType.Tangent:
+                        _tangents.Add(b.Get<Vec3>(index * 12));
+                        break;
+                    case BufferType.Color:
+                        _texCoords.Add(b.Get<Vec2>(index << 4));
+                        break;
+                    case BufferType.TexCoord:
+                        _texCoords.Add(b.Get<Vec2>(index << 3));
+                        break;
+                }
                 if (b.IsType(BufferType.Position))
                 {
-                    _position = b.Get<Vec3>(index * 12);
+                    _position = ;
                 }
                 else if (b.IsType(BufferType.Normal))
                 {
@@ -40,7 +64,7 @@ namespace CustomEngine.Rendering.Models
                 }
                 else if (b.IsType(BufferType.TexCoord))
                 {
-                    _texCoords.Add(b.Get<Vec2>(index * 8));
+                    _texCoords.Add();
                 }
                 else
                 {

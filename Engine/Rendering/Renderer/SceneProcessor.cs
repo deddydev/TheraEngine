@@ -1,4 +1,5 @@
 ﻿using CustomEngine.Rendering.Cameras;
+using CustomEngine.Worlds;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,22 +16,34 @@ namespace CustomEngine.Rendering
         RenderOctree _renderTree;
         private Camera _currentCamera;
 
+        public RenderOctree RenderTree { get { return _renderTree; } }
+
         public Camera CurrentCamera { get { return _currentCamera; } }
 
         internal void WorldChanged()
         {
-            //TODO: populate with default actors right now
-            _renderTree = Engine.World != null ? new RenderOctree(Engine.World.Settings.WorldBounds) : null;
+            WorldSettings ws = Engine.World.Settings;
+            Actor[] actors = ws._maps.
+                Where(x => x.Settings.VisibleByDefault).
+                SelectMany(x => x.Settings._defaultActors).
+                Where(x => x.SceneComponentCache.Contains())
+            _renderTree = Engine.World != null ? new RenderOctree(ws.WorldBounds) : null;
         }
         public void Render(Camera camera)
         {
             if (_renderTree == null || camera == null)
                 return;
 
-            _currentCamera = camera;
+            if (_currentCamera != camera)
+            {
+                if (_currentCamera != null)
+                    _currentCamera.IsActive = false;
+                _currentCamera = camera;
+                _currentCamera.IsActive = true;
+            }
+            
             _renderTree.Cull(camera.GetFrustum());
             _renderTree.Render();
-            _currentCamera = null;
             
             //if (_commandsInvalidated)
             //    RenderKey.RadixSort(ref _sortedCommands);

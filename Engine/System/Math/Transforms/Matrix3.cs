@@ -1,6 +1,7 @@
 ﻿using System.Runtime.InteropServices;
 using static System.Math;
 using static System.CustomMath;
+using CustomEngine;
 
 namespace System
 {
@@ -9,7 +10,7 @@ namespace System
     /// </summary>
     [Serializable]
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    public unsafe struct Matrix3 : IEquatable<Matrix3>
+    public unsafe struct Matrix3 : IEquatable<Matrix3>, IUniformable
     {
         public float* Data { get { fixed (void* p = &this) return (float*)p; } }
 

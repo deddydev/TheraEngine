@@ -11,7 +11,7 @@ namespace CustomEngine.Rendering.Models.Materials
     /// </summary>
     public class LerpFunc : MaterialFunction
     {
-        public GLArgument<GLFloat> Time { get { return (GLArgument<GLFloat>)InputArguments[0]; } }
+        public GLInput<GLFloat> Time { get { return (GLInput<GLFloat>)InputArguments[0]; } }
         
         public LerpFunc(GLTypeName operandTypes) : base() { _inline = true; }
         protected override string GetOperation() { return "mix({0}, {1}, {2})"; }
@@ -21,7 +21,7 @@ namespace CustomEngine.Rendering.Models.Materials
             GLMultiArgument b = new GLMultiArgument("B", a);
             return new List<BaseGLArgument>()
             {
-                a, b, new GLArgument<GLFloat>("Time"),
+                a, b, new GLInput<GLFloat>("Time"),
             };
         }
         public static MaterialFuncInfo GetInfo()

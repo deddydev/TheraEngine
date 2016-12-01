@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace CustomEngine.Rendering.Models
 {
-    public class VertexTriangle : VertexPrimitive
+    public class VertexTriangle : VertexPolygon
     {
         public Vertex Vertex0 { get { return _vertices[0]; } }
         public Vertex Vertex1 { get { return _vertices[1]; } }
@@ -34,6 +34,17 @@ namespace CustomEngine.Rendering.Models
         public override List<VertexTriangle> ToTriangles()
         {
             return new List<VertexTriangle>() { this };
+        }
+
+        public Box GetCullingVolume()
+        {
+            Vec3 min = Vec3.Max, max = Vec3.Min;
+            foreach (Vertex v in this)
+            {
+                max = Vec3.ComponentMax(max, v._transformedPosition);
+                min = Vec3.ComponentMin(min, v._transformedPosition);
+            }
+            return new Box(min, max);
         }
     }
 }

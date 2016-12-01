@@ -444,7 +444,9 @@
     <Compile Include="Rendering\Models\Collada\Schema\Types\Grendgine_Collada_SID_Name_String.cs" />
     <Compile Include="Rendering\Models\Collada\Schema\Types\Grendgine_Collada_String_Array_String.cs" />
     <Compile Include="Rendering\Models\Materials\GLSL\BaseGLArgument.cs" />
-    <Compile Include="Rendering\Models\Materials\GLSL\GLArgument.cs" />
+    <Compile Include="Rendering\Models\Materials\GLSL\GLInput.cs" />
+    <Compile Include="Rendering\Models\Materials\GLSL\BaseGLMultiInput.cs" />
+    <Compile Include="Rendering\Models\Materials\GLSL\GLMultiOutput.cs" />
     <Compile Include="Rendering\Models\Materials\GLSL\GLMultiArgument.cs" />
     <Compile Include="Rendering\Models\Materials\GLSL\GLOutput.cs" />
     <Compile Include="Rendering\Models\Materials\GLSL\GLVar.cs" />
@@ -481,7 +483,6 @@
     <Compile Include="Rendering\Models\Materials\ShaderGenerator\VertexShaderGenerator.cs" />
     <Compile Include="Rendering\Models\Materials\Uniform.cs" />
     <Compile Include="Rendering\Models\Meshes\Faces\Vertex\VertexLine.cs" />
-    <Compile Include="Rendering\Models\Meshes\Primitives\VertexBufferTypes.cs" />
     <Compile Include="Rendering\RenderableObject.cs" />
     <Compile Include="Rendering\Renderer\GBuffer.cs" />
     <Compile Include="Rendering\Renderer\OpenGL\GLEnumExtension.cs" />
@@ -534,6 +535,7 @@
     <Compile Include="Rendering\Models\Meshes\Faces\Index\IndexLine.cs" />
     <Compile Include="Rendering\Models\Meshes\Faces\Index\IndexTriangleFan.cs" />
     <Compile Include="Rendering\Models\Meshes\Faces\Index\IndexTriangleStrip.cs" />
+    <Compile Include="Rendering\Renderer\TriangleOctree.cs" />
     <Compile Include="Rendering\Renderer\SceneProcessor.cs" />
     <Compile Include="Rendering\Renderer\States\BaseRenderState.cs" />
     <Compile Include="Rendering\Renderer\States\FrameBuffer.cs" />

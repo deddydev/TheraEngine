@@ -24,5 +24,10 @@ namespace CustomEngine.Rendering.Models
             Vertex0.AddLine(this);
             Vertex1.AddLine(this);
         }
+
+        internal void AddFace(VertexTriangle vertexTriangle)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

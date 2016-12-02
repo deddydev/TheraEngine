@@ -72,7 +72,7 @@ namespace CustomEngine.Rendering.Models
         private bool _normalize;
 
         private DataSource _data;
-        
+
         private int _index, _location;
         private BufferTarget _target;
         protected VertexAttribInfo _info;
@@ -147,37 +147,37 @@ namespace CustomEngine.Rendering.Models
                 return -1;
             }
         }
-        public int Initialize()
+        protected override void OnGenerated()
         {
-            Generate();
             Bind();
-            BindVertexAttrib();
-            PushData();
-            return BindingId;
-        }
-        /// <summary>
-        /// Determines how the currently bound buffer should be read.
-        /// Only call during initialization, unless the buffer is changed.
-        /// </summary>
-        public void BindVertexAttrib()
-        {
             if (_location >= 0)
             {
                 GL.EnableVertexAttribArray(_index);
-                GL.VertexAttribPointer(_index, _componentCount, VertexAttribPointerType.Byte + (int)_componentType, _normalize, 0, 0);
+                //GL.VertexAttribPointer(_index, _componentCount, VertexAttribPointerType.Byte + (int)_componentType, _normalize, 0, 0);
                 GL.VertexAttribFormat(_location, _componentCount, VertexAttribType.Byte + (int)_componentType, _normalize, 0);
                 GL.VertexAttribBinding(_location, _index);
             }
+            GL.BufferStorage(_target, (IntPtr)_data.Length, _data.Address,
+                BufferStorageFlags.MapWriteBit |
+                BufferStorageFlags.MapReadBit |
+                BufferStorageFlags.MapPersistentBit |
+                BufferStorageFlags.MapCoherentBit |
+                BufferStorageFlags.ClientStorageBit);
+            _data.Address = GL.MapBufferRange(_target, (IntPtr)0, (IntPtr)DataLength,
+                BufferAccessMask.MapPersistentBit |
+                BufferAccessMask.MapCoherentBit |
+                BufferAccessMask.MapReadBit |
+                BufferAccessMask.MapWriteBit);
         }
         public void Bind() { GL.BindBuffer(_target, BindingId); }
         /// <summary>
         /// Pushes this buffer's data to the currently bound buffer 
         /// Call Bind() before this to set the current buffer.
         /// </summary>
-        public void PushData(BufferUsage usage = BufferUsage.StaticDraw)
-        {
-            GL.BufferData(_target, (IntPtr)_data.Length, _data.Address, BufferUsageHint.StreamDraw + (int)usage);
-        }
+        //public void PushData(BufferUsage usage = BufferUsage.StaticDraw)
+        //{
+        //    GL.BufferData(_target, (IntPtr)_data.Length, _data.Address, BufferUsageHint.StreamDraw + (int)usage);
+        //}
         public T Get<T>(int offset) where T : struct
         {
             T value = default(T);
@@ -285,20 +285,21 @@ namespace CustomEngine.Rendering.Models
                 return null;
             }
         }
+        protected override void OnDeleted()
+        {
+            GL.UnmapBuffer(_target);
+        }
         public void Dispose()
         {
+            Destroy();
             if (_data != null)
             {
                 _data.Dispose();
                 _data = null;
             }
-            Destroy();
         }
         ~VertexBuffer() { Dispose(); }
         public static implicit operator VoidPtr(VertexBuffer b) { return b.Data; }
-        public override string ToString()
-        {
-            return _name;
-        }
+        public override string ToString() { return _name; }
     }
 }

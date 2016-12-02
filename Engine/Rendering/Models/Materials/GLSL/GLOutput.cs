@@ -20,5 +20,10 @@ namespace CustomEngine.Rendering.Models.Materials
             }
         }
         public override GLTypeName GetArgType() { return GLVar.TypeAssociations[GetType()]; }
+
+        public override void ClearConnection(BaseGLArgument other)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

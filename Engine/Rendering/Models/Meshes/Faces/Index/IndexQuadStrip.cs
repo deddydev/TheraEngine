@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace CustomEngine.Rendering.Models
 {
-    public class IndexQuadStrip : IndexPrimitive
+    public class IndexQuadStrip : IndexPolygon
     {
         public override FaceType Type { get { return FaceType.QuadStrip; } }
 
@@ -18,7 +18,7 @@ namespace CustomEngine.Rendering.Models
 
         public override List<IndexTriangle> ToTriangles()
         {
-            return null;
+            throw new NotImplementedException();
         }
     }
 }

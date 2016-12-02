@@ -84,9 +84,9 @@ namespace CustomEngine.Rendering.Models
             FacePoint fp0 = _facePoints[t.Point0];
             FacePoint fp1 = _facePoints[t.Point1];
             FacePoint fp2 = _facePoints[t.Point2];
-            Vertex v0 = new Vertex(fp0, _buffers);
-            Vertex v1 = new Vertex(fp1, _buffers);
-            Vertex v2 = new Vertex(fp2, _buffers);
+            RawVertex v0 = new RawVertex(fp0, _buffers);
+            RawVertex v1 = new RawVertex(fp1, _buffers);
+            RawVertex v2 = new RawVertex(fp2, _buffers);
             return new VertexTriangle(v0, v1, v2);
         }
         private void SetInfluences(params Influence[] influences)
@@ -167,7 +167,7 @@ namespace CustomEngine.Rendering.Models
             _buffers[bufferIndex] = buffer;
         }
 
-        private Remapper SetFaceIndices(List<Vertex> vertices, bool remap = true)
+        private Remapper SetFaceIndices(List<RawVertex> vertices, bool remap = true)
         {
             if (vertices.Count % 3 != 0)
                 throw new Exception("Vertex list needs to be a multiple of 3.");
@@ -215,8 +215,10 @@ namespace CustomEngine.Rendering.Models
         {
             _culling = culling;
             _triangles = new MonitoredList<VertexTriangle>(triangles);
+            _triangles.Added += _triangles_Added;
+            _triangles.Removed += _triangles_Removed;
 
-            List<Vertex> vertices = triangles.SelectMany(x => x.Vertices).ToList();
+            List<RawVertex> vertices = triangles.SelectMany(x => x.Vertices).ToList();
             Influence[] influences = vertices.Select(y => y._influence).ToArray();
 
             Remapper remapper = SetFaceIndices(vertices);
@@ -253,6 +255,14 @@ namespace CustomEngine.Rendering.Models
                 var data = remapper.ImplementationTable.Select(x => vertices[x]._colors[i]).ToList();
                 AddBuffer(data, new VertexAttribInfo(BufferType.Color, i));
             }
+        }
+        private void _triangles_Removed(VertexTriangle item)
+        {
+            throw new NotImplementedException();
+        }
+        private void _triangles_Added(VertexTriangle item)
+        {
+            throw new NotImplementedException();
         }
 
         #region IDisposable Support

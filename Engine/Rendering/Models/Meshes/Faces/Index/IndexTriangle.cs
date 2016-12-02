@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace CustomEngine.Rendering.Models
 {
-    public class IndexTriangle : IndexPrimitive
+    public class IndexTriangle : IndexPolygon
     {
         public override FaceType Type { get { return FaceType.Triangles; } }
 

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace CustomEngine.Rendering.Models
 {
-    public class IndexTriangleFan : IndexPrimitive
+    public class IndexTriangleFan : IndexPolygon
     {
         public IndexTriangleFan(params Point[] points) : base(points)
         {

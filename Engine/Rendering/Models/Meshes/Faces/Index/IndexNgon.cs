@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace CustomEngine.Rendering.Models
 {
-    public class IndexNgon : IndexPrimitive
+    public class IndexNgon : IndexPolygon
     {
         public IndexNgon() { }
         public IndexNgon(params Point[] points)
@@ -15,7 +15,7 @@ namespace CustomEngine.Rendering.Models
 
         public override List<IndexTriangle> ToTriangles()
         {
-            throw new Exception("");
+            throw new NotImplementedException();
         }
     }
 }

@@ -30,6 +30,7 @@ namespace CustomEngine.Rendering.Models
     }
     public abstract class IndexPolygon : IndexPrimitive
     {
+        public IndexPolygon(params Point[] points) : base(points) { }
         public abstract List<IndexTriangle> ToTriangles();
         public bool ContainsEdge(IndexLine edge, out bool polygonIsCCW)
         {

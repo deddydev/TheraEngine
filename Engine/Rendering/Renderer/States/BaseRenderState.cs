@@ -56,10 +56,10 @@ namespace CustomEngine.Rendering
         /// Performs all checks needed and creates this render object on the current render context if need be.
         /// Call after capturing a context.
         /// </summary>
-        public void Generate()
+        public int Generate()
         {
             if (RenderContext.Current == null)
-                return;
+                return BindingId;
 
             //Make sure current bind is up to date
             if (_currentBind._context != RenderContext.Current)
@@ -72,10 +72,12 @@ namespace CustomEngine.Rendering
             }
 
             if (IsActive)
-                return;
+                return BindingId;
 
             _currentBind._bindingId = CreateObject();
             OnGenerated();
+
+            return BindingId;
         }
         /// <summary>
         /// Removes this render object from the current context.

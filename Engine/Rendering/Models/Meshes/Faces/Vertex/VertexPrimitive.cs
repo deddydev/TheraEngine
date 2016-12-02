@@ -6,30 +6,30 @@ using System.Linq;
 
 namespace CustomEngine.Rendering.Models
 {
-    public abstract class VertexPrimitive : ObjectBase, IEnumerable<Vertex>
+    public abstract class VertexPrimitive : ObjectBase, IEnumerable<RawVertex>
     {
         public abstract FaceType Type { get; }
-        public ReadOnlyCollection<Vertex> Vertices { get { return _vertices.AsReadOnly(); } }
+        public ReadOnlyCollection<RawVertex> Vertices { get { return _vertices.AsReadOnly(); } }
 
-        protected List<Vertex> _vertices = new List<Vertex>();
-        public VertexPrimitive(params Vertex[] vertices)
+        protected List<RawVertex> _vertices = new List<RawVertex>();
+        public VertexPrimitive(params RawVertex[] vertices)
         {
             _vertices = vertices.ToList();
         }
 
-        public IEnumerator<Vertex> GetEnumerator()
+        public IEnumerator<RawVertex> GetEnumerator()
         {
-            return ((IEnumerable<Vertex>)_vertices).GetEnumerator();
+            return ((IEnumerable<RawVertex>)_vertices).GetEnumerator();
         }
 
         IEnumerator IEnumerable.GetEnumerator()
         {
-            return ((IEnumerable<Vertex>)_vertices).GetEnumerator();
+            return ((IEnumerable<RawVertex>)_vertices).GetEnumerator();
         }
     }
     public abstract class VertexPolygon : VertexPrimitive
     {
-        public VertexPolygon(params Vertex[] vertices) : base(vertices) { }
+        public VertexPolygon(params RawVertex[] vertices) : base(vertices) { }
         public abstract List<VertexTriangle> ToTriangles();
     }
 }

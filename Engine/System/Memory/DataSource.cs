@@ -8,8 +8,8 @@ namespace System
         private int _length;
         private VoidPtr _address;
 
-        public int Length { get { return _length; } }
-        public VoidPtr Address { get { return _address; } }
+        public int Length { get { return _length; } set { _length = value; } }
+        public VoidPtr Address { get { return _address; } set { _address = value; } }
 
         public event Action Modified;
 

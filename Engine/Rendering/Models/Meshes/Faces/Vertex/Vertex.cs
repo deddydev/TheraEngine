@@ -25,20 +25,20 @@ namespace CustomEngine.Rendering.Models
     public class Vertex
     {
         public int Index { get { return _index; } set { _index = value; } }
-        public RawVertex BaseVertex { get { return _baseVertex; } set { _baseVertex = value; } }
-        
-        public int _index;
-        public RawVertex _baseVertex;
+        public virtual RawVertex FinalVertex { get { return _vertex; } }
+
+        private int _index;
+        private RawVertex _vertex;
 
         public Vertex(int index, RawVertex baseVertex)
         {
             _index = index;
-            _baseVertex = baseVertex;
+            _vertex = baseVertex;
         }
         public Vertex(RawVertex baseVertex)
         {
             _index = -1;
-            _baseVertex = baseVertex;
+            _vertex = baseVertex;
         }
 
         public static implicit operator Vertex(RawVertex v) { return new Vertex(v); }
@@ -56,7 +56,10 @@ namespace CustomEngine.Rendering.Models
     }
     public class MorphableVertex : Vertex
     {
-        public MorphableVertex(RawVertex baseVertex, params VertexMorphWeight[] morphVertices) : base(baseVertex)
+        public override RawVertex FinalVertex { get { return _finalVertex; } }
+
+        public MorphableVertex(RawVertex baseVertex, params VertexMorphWeight[] morphVertices) 
+            : base(baseVertex)
         {
             if (morphVertices.Length > VertexBuffer.MaxBufferCountPerType - 1)
                 morphVertices.Resize(VertexBuffer.MaxBufferCountPerType - 1);
@@ -67,7 +70,7 @@ namespace CustomEngine.Rendering.Models
 
         //Contains final transformed information
         //using transform feedback from the gpu
-        public RawVertex _finalVertex;
+        internal RawVertex _finalVertex;
     }
     public class RawVertex
     {

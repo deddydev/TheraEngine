@@ -35,13 +35,16 @@ namespace System
             Array.Copy(data, index, result, 0, length);
             return result;
         }
-
         public static T[] Append<T>(this T[] data, T[] appended)
         {
             T[] final = new T[data.Length + appended.Length];
             data.CopyTo(final, 0);
             appended.CopyTo(final, data.Length);
             return final;
+        }
+        public static void Resize<T>(this T[] data, int newSize)
+        {
+            Array.Resize(ref data, newSize);
         }
     }
 }

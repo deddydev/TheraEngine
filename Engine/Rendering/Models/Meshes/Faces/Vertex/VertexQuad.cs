@@ -8,10 +8,10 @@ namespace CustomEngine.Rendering.Models
 {
     public class VertexQuad : VertexPolygon
     {
-        public RawVertex Vertex0 { get { return _vertices[0]; } }
-        public RawVertex Vertex1 { get { return _vertices[1]; } }
-        public RawVertex Vertex2 { get { return _vertices[2]; } }
-        public RawVertex Vertex3 { get { return _vertices[3]; } }
+        public Vertex Vertex0 { get { return _vertices[0]; } }
+        public Vertex Vertex1 { get { return _vertices[1]; } }
+        public Vertex Vertex2 { get { return _vertices[2]; } }
+        public Vertex Vertex3 { get { return _vertices[3]; } }
 
         public bool _forwardSlash = true;
 
@@ -23,7 +23,7 @@ namespace CustomEngine.Rendering.Models
         /// |/\|
         /// 0--1
         /// </summary>
-        public VertexQuad(RawVertex v0, RawVertex v1, RawVertex v2, RawVertex v3) : base(v0, v1, v2, v3) { }
+        public VertexQuad(Vertex v0, Vertex v1, Vertex v2, Vertex v3) : base(v0, v1, v2, v3) { }
 
         public override List<VertexTriangle> ToTriangles()
         {

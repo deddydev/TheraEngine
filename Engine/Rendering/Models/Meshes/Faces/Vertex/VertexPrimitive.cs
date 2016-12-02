@@ -6,30 +6,21 @@ using System.Linq;
 
 namespace CustomEngine.Rendering.Models
 {
-    public abstract class VertexPrimitive : ObjectBase, IEnumerable<RawVertex>
+    public abstract class VertexPrimitive : ObjectBase, IEnumerable<Vertex>
     {
         public abstract FaceType Type { get; }
-        public ReadOnlyCollection<RawVertex> Vertices { get { return _vertices.AsReadOnly(); } }
+        public ReadOnlyCollection<Vertex> Vertices { get { return _vertices.AsReadOnly(); } }
 
-        protected List<RawVertex> _vertices = new List<RawVertex>();
-        public VertexPrimitive(params RawVertex[] vertices)
-        {
-            _vertices = vertices.ToList();
-        }
+        protected List<Vertex> _vertices = new List<Vertex>();
 
-        public IEnumerator<RawVertex> GetEnumerator()
-        {
-            return ((IEnumerable<RawVertex>)_vertices).GetEnumerator();
-        }
+        public VertexPrimitive(params Vertex[] vertices) { _vertices = vertices.ToList(); }
 
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return ((IEnumerable<RawVertex>)_vertices).GetEnumerator();
-        }
+        public IEnumerator<Vertex> GetEnumerator() { return ((IEnumerable<Vertex>)_vertices).GetEnumerator(); }
+        IEnumerator IEnumerable.GetEnumerator() { return ((IEnumerable<Vertex>)_vertices).GetEnumerator(); }
     }
     public abstract class VertexPolygon : VertexPrimitive
     {
-        public VertexPolygon(params RawVertex[] vertices) : base(vertices) { }
+        public VertexPolygon(params Vertex[] vertices) : base(vertices) { }
         public abstract List<VertexTriangle> ToTriangles();
     }
 }

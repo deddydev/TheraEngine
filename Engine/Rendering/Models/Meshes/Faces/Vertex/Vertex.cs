@@ -6,7 +6,7 @@ namespace CustomEngine.Rendering.Models
 {
     public class FinalTriangle
     {
-        FinalVertex _v0, _v1, _v2;
+        Vertex _v0, _v1, _v2;
 
         public Box GetCullingVolume()
         {
@@ -40,16 +40,26 @@ namespace CustomEngine.Rendering.Models
             _index = -1;
             _baseVertex = baseVertex;
         }
+
+        public static implicit operator Vertex(RawVertex v) { return new Vertex(v); }
     }
     public class VertexMorphWeight
     {
         public float _weight;
         public RawVertex _vertex;
+
+        public VertexMorphWeight(RawVertex vertex, float weight)
+        {
+            _vertex = vertex;
+            _weight = weight.Clamp(0.0f, 1.0f);
+        }
     }
     public class MorphableVertex : Vertex
     {
         public MorphableVertex(RawVertex baseVertex, params VertexMorphWeight[] morphVertices) : base(baseVertex)
         {
+            if (morphVertices.Length > VertexBuffer.MaxBufferCountPerType - 1)
+                morphVertices.Resize(VertexBuffer.MaxBufferCountPerType - 1);
             _morphVertices = morphVertices;
         }
 

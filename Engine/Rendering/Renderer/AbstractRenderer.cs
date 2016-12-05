@@ -23,129 +23,25 @@ namespace CustomEngine.Rendering
 
         public Viewport CurrentlyRenderingViewport { get { return Viewport.CurrentlyRendering; } }
 
-        protected Camera _currentCamera;
         protected int _programHandle;
-        private static List<DisplayList> _displayLists = new List<DisplayList>();
+        protected Camera _currentCamera;
         private Stack<Rectangle> _renderAreaStack = new Stack<Rectangle>();
-        protected Stack<Matrix4> _modelMatrix, _textureMatrix, _colorMatrix;
-        protected MtxMode _matrixMode;
+        private static List<DisplayList> _displayLists = new List<DisplayList>();
 
+        public abstract int GenObject(GenType type);
+        public abstract int[] GenObjects(GenType type, int count);
         public T[] GenObjects<T>(GenType type, int count) where T : BaseRenderState
         {
             return GenObjects(type, count).Select(x => Activator.CreateInstance(typeof(T), x) as T).ToArray();
         }
-
-        public abstract int GenObject(GenType type);
-        public abstract int[] GenObjects(GenType type, int count);
-
-        internal void AddActiveMaterial(Material material)
-        {
-            _activeMaterials.Add(material.BindingId, material);
-        }
-
-        internal void RemoveActiveMaterial(Material material)
-        {
-            _activeMaterials.Remove(material.BindingId);
-        }
-
         public abstract void DeleteObject(GenType type, int bindingId);
         public abstract void DeleteObjects(GenType type, int[] bindingIds);
 
-        #region Matrices
-        public Matrix4 ModelMatrix { get { return _modelMatrix.Count > 0 ? _modelMatrix.Peek() : Matrix4.Identity; } }
-        public Matrix4 TextureMatrix { get { return _textureMatrix.Count > 0 ? _textureMatrix.Peek() : Matrix4.Identity; } }
-        public Matrix4 ColorMatrix { get { return _colorMatrix.Count > 0 ? _colorMatrix.Peek() : Matrix4.Identity; } }
-        Stack<Matrix4> CurrentMatrixStack
-        {
-            get
-            {
-                switch (_matrixMode)
-                {
-                    case MtxMode.Model:
-                        return _modelMatrix;
-                    case MtxMode.Color:
-                        return _modelMatrix;
-                    case MtxMode.Texture:
-                        return _modelMatrix;
-                }
-                return null;
-            }
-        }
-        public void PushMatrix()
-        {
-            var stack = CurrentMatrixStack;
-            if (stack == null)
-                return;
-            if (stack.Count > 0)
-            {
-                Matrix4 current = stack.Peek();
-                stack.Push(current);
-            }
-            else
-                stack.Push(Matrix4.Identity);
-        }
-        public void PopMatrix()
-        {
-            var stack = CurrentMatrixStack;
-            if (stack != null && stack.Count > 0)
-                stack.Pop();
-        }
-        public void MultMatrix(Matrix4 matrix)
-        {
-            var stack = CurrentMatrixStack;
-            if (stack == null)
-                return;
-            if (stack.Count > 0)
-            {
-                Matrix4 current = stack.Pop();
-                stack.Push(matrix * current);
-            }
-            else
-                stack.Push(matrix);
-        }
-        public Matrix4 GetCurrentMatrix()
-        {
-            var stack = CurrentMatrixStack;
-            return stack.Count > 0 ? stack.Peek() : Matrix4.Identity;
-        }
-        public void MatrixMode(MtxMode mode)
-        {
-            _matrixMode = mode;
-        }
-        public void SetIdentity() { SetMatrix(Matrix4.Identity); }
-        public void SetMatrix(Matrix4 matrix)
-        {
-            var stack = CurrentMatrixStack;
-            if (stack == null)
-                return;
-            if (stack.Count > 0)
-                stack.Pop();
-            stack.Push(matrix);
-        }
-        #endregion
+        internal void AddActiveMaterial(Material material) { _activeMaterials.Add(material.BindingId, material); }
+        internal void RemoveActiveMaterial(Material material) { _activeMaterials.Remove(material.BindingId); }
 
-        #region Display Lists
-        public abstract int CreateDisplayList();
-        public abstract void BeginDisplayList(int id, DisplayListMode mode);
-        public abstract void EndDisplayList();
-        public abstract void CallDisplayList(int id);
-        public abstract void DeleteDisplayList(int id);
-        #endregion
-
-        #region Drawing
-        public abstract void Begin(EPrimitive type);
-        public abstract void Vertex3(Vec3 value);
-        public abstract void Vertex2(Vec2 value);
-        public abstract void Normal3(Vec3 value);
-        public abstract void TexCoord2(Vec2 value);
-        public abstract void MultiTexCoord2(int unit, Vec2 value);
-        public abstract void Color4(ColorF4 value);
-        public abstract void Color3(ColorF3 value);
-        public abstract void End();
-        
         public abstract void SetPointSize(float size);
         public abstract void SetLineSize(float size);
-        #endregion
 
         #region Shaders
         /*
@@ -339,8 +235,8 @@ namespace CustomEngine.Rendering
                     SetRenderArea(_renderAreaStack.Peek());
             }
         }
-        protected abstract void SetRenderArea(Rectangle region);
         public abstract void CropRenderArea(Rectangle region);
+        protected abstract void SetRenderArea(Rectangle region);
 
         public abstract void BindTextureData(int textureTargetEnum, int mipLevel, int pixelInternalFormatEnum, int width, int height, int pixelFormatEnum, int pixelTypeEnum, VoidPtr data);
 

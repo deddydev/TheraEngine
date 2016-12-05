@@ -15,8 +15,7 @@ namespace CustomEngine.Worlds
         public GravityChange GravityChanged;
         public GameModeChange GameModeChanged;
         public TimeMultiplierChange TimeMultiplierChanged;
-
-        [PostChanged("OnGravityChanged")]
+        
         public Vec3 Gravity
         {
             get { return _gravity; }
@@ -27,7 +26,6 @@ namespace CustomEngine.Worlds
                 OnGravityChanged(oldGravity);
             }
         }
-        [PostChanged("OnGameModeChanged")]
         public GameMode GameMode
         {
             get { return _gameMode; }
@@ -38,7 +36,6 @@ namespace CustomEngine.Worlds
                 OnGameModeChanged(oldMode);
             }
         }
-        [PostChanged("OnTimeMultiplierChanged")]
         public float TimeDilation
         {
             get { return _timeSpeed; }
@@ -61,7 +58,6 @@ namespace CustomEngine.Worlds
         private Vec3 _gravity = new Vec3(0.0f, -9.81f, 0.0f);
         private GameMode _gameMode;
         private float _timeSpeed = 1.0f;
-        public HashSet<Material> _activeMaterials;
     }
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public unsafe struct WorldStateHeader

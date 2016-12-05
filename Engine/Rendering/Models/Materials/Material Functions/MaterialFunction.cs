@@ -62,10 +62,10 @@ namespace CustomEngine.Rendering.Models.Materials
 
         protected string _operation;
         protected List<BaseGLArgument> _inputs = new List<BaseGLArgument>();
-        protected List<BaseGLOutput> _outputs = new List<BaseGLOutput>();
+        protected List<BaseGLArgument> _outputs = new List<BaseGLArgument>();
         
         public List<BaseGLArgument> InputArguments { get { return _inputs; } }
-        public List<BaseGLOutput> OutputArguments { get { return _outputs; } }
+        public List<BaseGLArgument> OutputArguments { get { return _outputs; } }
 
         public ReadOnlyCollection<string> Keywords
         {
@@ -156,15 +156,15 @@ namespace CustomEngine.Rendering.Models.Materials
                     first = false;
                 else
                     s += ", ";
-                s += "in " + arg.GetTypeName().ToString().Substring(1) + " " + arg.Name;
+                s += "in " + arg.GetArgType().ToString().Substring(1) + " " + arg.Name;
             }
-            foreach (BaseGLOutput arg in OutputArguments)
+            foreach (BaseGLArgument arg in OutputArguments)
             {
                 if (first)
                     first = false;
                 else
                     s += ", ";
-                s += "out " + arg.GetTypeName().ToString().Substring(1) + " " + arg.Name;
+                s += "out " + arg.GetArgType().ToString().Substring(1) + " " + arg.Name;
             }
             s += ")\n{\n" + GetOperation() + "\n}\n";
             return s;

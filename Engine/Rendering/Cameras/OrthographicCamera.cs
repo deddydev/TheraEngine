@@ -45,7 +45,6 @@ namespace CustomEngine.Rendering.Cameras
 
             _transform = _transform * Matrix4.CreateScale(scale);
             _invTransform = Matrix4.CreateScale(-scale) * _invTransform;
-            _point = _transform.GetPoint();
             _transformedFrustum = _untransformedFrustum.TransformedBy(_transform);
             OnTransformChanged();
         }

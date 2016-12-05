@@ -16,6 +16,11 @@ namespace CustomEngine.Rendering
             public ContextBind(RenderContext c) { _context = c; }
         }
 
+        public const int NullBindingId = 0;
+        public bool IsActive { get { return BindingId > NullBindingId; } }
+        public int BindingId { get { return _currentBind._bindingId; } }
+        public GenType Type { get { return _type; } }
+
         private GenType _type;
         private List<ContextBind> _owners = new List<ContextBind>();
         private ContextBind _currentBind = new ContextBind(null);
@@ -47,11 +52,7 @@ namespace CustomEngine.Rendering
                     Delete();
                 }
         }
-
-        public bool IsActive { get { return BindingId > 0; } }
-        public int BindingId { get { return _currentBind._bindingId; } }
-        public GenType Type { get { return _type; } }
-
+        
         /// <summary>
         /// Performs all checks needed and creates this render object on the current render context if need be.
         /// Call after capturing a context.

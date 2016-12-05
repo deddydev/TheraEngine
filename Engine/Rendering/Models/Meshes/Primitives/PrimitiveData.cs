@@ -27,11 +27,13 @@ namespace CustomEngine.Rendering.Models
     public class PrimitiveData : IDisposable
     {
         public bool HasSkinning { get { return _utilizedBones.Length > 0; } }
-        public Culling Culling { get { return _culling; } }
+        public Culling Culling { get { return _culling; } set { _culling = value; } }
 
         //Faces have indices that refer to face points.
         //These may contain repeat vertex indices but each triangle is unique.
         public List<IndexTriangle> _faces = null;
+        //Contains the human-understandable mesh information.
+        MonitoredList<VertexTriangle> _triangles;
 
         //Influence per raw vertex.
         //Count is same as _facePoints.Count
@@ -45,11 +47,8 @@ namespace CustomEngine.Rendering.Models
         //This is the array data that will be passed through the shader.
         //Each buffer may have repeated values, as there must be a value for each remapped face point.
         public List<VertexBuffer> _buffers = null;
-
+        
         private Culling _culling = Culling.Back;
-
-        //Contains the human-understandable mesh information.
-        MonitoredList<VertexTriangle> _triangles;
 
         public VertexBuffer this[int index]
         {
@@ -67,11 +66,11 @@ namespace CustomEngine.Rendering.Models
                     throw new IndexOutOfRangeException();
             }
         }
-        public int[] Initialize()
+        public int[] GenerateBuffers()
         {
             List<int> bindingIds = new List<int>();
             foreach (VertexBuffer b in _buffers)
-                bindingIds.Add(b != null ? b.Initialize() : 0);
+                bindingIds.Add(b != null ? b.Generate() : 0);
             return bindingIds.ToArray();
         }
         public int[] GetFaceIndices()
@@ -114,7 +113,7 @@ namespace CustomEngine.Rendering.Models
                         return b;
             return null;
         }
-        private void AddBuffer<T>(
+        public void AddBuffer<T>(
             List<T> bufferData,
             VertexAttribInfo info,
             bool remap = false,
@@ -139,7 +138,7 @@ namespace CustomEngine.Rendering.Models
             }
             _buffers.Add(buffer);
         }
-        private void ReplaceBuffer<T>(
+        public void ReplaceBuffer<T>(
             List<T> bufferData,
             int bufferIndex,
             VertexAttribInfo info,
@@ -167,7 +166,7 @@ namespace CustomEngine.Rendering.Models
             _buffers[bufferIndex] = buffer;
         }
 
-        private Remapper SetFaceIndices(List<RawVertex> vertices, bool remap = true)
+        private Remapper SetFaceIndices(List<Vertex> vertices, bool remap = true)
         {
             if (vertices.Count % 3 != 0)
                 throw new Exception("Vertex list needs to be a multiple of 3.");
@@ -218,8 +217,8 @@ namespace CustomEngine.Rendering.Models
             _triangles.Added += _triangles_Added;
             _triangles.Removed += _triangles_Removed;
 
-            List<RawVertex> vertices = triangles.SelectMany(x => x.Vertices).ToList();
-            Influence[] influences = vertices.Select(y => y._influence).ToArray();
+            List<Vertex> vertices = triangles.SelectMany(x => x.Vertices).ToList();
+            Influence[] influences = vertices.Select(y => y.BaseVertex._influence).ToArray();
 
             Remapper remapper = SetFaceIndices(vertices);
             CreateFacePoints(remapper.ImplementationLength);

@@ -28,9 +28,8 @@ namespace CustomEngine
         bool Normalize { get; }
         void Write(VoidPtr address);
     }
-
+    
     public interface IGLVarOwner { }
-
     public interface IUniformable { }
     
     public unsafe interface IUniformable1Bool : IUniformable { bool* Data { get; } }

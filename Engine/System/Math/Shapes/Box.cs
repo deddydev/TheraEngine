@@ -138,10 +138,10 @@ namespace System
         public override void Render() { Render(false); }
         public override void Render(bool solid)
         {
-            if (solid)
-                Engine.Renderer.DrawBoxSolid(this);
-            else
-                Engine.Renderer.DrawBoxWireframe(this);
+            //if (solid)
+            //    Engine.Renderer.DrawBoxSolid(this);
+            //else
+            //    Engine.Renderer.DrawBoxWireframe(this);
         }
         public override PrimitiveData GetPrimitiveData()
         {
@@ -164,7 +164,7 @@ namespace System
             front = VertexQuad.MakeQuad(BFL, BFR, TFR, TFL, frontNormal);
             back = VertexQuad.MakeQuad(BBR, BBL, TBL, TBR, backNormal);
 
-            return PrimitiveData.FromQuads(left, right, top, bottom, front, back);
+            return PrimitiveData.FromQuads(Culling.Back, new PrimitiveBufferInfo(), left, right, top, bottom, front, back);
         }
         public Frustum AsFrustum(bool transformed = true)
         {

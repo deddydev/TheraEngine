@@ -163,13 +163,9 @@ namespace System
                             {
                                 _subNodes = new OctreeNode[8];
                                 _subNodes[i] = bounds;
-                                _subNodes[i].Visible = Visible;
                             }
                             else if (_subNodes[i] == null)
-                            {
                                 _subNodes[i] = bounds;
-                                _subNodes[i].Visible = Visible;
-                            }
 
                             items.Add(item);
 

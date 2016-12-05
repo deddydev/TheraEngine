@@ -10,17 +10,11 @@ namespace CustomEngine.Rendering.Models.Materials
 {
     public class Material : BaseRenderState
     {
-        public int MaterialId
-        {
-            get
-            {
-                if (BindingId <= 0)
-                    Generate();
-                return BindingId;
-            }
-        }
-        public override int GetHashCode() { return MaterialId; }
+        private List<RenderableObject> _renderingReferences = new List<RenderableObject>();
 
+        internal void AddReference(RenderableObject user) { _renderingReferences.Add(user); }
+        internal void RemoveReference(RenderableObject user) { _renderingReferences.Add(user); }
+        
         public Shader[] _shaders;
         private MaterialSettings _settings;
 
@@ -48,8 +42,16 @@ namespace CustomEngine.Rendering.Models.Materials
         protected override int CreateObject()
         {
             int[] ids = _shaders.Select(x => x.Compile()).ToArray();
-            int id = Engine.Renderer.GenerateProgram(ids);
+            int id = Engine.Renderer.GenerateMaterial(ids);
             return id;
+        }
+        protected override void OnGenerated()
+        {
+            Engine.Renderer.AddActiveMaterial(this);
+        }
+        protected override void OnDeleted()
+        {
+            Engine.Renderer.RemoveActiveMaterial(this);
         }
 
         public void SetUniforms()

@@ -69,7 +69,6 @@ namespace System
                 {
                     if (_visible == value)
                         return;
-
                     _visible = value;
                     foreach (RenderableObject item in _items)
                         item.IsRendering = _visible;
@@ -117,7 +116,6 @@ namespace System
 
                 return CollectChildren();
             }
-
             public List<RenderableObject> CollectChildren()
             {
                 List<RenderableObject> list = _items;
@@ -126,12 +124,10 @@ namespace System
                         list.AddRange(node.CollectChildren());
                 return list;
             }
-
             public List<RenderableObject> FindAllInside(Shape shape)
             {
                 throw new NotImplementedException();
             }
-
             public void Cull(Frustum frustum)
             {
                 EContainment c = frustum.Contains(_bounds);
@@ -139,8 +135,9 @@ namespace System
                     Visible = true;
                 else if (c == EContainment.Disjoint)
                     Visible = false;
-                else //Bounds is intersecting edge of frustum
+                else
                 {
+                    //Bounds is intersecting edge of frustum
                     foreach (RenderableObject item in _items)
                         item.IsRendering = frustum.Contains(item.GetCullingVolume()) != EContainment.Disjoint;
                     if (_subNodes != null)
@@ -293,7 +290,6 @@ namespace System
                     foreach (OctreeNode node in _subNodes)
                         node.Render();
             }
-
             public static implicit operator OctreeNode(Box bounds) { return new OctreeNode(bounds); }
         }
     }

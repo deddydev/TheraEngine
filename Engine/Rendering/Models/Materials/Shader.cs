@@ -53,7 +53,7 @@ namespace CustomEngine.Rendering.Models.Materials
 
             return id;
         }
-        public static Shader WeightedVertexShader(int boneCount)
+        public static Shader WeightedVertexShader(int boneCount, PrimitiveBufferInfo info)
         {
             string source = @"
 #version 450
@@ -66,8 +66,8 @@ uniform mat4 ModelMatrix;
 uniform mat4 ViewMatrix;
 uniform mat4 ProjMatrix;
 
-in ivec4 MatrixIDs;
-in vec4 MatrixWeights;
+in ivec4 MatrixIDs0;
+in vec4 MatrixWeights0;
 uniform mat4 BoneMatrices[" + boneCount.ToString() + @"];
 
 out vec3 color;

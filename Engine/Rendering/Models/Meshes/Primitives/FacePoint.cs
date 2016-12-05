@@ -5,15 +5,13 @@ namespace CustomEngine.Rendering.Models
 {
     public class FacePoint : ObjectBase
     {
-        int _index;
-        List<int> _bufferIndices = new List<int>();
-
+        public int Index { get { return _index; } }
         public List<int> Indices { get { return _bufferIndices; } }
 
-        public FacePoint(int index)
-        {
-            _index = index;
-        }
+        private int _index;
+        private List<int> _bufferIndices = new List<int>();
+
+        public FacePoint(int index) { _index = index; }
 
         //public int this[string name]
         //{
@@ -27,6 +25,7 @@ namespace CustomEngine.Rendering.Models
         //    }
         //}
 
+        public override int GetHashCode() { return ToString().GetHashCode(); }
         public override string ToString()
         {
             string vtx = "VTX" + _index;
@@ -35,10 +34,6 @@ namespace CustomEngine.Rendering.Models
             for (int i = 0; i < _bufferIndices.Count; ++i)
                 vtx += "(" + i + ": " + _bufferIndices[i] + ")";
             return vtx;
-        }
-        public override int GetHashCode()
-        {
-            return ToString().GetHashCode();
         }
     }
 }

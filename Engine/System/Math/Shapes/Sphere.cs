@@ -33,10 +33,10 @@ namespace System
         public override void Render() { Render(true); }
         public override void Render(bool solid)
         {
-            if (solid)
-                Engine.Renderer.DrawSphereSolid(this);
-            else
-                Engine.Renderer.DrawSphereWireframe(this);
+            //if (solid)
+            //    Engine.Renderer.DrawSphereSolid(this);
+            //else
+            //    Engine.Renderer.DrawSphereWireframe(this);
         }
         public override EContainment Contains(Box box) { return Collision.SphereContainsBox(this, box); }
         public override EContainment Contains(Sphere sphere) { return Collision.SphereContainsSphere(this, sphere); }

@@ -19,76 +19,76 @@ namespace CustomEngine.Rendering.OpenGL
         public GLRenderer() { }
 
         #region Shapes
-        public override void DrawBoxWireframe(System.Vec3 min, System.Vec3 max)
-        {
-            GL.Begin(PrimitiveType.LineStrip);
+        //public override void DrawBoxWireframe(System.Vec3 min, System.Vec3 max)
+        //{
+        //    GL.Begin(PrimitiveType.LineStrip);
 
-            GL.Vertex3(max.X, max.Y, max.Z);
-            GL.Vertex3(max.X, max.Y, min.Z);
-            GL.Vertex3(min.X, max.Y, min.Z);
-            GL.Vertex3(min.X, min.Y, min.Z);
-            GL.Vertex3(min.X, min.Y, max.Z);
-            GL.Vertex3(max.X, min.Y, max.Z);
-            GL.Vertex3(max.X, max.Y, max.Z);
+        //    GL.Vertex3(max.X, max.Y, max.Z);
+        //    GL.Vertex3(max.X, max.Y, min.Z);
+        //    GL.Vertex3(min.X, max.Y, min.Z);
+        //    GL.Vertex3(min.X, min.Y, min.Z);
+        //    GL.Vertex3(min.X, min.Y, max.Z);
+        //    GL.Vertex3(max.X, min.Y, max.Z);
+        //    GL.Vertex3(max.X, max.Y, max.Z);
 
-            GL.End();
+        //    GL.End();
 
-            GL.Begin(PrimitiveType.Lines);
+        //    GL.Begin(PrimitiveType.Lines);
 
-            GL.Vertex3(min.X, max.Y, max.Z);
-            GL.Vertex3(max.X, max.Y, max.Z);
-            GL.Vertex3(min.X, max.Y, max.Z);
-            GL.Vertex3(min.X, min.Y, max.Z);
-            GL.Vertex3(min.X, max.Y, max.Z);
-            GL.Vertex3(min.X, max.Y, min.Z);
-            GL.Vertex3(max.X, min.Y, min.Z);
-            GL.Vertex3(min.X, min.Y, min.Z);
-            GL.Vertex3(max.X, min.Y, min.Z);
-            GL.Vertex3(max.X, max.Y, min.Z);
-            GL.Vertex3(max.X, min.Y, min.Z);
-            GL.Vertex3(max.X, min.Y, max.Z);
+        //    GL.Vertex3(min.X, max.Y, max.Z);
+        //    GL.Vertex3(max.X, max.Y, max.Z);
+        //    GL.Vertex3(min.X, max.Y, max.Z);
+        //    GL.Vertex3(min.X, min.Y, max.Z);
+        //    GL.Vertex3(min.X, max.Y, max.Z);
+        //    GL.Vertex3(min.X, max.Y, min.Z);
+        //    GL.Vertex3(max.X, min.Y, min.Z);
+        //    GL.Vertex3(min.X, min.Y, min.Z);
+        //    GL.Vertex3(max.X, min.Y, min.Z);
+        //    GL.Vertex3(max.X, max.Y, min.Z);
+        //    GL.Vertex3(max.X, min.Y, min.Z);
+        //    GL.Vertex3(max.X, min.Y, max.Z);
 
-            GL.End();
-        }
-        public override void DrawBoxSolid(System.Vec3 min, System.Vec3 max)
-        {
-            GL.Begin(PrimitiveType.QuadStrip);
+        //    GL.End();
+        //}
+        //public override void DrawBoxSolid(System.Vec3 min, System.Vec3 max)
+        //{
+        //    GL.Begin(PrimitiveType.QuadStrip);
 
-            GL.Vertex3(min.X, min.Y, min.Z);
-            GL.Vertex3(min.X, max.Y, min.Z);
-            GL.Vertex3(max.X, min.Y, min.Z);
-            GL.Vertex3(max.X, max.Y, min.Z);
-            GL.Vertex3(max.X, min.Y, max.Z);
-            GL.Vertex3(max.X, max.Y, max.Z);
-            GL.Vertex3(min.X, min.Y, max.Z);
-            GL.Vertex3(min.X, max.Y, max.Z);
-            GL.Vertex3(min.X, min.Y, min.Z);
-            GL.Vertex3(min.X, max.Y, min.Z);
+        //    GL.Vertex3(min.X, min.Y, min.Z);
+        //    GL.Vertex3(min.X, max.Y, min.Z);
+        //    GL.Vertex3(max.X, min.Y, min.Z);
+        //    GL.Vertex3(max.X, max.Y, min.Z);
+        //    GL.Vertex3(max.X, min.Y, max.Z);
+        //    GL.Vertex3(max.X, max.Y, max.Z);
+        //    GL.Vertex3(min.X, min.Y, max.Z);
+        //    GL.Vertex3(min.X, max.Y, max.Z);
+        //    GL.Vertex3(min.X, min.Y, min.Z);
+        //    GL.Vertex3(min.X, max.Y, min.Z);
 
-            GL.End();
+        //    GL.End();
 
-            GL.Begin(PrimitiveType.Quads);
+        //    GL.Begin(PrimitiveType.Quads);
 
-            GL.Vertex3(min.X, max.Y, min.Z);
-            GL.Vertex3(min.X, max.Y, max.Z);
-            GL.Vertex3(max.X, max.Y, max.Z);
-            GL.Vertex3(max.X, max.Y, min.Z);
+        //    GL.Vertex3(min.X, max.Y, min.Z);
+        //    GL.Vertex3(min.X, max.Y, max.Z);
+        //    GL.Vertex3(max.X, max.Y, max.Z);
+        //    GL.Vertex3(max.X, max.Y, min.Z);
 
-            GL.Vertex3(min.X, min.Y, min.Z);
-            GL.Vertex3(min.X, min.Y, max.Z);
-            GL.Vertex3(max.X, min.Y, max.Z);
-            GL.Vertex3(max.X, min.Y, min.Z);
+        //    GL.Vertex3(min.X, min.Y, min.Z);
+        //    GL.Vertex3(min.X, min.Y, max.Z);
+        //    GL.Vertex3(max.X, min.Y, max.Z);
+        //    GL.Vertex3(max.X, min.Y, min.Z);
 
-            GL.End();
-        }
-        public override void DrawCapsuleWireframe(System.Single radius, System.Single halfHeight)
-        {
-            throw new NotImplementedException();
-        }
-        public override void DrawCapsuleSolid(System.Single radius, System.Single halfHeight)
-        {
-            throw new NotImplementedException();
-        }
+        //    GL.End();
+        //}
+        //public override void DrawCapsuleWireframe(System.Single radius, System.Single halfHeight)
+        //{
+        //    throw new NotImplementedException();
+        //}
+        //public override void DrawCapsuleSolid(System.Single radius, System.Single halfHeight)
+        //{
+        //    throw new NotImplementedException();
+        //}
         #endregion
 
         public override void BindTextureData(int textureTargetEnum, int mipLevel, int pixelInternalFormatEnum, int width, int height, int pixelFormatEnum, int pixelTypeEnum, VoidPtr data)
@@ -427,16 +427,20 @@ namespace CustomEngine.Rendering.OpenGL
 #endif
             return handle;
         }
-        public override int GenerateProgram(int[] shaderHandles, params VertexAttribInfo[] inAttributes)
+        public override int GenerateMaterial(int[] shaderHandles)
         {
             int handle = GL.CreateProgram();
             foreach (int i in shaderHandles)
                 GL.AttachShader(handle, i);
 
             //Have to bind 'in' attributes before linking
-            for (int i = 0; i < inAttributes.Length; ++i)
-                GL.BindAttribLocation(handle, inAttributes[i].GetLocation(), inAttributes[i].GetAttribName());
-
+            int k = 0;
+            for (int i = 0; i < VertexBuffer.BufferTypeCount; ++i)
+            {
+                BufferType type = (BufferType)i;
+                for (int j = 0; j < VertexBuffer.MaxBufferCountPerType; ++j)
+                    GL.BindAttribLocation(handle, k++, type.ToString() + j);
+            }
             GL.LinkProgram(handle);
 
             //We don't need these anymore now that they're part of the program
@@ -448,10 +452,10 @@ namespace CustomEngine.Rendering.OpenGL
 
             return handle;
         }
-        public override void UseMaterial(int handle)
+        public override void UseMaterial(Material material)
         {
-            base.UseMaterial(handle);
-            GL.UseProgram(_programHandle);
+            GL.UseProgram(material.BindingId);
+            base.UseMaterial(material);
         }
 
         #region Uniforms
@@ -642,6 +646,87 @@ namespace CustomEngine.Rendering.OpenGL
                     GL.BindFramebuffer(FramebufferTarget.DrawFramebuffer, bindingId);
                     break;
             }
+        }
+
+        public override void Uniform(int matID, int location, params IUniformable4Int[] p)
+        {
+            const int count = 4;
+
+            if (location < 0)
+                return;
+
+            float[] values = new float[p.Length << 2];
+
+            for (int i = 0; i < p.Length; ++i)
+                for (int x = 0; x < count; ++x)
+                    values[i << 2 + x] = p[i].Data[x];
+
+            GL.ProgramUniform3(matID, location, p.Length, values);
+        }
+
+        public override void Uniform(int matID, int location, params IUniformable4Float[] p)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void Uniform(int matID, int location, params IUniformable3Int[] p)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void Uniform(int matID, int location, params IUniformable3Float[] p)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void Uniform(int matID, int location, params IUniformable2Int[] p)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void Uniform(int matID, int location, params IUniformable2Float[] p)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void Uniform(int matID, int location, params IUniformable1Int[] p)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void Uniform(int matID, int location, params IUniformable1Float[] p)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void Uniform(int matID, int location, params int[] p)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void Uniform(int matID, int location, params float[] p)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void Uniform(int matID, int location, Matrix4 p)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void Uniform(int matID, int location, params Matrix4[] p)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void Uniform(int matID, int location, Matrix3 p)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void Uniform(int matID, int location, params Matrix3[] p)
+        {
+            throw new NotImplementedException();
         }
     }
 }

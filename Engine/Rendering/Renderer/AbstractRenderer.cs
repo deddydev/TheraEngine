@@ -13,6 +13,8 @@ namespace CustomEngine.Rendering
     /// </summary>
     public abstract class AbstractRenderer
     {
+        private Dictionary<int, Material> _activeMaterials = new Dictionary<int, Material>();
+
         private SceneProcessor _scene = new SceneProcessor();
         public SceneProcessor Scene { get { return _scene; } }
 
@@ -35,6 +37,17 @@ namespace CustomEngine.Rendering
 
         public abstract int GenObject(GenType type);
         public abstract int[] GenObjects(GenType type, int count);
+
+        internal void AddActiveMaterial(Material material)
+        {
+            _activeMaterials.Add(material.BindingId, material);
+        }
+
+        internal void RemoveActiveMaterial(Material material)
+        {
+            _activeMaterials.Remove(material.BindingId);
+        }
+
         public abstract void DeleteObject(GenType type, int bindingId);
         public abstract void DeleteObjects(GenType type, int[] bindingIds);
 
@@ -172,10 +185,15 @@ namespace CustomEngine.Rendering
         /// </summary>
         /// <param name="shaderHandles">The handles of the shaders for this program to use.</param>
         /// <returns></returns>
-        public abstract int GenerateProgram(int[] shaderHandles, params VertexAttribInfo[] inAttributes);
+        public abstract int GenerateMaterial(int[] shaderHandles);
 
-        public virtual void UseMaterial(int handle) { _programHandle = handle; }
-        public virtual void DeleteProgram(int handle)
+        public virtual void UseMaterial(Material material)
+        {
+            _programHandle = material.BindingId;
+            Scene.CurrentCamera.SetUniforms();
+            material.SetUniforms();
+        }
+        public virtual void DeleteMaterial(int handle)
         {
             if (_programHandle == handle)
                 _programHandle = 0;

@@ -50,12 +50,12 @@ namespace CustomEngine.Rendering.Cameras
 
             CalculateProjection();
         }
-        internal override void RegisterUniforms()
+        public override void SetUniforms()
         {
-            base.RegisterUniforms();
-            Uniform.ProvideUniform(ECommonUniform.FovX, UniformFovX);
-            Uniform.ProvideUniform(ECommonUniform.FovY, UniformFovY);
-            Uniform.ProvideUniform(ECommonUniform.Aspect, UniformAspect);
+            base.SetUniforms();
+            Engine.Renderer.Uniform(Uniform.GetLocation(ECommonUniform.FovX), _fovX);
+            Engine.Renderer.Uniform(Uniform.GetLocation(ECommonUniform.FovY), _fovY);
+            Engine.Renderer.Uniform(Uniform.GetLocation(ECommonUniform.Aspect), _aspect);
         }
         private void UniformFovX(int mId) { Engine.Renderer.Uniform(mId, Uniform.GetLocation(ECommonUniform.FovX), _fovX); }
         private void UniformFovY(int mId) { Engine.Renderer.Uniform(mId, Uniform.GetLocation(ECommonUniform.FovY), _fovY); }

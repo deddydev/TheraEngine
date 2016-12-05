@@ -35,14 +35,16 @@ namespace System
         public override void Render() { Render(false); }
         public override void Render(bool solid)
         {
-            if (solid)
-                Engine.Renderer.DrawCapsuleSolid(this);
-            else
-                Engine.Renderer.DrawCapsuleWireframe(this);
+            //if (solid)
+            //    Engine.Renderer.DrawCapsuleSolid(this);
+            //else
+            //    Engine.Renderer.DrawCapsuleWireframe(this);
         }
         public override PrimitiveData GetPrimitiveData()
         {
-            PrimitiveData data = new PrimitiveData();
+            List<VertexQuad> quads = new List<VertexQuad>();
+
+
 
             //int precision = 8;
 
@@ -98,7 +100,7 @@ namespace System
             //float heightInc = HalfHeight / heightNum;
             //double sphereAngleInc = PI / 2.0 / sphereHeightNum;
             //double sideAngleInc = 2.0 * PI / sides;
-            
+
             //for (int i = 0; i < sphereHeightNum; ++i)
             //{
             //    double zAngle = i * sphereAngleInc;
@@ -126,7 +128,8 @@ namespace System
             //        double X2 = Cos(xAngle + sideAngleInc);
             //    }
             //}
-            return data;
+
+            return PrimitiveData.FromQuadList(Culling.Back, new PrimitiveBufferInfo(), quads);
         }
         public override bool Contains(Vec3 point)
         {

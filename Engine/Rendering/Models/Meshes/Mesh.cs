@@ -21,7 +21,6 @@ namespace CustomEngine.Rendering.Models
         private Model _model;
         internal PrimitiveManager _manager = new PrimitiveManager();
 
-        private SingleFileRef<Material> _material;
         protected bool _visible = false, _visibleByDefault = true;
         private Shape _cullingVolume;
         private RigidBody _collision;
@@ -44,11 +43,6 @@ namespace CustomEngine.Rendering.Models
                     _collision.UserObject = this;
                 }
             }
-        }
-        public Material Material
-        {
-            get { return _material; }
-            set { _material = value; }
         }
         public Model Model
         {
@@ -75,13 +69,13 @@ namespace CustomEngine.Rendering.Models
         public override Matrix4 GetInverseWorldMatrix() { return _model != null ? _model.GetInverseWorldMatrix() : Matrix4.Identity; }
         public override Shape GetCullingVolume() { return _cullingVolume; }
 
-        public void OnSpawned()
+        public override void OnSpawned()
         {
             //TODO: add material to list, get material id, add to cache with id, sort renderables by material id
             _material.GetInstance();
             //Visible = _visibleByDefault;
         }
-        public void OnDespawned()
+        public override void OnDespawned()
         {
             _material.UnloadReference();
             //Visible = false;

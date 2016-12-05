@@ -4,16 +4,14 @@ using System.Linq;
 
 namespace CustomEngine.Rendering.Models
 {
-    public class IndexLineStrip : ObjectBase
+    public class IndexLineStrip : IndexPrimitive
     {
-        public IndexLineStrip() { }
-        public IndexLineStrip(bool closed, params Point[] points)
-        {
-            _closed = closed;
-            _points = points.ToList();
-        }
+        private bool _closed = false;
 
-        bool _closed;
-        List<Point> _points;
+        public IndexLineStrip() { }
+        public IndexLineStrip(bool closed, params Point[] points) 
+            : base(points) { _closed = closed; }
+
+        public override FaceType Type { get { return _closed ? FaceType.LineLoop : FaceType.LineStrip; } }
     }
 }

@@ -15,6 +15,12 @@ namespace CustomEngine.Rendering.Models
 
         public VertexPrimitive(params Vertex[] vertices) { _vertices = vertices.ToList(); }
 
+        public Box GetCullingVolume()
+        {
+            Vec3[] positions = _vertices.Select(x => x.BaseVertex._position).ToArray();
+            return new Box(CustomMath.ComponentMin(positions), CustomMath.ComponentMax(positions));
+        }
+
         public IEnumerator<Vertex> GetEnumerator() { return ((IEnumerable<Vertex>)_vertices).GetEnumerator(); }
         IEnumerator IEnumerable.GetEnumerator() { return ((IEnumerable<Vertex>)_vertices).GetEnumerator(); }
     }

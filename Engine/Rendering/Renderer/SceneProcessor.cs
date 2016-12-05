@@ -23,10 +23,8 @@ namespace CustomEngine.Rendering
         internal void WorldChanged()
         {
             WorldSettings ws = Engine.World.Settings;
-            Actor[] actors = ws._maps.
-                Where(x => x.Settings.VisibleByDefault).
-                SelectMany(x => x.Settings._defaultActors).
-                Where(x => x.SceneComponentCache.Contains())
+            IEnumerable<Actor> actors = ws._maps.Where(x => x.Settings.VisibleByDefault).SelectMany(x => x.Settings._defaultActors);
+
             _renderTree = Engine.World != null ? new RenderOctree(ws.WorldBounds) : null;
         }
         public void Render(Camera camera)
@@ -34,14 +32,7 @@ namespace CustomEngine.Rendering
             if (_renderTree == null || camera == null)
                 return;
 
-            if (_currentCamera != camera)
-            {
-                if (_currentCamera != null)
-                    _currentCamera.IsActive = false;
-                _currentCamera = camera;
-                _currentCamera.IsActive = true;
-            }
-            
+            _currentCamera = camera;
             _renderTree.Cull(camera.GetFrustum());
             _renderTree.Render();
             

@@ -13,7 +13,8 @@ namespace CustomEngine.Rendering.HUD
     {
         public RenderableHudComponent(HudComponent owner) : base(owner) { }
 
-        private static Mesh SquareMesh = new Mesh(PrimitiveData.FromQuads(VertexQuad.MakeQuad(
+        private static Mesh SquareMesh = new Mesh(PrimitiveData.FromQuads(
+            Culling.Back, new PrimitiveBufferInfo(), VertexQuad.MakeQuad(
             Vec3.Zero, Vec3.UnitX, new Vec3(1.0f, 1.0f, 0.0f), Vec3.UnitY, Vec3.UnitZ)));
 
         public Material _material;

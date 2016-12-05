@@ -18,18 +18,7 @@
             return true;
         }
         public abstract void ClearConnection(BaseGLArgument other);
-
-        protected virtual void DoConnection(BaseGLArgument other)
-        {
-            if (_connectedTo != null)
-                _connectedTo.ClearConnection(this);
-            _connectedTo = other;
-        }
-        public virtual bool CanConnectTo(BaseGLArgument other)
-        {
-            return other != null && 
-                GetArgType() == other.GetArgType() &&
-                _isOutput != other._isOutput;
-        }
+        protected abstract void DoConnection(BaseGLArgument other);
+        public abstract bool CanConnectTo(BaseGLArgument other);
     }
 }

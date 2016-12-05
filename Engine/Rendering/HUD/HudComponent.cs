@@ -22,41 +22,41 @@ namespace CustomEngine.Rendering.HUD
         protected Vec2 _scale = Vec2.One;
         protected Vec2 _translationLocalOrigin = Vec2.Zero;
 
-        [Category("Transform"), Default, Animatable, PostCall("OnResized")]
+        [Category("Transform")]
         public RectangleF Region
         {
             get { return _region; }
-            set { _region = value; }
+            set { _region = value; OnResized(); }
         }
-        [Category("Transform"), State, Animatable, PostCall("OnResized")]
+        [Category("Transform")]
         public SizeF Size
         {
             get { return _region.Size; }
-            set { _region.Size = value; }
+            set { _region.Size = value; OnResized(); }
         }
-        [Category("Transform"), State, Animatable, PostCall("OnResized")]
+        [Category("Transform")]
         public float Height
         {
             get { return _region.Height; }
-            set { _region.Height = value; }
+            set { _region.Height = value; OnResized(); }
         }
-        [Category("Transform"), State, Animatable, PostCall("OnResized")]
+        [Category("Transform")]
         public float Width
         {
             get { return _region.Width; }
-            set { _region.Width = value; }
+            set { _region.Width = value; OnResized(); }
         }
-        [Category("Transform"), State, Animatable, PostCall("OnTransformed")]
+        [Category("Transform")]
         public PointF Location
         {
             get { return _region.Location; }
-            set { _region.Location = value; }
+            set { _region.Location = value; OnTransformed(); }
         }
         /// <summary>
         /// The origin of the component's rotation angle, as a percentage.
         /// 0,0 is bottom left, 0.5,0.5 is center, 1.0,1.0 is top right.
         /// </summary>
-        [Category("Transform"), Default, State, Animatable, PostCall("OnTransformed")]
+        [Category("Transform")]
         public Vec2 TranslationLocalOrigin
         {
             get { return _translationLocalOrigin; }
@@ -66,9 +66,10 @@ namespace CustomEngine.Rendering.HUD
                 _region.X += diff.X;
                 _region.Y += diff.Y;
                 _translationLocalOrigin = value;
+                OnTransformed();
             }
         }
-        [Category("Transform"), PostCall("OnTransformed")]
+        [Category("Transform")]
         public Vec2 BottomLeftTranslation
         {
             get { return new Vec2(TranslationX - _translationLocalOrigin.X * Width, TranslationY - _translationLocalOrigin.Y * Height); }
@@ -76,37 +77,38 @@ namespace CustomEngine.Rendering.HUD
             {
                 TranslationX = value.X + _translationLocalOrigin.X * Width;
                 TranslationY = value.Y + _translationLocalOrigin.Y * Height;
+                OnTransformed();
             }
         }
-        [Category("Transform"), State, Animatable, PostCall("OnTransformed")]
+        [Category("Transform")]
         public float TranslationX
         {
             get { return _region.X; }
-            set { _region.X = value; }
+            set { _region.X = value; OnTransformed(); }
         }
-        [Category("Transform"), State, Animatable, PostCall("OnTransformed")]
+        [Category("Transform")]
         public float TranslationY
         {
             get { return _region.Y; }
-            set { _region.Y = value; }
+            set { _region.Y = value; OnTransformed(); }
         }
-        [Category("Transform"), State, Animatable, PostCall("OnTransformed")]
+        [Category("Transform")]
         public Vec2 Scale
         {
             get { return _scale; }
-            set { _scale = value; }
+            set { _scale = value; OnTransformed(); }
         }
-        [Category("Transform"), State, Animatable, PostCall("OnTransformed")]
+        [Category("Transform")]
         public float ScaleX
         {
             get { return _scale.X; }
-            set { _scale.X = value; }
+            set { _scale.X = value; OnTransformed(); }
         }
-        [Category("Transform"), State, Animatable, PostCall("OnTransformed")]
+        [Category("Transform")]
         public float ScaleY
         {
             get { return _scale.Y; }
-            set { _scale.Y = value; }
+            set { _scale.Y = value; OnTransformed(); }
         }
 
         public virtual void OnTransformed()
@@ -148,7 +150,10 @@ namespace CustomEngine.Rendering.HUD
             child._parent = null;
             child._zIndex = 0;
         }
-
+        protected virtual void OnResized()
+        {
+            
+        }
         /// <summary>
         /// Returns the available real estate for the next components to use.
         /// </summary>

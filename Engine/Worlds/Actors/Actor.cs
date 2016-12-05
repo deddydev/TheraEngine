@@ -93,7 +93,7 @@ namespace CustomEngine.Worlds
         public void GenerateSceneComponentCache()
         {
             if (!_isConstructing)
-                _sceneComponentCache = _rootSceneComponent == null ? new ReadOnlyCollection<SceneComponent>() : _rootSceneComponent.GenerateChildCache().AsReadOnly();
+                _sceneComponentCache = _rootSceneComponent == null ? null : _rootSceneComponent.GenerateChildCache().AsReadOnly();
         }
         internal void RebaseOrigin(Vec3 newOrigin)
         {

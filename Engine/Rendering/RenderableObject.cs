@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using CustomEngine.Rendering.Models.Materials;
 
 namespace CustomEngine.Rendering
 {
@@ -33,11 +34,17 @@ namespace CustomEngine.Rendering
     }
     public abstract class RenderableObject : RenderableObjectContainer
     {
-        public bool _isRendering = true;
+        protected SingleFileRef<Material> _material;
+        protected bool _isRendering = true;
         public bool IsRendering
         {
             get { return _isRendering; }
             set { _isRendering = value; }
+        }
+        public Material Material
+        {
+            get { return _material; }
+            set { _material.SetFile(value, false); }
         }
         public abstract void Render();
         public abstract Shape GetCullingVolume();
@@ -45,6 +52,16 @@ namespace CustomEngine.Rendering
         public override List<PrimitiveData> GetPrimitives()
         {
             return new List<PrimitiveData>() { GetPrimitiveData() };
+        }
+        public virtual void OnSpawned()
+        {
+            if (Material != null)
+                Material.AddReference(this);
+        }
+        public virtual void OnDespawned()
+        {
+            if (Material != null)
+                Material.RemoveReference(this);
         }
     }
 }

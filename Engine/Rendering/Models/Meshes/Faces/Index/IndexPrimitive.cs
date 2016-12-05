@@ -10,8 +10,10 @@ namespace CustomEngine.Rendering.Models
         Points,
         Lines,
         LineStrip,
+        LineLoop,
         Triangles,
         TriangleStrip,
+        TriangleFan,
         Quads,
         QuadStrip,
         Ngon

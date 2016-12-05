@@ -21,5 +21,15 @@ namespace CustomEngine.Rendering.Models.Materials
             _connectedTo = null;
             o.ClearConnection(this);
         }
+        public override bool CanConnectTo(BaseGLArgument other)
+        {
+            return other != null && GetArgType() == other.GetArgType() && IsOutput != other.IsOutput;
+        }
+        protected override void DoConnection(BaseGLArgument other)
+        {
+            if (_connectedTo != null)
+                _connectedTo.ClearConnection(this);
+            _connectedTo = other;
+        }
     }
 }

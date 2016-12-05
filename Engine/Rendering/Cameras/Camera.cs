@@ -38,20 +38,6 @@ namespace CustomEngine.Rendering.Cameras
             get { return _postProcessSettings; }
             set { _postProcessSettings = value; }
         }
-        public bool IsActive
-        {
-            get { return _isActive; }
-            internal set
-            {
-                if (_isActive == value)
-                    return;
-
-                if (_isActive = value)
-                    RegisterUniforms();
-                else
-                    UnregisterUniforms();
-            }
-        }
         public abstract float Width { get; }
         public abstract float Height { get; }
         public Vec2 Dimensions { get { return new Vec2(Width, Height); } }
@@ -171,28 +157,16 @@ namespace CustomEngine.Rendering.Cameras
         protected void OnTranslateChanged(Vec3 oldTranslation) { TranslateChanged?.Invoke(oldTranslation); }
         protected void OnScaleChanged(Vec3 oldScale) { ScaleChanged?.Invoke(oldScale); }
 
-        internal virtual void UnregisterUniforms()
+        public virtual void SetUniforms()
         {
-            Uniform.ClearUniforms(
-                ECommonUniform.ViewMatrix,
-                ECommonUniform.ProjMatrix, 
-                ECommonUniform.ScreenWidth, 
-                ECommonUniform.ScreenHeight,
-                ECommonUniform.ScreenOrigin);
+            Engine.Renderer.Uniform(Uniform.GetLocation(ECommonUniform.ViewMatrix), Matrix);
+            Engine.Renderer.Uniform(Uniform.GetLocation(ECommonUniform.ProjMatrix), ProjectionMatrix);
+            Engine.Renderer.Uniform(Uniform.GetLocation(ECommonUniform.ScreenWidth), Width);
+            Engine.Renderer.Uniform(Uniform.GetLocation(ECommonUniform.ScreenHeight), Height);
+            Engine.Renderer.Uniform(Uniform.GetLocation(ECommonUniform.ScreenOrigin), Origin);
+            Engine.Renderer.Uniform(Uniform.GetLocation(ECommonUniform.NearZ), NearZ);
+            Engine.Renderer.Uniform(Uniform.GetLocation(ECommonUniform.FarZ), FarZ);
         }
-        internal virtual void RegisterUniforms()
-        {
-            Uniform.ProvideUniform(ECommonUniform.ViewMatrix, UniformViewMatrix);
-            Uniform.ProvideUniform(ECommonUniform.ProjMatrix, UniformProjMatrix);
-            Uniform.ProvideUniform(ECommonUniform.ScreenWidth, UniformScreenWidth);
-            Uniform.ProvideUniform(ECommonUniform.ScreenHeight, UniformScreenHeight);
-            Uniform.ProvideUniform(ECommonUniform.ScreenOrigin, UniformScreenOrigin);
-        }
-        private void UniformViewMatrix(int mId) { Engine.Renderer.Uniform(mId, Uniform.GetLocation(ECommonUniform.ViewMatrix), Matrix); }
-        private void UniformProjMatrix(int mId) { Engine.Renderer.Uniform(mId, Uniform.GetLocation(ECommonUniform.ProjMatrix), ProjectionMatrix); }
-        private void UniformScreenWidth(int mId) { Engine.Renderer.Uniform(mId, Uniform.GetLocation(ECommonUniform.ScreenWidth), Width); }
-        private void UniformScreenHeight(int mId) { Engine.Renderer.Uniform(mId, Uniform.GetLocation(ECommonUniform.ScreenHeight), Height); }
-        private void UniformScreenOrigin(int mId) { Engine.Renderer.Uniform(mId, Uniform.GetLocation(ECommonUniform.ScreenOrigin), Origin); }
         protected virtual void CalculateProjection()
         {
             _projectionRange = new Vec3(Dimensions, FarZ - NearZ);

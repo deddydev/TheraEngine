@@ -10,9 +10,9 @@ namespace CustomEngine.Rendering.Models.Materials
 {
     public class GLMultiArgument : BaseGLArgument
     {
-        List<GLMultiArgument> _syncedArgs = new List<GLMultiArgument>();
+        private List<GLMultiArgument> _syncedArgs = new List<GLMultiArgument>();
         private GLTypeName _currentArgType = GLTypeName.Invalid;
-        GLTypeName[] _allowedArgTypes;
+        private GLTypeName[] _allowedArgTypes = null;
 
         public override bool IsOutput { get { return false; } }
 
@@ -25,9 +25,7 @@ namespace CustomEngine.Rendering.Models.Materials
             _syncedArgs.Add(linkedMultiArg);
             _allowedArgTypes = linkedMultiArg._allowedArgTypes;
         }
-
         public void SetSyncedArguments(params GLMultiArgument[] args) { _syncedArgs.AddRange(args); }
-
         public GLTypeName CurrentArgumentType
         {
             get { return _currentArgType; }
@@ -74,12 +72,7 @@ namespace CustomEngine.Rendering.Models.Materials
                 return _allowedArgTypes.Intersect(otherMultiArg._allowedArgTypes).ToArray().Length != 0;
             }
         }
-
-        public override GLTypeName GetArgType()
-        {
-            return CurrentArgumentType;
-        }
-
+        public override GLTypeName GetArgType() { return CurrentArgumentType; }
         public override void ClearConnection(BaseGLArgument other)
         {
             if (_connectedTo == null || _connectedTo != other)
@@ -88,6 +81,10 @@ namespace CustomEngine.Rendering.Models.Materials
             BaseGLArgument o = _connectedTo;
             _connectedTo = null;
             o.ClearConnection(this);
+        }
+        protected override void DoConnection(BaseGLArgument other)
+        {
+            throw new NotImplementedException();
         }
     }
 }

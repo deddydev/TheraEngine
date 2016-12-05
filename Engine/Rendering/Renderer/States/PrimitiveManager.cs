@@ -18,11 +18,8 @@ namespace CustomEngine.Rendering.Models
         public int[] _strides;
 
         private PrimitiveData _data;
-        private VertexBuffer 
-            _indexBuffer, 
-            _matrixIndexBuffer,
-            _matrixWeightBuffer,
-            _transformedPositionsBuffer;
+        private PrimitiveData _skinningData;
+        private VertexBuffer _indexBuffer;
         private Primitive _triangles;
         private Bone[] _utilizedBones;
         private Shader _vertexShader;
@@ -64,9 +61,7 @@ namespace CustomEngine.Rendering.Models
         }
         public void SkeletonChanged(Skeleton skeleton)
         {
-            _matrixIndexBuffer?.Dispose();
-            _matrixWeightBuffer?.Dispose();
-
+            _skinningData?.Dispose();
             if (skeleton != null)
             {
                 _utilizedBones = _data._utilizedBones.Select(x => skeleton.BoneCache[x]).ToArray();
@@ -97,20 +92,17 @@ namespace CustomEngine.Rendering.Models
                 }
 
                 int location = VertexBuffer.MaxBufferCount - VertexBuffer.SkinningBufferCount;
+                
+                _skinningData.AddBuffer(matrixIndices.ToList(), new VertexAttribInfo(BufferType.MatrixIds, 0), false, BufferTarget.ArrayBuffer);
+                _skinningData.AddBuffer(matrixWeights.ToList(), new VertexAttribInfo(BufferType.MatrixWeights, 0), false, BufferTarget.ArrayBuffer);
+                
 
-                _matrixIndexBuffer = new VertexBuffer(location, "MatrixIDs", BufferTarget.ArrayBuffer);
-                _matrixWeightBuffer = new VertexBuffer(location + 1, "MatrixWeights", BufferTarget.ArrayBuffer);
-                _transformedPositionsBuffer = new VertexBuffer(location + 2, "TransformedPosition", BufferTarget.TransformFeedbackBuffer);
-
-                _matrixIndexBuffer.SetData(matrixIndices);
-                _matrixWeightBuffer.SetData(matrixWeights);
 
                 _vertexShader = Shader.WeightedVertexShader(_utilizedBones.Length);
             }
             else
             {
-                _matrixIndexBuffer = null;
-                _matrixWeightBuffer = null;
+                _skinningData = null;
                 _vertexShader = Shader.UnweightedVertexShader();
             }
 
@@ -134,13 +126,11 @@ namespace CustomEngine.Rendering.Models
 
             //TODO: set material and uniforms in render queue and then render ALL meshes that use it
             //order by depth FIRST though
-            Engine.Renderer.UseMaterial(material.MaterialId);
-            material.SetUniforms();
+            Engine.Renderer.UseMaterial(material);
             SetBoneMatrixUniforms();
 
             //This is a mesh-specific uniform
-            Uniform.ProvideUniform(ECommonUniform.ModelMatrix, 
-                mId => Engine.Renderer.Uniform(mId, Uniform.GetLocation(ECommonUniform.ModelMatrix), transform));
+            Engine.Renderer.Uniform(Uniform.GetLocation(ECommonUniform.ModelMatrix), transform);
 
             GL.BindVertexArray(BindingId);
             //GL.BindVertexBuffers(0, _data._buffers.Count, _bindingIds, new IntPtr[_data._buffers.Count], _data._buffers.Select(x => x.Stride).ToArray());
@@ -149,25 +139,13 @@ namespace CustomEngine.Rendering.Models
 
             Engine.Renderer.UseMaterial(0);
         }
-        public VoidPtr PreModifyVertices()
-        {
-            //Map buffers
-            return 0;
-        }
-        public void PostModifyVertices()
-        {
-            //Unmap buffers
-        }
-
         protected override void OnGenerated()
         {
             _initialized = true;
             
             GL.BindVertexArray(BindingId);
-            _bindingIds = _data.Initialize();
+            _bindingIds = _data.GenerateBuffers();
             _indexBuffer.Generate();
-            _indexBuffer.Bind();
-            _indexBuffer.PushData();
             GL.BindVertexArray(0);
         }
         protected override void OnDeleted()
@@ -198,12 +176,10 @@ namespace CustomEngine.Rendering.Models
             
             _indexCount = elements;
         }
-
         public int GetElementSize()
         {
             return 1 << (((_elementType - DrawElementsType.UnsignedByte) - 1) >> 1);
         }
-
         public unsafe void Render()
         {
             GL.DrawElements(_type, _indexCount, _elementType, 0);

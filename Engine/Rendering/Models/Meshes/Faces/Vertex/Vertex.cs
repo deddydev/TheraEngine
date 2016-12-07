@@ -61,7 +61,7 @@ namespace CustomEngine.Rendering.Models
         }
         public override int GetHashCode()
         {
-            return _vertex.GetHashCode() * _index;
+            return base.GetHashCode();
         }
 
         public static implicit operator Vertex(RawVertex v) { return new Vertex(v); }

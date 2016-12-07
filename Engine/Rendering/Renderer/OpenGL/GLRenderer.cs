@@ -18,6 +18,8 @@ namespace CustomEngine.Rendering.OpenGL
 
         public GLRenderer() { }
 
+        private ShaderType _currentShaderMode;
+
         #region Shapes
         //public override void DrawBoxWireframe(System.Vec3 min, System.Vec3 max)
         //{
@@ -109,29 +111,15 @@ namespace CustomEngine.Rendering.OpenGL
                 newMask |= ClearBufferMask.AccumBufferBit;
             GL.Clear(newMask);
         }
-
-        //#region Conversion
-        //private OpenTK.Matrix4 GLMat4(Matrix4 matrix4)
-        //{
-        //    return *(OpenTK.Matrix4*)&matrix4;
-        //}
-        //private OpenTK.Vector4 GLVec4(System.Vec4 vec4)
-        //{
-        //    return *(OpenTK.Vector4*)&vec4;
-        //}
-        //private OpenTK.Vector3 GLVec3(System.Vec3 vec3)
-        //{
-        //    return *(OpenTK.Vector3*)&vec3;
-        //}
-        //private OpenTK.Vector2 GLVec2(System.Vec2 vec2)
-        //{
-        //    return *(OpenTK.Vector2*)&vec2;
-        //}
-        //private OpenTK.Quaternion GLQuat(System.Quaternion quat)
-        //{
-        //    return *(OpenTK.Quaternion*)&quat;
-        //}
-        //#endregion
+        
+        public override void SetPointSize(float size)
+        {
+            GL.PointSize(size);
+        }
+        public override void SetLineSize(float size)
+        {
+            GL.LineWidth(size);
+        }
 
         #region Objects
         public override void DeleteObject(GenType type, int bindingId)
@@ -298,80 +286,8 @@ namespace CustomEngine.Rendering.OpenGL
             return ids;
         }
         #endregion
-
-        #region Display Lists
-        public override int CreateDisplayList()
-        {
-            return GL.GenLists(1);
-        }
-        public override void BeginDisplayList(int id, DisplayListMode mode)
-        {
-            GL.NewList(id, mode == DisplayListMode.Compile ? ListMode.Compile : ListMode.CompileAndExecute);
-        }
-        public override void EndDisplayList()
-        {
-            GL.EndList();
-        }
-        public override void CallDisplayList(int id)
-        {
-            GL.CallList(id);
-        }
-        public override void DeleteDisplayList(int id)
-        {
-            GL.DeleteLists(id, 1);
-        }
-        #endregion
-
-        #region Drawing
-        public override void Begin(EPrimitive type)
-        {
-            GL.Begin((PrimitiveType)(int)type);
-        }
-        public override void Vertex3(Vec3 value)
-        {
-            GL.Vertex3(value.X, value.Y, value.Z);
-        }
-        public override void Vertex2(Vec2 value)
-        {
-            GL.Vertex2(value.X, value.Y);
-        }
-        public override void Normal3(Vec3 value)
-        {
-            GL.Normal3(value.X, value.Y, value.Z);
-        }
-        public override void TexCoord2(Vec2 value)
-        {
-            GL.TexCoord2(value.X, value.Y);
-        }
-        public override void MultiTexCoord2(int unit, Vec2 value)
-        {
-            GL.MultiTexCoord2(TextureUnit.Texture0 + unit, value.X, value.Y);
-        }
-        public override void Color4(ColorF4 value)
-        {
-            GL.Color4(value.R, value.G, value.B, value.A);
-        }
-        public override void Color3(ColorF3 value)
-        {
-            GL.Color3(value.R, value.G, value.B);
-        }
-        public override void End()
-        {
-            GL.End();
-        }
-        public override void SetPointSize(float size)
-        {
-            GL.PointSize(size);
-        }
-        public override void SetLineSize(float size)
-        {
-            GL.LineWidth(size);
-        }
-
-        #endregion
-
+        
         #region Shaders
-        private ShaderType _currentShaderMode;
         public override void SetShaderMode(ShaderMode type)
         {
             switch (type)
@@ -661,7 +577,7 @@ namespace CustomEngine.Rendering.OpenGL
                 for (int x = 0; x < count; ++x)
                     values[i << 2 + x] = p[i].Data[x];
 
-            GL.ProgramUniform3(matID, location, p.Length, values);
+            GL.ProgramUniform4(matID, location, p.Length, values);
         }
 
         public override void Uniform(int matID, int location, params IUniformable4Float[] p)

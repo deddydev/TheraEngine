@@ -226,32 +226,32 @@ namespace CustomEngine.Rendering.Models
 
             for (int i = 0; i < info._positionCount; ++i)
             {
-                var data = remapper.ImplementationTable.Select(x => vertices[x]._positions[i]).ToList();
+                var data = remapper.ImplementationTable.Select(x => vertices[x].BaseVertex._position).ToList();
                 AddBuffer(data, new VertexAttribInfo(BufferType.Position, i));
             }
             for (int i = 0; i < info._normalCount; ++i)
             {
-                var data = remapper.ImplementationTable.Select(x => vertices[x]._normals[i]).ToList();
+                var data = remapper.ImplementationTable.Select(x => vertices[x].BaseVertex._normal).ToList();
                 AddBuffer(data, new VertexAttribInfo(BufferType.Normal, i));
             }
             for (int i = 0; i < info._binormalCount; ++i)
             {
-                var data = remapper.ImplementationTable.Select(x => vertices[x]._binormals[i]).ToList();
+                var data = remapper.ImplementationTable.Select(x => vertices[x].BaseVertex._binormal).ToList();
                 AddBuffer(data, new VertexAttribInfo(BufferType.Binormal, i));
             }
             for (int i = 0; i < info._tangentCount; ++i)
             {
-                var data = remapper.ImplementationTable.Select(x => vertices[x]._tangents[i]).ToList();
+                var data = remapper.ImplementationTable.Select(x => vertices[x].BaseVertex._tangent).ToList();
                 AddBuffer(data, new VertexAttribInfo(BufferType.Tangent, i));
             }
             for (int i = 0; i < info._texcoordCount; ++i)
             {
-                var data = remapper.ImplementationTable.Select(x => vertices[x]._texCoords[i]).ToList();
+                var data = remapper.ImplementationTable.Select(x => vertices[x].BaseVertex._texCoord).ToList();
                 AddBuffer(data, new VertexAttribInfo(BufferType.TexCoord, i));
             }
             for (int i = 0; i < info._colorCount; ++i)
             {
-                var data = remapper.ImplementationTable.Select(x => vertices[x]._colors[i]).ToList();
+                var data = remapper.ImplementationTable.Select(x => vertices[x].BaseVertex._color).ToList();
                 AddBuffer(data, new VertexAttribInfo(BufferType.Color, i));
             }
         }

@@ -9,7 +9,11 @@ namespace CustomEngine.Rendering.HUD
 {
     public class HudComponent : Pawn, IPanel, IEnumerable<HudComponent>
     {
-        public HudComponent(HudComponent owner) { _parent = owner; }
+        public HudComponent(HudComponent owner)
+        {
+            if (owner != null)
+                owner.Add(this);
+        }
 
         protected HudComponent _parent;
         protected List<HudComponent> _children = new List<HudComponent>();

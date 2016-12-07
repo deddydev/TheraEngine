@@ -444,12 +444,13 @@
     <Compile Include="Rendering\Models\Collada\Schema\Types\Grendgine_Collada_SID_Name_String.cs" />
     <Compile Include="Rendering\Models\Collada\Schema\Types\Grendgine_Collada_String_Array_String.cs" />
     <Compile Include="Rendering\Models\Materials\GLSL\BaseGLArgument.cs" />
-    <Compile Include="Rendering\Models\Materials\GLSL\GLInput.cs" />
     <Compile Include="Rendering\Models\Materials\GLSL\BaseGLMultiInput.cs" />
-    <Compile Include="Rendering\Models\Materials\GLSL\GLMultiOutput.cs" />
+    <Compile Include="Rendering\Models\Materials\GLSL\GLInput.cs" />
     <Compile Include="Rendering\Models\Materials\GLSL\GLMultiArgument.cs" />
+    <Compile Include="Rendering\Models\Materials\GLSL\GLMultiOutput.cs" />
     <Compile Include="Rendering\Models\Materials\GLSL\GLOutput.cs" />
     <Compile Include="Rendering\Models\Materials\GLSL\GLVar.cs" />
+    <Compile Include="Rendering\Models\Materials\GLSL\MaterialHudGrid.cs" />
     <Compile Include="Rendering\Models\Materials\GLSL\Types\GLArray.cs" />
     <Compile Include="Rendering\Models\Materials\GLSL\Types\GLVec1.cs" />
     <Compile Include="Rendering\Models\Materials\GLSL\Types\GLVec2.cs" />

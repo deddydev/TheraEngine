@@ -1,44 +1,42 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace CustomEngine.Rendering.Models.Materials
 {
     public class GLOutput<T> : BaseGLArgument where T : GLVar
     {
-        public GLOutput(string name) : base(name) { }
+        public GLOutput(string name) : base(name)
+        {
+            _connectedTo.Added += _connectedTo_Added;
+            _connectedTo.Removed += _connectedTo_Removed;
+        }
 
         public override bool IsOutput { get { return true; } }
-
-        protected List<BaseGLArgument> _connectedTo = null;
-        protected List<BaseGLArgument> ConnectedTo
-        {
-            get { return _connectedTo; }
-            set
-            {
-                if (CanConnectTo(value))
-                    _connectedTo = value;
-            }
-        }
         public override GLTypeName GetArgType() { return GLVar.TypeAssociations[GetType()]; }
+
+        protected MonitoredList<BaseGLArgument> _connectedTo = new MonitoredList<BaseGLArgument>();
 
         public override void ClearConnection(BaseGLArgument other)
         {
-            if (_connectedTo == null || _connectedTo != other)
+            if (_connectedTo == null || !_connectedTo.Contains(other))
                 return;
 
-            BaseGLArgument o = _connectedTo;
-            _connectedTo = null;
-            o.ClearConnection(this);
+            _connectedTo.Remove(other);
         }
         public override bool CanConnectTo(BaseGLArgument other)
         {
-            return other != null && GetArgType() == other.GetArgType() && IsOutput != other.IsOutput;
+            return GetArgType() == other.GetArgType();
         }
         protected override void DoConnection(BaseGLArgument other)
         {
-            if (_connectedTo != null)
-                _connectedTo.ClearConnection(this);
-            _connectedTo = other;
+            _connectedTo.Add(other);
+        }
+        private void _connectedTo_Removed(BaseGLArgument item)
+        {
+            item.ClearConnection(this);
+        }
+        private void _connectedTo_Added(BaseGLArgument item)
+        {
+            item.TryConnectTo(this);
         }
     }
 }

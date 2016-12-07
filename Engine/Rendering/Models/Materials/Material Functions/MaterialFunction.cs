@@ -11,14 +11,14 @@ namespace CustomEngine.Rendering.Models.Materials
 {
     public class MaterialFuncInfo
     {
-        public MaterialFuncInfo(string category, string description, string keywords)
+        public MaterialFuncInfo(string category, string name, string description, string keywords)
         {
             _keywords = keywords.Split(' ').ToList();
             _description = description;
         }
 
         public List<string> _keywords;
-        public string _description, _category;
+        public string _name, _description, _category;
     }
     public abstract class MaterialFunction : HudComponent, IGLVarOwner
     {

@@ -1,5 +1,6 @@
 ﻿using CustomEngine;
 using CustomEngine.Rendering.Models;
+using System.Drawing;
 using System.Runtime.InteropServices;
 using System.Xml.Serialization;
 using static System.CustomMath;
@@ -261,7 +262,9 @@ namespace System
         public static bool operator !=(Vec2 left, Vec2 right) { return !left.Equals(right); }
         public static explicit operator Vec2(Vec3 v) { return new Vec2(v.X, v.Y); }
         public static explicit operator Vec2(Vec4 v) { return new Vec2(v.X, v.Y); }
-
+        public static implicit operator Vec2(PointF v) { return new Vec2(v.X, v.Y); }
+        public static implicit operator PointF(Vec2 v) { return new PointF(v.X, v.Y); }
+        
         private static string listSeparator = Globalization.CultureInfo.CurrentCulture.TextInfo.ListSeparator;
         public override string ToString()
         {

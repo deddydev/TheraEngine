@@ -10,7 +10,7 @@ namespace CustomEngine.Rendering.Models.Materials
 {
     public class GLMultiOutput : BaseGLMultiInput
     {
-        protected List<BaseGLArgument> _connectedTo;
+        protected List<BaseGLArgument> _connectedTo = new List<BaseGLArgument>();
 
         public override bool IsOutput { get { return false; } }
 
@@ -23,7 +23,6 @@ namespace CustomEngine.Rendering.Models.Materials
             _syncedArgs.Add(linkedMultiArg);
             _allowedArgTypes = linkedMultiArg._allowedArgTypes;
         }
-        
         public override void ClearConnection(BaseGLArgument other)
         {
             if (_connectedTo == null || _connectedTo != other)
@@ -32,6 +31,11 @@ namespace CustomEngine.Rendering.Models.Materials
             BaseGLArgument o = _connectedTo;
             _connectedTo = null;
             o.ClearConnection(this);
+        }
+
+        protected override void DoConnection(BaseGLArgument other)
+        {
+            throw new NotImplementedException();
         }
     }
 }

@@ -32,6 +32,13 @@ namespace System
             _max = bounds / 2.0f;
             CheckValid();
         }
+        public Box(float uniformBounds)
+        {
+            Vec3 bounds = new Vec3(uniformBounds);
+            _min = -bounds / 2.0f;
+            _max = bounds / 2.0f;
+            CheckValid();
+        }
         private void CheckValid()
         {
             if (_min.X > _max.X)

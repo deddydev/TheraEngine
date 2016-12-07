@@ -102,12 +102,32 @@ namespace CustomEngine.Rendering.Models
             _data = DataSource.Allocate(DataLength);
         }
         public VertexBuffer(
-            int index,
+            string name,
+            int location,
+            BufferTarget target) : base(GenType.Buffer)
+        {
+            _index = -1;
+            _location = location;
+            _target = target;
+            _name = name;
+        }
+        public VertexBuffer(
             string name,
             BufferTarget target) : base(GenType.Buffer)
         {
-            _index = index;
+            _index = -1;
             _location = -1;
+            _target = target;
+            _name = name;
+        }
+        public VertexBuffer(
+            int index,
+            string name,
+            int location,
+            BufferTarget target) : base(GenType.Buffer)
+        {
+            _index = index;
+            _location = location;
             _target = target;
             _name = name;
         }

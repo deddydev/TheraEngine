@@ -23,7 +23,8 @@ namespace CustomEngine.Rendering.Models
         private Primitive _triangles;
         private Bone[] _utilizedBones;
         private Shader _vertexShader;
-        
+        private PrimitiveBufferInfo _bufferInfo;
+
         private bool _initialized = false;
 
         public PrimitiveManager() : base(GenType.VertexArray) { }
@@ -42,7 +43,7 @@ namespace CustomEngine.Rendering.Models
                 _data = value;
                 if (_data != null)
                 {
-                    _indexBuffer = new VertexBuffer(-1, "FaceIndices", BufferTarget.ElementArrayBuffer);
+                    _indexBuffer = new VertexBuffer("FaceIndices", BufferTarget.ElementArrayBuffer);
                     _triangles = new Primitive(_data._faces.Count * 3, _data._facePoints.Count, PrimitiveType.Triangles);
                     switch (_triangles._elementType)
                     {
@@ -91,20 +92,18 @@ namespace CustomEngine.Rendering.Models
                     }
                 }
 
-                int location = VertexBuffer.MaxBufferCount - VertexBuffer.SkinningBufferCount;
-                
-                _skinningData.AddBuffer(matrixIndices.ToList(), new VertexAttribInfo(BufferType.MatrixIds, 0), false, BufferTarget.ArrayBuffer);
-                _skinningData.AddBuffer(matrixWeights.ToList(), new VertexAttribInfo(BufferType.MatrixWeights, 0), false, BufferTarget.ArrayBuffer);
-                
+                _skinningData.AddBuffer(matrixIndices.ToList(), new VertexAttribInfo(BufferType.MatrixIds), false, BufferTarget.ArrayBuffer);
+                _skinningData.AddBuffer(matrixWeights.ToList(), new VertexAttribInfo(BufferType.MatrixWeights), false, BufferTarget.ArrayBuffer);
 
-
-                _vertexShader = Shader.WeightedVertexShader(_utilizedBones.Length);
+                _bufferInfo._boneCount = _utilizedBones.Length;
             }
             else
             {
                 _skinningData = null;
-                _vertexShader = Shader.UnweightedVertexShader();
+                _bufferInfo._boneCount = 0;
             }
+
+            _vertexShader = Shader.VertexShader(_bufferInfo);
 
         }
         private void SetBoneMatrixUniforms()
@@ -126,7 +125,7 @@ namespace CustomEngine.Rendering.Models
 
             //TODO: set material and uniforms in render queue and then render ALL meshes that use it
             //order by depth FIRST though
-            Engine.Renderer.UseMaterial(material);
+            Engine.Renderer.UseMaterial(material.BindingId);
             SetBoneMatrixUniforms();
 
             //This is a mesh-specific uniform
@@ -137,7 +136,7 @@ namespace CustomEngine.Rendering.Models
             _triangles.Render();
             GL.BindVertexArray(0);
 
-            Engine.Renderer.UseMaterial(0);
+            Engine.Renderer.UseMaterial(NullBindingId);
         }
         protected override void OnGenerated()
         {

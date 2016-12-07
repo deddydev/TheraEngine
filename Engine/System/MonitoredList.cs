@@ -22,17 +22,36 @@ namespace System.Collections.Generic
         public event Action Modified;
 
         bool _updating = false;
+        bool _allowDuplicates = true;
 
-        public MonitoredList() { }
+        public MonitoredList()
+        {
+
+        }
+        public MonitoredList(bool allowDuplicates)
+        {
+            _allowDuplicates = allowDuplicates;
+        }
         public MonitoredList(IEnumerable<T> list)
         {
-            _updating = true;
-            AddRange(list);
-            _updating = false;
+            AddRangeSilent(list);
+        }
+        public MonitoredList(IEnumerable<T> list, bool allowDuplicates)
+        {
+            AddRangeSilent(list);
+            _allowDuplicates = allowDuplicates;
         }
 
+        public void AddSilent(T item)
+        {
+            _updating = true;
+            Add(item);
+            _updating = false;
+        }
         public new void Add(T item)
         {
+            if (!_allowDuplicates && Contains(item))
+                return;
             base.Add(item);
             if (!_updating)
             {
@@ -40,14 +59,42 @@ namespace System.Collections.Generic
                 Modified?.Invoke();
             }
         }
+        public void AddRangeSilent(IEnumerable<T> collection)
+        {
+            _updating = true;
+            AddRange(collection);
+            _updating = false;
+        }
         public new void AddRange(IEnumerable<T> collection)
         {
-            base.AddRange(collection);
-            if (!_updating)
+            if (collection == null)
+                return;
+            if (!_allowDuplicates)
             {
-                AddedRange?.Invoke(collection);
-                Modified?.Invoke();
+                IEnumerable<T> newCollection = collection.Where(x => !Contains(x));
+                base.AddRange(newCollection);
+                if (!_updating)
+                {
+                    AddedRange?.Invoke(newCollection);
+                    Modified?.Invoke();
+                }
             }
+            else
+            {
+                base.AddRange(collection);
+                if (!_updating)
+                {
+                    AddedRange?.Invoke(collection);
+                    Modified?.Invoke();
+                }
+            }
+        }
+        public bool RemoveSilent(T item)
+        {
+            _updating = true;
+            bool result = Remove(item);
+            _updating = false;
+            return result;
         }
         public new bool Remove(T item)
         {
@@ -62,6 +109,12 @@ namespace System.Collections.Generic
             }
             return false;
         }
+        public void RemoveRangeSilent(int index, int count)
+        {
+            _updating = true;
+            RemoveRange(index, count);
+            _updating = false;
+        }
         public new void RemoveRange(int index, int count)
         {
             IEnumerable<T> range = GetRange(index, count);
@@ -71,6 +124,12 @@ namespace System.Collections.Generic
                 RemovedRange?.Invoke(range);
                 Modified?.Invoke();
             }
+        }
+        public void RemoveAtSilent(int index)
+        {
+            _updating = true;
+            RemoveAt(index);
+            _updating = false;
         }
         public new void RemoveAt(int index)
         {
@@ -82,6 +141,12 @@ namespace System.Collections.Generic
                 Modified?.Invoke();
             }
         }
+        public void ClearSilent()
+        {
+            _updating = true;
+            Clear();
+            _updating = false;
+        }
         public new void Clear()
         {
             IEnumerable<T> range = GetRange(0, Count);
@@ -92,18 +157,34 @@ namespace System.Collections.Generic
                 Modified?.Invoke();
             }
         }
+        public void RemoveAllSilent(Predicate<T> match)
+        {
+            _updating = true;
+            RemoveAll(match);
+            _updating = false;
+        }
         public new void RemoveAll(Predicate<T> match)
         {
-            IEnumerable<T> matches = FindAll(match);
-            base.RemoveAll(match);
             if (!_updating)
             {
+                IEnumerable<T> matches = FindAll(match);
+                base.RemoveAll(match);
                 RemovedRange?.Invoke(matches);
                 Modified?.Invoke();
             }
+            else
+                base.RemoveAll(match);
+        }
+        public void InsertSilent(int index, T item)
+        {
+            _updating = true;
+            Insert(index, item);
+            _updating = false;
         }
         public new void Insert(int index, T item)
         {
+            if (!_allowDuplicates && Contains(item))
+                return;
             base.Insert(index, item);
             if (!_updating)
             {
@@ -111,13 +192,34 @@ namespace System.Collections.Generic
                 Modified?.Invoke();
             }
         }
+        public void InsertRangeSilent(int index, IEnumerable<T> collection)
+        {
+            _updating = true;
+            InsertRange(index, collection);
+            _updating = false;
+        }
         public new void InsertRange(int index, IEnumerable<T> collection)
         {
-            base.InsertRange(index, collection);
-            if (!_updating)
+            if (collection == null)
+                return;
+            if (!_allowDuplicates)
             {
-                InsertedRange?.Invoke(collection, index);
-                Modified?.Invoke();
+                IEnumerable<T> newCollection = collection.Where(x => !Contains(x));
+                base.InsertRange(index, newCollection);
+                if (!_updating)
+                {
+                    InsertedRange?.Invoke(newCollection, index);
+                    Modified?.Invoke();
+                }
+            }
+            else
+            {
+                base.InsertRange(index, collection);
+                if (!_updating)
+                {
+                    InsertedRange?.Invoke(collection, index);
+                    Modified?.Invoke();
+                }
             }
         }
     }

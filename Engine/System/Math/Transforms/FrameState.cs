@@ -141,8 +141,8 @@ namespace System
             MatrixChanged?.Invoke(oldMatrix, oldInvMatrix);
         }
 
-        public void MultMatrix() { Engine.Renderer.MultMatrix(_transform); }
-        public void MultInvMatrix() { Engine.Renderer.MultMatrix(_inverseTransform); }
+        //public void MultMatrix() { Engine.Renderer.MultMatrix(_transform); }
+        //public void MultInvMatrix() { Engine.Renderer.MultMatrix(_inverseTransform); }
 
         //public void RotateInPlace(Quaternion rotation)
         //{

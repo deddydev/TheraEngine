@@ -12,7 +12,7 @@ namespace CustomEngine.Rendering.Models.Materials
         {
             throw new NotImplementedException();
         }
-        protected override List<BaseGLArgument> GetArguments()
+        protected override List<BaseGLArgument> GetInputs()
         {
             return new List<BaseGLArgument>()
             {

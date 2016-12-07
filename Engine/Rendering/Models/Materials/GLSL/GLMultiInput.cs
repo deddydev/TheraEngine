@@ -8,7 +8,13 @@ using System.Text.RegularExpressions;
 
 namespace CustomEngine.Rendering.Models.Materials
 {
-    public class GLMultiOutput : BaseGLOutput
+    public interface IGLMultiArgument
+    {
+        List<IGLMultiArgument> SyncedArguments { get; }
+        GLTypeName[] AllowedArgumentTypes { get; }
+        GLTypeName CurrentArgumentType { get; }
+    }
+    public class GLMultiInput : BaseGLOutput
     {
         public List<IGLMultiArgument> SyncedArguments { get { return _syncedArgs; } }
         public GLTypeName[] AllowedArgumentTypes { get { return _allowedArgTypes; } }
@@ -18,20 +24,20 @@ namespace CustomEngine.Rendering.Models.Materials
         private GLTypeName[] _allowedArgTypes = null;
         private GLTypeName _currentArgType = GLTypeName.Invalid;
 
-        public GLMultiOutput(string name, params GLTypeName[] types) : base(name)
+        public GLMultiInput(string name, params GLTypeName[] types) : base(name)
         {
             _allowedArgTypes = types;
         }
-        public GLMultiOutput(string name, MaterialFunction parent, params GLTypeName[] types) : base(name, parent)
+        public GLMultiInput(string name, MaterialFunction parent, params GLTypeName[] types) : base(name, parent)
         {
             _allowedArgTypes = types;
         }
-        public GLMultiOutput(string name, IGLMultiArgument linkedMultiArg) : base(name)
+        public GLMultiInput(string name, IGLMultiArgument linkedMultiArg) : base(name)
         {
             _syncedArgs.Add(linkedMultiArg);
             _allowedArgTypes = linkedMultiArg.AllowedArgumentTypes;
         }
-        public GLMultiOutput(string name, MaterialFunction parent, IGLMultiArgument linkedMultiArg) : base(name, parent)
+        public GLMultiInput(string name, MaterialFunction parent, IGLMultiArgument linkedMultiArg) : base(name, parent)
         {
             _syncedArgs.Add(linkedMultiArg);
             _allowedArgTypes = linkedMultiArg.AllowedArgumentTypes;

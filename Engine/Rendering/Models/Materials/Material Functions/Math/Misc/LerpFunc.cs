@@ -15,10 +15,10 @@ namespace CustomEngine.Rendering.Models.Materials
         
         public LerpFunc(GLTypeName operandTypes) : base() { _inline = true; }
         protected override string GetOperation() { return "mix({0}, {1}, {2})"; }
-        protected override List<BaseGLArgument> GetArguments()
+        protected override List<BaseGLArgument> GetInputs()
         {
-            GLMultiArgument a = new GLMultiArgument("A", GLTypeName._float, GLTypeName._vec2, GLTypeName._vec3, GLTypeName._vec4);
-            GLMultiArgument b = new GLMultiArgument("B", a);
+            GLMultiInput a = new GLMultiInput("A", GLTypeName._float, GLTypeName._vec2, GLTypeName._vec3, GLTypeName._vec4);
+            GLMultiInput b = new GLMultiInput("B", a);
             return new List<BaseGLArgument>()
             {
                 a, b, new GLInput<GLFloat>("Time"),

@@ -23,6 +23,7 @@ namespace CustomEngine.Rendering.Models
         public int _tangentCount = 0;
         public int _texcoordCount = 1;
         public int _colorCount = 0;
+        public int _boneCount = 0;
     }
     public class PrimitiveData : IDisposable
     {
@@ -83,9 +84,9 @@ namespace CustomEngine.Rendering.Models
             FacePoint fp0 = _facePoints[t.Point0];
             FacePoint fp1 = _facePoints[t.Point1];
             FacePoint fp2 = _facePoints[t.Point2];
-            RawVertex v0 = new RawVertex(fp0, _buffers);
-            RawVertex v1 = new RawVertex(fp1, _buffers);
-            RawVertex v2 = new RawVertex(fp2, _buffers);
+            Vertex v0 = new Vertex(fp0, _buffers);
+            Vertex v1 = new Vertex(fp1, _buffers);
+            Vertex v2 = new Vertex(fp2, _buffers);
             return new VertexTriangle(v0, v1, v2);
         }
         private void SetInfluences(params Influence[] influences)
@@ -218,7 +219,7 @@ namespace CustomEngine.Rendering.Models
             _triangles.Removed += _triangles_Removed;
 
             List<Vertex> vertices = triangles.SelectMany(x => x.Vertices).ToList();
-            Influence[] influences = vertices.Select(y => y.BaseVertex._influence).ToArray();
+            Influence[] influences = vertices.Select(y => y._influence).ToArray();
 
             Remapper remapper = SetFaceIndices(vertices);
             CreateFacePoints(remapper.ImplementationLength);
@@ -226,32 +227,32 @@ namespace CustomEngine.Rendering.Models
 
             for (int i = 0; i < info._positionCount; ++i)
             {
-                var data = remapper.ImplementationTable.Select(x => vertices[x].BaseVertex._position).ToList();
+                var data = remapper.ImplementationTable.Select(x => vertices[x]._position).ToList();
                 AddBuffer(data, new VertexAttribInfo(BufferType.Position, i));
             }
             for (int i = 0; i < info._normalCount; ++i)
             {
-                var data = remapper.ImplementationTable.Select(x => vertices[x].BaseVertex._normal).ToList();
+                var data = remapper.ImplementationTable.Select(x => vertices[x]._normal).ToList();
                 AddBuffer(data, new VertexAttribInfo(BufferType.Normal, i));
             }
             for (int i = 0; i < info._binormalCount; ++i)
             {
-                var data = remapper.ImplementationTable.Select(x => vertices[x].BaseVertex._binormal).ToList();
+                var data = remapper.ImplementationTable.Select(x => vertices[x]._binormal).ToList();
                 AddBuffer(data, new VertexAttribInfo(BufferType.Binormal, i));
             }
             for (int i = 0; i < info._tangentCount; ++i)
             {
-                var data = remapper.ImplementationTable.Select(x => vertices[x].BaseVertex._tangent).ToList();
+                var data = remapper.ImplementationTable.Select(x => vertices[x]._tangent).ToList();
                 AddBuffer(data, new VertexAttribInfo(BufferType.Tangent, i));
             }
             for (int i = 0; i < info._texcoordCount; ++i)
             {
-                var data = remapper.ImplementationTable.Select(x => vertices[x].BaseVertex._texCoord).ToList();
+                var data = remapper.ImplementationTable.Select(x => vertices[x]._texCoord).ToList();
                 AddBuffer(data, new VertexAttribInfo(BufferType.TexCoord, i));
             }
             for (int i = 0; i < info._colorCount; ++i)
             {
-                var data = remapper.ImplementationTable.Select(x => vertices[x].BaseVertex._color).ToList();
+                var data = remapper.ImplementationTable.Select(x => vertices[x]._color).ToList();
                 AddBuffer(data, new VertexAttribInfo(BufferType.Color, i));
             }
         }

@@ -15,3 +15,4 @@ AutoWrapper/bin/
 Game/bin/
 Game/obj/
 *.suo
+*.force

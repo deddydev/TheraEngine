@@ -23,6 +23,14 @@ namespace CustomEngine.Rendering.Models.Materials
     public abstract class MaterialFunction : HudComponent, IGLVarOwner
     {
         private static Dictionary<Type, MaterialFuncInfo> _info = new Dictionary<Type, MaterialFuncInfo>();
+
+        /// <summary>
+        /// Determines if this function can be contained within one line.
+        /// Otherwise written as a method located outside of main().
+        /// Ex: type thing = FUNC_OPERATION;
+        /// otherwise:
+        /// type FUNC_NAME(in/out type args) { FUNC_OPERATION }
+        /// </summary>
         protected bool _inline = false;
 
         public static MaterialFunction Instantiate(Type t, HudComponent owner)
@@ -59,13 +67,12 @@ namespace CustomEngine.Rendering.Models.Materials
             int maxVal = CustomMath.Max(types.Keys.ToArray());
             return types[maxVal];
         }
-
-        protected string _operation;
-        protected List<BaseGLArgument> _inputs = new List<BaseGLArgument>();
-        protected List<BaseGLArgument> _outputs = new List<BaseGLArgument>();
         
-        public List<BaseGLArgument> InputArguments { get { return _inputs; } }
-        public List<BaseGLArgument> OutputArguments { get { return _outputs; } }
+        protected List<BaseGLInput> _inputs = new List<BaseGLInput>();
+        protected List<BaseGLOutput> _outputs = new List<BaseGLOutput>();
+        
+        public List<BaseGLInput> InputArguments { get { return _inputs; } }
+        public List<BaseGLOutput> OutputArguments { get { return _outputs; } }
 
         public ReadOnlyCollection<string> Keywords
         {
@@ -74,6 +81,16 @@ namespace CustomEngine.Rendering.Models.Materials
                 Type t = GetType();
                 if (_info.ContainsKey(t))
                     return _info[t]._keywords.AsReadOnly();
+                return null;
+            }
+        }
+        public string FunctionName
+        {
+            get
+            {
+                Type t = GetType();
+                if (_info.ContainsKey(t))
+                    return _info[t]._name;
                 return null;
             }
         }
@@ -121,36 +138,74 @@ namespace CustomEngine.Rendering.Models.Materials
 
         public MaterialFunction() : base(null)
         {
-            AddInput(GetArguments());
-            _operation = string.Format(GetOperation(), InputArguments);
+            AddInput(GetInputs());
+            AddOutput(GetOutputs());
         }
 
-        protected virtual List<BaseGLArgument> GetArguments() { return new List<BaseGLArgument>(); }
-        
+        protected virtual List<BaseGLInput> GetInputs() { return new List<BaseGLInput>(); }
+        protected virtual List<BaseGLOutput> GetOutputs() { return new List<BaseGLOutput>(); }
+
         /// <summary>
         /// Returns the base operation for string.Format.
         /// </summary>
         protected abstract string GetOperation();
 
-        protected void AddInput(List<BaseGLArgument> input)
+        protected void AddInput(List<BaseGLInput> input)
         {
             if (input != null)
-                foreach (BaseGLArgument v in input)
+                foreach (BaseGLInput v in input)
                     AddInput(v);
         }
-        protected void AddInput(BaseGLArgument input)
+        protected void AddInput(BaseGLInput input)
         {
             _inputs.Add(input);
         }
-        public override string ToString()
+        protected void AddOutput(List<BaseGLOutput> output)
         {
-            return _operation;
+            if (output != null)
+                foreach (BaseGLOutput v in output)
+                    AddOutput(v);
         }
-        public string WriteGlobalMethod()
+        protected void AddOutput(BaseGLOutput output)
         {
-            string s = "void " + Name + "(";
+            _outputs.Add(output);
+        }
+        public override string ToString() { return FunctionName; }
+        public string GetLineOperation(
+            string[] inputNames,
+            string[] outputNames,
+            bool declareOutputs = false)
+        {
+            if (inputNames.Length != _inputs.Count ||
+                outputNames.Length != _outputs.Count)
+                throw new InvalidOperationException();
+
+            if (_inline)
+                return string.Format(GetOperation(), inputNames);
+
+            string s = "\n";
+            if (declareOutputs)
+                for (int i = 0; i < _outputs.Count; ++i)
+                {
+                    string name = outputNames[i];
+                    GLTypeName type = _outputs[i].GetArgType();
+                    s += type + " " + name + ";\n";
+                }
+
+            s += Name + "(";
+            for (int i = 0; i < _inputs.Count; ++i)
+            {
+                string name = inputNames[i];
+
+            }
+
+            return s;
+        }
+        public string GetGlobalMethodDeclaration()
+        {
+            string s = "void " + FunctionName + "(";
             bool first = true;
-            foreach (BaseGLArgument arg in InputArguments)
+            foreach (BaseGLInput arg in InputArguments)
             {
                 if (first)
                     first = false;
@@ -158,7 +213,7 @@ namespace CustomEngine.Rendering.Models.Materials
                     s += ", ";
                 s += "in " + arg.GetArgType().ToString().Substring(1) + " " + arg.Name;
             }
-            foreach (BaseGLArgument arg in OutputArguments)
+            foreach (BaseGLOutput arg in OutputArguments)
             {
                 if (first)
                     first = false;

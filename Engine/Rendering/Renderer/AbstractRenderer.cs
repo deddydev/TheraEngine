@@ -83,11 +83,11 @@ namespace CustomEngine.Rendering
         /// <returns></returns>
         public abstract int GenerateMaterial(int[] shaderHandles);
 
-        public virtual void UseMaterial(Material material)
+        public virtual void UseMaterial(int matId)
         {
-            _programHandle = material.BindingId;
+            _programHandle = matId;
             Scene.CurrentCamera.SetUniforms();
-            material.SetUniforms();
+            _activeMaterials[matId].SetUniforms();
         }
         public virtual void DeleteMaterial(int handle)
         {
@@ -245,12 +245,26 @@ namespace CustomEngine.Rendering
         /// </summary>
         public abstract void DrawBuffers(DrawBuffersAttachment[] attachments);
         public abstract void BindFrameBuffer(FramebufferType type, int bindingId);
+
+        public abstract void BindTransformFeedback(int bindingId);
+        public abstract void BeginTransformFeedback(FeedbackPrimitiveType type);
+        public abstract void EndTransformFeedback();
+        /// <summary>
+        /// Binds a transform feedback buffer to "out" variables in the shader.
+        /// </summary>
+        public abstract void TransformFeedbackVaryings(int matId, string[] varNames);
     }
     public enum FramebufferType
     {
         Read,
         Write,
         ReadWrite,
+    }
+    public enum FeedbackPrimitiveType
+    {
+        Points,
+        Lines,
+        Triangles,
     }
     public enum MtxMode
     {

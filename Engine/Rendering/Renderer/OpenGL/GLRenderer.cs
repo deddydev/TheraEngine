@@ -368,10 +368,10 @@ namespace CustomEngine.Rendering.OpenGL
 
             return handle;
         }
-        public override void UseMaterial(Material material)
+        public override void UseMaterial(int matId)
         {
-            GL.UseProgram(material.BindingId);
-            base.UseMaterial(material);
+            GL.UseProgram(matId);
+            base.UseMaterial(matId);
         }
 
         #region Uniforms
@@ -643,6 +643,23 @@ namespace CustomEngine.Rendering.OpenGL
         public override void Uniform(int matID, int location, params Matrix3[] p)
         {
             throw new NotImplementedException();
+        }
+
+        public override void BindTransformFeedback(int bindingId)
+        {
+            GL.BindTransformFeedback(TransformFeedbackTarget.TransformFeedback, bindingId);
+        }
+        public override void BeginTransformFeedback(FeedbackPrimitiveType type)
+        {
+            GL.BeginTransformFeedback((TransformFeedbackPrimitiveType)type.Convert(typeof(TransformFeedbackPrimitiveType)));
+        }
+        public override void EndTransformFeedback()
+        {
+            GL.EndTransformFeedback();
+        }
+        public override void TransformFeedbackVaryings(int matId, string[] varNames)
+        {
+            GL.TransformFeedbackVaryings(matId, varNames.Length, varNames, TransformFeedbackMode.InterleavedAttribs);
         }
     }
 }

@@ -8,9 +8,9 @@ namespace CustomEngine.Rendering.Models
 {
     public class VertexTriangleStrip
     {
-        public List<RawVertex> _points;
+        public List<Vertex> _points;
 
-        public VertexTriangleStrip(params RawVertex[] vertices)
+        public VertexTriangleStrip(params Vertex[] vertices)
         {
             if (vertices.Length < 3)
                 throw new Exception("Not enough points for a triangle strip.");

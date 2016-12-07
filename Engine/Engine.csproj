@@ -444,9 +444,8 @@
     <Compile Include="Rendering\Models\Collada\Schema\Types\Grendgine_Collada_SID_Name_String.cs" />
     <Compile Include="Rendering\Models\Collada\Schema\Types\Grendgine_Collada_String_Array_String.cs" />
     <Compile Include="Rendering\Models\Materials\GLSL\BaseGLArgument.cs" />
-    <Compile Include="Rendering\Models\Materials\GLSL\BaseGLMultiInput.cs" />
     <Compile Include="Rendering\Models\Materials\GLSL\GLInput.cs" />
-    <Compile Include="Rendering\Models\Materials\GLSL\GLMultiArgument.cs" />
+    <Compile Include="Rendering\Models\Materials\GLSL\GLMultiInput.cs" />
     <Compile Include="Rendering\Models\Materials\GLSL\GLMultiOutput.cs" />
     <Compile Include="Rendering\Models\Materials\GLSL\GLOutput.cs" />
     <Compile Include="Rendering\Models\Materials\GLSL\GLVar.cs" />
@@ -469,6 +468,7 @@
     <Compile Include="Rendering\Models\Materials\Material Functions\Math\Compare\LEqualFunc.cs" />
     <Compile Include="Rendering\Models\Materials\Material Functions\Math\Compare\LessFunc.cs" />
     <Compile Include="Rendering\Models\Materials\Material Functions\Math\Compare\NEqualFunc.cs" />
+    <Compile Include="Rendering\Models\Materials\Material Functions\Math\Misc\OneMinusFunc.cs" />
     <Compile Include="Rendering\Models\Materials\Material Functions\Math\Misc\LerpFunc.cs" />
     <Compile Include="Rendering\Models\Materials\Material Functions\Math\Operator\AddFunc.cs" />
     <Compile Include="Rendering\Models\Materials\Material Functions\Math\Operator\DivideFunc.cs" />
@@ -536,6 +536,7 @@
     <Compile Include="Rendering\Models\Meshes\Faces\Index\IndexLine.cs" />
     <Compile Include="Rendering\Models\Meshes\Faces\Index\IndexTriangleFan.cs" />
     <Compile Include="Rendering\Models\Meshes\Faces\Index\IndexTriangleStrip.cs" />
+    <Compile Include="Rendering\Renderer\States\TransformFeedback.cs" />
     <Compile Include="Rendering\Renderer\TriangleOctree.cs" />
     <Compile Include="Rendering\Renderer\SceneProcessor.cs" />
     <Compile Include="Rendering\Renderer\States\BaseRenderState.cs" />

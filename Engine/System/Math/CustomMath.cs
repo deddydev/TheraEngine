@@ -12,6 +12,32 @@
         {
             return radians * 180.0f / PIf;
         }
+        public static Vec2 Bezier(Vec2 p0, Vec2 p1, Vec2 p2, Vec2 p3, float time)
+        {
+            float invT = 1.0f - time;
+            float invT2 = invT * invT;
+            float invT3 = invT2 * invT;
+            float t2 = time * time;
+            float t3 = t2 * time;
+            return
+                p0 * invT3 +
+                p1 * 3.0f * invT2 * time +
+                p2 * 3.0f * invT * t2 +
+                p3 * t3;
+        }
+        public static Vec3 Bezier(Vec3 p0, Vec3 p1, Vec3 p2, Vec3 p3, float time)
+        {
+            float invT = 1.0f - time;
+            float invT2 = invT * invT;
+            float invT3 = invT2 * invT;
+            float t2 = time * time;
+            float t3 = t2 * time;
+            return
+                p0 * invT3 +
+                p1 * 3.0f * invT2 * time +
+                p2 * 3.0f * invT * t2 +
+                p3 * t3;
+        }
         /// <summary>
         /// Gets an approximation of the vector length (magnitude).
         /// </summary>

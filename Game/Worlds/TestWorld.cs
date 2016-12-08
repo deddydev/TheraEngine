@@ -24,11 +24,10 @@ namespace Game.Worlds
 
             Mesh mesh = new Box(10.0f);
 
-            Shader vert = Shader.VertexShader(new PrimitiveBufferInfo() { _boneCount = 0 });
+            Shader vert = Shader.TestVertexShader();
             Shader frag = Shader.TestFragmentShader();
-            mesh.Material = new MeshProgram("Mat_Green", new MaterialSettings(), vert, frag);
-            mesh.Material.Compile();
-            boxModel.Meshes.Add(mesh);
+            mesh.Material = new Material("Mat_Green", new MaterialSettings(), vert, frag);
+            boxModel.Children.Add(mesh);
 
             BoxShape boxCollisionShape = new BoxShape(5.0f);
             MotionState state = new DefaultMotionState(Matrix4.CreateTranslation(rootBone.BindMatrix.GetPoint()));

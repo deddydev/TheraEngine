@@ -10,14 +10,15 @@ namespace CustomEngine.Rendering
 {
     public class Viewport
     {
-        private static Viewport _currentlyRendering = null;
         public static Viewport CurrentlyRendering { get { return _currentlyRendering; } }
+        private static Viewport _currentlyRendering = null;
 
         private LocalPlayerController _owner;
         private HudManager _hud;
         private int _index;
         private Rectangle _region;
         private Camera _worldCamera;
+        private GBuffer _gBuffer;
 
         private float _leftPercentage = 0.0f;
         private float _rightPercentage = 1.0f;
@@ -33,6 +34,7 @@ namespace CustomEngine.Rendering
                 _worldCamera?.Resize(Width, Height);
             }
         }
+        public GBuffer GBuffer { get { return _gBuffer; } }
         public HudManager HUD { get { return _hud; } }
         public LocalPlayerController OwningPlayer { get { return _owner; } }
         public Rectangle Region { get { return _region; } }
@@ -49,6 +51,11 @@ namespace CustomEngine.Rendering
             _index = index;
             _owner = owner;
             _owner.Viewport = this;
+            _gBuffer = new GBuffer(
+                GBufferTextureType.Diffuse | 
+                GBufferTextureType.Normal |
+                GBufferTextureType.Position |
+                GBufferTextureType.TexCoord);
         }
         internal void Resize(float parentWidth, float parentHeight)
         {
@@ -59,6 +66,7 @@ namespace CustomEngine.Rendering
 
             _worldCamera?.Resize(Width, Height);
             _hud.ParentResized(_region);
+            _gBuffer.Resize(Width, Height);
         }
         public void DebugPrint(string message) { _hud.DebugPrint(message); }
         private void SetTopLeft()

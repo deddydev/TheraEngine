@@ -383,16 +383,51 @@ namespace System
                 (Y - y) / height * 2.0f - 1.0f,
                 Z / (maxZ - minZ) * 2.0f - 1.0f);
         }
+        /// <summary>
+        /// Returns a YPR rotator with azimuth as yaw, elevation as pitch, and 0 as roll.
+        /// </summary>
+        public Rotator LookatAngles()
+        {
+            return new Rotator(
+                RadToDeg((float)Atan2(Y, Sqrt(X * X + Z * Z))),
+                RadToDeg((float)Atan2(-Z, X)), 
+                0.0f, Rotator.Order.YPR);
+        }
+        public Rotator LookatAngles(Vec3 forward, Vec3 right, Vec3 up)
+        {
+            Vec3 NormalDir = GetSafeNormal();
+            //Find projected point (on AxisX and AxisY, remove AxisZ component)
+            Vec3 NoZProjDir = (NormalDir - (NormalDir | up) * up).GetSafeNormal();
+            //Figure out if projection is on right or left.
+            float AzimuthSign = ((NoZProjDir | right) < 0.0f) ? -1.0f : 1.0f;
+            float ElevationSin = NormalDir | up;
+            float AzimuthCos = NoZProjDir | forward;
+            return new Rotator(RadToDeg((float)Acos(AzimuthCos)) * AzimuthSign, RadToDeg((float)Asin(ElevationSin)), 0.0f, Rotator.Order.YPR);
+        }
+        public Rotator LookatAngles(Vec3 origin)
+        {
+            return (this - origin).LookatAngles();
+        }
+        public Rotator LookatAngles(Vec3 origin, Vec3 forward, Vec3 right, Vec3 up)
+        {
+            return (this - origin).LookatAngles(forward, right, up);
+        }
+        public Vec3 GetSafeNormal(float Tolerance = 1.0e-8f)
+        {
+            float SquareSum = LengthSquared;
+            if (SquareSum == 1.0f)
+		        return this;	
+	        else if (SquareSum < Tolerance)
+		        return Zero;
+            float Scale = InverseSqrtFast(SquareSum);
+	        return new Vec3(X * Scale, Y * Scale, Z * Scale);
+        }
 
-        public Vec3 GetAngles() { return new Vec3(AngleX(), AngleY(), AngleZ()); }
-        public Vec3 GetAngles(Vec3 origin) { return (this - origin).GetAngles(); }
-
-        public Rotator LookatAngles() { return new Rotator((float)Atan2(Y, Sqrt(X * X + Z * Z)), (float)Atan2(-X, -Z), 0.0f, Rotator.Order.YPR); }
-        public Rotator LookatAngles(Vec3 origin) { return (this - origin).LookatAngles(); }
-
-        public float AngleX() { return (float)Atan2(Y, -Z); }
-        public float AngleY() { return (float)Atan2(-Z, X); }
-        public float AngleZ() { return (float)Atan2(Y, X); }
+        //public Vec3 GetAngles() { return new Vec3(AngleX(), AngleY(), AngleZ()); }
+        //public Vec3 GetAngles(Vec3 origin) { return (this - origin).GetAngles(); }
+        //public float AngleX() { return (float)Atan2(Y, -Z); }
+        //public float AngleY() { return (float)Atan2(-Z, X); }
+        //public float AngleZ() { return (float)Atan2(Y, X); }
 
         [XmlIgnore]
         public Vec2 Xy { get { return new Vec2(X, Y); } set { X = value.X; Y = value.Y; } }
@@ -524,6 +559,26 @@ namespace System
         public static Vec3 operator /(Vec3 vec1, Vec3 vec2)
         {
             return new Vec3(vec1.X / vec2.X, vec1.Y / vec2.Y, vec1.Z / vec2.Z);
+        }
+        /// <summary>
+        /// Cross
+        /// </summary>
+        /// <param name="vec1"></param>
+        /// <param name="vec2"></param>
+        /// <returns></returns>
+        public static Vec3 operator ^(Vec3 vec1, Vec3 vec2)
+        {
+            return vec1.Cross(vec2);
+        }
+        /// <summary>
+        /// Dot
+        /// </summary>
+        /// <param name="vec1"></param>
+        /// <param name="vec2"></param>
+        /// <returns></returns>
+        public static float operator |(Vec3 vec1, Vec3 vec2)
+        {
+            return vec1.Dot(vec2);
         }
         public static Vec3 operator *(Matrix4 left, Vec3 right)
         {

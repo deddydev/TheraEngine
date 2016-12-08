@@ -371,10 +371,10 @@ namespace CustomEngine.Rendering.OpenGL
 
             return handle;
         }
-        public override void UseProgram(int matId)
+        public override void UseProgram(MeshProgram program)
         {
-            GL.UseProgram(matId);
-            base.UseProgram(matId);
+            GL.UseProgram(program.BindingId);
+            base.UseProgram(program);
         }
 
         #region Uniforms

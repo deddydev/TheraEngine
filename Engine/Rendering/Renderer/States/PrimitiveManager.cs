@@ -25,6 +25,7 @@ namespace CustomEngine.Rendering.Models
         private Bone[] _utilizedBones;
         //private Shader _vertexShader;
         //private PrimitiveBufferInfo _bufferInfo;
+        private Material _material;
 
         private bool _initialized = false;
 
@@ -60,6 +61,12 @@ namespace CustomEngine.Rendering.Models
                     }
                 }
             }
+        }
+        public void SetMaterial(Material material)
+        {
+            _material = material;
+            if (_program != null)
+                _program.SetMaterial(material);
         }
         //public void SkeletonChanged(Skeleton skeleton)
         //{
@@ -131,9 +138,9 @@ namespace CustomEngine.Rendering.Models
 
             //TODO: set material and uniforms in render queue and then render ALL meshes that use it
             //order by depth FIRST though
-            Engine.Renderer.UseProgram(_program.BindingId);
+            Engine.Renderer.UseProgram(_program);
 
-            Engine.Renderer.SetCommonUniforms();
+            Engine.SetCommonUniforms();
             //SetBoneMatrixUniforms();
             //This is a mesh-specific uniform
             Engine.Renderer.Uniform(Uniform.GetLocation(ECommonUniform.ModelMatrix), transform);
@@ -142,12 +149,15 @@ namespace CustomEngine.Rendering.Models
             _triangles.Render();
             GL.BindVertexArray(0);
 
-            Engine.Renderer.UseProgram(NullBindingId);
+            Engine.Renderer.UseProgram(null);
         }
         protected override void OnGenerated()
         {
             _initialized = true;
-            
+
+            _program = new MeshProgram(_material);
+            _program.Generate();
+
             GL.BindVertexArray(BindingId);
             _bindingIds = _data.GenerateBuffers();
             _indexBuffer.Generate();
@@ -159,6 +169,7 @@ namespace CustomEngine.Rendering.Models
             _triangles = null;
             _data.Dispose();
             _indexBuffer.Dispose();
+            _program.Destroy();
         }
     }
     public class Primitive
@@ -192,16 +203,17 @@ namespace CustomEngine.Rendering.Models
     public class MeshProgram : BaseRenderState
     {
         public Shader[] _shaders;
+        public MaterialInstance _material;
 
-        public MeshProgram() : base(GenType.Program) { }
+        public MeshProgram(Material material) : base(GenType.Program)
+        {
+            _material = new MaterialInstance(material);
+        }
 
-        public void SetShaders(params Shader[] shaders) { _shaders = shaders; }
-        public void Compile() { Generate(); }
         protected override int CreateObject()
         {
             int[] ids = _shaders.Select(x => x.Compile()).ToArray();
-            int id = Engine.Renderer.GenerateProgram(ids);
-            return id;
+            return Engine.Renderer.GenerateProgram(ids);
         }
         protected override void OnGenerated()
         {
@@ -211,9 +223,16 @@ namespace CustomEngine.Rendering.Models
         {
 
         }
-        public void SetUniforms()
+        public void SetMaterial(Material material)
         {
-
+            //TODO: incorporate skinning and morphing into material's vertex shader first
+            SetShaders(
+                material._vertexShader, 
+                material._fragmentShader, 
+                material._geometryShader,
+                material._tessellationControlShader,
+                material._tessellationEvaluationShader);
         }
+        public void SetShaders(params Shader[] shaders) { _shaders = shaders.Where(x => x != null).ToArray(); }
     }
 }

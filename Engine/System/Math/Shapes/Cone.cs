@@ -6,31 +6,21 @@ using BulletSharp;
 
 namespace System
 {
-    public class Capsule : Shape
+    public class Cone : Shape
     {
-        public float _radius, _halfHeight;
-        public Vec3 _center;
+        public float _radius, _height;
         
         public float Radius { get { return _radius; } set { _radius = value; } }
-        public float HalfHeight { get { return _halfHeight; } set { _halfHeight = value; } }
-        public Vec3 Position { get { return _center; } set { _center = value; } }
+        public float Height { get { return _height; } set { _height = value; } }
 
-        public Capsule(float radius, float halfHeight)
+        public Cone(float radius, float height)
         {
             _radius = Abs(radius);
-            _halfHeight = Abs(halfHeight);
-        }
-        public float GetTotalHalfHeight()
-        {
-            return _halfHeight + _radius;
-        }
-        public float GetTotalHeight()
-        {
-            return GetTotalHalfHeight() * 2.0f;
+            _height = Abs(height);
         }
         public override CollisionShape GetCollisionShape()
         {
-            return new CapsuleShape(Radius, HalfHeight * 2.0f);
+            return new ConeShape(Radius, Height);
         }
         public override void Render() { Render(false); }
         public override void Render(bool solid)
@@ -43,8 +33,6 @@ namespace System
         public override PrimitiveData GetPrimitiveData()
         {
             List<VertexQuad> quads = new List<VertexQuad>();
-
-
 
             //int precision = 8;
 
@@ -131,28 +119,7 @@ namespace System
 
             return PrimitiveData.FromQuadList(Culling.Back, new PrimitiveBufferInfo(), quads);
         }
-        public override bool Contains(Vec3 point)
-        {
-            float totalHalfHeight = GetTotalHalfHeight();
-            if (point.Z < totalHalfHeight && point.Z > -totalHalfHeight)
-            {
-                //Adjust Z to origin
-                if (point.Z > _halfHeight)
-                    point.Z -= _halfHeight;
-                else if (point.Z < -_halfHeight)
-                    point.Z += _halfHeight;
-                return Abs(point.LengthSquared) < _radius * _radius;
-            }
-            return false;
-        }
-        public Sphere GetTopSphere()
-        {
-            return new Sphere(Radius, Vec3.Up * HalfHeight);
-        }
-        public Sphere GetBottomSphere()
-        {
-            return new Sphere(Radius, -Vec3.Up * HalfHeight);
-        }
+        
         public override EContainment Contains(Box box)
         {
             throw new NotImplementedException();
@@ -169,6 +136,11 @@ namespace System
         }
 
         public override EContainment Contains(Cone cone)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override bool Contains(Vec3 point)
         {
             throw new NotImplementedException();
         }

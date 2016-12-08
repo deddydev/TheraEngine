@@ -1,4 +1,5 @@
-﻿using CustomEngine.Rendering.Textures;
+﻿using CustomEngine.Rendering.Models;
+using CustomEngine.Rendering.Textures;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,6 +14,7 @@ namespace CustomEngine.Rendering
         GBufferTextureType _types;
         Texture[] _textures;
         Texture _depthTexture;
+        PrimitiveManager _fullScreenQuad;
 
         public GBuffer(GBufferTextureType types)
         {
@@ -49,6 +51,10 @@ namespace CustomEngine.Rendering
 
         }
         public void BindForReading()
+        {
+
+        }
+        public void Resize(float width, float height)
         {
 
         }

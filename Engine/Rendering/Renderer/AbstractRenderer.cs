@@ -87,10 +87,10 @@ namespace CustomEngine.Rendering
         /// <param name="shaderHandles">The handles of the shaders for this program to use.</param>
         /// <returns></returns>
         public abstract int GenerateProgram(int[] shaderHandles);
-        public virtual void UseProgram(int matId)
+        public virtual void UseProgram(MeshProgram program)
         {
-            _programHandle = matId;
-            _activeMaterials[matId].SetUniforms();
+            _programHandle = program.BindingId;
+            program._material.SetUniforms();
             Scene.CurrentCamera.SetUniforms();
             Uniform(Models.Materials.Uniform.GetLocation(ECommonUniform.RenderDelta), Engine.RenderDelta);
         }

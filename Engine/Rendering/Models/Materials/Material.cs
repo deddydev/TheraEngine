@@ -1,4 +1,6 @@
-﻿using OpenTK.Graphics.OpenGL;
+﻿using CustomEngine.Files;
+using CustomEngine.Rendering.Models.Materials;
+using OpenTK.Graphics.OpenGL;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -8,19 +10,18 @@ using System.Threading.Tasks;
 
 namespace CustomEngine.Rendering.Models.Materials
 {
-    public class Material
+    public class Material : FileObject
     {
-        private Shader
+        internal Shader
             _vertexShader,
-            _fragmentShader,
+            _fragmentShader, 
             _geometryShader,
             _tessellationControlShader, 
             _tessellationEvaluationShader;
-
+        
         private List<RenderableObject> _renderingReferences = new List<RenderableObject>();
         private MaterialSettings _settings;
         private int _bindingId = -1;
-        private string _name;
         
         public int BindingId
         {
@@ -51,6 +52,27 @@ namespace CustomEngine.Rendering.Models.Materials
         {
             _name = name;
             _settings = settings;
+            foreach (Shader s in shaders)
+            {
+                switch (s.ShaderType)
+                {
+                    case ShaderMode.Vertex:
+                        _vertexShader = s;
+                        break;
+                    case ShaderMode.Fragment:
+                        _fragmentShader = s;
+                        break;
+                    case ShaderMode.Geometry:
+                        _geometryShader = s;
+                        break;
+                    case ShaderMode.TessControl:
+                        _tessellationControlShader = s;
+                        break;
+                    case ShaderMode.TessEvaluation:
+                        _tessellationEvaluationShader = s;
+                        break;
+                }
+            }
         }
     }
 }

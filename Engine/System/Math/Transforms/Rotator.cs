@@ -12,7 +12,7 @@ namespace System
     public unsafe struct Rotator : IEquatable<Rotator>, IUniformable3Float, IBufferable
     {
         public Rotator(Order order) : this(0.0f, 0.0f, 0.0f, order) { }
-        public Rotator(float yaw, float pitch, float roll, Order rotationOrder)
+        public Rotator(float pitch, float yaw, float roll, Order rotationOrder)
         { Yaw = yaw; Pitch = pitch; Roll = roll; RotationOrder = rotationOrder; }
 
         public float Yaw, Pitch, Roll;
@@ -65,7 +65,7 @@ namespace System
         public Quaternion GetRollQuat() { return Quaternion.FromAxisAngle(Vec3.Forward, Roll); }
         public Rotator WithNegatedRotations()
         {
-            return new Rotator(-Yaw, -Pitch, -Roll, RotationOrder);
+            return new Rotator(-Pitch, -Yaw, -Roll, RotationOrder);
         }
         public void NegateRotations()
         {
@@ -96,7 +96,7 @@ namespace System
         }
         public Rotator Inverted()
         {
-            return new Rotator(-Yaw, -Pitch, -Roll, OppositeOf(RotationOrder));
+            return new Rotator(-Pitch, -Yaw, -Roll, OppositeOf(RotationOrder));
         }
         public static Order OppositeOf(Order order)
         {
@@ -178,12 +178,12 @@ namespace System
         public static bool operator !=(Rotator left, Rotator right) { return !left.Equals(right); }
         
         public static implicit operator Vec3(Rotator v) { return new Vec3(v.Yaw, v.Pitch, v.Roll); }
-        public static implicit operator Rotator(Vec3 v) { return new Rotator(v.X, v.Y, v.Z, Order.YPR); }
+        public static implicit operator Rotator(Vec3 v) { return new Rotator(v.X, v.Y, v.Z, Order.PYR); }
 
         private static string listSeparator = Globalization.CultureInfo.CurrentCulture.TextInfo.ListSeparator;
         public static Rotator GetZero(Order order = Order.YPR)
         {
-           return  new Rotator(0.0f, 0.0f, 0.0f, order);
+           return new Rotator(0.0f, 0.0f, 0.0f, order);
         }
 
         public override string ToString()

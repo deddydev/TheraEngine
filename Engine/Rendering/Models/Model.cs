@@ -27,8 +27,8 @@ namespace CustomEngine.Rendering.Models
                 if (value == _skeleton)
                     return;
                 _skeleton = value;
-                foreach (Mesh m in _children)
-                    m._manager.SkeletonChanged(_skeleton);
+                //foreach (Mesh m in _children)
+                //    m._manager.SkeletonChanged(_skeleton);
             }
         }
         public bool SimulatePhysics
@@ -49,12 +49,6 @@ namespace CustomEngine.Rendering.Models
         protected override void ChildRemoved(Mesh item)
         {
             item.Model = null;
-        }
-        public override Matrix4 GetWorldMatrix() { return LinkedComponent != null ? LinkedComponent.WorldMatrix : Matrix4.Identity; }
-        public override Matrix4 GetInverseWorldMatrix() { return LinkedComponent != null ? LinkedComponent.InverseWorldMatrix : Matrix4.Identity; }
-        public override List<PrimitiveData> GetPrimitives()
-        {
-            return _meshes.Select(x => x.GetPrimitiveData()).ToList();
         }
     }
 }

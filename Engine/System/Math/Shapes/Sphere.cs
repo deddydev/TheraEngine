@@ -7,7 +7,7 @@ namespace System
 {
     public class Sphere : Shape
     {
-        private Vec3 _center;
+        private Vec3 _center = Vec3.Zero;
         private float _radius;
 
         public float Radius
@@ -38,15 +38,16 @@ namespace System
             //else
             //    Engine.Renderer.DrawSphereWireframe(this);
         }
+        public override bool Contains(Vec3 point) { return Collision.SphereContainsPoint(this, point); }
         public override EContainment Contains(Box box) { return Collision.SphereContainsBox(this, box); }
         public override EContainment Contains(Sphere sphere) { return Collision.SphereContainsSphere(this, sphere); }
         public override EContainment Contains(Capsule capsule)
         {
             throw new NotImplementedException();
         }
-        public override bool Contains(Vec3 point)
+        public override EContainment Contains(Cone cone)
         {
-            return Collision.SphereContainsPoint(this, point);
+            throw new NotImplementedException();
         }
         public override PrimitiveData GetPrimitiveData()
         {

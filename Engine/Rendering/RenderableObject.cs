@@ -32,6 +32,7 @@ namespace CustomEngine.Rendering
         }
         protected virtual void ChildAdded(T item) { }
         protected virtual void ChildRemoved(T item) { }
+        public MonitoredList<T> Children { get { return _children; } }
         public GenericPrimitiveComponent LinkedComponent
         {
             get { return _linkedComponent; }
@@ -47,9 +48,18 @@ namespace CustomEngine.Rendering
                     _linkedComponent.Primitive = this;
             }
         }
-        public abstract List<PrimitiveData> GetPrimitives();
-        public abstract Matrix4 GetWorldMatrix();
-        public abstract Matrix4 GetInverseWorldMatrix();
+        public virtual List<PrimitiveData> GetPrimitives()
+        {
+            return _children.Select(x => x.GetPrimitiveData()).ToList();
+        }
+        public virtual Matrix4 GetWorldMatrix()
+        {
+            return LinkedComponent == null ? Matrix4.Identity : LinkedComponent.WorldMatrix;
+        }
+        public virtual Matrix4 GetInverseWorldMatrix()
+        {
+            return LinkedComponent == null ? Matrix4.Identity : LinkedComponent.InverseWorldMatrix;
+        }
         public virtual void OnSpawned()
         {
             _children.ForEach(x => x.OnSpawned());
@@ -74,8 +84,9 @@ namespace CustomEngine.Rendering
         public Material Material
         {
             get { return _material; }
-            set { _material = value; }
+            set { _material = value; OnMaterialChanged(); }
         }
+        protected virtual void OnMaterialChanged() { }
         public abstract void Render();
         public abstract Shape GetCullingVolume();
         public abstract PrimitiveData GetPrimitiveData();

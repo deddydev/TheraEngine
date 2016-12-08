@@ -65,6 +65,10 @@ namespace CustomEngine.Rendering.Models
             }
         }
 
+        protected override void OnMaterialChanged()
+        {
+            _manager.SetMaterial(_material);
+        }
         public override Matrix4 GetWorldMatrix() { return _model != null ? _model.GetWorldMatrix() : Matrix4.Identity; }
         public override Matrix4 GetInverseWorldMatrix() { return _model != null ? _model.GetInverseWorldMatrix() : Matrix4.Identity; }
         public override Shape GetCullingVolume() { return _cullingVolume; }

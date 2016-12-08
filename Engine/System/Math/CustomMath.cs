@@ -1,4 +1,5 @@
-﻿namespace System
+﻿using static System.Math;
+namespace System
 {
     public unsafe static class CustomMath
     {
@@ -11,6 +12,55 @@
         public static float RadToDeg(float radians)
         {
             return radians * 180.0f / PIf;
+        }
+        public static Vec2[] GetBezierPoints(Vec2 p0, Vec2 p1, Vec2 p2, Vec2 p3, int pointCount, out float length)
+        {
+            Vec2[] points = new Vec2[pointCount];
+
+            // var q is the change in t between successive evaluations.
+            float q = 1.0f / (pointCount - 1); // q is dependent on the number of GAPS = POINTS-1
+
+            // coefficients of the cubic polynomial that we're FDing -
+            Vec2 a = p0;
+            Vec2 b = 3 * (p1 - p0);
+            Vec2 c = 3 * (p2 - 2 * p1 + p0);
+            Vec2 d = p3 - 3 * p2 + 3 * p1 - p0;
+
+            // initial values of the poly and the 3 diffs -
+            Vec2 s = a;                                     // the poly value
+            Vec2 u = b * q + c * q * q + d * q * q * q;     // 1st order diff (quadratic)
+            Vec2 v = 2 * c * q * q + 6 * d * q * q * q;     // 2nd order diff (linear)
+            Vec2 w = 6 * d * q * q * q;                     // 3rd order diff (constant)
+            
+            length = 0.0f;
+
+            Vec2 OldPos = p0;
+            points[0] = p0;
+
+            for (int i = 1; i < pointCount; ++i)
+            {
+                s += u;
+                u += v;
+                v += w;
+                
+                length += s.DistanceTo(OldPos);
+                OldPos = s;
+
+                points[i] = s;
+            }
+            return points;
+        }
+        public static Vec2[] GetBezierPoints(Vec2 p0, Vec2 p1, Vec2 p2, Vec2 p3, int pointCount)
+        {
+            if (pointCount < 2)
+                throw new InvalidOperationException();
+
+            Vec2[] points = new Vec2[pointCount];
+            float timeDelta = 1.0f / (pointCount - 1);
+            for (int i = 0; i < pointCount; ++i)
+                points[i] = Bezier(p0, p1, p2, p3, timeDelta);
+
+            return points;
         }
         public static Vec2 Bezier(Vec2 p0, Vec2 p1, Vec2 p2, Vec2 p3, float time)
         {
@@ -104,6 +154,24 @@
         public static float InterpLinearTo(float from, float to, float time, float speed = 1.0f)
         {
             return from + (to - from) * time * speed;
+        }
+        public static Vec3 VInterpNormalRotationTo(Vec3 Current, Vec3 Target, float DeltaTime, float RotationSpeedDegrees)
+        {
+            Quaternion DeltaQuat = Quaternion.BetweenVectors(Current, Target);
+            
+            Vec3 DeltaAxis;
+            float DeltaAngle;
+            DeltaQuat.ToAxisAngle(out DeltaAxis, out DeltaAngle);
+            
+	        float RotationStepRadians = RotationSpeedDegrees * (PIf / 180.0f) * DeltaTime;
+
+	        if (Abs(DeltaAngle) > RotationStepRadians)
+	        {
+		        DeltaAngle = DeltaAngle.Clamp(-RotationStepRadians, RotationStepRadians);
+		        DeltaQuat = new Quaternion(DeltaAxis, DeltaAngle);
+		        return DeltaQuat * Current;
+	        }
+	        return Target;
         }
         public static Vec3 RotateAboutPoint(Vec3 point, Vec3 center, Rotator angles)
         {

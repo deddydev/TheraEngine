@@ -29,8 +29,14 @@ namespace CustomEngine.Rendering
             }
         }
         public abstract List<PrimitiveData> GetPrimitives();
-        public abstract Matrix4 GetWorldMatrix();
-        public abstract Matrix4 GetInverseWorldMatrix();
+        public virtual Matrix4 GetWorldMatrix()
+        {
+            return LinkedComponent == null ? Matrix4.Identity : LinkedComponent.WorldMatrix;
+        }
+        public virtual Matrix4 GetInverseWorldMatrix()
+        {
+            return LinkedComponent == null ? Matrix4.Identity : LinkedComponent.InverseWorldMatrix;
+        }
     }
     public abstract class RenderableObject : RenderableObjectContainer
     {
@@ -44,8 +50,9 @@ namespace CustomEngine.Rendering
         public Material Material
         {
             get { return _material; }
-            set { _material = value; }
+            set { _material = value; OnMaterialChanged(); }
         }
+        protected virtual void OnMaterialChanged() { }
         public abstract void Render();
         public abstract Shape GetCullingVolume();
         public abstract PrimitiveData GetPrimitiveData();

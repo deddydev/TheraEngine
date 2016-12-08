@@ -53,6 +53,19 @@ namespace System
             }
         }
 
+        public float DistanceToFast(Vec2 otherPoint)
+        {
+            return (otherPoint - this).LengthFast;
+        }
+        public float DistanceTo(Vec2 otherPoint)
+        {
+            return (otherPoint - this).Length;
+        }
+        public float DistanceToSquared(Vec2 otherPoint)
+        {
+            return (otherPoint - this).LengthSquared;
+        }
+
         public float Length { get { return (float)Sqrt(LengthSquared); } }
         public float LengthFast { get { return 1.0f / InverseSqrtFast(LengthSquared); } }
         public float LengthSquared { get { return X * X + Y * Y; } }

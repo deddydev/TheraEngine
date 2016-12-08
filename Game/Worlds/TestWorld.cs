@@ -24,10 +24,9 @@ namespace Game.Worlds
 
             Mesh mesh = new Box(10.0f);
 
-            Shader vert = Shader.VertexShader(new PrimitiveBufferInfo() { _boneCount = 0 });
+            Shader vert = Shader.TestVertexShader();
             Shader frag = Shader.TestFragmentShader();
-            mesh.Material = new MeshProgram("Mat_Green", new MaterialSettings(), vert, frag);
-            mesh.Material.Compile();
+            mesh.Material = new Material("Mat_Green", new MaterialSettings(), vert, frag);
             boxModel.Meshes.Add(mesh);
 
             BoxShape boxCollisionShape = new BoxShape(5.0f);

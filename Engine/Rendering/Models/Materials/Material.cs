@@ -1,4 +1,5 @@
-﻿using OpenTK.Graphics.OpenGL;
+﻿using CustomEngine.Files;
+using OpenTK.Graphics.OpenGL;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -8,9 +9,15 @@ using System.Threading.Tasks;
 
 namespace CustomEngine.Rendering.Models.Materials
 {
-    public class Material
+    public class Material : FileObject
     {
-        private Shader _fragmentShader, _tessellationControlShader, _tessellationEvaluationShader;
+        private Shader
+            _vertexShader,
+            _fragmentShader, 
+            _geometryShader,
+            _tessellationControlShader, 
+            _tessellationEvaluationShader;
+
         private List<RenderableObject> _renderingReferences = new List<RenderableObject>();
         private MaterialSettings _settings;
 
@@ -29,11 +36,31 @@ namespace CustomEngine.Rendering.Models.Materials
             _name = name;
             _settings = settings;
         }
-        public Material(string name, MaterialSettings settings, params Shader[] shaders) : base(GenType.Program)
+        public Material(string name, MaterialSettings settings, params Shader[] shaders)
         {
             _name = name;
             _settings = settings;
-            SetShaders(shaders);
+            foreach (Shader s in shaders)
+            {
+                switch (s.ShaderType)
+                {
+                    case ShaderMode.Vertex:
+                        _vertexShader = s;
+                        break;
+                    case ShaderMode.Fragment:
+                        _fragmentShader = s;
+                        break;
+                    case ShaderMode.Geometry:
+                        _geometryShader = s;
+                        break;
+                    case ShaderMode.TessControl:
+                        _tessellationControlShader = s;
+                        break;
+                    case ShaderMode.TessEvaluation:
+                        _tessellationEvaluationShader = s;
+                        break;
+                }
+            }
         }
     }
 }

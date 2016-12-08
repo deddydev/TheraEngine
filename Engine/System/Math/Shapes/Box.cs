@@ -194,6 +194,10 @@ namespace System
         {
             throw new NotImplementedException();
         }
+        public override EContainment Contains(Cone cone)
+        {
+            throw new NotImplementedException();
+        }
         public static Box FromSphere(Sphere sphere)
         {
             return new Box(
@@ -225,14 +229,6 @@ namespace System
 
             var strongValue = (Box)value;
             return Equals(ref strongValue);
-        }
-        public override Matrix4 GetWorldMatrix()
-        {
-            return LinkedComponent == null ? Matrix4.Identity : LinkedComponent.WorldMatrix;
-        }
-        public override Matrix4 GetInverseWorldMatrix()
-        {
-            return LinkedComponent == null ? Matrix4.Identity : LinkedComponent.InverseWorldMatrix;
         }
     }
 }

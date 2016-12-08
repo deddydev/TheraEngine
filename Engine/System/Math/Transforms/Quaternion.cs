@@ -70,7 +70,7 @@ namespace System
 
             Vec4 result = new Vec4();
 
-            result.W = RadToDeg(2.0f * (float)Acos(q.W)); // angle
+            result.W = 2.0f * (float)Acos(q.W); // angle
             float den = (float)Sqrt(1.0 - q.W * q.W);
             if (den > 0.0001f)
                 result.Xyz = q.Xyz / den;
@@ -83,7 +83,7 @@ namespace System
         /// <summary>
         /// Returns a euler rotation in the order of pitch, yaw, roll.
         /// </summary>
-        public Vec3 ToEuler()
+        public Rotator ToEuler()
         {
             float sqx = X * X;
             float sqy = Y * Y;
@@ -112,7 +112,7 @@ namespace System
                 pitch = (float)Asin(2.0f * test / unit);
                 roll = (float)Atan2(2.0f * X * W - 2.0f * Y * Z, -sqx + sqy - sqz + sqw);
             }
-            return new Vec3(RadToDeg(pitch), RadToDeg(yaw), RadToDeg(roll));
+            return new Rotator(RadToDeg(pitch), RadToDeg(yaw), RadToDeg(roll), Rotator.Order.PYR);
         }
         public Quaternion Normalized()
         {
@@ -146,6 +146,31 @@ namespace System
         public static Quaternion Conjugate(Quaternion q)
         {
             return new Quaternion(-q.Xyz, q.W);
+        }
+        public static Quaternion BetweenVectors(Vec3 A, Vec3 B)
+        {
+            float NormAB = 1.0f / InverseSqrtFast(A.LengthSquared * B.LengthSquared);
+            float W = NormAB + A.Dot(B);
+            Quaternion result;
+
+            if (W >= 1e-6f * NormAB)
+            {
+                result = new Quaternion(
+                    -A.X * B.Y - A.Y * -B.X,
+                    A.Y * B.Z - A.Z * B.Y,
+                    A.Z * -B.X - -A.X * B.Z,
+                    W);
+            }
+            else
+            {
+                W = 0.0f;
+                result = Abs(A.Z) > Abs(A.X)
+                        ? new Quaternion(-A.Y, 0.0f, A.Z, W)
+                        : new Quaternion(0.0f, -A.Y, -A.X, W);
+            }
+
+            result.Normalize();
+            return result;
         }
         public static Quaternion LookAt(Vec3 sourcePoint, Vec3 destPoint)
         {

@@ -559,7 +559,7 @@
     <Compile Include="System\Math\Collision\Tracing.cs" />
     <Compile Include="System\Math\Enums.cs" />
     <Compile Include="System\Math\GLTypes.cs" />
-    <Compile Include="System\Math\Shapes\CustomMesh.cs" />
+    <Compile Include="System\Math\Shapes\Cone.cs" />
     <Compile Include="System\Math\Shapes\Frustum.cs" />
     <Compile Include="System\Math\Shapes\Plane.cs" />
     <Compile Include="System\Math\Shapes\Ray.cs" />

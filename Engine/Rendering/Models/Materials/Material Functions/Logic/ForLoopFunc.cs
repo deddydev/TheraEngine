@@ -8,17 +8,20 @@ namespace CustomEngine.Rendering.Models.Materials
 {
     public class ForLoopFunc : MaterialFunction
     {
+        public ForLoopFunc() : base()
+        {
+            _inline = true;
+        }
         protected override string GetOperation()
         {
-            throw new NotImplementedException();
+            return "for (int i = {0}; i < ";
         }
         protected override List<GLInput> GetInputs()
         {
             return new List<GLInput>()
             {
                 new GLInput("Start Index", GLTypeName._int),
-                //TODO: condition needs to be built into the loop
-                new GLInput("Condition", GLTypeName._bool),
+                new GLInput("Loop Count", GLTypeName._bool),
                 //TODO: material function argument for each loop?
             };
         }

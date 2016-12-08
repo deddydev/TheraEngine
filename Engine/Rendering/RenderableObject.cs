@@ -34,7 +34,7 @@ namespace CustomEngine.Rendering
     }
     public abstract class RenderableObject : RenderableObjectContainer
     {
-        protected SingleFileRef<Material> _material;
+        protected Material _material;
         protected bool _isRendering = true;
         public bool IsRendering
         {
@@ -44,7 +44,7 @@ namespace CustomEngine.Rendering
         public Material Material
         {
             get { return _material; }
-            set { _material.SetFile(value, false); }
+            set { _material = value; }
         }
         public abstract void Render();
         public abstract Shape GetCullingVolume();

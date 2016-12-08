@@ -72,12 +72,12 @@ namespace CustomEngine.Rendering.Models
         public override void OnSpawned()
         {
             //TODO: add material to list, get material id, add to cache with id, sort renderables by material id
-            _material.GetInstance();
+            //_material.GetInstance();
             //Visible = _visibleByDefault;
         }
         public override void OnDespawned()
         {
-            _material.UnloadReference();
+            //_material.UnloadReference();
             //Visible = false;
         }
         public override void Render()
@@ -85,10 +85,10 @@ namespace CustomEngine.Rendering.Models
             //if (!Visible || !IsRendering)
             //    return;
 
-            if (_material.File == null)
-                return;
+            //if (_material.File == null)
+            //    return;
 
-            _manager.Render(_material, GetWorldMatrix());
+            _manager.Render(GetWorldMatrix());
         }
         public static implicit operator Mesh(Shape shape) { return new Mesh(shape); }
         public override PrimitiveData GetPrimitiveData() { return _manager.Data; }

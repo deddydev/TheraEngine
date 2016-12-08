@@ -11,17 +11,18 @@ namespace CustomEngine.Rendering.Models.Materials
     /// </summary>
     public class ResultBasicFunc : MaterialFunction
     {
-        private GLInput<GLVec4> OutputColor { get { return InputArguments[0] as GLInput<GLVec4>; } }
-        protected override List<BaseGLArgument> GetInputs()
+        private GLInput OutputColor { get { return InputArguments[0]; } }
+        protected override List<GLInput> GetInputs()
         {
-            return new List<BaseGLArgument>()
+            return new List<GLInput>()
             {
-                new GLInput<GLVec4>("FinalColor"),
+                new GLInput("FinalColor", GLTypeName._vec4),
             };
         }
         public static MaterialFuncInfo GetInfo()
         {
             return new MaterialFuncInfo(
+                "Output",
                 "Output",
                 "Outputs the given vec4 color as the color for this fragment.", 
                 "result output final return");

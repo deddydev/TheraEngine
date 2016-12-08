@@ -68,11 +68,11 @@ namespace CustomEngine.Rendering.Models.Materials
             return types[maxVal];
         }
         
-        protected List<BaseGLInput> _inputs = new List<BaseGLInput>();
-        protected List<BaseGLOutput> _outputs = new List<BaseGLOutput>();
+        protected List<GLInput> _inputs = new List<GLInput>();
+        protected List<GLOutput> _outputs = new List<GLOutput>();
         
-        public List<BaseGLInput> InputArguments { get { return _inputs; } }
-        public List<BaseGLOutput> OutputArguments { get { return _outputs; } }
+        public List<GLInput> InputArguments { get { return _inputs; } }
+        public List<GLOutput> OutputArguments { get { return _outputs; } }
 
         public ReadOnlyCollection<string> Keywords
         {
@@ -142,31 +142,31 @@ namespace CustomEngine.Rendering.Models.Materials
             AddOutput(GetOutputs());
         }
 
-        protected virtual List<BaseGLInput> GetInputs() { return new List<BaseGLInput>(); }
-        protected virtual List<BaseGLOutput> GetOutputs() { return new List<BaseGLOutput>(); }
+        protected virtual List<GLInput> GetInputs() { return new List<GLInput>(); }
+        protected virtual List<GLOutput> GetOutputs() { return new List<GLOutput>(); }
 
         /// <summary>
         /// Returns the base operation for string.Format.
         /// </summary>
         protected abstract string GetOperation();
 
-        protected void AddInput(List<BaseGLInput> input)
+        protected void AddInput(List<GLInput> input)
         {
             if (input != null)
-                foreach (BaseGLInput v in input)
+                foreach (GLInput v in input)
                     AddInput(v);
         }
-        protected void AddInput(BaseGLInput input)
+        protected void AddInput(GLInput input)
         {
             _inputs.Add(input);
         }
-        protected void AddOutput(List<BaseGLOutput> output)
+        protected void AddOutput(List<GLOutput> output)
         {
             if (output != null)
-                foreach (BaseGLOutput v in output)
+                foreach (GLOutput v in output)
                     AddOutput(v);
         }
-        protected void AddOutput(BaseGLOutput output)
+        protected void AddOutput(GLOutput output)
         {
             _outputs.Add(output);
         }
@@ -188,7 +188,7 @@ namespace CustomEngine.Rendering.Models.Materials
                 for (int i = 0; i < _outputs.Count; ++i)
                 {
                     string name = outputNames[i];
-                    GLTypeName type = _outputs[i].GetArgType();
+                    GLTypeName type = _outputs[i].CurrentArgumentType;
                     s += type + " " + name + ";\n";
                 }
 
@@ -205,21 +205,21 @@ namespace CustomEngine.Rendering.Models.Materials
         {
             string s = "void " + FunctionName + "(";
             bool first = true;
-            foreach (BaseGLInput arg in InputArguments)
+            foreach (GLInput arg in InputArguments)
             {
                 if (first)
                     first = false;
                 else
                     s += ", ";
-                s += "in " + arg.GetArgType().ToString().Substring(1) + " " + arg.Name;
+                s += "in " + arg.CurrentArgumentType.ToString().Substring(1) + " " + arg.Name;
             }
-            foreach (BaseGLOutput arg in OutputArguments)
+            foreach (GLOutput arg in OutputArguments)
             {
                 if (first)
                     first = false;
                 else
                     s += ", ";
-                s += "out " + arg.GetArgType().ToString().Substring(1) + " " + arg.Name;
+                s += "out " + arg.CurrentArgumentType.ToString().Substring(1) + " " + arg.Name;
             }
             s += ")\n{\n" + GetOperation() + "\n}\n";
             return s;

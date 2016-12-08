@@ -24,15 +24,15 @@ namespace CustomEngine.Worlds.Actors.Components
         public override void RecalcLocalTransform()
         {
             _localTransform =
-                ParentInvMatrix.GetRotationMatrix() * //Undo all rotations up until this point
+                ParentInvMatrix.GetRotationMatrix4() * //Undo all rotations up until this point
                 Matrix4.CreateTranslation(_endPoint - ParentMatrix.GetPoint()) * //translate in world space
-                ParentMatrix.GetRotationMatrix() * //Redo parent rotations at the new position
+                ParentMatrix.GetRotationMatrix4() * //Redo parent rotations at the new position
                 GetRotationMatrix(); //Apply the view rotation
             _invLocalTransform =
                 GetInvRotationMatrix() *
-                ParentInvMatrix.GetRotationMatrix() *
+                ParentInvMatrix.GetRotationMatrix4() *
                 Matrix4.CreateTranslation(ParentMatrix.GetPoint() - _endPoint) *
-                ParentMatrix.GetRotationMatrix();
+                ParentMatrix.GetRotationMatrix4();
             RecalcGlobalTransform();
         }
 

@@ -10,9 +10,6 @@ namespace CustomEngine.Rendering.Models.Materials
     {
         private List<MaterialProperty> _properties = new List<MaterialProperty>();
         private VertexAttribInfo[] _attrib;
-
-        public bool CullFront { get { return _cullFront; } set { _cullFront = true; } }
-        public bool CullBack { get { return _cullBack; } set { _cullBack = true; } }
         
         public MaterialSettings()
         {

@@ -26,14 +26,25 @@ namespace CustomEngine.Rendering.Models.Materials
         {
             return new MaterialFuncInfo(
                 "Constants",
-                "Provides a constant value to the shader.", 
-                "constant scalar parameter");
+                "Parameter Value",
+                "Provides an animatable value to the shader.", 
+                "constant scalar parameter value");
         }
         protected override string GetOperation()
         {
+            if (_value == null)
+                return "";
             return _value.ToString();
         }
-
-        public void SetUniform() { Value?.SetUniform(); }
+        public string GetUniformDeclaration(int layoutId = -1)
+        {
+            if (_value == null)
+                return "";
+            return _value.GetUniformDeclaration(layoutId);
+        }
+        public void SetUniform()
+        {
+            _value?.SetUniform();
+        }
     }
 }

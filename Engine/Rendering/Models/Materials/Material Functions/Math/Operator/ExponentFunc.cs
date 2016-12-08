@@ -8,17 +8,29 @@ namespace CustomEngine.Rendering.Models.Materials
 {
     public class ExponentFunc : TwoArgFunc
     {
-        public ExponentFunc(GLTypeName argTypes) : base(argTypes, argTypes, argTypes) { }
+        public ExponentFunc() : base(
+            new GLInput("A", GLTypeName._float), 
+            new GLInput("B", GLTypeName._float), 
+            new GLOutput("Result", GLTypeName._float))
+        {
+
+        }
         protected override string GetOperation()
         {
-            return "{2} = pow({0}, {1});";
+            return "pow({0}, {1})";
         }
         public static MaterialFuncInfo GetInfo()
         {
             return new MaterialFuncInfo(
                 "Math",
-                "Returns A + B.",
-                "added to +");
+                "Exponent",
+                "Returns A to the power of B.",
+                "exponent ^ power");
+        }
+
+        protected override string GetOperator()
+        {
+            throw new NotImplementedException();
         }
     }
 }

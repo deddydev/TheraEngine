@@ -11,7 +11,7 @@ namespace CustomEngine.Rendering.Models.Materials
     /// </summary>
     public class OneMinusFunc : MaterialFunction
     {
-        public GLMultiInput InputValue { get { return (GLMultiInput)InputArguments[0]; } }
+        public GLInput InputValue { get { return InputArguments[0]; } }
         
         public OneMinusFunc() : base()
         {
@@ -32,11 +32,11 @@ namespace CustomEngine.Rendering.Models.Materials
             }
             throw new InvalidOperationException();
         }
-        protected override List<BaseGLArgument> GetInputs()
+        protected override List<GLInput> GetInputs()
         {
-            return new List<BaseGLArgument>()
+            return new List<GLInput>()
             {
-                new GLMultiInput("Value", GLTypeName._float, GLTypeName._vec2, GLTypeName._vec3, GLTypeName._vec4)
+                new GLInput("Value", GLTypeName._float, GLTypeName._vec2, GLTypeName._vec3, GLTypeName._vec4)
             };
         }
         public static MaterialFuncInfo GetInfo()

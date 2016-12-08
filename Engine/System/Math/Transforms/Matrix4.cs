@@ -106,12 +106,20 @@ namespace System
         {
             return Vec3.TransformPosition(Vec3.Zero, this);
         }
-        public Matrix4 GetRotationMatrix()
+        public Matrix4 GetRotationMatrix4()
         {
             Matrix4 m = Identity;
             m.Row0.Xyz = Row0.Xyz;
             m.Row1.Xyz = Row1.Xyz;
             m.Row2.Xyz = Row2.Xyz;
+            return m;
+        }
+        public Matrix3 GetRotationMatrix3()
+        {
+            Matrix3 m = Matrix3.Identity;
+            m.Row0 = Row0.Xyz;
+            m.Row1 = Row1.Xyz;
+            m.Row2 = Row2.Xyz;
             return m;
         }
 
@@ -862,7 +870,7 @@ namespace System
             MultiplyOrder order = MultiplyOrder.SRT)
         {
             Matrix4 s = CreateScale(scale);
-            Matrix4 r = rotate.GetRotationMatrix();
+            Matrix4 r = rotate.GetRotationMatrix4();
             Matrix4 t = CreateTranslation(translate);
             switch (order)
             {

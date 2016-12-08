@@ -12,15 +12,27 @@ namespace CustomEngine.Rendering.Models.Materials
         {
             throw new NotImplementedException();
         }
-        public string Generate(bool weighted, string[] bufferNames)
+        public string Generate(PrimitiveBufferInfo info)
         {
             WriteVersion();
-            foreach (GLVar u in Uniform.CommonUniforms)
+            WriteBuffers(info);
+            if (info._boneCount > 0)
+            {
+
+            }
+            else
             {
 
             }
             Begin();
             return Finish();
+        }
+        private void WriteBuffers(PrimitiveBufferInfo info)
+        {
+            if (info._positionCount > 0)
+            {
+
+            }
         }
     }
 }

@@ -8,7 +8,7 @@ namespace CustomEngine.Rendering.Models.Materials
 {
     public abstract class ShaderGenerator
     {
-        private const string GLSLVersion = "450";
+        private const string GLSLVersion = "410";
         private const string NewLine = "\n";
 
         private string _shaderCode;
@@ -102,18 +102,7 @@ namespace CustomEngine.Rendering.Models.Materials
             {
 
             }
-            foreach (Shader s in m._shaders)
-            {
-                switch (s.ShaderType)
-                {
-                    case ShaderMode.Fragment:
-                        new FragmentShaderGenerator().Generate(resultFunction);
-                        break;
-                    case ShaderMode.Vertex:
-                        new VertexShaderGenerator().Generate(resultFunction);
-                        break;
-                }
-            }
+            
             return m;
         }
     }

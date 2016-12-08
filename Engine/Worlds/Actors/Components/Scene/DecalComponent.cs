@@ -11,7 +11,7 @@ namespace CustomEngine.Worlds.Actors.Components
     public class DecalComponent : BoxComponent
     {
         private Texture _texture;
-        private Material _projectionMaterial;
+        private MeshProgram _projectionMaterial;
 
         public DecalComponent() : base() { }
 

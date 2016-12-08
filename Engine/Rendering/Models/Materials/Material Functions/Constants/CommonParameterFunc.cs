@@ -42,6 +42,7 @@ namespace CustomEngine.Rendering.Models.Materials
         {
             return new MaterialFuncInfo(
                 "Constants",
+                "Common Parameter",
                 "Provides a commom engine parameter value to the shader.", 
                 "constant scalar parameter");
         }

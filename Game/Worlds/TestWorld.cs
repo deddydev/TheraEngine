@@ -22,11 +22,11 @@ namespace Game.Worlds
             rootBone.Children.Add(childBone);
             Model boxModel = new Model(new Skeleton(rootBone));
 
-            Mesh mesh = new Box(2.5f);
+            Mesh mesh = new Box(10.0f);
 
-            Shader vert = Shader.VertexShader(new PrimitiveBufferInfo() { _boneCount = 2 });
+            Shader vert = Shader.VertexShader(new PrimitiveBufferInfo() { _boneCount = 0 });
             Shader frag = Shader.TestFragmentShader();
-            mesh.Material = new Material("Mat_Green", new MaterialSettings(), vert, frag);
+            mesh.Material = new MeshProgram("Mat_Green", new MaterialSettings(), vert, frag);
             mesh.Material.Compile();
             boxModel.Meshes.Add(mesh);
 

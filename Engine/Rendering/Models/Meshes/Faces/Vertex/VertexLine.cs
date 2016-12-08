@@ -13,6 +13,8 @@ namespace CustomEngine.Rendering.Models
 
         public override FaceType Type { get { return FaceType.Triangles; } }
 
+        private List<VertexTriangle> _triangles = new List<VertexTriangle>();
+
         /// <summary>
         ///    2
         ///   / \
@@ -25,14 +27,15 @@ namespace CustomEngine.Rendering.Models
             Vertex1.AddLine(this);
         }
 
-        internal void AddFace(VertexTriangle vertexTriangle)
+        internal void AddFace(VertexTriangle face)
         {
-            throw new NotImplementedException();
+            _triangles.Add(face);
         }
 
         internal void Unlink()
         {
-            throw new NotImplementedException();
+            Vertex0.RemoveLine(this);
+            Vertex1.RemoveLine(this);
         }
     }
 }

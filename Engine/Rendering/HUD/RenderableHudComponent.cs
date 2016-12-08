@@ -17,6 +17,6 @@ namespace CustomEngine.Rendering.HUD
             Culling.Back, new PrimitiveBufferInfo(), VertexQuad.MakeQuad(
             Vec3.Zero, Vec3.UnitX, new Vec3(1.0f, 1.0f, 0.0f), Vec3.UnitY, Vec3.UnitZ)));
 
-        public Material _material;
+        public MeshProgram _material;
     }
 }

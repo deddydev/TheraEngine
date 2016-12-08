@@ -8,24 +8,29 @@ namespace CustomEngine.Rendering.Models.Materials
 {
     public abstract class TwoArgFunc : MaterialFunction
     {
-        protected GLTypeName _aType, _bType, _outType;
-        public TwoArgFunc(GLTypeName aType, GLTypeName bType, GLTypeName outType)
+        protected GLInput _a, _b;
+        protected GLOutput _out;
+        public TwoArgFunc(GLInput a, GLInput b, GLOutput output)
         {
-            _aType = aType;
-            _bType = bType;
-            _outType = outType;
+            _a = a;
+            _b = b;
+            _out = output;
             _inline = true;
         }
 
-        /// <summary>
-        /// Provides an option to compare as such: {0} {compare} {1}
-        /// If you wish to override this default, override GetOperation instead.
-        /// </summary>
-        /// <returns></returns>
-        protected virtual string GetOperator() { return "UNSPECIFIED"; }
+        protected override List<GLInput> GetInputs()
+        {
+            return new List<GLInput>() { _a, _b };
+        }
+        protected override List<GLOutput> GetOutputs()
+        {
+            return new List<GLOutput>() { _out };
+        }
+
+        protected abstract string GetOperator();
         protected override string GetOperation()
         {
-            return "{0} " + GetOperator() + " {1};";
+            return "{0} " + GetOperator() + " {1}";
         }
     }
 }

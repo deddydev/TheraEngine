@@ -22,8 +22,9 @@ namespace CustomEngine.Rendering.Models.Materials
         {
             return new MaterialFuncInfo(
                 "Constants",
-                "Provides a constant value to the shader.", 
-                "constant scalar parameter");
+                "Constant Value",
+                "Hardcodes a constant value to the shader.", 
+                "constant scalar parameter value");
         }
         protected override string GetOperation()
         {

@@ -235,26 +235,26 @@ namespace CustomEngine.Rendering.Models
                 var data = remapper.ImplementationTable.Select(x => vertices[x]._normal).ToList();
                 AddBuffer(data, new VertexAttribInfo(BufferType.Normal, i));
             }
-            for (int i = 0; i < info._binormalCount; ++i)
-            {
-                var data = remapper.ImplementationTable.Select(x => vertices[x]._binormal).ToList();
-                AddBuffer(data, new VertexAttribInfo(BufferType.Binormal, i));
-            }
-            for (int i = 0; i < info._tangentCount; ++i)
-            {
-                var data = remapper.ImplementationTable.Select(x => vertices[x]._tangent).ToList();
-                AddBuffer(data, new VertexAttribInfo(BufferType.Tangent, i));
-            }
+            //for (int i = 0; i < info._binormalCount; ++i)
+            //{
+            //    var data = remapper.ImplementationTable.Select(x => vertices[x]._binormal).ToList();
+            //    AddBuffer(data, new VertexAttribInfo(BufferType.Binormal, i));
+            //}
+            //for (int i = 0; i < info._tangentCount; ++i)
+            //{
+            //    var data = remapper.ImplementationTable.Select(x => vertices[x]._tangent).ToList();
+            //    AddBuffer(data, new VertexAttribInfo(BufferType.Tangent, i));
+            //}
             for (int i = 0; i < info._texcoordCount; ++i)
             {
                 var data = remapper.ImplementationTable.Select(x => vertices[x]._texCoord).ToList();
                 AddBuffer(data, new VertexAttribInfo(BufferType.TexCoord, i));
             }
-            for (int i = 0; i < info._colorCount; ++i)
-            {
-                var data = remapper.ImplementationTable.Select(x => vertices[x]._color).ToList();
-                AddBuffer(data, new VertexAttribInfo(BufferType.Color, i));
-            }
+            //for (int i = 0; i < info._colorCount; ++i)
+            //{
+            //    var data = remapper.ImplementationTable.Select(x => vertices[x]._color).ToList();
+            //    AddBuffer(data, new VertexAttribInfo(BufferType.Color, i));
+            //}
         }
         private void _triangles_Removed(VertexTriangle item)
         {

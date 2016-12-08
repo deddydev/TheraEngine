@@ -17,7 +17,7 @@ namespace CustomEngine.Rendering.Models
 
         public Box GetCullingVolume()
         {
-            Vec3[] positions = _vertices.Select(x => x.BaseVertex._position).ToArray();
+            Vec3[] positions = _vertices.Select(x => x._position).ToArray();
             return new Box(CustomMath.ComponentMin(positions), CustomMath.ComponentMax(positions));
         }
 

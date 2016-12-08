@@ -8,8 +8,9 @@ namespace CustomEngine.Rendering.Models.Materials
 {
     public class Uniform
     {
-        public static readonly string BoneMatricesName = "BoneMatrices";
-        
+        public static readonly string PositionMatricesName = "PositionMatrices";
+        public static readonly string NormalMatricesName = "NormalMatrices";
+
         public static int GetLocation(VertexAttribInfo info)
         {
             return info.GetLocation();

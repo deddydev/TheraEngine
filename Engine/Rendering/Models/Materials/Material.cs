@@ -8,14 +8,10 @@ using System.Threading.Tasks;
 
 namespace CustomEngine.Rendering.Models.Materials
 {
-    public class Material : BaseRenderState
+    public class Material
     {
+        private Shader _fragmentShader, _tessellationControlShader, _tessellationEvaluationShader;
         private List<RenderableObject> _renderingReferences = new List<RenderableObject>();
-
-        internal void AddReference(RenderableObject user) { _renderingReferences.Add(user); }
-        internal void RemoveReference(RenderableObject user) { _renderingReferences.Add(user); }
-        
-        public Shader[] _shaders;
         private MaterialSettings _settings;
 
         [Category("Material")]
@@ -25,7 +21,10 @@ namespace CustomEngine.Rendering.Models.Materials
             set { _settings = value; }
         }
 
-        public Material(string name, MaterialSettings settings) : base(GenType.Program)
+        internal void AddReference(RenderableObject user) { _renderingReferences.Add(user); }
+        internal void RemoveReference(RenderableObject user) { _renderingReferences.Add(user); }
+
+        public Material(string name, MaterialSettings settings)
         {
             _name = name;
             _settings = settings;
@@ -35,28 +34,6 @@ namespace CustomEngine.Rendering.Models.Materials
             _name = name;
             _settings = settings;
             SetShaders(shaders);
-        }
-
-        public void SetShaders(params Shader[] shaders) { _shaders = shaders; }
-        public void Compile() { Generate(); }
-        protected override int CreateObject()
-        {
-            int[] ids = _shaders.Select(x => x.Compile()).ToArray();
-            int id = Engine.Renderer.GenerateMaterial(ids);
-            return id;
-        }
-        protected override void OnGenerated()
-        {
-            Engine.Renderer.AddActiveMaterial(this);
-        }
-        protected override void OnDeleted()
-        {
-            Engine.Renderer.RemoveActiveMaterial(this);
-        }
-
-        public void SetUniforms()
-        {
-
         }
     }
 }

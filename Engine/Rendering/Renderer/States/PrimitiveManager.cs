@@ -17,6 +17,8 @@ namespace CustomEngine.Rendering.Models
         public IntPtr[] _offsets;
         public int[] _strides;
 
+        MeshProgram _program;
+
         private PrimitiveData _data;
         private PrimitiveData _skinningData;
         private VertexBuffer _indexBuffer;
@@ -104,18 +106,25 @@ namespace CustomEngine.Rendering.Models
             }
 
             _vertexShader = Shader.VertexShader(_bufferInfo);
-
         }
         private void SetBoneMatrixUniforms()
         {
             if (_utilizedBones == null)
                 return;
             
-            List<Matrix4> boneMatrices = new List<Matrix4>() { Matrix4.Identity };
-            boneMatrices.AddRange(_utilizedBones.Select(b => b.VertexMatrix));
-            Engine.Renderer.Uniform(Uniform.BoneMatricesName, boneMatrices.ToArray());
+            List<Matrix4> positionMatrices = new List<Matrix4>() { Matrix4.Identity };
+            List<Matrix3> normalMatrices = new List<Matrix3>() { Matrix3.Identity };
+
+            foreach (Bone b in _utilizedBones)
+            {
+                positionMatrices.Add(b.VertexMatrix);
+                normalMatrices.Add(b.VertexMatrix.GetRotationMatrix3());
+            }
+            
+            Engine.Renderer.Uniform(Uniform.PositionMatricesName, positionMatrices.ToArray());
+            Engine.Renderer.Uniform(Uniform.NormalMatricesName, normalMatrices.ToArray());
         }
-        public unsafe void Render(Material material, Matrix4 transform)
+        public unsafe void Render(Matrix4 transform)
         {
             if (_data == null)
                 return;
@@ -125,18 +134,17 @@ namespace CustomEngine.Rendering.Models
 
             //TODO: set material and uniforms in render queue and then render ALL meshes that use it
             //order by depth FIRST though
-            Engine.Renderer.UseMaterial(material.BindingId);
+            Engine.Renderer.UseProgram(_program.BindingId);
             SetBoneMatrixUniforms();
 
             //This is a mesh-specific uniform
             Engine.Renderer.Uniform(Uniform.GetLocation(ECommonUniform.ModelMatrix), transform);
 
             GL.BindVertexArray(BindingId);
-            //GL.BindVertexBuffers(0, _data._buffers.Count, _bindingIds, new IntPtr[_data._buffers.Count], _data._buffers.Select(x => x.Stride).ToArray());
             _triangles.Render();
             GL.BindVertexArray(0);
 
-            Engine.Renderer.UseMaterial(NullBindingId);
+            Engine.Renderer.UseProgram(NullBindingId);
         }
         protected override void OnGenerated()
         {
@@ -155,7 +163,6 @@ namespace CustomEngine.Rendering.Models
             _indexBuffer.Dispose();
         }
     }
-
     public class Primitive
     {
         int _indexCount;
@@ -182,6 +189,34 @@ namespace CustomEngine.Rendering.Models
         public unsafe void Render()
         {
             GL.DrawElements(_type, _indexCount, _elementType, 0);
+        }
+    }
+    public class MeshProgram : BaseRenderState
+    {
+        public Shader[] _shaders;
+
+        public MeshProgram() : base(GenType.Program) { }
+
+        public void SetShaders(params Shader[] shaders) { _shaders = shaders; }
+        public void Compile() { Generate(); }
+        protected override int CreateObject()
+        {
+            int[] ids = _shaders.Select(x => x.Compile()).ToArray();
+            int id = Engine.Renderer.GenerateProgram(ids);
+            return id;
+        }
+        protected override void OnGenerated()
+        {
+            Engine.Renderer.AddActiveMaterial(this);
+        }
+        protected override void OnDeleted()
+        {
+            Engine.Renderer.RemoveActiveMaterial(this);
+        }
+
+        public void SetUniforms()
+        {
+
         }
     }
 }

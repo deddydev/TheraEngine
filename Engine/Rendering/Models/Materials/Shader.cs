@@ -53,83 +53,35 @@ namespace CustomEngine.Rendering.Models.Materials
 
             return id;
         }
-        public static Shader VertexShader(PrimitiveBufferInfo info)
-        {
-            if (info == null)
-                return null;
-            if (info._boneCount > 0)
-                return WeightedVertexShader(info);
-            else
-                return UnweightedVertexShader(info);
-        }
-        public static Shader WeightedVertexShader(PrimitiveBufferInfo info)
+        public static Shader TestVertexShader()
         {
             string source = @"
-#version 450
+#version 410
 
-in vec3 Position0;
-in vec3 Normal0;
-in vec2 TexCoord0;
+in vec3 Position;
+in vec3 Normal;
+in vec2 TexCoord;
 
 uniform mat4 ModelMatrix;
 uniform mat4 ViewMatrix;
 uniform mat4 ProjMatrix;
 
-in ivec4 MatrixIDs0;
-in vec4 MatrixWeights0;
-uniform mat4 BoneMatrices[" + info._boneCount.ToString() + @"];
-
 out vec3 color;
-out vec3 TransformedPosition;
 
 void main()
 {
     mat4 modelView = ViewMatrix * ModelMatrix;
-    vec4 pos = vec4(Position, 1.0);
-    vec4 weightedPos = vec4(0.0);
-    for (int i = 0; i < 4; i++)
-    {
-        weightedPos += (BoneMatrices[MatrixIDs[i]] * pos) * MatrixWeights[i];
-    }
-    TransformedPosition = weightedPos.xyz;
-    gl_Position = ProjMatrix * modelView * weightedPos;
-    color = vec3(BaseTexCoord0, 0.0);
+    gl_Position = ProjMatrix * modelView * vec4(Position, 1.0);
+    color = vec3(TexCoord, 0.0);
 }";
-            return new Shader(ShaderMode.Vertex, source);
-        }
-        public static Shader UnweightedVertexShader(PrimitiveBufferInfo info)
-        {
-            string source = @"
-#version 450
-
-in vec3 Position0;
-in vec3 Normal0;
-in vec2 TexCoord0;
-
-uniform mat4 ModelMatrix;
-uniform mat4 ViewMatrix;
-uniform mat4 ProjMatrix;
-
-out vec3 color;
-
-void main()
-{
-    mat4 modelView = ViewMatrix * ModelMatrix;
-    gl_Position = ProjMatrix * modelView * vec4(Position0, 1.0);
-    color = vec3(TexCoord0, 0.0);
-}
-";
             return new Shader(ShaderMode.Vertex, source);
         }
         public static Shader TestFragmentShader()
         {
             string source = @"
-#version 450
+#version 410
 
 in vec3 color;
-
-uniform float ScreenWidth;
-uniform float ScreenHeight;
 
 out vec4 OutColor;
 
@@ -144,7 +96,7 @@ void main()
         {
             string source = @"
 
-#version 450
+#version 410
 
 out vec4 OutColor;
 in vec2 TexCoords;

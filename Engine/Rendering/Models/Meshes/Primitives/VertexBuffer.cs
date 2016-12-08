@@ -12,10 +12,10 @@ namespace CustomEngine.Rendering.Models
     {
         Position,
         Normal,
-        Binormal,
-        Tangent,
+        //Binormal,
+        //Tangent,
         TexCoord,
-        Color,
+        //Color,
         MatrixIds,
         MatrixWeights
     }
@@ -30,8 +30,8 @@ namespace CustomEngine.Rendering.Models
         public BufferType _type;
         public int _index;
 
-        public string GetAttribName() { return _type.ToString() + _index; }
-        public int GetLocation() { return (int)_type * VertexBuffer.MaxBufferCountPerType + _index; }
+        public string GetAttribName() { return _type.ToString()/* + _index*/; }
+        public int GetLocation() { return /*(int)_type * VertexBuffer.MaxBufferCountPerType + */_index; }
     }
     public class VertexBuffer : BaseRenderState, IDisposable
     {

@@ -8,12 +8,19 @@ namespace CustomEngine.Rendering.Models.Materials
 {
     public class MultiplyFunc : TwoArgFunc
     {
-        public MultiplyFunc(GLTypeName argTypes) : base(argTypes, argTypes, argTypes) { }
+        public MultiplyFunc(params GLTypeName[] argTypes) : base(
+            new GLInput("A", argTypes),
+            new GLInput("B", argTypes),
+            new GLOutput("Result", argTypes))
+        {
+
+        }
         protected override string GetOperator() { return "*"; }
         public static MaterialFuncInfo GetInfo()
         {
             return new MaterialFuncInfo(
                 "Math",
+                "A * B",
                 "Returns A * B.",
                 "multiply multiplied by *");
         }

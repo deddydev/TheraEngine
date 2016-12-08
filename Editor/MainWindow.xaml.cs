@@ -2,6 +2,7 @@
 using System;
 using System.IO;
 using System.Windows;
+using Xceed.Wpf.AvalonDock.Layout;
 
 namespace Editor
 {
@@ -22,29 +23,31 @@ namespace Editor
             InitializeComponent();
             _instance = this;
 
-            string path = AppDomain.CurrentDomain.BaseDirectory + SettingsPath;
-            EditorSettings settings;
-            if (!File.Exists(path))
-            {
-                settings = new EditorSettings();
-                settings.SaveXML(path);
-            }
-            else
-                settings = EditorSettings.FromXML(path);
+            //LayoutContent renderPanel = new LayoutContent();
 
-            if (!String.IsNullOrEmpty(settings._contentMonitorPath) && Directory.Exists(settings._contentMonitorPath))
-            {
-                _contentWatcher = new FileSystemWatcher()
-                {
-                    Filter = FileManager.GetListFilter(),
-                    EnableRaisingEvents = true,
-                    IncludeSubdirectories = true,
-                    Path = settings._contentMonitorPath,
-                };
-                _contentWatcher.Changed += _contentWatcher_Changed;
-                _contentWatcher.Created += _contentWatcher_Created;
-                _contentWatcher.Deleted += _contentWatcher_Deleted;
-            }
+            //string path = AppDomain.CurrentDomain.BaseDirectory + SettingsPath;
+            //EditorSettings settings;
+            //if (!File.Exists(path))
+            //{
+            //    settings = new EditorSettings();
+            //    settings.SaveXML(path);
+            //}
+            //else
+            //    settings = EditorSettings.FromXML(path);
+
+            //if (!String.IsNullOrEmpty(settings._contentMonitorPath) && Directory.Exists(settings._contentMonitorPath))
+            //{
+            //    _contentWatcher = new FileSystemWatcher()
+            //    {
+            //        Filter = FileManager.GetListFilter(),
+            //        EnableRaisingEvents = true,
+            //        IncludeSubdirectories = true,
+            //        Path = settings._contentMonitorPath,
+            //    };
+            //    _contentWatcher.Changed += _contentWatcher_Changed;
+            //    _contentWatcher.Created += _contentWatcher_Created;
+            //    _contentWatcher.Deleted += _contentWatcher_Deleted;
+            //}
         }
 
         private void _contentWatcher_Deleted(object sender, FileSystemEventArgs e)

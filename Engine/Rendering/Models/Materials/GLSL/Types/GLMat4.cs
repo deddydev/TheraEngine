@@ -19,6 +19,7 @@ namespace CustomEngine.Rendering.Models.Materials
         public GLMat4(Matrix4 defaultValue, string name, IGLVarOwner owner) 
             : base(name, owner)
         {
+            _canSwizzle = false;
             _value = defaultValue;
             _fields.Add("[0]", new GLVec4(defaultValue.Row0, "Row0", this));
             _fields.Add("[1]", new GLVec4(defaultValue.Row1, "Row1", this));
@@ -38,6 +39,7 @@ namespace CustomEngine.Rendering.Models.Materials
         public GLMat3(Matrix3 defaultValue, string name, IGLVarOwner owner)
             : base(name, owner)
         {
+            _canSwizzle = false;
             _value = defaultValue;
             _fields.Add("[0]", new GLVec3(defaultValue.Row0, "Row0", this));
             _fields.Add("[1]", new GLVec3(defaultValue.Row1, "Row1", this));

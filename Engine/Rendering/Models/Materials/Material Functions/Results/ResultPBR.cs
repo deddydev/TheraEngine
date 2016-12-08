@@ -15,6 +15,7 @@ namespace CustomEngine.Rendering.Models.Materials
         {
             return new MaterialFuncInfo(
                 "Output",
+                "Output PBR",
                 "Outputs the given vec4 color as the color for this fragment.",
                 "result output final return physically based rendering PBR");
         }
@@ -24,16 +25,16 @@ namespace CustomEngine.Rendering.Models.Materials
             return base.GetOperation();
         }
 
-        protected override List<BaseGLArgument> GetInputs()
+        protected override List<GLInput> GetInputs()
         {
-            return new List<BaseGLArgument>()
+            return new List<GLInput>()
             {
-                new GLInput<GLVec4>("Diffuse"),
-                new GLInput<GLFloat>("Roughness"),
-                new GLInput<GLFloat>("Shininess"),
-                new GLInput<GLFloat>("Specularity"),
-                new GLInput<GLFloat>("Metallic"),
-                new GLInput<GLFloat>("Refraction"),
+                new GLInput("Diffuse", GLTypeName._vec4),
+                new GLInput("Roughness", GLTypeName._float),
+                new GLInput("Shininess", GLTypeName._float),
+                new GLInput("Specularity", GLTypeName._float),
+                new GLInput("Metallic", GLTypeName._float),
+                new GLInput("Refraction", GLTypeName._float),
             };
         }
     }

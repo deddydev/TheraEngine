@@ -18,7 +18,7 @@ namespace CustomEngine.Worlds
         public List<Map> _maps;
         public WorldState _state;
 
-        public List<Material> CollectDefaultMaterials()
+        public List<MeshProgram> CollectDefaultMaterials()
         {
             foreach (Map m in _maps)
             {

@@ -1,13 +1,60 @@
 ﻿using System;
-using System.Drawing;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
+using System.Text.RegularExpressions;
 
 namespace CustomEngine.Rendering.Models.Materials
 {
-    public class GLInput<T> : BaseGLInput where T : GLVar
+    public class GLInput : BaseGLArgument
     {
-        public GLInput(string name) : base(name) { }
-        
-        public override GLTypeName GetArgType() { return GLVar.TypeAssociations[GetType()]; }
+        public override bool IsOutput { get { return false; } }
+        public GLOutput ConnectedTo
+        {
+            get { return _connectedTo; }
+            set { TryConnectTo(value); }
+        }
+        protected GLOutput _connectedTo;
+
+        public GLInput(string name, params GLTypeName[] types) : base(name)
+        {
+            _allowedArgTypes = types;
+        }
+        public GLInput(string name, MaterialFunction parent, params GLTypeName[] types) : base(name, parent)
+        {
+            _allowedArgTypes = types;
+        }
+        public GLInput(string name, BaseGLArgument linkedMultiArg) : base(name)
+        {
+            _syncedArgs.Add(linkedMultiArg);
+            _allowedArgTypes = linkedMultiArg.AllowedArgumentTypes;
+        }
+        public GLInput(string name, MaterialFunction parent, BaseGLArgument linkedMultiArg) : base(name, parent)
+        {
+            _syncedArgs.Add(linkedMultiArg);
+            _allowedArgTypes = linkedMultiArg.AllowedArgumentTypes;
+        }
+
+        public bool TryConnectTo(GLOutput other)
+        {
+            if (!CanConnectTo(other))
+                return false;
+            DoConnection(other);
+            return true;
+        }
+        internal virtual void DoConnection(GLOutput other)
+        {
+            _connectedTo?.ClearConnection(this);
+            _connectedTo = other;
+            _connectedTo?.DoConnection(this);
+        }
+        internal virtual void ClearConnection()
+        {
+            _connectedTo?.ClearConnection(this);
+            _connectedTo = null;
+        }
 
         /// <summary>
         /// Returns interpolated point from the connected output argument to this argument.
@@ -41,6 +88,43 @@ namespace CustomEngine.Rendering.Models.Materials
                 return Location;
 
             return BezierFromPoint(_connectedTo.Location, time);
+        }
+        public override bool CanConnectTo(BaseGLArgument other)
+        {
+            if (other == null)
+                return true;
+
+            if (other.IsOutput == IsOutput)
+                return false;
+
+            GLTypeName otherType = other.CurrentArgumentType;
+
+            //Edge case: the other node is just invalid
+            if (otherType == GLTypeName.Invalid)
+                return false;
+
+            GLTypeName thisType = CurrentArgumentType;
+            if (thisType != GLTypeName.Invalid)
+            {
+                if (otherType != GLTypeName.Invalid)
+                    return thisType == otherType;
+
+                //Has to be a GLMultiArgument as per the edge case check above
+                GLInput otherMultiArg = (GLInput)other;
+
+                return otherMultiArg.AllowedArgumentTypes.Contains(thisType);
+            }
+            else //this type is invalid, use allowed arg types
+            {
+                if (otherType != GLTypeName.Invalid)
+                    return AllowedArgumentTypes.Contains(otherType);
+
+                //Has to be a GLMultiArgument as per the edge case check above
+                GLInput otherMultiArg = (GLInput)other;
+
+                //Returns true if there are any matching allowed types between the two
+                return AllowedArgumentTypes.Intersect(otherMultiArg.AllowedArgumentTypes).ToArray().Length != 0;
+            }
         }
     }
 }

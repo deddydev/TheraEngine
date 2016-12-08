@@ -53,15 +53,15 @@ namespace CustomEngine.Rendering.Models
                     case BufferType.Normal:
                         b.Set(index * 12, _normal);
                         break;
-                    case BufferType.Binormal:
-                        b.Set(index * 12, _binormal);
-                        break;
-                    case BufferType.Tangent:
-                        b.Set(index * 12, _tangent);
-                        break;
-                    case BufferType.Color:
-                        b.Set(index << 4, _color);
-                        break;
+                    //case BufferType.Binormal:
+                    //    b.Set(index * 12, _binormal);
+                    //    break;
+                    //case BufferType.Tangent:
+                    //    b.Set(index * 12, _tangent);
+                    //    break;
+                    //case BufferType.Color:
+                    //    b.Set(index << 4, _color);
+                    //    break;
                     case BufferType.TexCoord:
                         b.Set(index << 3, _texCoord);
                         break;
@@ -86,15 +86,15 @@ namespace CustomEngine.Rendering.Models
                     case BufferType.Normal:
                         _normal = b.Get<Vec3>(index * 12);
                         break;
-                    case BufferType.Binormal:
-                        _binormal = b.Get<Vec3>(index * 12);
-                        break;
-                    case BufferType.Tangent:
-                        _tangent = b.Get<Vec3>(index * 12);
-                        break;
-                    case BufferType.Color:
-                        _texCoord = b.Get<Vec2>(index << 4);
-                        break;
+                    //case BufferType.Binormal:
+                    //    _binormal = b.Get<Vec3>(index * 12);
+                    //    break;
+                    //case BufferType.Tangent:
+                    //    _tangent = b.Get<Vec3>(index * 12);
+                    //    break;
+                    //case BufferType.Color:
+                    //    _texCoord = b.Get<Vec2>(index << 4);
+                    //    break;
                     case BufferType.TexCoord:
                         _texCoord = b.Get<Vec2>(index << 3);
                         break;

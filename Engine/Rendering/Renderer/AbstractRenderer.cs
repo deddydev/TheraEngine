@@ -13,7 +13,7 @@ namespace CustomEngine.Rendering
     /// </summary>
     public abstract class AbstractRenderer
     {
-        private Dictionary<int, Material> _activeMaterials = new Dictionary<int, Material>();
+        private Dictionary<int, MeshProgram> _activeMaterials = new Dictionary<int, MeshProgram>();
 
         private SceneProcessor _scene = new SceneProcessor();
         public SceneProcessor Scene { get { return _scene; } }
@@ -26,7 +26,7 @@ namespace CustomEngine.Rendering
         protected int _programHandle;
         protected Camera _currentCamera;
         private Stack<Rectangle> _renderAreaStack = new Stack<Rectangle>();
-        private static List<DisplayList> _displayLists = new List<DisplayList>();
+        //private static List<DisplayList> _displayLists = new List<DisplayList>();
 
         public abstract int GenObject(GenType type);
         public abstract int[] GenObjects(GenType type, int count);
@@ -37,8 +37,8 @@ namespace CustomEngine.Rendering
         public abstract void DeleteObject(GenType type, int bindingId);
         public abstract void DeleteObjects(GenType type, int[] bindingIds);
 
-        internal void AddActiveMaterial(Material material) { _activeMaterials.Add(material.BindingId, material); }
-        internal void RemoveActiveMaterial(Material material) { _activeMaterials.Remove(material.BindingId); }
+        internal void AddActiveMaterial(MeshProgram material) { _activeMaterials.Add(material.BindingId, material); }
+        internal void RemoveActiveMaterial(MeshProgram material) { _activeMaterials.Remove(material.BindingId); }
 
         public abstract void SetPointSize(float size);
         public abstract void SetLineSize(float size);
@@ -81,15 +81,15 @@ namespace CustomEngine.Rendering
         /// </summary>
         /// <param name="shaderHandles">The handles of the shaders for this program to use.</param>
         /// <returns></returns>
-        public abstract int GenerateMaterial(int[] shaderHandles);
-
-        public virtual void UseMaterial(int matId)
+        public abstract int GenerateProgram(int[] shaderHandles);
+        public virtual void UseProgram(int matId)
         {
             _programHandle = matId;
-            Scene.CurrentCamera.SetUniforms();
             _activeMaterials[matId].SetUniforms();
+            Scene.CurrentCamera.SetUniforms();
+            Uniform(Models.Materials.Uniform.GetLocation(ECommonUniform.RenderDelta), Engine.RenderDelta);
         }
-        public virtual void DeleteMaterial(int handle)
+        public virtual void DeleteProgram(int handle)
         {
             if (_programHandle == handle)
                 _programHandle = 0;
@@ -117,6 +117,8 @@ namespace CustomEngine.Rendering
 
         public void Uniform(string name, Matrix4 p) => Uniform(GetUniformLocation(name), p);
         public void Uniform(string name, Matrix4[] p) => Uniform(GetUniformLocation(name), p);
+        public void Uniform(string name, Matrix3 p) => Uniform(GetUniformLocation(name), p);
+        public void Uniform(string name, Matrix3[] p) => Uniform(GetUniformLocation(name), p);
 
         public abstract void Uniform(int location, params IUniformable4Int[] p);
         public abstract void Uniform(int location, params IUniformable4Float[] p);
@@ -153,62 +155,62 @@ namespace CustomEngine.Rendering
         public abstract void Uniform(int location, Matrix3 p);
         public abstract void Uniform(int location, params Matrix3[] p);
 
-        public void Uniform(int matID, string name, params IUniformable4Int[] p) => Uniform(matID, GetUniformLocation(name), p);
-        public void Uniform(int matID, string name, params IUniformable4Float[] p) => Uniform(matID, GetUniformLocation(name), p);
+        public void UniformMaterial(int matID, string name, params IUniformable4Int[] p) => UniformMaterial(matID, GetUniformLocation(name), p);
+        public void UniformMaterial(int matID, string name, params IUniformable4Float[] p) => UniformMaterial(matID, GetUniformLocation(name), p);
 
-        public void Uniform(int matID, string name, params IUniformable3Int[] p) => Uniform(matID, GetUniformLocation(name), p);
-        public void Uniform(int matID, string name, params IUniformable3Float[] p) => Uniform(matID, GetUniformLocation(name), p);
+        public void UniformMaterial(int matID, string name, params IUniformable3Int[] p) => UniformMaterial(matID, GetUniformLocation(name), p);
+        public void UniformMaterial(int matID, string name, params IUniformable3Float[] p) => UniformMaterial(matID, GetUniformLocation(name), p);
 
-        public void Uniform(int matID, string name, params IUniformable2Int[] p) => Uniform(matID, GetUniformLocation(name), p);
-        public void Uniform(int matID, string name, params IUniformable2Float[] p) => Uniform(matID, GetUniformLocation(name), p);
+        public void UniformMaterial(int matID, string name, params IUniformable2Int[] p) => UniformMaterial(matID, GetUniformLocation(name), p);
+        public void UniformMaterial(int matID, string name, params IUniformable2Float[] p) => UniformMaterial(matID, GetUniformLocation(name), p);
 
-        public void Uniform(int matID, string name, params IUniformable1Int[] p) => Uniform(matID, GetUniformLocation(name), p);
-        public void Uniform(int matID, string name, params IUniformable1Float[] p) => Uniform(matID, GetUniformLocation(name), p);
+        public void UniformMaterial(int matID, string name, params IUniformable1Int[] p) => UniformMaterial(matID, GetUniformLocation(name), p);
+        public void UniformMaterial(int matID, string name, params IUniformable1Float[] p) => UniformMaterial(matID, GetUniformLocation(name), p);
 
-        public void Uniform(int matID, string name, params int[] p) => Uniform(matID, GetUniformLocation(name), p);
-        public void Uniform(int matID, string name, params float[] p) => Uniform(matID, GetUniformLocation(name), p);
-        public void Uniform(int matID, string name, params uint[] p) => Uniform(matID, GetUniformLocation(name), p);
-        public void Uniform(int matID, string name, params double[] p) => Uniform(matID, GetUniformLocation(name), p);
+        public void UniformMaterial(int matID, string name, params int[] p) => UniformMaterial(matID, GetUniformLocation(name), p);
+        public void UniformMaterial(int matID, string name, params float[] p) => UniformMaterial(matID, GetUniformLocation(name), p);
+        public void UniformMaterial(int matID, string name, params uint[] p) => UniformMaterial(matID, GetUniformLocation(name), p);
+        public void UniformMaterial(int matID, string name, params double[] p) => UniformMaterial(matID, GetUniformLocation(name), p);
 
-        public void Uniform(int matID, string name, Matrix4 p) => Uniform(matID, GetUniformLocation(name), p);
-        public void Uniform(int matID, string name, Matrix4[] p) => Uniform(matID, GetUniformLocation(name), p);
+        public void UniformMaterial(int matID, string name, Matrix4 p) => UniformMaterial(matID, GetUniformLocation(name), p);
+        public void UniformMaterial(int matID, string name, Matrix4[] p) => UniformMaterial(matID, GetUniformLocation(name), p);
 
-        public abstract void Uniform(int matID, int location, params IUniformable4Int[] p);
-        public abstract void Uniform(int matID, int location, params IUniformable4Float[] p);
-        public void Uniform(int matID, int location, params IUniformable4Double[] p) { throw new NotImplementedException(); }
-        public void Uniform(int matID, int location, params IUniformable4UInt[] p) { throw new NotImplementedException(); }
-        public void Uniform(int matID, int location, params IUniformable4Bool[] p) { throw new NotImplementedException(); }
+        public abstract void UniformMaterial(int matID, int location, params IUniformable4Int[] p);
+        public abstract void UniformMaterial(int matID, int location, params IUniformable4Float[] p);
+        public void UniformMaterial(int matID, int location, params IUniformable4Double[] p) { throw new NotImplementedException(); }
+        public void UniformMaterial(int matID, int location, params IUniformable4UInt[] p) { throw new NotImplementedException(); }
+        public void UniformMaterial(int matID, int location, params IUniformable4Bool[] p) { throw new NotImplementedException(); }
 
-        public abstract void Uniform(int matID, int location, params IUniformable3Int[] p);
-        public abstract void Uniform(int matID, int location, params IUniformable3Float[] p);
-        public void Uniform(int matID, int location, params IUniformable3Double[] p) { throw new NotImplementedException(); }
-        public void Uniform(int matID, int location, params IUniformable3UInt[] p) { throw new NotImplementedException(); }
-        public void Uniform(int matID, int location, params IUniformable3Bool[] p) { throw new NotImplementedException(); }
+        public abstract void UniformMaterial(int matID, int location, params IUniformable3Int[] p);
+        public abstract void UniformMaterial(int matID, int location, params IUniformable3Float[] p);
+        public void UniformMaterial(int matID, int location, params IUniformable3Double[] p) { throw new NotImplementedException(); }
+        public void UniformMaterial(int matID, int location, params IUniformable3UInt[] p) { throw new NotImplementedException(); }
+        public void UniformMaterial(int matID, int location, params IUniformable3Bool[] p) { throw new NotImplementedException(); }
 
-        public abstract void Uniform(int matID, int location, params IUniformable2Int[] p);
-        public abstract void Uniform(int matID, int location, params IUniformable2Float[] p);
-        public void Uniform(int matID, int location, params IUniformable2Double[] p) { throw new NotImplementedException(); }
-        public void Uniform(int matID, int location, params IUniformable2UInt[] p) { throw new NotImplementedException(); }
-        public void Uniform(int matID, int location, params IUniformable2Bool[] p) { throw new NotImplementedException(); }
+        public abstract void UniformMaterial(int matID, int location, params IUniformable2Int[] p);
+        public abstract void UniformMaterial(int matID, int location, params IUniformable2Float[] p);
+        public void UniformMaterial(int matID, int location, params IUniformable2Double[] p) { throw new NotImplementedException(); }
+        public void UniformMaterial(int matID, int location, params IUniformable2UInt[] p) { throw new NotImplementedException(); }
+        public void UniformMaterial(int matID, int location, params IUniformable2Bool[] p) { throw new NotImplementedException(); }
 
-        public abstract void Uniform(int matID, int location, params IUniformable1Int[] p);
-        public abstract void Uniform(int matID, int location, params IUniformable1Float[] p);
-        public void Uniform(int matID, int location, params IUniformable1Double[] p) { throw new NotImplementedException(); }
-        public void Uniform(int matID, int location, params IUniformable1UInt[] p) { throw new NotImplementedException(); }
-        public void Uniform(int matID, int location, params IUniformable1Bool[] p) { throw new NotImplementedException(); }
+        public abstract void UniformMaterial(int matID, int location, params IUniformable1Int[] p);
+        public abstract void UniformMaterial(int matID, int location, params IUniformable1Float[] p);
+        public void UniformMaterial(int matID, int location, params IUniformable1Double[] p) { throw new NotImplementedException(); }
+        public void UniformMaterial(int matID, int location, params IUniformable1UInt[] p) { throw new NotImplementedException(); }
+        public void UniformMaterial(int matID, int location, params IUniformable1Bool[] p) { throw new NotImplementedException(); }
 
-        public abstract void Uniform(int matID, int location, params int[] p);
-        public abstract void Uniform(int matID, int location, params float[] p);
-        public void Uniform(int matID, int location, params double[] p) { throw new NotImplementedException(); }
-        public void Uniform(int matID, int location, params uint[] p) { throw new NotImplementedException(); }
-        public void Uniform(int matID, int location, params bool[] p) { throw new NotImplementedException(); }
+        public abstract void UniformMaterial(int matID, int location, params int[] p);
+        public abstract void UniformMaterial(int matID, int location, params float[] p);
+        public void UniformMaterial(int matID, int location, params double[] p) { throw new NotImplementedException(); }
+        public void UniformMaterial(int matID, int location, params uint[] p) { throw new NotImplementedException(); }
+        public void UniformMaterial(int matID, int location, params bool[] p) { throw new NotImplementedException(); }
 
-        public abstract void Uniform(int matID, int location, Matrix4 p);
-        public abstract void Uniform(int matID, int location, params Matrix4[] p);
-        public abstract void Uniform(int matID, int location, Matrix3 p);
-        public abstract void Uniform(int matID, int location, params Matrix3[] p);
+        public abstract void UniformMaterial(int matID, int location, Matrix4 p);
+        public abstract void UniformMaterial(int matID, int location, params Matrix4[] p);
+        public abstract void UniformMaterial(int matID, int location, Matrix3 p);
+        public abstract void UniformMaterial(int matID, int location, params Matrix3[] p);
 
-        public void Uniform(int matID, int location, params IUniformable[] p)
+        public void UniformMaterial(int matID, int location, params IUniformable[] p)
         {
             foreach (IUniformable u in p)
             {

@@ -12,13 +12,13 @@ namespace CustomEngine.Rendering.Models.Materials
         {
             throw new NotImplementedException();
         }
-        protected override List<BaseGLArgument> GetInputs()
+        protected override List<GLInput> GetInputs()
         {
-            return new List<BaseGLArgument>()
+            return new List<GLInput>()
             {
-                new GLInput<GLInt>("Start Index"),
+                new GLInput("Start Index", GLTypeName._int),
                 //TODO: condition needs to be built into the loop
-                new GLInput<GLBool>("Condition"),
+                new GLInput("Condition", GLTypeName._bool),
                 //TODO: material function argument for each loop?
             };
         }

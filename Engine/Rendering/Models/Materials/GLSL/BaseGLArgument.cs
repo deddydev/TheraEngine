@@ -1,5 +1,7 @@
 ﻿using CustomEngine.Rendering.HUD;
+using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace CustomEngine.Rendering.Models.Materials
 {
@@ -9,82 +11,22 @@ namespace CustomEngine.Rendering.Models.Materials
         public BaseGLArgument(string name, MaterialFunction parent) : base(parent) { _name = name; }
         
         public abstract bool IsOutput { get; }
-        public abstract GLTypeName GetArgType();
 
-        public virtual bool CanConnectTo(BaseGLArgument other)
-        {
-            if (other == null)
-                return !IsOutput;
+        public List<BaseGLArgument> SyncedArguments { get { return _syncedArgs; } }
+        public GLTypeName[] AllowedArgumentTypes { get { return _allowedArgTypes; } }
+        public GLTypeName CurrentArgumentType { get { return _currentArgType; } }
 
-            return
-                other.IsOutput != IsOutput &&
-                GetArgType() == other.GetArgType();
-        }
+        protected List<BaseGLArgument> _syncedArgs = new List<BaseGLArgument>();
+        protected GLTypeName[] _allowedArgTypes = null;
+        protected GLTypeName _currentArgType = GLTypeName.Invalid;
 
-        public override string ToString()
-        {
-            return Name;
-        }
+        public void SetSyncedArguments(params BaseGLArgument[] args) { _syncedArgs = args.ToList(); }
+        public abstract bool CanConnectTo(BaseGLArgument other);
+        public override string ToString() { return Name; }
     }
-    public abstract class BaseGLOutput : BaseGLArgument
+    public enum ArgumentSyncType
     {
-        public override bool IsOutput { get { return true; } }
-        public MonitoredList<BaseGLInput> ConnectedTo { get { return _connectedTo; } }
-
-        protected MonitoredList<BaseGLInput> _connectedTo = new MonitoredList<BaseGLInput>(false);
-
-        public BaseGLOutput(string name) : base(name)
-        {
-            _connectedTo.Added += _connectedTo_Added;
-            _connectedTo.Removed += _connectedTo_Removed;
-        }
-        public BaseGLOutput(string name, MaterialFunction parent) : base(name, parent)
-        {
-            _connectedTo.Added += _connectedTo_Added;
-            _connectedTo.Removed += _connectedTo_Removed;
-        }
-        public bool TryConnectTo(BaseGLInput other)
-        {
-            if (!CanConnectTo(other))
-                return false;
-            DoConnection(other);
-            return true;
-        }
-        internal virtual void DoConnection(BaseGLInput other) { _connectedTo.AddSilent(other); }
-        internal virtual void ClearConnection(BaseGLInput other) { _connectedTo.RemoveSilent(other); }
-        private void _connectedTo_Added(BaseGLInput item) { item.DoConnection(this); }
-        private void _connectedTo_Removed(BaseGLInput item) { item.ClearConnection(); }
-    }
-    public abstract class BaseGLInput : BaseGLArgument
-    {
-        public override bool IsOutput { get { return false; } }
-        public BaseGLOutput ConnectedTo
-        {
-            get { return _connectedTo; }
-            set { TryConnectTo(value); }
-        }
-        protected BaseGLOutput _connectedTo;
-
-        public BaseGLInput(string name) : base(name) { }
-        public BaseGLInput(string name, MaterialFunction parent) : base(name, parent) { }
-
-        public bool TryConnectTo(BaseGLOutput other)
-        {
-            if (!CanConnectTo(other))
-                return false;
-            DoConnection(other);
-            return true;
-        }
-        internal virtual void DoConnection(BaseGLOutput other)
-        {
-            _connectedTo?.ClearConnection(this);
-            _connectedTo = other;
-            _connectedTo?.DoConnection(this);
-        }
-        internal virtual void ClearConnection()
-        {
-            _connectedTo?.ClearConnection(this);
-            _connectedTo = null;
-        }
+        SyncByName,
+        SyncByIndex
     }
 }

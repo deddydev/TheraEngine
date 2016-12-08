@@ -343,20 +343,23 @@ namespace CustomEngine.Rendering.OpenGL
 #endif
             return handle;
         }
-        public override int GenerateMaterial(int[] shaderHandles)
+        public override int GenerateProgram(int[] shaderHandles)
         {
             int handle = GL.CreateProgram();
             foreach (int i in shaderHandles)
                 GL.AttachShader(handle, i);
 
             //Have to bind 'in' attributes before linking
-            int k = 0;
-            for (int i = 0; i < VertexBuffer.BufferTypeCount; ++i)
-            {
-                BufferType type = (BufferType)i;
-                for (int j = 0; j < VertexBuffer.MaxBufferCountPerType; ++j)
-                    GL.BindAttribLocation(handle, k++, type.ToString() + j);
-            }
+            //int k = 0;
+            //for (int i = 0; i < VertexBuffer.BufferTypeCount; ++i)
+            //{
+            //    BufferType type = (BufferType)i;
+            //    for (int j = 0; j < VertexBuffer.MaxBufferCountPerType; ++j)
+            //        GL.BindAttribLocation(handle, k++, type.ToString() + j);
+            //}
+            GL.BindAttribLocation(handle, 0, "Position");
+            GL.BindAttribLocation(handle, 1, "Normal");
+            GL.BindAttribLocation(handle, 2, "TexCoord");
             GL.LinkProgram(handle);
 
             //We don't need these anymore now that they're part of the program
@@ -368,10 +371,10 @@ namespace CustomEngine.Rendering.OpenGL
 
             return handle;
         }
-        public override void UseMaterial(int matId)
+        public override void UseProgram(int matId)
         {
             GL.UseProgram(matId);
-            base.UseMaterial(matId);
+            base.UseProgram(matId);
         }
 
         #region Uniforms
@@ -564,7 +567,7 @@ namespace CustomEngine.Rendering.OpenGL
             }
         }
 
-        public override void Uniform(int matID, int location, params IUniformable4Int[] p)
+        public override void UniformMaterial(int matID, int location, params IUniformable4Int[] p)
         {
             const int count = 4;
 
@@ -580,67 +583,67 @@ namespace CustomEngine.Rendering.OpenGL
             GL.ProgramUniform4(matID, location, p.Length, values);
         }
 
-        public override void Uniform(int matID, int location, params IUniformable4Float[] p)
+        public override void UniformMaterial(int matID, int location, params IUniformable4Float[] p)
         {
             throw new NotImplementedException();
         }
 
-        public override void Uniform(int matID, int location, params IUniformable3Int[] p)
+        public override void UniformMaterial(int matID, int location, params IUniformable3Int[] p)
         {
             throw new NotImplementedException();
         }
 
-        public override void Uniform(int matID, int location, params IUniformable3Float[] p)
+        public override void UniformMaterial(int matID, int location, params IUniformable3Float[] p)
         {
             throw new NotImplementedException();
         }
 
-        public override void Uniform(int matID, int location, params IUniformable2Int[] p)
+        public override void UniformMaterial(int matID, int location, params IUniformable2Int[] p)
         {
             throw new NotImplementedException();
         }
 
-        public override void Uniform(int matID, int location, params IUniformable2Float[] p)
+        public override void UniformMaterial(int matID, int location, params IUniformable2Float[] p)
         {
             throw new NotImplementedException();
         }
 
-        public override void Uniform(int matID, int location, params IUniformable1Int[] p)
+        public override void UniformMaterial(int matID, int location, params IUniformable1Int[] p)
         {
             throw new NotImplementedException();
         }
 
-        public override void Uniform(int matID, int location, params IUniformable1Float[] p)
+        public override void UniformMaterial(int matID, int location, params IUniformable1Float[] p)
         {
             throw new NotImplementedException();
         }
 
-        public override void Uniform(int matID, int location, params int[] p)
+        public override void UniformMaterial(int matID, int location, params int[] p)
         {
             throw new NotImplementedException();
         }
 
-        public override void Uniform(int matID, int location, params float[] p)
+        public override void UniformMaterial(int matID, int location, params float[] p)
         {
             throw new NotImplementedException();
         }
 
-        public override void Uniform(int matID, int location, Matrix4 p)
+        public override void UniformMaterial(int matID, int location, Matrix4 p)
         {
             throw new NotImplementedException();
         }
 
-        public override void Uniform(int matID, int location, params Matrix4[] p)
+        public override void UniformMaterial(int matID, int location, params Matrix4[] p)
         {
             throw new NotImplementedException();
         }
 
-        public override void Uniform(int matID, int location, Matrix3 p)
+        public override void UniformMaterial(int matID, int location, Matrix3 p)
         {
             throw new NotImplementedException();
         }
 
-        public override void Uniform(int matID, int location, params Matrix3[] p)
+        public override void UniformMaterial(int matID, int location, params Matrix3[] p)
         {
             throw new NotImplementedException();
         }

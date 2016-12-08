@@ -9,17 +9,17 @@ namespace CustomEngine.Worlds.Actors.Components
     public abstract class GenericPrimitiveComponent : GenericSceneComponent
     {
         public GenericPrimitiveComponent() { }
-        public GenericPrimitiveComponent(RenderableObjectContainer obj) { _primitive = obj; }
+        public GenericPrimitiveComponent(IRenderableObjectContainer obj) { _primitive = obj; }
 
-        private RenderableObjectContainer _primitive;
-        internal RenderableObjectContainer Primitive
+        private IRenderableObjectContainer _primitive;
+        internal IRenderableObjectContainer Primitive
         {
             get { return _primitive; }
             set
             {
                 if (_primitive == value)
                     return;
-                RenderableObjectContainer oldPrim = _primitive;
+                IRenderableObjectContainer oldPrim = _primitive;
                 _primitive = value;
                 if (oldPrim != null)
                     oldPrim.LinkedComponent = null;

@@ -7,12 +7,31 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using CustomEngine.Rendering.Models.Materials;
+using System.Collections;
 
 namespace CustomEngine.Rendering
 {
-    public abstract class RenderableObjectContainer : FileObject
+    public interface IRenderableObjectContainer
     {
-        private GenericPrimitiveComponent _linkedComponent;
+        GenericPrimitiveComponent LinkedComponent { get; set; }
+        List<PrimitiveData> GetPrimitives();
+        Matrix4 GetWorldMatrix();
+        Matrix4 GetInverseWorldMatrix();
+        void OnSpawned();
+        void OnDespawned();
+    }
+    public abstract class RenderableObjectContainer<T> : FileObject, IRenderableObjectContainer, IEnumerable<T> where T : RenderableObject
+    {
+        protected GenericPrimitiveComponent _linkedComponent;
+        protected MonitoredList<T> _children = new MonitoredList<T>();
+
+        public RenderableObjectContainer() : base()
+        {
+            _children.Removed += ChildRemoved;
+            _children.Added += ChildAdded;
+        }
+        protected virtual void ChildAdded(T item) { }
+        protected virtual void ChildRemoved(T item) { }
         public GenericPrimitiveComponent LinkedComponent
         {
             get { return _linkedComponent; }
@@ -31,8 +50,19 @@ namespace CustomEngine.Rendering
         public abstract List<PrimitiveData> GetPrimitives();
         public abstract Matrix4 GetWorldMatrix();
         public abstract Matrix4 GetInverseWorldMatrix();
+        public virtual void OnSpawned()
+        {
+            _children.ForEach(x => x.OnSpawned());
+        }
+        public virtual void OnDespawned()
+        {
+            _children.ForEach(x => x.OnDespawned());
+        }
+
+        public IEnumerator<T> GetEnumerator() { return ((IEnumerable<T>)_children).GetEnumerator(); }
+        IEnumerator IEnumerable.GetEnumerator() { return ((IEnumerable<T>)_children).GetEnumerator(); }
     }
-    public abstract class RenderableObject : RenderableObjectContainer
+    public abstract class RenderableObject : RenderableObjectContainer<RenderableObject>
     {
         protected Material _material;
         protected bool _isRendering = true;
@@ -53,13 +83,15 @@ namespace CustomEngine.Rendering
         {
             return new List<PrimitiveData>() { GetPrimitiveData() };
         }
-        public virtual void OnSpawned()
+        public override void OnSpawned()
         {
+            base.OnSpawned();
             if (Material != null)
                 Material.AddReference(this);
         }
-        public virtual void OnDespawned()
+        public override void OnDespawned()
         {
+            base.OnDespawned();
             if (Material != null)
                 Material.RemoveReference(this);
         }

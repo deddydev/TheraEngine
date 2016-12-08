@@ -13,16 +13,13 @@ namespace CustomEngine.Rendering
     /// </summary>
     public abstract class AbstractRenderer
     {
-        private Dictionary<int, MeshProgram> _activeMaterials = new Dictionary<int, MeshProgram>();
-
-        private SceneProcessor _scene = new SceneProcessor();
         public SceneProcessor Scene { get { return _scene; } }
-
         public abstract RenderLibrary RenderLibrary { get; }
         public RenderContext CurrentContext { get { return RenderContext.Current; } }
-
         public Viewport CurrentlyRenderingViewport { get { return Viewport.CurrentlyRendering; } }
 
+        private Dictionary<int, Material> _activeMaterials = new Dictionary<int, Material>();
+        private SceneProcessor _scene = new SceneProcessor();
         protected int _programHandle;
         protected Camera _currentCamera;
         private Stack<Rectangle> _renderAreaStack = new Stack<Rectangle>();
@@ -37,8 +34,16 @@ namespace CustomEngine.Rendering
         public abstract void DeleteObject(GenType type, int bindingId);
         public abstract void DeleteObjects(GenType type, int[] bindingIds);
 
-        internal void AddActiveMaterial(MeshProgram material) { _activeMaterials.Add(material.BindingId, material); }
-        internal void RemoveActiveMaterial(MeshProgram material) { _activeMaterials.Remove(material.BindingId); }
+        internal int AddActiveMaterial(Material material)
+        {
+            int id = _activeMaterials.Count;
+            _activeMaterials.Add(id, material);
+            return id;
+        }
+        internal void RemoveActiveMaterial(Material material)
+        {
+            _activeMaterials.Remove(material.BindingId);
+        }
 
         public abstract void SetPointSize(float size);
         public abstract void SetLineSize(float size);
@@ -254,7 +259,7 @@ namespace CustomEngine.Rendering
         /// <summary>
         /// Binds a transform feedback buffer to "out" variables in the shader.
         /// </summary>
-        public abstract void TransformFeedbackVaryings(int matId, string[] varNames);
+        public abstract void TransformFeedbackVaryings(int program, string[] varNames);
     }
     public enum FramebufferType
     {

@@ -6,15 +6,9 @@ using System.Threading.Tasks;
 
 namespace CustomEngine.Rendering.Models.Materials
 {
-    public class GEqualFunc : TwoArgFunc
+    public class GEqualFunc : ComparableFunc
     {
-        public GEqualFunc(GLTypeName argTypes) : base(
-            new GLInput("A", argTypes),
-            new GLInput("B", argTypes),
-            new GLOutput("Result", GLTypeName._bool))
-        {
-
-        }
+        public GEqualFunc() : base() { }
         protected override string GetOperator() { return ">="; }
         public static MaterialFuncInfo GetInfo()
         {

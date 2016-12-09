@@ -6,15 +6,9 @@ using System.Threading.Tasks;
 
 namespace CustomEngine.Rendering.Models.Materials
 {
-    public class MultiplyFunc : TwoArgFunc
+    public class MultiplyFunc : OperatorFunc
     {
-        public MultiplyFunc(params GLTypeName[] argTypes) : base(
-            new GLInput("A", argTypes),
-            new GLInput("B", argTypes),
-            new GLOutput("Result", argTypes))
-        {
-
-        }
+        public MultiplyFunc() : base() { }
         protected override string GetOperator() { return "*"; }
         public static MaterialFuncInfo GetInfo()
         {
@@ -22,7 +16,7 @@ namespace CustomEngine.Rendering.Models.Materials
                 "Math",
                 "A * B",
                 "Returns A * B.",
-                "multiply multiplied by *");
+                "multiply multiplied multiplication *");
         }
     }
 }

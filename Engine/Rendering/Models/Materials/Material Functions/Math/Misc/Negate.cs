@@ -7,31 +7,29 @@ using System.Threading.Tasks;
 namespace CustomEngine.Rendering.Models.Materials
 {
     /// <summary>
-    /// 1.0f - input
+    /// returns the absolute value of the input value
     /// </summary>
-    public class OneMinusFunc : MaterialFunction
+    public class NegateFunc : MaterialFunction
     {
         GLInput InputValue;
-
-        public OneMinusFunc() : base(true) { }
+        GLOutput OutputValue;
+        
+        public NegateFunc() : base(true) { }
         protected override string GetOperation()
         {
             switch (InputValue.CurrentArgumentType)
             {
                 case GLTypeName._float:
                 case GLTypeName._double:
-                    return "1.0 - {0}";
+                    return "-1.0 * {0}";
                 case GLTypeName._int:
-                case GLTypeName._uint:
-                    return "1 - {0}";
+                    return "-1 * {0}";
                 case GLTypeName._vec2:
-                    return "vec2(1.0) - {0}";
+                    return "vec2(-1.0) * {0}";
                 case GLTypeName._dvec2:
-                    return "dvec2(1.0) - {0}";
+                    return "dvec2(-1.0) * {0}";
                 case GLTypeName._ivec2:
-                    return "ivec2(1) - {0}";
-                case GLTypeName._uvec2:
-                    return "uvec2(1) - {0}";
+                    return "ivec2(-1) * {0}";
                 case GLTypeName._vec3:
                     return "vec3(1.0) - {0}";
                 case GLTypeName._dvec3:
@@ -53,16 +51,21 @@ namespace CustomEngine.Rendering.Models.Materials
         }
         protected override List<GLInput> GetInputs()
         {
-            InputValue = new GLInput("Value", NumericTypes);
+            InputValue = new GLInput("Value", SignedTypes);
             return new List<GLInput>() { InputValue };
+        }
+        protected override List<GLOutput> GetOutputs()
+        {
+            OutputValue = new GLOutput("Result", InputValue);
+            return new List<GLOutput>() { OutputValue };
         }
         public static MaterialFuncInfo GetInfo()
         {
             return new MaterialFuncInfo(
                 "Math",
-                "One Minus Value",
-                "Returns 1.0f - value.", 
-                "one minus value 1 - subtract");
+                "Absolute Value",
+                "Returns the absolute value of the given value.", 
+                "absolute value");
         }
     }
 }

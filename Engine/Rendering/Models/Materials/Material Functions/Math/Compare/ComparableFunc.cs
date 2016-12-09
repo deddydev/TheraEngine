@@ -6,31 +6,27 @@ using System.Threading.Tasks;
 
 namespace CustomEngine.Rendering.Models.Materials
 {
-    public abstract class TwoArgFunc : MaterialFunction
+    public abstract class ComparableFunc : MaterialFunction
     {
-        protected GLInput _a, _b;
-        protected GLOutput _out;
-        public TwoArgFunc(GLInput a, GLInput b, GLOutput output)
-        {
-            _a = a;
-            _b = b;
-            _out = output;
-            _inline = true;
-        }
+        GLInput A, B;
+        GLOutput Result;
 
+        public ComparableFunc() : base(true) { }
         protected override List<GLInput> GetInputs()
         {
-            return new List<GLInput>() { _a, _b };
+            A = new GLInput("A", NumericTypes);
+            B = new GLInput("B", A);
+            return new List<GLInput>() { A, B };
         }
         protected override List<GLOutput> GetOutputs()
         {
-            return new List<GLOutput>() { _out };
+            Result = new GLOutput("Result", GLTypeName._bool);
+            return new List<GLOutput>() { Result };
         }
-
-        protected abstract string GetOperator();
         protected override string GetOperation()
         {
             return "{0} " + GetOperator() + " {1}";
         }
+        protected abstract string GetOperator();
     }
 }

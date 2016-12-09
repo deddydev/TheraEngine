@@ -23,6 +23,13 @@ namespace CustomEngine.Rendering.Models.Materials
         public void SetSyncedArguments(params BaseGLArgument[] args) { _syncedArgs = args.ToList(); }
         public abstract bool CanConnectTo(BaseGLArgument other);
         public override string ToString() { return Name; }
+
+        internal const float _connectionBoxDims = 6.0f;
+
+        public void Arrange(int argumentIndex)
+        {
+            TranslationX = IsOutput ? MaterialFunction._padding + _connectionBoxDims + 
+        }
     }
     public enum ArgumentSyncType
     {

@@ -6,17 +6,17 @@ using System.Threading.Tasks;
 
 namespace CustomEngine.Rendering.Models.Materials
 {
-    public class LessFunc : ComparableFunc
+    public class EqualFunc : ComparableFunc
     {
-        public LessFunc() : base() { }
-        protected override string GetOperator() { return "<"; }
+        public EqualFunc() : base() { }
+        protected override string GetOperator() { return "=="; }
         public static MaterialFuncInfo GetInfo()
         {
             return new MaterialFuncInfo(
                 "Math",
-                "A < B",
-                "Returns true bool/bvec if A's individual components are less than B's.",
-                "less than <");
+                "A == B",
+                "Returns true bool/bvec if A's and B's individual components are equal.",
+                "equals ==");
         }
     }
 }

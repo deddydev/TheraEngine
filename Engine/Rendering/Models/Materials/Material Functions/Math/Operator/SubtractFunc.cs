@@ -6,15 +6,9 @@ using System.Threading.Tasks;
 
 namespace CustomEngine.Rendering.Models.Materials
 {
-    public class SubtractFunc : TwoArgFunc
+    public class SubtractFunc : OperatorFunc
     {
-        public SubtractFunc(params GLTypeName[] argTypes) : base(
-            new GLInput("A", argTypes),
-            new GLInput("B", argTypes),
-            new GLOutput("Result", argTypes))
-        {
-
-        }
+        public SubtractFunc() : base() { }
         protected override string GetOperator() { return "-"; }
         public static MaterialFuncInfo GetInfo()
         {
@@ -22,7 +16,7 @@ namespace CustomEngine.Rendering.Models.Materials
                 "Math",
                 "A - B",
                 "Returns A - B.",
-                "subtracted from -");
+                "subtracted - subtraction");
         }
     }
 }

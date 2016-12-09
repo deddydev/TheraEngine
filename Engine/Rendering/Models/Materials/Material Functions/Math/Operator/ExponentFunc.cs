@@ -6,18 +6,16 @@ using System.Threading.Tasks;
 
 namespace CustomEngine.Rendering.Models.Materials
 {
-    public class ExponentFunc : TwoArgFunc
+    public class ExponentFunc : OperatorFunc
     {
-        public ExponentFunc() : base(
-            new GLInput("A", GLTypeName._float), 
-            new GLInput("B", GLTypeName._float), 
-            new GLOutput("Result", GLTypeName._float))
-        {
-
-        }
+        public ExponentFunc() : base() { }
         protected override string GetOperation()
         {
             return "pow({0}, {1})";
+        }
+        protected override string GetOperator()
+        {
+            throw new NotImplementedException();
         }
         public static MaterialFuncInfo GetInfo()
         {
@@ -26,11 +24,6 @@ namespace CustomEngine.Rendering.Models.Materials
                 "Exponent",
                 "Returns A to the power of B.",
                 "exponent ^ power");
-        }
-
-        protected override string GetOperator()
-        {
-            throw new NotImplementedException();
         }
     }
 }

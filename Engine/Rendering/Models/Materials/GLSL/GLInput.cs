@@ -89,6 +89,27 @@ namespace CustomEngine.Rendering.Models.Materials
 
             return BezierFromPoint(_connectedTo.Location, time);
         }
+        public Vec2[] BezierPointsFromPoint(Vec2 otherPoint, int count)
+        {
+            Vec2 p0 = otherPoint;
+
+            Vec2 p1 = p0;
+            p1.X += 10.0f;
+
+            Vec2 p3 = Location;
+
+            Vec2 p2 = p3;
+            p2.X -= 10.0f;
+
+            return CustomMath.GetBezierPoints(p0, p1, p2, p3, count);
+        }
+        public Vec2[] BezierPointsFromOutputArg(Vec2 otherPoint, int count)
+        {
+            if (_connectedTo == null)
+                return null;
+
+            return BezierPointsFromPoint(_connectedTo.Location, count);
+        }
         public override bool CanConnectTo(BaseGLArgument other)
         {
             if (other == null)
@@ -125,6 +146,5 @@ namespace CustomEngine.Rendering.Models.Materials
                 //Returns true if there are any matching allowed types between the two
                 return AllowedArgumentTypes.Intersect(otherMultiArg.AllowedArgumentTypes).ToArray().Length != 0;
             }
-        }
     }
 }

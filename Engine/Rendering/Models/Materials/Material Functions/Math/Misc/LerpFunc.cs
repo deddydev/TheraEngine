@@ -11,18 +11,24 @@ namespace CustomEngine.Rendering.Models.Materials
     /// </summary>
     public class LerpFunc : MaterialFunction
     {
-        public GLInput Time { get { return InputArguments[0]; } }
-        
-        public LerpFunc(GLTypeName operandTypes) : base() { _inline = true; }
+        GLInput A, B, Time;
+        GLOutput Result;
+
+        public LerpFunc() : base(true) { }
         protected override string GetOperation() { return "mix({0}, {1}, {2})"; }
         protected override List<GLInput> GetInputs()
         {
-            GLInput a = new GLInput("A", GLTypeName._float, GLTypeName._vec2, GLTypeName._vec3, GLTypeName._vec4);
-            GLInput b = new GLInput("B", a);
-            return new List<GLInput>()
-            {
-                a, b, new GLInput("Time", GLTypeName._float),
-            };
+            A = new GLInput("A", FloatingPointTypes);
+            B = new GLInput("B", A);
+            Time = new GLInput("Time", GLTypeName._float);
+
+            return new List<GLInput>() { A, B, Time };
+        }
+        protected override List<GLOutput> GetOutputs()
+        {
+            Result = new GLOutput("Result", A);
+
+            return new List<GLOutput>() { Result };
         }
         public static MaterialFuncInfo GetInfo()
         {

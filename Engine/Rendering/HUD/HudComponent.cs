@@ -76,7 +76,12 @@ namespace CustomEngine.Rendering.HUD
         [Category("Transform")]
         public Vec2 BottomLeftTranslation
         {
-            get { return new Vec2(TranslationX - _translationLocalOrigin.X * Width, TranslationY - _translationLocalOrigin.Y * Height); }
+            get
+            {
+                return new Vec2(
+                    TranslationX - _translationLocalOrigin.X * Width,
+                    TranslationY - _translationLocalOrigin.Y * Height);
+            }
             set
             {
                 TranslationX = value.X + _translationLocalOrigin.X * Width;

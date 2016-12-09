@@ -6,15 +6,9 @@ using System.Threading.Tasks;
 
 namespace CustomEngine.Rendering.Models.Materials
 {
-    public class GreaterFunc : TwoArgFunc
+    public class GreaterFunc : ComparableFunc
     {
-        public GreaterFunc(GLTypeName argTypes) : base(
-            new GLInput("A", argTypes),
-            new GLInput("B", argTypes),
-            new GLOutput("Result", GLTypeName._bool))
-        {
-
-        }
+        public GreaterFunc() : base() { }
         protected override string GetOperator() { return ">"; }
         public static MaterialFuncInfo GetInfo()
         {

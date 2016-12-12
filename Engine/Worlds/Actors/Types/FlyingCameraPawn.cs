@@ -86,8 +86,8 @@ namespace CustomEngine.Worlds.Actors
             input.RegisterButtonPressed(EKey.W, MoveForward);
             input.RegisterButtonPressed(EKey.S, MoveBackward);
             input.RegisterButtonPressed(EKey.D, MoveRight);
-            input.RegisterButtonPressed(EKey.Q, MoveUp);
-            input.RegisterButtonPressed(EKey.E, MoveDown);
+            input.RegisterButtonPressed(EKey.Q, MoveDown);
+            input.RegisterButtonPressed(EKey.E, MoveUp);
             input.RegisterButtonPressed(EKey.ControlLeft, OnControl);
             input.RegisterButtonPressed(EKey.ControlRight, OnControl);
             input.RegisterButtonPressed(EKey.AltLeft, OnAlt);
@@ -205,7 +205,7 @@ namespace CustomEngine.Worlds.Actors
         }
         internal override void Tick(float delta)
         {
-            CameraComponent.Camera.TranslateRelative(new Vec3(_linearRight, _linearUp, _linearForward) * delta);
+            CameraComponent.Camera.TranslateRelative(new Vec3(_linearRight, _linearUp, -_linearForward) * delta);
             CameraComponent.Camera.Rotate(_pitch * delta, _yaw * delta);
             HighlightScene(true);
         }

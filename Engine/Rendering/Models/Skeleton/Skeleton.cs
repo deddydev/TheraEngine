@@ -40,7 +40,7 @@ namespace CustomEngine.Rendering.Models
         }
         public void CalcFrameMatrices()
         {
-            _rootBone?.CalcFrameMatrix(Model.GetWorldMatrix(), Model.GetInverseWorldMatrix());
+            _rootBone?.CalcFrameMatrix(Model.WorldMatrix, Model.InverseWorldMatrix);
         }
         internal override void Tick(float delta)
         {

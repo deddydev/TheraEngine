@@ -9,8 +9,8 @@ namespace System
     {
         public event Action AttributeChanged;
         
-        public Vec3 ToUntransformedShapeSpace(Vec3 point) { return GetInverseWorldMatrix() * point; }
-        public Vec3 FromUntransformedShapeSpace(Vec3 point) { return GetWorldMatrix() * point; }
+        public Vec3 ToUntransformedShapeSpace(Vec3 point) { return InverseWorldMatrix * point; }
+        public Vec3 FromUntransformedShapeSpace(Vec3 point) { return WorldMatrix * point; }
 
         public EContainment IsWithin(Shape shape) { return shape == null ? EContainment.Disjoint : shape.Contains(this); }
         public EContainment Contains(Shape shape)
@@ -31,14 +31,6 @@ namespace System
         public abstract EContainment Contains(Capsule capsule);
         public abstract bool Contains(Vec3 point);
         public override Shape CullingVolume { get { return this; } }
-        public override Matrix4 GetWorldMatrix()
-        {
-            return LinkedComponent != null ? LinkedComponent.WorldMatrix : Matrix4.Identity;
-        }
-        public override Matrix4 GetInverseWorldMatrix()
-        {
-            return LinkedComponent != null ? LinkedComponent.InverseWorldMatrix : Matrix4.Identity;
-        }
         public abstract void Render(bool solid);
         public abstract CollisionShape GetCollisionShape();
         public Mesh ToMesh() { return new Mesh(this); }

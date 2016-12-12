@@ -5,7 +5,7 @@ using System.Drawing;
 
 namespace CustomEngine.Worlds.Actors.Components
 {
-    public class LightComponent : GenericSceneComponent
+    public class LightComponent : TRSComponent
     {
         ColorF4 _color = Color.White;
         float _intensity = 1.0f;

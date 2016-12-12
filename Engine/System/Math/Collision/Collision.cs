@@ -623,7 +623,7 @@ namespace System
             //Reference: Page 179
 
             //Transform ray to untransformed box space
-            ray = ray.TransformedBy(box.GetInverseWorldMatrix());
+            ray = ray.TransformedBy(box.InverseWorldMatrix);
 
             distance = 0.0f;
             float tmax = float.MaxValue;
@@ -925,7 +925,7 @@ namespace System
             //Reference: Page 161
 
             //Transform plane into untransformed box space
-            plane = plane.TransformedBy(box.GetInverseWorldMatrix());
+            plane = plane.TransformedBy(box.InverseWorldMatrix);
 
             Vec3 min;
             Vec3 max;
@@ -1026,7 +1026,7 @@ namespace System
             //Source: Real-Time Collision Detection by Christer Ericson
             //Reference: Page 166
 
-            Vec3 pos = Vec3.TransformPosition(sphere.Center, box.GetInverseWorldMatrix());
+            Vec3 pos = Vec3.TransformPosition(sphere.Center, box.InverseWorldMatrix);
             Vec3 vector = pos.Clamped(box.Minimum, box.Maximum);
             float distance = pos.DistanceToSquared(vector);
 
@@ -1073,7 +1073,7 @@ namespace System
         public static bool BoxContainsPoint(Box box, Vec3 point)
         {
             //Transform point into untransformed box space
-            point = Vec3.TransformPosition(point, box.GetInverseWorldMatrix());
+            point = Vec3.TransformPosition(point, box.InverseWorldMatrix);
             if (box.Minimum.X <= point.X && box.Maximum.X >= point.X &&
                 box.Minimum.Y <= point.Y && box.Maximum.Y >= point.Y &&
                 box.Minimum.Z <= point.Z && box.Maximum.Z >= point.Z)
@@ -1141,7 +1141,7 @@ namespace System
         public static EContainment BoxContainsSphere(Box box, Sphere sphere)
         {
             //Transform sphere into untransformed box space
-            Vec3 sphereCenter = Vec3.TransformPosition(sphere.Center, box.GetInverseWorldMatrix());
+            Vec3 sphereCenter = Vec3.TransformPosition(sphere.Center, box.InverseWorldMatrix);
             Vec3 vector = Vec3.Clamp(sphereCenter, box.Minimum, box.Maximum);
             float distance = sphereCenter.DistanceToSquared(vector);
 

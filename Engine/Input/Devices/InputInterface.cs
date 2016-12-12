@@ -94,7 +94,7 @@ namespace CustomEngine.Input.Devices
         #endregion
 
         #region Keyboard input registration
-        public void RegisterButtonPressed(EKey button, Action<bool> func)
+        public void RegisterButtonPressed(EKey button, DelButtonState func)
         {
             _keyboard?.RegisterButtonPressed(button, func);
         }

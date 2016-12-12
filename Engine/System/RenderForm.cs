@@ -18,6 +18,8 @@ namespace CustomEngine
             if (!string.IsNullOrEmpty(iconPath) && File.Exists(iconPath))
                 Icon = new Icon(iconPath);
 
+            renderPanel1._context.Initialize();
+
             Engine.RegisterRenderTick(RenderTick);
             Engine.Initialize();
         }

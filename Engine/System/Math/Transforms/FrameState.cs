@@ -272,23 +272,51 @@ namespace System
         //    }
         //}
 
-        public static unsafe FrameState Derive(Matrix4 m)
+        public static unsafe FrameState DeriveTRS(Matrix4 m)
         {
             FrameState state = new FrameState();
 
             float* p = m.Data;
             
             //Translation is easy!
-            state._translate = *(Vector3*)&p[12];
+            state._translation = *(Vec3*)&p[12];
 
             //Scale, use sqrt of rotation columns
-            state._scale._x = (float)Math.Round(Math.Sqrt(p[0] * p[0] + p[1] * p[1] + p[2] * p[2]), 4);
-            state._scale._y = (float)Math.Round(Math.Sqrt(p[4] * p[4] + p[5] * p[5] + p[6] * p[6]), 4);
-            state._scale._z = (float)Math.Round(Math.Sqrt(p[8] * p[8] + p[9] * p[9] + p[10] * p[10]), 4);
+            state._scale.X = (float)Math.Round(Math.Sqrt(p[0] * p[0] + p[1] * p[1] + p[2] * p[2]), 4);
+            state._scale.Y = (float)Math.Round(Math.Sqrt(p[4] * p[4] + p[5] * p[5] + p[6] * p[6]), 4);
+            state._scale.Z = (float)Math.Round(Math.Sqrt(p[8] * p[8] + p[9] * p[9] + p[10] * p[10]), 4);
 
-            state._rotate = GetAngles();
+            float x, y, z, c;
+
+            y = (float)Math.Asin(-p[2]);
+            if ((CustomMath.PIf / 2.0f - Math.Abs(y)) < 0.0001f)
+            {
+                //Gimbal lock, occurs when the y rotation falls on pi/2 or -pi/2
+                z = 0.0f;
+                if (y > 0)
+                    x = (float)Math.Atan2(p[4], p[8]);
+                else
+                    x = (float)Math.Atan2(p[4], -p[8]);
+            }
+            else
+            {
+                c = (float)Math.Cos(y);
+                x = (float)Math.Atan2(p[6] / c, p[10] / c);
+                z = (float)Math.Atan2(p[1] / c, p[0] / c);
+
+                //180 z/x inverts y, use second option
+                if (CustomMath.PIf - Math.Abs(z) < 0.05f)
+                {
+                    y = CustomMath.PIf - y;
+                    c = (float)Math.Cos(y);
+                    x = (float)Math.Atan2(p[6] / c, p[10] / c);
+                    z = (float)Math.Atan2(p[1] / c, p[0] / c);
+                }
+            }
             
-            state.CalcTransforms();
+            state._rotation.PitchYawRoll = CustomMath.RadToDeg(new Vec3(x, y, z));
+
+            state.CreateTransform();
             return state;
         }
 

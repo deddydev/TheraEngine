@@ -7,9 +7,9 @@ using System.Threading.Tasks;
 
 namespace CustomEngine.Worlds.Actors.Components
 {
-    public class PositionRotationComponent : SceneComponent
+    public class TRComponent : SceneComponent
     {
-        public PositionRotationComponent() : base()
+        public TRComponent() : base()
         {
             _rotation = new Rotator();
             _rotation.Changed += RecalcLocalTransform;

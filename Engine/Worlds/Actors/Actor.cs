@@ -91,7 +91,7 @@ namespace CustomEngine.Worlds
         public bool HasRenderableComponents { get { return _renderableComponentCache.Count > 0; } }
 
         protected virtual void SetDefaults() { }
-        protected virtual SceneComponent SetupComponents() { return new GenericSceneComponent(); }
+        protected virtual SceneComponent SetupComponents() { return new TRSComponent(); }
         public void GenerateSceneComponentCache()
         {
             if (!_isConstructing)

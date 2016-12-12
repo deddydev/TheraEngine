@@ -35,9 +35,6 @@ namespace CustomEngine.Rendering.Models
             get { return _model; }
             set { _model = value; }
         }
-        public override Matrix4 GetWorldMatrix() { return _model != null ? _model.GetWorldMatrix() : Matrix4.Identity; }
-        public override Matrix4 GetInverseWorldMatrix() { return _model != null ? _model.GetInverseWorldMatrix() : Matrix4.Identity; }
-
         public override void OnSpawned()
         {
             //TODO: add material to list, get material id, add to cache with id, sort renderables by material id
@@ -55,7 +52,7 @@ namespace CustomEngine.Rendering.Models
             //if (_material.File == null)
             //    return;
 
-            _manager.Render(GetWorldMatrix());
+            _manager.Render(WorldMatrix);
         }
         public static implicit operator Mesh(Shape shape) { return new Mesh(shape); }
         public override PrimitiveData GetPrimitiveData() { return _manager.Data; }

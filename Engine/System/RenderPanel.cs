@@ -43,7 +43,7 @@ namespace CustomEngine
             AddViewport(new LocalPlayerController());
         }
         
-        private RenderContext _context;
+        internal RenderContext _context;
         protected int _updateCounter;
         private HudManager _globalHud;
         public List<Viewport> _viewports = new List<Viewport>();
@@ -135,7 +135,6 @@ namespace CustomEngine
                 SetRenderLibrary();
             _context.ContextChanged += OnContextChanged;
             _context.ResetOccured += OnReset;
-            _context.Initialize();
         }
         protected override void DestroyHandle()
         {

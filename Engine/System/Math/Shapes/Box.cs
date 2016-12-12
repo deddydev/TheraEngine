@@ -51,11 +51,11 @@ namespace System
 
         public Vec3 CenterPoint
         {
-            get { return Vec3.TransformPosition((_min + _max) / 2.0f, GetWorldMatrix()); }
+            get { return Vec3.TransformPosition((_min + _max) / 2.0f, WorldMatrix); }
             set
             {
                 Vec3 currentOrigin = (_min + _max) / 2.0f;
-                Vec3 newOrigin = Vec3.TransformPosition(value, GetInverseWorldMatrix());
+                Vec3 newOrigin = Vec3.TransformPosition(value, InverseWorldMatrix);
                 Vec3 diff = newOrigin - currentOrigin;
                 _min += diff;
                 _max += diff;
@@ -93,7 +93,7 @@ namespace System
             out Vec3 BFL,
             out Vec3 BFR)
         {
-            GetCorners(GetWorldMatrix(), out TBL, out TBR, out TFL, out TFR, out BBL, out BBR, out BFL, out BFR);
+            GetCorners(WorldMatrix, out TBL, out TBR, out TFL, out TFR, out BBL, out BBR, out BFL, out BFR);
         }
         /// <summary>
         /// T = top, B = bottom
@@ -129,7 +129,7 @@ namespace System
             BFL = transform * new Vec3(Left, Bottom, Front);
             BFR = transform * new Vec3(Right, Bottom, Front);
         }
-        public Vec3[] GetTransformedCorners() { return GetCorners(GetWorldMatrix()); }
+        public Vec3[] GetTransformedCorners() { return GetCorners(WorldMatrix); }
         public Vec3[] GetUntransformedCorners() { return GetCorners(Matrix4.Identity); }
         public Vec3[] GetCorners(Matrix4 transform)
         {
@@ -175,7 +175,7 @@ namespace System
         }
         public Frustum AsFrustum(bool transformed = true)
         {
-            Matrix4 m = transformed ? GetWorldMatrix() : Matrix4.Identity;
+            Matrix4 m = transformed ? WorldMatrix : Matrix4.Identity;
 
             Vec3 ftl, ftr, ntl, ntr, fbl, fbr, nbl, nbr;
             GetCorners(m, out ftl, out ftr, out ntl, out ntr, out fbl, out fbr, out nbl, out nbr);

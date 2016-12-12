@@ -11,25 +11,28 @@ namespace CustomEngine.Input.Devices
     {
         public CKeyboard(int index) : base(index) { }
 
-        public bool this[EKey key]
-        {
-            get
-            {
-                return false;
-            }
-        }
+        protected List<EKey> _registeredKeys = new List<EKey>();
 
         protected override int GetAxisCount() { return 0; }
-        protected override int GetButtonCount() { return 0; }
+        protected override int GetButtonCount() { return 132; }
 
-        public void RegisterButtonPressed(EKey axis, Action<bool> func)
+        private ButtonManager CacheKey(EKey key)
         {
-
+            int b = (int)key;
+            if (_buttonStates[b] == null)
+            {
+                _buttonStates[b] = new ButtonManager(key.ToString());
+                _registeredKeys.Add(key);
+            }
+            return _buttonStates[b];
         }
-
-        public void RegisterButtonEvent(EKey button, ButtonInputType type, Action func)
+        public void RegisterButtonPressed(EKey key, DelButtonState func)
         {
-
+            CacheKey(key)?.RegisterPressedState(func);
+        }
+        public void RegisterButtonEvent(EKey key, ButtonInputType type, Action func)
+        {
+            RegisterButtonEvent(CacheKey(key), type, func);
         }
     }
     public enum EKey

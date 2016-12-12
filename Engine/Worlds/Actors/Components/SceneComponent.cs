@@ -92,7 +92,7 @@ namespace CustomEngine.Worlds.Actors.Components
                 c.OnDespawned();
         }
         public abstract void RecalcLocalTransform();
-        public void RecalcGlobalTransform()
+        public virtual void RecalcGlobalTransform()
         {
             _worldTransform = ParentMatrix * LocalMatrix;
             _invWorldTransform = InverseLocalMatrix * ParentInvMatrix;

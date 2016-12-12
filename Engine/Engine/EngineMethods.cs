@@ -206,7 +206,7 @@ namespace CustomEngine
             if (unloadPrevious)
                 previous?.Unload();
         }
-        public static void QueuePossession(Pawn pawn, PlayerIndex possessor)
+        internal static void QueuePossession(Pawn pawn, PlayerIndex possessor)
         {
             int index = (int)possessor;
             if (index < ActivePlayers.Count)

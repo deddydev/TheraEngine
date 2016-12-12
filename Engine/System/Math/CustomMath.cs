@@ -13,6 +13,22 @@ namespace System
         {
             return radians * 180.0f / PIf;
         }
+        public static Vec2 DegToRad(Vec2 degrees)
+        {
+            return degrees * PIf / 180.0f;
+        }
+        public static Vec2 RadToDeg(Vec2 radians)
+        {
+            return radians * 180.0f / PIf;
+        }
+        public static Vec3 DegToRad(Vec3 degrees)
+        {
+            return degrees * PIf / 180.0f;
+        }
+        public static Vec3 RadToDeg(Vec3 radians)
+        {
+            return radians * 180.0f / PIf;
+        }
         public static Vec2[] GetBezierPoints(Vec2 p0, Vec2 p1, Vec2 p2, Vec2 p3, int pointCount, out float length)
         {
             Vec2[] points = new Vec2[pointCount];

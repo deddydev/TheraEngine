@@ -36,11 +36,16 @@ namespace CustomEngine.Worlds.Actors
         }
 
         public Pawn() : base() { }
-        public Pawn(PlayerIndex possessor) : base() { Engine.QueuePossession(this, possessor); }
+        public Pawn(PlayerIndex possessor) : base() { QueuePossession(possessor); }
         public Pawn(SceneComponent root, params LogicComponent[] logicComponents)
         : base (root, logicComponents) { }
         public Pawn(PlayerIndex possessor, SceneComponent root, params LogicComponent[] logicComponents)
-        : base(root, logicComponents) { Engine.QueuePossession(this, possessor); }
+        : base(root, logicComponents) { QueuePossession(possessor); }
+
+        public void QueuePossession(PlayerIndex possessor)
+        {
+            Engine.QueuePossession(this, possessor);
+        }
 
         public virtual void OnPossessed(PawnController c)
         {

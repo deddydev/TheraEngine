@@ -583,7 +583,7 @@
     <Compile Include="System\Memory\Bin16.cs" />
     <Compile Include="System\Memory\Bin24.cs" />
     <Compile Include="System\Memory\Bin32.cs" />
-    <Compile Include="System\MonitoredList.cs" />
+    <Compile Include="System\Data Structures\MonitoredList.cs" />
     <Compile Include="Rendering\Renderer\RenderOctree.cs" />
     <Compile Include="System\Platform\Linux.cs" />
     <Compile Include="System\Platform\OSX.cs" />
@@ -601,8 +601,21 @@
     </Compile>
     <Compile Include="System\Files\FileManager.cs" />
     <Compile Include="System\Tools\Remapper.cs" />
+    <Compile Include="System\Tools\Triangle Converter\CacheSimulator.cs" />
+    <Compile Include="System\Data Structures\Deque\Deque.cs" />
+    <Compile Include="System\Data Structures\Deque\GenericDeque.cs" />
+    <Compile Include="System\Data Structures\Deque\GenericDeque.Enumerator.cs" />
+    <Compile Include="System\Data Structures\Deque\GenericDeque.Node.cs" />
+    <Compile Include="System\Data Structures\Deque\GenericDeque.Synchronized.cs" />
+    <Compile Include="System\Data Structures\Deque\GenericTester.cs" />
+    <Compile Include="System\Data Structures\Deque\Tester.cs" />
+    <Compile Include="System\Tools\Triangle Converter\GraphArray.cs" />
+    <Compile Include="System\Tools\Triangle Converter\HeapArray.cs" />
+    <Compile Include="System\Tools\Triangle Converter\Policy.cs" />
+    <Compile Include="System\Tools\Triangle Converter\TriangleConverter.cs" />
+    <Compile Include="System\Tools\Triangle Converter\TriStripper.cs" />
+    <Compile Include="System\Tools\Triangle Converter\Types.cs" />
     <Compile Include="System\UInt24.cs" />
-    <Compile Include="System\RenderHandler.cs" />
     <Compile Include="Worlds\Actors\ActorState.cs" />
     <Compile Include="Worlds\Actors\Components\ComponentState.cs" />
     <Compile Include="Worlds\Actors\Components\Scene\Lights\LightComponent.cs" />

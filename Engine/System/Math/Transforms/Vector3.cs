@@ -434,6 +434,26 @@ namespace System
         //public float AngleY() { return (float)Atan2(-Z, X); }
         //public float AngleZ() { return (float)Atan2(Y, X); }
 
+        public bool IsInTriangle(Vec3 triPt1, Vec3 triPt2, Vec3 triPt3)
+        {
+            Vec3 v0 = triPt2 - triPt1;
+            Vec3 v1 = triPt3 - triPt1;
+            Vec3 v2 = this - triPt1;
+
+            float dot00 = v0.Dot(v0);
+            float dot01 = v0.Dot(v1);
+            float dot02 = v0.Dot(v2);
+            float dot11 = v1.Dot(v1);
+            float dot12 = v1.Dot(v2);
+
+            //Get barycentric coordinates
+            float d = (dot00 * dot11 - dot01 * dot01);
+            float u = (dot11 * dot02 - dot01 * dot12) / d;
+            float v = (dot00 * dot12 - dot01 * dot02) / d;
+
+            return u >= 0 && v >= 0 && u + v < 1;
+        }
+
         [XmlIgnore]
         public Vec2 Xy { get { return new Vec2(X, Y); } set { X = value.X; Y = value.Y; } }
         [XmlIgnore]

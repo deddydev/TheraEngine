@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using OpenTK.Input;
 
 namespace CustomEngine.Input.Devices.OpenTK
 {
@@ -12,7 +8,12 @@ namespace CustomEngine.Input.Devices.OpenTK
 
         protected override void UpdateStates(float delta)
         {
+            KeyboardState state = Keyboard.GetState();
+            if (!UpdateConnected(state.IsConnected))
+                return;
 
+            foreach (EKey key in _registeredKeys)
+                _buttonStates[(int)key].Tick(state.IsKeyDown((Key)(int)key), delta);
         }
     }
 }

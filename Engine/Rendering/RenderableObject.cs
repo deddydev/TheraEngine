@@ -16,8 +16,8 @@ namespace CustomEngine.Rendering
     {
         PrimitiveComponent LinkedComponent { get; set; }
         List<PrimitiveData> GetPrimitives();
-        Matrix4 GetWorldMatrix();
-        Matrix4 GetInverseWorldMatrix();
+        Matrix4 WorldMatrix { get; set; }
+        Matrix4 InverseWorldMatrix { get; set; }
         void OnSpawned();
         void OnDespawned();
         RenderableObject[] GetChildren(bool visibleByDefaultOnly);
@@ -26,6 +26,9 @@ namespace CustomEngine.Rendering
     }
     public abstract class RenderableObjectContainer<T> : FileObject, IRenderableObjectContainer, IEnumerable<T> where T : RenderableObject
     {
+        private Matrix4 
+            _worldMatrix = Matrix4.Identity,
+            _inverseWorldMatrix = Matrix4.Identity;
         protected PrimitiveComponent _linkedComponent;
         protected MonitoredList<T> _children = new MonitoredList<T>();
 
@@ -34,8 +37,26 @@ namespace CustomEngine.Rendering
             _children.Removed += ChildRemoved;
             _children.Added += ChildAdded;
         }
-        protected virtual void ChildAdded(T item) { }
-        protected virtual void ChildRemoved(T item) { }
+        public Matrix4 WorldMatrix
+        {
+            get { return _worldMatrix; }
+            set
+            {
+                _worldMatrix = value;
+                foreach (T child in _children)
+                    child.WorldMatrix = _worldMatrix;
+            }
+        }
+        public Matrix4 InverseWorldMatrix
+        {
+            get { return _inverseWorldMatrix; }
+            set
+            {
+                _inverseWorldMatrix = value;
+                foreach (T child in _children)
+                    child.InverseWorldMatrix = _inverseWorldMatrix;
+            }
+        }
         public MonitoredList<T> Children { get { return _children; } }
         public PrimitiveComponent LinkedComponent
         {
@@ -49,21 +70,24 @@ namespace CustomEngine.Rendering
                 if (oldComp != null)
                     oldComp.Primitive = null;
                 if (_linkedComponent != null)
+                {
+                    _worldMatrix = _linkedComponent.WorldMatrix;
+                    _inverseWorldMatrix = _linkedComponent.InverseLocalMatrix;
                     _linkedComponent.Primitive = this;
+                }
+                else
+                {
+                    _worldMatrix = Matrix4.Identity;
+                    _inverseWorldMatrix = Matrix4.Identity;
+                }
             }
         }
         public virtual List<PrimitiveData> GetPrimitives()
         {
             return _children.Select(x => x.GetPrimitiveData()).ToList();
         }
-        public virtual Matrix4 GetWorldMatrix()
-        {
-            return LinkedComponent == null ? Matrix4.Identity : LinkedComponent.WorldMatrix;
-        }
-        public virtual Matrix4 GetInverseWorldMatrix()
-        {
-            return LinkedComponent == null ? Matrix4.Identity : LinkedComponent.InverseWorldMatrix;
-        }
+        protected virtual void ChildAdded(T item) { }
+        protected virtual void ChildRemoved(T item) { }
         public virtual void OnSpawned()
         {
             _children.ForEach(x => x.OnSpawned());
@@ -72,10 +96,6 @@ namespace CustomEngine.Rendering
         {
             _children.ForEach(x => x.OnDespawned());
         }
-
-        public IEnumerator<T> GetEnumerator() { return ((IEnumerable<T>)_children).GetEnumerator(); }
-        IEnumerator IEnumerable.GetEnumerator() { return ((IEnumerable<T>)_children).GetEnumerator(); }
-
         public RenderableObject[] GetChildren(bool visibleByDefaultOnly)
         {
             if (visibleByDefaultOnly)
@@ -91,6 +111,8 @@ namespace CustomEngine.Rendering
         {
             return _children.Select(x => x as RenderableObject).Where(x => !x.Visible).ToArray();
         }
+        public IEnumerator<T> GetEnumerator() { return ((IEnumerable<T>)_children).GetEnumerator(); }
+        IEnumerator IEnumerable.GetEnumerator() { return ((IEnumerable<T>)_children).GetEnumerator(); }
     }
     public abstract class RenderableObject : RenderableObjectContainer<RenderableObject>
     {

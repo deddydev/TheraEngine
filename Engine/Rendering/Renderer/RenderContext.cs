@@ -11,7 +11,7 @@ namespace CustomEngine.Rendering
         public event EventHandler ResetOccured;
 
         public static List<RenderContext> BoundContexts = new List<RenderContext>();
-
+        
         private static RenderContext _current;
         public static RenderContext Current
         {

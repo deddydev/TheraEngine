@@ -7,9 +7,9 @@ using System.Threading.Tasks;
 
 namespace CustomEngine.Worlds.Actors.Components
 {
-    public class GenericSceneComponent : PositionRotationComponent
+    public class TRSComponent : TRComponent
     {
-        public GenericSceneComponent() : base() { }
+        public TRSComponent() : base() { }
 
         private Vec3 _scale = Vec3.One;
 

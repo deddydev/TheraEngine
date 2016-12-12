@@ -9,11 +9,17 @@ namespace CustomEngine.Worlds.Actors.Components
 {
     public class PositionRotationComponent : SceneComponent
     {
-        protected Rotator _rotation;
-        protected Vec3 _translation;
-        protected bool _rotateFirst;
+        public PositionRotationComponent() : base()
+        {
+            _rotation = new Rotator();
+            _rotation.Changed += RecalcLocalTransform;
+            _translation = new MonitoredVec3();
+        }
 
-        public Vec3 Translation
+        protected Rotator _rotation;
+        protected MonitoredVec3 _translation;
+
+        public MonitoredVec3 Translation
         {
             get { return _translation; }
             set
@@ -22,58 +28,36 @@ namespace CustomEngine.Worlds.Actors.Components
                 RecalcLocalTransform();
             }
         }
-        public Vec3 Rotation
+        public Rotator Rotation
         {
             get { return _rotation; }
             set
             {
                 _rotation = value;
+                _rotation.Changed += RecalcLocalTransform;
                 RecalcLocalTransform();
             }
         }
-        public bool RotateFirst
-        {
-            get { return _rotateFirst; }
-            set
-            {
-                _rotateFirst = value;
-                RecalcLocalTransform();
-            }
-        }
-
-        public PositionRotationComponent() : base() { _rotateFirst = false; }
-        public PositionRotationComponent(bool rotateFirst = false) : base() { _rotateFirst = rotateFirst; }
         public override void RecalcLocalTransform()
         {
             Matrix4 
                 r = Matrix4.CreateFromRotator(_rotation), 
                 ir = Matrix4.CreateFromRotator(_rotation.Inverted());
 
-            Matrix4 
+            Matrix4
                 t = Matrix4.CreateTranslation(_translation), 
-                it = Matrix4.CreateTranslation(-_translation);
+                it = Matrix4.CreateTranslation(-(Vec3)_translation);
 
-            if (_rotateFirst)
-            {
-                _localTransform = r * t;
-                _invLocalTransform = it * ir;
-            }
-            else
-            {
-                _localTransform = t * r;
-                _invLocalTransform = ir * it;
-            }
+            _localTransform = t * r;
+            _invLocalTransform = ir * it;
+
             RecalcGlobalTransform();
         }
-
-        public void TranslateAbsolute(Vec3 translation)
+        public void TranslateRelative(Vec3 translation)
         {
-            if (_rotateFirst)
-            {
-                _localTransform = Matrix4.CreateTranslation(translation) * _localTransform;
-                _invLocalTransform = _invLocalTransform * Matrix4.CreateTranslation(-translation);
-                _translation = _localTransform.GetPoint();
-            }
+            _localTransform = _localTransform * Matrix4.CreateTranslation(translation);
+            _invLocalTransform = Matrix4.CreateTranslation(-translation) * _invLocalTransform;
+            _translation = _localTransform.GetPoint();
         }
     }
 }

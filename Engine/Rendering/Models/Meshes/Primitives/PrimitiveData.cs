@@ -228,12 +228,12 @@ namespace CustomEngine.Rendering.Models
             for (int i = 0; i < info._positionCount; ++i)
             {
                 var data = remapper.ImplementationTable.Select(x => vertices[x]._position).ToList();
-                AddBuffer(data, new VertexAttribInfo(BufferType.Position, i));
+                AddBuffer(data, new VertexAttribInfo(BufferType.Position, 0));
             }
             for (int i = 0; i < info._normalCount; ++i)
             {
                 var data = remapper.ImplementationTable.Select(x => vertices[x]._normal).ToList();
-                AddBuffer(data, new VertexAttribInfo(BufferType.Normal, i));
+                AddBuffer(data, new VertexAttribInfo(BufferType.Normal, 1));
             }
             //for (int i = 0; i < info._binormalCount; ++i)
             //{
@@ -248,7 +248,7 @@ namespace CustomEngine.Rendering.Models
             for (int i = 0; i < info._texcoordCount; ++i)
             {
                 var data = remapper.ImplementationTable.Select(x => vertices[x]._texCoord).ToList();
-                AddBuffer(data, new VertexAttribInfo(BufferType.TexCoord, i));
+                AddBuffer(data, new VertexAttribInfo(BufferType.TexCoord, 2));
             }
             //for (int i = 0; i < info._colorCount; ++i)
             //{

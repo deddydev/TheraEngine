@@ -115,16 +115,10 @@ namespace CustomEngine.Worlds.Actors.Components
         public Matrix4 LocalMatrix { get { return _localTransform; } }
         public Matrix4 InverseLocalMatrix { get { return _invLocalTransform; } }
 
-        public void SetLocalMatrix(Matrix4 matrix, Matrix4 inverse)
+        internal virtual void RebaseOriginRootComponent(Vec3 newOrigin)
         {
-            _localTransform = matrix;
-            _invLocalTransform = inverse;
-            RecalcGlobalTransform();
-        }
-        public void SetLocalMatrix(Matrix4 matrix)
-        {
-            _localTransform = matrix;
-            _invLocalTransform = matrix.Inverted();
+            _localTransform = Matrix4.CreateTranslation(-newOrigin) * LocalMatrix;
+            _invLocalTransform = InverseLocalMatrix * Matrix4.CreateTranslation(newOrigin);
             RecalcGlobalTransform();
         }
 

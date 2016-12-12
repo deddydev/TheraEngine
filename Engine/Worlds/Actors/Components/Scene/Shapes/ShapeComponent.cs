@@ -3,7 +3,7 @@ using System;
 
 namespace CustomEngine.Worlds.Actors.Components
 {
-    public abstract class ShapeComponent : GenericPrimitiveComponent
+    public abstract class ShapeComponent : PrimitiveComponent
     {
         protected CollisionShape _collisionShape;
 

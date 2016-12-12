@@ -30,7 +30,7 @@ namespace System
         public abstract EContainment Contains(Sphere sphere);
         public abstract EContainment Contains(Capsule capsule);
         public abstract bool Contains(Vec3 point);
-        public override Shape GetCullingVolume() { return this; }
+        public override Shape CullingVolume { get { return this; } }
         public override Matrix4 GetWorldMatrix()
         {
             return LinkedComponent != null ? LinkedComponent.WorldMatrix : Matrix4.Identity;

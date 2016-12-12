@@ -9,48 +9,35 @@ namespace System
 {
     [Serializable]
     [StructLayout(LayoutKind.Sequential)]
-    public unsafe struct Rotator : IEquatable<Rotator>, IUniformable3Float, IBufferable
+    public unsafe class Rotator : IEquatable<Rotator>
     {
+        public Rotator() : this(Order.YPR) { }
+
         public Rotator(Order order) : this(0.0f, 0.0f, 0.0f, order) { }
         public Rotator(float pitch, float yaw, float roll, Order rotationOrder)
-        { Yaw = yaw; Pitch = pitch; Roll = roll; RotationOrder = rotationOrder; }
+        {
+            Yaw = yaw;
+            Pitch = pitch;
+            Roll = roll;
+            _rotationOrder = rotationOrder;
+        }
 
-        public float Yaw, Pitch, Roll;
-        public Order RotationOrder;
+        public Vec3 _pyr;
+        public Order _rotationOrder = Order.YPR;
+        public event Action Changed;
+        private int _updateIndex = 0;
         
-        public float* Data { get { return (float*)Address; } }
-        public VoidPtr Address { get { fixed (void* p = &this) return p; } }
-        public VertexBuffer.ComponentType ComponentType { get { return VertexBuffer.ComponentType.Float; } }
-        public int ComponentCount { get { return 3; } }
-        bool IBufferable.Normalize { get { return false; } }
-        public void Write(VoidPtr address)
-        {
-            float* data = (float*)address;
-            for (int i = 0; i < ComponentCount; ++i)
-                *data++ = Data[i];
-        }
-
-        public float this[int index]
-        {
-            get
-            {
-                if (index < 0 || index > 2)
-                    throw new IndexOutOfRangeException("Cannot access rotator at index " + index);
-                return Data[index];
-            }
-            set
-            {
-                if (index < 0 || index > 2)
-                    throw new IndexOutOfRangeException("Cannot access rotator at index " + index);
-                Data[index] = value;
-            }
-        }
-
         public static readonly int SizeInBytes = Marshal.SizeOf(new Rotator());
 
         public static Rotator FromQuaternion()
         {
             throw new NotImplementedException();
+        }
+        private void BeginUpdate() { ++_updateIndex; }
+        private void EndUpdate()
+        {
+            if (--_updateIndex == 0)
+                Changed?.Invoke();
         }
         public Quaternion GetQuaternion() { return Quaternion.FromRotator(this); }
         public Matrix4 GetMatrix() { return Matrix4.CreateFromRotator(this); }
@@ -63,40 +50,59 @@ namespace System
         public Quaternion GetYawQuat() { return Quaternion.FromAxisAngle(Vec3.Up, Yaw); }
         public Quaternion GetPitchQuat() { return Quaternion.FromAxisAngle(Vec3.Right, Pitch); }
         public Quaternion GetRollQuat() { return Quaternion.FromAxisAngle(Vec3.Forward, Roll); }
+        public void SetDirection(Vec3 value)
+        {
+            BeginUpdate();
+            value.LookatAngles(out _pyr.Y, out _pyr.X);
+            EndUpdate();
+        }
         public Rotator WithNegatedRotations()
         {
-            return new Rotator(-Pitch, -Yaw, -Roll, RotationOrder);
+            return new Rotator(-Pitch, -Yaw, -Roll, _rotationOrder);
         }
         public void NegateRotations()
         {
+            BeginUpdate();
             Yaw = -Yaw;
             Pitch = -Pitch;
             Roll = -Roll;
+            EndUpdate();
         }
         public void ReverseRotations()
         {
+            BeginUpdate();
             Yaw = Yaw + 180.0f;
             Pitch = Pitch + 180.0f;
             Roll = Roll + 180.0f;
+            EndUpdate();
         }
         public void ClearWinding()
         {
+            BeginUpdate();
             Yaw = Yaw.RemapToRange(0.0f, 360.0f);
             Pitch = Pitch.RemapToRange(0.0f, 360.0f);
             Roll = Roll.RemapToRange(0.0f, 360.0f);
+            EndUpdate();
         }
         public int GetYawWindCount() { return (int)(Yaw / 360.0f); }
         public int GetPitchWindCount() { return (int)(Pitch / 360.0f); }
         public int GetRollWindCount() { return (int)(Roll / 360.0f); }
-        public void ReverseOrder() { RotationOrder = OppositeOf(RotationOrder); }
+        public void ReverseOrder()
+        {
+            BeginUpdate();
+            _rotationOrder = OppositeOf(_rotationOrder);
+            EndUpdate();
+        }
         public void Invert()
         {
+            BeginUpdate();
             NegateRotations();
             ReverseOrder();
+            EndUpdate();
         }
         public Rotator Inverted()
         {
-            return new Rotator(-Pitch, -Yaw, -Roll, OppositeOf(RotationOrder));
+            return new Rotator(-Pitch, -Yaw, -Roll, OppositeOf(_rotationOrder));
         }
         public static Order OppositeOf(Order order)
         {
@@ -136,9 +142,11 @@ namespace System
         }
         public void Clamp(Rotator min, Rotator max)
         {
+            BeginUpdate();
             Yaw = Yaw < min.Yaw ? min.Yaw : Yaw > max.Yaw ? max.Yaw : Yaw;
             Pitch = Pitch < min.Pitch ? min.Pitch : Pitch > max.Pitch ? max.Pitch : Pitch;
             Roll = Roll < min.Roll ? min.Roll : Roll > max.Roll ? max.Roll : Roll;
+            EndUpdate();
         }
         public Rotator Clamped(Rotator min, Rotator max)
         {
@@ -148,37 +156,205 @@ namespace System
             v.Roll = Roll < min.Roll ? min.Roll : Roll > max.Roll ? max.Roll : Roll;
             return v;
         }
-        
+
+        public void SetRotations(float pitch, float yaw, float roll)
+        {
+            BeginUpdate();
+            Pitch = pitch;
+            Yaw = yaw;
+            Roll = roll;
+            EndUpdate();
+        }
+
         [XmlIgnore]
-        public Vec2 YawPitch { get { return new Vec2(Yaw, Pitch); } set { Yaw = value.X; Pitch = value.Y; } }
+        public Vec2 YawPitch
+        {
+            get { return new Vec2(Yaw, Pitch); }
+            set
+            {
+                BeginUpdate();
+                Yaw = value.X;
+                Pitch = value.Y;
+                EndUpdate();
+            }
+        }
         [XmlIgnore]
-        public Vec2 YawRoll { get { return new Vec2(Yaw, Roll); } set { Yaw = value.X; Roll = value.Y; } }
+        public float Yaw
+        {
+            get { return _pyr.Y; }
+            set
+            {
+                BeginUpdate();
+                _pyr.Y = value;
+                EndUpdate();
+            }
+        }
         [XmlIgnore]
-        public Vec2 PitchYaw { get { return new Vec2(Pitch, Yaw); } set { Pitch = value.X; Yaw = value.Y; } }
+        public float Pitch
+        {
+            get { return _pyr.X; }
+            set
+            {
+                BeginUpdate();
+                _pyr.X = value;
+                EndUpdate();
+            }
+        }
         [XmlIgnore]
-        public Vec2 PitchRoll { get { return new Vec2(Pitch, Roll); } set { Pitch = value.X; Roll = value.Y; } }
+        public float Roll
+        {
+            get { return _pyr.Z; }
+            set
+            {
+                BeginUpdate();
+                _pyr.Z = value;
+                EndUpdate();
+            }
+        }
         [XmlIgnore]
-        public Vec2 RollYaw { get { return new Vec2(Roll, Yaw); } set { Roll = value.X; Yaw = value.Y; } }
+        public Vec2 YawRoll
+        {
+            get { return new Vec2(Yaw, Roll); }
+            set
+            {
+                BeginUpdate();
+                Yaw = value.X;
+                Roll = value.Y;
+                EndUpdate();
+            }
+        }
         [XmlIgnore]
-        public Vec2 RollPitch { get { return new Vec2(Roll, Pitch); } set { Roll = value.X; Pitch = value.Y; } }
+        public Vec2 PitchYaw
+        {
+            get { return new Vec2(Pitch, Yaw); }
+            set
+            {
+                BeginUpdate();
+                Pitch = value.X;
+                Yaw = value.Y;
+                EndUpdate();
+            }
+        }
         [XmlIgnore]
-        public Vec3 YawPitchRoll { get { return new Vec3(Yaw, Pitch, Roll); } set { Yaw = value.X; Pitch = value.Y; Roll = value.Z; } }
+        public Vec2 PitchRoll
+        {
+            get { return new Vec2(Pitch, Roll); }
+            set
+            {
+                BeginUpdate();
+                Pitch = value.X;
+                Roll = value.Y;
+                EndUpdate();
+            }
+        }
         [XmlIgnore]
-        public Vec3 YawRollPitch { get { return new Vec3(Yaw, Roll, Pitch); } set { Yaw = value.X; Roll = value.Y; Pitch = value.Z; } }
+        public Vec2 RollYaw
+        {
+            get { return new Vec2(Roll, Yaw); }
+            set
+            {
+                BeginUpdate();
+                Roll = value.X;
+                Yaw = value.Y;
+                EndUpdate();
+            }
+        }
         [XmlIgnore]
-        public Vec3 PitchYawRoll { get { return new Vec3(Pitch, Yaw, Roll); } set { Pitch = value.X; Yaw = value.Y; Roll = value.Z; } }
+        public Vec2 RollPitch
+        {
+            get { return new Vec2(Roll, Pitch); }
+            set
+            {
+                BeginUpdate();
+                Roll = value.X;
+                Pitch = value.Y;
+                EndUpdate();
+            }
+        }
         [XmlIgnore]
-        public Vec3 PitchRollYaw { get { return new Vec3(Pitch, Roll, Yaw); } set { Pitch = value.X; Roll = value.Y; Yaw = value.Z; } }
+        public Vec3 YawPitchRoll
+        {
+            get { return new Vec3(Yaw, Pitch, Roll); }
+            set
+            {
+                BeginUpdate();
+                Yaw = value.X;
+                Pitch = value.Y;
+                Roll = value.Z;
+                EndUpdate();
+            }
+        }
         [XmlIgnore]
-        public Vec3 RollYawPitch { get { return new Vec3(Roll, Yaw, Pitch); } set { Roll = value.X; Yaw = value.Y; Pitch = value.Z; } }
+        public Vec3 YawRollPitch
+        {
+            get { return new Vec3(Yaw, Roll, Pitch); }
+            set
+            {
+                BeginUpdate();
+                Yaw = value.X;
+                Roll = value.Y;
+                Pitch = value.Z;
+                EndUpdate();
+            }
+        }
         [XmlIgnore]
-        public Vec3 RollPitchYaw { get { return new Vec3(Roll, Pitch, Yaw); } set { Roll = value.X; Pitch = value.Y; Yaw = value.Z; } }
+        public Vec3 PitchYawRoll
+        {
+            get { return new Vec3(Pitch, Yaw, Roll); }
+            set
+            {
+                BeginUpdate();
+                Pitch = value.X;
+                Yaw = value.Y;
+                Roll = value.Z;
+                EndUpdate();
+            }
+        }
+        [XmlIgnore]
+        public Vec3 PitchRollYaw
+        {
+            get { return new Vec3(Pitch, Roll, Yaw); }
+            set
+            {
+                BeginUpdate();
+                Pitch = value.X;
+                Roll = value.Y;
+                Yaw = value.Z;
+                EndUpdate();
+            }
+        }
+        [XmlIgnore]
+        public Vec3 RollYawPitch
+        {
+            get { return new Vec3(Roll, Yaw, Pitch); }
+            set
+            {
+                BeginUpdate();
+                Roll = value.X;
+                Yaw = value.Y;
+                Pitch = value.Z;
+                EndUpdate();
+            }
+        }
+        [XmlIgnore]
+        public Vec3 RollPitchYaw
+        {
+            get { return new Vec3(Roll, Pitch, Yaw); }
+            set
+            {
+                BeginUpdate();
+                Roll = value.X;
+                Pitch = value.Y;
+                Yaw = value.Z;
+                EndUpdate();
+            }
+        }
         
         public static bool operator ==(Rotator left, Rotator right) { return left.Equals(right); }
         public static bool operator !=(Rotator left, Rotator right) { return !left.Equals(right); }
         
-        public static implicit operator Vec3(Rotator v) { return new Vec3(v.Yaw, v.Pitch, v.Roll); }
-        public static implicit operator Rotator(Vec3 v) { return new Rotator(v.X, v.Y, v.Z, Order.PYR); }
+        public static explicit operator Vec3(Rotator v) { return new Vec3(v.Yaw, v.Pitch, v.Roll); }
+        public static explicit operator Rotator(Vec3 v) { return new Rotator(v.X, v.Y, v.Z, Order.PYR); }
 
         private static string listSeparator = Globalization.CultureInfo.CurrentCulture.TextInfo.ListSeparator;
         public static Rotator GetZero(Order order = Order.YPR)

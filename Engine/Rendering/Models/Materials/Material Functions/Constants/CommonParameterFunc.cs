@@ -8,8 +8,8 @@ namespace CustomEngine.Rendering.Models.Materials
 {
     public class CommonParameterFunc : MaterialFunction
     {
-        public CommonParameterFunc() : base() { }
-        public CommonParameterFunc(ECommonUniform value) { _value = value; }
+        public CommonParameterFunc() : base(true) { }
+        public CommonParameterFunc(ECommonUniform value) : base(true) { _value = value; }
 
         ECommonUniform _value;
         GLTypeName _type;

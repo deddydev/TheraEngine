@@ -10,7 +10,6 @@ namespace CustomEngine.Worlds.Actors.Components
     public class GenericSceneComponent : PositionRotationComponent
     {
         public GenericSceneComponent() : base() { }
-        public GenericSceneComponent(bool rotateFirst) : base(rotateFirst) { }
 
         private Vec3 _scale = Vec3.One;
 

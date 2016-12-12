@@ -6,10 +6,10 @@ using CustomEngine.Rendering;
 
 namespace CustomEngine.Worlds.Actors.Components
 {
-    public abstract class GenericPrimitiveComponent : GenericSceneComponent
+    public abstract class PrimitiveComponent : GenericSceneComponent
     {
-        public GenericPrimitiveComponent() { }
-        public GenericPrimitiveComponent(IRenderableObjectContainer obj) { _primitive = obj; }
+        public PrimitiveComponent() { }
+        public PrimitiveComponent(IRenderableObjectContainer obj) { _primitive = obj; }
 
         private IRenderableObjectContainer _primitive;
         internal IRenderableObjectContainer Primitive

@@ -461,7 +461,8 @@
     <Compile Include="Rendering\Models\Materials\Material Functions\Logic\IfFunc.cs" />
     <Compile Include="Rendering\Models\Materials\Material Functions\MaterialFunction.cs" />
     <Compile Include="Rendering\Models\Materials\Material Functions\Math\Compare\ComparableFunc.cs" />
-    <Compile Include="Rendering\Models\Materials\Material Functions\Math\Misc\Negate.cs" />
+    <Compile Include="Rendering\Models\Materials\Material Functions\Math\Misc\InverseFunc.cs" />
+    <Compile Include="Rendering\Models\Materials\Material Functions\Math\Misc\NegateFunc.cs" />
     <Compile Include="Rendering\Models\Materials\Material Functions\Math\Misc\AbsFunc.cs" />
     <Compile Include="Rendering\Models\Materials\Material Functions\Math\Operator\OperatorFunc.cs" />
     <Compile Include="Rendering\Models\Materials\Material Functions\Math\Compare\GEqualFunc.cs" />
@@ -537,6 +538,7 @@
     <Compile Include="Rendering\Models\Meshes\Faces\Index\IndexLine.cs" />
     <Compile Include="Rendering\Models\Meshes\Faces\Index\IndexTriangleFan.cs" />
     <Compile Include="Rendering\Models\Meshes\Faces\Index\IndexTriangleStrip.cs" />
+    <Compile Include="Rendering\Renderer\LightManager.cs" />
     <Compile Include="Rendering\Renderer\States\TransformFeedback.cs" />
     <Compile Include="Rendering\Renderer\TriangleOctree.cs" />
     <Compile Include="Rendering\Renderer\SceneProcessor.cs" />
@@ -573,6 +575,7 @@
     <Compile Include="System\Math\Transforms\Quaternion.cs" />
     <Compile Include="System\Math\Transforms\Vector2.cs" />
     <Compile Include="System\Math\Transforms\Rotator.cs" />
+    <Compile Include="System\Math\Transforms\MonitoredVector3.cs" />
     <Compile Include="System\Math\Transforms\Vector3.cs" />
     <Compile Include="System\Math\Transforms\Vector4.cs" />
     <Compile Include="System\Memory\Bin64.cs" />

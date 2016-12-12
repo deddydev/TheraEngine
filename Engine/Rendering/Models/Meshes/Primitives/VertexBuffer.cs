@@ -143,6 +143,8 @@ namespace CustomEngine.Rendering.Models
         }
 
         public VoidPtr Data { get { return _data.Address; } }
+        public int ComponentCount { get { return _componentCount; } }
+        public int ElementCount { get { return _elementCount; } }
         public int DataLength { get { return _elementCount * Stride; } }
         public int Stride { get { return _componentCount * ElementSize; } }
         private int ElementSize
@@ -173,21 +175,23 @@ namespace CustomEngine.Rendering.Models
             if (_location >= 0)
             {
                 GL.EnableVertexAttribArray(_index);
-                //GL.VertexAttribPointer(_index, _componentCount, VertexAttribPointerType.Byte + (int)_componentType, _normalize, 0, 0);
+                GL.VertexAttribPointer(_index, _componentCount, VertexAttribPointerType.Byte + (int)_componentType, _normalize, 0, 0);
                 GL.VertexAttribFormat(_location, _componentCount, VertexAttribType.Byte + (int)_componentType, _normalize, 0);
                 GL.VertexAttribBinding(_location, _index);
             }
+            //GL.BufferData(_target, (IntPtr)_data.Length, _data.Address, BufferUsageHint.StreamDraw);
             GL.BufferStorage(_target, (IntPtr)_data.Length, _data.Address,
                 BufferStorageFlags.MapWriteBit |
                 BufferStorageFlags.MapReadBit |
                 BufferStorageFlags.MapPersistentBit |
                 BufferStorageFlags.MapCoherentBit |
                 BufferStorageFlags.ClientStorageBit);
-            _data.Address = GL.MapBufferRange(_target, (IntPtr)0, (IntPtr)DataLength,
+            _data.Dispose();
+            _data = new DataSource(GL.MapBufferRange(_target, (IntPtr)0, (IntPtr)DataLength,
                 BufferAccessMask.MapPersistentBit |
                 BufferAccessMask.MapCoherentBit |
                 BufferAccessMask.MapReadBit |
-                BufferAccessMask.MapWriteBit);
+                BufferAccessMask.MapWriteBit), DataLength);
         }
         public void Bind() { GL.BindBuffer(_target, BindingId); }
         /// <summary>

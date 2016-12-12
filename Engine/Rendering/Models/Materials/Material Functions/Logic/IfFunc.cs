@@ -8,6 +8,7 @@ namespace CustomEngine.Rendering.Models.Materials
 {
     public class IfFunc : MaterialFunction
     {
+        public IfFunc() : base(true) { }
         protected override string GetOperation()
         {
             throw new NotImplementedException();

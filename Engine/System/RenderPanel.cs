@@ -193,14 +193,7 @@ namespace CustomEngine
             }
         }
 
-        public IEnumerator<Viewport> GetEnumerator()
-        {
-            return ((IEnumerable<Viewport>)_viewports).GetEnumerator();
-        }
-
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return ((IEnumerable<Viewport>)_viewports).GetEnumerator();
-        }
+        public IEnumerator<Viewport> GetEnumerator() { return ((IEnumerable<Viewport>)_viewports).GetEnumerator(); }
+        IEnumerator IEnumerable.GetEnumerator() { return ((IEnumerable<Viewport>)_viewports).GetEnumerator(); }
     }
 }

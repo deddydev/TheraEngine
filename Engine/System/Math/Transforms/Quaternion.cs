@@ -207,7 +207,7 @@ namespace System
         }
         public static Quaternion FromRotator(Rotator rotator)
         {
-            return FromEulerAngles(rotator.Yaw, rotator.Pitch, rotator.Roll, rotator.RotationOrder);
+            return FromEulerAngles(rotator.Yaw, rotator.Pitch, rotator.Roll, rotator._rotationOrder);
         }
         /// <summary>
         /// Builds a Quaternion from the given euler angles

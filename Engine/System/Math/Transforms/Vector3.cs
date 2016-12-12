@@ -393,6 +393,11 @@ namespace System
                 RadToDeg((float)Atan2(-Z, X)), 
                 0.0f, Rotator.Order.YPR);
         }
+        public void LookatAngles(out float yaw, out float pitch)
+        {
+            pitch = RadToDeg((float)Atan2(Y, Sqrt(X * X + Z * Z)));
+            yaw = RadToDeg((float)Atan2(-Z, X));
+        }
         public Rotator LookatAngles(Vec3 forward, Vec3 right, Vec3 up)
         {
             Vec3 NormalDir = GetSafeNormal();

@@ -12,6 +12,7 @@ namespace CustomEngine.Rendering.Models.Materials
     public class OneMinusFunc : MaterialFunction
     {
         GLInput InputValue;
+        GLOutput Result;
 
         public OneMinusFunc() : base(true) { }
         protected override string GetOperation()
@@ -55,6 +56,11 @@ namespace CustomEngine.Rendering.Models.Materials
         {
             InputValue = new GLInput("Value", NumericTypes);
             return new List<GLInput>() { InputValue };
+        }
+        protected override List<GLOutput> GetOutputs()
+        {
+            Result = new GLOutput("Result", InputValue);
+            return new List<GLOutput>() { Result };
         }
         public static MaterialFuncInfo GetInfo()
         {

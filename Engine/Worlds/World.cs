@@ -70,14 +70,14 @@ namespace CustomEngine.Worlds
         }
         public virtual void EndPlay()
         {
-            foreach (Map m in _settings._maps)
+            foreach (Map m in _settings._defaultMaps)
                 m.EndPlay();
             _physicsScene = null;
         }
         public virtual void BeginPlay()
         {
             CreatePhysicsScene();
-            foreach (Map m in _settings._maps)
+            foreach (Map m in _settings._defaultMaps)
                 m.BeginPlay();
         }
         public IEnumerator<Actor> GetEnumerator() { return State.SpawnedActors.GetEnumerator(); }

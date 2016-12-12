@@ -7,7 +7,7 @@ using System.ComponentModel;
 
 namespace CustomEngine.Worlds.Actors.Components
 {
-    public class ModelComponent : GenericPrimitiveComponent
+    public class ModelComponent : PrimitiveComponent
     {
         public ModelComponent(Model m) { Model = m; }
 

@@ -15,21 +15,24 @@ namespace CustomEngine.Worlds
 
         private Box _worldBounds = new Box(new Vec3(-5000.0f), new Vec3(5000.0f));
         private Box _originRebaseBounds;
-        public List<Map> _maps;
+        public List<Map> _defaultMaps;
         public WorldState _state;
 
         public List<Material> CollectDefaultMaterials()
         {
-            foreach (Map m in _maps)
+            foreach (Map m in _defaultMaps)
             {
-                
+                if (m.Settings.VisibleByDefault)
+                {
+
+                }
             }
             return null;
         }
 
         public WorldSettings(string name, WorldState state, params Map[] maps)
         {
-            _maps = maps.ToList();
+            _defaultMaps = maps.ToList();
             _originRebaseBounds = _worldBounds;
             _name = name;
             _state = state;
@@ -37,14 +40,14 @@ namespace CustomEngine.Worlds
         public WorldSettings(string name, WorldState state)
         {
             _originRebaseBounds = _worldBounds;
-            _maps = new List<Map>();
+            _defaultMaps = new List<Map>();
             _name = name;
             _state = state;
         }
         public WorldSettings(string name)
         {
             _originRebaseBounds = _worldBounds;
-            _maps = new List<Map>();
+            _defaultMaps = new List<Map>();
             _name = name;
             _state = new WorldState();
         }

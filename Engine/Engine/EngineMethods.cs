@@ -206,11 +206,6 @@ namespace CustomEngine
             if (unloadPrevious)
                 previous?.Unload();
         }
-        public static void SetCommonUniforms()
-        {
-            Renderer.Scene.CurrentCamera.SetUniforms();
-            Renderer.Uniform("RenderDelta", RenderDelta);
-        }
         public static void QueuePossession(Pawn pawn, PlayerIndex possessor)
         {
             int index = (int)possessor;

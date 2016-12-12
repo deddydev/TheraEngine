@@ -96,7 +96,7 @@ namespace System
 
                     list = new List<RenderableObject>(_items);
                     for (int i = 0; i < list.Count; ++i)
-                        if (!list[i].GetCullingVolume().Contains(point))
+                        if (!list[i].CullingVolume.Contains(point))
                             list.RemoveAt(i--);
 
                     return list;
@@ -139,7 +139,14 @@ namespace System
                 {
                     //Bounds is intersecting edge of frustum
                     foreach (RenderableObject item in _items)
-                        item.IsRendering = frustum.Contains(item.GetCullingVolume()) != EContainment.Disjoint;
+                    {
+                        EContainment containment = frustum.Contains(item.CullingVolume);
+                        if (containment == EContainment.Disjoint)
+                        {
+                            //break;
+                        }
+                        item.IsRendering = containment != EContainment.Disjoint;
+                    }
                     if (_subNodes != null)
                         foreach (OctreeNode n in _subNodes)
                             n.Cull(frustum);
@@ -195,7 +202,7 @@ namespace System
                     {
                         if (item == null)
                             continue;
-                        if (bounds.Contains(item.GetCullingVolume()) == EContainment.Contains)
+                        if (bounds.Contains(item.CullingVolume) == EContainment.Contains)
                         {
                             notSubdivided = false;
 
@@ -216,7 +223,7 @@ namespace System
                             break;
                         }
                     }
-                    if (_subNodes[i] != null && items.Count > 0)
+                    if (_subNodes != null && _subNodes[i] != null && items.Count > 0)
                         _subNodes[i].Add(items);
                 }
 
@@ -235,7 +242,7 @@ namespace System
                 for (int i = 0; i < 8; ++i)
                 {
                     Box bounds = GetSubdivision(i);
-                    if (bounds.Contains(item.GetCullingVolume()) == EContainment.Contains)
+                    if (bounds.Contains(item.CullingVolume) == EContainment.Contains)
                     {
                         notSubdivided = false;
 

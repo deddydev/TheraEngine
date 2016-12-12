@@ -89,10 +89,13 @@ namespace CustomEngine.Rendering
         public abstract int GenerateProgram(int[] shaderHandles);
         public virtual void UseProgram(MeshProgram program)
         {
-            _programHandle = program.BindingId;
-            program._material.SetUniforms();
-            Scene.CurrentCamera.SetUniforms();
-            Uniform(Models.Materials.Uniform.GetLocation(ECommonUniform.RenderDelta), Engine.RenderDelta);
+            _programHandle = program != null ? program.BindingId : BaseRenderState.NullBindingId;
+            if (_programHandle > BaseRenderState.NullBindingId)
+            {
+                program._material.SetUniforms();
+                Scene.CurrentCamera.SetUniforms();
+                Uniform(Models.Materials.Uniform.GetLocation(ECommonUniform.RenderDelta), Engine.RenderDelta);
+            }
         }
         public virtual void DeleteProgram(int handle)
         {

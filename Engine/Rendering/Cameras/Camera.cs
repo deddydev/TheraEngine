@@ -7,7 +7,11 @@ namespace CustomEngine.Rendering.Cameras
 {
     public abstract class Camera : FileObject
     {
-        public Camera() { Resize(1.0f, 1.0f); }
+        public Camera()
+        {
+            Resize(1.0f, 1.0f);
+            _rotate.Changed += CreateTransform;
+        }
 
         public Matrix4 ProjectionMatrix { get { return _projectionMatrix; } }
         public Matrix4 ProjectionMatrixInverse { get { return _projectionInverse; } }
@@ -49,7 +53,7 @@ namespace CustomEngine.Rendering.Cameras
         protected Frustum _untransformedFrustum, _transformedFrustum;
         
         protected bool _updating = false;
-        protected float _nearZ = 1.0f, _farZ = 2000.0f;
+        protected float _nearZ = 1.0f, _farZ = 200.0f;
         private PostProcessSettings _postProcessSettings;
 
         protected Matrix4 
@@ -94,23 +98,31 @@ namespace CustomEngine.Rendering.Cameras
                 rotation.GetMatrix() *
                 Matrix4.CreateTranslation(-_point);
 
-            _transformedFrustum = _untransformedFrustum.TransformedBy(_transform);
-
             OnTransformChanged();
+        }
+        protected void UpdateTransformedFrustum()
+        {
+            _transformedFrustum = _untransformedFrustum.TransformedBy(Matrix4.CreateTranslation(_point) * _rotate.GetMatrix() * Matrix4.CreateScale(_scale));
         }
         public abstract void Zoom(float amount);
         public void TranslateRelative(float x, float y, float z) => TranslateRelative(new Vec3(x, y, z));
         public void TranslateRelative(Vec3 translation)
         {
+            if (translation == Vec3.Zero)
+                return;
+
             _transform = _transform * Matrix4.CreateTranslation(translation);
             _invTransform = Matrix4.CreateTranslation(-translation) * _invTransform;
             _point = _transform.GetPoint();
-            _transformedFrustum = _untransformedFrustum.TransformedBy(_transform);
+            UpdateTransformedFrustum();
             OnTransformChanged();
         }
         public void TranslateAbsolute(float x, float y, float z) => TranslateAbsolute(new Vec3(x, y, z));
         public void TranslateAbsolute(Vec3 translation)
         {
+            if (translation == Vec3.Zero)
+                return;
+
             _point += translation;
             CreateTransform();
         }
@@ -118,22 +130,29 @@ namespace CustomEngine.Rendering.Cameras
         public Vec3 GetUpVector() { return RotateVector(Vec3.Up); }
         public Vec3 GetForwardVector() { return RotateVector(Vec3.Forward); }
         public Vec3 GetRightVector() { return RotateVector(Vec3.Right); }
-        public void Rotate(float yaw, float pitch) { Rotate(yaw, pitch, 0.0f); }
-        public void Rotate(Vec3 v) => Rotate(v.X, v.Y, v.Z);
-        public void Rotate(float yaw, float pitch, float roll)
-            => SetRotate(_rotate.Yaw + yaw, _rotate.Pitch + pitch, _rotate.Roll + roll);
-        public void SetRotate(float yaw, float pitch, float roll)
+        public void Rotate(float pitch, float yaw) { Rotate(pitch, yaw, 0.0f); }
+        public void Rotate(float pitch, float yaw, float roll)
+            => SetRotate(_rotate.Pitch + pitch, _rotate.Yaw + yaw, _rotate.Roll + roll);
+        public void SetRotate(Rotator r)
         {
-            _rotate.Yaw = yaw;
-            _rotate.Pitch = pitch;
-            _rotate.Roll = roll;
+            _rotate = r;
+            _rotate.Changed += CreateTransform;
             CreateTransform();
         }
-        public void Pivot(float x, float y, float radius)
+        public void SetRotate(Vec3 pitchYawRoll)
+        {
+            _rotate.PitchYawRoll = pitchYawRoll;
+            CreateTransform();
+        }
+        public void SetRotate(float pitch, float yaw, float roll)
+        {
+            _rotate.SetRotations(pitch, yaw, roll);
+        }
+        public void Pivot(float y, float x, float radius)
         {
             BeginUpdate();
             Zoom(-radius);
-            Rotate(x, y);
+            Rotate(y, x);
             Zoom(radius);
             EndUpdate();
         }
@@ -172,7 +191,7 @@ namespace CustomEngine.Rendering.Cameras
             _projectionRange = new Vec3(Dimensions, FarZ - NearZ);
             _projectionOrigin = new Vec3(Origin, NearZ);
             _untransformedFrustum = CreateUntransformedFrustum();
-            _transformedFrustum = _untransformedFrustum.TransformedBy(_transform);
+            UpdateTransformedFrustum();
         }
         protected abstract Frustum CreateUntransformedFrustum();
         public Frustum GetFrustum() { return _transformedFrustum; }

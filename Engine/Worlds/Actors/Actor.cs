@@ -17,8 +17,6 @@ namespace CustomEngine.Worlds
     }
     public class Actor : FileObject
     {
-        private bool _isConstructing;
-        public bool IsConstructing { get { return _isConstructing; } }
         public Actor()
         {
             _isConstructing = true;
@@ -67,6 +65,8 @@ namespace CustomEngine.Worlds
             }
         }
 
+        private bool _isConstructing;
+        private List<PrimitiveComponent> _renderableComponentCache = new List<PrimitiveComponent>();
         public int _spawnIndex = -1;
         private World _owningWorld;
         private SceneComponent _rootSceneComponent;
@@ -75,7 +75,7 @@ namespace CustomEngine.Worlds
         private bool _isMovable = true, _simulatingPhysics = false;
 
         public MonitoredList<LogicComponent> LogicComponents { get { return _logicComponents; } }
-
+        public bool IsConstructing { get { return _isConstructing; } }
         public Matrix4 WorldMatrix
         {
             get { return _rootSceneComponent != null ? _rootSceneComponent.LocalMatrix : Matrix4.Identity; }
@@ -84,25 +84,25 @@ namespace CustomEngine.Worlds
         {
             get { return _rootSceneComponent != null ? _rootSceneComponent.InverseLocalMatrix : Matrix4.Identity; }
         }
-        
+
+        public List<PrimitiveComponent> RenderableComponentCache { get { return _renderableComponentCache; } }
         public bool IsMovable { get { return _isMovable; } set { _isMovable = value; } }
         public bool SimulatingPhysics { get { return _simulatingPhysics; } }
+        public bool HasRenderableComponents { get { return _renderableComponentCache.Count > 0; } }
 
         protected virtual void SetDefaults() { }
         protected virtual SceneComponent SetupComponents() { return new GenericSceneComponent(); }
         public void GenerateSceneComponentCache()
         {
             if (!_isConstructing)
+            {
+                _renderableComponentCache = new List<PrimitiveComponent>();
                 _sceneComponentCache = _rootSceneComponent == null ? null : _rootSceneComponent.GenerateChildCache().AsReadOnly();
+            }
         }
         internal void RebaseOrigin(Vec3 newOrigin)
         {
-            if (_rootSceneComponent != null)
-            {
-                Matrix4 mtx = Matrix4.CreateTranslation(-newOrigin) * _rootSceneComponent.LocalMatrix;
-                Matrix4 inv = _rootSceneComponent.InverseLocalMatrix * Matrix4.CreateTranslation(newOrigin);
-                _rootSceneComponent.SetLocalMatrix(mtx, inv);
-            }
+            _rootSceneComponent.RebaseOriginRootComponent(newOrigin);
         }
         internal override void Tick(float delta)
         {

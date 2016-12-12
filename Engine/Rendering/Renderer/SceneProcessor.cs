@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using CustomEngine.Worlds.Actors.Components;
 
 namespace CustomEngine.Rendering
 {
@@ -13,19 +14,39 @@ namespace CustomEngine.Rendering
         //private bool _commandsInvalidated;
         //private Dictionary<ulong, Action> _commands = new Dictionary<ulong, Action>();
         //private List<ulong> _sortedCommands = new List<ulong>();
-        RenderOctree _renderTree;
+        private RenderOctree _renderTree;
         private Camera _currentCamera;
-
+        private LightManager _lightManager;
+        
         public RenderOctree RenderTree { get { return _renderTree; } }
-
         public Camera CurrentCamera { get { return _currentCamera; } }
+        public LightManager LightManager { get { return _lightManager; } }
 
         internal void WorldChanged()
         {
-            WorldSettings ws = Engine.World.Settings;
-            IEnumerable<Actor> actors = ws._maps.Where(x => x.Settings.VisibleByDefault).SelectMany(x => x.Settings._defaultActors);
+            if (Engine.World == null)
+            {
+                _renderTree = null;
+                return;
+            }
 
-            _renderTree = Engine.World != null ? new RenderOctree(ws.WorldBounds) : null;
+            List<RenderableObject> renderables = new List<RenderableObject>();
+            WorldSettings ws = Engine.World.Settings;
+            foreach (Map m in ws._defaultMaps)
+                if (m.Settings.VisibleByDefault)
+                    foreach (Actor a in m.Settings._defaultActors)
+                        foreach (PrimitiveComponent p in a.RenderableComponentCache)
+                            if (p.Primitive != null)
+                            {
+                                RenderableObject[] r = p.Primitive.GetChildren(true);
+                                foreach (RenderableObject o in r)
+                                {
+                                    o.OnSpawned();
+                                    renderables.Add(o);
+                                }
+                            }
+
+            _renderTree = new RenderOctree(ws.WorldBounds, renderables);
         }
         public void Render(Camera camera)
         {

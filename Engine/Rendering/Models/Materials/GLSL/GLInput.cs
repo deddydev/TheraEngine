@@ -146,5 +146,6 @@ namespace CustomEngine.Rendering.Models.Materials
                 //Returns true if there are any matching allowed types between the two
                 return AllowedArgumentTypes.Intersect(otherMultiArg.AllowedArgumentTypes).ToArray().Length != 0;
             }
+        }
     }
 }

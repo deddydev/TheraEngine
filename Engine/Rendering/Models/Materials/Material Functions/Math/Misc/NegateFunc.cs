@@ -12,7 +12,7 @@ namespace CustomEngine.Rendering.Models.Materials
     public class NegateFunc : MaterialFunction
     {
         GLInput InputValue;
-        GLOutput OutputValue;
+        GLOutput Result;
         
         public NegateFunc() : base(true) { }
         protected override string GetOperation()
@@ -31,21 +31,17 @@ namespace CustomEngine.Rendering.Models.Materials
                 case GLTypeName._ivec2:
                     return "ivec2(-1) * {0}";
                 case GLTypeName._vec3:
-                    return "vec3(1.0) - {0}";
+                    return "vec3(-1.0) * {0}";
                 case GLTypeName._dvec3:
-                    return "dvec3(1.0) - {0}";
+                    return "dvec3(-1.0) * {0}";
                 case GLTypeName._ivec3:
-                    return "ivec3(1) - {0}";
-                case GLTypeName._uvec3:
-                    return "uvec3(1) - {0}";
+                    return "ivec3(-1) * {0}";
                 case GLTypeName._vec4:
-                    return "vec4(1.0) - {0}";
+                    return "vec4(-1.0) * {0}";
                 case GLTypeName._dvec4:
-                    return "dvec4(1.0) - {0}";
+                    return "dvec4(-1.0) * {0}";
                 case GLTypeName._ivec4:
-                    return "ivec4(1) - {0}";
-                case GLTypeName._uvec4:
-                    return "uvec4(1) - {0}";
+                    return "ivec4(-1) * {0}";
             }
             throw new InvalidOperationException();
         }
@@ -56,16 +52,16 @@ namespace CustomEngine.Rendering.Models.Materials
         }
         protected override List<GLOutput> GetOutputs()
         {
-            OutputValue = new GLOutput("Result", InputValue);
-            return new List<GLOutput>() { OutputValue };
+            Result = new GLOutput("Result", InputValue);
+            return new List<GLOutput>() { Result };
         }
         public static MaterialFuncInfo GetInfo()
         {
             return new MaterialFuncInfo(
                 "Math",
-                "Absolute Value",
-                "Returns the absolute value of the given value.", 
-                "absolute value");
+                "Negate",
+                "Returns the negated value of the given value.", 
+                "negate negative value");
         }
     }
 }

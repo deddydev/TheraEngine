@@ -11,25 +11,25 @@ namespace CustomEngine.Rendering.Models.Materials
     /// </summary>
     public class ResultBasicFunc : MaterialFunction
     {
-        private GLInput OutputColor { get { return InputArguments[0]; } }
+        GLInput FinalColor;
+
+        public ResultBasicFunc() : base(true) { }
         protected override List<GLInput> GetInputs()
         {
-            return new List<GLInput>()
-            {
-                new GLInput("FinalColor", GLTypeName._vec4),
-            };
+            FinalColor = new GLInput("FinalColor", GLTypeName._vec4);
+            return new List<GLInput>() { FinalColor };
         }
         public static MaterialFuncInfo GetInfo()
         {
             return new MaterialFuncInfo(
                 "Output",
-                "Output",
+                "Basic Output",
                 "Outputs the given vec4 color as the color for this fragment.", 
                 "result output final return");
         }
         protected override string GetOperation()
         {
-            return "{0}";
+            return FragmentShaderGenerator.OutputColorName + " = {0};";
         }
     }
 }

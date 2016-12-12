@@ -13,11 +13,11 @@ namespace CustomEngine.Rendering.Models
         }
         public Bone(string name)
         {
-            Init(name, FrameState.GetIdentity(Matrix4.MultiplyOrder.TRS, Rotator.Order.YPR));
+            Init(name, new FrameState());
         }
         public Bone()
         {
-            Init("NewBone", FrameState.GetIdentity(Matrix4.MultiplyOrder.TRS, Rotator.Order.YPR));
+            Init("NewBone", new FrameState());
         }
         private void Init(string name, FrameState bindState)
         {

@@ -11,19 +11,20 @@ namespace CustomEngine.Rendering.Models.Materials
         public static readonly string PositionMatricesName = "PositionMatrices";
         public static readonly string NormalMatricesName = "NormalMatrices";
 
-        public static int GetLocation(VertexAttribInfo info)
-        {
-            return info.GetLocation();
-        }
+        //public static int GetLocation(VertexAttribInfo info)
+        //{
+        //    return info.GetLocation();
+        //}
         public static int GetLocation(ECommonUniform u)
         {
-            return VertexBuffer.MaxBufferCount + (int)u;
+            return Engine.Renderer.GetUniformLocation(u.ToString());
+            //return VertexBuffer.MaxBufferCount + (int)u;
         }
-        public static int GetFirstOpenUniformLocation()
-        {
-            ECommonUniform lastEnum = Enum.GetValues(typeof(ECommonUniform)).Cast<ECommonUniform>().Max();
-            return GetLocation(lastEnum) + 1;
-        }
+        //public static int GetFirstOpenUniformLocation()
+        //{
+        //    ECommonUniform lastEnum = Enum.GetValues(typeof(ECommonUniform)).Cast<ECommonUniform>().Max();
+        //    return GetLocation(lastEnum) + 1;
+        //}
     }
     public enum ECommonUniform
     {

@@ -8,21 +8,25 @@ using System.Text;
 using System.Threading.Tasks;
 using CustomEngine.Rendering.Models.Materials;
 using System.Collections;
+using BulletSharp;
 
 namespace CustomEngine.Rendering
 {
     public interface IRenderableObjectContainer
     {
-        GenericPrimitiveComponent LinkedComponent { get; set; }
+        PrimitiveComponent LinkedComponent { get; set; }
         List<PrimitiveData> GetPrimitives();
         Matrix4 GetWorldMatrix();
         Matrix4 GetInverseWorldMatrix();
         void OnSpawned();
         void OnDespawned();
+        RenderableObject[] GetChildren(bool visibleByDefaultOnly);
+        RenderableObject[] GetVisibleChildren();
+        RenderableObject[] GetHiddenChildren();
     }
     public abstract class RenderableObjectContainer<T> : FileObject, IRenderableObjectContainer, IEnumerable<T> where T : RenderableObject
     {
-        protected GenericPrimitiveComponent _linkedComponent;
+        protected PrimitiveComponent _linkedComponent;
         protected MonitoredList<T> _children = new MonitoredList<T>();
 
         public RenderableObjectContainer() : base()
@@ -33,14 +37,14 @@ namespace CustomEngine.Rendering
         protected virtual void ChildAdded(T item) { }
         protected virtual void ChildRemoved(T item) { }
         public MonitoredList<T> Children { get { return _children; } }
-        public GenericPrimitiveComponent LinkedComponent
+        public PrimitiveComponent LinkedComponent
         {
             get { return _linkedComponent; }
             set
             {
                 if (_linkedComponent == value)
                     return;
-                GenericPrimitiveComponent oldComp = _linkedComponent;
+                PrimitiveComponent oldComp = _linkedComponent;
                 _linkedComponent = value;
                 if (oldComp != null)
                     oldComp.Primitive = null;
@@ -71,24 +75,82 @@ namespace CustomEngine.Rendering
 
         public IEnumerator<T> GetEnumerator() { return ((IEnumerable<T>)_children).GetEnumerator(); }
         IEnumerator IEnumerable.GetEnumerator() { return ((IEnumerable<T>)_children).GetEnumerator(); }
+
+        public RenderableObject[] GetChildren(bool visibleByDefaultOnly)
+        {
+            if (visibleByDefaultOnly)
+                return _children.Select(x => x as RenderableObject).Where(x => x.VisibleByDefault).ToArray();
+            else
+                return _children.Select(x => x as RenderableObject).ToArray();
+        }
+        public RenderableObject[] GetVisibleChildren()
+        {
+            return _children.Select(x => x as RenderableObject).Where(x => x.Visible).ToArray();
+        }
+        public RenderableObject[] GetHiddenChildren()
+        {
+            return _children.Select(x => x as RenderableObject).Where(x => !x.Visible).ToArray();
+        }
     }
     public abstract class RenderableObject : RenderableObjectContainer<RenderableObject>
     {
         protected Material _material;
-        protected bool _isRendering = true;
+        protected bool _isRendering = true, _visible = true, _visibleByDefault = true;
         public bool IsRendering
         {
             get { return _isRendering; }
             set { _isRendering = value; }
         }
-        public Material Material
+        public bool VisibleByDefault
+        {
+            get { return _visibleByDefault; }
+        }
+        public virtual Material Material
         {
             get { return _material; }
-            set { _material = value; OnMaterialChanged(); }
+            set { _material = value; }
         }
-        protected virtual void OnMaterialChanged() { }
+        public bool _collisionEnabled;
+        protected Shape _cullingVolume;
+        protected RigidBody _collision;
+        public RigidBody CollisionObject
+        {
+            get { return _collision; }
+            set
+            {
+                if (_collision != null)
+                {
+                    if (_collisionEnabled && Engine.World != null)
+                        Engine.World.PhysicsScene.AddRigidBody(_collision);
+                    _collision.UserObject = null;
+                }
+                _collision = value;
+                if (_collision != null)
+                {
+                    if (_collisionEnabled && Engine.World != null)
+                        Engine.World.PhysicsScene.AddRigidBody(_collision);
+                    _collision.UserObject = this;
+                }
+            }
+        }
+        public virtual bool Visible
+        {
+            get { return _visible; }
+            set
+            {
+                if (_visible == value)
+                    return;
+
+                if (_visible && _collision != null)
+                    Engine.World.PhysicsScene.RemoveRigidBody(_collision);
+                _visible = value;
+                if (_visible && _collision != null)
+                    Engine.World.PhysicsScene.AddRigidBody(_collision);
+            }
+        }
+
+        public virtual Shape CullingVolume { get { return _cullingVolume; } }
         public abstract void Render();
-        public abstract Shape GetCullingVolume();
         public abstract PrimitiveData GetPrimitiveData();
         public override List<PrimitiveData> GetPrimitives()
         {

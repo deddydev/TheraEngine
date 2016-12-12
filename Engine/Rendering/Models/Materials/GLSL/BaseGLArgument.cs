@@ -28,7 +28,7 @@ namespace CustomEngine.Rendering.Models.Materials
 
         public void Arrange(int argumentIndex)
         {
-            TranslationX = IsOutput ? MaterialFunction._padding + _connectionBoxDims + 
+            //TranslationX = IsOutput ? MaterialFunction._padding + _connectionBoxDims + 
         }
     }
     public enum ArgumentSyncType

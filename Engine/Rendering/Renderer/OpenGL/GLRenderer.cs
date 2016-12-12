@@ -373,7 +373,7 @@ namespace CustomEngine.Rendering.OpenGL
         }
         public override void UseProgram(MeshProgram program)
         {
-            GL.UseProgram(program.BindingId);
+            GL.UseProgram(program != null ? program.BindingId : BaseRenderState.NullBindingId);
             base.UseProgram(program);
         }
 

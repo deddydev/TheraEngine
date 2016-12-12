@@ -117,17 +117,17 @@ namespace System
             float Right = _max.X;
             float Left = _min.X;
 
-            TBL = transform * new Vec3(Top, Back, Left);
-            TBR = transform * new Vec3(Top, Back, Right);
+            TBL = transform * new Vec3(Left, Top, Back);
+            TBR = transform * new Vec3(Right, Top, Back);
 
-            TFL = transform * new Vec3(Top, Front, Left);
-            TFR = transform * new Vec3(Top, Front, Right);
+            TFL = transform * new Vec3(Left, Top, Front);
+            TFR = transform * new Vec3(Right, Top, Front);
 
-            BBL = transform * new Vec3(Bottom, Back, Left);
-            BBR = transform * new Vec3(Bottom, Back, Right);
+            BBL = transform * new Vec3(Left, Bottom, Back);
+            BBR = transform * new Vec3(Right, Bottom, Back);
 
-            BFL = transform * new Vec3(Bottom, Front, Left);
-            BFR = transform * new Vec3(Bottom, Front, Right);
+            BFL = transform * new Vec3(Left, Bottom, Front);
+            BFR = transform * new Vec3(Right, Bottom, Front);
         }
         public Vec3[] GetTransformedCorners() { return GetCorners(GetWorldMatrix()); }
         public Vec3[] GetUntransformedCorners() { return GetCorners(Matrix4.Identity); }

@@ -7,7 +7,7 @@ using CustomEngine.Worlds.Actors.Components;
 
 namespace CustomEngine.Rendering.Models
 {
-    public class Mesh : RenderableObject, ICollidable
+    public class Mesh : RenderableObject
     {
         public Mesh() { }
         public Mesh(PrimitiveData data) { _manager.Data = data; }
@@ -21,27 +21,13 @@ namespace CustomEngine.Rendering.Models
         private Model _model;
         internal PrimitiveManager _manager = new PrimitiveManager();
 
-        protected bool _visible = false, _visibleByDefault = true;
-        private Shape _cullingVolume;
-        private RigidBody _collision;
-        public RigidBody CollisionObject
+        public override Material Material
         {
-            get { return _collision; }
+            get { return base.Material; }
             set
             {
-                if (_collision != null)
-                {
-                    if (_visible)
-                        Engine.World.PhysicsScene.AddRigidBody(_collision);
-                    _collision.UserObject = null;
-                }
-                _collision = value;
-                if (_collision != null)
-                {
-                    if (_visible)
-                        Engine.World.PhysicsScene.AddRigidBody(_collision);
-                    _collision.UserObject = this;
-                }
+                base.Material = value;
+                _manager.SetMaterial(value);
             }
         }
         public Model Model
@@ -49,40 +35,17 @@ namespace CustomEngine.Rendering.Models
             get { return _model; }
             set { _model = value; }
         }
-        public bool Visible
-        {
-            get { return _visible; }
-            set
-            {
-                if (_visible == value)
-                    return;
-                
-                if (_visible && _collision != null)
-                    Engine.World.PhysicsScene.RemoveRigidBody(_collision);
-                _visible = value;
-                if (_visible && _collision != null)
-                    Engine.World.PhysicsScene.AddRigidBody(_collision);
-            }
-        }
-
-        protected override void OnMaterialChanged()
-        {
-            _manager.SetMaterial(_material);
-        }
         public override Matrix4 GetWorldMatrix() { return _model != null ? _model.GetWorldMatrix() : Matrix4.Identity; }
         public override Matrix4 GetInverseWorldMatrix() { return _model != null ? _model.GetInverseWorldMatrix() : Matrix4.Identity; }
-        public override Shape GetCullingVolume() { return _cullingVolume; }
 
         public override void OnSpawned()
         {
             //TODO: add material to list, get material id, add to cache with id, sort renderables by material id
             //_material.GetInstance();
-            //Visible = _visibleByDefault;
         }
         public override void OnDespawned()
         {
             //_material.UnloadReference();
-            //Visible = false;
         }
         public override void Render()
         {

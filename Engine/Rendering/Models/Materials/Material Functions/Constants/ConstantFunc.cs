@@ -8,8 +8,8 @@ namespace CustomEngine.Rendering.Models.Materials
 {
     public class ConstantFunc<T> : MaterialFunction where T : GLVar
     {
-        public ConstantFunc() : base() { }
-        public ConstantFunc(T value) { _value = value; }
+        public ConstantFunc() : base(true) { }
+        public ConstantFunc(T value) : base(true) { _value = value; }
         
         T _value;
 

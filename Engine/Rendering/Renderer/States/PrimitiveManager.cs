@@ -21,8 +21,9 @@ namespace CustomEngine.Rendering.Models
         private PrimitiveData _data;
         //private PrimitiveData _skinningData;
         private VertexBuffer _indexBuffer;
-        private Primitive _triangles;
-        private Bone[] _utilizedBones;
+        public DrawElementsType _elementType;
+        public PrimitiveType _type;
+        //private Bone[] _utilizedBones;
         //private Shader _vertexShader;
         //private PrimitiveBufferInfo _bufferInfo;
         private Material _material;
@@ -46,18 +47,22 @@ namespace CustomEngine.Rendering.Models
                 if (_data != null)
                 {
                     _indexBuffer = new VertexBuffer("FaceIndices", BufferTarget.ElementArrayBuffer);
-                    _triangles = new Primitive(_data._faces.Count * 3, _data._facePoints.Count, PrimitiveType.Triangles);
-                    switch (_triangles._elementType)
+                    _type = PrimitiveType.Triangles;
+
+                    if (_data._facePoints.Count <= byte.MaxValue)
                     {
-                        case DrawElementsType.UnsignedByte:
-                            _indexBuffer.SetDataNumeric(_data.GetFaceIndices().Select(x => (byte)x).ToList());
-                            break;
-                        case DrawElementsType.UnsignedShort:
-                            _indexBuffer.SetDataNumeric(_data.GetFaceIndices().Select(x => (ushort)x).ToList());
-                            break;
-                        case DrawElementsType.UnsignedInt:
-                            _indexBuffer.SetDataNumeric(_data.GetFaceIndices());
-                            break;
+                        _elementType = DrawElementsType.UnsignedByte;
+                        _indexBuffer.SetDataNumeric(_data.GetFaceIndices().Select(x => (byte)x).ToList());
+                    }
+                    else if (_data._facePoints.Count <= short.MaxValue)
+                    {
+                        _elementType = DrawElementsType.UnsignedShort;
+                        _indexBuffer.SetDataNumeric(_data.GetFaceIndices().Select(x => (ushort)x).ToList());
+                    }
+                    else
+                    {
+                        _elementType = DrawElementsType.UnsignedInt;
+                        _indexBuffer.SetDataNumeric(_data.GetFaceIndices());
                     }
                 }
             }
@@ -139,14 +144,13 @@ namespace CustomEngine.Rendering.Models
             //TODO: set material and uniforms in render queue and then render ALL meshes that use it
             //order by depth FIRST though
             Engine.Renderer.UseProgram(_program);
-
-            Engine.SetCommonUniforms();
+            
             //SetBoneMatrixUniforms();
             //This is a mesh-specific uniform
             Engine.Renderer.Uniform(Uniform.GetLocation(ECommonUniform.ModelMatrix), transform);
 
             GL.BindVertexArray(BindingId);
-            _triangles.Render();
+            GL.DrawElements(_type, _indexBuffer.ElementCount, _elementType, 0);
             GL.BindVertexArray(0);
 
             Engine.Renderer.UseProgram(null);
@@ -166,40 +170,12 @@ namespace CustomEngine.Rendering.Models
         protected override void OnDeleted()
         {
             _initialized = false;
-            _triangles = null;
             _data.Dispose();
             _indexBuffer.Dispose();
             _program.Destroy();
         }
     }
-    public class Primitive
-    {
-        int _indexCount;
-        public DrawElementsType _elementType;
-        PrimitiveType _type;
-
-        public Primitive(int elements, int cachedVertexCount, PrimitiveType type)
-        {
-            _type = type;
-
-            if (cachedVertexCount <= byte.MaxValue)
-                _elementType = DrawElementsType.UnsignedByte;
-            else if (cachedVertexCount <= short.MaxValue)
-                _elementType = DrawElementsType.UnsignedShort;
-            else
-                _elementType = DrawElementsType.UnsignedInt;
-            
-            _indexCount = elements;
-        }
-        public int GetElementSize()
-        {
-            return 1 << (((_elementType - DrawElementsType.UnsignedByte) - 1) >> 1);
-        }
-        public unsafe void Render()
-        {
-            GL.DrawElements(_type, _indexCount, _elementType, 0);
-        }
-    }
+    
     public class MeshProgram : BaseRenderState
     {
         public Shader[] _shaders;
@@ -207,7 +183,7 @@ namespace CustomEngine.Rendering.Models
 
         public MeshProgram(Material material) : base(GenType.Program)
         {
-            _material = new MaterialInstance(material);
+            SetMaterial(material);
         }
 
         protected override int CreateObject()
@@ -225,13 +201,13 @@ namespace CustomEngine.Rendering.Models
         }
         public void SetMaterial(Material material)
         {
-            //TODO: incorporate skinning and morphing into material's vertex shader first
+            _material = new MaterialInstance(material);
             SetShaders(
-                material._vertexShader, 
-                material._fragmentShader, 
-                material._geometryShader,
-                material._tessellationControlShader,
-                material._tessellationEvaluationShader);
+                _material.VertexShader, 
+                _material.FragmentShader, 
+                _material.GeometryShader,
+                _material.TessellationControlShader,
+                _material.TessellationEvaluationShader);
         }
         public void SetShaders(params Shader[] shaders) { _shaders = shaders.Where(x => x != null).ToArray(); }
     }

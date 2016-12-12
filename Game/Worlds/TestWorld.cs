@@ -18,9 +18,15 @@ namespace Game.Worlds
             _settings = new WorldSettings("TestWorld");
 
             Bone rootBone = new Bone("Root", FrameState.Identity);
-            Bone childBone = new Bone("Child", new FrameState(new Vec3(0.0f, 25.0f, 0.0f), Rotator.GetZero(), Vec3.One));
-            rootBone.Children.Add(childBone);
+            //Bone childBone = new Bone("Child", new FrameState(new Vec3(0.0f, 0.0f, 0.0f), Rotator.GetZero(), Vec3.One));
+            //rootBone.Children.Add(childBone);
             Model boxModel = new Model(new Skeleton(rootBone));
+
+            //Vertex p0 = new Vertex(0, new Vec3(-1, -1, 0), null, Vec3.UnitZ, new Vec2(0, 0));
+            //Vertex p1 = new Vertex(1, new Vec3(1, -1, 0), null, Vec3.UnitZ, new Vec2(0, 0));
+            //Vertex p2 = new Vertex(2, new Vec3(1, 1, 0), null, Vec3.UnitZ, new Vec2(0, 0));
+            //VertexTriangle triangle = new VertexTriangle(p0, p1, p2);
+            //Mesh mesh = new Mesh(PrimitiveData.FromTriangles(Culling.None, new PrimitiveBufferInfo(), triangle));
 
             Mesh mesh = new Box(10.0f);
 
@@ -29,12 +35,12 @@ namespace Game.Worlds
             mesh.Material = new Material("Mat_Green", new MaterialSettings(), vert, frag);
             boxModel.Children.Add(mesh);
 
-            BoxShape boxCollisionShape = new BoxShape(5.0f);
-            MotionState state = new DefaultMotionState(Matrix4.CreateTranslation(rootBone.BindMatrix.GetPoint()));
-            RigidBodyConstructionInfo info = new RigidBodyConstructionInfo(10.0f, state, boxCollisionShape);
-            info.AngularDamping = 0.5f;
-            info.LinearDamping = 0.3f;
-            mesh.CollisionObject = new RigidBody(info);
+            //BoxShape boxCollisionShape = new BoxShape(5.0f);
+            //MotionState state = new DefaultMotionState(Matrix4.CreateTranslation(rootBone.BindMatrix.GetPoint()));
+            //RigidBodyConstructionInfo info = new RigidBodyConstructionInfo(10.0f, state, boxCollisionShape);
+            //info.AngularDamping = 0.5f;
+            //info.LinearDamping = 0.3f;
+            //mesh.CollisionObject = new RigidBody(info);
 
             AnimationInterpNode camPropAnim = new AnimationInterpNode(360, true, true);
             InterpKeyframe first = new InterpKeyframe(0.0f, 0.0f, 0.0f);
@@ -43,16 +49,16 @@ namespace Game.Worlds
             first.LinkNext(second).LinkNext(last);
             camPropAnim.Keyframes.AddFirst(first);
             
-            AnimFolder yawAnim = new AnimFolder("SetRotationYaw", true, camPropAnim);
-            //AnimFolder pitchAnim = new AnimFolder("AddRotationPitch", true, camPropAnim);
+            AnimFolder yawAnim = new AnimFolder("Yaw", false, camPropAnim);
+            AnimFolder pitchAnim = new AnimFolder("Pitch", false, camPropAnim);
             //AnimFolder rollAnim = new AnimFolder("AddRotationRoll", true, camPropAnim);
-            AnimFolder stateFolder = new AnimFolder("LocalFrameState", yawAnim/*, pitchAnim, rollAnim*/);
+            AnimFolder stateFolder = new AnimFolder("Rotation", yawAnim, pitchAnim/*, rollAnim*/);
             AnimationContainer anim = new AnimationContainer(stateFolder);
 
             ModelComponent modelComp = new ModelComponent(boxModel);
             modelComp.AddAnimation(anim, true);
             
-            _settings._maps.Add(new Map(this, new MapSettings(new Actor(modelComp), new FlyingCameraPawn(PlayerIndex.One))));
+            _settings._defaultMaps.Add(new Map(this, new MapSettings(new Actor(modelComp), new FlyingCameraPawn(PlayerIndex.One))));
         }
     }
 }

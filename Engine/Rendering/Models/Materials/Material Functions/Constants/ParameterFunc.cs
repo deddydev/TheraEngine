@@ -12,8 +12,8 @@ namespace CustomEngine.Rendering.Models.Materials
     }
     public class ParameterFunc<T> : MaterialFunction, IParameterFunc where T : GLVar
     {
-        public ParameterFunc() : base() { }
-        public ParameterFunc(T value) { _value = value; }
+        public ParameterFunc() : base(true) { }
+        public ParameterFunc(T value) : base(true) { _value = value; }
         
         T _value;
 

@@ -17,7 +17,16 @@ namespace System
             identity.RotationOrder = rotationOrder;
             return identity;
         }
-        public static readonly FrameState Identity = new FrameState(Vec3.Zero, Vec3.Zero, Vec3.One);
+        public static readonly FrameState Identity = new FrameState(Vec3.Zero, Rotator.GetZero(Rotator.Order.YPR), Vec3.One);
+        public FrameState()
+        {
+            _translation = Vec3.Zero;
+            _rotation = new Rotator(Rotator.Order.YPR);
+            _scale = Vec3.One;
+            _transformOrder = Matrix4.MultiplyOrder.TRS;
+            _transform = Matrix4.Identity;
+            _inverseTransform = Matrix4.Identity;
+        }
         public FrameState(
             Vec3 translate, 
             Rotator rotate,
@@ -92,8 +101,8 @@ namespace System
         }
         public Rotator.Order RotationOrder
         {
-            get { return _rotation.RotationOrder; }
-            set { _rotation.RotationOrder = value; CreateTransform(); }
+            get { return _rotation._rotationOrder; }
+            set { _rotation._rotationOrder = value; CreateTransform(); }
         }
         private void SetTranslate(Vec3 value)
         {
@@ -262,6 +271,26 @@ namespace System
         //            break;
         //    }
         //}
+
+        public static unsafe FrameState Derive(Matrix4 m)
+        {
+            FrameState state = new FrameState();
+
+            float* p = m.Data;
+            
+            //Translation is easy!
+            state._translate = *(Vector3*)&p[12];
+
+            //Scale, use sqrt of rotation columns
+            state._scale._x = (float)Math.Round(Math.Sqrt(p[0] * p[0] + p[1] * p[1] + p[2] * p[2]), 4);
+            state._scale._y = (float)Math.Round(Math.Sqrt(p[4] * p[4] + p[5] * p[5] + p[6] * p[6]), 4);
+            state._scale._z = (float)Math.Round(Math.Sqrt(p[8] * p[8] + p[9] * p[9] + p[10] * p[10]), 4);
+
+            state._rotate = GetAngles();
+            
+            state.CalcTransforms();
+            return state;
+        }
 
         #region Animation
         public void SetRotationRoll(float degreeAngle) { Roll = degreeAngle; }

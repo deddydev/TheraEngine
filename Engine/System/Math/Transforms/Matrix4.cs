@@ -32,17 +32,12 @@ namespace System
             Row3 = row3;
         }
 
-        internal FrameState Derive()
-        {
-            throw new NotImplementedException();
-        }
-
         public static Matrix4 CreateFromRotator(Rotator rotator)
         {
             Matrix4 y = rotator.GetYawMatrix();
             Matrix4 p = rotator.GetPitchMatrix();
             Matrix4 r = rotator.GetRollMatrix();
-            switch (rotator.RotationOrder)
+            switch (rotator._rotationOrder)
             {
                 case Rotator.Order.YPR: return y * p * r;
                 case Rotator.Order.YRP: return y * r * p;

@@ -8,10 +8,7 @@ namespace CustomEngine.Rendering.Models.Materials
 {
     public class ForLoopFunc : MaterialFunction
     {
-        public ForLoopFunc() : base()
-        {
-            _inline = true;
-        }
+        public ForLoopFunc() : base(true) { }
         protected override string GetOperation()
         {
             return "for (int i = {0}; i < ";

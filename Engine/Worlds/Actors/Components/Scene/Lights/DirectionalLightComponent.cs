@@ -9,9 +9,18 @@ namespace CustomEngine.Worlds.Actors.Components
         public Vec3 Direction
         {
             get { return _rotation.GetDirection(); }
-            set { /*_rotation.SetDirection(value);*/ }
+            set { _rotation.SetDirection(value.NormalizedFast()); }
         }
 
         public DirectionalLightComponent() : base() { }
+
+        public override void OnSpawned()
+        {
+            Engine.Renderer.Scene.LightManager.AddLight(this);
+        }
+        public override void OnDespawned()
+        {
+            Engine.Renderer.Scene.LightManager.RemoveLight(this);
+        }
     }
 }

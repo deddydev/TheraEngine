@@ -23,6 +23,7 @@ namespace System
         public int[] RemapTable { get { return _remapTable; } }
         public int ImplementationLength { get { return _impTable.Length; } }
 
+        public void Remap<T>(IList<T> source) => Remap(source, null);
         public void Remap<T>(IList<T> source, Comparison<T> comp)
         {
             _source = source;

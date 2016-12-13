@@ -38,6 +38,27 @@ namespace CustomEngine.Rendering.Models
             foreach (Bone b in Children)
                 b.CollectChildBones(boneCache, owner);
         }
+
+        public void LinkSingleBindMesh(Mesh m) { _singleBoundMeshes.Add(m); }
+        public void UnlinkSingleBindMesh(Mesh m) { _singleBoundMeshes.Remove(m); }
+
+        private List<Mesh> _singleBoundMeshes = new List<Mesh>();
+        private Skeleton _skeleton;
+        private Bone _parent;
+        private MonitoredList<Bone> _children = new MonitoredList<Bone>();
+        private List<FacePoint> _influencedVertices = new List<FacePoint>();
+        private RigidBody _collision;
+        private FrameState _frameState, _bindState;
+        private Matrix4
+            //Animated transformation matrix relative to the skeleton's root bone
+            _frameMatrix = Matrix4.Identity, _inverseFrameMatrix = Matrix4.Identity, 
+            //Non-animated default bone position transforms.
+            _bindMatrix = Matrix4.Identity, _inverseBindMatrix = Matrix4.Identity,
+            //Used for calculating vertex influences matrices quickly
+            _vertexMatrix = Matrix4.Identity, _inverseVertexMatrix = Matrix4.Identity,
+            //The transformation of this bone in world space
+            _worldMatrix = Matrix4.Identity, _inverseWorldMatrix = Matrix4.Identity;
+
         public Bone Parent
         {
             get { return _parent; }
@@ -50,29 +71,24 @@ namespace CustomEngine.Rendering.Models
             }
         }
         public MonitoredList<Bone> Children { get { return _children; } }
-
-        private Skeleton _skeleton;
-        private Bone _parent;
-        private MonitoredList<Bone> _children = new MonitoredList<Bone>();
-        private List<FacePoint> _influencedVertices = new List<FacePoint>();
-        private RigidBody _collision;
-        private FrameState _frameState, _bindState;
-        private Matrix4
-            _frameMatrix = Matrix4.Identity, _inverseFrameMatrix = Matrix4.Identity, 
-            _bindMatrix = Matrix4.Identity, _inverseBindMatrix = Matrix4.Identity;
-        Matrix4 _vertexMatrix, _invVertexMatrix;
-
+        public Model Model { get { return _skeleton.Model; } }
         public FrameState FrameState { get { return _frameState; } }
-        public FrameState BindState { get { return _bindState; } }
+        public FrameState BindState
+        {
+            get { return _bindState; }
+            set
+            {
+                _bindState = value;
+                CalcBindMatrix(false);
+            }
+        }
         public Matrix4 FrameMatrix { get { return _frameMatrix; } }
         public Matrix4 BindMatrix { get { return _bindMatrix; } }
         public Matrix4 InverseFrameMatrix { get { return _inverseFrameMatrix; } }
         public Matrix4 InverseBindMatrix { get { return _inverseBindMatrix; } }
         public Matrix4 VertexMatrix { get { return _vertexMatrix; } }
-        public Matrix4 InverseVertexMatrix { get { return _invVertexMatrix; } }
-
+        public Matrix4 InverseVertexMatrix { get { return _inverseVertexMatrix; } }
         public Skeleton Skeleton { get { return _skeleton; } }
-
         public RigidBody CollisionObject
         {
             get { return _collision; }
@@ -94,14 +110,20 @@ namespace CustomEngine.Rendering.Models
             }
         }
 
-        public void CalcFrameMatrix() { CalcFrameMatrix(Matrix4.Identity, Matrix4.Identity); }
+        public void CalcFrameMatrix()
+        {
+            CalcFrameMatrix(Matrix4.Identity, Matrix4.Identity);
+        }
         public void CalcFrameMatrix(Matrix4 parentMatrix, Matrix4 inverseParentMatrix)
         {
             _frameMatrix = parentMatrix * _frameState.Matrix;
             _inverseFrameMatrix = _frameState.InverseMatrix * inverseParentMatrix;
 
             _vertexMatrix = FrameMatrix * InverseBindMatrix;
-            _invVertexMatrix = InverseFrameMatrix * BindMatrix;
+            _inverseVertexMatrix = InverseFrameMatrix * BindMatrix;
+
+            _worldMatrix = Model.WorldMatrix * _frameMatrix;
+            _inverseWorldMatrix = _inverseFrameMatrix * Model.InverseWorldMatrix;
 
             foreach (Bone b in _children)
                 b.CalcFrameMatrix(_frameMatrix, _inverseFrameMatrix);
@@ -120,14 +142,18 @@ namespace CustomEngine.Rendering.Models
             _inverseBindMatrix = _bindState.InverseMatrix * inverseParentMatrix;
 
             _vertexMatrix = FrameMatrix * InverseBindMatrix;
-            _invVertexMatrix = InverseFrameMatrix * BindMatrix;
+            _inverseVertexMatrix = InverseFrameMatrix * BindMatrix;
 
             if (!updateMesh)
-                InfluenceAssets(false);
+                InfluenceAssets(true);
 
             foreach (Bone b in _children)
                 b.CalcBindMatrix(_bindMatrix, _inverseBindMatrix, updateMesh);
         }
+        /// <summary>
+        /// If "influence" is false, all vertices will be unweighted from this bone.
+        /// Otherwise, all vertices will be re-weighted to this bone.
+        /// </summary>
         public void InfluenceAssets(bool influence)
         {
 
@@ -135,29 +161,53 @@ namespace CustomEngine.Rendering.Models
         private void _children_Added(Bone item)
         {
             item._parent = this;
+            item.CalcBindMatrix(BindMatrix, InverseBindMatrix, false);
+            item.CalcFrameMatrix(FrameMatrix, InverseFrameMatrix);
+            _skeleton.RegenerateBoneCache();
         }
         private void _children_AddedRange(IEnumerable<Bone> items)
         {
             foreach (Bone item in items)
+            {
                 item._parent = this;
+                item.CalcBindMatrix(BindMatrix, InverseBindMatrix, false);
+                item.CalcFrameMatrix(FrameMatrix, InverseFrameMatrix);
+            }
+            _skeleton.RegenerateBoneCache();
         }
         private void _children_Inserted(Bone item, int index)
         {
             item._parent = this;
+            item.CalcBindMatrix(BindMatrix, InverseBindMatrix, false);
+            item.CalcFrameMatrix(FrameMatrix, InverseFrameMatrix);
+            _skeleton.RegenerateBoneCache();
         }
         private void _children_InsertedRange(IEnumerable<Bone> items, int index)
         {
             foreach (Bone item in items)
+            {
                 item._parent = this;
+                item.CalcBindMatrix(BindMatrix, InverseBindMatrix, false);
+                item.CalcFrameMatrix(FrameMatrix, InverseFrameMatrix);
+            }
+            _skeleton.RegenerateBoneCache();
         }
         private void _children_Removed(Bone item)
         {
             item._parent = null;
+            item.CalcBindMatrix(false);
+            item.CalcFrameMatrix();
+            _skeleton.RegenerateBoneCache();
         }
         private void _children_RemovedRange(IEnumerable<Bone> items)
         {
             foreach (Bone item in items)
+            {
                 item._parent = null;
+                item.CalcBindMatrix(false);
+                item.CalcFrameMatrix();
+            }
+            _skeleton.RegenerateBoneCache();
         }
     }
 }

@@ -10,14 +10,18 @@ namespace CustomEngine.Rendering.Models
     public class Mesh : RenderableObject
     {
         public Mesh() { }
-        public Mesh(PrimitiveData data) { _manager.Data = data; }
+        public Mesh(PrimitiveData data, string name)
+        {
+            _manager.Data = data;
+            _name = name;
+        }
         public Mesh(Shape shape)
         {
             _name = shape.GetType().ToString();
             SetPrimitiveData(shape.GetPrimitiveData());
             SetCullingVolume(shape);
         }
-
+        
         private Model _model;
         internal PrimitiveManager _manager = new PrimitiveManager();
 

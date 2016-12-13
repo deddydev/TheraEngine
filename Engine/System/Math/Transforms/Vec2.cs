@@ -19,12 +19,8 @@ namespace System
         public VertexBuffer.ComponentType ComponentType { get { return VertexBuffer.ComponentType.Float; } }
         public int ComponentCount { get { return 2; } }
         bool IBufferable.Normalize { get { return false; } }
-        public void Write(VoidPtr address)
-        {
-            float* data = (float*)address;
-            for (int i = 0; i < ComponentCount; ++i)
-                *data++ = Data[i];
-        }
+        public void Write(VoidPtr address) { this = *(Vec2*)address; }
+        public void Read(VoidPtr address) { *(Vec2*)address = this; }
 
         public Vec2(float value)
         {

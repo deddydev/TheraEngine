@@ -8,7 +8,7 @@ namespace CustomEngine.Rendering.Models.Materials
 {
     public class MaterialSettings
     {
-        private List<MaterialProperty> _properties = new List<MaterialProperty>();
+        private List<GLVar> _properties = new List<GLVar>();
         private VertexAttribInfo[] _attrib;
         
         public MaterialSettings()

@@ -18,12 +18,8 @@ namespace System
         public VertexBuffer.ComponentType ComponentType { get { return VertexBuffer.ComponentType.Float; } }
         public int ComponentCount { get { return 4; } }
         bool IBufferable.Normalize { get { return false; } }
-        public void Write(VoidPtr address)
-        {
-            float* data = (float*)address;
-            for (int i = 0; i < ComponentCount; ++i)
-                *data++ = Data[i];
-        }
+        public void Write(VoidPtr address) { this = *(ColorF4*)address; }
+        public void Read(VoidPtr address) { *(ColorF4*)address = this; }
 
         public static implicit operator ColorF4(RGBAPixel p) { return new ColorF4() { A = p.A / 255.0f, B = p.B / 255.0f, G = p.G / 255.0f, R = p.R / 255.0f }; }
         public static implicit operator ColorF4(ARGBPixel p) { return new ColorF4() { A = p.A / 255.0f, B = p.B / 255.0f, G = p.G / 255.0f, R = p.R / 255.0f }; }
@@ -57,11 +53,19 @@ namespace System
         public static implicit operator ColorF3(ColorF4 p) { return new ColorF3(p.R, p.G, p.B); }
     }
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    public struct RGBAPixel
+    public unsafe struct RGBAPixel : IBufferable
     {
         public byte R, G, B, A;
         
         public RGBAPixel(byte r, byte g, byte b, byte a) { R = r; G = g; B = b; A = a; }
+
+        public byte* Data { get { return (byte*)Address; } }
+        public VoidPtr Address { get { fixed (void* p = &this) return p; } }
+        public VertexBuffer.ComponentType ComponentType { get { return VertexBuffer.ComponentType.Float; } }
+        public int ComponentCount { get { return 4; } }
+        bool IBufferable.Normalize { get { return false; } }
+        public void Write(VoidPtr address) { this = *(ColorF4*)address; }
+        public void Read(VoidPtr address) { *(ColorF4*)address = this; }
 
         public static implicit operator RGBAPixel(ColorF4 p) { return new RGBAPixel() { A = (byte)(p.A * 255.0f), B = (byte)(p.B * 255.0f), G = (byte)(p.G * 255.0f), R = (byte)(p.R * 255.0f) }; }
         public static implicit operator RGBAPixel(ARGBPixel p) { return new RGBAPixel() { A = p.A, B = p.B, G = p.G, R = p.R }; }

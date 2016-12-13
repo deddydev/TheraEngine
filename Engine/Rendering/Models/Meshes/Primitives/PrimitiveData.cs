@@ -24,6 +24,8 @@ namespace CustomEngine.Rendering.Models
         public int _texcoordCount = 1;
         public int _colorCount = 0;
         public int _boneCount = 0;
+
+        public bool IsWeighted { get { return _boneCount > 0; } }
     }
     public class PrimitiveData : IDisposable
     {
@@ -40,6 +42,7 @@ namespace CustomEngine.Rendering.Models
         //Count is same as _facePoints.Count
         public Influence[] _influences;
         public string[] _utilizedBones;
+        public string _singleBindBone;
 
         //Face points have indices that refer to each buffer.
         //These may contain repeat buffer indices but each point is unique.
@@ -166,6 +169,13 @@ namespace CustomEngine.Rendering.Models
             }
             _buffers[bufferIndex] = buffer;
         }
+        public T[] GetBuffer<T>(int bufferIndex, bool remap = false) where T : IBufferable
+        {
+            if (_buffers == null || bufferIndex < 0 || bufferIndex >= _buffers.Count)
+                return null;
+            
+            return _buffers[bufferIndex].GetData<T>(remap);
+        }
 
         private Remapper SetFaceIndices(List<Vertex> vertices, bool remap = true)
         {
@@ -213,6 +223,9 @@ namespace CustomEngine.Rendering.Models
         
         public PrimitiveData(Culling culling, PrimitiveBufferInfo info, IEnumerable<VertexTriangle> triangles)
         {
+            //TODO: convert triangles to tristrips and use primitive restart to render them all in one call
+
+            _influences = null;
             _culling = culling;
             _triangles = new MonitoredList<VertexTriangle>(triangles);
             _triangles.Added += _triangles_Added;
@@ -223,7 +236,9 @@ namespace CustomEngine.Rendering.Models
 
             Remapper remapper = SetFaceIndices(vertices);
             CreateFacePoints(remapper.ImplementationLength);
-            SetInfluences(remapper.ImplementationTable.Select(x => influences[x]).ToArray());
+
+            if (info.IsWeighted)
+                SetInfluences(remapper.ImplementationTable.Select(x => influences[x]).ToArray());
 
             for (int i = 0; i < info._positionCount; ++i)
             {

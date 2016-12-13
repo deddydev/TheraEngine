@@ -41,7 +41,6 @@ namespace CustomEngine.Rendering.Models
             get { return _collisionEnabled; }
             set { _collisionEnabled = value; }
         }
-
         protected override void ChildAdded(Mesh item)
         {
             item.Model = this;

@@ -27,6 +27,7 @@ namespace CustomEngine
         int ComponentCount { get; }
         bool Normalize { get; }
         void Write(VoidPtr address);
+        void Read(VoidPtr address);
     }
     
     public interface IGLVarOwner { }

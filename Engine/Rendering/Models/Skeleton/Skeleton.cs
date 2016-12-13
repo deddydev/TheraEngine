@@ -7,12 +7,13 @@ namespace CustomEngine.Rendering.Models
     public class Skeleton : FileObject
     {
         public Skeleton() : base() { }
-        public Skeleton(Bone rootBone) : base() { RootBone = rootBone; }
-        public Skeleton(Model model) : base() { Model = model; }
+        public Skeleton(Bone rootBone) : base() { RootBone = rootBone; RegenerateBoneCache(); }
+        public Skeleton(Model model) : base() { Model = model; RegenerateBoneCache(); }
         public Skeleton(Model model, Bone rootBone) : base()
         {
             Model = model;
             RootBone = rootBone;
+            RegenerateBoneCache();
         }
 
         private Dictionary<string, Bone> _boneCache = new Dictionary<string, Bone>();

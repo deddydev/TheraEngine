@@ -278,13 +278,8 @@ namespace System
 
             float* p = m.Data;
             
-            //Translation is easy!
-            state._translation = *(Vec3*)&p[12];
-
-            //Scale, use sqrt of rotation columns
-            state._scale.X = (float)Math.Round(Math.Sqrt(p[0] * p[0] + p[1] * p[1] + p[2] * p[2]), 4);
-            state._scale.Y = (float)Math.Round(Math.Sqrt(p[4] * p[4] + p[5] * p[5] + p[6] * p[6]), 4);
-            state._scale.Z = (float)Math.Round(Math.Sqrt(p[8] * p[8] + p[9] * p[9] + p[10] * p[10]), 4);
+            state._translation = m.Row3.Xyz;
+            state._scale = new Vec3(m.Row0.Xyz.Length, m.Row1.Xyz.Length, m.Row2.Xyz.Length);
 
             float x, y, z, c;
 

@@ -2,9 +2,6 @@
 using grendgine_collada;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CustomEngine.Rendering.Models.Collada
 {
@@ -45,7 +42,7 @@ namespace CustomEngine.Rendering.Models.Collada
 
                 Matrix4 localMatrix = Matrix4.Identity;
 
-                //bone.BindState = localMatrix.Derive();
+                bone.BindState = FrameState.DeriveTRS(localMatrix);
 
                 parent.Children.Add(bone);
                 bone.Parent = parent;

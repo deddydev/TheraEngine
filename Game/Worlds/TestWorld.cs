@@ -48,7 +48,11 @@ namespace Game.Worlds
             InterpKeyframe last = new InterpKeyframe(360.0f, 0.0f, 0.0f);
             first.LinkNext(second).LinkNext(last);
             camPropAnim.Keyframes.AddFirst(first);
-            
+            first.MakeOutLinear();
+            second.MakeInLinear();
+            second.MakeOutLinear();
+            last.MakeInLinear();
+
             AnimFolder yawAnim = new AnimFolder("Yaw", false, camPropAnim);
             AnimFolder pitchAnim = new AnimFolder("Pitch", false, camPropAnim);
             //AnimFolder rollAnim = new AnimFolder("AddRotationRoll", true, camPropAnim);

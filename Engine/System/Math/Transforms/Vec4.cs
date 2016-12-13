@@ -18,12 +18,8 @@ namespace System
         public VertexBuffer.ComponentType ComponentType { get { return VertexBuffer.ComponentType.Float; } }
         public int ComponentCount { get { return 4; } }
         bool IBufferable.Normalize { get { return false; } }
-        public void Write(VoidPtr address)
-        {
-            float* data = (float*)address;
-            for (int i = 0; i < ComponentCount; ++i)
-                *data++ = Data[i];
-        }
+        public void Write(VoidPtr address) { this = *(Vec4*)address; }
+        public void Read(VoidPtr address) { *(Vec4*)address = this; }
 
         public static readonly Vec4 UnitX = new Vec4(1.0f, 0.0f, 0.0f, 0.0f);
         public static readonly Vec4 UnitY = new Vec4(0.0f, 1.0f, 0.0f, 0.0f);

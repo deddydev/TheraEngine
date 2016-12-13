@@ -15,13 +15,13 @@ namespace CustomEngine.Rendering.Models
         //Binormal,
         //Tangent,
         TexCoord,
-        //Color,
+        Color,
         MatrixIds,
         MatrixWeights
     }
     public class VertexAttribInfo
     {
-        public VertexAttribInfo(BufferType type, int index = 0)
+        public VertexAttribInfo(BufferType type, int index)
         {
             _type = type;
             _index = index.Clamp(0, VertexBuffer.MaxBufferCountPerType);
@@ -30,12 +30,12 @@ namespace CustomEngine.Rendering.Models
         public BufferType _type;
         public int _index;
 
-        public string GetAttribName() { return _type.ToString()/* + _index*/; }
-        public int GetLocation() { return /*(int)_type * VertexBuffer.MaxBufferCountPerType + */_index; }
+        public string GetAttribName() { return _type.ToString() + _index; }
+        public int GetLocation() { return (int)_type * VertexBuffer.MaxBufferCountPerType + _index; }
     }
     public class VertexBuffer : BaseRenderState, IDisposable
     {
-        public static readonly int MaxBufferCountPerType = 64;
+        public static readonly int MaxBufferCountPerType = 1;
         public static readonly int BufferTypeCount = 8;
         
         //TransformedPosition, TransformedNormal, TransformedBinormal, TransformedTangent
@@ -308,6 +308,33 @@ namespace CustomEngine.Rendering.Models
                 }
                 return null;
             }
+        }
+        public List<T> GetData<T>(bool remap = false) where T : IBufferable
+        {
+            Console.WriteLine("\nGetting vertex data from buffer " + Index + " - " + Name);
+
+            IBufferable d = default(T);
+            _componentType = d.ComponentType;
+            _componentCount = d.ComponentCount;
+            _normalize = d.Normalize;
+
+            int stride = Stride;
+            List<T> array = new List<T>(_elementCount);
+            for (int i = 0; i < _elementCount; ++i)
+            {
+                T value = default(T);
+                value.Read(_data.Address[i, stride]);
+                array[i] = value;
+            }
+
+            if (remap)
+            {
+                Remapper remapper = new Remapper();
+                remapper.Remap(array);
+                return remapper.ImplementationTable.Select(x => array[x]).ToList();
+            }
+            else
+                return array;
         }
         protected override void OnDeleted()
         {

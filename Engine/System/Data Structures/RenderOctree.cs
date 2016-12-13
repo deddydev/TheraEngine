@@ -141,10 +141,6 @@ namespace System
                     foreach (RenderableObject item in _items)
                     {
                         EContainment containment = frustum.Contains(item.CullingVolume);
-                        if (containment == EContainment.Disjoint)
-                        {
-                            //break;
-                        }
                         item.IsRendering = containment != EContainment.Disjoint;
                     }
                     if (_subNodes != null)

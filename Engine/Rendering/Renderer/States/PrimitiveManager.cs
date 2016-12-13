@@ -27,6 +27,7 @@ namespace CustomEngine.Rendering.Models
         //private Shader _vertexShader;
         //private PrimitiveBufferInfo _bufferInfo;
         private Material _material;
+        private Bone _singleBind;
 
         private bool _initialized = false;
 
@@ -129,7 +130,6 @@ namespace CustomEngine.Rendering.Models
         //        positionMatrices.Add(b.VertexMatrix);
         //        normalMatrices.Add(b.VertexMatrix.GetRotationMatrix3());
         //    }
-            
         //    Engine.Renderer.Uniform(Uniform.PositionMatricesName, positionMatrices.ToArray());
         //    Engine.Renderer.Uniform(Uniform.NormalMatricesName, normalMatrices.ToArray());
         //}
@@ -174,41 +174,5 @@ namespace CustomEngine.Rendering.Models
             _indexBuffer.Dispose();
             _program.Destroy();
         }
-    }
-    
-    public class MeshProgram : BaseRenderState
-    {
-        public Shader[] _shaders;
-        public MaterialInstance _material;
-
-        public MeshProgram(Material material) : base(GenType.Program)
-        {
-            SetMaterial(material);
-        }
-
-        protected override int CreateObject()
-        {
-            int[] ids = _shaders.Select(x => x.Compile()).ToArray();
-            return Engine.Renderer.GenerateProgram(ids);
-        }
-        protected override void OnGenerated()
-        {
-
-        }
-        protected override void OnDeleted()
-        {
-
-        }
-        public void SetMaterial(Material material)
-        {
-            _material = new MaterialInstance(material);
-            SetShaders(
-                _material.VertexShader, 
-                _material.FragmentShader, 
-                _material.GeometryShader,
-                _material.TessellationControlShader,
-                _material.TessellationEvaluationShader);
-        }
-        public void SetShaders(params Shader[] shaders) { _shaders = shaders.Where(x => x != null).ToArray(); }
     }
 }

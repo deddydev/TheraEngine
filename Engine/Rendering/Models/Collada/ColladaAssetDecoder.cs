@@ -13,30 +13,20 @@ namespace CustomEngine.Rendering.Models.Collada
             SceneEntry scene)
         {
             PrimitiveData data = DecodePrimitives(geo);
+            bindMatrix = bindMatrix * skin._bindMatrix;
 
             Bone[] boneList;
             Bone bone = null;
             int boneCount;
 
-            string[] jointStringArray = null;
-            string jointString = null;
-
-            byte* pCmd = stackalloc byte[4];
-            int cmdCount = skin._weightInputs.Count;
             float weight = 0;
             float* pWeights = null;
             Vec3* pVert = null, pNorms = null;
-            ushort* pVInd = (ushort*)manager._indices.Address;
-            List<Vertex3> vertList = new List<Vertex3>(skin._weightCount);
+            List<Vertex> vertList = new List<Vertex>(skin._weightCount);
             Matrix4* pMatrix = null;
 
             DataSource remap = new DataSource(skin._weightCount * 2);
             ushort* pRemap = (ushort*)remap.Address;
-
-            if (manager._faceData[1] != null)
-                pNorms = (Vec3*)manager._faceData[1].Address;
-
-            manager._vertices = vertList;
 
             //Find vertex source
             foreach (SourceEntry s in geo._sources)
@@ -47,6 +37,8 @@ namespace CustomEngine.Rendering.Models.Collada
                 }
 
             //Find joint source
+            string[] jointStringArray = null;
+            string jointString = null;
             foreach (InputEntry inp in skin._jointInputs)
                 if (inp._semantic == SemanticType.JOINT)
                 {
@@ -96,6 +88,9 @@ namespace CustomEngine.Rendering.Models.Collada
             }
 
             //Build command list
+
+            int cmdCount = skin._weightInputs.Count;
+            byte* pCmd = stackalloc byte[4];
             foreach (InputEntry inp in skin._weightInputs)
             {
                 switch (inp._semantic)
@@ -129,78 +124,28 @@ namespace CustomEngine.Rendering.Models.Collada
                 //Create influence
                 int iCount = skin._weights[i].Length / cmdCount;
                 Influence inf = new Influence();
-                fixed (int* p = skin._weights[i])
+                int[] iPtr = skin._weights[i];
+                int j = 0;
+                for (int x = 0; x < iCount; x++)
                 {
-                    int* iPtr = p;
-                    for (int x = 0; x < iCount; x++)
+                    for (int cmd = 0; cmd < cmdCount; cmd++, j++)
                     {
-                        for (int z = 0; z < cmdCount; z++, iPtr++)
-                            if (pCmd[z] == 1)
-                                bone = boneList[*iPtr];
-                            else if (pCmd[z] == 2)
-                                weight = pWeights[*iPtr];
-                        inf.AddWeight(new BoneWeight(bone, weight));
+                        int index = iPtr[j];
+                        switch (pCmd[cmd])
+                        {
+                            case 1: //JOINT
+                                bone = boneList[index];
+                                break;
+                            case 2: //WEIGHT
+                                weight = pWeights[index];
+                                break;
+                        }
                     }
+                    inf.AddWeight(new BoneWeight(bone.Name, weight));
                 }
-
-                inf.CalcMatrix();
-                
-                Vec3 worldPos = bindMatrix * skin._bindMatrix * pVert[i];
-                Vertex v;
-                if (inf.Weights.Count > 1)
-                {
-                    //Match with manager
-                    inf = infManager.FindOrCreate(inf);
-                    v = new Vertex(worldPos, inf); //World position
-                }
-                else
-                {
-                    bone = inf.Weights[0].Bone;
-                    v = new Vertex(bone.InverseBindMatrix * worldPos, bone); //Local position
-                }
-
-                ushort index = 0;
-                while (index < vertList.Count)
-                {
-                    if (v.Equals(vertList[index]))
-                        break;
-                    index++;
-                }
-                if (index == vertList.Count)
-                    vertList.Add(v);
-
-                pRemap[i] = index;
+                vertList.Add(new Vertex(bindMatrix * pVert[i], inf));
             }
-
-            Error = "There was a problem fixing normal rotations for geometry entry " + geo._name;
-
-            //Remap vertex indices and fix normals
-            for (int i = 0; i < manager._pointCount; i++, pVInd++)
-            {
-                *pVInd = pRemap[*pVInd];
-
-                if (pNorms != null)
-                {
-                    Vertex3 v = null;
-                    if (*pVInd < vertList.Count)
-                        v = vertList[*pVInd];
-                    if (v != null && v.MatrixNode != null)
-                        if (v.MatrixNode.Weights.Count > 1)
-                            pNorms[i] =
-                                (bindMatrix *
-                                skin._bindMatrix).GetRotationMatrix() *
-                                pNorms[i];
-                        else
-                            pNorms[i] =
-                                (v.MatrixNode.Weights[0].Bone.InverseBindMatrix *
-                                bindMatrix *
-                                skin._bindMatrix).GetRotationMatrix() *
-                                pNorms[i];
-                }
-            }
-
-            remap.Dispose();
-            return manager;
+            return data;
         }
         static NodeEntry RecursiveTestNode(string jointStrings, NodeEntry node)
         {
@@ -219,51 +164,26 @@ namespace CustomEngine.Rendering.Models.Collada
             return null;
         }
 
-        static PrimitiveManager DecodePrimitivesUnweighted(Matrix bindMatrix, GeometryEntry geo)
+        static PrimitiveData DecodePrimitivesUnweighted(Matrix4 bindMatrix, GeometryEntry geo)
         {
-            PrimitiveManager manager = DecodePrimitives(geo);
+            PrimitiveData manager = DecodePrimitives(geo);
 
-            Vector3* pVert = null, pNorms = null;
-            ushort* pVInd = (ushort*)manager._indices.Address;
+            Vec3* pVert = null, pNorms = null;
             int vCount = 0;
-            List<Vertex3> vertList = new List<Vertex3>(manager._pointCount);
-
-            manager._vertices = vertList;
-
-            if (manager._faceData[1] != null)
-                pNorms = (Vector3*)manager._faceData[1].Address;
 
             //Find vertex source
             foreach (SourceEntry s in geo._sources)
                 if (s._id == geo._verticesInput._source)
                 {
-                    UnsafeBuffer b = s._arrayData as UnsafeBuffer;
-                    pVert = (Vector3*)b.Address;
+                    DataSource b = s._arrayData as DataSource;
+                    pVert = (Vec3*)b.Address;
                     vCount = b.Length / 12;
                     break;
                 }
 
-            UnsafeBuffer remap = new UnsafeBuffer(vCount * 2);
-            ushort* pRemap = (ushort*)remap.Address;
-
-            //Create remap table
+            Vertex[] vertices = new Vertex[vCount];
             for (int i = 0; i < vCount; i++)
-            {
-                //Create vertex and look for match
-                Vertex3 v = new Vertex3(bindMatrix * pVert[i]);
-
-                int index = 0;
-                while (index < vertList.Count)
-                {
-                    if (v.Equals(vertList[index]))
-                        break;
-                    index++;
-                }
-                if (index == vertList.Count)
-                    vertList.Add(v);
-
-                pRemap[i] = (ushort)index;
-            }
+                vertices[i] = new Vertex(bindMatrix * pVert[i]);
 
             //Remap vertex indices and fix normals
             for (int i = 0; i < manager._pointCount; i++, pVInd++)
@@ -274,12 +194,10 @@ namespace CustomEngine.Rendering.Models.Collada
                     pNorms[i] = bindMatrix.GetRotationMatrix() * pNorms[i];
             }
 
-            remap.Dispose();
-
             return manager;
         }
 
-        static PrimitiveManager DecodePrimitives(GeometryEntry geo)
+        static PrimitiveData DecodePrimitives(GeometryEntry geo)
         {
             uint[] pTriarr = null, pLinarr = null;
             uint pTri = 0, pLin = 0;
@@ -299,7 +217,7 @@ namespace CustomEngine.Rendering.Models.Collada
             foreach (SourceEntry s in geo._sources)
                 if (s._id == geo._verticesInput._source)
                 {
-                    pInData[0] = (byte*)((UnsafeBuffer)s._arrayData).Address;
+                    pInData[0] = (byte*)((DataSource)s._arrayData).Address;
                     break;
                 }
 
@@ -336,10 +254,6 @@ namespace CustomEngine.Rendering.Models.Collada
                                 offset = 4 + inp._set;
                             break;
                     }
-
-                    if (offset != -1)
-                        manager._dirty[offset] = true;
-
                     inp._outputOffset = offset;
                 }
             }
@@ -396,7 +310,7 @@ namespace CustomEngine.Rendering.Models.Collada
                         foreach (SourceEntry src in geo._sources)
                             if (src._id == inp._source)
                             {
-                                pInData[inp._outputOffset] = (byte*)((UnsafeBuffer)src._arrayData).Address;
+                                pInData[inp._outputOffset] = (byte*)((DataSource)src._arrayData).Address;
                                 break;
                             }
                     }
@@ -477,7 +391,7 @@ namespace CustomEngine.Rendering.Models.Collada
                         break;
                 }
             }
-            return manager;
+            return data;
         }
 
         private static void RunPrimitiveCmd(byte** pIn, byte** pOut, PrimitiveDecodeCommand* pCmd, int cmdCount, ushort* pIndex, int count)

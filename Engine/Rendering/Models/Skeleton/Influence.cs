@@ -20,6 +20,17 @@ namespace CustomEngine.Rendering.Models
         private int _weightCount = 0;
         private BoneWeight[] _weights = new BoneWeight[4];
         
+        public void AddWeight(BoneWeight weight)
+        {
+            if (_weightCount == 4)
+            {
+                List<BoneWeight> weights = _weights.ToList();
+                weights.Add(weight);
+                _weights = Optimize(weights, out _weightCount);
+                return;
+            }
+            _weights[_weightCount++] = weight;
+        }
         public void SetWeights(params BoneWeight[] weights)
         {
            SetWeights(weights.ToList());

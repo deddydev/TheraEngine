@@ -434,7 +434,7 @@ namespace System
         }
         public static Vec3 operator *(Quaternion quat, Vec3 vec)
         {
-            return vec.Transform(quat);
+            return quat.Transform(vec);
         }
         public static Vec3 operator /(Vec3 vec, float scale)
         {

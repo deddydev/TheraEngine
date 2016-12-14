@@ -12,10 +12,10 @@ namespace CustomEngine.Rendering.Models
     {
         Position,
         Normal,
-        //Binormal,
-        //Tangent,
         TexCoord,
         Color,
+        Binormal,
+        Tangent,
         MatrixIds,
         MatrixWeights
     }
@@ -309,17 +309,17 @@ namespace CustomEngine.Rendering.Models
                 return null;
             }
         }
-        public List<T> GetData<T>(bool remap = false) where T : IBufferable
+        public Remapper GetData<T>(out T[] array, bool remap = true) where T : IBufferable
         {
             Console.WriteLine("\nGetting vertex data from buffer " + Index + " - " + Name);
-
+            
             IBufferable d = default(T);
             _componentType = d.ComponentType;
             _componentCount = d.ComponentCount;
             _normalize = d.Normalize;
 
             int stride = Stride;
-            List<T> array = new List<T>(_elementCount);
+            array = new T[_elementCount];
             for (int i = 0; i < _elementCount; ++i)
             {
                 T value = default(T);
@@ -331,10 +331,9 @@ namespace CustomEngine.Rendering.Models
             {
                 Remapper remapper = new Remapper();
                 remapper.Remap(array);
-                return remapper.ImplementationTable.Select(x => array[x]).ToList();
+                return remapper;
             }
-            else
-                return array;
+            return null;
         }
         protected override void OnDeleted()
         {

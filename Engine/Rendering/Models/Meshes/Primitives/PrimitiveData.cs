@@ -169,12 +169,14 @@ namespace CustomEngine.Rendering.Models
             }
             _buffers[bufferIndex] = buffer;
         }
-        public T[] GetBuffer<T>(int bufferIndex, bool remap = false) where T : IBufferable
+        public Remapper GetBuffer<T>(int bufferIndex, out T[] array, bool remap = false) where T : IBufferable
         {
             if (_buffers == null || bufferIndex < 0 || bufferIndex >= _buffers.Count)
+            {
+                array = null;
                 return null;
-            
-            return _buffers[bufferIndex].GetData<T>(remap);
+            }
+            return _buffers[bufferIndex].GetData(out array, remap);
         }
 
         private Remapper SetFaceIndices(List<Vertex> vertices, bool remap = true)
@@ -243,33 +245,33 @@ namespace CustomEngine.Rendering.Models
             for (int i = 0; i < info._positionCount; ++i)
             {
                 var data = remapper.ImplementationTable.Select(x => vertices[x]._position).ToList();
-                AddBuffer(data, new VertexAttribInfo(BufferType.Position, 0));
+                AddBuffer(data, new VertexAttribInfo(BufferType.Position, i));
             }
             for (int i = 0; i < info._normalCount; ++i)
             {
                 var data = remapper.ImplementationTable.Select(x => vertices[x]._normal).ToList();
-                AddBuffer(data, new VertexAttribInfo(BufferType.Normal, 1));
+                AddBuffer(data, new VertexAttribInfo(BufferType.Normal, i));
             }
-            //for (int i = 0; i < info._binormalCount; ++i)
-            //{
-            //    var data = remapper.ImplementationTable.Select(x => vertices[x]._binormal).ToList();
-            //    AddBuffer(data, new VertexAttribInfo(BufferType.Binormal, i));
-            //}
-            //for (int i = 0; i < info._tangentCount; ++i)
-            //{
-            //    var data = remapper.ImplementationTable.Select(x => vertices[x]._tangent).ToList();
-            //    AddBuffer(data, new VertexAttribInfo(BufferType.Tangent, i));
-            //}
             for (int i = 0; i < info._texcoordCount; ++i)
             {
                 var data = remapper.ImplementationTable.Select(x => vertices[x]._texCoord).ToList();
-                AddBuffer(data, new VertexAttribInfo(BufferType.TexCoord, 2));
+                AddBuffer(data, new VertexAttribInfo(BufferType.TexCoord, i));
             }
-            //for (int i = 0; i < info._colorCount; ++i)
-            //{
-            //    var data = remapper.ImplementationTable.Select(x => vertices[x]._color).ToList();
-            //    AddBuffer(data, new VertexAttribInfo(BufferType.Color, i));
-            //}
+            for (int i = 0; i < info._colorCount; ++i)
+            {
+                var data = remapper.ImplementationTable.Select(x => vertices[x]._color).ToList();
+                AddBuffer(data, new VertexAttribInfo(BufferType.Color, i));
+            }
+            for (int i = 0; i < info._binormalCount; ++i)
+            {
+                var data = remapper.ImplementationTable.Select(x => vertices[x]._binormal).ToList();
+                AddBuffer(data, new VertexAttribInfo(BufferType.Binormal, i));
+            }
+            for (int i = 0; i < info._tangentCount; ++i)
+            {
+                var data = remapper.ImplementationTable.Select(x => vertices[x]._tangent).ToList();
+                AddBuffer(data, new VertexAttribInfo(BufferType.Tangent, i));
+            }
         }
         private void _triangles_Removed(VertexTriangle item)
         {

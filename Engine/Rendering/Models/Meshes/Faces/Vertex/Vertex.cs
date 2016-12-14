@@ -8,34 +8,34 @@ namespace CustomEngine.Rendering.Models
     {
         public Vertex(FacePoint facepoint, List<VertexBuffer> buffers) { GetData(facepoint, buffers); }
 
-        public int _index;
+        public int _index = -1;
         public Influence _influence;
         public Vec3 _position, _normal, _tangent, _binormal;
         public Vec2 _texCoord;
         public ColorF4 _color;
         public List<VertexLine> _connectedEdges = new List<VertexLine>();
 
-        public Vertex(int index, Vec3 position)
-            { _index = index; _position = position; }
-        public Vertex(int index, Vec3 position, Influence inf) 
-            : this(index, position) { _influence = inf; }
-        public Vertex(int index, Vec3 position, Influence inf, Vec3 normal) 
-            : this(index, position, inf) { _normal = normal; }
-        public Vertex(int index, Vec3 position, Influence inf, Vec3 normal, Vec2 texCoord) 
-            : this(index, position, inf, normal) { _texCoord = texCoord; }
-        public Vertex(int index, Vec3 position, Influence inf, Vec3 normal, Vec2 texCoord, ColorF4 color) 
-            : this(index, position, inf, normal, texCoord) { _color = color; }
-        public Vertex(int index, Vec3 position, Influence inf, Vec3 normal, Vec3 binormal, Vec3 tangent, Vec2 texCoord, ColorF4 color) 
-            : this(index, position, inf, normal, texCoord, color) { _binormal = binormal; _tangent = tangent; }
+        public Vertex(Vec3 position)
+            { _position = position; }
+        public Vertex(Vec3 position, Influence inf) 
+            : this(position) { _influence = inf; }
+        public Vertex(Vec3 position, Influence inf, Vec3 normal) 
+            : this(position, inf) { _normal = normal; }
+        public Vertex(Vec3 position, Influence inf, Vec3 normal, Vec2 texCoord) 
+            : this(position, inf, normal) { _texCoord = texCoord; }
+        public Vertex(Vec3 position, Influence inf, Vec3 normal, Vec2 texCoord, ColorF4 color) 
+            : this(position, inf, normal, texCoord) { _color = color; }
+        public Vertex(Vec3 position, Influence inf, Vec3 normal, Vec3 binormal, Vec3 tangent, Vec2 texCoord, ColorF4 color) 
+            : this(position, inf, normal, texCoord, color) { _binormal = binormal; _tangent = tangent; }
 
-        public Vertex(int index, Vec3 position, Vec3 normal) 
-            : this(index, position, null, normal) { }
-        public Vertex(int index, Vec3 position, Vec3 normal, Vec2 texCoord)
-            : this(index, position, null, normal) { _texCoord = texCoord; }
-        public Vertex(int index, Vec3 position, Vec3 normal, Vec2 texCoord, ColorF4 color)
-            : this(index, position, null, normal, texCoord) { _color = color; }
-        public Vertex(int index, Vec3 position, Vec3 normal, Vec3 binormal, Vec3 tangent, Vec2 texCoord, ColorF4 color)
-            : this(index, position, null, normal, texCoord, color) { _binormal = binormal; _tangent = tangent; }
+        public Vertex(Vec3 position, Vec3 normal) 
+            : this(position, null, normal) { }
+        public Vertex(Vec3 position, Vec3 normal, Vec2 texCoord)
+            : this(position, null, normal) { _texCoord = texCoord; }
+        public Vertex(Vec3 position, Vec3 normal, Vec2 texCoord, ColorF4 color)
+            : this(position, null, normal, texCoord) { _color = color; }
+        public Vertex(Vec3 position, Vec3 normal, Vec3 binormal, Vec3 tangent, Vec2 texCoord, ColorF4 color)
+            : this(position, null, normal, texCoord, color) { _binormal = binormal; _tangent = tangent; }
 
         public void SetData(FacePoint facepoint, List<VertexBuffer> buffers)
         {

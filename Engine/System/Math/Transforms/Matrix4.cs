@@ -916,12 +916,12 @@ namespace System
         /// <param name="vec">The vector to transform</param>
         /// <param name="mat">The desired transformation</param>
         /// <returns>The transformed vector</returns>
-        public static Vec3 TransformVector(Vec3 vec, Matrix4 mat)
+        public Vec3 TransformVector(Vec3 vec)
         {
             return new Vec3(
-                vec.Dot(new Vec3(mat.Column0)),
-                vec.Dot(new Vec3(mat.Column1)),
-                vec.Dot(new Vec3(mat.Column2)));
+                vec.Dot(new Vec3(Column0)),
+                vec.Dot(new Vec3(Column1)),
+                vec.Dot(new Vec3(Column2)));
         }
 
         /// <summary>Transform a Normal by the given Matrix</summary>
@@ -932,10 +932,9 @@ namespace System
         /// <param name="norm">The normal to transform</param>
         /// <param name="mat">The desired transformation</param>
         /// <returns>The transformed normal</returns>
-        public static Vec3 TransformNormal(Vec3 norm, Matrix4 mat)
+        public Vec3 TransformNormal(Vec3 norm)
         {
-            mat.Invert();
-            return TransformNormalInverse(norm, mat);
+            return Inverted().TransformNormalInverse(norm);
         }
         /// <summary>Transform a Normal by the (transpose of the) given Matrix</summary>
         /// <remarks>
@@ -945,34 +944,21 @@ namespace System
         /// <param name="norm">The normal to transform</param>
         /// <param name="invMat">The inverse of the desired transformation</param>
         /// <returns>The transformed normal</returns>
-        public static Vec3 TransformNormalInverse(Vec3 norm, Matrix4 invMat)
+        public Vec3 TransformNormalInverse(Vec3 norm)
         {
-            return TransformVector(norm, invMat.Transposed());
+            return Transposed().TransformVector(norm);
         }
         /// <summary>Transform a Position by the given Matrix</summary>
         /// <param name="pos">The position to transform</param>
         /// <param name="mat">The desired transformation</param>
         /// <returns>The transformed position</returns>
-        public static Vec3 TransformPosition(Vec3 pos, Matrix4 mat)
+        public Vec3 TransformPosition(Vec3 pos)
         {
             Vec3 p;
-            p.X = pos.Dot(new Vec3(mat.Column0)) + mat.Row3.X;
-            p.Y = pos.Dot(new Vec3(mat.Column1)) + mat.Row3.Y;
-            p.Z = pos.Dot(new Vec3(mat.Column2)) + mat.Row3.Z;
+            p.X = pos.Dot(new Vec3(Column0)) + Row3.X;
+            p.Y = pos.Dot(new Vec3(Column1)) + Row3.Y;
+            p.Z = pos.Dot(new Vec3(Column2)) + Row3.Z;
             return p;
-        }
-        /// <summary>
-        /// Transforms a vector by a quaternion rotation.
-        /// </summary>
-        /// <param name="vec">The vector to transform.</param>
-        /// <param name="quat">The quaternion to rotate the vector by.</param>
-        /// <returns>The result of the operation.</returns>
-        public Vec3 Transform(Quaternion quat)
-        {
-            // Since vec.W == 0, we can optimize quat * vec * quat^-1 as follows:
-            // vec + 2.0 * cross(quat.xyz, cross(quat.xyz, vec) + quat.w * vec)
-            Vec3 xyz = quat.Xyz;
-            return this + 2.0f * xyz.Cross(xyz.Cross(this) + this * quat.W);
         }
         /// <summary>Transform a Vector by the given Matrix</summary>
         /// <param name="vec">The vector to transform</param>

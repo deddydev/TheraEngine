@@ -322,6 +322,22 @@ namespace System.IO
             }
             return false;
         }
+        public unsafe bool ReadValue(ref float pOut)
+        {
+            if (!LeaveTag())
+                return false;
+
+            if (ReadString(_valPtr, _valueMax))
+            {
+                float f;
+                if (float.TryParse((string)Value, NumberStyles.Any, CultureInfo.InvariantCulture.NumberFormat, out f))
+                {
+                    pOut = f;
+                    return true;
+                }
+            }
+            return false;
+        }
 
         public unsafe bool ReadValue(float* pOut, float scale)
         {
@@ -339,6 +355,22 @@ namespace System.IO
             }
             return false;
         }
+        public unsafe bool ReadValue(ref float pOut, float scale)
+        {
+            if (!LeaveTag())
+                return false;
+
+            if (ReadString(_valPtr, _valueMax))
+            {
+                float f;
+                if (float.TryParse((string)Value, NumberStyles.Any, CultureInfo.InvariantCulture.NumberFormat, out f))
+                {
+                    pOut = f * scale;
+                    return true;
+                }
+            }
+            return false;
+        }
 
         public unsafe bool ReadValue(int* pOut)
         {
@@ -351,6 +383,23 @@ namespace System.IO
                 if (int.TryParse((string)Value, NumberStyles.Any, CultureInfo.InvariantCulture.NumberFormat, out f))
                 {
                     *pOut = f;
+                    return true;
+                }
+            }
+
+            return false;
+        }
+        public unsafe bool ReadValue(ref int pOut)
+        {
+            if (!LeaveTag())
+                return false;
+
+            if (ReadString(_valPtr, _valueMax))
+            {
+                int f;
+                if (int.TryParse((string)Value, NumberStyles.Any, CultureInfo.InvariantCulture.NumberFormat, out f))
+                {
+                    pOut = f;
                     return true;
                 }
             }
@@ -379,7 +428,7 @@ namespace System.IO
                 _valPtr[len++] = *_ptr++;
 
             _valPtr[len] = 0;
-            return new String((sbyte*)_valPtr);
+            return new string((sbyte*)_valPtr);
         }
     }
 }

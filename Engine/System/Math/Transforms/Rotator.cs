@@ -44,7 +44,7 @@ namespace System
         public Matrix4 GetMatrix() { return Matrix4.CreateFromRotator(this); }
         public Matrix4 GetInverseMatrix() { return Matrix4.CreateFromRotator(Inverted()); }
         public Vec3 GetDirection() { return TransformVector(Vec3.Forward); }
-        public Vec3 TransformVector(Vec3 vector) { return GetMatrix().TransformVector(vector); }
+        public Vec3 TransformVector(Vec3 vector) { return Vec3.TransformVector(vector, GetMatrix()); }
         public Matrix4 GetYawMatrix() { return Matrix4.CreateRotationY(Yaw); }
         public Matrix4 GetPitchMatrix() { return Matrix4.CreateRotationX(Pitch); }
         public Matrix4 GetRollMatrix() { return Matrix4.CreateRotationZ(Roll); }

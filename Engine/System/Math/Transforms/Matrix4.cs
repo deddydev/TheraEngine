@@ -97,7 +97,7 @@ namespace System
                   - m14 * m22 * m33 * m41 + m14 * m22 * m31 * m43 - m14 * m23 * m31 * m42 + m14 * m23 * m32 * m41;
             }
         }
-        public Vec3 GetPoint() { return TransformPosition(Vec3.Zero); }
+        public Vec3 GetPoint() { return Vec3.TransformPosition(Vec3.Zero, this); }
         public Matrix4 GetRotationMatrix4()
         {
             Matrix4 m = Identity;

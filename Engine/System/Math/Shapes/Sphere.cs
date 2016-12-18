@@ -17,8 +17,8 @@ namespace System
         }
         public Vec3 Center
         {
-            get { return WorldMatrix.TransformPosition(_center); }
-            set { _center = InverseWorldMatrix.TransformPosition(value); }
+            get { return Vec3.TransformPosition(_center, WorldMatrix); }
+            set { _center = Vec3.TransformPosition(value, InverseWorldMatrix); }
         }
         
         public Sphere(float radius, Vec3 center)

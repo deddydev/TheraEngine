@@ -56,7 +56,7 @@ namespace Game.Worlds
             AnimationContainer anim = new AnimationContainer(stateFolder);
 
             ModelComponent modelComp = new ModelComponent(boxModel);
-            //modelComp.AddAnimation(anim, true);
+            modelComp.AddAnimation(anim, true);
             
             _settings._defaultMaps.Add(new Map(this, new MapSettings(new Actor(modelComp), new FlyingCameraPawn(PlayerIndex.One))));
         }

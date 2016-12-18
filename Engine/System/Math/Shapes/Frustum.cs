@@ -73,14 +73,14 @@ namespace System
         public Frustum TransformedBy(Matrix4 transform)
         {
             return new Frustum(
-                transform.TransformPosition(FarBottomLeft),
-                transform.TransformPosition(FarBottomRight),
-                transform.TransformPosition(FarTopLeft),
-                transform.TransformPosition(FarTopRight),
-                transform.TransformPosition(NearBottomLeft),
-                transform.TransformPosition(NearBottomRight),
-                transform.TransformPosition(NearTopLeft),
-                transform.TransformPosition(NearTopRight));
+                Vec3.TransformPosition(FarBottomLeft, transform),
+                Vec3.TransformPosition(FarBottomRight, transform),
+                Vec3.TransformPosition(FarTopLeft, transform),
+                Vec3.TransformPosition(FarTopRight, transform),
+                Vec3.TransformPosition(NearBottomLeft, transform),
+                Vec3.TransformPosition(NearBottomRight, transform),
+                Vec3.TransformPosition(NearTopLeft, transform),
+                Vec3.TransformPosition(NearTopRight, transform));
         }
         public EContainment Contains(Shape shape)
         {

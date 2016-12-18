@@ -51,11 +51,11 @@ namespace System
 
         public Vec3 CenterPoint
         {
-            get { return WorldMatrix.TransformPosition((_min + _max) / 2.0f); }
+            get { return Vec3.TransformPosition((_min + _max) / 2.0f, WorldMatrix); }
             set
             {
                 Vec3 currentOrigin = (_min + _max) / 2.0f;
-                Vec3 newOrigin = InverseWorldMatrix.TransformPosition(value);
+                Vec3 newOrigin = Vec3.TransformPosition(value, InverseWorldMatrix);
                 Vec3 diff = newOrigin - currentOrigin;
                 _min += diff;
                 _max += diff;

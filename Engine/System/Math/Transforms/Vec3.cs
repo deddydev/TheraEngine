@@ -607,11 +607,11 @@ namespace System
         }
         public static Vec3 operator *(Matrix4 left, Vec3 right)
         {
-            return left.TransformPerspectiveMxV(right);
+            return Vec3.TransformPerspective(left, right);
         }
         public static Vec3 operator *(Vec3 left, Matrix4 right)
         {
-            return right.TransformPerspectiveVxM(left);
+            return Vec3.TransformPerspective(right, left);
         }
         public static explicit operator Vec3(Vec2 v)
         {
@@ -663,6 +663,11 @@ namespace System
                 Abs(X - other.X) < precision &&
                 Abs(Y - other.Y) < precision &&
                 Abs(Z - other.Z) < precision;
+        }
+
+        public void Read(VoidPtr address)
+        {
+            throw new NotImplementedException();
         }
     }
 }

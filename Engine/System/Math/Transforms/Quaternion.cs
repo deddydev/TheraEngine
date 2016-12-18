@@ -1,6 +1,7 @@
 ﻿using System.Runtime.InteropServices;
 using static System.Math;
 using static System.CustomMath;
+using System.Collections.Generic;
 
 namespace System
 {
@@ -26,29 +27,6 @@ namespace System
             Z = z;
             W = w;
         }
-        public Quaternion(float pitch, float yaw, float roll)
-        {
-            pitch = DegToRad(pitch);
-            yaw = DegToRad(yaw);
-            roll = DegToRad(roll);
-
-            yaw *= 0.5f;
-            pitch *= 0.5f;
-            roll *= 0.5f;
-
-            float c1 = (float)Cos(yaw);
-            float c2 = (float)Cos(pitch);
-            float c3 = (float)Cos(roll);
-            float s1 = (float)Sin(yaw);
-            float s2 = (float)Sin(pitch);
-            float s3 = (float)Sin(roll);
-
-            W = c1 * c2 * c3 - s1 * s2 * s3;
-            X = s1 * s2 * c3 + c1 * c2 * s3;
-            Y = s1 * c2 * c3 + c1 * s2 * s3;
-            Z = c1 * s2 * c3 - s1 * c2 * s3;
-        }
-        public Quaternion(Vec3 eulerAngles) : this(eulerAngles.X, eulerAngles.Y, eulerAngles.Z) { }
 
         public float* Data { get { fixed (void* p = &this) return (float*)p; } }
         public Vec3 Xyz { get { return new Vec3(X, Y, Z); } set { X = value.X; Y = value.Y; Z = value.Z; } }
@@ -149,16 +127,22 @@ namespace System
             else
                 return q;
         }
+        /// <summary>
+        /// Makes this quaternion the opposite version of itself.
+        /// There are two rotations about the same axis that equal the same rotation,
+        /// but from different directions.
+        /// </summary>
         public void Conjugate() { Xyz = -Xyz; }
+        /// <summary>
+        /// Returns the opposite version of this quaternion.
+        /// There are two rotations about the same axis that equal the same rotation,
+        /// but from different directions.
+        /// </summary>
         public Quaternion Conjugated()
         {
             var q = this;
             q.Conjugate();
             return q;
-        }
-        public static Quaternion Conjugate(Quaternion q)
-        {
-            return new Quaternion(-q.Xyz, q.W);
         }
         public static Quaternion BetweenVectors(Vec3 A, Vec3 B)
         {
@@ -228,7 +212,7 @@ namespace System
         /// <param name="yaw">The yaw (heading), rotation around Y axis</param>
         /// <param name="pitch">The pitch (attitude), rotation around X axis</param>
         /// <param name="roll">The roll (bank), rotation around Z axis</param>
-        public static Quaternion FromEulerAngles(float yaw, float pitch, float roll, Rotator.Order order = Rotator.Order.YPR)
+        public static Quaternion FromEulerAngles(float pitch, float yaw, float roll, Rotator.Order order = Rotator.Order.YPR)
         {
             Quaternion p = FromAxisAngle(Vec3.Right, pitch);
             Quaternion y = FromAxisAngle(Vec3.Up, yaw);
@@ -296,6 +280,19 @@ namespace System
             }
             return result;
         }
+        public static Quaternion Scubic(Quaternion p1, Quaternion p2, Quaternion p3, Quaternion p4, float time)
+        {
+            Quaternion q1 = Slerp(p1, p2, time);
+            Quaternion q2 = Slerp(p1, p2, time);
+            Quaternion q3 = Slerp(p1, p2, time);
+            return Squad(q1, q2, q3, time);
+        }
+        public static Quaternion Squad(Quaternion q1, Quaternion q2, Quaternion q3, float time)
+        {
+            Quaternion r1 = Slerp(q1, q2, time);
+            Quaternion r2 = Slerp(q2, q3, time);
+            return Slerp(r1, r2, time);
+        }
         /// <summary>
         /// Do Spherical linear interpolation between two quaternions 
         /// </summary>
@@ -351,6 +348,103 @@ namespace System
                 return result.Normalized();
             else
                 return Identity;
+        }
+        //map axes strings to/from tuples of inner axis, parity, repetition, frame
+        private static readonly Dictionary<AxisCombo, IVec4> AxesToTuple = new Dictionary<AxisCombo, IVec4>()
+        {
+            { AxisCombo.SXYZ, new IVec4(0, 0, 0, 0) }, { AxisCombo.SXYX, new IVec4(0, 0, 1, 0) }, { AxisCombo.SXZY, new IVec4(0, 1, 0, 0) }, { AxisCombo.SXZX, new IVec4(0, 1, 1, 0) },
+            { AxisCombo.SYZX, new IVec4(1, 0, 0, 0) }, { AxisCombo.SYZY, new IVec4(1, 0, 1, 0) }, { AxisCombo.SYXZ, new IVec4(1, 1, 0, 0) }, { AxisCombo.SYXY, new IVec4(1, 1, 1, 0) },
+            { AxisCombo.SZXY, new IVec4(2, 0, 0, 0) }, { AxisCombo.SZXZ, new IVec4(2, 0, 1, 0) }, { AxisCombo.SZYX, new IVec4(2, 1, 0, 0) }, { AxisCombo.SZYZ, new IVec4(2, 1, 1, 0) },
+            { AxisCombo.RZYX, new IVec4(0, 0, 0, 1) }, { AxisCombo.RXYX, new IVec4(0, 0, 1, 1) }, { AxisCombo.RYZX, new IVec4(0, 1, 0, 1) }, { AxisCombo.RXZX, new IVec4(0, 1, 1, 1) },
+            { AxisCombo.RXZY, new IVec4(1, 0, 0, 1) }, { AxisCombo.RYZY, new IVec4(1, 0, 1, 1) }, { AxisCombo.RZXY, new IVec4(1, 1, 0, 1) }, { AxisCombo.RYXY, new IVec4(1, 1, 1, 1) },
+            { AxisCombo.RYXZ, new IVec4(2, 0, 0, 1) }, { AxisCombo.RZXZ, new IVec4(2, 0, 1, 1) }, { AxisCombo.RXYZ, new IVec4(2, 1, 0, 1) }, { AxisCombo.RZYZ, new IVec4(2, 1, 1, 1) }
+        };
+        private static readonly int[] NextAxis = new int[4] { 1, 2, 0, 1 };
+        public enum AxisCombo
+        {
+            SXYZ, SXYX, SXZY, SXZX,
+            SYZX, SYZY, SYXZ, SYXY,
+            SZXY, SZXZ, SZYX, SZYZ,
+
+            RXYZ, RXYX, RXZY, RXZX,
+            RYZX, RYZY, RYXZ, RYXY,
+            RZXY, RZXZ, RZYX, RZYZ,
+        }
+        public static Quaternion FromEulerAngles(float pitch, float yaw, float roll, AxisCombo axes)
+        {
+            float
+                ai = DegToRad(roll) * 0.5f,
+                aj = DegToRad(pitch) * 0.5f, 
+                ak = DegToRad(yaw) * 0.5f;
+
+            IVec4 tuple = AxesToTuple[axes];
+            int firstAxis = tuple[0];
+            int parity = tuple[1];
+            bool repetition = tuple[2] != 0;
+            bool frame = tuple[3] != 0;
+
+            int i = firstAxis + 1;
+            int j = NextAxis[i + parity - 1] + 1;
+            int k = NextAxis[i - parity] + 1;
+
+            if (frame)
+            {
+                float temp = ai;
+                ai = ak;
+                ak = temp;
+            }
+
+            if (parity != 0)
+                aj = -aj;
+
+            float ci = (float)Cos(ai);
+            float si = (float)Sin(ai);
+            float cj = (float)Cos(aj);
+            float sj = (float)Sin(aj);
+            float ck = (float)Cos(ak);
+            float sk = (float)Sin(ak);
+            float cc = ci * ck;
+            float cs = ci * sk;
+            float sc = si * ck;
+            float ss = si * sk;
+
+            //float ci = (float)Cos(yaw);
+            //float si = (float)Sin(yaw);
+            //float cj = (float)Cos(pitch);
+            //float sj = (float)Sin(pitch);
+            //float ck = (float)Cos(roll);
+            //float sk = (float)Sin(roll);
+            //float cc = c1 * c3;
+            //float cs = c1 * s3;
+            //float sc = s1 * c3;
+            //float ss = s1 * s3;
+
+            //X = s1 * s2 * c3 + c1 * c2 * s3;
+            //Y = s1 * c2 * c3 + c1 * s2 * s3;
+            //Z = c1 * s2 * c3 - s1 * c2 * s3;
+            //W = c1 * c2 * c3 - s1 * s2 * s3;
+
+            Quaternion q = new Quaternion();
+            float* p = q.Data;
+            if (repetition)
+            {
+                p[i] = cj * (cs + sc);
+                p[j] = sj * (cc + ss);
+                p[k] = sj * (cs - sc);
+                p[3] = cj * (cc - ss);
+            }
+            else
+            {
+                p[i] = cj * sc - sj * cs;
+                p[j] = cj * ss + sj * cc;
+                p[k] = cj * cs - sj * sc;
+                p[3] = cj * cc + sj * ss;
+            }
+
+            if (parity != 0)
+                p[j] = -p[j];
+
+            return q;
         }
         public static Quaternion operator +(Quaternion left, Quaternion right)
         {

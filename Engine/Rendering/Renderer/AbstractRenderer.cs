@@ -92,7 +92,7 @@ namespace CustomEngine.Rendering
             _programHandle = program != null ? program.BindingId : BaseRenderState.NullBindingId;
             if (_programHandle > BaseRenderState.NullBindingId)
             {
-                program._material.SetUniforms();
+                program._material?.SetUniforms();
                 Scene.CurrentCamera.SetUniforms();
                 Uniform(Models.Materials.Uniform.GetLocation(ECommonUniform.RenderDelta), Engine.RenderDelta);
             }

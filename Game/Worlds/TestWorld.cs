@@ -42,25 +42,25 @@ namespace Game.Worlds
             //info.LinearDamping = 0.3f;
             //mesh.CollisionObject = new RigidBody(info);
 
-            AnimationInterpNode camPropAnim = new AnimationInterpNode(360, true, true);
-            InterpKeyframe first = new InterpKeyframe(0.0f, 0.0f, 0.0f);
-            InterpKeyframe second = new InterpKeyframe(180.0f, 360.0f, 360.0f);
-            InterpKeyframe last = new InterpKeyframe(360.0f, 0.0f, 0.0f);
-            first.LinkNext(second).LinkNext(last);
-            camPropAnim.Keyframes.AddFirst(first);
-            first.MakeOutLinear();
-            second.MakeInLinear();
-            second.MakeOutLinear();
-            last.MakeInLinear();
+            //AnimationInterpNode camPropAnim = new AnimationInterpNode(360, true, true);
+            //InterpKeyframe first = new InterpKeyframe(0.0f, 0.0f, 0.0f);
+            //InterpKeyframe second = new InterpKeyframe(180.0f, 360.0f, 360.0f);
+            //InterpKeyframe last = new InterpKeyframe(360.0f, 0.0f, 0.0f);
+            //first.LinkNext(second).LinkNext(last);
+            //camPropAnim.Keyframes.AddFirst(first);
+            //first.MakeOutLinear();
+            //second.MakeInLinear();
+            //second.MakeOutLinear();
+            //last.MakeInLinear();
 
-            AnimFolder yawAnim = new AnimFolder("Yaw", false, camPropAnim);
-            AnimFolder pitchAnim = new AnimFolder("Pitch", false, camPropAnim);
-            //AnimFolder rollAnim = new AnimFolder("AddRotationRoll", true, camPropAnim);
-            AnimFolder stateFolder = new AnimFolder("Rotation", yawAnim, pitchAnim/*, rollAnim*/);
-            AnimationContainer anim = new AnimationContainer(stateFolder);
+            //AnimFolder yawAnim = new AnimFolder("Yaw", false, camPropAnim);
+            //AnimFolder pitchAnim = new AnimFolder("Pitch", false, camPropAnim);
+            ////AnimFolder rollAnim = new AnimFolder("AddRotationRoll", true, camPropAnim);
+            //AnimFolder stateFolder = new AnimFolder("Rotation", yawAnim, pitchAnim/*, rollAnim*/);
+            //AnimationContainer anim = new AnimationContainer(stateFolder);
 
             ModelComponent modelComp = new ModelComponent(boxModel);
-            modelComp.AddAnimation(anim, true);
+            //modelComp.AddAnimation(anim, true);
             
             _settings._defaultMaps.Add(new Map(this, new MapSettings(new Actor(modelComp), new FlyingCameraPawn(PlayerIndex.One))));
         }

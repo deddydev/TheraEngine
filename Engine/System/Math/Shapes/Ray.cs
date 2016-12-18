@@ -22,7 +22,7 @@
 
         public Ray TransformedBy(Matrix4 transform)
         {
-            return new Ray(Vec3.TransformPosition(StartPoint, transform), Vec3.TransformPosition(EndPoint, transform));
+            return new Ray(transform.TransformPosition(StartPoint), transform.TransformPosition(EndPoint));
         }
         public bool LineSphereIntersect(Vec3 center, float radius, out Vec3 result)
         {

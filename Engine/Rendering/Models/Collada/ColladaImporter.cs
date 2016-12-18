@@ -4,6 +4,7 @@ using System.IO;
 using System.ComponentModel;
 using CustomEngine.Rendering.Models.Materials;
 using CustomEngine.Rendering.Textures;
+using System.Linq;
 
 namespace CustomEngine.Rendering.Models.Collada
 {
@@ -199,98 +200,26 @@ namespace CustomEngine.Rendering.Models.Collada
                 else
                     data = DecodePrimitivesUnweighted(_bindMatrix, _geoEntry);
                 
-                CreateMesh(data, model, shell, _node._name != null ? _node._name : _node._id);
+                CreateMesh(data, model, shell, _inst._material, _node._name != null ? _node._name : _node._id);
             }
         }
         
-        private static void CreateMesh(PrimitiveData data, Model model, DecoderShell shell, string name)
+        private static void CreateMesh(PrimitiveData data, Model model, DecoderShell shell, InstanceMaterial material, string name)
         {
             if (data == null)
                 return;
 
             Mesh m = new Mesh(data, name);
-            model.Children.Add(m);
-
+            
             //Attach material
-            if (inst._material != null)
-                foreach (MaterialEntry mat in shell._materials)
-                    if (mat._id == inst._material._target)
-                        poly._drawCalls.Add(new DrawCall(poly) { MaterialNode = mat._node as MDL0MaterialNode });
-
-            model._numTriangles += poly._numFaces = manager._faceCount = manager._pointCount / 3;
-            model._numFacepoints += poly._numFacepoints = manager._pointCount;
-
-            poly._parent = model._objGroup;
-            model._objList.Add(poly);
-
-            model.ResetToBindState();
-
-            //Attach single-bind
-            if (parent != null && parent is MDL0BoneNode)
+            if (material != null)
             {
-                MDL0BoneNode bone = (MDL0BoneNode)parent;
-                poly.DeferUpdateAssets();
-                poly.MatrixNode = bone;
-
-                foreach (DrawCall c in poly._drawCalls)
-                    c.VisibilityBoneNode = bone;
+                MaterialEntry e = shell._materials.First(x => x._id == material._target);
+                if (e != null)
+                    m.Material = e._node as Material;
             }
-            else if (model._boneList.Count == 0)
-            {
-                Error = String.Format("There was a problem rigging {0} to a single bone.", poly._name);
 
-                Box box = poly.GetBox();
-                MDL0BoneNode bone = new MDL0BoneNode()
-                {
-                    Scale = Vector3.One,
-                    Translation = (box.Max + box.Min) / 2.0f,
-                    _name = "TransN_" + poly.Name,
-                    Parent = TempRootBone,
-                };
-
-                poly.DeferUpdateAssets();
-                poly.MatrixNode = bone;
-                ((MDL0BoneNode)TempRootBone).RecalcBindState(true, false, false);
-
-                foreach (DrawCall c in poly._drawCalls)
-                    c.VisibilityBoneNode = bone;
-            }
-            else
-            {
-                Error = String.Format("There was a problem checking if {0} is rigged to a single bone.", poly._name);
-
-                foreach (DrawCall c in poly._drawCalls)
-                    c.VisibilityBoneNode = model._boneList[0] as MDL0BoneNode;
-
-                IMatrixNode mtxNode = null;
-                bool singlebind = true;
-
-                foreach (Vertex3 v in poly._manager._vertices)
-                    if (v.MatrixNode != null)
-                    {
-                        if (mtxNode == null)
-                            mtxNode = v.MatrixNode;
-
-                        if (v.MatrixNode != mtxNode)
-                        {
-                            singlebind = false;
-                            break;
-                        }
-                    }
-
-                if (singlebind && poly._matrixNode == null)
-                {
-                    //Reassign reference entries
-                    if (poly._manager._vertices[0].MatrixNode != null)
-                        poly._manager._vertices[0].MatrixNode.Users.Add(poly);
-
-                    foreach (Vertex3 v in poly._manager._vertices)
-                        if (v.MatrixNode != null)
-                            v.MatrixNode.Users.Remove(v);
-
-                    poly._nodeId = -2; //Continued on polygon rebuild
-                }
-            }
+            model.Children.Add(m);
         }
         public class ImportOptions
         {

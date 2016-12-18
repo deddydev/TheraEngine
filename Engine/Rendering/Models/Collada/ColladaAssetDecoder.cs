@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.InteropServices;
 
 namespace CustomEngine.Rendering.Models.Collada
@@ -21,7 +22,7 @@ namespace CustomEngine.Rendering.Models.Collada
 
             float weight = 0;
             float* pWeights = null;
-            Vec3* pVert = null, pNorms = null;
+            Vec3* pVert = null;
             List<Vertex> vertList = new List<Vertex>(skin._weightCount);
             Matrix4* pMatrix = null;
 
@@ -29,35 +30,28 @@ namespace CustomEngine.Rendering.Models.Collada
             ushort* pRemap = (ushort*)remap.Address;
 
             //Find vertex source
-            foreach (SourceEntry s in geo._sources)
-                if (s._id == geo._verticesInput._source)
-                {
-                    pVert = (Vec3*)((DataSource)s._arrayData).Address;
-                    break;
-                }
-
+            SourceEntry s = geo._sources.First(x => x._id == geo._verticesInput._source);
+            if (s != null)
+                pVert = (Vec3*)((DataSource)s._arrayData).Address;
+            
             //Find joint source
             string[] jointStringArray = null;
             string jointString = null;
             foreach (InputEntry inp in skin._jointInputs)
                 if (inp._semantic == SemanticType.JOINT)
                 {
-                    foreach (SourceEntry src in skin._sources)
-                        if (src._id == inp._source)
-                        {
-                            jointStringArray = src._arrayData as string[];
-                            jointString = src._arrayDataString;
-                            break;
-                        }
+                    SourceEntry src = skin._sources.First(x => x._id == inp._source);
+                    if (src != null)
+                    {
+                        jointStringArray = src._arrayData as string[];
+                        jointString = src._arrayDataString;
+                    }
                 }
                 else if (inp._semantic == SemanticType.INV_BIND_MATRIX)
                 {
-                    foreach (SourceEntry src in skin._sources)
-                        if (src._id == inp._source)
-                        {
-                            pMatrix = (Matrix4*)((DataSource)src._arrayData).Address;
-                            break;
-                        }
+                    SourceEntry src = skin._sources.First(x => x._id == inp._source);
+                    if (src != null)
+                        pMatrix = (Matrix4*)((DataSource)src._arrayData).Address;
                 }
             
             //Populate bone list
@@ -88,7 +82,6 @@ namespace CustomEngine.Rendering.Models.Collada
             }
 
             //Build command list
-
             int cmdCount = skin._weightInputs.Count;
             byte* pCmd = stackalloc byte[4];
             foreach (InputEntry inp in skin._weightInputs)
@@ -168,281 +161,270 @@ namespace CustomEngine.Rendering.Models.Collada
         {
             PrimitiveData manager = DecodePrimitives(geo);
 
-            Vec3* pVert = null, pNorms = null;
+            Vec3* pV = null;
             int vCount = 0;
-
-            //Find vertex source
-            foreach (SourceEntry s in geo._sources)
-                if (s._id == geo._verticesInput._source)
-                {
-                    DataSource b = s._arrayData as DataSource;
-                    pVert = (Vec3*)b.Address;
-                    vCount = b.Length / 12;
-                    break;
-                }
+            
+            SourceEntry s = geo._sources.First(x => x._id == geo._verticesInput._source);
+            if (s != null)
+            {
+                DataSource b = s._arrayData as DataSource;
+                pV = (Vec3*)b.Address;
+                vCount = b.Length / 12;
+            }
 
             Vertex[] vertices = new Vertex[vCount];
             for (int i = 0; i < vCount; i++)
-                vertices[i] = new Vertex(bindMatrix * pVert[i]);
-
-            //Remap vertex indices and fix normals
-            for (int i = 0; i < manager._pointCount; i++, pVInd++)
-            {
-                *pVInd = pRemap[*pVInd];
-
-                if (pNorms != null)
-                    pNorms[i] = bindMatrix.GetRotationMatrix() * pNorms[i];
-            }
+                vertices[i] = new Vertex(bindMatrix * pV[i]);
 
             return manager;
         }
 
+        private static Dictionary<SemanticType, int> _strides = new Dictionary<SemanticType, int>()
+        {
+            { SemanticType.VERTEX, 12 },
+            { SemanticType.NORMAL, 12 },
+            { SemanticType.TEXCOORD, 8 },
+            { SemanticType.COLOR, 16 },
+            { SemanticType.TEXBINORMAL, 12 },
+            { SemanticType.TEXTANGENT, 12 },
+        };
         static PrimitiveData DecodePrimitives(GeometryEntry geo)
         {
-            uint[] pTriarr = null, pLinarr = null;
-            uint pTri = 0, pLin = 0;
-            long* pInDataList = stackalloc long[12];
-            long* pOutDataList = stackalloc long[12];
-            int* pData = stackalloc int[16];
-            int faces = 0, lines = 0, points = 0;
-            uint fIndex = 0, lIndex = 0, temp;
+            SourceEntry src;
+            //int triangleCount = 0, lineCount = 0, pointCount = 0;
+            //DataSource vSrc;
 
-            PrimitiveDecodeCommand* pCmd = (PrimitiveDecodeCommand*)pData;
-            byte** pInData = (byte**)pInDataList;
-            byte** pOutData = (byte**)pOutDataList;
+            ////Assign vertex source
+            //SourceEntry src = geo._sources.First(x => x._id == geo._verticesInput._source);
+            //if (src != null)
+            //    vSrc = (DataSource)src._arrayData;
 
-            PrimitiveManager manager = new PrimitiveManager();
-
-            //Assign vertex source
-            foreach (SourceEntry s in geo._sources)
-                if (s._id == geo._verticesInput._source)
-                {
-                    pInData[0] = (byte*)((DataSource)s._arrayData).Address;
-                    break;
-                }
+            List<VertexPrimitive> linePrimitives = null;
+            List<VertexPolygon> facePrimitives = null;
+            PrimitiveBufferInfo info = new PrimitiveBufferInfo()
+            {
+                _positionCount = 0,
+                _normalCount = 0,
+                _texcoordCount = 0
+            };
 
             foreach (PrimitiveEntry prim in geo._primitives)
             {
-                //Get face/line count
-                if (prim._type == ColladaPrimitiveType.lines || prim._type == ColladaPrimitiveType.linestrips)
-                    lines += prim._faceCount;
-                else
-                    faces += prim._faceCount;
+                ////Get face/line count
+                //if (prim._type == ColladaPrimitiveType.lines || 
+                //    prim._type == ColladaPrimitiveType.linestrips)
+                //    lineCount += prim._faceCount;
+                //else
+                //    triangleCount += prim._faceCount;
 
-                //Get point total
-                points += prim._pointCount;
+                ////Get point total
+                //pointCount += prim._pointCount;
 
-                //Signal storage buffers and set type offsets
+                Dictionary<SemanticType, Dictionary<int, DataSource>> sources = new Dictionary<SemanticType, Dictionary<int, DataSource>>();
+
+                //Collect sources
                 foreach (InputEntry inp in prim._inputs)
                 {
-                    int offset = -1;
-
-                    switch (inp._semantic)
+                    src = geo._sources.First(x => x._id == inp._source);
+                    if (src != null)
                     {
-                        case SemanticType.VERTEX:
-                            offset = 0;
-                            break;
-                        case SemanticType.NORMAL:
-                            offset = 1;
-                            break;
-                        case SemanticType.COLOR:
-                            if (inp._set < 2)
-                                offset = 2 + inp._set;
-                            break;
-                        case SemanticType.TEXCOORD:
-                            if (inp._set < 8)
-                                offset = 4 + inp._set;
-                            break;
-                    }
-                    inp._outputOffset = offset;
-                }
-            }
-            manager._pointCount = points;
+                        if (!sources.ContainsKey(inp._semantic))
+                            sources.Add(inp._semantic, new Dictionary<int, DataSource>());
 
-            //Create primitives
-            if (faces > 0)
-            {
-                manager._triangles = new GLPrimitive(faces * 3, OpenTK.Graphics.OpenGL.BeginMode.Triangles);
-                pTriarr = manager._triangles._indices;
-            }
-            if (lines > 0)
-            {
-                manager._lines = new GLPrimitive(lines * 2, OpenTK.Graphics.OpenGL.BeginMode.Lines);
-                pLinarr = manager._lines._indices;
-            }
+                        if (!sources[inp._semantic].ContainsKey(inp._set))
+                            sources[inp._semantic].Add(inp._set, (DataSource)src._arrayData);
+                        else
+                            sources[inp._semantic][inp._set] = (DataSource)src._arrayData;
 
-            manager._indices = new UnsafeBuffer(points * 2);
-            //Create face buffers and assign output pointers
-            for (int i = 0; i < 12; i++)
-                if (manager._dirty[i])
-                {
-                    int stride;
-                    if (i == 0)
-                        stride = 2;
-                    else if (i == 1)
-                        stride = 12;
-                    else if (i < 4)
-                        stride = 4;
-                    else
-                        stride = 8;
-                    manager._faceData[i] = new UnsafeBuffer(points * stride);
-                    if (i == 0)
-                        pOutData[i] = (byte*)manager._indices.Address;
-                    else
-                        pOutData[i] = (byte*)manager._faceData[i].Address;
-                }
-
-            //Decode primitives
-            foreach (PrimitiveEntry prim in geo._primitives)
-            {
-                int count = prim._inputs.Count;
-                //Map inputs to command sequence
-                foreach (InputEntry inp in prim._inputs)
-                {
-                    if (inp._outputOffset == -1)
-                        pCmd[inp._offset].Cmd = 0;
-                    else
-                    {
-                        pCmd[inp._offset].Cmd = (byte)inp._semantic;
-                        pCmd[inp._offset].Index = (byte)inp._outputOffset;
-
-                        //Assign input buffer
-                        foreach (SourceEntry src in geo._sources)
-                            if (src._id == inp._source)
-                            {
-                                pInData[inp._outputOffset] = (byte*)((DataSource)src._arrayData).Address;
-                                break;
-                            }
+                        break;
                     }
                 }
 
-                //Decode face data using command list
+                if (sources.ContainsKey(SemanticType.VERTEX))
+                    info._positionCount = sources[SemanticType.VERTEX].Count;
+                if (sources.ContainsKey(SemanticType.NORMAL))
+                    info._normalCount = sources[SemanticType.NORMAL].Count;
+                if (sources.ContainsKey(SemanticType.COLOR))
+                    info._colorCount = sources[SemanticType.COLOR].Count;
+                if (sources.ContainsKey(SemanticType.TEXCOORD))
+                    info._texcoordCount = sources[SemanticType.TEXCOORD].Count;
+                if (sources.ContainsKey(SemanticType.TEXBINORMAL))
+                    info._binormalCount = sources[SemanticType.TEXBINORMAL].Count;
+                if (sources.ContainsKey(SemanticType.TEXTANGENT))
+                    info._tangentCount = sources[SemanticType.TEXTANGENT].Count;
+
                 foreach (PrimitiveFace f in prim._faces)
-                    fixed (ushort* p = f._pointIndices)
-                        RunPrimitiveCmd(pInData, pOutData, pCmd, count, p, f._pointCount);
-
-                //Process point indices
-                switch (prim._type)
                 {
-                    case ColladaPrimitiveType.triangles:
-                        count = prim._faceCount * 3;
-                        while (count-- > 0)
-                            pTriarr[pTri++] = fIndex++;
-                        break;
-                    case ColladaPrimitiveType.trifans:
-                    case ColladaPrimitiveType.polygons:
-                    case ColladaPrimitiveType.polylist:
-                        foreach (PrimitiveFace f in prim._faces)
-                        {
-                            count = f._pointCount - 2;
-                            temp = fIndex;
-                            fIndex += 2;
-                            while (count-- > 0)
-                            {
-                                pTriarr[pTri++] = temp;
-                                pTriarr[pTri++] = fIndex - 1;
-                                pTriarr[pTri++] = fIndex++;
-                            }
-                        }
-                        break;
-                    case ColladaPrimitiveType.tristrips:
-                        foreach (PrimitiveFace f in prim._faces)
-                        {
-                            count = f._pointCount;
-                            fIndex += 2;
-                            for (int i = 2; i < count; i++)
-                            {
-                                if ((i & 1) == 0)
-                                {
-                                    pTriarr[pTri++] = fIndex - 2;
-                                    pTriarr[pTri++] = fIndex - 1;
-                                    pTriarr[pTri++] = fIndex++;
-                                }
-                                else
-                                {
-                                    pTriarr[pTri++] = fIndex - 2;
-                                    pTriarr[pTri++] = fIndex;
-                                    pTriarr[pTri++] = fIndex++ - 1;
-                                }
-                            }
-                        }
-                        break;
-
-                    case ColladaPrimitiveType.linestrips:
-                        foreach (PrimitiveFace f in prim._faces)
-                        {
-                            count = f._pointCount - 1;
-                            lIndex++;
-                            while (count-- > 0)
-                            {
-                                pLinarr[pLin++] = lIndex - 1;
-                                pLinarr[pLin++] = lIndex++;
-                            }
-                        }
-                        break;
-
-                    case ColladaPrimitiveType.lines:
-                        foreach (PrimitiveFace f in prim._faces)
-                        {
-                            count = f._pointCount;
-                            while (count-- > 0)
-                                pLinarr[pLin++] = lIndex++;
-                        }
-                        break;
-                }
-            }
-            return data;
-        }
-
-        private static void RunPrimitiveCmd(byte** pIn, byte** pOut, PrimitiveDecodeCommand* pCmd, int cmdCount, ushort* pIndex, int count)
-        {
-            int buffer;
-            while (count-- > 0)
-                for (int i = 0; i < cmdCount; i++)
-                {
-                    buffer = pCmd[i].Index;
-                    switch ((SemanticType)pCmd[i].Cmd)
+                    Vertex[][] vertices = new Vertex[f._pointCount][];
+                    for (int i = 0; i < f._pointCount; ++i)
                     {
-                        case SemanticType.None:
-                            *pIndex += 1;
-                            break;
+                        Dictionary<int, Vertex> vSets = new Dictionary<int, Vertex>();
+                        foreach (InputEntry inp in prim._inputs)
+                        {
+                            if (vSets.ContainsKey(inp._set))
+                                vSets.Add(inp._set, new Vertex());
 
-                        case SemanticType.VERTEX:
-                            //Can't do remap table because weights haven't been assigned yet!
-                            *(ushort*)pOut[buffer] = *pIndex++;
-                            pOut[buffer] += 2;
-                            break;
+                            VoidPtr addr = sources[inp._semantic][inp._set].Address[i, _strides[inp._semantic]];
+                            Vertex vtx = vSets[inp._set];
+                            switch (inp._semantic)
+                            {
+                                case SemanticType.VERTEX:
+                                    vtx._position = *(Vec3*)addr;
+                                    break;
+                                case SemanticType.NORMAL:
+                                    vtx._normal = *(Vec3*)addr;
+                                    break;
+                                case SemanticType.TEXCOORD:
+                                    vtx._texCoord = *(Vec2*)addr;
+                                    break;
+                                case SemanticType.COLOR:
+                                    vtx._color = *(ColorF4*)addr;
+                                    break;
+                                case SemanticType.TEXTANGENT:
+                                    vtx._tangent = *(Vec3*)addr;
+                                    break;
+                                case SemanticType.TEXBINORMAL:
+                                    vtx._binormal = *(Vec3*)addr;
+                                    break;
+                            }
+                        }
+                        vertices[i] = vSets.Values.ToArray();
+                    }
+                    int setIndex = 0;
+                    switch (prim._type)
+                    {
+                        case ColladaPrimitiveType.lines:
+                            if (linePrimitives == null)
+                                linePrimitives = new List<VertexPrimitive>();
+                            VertexLine[] lines = new VertexLine[vertices.Length / 2];
 
-                        case SemanticType.NORMAL:
-                            *(Vector3*)pOut[buffer] = ((Vector3*)pIn[buffer])[*pIndex++];
-                            pOut[buffer] += 12;
-                            break;
+                            for (int i = 0, x = 0; i < vertices.Length; i += 2, ++x)
+                                lines[x] = new VertexLine(vertices[i][setIndex], vertices[i + 1][setIndex]);
 
-                        case SemanticType.COLOR:
-                            float* p = (float*)(pIn[buffer] + (*pIndex++ * 16));
-                            byte* p2 = pOut[buffer];
-                            for (int x = 0; x < 4; x++)
-                                *p2++ = (byte)(*p++ * 255.0f + 0.5f);
-                            pOut[buffer] = p2;
+                            linePrimitives.AddRange(lines);
                             break;
+                        case ColladaPrimitiveType.linestrips:
+                            if (linePrimitives == null)
+                                linePrimitives = new List<VertexPrimitive>();
 
-                        case SemanticType.TEXCOORD:
-                            //Flip y axis so coordinates are bottom-up
-                            Vector2 v = ((Vector2*)pIn[buffer])[*pIndex++];
-                            v._y = 1.0f - v._y;
-                            *(Vector2*)pOut[buffer] = v;
-                            pOut[buffer] += 8;
+                            linePrimitives.Add(new VertexLineStrip(false, vertices.Select(x => x[setIndex]).ToArray()));
+
+                            break;
+                        case ColladaPrimitiveType.triangles:
+                            if (facePrimitives == null)
+                                facePrimitives = new List<VertexPolygon>();
+                            VertexTriangle[] tris = new VertexTriangle[vertices.Length / 3];
+
+                            for (int i = 0, x = 0; i < vertices.Length; i += 3, ++x)
+                                tris[x] = new VertexTriangle(
+                                    vertices[i][setIndex],
+                                    vertices[i + 1][setIndex],
+                                    vertices[i + 2][setIndex]);
+
+                            facePrimitives.AddRange(tris);
+                            break;
+                        case ColladaPrimitiveType.trifans:
+                            if (facePrimitives == null)
+                                facePrimitives = new List<VertexPolygon>();
+
+                            facePrimitives.Add(new VertexTriangleFan(vertices.Select(x => x[setIndex]).ToArray()));
+
+                            break;
+                        case ColladaPrimitiveType.tristrips:
+                            if (facePrimitives == null)
+                                facePrimitives = new List<VertexPolygon>();
+
+                            facePrimitives.Add(new VertexTriangleStrip(vertices.Select(x => x[setIndex]).ToArray()));
+
                             break;
                     }
                 }
-        }
+            }
 
-        [StructLayout(LayoutKind.Sequential, Pack = 1)]
-        struct PrimitiveDecodeCommand
-        {
-            public byte Cmd;
-            public byte Index;
-            public byte Pad1, Pad2;
+            //int[] triangleIndices, lineIndices;
+
+            ////Create primitives
+            //if (triangleCount > 0)
+            //    triangleIndices = new int[triangleCount * 3];
+            //if (lineCount > 0)
+            //    lineIndices = new int[lineCount * 2];
+
+            //    //Process point indices
+            //    switch (prim._type)
+            //    {
+            //        case ColladaPrimitiveType.triangles:
+            //            count = prim._faceCount * 3;
+            //            while (count-- > 0)
+            //                pTriarr[pTri++] = fIndex++;
+            //            break;
+            //        case ColladaPrimitiveType.trifans:
+            //        case ColladaPrimitiveType.polygons:
+            //        case ColladaPrimitiveType.polylist:
+            //            foreach (PrimitiveFace f in prim._faces)
+            //            {
+            //                count = f._pointCount - 2;
+            //                temp = fIndex;
+            //                fIndex += 2;
+            //                while (count-- > 0)
+            //                {
+            //                    pTriarr[pTri++] = temp;
+            //                    pTriarr[pTri++] = fIndex - 1;
+            //                    pTriarr[pTri++] = fIndex++;
+            //                }
+            //            }
+            //            break;
+            //        case ColladaPrimitiveType.tristrips:
+            //            foreach (PrimitiveFace f in prim._faces)
+            //            {
+            //                count = f._pointCount;
+            //                fIndex += 2;
+            //                for (int i = 2; i < count; i++)
+            //                {
+            //                    if ((i & 1) == 0)
+            //                    {
+            //                        pTriarr[pTri++] = fIndex - 2;
+            //                        pTriarr[pTri++] = fIndex - 1;
+            //                        pTriarr[pTri++] = fIndex++;
+            //                    }
+            //                    else
+            //                    {
+            //                        pTriarr[pTri++] = fIndex - 2;
+            //                        pTriarr[pTri++] = fIndex;
+            //                        pTriarr[pTri++] = fIndex++ - 1;
+            //                    }
+            //                }
+            //            }
+            //            break;
+
+            //        case ColladaPrimitiveType.linestrips:
+            //            foreach (PrimitiveFace f in prim._faces)
+            //            {
+            //                count = f._pointCount - 1;
+            //                lIndex++;
+            //                while (count-- > 0)
+            //                {
+            //                    pLinarr[pLin++] = lIndex - 1;
+            //                    pLinarr[pLin++] = lIndex++;
+            //                }
+            //            }
+            //            break;
+
+            //        case ColladaPrimitiveType.lines:
+            //            foreach (PrimitiveFace f in prim._faces)
+            //            {
+            //                count = f._pointCount;
+            //                while (count-- > 0)
+            //                    pLinarr[pLin++] = lIndex++;
+            //            }
+            //            break;
+            //    }
+            //}
+
+            List<VertexTriangle> triangles = new List<VertexTriangle>();
+            foreach (VertexPolygon p in triangles)
+                triangles.AddRange(p.ToTriangles());
+
+            return new PrimitiveData(Culling.Back, info, triangles);
         }
     }
 }

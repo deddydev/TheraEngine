@@ -26,7 +26,11 @@ namespace CustomEngine.Rendering.Models
     }
     public abstract class VertexPolygon : VertexPrimitive
     {
-        public VertexPolygon(params Vertex[] vertices) : base(vertices) { }
+        public VertexPolygon(params Vertex[] vertices) : base(vertices)
+        {
+            if (vertices.Length < 3)
+                throw new InvalidOperationException("Not enough vertices for a polygon.");
+        }
         public abstract List<VertexTriangle> ToTriangles();
     }
 }

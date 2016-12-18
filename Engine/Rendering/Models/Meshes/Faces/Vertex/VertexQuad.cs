@@ -38,10 +38,10 @@ namespace CustomEngine.Rendering.Models
             Vec3 bottomLeft, Vec3 bottomRight, Vec3 topRight, Vec3 topLeft, Vec3 normal)
         {
             return new VertexQuad(
-                new Vertex(0, bottomLeft, null, normal, new Vec2(0.0f, 0.0f)),
-                new Vertex(1, bottomRight, null, normal, new Vec2(1.0f, 0.0f)),
-                new Vertex(2, topRight, null, normal, new Vec2(1.0f, 1.0f)),
-                new Vertex(3, topLeft, null, normal, new Vec2(0.0f, 1.0f)));
+                new Vertex(bottomLeft, null, normal, new Vec2(0.0f, 0.0f)),
+                new Vertex(bottomRight, null, normal, new Vec2(1.0f, 0.0f)),
+                new Vertex(topRight, null, normal, new Vec2(1.0f, 1.0f)),
+                new Vertex(topLeft, null, normal, new Vec2(0.0f, 1.0f)));
         }
         public static VertexQuad MakeQuad(
             Vec3 bottomLeft, Influence bottomLeftInf,
@@ -51,10 +51,10 @@ namespace CustomEngine.Rendering.Models
             Vec3 normal)
         {
             return new VertexQuad(
-                new Vertex(0, bottomLeft, bottomLeftInf, normal, new Vec2(0.0f, 0.0f)),
-                new Vertex(1, bottomRight, bottomRightInf, normal, new Vec2(1.0f, 0.0f)),
-                new Vertex(2, topRight, topRightInf, normal, new Vec2(1.0f, 1.0f)),
-                new Vertex(3, topLeft, topLeftInf, normal, new Vec2(0.0f, 1.0f)));
+                new Vertex(bottomLeft, bottomLeftInf, normal, new Vec2(0.0f, 0.0f)),
+                new Vertex(bottomRight, bottomRightInf, normal, new Vec2(1.0f, 0.0f)),
+                new Vertex(topRight, topRightInf, normal, new Vec2(1.0f, 1.0f)),
+                new Vertex(topLeft, topLeftInf, normal, new Vec2(0.0f, 1.0f)));
         }
         public static VertexQuad MakeQuad(
            Vec3 bottomLeft, Influence bottomLeftInf, Vec3 bottomLeftNormal,
@@ -63,10 +63,10 @@ namespace CustomEngine.Rendering.Models
            Vec3 topLeft, Influence topLeftInf, Vec3 topLeftNormal)
         {
             return new VertexQuad(
-                new Vertex(0, bottomLeft, bottomLeftInf, bottomLeftNormal, new Vec2(0.0f, 0.0f)),
-                new Vertex(1, bottomRight, bottomRightInf, bottomRightNormal, new Vec2(1.0f, 0.0f)),
-                new Vertex(2, topRight, topRightInf, topRightNormal, new Vec2(1.0f, 1.0f)),
-                new Vertex(3, topLeft, topLeftInf, topLeftNormal, new Vec2(0.0f, 1.0f)));
+                new Vertex(bottomLeft, bottomLeftInf, bottomLeftNormal, new Vec2(0.0f, 0.0f)),
+                new Vertex(bottomRight, bottomRightInf, bottomRightNormal, new Vec2(1.0f, 0.0f)),
+                new Vertex(topRight, topRightInf, topRightNormal, new Vec2(1.0f, 1.0f)),
+                new Vertex(topLeft, topLeftInf, topLeftNormal, new Vec2(0.0f, 1.0f)));
         }
     }
 }

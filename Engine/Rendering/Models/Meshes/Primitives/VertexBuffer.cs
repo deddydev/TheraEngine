@@ -10,18 +10,18 @@ namespace CustomEngine.Rendering.Models
 {
     public enum BufferType
     {
-        Position,
-        Normal,
-        TexCoord,
-        Color,
-        Binormal,
-        Tangent,
-        MatrixIds,
-        MatrixWeights
+        Position = 0,
+        Normal = 1,
+        TexCoord = 2,
+        Color = 3,
+        Binormal = 4,
+        Tangent = 5,
+        MatrixIds = 6,
+        MatrixWeights = 7
     }
     public class VertexAttribInfo
     {
-        public VertexAttribInfo(BufferType type, int index)
+        public VertexAttribInfo(BufferType type, int index = 0)
         {
             _type = type;
             _index = index.Clamp(0, VertexBuffer.MaxBufferCountPerType);

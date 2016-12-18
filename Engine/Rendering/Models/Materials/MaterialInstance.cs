@@ -12,7 +12,7 @@ namespace CustomEngine.Rendering.Models.Materials
         private Material _material;
         private List<GLVar> _parameters = new List<GLVar>();
         
-        public Shader VertexShader { get { return _modifiedVertexShader; } }
+        public Shader VertexShader { get { return _material._vertexShader; } }
         public Shader FragmentShader { get { return _material._fragmentShader; } }
         public Shader GeometryShader { get { return _material._geometryShader; } }
         public Shader TessellationControlShader { get { return _material._tessellationControlShader; } }

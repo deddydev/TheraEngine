@@ -238,6 +238,14 @@ namespace System
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public unsafe struct IVec4 : IUniformable4Int, IBufferable
     {
+        public IVec4(int x, int y, int z, int w)
+        {
+            _x = x;
+            _y = y;
+            _z = z;
+            _w = w;
+        }
+
         public int X { get { return _x; } set { _x = value; } }
         public int Y { get { return _y; } set { _y = value; } }
         public int Z { get { return _z; } set { _z = value; } }

@@ -97,10 +97,7 @@ namespace System
                   - m14 * m22 * m33 * m41 + m14 * m22 * m31 * m43 - m14 * m23 * m31 * m42 + m14 * m23 * m32 * m41;
             }
         }
-        public Vec3 GetPoint()
-        {
-            return Vec3.TransformPosition(Vec3.Zero, this);
-        }
+        public Vec3 GetPoint() { return TransformPosition(Vec3.Zero); }
         public Matrix4 GetRotationMatrix4()
         {
             Matrix4 m = Identity;
@@ -986,9 +983,9 @@ namespace System
         /// <param name="vec">The vector to transform</param>
         /// <param name="mat">The desired transformation</param>
         /// <param name="result">The transformed vector</param>
-        public static Vec3 TransformPerspectiveVxM(Vec3 vec, Matrix4 mat)
+        public Vec3 TransformPerspectiveVxM(Vec3 vec)
         {
-            Vec4 v = new Vec4(vec, 1.0f) * mat;
+            Vec4 v = new Vec4(vec, 1.0f) * this;
             return v.Xyz / v.W;
         }
         /// <summary>Transform a Vector3 by the given Matrix using right-handed notation, and project the resulting Vector4 back to a Vector3</summary>

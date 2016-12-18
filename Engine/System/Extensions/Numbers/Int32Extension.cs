@@ -39,5 +39,18 @@
                     ++count;
             return count;
         }
+        /// <summary>
+        /// Max value is non inclusive, min value is.
+        /// </summary>
+        /// <param name="value"></param>
+        /// <param name="min"></param>
+        /// <param name="max"></param>
+        /// <returns></returns>
+        public static int RemapToRange(this int value, int min, int max)
+        {
+            int range = max - min;
+            int count = value % range;
+            return value - count * range;
+        }
     }
 }

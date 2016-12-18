@@ -1079,7 +1079,6 @@ namespace CustomEngine.Rendering.Models.Collada
             internal int _set;
             internal int _offset;
             internal string _source;
-            internal int _outputOffset;
         }
         private class PrimitiveEntry
         {

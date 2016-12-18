@@ -6,15 +6,35 @@ using System.Threading.Tasks;
 
 namespace CustomEngine.Rendering.Models
 {
-    public class VertexTriangleStrip
+    public class VertexTriangleStrip : VertexPolygon
     {
-        public List<Vertex> _points;
-
-        public VertexTriangleStrip(params Vertex[] vertices)
+        public VertexTriangleStrip(params Vertex[] vertices) : base(vertices)
         {
-            if (vertices.Length < 3)
-                throw new Exception("Not enough points for a triangle strip.");
-            _points = vertices.ToList();
+
+        }
+
+        public int FaceCount { get { return _vertices.Count - 2; } }
+
+        public override FaceType Type
+        {
+            get
+            {
+                return FaceType.TriangleStrip;
+            }
+        }
+
+        public override List<VertexTriangle> ToTriangles()
+        {
+            List<VertexTriangle> triangles = new List<VertexTriangle>();
+            for (int i = 2, count = FaceCount * 3; i < count; i++)
+            {
+                int bit = i & 1;
+                triangles.Add(new VertexTriangle(
+                    _vertices[i - 2],
+                    _vertices[i - 1 + bit],
+                    _vertices[i - bit]));
+            }
+            return triangles;
         }
     }
 }

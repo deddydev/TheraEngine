@@ -498,11 +498,11 @@ namespace System
         }
         public static Vec3 operator *(Matrix4 left, Vec3 right)
         {
-            return TransformPerspective(left, right);
+            return left.TransformPerspectiveMxV(right);
         }
         public static Vec3 operator *(Vec3 left, Matrix4 right)
         {
-            return TransformPerspective(left, right);
+            return right.TransformPerspectiveVxM(left);
         }
         public static explicit operator Vec3(Vec2 v)
         {

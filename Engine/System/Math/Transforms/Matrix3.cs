@@ -403,8 +403,10 @@ namespace System
         /// <param name="axis">The axis to rotate about.</param>
         /// <param name="angle">Angle in radians to rotate counter-clockwise (looking in the direction of the given axis).</param>
         /// <param name="result">A matrix instance.</param>
-        public static void CreateFromAxisAngle(Vec3 axis, float angle, out Matrix3 result)
+        public static Matrix3 CreateFromAxisAngle(Vec3 axis, float angle)
         {
+            angle = DegToRad(angle);
+
             //normalize and create a local copy of the vector.
             axis.Normalize();
             float axisX = axis.X, axisY = axis.Y, axisZ = axis.Z;
@@ -426,6 +428,7 @@ namespace System
             sinY = sin * axisY,
             sinZ = sin * axisZ;
 
+            Matrix3 result;
             result.Row0.X = tXX + cos;
             result.Row0.Y = tXY - sinZ;
             result.Row0.Z = tXZ + sinY;
@@ -435,18 +438,6 @@ namespace System
             result.Row2.X = tXZ - sinY;
             result.Row2.Y = tYZ + sinX;
             result.Row2.Z = tZZ + cos;
-        }
-
-        /// <summary>
-        /// Build a rotation matrix from the specified axis/angle rotation.
-        /// </summary>
-        /// <param name="axis">The axis to rotate about.</param>
-        /// <param name="angle">Angle in radians to rotate counter-clockwise (looking in the direction of the given axis).</param>
-        /// <returns>A matrix instance.</returns>
-        public static Matrix3 CreateFromAxisAngle(Vec3 axis, float angle)
-        {
-            Matrix3 result;
-            CreateFromAxisAngle(axis, angle, out result);
             return result;
         }
 
@@ -459,24 +450,12 @@ namespace System
         /// </summary>
         /// <param name="q">Quaternion to translate.</param>
         /// <param name="result">Matrix result.</param>
-        public static void CreateFromQuaternion(ref Quaternion q, out Matrix3 result)
+        public static Matrix3 CreateFromQuaternion(Quaternion q)
         {
             Vec3 axis;
             float angle;
             q.ToAxisAngle(out axis, out angle);
-            CreateFromAxisAngle(axis, angle, out result);
-        }
-
-        /// <summary>
-        /// Build a rotation matrix from the specified quaternion.
-        /// </summary>
-        /// <param name="q">Quaternion to translate.</param>
-        /// <returns>A matrix instance.</returns>
-        public static Matrix3 CreateFromQuaternion(Quaternion q)
-        {
-            Matrix3 result;
-            CreateFromQuaternion(ref q, out result);
-            return result;
+            return CreateFromAxisAngle(axis, angle);
         }
 
         #endregion
@@ -488,58 +467,39 @@ namespace System
         /// </summary>
         /// <param name="angle">The counter-clockwise angle in radians.</param>
         /// <param name="result">The resulting Matrix3 instance.</param>
-        public static void CreateRotationX(float angle, out Matrix3 result)
-        {
-            float cos = (float)Cos(angle);
-            float sin = (float)Sin(angle);
-
-            result = Identity;
-            result.Row1.Y = cos;
-            result.Row1.Z = sin;
-            result.Row2.Y = -sin;
-            result.Row2.Z = cos;
-        }
-
-        /// <summary>
-        /// Builds a rotation matrix for a rotation around the x-axis.
-        /// </summary>
-        /// <param name="angle">The counter-clockwise angle in radians.</param>
-        /// <returns>The resulting Matrix3 instance.</returns>
         public static Matrix3 CreateRotationX(float angle)
-        {
-            Matrix3 result;
-            CreateRotationX(angle, out result);
-            return result;
-        }
-
-        /// <summary>
-        /// Builds a rotation matrix for a rotation around the y-axis.
-        /// </summary>
-        /// <param name="angle">The counter-clockwise angle in radians.</param>
-        /// <param name="result">The resulting Matrix3 instance.</param>
-        public static void CreateRotationY(float angle, out Matrix3 result)
         {
             angle = DegToRad(angle);
 
             float cos = (float)Cos(angle);
             float sin = (float)Sin(angle);
 
+            Matrix3 result;
             result = Identity;
-            result.Row0.X = cos;
-            result.Row0.Z = -sin;
-            result.Row2.X = sin;
+            result.Row1.Y = cos;
+            result.Row1.Z = sin;
+            result.Row2.Y = -sin;
             result.Row2.Z = cos;
+            return result;
         }
 
         /// <summary>
         /// Builds a rotation matrix for a rotation around the y-axis.
         /// </summary>
         /// <param name="angle">The counter-clockwise angle in radians.</param>
-        /// <returns>The resulting Matrix3 instance.</returns>
+        /// <param name="result">The resulting Matrix3 instance.</param>
         public static Matrix3 CreateRotationY(float angle)
         {
-            Matrix3 result;
-            CreateRotationY(angle, out result);
+            angle = DegToRad(angle);
+
+            float cos = (float)Cos(angle);
+            float sin = (float)Sin(angle);
+
+            Matrix3 result = Identity;
+            result.Row0.X = cos;
+            result.Row0.Z = -sin;
+            result.Row2.X = sin;
+            result.Row2.Z = cos;
             return result;
         }
 
@@ -548,27 +508,18 @@ namespace System
         /// </summary>
         /// <param name="angle">The counter-clockwise angle in radians.</param>
         /// <param name="result">The resulting Matrix3 instance.</param>
-        public static void CreateRotationZ(float angle, out Matrix3 result)
+        public static Matrix3 CreateRotationZ(float angle)
         {
+            angle = DegToRad(angle);
+
             float cos = (float)Cos(angle);
             float sin = (float)Sin(angle);
 
-            result = Identity;
+            Matrix3 result = Identity;
             result.Row0.X = cos;
             result.Row0.Y = sin;
             result.Row1.X = -sin;
             result.Row1.Y = cos;
-        }
-
-        /// <summary>
-        /// Builds a rotation matrix for a rotation around the z-axis.
-        /// </summary>
-        /// <param name="angle">The counter-clockwise angle in radians.</param>
-        /// <returns>The resulting Matrix3 instance.</returns>
-        public static Matrix3 CreateRotationZ(float angle)
-        {
-            Matrix3 result;
-            CreateRotationZ(angle, out result);
             return result;
         }
 

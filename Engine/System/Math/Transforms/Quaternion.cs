@@ -38,7 +38,7 @@ namespace System
         {
             Vec4 result = ToAxisAngle();
             axis = result.Xyz;
-            angle = result.W;
+            angle = RadToDeg(result.W);
         }
         public Vec4 ToAxisAngle()
         {

@@ -357,12 +357,10 @@ namespace System
         /// Build a rotation matrix from the specified axis/angle rotation.
         /// </summary>
         /// <param name="axis">The axis to rotate about.</param>
-        /// <param name="angle">Angle in degrees to rotate counter-clockwise (looking in the direction of the given axis).</param>
+        /// <param name="angle">Angle in radians to rotate counter-clockwise (looking in the direction of the given axis).</param>
         /// <param name="result">A matrix instance.</param>
-        public static Matrix4 CreateFromAxisAngle(Vec3 axis, float angle)
+        public static void CreateFromAxisAngle(Vec3 axis, float angle, out Matrix4 result)
         {
-            angle = DegToRad(angle);
-
             // normalize and create a local copy of the vector.
             axis.Normalize();
             float axisX = axis.X, axisY = axis.Y, axisZ = axis.Z;
@@ -384,7 +382,6 @@ namespace System
                 sinY = sin * axisY,
                 sinZ = sin * axisZ;
 
-            Matrix4 result;
             result.Row0.X = tXX + cos;
             result.Row0.Y = tXY - sinZ;
             result.Row0.Z = tXZ + sinY;
@@ -398,6 +395,17 @@ namespace System
             result.Row2.Z = tZZ + cos;
             result.Row2.W = 0;
             result.Row3 = Vec4.UnitW;
+        }
+        /// <summary>
+        /// Build a rotation matrix from the specified axis/angle rotation.
+        /// </summary>
+        /// <param name="axis">The axis to rotate about.</param>
+        /// <param name="angle">Angle in radians to rotate counter-clockwise (looking in the direction of the given axis).</param>
+        /// <returns>A matrix instance.</returns>
+        public static Matrix4 CreateFromAxisAngle(Vec3 axis, float angle)
+        {
+            Matrix4 result;
+            CreateFromAxisAngle(axis, angle, out result);
             return result;
         }
         public static Matrix4 CreateFromQuaternion(Quaternion q)
@@ -906,96 +914,6 @@ namespace System
             MultiplyOrder order = MultiplyOrder.TRS)
         {
             return TransformMatrix(1.0f / scale, rotate, -translate, OppositeOf(order));
-        }
-        /// <summary>Transform a direction vector by the given Matrix
-        /// Assumes the matrix has a bottom row of (0,0,0,1), that is the translation part is ignored.
-        /// </summary>
-        /// <param name="vec">The vector to transform</param>
-        /// <param name="mat">The desired transformation</param>
-        /// <returns>The transformed vector</returns>
-        public Vec3 TransformVector(Vec3 vec)
-        {
-            return new Vec3(
-                vec.Dot(new Vec3(Column0)),
-                vec.Dot(new Vec3(Column1)),
-                vec.Dot(new Vec3(Column2)));
-        }
-
-        /// <summary>Transform a Normal by the given Matrix</summary>
-        /// <remarks>
-        /// This calculates the inverse of the given matrix, use TransformNormalInverse if you
-        /// already have the inverse to avoid this extra calculation
-        /// </remarks>
-        /// <param name="norm">The normal to transform</param>
-        /// <param name="mat">The desired transformation</param>
-        /// <returns>The transformed normal</returns>
-        public Vec3 TransformNormal(Vec3 norm)
-        {
-            return Inverted().TransformNormalInverse(norm);
-        }
-        /// <summary>Transform a Normal by the (transpose of the) given Matrix</summary>
-        /// <remarks>
-        /// This version doesn't calculate the inverse matrix.
-        /// Use this version if you already have the inverse of the desired transform to hand
-        /// </remarks>
-        /// <param name="norm">The normal to transform</param>
-        /// <param name="invMat">The inverse of the desired transformation</param>
-        /// <returns>The transformed normal</returns>
-        public Vec3 TransformNormalInverse(Vec3 norm)
-        {
-            return Transposed().TransformVector(norm);
-        }
-        /// <summary>Transform a Position by the given Matrix</summary>
-        /// <param name="pos">The position to transform</param>
-        /// <param name="mat">The desired transformation</param>
-        /// <returns>The transformed position</returns>
-        public Vec3 TransformPosition(Vec3 pos)
-        {
-            Vec3 p;
-            p.X = pos.Dot(new Vec3(Column0)) + Row3.X;
-            p.Y = pos.Dot(new Vec3(Column1)) + Row3.Y;
-            p.Z = pos.Dot(new Vec3(Column2)) + Row3.Z;
-            return p;
-        }
-        /// <summary>Transform a Vector by the given Matrix</summary>
-        /// <param name="vec">The vector to transform</param>
-        /// <param name="mat">The desired transformation</param>
-        /// <param name="result">The transformed vector</param>
-        public Vec3 TransformVxM(Vec3 vec)
-        {
-            return new Vec3(
-                vec.X * Row0.X + vec.Y * Row1.X + vec.Z * Row2.X,
-                vec.X * Row0.Y + vec.Y * Row1.Y + vec.Z * Row2.Y,
-                vec.X * Row0.Z + vec.Y * Row1.Z + vec.Z * Row2.Z);
-        }
-        /// <summary>Transform a Vector by the given Matrix using right-handed notation</summary>
-        /// <param name="mat">The desired transformation</param>
-        /// <param name="vec">The vector to transform</param>
-        /// <param name="result">The transformed vector</param>
-        public Vec3 TransformMxV(Vec3 vec)
-        {
-            return new Vec3(
-                Row0.X * vec.X + Row0.Y * vec.Y + Row0.Z * vec.Z,
-                Row1.X * vec.X + Row1.Y * vec.Y + Row1.Z * vec.Z,
-                Row2.X * vec.X + Row2.Y * vec.Y + Row2.Z * vec.Z);
-        }
-        /// <summary>Transform a Vector3 by the given Matrix, and project the resulting Vector4 back to a Vector3</summary>
-        /// <param name="vec">The vector to transform</param>
-        /// <param name="mat">The desired transformation</param>
-        /// <param name="result">The transformed vector</param>
-        public Vec3 TransformPerspectiveVxM(Vec3 vec)
-        {
-            Vec4 v = new Vec4(vec, 1.0f) * this;
-            return v.Xyz / v.W;
-        }
-        /// <summary>Transform a Vector3 by the given Matrix using right-handed notation, and project the resulting Vector4 back to a Vector3</summary>
-        /// <param name="vec">The vector to transform</param>
-        /// <param name="mat">The desired transformation</param>
-        /// <param name="result">The transformed vector</param>
-        public Vec3 TransformPerspectiveMxV(Vec3 vec)
-        {
-            Vec4 v = this * new Vec4(vec, 1.0f);
-            return v.Xyz / v.W;
         }
         public static Matrix4 operator *(Matrix4 left, Matrix4 right)
         {

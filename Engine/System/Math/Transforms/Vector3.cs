@@ -19,8 +19,12 @@ namespace System
         public VertexBuffer.ComponentType ComponentType { get { return VertexBuffer.ComponentType.Float; } }
         public int ComponentCount { get { return 3; } }
         bool IBufferable.Normalize { get { return false; } }
-        public void Write(VoidPtr address) { this = *(Vec3*)address; }
-        public void Read(VoidPtr address) { *(Vec3*)address = this; }
+        public void Write(VoidPtr address)
+        {
+            float* data = (float*)address;
+            for (int i = 0; i < ComponentCount; ++i)
+                *data++ = Data[i];
+        }
 
         public Vec3(float x, float y, float z) { X = x; Y = y; Z = z; }
         public Vec3(float value) : this(value, value, value) { }
@@ -199,6 +203,111 @@ namespace System
         public static Vec3 BaryCentric(Vec3 a, Vec3 b, Vec3 c, float u, float v)
         {
             return a + u * (b - a) + v * (c - a);
+        }
+
+        /// <summary>Transform a direction vector by the given Matrix
+        /// Assumes the matrix has a bottom row of (0,0,0,1), that is the translation part is ignored.
+        /// </summary>
+        /// <param name="vec">The vector to transform</param>
+        /// <param name="mat">The desired transformation</param>
+        /// <returns>The transformed vector</returns>
+        public static Vec3 TransformVector(Vec3 vec, Matrix4 mat)
+        {
+            return new Vec3(
+                vec.Dot(new Vec3(mat.Column0)), 
+                vec.Dot(new Vec3(mat.Column1)), 
+                vec.Dot(new Vec3(mat.Column2)));
+        }
+
+        /// <summary>Transform a Normal by the given Matrix</summary>
+        /// <remarks>
+        /// This calculates the inverse of the given matrix, use TransformNormalInverse if you
+        /// already have the inverse to avoid this extra calculation
+        /// </remarks>
+        /// <param name="norm">The normal to transform</param>
+        /// <param name="mat">The desired transformation</param>
+        /// <returns>The transformed normal</returns>
+        public static Vec3 TransformNormal(Vec3 norm, Matrix4 mat)
+        {
+            mat.Invert();
+            return TransformNormalInverse(norm, mat);
+        }
+        /// <summary>Transform a Normal by the (transpose of the) given Matrix</summary>
+        /// <remarks>
+        /// This version doesn't calculate the inverse matrix.
+        /// Use this version if you already have the inverse of the desired transform to hand
+        /// </remarks>
+        /// <param name="norm">The normal to transform</param>
+        /// <param name="invMat">The inverse of the desired transformation</param>
+        /// <returns>The transformed normal</returns>
+        public static Vec3 TransformNormalInverse(Vec3 norm, Matrix4 invMat)
+        {
+            return TransformVector(norm, invMat.Transposed());
+        }
+        /// <summary>Transform a Position by the given Matrix</summary>
+        /// <param name="pos">The position to transform</param>
+        /// <param name="mat">The desired transformation</param>
+        /// <returns>The transformed position</returns>
+        public static Vec3 TransformPosition(Vec3 pos, Matrix4 mat)
+        {
+            Vec3 p;
+            p.X = pos.Dot(new Vec3(mat.Column0)) + mat.Row3.X;
+            p.Y = pos.Dot(new Vec3(mat.Column1)) + mat.Row3.Y;
+            p.Z = pos.Dot(new Vec3(mat.Column2)) + mat.Row3.Z;
+            return p;
+        }
+        /// <summary>
+        /// Transforms a vector by a quaternion rotation.
+        /// </summary>
+        /// <param name="vec">The vector to transform.</param>
+        /// <param name="quat">The quaternion to rotate the vector by.</param>
+        /// <returns>The result of the operation.</returns>
+        public Vec3 Transform(Quaternion quat)
+        {
+            // Since vec.W == 0, we can optimize quat * vec * quat^-1 as follows:
+            // vec + 2.0 * cross(quat.xyz, cross(quat.xyz, vec) + quat.w * vec)
+            Vec3 xyz = quat.Xyz;
+            return this + 2.0f * xyz.Cross(xyz.Cross(this) + this * quat.W);
+        }
+        /// <summary>Transform a Vector by the given Matrix</summary>
+        /// <param name="vec">The vector to transform</param>
+        /// <param name="mat">The desired transformation</param>
+        /// <param name="result">The transformed vector</param>
+        public static Vec3 Transform(Vec3 vec, Matrix4 mat)
+        {
+            return new Vec3(
+                vec.X * mat.Row0.X + vec.Y * mat.Row1.X + vec.Z * mat.Row2.X,
+                vec.X * mat.Row0.Y + vec.Y * mat.Row1.Y + vec.Z * mat.Row2.Y,
+                vec.X * mat.Row0.Z + vec.Y * mat.Row1.Z + vec.Z * mat.Row2.Z);
+        }
+        /// <summary>Transform a Vector by the given Matrix using right-handed notation</summary>
+        /// <param name="mat">The desired transformation</param>
+        /// <param name="vec">The vector to transform</param>
+        /// <param name="result">The transformed vector</param>
+        public static Vec3 Transform(Matrix4 mat, Vec3 vec)
+        {
+            return new Vec3(
+                mat.Row0.X * vec.X + mat.Row0.Y * vec.Y + mat.Row0.Z * vec.Z,
+                mat.Row1.X * vec.X + mat.Row1.Y * vec.Y + mat.Row1.Z * vec.Z,
+                mat.Row2.X * vec.X + mat.Row2.Y * vec.Y + mat.Row2.Z * vec.Z);
+        }
+        /// <summary>Transform a Vector3 by the given Matrix, and project the resulting Vector4 back to a Vector3</summary>
+        /// <param name="vec">The vector to transform</param>
+        /// <param name="mat">The desired transformation</param>
+        /// <param name="result">The transformed vector</param>
+        public static Vec3 TransformPerspective(Vec3 vec, Matrix4 mat)
+        {
+            Vec4 v = new Vec4(vec, 1.0f) * mat;
+            return v.Xyz / v.W;
+        }
+        /// <summary>Transform a Vector3 by the given Matrix using right-handed notation, and project the resulting Vector4 back to a Vector3</summary>
+        /// <param name="vec">The vector to transform</param>
+        /// <param name="mat">The desired transformation</param>
+        /// <param name="result">The transformed vector</param>
+        public static Vec3 TransformPerspective(Matrix4 mat, Vec3 vec)
+        {
+            Vec4 v = mat * new Vec4(vec, 1.0f);
+            return v.Xyz / v.W;
         }
 
         public float DistanceTo(Vec3 point)

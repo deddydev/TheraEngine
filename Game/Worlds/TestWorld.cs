@@ -9,10 +9,11 @@ using CustomEngine.Worlds.Actors;
 using CustomEngine.Rendering.Cameras;
 using BulletSharp;
 using System.Drawing;
+using System.Linq;
 
 namespace Game.Worlds
 {
-    public class TestWorld : World
+    public unsafe class TestWorld : World
     {
         protected override void OnLoaded()
         {
@@ -63,6 +64,20 @@ namespace Game.Worlds
             baseComp.Children.Add(modelComp);
             baseComp.Children.Add(lightComp);
 
+            Vec3[] vertices;
+            Remapper r = mesh.GetPrimitiveData().GetBuffer(0, out vertices, true);
+            Vec3[] toEncode = r.ImplementationTable.Select(x => vertices[x]).ToArray();
+
+            FloatQuantizer q = new FloatQuantizer(toEncode, true);
+            DataSource temp = DataSource.Allocate(q.DataLength);
+            q.EncodeValues(temp.Address);
+            Vec3[] decoded = FloatQuantizer.DecodeValues(temp.Address, r.ImplementationLength, q.IncludedComponents, q.Signed, q.Bits, q.Divisor);
+            Console.WriteLine("[{0}]", string.Join(", ", toEncode));
+            Console.WriteLine("[{0}]", string.Join(", ", decoded));
+            byte* t = (byte*)temp.Address;
+            for (int i = 0; i < temp.Length; ++i)
+                Console.Write((*t++).ToString("X"));
+            Console.WriteLine();
             _settings._defaultMaps.Add(new Map(this, new MapSettings(new Actor(baseComp), new FlyingCameraPawn(PlayerIndex.One))));
         }
     }

@@ -668,7 +668,7 @@ namespace System
 
         public void Read(VoidPtr address)
         {
-            throw new NotImplementedException();
+            this = *(Vec3*)address;
         }
     }
 }

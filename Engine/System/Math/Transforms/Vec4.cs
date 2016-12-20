@@ -27,6 +27,8 @@ namespace System
         public static readonly Vec4 UnitW = new Vec4(0.0f, 0.0f, 0.0f, 1.0f);
         public static readonly Vec4 Zero = new Vec4(0.0f, 0.0f, 0.0f, 0.0f);
         public static readonly Vec4 One = new Vec4(1.0f, 1.0f, 1.0f, 1.0f);
+        public static readonly Vec4 Min = new Vec4(float.MinValue);
+        public static readonly Vec4 Max = new Vec4(float.MaxValue);
         public static readonly int SizeInBytes = Marshal.SizeOf(new Vec4());
         
         public Vec4(float value)
@@ -106,7 +108,7 @@ namespace System
         public void Normalize() { this /= Length; }
         public void NormalizeFast() { this /= LengthFast; }
 
-        public static Vec4 Min(Vec4 a, Vec4 b)
+        public static Vec4 ComponentMin(Vec4 a, Vec4 b)
         {
             a.X = a.X < b.X ? a.X : b.X;
             a.Y = a.Y < b.Y ? a.Y : b.Y;
@@ -114,7 +116,7 @@ namespace System
             a.W = a.W < b.W ? a.W : b.W;
             return a;
         }
-        public static Vec4 Max(Vec4 a, Vec4 b)
+        public static Vec4 ComponentMax(Vec4 a, Vec4 b)
         {
             a.X = a.X > b.X ? a.X : b.X;
             a.Y = a.Y > b.Y ? a.Y : b.Y;

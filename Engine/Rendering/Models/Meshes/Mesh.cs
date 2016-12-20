@@ -21,7 +21,8 @@ namespace CustomEngine.Rendering.Models
             SetPrimitiveData(shape.GetPrimitiveData());
             SetCullingVolume(shape);
         }
-        
+
+        private Matrix4 _normalMatrix;
         private Model _model;
         internal PrimitiveManager _manager = new PrimitiveManager();
 
@@ -56,8 +57,19 @@ namespace CustomEngine.Rendering.Models
             //if (_material.File == null)
             //    return;
 
-            _manager.Render(WorldMatrix);
+            _manager.Render(WorldMatrix, _normalMatrix);
         }
+
+        public override Matrix4 InverseWorldMatrix
+        {
+            get { return base.InverseWorldMatrix; }
+            set
+            {
+                base.InverseWorldMatrix = value;
+                _normalMatrix = value.Transposed();
+            }
+        }
+
         public static implicit operator Mesh(Shape shape) { return new Mesh(shape); }
         public override PrimitiveData GetPrimitiveData() { return _manager.Data; }
         public void SetPrimitiveData(PrimitiveData data) => _manager.Data = data;

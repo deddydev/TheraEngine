@@ -10,7 +10,10 @@ namespace CustomEngine.Rendering.Models.Materials
     {
         public static readonly string PositionMatricesName = "PositionMatrices";
         public static readonly string NormalMatricesName = "NormalMatrices";
-
+        public static readonly string PointLightsName = "PointLights";
+        public static readonly string SpotLightsName = "SpotLights";
+        public static readonly string DirectionalLightsName = "DirLights";
+        
         //public static int GetLocation(VertexAttribInfo info)
         //{
         //    return info.GetLocation();
@@ -31,27 +34,30 @@ namespace CustomEngine.Rendering.Models.Materials
         ModelMatrix,
         ViewMatrix,
         ProjMatrix,
-
-        InvModelMatrix,
-        InvViewMatrix,
-        InvProjMatrix,
-
-        PrevModelMatrix,
-        PrevViewMatrix,
-        PrevProjMatrix,
-
-        PrevInvModelMatrix,
-        PrevInvViewMatrix,
-        PrevInvProjMatrix,
+        NormalMatrix,
+        
+//         InvModelMatrix,
+//         InvViewMatrix,
+//         InvProjMatrix,
+// 
+//         PrevModelMatrix,
+//         PrevViewMatrix,
+//         PrevProjMatrix,
+// 
+//         PrevInvModelMatrix,
+//         PrevInvViewMatrix,
+//         PrevInvProjMatrix,
 
         ScreenWidth,
         ScreenHeight,
         ScreenOrigin,
-        FovY,
-        FovX,
-        Aspect,
-        NearZ,
-        FarZ,
+        CameraFovY,
+        CameraFovX,
+        CameraAspect,
+        CameraNearZ,
+        CameraFarZ,
+        CameraPosition,
+        CameraForward,
         RenderDelta,
     }
 }

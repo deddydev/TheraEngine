@@ -15,6 +15,15 @@ namespace CustomEngine.Rendering
         private HashSet<SpotLightComponent> _spotLights = new HashSet<SpotLightComponent>();
         private HashSet<PointLightComponent> _pointLights = new HashSet<PointLightComponent>();
         
+        internal void SetUniforms()
+        {
+            foreach (DirectionalLightComponent l in _directionalLights)
+                l.SetUniforms();
+            foreach (SpotLightComponent l in _spotLights)
+                l.SetUniforms();
+            foreach (PointLightComponent l in _pointLights)
+                l.SetUniforms();
+        }
         public void AddLight(DirectionalLightComponent light)
         {
             light.LightIndex = _directionalLights.Count;
@@ -35,12 +44,12 @@ namespace CustomEngine.Rendering
             _spotLights.Remove(light);
             light.LightIndex = -1;
         }
-        public void AddLight(PointLightComponent light)
+        public void Add(PointLightComponent light)
         {
             light.LightIndex = _pointLights.Count;
             _pointLights.Add(light);
         }
-        public void RemoveLight(PointLightComponent light)
+        public void Remove(PointLightComponent light)
         {
             _pointLights.Remove(light);
             light.LightIndex = -1;

@@ -61,32 +61,66 @@ namespace CustomEngine.Rendering.Models.Materials
 layout (location = 0) in vec3 Position0;
 layout (location = 1) in vec3 Normal0;
 layout (location = 2) in vec2 TexCoord0;
-layout (location = 3) in vec4 Color0;
 
-layout (std140) uniform Matrices {
-    mat4 ModelMatrix;
-    mat4 ViewMatrix;
-    mat4 ProjMatrix;
-    mat3 NormalMatrix;
+uniform mat4 ModelMatrix;
+uniform mat4 ViewMatrix;
+uniform mat4 ProjMatrix;
+uniform mat4 NormalMatrix; //transpose(inverse(modelMatrix))
+
+struct PointLight {
+    vec4 Diffuse;
+    vec4 Specular;
+    vec3 Position;
+    float ConstantAtt;
+    float LinearAtt;
+    float QuadraticAtt;
 };
+//struct SpotLight {
+//    vec3 Color;
+//    float Distance;
+//    vec3 Normal;
+//    float HalfAngle;
+//};
+//struct DirLight {
+//    vec3 Color;
+//    Vec3 Normal;
+//};
+
+uniform PointLight PointLights[1];
+//uniform DirLight DirLights[1];
+//uniform SpotLight SpotLights[1];
+
+uniform vec4 MatDiffuse;
+uniform vec4 MatAmbient;
+uniform vec4 MatSpecular;
+uniform float MatShininess;
+
+uniform vec3 CameraPosition;
+uniform vec3 CameraForward;
 
 out Data {
     vec3 Position;
     vec3 Normal;
-    vec2 TexCoord;
-    vec4 Color;
+    vec3 HalfVector;
+    vec4 Diffuse;
+    //vec4 Ambient;
 } OutData;
 
 void main()
 {
-    Position = Position0;
-    Normal = Normal0;
-    TexCoord = TexCoord0;
-    Color = Color0;
-    
-    mat4 ModelViewMatrix = ViewMatrix * ModelMatrix;
-    gl_Position = ProjMatrix * ModelViewMatrix * vec4(Position, 1.0);
+     PointLight light = PointLights[0];
+ 
+     OutData.Position = (ModelMatrix * vec4(Position0, 1.0)).xyz;
+ 
+     vec3 EyeDir = CameraPosition - OutData.Position;
+     vec3 LightDir = light.Position - OutData.Position;
+ 
+     OutData.HalfVector = normalize(LightDir + EyeDir);
+     OutData.Normal = normalize((NormalMatrix * vec4(Normal0, 1.0)).xyz);
+     OutData.Diffuse = MatDiffuse * light.Diffuse;
+     //OutData.Ambient = MatAmbient;
 
+    gl_Position = ProjMatrix * ViewMatrix * ModelMatrix * vec4(Position0, 1.0);
 }";
             return new Shader(ShaderMode.Vertex, source);
         }
@@ -95,58 +129,72 @@ void main()
             string source = @"
 #version 410
 
-PointLight light;
-
 struct PointLight {
-    vec3 Color;
+    vec4 Diffuse;
+    vec4 Specular;
     vec3 Position;
-    float Radius;
+    float ConstantAtt;
+    float LinearAtt;
+    float QuadraticAtt;
 };
-struct SpotLight {
-    vec3 Color;
-    float Distance;
-    vec3 Normal;
-    float HalfAngle;
-};
-struct DirectionalLight {
-    vec3 Color;
-    Vec3 Normal;
-};
+//struct SpotLight {
+//    vec3 Color;
+//    float Distance;
+//    vec3 Normal;
+//    float HalfAngle;
+//};
+//struct DirLight {
+//    vec3 Color;
+//    Vec3 Normal;
+//};
 
+uniform PointLight PointLights[1];
+//uniform DirLight DirLights[1];
+//uniform SpotLight SpotLights[1];
+
+uniform vec4 MatDiffuse;
+uniform vec4 MatAmbient;
+uniform vec4 MatSpecular;
+uniform float MatShininess;
+
+uniform vec3 CameraPosition;
+uniform vec3 CameraForward;
+ 
 in Data
 {
     vec3 Position;
     vec3 Normal;
-    vec2 TexCoord;
-    vec4 Color;
-} InData;
-
-layout (std140) uniform Materials {
+    vec3 HalfVector;
     vec4 Diffuse;
-    vec4 Ambient;
-    vec4 Specular;
-    float Shininess;
-};
+    //vec4 Ambient;
+} InData;
 
 out vec4 OutColor;
 
 void main()
 {
-    vec4 spec = vec4(0.0);
-    
-    vec3 n = normalize(Normal);
-    vec3 l = normalize(light.Position - Position);
-    vec3 e = normalize(DataIn.eye);
-    
-    float intensity = max(dot(n,l), 0.0);
-    if (intensity > 0.0) 
-    {
-        vec3 h = normalize(l + e);
-        float intSpec = max(dot(h,n), 0.0);
-        spec = specular * pow(intSpec, shininess);
-    }
-    
-    OutColor = max(intensity * diffuse + spec, ambient);
+     PointLight light = PointLights[0];
+ 
+     vec3 normal, halfV, viewV, lightDir;
+     vec4 color = vec4(0.0);
+     float NdotL, NdotHV;
+     float att, dist;
+ 
+     normal = normalize(InData.Normal);
+     lightDir = vec3(light.Position - InData.Position);
+     dist = length(lightDir);
+     NdotL = max(dot(normal, normalize(lightDir)), 0.0);
+ 
+     if (NdotL > 0.0)
+     {
+         att = 1.0 / (light.ConstantAtt + light.LinearAtt * dist + light.QuadraticAtt * dist * dist);
+         color += att * (InData.Diffuse * NdotL + MatAmbient);
+         halfV = normalize(InData.HalfVector);
+         NdotHV = max(dot(normal, halfV), 0.0);
+         color += att * MatSpecular * light.Specular * pow(NdotHV, MatShininess);
+     }
+
+    OutColor = color;
 }
 ";
             return new Shader(ShaderMode.Fragment, source);

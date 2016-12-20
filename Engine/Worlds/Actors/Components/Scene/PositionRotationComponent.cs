@@ -14,6 +14,7 @@ namespace CustomEngine.Worlds.Actors.Components
             _rotation = new Rotator();
             _rotation.Changed += RecalcLocalTransform;
             _translation = new MonitoredVec3();
+            _translation.Changed += RecalcLocalTransform;
         }
 
         protected Rotator _rotation;

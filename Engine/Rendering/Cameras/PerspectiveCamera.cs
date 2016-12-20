@@ -53,13 +53,10 @@ namespace CustomEngine.Rendering.Cameras
         public override void SetUniforms()
         {
             base.SetUniforms();
-            Engine.Renderer.Uniform(Uniform.GetLocation(ECommonUniform.FovX), _fovX);
-            Engine.Renderer.Uniform(Uniform.GetLocation(ECommonUniform.FovY), _fovY);
-            Engine.Renderer.Uniform(Uniform.GetLocation(ECommonUniform.Aspect), _aspect);
+            Engine.Renderer.Uniform(Uniform.GetLocation(ECommonUniform.CameraFovX), _fovX);
+            Engine.Renderer.Uniform(Uniform.GetLocation(ECommonUniform.CameraFovY), _fovY);
+            Engine.Renderer.Uniform(Uniform.GetLocation(ECommonUniform.CameraAspect), _aspect);
         }
-        private void UniformFovX(int mId) { Engine.Renderer.Uniform(mId, Uniform.GetLocation(ECommonUniform.FovX), _fovX); }
-        private void UniformFovY(int mId) { Engine.Renderer.Uniform(mId, Uniform.GetLocation(ECommonUniform.FovY), _fovY); }
-        private void UniformAspect(int mId) { Engine.Renderer.Uniform(mId, Uniform.GetLocation(ECommonUniform.Aspect), _aspect); }
         public override void Resize(float width, float height)
         {
             _width = width;

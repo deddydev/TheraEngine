@@ -1,4 +1,6 @@
-﻿namespace System
+﻿using CustomEngine;
+
+namespace System
 {
     public delegate void ValueChange(float oldValue, float newValue);
     public class MonitoredVec3
@@ -49,6 +51,23 @@
                 _value.Z = value;
                 ZChanged?.Invoke();
                 ZValueChanged?.Invoke(oldZ, _value.Z);
+                Changed?.Invoke();
+            }
+        }
+
+        public Vec3 Value
+        {
+            get { return _value; }
+            set
+            {
+                Vec3 oldValue = _value;
+                _value = value;
+                XChanged?.Invoke();
+                XValueChanged?.Invoke(oldValue.X, _value.X);
+                YChanged?.Invoke();
+                YValueChanged?.Invoke(oldValue.Y, _value.Y);
+                ZChanged?.Invoke();
+                ZValueChanged?.Invoke(oldValue.Z, _value.Z);
                 Changed?.Invoke();
             }
         }

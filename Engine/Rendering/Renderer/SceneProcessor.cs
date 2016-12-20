@@ -16,11 +16,11 @@ namespace CustomEngine.Rendering
         //private List<ulong> _sortedCommands = new List<ulong>();
         private RenderOctree _renderTree;
         private Camera _currentCamera;
-        private LightManager _lightManager;
+        private LightManager _lightManager = new LightManager();
         
         public RenderOctree RenderTree { get { return _renderTree; } }
         public Camera CurrentCamera { get { return _currentCamera; } }
-        public LightManager LightManager { get { return _lightManager; } }
+        public LightManager Lights { get { return _lightManager; } }
 
         internal void WorldChanged()
         {
@@ -69,6 +69,12 @@ namespace CustomEngine.Rendering
         public void RemoveRenderable(RenderableObject obj)
         {
             _renderTree.Remove(obj);
+        }
+
+        internal void SetUniforms()
+        {
+            CurrentCamera.SetUniforms();
+            Lights.SetUniforms();
         }
         //public void QueueCommand(RenderKey key, Action method)
         //{

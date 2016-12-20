@@ -26,6 +26,7 @@ namespace System
         public static implicit operator ColorF4(Color p) { return new ColorF4() { A = p.A / 255.0f, B = p.B / 255.0f, G = p.G / 255.0f, R = p.R / 255.0f }; }
         public static implicit operator ColorF4(Vec3 v) { return new ColorF4(v.X, v.Y, v.Z, 1.0f); }
         public static implicit operator ColorF4(Vec4 v) { return new ColorF4(v.X, v.Y, v.Z, v.W); }
+        public static implicit operator Vec4(ColorF4 v) { return new Vec4(v.R, v.G, v.B, v.A); }
         public static implicit operator ColorF4(ColorF3 p) { return new ColorF4(p.R, p.G, p.B, 1.0f); }
 
         public bool Equals(ColorF4 other, float precision)

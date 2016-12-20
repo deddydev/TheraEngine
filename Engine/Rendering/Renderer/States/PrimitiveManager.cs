@@ -133,7 +133,7 @@ namespace CustomEngine.Rendering.Models
         //    Engine.Renderer.Uniform(Uniform.PositionMatricesName, positionMatrices.ToArray());
         //    Engine.Renderer.Uniform(Uniform.NormalMatricesName, normalMatrices.ToArray());
         //}
-        public unsafe void Render(Matrix4 transform)
+        public unsafe void Render(Matrix4 modelMatrix, Matrix4 normalMatrix)
         {
             if (_data == null)
                 return;
@@ -147,7 +147,8 @@ namespace CustomEngine.Rendering.Models
             
             //SetBoneMatrixUniforms();
             //This is a mesh-specific uniform
-            Engine.Renderer.Uniform(Uniform.GetLocation(ECommonUniform.ModelMatrix), transform);
+            Engine.Renderer.Uniform(Uniform.GetLocation(ECommonUniform.ModelMatrix), modelMatrix);
+            Engine.Renderer.Uniform(Uniform.GetLocation(ECommonUniform.NormalMatrix), normalMatrix);
 
             GL.BindVertexArray(BindingId);
             GL.DrawElements(_type, _indexBuffer.ElementCount, _elementType, 0);

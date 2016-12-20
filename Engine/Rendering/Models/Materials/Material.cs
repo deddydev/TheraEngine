@@ -4,6 +4,7 @@ using OpenTK.Graphics.OpenGL;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -73,6 +74,18 @@ namespace CustomEngine.Rendering.Models.Materials
                         break;
                 }
             }
+        }
+
+        public static Material GetTestMaterial()
+        {
+            Shader vert = Shader.TestVertexShader();
+            Shader frag = Shader.TestFragmentShader();
+            MaterialSettings settings = new MaterialSettings();
+            settings.Parameters.Add(new GLVec4((ColorF4)Color.Blue, "MatDiffuse", null));
+            settings.Parameters.Add(new GLVec4((ColorF4)Color.Green, "MatAmbient", null));
+            settings.Parameters.Add(new GLVec4((ColorF4)Color.Black, "MatSpecular", null));
+            settings.Parameters.Add(new GLFloat(1.0f, "MatShininess", null));
+            return new Material("TestMaterial", settings, vert, frag);
         }
     }
 }

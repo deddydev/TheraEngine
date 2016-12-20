@@ -483,10 +483,10 @@
     <Compile Include="Rendering\Models\Materials\Material Functions\Math\Operator\SubtractFunc.cs" />
     <Compile Include="Rendering\Models\Materials\Material Functions\Results\ResultBasic.cs" />
     <Compile Include="Rendering\Models\Materials\Material Functions\Results\ResultPBR.cs" />
-    <Compile Include="Rendering\Models\Materials\ShaderGenerator\FragmentShaderGenerator.cs" />
-    <Compile Include="Rendering\Models\Materials\ShaderGenerator\GeometryShaderGenerator.cs" />
-    <Compile Include="Rendering\Models\Materials\ShaderGenerator\ShaderGenerator.cs" />
-    <Compile Include="Rendering\Models\Materials\ShaderGenerator\VertexShaderGenerator.cs" />
+    <Compile Include="Rendering\Models\Materials\Shader Generator\FragmentShaderGenerator.cs" />
+    <Compile Include="Rendering\Models\Materials\Shader Generator\GeometryShaderGenerator.cs" />
+    <Compile Include="Rendering\Models\Materials\Shader Generator\ShaderGenerator.cs" />
+    <Compile Include="Rendering\Models\Materials\Shader Generator\VertexShaderGenerator.cs" />
     <Compile Include="Rendering\Models\Materials\TextureReference.cs" />
     <Compile Include="Rendering\Models\Materials\Uniform.cs" />
     <Compile Include="Rendering\Models\Meshes\Faces\Vertex\VertexLineStrip.cs" />

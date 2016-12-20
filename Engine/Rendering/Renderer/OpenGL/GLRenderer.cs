@@ -399,7 +399,7 @@ namespace CustomEngine.Rendering.OpenGL
                 for (int x = 0; x < count; ++x)
                     values[i << 2 + x] = p[i].Data[x];
 
-            GL.Uniform3(location, p.Length, values);
+            GL.Uniform4(location, p.Length, values);
         }
         public override void Uniform(int location, params IUniformable4Float[] p)
         {
@@ -414,7 +414,7 @@ namespace CustomEngine.Rendering.OpenGL
                 for (int x = 0; x < count; ++x)
                     values[i << 2 + x] = p[i].Data[x];
 
-            GL.Uniform3(location, p.Length, values);
+            GL.Uniform4(location, p.Length, values);
         }
         public override void Uniform(int location, params IUniformable3Int[] p)
         {

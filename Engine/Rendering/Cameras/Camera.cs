@@ -65,6 +65,7 @@ namespace CustomEngine.Rendering.Cameras
         protected Vec3 _scale = Vec3.One;
         protected Vec3 _point = Vec3.Zero;
         protected Rotator _rotate = new Rotator(Rotator.Order.YPR);
+        protected Vec3 _forwardDirection;
 
         /// <summary>
         /// Returns an X, Y coordinate relative to the camera's Origin, with Z being the normalized depth from NearDepth to FarDepth.
@@ -85,10 +86,11 @@ namespace CustomEngine.Rendering.Cameras
             //For example, if the upward rotation increases, 
             //we want the back of the camera to rotate down the same amount
             Rotator rotation = _rotate.WithNegatedRotations();
-            
+            Matrix4 rotMatrix = rotation.GetMatrix();
+
             _transform =
                 Matrix4.CreateTranslation(_point) *
-                rotation.GetMatrix() *
+                rotMatrix *
                 Matrix4.CreateScale(_scale);
 
             rotation.Invert();
@@ -97,6 +99,8 @@ namespace CustomEngine.Rendering.Cameras
                 Matrix4.CreateScale(1.0f / _scale) *
                 rotation.GetMatrix() *
                 Matrix4.CreateTranslation(-_point);
+
+            _forwardDirection = Vec3.TransformVector(Vec3.Forward, rotMatrix);
 
             OnTransformChanged();
         }
@@ -128,7 +132,7 @@ namespace CustomEngine.Rendering.Cameras
         }
         public Vec3 RotateVector(Vec3 dir) { return _rotate.TransformVector(dir); }
         public Vec3 GetUpVector() { return RotateVector(Vec3.Up); }
-        public Vec3 GetForwardVector() { return RotateVector(Vec3.Forward); }
+        public Vec3 GetForwardVector() { return _forwardDirection; }
         public Vec3 GetRightVector() { return RotateVector(Vec3.Right); }
         public void Rotate(float pitch, float yaw) { Rotate(pitch, yaw, 0.0f); }
         public void Rotate(float pitch, float yaw, float roll)
@@ -183,8 +187,10 @@ namespace CustomEngine.Rendering.Cameras
             Engine.Renderer.Uniform(Uniform.GetLocation(ECommonUniform.ScreenWidth), Width);
             Engine.Renderer.Uniform(Uniform.GetLocation(ECommonUniform.ScreenHeight), Height);
             Engine.Renderer.Uniform(Uniform.GetLocation(ECommonUniform.ScreenOrigin), Origin);
-            Engine.Renderer.Uniform(Uniform.GetLocation(ECommonUniform.NearZ), NearZ);
-            Engine.Renderer.Uniform(Uniform.GetLocation(ECommonUniform.FarZ), FarZ);
+            Engine.Renderer.Uniform(Uniform.GetLocation(ECommonUniform.CameraNearZ), NearZ);
+            Engine.Renderer.Uniform(Uniform.GetLocation(ECommonUniform.CameraFarZ), FarZ);
+            Engine.Renderer.Uniform(Uniform.GetLocation(ECommonUniform.CameraPosition), Point);
+            Engine.Renderer.Uniform(Uniform.GetLocation(ECommonUniform.CameraForward), _forwardDirection);
         }
         protected virtual void CalculateProjection()
         {

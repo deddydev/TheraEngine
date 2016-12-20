@@ -37,7 +37,7 @@ namespace CustomEngine.Rendering
             _children.Removed += ChildRemoved;
             _children.Added += ChildAdded;
         }
-        public Matrix4 WorldMatrix
+        public virtual Matrix4 WorldMatrix
         {
             get { return _worldMatrix; }
             set
@@ -47,7 +47,7 @@ namespace CustomEngine.Rendering
                     child.WorldMatrix = _worldMatrix;
             }
         }
-        public Matrix4 InverseWorldMatrix
+        public virtual Matrix4 InverseWorldMatrix
         {
             get { return _inverseWorldMatrix; }
             set

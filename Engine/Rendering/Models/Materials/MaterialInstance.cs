@@ -21,14 +21,18 @@ namespace CustomEngine.Rendering.Models.Materials
         public MaterialInstance(Material material)
         {
             _material = material;
+            if (_material != null)
+            {
+                _parameters.AddRange(_material.Settings.Parameters);
 
-            //TODO: incorporate skinning and morphing into material's vertex shader
-            string s = material._vertexShader._source;
-            //string[] parts = new string[2];
-            //int first = s.IndexOf('{');
-            //parts[0] = s.Substring(0, first);
-            //parts[1] = s.Substring(first);
-            _modifiedVertexShader = new Shader(ShaderMode.Vertex, s);
+                //TODO: incorporate skinning and morphing into material's vertex shader
+                string s = material._vertexShader._source;
+                //string[] parts = new string[2];
+                //int first = s.IndexOf('{');
+                //parts[0] = s.Substring(0, first);
+                //parts[1] = s.Substring(first);
+                _modifiedVertexShader = new Shader(ShaderMode.Vertex, s);
+            }
         }
         public void SetUniforms()
         {

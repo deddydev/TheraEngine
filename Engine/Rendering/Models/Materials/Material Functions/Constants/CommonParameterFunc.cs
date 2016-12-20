@@ -23,11 +23,22 @@ namespace CustomEngine.Rendering.Models.Materials
                 {
                     case ECommonUniform.ScreenHeight:
                     case ECommonUniform.ScreenWidth:
-                    case ECommonUniform.FovY:
-                    case ECommonUniform.FovX:
-                    case ECommonUniform.Aspect:
+                    case ECommonUniform.CameraFovY:
+                    case ECommonUniform.CameraFovX:
+                    case ECommonUniform.CameraFarZ:
+                    case ECommonUniform.CameraNearZ:
+                    case ECommonUniform.CameraAspect:
                     case ECommonUniform.RenderDelta:
                         _type = GLTypeName._float;
+                        break;
+
+                    case ECommonUniform.ScreenOrigin:
+                        _type = GLTypeName._vec2;
+                        break;
+
+                    case ECommonUniform.CameraPosition:
+                    case ECommonUniform.CameraForward:
+                        _type = GLTypeName._vec3;
                         break;
                 }
             }

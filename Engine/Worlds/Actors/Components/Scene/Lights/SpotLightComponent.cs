@@ -6,17 +6,25 @@ namespace CustomEngine.Worlds.Actors.Components
 {
     public class SpotLightComponent : LightComponent
     {
-        float _openAngle = 20.0f;
-
+        float _halfAngle = 10.0f;
+        
         public SpotLightComponent() : base() { }
 
         public override void OnSpawned()
         {
-            Engine.Renderer.Scene.LightManager.AddLight(this);
+            if (_type == LightType.Dynamic)
+                Engine.Renderer.Scene.Lights.AddLight(this);
         }
         public override void OnDespawned()
         {
-            Engine.Renderer.Scene.LightManager.RemoveLight(this);
+            if (_type == LightType.Dynamic)
+                Engine.Renderer.Scene.Lights.RemoveLight(this);
+        }
+
+        public override void SetUniforms()
+        {
+            Engine.Renderer.Uniform(Uniform.PointLightsName + "", _color);
+
         }
     }
 }

@@ -5,11 +5,20 @@ using System.Drawing;
 
 namespace CustomEngine.Worlds.Actors.Components
 {
-    public class LightComponent : TRSComponent
+    public enum LightType
     {
-        ColorF4 _color = Color.White;
-        float _intensity = 1.0f;
-        private int _lightIndex = -1;
+        //Does not move. Allows baking light into shadow maps.
+        //Static,
+        //Movable. Always calculates light for everything per-frame.
+        Dynamic,
+        //Moveable. Bakes into shadow maps when not moving.
+        //DynamicCached,
+    }
+    public abstract class LightComponent : TRComponent
+    {
+        protected ColorF4 _color = Color.White, _specular = Color.Black;
+        protected int _lightIndex = -1;
+        protected LightType _type;
 
         public int LightIndex
         {
@@ -23,5 +32,12 @@ namespace CustomEngine.Worlds.Actors.Components
         {
             return LightIndex;
         }
+
+        public void BakeShadowMaps()
+        {
+
+        }
+
+        public abstract void SetUniforms();
     }
 }

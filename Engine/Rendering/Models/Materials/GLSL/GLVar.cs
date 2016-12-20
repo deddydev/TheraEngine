@@ -107,7 +107,8 @@ namespace CustomEngine.Rendering.Models.Materials
             get { return _name; }
             set
             {
-                _name = Thread.CurrentThread.CurrentCulture.TextInfo.ToTitleCase(value).ReplaceWhitespace("");
+                //Thread.CurrentThread.CurrentCulture.TextInfo.ToTitleCase(value)
+                _name = value.ReplaceWhitespace("");
             }
         }
 

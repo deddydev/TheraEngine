@@ -205,8 +205,8 @@ namespace System
             return a + u * (b - a) + v * (c - a);
         }
 
-        /// <summary>Transform a direction vector by the given Matrix
-        /// Assumes the matrix has a bottom row of (0,0,0,1), that is the translation part is ignored.
+        /// <summary>Transform a direction vector by the given Matrix. 
+        /// The translation part is ignored.
         /// </summary>
         /// <param name="vec">The vector to transform</param>
         /// <param name="mat">The desired transformation</param>

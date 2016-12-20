@@ -93,7 +93,7 @@ namespace CustomEngine.Rendering
             if (_programHandle > BaseRenderState.NullBindingId)
             {
                 program._material?.SetUniforms();
-                Scene.CurrentCamera.SetUniforms();
+                Scene.SetUniforms();
                 Uniform(Models.Materials.Uniform.GetLocation(ECommonUniform.RenderDelta), Engine.RenderDelta);
             }
         }

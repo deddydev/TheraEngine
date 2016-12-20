@@ -5,9 +5,56 @@ using System.Runtime.InteropServices;
 
 namespace System
 {
+    [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public struct FloatQuantizeHeader
     {
+        public const int Size = 0x10;
 
+        private Bin32 _flags;
+        private bfloat _divisor;
+        private bint _elementCount;
+        private bint _dataLength;
+        
+        public int ElementCount
+        {
+            get { return _elementCount; }
+            set { _elementCount = value; }
+        }
+        public int DataLength
+        {
+            get { return _dataLength; }
+            set { _dataLength = value; }
+        }
+        public float Divisor
+        {
+            get { return _divisor; }
+            set { _divisor = value; }
+        }
+        public int BitCount
+        {
+            get { return (int)_flags[7, 5]; }
+            set
+            {
+                if (value < 1 || value > 32)
+                    throw new InvalidOperationException("Bit count must be between 1 and 32.");
+                _flags[7, 5] = (uint)value;
+            }
+        }
+        public bool HasW { get { return _flags[6]; } set { _flags[6] = value; } }
+        public bool HasZ { get { return _flags[5]; } set { _flags[5] = value; } }
+        public bool HasY { get { return _flags[4]; } set { _flags[4] = value; } }
+        public bool HasX { get { return _flags[3]; } set { _flags[3] = value; } }
+        public bool Signed { get { return _flags[2]; } set { _flags[2] = value; } }
+        public int ComponentCount
+        {
+            get { return (int)(_flags[0, 2] + 1); }
+            set
+            {
+                if (value < 1 || value > 4)
+                    throw new InvalidOperationException("Component count must be 1, 2, 3 or 4.");
+                _flags[0, 2] = (byte)(value - 1);
+            }
+        }
     }
     public unsafe class FloatQuantizer : IDisposable
     {
@@ -15,17 +62,10 @@ namespace System
 
         private Vec4[] _values;
         private Vec4 _min, _max;
-        internal BoolVec4 _includedComponents;
-        internal int _bits = 1;
-        internal bool _signed;
-        internal float _quantScale;
-
-        public float Divisor { get { return _quantScale; } }
-        public bool Signed { get { return _signed; } }
-        public int Bits { get { return _bits; } }
-        public BoolVec4 IncludedComponents { get { return _includedComponents; } }
-
-        public int DataLength { get { return _dataLen; } }
+        private BoolVec4 _includedComponents;
+        private int _bitCount = 1;
+        private bool _signed;
+        private float _quantScale;
 
         private int _srcComponents, _srcCount;
         private int _scale;
@@ -78,7 +118,21 @@ namespace System
             _pData = (float*)_handle.AddrOfPinnedObject();
             Evaluate();
         }
-
+        public FloatQuantizeHeader GetHeader()
+        {
+            FloatQuantizeHeader hdr = new FloatQuantizeHeader();
+            hdr.Signed = _signed;
+            hdr.BitCount = _bitCount;
+            hdr.DataLength = _dataLen;
+            hdr.Divisor = _quantScale;
+            hdr.ElementCount = _srcCount;
+            hdr.HasX = _includedComponents.X;
+            hdr.HasY = _includedComponents.Y;
+            hdr.HasZ = _includedComponents.Z;
+            hdr.HasW = _includedComponents.W;
+            hdr.ComponentCount = _srcComponents;
+            return hdr;
+        }
         private int GetMaxValue(int bitCount, bool signed)
         {
             int value = 0;
@@ -135,10 +189,13 @@ namespace System
             //Check if we need to account for negative and positive values
             if (vMin < 0)
             {
-                if (vMax > 0)
-                    _signed = true;
-                else
+                if (vMax < 0)
                     negateScale = true;
+                else
+                {
+                    negateScale = false;
+                    _signed = true;
+                }
             }
             else
                 _signed = negateScale = false;
@@ -152,23 +209,23 @@ namespace System
                     ++componentCount;
             if (componentCount == 0)
             {
-                _bits = 32;
+                _bitCount = 32;
                 bestScale = 0;
                 goto Next;
             }
 
             int divisor = 0;
             float rMin = 0.0f, rMax;
-            for (_bits = _signed ? 2 : 1; _bits <= 32; ++_bits)
+            for (_bitCount = _signed ? 2 : 1; _bitCount <= 32; ++_bitCount)
             {
                 float bestError = _maxError;
                 float scale, maxVal;
 
-                rMax = GetMaxValue(_bits, _signed);
-                rMin = GetMinValue(_bits, _signed);
+                rMax = GetMaxValue(_bitCount, _signed);
+                rMin = GetMinValue(_bitCount, _signed);
 
                 maxVal = rMax / vDist;
-                while ((divisor < 32) && ((scale = VQuant.QuantTable[divisor]) <= maxVal))
+                while ((divisor < 32) && ((scale = (negateScale ? -1.0f : 1.0f) * VQuant.QuantTable[divisor]) <= maxVal))
                 {
                     float worstError = float.MinValue;
                     for (int y = 0, offset = 0; y < _srcCount; y++, offset += _srcComponents)
@@ -212,39 +269,61 @@ namespace System
                 if (bestError < _maxError)
                     goto Next;
 
-                ++_bits;
+                ++_bitCount;
             }
 
-            _bits = 32;
+            _bitCount = 32;
             bestScale = 0;
 
             Next:
 
             _scale = bestScale;
 
-            //Get bit count, align count to nearest multiple of 8,
-            //divide by 8 to get byte count, align result for padding
-            _dataLen = ((_srcCount * componentCount * _bits).Align(32) / 8);
-            _quantScale = VQuant.QuantTable[_scale];
+            //Get bit count, 
+            //align count to nearest multiple of 32 to align to 4 bytes,
+            //divide by 8 to get byte count
+            _dataLen = ((_srcCount * componentCount * _bitCount).Align(32) / 8);
+            _quantScale = (negateScale ? -1.0f : 1.0f) * VQuant.QuantTable[_scale];
         }
-        
-        public static Vec3[] DecodeValues(
-            VoidPtr address,
-            int count,
-            bool hasX,
-            bool hasY,
-            bool hasZ,
-            bool signed,
-            int bitCount, 
-            float divisor)
+        public static Vec4[] Decode4(FloatQuantizeHeader header, VoidPtr address)
         {
-            Vec3[] verts = new Vec3[count];
-            fixed (Vec3* p = verts)
+            Vec4[] values = new Vec4[header.ElementCount];
+            fixed (Vec4* p = values)
                 DecodeToBuffer(
-                    (byte*)address, (float*)p, count,
-                    hasX, hasY, hasZ, false, 3,
-                    signed, bitCount, divisor);
-            return verts;
+                    (byte*)address, (float*)p, header.ElementCount,
+                    header.HasX, header.HasY, header.HasZ, header.HasW, 4,
+                    header.Signed, header.BitCount, header.Divisor);
+            return values;
+        }
+        public static Vec3[] Decode3(FloatQuantizeHeader header, VoidPtr address)
+        {
+            Vec3[] values = new Vec3[header.ElementCount];
+            fixed (Vec3* p = values)
+                DecodeToBuffer(
+                    (byte*)address, (float*)p, header.ElementCount,
+                    header.HasX, header.HasY, header.HasZ, false, 3,
+                    header.Signed, header.BitCount, header.Divisor);
+            return values;
+        }
+        public static Vec2[] Decode2(FloatQuantizeHeader header, VoidPtr address)
+        {
+            Vec2[] values = new Vec2[header.ElementCount];
+            fixed (Vec2* p = values)
+                DecodeToBuffer(
+                    (byte*)address, (float*)p, header.ElementCount,
+                    header.HasX, header.HasY, false, false, 2,
+                    header.Signed, header.BitCount, header.Divisor);
+            return values;
+        }
+        public static float[] Decode1(FloatQuantizeHeader header, VoidPtr address)
+        {
+            float[] values = new float[header.ElementCount];
+            fixed (float* p = values)
+                DecodeToBuffer(
+                    (byte*)address, p, header.ElementCount,
+                    true, false, false, false, 1,
+                    header.Signed, header.BitCount, header.Divisor);
+            return values;
         }
         private static void DecodeToBuffer(
             byte* sPtr,
@@ -254,21 +333,33 @@ namespace System
             bool hasY,
             bool hasZ,
             bool hasW,
-            int maxComponentCount,
+            int componentCount,
             bool signed,
             int bitCount,
             float divisor)
         {
             BoolVec4 included = new BoolVec4() { X = hasX, Y = hasY, Z = hasZ, W = hasW };
-            int bitOffset = 0;
+            int bitOffset = 0, bitMask = 0, signBit = 0;
+            if (signed)
+            {
+                signBit = 1 << (bitCount - 1);
+                for (int i = 0; i < bitCount; ++i)
+                    bitMask |= (1 << i);
+            }
             for (int i = 0; i < count; i++)
-                for (int j = 0; j < maxComponentCount; ++j)
-                    *dPtr++ = included.Data[j] ? ReadValue(ref sPtr, ref bitOffset, bitCount, signed, divisor) : 0.0f;
+                for (int j = 0; j < componentCount; ++j)
+                    *dPtr++ = included.Data[j] ? ReadValue(ref sPtr, ref bitOffset, bitCount, signed, divisor, bitMask, signBit) : 0.0f;
         }
-        private static float ReadValue(ref byte* sPtr, ref int bitOffset, int bitCount, bool signed, float divisor)
+        private static float ReadValue(ref byte* sPtr, ref int bitOffset, int bitCount, bool signed, float divisor, int bitMask, int signBit)
         {
-            int value = 0, currentShift = bitCount, mask = 0;
-            int signBit = 1 << (bitCount - 1);
+            if (bitCount == 32)
+            {
+                float v = *(bfloat*)sPtr;
+                sPtr += 4;
+                return v;
+            }
+
+            int value = 0, currentShift = bitCount;
             while (currentShift-- > 0)
             {
                 int shift = 7 - bitOffset++;
@@ -279,20 +370,16 @@ namespace System
                     bitOffset = 0;
                     ++sPtr;
                 }
-                if (signed)
-                    mask |= (1 << currentShift);
             }
             if (signed && (value & signBit) != 0)
-                value = ((-value - 1) ^ mask);
+                value = ((-value - 1) ^ bitMask);
             return value / divisor;
         }
         public void EncodeValues(VoidPtr address)
         {
             byte* dPtr = (byte*)address;
 
-            int bitOffset = 0, bitMask = 0;
-            for (int i = 0; i < _bits; ++i)
-                bitMask |= (1 << i);
+            int bitOffset = 0;
             foreach (Vec4 v in _values)
             {
                 if (_includedComponents.X)
@@ -304,17 +391,20 @@ namespace System
                 if (_includedComponents.W)
                     WriteValue(v.W, ref dPtr, ref bitOffset);
             }
-            Console.WriteLine();
         }
-        private void WriteValue(float value, ref byte* dPtr, ref int bitOffset/*, int bitMask*/)
+        private void WriteValue(float value, ref byte* dPtr, ref int bitOffset)
         {
+            if (_bitCount == 32)
+            {
+                *(bfloat*)dPtr = value;
+                dPtr += 4;
+                return;
+            }
+
             float scaledValue = value * _quantScale;
             int result = (int)Math.Round(scaledValue);
-
-            //if (result < 0)
-            //    result = (-result - 1) ^ bitMask;
             
-            int valueShift = _bits;
+            int valueShift = _bitCount;
             while (valueShift-- > 0)
             {
                 //Clear byte of unwanted data

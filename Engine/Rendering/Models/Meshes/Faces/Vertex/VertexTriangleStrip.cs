@@ -26,7 +26,7 @@ namespace CustomEngine.Rendering.Models
         public override List<VertexTriangle> ToTriangles()
         {
             List<VertexTriangle> triangles = new List<VertexTriangle>();
-            for (int i = 2, count = FaceCount * 3; i < count; i++)
+            for (int i = 2, count = _vertices.Count; i < count; i++)
             {
                 int bit = i & 1;
                 triangles.Add(new VertexTriangle(

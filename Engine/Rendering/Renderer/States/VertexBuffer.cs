@@ -233,7 +233,7 @@ namespace CustomEngine.Rendering.Models
             else
                 throw new InvalidOperationException("Not a proper numeric data type.");
 
-            Console.WriteLine("\nSetting numeric vertex data for buffer " + Index + " - " + Name);
+            //Console.WriteLine("\nSetting numeric vertex data for buffer " + Index + " - " + Name);
 
             _componentCount = 1;
             _normalize = false;
@@ -249,10 +249,10 @@ namespace CustomEngine.Rendering.Models
                 {
                     VoidPtr addr = _data.Address[i, stride];
                     T value = list[remapper.ImplementationTable[i]];
-                    Console.Write(value.ToString() + " ");
+                    //Console.Write(value.ToString() + " ");
                     Marshal.StructureToPtr(value, addr, true);
                 }
-                Console.WriteLine();
+                //Console.WriteLine();
                 return remapper;
             }
             else
@@ -265,16 +265,16 @@ namespace CustomEngine.Rendering.Models
                 {
                     VoidPtr addr = _data.Address[i, stride];
                     T value = list[i];
-                    Console.Write(value.ToString() + " ");
+                    //Console.Write(value.ToString() + " ");
                     Marshal.StructureToPtr(value, addr, true);
                 }
-                Console.WriteLine("\n");
+                //Console.WriteLine("\n");
                 return null;
             }
         }
         public Remapper SetData<T>(IList<T> list, bool remap = false) where T : IBufferable
         {
-            Console.WriteLine("\nSetting vertex data for buffer " + Index + " - " + Name);
+            //Console.WriteLine("\nSetting vertex data for buffer " + Index + " - " + Name);
 
             IBufferable d = default(T);
             _componentType = d.ComponentType;
@@ -291,7 +291,7 @@ namespace CustomEngine.Rendering.Models
                 for (int i = 0; i < remapper.ImplementationLength; ++i)
                 {
                     IBufferable b = list[remapper.ImplementationTable[i]];
-                    Console.WriteLine(b.ToString());
+                    //Console.WriteLine(b.ToString());
                     b.Write(_data.Address[i, stride]);
                 }
                 return remapper;
@@ -303,7 +303,7 @@ namespace CustomEngine.Rendering.Models
                 int stride = Stride;
                 for (int i = 0; i < list.Count; ++i)
                 {
-                    Console.WriteLine(list[i].ToString());
+                    //Console.WriteLine(list[i].ToString());
                     list[i].Write(_data.Address[i, stride]);
                 }
                 return null;
@@ -311,7 +311,7 @@ namespace CustomEngine.Rendering.Models
         }
         public Remapper GetData<T>(out T[] array, bool remap = true) where T : IBufferable
         {
-            Console.WriteLine("\nGetting vertex data from buffer " + Index + " - " + Name);
+            //Console.WriteLine("\nGetting vertex data from buffer " + Index + " - " + Name);
             
             IBufferable d = default(T);
             _componentType = d.ComponentType;

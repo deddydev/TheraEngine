@@ -154,23 +154,23 @@ namespace CustomEngine.Input.Devices
         {
             _onPressed.ForEach(del => del());
             _onStateChanged.ForEach(del => del(true));
-            Console.WriteLine(_name + ": PRESSED");
+            //Console.WriteLine(_name + ": PRESSED");
         }
         private void OnReleased()
         {
             _onReleased.ForEach(del => del());
             _onStateChanged.ForEach(del => del(false));
-            Console.WriteLine(_name + ": RELEASED");
+            //Console.WriteLine(_name + ": RELEASED");
         }
         private void OnHeld()
         {
             _onHeld.ForEach(del => del());
-            Console.WriteLine(_name + ": HELD");
+            //Console.WriteLine(_name + ": HELD");
         }
         private void OnDoublePressed()
         {
             _onDoublePressed.ForEach(del => del());
-            Console.WriteLine(_name + ": DOUBLE PRESSED");
+            //Console.WriteLine(_name + ": DOUBLE PRESSED");
         }
     }
     public delegate void DelAxisValue(float value);
@@ -228,7 +228,7 @@ namespace CustomEngine.Input.Devices
         private void OnAxisChanged(float realValue)
         {
             _onUpdate.ForEach(del => del(realValue));
-            Console.WriteLine(_name + ": " + realValue.ToString());
+            //Console.WriteLine(_name + ": " + realValue.ToString());
         }
         private void OnAxisValue(float realValue)
         {

@@ -9,7 +9,7 @@ using CustomEngine.Rendering.Models;
 namespace System
 {
     [Serializable]
-    [StructLayout(LayoutKind.Sequential)]
+    [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public unsafe struct Vec3 : IEquatable<Vec3>, IUniformable3Float, IBufferable
     {
         public float X, Y, Z;

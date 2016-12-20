@@ -173,26 +173,26 @@ out vec4 OutColor;
 
 void main()
 {
-     PointLight light = PointLights[0];
+    PointLight light = PointLights[0];
  
-     vec3 normal, halfV, viewV, lightDir;
-     vec4 color = vec4(0.0);
-     float NdotL, NdotHV;
-     float att, dist;
- 
-     normal = normalize(InData.Normal);
-     lightDir = vec3(light.Position - InData.Position);
-     dist = length(lightDir);
-     NdotL = max(dot(normal, normalize(lightDir)), 0.0);
- 
-     if (NdotL > 0.0)
-     {
-         att = 1.0 / (light.ConstantAtt + light.LinearAtt * dist + light.QuadraticAtt * dist * dist);
-         color += att * (InData.Diffuse * NdotL + MatAmbient);
-         halfV = normalize(InData.HalfVector);
-         NdotHV = max(dot(normal, halfV), 0.0);
-         color += att * MatSpecular * light.Specular * pow(NdotHV, MatShininess);
-     }
+    vec3 normal, halfV, viewV, lightDir;
+    vec4 color = vec4(0.0, 0.0, 0.0, 1.0);
+    float NdotL, NdotHV;
+    float att, dist;
+
+    normal = normalize(InData.Normal);
+    lightDir = vec3(light.Position - InData.Position);
+    dist = length(lightDir);
+    NdotL = max(dot(normal, normalize(lightDir)), 0.0);
+
+    //if (NdotL > 0.0)
+    //{
+        att = 1.0 / (light.ConstantAtt + light.LinearAtt * dist + light.QuadraticAtt * dist * dist);
+        color += att * (InData.Diffuse * NdotL + MatAmbient);
+        halfV = normalize(InData.HalfVector);
+        NdotHV = max(dot(normal, halfV), 0.0);
+        color += att * MatSpecular * light.Specular * pow(NdotHV, MatShininess);
+    //}
 
     OutColor = color;
 }

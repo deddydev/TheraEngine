@@ -594,7 +594,7 @@
     <Compile Include="System\Data Structures\MonitoredList.cs" />
     <Compile Include="System\Data Structures\RenderOctree.cs" />
     <Compile Include="System\Memory\PString.cs" />
-    <Compile Include="System\Memory\VertexQuantizer.cs" />
+    <Compile Include="System\Memory\FloatQuantizer.cs" />
     <Compile Include="System\Memory\VQuant.cs" />
     <Compile Include="System\Platform\Linux.cs" />
     <Compile Include="System\Platform\OSX.cs" />

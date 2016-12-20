@@ -291,6 +291,7 @@ namespace System
                 mat.Row1.X * vec.X + mat.Row1.Y * vec.Y + mat.Row1.Z * vec.Z,
                 mat.Row2.X * vec.X + mat.Row2.Y * vec.Y + mat.Row2.Z * vec.Z);
         }
+
         /// <summary>Transform a Vector3 by the given Matrix, and project the resulting Vector4 back to a Vector3</summary>
         /// <param name="vec">The vector to transform</param>
         /// <param name="mat">The desired transformation</param>
@@ -543,7 +544,7 @@ namespace System
         }
         public static Vec3 operator *(Quaternion quat, Vec3 vec)
         {
-            return quat.Transform(vec);
+            return vec.Transform(quat);
         }
         public static Vec3 operator /(Vec3 vec, float scale)
         {

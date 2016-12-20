@@ -551,7 +551,7 @@
     <Compile Include="Rendering\Renderer\States\BaseRenderState.cs" />
     <Compile Include="Rendering\Renderer\States\FrameBuffer.cs" />
     <Compile Include="Rendering\Renderer\States\PrimitiveManager.cs" />
-    <Compile Include="Rendering\Models\Meshes\Primitives\VertexBuffer.cs" />
+    <Compile Include="Rendering\Renderer\States\VertexBuffer.cs" />
     <Compile Include="Rendering\Renderer\DirectX\DXDisplayList.cs" />
     <Compile Include="Rendering\Renderer\States\DisplayList.cs" />
     <Compile Include="Rendering\Renderer\OpenGL\GLEnums.cs" />

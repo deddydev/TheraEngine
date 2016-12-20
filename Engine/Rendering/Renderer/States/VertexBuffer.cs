@@ -10,14 +10,14 @@ namespace CustomEngine.Rendering.Models
 {
     public enum BufferType
     {
-        Position = 0,
-        Normal = 1,
-        TexCoord = 2,
-        Color = 3,
-        Binormal = 4,
-        Tangent = 5,
-        MatrixIds = 6,
-        MatrixWeights = 7
+        Position        = 0,
+        Normal          = 1,
+        TexCoord        = 2,
+        Color           = 3,
+        Binormal        = 4,
+        Tangent         = 5,
+        MatrixIds       = 6,
+        MatrixWeights   = 7,
     }
     public class VertexAttribInfo
     {

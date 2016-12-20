@@ -53,7 +53,7 @@ namespace CustomEngine.Worlds.Actors
             _mouseTranslateSpeed = 1.0f,
             _gamepadRotateSpeed = 150.0f,
             _gamepadTranslateSpeed = 30.0f,
-            _keyboardTranslateSpeed = 15.0f;
+            _keyboardTranslateSpeed = 20.0f;
 
         float _pitch = 0.0f, _yaw = 0.0f;
         bool _rotating = false;

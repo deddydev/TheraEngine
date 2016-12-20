@@ -357,9 +357,9 @@ namespace CustomEngine.Rendering.OpenGL
             //    for (int j = 0; j < VertexBuffer.MaxBufferCountPerType; ++j)
             //        GL.BindAttribLocation(handle, k++, type.ToString() + j);
             //}
-            GL.BindAttribLocation(handle, 0, "Position");
-            GL.BindAttribLocation(handle, 1, "Normal");
-            GL.BindAttribLocation(handle, 2, "TexCoord");
+            //GL.BindAttribLocation(handle, 0, "Position");
+            //GL.BindAttribLocation(handle, 1, "Normal");
+            //GL.BindAttribLocation(handle, 2, "TexCoord");
             GL.LinkProgram(handle);
 
             //We don't need these anymore now that they're part of the program

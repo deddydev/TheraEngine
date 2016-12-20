@@ -59,19 +59,6 @@ namespace System
             return result;
         }
         /// <summary>
-        /// Transforms a vector by a quaternion rotation.
-        /// </summary>
-        /// <param name="vec">The vector to transform.</param>
-        /// <param name="quat">The quaternion to rotate the vector by.</param>
-        /// <returns>The result of the operation.</returns>
-        public Vec3 Transform(Vec3 vec)
-        {
-            // Since vec.W == 0, we can optimize quat * vec * quat^-1 as follows:
-            // vec + 2.0 * cross(quat.xyz, cross(quat.xyz, vec) + quat.w * vec)
-            Vec3 xyz = Xyz;
-            return vec + 2.0f * xyz.Cross(xyz.Cross(vec) + vec * W);
-        }
-        /// <summary>
         /// Returns a euler rotation in the order of pitch, yaw, roll.
         /// </summary>
         public Rotator ToEuler()

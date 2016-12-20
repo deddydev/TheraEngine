@@ -15,7 +15,6 @@ namespace System
         private float _quantScale;
 
         private int _srcComponents, _srcCount;
-        private int _dstBitStride;
         private int _scale;
         private int _dataLen;
 
@@ -64,29 +63,28 @@ namespace System
 
         private int GetMaxValue(int bitCount, bool signed)
         {
+            int value = 0;
             if (signed)
             {
-                int mask = 0;
                 for (int i = 0; i < bitCount - 1; ++i)
-                    mask |= (1 << i);
-                return mask;
+                    value |= (1 << i);
+                return value;
             }
             else
             {
-                int mask = 0;
                 for (int i = 0; i < bitCount; ++i)
-                    mask |= (1 << i);
-                return mask;
+                    value |= (1 << i);
+                return value;
             }
         }
         private int GetMinValue(int bitCount, bool signed)
         {
             if (signed)
             {
-                int mask = 0;
-                for (int i = 0; i < bitCount - 1; ++i)
-                    mask |= (1 << i);
-                return -mask;
+                int value = 0;
+                for (int i = 0; i < bitCount; ++i)
+                    value |= (1 << i);
+                return -value;
             }
             else
                 return 0;
@@ -132,7 +130,7 @@ namespace System
 
                 int divisor = 0;
                 float rMin = 0.0f, rMax;
-                for (_bits = 1; _bits < 32; ++_bits)
+                for (_bits = _signed ? 2 : 1; _bits <= 32; ++_bits)
                 {
                     float bestError = _maxError;
                     float scale, maxVal;
@@ -249,21 +247,37 @@ namespace System
         {
             byte* dPtr = (byte*)address;
 
-            int bitOffset = 0;
+            int bitOffset = 0, bitMask = 0;
+            for (int i = 0; i < _bits; ++i)
+                bitMask |= (1 << i);
             foreach (Vec3 v in _vertices)
             {
-                WriteValue(v.X, ref dPtr, ref bitOffset);
-                WriteValue(v.Y, ref dPtr, ref bitOffset);
+                WriteValue(v.X, ref dPtr, ref bitOffset, bitMask);
+                WriteValue(v.Y, ref dPtr, ref bitOffset, bitMask);
                 if (_hasZ)
-                    WriteValue(v.Z, ref dPtr, ref bitOffset);
+                    WriteValue(v.Z, ref dPtr, ref bitOffset, bitMask);
             }
         }
-        private void WriteValue(float value, ref byte* dPtr, ref int bitOffset)
+        private void WriteValue(float value, ref byte* dPtr, ref int bitOffset, int bitMask)
         {
             float scaledValue = value * _quantScale;
             int result = (int)Math.Round(scaledValue);
 
-            
+            if (result < 0)
+                result = (-result - 1) ^ bitMask;
+
+            int valueShift = 0;
+            while (valueShift++ < _bits)
+            {
+                int shift = 7 - bitOffset++;
+                int bit = (result >> valueShift) & 1;
+                *dPtr |= (byte)(bit << shift);
+                if (bitOffset == 8)
+                {
+                    bitOffset = 0;
+                    ++dPtr;
+                }
+            }
         }
     }
 }

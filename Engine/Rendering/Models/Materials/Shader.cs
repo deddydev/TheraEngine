@@ -58,21 +58,35 @@ namespace CustomEngine.Rendering.Models.Materials
             string source = @"
 #version 410
 
-layout (location = 0) in vec3 Position;
-layout (location = 1) in vec3 Normal;
-layout (location = 2) in vec2 TexCoord;
+layout (location = 0) in vec3 Position0;
+layout (location = 1) in vec3 Normal0;
+layout (location = 2) in vec2 TexCoord0;
+layout (location = 3) in vec4 Color0;
 
-uniform mat4 ModelMatrix;
-uniform mat4 ViewMatrix;
-uniform mat4 ProjMatrix;
+layout (std140) uniform Matrices {
+    mat4 ModelMatrix;
+    mat4 ViewMatrix;
+    mat4 ProjMatrix;
+    mat3 NormalMatrix;
+};
 
-out vec3 color;
+out Data {
+    vec3 Position;
+    vec3 Normal;
+    vec2 TexCoord;
+    vec4 Color;
+} OutData;
 
 void main()
 {
-    mat4 modelView = ViewMatrix * ModelMatrix;
-    gl_Position = ProjMatrix * modelView * vec4(Position, 1.0);
-    color = vec3(TexCoord, 0.0);
+    Position = Position0;
+    Normal = Normal0;
+    TexCoord = TexCoord0;
+    Color = Color0;
+    
+    mat4 ModelViewMatrix = ViewMatrix * ModelMatrix;
+    gl_Position = ProjMatrix * ModelViewMatrix * vec4(Position, 1.0);
+
 }";
             return new Shader(ShaderMode.Vertex, source);
         }
@@ -81,13 +95,58 @@ void main()
             string source = @"
 #version 410
 
-in vec3 color;
+PointLight light;
+
+struct PointLight {
+    vec3 Color;
+    vec3 Position;
+    float Radius;
+};
+struct SpotLight {
+    vec3 Color;
+    float Distance;
+    vec3 Normal;
+    float HalfAngle;
+};
+struct DirectionalLight {
+    vec3 Color;
+    Vec3 Normal;
+};
+
+in Data
+{
+    vec3 Position;
+    vec3 Normal;
+    vec2 TexCoord;
+    vec4 Color;
+} InData;
+
+layout (std140) uniform Materials {
+    vec4 Diffuse;
+    vec4 Ambient;
+    vec4 Specular;
+    float Shininess;
+};
 
 out vec4 OutColor;
 
 void main()
 {
-    OutColor = vec4(color, 1.0);
+    vec4 spec = vec4(0.0);
+    
+    vec3 n = normalize(Normal);
+    vec3 l = normalize(light.Position - Position);
+    vec3 e = normalize(DataIn.eye);
+    
+    float intensity = max(dot(n,l), 0.0);
+    if (intensity > 0.0) 
+    {
+        vec3 h = normalize(l + e);
+        float intSpec = max(dot(h,n), 0.0);
+        spec = specular * pow(intSpec, shininess);
+    }
+    
+    OutColor = max(intensity * diffuse + spec, ambient);
 }
 ";
             return new Shader(ShaderMode.Fragment, source);

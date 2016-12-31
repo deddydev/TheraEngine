@@ -45,6 +45,7 @@ namespace CustomEngine.Rendering
             _simulatingPhysics = info.SimulatePhysics;
             _group = info.Group;
             _collidesWith = info.CollidesWith;
+            UpdateBody(new RigidBody(info.BodyInfo));
         }
         public PhysicsDriver(PhysicsDriverInfo info, MatrixUpdate func) : this(info)
         {
@@ -150,8 +151,13 @@ namespace CustomEngine.Rendering
             _collision = body;
             if (_collision != null)
             {
-                if (_collisionEnabled && Engine.World != null)
-                    Engine.World.PhysicsScene.AddRigidBody(_collision, (short)_group, _collisionEnabled ? (short)_collidesWith : (short)CustomCollisionGroup.None);
+                if (_collisionEnabled)
+                {
+                    if (Engine.World == null)
+                        Engine.QueueCollisionSpawn(this);
+                    else
+                        Engine.World.PhysicsScene.AddRigidBody(_collision, (short)_group, _collisionEnabled ? (short)_collidesWith : (short)CustomCollisionGroup.None);
+                }
                 _collision.UserObject = this;
                 if (!_simulatingPhysics)
                 {
@@ -163,9 +169,13 @@ namespace CustomEngine.Rendering
                 {
                     _collision.LinearFactor = new Vector3(1.0f);
                     _collision.AngularFactor = new Vector3(1.0f);
-                    _collision.ForceActivationState(ActivationState.IslandSleeping);
+                    //_collision.ForceActivationState(ActivationState.IslandSleeping);
                 }
             }
+        }
+        internal void AddToWorld()
+        {
+            Engine.World.PhysicsScene.AddRigidBody(_collision, (short)_group, _collisionEnabled ? (short)_collidesWith : (short)CustomCollisionGroup.None);
         }
         internal virtual void SetPhysicsTransform(Matrix4 worldMatrix)
         {

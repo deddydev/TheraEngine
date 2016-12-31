@@ -15,7 +15,7 @@ namespace Game.Worlds
 {
     public unsafe class TestWorld : World
     {
-        SkeletalSubMesh sphereMesh, floorMesh;
+        StaticMeshComponent _sphere;
         protected override void OnLoaded()
         {
             _settings = new WorldSettings("TestWorld");
@@ -31,7 +31,15 @@ namespace Game.Worlds
 
             PhysicsDriverInfo sphereInfo = new PhysicsDriverInfo()
             {
-                BodyInfo = new RigidBodyConstructionInfo(5.0f, new DefaultMotionState(), new SphereShape(5.0f)),
+                BodyInfo = new RigidBodyConstructionInfo(50.0f, new DefaultMotionState(
+                    Matrix4.CreateTranslation(new Vec3(0.0f, 20.0f, 0.0f))), new SphereShape(1.0f))
+                {
+                    AngularDamping = 0.05f,
+                    LinearDamping = 0.005f,
+                    Restitution = 0.2f,
+                    Friction = 0.2f,
+                    RollingFriction = 0.2f,
+                },
                 CollisionEnabled = true,
                 SimulatePhysics = true,
                 Group = CustomCollisionGroup.DynamicWorld,
@@ -43,14 +51,13 @@ namespace Game.Worlds
                 Material.GetTestMaterial(), sphere);
             PhysicsDriverInfo floorInfo = new PhysicsDriverInfo()
             {
-                BodyInfo = new RigidBodyConstructionInfo(20.0f, new DefaultMotionState(), new SphereShape(5.0f))
+                BodyInfo = new RigidBodyConstructionInfo(20.0f, new DefaultMotionState(
+                    Matrix4.CreateFromAxisAngle(Vec3.Forward, 10.0f)), new BoxShape(new Vec3(20.0f, 0.5f, 20.0f)))
                 {
-                    AngularDamping = 0.5f,
-                    LinearDamping = 0.3f,
-                    Restitution = 5.0f,
+
                 },
                 CollisionEnabled = true,
-                SimulatePhysics = true,
+                SimulatePhysics = false,
                 Group = CustomCollisionGroup.StaticWorld,
                 CollidesWith = CustomCollisionGroup.DynamicWorld,
             };
@@ -78,7 +85,7 @@ namespace Game.Worlds
             lightComp.Translation.X = 10.0f;
             //floorComp.AddAnimation(anim, true);
 
-            Actor sphereActor = new Actor(new StaticMeshComponent(sphereModel, sphereInfo, true) { Translation = new Vec3(0.0f, 10.0f, 0.0f) });
+            Actor sphereActor = new Actor(_sphere = new StaticMeshComponent(sphereModel, sphereInfo, true));
             Actor floorActor = new Actor(new StaticMeshComponent(floorModel, floorInfo, true));
             Actor lightActor = new Actor(lightComp);
             Actor dirLightActor = new Actor(dirLightComp);

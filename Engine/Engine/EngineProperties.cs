@@ -44,6 +44,7 @@ namespace CustomEngine
         private static List<float> _debugTimers = new List<float>();
         private static InputAwaiter _inputAwaiter;
         private static Dictionary<PlayerIndex, Queue<Pawn>> _possessionQueue = new Dictionary<PlayerIndex, Queue<Pawn>>();
+        internal static List<PhysicsDriver> _queuedCollisions = new List<PhysicsDriver>();
 
         public static Viewport.TwoPlayerViewportPreference TwoPlayerPref = 
             Viewport.TwoPlayerViewportPreference.SplitHorizontally;

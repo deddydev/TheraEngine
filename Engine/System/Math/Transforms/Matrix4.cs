@@ -361,6 +361,8 @@ namespace System
         /// <param name="result">A matrix instance.</param>
         public static void CreateFromAxisAngle(Vec3 axis, float angle, out Matrix4 result)
         {
+            angle = DegToRad(angle);
+
             // normalize and create a local copy of the vector.
             axis.Normalize();
             float axisX = axis.X, axisY = axis.Y, axisZ = axis.Z;

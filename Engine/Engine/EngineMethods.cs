@@ -232,6 +232,10 @@ namespace CustomEngine
                 _possessionQueue.Add(possessor, queue);
             }
         }
+        internal static void QueueCollisionSpawn(PhysicsDriver driver)
+        {
+            _queuedCollisions.Add(driver);
+        }
         internal static void FoundInput(InputDevice device)
         {
             if (device.Index >= ActivePlayers.Count)

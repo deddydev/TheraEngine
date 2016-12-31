@@ -8,6 +8,7 @@ using CustomEngine.Rendering.Models.Materials;
 using System.Runtime.InteropServices;
 using CustomEngine.Files;
 using System.Xml;
+using CustomEngine.Rendering;
 
 namespace CustomEngine.Worlds
 {
@@ -92,6 +93,9 @@ namespace CustomEngine.Worlds
             CreatePhysicsScene();
             foreach (Map m in _settings._defaultMaps)
                 m.BeginPlay();
+            foreach (PhysicsDriver d in Engine._queuedCollisions)
+                d.AddToWorld();
+            Engine._queuedCollisions.Clear();
         }
         public override int CalculateSize(StringTable table)
         {

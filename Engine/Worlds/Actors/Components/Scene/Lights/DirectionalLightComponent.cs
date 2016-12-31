@@ -6,9 +6,20 @@ namespace CustomEngine.Worlds.Actors.Components
 {
     public class DirectionalLightComponent : LightComponent
     {
-        public DirectionalLightComponent() : base()
+        public DirectionalLightComponent(ColorF3 color, float diffuseIntensity, float ambientIntensity)
+            : base(color, diffuseIntensity, ambientIntensity)
         {
-            
+            _rotation.Pitch = -90.0f;
+        }
+        public DirectionalLightComponent(Rotator rotation, ColorF3 color, float diffuseIntensity, float ambientIntensity)
+            : base(color, diffuseIntensity, ambientIntensity)
+        {
+            _rotation.SetRotations(rotation);
+        }
+        public DirectionalLightComponent(Vec3 direction, ColorF3 color, float diffuseIntensity, float ambientIntensity) 
+            : base(color, diffuseIntensity, ambientIntensity)
+        {
+            Direction = direction;
         }
 
         public override void RecalcLocalTransform()
@@ -42,8 +53,10 @@ namespace CustomEngine.Worlds.Actors.Components
         public override void SetUniforms()
         {
             string indexer = Uniform.DirectionalLightsName + "[" + _lightIndex + "].";
-            Engine.Renderer.Uniform(indexer + "Color", _color);
-            Engine.Renderer.Uniform(indexer + "Normal", _direction);
+            Engine.Renderer.Uniform(indexer + "Base.Color", _color);
+            Engine.Renderer.Uniform(indexer + "Base.AmbientIntensity", _ambientIntensity);
+            Engine.Renderer.Uniform(indexer + "Base.DiffuseIntensity", _diffuseIntensity);
+            Engine.Renderer.Uniform(indexer + "Direction", _direction);
         }
     }
 }

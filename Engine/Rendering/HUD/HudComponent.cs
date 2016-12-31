@@ -18,6 +18,7 @@ namespace CustomEngine.Rendering.HUD
         protected HudComponent _parent;
         protected List<HudComponent> _children = new List<HudComponent>();
 
+        protected bool _highlightable, _selectable;
         protected ushort _zIndex;
         protected AnchorFlags _positionAnchorFlags;
         protected Matrix4 _localTransform = Matrix4.Identity;
@@ -26,6 +27,33 @@ namespace CustomEngine.Rendering.HUD
         protected Vec2 _scale = Vec2.One;
         protected Vec2 _translationLocalOrigin = Vec2.Zero;
 
+        [Category("Events")]
+        public event Action Highlighted;
+        [Category("Events")]
+        public event Action Selected;
+
+        public virtual void OnHighlighted()
+        {
+            if (_highlightable)
+                Highlighted?.Invoke();
+        }
+        public virtual void OnSelected()
+        {
+            if (_selectable)
+                Selected?.Invoke();
+        }
+        [Category("Interaction")]
+        public bool Selectable
+        {
+            get { return _selectable; }
+            set { _selectable = value; }
+        }
+        [Category("Interaction")]
+        public bool Highlightable
+        {
+            get { return _highlightable; }
+            set { _highlightable = value; }
+        }
         [Category("Transform")]
         public RectangleF Region
         {

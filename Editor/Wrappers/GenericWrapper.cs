@@ -41,7 +41,7 @@ namespace Editor.Wrappers
         {
             GenericWrapper w = GetInstance<GenericWrapper>();
             SetMenuEnabled(_menu, w.Parent != null, 1, 8);
-            SetMenuEnabled(_menu, w._resource.IsDirty, 2);
+            //SetMenuEnabled(_menu, w._resource.IsDirty, 2);
             //SetMenuEnabled(_menu, w.PrevItem != null, 4);
             //SetMenuEnabled(_menu, w.NextItem != null, 5);
         }

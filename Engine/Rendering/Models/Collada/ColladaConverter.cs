@@ -9,7 +9,7 @@ namespace CustomEngine.Rendering.Models.Collada
     {
         public static ModelScene Convert(Grendgine_Collada colladaFile)
         {
-            Model m = new Model();
+            SkeletalMesh m = new SkeletalMesh();
             List<AnimationContainer> a = new List<AnimationContainer>();
 
             GetTextures(m, colladaFile);
@@ -18,7 +18,7 @@ namespace CustomEngine.Rendering.Models.Collada
 
             return new ModelScene(m, a);
         }
-        private static void GetSkeleton(Model m, Grendgine_Collada colladaFile)
+        private static void GetSkeleton(SkeletalMesh m, Grendgine_Collada colladaFile)
         {
             Skeleton s = new Skeleton();
 
@@ -90,7 +90,7 @@ namespace CustomEngine.Rendering.Models.Collada
             //                EnumNode(e, parent, scene, model, shell, objects, bindMatrix, parentInvMatrix);
             //}
         }
-        private static void GetMeshes(Model m, Grendgine_Collada colladaFile)
+        private static void GetMeshes(SkeletalMesh m, Grendgine_Collada colladaFile)
         {
 
         }
@@ -98,7 +98,7 @@ namespace CustomEngine.Rendering.Models.Collada
         {
             
         }
-        private static void GetTextures(Model m, Grendgine_Collada colladaFile)
+        private static void GetTextures(SkeletalMesh m, Grendgine_Collada colladaFile)
         {
             var materials = colladaFile.Library_Materials.Material;
             foreach (var mat in materials)

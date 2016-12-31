@@ -969,7 +969,15 @@ namespace System
         }
         public static implicit operator BulletSharp.Matrix(Matrix4 matrix)
         {
-            return new BulletSharp.Matrix();
+            BulletSharp.Matrix m = new BulletSharp.Matrix();
+            Memory.Move(&m, matrix.Data, 64);
+            return m;
+        }
+        public static implicit operator Matrix4(BulletSharp.Matrix matrix)
+        {
+            Matrix4 m = new Matrix4();
+            Memory.Move(m.Data, &matrix, 64);
+            return m;
         }
         public override string ToString()
         {

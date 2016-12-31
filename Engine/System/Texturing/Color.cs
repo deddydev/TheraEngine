@@ -37,14 +37,27 @@ namespace System
                 Math.Abs(B - other.B) < precision &&
                 Math.Abs(A - other.A) < precision;
         }
+
+        public override string ToString()
+        {
+            return String.Format("[R:{0},G:{1},B:{2},A:{3}]", R, G, B, A);
+        }
     }
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     //[Editor(typeof(PropertyGridColorEditor), typeof(UITypeEditor))]
-    public struct ColorF3
+    public unsafe struct ColorF3 : IUniformable3Float, IBufferable
     {
         public float R, G, B;
         
         public ColorF3(float r, float g, float b) { R = r; G = g; B = b; }
+
+        public float* Data { get { return (float*)Address; } }
+        public VoidPtr Address { get { fixed (void* p = &this) return p; } }
+        public VertexBuffer.ComponentType ComponentType { get { return VertexBuffer.ComponentType.Float; } }
+        public int ComponentCount { get { return 3; } }
+        bool IBufferable.Normalize { get { return false; } }
+        public void Write(VoidPtr address) { this = *(ColorF3*)address; }
+        public void Read(VoidPtr address) { *(ColorF3*)address = this; }
 
         public static implicit operator ColorF3(RGBAPixel p) { return new ColorF3() { B = p.B / 255.0f, G = p.G / 255.0f, R = p.R / 255.0f }; }
         public static implicit operator ColorF3(ARGBPixel p) { return new ColorF3() { B = p.B / 255.0f, G = p.G / 255.0f, R = p.R / 255.0f }; }
@@ -52,6 +65,11 @@ namespace System
         public static implicit operator ColorF3(Vec3 v) { return new ColorF3(v.X, v.Y, v.Z); }
         public static implicit operator ColorF3(Vec4 v) { return new ColorF3(v.X, v.Y, v.Z); }
         public static implicit operator ColorF3(ColorF4 p) { return new ColorF3(p.R, p.G, p.B); }
+
+        public override string ToString()
+        {
+            return String.Format("[R:{0},G:{1},B:{2}]", R, G, B);
+        }
     }
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public unsafe struct RGBAPixel : IBufferable
@@ -62,23 +80,31 @@ namespace System
 
         public byte* Data { get { return (byte*)Address; } }
         public VoidPtr Address { get { fixed (void* p = &this) return p; } }
-        public VertexBuffer.ComponentType ComponentType { get { return VertexBuffer.ComponentType.Float; } }
+        public VertexBuffer.ComponentType ComponentType { get { return VertexBuffer.ComponentType.Byte; } }
         public int ComponentCount { get { return 4; } }
-        bool IBufferable.Normalize { get { return false; } }
-        public void Write(VoidPtr address) { this = *(ColorF4*)address; }
-        public void Read(VoidPtr address) { *(ColorF4*)address = this; }
+        bool IBufferable.Normalize { get { return true; } }
+        public void Write(VoidPtr address) { this = *(RGBAPixel*)address; }
+        public void Read(VoidPtr address) { *(RGBAPixel*)address = this; }
 
         public static implicit operator RGBAPixel(ColorF4 p) { return new RGBAPixel() { A = (byte)(p.A * 255.0f), B = (byte)(p.B * 255.0f), G = (byte)(p.G * 255.0f), R = (byte)(p.R * 255.0f) }; }
         public static implicit operator RGBAPixel(ARGBPixel p) { return new RGBAPixel() { A = p.A, B = p.B, G = p.G, R = p.R }; }
         public static implicit operator RGBAPixel(Color p) { return new RGBAPixel() { A = p.A, B = p.B, G = p.G, R = p.R }; }
     }
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    public struct RGBPixel
+    public unsafe struct RGBPixel : IBufferable
     {
         public byte R, G, B;
 
         public RGBPixel(byte r, byte g, byte b) { R = r; G = g; B = b; }
-        
+
+        public byte* Data { get { return (byte*)Address; } }
+        public VoidPtr Address { get { fixed (void* p = &this) return p; } }
+        public VertexBuffer.ComponentType ComponentType { get { return VertexBuffer.ComponentType.Byte; } }
+        public int ComponentCount { get { return 3; } }
+        bool IBufferable.Normalize { get { return true; } }
+        public void Write(VoidPtr address) { this = *(RGBPixel*)address; }
+        public void Read(VoidPtr address) { *(RGBPixel*)address = this; }
+
         public static implicit operator RGBPixel(ColorF4 p) { return new RGBPixel() { B = (byte)(p.B * 255.0f), G = (byte)(p.G * 255.0f), R = (byte)(p.R * 255.0f) }; }
         public static implicit operator RGBPixel(ARGBPixel p) { return new RGBPixel() { B = p.B, G = p.G, R = p.R }; }
         public static implicit operator RGBPixel(Color p) { return new RGBPixel() { B = p.B, G = p.G, R = p.R }; }

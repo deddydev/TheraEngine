@@ -12,7 +12,7 @@ namespace CustomEngine.Rendering.Models.Materials
         public static readonly string NormalMatricesName = "NormalMatrices";
         public static readonly string PointLightsName = "PointLights";
         public static readonly string SpotLightsName = "SpotLights";
-        public static readonly string DirectionalLightsName = "DirLights";
+        public static readonly string DirectionalLightsName = "DirectionalLights";
         
         //public static int GetLocation(VertexAttribInfo info)
         //{

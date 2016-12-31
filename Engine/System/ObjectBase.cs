@@ -41,21 +41,15 @@ namespace System
         //[Browsable(false)]
         //public virtual ResourceType ResourceType { get { return ResourceType.Object; } }
 
-        [Default]
-#if EDITOR
-        [Category("State")]
-#endif
         public string Name
         {
             get { return _name; }
-#if EDITOR
             set
             {
                 string oldName = _name;
                 _name = value;
                 OnRenamed(oldName);
             }
-#endif
         }
         
         //[Category("Tick"), PreChanged("UnregisterTick"), PostChanged("RegisterTick")]

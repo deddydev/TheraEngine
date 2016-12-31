@@ -1,6 +1,5 @@
 ﻿using CustomEngine.Rendering.Cameras;
 using System.Drawing;
-using System;
 
 namespace CustomEngine.Rendering.HUD
 {
@@ -8,7 +7,7 @@ namespace CustomEngine.Rendering.HUD
     /// Each viewport has a hud manager. 
     /// The main form also has a hud manager to overlay over everything if necessary.
     /// </summary>
-    public class HudManager : DockableHudComponent
+    public partial class HudManager : DockableHudComponent
     {
         private Viewport _owningViewport;
         private OrthographicCamera _camera;

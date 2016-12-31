@@ -35,7 +35,11 @@ namespace CustomEngine.Rendering
             }
         }
         public GBuffer GBuffer { get { return _gBuffer; } }
-        public HudManager HUD { get { return _hud; } }
+        public HudManager HUD
+        {
+            get { return _hud; }
+            set { _hud = value ?? new HudManager(this); }
+        }
         public LocalPlayerController OwningPlayer { get { return _owner; } }
         public Rectangle Region { get { return _region; } }
         public int Height { get { return _region.Height; } }
@@ -68,7 +72,10 @@ namespace CustomEngine.Rendering
             _hud.ParentResized(_region);
             _gBuffer.Resize(Width, Height);
         }
-        public void DebugPrint(string message) { _hud.DebugPrint(message); }
+        public void DebugPrint(string message)
+        {
+            _hud.DebugPrint(message);
+        }
         private void SetTopLeft()
         {
             _leftPercentage = 0.0f;

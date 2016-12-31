@@ -68,25 +68,34 @@ namespace CustomEngine.Input.Devices
                 _axisStates[a] = new AxisManager(axis.ToString());
             return _axisStates[a];
         }
-        public void RegisterButtonEvent(GamePadButton button, ButtonInputType type, Action func)
+        public void RegisterButtonEvent(GamePadButton button, ButtonInputType type, Action func, bool unregister)
         {
-            RegisterButtonEvent(CacheButton(button), type, func);
+            RegisterButtonEvent(unregister ? _buttonStates[(int)button] : CacheButton(button), type, func, unregister);
         }
-        public void RegisterButtonEvent(GamePadAxis axis, ButtonInputType type, Action func)
+        public void RegisterButtonEvent(GamePadAxis axis, ButtonInputType type, Action func, bool unregister)
         {
-            RegisterButtonEvent(CacheAxis(axis), type, func);
+            RegisterButtonEvent(unregister ? _axisStates[(int)axis] : CacheAxis(axis), type, func, unregister);
         }
-        public void RegisterButtonState(GamePadButton button, DelButtonState func)
+        public void RegisterButtonState(GamePadButton button, DelButtonState func, bool unregister)
         {
-            CacheButton(button)?.RegisterPressedState(func);
+            if (unregister)
+                _buttonStates[(int)button]?.RegisterPressedState(func, true);
+            else
+                CacheButton(button)?.RegisterPressedState(func, false);
         }
-        public void RegisterButtonState(GamePadAxis axis, DelButtonState func)
+        public void RegisterButtonState(GamePadAxis axis, DelButtonState func, bool unregister)
         {
-            CacheAxis(axis)?.RegisterPressedState(func);
+            if (unregister)
+                _axisStates[(int)axis]?.RegisterPressedState(func, true);
+            else
+                CacheAxis(axis)?.RegisterPressedState(func, false);
         }
-        public void RegisterAxisUpdate(GamePadAxis axis, DelAxisValue func, bool continuousUpdate)
+        public void RegisterAxisUpdate(GamePadAxis axis, DelAxisValue func, bool continuousUpdate, bool unregister)
         {
-            CacheAxis(axis)?.RegisterAxis(func, continuousUpdate);
+            if (unregister)
+                _axisStates[(int)axis]?.RegisterAxis(func, continuousUpdate, true);
+            else
+                CacheAxis(axis)?.RegisterAxis(func, continuousUpdate, false);
         }
         /// <summary>
         /// Left motor is low freq, right motor is high freq.

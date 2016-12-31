@@ -4,92 +4,66 @@ using CustomEngine.Rendering.Models;
 using BulletSharp;
 using System.Collections.Generic;
 using System.Linq;
+using CustomEngine.Worlds.Actors.Components;
 
 namespace System
 {
-    public class Sphere : Shape
+    public class Sphere : BoundingShape
     {
-        private Vec3 _center = Vec3.Zero;
         private float _radius;
-
         public float Radius
         {
             get { return _radius; }
             set { _radius = Abs(value); }
         }
-        public Vec3 Center
-        {
-            get { return Vec3.TransformPosition(_center, WorldMatrix); }
-            set { _center = Vec3.TransformPosition(value, InverseWorldMatrix); }
-        }
-        
-        public Sphere(float radius, Vec3 center)
+
+        public Sphere(float radius) : this(radius, Vec3.Zero) { }
+        public Sphere(float radius, Vec3 center) : base(center)
         {
             _radius = Abs(radius);
-            _center = center;
         }
         public override CollisionShape GetCollisionShape()
         {
             return new SphereShape(Radius);
         }
-        public override void Render() { Render(true); }
-        public override void Render(bool solid)
+        public override void Render() { Engine.Renderer.RenderSphere(_point, _radius, _renderSolid); }
+        public static PrimitiveData Mesh(Vec3 center, float radius, float precision)
         {
-            //if (solid)
-            //    Engine.Renderer.DrawSphereSolid(this);
-            //else
-            //    Engine.Renderer.DrawSphereWireframe(this);
-        }
-        public override bool Contains(Vec3 point) { return Collision.SphereContainsPoint(this, point); }
-        public override EContainment Contains(Box box) { return Collision.SphereContainsBox(this, box); }
-        public override EContainment Contains(Sphere sphere) { return Collision.SphereContainsSphere(this, sphere); }
-        public override EContainment Contains(Capsule capsule)
-        {
-            throw new NotImplementedException();
-        }
-        public override EContainment Contains(Cone cone)
-        {
-            throw new NotImplementedException();
-        }
-        public override PrimitiveData GetPrimitiveData()
-        {
-            const float Precision = 30;
-
             float halfPI = CustomMath.PIf * 0.5f;
-            float oneThroughPrecision = 1.0f / Precision;
-            float twoPIThroughPrecision = CustomMath.PIf * 2.0f * oneThroughPrecision;
+            float invPrecision = 1.0f / precision;
+            float twoPIThroughPrecision = CustomMath.PIf * 2.0f * invPrecision;
 
             float theta1, theta2, theta3;
             Vec3 norm, pos;
             Vec2 uv;
 
             List<VertexTriangleStrip> strips = new List<VertexTriangleStrip>();
-            for (uint j = 0; j < Precision / 2; j++)
+            for (uint j = 0; j < precision / 2; j++)
             {
                 theta1 = (j * twoPIThroughPrecision) - halfPI;
                 theta2 = ((j + 1) * twoPIThroughPrecision) - halfPI;
 
-                Vertex[] stripVertices = new Vertex[((int)Precision + 1) * 2];
+                Vertex[] stripVertices = new Vertex[((int)precision + 1) * 2];
                 int x = 0;
-                for (uint i = 0; i <= Precision; i++)
+                for (uint i = 0; i <= precision; i++)
                 {
                     theta3 = i * twoPIThroughPrecision;
-                    
+
                     norm.X = (float)(Cos(theta2) * Cos(theta3));
                     norm.Y = (float)Sin(theta2);
                     norm.Z = (float)(Cos(theta2) * Sin(theta3));
-                    pos = _center + _radius * norm;
-                    uv.X = i * oneThroughPrecision;
-                    uv.Y = 2.0f * (j + 1) * oneThroughPrecision;
+                    pos = center + radius * norm;
+                    uv.X = i * invPrecision;
+                    uv.Y = 2.0f * (j + 1) * invPrecision;
 
                     stripVertices[x++] = new Vertex(pos, norm, uv);
 
                     norm.X = (float)(Cos(theta1) * Cos(theta3));
                     norm.Y = (float)Sin(theta1);
                     norm.Z = (float)(Cos(theta1) * Sin(theta3));
-                    pos = _center + _radius * norm;
-                    uv.X = i * oneThroughPrecision;
-                    uv.Y = 2.0f * j * oneThroughPrecision;
+                    pos = center + radius * norm;
+                    uv.X = i * invPrecision;
+                    uv.Y = 2.0f * j * invPrecision;
 
                     stripVertices[x++] = new Vertex(pos, norm, uv);
                 }
@@ -97,6 +71,86 @@ namespace System
             }
 
             return PrimitiveData.FromTriangleList(Culling.Back, new PrimitiveBufferInfo(), strips.SelectMany(x => x.ToTriangles()));
+        }
+        public static PrimitiveData Mesh(Vec3 center, float radius, int slices, int stacks)
+        {
+            List<Vertex> v = new List<Vertex>();
+            float twoPi = CustomMath.PIf * 2.0f;
+            for (int i = 0; i <= stacks; ++i)
+            {
+                // V texture coordinate.
+                float V = i / (float)stacks;
+                float phi = V * CustomMath.PIf;
+
+                for (int j = 0; j <= slices; ++j)
+                {
+                    // U texture coordinate.
+                    float U = j / (float)slices;
+                    float theta = U * twoPi;
+
+                    float X = (float)Cos(theta) * (float)Sin(phi);
+                    float Y = (float)Cos(phi);
+                    float Z = (float)Sin(theta) * (float)Sin(phi);
+
+                    Vec3 normal = new Vec3(X, Y, Z);
+                    v.Add(new Vertex(center + normal * radius, normal, new Vec2(U, V)));
+                }
+            }
+            List<VertexTriangle> triangles = new List<VertexTriangle>();
+            for (int i = 0; i < slices * stacks + slices; ++i)
+            {
+                triangles.Add(new VertexTriangle(v[i], v[i + slices + 1], v[i + slices]));
+                triangles.Add(new VertexTriangle(v[i + slices + 1], v[i], v[i + 1]));
+            }
+            return PrimitiveData.FromTriangleList(Culling.Back, new PrimitiveBufferInfo(), triangles);
+        }
+        public PrimitiveData GetMesh(int slices, int stacks, bool includeCenter)
+        {
+            return includeCenter ? Mesh(_point, _radius, slices, stacks) : Mesh(Vec3.Zero, _radius, slices, stacks);
+        }
+        public PrimitiveData GetMesh(float precision, bool includeCenter)
+        {
+            return includeCenter ? Mesh(_point, _radius, precision) : Mesh(Vec3.Zero, _radius, precision);
+        }
+
+        public override bool Contains(Vec3 point)
+        {
+            return Collision.SphereContainsPoint(_point, _radius, point);
+        }
+
+        public override EContainment Contains(IBoundingBox box)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override EContainment Contains(IBox box)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override EContainment Contains(ISphere sphere)
+        {
+            return Collision.SphereContainsSphere(_point, _radius, sphere.Center, sphere.Radius);
+        }
+
+        public override EContainment ContainedWithin(IBoundingBox box)
+        {
+            return Collision.AABBContainsSphere(box.Minimum, box.Maximum, _point, _radius);
+        }
+
+        public override EContainment ContainedWithin(IBox box)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override EContainment ContainedWithin(ISphere sphere)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override EContainment ContainedWithin(Frustum frustum)
+        {
+            return Collision.FrustumContainsSphere(frustum, _point, _radius);
         }
     }
 }

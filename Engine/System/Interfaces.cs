@@ -12,10 +12,6 @@ using BulletSharp;
 
 namespace CustomEngine
 {
-    public interface ICollidable
-    {
-        RigidBody CollisionObject { get; set; }
-    }
     public interface IPanel
     {
         RectangleF Region { get; set; }

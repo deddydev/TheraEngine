@@ -1,5 +1,6 @@
 ﻿using System;
 using CustomEngine.Worlds.Actors.Components;
+using CustomEngine.Rendering;
 
 namespace CustomEngine.Worlds.Actors
 {
@@ -10,7 +11,8 @@ namespace CustomEngine.Worlds.Actors
 
         protected override SceneComponent SetupComponents()
         {
-            return new CapsuleComponent();
+            PhysicsDriverInfo info = new PhysicsDriverInfo();
+            return new CapsuleComponent(0.2f, 0.8f, info);
         }
         protected override void SetDefaults()
         {

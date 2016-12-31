@@ -57,7 +57,7 @@ namespace CustomEngine.Files
             { typeof(Map), new FilterInfo("Map", "CMAP", "cmap") },
             { typeof(Actor), new FilterInfo("Actor", "ACTR", "cactor") },
             { typeof(Component), new FilterInfo("Component", "COMP", "ccomp") },
-            { typeof(Model), new FilterInfo("Model", "CMDL", "cmdl") },
+            { typeof(SkeletalMesh), new FilterInfo("Model", "CMDL", "cmdl") },
             { typeof(Camera), new FilterInfo("Camera", "CCAM", "ccam") },
             { typeof(Cutscene), new FilterInfo("Cutscene", "CCUT", "ccut") },
             { typeof(AnimationContainer), new FilterInfo("Animation Archive", "ANMA", "cpac") },
@@ -103,18 +103,18 @@ namespace CustomEngine.Files
                 _canExport = true, _canImport = true },
 
             new FilterInfo("3D Mesh", "obj")
-            { _fileTypes = new Type[] { typeof(Model) },
+            { _fileTypes = new Type[] { typeof(SkeletalMesh) },
                 _canExport = true, _canImport = true },
 
             new FilterInfo("Autodesk Scene", "fbx")
             { _fileTypes = new Type[] {
-                typeof(Model),
+                typeof(SkeletalMesh),
                 typeof(AnimationContainer) },
                 _canExport = true, _canImport = true },
 
             new FilterInfo("Collada Scene", "dae")
             { _fileTypes = new Type[] {
-                typeof(Model),
+                typeof(SkeletalMesh),
                 typeof(AnimationContainer) },
                 _canExport = true, _canImport = true },
 

@@ -421,10 +421,10 @@ namespace CustomEngine.Rendering.Models.Collada
             //}
 
             List<VertexTriangle> triangles = new List<VertexTriangle>();
-            foreach (VertexPolygon p in triangles)
+            foreach (VertexPolygon p in facePrimitives)
                 triangles.AddRange(p.ToTriangles());
 
-            return new PrimitiveData(Culling.Back, info, triangles);
+            return PrimitiveData.FromTriangleList(Culling.Back, info, triangles);
         }
     }
 }

@@ -18,6 +18,7 @@ namespace CustomEngine.Rendering.Models
         Tangent         = 5,
         MatrixIds       = 6,
         MatrixWeights   = 7,
+        Barycentric     = 8,
     }
     public class VertexAttribInfo
     {

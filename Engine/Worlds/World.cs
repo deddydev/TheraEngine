@@ -7,6 +7,7 @@ using System.Linq;
 using CustomEngine.Rendering.Models.Materials;
 using System.Runtime.InteropServices;
 using CustomEngine.Files;
+using System.Xml;
 
 namespace CustomEngine.Worlds
 {
@@ -19,10 +20,7 @@ namespace CustomEngine.Worlds
         internal DiscreteDynamicsWorld _physicsScene;
         public WorldSettings _settings;
 
-        public DiscreteDynamicsWorld PhysicsScene
-        {
-            get { return _physicsScene; }
-        }
+        public DiscreteDynamicsWorld PhysicsScene { get { return _physicsScene; } }
         public WorldSettings Settings
         {
             get { return _settings; }
@@ -36,6 +34,21 @@ namespace CustomEngine.Worlds
             SequentialImpulseConstraintSolver solver = new SequentialImpulseConstraintSolver();
             _physicsScene = new DiscreteDynamicsWorld(dispatcher, broadphase, solver, config);
             _physicsScene.Gravity = _settings.State.Gravity;
+            _physicsScene.PairCache.SetOverlapFilterCallback(new CustomOvelapFilter());
+        }
+        private class CustomOvelapFilter : OverlapFilterCallback
+        {
+            public override bool NeedBroadphaseCollision(BroadphaseProxy proxy0, BroadphaseProxy proxy1)
+            {
+                if (proxy0 == null || proxy1 == null)
+                    return false;
+
+                bool collides = 
+                    (proxy0.CollisionFilterGroup & proxy1.CollisionFilterMask) != 0 &&
+                    (proxy1.CollisionFilterGroup & proxy0.CollisionFilterMask) != 0;
+                
+                return collides;
+            }
         }
         /// <summary>
         /// Moves the origin to preserve float precision when traveling large distances from the origin.
@@ -80,6 +93,26 @@ namespace CustomEngine.Worlds
             foreach (Map m in _settings._defaultMaps)
                 m.BeginPlay();
         }
+        public override int CalculateSize(StringTable table)
+        {
+            return base.CalculateSize(table);
+        }
+        public override void Write(VoidPtr address)
+        {
+            base.Write(address);
+        }
+        public override void Read(VoidPtr address)
+        {
+            base.Read(address);
+        }
+        public override void Write(XmlWriter writer)
+        {
+            base.Write(writer);
+        }
+        public override void Read(XmlReader reader)
+        {
+            base.Read(reader);
+        }
         public IEnumerator<Actor> GetEnumerator() { return State.SpawnedActors.GetEnumerator(); }
         IEnumerator IEnumerable.GetEnumerator() { return State.SpawnedActors.GetEnumerator(); }
     }
@@ -87,10 +120,5 @@ namespace CustomEngine.Worlds
     public unsafe struct WorldHeader
     {
         public VoidPtr Address { get { fixed(void* ptr = &this) return ptr; } }
-    }
-    [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    public unsafe struct WorldSettingsHeader
-    {
-        public VoidPtr Address { get { fixed (void* ptr = &this) return ptr; } }
     }
 }

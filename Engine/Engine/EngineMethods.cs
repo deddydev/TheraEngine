@@ -9,6 +9,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using CustomEngine.Worlds.Actors;
+using CustomEngine.Rendering.Models;
+using BulletSharp;
 
 namespace CustomEngine
 {
@@ -56,13 +58,17 @@ namespace CustomEngine
             return seconds;
         }
         #region Tick
-        public static void Pause()
+        public static void TogglePause()
         {
-
+            SetPaused(!_isPaused);
+        }
+        public static void SetPaused(bool paused)
+        {
+            _isPaused = paused;
         }
         public static void Run() { _timer.Run(); }
         public static void Stop() { _timer.Stop(); }
-        private static void PhysicsTick(ETickGroup order, float delta)
+        private static void UpdateTick(ETickGroup order, float delta)
         {
             foreach (var g in _tick[order])
                 for (int i = 0; i < g.Value.Count; ++i)
@@ -74,22 +80,22 @@ namespace CustomEngine
                         --i;
                 }
         }
-        public static async Task AsyncDuringPhysicsTick(float delta)
-        {
-            foreach (var g in _tick[ETickGroup.DuringPhysics])
-            {
-                for (int i = 0; i < g.Value.Count; ++i)
-                {
-                    ObjectBase b = g.Value[i];
-                    int oldCount = g.Value.Count;
-                    b.Tick(delta);
-                    if (g.Value.Count < oldCount)
-                        --i;
+        //public static async Task AsyncDuringPhysicsTick(float delta)
+        //{
+        //    foreach (var g in _tick[ETickGroup.DuringPhysics])
+        //    {
+        //        for (int i = 0; i < g.Value.Count; ++i)
+        //        {
+        //            ObjectBase b = g.Value[i];
+        //            int oldCount = g.Value.Count;
+        //            b.Tick(delta);
+        //            if (g.Value.Count < oldCount)
+        //                --i;
 
-                    await Task.Delay(100);
-                }
-            }
-        }
+        //            await Task.Delay(100);
+        //        }
+        //    }
+        //}
         public static void RegisterTick(ObjectBase obj, ETickGroup group, ETickOrder order)
         {
             if (obj != null)
@@ -119,11 +125,13 @@ namespace CustomEngine
             //delta /= PhysicsSubsteps;
             //for (int i = 0; i < 1; i++)
             //{
-                PhysicsTick(ETickGroup.PrePhysics, delta);
-                //Task t = AsyncDuringPhysicsTick(delta);
-                World.StepSimulation(delta);
-                //await t;
-                PhysicsTick(ETickGroup.PostPhysics, delta);
+            UpdateTick(ETickGroup.PrePhysics, delta);
+            //Task t = AsyncDuringPhysicsTick(delta);
+            World.StepSimulation(delta);
+            foreach (CollisionObject obj in World.PhysicsScene.CollisionObjectArray)
+                (obj.UserObject as PhysicsDriver)?.TransformUpdated();
+            //await t;
+            UpdateTick(ETickGroup.PostPhysics, delta);
             //}
         }
 
@@ -146,15 +154,19 @@ namespace CustomEngine
             else
                 engineSettings = _engineSettings;
 
-            UserSettings userSettings;
-            if (_userSettings.File == null)
-                _userSettings.SetFile(userSettings = new UserSettings(), true);
-            else
-                userSettings = _userSettings;
+            //UserSettings userSettings;
+            //if (_userSettings.File == null)
+            //    _userSettings.SetFile(userSettings = new UserSettings(), true);
+            //else
+            //    userSettings = _userSettings;
 
-            RenderLibrary = userSettings.RenderLibrary;
-            AudioLibrary = userSettings.AudioLibrary;
-            InputLibrary = userSettings.InputLibrary;
+            RenderLibrary = RenderLibrary.OpenGL;
+            AudioLibrary = AudioLibrary.OpenAL;
+            InputLibrary = InputLibrary.OpenTK;
+
+            //RenderLibrary = userSettings.RenderLibrary;
+            //AudioLibrary = userSettings.AudioLibrary;
+            //InputLibrary = userSettings.InputLibrary;
 
             World = engineSettings.OpeningWorld;
             _transitionWorld = engineSettings.TransitionWorld;

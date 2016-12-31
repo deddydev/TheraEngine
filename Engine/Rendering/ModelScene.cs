@@ -10,12 +10,12 @@ namespace CustomEngine.Rendering
 {
     public class ModelScene
     {
-        public ModelScene(Model m, List<AnimationContainer> animations)
+        public ModelScene(SkeletalMesh m, List<AnimationContainer> animations)
         {
             _model = m;
         }
 
-        public Model _model;
+        public SkeletalMesh _model;
         public List<AnimationContainer> _animations;
     }
 }

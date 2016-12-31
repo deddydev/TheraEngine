@@ -101,6 +101,7 @@
     <Compile Include="Cutscenes\Cutscene.cs" />
     <Compile Include="Engine\EngineMethods.cs" />
     <Compile Include="Rendering\HUD\RenderableHudComponent.cs" />
+    <Compile Include="Rendering\HUD\ButtonHudComponent.cs" />
     <Compile Include="Rendering\HUD\TextHudComponent.cs" />
     <Compile Include="Rendering\HUD\TextureHudComponent.cs" />
     <Compile Include="Rendering\HUD\ModelHudComponent.cs" />
@@ -492,6 +493,8 @@
     <Compile Include="Rendering\Models\Meshes\Faces\Vertex\VertexLineStrip.cs" />
     <Compile Include="Rendering\Models\Meshes\Faces\Vertex\VertexLine.cs" />
     <Compile Include="Rendering\Models\Meshes\Faces\Vertex\VertexTriangleFan.cs" />
+    <Compile Include="Rendering\Models\Meshes\StaticMesh.cs" />
+    <Compile Include="Rendering\PhysicsDriver.cs" />
     <Compile Include="Rendering\RenderableObject.cs" />
     <Compile Include="Rendering\Renderer\GBuffer.cs" />
     <Compile Include="Rendering\Renderer\OpenGL\GLEnumExtension.cs" />
@@ -546,7 +549,7 @@
     <Compile Include="Rendering\Renderer\LightManager.cs" />
     <Compile Include="Rendering\Renderer\States\MeshProgram.cs" />
     <Compile Include="Rendering\Renderer\States\TransformFeedback.cs" />
-    <Compile Include="System\Data Structures\TriangleOctree.cs" />
+    <None Include="System\Data Structures\TriangleOctree.cs" />
     <Compile Include="Rendering\Renderer\SceneProcessor.cs" />
     <Compile Include="Rendering\Renderer\States\BaseRenderState.cs" />
     <Compile Include="Rendering\Renderer\States\FrameBuffer.cs" />
@@ -571,10 +574,16 @@
     <Compile Include="System\Math\Collision\Tracing.cs" />
     <Compile Include="System\Math\Enums.cs" />
     <Compile Include="System\Math\GLTypes.cs" />
-    <Compile Include="System\Math\Shapes\Cone.cs" />
-    <Compile Include="System\Math\Shapes\Frustum.cs" />
-    <Compile Include="System\Math\Shapes\Plane.cs" />
-    <Compile Include="System\Math\Shapes\Ray.cs" />
+    <Compile Include="System\Math\Shapes\Cylindrical\BaseCapsule.cs" />
+    <Compile Include="System\Math\Shapes\Cylindrical\Complex\ComplexCapsule.cs" />
+    <Compile Include="System\Math\Shapes\Cylindrical\BaseCylinder.cs" />
+    <Compile Include="System\Math\Shapes\Cylindrical\YAligned\CylinderY.cs" />
+    <Compile Include="System\Math\Shapes\Cylindrical\YAligned\ConeY.cs" />
+    <Compile Include="System\Math\Shapes\Geometric\Frustum.cs" />
+    <Compile Include="System\Math\Shapes\Geometric\Plane.cs" />
+    <Compile Include="System\Math\Shapes\Geometric\Circle.cs" />
+    <Compile Include="System\Math\Shapes\Geometric\Segment.cs" />
+    <Compile Include="System\Math\Shapes\Geometric\Ray.cs" />
     <Compile Include="System\Math\Shapes\Shape.cs" />
     <Compile Include="System\Math\Shapes\Sphere.cs" />
     <Compile Include="System\Math\Transforms\Matrix3.cs" />
@@ -633,9 +642,9 @@
     <Compile Include="Worlds\Actors\Components\Scene\Lights\SpotLightComponent.cs" />
     <Compile Include="Worlds\Actors\Components\Scene\Lights\PointLightComponent.cs" />
     <Compile Include="Worlds\Actors\Components\Scene\Lights\DirectionalLightComponent.cs" />
-    <Compile Include="Worlds\Actors\Components\Scene\PositionRotationComponent.cs" />
-    <Compile Include="Worlds\Actors\Components\Scene\PositionComponent.cs" />
-    <Compile Include="Worlds\Actors\Components\Scene\GenericSceneComponent.cs" />
+    <Compile Include="Worlds\Actors\Components\Scene\Base\TRComponent.cs" />
+    <Compile Include="Worlds\Actors\Components\Scene\Base\PositionComponent.cs" />
+    <Compile Include="Worlds\Actors\Components\Scene\Base\TRSComponent.cs" />
     <Compile Include="Worlds\Actors\Components\LogicComponent.cs" />
     <Compile Include="Worlds\Actors\Components\Scene\Cameras\BoomComponent.cs" />
     <Compile Include="Worlds\Actors\Components\Scene\Cameras\CameraComponent.cs" />
@@ -643,8 +652,13 @@
     <Compile Include="Worlds\Actors\Components\Logic\MovementComponents\TransformMovementComponent.cs" />
     <Compile Include="Worlds\Actors\Components\Logic\MovementComponents\CharacterMovementComponent.cs" />
     <Compile Include="Worlds\Actors\Components\SceneComponent.cs" />
+    <Compile Include="Worlds\Actors\Components\Scene\Base\PhysicsObjectComponent.cs" />
+    <Compile Include="Worlds\Actors\Components\Scene\Shapes\Cones\BasicConeYComponent.cs" />
+    <None Include="Worlds\Actors\Components\Scene\Shapes\Cones\ComplexConeComponent.cs" />
+    <Compile Include="Worlds\Actors\Components\Scene\Shapes\SphereComponent.cs" />
     <Compile Include="Worlds\Actors\Components\Scene\Shapes\ShapeComponent.cs" />
     <Compile Include="Worlds\Actors\Components\Scene\Shapes\BoxComponent.cs" />
+    <Compile Include="Worlds\Actors\Components\Scene\StaticMeshComponent.cs" />
     <Compile Include="Worlds\Actors\Components\Scene\Volumes\TriggerVolumeComponent.cs" />
     <Compile Include="Worlds\Actors\Components\Scene\PrimitiveComponent.cs" />
     <Compile Include="Worlds\Actors\Components\Scene\Shapes\CapsuleComponent.cs" />
@@ -683,8 +697,8 @@
     <Compile Include="System\Extensions\Numbers\SingleExtension.cs" />
     <Compile Include="System\ObjectBase.cs" />
     <Compile Include="System\Reflection\Attributes\EngineFlagsAttribute.cs" />
-    <Compile Include="System\Math\Shapes\Capsule.cs" />
-    <Compile Include="System\Math\Shapes\Box.cs" />
+    <Compile Include="System\Math\Shapes\Cylindrical\YAligned\CapsuleY.cs" />
+    <Compile Include="System\Math\Shapes\Geometric\BoundingBox.cs" />
     <Compile Include="System\Memory\DataSource.cs" />
     <Compile Include="System\IO\FileMap.cs" />
     <Compile Include="System\Time\GameTimer.cs" />
@@ -692,15 +706,15 @@
     <Compile Include="System\Memory\VoidPtr.cs" />
     <Compile Include="Worlds\Actors\Actor.cs" />
     <Compile Include="Worlds\Actors\Types\CharacterPawn.cs" />
+    <Compile Include="Worlds\Actors\Types\HudManagerPawn.cs" />
     <Compile Include="Worlds\Actors\Types\FlyingCameraPawn.cs" />
     <Compile Include="Worlds\Actors\Types\LandscapeActor.cs" />
     <Compile Include="Worlds\Actors\Types\Pawn.cs" />
-    <Compile Include="Worlds\Actors\Types\PhysicsState.cs" />
     <Compile Include="Worlds\Actors\Types\TransformTool.cs" />
     <Compile Include="Worlds\Actors\Types\Vehicle.cs" />
     <Compile Include="Worlds\Actors\Components\Component.cs" />
     <Compile Include="Worlds\Actors\Components\Logic\InteractionComponent.cs" />
-    <Compile Include="Worlds\Actors\Components\Scene\ModelComponent.cs" />
+    <Compile Include="Worlds\Actors\Components\Scene\SkeletalMeshComponent.cs" />
     <Compile Include="Worlds\Actors\Components\Logic\MovementComponent.cs" />
     <Compile Include="Rendering\HUD\HudManager.cs" />
     <Compile Include="Input\AIController.cs" />
@@ -717,8 +731,8 @@
     <Compile Include="Rendering\Models\Meshes\Faces\Index\IndexTriangle.cs" />
     <Compile Include="Rendering\Models\Meshes\Primitives\FacePoint.cs" />
     <Compile Include="Rendering\Models\Skeleton\Bone.cs" />
-    <Compile Include="Rendering\Models\Model.cs" />
-    <Compile Include="Rendering\Models\Meshes\Mesh.cs" />
+    <Compile Include="Rendering\Models\Meshes\SkeletalMesh.cs" />
+    <Compile Include="Rendering\Models\Meshes\SkeletalSubMesh.cs" />
     <Compile Include="Rendering\Models\Skeleton\Skeleton.cs" />
     <Compile Include="Rendering\Renderer\States\Texture.cs" />
     <Compile Include="Worlds\WorldSettings.cs" />
@@ -752,6 +766,8 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="AI\" />
+    <Folder Include="System\Math\Shapes\Cylindrical\XAligned\" />
+    <Folder Include="System\Math\Shapes\Cylindrical\ZAligned\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\PostSharp.4.3.21\tools\PostSharp.targets" Condition="Exists('..\packages\PostSharp.4.3.21\tools\PostSharp.targets')" />

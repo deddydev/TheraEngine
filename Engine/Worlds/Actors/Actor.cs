@@ -20,17 +20,17 @@ namespace CustomEngine.Worlds
         public Actor()
         {
             _isConstructing = true;
-            SetDefaults();
             RootComponent = SetupComponents();
+            SetDefaults();
             _isConstructing = false;
             GenerateSceneComponentCache();
         }
         public Actor(SceneComponent root, params LogicComponent[] logicComponents)
         {
             _isConstructing = true;
-            SetDefaults();
             RootComponent = root;
             _logicComponents = new MonitoredList<LogicComponent>(logicComponents.ToList());
+            SetDefaults();
             _isConstructing = false;
             GenerateSceneComponentCache();
         }
@@ -66,22 +66,11 @@ namespace CustomEngine.Worlds
         private SceneComponent _rootSceneComponent;
         protected ReadOnlyCollection<SceneComponent> _sceneComponentCache;
         private MonitoredList<LogicComponent> _logicComponents = new MonitoredList<LogicComponent>();
-        private bool _isMovable = true, _simulatingPhysics = false;
 
         public MonitoredList<LogicComponent> LogicComponents { get { return _logicComponents; } }
         public bool IsConstructing { get { return _isConstructing; } }
-        public Matrix4 WorldMatrix
-        {
-            get { return _rootSceneComponent != null ? _rootSceneComponent.LocalMatrix : Matrix4.Identity; }
-        }
-        public Matrix4 InverseWorldMatrix
-        {
-            get { return _rootSceneComponent != null ? _rootSceneComponent.InverseLocalMatrix : Matrix4.Identity; }
-        }
 
         public List<PrimitiveComponent> RenderableComponentCache { get { return _renderableComponentCache; } }
-        public bool IsMovable { get { return _isMovable; } set { _isMovable = value; } }
-        public bool SimulatingPhysics { get { return _simulatingPhysics; } }
         public bool HasRenderableComponents { get { return _renderableComponentCache.Count > 0; } }
 
         protected virtual void SetDefaults() { }
@@ -96,7 +85,7 @@ namespace CustomEngine.Worlds
         }
         internal void RebaseOrigin(Vec3 newOrigin)
         {
-            _rootSceneComponent.RebaseOriginRootComponent(newOrigin);
+            RootComponent?.OriginRebased(newOrigin);
         }
         internal override void Tick(float delta)
         {
@@ -109,7 +98,7 @@ namespace CustomEngine.Worlds
             if (IsSpawned && OwningWorld != null)
                 OwningWorld.DespawnActor(this);
         }
-        public virtual void OnSpawned(World world)
+        internal virtual void OnSpawned(World world)
         {
             if (IsSpawned)
                 return;
@@ -122,7 +111,7 @@ namespace CustomEngine.Worlds
             foreach (LogicComponent comp in _logicComponents)
                 comp.OnSpawned();
         }
-        public virtual void OnDespawned()
+        internal virtual void OnDespawned()
         {
             if (!IsSpawned)
                 return;

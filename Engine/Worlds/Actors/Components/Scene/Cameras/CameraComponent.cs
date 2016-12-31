@@ -62,8 +62,13 @@ namespace CustomEngine.Worlds.Actors.Components
         public override void RecalcLocalTransform()
         {
             _localTransform = Camera.Matrix;
-            _invLocalTransform = Camera.InverseMatrix;
+            _inverseLocalTransform = Camera.InverseMatrix;
             RecalcGlobalTransform();
+        }
+
+        internal override void OriginRebased(Vec3 newOrigin)
+        {
+            _camera.TranslateAbsolute(-newOrigin);
         }
     }
 }

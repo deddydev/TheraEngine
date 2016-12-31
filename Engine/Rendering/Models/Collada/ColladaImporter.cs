@@ -10,9 +10,9 @@ namespace CustomEngine.Rendering.Models.Collada
 {
     public unsafe partial class Collada
     {
-        public Model ImportModel(string filePath, ImportOptions options)
+        public SkeletalMesh ImportModel(string filePath, ImportOptions options)
         {
-            Model model = new Model();
+            SkeletalMesh model = new SkeletalMesh();
             model.Name = Path.GetFileNameWithoutExtension(filePath);
 
             using (DecoderShell shell = DecoderShell.Import(filePath))
@@ -98,7 +98,7 @@ namespace CustomEngine.Rendering.Models.Collada
             Bone parent,
             NodeEntry node,
             SceneEntry scene,
-            Model model,
+            SkeletalMesh model,
             DecoderShell shell,
             List<ObjectInfo> objects,
             Matrix4 bindMatrix)
@@ -192,7 +192,7 @@ namespace CustomEngine.Rendering.Models.Collada
                 _parent = parent;
             }
 
-            public void Initialize(Model model, DecoderShell shell)
+            public void Initialize(SkeletalMesh model, DecoderShell shell)
             {
                 PrimitiveData data;
                 if (_weighted)
@@ -204,12 +204,12 @@ namespace CustomEngine.Rendering.Models.Collada
             }
         }
         
-        private static void CreateMesh(PrimitiveData data, Model model, DecoderShell shell, InstanceMaterial material, string name)
+        private static void CreateMesh(PrimitiveData data, SkeletalMesh model, DecoderShell shell, InstanceMaterial material, string name)
         {
             if (data == null)
                 return;
 
-            Mesh m = new Mesh(data, name);
+            SkeletalSubMesh m = new SkeletalSubMesh(data, name);
             
             //Attach material
             if (material != null)

@@ -22,7 +22,6 @@ namespace CustomEngine.Rendering.Models
         //private PrimitiveData _skinningData;
         private VertexBuffer _indexBuffer;
         public DrawElementsType _elementType;
-        public PrimitiveType _type;
         //private Bone[] _utilizedBones;
         //private Shader _vertexShader;
         //private PrimitiveBufferInfo _bufferInfo;
@@ -32,6 +31,11 @@ namespace CustomEngine.Rendering.Models
         private bool _initialized = false;
 
         public PrimitiveManager() : base(GenType.VertexArray) { }
+        public PrimitiveManager(PrimitiveData data, Material material) : base(GenType.VertexArray)
+        {
+            Data = data;
+            _material = material;
+        }
 
         public PrimitiveData Data
         {
@@ -48,31 +52,33 @@ namespace CustomEngine.Rendering.Models
                 if (_data != null)
                 {
                     _indexBuffer = new VertexBuffer("FaceIndices", BufferTarget.ElementArrayBuffer);
-                    _type = PrimitiveType.Triangles;
-
                     if (_data._facePoints.Count <= byte.MaxValue)
                     {
                         _elementType = DrawElementsType.UnsignedByte;
-                        _indexBuffer.SetDataNumeric(_data.GetFaceIndices().Select(x => (byte)x).ToList());
+                        _indexBuffer.SetDataNumeric(_data.GetIndices().Select(x => (byte)x).ToList());
                     }
                     else if (_data._facePoints.Count <= short.MaxValue)
                     {
                         _elementType = DrawElementsType.UnsignedShort;
-                        _indexBuffer.SetDataNumeric(_data.GetFaceIndices().Select(x => (ushort)x).ToList());
+                        _indexBuffer.SetDataNumeric(_data.GetIndices().Select(x => (ushort)x).ToList());
                     }
                     else
                     {
                         _elementType = DrawElementsType.UnsignedInt;
-                        _indexBuffer.SetDataNumeric(_data.GetFaceIndices());
+                        _indexBuffer.SetDataNumeric(_data.GetIndices());
                     }
                 }
             }
         }
-        public void SetMaterial(Material material)
+        public Material Material
         {
-            _material = material;
-            if (_program != null)
-                _program.SetMaterial(material);
+            get { return _material; }
+            set
+            {
+                _material = value;
+                if (_program != null)
+                    _program.SetMaterial(_material);
+            }
         }
         //public void SkeletonChanged(Skeleton skeleton)
         //{
@@ -121,7 +127,7 @@ namespace CustomEngine.Rendering.Models
         //{
         //    if (_utilizedBones == null)
         //        return;
-            
+
         //    List<Matrix4> positionMatrices = new List<Matrix4>() { Matrix4.Identity };
         //    List<Matrix3> normalMatrices = new List<Matrix3>() { Matrix3.Identity };
 
@@ -133,6 +139,10 @@ namespace CustomEngine.Rendering.Models
         //    Engine.Renderer.Uniform(Uniform.PositionMatricesName, positionMatrices.ToArray());
         //    Engine.Renderer.Uniform(Uniform.NormalMatricesName, normalMatrices.ToArray());
         //}
+        public unsafe void Render(Matrix4 modelMatrix)
+        {
+            Render(modelMatrix, modelMatrix.Inverted().Transposed());
+        }
         public unsafe void Render(Matrix4 modelMatrix, Matrix4 normalMatrix)
         {
             if (_data == null)
@@ -140,6 +150,8 @@ namespace CustomEngine.Rendering.Models
 
             if (!_initialized)
                 Generate();
+
+            Engine.Renderer.Cull(_data.Culling);
 
             //TODO: set material and uniforms in render queue and then render ALL meshes that use it
             //order by depth FIRST though
@@ -151,7 +163,7 @@ namespace CustomEngine.Rendering.Models
             Engine.Renderer.Uniform(Uniform.GetLocation(ECommonUniform.NormalMatrix), normalMatrix);
 
             GL.BindVertexArray(BindingId);
-            GL.DrawElements(_type, _indexBuffer.ElementCount, _elementType, 0);
+            GL.DrawElements(_data._type, _indexBuffer.ElementCount, _elementType, 0);
             GL.BindVertexArray(0);
 
             Engine.Renderer.UseProgram(null);

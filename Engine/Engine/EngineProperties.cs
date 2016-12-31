@@ -1,5 +1,4 @@
 ﻿using System;
-using System.IO;
 using System.Windows.Forms;
 using System.Collections.Generic;
 using CustomEngine.Rendering;
@@ -9,10 +8,9 @@ using CustomEngine.Audio;
 using CustomEngine.Input.Devices;
 using CustomEngine.Input.Devices.OpenTK;
 using CustomEngine.Input.Devices.DirectX;
-using CustomEngine.Rendering.Models.Materials;
-using System.Threading.Tasks;
 using CustomEngine.Files;
 using CustomEngine.Worlds.Actors;
+using System.Drawing.Text;
 
 namespace CustomEngine
 {
@@ -30,12 +28,13 @@ namespace CustomEngine
         public static SingleFileRef<UserSettings> _userSettings = new SingleFileRef<UserSettings>(UserSettingsPathRel);
 
         public static Dictionary<string, List<FileObject>> LoadedFiles = new Dictionary<string, List<FileObject>>();
-
-        public static int PhysicsSubsteps = 10;
-        private static ComputerInfo _computerInfo;
-        public static List<World> LoadedWorlds = new List<World>();
         public static MonitoredList<LocalPlayerController> ActivePlayers = new MonitoredList<LocalPlayerController>();
         public static List<AIController> ActiveAI = new List<AIController>();
+        public static List<World> LoadedWorlds = new List<World>();
+        //public static int PhysicsSubsteps = 10;
+
+        private static bool _isPaused = false;
+        private static ComputerInfo _computerInfo;
         private static GlobalTimer _timer = new GlobalTimer();
         private static AbstractRenderer _renderer;
         private static AbstractAudioManager _audioManager;
@@ -44,7 +43,7 @@ namespace CustomEngine
         private static InputLibrary _inputLibrary;
         private static List<float> _debugTimers = new List<float>();
         private static InputAwaiter _inputAwaiter;
-        public static Dictionary<PlayerIndex, Queue<Pawn>> _possessionQueue = new Dictionary<PlayerIndex, Queue<Pawn>>();
+        private static Dictionary<PlayerIndex, Queue<Pawn>> _possessionQueue = new Dictionary<PlayerIndex, Queue<Pawn>>();
 
         public static Viewport.TwoPlayerViewportPreference TwoPlayerPref = 
             Viewport.TwoPlayerViewportPreference.SplitHorizontally;
@@ -86,7 +85,6 @@ namespace CustomEngine
             set { _timer.TargetUpdateFrequency = value; }
         }
 
-
         /// <summary>
         /// How fast/slow the game time looks
         /// </summary>
@@ -108,6 +106,8 @@ namespace CustomEngine
             get { return _currentWorld; }
             set { SetCurrentWorld(value, true); }
         }
+
+        public static bool IsPaused { get { return _isPaused; } }
 
         /// <summary>
         /// Class containing this computer's specs. Use to adjust engine settings accordingly.

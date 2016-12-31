@@ -2,37 +2,54 @@
 using CustomEngine.Rendering;
 using CustomEngine;
 using CustomEngine.Rendering.Models;
+using CustomEngine.Worlds.Actors.Components;
+using CustomEngine.Files;
 
 namespace System
 {
-    public abstract class Shape : RenderableObject
+    public abstract class BoundingShape : FileObject, IRenderable, IShape
     {
-        public event Action AttributeChanged;
-        
-        public Vec3 ToUntransformedShapeSpace(Vec3 point) { return InverseWorldMatrix * point; }
-        public Vec3 FromUntransformedShapeSpace(Vec3 point) { return WorldMatrix * point; }
-
-        public EContainment IsWithin(Shape shape) { return shape == null ? EContainment.Disjoint : shape.Contains(this); }
-        public EContainment Contains(Shape shape)
+        public BoundingShape(Vec3 point)
         {
-            if (shape is Box)
-                return Contains((Box)shape);
-            else if (shape is Sphere)
-                return Contains((Sphere)shape);
-            else if (shape is Capsule)
-                return Contains((Capsule)shape);
-            else if (shape is Cone)
-                return Contains((Cone)shape);
-            return EContainment.Disjoint;
+            _point = point;
         }
-        public abstract EContainment Contains(Cone cone);
-        public abstract EContainment Contains(Box box);
-        public abstract EContainment Contains(Sphere sphere);
-        public abstract EContainment Contains(Capsule capsule);
-        public abstract bool Contains(Vec3 point);
-        public override Shape CullingVolume { get { return this; } }
-        public abstract void Render(bool solid);
+
+        public event Action AttributeChanged;
+
+        protected bool _isRendering, _isVisible, _visibleByDefault, _renderSolid;
+        protected Vec3 _point = Vec3.Zero;
+
+        public IShape CullingVolume { get { return this; } }
+        public bool IsRendering
+        {
+            get { return _isRendering; }
+            set { _isRendering = value; }
+        }
+        public bool VisibleByDefault
+        {
+            get { return _visibleByDefault; }
+        }
+        public bool Visible
+        {
+            get { return _isVisible; }
+            set { _isVisible = value; }
+        }
+        public Vec3 Center
+        {
+            get { return _point; }
+            set { _point = value; }
+        }
+
+        public abstract void Render();
         public abstract CollisionShape GetCollisionShape();
-        public Mesh ToMesh() { return new Mesh(this); }
+
+        public abstract bool Contains(Vec3 point);
+        public abstract EContainment Contains(IBoundingBox box);
+        public abstract EContainment Contains(IBox box);
+        public abstract EContainment Contains(ISphere sphere);
+        public abstract EContainment ContainedWithin(IBoundingBox box);
+        public abstract EContainment ContainedWithin(IBox box);
+        public abstract EContainment ContainedWithin(ISphere sphere);
+        public abstract EContainment ContainedWithin(Frustum frustum);
     }
 }

@@ -16,9 +16,26 @@ namespace CustomEngine.Worlds.Actors.Components
     }
     public abstract class LightComponent : TRComponent
     {
-        protected ColorF4 _color = Color.White, _specular = Color.Black;
+        protected ColorF3 _color = Color.Blue/*, _specular = Color.Yellow*/;
+        protected float _diffuseIntensity = 1.0f, _ambientIntensity = 0.2f;
         protected int _lightIndex = -1;
         protected LightType _type;
+
+        public ColorF3 LightColor
+        {
+            get { return _color; }
+            set { _color = value; }
+        }
+        public float DiffuseIntensity
+        {
+            get { return _diffuseIntensity; }
+            set { _diffuseIntensity = value; }
+        }
+        public float AmbientIntensity
+        {
+            get { return _ambientIntensity; }
+            set { _ambientIntensity = value; }
+        }
 
         public int LightIndex
         {
@@ -26,7 +43,12 @@ namespace CustomEngine.Worlds.Actors.Components
             internal set { _lightIndex = value; }
         }
         
-        public LightComponent() : base() { }
+        public LightComponent(ColorF3 color, float diffuseIntensity, float ambientIntensity) : base()
+        {
+            _color = color;
+            _diffuseIntensity = diffuseIntensity;
+            _ambientIntensity = ambientIntensity;
+        }
 
         public override int GetHashCode()
         {

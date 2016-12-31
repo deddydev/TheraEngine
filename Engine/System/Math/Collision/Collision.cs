@@ -75,63 +75,19 @@ namespace System
             float w2 = vc * denom;
             return vertex1 + ab * v2 + ac * w2; //= u*vertex1 + v*vertex2 + w*vertex3, u = va * denom = 1.0f - v - w
         }
-
-        /// <summary>
-        /// Determines the closest point between a <see cref="Plane"/> and a point.
-        /// </summary>
-        /// <param name="plane">The plane to test.</param>
-        /// <param name="point">The point to test.</param>
-        /// <param name="result">When the method completes, contains the closest point between the two objects.</param>
         public static Vec3 ClosestPointPlanePoint(Plane plane, Vec3 point)
         {
-            //Source: Real-Time Collision Detection by Christer Ericson
-            //Reference: Page 126
-
-            float dot = Vec3.Dot(plane.Normal, point);
-            float t = dot - plane.Distance;
-
-            return point - (t * plane.Normal);
+            return point - ((Vec3.Dot(plane.Normal, point) - plane.Distance) * plane.Normal);
         }
-
-        /// <summary>
-        /// Determines the closest point between a <see cref="Box"/> and a point.
-        /// </summary>
-        /// <param name="box">The box to test.</param>
-        /// <param name="point">The point to test.</param>
-        /// <param name="result">When the method completes, contains the closest point between the two objects.</param>
-        public static Vec3 ClosestPointBoxPoint(Box box, Vec3 point)
+        public static Vec3 ClosestPointBoxPoint(Vec3 min, Vec3 max, Vec3 point)
         {
-            //Source: Real-Time Collision Detection by Christer Ericson
-            //Reference: Page 130
-
-            Vec3 temp = Vec3.ComponentMax(point, box.Minimum);
-            return Vec3.ComponentMin(temp, box.Maximum);
+            return Vec3.ComponentMin(Vec3.ComponentMax(point, min), max);
         }
-
-        /// <summary>
-        /// Determines the closest point between a <see cref="Sphere"/> and a point.
-        /// </summary>
-        /// <param name="sphere"></param>
-        /// <param name="point">The point to test.</param>
-        /// <param name="result">When the method completes, contains the closest point between the two objects;
-        /// or, if the point is directly in the center of the sphere, contains <see cref="Vec3.Zero"/>.</param>
-        public static Vec3 ClosestPointSpherePoint(Sphere sphere, Vec3 point)
+        public static Vec3 ClosestPointSpherePoint(Vec3 center, float radius, Vec3 point)
         {
-            //Source: Jorgy343
-            //Reference: None
-
-            //Get the unit direction from the sphere's center to the point.
-            Vec3 result = point - sphere.Center;
-            result.Normalize();
-
-            //Multiply the unit direction by the sphere's radius to get a vector
-            //the length of the sphere.
-            result *= sphere.Radius;
-
-            //Add the sphere's center to the direction to get a point on the sphere.
-            result += sphere.Center;
-
-            return result;
+            Vec3 dir = point - center;
+            dir.NormalizeFast();
+            return dir * radius + center;
         }
 
         /// <summary>
@@ -146,168 +102,83 @@ namespace System
         /// is the 'closest' point of intersection. This can also be considered is the deepest point of
         /// intersection.
         /// </remarks>
-        public static Vec3 ClosestPointSphereSphere(Sphere sphere1, Sphere sphere2)
+        public static Vec3 ClosestPointSphereSphere(Vec3 sphere1Center, float sphere1Radius, Vec3 sphere2Center)
         {
-            //Source: Jorgy343
-            //Reference: None
-
-            //Get the unit direction from the first sphere's center to the second sphere's center.
-            Vec3 result = sphere2.Center - sphere1.Center;
-            result.Normalize();
-
-            //Multiply the unit direction by the first sphere's radius to get a vector
-            //the length of the first sphere.
-            result *= sphere1.Radius;
-
-            //Add the first sphere's center to the direction to get a point on the first sphere.
-            result += sphere1.Center;
-
-            return result;
+            return ClosestPointSpherePoint(sphere1Center, sphere1Radius, sphere2Center);
         }
-
-        /// <summary>
-        /// Determines the distance between a <see cref="Plane"/> and a point.
-        /// </summary>
-        /// <param name="plane">The plane to test.</param>
-        /// <param name="point">The point to test.</param>
-        /// <returns>The distance between the two objects.</returns>
         public static float DistancePlanePoint(Plane plane, Vec3 point)
         {
-            //Source: Real-Time Collision Detection by Christer Ericson
-            //Reference: Page 127
-
-            float dot = Vec3.Dot(plane.Normal, point);
-            return dot - plane.Distance;
+            return Vec3.Dot(plane.Normal, point) - plane.Distance;
         }
-
-        /// <summary>
-        /// Determines the distance between a <see cref="Box"/> and a point.
-        /// </summary>
-        /// <param name="box">The box to test.</param>
-        /// <param name="point">The point to test.</param>
-        /// <returns>The distance between the two objects.</returns>
-        public static float DistanceBoxPoint(Box box, Vec3 point)
+        public static float DistancePlanePoint(Vec3 normal, Vec3 planePoint, Vec3 point)
         {
-            //Source: Real-Time Collision Detection by Christer Ericson
-            //Reference: Page 131
+            return Vec3.Dot(normal, point) + planePoint.Dot(normal);
+        }
+        public static float DistanceAABBPoint(Vec3 min, Vec3 max, Vec3 point)
+        {
+            float distance = 0.0f;
 
-            float distance = 0f;
+            if (point.X < min.X)
+                distance += (min.X - point.X) * (min.X - point.X);
+            if (point.X > max.X)
+                distance += (point.X - max.X) * (point.X - max.X);
 
-            if (point.X < box.Minimum.X)
-                distance += (box.Minimum.X - point.X) * (box.Minimum.X - point.X);
-            if (point.X > box.Maximum.X)
-                distance += (point.X - box.Maximum.X) * (point.X - box.Maximum.X);
+            if (point.Y < min.Y)
+                distance += (min.Y - point.Y) * (min.Y - point.Y);
+            if (point.Y > max.Y)
+                distance += (point.Y - max.Y) * (point.Y - max.Y);
 
-            if (point.Y < box.Minimum.Y)
-                distance += (box.Minimum.Y - point.Y) * (box.Minimum.Y - point.Y);
-            if (point.Y > box.Maximum.Y)
-                distance += (point.Y - box.Maximum.Y) * (point.Y - box.Maximum.Y);
-
-            if (point.Z < box.Minimum.Z)
-                distance += (box.Minimum.Z - point.Z) * (box.Minimum.Z - point.Z);
-            if (point.Z > box.Maximum.Z)
-                distance += (point.Z - box.Maximum.Z) * (point.Z - box.Maximum.Z);
+            if (point.Z < min.Z)
+                distance += (min.Z - point.Z) * (min.Z - point.Z);
+            if (point.Z > max.Z)
+                distance += (point.Z - max.Z) * (point.Z - max.Z);
 
             return (float)Math.Sqrt(distance);
         }
 
         /// <summary>
-        /// Determines the distance between a <see cref="Box"/> and a <see cref="Box"/>.
+        /// Determines the distance between a <see cref="BoundingBox"/> and a <see cref="BoundingBox"/>.
         /// </summary>
         /// <param name="box1">The first box to test.</param>
         /// <param name="box2">The second box to test.</param>
         /// <returns>The distance between the two objects.</returns>
-        public static float DistanceBoxBox(Box box1, Box box2)
+        public static float DistanceAABBAABB(Vec3 box1Min, Vec3 box1Max, Vec3 box2Min, Vec3 box2Max)
         {
-            //Source:
-            //Reference:
+            float distance = 0.0f;
 
-            float distance = 0f;
-
-            //Distance for X.
-            if (box1.Minimum.X > box2.Maximum.X)
-            {
-                float delta = box2.Maximum.X - box1.Minimum.X;
-                distance += delta * delta;
-            }
-            else if (box2.Minimum.X > box1.Maximum.X)
-            {
-                float delta = box1.Maximum.X - box2.Minimum.X;
-                distance += delta * delta;
-            }
-
-            //Distance for Y.
-            if (box1.Minimum.Y > box2.Maximum.Y)
-            {
-                float delta = box2.Maximum.Y - box1.Minimum.Y;
-                distance += delta * delta;
-            }
-            else if (box2.Minimum.Y > box1.Maximum.Y)
-            {
-                float delta = box1.Maximum.Y - box2.Minimum.Y;
-                distance += delta * delta;
-            }
-
-            //Distance for Z.
-            if (box1.Minimum.Z > box2.Maximum.Z)
-            {
-                float delta = box2.Maximum.Z - box1.Minimum.Z;
-                distance += delta * delta;
-            }
-            else if (box2.Minimum.Z > box1.Maximum.Z)
-            {
-                float delta = box1.Maximum.Z - box2.Minimum.Z;
-                distance += delta * delta;
-            }
+            for (int i = 0; i < 3; ++i)
+                if (box1Min[i] > box2Max[i])
+                {
+                    float delta = box2Max[i] - box1Min[i];
+                    distance += delta * delta;
+                }
+                else if (box2Min[i] > box1Max[i])
+                {
+                    float delta = box1Max[i] - box2Min[i];
+                    distance += delta * delta;
+                }
 
             return (float)Math.Sqrt(distance);
         }
 
-        /// <summary>
-        /// Determines the distance between a <see cref="Sphere"/> and a point.
-        /// </summary>
-        /// <param name="sphere">The sphere to test.</param>
-        /// <param name="point">The point to test.</param>
-        /// <returns>The distance between the two objects.</returns>
-        public static float DistanceSpherePoint(Sphere sphere, Vec3 point)
+        public static EContainment AABBContainsCapsule(Vec3 boxMin, Vec3 boxMax, CapsuleY capsule)
         {
-            //Source: Jorgy343
-            //Reference: None
-
-            float distance = sphere.Center.DistanceToFast(point);
-            distance -= sphere.Radius;
-
-            return Math.Max(distance, 0.0f);
+            throw new NotImplementedException();
         }
-
-        /// <summary>
-        /// Determines the distance between a <see cref="Sphere"/> and a <see cref="Sphere"/>.
-        /// </summary>
-        /// <param name="sphere1">The first sphere to test.</param>
-        /// <param name="sphere2">The second sphere to test.</param>
-        /// <returns>The distance between the two objects.</returns>
-        public static float DistanceSphereSphere(Sphere sphere1, Vec3 sphere1Pos, Sphere sphere2, Vec3 sphere2Pos)
+        public static EContainment SphereContainsCapsule(Vec3 sphereCenter, float sphereRadius, Vec3 capsuleCenter, float capsuleHalfHeight, float capsuleRadius)
         {
-            //Source: Jorgy343
-            //Reference: None
-
-            float distance = sphere1Pos.DistanceToFast(sphere2Pos);
-            distance -= sphere1.Radius + sphere2.Radius;
-
-            return Math.Max(distance, 0f);
+            throw new NotImplementedException();
         }
-
-        /// <summary>
-        /// Determines whether there is an intersection between a <see cref="Ray"/> and a point.
-        /// </summary>
-        /// <param name="ray">The ray to test.</param>
-        /// <param name="point">The point to test.</param>
-        /// <returns>Whether the two objects intersect.</returns>
+        public static float DistanceSpherePoint(Vec3 sphereCenter, float sphereRadius, Vec3 point)
+        {
+            return (sphereCenter.DistanceToFast(point) - sphereRadius).ClampMin(0.0f);
+        }
+        public static float DistanceSphereSphere(float sphere1Radius, Vec3 sphere1Pos, float sphere2Radius, Vec3 sphere2Pos)
+        {
+            return Math.Max(sphere1Pos.DistanceToFast(sphere2Pos) - sphere1Radius - sphere2Radius, 0f);
+        }
         public static bool RayIntersectsPoint(Ray ray, Vec3 point)
         {
-            //Source: RayIntersectsSphere
-            //Reference: None
-
             Vec3 m = ray.StartPoint - point;
 
             //Same thing as RayIntersectsSphere except that the radius of the sphere (point)
@@ -420,6 +291,24 @@ namespace System
 
             point = point1;
             return true;
+        }
+
+        public static EContainment AABBContainsBox(Vec3 box1Min, Vec3 box1Max, Vec3 box2Min, Vec3 box2Max, Matrix4 box2Transform)
+        {
+            Vec3[] corners = BoundingBox.GetCorners(box2Min, box2Max, box2Transform);
+            int numIn = 0, numOut = 0;
+            for (int i = 0; i < 8; ++i)
+            {
+                if (AABBContainsPoint(box1Min, box1Max, corners[i]))
+                    ++numIn;
+                else
+                    ++numOut;
+            }
+            if (numOut == 0)
+                return EContainment.Contains;
+            if (numIn == 0)
+                return EContainment.Disjoint;
+            return EContainment.Intersects;
         }
 
         /// <summary>
@@ -608,119 +497,53 @@ namespace System
             point = ray.StartPoint + (ray.Direction * distance);
             return true;
         }
-
-        /// <summary>
-        /// Determines whether there is an intersection between a <see cref="Ray"/> and a <see cref="Box"/>.
-        /// </summary>
-        /// <param name="ray">The ray to test.</param>
-        /// <param name="box">The box to test.</param>
-        /// <param name="distance">When the method completes, contains the distance of the intersection,
-        /// or 0 if there was no intersection.</param>
-        /// <returns>Whether the two objects intersected.</returns>
-        public static bool RayIntersectsBoxDistance(Ray ray, Box box, out float distance)
+        public static bool RayIntersectsBoxDistance(Vec3 rayStartPoint, Vec3 rayDirection, Vec3 boxMin, Vec3 boxMax, Matrix4 boxInverseTransform, out float distance)
         {
-            //Source: Real-Time Collision Detection by Christer Ericson
-            //Reference: Page 179
-
             //Transform ray to untransformed box space
-            ray = ray.TransformedBy(box.InverseWorldMatrix);
+            Vec3 rayEndPoint = rayStartPoint + rayDirection;
+            rayStartPoint = Vec3.TransformPosition(rayStartPoint, boxInverseTransform);
+            rayEndPoint = Vec3.TransformPosition(rayEndPoint, boxInverseTransform);
+            rayDirection = rayEndPoint - rayStartPoint;
+            return RayIntersectsAABBDistance(rayStartPoint, rayDirection, boxMin, boxMax, out distance);
+        }
+        public static bool RayIntersectsAABBDistance(Vec3 rayStartPoint, Vec3 rayDirection, Vec3 boxMin, Vec3 boxMax, out float distance)
+        {
+            rayDirection.NormalizeFast();
 
             distance = 0.0f;
             float tmax = float.MaxValue;
 
-            if (ray.Direction.X.IsZero())
-            {
-                if (ray.StartPoint.X < box.Minimum.X || ray.StartPoint.X > box.Maximum.X)
+            for (int i = 0; i < 3; ++i)
+                if (rayDirection[i].IsZero())
                 {
-                    distance = 0.0f;
-                    return false;
+                    if (rayStartPoint[i] < boxMin[i] || rayStartPoint[i] > boxMax[i])
+                    {
+                        distance = 0.0f;
+                        return false;
+                    }
                 }
-            }
-            else
-            {
-                float inverse = 1.0f / ray.Direction.X;
-                float t1 = (box.Minimum.X - ray.StartPoint.X) * inverse;
-                float t2 = (box.Maximum.X - ray.StartPoint.X) * inverse;
-
-                if (t1 > t2)
+                else
                 {
-                    float temp = t1;
-                    t1 = t2;
-                    t2 = temp;
+                    float inverse = 1.0f / rayDirection[i];
+                    float t1 = (boxMin[i] - rayStartPoint[i]) * inverse;
+                    float t2 = (boxMax[i] - rayStartPoint[i]) * inverse;
+
+                    if (t1 > t2)
+                    {
+                        float temp = t1;
+                        t1 = t2;
+                        t2 = temp;
+                    }
+
+                    distance = Math.Max(t1, distance);
+                    tmax = Math.Min(t2, tmax);
+
+                    if (distance > tmax)
+                    {
+                        distance = 0.0f;
+                        return false;
+                    }
                 }
-
-                distance = Math.Max(t1, distance);
-                tmax = Math.Min(t2, tmax);
-
-                if (distance > tmax)
-                {
-                    distance = 0.0f;
-                    return false;
-                }
-            }
-
-            if (ray.Direction.Y.IsZero())
-            {
-                if (ray.StartPoint.Y < box.Minimum.Y || ray.StartPoint.Y > box.Maximum.Y)
-                {
-                    distance = 0f;
-                    return false;
-                }
-            }
-            else
-            {
-                float inverse = 1.0f / ray.Direction.Y;
-                float t1 = (box.Minimum.Y - ray.StartPoint.Y) * inverse;
-                float t2 = (box.Maximum.Y - ray.StartPoint.Y) * inverse;
-
-                if (t1 > t2)
-                {
-                    float temp = t1;
-                    t1 = t2;
-                    t2 = temp;
-                }
-
-                distance = Math.Max(t1, distance);
-                tmax = Math.Min(t2, tmax);
-
-                if (distance > tmax)
-                {
-                    distance = 0f;
-                    return false;
-                }
-            }
-
-            if (ray.Direction.Z.IsZero())
-            {
-                if (ray.StartPoint.Z < box.Minimum.Z || ray.StartPoint.Z > box.Maximum.Z)
-                {
-                    distance = 0f;
-                    return false;
-                }
-            }
-            else
-            {
-                float inverse = 1.0f / ray.Direction.Z;
-                float t1 = (box.Minimum.Z - ray.StartPoint.Z) * inverse;
-                float t2 = (box.Maximum.Z - ray.StartPoint.Z) * inverse;
-
-                if (t1 > t2)
-                {
-                    float temp = t1;
-                    t1 = t2;
-                    t2 = temp;
-                }
-
-                distance = Math.Max(t1, distance);
-                tmax = Math.Min(t2, tmax);
-
-                if (distance > tmax)
-                {
-                    distance = 0.0f;
-                    return false;
-                }
-            }
-
             return true;
         }
 
@@ -732,10 +555,22 @@ namespace System
         /// <param name="point">When the method completes, contains the point of intersection,
         /// or <see cref="Vec3.Zero"/> if there was no intersection.</param>
         /// <returns>Whether the two objects intersected.</returns>
-        public static bool RayIntersectsBox(Ray ray, Box box, out Vec3 point)
+        public static bool RayIntersectsAABB(Ray ray, Vec3 boxMin, Vec3 boxMax, out Vec3 point)
         {
             float distance;
-            if (!RayIntersectsBoxDistance(ray, box, out distance))
+            if (!RayIntersectsAABBDistance(ray.StartPoint, ray.Direction, boxMin, boxMax, out distance))
+            {
+                point = Vec3.Zero;
+                return false;
+            }
+
+            point = ray.StartPoint + (ray.Direction * distance);
+            return true;
+        }
+        public static bool RayIntersectsBox(Ray ray, Vec3 boxMin, Vec3 boxMax, Matrix4 boxInverseTransform, out Vec3 point)
+        {
+            float distance;
+            if (!RayIntersectsBoxDistance(ray.StartPoint, ray.Direction, boxMin, boxMax, boxInverseTransform, out distance))
             {
                 point = Vec3.Zero;
                 return false;
@@ -912,30 +747,23 @@ namespace System
 
             return EPlaneIntersection.Intersecting;
         }
-
-        /// <summary>
-        /// Determines whether there is an intersection between a <see cref="Plane"/> and a <see cref="Box"/>.
-        /// </summary>
-        /// <param name="plane">The plane to test.</param>
-        /// <param name="box">The box to test.</param>
-        /// <returns>Whether the two objects intersected.</returns>
-        public static EPlaneIntersection PlaneIntersectsBox(Plane plane, Box box)
+        public static EPlaneIntersection PlaneIntersectsBox(Plane plane, Vec3 boxMin, Vec3 boxMax, Matrix4 boxInverseMatrix)
         {
             //Source: Real-Time Collision Detection by Christer Ericson
             //Reference: Page 161
 
             //Transform plane into untransformed box space
-            plane = plane.TransformedBy(box.InverseWorldMatrix);
+            plane = plane.TransformedBy(boxInverseMatrix);
 
             Vec3 min;
             Vec3 max;
 
-            max.X = (plane.Normal.X >= 0.0f) ? box.Minimum.X : box.Maximum.X;
-            max.Y = (plane.Normal.Y >= 0.0f) ? box.Minimum.Y : box.Maximum.Y;
-            max.Z = (plane.Normal.Z >= 0.0f) ? box.Minimum.Z : box.Maximum.Z;
-            min.X = (plane.Normal.X >= 0.0f) ? box.Maximum.X : box.Minimum.X;
-            min.Y = (plane.Normal.Y >= 0.0f) ? box.Maximum.Y : box.Minimum.Y;
-            min.Z = (plane.Normal.Z >= 0.0f) ? box.Maximum.Z : box.Minimum.Z;
+            max.X = (plane.Normal.X >= 0.0f) ? boxMin.X : boxMax.X;
+            max.Y = (plane.Normal.Y >= 0.0f) ? boxMin.Y : boxMax.Y;
+            max.Z = (plane.Normal.Z >= 0.0f) ? boxMin.Z : boxMax.Z;
+            min.X = (plane.Normal.X >= 0.0f) ? boxMax.X : boxMin.X;
+            min.Y = (plane.Normal.Y >= 0.0f) ? boxMax.Y : boxMin.Y;
+            min.Z = (plane.Normal.Z >= 0.0f) ? boxMax.Z : boxMin.Z;
 
             if (Vec3.Dot(plane.Normal, max) + plane.Distance > 0.0f)
                 return EPlaneIntersection.Front;
@@ -945,6 +773,7 @@ namespace System
 
             return EPlaneIntersection.Intersecting;
         }
+
 
         /// <summary>
         /// Determines whether there is an intersection between a <see cref="Plane"/> and a <see cref="Sphere"/>.
@@ -996,7 +825,7 @@ namespace System
         /// <param name="box1">The first box to test.</param>
         /// <param name="box2">The second box to test.</param>
         /// <returns>Whether the two objects intersected.</returns>
-        public static bool AABBIntersectsAABB(Box box1, Box box2)
+        public static bool AABBIntersectsAABB(BoundingBox box1, BoundingBox box2)
         {
             if (box1.Minimum.X > box2.Maximum.X || box2.Minimum.X > box1.Maximum.X)
                 return false;
@@ -1009,28 +838,25 @@ namespace System
             
             return true;
         }
-
-        public static bool BoxIntersectsBox(Box box1, Box box2)
-        {
-            return BoxContainsBox(box1, box2) == EContainment.Intersects;
-        }
-
         /// <summary>
-        /// Determines whether there is an intersection between a <see cref="Box"/> and a <see cref="Sphere"/>.
+        /// Determines whether there is an intersection between a <see cref="BoundingBox"/> and a <see cref="Sphere"/>.
         /// </summary>
         /// <param name="box">The box to test.</param>
         /// <param name="sphere">The sphere to test.</param>
         /// <returns>Whether the two objects intersected.</returns>
-        public static bool BoxIntersectsSphere(Box box, Sphere sphere)
+        public static bool BoxIntersectsSphere(Vec3 boxMin, Vec3 boxMax, Matrix4 boxInverseTransform, Vec3 sphereCenter, float sphereRadius)
         {
-            //Source: Real-Time Collision Detection by Christer Ericson
-            //Reference: Page 166
-
-            Vec3 pos = Vec3.TransformPosition(sphere.Center, box.InverseWorldMatrix);
-            Vec3 vector = pos.Clamped(box.Minimum, box.Maximum);
-            float distance = pos.DistanceToSquared(vector);
-
-            return distance <= sphere.Radius * sphere.Radius;
+            Vec3 pos = Vec3.TransformPosition(sphereCenter, boxInverseTransform);
+            return pos.DistanceToSquared(pos.Clamped(boxMin, boxMax)) <= sphereRadius * sphereRadius;
+        }
+        public static bool AABBIntersectsSphere(Vec3 boxMin, Vec3 boxMax, Vec3 sphereCenter, float sphereRadius)
+        {
+            return AABBIntersectsSphere(boxMin, boxMax, Vec3.Zero, sphereCenter, sphereRadius);
+        }
+        public static bool AABBIntersectsSphere(Vec3 boxMin, Vec3 boxMax, Vec3 boxOrigin, Vec3 sphereCenter, float sphereRadius)
+        {
+            Vec3 pos = sphereCenter - boxOrigin;
+            return pos.DistanceToSquared(pos.Clamped(boxMin, boxMax)) <= sphereRadius * sphereRadius;
         }
 
         /// <summary>
@@ -1041,47 +867,41 @@ namespace System
         /// <param name="vertex2">The second vertex of the triangle to test.</param>
         /// <param name="vertex3">The third vertex of the triangle to test.</param>
         /// <returns>Whether the two objects intersected.</returns>
-        public static bool SphereIntersectsTriangle(Sphere sphere, Vec3 vertex1, Vec3 vertex2, Vec3 vertex3)
+        public static bool SphereIntersectsTriangle(Vec3 sphereCenter, float sphereRadius, Vec3 vertex1, Vec3 vertex2, Vec3 vertex3)
         {
             //Source: Real-Time Collision Detection by Christer Ericson
             //Reference: Page 167
 
-            Vec3 point = ClosestPointPointTriangle(sphere.Center, vertex1, vertex2, vertex3);
-            Vec3 v = point - sphere.Center;
+            Vec3 point = ClosestPointPointTriangle(sphereCenter, vertex1, vertex2, vertex3);
+            Vec3 v = point - sphereCenter;
 
-            return v.LengthSquared <= sphere.Radius * sphere.Radius;
+            return v.LengthSquared <= sphereRadius * sphereRadius;
         }
-
-        /// <summary>
-        /// Determines whether there is an intersection between a <see cref="Sphere"/> and a <see cref="Sphere"/>.
-        /// </summary>
-        /// <param name="sphere1">First sphere to test.</param>
-        /// <param name="sphere2">Second sphere to test.</param>
-        /// <returns>Whether the two objects intersected.</returns>
-        public static bool SphereIntersectsSphere(Sphere sphere1, Sphere sphere2)
+        public static bool SphereIntersectsSphere(Vec3 sphere1Center, float sphere1Radius, Vec3 sphere2Center, float sphere2Radius)
         {
-            float radiisum = sphere1.Radius + sphere2.Radius;
-            return sphere1.Center.DistanceToSquared(sphere2.Center) <= radiisum * radiisum;
+            float radiisum = sphere1Radius + sphere2Radius;
+            return sphere1Center.DistanceToSquared(sphere2Center) <= radiisum * radiisum;
         }
-
-        /// <summary>
-        /// Determines whether a <see cref="Box"/> contains a point.
-        /// </summary>
-        /// <param name="box">The box to test.</param>
-        /// <param name="point">The point to test.</param>
-        /// <returns>The type of containment the two objects have.</returns>
-        public static bool BoxContainsPoint(Box box, Vec3 point)
+        public static bool BoxContainsPoint(Vec3 boxMin, Vec3 boxMax, Matrix4 boxInverseTransform, Vec3 point)
         {
             //Transform point into untransformed box space
-            point = Vec3.TransformPosition(point, box.InverseWorldMatrix);
-            if (box.Minimum.X <= point.X && box.Maximum.X >= point.X &&
-                box.Minimum.Y <= point.Y && box.Maximum.Y >= point.Y &&
-                box.Minimum.Z <= point.Z && box.Maximum.Z >= point.Z)
+            point = Vec3.TransformPosition(point, boxInverseTransform);
+            if (boxMin.X <= point.X && boxMax.X >= point.X &&
+                boxMin.Y <= point.Y && boxMax.Y >= point.Y &&
+                boxMin.Z <= point.Z && boxMax.Z >= point.Z)
                 return true;
 
             return false;
         }
+        public static bool AABBContainsPoint(Vec3 boxMin, Vec3 boxMax, Vec3 point)
+        {
+            if (boxMin.X <= point.X && boxMax.X >= point.X &&
+                boxMin.Y <= point.Y && boxMax.Y >= point.Y &&
+                boxMin.Z <= point.Z && boxMax.Z >= point.Z)
+                return true;
 
+            return false;
+        }
         /* This implementation is wrong
         /// <summary>
         /// Determines whether a <see cref="SharpDX.Box"/> contains a triangle.
@@ -1103,54 +923,49 @@ namespace System
             return EContainment.Disjoint;
         }
         */
-        public static EContainment BoxContainsBox(Box box1, Box box2)
+        public static EContainment BoxContainsAABB(Vec3 box1Min, Vec3 box1Max, Matrix4 box1Transform, Vec3 box2Min, Vec3 box2Max)
         {
-            return FrustumContainsBox1(box1.AsFrustum(true), box2);
+            return FrustumContainsBox1(BoundingBox.GetFrustum(box1Min, box1Max, box1Transform), box2Min, box2Max, Matrix4.Identity);
         }
-        /// <summary>
-        /// Determines whether a <see cref="Box"/> contains a <see cref="Box"/>.
-        /// </summary>
-        /// <param name="box1">The first box to test.</param>
-        /// <param name="box2">The second box to test.</param>
-        /// <returns>The type of containment the two objects have.</returns>
-        public static EContainment AABBContainsAABB(Box box1, Box box2)
+        public static EContainment BoxContainsBox(Vec3 box1Min, Vec3 box1Max, Matrix4 box1Transform, Vec3 box2Min, Vec3 box2Max, Matrix4 box2Transform)
         {
-            if (box1.Maximum.X < box2.Minimum.X || box1.Minimum.X > box2.Maximum.X)
+            return FrustumContainsBox1(BoundingBox.GetFrustum(box1Min, box1Max, box1Transform), box2Min, box2Max, box2Transform);
+        }
+        public static EContainment AABBContainsAABB(Vec3 box1Min, Vec3 box1Max, Vec3 box2Min, Vec3 box2Max)
+        {
+            if (box1Max.X < box2Min.X || box1Min.X > box2Max.X)
                 return EContainment.Disjoint;
 
-            if (box1.Maximum.Y < box2.Minimum.Y || box1.Minimum.Y > box2.Maximum.Y)
+            if (box1Max.Y < box2Min.Y || box1Min.Y > box2Max.Y)
                 return EContainment.Disjoint;
 
-            if (box1.Maximum.Z < box2.Minimum.Z || box1.Minimum.Z > box2.Maximum.Z)
+            if (box1Max.Z < box2Min.Z || box1Min.Z > box2Max.Z)
                 return EContainment.Disjoint;
 
-            if (box1.Minimum.X <= box2.Minimum.X && (box2.Maximum.X <= box1.Maximum.X &&
-                box1.Minimum.Y <= box2.Minimum.Y && box2.Maximum.Y <= box1.Maximum.Y) &&
-                box1.Minimum.Z <= box2.Minimum.Z && box2.Maximum.Z <= box1.Maximum.Z)
+            if (box1Min.X <= box2Min.X && box2Max.X <= box1Max.X &&
+                box1Min.Y <= box2Min.Y && box2Max.Y <= box1Max.Y &&
+                box1Min.Z <= box2Min.Z && box2Max.Z <= box1Max.Z)
                 return EContainment.Contains;
 
             return EContainment.Intersects;
         }
-
-        /// <summary>
-        /// Determines whether a <see cref="Box"/> contains a <see cref="Sphere"/>.
-        /// </summary>
-        /// <param name="box">The box to test.</param>
-        /// <param name="sphere">The sphere to test.</param>
-        /// <returns>The type of containment the two objects have.</returns>
-        public static EContainment BoxContainsSphere(Box box, Sphere sphere)
+        public static EContainment BoxContainsSphere(Vec3 boxMin, Vec3 boxMax, Matrix4 boxInverseTransform, Vec3 sphereCenter, float sphereRadius)
         {
             //Transform sphere into untransformed box space
-            Vec3 sphereCenter = Vec3.TransformPosition(sphere.Center, box.InverseWorldMatrix);
-            Vec3 vector = Vec3.Clamp(sphereCenter, box.Minimum, box.Maximum);
+            sphereCenter = Vec3.TransformPosition(sphereCenter, boxInverseTransform);
+            return AABBContainsSphere(boxMin, boxMax, sphereCenter, sphereRadius);
+        }
+        public static EContainment AABBContainsSphere(Vec3 boxMin, Vec3 boxMax, Vec3 sphereCenter, float sphereRadius)
+        {
+            Vec3 vector = Vec3.Clamp(sphereCenter, boxMin, boxMax);
             float distance = sphereCenter.DistanceToSquared(vector);
 
-            if (distance > sphere.Radius * sphere.Radius)
+            if (distance > sphereRadius * sphereRadius)
                 return EContainment.Disjoint;
 
-            if ((((box.Minimum.X + sphere.Radius <= sphereCenter.X) && (sphereCenter.X <= box.Maximum.X - sphere.Radius)) && ((box.Maximum.X - box.Minimum.X > sphere.Radius) &&
-                (box.Minimum.Y + sphere.Radius <= sphereCenter.Y))) && (((sphereCenter.Y <= box.Maximum.Y - sphere.Radius) && (box.Maximum.Y - box.Minimum.Y > sphere.Radius)) &&
-                (((box.Minimum.Z + sphere.Radius <= sphereCenter.Z) && (sphereCenter.Z <= box.Maximum.Z - sphere.Radius)) && (box.Maximum.Z - box.Minimum.Z > sphere.Radius))))
+            if ((((boxMin.X + sphereRadius <= sphereCenter.X) && (sphereCenter.X <= boxMax.X - sphereRadius)) && ((boxMax.X - boxMin.X > sphereRadius) &&
+                (boxMin.Y + sphereRadius <= sphereCenter.Y))) && (((sphereCenter.Y <= boxMax.Y - sphereRadius) && (boxMax.Y - boxMin.Y > sphereRadius)) &&
+                (((boxMin.Z + sphereRadius <= sphereCenter.Z) && (sphereCenter.Z <= boxMax.Z - sphereRadius)) && (boxMax.Z - boxMin.Z > sphereRadius))))
             {
                 return EContainment.Contains;
             }
@@ -1164,12 +979,9 @@ namespace System
         /// <param name="sphere">The sphere to test.</param>
         /// <param name="point">The point to test.</param>
         /// <returns>The type of containment the two objects have.</returns>
-        public static bool SphereContainsPoint(Sphere sphere, Vec3 point)
+        public static bool SphereContainsPoint(Vec3 center, float radius, Vec3 point)
         {
-            if (point.DistanceToSquared(sphere.Center) <= sphere.Radius * sphere.Radius)
-                return true;
-
-            return false;
+            return point.DistanceToSquared(center) <= radius * radius;
         }
 
         /// <summary>
@@ -1185,34 +997,35 @@ namespace System
             //Source: Jorgy343
             //Reference: None
 
-            bool test1 = SphereContainsPoint(sphere, vertex1);
-            bool test2 = SphereContainsPoint(sphere, vertex2);
-            bool test3 = SphereContainsPoint(sphere, vertex3);
+            bool test1 = SphereContainsPoint(sphere.Center, sphere.Radius, vertex1);
+            bool test2 = SphereContainsPoint(sphere.Center, sphere.Radius, vertex2);
+            bool test3 = SphereContainsPoint(sphere.Center, sphere.Radius, vertex3);
 
             if (test1 && test2 && test3)
                 return EContainment.Contains;
 
-            if (SphereIntersectsTriangle(sphere, vertex1, vertex2, vertex3))
+            if (SphereIntersectsTriangle(sphere.Center, sphere.Radius, vertex1, vertex2, vertex3))
                 return EContainment.Intersects;
 
             return EContainment.Disjoint;
         }
 
         /// <summary>
-        /// Determines whether a <see cref="Sphere"/> contains a <see cref="Box"/>.
+        /// Determines whether a <see cref="Sphere"/> contains a <see cref="BoundingBox"/>.
         /// </summary>
         /// <param name="sphere">The sphere to test.</param>
         /// <param name="box">The box to test.</param>
         /// <returns>The type of containment the two objects have.</returns>
-        public static EContainment SphereContainsBox(Sphere sphere, Box box)
+        public static EContainment SphereContainsBox(
+            Vec3 sphereCenter, float sphereRadius, Vec3 boxMin, Vec3 boxMax, Matrix4 boxTransform, Matrix4 boxInverseTransform)
         {
-            if (!BoxIntersectsSphere(box, sphere))
+            if (!BoxIntersectsSphere(boxMin, boxMax, boxInverseTransform, sphereCenter, sphereRadius))
                 return EContainment.Disjoint;
 
-            float r2 = sphere.Radius * sphere.Radius;
-            Vec3[] points = box.GetTransformedCorners();
+            float r2 = sphereRadius * sphereRadius;
+            Vec3[] points = BoundingBox.GetCorners(boxMin, boxMax, boxTransform);
             foreach (Vec3 point in points)
-                if (sphere.Center.DistanceToSquared(point) > r2)
+                if (sphereCenter.DistanceToSquared(point) > r2)
                     return EContainment.Intersects;
             
             return EContainment.Contains;
@@ -1224,39 +1037,39 @@ namespace System
         /// <param name="sphere1">The first sphere to test.</param>
         /// <param name="sphere2">The second sphere to test.</param>
         /// <returns>The type of containment the two objects have.</returns>
-        public static EContainment SphereContainsSphere(Sphere sphere1, Sphere sphere2)
+        public static EContainment SphereContainsSphere(Vec3 sphere1Center, float sphere1Radius, Vec3 sphere2Center, float sphere2Radius)
         {
-            float distance = sphere1.Center.DistanceToSquared(sphere2.Center);
+            float distance = sphere1Center.DistanceToSquared(sphere2Center);
 
-            float value = sphere1.Radius + sphere2.Radius;
+            float value = sphere1Radius + sphere2Radius;
             if (value * value < distance)
                 return EContainment.Disjoint;
 
-            value = sphere1.Radius - sphere2.Radius;
+            value = sphere1Radius - sphere2Radius;
             if (value * value < distance)
                 return EContainment.Intersects;
 
             return EContainment.Contains;
         }
-        public static EContainment FrustumContainsSphere(Frustum frustum, Sphere sphere)
+        public static EContainment FrustumContainsSphere(Frustum frustum, Vec3 center, float radius)
         {
             float distance;
             EContainment type = EContainment.Contains;
             foreach (Plane p in frustum)
             {
-                distance = DistancePlanePoint(p, sphere.Center);
-                if (distance < -sphere.Radius)
+                distance = DistancePlanePoint(p, center);
+                if (distance < -radius)
                     return EContainment.Disjoint;
-                else if (distance < sphere.Radius)
+                else if (distance < radius)
                     type = EContainment.Intersects;
             }
             return type;
         }
-        public static EContainment FrustumContainsBox1(Frustum frustum, Box box)
+        public static EContainment FrustumContainsBox1(Frustum frustum, Vec3 boxMin, Vec3 boxMax, Matrix4 boxTransform)
         {
             EContainment result = EContainment.Contains;
             int numOut, numIn;
-            Vec3[] corners = box.GetTransformedCorners();
+            Vec3[] corners = BoundingBox.GetCorners(boxMin, boxMax, boxTransform);
             foreach (Plane p in frustum)
             {
                 numOut = 0;
@@ -1273,32 +1086,36 @@ namespace System
             }
 	        return result;
         }
-        public static EContainment FrustumContainsBox2(Frustum frustum, Box box)
+        public static EContainment FrustumContainsAABB(Frustum frustum, Vec3 boxMin, Vec3 boxMax)
         {
-            EPlaneIntersection near = PlaneIntersectsBox(frustum.Near, box);
-            EPlaneIntersection far = PlaneIntersectsBox(frustum.Far, box);
-            EPlaneIntersection top = PlaneIntersectsBox(frustum.Top, box);
-            EPlaneIntersection bottom = PlaneIntersectsBox(frustum.Bottom, box);
-            EPlaneIntersection left = PlaneIntersectsBox(frustum.Left, box);
-            EPlaneIntersection right = PlaneIntersectsBox(frustum.Right, box);
-
-            if (near == EPlaneIntersection.Back ||
-                far == EPlaneIntersection.Back ||
-                top == EPlaneIntersection.Back ||
-                bottom == EPlaneIntersection.Back ||
-                left == EPlaneIntersection.Back ||
-                right == EPlaneIntersection.Back)
-                return EContainment.Disjoint;
-
-            if (near == EPlaneIntersection.Front &&
-                far == EPlaneIntersection.Front &&
-                top == EPlaneIntersection.Front &&
-                bottom == EPlaneIntersection.Front &&
-                left == EPlaneIntersection.Front &&
-                right == EPlaneIntersection.Front)
-                return EContainment.Contains;
-
-            return EContainment.Intersects;
+            return FrustumContainsBox1(frustum, boxMin, boxMax, Matrix4.Identity);
         }
+        //public static EContainment FrustumContainsBox2(Frustum frustum, BoundingBox box)
+        //{
+        //    EPlaneIntersection near = PlaneIntersectsBox(frustum.Near, box);
+        //    EPlaneIntersection far = PlaneIntersectsBox(frustum.Far, box);
+        //    EPlaneIntersection top = PlaneIntersectsBox(frustum.Top, box);
+        //    EPlaneIntersection bottom = PlaneIntersectsBox(frustum.Bottom, box);
+        //    EPlaneIntersection left = PlaneIntersectsBox(frustum.Left, box);
+        //    EPlaneIntersection right = PlaneIntersectsBox(frustum.Right, box);
+
+        //    if (near == EPlaneIntersection.Back ||
+        //        far == EPlaneIntersection.Back ||
+        //        top == EPlaneIntersection.Back ||
+        //        bottom == EPlaneIntersection.Back ||
+        //        left == EPlaneIntersection.Back ||
+        //        right == EPlaneIntersection.Back)
+        //        return EContainment.Disjoint;
+
+        //    if (near == EPlaneIntersection.Front &&
+        //        far == EPlaneIntersection.Front &&
+        //        top == EPlaneIntersection.Front &&
+        //        bottom == EPlaneIntersection.Front &&
+        //        left == EPlaneIntersection.Front &&
+        //        right == EPlaneIntersection.Front)
+        //        return EContainment.Contains;
+
+        //    return EContainment.Intersects;
+        //}
     }
 }

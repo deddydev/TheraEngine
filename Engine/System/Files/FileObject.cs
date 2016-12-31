@@ -44,7 +44,17 @@ namespace CustomEngine.Files
             if (!string.IsNullOrEmpty(_name))
                 writer.WriteAttributeString("name", _name);
         }
-        public virtual void Read(XmlReader reader) { }
+        public virtual void Read(XmlReader reader)
+        {
+            if (reader.Name != GetType().ToString())
+            {
+                reader.Skip();
+                return;
+            }
+            reader.MoveToFirstAttribute();
+            _name = reader.Name;
+            reader.MoveToContent();
+        }
         public void Unload()
         {
             if (!string.IsNullOrEmpty(_filePath) && Engine.LoadedFiles.ContainsKey(_filePath))
@@ -139,7 +149,11 @@ namespace CustomEngine.Files
 
                 FileObject obj = Activator.CreateInstance(t) as FileObject;
                 obj._filePath = filePath;
+
+                reader.MoveToElement();
+                reader.ReadStartElement();
                 obj.Read(reader);
+                reader.ReadEndElement();
 
                 Engine.AddLoadedFile(obj._filePath, obj);
 

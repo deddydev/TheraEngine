@@ -23,23 +23,26 @@ namespace CustomEngine.Worlds.Actors.Components
 
         public override void RecalcLocalTransform()
         {
+            Matrix4 parentInv = GetInverseParentMatrix();
+            Matrix4 parentMtx = GetParentMatrix();
             _localTransform =
-                ParentInvMatrix.GetRotationMatrix4() * //Undo all rotations up until this point
-                Matrix4.CreateTranslation(_endPoint - ParentMatrix.GetPoint()) * //translate in world space
-                ParentMatrix.GetRotationMatrix4() * //Redo parent rotations at the new position
+                parentInv.GetRotationMatrix4() * //Undo all rotations up until this point
+                Matrix4.CreateTranslation(_endPoint - parentMtx.GetPoint()) * //translate in world space
+                parentMtx.GetRotationMatrix4() * //Redo parent rotations at the new position
                 GetRotationMatrix(); //Apply the view rotation
-            _invLocalTransform =
+            _inverseLocalTransform =
                 GetInvRotationMatrix() *
-                ParentInvMatrix.GetRotationMatrix4() *
-                Matrix4.CreateTranslation(ParentMatrix.GetPoint() - _endPoint) *
-                ParentMatrix.GetRotationMatrix4();
+                parentInv.GetRotationMatrix4() *
+                Matrix4.CreateTranslation(parentMtx.GetPoint() - _endPoint) *
+                parentMtx.GetRotationMatrix4();
             RecalcGlobalTransform();
         }
 
         internal override void Tick(float delta)
         {
-            Vector3 start = ParentMatrix.GetPoint();
-            Vector3 end = (ParentMatrix * GetRotationMatrix() * Matrix4.CreateTranslation(new Vec3(0.0f, 0.0f, _length))).GetPoint();
+            Matrix4 parentMtx = GetParentMatrix();
+            Vector3 start = parentMtx.GetPoint();
+            Vector3 end = (parentMtx * GetRotationMatrix() * Matrix4.CreateTranslation(new Vec3(0.0f, 0.0f, _length))).GetPoint();
             ClosestRayResultCallback result = new ClosestRayResultCallback(ref start, ref end);
             Engine.World.PhysicsScene.RayTest(start, end, result);
             Vec3 newEndPoint;
@@ -52,6 +55,11 @@ namespace CustomEngine.Worlds.Actors.Components
                 _endPoint = newEndPoint;
                 RecalcLocalTransform();
             }
+        }
+
+        internal override void OriginRebased(Vec3 newOrigin)
+        {
+            throw new NotImplementedException();
         }
     }
 }

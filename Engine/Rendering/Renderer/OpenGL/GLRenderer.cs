@@ -397,7 +397,7 @@ namespace CustomEngine.Rendering.OpenGL
 
             for (int i = 0; i < p.Length; ++i)
                 for (int x = 0; x < count; ++x)
-                    values[i << 2 + x] = p[i].Data[x];
+                    values[(i << 2) + x] = p[i].Data[x];
 
             GL.Uniform4(location, p.Length, values);
         }
@@ -412,7 +412,7 @@ namespace CustomEngine.Rendering.OpenGL
 
             for (int i = 0; i < p.Length; ++i)
                 for (int x = 0; x < count; ++x)
-                    values[i << 2 + x] = p[i].Data[x];
+                    values[(i << 2) + x] = p[i].Data[x];
 
             GL.Uniform4(location, p.Length, values);
         }
@@ -457,7 +457,7 @@ namespace CustomEngine.Rendering.OpenGL
 
             for (int i = 0; i < p.Length; ++i)
                 for (int x = 0; x < count; ++x)
-                    values[i << 1 + x] = p[i].Data[x];
+                    values[(i << 1) + x] = p[i].Data[x];
 
             GL.Uniform2(location, p.Length, values);
         }
@@ -472,7 +472,7 @@ namespace CustomEngine.Rendering.OpenGL
 
             for (int i = 0; i < p.Length; ++i)
                 for (int x = 0; x < count; ++x)
-                    values[i << 1 + x] = p[i].Data[x];
+                    values[(i << 1) + x] = p[i].Data[x];
 
             GL.Uniform2(location, p.Length, values);
         }
@@ -508,7 +508,7 @@ namespace CustomEngine.Rendering.OpenGL
                 float[] values = new float[p.Length << 4];
                 for (int i = 0; i < p.Length; ++i)
                     for (int x = 0; x < 16; ++x)
-                        values[i << 4 + x] = p[i].Data[x];
+                        values[(i << 4) + x] = p[i].Data[x];
                 GL.UniformMatrix4(location, p.Length, false, values);
             }
         }
@@ -663,6 +663,28 @@ namespace CustomEngine.Rendering.OpenGL
         public override void TransformFeedbackVaryings(int matId, string[] varNames)
         {
             GL.TransformFeedbackVaryings(matId, varNames.Length, varNames, TransformFeedbackMode.InterleavedAttribs);
+        }
+
+        public override void Cull(Culling culling)
+        {
+            if (culling == Culling.None)
+                GL.Disable(OpenTK.Graphics.OpenGL.EnableCap.CullFace);
+            else
+            {
+                GL.Enable(OpenTK.Graphics.OpenGL.EnableCap.CullFace);
+                switch (culling)
+                {
+                    case Culling.Back:
+                        GL.CullFace(CullFaceMode.Back);
+                        break;
+                    case Culling.Front:
+                        GL.CullFace(CullFaceMode.Front);
+                        break;
+                    case Culling.Both:
+                        GL.CullFace(CullFaceMode.FrontAndBack);
+                        break;
+                }
+            }
         }
     }
 }

@@ -17,6 +17,10 @@ namespace CustomEngine.Rendering
         
         internal void SetUniforms()
         {
+            Engine.Renderer.Uniform("DirLightCount", _directionalLights.Count.Clamp(0, 2));
+            Engine.Renderer.Uniform("PointLightCount", _pointLights.Count.Clamp(0, 16));
+            Engine.Renderer.Uniform("SpotLightCount", _spotLights.Count.Clamp(0, 16));
+
             foreach (DirectionalLightComponent l in _directionalLights)
                 l.SetUniforms();
             foreach (SpotLightComponent l in _spotLights)

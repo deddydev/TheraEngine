@@ -20,6 +20,74 @@ namespace CustomEngine.Rendering
 
         private Dictionary<int, Material> _activeMaterials = new Dictionary<int, Material>();
         private SceneProcessor _scene = new SceneProcessor();
+        private PrimitiveManager _wireSphere, _wireBox, wireCapsule, _wireCylinder, _wireCone, _wireFrustum;
+        private PrimitiveManager _solidSphere, _solidBox, solidCapsule, _solidCylinder, _solidCone, _solidFrustum;
+
+        public void CacheWireframeSphere()
+        {
+            _wireSphere = new PrimitiveManager();
+            _wireSphere.Data = Sphere.Mesh(Vec3.Zero, 1.0f, 4, 4);
+        }
+
+        public void RenderAABB(Vec3 min, Vec3 max, bool solid) => RenderBox(min, max, Matrix4.Identity, solid);
+        public void RenderAABB(Vec3 min, Vec3 max, Vec3 center, bool solid) => RenderBox(min + center, max + center, Matrix4.Identity, solid);
+        public void RenderCapsule(Vec3 center, Vec3 axis, float topHeight, float topRadius, float bottomHeight, float bottomRadius, Matrix4 transform, bool solid)
+        {
+            Vec3 normal = axis.GetSafeNormal();
+            RenderCapsule(center + normal * topHeight, center - normal * bottomHeight, topRadius, bottomRadius, transform, solid);
+        }
+        public void RenderCapsule(Vec3 topPoint, Vec3 bottomPoint, float topRadius, float bottomRadius, Matrix4 transform, bool solid)
+            => RenderCapsule(Vec3.TransformPosition(topPoint, transform), Vec3.TransformPosition(bottomPoint, transform), topRadius, bottomRadius, solid);
+        public void RenderCylinder(Vec3 center, Vec3 axis, float topHeight, float topRadius, float bottomHeight, float bottomRadius, Matrix4 transform, bool solid)
+        {
+            Vec3 normal = axis.GetSafeNormal();
+            RenderCylinder(center + normal * topHeight, center - normal * bottomHeight, topRadius, bottomRadius, transform, solid);
+        }
+        public void RenderCylinder(Vec3 topPoint, Vec3 bottomPoint, float topRadius, float bottomRadius, Matrix4 transform, bool solid)
+            => RenderCylinder(Vec3.TransformPosition(topPoint, transform), Vec3.TransformPosition(bottomPoint, transform), topRadius, bottomRadius, solid);
+        public void RenderCone(Vec3 center, Vec3 axis, float topHeight, float bottomHeight, float bottomRadius, Matrix4 transform, bool solid)
+        {
+            Vec3 normal = axis.GetSafeNormal();
+            RenderCone(center + normal * topHeight, center - normal * bottomHeight, bottomRadius, transform, solid);
+        }
+        public void RenderCone(Vec3 topPoint, Vec3 bottomPoint, float bottomRadius, Matrix4 transform, bool solid)
+            => RenderCone(Vec3.TransformPosition(topPoint, transform), Vec3.TransformPosition(bottomPoint, transform), bottomRadius, solid);
+
+        public void RenderSphere(Vec3 center, float radius, bool solid)
+        {
+            Matrix4 mtx = Matrix4.CreateTranslation(center) * Matrix4.CreateScale(radius);
+            if (solid)
+                _solidSphere.Render(mtx, Matrix4.Identity);
+            else
+                _wireSphere.Render(mtx, Matrix4.Identity);
+        }
+        public void RenderBox(Vec3 min, Vec3 max, Matrix4 transform, bool solid)
+        {
+            Vec3 scale = max - min;
+            Vec3 center = (max + min) / 2.0f;
+            Matrix4 mtx = Matrix4.CreateTranslation(center) * Matrix4.CreateScale(scale) * transform;
+            if (solid)
+                _solidBox.Render(mtx);
+            else
+                _wireBox.Render(mtx);
+        }
+        public void RenderCapsule(Vec3 topPoint, Vec3 bottomPoint, float topRadius, float bottomRadius, bool solid)
+        {
+            throw new NotImplementedException();
+        }
+        public void RenderCylinder(Vec3 topPoint, Vec3 bottomPoint, float topRadius, float bottomRadius, bool solid)
+        {
+            throw new NotImplementedException();
+        }
+        public void RenderCone(Vec3 topPoint, Vec3 bottomPoint, float bottomRadius, bool solid)
+        {
+            throw new NotImplementedException();
+        }
+        public void RenderFrustum(Frustum f)
+        {
+            throw new NotImplementedException();
+        }
+
         protected int _programHandle;
         protected Camera _currentCamera;
         private Stack<Rectangle> _renderAreaStack = new Stack<Rectangle>();
@@ -45,6 +113,7 @@ namespace CustomEngine.Rendering
             _activeMaterials.Remove(material.BindingId);
         }
 
+        public abstract void Cull(Culling culling);
         public abstract void SetPointSize(float size);
         public abstract void SetLineSize(float size);
 

@@ -20,7 +20,7 @@ namespace CustomEngine.Rendering.Models.Materials
             _tessellationControlShader, 
             _tessellationEvaluationShader;
         
-        private List<RenderableObject> _renderingReferences = new List<RenderableObject>();
+        private List<IRenderable> _renderingReferences = new List<IRenderable>();
         private MaterialSettings _settings;
         private int _bindingId = -1;
         
@@ -34,13 +34,13 @@ namespace CustomEngine.Rendering.Models.Materials
             set { _settings = value; }
         }
 
-        internal void AddReference(RenderableObject user)
+        internal void AddReference(IRenderable user)
         {
             if (_renderingReferences.Count == 0)
                 _bindingId = Engine.Renderer.AddActiveMaterial(this);
             _renderingReferences.Add(user);
         }
-        internal void RemoveReference(RenderableObject user)
+        internal void RemoveReference(IRenderable user)
         {
             _renderingReferences.Add(user);
             if (_renderingReferences.Count == 0)
@@ -81,10 +81,8 @@ namespace CustomEngine.Rendering.Models.Materials
             Shader vert = Shader.TestVertexShader();
             Shader frag = Shader.TestFragmentShader();
             MaterialSettings settings = new MaterialSettings();
-            settings.Parameters.Add(new GLVec4((ColorF4)Color.White, "MatDiffuse", null));
-            settings.Parameters.Add(new GLVec4((ColorF4)Color.White, "MatAmbient", null));
-            settings.Parameters.Add(new GLVec4((ColorF4)Color.White, "MatSpecular", null));
-            settings.Parameters.Add(new GLFloat(1.0f, "MatShininess", null));
+            settings.Parameters.Add(new GLVec4((ColorF4)Color.DarkTurquoise, "MatColor", null));
+            settings.Parameters.Add(new GLFloat(1.0f, "MatSpecularIntensity", null));
             return new Material("TestMaterial", settings, vert, frag);
         }
     }

@@ -34,20 +34,21 @@ namespace CustomEngine.Input
                 if (_controlledPawn != null)
                 {
                     _controlledPawn.OnUnPossessed();
+                    _input.TryUnregisterInput();
                     _input.WantsInputsRegistered -= _controlledPawn.RegisterInput;
                 }
-
+                
                 _controlledPawn = value;
+
+                if (_controlledPawn == null && _possessionQueue.Count != 0)
+                    _controlledPawn = _possessionQueue.Dequeue();
 
                 if (_controlledPawn != null)
                 {
                     _input.WantsInputsRegistered += _controlledPawn.RegisterInput;
+                    _controlledPawn.OnPossessed(this);
                     _input.TryRegisterInput();
                 }
-                else if (_possessionQueue.Count != 0)
-                    _controlledPawn = _possessionQueue.Dequeue();
-
-                _controlledPawn?.OnPossessed(this);
             }
         }
         public LocalPlayerController(Queue<Pawn> possessionQueue = null) : base()

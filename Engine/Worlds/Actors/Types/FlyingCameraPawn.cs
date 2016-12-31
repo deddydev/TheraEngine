@@ -68,6 +68,7 @@ namespace CustomEngine.Worlds.Actors
         protected override void SetDefaults()
         {
             RegisterTick(ETickGroup.PrePhysics, ETickOrder.Input);
+            CameraComponent.Camera.TranslateAbsolute(new Vec3(0.0f, 0.0f, 70.0f));
             base.SetDefaults();
         }
         protected override SceneComponent SetupComponents()
@@ -94,6 +95,8 @@ namespace CustomEngine.Worlds.Actors
             input.RegisterButtonPressed(EKey.AltRight, OnAlt);
             input.RegisterButtonPressed(EKey.ShiftLeft, OnShift);
             input.RegisterButtonPressed(EKey.ShiftRight, OnShift);
+            input.RegisterButtonEvent(EKey.Escape, ButtonInputType.Pressed, OnTogglePause);
+            input.RegisterButtonEvent(GamePadButton.SpecialRight, ButtonInputType.Pressed, OnTogglePause);
 
             input.RegisterAxisUpdate(GamePadAxis.LeftThumbstickX, OnLeftStickX, false);
             input.RegisterAxisUpdate(GamePadAxis.LeftThumbstickY, OnLeftStickY, false);
@@ -102,6 +105,16 @@ namespace CustomEngine.Worlds.Actors
             input.RegisterButtonPressed(GamePadButton.RightBumper, MoveUp);
             input.RegisterButtonPressed(GamePadButton.LeftBumper, MoveDown);
             input.RegisterButtonEvent(GamePadButton.FaceDown, ButtonInputType.Pressed, OnGamepadSelect);
+        }
+        
+        private void OnTogglePause()
+        {
+            Engine.TogglePause();
+            if (Engine.IsPaused)
+            {
+                LocalPlayerController.EnqueuePosession(this);
+                LocalPlayerController.ControlledPawn = GetViewport().HUD;
+            }
         }
 
         private void MoveDown(bool pressed) { _linearUp += _keyboardTranslateSpeed * (pressed ? -1.0f : 1.0f); }
@@ -133,8 +146,8 @@ namespace CustomEngine.Worlds.Actors
         {
             if (pressed)
             {
-                _rotating = true;
-                //_translating = !_alt;
+                _rotating = !_alt;
+                _translating = _alt;
             }
             else
                 _translating = _rotating = false;
@@ -197,11 +210,11 @@ namespace CustomEngine.Worlds.Actors
             {
 
             }
-            else if (actor != null && actor.IsMovable && !actor.SimulatingPhysics)
-            {
-                TransformTool tool = new TransformTool(actor);
-                Engine.World.SpawnActor(tool, actor.WorldMatrix);
-            }
+            //else if (actor != null && actor.IsMovable && !actor.SimulatingPhysics)
+            //{
+            //    TransformTool tool = new TransformTool(actor);
+            //    Engine.World.SpawnActor(tool, actor.WorldMatrix);
+            //}
         }
         internal override void Tick(float delta)
         {

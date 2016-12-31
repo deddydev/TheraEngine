@@ -4,17 +4,18 @@ using CustomEngine.Rendering.Models.Materials;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 
 namespace CustomEngine.Worlds
 {
     public class WorldSettings : FileObject
     {
-        public Box OriginRebaseBounds { get { return _originRebaseBounds; } }
-        public Box WorldBounds { get { return _worldBounds; } set { _worldBounds = value; } }
+        public BoundingBox OriginRebaseBounds { get { return _originRebaseBounds; } }
+        public BoundingBox WorldBounds { get { return _worldBounds; } set { _worldBounds = value; } }
         public WorldState State { get { return _state; } set { _state = value; } }
 
-        private Box _worldBounds = new Box(new Vec3(-5000.0f), new Vec3(5000.0f));
-        private Box _originRebaseBounds;
+        private BoundingBox _worldBounds = new BoundingBox(new Vec3(-5000.0f), new Vec3(5000.0f));
+        private BoundingBox _originRebaseBounds;
         public List<Map> _defaultMaps;
         public WorldState _state;
 
@@ -54,7 +55,7 @@ namespace CustomEngine.Worlds
 
         public void SetOriginRebaseDistance(float distance)
         {
-            _originRebaseBounds = new Box(distance, distance, distance);
+            _originRebaseBounds = new BoundingBox(Vec3.Zero, distance, distance, distance);
         }
         public override void Read(VoidPtr address)
         {
@@ -68,5 +69,10 @@ namespace CustomEngine.Worlds
         {
             return FromXML<WorldSettings>(filePath);
         }
+    }
+    [StructLayout(LayoutKind.Sequential, Pack = 1)]
+    public unsafe struct WorldSettingsHeader
+    {
+        public VoidPtr Address { get { fixed (void* ptr = &this) return ptr; } }
     }
 }

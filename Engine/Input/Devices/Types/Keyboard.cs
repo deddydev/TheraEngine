@@ -1,10 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using OpenTK.Input;
-
 namespace CustomEngine.Input.Devices
 {
     public abstract class CKeyboard : InputDevice
@@ -26,13 +21,16 @@ namespace CustomEngine.Input.Devices
             }
             return _buttonStates[b];
         }
-        public void RegisterButtonPressed(EKey key, DelButtonState func)
+        public void RegisterButtonPressed(EKey key, DelButtonState func, bool unregister)
         {
-            CacheKey(key)?.RegisterPressedState(func);
+            if (unregister)
+                _buttonStates[(int)key]?.RegisterPressedState(func, true);
+            else
+                CacheKey(key)?.RegisterPressedState(func, false);
         }
-        public void RegisterButtonEvent(EKey key, ButtonInputType type, Action func)
+        public void RegisterButtonEvent(EKey key, ButtonInputType type, Action func, bool unregister)
         {
-            RegisterButtonEvent(CacheKey(key), type, func);
+            RegisterButtonEvent(unregister ? _buttonStates[(int)key] : CacheKey(key), type, func, unregister);
         }
     }
     public enum EKey

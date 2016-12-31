@@ -1,29 +1,32 @@
 ﻿using BulletSharp;
+using CustomEngine.Rendering;
 using System;
 
 namespace CustomEngine.Worlds.Actors.Components
 {
     public class CapsuleComponent : ShapeComponent
     {
-        public CapsuleShape CapsuleCollision
+        CapsuleY _capsule;
+        public CapsuleComponent(float radius, float halfHeight, PhysicsDriverInfo info) : base(info)
         {
-            get { return (CapsuleShape)_collisionShape; }
-            set { _collisionShape = value; }
-        }
-        public Capsule Capsule
-        {
-            get { return (Capsule)Primitive; }
-            set { Shape = value; }
+            _capsule = new CapsuleY(GetWorldPoint(), radius, halfHeight);
         }
 
-        protected override void UpdateCollisionShape()
+        public override IShape CullingVolume
         {
-            CapsuleShape col = CapsuleCollision;
-            Capsule cap = Capsule;
+            get
+            {
+                throw new NotImplementedException();
+            }
+        }
 
-            //col.HalfHeight = cap.HalfHeight;
-            //col.Radius = cap.Radius;
-            //col.UpAxis = _worldTransform.GetRotationMatrix() * Vec3.Up;
+        public override void Render()
+        {
+            throw new NotImplementedException();
+        }
+        protected override CollisionShape GetCollisionShape()
+        {
+            return _capsule.GetCollisionShape();
         }
     }
 }

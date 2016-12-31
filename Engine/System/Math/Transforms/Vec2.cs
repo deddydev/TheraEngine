@@ -9,7 +9,7 @@ using static System.Math;
 namespace System
 {
     [Serializable]
-    [StructLayout(LayoutKind.Sequential)]
+    [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public unsafe struct Vec2 : IEquatable<Vec2>, IUniformable2Float, IBufferable
     {
         public float X, Y;

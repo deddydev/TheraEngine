@@ -1,4 +1,5 @@
-﻿using CustomEngine.Files;
+﻿using BulletSharp;
+using CustomEngine.Files;
 using System;
 using System.Collections.Generic;
 
@@ -8,8 +9,8 @@ namespace CustomEngine.Rendering.Models
     {
         public Skeleton() : base() { }
         public Skeleton(Bone rootBone) : base() { RootBone = rootBone; RegenerateBoneCache(); }
-        public Skeleton(Model model) : base() { Model = model; RegenerateBoneCache(); }
-        public Skeleton(Model model, Bone rootBone) : base()
+        public Skeleton(SkeletalMesh model) : base() { Model = model; RegenerateBoneCache(); }
+        public Skeleton(SkeletalMesh model, Bone rootBone) : base()
         {
             Model = model;
             RootBone = rootBone;
@@ -17,7 +18,7 @@ namespace CustomEngine.Rendering.Models
         }
 
         private Dictionary<string, Bone> _boneCache = new Dictionary<string, Bone>();
-        private Model _model;
+        private SkeletalMesh _model;
         private Bone _rootBone;
         public Bone RootBone
         {
@@ -28,7 +29,7 @@ namespace CustomEngine.Rendering.Models
                 RegenerateBoneCache();
             }
         }
-        public Model Model
+        public SkeletalMesh Model
         {
             get { return _model; }
             set { _model = value; }
@@ -41,7 +42,7 @@ namespace CustomEngine.Rendering.Models
         }
         public void CalcFrameMatrices()
         {
-            _rootBone?.CalcFrameMatrix(Model.WorldMatrix, Model.InverseWorldMatrix);
+            _rootBone?.CalcFrameMatrix();
         }
         internal override void Tick(float delta)
         {

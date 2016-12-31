@@ -8,7 +8,8 @@ namespace CustomEngine.Worlds.Actors.Components
     {
         float _halfAngle = 10.0f;
         
-        public SpotLightComponent() : base() { }
+        public SpotLightComponent(Vec3 direction, ColorF3 color, float diffuseIntensity, float ambientIntensity) 
+            : base(color, diffuseIntensity, ambientIntensity) { }
 
         public override void OnSpawned()
         {

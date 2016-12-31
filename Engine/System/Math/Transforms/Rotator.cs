@@ -55,6 +55,8 @@ namespace System
         {
             BeginUpdate();
             value.LookatAngles(out _pyr.Y, out _pyr.X);
+            _pyr.Z = 0.0f;
+            _rotationOrder = Order.YPR;
             EndUpdate();
         }
         public Rotator WithNegatedRotations()
@@ -164,6 +166,24 @@ namespace System
             Pitch = pitch;
             Yaw = yaw;
             Roll = roll;
+            EndUpdate();
+        }
+        public void SetRotations(Rotator other)
+        {
+            BeginUpdate();
+            Pitch = other.Pitch;
+            Yaw = other.Yaw;
+            Roll = other.Roll;
+            _rotationOrder = other._rotationOrder;
+            EndUpdate();
+        }
+        public void SetRotations(float pitch, float yaw, float roll, Order order)
+        {
+            BeginUpdate();
+            Pitch = pitch;
+            Yaw = yaw;
+            Roll = roll;
+            _rotationOrder = order;
             EndUpdate();
         }
 

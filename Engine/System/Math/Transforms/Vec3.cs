@@ -105,7 +105,7 @@ namespace System
         public static readonly Vec3 Min = new Vec3(float.MinValue);
         public static readonly Vec3 Max = new Vec3(float.MaxValue);
         public static readonly Vec3 Right = UnitX;
-        public static readonly Vec3 Forward = UnitZ;
+        public static readonly Vec3 Forward = -UnitZ;
         public static readonly Vec3 Up = UnitY;
         public static readonly Vec3 Left = -Right;
         public static readonly Vec3 Backward = -Forward;

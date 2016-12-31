@@ -50,6 +50,7 @@ namespace System
                 ProcessEvents();
                 DispatchUpdateAndRenderFrame(this, EventArgs.Empty);
             }
+            Console.WriteLine("Global timer ended.");
         }
         void DispatchUpdateAndRenderFrame(object sender, EventArgs e)
         {

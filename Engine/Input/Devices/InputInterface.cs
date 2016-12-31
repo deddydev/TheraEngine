@@ -4,12 +4,13 @@ using System.Linq;
 
 namespace CustomEngine.Input.Devices
 {
+    [Flags]
     public enum ButtonInputType
     {
-        Pressed,
-        Released,
-        Held,
-        DoublePressed,
+        Pressed         = 1,
+        Released        = 2,
+        Held            = 4,
+        DoublePressed   = 8,
     }
     public enum InputDeviceType
     {
@@ -48,7 +49,8 @@ namespace CustomEngine.Input.Devices
         Dictionary<string, List<EMouseButton>> _namedMouseButtons = new Dictionary<string, List<EMouseButton>>();
 
         public event DelWantsInputsRegistered WantsInputsRegistered;
-        
+
+        private bool _unregister = false;
         private int _playerIndex;
         private CGamePad _gamepad;
         private CKeyboard _keyboard;
@@ -65,7 +67,19 @@ namespace CustomEngine.Input.Devices
         public void TryRegisterInput()
         {
             if (_gamepad != null || _keyboard != null || _mouse != null)
+            {
+                _unregister = false;
                 WantsInputsRegistered?.Invoke(this);
+            }
+        }
+        public void TryUnregisterInput()
+        {
+            if (_gamepad != null || _keyboard != null || _mouse != null)
+            {
+                _unregister = true;
+                WantsInputsRegistered?.Invoke(this);
+                _unregister = false;
+            }
         }
         private void GetDevices()
         {
@@ -77,53 +91,53 @@ namespace CustomEngine.Input.Devices
         #region Mouse input registration
         public void RegisterButtonPressed(EMouseButton button, DelButtonState func)
         {
-            _mouse?.RegisterButtonPressed(button, func);
+            _mouse?.RegisterButtonPressed(button, func, _unregister);
         }
         public void RegisterButtonEvent(EMouseButton button, ButtonInputType type, Action func)
         {
-            _mouse?.RegisterButtonEvent(button, type, func);
+            _mouse?.RegisterButtonEvent(button, type, func, _unregister);
         }
         public void RegisterMouseScroll(DelMouseScroll func)
         {
-            _mouse?.RegisterScroll(func);
+            _mouse?.RegisterScroll(func, _unregister);
         }
         public void RegisterMouseMove(DelCursorUpdate func, bool relative)
         {
-            _mouse?.RegisterMouseMove(func, relative);
+            _mouse?.RegisterMouseMove(func, relative, _unregister);
         }
         #endregion
 
         #region Keyboard input registration
         public void RegisterButtonPressed(EKey button, DelButtonState func)
         {
-            _keyboard?.RegisterButtonPressed(button, func);
+            _keyboard?.RegisterButtonPressed(button, func, _unregister);
         }
         public void RegisterButtonEvent(EKey button, ButtonInputType type, Action func)
         {
-            _keyboard?.RegisterButtonEvent(button, type, func);
+            _keyboard?.RegisterButtonEvent(button, type, func, _unregister);
         }
         #endregion
 
         #region Gamepad input registration
         public void RegisterButtonPressed(GamePadAxis axis, DelButtonState func)
         {
-            _gamepad?.RegisterButtonState(axis, func);
+            _gamepad?.RegisterButtonState(axis, func, _unregister);
         }
         public void RegisterButtonPressed(GamePadButton button, DelButtonState func)
         {
-            _gamepad?.RegisterButtonState(button, func);
+            _gamepad?.RegisterButtonState(button, func, _unregister);
         }
         public void RegisterButtonEvent(GamePadButton button, ButtonInputType type, Action func)
         {
-            _gamepad?.RegisterButtonEvent(button, type, func);
+            _gamepad?.RegisterButtonEvent(button, type, func, _unregister);
         }
         public void RegisterButtonEvent(GamePadAxis button, ButtonInputType type, Action func)
         {
-            _gamepad?.RegisterButtonEvent(button, type, func);
+            _gamepad?.RegisterButtonEvent(button, type, func, _unregister);
         }
         public void RegisterAxisUpdate(GamePadAxis axis, DelAxisValue func, bool continuousUpdate)
         {
-            _gamepad?.RegisterAxisUpdate(axis, func, continuousUpdate);
+            _gamepad?.RegisterAxisUpdate(axis, func, continuousUpdate, _unregister);
         }
         #endregion
 

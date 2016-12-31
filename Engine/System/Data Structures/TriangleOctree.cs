@@ -6,19 +6,19 @@ namespace System
 {
     public class TriangleOctree
     {
-        private Box _totalBounds;
+        private BoundingBox _totalBounds;
         private OctreeNode _head;
         
-        public TriangleOctree(Box bounds) { _totalBounds = bounds; }
-        public TriangleOctree(Box bounds, List<VertexTriangle> items)
+        public TriangleOctree(BoundingBox bounds) { _totalBounds = bounds; }
+        public TriangleOctree(BoundingBox bounds, List<VertexTriangle> items)
         {
             _totalBounds = bounds;
             Add(items);
         }
         
         public List<VertexTriangle> FindClosest(Vec3 point) { return _head.FindClosest(point); }
-        public List<VertexTriangle> FindAllJustOutside(Shape shape) { return _head.FindAllJustOutside(shape); }
-        public List<VertexTriangle> FindAllInside(Shape shape) { return _head.FindAllInside(shape); }
+        public List<VertexTriangle> FindAllJustOutside(BoundingShape shape) { return _head.FindAllJustOutside(shape); }
+        public List<VertexTriangle> FindAllInside(BoundingShape shape) { return _head.FindAllInside(shape); }
         public void Add(VertexTriangle value)
         {
             if (_head == null)
@@ -45,12 +45,12 @@ namespace System
 
         internal class OctreeNode
         {
-            private Box _bounds;
+            private BoundingBox _bounds;
             public List<VertexTriangle> _items = new List<VertexTriangle>();
             public OctreeNode[] _subNodes;
             
             public List<VertexTriangle> Items { get { return _items; } }
-            public Box Bounds { get { return _bounds; } }
+            public BoundingBox Bounds { get { return _bounds; } }
             public Vec3 Center { get { return _bounds.CenterPoint; } }
             public Vec3 Min { get { return _bounds.Minimum; } }
             public Vec3 Max { get { return _bounds.Maximum; } }
@@ -81,7 +81,7 @@ namespace System
                 else
                     return null;
             }
-            public List<VertexTriangle> FindAllJustOutside(Shape shape)
+            public List<VertexTriangle> FindAllJustOutside(BoundingShape shape)
             {
                 foreach (OctreeNode node in _subNodes)
                     if (node != null)
@@ -101,7 +101,7 @@ namespace System
                         list.AddRange(node.CollectChildren());
                 return list;
             }
-            public List<VertexTriangle> FindAllInside(Shape shape)
+            public List<VertexTriangle> FindAllInside(BoundingShape shape)
             {
                 throw new NotImplementedException();
             }
@@ -150,7 +150,7 @@ namespace System
                 for (int i = 0; i < 8; ++i)
                 {
                     items = new List<VertexTriangle>();
-                    Box bounds = GetSubdivision(i);
+                    BoundingBox bounds = GetSubdivision(i);
                     foreach (VertexTriangle item in value)
                     {
                         if (item == null)
@@ -187,7 +187,7 @@ namespace System
                 bool notSubdivided = true;
                 for (int i = 0; i < 8; ++i)
                 {
-                    Box bounds = GetSubdivision(i);
+                    BoundingBox bounds = GetSubdivision(i);
                     if (bounds.Contains(item.GetCullingVolume()) == EContainment.Contains)
                     {
                         notSubdivided = false;
@@ -209,11 +209,11 @@ namespace System
                 if (notSubdivided)
                     Items.Add(item);
             }
-            public OctreeNode(Box bounds)
+            public OctreeNode(BoundingBox bounds)
             {
                 _bounds = bounds;
             }
-            public Box GetSubdivision(int index)
+            public BoundingBox GetSubdivision(int index)
             {
                 if (_subNodes != null && _subNodes[index] != null)
                     return _subNodes[index].Bounds;
@@ -221,18 +221,18 @@ namespace System
                 Vec3 center = Center;
                 switch (index)
                 {
-                    case 0: return new Box(new Vec3(Min.X, Min.Y, Min.Z), new Vec3(center.X, center.Y, center.Z));
-                    case 1: return new Box(new Vec3(Min.X, Min.Y, center.Z), new Vec3(center.X, center.Y, Max.Z));
-                    case 2: return new Box(new Vec3(Min.X, center.Y, Min.Z), new Vec3(center.X, Max.Y, center.Z));
-                    case 3: return new Box(new Vec3(Min.X, center.Y, center.Z), new Vec3(center.X, Max.Y, Max.Z));
-                    case 4: return new Box(new Vec3(center.X, Min.Y, Min.Z), new Vec3(Max.X, center.Y, center.Z));
-                    case 5: return new Box(new Vec3(center.X, Min.Y, center.Z), new Vec3(Max.X, center.Y, Max.Z));
-                    case 6: return new Box(new Vec3(center.X, center.Y, Min.Z), new Vec3(Max.X, Max.Y, center.Z));
-                    case 7: return new Box(new Vec3(center.X, center.Y, center.Z), new Vec3(Max.X, Max.Y, Max.Z));
+                    case 0: return new BoundingBox(new Vec3(Min.X, Min.Y, Min.Z), new Vec3(center.X, center.Y, center.Z));
+                    case 1: return new BoundingBox(new Vec3(Min.X, Min.Y, center.Z), new Vec3(center.X, center.Y, Max.Z));
+                    case 2: return new BoundingBox(new Vec3(Min.X, center.Y, Min.Z), new Vec3(center.X, Max.Y, center.Z));
+                    case 3: return new BoundingBox(new Vec3(Min.X, center.Y, center.Z), new Vec3(center.X, Max.Y, Max.Z));
+                    case 4: return new BoundingBox(new Vec3(center.X, Min.Y, Min.Z), new Vec3(Max.X, center.Y, center.Z));
+                    case 5: return new BoundingBox(new Vec3(center.X, Min.Y, center.Z), new Vec3(Max.X, center.Y, Max.Z));
+                    case 6: return new BoundingBox(new Vec3(center.X, center.Y, Min.Z), new Vec3(Max.X, Max.Y, center.Z));
+                    case 7: return new BoundingBox(new Vec3(center.X, center.Y, center.Z), new Vec3(Max.X, Max.Y, Max.Z));
                 }
                 return null;
             }
-            public static implicit operator OctreeNode(Box bounds) { return new OctreeNode(bounds); }
+            public static implicit operator OctreeNode(BoundingBox bounds) { return new OctreeNode(bounds); }
         }
     }
 }

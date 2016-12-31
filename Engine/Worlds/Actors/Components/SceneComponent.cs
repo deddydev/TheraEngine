@@ -19,16 +19,28 @@ namespace CustomEngine.Worlds.Actors.Components
             _children.RemovedRange += _children_RemovedRange;
         }
 
-        protected Matrix4 _invWorldTransform = Matrix4.Identity;
         protected Matrix4 _worldTransform = Matrix4.Identity;
+        protected Matrix4 _inverseWorldTransform = Matrix4.Identity;
         protected Matrix4 _localTransform = Matrix4.Identity;
-        protected Matrix4 _invLocalTransform = Matrix4.Identity;
+        protected Matrix4 _inverseLocalTransform = Matrix4.Identity;
 
         protected SceneComponent _parent;
         protected MonitoredList<SceneComponent> _children = new MonitoredList<SceneComponent>();
-        protected bool _visible;
-        protected bool _isRendering = false;
 
+        public Matrix4 WorldMatrix { get { return _worldTransform; } }
+        public Matrix4 InverseWorldMatrix { get { return _inverseWorldTransform; } }
+        public Matrix4 LocalMatrix { get { return _localTransform; } }
+        public Matrix4 InverseLocalMatrix { get { return _inverseLocalTransform; } }
+        public override Actor Owner
+        {
+            get { return base.Owner; }
+            set
+            {
+                base.Owner = value;
+                foreach (SceneComponent c in _children)
+                    c.Owner = value;
+            }
+        }
         public MonitoredList<SceneComponent> Children
         {
             get { return _children; }
@@ -38,21 +50,21 @@ namespace CustomEngine.Worlds.Actors.Components
                 _children = value ?? new MonitoredList<SceneComponent>();
             }
         }
+        public Vec3 GetWorldPoint() { return _worldTransform.GetPoint(); }
+        public Matrix4 GetWorldAnisotropicRotation() { return _worldTransform.GetRotationMatrix4(); }
 
-        public Matrix4 ParentMatrix { get { return Parent == null ? Matrix4.Identity : Parent.WorldMatrix; } }
-        public Matrix4 ParentInvMatrix { get { return Parent == null ? Matrix4.Identity : Parent.InverseWorldMatrix; } }
-
+        public Matrix4 GetParentMatrix() { return Parent == null ? Matrix4.Identity : Parent.WorldMatrix; }
+        public Matrix4 GetInverseParentMatrix() { return Parent == null ? Matrix4.Identity : Parent.InverseWorldMatrix; }
+        
         /// <summary>
         /// Gets the transformation of this component in relation to the actor's root component.
         /// </summary>
-        public Matrix4 GetActorTransform() { return WorldMatrix * Owner.InverseWorldMatrix; }
+        public Matrix4 GetActorTransform() { return WorldMatrix * Owner.RootComponent.InverseWorldMatrix; }
         /// <summary>
         /// Gets the inverse transformation of this component in relation to the actor's root component.
         /// </summary>
-        public Matrix4 GetInvActorTransform() { return InverseWorldMatrix * Owner.WorldMatrix; }
-
-        [Category("Rendering"), State]
-        public bool IsRendering { get { return _isRendering; } }
+        public Matrix4 GetInvActorTransform() { return InverseWorldMatrix * Owner.RootComponent.WorldMatrix; }
+        
         [Category("Rendering"), State]
         public bool IsSpawned { get { return Owner.IsSpawned; } }
         [Category("Rendering"), Default, State, Animatable]
@@ -73,55 +85,27 @@ namespace CustomEngine.Worlds.Actors.Components
                 }
             }
         }
-        [Category("Rendering"), Default, State, Animatable]
-        public virtual bool Visible
-        {
-            get {  return _visible; }
-            set { _visible = value; }
-        }
+
+        internal abstract void OriginRebased(Vec3 newOrigin);
+
         public override void OnSpawned()
         {
-            Visible = true;
             foreach (SceneComponent c in _children)
                 c.OnSpawned();
         }
         public override void OnDespawned()
         {
-            Visible = false;
             foreach (SceneComponent c in _children)
                 c.OnDespawned();
         }
         public abstract void RecalcLocalTransform();
         public virtual void RecalcGlobalTransform()
         {
-            _worldTransform = ParentMatrix * LocalMatrix;
-            _invWorldTransform = InverseLocalMatrix * ParentInvMatrix;
+            _worldTransform = GetParentMatrix() * LocalMatrix;
+            _inverseWorldTransform = InverseLocalMatrix * GetInverseParentMatrix();
             foreach (SceneComponent c in _children)
                 c.RecalcGlobalTransform();
         }
-        public override Actor Owner
-        {
-            get { return base.Owner; }
-            set
-            {
-                base.Owner = value;
-                foreach (SceneComponent c in _children)
-                    c.Owner = value;
-            }
-        }
-        
-        public Matrix4 WorldMatrix { get { return _worldTransform; } }
-        public Matrix4 InverseWorldMatrix { get { return _invWorldTransform; } }
-        public Matrix4 LocalMatrix { get { return _localTransform; } }
-        public Matrix4 InverseLocalMatrix { get { return _invLocalTransform; } }
-
-        internal virtual void RebaseOriginRootComponent(Vec3 newOrigin)
-        {
-            _localTransform = Matrix4.CreateTranslation(-newOrigin) * LocalMatrix;
-            _invLocalTransform = InverseLocalMatrix * Matrix4.CreateTranslation(newOrigin);
-            RecalcGlobalTransform();
-        }
-
         public List<SceneComponent> GenerateChildCache()
         {
             List<SceneComponent> cache = new List<SceneComponent>();

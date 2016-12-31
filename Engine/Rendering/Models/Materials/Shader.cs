@@ -67,58 +67,15 @@ uniform mat4 ViewMatrix;
 uniform mat4 ProjMatrix;
 uniform mat4 NormalMatrix; //transpose(inverse(modelMatrix))
 
-struct PointLight {
-    vec4 Diffuse;
-    vec4 Specular;
-    vec3 Position;
-    float ConstantAtt;
-    float LinearAtt;
-    float QuadraticAtt;
-};
-//struct SpotLight {
-//    vec3 Color;
-//    float Distance;
-//    vec3 Normal;
-//    float HalfAngle;
-//};
-//struct DirLight {
-//    vec3 Color;
-//    Vec3 Normal;
-//};
-
-uniform PointLight PointLights[1];
-//uniform DirLight DirLights[1];
-//uniform SpotLight SpotLights[1];
-
-uniform vec4 MatDiffuse;
-uniform vec4 MatAmbient;
-uniform vec4 MatSpecular;
-uniform float MatShininess;
-
-uniform vec3 CameraPosition;
-uniform vec3 CameraForward;
-
 out Data {
     vec3 Position;
     vec3 Normal;
-    vec3 HalfVector;
-    vec4 Diffuse;
-    //vec4 Ambient;
 } OutData;
 
 void main()
 {
-     PointLight light = PointLights[0];
- 
-     OutData.Position = (ModelMatrix * vec4(Position0, 1.0)).xyz;
- 
-     vec3 EyeDir = CameraPosition - OutData.Position;
-     vec3 LightDir = light.Position - OutData.Position;
- 
-     OutData.HalfVector = normalize(LightDir + EyeDir);
-     OutData.Normal = normalize((NormalMatrix * vec4(Normal0, 1.0)).xyz);
-     OutData.Diffuse = MatDiffuse * light.Diffuse;
-     //OutData.Ambient = MatAmbient;
+    OutData.Position = (ModelMatrix * vec4(Position0, 1.0)).xyz;
+    OutData.Normal = normalize((NormalMatrix * vec4(Normal0, 1.0)).xyz);
 
     gl_Position = ProjMatrix * ViewMatrix * ModelMatrix * vec4(Position0, 1.0);
 }";
@@ -129,72 +86,110 @@ void main()
             string source = @"
 #version 410
 
-struct PointLight {
-    vec4 Diffuse;
-    vec4 Specular;
-    vec3 Position;
-    float ConstantAtt;
-    float LinearAtt;
-    float QuadraticAtt;
+struct BaseLight
+{
+    vec3 Color;
+    float DiffuseIntensity;
+    float AmbientIntensity;
 };
-//struct SpotLight {
-//    vec3 Color;
-//    float Distance;
-//    vec3 Normal;
-//    float HalfAngle;
-//};
-//struct DirLight {
-//    vec3 Color;
-//    Vec3 Normal;
-//};
+struct DirLight
+{
+    BaseLight Base;
+    vec3 Direction;
+};
+struct PointLight
+{
+    BaseLight Base;
+    vec3 Position;
+    vec3 Attenuation;
+};
+struct SpotLight
+{
+    BaseLight Base;
+    vec3 Position;
+    vec3 Direction;
+    float CutoffAngle;
+};
 
-uniform PointLight PointLights[1];
-//uniform DirLight DirLights[1];
-//uniform SpotLight SpotLights[1];
+uniform PointLight PointLights[16];
+uniform DirLight DirectionalLights[2];
+uniform SpotLight SpotLights[16];
 
-uniform vec4 MatDiffuse;
-uniform vec4 MatAmbient;
-uniform vec4 MatSpecular;
-uniform float MatShininess;
+uniform vec4 MatColor;
+uniform float MatSpecularIntensity;
 
 uniform vec3 CameraPosition;
 uniform vec3 CameraForward;
- 
+uniform int PointLightCount;
+uniform int SpotLightCount;
+uniform int DirLightCount; 
+
 in Data
 {
     vec3 Position;
     vec3 Normal;
-    vec3 HalfVector;
-    vec4 Diffuse;
-    //vec4 Ambient;
 } InData;
 
 out vec4 OutColor;
 
+vec4 CalcColor(BaseLight light, vec3 lightDirection, vec3 normal)
+{
+    vec4 AmbientColor = vec4(light.Color * light.AmbientIntensity, 1.0f);
+    vec4 DiffuseColor = vec4(0.0, 0.0, 0.0, 0.0);
+    vec4 SpecularColor = vec4(0.0, 0.0, 0.0, 0.0);
+
+    float DiffuseFactor = dot(normal, -lightDirection);
+    if (DiffuseFactor > 0.0) 
+    {
+        DiffuseColor = vec4(light.Color * light.DiffuseIntensity * DiffuseFactor, 1.0f);
+
+        vec3 PosEyeDir = normalize(CameraPosition - InData.Position);
+        vec3 LightReflect = reflect(lightDirection, normal);
+        float SpecularFactor = dot(PosEyeDir, LightReflect);
+        if (SpecularFactor > 0.0)
+        {
+            SpecularColor = vec4(light.Color * MatSpecularIntensity * pow(SpecularFactor, 2), 1.0f);
+        }
+    }
+
+    return AmbientColor + DiffuseColor + SpecularColor;
+}
+
+vec4 CalcDirLight(int index, vec3 normal)
+{
+    DirLight light = DirectionalLights[index];
+    return CalcColor(light.Base, light.Direction, normal);
+}
+
+vec4 CalcPointLight(int index, vec3 normal)
+{
+    PointLight light = PointLights[index];
+    vec3 LightDirection = InData.Position - light.Position;
+    float Distance = length(LightDirection);
+    LightDirection = normalize(LightDirection);
+
+    float Attn = 1.0 / (light.Attenuation[0] + light.Attenuation[1] * Distance + light.Attenuation[2] * Distance * Distance);
+    return Attn * CalcColor(light.Base, LightDirection, normal);
+} 
+
+vec4 CalcSpotLight(int index, vec3 normal)
+{
+    return vec4(0.0);
+} 
+
 void main()
 {
-    PointLight light = PointLights[0];
- 
-    vec3 normal, halfV, viewV, lightDir;
-    vec4 color = vec4(0.0, 0.0, 0.0, 1.0);
-    float NdotL, NdotHV;
-    float att, dist;
+    vec3 normal = normalize(InData.Normal);
 
-    normal = normalize(InData.Normal);
-    lightDir = vec3(light.Position - InData.Position);
-    dist = length(lightDir);
-    NdotL = max(dot(normal, normalize(lightDir)), 0.0);
+    vec4 totalLight = vec4(0.0, 0.0, 0.0, 1.0);
+    for (int i = 0; i < DirLightCount; ++i)
+        totalLight += CalcDirLight(i, normal);
+    for (int i = 0; i < PointLightCount; ++i)
+        totalLight += CalcPointLight(i, normal);
+    for (int i = 0; i < SpotLightCount; ++i)
+        totalLight += CalcSpotLight(i, normal);
 
-    //if (NdotL > 0.0)
-    //{
-        att = 1.0 / (light.ConstantAtt + light.LinearAtt * dist + light.QuadraticAtt * dist * dist);
-        color += att * (InData.Diffuse * NdotL + MatAmbient);
-        halfV = normalize(InData.HalfVector);
-        NdotHV = max(dot(normal, halfV), 0.0);
-        color += att * MatSpecular * light.Specular * pow(NdotHV, MatShininess);
-    //}
-
-    OutColor = color;
+    OutColor = MatColor * totalLight;
 }
 ";
             return new Shader(ShaderMode.Fragment, source);

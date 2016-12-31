@@ -4,6 +4,7 @@ using CustomEngine.Worlds.Actors.Components;
 using System;
 using CustomEngine.Rendering.Cameras;
 using System.Linq;
+using CustomEngine.Rendering;
 
 namespace CustomEngine.Worlds.Actors
 {
@@ -16,7 +17,6 @@ namespace CustomEngine.Worlds.Actors
     }
     public class Pawn : Actor
     {
-        private PhysicsState _physicsState;
         private PawnController _controller;
 
         public PawnController Controller { get { return _controller; } }
@@ -47,7 +47,7 @@ namespace CustomEngine.Worlds.Actors
             Engine.QueuePossession(this, possessor);
         }
 
-        public virtual void OnPossessed(PawnController c)
+        internal virtual void OnPossessed(PawnController c)
         {
             if (c == null)
                 OnUnPossessed();
@@ -58,7 +58,7 @@ namespace CustomEngine.Worlds.Actors
             if (controller != null && _currentCameraComponent != null)
                 controller.CurrentCamera = _currentCameraComponent.Camera;
         }
-        public virtual void OnUnPossessed()
+        internal virtual void OnUnPossessed()
         {
             if (_controller == null)
                 return;
@@ -71,10 +71,17 @@ namespace CustomEngine.Worlds.Actors
             if (Engine.World == null)
                 return;
 
-            Box bounds = Engine.World.Settings.OriginRebaseBounds;
+            BoundingBox bounds = Engine.World.Settings.OriginRebaseBounds;
             Vec3 point = RootComponent.WorldMatrix.GetPoint();
             if (!bounds.Contains(point))
                 Engine.World.RebaseOrigin(point);
+        }
+        protected Viewport GetViewport()
+        {
+            LocalPlayerController player = LocalPlayerController;
+            if (player == null)
+                return null;
+            return player.Viewport;
         }
     }
 }

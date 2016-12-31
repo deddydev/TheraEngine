@@ -30,21 +30,21 @@ namespace CustomEngine.Rendering
                 return;
             }
 
-            List<RenderableObject> renderables = new List<RenderableObject>();
             WorldSettings ws = Engine.World.Settings;
-            foreach (Map m in ws._defaultMaps)
-                if (m.Settings.VisibleByDefault)
-                    foreach (Actor a in m.Settings._defaultActors)
-                        foreach (PrimitiveComponent p in a.RenderableComponentCache)
-                            if (p.Primitive != null)
-                            {
-                                RenderableObject[] r = p.Primitive.GetChildren(true);
-                                foreach (RenderableObject o in r)
-                                {
-                                    o.OnSpawned();
-                                    renderables.Add(o);
-                                }
-                            }
+            List<IRenderable> renderables = new List<IRenderable>();
+            //foreach (Map m in ws._defaultMaps)
+            //    if (m.Settings.VisibleByDefault)
+            //        foreach (Actor a in m.Settings._defaultActors)
+            //            foreach (PrimitiveComponent p in a.RenderableComponentCache)
+            //                if (p.Primitive != null)
+            //                {
+            //                    IRenderable[] r = p.Primitive.GetChildren(true);
+            //                    foreach (IRenderable o in r)
+            //                    {
+            //                        o.OnSpawned();
+            //                        renderables.Add(o);
+            //                    }
+            //                }
 
             _renderTree = new RenderOctree(ws.WorldBounds, renderables);
         }
@@ -62,11 +62,11 @@ namespace CustomEngine.Rendering
             //foreach (ulong key in _sortedCommands)
             //    _commands[key]();
         }
-        public void AddRenderable(RenderableObject obj)
+        public void AddRenderable(IRenderable obj)
         {
             _renderTree.Add(obj);
         }
-        public void RemoveRenderable(RenderableObject obj)
+        public void RemoveRenderable(IRenderable obj)
         {
             _renderTree.Remove(obj);
         }

@@ -5,7 +5,7 @@ using CustomEngine.Files;
 
 namespace CustomEngine.Rendering.Models
 {
-    public class Bone : FileObject, ICollidable
+    public class Bone : FileObject, IPhysicsDrivable
     {
         public Bone(string name, FrameState bindState)
         {
@@ -39,24 +39,22 @@ namespace CustomEngine.Rendering.Models
                 b.CollectChildBones(boneCache, owner);
         }
 
-        public void LinkSingleBindMesh(Mesh m) { _singleBoundMeshes.Add(m); }
-        public void UnlinkSingleBindMesh(Mesh m) { _singleBoundMeshes.Remove(m); }
+        public void LinkSingleBindMesh(SkeletalSubMesh m) { _singleBoundMeshes.Add(m); }
+        public void UnlinkSingleBindMesh(SkeletalSubMesh m) { _singleBoundMeshes.Remove(m); }
 
-        private List<Mesh> _singleBoundMeshes = new List<Mesh>();
+        private List<SkeletalSubMesh> _singleBoundMeshes = new List<SkeletalSubMesh>();
         private Skeleton _skeleton;
         private Bone _parent;
         private MonitoredList<Bone> _children = new MonitoredList<Bone>();
         private List<FacePoint> _influencedVertices = new List<FacePoint>();
-        private RigidBody _collision;
         private FrameState _frameState, _bindState;
         private Matrix4
-            //Animated transformation matrix relative to the skeleton's root bone
-            _frameMatrix = Matrix4.Identity, _inverseFrameMatrix = Matrix4.Identity, 
-            //Non-animated default bone position transforms.
+            //Animated transformation matrix relative to the skeleton's root bone, aka model space
+            _frameMatrix = Matrix4.Identity, _inverseFrameMatrix = Matrix4.Identity,
+            //Non-animated default bone position transforms, in model space
             _bindMatrix = Matrix4.Identity, _inverseBindMatrix = Matrix4.Identity,
             //Used for calculating vertex influences matrices quickly
             _vertexMatrix = Matrix4.Identity, _inverseVertexMatrix = Matrix4.Identity,
-            //The transformation of this bone in world space
             _worldMatrix = Matrix4.Identity, _inverseWorldMatrix = Matrix4.Identity;
 
         public Bone Parent
@@ -71,7 +69,7 @@ namespace CustomEngine.Rendering.Models
             }
         }
         public MonitoredList<Bone> Children { get { return _children; } }
-        public Model Model { get { return _skeleton.Model; } }
+        public SkeletalMesh Model { get { return _skeleton.Model; } }
         public FrameState FrameState { get { return _frameState; } }
         public FrameState BindState
         {
@@ -82,6 +80,8 @@ namespace CustomEngine.Rendering.Models
                 CalcBindMatrix(false);
             }
         }
+        public Matrix4 WorldMatrix { get { return _worldMatrix; } }
+        public Matrix4 InverseWorldMatrix { get { return _inverseWorldMatrix; } }
         public Matrix4 FrameMatrix { get { return _frameMatrix; } }
         public Matrix4 BindMatrix { get { return _bindMatrix; } }
         public Matrix4 InverseFrameMatrix { get { return _inverseFrameMatrix; } }
@@ -89,24 +89,12 @@ namespace CustomEngine.Rendering.Models
         public Matrix4 VertexMatrix { get { return _vertexMatrix; } }
         public Matrix4 InverseVertexMatrix { get { return _inverseVertexMatrix; } }
         public Skeleton Skeleton { get { return _skeleton; } }
-        public RigidBody CollisionObject
+
+        public PhysicsDriver PhysicsDriver
         {
-            get { return _collision; }
-            set
+            get
             {
-                if (_collision != null)
-                {
-                    if (Skeleton.Model.CollisionEnabled)
-                        Engine.World.PhysicsScene.AddRigidBody(_collision);
-                    _collision.UserObject = null;
-                }
-                _collision = value;
-                if (_collision != null)
-                {
-                    if (Skeleton.Model.CollisionEnabled)
-                        Engine.World.PhysicsScene.AddRigidBody(_collision);
-                    _collision.UserObject = this;
-                }
+                throw new NotImplementedException();
             }
         }
 
@@ -122,9 +110,16 @@ namespace CustomEngine.Rendering.Models
             _vertexMatrix = FrameMatrix * InverseBindMatrix;
             _inverseVertexMatrix = InverseFrameMatrix * BindMatrix;
 
-            _worldMatrix = Model.WorldMatrix * _frameMatrix;
-            _inverseWorldMatrix = _inverseFrameMatrix * Model.InverseWorldMatrix;
-
+            if (Model == null || Model.LinkedComponent == null)
+            {
+                _worldMatrix = _frameMatrix;
+                _inverseWorldMatrix = _inverseFrameMatrix;
+            }
+            else
+            {
+                _worldMatrix = Model.LinkedComponent.WorldMatrix * _frameMatrix;
+                _inverseWorldMatrix = _inverseFrameMatrix * Model.LinkedComponent.InverseWorldMatrix;
+            }
             foreach (Bone b in _children)
                 b.CalcFrameMatrix(_frameMatrix, _inverseFrameMatrix);
         }
@@ -208,6 +203,6 @@ namespace CustomEngine.Rendering.Models
                 item.CalcFrameMatrix();
             }
             _skeleton.RegenerateBoneCache();
-        }
+        }        
     }
 }

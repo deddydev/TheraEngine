@@ -26,21 +26,24 @@ namespace CustomEngine.Input.Devices
                 _buttonStates[b] = new ButtonManager(button.ToString());
             return _buttonStates[b];
         }
-        public void RegisterButtonPressed(EMouseButton button, DelButtonState func)
+        public void RegisterButtonPressed(EMouseButton button, DelButtonState func, bool unregister)
         {
-            CacheButton(button)?.RegisterPressedState(func);
+            if (unregister)
+                _buttonStates[(int)button]?.RegisterPressedState(func, true);
+            else
+                CacheButton(button)?.RegisterPressedState(func, false);
         }
-        public void RegisterButtonEvent(EMouseButton button, ButtonInputType type, Action func)
+        public void RegisterButtonEvent(EMouseButton button, ButtonInputType type, Action func, bool unregister)
         {
-            RegisterButtonEvent(CacheButton(button), type, func);
+            RegisterButtonEvent(unregister ? _buttonStates[(int)button] : CacheButton(button), type, func, unregister);
         }
-        public void RegisterScroll(DelMouseScroll func)
+        public void RegisterScroll(DelMouseScroll func, bool unregister)
         {
-            _wheel.Register(func);
+            _wheel.Register(func, unregister);
         }
-        public void RegisterMouseMove(DelCursorUpdate func, bool relative)
+        public void RegisterMouseMove(DelCursorUpdate func, bool relative, bool unregister)
         {
-            _cursor.Register(func, relative);
+            _cursor.Register(func, relative, unregister);
         }
         public ButtonManager LeftClick { get { return _buttonStates[(int)EMouseButton.LeftClick]; } }
         public ButtonManager RightClick { get { return _buttonStates[(int)EMouseButton.RightClick]; } }
@@ -65,20 +68,34 @@ namespace CustomEngine.Input.Devices
             OnAbsolute(x, y);
             OnRelative(xDiff, yDiff);
         }
-        public void Register(DelCursorUpdate func, bool relative)
+        public void Register(DelCursorUpdate func, bool relative, bool unregister)
         {
-            if (relative)
-                _onRelative.Add(func);
+            if (unregister)
+            {
+                if (relative)
+                    _onRelative.Remove(func);
+                else
+                    _onAbsolute.Remove(func);
+            }
             else
-                _onAbsolute.Add(func);
+            {
+                if (relative)
+                    _onRelative.Add(func);
+                else
+                    _onAbsolute.Add(func);
+            }
         }
         private void OnAbsolute(float x, float y)
         {
-            _onAbsolute.ForEach(del => del(x, y));
+            int i = _onAbsolute.Count;
+            for (int z = 0; z < i; ++z)
+                _onAbsolute[z](x, y);
         }
         private void OnRelative(float x, float y)
         {
-            _onRelative.ForEach(del => del(x, y));
+            int i = _onRelative.Count;
+            for (int z = 0; z < i; ++z)
+                _onRelative[z](x, y);
         }
     }
     public class ScrollWheelManager
@@ -102,13 +119,18 @@ namespace CustomEngine.Input.Devices
                 _lastValue = value;
             }
         }
-        public void Register(DelMouseScroll func)
+        public void Register(DelMouseScroll func, bool unregister)
         {
-            _onUpdate.Add(func);
+            if (unregister)
+                _onUpdate.Remove(func);
+            else
+                _onUpdate.Add(func);
         }
         private void OnUpdate(bool up)
         {
-            _onUpdate.ForEach(del => del(up));
+            int i = _onUpdate.Count;
+            for (int x = 0; x < i; ++x)
+                _onUpdate[x](up);
         }
     }
     public enum EMouseButton

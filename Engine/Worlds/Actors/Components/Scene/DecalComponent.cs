@@ -12,9 +12,9 @@ namespace CustomEngine.Worlds.Actors.Components
     {
         private Texture _texture;
         private StaticMesh _mesh;
-
+        
         public DecalComponent() : base() { }
-        public DecalComponent(Vec3 min, Vec3 max) : base(min, max, null) { }
+        public DecalComponent(Vec3 extents) : base(extents, null) { }
 
         internal override void Tick(float delta)
         {

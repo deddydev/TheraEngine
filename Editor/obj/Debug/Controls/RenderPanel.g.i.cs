@@ -39,7 +39,7 @@ namespace Editor.Controls {
     /// <summary>
     /// RenderPanel
     /// </summary>
-    public partial class RenderPanel : System.Windows.Controls.UserControl, System.Windows.Markup.IComponentConnector {
+    public partial class EditorRenderPanel : System.Windows.Controls.UserControl, System.Windows.Markup.IComponentConnector {
         
         
         #line 10 "..\..\..\Controls\RenderPanel.xaml"

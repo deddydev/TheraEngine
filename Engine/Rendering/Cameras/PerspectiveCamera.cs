@@ -78,7 +78,7 @@ namespace CustomEngine.Rendering.Cameras
 
             Vec3
                 point = transformed ? _point : Vec3.Zero,
-                forwardDir = transformed ? -GetForwardVector() : -Vec3.Forward,
+                forwardDir = transformed ? GetForwardVector() : Vec3.Forward,
                 rightDir = transformed ? GetRightVector() : Vec3.Right,
                 upDir = transformed ? GetUpVector() : Vec3.Up,
                 nearPos = point + forwardDir * _nearZ,

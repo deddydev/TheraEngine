@@ -22,7 +22,7 @@ namespace CustomEngine.Worlds.Actors.Components
             Direction = direction;
         }
 
-        public override void RecalcLocalTransform()
+        protected override void RecalcLocalTransform()
         {
             _direction = _rotation.GetDirection();
             base.RecalcLocalTransform();

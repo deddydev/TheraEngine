@@ -18,15 +18,14 @@ namespace System
     }
     public enum ETickOrder
     {
-        Timers = 0, //Call timing events
-        Input = 1, //Call input events
-        Logic = 2, //Call update tick
-        Scene = 3, //Update scene
+        Timers      = 0, //Call timing events
+        Input       = 1, //Call input events
+        Animation   = 2, //Update animation positions
+        Logic       = 3, //Call update tick
+        Scene       = 4, //Update scene
     }
-    public class ObjectBase// : INotifyPropertyChanged
+    public class ObjectBase
     {
-        //public static List<ObjectBase> _changedObjects = new List<ObjectBase>();
-
         public event PropertyChangedEventHandler PropertyChanged;
         public event RenamedEventHandler Renamed;
         public event ResourceEventHandler Disposing, UpdateProperties, UpdateEditor;

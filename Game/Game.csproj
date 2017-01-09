@@ -62,7 +62,6 @@
     <Compile Include="Worlds\Actors\InteractableActor.cs" />
     <Compile Include="Worlds\Actors\Items\EquippableItem.cs" />
     <Compile Include="Worlds\Actors\Items\InventoryItem.cs" />
-    <Compile Include="Worlds\TestWorld.cs" />
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>

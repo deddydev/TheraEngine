@@ -78,7 +78,7 @@ namespace CustomEngine.Worlds.Actors
         public override void RegisterInput(InputInterface input)
         {
             input.RegisterMouseScroll(OnScrolled);
-            input.RegisterMouseMove(MouseMove, false);
+            input.RegisterMouseMove(MouseMove, true);
             input.RegisterButtonPressed(EMouseButton.RightClick, OnRightClick);
             input.RegisterButtonPressed(EMouseButton.LeftClick, OnLeftClick);
             input.RegisterButtonPressed(EMouseButton.MiddleClick, OnMiddleClick);
@@ -110,11 +110,11 @@ namespace CustomEngine.Worlds.Actors
         private void OnTogglePause()
         {
             Engine.TogglePause();
-            if (Engine.IsPaused)
-            {
-                LocalPlayerController.EnqueuePosession(this);
-                LocalPlayerController.ControlledPawn = GetViewport().HUD;
-            }
+            //if (Engine.IsPaused)
+            //{
+            //    LocalPlayerController.EnqueuePosession(this);
+            //    LocalPlayerController.ControlledPawn = GetViewport().HUD;
+            //}
         }
 
         private void MoveDown(bool pressed) { _linearUp += _keyboardTranslateSpeed * (pressed ? -1.0f : 1.0f); }
@@ -164,18 +164,12 @@ namespace CustomEngine.Worlds.Actors
         //}
         public void MouseMove(float x, float y)
         {
+            float xDiff = x - _cursorPos.X;
+            float yDiff = y - _cursorPos.Y;
             if (_rotating)
-            {
-                float xDiff = x - _cursorPos.X;
-                float yDiff = y - _cursorPos.Y;
                 CameraComponent.Camera.Rotate(yDiff * _mouseRotateSpeed, xDiff * _mouseRotateSpeed);
-            }
             else if (_translating)
-            {
-                float xDiff = x - _cursorPos.X;
-                float yDiff = y - _cursorPos.Y;
                 CameraComponent.Camera.TranslateRelative(new Vec3(-xDiff * _mouseTranslateSpeed, yDiff * _mouseTranslateSpeed, 0.0f));
-            }
             _cursorPos.X = x;
             _cursorPos.Y = y;
             HighlightScene(false);
@@ -183,13 +177,6 @@ namespace CustomEngine.Worlds.Actors
         public void ShowContextMenu()
         {
 
-        }
-        private Viewport GetViewport()
-        {
-            LocalPlayerController player = LocalPlayerController;
-            if (player == null)
-                return null;
-            return player.Viewport;
         }
         private void HighlightScene(bool gamepad)
         {

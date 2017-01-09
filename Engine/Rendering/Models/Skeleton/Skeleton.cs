@@ -34,7 +34,14 @@ namespace CustomEngine.Rendering.Models
             get { return _model; }
             set { _model = value; }
         }
-        public Dictionary<string, Bone> BoneCache { get { return _boneCache; } }
+
+        public Bone GetBone(string boneName)
+        {
+            if (!_boneCache.ContainsKey(boneName))
+                return RootBone;
+            return _boneCache[boneName];
+        }
+
         public void RegenerateBoneCache()
         {
             _boneCache.Clear();

@@ -22,7 +22,7 @@ namespace Game.Worlds.Actors.Components.Scene
     }
     public class InteractionZoneComponent : BoxComponent
     {
-        public InteractionZoneComponent(Vec3 min, Vec3 max) : base(min, max, null)
+        public InteractionZoneComponent(Vec3 extents) : base(extents, null)
         {
 
         }

@@ -9,9 +9,9 @@ using CustomEngine.Worlds.Actors.Components;
 
 namespace System
 {
-    public class ComplexCapsule : BoundingShape
+    public class ComplexCapsule : Shape
     {
-        protected Vec3 _upAxis;
+        protected Vec3 _upAxis, _center;
         protected float _topRadius, _bottomRadius, _topHeight, _bottomHeight;
 
         public Vec3 UpAxis
@@ -41,7 +41,6 @@ namespace System
         }
 
         public ComplexCapsule(Vec3 center, Vec3 upAxis, float topRadius, float bottomRadius, float topHeight, float bottomHeight)
-            : base(center)
         {
             _topRadius = Math.Abs(topRadius);
             _bottomRadius = Math.Abs(bottomRadius);
@@ -54,7 +53,7 @@ namespace System
         public float GetTotalHeight() { return GetTotalTopHeight() + GetTotalBottomHeight(); }
         public override void Render()
         {
-            Engine.Renderer.RenderCapsule(_point, _upAxis, _topHeight, _topRadius, _bottomHeight, _bottomRadius, Matrix4.Identity, _renderSolid);
+            Engine.Renderer.RenderCapsule(_center, _upAxis, _topHeight, _topRadius, _bottomHeight, _bottomRadius, Matrix4.Identity, _renderSolid);
         }
         public Sphere GetTopSphere()
         {
@@ -68,43 +67,44 @@ namespace System
         {
             throw new InvalidOperationException("Complex capsule cannot be used for physics.");
         }
-
         public override bool Contains(Vec3 point)
         {
             throw new NotImplementedException();
         }
-
-        public override EContainment Contains(IBoundingBox box)
+        public override EContainment Contains(BoundingBox box)
         {
             throw new NotImplementedException();
         }
-
-        public override EContainment Contains(IBox box)
+        public override EContainment Contains(Box box)
         {
             throw new NotImplementedException();
         }
-
-        public override EContainment Contains(ISphere sphere)
+        public override EContainment Contains(Sphere sphere)
         {
             throw new NotImplementedException();
         }
-
-        public override EContainment ContainedWithin(IBoundingBox box)
+        public override EContainment ContainedWithin(BoundingBox box)
         {
             throw new NotImplementedException();
         }
-
-        public override EContainment ContainedWithin(IBox box)
+        public override EContainment ContainedWithin(Box box)
         {
             throw new NotImplementedException();
         }
-
-        public override EContainment ContainedWithin(ISphere sphere)
+        public override EContainment ContainedWithin(Sphere sphere)
         {
             throw new NotImplementedException();
         }
-
         public override EContainment ContainedWithin(Frustum frustum)
+        {
+            throw new NotImplementedException();
+        }
+        public override void SetTransform(Matrix4 worldMatrix)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override Shape HardCopy()
         {
             throw new NotImplementedException();
         }

@@ -24,7 +24,7 @@ namespace CustomEngine.Rendering.HUD
         CameraComponent CameraComponent { get { return RootComponent as CameraComponent; } }
         protected override void SetDefaults()
         {
-            RegisterTick(ETickGroup.PrePhysics, ETickOrder.Input);
+            RegisterTick(ETickGroup.PrePhysics, ETickOrder.Logic);
             base.SetDefaults();
         }
         protected override SceneComponent SetupComponents()

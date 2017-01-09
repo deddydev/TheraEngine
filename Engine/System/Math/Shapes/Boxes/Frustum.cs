@@ -65,8 +65,6 @@ namespace System
             //top, bottom
             _planes[4] = new Plane(farTopLeft, farTopRight, nearTopLeft);
             _planes[5] = new Plane(nearBottomLeft, nearBottomRight, farBottomLeft);
-
-
         }
         public IEnumerator<Plane> GetEnumerator() { return ((IEnumerable<Plane>)_planes).GetEnumerator(); }
         IEnumerator IEnumerable.GetEnumerator() { return ((IEnumerable<Plane>)_planes).GetEnumerator(); }
@@ -83,7 +81,8 @@ namespace System
                 Vec3.TransformPosition(NearTopLeft, transform),
                 Vec3.TransformPosition(NearTopRight, transform));
         }
-        public EContainment Contains(IBoundingBox box) { return Collision.FrustumContainsAABB(this, box.Minimum, box.Maximum); }
+        public EContainment Contains(Box box) { return Collision.FrustumContainsBox1(this, box.HalfExtents, box.WorldMatrix); }
+        public EContainment Contains(BoundingBox box) { return Collision.FrustumContainsAABB(this, box.Minimum, box.Maximum); }
         public EContainment Contains(Sphere sphere) { return Collision.FrustumContainsSphere(this, sphere.Center, sphere.Radius); }
         public EContainment Contains(CapsuleY capsule)
         {

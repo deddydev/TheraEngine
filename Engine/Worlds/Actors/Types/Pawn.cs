@@ -65,6 +65,10 @@ namespace CustomEngine.Worlds.Actors
 
             _controller = null;
         }
+        public void RequestRegisterInput()
+        {
+            
+        }
         public virtual void RegisterInput(InputInterface input) { }
         internal override void Tick(float delta)
         {

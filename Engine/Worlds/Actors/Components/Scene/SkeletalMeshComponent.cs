@@ -9,7 +9,19 @@ namespace CustomEngine.Worlds.Actors.Components
 {
     public class SkeletalMeshComponent : TRSComponent
     {
-        public SkeletalMeshComponent(SkeletalMesh m) { Model = m; }
+        public SkeletalMeshComponent(SkeletalMesh m, bool visibleByDefault)
+        {
+            Model = m;
+            _visibleByDefault = visibleByDefault;
+        }
+        public SkeletalMeshComponent(bool visibleByDefault)
+        {
+            _visibleByDefault = visibleByDefault;
+        }
+        public SkeletalMeshComponent()
+        {
+            _visibleByDefault = true;
+        }
 
         private bool _visible, _visibleByDefault;
         private SkeletalMesh _model;
@@ -37,7 +49,12 @@ namespace CustomEngine.Worlds.Actors.Components
                     return;
 
                 _visible = value;
-                foreach (SkeletalSubMesh m in Model)
+                foreach (SkeletalRigidSubMesh m in Model.RigidChildren)
+                    if (_visible)
+                        Engine.Renderer.Scene.AddRenderable(m);
+                    else
+                        Engine.Renderer.Scene.RemoveRenderable(m);
+                foreach (SkeletalSoftSubMesh m in Model.SoftChildren)
                     if (_visible)
                         Engine.Renderer.Scene.AddRenderable(m);
                     else

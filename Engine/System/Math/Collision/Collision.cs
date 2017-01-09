@@ -108,8 +108,14 @@ namespace System
         }
         public static float DistancePlanePoint(Plane plane, Vec3 point)
         {
-            return Vec3.Dot(plane.Normal, point) - plane.Distance;
+            return Vec3.Dot(plane.Normal, point) + plane.Distance;
         }
+
+        public static EContainment SphereContainsAABB(Vec3 center, float radius, Vec3 minimum, Vec3 maximum)
+        {
+            throw new NotImplementedException();
+        }
+
         public static float DistancePlanePoint(Vec3 normal, Vec3 planePoint, Vec3 point)
         {
             return Vec3.Dot(normal, point) + planePoint.Dot(normal);
@@ -162,10 +168,6 @@ namespace System
         }
 
         public static EContainment AABBContainsCapsule(Vec3 boxMin, Vec3 boxMax, CapsuleY capsule)
-        {
-            throw new NotImplementedException();
-        }
-        public static EContainment SphereContainsCapsule(Vec3 sphereCenter, float sphereRadius, Vec3 capsuleCenter, float capsuleHalfHeight, float capsuleRadius)
         {
             throw new NotImplementedException();
         }
@@ -293,9 +295,9 @@ namespace System
             return true;
         }
 
-        public static EContainment AABBContainsBox(Vec3 box1Min, Vec3 box1Max, Vec3 box2Min, Vec3 box2Max, Matrix4 box2Transform)
+        public static EContainment AABBContainsBox(Vec3 box1Min, Vec3 box1Max, Vec3 box2HalfExtents, Matrix4 box2Transform)
         {
-            Vec3[] corners = BoundingBox.GetCorners(box2Min, box2Max, box2Transform);
+            Vec3[] corners = BoundingBox.GetCorners(box2HalfExtents, box2Transform);
             int numIn = 0, numOut = 0;
             for (int i = 0; i < 8; ++i)
             {
@@ -497,14 +499,14 @@ namespace System
             point = ray.StartPoint + (ray.Direction * distance);
             return true;
         }
-        public static bool RayIntersectsBoxDistance(Vec3 rayStartPoint, Vec3 rayDirection, Vec3 boxMin, Vec3 boxMax, Matrix4 boxInverseTransform, out float distance)
+        public static bool RayIntersectsBoxDistance(Vec3 rayStartPoint, Vec3 rayDirection, Vec3 boxHalfExtents, Matrix4 boxInverseTransform, out float distance)
         {
             //Transform ray to untransformed box space
             Vec3 rayEndPoint = rayStartPoint + rayDirection;
             rayStartPoint = Vec3.TransformPosition(rayStartPoint, boxInverseTransform);
             rayEndPoint = Vec3.TransformPosition(rayEndPoint, boxInverseTransform);
             rayDirection = rayEndPoint - rayStartPoint;
-            return RayIntersectsAABBDistance(rayStartPoint, rayDirection, boxMin, boxMax, out distance);
+            return RayIntersectsAABBDistance(rayStartPoint, rayDirection, -boxHalfExtents, boxHalfExtents, out distance);
         }
         public static bool RayIntersectsAABBDistance(Vec3 rayStartPoint, Vec3 rayDirection, Vec3 boxMin, Vec3 boxMax, out float distance)
         {
@@ -567,16 +569,16 @@ namespace System
             point = ray.StartPoint + (ray.Direction * distance);
             return true;
         }
-        public static bool RayIntersectsBox(Ray ray, Vec3 boxMin, Vec3 boxMax, Matrix4 boxInverseTransform, out Vec3 point)
+        public static bool RayIntersectsBox(Vec3 rayStartPoint, Vec3 rayDirection, Vec3 boxHalfExtents, Matrix4 boxInverseTransform, out Vec3 point)
         {
             float distance;
-            if (!RayIntersectsBoxDistance(ray.StartPoint, ray.Direction, boxMin, boxMax, boxInverseTransform, out distance))
+            if (!RayIntersectsBoxDistance(rayStartPoint, rayDirection, boxHalfExtents, boxInverseTransform, out distance))
             {
                 point = Vec3.Zero;
                 return false;
             }
 
-            point = ray.StartPoint + (ray.Direction * distance);
+            point = rayStartPoint + (rayDirection * distance);
             return true;
         }
 
@@ -844,19 +846,14 @@ namespace System
         /// <param name="box">The box to test.</param>
         /// <param name="sphere">The sphere to test.</param>
         /// <returns>Whether the two objects intersected.</returns>
-        public static bool BoxIntersectsSphere(Vec3 boxMin, Vec3 boxMax, Matrix4 boxInverseTransform, Vec3 sphereCenter, float sphereRadius)
+        public static bool BoxIntersectsSphere(Vec3 boxHalfExtents, Matrix4 boxInverseTransform, Vec3 sphereCenter, float sphereRadius)
         {
-            Vec3 pos = Vec3.TransformPosition(sphereCenter, boxInverseTransform);
-            return pos.DistanceToSquared(pos.Clamped(boxMin, boxMax)) <= sphereRadius * sphereRadius;
+            sphereCenter = Vec3.TransformPosition(sphereCenter, boxInverseTransform);
+            return AABBIntersectsSphere(-boxHalfExtents, boxHalfExtents, sphereCenter, sphereRadius);
         }
         public static bool AABBIntersectsSphere(Vec3 boxMin, Vec3 boxMax, Vec3 sphereCenter, float sphereRadius)
         {
-            return AABBIntersectsSphere(boxMin, boxMax, Vec3.Zero, sphereCenter, sphereRadius);
-        }
-        public static bool AABBIntersectsSphere(Vec3 boxMin, Vec3 boxMax, Vec3 boxOrigin, Vec3 sphereCenter, float sphereRadius)
-        {
-            Vec3 pos = sphereCenter - boxOrigin;
-            return pos.DistanceToSquared(pos.Clamped(boxMin, boxMax)) <= sphereRadius * sphereRadius;
+            return sphereCenter.DistanceToSquared(sphereCenter.Clamped(boxMin, boxMax)) <= sphereRadius * sphereRadius;
         }
 
         /// <summary>
@@ -882,16 +879,11 @@ namespace System
             float radiisum = sphere1Radius + sphere2Radius;
             return sphere1Center.DistanceToSquared(sphere2Center) <= radiisum * radiisum;
         }
-        public static bool BoxContainsPoint(Vec3 boxMin, Vec3 boxMax, Matrix4 boxInverseTransform, Vec3 point)
+        public static bool BoxContainsPoint(Vec3 boxHalfExtents, Matrix4 boxInverseTransform, Vec3 point)
         {
             //Transform point into untransformed box space
             point = Vec3.TransformPosition(point, boxInverseTransform);
-            if (boxMin.X <= point.X && boxMax.X >= point.X &&
-                boxMin.Y <= point.Y && boxMax.Y >= point.Y &&
-                boxMin.Z <= point.Z && boxMax.Z >= point.Z)
-                return true;
-
-            return false;
+            return AABBContainsPoint(-boxHalfExtents, boxHalfExtents, point);
         }
         public static bool AABBContainsPoint(Vec3 boxMin, Vec3 boxMax, Vec3 point)
         {
@@ -923,13 +915,24 @@ namespace System
             return EContainment.Disjoint;
         }
         */
-        public static EContainment BoxContainsAABB(Vec3 box1Min, Vec3 box1Max, Matrix4 box1Transform, Vec3 box2Min, Vec3 box2Max)
+        public static EContainment BoxContainsAABB(
+            Vec3 box1HalfExtents,
+            Matrix4 box1Transform,
+            Vec3 box2Min,
+            Vec3 box2Max)
         {
-            return FrustumContainsBox1(BoundingBox.GetFrustum(box1Min, box1Max, box1Transform), box2Min, box2Max, Matrix4.Identity);
+            return FrustumContainsBox1(
+                BoundingBox.GetFrustum(box1HalfExtents, box1Transform), (box2Max - box2Min) / 2.0f, 
+                Matrix4.CreateTranslation((box2Max + box2Min) / 2.0f));
         }
-        public static EContainment BoxContainsBox(Vec3 box1Min, Vec3 box1Max, Matrix4 box1Transform, Vec3 box2Min, Vec3 box2Max, Matrix4 box2Transform)
+        public static EContainment BoxContainsBox(
+            Vec3 box1HalfExtents,
+            Matrix4 box1Transform, 
+            Vec3 box2HalfExtents,
+            Matrix4 box2Transform)
         {
-            return FrustumContainsBox1(BoundingBox.GetFrustum(box1Min, box1Max, box1Transform), box2Min, box2Max, box2Transform);
+            return FrustumContainsBox1(
+                BoundingBox.GetFrustum(box1HalfExtents, box1Transform), box2HalfExtents, box2Transform);
         }
         public static EContainment AABBContainsAABB(Vec3 box1Min, Vec3 box1Max, Vec3 box2Min, Vec3 box2Max)
         {
@@ -949,11 +952,14 @@ namespace System
 
             return EContainment.Intersects;
         }
-        public static EContainment BoxContainsSphere(Vec3 boxMin, Vec3 boxMax, Matrix4 boxInverseTransform, Vec3 sphereCenter, float sphereRadius)
+        public static EContainment BoxContainsSphere(Vec3 boxHalfExtents, Matrix4 boxTransform, Vec3 sphereCenter, float sphereRadius)
         {
+            Frustum f = BoundingBox.GetFrustum(boxHalfExtents, boxTransform);
+            return FrustumContainsSphere(f, sphereCenter, sphereRadius);
+
             //Transform sphere into untransformed box space
-            sphereCenter = Vec3.TransformPosition(sphereCenter, boxInverseTransform);
-            return AABBContainsSphere(boxMin, boxMax, sphereCenter, sphereRadius);
+            //sphereCenter = Vec3.TransformPosition(sphereCenter, boxInverseTransform);
+            //return AABBContainsSphere(-boxHalfExtents, boxHalfExtents, sphereCenter, sphereRadius);
         }
         public static EContainment AABBContainsSphere(Vec3 boxMin, Vec3 boxMax, Vec3 sphereCenter, float sphereRadius)
         {
@@ -1009,7 +1015,10 @@ namespace System
 
             return EContainment.Disjoint;
         }
-
+        public static EContainment SphereContainsCapsule(Vec3 sphereCenter, float sphereRadius, Vec3 capsuleCenter, float capsuleHalfHeight, float capsuleRadius)
+        {
+            throw new NotImplementedException();
+        }
         /// <summary>
         /// Determines whether a <see cref="Sphere"/> contains a <see cref="BoundingBox"/>.
         /// </summary>
@@ -1017,17 +1026,48 @@ namespace System
         /// <param name="box">The box to test.</param>
         /// <returns>The type of containment the two objects have.</returns>
         public static EContainment SphereContainsBox(
-            Vec3 sphereCenter, float sphereRadius, Vec3 boxMin, Vec3 boxMax, Matrix4 boxTransform, Matrix4 boxInverseTransform)
+            Vec3 sphereCenter,
+            float sphereRadius,
+            Vec3 boxHalfExtents,
+            Matrix4 boxTransform/*,
+            Matrix4 boxInverseTransform*/)
         {
-            if (!BoxIntersectsSphere(boxMin, boxMax, boxInverseTransform, sphereCenter, sphereRadius))
+            //if (!BoxIntersectsSphere(boxHalfExtents, boxInverseTransform, sphereCenter, sphereRadius))
+            //    return EContainment.Disjoint;
+
+            int inside = 0, outside = 0;
+
+            float r2 = sphereRadius * sphereRadius;
+            Vec3[] points = BoundingBox.GetCorners(boxHalfExtents, boxTransform);
+            foreach (Vec3 point in points)
+                if (sphereCenter.DistanceToSquared(point) > r2)
+                    ++outside;
+                else
+                    ++inside;
+
+            if (outside == 0)
+                return EContainment.Contains;
+            if (inside == 0)
+                return EContainment.Disjoint;
+            
+            return EContainment.Intersects;
+        }
+        public static EContainment SphereContainsBox(
+            Vec3 sphereCenter,
+            float sphereRadius,
+            Vec3 boxHalfExtents,
+            Matrix4 boxTransform,
+            Matrix4 boxInverseTransform)
+        {
+            if (!BoxIntersectsSphere(boxHalfExtents, boxInverseTransform, sphereCenter, sphereRadius))
                 return EContainment.Disjoint;
 
             float r2 = sphereRadius * sphereRadius;
-            Vec3[] points = BoundingBox.GetCorners(boxMin, boxMax, boxTransform);
+            Vec3[] points = BoundingBox.GetCorners(boxHalfExtents, boxTransform);
             foreach (Vec3 point in points)
                 if (sphereCenter.DistanceToSquared(point) > r2)
                     return EContainment.Intersects;
-            
+
             return EContainment.Contains;
         }
 
@@ -1065,11 +1105,11 @@ namespace System
             }
             return type;
         }
-        public static EContainment FrustumContainsBox1(Frustum frustum, Vec3 boxMin, Vec3 boxMax, Matrix4 boxTransform)
+        public static EContainment FrustumContainsBox1(Frustum frustum, Vec3 boxHalfExtents, Matrix4 boxTransform)
         {
             EContainment result = EContainment.Contains;
             int numOut, numIn;
-            Vec3[] corners = BoundingBox.GetCorners(boxMin, boxMax, boxTransform);
+            Vec3[] corners = BoundingBox.GetCorners(boxHalfExtents, boxTransform);
             foreach (Plane p in frustum)
             {
                 numOut = 0;
@@ -1088,7 +1128,24 @@ namespace System
         }
         public static EContainment FrustumContainsAABB(Frustum frustum, Vec3 boxMin, Vec3 boxMax)
         {
-            return FrustumContainsBox1(frustum, boxMin, boxMax, Matrix4.Identity);
+            EContainment result = EContainment.Contains;
+            int numOut, numIn;
+            Vec3[] corners = BoundingBox.GetCorners(boxMin, boxMax);
+            foreach (Plane p in frustum)
+            {
+                numOut = 0;
+                numIn = 0;
+                for (int i = 0; i < 8 && (numIn == 0 || numOut == 0); i++)
+                    if (DistancePlanePoint(p, corners[i]) < 0)
+                        numOut++;
+                    else
+                        numIn++;
+                if (numIn == 0)
+                    return EContainment.Disjoint;
+                else if (numOut != 0)
+                    result = EContainment.Intersects;
+            }
+            return result;
         }
         //public static EContainment FrustumContainsBox2(Frustum frustum, BoundingBox box)
         //{

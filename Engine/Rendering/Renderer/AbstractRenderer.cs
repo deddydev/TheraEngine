@@ -28,9 +28,8 @@ namespace CustomEngine.Rendering
             _wireSphere = new PrimitiveManager();
             _wireSphere.Data = Sphere.Mesh(Vec3.Zero, 1.0f, 4, 4);
         }
-
-        public void RenderAABB(Vec3 min, Vec3 max, bool solid) => RenderBox(min, max, Matrix4.Identity, solid);
-        public void RenderAABB(Vec3 min, Vec3 max, Vec3 center, bool solid) => RenderBox(min + center, max + center, Matrix4.Identity, solid);
+        
+        public void RenderAABB(Vec3 halfExtents, Vec3 translation, bool solid) => RenderBox(halfExtents, Matrix4.CreateTranslation(translation), solid);
         public void RenderCapsule(Vec3 center, Vec3 axis, float topHeight, float topRadius, float bottomHeight, float bottomRadius, Matrix4 transform, bool solid)
         {
             Vec3 normal = axis.GetSafeNormal();
@@ -61,15 +60,14 @@ namespace CustomEngine.Rendering
             else
                 _wireSphere.Render(mtx, Matrix4.Identity);
         }
-        public void RenderBox(Vec3 min, Vec3 max, Matrix4 transform, bool solid)
+        public void RenderBox(Vec3 halfExtents, Matrix4 transform, bool solid)
         {
-            Vec3 scale = max - min;
-            Vec3 center = (max + min) / 2.0f;
-            Matrix4 mtx = Matrix4.CreateTranslation(center) * Matrix4.CreateScale(scale) * transform;
+            Vec3 scale = halfExtents * 2.0f;
+            transform = transform * Matrix4.CreateScale(scale);
             if (solid)
-                _solidBox.Render(mtx);
+                _solidBox.Render(transform);
             else
-                _wireBox.Render(mtx);
+                _wireBox.Render(transform);
         }
         public void RenderCapsule(Vec3 topPoint, Vec3 bottomPoint, float topRadius, float bottomRadius, bool solid)
         {

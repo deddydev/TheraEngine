@@ -16,37 +16,30 @@ namespace System
         {
             throw new NotImplementedException();
         }
-
-        public override EContainment ContainedWithin(ISphere sphere)
+        public override EContainment ContainedWithin(Sphere sphere)
         {
             throw new NotImplementedException();
         }
-
-        public override EContainment ContainedWithin(IBox box)
+        public override EContainment ContainedWithin(Box box)
         {
             throw new NotImplementedException();
         }
-
-        public override EContainment ContainedWithin(IBoundingBox box)
+        public override EContainment ContainedWithin(BoundingBox box)
         {
             throw new NotImplementedException();
         }
-
-        public override EContainment Contains(IBox box)
+        public override EContainment Contains(Box box)
         {
             throw new NotImplementedException();
         }
-
-        public override EContainment Contains(ISphere sphere)
+        public override EContainment Contains(Sphere sphere)
         {
             throw new NotImplementedException();
         }
-
-        public override EContainment Contains(IBoundingBox box)
+        public override EContainment Contains(BoundingBox box)
         {
             throw new NotImplementedException();
         }
-
         public override bool Contains(Vec3 point)
         {
             throw new NotImplementedException();
@@ -55,6 +48,16 @@ namespace System
         public override CollisionShape GetCollisionShape()
         {
             return new CapsuleShape(Radius, HalfHeight * 2.0f);
+        }
+
+        public override Shape HardCopy()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void SetTransform(Matrix4 worldMatrix)
+        {
+            throw new NotImplementedException();
         }
     }
 }

@@ -493,6 +493,8 @@
     <Compile Include="Rendering\Models\Meshes\Faces\Vertex\VertexLineStrip.cs" />
     <Compile Include="Rendering\Models\Meshes\Faces\Vertex\VertexLine.cs" />
     <Compile Include="Rendering\Models\Meshes\Faces\Vertex\VertexTriangleFan.cs" />
+    <Compile Include="Rendering\Models\Meshes\SkeletalRigidSubMesh.cs" />
+    <Compile Include="Rendering\Models\Meshes\SoftMesh.cs" />
     <Compile Include="Rendering\Models\Meshes\StaticMesh.cs" />
     <Compile Include="Rendering\PhysicsDriver.cs" />
     <Compile Include="Rendering\RenderableObject.cs" />
@@ -579,11 +581,12 @@
     <Compile Include="System\Math\Shapes\Cylindrical\BaseCylinder.cs" />
     <Compile Include="System\Math\Shapes\Cylindrical\YAligned\CylinderY.cs" />
     <Compile Include="System\Math\Shapes\Cylindrical\YAligned\ConeY.cs" />
-    <Compile Include="System\Math\Shapes\Geometric\Frustum.cs" />
-    <Compile Include="System\Math\Shapes\Geometric\Plane.cs" />
-    <Compile Include="System\Math\Shapes\Geometric\Circle.cs" />
-    <Compile Include="System\Math\Shapes\Geometric\Segment.cs" />
-    <Compile Include="System\Math\Shapes\Geometric\Ray.cs" />
+    <Compile Include="System\Math\Shapes\Boxes\Box.cs" />
+    <Compile Include="System\Math\Shapes\Boxes\Frustum.cs" />
+    <Compile Include="System\Math\Shapes\Lines\Plane.cs" />
+    <Compile Include="System\Math\Shapes\Circle.cs" />
+    <Compile Include="System\Math\Shapes\Lines\Segment.cs" />
+    <Compile Include="System\Math\Shapes\Lines\Ray.cs" />
     <Compile Include="System\Math\Shapes\Shape.cs" />
     <Compile Include="System\Math\Shapes\Sphere.cs" />
     <Compile Include="System\Math\Transforms\Matrix3.cs" />
@@ -652,12 +655,12 @@
     <Compile Include="Worlds\Actors\Components\Logic\MovementComponents\TransformMovementComponent.cs" />
     <Compile Include="Worlds\Actors\Components\Logic\MovementComponents\CharacterMovementComponent.cs" />
     <Compile Include="Worlds\Actors\Components\SceneComponent.cs" />
-    <Compile Include="Worlds\Actors\Components\Scene\Base\PhysicsObjectComponent.cs" />
     <Compile Include="Worlds\Actors\Components\Scene\Shapes\Cones\BasicConeYComponent.cs" />
     <None Include="Worlds\Actors\Components\Scene\Shapes\Cones\ComplexConeComponent.cs" />
     <Compile Include="Worlds\Actors\Components\Scene\Shapes\SphereComponent.cs" />
     <Compile Include="Worlds\Actors\Components\Scene\Shapes\ShapeComponent.cs" />
     <Compile Include="Worlds\Actors\Components\Scene\Shapes\BoxComponent.cs" />
+    <Compile Include="Worlds\Actors\Components\Scene\SoftMeshComponent.cs" />
     <Compile Include="Worlds\Actors\Components\Scene\StaticMeshComponent.cs" />
     <Compile Include="Worlds\Actors\Components\Scene\Volumes\TriggerVolumeComponent.cs" />
     <Compile Include="Worlds\Actors\Components\Scene\PrimitiveComponent.cs" />
@@ -698,7 +701,7 @@
     <Compile Include="System\ObjectBase.cs" />
     <Compile Include="System\Reflection\Attributes\EngineFlagsAttribute.cs" />
     <Compile Include="System\Math\Shapes\Cylindrical\YAligned\CapsuleY.cs" />
-    <Compile Include="System\Math\Shapes\Geometric\BoundingBox.cs" />
+    <Compile Include="System\Math\Shapes\Boxes\BoundingBox.cs" />
     <Compile Include="System\Memory\DataSource.cs" />
     <Compile Include="System\IO\FileMap.cs" />
     <Compile Include="System\Time\GameTimer.cs" />
@@ -725,6 +728,7 @@
     <Compile Include="Worlds\Maps\Map.cs" />
     <Compile Include="Worlds\Maps\MapSettings.cs" />
     <Compile Include="Worlds\Maps\MapState.cs" />
+    <Compile Include="Worlds\TestWorld.cs" />
     <Compile Include="Worlds\World.cs" />
     <Compile Include="Rendering\Animation\PropertyAnimation.cs" />
     <Compile Include="System\Math\Transforms\FrameState.cs" />
@@ -732,7 +736,7 @@
     <Compile Include="Rendering\Models\Meshes\Primitives\FacePoint.cs" />
     <Compile Include="Rendering\Models\Skeleton\Bone.cs" />
     <Compile Include="Rendering\Models\Meshes\SkeletalMesh.cs" />
-    <Compile Include="Rendering\Models\Meshes\SkeletalSubMesh.cs" />
+    <Compile Include="Rendering\Models\Meshes\SkeletalSoftSubMesh.cs" />
     <Compile Include="Rendering\Models\Skeleton\Skeleton.cs" />
     <Compile Include="Rendering\Renderer\States\Texture.cs" />
     <Compile Include="Worlds\WorldSettings.cs" />

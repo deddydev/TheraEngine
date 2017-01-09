@@ -12,7 +12,7 @@ namespace System
 {
     public interface IRenderable
     {
-        IShape CullingVolume { get; }
+        Shape CullingVolume { get; }
         bool IsRendering { get; set; }
         bool VisibleByDefault { get; }
         bool Visible { get; set; }
@@ -33,8 +33,8 @@ namespace System
         public void Render() { _head?.Render(); }
         public void Cull(Frustum frustum) { _head?.Cull(frustum); }
         public List<IRenderable> FindClosest(Vec3 point) { return _head.FindClosest(point); }
-        public List<IRenderable> FindAllJustOutside(BoundingShape shape) { return _head.FindAllJustOutside(shape); }
-        public List<IRenderable> FindAllInside(BoundingShape shape) { return _head.FindAllInside(shape); }
+        public List<IRenderable> FindAllJustOutside(Shape shape) { return _head.FindAllJustOutside(shape); }
+        public List<IRenderable> FindAllInside(Shape shape) { return _head.FindAllInside(shape); }
         public void Add(IRenderable value)
         {
             if (_head == null)
@@ -68,7 +68,7 @@ namespace System
             
             public List<IRenderable> Items { get { return _items; } }
             public BoundingBox Bounds { get { return _bounds; } }
-            public Vec3 Center { get { return _bounds.ExtentsCenter; } }
+            public Vec3 Center { get { return _bounds.Translation; } }
             public Vec3 Min { get { return _bounds.Minimum; } }
             public Vec3 Max { get { return _bounds.Maximum; } }
 
@@ -114,7 +114,7 @@ namespace System
                 else
                     return null;
             }
-            public List<IRenderable> FindAllJustOutside(IShape shape)
+            public List<IRenderable> FindAllJustOutside(Shape shape)
             {
                 foreach (OctreeNode node in _subNodes)
                     if (node != null)
@@ -134,7 +134,7 @@ namespace System
                         list.AddRange(node.CollectChildren());
                 return list;
             }
-            public List<IRenderable> FindAllInside(BoundingShape shape)
+            public List<IRenderable> FindAllInside(Shape shape)
             {
                 throw new NotImplementedException();
             }
@@ -143,8 +143,8 @@ namespace System
                 EContainment c = frustum.Contains(_bounds);
                 if (c == EContainment.Contains)
                     Visible = true;
-                else if (c == EContainment.Disjoint)
-                    Visible = false;
+                //else if (c == EContainment.Disjoint)
+                //    Visible = false;
                 else
                 {
                     //Bounds is intersecting edge of frustum

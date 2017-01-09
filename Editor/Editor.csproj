@@ -93,8 +93,8 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="Controls\RenderPanel.xaml.cs">
-      <DependentUpon>RenderPanel.xaml</DependentUpon>
+    <Compile Include="Controls\EditorRenderPanel.xaml.cs">
+      <DependentUpon>EditorRenderPanel.xaml</DependentUpon>
     </Compile>
     <Compile Include="Controls\UVEditor.xaml.cs">
       <DependentUpon>UVEditor.xaml</DependentUpon>
@@ -115,7 +115,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Controls\RenderPanel.xaml">
+    <Page Include="Controls\EditorRenderPanel.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

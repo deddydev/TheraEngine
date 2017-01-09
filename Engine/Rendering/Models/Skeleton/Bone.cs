@@ -39,10 +39,10 @@ namespace CustomEngine.Rendering.Models
                 b.CollectChildBones(boneCache, owner);
         }
 
-        public void LinkSingleBindMesh(SkeletalSubMesh m) { _singleBoundMeshes.Add(m); }
-        public void UnlinkSingleBindMesh(SkeletalSubMesh m) { _singleBoundMeshes.Remove(m); }
+        public void LinkSingleBindMesh(SkeletalRigidSubMesh m) { _singleBoundMeshes.Add(m); }
+        public void UnlinkSingleBindMesh(SkeletalRigidSubMesh m) { _singleBoundMeshes.Remove(m); }
 
-        private List<SkeletalSubMesh> _singleBoundMeshes = new List<SkeletalSubMesh>();
+        private List<SkeletalRigidSubMesh> _singleBoundMeshes = new List<SkeletalRigidSubMesh>();
         private Skeleton _skeleton;
         private Bone _parent;
         private MonitoredList<Bone> _children = new MonitoredList<Bone>();

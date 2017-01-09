@@ -4,106 +4,60 @@ using CustomEngine.Rendering;
 
 namespace CustomEngine.Worlds.Actors.Components
 {
-    public class BoxComponent : ShapeComponent, IBox
+    public class BoxComponent : ShapeComponent
     {
         public BoxComponent() : base(null)
         {
-            _box = new BoundingBox(Vec3.Zero, -Vec3.One, Vec3.One);
+            _box = new Box(1.0f);
         }
         public BoxComponent(PhysicsDriverInfo info) : base(info)
         {
-            _box = new BoundingBox(Vec3.Zero, -Vec3.One, Vec3.One);
+            _box = new Box(1.0f);
         }
-        public BoxComponent(Vec3 min, Vec3 max, PhysicsDriverInfo info) : base(info)
+        public BoxComponent(Vec3 extents, PhysicsDriverInfo info) : base(info)
         {
-            _box = new BoundingBox(Vec3.Zero, min, max);
+            _box = new Box(extents);
+        }
+        public BoxComponent(float extentsX, float extentsY, float extentsZ, PhysicsDriverInfo info) : base(info)
+        {
+            _box = new Box(extentsX, extentsY, extentsZ);
+        }
+        public BoxComponent(float uniformExtents, PhysicsDriverInfo info) : base(info)
+        {
+            _box = new Box(uniformExtents);
         }
 
-        private BoundingBox _box;
-
-        public BoundingBox Box
+        private Box _box;
+        public Box Box
         {
             get { return _box; }
             set { _box = value; }
         }
-
-        public override IShape CullingVolume
+        public override Shape CullingVolume { get { return _box; } }
+        public Vec3 HalfExtents
         {
-            get
-            {
-                throw new NotImplementedException();
-            }
+            get { return _box.HalfExtents; }
+            set { _box.HalfExtents = value; }
         }
-
-        public Vec3 Minimum
-        {
-            get { return _box.Minimum; }
-            set { _box.Minimum = value; }
-        }
-        public Vec3 Maximum
-        {
-            get { return _box.Maximum; }
-            set { _box.Maximum = value; }
-        }
-        public Vec3 Center
-        {
-            get
-            {
-                return _box.ExtentsCenter;
-            }
-        }
-
-        public Vec3[] GetTransformedCorners() { return _box.GetCorners(WorldMatrix); }
-        public Vec3[] GetUntransformedCorners() { return _box.GetCorners(); }
-
         public override void Render()
         {
-            throw new NotImplementedException();
+            Engine.Renderer.RenderBox(HalfExtents, WorldMatrix, false);
         }
-
-        protected override CollisionShape GetCollisionShape()
+        protected override CollisionShape GetCollisionShape() { return _box.GetCollisionShape(); }
+        public bool Contains(Vec3 point) { return _box.Contains(point); }
+        public EContainment Contains(BoundingBox box) { return _box.Contains(box); }
+        public EContainment Contains(Box box) { return _box.Contains(box); }
+        public EContainment Contains(Sphere sphere) { return _box.Contains(sphere); }
+        public EContainment ContainedWithin(BoundingBox box) { return box.Contains(_box); }
+        public EContainment ContainedWithin(Box box) { return box.Contains(_box); }
+        public EContainment ContainedWithin(Sphere sphere) { return sphere.Contains(_box); }
+        public EContainment ContainedWithin(Frustum frustum) { return frustum.Contains(_box); }
+        public Vec3[] GetTransformedCorners() { return _box.GetCorners(); }
+        public Vec3[] GetUntransformedCorners() { return BoundingBox.GetCorners(_box.HalfExtents, Matrix4.Identity); }
+        internal override void RecalcGlobalTransform()
         {
-            throw new NotImplementedException();
-        }
-
-        public bool Contains(Vec3 point)
-        {
-            throw new NotImplementedException();
-        }
-
-        public EContainment Contains(IBoundingBox box)
-        {
-            throw new NotImplementedException();
-        }
-
-        public EContainment Contains(IBox box)
-        {
-            throw new NotImplementedException();
-        }
-
-        public EContainment Contains(ISphere sphere)
-        {
-            throw new NotImplementedException();
-        }
-
-        public EContainment ContainedWithin(IBoundingBox box)
-        {
-            throw new NotImplementedException();
-        }
-
-        public EContainment ContainedWithin(IBox box)
-        {
-            throw new NotImplementedException();
-        }
-
-        public EContainment ContainedWithin(ISphere sphere)
-        {
-            throw new NotImplementedException();
-        }
-
-        public EContainment ContainedWithin(Frustum frustum)
-        {
-            throw new NotImplementedException();
+            base.RecalcGlobalTransform();
+            _box.WorldMatrix = WorldMatrix;
         }
     }
 }

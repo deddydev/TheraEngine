@@ -8,9 +8,61 @@ using System.Linq;
 
 namespace CustomEngine.Rendering.Models.Collada
 {
+    public class ColladaImportOptions
+    {
+        [Category("Primitives")]
+        public Culling DefaultCulling { get { return _culling; } set { _culling = value; } }
+        [Category("Primitives")]
+        public bool ReverseWinding { get { return _reverseWinding; } set { _reverseWinding = value; } }
+        [Category("Primitives")]
+        public float WeightPrecision { get { return _weightPrecision; } set { _weightPrecision = value.Clamp(0.0000001f, 0.999999f); } }
+        [Category("Primitives")]
+        public TexCoordWrap TexCoordWrap { get { return _wrap; } set { _wrap = value; } }
+
+        [Category("Compression")]
+        public bool AllowVertexCompression { get { return _allowVertexCompression; } set { _allowVertexCompression = value; } }
+        [Category("Compression")]
+        public bool AllowNormalCompression { get { return _allowNormalCompression; } set { _allowNormalCompression = value; } }
+        [Category("Compression")]
+        public bool AllowTangentCompression { get { return _allowTangentCompression; } set { _allowTangentCompression = value; } }
+        [Category("Compression")]
+        public bool AllowBinormalCompression { get { return _allowBinormalCompression; } set { _allowBinormalCompression = value; } }
+        [Category("Compression")]
+        public bool AllowTexCoordCompression { get { return _allowTexCoordCompression; } set { _allowTexCoordCompression = value; } }
+        [Category("Compression")]
+        public bool AllowColorCompression { get { return _allowColorCompression; } set { _allowColorCompression = value; } }
+
+        [Category("Tristripper")]
+        public bool UseTristrips { get { return _useTristrips; } set { _useTristrips = value; } }
+        [Category("Tristripper")]
+        public uint CacheSize { get { return _cacheSize; } set { _cacheSize = value; } }
+        [Category("Tristripper")]
+        public uint MinimumStripLength { get { return _minStripLen; } set { _minStripLen = value < 2 ? 2 : value; } }
+        [Category("Tristripper")]
+        public bool PushCacheHits { get { return _pushCacheHits; } set { _pushCacheHits = value; } }
+        //[Category("Tristripper")]
+        //public bool BackwardSearch { get { return _backwardSearch; } set { _backwardSearch = value; } }
+
+        public bool _allowVertexCompression = true;
+        public bool _allowNormalCompression = true;
+        public bool _allowTangentCompression = true;
+        public bool _allowBinormalCompression = true;
+        public bool _allowTexCoordCompression = true;
+        public bool _allowColorCompression = true;
+
+        public uint _cacheSize = 52;
+        public uint _minStripLen = 2;
+        public bool _pushCacheHits = true;
+        public bool _useTristrips = true;
+        public bool _reverseWinding = false;
+        public float _weightPrecision = 0.0001f;
+        public TexCoordWrap _wrap = TexCoordWrap.Repeat;
+        public Culling _culling = Culling.None;
+        public bool _backwardSearch = false; //Doesn't work
+    }
     public unsafe partial class Collada
     {
-        public SkeletalMesh ImportModel(string filePath, ImportOptions options)
+        public static SkeletalMesh ImportModel(string filePath, ColladaImportOptions options)
         {
             SkeletalMesh model = new SkeletalMesh();
             model.Name = Path.GetFileNameWithoutExtension(filePath);
@@ -59,7 +111,7 @@ namespace CustomEngine.Rendering.Models.Collada
                                         }
 
                     MaterialSettings s = new MaterialSettings();
-                    Material m = new Material(mat._name != null ? mat._name : mat._id, s);
+                    Material m = Material.GetTestMaterial();//new Material(mat._name != null ? mat._name : mat._id, s);
                     mat._node = m;
 
                     foreach (ImageEntry img in imgEntries)
@@ -79,7 +131,11 @@ namespace CustomEngine.Rendering.Models.Collada
                 //Extract bones and objects and create bone tree
                 foreach (SceneEntry scene in shell._scenes)
                     foreach (NodeEntry node in scene._nodes)
-                        rootBones.Add(EnumNode(null, node, scene, model, shell, objects, baseTransform));
+                    {
+                        Bone b = EnumNode(null, node, scene, model, shell, objects, baseTransform);
+                        if (b != null)
+                            rootBones.Add(b);
+                    }
 
                 Bone rootBone = rootBones.Count == 0 ? new Bone("Root") : rootBones[0];
                 model.Skeleton = new Skeleton(rootBone);
@@ -87,14 +143,14 @@ namespace CustomEngine.Rendering.Models.Collada
                 //Create meshes after all bones have been created
                 foreach (ObjectInfo obj in objects)
                     obj.Initialize(model, shell);
-                
+
                 GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced);
             }
 
             return model;
         }
 
-        private Bone EnumNode(
+        private static Bone EnumNode(
             Bone parent,
             NodeEntry node,
             SceneEntry scene,
@@ -209,69 +265,16 @@ namespace CustomEngine.Rendering.Models.Collada
             if (data == null)
                 return;
 
-            SkeletalSubMesh m = new SkeletalSubMesh(data, name);
-            
-            //Attach material
+            Material m = null;
             if (material != null)
             {
                 MaterialEntry e = shell._materials.First(x => x._id == material._target);
                 if (e != null)
-                    m.Material = e._node as Material;
+                    m = e._node as Material;
             }
-
-            model.Children.Add(m);
-        }
-        public class ImportOptions
-        {
-            [Category("Primitives")]
-            public Culling DefaultCulling { get { return _culling; } set { _culling = value; } }
-            [Category("Primitives")]
-            public bool ReverseWinding { get { return _reverseWinding; } set { _reverseWinding = value; } }
-            [Category("Primitives")]
-            public float WeightPrecision { get { return _weightPrecision; } set { _weightPrecision = value.Clamp(0.0000001f, 0.999999f); } }
-            [Category("Primitives")]
-            public TexCoordWrap TexCoordWrap { get { return _wrap; } set { _wrap = value; } }
-
-            [Category("Compression")]
-            public bool AllowVertexCompression { get { return _allowVertexCompression; } set { _allowVertexCompression = value; } }
-            [Category("Compression")]
-            public bool AllowNormalCompression { get { return _allowNormalCompression; } set { _allowNormalCompression = value; } }
-            [Category("Compression")]
-            public bool AllowTangentCompression { get { return _allowTangentCompression; } set { _allowTangentCompression = value; } }
-            [Category("Compression")]
-            public bool AllowBinormalCompression { get { return _allowBinormalCompression; } set { _allowBinormalCompression = value; } }
-            [Category("Compression")]
-            public bool AllowTexCoordCompression { get { return _allowTexCoordCompression; } set { _allowTexCoordCompression = value; } }
-            [Category("Compression")]
-            public bool AllowColorCompression { get { return _allowColorCompression; } set { _allowColorCompression = value; } }
-
-            [Category("Tristripper")]
-            public bool UseTristrips { get { return _useTristrips; } set { _useTristrips = value; } }
-            [Category("Tristripper")]
-            public uint CacheSize { get { return _cacheSize; } set { _cacheSize = value; } }
-            [Category("Tristripper")]
-            public uint MinimumStripLength { get { return _minStripLen; } set { _minStripLen = value < 2 ? 2 : value; } }
-            [Category("Tristripper")]
-            public bool PushCacheHits { get { return _pushCacheHits; } set { _pushCacheHits = value; } }
-            //[Category("Tristripper")]
-            //public bool BackwardSearch { get { return _backwardSearch; } set { _backwardSearch = value; } }
-            
-            public bool _allowVertexCompression = true;
-            public bool _allowNormalCompression = true;
-            public bool _allowTangentCompression = true;
-            public bool _allowBinormalCompression = true;
-            public bool _allowTexCoordCompression = true;
-            public bool _allowColorCompression = true;
-            
-            public uint _cacheSize = 52;
-            public uint _minStripLen = 2;
-            public bool _pushCacheHits = true;
-            public bool _useTristrips = true;
-            public bool _reverseWinding = false;
-            public float _weightPrecision = 0.0001f;
-            public TexCoordWrap _wrap = TexCoordWrap.Repeat;
-            public Culling _culling = Culling.None;
-            public bool _backwardSearch = false; //Doesn't work
+            else
+                m = Material.GetTestMaterial();
+            model.RigidChildren.Add(new SkeletalRigidSubMesh(data, new Sphere(10.0f), m, "Root", name));
         }
     }
 }

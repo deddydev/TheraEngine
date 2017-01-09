@@ -21,16 +21,16 @@ namespace CustomEngine.Input.Devices
             }
             return _buttonStates[b];
         }
-        public void RegisterButtonPressed(EKey key, DelButtonState func, bool unregister)
+        public void RegisterButtonPressed(EKey key, InputPauseType pauseType, DelButtonState func, bool unregister)
         {
             if (unregister)
-                _buttonStates[(int)key]?.RegisterPressedState(func, true);
+                _buttonStates[(int)key]?.RegisterPressedState(func, pauseType, true);
             else
-                CacheKey(key)?.RegisterPressedState(func, false);
+                CacheKey(key)?.RegisterPressedState(func, pauseType, false);
         }
-        public void RegisterButtonEvent(EKey key, ButtonInputType type, Action func, bool unregister)
+        public void RegisterButtonEvent(EKey key, ButtonInputType type, InputPauseType pauseType, Action func, bool unregister)
         {
-            RegisterButtonEvent(unregister ? _buttonStates[(int)key] : CacheKey(key), type, func, unregister);
+            RegisterButtonEvent(unregister ? _buttonStates[(int)key] : CacheKey(key), type, pauseType, func, unregister);
         }
     }
     public enum EKey

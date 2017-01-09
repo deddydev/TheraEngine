@@ -8,25 +8,28 @@ using CustomEngine.Worlds.Actors.Components;
 
 namespace System
 {
-    public class Sphere : BoundingShape
+    public class Sphere : Shape
     {
         private float _radius;
+        private Vec3 _center;
         public float Radius
         {
             get { return _radius; }
             set { _radius = Abs(value); }
         }
-
+        public Vec3 Center
+        {
+            get { return _center; }
+            set { _center = value; }
+        }
         public Sphere(float radius) : this(radius, Vec3.Zero) { }
-        public Sphere(float radius, Vec3 center) : base(center)
+        public Sphere(float radius, Vec3 center) : base()
         {
             _radius = Abs(radius);
+            _center = center;
         }
-        public override CollisionShape GetCollisionShape()
-        {
-            return new SphereShape(Radius);
-        }
-        public override void Render() { Engine.Renderer.RenderSphere(_point, _radius, _renderSolid); }
+        public override CollisionShape GetCollisionShape() { return new SphereShape(Radius); }
+        public override void Render() { Engine.Renderer.RenderSphere(Center, Radius, _renderSolid); }
         public static PrimitiveData Mesh(Vec3 center, float radius, float precision)
         {
             float halfPI = CustomMath.PIf * 0.5f;
@@ -106,51 +109,29 @@ namespace System
         }
         public PrimitiveData GetMesh(int slices, int stacks, bool includeCenter)
         {
-            return includeCenter ? Mesh(_point, _radius, slices, stacks) : Mesh(Vec3.Zero, _radius, slices, stacks);
+            return Mesh(includeCenter ? Center : Vec3.Zero, _radius, slices, stacks);
         }
         public PrimitiveData GetMesh(float precision, bool includeCenter)
         {
-            return includeCenter ? Mesh(_point, _radius, precision) : Mesh(Vec3.Zero, _radius, precision);
+            return Mesh(includeCenter ? Center : Vec3.Zero, _radius, precision);
+        }
+        public override bool Contains(Vec3 point) { return Collision.SphereContainsPoint(Center, Radius, point); }
+        public override EContainment Contains(BoundingBox box) { return Collision.SphereContainsAABB(Center, Radius, box.Minimum, box.Maximum); }
+        public override EContainment Contains(Box box) { return Collision.SphereContainsBox(Center, Radius, box.HalfExtents, box.WorldMatrix); }
+        public override EContainment Contains(Sphere sphere) { return Collision.SphereContainsSphere(Center, Radius, sphere.Center, sphere.Radius); }
+        public override EContainment ContainedWithin(BoundingBox box) { return box.Contains(this); }
+        public override EContainment ContainedWithin(Box box) { return box.Contains(this); }
+        public override EContainment ContainedWithin(Sphere sphere) { return sphere.Contains(this); }
+        public override EContainment ContainedWithin(Frustum frustum) { return frustum.Contains(this); }
+
+        public override void SetTransform(Matrix4 worldMatrix)
+        {
+            _center = Vec3.TransformPosition(_center, worldMatrix);
         }
 
-        public override bool Contains(Vec3 point)
+        public override Shape HardCopy()
         {
-            return Collision.SphereContainsPoint(_point, _radius, point);
-        }
-
-        public override EContainment Contains(IBoundingBox box)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override EContainment Contains(IBox box)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override EContainment Contains(ISphere sphere)
-        {
-            return Collision.SphereContainsSphere(_point, _radius, sphere.Center, sphere.Radius);
-        }
-
-        public override EContainment ContainedWithin(IBoundingBox box)
-        {
-            return Collision.AABBContainsSphere(box.Minimum, box.Maximum, _point, _radius);
-        }
-
-        public override EContainment ContainedWithin(IBox box)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override EContainment ContainedWithin(ISphere sphere)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override EContainment ContainedWithin(Frustum frustum)
-        {
-            return Collision.FrustumContainsSphere(frustum, _point, _radius);
+            return new Sphere(Radius, Center);
         }
     }
 }

@@ -9,14 +9,16 @@ using System.Collections.ObjectModel;
 
 namespace CustomEngine.Rendering.Models
 {
-    public class SkeletalMesh : FileObject, IEnumerable<SkeletalSubMesh>
+    public class SkeletalMesh : FileObject
     {
         public SkeletalMesh() : this(null) { }
         public SkeletalMesh(Skeleton skeleton) : base()
         {
             Skeleton = skeleton;
-            _children.Removed += ChildRemoved;
-            _children.Added += ChildAdded;
+            _rigidChildren.Removed += RigidChildRemoved;
+            _rigidChildren.Added += RigidChildAdded;
+            _softChildren.Removed += SoftChildRemoved;
+            _softChildren.Added += SoftChildAdded;
         }
         private Skeleton _skeleton;
         private bool _simulatePhysics = false, _collisionEnabled = true;
@@ -29,8 +31,10 @@ namespace CustomEngine.Rendering.Models
                 if (value == _skeleton)
                     return;
                 _skeleton = value;
-                //foreach (Mesh m in _children)
-                //    m._manager.SkeletonChanged(_skeleton);
+                foreach (SkeletalRigidSubMesh m in RigidChildren)
+                    m.SkeletonChanged(_skeleton);
+                foreach (SkeletalSoftSubMesh m in SoftChildren)
+                    m.SkeletonChanged(_skeleton);
             }
         }
         public bool SimulatePhysics
@@ -44,9 +48,12 @@ namespace CustomEngine.Rendering.Models
             set { _collisionEnabled = value; }
         }
         protected SkeletalMeshComponent _linkedComponent;
-        protected MonitoredList<SkeletalSubMesh> _children = new MonitoredList<SkeletalSubMesh>();
+        protected MonitoredList<SkeletalRigidSubMesh> _rigidChildren = new MonitoredList<SkeletalRigidSubMesh>();
+        protected MonitoredList<SkeletalSoftSubMesh> _softChildren = new MonitoredList<SkeletalSoftSubMesh>();
+        
+        public MonitoredList<SkeletalRigidSubMesh> RigidChildren { get { return _rigidChildren; } }
+        public MonitoredList<SkeletalSoftSubMesh> SoftChildren { get { return _softChildren; } }
 
-        public MonitoredList<SkeletalSubMesh> Children { get { return _children; } }
         public SkeletalMeshComponent LinkedComponent
         {
             get { return _linkedComponent; }
@@ -62,39 +69,41 @@ namespace CustomEngine.Rendering.Models
                     _linkedComponent.Model = this;
             }
         }
-        protected virtual void ChildAdded(SkeletalSubMesh item)
+        protected virtual void RigidChildAdded(SkeletalRigidSubMesh item)
         {
             item.Model = this;
+            item.SkeletonChanged(_skeleton);
         }
-        protected virtual void ChildRemoved(SkeletalSubMesh item)
+        protected virtual void RigidChildRemoved(SkeletalRigidSubMesh item)
         {
             if (item.Model == this)
+            {
+                item.SkeletonChanged(null);
                 item.Model = null;
+            }
+        }
+        protected virtual void SoftChildAdded(SkeletalSoftSubMesh item)
+        {
+            item.Model = this;
+            item.SkeletonChanged(_skeleton);
+        }
+        protected virtual void SoftChildRemoved(SkeletalSoftSubMesh item)
+        {
+            if (item.Model == this)
+            {
+                item.SkeletonChanged(null);
+                item.Model = null;
+            }
         }
         public virtual void OnSpawned()
         {
-            _children.ForEach(x => x.OnSpawned());
+            _rigidChildren.ForEach(x => x.OnSpawned());
+            _softChildren.ForEach(x => x.OnSpawned());
         }
         public virtual void OnDespawned()
         {
-            _children.ForEach(x => x.OnDespawned());
+            _rigidChildren.ForEach(x => x.OnDespawned());
+            _softChildren.ForEach(x => x.OnSpawned());
         }
-        public List<SkeletalSubMesh> GetChildren(bool visibleByDefaultOnly)
-        {
-            if (visibleByDefaultOnly)
-                return _children.Where(x => x.VisibleByDefault).ToList();
-            else
-                return _children;
-        }
-        public SkeletalSubMesh[] GetVisibleChildren()
-        {
-            return _children.Where(x => x.Visible).ToArray();
-        }
-        public SkeletalSubMesh[] GetHiddenChildren()
-        {
-            return _children.Where(x => !x.Visible).ToArray();
-        }
-        public IEnumerator<SkeletalSubMesh> GetEnumerator() { return ((IEnumerable<SkeletalSubMesh>)_children).GetEnumerator(); }
-        IEnumerator IEnumerable.GetEnumerator() { return ((IEnumerable<SkeletalSubMesh>)_children).GetEnumerator(); }
     }
 }

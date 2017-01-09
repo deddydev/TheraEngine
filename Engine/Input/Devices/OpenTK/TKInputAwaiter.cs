@@ -33,18 +33,18 @@ namespace CustomEngine.Input.Devices.OpenTK
                         OnFoundGamepad(i);
                     }
                 }
-                if (keyboards[i] == null)
-                {
-                    KeyboardState keyboardState = Keyboard.GetState(i);
-                    if (keyboardState.IsConnected)
-                        OnFoundKeyboard(i);
-                }
-                if (mice[i] == null)
-                {
-                    MouseState mouseState = Mouse.GetState(i);
-                    if (mouseState.IsConnected)
-                        OnFoundMouse(i);
-                }
+            }
+            if (keyboards[0] == null)
+            {
+                KeyboardState keyboardState = Keyboard.GetState();
+                if (keyboardState.IsConnected)
+                    OnFoundKeyboard(0);
+            }
+            if (mice[0] == null)
+            {
+                MouseState mouseState = Mouse.GetState();
+                if (mouseState.IsConnected)
+                    OnFoundMouse(0);
             }
         }
     }

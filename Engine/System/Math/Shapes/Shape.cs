@@ -7,19 +7,14 @@ using CustomEngine.Files;
 
 namespace System
 {
-    public abstract class BoundingShape : FileObject, IRenderable, IShape
+    public abstract class Shape : FileObject, IRenderable
     {
-        public BoundingShape(Vec3 point)
-        {
-            _point = point;
-        }
+        public Shape() { }
 
         public event Action AttributeChanged;
 
         protected bool _isRendering, _isVisible, _visibleByDefault, _renderSolid;
-        protected Vec3 _point = Vec3.Zero;
 
-        public IShape CullingVolume { get { return this; } }
         public bool IsRendering
         {
             get { return _isRendering; }
@@ -34,22 +29,21 @@ namespace System
             get { return _isVisible; }
             set { _isVisible = value; }
         }
-        public Vec3 Center
-        {
-            get { return _point; }
-            set { _point = value; }
-        }
+
+        public Shape CullingVolume { get { return this; } }
 
         public abstract void Render();
         public abstract CollisionShape GetCollisionShape();
 
         public abstract bool Contains(Vec3 point);
-        public abstract EContainment Contains(IBoundingBox box);
-        public abstract EContainment Contains(IBox box);
-        public abstract EContainment Contains(ISphere sphere);
-        public abstract EContainment ContainedWithin(IBoundingBox box);
-        public abstract EContainment ContainedWithin(IBox box);
-        public abstract EContainment ContainedWithin(ISphere sphere);
+        public abstract EContainment Contains(BoundingBox box);
+        public abstract EContainment Contains(Box box);
+        public abstract EContainment Contains(Sphere sphere);
+        public abstract EContainment ContainedWithin(BoundingBox box);
+        public abstract EContainment ContainedWithin(Box box);
+        public abstract EContainment ContainedWithin(Sphere sphere);
         public abstract EContainment ContainedWithin(Frustum frustum);
+        public abstract void SetTransform(Matrix4 worldMatrix);
+        public abstract Shape HardCopy();
     }
 }

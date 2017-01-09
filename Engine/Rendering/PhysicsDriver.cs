@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using CustomEngine.Worlds.Actors.Components;
+using BulletSharp.SoftBody;
 
 namespace CustomEngine.Rendering
 {
@@ -25,6 +26,7 @@ namespace CustomEngine.Rendering
         Projectiles     = 0x0100,
     }
     public delegate void MatrixUpdate(Matrix4 worldMatrix);
+    public delegate void SimulationUpdate(bool isSimulating);
     public interface IPhysicsDrivable
     {
         PhysicsDriver PhysicsDriver { get; }
@@ -51,8 +53,13 @@ namespace CustomEngine.Rendering
         {
             TransformChanged += func;
         }
+        public PhysicsDriver(PhysicsDriverInfo info, MatrixUpdate mtxFunc, SimulationUpdate simFunc) : this(info, mtxFunc)
+        {
+            SimulationStateChanged += simFunc;
+        }
 
         public event MatrixUpdate TransformChanged;
+        public event SimulationUpdate SimulationStateChanged;
 
         private bool _collisionEnabled, _simulatingPhysics;
         private CustomCollisionGroup _group, _collidesWith;
@@ -80,12 +87,14 @@ namespace CustomEngine.Rendering
                         _collision.LinearFactor = new Vector3(0.0f);
                         _collision.AngularFactor = new Vector3(0.0f);
                         _collision.ForceActivationState(ActivationState.DisableSimulation);
+                        SimulationStateChanged?.Invoke(false);
                     }
                     else
                     {
                         _collision.LinearFactor = new Vector3(1.0f);
                         _collision.AngularFactor = new Vector3(1.0f);
                         _collision.ForceActivationState(ActivationState.IslandSleeping);
+                        SimulationStateChanged?.Invoke(true);
                     }
                 }
             }
@@ -99,10 +108,7 @@ namespace CustomEngine.Rendering
                     return;
                 _collisionEnabled = value;
                 if (_collision != null && _collision.IsInWorld)
-                {
-                    Engine.World.PhysicsScene.RemoveRigidBody(_collision);
-                    Engine.World.PhysicsScene.AddRigidBody(_collision, (short)_group, (short)(_collisionEnabled ? _collidesWith : CustomCollisionGroup.None));
-                }
+                    _collision.BroadphaseProxy.CollisionFilterMask = (CollisionFilterGroups)(short)(_collisionEnabled ? _collidesWith : CustomCollisionGroup.None);
             }
         }
         public RigidBody CollisionObject { get { return _collision; } }
@@ -151,24 +157,31 @@ namespace CustomEngine.Rendering
             _collision = body;
             if (_collision != null)
             {
+                if (Engine.World == null)
+                    Engine.QueueCollisionSpawn(this);
+                else
+                    Engine.World.PhysicsScene.AddRigidBody(_collision, (short)_group, _collisionEnabled ? (short)_collidesWith : (short)CustomCollisionGroup.None);
+
                 if (_collisionEnabled)
-                {
-                    if (Engine.World == null)
-                        Engine.QueueCollisionSpawn(this);
-                    else
-                        Engine.World.PhysicsScene.AddRigidBody(_collision, (short)_group, _collisionEnabled ? (short)_collidesWith : (short)CustomCollisionGroup.None);
-                }
+                    _collision.CollisionFlags &= ~CollisionFlags.NoContactResponse;
+                else
+                    _collision.CollisionFlags |= CollisionFlags.NoContactResponse;
+                
                 _collision.UserObject = this;
                 if (!_simulatingPhysics)
                 {
                     _collision.LinearFactor = new Vector3(0.0f);
                     _collision.AngularFactor = new Vector3(0.0f);
+                    //_collision.CollisionFlags |= CollisionFlags.StaticObject;
+                    //_collision.CollisionFlags &= ~CollisionFlags.KinematicObject;
                     _collision.ForceActivationState(ActivationState.DisableSimulation);
                 }
                 else
                 {
                     _collision.LinearFactor = new Vector3(1.0f);
                     _collision.AngularFactor = new Vector3(1.0f);
+                    //_collision.CollisionFlags |= CollisionFlags.KinematicObject;
+                    //_collision.CollisionFlags &= ~CollisionFlags.StaticObject;
                     //_collision.ForceActivationState(ActivationState.IslandSleeping);
                 }
             }

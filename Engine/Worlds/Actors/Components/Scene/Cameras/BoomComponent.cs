@@ -21,21 +21,21 @@ namespace CustomEngine.Worlds.Actors.Components
         private Matrix4 GetRotationMatrix() { return Matrix4.CreateRotationY(_yaw) * Matrix4.CreateRotationX(_pitch); }
         private Matrix4 GetInvRotationMatrix() { return Matrix4.CreateRotationX(-_pitch) * Matrix4.CreateRotationY(-_yaw); }
 
-        public override void RecalcLocalTransform()
+        protected override void RecalcLocalTransform()
         {
             Matrix4 parentInv = GetInverseParentMatrix();
             Matrix4 parentMtx = GetParentMatrix();
-            _localTransform =
+            Matrix4 transform =
                 parentInv.GetRotationMatrix4() * //Undo all rotations up until this point
                 Matrix4.CreateTranslation(_endPoint - parentMtx.GetPoint()) * //translate in world space
                 parentMtx.GetRotationMatrix4() * //Redo parent rotations at the new position
                 GetRotationMatrix(); //Apply the view rotation
-            _inverseLocalTransform =
+            Matrix4 inverse =
                 GetInvRotationMatrix() *
                 parentInv.GetRotationMatrix4() *
                 Matrix4.CreateTranslation(parentMtx.GetPoint() - _endPoint) *
                 parentMtx.GetRotationMatrix4();
-            RecalcGlobalTransform();
+            SetLocalTransforms(transform, inverse);
         }
 
         internal override void Tick(float delta)

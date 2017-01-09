@@ -12,14 +12,13 @@ namespace CustomEngine.Worlds.Actors.Components
             _capsule = new CapsuleY(GetWorldPoint(), radius, halfHeight);
         }
 
-        public override IShape CullingVolume
+        public override Shape CullingVolume
         {
             get
             {
                 throw new NotImplementedException();
             }
         }
-
         public override void Render()
         {
             throw new NotImplementedException();

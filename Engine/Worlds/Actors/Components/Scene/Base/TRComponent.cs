@@ -26,7 +26,7 @@ namespace CustomEngine.Worlds.Actors.Components
                 RecalcLocalTransform();
             }
         }
-        public override void RecalcLocalTransform()
+        protected override void RecalcLocalTransform()
         {
             Matrix4 
                 r = Matrix4.CreateFromRotator(_rotation), 
@@ -34,18 +34,16 @@ namespace CustomEngine.Worlds.Actors.Components
 
             Matrix4
                 t = Matrix4.CreateTranslation(_translation), 
-                it = Matrix4.CreateTranslation(-(Vec3)_translation);
+                it = Matrix4.CreateTranslation(-_translation.Value);
 
-            _localTransform = t * r;
-            _inverseLocalTransform = ir * it;
-
-            RecalcGlobalTransform();
+            SetLocalTransforms(t * r, ir * it);
         }
         public void TranslateRelative(Vec3 translation)
         {
-            _localTransform = _localTransform * Matrix4.CreateTranslation(translation);
-            _inverseLocalTransform = Matrix4.CreateTranslation(-translation) * _inverseLocalTransform;
-            _translation = _localTransform.GetPoint();
+            SetLocalTransforms(
+                LocalMatrix * Matrix4.CreateTranslation(translation),
+                Matrix4.CreateTranslation(-translation) * InverseLocalMatrix);
+            _translation = LocalMatrix.GetPoint();
         }
         internal override void OriginRebased(Vec3 newOrigin)
         {

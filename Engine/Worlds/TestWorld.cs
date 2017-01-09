@@ -10,12 +10,12 @@ using BulletSharp;
 using System.Drawing;
 using System.Linq;
 using CustomEngine.Rendering;
+using CustomEngine.Rendering.Models.Collada;
 
-namespace Game.Worlds
+namespace CustomEngine.Worlds
 {
     public unsafe class TestWorld : World
     {
-        StaticMeshComponent _sphere;
         protected override void OnLoaded()
         {
             _settings = new WorldSettings("TestWorld");
@@ -31,37 +31,41 @@ namespace Game.Worlds
 
             PhysicsDriverInfo sphereInfo = new PhysicsDriverInfo()
             {
-                BodyInfo = new RigidBodyConstructionInfo(50.0f, new DefaultMotionState(
-                    Matrix4.CreateTranslation(new Vec3(0.0f, 20.0f, 0.0f))), new SphereShape(1.0f))
+                BodyInfo = new RigidBodyConstructionInfo(
+                    50.0f,
+                    new DefaultMotionState(/*Matrix4.CreateTranslation(new Vec3(0.0f, 20.0f, 0.0f))*/),
+                    new SphereShape(1.0f))
                 {
                     AngularDamping = 0.05f,
                     LinearDamping = 0.005f,
-                    Restitution = 0.2f,
-                    Friction = 0.2f,
-                    RollingFriction = 0.2f,
+                    Restitution = 0.9f,
+                    Friction = 0.01f,
+                    RollingFriction = 0.01f,
                 },
                 CollisionEnabled = true,
                 SimulatePhysics = true,
                 Group = CustomCollisionGroup.DynamicWorld,
                 CollidesWith = CustomCollisionGroup.StaticWorld,
             };
-            Sphere sphere = new Sphere(1.0f);
+            Sphere sphere = new Sphere(1.0f, Vec3.Zero);
             StaticMesh sphereModel = new StaticMesh(
                 "Sphere", sphere.GetMesh(30.0f, false),
                 Material.GetTestMaterial(), sphere);
             PhysicsDriverInfo floorInfo = new PhysicsDriverInfo()
             {
-                BodyInfo = new RigidBodyConstructionInfo(20.0f, new DefaultMotionState(
-                    Matrix4.CreateFromAxisAngle(Vec3.Forward, 10.0f)), new BoxShape(new Vec3(20.0f, 0.5f, 20.0f)))
+                BodyInfo = new RigidBodyConstructionInfo(
+                    20.0f, null,
+                    /*new DefaultMotionState(Matrix4.CreateFromAxisAngle(Vec3.Forward, 10.0f)),*/
+                    new BoxShape(new Vec3(20.0f, 0.5f, 20.0f)))
                 {
-
+                    Restitution = 0.3f,
                 },
                 CollisionEnabled = true,
                 SimulatePhysics = false,
                 Group = CustomCollisionGroup.StaticWorld,
                 CollidesWith = CustomCollisionGroup.DynamicWorld,
             };
-            BoundingBox floorBox = new BoundingBox(Vec3.Zero, new Vec3(-20.0f, -0.5f, -20.0f), new Vec3(20.0f, 0.5f, 20.0f));
+            BoundingBox floorBox = new BoundingBox(new Vec3(-20.0f, -0.5f, -20.0f), new Vec3(20.0f, 0.5f, 20.0f));
             StaticMesh floorModel = new StaticMesh(
                 "Floor", floorBox.GetMesh(false),
                 Material.GetTestMaterial(), floorBox);
@@ -81,21 +85,38 @@ namespace Game.Worlds
             DirectionalLightComponent dirLightComp = new DirectionalLightComponent(
                 new Rotator(-90.0f, 0.0f, 0.0f, Rotator.Order.YPR), Color.DarkGray, 1.0f, 0.2f);
             
-            lightComp.Translation.Y = 10.0f;
-            lightComp.Translation.X = 10.0f;
-            //floorComp.AddAnimation(anim, true);
+            StaticMeshComponent floorComp = new StaticMeshComponent(
+                floorModel,
+                Vec3.Zero,
+                new Rotator(0.0f, 0.0f, -10.0f, Rotator.Order.YPR),
+                Vec3.One,
+                floorInfo,
+                true);
 
-            Actor sphereActor = new Actor(_sphere = new StaticMeshComponent(sphereModel, sphereInfo, true));
-            Actor floorActor = new Actor(new StaticMeshComponent(floorModel, floorInfo, true));
+            lightComp.Translation.Y = 0.0f;
+            lightComp.Translation.X = 0.0f;
+            floorComp.AddAnimation(anim, true);
+
+            Actor sphereActor = new Actor(new StaticMeshComponent(
+                sphereModel,
+                new Vec3(0.0f, 20.0f, 0.0f),
+                Rotator.GetZero(),
+                Vec3.One,
+                sphereInfo,
+                true));
+
+            Actor floorActor = new Actor(floorComp);
+
             Actor lightActor = new Actor(lightComp);
             Actor dirLightActor = new Actor(dirLightComp);
 
-            _settings._defaultMaps.Add(new Map(this, new MapSettings(sphereActor, lightActor, floorActor, dirLightActor, new FlyingCameraPawn(PlayerIndex.One))));
-        }
+            ColladaImportOptions options = new ColladaImportOptions();
+            SkeletalMesh m = Collada.ImportModel("C:\\Users\\David\\Desktop\\TEST.DAE", options);
 
-        public override void BeginPlay()
-        {
-            base.BeginPlay();
+            SkeletalMeshComponent skelComp = new SkeletalMeshComponent(m, true);
+            Actor skelActor = new Actor(skelComp);
+
+            _settings._defaultMaps.Add(new Map(this, new MapSettings(/*sphereActor,*/ lightActor, /*floorActor,*/ dirLightActor, skelActor, new FlyingCameraPawn(PlayerIndex.One))));
         }
     }
 }

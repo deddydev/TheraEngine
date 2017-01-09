@@ -83,11 +83,7 @@ namespace CustomEngine
         /// <summary>
         /// Ends the last PushUpdate call. Rendering may not resume unless the update stack is empty.
         /// </summary>
-        public void PopUpdate() { if ((_updateCounter = Math.Max(_updateCounter - 1, 0)) == 0) Redraw(); }
-        /// <summary>
-        /// Redraws all viewports in this panel.
-        /// </summary>
-        public void Redraw() { Invalidate(); }
+        public void PopUpdate() { if ((_updateCounter = Math.Max(_updateCounter - 1, 0)) == 0) Invalidate(); }
         public void CaptureContext() { _context?.Capture(); }
         protected override void OnPaint(PaintEventArgs e)
         {
@@ -194,5 +190,16 @@ namespace CustomEngine
 
         public IEnumerator<Viewport> GetEnumerator() { return ((IEnumerable<Viewport>)_viewports).GetEnumerator(); }
         IEnumerator IEnumerable.GetEnumerator() { return ((IEnumerable<Viewport>)_viewports).GetEnumerator(); }
+
+        public void Initialize()
+        {
+            _context.Initialize();
+            Engine.RegisterRenderTick(RenderTick);
+            Engine.Initialize();
+        }
+        public void RenderTick(object sender, FrameEventArgs e)
+        {
+            Invalidate();
+        }
     }
 }

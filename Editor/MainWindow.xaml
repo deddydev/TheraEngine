@@ -1,4 +1,4 @@
-﻿<Window x:Class="Editor.MainWindow"
+﻿<Window xmlns:Controls="clr-namespace:Editor.Controls"  x:Class="Editor.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -61,8 +61,8 @@
                     </xcad:LayoutAnchorablePane>
                     <xcad:LayoutDocumentPaneGroup>
                         <xcad:LayoutDocumentPane>
-                            <xcad:LayoutDocument ContentId="document1" Title="Document 1">
-                                <TextBox Text="Document 1 Content" AcceptsReturn="True"/>
+                            <xcad:LayoutDocument ContentId="document1" Title="Viewport 1">
+                                <Controls:EditorRenderPanel x:Name="viewPort1" />
                             </xcad:LayoutDocument>
                             <xcad:LayoutDocument ContentId="document2" Title="Document 2">
                                 <TextBox Text="Document 2 Content" AcceptsReturn="True"/>

@@ -15,7 +15,7 @@ namespace CustomEngine.Worlds.Actors.Components
             _scale.Changed += RecalcLocalTransform;
         }
 
-        private MonitoredVec3 _scale;
+        protected MonitoredVec3 _scale;
         public MonitoredVec3 Scale
         {
             get { return _scale; }
@@ -25,12 +25,21 @@ namespace CustomEngine.Worlds.Actors.Components
                 RecalcLocalTransform();
             }
         }
-        public override void RecalcLocalTransform()
+        protected override void RecalcLocalTransform()
         {
-            base.RecalcLocalTransform();
-            _localTransform = _localTransform * Matrix4.CreateScale(_scale);
-            _inverseLocalTransform = Matrix4.CreateScale(1.0f / _scale.Value) * _inverseLocalTransform;
-            RecalcGlobalTransform();
+            Matrix4
+                r = Matrix4.CreateFromRotator(_rotation),
+                ir = Matrix4.CreateFromRotator(_rotation.Inverted());
+
+            Matrix4
+                t = Matrix4.CreateTranslation(_translation),
+                it = Matrix4.CreateTranslation(-_translation.Value);
+
+            Matrix4
+                s = Matrix4.CreateScale(_scale),
+                iS = Matrix4.CreateScale(1.0f / _scale.Value);
+
+            SetLocalTransforms(t * r * s, iS * ir * it);
         }
     }
 }

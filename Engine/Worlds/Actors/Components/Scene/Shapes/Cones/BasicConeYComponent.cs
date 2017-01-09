@@ -19,7 +19,7 @@ namespace CustomEngine.Worlds.Actors.Components
             set { _height = value; }
         }
 
-        public override IShape CullingVolume
+        public override Shape CullingVolume
         {
             get
             {

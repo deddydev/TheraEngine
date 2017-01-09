@@ -7,10 +7,10 @@ using CustomEngine.Worlds.Actors.Components;
 
 namespace CustomEngine.Rendering.Models
 {
-    public class SkeletalSubMesh : FileObject, IRenderable
+    public class SkeletalSoftSubMesh : FileObject, IRenderable
     {
-        public SkeletalSubMesh() { }
-        public SkeletalSubMesh(PrimitiveData data, string name)
+        public SkeletalSoftSubMesh() { }
+        public SkeletalSoftSubMesh(PrimitiveData data, string name)
         {
             _manager.Data = data;
             _name = name;
@@ -20,10 +20,10 @@ namespace CustomEngine.Rendering.Models
         //private Matrix4 _normalMatrix;
         internal PrimitiveManager _manager = new PrimitiveManager();
         protected Bone _singleBind;
-        protected IShape _cullingVolume;
+        protected Shape _cullingVolume;
         protected bool _isRendering, _isVisible, _visibleByDefault, _renderSolid;
 
-        public IShape CullingVolume { get { return _cullingVolume; } }
+        public Shape CullingVolume { get { return _cullingVolume; } }
         public bool IsRendering
         {
             get { return _isRendering; }
@@ -38,7 +38,12 @@ namespace CustomEngine.Rendering.Models
             get { return _isVisible; }
             set { _isVisible = value; }
         }
-        
+
+        internal void SkeletonChanged(Skeleton _skeleton)
+        {
+            throw new NotImplementedException();
+        }
+
         public Material Material
         {
             get { return _manager.Material; }
@@ -72,6 +77,6 @@ namespace CustomEngine.Rendering.Models
                 Material.RemoveReference(this);
         }
         public void SetPrimitiveData(PrimitiveData data) => _manager.Data = data;
-        public void SetCullingVolume(BoundingShape volume) { _cullingVolume = volume; }
+        public void SetCullingVolume(Shape volume) { _cullingVolume = volume; }
     }
 }

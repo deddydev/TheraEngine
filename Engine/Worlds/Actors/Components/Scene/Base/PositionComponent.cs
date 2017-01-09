@@ -25,11 +25,9 @@ namespace CustomEngine.Worlds.Actors.Components
                 RecalcLocalTransform();
             }
         }
-        public override void RecalcLocalTransform()
+        protected override void RecalcLocalTransform()
         {
-            _localTransform = Matrix4.CreateTranslation(_translation);
-            _inverseLocalTransform = Matrix4.CreateTranslation(-_translation.Value);
-            RecalcGlobalTransform();
+            SetLocalTransforms(Matrix4.CreateTranslation(_translation), Matrix4.CreateTranslation(-_translation.Value));
         }
         internal override void OriginRebased(Vec3 newOrigin)
         {

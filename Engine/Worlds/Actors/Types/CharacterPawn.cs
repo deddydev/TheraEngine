@@ -12,7 +12,15 @@ namespace CustomEngine.Worlds.Actors
         protected override SceneComponent SetupComponents()
         {
             PhysicsDriverInfo info = new PhysicsDriverInfo();
-            return new CapsuleComponent(0.2f, 0.8f, info);
+            CapsuleComponent root = new CapsuleComponent(0.2f, 0.8f, info);
+            SkeletalMeshComponent mesh = new SkeletalMeshComponent();
+            CameraComponent firstPersonCamera = new CameraComponent();
+            firstPersonCamera.AttachTo(mesh, "HeadCameraSocket");
+
+            CharacterMovementComponent movement = new CharacterMovementComponent();
+            LogicComponents.Add(movement);
+
+            return root;
         }
         protected override void SetDefaults()
         {

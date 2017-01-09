@@ -7,7 +7,7 @@ using CustomEngine.Worlds.Actors.Components;
 
 namespace System
 {
-    public class ConeY : BoundingShape
+    public class ConeY : Shape
     {
         public float _radius, _height;
         
@@ -22,7 +22,7 @@ namespace System
             set { _height = value; }
         }
         
-        public ConeY(Vec3 center, float radius, float height) : base(center)
+        public ConeY(Vec3 center, float radius, float height)
         {
             _radius = Abs(radius);
             _height = Abs(height);
@@ -35,43 +35,44 @@ namespace System
         {
             //Engine.Renderer.RenderCone(this, _renderSolid);
         }
-
         public override bool Contains(Vec3 point)
         {
             throw new NotImplementedException();
         }
-
-        public override EContainment Contains(IBoundingBox box)
+        public override EContainment Contains(BoundingBox box)
         {
             throw new NotImplementedException();
         }
-
-        public override EContainment Contains(IBox box)
+        public override EContainment Contains(Box box)
         {
             throw new NotImplementedException();
         }
-
-        public override EContainment Contains(ISphere sphere)
+        public override EContainment Contains(Sphere sphere)
         {
             throw new NotImplementedException();
         }
-
-        public override EContainment ContainedWithin(IBoundingBox box)
+        public override EContainment ContainedWithin(BoundingBox box)
         {
             throw new NotImplementedException();
         }
-
-        public override EContainment ContainedWithin(IBox box)
+        public override EContainment ContainedWithin(Box box)
         {
             throw new NotImplementedException();
         }
-
-        public override EContainment ContainedWithin(ISphere sphere)
+        public override EContainment ContainedWithin(Sphere sphere)
         {
             throw new NotImplementedException();
         }
-
         public override EContainment ContainedWithin(Frustum frustum)
+        {
+            throw new NotImplementedException();
+        }
+        public override void SetTransform(Matrix4 worldMatrix)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override Shape HardCopy()
         {
             throw new NotImplementedException();
         }

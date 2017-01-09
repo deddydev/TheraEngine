@@ -510,12 +510,12 @@ namespace CustomEngine.Rendering.Models.Collada
                     }
                     else if (_reader.Name.Equals("p", true))
                     {
-                        List<ushort> indices = new List<ushort>(stride * elements);
+                        List<int> indices = new List<int>(stride * elements);
 
                         p = new PrimitiveFace();
                         int val;
                         while (_reader.ReadValue(&val))
-                            indices.Add((ushort)val);
+                            indices.Add(val);
 
                         p._pointCount = indices.Count / elements;
                         p._pointIndices = indices.ToArray();
@@ -1076,7 +1076,7 @@ namespace CustomEngine.Rendering.Models.Collada
         private class InputEntry : ColladaEntry
         {
             internal SemanticType _semantic;
-            internal int _set;
+            internal int _set = 0;
             internal int _offset;
             internal string _source;
         }
@@ -1097,7 +1097,7 @@ namespace CustomEngine.Rendering.Models.Collada
         {
             internal int _pointCount;
             internal int _faceCount;
-            internal ushort[] _pointIndices;
+            internal int[] _pointIndices;
         }
         private class SkinEntry : ColladaEntry
         {

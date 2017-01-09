@@ -19,7 +19,7 @@ namespace CustomEngine.Input.Devices.OpenTK
 
         protected override void UpdateStates(float delta)
         {
-            MouseState state = Mouse.GetState(_index);
+            MouseState state = Mouse.GetState();
             if (!UpdateConnected(state.IsConnected))
                 return;
 

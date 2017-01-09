@@ -21,7 +21,7 @@ namespace CustomEngine.Rendering.Models
             string name,
             PrimitiveData mesh,
             Material material,
-            IShape cullingVolume)
+            Shape cullingVolume)
         {
             _name = name;
             _primitiveManager = new PrimitiveManager(mesh, material);
@@ -33,13 +33,13 @@ namespace CustomEngine.Rendering.Models
         public Material Material { get { return _primitiveManager.Material; } }
         public MonitoredList<StaticMeshComponent> LinkedComponents { get { return _linkedComponents; } }
         public PhysicsDriver PhysicsDriver { get { return _physicsDriver; } }
-        public IShape CullingVolume
+        public Shape CullingVolume
         {
             get { return _cullingVolume; }
             set { _cullingVolume = value; }
         }
 
-        protected IShape _cullingVolume;
+        protected Shape _cullingVolume;
         protected PhysicsDriver _physicsDriver;
         protected bool _isVisible, _isRendering, _visibleByDefault;
         protected PrimitiveManager _primitiveManager;

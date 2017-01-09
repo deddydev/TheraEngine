@@ -8,9 +8,9 @@ using System.Threading.Tasks;
 
 namespace System
 {
-    public abstract class BaseCylinder : BoundingShape
+    public abstract class BaseCylinder : Shape
     {
-        public BaseCylinder(Vec3 center, Vec3 upAxis, float radius, float halfHeight) : base(center)
+        public BaseCylinder(Vec3 center, Vec3 upAxis, float radius, float halfHeight)
         {
             _radius = Math.Abs(radius);
             _halfHeight = Math.Abs(halfHeight);
@@ -18,7 +18,7 @@ namespace System
             _upAxis.NormalizeFast();
         }
 
-        protected Vec3 _upAxis;
+        protected Vec3 _upAxis, _center;
         protected float _radius, _halfHeight;
 
         public float Radius
@@ -41,8 +41,8 @@ namespace System
         public override void Render()
         {
             Engine.Renderer.RenderCylinder(
-                _point + _upAxis * _halfHeight,
-                _point - _upAxis * _halfHeight,
+                _center + _upAxis * _halfHeight,
+                _center - _upAxis * _halfHeight,
                 _radius, _radius, _renderSolid);
         }
     }

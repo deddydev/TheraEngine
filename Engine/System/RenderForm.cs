@@ -18,14 +18,11 @@ namespace CustomEngine
             if (!string.IsNullOrEmpty(iconPath) && File.Exists(iconPath))
                 Icon = new Icon(iconPath);
 
-            renderPanel1._context.Initialize();
+            renderPanel1.Initialize();
 
-            Engine.RegisterRenderTick(RenderTick);
-            Engine.Initialize();
-        }
-        public void RenderTick(object sender, FrameEventArgs e)
-        {
-            renderPanel1.Redraw();
+            //TopMost = true;
+            //FormBorderStyle = FormBorderStyle.None;
+            //WindowState = FormWindowState.Maximized;
         }
         protected override void OnClosed(EventArgs e)
         {

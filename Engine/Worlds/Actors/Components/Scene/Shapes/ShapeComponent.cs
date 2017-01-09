@@ -4,35 +4,6 @@ using CustomEngine.Rendering;
 
 namespace CustomEngine.Worlds.Actors.Components
 {
-    public interface IShape
-    {
-        Vec3 Center { get; }
-
-        bool Contains(Vec3 point);
-        EContainment Contains(IBoundingBox box);
-        EContainment Contains(IBox box);
-        EContainment Contains(ISphere sphere);
-        EContainment ContainedWithin(IBoundingBox box);
-        EContainment ContainedWithin(IBox box);
-        EContainment ContainedWithin(ISphere sphere);
-        EContainment ContainedWithin(Frustum frustum);
-    }
-    public interface ISphere : IShape
-    {
-        float Radius { get; set; }
-    }
-    public interface IBoundingBox : IShape
-    {
-        Vec3 Minimum { get; set; }
-        Vec3 Maximum { get; set; }
-    }
-    public interface IBox : IShape
-    {
-        Vec3 Minimum { get; set; }
-        Vec3 Maximum { get; set; }
-        Matrix4 WorldMatrix { get;}
-        Matrix4 InverseWorldMatrix { get; }
-    }
     public abstract class ShapeComponent : TRComponent, IRenderable, IPhysicsDrivable
     {
         public ShapeComponent(PhysicsDriverInfo info)
@@ -40,8 +11,16 @@ namespace CustomEngine.Worlds.Actors.Components
             if (info != null)
             {
                 info.BodyInfo.CollisionShape = GetCollisionShape();
-                _physics = new PhysicsDriver(info);
+                _physics = new PhysicsDriver(info, PhysicsTransformChanged, PhysicsSimulationStateChanged);
             }
+        }
+
+        private void PhysicsSimulationStateChanged(bool isSimulating)
+        {
+            if (isSimulating)
+                PhysicsSimulationStarted();
+            else
+                StopSimulatingPhysics(true);
         }
 
         protected PhysicsDriver _physics;
@@ -67,11 +46,17 @@ namespace CustomEngine.Worlds.Actors.Components
             get { return _isVisible; }
             set { _isVisible = value; }
         }
-        public abstract IShape CullingVolume { get; }
+        public abstract Shape CullingVolume { get; }
         public bool VisibleByDefault { get { return _visibleByDefault; } }
         public PhysicsDriver PhysicsDriver { get { return _physics; } }
 
         public abstract void Render();
         protected abstract CollisionShape GetCollisionShape();
+        protected virtual void PhysicsTransformChanged(Matrix4 worldMatrix)
+        {
+            WorldMatrix = worldMatrix;
+            foreach (SceneComponent c in _children)
+                c.RecalcGlobalTransform();
+        }
     }
 }

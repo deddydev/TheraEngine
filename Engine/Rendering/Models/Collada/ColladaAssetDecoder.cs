@@ -30,7 +30,7 @@ namespace CustomEngine.Rendering.Models.Collada
             ushort* pRemap = (ushort*)remap.Address;
 
             //Find vertex source
-            SourceEntry s = geo._sources.First(x => x._id == geo._verticesInput._source);
+            SourceEntry s = geo._sources.FirstOrDefault(x => x._id == geo._verticesInput._source);
             if (s != null)
                 pVert = (Vec3*)((DataSource)s._arrayData).Address;
             
@@ -40,7 +40,7 @@ namespace CustomEngine.Rendering.Models.Collada
             foreach (InputEntry inp in skin._jointInputs)
                 if (inp._semantic == SemanticType.JOINT)
                 {
-                    SourceEntry src = skin._sources.First(x => x._id == inp._source);
+                    SourceEntry src = skin._sources.FirstOrDefault(x => x._id == inp._source);
                     if (src != null)
                     {
                         jointStringArray = src._arrayData as string[];
@@ -49,7 +49,7 @@ namespace CustomEngine.Rendering.Models.Collada
                 }
                 else if (inp._semantic == SemanticType.INV_BIND_MATRIX)
                 {
-                    SourceEntry src = skin._sources.First(x => x._id == inp._source);
+                    SourceEntry src = skin._sources.FirstOrDefault(x => x._id == inp._source);
                     if (src != null)
                         pMatrix = (Matrix4*)((DataSource)src._arrayData).Address;
                 }
@@ -164,7 +164,7 @@ namespace CustomEngine.Rendering.Models.Collada
             Vec3* pV = null;
             int vCount = 0;
             
-            SourceEntry s = geo._sources.First(x => x._id == geo._verticesInput._source);
+            SourceEntry s = geo._sources.FirstOrDefault(x => x._id == geo._verticesInput._source);
             if (s != null)
             {
                 DataSource b = s._arrayData as DataSource;
@@ -178,27 +178,11 @@ namespace CustomEngine.Rendering.Models.Collada
 
             return manager;
         }
-
-        private static Dictionary<SemanticType, int> _strides = new Dictionary<SemanticType, int>()
-        {
-            { SemanticType.VERTEX, 12 },
-            { SemanticType.NORMAL, 12 },
-            { SemanticType.TEXCOORD, 8 },
-            { SemanticType.COLOR, 16 },
-            { SemanticType.TEXBINORMAL, 12 },
-            { SemanticType.TEXTANGENT, 12 },
-        };
         static PrimitiveData DecodePrimitives(GeometryEntry geo)
         {
             SourceEntry src;
             //int triangleCount = 0, lineCount = 0, pointCount = 0;
-            //DataSource vSrc;
-
-            ////Assign vertex source
-            //SourceEntry src = geo._sources.First(x => x._id == geo._verticesInput._source);
-            //if (src != null)
-            //    vSrc = (DataSource)src._arrayData;
-
+ 
             List<VertexPrimitive> linePrimitives = null;
             List<VertexPolygon> facePrimitives = null;
             PrimitiveBufferInfo info = new PrimitiveBufferInfo()
@@ -220,23 +204,27 @@ namespace CustomEngine.Rendering.Models.Collada
                 ////Get point total
                 //pointCount += prim._pointCount;
 
-                Dictionary<SemanticType, Dictionary<int, DataSource>> sources = new Dictionary<SemanticType, Dictionary<int, DataSource>>();
+                Dictionary<SemanticType, Dictionary<int, SourceEntry>> sources = new Dictionary<SemanticType, Dictionary<int, SourceEntry>>();
+                src = geo._sources.FirstOrDefault(x => x._id == geo._verticesInput._source);
+                if (src != null)
+                    sources.Add(SemanticType.VERTEX, new Dictionary<int, SourceEntry>() { { 0, src } });
 
                 //Collect sources
                 foreach (InputEntry inp in prim._inputs)
                 {
-                    src = geo._sources.First(x => x._id == inp._source);
+                    if (inp._semantic == SemanticType.VERTEX)
+                        continue;
+
+                    src = geo._sources.FirstOrDefault(x => x._id == inp._source);
                     if (src != null)
                     {
                         if (!sources.ContainsKey(inp._semantic))
-                            sources.Add(inp._semantic, new Dictionary<int, DataSource>());
+                            sources.Add(inp._semantic, new Dictionary<int, SourceEntry>());
 
                         if (!sources[inp._semantic].ContainsKey(inp._set))
-                            sources[inp._semantic].Add(inp._set, (DataSource)src._arrayData);
+                            sources[inp._semantic].Add(inp._set, src);
                         else
-                            sources[inp._semantic][inp._set] = (DataSource)src._arrayData;
-
-                        break;
+                            sources[inp._semantic][inp._set] = src;
                     }
                 }
 
@@ -253,19 +241,37 @@ namespace CustomEngine.Rendering.Models.Collada
                 if (sources.ContainsKey(SemanticType.TEXTANGENT))
                     info._tangentCount = sources[SemanticType.TEXTANGENT].Count;
 
+                int maxSets = CustomMath.Max(
+                    info._positionCount, 
+                    info._normalCount, 
+                    info._colorCount, 
+                    info._texcoordCount, 
+                    info._binormalCount,
+                    info._tangentCount);
+
+                int stride;
+                Vertex vtx;
+                VoidPtr addr;
+                //int indexStride;
+                Vertex[][] vertices;
                 foreach (PrimitiveFace f in prim._faces)
                 {
-                    Vertex[][] vertices = new Vertex[f._pointCount][];
-                    for (int i = 0; i < f._pointCount; ++i)
+                    //indexStride = f._pointCount / f._faceCount;
+                    vertices = new Vertex[f._pointCount][];
+                    foreach (InputEntry inp in prim._inputs)
                     {
-                        Dictionary<int, Vertex> vSets = new Dictionary<int, Vertex>();
-                        foreach (InputEntry inp in prim._inputs)
+                        src = sources[inp._semantic][inp._set];
+                        stride = src._accessorStride * 4;
+                        for (int i = 0; i < f._pointCount; ++i)
                         {
-                            if (vSets.ContainsKey(inp._set))
-                                vSets.Add(inp._set, new Vertex());
-
-                            VoidPtr addr = sources[inp._semantic][inp._set].Address[i, _strides[inp._semantic]];
-                            Vertex vtx = vSets[inp._set];
+                            if (vertices[i] == null)
+                                vertices[i] = new Vertex[maxSets];
+                            
+                            int index = f._pointIndices[i * sources.Count + inp._offset];
+                            addr = ((DataSource)src._arrayData).Address[index, stride];
+                            vtx = vertices[i][inp._set];
+                            if (vtx == null)
+                                vtx = vertices[i][inp._set] = new Vertex();
                             switch (inp._semantic)
                             {
                                 case SemanticType.VERTEX:
@@ -288,7 +294,6 @@ namespace CustomEngine.Rendering.Models.Collada
                                     break;
                             }
                         }
-                        vertices[i] = vSets.Values.ToArray();
                     }
                     int setIndex = 0;
                     switch (prim._type)

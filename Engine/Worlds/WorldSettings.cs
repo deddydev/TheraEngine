@@ -55,7 +55,7 @@ namespace CustomEngine.Worlds
 
         public void SetOriginRebaseDistance(float distance)
         {
-            _originRebaseBounds = new BoundingBox(Vec3.Zero, distance, distance, distance);
+            _originRebaseBounds = new BoundingBox(distance * 2.0f);
         }
         public override void Read(VoidPtr address)
         {

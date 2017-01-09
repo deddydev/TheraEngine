@@ -191,7 +191,7 @@ namespace CustomEngine.Rendering.Animation
             if (_owners.Count == 0 && _isTicking)
                 UnregisterTick();
             else if (_owners.Count != 0 && !_isTicking)
-                RegisterTick(ETickGroup.PrePhysics, ETickOrder.Logic);
+                RegisterTick(ETickGroup.PrePhysics, ETickOrder.Animation);
         }
 
         public AnimFolder RootFolder

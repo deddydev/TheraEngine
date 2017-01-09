@@ -6,14 +6,20 @@ using System.Threading.Tasks;
 
 namespace CustomEngine.Input.Devices
 {
+    public enum InputPauseType
+    {
+        TickAlways              = 0,
+        TickOnlyWhenUnpaused    = 1,
+        TickOnlyWhenPaused      = 2,
+    }
     public abstract class InputDevice : ObjectBase
     {
         public static Dictionary<InputDeviceType, InputDevice[]> CurrentDevices =
             new Dictionary<InputDeviceType, InputDevice[]>()
         {
-            { InputDeviceType.Gamepad, new InputDevice[4] },
+            { InputDeviceType.Gamepad,  new InputDevice[4] },
             { InputDeviceType.Keyboard, new InputDevice[4] },
-            { InputDeviceType.Mouse, new InputDevice[4] },
+            { InputDeviceType.Mouse,    new InputDevice[4] },
         };
 
         protected ButtonManager[] _buttonStates;
@@ -30,7 +36,7 @@ namespace CustomEngine.Input.Devices
         public InputDevice(int index)
         {
             _index = index;
-            Console.WriteLine(GetType().ToString() + _index + " created.");
+            //Console.WriteLine(GetType().ToString() + _index + " created.");
             RegisterTick(ETickGroup.PrePhysics, ETickOrder.Input);
             ResetStates();
         }
@@ -54,48 +60,37 @@ namespace CustomEngine.Input.Devices
             return _isConnected;
         }
         internal override void Tick(float delta) { UpdateStates(delta); }
-        public static void RegisterButtonEvent(ButtonManager m, ButtonInputType type, Action func, bool unregister)
+        public static void RegisterButtonEvent(ButtonManager m, ButtonInputType type, InputPauseType pauseType, Action func, bool unregister)
         {
-            if (m != null)
-                switch (type)
-                {
-                    case ButtonInputType.Pressed:
-                        m.RegisterPressed(func, unregister);
-                        break;
-                    case ButtonInputType.Released:
-                        m.RegisterReleased(func, unregister);
-                        break;
-                    case ButtonInputType.Held:
-                        m.RegisterHeld(func, unregister);
-                        break;
-                    case ButtonInputType.DoublePressed:
-                        m.RegisterDoublePressed(func, unregister);
-                        break;
-                }
+            m?.Register(func, type, pauseType, unregister);
         }
     }
     public delegate void DelButtonState(bool pressed);
     public class ButtonManager
     {
-        public ButtonManager(string name) { _name = name; }
+        public ButtonManager(string name)
+        {
+            int count = 12;
+            _actions = new List<Action>[count];
+            _usedActions = new List<int>(count);
+            _name = name;
+        }
 
-        public List<Action>
-            _onPressed = new List<Action>(),
-            _onReleased = new List<Action>(),
-            _onHeld = new List<Action>(),
-            _onDoublePressed = new List<Action>();
-        public List<DelButtonState> _onStateChanged = new List<DelButtonState>();
+        public List<DelButtonState>[] _onStateChanged = new List<DelButtonState>[3];
 
-        static readonly float TimerMax = 0.5f;
+        const float TimerMax = 0.5f;
+
+        public string Name { get { return _name; } }
+        public bool IsPressed { get { return _isPressed; } }
 
         protected float _holdDelaySeconds = 0.2f;
         protected float _maxSecondsBetweenPresses = 0.2f;
         protected float _timer;
         protected bool _isPressed;
-        protected string _name;
 
-        public string Name { get { return _name; } }
-        public bool IsPressed { get { return _isPressed; } }
+        protected string _name;
+        protected List<Action>[] _actions;
+        protected List<int> _usedActions;
 
         internal void Tick(bool isPressed, float delta)
         {
@@ -122,82 +117,117 @@ namespace CustomEngine.Input.Devices
                 }
             }
         }
-        public void RegisterPressed(Action func, bool unregister)
+        public void Register(Action func, ButtonInputType type, InputPauseType pauseType, bool unregister)
         {
+            int index = (int)type * (int)pauseType;
             if (unregister)
-                _onPressed.Remove(func);
+            {
+                List<Action> list = _actions[index];
+                if (list == null)
+                    return;
+                list.Remove(func);
+                if (list.Count == 0)
+                {
+                    _actions[index] = null;
+                    _usedActions.Remove(index);
+                }
+            }
             else
-                _onPressed.Add(func);
+            {
+                if (_actions[index] == null)
+                {
+                    _actions[index] = new List<Action>() { func };
+                    _usedActions.Add(index);
+                }
+                else
+                    _actions[index].Add(func);
+            }
         }
-        public void RegisterReleased(Action func, bool unregister)
+        public void RegisterPressedState(DelButtonState func, InputPauseType pauseType, bool unregister)
         {
+            int index = (int)pauseType;
             if (unregister)
-                _onReleased.Remove(func);
+            {
+                List<DelButtonState> list = _onStateChanged[index];
+                if (list == null)
+                    return;
+                list.Remove(func);
+                if (list.Count == 0)
+                    _onStateChanged[index] = null;
+            }
             else
-                _onReleased.Add(func);
-        }
-        public void RegisterHeld(Action func, bool unregister)
-        {
-            if (unregister)
-                _onHeld.Remove(func);
-            else
-                _onHeld.Add(func);
-        }
-        public void RegisterDoublePressed(Action func, bool unregister)
-        {
-            if (unregister)
-                _onDoublePressed.Remove(func);
-            else
-                _onDoublePressed.Add(func);
-        }
-        public void RegisterPressedState(DelButtonState func, bool unregister)
-        {
-            if (unregister)
-                _onStateChanged.Remove(func);
-            else
-                _onStateChanged.Add(func);
+            {
+                if (_onStateChanged[index] == null)
+                    _onStateChanged[index] = new List<DelButtonState>() { func };
+                else
+                    _onStateChanged[index].Add(func);
+            }
         }
         public virtual void UnregisterAll()
         {
-            _onPressed.Clear();
-            _onReleased.Clear();
-            _onHeld.Clear();
-            _onDoublePressed.Clear();
-            _onStateChanged.Clear();
+            foreach (int i in _usedActions)
+                _actions[i] = null;
+            _usedActions.Clear();
+            for (int i = 0; i < 3; ++i)
+                _onStateChanged[i] = null;
         }
         private void OnPressed()
         {
-            int i = _onPressed.Count;
-            for (int x = 0; x < i; ++x)
-                _onPressed[x]();
-            int j = _onStateChanged.Count;
-            for (int x = 0; x < j; ++x)
-                _onStateChanged[x](true);
-            //Console.WriteLine(_name + ": PRESSED");
+            PerformAction(ButtonInputType.Pressed);
+            PerformStateAction(true);
         }
         private void OnReleased()
         {
-            int i = _onReleased.Count;
-            for (int x = 0; x < i; ++x)
-                _onReleased[x]();
-            int j = _onStateChanged.Count;
-            for (int x = 0; x < j; ++x)
-                _onStateChanged[x](false);
-            //Console.WriteLine(_name + ": RELEASED");
+            PerformAction(ButtonInputType.Released);
+            PerformStateAction(false);
         }
         private void OnHeld()
         {
-            int i = _onHeld.Count;
-            for (int x = 0; x < i; ++x)
-                _onHeld[x]();
-            //Console.WriteLine(_name + ": HELD");
+            PerformAction(ButtonInputType.Held);
         }
         private void OnDoublePressed()
         {
-            int i = _onDoublePressed.Count;
-            for (int x = 0; x < i; ++x)
-                _onDoublePressed[x]();
-            //Console.WriteLine(_name + ": DOUBLE PRESSED");
+            PerformAction(ButtonInputType.DoublePressed);
+        }
+        protected void PerformStateAction(bool pressed)
+        {
+            List<DelButtonState> list = _onStateChanged[(int)InputPauseType.TickAlways];
+            if (list != null)
+            {
+                int i = list.Count;
+                for (int x = 0; x < i; ++x)
+                    list[x](pressed);
+            }
+            list = Engine.IsPaused ?
+                _onStateChanged[(int)InputPauseType.TickOnlyWhenPaused] :
+                _onStateChanged[(int)InputPauseType.TickOnlyWhenUnpaused];
+            if (list != null)
+            {
+                int i = list.Count;
+                for (int x = 0; x < i; ++x)
+                    list[x](pressed);
+            }
+        }
+        protected void PerformAction(ButtonInputType type)
+        {
+            int index = (int)type * 3;
+            List<Action> list = _actions[index + (int)InputPauseType.TickAlways];
+            if (list != null)
+            {
+                int i = list.Count;
+                for (int x = 0; x < i; ++x)
+                    list[x]();
+            }
+            list = Engine.IsPaused ?
+                _actions[index + (int)InputPauseType.TickOnlyWhenPaused] :
+                _actions[index + (int)InputPauseType.TickOnlyWhenUnpaused];
+            if (list != null)
+            {
+                int i = list.Count;
+                for (int x = 0; x < i; ++x)
+                    list[x]();
+            }
+            //Console.WriteLine(_name + ": " + type.ToString());
         }
     }
     public delegate void DelAxisValue(float value);
@@ -245,7 +275,7 @@ namespace CustomEngine.Input.Devices
 
             Tick(Math.Abs(realValue) > _pressedThreshold, delta);
         }
-        public void RegisterAxis(DelAxisValue func, bool continuousUpdate, bool unregister)
+        public void RegisterAxis(DelAxisValue func, InputPauseType pauseType, bool continuousUpdate, bool unregister)
         {
             if (unregister)
             {

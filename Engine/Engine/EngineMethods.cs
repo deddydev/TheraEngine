@@ -57,6 +57,7 @@ namespace CustomEngine
             _debugTimers.RemoveAt(id);
             return seconds;
         }
+
         #region Tick
         public static void TogglePause()
         {
@@ -71,14 +72,17 @@ namespace CustomEngine
         private static void UpdateTick(ETickGroup order, float delta)
         {
             foreach (var g in _tick[order])
-                for (int i = 0; i < g.Value.Count; ++i)
+            {
+                Top:
+                int count = g.Value.Count;
+                for (int i = 0; i < count; ++i)
                 {
                     ObjectBase b = g.Value[i];
-                    int oldCount = g.Value.Count;
                     b.Tick(delta);
-                    if (g.Value.Count < oldCount)
-                        --i;
+                    if (g.Value.Count != count)
+                        goto Top;
                 }
+            }
         }
         //public static async Task AsyncDuringPhysicsTick(float delta)
         //{
@@ -127,9 +131,12 @@ namespace CustomEngine
             //{
             UpdateTick(ETickGroup.PrePhysics, delta);
             //Task t = AsyncDuringPhysicsTick(delta);
-            World.StepSimulation(delta);
-            foreach (CollisionObject obj in World.PhysicsScene.CollisionObjectArray)
-                (obj.UserObject as PhysicsDriver)?.TransformUpdated();
+            if (!_isPaused)
+            {
+                World.StepSimulation(delta);
+                foreach (CollisionObject obj in World.PhysicsScene.CollisionObjectArray)
+                    (obj.UserObject as PhysicsDriver)?.TransformUpdated();
+            }
             //await t;
             UpdateTick(ETickGroup.PostPhysics, delta);
             //}

@@ -11,84 +11,58 @@ namespace System
     /// <summary>
     /// Axis Aligned Bounding Box (AABB)
     /// </summary>
-    public class BoundingBox : BoundingShape, IBoundingBox
+    public class BoundingBox : Shape
     {
-        private Vec3 _min, _max;
-        
-        /// <summary>
-        /// In world space
-        /// </summary>
+        protected Vec3 _halfExtents, _translation;
+
         public Vec3 Minimum
         {
-            get { return _point + _min; }
+            get { return _translation - _halfExtents; }
             set
             {
-                _min = value - _point;
-                CheckValid();
+                _translation = (Maximum + value) / 2.0f;
+                _halfExtents = (Maximum - value) / 2.0f;
             }
         }
-        /// <summary>
-        /// In world space
-        /// </summary>
         public Vec3 Maximum
         {
-            get { return _point + _max; }
+            get { return _translation + _halfExtents; }
             set
             {
-                _max = value - _point;
-                CheckValid();
+                _translation = (value + Minimum) / 2.0f;
+                _halfExtents = (value - Minimum) / 2.0f;
             }
         }
-        public Vec3 Extents { get { return _max - _min; } }
-        public Vec3 HalfExtents { get { return Extents / 2.0f; } }
-        public Vec3 ExtentsCenter
+        public Vec3 HalfExtents
         {
-            get { return _point + (_min + _max) / 2.0f; }
-            set
-            {
-                Vec3 currentOrigin = (_min + _max) / 2.0f;
-                Vec3 diff = value - _point - currentOrigin;
-                _min += diff;
-                _max += diff;
-            }
+            get { return _halfExtents; }
+            set { _halfExtents = value; }
         }
-        public BoundingBox(Vec3 center, float halfZ, float halfY, float halfX) : base(center)
+        public Vec3 Translation
         {
-            _max = new Vec3(halfX, halfY, halfZ);
-            _min = -_max;
-            CheckValid();
+            get { return _translation; }
+            set { _translation = value; }
         }
-        public BoundingBox(Vec3 center, Vec3 min, Vec3 max) : base(center)
+        public BoundingBox(float extentX, float extentY, float extentZ)
         {
-            _min = min;
-            _max = max;
-            CheckValid();
+            _halfExtents = new Vec3(extentX, extentY, extentZ);
         }
-        public BoundingBox(Vec3 center, Vec3 bounds) : base(center)
+        public BoundingBox(Vec3 extents)
         {
-            _max = bounds / 2.0f;
-            _min = -_max;
-            CheckValid();
+            _halfExtents = extents / 2.0f;
         }
-        public BoundingBox(Vec3 center, float uniformBounds) : base(center)
+        public BoundingBox(float uniformExtents)
         {
-            Vec3 bounds = new Vec3(uniformBounds);
-            _min = -bounds / 2.0f;
-            _max = bounds / 2.0f;
-            CheckValid();
+            _halfExtents = new Vec3(uniformExtents / 2.0f);
         }
-        private void CheckValid()
+        public BoundingBox(Vec3 min, Vec3 max)
         {
-            if (_min.X > _max.X)
-                CustomMath.Swap(ref _min.X, ref _max.X);
-            if (_min.Y > _max.Y)
-                CustomMath.Swap(ref _min.Y, ref _max.Y);
-            if (_min.Z > _max.Z)
-                CustomMath.Swap(ref _min.Z, ref _max.Z);
+            _translation = (max + min) / 2.0f;
+            _halfExtents = (max - min) / 2.0f;
         }
         public override CollisionShape GetCollisionShape()
         {
-            return new BoxShape((_max - _min) / 2.0f);
+            return new BoxShape(HalfExtents);
         }
         /// <summary>
         /// T = top, B = bottom
@@ -105,7 +79,7 @@ namespace System
             out Vec3 BFL,
             out Vec3 BFR)
         {
-            GetCorners(_min, _max, out TBL, out TBR, out TFL, out TFR, out BBL, out BBR, out BFL, out BFR);
+            GetCorners(Minimum, Maximum, out TBL, out TBR, out TFL, out TFR, out BBL, out BBR, out BFL, out BFR);
         }
         public static void GetCorners(
             Vec3 min,
@@ -149,11 +123,10 @@ namespace System
             out Vec3 BFL,
             out Vec3 BFR)
         {
-            GetCorners(_min, _max, transform, out TBL, out TBR, out TFL, out TFR, out BBL, out BBR, out BFL, out BFR);
+            GetCorners(_halfExtents, transform, out TBL, out TBR, out TFL, out TFR, out BBL, out BBR, out BFL, out BFR);
         }
         public static void GetCorners(
-            Vec3 min,
-            Vec3 max,
+            Vec3 halfExtents,
             Matrix4 transform,
             out Vec3 TBL,
             out Vec3 TBR,
@@ -164,12 +137,12 @@ namespace System
             out Vec3 BFL,
             out Vec3 BFR)
         {
-            float Top = max.Y;
-            float Bottom = min.Y;
-            float Front = max.Z;
-            float Back = min.Z;
-            float Right = max.X;
-            float Left = min.X;
+            float Top = halfExtents.Y;
+            float Bottom = -halfExtents.Y;
+            float Front = halfExtents.Z;
+            float Back = -halfExtents.Z;
+            float Right = halfExtents.X;
+            float Left = -halfExtents.X;
 
             TBL = transform * new Vec3(Left, Top, Back);
             TBR = transform * new Vec3(Right, Top, Back);
@@ -195,20 +168,26 @@ namespace System
             GetCorners(transform, out TBL, out TBR, out TFL, out TFR, out BBL, out BBR, out BFL, out BFR);
             return new Vec3[] { TBL, TBR, TFL, TFR, BBL, BBR, BFL, BFR };
         }
-        public static Vec3[] GetCorners(Vec3 min, Vec3 max, Matrix4 transform)
+        public static Vec3[] GetCorners(Vec3 halfExtents, Matrix4 transform)
         {
             Vec3 TBL, TBR, TFL, TFR, BBL, BBR, BFL, BFR;
-            GetCorners(min, max, transform, out TBL, out TBR, out TFL, out TFR, out BBL, out BBR, out BFL, out BFR);
+            GetCorners(halfExtents, transform, out TBL, out TBR, out TFL, out TFR, out BBL, out BBR, out BFL, out BFR);
+            return new Vec3[] { TBL, TBR, TFL, TFR, BBL, BBR, BFL, BFR };
+        }
+        public static Vec3[] GetCorners(Vec3 boxMin, Vec3 boxMax)
+        {
+            Vec3 TBL, TBR, TFL, TFR, BBL, BBR, BFL, BFR;
+            GetCorners(boxMin, boxMax, out TBL, out TBR, out TFL, out TFR, out BBL, out BBR, out BFL, out BFR);
             return new Vec3[] { TBL, TBR, TFL, TFR, BBL, BBR, BFL, BFR };
         }
         public void ExpandBounds(Vec3 point)
         {
-            _min.SetLequalTo(point);
-            _max.SetGequalTo(point);
+            Minimum.SetLequalTo(point);
+            Maximum.SetGequalTo(point);
         }
         public override void Render()
         {
-            Engine.Renderer.RenderAABB(Minimum, Maximum, _renderSolid);
+            Engine.Renderer.RenderAABB(HalfExtents, Translation, _renderSolid);
         }
         public static PrimitiveData Mesh(Vec3 min, Vec3 max)
         {
@@ -233,12 +212,12 @@ namespace System
 
             return PrimitiveData.FromQuads(Culling.Back, new PrimitiveBufferInfo(), left, right, top, bottom, front, back);
         }
-        public PrimitiveData GetMesh(bool includeCenter)
+        public PrimitiveData GetMesh(bool includeTranslation)
         {
-            if (includeCenter)
-                return Mesh(_point + _min, _point + _max);
+            if (includeTranslation)
+                return Mesh(Minimum, Maximum);
             else
-                return Mesh(_min, _max);
+                return Mesh(-_halfExtents, _halfExtents);
         }
         public static Frustum GetFrustum(Vec3 min, Vec3 max)
         {
@@ -246,14 +225,14 @@ namespace System
             GetCorners(min, max, out ftl, out ftr, out ntl, out ntr, out fbl, out fbr, out nbl, out nbr);
             return new Frustum(fbl, fbr, ftl, ftr, nbl, nbr, ntl, ntr);
         }
-        public static Frustum GetFrustum(Vec3 min, Vec3 max, Matrix4 transform)
+        public static Frustum GetFrustum(Vec3 halfExtents, Matrix4 transform)
         {
             Vec3 ftl, ftr, ntl, ntr, fbl, fbr, nbl, nbr;
-            GetCorners(min, max, transform, out ftl, out ftr, out ntl, out ntr, out fbl, out fbr, out nbl, out nbr);
+            GetCorners(halfExtents, transform, out ftl, out ftr, out ntl, out ntr, out fbl, out fbr, out nbl, out nbr);
             return new Frustum(fbl, fbr, ftl, ftr, nbl, nbr, ntl, ntr);
         }
         public Frustum AsFrustum() { return GetFrustum(Minimum, Maximum); }
-        public Frustum AsFrustum(Matrix4 transform) { return GetFrustum(Minimum, Maximum, transform); }
+        public Frustum AsFrustum(Matrix4 transform) { return GetFrustum(_halfExtents, transform); }
         public bool Intersects(Ray ray)
         {
             float distance; return Collision.RayIntersectsAABBDistance(ray.StartPoint, ray.Direction, Minimum, Maximum, out distance);
@@ -303,33 +282,41 @@ namespace System
         {
             return Collision.AABBContainsPoint(Minimum, Maximum, point);
         }
-        public override EContainment Contains(IBoundingBox box)
+        public override EContainment Contains(BoundingBox box)
         {
             return Collision.AABBContainsAABB(Minimum, Maximum, box.Minimum, box.Maximum);
         }
-        public override EContainment Contains(IBox box)
+        public override EContainment Contains(Box box)
         {
-            return Collision.AABBContainsBox(Minimum, Maximum, box.Minimum, box.Maximum, box.InverseWorldMatrix);
+            return Collision.AABBContainsBox(Minimum, Maximum, box.HalfExtents, box.WorldMatrix);
         }
-        public override EContainment Contains(ISphere sphere)
+        public override EContainment Contains(Sphere sphere)
         {
             return Collision.AABBContainsSphere(Minimum, Maximum, sphere.Center, sphere.Radius);
         }
-        public override EContainment ContainedWithin(IBoundingBox box)
+        public override EContainment ContainedWithin(BoundingBox box)
         {
             return box.Contains(this);
         }
-        public override EContainment ContainedWithin(IBox box)
+        public override EContainment ContainedWithin(Box box)
         {
             return box.Contains(this);
         }
-        public override EContainment ContainedWithin(ISphere sphere)
+        public override EContainment ContainedWithin(Sphere sphere)
         {
             return sphere.Contains(this);
         }
         public override EContainment ContainedWithin(Frustum frustum)
         {
             return frustum.Contains(this);
+        }
+        public override void SetTransform(Matrix4 worldMatrix)
+        {
+            _translation = worldMatrix.GetPoint();
+        }
+        public override Shape HardCopy()
+        {
+            return new BoundingBox(_halfExtents * 2.0f);
         }
     }
 }

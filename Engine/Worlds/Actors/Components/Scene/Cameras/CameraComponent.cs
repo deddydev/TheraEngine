@@ -8,7 +8,6 @@ namespace CustomEngine.Worlds.Actors.Components
     public class CameraComponent : SceneComponent
     {
         private Camera _camera = new PerspectiveCamera();
-
         public Camera Camera
         {
             get { return _camera; }
@@ -59,13 +58,10 @@ namespace CustomEngine.Worlds.Actors.Components
             if (pawn != null)
                 pawn.CurrentCameraComponent = this;
         }
-        public override void RecalcLocalTransform()
+        protected override void RecalcLocalTransform()
         {
-            _localTransform = Camera.Matrix;
-            _inverseLocalTransform = Camera.InverseMatrix;
-            RecalcGlobalTransform();
+            SetLocalTransforms(Camera.Matrix, Camera.InverseMatrix);
         }
-
         internal override void OriginRebased(Vec3 newOrigin)
         {
             _camera.TranslateAbsolute(-newOrigin);

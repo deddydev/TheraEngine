@@ -28,7 +28,6 @@ C:\Users\David\Documents\Repositories\CustomEngine\Editor\bin\Debug\zh-Hans\Xcee
 C:\Users\David\Documents\Repositories\CustomEngine\Editor\bin\Debug\Editor.pssym
 C:\Users\David\Documents\Repositories\CustomEngine\Editor\obj\Debug\Editor.csprojResolveAssemblyReference.cache
 C:\Users\David\Documents\Repositories\CustomEngine\Editor\obj\Debug\Controls\ColorPanel.g.cs
-C:\Users\David\Documents\Repositories\CustomEngine\Editor\obj\Debug\Controls\RenderPanel.g.cs
 C:\Users\David\Documents\Repositories\CustomEngine\Editor\obj\Debug\Controls\UVEditor.g.cs
 C:\Users\David\Documents\Repositories\CustomEngine\Editor\obj\Debug\Controls\VertexEditor.g.cs
 C:\Users\David\Documents\Repositories\CustomEngine\Editor\obj\Debug\Controls\WeightEditor.g.cs
@@ -38,7 +37,6 @@ C:\Users\David\Documents\Repositories\CustomEngine\Editor\obj\Debug\App.g.cs
 C:\Users\David\Documents\Repositories\CustomEngine\Editor\obj\Debug\Editor_MarkupCompile.cache
 C:\Users\David\Documents\Repositories\CustomEngine\Editor\obj\Debug\Editor_MarkupCompile.lref
 C:\Users\David\Documents\Repositories\CustomEngine\Editor\obj\Debug\Controls\ColorPanel.baml
-C:\Users\David\Documents\Repositories\CustomEngine\Editor\obj\Debug\Controls\RenderPanel.baml
 C:\Users\David\Documents\Repositories\CustomEngine\Editor\obj\Debug\Controls\UVEditor.baml
 C:\Users\David\Documents\Repositories\CustomEngine\Editor\obj\Debug\Controls\VertexEditor.baml
 C:\Users\David\Documents\Repositories\CustomEngine\Editor\obj\Debug\Controls\WeightEditor.baml
@@ -104,3 +102,6 @@ X:\Repositories\CustomEngine\Editor\obj\Debug\Editor.Properties.Resources.resour
 X:\Repositories\CustomEngine\Editor\obj\Debug\Editor.csproj.GenerateResource.Cache
 X:\Repositories\CustomEngine\Editor\obj\Debug\Editor.exe.postsharp
 X:\Repositories\CustomEngine\Editor\obj\Debug\PostSharpHost.config
+C:\Users\David\Documents\Repositories\CustomEngine\Editor\obj\Debug\GeneratedInternalTypeHelper.g.cs
+C:\Users\David\Documents\Repositories\CustomEngine\Editor\obj\Debug\Controls\EditorRenderPanel.g.cs
+C:\Users\David\Documents\Repositories\CustomEngine\Editor\obj\Debug\Controls\EditorRenderPanel.baml

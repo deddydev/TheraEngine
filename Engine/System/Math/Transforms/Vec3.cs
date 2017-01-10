@@ -622,28 +622,98 @@ namespace System
             return u >= 0 && v >= 0 && u + v < 1;
         }
 
+        public void SetXy(float x, float y)
+        {
+
+        }
+        public void SetXz(float x, float z)
+        {
+
+        }
+        public void SetYx(float y, float x)
+        {
+            
+        }
+        public void SetYz(float y, float z)
+        {
+            
+        }
+        public void SetZx(float z, float x)
+        {
+            
+        }
+
         [XmlIgnore]
-        public Vec2 Xy { get { return new Vec2(X, Y); } set { X = value.X; Y = value.Y; } }
+        public Vec2 Xy
+        {
+            get { return new Vec2(X, Y); }
+            set { SetXy(value.X, value.Y); }
+        }
         [XmlIgnore]
-        public Vec2 Xz { get { return new Vec2(X, Z); } set { X = value.X; Z = value.Y; } }
+        public Vec2 Xz
+        {
+            get { return new Vec2(X, Z); }
+            set { SetXz(value.X, value.Y); }
+        }
         [XmlIgnore]
-        public Vec2 Yx { get { return new Vec2(Y, X); } set { Y = value.X; X = value.Y; } }
+        public Vec2 Yx
+        {
+            get { return new Vec2(Y, X); }
+            set { SetYx(value.X, value.Y); }
+        }
         [XmlIgnore]
-        public Vec2 Yz { get { return new Vec2(Y, Z); } set { Y = value.X; Z = value.Y; } }
+        public Vec2 Yz
+        {
+            get { return new Vec2(Y, Z); }
+            set { Y = value.X; Z = value.Y; }
+        }
         [XmlIgnore]
-        public Vec2 Zx { get { return new Vec2(Z, X); } set { Z = value.X; X = value.Y; } }
+        public Vec2 Zx
+        {
+            get { return new Vec2(Z, X); }
+            set { Z = value.X; X = value.Y; }
+        }
         [XmlIgnore]
-        public Vec2 Zy { get { return new Vec2(Z, Y); } set { Z = value.X; Y = value.Y; } }
+        public Vec2 Zy
+        {
+            get { return new Vec2(Z, Y); }
+            set { Z = value.X; Y = value.Y; } }
         [XmlIgnore]
-        public Vec3 Xzy { get { return new Vec3(X, Z, Y); } set { X = value.X; Z = value.Y; Y = value.Z; } }
+        public Vec3 Xzy
+        {
+            get { return new Vec3(X, Z, Y); }
+            set { X = value.X; Z = value.Y; Y = value.Z; }
+        }
         [XmlIgnore]
-        public Vec3 Yxz { get { return new Vec3(Y, X, Z); } set { Y = value.X; X = value.Y; Z = value.Z; } }
+        public Vec3 Yxz
+        {
+            get { return new Vec3(Y, X, Z); }
+            set { Y = value.X; X = value.Y; Z = value.Z; }
+        }
         [XmlIgnore]
-        public Vec3 Yzx { get { return new Vec3(Y, Z, X); } set { Y = value.X; Z = value.Y; X = value.Z; } }
+        public Vec3 Yzx
+        {
+            get { return new Vec3(Y, Z, X); }
+            set { Y = value.X; Z = value.Y; X = value.Z; }
+        }
         [XmlIgnore]
-        public Vec3 Zxy { get { return new Vec3(Z, X, Y); } set { Z = value.X; X = value.Y; Y = value.Z; } }
+        public Vec3 Zxy
+        {
+            get { return new Vec3(Z, X, Y); }
+            set { Z = value.X; X = value.Y; Y = value.Z; }
+        }
         [XmlIgnore]
-        public Vec3 Zyx { get { return new Vec3(Z, Y, X); } set { Z = value.X; Y = value.Y; X = value.Z; } }
+        public Vec3 Zyx
+        {
+            get { return new Vec3(Z, Y, X); }
+            set { Z = value.X; Y = value.Y; X = value.Z; }
+        }
+        [XmlIgnore]
+        public Vec3 Xyz
+        {
+            get { return new Vec3(X, Y, Z); }
+            set { X = value.X; Y = value.Y; Z = value.Z; }
+        }
 
         public static Vec3 operator +(Vec3 left, float right)
         {

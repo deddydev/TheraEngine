@@ -54,7 +54,8 @@ namespace System
         public void SetDirection(Vec3 value)
         {
             BeginUpdate();
-            value.LookatAngles(out _pyr.Y, out _pyr.X);
+            float x, y;
+            value.LookatAngles(out y, out x);
             _pyr.Z = 0.0f;
             _rotationOrder = Order.YPR;
             EndUpdate();

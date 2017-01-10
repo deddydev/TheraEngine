@@ -123,7 +123,7 @@ namespace CustomEngine.Rendering.Models.Collada
                             {
                                 float.TryParse((string)_reader.Value, NumberStyles.Any, CultureInfo.InvariantCulture.NumberFormat, out entry._scale);
                                 //Convert 1.0 meter default to centimeter
-                                entry._scale *= 100.0f;
+                                //entry._scale *= 100.0f;
                             }
                     }
                     else if (_reader.Name.Equals("up_axis", true))
@@ -965,29 +965,29 @@ namespace CustomEngine.Rendering.Models.Collada
                         _reader.ReadValue(&pM[x * 4 + y]);
                 return m;
             }
-            private RGBAPixel ParseColor()
+            private ColorF4 ParseColor()
             {
                 float f;
-                RGBAPixel c;
-                byte* p = (byte*)&c;
+                ColorF4 c;
+                float* p = (float*)&c;
                 for (int i = 0; i < 4; i++)
                 {
                     if (!_reader.ReadValue(&f))
-                        p[i] = 255;
+                        p[i] = 1.0f;
                     else
-                        p[i] = (byte)(f * 255.0f + 0.5f);
+                        p[i] = f;
                 }
                 return c;
             }
             private Vec3 ParseVec3()
             {
                 float f;
-                Vec3 c;
+                RawVec3 c;
                 float* p = (float*)&c;
                 for (int i = 0; i < 3; i++)
                 {
                     if (!_reader.ReadValue(&f))
-                        p[i] = 0;
+                        p[i] = 0.0f;
                     else
                         p[i] = f;
                 }

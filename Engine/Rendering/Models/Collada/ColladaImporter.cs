@@ -73,7 +73,7 @@ namespace CustomEngine.Rendering.Models.Collada
                 if (shell._assets.Count > 0)
                 {
                     AssetEntry e = shell._assets[0];
-                    if (e._upAxis == UpAxis.Z)
+                    if (e._upAxis == UpAxis.Y)
                         baseTransform = Matrix4.CreateFromAxisAngle(Vec3.UnitX, -90.0f);
                     baseTransform *= Matrix4.CreateScale(e._scale);
                 }

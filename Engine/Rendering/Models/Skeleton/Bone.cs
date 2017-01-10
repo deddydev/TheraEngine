@@ -69,7 +69,7 @@ namespace CustomEngine.Rendering.Models
             }
         }
         public MonitoredList<Bone> Children { get { return _children; } }
-        public SkeletalMesh Model { get { return _skeleton.Model; } }
+        public SkeletalMesh Model { get { return _skeleton == null ? null : _skeleton.Model; } }
         public FrameState FrameState { get { return _frameState; } }
         public FrameState BindState
         {
@@ -158,7 +158,7 @@ namespace CustomEngine.Rendering.Models
             item._parent = this;
             item.CalcBindMatrix(BindMatrix, InverseBindMatrix, false);
             item.CalcFrameMatrix(FrameMatrix, InverseFrameMatrix);
-            _skeleton.RegenerateBoneCache();
+            _skeleton?.RegenerateBoneCache();
         }
         private void _children_AddedRange(IEnumerable<Bone> items)
         {
@@ -168,14 +168,14 @@ namespace CustomEngine.Rendering.Models
                 item.CalcBindMatrix(BindMatrix, InverseBindMatrix, false);
                 item.CalcFrameMatrix(FrameMatrix, InverseFrameMatrix);
             }
-            _skeleton.RegenerateBoneCache();
+            _skeleton?.RegenerateBoneCache();
         }
         private void _children_Inserted(Bone item, int index)
         {
             item._parent = this;
             item.CalcBindMatrix(BindMatrix, InverseBindMatrix, false);
             item.CalcFrameMatrix(FrameMatrix, InverseFrameMatrix);
-            _skeleton.RegenerateBoneCache();
+            _skeleton?.RegenerateBoneCache();
         }
         private void _children_InsertedRange(IEnumerable<Bone> items, int index)
         {
@@ -185,14 +185,14 @@ namespace CustomEngine.Rendering.Models
                 item.CalcBindMatrix(BindMatrix, InverseBindMatrix, false);
                 item.CalcFrameMatrix(FrameMatrix, InverseFrameMatrix);
             }
-            _skeleton.RegenerateBoneCache();
+            _skeleton?.RegenerateBoneCache();
         }
         private void _children_Removed(Bone item)
         {
             item._parent = null;
             item.CalcBindMatrix(false);
             item.CalcFrameMatrix();
-            _skeleton.RegenerateBoneCache();
+            _skeleton?.RegenerateBoneCache();
         }
         private void _children_RemovedRange(IEnumerable<Bone> items)
         {
@@ -202,7 +202,7 @@ namespace CustomEngine.Rendering.Models
                 item.CalcBindMatrix(false);
                 item.CalcFrameMatrix();
             }
-            _skeleton.RegenerateBoneCache();
+            _skeleton?.RegenerateBoneCache();
         }        
     }
 }

@@ -7,9 +7,20 @@ namespace CustomEngine.Rendering.Models
 {
     public class Skeleton : FileObject
     {
-        public Skeleton() : base() { }
-        public Skeleton(Bone rootBone) : base() { RootBone = rootBone; RegenerateBoneCache(); }
-        public Skeleton(SkeletalMesh model) : base() { Model = model; RegenerateBoneCache(); }
+        public Skeleton() : base()
+        {
+
+        }
+        public Skeleton(Bone rootBone) : base()
+        {
+            RootBone = rootBone;
+            RegenerateBoneCache();
+        }
+        public Skeleton(SkeletalMesh model) : base()
+        {
+            Model = model;
+            RegenerateBoneCache();
+        }
         public Skeleton(SkeletalMesh model, Bone rootBone) : base()
         {
             Model = model;

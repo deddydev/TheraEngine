@@ -111,7 +111,7 @@ namespace CustomEngine.Worlds
             Actor dirLightActor = new Actor(dirLightComp);
 
             ColladaImportOptions options = new ColladaImportOptions();
-            SkeletalMesh m = Collada.ImportModel("C:\\Users\\David\\Desktop\\TEST.DAE", options);
+            SkeletalMesh m = Collada.ImportModel(Environment.MachineName == "DAVID-DESKTOP" ? "X:\\Desktop\\TEST.DAE" : "C:\\Users\\David\\Desktop\\TEST.DAE", options);
 
             SkeletalMeshComponent skelComp = new SkeletalMeshComponent(m, true);
             Actor skelActor = new Actor(skelComp);

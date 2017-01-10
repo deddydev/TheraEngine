@@ -591,11 +591,9 @@
     <Compile Include="System\Math\Shapes\Sphere.cs" />
     <Compile Include="System\Math\Transforms\Matrix3.cs" />
     <Compile Include="System\Math\Transforms\Matrix4.cs" />
-    <Compile Include="System\Math\Transforms\MonitoredVec2.cs" />
     <Compile Include="System\Math\Transforms\Quaternion.cs" />
     <Compile Include="System\Math\Transforms\Vec2.cs" />
     <Compile Include="System\Math\Transforms\Rotator.cs" />
-    <Compile Include="System\Math\Transforms\MonitoredVec3.cs" />
     <Compile Include="System\Math\Transforms\Vec3.cs" />
     <Compile Include="System\Math\Transforms\Vec4.cs" />
     <Compile Include="System\Memory\Bin64.cs" />

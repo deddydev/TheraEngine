@@ -61,6 +61,22 @@ namespace System
 
         public static readonly int SizeInBytes = Marshal.SizeOf(new RawVec2());
 
+        public float this[int index]
+        {
+            get
+            {
+                if (index < 0 || index > 2)
+                    throw new IndexOutOfRangeException("Cannot access vector at index " + index);
+                return Data[index];
+            }
+            set
+            {
+                if (index < 0 || index > 2)
+                    throw new IndexOutOfRangeException("Cannot access vector at index " + index);
+                Data[index] = value;
+            }
+        }
+
         public override int GetHashCode()
         {
             return base.GetHashCode();

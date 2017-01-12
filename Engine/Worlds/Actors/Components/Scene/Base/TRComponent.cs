@@ -34,7 +34,7 @@ namespace CustomEngine.Worlds.Actors.Components
 
             Matrix4
                 t = Matrix4.CreateTranslation(_translation), 
-                it = Matrix4.CreateTranslation(-_translation.Value);
+                it = Matrix4.CreateTranslation(-_translation);
 
             SetLocalTransforms(t * r, ir * it);
         }

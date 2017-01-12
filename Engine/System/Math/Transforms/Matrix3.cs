@@ -19,17 +19,17 @@ namespace System
         /// <summary>
         /// First row of the matrix.
         /// </summary>
-        public Vec3 Row0;
+        public RawVec3 Row0;
 
         /// <summary>
         /// Second row of the matrix.
         /// </summary>
-        public Vec3 Row1;
+        public RawVec3 Row1;
 
         /// <summary>
         /// Third row of the matrix.
         /// </summary>
-        public Vec3 Row2;
+        public RawVec3 Row2;
 
         /// <summary>
         /// The identity matrix.
@@ -100,17 +100,14 @@ namespace System
         /// <summary>
         /// Gets the determinant of this matrix.
         /// </summary>
-        public float Determinant
+        public float GetDeterminant()
         {
-            get
-            {
-                float m11 = Row0.X, m12 = Row0.Y, m13 = Row0.Z,
-                m21 = Row1.X, m22 = Row1.Y, m23 = Row1.Z,
-                m31 = Row2.X, m32 = Row2.Y, m33 = Row2.Z;
+            float m11 = Row0.X, m12 = Row0.Y, m13 = Row0.Z,
+            m21 = Row1.X, m22 = Row1.Y, m23 = Row1.Z,
+            m31 = Row2.X, m32 = Row2.Y, m33 = Row2.Z;
 
-                return m11 * m22 * m33 + m12 * m23 * m31 + m13 * m21 * m32
-                     - m13 * m22 * m31 - m11 * m23 * m32 - m12 * m21 * m33;
-            }
+            return m11 * m22 * m33 + m12 * m23 * m31 + m13 * m21 * m32
+                    - m13 * m22 * m31 - m11 * m23 * m32 - m12 * m21 * m33;
         }
 
         /// <summary>
@@ -279,7 +276,7 @@ namespace System
         /// </summary>
         public void Normalize()
         {
-            var determinant = this.Determinant;
+            var determinant = GetDeterminant();
             Row0 /= determinant;
             Row1 /= determinant;
             Row2 /= determinant;
@@ -291,7 +288,7 @@ namespace System
         public Matrix3 Inverted()
         {
             Matrix3 m = this;
-            if (m.Determinant != 0)
+            if (m.GetDeterminant() != 0)
                 m.Invert();
             return m;
         }
@@ -348,7 +345,7 @@ namespace System
 
             if (trace > 0)
             {
-                double sq = Math.Sqrt(trace);
+                double sq = Sqrt(trace);
 
                 q.W = (float)sq;
                 sq = 1.0 / (4.0 * sq);
@@ -358,7 +355,7 @@ namespace System
             }
             else if (row0[0] > row1[1] && row0[0] > row2[2])
             {
-                double sq = 2.0 * Math.Sqrt(1.0 + row0[0] - row1[1] - row2[2]);
+                double sq = 2.0 * Sqrt(1.0 + row0[0] - row1[1] - row2[2]);
 
                 q.X = (float)(0.25 * sq);
                 sq = 1.0 / sq;
@@ -368,7 +365,7 @@ namespace System
             }
             else if (row1[1] > row2[2])
             {
-                double sq = 2.0 * Math.Sqrt(1.0 + row1[1] - row0[0] - row2[2]);
+                double sq = 2.0 * Sqrt(1.0 + row1[1] - row0[0] - row2[2]);
 
                 q.Y = (float)(0.25 * sq);
                 sq = 1.0 / sq;
@@ -378,7 +375,7 @@ namespace System
             }
             else
             {
-                double sq = 2.0 * Math.Sqrt(1.0 + row2[2] - row0[0] - row1[1]);
+                double sq = 2.0 * Sqrt(1.0 + row2[2] - row0[0] - row1[1]);
 
                 q.Z = (float)(0.25 * sq);
                 sq = 1.0 / sq;
@@ -820,7 +817,7 @@ namespace System
         /// <returns>A new Matrix3d which holds the result of the multiplication</returns>
         public static Matrix3 operator *(Matrix3 left, Matrix3 right)
         {
-            return Matrix3.Mult(left, right);
+            return Mult(left, right);
         }
 
         /// <summary>
@@ -887,7 +884,7 @@ namespace System
             if (!(obj is Matrix3))
                 return false;
 
-            return this.Equals((Matrix3)obj);
+            return Equals((Matrix3)obj);
         }
 
         #endregion
@@ -905,8 +902,8 @@ namespace System
         {
             return
                 Row0 == other.Row0 &&
-                    Row1 == other.Row1 &&
-                    Row2 == other.Row2;
+                Row1 == other.Row1 &&
+                Row2 == other.Row2;
         }
 
         #endregion

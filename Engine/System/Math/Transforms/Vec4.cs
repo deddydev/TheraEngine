@@ -8,18 +8,208 @@ using CustomEngine.Rendering.Models;
 namespace System
 {
     [Serializable]
-    [StructLayout(LayoutKind.Sequential)]
-    public unsafe struct Vec4 : IEquatable<Vec4>, IUniformable4Float, IBufferable
+    [StructLayout(LayoutKind.Sequential, Pack = 1)]
+    public unsafe struct RawVec4 : IEquatable<RawVec4>, IUniformable4Float, IBufferable
     {
         public float X, Y, Z, W;
+        
+        public RawVec4(float x, float y, float z, float w)
+        {
+            X = x;
+            Y = y;
+            Z = z;
+            W = w;
+        }
 
         public float* Data { get { return (float*)Address; } }
         public VoidPtr Address { get { fixed (void* p = &this) return p; } }
         public VertexBuffer.ComponentType ComponentType { get { return VertexBuffer.ComponentType.Float; } }
         public int ComponentCount { get { return 4; } }
         bool IBufferable.Normalize { get { return false; } }
-        public void Write(VoidPtr address) { this = *(Vec4*)address; }
-        public void Read(VoidPtr address) { *(Vec4*)address = this; }
+        public void Write(VoidPtr address)
+        {
+            float* dPtr = (float*)address;
+            for (int i = 0; i < ComponentCount; ++i)
+                *dPtr++ = Data[i];
+        }
+        public void Read(VoidPtr address)
+        {
+            float* sPtr = (float*)address;
+            for (int i = 0; i < ComponentCount; ++i)
+                Data[i] = *sPtr++;
+        }
+        public override bool Equals(object obj)
+        {
+            if (!(obj is RawVec3))
+                return false;
+
+            return Equals((RawVec3)obj);
+        }
+        public bool Equals(RawVec3 other)
+        {
+            return
+                X == other.X &&
+                Y == other.Y &&
+                Z == other.Z;
+        }
+        public bool Equals(RawVec3 other, float precision)
+        {
+            return
+                Abs(X - other.X) < precision &&
+                Abs(Y - other.Y) < precision &&
+                Abs(Z - other.Z) < precision;
+        }
+        public static implicit operator Vec4(RawVec4 v) { return new Vec4(v.X, v.Y, v.Z, v.W); }
+        public static implicit operator RawVec4(Vec4 v) { return new RawVec4(v.X, v.Y, v.Z, v.W); }
+
+        public static readonly int SizeInBytes = Marshal.SizeOf(new RawVec4());
+
+        public float this[int index]
+        {
+            get
+            {
+                if (index < 0 || index > 3)
+                    throw new IndexOutOfRangeException("Cannot access vector at index " + index);
+                return Data[index];
+            }
+            set
+            {
+                if (index < 0 || index > 3)
+                    throw new IndexOutOfRangeException("Cannot access vector at index " + index);
+                Data[index] = value;
+            }
+        }
+
+        public float LengthSquared { get { return Dot(this); } }
+        public float Length { get { return (float)Sqrt(LengthSquared); } }
+        public float LengthFast { get { return 1.0f / InverseSqrtFast(LengthSquared); } }
+
+        public RawVec4 Normalized()
+        {
+            RawVec4 v = this;
+            v.Normalize();
+            return v;
+        }
+        public RawVec4 NormalizedFast()
+        {
+            RawVec4 v = this;
+            v.NormalizeFast();
+            return v;
+        }
+        public void Normalize()
+        {
+            float length = Length;
+            X /= length;
+            Y /= length;
+            Z /= length;
+        }
+        public void NormalizeFast()
+        {
+            float length = LengthFast;
+            X /= length;
+            Y /= length;
+            Z /= length;
+        }
+        public float Dot(RawVec4 right)
+        {
+            return X * right.X + Y * right.Y + Z * right.Z;
+        }
+
+        public static RawVec4 operator /(RawVec4 vec, float scale)
+        {
+            float mult = 1.0f / scale;
+            vec.X *= mult;
+            vec.Y *= mult;
+            vec.Z *= mult;
+            return vec;
+        }
+        public static bool operator ==(RawVec4 left, RawVec4 right)
+        {
+            return left.Equals(right);
+        }
+        public static bool operator !=(RawVec4 left, RawVec4 right)
+        {
+            return !left.Equals(right);
+        }
+
+        public override int GetHashCode()
+        {
+            return base.GetHashCode();
+        }
+    }
+    [Serializable]
+    public unsafe class Vec4 : IEquatable<Vec4>, IUniformable4Float, IBufferable
+    {
+        private int _updating = 0;
+        private float _oldX, _oldY, _oldZ, _oldW;
+        private RawVec4 _data;
+
+        public float X
+        {
+            get { return _data.X; }
+            set
+            {
+                BeginUpdate();
+                _data.X = value;
+                EndUpdate();
+            }
+        }
+        public float Y
+        {
+            get { return _data.Y; }
+            set
+            {
+                BeginUpdate();
+                _data.Y = value;
+                EndUpdate();
+            }
+        }
+        public float Z
+        {
+            get { return _data.Z; }
+            set
+            {
+                BeginUpdate();
+                _data.Z = value;
+                EndUpdate();
+            }
+        }
+        public float W
+        {
+            get { return _data.W; }
+            set
+            {
+                BeginUpdate();
+                _data.Z = value;
+                EndUpdate();
+            }
+        }
+
+        public float* Data { get { return _data.Data; } }
+        public VoidPtr Address { get { return _data.Address; } }
+        public VertexBuffer.ComponentType ComponentType { get { return VertexBuffer.ComponentType.Float; } }
+        public int ComponentCount { get { return 4; } }
+        bool IBufferable.Normalize { get { return false; } }
+        public void Write(VoidPtr address)
+        {
+            _data.Write(address);
+        }
+        public void Read(VoidPtr address)
+        {
+            BeginUpdate();
+            _data.Read(address);
+            EndUpdate();
+        }
+
+        public event Action XChanged;
+        public event Action YChanged;
+        public event Action ZChanged;
+        public event Action WChanged;
+        public event ValueChange XValueChanged;
+        public event ValueChange YValueChanged;
+        public event ValueChange ZValueChanged;
+        public event ValueChange WValueChanged;
+        public event Action Changed;
 
         public static readonly Vec4 UnitX = new Vec4(1.0f, 0.0f, 0.0f, 0.0f);
         public static readonly Vec4 UnitY = new Vec4(0.0f, 1.0f, 0.0f, 0.0f);
@@ -29,8 +219,8 @@ namespace System
         public static readonly Vec4 One = new Vec4(1.0f, 1.0f, 1.0f, 1.0f);
         public static readonly Vec4 Min = new Vec4(float.MinValue);
         public static readonly Vec4 Max = new Vec4(float.MaxValue);
-        public static readonly int SizeInBytes = Marshal.SizeOf(new Vec4());
-        
+
+        public Vec4() { }
         public Vec4(float value)
         {
             X = value;
@@ -74,6 +264,48 @@ namespace System
             W = v.W;
         }
 
+        private void BeginUpdate()
+        {
+            ++_updating;
+            _oldX = X;
+            _oldY = Y;
+            _oldZ = Z;
+            _oldW = W;
+        }
+        private void EndUpdate()
+        {
+            --_updating;
+            if (_updating > 0)
+                return;
+            bool anyChanged = false;
+            if (X != _oldX)
+            {
+                XChanged?.Invoke();
+                XValueChanged?.Invoke(_oldX, X);
+                anyChanged = true;
+            }
+            if (Y != _oldY)
+            {
+                YChanged?.Invoke();
+                YValueChanged?.Invoke(_oldY, Y);
+                anyChanged = true;
+            }
+            if (Z != _oldZ)
+            {
+                ZChanged?.Invoke();
+                ZValueChanged?.Invoke(_oldZ, Z);
+                anyChanged = true;
+            }
+            if (W != _oldW)
+            {
+                WChanged?.Invoke();
+                WValueChanged?.Invoke(_oldW, W);
+                anyChanged = true;
+            }
+            if (anyChanged)
+                Changed?.Invoke();
+        }
+
         public float this[int index]
         {
             get
@@ -89,6 +321,7 @@ namespace System
                 Data[index] = value;
             }
         }
+
         public float Length { get { return (float)Sqrt(LengthSquared); } }
         public float LengthFast { get { return 1.0f / InverseSqrtFast(LengthSquared); } }
         public float LengthSquared { get { return X * X + Y * Y + Z * Z + W * W; } }
@@ -105,32 +338,48 @@ namespace System
             v.NormalizeFast();
             return v;
         }
-        public void Normalize() { this /= Length; }
-        public void NormalizeFast() { this /= LengthFast; }
+        public void Normalize()
+        {
+            float length = Length;
+            BeginUpdate();
+            X /= length;
+            Y /= length;
+            Z /= length;
+            EndUpdate();
+        }
+        public void NormalizeFast()
+        {
+            float length = LengthFast;
+            BeginUpdate();
+            X /= length;
+            Y /= length;
+            Z /= length;
+            EndUpdate();
+        }
 
         public static Vec4 ComponentMin(Vec4 a, Vec4 b)
         {
-            a.X = a.X < b.X ? a.X : b.X;
-            a.Y = a.Y < b.Y ? a.Y : b.Y;
-            a.Z = a.Z < b.Z ? a.Z : b.Z;
-            a.W = a.W < b.W ? a.W : b.W;
-            return a;
+            return new Vec4(
+                a.X < b.X ? a.X : b.X,
+                a.Y < b.Y ? a.Y : b.Y,
+                a.Z < b.Z ? a.Z : b.Z,
+                a.W < b.W ? a.W : b.W);
         }
         public static Vec4 ComponentMax(Vec4 a, Vec4 b)
         {
-            a.X = a.X > b.X ? a.X : b.X;
-            a.Y = a.Y > b.Y ? a.Y : b.Y;
-            a.Z = a.Z > b.Z ? a.Z : b.Z;
-            a.W = a.W > b.W ? a.W : b.W;
-            return a;
+            return new Vec4(
+                a.X > b.X ? a.X : b.X,
+                a.Y > b.Y ? a.Y : b.Y,
+                a.Z > b.Z ? a.Z : b.Z,
+                a.W > b.W ? a.W : b.W);
         }
         public static Vec4 Clamp(Vec4 vec, Vec4 min, Vec4 max)
         {
-            vec.X = vec.X < min.X ? min.X : vec.X > max.X ? max.X : vec.X;
-            vec.Y = vec.Y < min.Y ? min.Y : vec.Y > max.Y ? max.Y : vec.Y;
-            vec.Z = vec.X < min.Z ? min.Z : vec.Z > max.Z ? max.Z : vec.Z;
-            vec.W = vec.Y < min.W ? min.W : vec.W > max.W ? max.W : vec.W;
-            return vec;
+            return new Vec4(
+                vec.X < min.X ? min.X : vec.X > max.X ? max.X : vec.X,
+                vec.Y < min.Y ? min.Y : vec.Y > max.Y ? max.Y : vec.Y,
+                vec.X < min.Z ? min.Z : vec.Z > max.Z ? max.Z : vec.Z,
+                vec.Y < min.W ? min.W : vec.W > max.W ? max.W : vec.W);
         }
         public static float Dot(Vec4 left, Vec4 right)
         {
@@ -160,9 +409,9 @@ namespace System
         /// <summary>Transform a Vector by the given Matrix</summary>
         public static Vec4 operator *(Vec4 vec, Matrix4 mat)
         {
-            Vec4 nv;
-            float* dPtr = (float*)&nv;
-            float* sPtr = (float*)&vec;
+            Vec4 nv = new Vec4();
+            float* dPtr = nv.Data;
+            float* sPtr = vec.Data;
             float* 
                 row1 = (float*)&mat, 
                 row2 = row1 + 4, 
@@ -181,10 +430,10 @@ namespace System
         /// <summary>Transform a Vector by the given Matrix using right-handed notation</summary>
         public static Vec4 operator *(Matrix4 mat, Vec4 vec)
         {
-            Vec4 nv;
-            float* dPtr = (float*)&nv;
-            float* sPtr = (float*)&vec;
-            Vec4* row = (Vec4*)&mat;
+            Vec4 nv = new Vec4();
+            float* dPtr = nv.Data;
+            float* sPtr = vec.Data;
+            RawVec4* row = (RawVec4*)&mat;
 
             for (int i = 0; i < 4; i++)
                 dPtr[i] =
@@ -195,165 +444,501 @@ namespace System
 
             return nv;
         }
-        
+
+        public void SetXy(float x, float y)
+        {
+            BeginUpdate();
+            X = x;
+            Y = y;
+            EndUpdate();
+        }
+        public void SetXz(float x, float z)
+        {
+            BeginUpdate();
+            X = x;
+            Z = z;
+            EndUpdate();
+        }
+        public void SetXw(float x, float w)
+        {
+            BeginUpdate();
+            X = x;
+            W = w;
+            EndUpdate();
+        }
+        public void SetYz(float y, float z)
+        {
+            BeginUpdate();
+            Y = y;
+            Z = z;
+            EndUpdate();
+        }
+        public void SetYw(float y, float w)
+        {
+            BeginUpdate();
+            Y = y;
+            W = w;
+            EndUpdate();
+        }
+        public void SetZw(float z, float w)
+        {
+            BeginUpdate();
+            Z = z;
+            W = w;
+            EndUpdate();
+        }
+        public void SetXyz(float x, float y, float z)
+        {
+            BeginUpdate();
+            X = x;
+            Y = y;
+            Z = z;
+            EndUpdate();
+        }
+        public void SetXzw(float x, float z, float w)
+        {
+            BeginUpdate();
+            X = x;
+            Z = z;
+            W = w;
+            EndUpdate();
+        }
+        public void SetXyw(float x, float y, float w)
+        {
+            BeginUpdate();
+            X = x;
+            Y = y;
+            W = w;
+            EndUpdate();
+        }
+        public void SetYzw(float y, float z, float w)
+        {
+            BeginUpdate();
+            Y = y;
+            Z = z;
+            W = w;
+            EndUpdate();
+        }
+        public void SetXyzw(float x, float y, float z, float w)
+        {
+            BeginUpdate();
+            X = x;
+            Y = y;
+            Z = z;
+            W = w;
+            EndUpdate();
+        }
+
         [XmlIgnore]
-        public Vec2 Xy { get { return new Vec2(X, Y); } set { X = value.X; Y = value.Y; } }
+        public Vec2 Xy
+        {
+            get { return new Vec2(X, Y); }
+            set { SetXy(value.X, value.Y); }
+        }
         [XmlIgnore]
-        public Vec2 Xz { get { return new Vec2(X, Z); } set { X = value.X; Z = value.Y; } }
+        public Vec2 Xz
+        {
+            get { return new Vec2(X, Z); }
+            set { SetXz(value.X, value.Y); }
+        }
         [XmlIgnore]
-        public Vec2 Xw { get { return new Vec2(X, W); } set { X = value.X; W = value.Y; } }
+        public Vec2 Xw
+        {
+            get { return new Vec2(X, W); }
+            set { SetXw(value.X, value.Y); }
+        }
         [XmlIgnore]
-        public Vec2 Yx { get { return new Vec2(Y, X); } set { Y = value.X; X = value.Y; } }
+        public Vec2 Yx
+        {
+            get { return new Vec2(Y, X); }
+            set { SetXy(value.Y, value.X); }
+        }
         [XmlIgnore]
-        public Vec2 Yz { get { return new Vec2(Y, Z); } set { Y = value.X; Z = value.Y; } }
+        public Vec2 Yz
+        {
+            get { return new Vec2(Y, Z); }
+            set { SetYz(value.X, value.Y); }
+        }
         [XmlIgnore]
-        public Vec2 Yw { get { return new Vec2(Y, W); } set { Y = value.X; W = value.Y; } }
+        public Vec2 Yw
+        {
+            get { return new Vec2(Y, W); }
+            set { SetYw(value.X, value.Y); }
+        }
         [XmlIgnore]
-        public Vec2 Zx { get { return new Vec2(Z, X); } set { Z = value.X; X = value.Y; } }
+        public Vec2 Zx
+        {
+            get { return new Vec2(Z, X); }
+            set { SetXz(value.Y, value.X); }
+        }
         [XmlIgnore]
-        public Vec2 Zy { get { return new Vec2(Z, Y); } set { Z = value.X; Y = value.Y; } }
+        public Vec2 Zy
+        {
+            get { return new Vec2(Z, Y); }
+            set { SetYz(value.Y, value.X); }
+        }
         [XmlIgnore]
-        public Vec2 Zw { get { return new Vec2(Z, W); } set { Z = value.X; W = value.Y; } }
+        public Vec2 Zw
+        {
+            get { return new Vec2(Z, W); }
+            set { SetZw(value.X, value.Y); }
+        }
         [XmlIgnore]
-        public Vec2 Wx { get { return new Vec2(W, X); } set { W = value.X; X = value.Y; } }
+        public Vec2 Wx
+        {
+            get { return new Vec2(W, X); }
+            set { SetXw(value.Y, value.X); }
+        }
         [XmlIgnore]
-        public Vec2 Wy { get { return new Vec2(W, Y); } set { W = value.X; Y = value.Y; } }
+        public Vec2 Wy
+        {
+            get { return new Vec2(W, Y); }
+            set { SetYw(value.Y, value.X); }
+        }
         [XmlIgnore]
-        public Vec2 Wz { get { return new Vec2(W, Z); } set { W = value.X; Z = value.Y; } }
+        public Vec2 Wz
+        {
+            get { return new Vec2(W, Z); }
+            set { SetZw(value.Y, value.X); }
+        }
         [XmlIgnore]
-        public Vec3 Xyz { get { return new Vec3(X, Y, Z); } set { X = value.X; Y = value.Y; Z = value.Z; } }
+        public Vec3 Xyz
+        {
+            get { return new Vec3(X, Y, Z); }
+            set { SetXyz(value.X, value.Y, value.Z); }
+        }
         [XmlIgnore]
-        public Vec3 Xyw { get { return new Vec3(X, Y, W); } set { X = value.X; Y = value.Y; W = value.Z; } }
+        public Vec3 Xyw
+        {
+            get { return new Vec3(X, Y, W); }
+            set { SetXyw(value.X, value.Y, value.Z); }
+        }
         [XmlIgnore]
-        public Vec3 Xzy { get { return new Vec3(X, Z, Y); } set { X = value.X; Z = value.Y; Y = value.Z; } }
+        public Vec3 Xzy
+        {
+            get { return new Vec3(X, Z, Y); }
+            set { SetXyz(value.X, value.Z, value.Y); }
+        }
         [XmlIgnore]
-        public Vec3 Xzw { get { return new Vec3(X, Z, W); } set { X = value.X; Z = value.Y; W = value.Z; } }
+        public Vec3 Xzw
+        {
+            get { return new Vec3(X, Z, W); }
+            set { SetXzw(value.X, value.Y, value.Z); }
+        }
         [XmlIgnore]
-        public Vec3 Xwy { get { return new Vec3(X, W, Y); } set { X = value.X; W = value.Y; Y = value.Z; } }
+        public Vec3 Xwy
+        {
+            get { return new Vec3(X, W, Y); }
+            set { SetXyw(value.X, value.Z, value.Y); }
+        }
         [XmlIgnore]
-        public Vec3 Xwz { get { return new Vec3(X, W, Z); } set { X = value.X; W = value.Y; Z = value.Z; } }
+        public Vec3 Xwz
+        {
+            get { return new Vec3(X, W, Z); }
+            set { SetXzw(value.X, value.Z, value.Y); }
+        }
         [XmlIgnore]
-        public Vec3 Yxz { get { return new Vec3(Y, X, Z); } set { Y = value.X; X = value.Y; Z = value.Z; } }
+        public Vec3 Yxz
+        {
+            get { return new Vec3(Y, X, Z); }
+            set { SetXyz(value.Y, value.X, value.Z); }
+        }
         [XmlIgnore]
-        public Vec3 Yxw { get { return new Vec3(Y, X, W); } set { Y = value.X; X = value.Y; W = value.Z; } }
+        public Vec3 Yxw
+        {
+            get { return new Vec3(Y, X, W); }
+            set { SetXyw(value.Y, value.X, value.Z); }
+        }
         [XmlIgnore]
-        public Vec3 Yzx { get { return new Vec3(Y, Z, X); } set { Y = value.X; Z = value.Y; X = value.Z; } }
+        public Vec3 Yzx
+        {
+            get { return new Vec3(Y, Z, X); }
+            set { SetXyz(value.Y, value.Z, value.X); }
+        }
         [XmlIgnore]
-        public Vec3 Yzw { get { return new Vec3(Y, Z, W); } set { Y = value.X; Z = value.Y; W = value.Z; } }
+        public Vec3 Yzw
+        {
+            get { return new Vec3(Y, Z, W); }
+            set { SetYzw(value.X, value.Y, value.Z); }
+        }
         [XmlIgnore]
-        public Vec3 Ywx { get { return new Vec3(Y, W, X); } set { Y = value.X; W = value.Y; X = value.Z; } }
+        public Vec3 Ywx
+        {
+            get { return new Vec3(Y, W, X); }
+            set { BeginUpdate(); Y = value.X; W = value.Y; X = value.Z; EndUpdate(); }
+        }
         [XmlIgnore]
-        public Vec3 Ywz { get { return new Vec3(Y, W, Z); } set { Y = value.X; W = value.Y; Z = value.Z; } }
+        public Vec3 Ywz
+        {
+            get { return new Vec3(Y, W, Z); }
+            set { BeginUpdate(); Y = value.X; W = value.Y; Z = value.Z; EndUpdate(); }
+        }
         [XmlIgnore]
-        public Vec3 Zxy { get { return new Vec3(Z, X, Y); } set { Z = value.X; X = value.Y; Y = value.Z; } }
+        public Vec3 Zxy
+        {
+            get { return new Vec3(Z, X, Y); }
+            set { BeginUpdate(); Z = value.X; X = value.Y; Y = value.Z; EndUpdate(); }
+        }
         [XmlIgnore]
-        public Vec3 Zxw { get { return new Vec3(Z, X, W); } set { Z = value.X; X = value.Y; W = value.Z; } }
+        public Vec3 Zxw
+        {
+            get { return new Vec3(Z, X, W); }
+            set { BeginUpdate(); Z = value.X; X = value.Y; W = value.Z; EndUpdate(); }
+        }
         [XmlIgnore]
-        public Vec3 Zyx { get { return new Vec3(Z, Y, X); } set { Z = value.X; Y = value.Y; X = value.Z; } }
+        public Vec3 Zyx
+        {
+            get { return new Vec3(Z, Y, X); }
+            set { BeginUpdate(); Z = value.X; Y = value.Y; X = value.Z; EndUpdate(); }
+        }
         [XmlIgnore]
-        public Vec3 Zyw { get { return new Vec3(Z, Y, W); } set { Z = value.X; Y = value.Y; W = value.Z; } }
+        public Vec3 Zyw
+        {
+            get { return new Vec3(Z, Y, W); }
+            set { BeginUpdate(); Z = value.X; Y = value.Y; W = value.Z; EndUpdate(); }
+        }
         [XmlIgnore]
-        public Vec3 Zwx { get { return new Vec3(Z, W, X); } set { Z = value.X; W = value.Y; X = value.Z; } }
+        public Vec3 Zwx
+        {
+            get { return new Vec3(Z, W, X); }
+            set { BeginUpdate(); Z = value.X; W = value.Y; X = value.Z; EndUpdate(); }
+        }
         [XmlIgnore]
-        public Vec3 Zwy { get { return new Vec3(Z, W, Y); } set { Z = value.X; W = value.Y; Y = value.Z; } }
+        public Vec3 Zwy
+        {
+            get { return new Vec3(Z, W, Y); }
+            set { BeginUpdate(); Z = value.X; W = value.Y; Y = value.Z; EndUpdate(); }
+        }
         [XmlIgnore]
-        public Vec3 Wxy { get { return new Vec3(W, X, Y); } set { W = value.X; X = value.Y; Y = value.Z; } }
+        public Vec3 Wxy
+        {
+            get { return new Vec3(W, X, Y); }
+            set { BeginUpdate(); W = value.X; X = value.Y; Y = value.Z; EndUpdate(); }
+        }
         [XmlIgnore]
-        public Vec3 Wxz { get { return new Vec3(W, X, Z); } set { W = value.X; X = value.Y; Z = value.Z; } }
+        public Vec3 Wxz
+        {
+            get { return new Vec3(W, X, Z); }
+            set { BeginUpdate(); W = value.X; X = value.Y; Z = value.Z; EndUpdate(); }
+        }
         [XmlIgnore]
-        public Vec3 Wyx { get { return new Vec3(W, Y, X); } set { W = value.X; Y = value.Y; X = value.Z; } }
+        public Vec3 Wyx
+        {
+            get { return new Vec3(W, Y, X); }
+            set { BeginUpdate(); W = value.X; Y = value.Y; X = value.Z; EndUpdate(); }
+        }
         [XmlIgnore]
-        public Vec3 Wyz { get { return new Vec3(W, Y, Z); } set { W = value.X; Y = value.Y; Z = value.Z; } }
+        public Vec3 Wyz
+        {
+            get { return new Vec3(W, Y, Z); }
+            set { BeginUpdate(); W = value.X; Y = value.Y; Z = value.Z; EndUpdate(); }
+        }
         [XmlIgnore]
-        public Vec3 Wzx { get { return new Vec3(W, Z, X); } set { W = value.X; Z = value.Y; X = value.Z; } }
+        public Vec3 Wzx
+        {
+            get { return new Vec3(W, Z, X); }
+            set { BeginUpdate(); W = value.X; Z = value.Y; X = value.Z; EndUpdate(); }
+        }
         [XmlIgnore]
-        public Vec3 Wzy { get { return new Vec3(W, Z, Y); } set { W = value.X; Z = value.Y; Y = value.Z; } }
+        public Vec3 Wzy
+        {
+            get { return new Vec3(W, Z, Y); }
+            set { BeginUpdate(); W = value.X; Z = value.Y; Y = value.Z; EndUpdate(); }
+        }
         [XmlIgnore]
-        public Vec4 Xywz { get { return new Vec4(X, Y, W, Z); } set { X = value.X; Y = value.Y; W = value.Z; Z = value.W; } }
+        public Vec4 Xywz
+        {
+            get { return new Vec4(X, Y, W, Z); }
+            set { BeginUpdate(); X = value.X; Y = value.Y; W = value.Z; Z = value.W; EndUpdate(); }
+        }
         [XmlIgnore]
-        public Vec4 Xzyw { get { return new Vec4(X, Z, Y, W); } set { X = value.X; Z = value.Y; Y = value.Z; W = value.W; } }
+        public Vec4 Xzyw
+        {
+            get { return new Vec4(X, Z, Y, W); }
+            set { BeginUpdate(); X = value.X; Z = value.Y; Y = value.Z; W = value.W; EndUpdate(); }
+        }
         [XmlIgnore]
-        public Vec4 Xzwy { get { return new Vec4(X, Z, W, Y); } set { X = value.X; Z = value.Y; W = value.Z; Y = value.W; } }
+        public Vec4 Xzwy
+        {
+            get { return new Vec4(X, Z, W, Y); }
+            set { BeginUpdate(); X = value.X; Z = value.Y; W = value.Z; Y = value.W; EndUpdate(); }
+        }
         [XmlIgnore]
-        public Vec4 Xwyz { get { return new Vec4(X, W, Y, Z); } set { X = value.X; W = value.Y; Y = value.Z; Z = value.W; } }
+        public Vec4 Xwyz
+        {
+            get { return new Vec4(X, W, Y, Z); }
+            set { BeginUpdate(); X = value.X; W = value.Y; Y = value.Z; Z = value.W; EndUpdate(); }
+        }
         [XmlIgnore]
-        public Vec4 Xwzy { get { return new Vec4(X, W, Z, Y); } set { X = value.X; W = value.Y; Z = value.Z; Y = value.W; } }
+        public Vec4 Xwzy
+        {
+            get { return new Vec4(X, W, Z, Y); }
+            set { BeginUpdate(); X = value.X; W = value.Y; Z = value.Z; Y = value.W; EndUpdate(); }
+        }
         [XmlIgnore]
-        public Vec4 Yxzw { get { return new Vec4(Y, X, Z, W); } set { Y = value.X; X = value.Y; Z = value.Z; W = value.W; } }
+        public Vec4 Yxzw
+        {
+            get { return new Vec4(Y, X, Z, W); }
+            set { BeginUpdate(); Y = value.X; X = value.Y; Z = value.Z; W = value.W; EndUpdate(); }
+        }
         [XmlIgnore]
-        public Vec4 Yxwz { get { return new Vec4(Y, X, W, Z); } set { Y = value.X; X = value.Y; W = value.Z; Z = value.W; } }
+        public Vec4 Yxwz
+        {
+            get { return new Vec4(Y, X, W, Z); }
+            set { BeginUpdate(); Y = value.X; X = value.Y; W = value.Z; Z = value.W; EndUpdate(); }
+        }
         [XmlIgnore]
-        public Vec4 Yyzw { get { return new Vec4(Y, Y, Z, W); } set { X = value.X; Y = value.Y; Z = value.Z; W = value.W; } }
+        public Vec4 Yyzw
+        {
+            get { return new Vec4(Y, Y, Z, W); }
+            set { BeginUpdate(); X = value.X; Y = value.Y; Z = value.Z; W = value.W; EndUpdate(); }
+        }
         [XmlIgnore]
-        public Vec4 Yywz { get { return new Vec4(Y, Y, W, Z); } set { X = value.X; Y = value.Y; W = value.Z; Z = value.W; } }
+        public Vec4 Yywz
+        {
+            get { return new Vec4(Y, Y, W, Z); }
+            set { BeginUpdate(); X = value.X; Y = value.Y; W = value.Z; Z = value.W; EndUpdate(); }
+        }
         [XmlIgnore]
-        public Vec4 Yzxw { get { return new Vec4(Y, Z, X, W); } set { Y = value.X; Z = value.Y; X = value.Z; W = value.W; } }
+        public Vec4 Yzxw
+        {
+            get { return new Vec4(Y, Z, X, W); }
+            set { BeginUpdate(); Y = value.X; Z = value.Y; X = value.Z; W = value.W; EndUpdate(); }
+        }
         [XmlIgnore]
-        public Vec4 Yzwx { get { return new Vec4(Y, Z, W, X); } set { Y = value.X; Z = value.Y; W = value.Z; X = value.W; } }
+        public Vec4 Yzwx
+        {
+            get { return new Vec4(Y, Z, W, X); }
+            set { BeginUpdate(); Y = value.X; Z = value.Y; W = value.Z; X = value.W; EndUpdate(); }
+        }
         [XmlIgnore]
-        public Vec4 Ywxz { get { return new Vec4(Y, W, X, Z); } set { Y = value.X; W = value.Y; X = value.Z; Z = value.W; } }
+        public Vec4 Ywxz
+        {
+            get { return new Vec4(Y, W, X, Z); }
+            set { BeginUpdate(); Y = value.X; W = value.Y; X = value.Z; Z = value.W; EndUpdate(); }
+        }
         [XmlIgnore]
-        public Vec4 Ywzx { get { return new Vec4(Y, W, Z, X); } set { Y = value.X; W = value.Y; Z = value.Z; X = value.W; } }
+        public Vec4 Ywzx
+        {
+            get { return new Vec4(Y, W, Z, X); }
+            set { BeginUpdate(); Y = value.X; W = value.Y; Z = value.Z; X = value.W; EndUpdate(); }
+        }
         [XmlIgnore]
-        public Vec4 Zxyw { get { return new Vec4(Z, X, Y, W); } set { Z = value.X; X = value.Y; Y = value.Z; W = value.W; } }
+        public Vec4 Zxyw
+        {
+            get { return new Vec4(Z, X, Y, W); }
+            set { BeginUpdate(); Z = value.X; X = value.Y; Y = value.Z; W = value.W; EndUpdate(); }
+        }
         [XmlIgnore]
-        public Vec4 Zxwy { get { return new Vec4(Z, X, W, Y); } set { Z = value.X; X = value.Y; W = value.Z; Y = value.W; } }
+        public Vec4 Zxwy
+        {
+            get { return new Vec4(Z, X, W, Y); }
+            set { BeginUpdate(); Z = value.X; X = value.Y; W = value.Z; Y = value.W; EndUpdate(); }
+        }
         [XmlIgnore]
-        public Vec4 Zyxw { get { return new Vec4(Z, Y, X, W); } set { Z = value.X; Y = value.Y; X = value.Z; W = value.W; } }
+        public Vec4 Zyxw
+        {
+            get { return new Vec4(Z, Y, X, W); }
+            set { BeginUpdate(); Z = value.X; Y = value.Y; X = value.Z; W = value.W; EndUpdate(); }
+        }
         [XmlIgnore]
-        public Vec4 Zywx { get { return new Vec4(Z, Y, W, X); } set { Z = value.X; Y = value.Y; W = value.Z; X = value.W; } }
+        public Vec4 Zywx
+        {
+            get { return new Vec4(Z, Y, W, X); }
+            set { BeginUpdate(); Z = value.X; Y = value.Y; W = value.Z; X = value.W; EndUpdate(); }
+        }
         [XmlIgnore]
-        public Vec4 Zwxy { get { return new Vec4(Z, W, X, Y); } set { Z = value.X; W = value.Y; X = value.Z; Y = value.W; } }
+        public Vec4 Zwxy
+        {
+            get { return new Vec4(Z, W, X, Y); }
+            set { BeginUpdate(); Z = value.X; W = value.Y; X = value.Z; Y = value.W; EndUpdate(); }
+        }
         [XmlIgnore]
-        public Vec4 Zwyx { get { return new Vec4(Z, W, Y, X); } set { Z = value.X; W = value.Y; Y = value.Z; X = value.W; } }
+        public Vec4 Zwyx
+        {
+            get { return new Vec4(Z, W, Y, X); }
+            set { BeginUpdate(); Z = value.X; W = value.Y; Y = value.Z; X = value.W; EndUpdate(); }
+        }
         [XmlIgnore]
-        public Vec4 Zwzy { get { return new Vec4(Z, W, Z, Y); } set { X = value.X; W = value.Y; Z = value.Z; Y = value.W; } }
+        public Vec4 Zwzy
+        {
+            get { return new Vec4(Z, W, Z, Y); }
+            set { BeginUpdate(); X = value.X; W = value.Y; Z = value.Z; Y = value.W; EndUpdate(); }
+        }
         [XmlIgnore]
-        public Vec4 Wxyz { get { return new Vec4(W, X, Y, Z); } set { W = value.X; X = value.Y; Y = value.Z; Z = value.W; } }
+        public Vec4 Wxyz
+        {
+            get { return new Vec4(W, X, Y, Z); }
+            set { BeginUpdate(); W = value.X; X = value.Y; Y = value.Z; Z = value.W; EndUpdate(); }
+        }
         [XmlIgnore]
-        public Vec4 Wxzy { get { return new Vec4(W, X, Z, Y); } set { W = value.X; X = value.Y; Z = value.Z; Y = value.W; } }
+        public Vec4 Wxzy
+        {
+            get { return new Vec4(W, X, Z, Y); }
+            set { BeginUpdate(); W = value.X; X = value.Y; Z = value.Z; Y = value.W; EndUpdate(); }
+        }
         [XmlIgnore]
-        public Vec4 Wyxz { get { return new Vec4(W, Y, X, Z); } set { W = value.X; Y = value.Y; X = value.Z; Z = value.W; } }
+        public Vec4 Wyxz
+        {
+            get { return new Vec4(W, Y, X, Z); }
+            set { BeginUpdate(); W = value.X; Y = value.Y; X = value.Z; Z = value.W; EndUpdate(); }
+        }
         [XmlIgnore]
-        public Vec4 Wyzx { get { return new Vec4(W, Y, Z, X); } set { W = value.X; Y = value.Y; Z = value.Z; X = value.W; } }
+        public Vec4 Wyzx
+        {
+            get { return new Vec4(W, Y, Z, X); }
+            set { BeginUpdate(); W = value.X; Y = value.Y; Z = value.Z; X = value.W; EndUpdate(); }
+        }
         [XmlIgnore]
-        public Vec4 Wzxy { get { return new Vec4(W, Z, X, Y); } set { W = value.X; Z = value.Y; X = value.Z; Y = value.W; } }
+        public Vec4 Wzxy
+        {
+            get { return new Vec4(W, Z, X, Y); }
+            set { BeginUpdate(); W = value.X; Z = value.Y; X = value.Z; Y = value.W; EndUpdate(); }
+        }
         [XmlIgnore]
-        public Vec4 Wzyx { get { return new Vec4(W, Z, Y, X); } set { W = value.X; Z = value.Y; Y = value.Z; X = value.W; } }
+        public Vec4 Wzyx
+        {
+            get { return new Vec4(W, Z, Y, X); }
+            set { BeginUpdate(); W = value.X; Z = value.Y; Y = value.Z; X = value.W; EndUpdate(); }
+        }
         [XmlIgnore]
-        public Vec4 Wzyw { get { return new Vec4(W, Z, Y, W); } set { X = value.X; Z = value.Y; Y = value.Z; W = value.W; } }
+        public Vec4 Wzyw
+        {
+            get { return new Vec4(W, Z, Y, W); }
+            set { BeginUpdate(); X = value.X; Z = value.Y; Y = value.Z; W = value.W; EndUpdate(); }
+        }
 
         public static Vec4 operator +(Vec4 left, Vec4 right)
         {
-            left.X += right.X;
-            left.Y += right.Y;
-            left.Z += right.Z;
-            left.W += right.W;
-            return left;
+            return new Vec4(
+                left.X + right.X,
+                left.Y + right.Y,
+                left.Z + right.Z,
+                left.W + right.W);
         }
         public static Vec4 operator -(Vec4 left, Vec4 right)
         {
-            left.X -= right.X;
-            left.Y -= right.Y;
-            left.Z -= right.Z;
-            left.W -= right.W;
-            return left;
+            return new Vec4(
+                left.X - right.X,
+                left.Y - right.Y,
+                left.Z - right.Z,
+                left.W - right.W);
         }
         public static Vec4 operator -(Vec4 vec)
         {
-            vec.X = -vec.X;
-            vec.Y = -vec.Y;
-            vec.Z = -vec.Z;
-            vec.W = -vec.W;
-            return vec;
+            return new Vec4(
+                -vec.X,
+                -vec.Y,
+                -vec.Z,
+                -vec.W);
         }
         public static Vec4 operator *(Vec4 vec, float scale)
         {
-            vec.X *= scale;
-            vec.Y *= scale;
-            vec.Z *= scale;
-            vec.W *= scale;
-            return vec;
+            return new Vec4(
+                vec.X * scale,
+                vec.Y * scale,
+                vec.Z * scale,
+                vec.W * scale);
         }
         public static Vec4 operator *(float scale, Vec4 vec)
         {
@@ -361,11 +946,11 @@ namespace System
         }
         public static Vec4 operator *(Vec4 vec, Vec4 scale)
         {
-            vec.X *= scale.X;
-            vec.Y *= scale.Y;
-            vec.Z *= scale.Z;
-            vec.W *= scale.W;
-            return vec;
+            return new Vec4(
+                vec.X * scale.X,
+                vec.Y * scale.Y,
+                vec.Z * scale.Z,
+                vec.W * scale.W);
         }
         public static Vec4 operator *(Vec4 vec, Quaternion quat)
         {
@@ -375,11 +960,12 @@ namespace System
         }
         public static Vec4 operator /(Vec4 vec, float scale)
         {
-            vec.X /= scale;
-            vec.Y /= scale;
-            vec.Z /= scale;
-            vec.W /= scale;
-            return vec;
+            scale = 1.0f / scale;
+            return new Vec4(
+                vec.X * scale,
+                vec.Y * scale,
+                vec.Z * scale,
+                vec.W * scale);
         }
         public static bool operator ==(Vec4 left, Vec4 right)
         {
@@ -389,9 +975,15 @@ namespace System
         {
             return !left.Equals(right);
         }
-        public static implicit operator BulletSharp.Vector4(Vec4 v) { return new BulletSharp.Vector4(v.Xyz, v.W); }
-        public static implicit operator Vec4(BulletSharp.Vector4 v) { return new Vec4(v.X, v.Y, v.Z, v.W); }
-        private static string listSeparator = System.Globalization.CultureInfo.CurrentCulture.TextInfo.ListSeparator;
+        public static implicit operator BulletSharp.Vector4(Vec4 v)
+        {
+            return new BulletSharp.Vector4(v.X, v.Y, v.Z, v.W);
+        }
+        public static implicit operator Vec4(BulletSharp.Vector4 v)
+        {
+            return new Vec4(v.X, v.Y, v.Z, v.W);
+        }
+        private static string listSeparator = Globalization.CultureInfo.CurrentCulture.TextInfo.ListSeparator;
         public override string ToString()
         {
             return String.Format("({0}{4} {1}{4} {2}{4} {3})", X, Y, Z, W, listSeparator);

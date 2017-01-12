@@ -65,6 +65,74 @@ namespace System
 
         public static readonly int SizeInBytes = Marshal.SizeOf(new RawVec3());
 
+        public float this[int index]
+        {
+            get
+            {
+                if (index < 0 || index > 2)
+                    throw new IndexOutOfRangeException("Cannot access vector at index " + index);
+                return Data[index];
+            }
+            set
+            {
+                if (index < 0 || index > 2)
+                    throw new IndexOutOfRangeException("Cannot access vector at index " + index);
+                Data[index] = value;
+            }
+        }
+
+        public float LengthSquared { get { return Dot(this); } }
+        public float Length { get { return (float)Sqrt(LengthSquared); } }
+        public float LengthFast { get { return 1.0f / InverseSqrtFast(LengthSquared); } }
+
+        public RawVec3 Normalized()
+        {
+            RawVec3 v = this;
+            v.Normalize();
+            return v;
+        }
+        public RawVec3 NormalizedFast()
+        {
+            RawVec3 v = this;
+            v.NormalizeFast();
+            return v;
+        }
+        public void Normalize()
+        {
+            float length = Length;
+            X /= length;
+            Y /= length;
+            Z /= length;
+        }
+        public void NormalizeFast()
+        {
+            float length = LengthFast;
+            X /= length;
+            Y /= length;
+            Z /= length;
+        }
+        public float Dot(RawVec3 right)
+        {
+            return X * right.X + Y * right.Y + Z * right.Z;
+        }
+
+        public static RawVec3 operator /(RawVec3 vec, float scale)
+        {
+            float mult = 1.0f / scale;
+            vec.X *= mult;
+            vec.Y *= mult;
+            vec.Z *= mult;
+            return vec;
+        }
+        public static bool operator ==(RawVec3 left, RawVec3 right)
+        {
+            return left.Equals(right);
+        }
+        public static bool operator !=(RawVec3 left, RawVec3 right)
+        {
+            return !left.Equals(right);
+        }
+
         public override int GetHashCode()
         {
             return base.GetHashCode();
@@ -161,9 +229,9 @@ namespace System
             }
         }
 
+        public float LengthSquared { get { return Dot(this); } }
         public float Length { get { return (float)Sqrt(LengthSquared); } }
         public float LengthFast { get { return 1.0f / InverseSqrtFast(LengthSquared); } }
-        public float LengthSquared { get { return Dot(this); } }
 
         private void BeginUpdate()
         {
@@ -575,7 +643,10 @@ namespace System
             float AzimuthSign = ((NoZProjDir | right) < 0.0f) ? -1.0f : 1.0f;
             float ElevationSin = NormalDir | up;
             float AzimuthCos = NoZProjDir | forward;
-            return new Rotator(RadToDeg((float)Acos(AzimuthCos)) * AzimuthSign, RadToDeg((float)Asin(ElevationSin)), 0.0f, Rotator.Order.YPR);
+            return new Rotator(
+                RadToDeg((float)Acos(AzimuthCos)) * AzimuthSign, 
+                RadToDeg((float)Asin(ElevationSin)), 
+                0.0f, Rotator.Order.YPR);
         }
         public Rotator LookatAngles(Vec3 origin)
         {
@@ -624,23 +695,32 @@ namespace System
 
         public void SetXy(float x, float y)
         {
-
+            BeginUpdate();
+            X = x;
+            Y = y;
+            EndUpdate();
         }
         public void SetXz(float x, float z)
         {
-
-        }
-        public void SetYx(float y, float x)
-        {
-            
+            BeginUpdate();
+            X = x;
+            Z = z;
+            EndUpdate();
         }
         public void SetYz(float y, float z)
         {
-            
+            BeginUpdate();
+            Y = y;
+            Z = z;
+            EndUpdate();
         }
-        public void SetZx(float z, float x)
+        public void SetXyz(float x, float y, float z)
         {
-            
+            BeginUpdate();
+            X = x;
+            Y = y;
+            Z = z;
+            EndUpdate();
         }
 
         [XmlIgnore]
@@ -659,143 +739,123 @@ namespace System
         public Vec2 Yx
         {
             get { return new Vec2(Y, X); }
-            set { SetYx(value.X, value.Y); }
+            set { SetXy(value.Y, value.X); }
         }
         [XmlIgnore]
         public Vec2 Yz
         {
             get { return new Vec2(Y, Z); }
-            set { Y = value.X; Z = value.Y; }
+            set { SetYz(value.X, value.Y); }
         }
         [XmlIgnore]
         public Vec2 Zx
         {
             get { return new Vec2(Z, X); }
-            set { Z = value.X; X = value.Y; }
+            set { SetXz(value.Y, value.X); }
         }
         [XmlIgnore]
         public Vec2 Zy
         {
             get { return new Vec2(Z, Y); }
-            set { Z = value.X; Y = value.Y; } }
+            set { SetYz(value.Y, value.X); }
+        }
         [XmlIgnore]
         public Vec3 Xzy
         {
             get { return new Vec3(X, Z, Y); }
-            set { X = value.X; Z = value.Y; Y = value.Z; }
+            set { SetXyz(X, Z, Y); }
         }
         [XmlIgnore]
         public Vec3 Yxz
         {
             get { return new Vec3(Y, X, Z); }
-            set { Y = value.X; X = value.Y; Z = value.Z; }
+            set { SetXyz(Y, X, Z); }
         }
         [XmlIgnore]
         public Vec3 Yzx
         {
             get { return new Vec3(Y, Z, X); }
-            set { Y = value.X; Z = value.Y; X = value.Z; }
+            set { SetXyz(Y, Z, X); }
         }
         [XmlIgnore]
         public Vec3 Zxy
         {
             get { return new Vec3(Z, X, Y); }
-            set { Z = value.X; X = value.Y; Y = value.Z; }
+            set { SetXyz(Z, X, Y); }
         }
         [XmlIgnore]
         public Vec3 Zyx
         {
             get { return new Vec3(Z, Y, X); }
-            set { Z = value.X; Y = value.Y; X = value.Z; }
+            set { SetXyz(Z, Y, X); }
         }
         [XmlIgnore]
         public Vec3 Xyz
         {
             get { return new Vec3(X, Y, Z); }
-            set { X = value.X; Y = value.Y; Z = value.Z; }
+            set { SetXyz(X, Y, Z); }
         }
 
         public static Vec3 operator +(Vec3 left, float right)
         {
-            left.BeginUpdate();
-            left.X += right;
-            left.Y += right;
-            left.Z += right;
-            left.EndUpdate();
-            return left;
+            return new Vec3(
+                left.X + right,
+                left.Y + right,
+                left.Z + right);
         }
         public static Vec3 operator -(float left, Vec3 right)
         {
-            right.BeginUpdate();
-            right.X = left - right.X;
-            right.Y = left - right.Y;
-            right.Z = left - right.Z;
-            right.EndUpdate();
-            return right;
+            return new Vec3(
+                left - right.X,
+                left - right.Y,
+                left - right.Z);
         }
         public static Vec3 operator -(Vec3 left, float right)
         {
-            left.BeginUpdate();
-            left.X -= right;
-            left.Y -= right;
-            left.Z -= right;
-            left.EndUpdate();
-            return left;
+            return new Vec3(
+                left.X - right, 
+                left.Y - right, 
+                left.Z - right);
         }
 
         public static Vec3 operator +(Vec3 left, Vec3 right)
         {
-            left.BeginUpdate();
-            left.X += right.X;
-            left.Y += right.Y;
-            left.Z += right.Z;
-            left.EndUpdate();
-            return left;
+            return new Vec3(
+                left.X + right.X,
+                left.Y + right.Y,
+                left.Z + right.Z);
         }
         public static Vec3 operator -(Vec3 left, Vec3 right)
         {
-            left.BeginUpdate();
-            left.X -= right.X;
-            left.Y -= right.Y;
-            left.Z -= right.Z;
-            left.EndUpdate();
-            return left;
+            return new Vec3(
+                left.X - right.X,
+                left.Y - right.Y,
+                left.Z - right.Z);
         }
         public static Vec3 operator -(Vec3 vec)
         {
-            vec.BeginUpdate();
-            vec.X = -vec.X;
-            vec.Y = -vec.Y;
-            vec.Z = -vec.Z;
-            vec.EndUpdate();
-            return vec;
+            return new Vec3(
+                -vec.X,
+                -vec.Y,
+                -vec.Z);
         }
         public static Vec3 operator *(Vec3 vec, float scale)
         {
-            vec.BeginUpdate();
-            vec.X *= scale;
-            vec.Y *= scale;
-            vec.Z *= scale;
-            vec.EndUpdate();
-            return vec;
+            return new Vec3(
+                vec.X * scale,
+                vec.Y * scale,
+                vec.Z * scale);
         }
         public static Vec3 operator *(float scale, Vec3 vec)
         {
-            vec.BeginUpdate();
-            vec.X *= scale;
-            vec.Y *= scale;
-            vec.Z *= scale;
-            vec.EndUpdate();
-            return vec;
+            return vec * scale;
         }
         public static Vec3 operator *(Vec3 vec, Vec3 scale)
         {
-            vec.BeginUpdate();
-            vec.X *= scale.X;
-            vec.Y *= scale.Y;
-            vec.Z *= scale.Z;
-            vec.EndUpdate();
-            return vec;
+            return new Vec3(
+                vec.X * scale.X,
+                vec.Y * scale.Y,
+                vec.Z * scale.Z);
         }
         public static Vec3 operator *(Quaternion quat, Vec3 vec)
         {
@@ -803,13 +863,11 @@ namespace System
         }
         public static Vec3 operator /(Vec3 vec, float scale)
         {
-            float mult = 1.0f / scale;
-            vec.BeginUpdate();
-            vec.X *= mult;
-            vec.Y *= mult;
-            vec.Z *= mult;
-            vec.EndUpdate();
-            return vec;
+            scale = 1.0f / scale;
+            return new Vec3(
+                vec.X * scale,
+                vec.Y * scale,
+                vec.Z * scale);
         }
         public static bool operator ==(Vec3 left, Vec3 right)
         {
@@ -821,27 +879,46 @@ namespace System
         }
         public static bool operator <(Vec3 left, Vec3 right)
         {
-            return left.X < right.X && left.Y < right.Y && left.Z < right.Z;
+            return 
+                left.X < right.X &&
+                left.Y < right.Y && 
+                left.Z < right.Z;
         }
         public static bool operator >(Vec3 left, Vec3 right)
         {
-            return left.X > right.X && left.Y > right.Y && left.Z > right.Z;
+            return 
+                left.X > right.X &&
+                left.Y > right.Y && 
+                left.Z > right.Z;
         }
         public static bool operator <=(Vec3 left, Vec3 right)
         {
-            return left.X <= right.X && left.Y <= right.Y && left.Z <= right.Z;
+            return
+                left.X <= right.X && 
+                left.Y <= right.Y && 
+                left.Z <= right.Z;
         }
         public static bool operator >=(Vec3 left, Vec3 right)
         {
-            return left.X >= right.X && left.Y >= right.Y && left.Z >= right.Z;
+            return 
+                left.X >= right.X && 
+                left.Y >= right.Y && 
+                left.Z >= right.Z;
         }
         public static Vec3 operator /(float scale, Vec3 vec)
         {
-            return new Vec3(scale) / vec;
+            scale = 1.0f / scale;
+            return new Vec3(
+                scale * vec.X,
+                scale * vec.Y,
+                scale * vec.Z);
         }
-        public static Vec3 operator /(Vec3 vec1, Vec3 vec2)
+        public static Vec3 operator /(Vec3 left, Vec3 right)
         {
-            return new Vec3(vec1.X / vec2.X, vec1.Y / vec2.Y, vec1.Z / vec2.Z);
+            return new Vec3(
+                left.X / right.X, 
+                left.Y / right.Y,
+                left.Z / right.Z);
         }
         /// <summary>
         /// Cross

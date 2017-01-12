@@ -11,12 +11,12 @@ namespace CustomEngine.Worlds.Actors.Components
     {
         public PositionComponent() : base()
         {
-            _translation = new MonitoredVec3();
+            _translation = Vec3.Zero;
             _translation.Changed += RecalcLocalTransform;
         }
 
-        protected MonitoredVec3 _translation;
-        public MonitoredVec3 Translation
+        protected Vec3 _translation;
+        public Vec3 Translation
         {
             get { return _translation; }
             set
@@ -27,7 +27,7 @@ namespace CustomEngine.Worlds.Actors.Components
         }
         protected override void RecalcLocalTransform()
         {
-            SetLocalTransforms(Matrix4.CreateTranslation(_translation), Matrix4.CreateTranslation(-_translation.Value));
+            SetLocalTransforms(Matrix4.CreateTranslation(_translation), Matrix4.CreateTranslation(-_translation));
         }
         internal override void OriginRebased(Vec3 newOrigin)
         {

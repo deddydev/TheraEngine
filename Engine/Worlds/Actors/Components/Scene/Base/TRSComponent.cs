@@ -11,12 +11,12 @@ namespace CustomEngine.Worlds.Actors.Components
     {
         public TRSComponent() : base()
         {
-            _scale = new MonitoredVec3(Vec3.One);
+            _scale = Vec3.One;
             _scale.Changed += RecalcLocalTransform;
         }
 
-        protected MonitoredVec3 _scale;
-        public MonitoredVec3 Scale
+        protected Vec3 _scale;
+        public Vec3 Scale
         {
             get { return _scale; }
             set
@@ -33,11 +33,11 @@ namespace CustomEngine.Worlds.Actors.Components
 
             Matrix4
                 t = Matrix4.CreateTranslation(_translation),
-                it = Matrix4.CreateTranslation(-_translation.Value);
+                it = Matrix4.CreateTranslation(-_translation);
 
             Matrix4
                 s = Matrix4.CreateScale(_scale),
-                iS = Matrix4.CreateScale(1.0f / _scale.Value);
+                iS = Matrix4.CreateScale(1.0f / _scale);
 
             SetLocalTransforms(t * r * s, iS * ir * it);
         }

@@ -22,7 +22,7 @@ namespace CustomEngine.Rendering.Models.Collada
 
             float weight = 0;
             float* pWeights = null;
-            Vec3* pVert = null;
+            RawVec3* pVert = null;
             List<Vertex> vertList = new List<Vertex>(skin._weightCount);
             Matrix4* pMatrix = null;
 
@@ -32,7 +32,7 @@ namespace CustomEngine.Rendering.Models.Collada
             //Find vertex source
             SourceEntry s = geo._sources.FirstOrDefault(x => x._id == geo._verticesInput._source);
             if (s != null)
-                pVert = (Vec3*)((DataSource)s._arrayData).Address;
+                pVert = (RawVec3*)((DataSource)s._arrayData).Address;
             
             //Find joint source
             string[] jointStringArray = null;
@@ -136,7 +136,7 @@ namespace CustomEngine.Rendering.Models.Collada
                     }
                     inf.AddWeight(new BoneWeight(bone.Name, weight));
                 }
-                vertList.Add(new Vertex(bindMatrix * pVert[i], inf));
+                vertList.Add(new Vertex(bindMatrix * (Vec3)pVert[i], inf));
             }
             return data;
         }
@@ -161,20 +161,20 @@ namespace CustomEngine.Rendering.Models.Collada
         {
             PrimitiveData manager = DecodePrimitives(geo);
 
-            Vec3* pV = null;
+            RawVec3* pV = null;
             int vCount = 0;
             
             SourceEntry s = geo._sources.FirstOrDefault(x => x._id == geo._verticesInput._source);
             if (s != null)
             {
                 DataSource b = s._arrayData as DataSource;
-                pV = (Vec3*)b.Address;
+                pV = (RawVec3*)b.Address;
                 vCount = b.Length / 12;
             }
 
             Vertex[] vertices = new Vertex[vCount];
             for (int i = 0; i < vCount; i++)
-                vertices[i] = new Vertex(bindMatrix * pV[i]);
+                vertices[i] = new Vertex(bindMatrix * (Vec3)pV[i]);
 
             return manager;
         }
@@ -275,22 +275,22 @@ namespace CustomEngine.Rendering.Models.Collada
                             switch (inp._semantic)
                             {
                                 case SemanticType.VERTEX:
-                                    vtx._position = *(Vec3*)addr;
+                                    vtx._position = *(RawVec3*)addr;
                                     break;
                                 case SemanticType.NORMAL:
-                                    vtx._normal = *(Vec3*)addr;
+                                    vtx._normal = *(RawVec3*)addr;
                                     break;
                                 case SemanticType.TEXCOORD:
-                                    vtx._texCoord = *(Vec2*)addr;
+                                    vtx._texCoord = *(RawVec2*)addr;
                                     break;
                                 case SemanticType.COLOR:
                                     vtx._color = *(ColorF4*)addr;
                                     break;
                                 case SemanticType.TEXTANGENT:
-                                    vtx._tangent = *(Vec3*)addr;
+                                    vtx._tangent = *(RawVec3*)addr;
                                     break;
                                 case SemanticType.TEXBINORMAL:
-                                    vtx._binormal = *(Vec3*)addr;
+                                    vtx._binormal = *(RawVec3*)addr;
                                     break;
                             }
                         }

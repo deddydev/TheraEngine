@@ -9,16 +9,9 @@ using static System.Math;
 namespace System
 {
     [Serializable]
-    [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    public unsafe struct RawVec2 : IEquatable<RawVec2>, IUniformable2Float, IBufferable
+    public unsafe struct Vec2 : IEquatable<Vec2>, IUniformable2Float, IBufferable
     {
         public float X, Y;
-
-        public RawVec2(float x, float y)
-        {
-            X = x;
-            Y = y;
-        }
 
         public float* Data { get { return (float*)Address; } }
         public VoidPtr Address { get { fixed (void* p = &this) return p; } }
@@ -27,103 +20,11 @@ namespace System
         bool IBufferable.Normalize { get { return false; } }
         public void Write(VoidPtr address)
         {
-            float* dPtr = (float*)address;
-            for (int i = 0; i < ComponentCount; ++i)
-                *dPtr++ = Data[i];
+            *(Vec2*)address = this;
         }
         public void Read(VoidPtr address)
         {
-            float* sPtr = (float*)address;
-            for (int i = 0; i < ComponentCount; ++i)
-                Data[i] = *sPtr++;
-        }
-        public override bool Equals(object obj)
-        {
-            if (!(obj is RawVec2))
-                return false;
-
-            return Equals((RawVec2)obj);
-        }
-        public bool Equals(RawVec2 other)
-        {
-            return
-                X == other.X &&
-                Y == other.Y;
-        }
-        public bool Equals(RawVec2 other, float precision)
-        {
-            return
-                Abs(X - other.X) < precision &&
-                Abs(Y - other.Y) < precision;
-        }
-        public static implicit operator Vec2(RawVec2 v) { return new Vec2(v.X, v.Y); }
-        public static implicit operator RawVec2(Vec2 v) { return new RawVec2(v.X, v.Y); }
-
-        public static readonly int SizeInBytes = Marshal.SizeOf(new RawVec2());
-
-        public float this[int index]
-        {
-            get
-            {
-                if (index < 0 || index > 2)
-                    throw new IndexOutOfRangeException("Cannot access vector at index " + index);
-                return Data[index];
-            }
-            set
-            {
-                if (index < 0 || index > 2)
-                    throw new IndexOutOfRangeException("Cannot access vector at index " + index);
-                Data[index] = value;
-            }
-        }
-
-        public override int GetHashCode()
-        {
-            return base.GetHashCode();
-        }
-    }
-    [Serializable]
-    public unsafe class Vec2 : IEquatable<Vec2>, IUniformable2Float, IBufferable
-    {
-        private int _updating = 0;
-        private float _oldX, _oldY;
-        private RawVec2 _data;
-
-        public float X
-        {
-            get { return _data.X; }
-            set
-            {
-                BeginUpdate();
-                _data.X = value;
-                EndUpdate();
-            }
-        }
-        public float Y
-        {
-            get { return _data.Y; }
-            set
-            {
-                BeginUpdate();
-                _data.Y = value;
-                EndUpdate();
-            }
-        }
-
-        public float* Data { get { return _data.Data; } }
-        public VoidPtr Address { get { return _data.Address; } }
-        public VertexBuffer.ComponentType ComponentType { get { return VertexBuffer.ComponentType.Float; } }
-        public int ComponentCount { get { return 2; } }
-        bool IBufferable.Normalize { get { return false; } }
-        public void Write(VoidPtr address)
-        {
-            _data.Write(address);
-        }
-        public void Read(VoidPtr address)
-        {
-            BeginUpdate();
-            _data.Read(address);
-            EndUpdate();
+            this = *(Vec2*)address;
         }
 
         public Vec2(float value)
@@ -139,16 +40,16 @@ namespace System
         public Vec2(Vec3 v, bool normalizeWithZ)
         {
             if (normalizeWithZ)
-                _data = new RawVec2(v.X / v.Z, v.Y / v.Z);
+            {
+                X = v.X / v.Z;
+                Y = v.Y / v.Z;
+            }
             else
-                _data = new RawVec2(v.X, v.Y);
+            {
+                X = v.X;
+                Y = v.Y;
+            }
         }
-
-        public event Action XChanged;
-        public event Action YChanged;
-        public event ValueChange XValueChanged;
-        public event ValueChange YValueChanged;
-        public event Action Changed;
 
         public float this[int index]
         {
@@ -182,34 +83,6 @@ namespace System
         public float Length { get { return (float)Sqrt(LengthSquared); } }
         public float LengthFast { get { return 1.0f / InverseSqrtFast(LengthSquared); } }
         public float LengthSquared { get { return X * X + Y * Y; } }
-
-        private void BeginUpdate()
-        {
-            ++_updating;
-            _oldX = X;
-            _oldY = Y;
-        }
-        private void EndUpdate()
-        {
-            --_updating;
-            if (_updating > 0)
-                return;
-            bool anyChanged = false;
-            if (X != _oldX)
-            {
-                XChanged?.Invoke();
-                XValueChanged?.Invoke(_oldX, X);
-                anyChanged = true;
-            }
-            if (Y != _oldY)
-            {
-                YChanged?.Invoke();
-                YValueChanged?.Invoke(_oldY, Y);
-                anyChanged = true;
-            }
-            if (anyChanged)
-                Changed?.Invoke();
-        }
 
         /// <summary>
         /// Gets the perpendicular vector on the right side of this vector.
@@ -251,33 +124,19 @@ namespace System
                 vec.X < min.X ? min.X : vec.X > max.X ? max.X : vec.X,
                 vec.Y < min.Y ? min.Y : vec.Y > max.Y ? max.Y : vec.Y);
         }
+        public void Normalize() { this *= (1.0f / Length); }
         public Vec2 Normalized()
         {
             Vec2 v = this;
             v.Normalize();
             return v;
         }
+        public void NormalizeFast() { this *= InverseSqrtFast(X * X + Y * Y); }
         public Vec2 NormalizedFast()
         {
             Vec2 v = this;
             v.NormalizeFast();
             return v;
-        }
-        public void Normalize()
-        {
-            float scale = 1.0f / Length;
-            BeginUpdate();
-            X *= scale;
-            Y *= scale;
-            EndUpdate();
-        }
-        public void NormalizeFast()
-        {
-            float scale = InverseSqrtFast(X * X + Y * Y);
-            BeginUpdate();
-            X *= scale;
-            Y *= scale;
-            EndUpdate();
         }
         public static float Dot(Vec2 left, Vec2 right)
         {
@@ -297,17 +156,6 @@ namespace System
         public static float PerpDot(Vec2 left, Vec2 right)
         {
             return left.X * right.Y - left.Y * right.X;
-        }
-
-        /// <summary>
-        /// Calculate the perpendicular dot (scalar) product of two vectors
-        /// </summary>
-        /// <param name="left">First operand</param>
-        /// <param name="right">Second operand</param>
-        /// <param name="result">The perpendicular dot product of the two inputs</param>
-        public static void PerpDot(ref Vec2 left, ref Vec2 right, out float result)
-        {
-            result = left.X * right.Y - left.Y * right.X;
         }
         public static Vec2 Lerp(Vec2 a, Vec2 b, float time)
         {
@@ -415,8 +263,10 @@ namespace System
             vec.Y = amount - vec.Y;
             return vec;
         }
+
         public static bool operator ==(Vec2 left, Vec2 right) { return left.Equals(right); }
         public static bool operator !=(Vec2 left, Vec2 right) { return !left.Equals(right); }
+
         public static explicit operator Vec2(Vec3 v) { return new Vec2(v.X, v.Y); }
         public static explicit operator Vec2(Vec4 v) { return new Vec2(v.X, v.Y); }
         public static implicit operator Vec2(PointF v) { return new Vec2(v.X, v.Y); }

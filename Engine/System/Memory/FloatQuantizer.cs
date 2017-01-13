@@ -285,30 +285,30 @@ namespace System
             _dataLen = ((_srcCount * componentCount * _bitCount).Align(32) / 8);
             _quantScale = (negateScale ? -1.0f : 1.0f) * VQuant.QuantTable[_scale];
         }
-        public static RawVec4[] Decode4(FloatQuantizeHeader header, VoidPtr address)
+        public static Vec4[] Decode4(FloatQuantizeHeader header, VoidPtr address)
         {
-            RawVec4[] values = new RawVec4[header.ElementCount];
-            fixed (RawVec4* p = values)
+            Vec4[] values = new Vec4[header.ElementCount];
+            fixed (Vec4* p = values)
                 DecodeToBuffer(
                     (byte*)address, (float*)p, header.ElementCount,
                     header.HasX, header.HasY, header.HasZ, header.HasW, 4,
                     header.Signed, header.BitCount, header.Divisor);
             return values;
         }
-        public static RawVec3[] Decode3(FloatQuantizeHeader header, VoidPtr address)
+        public static Vec3[] Decode3(FloatQuantizeHeader header, VoidPtr address)
         {
-            RawVec3[] values = new RawVec3[header.ElementCount];
-            fixed (RawVec3* p = values)
+            Vec3[] values = new Vec3[header.ElementCount];
+            fixed (Vec3* p = values)
                 DecodeToBuffer(
                     (byte*)address, (float*)p, header.ElementCount,
                     header.HasX, header.HasY, header.HasZ, false, 3,
                     header.Signed, header.BitCount, header.Divisor);
             return values;
         }
-        public static RawVec2[] Decode2(FloatQuantizeHeader header, VoidPtr address)
+        public static Vec2[] Decode2(FloatQuantizeHeader header, VoidPtr address)
         {
-            RawVec2[] values = new RawVec2[header.ElementCount];
-            fixed (RawVec2* p = values)
+            Vec2[] values = new Vec2[header.ElementCount];
+            fixed (Vec2* p = values)
                 DecodeToBuffer(
                     (byte*)address, (float*)p, header.ElementCount,
                     header.HasX, header.HasY, false, false, 2,

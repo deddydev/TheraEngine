@@ -14,9 +14,8 @@ namespace CustomEngine.Worlds.Actors.Components
             _scale = Vec3.One;
             _scale.Changed += RecalcLocalTransform;
         }
-
-        protected Vec3 _scale;
-        public Vec3 Scale
+        protected EventVec3 _scale;
+        public EventVec3 Scale
         {
             get { return _scale; }
             set

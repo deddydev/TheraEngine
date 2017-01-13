@@ -19,17 +19,17 @@ namespace System
         /// <summary>
         /// First row of the matrix.
         /// </summary>
-        public RawVec3 Row0;
+        public Vec3 Row0;
 
         /// <summary>
         /// Second row of the matrix.
         /// </summary>
-        public RawVec3 Row1;
+        public Vec3 Row1;
 
         /// <summary>
         /// Third row of the matrix.
         /// </summary>
-        public RawVec3 Row2;
+        public Vec3 Row2;
 
         /// <summary>
         /// The identity matrix.

@@ -15,10 +15,10 @@ namespace System
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public unsafe struct Matrix4 : IEquatable<Matrix4>, IUniformable
     {
-        public RawVec4 Row0;
-        public RawVec4 Row1;
-        public RawVec4 Row2;
-        public RawVec4 Row3;
+        public Vec4 Row0;
+        public Vec4 Row1;
+        public Vec4 Row2;
+        public Vec4 Row3;
 
         public float* Data { get { fixed (Matrix4* p = &this) return (float*)p; } }
 

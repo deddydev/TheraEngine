@@ -592,10 +592,13 @@
     <Compile Include="System\Math\Transforms\Matrix3.cs" />
     <Compile Include="System\Math\Transforms\Matrix4.cs" />
     <Compile Include="System\Math\Transforms\Quaternion.cs" />
-    <Compile Include="System\Math\Transforms\Vec2.cs" />
+    <Compile Include="System\Math\Transforms\Vectors\EventVec2.cs" />
+    <Compile Include="System\Math\Transforms\Vectors\Vec2.cs" />
     <Compile Include="System\Math\Transforms\Rotator.cs" />
-    <Compile Include="System\Math\Transforms\Vec3.cs" />
-    <Compile Include="System\Math\Transforms\Vec4.cs" />
+    <Compile Include="System\Math\Transforms\Vectors\EventVec3.cs" />
+    <Compile Include="System\Math\Transforms\Vectors\Vec3.cs" />
+    <Compile Include="System\Math\Transforms\Vectors\EventVec4.cs" />
+    <Compile Include="System\Math\Transforms\Vectors\Vec4.cs" />
     <Compile Include="System\Memory\Bin64.cs" />
     <Compile Include="System\Memory\Bin8.cs" />
     <Compile Include="System\Memory\Bin16.cs" />

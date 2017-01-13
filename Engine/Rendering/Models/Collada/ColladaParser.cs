@@ -982,7 +982,7 @@ namespace CustomEngine.Rendering.Models.Collada
             private Vec3 ParseVec3()
             {
                 float f;
-                RawVec3 c;
+                Vec3 c;
                 float* p = (float*)&c;
                 for (int i = 0; i < 3; i++)
                 {
@@ -1001,7 +1001,7 @@ namespace CustomEngine.Rendering.Models.Collada
                 for (int i = 0; i < 4; i++)
                 {
                     if (!_reader.ReadValue(&f))
-                        p[i] = 0;
+                        p[i] = 0.0f;
                     else
                         p[i] = f;
                 }

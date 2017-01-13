@@ -23,7 +23,7 @@ namespace System
             _rotationOrder = rotationOrder;
         }
 
-        public Vec3 _pyr;
+        public Vec3 _pyr = Vec3.Zero;
         public Order _rotationOrder = Order.YPR;
         public event Action Changed;
         private int _updateIndex = 0;

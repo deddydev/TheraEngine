@@ -14,9 +14,8 @@ namespace CustomEngine.Worlds.Actors.Components
             _translation = Vec3.Zero;
             _translation.Changed += RecalcLocalTransform;
         }
-
-        protected Vec3 _translation;
-        public Vec3 Translation
+        protected EventVec3 _translation;
+        public EventVec3 Translation
         {
             get { return _translation; }
             set
@@ -27,7 +26,9 @@ namespace CustomEngine.Worlds.Actors.Components
         }
         protected override void RecalcLocalTransform()
         {
-            SetLocalTransforms(Matrix4.CreateTranslation(_translation), Matrix4.CreateTranslation(-_translation));
+            SetLocalTransforms(
+                Matrix4.CreateTranslation(_translation.Raw), 
+                Matrix4.CreateTranslation(-_translation.Raw));
         }
         internal override void OriginRebased(Vec3 newOrigin)
         {

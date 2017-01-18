@@ -107,6 +107,11 @@ namespace System
             }
         }
 
+        public void ChangeZupToYup()
+        {
+
+        }
+
         public static readonly Vec3 UnitX = new Vec3(1.0f, 0.0f, 0.0f);
         public static readonly Vec3 UnitY = new Vec3(0.0f, 1.0f, 0.0f);
         public static readonly Vec3 UnitZ = new Vec3(0.0f, 0.0f, 1.0f);

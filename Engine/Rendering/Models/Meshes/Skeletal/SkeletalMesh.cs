@@ -20,9 +20,9 @@ namespace CustomEngine.Rendering.Models
             _softChildren.Removed += SoftChildRemoved;
             _softChildren.Added += SoftChildAdded;
         }
-        private Skeleton _skeleton;
         private bool _simulatePhysics = false, _collisionEnabled = true;
 
+        private Skeleton _skeleton;
         public Skeleton Skeleton
         {
             get { return _skeleton; }
@@ -47,28 +47,13 @@ namespace CustomEngine.Rendering.Models
             get { return _collisionEnabled; }
             set { _collisionEnabled = value; }
         }
-        protected SkeletalMeshComponent _linkedComponent;
+
         protected MonitoredList<SkeletalRigidSubMesh> _rigidChildren = new MonitoredList<SkeletalRigidSubMesh>();
         protected MonitoredList<SkeletalSoftSubMesh> _softChildren = new MonitoredList<SkeletalSoftSubMesh>();
         
         public MonitoredList<SkeletalRigidSubMesh> RigidChildren { get { return _rigidChildren; } }
         public MonitoredList<SkeletalSoftSubMesh> SoftChildren { get { return _softChildren; } }
-
-        public SkeletalMeshComponent LinkedComponent
-        {
-            get { return _linkedComponent; }
-            set
-            {
-                if (_linkedComponent == value)
-                    return;
-                SkeletalMeshComponent oldComp = _linkedComponent;
-                _linkedComponent = value;
-                if (oldComp != null)
-                    oldComp.Model = null;
-                if (_linkedComponent != null)
-                    _linkedComponent.Model = this;
-            }
-        }
+        
         protected virtual void RigidChildAdded(SkeletalRigidSubMesh item)
         {
             item.Model = this;
@@ -94,16 +79,6 @@ namespace CustomEngine.Rendering.Models
                 item.SkeletonChanged(null);
                 item.Model = null;
             }
-        }
-        public virtual void OnSpawned()
-        {
-            _rigidChildren.ForEach(x => x.OnSpawned());
-            _softChildren.ForEach(x => x.OnSpawned());
-        }
-        public virtual void OnDespawned()
-        {
-            _rigidChildren.ForEach(x => x.OnDespawned());
-            _softChildren.ForEach(x => x.OnSpawned());
         }
     }
 }

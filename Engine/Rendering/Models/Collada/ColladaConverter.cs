@@ -44,7 +44,7 @@ namespace CustomEngine.Rendering.Models.Collada
 
                 bone.BindState = FrameState.DeriveTRS(localMatrix);
 
-                parent.Children.Add(bone);
+                parent.ChildBones.Add(bone);
                 bone.Parent = parent;
 
                 parent = bone;

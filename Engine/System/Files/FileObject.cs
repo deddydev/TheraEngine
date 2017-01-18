@@ -121,14 +121,15 @@ namespace CustomEngine.Files
             using (FileStream stream = new FileStream(filePath, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite, 8, FileOptions.SequentialScan))
             {
                 StringTable table = new StringTable();
-                int size = CalculateSize(table).Align(4);
-                size += table.GetTotalSize();
-                stream.SetLength(size);
+                int dataSize = CalculateSize(table).Align(4);
+                int totalSize = dataSize + table.GetTotalSize();
+                stream.SetLength(totalSize);
                 using (FileMap map = FileMap.FromStream(stream))
                 {
                     FileCommonHeader* hdr = (FileCommonHeader*)map.Address;
                     hdr->Tag = FileManager.GetTag(t);
-                    hdr->_length = size;
+                    hdr->_fileLength = totalSize;
+                    table.WriteTable(hdr->Strings);
                     Write(hdr->FileHeader);
                 }
             }
@@ -191,10 +192,11 @@ namespace CustomEngine.Files
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public unsafe struct FileCommonHeader
     {
-        public const int Size = 8;
+        public const int Size = 0xC;
 
         public buint _tag;
-        public bint _length;
+        public bint _fileLength;
+        public bint _stringTableLength;
 
         public string Tag
         {
@@ -206,7 +208,8 @@ namespace CustomEngine.Files
                     *dPtr++ = (sbyte)value[i >= value.Length ? ' ' : value[i]];
             }
         }
-        public VoidPtr FileHeader { get { return Address + Size; } }
+        public VoidPtr Strings { get { return Address + Size; } }
+        public VoidPtr FileHeader { get { return Address + Size + _stringTableLength; } }
         public VoidPtr Address { get { fixed (void* ptr = &this) return ptr; } }
     }
 }

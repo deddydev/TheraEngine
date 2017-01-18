@@ -4,7 +4,7 @@ using CustomEngine.Rendering;
 
 namespace CustomEngine.Worlds.Actors.Components
 {
-    public abstract class ShapeComponent : TRComponent, IRenderable, IPhysicsDrivable
+    public abstract class ShapeComponent : TRComponent, IMesh, IPhysicsDrivable
     {
         public ShapeComponent(PhysicsDriverInfo info)
         {

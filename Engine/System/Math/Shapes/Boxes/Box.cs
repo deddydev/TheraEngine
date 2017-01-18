@@ -187,10 +187,13 @@ namespace System
         {
             return new BoxShape(_halfExtents);
         }
-
         public override Shape HardCopy()
         {
             return new Box(_halfExtents * 2.0f, _transform);
+        }
+        public override Shape TransformedBy(Matrix4 worldMatrix)
+        {
+            return new Box(_halfExtents * 2.0f, worldMatrix);
         }
     }
 }

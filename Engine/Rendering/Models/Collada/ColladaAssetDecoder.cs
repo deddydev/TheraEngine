@@ -174,7 +174,7 @@ namespace CustomEngine.Rendering.Models.Collada
 
             Vertex[] vertices = new Vertex[vCount];
             for (int i = 0; i < vCount; i++)
-                vertices[i] = new Vertex(bindMatrix * (Vec3)pV[i]);
+                vertices[i] = new Vertex(bindMatrix * pV[i]);
 
             return manager;
         }

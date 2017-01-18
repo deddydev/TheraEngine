@@ -7,23 +7,35 @@ using CustomEngine.Worlds.Actors.Components;
 
 namespace CustomEngine.Rendering.Models
 {
-    public class SkeletalSoftSubMesh : FileObject, IRenderable
+    public class SkeletalRigidSubMesh : FileObject, IMesh
     {
-        public SkeletalSoftSubMesh() { }
-        public SkeletalSoftSubMesh(PrimitiveData data, string name)
+        public SkeletalRigidSubMesh()
         {
-            _manager.Data = data;
+            _manager = new PrimitiveManager();
+            _cullingVolume = new Sphere(1.0f);
+            _name = "Mesh";
+        }
+        public SkeletalRigidSubMesh(PrimitiveData data, Shape cullingVolume, Material material, string boneName, string name)
+        {
+            _manager = new PrimitiveManager(data, material);
+            _cullingVolume = cullingVolume;
             _name = name;
+            _boneName = boneName;
         }
 
         protected SkeletalMesh _parent;
         //private Matrix4 _normalMatrix;
-        internal PrimitiveManager _manager = new PrimitiveManager();
-        protected Bone _singleBind;
-        protected Shape _cullingVolume;
-        protected bool _isRendering, _isVisible, _visibleByDefault, _renderSolid;
+        internal PrimitiveManager _manager;
 
-        public Shape CullingVolume { get { return _cullingVolume; } }
+        protected string _boneName;
+        protected Shape _cullingVolume;
+        protected bool _isRendering, _isVisible, _visibleByDefault = true, _renderSolid;
+
+        public Shape CullingVolume
+        {
+            get { return _cullingVolume; }
+            set { _cullingVolume = value; }
+        }
         public bool IsRendering
         {
             get { return _isRendering; }
@@ -38,12 +50,7 @@ namespace CustomEngine.Rendering.Models
             get { return _isVisible; }
             set { _isVisible = value; }
         }
-
-        internal void SkeletonChanged(Skeleton _skeleton)
-        {
-            throw new NotImplementedException();
-        }
-
+        
         public Material Material
         {
             get { return _manager.Material; }
@@ -59,22 +66,15 @@ namespace CustomEngine.Rendering.Models
             get { return _parent; }
             internal set { _parent = value; }
         }
+        public PrimitiveManager PrimitiveManager { get { return _manager; } }
         public void Render()
         {
             if (!Visible || !IsRendering)
                 return;
 
-            _manager.Render(SingleBind.WorldMatrix, SingleBind.InverseWorldMatrix.Transposed());
-        }
-        internal void OnSpawned()
-        {
-            if (Material != null)
-                Material.AddReference(this);
-        }
-        internal void OnDespawned()
-        {
-            if (Material != null)
-                Material.RemoveReference(this);
+            _manager.Render(
+                SingleBind.WorldMatrix,
+                SingleBind.InverseWorldMatrix.Transposed());
         }
         public void SetPrimitiveData(PrimitiveData data) => _manager.Data = data;
         public void SetCullingVolume(Shape volume) { _cullingVolume = volume; }

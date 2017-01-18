@@ -318,5 +318,11 @@ namespace System
         {
             return new BoundingBox(_halfExtents * 2.0f);
         }
+        public override Shape TransformedBy(Matrix4 worldMatrix)
+        {
+            BoundingBox newBox = new BoundingBox(_halfExtents, _translation);
+            newBox.SetTransform(worldMatrix);
+            return newBox;
+        }
     }
 }

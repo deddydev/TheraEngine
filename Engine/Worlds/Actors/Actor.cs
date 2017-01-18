@@ -127,6 +127,9 @@ namespace CustomEngine.Worlds
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public unsafe struct ActorHeader
     {
-        public VoidPtr Address { get { fixed (void* ptr = &this) return (VoidPtr)ptr; } }
+        public bint _logicCompCount;
+        public bint _sceneCompCount;
+
+        public VoidPtr Address { get { fixed (void* ptr = &this) return ptr; } }
     }
 }

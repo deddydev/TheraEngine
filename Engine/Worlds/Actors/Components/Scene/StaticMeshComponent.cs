@@ -8,7 +8,7 @@ using BulletSharp;
 
 namespace CustomEngine.Worlds.Actors.Components
 {
-    public class StaticMeshComponent : TRSComponent, IRenderable, IPhysicsDrivable
+    public class StaticMeshComponent : TRSComponent, IPhysicsDrivable
     {
         public StaticMeshComponent(StaticMesh m, PhysicsDriverInfo info, bool visibleByDefault) 
             : this(m, Vec3.Zero, Rotator.GetZero(), Vec3.One, info, visibleByDefault) { }
@@ -58,10 +58,10 @@ namespace CustomEngine.Worlds.Actors.Components
             _cullingVolume?.SetTransform(WorldMatrix);
         }
 
-        protected bool _visible, _rendering = true, _visibleByDefault;
-        internal StaticMesh _model;
+        private StaticMesh _model;
         private PhysicsDriver _physicsDriver;
         protected Shape _cullingVolume;
+        protected RenderableMesh[] _meshes;
 
         public StaticMesh Model
         {
@@ -70,32 +70,16 @@ namespace CustomEngine.Worlds.Actors.Components
             {
                 if (_model == value)
                     return;
+                _model = value;
                 if (_model != null)
-                    _model.LinkedComponents.Remove(this);
-                if (value != null)
-                    value.LinkedComponents.Add(this);
+                {
+                    _meshes = new RenderableMesh[_model.RigidChildren.Count + _model.SoftChildren.Count];
+                    for (int i = 0; i < _model.RigidChildren.Count; ++i)
+                        _meshes[i] = new RenderableMesh(_model.RigidChildren[i], this);
+                    for (int i = 0; i < _model.SoftChildren.Count; ++i)
+                        _meshes[_model.RigidChildren.Count + i] = new RenderableMesh(_model.SoftChildren[i], this);
+                }
             }
-        }
-        public bool Visible
-        {
-            get { return _visible; }
-            set
-            {
-                if (_visible == value)
-                    return;
-
-                _visible = value;
-                if (_visible)
-                    Engine.Renderer.Scene.AddRenderable(this);
-                else
-                    Engine.Renderer.Scene.RemoveRenderable(this);
-            }
-        }
-        public bool VisibleByDefault { get { return _visibleByDefault; } }
-        public bool IsRendering
-        {
-            get { return _rendering; }
-            set { _rendering = value; }
         }
         public PhysicsDriver PhysicsDriver { get { return _physicsDriver; } }
         public Shape CullingVolume { get { return _cullingVolume; } }
@@ -103,25 +87,67 @@ namespace CustomEngine.Worlds.Actors.Components
         public override void OnSpawned()
         {
             base.OnSpawned();
-            Visible = _visibleByDefault;
-            Model?.OnSpawned();
+            foreach (RenderableMesh m in _meshes)
+                m.Visible = m.Mesh.VisibleByDefault;
         }
         public override void OnDespawned()
         {
             base.OnDespawned();
-            Visible = false;
-            Model?.OnDespawned();
+            foreach (RenderableMesh m in _meshes)
+                m.Visible = false;
         }
         internal override void OriginRebased(Vec3 newOrigin)
         {
             Translation -= newOrigin;
         }
-        public void Render()
-        {
-            //if (!Visible || !IsRendering)
-            //    return;
 
-            _model?.Render(WorldMatrix);
+        internal class RenderableMesh : IMesh
+        {
+            public RenderableMesh(IMesh mesh, SceneComponent component)
+            {
+                _mesh = mesh;
+                _component = component;
+                Visible = false;
+                IsRendering = true;
+            }
+
+            private bool _isVisible, _isRendering;
+            private SceneComponent _component;
+            private IMesh _mesh;
+            private RenderOctree.OctreeNode _renderNode;
+
+            public bool Visible
+            {
+                get { return _isVisible; }
+                set
+                {
+                    _isVisible = value;
+                    if (_isVisible)
+                        Engine.Renderer.Scene.AddRenderable(this);
+                    else
+                        Engine.Renderer.Scene.RemoveRenderable(this);
+                }
+            }
+            public bool IsRendering
+            {
+                get { return _isRendering; }
+                set { _isRendering = value; }
+            }
+            public IMesh Mesh
+            {
+                get { return _mesh; }
+                set { _mesh = value; }
+            }
+            public Shape CullingVolume { get { return _mesh.CullingVolume.TransformedBy(_component.WorldMatrix); } }
+            public RenderOctree.OctreeNode RenderNode
+            {
+                get { return _renderNode; }
+                set { _renderNode = value; }
+            }
+            public void Render()
+            {
+                _mesh.PrimitiveManager.Render(_component.WorldMatrix);
+            }
         }
     }
 }

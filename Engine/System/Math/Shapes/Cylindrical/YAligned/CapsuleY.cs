@@ -59,5 +59,10 @@ namespace System
         {
             throw new NotImplementedException();
         }
+
+        public override Shape TransformedBy(Matrix4 worldMatrix)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

@@ -7,7 +7,7 @@ using CustomEngine.Files;
 
 namespace System
 {
-    public abstract class Shape : FileObject, IRenderable
+    public abstract class Shape : FileObject, IMesh
     {
         public Shape() { }
 
@@ -32,6 +32,19 @@ namespace System
 
         public Shape CullingVolume { get { return this; } }
 
+        public RenderOctree.OctreeNode RenderNode
+        {
+            get
+            {
+                throw new NotImplementedException();
+            }
+
+            set
+            {
+                throw new NotImplementedException();
+            }
+        }
+
         public abstract void Render();
         public abstract CollisionShape GetCollisionShape();
 
@@ -44,6 +57,7 @@ namespace System
         public abstract EContainment ContainedWithin(Sphere sphere);
         public abstract EContainment ContainedWithin(Frustum frustum);
         public abstract void SetTransform(Matrix4 worldMatrix);
+        public abstract Shape TransformedBy(Matrix4 worldMatrix);
         public abstract Shape HardCopy();
     }
 }

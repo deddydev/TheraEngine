@@ -22,8 +22,13 @@ namespace System
             Roll = roll;
             _rotationOrder = rotationOrder;
         }
+        public Rotator(Vec3 pyr, Order rotationOrder)
+        {
+            _pyr = pyr;
+            _rotationOrder = rotationOrder;
+        }
 
-        public Vec3 _pyr = Vec3.Zero;
+        public Vec3 _pyr;
         public Order _rotationOrder = Order.YPR;
         public event Action Changed;
         private int _updateIndex = 0;
@@ -67,25 +72,33 @@ namespace System
         public void NegateRotations()
         {
             BeginUpdate();
-            Yaw = -Yaw;
-            Pitch = -Pitch;
-            Roll = -Roll;
+            Yaw     = -Yaw;
+            Pitch   = -Pitch;
+            Roll    = -Roll;
             EndUpdate();
         }
         public void ReverseRotations()
         {
             BeginUpdate();
-            Yaw = Yaw + 180.0f;
-            Pitch = Pitch + 180.0f;
-            Roll = Roll + 180.0f;
+            Yaw     = Yaw   + 180.0f;
+            Pitch   = Pitch + 180.0f;
+            Roll    = Roll  + 180.0f;
             EndUpdate();
         }
-        public void ClearWinding()
+        public void ClearWinding0to360()
         {
             BeginUpdate();
             Yaw = Yaw.RemapToRange(0.0f, 360.0f);
             Pitch = Pitch.RemapToRange(0.0f, 360.0f);
             Roll = Roll.RemapToRange(0.0f, 360.0f);
+            EndUpdate();
+        }
+        public void ClearWindingNeg180to180()
+        {
+            BeginUpdate();
+            Yaw = Yaw.RemapToRange(-180.0f, 180.0f);
+            Pitch = Pitch.RemapToRange(-180.0f, 180.0f);
+            Roll = Roll.RemapToRange(-180.0f, 180.0f);
             EndUpdate();
         }
         public int GetYawWindCount() { return (int)(Yaw / 360.0f); }

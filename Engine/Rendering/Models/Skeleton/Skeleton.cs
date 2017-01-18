@@ -29,7 +29,7 @@ namespace CustomEngine.Rendering.Models
         }
 
         private Dictionary<string, Bone> _boneCache = new Dictionary<string, Bone>();
-        private SkeletalMesh _model;
+        private SkeletalMeshComponent _owningComponent;
         private Bone _rootBone;
         public Bone RootBone
         {
@@ -40,10 +40,10 @@ namespace CustomEngine.Rendering.Models
                 RegenerateBoneCache();
             }
         }
-        public SkeletalMesh Model
+        public SkeletalMeshComponent OwningComponent
         {
-            get { return _model; }
-            set { _model = value; }
+            get { return _owningComponent; }
+            set { _owningComponent = value; }
         }
 
         public Bone GetBone(string boneName)

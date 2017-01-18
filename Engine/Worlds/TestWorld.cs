@@ -86,12 +86,9 @@ namespace CustomEngine.Worlds
                 new Rotator(-90.0f, 0.0f, 0.0f, Rotator.Order.YPR), Color.DarkGray, 1.0f, 0.2f);
             
             StaticMeshComponent floorComp = new StaticMeshComponent(
-                floorModel,
-                Vec3.Zero,
+                floorModel, Vec3.Zero,
                 new Rotator(0.0f, 0.0f, -10.0f, Rotator.Order.YPR),
-                Vec3.One,
-                floorInfo,
-                true);
+                Vec3.One, floorInfo, true);
 
             lightComp.Translation.Y = 0.0f;
             lightComp.Translation.X = 0.0f;

@@ -128,10 +128,15 @@ namespace System
         {
             _center = Vec3.TransformPosition(_center, worldMatrix);
         }
-
         public override Shape HardCopy()
         {
             return new Sphere(Radius, Center);
+        }
+        public override Shape TransformedBy(Matrix4 worldMatrix)
+        {
+            Sphere s = new Sphere(Radius, Center);
+            s.SetTransform(worldMatrix);
+            return s;
         }
     }
 }

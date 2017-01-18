@@ -20,7 +20,7 @@ namespace CustomEngine.Rendering.Models.Materials
             _tessellationControlShader, 
             _tessellationEvaluationShader;
         
-        private List<IRenderable> _renderingReferences = new List<IRenderable>();
+        private List<IMesh> _renderingReferences = new List<IMesh>();
         private MaterialSettings _settings;
         private int _bindingId = -1;
         
@@ -34,13 +34,13 @@ namespace CustomEngine.Rendering.Models.Materials
             set { _settings = value; }
         }
 
-        internal void AddReference(IRenderable user)
+        internal void AddReference(IMesh user)
         {
             if (_renderingReferences.Count == 0)
                 _bindingId = Engine.Renderer.AddActiveMaterial(this);
             _renderingReferences.Add(user);
         }
-        internal void RemoveReference(IRenderable user)
+        internal void RemoveReference(IMesh user)
         {
             _renderingReferences.Add(user);
             if (_renderingReferences.Count == 0)

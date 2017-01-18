@@ -11,7 +11,7 @@ namespace CustomEngine.Worlds.Actors.Components
     {
         Matrix4 WorldMatrix { get; }
         Matrix4 InverseWorldMatrix { get; }
-        MonitoredList<SceneComponent> Children { get; }
+        MonitoredList<SceneComponent> ChildComponents { get; }
     }
     public abstract class SceneComponent : Component, ISocket
     {
@@ -31,7 +31,7 @@ namespace CustomEngine.Worlds.Actors.Components
         private Matrix4 _inverseWorldTransform = Matrix4.Identity;
         private Matrix4 _localTransform = Matrix4.Identity;
         private Matrix4 _inverseLocalTransform = Matrix4.Identity;
-        protected ISocket _parent;
+        internal ISocket _parent;
         protected MonitoredList<SceneComponent> _children = new MonitoredList<SceneComponent>();
 
         public virtual Matrix4 WorldMatrix
@@ -116,13 +116,13 @@ namespace CustomEngine.Worlds.Actors.Components
         protected void PhysicsSimulationStarted()
         {
             _simulatingPhysics = true;
-            foreach (SceneComponent c in Children)
+            foreach (SceneComponent c in ChildComponents)
                 c.PhysicsSimulationStarted(this);
         }
         protected void PhysicsSimulationStarted(SceneComponent simulatingAncestor)
         {
             _ancestorSimulatingPhysics = simulatingAncestor;
-            foreach (SceneComponent c in Children)
+            foreach (SceneComponent c in ChildComponents)
                 c.PhysicsSimulationStarted(simulatingAncestor);
         }
         protected void StopSimulatingPhysics(bool retainCurrentPosition)
@@ -134,7 +134,7 @@ namespace CustomEngine.Worlds.Actors.Components
                 _inverseLocalTransform = GetParentMatrix() * InverseWorldMatrix;
                 _inverseWorldTransform = WorldMatrix.Inverted();
             }
-            foreach (SceneComponent c in Children)
+            foreach (SceneComponent c in ChildComponents)
                 c.PhysicsSimulationEnded();
         }
         protected void PhysicsSimulationEnded()
@@ -143,7 +143,7 @@ namespace CustomEngine.Worlds.Actors.Components
             _inverseWorldTransform = InverseLocalMatrix * GetInverseParentMatrix();
 
             _ancestorSimulatingPhysics = null;
-            foreach (SceneComponent c in Children)
+            foreach (SceneComponent c in ChildComponents)
                 c.PhysicsSimulationEnded();
         }
         public override Actor Owner
@@ -156,7 +156,7 @@ namespace CustomEngine.Worlds.Actors.Components
                     c.Owner = value;
             }
         }
-        public MonitoredList<SceneComponent> Children
+        public MonitoredList<SceneComponent> ChildComponents
         {
             get { return _children; }
             set
@@ -189,9 +189,9 @@ namespace CustomEngine.Worlds.Actors.Components
             set
             {
                 if (_parent != null)
-                    _parent.Children.Remove(this);
+                    _parent.ChildComponents.Remove(this);
                 if (value != null)
-                    value.Children.Add(this);
+                    value.ChildComponents.Add(this);
                 else
                 {
                     _parent = null;
@@ -270,7 +270,11 @@ namespace CustomEngine.Worlds.Actors.Components
         }
         public void AttachTo(SkeletalMeshComponent mesh, string socketName)
         {
-
+            Bone bone = mesh.Model.Skeleton.GetBone(socketName);
+            if (bone != null)
+                bone.ChildComponents.Add(this);
+            else
+                mesh.ChildComponents.Add(this);
         }
         public void AttachTo(StaticMeshComponent mesh, string socketName)
         {
@@ -278,7 +282,7 @@ namespace CustomEngine.Worlds.Actors.Components
         }
         public void AttachTo(SceneComponent component)
         {
-
+            component.ChildComponents.Add(this);
         }
     }
 }

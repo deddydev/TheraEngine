@@ -62,11 +62,12 @@ namespace CustomEngine.Rendering.Models.Collada
     }
     public unsafe partial class Collada
     {
-        public static SkeletalMesh ImportModel(string filePath, ColladaImportOptions options)
+        public static void ImportModel(
+            string filePath,
+            ColladaImportOptions options,
+            out SkeletalMesh skeletalMesh,
+            out StaticMesh staticMesh)
         {
-            SkeletalMesh model = new SkeletalMesh();
-            model.Name = Path.GetFileNameWithoutExtension(filePath);
-
             using (DecoderShell shell = DecoderShell.Import(filePath))
             {
                 Matrix4 baseTransform = Matrix4.Identity;
@@ -132,29 +133,38 @@ namespace CustomEngine.Rendering.Models.Collada
                 foreach (SceneEntry scene in shell._scenes)
                     foreach (NodeEntry node in scene._nodes)
                     {
-                        Bone b = EnumNode(null, node, scene, model, shell, objects, baseTransform);
+                        Bone b = EnumNode(null, node, scene, shell, objects, baseTransform);
                         if (b != null)
                             rootBones.Add(b);
                     }
 
-                Bone rootBone = rootBones.Count == 0 ? new Bone("Root") : rootBones[0];
-                model.Skeleton = new Skeleton(rootBone);
-
                 //Create meshes after all bones have been created
-                foreach (ObjectInfo obj in objects)
-                    obj.Initialize(model, shell);
+                if (rootBones.Count == 0)
+                {
+                    staticMesh = new StaticMesh();
+                    skeletalMesh = null;
+                    staticMesh.Name = Path.GetFileNameWithoutExtension(filePath);
+                }
+                else
+                {
+                    skeletalMesh = new SkeletalMesh();
+                    staticMesh = null;
+                    skeletalMesh.Name = Path.GetFileNameWithoutExtension(filePath);
+
+                    Bone rootBone = rootBones.Count == 0 ? new Bone("Root") : rootBones[0];
+                    skeletalMesh.Skeleton = new Skeleton(rootBone);
+                    foreach (ObjectInfo obj in objects)
+                        obj.Initialize(skeletalMesh, shell);
+                }
 
                 GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced);
             }
-
-            return model;
         }
 
         private static Bone EnumNode(
             Bone parent,
             NodeEntry node,
             SceneEntry scene,
-            SkeletalMesh model,
             DecoderShell shell,
             List<ObjectInfo> objects,
             Matrix4 bindMatrix)
@@ -176,13 +186,13 @@ namespace CustomEngine.Rendering.Models.Collada
                 if (parent == null)
                     rootBone = bone;
                 else
-                    parent.Children.Add(bone);
+                    parent.ChildBones.Add(bone);
 
                 parent = bone;
             }
             
             foreach (NodeEntry e in node._children)
-                EnumNode(parent, e, scene, model, shell, objects, bindMatrix);
+                EnumNode(parent, e, scene, shell, objects, bindMatrix);
 
             foreach (InstanceEntry inst in node._instances)
             {
@@ -212,7 +222,7 @@ namespace CustomEngine.Rendering.Models.Collada
                 else
                     foreach (NodeEntry e in shell._nodes)
                         if (e._id == inst._url)
-                            EnumNode(parent, e, scene, model, shell, objects, bindMatrix);
+                            EnumNode(parent, e, scene, shell, objects, bindMatrix);
             }
             return rootBone;
         }
@@ -255,26 +265,39 @@ namespace CustomEngine.Rendering.Models.Collada
                     data = DecodePrimitivesWeighted(_bindMatrix, _geoEntry, _skin, _scene);
                 else
                     data = DecodePrimitivesUnweighted(_bindMatrix, _geoEntry);
-                
-                CreateMesh(data, model, shell, _inst._material, _node._name != null ? _node._name : _node._id);
-            }
-        }
-        
-        private static void CreateMesh(PrimitiveData data, SkeletalMesh model, DecoderShell shell, InstanceMaterial material, string name)
-        {
-            if (data == null)
-                return;
 
-            Material m = null;
-            if (material != null)
-            {
-                MaterialEntry e = shell._materials.First(x => x._id == material._target);
-                if (e != null)
-                    m = e._node as Material;
+                Material m = null;
+                if (_inst._material != null)
+                {
+                    MaterialEntry e = shell._materials.First(x => x._id == _inst._material._target);
+                    if (e != null)
+                        m = e._node as Material;
+                }
+                else
+                    m = Material.GetTestMaterial();
+
+                model.RigidChildren.Add(new SkeletalRigidSubMesh(data, new Sphere(10.0f), m, "Root", _node._name != null ? _node._name : _node._id));
             }
-            else
-                m = Material.GetTestMaterial();
-            model.RigidChildren.Add(new SkeletalRigidSubMesh(data, new Sphere(10.0f), m, "Root", name));
+            public void Initialize(StaticMesh model, DecoderShell shell)
+            {
+                PrimitiveData data;
+                if (_weighted)
+                    data = DecodePrimitivesWeighted(_bindMatrix, _geoEntry, _skin, _scene);
+                else
+                    data = DecodePrimitivesUnweighted(_bindMatrix, _geoEntry);
+
+                Material m = null;
+                if (_inst._material != null)
+                {
+                    MaterialEntry e = shell._materials.First(x => x._id == _inst._material._target);
+                    if (e != null)
+                        m = e._node as Material;
+                }
+                else
+                    m = Material.GetTestMaterial();
+                
+                model.RigidChildren.Add(new StaticRigidSubMesh(data, new Sphere(10.0f), m, _node._name != null ? _node._name : _node._id));
+            }
         }
     }
 }

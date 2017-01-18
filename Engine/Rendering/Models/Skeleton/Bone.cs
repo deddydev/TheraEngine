@@ -2,10 +2,11 @@
 using System.Collections.Generic;
 using BulletSharp;
 using CustomEngine.Files;
+using CustomEngine.Worlds.Actors.Components;
 
 namespace CustomEngine.Rendering.Models
 {
-    public class Bone : FileObject, IPhysicsDrivable
+    public class Bone : FileObject, IPhysicsDrivable, ISocket
     {
         public Bone(string name, FrameState bindState)
         {
@@ -23,29 +24,51 @@ namespace CustomEngine.Rendering.Models
         {
             _frameState = _bindState = bindState;
             _name = name;
-            _children.Added += _children_Added;
-            _children.AddedRange += _children_AddedRange;
-            _children.Removed += _children_Removed;
-            _children.RemovedRange += _children_RemovedRange;
-            _children.Inserted += _children_Inserted;
-            _children.InsertedRange += _children_InsertedRange;
+
+            PhysicsDriverInfo info = new PhysicsDriverInfo();
+            _physicsDriver = new PhysicsDriver(info, MatrixUpdate, SimulationUpdate);
+
+            _childBones.Added += ChildBonesAdded;
+            _childBones.AddedRange += ChildBonesAddedRange;
+            _childBones.Removed += ChildBonesRemoved;
+            _childBones.RemovedRange += ChildBonesRemovedRange;
+            _childBones.Inserted += ChildBonesInserted;
+            _childBones.InsertedRange += ChildBonesInsertedRange;
+
+            _childComponents.Added += ChildComponentsAdded;
+            _childComponents.AddedRange += ChildComponentsAddedRange;
+            _childComponents.Removed += ChildComponentsRemoved;
+            _childComponents.RemovedRange += ChildComponentsRemovedRange;
+            _childComponents.Inserted += ChildComponentsInserted;
+            _childComponents.InsertedRange += ChildComponentsInsertedRange;
+        }
+
+        public void MatrixUpdate(Matrix4 worldMatrix)
+        {
+
+        }
+        public void SimulationUpdate(bool isSimulating)
+        {
+
         }
 
         internal void CollectChildBones(Dictionary<string, Bone> boneCache, Skeleton owner)
         {
             _skeleton = owner;
             boneCache.Add(Name, this);
-            foreach (Bone b in Children)
+            foreach (Bone b in ChildBones)
                 b.CollectChildBones(boneCache, owner);
         }
 
         public void LinkSingleBindMesh(SkeletalRigidSubMesh m) { _singleBoundMeshes.Add(m); }
         public void UnlinkSingleBindMesh(SkeletalRigidSubMesh m) { _singleBoundMeshes.Remove(m); }
 
+        private PhysicsDriver _physicsDriver;
+        private MonitoredList<Bone> _childBones = new MonitoredList<Bone>();
+        private MonitoredList<SceneComponent> _childComponents = new MonitoredList<SceneComponent>();
         private List<SkeletalRigidSubMesh> _singleBoundMeshes = new List<SkeletalRigidSubMesh>();
         private Skeleton _skeleton;
         private Bone _parent;
-        private MonitoredList<Bone> _children = new MonitoredList<Bone>();
         private List<FacePoint> _influencedVertices = new List<FacePoint>();
         private FrameState _frameState, _bindState;
         private Matrix4
@@ -63,13 +86,14 @@ namespace CustomEngine.Rendering.Models
             set
             {
                 if (_parent != null)
-                    _parent.Children.Remove(this);
+                    _parent.ChildBones.Remove(this);
                 if (value != null)
-                    value.Children.Add(this);
+                    value.ChildBones.Add(this);
             }
         }
-        public MonitoredList<Bone> Children { get { return _children; } }
-        public SkeletalMesh Model { get { return _skeleton == null ? null : _skeleton.Model; } }
+        public MonitoredList<SceneComponent> ChildComponents { get { return _childComponents; } }
+        public MonitoredList<Bone> ChildBones { get { return _childBones; } }
+        public SkeletalMeshComponent OwningComponent { get { return _skeleton == null ? null : _skeleton.OwningComponent; } }
         public FrameState FrameState { get { return _frameState; } }
         public FrameState BindState
         {
@@ -89,14 +113,7 @@ namespace CustomEngine.Rendering.Models
         public Matrix4 VertexMatrix { get { return _vertexMatrix; } }
         public Matrix4 InverseVertexMatrix { get { return _inverseVertexMatrix; } }
         public Skeleton Skeleton { get { return _skeleton; } }
-
-        public PhysicsDriver PhysicsDriver
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
-        }
+        public PhysicsDriver PhysicsDriver { get { return _physicsDriver; } }
 
         public void CalcFrameMatrix()
         {
@@ -110,17 +127,18 @@ namespace CustomEngine.Rendering.Models
             _vertexMatrix = FrameMatrix * InverseBindMatrix;
             _inverseVertexMatrix = InverseFrameMatrix * BindMatrix;
 
-            if (Model == null || Model.LinkedComponent == null)
+            if (OwningComponent == null)
             {
                 _worldMatrix = _frameMatrix;
                 _inverseWorldMatrix = _inverseFrameMatrix;
             }
             else
             {
-                _worldMatrix = Model.LinkedComponent.WorldMatrix * _frameMatrix;
-                _inverseWorldMatrix = _inverseFrameMatrix * Model.LinkedComponent.InverseWorldMatrix;
+                _worldMatrix = OwningComponent.WorldMatrix * _frameMatrix;
+                _inverseWorldMatrix = _inverseFrameMatrix * OwningComponent.InverseWorldMatrix;
             }
-            foreach (Bone b in _children)
+
+            foreach (Bone b in _childBones)
                 b.CalcFrameMatrix(_frameMatrix, _inverseFrameMatrix);
         }
 
@@ -142,7 +160,7 @@ namespace CustomEngine.Rendering.Models
             if (!updateMesh)
                 InfluenceAssets(true);
 
-            foreach (Bone b in _children)
+            foreach (Bone b in _childBones)
                 b.CalcBindMatrix(_bindMatrix, _inverseBindMatrix, updateMesh);
         }
         /// <summary>
@@ -153,14 +171,14 @@ namespace CustomEngine.Rendering.Models
         {
 
         }
-        private void _children_Added(Bone item)
+        private void ChildBonesAdded(Bone item)
         {
             item._parent = this;
             item.CalcBindMatrix(BindMatrix, InverseBindMatrix, false);
             item.CalcFrameMatrix(FrameMatrix, InverseFrameMatrix);
             _skeleton?.RegenerateBoneCache();
         }
-        private void _children_AddedRange(IEnumerable<Bone> items)
+        private void ChildBonesAddedRange(IEnumerable<Bone> items)
         {
             foreach (Bone item in items)
             {
@@ -170,14 +188,14 @@ namespace CustomEngine.Rendering.Models
             }
             _skeleton?.RegenerateBoneCache();
         }
-        private void _children_Inserted(Bone item, int index)
+        private void ChildBonesInserted(Bone item, int index)
         {
             item._parent = this;
             item.CalcBindMatrix(BindMatrix, InverseBindMatrix, false);
             item.CalcFrameMatrix(FrameMatrix, InverseFrameMatrix);
             _skeleton?.RegenerateBoneCache();
         }
-        private void _children_InsertedRange(IEnumerable<Bone> items, int index)
+        private void ChildBonesInsertedRange(IEnumerable<Bone> items, int index)
         {
             foreach (Bone item in items)
             {
@@ -187,14 +205,14 @@ namespace CustomEngine.Rendering.Models
             }
             _skeleton?.RegenerateBoneCache();
         }
-        private void _children_Removed(Bone item)
+        private void ChildBonesRemoved(Bone item)
         {
             item._parent = null;
             item.CalcBindMatrix(false);
             item.CalcFrameMatrix();
             _skeleton?.RegenerateBoneCache();
         }
-        private void _children_RemovedRange(IEnumerable<Bone> items)
+        private void ChildBonesRemovedRange(IEnumerable<Bone> items)
         {
             foreach (Bone item in items)
             {
@@ -203,6 +221,33 @@ namespace CustomEngine.Rendering.Models
                 item.CalcFrameMatrix();
             }
             _skeleton?.RegenerateBoneCache();
-        }        
+        }
+        private void ChildComponentsAdded(SceneComponent item)
+        {
+            item._parent = this;
+        }
+        private void ChildComponentsAddedRange(IEnumerable<SceneComponent> items)
+        {
+            foreach (SceneComponent item in items)
+                item._parent = this;
+        }
+        private void ChildComponentsInserted(SceneComponent item, int index)
+        {
+            item._parent = this;
+        }
+        private void ChildComponentsInsertedRange(IEnumerable<SceneComponent> items, int index)
+        {
+            foreach (SceneComponent item in items)
+                item._parent = this;
+        }
+        private void ChildComponentsRemoved(SceneComponent item)
+        {
+            item._parent = null;
+        }
+        private void ChildComponentsRemovedRange(IEnumerable<SceneComponent> items)
+        {
+            foreach (SceneComponent item in items)
+                item._parent = null;
+        }
     }
 }

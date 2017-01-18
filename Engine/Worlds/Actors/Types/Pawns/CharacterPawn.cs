@@ -14,6 +14,7 @@ namespace CustomEngine.Worlds.Actors
             PhysicsDriverInfo info = new PhysicsDriverInfo();
             CapsuleComponent root = new CapsuleComponent(0.2f, 0.8f, info);
             SkeletalMeshComponent mesh = new SkeletalMeshComponent();
+            root.ChildComponents.Add(mesh);
             CameraComponent firstPersonCamera = new CameraComponent();
             firstPersonCamera.AttachTo(mesh, "HeadCameraSocket");
 

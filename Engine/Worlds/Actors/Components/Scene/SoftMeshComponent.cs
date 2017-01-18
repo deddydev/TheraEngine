@@ -8,7 +8,7 @@ using BulletSharp;
 
 namespace CustomEngine.Worlds.Actors.Components
 {
-    public class SoftMeshComponent : TRSComponent, IRenderable//, IPhysicsDrivable
+    public class SoftMeshComponent : TRSComponent, IMesh//, IPhysicsDrivable
     {
         public SoftMeshComponent(SoftMesh m, PhysicsDriverInfo info, bool visibleByDefault) 
             : this(m, Vec3.Zero, Rotator.GetZero(), Vec3.One, info, visibleByDefault) { }

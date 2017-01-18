@@ -4,7 +4,7 @@ using CustomEngine.Rendering;
 
 namespace CustomEngine.Worlds.Actors.Components
 {
-    public abstract class ShapeComponent : TRComponent, IMesh, IPhysicsDrivable
+    public abstract class ShapeComponent : TRComponent, IRenderable, IPhysicsDrivable
     {
         public ShapeComponent(PhysicsDriverInfo info)
         {
@@ -23,6 +23,7 @@ namespace CustomEngine.Worlds.Actors.Components
                 StopSimulatingPhysics(true);
         }
 
+        protected RenderOctree.OctreeNode _renderNode;
         protected PhysicsDriver _physics;
         protected bool _isRendering, _isVisible, _visibleByDefault;
 
@@ -49,6 +50,12 @@ namespace CustomEngine.Worlds.Actors.Components
         public abstract Shape CullingVolume { get; }
         public bool VisibleByDefault { get { return _visibleByDefault; } }
         public PhysicsDriver PhysicsDriver { get { return _physics; } }
+
+        public RenderOctree.OctreeNode RenderNode
+        {
+            get { return _renderNode; }
+            set { _renderNode = value; }
+        }
 
         public abstract void Render();
         protected abstract CollisionShape GetCollisionShape();

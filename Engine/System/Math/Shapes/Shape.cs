@@ -7,7 +7,7 @@ using CustomEngine.Files;
 
 namespace System
 {
-    public abstract class Shape : FileObject, IMesh
+    public abstract class Shape : FileObject, IRenderable
     {
         public Shape() { }
 

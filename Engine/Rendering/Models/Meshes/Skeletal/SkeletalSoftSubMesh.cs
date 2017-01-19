@@ -7,7 +7,7 @@ using CustomEngine.Worlds.Actors.Components;
 
 namespace CustomEngine.Rendering.Models
 {
-    public class SkeletalSoftSubMesh : FileObject, IMesh
+    public class SkeletalSoftSubMesh : FileObject, ISkeletalMesh
     {
         public SkeletalSoftSubMesh() { }
         public SkeletalSoftSubMesh(PrimitiveData data, string name)
@@ -45,41 +45,10 @@ namespace CustomEngine.Rendering.Models
                 throw new NotImplementedException();
             }
         }
-
-        public bool IsRendering
+        
+        public Bone SingleBind
         {
             get
-            {
-                throw new NotImplementedException();
-            }
-
-            set
-            {
-                throw new NotImplementedException();
-            }
-        }
-
-        public RenderOctree.OctreeNode RenderNode
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
-
-            set
-            {
-                throw new NotImplementedException();
-            }
-        }
-
-        public bool Visible
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
-
-            set
             {
                 throw new NotImplementedException();
             }

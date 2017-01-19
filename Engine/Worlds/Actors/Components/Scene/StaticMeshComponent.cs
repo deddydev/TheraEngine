@@ -10,19 +10,17 @@ namespace CustomEngine.Worlds.Actors.Components
 {
     public class StaticMeshComponent : TRSComponent, IPhysicsDrivable
     {
-        public StaticMeshComponent(StaticMesh m, PhysicsDriverInfo info, bool visibleByDefault) 
-            : this(m, Vec3.Zero, Rotator.GetZero(), Vec3.One, info, visibleByDefault) { }
+        public StaticMeshComponent(StaticMesh m, PhysicsDriverInfo info) 
+            : this(m, Vec3.Zero, Rotator.GetZero(), Vec3.One, info) { }
         public StaticMeshComponent(
             StaticMesh m, 
             Vec3 translation, 
             Rotator rotation, 
             Vec3 scale,
-            PhysicsDriverInfo info, 
-            bool visibleByDefault)
+            PhysicsDriverInfo info)
         {
             Model = m;
-            _cullingVolume = Model.CullingVolume.HardCopy();
-            _visibleByDefault = visibleByDefault;
+            //_cullingVolume = Model.CullingVolume.HardCopy();
 
             _translation = translation;
             _rotation = rotation;
@@ -55,13 +53,15 @@ namespace CustomEngine.Worlds.Actors.Components
         {
             if (_physicsDriver == null || !_physicsDriver.SimulatingPhysics)
                 base.RecalcGlobalTransform();
-            _cullingVolume?.SetTransform(WorldMatrix);
+            foreach (RenderableMesh m in _meshes)
+                m.CullingVolume.SetTransform(WorldMatrix);
+            //_cullingVolume?.SetTransform(WorldMatrix);
         }
 
         private StaticMesh _model;
         private PhysicsDriver _physicsDriver;
-        protected Shape _cullingVolume;
-        protected RenderableMesh[] _meshes;
+        //protected Shape _cullingVolume;
+        internal RenderableMesh[] _meshes;
 
         public StaticMesh Model
         {
@@ -82,7 +82,6 @@ namespace CustomEngine.Worlds.Actors.Components
             }
         }
         public PhysicsDriver PhysicsDriver { get { return _physicsDriver; } }
-        public Shape CullingVolume { get { return _cullingVolume; } }
 
         public override void OnSpawned()
         {
@@ -101,21 +100,25 @@ namespace CustomEngine.Worlds.Actors.Components
             Translation -= newOrigin;
         }
 
-        internal class RenderableMesh : IMesh
+        internal class RenderableMesh : IRenderable
         {
-            public RenderableMesh(IMesh mesh, SceneComponent component)
+            public RenderableMesh(IStaticMesh mesh, SceneComponent component)
             {
                 _mesh = mesh;
                 _component = component;
+                _cullingVolume = _mesh.CullingVolume.HardCopy();
                 Visible = false;
                 IsRendering = true;
             }
 
             private bool _isVisible, _isRendering;
             private SceneComponent _component;
-            private IMesh _mesh;
+            private IStaticMesh _mesh;
             private RenderOctree.OctreeNode _renderNode;
+            private Shape _cullingVolume;
 
+            //public Shape CullingVolume { get { return _mesh.CullingVolume.TransformedBy(_component.WorldMatrix); } }
+            public Shape CullingVolume { get { return _cullingVolume; } }
             public bool Visible
             {
                 get { return _isVisible; }
@@ -133,12 +136,11 @@ namespace CustomEngine.Worlds.Actors.Components
                 get { return _isRendering; }
                 set { _isRendering = value; }
             }
-            public IMesh Mesh
+            public IStaticMesh Mesh
             {
                 get { return _mesh; }
                 set { _mesh = value; }
             }
-            public Shape CullingVolume { get { return _mesh.CullingVolume.TransformedBy(_component.WorldMatrix); } }
             public RenderOctree.OctreeNode RenderNode
             {
                 get { return _renderNode; }

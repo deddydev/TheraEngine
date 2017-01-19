@@ -20,7 +20,7 @@ namespace CustomEngine.Worlds.Actors.Components
         
         private SkeletalMesh _model;
         private Skeleton _skeleton;
-        protected RenderableMesh[] _meshes;
+        internal RenderableMesh[] _meshes;
 
         public SkeletalMesh Model
         {
@@ -62,22 +62,23 @@ namespace CustomEngine.Worlds.Actors.Components
             foreach (RenderableMesh m in _meshes)
                 m.Visible = false;
         }
-        internal class RenderableMesh : IMesh
+        internal class RenderableMesh : IRenderable
         {
-            public RenderableMesh(IMesh mesh, SceneComponent component)
+            public RenderableMesh(ISkeletalMesh mesh, SceneComponent component)
             {
                 _mesh = mesh;
                 _component = component;
+                _singleBind = _mesh.SingleBind;
                 Visible = false;
                 IsRendering = true;
             }
 
             private bool _isVisible, _isRendering;
             private SceneComponent _component;
-            private IMesh _mesh;
+            private ISkeletalMesh _mesh;
             private RenderOctree.OctreeNode _renderNode;
             private Bone _singleBind;
-
+            
             public bool Visible
             {
                 get { return _isVisible; }
@@ -100,17 +101,25 @@ namespace CustomEngine.Worlds.Actors.Components
                 get { return _isRendering; }
                 set { _isRendering = value; }
             }
-            public IMesh Mesh
+            public ISkeletalMesh Mesh
             {
                 get { return _mesh; }
                 set { _mesh = value; }
             }
-            public Shape CullingVolume { get { return _mesh.CullingVolume.TransformedBy(_component.WorldMatrix); } }
             public RenderOctree.OctreeNode RenderNode
             {
                 get { return _renderNode; }
                 set { _renderNode = value; }
             }
+
+            public Shape CullingVolume
+            {
+                get
+                {
+                    throw new NotImplementedException();
+                }
+            }
+
             public void Render()
             {
                 if (Visible && IsRendering)

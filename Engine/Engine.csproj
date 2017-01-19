@@ -662,7 +662,6 @@
     <Compile Include="Worlds\Actors\Components\Scene\Shapes\SphereComponent.cs" />
     <Compile Include="Worlds\Actors\Components\Scene\Shapes\ShapeComponent.cs" />
     <Compile Include="Worlds\Actors\Components\Scene\Shapes\BoxComponent.cs" />
-    <Compile Include="Worlds\Actors\Components\Scene\SoftMeshComponent.cs" />
     <Compile Include="Worlds\Actors\Components\Scene\StaticMeshComponent.cs" />
     <Compile Include="Worlds\Actors\Components\Scene\Volumes\TriggerVolumeComponent.cs" />
     <Compile Include="Worlds\Actors\Components\Scene\PrimitiveComponent.cs" />

@@ -144,6 +144,8 @@ namespace CustomEngine.Rendering.Models.Collada
                     staticMesh = new StaticMesh();
                     skeletalMesh = null;
                     staticMesh.Name = Path.GetFileNameWithoutExtension(filePath);
+                    foreach (ObjectInfo obj in objects)
+                        obj.Initialize(staticMesh, shell);
                 }
                 else
                 {
@@ -151,7 +153,7 @@ namespace CustomEngine.Rendering.Models.Collada
                     staticMesh = null;
                     skeletalMesh.Name = Path.GetFileNameWithoutExtension(filePath);
 
-                    Bone rootBone = rootBones.Count == 0 ? new Bone("Root") : rootBones[0];
+                    Bone rootBone = rootBones[0];
                     skeletalMesh.Skeleton = new Skeleton(rootBone);
                     foreach (ObjectInfo obj in objects)
                         obj.Initialize(skeletalMesh, shell);
@@ -175,11 +177,6 @@ namespace CustomEngine.Rendering.Models.Collada
             if (node._type == NodeType.JOINT ||
                 (node._type == NodeType.NONE && node._instances.Count == 0))
             {
-                if (parent == null)
-                {
-
-                }
-
                 Bone bone = new Bone(node._name != null ? node._name : node._id, FrameState.DeriveTRS(node._matrix));
                 node._node = bone;
 

@@ -20,7 +20,6 @@ namespace CustomEngine.Rendering.Models
             _softChildren.Removed += SoftChildRemoved;
             _softChildren.Added += SoftChildAdded;
         }
-        private bool _simulatePhysics = false, _collisionEnabled = true;
 
         private Skeleton _skeleton;
         public Skeleton Skeleton
@@ -31,21 +30,14 @@ namespace CustomEngine.Rendering.Models
                 if (value == _skeleton)
                     return;
                 _skeleton = value;
-                foreach (SkeletalRigidSubMesh m in RigidChildren)
-                    m.SkeletonChanged(_skeleton);
-                foreach (SkeletalSoftSubMesh m in SoftChildren)
-                    m.SkeletonChanged(_skeleton);
             }
         }
-        public bool SimulatePhysics
+
+        public void SetAllSimulatingPhysics(bool doSimulation)
         {
-            get { return _simulatePhysics; }
-            set { _simulatePhysics = value; }
-        }
-        public bool CollisionEnabled
-        {
-            get { return _collisionEnabled; }
-            set { _collisionEnabled = value; }
+            foreach (Bone b in Skeleton)
+                if (b.PhysicsDriver != null)
+                    b.PhysicsDriver.SimulatingPhysics = doSimulation;
         }
 
         protected MonitoredList<SkeletalRigidSubMesh> _rigidChildren = new MonitoredList<SkeletalRigidSubMesh>();
@@ -57,26 +49,26 @@ namespace CustomEngine.Rendering.Models
         protected virtual void RigidChildAdded(SkeletalRigidSubMesh item)
         {
             item.Model = this;
-            item.SkeletonChanged(_skeleton);
+            //item.SkeletonChanged(_skeleton);
         }
         protected virtual void RigidChildRemoved(SkeletalRigidSubMesh item)
         {
             if (item.Model == this)
             {
-                item.SkeletonChanged(null);
+                //item.SkeletonChanged(null);
                 item.Model = null;
             }
         }
         protected virtual void SoftChildAdded(SkeletalSoftSubMesh item)
         {
             item.Model = this;
-            item.SkeletonChanged(_skeleton);
+            //item.SkeletonChanged(_skeleton);
         }
         protected virtual void SoftChildRemoved(SkeletalSoftSubMesh item)
         {
             if (item.Model == this)
             {
-                item.SkeletonChanged(null);
+                //item.SkeletonChanged(null);
                 item.Model = null;
             }
         }

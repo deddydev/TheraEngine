@@ -31,7 +31,7 @@ namespace CustomEngine.Rendering
             }
 
             WorldSettings ws = Engine.World.Settings;
-            List<IMesh> renderables = new List<IMesh>();
+            List<IRenderable> renderables = new List<IRenderable>();
             //foreach (Map m in ws._defaultMaps)
             //    if (m.Settings.VisibleByDefault)
             //        foreach (Actor a in m.Settings._defaultActors)
@@ -62,13 +62,13 @@ namespace CustomEngine.Rendering
             //foreach (ulong key in _sortedCommands)
             //    _commands[key]();
         }
-        public void AddRenderable(IMesh obj)
+        public void AddRenderable(IRenderable obj)
         {
-            _renderTree.Add(obj);
+            _renderTree?.Add(obj);
         }
-        public void RemoveRenderable(IMesh obj)
+        public void RemoveRenderable(IRenderable obj)
         {
-            _renderTree.Remove(obj);
+            _renderTree?.Remove(obj);
         }
 
         internal void SetUniforms()

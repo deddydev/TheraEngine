@@ -8,25 +8,31 @@ namespace CustomEngine.Rendering.Models
 {
     public class Bone : FileObject, IPhysicsDrivable, ISocket
     {
+        public Bone(string name, FrameState bindstate, PhysicsDriverInfo info)
+        {
+            Init(name, bindstate, info);
+        }
         public Bone(string name, FrameState bindState)
         {
-            Init(name, bindState);
+            Init(name, bindState, null);
         }
         public Bone(string name)
         {
-            Init(name, new FrameState());
+            Init(name, new FrameState(), null);
         }
         public Bone()
         {
-            Init("NewBone", new FrameState());
+            Init("NewBone", new FrameState(), null);
         }
-        private void Init(string name, FrameState bindState)
+        private void Init(string name, FrameState bindState, PhysicsDriverInfo info)
         {
             _frameState = _bindState = bindState;
             _name = name;
 
-            PhysicsDriverInfo info = new PhysicsDriverInfo();
-            _physicsDriver = new PhysicsDriver(info, MatrixUpdate, SimulationUpdate);
+            if (info == null)
+                _physicsDriver = null;
+            else
+                _physicsDriver = new PhysicsDriver(info, MatrixUpdate, SimulationUpdate);
 
             _childBones.Added += ChildBonesAdded;
             _childBones.AddedRange += ChildBonesAddedRange;

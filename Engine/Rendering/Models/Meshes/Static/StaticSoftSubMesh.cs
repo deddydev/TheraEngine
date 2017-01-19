@@ -7,7 +7,7 @@ using CustomEngine.Worlds.Actors.Components;
 
 namespace CustomEngine.Rendering.Models
 {
-    public class StaticSoftSubMesh : FileObject, IMesh
+    public class StaticSoftSubMesh : FileObject, IStaticMesh
     {
         public StaticSoftSubMesh() { }
         public StaticSoftSubMesh(PrimitiveData data, string name)

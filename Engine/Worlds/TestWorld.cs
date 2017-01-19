@@ -88,7 +88,7 @@ namespace CustomEngine.Worlds
             StaticMeshComponent floorComp = new StaticMeshComponent(
                 floorModel, Vec3.Zero,
                 new Rotator(0.0f, 0.0f, -10.0f, Rotator.Order.YPR),
-                Vec3.One, floorInfo, true);
+                Vec3.One, floorInfo);
 
             lightComp.Translation.Y = 0.0f;
             lightComp.Translation.X = 0.0f;
@@ -99,8 +99,7 @@ namespace CustomEngine.Worlds
                 new Vec3(0.0f, 20.0f, 0.0f),
                 Rotator.GetZero(),
                 Vec3.One,
-                sphereInfo,
-                true));
+                sphereInfo));
 
             Actor floorActor = new Actor(floorComp);
 
@@ -108,11 +107,24 @@ namespace CustomEngine.Worlds
             Actor dirLightActor = new Actor(dirLightComp);
 
             ColladaImportOptions options = new ColladaImportOptions();
-            SkeletalMesh m = Collada.ImportModel(Environment.MachineName == "DAVID-DESKTOP" ? "X:\\Desktop\\TEST.DAE" : "C:\\Users\\David\\Desktop\\TEST.DAE", options);
+            SkeletalMesh skelM;
+            StaticMesh staticM;
+            Collada.ImportModel(
+                Environment.MachineName == "DAVID-DESKTOP" ? "X:\\Desktop\\TEST.DAE" : "C:\\Users\\David\\Desktop\\TEST.DAE", 
+                options, out skelM, out staticM);
 
-            SkeletalMeshComponent skelComp = new SkeletalMeshComponent(m, true);
-            Actor skelActor = new Actor(skelComp);
+            Actor skelActor;
 
+            if (skelM != null)
+            {
+                SkeletalMeshComponent skelComp = new SkeletalMeshComponent(skelM);
+                skelActor = new Actor(skelComp);
+            }
+            else
+            {
+                StaticMeshComponent skelComp = new StaticMeshComponent(staticM, new PhysicsDriverInfo() { BodyInfo = new RigidBodyConstructionInfo(1.0f, null, new SphereShape(1.0f)) });
+                skelActor = new Actor(skelComp);
+            }
             _settings._defaultMaps.Add(new Map(this, new MapSettings(/*sphereActor,*/ lightActor, /*floorActor,*/ dirLightActor, skelActor, new FlyingCameraPawn(PlayerIndex.One))));
         }
     }

@@ -16,3 +16,5 @@ Game/bin/
 Game/obj/
 *.suo
 *.force
+Testris/bin/
+Testris/obj/

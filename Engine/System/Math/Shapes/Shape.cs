@@ -14,6 +14,7 @@ namespace System
         public event Action AttributeChanged;
 
         protected bool _isRendering, _isVisible, _visibleByDefault, _renderSolid;
+        protected RenderOctree.OctreeNode _renderNode;
 
         public bool IsRendering
         {
@@ -29,20 +30,11 @@ namespace System
             get { return _isVisible; }
             set { _isVisible = value; }
         }
-
         public Shape CullingVolume { get { return this; } }
-
         public RenderOctree.OctreeNode RenderNode
         {
-            get
-            {
-                throw new NotImplementedException();
-            }
-
-            set
-            {
-                throw new NotImplementedException();
-            }
+            get { return _renderNode; }
+            set { _renderNode = value; }
         }
 
         public abstract void Render();
@@ -56,8 +48,20 @@ namespace System
         public abstract EContainment ContainedWithin(Box box);
         public abstract EContainment ContainedWithin(Sphere sphere);
         public abstract EContainment ContainedWithin(Frustum frustum);
+        /// <summary>
+        /// Applies the transform to this shape.
+        /// </summary>
+        /// <param name="worldMatrix"></param>
         public abstract void SetTransform(Matrix4 worldMatrix);
+        /// <summary>
+        /// Returns a hard copy of this shape, transformed by the given transform.
+        /// </summary>
+        /// <param name="worldMatrix"></param>
+        /// <returns></returns>
         public abstract Shape TransformedBy(Matrix4 worldMatrix);
+        /// <summary>
+        /// Returns a completely unique copy of this shape (nothing shares the same instance).
+        /// </summary>
         public abstract Shape HardCopy();
     }
 }

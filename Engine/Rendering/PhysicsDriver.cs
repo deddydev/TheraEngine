@@ -63,34 +63,30 @@ namespace CustomEngine.Rendering
 
         private bool _collisionEnabled, _simulatingPhysics;
         private CustomCollisionGroup _group, _collidesWith;
-        public Vec3 _prevPosition, _prevVelocity, _acceleration;
+        public Vec3 _prevVelocity, _velocity, _acceleration;
         public Matrix4 _prevWorldMatrix, _worldMatrix;
         private RigidBody _collision;
-
+        
         public Vec3 PreviousPosition { get { return _prevWorldMatrix.GetPoint(); } }
         public Vec3 Position { get { return _worldMatrix.GetPoint(); } }
-
-        /// <summary>
-        /// Returns the instantaneous velocity of this object right now.
-        /// </summary>
-        public Vec3 GetVelocity()
+        public Vec3 PreviousVelocity { get { return _prevVelocity; } }
+        public Vec3 Velocity
         {
-            return _collision.LinearVelocity;
+            get { return _velocity; }
+            set
+            {
+                _prevVelocity = _velocity;
+                _collision.LinearVelocity = _velocity = value;
+            }
         }
-        /// <summary>
-        /// Returns the instantaneous velocity of this object on the last tick.
-        /// </summary>
-        public Vec3 GetPrevVelocity()
-        {
-            return _prevVelocity;
-        }
+        
         /// <summary>
         /// Returns the instantaneous speed of this object right now.
         /// Uses a fast approximation to avoid using a slow square root operation.
         /// </summary>
         public float GetSpeedFast()
         {
-            return GetVelocity().LengthFast;
+            return Velocity.LengthFast;
         }
         /// <summary>
         /// Returns the instantaneous speed of this object right now.
@@ -98,7 +94,7 @@ namespace CustomEngine.Rendering
         /// </summary>
         public float GetSpeed()
         {
-            return GetVelocity().Length;
+            return Velocity.Length;
         }
         /// <summary>
         /// Returns the instantaneous speed of this object on the last tick.
@@ -106,7 +102,7 @@ namespace CustomEngine.Rendering
         /// </summary>
         public float GetPrevSpeedFast()
         {
-            return GetPrevVelocity().LengthFast;
+            return PreviousVelocity.LengthFast;
         }
         /// <summary>
         /// Returns the instantaneous speed of this object on the last tick.
@@ -114,14 +110,14 @@ namespace CustomEngine.Rendering
         /// </summary>
         public float GetPrevSpeed()
         {
-            return GetPrevVelocity().Length;
+            return PreviousVelocity.Length;
         }
         /// <summary>
         /// Returns the acceleration of this object from the last tick to the current one.
         /// </summary>
         public Vec3 GetAcceleration()
         {
-            return GetVelocity() - GetPrevVelocity();
+            return (Velocity - PreviousVelocity) / Engine.UpdateDelta;
         }
         public Matrix4 WorldTransform
         {
@@ -262,22 +258,11 @@ namespace CustomEngine.Rendering
         }
         internal override void Tick(float delta)
         {
-            Matrix transform;
-            _collision.GetWorldTransform(out transform);
-            _worldMatrix = transform;
-            TransformChanged(_worldMatrix);
-        }
-        internal virtual void TransformUpdated()
-        {
-            Matrix transform;
-            _collision.GetWorldTransform(out transform);
-            Matrix4 prevMatrix = _worldMatrix;
-            _worldMatrix = transform;
-            _prevPosition = _position;
-            _position = _worldMatrix.GetPoint();
             _prevVelocity = _velocity;
-            _velocity = (_position - _prevPosition) / Engine.UpdateDelta;
-            _acceleration = (_velocity - _prevVelocity) / Engine.UpdateDelta;
+            _velocity = _collision.LinearVelocity;
+
+            Matrix transform;
+            _collision.GetWorldTransform(out transform);
             _worldMatrix = transform;
             TransformChanged(_worldMatrix);
         }

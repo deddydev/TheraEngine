@@ -132,11 +132,7 @@ namespace CustomEngine
             UpdateTick(ETickGroup.PrePhysics, delta);
             //Task t = AsyncDuringPhysicsTick(delta);
             if (!_isPaused)
-            {
                 World.StepSimulation(delta);
-                foreach (CollisionObject obj in World.PhysicsScene.CollisionObjectArray)
-                    (obj.UserObject as PhysicsDriver)?.TransformUpdated();
-            }
             //await t;
             UpdateTick(ETickGroup.PostPhysics, delta);
             //}

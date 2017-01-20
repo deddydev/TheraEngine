@@ -63,15 +63,71 @@ namespace CustomEngine.Rendering
 
         private bool _collisionEnabled, _simulatingPhysics;
         private CustomCollisionGroup _group, _collidesWith;
-        public Matrix4 _worldMatrix;
+        public Vec3 _prevPosition, _prevVelocity, _acceleration;
+        public Matrix4 _prevWorldMatrix, _worldMatrix;
         private RigidBody _collision;
 
-        public Matrix4 Transform
+        public Vec3 PreviousPosition { get { return _prevWorldMatrix.GetPoint(); } }
+        public Vec3 Position { get { return _worldMatrix.GetPoint(); } }
+
+        /// <summary>
+        /// Returns the instantaneous velocity of this object right now.
+        /// </summary>
+        public Vec3 GetVelocity()
+        {
+            return _collision.LinearVelocity;
+        }
+        /// <summary>
+        /// Returns the instantaneous velocity of this object on the last tick.
+        /// </summary>
+        public Vec3 GetPrevVelocity()
+        {
+            return _prevVelocity;
+        }
+        /// <summary>
+        /// Returns the instantaneous speed of this object right now.
+        /// Uses a fast approximation to avoid using a slow square root operation.
+        /// </summary>
+        public float GetSpeedFast()
+        {
+            return GetVelocity().LengthFast;
+        }
+        /// <summary>
+        /// Returns the instantaneous speed of this object right now.
+        /// Uses square root for exact value; slower than GetSpeedFast.
+        /// </summary>
+        public float GetSpeed()
+        {
+            return GetVelocity().Length;
+        }
+        /// <summary>
+        /// Returns the instantaneous speed of this object on the last tick.
+        /// Uses a fast approximation to avoid using a slow square root operation.
+        /// </summary>
+        public float GetPrevSpeedFast()
+        {
+            return GetPrevVelocity().LengthFast;
+        }
+        /// <summary>
+        /// Returns the instantaneous speed of this object on the last tick.
+        /// Uses square root for exact value; slower than GetPrevSpeedFast.
+        /// </summary>
+        public float GetPrevSpeed()
+        {
+            return GetPrevVelocity().Length;
+        }
+        /// <summary>
+        /// Returns the acceleration of this object from the last tick to the current one.
+        /// </summary>
+        public Vec3 GetAcceleration()
+        {
+            return GetVelocity() - GetPrevVelocity();
+        }
+        public Matrix4 WorldTransform
         {
             get { return _worldMatrix; }
-            set { _worldMatrix = value; SetPhysicsTransform(_worldMatrix); }
+            set { SetPhysicsTransform(_worldMatrix); }
         }
-
         public bool SimulatingPhysics
         {
             get { return _simulatingPhysics; }
@@ -88,6 +144,7 @@ namespace CustomEngine.Rendering
                         _collision.AngularFactor = new Vector3(0.0f);
                         _collision.ForceActivationState(ActivationState.DisableSimulation);
                         SimulationStateChanged?.Invoke(false);
+                        UnregisterTick();
                     }
                     else
                     {
@@ -95,6 +152,7 @@ namespace CustomEngine.Rendering
                         _collision.AngularFactor = new Vector3(1.0f);
                         _collision.ForceActivationState(ActivationState.IslandSleeping);
                         SimulationStateChanged?.Invoke(true);
+                        RegisterTick(ETickGroup.PostPhysics, ETickOrder.Scene);
                     }
                 }
             }
@@ -175,6 +233,7 @@ namespace CustomEngine.Rendering
                     //_collision.CollisionFlags |= CollisionFlags.StaticObject;
                     //_collision.CollisionFlags &= ~CollisionFlags.KinematicObject;
                     _collision.ForceActivationState(ActivationState.DisableSimulation);
+                    UnregisterTick();
                 }
                 else
                 {
@@ -183,25 +242,43 @@ namespace CustomEngine.Rendering
                     //_collision.CollisionFlags |= CollisionFlags.KinematicObject;
                     //_collision.CollisionFlags &= ~CollisionFlags.StaticObject;
                     //_collision.ForceActivationState(ActivationState.IslandSleeping);
+                    RegisterTick(ETickGroup.PostPhysics, ETickOrder.Scene);
                 }
             }
         }
         internal void AddToWorld()
         {
-            Engine.World.PhysicsScene.AddRigidBody(_collision, (short)_group, _collisionEnabled ? (short)_collidesWith : (short)CustomCollisionGroup.None);
+            Engine.World.PhysicsScene.AddRigidBody(
+                _collision, 
+                (short)_group,
+                _collisionEnabled ? (short)_collidesWith : (short)CustomCollisionGroup.None);
         }
-        internal virtual void SetPhysicsTransform(Matrix4 worldMatrix)
+        internal virtual void SetPhysicsTransform(Matrix4 newTransform)
         {
-            Matrix conv = worldMatrix;
-            _collision.WorldTransform = conv;
-            _collision.InterpolationWorldTransform = conv;
+            _worldMatrix = newTransform;
+            _collision.WorldTransform = _worldMatrix;
+            _collision.InterpolationWorldTransform = _worldMatrix;
             Engine.World.PhysicsScene.UpdateAabbs();
+        }
+        internal override void Tick(float delta)
+        {
+            Matrix transform;
+            _collision.GetWorldTransform(out transform);
+            _worldMatrix = transform;
+            TransformChanged(_worldMatrix);
         }
         internal virtual void TransformUpdated()
         {
-            Matrix mtx;
-            _collision.GetWorldTransform(out mtx);
-            _worldMatrix = mtx;
+            Matrix transform;
+            _collision.GetWorldTransform(out transform);
+            Matrix4 prevMatrix = _worldMatrix;
+            _worldMatrix = transform;
+            _prevPosition = _position;
+            _position = _worldMatrix.GetPoint();
+            _prevVelocity = _velocity;
+            _velocity = (_position - _prevPosition) / Engine.UpdateDelta;
+            _acceleration = (_velocity - _prevVelocity) / Engine.UpdateDelta;
+            _worldMatrix = transform;
             TransformChanged(_worldMatrix);
         }
     }

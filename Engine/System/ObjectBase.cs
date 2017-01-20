@@ -12,9 +12,9 @@ namespace System
     public delegate void ObjectPropertyChangedEventHandler(object sender, PropertyChangedEventArgs e);
     public enum ETickGroup
     {
-        PrePhysics = 0,
-        PostPhysics = 1,
-        DuringPhysics = 2,
+        PrePhysics      = 0,
+        PostPhysics     = 1,
+        DuringPhysics   = 2,
     }
     public enum ETickOrder
     {

@@ -30,10 +30,17 @@ namespace CustomEngine.Worlds
             _isConstructing = true;
             RootComponent = root;
             _logicComponents = new MonitoredList<LogicComponent>(logicComponents.ToList());
+            _logicComponents.Added += _logicComponents_Added;
+            _logicComponents.AddedRange += _logicComponents_AddedRange;
+            _logicComponents.Removed += _logicComponents_Removed;
+            _logicComponents.RemovedRange += _logicComponents_RemovedRange;
+            _logicComponents.Inserted += _logicComponents_Inserted;
+            _logicComponents.InsertedRange += _logicComponents_InsertedRange;
             SetDefaults();
             _isConstructing = false;
             GenerateSceneComponentCache();
         }
+
         [State]
         public bool IsSpawned { get { return _spawnIndex >= 0; } }
         [State]
@@ -122,6 +129,33 @@ namespace CustomEngine.Worlds
 
             _spawnIndex = -1;
             _owningWorld = null;
+        }
+        private void _logicComponents_InsertedRange(IEnumerable<LogicComponent> items, int index)
+        {
+            foreach (LogicComponent item in items)
+                item.Owner = this;
+        }
+        private void _logicComponents_Inserted(LogicComponent item, int index)
+        {
+            item.Owner = this;
+        }
+        private void _logicComponents_RemovedRange(IEnumerable<LogicComponent> items)
+        {
+            foreach (LogicComponent item in items)
+                item.Owner = null;
+        }
+        private void _logicComponents_Removed(LogicComponent item)
+        {
+            item.Owner = null;
+        }
+        private void _logicComponents_AddedRange(IEnumerable<LogicComponent> items)
+        {
+            foreach (LogicComponent item in items)
+                item.Owner = this;
+        }
+        private void _logicComponents_Added(LogicComponent item)
+        {
+            item.Owner = this;
         }
     }
     [StructLayout(LayoutKind.Sequential, Pack = 1)]

@@ -24,7 +24,7 @@ namespace CustomEngine
             {
                 ETickGroup order = (ETickGroup)i;
                 _tick.Add(order, new Dictionary<ETickOrder, List<ObjectBase>>());
-                for (int j = 0; j < 4; ++j)
+                for (int j = 0; j < 5; ++j)
                     _tick[order].Add((ETickOrder)j, new List<ObjectBase>());
             }
             ActivePlayers.Added += ActivePlayers_Added;

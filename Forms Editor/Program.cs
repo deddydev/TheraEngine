@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace Forms_Editor
+namespace TheraEditor
 {
     static class Program
     {

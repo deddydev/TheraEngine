@@ -9,6 +9,14 @@ namespace CustomEngine
 {
     public class EngineSettings : FileObject
     {
+        public override ResourceType ResourceType
+        {
+            get
+            {
+                return ResourceType.EngineSettings;
+            }
+        }
+
         public SingleFileRef<World> TransitionWorld;
         public SingleFileRef<World> OpeningWorld;
         public string ContentPath;

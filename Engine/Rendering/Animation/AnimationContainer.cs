@@ -131,6 +131,8 @@ namespace CustomEngine.Rendering.Animation
     }
     public class AnimationContainer : FileObject
     {
+        public override ResourceType ResourceType { get { return ResourceType.AnimationContainer; } }
+
         public event Action<AnimationContainer> AnimationStarted;
         public event Action<AnimationContainer> AnimationEnded;
 
@@ -152,16 +154,16 @@ namespace CustomEngine.Rendering.Animation
         {
 
         }
-        public AnimationContainer() { RegisterOwners(); }
-        public AnimationContainer(AnimFolder rootFolder)
+        public AnimationContainer()
         {
             RegisterOwners();
+        }
+        public AnimationContainer(AnimFolder rootFolder) : this()
+        {
             RootFolder = rootFolder;
         }
-        public AnimationContainer(string propertyName, bool method, BasePropertyAnimation anim)
+        public AnimationContainer(string propertyName, bool method, BasePropertyAnimation anim) : this()
         {
-            RegisterOwners();
-
             string[] parts = propertyName.Split('.');
             bool first = true;
             AnimFolder last = null;
@@ -203,6 +205,7 @@ namespace CustomEngine.Rendering.Animation
                 _totalAnimCount = _root != null ? _root.Register(this) : 0;
             }
         }
+        
         internal void AnimationHasEnded(object sender, EventArgs e)
         {
             if (++_endedAnimations >= _totalAnimCount)

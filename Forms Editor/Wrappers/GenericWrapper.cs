@@ -10,17 +10,15 @@ namespace TheraEditor.Wrappers
     {
         #region Menu
 
-        private static ContextMenuStrip _menu;
+        protected static ContextMenuStrip _menu;
         static GenericWrapper()
         {
             _menu = new ContextMenuStrip();
+            _menu.Items.Add(new ToolStripMenuItem("Re&name", null, RenameAction, Keys.Control | Keys.N));
+            _menu.Items.Add(new ToolStripSeparator());
             _menu.Items.Add(new ToolStripMenuItem("&Export", null, ExportAction, Keys.Control | Keys.E));
             _menu.Items.Add(new ToolStripMenuItem("&Replace", null, ReplaceAction, Keys.Control | Keys.R));
             _menu.Items.Add(new ToolStripMenuItem("Res&tore", null, RestoreAction, Keys.Control | Keys.T));
-            _menu.Items.Add(new ToolStripSeparator());
-            _menu.Items.Add(new ToolStripMenuItem("Move &Up", null, MoveUpAction, Keys.Control | Keys.Up));
-            _menu.Items.Add(new ToolStripMenuItem("Move D&own", null, MoveDownAction, Keys.Control | Keys.Down));
-            _menu.Items.Add(new ToolStripMenuItem("Re&name", null, RenameAction, Keys.Control | Keys.N));
             _menu.Items.Add(new ToolStripSeparator());
             _menu.Items.Add(new ToolStripMenuItem("&Delete", null, DeleteAction, Keys.Control | Keys.Delete));
             _menu.Opening += MenuOpening;
@@ -40,58 +38,57 @@ namespace TheraEditor.Wrappers
         private static void MenuOpening(object sender, CancelEventArgs e)
         {
             GenericWrapper w = GetInstance<GenericWrapper>();
-            _menu.Items[1].Enabled = _menu.Items[8].Enabled = w.Parent != null;
-            _menu.Items[2].Enabled = ((w._resource.IsDirty) || (w._resource.IsBranch));
-            _menu.Items[4].Enabled = w.PrevNode != null;
-            _menu.Items[5].Enabled = w.NextNode != null;
+            //_menu.Items[1].Enabled = _menu.Items[8].Enabled = w.Parent != null;
+            //_menu.Items[2].Enabled = ((w._resource.IsDirty) || (w._resource.IsBranch));
+            //_menu.Items[4].Enabled = w.PrevNode != null;
+            //_menu.Items[5].Enabled = w.NextNode != null;
         }
 
         #endregion
 
-        public GenericWrapper(IWin32Window owner) { _owner = owner; ContextMenuStrip = _menu; }
-        public GenericWrapper() { _owner = null; ContextMenuStrip = _menu; }
+        public GenericWrapper(string path) { ContextMenuStrip = _menu; }
 
         public void MoveUp() { MoveUp(true); }
         public virtual void MoveUp(bool select)
         {
-            if (PrevVisibleNode == null)
-                return;
+            //if (PrevVisibleNode == null)
+            //    return;
 
-            if (_resource.MoveUp())
-            {
-                int index = Index - 1;
-                TreeNode parent = Parent;
-                TreeView.BeginUpdate();
-                Remove();
-                parent.Nodes.Insert(index, this);
-                _resource.OnMoved();
-                if (select)
-                    TreeView.SelectedNode = this;
-                TreeView.EndUpdate();
-            }
+            //if (_resource.MoveUp())
+            //{
+            //    int index = Index - 1;
+            //    TreeNode parent = Parent;
+            //    TreeView.BeginUpdate();
+            //    Remove();
+            //    parent.Nodes.Insert(index, this);
+            //    _resource.OnMoved();
+            //    if (select)
+            //        TreeView.SelectedNode = this;
+            //    TreeView.EndUpdate();
+            //}
         }
 
         public void MoveDown() { MoveDown(true); }
         public virtual void MoveDown(bool select)
         {
-            if (NextVisibleNode == null)
-                return;
+            //if (NextVisibleNode == null)
+            //    return;
 
-            if (_resource.MoveDown())
-            {
-                int index = Index + 1;
-                TreeNode parent = Parent;
-                TreeView.BeginUpdate();
-                Remove();
-                parent.Nodes.Insert(index, this);
-                _resource.OnMoved();
-                if (select)
-                    TreeView.SelectedNode = this;
-                TreeView.EndUpdate();
-            }
+            //if (_resource.MoveDown())
+            //{
+            //    int index = Index + 1;
+            //    TreeNode parent = Parent;
+            //    TreeView.BeginUpdate();
+            //    Remove();
+            //    parent.Nodes.Insert(index, this);
+            //    _resource.OnMoved();
+            //    if (select)
+            //        TreeView.SelectedNode = this;
+            //    TreeView.EndUpdate();
+            //}
         }
 
-        public virtual string ExportFilter { get { return BrawlLib.FileFilters.Raw; } }
+        public virtual string ExportFilter { get { return "Raw (*.*)|*.*"; } }
         public virtual string ImportFilter { get { return ExportFilter; } }
         public virtual string ReplaceFilter { get { return ImportFilter; } }
 
@@ -109,37 +106,40 @@ namespace TheraEditor.Wrappers
 
         public virtual string Export()
         {
-            string outPath;
-            int index = Program.SaveFile(ExportFilter, Text, out outPath);
-            if (index != 0)
-            {
-                if (Parent == null)
-                    _resource.Merge(Control.ModifierKeys == (Keys.Control | Keys.Shift));
-                OnExport(outPath, index);
-            }
+            string outPath = "";
+            //int index = Program.SaveFile(ExportFilter, Text, out outPath);
+            //if (index != 0)
+            //{
+            //    if (Parent == null)
+            //        _resource.Merge(Control.ModifierKeys == (Keys.Control | Keys.Shift));
+            //    OnExport(outPath, index);
+            //}
             return outPath;
         }
-        public virtual void OnExport(string outPath, int filterIndex) { _resource.Export(outPath); }
+        public virtual void OnExport(string outPath, int filterIndex)
+        {
+            //_resource.Export(outPath);
+        }
 
         public virtual void Replace()
         {
             if (Parent == null)
                 return;
 
-            string inPath;
-            int index = Program.OpenFile(ReplaceFilter, out inPath);
-            if (index != 0)
-            {
-                OnReplace(inPath, index);
-                this.Link(_resource);
-            }
+            //string inPath;
+            //int index = Program.OpenFile(ReplaceFilter, out inPath);
+            //if (index != 0)
+            //{
+            //    OnReplace(inPath, index);
+            //    this.Link(_resource);
+            //}
         }
 
         public virtual void OnReplace(string inStream, int filterIndex) { _resource.Replace(inStream); }
 
         public void Restore()
         {
-            _resource.Restore();
+            //_resource.Restore();
         }
 
         public void Delete()
@@ -147,13 +147,13 @@ namespace TheraEditor.Wrappers
             if (Parent == null)
                 return;
 
-            _resource.Dispose();
-            _resource.Remove();
+            //_resource.Dispose();
+            //_resource.Remove();
         }
 
         public void Rename()
         {
-            using (RenameDialog dlg = new RenameDialog()) { dlg.ShowDialog(MainForm.Instance, _resource); }
+            //using (RenameDialog dlg = new RenameDialog()) { dlg.ShowDialog(MainForm.Instance, _resource); }
         }
     }
 }

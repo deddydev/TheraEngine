@@ -11,11 +11,25 @@ namespace CustomEngine
         Object                      = 0xFF00,
         
         World                       = 0x0000,
+        WorldState                  = 0x0001,
+        WorldSettings               = 0x0002,
+
         Map                         = 0x0100,
-        Shape                       = 0x0200,
+        MapState                    = 0x0101,
+        MapSettings                 = 0x0102,
+
+        Actor                       = 0x0200,
+        ActorState                  = 0x0201,
+        ActorSettings               = 0x0202,
+
         Camera                      = 0x0300,
+        CameraState                 = 0x0301,
+        CameraSettings              = 0x0302,
 
         Component                   = 0x1000,
+        ComponentState              = 0x1001,
+        ComponentSettings           = 0x1002,
+
         InstanceComponent           = 0x1100,
         SceneComponent              = 0x1200,
         CharacterMovementComponent  = 0x1300,
@@ -29,12 +43,29 @@ namespace CustomEngine
         ModelComponent              = 0x1B00,
         ShapeComponent              = 0x1C00,
 
-        Actor                       = 0x2000,
+        Shape                       = 0x2000,
+
         Pawn                        = 0x2100,
         Character                   = 0x2200,
         Vehicle                     = 0x2300,
         
         Emitter                     = 0x3000,
         Particle                    = 0x3100,
+
+        AnimationContainer          = 0x3200,
+        AnimationBool               = 0x3300,
+        AnimationInterp             = 0x3400,
+        AnimationString             = 0x3500,
+
+        Model,
+        Skeleton,
+        Bone,
+
+        Cutscene,
+
+        EngineSettings,
+        UserSettings,
+
+        Sound,
     }
 }

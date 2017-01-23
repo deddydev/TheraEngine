@@ -1,6 +1,7 @@
 ﻿using CustomEngine.Files;
 using CustomEngine.Worlds;
 using System.Collections.Generic;
+using System;
 
 namespace CustomEngine.Cutscenes
 {
@@ -13,5 +14,13 @@ namespace CustomEngine.Cutscenes
         public List<Actor> _involvedActors;
         //How long this cutscene runs for, in seconds
         public float _length;
+
+        public override ResourceType ResourceType
+        {
+            get
+            {
+                return ResourceType.Cutscene;
+            }
+        }
     }
 }

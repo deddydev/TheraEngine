@@ -9,6 +9,8 @@ namespace System
 {
     public abstract class Shape : FileObject, IRenderable
     {
+        public override ResourceType ResourceType { get { return ResourceType.Shape; } }
+
         public Shape() { }
 
         public event Action AttributeChanged;

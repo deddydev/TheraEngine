@@ -8,6 +8,8 @@ namespace CustomEngine.Rendering.Models
 {
     public class Bone : FileObject, IPhysicsDrivable, ISocket
     {
+        public override ResourceType ResourceType { get { return ResourceType.Bone; } }
+
         public Bone(string name, FrameState bindstate, PhysicsDriverInfo info)
         {
             Init(name, bindstate, info);

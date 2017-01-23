@@ -8,6 +8,8 @@ namespace CustomEngine.Rendering.Animation
     delegate float InterpGetValue(float frameIndex);
     public class AnimationInterpNode : PropertyAnimation<InterpKeyframe>, IEnumerable<InterpKeyframe>
     {
+        public override ResourceType ResourceType { get { return ResourceType.AnimationInterp; } }
+
         float[] _baked;
         InterpGetValue _getValue;
 

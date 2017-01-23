@@ -22,6 +22,7 @@ namespace CustomEngine.Files
         {
             return assembly.GetTypes().Where(t => t != baseType && baseType.IsAssignableFrom(t));
         }
+
         public static string GetTag(Type type)
         {
             return Filters[type]._tag;
@@ -34,19 +35,28 @@ namespace CustomEngine.Files
         {
             return Filters[type]._extensions[0];
         }
+
         public static Type GetTypeWithExtension(string ext)
         {
             return Filters.FirstOrDefault(x => x.Value._extensions[0] == ext).Key;
         }
+        public static ResourceType? GetResourceTypeWithExtension(string ext)
+        {
+            var kv = Filters.FirstOrDefault(x => x.Value._extensions[0] == ext);
+            if (kv.Value == null)
+                return null;
+            return kv.Value._resourceType;
+        }
+
         const int MaxExtensionsInAllFilter = 5;
         private static string _allSupportedFilter = null;
         private static string _filterList = null;
         public static readonly Dictionary<Type, FilterInfo> Filters = new Dictionary<Type, FilterInfo>()
         {
-            { typeof(WorldState), new FilterInfo("World State", "WSTA", "cstworld") },
-            { typeof(MapState), new FilterInfo("Map State", "MSTA", "cstmap") },
-            { typeof(ActorState), new FilterInfo("Actor State", "ASTA", "cstactor") },
-
+            { typeof(WorldState), new FilterInfo("World State", "WSTA", ResourceType.WorldState, "cstworld") },
+            { typeof(MapState), new FilterInfo("Map State", "MSTA", ResourceType.MapState, "cstmap") },
+            { typeof(ActorState), new FilterInfo("Actor State", "ASTA", ResourceType.ActorState, "cstactor") },
+            
             { typeof(UserSettings), new FilterInfo("User Settings", "SUSR", "csuser") },
             { typeof(EngineSettings), new FilterInfo("Engine Settings", "SENG", "csengine") },
             { typeof(WorldSettings), new FilterInfo("World Settings", "SWRL", "csworld") },
@@ -237,6 +247,7 @@ namespace CustomEngine.Files
     {
         public string _name, _tag;
         public string[] _extensions;
+        public ResourceType _resourceType;
 
         public Type[] _fileTypes;
         public bool _canExport, _canImport;
@@ -244,11 +255,12 @@ namespace CustomEngine.Files
         public string _exportExt;
         public string _importExt;
 
-        public FilterInfo(string name, string tag, params string[] extensions)
+        public FilterInfo(string name, string tag, ResourceType type, params string[] extensions)
         {
             _name = name;
             _tag = tag;
             _extensions = extensions;
+            _resourceType = type;
         }
 
         public string Filter { get { string s = ExtensionsFilter; return _name + " (" + s.Replace(";", ", ") + ")|" + s; } }

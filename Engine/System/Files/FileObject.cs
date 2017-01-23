@@ -32,6 +32,8 @@ namespace CustomEngine.Files
         public bool IsSaving { get { return IsCalculatingSize || IsWriting; } }
         public bool IsWriting { get { return _isWriting; } }
 
+        public abstract ResourceType ResourceType { get; }
+
         public virtual int CalculateSize(StringTable table)
         {
             return FileCommonHeader.Size;
@@ -122,14 +124,16 @@ namespace CustomEngine.Files
             {
                 StringTable table = new StringTable();
                 int dataSize = CalculateSize(table).Align(4);
-                int totalSize = dataSize + table.GetTotalSize();
+                int stringSize = table.GetTotalSize();
+                int totalSize = dataSize + stringSize;
                 stream.SetLength(totalSize);
                 using (FileMap map = FileMap.FromStream(stream))
                 {
                     FileCommonHeader* hdr = (FileCommonHeader*)map.Address;
                     hdr->Tag = FileManager.GetTag(t);
+                    table.WriteTable(hdr);
                     hdr->_fileLength = totalSize;
-                    table.WriteTable(hdr->Strings);
+                    hdr->_stringTableLength = stringSize;
                     Write(hdr->FileHeader);
                 }
             }

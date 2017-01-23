@@ -8,6 +8,8 @@ namespace CustomEngine.Rendering.Animation
     delegate bool BoolGetValue(float frameIndex);
     public class AnimationBoolNode : PropertyAnimation<BoolKeyframe>, IEnumerable<BoolKeyframe>
     {
+        public override ResourceType ResourceType { get { return ResourceType.AnimationBool; } }
+        
         bool[] _baked;
         BoolGetValue _getValue;
 

@@ -1,9 +1,12 @@
-﻿using CustomEngine.Files;
+﻿using System;
+using CustomEngine.Files;
 
 namespace CustomEngine.Worlds.Actors.Components
 {
     public abstract class Component : FileObject
-    {        
+    {
+        public override ResourceType ResourceType { get { return ResourceType.Component; } }
+
         /// <summary>
         /// Determines if this component was constructed by code and cannot be removed.
         /// </summary>

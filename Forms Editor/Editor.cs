@@ -1,9 +1,11 @@
 ﻿using CustomEngine;
+using CustomEngine.Files;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -18,5 +20,8 @@ namespace TheraEditor
             InitializeComponent();
             panel3.Controls.Add(new RenderPanel());
         }
+
+        private static Editor _instance;
+        public static Editor Instance { get { return _instance ?? new Editor(); } }
     }
 }

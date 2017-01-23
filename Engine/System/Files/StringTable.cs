@@ -36,9 +36,9 @@ namespace CustomEngine.Files
             }
         }
 
-        public void WriteTable(VoidPtr address)
+        public void WriteTable(FileCommonHeader* address)
         {
-            sbyte* addr = (sbyte*)address;
+            sbyte* addr = (sbyte*)address->Strings;
             for (int i = 0; i < _table.Count; i++)
             {
                 string s = _table.Keys[i];

@@ -17,7 +17,7 @@ namespace TheraEditor
     public partial class Editor : Form
     {
         private static Editor _instance;
-        public static Editor Instance { get { return _instance ?? new Editor(); } }
+        public static Editor Instance { get { return _instance ?? (_instance = new Editor()); } }
 
         public Editor()
         {

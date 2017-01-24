@@ -109,7 +109,8 @@ namespace System
 
         public void ChangeZupToYup()
         {
-
+            Swap(ref Z, ref Y);
+            X = -X;
         }
 
         public static readonly Vec3 UnitX = new Vec3(1.0f, 0.0f, 0.0f);

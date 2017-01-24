@@ -7,6 +7,8 @@ namespace CustomEngine.Cutscenes
 {
     public class Cutscene : FileObject
     {
+        public override ResourceType ResourceType { get { return ResourceType.Cutscene; } }
+
         public World _world;
 
         //ONLY render actors visible in the cutsene to improve performance
@@ -14,13 +16,5 @@ namespace CustomEngine.Cutscenes
         public List<Actor> _involvedActors;
         //How long this cutscene runs for, in seconds
         public float _length;
-
-        public override ResourceType ResourceType
-        {
-            get
-            {
-                return ResourceType.Cutscene;
-            }
-        }
     }
 }

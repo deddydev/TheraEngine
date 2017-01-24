@@ -71,11 +71,13 @@ namespace CustomEngine.Rendering.Models.Collada
             using (DecoderShell shell = DecoderShell.Import(filePath))
             {
                 Matrix4 baseTransform = Matrix4.Identity;
+                bool isZup = false;
                 if (shell._assets.Count > 0)
                 {
                     AssetEntry e = shell._assets[0];
-                    if (e._upAxis == UpAxis.Y)
-                        baseTransform = Matrix4.CreateFromAxisAngle(Vec3.UnitX, -90.0f);
+                    isZup = e._upAxis == UpAxis.Z;
+                    //if (e._upAxis == UpAxis.Z)
+                    //    baseTransform = Matrix4.CreateFromAxisAngle(Vec3.UnitX, -90.0f);
                     baseTransform *= Matrix4.CreateScale(e._scale);
                 }
 
@@ -111,7 +113,7 @@ namespace CustomEngine.Rendering.Models.Collada
                                                 }
                                         }
 
-                    MaterialSettings s = new MaterialSettings();
+                    //MaterialSettings s = new MaterialSettings();
                     Material m = Material.GetTestMaterial();//new Material(mat._name != null ? mat._name : mat._id, s);
                     mat._node = m;
 
@@ -133,7 +135,7 @@ namespace CustomEngine.Rendering.Models.Collada
                 foreach (SceneEntry scene in shell._scenes)
                     foreach (NodeEntry node in scene._nodes)
                     {
-                        Bone b = EnumNode(null, node, scene, shell, objects, baseTransform);
+                        Bone b = EnumNode(null, node, scene, shell, objects, baseTransform, isZup);
                         if (b != null)
                             rootBones.Add(b);
                     }
@@ -145,18 +147,16 @@ namespace CustomEngine.Rendering.Models.Collada
                     skeletalMesh = null;
                     staticMesh.Name = Path.GetFileNameWithoutExtension(filePath);
                     foreach (ObjectInfo obj in objects)
-                        obj.Initialize(staticMesh, shell);
+                        obj.Initialize(staticMesh, shell, baseTransform);
                 }
                 else
                 {
                     skeletalMesh = new SkeletalMesh();
                     staticMesh = null;
                     skeletalMesh.Name = Path.GetFileNameWithoutExtension(filePath);
-
-                    Bone rootBone = rootBones[0];
-                    skeletalMesh.Skeleton = new Skeleton(rootBone);
+                    skeletalMesh.Skeleton = new Skeleton(rootBones.ToArray());
                     foreach (ObjectInfo obj in objects)
-                        obj.Initialize(skeletalMesh, shell);
+                        obj.Initialize(skeletalMesh, shell, baseTransform);
                 }
 
                 GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced);
@@ -169,7 +169,8 @@ namespace CustomEngine.Rendering.Models.Collada
             SceneEntry scene,
             DecoderShell shell,
             List<ObjectInfo> objects,
-            Matrix4 bindMatrix)
+            Matrix4 bindMatrix,
+            bool isZup)
         {
             Bone rootBone = null;
             bindMatrix *= node._matrix;
@@ -189,7 +190,7 @@ namespace CustomEngine.Rendering.Models.Collada
             }
             
             foreach (NodeEntry e in node._children)
-                EnumNode(parent, e, scene, shell, objects, bindMatrix);
+                EnumNode(parent, e, scene, shell, objects, bindMatrix, isZup);
 
             foreach (InstanceEntry inst in node._instances)
             {
@@ -201,7 +202,7 @@ namespace CustomEngine.Rendering.Models.Collada
                             foreach (GeometryEntry g in shell._geometry)
                                 if (g._id == skin._skinSource)
                                 {
-                                    objects.Add(new ObjectInfo(true, g, bindMatrix, skin, scene, inst, parent, node));
+                                    objects.Add(new ObjectInfo(true, g, bindMatrix, skin, scene, inst, parent, node, isZup));
                                     break;
                                 }
                             break;
@@ -212,14 +213,14 @@ namespace CustomEngine.Rendering.Models.Collada
                     foreach (GeometryEntry g in shell._geometry)
                         if (g._id == inst._url)
                         {
-                            objects.Add(new ObjectInfo(false, g, bindMatrix, null, null, inst, parent, node));
+                            objects.Add(new ObjectInfo(false, g, bindMatrix, null, null, inst, parent, node, isZup));
                             break;
                         }
                 }
                 else
                     foreach (NodeEntry e in shell._nodes)
                         if (e._id == inst._url)
-                            EnumNode(parent, e, scene, shell, objects, bindMatrix);
+                            EnumNode(parent, e, scene, shell, objects, bindMatrix, isZup);
             }
             return rootBone;
         }
@@ -234,6 +235,7 @@ namespace CustomEngine.Rendering.Models.Collada
             public SceneEntry _scene;
             public NodeEntry _node;
             public Bone _parent;
+            public bool _isZup;
 
             public ObjectInfo(
                 bool weighted,
@@ -243,7 +245,8 @@ namespace CustomEngine.Rendering.Models.Collada
                 SceneEntry scene,
                 InstanceEntry inst,
                 Bone parent,
-                NodeEntry node)
+                NodeEntry node,
+                bool isZup)
             {
                 _weighted = weighted;
                 _geoEntry = geoEntry;
@@ -253,15 +256,16 @@ namespace CustomEngine.Rendering.Models.Collada
                 _node = node;
                 _inst = inst;
                 _parent = parent;
+                _isZup = isZup;
             }
 
-            public void Initialize(SkeletalMesh model, DecoderShell shell)
+            public void Initialize(SkeletalMesh model, DecoderShell shell, Matrix4 baseTransform)
             {
                 PrimitiveData data;
                 if (_weighted)
-                    data = DecodePrimitivesWeighted(_bindMatrix, _geoEntry, _skin, _scene);
+                    data = DecodePrimitivesWeighted(_bindMatrix, _geoEntry, _skin, _scene, _isZup, baseTransform);
                 else
-                    data = DecodePrimitivesUnweighted(_bindMatrix, _geoEntry);
+                    data = DecodePrimitivesUnweighted(_bindMatrix, _geoEntry, _isZup, baseTransform);
 
                 Material m = null;
                 if (_inst._material != null)
@@ -275,13 +279,13 @@ namespace CustomEngine.Rendering.Models.Collada
 
                 model.RigidChildren.Add(new SkeletalRigidSubMesh(data, new Sphere(10.0f), m, "Root", _node._name != null ? _node._name : _node._id));
             }
-            public void Initialize(StaticMesh model, DecoderShell shell)
+            public void Initialize(StaticMesh model, DecoderShell shell, Matrix4 baseTransform)
             {
                 PrimitiveData data;
                 if (_weighted)
-                    data = DecodePrimitivesWeighted(_bindMatrix, _geoEntry, _skin, _scene);
+                    data = DecodePrimitivesWeighted(_bindMatrix, _geoEntry, _skin, _scene, _isZup, baseTransform);
                 else
-                    data = DecodePrimitivesUnweighted(_bindMatrix, _geoEntry);
+                    data = DecodePrimitivesUnweighted(_bindMatrix, _geoEntry, _isZup, baseTransform);
 
                 Material m = null;
                 if (_inst._material != null)

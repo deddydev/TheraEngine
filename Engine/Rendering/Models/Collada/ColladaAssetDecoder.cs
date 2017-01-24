@@ -11,9 +11,11 @@ namespace CustomEngine.Rendering.Models.Collada
             Matrix4 bindMatrix,
             GeometryEntry geo,
             SkinEntry skin,
-            SceneEntry scene)
+            SceneEntry scene,
+            bool isZup,
+            Matrix4 baseTransform)
         {
-            PrimitiveData data = DecodePrimitives(geo);
+            PrimitiveData data = DecodePrimitives(geo, isZup, baseTransform);
             bindMatrix = bindMatrix * skin._bindMatrix;
 
             Bone[] boneList;
@@ -157,53 +159,41 @@ namespace CustomEngine.Rendering.Models.Collada
             return null;
         }
 
-        static PrimitiveData DecodePrimitivesUnweighted(Matrix4 bindMatrix, GeometryEntry geo)
+        static PrimitiveData DecodePrimitivesUnweighted(Matrix4 bindMatrix, GeometryEntry geo, bool isZup, Matrix4 baseTransform)
         {
-            PrimitiveData manager = DecodePrimitives(geo);
+            PrimitiveData manager = DecodePrimitives(geo, isZup, baseTransform);
 
-            Vec3* pV = null;
-            int vCount = 0;
+            //Vec3* pV = null;
+            //int vCount = 0;
             
-            SourceEntry s = geo._sources.FirstOrDefault(x => x._id == geo._verticesInput._source);
-            if (s != null)
-            {
-                DataSource b = s._arrayData as DataSource;
-                pV = (Vec3*)b.Address;
-                vCount = b.Length / 12;
-            }
+            //SourceEntry s = geo._sources.FirstOrDefault(x => x._id == geo._verticesInput._source);
+            //if (s != null)
+            //{
+            //    DataSource b = s._arrayData as DataSource;
+            //    pV = (Vec3*)b.Address;
+            //    vCount = b.Length / 12;
+            //}
 
-            Vertex[] vertices = new Vertex[vCount];
-            for (int i = 0; i < vCount; i++)
-                vertices[i] = new Vertex(bindMatrix * pV[i]);
+            //Vertex[] vertices = new Vertex[vCount];
+            //for (int i = 0; i < vCount; i++)
+            //    vertices[i] = new Vertex(bindMatrix * pV[i]);
 
             return manager;
         }
-        static PrimitiveData DecodePrimitives(GeometryEntry geo)
+        static PrimitiveData DecodePrimitives(GeometryEntry geo, bool isZup, Matrix4 baseTransform)
         {
             SourceEntry src;
-            //int triangleCount = 0, lineCount = 0, pointCount = 0;
- 
             List<VertexPrimitive> linePrimitives = null;
             List<VertexPolygon> facePrimitives = null;
             PrimitiveBufferInfo info = new PrimitiveBufferInfo()
             {
-                _positionCount = 0,
-                _normalCount = 0,
-                _texcoordCount = 0
+                _positionCount  = 0,
+                _normalCount    = 0,
+                _texcoordCount  = 0
             };
 
             foreach (PrimitiveEntry prim in geo._primitives)
             {
-                ////Get face/line count
-                //if (prim._type == ColladaPrimitiveType.lines || 
-                //    prim._type == ColladaPrimitiveType.linestrips)
-                //    lineCount += prim._faceCount;
-                //else
-                //    triangleCount += prim._faceCount;
-
-                ////Get point total
-                //pointCount += prim._pointCount;
-
                 Dictionary<SemanticType, Dictionary<int, SourceEntry>> sources = new Dictionary<SemanticType, Dictionary<int, SourceEntry>>();
                 src = geo._sources.FirstOrDefault(x => x._id == geo._verticesInput._source);
                 if (src != null)
@@ -271,28 +261,42 @@ namespace CustomEngine.Rendering.Models.Collada
                             addr = ((DataSource)src._arrayData).Address[index, stride];
                             vtx = vertices[i][inp._set];
                             if (vtx == null)
-                                vtx = vertices[i][inp._set] = new Vertex();
+                                vtx = new Vertex();
                             switch (inp._semantic)
                             {
                                 case SemanticType.VERTEX:
-                                    vtx._position = *(Vec3*)addr;
+                                    Vec3 position = *(Vec3*)addr;
+                                    if (isZup)
+                                        position.ChangeZupToYup();
+                                    vtx._position = Vec3.TransformPosition(position, baseTransform);
                                     break;
                                 case SemanticType.NORMAL:
-                                    vtx._normal = *(Vec3*)addr;
+                                    Vec3 normal = *(Vec3*)addr;
+                                    if (isZup)
+                                        normal.ChangeZupToYup();
+                                    vtx._normal = Vec3.TransformNormal(normal, baseTransform);
                                     break;
                                 case SemanticType.TEXCOORD:
                                     vtx._texCoord = *(Vec2*)addr;
+                                    vtx._texCoord.Y = 1 - vtx._texCoord.Y;
                                     break;
                                 case SemanticType.COLOR:
                                     vtx._color = *(ColorF4*)addr;
                                     break;
                                 case SemanticType.TEXTANGENT:
-                                    vtx._tangent = *(Vec3*)addr;
+                                    Vec3 tangent = *(Vec3*)addr;
+                                    if (isZup)
+                                        tangent.ChangeZupToYup();
+                                    vtx._tangent = Vec3.TransformNormal(tangent, baseTransform);
                                     break;
                                 case SemanticType.TEXBINORMAL:
-                                    vtx._binormal = *(Vec3*)addr;
+                                    Vec3 binormal = *(Vec3*)addr;
+                                    if (isZup)
+                                        binormal.ChangeZupToYup();
+                                    vtx._binormal = Vec3.TransformNormal(binormal, baseTransform);
                                     break;
                             }
+                            vertices[i][inp._set] = vtx;
                         }
                     }
                     int setIndex = 0;
@@ -345,86 +349,7 @@ namespace CustomEngine.Rendering.Models.Collada
                     }
                 }
             }
-
-            //int[] triangleIndices, lineIndices;
-
-            ////Create primitives
-            //if (triangleCount > 0)
-            //    triangleIndices = new int[triangleCount * 3];
-            //if (lineCount > 0)
-            //    lineIndices = new int[lineCount * 2];
-
-            //    //Process point indices
-            //    switch (prim._type)
-            //    {
-            //        case ColladaPrimitiveType.triangles:
-            //            count = prim._faceCount * 3;
-            //            while (count-- > 0)
-            //                pTriarr[pTri++] = fIndex++;
-            //            break;
-            //        case ColladaPrimitiveType.trifans:
-            //        case ColladaPrimitiveType.polygons:
-            //        case ColladaPrimitiveType.polylist:
-            //            foreach (PrimitiveFace f in prim._faces)
-            //            {
-            //                count = f._pointCount - 2;
-            //                temp = fIndex;
-            //                fIndex += 2;
-            //                while (count-- > 0)
-            //                {
-            //                    pTriarr[pTri++] = temp;
-            //                    pTriarr[pTri++] = fIndex - 1;
-            //                    pTriarr[pTri++] = fIndex++;
-            //                }
-            //            }
-            //            break;
-            //        case ColladaPrimitiveType.tristrips:
-            //            foreach (PrimitiveFace f in prim._faces)
-            //            {
-            //                count = f._pointCount;
-            //                fIndex += 2;
-            //                for (int i = 2; i < count; i++)
-            //                {
-            //                    if ((i & 1) == 0)
-            //                    {
-            //                        pTriarr[pTri++] = fIndex - 2;
-            //                        pTriarr[pTri++] = fIndex - 1;
-            //                        pTriarr[pTri++] = fIndex++;
-            //                    }
-            //                    else
-            //                    {
-            //                        pTriarr[pTri++] = fIndex - 2;
-            //                        pTriarr[pTri++] = fIndex;
-            //                        pTriarr[pTri++] = fIndex++ - 1;
-            //                    }
-            //                }
-            //            }
-            //            break;
-
-            //        case ColladaPrimitiveType.linestrips:
-            //            foreach (PrimitiveFace f in prim._faces)
-            //            {
-            //                count = f._pointCount - 1;
-            //                lIndex++;
-            //                while (count-- > 0)
-            //                {
-            //                    pLinarr[pLin++] = lIndex - 1;
-            //                    pLinarr[pLin++] = lIndex++;
-            //                }
-            //            }
-            //            break;
-
-            //        case ColladaPrimitiveType.lines:
-            //            foreach (PrimitiveFace f in prim._faces)
-            //            {
-            //                count = f._pointCount;
-            //                while (count-- > 0)
-            //                    pLinarr[pLin++] = lIndex++;
-            //            }
-            //            break;
-            //    }
-            //}
-
+            
             List<VertexTriangle> triangles = new List<VertexTriangle>();
             foreach (VertexPolygon p in facePrimitives)
                 triangles.AddRange(p.ToTriangles());

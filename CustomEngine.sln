@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+VisualStudioVersion = 14.0.24720.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Engine", "Engine\Engine.csproj", "{3BA74071-A8FB-473A-9388-0C8F75872F41}"
 EndProject
@@ -14,6 +14,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Testris", "Testris\Testris.csproj", "{DB715DBE-E6DC-439C-BF3E-562978015829}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Forms Editor", "Forms Editor\Forms Editor.csproj", "{87E68E70-16FA-4807-B5DB-04AB2468A8EF}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "hacd", "hacd\hacd.vcxproj", "{D7099C02-EB34-498E-844E-9A2888A84767}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -249,6 +251,40 @@ Global
 		{87E68E70-16FA-4807-B5DB-04AB2468A8EF}.ReleaseGame|x64.Build.0 = Release|Any CPU
 		{87E68E70-16FA-4807-B5DB-04AB2468A8EF}.ReleaseGame|x86.ActiveCfg = Release|Any CPU
 		{87E68E70-16FA-4807-B5DB-04AB2468A8EF}.ReleaseGame|x86.Build.0 = Release|Any CPU
+		{D7099C02-EB34-498E-844E-9A2888A84767}.Debug|Any CPU.ActiveCfg = Debug|Win32
+		{D7099C02-EB34-498E-844E-9A2888A84767}.Debug|x64.ActiveCfg = Debug|x64
+		{D7099C02-EB34-498E-844E-9A2888A84767}.Debug|x64.Build.0 = Debug|x64
+		{D7099C02-EB34-498E-844E-9A2888A84767}.Debug|x86.ActiveCfg = Debug|Win32
+		{D7099C02-EB34-498E-844E-9A2888A84767}.Debug|x86.Build.0 = Debug|Win32
+		{D7099C02-EB34-498E-844E-9A2888A84767}.DebugEditor|Any CPU.ActiveCfg = Release|x64
+		{D7099C02-EB34-498E-844E-9A2888A84767}.DebugEditor|Any CPU.Build.0 = Release|x64
+		{D7099C02-EB34-498E-844E-9A2888A84767}.DebugEditor|x64.ActiveCfg = Debug|x64
+		{D7099C02-EB34-498E-844E-9A2888A84767}.DebugEditor|x64.Build.0 = Debug|x64
+		{D7099C02-EB34-498E-844E-9A2888A84767}.DebugEditor|x86.ActiveCfg = Debug|Win32
+		{D7099C02-EB34-498E-844E-9A2888A84767}.DebugEditor|x86.Build.0 = Debug|Win32
+		{D7099C02-EB34-498E-844E-9A2888A84767}.DebugGame|Any CPU.ActiveCfg = Release|x64
+		{D7099C02-EB34-498E-844E-9A2888A84767}.DebugGame|Any CPU.Build.0 = Release|x64
+		{D7099C02-EB34-498E-844E-9A2888A84767}.DebugGame|x64.ActiveCfg = Debug|x64
+		{D7099C02-EB34-498E-844E-9A2888A84767}.DebugGame|x64.Build.0 = Debug|x64
+		{D7099C02-EB34-498E-844E-9A2888A84767}.DebugGame|x86.ActiveCfg = Debug|Win32
+		{D7099C02-EB34-498E-844E-9A2888A84767}.DebugGame|x86.Build.0 = Debug|Win32
+		{D7099C02-EB34-498E-844E-9A2888A84767}.Release|Any CPU.ActiveCfg = Release|Win32
+		{D7099C02-EB34-498E-844E-9A2888A84767}.Release|x64.ActiveCfg = Release|x64
+		{D7099C02-EB34-498E-844E-9A2888A84767}.Release|x64.Build.0 = Release|x64
+		{D7099C02-EB34-498E-844E-9A2888A84767}.Release|x86.ActiveCfg = Release|Win32
+		{D7099C02-EB34-498E-844E-9A2888A84767}.Release|x86.Build.0 = Release|Win32
+		{D7099C02-EB34-498E-844E-9A2888A84767}.ReleaseEditor|Any CPU.ActiveCfg = Release|x64
+		{D7099C02-EB34-498E-844E-9A2888A84767}.ReleaseEditor|Any CPU.Build.0 = Release|x64
+		{D7099C02-EB34-498E-844E-9A2888A84767}.ReleaseEditor|x64.ActiveCfg = Release|x64
+		{D7099C02-EB34-498E-844E-9A2888A84767}.ReleaseEditor|x64.Build.0 = Release|x64
+		{D7099C02-EB34-498E-844E-9A2888A84767}.ReleaseEditor|x86.ActiveCfg = Release|Win32
+		{D7099C02-EB34-498E-844E-9A2888A84767}.ReleaseEditor|x86.Build.0 = Release|Win32
+		{D7099C02-EB34-498E-844E-9A2888A84767}.ReleaseGame|Any CPU.ActiveCfg = Release|x64
+		{D7099C02-EB34-498E-844E-9A2888A84767}.ReleaseGame|Any CPU.Build.0 = Release|x64
+		{D7099C02-EB34-498E-844E-9A2888A84767}.ReleaseGame|x64.ActiveCfg = Release|x64
+		{D7099C02-EB34-498E-844E-9A2888A84767}.ReleaseGame|x64.Build.0 = Release|x64
+		{D7099C02-EB34-498E-844E-9A2888A84767}.ReleaseGame|x86.ActiveCfg = Release|Win32
+		{D7099C02-EB34-498E-844E-9A2888A84767}.ReleaseGame|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

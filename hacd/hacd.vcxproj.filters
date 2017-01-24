@@ -1,0 +1,43 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="btScalar.h" />
+    <ClInclude Include="btVector3.h" />
+    <ClInclude Include="btAlignedAllocator.h" />
+    <ClInclude Include="btAlignedObjectArray.h" />
+    <ClInclude Include="btConvexHullComputer.h" />
+    <ClInclude Include="btMinMax.h" />
+    <ClInclude Include="vhacdICHull.h" />
+    <ClInclude Include="vhacdManifoldMesh.h" />
+    <ClInclude Include="vhacdMesh.h" />
+    <ClInclude Include="vhacdMutex.h" />
+    <ClInclude Include="vhacdSArray.h" />
+    <ClInclude Include="vhacdTimer.h" />
+    <ClInclude Include="vhacdVector.h" />
+    <ClInclude Include="vhacdVHACD.h" />
+    <ClInclude Include="vhacdVolume.h" />
+    <ClInclude Include="VHACD.h" />
+    <ClInclude Include="vhacdCircularList.h" />
+    <ClInclude Include="VHACDInterface.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="btAlignedAllocator.cpp" />
+    <ClCompile Include="btConvexHullComputer.cpp" />
+    <ClCompile Include="vhacdICHull.cpp" />
+    <ClCompile Include="vhacdManifoldMesh.cpp" />
+    <ClCompile Include="vhacdMesh.cpp" />
+    <ClCompile Include="vhacdVolume.cpp" />
+    <ClCompile Include="VHACD.cpp" />
+    <ClCompile Include="VHACDInterface.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="vhacdVector.inl" />
+    <None Include="vhacdCircularList.inl" />
+  </ItemGroup>
+</Project>

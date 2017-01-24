@@ -189,7 +189,7 @@ namespace CustomEngine.Worlds.Actors
                 return;
             
             Actor actor = v.PickScene(gamepad ? v.Center : v.AbsoluteToRelative(_cursorPos));
-            if (actor is TransformTool)
+            if (actor is EditorTransformTool)
             {
 
             }

@@ -641,6 +641,12 @@
     <Compile Include="System\Tools\Triangle Converter\TriStripper.cs" />
     <Compile Include="System\Tools\Triangle Converter\Types.cs" />
     <Compile Include="System\Memory\UInt24.cs" />
+    <None Include="System\Tools\V-HACD\ConvexHullComputer.cs" />
+    <None Include="System\Tools\V-HACD\ICHull.cs" />
+    <None Include="System\Tools\V-HACD\ManifoldMesh.cs" />
+    <None Include="System\Tools\V-HACD\Mesh.cs" />
+    <Compile Include="System\Tools\V-HACD\VHACD.cs" />
+    <None Include="System\Tools\V-HACD\Volume.cs" />
     <Compile Include="Worlds\Actors\ActorState.cs" />
     <Compile Include="Worlds\Actors\Components\ComponentState.cs" />
     <Compile Include="Worlds\Actors\Components\Scene\Lights\LightComponent.cs" />
@@ -715,7 +721,7 @@
     <Compile Include="Worlds\Actors\Types\Pawns\FlyingCameraPawn.cs" />
     <Compile Include="Worlds\Actors\Types\LandscapeActor.cs" />
     <Compile Include="Worlds\Actors\Types\Pawn.cs" />
-    <Compile Include="Worlds\Actors\Types\TransformTool.cs" />
+    <Compile Include="Worlds\Actors\Types\EditorTransformTool.cs" />
     <Compile Include="Worlds\Actors\Types\Vehicle.cs" />
     <Compile Include="Worlds\Actors\Components\Component.cs" />
     <Compile Include="Worlds\Actors\Components\Logic\InteractionComponent.cs" />

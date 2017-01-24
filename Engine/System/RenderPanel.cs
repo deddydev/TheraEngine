@@ -170,7 +170,7 @@ namespace CustomEngine
         }
         public void AddViewport(LocalPlayerController owner)
         {
-            _viewports.Add(new Viewport(owner, _viewports.Count));
+            _viewports.Add(new Viewport(owner, this, _viewports.Count));
             for (int i = 0; i < _viewports.Count; ++i)
                 _viewports[i].ViewportCountChanged(i, _viewports.Count, Engine.TwoPlayerPref, Engine.ThreePlayerPref);
         }
@@ -191,11 +191,15 @@ namespace CustomEngine
         public IEnumerator<Viewport> GetEnumerator() { return ((IEnumerable<Viewport>)_viewports).GetEnumerator(); }
         IEnumerator IEnumerable.GetEnumerator() { return ((IEnumerable<Viewport>)_viewports).GetEnumerator(); }
 
-        public void Initialize()
+        public void AttachToEngine()
         {
             _context.Initialize();
             Engine.RegisterRenderTick(RenderTick);
-            Engine.Initialize();
+        }
+        public void DetachFromEngine()
+        {
+            //_context.Initialize();
+            Engine.UnregisterRenderTick(RenderTick);
         }
         public void RenderTick(object sender, FrameEventArgs e)
         {

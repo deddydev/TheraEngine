@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CustomEngine.Files;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace CustomEngine.Rendering.Textures
 {
-    public class TextureData
+    public class TextureData : FileObject
     {
         public TextureData(TextureTarget target, int width, int height, PixelInternalFormat internalFormat, PixelType pixelType)
         {
@@ -24,6 +25,8 @@ namespace CustomEngine.Rendering.Textures
         public bool IsAllocated { get { return _data != null; } }
         public VoidPtr DataAddress { get { return _data.Address; } }
         public int DataLength { get { return _data.Length; } }
+
+        public override ResourceType ResourceType { get { return ResourceType.Texture; } }
 
         public void Allocate()
         {

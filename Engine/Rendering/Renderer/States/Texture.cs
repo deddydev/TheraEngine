@@ -11,14 +11,14 @@ namespace CustomEngine.Rendering.Textures
     }
     public class Texture : BaseRenderState
     {
-        private FreeImageBitmap _bitmap;
-        public FreeImageBitmap Bitmap
+        private TextureData _data;
+        public TextureData Data
         {
-            get { return _bitmap; }
+            get { return _data; }
             set
             {
                 Delete();
-                _bitmap = value;
+                _data = value;
             }
         }
 
@@ -43,7 +43,7 @@ namespace CustomEngine.Rendering.Textures
 
         public Texture() : base(GenType.Texture) { }
         public Texture(int bindingId) : base(GenType.Texture, bindingId) { }
-        public Texture(FreeImageBitmap bitmap) : base(GenType.Texture) { _bitmap = bitmap; }
+        public Texture(TextureData data) : base(GenType.Texture) { _data = data; }
 
         protected override void OnGenerated()
         {

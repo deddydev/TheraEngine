@@ -31,6 +31,8 @@ namespace CustomEngine.Rendering.Animation
     }
     public class KeyframeTrack<T> : BaseKeyframeTrack, IEnumerable<T> where T : Keyframe
     {
+        public override ResourceType ResourceType { get { return ResourceType.KeyframeTrack; } }
+        
         PropertyAnimation<T> _owner;
         
         private T _first = null;

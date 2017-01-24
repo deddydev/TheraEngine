@@ -18,6 +18,7 @@ namespace Game
             EngineSettings settings = new EngineSettings();
             settings.OpeningWorld = typeof(TestWorld);
             Engine._engineSettings.SetFile(settings, false);
+            Engine.Initialize();
             Application.Run(new RenderForm("Thera", null));
         }
     }

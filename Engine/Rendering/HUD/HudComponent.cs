@@ -15,7 +15,7 @@ namespace CustomEngine.Rendering.HUD
                 owner.Add(this);
         }
 
-        protected HudComponent _parent;
+        protected HudComponent _parent, _left, _right, _down, _up;
         protected List<HudComponent> _children = new List<HudComponent>();
 
         protected bool _highlightable, _selectable;

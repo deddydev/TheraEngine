@@ -11,6 +11,8 @@ namespace CustomEngine.Rendering.Models
 {
     public class SkeletalMesh : FileObject
     {
+        public override ResourceType ResourceType { get { return ResourceType.SkeletalMesh; } }
+
         public SkeletalMesh() : this(null) { }
         public SkeletalMesh(Skeleton skeleton) : base()
         {

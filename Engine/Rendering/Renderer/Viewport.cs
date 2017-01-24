@@ -19,6 +19,7 @@ namespace CustomEngine.Rendering
         private Rectangle _region;
         private Camera _worldCamera;
         private GBuffer _gBuffer;
+        private RenderPanel _owningPanel;
 
         private float _leftPercentage = 0.0f;
         private float _rightPercentage = 1.0f;
@@ -34,6 +35,7 @@ namespace CustomEngine.Rendering
                 _worldCamera?.Resize(Width, Height);
             }
         }
+        public RenderPanel OwningPanel { get { return _owningPanel; } }
         public GBuffer GBuffer { get { return _gBuffer; } }
         public HudManager HUD
         {
@@ -49,8 +51,9 @@ namespace CustomEngine.Rendering
         public int Index { get { return _index; } }
         public Vec2 Center { get { return new Vec2(Width / 2.0f, Height / 2.0f); } }
 
-        public Viewport(LocalPlayerController owner, int index)
+        public Viewport(LocalPlayerController owner, RenderPanel panel, int index)
         {
+            _owningPanel = panel;
             _hud = new HudManager(this);
             _index = index;
             _owner = owner;

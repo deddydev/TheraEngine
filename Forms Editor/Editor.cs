@@ -1,5 +1,6 @@
 ﻿using CustomEngine;
 using CustomEngine.Files;
+using CustomEngine.Worlds;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -15,13 +16,25 @@ namespace TheraEditor
 {
     public partial class Editor : Form
     {
+        private static Editor _instance;
+        public static Editor Instance { get { return _instance ?? new Editor(); } }
+
         public Editor()
         {
             InitializeComponent();
-            panel3.Controls.Add(new RenderPanel());
+            RenderPanel.GlobalHud = new EditorHud(RenderPanel);
+            EngineSettings settings = new EngineSettings();
+            settings.OpeningWorld = typeof(TestWorld);
+            Engine._engineSettings.SetFile(settings, false);
+            Engine.Initialize();
+            RenderPanel.AttachToEngine();
         }
 
-        private static Editor _instance;
-        public static Editor Instance { get { return _instance ?? new Editor(); } }
+        protected override void OnClosed(EventArgs e)
+        {
+            base.OnClosed(e);
+            RenderPanel.DetachFromEngine();
+            Engine.ShutDown();
+        }
     }
 }

@@ -9,16 +9,6 @@ namespace CustomEngine.Rendering.HUD
 {
     public partial class HudManager : DockableHudComponent
     {
-        float _linearRight = 0.0f, _linearForward = 0.0f, _linearUp = 0.0f;
-        float 
-            _scrollSpeed = 2.0f, 
-            _mouseRotateSpeed = 0.2f,
-            _mouseTranslateSpeed = 0.0f,
-            _gamepadRotateSpeed = 150.0f,
-            _gamepadTranslateSpeed = 30.0f,
-            _keyboardTranslateSpeed = 20.0f;
-        
-        bool _shift = false;
         Vec2 _cursorPos = Vec2.Zero;
 
         CameraComponent CameraComponent { get { return RootComponent as CameraComponent; } }
@@ -60,7 +50,7 @@ namespace CustomEngine.Rendering.HUD
         private void OnRightStickX(float value) { }
         private void OnRightStickY(float value) { }
         
-        private void OnShift(bool pressed) { _shift = pressed; }
+        private void OnShift(bool pressed) { }
         private void OnScrolled(bool up) { }
 
         private HudComponent _focusedComponent;

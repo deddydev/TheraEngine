@@ -9,7 +9,6 @@ namespace TheraEditor.Wrappers
     [NodeWrapper(ResourceType.World)]
     public class WorldWrapper : GenericWrapper
     {
-        private static ContextMenuStrip _menu;
         static WorldWrapper()
         {
             _menu = new ContextMenuStrip();
@@ -25,7 +24,6 @@ namespace TheraEditor.Wrappers
             WorldWrapper w = GetInstance<WorldWrapper>();
         }
         
-        public WorldWrapper(IWin32Window owner) : base(owner) { }
-        public WorldWrapper() : base() { }
+        public WorldWrapper(string path) : base(path) { }
     }
 }

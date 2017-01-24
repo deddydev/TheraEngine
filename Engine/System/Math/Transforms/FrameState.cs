@@ -10,6 +10,7 @@ namespace System
     public delegate void MatrixChange(Matrix4 oldMatrix, Matrix4 oldInvMatrix);
     public class FrameState : FileObject
     {
+        public override ResourceType ResourceType { get { return ResourceType.FrameState; } }
         public static FrameState GetIdentity(Matrix4.MultiplyOrder transformationOrder, Rotator.Order rotationOrder)
         {
             FrameState identity = Identity;

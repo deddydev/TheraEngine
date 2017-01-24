@@ -18,6 +18,8 @@ namespace CustomEngine.Worlds
     }
     public unsafe class World : FileObject, IEnumerable<Actor>
     {
+        public override ResourceType ResourceType { get { return ResourceType.World; } }
+
         internal DiscreteDynamicsWorld _physicsScene;
         public WorldSettings _settings;
 

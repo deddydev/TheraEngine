@@ -32,6 +32,8 @@ namespace CustomEngine
     [Serializable]
     public class UserSettings : FileObject
     {
+        public override ResourceType ResourceType { get { return ResourceType.UserSettings; } }
+
         public bool VSync = true;
         public EngineQuality TextureQuality = EngineQuality.Highest;
         public EngineQuality ModelQuality = EngineQuality.Highest;

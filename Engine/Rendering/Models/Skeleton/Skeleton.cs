@@ -9,6 +9,8 @@ namespace CustomEngine.Rendering.Models
 {
     public class Skeleton : FileObject, IEnumerable<Bone>
     {
+        public override ResourceType ResourceType { get { return ResourceType.Skeleton; } }
+
         public Skeleton() : base()
         {
 

@@ -80,6 +80,8 @@ namespace CustomEngine.Worlds
         public List<PrimitiveComponent> RenderableComponentCache { get { return _renderableComponentCache; } }
         public bool HasRenderableComponents { get { return _renderableComponentCache.Count > 0; } }
 
+        public override ResourceType ResourceType { get { return ResourceType.Actor; } }
+
         protected virtual void SetDefaults() { }
         protected virtual SceneComponent SetupComponents() { return new TRSComponent(); }
         public void GenerateSceneComponentCache()

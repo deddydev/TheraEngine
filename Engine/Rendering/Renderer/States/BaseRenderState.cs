@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace CustomEngine.Rendering
 {
-    public abstract class BaseRenderState : FileObject
+    public abstract class BaseRenderState : ObjectBase
     {
         public class ContextBind
         {

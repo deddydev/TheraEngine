@@ -114,7 +114,6 @@ namespace CustomEngine.Worlds
                 options, out skelM, out staticM);
 
             Actor skelActor;
-
             if (skelM != null)
             {
                 SkeletalMeshComponent skelComp = new SkeletalMeshComponent(skelM);
@@ -122,9 +121,14 @@ namespace CustomEngine.Worlds
             }
             else
             {
-                StaticMeshComponent skelComp = new StaticMeshComponent(staticM, new PhysicsDriverInfo() { BodyInfo = new RigidBodyConstructionInfo(1.0f, null, new SphereShape(1.0f)) });
+                StaticMeshComponent skelComp = new StaticMeshComponent(staticM,
+                    new PhysicsDriverInfo()
+                    {
+                        BodyInfo = new RigidBodyConstructionInfo(1.0f, null, new SphereShape(1.0f))
+                    });
                 skelActor = new Actor(skelComp);
             }
+
             _settings._defaultMaps.Add(new Map(this, new MapSettings(/*sphereActor,*/ lightActor, /*floorActor,*/ dirLightActor, skelActor, new FlyingCameraPawn(PlayerIndex.One))));
         }
     }

@@ -7,6 +7,8 @@ namespace CustomEngine.Rendering.Cameras
 {
     public abstract class Camera : FileObject
     {
+        public override ResourceType ResourceType { get { return ResourceType.Camera; } }
+
         public Camera()
         {
             Resize(1.0f, 1.0f);

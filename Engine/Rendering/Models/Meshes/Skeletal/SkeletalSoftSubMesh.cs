@@ -9,6 +9,8 @@ namespace CustomEngine.Rendering.Models
 {
     public class SkeletalSoftSubMesh : FileObject, ISkeletalMesh
     {
+        public override ResourceType ResourceType { get { return ResourceType.SkeletalSoftSubMesh; } }
+
         public SkeletalSoftSubMesh() { }
         public SkeletalSoftSubMesh(PrimitiveData data, string name)
         {

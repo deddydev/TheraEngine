@@ -10,10 +10,18 @@ namespace CustomEngine.Rendering.HUD
     public partial class HudManager : DockableHudComponent
     {
         private Viewport _owningViewport;
+        private RenderPanel _owningPanel;
         private OrthographicCamera _camera;
         public HudManager(Viewport v) : base(null)
         {
             _owningViewport = v;
+            _owningPanel = _owningViewport.OwningPanel;
+            _camera = new OrthographicCamera();
+        }
+        public HudManager(RenderPanel p) : base(null)
+        {
+            _owningViewport = null;
+            _owningPanel = p;
             _camera = new OrthographicCamera();
         }
 

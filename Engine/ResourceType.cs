@@ -56,10 +56,21 @@ namespace CustomEngine
         AnimationBool               = 0x3300,
         AnimationInterp             = 0x3400,
         AnimationString             = 0x3500,
+        KeyframeTrack               = 0x3600,
 
-        Model,
+        SkeletalMesh,
+        SkeletalRigidSubMesh,
+        SkeletalSoftSubMesh,
+        StaticMesh,
+        StaticRigidSubMesh,
+        StaticSoftSubMesh,
+        RigidPhysicsDriver,
+        SoftPhysicsDriver,
+        Material,
+        Texture,
         Skeleton,
         Bone,
+        FrameState,
 
         Cutscene,
 
@@ -67,5 +78,8 @@ namespace CustomEngine
         UserSettings,
 
         Sound,
+        
+        SingleFileRef,
+        MultiFileRef,
     }
 }

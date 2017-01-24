@@ -41,6 +41,8 @@ namespace CustomEngine.Rendering
     }
     public class PhysicsDriver : FileObject
     {
+        public override ResourceType ResourceType { get { return ResourceType.RigidPhysicsDriver; } }
+        
         public PhysicsDriver(PhysicsDriverInfo info)
         {
             _collisionEnabled = info.CollisionEnabled;

@@ -135,7 +135,10 @@ namespace TheraEditor.Wrappers
             //}
         }
 
-        public virtual void OnReplace(string inStream, int filterIndex) { _resource.Replace(inStream); }
+        public virtual void OnReplace(string inStream, int filterIndex)
+        {
+            //_resource.Replace(inStream);
+        }
 
         public void Restore()
         {

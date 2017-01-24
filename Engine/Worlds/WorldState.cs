@@ -12,6 +12,8 @@ namespace CustomEngine.Worlds
     public delegate void TimeMultiplierChange(float oldMult);
     public class WorldState : FileObject
     {
+        public override ResourceType ResourceType { get { return ResourceType.WorldState; } }
+
         public GravityChange GravityChanged;
         public GameModeChange GameModeChanged;
         public TimeMultiplierChange TimeMultiplierChanged;

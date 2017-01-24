@@ -7,6 +7,8 @@ namespace CustomEngine.Worlds.Maps
 {
     public class MapSettings : FileObject
     {
+        public override ResourceType ResourceType { get { return ResourceType.MapSettings; } }
+
         public bool _visibleByDefault;
         public List<Actor> _defaultActors;
         public Vec3 _spawnPosition;

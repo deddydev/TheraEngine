@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Xml;
 
@@ -191,6 +193,16 @@ namespace CustomEngine.Files
                 writer.WriteEndDocument();
             }
             _isWriting = false;
+        }
+        protected void WriteSettings(VoidPtr address, StringTable table)
+        {
+            var info = GetType().GetFields().Where(
+                prop => Attribute.IsDefined(prop, typeof(Default)));
+        }
+        protected void WriteState(VoidPtr address, StringTable table)
+        {
+            var info = GetType().GetFields().Where(
+                prop => Attribute.IsDefined(prop, typeof(State)));
         }
     }
     [StructLayout(LayoutKind.Sequential, Pack = 1)]

@@ -43,7 +43,10 @@ namespace CustomEngine
         public static void RegisterRenderTick(EventHandler<FrameEventArgs> func)
         {
             _timer.RenderFrame += func;
-
+        }
+        public static void UnregisterRenderTick(EventHandler<FrameEventArgs> func)
+        {
+            _timer.RenderFrame -= func;
         }
         public static int StartDebugTimer()
         {

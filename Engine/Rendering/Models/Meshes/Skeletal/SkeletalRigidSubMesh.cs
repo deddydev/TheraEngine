@@ -9,6 +9,8 @@ namespace CustomEngine.Rendering.Models
 {
     public class SkeletalRigidSubMesh : FileObject, ISkeletalMesh
     {
+        public override ResourceType ResourceType { get { return ResourceType.SkeletalRigidSubMesh; } }
+
         public SkeletalRigidSubMesh()
         {
             _manager = new PrimitiveManager();

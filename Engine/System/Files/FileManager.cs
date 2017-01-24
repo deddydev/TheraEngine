@@ -52,51 +52,61 @@ namespace CustomEngine.Files
         private static string _allSupportedFilter = null;
         private static string _filterList = null;
         public static readonly Dictionary<Type, FilterInfo> Filters = new Dictionary<Type, FilterInfo>()
-        {
-            { typeof(WorldState), new FilterInfo("World State", "WSTA", ResourceType.WorldState, "cstworld") },
-            { typeof(MapState), new FilterInfo("Map State", "MSTA", ResourceType.MapState, "cstmap") },
-            { typeof(ActorState), new FilterInfo("Actor State", "ASTA", ResourceType.ActorState, "cstactor") },
-            
-            { typeof(UserSettings), new FilterInfo("User Settings", "SUSR", "csuser") },
-            { typeof(EngineSettings), new FilterInfo("Engine Settings", "SENG", "csengine") },
-            { typeof(WorldSettings), new FilterInfo("World Settings", "SWRL", "csworld") },
-            { typeof(MapSettings), new FilterInfo("Map Settings", "SMAP", "csmap") },
+        {   
+            { typeof(UserSettings), new FilterInfo("User Settings", "SETT", ResourceType.UserSettings, "csettings") },
+            { typeof(EngineSettings), new FilterInfo("Engine Settings", "SETT", ResourceType.EngineSettings, "csettings") },
 
-            { typeof(IFileRef), new FilterInfo("File Reference", "FREF", "cref") },
-            { typeof(World), new FilterInfo("World", "WRLD", "cworld") },
-            { typeof(Map), new FilterInfo("Map", "CMAP", "cmap") },
-            { typeof(Actor), new FilterInfo("Actor", "ACTR", "cactor") },
-            { typeof(Component), new FilterInfo("Component", "COMP", "ccomp") },
-            { typeof(SkeletalMesh), new FilterInfo("Model", "CMDL", "cmdl") },
-            { typeof(Camera), new FilterInfo("Camera", "CCAM", "ccam") },
-            { typeof(Cutscene), new FilterInfo("Cutscene", "CCUT", "ccut") },
-            { typeof(AnimationContainer), new FilterInfo("Animation Archive", "ANMA", "cpac") },
-            { typeof(BasePropertyAnimation), new FilterInfo("Property Animation", "PANM", "cpa") },
-            { typeof(Texture), new FilterInfo("Texture", "CTEX", "ctex") },
+            { typeof(IMultiFileRef), new FilterInfo("Multi File Reference", "FREF", ResourceType.MultiFileRef, "cmref") },
+            { typeof(ISingleFileRef), new FilterInfo("Single File Reference", "FREF", ResourceType.SingleFileRef, "csref") },
+
+            { typeof(World), new FilterInfo("World", "CWRL", ResourceType.World, "cworld") },
+            { typeof(WorldSettings), new FilterInfo("World Settings", "SETT", ResourceType.WorldSettings, "csettings") },
+            { typeof(WorldState), new FilterInfo("World State", "STAT", ResourceType.WorldState, "cstate") },
+
+            { typeof(Map), new FilterInfo("Map", "CMAP", ResourceType.Map, "cmap") },
+            { typeof(MapSettings), new FilterInfo("Map Settings", "SETT", ResourceType.MapSettings, "csettings") },
+            { typeof(MapState), new FilterInfo("Map State", "STAT", ResourceType.MapState, "cstate") },
+
+            { typeof(Actor), new FilterInfo("Actor", "CACT", ResourceType.Actor, "cactor") },
+            //{ typeof(ActorSettings), new FilterInfo("Actor Settings", "SETT", ResourceType.ActorSettings, "csettings") },
+            //{ typeof(ActorState), new FilterInfo("Actor State", "STAT", ResourceType.ActorState, "cstate") },
+            
+            { typeof(Component), new FilterInfo("Component", "COMP", ResourceType.Component, "ccomp") },
+
+            { typeof(SkeletalMesh), new FilterInfo("Skeletal Model", "SKMD", ResourceType.SkeletalMesh, "cmdl") },
+            { typeof(StaticMesh), new FilterInfo("Static Model", "STMD", ResourceType.SkeletalMesh, "cmdl") },
+
+            { typeof(Camera), new FilterInfo("Camera", "CCAM", ResourceType.Camera, "ccam") },
+            { typeof(Cutscene), new FilterInfo("Cutscene", "CCUT", ResourceType.Cutscene, "ccut") },
+            { typeof(AnimationContainer), new FilterInfo("Animation Archive", "ANMA",ResourceType.AnimationContainer,  "cpac") },
+            { typeof(AnimationInterpNode), new FilterInfo("Numeric Property Animation", "PANM", ResourceType.AnimationInterp, "cpa") },
+            { typeof(AnimationStringNode), new FilterInfo("String Property Animation", "PANM", ResourceType.AnimationString, "cpa") },
+            { typeof(AnimationBoolNode), new FilterInfo("Boolean Animation", "PANM", ResourceType.AnimationBool, "cpa") },
+            { typeof(Texture), new FilterInfo("Texture", "CTEX", ResourceType.Texture, "ctex") },
         };
         public static List<FilterInfo> GenericInfo = new List<FilterInfo>()
         {
-            new FilterInfo("Portable Network Graphics", "png")
+            new FilterInfo("Portable Network Graphics", "png", ResourceType.Texture)
             { _fileTypes = new Type[] { typeof(Texture) },
                 _canExport = true, _canImport = true },
 
-            new FilterInfo("Truevision TARGA", "tga")
+            new FilterInfo("Truevision TARGA", "tga", ResourceType.Texture)
             { _fileTypes = new Type[] { typeof(Texture) },
                 _canExport = true, _canImport = true },
 
-            new FilterInfo("Tagged Image File Format", "tif", "tiff")
+            new FilterInfo("Tagged Image File Format", "tif", ResourceType.Texture, "tiff")
             { _fileTypes = new Type[] { typeof(Texture) },
                 _canExport = true, _canImport = true },
 
-            new FilterInfo("Bitmap", "bmp")
+            new FilterInfo("Bitmap", "bmp", ResourceType.Texture)
             { _fileTypes = new Type[] { typeof(Texture) },
                 _canExport = true, _canImport = true },
 
-            new FilterInfo("JPEG Image", "jpg", "jpeg")
+            new FilterInfo("JPEG Image", "jpg", ResourceType.Texture, "jpeg")
             { _fileTypes = new Type[] { typeof(Texture) },
                 _canExport = true, _canImport = true },
 
-            new FilterInfo("Graphics Interchange Format", "gif")
+            new FilterInfo("Graphics Interchange Format", "gif", ResourceType.Texture)
             { _fileTypes = new Type[] { typeof(Texture) },
                 _canExport = true, _canImport = true },
 
@@ -108,23 +118,25 @@ namespace CustomEngine.Files
                 typeof(AnimationContainer) },
                 _canExport = true, _canImport = true },
 
-            new FilterInfo("Uncompressed PCM", "wav")
+            new FilterInfo("Uncompressed PCM", "wav", ResourceType.Sound)
             { _fileTypes = new Type[] { typeof(SoundDataBase) },
                 _canExport = true, _canImport = true },
 
             new FilterInfo("3D Mesh", "obj")
-            { _fileTypes = new Type[] { typeof(SkeletalMesh) },
+            { _fileTypes = new Type[] { typeof(StaticMesh) },
                 _canExport = true, _canImport = true },
 
             new FilterInfo("Autodesk Scene", "fbx")
             { _fileTypes = new Type[] {
                 typeof(SkeletalMesh),
+                typeof(StaticMesh),
                 typeof(AnimationContainer) },
                 _canExport = true, _canImport = true },
 
             new FilterInfo("Collada Scene", "dae")
             { _fileTypes = new Type[] {
                 typeof(SkeletalMesh),
+                typeof(StaticMesh),
                 typeof(AnimationContainer) },
                 _canExport = true, _canImport = true },
 
@@ -261,6 +273,12 @@ namespace CustomEngine.Files
             _tag = tag;
             _extensions = extensions;
             _resourceType = type;
+        }
+        public FilterInfo(string name, string tag, params string[] extensions)
+        {
+            _name = name;
+            _tag = tag;
+            _extensions = extensions;
         }
 
         public string Filter { get { string s = ExtensionsFilter; return _name + " (" + s.Replace(";", ", ") + ")|" + s; } }

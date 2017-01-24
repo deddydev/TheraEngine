@@ -17,7 +17,7 @@ namespace Editor.Controls
             EngineSettings settings = new EngineSettings();
             settings.OpeningWorld = typeof(TestWorld);
             Engine._engineSettings.SetFile(settings, false);
-            _panel.Initialize();
+            _panel.AttachToEngine();
         }
     }
 }

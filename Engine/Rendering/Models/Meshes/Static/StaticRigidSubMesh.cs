@@ -9,6 +9,8 @@ namespace CustomEngine.Rendering.Models
 {
     public class StaticRigidSubMesh : FileObject, IStaticMesh
     {
+        public override ResourceType ResourceType { get { return ResourceType.StaticRigidSubMesh; } }
+
         public StaticRigidSubMesh()
         {
             _manager = new PrimitiveManager();

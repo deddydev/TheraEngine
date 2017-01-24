@@ -20,6 +20,7 @@ namespace Testris
             EngineSettings settings = new EngineSettings();
             settings.OpeningWorld = typeof(TetrisWorld);
             Engine._engineSettings.SetFile(settings, false);
+            Engine.Initialize();
             Application.Run(new RenderForm("Thera", null));
         }
     }

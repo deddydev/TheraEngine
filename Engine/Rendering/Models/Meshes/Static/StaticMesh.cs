@@ -12,6 +12,8 @@ namespace CustomEngine.Rendering.Models
 {
     public class StaticMesh : FileObject
     {
+        public override ResourceType ResourceType { get { return ResourceType.StaticMesh; } }
+
         public StaticMesh() : base() { }
         public StaticMesh(
             string name,

@@ -10,6 +10,8 @@ namespace CustomEngine.Worlds
 {
     public class WorldSettings : FileObject
     {
+        public override ResourceType ResourceType { get { return ResourceType.WorldSettings; } }
+
         public BoundingBox OriginRebaseBounds { get { return _originRebaseBounds; } }
         public BoundingBox WorldBounds { get { return _worldBounds; } set { _worldBounds = value; } }
         public WorldState State { get { return _state; } set { _state = value; } }

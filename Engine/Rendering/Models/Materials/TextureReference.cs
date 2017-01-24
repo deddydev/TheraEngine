@@ -10,7 +10,7 @@ namespace CustomEngine.Rendering.Models.Materials
 {
     public class TextureReference
     {
-        SingleFileRef<Texture> _reference;
+        SingleFileRef<TextureData> _reference;
 
         private TextureMinFilter _minFilter;
         private TextureMagFilter _magFilter;

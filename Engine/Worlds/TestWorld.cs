@@ -50,7 +50,7 @@ namespace CustomEngine.Worlds
             Sphere sphere = new Sphere(1.0f, Vec3.Zero);
             StaticMesh sphereModel = new StaticMesh(
                 "Sphere", sphere.GetMesh(30.0f, false),
-                Material.GetTestMaterial(), sphere);
+                Material.GetDefaultMaterial(), sphere);
             PhysicsDriverInfo floorInfo = new PhysicsDriverInfo()
             {
                 BodyInfo = new RigidBodyConstructionInfo(
@@ -68,7 +68,7 @@ namespace CustomEngine.Worlds
             BoundingBox floorBox = new BoundingBox(new Vec3(-20.0f, -0.5f, -20.0f), new Vec3(20.0f, 0.5f, 20.0f));
             StaticMesh floorModel = new StaticMesh(
                 "Floor", floorBox.GetMesh(false),
-                Material.GetTestMaterial(), floorBox);
+                Material.GetDefaultMaterial(), floorBox);
 
             AnimationInterpNode camPropAnim = new AnimationInterpNode(360, true, true);
             InterpKeyframe first = new InterpKeyframe(0.0f, 0.0f, 0.0f);

@@ -78,12 +78,12 @@ namespace CustomEngine.Rendering.Models.Materials
             }
         }
 
-        public static Material GetTestMaterial()
+        public static Material GetDefaultMaterial()
         {
             Shader vert = Shader.TestVertexShader();
             Shader frag = Shader.TestFragmentShader();
             MaterialSettings settings = new MaterialSettings();
-            settings.Parameters.Add(new GLVec4((ColorF4)Color.DarkTurquoise, "MatColor", null));
+            settings.Parameters.Add(new GLVec4((ColorF4)Color.MediumVioletRed, "MatColor", null));
             settings.Parameters.Add(new GLFloat(1.0f, "MatSpecularIntensity", null));
             return new Material("TestMaterial", settings, vert, frag);
         }

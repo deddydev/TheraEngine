@@ -28,11 +28,11 @@ namespace CustomEngine.Rendering.Models.Materials
                 {
                     //TODO: incorporate skinning and morphing into material's vertex shader
                     string s = material._vertexShader._source;
-                    string[] parts = new string[2];
-                    int first = s.IndexOf('{');
+                    int breakIndex = s.FindFirst(s.IndexOf("void main"), '{') + 1;
+                    string part1 = s.Substring(0, breakIndex);
+                    string part2 = s.Substring(breakIndex);
+                    part2 = part2.TrimStart();
 
-                    parts[0] = s.Substring(0, first);
-                    parts[1] = s.Substring(first);
                     _modifiedVertexShader = new Shader(ShaderMode.Vertex, s);
                 }
                 else
@@ -42,6 +42,12 @@ namespace CustomEngine.Rendering.Models.Materials
         public void SetUniforms()
         {
             _parameters.ForEach(x => x.SetUniform());
+        }
+        private string GetSkinningPart()
+        {
+            return 
+@"
+";
         }
     }
 }

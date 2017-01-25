@@ -22,5 +22,45 @@ namespace System
                 *addr++ = (sbyte)s[i];
             *addr++ = 0;
         }
+        /// <summary>
+        /// Finds the first instance that is not the character passed.
+        /// </summary>
+        public static int FindFirstNot(this string str, int begin, char chr)
+        {
+            for (int i = begin; i < str.Length; ++i)
+                if (str[i] != chr)
+                    return i;
+            return -1;
+        }
+        /// <summary>
+        /// Finds the first instance that is not the character passed, searching backward in the string.
+        /// </summary>
+        public static int FindFirstNotReverse(this string str, int begin, char chr)
+        {
+            for (int i = begin; i >= 0; --i)
+                if (str[i] != chr)
+                    return i;
+            return -1;
+        }
+        /// <summary>
+        /// Finds the first instance that is the character passed.
+        /// </summary>
+        public static int FindFirst(this string str, int begin, char chr)
+        {
+            for (int i = begin; i < str.Length; ++i)
+                if (str[i] == chr)
+                    return i;
+            return -1;
+        }
+        /// <summary>
+        /// Finds the first instance that is the character passed, searching backward in the string.
+        /// </summary>
+        public static int FindFirstReverse(this string str, int begin, char chr)
+        {
+            for (int i = begin; i >= 0; --i)
+                if (str[i] == chr)
+                    return i;
+            return -1;
+        }
     }
 }

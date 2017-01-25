@@ -37,6 +37,36 @@ namespace CustomEngine.Rendering.Models.Materials
             wl("#version {0}", GLSLVersion);
             wl();
         }
+        protected void WriteInVar(int layoutLocation, string type, string name)
+        {
+            wl("layout (location = {0}) in {1} {2};", layoutLocation, type, name);
+        }
+        protected void WriteInVar(string type, string name)
+        {
+            wl("in {0} {1};", type, name);
+        }
+        protected void WriteUniform(int layoutLocation, string type, string name)
+        {
+            wl("layout (location = {0}) uniform {1} {2};", layoutLocation, type, name);
+        }
+        protected void WriteUniform(string type, string name)
+        {
+            wl("uniform {0} {1};", type, name);
+        }
+        protected void WriteMatrixUniforms(int boneCount)
+        {
+            WriteUniform("mat4", "ModelMatrix");
+            WriteUniform("mat4", "ViewMatrix");
+            WriteUniform("mat4", "ProjMatrix");
+            Comment("transpose(inverse(modelMatrix))");
+            WriteUniform("mat4", "NormalMatrix");
+            if (boneCount > 0)
+                WriteUniform("mat4[]", "BoneMatrices");
+        }
+        protected void Comment(string comment, params object[] args)
+        {
+            wl("//" + comment, args);
+        }
         protected void Begin()
         {
             wl("void main()");
@@ -46,10 +76,6 @@ namespace CustomEngine.Rendering.Models.Materials
         {
             CloseBracket();
             return _shaderCode;
-        }
-        protected void Comment(string comment, params object[] args)
-        {
-            wl("//" + comment, args);
         }
         /// <summary>
         /// Writes the current line and increments to the next line.

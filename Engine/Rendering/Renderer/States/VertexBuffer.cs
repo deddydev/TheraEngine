@@ -79,7 +79,11 @@ namespace CustomEngine.Rendering.Models
         protected VertexAttribInfo _info;
 
         public VertexAttribInfo Info { get { return _info; } }
-        public int Index { get { return _index; } }
+        public int Index
+        {
+            get { return _index; }
+            set { _index = value; }
+        }
 
         public VertexBuffer(
             int index,

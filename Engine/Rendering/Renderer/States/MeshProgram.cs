@@ -12,9 +12,9 @@ namespace CustomEngine.Rendering
         public Shader[] _shaders;
         public MaterialInstance _material;
 
-        public MeshProgram(Material material) : base(GenType.Program)
+        public MeshProgram(Material material, int boneCount) : base(GenType.Program)
         {
-            SetMaterial(material);
+            SetMaterial(material, boneCount);
         }
 
         protected override int CreateObject()

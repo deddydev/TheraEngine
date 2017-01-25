@@ -25,6 +25,10 @@ namespace CustomEngine.Rendering.Models
             RootBones = new Bone[1] { rootBone };
             RegenerateBoneCache();
         }
+        public Dictionary<string, Bone> BoneCache
+        {
+            get { return _boneCache; }
+        }
 
         private Dictionary<string, Bone> _boneCache = new Dictionary<string, Bone>();
         private SkeletalMeshComponent _owningComponent;

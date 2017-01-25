@@ -19,16 +19,12 @@ namespace CustomEngine.Rendering.Models
 
         private MeshProgram _program;
         private PrimitiveData _data;
-        //private PrimitiveData _skinningData;
         private VertexBuffer _indexBuffer;
         public DrawElementsType _elementType;
         private Bone[] _utilizedBones;
-        //private Shader _vertexShader;
-        //private PrimitiveBufferInfo _bufferInfo;
+        private PrimitiveBufferInfo _bufferInfo;
         private Material _material;
         private Bone _singleBind;
-
-        private bool _initialized = false;
 
         public PrimitiveManager() : base(GenType.VertexArray) { }
         public PrimitiveManager(PrimitiveData data, Material material) : base(GenType.VertexArray)
@@ -77,12 +73,13 @@ namespace CustomEngine.Rendering.Models
             {
                 _material = value;
                 if (_program != null)
-                    _program.SetMaterial(_material, _utilizedBones.Length);
+                    _program.SetMaterial(_material, _bufferInfo._boneCount);
             }
         }
         public void SkeletonChanged(Skeleton skeleton)
         {
-            _skinningData?.Dispose();
+            _data[BufferType.MatrixIds]?.Dispose();
+            _data[BufferType.MatrixWeights]?.Dispose();
             if (skeleton != null)
             {
                 _utilizedBones = _data._utilizedBones.Select(x => skeleton.BoneCache[x]).ToArray();
@@ -112,20 +109,27 @@ namespace CustomEngine.Rendering.Models
                     }
                 }
 
-                _skinningData.AddBuffer(matrixIndices.ToList(), new VertexAttribInfo(BufferType.MatrixIds), false, BufferTarget.ArrayBuffer);
-                _skinningData.AddBuffer(matrixWeights.ToList(), new VertexAttribInfo(BufferType.MatrixWeights), false, BufferTarget.ArrayBuffer);
+                _data.AddBuffer(
+                    matrixIndices.ToList(), 
+                    new VertexAttribInfo(BufferType.MatrixIds), 
+                    false, BufferTarget.ArrayBuffer);
+
+                _data.AddBuffer(
+                    matrixWeights.ToList(),
+                    new VertexAttribInfo(BufferType.MatrixWeights), 
+                    false, BufferTarget.ArrayBuffer);
 
                 _bufferInfo._boneCount = _utilizedBones.Length;
             }
             else
             {
-                _skinningData = null;
                 _bufferInfo._boneCount = 0;
+                _utilizedBones = null;
             }
         }
         private void SetBoneMatrixUniforms()
         {
-            if (_utilizedBones == null)
+            if (!_bufferInfo.IsWeighted)
                 return;
 
             List<Matrix4> positionMatrices = new List<Matrix4>() { Matrix4.Identity };
@@ -136,6 +140,7 @@ namespace CustomEngine.Rendering.Models
                 positionMatrices.Add(b.VertexMatrix);
                 normalMatrices.Add(b.VertexMatrix.GetRotationMatrix3());
             }
+
             Engine.Renderer.Uniform(Uniform.PositionMatricesName, positionMatrices.ToArray());
             Engine.Renderer.Uniform(Uniform.NormalMatricesName, normalMatrices.ToArray());
         }
@@ -148,7 +153,7 @@ namespace CustomEngine.Rendering.Models
             if (_data == null)
                 return;
 
-            if (!_initialized)
+            if (!IsActive)
                 Generate();
 
             Engine.Renderer.Cull(_data.Culling);
@@ -157,7 +162,8 @@ namespace CustomEngine.Rendering.Models
             //order by depth FIRST though
             Engine.Renderer.UseProgram(_program);
             
-            //SetBoneMatrixUniforms();
+            SetBoneMatrixUniforms();
+
             //This is a mesh-specific uniform
             Engine.Renderer.Uniform(Uniform.GetLocation(ECommonUniform.ModelMatrix), modelMatrix);
             Engine.Renderer.Uniform(Uniform.GetLocation(ECommonUniform.NormalMatrix), normalMatrix);
@@ -170,9 +176,7 @@ namespace CustomEngine.Rendering.Models
         }
         protected override void OnGenerated()
         {
-            _initialized = true;
-
-            _program = new MeshProgram(_material);
+            _program = new MeshProgram(_material, _bufferInfo._boneCount);
             _program.Generate();
 
             GL.BindVertexArray(BindingId);
@@ -182,7 +186,6 @@ namespace CustomEngine.Rendering.Models
         }
         protected override void OnDeleted()
         {
-            _initialized = false;
             _data.Dispose();
             _indexBuffer.Dispose();
             _program.Destroy();

@@ -60,6 +60,44 @@ namespace CustomEngine.Rendering.Models
         
         private Culling _culling = Culling.Back;
 
+        public VertexBuffer this[BufferType type]
+        {
+            get { return _buffers.FirstOrDefault(x => x.Info._type == type); }
+            set
+            {
+                //value.Name = _type.ToString();
+                value.Info._type = type;
+                var buf = _buffers.FirstOrDefault(x => x.Info._type == type);
+                if (buf != null)
+                {
+                    value.Index = buf.Index;
+                    _buffers[buf.Index] = value;
+                }
+                else
+                {
+                    value.Index = _buffers.Count;
+                    _buffers.Add(value);
+                }
+            }
+        }
+        public VertexBuffer this[string name]
+        {
+            get { return _buffers.FirstOrDefault(x => x.Name == name); }
+            set
+            {
+                var buf = _buffers.FirstOrDefault(x => x.Name == name);
+                if (buf != null)
+                {
+                    value.Index = buf.Index;
+                    _buffers[buf.Index] = value;
+                }
+                else
+                {
+                    value.Index = _buffers.Count;
+                    _buffers.Add(value);
+                }
+            }
+        }
         public VertexBuffer this[int index]
         {
             get

@@ -645,7 +645,7 @@
     <None Include="System\Tools\V-HACD\ICHull.cs" />
     <None Include="System\Tools\V-HACD\ManifoldMesh.cs" />
     <None Include="System\Tools\V-HACD\Mesh.cs" />
-    <Compile Include="System\Tools\V-HACD\VHACD.cs" />
+    <None Include="System\Tools\V-HACD\VHACD.cs" />
     <None Include="System\Tools\V-HACD\Volume.cs" />
     <Compile Include="Worlds\Actors\ActorState.cs" />
     <Compile Include="Worlds\Actors\Components\ComponentState.cs" />

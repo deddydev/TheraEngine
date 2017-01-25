@@ -82,46 +82,46 @@ namespace CustomEngine.Rendering.Models
         }
         public void SkeletonChanged(Skeleton skeleton)
         {
-            _skinningData?.Dispose();
-            if (skeleton != null)
-            {
-                _utilizedBones = _data._utilizedBones.Select(x => skeleton.BoneCache[x]).ToArray();
+            //_skinningData?.Dispose();
+            //if (skeleton != null)
+            //{
+            //    _utilizedBones = _data._utilizedBones.Select(x => skeleton.BoneCache[x]).ToArray();
 
-                int infCount = _data._influences.Length;
-                IVec4[] matrixIndices = new IVec4[infCount];
-                Vec4[] matrixWeights = new Vec4[infCount];
+            //    int infCount = _data._influences.Length;
+            //    IVec4[] matrixIndices = new IVec4[infCount];
+            //    Vec4[] matrixWeights = new Vec4[infCount];
 
-                for (int i = 0; i < infCount; ++i)
-                {
-                    matrixIndices[i] = new IVec4();
-                    matrixWeights[i] = new Vec4();
-                    Influence inf = _data._influences[i];
-                    for (int j = 0; j < 4; ++j)
-                    {
-                        BoneWeight b = inf.Weights[j];
-                        if (b == null)
-                        {
-                            matrixIndices[i][j] = 0;
-                            matrixWeights[i][j] = 0.0f;
-                        }
-                        else
-                        {
-                            matrixIndices[i][j] = _data._utilizedBones.IndexOf(b.Bone) + 1;
-                            matrixWeights[i][j] = b.Weight;
-                        }
-                    }
-                }
+            //    for (int i = 0; i < infCount; ++i)
+            //    {
+            //        matrixIndices[i] = new IVec4();
+            //        matrixWeights[i] = new Vec4();
+            //        Influence inf = _data._influences[i];
+            //        for (int j = 0; j < 4; ++j)
+            //        {
+            //            BoneWeight b = inf.Weights[j];
+            //            if (b == null)
+            //            {
+            //                matrixIndices[i][j] = 0;
+            //                matrixWeights[i][j] = 0.0f;
+            //            }
+            //            else
+            //            {
+            //                matrixIndices[i][j] = _data._utilizedBones.IndexOf(b.Bone) + 1;
+            //                matrixWeights[i][j] = b.Weight;
+            //            }
+            //        }
+            //    }
 
-                _skinningData.AddBuffer(matrixIndices.ToList(), new VertexAttribInfo(BufferType.MatrixIds), false, BufferTarget.ArrayBuffer);
-                _skinningData.AddBuffer(matrixWeights.ToList(), new VertexAttribInfo(BufferType.MatrixWeights), false, BufferTarget.ArrayBuffer);
+            //    _skinningData.AddBuffer(matrixIndices.ToList(), new VertexAttribInfo(BufferType.MatrixIds), false, BufferTarget.ArrayBuffer);
+            //    _skinningData.AddBuffer(matrixWeights.ToList(), new VertexAttribInfo(BufferType.MatrixWeights), false, BufferTarget.ArrayBuffer);
 
-                _bufferInfo._boneCount = _utilizedBones.Length;
-            }
-            else
-            {
-                _skinningData = null;
-                _bufferInfo._boneCount = 0;
-            }
+            //    _bufferInfo._boneCount = _utilizedBones.Length;
+            //}
+            //else
+            //{
+            //    _skinningData = null;
+            //    _bufferInfo._boneCount = 0;
+            //}
         }
         private void SetBoneMatrixUniforms()
         {
@@ -172,7 +172,7 @@ namespace CustomEngine.Rendering.Models
         {
             _initialized = true;
 
-            _program = new MeshProgram(_material);
+            _program = new MeshProgram(_material, _utilizedBones == null ? 0 : _utilizedBones.Length);
             _program.Generate();
 
             GL.BindVertexArray(BindingId);

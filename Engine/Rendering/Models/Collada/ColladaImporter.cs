@@ -114,7 +114,7 @@ namespace CustomEngine.Rendering.Models.Collada
                                         }
 
                     //MaterialSettings s = new MaterialSettings();
-                    Material m = Material.GetTestMaterial();//new Material(mat._name != null ? mat._name : mat._id, s);
+                    Material m = Material.GetDefaultMaterial();//new Material(mat._name != null ? mat._name : mat._id, s);
                     mat._node = m;
 
                     foreach (ImageEntry img in imgEntries)
@@ -275,7 +275,7 @@ namespace CustomEngine.Rendering.Models.Collada
                         m = e._node as Material;
                 }
                 else
-                    m = Material.GetTestMaterial();
+                    m = Material.GetDefaultMaterial();
 
                 model.RigidChildren.Add(new SkeletalRigidSubMesh(data, new Sphere(10.0f), m, "Root", _node._name != null ? _node._name : _node._id));
             }
@@ -295,7 +295,7 @@ namespace CustomEngine.Rendering.Models.Collada
                         m = e._node as Material;
                 }
                 else
-                    m = Material.GetTestMaterial();
+                    m = Material.GetDefaultMaterial();
                 
                 model.RigidChildren.Add(new StaticRigidSubMesh(data, new Sphere(10.0f), m, _node._name != null ? _node._name : _node._id));
             }

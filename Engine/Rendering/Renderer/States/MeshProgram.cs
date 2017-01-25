@@ -30,9 +30,9 @@ namespace CustomEngine.Rendering
         {
 
         }
-        public void SetMaterial(Material material)
+        public void SetMaterial(Material material, int boneCount)
         {
-            _material = new MaterialInstance(material);
+            _material = new MaterialInstance(material, boneCount);
             SetShaders(
                 _material.VertexShader,
                 _material.FragmentShader,

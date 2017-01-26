@@ -22,9 +22,8 @@ namespace CustomEngine.Rendering.Models
         private VertexBuffer _indexBuffer;
         public DrawElementsType _elementType;
         private Bone[] _utilizedBones;
-        private PrimitiveBufferInfo _bufferInfo;
+        private PrimitiveBufferInfo _bufferInfo = new PrimitiveBufferInfo();
         private Material _material;
-        private Bone _singleBind;
 
         public PrimitiveManager() : base(GenType.VertexArray) { }
         public PrimitiveManager(PrimitiveData data, Material material) : base(GenType.VertexArray)

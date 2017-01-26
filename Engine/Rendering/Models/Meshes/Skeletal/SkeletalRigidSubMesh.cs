@@ -55,13 +55,7 @@ namespace CustomEngine.Rendering.Models
         }
         public PrimitiveManager PrimitiveManager { get { return _manager; } }
 
-        public Bone SingleBind
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
-        }
+        public string SingleBindName { get { return _boneName; } }
 
         public void SetPrimitiveData(PrimitiveData data) => _manager.Data = data;
         public void SetCullingVolume(Shape volume) { _cullingVolume = volume; }

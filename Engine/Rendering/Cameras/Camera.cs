@@ -55,7 +55,7 @@ namespace CustomEngine.Rendering.Cameras
         protected Frustum _untransformedFrustum, _transformedFrustum;
         
         protected bool _updating = false;
-        protected float _nearZ = 1.0f, _farZ = 200.0f;
+        protected float _nearZ = 1.0f, _farZ = 2000.0f;
         private PostProcessSettings _postProcessSettings;
 
         protected Matrix4 

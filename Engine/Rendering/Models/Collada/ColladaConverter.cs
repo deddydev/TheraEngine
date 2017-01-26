@@ -26,7 +26,7 @@ namespace CustomEngine.Rendering.Models.Collada
                 foreach (var node in scene.Node)
                     EnumNode(node, s, null);
 
-            m.Skeleton = s;
+            //m.Skeleton = s;
         }
         private static void EnumNode(Grendgine_Collada_Node node, Skeleton s, Bone parent)
         {

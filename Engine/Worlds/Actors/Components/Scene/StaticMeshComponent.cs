@@ -114,7 +114,7 @@ namespace CustomEngine.Worlds.Actors.Components
             private bool _isVisible, _isRendering;
             private SceneComponent _component;
             private IStaticMesh _mesh;
-            private RenderOctree.OctreeNode _renderNode;
+            private RenderOctree.Node _renderNode;
             private Shape _cullingVolume;
 
             //public Shape CullingVolume { get { return _mesh.CullingVolume.TransformedBy(_component.WorldMatrix); } }
@@ -141,7 +141,7 @@ namespace CustomEngine.Worlds.Actors.Components
                 get { return _mesh; }
                 set { _mesh = value; }
             }
-            public RenderOctree.OctreeNode RenderNode
+            public RenderOctree.Node RenderNode
             {
                 get { return _renderNode; }
                 set { _renderNode = value; }

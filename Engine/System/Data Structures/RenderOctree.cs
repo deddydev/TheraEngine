@@ -19,7 +19,7 @@ namespace System
     }
     public interface ISkeletalMesh
     {
-        Bone SingleBind { get; }
+        string SingleBindName { get; }
         PrimitiveManager PrimitiveManager { get; }
         bool VisibleByDefault { get; }
     }
@@ -27,14 +27,14 @@ namespace System
     {
         Shape CullingVolume { get; }
         bool IsRendering { get; set; }
-        RenderOctree.OctreeNode RenderNode { get; set; }
+        RenderOctree.Node RenderNode { get; set; }
         bool Visible { get; set; }
         void Render();
     }
     public class RenderOctree
     {
         private BoundingBox _totalBounds;
-        private OctreeNode _head;
+        private Node _head;
         
         public RenderOctree(BoundingBox bounds) { _totalBounds = bounds; }
         public RenderOctree(BoundingBox bounds, List<IRenderable> items)
@@ -51,13 +51,13 @@ namespace System
         public void Add(IRenderable value)
         {
             if (_head == null)
-                _head = new OctreeNode(_totalBounds);
+                _head = new Node(_totalBounds);
             _head.Add(value);
         }
         public void Add(List<IRenderable> value)
         {
             if (_head == null)
-                _head = new OctreeNode(_totalBounds);
+                _head = new Node(_totalBounds);
             _head.Add(value);
         }
         public bool Remove(IRenderable value)
@@ -72,12 +72,12 @@ namespace System
             return removed;
         }
 
-        public class OctreeNode
+        public class Node
         {
             private bool _visible = true;
             private BoundingBox _bounds;
             public List<IRenderable> _items = new List<IRenderable>();
-            public OctreeNode[] _subNodes;
+            public Node[] _subNodes;
             
             public List<IRenderable> Items { get { return _items; } }
             public BoundingBox Bounds { get { return _bounds; } }
@@ -96,7 +96,7 @@ namespace System
                     foreach (IRenderable item in _items)
                         item.IsRendering = _visible;
                     if (_subNodes != null)
-                        foreach (OctreeNode node in _subNodes)
+                        foreach (Node node in _subNodes)
                             if (node != null)
                                 node.Visible = _visible;
                 }
@@ -106,7 +106,7 @@ namespace System
                 if (_bounds.Contains(point))
                 {
                     List<IRenderable> list = null;
-                    foreach (OctreeNode node in _subNodes)
+                    foreach (Node node in _subNodes)
                         if (node != null)
                         {
                             list = node.FindClosest(point);
@@ -129,7 +129,7 @@ namespace System
             }
             public List<IRenderable> FindAllJustOutside(Shape shape)
             {
-                foreach (OctreeNode node in _subNodes)
+                foreach (Node node in _subNodes)
                     if (node != null)
                     {
                         EContainment c = shape.ContainedWithin(node._bounds);
@@ -142,7 +142,7 @@ namespace System
             public List<IRenderable> CollectChildren()
             {
                 List<IRenderable> list = _items;
-                foreach (OctreeNode node in _subNodes)
+                foreach (Node node in _subNodes)
                     if (node != null)
                         list.AddRange(node.CollectChildren());
                 return list;
@@ -162,12 +162,10 @@ namespace System
                 {
                     //Bounds is intersecting edge of frustum
                     foreach (IRenderable item in _items)
-                    {
-                        EContainment containment = item.CullingVolume.ContainedWithin(frustum);
-                        item.IsRendering = containment != EContainment.Disjoint;
-                    }
+                        item.IsRendering = item.CullingVolume != null ? item.CullingVolume.ContainedWithin(frustum) != EContainment.Disjoint : true;
+
                     if (_subNodes != null)
-                        foreach (OctreeNode n in _subNodes)
+                        foreach (Node n in _subNodes)
                             n?.Cull(frustum);
                 }
             }
@@ -185,7 +183,7 @@ namespace System
                     bool anyNotNull = false;
                     for (int i = 0; i < 8; ++i)
                     {
-                        OctreeNode node = _subNodes[i];
+                        Node node = _subNodes[i];
                         if (node != null)
                         {
                             if (hasBeenRemoved && anyNotNull)
@@ -227,7 +225,7 @@ namespace System
 
                             if (_subNodes == null)
                             {
-                                _subNodes = new OctreeNode[8];
+                                _subNodes = new Node[8];
                                 _subNodes[i] = bounds;
                                 _subNodes[i].Visible = Visible;
                             }
@@ -262,26 +260,28 @@ namespace System
                     return;
 
                 bool notSubdivided = true;
-                for (int i = 0; i < 8; ++i)
-                {
-                    BoundingBox bounds = GetSubdivision(i);
-                    if (item.CullingVolume.ContainedWithin(bounds) == EContainment.Contains)
+
+                if (item.CullingVolume != null)
+                    for (int i = 0; i < 8; ++i)
                     {
-                        notSubdivided = false;
-
-                        if (_subNodes == null)
+                        BoundingBox bounds = GetSubdivision(i);
+                        if (item.CullingVolume.ContainedWithin(bounds) == EContainment.Contains)
                         {
-                            _subNodes = new OctreeNode[8];
-                            _subNodes[i] = bounds;
+                            notSubdivided = false;
+
+                            if (_subNodes == null)
+                            {
+                                _subNodes = new Node[8];
+                                _subNodes[i] = bounds;
+                            }
+                            else if (_subNodes[i] == null)
+                                _subNodes[i] = bounds;
+
+                            _subNodes[i].Add(item);
+
+                            break;
                         }
-                        else if (_subNodes[i] == null)
-                            _subNodes[i] = bounds;
-
-                        _subNodes[i].Add(item);
-
-                        break;
                     }
-                }
 
                 if (notSubdivided)
                 {
@@ -290,7 +290,7 @@ namespace System
                     item.RenderNode = this;
                 }
             }
-            public OctreeNode(BoundingBox bounds)
+            public Node(BoundingBox bounds)
             {
                 _bounds = bounds;
             }
@@ -315,13 +315,15 @@ namespace System
             }
             public void Render()
             {
+                if (!_visible)
+                    return;
                 foreach (IRenderable r in _items)
                     r.Render();
                 if (_subNodes != null)
-                    foreach (OctreeNode node in _subNodes)
+                    foreach (Node node in _subNodes)
                         node?.Render();
             }
-            public static implicit operator OctreeNode(BoundingBox bounds) { return new OctreeNode(bounds); }
+            public static implicit operator Node(BoundingBox bounds) { return new Node(bounds); }
         }
     }
 }

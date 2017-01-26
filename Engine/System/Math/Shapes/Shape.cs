@@ -16,7 +16,7 @@ namespace System
         public event Action AttributeChanged;
 
         protected bool _isRendering, _isVisible, _visibleByDefault, _renderSolid;
-        protected RenderOctree.OctreeNode _renderNode;
+        protected RenderOctree.Node _renderNode;
 
         public bool IsRendering
         {
@@ -33,7 +33,7 @@ namespace System
             set { _isVisible = value; }
         }
         public Shape CullingVolume { get { return this; } }
-        public RenderOctree.OctreeNode RenderNode
+        public RenderOctree.Node RenderNode
         {
             get { return _renderNode; }
             set { _renderNode = value; }

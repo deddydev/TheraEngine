@@ -17,7 +17,8 @@ namespace CustomEngine
             Text = name;
             if (!string.IsNullOrEmpty(iconPath) && File.Exists(iconPath))
                 Icon = new Icon(iconPath);
-            
+
+            Engine.Initialize();
             renderPanel1.AttachToEngine();
 
             //TopMost = true;

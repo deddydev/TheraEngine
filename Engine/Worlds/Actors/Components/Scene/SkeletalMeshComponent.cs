@@ -9,8 +9,9 @@ namespace CustomEngine.Worlds.Actors.Components
 {
     public class SkeletalMeshComponent : TRSComponent
     {
-        public SkeletalMeshComponent(SkeletalMesh m)
+        public SkeletalMeshComponent(SkeletalMesh m, Skeleton skeleton)
         {
+            _skeleton = skeleton;
             Model = m;
         }
         public SkeletalMeshComponent()
@@ -34,9 +35,9 @@ namespace CustomEngine.Worlds.Actors.Components
                 {
                     _meshes = new RenderableMesh[_model.RigidChildren.Count + _model.SoftChildren.Count];
                     for (int i = 0; i < _model.RigidChildren.Count; ++i)
-                        _meshes[i] = new RenderableMesh(_model.RigidChildren[i], this);
+                        _meshes[i] = new RenderableMesh(_model.RigidChildren[i], _skeleton, this);
                     for (int i = 0; i < _model.SoftChildren.Count; ++i)
-                        _meshes[_model.RigidChildren.Count + i] = new RenderableMesh(_model.SoftChildren[i], this);
+                        _meshes[_model.RigidChildren.Count + i] = new RenderableMesh(_model.SoftChildren[i], _skeleton, this);
                 }
             }
         }
@@ -48,7 +49,15 @@ namespace CustomEngine.Worlds.Actors.Components
                 if (value == _skeleton)
                     return;
                 _skeleton = value;
+                foreach (RenderableMesh m in _meshes)
+                    m.Skeleton = _skeleton;
             }
+        }
+        public void SetAllSimulatingPhysics(bool doSimulation)
+        {
+            foreach (Bone b in _skeleton)
+                if (b.PhysicsDriver != null)
+                    b.PhysicsDriver.SimulatingPhysics = doSimulation;
         }
         public override void OnSpawned()
         {
@@ -64,11 +73,11 @@ namespace CustomEngine.Worlds.Actors.Components
         }
         internal class RenderableMesh : IRenderable
         {
-            public RenderableMesh(ISkeletalMesh mesh, SceneComponent component)
+            public RenderableMesh(ISkeletalMesh mesh, Skeleton skeleton, SceneComponent component)
             {
                 _mesh = mesh;
                 _component = component;
-                _singleBind = _mesh.SingleBind;
+                Skeleton = skeleton;
                 Visible = false;
                 IsRendering = true;
             }
@@ -76,8 +85,10 @@ namespace CustomEngine.Worlds.Actors.Components
             private bool _isVisible, _isRendering;
             private SceneComponent _component;
             private ISkeletalMesh _mesh;
-            private RenderOctree.OctreeNode _renderNode;
+            private RenderOctree.Node _renderNode;
             private Bone _singleBind;
+            private Skeleton _skeleton;
+            private Shape _cullingVolume;
             
             public bool Visible
             {
@@ -94,7 +105,6 @@ namespace CustomEngine.Worlds.Actors.Components
             public Bone SingleBind
             {
                 get { return _singleBind; }
-                set { _singleBind = value; }
             }
             public bool IsRendering
             {
@@ -106,24 +116,42 @@ namespace CustomEngine.Worlds.Actors.Components
                 get { return _mesh; }
                 set { _mesh = value; }
             }
-            public RenderOctree.OctreeNode RenderNode
+            public RenderOctree.Node RenderNode
             {
                 get { return _renderNode; }
                 set { _renderNode = value; }
             }
-
-            public Shape CullingVolume
+            public Skeleton Skeleton
             {
-                get
+                get { return _skeleton; }
+                set
                 {
-                    throw new NotImplementedException();
+                    _skeleton = value;
+
+                    //TODO: support multi-bone influence as single bind as well
+                    _singleBind = _mesh.SingleBindName != null && _skeleton != null ? _skeleton.GetBone(_mesh.SingleBindName) : null;
                 }
             }
+            public Shape CullingVolume { get { return _cullingVolume; } }
 
+            //IsRendering is checked by the octree before calling
             public void Render()
             {
-                if (Visible && IsRendering)
-                    _mesh.PrimitiveManager.Render(SingleBind.WorldMatrix, SingleBind.InverseWorldMatrix.Transposed());
+                if (Visible)
+                {
+                    Matrix4 world, invWorld;
+                    if (_singleBind != null)
+                    {
+                        world = _singleBind.WorldMatrix;
+                        invWorld = _singleBind.InverseWorldMatrix;
+                    }
+                    else
+                    {
+                        world = _component.WorldMatrix;
+                        invWorld = _component.InverseWorldMatrix;
+                    }
+                    _mesh.PrimitiveManager.Render(world, invWorld.Transposed());
+                }
             }
         }
     }

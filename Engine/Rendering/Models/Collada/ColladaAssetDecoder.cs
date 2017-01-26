@@ -274,7 +274,7 @@ namespace CustomEngine.Rendering.Models.Collada
                                     Vec3 normal = *(Vec3*)addr;
                                     if (isZup)
                                         normal.ChangeZupToYup();
-                                    vtx._normal = Vec3.TransformNormal(normal, baseTransform);
+                                    vtx._normal = Vec3.TransformNormal(normal, baseTransform).Normalized();
                                     break;
                                 case SemanticType.TEXCOORD:
                                     vtx._texCoord = *(Vec2*)addr;
@@ -287,13 +287,13 @@ namespace CustomEngine.Rendering.Models.Collada
                                     Vec3 tangent = *(Vec3*)addr;
                                     if (isZup)
                                         tangent.ChangeZupToYup();
-                                    vtx._tangent = Vec3.TransformNormal(tangent, baseTransform);
+                                    vtx._tangent = Vec3.TransformNormal(tangent, baseTransform).Normalized();
                                     break;
                                 case SemanticType.TEXBINORMAL:
                                     Vec3 binormal = *(Vec3*)addr;
                                     if (isZup)
                                         binormal.ChangeZupToYup();
-                                    vtx._binormal = Vec3.TransformNormal(binormal, baseTransform);
+                                    vtx._binormal = Vec3.TransformNormal(binormal, baseTransform).Normalized();
                                     break;
                             }
                             vertices[i][inp._set] = vtx;

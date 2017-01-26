@@ -270,7 +270,7 @@ namespace CustomEngine.Worlds.Actors.Components
         }
         public void AttachTo(SkeletalMeshComponent mesh, string socketName)
         {
-            Bone bone = mesh.Model.Skeleton.GetBone(socketName);
+            Bone bone = mesh.Skeleton.GetBone(socketName);
             if (bone != null)
                 bone.ChildComponents.Add(this);
             else

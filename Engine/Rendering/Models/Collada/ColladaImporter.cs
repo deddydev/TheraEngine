@@ -65,8 +65,9 @@ namespace CustomEngine.Rendering.Models.Collada
         public static void ImportModel(
             string filePath,
             ColladaImportOptions options,
+            out StaticMesh staticMesh,
             out SkeletalMesh skeletalMesh,
-            out StaticMesh staticMesh)
+            out Skeleton skeleton)
         {
             using (DecoderShell shell = DecoderShell.Import(filePath))
             {
@@ -145,6 +146,7 @@ namespace CustomEngine.Rendering.Models.Collada
                 {
                     staticMesh = new StaticMesh();
                     skeletalMesh = null;
+                    skeleton = null;
                     staticMesh.Name = Path.GetFileNameWithoutExtension(filePath);
                     foreach (ObjectInfo obj in objects)
                         obj.Initialize(staticMesh, shell, baseTransform);
@@ -154,7 +156,7 @@ namespace CustomEngine.Rendering.Models.Collada
                     skeletalMesh = new SkeletalMesh();
                     staticMesh = null;
                     skeletalMesh.Name = Path.GetFileNameWithoutExtension(filePath);
-                    skeletalMesh.Skeleton = new Skeleton(rootBones.ToArray());
+                    skeleton = new Skeleton(rootBones.ToArray());
                     foreach (ObjectInfo obj in objects)
                         obj.Initialize(skeletalMesh, shell, baseTransform);
                 }

@@ -109,14 +109,15 @@ namespace CustomEngine.Worlds
             ColladaImportOptions options = new ColladaImportOptions();
             SkeletalMesh skelM;
             StaticMesh staticM;
+            Skeleton skeleton;
             Collada.ImportModel(
                 Environment.MachineName == "DAVID-DESKTOP" ? "X:\\Desktop\\TEST.DAE" : "C:\\Users\\David\\Desktop\\TEST.DAE", 
-                options, out skelM, out staticM);
+                options, out staticM, out skelM, out skeleton);
 
             Actor skelActor;
             if (skelM != null)
             {
-                SkeletalMeshComponent skelComp = new SkeletalMeshComponent(skelM);
+                SkeletalMeshComponent skelComp = new SkeletalMeshComponent(skelM, skeleton);
                 skelActor = new Actor(skelComp);
             }
             else

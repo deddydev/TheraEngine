@@ -12,34 +12,13 @@ namespace CustomEngine.Rendering.Models
     public class SkeletalMesh : FileObject
     {
         public override ResourceType ResourceType { get { return ResourceType.SkeletalMesh; } }
-
-        public SkeletalMesh() : this(null) { }
-        public SkeletalMesh(Skeleton skeleton) : base()
+        
+        public SkeletalMesh() : base()
         {
-            Skeleton = skeleton;
             _rigidChildren.Removed += RigidChildRemoved;
             _rigidChildren.Added += RigidChildAdded;
             _softChildren.Removed += SoftChildRemoved;
             _softChildren.Added += SoftChildAdded;
-        }
-
-        private Skeleton _skeleton;
-        public Skeleton Skeleton
-        {
-            get { return _skeleton; }
-            set
-            {
-                if (value == _skeleton)
-                    return;
-                _skeleton = value;
-            }
-        }
-
-        public void SetAllSimulatingPhysics(bool doSimulation)
-        {
-            foreach (Bone b in Skeleton)
-                if (b.PhysicsDriver != null)
-                    b.PhysicsDriver.SimulatingPhysics = doSimulation;
         }
 
         protected MonitoredList<SkeletalRigidSubMesh> _rigidChildren = new MonitoredList<SkeletalRigidSubMesh>();

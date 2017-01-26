@@ -23,6 +23,7 @@ namespace CustomEngine.Rendering.Models
         internal PrimitiveManager _manager = new PrimitiveManager();
         protected Shape _cullingVolume;
         protected bool _visibleByDefault;
+        protected string _boneName;
 
         public Shape CullingVolume { get { return _cullingVolume; } }
         public bool VisibleByDefault
@@ -40,28 +41,15 @@ namespace CustomEngine.Rendering.Models
             internal set { _parent = value; }
         }
 
-        public PrimitiveManager PrimitiveManager
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
-        }
-        
-        public Bone SingleBind
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
-        }
+        public PrimitiveManager PrimitiveManager { get { return _manager; } }
+        public string SingleBindName { get { return _boneName; } }
 
         public void SetPrimitiveData(PrimitiveData data) => _manager.Data = data;
         public void SetCullingVolume(Shape volume) { _cullingVolume = volume; }
 
         public void Render()
         {
-            throw new NotImplementedException();
+            
         }
     }
 }

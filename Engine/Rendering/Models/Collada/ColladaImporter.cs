@@ -77,9 +77,7 @@ namespace CustomEngine.Rendering.Models.Collada
                 {
                     AssetEntry e = shell._assets[0];
                     isZup = e._upAxis == UpAxis.Z;
-                    //if (e._upAxis == UpAxis.Z)
-                    //    baseTransform = Matrix4.CreateFromAxisAngle(Vec3.UnitX, -90.0f);
-                    baseTransform *= Matrix4.CreateScale(e._scale);
+                    baseTransform = Matrix4.CreateScale(e._scale);
                 }
 
                 //Extract materials
@@ -265,9 +263,9 @@ namespace CustomEngine.Rendering.Models.Collada
             {
                 PrimitiveData data;
                 if (_weighted)
-                    data = DecodePrimitivesWeighted(_bindMatrix, _geoEntry, _skin, _scene, _isZup, baseTransform);
+                    data = DecodePrimitivesWeighted(baseTransform * _bindMatrix, _geoEntry, _skin, _scene, _isZup);
                 else
-                    data = DecodePrimitivesUnweighted(_bindMatrix, _geoEntry, _isZup, baseTransform);
+                    data = DecodePrimitivesUnweighted(baseTransform * _bindMatrix, _geoEntry, _isZup);
 
                 Material m = null;
                 if (_inst._material != null)
@@ -285,9 +283,9 @@ namespace CustomEngine.Rendering.Models.Collada
             {
                 PrimitiveData data;
                 if (_weighted)
-                    data = DecodePrimitivesWeighted(_bindMatrix, _geoEntry, _skin, _scene, _isZup, baseTransform);
+                    data = DecodePrimitivesWeighted(baseTransform * _bindMatrix, _geoEntry, _skin, _scene, _isZup);
                 else
-                    data = DecodePrimitivesUnweighted(_bindMatrix, _geoEntry, _isZup, baseTransform);
+                    data = DecodePrimitivesUnweighted(baseTransform * _bindMatrix, _geoEntry, _isZup);
 
                 Material m = null;
                 if (_inst._material != null)

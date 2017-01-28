@@ -9,7 +9,7 @@ namespace CustomEngine.Rendering.Models
         private string _bone;
         private float _weight;
         private bool _locked;
-        
+
         public string Bone { get { return _bone; } set { _bone = value; } }
         public float Weight { get { return _weight; } set { _weight = value; } }
         public bool Locked { get { return _locked; } set { _locked = value; } }

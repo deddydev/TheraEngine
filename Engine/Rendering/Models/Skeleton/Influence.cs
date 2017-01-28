@@ -7,6 +7,8 @@ namespace CustomEngine.Rendering.Models
 {
     public class Influence : IEnumerable<BoneWeight>
     {
+        public const int MaxWeightCount = 4;
+
         public Influence(string bone)
         {
             _weights[0] = new BoneWeight(bone);
@@ -18,11 +20,11 @@ namespace CustomEngine.Rendering.Models
         public BoneWeight[] Weights { get { return _weights; } }
 
         private int _weightCount = 0;
-        private BoneWeight[] _weights = new BoneWeight[4];
-        
+        private BoneWeight[] _weights = new BoneWeight[MaxWeightCount];
+
         public void AddWeight(BoneWeight weight)
         {
-            if (_weightCount == 4)
+            if (_weightCount == MaxWeightCount)
             {
                 List<BoneWeight> weights = _weights.ToList();
                 weights.Add(weight);
@@ -77,10 +79,10 @@ namespace CustomEngine.Rendering.Models
 
         public static BoneWeight[] Optimize(List<BoneWeight> weights, out int weightCount)
         {
-            BoneWeight[] optimized = new BoneWeight[4];
+            BoneWeight[] optimized = new BoneWeight[MaxWeightCount];
             if (weights.Count > 4)
             {
-                int[] toRemove = new int[weights.Count - 4];
+                int[] toRemove = new int[weights.Count - MaxWeightCount];
                 for (int i = 0; i < toRemove.Length; ++i)
                     for (int j = 0; j < weights.Count; ++j)
                         if (!toRemove.Contains(j + 1) &&

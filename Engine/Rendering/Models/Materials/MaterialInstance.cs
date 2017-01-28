@@ -18,25 +18,26 @@ namespace CustomEngine.Rendering.Models.Materials
         public Shader TessellationControlShader { get { return _material._tessellationControlShader; } }
         public Shader TessellationEvaluationShader { get { return _material._tessellationEvaluationShader; } }
 
-        public MaterialInstance(Material material, int boneCount)
+        public MaterialInstance(Material material, PrimitiveBufferInfo info)
         {
             _material = material;
             if (_material != null)
             {
                 _parameters.AddRange(_material.Settings.Parameters);
-                if (boneCount > 0)
-                {
-                    //TODO: incorporate skinning and morphing into material's vertex shader
-                    string s = material._vertexShader._source;
-                    int breakIndex = s.FindFirst(s.IndexOf("void main"), '{') + 1;
-                    string part1 = s.Substring(0, breakIndex);
-                    string part2 = s.Substring(breakIndex);
-                    part2 = part2.TrimStart();
+                _modifiedVertexShader = VertexShaderGenerator.Generate(info, false, false, false);
+                //if (boneCount > 0)
+                //{
+                //    //TODO: incorporate skinning and morphing into material's vertex shader
+                //    string s = material._vertexShader._source;
+                //    int breakIndex = s.FindFirst(s.IndexOf("void main"), '{') + 1;
+                //    string part1 = s.Substring(0, breakIndex);
+                //    string part2 = s.Substring(breakIndex);
+                //    part2 = part2.TrimStart();
 
-                    _modifiedVertexShader = new Shader(ShaderMode.Vertex, s);
-                }
-                else
-                    _modifiedVertexShader = _material._vertexShader;
+                //    _modifiedVertexShader = new Shader(ShaderMode.Vertex, s);
+                //}
+                //else
+                //    _modifiedVertexShader = _material._vertexShader;
             }
         }
         public void SetUniforms()

@@ -27,7 +27,7 @@ namespace CustomEngine
         }
     }
     /// <summary>
-    /// Used for rendering using OpenGL or DirectX.
+    /// Used for rendering using any rasterizer that inherits from AbstractRenderer.
     /// </summary>
     public partial class RenderPanel : Control, IEnumerable<Viewport>
     {

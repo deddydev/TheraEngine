@@ -1,4 +1,5 @@
-﻿using CustomEngine.Rendering.Models.Materials;
+﻿using CustomEngine.Rendering.Models;
+using CustomEngine.Rendering.Models.Materials;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,9 +13,9 @@ namespace CustomEngine.Rendering
         public Shader[] _shaders;
         public MaterialInstance _material;
 
-        public MeshProgram(Material material, int boneCount) : base(GenType.Program)
+        public MeshProgram(Material material, PrimitiveBufferInfo info) : base(GenType.Program)
         {
-            SetMaterial(material, boneCount);
+            SetMaterial(material, info);
         }
 
         protected override int CreateObject()
@@ -30,9 +31,9 @@ namespace CustomEngine.Rendering
         {
 
         }
-        public void SetMaterial(Material material, int boneCount)
+        public void SetMaterial(Material material, PrimitiveBufferInfo info)
         {
-            _material = new MaterialInstance(material, boneCount);
+            _material = new MaterialInstance(material, info);
             SetShaders(
                 _material.VertexShader,
                 _material.FragmentShader,

@@ -12,10 +12,9 @@ namespace CustomEngine.Rendering.Models.Collada
             GeometryEntry geo,
             SkinEntry skin,
             SceneEntry scene,
-            bool isZup,
-            Matrix4 baseTransform)
+            bool isZup)
         {
-            PrimitiveData data = DecodePrimitives(geo, isZup, baseTransform);
+            PrimitiveData data = DecodePrimitives(geo, isZup, bindMatrix);
             bindMatrix = bindMatrix * skin._bindMatrix;
 
             Bone[] boneList;
@@ -159,9 +158,9 @@ namespace CustomEngine.Rendering.Models.Collada
             return null;
         }
 
-        static PrimitiveData DecodePrimitivesUnweighted(Matrix4 bindMatrix, GeometryEntry geo, bool isZup, Matrix4 baseTransform)
+        static PrimitiveData DecodePrimitivesUnweighted(Matrix4 bindMatrix, GeometryEntry geo, bool isZup)
         {
-            PrimitiveData manager = DecodePrimitives(geo, isZup, baseTransform);
+            PrimitiveData manager = DecodePrimitives(geo, isZup, bindMatrix);
 
             //Vec3* pV = null;
             //int vCount = 0;
@@ -180,16 +179,18 @@ namespace CustomEngine.Rendering.Models.Collada
 
             return manager;
         }
-        static PrimitiveData DecodePrimitives(GeometryEntry geo, bool isZup, Matrix4 baseTransform)
+        static PrimitiveData DecodePrimitives(GeometryEntry geo, bool isZup, Matrix4 bindMatrix)
         {
             SourceEntry src;
             List<VertexPrimitive> linePrimitives = null;
             List<VertexPolygon> facePrimitives = null;
             PrimitiveBufferInfo info = new PrimitiveBufferInfo()
             {
-                _positionCount  = 0,
-                _normalCount    = 0,
-                _texcoordCount  = 0
+                _pnbtCount = 0,
+                _texcoordCount = 0,
+                _hasNormals = false,
+                _hasBinormals = false,
+                _hasTangents = false,
             };
 
             foreach (PrimitiveEntry prim in geo._primitives)
@@ -219,34 +220,29 @@ namespace CustomEngine.Rendering.Models.Collada
                 }
 
                 if (sources.ContainsKey(SemanticType.VERTEX))
-                    info._positionCount = sources[SemanticType.VERTEX].Count;
+                    info._pnbtCount = sources[SemanticType.VERTEX].Count;
                 if (sources.ContainsKey(SemanticType.NORMAL))
-                    info._normalCount = sources[SemanticType.NORMAL].Count;
+                    info._hasNormals = sources[SemanticType.NORMAL].Count > 0;
                 if (sources.ContainsKey(SemanticType.COLOR))
                     info._colorCount = sources[SemanticType.COLOR].Count;
                 if (sources.ContainsKey(SemanticType.TEXCOORD))
                     info._texcoordCount = sources[SemanticType.TEXCOORD].Count;
                 if (sources.ContainsKey(SemanticType.TEXBINORMAL))
-                    info._binormalCount = sources[SemanticType.TEXBINORMAL].Count;
+                    info._hasBinormals = sources[SemanticType.TEXBINORMAL].Count > 0;
                 if (sources.ContainsKey(SemanticType.TEXTANGENT))
-                    info._tangentCount = sources[SemanticType.TEXTANGENT].Count;
+                    info._hasTangents = sources[SemanticType.TEXTANGENT].Count > 0;
 
                 int maxSets = CustomMath.Max(
-                    info._positionCount, 
-                    info._normalCount, 
-                    info._colorCount, 
-                    info._texcoordCount, 
-                    info._binormalCount,
-                    info._tangentCount);
+                    info._pnbtCount,
+                    info._colorCount,
+                    info._texcoordCount);
 
                 int stride;
                 Vertex vtx;
                 VoidPtr addr;
-                //int indexStride;
                 Vertex[][] vertices;
                 foreach (PrimitiveFace f in prim._faces)
                 {
-                    //indexStride = f._pointCount / f._faceCount;
                     vertices = new Vertex[f._pointCount][];
                     foreach (InputEntry inp in prim._inputs)
                     {
@@ -257,7 +253,7 @@ namespace CustomEngine.Rendering.Models.Collada
                             if (vertices[i] == null)
                                 vertices[i] = new Vertex[maxSets];
                             
-                            int index = f._pointIndices[i * sources.Count + inp._offset];
+                            int index = f._pointIndices[i * prim._inputs.Count + inp._offset];
                             addr = ((DataSource)src._arrayData).Address[index, stride];
                             vtx = vertices[i][inp._set];
                             if (vtx == null)
@@ -266,34 +262,41 @@ namespace CustomEngine.Rendering.Models.Collada
                             {
                                 case SemanticType.VERTEX:
                                     Vec3 position = *(Vec3*)addr;
+                                    position = Vec3.TransformPosition(position, bindMatrix);
                                     if (isZup)
                                         position.ChangeZupToYup();
-                                    vtx._position = Vec3.TransformPosition(position, baseTransform);
+                                    vtx._position = position;
                                     break;
                                 case SemanticType.NORMAL:
                                     Vec3 normal = *(Vec3*)addr;
+                                    normal = Vec3.TransformNormal(normal, bindMatrix);
                                     if (isZup)
                                         normal.ChangeZupToYup();
-                                    vtx._normal = Vec3.TransformNormal(normal, baseTransform).Normalized();
-                                    break;
-                                case SemanticType.TEXCOORD:
-                                    vtx._texCoord = *(Vec2*)addr;
-                                    vtx._texCoord.Y = 1 - vtx._texCoord.Y;
-                                    break;
-                                case SemanticType.COLOR:
-                                    vtx._color = *(ColorF4*)addr;
-                                    break;
-                                case SemanticType.TEXTANGENT:
-                                    Vec3 tangent = *(Vec3*)addr;
-                                    if (isZup)
-                                        tangent.ChangeZupToYup();
-                                    vtx._tangent = Vec3.TransformNormal(tangent, baseTransform).Normalized();
+                                    normal.Normalize();
+                                    vtx._normal = normal;
                                     break;
                                 case SemanticType.TEXBINORMAL:
                                     Vec3 binormal = *(Vec3*)addr;
+                                    binormal = Vec3.TransformNormal(binormal, bindMatrix);
                                     if (isZup)
                                         binormal.ChangeZupToYup();
-                                    vtx._binormal = Vec3.TransformNormal(binormal, baseTransform).Normalized();
+                                    binormal.Normalize();
+                                    vtx._binormal = binormal;
+                                    break;
+                                case SemanticType.TEXTANGENT:
+                                    Vec3 tangent = *(Vec3*)addr;
+                                    tangent = Vec3.TransformNormal(tangent, bindMatrix);
+                                    if (isZup)
+                                        tangent.ChangeZupToYup();
+                                    tangent.Normalize();
+                                    vtx._tangent = tangent;
+                                    break;
+                                case SemanticType.TEXCOORD:
+                                    vtx._texCoord = *(Vec2*)addr;
+                                    vtx._texCoord.Y = 1.0f - vtx._texCoord.Y;
+                                    break;
+                                case SemanticType.COLOR:
+                                    vtx._color = *(ColorF4*)addr;
                                     break;
                             }
                             vertices[i][inp._set] = vtx;

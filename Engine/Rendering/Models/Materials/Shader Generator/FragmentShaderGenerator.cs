@@ -6,19 +6,19 @@ using System.Threading.Tasks;
 
 namespace CustomEngine.Rendering.Models.Materials
 {
-    public class FragmentShaderGenerator : ShaderGenerator
+    public static class FragmentShaderGenerator
     {
         public static readonly string OutputColorName = "OutColor";
 
-        public override string Generate(ResultBasicFunc end)
+        private static ShaderGenerator _generator;
+        
+        public static Shader Generate(ResultBasicFunc end)
         {
-
-
-            Reset();
-            WriteDefinitions();
-            wl("{0} = ", OutputColorName);
-            Begin();
-            return Finish();
+            _generator.Reset();
+            _generator.WriteVersion();
+            _generator.wl("{0} = ", OutputColorName);
+            _generator.Begin();
+            return new Shader(ShaderMode.Fragment, _generator.Finish());
         }
     }
 }

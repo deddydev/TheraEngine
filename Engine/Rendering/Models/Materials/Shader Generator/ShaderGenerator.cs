@@ -6,17 +6,13 @@ using System.Threading.Tasks;
 
 namespace CustomEngine.Rendering.Models.Materials
 {
-    public abstract class ShaderGenerator
+    public class ShaderGenerator
     {
         private const string GLSLVersion = "410";
         private const string NewLine = "\n";
-
-        private string _shaderCode;
-        protected PrimitiveBufferInfo _info;
-
-        public ShaderGenerator(PrimitiveBufferInfo info) { _info = info; }
-
-        public abstract string Generate(ResultBasicFunc end);
+        
+        private string _shaderCode = "";
+        private int tabCount = 0;
 
         #region String Helpers
         private string Tabs
@@ -29,52 +25,53 @@ namespace CustomEngine.Rendering.Models.Materials
                 return t;
             }
         }
-        private int tabCount = 0;
         public void Reset()
         {
             _shaderCode = "";
             tabCount = 0;
         }
-        protected void WriteVersion()
+        public void WriteVersion()
         {
             wl("#version {0}", GLSLVersion);
             wl();
         }
-        protected void WriteInVar(int layoutLocation, string type, string name)
+        public void WriteInVar(int layoutLocation, GLTypeName type, string name)
         {
-            wl("layout (location = {0}) in {1} {2};", layoutLocation, type, name);
+            wl("layout (location = {0}) in {1} {2};", layoutLocation, type.ToString().Substring(1), name);
         }
-        protected void WriteInVar(string type, string name)
+        public void WriteInVar(GLTypeName type, string name)
         {
-            wl("in {0} {1};", type, name);
+            wl("in {0} {1};", type.ToString().Substring(1), name);
         }
-        protected void WriteUniform(int layoutLocation, string type, string name)
+        public void WriteUniform(int layoutLocation, GLTypeName type, string name)
         {
-            wl("layout (location = {0}) uniform {1} {2};", layoutLocation, type, name);
+            wl("layout (location = {0}) uniform {1} {2};", layoutLocation, type.ToString().Substring(1), name);
         }
-        protected void WriteUniform(string type, string name)
+        public void WriteUniform(GLTypeName type, string name)
         {
-            wl("uniform {0} {1};", type, name);
+            wl("uniform {0} {1};", type.ToString().Substring(1), name);
         }
-        protected void Comment(string comment, params object[] args)
+        public void Comment(string comment, params object[] args)
         {
             wl("//" + comment, args);
         }
-        protected void Begin()
+        public void Begin()
         {
             wl("void main()");
             OpenBracket();
         }
-        protected string Finish()
+        public string Finish()
         {
             CloseBracket();
-            return _shaderCode;
+            string s = _shaderCode;
+            Reset();
+            return s;
         }
         /// <summary>
         /// Writes the current line and increments to the next line.
         /// Do not use arguments if you need to include brackets in the string.
         /// </summary>
-        protected void wl(string str = "", params object[] args)
+        public void wl(string str = "", params object[] args)
         {
             str += NewLine;
 
@@ -99,11 +96,11 @@ namespace CustomEngine.Rendering.Models.Materials
             if (args.Length == 0)
                 tabCount += str.Count(x => x == '{');
         }
-        protected void OpenBracket()
+        public void OpenBracket()
         {
             wl("{");
         }
-        protected void CloseBracket()
+        public void CloseBracket()
         {
             wl("}");
         }

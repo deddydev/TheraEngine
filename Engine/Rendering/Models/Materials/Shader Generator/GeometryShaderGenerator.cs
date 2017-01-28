@@ -8,7 +8,8 @@ namespace CustomEngine.Rendering.Models.Materials
 {
     public class GeometryShaderGenerator : ShaderGenerator
     {
-        public override string Generate(ResultBasicFunc end)
+
+        public static Shader Generate(ResultBasicFunc end)
         {
             throw new NotImplementedException();
         }

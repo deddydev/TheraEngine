@@ -164,7 +164,8 @@ namespace CustomEngine.Rendering.Models
             _inverseBindMatrix = _bindState.InverseMatrix * inverseParentMatrix;
 
             _vertexMatrix = FrameMatrix * InverseBindMatrix;
-            _vert = InverseFrameMatrix * BindMatrix;
+            _vertexMatrixIT = InverseFrameMatrix * BindMatrix;
+            _vertexMatrixIT.Transpose();
 
             if (!updateMesh)
                 InfluenceAssets(true);

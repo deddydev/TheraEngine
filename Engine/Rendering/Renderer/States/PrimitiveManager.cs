@@ -72,7 +72,7 @@ namespace CustomEngine.Rendering.Models
             {
                 _material = value;
                 if (_program != null)
-                    _program.SetMaterial(_material, _bufferInfo._boneCount);
+                    _program.SetMaterial(_material, _bufferInfo);
             }
         }
         public void SkeletonChanged(Skeleton skeleton)
@@ -92,7 +92,7 @@ namespace CustomEngine.Rendering.Models
                     matrixIndices[i] = new IVec4();
                     matrixWeights[i] = new Vec4();
                     Influence inf = _data._influences[i];
-                    for (int j = 0; j < 4; ++j)
+                    for (int j = 0; j < Influence.MaxWeightCount; ++j)
                     {
                         BoneWeight b = inf.Weights[j];
                         if (b == null)
@@ -178,7 +178,7 @@ namespace CustomEngine.Rendering.Models
         }
         protected override void OnGenerated()
         {
-            _program = new MeshProgram(_material, _bufferInfo._boneCount);
+            _program = new MeshProgram(_material, _bufferInfo);
             _program.Generate();
 
             GL.BindVertexArray(BindingId);

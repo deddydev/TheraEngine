@@ -131,17 +131,20 @@ namespace CustomEngine.Rendering.Models
             if (!_bufferInfo.IsWeighted)
                 return;
 
-            List<Matrix4> positionMatrices = new List<Matrix4>() { Matrix4.Identity };
-            List<Matrix3> normalMatrices = new List<Matrix3>() { Matrix3.Identity };
+            Matrix4[] positionMatrices = new Matrix4[_utilizedBones.Length + 1];
+            Matrix4[] normalMatrices = new Matrix4[_utilizedBones.Length + 1];
+            positionMatrices[0] = Matrix4.Identity;
+            normalMatrices[0] = Matrix4.Identity;
 
-            foreach (Bone b in _utilizedBones)
+            for (int i = 1; i < _utilizedBones.Length + 1; ++i)
             {
-                positionMatrices.Add(b.VertexMatrix);
-                normalMatrices.Add(b.VertexMatrix.GetRotationMatrix3());
+                Bone b = _utilizedBones[i - 1];
+                positionMatrices[i] = b.VertexMatrix;
+                normalMatrices[i] = b.VertexMatrixIT;
             }
 
-            Engine.Renderer.Uniform(Uniform.PositionMatricesName, positionMatrices.ToArray());
-            Engine.Renderer.Uniform(Uniform.NormalMatricesName, normalMatrices.ToArray());
+            Engine.Renderer.Uniform(Uniform.BoneMatricesName, positionMatrices.ToArray());
+            Engine.Renderer.Uniform(Uniform.BoneMatricesITName, normalMatrices.ToArray());
         }
         public unsafe void Render(Matrix4 modelMatrix)
         {

@@ -12,11 +12,13 @@ namespace CustomEngine.Rendering.Models.Materials
     public class ResultBasicFunc : MaterialFunction
     {
         GLInput FinalColor;
+        GLInput WorldPositionOffset;
 
         public ResultBasicFunc() : base(true) { }
         protected override List<GLInput> GetInputs()
         {
             FinalColor = new GLInput("FinalColor", GLTypeName._vec4);
+            WorldPositionOffset = new GLInput("WorldPositionOffset", GLTypeName._vec3);
             return new List<GLInput>() { FinalColor };
         }
         public static MaterialFuncInfo GetInfo()

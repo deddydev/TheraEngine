@@ -12,6 +12,9 @@ namespace CustomEngine.Rendering.Models.Materials
         private const string NewLine = "\n";
 
         private string _shaderCode;
+        protected PrimitiveBufferInfo _info;
+
+        public ShaderGenerator(PrimitiveBufferInfo info) { _info = info; }
 
         public abstract string Generate(ResultBasicFunc end);
 
@@ -52,16 +55,6 @@ namespace CustomEngine.Rendering.Models.Materials
         protected void WriteUniform(string type, string name)
         {
             wl("uniform {0} {1};", type, name);
-        }
-        protected void WriteMatrixUniforms(int boneCount)
-        {
-            WriteUniform("mat4", "ModelMatrix");
-            WriteUniform("mat4", "ViewMatrix");
-            WriteUniform("mat4", "ProjMatrix");
-            Comment("transpose(inverse(modelMatrix))");
-            WriteUniform("mat4", "NormalMatrix");
-            if (boneCount > 0)
-                WriteUniform("mat4[]", "BoneMatrices");
         }
         protected void Comment(string comment, params object[] args)
         {

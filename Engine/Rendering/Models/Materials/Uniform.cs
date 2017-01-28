@@ -8,8 +8,8 @@ namespace CustomEngine.Rendering.Models.Materials
 {
     public class Uniform
     {
-        public static readonly string PositionMatricesName = "PositionMatrices";
-        public static readonly string NormalMatricesName = "NormalMatrices";
+        public static readonly string BoneMatricesName = "BoneMatrices";
+        public static readonly string BoneMatricesITName = "BoneMatricesIT";
         public static readonly string PointLightsName = "PointLights";
         public static readonly string SpotLightsName = "SpotLights";
         public static readonly string DirectionalLightsName = "DirectionalLights";

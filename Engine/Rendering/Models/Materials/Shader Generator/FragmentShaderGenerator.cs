@@ -15,7 +15,7 @@ namespace CustomEngine.Rendering.Models.Materials
 
 
             Reset();
-            WriteVersion();
+            WriteDefinitions();
             wl("{0} = ", OutputColorName);
             Begin();
             return Finish();

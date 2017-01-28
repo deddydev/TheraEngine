@@ -43,11 +43,5 @@ namespace CustomEngine.Rendering.Models.Materials
         {
             _parameters.ForEach(x => x.SetUniform());
         }
-        private string GetSkinningPart()
-        {
-            return 
-@"
-";
-        }
     }
 }

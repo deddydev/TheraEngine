@@ -24,6 +24,11 @@ namespace CustomEngine.Rendering.Models
         public bool _hasBarycentricCoord;
 
         public bool IsWeighted { get { return _boneCount > 0; } }
+        public bool HasNormals { get { return _normalCount > 0; } }
+        public bool HasBinormals { get { return _binormalCount > 0; } }
+        public bool HasTangents { get { return _tangentCount > 0; } }
+        public bool HasTexCoords { get { return _texcoordCount > 0; } }
+        public bool HasColors { get { return _colorCount > 0; } }
     }
     public class PrimitiveData : IDisposable
     {

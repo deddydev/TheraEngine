@@ -173,12 +173,12 @@ namespace CustomEngine.Rendering.Models.Materials
         {
             wl("vec4 position = ModelMatrix * vec4(Position0, 1.0);");
             if (_info.HasNormals)
-                wl("OutData.Normal = normalize(NormalMatrix * vec4(Normal0, 1.0)).xyz;");
+                wl("vec4 normal = normalize(NormalMatrix * vec4(Normal0, 1.0));");
             if (_info.HasBinormals)
-                wl("OutData.Binormal = normalize(NormalMatrix * vec4(Binormal0, 1.0)).xyz;");
+                wl("vec4 binormal = normalize(NormalMatrix * vec4(Binormal0, 1.0));");
             if (_info.HasTangents)
-                wl("OutData.Tangent = normalize(NormalMatrix * vec4(Tangent0, 1.0)).xyz;");
-
+                wl("vec4 tangent = normalize(NormalMatrix * vec4(Tangent0, 1.0));");
+            wl();
             if (morphed)
             {
                 wl("float totalWeight = 0.0;");
@@ -190,31 +190,43 @@ namespace CustomEngine.Rendering.Models.Materials
 
                 wl("position *= baseWeight;");
                 if (_info.HasNormals)
-                    wl("OutData.Normal *= baseWeight;");
+                    wl("normal *= baseWeight;");
                 if (_info.HasBinormals)
-                    wl("OutData.Binormal *= baseWeight;");
+                    wl("binormal *= baseWeight;");
                 if (_info.HasTangents)
-                    wl("OutData.Tangent *= baseWeight;");
+                    wl("tangent *= baseWeight;");
 
                 for (int i = 0; i < _info._morphCount; ++i)
                 {
-
+                    wl("position += ModelMatrix * vec4(Position{0}, 1.0) * MorphWeights[{1}];", i + 1, i);
+                    if (_info.HasNormals)
+                        wl("normal += normalize(NormalMatrix * vec4(Normal{0}, 1.0) * MorphWeights[{1}]);", i + 1, i);
+                    if (_info.HasBinormals)
+                        wl("binormal += normalize(NormalMatrix * vec4(Binormal{0}, 1.0) * MorphWeights[{1}]);", i + 1, i);
+                    if (_info.HasTangents)
+                        wl("tangent += normalize(NormalMatrix * vec4(Tangent{0}, 1.0) * MorphWeights[{1}]);", i + 1, i);
                 }
 
-                wl("OutData.Position = position.xyz / total;");
+                wl("position /= total;");
+                wl("OutData.Position = position.xyz;");
                 wl("gl_Position = ProjMatrix * ViewMatrix * position;");
-                
                 if (_info.HasNormals)
-                    wl("OutData.Normal /= total;");
+                    wl("OutData.Normal = normal.xyz / total;");
                 if (_info.HasBinormals)
-                    wl("OutData.Binormal /= total;");
+                    wl("OutData.Binormal = binormal.xyz / total;");
                 if (_info.HasTangents)
-                    wl("OutData.Tangent /= total;");
+                    wl("OutData.Tangent = tangent.xyz / total;");
             }
             else
             {
                 wl("OutData.Position = position.xyz;");
                 wl("gl_Position = ProjMatrix * ViewMatrix * position;");
+                if (_info.HasNormals)
+                    wl("OutData.Normal = normal.xyz;");
+                if (_info.HasBinormals)
+                    wl("OutData.Binormal = binormal.xyz;");
+                if (_info.HasTangents)
+                    wl("OutData.Tangent = tangent.xyz;");
             }
         }
         private static void WriteBuffers(bool singleMorphRig)

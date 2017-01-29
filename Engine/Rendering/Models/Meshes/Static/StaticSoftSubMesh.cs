@@ -14,13 +14,14 @@ namespace CustomEngine.Rendering.Models
         public StaticSoftSubMesh() { }
         public StaticSoftSubMesh(PrimitiveData data, string name)
         {
-            _manager.Data = data;
+            _material = null;
+            _data = null;
             _name = name;
         }
 
         protected StaticMesh _parent;
-        //private Matrix4 _normalMatrix;
-        internal PrimitiveManager _manager = new PrimitiveManager();
+        protected PrimitiveData _data;
+        protected Material _material;
         protected Shape _cullingVolume;
         protected bool _isRendering, _isVisible, _visibleByDefault, _renderSolid;
 
@@ -41,18 +42,17 @@ namespace CustomEngine.Rendering.Models
         }
         public Material Material
         {
-            get { return _manager.Material; }
-            set { _manager.Material = value; }
+            get { return _material; }
+            set { _material = value; }
+        }
+        public PrimitiveData Data
+        {
+            get { return _data; }
         }
         public StaticMesh Model
         {
             get { return _parent; }
             internal set { _parent = value; }
         }
-
-        public PrimitiveManager PrimitiveManager { get { return _manager; } }
-
-        public void SetPrimitiveData(PrimitiveData data) => _manager.Data = data;
-        public void SetCullingVolume(Shape volume) { _cullingVolume = volume; }
     }
 }

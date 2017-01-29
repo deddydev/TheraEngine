@@ -19,6 +19,8 @@ namespace CustomEngine.Rendering.Models
         public List<VertexLine> _connectedEdges = new List<VertexLine>();
 
         public Vertex() { }
+        public Vertex(Influence inf)
+            { _influence = inf; }
         public Vertex(Vec3 position)
             { _position = position; }
         public Vertex(Vec3 position, Influence inf) 

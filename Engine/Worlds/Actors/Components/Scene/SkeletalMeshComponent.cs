@@ -76,12 +76,14 @@ namespace CustomEngine.Worlds.Actors.Components
             public RenderableMesh(ISkeletalMesh mesh, Skeleton skeleton, SceneComponent component)
             {
                 _mesh = mesh;
+                _manager = new PrimitiveManager(mesh.Data, mesh.Material);
                 _component = component;
                 Skeleton = skeleton;
                 Visible = false;
                 IsRendering = true;
             }
 
+            private PrimitiveManager _manager;
             private bool _isVisible, _isRendering;
             private SceneComponent _component;
             private ISkeletalMesh _mesh;
@@ -150,7 +152,7 @@ namespace CustomEngine.Worlds.Actors.Components
                         world = _component.WorldMatrix;
                         invWorld = _component.InverseWorldMatrix;
                     }
-                    _mesh.PrimitiveManager.Render(world, invWorld.Transposed());
+                    _manager.Render(world, invWorld.Transposed());
                 }
             }
         }

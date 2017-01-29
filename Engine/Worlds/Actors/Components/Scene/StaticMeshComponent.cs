@@ -107,10 +107,12 @@ namespace CustomEngine.Worlds.Actors.Components
                 _mesh = mesh;
                 _component = component;
                 _cullingVolume = _mesh.CullingVolume.HardCopy();
+                _manager = new PrimitiveManager(_mesh.Data, _mesh.Material);
                 Visible = false;
                 IsRendering = true;
             }
 
+            private PrimitiveManager _manager;
             private bool _isVisible, _isRendering;
             private SceneComponent _component;
             private IStaticMesh _mesh;
@@ -148,7 +150,7 @@ namespace CustomEngine.Worlds.Actors.Components
             }
             public void Render()
             {
-                _mesh.PrimitiveManager.Render(_component.WorldMatrix);
+                _manager.Render(_component.WorldMatrix);
             }
         }
     }

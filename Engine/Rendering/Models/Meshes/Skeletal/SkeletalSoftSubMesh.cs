@@ -14,13 +14,13 @@ namespace CustomEngine.Rendering.Models
         public SkeletalSoftSubMesh() { }
         public SkeletalSoftSubMesh(PrimitiveData data, string name)
         {
-            _manager.Data = data;
+            _data = data;
             _name = name;
         }
 
         protected SkeletalMesh _parent;
-        //private Matrix4 _normalMatrix;
-        internal PrimitiveManager _manager = new PrimitiveManager();
+        protected PrimitiveData _data;
+        protected Material _material;
         protected Shape _cullingVolume;
         protected bool _visibleByDefault;
         protected string _boneName;
@@ -32,21 +32,21 @@ namespace CustomEngine.Rendering.Models
         }
         public Material Material
         {
-            get { return _manager.Material; }
-            set { _manager.Material = value; }
+            get { return _material; }
+            set { _material = value; }
+        }
+        public PrimitiveData Data
+        {
+            get { return _data; }
         }
         public SkeletalMesh Model
         {
             get { return _parent; }
             internal set { _parent = value; }
         }
-
-        public PrimitiveManager PrimitiveManager { get { return _manager; } }
+        
         public string SingleBindName { get { return _boneName; } }
-
-        public void SetPrimitiveData(PrimitiveData data) => _manager.Data = data;
-        public void SetCullingVolume(Shape volume) { _cullingVolume = volume; }
-
+        
         public void Render()
         {
             

@@ -10,6 +10,7 @@ namespace CustomEngine.Rendering.Models.Materials
     {
         public static readonly string BoneMatricesName = "BoneMatrices";
         public static readonly string BoneMatricesITName = "BoneMatricesIT";
+        public static readonly string MorphWeightsName = "MorphWeights";
         public static readonly string PointLightsName = "PointLights";
         public static readonly string SpotLightsName = "SpotLights";
         public static readonly string DirectionalLightsName = "DirectionalLights";

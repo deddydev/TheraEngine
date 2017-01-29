@@ -12,13 +12,13 @@ namespace CustomEngine.Rendering.Models
     {
         Position        = 0,
         Normal          = 1,
-        TexCoord        = 2,
-        Color           = 3,
-        Binormal        = 4,
-        Tangent         = 5,
-        MatrixIds       = 6,
-        MatrixWeights   = 7,
-        Barycentric     = 8,
+        Binormal        = 2,
+        Tangent         = 3,
+        Color           = 4,
+        TexCoord        = 5,
+        Barycentric     = 6,
+        MatrixIds       = 7,
+        MatrixWeights   = 8,
     }
     public class VertexAttribInfo
     {
@@ -32,7 +32,18 @@ namespace CustomEngine.Rendering.Models
         public int _index;
 
         public string GetAttribName() { return _type.ToString() + _index; }
-        public int GetLocation() { return (int)_type * VertexBuffer.MaxBufferCountPerType + _index; }
+        public int GetLocation()
+        {
+            int t = (int)_type;
+            if (t < 4)
+            {
+                return t + _index * 4;
+            }
+            else
+            {
+                return t * VertexBuffer.MaxBufferCountPerType + _index;
+            }
+        }
     }
     public class VertexBuffer : BaseRenderState, IDisposable
     {

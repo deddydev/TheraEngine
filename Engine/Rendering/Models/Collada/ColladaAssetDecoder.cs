@@ -14,9 +14,6 @@ namespace CustomEngine.Rendering.Models.Collada
             SceneEntry scene,
             bool isZup)
         {
-            PrimitiveData data = DecodePrimitives(geo, isZup, bindMatrix);
-            bindMatrix = bindMatrix * skin._bindMatrix;
-
             Bone[] boneList;
             Bone bone = null;
             int boneCount;
@@ -24,7 +21,7 @@ namespace CustomEngine.Rendering.Models.Collada
             float weight = 0;
             float* pWeights = null;
             Vec3* pVert = null;
-            List<Vertex> vertList = new List<Vertex>(skin._weightCount);
+            Influence[] infList = new Influence[skin._weightCount];
             Matrix4* pMatrix = null;
 
             DataSource remap = new DataSource(skin._weightCount * 2);
@@ -137,9 +134,9 @@ namespace CustomEngine.Rendering.Models.Collada
                     }
                     inf.AddWeight(new BoneWeight(bone.Name, weight));
                 }
-                vertList.Add(new Vertex(bindMatrix * (Vec3)pVert[i], inf));
+                infList[i] = inf;
             }
-            return data;
+            return DecodePrimitives(geo, isZup, bindMatrix * skin._bindMatrix, infList);
         }
         static NodeEntry RecursiveTestNode(string jointStrings, NodeEntry node)
         {
@@ -160,33 +157,16 @@ namespace CustomEngine.Rendering.Models.Collada
 
         static PrimitiveData DecodePrimitivesUnweighted(Matrix4 bindMatrix, GeometryEntry geo, bool isZup)
         {
-            PrimitiveData manager = DecodePrimitives(geo, isZup, bindMatrix);
-
-            //Vec3* pV = null;
-            //int vCount = 0;
-            
-            //SourceEntry s = geo._sources.FirstOrDefault(x => x._id == geo._verticesInput._source);
-            //if (s != null)
-            //{
-            //    DataSource b = s._arrayData as DataSource;
-            //    pV = (Vec3*)b.Address;
-            //    vCount = b.Length / 12;
-            //}
-
-            //Vertex[] vertices = new Vertex[vCount];
-            //for (int i = 0; i < vCount; i++)
-            //    vertices[i] = new Vertex(bindMatrix * pV[i]);
-
-            return manager;
+            return DecodePrimitives(geo, isZup, bindMatrix, null);
         }
-        static PrimitiveData DecodePrimitives(GeometryEntry geo, bool isZup, Matrix4 bindMatrix)
+        static PrimitiveData DecodePrimitives(GeometryEntry geo, bool isZup, Matrix4 bindMatrix, Influence[] infList)
         {
             SourceEntry src;
             List<VertexPrimitive> linePrimitives = null;
             List<VertexPolygon> facePrimitives = null;
             PrimitiveBufferInfo info = new PrimitiveBufferInfo()
             {
-                _pnbtCount = 0,
+                _morphCount = 0,
                 _texcoordCount = 0,
                 _hasNormals = false,
                 _hasBinormals = false,
@@ -220,7 +200,7 @@ namespace CustomEngine.Rendering.Models.Collada
                 }
 
                 if (sources.ContainsKey(SemanticType.VERTEX))
-                    info._pnbtCount = sources[SemanticType.VERTEX].Count;
+                    info._morphCount = sources[SemanticType.VERTEX].Count - 1;
                 if (sources.ContainsKey(SemanticType.NORMAL))
                     info._hasNormals = sources[SemanticType.NORMAL].Count > 0;
                 if (sources.ContainsKey(SemanticType.COLOR))
@@ -233,7 +213,7 @@ namespace CustomEngine.Rendering.Models.Collada
                     info._hasTangents = sources[SemanticType.TEXTANGENT].Count > 0;
 
                 int maxSets = CustomMath.Max(
-                    info._pnbtCount,
+                    info._morphCount + 1,
                     info._colorCount,
                     info._texcoordCount);
 
@@ -248,16 +228,16 @@ namespace CustomEngine.Rendering.Models.Collada
                     {
                         src = sources[inp._semantic][inp._set];
                         stride = src._accessorStride * 4;
-                        for (int i = 0; i < f._pointCount; ++i)
+                        for (int i = 0, x = 0; i < f._pointCount; ++i, x += prim._inputs.Count)
                         {
                             if (vertices[i] == null)
                                 vertices[i] = new Vertex[maxSets];
                             
-                            int index = f._pointIndices[i * prim._inputs.Count + inp._offset];
+                            int index = f._pointIndices[x + inp._offset];
                             addr = ((DataSource)src._arrayData).Address[index, stride];
                             vtx = vertices[i][inp._set];
                             if (vtx == null)
-                                vtx = new Vertex();
+                                vtx = infList == null ? new Vertex() : new Vertex(infList[index]);
                             switch (inp._semantic)
                             {
                                 case SemanticType.VERTEX:

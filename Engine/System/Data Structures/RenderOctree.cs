@@ -14,13 +14,15 @@ namespace System
     public interface IStaticMesh
     {
         Shape CullingVolume { get; }
-        PrimitiveManager PrimitiveManager { get; }
+        PrimitiveData Data { get; }
+        Material Material { get; set; }
         bool VisibleByDefault { get; }
     }
     public interface ISkeletalMesh
     {
         string SingleBindName { get; }
-        PrimitiveManager PrimitiveManager { get; }
+        PrimitiveData Data { get; }
+        Material Material { get; set; }
         bool VisibleByDefault { get; }
     }
     public interface IRenderable

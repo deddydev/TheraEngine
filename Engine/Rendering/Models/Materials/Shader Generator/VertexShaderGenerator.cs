@@ -27,12 +27,14 @@ namespace CustomEngine.Rendering.Models.Materials
         {
             _info = info;
 
+            allowMeshMorphing = allowMeshMorphing && _info._morphCount > 0;
+
             //Write #definitions
             _generator.WriteVersion();
             if (_info.IsWeighted)
                 wl("#define {0} = {1};", BoneCountDef, _info._boneCount);
-            if (allowMeshMorphing && _info._pnbtCount > 1)
-                wl("#define {0} = {1};", MorphCountDef, _info._pnbtCount);
+            if (allowMeshMorphing)
+                wl("#define {0} = {1};", MorphCountDef, _info._morphCount);
             wl();
 
             //Write header in fields (from buffers)
@@ -49,7 +51,7 @@ namespace CustomEngine.Rendering.Models.Materials
             _generator.Begin();
 
             if (_info.IsWeighted)
-                WriteRiggedPNTB(allowMeshMorphing ? singleMorphRig : true);
+                WriteRiggedPNTB(allowMeshMorphing, allowMeshMorphing ? singleMorphRig : true);
             else
                 WriteStaticPNTB(allowMeshMorphing);
 
@@ -63,8 +65,12 @@ namespace CustomEngine.Rendering.Models.Materials
             WriteUniform(GLTypeName._mat4, "ProjMatrix");
             if (_info.IsWeighted)
             {
-               WriteUniform(GLTypeName._mat4, "BoneMatrices[" + BoneCountDef + "]");
-               WriteUniform(GLTypeName._mat4, "BoneMatricesIT[" + BoneCountDef + "]");
+                for (int i = 0; i < _info._morphCount + 1; ++i)
+                {
+                    WriteUniform(GLTypeName._mat4, Uniform.BoneMatricesName + i + "[" + BoneCountDef + "]");
+                    WriteUniform(GLTypeName._mat4, Uniform.BoneMatricesITName + i + "[" + BoneCountDef + "]");
+                }
+                WriteUniform(GLTypeName._mat4, Uniform.MorphWeightsName + "[" + MorphCountDef + "]");
             }
         }
         /// <summary>
@@ -82,78 +88,141 @@ namespace CustomEngine.Rendering.Models.Materials
                 wl("vec3 Binormal;");
             wl("} OutData;");
         }
-        private static void WriteRiggedPNTB(bool singleRig = true)
+        private static void WriteRiggedPNTB(bool morphed, bool singleRig)
         {
             wl("OutData.Position = 0.0;");
-            wl("vec4 finalPosition;");
+            wl("vec4 basePosition = vec4(Position0, 1.0);");
             if (_info.HasNormals)
             {
                 wl("OutData.Normal = 0.0;");
-                wl("vec4 finalNormal;");
+                wl("vec4 baseNormal = vec4(Normal0, 1.0);");
             }
             if (_info.HasBinormals)
             {
                 wl("OutData.Binormal = 0.0;");
-                wl("vec4 finalBinormal = vec4(Binormal0, 1.0);");
+                wl("vec4 baseBinormal = vec4(Binormal0, 1.0);");
             }
             if (_info.HasTangents)
             {
                 wl("OutData.Tangent = 0.0;");
-                wl("vec4 finalTangent = vec4(Tangent0, 1.0);");
+                wl("vec4 baseTangent = vec4(Tangent0, 1.0);");
             }
-
+            wl();
             if (singleRig)
             {
                 wl("for (int i = 0; i < 4; ++i)");
                 wl("{");
-                wl("OutData.Position += {0}[{1}[i]] * finalPosition * {2}[i];", Uniform.BoneMatricesName, BufferType.MatrixIds, BufferType.MatrixWeights);
+                wl("OutData.Position += {0}[{1}[i]] * basePosition * {2}0[i];", Uniform.BoneMatricesName, BufferType.MatrixIds, BufferType.MatrixWeights);
                 if (_info.HasNormals)
-                    wl("OutData.Normal += {0}[{1}[i]] * finalNormal * {2}[i];", Uniform.BoneMatricesITName, BufferType.MatrixIds, BufferType.MatrixWeights);
+                    wl("OutData.Normal += {0}[{1}[i]] * baseNormal * {2}0[i];", Uniform.BoneMatricesITName, BufferType.MatrixIds, BufferType.MatrixWeights);
                 if (_info.HasBinormals)
-                    wl("OutData.Binormal += {0}[{1}[i]] * finalBinormal * {2}[i];", Uniform.BoneMatricesITName, BufferType.MatrixIds, BufferType.MatrixWeights);
+                    wl("OutData.Binormal += {0}[{1}[i]] * baseBinormal * {2}0[i];", Uniform.BoneMatricesITName, BufferType.MatrixIds, BufferType.MatrixWeights);
                 if (_info.HasTangents)
-                    wl("OutData.Tangent += {0}[{1}[i]] * finalTangent * {2}[i];", Uniform.BoneMatricesITName, BufferType.MatrixIds, BufferType.MatrixWeights);
+                    wl("OutData.Tangent += {0}[{1}[i]] * baseTangent * {2}0[i];", Uniform.BoneMatricesITName, BufferType.MatrixIds, BufferType.MatrixWeights);
                 wl("}");
+                wl();
+                if (_info.HasNormals)
+                    wl("OutData.Normal = normalize(OutData.Normal);");
+                if (_info.HasBinormals)
+                    wl("OutData.Binormal = normalize(OutData.Normal);");
+                if (_info.HasTangents)
+                    wl("OutData.Tangent = normalize(OutData.Normal);");
             }
             else
             {
-                wl("float totalWeight = 0;");
-                //foreach (float f in weights)
-                //    totalWeight += f;
-
-                //float baseWeight = 1.0f - totalWeight;
-                //float total = totalWeight + baseWeight;
-
+                wl("float totalWeight = 0.0;");
+                wl("for (int i = 0; i < {0}; ++i)", MorphCountDef);
+                wl("totalWeight += MorphWeights[i];");
+                wl();
+                wl("float baseWeight = 1.0 - totalWeight;");
+                wl("float total = totalWeight + baseWeight;");
+                wl();
+                wl("basePosition *= baseWeight;");
+                if (_info.HasNormals)
+                    wl("baseNormal *= baseWeight;");
+                if (_info.HasBinormals)
+                    wl("baseBinormal *= baseWeight;");
+                if (_info.HasTangents)
+                    wl("baseTangent *= baseWeight;");
+                wl();
                 wl("for (int i = 0; i < 4; ++i)");
                 wl("{");
-                wl("OutData.Position += {0}[{1}[i]] * finalPosition * {2}[i];", Uniform.BoneMatricesName, BufferType.MatrixIds, BufferType.MatrixWeights);
-                if (_info.HasNormals)
-                    wl("OutData.Normal += {0}[{1}[i]] * finalNormal * {2}[i];", Uniform.BoneMatricesITName, BufferType.MatrixIds, BufferType.MatrixWeights);
-                if (_info.HasBinormals)
-                    wl("OutData.Binormal += {0}[{1}[i]] * finalBinormal * {2}[i];", Uniform.BoneMatricesITName, BufferType.MatrixIds, BufferType.MatrixWeights);
-                if (_info.HasTangents)
-                    wl("OutData.Tangent += {0}[{1}[i]] * finalTangent * {2}[i];", Uniform.BoneMatricesITName, BufferType.MatrixIds, BufferType.MatrixWeights);
+                for (int i = 0; i < _info._morphCount; ++i)
+                {
+                    wl("OutData.Position += {0}[{1}{3}[i]] * Position{5} * {2}{3}[i] * {4}[i];", Uniform.BoneMatricesName, BufferType.MatrixIds, BufferType.MatrixWeights, i, Uniform.MorphWeightsName, i + 1);
+                    if (_info.HasNormals)
+                        wl("OutData.Normal += {0}[{1}{3}[i]] * Normal{5} * {2}{3}[i] * {4}[i];", Uniform.BoneMatricesITName, BufferType.MatrixIds, BufferType.MatrixWeights, i, Uniform.MorphWeightsName, i + 1);
+                    if (_info.HasBinormals)
+                        wl("OutData.Binormal += {0}[{1}{3}[i]] * Binormal{5} * {2}{3}[i] * {4}[i];", Uniform.BoneMatricesITName, BufferType.MatrixIds, BufferType.MatrixWeights, i, Uniform.MorphWeightsName, i + 1);
+                    if (_info.HasTangents)
+                        wl("OutData.Tangent += {0}[{1}{3}[i]] * Tangent{5} * {2}{3}[i] * {4}[i];", Uniform.BoneMatricesITName, BufferType.MatrixIds, BufferType.MatrixWeights, i, Uniform.MorphWeightsName, i + 1);
+                    if (i + 1 != _info._morphCount)
+                        wl();
+                }
                 wl("}");
+                wl("OutData.Position /= total;");
+                if (_info.HasNormals)
+                    wl("OutData.Normal /= total;");
+                if (_info.HasBinormals)
+                    wl("OutData.Binormal /= total;");
+                if (_info.HasTangents)
+                    wl("OutData.Tangent /= total;");
             }
         }
         private static void WriteStaticPNTB(bool morphed)
         {
-            wl("vec4 finalPosition = ModelMatrix * vec4(Position0, 1.0);");
-            wl("OutData.Position = finalPosition.xyz;");
-            wl("gl_Position = ProjMatrix * ViewMatrix * finalPosition;");
+            wl("vec4 position = ModelMatrix * vec4(Position0, 1.0);");
             if (_info.HasNormals)
-                wl("OutData.Normal = normalize((NormalMatrix * vec4(Normal0, 1.0)).xyz);");
+                wl("OutData.Normal = normalize(NormalMatrix * vec4(Normal0, 1.0)).xyz;");
             if (_info.HasBinormals)
-                wl("OutData.Binormal = normalize((NormalMatrix * vec4(Binormal0, 1.0)).xyz);");
+                wl("OutData.Binormal = normalize(NormalMatrix * vec4(Binormal0, 1.0)).xyz;");
             if (_info.HasTangents)
-                wl("OutData.Tangent = normalize((NormalMatrix * vec4(Tangent0, 1.0)).xyz);");
+                wl("OutData.Tangent = normalize(NormalMatrix * vec4(Tangent0, 1.0)).xyz;");
+
+            if (morphed)
+            {
+                wl("float totalWeight = 0.0;");
+                wl("for (int i = 0; i < {0}; ++i)", MorphCountDef);
+                wl("totalWeight += MorphWeights[i];");
+
+                wl("float baseWeight = 1.0 - totalWeight;");
+                wl("float total = totalWeight + baseWeight;");
+
+                wl("position *= baseWeight;");
+                if (_info.HasNormals)
+                    wl("OutData.Normal *= baseWeight;");
+                if (_info.HasBinormals)
+                    wl("OutData.Binormal *= baseWeight;");
+                if (_info.HasTangents)
+                    wl("OutData.Tangent *= baseWeight;");
+
+                for (int i = 0; i < _info._morphCount; ++i)
+                {
+
+                }
+
+                wl("OutData.Position = position.xyz / total;");
+                wl("gl_Position = ProjMatrix * ViewMatrix * position;");
+                
+                if (_info.HasNormals)
+                    wl("OutData.Normal /= total;");
+                if (_info.HasBinormals)
+                    wl("OutData.Binormal /= total;");
+                if (_info.HasTangents)
+                    wl("OutData.Tangent /= total;");
+            }
+            else
+            {
+                wl("OutData.Position = position.xyz;");
+                wl("gl_Position = ProjMatrix * ViewMatrix * position;");
+            }
         }
         private static void WriteBuffers(bool singleMorphRig)
         {
             int layoutLocation = 0;
 
             //Write mesh buffers first
-            for (int i = 0; i < _info._pnbtCount; ++i)
+            for (int i = 0; i < _info._morphCount + 1; ++i)
             {
                 WriteInVar(layoutLocation++, GLTypeName._vec3, BufferType.Position.ToString() + i);
                 if (_info.HasNormals)
@@ -163,6 +232,7 @@ namespace CustomEngine.Rendering.Models.Materials
                 if (_info.HasTangents)
                     WriteInVar(layoutLocation++, GLTypeName._vec3, BufferType.Tangent.ToString() + i);
             }
+
             //Then colors and texcoords
             for (int i = 0; i < _info._colorCount; ++i)
                 WriteInVar(layoutLocation++, GLTypeName._vec4, BufferType.Color.ToString() + i);
@@ -175,21 +245,11 @@ namespace CustomEngine.Rendering.Models.Materials
 
             //And finally influence buffers
             if (_info.IsWeighted)
-            {
-                if (singleMorphRig)
+                for (int i = 0; i < _info._morphCount; ++i)
                 {
-                    WriteInVar(layoutLocation++, GLTypeName._ivec4, BufferType.MatrixIds.ToString());
-                    WriteInVar(layoutLocation++, GLTypeName._vec4, BufferType.MatrixWeights.ToString());
+                    WriteInVar(layoutLocation++, GLTypeName._ivec4, BufferType.MatrixIds.ToString() + i);
+                    WriteInVar(layoutLocation++, GLTypeName._vec4, BufferType.MatrixWeights.ToString() + i);
                 }
-                else
-                {
-                    for (int i = 0; i < _info._pnbtCount; ++i)
-                    {
-                        WriteInVar(layoutLocation++, GLTypeName._ivec4, BufferType.MatrixIds.ToString() + i);
-                        WriteInVar(layoutLocation++, GLTypeName._vec4, BufferType.MatrixWeights.ToString() + i);
-                    }
-                }
-            }
         }
     }
 }

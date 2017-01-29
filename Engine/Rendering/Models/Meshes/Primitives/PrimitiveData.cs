@@ -14,14 +14,14 @@ namespace CustomEngine.Rendering.Models
     }
     public class PrimitiveBufferInfo
     {
-        public int _pnbtCount = 1;
+        public int _morphCount = 0;
         public int _texcoordCount = 1;
         public int _colorCount = 0;
         public int _boneCount = 0;
         public bool _hasBarycentricCoord = false;
         public bool _hasNormals = true, _hasBinormals = false, _hasTangents = false;
 
-        public bool IsWeighted { get { return _boneCount > 0; } }
+        public bool IsWeighted { get { return _boneCount > 1; } }
         public bool HasNormals { get { return _hasNormals; } }
         public bool HasBinormals { get { return _hasBinormals; } }
         public bool HasTangents { get { return _hasTangents; } }
@@ -410,12 +410,12 @@ namespace CustomEngine.Rendering.Models
             if (info.IsWeighted)
                 SetInfluences(remapper.ImplementationTable.Select(x => vertices[x]._influence).ToArray());
 
-            for (int i = 0; i < info._pnbtCount; ++i)
+            for (int i = 0; i < info._morphCount + 1; ++i)
             {
                 var data = remapper.ImplementationTable.Select(x => vertices[x]._position).ToList();
                 AddBuffer(data, new VertexAttribInfo(BufferType.Position, i));
             }
-            for (int i = 0; i < info._pnbtCount; ++i)
+            for (int i = 0; i < info._morphCount + 1; ++i)
             {
                 var data = remapper.ImplementationTable.Select(x => vertices[x]._normal).ToList();
                 AddBuffer(data, new VertexAttribInfo(BufferType.Normal, i));
@@ -430,12 +430,12 @@ namespace CustomEngine.Rendering.Models
                 var data = remapper.ImplementationTable.Select(x => vertices[x]._color).ToList();
                 AddBuffer(data, new VertexAttribInfo(BufferType.Color, i));
             }
-            for (int i = 0; i < info._pnbtCount; ++i)
+            for (int i = 0; i < info._morphCount + 1; ++i)
             {
                 var data = remapper.ImplementationTable.Select(x => vertices[x]._binormal).ToList();
                 AddBuffer(data, new VertexAttribInfo(BufferType.Binormal, i));
             }
-            for (int i = 0; i < info._pnbtCount; ++i)
+            for (int i = 0; i < info._morphCount + 1; ++i)
             {
                 var data = remapper.ImplementationTable.Select(x => vertices[x]._tangent).ToList();
                 AddBuffer(data, new VertexAttribInfo(BufferType.Tangent, i));

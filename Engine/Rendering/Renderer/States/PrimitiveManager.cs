@@ -126,7 +126,7 @@ namespace CustomEngine.Rendering.Models
                 _utilizedBones = null;
             }
         }
-        private void SetBoneMatrixUniforms()
+        private void SetSkinningUniforms()
         {
             if (!_bufferInfo.IsWeighted)
                 return;
@@ -142,9 +142,10 @@ namespace CustomEngine.Rendering.Models
                 positionMatrices[i] = b.VertexMatrix;
                 normalMatrices[i] = b.VertexMatrixIT;
             }
-
+            
             Engine.Renderer.Uniform(Uniform.BoneMatricesName, positionMatrices.ToArray());
             Engine.Renderer.Uniform(Uniform.BoneMatricesITName, normalMatrices.ToArray());
+            //Engine.Renderer.Uniform(Uniform.MorphWeightsName, _morphWeights);
         }
         public unsafe void Render(Matrix4 modelMatrix)
         {
@@ -164,7 +165,7 @@ namespace CustomEngine.Rendering.Models
             //order by depth FIRST though
             Engine.Renderer.UseProgram(_program);
             
-            SetBoneMatrixUniforms();
+            SetSkinningUniforms();
 
             //This is a mesh-specific uniform
             Engine.Renderer.Uniform(Uniform.GetLocation(ECommonUniform.ModelMatrix), modelMatrix);

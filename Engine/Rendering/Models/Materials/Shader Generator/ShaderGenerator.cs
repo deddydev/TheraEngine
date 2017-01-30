@@ -9,7 +9,7 @@ namespace CustomEngine.Rendering.Models.Materials
     public class ShaderGenerator
     {
         private const string GLSLVersion = "410";
-        private const string NewLine = "\n";
+        private string NewLine = Environment.NewLine;
         
         private string _shaderCode = "";
         private int tabCount = 0;

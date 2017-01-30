@@ -19,6 +19,7 @@ namespace CustomEngine.Rendering.Models
         Barycentric     = 6,
         MatrixIds       = 7,
         MatrixWeights   = 8,
+        Other           = 9,
     }
     public class VertexAttribInfo
     {
@@ -87,7 +88,7 @@ namespace CustomEngine.Rendering.Models
 
         private int _index, _location;
         private BufferTarget _target;
-        private BufferType _type;
+        private BufferType _type = BufferType.Other;
 
         public int Index
         {
@@ -97,6 +98,7 @@ namespace CustomEngine.Rendering.Models
         public BufferType BufferType
         {
             get { return _type; }
+            set { _type = value; }
         }
 
         public VertexBuffer(
@@ -140,17 +142,17 @@ namespace CustomEngine.Rendering.Models
             _target = target;
             _name = name;
         }
-        public VertexBuffer(
-            int index,
-            string name,
-            int location,
-            BufferTarget target) : base(GenType.Buffer)
-        {
-            _index = index;
-            _location = location;
-            _target = target;
-            _name = name;
-        }
+        //public VertexBuffer(
+        //    int index,
+        //    string name,
+        //    int location,
+        //    BufferTarget target) : base(GenType.Buffer)
+        //{
+        //    _index = index;
+        //    _location = location;
+        //    _target = target;
+        //    _name = name;
+        //}
         public VertexBuffer(
            int index,
            VertexAttribInfo info,
@@ -160,6 +162,7 @@ namespace CustomEngine.Rendering.Models
             _target = target;
             _location = info.GetLocation();
             _name = info.GetAttribName();
+            _type = info._type;
         }
 
         public VoidPtr Data { get { return _data.Address; } }

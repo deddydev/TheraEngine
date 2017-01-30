@@ -50,7 +50,7 @@ namespace CustomEngine.Rendering.Models
             {
                 VertexBuffer b = buffers[i];
                 int index = facepoint.Indices[i];
-                BufferType type = b.Target;
+                BufferType type = b.BufferType;
                 switch (type)
                 {
                     case BufferType.Position:
@@ -86,8 +86,8 @@ namespace CustomEngine.Rendering.Models
             {
                 VertexBuffer b = buffers[i];
                 int index = facepoint.Indices[i];
-                VertexAttribInfo info = b.Info;
-                switch (info._type)
+                BufferType type = b.BufferType;
+                switch (type)
                 {
                     case BufferType.Position:
                         _position = b.Get<Vec3>(index * 12);

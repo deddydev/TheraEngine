@@ -164,6 +164,15 @@ namespace CustomEngine.Rendering.Models.Collada
             SourceEntry src;
             List<VertexPrimitive> linePrimitives = null;
             List<VertexPolygon> facePrimitives = null;
+            int boneCount = 0;
+            if (infList != null)
+            {
+                HashSet<string> bones = new HashSet<string>();
+                foreach (Influence inf in infList)
+                    for (int i = 0; i < inf.WeightCount; ++i)
+                        bones.Add(inf.Weights[i].Bone);
+                boneCount = bones.Count;
+            }
             PrimitiveBufferInfo info = new PrimitiveBufferInfo()
             {
                 _morphCount = 0,
@@ -171,6 +180,7 @@ namespace CustomEngine.Rendering.Models.Collada
                 _hasNormals = false,
                 _hasBinormals = false,
                 _hasTangents = false,
+                _boneCount = boneCount,
             };
 
             foreach (PrimitiveEntry prim in geo._primitives)

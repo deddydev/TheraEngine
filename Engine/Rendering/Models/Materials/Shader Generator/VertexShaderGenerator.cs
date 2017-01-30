@@ -8,8 +8,8 @@ namespace CustomEngine.Rendering.Models.Materials
 {
     public static class VertexShaderGenerator
     {
-        private const string BoneCountDef = "BONE_COUNT";
-        private const string MorphCountDef = "MORPH_COUNT";
+        //private const string BoneCountDef = "BONE_COUNT";
+        //private const string MorphCountDef = "MORPH_COUNT";
         private static ShaderGenerator _generator = new ShaderGenerator();
         private static PrimitiveBufferInfo _info;
         
@@ -31,17 +31,17 @@ namespace CustomEngine.Rendering.Models.Materials
 
             //Write #definitions
             _generator.WriteVersion();
-            if (_info.IsWeighted)
-                wl("#define {0} = {1};", BoneCountDef, _info._boneCount);
-            if (allowMeshMorphing)
-                wl("#define {0} = {1};", MorphCountDef, _info._morphCount);
+            //if (_info.IsWeighted)
+            //    wl("#define {0} {1};", BoneCountDef, _info._boneCount);
+            //if (allowMeshMorphing)
+            //    wl("#define {0} {1};", MorphCountDef, _info._morphCount);
             wl();
 
             //Write header in fields (from buffers)
-            WriteBuffers(true);
+            WriteBuffers(allowMeshMorphing);
             wl();
             //Write header uniforms
-            WriteMatrixUniforms();
+            WriteMatrixUniforms(allowMeshMorphing);
             wl();
             //Write header out fields (to fragment shader)
             WriteOutData();
@@ -57,7 +57,41 @@ namespace CustomEngine.Rendering.Models.Materials
 
             return new Shader(ShaderMode.Vertex, _generator.Finish());
         }
-        private static void WriteMatrixUniforms()
+        private static void WriteBuffers(bool morphed)
+        {
+            int layoutLocation = 0;
+
+            //Write mesh buffers first
+            for (int i = 0; i < (morphed ? _info._morphCount + 1 : 1); ++i)
+            {
+                WriteInVar(layoutLocation++, GLTypeName._vec3, BufferType.Position.ToString() + i);
+                if (_info.HasNormals)
+                    WriteInVar(layoutLocation++, GLTypeName._vec3, BufferType.Normal.ToString() + i);
+                if (_info.HasBinormals)
+                    WriteInVar(layoutLocation++, GLTypeName._vec3, BufferType.Binormal.ToString() + i);
+                if (_info.HasTangents)
+                    WriteInVar(layoutLocation++, GLTypeName._vec3, BufferType.Tangent.ToString() + i);
+            }
+
+            //Then colors and texcoords
+            for (int i = 0; i < _info._colorCount; ++i)
+                WriteInVar(layoutLocation++, GLTypeName._vec4, BufferType.Color.ToString() + i);
+            for (int i = 0; i < _info._texcoordCount; ++i)
+                WriteInVar(layoutLocation++, GLTypeName._vec2, BufferType.TexCoord.ToString() + i);
+
+            //Barycentric coord, for wireframe rendering
+            if (_info._hasBarycentricCoord)
+                WriteInVar(layoutLocation++, GLTypeName._vec3, BufferType.Barycentric.ToString());
+
+            //And finally influence buffers
+            if (_info.IsWeighted)
+                for (int i = 0; i < (morphed ? _info._morphCount + 1 : 1); ++i)
+                {
+                    WriteInVar(layoutLocation++, GLTypeName._ivec4, BufferType.MatrixIds.ToString() + i);
+                    WriteInVar(layoutLocation++, GLTypeName._vec4, BufferType.MatrixWeights.ToString() + i);
+                }
+        }
+        private static void WriteMatrixUniforms(bool morphed)
         {
             WriteUniform(GLTypeName._mat4, "ModelMatrix");
             WriteUniform(GLTypeName._mat4, "NormalMatrix");
@@ -65,12 +99,10 @@ namespace CustomEngine.Rendering.Models.Materials
             WriteUniform(GLTypeName._mat4, "ProjMatrix");
             if (_info.IsWeighted)
             {
-                for (int i = 0; i < _info._morphCount + 1; ++i)
-                {
-                    WriteUniform(GLTypeName._mat4, Uniform.BoneMatricesName + i + "[" + BoneCountDef + "]");
-                    WriteUniform(GLTypeName._mat4, Uniform.BoneMatricesITName + i + "[" + BoneCountDef + "]");
-                }
-                WriteUniform(GLTypeName._mat4, Uniform.MorphWeightsName + "[" + MorphCountDef + "]");
+                WriteUniform(GLTypeName._mat4, Uniform.BoneMatricesName + "[" + _info._boneCount + "]");
+                WriteUniform(GLTypeName._mat4, Uniform.BoneMatricesITName + "[" + _info._boneCount + "]");
+                if (morphed)
+                    WriteUniform(GLTypeName._mat4, Uniform.MorphWeightsName + "[" + _info._morphCount + "]");
             }
         }
         /// <summary>
@@ -90,21 +122,21 @@ namespace CustomEngine.Rendering.Models.Materials
         }
         private static void WriteRiggedPNTB(bool morphed, bool singleRig)
         {
-            wl("OutData.Position = 0.0;");
+            wl("OutData.Position = vec3(0.0);");
             wl("vec4 basePosition = vec4(Position0, 1.0);");
             if (_info.HasNormals)
             {
-                wl("OutData.Normal = 0.0;");
+                wl("OutData.Normal = vec3(0.0);");
                 wl("vec4 baseNormal = vec4(Normal0, 1.0);");
             }
             if (_info.HasBinormals)
             {
-                wl("OutData.Binormal = 0.0;");
+                wl("OutData.Binormal = vec3(0.0);");
                 wl("vec4 baseBinormal = vec4(Binormal0, 1.0);");
             }
             if (_info.HasTangents)
             {
-                wl("OutData.Tangent = 0.0;");
+                wl("OutData.Tangent = vec3(0.0);");
                 wl("vec4 baseTangent = vec4(Tangent0, 1.0);");
             }
             wl();
@@ -112,13 +144,13 @@ namespace CustomEngine.Rendering.Models.Materials
             {
                 wl("for (int i = 0; i < 4; ++i)");
                 wl("{");
-                wl("OutData.Position += ({0}[{1}[i]] * basePosition * {2}0[i]).xyz;", Uniform.BoneMatricesName, BufferType.MatrixIds, BufferType.MatrixWeights);
+                wl("OutData.Position += (({0}[{1}0[i]] * basePosition) * {2}0[i]).xyz;", Uniform.BoneMatricesName, BufferType.MatrixIds, BufferType.MatrixWeights);
                 if (_info.HasNormals)
-                    wl("OutData.Normal += normalize({0}[{1}[i]] * baseNormal * {2}0[i]).xyz;", Uniform.BoneMatricesITName, BufferType.MatrixIds, BufferType.MatrixWeights);
+                    wl("OutData.Normal += normalize(({0}[{1}0[i]] * baseNormal) * {2}0[i]).xyz;", Uniform.BoneMatricesITName, BufferType.MatrixIds, BufferType.MatrixWeights);
                 if (_info.HasBinormals)
-                    wl("OutData.Binormal += normalize({0}[{1}[i]] * baseBinormal * {2}0[i]).xyz;", Uniform.BoneMatricesITName, BufferType.MatrixIds, BufferType.MatrixWeights);
+                    wl("OutData.Binormal += normalize(({0}[{1}0[i]] * baseBinormal) * {2}0[i]).xyz;", Uniform.BoneMatricesITName, BufferType.MatrixIds, BufferType.MatrixWeights);
                 if (_info.HasTangents)
-                    wl("OutData.Tangent += normalize({0}[{1}[i]] * baseTangent * {2}0[i]).xyz;", Uniform.BoneMatricesITName, BufferType.MatrixIds, BufferType.MatrixWeights);
+                    wl("OutData.Tangent += normalize(({0}[{1}0[i]] * baseTangent) * {2}0[i]).xyz;", Uniform.BoneMatricesITName, BufferType.MatrixIds, BufferType.MatrixWeights);
                 wl("}");
                 wl();
                 if (_info.HasNormals)
@@ -131,7 +163,7 @@ namespace CustomEngine.Rendering.Models.Materials
             else
             {
                 wl("float totalWeight = 0.0;");
-                wl("for (int i = 0; i < {0}; ++i)", MorphCountDef);
+                wl("for (int i = 0; i < {0}; ++i)", _info._morphCount);
                 wl("totalWeight += MorphWeights[i];");
                 wl();
                 wl("float baseWeight = 1.0 - totalWeight;");
@@ -182,7 +214,7 @@ namespace CustomEngine.Rendering.Models.Materials
             if (morphed)
             {
                 wl("float totalWeight = 0.0;");
-                wl("for (int i = 0; i < {0}; ++i)", MorphCountDef);
+                wl("for (int i = 0; i < {0}; ++i)", _info._morphCount);
                 wl("totalWeight += {0}[i];", Uniform.MorphWeightsName);
 
                 wl("float baseWeight = 1.0 - totalWeight;");
@@ -228,40 +260,6 @@ namespace CustomEngine.Rendering.Models.Materials
                 if (_info.HasTangents)
                     wl("OutData.Tangent = tangent.xyz;");
             }
-        }
-        private static void WriteBuffers(bool singleMorphRig)
-        {
-            int layoutLocation = 0;
-
-            //Write mesh buffers first
-            for (int i = 0; i < _info._morphCount + 1; ++i)
-            {
-                WriteInVar(layoutLocation++, GLTypeName._vec3, BufferType.Position.ToString() + i);
-                if (_info.HasNormals)
-                    WriteInVar(layoutLocation++, GLTypeName._vec3, BufferType.Normal.ToString() + i);
-                if (_info.HasBinormals)
-                    WriteInVar(layoutLocation++, GLTypeName._vec3, BufferType.Binormal.ToString() + i);
-                if (_info.HasTangents)
-                    WriteInVar(layoutLocation++, GLTypeName._vec3, BufferType.Tangent.ToString() + i);
-            }
-
-            //Then colors and texcoords
-            for (int i = 0; i < _info._colorCount; ++i)
-                WriteInVar(layoutLocation++, GLTypeName._vec4, BufferType.Color.ToString() + i);
-            for (int i = 0; i < _info._texcoordCount; ++i)
-                WriteInVar(layoutLocation++, GLTypeName._vec2, BufferType.TexCoord.ToString() + i);
-
-            //Barycentric coord, for wireframe rendering
-            if (_info._hasBarycentricCoord)
-                WriteInVar(layoutLocation++, GLTypeName._vec3, BufferType.Barycentric.ToString());
-
-            //And finally influence buffers
-            if (_info.IsWeighted)
-                for (int i = 0; i < _info._morphCount + 1; ++i)
-                {
-                    WriteInVar(layoutLocation++, GLTypeName._ivec4, BufferType.MatrixIds.ToString() + i);
-                    WriteInVar(layoutLocation++, GLTypeName._vec4, BufferType.MatrixWeights.ToString() + i);
-                }
         }
     }
 }

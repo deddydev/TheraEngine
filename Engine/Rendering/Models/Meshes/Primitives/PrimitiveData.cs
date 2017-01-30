@@ -65,12 +65,12 @@ namespace CustomEngine.Rendering.Models
 
         public VertexBuffer this[BufferType type]
         {
-            get { return _buffers.FirstOrDefault(x => x.Info._type == type); }
+            get { return _buffers.FirstOrDefault(x => x.BufferType == type); }
             set
             {
                 //value.Name = _type.ToString();
-                value.Info._type = type;
-                var buf = _buffers.FirstOrDefault(x => x.Info._type == type);
+                value.BufferType = type;
+                var buf = _buffers.FirstOrDefault(x => x.BufferType == type);
                 if (buf != null)
                 {
                     value.Index = buf.Index;

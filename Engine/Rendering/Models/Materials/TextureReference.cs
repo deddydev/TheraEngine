@@ -10,20 +10,28 @@ namespace CustomEngine.Rendering.Models.Materials
 {
     public class TextureReference
     {
-        SingleFileRef<TextureData> _reference;
+        public TextureReference(Material m, string path)
+        {
+            _owningMaterial = m;
+            _reference = new SingleFileRef<TextureData>(path);
+        }
+
+        private Material _owningMaterial;
+        private SingleFileRef<TextureData> _reference;
 
         private TextureMinFilter _minFilter;
         private TextureMagFilter _magFilter;
         private TexCoordWrap _uWrap, _vWrap;
 
+        public string Path { get { return _reference.FilePathAbsolute; } }
         public TextureMagFilter MagFilter { get { return _magFilter; } set { _magFilter = value; } }
         public TextureMinFilter MinFilter { get { return _minFilter; } set { _minFilter = value; } }
         public TexCoordWrap UWrap { get { return _uWrap; } set { _uWrap = value; } }
         public TexCoordWrap VWrap { get { return _vWrap; } set { _vWrap = value; } }
 
-        public void SetImagePath(string path)
+        public Texture GetTexture()
         {
-            
+            return null;
         }
     }
     public enum TexCoordWrap

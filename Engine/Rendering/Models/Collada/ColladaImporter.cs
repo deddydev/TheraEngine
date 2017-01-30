@@ -123,6 +123,7 @@ namespace CustomEngine.Rendering.Models.Collada
                         tr.MinFilter = TextureMinFilter.Linear;
                         tr.MagFilter = TextureMagFilter.Linear;
                         tr.UWrap = tr.VWrap = options._wrap;
+                        m.Textures.Add(tr);
                     }
                 }
 

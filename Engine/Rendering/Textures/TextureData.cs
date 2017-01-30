@@ -1,4 +1,5 @@
 ﻿using CustomEngine.Files;
+using FreeImageAPI;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,37 +10,17 @@ namespace CustomEngine.Rendering.Textures
 {
     public class TextureData : FileObject
     {
-        public TextureData(TextureTarget target, int width, int height, PixelInternalFormat internalFormat, PixelType pixelType)
-        {
-
-        }
-
-        private DataSource _data;
-        private TextureTarget _target;
-        private int _width, _height;
-        private PixelInternalFormat _internalFormat;
-        private PixelFormat _format;
-        private PixelType _pixelType;
-        private int mipCount;
-
-        public bool IsAllocated { get { return _data != null; } }
-        public VoidPtr DataAddress { get { return _data.Address; } }
-        public int DataLength { get { return _data.Length; } }
-
         public override ResourceType ResourceType { get { return ResourceType.Texture; } }
 
-        public void Allocate()
-        {
-            //_data = TextureConverter.Get()
-        }
+        FreeImageBitmap _bitmap;
 
-        public static TextureData EmptyFrameBuffer(int width, int height)
+        public TextureData(string path)
         {
-            return new TextureData(TextureTarget.Texture2D, width, height, PixelInternalFormat.Rgb32f, PixelType.Float);
+            _bitmap = new FreeImageBitmap(path);
         }
-        public static TextureData EmptyDepthFrameBuffer(int width, int height)
+        public TextureData(int width, int height)
         {
-            return new TextureData(TextureTarget.Texture2D, width, height, PixelInternalFormat.DepthComponent32f, PixelType.Float);
+            _bitmap = new FreeImageBitmap(width, height);
         }
     }
     public enum PixelFormat

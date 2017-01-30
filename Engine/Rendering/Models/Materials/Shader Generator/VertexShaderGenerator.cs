@@ -112,13 +112,13 @@ namespace CustomEngine.Rendering.Models.Materials
             {
                 wl("for (int i = 0; i < 4; ++i)");
                 wl("{");
-                wl("OutData.Position += {0}[{1}[i]] * basePosition * {2}0[i];", Uniform.BoneMatricesName, BufferType.MatrixIds, BufferType.MatrixWeights);
+                wl("OutData.Position += ({0}[{1}[i]] * basePosition * {2}0[i]).xyz;", Uniform.BoneMatricesName, BufferType.MatrixIds, BufferType.MatrixWeights);
                 if (_info.HasNormals)
-                    wl("OutData.Normal += {0}[{1}[i]] * baseNormal * {2}0[i];", Uniform.BoneMatricesITName, BufferType.MatrixIds, BufferType.MatrixWeights);
+                    wl("OutData.Normal += normalize({0}[{1}[i]] * baseNormal * {2}0[i]).xyz;", Uniform.BoneMatricesITName, BufferType.MatrixIds, BufferType.MatrixWeights);
                 if (_info.HasBinormals)
-                    wl("OutData.Binormal += {0}[{1}[i]] * baseBinormal * {2}0[i];", Uniform.BoneMatricesITName, BufferType.MatrixIds, BufferType.MatrixWeights);
+                    wl("OutData.Binormal += normalize({0}[{1}[i]] * baseBinormal * {2}0[i]).xyz;", Uniform.BoneMatricesITName, BufferType.MatrixIds, BufferType.MatrixWeights);
                 if (_info.HasTangents)
-                    wl("OutData.Tangent += {0}[{1}[i]] * baseTangent * {2}0[i];", Uniform.BoneMatricesITName, BufferType.MatrixIds, BufferType.MatrixWeights);
+                    wl("OutData.Tangent += normalize({0}[{1}[i]] * baseTangent * {2}0[i]).xyz;", Uniform.BoneMatricesITName, BufferType.MatrixIds, BufferType.MatrixWeights);
                 wl("}");
                 wl();
                 if (_info.HasNormals)
@@ -149,13 +149,13 @@ namespace CustomEngine.Rendering.Models.Materials
                 wl("{");
                 for (int i = 0; i < _info._morphCount; ++i)
                 {
-                    wl("OutData.Position += {0}[{1}{3}[i]] * Position{5} * {2}{3}[i] * {4}[i];", Uniform.BoneMatricesName, BufferType.MatrixIds, BufferType.MatrixWeights, i, Uniform.MorphWeightsName, i + 1);
+                    wl("OutData.Position += {0}[{1}{3}[i]] * vec4(Position{5}, 1.0) * {2}{3}[i] * {4}[i];", Uniform.BoneMatricesName, BufferType.MatrixIds, BufferType.MatrixWeights, i, Uniform.MorphWeightsName, i + 1);
                     if (_info.HasNormals)
-                        wl("OutData.Normal += {0}[{1}{3}[i]] * Normal{5} * {2}{3}[i] * {4}[i];", Uniform.BoneMatricesITName, BufferType.MatrixIds, BufferType.MatrixWeights, i, Uniform.MorphWeightsName, i + 1);
+                        wl("OutData.Normal += {0}[{1}{3}[i]] * vec4(Normal{5}, 1.0) * {2}{3}[i] * {4}[i];", Uniform.BoneMatricesITName, BufferType.MatrixIds, BufferType.MatrixWeights, i, Uniform.MorphWeightsName, i + 1);
                     if (_info.HasBinormals)
-                        wl("OutData.Binormal += {0}[{1}{3}[i]] * Binormal{5} * {2}{3}[i] * {4}[i];", Uniform.BoneMatricesITName, BufferType.MatrixIds, BufferType.MatrixWeights, i, Uniform.MorphWeightsName, i + 1);
+                        wl("OutData.Binormal += {0}[{1}{3}[i]] * vec4(Binormal{5}, 1.0) * {2}{3}[i] * {4}[i];", Uniform.BoneMatricesITName, BufferType.MatrixIds, BufferType.MatrixWeights, i, Uniform.MorphWeightsName, i + 1);
                     if (_info.HasTangents)
-                        wl("OutData.Tangent += {0}[{1}{3}[i]] * Tangent{5} * {2}{3}[i] * {4}[i];", Uniform.BoneMatricesITName, BufferType.MatrixIds, BufferType.MatrixWeights, i, Uniform.MorphWeightsName, i + 1);
+                        wl("OutData.Tangent += {0}[{1}{3}[i]] * vec4(Tangent{5}, 1.0) * {2}{3}[i] * {4}[i];", Uniform.BoneMatricesITName, BufferType.MatrixIds, BufferType.MatrixWeights, i, Uniform.MorphWeightsName, i + 1);
                     if (i + 1 != _info._morphCount)
                         wl();
                 }
@@ -183,7 +183,7 @@ namespace CustomEngine.Rendering.Models.Materials
             {
                 wl("float totalWeight = 0.0;");
                 wl("for (int i = 0; i < {0}; ++i)", MorphCountDef);
-                wl("totalWeight += MorphWeights[i];");
+                wl("totalWeight += {0}[i];", Uniform.MorphWeightsName);
 
                 wl("float baseWeight = 1.0 - totalWeight;");
                 wl("float total = totalWeight + baseWeight;");
@@ -257,7 +257,7 @@ namespace CustomEngine.Rendering.Models.Materials
 
             //And finally influence buffers
             if (_info.IsWeighted)
-                for (int i = 0; i < _info._morphCount; ++i)
+                for (int i = 0; i < _info._morphCount + 1; ++i)
                 {
                     WriteInVar(layoutLocation++, GLTypeName._ivec4, BufferType.MatrixIds.ToString() + i);
                     WriteInVar(layoutLocation++, GLTypeName._vec4, BufferType.MatrixWeights.ToString() + i);

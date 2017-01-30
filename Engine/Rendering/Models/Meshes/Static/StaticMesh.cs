@@ -17,16 +17,12 @@ namespace CustomEngine.Rendering.Models
         public StaticMesh() : base() { }
         public StaticMesh(
             string name,
-            PrimitiveData mesh,
-            Material material,
             Shape cullingVolume)
         {
             _name = name;
-            _primitiveManager = new PrimitiveManager(mesh, material);
             _cullingVolume = cullingVolume;
         }
-
-        public Material Material { get { return _primitiveManager.Material; } }
+        
         public PhysicsDriver PhysicsDriver { get { return _physicsDriver; } }
         public Shape CullingVolume
         {
@@ -42,12 +38,15 @@ namespace CustomEngine.Rendering.Models
 
         protected Shape _cullingVolume;
         protected PhysicsDriver _physicsDriver;
-        protected PrimitiveManager _primitiveManager;
 
-        public void Render(Matrix4 transform)
+        private static StaticMesh GetSquareMesh()
         {
-            //TODO: normal matrix is actually transpose(inverse(transform))
-            _primitiveManager.Render(transform, transform.GetRotationMatrix4());
+            StaticMesh m = new StaticMesh("Square", null);
+            PrimitiveData d = PrimitiveData.FromQuads(
+                Culling.Back, new PrimitiveBufferInfo(), VertexQuad.MakeQuad(
+                Vec3.Zero, Vec3.UnitX, new Vec3(1.0f, 1.0f, 0.0f), Vec3.UnitY, Vec3.UnitZ));
+            m.RigidChildren.Add(new StaticRigidSubMesh(d, null, Material.GetDefaultMaterial(), "Square"));
+            return m;
         }
     }
 }

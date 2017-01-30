@@ -50,8 +50,8 @@ namespace CustomEngine.Rendering.Models
             {
                 VertexBuffer b = buffers[i];
                 int index = facepoint.Indices[i];
-                VertexAttribInfo info = b.Info;
-                switch (info._type)
+                BufferType type = b.Target;
+                switch (type)
                 {
                     case BufferType.Position:
                         b.Set(index * 12, _position);

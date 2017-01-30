@@ -12,10 +12,5 @@ namespace CustomEngine.Rendering.HUD
     public class RenderableHudComponent : DockableHudComponent
     {
         public RenderableHudComponent(HudComponent owner) : base(owner) { }
-
-        private static StaticMesh SquareMesh = new StaticMesh("HudComponent", 
-            PrimitiveData.FromQuads(Culling.Back, new PrimitiveBufferInfo(), VertexQuad.MakeQuad(
-            Vec3.Zero, Vec3.UnitX, new Vec3(1.0f, 1.0f, 0.0f), Vec3.UnitY, Vec3.UnitZ)),
-            Material.GetDefaultMaterial(), null);
     }
 }

@@ -87,13 +87,16 @@ namespace CustomEngine.Rendering.Models
 
         private int _index, _location;
         private BufferTarget _target;
-        protected VertexAttribInfo _info;
+        private BufferType _type;
 
-        public VertexAttribInfo Info { get { return _info; } }
         public int Index
         {
             get { return _index; }
             set { _index = value; }
+        }
+        public BufferType BufferType
+        {
+            get { return _type; }
         }
 
         public VertexBuffer(
@@ -109,6 +112,7 @@ namespace CustomEngine.Rendering.Models
             _target = target;
             _location = info.GetLocation();
             _name = info.GetAttribName();
+            _type = info._type;
 
             _componentType = componentType;
             _componentCount = componentCount;

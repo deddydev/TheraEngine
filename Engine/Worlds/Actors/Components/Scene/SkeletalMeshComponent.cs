@@ -132,6 +132,7 @@ namespace CustomEngine.Worlds.Actors.Components
 
                     //TODO: support multi-bone influence as single bind as well
                     _singleBind = _mesh.SingleBindName != null && _skeleton != null ? _skeleton.GetBone(_mesh.SingleBindName) : null;
+                    _manager.SkeletonChanged(_skeleton);
                 }
             }
             public Shape CullingVolume { get { return _cullingVolume; } }

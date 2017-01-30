@@ -48,9 +48,9 @@ namespace CustomEngine.Worlds
                 CollidesWith = CustomCollisionGroup.StaticWorld,
             };
             Sphere sphere = new Sphere(1.0f, Vec3.Zero);
-            StaticMesh sphereModel = new StaticMesh(
-                "Sphere", sphere.GetMesh(30.0f, false),
-                Material.GetDefaultMaterial(), sphere);
+            StaticMesh sphereModel = new StaticMesh("Sphere", sphere);
+            sphereModel.RigidChildren.Add(new StaticRigidSubMesh(sphere.GetMesh(30.0f, false), sphere, Material.GetDefaultMaterial(), "SphereMesh"));
+
             PhysicsDriverInfo floorInfo = new PhysicsDriverInfo()
             {
                 BodyInfo = new RigidBodyConstructionInfo(
@@ -66,9 +66,8 @@ namespace CustomEngine.Worlds
                 CollidesWith = CustomCollisionGroup.DynamicWorld,
             };
             BoundingBox floorBox = new BoundingBox(new Vec3(-20.0f, -0.5f, -20.0f), new Vec3(20.0f, 0.5f, 20.0f));
-            StaticMesh floorModel = new StaticMesh(
-                "Floor", floorBox.GetMesh(false),
-                Material.GetDefaultMaterial(), floorBox);
+            StaticMesh floorModel = new StaticMesh("Floor", floorBox);
+            floorModel.RigidChildren.Add(new StaticRigidSubMesh(floorBox.GetMesh(false), floorBox, Material.GetDefaultMaterial(), "FloorMesh"));
 
             AnimationInterpNode camPropAnim = new AnimationInterpNode(360, true, true);
             InterpKeyframe first = new InterpKeyframe(0.0f, 0.0f, 0.0f);

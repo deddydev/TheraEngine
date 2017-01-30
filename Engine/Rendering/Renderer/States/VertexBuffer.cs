@@ -40,9 +40,13 @@ namespace CustomEngine.Rendering.Models
             {
                 return t + _index * 4;
             }
-            else
+            else if (t <= 6)
             {
                 return t * VertexBuffer.MaxBufferCountPerType + _index;
+            }
+            else
+            {
+                return t * VertexBuffer.MaxBufferCountPerType + _index + 1;
             }
         }
     }

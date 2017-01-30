@@ -66,22 +66,34 @@ namespace CustomEngine.Rendering.Models.Materials
             {
                 WriteInVar(layoutLocation++, GLTypeName._vec3, BufferType.Position.ToString() + i);
                 if (_info.HasNormals)
-                    WriteInVar(layoutLocation++, GLTypeName._vec3, BufferType.Normal.ToString() + i);
+                    WriteInVar(layoutLocation, GLTypeName._vec3, BufferType.Normal.ToString() + i);
+                ++layoutLocation;
                 if (_info.HasBinormals)
-                    WriteInVar(layoutLocation++, GLTypeName._vec3, BufferType.Binormal.ToString() + i);
+                    WriteInVar(layoutLocation, GLTypeName._vec3, BufferType.Binormal.ToString() + i);
+                ++layoutLocation;
                 if (_info.HasTangents)
-                    WriteInVar(layoutLocation++, GLTypeName._vec3, BufferType.Tangent.ToString() + i);
+                    WriteInVar(layoutLocation, GLTypeName._vec3, BufferType.Tangent.ToString() + i);
+                ++layoutLocation;
             }
 
             //Then colors and texcoords
+            layoutLocation = (int)BufferType.Color * VertexBuffer.MaxBufferCountPerType;
             for (int i = 0; i < _info._colorCount; ++i)
-                WriteInVar(layoutLocation++, GLTypeName._vec4, BufferType.Color.ToString() + i);
+            {
+                WriteInVar(layoutLocation, GLTypeName._vec4, BufferType.Color.ToString() + i);
+            }
+            layoutLocation = (int)BufferType.TexCoord * VertexBuffer.MaxBufferCountPerType;
             for (int i = 0; i < _info._texcoordCount; ++i)
-                WriteInVar(layoutLocation++, GLTypeName._vec2, BufferType.TexCoord.ToString() + i);
-
+            {
+                WriteInVar(layoutLocation, GLTypeName._vec2, BufferType.TexCoord.ToString() + i);
+            }
             //Barycentric coord, for wireframe rendering
+            layoutLocation = (int)BufferType.Barycentric * VertexBuffer.MaxBufferCountPerType;
             if (_info._hasBarycentricCoord)
-                WriteInVar(layoutLocation++, GLTypeName._vec3, BufferType.Barycentric.ToString());
+            {
+                WriteInVar(layoutLocation, GLTypeName._vec3, BufferType.Barycentric.ToString());
+            }
+            ++layoutLocation;
 
             //And finally influence buffers
             if (_info.IsWeighted)

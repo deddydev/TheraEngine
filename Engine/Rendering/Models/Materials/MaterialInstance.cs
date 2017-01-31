@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CustomEngine.Rendering.Textures;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,41 +9,34 @@ namespace CustomEngine.Rendering.Models.Materials
 {
     public class MaterialInstance
     {
-        private Shader _modifiedVertexShader;
-        private Material _material;
-        private List<GLVar> _parameters = new List<GLVar>();
-        
-        public Shader VertexShader { get { return _modifiedVertexShader; } }
-        public Shader FragmentShader { get { return _material._fragmentShader; } }
-        public Shader GeometryShader { get { return _material._geometryShader; } }
-        public Shader TessellationControlShader { get { return _material._tessellationControlShader; } }
-        public Shader TessellationEvaluationShader { get { return _material._tessellationEvaluationShader; } }
+        private Shader _vertexShader, _fragmentShader, _geometryShader, _tControlShader, _tEvalShader;
+        private GLVar[] _parameters;
+        private Texture[] _textures;
+
+        public Texture[] Textures { get { return _textures; } }
+        public Shader VertexShader { get { return _vertexShader; } }
+        public Shader FragmentShader { get { return _fragmentShader; } }
+        public Shader GeometryShader { get { return _geometryShader; } }
+        public Shader TessellationControlShader { get { return _tControlShader; } }
+        public Shader TessellationEvaluationShader { get { return _tEvalShader; } }
 
         public MaterialInstance(Material material, PrimitiveBufferInfo info)
         {
-            _material = material;
-            if (_material != null)
-            {
-                _parameters.AddRange(_material.Settings.Parameters);
-                _modifiedVertexShader = VertexShaderGenerator.Generate(info, false, false, false);
-                //if (boneCount > 0)
-                //{
-                //    //TODO: incorporate skinning and morphing into material's vertex shader
-                //    string s = material._vertexShader._source;
-                //    int breakIndex = s.FindFirst(s.IndexOf("void main"), '{') + 1;
-                //    string part1 = s.Substring(0, breakIndex);
-                //    string part2 = s.Substring(breakIndex);
-                //    part2 = part2.TrimStart();
-
-                //    _modifiedVertexShader = new Shader(ShaderMode.Vertex, s);
-                //}
-                //else
-                //    _modifiedVertexShader = _material._vertexShader;
-            }
+            if (material == null)
+                return;
+            
+            _parameters = material.Parameters.ToArray();
+            _textures = material.Textures.Select(x => x.GetTexture()).ToArray();
+            _vertexShader = VertexShaderGenerator.Generate(info, false, false, false);
+            _fragmentShader = material._fragmentShader;
+            _geometryShader = material._geometryShader;
+            _tControlShader = material._tessellationControlShader;
+            _tEvalShader = material._tessellationEvaluationShader;
         }
         public void SetUniforms()
         {
-            _parameters.ForEach(x => x.SetUniform());
+            foreach (GLVar v in _parameters)
+                v.SetUniform();
         }
     }
 }

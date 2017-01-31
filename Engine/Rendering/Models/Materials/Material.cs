@@ -21,21 +21,26 @@ namespace CustomEngine.Rendering.Models.Materials
             _geometryShader,
             _tessellationControlShader, 
             _tessellationEvaluationShader;
-        
+
+        private List<TextureReference> _textures = new List<TextureReference>();
+        private List<GLVar> _parameters = new List<GLVar>();
         private List<IRenderable> _renderingReferences = new List<IRenderable>();
-        private MaterialSettings _settings;
         private int _bindingId = -1;
         
         public int BindingId
         {
             get { return _bindingId; }
         }
-        public MaterialSettings Settings
+        public List<GLVar> Parameters
         {
-            get { return _settings; }
-            set { _settings = value; }
+            get { return _parameters; }
+            set { _parameters = value; }
         }
-
+        public List<TextureReference> Textures
+        {
+            get { return _textures; }
+            set { _textures = value; }
+        }
         internal void AddReference(IRenderable user)
         {
             if (_renderingReferences.Count == 0)
@@ -51,10 +56,10 @@ namespace CustomEngine.Rendering.Models.Materials
                 _bindingId = -1;
             }
         }
-        public Material(string name, MaterialSettings settings, params Shader[] shaders)
+        public Material(string name, List<GLVar> parameters, params Shader[] shaders)
         {
             _name = name;
-            _settings = settings;
+            _parameters = parameters;
             foreach (Shader s in shaders)
             {
                 switch (s.ShaderType)
@@ -82,10 +87,12 @@ namespace CustomEngine.Rendering.Models.Materials
         {
             Shader vert = Shader.TestVertexShader();
             Shader frag = Shader.TestFragmentShader();
-            MaterialSettings settings = new MaterialSettings();
-            settings.Parameters.Add(new GLVec4((ColorF4)Color.Blue, "MatColor", null));
-            settings.Parameters.Add(new GLFloat(1.0f, "MatSpecularIntensity", null));
-            return new Material("TestMaterial", settings, vert, frag);
+            List<GLVar> p = new List<GLVar>()
+            {
+                new GLVec4((ColorF4)Color.Blue, "MatColor", null),
+                new GLFloat(1.0f, "MatSpecularIntensity", null),
+            };
+            return new Material("TestMaterial", p, vert, frag);
         }
     }
 }

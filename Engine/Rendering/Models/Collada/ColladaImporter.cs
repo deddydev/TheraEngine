@@ -118,12 +118,10 @@ namespace CustomEngine.Rendering.Models.Collada
 
                     foreach (ImageEntry img in imgEntries)
                     {
-                        TextureReference tr = new TextureReference();
-                        tr.SetImagePath(img._path);
+                        TextureReference tr = new TextureReference(m, img._path);
                         tr.MinFilter = TextureMinFilter.Linear;
                         tr.MagFilter = TextureMagFilter.Linear;
                         tr.UWrap = tr.VWrap = options._wrap;
-                        m.Textures.Add(tr);
                     }
                 }
 

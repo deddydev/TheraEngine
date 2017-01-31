@@ -530,7 +530,6 @@
     <Compile Include="Rendering\Cameras\PostProcessSettings.cs" />
     <Compile Include="Rendering\HUD\DockableHudComponent.cs" />
     <Compile Include="Rendering\HUD\RotatableHudComponent.cs" />
-    <Compile Include="Rendering\Models\Materials\MaterialSettings.cs" />
     <Compile Include="Rendering\Models\Materials\Material.cs" />
     <Compile Include="Rendering\Models\Materials\MaterialInstance.cs" />
     <Compile Include="Rendering\Models\Materials\Shader.cs" />

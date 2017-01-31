@@ -34,12 +34,12 @@ namespace CustomEngine.Rendering
             for (int i = 0; i < _bufferCount; ++i)
             {
                 Texture t = _textures[i];
-                t.SetData(TextureData.EmptyFrameBuffer(v.Width, v.Height));
+                //t.SetData(TextureData.EmptyFrameBuffer(v.Width, v.Height));
                 t.Bind();
                 t.PushData();
                 t.AttachFrameBuffer(FramebufferType.ReadWrite, (DrawBuffersAttachment)i, TextureTarget.Texture2D, 0);
             }
-            _depthTexture.SetData(TextureData.EmptyDepthFrameBuffer(v.Width, v.Height));
+            //_depthTexture.SetData(TextureData.EmptyDepthFrameBuffer(v.Width, v.Height));
             _depthTexture.Bind();
             _depthTexture.PushData();
             _depthTexture.AttachFrameBuffer(FramebufferType.ReadWrite, DrawBuffersAttachment.DepthAttachement, TextureTarget.Texture2D, 0);

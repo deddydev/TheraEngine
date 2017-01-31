@@ -111,7 +111,7 @@ namespace CustomEngine.Rendering.Models.Materials
             if (resultFunction == null)
                 return null;
 
-            Material m = new Material(name, new MaterialSettings());
+            Material m = new Material(name, new List<GLVar>());
 
             //TODO: determine shader types needed
             foreach (BaseGLArgument arg in resultFunction.InputArguments)

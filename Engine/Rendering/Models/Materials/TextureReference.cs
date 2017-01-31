@@ -31,7 +31,10 @@ namespace CustomEngine.Rendering.Models.Materials
 
         public Texture GetTexture()
         {
-            return null;
+            TextureData data = _reference.File;
+            if (data == null)
+                return null;
+            return new Texture(data);
         }
     }
     public enum TexCoordWrap

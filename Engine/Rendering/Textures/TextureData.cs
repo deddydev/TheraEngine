@@ -12,6 +12,8 @@ namespace CustomEngine.Rendering.Textures
     {
         public override ResourceType ResourceType { get { return ResourceType.Texture; } }
 
+        public FreeImageBitmap Bitmap { get { return _bitmap; } }
+
         FreeImageBitmap _bitmap;
 
         public TextureData(string path)

@@ -343,23 +343,39 @@ namespace CustomEngine.Rendering.OpenGL
 #endif
             return handle;
         }
-        public override int GenerateProgram(int[] shaderHandles)
+        public override int GenerateProgram(int[] shaderHandles, PrimitiveBufferInfo info)
         {
             int handle = GL.CreateProgram();
             foreach (int i in shaderHandles)
                 GL.AttachShader(handle, i);
 
             //Have to bind 'in' attributes before linking
-            //int k = 0;
-            //for (int i = 0; i < VertexBuffer.BufferTypeCount; ++i)
-            //{
-            //    BufferType type = (BufferType)i;
-            //    for (int j = 0; j < VertexBuffer.MaxBufferCountPerType; ++j)
-            //        GL.BindAttribLocation(handle, k++, type.ToString() + j);
-            //}
-            //GL.BindAttribLocation(handle, 0, "Position");
-            //GL.BindAttribLocation(handle, 1, "Normal");
-            //GL.BindAttribLocation(handle, 2, "TexCoord");
+            int j = 0;
+
+            for (int i = 0; i < info._morphCount + 1; ++i, ++j)
+                GL.BindAttribLocation(handle, j, "Position" + i);
+
+            if (info.HasNormals)
+                for (int i = 0; i < info._morphCount + 1; ++i, ++j)
+                    GL.BindAttribLocation(handle, j, "Normal" + i);
+
+            if (info.HasBinormals)
+                for (int i = 0; i < info._morphCount + 1; ++i, ++j)
+                    GL.BindAttribLocation(handle, j, "Binormal" + i);
+
+            if (info.HasTangents)
+                for (int i = 0; i < info._morphCount + 1; ++i, ++j)
+                    GL.BindAttribLocation(handle, j, "Tangent" + i);
+
+            for (int i = 0; i < info._colorCount; ++i, ++j)
+                GL.BindAttribLocation(handle, j, "Color" + i);
+
+            for (int i = 0; i < info._texcoordCount; ++i, ++j)
+                GL.BindAttribLocation(handle, j, "TexCoord" + i);
+
+            if (info._hasBarycentricCoord)
+                GL.BindAttribLocation(handle, j, "Barycentric");
+
             GL.LinkProgram(handle);
 
             //We don't need these anymore now that they're part of the program

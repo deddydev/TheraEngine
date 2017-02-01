@@ -203,8 +203,8 @@ namespace CustomEngine.Rendering.Models
             {
                 GL.EnableVertexAttribArray(_index);
                 GL.VertexAttribPointer(_index, _componentCount, VertexAttribPointerType.Byte + (int)_componentType, _normalize, 0, 0);
-                GL.VertexAttribFormat(_location, _componentCount, VertexAttribType.Byte + (int)_componentType, _normalize, 0);
-                GL.VertexAttribBinding(_location, _index);
+                //GL.VertexAttribFormat(_location, _componentCount, VertexAttribType.Byte + (int)_componentType, _normalize, 0);
+                //GL.VertexAttribBinding(_location, _index);
             }
             GL.BufferData(_target, (IntPtr)_data.Length, _data.Address, BufferUsageHint.StaticDraw);
             //GL.BufferStorage(_target, (IntPtr)_data.Length, _data.Address,

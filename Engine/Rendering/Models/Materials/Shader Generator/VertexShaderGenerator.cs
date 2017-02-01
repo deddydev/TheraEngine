@@ -62,48 +62,39 @@ namespace CustomEngine.Rendering.Models.Materials
         }
         private static void WriteBuffers(bool morphed)
         {
-            int layoutLocation = 0;
-
             //Write mesh buffers first
             for (int i = 0; i < (morphed ? _info._morphCount + 1 : 1); ++i)
             {
-                WriteInVar(layoutLocation++, GLTypeName._vec3, BufferType.Position.ToString() + i);
+                WriteInVar(GLTypeName._vec3, BufferType.Position.ToString() + i);
                 if (_info.HasNormals)
-                    WriteInVar(layoutLocation, GLTypeName._vec3, BufferType.Normal.ToString() + i);
-                ++layoutLocation;
+                    WriteInVar(GLTypeName._vec3, BufferType.Normal.ToString() + i);
                 if (_info.HasBinormals)
-                    WriteInVar(layoutLocation, GLTypeName._vec3, BufferType.Binormal.ToString() + i);
-                ++layoutLocation;
+                    WriteInVar(GLTypeName._vec3, BufferType.Binormal.ToString() + i);
                 if (_info.HasTangents)
-                    WriteInVar(layoutLocation, GLTypeName._vec3, BufferType.Tangent.ToString() + i);
-                ++layoutLocation;
+                    WriteInVar(GLTypeName._vec3, BufferType.Tangent.ToString() + i);
             }
 
             //Then colors and texcoords
-            layoutLocation = (int)BufferType.Color * VertexBuffer.MaxBufferCountPerType;
             for (int i = 0; i < _info._colorCount; ++i)
             {
-                WriteInVar(layoutLocation, GLTypeName._vec4, BufferType.Color.ToString() + i);
+                WriteInVar(GLTypeName._vec4, BufferType.Color.ToString() + i);
             }
-            layoutLocation = (int)BufferType.TexCoord * VertexBuffer.MaxBufferCountPerType;
             for (int i = 0; i < _info._texcoordCount; ++i)
             {
-                WriteInVar(layoutLocation, GLTypeName._vec2, BufferType.TexCoord.ToString() + i);
+                WriteInVar(GLTypeName._vec2, BufferType.TexCoord.ToString() + i);
             }
             //Barycentric coord, for wireframe rendering
-            layoutLocation = (int)BufferType.Barycentric * VertexBuffer.MaxBufferCountPerType;
             if (_info._hasBarycentricCoord)
             {
-                WriteInVar(layoutLocation, GLTypeName._vec3, BufferType.Barycentric.ToString());
+                WriteInVar(GLTypeName._vec3, BufferType.Barycentric.ToString());
             }
-            ++layoutLocation;
 
             //And finally influence buffers
             if (_info.IsWeighted)
                 for (int i = 0; i < (morphed ? _info._morphCount + 1 : 1); ++i)
                 {
-                    WriteInVar(layoutLocation++, GLTypeName._ivec4, BufferType.MatrixIds.ToString() + i);
-                    WriteInVar(layoutLocation++, GLTypeName._vec4, BufferType.MatrixWeights.ToString() + i);
+                    WriteInVar(GLTypeName._ivec4, BufferType.MatrixIds.ToString() + i);
+                    WriteInVar(GLTypeName._vec4, BufferType.MatrixWeights.ToString() + i);
                 }
         }
         private static void WriteMatrixUniforms(bool morphed)

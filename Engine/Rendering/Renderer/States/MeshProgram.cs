@@ -21,6 +21,7 @@ namespace CustomEngine.Rendering
         private GLVar[] _parameters;
         private Texture[] _textures;
         private Shader[] _shaders;
+        private PrimitiveBufferInfo _info;
 
         public Texture[] Textures { get { return _textures; } }
         public Shader VertexShader { get { return _vertexShader; } }
@@ -34,6 +35,7 @@ namespace CustomEngine.Rendering
             if (material == null)
                 return;
 
+            _info = info;
             _vertexShader = VertexShaderGenerator.Generate(info, false, false, false);
             SetMaterial(material);
         }
@@ -41,7 +43,7 @@ namespace CustomEngine.Rendering
         protected override int CreateObject()
         {
             int[] ids = _shaders.Select(x => x.Compile()).ToArray();
-            return Engine.Renderer.GenerateProgram(ids);
+            return Engine.Renderer.GenerateProgram(ids, _info);
         }
         protected override void OnGenerated()
         {

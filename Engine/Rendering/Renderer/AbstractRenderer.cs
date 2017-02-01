@@ -153,7 +153,7 @@ namespace CustomEngine.Rendering
         /// </summary>
         /// <param name="shaderHandles">The handles of the shaders for this program to use.</param>
         /// <returns></returns>
-        public abstract int GenerateProgram(int[] shaderHandles);
+        public abstract int GenerateProgram(int[] shaderHandles, PrimitiveBufferInfo info);
         public virtual void UseProgram(MeshProgram program)
         {
             _programHandle = program != null ? program.BindingId : BaseRenderState.NullBindingId;

@@ -166,9 +166,9 @@ void main()
     for (int i = 0; i < SpotLightCount; ++i)
         totalLight += CalcSpotLight(i, normal);
 
-    vec4 texColor = vec4(InData.MultiTexCoord0.x, InData.MultiTexCoord0.y, 0.0, 1.0);
+    vec4 texColor = texture(Texture0, InData.MultiTexCoord0);
 
-    OutColor = texColor;
+    OutColor = texColor * totalLight;
 }
 ";
             return new Shader(ShaderMode.Fragment, source);

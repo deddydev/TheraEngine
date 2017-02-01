@@ -77,10 +77,10 @@ struct PointLight
 };
 struct SpotLight
 {
-    BaseLight Base;
-    vec3 Position;
+    PointLight Base;
     vec3 Direction;
-    float CutoffAngle;
+    float Cutoff;
+    float Exponent;
 };
 
 uniform int PointLightCount;
@@ -132,25 +132,29 @@ vec4 CalcColor(BaseLight light, vec3 lightDirection, vec3 normal)
     return AmbientColor + DiffuseColor + SpecularColor;
 }
 
-vec4 CalcDirLight(int index, vec3 normal)
+vec4 CalcDirLight(DirLight light, vec3 normal)
 {
-    DirLight light = DirectionalLights[index];
     return CalcColor(light.Base, light.Direction, normal);
 }
 
-vec4 CalcPointLight(int index, vec3 normal)
+vec4 CalcPointLight(PointLight light, vec3 normal, float attn)
 {
-    PointLight light = PointLights[index];
-    vec3 LightDirection = InData.Position - light.Position;
-    float Distance = length(LightDirection);
-    LightDirection = normalize(LightDirection);
-
-    float Attn = 1.0 / (light.Attenuation[0] + light.Attenuation[1] * Distance + light.Attenuation[2] * Distance * Distance);
-    return Attn * CalcColor(light.Base, LightDirection, normal);
+    vec3 vertexToLight = light.Position - InData.Position;
+    float dist = length(vertexToLight);
+    attn *= 1.0 / (light.Attenuation[0] + light.Attenuation[1] * dist + light.Attenuation[2] * dist * dist);
+    return attn * CalcColor(light.Base, normalize(vertexToLight), normal);
 } 
 
-vec4 CalcSpotLight(int index, vec3 normal)
+vec4 CalcSpotLight(SpotLight light, vec3 normal)
 {
+    if (light.Cutoff <= 1.5707) //~90 degrees in radians
+    {
+        vec3 vertexToLight = light.Base.Position - InData.Position;
+        vertexToLight = normalize(vertexToLight);
+        float clampedCosine = max(0.0, dot(-vertexToLight, normalize(light.Direction)));
+	    if (clampedCosine >= cos(light.Cutoff))
+            return CalcPointLight(light.Base, normal, pow(clampedCosine, light.Exponent));
+    }
     return vec4(0.0);
 } 
 
@@ -160,11 +164,11 @@ void main()
 
     vec4 totalLight = vec4(0.0, 0.0, 0.0, 1.0);
     for (int i = 0; i < DirLightCount; ++i)
-        totalLight += CalcDirLight(i, normal);
+        totalLight += CalcDirLight(DirectionalLights[i], normal);
     for (int i = 0; i < PointLightCount; ++i)
-        totalLight += CalcPointLight(i, normal);
+        totalLight += CalcPointLight(PointLights[i], normal, 1.0);
     for (int i = 0; i < SpotLightCount; ++i)
-        totalLight += CalcSpotLight(i, normal);
+        totalLight += CalcSpotLight(SpotLights[i], normal);
 
     vec4 texColor = texture(Texture0, InData.MultiTexCoord0);
 

@@ -84,23 +84,23 @@ namespace CustomEngine.Worlds
             DirectionalLightComponent dirLightComp = new DirectionalLightComponent(
                 new Rotator(-90.0f, 0.0f, 0.0f, Rotator.Order.YPR), Color.DarkGray, 1.0f, 0.2f);
             
-            StaticMeshComponent floorComp = new StaticMeshComponent(
-                floorModel, Vec3.Zero,
-                new Rotator(0.0f, 0.0f, -10.0f, Rotator.Order.YPR),
-                Vec3.One, floorInfo);
+            //StaticMeshComponent floorComp = new StaticMeshComponent(
+            //    floorModel, Vec3.Zero,
+            //    new Rotator(0.0f, 0.0f, -10.0f, Rotator.Order.YPR),
+            //    Vec3.One, floorInfo);
 
             lightComp.Translation.Y = 0.0f;
             lightComp.Translation.X = 0.0f;
-            floorComp.AddAnimation(anim, true);
+            //floorComp.AddAnimation(anim, true);
 
-            Actor sphereActor = new Actor(new StaticMeshComponent(
-                sphereModel,
-                new Vec3(0.0f, 20.0f, 0.0f),
-                Rotator.GetZero(),
-                Vec3.One,
-                sphereInfo));
+            //Actor sphereActor = new Actor(new StaticMeshComponent(
+            //    sphereModel,
+            //    new Vec3(0.0f, 20.0f, 0.0f),
+            //    Rotator.GetZero(),
+            //    Vec3.One,
+            //    sphereInfo));
 
-            Actor floorActor = new Actor(floorComp);
+            //Actor floorActor = new Actor(floorComp);
 
             Actor lightActor = new Actor(lightComp);
             Actor dirLightActor = new Actor(dirLightComp);
@@ -113,23 +113,20 @@ namespace CustomEngine.Worlds
                 Environment.MachineName == "DAVID-DESKTOP" ? "X:\\Desktop\\TEST.DAE" : "C:\\Users\\David\\Desktop\\TEST.DAE", 
                 options, out staticM, out skelM, out skeleton);
 
-            Actor skelActor;
+            TRSComponent comp;
             if (skelM != null)
-            {
-                SkeletalMeshComponent skelComp = new SkeletalMeshComponent(skelM, skeleton);
-                skelActor = new Actor(skelComp);
-            }
+                comp = new SkeletalMeshComponent(skelM, skeleton);
             else
-            {
-                StaticMeshComponent skelComp = new StaticMeshComponent(staticM,
+                comp = new StaticMeshComponent(staticM,
                     new PhysicsDriverInfo()
                     {
                         BodyInfo = new RigidBodyConstructionInfo(1.0f, null, new SphereShape(1.0f))
                     });
-                skelActor = new Actor(skelComp);
-            }
 
-            _settings._defaultMaps.Add(new Map(this, new MapSettings(/*sphereActor,*/ lightActor, /*floorActor,*/ dirLightActor, skelActor, new FlyingCameraPawn(PlayerIndex.One))));
+            comp.AddAnimation(anim, true);
+            Actor importedActor = new Actor(comp);
+
+            _settings._defaultMaps.Add(new Map(this, new MapSettings(/*sphereActor,*/ lightActor, /*floorActor,*/ dirLightActor, importedActor, new FlyingCameraPawn(PlayerIndex.One))));
         }
     }
 }

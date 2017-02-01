@@ -60,7 +60,6 @@ namespace CustomEngine.Rendering.Models.Materials
 
 layout (location = 0) in vec3 Position0;
 layout (location = 1) in vec3 Normal0;
-layout (location = 2) in vec2 TexCoord0;
 
 uniform mat4 ModelMatrix;
 uniform mat4 ViewMatrix;
@@ -111,6 +110,8 @@ struct SpotLight
     float CutoffAngle;
 };
 
+layout (location = 2) in vec2 TexCoord0;
+
 uniform PointLight PointLights[16];
 uniform DirLight DirectionalLights[2];
 uniform SpotLight SpotLights[16];
@@ -123,6 +124,8 @@ uniform vec3 CameraForward;
 uniform int PointLightCount;
 uniform int SpotLightCount;
 uniform int DirLightCount; 
+
+uniform sampler2D Texture0;
 
 in Data
 {
@@ -189,7 +192,9 @@ void main()
     for (int i = 0; i < SpotLightCount; ++i)
         totalLight += CalcSpotLight(i, normal);
 
-    OutColor = MatColor * totalLight;
+    vec4 texColor = texture(Texture0, TexCoord0);
+
+    OutColor = texColor;//MatColor * totalLight;
 }
 ";
             return new Shader(ShaderMode.Fragment, source);

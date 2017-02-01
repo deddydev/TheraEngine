@@ -150,6 +150,12 @@ namespace CustomEngine.Files
             return Filters.Where(x => types.Contains(x.Key)).Select(x => x.Value).ToArray();
         }
         public static string CompleteImportFilter { get { return GetAllSupportedFilter() + "|" + GetListFilter(); } }
+
+        public static bool IsSpecial(string ext)
+        {
+            return GenericInfo.Select(x => x._tag).Contains(ext.ToLower());
+        }
+
         public static string CompleteExportFilter { get { return GetAllSupportedFilter() + "|" + GetListFilter(); } }
         public static string GetCompleteFilter(params Type[] types)
         {

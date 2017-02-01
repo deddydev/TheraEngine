@@ -33,12 +33,12 @@ namespace CustomEngine.Files
         T _file;
 
         public SingleFileRef(Type type) : base(type) { }
-        public SingleFileRef(string relativeFilePath) : base(relativeFilePath) { }
-        public SingleFileRef(string relativeFilePath, Type type) : base(relativeFilePath, type) { }
-        public SingleFileRef(T file, string relativeFilePath) : base(relativeFilePath)
+        public SingleFileRef(string filePath) : base(filePath) { }
+        public SingleFileRef(string filePath, Type type) : base(filePath, type) { }
+        public SingleFileRef(T file, string filePath) : base(filePath)
         {
             if (file != null)
-                file._filePath = relativeFilePath;
+                file._filePath = filePath;
             _file = file;
         }
         public SingleFileRef(T file) : base(file._filePath)
@@ -67,7 +67,7 @@ namespace CustomEngine.Files
             {
                 if (exportToPath)
                     ExportFile();
-                Engine.AddLoadedFile(_relativeRefPath, _file);
+                Engine.AddLoadedFile(_refPath, _file);
                 _file._references.Add(this);
             }
         }
@@ -81,26 +81,28 @@ namespace CustomEngine.Files
             if (_file != null)
                 return _file;
 
-            if (string.IsNullOrEmpty(_relativeRefPath))
+            if (string.IsNullOrEmpty(_refPath))
                 _file = Activator.CreateInstance(_subType) as T;
             else
             {
-                if (Engine.LoadedFiles.ContainsKey(_relativeRefPath))
-                    _file = Engine.LoadedFiles[_relativeRefPath] as T;
+                if (Engine.LoadedFiles.ContainsKey(_refPath))
+                    _file = Engine.LoadedFiles[_refPath] as T;
                 else
                 {
                     string absolutePath = RefPathAbsolute;
                     if (!System.IO.File.Exists(absolutePath))
                         throw new FileNotFoundException();
-                    if (IsXML())
+                    if (IsSpecial())
+                        _file = Activator.CreateInstance(_subType, absolutePath) as T;
+                    else if (IsXML())
                         _file = FromXML(_subType, absolutePath) as T;
                     else
                         _file = FromBinary(_subType, absolutePath) as T;
-                    Engine.AddLoadedFile(_relativeRefPath, _file);
+                    Engine.AddLoadedFile(_refPath, _file);
                 }
             }
 
-            _file._filePath = _relativeRefPath;
+            _file._filePath = _refPath;
             _file._references.Add(this);
 
             return _file;
@@ -123,7 +125,7 @@ namespace CustomEngine.Files
             if (writeInternal && File != null)
                 _file.Write(writer);
             else
-                writer.WriteAttributeString("path", _relativeRefPath);
+                writer.WriteAttributeString("path", _refPath);
             writer.WriteEndElement();
         }
         public override void Write(XmlWriter writer) { Write(writer, false); }
@@ -137,11 +139,11 @@ namespace CustomEngine.Files
         public override ResourceType ResourceType { get { return ResourceType.MultiFileRef; } }
         
         public MultiFileRef(Type type) : base(type) { }
-        public MultiFileRef(string relativeFilePath) : base(relativeFilePath) { }
-        public MultiFileRef(string relativeFilePath, Type type) : base(relativeFilePath, type) { }
+        public MultiFileRef(string filePath) : base(filePath) { }
+        public MultiFileRef(string filePath, Type type) : base(filePath, type) { }
         public override T GetInstance()
         {
-            if (string.IsNullOrEmpty(_relativeRefPath))
+            if (string.IsNullOrEmpty(_refPath))
                 return Activator.CreateInstance(_subType) as T;
 
             string absolutePath = RefPathAbsolute;
@@ -149,7 +151,9 @@ namespace CustomEngine.Files
                 throw new FileNotFoundException();
 
             T file;
-            if (IsXML())
+            if (IsSpecial())
+                file = Activator.CreateInstance(_subType, absolutePath) as T;
+            else if (IsXML())
                 file = FromXML(_subType, absolutePath) as T;
             else
                 file = FromBinary(_subType, absolutePath) as T;
@@ -165,25 +169,26 @@ namespace CustomEngine.Files
     {
         public FileRef()
         {
-            _relativeRefPath = null;
             _subType = typeof(T);
         }
         public FileRef(Type type)
         {
-            _relativeRefPath = null;
             if (type.IsSubclassOf(typeof(T)))
                 _subType = type;
             else
                 throw new Exception(type.ToString() + " does not inherit " + typeof(T).ToString());
         }
-        public FileRef(string relativePath)
+        public FileRef(string filePath)
         {
-            _relativeRefPath = relativePath;
+            _refPath = filePath;
+            if (_refPath.StartsWith("\\"))
+                _absolutePath = Engine.StartupPath + _refPath;
+            else
+                _absolutePath = _refPath;
             _subType = typeof(T);
         }
-        public FileRef(string relativePath, Type type)
+        public FileRef(string filePath, Type type) : this(filePath)
         {
-            _relativeRefPath = relativePath;
             if (type.IsSubclassOf(typeof(T)))
                 _subType = type;
             else
@@ -191,20 +196,25 @@ namespace CustomEngine.Files
         }
 
         protected Type _subType = null;
-        protected string _relativeRefPath;
+        protected string _refPath = null;
+        private string _absolutePath = null;
 
-        public string RefPathAbsolute { get { return Engine.StartupPath + _relativeRefPath; } }
-        public string RefPathRelative { get { return _relativeRefPath; } }
-        public string Extension() { return Path.GetExtension(_relativeRefPath).ToLower().Substring(1); }
+        public string RefPathAbsolute { get { return _absolutePath; } }
+        public string Extension() { return Path.GetExtension(_refPath).ToLower().Substring(1); }
         public bool IsXML()
         {
             string ext = Extension();
             return ext == "xml" || ext.StartsWith("x");
         }
+        public bool IsSpecial()
+        {
+            string ext = Extension();
+            return FileManager.IsSpecial(ext);
+        }
         public abstract T GetInstance();
         public override int CalculateSize(StringTable table)
         {
-            table.Add(_relativeRefPath);
+            table.Add(_refPath);
             return FileRefHeader.Size;
         }
         public override void Write(VoidPtr address)

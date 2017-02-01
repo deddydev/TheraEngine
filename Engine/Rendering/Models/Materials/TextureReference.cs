@@ -10,31 +10,33 @@ namespace CustomEngine.Rendering.Models.Materials
 {
     public class TextureReference
     {
-        public TextureReference(Material m, string path)
+        public TextureReference(string path)
         {
-            _owningMaterial = m;
+            if (path.StartsWith("file://"))
+                path = path.Substring(7);
             _reference = new SingleFileRef<TextureData>(path);
         }
-
-        private Material _owningMaterial;
+        
         private SingleFileRef<TextureData> _reference;
 
-        private TextureMinFilter _minFilter;
-        private TextureMagFilter _magFilter;
+        private MinFilter _minFilter;
+        private MagFilter _magFilter;
         private TexCoordWrap _uWrap, _vWrap;
+        private float _lodBias;
 
         public string Path { get { return _reference.FilePathAbsolute; } }
-        public TextureMagFilter MagFilter { get { return _magFilter; } set { _magFilter = value; } }
-        public TextureMinFilter MinFilter { get { return _minFilter; } set { _minFilter = value; } }
+        public MagFilter MagFilter { get { return _magFilter; } set { _magFilter = value; } }
+        public MinFilter MinFilter { get { return _minFilter; } set { _minFilter = value; } }
         public TexCoordWrap UWrap { get { return _uWrap; } set { _uWrap = value; } }
         public TexCoordWrap VWrap { get { return _vWrap; } set { _vWrap = value; } }
+        public float LodBias { get { return _lodBias; } set { _lodBias = value; } }
 
         public Texture GetTexture()
         {
             TextureData data = _reference.File;
             if (data == null)
                 return null;
-            return new Texture(data);
+            return new Texture(data, _minFilter, _magFilter, _uWrap, _vWrap, _lodBias);
         }
     }
     public enum TexCoordWrap
@@ -43,7 +45,7 @@ namespace CustomEngine.Rendering.Models.Materials
         Repeat,
         Mirror
     }
-    public enum TextureMinFilter : uint
+    public enum MinFilter : uint
     {
         Nearest,
         Linear,
@@ -52,7 +54,7 @@ namespace CustomEngine.Rendering.Models.Materials
         Nearest_Mipmap_Linear,
         Linear_Mipmap_Linear
     }
-    public enum TextureMagFilter : uint
+    public enum MagFilter : uint
     {
         Nearest,
         Linear,

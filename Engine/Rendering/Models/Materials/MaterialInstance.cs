@@ -9,34 +9,18 @@ namespace CustomEngine.Rendering.Models.Materials
 {
     public class MaterialInstance
     {
-        private Shader _vertexShader, _fragmentShader, _geometryShader, _tControlShader, _tEvalShader;
-        private GLVar[] _parameters;
-        private Texture[] _textures;
+        Material _material;
+        GLVar[] _parameters;
 
-        public Texture[] Textures { get { return _textures; } }
-        public Shader VertexShader { get { return _vertexShader; } }
-        public Shader FragmentShader { get { return _fragmentShader; } }
-        public Shader GeometryShader { get { return _geometryShader; } }
-        public Shader TessellationControlShader { get { return _tControlShader; } }
-        public Shader TessellationEvaluationShader { get { return _tEvalShader; } }
-
-        public MaterialInstance(Material material, PrimitiveBufferInfo info)
+        public Material Material
         {
-            if (material == null)
-                return;
-            
-            _parameters = material.Parameters.ToArray();
-            _textures = material.Textures.Select(x => x.GetTexture()).ToArray();
-            _vertexShader = VertexShaderGenerator.Generate(info, false, false, false);
-            _fragmentShader = material._fragmentShader;
-            _geometryShader = material._geometryShader;
-            _tControlShader = material._tessellationControlShader;
-            _tEvalShader = material._tessellationEvaluationShader;
+            get { return _material; }
+            set { _material = value; }
         }
-        public void SetUniforms()
+        public GLVar[] Parameters
         {
-            foreach (GLVar v in _parameters)
-                v.SetUniform();
+            get { return _parameters; }
+            set { _parameters = value; }
         }
     }
 }

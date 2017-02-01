@@ -36,12 +36,12 @@ namespace CustomEngine.Rendering
                 Texture t = _textures[i];
                 //t.SetData(TextureData.EmptyFrameBuffer(v.Width, v.Height));
                 t.Bind();
-                t.PushData();
+                //t.PushData();
                 t.AttachFrameBuffer(FramebufferType.ReadWrite, (DrawBuffersAttachment)i, TextureTarget.Texture2D, 0);
             }
             //_depthTexture.SetData(TextureData.EmptyDepthFrameBuffer(v.Width, v.Height));
             _depthTexture.Bind();
-            _depthTexture.PushData();
+            //_depthTexture.PushData();
             _depthTexture.AttachFrameBuffer(FramebufferType.ReadWrite, DrawBuffersAttachment.DepthAttachement, TextureTarget.Texture2D, 0);
 
             Unbind(FramebufferType.Write);

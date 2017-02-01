@@ -77,7 +77,7 @@ namespace CustomEngine.Rendering.Models.Collada
                 {
                     AssetEntry e = shell._assets[0];
                     isZup = e._upAxis == UpAxis.Z;
-                    baseTransform = Matrix4.CreateScale(e._scale);
+                    //baseTransform = Matrix4.CreateScale(1.0f / e._scale);
                 }
 
                 //Extract materials
@@ -111,17 +111,17 @@ namespace CustomEngine.Rendering.Models.Collada
                                                     break;
                                                 }
                                         }
-
-                    //MaterialSettings s = new MaterialSettings();
+                    
                     Material m = Material.GetDefaultMaterial();//new Material(mat._name != null ? mat._name : mat._id, s);
                     mat._node = m;
 
                     foreach (ImageEntry img in imgEntries)
                     {
-                        TextureReference tr = new TextureReference(m, img._path);
-                        tr.MinFilter = TextureMinFilter.Linear;
-                        tr.MagFilter = TextureMagFilter.Linear;
+                        TextureReference tr = new TextureReference(img._path);
+                        tr.MinFilter = MinFilter.Linear;
+                        tr.MagFilter = MagFilter.Linear;
                         tr.UWrap = tr.VWrap = options._wrap;
+                        m.Textures.Add(tr);
                     }
                 }
 

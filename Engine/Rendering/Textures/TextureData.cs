@@ -2,6 +2,7 @@
 using FreeImageAPI;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -12,17 +13,17 @@ namespace CustomEngine.Rendering.Textures
     {
         public override ResourceType ResourceType { get { return ResourceType.Texture; } }
 
-        public FreeImageBitmap Bitmap { get { return _bitmap; } }
+        public Bitmap Bitmap { get { return _bitmap; } }
 
-        FreeImageBitmap _bitmap;
+        Bitmap _bitmap;
 
         public TextureData(string path)
         {
-            _bitmap = new FreeImageBitmap(path);
+            _bitmap = new FreeImageBitmap(path).ToBitmap();
         }
         public TextureData(int width, int height)
         {
-            _bitmap = new FreeImageBitmap(width, height);
+            _bitmap = new Bitmap(width, height);
         }
     }
     public enum PixelFormat

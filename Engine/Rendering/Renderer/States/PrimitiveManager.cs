@@ -72,7 +72,7 @@ namespace CustomEngine.Rendering.Models
             {
                 _material = value;
                 if (_program != null)
-                    _program.SetMaterial(_material, _bufferInfo);
+                    _program.SetMaterial(_material);
             }
         }
         public void SkeletonChanged(Skeleton skeleton)
@@ -170,6 +170,16 @@ namespace CustomEngine.Rendering.Models
             //This is a mesh-specific uniform
             Engine.Renderer.Uniform(Uniform.GetLocation(ECommonUniform.ModelMatrix), modelMatrix);
             Engine.Renderer.Uniform(Uniform.GetLocation(ECommonUniform.NormalMatrix), normalMatrix);
+
+            if (_program.Textures.Length > 0)
+            {
+                GL.Enable(OpenTK.Graphics.OpenGL.EnableCap.Texture2D);
+                for (int i = 0; i < _material.Textures.Count; ++i)
+                {
+                    GL.ActiveTexture(TextureUnit.Texture0 + i);
+                    _program.Textures[i].Bind();
+                }
+            }
 
             GL.BindVertexArray(BindingId);
             GL.DrawElements(_data._type, _indexBuffer.ElementCount, _elementType, 0);

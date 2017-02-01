@@ -1,5 +1,6 @@
 ﻿using CustomEngine.Rendering.Models;
 using CustomEngine.Rendering.Models.Materials;
+using CustomEngine.Rendering.Textures;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,12 +11,31 @@ namespace CustomEngine.Rendering
 {
     public class MeshProgram : BaseRenderState
     {
-        public Shader[] _shaders;
-        public MaterialInstance _material;
+        private Shader 
+            _vertexShader, 
+            _fragmentShader, 
+            _geometryShader,
+            _tControlShader,
+            _tEvalShader;
+
+        private GLVar[] _parameters;
+        private Texture[] _textures;
+        private Shader[] _shaders;
+
+        public Texture[] Textures { get { return _textures; } }
+        public Shader VertexShader { get { return _vertexShader; } }
+        public Shader FragmentShader { get { return _fragmentShader; } }
+        public Shader GeometryShader { get { return _geometryShader; } }
+        public Shader TessellationControlShader { get { return _tControlShader; } }
+        public Shader TessellationEvaluationShader { get { return _tEvalShader; } }
 
         public MeshProgram(Material material, PrimitiveBufferInfo info) : base(GenType.Program)
         {
-            SetMaterial(material, info);
+            if (material == null)
+                return;
+
+            _vertexShader = VertexShaderGenerator.Generate(info, false, false, false);
+            SetMaterial(material);
         }
 
         protected override int CreateObject()
@@ -31,16 +51,28 @@ namespace CustomEngine.Rendering
         {
 
         }
-        public void SetMaterial(Material material, PrimitiveBufferInfo info)
+        public void SetUniforms()
         {
-            _material = new MaterialInstance(material, info);
-            SetShaders(
-                _material.VertexShader,
-                _material.FragmentShader,
-                _material.GeometryShader,
-                _material.TessellationControlShader,
-                _material.TessellationEvaluationShader);
+            foreach (GLVar v in _parameters)
+                v.SetUniform();
         }
-        public void SetShaders(params Shader[] shaders) { _shaders = shaders.Where(x => x != null).ToArray(); }
+
+        public void SetMaterial(Material material)
+        {
+            _parameters = material.Parameters.ToArray();
+            _textures = material.Textures.Select(x => x.GetTexture()).ToArray();
+            _fragmentShader = material._fragmentShader;
+            _geometryShader = material._geometryShader;
+            _tControlShader = material._tessellationControlShader;
+            _tEvalShader = material._tessellationEvaluationShader;
+            _shaders = new Shader[]
+            {
+                _vertexShader,
+                _fragmentShader,
+                _geometryShader,
+                _tControlShader,
+                _tEvalShader
+            }.Where(x => x != null).ToArray();
+        }
     }
 }

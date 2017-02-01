@@ -29,45 +29,45 @@ namespace CustomEngine.Worlds
             //VertexTriangle triangle = new VertexTriangle(p0, p1, p2);
             //Mesh mesh = new Mesh(PrimitiveData.FromTriangles(Culling.None, new PrimitiveBufferInfo(), triangle));
 
-            PhysicsDriverInfo sphereInfo = new PhysicsDriverInfo()
-            {
-                BodyInfo = new RigidBodyConstructionInfo(
-                    50.0f,
-                    new DefaultMotionState(/*Matrix4.CreateTranslation(new Vec3(0.0f, 20.0f, 0.0f))*/),
-                    new SphereShape(1.0f))
-                {
-                    AngularDamping = 0.05f,
-                    LinearDamping = 0.005f,
-                    Restitution = 0.9f,
-                    Friction = 0.01f,
-                    RollingFriction = 0.01f,
-                },
-                CollisionEnabled = true,
-                SimulatePhysics = true,
-                Group = CustomCollisionGroup.DynamicWorld,
-                CollidesWith = CustomCollisionGroup.StaticWorld,
-            };
-            Sphere sphere = new Sphere(1.0f, Vec3.Zero);
-            StaticMesh sphereModel = new StaticMesh("Sphere", sphere);
-            sphereModel.RigidChildren.Add(new StaticRigidSubMesh(sphere.GetMesh(30.0f, false), sphere, Material.GetDefaultMaterial(), "SphereMesh"));
+            //PhysicsDriverInfo sphereInfo = new PhysicsDriverInfo()
+            //{
+            //    BodyInfo = new RigidBodyConstructionInfo(
+            //        50.0f,
+            //        new DefaultMotionState(/*Matrix4.CreateTranslation(new Vec3(0.0f, 20.0f, 0.0f))*/),
+            //        new SphereShape(1.0f))
+            //    {
+            //        AngularDamping = 0.05f,
+            //        LinearDamping = 0.005f,
+            //        Restitution = 0.9f,
+            //        Friction = 0.01f,
+            //        RollingFriction = 0.01f,
+            //    },
+            //    CollisionEnabled = true,
+            //    SimulatePhysics = true,
+            //    Group = CustomCollisionGroup.DynamicWorld,
+            //    CollidesWith = CustomCollisionGroup.StaticWorld,
+            //};
+            //Sphere sphere = new Sphere(1.0f, Vec3.Zero);
+            //StaticMesh sphereModel = new StaticMesh("Sphere", sphere);
+            //sphereModel.RigidChildren.Add(new StaticRigidSubMesh(sphere.GetMesh(30.0f, false), sphere, Material.GetDefaultMaterial(), "SphereMesh"));
 
-            PhysicsDriverInfo floorInfo = new PhysicsDriverInfo()
-            {
-                BodyInfo = new RigidBodyConstructionInfo(
-                    20.0f, null,
-                    /*new DefaultMotionState(Matrix4.CreateFromAxisAngle(Vec3.Forward, 10.0f)),*/
-                    new BoxShape(new Vec3(20.0f, 0.5f, 20.0f)))
-                {
-                    Restitution = 0.3f,
-                },
-                CollisionEnabled = true,
-                SimulatePhysics = false,
-                Group = CustomCollisionGroup.StaticWorld,
-                CollidesWith = CustomCollisionGroup.DynamicWorld,
-            };
-            BoundingBox floorBox = new BoundingBox(new Vec3(-20.0f, -0.5f, -20.0f), new Vec3(20.0f, 0.5f, 20.0f));
-            StaticMesh floorModel = new StaticMesh("Floor", floorBox);
-            floorModel.RigidChildren.Add(new StaticRigidSubMesh(floorBox.GetMesh(false), floorBox, Material.GetDefaultMaterial(), "FloorMesh"));
+            //PhysicsDriverInfo floorInfo = new PhysicsDriverInfo()
+            //{
+            //    BodyInfo = new RigidBodyConstructionInfo(
+            //        20.0f, null,
+            //        /*new DefaultMotionState(Matrix4.CreateFromAxisAngle(Vec3.Forward, 10.0f)),*/
+            //        new BoxShape(new Vec3(20.0f, 0.5f, 20.0f)))
+            //    {
+            //        Restitution = 0.3f,
+            //    },
+            //    CollisionEnabled = true,
+            //    SimulatePhysics = false,
+            //    Group = CustomCollisionGroup.StaticWorld,
+            //    CollidesWith = CustomCollisionGroup.DynamicWorld,
+            //};
+            //BoundingBox floorBox = new BoundingBox(new Vec3(-20.0f, -0.5f, -20.0f), new Vec3(20.0f, 0.5f, 20.0f));
+            //StaticMesh floorModel = new StaticMesh("Floor", floorBox);
+            //floorModel.RigidChildren.Add(new StaticRigidSubMesh(floorBox.GetMesh(false), floorBox, Material.GetDefaultMaterial(), "FloorMesh"));
 
             AnimationInterpNode camPropAnim = new AnimationInterpNode(360, true, true);
             InterpKeyframe first = new InterpKeyframe(0.0f, 0.0f, 0.0f);
@@ -82,7 +82,7 @@ namespace CustomEngine.Worlds
 
             PointLightComponent lightComp = new PointLightComponent(1.0f, 0.0f, 0.5f, Color.Beige, 1.0f, 0.2f);
             DirectionalLightComponent dirLightComp = new DirectionalLightComponent(
-                new Rotator(-90.0f, 0.0f, 0.0f, Rotator.Order.YPR), Color.DarkGray, 1.0f, 0.2f);
+                new Rotator(-45.0f, 0.0f, 0.0f, Rotator.Order.YPR), Color.Red, 1.0f, 0.2f);
             
             //StaticMeshComponent floorComp = new StaticMeshComponent(
             //    floorModel, Vec3.Zero,
@@ -117,11 +117,7 @@ namespace CustomEngine.Worlds
             if (skelM != null)
                 comp = new SkeletalMeshComponent(skelM, skeleton);
             else
-                comp = new StaticMeshComponent(staticM,
-                    new PhysicsDriverInfo()
-                    {
-                        BodyInfo = new RigidBodyConstructionInfo(1.0f, null, new SphereShape(1.0f))
-                    });
+                comp = new StaticMeshComponent(staticM, null);
 
             comp.AddAnimation(anim, true);
             Actor importedActor = new Actor(comp);

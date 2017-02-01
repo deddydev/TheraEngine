@@ -13,9 +13,9 @@ namespace CustomEngine.Worlds.Actors.Components
         public StaticMeshComponent(StaticMesh m, PhysicsDriverInfo info) 
             : this(m, Vec3.Zero, Rotator.GetZero(), Vec3.One, info) { }
         public StaticMeshComponent(
-            StaticMesh m, 
-            Vec3 translation, 
-            Rotator rotation, 
+            StaticMesh m,
+            Vec3 translation,
+            Rotator rotation,
             Vec3 scale,
             PhysicsDriverInfo info)
         {
@@ -27,21 +27,25 @@ namespace CustomEngine.Worlds.Actors.Components
             _scale = scale;
             RecalcLocalTransform();
 
-            if (info.BodyInfo != null)
+            if (info == null)
+                _physicsDriver = null;
+            else
             {
-                info.BodyInfo.MotionState = new DefaultMotionState(WorldMatrix);
-                //if (info.BodyInfo.MotionState != null)
-                //{
-                //    DefaultMotionState ms = (DefaultMotionState)info.BodyInfo.MotionState;
-                //    ms.StartWorldTrans = WorldMatrix;
-                //    ms.WorldTransform = WorldMatrix;
-                //    ms.GraphicsWorldTrans = WorldMatrix;
-                //}
-                //else
-                //    info.BodyInfo.StartWorldTransform = WorldMatrix;
+                if (info.BodyInfo != null)
+                {
+                    info.BodyInfo.MotionState = new DefaultMotionState(WorldMatrix);
+                    //if (info.BodyInfo.MotionState != null)
+                    //{
+                    //    DefaultMotionState ms = (DefaultMotionState)info.BodyInfo.MotionState;
+                    //    ms.StartWorldTrans = WorldMatrix;
+                    //    ms.WorldTransform = WorldMatrix;
+                    //    ms.GraphicsWorldTrans = WorldMatrix;
+                    //}
+                    //else
+                    //    info.BodyInfo.StartWorldTransform = WorldMatrix;
+                }
+                _physicsDriver = new PhysicsDriver(info, _physicsDriver_TransformChanged);
             }
-
-            _physicsDriver = new PhysicsDriver(info, _physicsDriver_TransformChanged);
         }
 
         private void _physicsDriver_TransformChanged(Matrix4 worldMatrix)
@@ -55,12 +59,10 @@ namespace CustomEngine.Worlds.Actors.Components
                 base.RecalcGlobalTransform();
             foreach (RenderableMesh m in _meshes)
                 m.CullingVolume.SetTransform(WorldMatrix);
-            //_cullingVolume?.SetTransform(WorldMatrix);
         }
 
         private StaticMesh _model;
         private PhysicsDriver _physicsDriver;
-        //protected Shape _cullingVolume;
         internal RenderableMesh[] _meshes;
 
         public StaticMesh Model
@@ -118,8 +120,7 @@ namespace CustomEngine.Worlds.Actors.Components
             private IStaticMesh _mesh;
             private RenderOctree.Node _renderNode;
             private Shape _cullingVolume;
-
-            //public Shape CullingVolume { get { return _mesh.CullingVolume.TransformedBy(_component.WorldMatrix); } }
+            
             public Shape CullingVolume { get { return _cullingVolume; } }
             public bool Visible
             {

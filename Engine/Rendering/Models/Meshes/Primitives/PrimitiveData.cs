@@ -28,7 +28,7 @@ namespace CustomEngine.Rendering.Models
         public bool HasTexCoords { get { return _texcoordCount > 0; } }
         public bool HasColors { get { return _colorCount > 0; } }
     }
-    public class PrimitiveData : IDisposable
+    public class PrimitiveData
     {
         public bool HasSkinning
         {
@@ -305,34 +305,6 @@ namespace CustomEngine.Rendering.Models
                 return null;
             }
         }
-
-        #region IDisposable Support
-        private bool _isDisposed = false;
-        protected virtual void Dispose(bool disposing)
-        {
-            if (!_isDisposed)
-            {
-                if (disposing)
-                {
-                    _triangles = null;
-                    _facePoints = null;
-                }
-
-                if (_buffers != null)
-                    foreach (VertexBuffer b in _buffers)
-                        b.Dispose();
-                _buffers = null;
-
-                _isDisposed = true;
-            }
-        }
-        ~PrimitiveData() { Dispose(false); }
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-        #endregion
 
         public static PrimitiveData FromQuads(Culling culling, PrimitiveBufferInfo info, params VertexQuad[] quads)
         {

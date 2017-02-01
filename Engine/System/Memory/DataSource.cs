@@ -1,10 +1,13 @@
-﻿using System.Runtime.InteropServices;
+﻿using System.Collections.Generic;
+using System.Runtime.InteropServices;
 
 namespace System
 {
     //Stores a reference to unmanaged data
     public class DataSource : IDisposable
     {
+        public static List<DataSource> Sources = new List<DataSource>();
+
         private int _length;
         private VoidPtr _address;
 
@@ -19,6 +22,7 @@ namespace System
                 throw new Exception("Cannot have a source with a negative size.");
             _length = length;
             _address = address;
+            Sources.Add(this);
         }
         public DataSource(int length)
         {
@@ -27,7 +31,10 @@ namespace System
             _length = length;
             _address = Marshal.AllocHGlobal(_length);
         }
-        ~DataSource() { Dispose(); }
+        ~DataSource()
+        {
+            Dispose();
+        }
 
         public static DataSource Allocate(int size)
         {

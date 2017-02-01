@@ -162,15 +162,10 @@ namespace CustomEngine.Rendering.Models
             if (_program == null)
                 return;
 
-            Engine.Renderer.Cull(_data.Culling);
-
-            //TODO: set material and uniforms in render queue and then render ALL meshes that use it
-            //order by depth FIRST though
             Engine.Renderer.UseProgram(_program);
+            Engine.Renderer.Cull(_data.Culling);
             
             SetSkinningUniforms();
-
-            //This is a mesh-specific uniform
             Engine.Renderer.Uniform(Uniform.GetLocation(ECommonUniform.ModelMatrix), modelMatrix);
             Engine.Renderer.Uniform(Uniform.GetLocation(ECommonUniform.NormalMatrix), normalMatrix);
 
@@ -205,7 +200,7 @@ namespace CustomEngine.Rendering.Models
         }
         protected override void OnDeleted()
         {
-            _data.Dispose();
+            //_data.Dispose();
             _indexBuffer.Dispose();
             _program.Destroy();
         }

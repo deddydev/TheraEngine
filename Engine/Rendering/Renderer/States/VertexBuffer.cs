@@ -221,14 +221,6 @@ namespace CustomEngine.Rendering.Models
             //    BufferAccessMask.MapWriteBit), DataLength);
         }
         public void Bind() { GL.BindBuffer(_target, BindingId); }
-        /// <summary>
-        /// Pushes this buffer's data to the currently bound buffer 
-        /// Call Bind() before this to set the current buffer.
-        /// </summary>
-        //public void PushData(BufferUsage usage = BufferUsage.StaticDraw)
-        //{
-        //    GL.BufferData(_target, (IntPtr)_data.Length, _data.Address, BufferUsageHint.StreamDraw + (int)usage);
-        //}
         public T Get<T>(int offset) where T : struct
         {
             T value = default(T);
@@ -369,6 +361,7 @@ namespace CustomEngine.Rendering.Models
         public void Dispose()
         {
             Destroy();
+            Console.WriteLine("Disposing of " + BufferType + " buffer");
             if (_data != null)
             {
                 _data.Dispose();

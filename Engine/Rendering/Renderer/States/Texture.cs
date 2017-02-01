@@ -68,16 +68,7 @@ namespace CustomEngine.Rendering.Textures
 
         public void Bind()
         {
-            if (!IsActive)
-                Generate();
-
-            Engine.Renderer.Uniform("Texture0", BindingId);
             GL.BindTexture(OpenTK.Graphics.OpenGL.TextureTarget.Texture2D, BindingId);
-            GL.TexParameter(OpenTK.Graphics.OpenGL.TextureTarget.Texture2D, TextureParameterName.TextureLodBias, _lodBias);
-            GL.TexParameter(OpenTK.Graphics.OpenGL.TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)_magFilters[(int)_magFilter]);
-            GL.TexParameter(OpenTK.Graphics.OpenGL.TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)_minFilters[(int)_minFilter]);
-            GL.TexParameter(OpenTK.Graphics.OpenGL.TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)_wraps[(int)_uWrapMode]);
-            GL.TexParameter(OpenTK.Graphics.OpenGL.TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)_wraps[(int)_vWrapMode]);
         }
 
         public void AttachFrameBuffer(FramebufferType type, DrawBuffersAttachment attachment, TextureTarget target = TextureTarget.Texture2D, int mipLevel = 0)
@@ -95,6 +86,11 @@ namespace CustomEngine.Rendering.Textures
             GL.TexParameter(OpenTK.Graphics.OpenGL.TextureTarget.Texture2D, TextureParameterName.TextureMaxLevel, 0);
             GL.TexParameter(OpenTK.Graphics.OpenGL.TextureTarget.Texture2D, TextureParameterName.TextureMinLod, 0);
             GL.TexParameter(OpenTK.Graphics.OpenGL.TextureTarget.Texture2D, TextureParameterName.TextureMaxLod, 0);
+            GL.TexParameter(OpenTK.Graphics.OpenGL.TextureTarget.Texture2D, TextureParameterName.TextureLodBias, _lodBias);
+            GL.TexParameter(OpenTK.Graphics.OpenGL.TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)_magFilters[(int)_magFilter]);
+            GL.TexParameter(OpenTK.Graphics.OpenGL.TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)_minFilters[(int)_minFilter]);
+            GL.TexParameter(OpenTK.Graphics.OpenGL.TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)_wraps[(int)_uWrapMode]);
+            GL.TexParameter(OpenTK.Graphics.OpenGL.TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)_wraps[(int)_vWrapMode]);
 
             Bitmap bmp = _data.Bitmap;
             if (bmp != null)
@@ -107,7 +103,7 @@ namespace CustomEngine.Rendering.Textures
                 GL.TexImage2D(
                     OpenTK.Graphics.OpenGL.TextureTarget.Texture2D,
                     0,
-                    OpenTK.Graphics.OpenGL.PixelInternalFormat.Four,
+                    OpenTK.Graphics.OpenGL.PixelInternalFormat.Rgba8,
                     data.Width,
                     data.Height,
                     0,

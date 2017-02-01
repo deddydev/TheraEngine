@@ -206,19 +206,19 @@ namespace CustomEngine.Rendering.Models
                 GL.VertexAttribFormat(_location, _componentCount, VertexAttribType.Byte + (int)_componentType, _normalize, 0);
                 GL.VertexAttribBinding(_location, _index);
             }
-            //GL.BufferData(_target, (IntPtr)_data.Length, _data.Address, BufferUsageHint.StreamDraw);
-            GL.BufferStorage(_target, (IntPtr)_data.Length, _data.Address,
-                BufferStorageFlags.MapWriteBit |
-                BufferStorageFlags.MapReadBit |
-                BufferStorageFlags.MapPersistentBit |
-                BufferStorageFlags.MapCoherentBit |
-                BufferStorageFlags.ClientStorageBit);
-            _data.Dispose();
-            _data = new DataSource(GL.MapBufferRange(_target, (IntPtr)0, (IntPtr)DataLength,
-                BufferAccessMask.MapPersistentBit |
-                BufferAccessMask.MapCoherentBit |
-                BufferAccessMask.MapReadBit |
-                BufferAccessMask.MapWriteBit), DataLength);
+            GL.BufferData(_target, (IntPtr)_data.Length, _data.Address, BufferUsageHint.StaticDraw);
+            //GL.BufferStorage(_target, (IntPtr)_data.Length, _data.Address,
+            //    BufferStorageFlags.MapWriteBit |
+            //    BufferStorageFlags.MapReadBit |
+            //    BufferStorageFlags.MapPersistentBit |
+            //    BufferStorageFlags.MapCoherentBit |
+            //    BufferStorageFlags.ClientStorageBit);
+            //_data.Dispose();
+            //_data = new DataSource(GL.MapBufferRange(_target, (IntPtr)0, (IntPtr)DataLength,
+            //    BufferAccessMask.MapPersistentBit |
+            //    BufferAccessMask.MapCoherentBit |
+            //    BufferAccessMask.MapReadBit |
+            //    BufferAccessMask.MapWriteBit), DataLength);
         }
         public void Bind() { GL.BindBuffer(_target, BindingId); }
         /// <summary>

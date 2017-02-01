@@ -8,6 +8,7 @@ using CustomEngine.Rendering.Models;
 namespace System
 {
     [Serializable]
+    [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public unsafe struct Vec4 : IEquatable<Vec4>, IUniformable4Float, IBufferable
     {
         public float X, Y, Z, W;

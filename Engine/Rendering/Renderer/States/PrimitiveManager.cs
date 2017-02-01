@@ -159,6 +159,9 @@ namespace CustomEngine.Rendering.Models
             if (!IsActive)
                 Generate();
 
+            if (_program == null)
+                return;
+
             Engine.Renderer.Cull(_data.Culling);
 
             //TODO: set material and uniforms in render queue and then render ALL meshes that use it
@@ -177,9 +180,12 @@ namespace CustomEngine.Rendering.Models
                 for (int i = 0; i < _material.Textures.Count; ++i)
                 {
                     GL.ActiveTexture(TextureUnit.Texture0 + i);
+                    Engine.Renderer.Uniform("Texture" + i, i);
                     _program.Textures[i].Bind();
                 }
             }
+            else
+                GL.Disable(OpenTK.Graphics.OpenGL.EnableCap.Texture2D);
 
             GL.BindVertexArray(BindingId);
             GL.DrawElements(_data._type, _indexBuffer.ElementCount, _elementType, 0);

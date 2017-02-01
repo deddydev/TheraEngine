@@ -53,33 +53,6 @@ namespace CustomEngine.Rendering.Models.Materials
 
             return id;
         }
-        public static Shader TestVertexShader()
-        {
-            string source = @"
-#version 410
-
-layout (location = 0) in vec3 Position0;
-layout (location = 1) in vec3 Normal0;
-
-uniform mat4 ModelMatrix;
-uniform mat4 ViewMatrix;
-uniform mat4 ProjMatrix;
-uniform mat4 NormalMatrix; //transpose(inverse(modelMatrix))
-
-out Data {
-    vec3 Position;
-    vec3 Normal;
-} OutData;
-
-void main()
-{
-    OutData.Position = (ModelMatrix * vec4(Position0, 1.0)).xyz;
-    OutData.Normal = normalize((NormalMatrix * vec4(Normal0, 1.0)).xyz);
-
-    gl_Position = ProjMatrix * ViewMatrix * ModelMatrix * vec4(Position0, 1.0);
-}";
-            return new Shader(ShaderMode.Vertex, source);
-        }
         public static Shader TestFragmentShader()
         {
             string source = @"
@@ -110,10 +83,13 @@ struct SpotLight
     float CutoffAngle;
 };
 
-layout (location = 2) in vec2 TexCoord0;
-
+uniform int PointLightCount;
 uniform PointLight PointLights[16];
+
+uniform int DirLightCount; 
 uniform DirLight DirectionalLights[2];
+
+uniform int SpotLightCount;
 uniform SpotLight SpotLights[16];
 
 uniform vec4 MatColor;
@@ -121,9 +97,6 @@ uniform float MatSpecularIntensity;
 
 uniform vec3 CameraPosition;
 uniform vec3 CameraForward;
-uniform int PointLightCount;
-uniform int SpotLightCount;
-uniform int DirLightCount; 
 
 uniform sampler2D Texture0;
 
@@ -131,6 +104,7 @@ in Data
 {
     vec3 Position;
     vec3 Normal;
+    vec2 MultiTexCoord0;
 } InData;
 
 out vec4 OutColor;
@@ -192,9 +166,9 @@ void main()
     for (int i = 0; i < SpotLightCount; ++i)
         totalLight += CalcSpotLight(i, normal);
 
-    vec4 texColor = texture(Texture0, TexCoord0);
+    vec4 texColor = vec4(InData.MultiTexCoord0.x, InData.MultiTexCoord0.y, 0.0, 1.0);
 
-    OutColor = texColor;//MatColor * totalLight;
+    OutColor = texColor;
 }
 ";
             return new Shader(ShaderMode.Fragment, source);

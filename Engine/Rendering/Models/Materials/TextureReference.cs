@@ -19,10 +19,10 @@ namespace CustomEngine.Rendering.Models.Materials
         
         private SingleFileRef<TextureData> _reference;
 
-        private MinFilter _minFilter;
-        private MagFilter _magFilter;
-        private TexCoordWrap _uWrap, _vWrap;
-        private float _lodBias;
+        private MinFilter _minFilter = MinFilter.Linear_Mipmap_Linear;
+        private MagFilter _magFilter = MagFilter.Linear;
+        private TexCoordWrap _uWrap = TexCoordWrap.Repeat, _vWrap = TexCoordWrap.Repeat;
+        private float _lodBias = 0.0f;
 
         public string Path { get { return _reference.FilePathAbsolute; } }
         public MagFilter MagFilter { get { return _magFilter; } set { _magFilter = value; } }

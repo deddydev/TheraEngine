@@ -415,30 +415,33 @@ namespace CustomEngine.Rendering.Models
                 var data = remapper.ImplementationTable.Select(x => vertices[x]._position).ToList();
                 AddBuffer(data, new VertexAttribInfo(BufferType.Position, i));
             }
-            for (int i = 0; i < info._morphCount + 1; ++i)
-            {
-                var data = remapper.ImplementationTable.Select(x => vertices[x]._normal).ToList();
-                AddBuffer(data, new VertexAttribInfo(BufferType.Normal, i));
-            }
-            for (int i = 0; i < info._texcoordCount; ++i)
-            {
-                var data = remapper.ImplementationTable.Select(x => vertices[x]._texCoord).ToList();
-                AddBuffer(data, new VertexAttribInfo(BufferType.TexCoord, i));
-            }
+            if (info.HasNormals)
+                for (int i = 0; i < info._morphCount + 1; ++i)
+                {
+                    var data = remapper.ImplementationTable.Select(x => vertices[x]._normal).ToList();
+                    AddBuffer(data, new VertexAttribInfo(BufferType.Normal, i));
+                }
+            if (info.HasBinormals)
+                for (int i = 0; i < info._morphCount + 1; ++i)
+                {
+                    var data = remapper.ImplementationTable.Select(x => vertices[x]._binormal).ToList();
+                    AddBuffer(data, new VertexAttribInfo(BufferType.Binormal, i));
+                }
+            if (info.HasTangents)
+                for (int i = 0; i < info._morphCount + 1; ++i)
+                {
+                    var data = remapper.ImplementationTable.Select(x => vertices[x]._tangent).ToList();
+                    AddBuffer(data, new VertexAttribInfo(BufferType.Tangent, i));
+                }
             for (int i = 0; i < info._colorCount; ++i)
             {
                 var data = remapper.ImplementationTable.Select(x => vertices[x]._color).ToList();
                 AddBuffer(data, new VertexAttribInfo(BufferType.Color, i));
             }
-            for (int i = 0; i < info._morphCount + 1; ++i)
+            for (int i = 0; i < info._texcoordCount; ++i)
             {
-                var data = remapper.ImplementationTable.Select(x => vertices[x]._binormal).ToList();
-                AddBuffer(data, new VertexAttribInfo(BufferType.Binormal, i));
-            }
-            for (int i = 0; i < info._morphCount + 1; ++i)
-            {
-                var data = remapper.ImplementationTable.Select(x => vertices[x]._tangent).ToList();
-                AddBuffer(data, new VertexAttribInfo(BufferType.Tangent, i));
+                var data = remapper.ImplementationTable.Select(x => vertices[x]._texCoord).ToList();
+                AddBuffer(data, new VertexAttribInfo(BufferType.TexCoord, i));
             }
             if (info._hasBarycentricCoord)
             {

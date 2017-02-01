@@ -55,6 +55,9 @@ namespace CustomEngine.Rendering.Models.Materials
             else
                 WriteStaticPNTB(allowMeshMorphing);
 
+            for (int i = 0; i < _info._texcoordCount; ++i)
+                wl("OutData.MultiTexCoord{0} = TexCoord{0};", i);
+
             return new Shader(ShaderMode.Vertex, _generator.Finish());
         }
         private static void WriteBuffers(bool morphed)
@@ -130,6 +133,8 @@ namespace CustomEngine.Rendering.Models.Materials
                 wl("vec3 Tangent;");
             if (_info.HasBinormals)
                 wl("vec3 Binormal;");
+            for (int i = 0; i < _info._texcoordCount; ++i)
+                wl("vec2 MultiTexCoord{0};", i);
             wl("} OutData;");
         }
         private static void WriteRiggedPNTB(bool morphed, bool singleRig)
@@ -217,11 +222,11 @@ namespace CustomEngine.Rendering.Models.Materials
         {
             wl("vec4 position = ModelMatrix * vec4(Position0, 1.0);");
             if (_info.HasNormals)
-                wl("vec4 normal = normalize(NormalMatrix * vec4(Normal0, 1.0));");
+                wl("vec4 normal = NormalMatrix * vec4(Normal0, 1.0);");
             if (_info.HasBinormals)
-                wl("vec4 binormal = normalize(NormalMatrix * vec4(Binormal0, 1.0));");
+                wl("vec4 binormal = NormalMatrix * vec4(Binormal0, 1.0);");
             if (_info.HasTangents)
-                wl("vec4 tangent = normalize(NormalMatrix * vec4(Tangent0, 1.0));");
+                wl("vec4 tangent = NormalMatrix * vec4(Tangent0, 1.0);");
             wl();
             if (morphed)
             {
@@ -244,33 +249,33 @@ namespace CustomEngine.Rendering.Models.Materials
                 {
                     wl("position += ModelMatrix * vec4(Position{0}, 1.0) * MorphWeights[{1}];", i + 1, i);
                     if (_info.HasNormals)
-                        wl("normal += normalize(NormalMatrix * vec4(Normal{0}, 1.0) * MorphWeights[{1}]);", i + 1, i);
+                        wl("normal += NormalMatrix * vec4(Normal{0}, 1.0) * MorphWeights[{1}];", i + 1, i);
                     if (_info.HasBinormals)
-                        wl("binormal += normalize(NormalMatrix * vec4(Binormal{0}, 1.0) * MorphWeights[{1}]);", i + 1, i);
+                        wl("binormal += NormalMatrix * vec4(Binormal{0}, 1.0) * MorphWeights[{1}];", i + 1, i);
                     if (_info.HasTangents)
-                        wl("tangent += normalize(NormalMatrix * vec4(Tangent{0}, 1.0) * MorphWeights[{1}]);", i + 1, i);
+                        wl("tangent += NormalMatrix * vec4(Tangent{0}, 1.0) * MorphWeights[{1}];", i + 1, i);
                 }
 
                 wl("position /= total;");
                 wl("OutData.Position = position.xyz;");
                 wl("gl_Position = ProjMatrix * ViewMatrix * position;");
                 if (_info.HasNormals)
-                    wl("OutData.Normal = normal.xyz / total;");
+                    wl("OutData.Normal = normalize(normal.xyz / total);");
                 if (_info.HasBinormals)
-                    wl("OutData.Binormal = binormal.xyz / total;");
+                    wl("OutData.Binormal = normalize(binormal.xyz / total);");
                 if (_info.HasTangents)
-                    wl("OutData.Tangent = tangent.xyz / total;");
+                    wl("OutData.Tangent = normalize(tangent.xyz / total);");
             }
             else
             {
                 wl("OutData.Position = position.xyz;");
                 wl("gl_Position = ProjMatrix * ViewMatrix * position;");
                 if (_info.HasNormals)
-                    wl("OutData.Normal = normal.xyz;");
+                    wl("OutData.Normal = normalize(normal.xyz);");
                 if (_info.HasBinormals)
-                    wl("OutData.Binormal = binormal.xyz;");
+                    wl("OutData.Binormal = normalize(binormal.xyz);");
                 if (_info.HasTangents)
-                    wl("OutData.Tangent = tangent.xyz;");
+                    wl("OutData.Tangent = normalize(tangent.xyz);");
             }
         }
     }

@@ -17,8 +17,16 @@ namespace CustomEngine.Rendering
         }
 
         public const int NullBindingId = 0;
-        public bool IsActive { get { return BindingId > NullBindingId; } }
-        public int BindingId { get { return _currentBind._bindingId; } }
+        public bool IsActive { get { return _currentBind._bindingId > NullBindingId; } }
+        public int BindingId
+        {
+            get
+            {
+                if (!IsActive)
+                    Generate();
+                return _currentBind._bindingId;
+            }
+        }
         public GenType Type { get { return _type; } }
 
         private GenType _type;
@@ -60,7 +68,7 @@ namespace CustomEngine.Rendering
         public int Generate()
         {
             if (RenderContext.Current == null)
-                return BindingId;
+                return _currentBind._bindingId;
 
             //Make sure current bind is up to date
             if (_currentBind._context != RenderContext.Current)
@@ -73,12 +81,12 @@ namespace CustomEngine.Rendering
             }
 
             if (IsActive)
-                return BindingId;
+                return _currentBind._bindingId;
 
             _currentBind._bindingId = CreateObject();
             OnGenerated();
 
-            return BindingId;
+            return _currentBind._bindingId;
         }
         /// <summary>
         /// Removes this render object from the current context.
@@ -115,7 +123,7 @@ namespace CustomEngine.Rendering
             if (!IsActive)
                 return;
 
-            Engine.Renderer.DeleteObject(_type, BindingId);
+            Engine.Renderer.DeleteObject(_type, _currentBind._bindingId);
             _currentBind._bindingId = 0;
             _currentBind._context = null;
             OnDeleted();
@@ -144,7 +152,7 @@ namespace CustomEngine.Rendering
         }
         public override string ToString()
         {
-            return Type.ToString() + BindingId;
+            return Type.ToString() + _currentBind._bindingId;
         }
         public override bool Equals(object obj)
         {

@@ -118,15 +118,12 @@ namespace CustomEngine.Rendering.Models.Collada
                     foreach (ImageEntry img in imgEntries)
                     {
                         TextureReference tr = new TextureReference(img._path);
-                        tr.MinFilter = MinFilter.Linear;
-                        tr.MagFilter = MagFilter.Linear;
                         tr.UWrap = tr.VWrap = options._wrap;
                         m.Textures.Add(tr);
                     }
                 }
 
                 List<ObjectInfo> objects = new List<ObjectInfo>();
-
                 List<Bone> rootBones = new List<Bone>();
 
                 //Extract bones and objects and create bone tree

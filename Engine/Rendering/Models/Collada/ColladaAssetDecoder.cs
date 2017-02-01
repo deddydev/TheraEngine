@@ -19,18 +19,12 @@ namespace CustomEngine.Rendering.Models.Collada
             int boneCount;
 
             float weight = 0;
-            float* pWeights = null;
-            Vec3* pVert = null;
+            float[] pWeights = null;
             Influence[] infList = new Influence[skin._weightCount];
             Matrix4* pMatrix = null;
 
             DataSource remap = new DataSource(skin._weightCount * 2);
             ushort* pRemap = (ushort*)remap.Address;
-
-            //Find vertex source
-            SourceEntry s = geo._sources.FirstOrDefault(x => x._id == geo._verticesInput._source);
-            if (s != null)
-                pVert = (Vec3*)((DataSource)s._arrayData).Address;
             
             //Find joint source
             string[] jointStringArray = null;
@@ -45,12 +39,12 @@ namespace CustomEngine.Rendering.Models.Collada
                         jointString = src._arrayDataString;
                     }
                 }
-                else if (inp._semantic == SemanticType.INV_BIND_MATRIX)
-                {
-                    SourceEntry src = skin._sources.FirstOrDefault(x => x._id == inp._source);
-                    if (src != null)
-                        pMatrix = (Matrix4*)((DataSource)src._arrayData).Address;
-                }
+                //else if (inp._semantic == SemanticType.INV_BIND_MATRIX)
+                //{
+                //    SourceEntry src = skin._sources.FirstOrDefault(x => x._id == inp._source);
+                //    if (src != null)
+                //        pMatrix = (Matrix4*)((DataSource)src._arrayData).Address;
+                //}
             
             //Populate bone list
             boneCount = jointStringArray.Length;
@@ -80,8 +74,7 @@ namespace CustomEngine.Rendering.Models.Collada
             }
 
             //Build command list
-            int cmdCount = skin._weightInputs.Count;
-            byte* pCmd = stackalloc byte[4];
+            byte[] pCmd = new byte[skin._weightInputs.Count];
             foreach (InputEntry inp in skin._weightInputs)
             {
                 switch (inp._semantic)
@@ -97,7 +90,7 @@ namespace CustomEngine.Rendering.Models.Collada
                         foreach (SourceEntry src in skin._sources)
                             if (src._id == inp._source)
                             {
-                                pWeights = (float*)((DataSource)src._arrayData).Address;
+                                pWeights = src._arrayData as float[];
                                 break;
                             }
 
@@ -113,13 +106,13 @@ namespace CustomEngine.Rendering.Models.Collada
             for (int i = 0; i < skin._weightCount; i++)
             {
                 //Create influence
-                int iCount = skin._weights[i].Length / cmdCount;
+                int iCount = skin._weights[i].Length / pCmd.Length;
                 Influence inf = new Influence();
                 int[] iPtr = skin._weights[i];
                 int j = 0;
                 for (int x = 0; x < iCount; x++)
                 {
-                    for (int cmd = 0; cmd < cmdCount; cmd++, j++)
+                    for (int cmd = 0; cmd < pCmd.Length; cmd++, j++)
                     {
                         int index = iPtr[j];
                         switch (pCmd[cmd])
@@ -227,38 +220,40 @@ namespace CustomEngine.Rendering.Models.Collada
                     info._colorCount,
                     info._texcoordCount);
 
-                int stride;
+                int stride, index, startIndex;
                 Vertex vtx;
-                VoidPtr addr;
                 Vertex[][] vertices;
+                float[] list;
                 foreach (PrimitiveFace f in prim._faces)
                 {
                     vertices = new Vertex[f._pointCount][];
                     foreach (InputEntry inp in prim._inputs)
                     {
                         src = sources[inp._semantic][inp._set];
-                        stride = src._accessorStride * 4;
+                        stride = src._accessorStride;
+                        list = src._arrayData as float[];
                         for (int i = 0, x = 0; i < f._pointCount; ++i, x += prim._inputs.Count)
                         {
                             if (vertices[i] == null)
                                 vertices[i] = new Vertex[maxSets];
                             
-                            int index = f._pointIndices[x + inp._offset];
-                            addr = ((DataSource)src._arrayData).Address[index, stride];
+                            startIndex = (index = f._pointIndices[x + inp._offset]) * stride;
+
                             vtx = vertices[i][inp._set];
                             if (vtx == null)
                                 vtx = infList == null ? new Vertex() : new Vertex(infList[index]);
+
                             switch (inp._semantic)
                             {
                                 case SemanticType.VERTEX:
-                                    Vec3 position = *(Vec3*)addr;
+                                    Vec3 position = new Vec3(list[startIndex], list[startIndex + 1], list[startIndex + 2]);
                                     position = Vec3.TransformPosition(position, bindMatrix);
                                     if (isZup)
                                         position.ChangeZupToYup();
                                     vtx._position = position;
                                     break;
                                 case SemanticType.NORMAL:
-                                    Vec3 normal = *(Vec3*)addr;
+                                    Vec3 normal = new Vec3(list[startIndex], list[startIndex + 1], list[startIndex + 2]);
                                     normal = Vec3.TransformNormal(normal, bindMatrix);
                                     if (isZup)
                                         normal.ChangeZupToYup();
@@ -266,7 +261,7 @@ namespace CustomEngine.Rendering.Models.Collada
                                     vtx._normal = normal;
                                     break;
                                 case SemanticType.TEXBINORMAL:
-                                    Vec3 binormal = *(Vec3*)addr;
+                                    Vec3 binormal = new Vec3(list[startIndex], list[startIndex + 1], list[startIndex + 2]);
                                     binormal = Vec3.TransformNormal(binormal, bindMatrix);
                                     if (isZup)
                                         binormal.ChangeZupToYup();
@@ -274,7 +269,7 @@ namespace CustomEngine.Rendering.Models.Collada
                                     vtx._binormal = binormal;
                                     break;
                                 case SemanticType.TEXTANGENT:
-                                    Vec3 tangent = *(Vec3*)addr;
+                                    Vec3 tangent = new Vec3(list[startIndex], list[startIndex + 1], list[startIndex + 2]);
                                     tangent = Vec3.TransformNormal(tangent, bindMatrix);
                                     if (isZup)
                                         tangent.ChangeZupToYup();
@@ -282,11 +277,11 @@ namespace CustomEngine.Rendering.Models.Collada
                                     vtx._tangent = tangent;
                                     break;
                                 case SemanticType.TEXCOORD:
-                                    vtx._texCoord = *(Vec2*)addr;
+                                    vtx._texCoord = new Vec2(list[startIndex], list[startIndex + 1]);
                                     vtx._texCoord.Y = 1.0f - vtx._texCoord.Y;
                                     break;
                                 case SemanticType.COLOR:
-                                    vtx._color = *(ColorF4*)addr;
+                                    vtx._color = new ColorF4(list[startIndex], list[startIndex + 1], list[startIndex + 2], list[startIndex + 3]);
                                     break;
                             }
                             vertices[i][inp._set] = vtx;

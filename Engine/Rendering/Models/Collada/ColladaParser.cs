@@ -596,12 +596,11 @@ namespace CustomEngine.Rendering.Models.Collada
                                 else if (_reader.Name.Equals("count", true))
                                     src._arrayCount = int.Parse((string)_reader.Value);
 
-                            DataSource buffer = new DataSource(src._arrayCount * 4);
-                            src._arrayData = buffer;
-
-                            float* pOut = (float*)buffer.Address;
+                            float[] list = new float[src._arrayCount];
+                            src._arrayData = list;
+                            
                             for (int i = 0; i < src._arrayCount; i++)
-                                if (!_reader.ReadValue(pOut++))
+                                if (!_reader.ReadValue(ref list[i]))
                                     break;
                         }
                     }
@@ -617,12 +616,11 @@ namespace CustomEngine.Rendering.Models.Collada
                                 else if (_reader.Name.Equals("count", true))
                                     src._arrayCount = int.Parse((string)_reader.Value);
 
-                            DataSource buffer = new DataSource(src._arrayCount * 4);
-                            src._arrayData = buffer;
+                            int[] list = new int[src._arrayCount];
+                            src._arrayData = list;
 
-                            int* pOut = (int*)buffer.Address;
                             for (int i = 0; i < src._arrayCount; i++)
-                                if (!_reader.ReadValue(pOut++))
+                                if (!_reader.ReadValue(ref list[i]))
                                     break;
                         }
                     }

@@ -85,14 +85,13 @@ namespace CustomEngine.Rendering.Models.Materials
 
         public static Material GetDefaultMaterial()
         {
-            Shader vert = Shader.TestVertexShader();
             Shader frag = Shader.TestFragmentShader();
             List<GLVar> p = new List<GLVar>()
             {
                 new GLVec4((ColorF4)Color.Blue, "MatColor", null),
                 new GLFloat(1.0f, "MatSpecularIntensity", null),
             };
-            return new Material("TestMaterial", p, vert, frag);
+            return new Material("TestMaterial", p, frag);
         }
     }
 }

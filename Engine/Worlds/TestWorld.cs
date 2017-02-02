@@ -69,28 +69,31 @@ namespace CustomEngine.Worlds
             //StaticMesh floorModel = new StaticMesh("Floor", floorBox);
             //floorModel.RigidChildren.Add(new StaticRigidSubMesh(floorBox.GetMesh(false), floorBox, Material.GetDefaultMaterial(), "FloorMesh"));
 
-            AnimationInterpNode camPropAnim = new AnimationInterpNode(360, true, true);
-            InterpKeyframe first = new InterpKeyframe(0.0f, 0.0f, 0.0f);
-            InterpKeyframe second = new InterpKeyframe(180.0f, 360.0f, 360.0f);
-            InterpKeyframe last = new InterpKeyframe(360.0f, 0.0f, 0.0f);
-            first.LinkNext(second).LinkNext(last);
-            camPropAnim.Keyframes.AddFirst(first);
-            
-            AnimFolder yawAnim = new AnimFolder("Yaw", false, camPropAnim);
-            AnimFolder stateFolder = new AnimFolder("Rotation", yawAnim);
-            AnimationContainer anim = new AnimationContainer(stateFolder);
+            //PointLightComponent lightComp = new PointLightComponent(0.01f, 0.0f, 1.0f, Color.Gray, 1.0f, 0.2f);
 
-            PointLightComponent lightComp = new PointLightComponent(1.0f, 0.0f, 0.5f, Color.Beige, 1.0f, 0.2f);
-            DirectionalLightComponent dirLightComp = new DirectionalLightComponent(
-                new Rotator(-45.0f, 0.0f, 0.0f, Rotator.Order.YPR), Color.Red, 1.0f, 0.2f);
-            
+            SpotLightComponent dirLightComp = new SpotLightComponent(
+                0.0f, 1.0f, 0.01f, Color.White, 1.0f, 1.0f, new Rotator(-90.0f, 0.0f, 0.0f, Rotator.Order.YPR), 10.0f, 1.0f);
+            dirLightComp.Translation.Y = 200.0f;
+
+            //AnimationInterpNode lightAnim = new AnimationInterpNode(360, true, true);
+            //InterpKeyframe first2 = new InterpKeyframe(0.0f, 0.0f, 0.0f);
+            //InterpKeyframe last2 = new InterpKeyframe(360.0f, 360.0f, 0.0f);
+            //first2.LinkNext(last2);
+            //first2.MakeOutLinear();
+            //last2.MakeInLinear();
+            //lightAnim.Keyframes.AddFirst(first2);
+            //AnimFolder lightPitchFolder = new AnimFolder("Pitch", false, lightAnim);
+            //AnimFolder lightRotationFolder = new AnimFolder("Rotation", lightPitchFolder);
+            //AnimationContainer lightAnimContainer = new AnimationContainer(lightRotationFolder);
+            //dirLightComp.AddAnimation(lightAnimContainer, false);
+
             //StaticMeshComponent floorComp = new StaticMeshComponent(
             //    floorModel, Vec3.Zero,
             //    new Rotator(0.0f, 0.0f, -10.0f, Rotator.Order.YPR),
             //    Vec3.One, floorInfo);
 
-            lightComp.Translation.Y = 0.0f;
-            lightComp.Translation.X = 0.0f;
+            //lightComp.Translation.Y = 60.0f;
+            //lightComp.Translation.X = 0.0f;
             //floorComp.AddAnimation(anim, true);
 
             //Actor sphereActor = new Actor(new StaticMeshComponent(
@@ -101,8 +104,7 @@ namespace CustomEngine.Worlds
             //    sphereInfo));
 
             //Actor floorActor = new Actor(floorComp);
-
-            Actor lightActor = new Actor(lightComp);
+            //Actor lightActor = new Actor(lightComp);
             Actor dirLightActor = new Actor(dirLightComp);
 
             ColladaImportOptions options = new ColladaImportOptions();
@@ -119,10 +121,20 @@ namespace CustomEngine.Worlds
             else
                 comp = new StaticMeshComponent(staticM, null);
 
-            comp.AddAnimation(anim, true);
+            AnimationInterpNode modelAnim = new AnimationInterpNode(360, true, true);
+            InterpKeyframe first = new InterpKeyframe(0.0f, 0.0f, 0.0f);
+            InterpKeyframe second = new InterpKeyframe(180.0f, 360.0f, 360.0f);
+            InterpKeyframe last = new InterpKeyframe(360.0f, 0.0f, 0.0f);
+            first.LinkNext(second).LinkNext(last);
+            modelAnim.Keyframes.AddFirst(first);
+            AnimFolder modelYawFolder = new AnimFolder("Yaw", false, modelAnim);
+            AnimFolder modelRotationFolder = new AnimFolder("Rotation", modelYawFolder);
+            AnimationContainer modelAnimContainer = new AnimationContainer(modelRotationFolder);
+            comp.AddAnimation(modelAnimContainer, false);
+
             Actor importedActor = new Actor(comp);
 
-            _settings._defaultMaps.Add(new Map(this, new MapSettings(/*sphereActor,*/ lightActor, /*floorActor,*/ dirLightActor, importedActor, new FlyingCameraPawn(PlayerIndex.One))));
+            _settings._defaultMaps.Add(new Map(this, new MapSettings(/*sphereActor,*/ /*lightActor,*/ /*floorActor,*/ dirLightActor, importedActor, new FlyingCameraPawn(PlayerIndex.One))));
         }
     }
 }

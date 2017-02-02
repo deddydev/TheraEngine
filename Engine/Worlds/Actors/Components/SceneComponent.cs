@@ -41,7 +41,8 @@ namespace CustomEngine.Worlds.Actors.Components
             {
                 _worldTransform = value;
                 _inverseWorldTransform = _worldTransform.Inverted();
-                RecalcGlobalTransform();
+                foreach (SceneComponent c in _children)
+                    c.RecalcGlobalTransform();
             }
         }
         /// <summary>

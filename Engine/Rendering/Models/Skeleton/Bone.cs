@@ -85,8 +85,9 @@ namespace CustomEngine.Rendering.Models
             //Non-animated default bone position transforms, in model space
             _bindMatrix = Matrix4.Identity, _inverseBindMatrix = Matrix4.Identity,
             //Used for calculating vertex influences matrices quickly
-            _vertexMatrix = Matrix4.Identity, _vertexMatrixIT = Matrix4.Identity,
+            _vertexMatrix = Matrix4.Identity,
             _worldMatrix = Matrix4.Identity, _inverseWorldMatrix = Matrix4.Identity;
+        private Matrix3 _vertexMatrixIT = Matrix3.Identity;
 
         public Bone Parent
         {
@@ -119,7 +120,7 @@ namespace CustomEngine.Rendering.Models
         public Matrix4 InverseFrameMatrix { get { return _inverseFrameMatrix; } }
         public Matrix4 InverseBindMatrix { get { return _inverseBindMatrix; } }
         public Matrix4 VertexMatrix { get { return _vertexMatrix; } }
-        public Matrix4 VertexMatrixIT { get { return _vertexMatrixIT; } }
+        public Matrix3 VertexMatrixIT { get { return _vertexMatrixIT; } }
         public Skeleton Skeleton { get { return _skeleton; } }
         public PhysicsDriver PhysicsDriver { get { return _physicsDriver; } }
 
@@ -133,8 +134,9 @@ namespace CustomEngine.Rendering.Models
             _inverseFrameMatrix = _frameState.InverseMatrix * inverseParentMatrix;
 
             _vertexMatrix = FrameMatrix * InverseBindMatrix;
-            _vertexMatrixIT = InverseFrameMatrix * BindMatrix;
-            _vertexMatrixIT.Transpose();
+            Matrix4 m = InverseFrameMatrix * BindMatrix;
+            m.Transpose();
+            _vertexMatrixIT = m.GetRotationMatrix3();
 
             if (OwningComponent == null)
             {
@@ -164,8 +166,9 @@ namespace CustomEngine.Rendering.Models
             _inverseBindMatrix = _bindState.InverseMatrix * inverseParentMatrix;
 
             _vertexMatrix = FrameMatrix * InverseBindMatrix;
-            _vertexMatrixIT = InverseFrameMatrix * BindMatrix;
-            _vertexMatrixIT.Transpose();
+            Matrix4 m = InverseFrameMatrix * BindMatrix;
+            m.Transpose();
+            _vertexMatrixIT = m.GetRotationMatrix3();
 
             if (!updateMesh)
                 InfluenceAssets(true);

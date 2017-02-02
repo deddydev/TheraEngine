@@ -6,8 +6,7 @@ namespace System
     //Stores a reference to unmanaged data
     public class DataSource : IDisposable
     {
-        public static List<DataSource> Sources = new List<DataSource>();
-
+        private bool _external;
         private int _length;
         private VoidPtr _address;
 
@@ -22,7 +21,7 @@ namespace System
                 throw new Exception("Cannot have a source with a negative size.");
             _length = length;
             _address = address;
-            Sources.Add(this);
+            _external = true;
         }
         public DataSource(int length)
         {
@@ -30,23 +29,16 @@ namespace System
                 throw new Exception("Cannot allocate a negative size.");
             _length = length;
             _address = Marshal.AllocHGlobal(_length);
+            _external = false;
         }
-        ~DataSource()
-        {
-            Dispose();
-        }
+        ~DataSource() { Dispose(); }
 
-        public static DataSource Allocate(int size)
-        {
-            if (size < 0)
-                throw new Exception("Cannot allocate a negative size.");
-            return new DataSource(Marshal.AllocHGlobal(size), size);
-        }
+        public static DataSource Allocate(int size) { return new DataSource(size); }
         public void Dispose()
         {
             try
             {
-                if (_address != null)
+                if (!_external && _address != null)
                 {
                     Marshal.FreeHGlobal(_address);
                     GC.SuppressFinalize(this);

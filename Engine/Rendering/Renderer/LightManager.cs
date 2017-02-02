@@ -28,22 +28,22 @@ namespace CustomEngine.Rendering
             foreach (PointLightComponent l in _pointLights)
                 l.SetUniforms();
         }
-        public void AddLight(DirectionalLightComponent light)
+        public void Add(DirectionalLightComponent light)
         {
             light.LightIndex = _directionalLights.Count;
             _directionalLights.Add(light);
         }
-        public void RemoveLight(DirectionalLightComponent light)
+        public void Remove(DirectionalLightComponent light)
         {
             _directionalLights.Remove(light);
             light.LightIndex = -1;
         }
-        public void AddLight(SpotLightComponent light)
+        public void Add(SpotLightComponent light)
         {
             light.LightIndex = _spotLights.Count;
             _spotLights.Add(light);
         }
-        public void RemoveLight(SpotLightComponent light)
+        public void Remove(SpotLightComponent light)
         {
             _spotLights.Remove(light);
             light.LightIndex = -1;

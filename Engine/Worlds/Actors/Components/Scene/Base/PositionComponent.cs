@@ -14,6 +14,10 @@ namespace CustomEngine.Worlds.Actors.Components
             _translation = Vec3.Zero;
             _translation.Changed += RecalcLocalTransform;
         }
+        public PositionComponent(Vec3 translation)
+        {
+            Translation = translation;
+        }
         protected EventVec3 _translation;
         public EventVec3 Translation
         {
@@ -21,6 +25,7 @@ namespace CustomEngine.Worlds.Actors.Components
             set
             {
                 _translation = value;
+                _translation.Changed += RecalcLocalTransform;
                 RecalcLocalTransform();
             }
         }

@@ -132,9 +132,9 @@ namespace CustomEngine.Rendering.Models
                 return;
 
             Matrix4[] positionMatrices = new Matrix4[_utilizedBones.Length + 1];
-            Matrix4[] normalMatrices = new Matrix4[_utilizedBones.Length + 1];
+            Matrix3[] normalMatrices = new Matrix3[_utilizedBones.Length + 1];
             positionMatrices[0] = Matrix4.Identity;
-            normalMatrices[0] = Matrix4.Identity;
+            normalMatrices[0] = Matrix3.Identity;
 
             for (int i = 1; i < _utilizedBones.Length + 1; ++i)
             {
@@ -149,9 +149,10 @@ namespace CustomEngine.Rendering.Models
         }
         public unsafe void Render(Matrix4 modelMatrix)
         {
-            Render(modelMatrix, modelMatrix.Inverted().Transposed());
+            //TODO: don't invert, transpose, and get rotation matrix here
+            Render(modelMatrix, modelMatrix.Inverted().Transposed().GetRotationMatrix3());
         }
-        public unsafe void Render(Matrix4 modelMatrix, Matrix4 normalMatrix)
+        public unsafe void Render(Matrix4 modelMatrix, Matrix3 normalMatrix)
         {
             if (_data == null)
                 return;

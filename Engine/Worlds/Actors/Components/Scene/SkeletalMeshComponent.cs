@@ -153,7 +153,7 @@ namespace CustomEngine.Worlds.Actors.Components
                         world = _component.WorldMatrix;
                         invWorld = _component.InverseWorldMatrix;
                     }
-                    _manager.Render(world, invWorld.Transposed());
+                    _manager.Render(world, invWorld.Transposed().GetRotationMatrix3());
                 }
             }
         }

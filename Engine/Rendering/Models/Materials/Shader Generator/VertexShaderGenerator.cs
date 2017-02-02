@@ -100,13 +100,13 @@ namespace CustomEngine.Rendering.Models.Materials
         private static void WriteMatrixUniforms(bool morphed)
         {
             WriteUniform(GLTypeName._mat4, "ModelMatrix");
-            WriteUniform(GLTypeName._mat4, "NormalMatrix");
+            WriteUniform(GLTypeName._mat3, "NormalMatrix");
             WriteUniform(GLTypeName._mat4, "ViewMatrix");
             WriteUniform(GLTypeName._mat4, "ProjMatrix");
             if (_info.IsWeighted)
             {
                 WriteUniform(GLTypeName._mat4, Uniform.BoneMatricesName + "[" + _info._boneCount + "]");
-                WriteUniform(GLTypeName._mat4, Uniform.BoneMatricesITName + "[" + _info._boneCount + "]");
+                WriteUniform(GLTypeName._mat3, Uniform.BoneMatricesITName + "[" + _info._boneCount + "]");
                 if (morphed)
                     WriteUniform(GLTypeName._mat4, Uniform.MorphWeightsName + "[" + _info._morphCount + "]");
             }
@@ -135,17 +135,17 @@ namespace CustomEngine.Rendering.Models.Materials
             if (_info.HasNormals)
             {
                 wl("OutData.Normal = vec3(0.0);");
-                wl("vec4 baseNormal = vec4(Normal0, 1.0);");
+                wl("vec3 baseNormal = Normal0;");
             }
             if (_info.HasBinormals)
             {
                 wl("OutData.Binormal = vec3(0.0);");
-                wl("vec4 baseBinormal = vec4(Binormal0, 1.0);");
+                wl("vec3 baseBinormal = Binormal0;");
             }
             if (_info.HasTangents)
             {
                 wl("OutData.Tangent = vec3(0.0);");
-                wl("vec4 baseTangent = vec4(Tangent0, 1.0);");
+                wl("vec3 baseTangent = Tangent0;");
             }
             wl();
             if (singleRig)
@@ -154,19 +154,19 @@ namespace CustomEngine.Rendering.Models.Materials
                 wl("{");
                 wl("OutData.Position += (({0}[{1}0[i]] * basePosition) * {2}0[i]).xyz;", Uniform.BoneMatricesName, BufferType.MatrixIds, BufferType.MatrixWeights);
                 if (_info.HasNormals)
-                    wl("OutData.Normal += normalize(({0}[{1}0[i]] * baseNormal) * {2}0[i]).xyz;", Uniform.BoneMatricesITName, BufferType.MatrixIds, BufferType.MatrixWeights);
+                    wl("OutData.Normal += ({0}[{1}0[i]] * baseNormal) * {2}0[i];", Uniform.BoneMatricesITName, BufferType.MatrixIds, BufferType.MatrixWeights);
                 if (_info.HasBinormals)
-                    wl("OutData.Binormal += normalize(({0}[{1}0[i]] * baseBinormal) * {2}0[i]).xyz;", Uniform.BoneMatricesITName, BufferType.MatrixIds, BufferType.MatrixWeights);
+                    wl("OutData.Binormal += ({0}[{1}0[i]] * baseBinormal) * {2}0[i];", Uniform.BoneMatricesITName, BufferType.MatrixIds, BufferType.MatrixWeights);
                 if (_info.HasTangents)
-                    wl("OutData.Tangent += normalize(({0}[{1}0[i]] * baseTangent) * {2}0[i]).xyz;", Uniform.BoneMatricesITName, BufferType.MatrixIds, BufferType.MatrixWeights);
+                    wl("OutData.Tangent += ({0}[{1}0[i]] * baseTangent) * {2}0[i];", Uniform.BoneMatricesITName, BufferType.MatrixIds, BufferType.MatrixWeights);
                 wl("}");
                 wl();
                 if (_info.HasNormals)
                     wl("OutData.Normal = normalize(OutData.Normal);");
                 if (_info.HasBinormals)
-                    wl("OutData.Binormal = normalize(OutData.Normal);");
+                    wl("OutData.Binormal = normalize(OutData.Binormal);");
                 if (_info.HasTangents)
-                    wl("OutData.Tangent = normalize(OutData.Normal);");
+                    wl("OutData.Tangent = normalize(OutData.Tangent);");
             }
             else
             {
@@ -191,11 +191,11 @@ namespace CustomEngine.Rendering.Models.Materials
                 {
                     wl("OutData.Position += {0}[{1}{3}[i]] * vec4(Position{5}, 1.0) * {2}{3}[i] * {4}[i];", Uniform.BoneMatricesName, BufferType.MatrixIds, BufferType.MatrixWeights, i, Uniform.MorphWeightsName, i + 1);
                     if (_info.HasNormals)
-                        wl("OutData.Normal += {0}[{1}{3}[i]] * vec4(Normal{5}, 1.0) * {2}{3}[i] * {4}[i];", Uniform.BoneMatricesITName, BufferType.MatrixIds, BufferType.MatrixWeights, i, Uniform.MorphWeightsName, i + 1);
+                        wl("OutData.Normal += ({0}[{1}{3}[i]] * Normal{5}) * {2}{3}[i] * {4}[i];", Uniform.BoneMatricesITName, BufferType.MatrixIds, BufferType.MatrixWeights, i, Uniform.MorphWeightsName, i + 1);
                     if (_info.HasBinormals)
-                        wl("OutData.Binormal += {0}[{1}{3}[i]] * vec4(Binormal{5}, 1.0) * {2}{3}[i] * {4}[i];", Uniform.BoneMatricesITName, BufferType.MatrixIds, BufferType.MatrixWeights, i, Uniform.MorphWeightsName, i + 1);
+                        wl("OutData.Binormal += ({0}[{1}{3}[i]] * Binormal{5}) * {2}{3}[i] * {4}[i];", Uniform.BoneMatricesITName, BufferType.MatrixIds, BufferType.MatrixWeights, i, Uniform.MorphWeightsName, i + 1);
                     if (_info.HasTangents)
-                        wl("OutData.Tangent += {0}[{1}{3}[i]] * vec4(Tangent{5}, 1.0) * {2}{3}[i] * {4}[i];", Uniform.BoneMatricesITName, BufferType.MatrixIds, BufferType.MatrixWeights, i, Uniform.MorphWeightsName, i + 1);
+                        wl("OutData.Tangent += ({0}[{1}{3}[i]] * Tangent{5}) * {2}{3}[i] * {4}[i];", Uniform.BoneMatricesITName, BufferType.MatrixIds, BufferType.MatrixWeights, i, Uniform.MorphWeightsName, i + 1);
                     if (i + 1 != _info._morphCount)
                         wl();
                 }
@@ -213,11 +213,11 @@ namespace CustomEngine.Rendering.Models.Materials
         {
             wl("vec4 position = ModelMatrix * vec4(Position0, 1.0);");
             if (_info.HasNormals)
-                wl("vec4 normal = NormalMatrix * vec4(Normal0, 1.0);");
+                wl("vec3 normal = NormalMatrix * Normal0;");
             if (_info.HasBinormals)
-                wl("vec4 binormal = NormalMatrix * vec4(Binormal0, 1.0);");
+                wl("vec3 binormal = NormalMatrix * Binormal0;");
             if (_info.HasTangents)
-                wl("vec4 tangent = NormalMatrix * vec4(Tangent0, 1.0);");
+                wl("vec3 tangent = NormalMatrix * Tangent0;");
             wl();
             if (morphed)
             {
@@ -226,7 +226,7 @@ namespace CustomEngine.Rendering.Models.Materials
                 wl("totalWeight += {0}[i];", Uniform.MorphWeightsName);
 
                 wl("float baseWeight = 1.0 - totalWeight;");
-                wl("float total = totalWeight + baseWeight;");
+                wl("float invTotal = 1.0 / (totalWeight + baseWeight);");
 
                 wl("position *= baseWeight;");
                 if (_info.HasNormals)
@@ -240,33 +240,33 @@ namespace CustomEngine.Rendering.Models.Materials
                 {
                     wl("position += ModelMatrix * vec4(Position{0}, 1.0) * MorphWeights[{1}];", i + 1, i);
                     if (_info.HasNormals)
-                        wl("normal += NormalMatrix * vec4(Normal{0}, 1.0) * MorphWeights[{1}];", i + 1, i);
+                        wl("normal += (NormalMatrix * Normal{0}) * MorphWeights[{1}];", i + 1, i);
                     if (_info.HasBinormals)
-                        wl("binormal += NormalMatrix * vec4(Binormal{0}, 1.0) * MorphWeights[{1}];", i + 1, i);
+                        wl("binormal += (NormalMatrix * Binormal{0}) * MorphWeights[{1}];", i + 1, i);
                     if (_info.HasTangents)
-                        wl("tangent += NormalMatrix * vec4(Tangent{0}, 1.0) * MorphWeights[{1}];", i + 1, i);
+                        wl("tangent += (NormalMatrix * Tangent{0}) * MorphWeights[{1}];", i + 1, i);
                 }
 
-                wl("position /= total;");
+                wl("position *= invTotal;");
                 wl("OutData.Position = position.xyz;");
                 wl("gl_Position = ProjMatrix * ViewMatrix * position;");
                 if (_info.HasNormals)
-                    wl("OutData.Normal = normalize(normal.xyz / total);");
+                    wl("OutData.Normal = normalize(normal * invTotal);");
                 if (_info.HasBinormals)
-                    wl("OutData.Binormal = normalize(binormal.xyz / total);");
+                    wl("OutData.Binormal = normalize(binormal * invTotal);");
                 if (_info.HasTangents)
-                    wl("OutData.Tangent = normalize(tangent.xyz / total);");
+                    wl("OutData.Tangent = normalize(tangent * invTotal);");
             }
             else
             {
                 wl("OutData.Position = position.xyz;");
                 wl("gl_Position = ProjMatrix * ViewMatrix * position;");
                 if (_info.HasNormals)
-                    wl("OutData.Normal = normalize(normal.xyz);");
+                    wl("OutData.Normal = normalize(normal);");
                 if (_info.HasBinormals)
-                    wl("OutData.Binormal = normalize(binormal.xyz);");
+                    wl("OutData.Binormal = normalize(binormal);");
                 if (_info.HasTangents)
-                    wl("OutData.Tangent = normalize(tangent.xyz);");
+                    wl("OutData.Tangent = normalize(tangent);");
             }
         }
     }

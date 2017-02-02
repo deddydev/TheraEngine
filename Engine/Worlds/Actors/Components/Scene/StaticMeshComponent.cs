@@ -20,12 +20,7 @@ namespace CustomEngine.Worlds.Actors.Components
             PhysicsDriverInfo info)
         {
             Model = m;
-            //_cullingVolume = Model.CullingVolume.HardCopy();
-
-            _translation = translation;
-            _rotation = rotation;
-            _scale = scale;
-            RecalcLocalTransform();
+            SetTRS(translation, rotation, scale);
 
             if (info == null)
                 _physicsDriver = null;
@@ -56,9 +51,11 @@ namespace CustomEngine.Worlds.Actors.Components
         internal override void RecalcGlobalTransform()
         {
             if (_physicsDriver == null || !_physicsDriver.SimulatingPhysics)
+            {
                 base.RecalcGlobalTransform();
-            foreach (RenderableMesh m in _meshes)
-                m.CullingVolume.SetTransform(WorldMatrix);
+                foreach (RenderableMesh m in _meshes)
+                    m.CullingVolume.SetTransform(WorldMatrix);
+            }
         }
 
         private StaticMesh _model;
@@ -151,7 +148,7 @@ namespace CustomEngine.Worlds.Actors.Components
             }
             public void Render()
             {
-                _manager.Render(_component.WorldMatrix);
+                _manager.Render(_component.WorldMatrix, _component.InverseWorldMatrix.Transposed().GetRotationMatrix3());
             }
         }
     }

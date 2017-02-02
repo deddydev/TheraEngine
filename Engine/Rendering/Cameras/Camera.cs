@@ -13,6 +13,7 @@ namespace CustomEngine.Rendering.Cameras
         {
             Resize(1.0f, 1.0f);
             _rotate.Changed += CreateTransform;
+            _point.Changed += CreateTransform;
         }
 
         public Matrix4 ProjectionMatrix { get { return _projectionMatrix; } }
@@ -31,13 +32,13 @@ namespace CustomEngine.Rendering.Cameras
         }
         public Vec3 Point
         {
-            get { return _point; }
-            set { _point = value; CreateTransform(); }
+            get { return _point.Raw; }
+            set { _point.Raw = value; }
         }
         public Rotator Rotation
         {
             get { return _rotate; }
-            set { _rotate = value; CreateTransform(); }
+            set { _rotate.SetRotations(value); }
         }
         public PostProcessSettings PostProcessSettings
         {
@@ -64,8 +65,8 @@ namespace CustomEngine.Rendering.Cameras
             _transform = Matrix4.Identity,
             _invTransform = Matrix4.Identity;
 
-        protected Vec3 _scale = Vec3.One;
-        protected Vec3 _point = Vec3.Zero;
+        protected EventVec3 _scale = Vec3.One;
+        protected EventVec3 _point = Vec3.Zero;
         protected Rotator _rotate = new Rotator(Rotator.Order.YPR);
         protected Vec3 _forwardDirection;
 
@@ -84,23 +85,17 @@ namespace CustomEngine.Rendering.Cameras
         }
         protected void CreateTransform()
         {
-            //The rotation of the camera points behind it.
-            //For example, if the upward rotation increases, 
-            //we want the back of the camera to rotate down the same amount
-            Rotator rotation = _rotate.WithNegatedRotations();
-            Matrix4 rotMatrix = rotation.GetMatrix();
+            Matrix4 rotMatrix = _rotate.GetMatrix();
 
             _transform =
-                Matrix4.CreateTranslation(_point) *
+                Matrix4.CreateTranslation(_point.Raw) *
                 rotMatrix *
                 Matrix4.CreateScale(_scale);
 
-            rotation.Invert();
-            
             _invTransform =
                 Matrix4.CreateScale(1.0f / _scale) *
-                rotation.GetMatrix() *
-                Matrix4.CreateTranslation(-_point);
+                _rotate.GetInverseMatrix() *
+                Matrix4.CreateTranslation(-_point.Raw);
 
             _forwardDirection = Vec3.TransformVector(Vec3.Forward, rotMatrix);
 
@@ -119,7 +114,7 @@ namespace CustomEngine.Rendering.Cameras
 
             _transform = _transform * Matrix4.CreateTranslation(translation);
             _invTransform = Matrix4.CreateTranslation(-translation) * _invTransform;
-            _point = _transform.GetPoint();
+            _point.SetRawNoUpdate(_transform.GetPoint());
             UpdateTransformedFrustum();
             OnTransformChanged();
         }
@@ -129,8 +124,7 @@ namespace CustomEngine.Rendering.Cameras
             if (translation == Vec3.Zero)
                 return;
 
-            _point += translation;
-            CreateTransform();
+            _point.Raw += translation;
         }
         public Vec3 RotateVector(Vec3 dir) { return _rotate.TransformVector(dir); }
         public Vec3 GetUpVector() { return RotateVector(Vec3.Up); }

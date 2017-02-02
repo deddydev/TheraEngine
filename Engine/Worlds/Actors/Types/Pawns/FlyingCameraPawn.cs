@@ -48,12 +48,12 @@ namespace CustomEngine.Worlds.Actors
     {
         float _linearRight = 0.0f, _linearForward = 0.0f, _linearUp = 0.0f;
         float 
-            _scrollSpeed = 2.0f, 
+            _scrollSpeed = 5.0f, 
             _mouseRotateSpeed = 0.2f,
             _mouseTranslateSpeed = 1.0f,
             _gamepadRotateSpeed = 150.0f,
             _gamepadTranslateSpeed = 30.0f,
-            _keyboardTranslateSpeed = 20.0f;
+            _keyboardTranslateSpeed = 30.0f;
 
         float _pitch = 0.0f, _yaw = 0.0f;
         bool _rotating = false;
@@ -68,7 +68,8 @@ namespace CustomEngine.Worlds.Actors
         protected override void SetDefaults()
         {
             RegisterTick(ETickGroup.PrePhysics, ETickOrder.Input);
-            CameraComponent.Camera.TranslateAbsolute(new Vec3(0.0f, 0.0f, 70.0f));
+            CameraComponent.Camera.TranslateAbsolute(new Vec3(0.0f, 160.0f, 120.0f));
+            CameraComponent.Camera.Rotation.Pitch = -45.0f;
             base.SetDefaults();
         }
         protected override SceneComponent SetupComponents()
@@ -167,7 +168,7 @@ namespace CustomEngine.Worlds.Actors
             float xDiff = x - _cursorPos.X;
             float yDiff = y - _cursorPos.Y;
             if (_rotating)
-                CameraComponent.Camera.Rotate(yDiff * _mouseRotateSpeed, xDiff * _mouseRotateSpeed);
+                CameraComponent.Camera.Rotate(-yDiff * _mouseRotateSpeed, -xDiff * _mouseRotateSpeed);
             else if (_translating)
                 CameraComponent.Camera.TranslateRelative(new Vec3(-xDiff * _mouseTranslateSpeed, yDiff * _mouseTranslateSpeed, 0.0f));
             _cursorPos.X = x;

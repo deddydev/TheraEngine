@@ -62,6 +62,10 @@ namespace System
             _rotationOrder = Order.YPR;
             EndUpdate();
         }
+        public Rotator HardCopy()
+        {
+            return new Rotator(Pitch, Yaw, Roll, _rotationOrder);
+        }
         public Rotator WithNegatedRotations()
         {
             return new Rotator(-Pitch, -Yaw, -Roll, _rotationOrder);

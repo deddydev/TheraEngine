@@ -14,6 +14,18 @@ namespace CustomEngine.Worlds.Actors.Components
             _rotation = new Rotator();
             _rotation.Changed += RecalcLocalTransform;
         }
+        public TRComponent(Vec3 translation, Rotator rotation)
+        {
+            SetTR(translation, rotation);
+        }
+        public void SetTR(Vec3 translation, Rotator rotation)
+        {
+            _translation = translation;
+            _translation.Changed += RecalcLocalTransform;
+            _rotation = rotation;
+            _rotation.Changed += RecalcLocalTransform;
+            RecalcLocalTransform();
+        }
 
         protected Rotator _rotation;
         public Rotator Rotation

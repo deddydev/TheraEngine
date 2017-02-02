@@ -21,7 +21,11 @@ namespace System
         private int _updating = 0;
         private float _oldX, _oldY, _oldZ;
         private Vec3 _data;
-        
+
+        public void SetRawNoUpdate(Vec3 raw)
+        {
+            _data = raw;
+        }
         public Vec3 Raw
         {
             get { return _data; }
@@ -434,11 +438,11 @@ namespace System
         public static Vec3 operator -(float left, EventVec3 right) { return left - right._data; }
         public static Vec3 operator -(EventVec3 left, float right) { return left._data - right; }
         
-        public static Vec3 operator +(EventVec3 left, EventVec3 right) { return left._data - right._data; }
+        public static Vec3 operator +(EventVec3 left, EventVec3 right) { return left._data + right._data; }
         public static Vec3 operator -(EventVec3 left, EventVec3 right) { return left._data - right._data; }
-        public static Vec3 operator +(EventVec3 left, Vec3 right) { return left._data - right; }
+        public static Vec3 operator +(EventVec3 left, Vec3 right) { return left._data + right; }
         public static Vec3 operator -(EventVec3 left, Vec3 right) { return left._data - right; }
-        public static Vec3 operator +(Vec3 left, EventVec3 right) { return left - right._data; }
+        public static Vec3 operator +(Vec3 left, EventVec3 right) { return left + right._data; }
         public static Vec3 operator -(Vec3 left, EventVec3 right) { return left - right._data; }
 
         public static Vec3 operator -(EventVec3 vec) { return -vec._data; }

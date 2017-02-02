@@ -178,7 +178,7 @@ namespace CustomEngine
             _transitionWorld = engineSettings.TransitionWorld;
 
             TargetRenderFreq = 60.0f;
-            TargetUpdateFreq = 90.0f;
+            TargetUpdateFreq = 120.0f;
             Run();
         }
         public static void ShutDown()

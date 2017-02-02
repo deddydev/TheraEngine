@@ -7,12 +7,12 @@ namespace CustomEngine.Worlds.Actors.Components
 {
     public enum LightType
     {
-        //Does not move. Allows baking light into shadow maps.
-        //Static,
         //Movable. Always calculates light for everything per-frame.
         Dynamic,
         //Moveable. Bakes into shadow maps when not moving.
-        //DynamicCached,
+        DynamicCached,
+        //Does not move. Allows baking light into shadow maps.
+        Static,
     }
     public abstract class LightComponent : TRComponent
     {

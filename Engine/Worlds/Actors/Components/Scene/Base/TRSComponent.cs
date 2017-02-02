@@ -14,6 +14,20 @@ namespace CustomEngine.Worlds.Actors.Components
             _scale = Vec3.One;
             _scale.Changed += RecalcLocalTransform;
         }
+        public TRSComponent(Vec3 translation, Rotator rotation, Vec3 scale)
+        {
+            SetTRS(translation, rotation, scale);
+        }
+        public void SetTRS(Vec3 translation, Rotator rotation, Vec3 scale)
+        {
+            _translation = translation;
+            _translation.Changed += RecalcLocalTransform;
+            _rotation = rotation;
+            _rotation.Changed += RecalcLocalTransform;
+            _scale = scale;
+            _scale.Changed += RecalcLocalTransform;
+            RecalcLocalTransform();
+        }
         protected EventVec3 _scale;
         public EventVec3 Scale
         {

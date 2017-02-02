@@ -105,15 +105,15 @@ namespace CustomEngine.Rendering.Animation
             return _interpolate(t, _outValue, Next._inValue, _outTangent, Next._inTangent);
         }
         
-        public static float CubicHermite(float t, float p0, float p1, float t0, float t1)
+        public static float CubicHermite(float time, float p0, float p1, float t0, float t1)
         {
-            float t2 = t * t;
-            float t3 = t2 * t;
+            float time2 = time * time;
+            float time3 = time2 * time;
             return 
-                (2.0f * t3 - 3.0f * t2 + 1.0f) * p0 +
-                (t3 - 2.0f * t2 + t) * t0 +
-                (-2.0f * t3 + 3.0f * t2) * p1 +
-                (t3 - t2) * t1;
+                p0 * (2.0f * time3 - 3.0f * time2 + 1.0f) +
+                t0 * (time3 - 2.0f * time2 + time) +
+                p1 * (-2.0f * time3 + 3.0f * time2) +
+                t1 * (time3 - time2);
         }
 
         public void AverageKeyframe()

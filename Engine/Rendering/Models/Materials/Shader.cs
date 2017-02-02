@@ -94,6 +94,7 @@ uniform SpotLight SpotLights[16];
 
 uniform vec4 MatColor;
 uniform float MatSpecularIntensity;
+uniform float MatShininess;
 
 uniform vec3 CameraPosition;
 uniform vec3 CameraForward;
@@ -109,70 +110,72 @@ in Data
 
 out vec4 OutColor;
 
-vec4 CalcColor(BaseLight light, vec3 lightDirection, vec3 normal)
+vec3 CalcColor(BaseLight light, vec3 lightDirection, vec3 normal)
 {
-    vec4 AmbientColor = vec4(light.Color * light.AmbientIntensity, 1.0f);
-    vec4 DiffuseColor = vec4(0.0, 0.0, 0.0, 0.0);
-    vec4 SpecularColor = vec4(0.0, 0.0, 0.0, 0.0);
+    vec3 AmbientColor = vec3(light.Color * light.AmbientIntensity);
+    vec3 DiffuseColor = vec3(0.0);
+    vec3 SpecularColor = vec3(0.0);
 
     float DiffuseFactor = dot(normal, -lightDirection);
-    if (DiffuseFactor > 0.0) 
+    if (DiffuseFactor >= 0.0)
     {
-        DiffuseColor = vec4(light.Color * light.DiffuseIntensity * DiffuseFactor, 1.0f);
+        DiffuseColor = light.Color * light.DiffuseIntensity * DiffuseFactor;
 
-        vec3 PosEyeDir = normalize(CameraPosition - InData.Position);
-        vec3 LightReflect = reflect(lightDirection, normal);
-        float SpecularFactor = dot(PosEyeDir, LightReflect);
-        if (SpecularFactor > 0.0)
+        vec3 posToEye = normalize(CameraPosition - InData.Position);
+        vec3 reflectDir = reflect(lightDirection, normal);
+        float SpecularFactor = dot(posToEye, reflectDir);
+        if (SpecularFactor >= 0.0)
         {
-            SpecularColor = vec4(light.Color * MatSpecularIntensity * pow(SpecularFactor, 2), 1.0f);
+            SpecularColor = light.Color * MatSpecularIntensity * pow(SpecularFactor, MatShininess);
         }
     }
 
     return AmbientColor + DiffuseColor + SpecularColor;
 }
 
-vec4 CalcDirLight(DirLight light, vec3 normal)
+vec3 CalcDirLight(DirLight light, vec3 normal)
 {
     return CalcColor(light.Base, light.Direction, normal);
 }
 
-vec4 CalcPointLight(PointLight light, vec3 normal, float attn)
+vec3 CalcPointLight(PointLight light, vec3 normal, float attn)
 {
-    vec3 vertexToLight = light.Position - InData.Position;
-    float dist = length(vertexToLight);
-    attn *= 1.0 / (light.Attenuation[0] + light.Attenuation[1] * dist + light.Attenuation[2] * dist * dist);
-    return attn * CalcColor(light.Base, normalize(vertexToLight), normal);
+    vec3 lightToPos = InData.Position - light.Position;
+    float dist = length(lightToPos);
+    return attn * CalcColor(light.Base, normalize(lightToPos), normal) / (light.Attenuation[0] + light.Attenuation[1] * dist + light.Attenuation[2] * dist * dist);
 } 
 
-vec4 CalcSpotLight(SpotLight light, vec3 normal)
+vec3 CalcSpotLight(SpotLight light, vec3 normal)
 {
     if (light.Cutoff <= 1.5707) //~90 degrees in radians
     {
-        vec3 vertexToLight = light.Base.Position - InData.Position;
-        vertexToLight = normalize(vertexToLight);
-        float clampedCosine = max(0.0, dot(-vertexToLight, normalize(light.Direction)));
+        vec3 lightToPos = InData.Position - light.Base.Position;
+        lightToPos = normalize(lightToPos);
+        float clampedCosine = max(0.0, dot(lightToPos, normalize(light.Direction)));
 	    if (clampedCosine >= cos(light.Cutoff))
             return CalcPointLight(light.Base, normal, pow(clampedCosine, light.Exponent));
     }
-    return vec4(0.0);
+    return vec3(0.0);
 } 
 
 void main()
 {
     vec3 normal = normalize(InData.Normal);
 
-    vec4 totalLight = vec4(0.0, 0.0, 0.0, 1.0);
+    vec3 totalLight = vec3(0.0);
+
     for (int i = 0; i < DirLightCount; ++i)
         totalLight += CalcDirLight(DirectionalLights[i], normal);
+
     for (int i = 0; i < PointLightCount; ++i)
         totalLight += CalcPointLight(PointLights[i], normal, 1.0);
+
     for (int i = 0; i < SpotLightCount; ++i)
         totalLight += CalcSpotLight(SpotLights[i], normal);
 
     vec4 texColor = texture(Texture0, InData.MultiTexCoord0);
 
-    OutColor = texColor * totalLight;
+    OutColor = texColor * vec4(totalLight, 1.0);
 }
 ";
             return new Shader(ShaderMode.Fragment, source);

@@ -56,9 +56,9 @@ namespace CustomEngine.Rendering
         {
             Matrix4 mtx = Matrix4.CreateTranslation(center) * Matrix4.CreateScale(radius);
             if (solid)
-                _solidSphere.Render(mtx, Matrix4.Identity);
+                _solidSphere.Render(mtx, Matrix3.Identity);
             else
-                _wireSphere.Render(mtx, Matrix4.Identity);
+                _wireSphere.Render(mtx, Matrix3.Identity);
         }
         public void RenderBox(Vec3 halfExtents, Matrix4 transform, bool solid)
         {

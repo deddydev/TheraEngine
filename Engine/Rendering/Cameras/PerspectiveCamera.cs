@@ -77,7 +77,7 @@ namespace CustomEngine.Rendering.Cameras
                 farXDist = _aspect * farYDist;
 
             Vec3
-                point = transformed ? _point : Vec3.Zero,
+                point = transformed ? _point.Raw : Vec3.Zero,
                 forwardDir = transformed ? GetForwardVector() : Vec3.Forward,
                 rightDir = transformed ? GetRightVector() : Vec3.Right,
                 upDir = transformed ? GetUpVector() : Vec3.Up,

@@ -42,12 +42,12 @@ namespace CustomEngine.Worlds.Actors.Components
         public override void OnSpawned()
         {
             if (_type == LightType.Dynamic)
-                Engine.Renderer.Scene.Lights.AddLight(this);
+                Engine.Renderer.Scene.Lights.Add(this);
         }
         public override void OnDespawned()
         {
             if (_type == LightType.Dynamic)
-                Engine.Renderer.Scene.Lights.RemoveLight(this);
+                Engine.Renderer.Scene.Lights.Remove(this);
         }
 
         public override void SetUniforms()

@@ -274,8 +274,10 @@ namespace CustomEngine.Rendering
             }
         }
 
-        public Actor PickScene(Vec2 screenPoint)
+        public Actor PickScene(Vec2 screenPoint, bool mouse)
         {
+            Ray cursor = GetWorldRay(screenPoint);
+
             return null;
         }
     }

@@ -192,10 +192,11 @@ namespace CustomEngine.Worlds.Actors
             Actor actor = v.PickScene(gamepad ? v.Center : v.AbsoluteToRelative(_cursorPos));
             if (actor is EditorTransformTool)
             {
-
+                EditorTransformTool tool = (EditorTransformTool)actor;
             }
             else if (actor is HudComponent)
             {
+                HudComponent hudComp = (HudComponent)actor;
 
             }
             //else if (actor != null && actor.IsMovable && !actor.SimulatingPhysics)

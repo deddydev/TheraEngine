@@ -87,7 +87,6 @@ namespace CustomEngine.Rendering
         }
 
         protected int _programHandle;
-        protected Camera _currentCamera;
         private Stack<Rectangle> _renderAreaStack = new Stack<Rectangle>();
         //private static List<DisplayList> _displayLists = new List<DisplayList>();
 

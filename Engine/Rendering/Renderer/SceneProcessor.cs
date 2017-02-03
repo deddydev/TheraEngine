@@ -55,6 +55,8 @@ namespace CustomEngine.Rendering
 
             _currentCamera = camera;
             _renderTree.Cull(camera.GetFrustum());
+
+            //TODO: render in a sorted order by render keys, not just in whatever order like this
             _renderTree.Render();
             
             //if (_commandsInvalidated)

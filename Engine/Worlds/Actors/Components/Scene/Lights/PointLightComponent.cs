@@ -22,7 +22,7 @@ namespace CustomEngine.Worlds.Actors.Components
             set { _attenuation.Z = value; }
         }
 
-        protected Vec3 _attenuation = new Vec3(0.5f, 0.0f, 0.01f);
+        protected Vec3 _attenuation = new Vec3(1.0f, 0.0f, 0.1f);
         
         public PointLightComponent(float constantAtt, float linearAtt, float quadraticAtt, ColorF3 color, float diffuseIntensity, float ambientIntensity) 
             : base(color, diffuseIntensity, ambientIntensity)

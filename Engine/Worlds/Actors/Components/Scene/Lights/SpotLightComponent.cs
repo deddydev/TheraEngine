@@ -71,7 +71,7 @@ namespace CustomEngine.Worlds.Actors.Components
         {
             Vec3 point = WorldMatrix.GetPoint();
 
-            string indexer = Uniform.PointLightsName + "[" + _lightIndex + "].";
+            string indexer = Uniform.SpotLightsName + "[" + _lightIndex + "].";
             Engine.Renderer.Uniform(indexer + "Base.Base.Color", _color);
             Engine.Renderer.Uniform(indexer + "Base.Base.AmbientIntensity", _ambientIntensity);
             Engine.Renderer.Uniform(indexer + "Base.Base.DiffuseIntensity", _diffuseIntensity);

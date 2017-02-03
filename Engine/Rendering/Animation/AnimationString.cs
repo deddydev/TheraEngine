@@ -6,14 +6,14 @@ using System.Reflection;
 namespace CustomEngine.Rendering.Animation
 {
     delegate string StringGetValue(float frameIndex);
-    public class AnimationStringNode : PropertyAnimation<StringKeyframe>, IEnumerable<StringKeyframe>
+    public class AnimationString : PropertyAnimation<StringKeyframe>, IEnumerable<StringKeyframe>
     {
         public override ResourceType ResourceType { get { return ResourceType.AnimationString; } }
 
         string[] _baked;
         StringGetValue _getValue;
 
-        public AnimationStringNode(int frameCount, bool looped, bool useKeyframes) 
+        public AnimationString(int frameCount, bool looped, bool useKeyframes) 
             : base(frameCount, looped, useKeyframes) { }
 
         protected override object GetValue(float frame)

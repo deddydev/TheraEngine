@@ -138,11 +138,15 @@ vec3 CalcDirLight(DirLight light, vec3 normal)
     return CalcColor(light.Base, light.Direction, normal);
 }
 
-vec3 CalcPointLight(PointLight light, vec3 normal, float attn)
+vec3 CalcPointLight(PointLight light, vec3 normal)
 {
     vec3 lightToPos = InData.Position - light.Position;
     float dist = length(lightToPos);
-    return attn * CalcColor(light.Base, normalize(lightToPos), normal) / (light.Attenuation[0] + light.Attenuation[1] * dist + light.Attenuation[2] * dist * dist);
+
+    //float attn = clamp(1.0 - dist * dist / (radius * radius), 0.0, 1.0); attn *= attn;
+    float attn = 1.0f / (light.Attenuation[0] + light.Attenuation[1] * dist + light.Attenuation[2] * dist * dist);
+
+    return attn * CalcColor(light.Base, normalize(lightToPos), normal);
 } 
 
 vec3 CalcSpotLight(SpotLight light, vec3 normal)
@@ -153,7 +157,16 @@ vec3 CalcSpotLight(SpotLight light, vec3 normal)
         lightToPos = normalize(lightToPos);
         float clampedCosine = max(0.0, dot(lightToPos, normalize(light.Direction)));
 	    if (clampedCosine >= cos(light.Cutoff))
-            return CalcPointLight(light.Base, normal, pow(clampedCosine, light.Exponent));
+        {
+            vec3 lightToPos = InData.Position - light.Base.Position;
+            float dist = length(lightToPos);
+
+            float spotAttn = pow(clampedCosine, light.Exponent);
+            //float attn = clamp(1.0 - dist * dist / (radius * radius), 0.0, 1.0); attn *= attn;
+            float attn = 1.0f / (light.Base.Attenuation[0] + light.Base.Attenuation[1] * dist + light.Base.Attenuation[2] * dist * dist);
+
+            return spotAttn * attn * CalcColor(light.Base.Base, normalize(lightToPos), normal);
+        }
     }
     return vec3(0.0);
 } 
@@ -168,14 +181,14 @@ void main()
         totalLight += CalcDirLight(DirectionalLights[i], normal);
 
     for (int i = 0; i < PointLightCount; ++i)
-        totalLight += CalcPointLight(PointLights[i], normal, 1.0);
+        totalLight += CalcPointLight(PointLights[i], normal);
 
     for (int i = 0; i < SpotLightCount; ++i)
         totalLight += CalcSpotLight(SpotLights[i], normal);
 
-    vec4 texColor = texture(Texture0, InData.MultiTexCoord0);
+    //vec4 texColor = texture(Texture0, InData.MultiTexCoord0);
 
-    OutColor = texColor * vec4(totalLight, 1.0);
+    OutColor = MatColor * vec4(totalLight, 1.0);
 }
 ";
             return new Shader(ShaderMode.Fragment, source);

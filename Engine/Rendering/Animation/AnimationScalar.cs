@@ -5,15 +5,15 @@ using System.Reflection;
 
 namespace CustomEngine.Rendering.Animation
 {
-    delegate float InterpGetValue(float frameIndex);
-    public class AnimationInterpNode : PropertyAnimation<InterpKeyframe>, IEnumerable<InterpKeyframe>
+    delegate float ScalarGetValue(float frameIndex);
+    public class AnimationScalar : PropertyAnimation<ScalarKeyframe>, IEnumerable<ScalarKeyframe>
     {
-        public override ResourceType ResourceType { get { return ResourceType.AnimationInterp; } }
+        public override ResourceType ResourceType { get { return ResourceType.AnimationScalar; } }
 
         float[] _baked;
-        InterpGetValue _getValue;
+        ScalarGetValue _getValue;
 
-        public AnimationInterpNode(int frameCount, bool looped, bool useKeyframes) 
+        public AnimationScalar(int frameCount, bool looped, bool useKeyframes) 
             : base(frameCount, looped, useKeyframes) { }
 
         protected override object GetValue(float frame) { return _getValue(frame); }
@@ -30,7 +30,7 @@ namespace CustomEngine.Rendering.Animation
         }
         public float GetValueKeyframed(float frameIndex)
         {
-            InterpKeyframe key = _keyframes.GetKeyBefore(frameIndex);
+            ScalarKeyframe key = _keyframes.GetKeyBefore(frameIndex);
             if (key != null)
                 return key.Interpolate(frameIndex);
             throw new IndexOutOfRangeException("Invalid frame index.");
@@ -52,16 +52,16 @@ namespace CustomEngine.Rendering.Animation
         {
             throw new NotImplementedException();
         }
-        public override void Append(PropertyAnimation<InterpKeyframe> other)
+        public override void Append(PropertyAnimation<ScalarKeyframe> other)
         {
             throw new NotImplementedException();
         }
-        public IEnumerator<InterpKeyframe> GetEnumerator() { return ((IEnumerable<InterpKeyframe>)_keyframes).GetEnumerator(); }
-        IEnumerator IEnumerable.GetEnumerator() { return ((IEnumerable<InterpKeyframe>)_keyframes).GetEnumerator(); }
+        public IEnumerator<ScalarKeyframe> GetEnumerator() { return ((IEnumerable<ScalarKeyframe>)_keyframes).GetEnumerator(); }
+        IEnumerator IEnumerable.GetEnumerator() { return ((IEnumerable<ScalarKeyframe>)_keyframes).GetEnumerator(); }
     }
-    public class InterpKeyframe : Keyframe
+    public class ScalarKeyframe : Keyframe
     {
-        public InterpKeyframe(float frameIndex, float inValue, float outValue) : base()
+        public ScalarKeyframe(float frameIndex, float inValue, float outValue) : base()
         {
             _frameIndex = frameIndex;
             _inValue = inValue;
@@ -80,8 +80,8 @@ namespace CustomEngine.Rendering.Animation
         public float InTanget { get { return _inTangent; } set { _inTangent = value; } }
         public float OutTangent { get { return _outTangent; } set { _outTangent = value; } }
 
-        public new InterpKeyframe Next { get { return _next as InterpKeyframe; } set { _next = value; } }
-        public new InterpKeyframe Prev { get { return _prev as InterpKeyframe; } set { _prev = value; } }
+        public new ScalarKeyframe Next { get { return _next as ScalarKeyframe; } set { _next = value; } }
+        public new ScalarKeyframe Prev { get { return _prev as ScalarKeyframe; } set { _prev = value; } }
 
         delegate float DelInterpolate(float t, float p0, float p1, float t0, float t1);
         private DelInterpolate _interpolate = CubicHermite;

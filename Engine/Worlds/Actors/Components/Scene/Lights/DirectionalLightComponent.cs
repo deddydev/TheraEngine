@@ -11,12 +11,12 @@ namespace CustomEngine.Worlds.Actors.Components
         {
             _rotation.Pitch = -90.0f;
         }
-        public DirectionalLightComponent(Rotator rotation, ColorF3 color, float diffuseIntensity, float ambientIntensity)
+        public DirectionalLightComponent(ColorF3 color, float diffuseIntensity, float ambientIntensity, Rotator rotation)
             : base(color, diffuseIntensity, ambientIntensity)
         {
             _rotation.SetRotations(rotation);
         }
-        public DirectionalLightComponent(Vec3 direction, ColorF3 color, float diffuseIntensity, float ambientIntensity) 
+        public DirectionalLightComponent(ColorF3 color, float diffuseIntensity, float ambientIntensity, Vec3 direction) 
             : base(color, diffuseIntensity, ambientIntensity)
         {
             Direction = direction;

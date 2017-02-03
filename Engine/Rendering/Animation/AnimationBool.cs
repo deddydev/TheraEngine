@@ -6,14 +6,14 @@ using System.Reflection;
 namespace CustomEngine.Rendering.Animation
 {
     delegate bool BoolGetValue(float frameIndex);
-    public class AnimationBoolNode : PropertyAnimation<BoolKeyframe>, IEnumerable<BoolKeyframe>
+    public class AnimationBool : PropertyAnimation<BoolKeyframe>, IEnumerable<BoolKeyframe>
     {
         public override ResourceType ResourceType { get { return ResourceType.AnimationBool; } }
         
         bool[] _baked;
         BoolGetValue _getValue;
 
-        public AnimationBoolNode(int frameCount, bool looped, bool useKeyframes) 
+        public AnimationBool(int frameCount, bool looped, bool useKeyframes) 
             : base(frameCount, looped, useKeyframes) { }
 
         protected override object GetValue(float frame) { return _getValue(frame); }

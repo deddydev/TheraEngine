@@ -54,9 +54,12 @@ namespace CustomEngine
 
         AnimationContainer          = 0x3200,
         AnimationBool               = 0x3300,
-        AnimationInterp             = 0x3400,
-        AnimationString             = 0x3500,
-        KeyframeTrack               = 0x3600,
+        AnimationString             = 0x3400,
+        AnimationScalar             = 0x3500,
+        AnimationVec2               = 0x3600,
+        AnimationVec3               = 0x3700,
+        AnimationVec4               = 0x3800,
+        KeyframeTrack               = 0x3900,
 
         SkeletalMesh,
         SkeletalRigidSubMesh,

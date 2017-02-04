@@ -5,6 +5,8 @@ using CustomEngine.Input;
 using System;
 using OpenTK.Graphics.OpenGL;
 using CustomEngine.Worlds;
+using System.Linq;
+using CustomEngine.Worlds.Actors.Types;
 
 namespace CustomEngine.Rendering
 {
@@ -273,11 +275,28 @@ namespace CustomEngine.Rendering
                     break;
             }
         }
-
-        public Actor PickScene(Vec2 screenPoint, bool mouse)
+        
+        public Actor PickScene(Vec2 screenPoint, bool mouse, bool testHud = true, bool testWorld = true)
         {
-            Ray cursor = GetWorldRay(screenPoint);
+            if (testHud)
+            {
+                HudComponent hudComp = _hud.FindComponent(screenPoint);
+                if (hudComp != null)
+                    return hudComp;
+            }
+            if (testWorld)
+            {
+                Ray cursor = GetWorldRay(screenPoint);
+                if (EditorTransformTool.CurrentInstance != null)
+                {
+                    //Returns true if the tool is intersected with by the ray
+                    if (EditorTransformTool.CurrentInstance.IntersectsCursorRay(cursor))
+                    {
 
+                    }
+                }
+            
+            }
             return null;
         }
     }

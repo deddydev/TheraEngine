@@ -181,15 +181,11 @@ namespace CustomEngine.Worlds.Actors
         }
         private void HighlightScene(bool gamepad)
         {
-
-        }
-        private void PickScene(bool gamepad)
-        {
             Viewport v = GetViewport();
             if (v == null)
                 return;
-            
-            Actor actor = v.PickScene(gamepad ? v.Center : v.AbsoluteToRelative(_cursorPos));
+
+            Actor actor = v.PickScene(gamepad ? v.Center : v.AbsoluteToRelative(_cursorPos), !gamepad);
             if (actor is EditorTransformTool)
             {
                 EditorTransformTool tool = (EditorTransformTool)actor;
@@ -199,11 +195,14 @@ namespace CustomEngine.Worlds.Actors
                 HudComponent hudComp = (HudComponent)actor;
 
             }
-            //else if (actor != null && actor.IsMovable && !actor.SimulatingPhysics)
-            //{
-            //    TransformTool tool = new TransformTool(actor);
-            //    Engine.World.SpawnActor(tool, actor.WorldMatrix);
-            //}
+            else if (actor != null)
+            {
+                
+            }
+        }
+        private void PickScene(bool gamepad)
+        {
+            
         }
         internal override void Tick(float delta)
         {

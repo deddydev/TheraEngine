@@ -33,5 +33,24 @@ namespace CustomEngine.Worlds.Actors.Types
             get { return _modified; }
             set { _modified = value; }
         }
+
+        internal override void OnSpawned(World world)
+        {
+            base.OnSpawned(world);
+            CurrentInstance = this;
+        }
+
+        internal override void OnDespawned()
+        {
+            base.OnDespawned();
+            CurrentInstance = null;
+        }
+
+        public static EditorTransformTool CurrentInstance;
+
+        internal bool IntersectsCursorRay(Ray cursor)
+        {
+            
+        }
     }
 }

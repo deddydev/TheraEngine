@@ -280,7 +280,7 @@ namespace CustomEngine.Rendering
         {
             if (testHud)
             {
-                HudComponent hudComp = _hud.FindComponent(screenPoint);
+                HudComponent hudComp = _hud.FindComponent(AbsoluteToRelative(screenPoint));
                 if (hudComp != null)
                     return hudComp;
             }

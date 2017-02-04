@@ -21,8 +21,8 @@ namespace CustomEngine.Rendering.HUD
         protected bool _highlightable, _selectable;
         protected ushort _zIndex;
         protected AnchorFlags _positionAnchorFlags;
-        protected Matrix4 _localTransform = Matrix4.Identity;
-        protected Matrix4 _globalTransform = Matrix4.Identity;
+        protected Matrix4 _localTransform = Matrix4.Identity, _invLocalTransform = Matrix4.Identity;
+        protected Matrix4 _globalTransform = Matrix4.Identity, _invGlobalTransform = Matrix4.Identity;
         protected RectangleF _region = new RectangleF();
         protected Vec2 _scale = Vec2.One;
         protected Vec2 _translationLocalOrigin = Vec2.Zero;
@@ -160,12 +160,22 @@ namespace CustomEngine.Rendering.HUD
                 new Vec3(BottomLeftTranslation),
                 Matrix4.MultiplyOrder.TRS);
 
+            _invLocalTransform = Matrix4.TransformMatrix(
+                new Vec3(1.0f / ScaleX, 1.0f / ScaleY, 0.0f),
+                Quaternion.Identity,
+                new Vec3(-BottomLeftTranslation),
+                Matrix4.MultiplyOrder.SRT);
+
             RecalcGlobalTransform();
         }
         private void RecalcGlobalTransform()
         {
             Matrix4 parentTransform = _parent == null ? Matrix4.Identity : _parent._globalTransform;
+            Matrix4 invParentTransform = _parent == null ? Matrix4.Identity : _parent._invGlobalTransform;
+
             _globalTransform = _localTransform * parentTransform;
+            _invGlobalTransform = invParentTransform * _invLocalTransform;
+
             foreach (HudComponent c in _children)
                 c.RecalcGlobalTransform();
         }
@@ -200,6 +210,26 @@ namespace CustomEngine.Rendering.HUD
             foreach (HudComponent c in _children)
                 region = c.ParentResized(region);
             return parentRegion;
+        }
+        public HudComponent FindComponent(Vec2 viewportPoint)
+        {
+            if (!ContainsPoint(viewportPoint))
+                return null;
+
+            //TODO: create 2D quadtree for hud component searching
+            foreach (HudComponent c in _children)
+            {
+                HudComponent comp = c.FindComponent(viewportPoint);
+                if (comp != null)
+                    return comp.FindComponent(viewportPoint);
+            }
+
+            return this;
+        }
+        public bool ContainsPoint(Vec2 viewportPoint)
+        {
+            Vec3 localPoint = _invGlobalTransform * new Vec3(viewportPoint, 1.0f);
+            return false;
         }
         public IEnumerator<HudComponent> GetEnumerator() { return ((IEnumerable<HudComponent>)_children).GetEnumerator(); }
         IEnumerator IEnumerable.GetEnumerator() { return ((IEnumerable<HudComponent>)_children).GetEnumerator(); }

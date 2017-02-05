@@ -2,7 +2,7 @@
 using CustomEngine.Worlds;
 using System;
 
-namespace CustomEngine.Collision
+namespace CustomEngine
 {
     public delegate void OnTraceHit(HitInfo hit);
     public class HitInfo

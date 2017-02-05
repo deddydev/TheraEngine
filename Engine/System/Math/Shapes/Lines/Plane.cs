@@ -61,7 +61,8 @@
         {
             Vec3 v = point1 - point0;
             Vec3 u = point2 - point0;
-            _normal = v.Cross(u).NormalizedFast();
+            _normal = v.Cross(u);
+            _normal.NormalizeFast();
             _distance = -point0.Dot(_normal);
         }
         public float Distance
@@ -71,19 +72,35 @@
         }
         public Vec3 Point
         {
-            get { return _normal.Normalized() * -_distance; }
+            get { return _normal * -_distance; }
             set { _distance = -value.Dot(_normal); }
         }
         public Vec3 Normal
         {
             get { return _normal; }
-            set { _normal = value; }
+            set
+            {
+                Vec3 point = Point;
+                _normal = value;
+                _normal.NormalizeFast();
+                Point = point;
+            }
         }
-        public void Normalize()
+        public void NormalizeFast()
         {
             float magnitude = 1.0f / Normal.LengthFast;
             _normal *= magnitude;
             _distance *= magnitude;
+        }
+        public void Normalize()
+        {
+            float magnitude = 1.0f / Normal.Length;
+            _normal *= magnitude;
+            _distance *= magnitude;
+        }
+        public void FlipNormal()
+        {
+            Normal = -Normal;
         }
         public EPlaneIntersection IntersectsBox(BoundingBox box)
         {

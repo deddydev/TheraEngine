@@ -167,6 +167,7 @@ namespace CustomEngine.Worlds.Actors
         {
             float xDiff = x - _cursorPos.X;
             float yDiff = y - _cursorPos.Y;
+            Console.WriteLine("{0} {1}", x, y);
             if (_rotating)
                 CameraComponent.Camera.Rotate(-yDiff * _mouseRotateSpeed, -xDiff * _mouseRotateSpeed);
             else if (_translating)

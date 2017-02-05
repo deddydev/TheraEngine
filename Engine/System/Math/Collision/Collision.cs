@@ -654,10 +654,10 @@ namespace System
             float distance = Vec3.Dot(plane.Normal, point);
             distance += plane.Distance;
 
-            if (distance > 0f)
+            if (distance > 0.0f)
                 return EPlaneIntersection.Front;
 
-            if (distance < 0f)
+            if (distance < 0.0f)
                 return EPlaneIntersection.Back;
 
             return EPlaneIntersection.Intersecting;

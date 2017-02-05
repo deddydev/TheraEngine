@@ -25,6 +25,8 @@ namespace CustomEngine.Worlds.Actors.Components
             _children.RemovedRange  += _children_RemovedRange;
         }
 
+        public event Action WorldTransformChanged;
+
         private ISocket _ancestorSimulatingPhysics;
         private bool _simulatingPhysics = false;
         private Matrix4 _worldTransform = Matrix4.Identity;
@@ -223,6 +225,7 @@ namespace CustomEngine.Worlds.Actors.Components
             }
             foreach (SceneComponent c in _children)
                 c.RecalcGlobalTransform();
+            WorldTransformChanged?.Invoke();
         }
         public List<SceneComponent> GenerateChildCache()
         {

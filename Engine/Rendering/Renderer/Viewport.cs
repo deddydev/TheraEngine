@@ -289,11 +289,8 @@ namespace CustomEngine.Rendering
                 Ray cursor = GetWorldRay(screenPoint);
                 if (EditorTransformTool.CurrentInstance != null)
                 {
-                    //Returns true if the tool is intersected with by the ray
-                    if (EditorTransformTool.CurrentInstance.IntersectsCursorRay(cursor))
-                    {
-
-                    }
+                    if (EditorTransformTool.CurrentInstance.UpdateCursorRay(cursor))
+                        return EditorTransformTool.CurrentInstance;
                 }
             
             }

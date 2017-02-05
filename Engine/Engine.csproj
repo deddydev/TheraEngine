@@ -858,10 +858,6 @@
     <Folder Include="System\Math\Shapes\Cylindrical\XAligned\" />
     <Folder Include="System\Math\Shapes\Cylindrical\ZAligned\" />
   </ItemGroup>
-  <ItemGroup>
-    <Content Include="BulletSharp32.dll" />
-    <Content Include="BulletSharp64.dll" />
-  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\PostSharp.4.3.21\tools\PostSharp.targets" Condition="Exists('..\packages\PostSharp.4.3.21\tools\PostSharp.targets')" />
   <Target Name="EnsurePostSharpImported" BeforeTargets="BeforeBuild" Condition="'$(PostSharp30Imported)' == ''">

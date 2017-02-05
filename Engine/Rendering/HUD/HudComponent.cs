@@ -228,7 +228,8 @@ namespace CustomEngine.Rendering.HUD
         }
         public bool ContainsPoint(Vec2 viewportPoint)
         {
-            Vec3 localPoint = _invGlobalTransform * new Vec3(viewportPoint, 1.0f);
+            Vec3 localPoint = _invGlobalTransform * new Vec3(viewportPoint, 0.0f);
+            
             return false;
         }
         public IEnumerator<HudComponent> GetEnumerator() { return ((IEnumerable<HudComponent>)_children).GetEnumerator(); }

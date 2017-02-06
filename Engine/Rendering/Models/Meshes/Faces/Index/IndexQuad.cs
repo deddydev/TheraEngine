@@ -12,10 +12,10 @@ namespace CustomEngine.Rendering.Models
 
         bool _forwardSlash = false;
 
-        public Point Point0 { get { return _points[0]; } }
-        public Point Point1 { get { return _points[1]; } }
-        public Point Point2 { get { return _points[2]; } }
-        public Point Point3 { get { return _points[3]; } }
+        public IndexPoint Point0 { get { return _points[0]; } }
+        public IndexPoint Point1 { get { return _points[1]; } }
+        public IndexPoint Point2 { get { return _points[2]; } }
+        public IndexPoint Point3 { get { return _points[3]; } }
 
         public IndexQuad() { }
         /// <summary>
@@ -25,7 +25,7 @@ namespace CustomEngine.Rendering.Models
         ///|  |      / |       |/        | \          \|
         ///0--1     0--1       0         0--1          1
         /// </summary>
-        public IndexQuad(Point point0, Point point1, Point point2, Point point3, bool forwardSlash = false)
+        public IndexQuad(IndexPoint point0, IndexPoint point1, IndexPoint point2, IndexPoint point3, bool forwardSlash = false)
             : base(point0, point1, point2, point3)
         {
             IndexLine e01 = point0.LinkTo(point1);

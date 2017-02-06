@@ -44,7 +44,7 @@ namespace CustomEngine.Rendering.Models
         //These may contain repeat vertex indices but each triangle is unique.
         public List<IndexTriangle> _triangles = null;
         public List<IndexLine> _lines = null;
-        public List<Point> _points = null;
+        public List<IndexPoint> _points = null;
         public PrimitiveType _type;
 
         //Influence per raw vertex.
@@ -289,19 +289,19 @@ namespace CustomEngine.Rendering.Models
         }
         private Remapper SetPointIndices(List<Vertex> vertices, bool remap = true)
         {
-            _points = new List<Point>();
+            _points = new List<IndexPoint>();
             if (remap)
             {
                 Remapper remapper = new Remapper();
                 remapper.Remap(vertices, null);
                 for (int i = 0; i < remapper.RemapTable.Length;)
-                    _points.Add(new Point(remapper.RemapTable[i++]));
+                    _points.Add(new IndexPoint(remapper.RemapTable[i++]));
                 return remapper;
             }
             else
             {
                 for (int i = 0; i < vertices.Count;)
-                    _points.Add(new Point(i++));
+                    _points.Add(new IndexPoint(i++));
                 return null;
             }
         }

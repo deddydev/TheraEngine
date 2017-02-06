@@ -6,7 +6,7 @@ namespace CustomEngine.Rendering.Models
     public class IndexNgon : IndexPolygon
     {
         public IndexNgon() { }
-        public IndexNgon(params Point[] points)
+        public IndexNgon(params IndexPoint[] points)
         {
 
         }

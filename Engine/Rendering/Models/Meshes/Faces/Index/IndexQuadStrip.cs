@@ -11,7 +11,7 @@ namespace CustomEngine.Rendering.Models
         public override FaceType Type { get { return FaceType.QuadStrip; } }
 
         public IndexQuadStrip() { }
-        public IndexQuadStrip(params Point[] points)
+        public IndexQuadStrip(params IndexPoint[] points)
         {
 
         }

@@ -106,6 +106,18 @@ namespace CustomEngine
             }
             PopUpdate();
         }
+        protected override void OnMouseEnter(EventArgs e)
+        {
+            base.OnMouseEnter(e);
+            if (CursorManager.Panel != this)
+                CursorManager.Panel = this;
+        }
+        protected override void OnMouseLeave(EventArgs e)
+        {
+            base.OnMouseLeave(e);
+            if (CursorManager.Panel != this)
+                CursorManager.Panel = this;
+        }
         protected virtual void OnRender(PaintEventArgs e)
         {
             _context.BeginDraw();

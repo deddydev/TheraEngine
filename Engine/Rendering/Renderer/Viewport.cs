@@ -291,11 +291,11 @@ namespace CustomEngine.Rendering
                 Ray cursor = GetWorldRay(viewportPoint);
                 if (EditorTransformTool.CurrentInstance != null)
                 {
-                    if (EditorTransformTool.CurrentInstance.UpdateCursorRay(cursor))
+                    if (EditorTransformTool.CurrentInstance.UpdateCursorRay(cursor, _worldCamera, false))
                         return EditorTransformTool.CurrentInstance;
                 }
 #endif
-                float depth = GetDepth(viewportPoint);
+                float depth = 0.0f; //GetDepth(viewportPoint);
                 Vec3 worldPoint = ScreenToWorld(viewportPoint, depth);
                 List<IRenderable> r = Engine.Renderer.Scene.RenderTree.FindClosest(worldPoint);
 

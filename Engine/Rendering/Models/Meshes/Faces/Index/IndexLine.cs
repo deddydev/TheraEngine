@@ -6,7 +6,7 @@ namespace CustomEngine.Rendering.Models
     public class IndexLine : ObjectBase
     {
         public IndexLine() { }
-        public IndexLine(Point point1, Point point2)
+        public IndexLine(IndexPoint point1, IndexPoint point2)
         {
             _point0 = point1;
             _point1 = point2;
@@ -15,11 +15,11 @@ namespace CustomEngine.Rendering.Models
             _point1.AddLine(this);
         }
 
-        Point _point0, _point1;
+        IndexPoint _point0, _point1;
         public List<IndexPrimitive> _connectedFaces = new List<IndexPrimitive>();
 
-        public Point Point0 { get { return _point0; } }
-        public Point Point1 { get { return _point1; } }
+        public IndexPoint Point0 { get { return _point0; } }
+        public IndexPoint Point1 { get { return _point1; } }
 
         public void Unlink()
         {

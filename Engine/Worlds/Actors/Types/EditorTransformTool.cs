@@ -35,7 +35,7 @@ namespace CustomEngine.Worlds.Actors.Types
 
         private bool _transformChanged = false;
         private TransformType _mode = TransformType.Translate;
-        private SceneComponent _modified = null;
+        private ISocket _modified = null;
         private TRSComponent _transform;
 
         public TransformType Mode
@@ -79,10 +79,12 @@ namespace CustomEngine.Worlds.Actors.Types
         private const float _axisHalfLDist = 0.75f;
         private const float _apthm = 0.075f;
         private const float _dst = 1.5f;
+        private const float _scaleHalf1LDist = 0.8f;
+        private const float _scaleHalf2LDist = 1.2f;
 
-        public bool UpdateCursorRay(Ray cursor, Camera camera)
+        public bool UpdateCursorRay(Ray cursor, Camera camera, bool pressed)
         {
-            bool clamp = true;
+            bool clamp = true, snapFound = false;
             Ray localRay = cursor.TransformedBy(_transform.InverseWorldMatrix);
             float radius = camera.DistanceScale(_transform.Translation, 1.0f);
             if (_mode == TransformType.Rotate)
@@ -100,12 +102,13 @@ namespace CustomEngine.Worlds.Actors.Types
 
                 float distance = point.LengthFast;
 
-                if (Math.Abs(distance - radius) < (radius * _selectOrbScale)) //Point lies within orb radius
+                //Point lies within orb radius?
+                if (Math.Abs(distance - radius) < (radius * _selectOrbScale))
                 {
                     _hiSphere = true;
 
                     //Determine axis snapping
-                    Vec3 angles = (invTransformMatrix * point).GetAngles() * Maths._rad2degf;
+                    Vec3 angles = CustomMath.RadToDeg(point.GetAngles());
                     angles.X = Math.Abs(angles.X);
                     angles.Y = Math.Abs(angles.Y);
                     angles.Z = Math.Abs(angles.Z);
@@ -117,7 +120,8 @@ namespace CustomEngine.Worlds.Actors.Types
                     else if (angles.Y >= (180.0f - _axisSnapRange) || angles.Y <= _axisSnapRange)
                         _hiZ = true;
                 }
-                else if (Math.Abs(distance - (radius * _circOrbScale)) < (radius * _selectOrbScale)) //Point lies on circ line
+                //Point lies on circ line?
+                else if (Math.Abs(distance - (radius * _circOrbScale)) < (radius * _selectOrbScale))
                     _hiCirc = true;
 
                 if (_hiX || _hiY || _hiZ || _hiCirc)
@@ -125,21 +129,25 @@ namespace CustomEngine.Worlds.Actors.Types
             }
             else
             {
-                Plane xz = new Plane(Vec3.Zero, localRay.StartPoint.Y < 0.0f ? -Vec3.Up : Vec3.Up);
+                Plane yz = new Plane(Vec3.Zero, localRay.StartPoint.X < 0.0f ? -Vec3.Right  : Vec3.Right);
+                Plane xz = new Plane(Vec3.Zero, localRay.StartPoint.Y < 0.0f ? -Vec3.Up     : Vec3.Up);
                 Plane xy = new Plane(Vec3.Zero, localRay.StartPoint.Z < 0.0f ? Vec3.Forward : -Vec3.Forward);
-                Plane yz = new Plane(Vec3.Zero, localRay.StartPoint.X < 0.0f ? -Vec3.Right : Vec3.Right);
 
                 //if (Collision.PlaneIntersectsPoint(_xz, cursor.StartPoint) == EPlaneIntersection.Back)
 
                 Vec3[] intersectionPoints = new Vec3[3];
-                bool xzIntersect = localRay.LinePlaneIntersect(xz, out intersectionPoints[0]);
-                bool xyIntersect = localRay.LinePlaneIntersect(xy, out intersectionPoints[1]);
-                bool yzIntersect = localRay.LinePlaneIntersect(yz, out intersectionPoints[2]);
-
-                List<Vec3> testDiffs = new List<Vec3>();
-                foreach (Vec3 planePoint in intersectionPoints)
+                bool[] intersects = new bool[3]
                 {
-                    Vec3 diff = planePoint / radius;
+                    localRay.LinePlaneIntersect(yz, out intersectionPoints[0]),
+                    localRay.LinePlaneIntersect(xz, out intersectionPoints[1]),
+                    localRay.LinePlaneIntersect(xy, out intersectionPoints[2]),
+                };
+                List<Vec3> testDiffs = new List<Vec3>();
+                for (int i = 0; i < 3; ++i)
+                {
+                    if (!intersects[i])
+                        continue;
+                    Vec3 diff = intersectionPoints[i] / radius;
                     if (diff.X > -_axisSelectRange && diff.X < (_axisLDist + 0.01f) &&
                         diff.Y > -_axisSelectRange && diff.Y < (_axisLDist + 0.01f) &&
                         diff.Z > -_axisSelectRange && diff.Z < (_axisLDist + 0.01f))

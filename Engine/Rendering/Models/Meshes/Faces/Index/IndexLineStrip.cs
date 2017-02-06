@@ -9,7 +9,7 @@ namespace CustomEngine.Rendering.Models
         private bool _closed = false;
 
         public IndexLineStrip() { }
-        public IndexLineStrip(bool closed, params Point[] points) 
+        public IndexLineStrip(bool closed, params IndexPoint[] points) 
             : base(points) { _closed = closed; }
 
         public override FaceType Type { get { return _closed ? FaceType.LineLoop : FaceType.LineStrip; } }

@@ -4,10 +4,10 @@ using System.Collections.ObjectModel;
 
 namespace CustomEngine.Rendering.Models
 {
-    public class Point : ObjectBase
+    public class IndexPoint : ObjectBase
     {
-        public Point() { }
-        public Point(int vertexIndex)
+        public IndexPoint() { }
+        public IndexPoint(int vertexIndex)
         {
             _vertexIndex = vertexIndex;
         }
@@ -30,7 +30,7 @@ namespace CustomEngine.Rendering.Models
                 _connectedEdges.Remove(edge);
         }
 
-        public IndexLine LinkTo(Point otherPoint)
+        public IndexLine LinkTo(IndexPoint otherPoint)
         {
             foreach (IndexLine edge in _connectedEdges)
                 if (edge.Point0 == otherPoint || 
@@ -40,7 +40,7 @@ namespace CustomEngine.Rendering.Models
             //Creating a new line automatically links the points.
             return new IndexLine(this, otherPoint);
         }
-        public void UnlinkFrom(Point otherPoint)
+        public void UnlinkFrom(IndexPoint otherPoint)
         {
             for (int i = 0; i < _connectedEdges.Count; ++i)
                 if (_connectedEdges[i].Point0 == otherPoint ||
@@ -51,7 +51,7 @@ namespace CustomEngine.Rendering.Models
                 }
         }
 
-        public static implicit operator Point(int i) { return new Point(i); }
-        public static implicit operator int(Point i) { return i.VertexIndex; }
+        public static implicit operator IndexPoint(int i) { return new IndexPoint(i); }
+        public static implicit operator int(IndexPoint i) { return i.VertexIndex; }
     }
 }

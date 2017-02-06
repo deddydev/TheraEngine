@@ -7,9 +7,9 @@ namespace CustomEngine.Rendering.Models
     {
         public override FaceType Type { get { return FaceType.Triangles; } }
 
-        public Point Point0 { get { return _points[0]; } }
-        public Point Point1 { get { return _points[1]; } }
-        public Point Point2 { get { return _points[2]; } }
+        public IndexPoint Point0 { get { return _points[0]; } }
+        public IndexPoint Point1 { get { return _points[1]; } }
+        public IndexPoint Point2 { get { return _points[2]; } }
 
         public IndexTriangle() { }
         /// <summary>
@@ -19,7 +19,7 @@ namespace CustomEngine.Rendering.Models
         ///   /   \
         ///  0-----1
         /// </summary>
-        public IndexTriangle(Point point0, Point point1, Point point2)
+        public IndexTriangle(IndexPoint point0, IndexPoint point1, IndexPoint point2)
         {
             _points.Add(point0);
             _points.Add(point1);

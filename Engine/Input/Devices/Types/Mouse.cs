@@ -1,9 +1,12 @@
 ﻿using CustomEngine.Input.Devices.OpenTK;
+using CustomEngine.Rendering;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace CustomEngine.Input.Devices
 {
@@ -13,6 +16,9 @@ namespace CustomEngine.Input.Devices
 
         protected CursorManager _cursor = new CursorManager();
         protected ScrollWheelManager _wheel = new ScrollWheelManager();
+
+        public static Point _origin = Control.MousePosition;
+        public static Rectangle _clipRegion = Cursor.Clip;
 
         public abstract void SetCursorPosition(float x, float y);
 
@@ -53,16 +59,17 @@ namespace CustomEngine.Input.Devices
     public delegate void DelCursorUpdate(float x, float y);
     public class CursorManager
     {
-        private float _x, _y;
+        private float _lastX, _lastY;
 
         List<DelCursorUpdate>[] _onCursorUpdate = new List<DelCursorUpdate>[6];
+        internal static RenderPanel Panel;
 
-        internal void Tick(float xDelta, float yDelta, float delta)
+        internal void Tick(float xPos, float yPos, float delta)
         {
-            OnRelative(xDelta, yDelta);
-            _x += xDelta;
-            _y += yDelta;
-            OnAbsolute(_x, _y);
+            OnAbsolute(xPos, yPos);
+            OnRelative(xPos - _lastX, yPos - _lastY);
+            _lastX = xPos;
+            _lastY = yPos;
         }
         public void Register(DelCursorUpdate func, InputPauseType pauseType, bool relative, bool unregister)
         {

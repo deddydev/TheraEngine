@@ -20,19 +20,19 @@ namespace CustomEngine.Rendering.Models
     }
     public abstract class IndexPrimitive : ObjectBase
     {
-        protected List<Point> _points = new List<Point>();
+        protected List<IndexPoint> _points = new List<IndexPoint>();
 
-        public IndexPrimitive(params Point[] points)
+        public IndexPrimitive(params IndexPoint[] points)
         {
             _points = points.ToList();
         }
 
         public abstract FaceType Type { get; }
-        public ReadOnlyCollection<Point> Points { get { return _points.AsReadOnly(); } }
+        public ReadOnlyCollection<IndexPoint> Points { get { return _points.AsReadOnly(); } }
     }
     public abstract class IndexPolygon : IndexPrimitive
     {
-        public IndexPolygon(params Point[] points) : base(points) { }
+        public IndexPolygon(params IndexPoint[] points) : base(points) { }
         public abstract List<IndexTriangle> ToTriangles();
         public bool ContainsEdge(IndexLine edge, out bool polygonIsCCW)
         {

@@ -5,7 +5,7 @@ namespace CustomEngine.Rendering.Models
 {
     public class IndexTriangleFan : IndexPolygon
     {
-        public IndexTriangleFan(params Point[] points) : base(points)
+        public IndexTriangleFan(params IndexPoint[] points) : base(points)
         {
 
         }

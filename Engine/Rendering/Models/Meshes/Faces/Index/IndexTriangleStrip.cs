@@ -16,7 +16,7 @@ namespace CustomEngine.Rendering.Models
         ///  /   \ /   \
         /// 0-----2-----4
         /// </summary>
-        public IndexTriangleStrip(params Point[] points)
+        public IndexTriangleStrip(params IndexPoint[] points)
         {
             if (points.Length < 3)
                 throw new Exception("A triangle strip needs 3 or more points.");

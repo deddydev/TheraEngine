@@ -394,13 +394,15 @@ namespace System
         {
             return new Rotator(
                 RadToDeg((float)Atan2(Y, Sqrt(X * X + Z * Z))),
-                RadToDeg((float)Atan2(-Z, X)), 
+                //RadToDeg((float)Atan2(-Z, X)), 
+                RadToDeg((float)Atan2(-X, -Z)),
                 0.0f, Rotator.Order.YPR);
         }
         public void LookatAngles(out float yaw, out float pitch)
         {
             pitch = RadToDeg((float)Atan2(Y, Sqrt(X * X + Z * Z)));
-            yaw = RadToDeg((float)Atan2(-Z, X));
+            yaw = RadToDeg((float)Atan2(-X, -Z));
+            //yaw = RadToDeg((float)Atan2(-Z, X));
         }
         public Rotator LookatAngles(Vec3 forward, Vec3 right, Vec3 up)
         {
@@ -434,12 +436,15 @@ namespace System
             float Scale = InverseSqrtFast(SquareSum);
 	        return new Vec3(X * Scale, Y * Scale, Z * Scale);
         }
-
-        //public Vec3 GetAngles() { return new Vec3(AngleX(), AngleY(), AngleZ()); }
-        //public Vec3 GetAngles(Vec3 origin) { return (this - origin).GetAngles(); }
-        //public float AngleX() { return (float)Atan2(Y, -Z); }
-        //public float AngleY() { return (float)Atan2(-Z, X); }
-        //public float AngleZ() { return (float)Atan2(Y, X); }
+        /// <summary>
+        /// Radians
+        /// </summary>
+        /// <returns></returns>
+        public Vec3 GetAngles() { return new Vec3(AngleX(), AngleY(), AngleZ()); }
+        public Vec3 GetAngles(Vec3 origin) { return (this - origin).GetAngles(); }
+        public float AngleX() { return (float)Atan2(Y, -Z); }
+        public float AngleY() { return (float)Atan2(-Z, X); }
+        public float AngleZ() { return (float)Atan2(Y, X); }
 
         public bool IsInTriangle(Vec3 triPt1, Vec3 triPt2, Vec3 triPt3)
         {

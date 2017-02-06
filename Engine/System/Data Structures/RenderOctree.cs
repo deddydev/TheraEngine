@@ -108,20 +108,21 @@ namespace System
                 if (_bounds.Contains(point))
                 {
                     List<IRenderable> list = null;
-                    foreach (Node node in _subNodes)
-                        if (node != null)
-                        {
-                            list = node.FindClosest(point);
-                            if (list != null)
-                                return list;
-                        }
+                    if (_subNodes != null)
+                        foreach (Node node in _subNodes)
+                            if (node != null)
+                            {
+                                list = node.FindClosest(point);
+                                if (list != null)
+                                    return list;
+                            }
 
                     if (_items.Count == 0)
                         return null;
 
                     list = new List<IRenderable>(_items);
                     for (int i = 0; i < list.Count; ++i)
-                        if (!list[i].CullingVolume.Contains(point))
+                        if (list[i].CullingVolume != null && !list[i].CullingVolume.Contains(point))
                             list.RemoveAt(i--);
 
                     return list;

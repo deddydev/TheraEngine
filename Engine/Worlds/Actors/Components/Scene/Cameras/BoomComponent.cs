@@ -1,5 +1,4 @@
 ﻿using BulletSharp;
-using CustomEngine.Collision;
 using System;
 
 namespace CustomEngine.Worlds.Actors.Components

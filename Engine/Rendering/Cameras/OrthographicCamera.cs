@@ -83,5 +83,10 @@ namespace CustomEngine.Rendering.Cameras
             float w = Width / 2.0f, h = Height / 2.0f;
             return new BoundingBox(new Vec3(-w, -h, -_farZ), new Vec3(w, h, -_nearZ)).AsFrustum();
         }
+
+        public override float DistanceScale(Vec3 point, float radius)
+        {
+            return _scale.X * 80.0f;
+        }
     }
 }

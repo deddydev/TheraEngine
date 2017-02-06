@@ -7,6 +7,7 @@ using OpenTK.Graphics.OpenGL;
 using CustomEngine.Worlds;
 using System.Linq;
 using CustomEngine.Worlds.Actors.Types;
+using System.Collections.Generic;
 
 namespace CustomEngine.Rendering
 {
@@ -276,23 +277,28 @@ namespace CustomEngine.Rendering
             }
         }
         
-        public Actor PickScene(Vec2 screenPoint, bool mouse, bool testHud = true, bool testWorld = true)
+        public Actor PickScene(Vec2 viewportPoint, bool mouse, bool testHud = true, bool testWorld = true, bool highlightActors = true)
         {
             if (testHud)
             {
-                HudComponent hudComp = _hud.FindComponent(AbsoluteToRelative(screenPoint));
+                HudComponent hudComp = _hud.FindComponent(viewportPoint);
                 if (hudComp != null)
                     return hudComp;
             }
             if (testWorld)
             {
-                Ray cursor = GetWorldRay(screenPoint);
+#if EDITOR
+                Ray cursor = GetWorldRay(viewportPoint);
                 if (EditorTransformTool.CurrentInstance != null)
                 {
                     if (EditorTransformTool.CurrentInstance.UpdateCursorRay(cursor))
                         return EditorTransformTool.CurrentInstance;
                 }
-            
+#endif
+                float depth = GetDepth(viewportPoint);
+                Vec3 worldPoint = ScreenToWorld(viewportPoint, depth);
+                List<IRenderable> r = Engine.Renderer.Scene.RenderTree.FindClosest(worldPoint);
+
             }
             return null;
         }

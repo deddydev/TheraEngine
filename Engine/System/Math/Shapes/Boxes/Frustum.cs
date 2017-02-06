@@ -16,21 +16,19 @@ namespace System
         private Sphere _boundingSphere;
 
         private Plane[] _planes = new Plane[6];
-        
-        private Vec3 _farBottomLeft, _farBottomRight, _farTopLeft, _farTopRight,
-            _nearBottomLeft, _nearBottomRight, _nearTopLeft, _nearTopRight;
+        private Vec3[] _points = new Vec3[8];
 
-        public Vec3 FarBottomLeft { get { return _farBottomLeft; } }
-        public Vec3 FarBottomRight { get { return _farBottomRight; } }
+        public Vec3 FarBottomLeft { get { return _points[0]; } }
+        public Vec3 FarBottomRight { get { return _points[1]; } }
 
-        public Vec3 FarTopLeft { get { return _farTopLeft; } }
-        public Vec3 FarTopRight { get { return _farTopRight; } }
+        public Vec3 FarTopLeft { get { return _points[2]; } }
+        public Vec3 FarTopRight { get { return _points[3]; } }
 
-        public Vec3 NearBottomLeft { get { return _nearBottomLeft; } }
-        public Vec3 NearBottomRight { get { return _nearBottomRight; } }
+        public Vec3 NearBottomLeft { get { return _points[4]; } }
+        public Vec3 NearBottomRight { get { return _points[5]; } }
 
-        public Vec3 NearTopLeft { get { return _nearTopLeft; } }
-        public Vec3 NearTopRight { get { return _nearTopRight; } }
+        public Vec3 NearTopLeft { get { return _points[6]; } }
+        public Vec3 NearTopRight { get { return _points[7]; } }
 
         public Plane Near { get { return _planes[0]; } }
         public Plane Far { get { return _planes[1]; } }
@@ -41,18 +39,20 @@ namespace System
         public Plane Top { get { return _planes[4]; } }
         public Plane Bottom { get { return _planes[5]; } }
 
+        public IEnumerable<Vec3> Points { get { return _points; } }
+
         public Frustum(
             Vec3 farBottomLeft, Vec3 farBottomRight, Vec3 farTopLeft, Vec3 farTopRight,
             Vec3 nearBottomLeft, Vec3 nearBottomRight, Vec3 nearTopLeft, Vec3 nearTopRight)
         {
-            _farBottomLeft = farBottomLeft;
-            _farBottomRight = farBottomRight;
-            _farTopLeft = farTopLeft;
-            _farTopRight = farTopRight;
-            _nearBottomLeft = nearBottomLeft;
-            _nearBottomRight = nearBottomRight;
-            _nearTopLeft = nearTopLeft;
-            _nearTopRight = nearTopRight;
+            _points[0] = farBottomLeft;
+            _points[1] = farBottomRight;
+            _points[2] = farTopLeft;
+            _points[3] = farTopRight;
+            _points[4] = nearBottomLeft;
+            _points[5] = nearBottomRight;
+            _points[6] = nearTopLeft;
+            _points[7] = nearTopRight;
 
             //near, far
             _planes[0] = new Plane(nearBottomRight, nearBottomLeft, nearTopRight);
@@ -66,9 +66,6 @@ namespace System
             _planes[4] = new Plane(farTopLeft, farTopRight, nearTopLeft);
             _planes[5] = new Plane(nearBottomLeft, nearBottomRight, farBottomLeft);
         }
-        public IEnumerator<Plane> GetEnumerator() { return ((IEnumerable<Plane>)_planes).GetEnumerator(); }
-        IEnumerator IEnumerable.GetEnumerator() { return ((IEnumerable<Plane>)_planes).GetEnumerator(); }
-
         public Frustum TransformedBy(Matrix4 transform)
         {
             return new Frustum(
@@ -106,10 +103,19 @@ namespace System
         }
         public Sphere GetBoundingSphere()
         {
-            Vec3 center =
-                (_nearBottomLeft + _nearBottomRight + _nearTopLeft + _nearTopRight +
-                _farBottomLeft + _farBottomRight + _farTopLeft + _farTopRight) / 8.0f;
-            return new Sphere(center.DistanceToFast(_farBottomLeft), center);
+            Vec3 center = Vec3.Zero;
+            foreach (Vec3 v in _points)
+                center += v;
+            center /= 8.0f;
+            return new Sphere(center.DistanceToFast(FarBottomLeft), center);
+        }
+        public IEnumerator<Plane> GetEnumerator()
+        {
+            return ((IEnumerable<Plane>)_planes).GetEnumerator();
+        }
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return ((IEnumerable<Plane>)_planes).GetEnumerator();
         }
     }
 }

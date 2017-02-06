@@ -98,5 +98,10 @@ namespace CustomEngine.Rendering.Cameras
 
             return new Frustum(fbl, fbr, ftl, ftr, nbl, nbr, ntl, ntr);
         }
+
+        public override float DistanceScale(Vec3 point, float radius)
+        {
+            return _point.DistanceToFast(point) / radius * (_fovY / 45.0f) * 0.1f;
+        }
     }
 }

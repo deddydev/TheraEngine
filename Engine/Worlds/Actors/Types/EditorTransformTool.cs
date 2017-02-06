@@ -1,4 +1,5 @@
-﻿using CustomEngine.Worlds.Actors.Components;
+﻿using CustomEngine.Rendering.Cameras;
+using CustomEngine.Worlds.Actors.Components;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -67,13 +68,60 @@ namespace CustomEngine.Worlds.Actors.Types
         public static EditorTransformTool CurrentInstance;
 
         private bool _hiX, _hiY, _hiZ, _hiCirc, _hiSphere;
+        private const float _orbRadius = 1.0f;
+        private const float _circRadius = 1.2f;
+        private const float _axisSnapRange = 7.0f;
+        private const float _selectRange = 0.03f; //Selection error range for orb and circ
+        private const float _axisSelectRange = 0.15f; //Selection error range for axes
+        private const float _selectOrbScale = _selectRange / _orbRadius;
+        private const float _circOrbScale = _circRadius / _orbRadius;
+        private const float _axisLDist = 2.0f;
+        private const float _axisHalfLDist = 0.75f;
+        private const float _apthm = 0.075f;
+        private const float _dst = 1.5f;
 
-        public bool UpdateCursorRay(Ray cursor)
+        public bool UpdateCursorRay(Ray cursor, Camera camera)
         {
+            bool clamp = true;
             Ray localRay = cursor.TransformedBy(_transform.InverseWorldMatrix);
+            float radius = camera.DistanceScale(_transform.Translation, 1.0f);
             if (_mode == TransformType.Rotate)
             {
-                localRay.LineSphereIntersect(Vec3.Zero, )
+                Vec3 point;
+                if (!localRay.LineSphereIntersect(Vec3.Zero, radius, out point))
+                {
+                    //If no intersect is found, project the ray through the plane perpendicular to the camera.
+                    localRay.LinePlaneIntersect(Vec3.Zero, camera.Point.Normalized(_transform.Translation), out point);
+
+                    //Clamp the point to edge of the sphere
+                    if (clamp)
+                        point = Ray.PointAtLineDistance(_transform.Translation, point, radius);
+                }
+
+                float distance = point.LengthFast;
+
+                if (Math.Abs(distance - radius) < (radius * _selectOrbScale)) //Point lies within orb radius
+                {
+                    _hiSphere = true;
+
+                    //Determine axis snapping
+                    Vec3 angles = (invTransformMatrix * point).GetAngles() * Maths._rad2degf;
+                    angles.X = Math.Abs(angles.X);
+                    angles.Y = Math.Abs(angles.Y);
+                    angles.Z = Math.Abs(angles.Z);
+
+                    if (Math.Abs(angles.Y - 90.0f) <= _axisSnapRange)
+                        _hiX = true;
+                    else if (angles.X >= (180.0f - _axisSnapRange) || angles.X <= _axisSnapRange)
+                        _hiY = true;
+                    else if (angles.Y >= (180.0f - _axisSnapRange) || angles.Y <= _axisSnapRange)
+                        _hiZ = true;
+                }
+                else if (Math.Abs(distance - (radius * _circOrbScale)) < (radius * _selectOrbScale)) //Point lies on circ line
+                    _hiCirc = true;
+
+                if (_hiX || _hiY || _hiZ || _hiCirc)
+                    snapFound = true;
             }
             else
             {
@@ -83,15 +131,97 @@ namespace CustomEngine.Worlds.Actors.Types
 
                 //if (Collision.PlaneIntersectsPoint(_xz, cursor.StartPoint) == EPlaneIntersection.Back)
 
-                Vec3 xzPoint, xyPoint, yzPoint;
-                bool xzIntersect = localRay.LinePlaneIntersect(xz, out xzPoint);
-                bool xyIntersect = localRay.LinePlaneIntersect(xy, out xyPoint);
-                bool yzIntersect = localRay.LinePlaneIntersect(yz, out yzPoint);
-                if (xzIntersect)
-                {
+                Vec3[] intersectionPoints = new Vec3[3];
+                bool xzIntersect = localRay.LinePlaneIntersect(xz, out intersectionPoints[0]);
+                bool xyIntersect = localRay.LinePlaneIntersect(xy, out intersectionPoints[1]);
+                bool yzIntersect = localRay.LinePlaneIntersect(yz, out intersectionPoints[2]);
 
+                List<Vec3> testDiffs = new List<Vec3>();
+                foreach (Vec3 planePoint in intersectionPoints)
+                {
+                    Vec3 diff = planePoint / radius;
+                    if (diff.X > -_axisSelectRange && diff.X < (_axisLDist + 0.01f) &&
+                        diff.Y > -_axisSelectRange && diff.Y < (_axisLDist + 0.01f) &&
+                        diff.Z > -_axisSelectRange && diff.Z < (_axisLDist + 0.01f))
+                        testDiffs.Add(diff);
+                }
+
+                //Check if point lies on a specific axis
+                foreach (Vec3 diff in testDiffs)
+                {
+                    float errorRange = _axisSelectRange;
+
+                    if (diff.X > _axisHalfLDist &&
+                        Math.Abs(diff.Y) < errorRange &&
+                        Math.Abs(diff.Z) < errorRange)
+                        _hiX = true;
+                    if (diff.Y > _axisHalfLDist &&
+                        Math.Abs(diff.X) < errorRange &&
+                        Math.Abs(diff.Z) < errorRange)
+                        _hiY = true;
+                    if (diff.Z > _axisHalfLDist &&
+                        Math.Abs(diff.X) < errorRange &&
+                        Math.Abs(diff.Y) < errorRange)
+                        _hiZ = true;
+
+                    if (snapFound = _hiX || _hiY || _hiZ)
+                        break;
+                }
+
+                if (!snapFound)
+                {
+                    foreach (Vec3 diff in testDiffs)
+                    {
+                        if (_mode == TransformType.Translate)
+                        {
+                            if (diff.X < _axisHalfLDist &&
+                                diff.Y < _axisHalfLDist &&
+                                diff.Z < _axisHalfLDist)
+                            {
+                                //Point lies inside the double drag areas
+                                if (diff.X > _axisSelectRange)
+                                    _hiX = true;
+                                if (diff.Y > _axisSelectRange)
+                                    _hiY = true;
+                                if (diff.Z > _axisSelectRange)
+                                    _hiZ = true;
+
+                                _hiCirc = !_hiX && !_hiY && !_hiZ;
+
+                                snapFound = true;
+                            }
+                        }
+                        else if (_mode == TransformType.Scale)
+                        {
+                            //Determine if the point is in the double or triple drag triangles
+                            float halfDist = _scaleHalf2LDist;
+                            float centerDist = _scaleHalf1LDist;
+                            if (diff.IsInTriangle(new Vec3(), new Vec3(halfDist, 0, 0), new Vec3(0, halfDist, 0)))
+                                if (diff.IsInTriangle(new Vec3(), new Vec3(centerDist, 0, 0), new Vec3(0, centerDist, 0)))
+                                    _hiX = _hiY = _hiZ = true;
+                                else
+                                    _hiX = _hiY = true;
+                            else if (diff.IsInTriangle(new Vec3(), new Vec3(halfDist, 0, 0), new Vec3(0, 0, halfDist)))
+                                if (diff.IsInTriangle(new Vec3(), new Vec3(centerDist, 0, 0), new Vec3(0, 0, centerDist)))
+                                    _hiX = _hiY = _hiZ = true;
+                                else
+                                    _hiX = _hiZ = true;
+                            else if (diff.IsInTriangle(new Vec3(), new Vec3(0, halfDist, 0), new Vec3(0, 0, halfDist)))
+                                if (diff.IsInTriangle(new Vec3(), new Vec3(0, centerDist, 0), new Vec3(0, 0, centerDist)))
+                                    _hiX = _hiY = _hiZ = true;
+                                else
+                                    _hiY = _hiZ = true;
+
+                            snapFound = _hiX || _hiY || _hiZ;
+                        }
+
+                        if (snapFound)
+                            break;
+                    }
                 }
             }
+
+            return false;
         }
     }
 }

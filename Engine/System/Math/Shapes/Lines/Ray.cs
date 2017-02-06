@@ -63,8 +63,12 @@
         }
         public bool LinePlaneIntersect(Plane p, out Vec3 result)
         {
+            return LinePlaneIntersect(p.Point, p.Normal, out result);
+        }
+        public bool LinePlaneIntersect(Vec3 point, Vec3 normal, out Vec3 result)
+        {
             Vec3 diff = Direction;
-            float scale = -p.Normal.Dot(StartPoint - p.Point) / p.Normal.Dot(diff);
+            float scale = -normal.Dot(StartPoint - point) / normal.Dot(diff);
 
             if (float.IsNaN(scale) || scale < 0.0f || scale > 1.0f)
             {
@@ -88,6 +92,11 @@
         {
             Vec3 diff = Direction;
             return StartPoint + (diff * (diff.Dot(point - StartPoint) / diff.LengthSquared));
+        }
+        public static Vec3 PointAtLineDistance(Vec3 start, Vec3 end, float distance)
+        {
+            Vec3 diff = end - start;
+            return start + (diff * (distance / diff.LengthFast));
         }
     }
 }

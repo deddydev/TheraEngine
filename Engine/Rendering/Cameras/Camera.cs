@@ -217,34 +217,6 @@ namespace CustomEngine.Rendering.Cameras
             Vec3 end = ScreenToWorld(screenPoint, 1.0f);
             return new Ray(start, end);
         }
-
-        //public Vec3 ProjectCameraSphere(Vec2 screenPoint, Vec3 center, float radius, bool clamp)
-        //{
-        //    Vec3 point;
-
-        //    //Get ray points
-        //    Ray ray = GetWorldRay(screenPoint);
-        //    if (!ray.LineSphereIntersect(center, radius, out point))
-        //    {
-        //        //If no intersect is found, project the ray through the plane perpendicular to the camera.
-        //        ray.LinePlaneIntersect(center, Point.Normalized(center), out point);
-
-        //        //Clamp the point to edge of the sphere
-        //        if (clamp)
-        //            point = Ray.PointAtLineDistance(center, point, radius);
-        //    }
-
-        //    return point;
-        //}
-        //public void ProjectCameraPlanes(Vec2 screenPoint, Matrix4 transform, out Vec3 xy, out Vec3 yz, out Vec3 xz)
-        //{
-        //    Ray ray = GetWorldRay(screenPoint);
-
-        //    Vec3 center = transform.ExtractTranslation();
-
-        //    ray.LinePlaneIntersect(center, (transform * Vec3.UnitX).Normalized(center), out yz);
-        //    ray.LinePlaneIntersect(center, (transform * Vec3.UnitY).Normalized(center), out xz);
-        //    ray.LinePlaneIntersect(center, (transform * Vec3.UnitZ).Normalized(center), out xy);
-        //}
+        public abstract float DistanceScale(Vec3 point, float radius);
     }
 }

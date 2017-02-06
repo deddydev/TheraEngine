@@ -1126,8 +1126,18 @@ namespace System
             }
 	        return result;
         }
+        public static bool AABBContainsFrustum(Vec3 boxMin, Vec3 boxMax, Frustum frustum)
+        {
+            foreach (Vec3 v in frustum.Points)
+                if (!AABBContainsPoint(boxMin, boxMax, v))
+                    return false;
+            return true;
+        }
         public static EContainment FrustumContainsAABB(Frustum frustum, Vec3 boxMin, Vec3 boxMax)
         {
+            if (AABBContainsFrustum(boxMin, boxMax, frustum))
+                return EContainment.Intersects;
+
             EContainment result = EContainment.Contains;
             int numOut, numIn;
             Vec3[] corners = BoundingBox.GetCorners(boxMin, boxMax);

@@ -36,6 +36,7 @@
             this.editToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.viewToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.panel1 = new System.Windows.Forms.Panel();
+            this.resourceTree1 = new TheraEditor.ResourceTree();
             this.panel2 = new System.Windows.Forms.Panel();
             this.menuStrip2 = new System.Windows.Forms.MenuStrip();
             this.btnImport = new System.Windows.Forms.ToolStripMenuItem();
@@ -45,7 +46,6 @@
             this.splitter1 = new System.Windows.Forms.Splitter();
             this.panel3 = new System.Windows.Forms.Panel();
             this.renderPanel1 = new CustomEngine.RenderPanel();
-            this.resourceTree1 = new TheraEditor.ResourceTree();
             this.menuStrip1.SuspendLayout();
             this.panel1.SuspendLayout();
             this.panel2.SuspendLayout();
@@ -79,19 +79,19 @@
             // btnOpen
             // 
             this.btnOpen.Name = "btnOpen";
-            this.btnOpen.Size = new System.Drawing.Size(159, 30);
+            this.btnOpen.Size = new System.Drawing.Size(211, 30);
             this.btnOpen.Text = "Open";
             // 
             // btnSave
             // 
             this.btnSave.Name = "btnSave";
-            this.btnSave.Size = new System.Drawing.Size(159, 30);
+            this.btnSave.Size = new System.Drawing.Size(211, 30);
             this.btnSave.Text = "Save";
             // 
             // btnSaveAs
             // 
             this.btnSaveAs.Name = "btnSaveAs";
-            this.btnSaveAs.Size = new System.Drawing.Size(159, 30);
+            this.btnSaveAs.Size = new System.Drawing.Size(211, 30);
             this.btnSaveAs.Text = "Save As";
             // 
             // editToolStripMenuItem
@@ -116,6 +116,15 @@
             this.panel1.Name = "panel1";
             this.panel1.Size = new System.Drawing.Size(442, 937);
             this.panel1.TabIndex = 2;
+            // 
+            // resourceTree1
+            // 
+            this.resourceTree1.AllowDrop = true;
+            this.resourceTree1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.resourceTree1.Location = new System.Drawing.Point(0, 46);
+            this.resourceTree1.Name = "resourceTree1";
+            this.resourceTree1.Size = new System.Drawing.Size(442, 891);
+            this.resourceTree1.TabIndex = 3;
             // 
             // panel2
             // 
@@ -199,14 +208,6 @@
             this.renderPanel1.Size = new System.Drawing.Size(1069, 937);
             this.renderPanel1.TabIndex = 0;
             this.renderPanel1.Text = "renderPanel1";
-            // 
-            // resourceTree1
-            // 
-            this.resourceTree1.AllowDrop = true;
-            this.resourceTree1.Location = new System.Drawing.Point(247, 267);
-            this.resourceTree1.Name = "resourceTree1";
-            this.resourceTree1.Size = new System.Drawing.Size(121, 97);
-            this.resourceTree1.TabIndex = 3;
             // 
             // Editor
             // 

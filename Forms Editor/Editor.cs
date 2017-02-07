@@ -23,8 +23,10 @@ namespace TheraEditor
         {
             InitializeComponent();
             renderPanel1.GlobalHud = new EditorHud(renderPanel1);
-            EngineSettings settings = new EngineSettings();
-            settings.OpeningWorld = typeof(TestWorld);
+            EngineSettings settings = new EngineSettings()
+            {
+                OpeningWorld = typeof(TestWorld)
+            };
             Engine._engineSettings.SetFile(settings, false);
             Engine.Initialize();
             renderPanel1.AttachToEngine();

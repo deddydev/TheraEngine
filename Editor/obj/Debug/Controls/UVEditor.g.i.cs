@@ -53,7 +53,7 @@ namespace Editor.Controls {
                 return;
             }
             _contentLoaded = true;
-            System.Uri resourceLocater = new System.Uri("/Editor;component/controls/uveditor.xaml", System.UriKind.Relative);
+            System.Uri resourceLocater = new System.Uri("/WPFEditor;component/controls/uveditor.xaml", System.UriKind.Relative);
             
             #line 1 "..\..\..\Controls\UVEditor.xaml"
             System.Windows.Application.LoadComponent(this, resourceLocater);

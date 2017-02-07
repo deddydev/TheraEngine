@@ -14,9 +14,12 @@ namespace Editor.Controls
         {
             InitializeComponent();
             FormsHost.Child = _panel = new RenderPanel();
-            EngineSettings settings = new EngineSettings();
-            settings.OpeningWorld = typeof(TestWorld);
+            EngineSettings settings = new EngineSettings()
+            {
+                OpeningWorld = typeof(TestWorld)
+            };
             Engine._engineSettings.SetFile(settings, false);
+            Engine.Initialize();
             _panel.AttachToEngine();
         }
     }

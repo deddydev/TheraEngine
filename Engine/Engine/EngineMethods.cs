@@ -171,6 +171,9 @@ namespace CustomEngine
             AudioLibrary = AudioLibrary.OpenAL;
             InputLibrary = InputLibrary.OpenTK;
 
+            if (Renderer == null)
+                return;
+
             //RenderLibrary = userSettings.RenderLibrary;
             //AudioLibrary = userSettings.AudioLibrary;
             //InputLibrary = userSettings.InputLibrary;

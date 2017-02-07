@@ -43,7 +43,11 @@ namespace TheraEditor.Wrappers
 
         protected BaseWrapper() { }
 
-        protected static T GetInstance<T>() where T : BaseWrapper { return Editor.Instance.FileTree.SelectedNode as T; }
+        protected static T GetInstance<T>() where T : BaseWrapper
+        {
+            return null;
+            //return Editor.Instance.FileTree.SelectedNode as T;
+        }
 
         public void Link(string path)
         {

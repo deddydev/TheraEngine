@@ -52,6 +52,17 @@ namespace System
             }
             Console.WriteLine("Global timer ended.");
         }
+        public void Stop()
+        {
+            _running = false;
+            watch.Stop();
+            //Thread.CurrentThread.Abort();
+        }
+        void ProcessEvents()
+        {
+            Application.DoEvents();
+            Thread.Sleep(0);
+        }
         void DispatchUpdateAndRenderFrame(object sender, EventArgs e)
         {
             int is_running_slowly_retries = 4;
@@ -133,18 +144,7 @@ namespace System
 
         private bool _running = false;
         public bool IsRunning { get { return _running; } }
-        public void Stop()
-        {
-            _running = false;
-            watch.Stop();
-            //Thread.CurrentThread.Abort();
-        }
-        void ProcessEvents()
-        {
-            Application.DoEvents();
-            Thread.Sleep(0);
-        }
-
+        
         #region --- GameWindow Timing ---
 
         #region RenderFrequency

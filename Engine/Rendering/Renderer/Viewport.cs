@@ -168,6 +168,7 @@ namespace CustomEngine.Rendering
             
             scene.Render(_worldCamera);
             _hud.Render();
+
             Engine.Renderer.PopRenderArea();
             _currentlyRendering = null;
         }

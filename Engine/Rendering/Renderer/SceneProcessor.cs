@@ -57,6 +57,7 @@ namespace CustomEngine.Rendering
             _renderTree.Cull(camera.GetFrustum());
 
             //TODO: render in a sorted order by render keys, not just in whatever order like this
+            //also perform culling directly before rendering something, to avoid an extra log(n) operation
             _renderTree.Render();
             
             //if (_commandsInvalidated)

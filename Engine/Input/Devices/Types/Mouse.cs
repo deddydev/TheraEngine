@@ -62,11 +62,14 @@ namespace CustomEngine.Input.Devices
         private float _lastX, _lastY;
 
         List<DelCursorUpdate>[] _onCursorUpdate = new List<DelCursorUpdate>[6];
-        internal static RenderPanel Panel;
 
         internal void Tick(float xPos, float yPos, float delta)
         {
-            OnAbsolute(xPos, yPos);
+            Point absolute = Cursor.Position;
+            //if (RenderPanel.HoveredPanel != null)
+            //    absolute = RenderPanel.HoveredPanel.PointToClient(absolute);
+            //Console.WriteLine("{0} {1}", absolute.X, absolute.Y);
+            OnAbsolute(absolute.X, absolute.Y);
             OnRelative(xPos - _lastX, yPos - _lastY);
             _lastX = xPos;
             _lastY = yPos;
@@ -102,7 +105,7 @@ namespace CustomEngine.Input.Devices
         protected void PerformAction(bool relative, float x, float y)
         {
             int index = (relative ? 0 : 1) * 3;
-            List<DelCursorUpdate> list = _onCursorUpdate[index + (int)InputPauseType.TickAlways];
+            List<DelCursorUpdate> list = _onCursorUpdate[index];
             if (list != null)
             {
                 int i = list.Count;

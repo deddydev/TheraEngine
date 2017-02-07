@@ -42,7 +42,9 @@ namespace CustomEngine
             SetRenderLibrary();
             AddViewport(new LocalPlayerController());
         }
-        
+
+        public static RenderPanel HoveredPanel;
+
         internal RenderContext _context;
         protected int _updateCounter;
         private HudManager _globalHud;
@@ -106,17 +108,18 @@ namespace CustomEngine
             }
             PopUpdate();
         }
+
         protected override void OnMouseEnter(EventArgs e)
         {
             base.OnMouseEnter(e);
-            if (CursorManager.Panel != this)
-                CursorManager.Panel = this;
+            if (HoveredPanel != this)
+                HoveredPanel = this;
         }
         protected override void OnMouseLeave(EventArgs e)
         {
             base.OnMouseLeave(e);
-            if (CursorManager.Panel != this)
-                CursorManager.Panel = this;
+            if (HoveredPanel == this)
+                HoveredPanel = null;
         }
         protected virtual void OnRender(PaintEventArgs e)
         {
@@ -131,7 +134,7 @@ namespace CustomEngine
             base.OnResize(e);
             foreach (Viewport v in _viewports)
                 v.Resize(Width, Height);
-            Rectangle region = new Rectangle(0, 0, Width, Height);
+            //Rectangle region = new Rectangle(0, 0, Width, Height);
             //Engine.Renderer.PopRenderArea();
             //Engine.Renderer.PushRenderArea(region);
             //Engine.Renderer.CropRenderArea(region);
@@ -156,7 +159,7 @@ namespace CustomEngine
         }
         protected virtual void OnReset(object sender, EventArgs e)
         {
-            _context.Initialize();
+            _context?.Initialize();
         }
         protected virtual void OnContextChanged(bool isNowCurrent)
         {
@@ -205,17 +208,17 @@ namespace CustomEngine
 
         public void AttachToEngine()
         {
-            _context.Initialize();
+            _context?.Initialize();
             Engine.RegisterRenderTick(RenderTick);
         }
         public void DetachFromEngine()
         {
-            //_context.Initialize();
+            DisposeContext();
             Engine.UnregisterRenderTick(RenderTick);
         }
         public void RenderTick(object sender, FrameEventArgs e)
         {
-            Invalidate();
+            //Invalidate();
         }
     }
 }

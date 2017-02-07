@@ -22,18 +22,18 @@ namespace TheraEditor
         public Editor()
         {
             InitializeComponent();
-            RenderPanel.GlobalHud = new EditorHud(RenderPanel);
+            renderPanel1.GlobalHud = new EditorHud(renderPanel1);
             EngineSettings settings = new EngineSettings();
             settings.OpeningWorld = typeof(TestWorld);
             Engine._engineSettings.SetFile(settings, false);
             Engine.Initialize();
-            RenderPanel.AttachToEngine();
+            renderPanel1.AttachToEngine();
         }
 
         protected override void OnClosed(EventArgs e)
         {
             base.OnClosed(e);
-            RenderPanel.DetachFromEngine();
+            renderPanel1.DetachFromEngine();
             Engine.ShutDown();
         }
     }

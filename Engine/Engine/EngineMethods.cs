@@ -209,10 +209,10 @@ namespace CustomEngine
                 return;
             if (viewport >= 0)
             {
-                Viewport port = panel.GetViewport(viewport);
-                if (port != null)
+                Viewport v = panel.GetViewport(viewport);
+                if (v != null)
                 {
-                    port.DebugPrint(message);
+                    v.DebugPrint(message);
                     return;
                 }
             }

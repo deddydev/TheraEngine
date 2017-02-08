@@ -577,7 +577,6 @@
     <Compile Include="Rendering\Models\Meshes\Static\StaticSoftSubMesh.cs" />
     <Compile Include="Rendering\Models\Meshes\Static\StaticMesh.cs" />
     <Compile Include="Rendering\PhysicsDriver.cs" />
-    <Compile Include="Rendering\RenderableObject.cs" />
     <Compile Include="Rendering\Renderer\GBuffer.cs" />
     <Compile Include="Rendering\Renderer\OpenGL\GLEnumExtension.cs" />
     <Compile Include="Rendering\Renderer\RenderEnums.cs" />
@@ -731,12 +730,12 @@
     <Compile Include="Worlds\Actors\Components\Scene\Lights\SpotLightComponent.cs" />
     <Compile Include="Worlds\Actors\Components\Scene\Lights\PointLightComponent.cs" />
     <Compile Include="Worlds\Actors\Components\Scene\Lights\DirectionalLightComponent.cs" />
-    <Compile Include="Worlds\Actors\Components\Scene\Base\TRComponent.cs" />
-    <Compile Include="Worlds\Actors\Components\Scene\Base\PositionComponent.cs" />
-    <Compile Include="Worlds\Actors\Components\Scene\Base\TRSComponent.cs" />
+    <Compile Include="Worlds\Actors\Components\Scene\Transforms\TRComponent.cs" />
+    <Compile Include="Worlds\Actors\Components\Scene\Transforms\PositionComponent.cs" />
+    <Compile Include="Worlds\Actors\Components\Scene\Transforms\TRSComponent.cs" />
     <Compile Include="Worlds\Actors\Components\LogicComponent.cs" />
-    <Compile Include="Worlds\Actors\Components\Scene\Cameras\BoomComponent.cs" />
-    <Compile Include="Worlds\Actors\Components\Scene\Cameras\CameraComponent.cs" />
+    <Compile Include="Worlds\Actors\Components\Scene\Transforms\BoomComponent.cs" />
+    <Compile Include="Worlds\Actors\Components\Scene\CameraComponent.cs" />
     <Compile Include="Worlds\Actors\Components\Scene\DecalComponent.cs" />
     <Compile Include="Worlds\Actors\Components\Logic\MovementComponents\TransformMovementComponent.cs" />
     <Compile Include="Worlds\Actors\Components\Logic\MovementComponents\CharacterMovementComponent.cs" />

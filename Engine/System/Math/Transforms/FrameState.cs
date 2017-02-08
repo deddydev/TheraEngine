@@ -281,39 +281,43 @@ namespace System
             
             state._translation = m.Row3.Xyz;
             state._scale = new Vec3(m.Row0.Xyz.Length, m.Row1.Xyz.Length, m.Row2.Xyz.Length);
-            state._rotation = m.ExtractRotation(true).ToEuler();
-            if (isZup)
-                state._rotation.ChangeZupToYup();
-
-            //float x, y, z, c;
-
-            //y = (float)Math.Asin(-p[2]);
-            //if (Math.Abs(CustomMath.PIf / 2.0f - Math.Abs(y)) < 0.0001f)
+            //state._rotation = m.ExtractRotation(true).ToEuler();
+            //if (isZup)
             //{
-            //    //Gimbal lock, occurs when the y rotation falls on pi/2 or -pi/2
-            //    z = 0.0f;
-            //    if (y > 0)
-            //        x = (float)Math.Atan2(p[4], p[8]);
-            //    else
-            //        x = (float)Math.Atan2(p[4], -p[8]);
-            //}
-            //else
-            //{
-            //    c = (float)Math.Cos(y);
-            //    x = (float)Math.Atan2(p[6] / c, p[10] / c);
-            //    z = (float)Math.Atan2(p[1] / c, p[0] / c);
-
-            //    //180 z/x inverts y, use second option
-            //    if (CustomMath.PIf - Math.Abs(z) < 0.05f)
-            //    {
-            //        y = CustomMath.PIf - y;
-            //        c = (float)Math.Cos(y);
-            //        x = (float)Math.Atan2(p[6] / c, p[10] / c);
-            //        z = (float)Math.Atan2(p[1] / c, p[0] / c);
-            //    }
+            //    state._translation.ChangeZupToYup();
+            //    state._scale.ChangeZupToYup(false);
+            //    state._rotation.ChangeZupToYup();
             //}
 
-            //state._rotation.PitchYawRoll = CustomMath.RadToDeg(new Vec3(x, y, z));
+            float x, y, z, c;
+
+            y = (float)Math.Asin(-p[2]);
+            if (Math.Abs(CustomMath.PIf / 2.0f - Math.Abs(y)) < 0.0001f)
+            {
+                //Gimbal lock, occurs when the y rotation falls on pi/2 or -pi/2
+                z = 0.0f;
+                if (y > 0)
+                    x = (float)Math.Atan2(p[4], p[8]);
+                else
+                    x = (float)Math.Atan2(p[4], -p[8]);
+            }
+            else
+            {
+                c = (float)Math.Cos(y);
+                x = (float)Math.Atan2(p[6] / c, p[10] / c);
+                z = (float)Math.Atan2(p[1] / c, p[0] / c);
+
+                //180 z/x inverts y, use second option
+                if (CustomMath.PIf - Math.Abs(z) < 0.05f)
+                {
+                    y = CustomMath.PIf - y;
+                    c = (float)Math.Cos(y);
+                    x = (float)Math.Atan2(p[6] / c, p[10] / c);
+                    z = (float)Math.Atan2(p[1] / c, p[0] / c);
+                }
+            }
+
+            state._rotation.PitchYawRoll = CustomMath.RadToDeg(new Vec3(x, y, z));
 
             state.CreateTransform();
             return state;

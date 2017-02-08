@@ -273,7 +273,7 @@ namespace System
         //    }
         //}
 
-        public static unsafe FrameState DeriveTRS(Matrix4 m)
+        public static unsafe FrameState DeriveTRS(Matrix4 m, bool isZup)
         {
             FrameState state = new FrameState();
 
@@ -282,11 +282,13 @@ namespace System
             state._translation = m.Row3.Xyz;
             state._scale = new Vec3(m.Row0.Xyz.Length, m.Row1.Xyz.Length, m.Row2.Xyz.Length);
             state._rotation = m.ExtractRotation(true).ToEuler();
+            if (isZup)
+                state._rotation.ChangeZupToYup();
 
             //float x, y, z, c;
 
             //y = (float)Math.Asin(-p[2]);
-            //if ((CustomMath.PIf / 2.0f - Math.Abs(y)) < 0.0001f)
+            //if (Math.Abs(CustomMath.PIf / 2.0f - Math.Abs(y)) < 0.0001f)
             //{
             //    //Gimbal lock, occurs when the y rotation falls on pi/2 or -pi/2
             //    z = 0.0f;
@@ -310,7 +312,7 @@ namespace System
             //        z = (float)Math.Atan2(p[1] / c, p[0] / c);
             //    }
             //}
-            
+
             //state._rotation.PitchYawRoll = CustomMath.RadToDeg(new Vec3(x, y, z));
 
             state.CreateTransform();

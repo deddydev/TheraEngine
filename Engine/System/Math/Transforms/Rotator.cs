@@ -320,6 +320,15 @@ namespace System
                 EndUpdate();
             }
         }
+
+        public void ChangeZupToYup()
+        {
+            float temp = _pyr.X;
+            _pyr.X = _pyr.Y;
+            _pyr.Y = _pyr.Z;
+            _pyr.Z = temp;
+        }
+
         [XmlIgnore]
         public Vec3 YawRollPitch
         {

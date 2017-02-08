@@ -16,8 +16,8 @@ namespace CustomEngine.Rendering.Models.Materials
 
         private bool _value;
 
-        public GLBool(bool defaultValue, string name, IGLVarOwner owner) 
-            : base(name, owner)
+        public GLBool(bool defaultValue, string name) : this(defaultValue, name, null) { }
+        public GLBool(bool defaultValue, string name, IGLVarOwner owner) : base(name, owner)
         {
             _value = defaultValue;
         }
@@ -32,8 +32,8 @@ namespace CustomEngine.Rendering.Models.Materials
 
         private float _value;
 
-        public GLFloat(float defaultValue, string name, IGLVarOwner owner)
-            : base(name, owner)
+        public GLFloat(float defaultValue, string name) : this(defaultValue, name, null) { }
+        public GLFloat(float defaultValue, string name, IGLVarOwner owner) : base(name, owner)
         {
             _value = defaultValue;
         }
@@ -48,8 +48,8 @@ namespace CustomEngine.Rendering.Models.Materials
 
         private double _value;
 
-        public GLDouble(double defaultValue, string name, IGLVarOwner owner)
-            : base(name, owner)
+        public GLDouble(double defaultValue, string name) : this(defaultValue, name, null) { }
+        public GLDouble(double defaultValue, string name, IGLVarOwner owner) : base(name, owner)
         {
             _value = defaultValue;
         }
@@ -64,8 +64,8 @@ namespace CustomEngine.Rendering.Models.Materials
 
         private int _value;
 
-        public GLInt(int defaultValue, string name, IGLVarOwner owner)
-            : base(name, owner)
+        public GLInt(int defaultValue, string name) : this(defaultValue, name, null) { }
+        public GLInt(int defaultValue, string name, IGLVarOwner owner) : base(name, owner)
         {
             _value = defaultValue;
         }
@@ -80,8 +80,8 @@ namespace CustomEngine.Rendering.Models.Materials
 
         private uint _value;
 
-        public GLUInt(uint defaultValue, string name, IGLVarOwner owner)
-            : base(name, owner)
+        public GLUInt(uint defaultValue, string name) : this(defaultValue, name, null) { }
+        public GLUInt(uint defaultValue, string name, IGLVarOwner owner) : base(name, owner)
         {
             _value = defaultValue;
         }

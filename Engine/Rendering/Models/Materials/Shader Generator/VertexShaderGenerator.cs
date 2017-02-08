@@ -126,7 +126,7 @@ namespace CustomEngine.Rendering.Models.Materials
         }
         private static void WriteRiggedPNTB(bool morphed, bool singleRig)
         {
-            wl("OutData.Position = vec3(0.0);");
+            wl("vec4 finalPosition = vec4(0.0);");
             wl("vec4 basePosition = vec4(Position0, 1.0);");
             if (_info.HasNormals)
             {
@@ -148,7 +148,7 @@ namespace CustomEngine.Rendering.Models.Materials
             {
                 wl("for (int i = 0; i < 4; ++i)");
                 wl("{");
-                wl("OutData.Position += (({0}[int({1}0[i])] * basePosition) * {2}0[i]).xyz;", Uniform.BoneMatricesName, BufferType.MatrixIds, BufferType.MatrixWeights);
+                wl("finalPosition += ({0}[int({1}0[i])] * basePosition) * {2}0[i];", Uniform.BoneMatricesName, BufferType.MatrixIds, BufferType.MatrixWeights);
                 if (_info.HasNormals)
                     wl("OutData.Normal += ({0}[int({1}0[i])] * baseNormal) * {2}0[i];", Uniform.BoneMatricesITName, BufferType.MatrixIds, BufferType.MatrixWeights);
                 if (_info.HasBinormals)
@@ -185,7 +185,7 @@ namespace CustomEngine.Rendering.Models.Materials
                 wl("{");
                 for (int i = 0; i < _info._morphCount; ++i)
                 {
-                    wl("OutData.Position += {0}[{1}{3}[i]] * vec4(Position{5}, 1.0) * {2}{3}[i] * {4}[i];", Uniform.BoneMatricesName, BufferType.MatrixIds, BufferType.MatrixWeights, i, Uniform.MorphWeightsName, i + 1);
+                    wl("finalPosition += {0}[{1}{3}[i]] * vec4(Position{5}, 1.0) * {2}{3}[i] * {4}[i];", Uniform.BoneMatricesName, BufferType.MatrixIds, BufferType.MatrixWeights, i, Uniform.MorphWeightsName, i + 1);
                     if (_info.HasNormals)
                         wl("OutData.Normal += ({0}[{1}{3}[i]] * Normal{5}) * {2}{3}[i] * {4}[i];", Uniform.BoneMatricesITName, BufferType.MatrixIds, BufferType.MatrixWeights, i, Uniform.MorphWeightsName, i + 1);
                     if (_info.HasBinormals)
@@ -196,7 +196,7 @@ namespace CustomEngine.Rendering.Models.Materials
                         wl();
                 }
                 wl("}");
-                wl("OutData.Position /= total;");
+                wl("finalPosition /= total;");
                 if (_info.HasNormals)
                     wl("OutData.Normal /= total;");
                 if (_info.HasBinormals)
@@ -204,7 +204,7 @@ namespace CustomEngine.Rendering.Models.Materials
                 if (_info.HasTangents)
                     wl("OutData.Tangent /= total;");
             }
-            wl("OutData.Position = (ModelMatrix * vec4(OutData.Position, 1.0)).xyz;");
+            wl("OutData.Position = (ModelMatrix * finalPosition).xyz;");
             if (_info.HasNormals)
                 wl("OutData.Normal = normalize(NormalMatrix * OutData.Normal);");
             if (_info.HasBinormals)

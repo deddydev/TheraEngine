@@ -85,7 +85,7 @@ namespace CustomEngine.Worlds
             AnimFolder lightPitchFolder = new AnimFolder("Pitch", false, lightAnim);
             AnimFolder lightRotationFolder = new AnimFolder("Rotation", lightPitchFolder);
             AnimationContainer lightAnimContainer = new AnimationContainer(lightRotationFolder);
-            dirLightComp.AddAnimation(lightAnimContainer, true);
+            dirLightComp.AddAnimation(lightAnimContainer, false);
 
             //StaticMeshComponent floorComp = new StaticMeshComponent(
             //    floorModel, Vec3.Zero,
@@ -121,16 +121,17 @@ namespace CustomEngine.Worlds
             else
                 comp = new StaticMeshComponent(staticM, null);
 
-            //AnimationInterpNode modelAnim = new AnimationInterpNode(360, true, true);
-            //InterpKeyframe first = new InterpKeyframe(0.0f, 0.0f, 0.0f);
-            //InterpKeyframe second = new InterpKeyframe(180.0f, 360.0f, 360.0f);
-            //InterpKeyframe last = new InterpKeyframe(360.0f, 0.0f, 0.0f);
-            //first.LinkNext(second).LinkNext(last);
-            //modelAnim.Keyframes.AddFirst(first);
-            //AnimFolder modelYawFolder = new AnimFolder("Yaw", false, modelAnim);
+            AnimationScalar modelAnim = new AnimationScalar(360, true, true);
+            ScalarKeyframe first = new ScalarKeyframe(0.0f, 0.0f, 0.0f);
+            ScalarKeyframe second = new ScalarKeyframe(180.0f, 360.0f, 360.0f);
+            ScalarKeyframe last = new ScalarKeyframe(360.0f, 0.0f, 0.0f);
+            first.LinkNext(second).LinkNext(last);
+            modelAnim.Keyframes.AddFirst(first);
+            //modelAnim.Bake();
+            AnimFolder modelYawFolder = new AnimFolder("Roll", false, modelAnim);
             //AnimFolder modelRotationFolder = new AnimFolder("Rotation", modelYawFolder);
-            //AnimationContainer modelAnimContainer = new AnimationContainer(modelRotationFolder);
-            //comp.AddAnimation(modelAnimContainer, false);
+            AnimationContainer modelAnimContainer = new AnimationContainer(modelYawFolder);
+            skeleton.RootBones[0].ChildBones[0].FrameState.AddAnimation(modelAnimContainer, true);
 
             Actor importedActor = new Actor(comp);
 

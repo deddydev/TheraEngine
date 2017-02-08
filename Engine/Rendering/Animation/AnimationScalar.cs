@@ -26,7 +26,7 @@ namespace CustomEngine.Rendering.Animation
         }
         public float GetValueBaked(float frameIndex)
         {
-            return _baked[(int)frameIndex];
+            return _baked[(int)(frameIndex * _keyframes.FPS)];
         }
         public float GetValueKeyframed(float frameIndex)
         {
@@ -40,9 +40,11 @@ namespace CustomEngine.Rendering.Animation
         /// </summary>
         public override void Bake()
         {
-            _baked = new float[FrameCount];
-            for (int i = 0; i < FrameCount; ++i)
-                _baked[i] = GetValueKeyframed(i);
+            float oneOverFPS = 1.0f / _keyframes.FPS;
+            int totalFrames = FrameCount * _keyframes.FPS;
+            _baked = new float[totalFrames];
+            for (int i = 0; i < totalFrames; ++i)
+                _baked[i] = GetValueKeyframed(i * oneOverFPS);
         }
         public override void Resize(int newSize)
         {

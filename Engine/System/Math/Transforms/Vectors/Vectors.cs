@@ -285,6 +285,11 @@ namespace System
                 Data[index] = value;
             }
         }
+
+        public override string ToString()
+        {
+            return string.Format("({0}, {1}, {2}, {3})", X, Y, Z, W);
+        }
     }
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public unsafe struct UVec4 : IUniformable4UInt, IBufferable

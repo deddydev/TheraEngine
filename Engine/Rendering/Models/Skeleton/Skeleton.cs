@@ -18,11 +18,18 @@ namespace CustomEngine.Rendering.Models
         public Skeleton(params Bone[] rootBones) : base()
         {
             RootBones = rootBones;
+            foreach (Bone b in RootBones)
+            {
+                b.CalcBindMatrix(true);
+                b.CalcFrameMatrix();
+            }
             RegenerateBoneCache();
         }
         public Skeleton(Bone rootBone) : base()
         {
             RootBones = new Bone[1] { rootBone };
+            rootBone.CalcBindMatrix(true);
+            rootBone.CalcFrameMatrix();
             RegenerateBoneCache();
         }
         public Dictionary<string, Bone> BoneCache

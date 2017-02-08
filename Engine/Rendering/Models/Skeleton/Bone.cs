@@ -29,6 +29,7 @@ namespace CustomEngine.Rendering.Models
         private void Init(string name, FrameState bindState, PhysicsDriverInfo info)
         {
             _frameState = _bindState = bindState;
+            _frameState.MatrixChanged += _frameState_MatrixChanged;
             _name = name;
 
             if (info == null)
@@ -49,6 +50,11 @@ namespace CustomEngine.Rendering.Models
             _childComponents.RemovedRange += ChildComponentsRemovedRange;
             _childComponents.Inserted += ChildComponentsInserted;
             _childComponents.InsertedRange += ChildComponentsInsertedRange;
+        }
+
+        private void _frameState_MatrixChanged(Matrix4 oldMatrix, Matrix4 oldInvMatrix)
+        {
+            CalcFrameMatrix();
         }
 
         public void MatrixUpdate(Matrix4 worldMatrix)
@@ -126,7 +132,9 @@ namespace CustomEngine.Rendering.Models
 
         public void CalcFrameMatrix()
         {
-            CalcFrameMatrix(Matrix4.Identity, Matrix4.Identity);
+            CalcFrameMatrix(
+                _parent != null ? _parent._frameMatrix : Matrix4.Identity,
+                _parent != null ? _parent._inverseFrameMatrix : Matrix4.Identity);
         }
         public void CalcFrameMatrix(Matrix4 parentMatrix, Matrix4 inverseParentMatrix)
         {

@@ -46,7 +46,7 @@ namespace CustomEngine.Rendering.Models
                 _data = value;
                 if (_data != null)
                 {
-                    _indexBuffer = new VertexBuffer("FaceIndices", BufferTarget.ElementArrayBuffer);
+                    _indexBuffer = new VertexBuffer("FaceIndices", BufferTarget.ElementArrayBuffer, false);
                     if (_data._facePoints.Count <= byte.MaxValue)
                     {
                         _elementType = DrawElementsType.UnsignedByte;
@@ -71,8 +71,7 @@ namespace CustomEngine.Rendering.Models
             set
             {
                 _material = value;
-                if (_program != null)
-                    _program.SetMaterial(_material);
+                _program?.SetMaterial(_material);
             }
         }
         public void SkeletonChanged(Skeleton skeleton)
@@ -84,12 +83,12 @@ namespace CustomEngine.Rendering.Models
                 _utilizedBones = _data._utilizedBones.Select(x => skeleton.BoneCache[x]).ToArray();
 
                 int infCount = _data._influences.Length;
-                IVec4[] matrixIndices = new IVec4[infCount];
+                Vec4[] matrixIndices = new Vec4[infCount];
                 Vec4[] matrixWeights = new Vec4[infCount];
 
                 for (int i = 0; i < infCount; ++i)
                 {
-                    matrixIndices[i] = new IVec4();
+                    matrixIndices[i] = new Vec4();
                     matrixWeights[i] = new Vec4();
                     Influence inf = _data._influences[i];
                     for (int j = 0; j < Influence.MaxWeightCount; ++j)
@@ -97,7 +96,7 @@ namespace CustomEngine.Rendering.Models
                         BoneWeight b = inf.Weights[j];
                         if (b == null)
                         {
-                            matrixIndices[i][j] = 0;
+                            matrixIndices[i][j] = 0.0f;
                             matrixWeights[i][j] = 0.0f;
                         }
                         else
@@ -111,12 +110,12 @@ namespace CustomEngine.Rendering.Models
                 _data.AddBuffer(
                     matrixIndices.ToList(), 
                     new VertexAttribInfo(BufferType.MatrixIds), 
-                    false, BufferTarget.ArrayBuffer);
+                    false, false, BufferTarget.ArrayBuffer);
 
                 _data.AddBuffer(
                     matrixWeights.ToList(),
                     new VertexAttribInfo(BufferType.MatrixWeights), 
-                    false, BufferTarget.ArrayBuffer);
+                    false, false, BufferTarget.ArrayBuffer);
 
                 _bufferInfo._boneCount = _utilizedBones.Length;
             }

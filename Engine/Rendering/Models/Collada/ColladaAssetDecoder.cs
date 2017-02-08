@@ -342,7 +342,7 @@ namespace CustomEngine.Rendering.Models.Collada
             foreach (VertexPolygon p in facePrimitives)
                 triangles.AddRange(p.ToTriangles());
 
-            return PrimitiveData.FromTriangleList(Culling.Back, info, triangles);
+            return PrimitiveData.FromTriangleList(Culling.None, info, triangles);
         }
     }
 }

@@ -31,7 +31,7 @@ namespace CustomEngine.Rendering
 
         protected override int CreateObject()
         {
-            _feedbackBuffer = new VertexBuffer("Feedback", _bindingLocation, BufferTarget.TransformFeedbackBuffer);
+            _feedbackBuffer = new VertexBuffer("Feedback", _bindingLocation, BufferTarget.TransformFeedbackBuffer, false);
             return base.CreateObject();
         }
 

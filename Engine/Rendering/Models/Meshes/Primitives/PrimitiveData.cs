@@ -178,13 +178,14 @@ namespace CustomEngine.Rendering.Models
             List<T> bufferData,
             VertexAttribInfo info,
             bool remap = false,
+            bool integral = false,
             BufferTarget target = BufferTarget.ArrayBuffer) where T : IBufferable
         {
             if (_buffers == null)
                 _buffers = new List<VertexBuffer>();
 
             int bufferIndex = _buffers.Count;
-            VertexBuffer buffer = new VertexBuffer(bufferIndex, info, target);
+            VertexBuffer buffer = new VertexBuffer(bufferIndex, info, target, integral);
             if (remap)
             {
                 Remapper remapper = buffer.SetData(bufferData, true);
@@ -204,6 +205,7 @@ namespace CustomEngine.Rendering.Models
             int bufferIndex,
             VertexAttribInfo info,
             bool remap = false,
+            bool integral = false,
             BufferTarget target = BufferTarget.ArrayBuffer) where T : IBufferable
         {
             if (_buffers == null)
@@ -211,7 +213,7 @@ namespace CustomEngine.Rendering.Models
             if (bufferIndex < 0 || bufferIndex >= _buffers.Count)
                 throw new IndexOutOfRangeException();
 
-            VertexBuffer buffer = new VertexBuffer(bufferIndex, info, target);
+            VertexBuffer buffer = new VertexBuffer(bufferIndex, info, target, integral);
             if (remap)
             {
                 Remapper remapper = buffer.SetData(bufferData, true);

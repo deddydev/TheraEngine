@@ -324,7 +324,7 @@ namespace CustomEngine.Rendering.OpenGL
 #if DEBUG
             int status;
             GL.GetShader(handle, ShaderParameter.CompileStatus, out status);
-            if (status == 0)
+            //if (status == 0)
             {
                 string info;
                 GL.GetShaderInfoLog(handle, out info);
@@ -350,31 +350,52 @@ namespace CustomEngine.Rendering.OpenGL
                 GL.AttachShader(handle, i);
 
             //Have to bind 'in' attributes before linking
-            int j = 0;
-
+            int j = (int)BufferType.Position * VertexBuffer.MaxBufferCountPerType;
             for (int i = 0; i < info._morphCount + 1; ++i, ++j)
                 GL.BindAttribLocation(handle, j, "Position" + i);
 
             if (info.HasNormals)
+            {
+                j = (int)BufferType.Normal * VertexBuffer.MaxBufferCountPerType;
                 for (int i = 0; i < info._morphCount + 1; ++i, ++j)
                     GL.BindAttribLocation(handle, j, "Normal" + i);
-
+            }
             if (info.HasBinormals)
+            {
+                j = (int)BufferType.Binormal * VertexBuffer.MaxBufferCountPerType;
                 for (int i = 0; i < info._morphCount + 1; ++i, ++j)
                     GL.BindAttribLocation(handle, j, "Binormal" + i);
-
+            }
             if (info.HasTangents)
+            {
+                j = (int)BufferType.Tangent * VertexBuffer.MaxBufferCountPerType;
                 for (int i = 0; i < info._morphCount + 1; ++i, ++j)
                     GL.BindAttribLocation(handle, j, "Tangent" + i);
-
+            }
+            j = (int)BufferType.Color * VertexBuffer.MaxBufferCountPerType;
             for (int i = 0; i < info._colorCount; ++i, ++j)
                 GL.BindAttribLocation(handle, j, "Color" + i);
 
+            j = (int)BufferType.TexCoord * VertexBuffer.MaxBufferCountPerType;
             for (int i = 0; i < info._texcoordCount; ++i, ++j)
                 GL.BindAttribLocation(handle, j, "TexCoord" + i);
 
+            if (info.IsWeighted)
+            {
+                j = (int)BufferType.MatrixIds * VertexBuffer.MaxBufferCountPerType;
+                for (int i = 0; i < info._morphCount + 1; ++i, ++j)
+                    GL.BindAttribLocation(handle, j, "MatrixIds" + i);
+
+                j = (int)BufferType.MatrixWeights * VertexBuffer.MaxBufferCountPerType;
+                for (int i = 0; i < info._morphCount + 1; ++i, ++j)
+                    GL.BindAttribLocation(handle, j, "MatrixWeights" + i);
+            }
+
             if (info._hasBarycentricCoord)
-                GL.BindAttribLocation(handle, j, "Barycentric");
+            {
+                j = (int)BufferType.Barycentric * VertexBuffer.MaxBufferCountPerType;
+                GL.BindAttribLocation(handle, j++, "Barycentric");
+            }
 
             GL.LinkProgram(handle);
 

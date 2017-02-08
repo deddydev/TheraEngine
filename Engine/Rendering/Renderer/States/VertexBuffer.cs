@@ -16,9 +16,9 @@ namespace CustomEngine.Rendering.Models
         Tangent         = 3,
         Color           = 4,
         TexCoord        = 5,
-        Barycentric     = 6,
-        MatrixIds       = 7,
-        MatrixWeights   = 8,
+        MatrixIds       = 6,
+        MatrixWeights   = 7,
+        Barycentric     = 8,
         Other           = 9,
     }
     public class VertexAttribInfo
@@ -35,23 +35,18 @@ namespace CustomEngine.Rendering.Models
         public string GetAttribName() { return _type.ToString() + _index; }
         public int GetLocation()
         {
-            int t = (int)_type;
-            if (t < 4)
-            {
-                return t + _index * 4;
-            }
-            else if (t <= 6)
-            {
-                return t * VertexBuffer.MaxBufferCountPerType + _index;
-            }
+            if (_type < BufferType.Barycentric)
+                return (int)_type * VertexBuffer.MaxBufferCountPerType + _index;
+            else if (_type == BufferType.Barycentric)
+                return (int)BufferType.Barycentric * VertexBuffer.MaxBufferCountPerType;
             else
-            {
-                return t * VertexBuffer.MaxBufferCountPerType + _index + 1;
-            }
+                return (int)BufferType.Other * VertexBuffer.MaxBufferCountPerType + _index;
         }
     }
     public class VertexBuffer : BaseRenderState, IDisposable
     {
+        const bool MapData = true;
+
         public static readonly int MaxBufferCountPerType = 1;
         public static readonly int BufferTypeCount = 8;
         
@@ -90,10 +85,16 @@ namespace CustomEngine.Rendering.Models
 
         private DataSource _data;
 
+        private bool _integral = false;
         private int _index, _location;
         private BufferTarget _target;
         private BufferType _type = BufferType.Other;
 
+        public bool Integral
+        {
+            get { return _integral; }
+            set { _integral = value; }
+        }
         public int Index
         {
             get { return _index; }
@@ -112,7 +113,8 @@ namespace CustomEngine.Rendering.Models
             int elementCount,
             ComponentType componentType,
             int componentCount,
-            bool normalize) : base(GenType.Buffer)
+            bool normalize,
+            bool integral) : base(GenType.Buffer)
         {
             _index = index;
             _target = target;
@@ -124,27 +126,32 @@ namespace CustomEngine.Rendering.Models
             _componentCount = componentCount;
             _elementCount = elementCount;
             _normalize = normalize;
+            _integral = integral;
 
             _data = DataSource.Allocate(DataLength);
         }
         public VertexBuffer(
             string name,
             int location,
-            BufferTarget target) : base(GenType.Buffer)
+            BufferTarget target,
+            bool integral) : base(GenType.Buffer)
         {
             _index = -1;
             _location = location;
             _target = target;
             _name = name;
+            _integral = integral;
         }
         public VertexBuffer(
             string name,
-            BufferTarget target) : base(GenType.Buffer)
+            BufferTarget target,
+            bool integral) : base(GenType.Buffer)
         {
             _index = -1;
             _location = -1;
             _target = target;
             _name = name;
+            _integral = integral;
         }
         //public VertexBuffer(
         //    int index,
@@ -160,13 +167,15 @@ namespace CustomEngine.Rendering.Models
         public VertexBuffer(
            int index,
            VertexAttribInfo info,
-           BufferTarget target) : base(GenType.Buffer)
+           BufferTarget target,
+           bool integral) : base(GenType.Buffer)
         {
             _index = index;
             _target = target;
             _location = info.GetLocation();
             _name = info.GetAttribName();
             _type = info._type;
+            _integral = integral;
         }
 
         public VoidPtr Data { get { return _data.Address; } }
@@ -202,23 +211,32 @@ namespace CustomEngine.Rendering.Models
             if (_location >= 0)
             {
                 GL.EnableVertexAttribArray(_index);
-                GL.VertexAttribPointer(_index, _componentCount, VertexAttribPointerType.Byte + (int)_componentType, _normalize, 0, 0);
+                if (Integral)
+                    GL.VertexAttribIPointer(_index, _componentCount, VertexAttribIntegerType.Byte + (int)_componentType, 0, IntPtr.Zero);
+                else
+                    GL.VertexAttribPointer(_index, _componentCount, VertexAttribPointerType.Byte + (int)_componentType, _normalize, 0, 0);
                 //GL.VertexAttribFormat(_location, _componentCount, VertexAttribType.Byte + (int)_componentType, _normalize, 0);
                 //GL.VertexAttribBinding(_location, _index);
             }
-            //GL.BufferData(_target, (IntPtr)_data.Length, _data.Address, BufferUsageHint.StaticDraw);
-            GL.BufferStorage(_target, (IntPtr)_data.Length, _data.Address,
-                BufferStorageFlags.MapWriteBit |
-                BufferStorageFlags.MapReadBit |
-                BufferStorageFlags.MapPersistentBit |
-                BufferStorageFlags.MapCoherentBit |
-                BufferStorageFlags.ClientStorageBit);
-            _data.Dispose();
-            _data = new DataSource(GL.MapBufferRange(_target, (IntPtr)0, (IntPtr)DataLength,
-                BufferAccessMask.MapPersistentBit |
-                BufferAccessMask.MapCoherentBit |
-                BufferAccessMask.MapReadBit |
-                BufferAccessMask.MapWriteBit), DataLength);
+            if (MapData)
+            {
+                GL.BufferStorage(_target, (IntPtr)_data.Length, _data.Address,
+                    BufferStorageFlags.MapWriteBit |
+                    BufferStorageFlags.MapReadBit |
+                    BufferStorageFlags.MapPersistentBit |
+                    BufferStorageFlags.MapCoherentBit |
+                    BufferStorageFlags.ClientStorageBit);
+                _data.Dispose();
+                _data = new DataSource(GL.MapBufferRange(_target, (IntPtr)0, (IntPtr)DataLength,
+                    BufferAccessMask.MapPersistentBit |
+                    BufferAccessMask.MapCoherentBit |
+                    BufferAccessMask.MapReadBit |
+                    BufferAccessMask.MapWriteBit), DataLength);
+            }
+            else
+            {
+                GL.BufferData(_target, (IntPtr)_data.Length, _data.Address, BufferUsageHint.StaticDraw);
+            }
         }
         public void Bind() { GL.BindBuffer(_target, BindingId); }
         public T Get<T>(int offset) where T : struct
@@ -356,7 +374,8 @@ namespace CustomEngine.Rendering.Models
         }
         protected override void OnDeleted()
         {
-            GL.UnmapBuffer(_target);
+            if (MapData)
+                GL.UnmapBuffer(_target);
         }
         public void Dispose()
         {

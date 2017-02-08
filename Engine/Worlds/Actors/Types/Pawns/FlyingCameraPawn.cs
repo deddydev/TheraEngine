@@ -68,8 +68,8 @@ namespace CustomEngine.Worlds.Actors
         protected override void SetDefaults()
         {
             RegisterTick(ETickGroup.PrePhysics, ETickOrder.Input);
-            CameraComponent.Camera.TranslateAbsolute(new Vec3(0.0f, 160.0f, 120.0f));
-            CameraComponent.Camera.Rotation.Pitch = -45.0f;
+            CameraComponent.Camera.TranslateAbsolute(new Vec3(0.0f, 0.0f, 400.0f));
+            //CameraComponent.Camera.Rotation.Pitch = -45.0f;
             base.SetDefaults();
         }
         protected override SceneComponent SetupComponents()

@@ -77,7 +77,7 @@ namespace CustomEngine.Rendering.Models.Collada
                 {
                     AssetEntry e = shell._assets[0];
                     isZup = e._upAxis == UpAxis.Z;
-                    //baseTransform = Matrix4.CreateScale(1.0f / e._scale);
+                    //baseTransform = Matrix4.CreateScale(e._scale);
                 }
 
                 //Extract materials

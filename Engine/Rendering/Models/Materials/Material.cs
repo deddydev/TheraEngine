@@ -88,7 +88,7 @@ namespace CustomEngine.Rendering.Models.Materials
             Shader frag = Shader.TestFragmentShader();
             List<GLVar> p = new List<GLVar>()
             {
-                new GLVec4((ColorF4)Color.DarkGray, "MatColor", null),
+                new GLVec4((ColorF4)Color.Red, "MatColor", null),
                 new GLFloat(20.0f, "MatSpecularIntensity", null),
                 new GLFloat(128.0f, "MatShininess", null),
             };

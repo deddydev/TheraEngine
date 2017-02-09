@@ -75,6 +75,12 @@ namespace System
 
             return PrimitiveData.FromTriangleList(Culling.Back, new PrimitiveBufferInfo(), strips.SelectMany(x => x.ToTriangles()));
         }
+
+        internal static PrimitiveData WireframeMesh(Vec3 zero, float v1, int v2)
+        {
+            throw new NotImplementedException();
+        }
+
         public static PrimitiveData SolidMesh(Vec3 center, float radius, int slices, int stacks)
         {
             List<Vertex> v = new List<Vertex>();

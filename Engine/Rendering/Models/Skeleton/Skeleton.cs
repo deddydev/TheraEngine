@@ -11,10 +11,7 @@ namespace CustomEngine.Rendering.Models
     {
         public override ResourceType ResourceType { get { return ResourceType.Skeleton; } }
 
-        public Skeleton() : base()
-        {
-
-        }
+        public Skeleton() : base() { }
         public Skeleton(params Bone[] rootBones) : base()
         {
             RootBones = rootBones;
@@ -78,15 +75,8 @@ namespace CustomEngine.Rendering.Models
             base.Tick(delta);
         }
 
-        public IEnumerator<Bone> GetEnumerator()
-        {
-            return ((IEnumerable<Bone>)_boneCache.Values).GetEnumerator();
-        }
-
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return ((IEnumerable<Bone>)_boneCache.Values).GetEnumerator();
-        }
+        public IEnumerator<Bone> GetEnumerator() { return ((IEnumerable<Bone>)_boneCache.Values).GetEnumerator(); }
+        IEnumerator IEnumerable.GetEnumerator() { return ((IEnumerable<Bone>)_boneCache.Values).GetEnumerator(); }
 
         bool _visible, _rendering;
         Shape _cullingVolume = new Sphere(1.0f);
@@ -110,7 +100,12 @@ namespace CustomEngine.Rendering.Models
         public void Render()
         {
             foreach (Bone b in BoneCache.Values)
-                Engine.Renderer.RenderSphere(b.WorldMatrix.GetPoint(), 1.0f, true);
+            {
+                Vec3 point = b.WorldMatrix.GetPoint();
+                Engine.Renderer.RenderSphere(point, Engine.Renderer.Scene.CurrentCamera.DistanceScale(point, 0.2f), true);
+                if (b.Parent != null)
+                    Engine.Renderer.RenderLine(point, b.Parent.WorldMatrix.GetPoint());
+            }
         }
     }
 }

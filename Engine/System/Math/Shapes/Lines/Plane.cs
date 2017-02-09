@@ -1,4 +1,6 @@
-﻿namespace System
+﻿using CustomEngine.Rendering.Models;
+
+namespace System
 {
     public class Plane
     {
@@ -46,6 +48,7 @@
             _normal = normal;
             _distance = -point.Dot(normal);
         }
+
         /// <summary>
         /// Constructs a plane given three points.
         /// Points must be specified in this order 
@@ -65,6 +68,7 @@
             _normal.NormalizeFast();
             _distance = -point0.Dot(_normal);
         }
+
         public float Distance
         {
             get { return _distance; }
@@ -147,6 +151,22 @@
             Vec3 point = Point;
             Vec3 normal = Normal;
             return new Plane(Vec3.TransformPosition(point, transform), Vec3.TransformNormal(normal, transform));
+        }
+        public PrimitiveData GetWireframeMesh(float xExtent, float yExtent)
+        {
+            return WireframeMesh(Point, Normal, xExtent, yExtent);
+        }
+        public PrimitiveData GetSolidMesh(float xExtent, float yExtent)
+        {
+            return SolidMesh(Point, Normal, xExtent, yExtent);
+        }
+        public static PrimitiveData WireframeMesh(Vec3 position, Vec3 normal, float xExtent, float yExtent)
+        {
+            
+        }
+        public static PrimitiveData SolidMesh(Vec3 position, Vec3 normal, float xExtent, float yExtent)
+        {
+
         }
     }
 }

@@ -107,10 +107,11 @@ namespace System
             }
         }
 
-        public void ChangeZupToYup()
+        public void ChangeZupToYup(bool negateX = true)
         {
             Swap(ref Z, ref Y);
-            X = -X;
+            if (negateX)
+                X = -X;
         }
 
         public static readonly Vec3 UnitX = new Vec3(1.0f, 0.0f, 0.0f);

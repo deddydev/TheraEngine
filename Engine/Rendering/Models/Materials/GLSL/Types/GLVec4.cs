@@ -35,6 +35,8 @@ namespace CustomEngine.Rendering.Models.Materials
 
         private Vec4 _value;
 
+        public GLVec4(Vec4 defaultValue, string name)
+            : this(defaultValue, name, null) { }
         public GLVec4(Vec4 defaultValue, string name, IGLVarOwner owner)
             : base(name, owner)
         {

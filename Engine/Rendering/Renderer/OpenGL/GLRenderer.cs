@@ -92,7 +92,7 @@ namespace CustomEngine.Rendering.OpenGL
         //    throw new NotImplementedException();
         //}
         #endregion
-
+        
         public override void BindTextureData(int textureTargetEnum, int mipLevel, int pixelInternalFormatEnum, int width, int height, int pixelFormatEnum, int pixelTypeEnum, VoidPtr data)
         {
             // https://www.opengl.org/sdk/docs/man/html/glTexImage2D.xhtml

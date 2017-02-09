@@ -56,8 +56,7 @@ namespace System
         public void SetDirection(Vec3 value)
         {
             BeginUpdate();
-            float x, y;
-            value.LookatAngles(out y, out x);
+            value.LookatAngles(out _pyr.Y, out _pyr.X);
             _pyr.Z = 0.0f;
             _rotationOrder = Order.YPR;
             EndUpdate();
@@ -320,6 +319,15 @@ namespace System
                 EndUpdate();
             }
         }
+
+        public void ChangeZupToYup()
+        {
+            float temp = _pyr.X;
+            _pyr.X = _pyr.Y;
+            _pyr.Y = _pyr.Z;
+            _pyr.Z = temp;
+        }
+
         [XmlIgnore]
         public Vec3 YawRollPitch
         {

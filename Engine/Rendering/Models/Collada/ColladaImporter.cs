@@ -174,7 +174,7 @@ namespace CustomEngine.Rendering.Models.Collada
             if (node._type == NodeType.JOINT ||
                 (node._type == NodeType.NONE && node._instances.Count == 0))
             {
-                Bone bone = new Bone(node._name != null ? node._name : node._id, FrameState.DeriveTRS(node._matrix));
+                Bone bone = new Bone(node._name ?? node._id, FrameState.DeriveTRS(node._matrix, isZup));
                 node._node = bone;
 
                 if (parent == null)

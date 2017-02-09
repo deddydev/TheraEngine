@@ -7,7 +7,7 @@ using System.Collections;
 
 namespace CustomEngine.Rendering.Models
 {
-    public class Skeleton : FileObject, IEnumerable<Bone>
+    public class Skeleton : FileObject, IEnumerable<Bone>, IRenderable
     {
         public override ResourceType ResourceType { get { return ResourceType.Skeleton; } }
 
@@ -86,6 +86,31 @@ namespace CustomEngine.Rendering.Models
         IEnumerator IEnumerable.GetEnumerator()
         {
             return ((IEnumerable<Bone>)_boneCache.Values).GetEnumerator();
+        }
+
+        bool _visible, _rendering;
+        Shape _cullingVolume = new Sphere(1.0f);
+        RenderOctree.Node _renderNode;
+        public Shape CullingVolume { get { return _cullingVolume; } }
+        public bool IsRendering
+        {
+            get { return _rendering; }
+            set { _rendering = value; }
+        }
+        public RenderOctree.Node RenderNode
+        {
+            get { return _renderNode; }
+            set { _renderNode = value; }
+        }
+        public bool Visible
+        {
+            get { return _visible; }
+            set { _visible = value; }
+        }
+        public void Render()
+        {
+            foreach (Bone b in BoneCache.Values)
+                Engine.Renderer.RenderSphere(b.WorldMatrix.GetPoint(), 1.0f, true);
         }
     }
 }

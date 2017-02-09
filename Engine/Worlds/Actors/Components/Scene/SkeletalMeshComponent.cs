@@ -64,12 +64,14 @@ namespace CustomEngine.Worlds.Actors.Components
             base.OnSpawned();
             foreach (RenderableMesh m in _meshes)
                 m.Visible = m.Mesh.VisibleByDefault;
+            Engine.Renderer.Scene.AddRenderable(_skeleton);
         }
         public override void OnDespawned()
         {
             base.OnDespawned();
             foreach (RenderableMesh m in _meshes)
                 m.Visible = false;
+            Engine.Renderer.Scene.RemoveRenderable(_skeleton);
         }
         internal class RenderableMesh : IRenderable
         {

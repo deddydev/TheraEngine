@@ -25,10 +25,17 @@ namespace CustomEngine.Rendering
 
         public void CacheWireframeSphere()
         {
-            _wireSphere = new PrimitiveManager();
-            _wireSphere.Data = Sphere.Mesh(Vec3.Zero, 1.0f, 4, 4);
+            _wireSphere = new PrimitiveManager(
+                Sphere.SolidMesh(Vec3.Zero, 1.0f, 10),
+                Material.GetDefaultMaterial());
         }
-        
+        public void CacheSolidSphere()
+        {
+            _solidSphere = new PrimitiveManager(
+                Sphere.SolidMesh(Vec3.Zero, 1.0f, 10),
+                Material.GetDefaultMaterial());
+        }
+
         public void RenderAABB(Vec3 halfExtents, Vec3 translation, bool solid) => RenderBox(halfExtents, Matrix4.CreateTranslation(translation), solid);
         public void RenderCapsule(Vec3 center, Vec3 axis, float topHeight, float topRadius, float bottomHeight, float bottomRadius, Matrix4 transform, bool solid)
         {
@@ -56,9 +63,17 @@ namespace CustomEngine.Rendering
         {
             Matrix4 mtx = Matrix4.CreateTranslation(center) * Matrix4.CreateScale(radius);
             if (solid)
+            {
+                if (_solidSphere == null)
+                    CacheSolidSphere();
                 _solidSphere.Render(mtx, Matrix3.Identity);
+            }
             else
+            {
+                if (_wireSphere == null)
+                    CacheWireframeSphere();
                 _wireSphere.Render(mtx, Matrix3.Identity);
+            }
         }
         public void RenderBox(Vec3 halfExtents, Matrix4 transform, bool solid)
         {

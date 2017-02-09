@@ -30,7 +30,7 @@ namespace System
         }
         public override CollisionShape GetCollisionShape() { return new SphereShape(Radius); }
         public override void Render() { Engine.Renderer.RenderSphere(Center, Radius, _renderSolid); }
-        public static PrimitiveData Mesh(Vec3 center, float radius, float precision)
+        public static PrimitiveData SolidMesh(Vec3 center, float radius, float precision)
         {
             float halfPI = CustomMath.PIf * 0.5f;
             float invPrecision = 1.0f / precision;
@@ -75,7 +75,7 @@ namespace System
 
             return PrimitiveData.FromTriangleList(Culling.Back, new PrimitiveBufferInfo(), strips.SelectMany(x => x.ToTriangles()));
         }
-        public static PrimitiveData Mesh(Vec3 center, float radius, int slices, int stacks)
+        public static PrimitiveData SolidMesh(Vec3 center, float radius, int slices, int stacks)
         {
             List<Vertex> v = new List<Vertex>();
             float twoPi = CustomMath.PIf * 2.0f;
@@ -109,11 +109,11 @@ namespace System
         }
         public PrimitiveData GetMesh(int slices, int stacks, bool includeCenter)
         {
-            return Mesh(includeCenter ? Center : Vec3.Zero, _radius, slices, stacks);
+            return SolidMesh(includeCenter ? Center : Vec3.Zero, _radius, slices, stacks);
         }
         public PrimitiveData GetMesh(float precision, bool includeCenter)
         {
-            return Mesh(includeCenter ? Center : Vec3.Zero, _radius, precision);
+            return SolidMesh(includeCenter ? Center : Vec3.Zero, _radius, precision);
         }
         public override bool Contains(Vec3 point) { return Collision.SphereContainsPoint(Center, Radius, point); }
         public override EContainment Contains(BoundingBox box) { return Collision.SphereContainsAABB(Center, Radius, box.Minimum, box.Maximum); }

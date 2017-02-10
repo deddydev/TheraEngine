@@ -53,14 +53,7 @@ namespace System
         public Quaternion GetYawQuat() { return Quaternion.FromAxisAngle(Vec3.Up, Yaw); }
         public Quaternion GetPitchQuat() { return Quaternion.FromAxisAngle(Vec3.Right, Pitch); }
         public Quaternion GetRollQuat() { return Quaternion.FromAxisAngle(Vec3.Forward, Roll); }
-        public void SetDirection(Vec3 value)
-        {
-            BeginUpdate();
-            value.LookatAngles(out _pyr.Y, out _pyr.X);
-            _pyr.Z = 0.0f;
-            _rotationOrder = Order.YPR;
-            EndUpdate();
-        }
+        public void SetDirection(Vec3 value) { SetRotations(value.LookatAngles()); }
         public Rotator HardCopy()
         {
             return new Rotator(Pitch, Yaw, Roll, _rotationOrder);

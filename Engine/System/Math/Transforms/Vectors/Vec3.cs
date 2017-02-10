@@ -389,44 +389,68 @@ namespace System
                 Z / (maxZ - minZ) * 2.0f - 1.0f);
         }
         /// <summary>
-        /// Returns a YPR rotator with azimuth as yaw, elevation as pitch, and 0 as roll.
+        /// Returns a YPR rotator relative to -Z with azimuth as yaw, elevation as pitch, and 0 as roll.
         /// </summary>
-        public Rotator LookatAngles()
+        public Rotator LookatAngles() { return LookatAngles(Forward); }
+        /// <summary>
+        /// Returns a YPR rotator relative to the start normal with azimuth as yaw, elevation as pitch, and 0 as roll.
+        /// </summary>
+        public Rotator LookatAngles(Vec3 startNormal)
         {
-            return new Rotator(
-                RadToDeg((float)Atan2(Y, Sqrt(X * X + Z * Z))),
-                //RadToDeg((float)Atan2(-Z, X)), 
-                RadToDeg((float)Atan2(-X, -Z)),
-                0.0f, Rotator.Order.YPR);
+            Quaternion q = Quaternion.BetweenVectors(startNormal, this);
+            Rotator r = q.ToEuler();
+            //Rotator r = startNormal.LookatAngles(Forward);
+            //return new Rotator(
+            //    RadToDeg((float)Atan2(Y, Sqrt(X * X + Z * Z))),
+            //    //RadToDeg((float)Atan2(-Z, X)),
+            //    RadToDeg((float)Atan2(-X, -Z)),
+            //    0.0f, Rotator.Order.YPR);
+            return r;
         }
-        public void LookatAngles(out float yaw, out float pitch)
-        {
-            pitch = RadToDeg((float)Atan2(Y, Sqrt(X * X + Z * Z)));
-            yaw = RadToDeg((float)Atan2(-X, -Z));
-            //yaw = RadToDeg((float)Atan2(-Z, X));
-        }
-        public Rotator LookatAngles(Vec3 forward, Vec3 right, Vec3 up)
-        {
-            Vec3 NormalDir = GetSafeNormal();
-            //Find projected point (on AxisX and AxisY, remove AxisZ component)
-            Vec3 NoZProjDir = (NormalDir - (NormalDir | up) * up).GetSafeNormal();
-            //Figure out if projection is on right or left.
-            float AzimuthSign = ((NoZProjDir | right) < 0.0f) ? -1.0f : 1.0f;
-            float ElevationSin = NormalDir | up;
-            float AzimuthCos = NoZProjDir | forward;
-            return new Rotator(
-                RadToDeg((float)Acos(AzimuthCos)) * AzimuthSign, 
-                RadToDeg((float)Asin(ElevationSin)), 
-                0.0f, Rotator.Order.YPR);
-        }
-        public Rotator LookatAngles(Vec3 origin)
-        {
-            return (this - origin).LookatAngles();
-        }
-        public Rotator LookatAngles(Vec3 origin, Vec3 forward, Vec3 right, Vec3 up)
-        {
-            return (this - origin).LookatAngles(forward, right, up);
-        }
+        //public void LookatAngles(Vec3 startNormal, out float yaw, out float pitch)
+        //{
+        //    pitch = RadToDeg((float)Atan2(Y, Sqrt(X * X + Z * Z)));
+        //    yaw = RadToDeg((float)Atan2(-X, -Z));
+        //    //yaw = RadToDeg((float)Atan2(-Z, X));
+        //}
+        //public Rotator LookatAngles(Vec3 origin, Vec3 startNormal, Vec3 forward, Vec3 right, Vec3 up)
+        //{
+        //    return (this - origin).LookatAngles(startNormal, forward, right, up);
+        //}
+        //public Rotator LookatAngles(Vec3 forward, Vec3 right, Vec3 up)
+        //{
+        //    return LookatAngles(Forward, forward, right, up);
+        //}
+        //public Rotator LookatAngles(Vec3 startNormal, Vec3 forward, Vec3 right, Vec3 up)
+        //{
+        //    Vec3 NormalDir = (this - startNormal).GetSafeNormal();
+        //    //Find projected point (on AxisX and AxisY, remove AxisZ component)
+        //    Vec3 NoZProjDir = (NormalDir - (NormalDir | up) * up).GetSafeNormal();
+        //    //Figure out if projection is on right or left.
+        //    float AzimuthSign = ((NoZProjDir | right) < 0.0f) ? -1.0f : 1.0f;
+        //    float ElevationSin = NormalDir | up;
+        //    float AzimuthCos = NoZProjDir | forward;
+        //    return new Rotator(
+        //        RadToDeg((float)Acos(AzimuthCos)) * AzimuthSign, 
+        //        RadToDeg((float)Asin(ElevationSin)), 
+        //        0.0f, Rotator.Order.YPR);
+        //}
+        //public Rotator LookatAngles(Vec3 origin)
+        //{
+        //    return LookatAngles(origin, Forward);
+        //}
+        //public Rotator LookatAngles(Vec3 origin, Vec3 startNormal)
+        //{
+        //    return (this - origin).LookatAngles(startNormal);
+        //}
+        //public void LookatAngles(Vec3 origin, out float yaw, out float pitch)
+        //{
+        //    LookatAngles(origin, Forward, out yaw, out pitch);
+        //}
+        //public void LookatAngles(Vec3 origin, Vec3 startNormal, out float yaw, out float pitch)
+        //{
+        //    (this - origin).LookatAngles(startNormal, out yaw, out pitch);
+        //}
         public Vec3 GetSafeNormal(float Tolerance = 1.0e-8f)
         {
             float SquareSum = LengthSquared;

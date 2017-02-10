@@ -154,19 +154,34 @@ namespace System
         }
         public PrimitiveData GetWireframeMesh(float xExtent, float yExtent)
         {
-            return WireframeMesh(Point, Normal, xExtent, yExtent);
+            return WireframeMesh(Point, Normal.LookatAngles(), xExtent, yExtent);
         }
-        public PrimitiveData GetSolidMesh(float xExtent, float yExtent)
+        public PrimitiveData GetSolidMesh(float xExtent, float yExtent, Culling culling)
         {
-            return SolidMesh(Point, Normal, xExtent, yExtent);
+            return SolidMesh(Point, Normal.LookatAngles(), xExtent, yExtent, culling);
         }
-        public static PrimitiveData WireframeMesh(Vec3 position, Vec3 normal, float xExtent, float yExtent)
+        public static PrimitiveData WireframeMesh(Vec3 position, Rotator rotation, float xExtent, float yExtent)
         {
-            
+            Vertex v0 = new Vertex();
+            Vertex v1 = new Vertex();
+            Vertex v2 = new Vertex();
+            Vertex v3 = new Vertex();
+            return PrimitiveData.FromLineStrips(new PrimitiveBufferInfo() { _hasNormals = false, _texcoordCount = 0 }, new VertexLineStrip(true, v0, v1, v2, v3));
         }
-        public static PrimitiveData SolidMesh(Vec3 position, Vec3 normal, float xExtent, float yExtent)
+        public static PrimitiveData SolidMesh(Vec3 position, Rotator rotation, float xExtent, float yExtent, Culling culling)
         {
-
+            float xHalf = xExtent / 2.0f;
+            float yHalf = yExtent / 2.0f;
+            Vec3 topFront = new Vec3(0.0f, yHalf, xHalf);
+            Vec3 topBack = new Vec3(0.0f, yHalf, -xHalf);
+            Vec3 bottomFront = new Vec3(0.0f, -yHalf, xHalf);
+            Vec3 bottomBack = new Vec3(0.0f, -yHalf, -xHalf);
+            Vec3 normal = Vec3.Up;
+            Vertex v0 = new Vertex(bottomFront, normal, new Vec2(0.0f, 0.0f));
+            Vertex v1 = new Vertex(bottomBack, normal, new Vec2(1.0f, 0.0f));
+            Vertex v2 = new Vertex(topBack, normal, new Vec2(1.0f, 1.0f));
+            Vertex v3 = new Vertex(topFront, normal, new Vec2(0.0f, 1.0f));
+            return PrimitiveData.FromQuads(culling, new PrimitiveBufferInfo(), new VertexQuad(v0, v1, v2, v3));
         }
     }
 }

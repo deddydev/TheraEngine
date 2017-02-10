@@ -102,7 +102,7 @@ namespace CustomEngine.Rendering.Models
             foreach (Bone b in BoneCache.Values)
             {
                 Vec3 point = b.WorldMatrix.GetPoint();
-                Engine.Renderer.RenderSphere(point, Engine.Renderer.Scene.CurrentCamera.DistanceScale(point, 0.2f), true);
+                Engine.Renderer.RenderSphere(point, Engine.Renderer.Scene.CurrentCamera.DistanceScale(point, 2.0f), true);
                 if (b.Parent != null)
                     Engine.Renderer.RenderLine(point, b.Parent.WorldMatrix.GetPoint());
             }

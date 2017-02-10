@@ -297,22 +297,7 @@ namespace System
         {
             return _data.LookatAngles();
         }
-        public void LookatAngles(out float yaw, out float pitch)
-        {
-            _data.LookatAngles(out yaw, out pitch);
-        }
-        public Rotator LookatAngles(Vec3 forward, Vec3 right, Vec3 up)
-        {
-            return _data.LookatAngles(forward, right, up);
-        }
-        public Rotator LookatAngles(Vec3 origin)
-        {
-            return _data.LookatAngles(origin);
-        }
-        public Rotator LookatAngles(Vec3 origin, Vec3 forward, Vec3 right, Vec3 up)
-        {
-            return _data.LookatAngles(origin, forward, right, up);
-        }
+        
         public Vec3 GetSafeNormal(float tolerance = 1.0e-8f)
         {
             return _data.GetSafeNormal(tolerance);

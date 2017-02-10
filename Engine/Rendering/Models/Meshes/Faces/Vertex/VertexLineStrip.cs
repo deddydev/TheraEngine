@@ -16,7 +16,7 @@ namespace CustomEngine.Rendering.Models
             _closedLoop = closedLoop;
         }
 
-        public VertexLine[] GetLines()
+        public VertexLine[] ToLines()
         {
             int count = _vertices.Count;
             if (!_closedLoop)

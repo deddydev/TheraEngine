@@ -341,21 +341,29 @@ namespace CustomEngine.Rendering.Models
             //TODO: convert triangles to tristrips and use primitive restart to render them all in one call
             return new PrimitiveData(culling, info, triangles.SelectMany(x => x.Vertices), PrimitiveType.Triangles);
         }
-        public static PrimitiveData FromLines(Culling culling, PrimitiveBufferInfo info, params VertexLine[] lines)
+        public static PrimitiveData FromLineStrips(PrimitiveBufferInfo info, params VertexLineStrip[] lines)
         {
-            return FromLineList(culling, info, lines);
+            return FromLineStripList(info, lines);
         }
-        public static PrimitiveData FromLineList(Culling culling, PrimitiveBufferInfo info, IEnumerable<VertexLine> lines)
+        public static PrimitiveData FromLineStripList(PrimitiveBufferInfo info, IEnumerable<VertexLineStrip> lines)
         {
-            return new PrimitiveData(culling, info, lines.SelectMany(x => x.Vertices), PrimitiveType.Lines);
+            return FromLineList(info, lines.SelectMany(x => x.ToLines()));
         }
-        public static PrimitiveData FromPoints(Culling culling, PrimitiveBufferInfo info, params Vertex[] points)
+        public static PrimitiveData FromLines(PrimitiveBufferInfo info, params VertexLine[] lines)
         {
-            return FromPointList(culling, info, points);
+            return FromLineList(info, lines);
         }
-        public static PrimitiveData FromPointList(Culling culling, PrimitiveBufferInfo info, IEnumerable<Vertex> points)
+        public static PrimitiveData FromLineList(PrimitiveBufferInfo info, IEnumerable<VertexLine> lines)
         {
-            return new PrimitiveData(culling, info, points, PrimitiveType.Points);
+            return new PrimitiveData(Culling.None, info, lines.SelectMany(x => x.Vertices), PrimitiveType.Lines);
+        }
+        public static PrimitiveData FromPoints(params Vec3[] points)
+        {
+            return FromPointList(points);
+        }
+        public static PrimitiveData FromPointList(IEnumerable<Vec3> points)
+        {
+            return new PrimitiveData(Culling.None, new PrimitiveBufferInfo() { _hasNormals = false, _texcoordCount = 0 }, points.Select(x => new Vertex(x)), PrimitiveType.Points);
         }
 
         public PrimitiveData(Culling culling, PrimitiveBufferInfo info, IEnumerable<Vertex> points, PrimitiveType type)

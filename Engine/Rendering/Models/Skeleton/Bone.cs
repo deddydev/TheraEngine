@@ -6,9 +6,19 @@ using CustomEngine.Worlds.Actors.Components;
 
 namespace CustomEngine.Rendering.Models
 {
+    public enum BillboardType
+    {
+        Y,
+        XY,
+        XYZ,
+    }
     public class Bone : FileObject, IPhysicsDrivable, ISocket
     {
         public override ResourceType ResourceType { get { return ResourceType.Bone; } }
+
+        private BillboardType _type = BillboardType.XY;
+        private bool _parallelBillboard = true;
+        private bool _scaleByDistance = false;
 
         public Bone(string name, FrameState bindstate, PhysicsDriverInfo info)
         {

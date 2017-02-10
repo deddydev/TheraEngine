@@ -3,7 +3,7 @@ namespace System
 {
     public unsafe static class CustomMath
     {
-        public static readonly float PIf = (float)Math.PI;
+        public static readonly float PIf = (float)PI;
 
         public static float DegToRad(float degrees)
         {

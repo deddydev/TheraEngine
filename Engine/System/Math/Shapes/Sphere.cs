@@ -41,7 +41,7 @@ namespace System
             Vec2 uv;
 
             List<VertexTriangleStrip> strips = new List<VertexTriangleStrip>();
-            for (uint j = 0; j < precision / 2; j++)
+            for (uint j = 0; j < precision * 0.5f; j++)
             {
                 theta1 = (j * twoPIThroughPrecision) - halfPI;
                 theta2 = ((j + 1) * twoPIThroughPrecision) - halfPI;
@@ -76,7 +76,7 @@ namespace System
             return PrimitiveData.FromTriangleList(Culling.Back, new PrimitiveBufferInfo(), strips.SelectMany(x => x.ToTriangles()));
         }
 
-        internal static PrimitiveData WireframeMesh(Vec3 zero, float v1, int v2)
+        public static PrimitiveData WireframeMesh(Vec3 zero, float radius, float precision)
         {
             throw new NotImplementedException();
         }

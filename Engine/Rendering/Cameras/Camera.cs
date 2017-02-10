@@ -158,7 +158,7 @@ namespace CustomEngine.Rendering.Cameras
         }
         public void SetViewTarget(Vec3 target)
         {
-            _rotate = _point.LookatAngles(target);
+            _rotate = (target - _point).LookatAngles();
             CreateTransform();
         }
         public void Reset()

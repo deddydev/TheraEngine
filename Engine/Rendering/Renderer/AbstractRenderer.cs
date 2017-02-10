@@ -20,31 +20,56 @@ namespace CustomEngine.Rendering
 
         private Dictionary<int, Material> _activeMaterials = new Dictionary<int, Material>();
         private SceneProcessor _scene = new SceneProcessor();
-        private PrimitiveManager _wireSphere, _wireBox, wireCapsule, _wireCylinder, _wireCone, _wireFrustum, _wirePlane;
-        private PrimitiveManager _solidSphere, _solidBox, solidCapsule, _solidCylinder, _solidCone, _solidFrustum, _solidPlane;
+        private PrimitiveManager
+            _wireSphere,
+            _wireBox,
+            _wireCapsule,
+            _wireCylinder,
+            _wireCone,
+            _wireFrustum,
+            _wirePlane;
+        private PrimitiveManager 
+            _solidSphere,
+            _solidBox,
+            _solidCapsule,
+            _solidCylinder,
+            _solidCone,
+            _solidFrustum,
+            _solidPlane;
+        private PrimitiveManager
+            _line, _point;
 
+        public void CachePoint()
+        {
+            _point = new PrimitiveManager(PrimitiveData.FromPoints(Vec3.Zero), Material.GetDefaultMaterial());
+        }
+        public void CacheLine()
+        {
+            VertexLine line = new VertexLine(new Vertex(Vec3.Zero), new Vertex(Vec3.Forward));
+            _line = new PrimitiveManager(PrimitiveData.FromLines(new PrimitiveBufferInfo() { _hasNormals = false, _texcoordCount = 0 }, line), Material.GetDefaultMaterial());
+        }
         public void CacheWireframeSphere()
         {
             _wireSphere = new PrimitiveManager(
-                Sphere.WireframeMesh(Vec3.Zero, 1.0f, 10),
+                Sphere.WireframeMesh(Vec3.Zero, 1.0f, 10.0f),
                 Material.GetDefaultMaterial());
         }
         public void CacheSolidSphere()
         {
             _solidSphere = new PrimitiveManager(
-                Sphere.SolidMesh(Vec3.Zero, 1.0f, 10),
+                Sphere.SolidMesh(Vec3.Zero, 1.0f, 10.0f),
                 Material.GetDefaultMaterial());
         }
         public void CacheWireframePlane()
         {
             _wirePlane = new PrimitiveManager(
-                Plane.WireframeMesh(Vec3.Zero, 1.0f, 1.0f),
+                Plane.WireframeMesh(Vec3.Zero, Rotator.GetZero(), 1.0f, 1.0f),
                 Material.GetDefaultMaterial());
         }
         public void CacheSolidPlane()
         {
             _solidPlane = new PrimitiveManager(
-                Plane.SolidMesh(Vec3.Zero, 1.0f, 1.0f),
+                Plane.SolidMesh(Vec3.Zero, Rotator.GetZero(), 1.0f, 1.0f, Culling.None),
                 Material.GetDefaultMaterial());
         }
 
@@ -73,12 +98,17 @@ namespace CustomEngine.Rendering
 
         public void RenderLine(Vec3 start, Vec3 end)
         {
-
+            Matrix4 scale = Matrix4.CreateScale(new Vec3((end - start).LengthFast, 1.0f, 1.0f));
+            Rotator r = end.LookatAngles(start);
+            Matrix4 rotation = r.GetMatrix();
+            Matrix4 position = Matrix4.CreateTranslation(start);
+            if (_line == null)
+                CacheLine();
+            _line.Render(position * scale * rotation);
         }
         public void RenderPlane(Vec3 position, Vec3 normal, Vec2 dimensions, bool solid)
         {
-            normal.LookatAngles(out float yaw, out float pitch);
-            Matrix4 mtx = Matrix4.CreateTranslation(position) * Matrix4.CreateRotationY(yaw) * Matrix4.CreateRotationX(pitch);
+            Matrix4 mtx = Matrix4.CreateTranslation(position) * normal.LookatAngles().GetMatrix();
             if (solid)
             {
                 if (_solidPlane == null)

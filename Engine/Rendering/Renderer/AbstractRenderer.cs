@@ -98,8 +98,9 @@ namespace CustomEngine.Rendering
 
         public void RenderLine(Vec3 start, Vec3 end)
         {
-            Matrix4 scale = Matrix4.CreateScale(new Vec3((end - start).LengthFast, 1.0f, 1.0f));
-            Rotator r = end.LookatAngles(start);
+            Vec3 diff = end - start;
+            Matrix4 scale = Matrix4.CreateScale(new Vec3(diff.LengthFast, 1.0f, 1.0f));
+            Rotator r = diff.LookatAngles();
             Matrix4 rotation = r.GetMatrix();
             Matrix4 position = Matrix4.CreateTranslation(start);
             if (_line == null)

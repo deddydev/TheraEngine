@@ -101,21 +101,17 @@ namespace CustomEngine.Rendering
             SetPointSize(size);
             if (_point == null)
                 CachePoint();
-            ((GLVec4)_point.Material.Parameters[0]).Value = color;
+            _point.GetParameter<GLVec4>(0).Value = color;
             _point.Render(Matrix4.CreateTranslation(position));
         }
-        public void RenderLine(Vec3 start, Vec3 end, float size, ColorF4 color)
+        public unsafe void RenderLine(Vec3 start, Vec3 end, float size, ColorF4 color)
         {
             SetLineSize(size);
-            Vec3 diff = end - start;
-            Matrix4 scale = Matrix4.CreateScale(new Vec3(diff.LengthFast));
-            Rotator r = diff.LookatAngles();
-            Matrix4 rotation = r.GetMatrix();
-            Matrix4 position = Matrix4.CreateTranslation(start);
             if (_line == null)
                 CacheLine();
-            ((GLVec4)_line.Material.Parameters[0]).Value = color;
-            _line.Render(position * scale * rotation);
+            _line.GetParameter<GLVec4>(0).Value = color;
+            ((Vec3*)_line.Data._buffers[0].Data)[1] = end - start;
+            _line.Render(Matrix4.CreateTranslation(start), Matrix3.Identity);
         }
         public void RenderPlane(Vec3 position, Vec3 normal, Vec2 dimensions, bool solid)
         {
@@ -135,7 +131,7 @@ namespace CustomEngine.Rendering
         }
         public void RenderSphere(Vec3 center, float radius, bool solid)
         {
-            Matrix4 mtx = Matrix4.CreateTranslation(center) * Matrix4.CreateScale(radius * 0.5f);
+            Matrix4 mtx = Matrix4.CreateTranslation(center) * Matrix4.CreateScale(radius * 2.0f);
             if (solid)
             {
                 if (_solidSphere == null)

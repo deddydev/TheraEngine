@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections;
 using System.Drawing;
+using OpenTK.Graphics.OpenGL;
 
 namespace CustomEngine.Rendering.Models
 {
@@ -103,7 +104,7 @@ namespace CustomEngine.Rendering.Models
             foreach (Bone b in BoneCache.Values)
             {
                 Vec3 point = b.WorldMatrix.GetPoint();
-                Engine.Renderer.RenderPoint(point, 15.0f, Color.Green);
+                Engine.Renderer.RenderPoint(point, 15.0f, b.Parent == null ? Color.Green : Color.Purple);
                 if (b.Parent != null)
                     Engine.Renderer.RenderLine(point, b.Parent.WorldMatrix.GetPoint(), 5.0f, Color.Blue);
             }

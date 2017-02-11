@@ -357,9 +357,9 @@ namespace System
         /// Build a rotation matrix from the specified axis/angle rotation.
         /// </summary>
         /// <param name="axis">The axis to rotate about.</param>
-        /// <param name="angle">Angle in radians to rotate counter-clockwise (looking in the direction of the given axis).</param>
+        /// <param name="angle">Angle in degrees to rotate counter-clockwise (looking in the direction of the given axis).</param>
         /// <param name="result">A matrix instance.</param>
-        public static void CreateFromAxisAngle(Vec3 axis, float angle, out Matrix4 result)
+        public static Matrix4 CreateFromAxisAngle(Vec3 axis, float angle)
         {
             angle = DegToRad(angle);
 
@@ -384,6 +384,7 @@ namespace System
                 sinY = sin * axisY,
                 sinZ = sin * axisZ;
 
+            Matrix4 result;
             result.Row0.X = tXX + cos;
             result.Row0.Y = tXY - sinZ;
             result.Row0.Z = tXZ + sinY;
@@ -397,17 +398,6 @@ namespace System
             result.Row2.Z = tZZ + cos;
             result.Row2.W = 0;
             result.Row3 = Vec4.UnitW;
-        }
-        /// <summary>
-        /// Build a rotation matrix from the specified axis/angle rotation.
-        /// </summary>
-        /// <param name="axis">The axis to rotate about.</param>
-        /// <param name="angle">Angle in radians to rotate counter-clockwise (looking in the direction of the given axis).</param>
-        /// <returns>A matrix instance.</returns>
-        public static Matrix4 CreateFromAxisAngle(Vec3 axis, float angle)
-        {
-            Matrix4 result;
-            CreateFromAxisAngle(axis, angle, out result);
             return result;
         }
         public static Matrix4 CreateFromQuaternion(Quaternion q)

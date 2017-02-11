@@ -324,7 +324,7 @@ namespace CustomEngine.Rendering.OpenGL
 #if DEBUG
             int status;
             GL.GetShader(handle, ShaderParameter.CompileStatus, out status);
-            //if (status == 0)
+            if (status == 0)
             {
                 string info;
                 GL.GetShaderInfoLog(handle, out info);

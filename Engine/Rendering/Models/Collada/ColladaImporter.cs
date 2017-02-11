@@ -169,12 +169,15 @@ namespace CustomEngine.Rendering.Models.Collada
             bool isZup)
         {
             Bone rootBone = null;
-            bindMatrix *= node._matrix;
+            Matrix4 nodeMatrix = node._matrix;
+            if (isZup)
+                nodeMatrix *= Matrix4.CreateFromAxisAngle(Vec3.UnitX, 90.0f);
+            bindMatrix *= nodeMatrix;
 
             if (node._type == NodeType.JOINT ||
                 (node._type == NodeType.NONE && node._instances.Count == 0))
             {
-                Bone bone = new Bone(node._name ?? node._id, FrameState.DeriveTRS(node._matrix, isZup));
+                Bone bone = new Bone(node._name ?? node._id, FrameState.DeriveTRS(nodeMatrix));
                 node._node = bone;
 
                 if (parent == null)

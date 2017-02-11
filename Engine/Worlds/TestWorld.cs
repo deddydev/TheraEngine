@@ -72,7 +72,7 @@ namespace CustomEngine.Worlds
             //PointLightComponent lightComp = new PointLightComponent(0.01f, 0.0f, 1.0f, Color.Gray, 1.0f, 0.2f);
 
             DirectionalLightComponent dirLightComp = new DirectionalLightComponent(
-                Color.Beige, 1.0f, 0.6f, new Rotator(-40.0f, 0.0f, 0.0f, Rotator.Order.YPR));
+                Color.Beige, 1.0f, 0.6f, new Rotator(-90.0f, 0.0f, 0.0f, Rotator.Order.YPR));
             dirLightComp.Translation.Y = 30.0f;
 
             AnimationScalar lightAnim = new AnimationScalar(360, true, true);
@@ -131,7 +131,7 @@ namespace CustomEngine.Worlds
             AnimFolder modelYawFolder = new AnimFolder("Roll", false, modelAnim);
             //AnimFolder modelRotationFolder = new AnimFolder("Rotation", modelYawFolder);
             AnimationContainer modelAnimContainer = new AnimationContainer(modelYawFolder);
-            skeleton.RootBones[0].ChildBones[0].FrameState.AddAnimation(modelAnimContainer, true);
+            skeleton.RootBones[0].ChildBones[0].FrameState.AddAnimation(modelAnimContainer, false);
 
             Actor importedActor = new Actor(comp);
 

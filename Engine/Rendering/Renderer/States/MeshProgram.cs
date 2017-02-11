@@ -1,11 +1,7 @@
 ﻿using CustomEngine.Rendering.Models;
 using CustomEngine.Rendering.Models.Materials;
 using CustomEngine.Rendering.Textures;
-using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CustomEngine.Rendering
 {
@@ -23,6 +19,7 @@ namespace CustomEngine.Rendering
         private Shader[] _shaders;
         private PrimitiveBufferInfo _info;
 
+        public GLVar[] Parameters { get { return _parameters; } }
         public Texture[] Textures { get { return _textures; } }
         public Shader VertexShader { get { return _vertexShader; } }
         public Shader FragmentShader { get { return _fragmentShader; } }

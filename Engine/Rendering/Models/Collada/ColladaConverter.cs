@@ -42,7 +42,7 @@ namespace CustomEngine.Rendering.Models.Collada
 
                 Matrix4 localMatrix = Matrix4.Identity;
 
-                bone.BindState = FrameState.DeriveTRS(localMatrix, false);
+                bone.BindState = FrameState.DeriveTRS(localMatrix);
 
                 parent.ChildBones.Add(bone);
                 bone.Parent = parent;

@@ -74,6 +74,9 @@ namespace CustomEngine.Rendering.Models
                 _program?.SetMaterial(_material);
             }
         }
+
+        public MeshProgram Program { get { return _program; } }
+
         public void SkeletonChanged(Skeleton skeleton)
         {
             _data[BufferType.MatrixIds]?.Dispose();
@@ -146,6 +149,20 @@ namespace CustomEngine.Rendering.Models
             Engine.Renderer.Uniform(Uniform.BoneMatricesITName, normalMatrices.ToArray());
             //Engine.Renderer.Uniform(Uniform.MorphWeightsName, _morphWeights);
         }
+
+        public T GetParameter<T>(int index) where T : GLVar
+        {
+            if (Program == null)
+                Generate();
+            return (T)Program.Parameters[index];
+        }
+        public T GetParameter<T>(string name) where T : GLVar
+        {
+            if (Program == null)
+                Generate();
+            return Program.Parameters.FirstOrDefault(x => x.Name == name) as T;
+        }
+
         public unsafe void Render(Matrix4 modelMatrix)
         {
             //TODO: don't invert, transpose, and get rotation matrix here

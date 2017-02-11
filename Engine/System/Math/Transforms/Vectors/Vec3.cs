@@ -407,7 +407,11 @@ namespace System
         /// </summary>
         public Rotator LookatAngles(Vec3 startNormal)
         {
-            Quaternion q = Quaternion.BetweenVectors(startNormal, this);
+            Vec3 thisNorm = NormalizedFast();
+            Vec3 thatNorm = startNormal.NormalizedFast();
+            Vec3 axis = thisNorm.Cross(thatNorm).NormalizedFast();
+            float angle = (float)Acos(thisNorm.Dot(thatNorm));
+            Quaternion q = Quaternion.FromAxisAngle(axis, angle);
             Rotator r = q.ToEuler();
             //Rotator r = startNormal.LookatAngles(Forward);
             //return new Rotator(

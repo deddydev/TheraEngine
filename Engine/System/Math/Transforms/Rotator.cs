@@ -31,11 +31,7 @@ namespace System
         private int _updateIndex = 0;
 
         public static readonly int SizeInBytes = Marshal.SizeOf(new Rotator());
-
-        public static Rotator FromQuaternion()
-        {
-            throw new NotImplementedException();
-        }
+        
         private void BeginUpdate() { ++_updateIndex; }
         private void EndUpdate()
         {

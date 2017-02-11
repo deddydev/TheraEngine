@@ -41,36 +41,36 @@ namespace CustomEngine.Rendering
 
         public void CachePoint()
         {
-            _point = new PrimitiveManager(PrimitiveData.FromPoints(Vec3.Zero), Material.GetDefaultMaterial());
+            _point = new PrimitiveManager(PrimitiveData.FromPoints(Vec3.Zero), Material.GetUnlitColorMaterial());
         }
         public void CacheLine()
         {
             VertexLine line = new VertexLine(new Vertex(Vec3.Zero), new Vertex(Vec3.Forward));
-            _line = new PrimitiveManager(PrimitiveData.FromLines(new PrimitiveBufferInfo() { _hasNormals = false, _texcoordCount = 0 }, line), Material.GetDefaultMaterial());
+            _line = new PrimitiveManager(PrimitiveData.FromLines(new PrimitiveBufferInfo() { _hasNormals = false, _texcoordCount = 0 }, line), Material.GetUnlitColorMaterial());
         }
         public void CacheWireframeSphere()
         {
             _wireSphere = new PrimitiveManager(
                 Sphere.WireframeMesh(Vec3.Zero, 1.0f, 10.0f),
-                Material.GetDefaultMaterial());
+                Material.GetUnlitColorMaterial());
         }
         public void CacheSolidSphere()
         {
             _solidSphere = new PrimitiveManager(
                 Sphere.SolidMesh(Vec3.Zero, 1.0f, 10.0f),
-                Material.GetDefaultMaterial());
+                Material.GetUnlitColorMaterial());
         }
         public void CacheWireframePlane()
         {
             _wirePlane = new PrimitiveManager(
                 Plane.WireframeMesh(Vec3.Zero, Rotator.GetZero(), 1.0f, 1.0f),
-                Material.GetDefaultMaterial());
+                Material.GetUnlitColorMaterial());
         }
         public void CacheSolidPlane()
         {
             _solidPlane = new PrimitiveManager(
                 Plane.SolidMesh(Vec3.Zero, Rotator.GetZero(), 1.0f, 1.0f, Culling.None),
-                Material.GetDefaultMaterial());
+                Material.GetUnlitColorMaterial());
         }
 
         public void RenderAABB(Vec3 halfExtents, Vec3 translation, bool solid) => RenderBox(halfExtents, Matrix4.CreateTranslation(translation), solid);
@@ -96,15 +96,25 @@ namespace CustomEngine.Rendering
         public void RenderCone(Vec3 topPoint, Vec3 bottomPoint, float bottomRadius, Matrix4 transform, bool solid)
             => RenderCone(Vec3.TransformPosition(topPoint, transform), Vec3.TransformPosition(bottomPoint, transform), bottomRadius, solid);
 
-        public void RenderLine(Vec3 start, Vec3 end)
+        public void RenderPoint(Vec3 position, float size, ColorF4 color)
         {
+            SetPointSize(size);
+            if (_point == null)
+                CachePoint();
+            ((GLVec4)_point.Material.Parameters[0]).Value = color;
+            _point.Render(Matrix4.CreateTranslation(position));
+        }
+        public void RenderLine(Vec3 start, Vec3 end, float size, ColorF4 color)
+        {
+            SetLineSize(size);
             Vec3 diff = end - start;
-            Matrix4 scale = Matrix4.CreateScale(new Vec3(diff.LengthFast, 1.0f, 1.0f));
+            Matrix4 scale = Matrix4.CreateScale(new Vec3(diff.LengthFast));
             Rotator r = diff.LookatAngles();
             Matrix4 rotation = r.GetMatrix();
             Matrix4 position = Matrix4.CreateTranslation(start);
             if (_line == null)
                 CacheLine();
+            ((GLVec4)_line.Material.Parameters[0]).Value = color;
             _line.Render(position * scale * rotation);
         }
         public void RenderPlane(Vec3 position, Vec3 normal, Vec2 dimensions, bool solid)

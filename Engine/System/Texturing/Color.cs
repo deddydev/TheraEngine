@@ -63,6 +63,7 @@ namespace System
         public static implicit operator ColorF3(ARGBPixel p) { return new ColorF3() { B = p.B / 255.0f, G = p.G / 255.0f, R = p.R / 255.0f }; }
         public static implicit operator ColorF3(Color p) { return new ColorF3() { B = p.B / 255.0f, G = p.G / 255.0f, R = p.R / 255.0f }; }
         public static implicit operator ColorF3(Vec3 v) { return new ColorF3(v.X, v.Y, v.Z); }
+        public static implicit operator Vec3(ColorF3 v) { return new Vec3(v.R, v.G, v.B); }
         public static implicit operator ColorF3(Vec4 v) { return new ColorF3(v.X, v.Y, v.Z); }
         public static implicit operator ColorF3(ColorF4 p) { return new ColorF3(p.R, p.G, p.B); }
 

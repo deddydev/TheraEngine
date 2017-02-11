@@ -83,9 +83,19 @@ namespace CustomEngine.Rendering.Models.Materials
             }
         }
 
+        public static Material GetUnlitColorMaterial()
+        {
+            Shader frag = Shader.UnlitColorFrag();
+            List<GLVar> p = new List<GLVar>()
+            {
+                new GLVec4((ColorF4)Color.Green, "MatColor"),
+            };
+            return new Material("UnlitColorMaterial", p, frag);
+        }
+
         public static Material GetDefaultMaterial()
         {
-            Shader frag = Shader.TestFragmentShader();
+            Shader frag = Shader.TestFrag();
             List<GLVar> p = new List<GLVar>()
             {
                 new GLVec4((ColorF4)Color.Red, "MatColor"),

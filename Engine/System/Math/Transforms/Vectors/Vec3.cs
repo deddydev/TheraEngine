@@ -71,7 +71,12 @@ namespace System
         public float DistanceToFast(Vec3 point) { return (point - this).LengthFast; }
         public float DistanceToSquared(Vec3 point) { return (point - this).LengthSquared; }
 
-        public void Normalize() { this *= (1.0f / Length); }
+        public void Normalize()
+        {
+            float length = Length;
+            if (!length.IsZero())
+                this *= (1.0f / length);
+        }
         public Vec3 Normalized(Vec3 origin) { return (this - origin).Normalized(); }
         public Vec3 Normalized()
         {
@@ -79,7 +84,12 @@ namespace System
             v.Normalize();
             return v;
         }
-        public void NormalizeFast() { this *= InverseSqrtFast(LengthSquared); }
+        public void NormalizeFast()
+        {
+            float lengthSq = LengthSquared;
+            if (!lengthSq.IsZero())
+                this *= InverseSqrtFast(lengthSq);
+        }
         public Vec3 NormalizedFast(Vec3 origin) { return (this - origin).NormalizedFast(); }
         public Vec3 NormalizedFast()
         {

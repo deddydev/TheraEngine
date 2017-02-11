@@ -53,7 +53,30 @@ namespace CustomEngine.Rendering.Models.Materials
 
             return id;
         }
-        public static Shader TestFragmentShader()
+        public static Shader UnlitColorFrag()
+        {
+            string source = @"
+#version 410
+
+uniform vec4 MatColor;
+
+in Data
+{
+    vec3 Position;
+    vec3 Normal;
+    vec2 MultiTexCoord0;
+} InData;
+
+out vec4 OutColor;
+
+void main()
+{
+    OutColor = MatColor;
+}
+";
+            return new Shader(ShaderMode.Fragment, source);
+        }
+        public static Shader TestFrag()
         {
             string source = @"
 #version 410

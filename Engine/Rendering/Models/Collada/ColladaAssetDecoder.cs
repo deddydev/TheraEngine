@@ -11,8 +11,7 @@ namespace CustomEngine.Rendering.Models.Collada
             Matrix4 bindMatrix,
             GeometryEntry geo,
             SkinEntry skin,
-            SceneEntry scene,
-            bool isZup)
+            SceneEntry scene)
         {
             Bone[] boneList;
             Bone bone = null;
@@ -129,7 +128,7 @@ namespace CustomEngine.Rendering.Models.Collada
                 }
                 infList[i] = inf;
             }
-            return DecodePrimitives(geo, isZup, bindMatrix * skin._bindMatrix, infList);
+            return DecodePrimitives(geo, bindMatrix * skin._bindMatrix, infList);
         }
         static NodeEntry RecursiveTestNode(string jointStrings, NodeEntry node)
         {
@@ -148,11 +147,11 @@ namespace CustomEngine.Rendering.Models.Collada
             return null;
         }
 
-        static PrimitiveData DecodePrimitivesUnweighted(Matrix4 bindMatrix, GeometryEntry geo, bool isZup)
+        static PrimitiveData DecodePrimitivesUnweighted(Matrix4 bindMatrix, GeometryEntry geo)
         {
-            return DecodePrimitives(geo, isZup, bindMatrix, null);
+            return DecodePrimitives(geo, bindMatrix, null);
         }
-        static PrimitiveData DecodePrimitives(GeometryEntry geo, bool isZup, Matrix4 bindMatrix, Influence[] infList)
+        static PrimitiveData DecodePrimitives(GeometryEntry geo, Matrix4 bindMatrix, Influence[] infList)
         {
             SourceEntry src;
             List<VertexPrimitive> linePrimitives = null;
@@ -219,7 +218,7 @@ namespace CustomEngine.Rendering.Models.Collada
                     info._morphCount + 1,
                     info._colorCount,
                     info._texcoordCount);
-
+                
                 int stride, index, startIndex;
                 Vertex vtx;
                 Vertex[][] vertices;
@@ -247,32 +246,32 @@ namespace CustomEngine.Rendering.Models.Collada
                             {
                                 case SemanticType.VERTEX:
                                     Vec3 position = new Vec3(list[startIndex], list[startIndex + 1], list[startIndex + 2]);
+                                    //if (isZup)
+                                    //    position.ChangeZupToYup();
                                     position = Vec3.TransformPosition(position, bindMatrix);
-                                    if (isZup)
-                                        position.ChangeZupToYup();
                                     vtx._position = position;
                                     break;
                                 case SemanticType.NORMAL:
                                     Vec3 normal = new Vec3(list[startIndex], list[startIndex + 1], list[startIndex + 2]);
+                                    //if (isZup)
+                                    //    normal.ChangeZupToYup();
                                     normal = Vec3.TransformNormal(normal, bindMatrix);
-                                    if (isZup)
-                                        normal.ChangeZupToYup();
                                     normal.Normalize();
                                     vtx._normal = normal;
                                     break;
                                 case SemanticType.TEXBINORMAL:
                                     Vec3 binormal = new Vec3(list[startIndex], list[startIndex + 1], list[startIndex + 2]);
+                                    //if (isZup)
+                                    //    binormal.ChangeZupToYup();
                                     binormal = Vec3.TransformNormal(binormal, bindMatrix);
-                                    if (isZup)
-                                        binormal.ChangeZupToYup();
                                     binormal.Normalize();
                                     vtx._binormal = binormal;
                                     break;
                                 case SemanticType.TEXTANGENT:
                                     Vec3 tangent = new Vec3(list[startIndex], list[startIndex + 1], list[startIndex + 2]);
+                                    //if (isZup)
+                                    //    tangent.ChangeZupToYup();
                                     tangent = Vec3.TransformNormal(tangent, bindMatrix);
-                                    if (isZup)
-                                        tangent.ChangeZupToYup();
                                     tangent.Normalize();
                                     vtx._tangent = tangent;
                                     break;

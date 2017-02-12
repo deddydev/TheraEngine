@@ -121,17 +121,20 @@ namespace CustomEngine.Worlds
             else
                 comp = new StaticMeshComponent(staticM, null);
 
-            AnimationScalar modelAnim = new AnimationScalar(360, true, true);
-            ScalarKeyframe first = new ScalarKeyframe(0.0f, 0.0f, 0.0f);
-            ScalarKeyframe second = new ScalarKeyframe(180.0f, 360.0f, 360.0f);
-            ScalarKeyframe last = new ScalarKeyframe(360.0f, 0.0f, 0.0f);
-            first.LinkNext(second).LinkNext(last);
-            modelAnim.Keyframes.AddFirst(first);
-            //modelAnim.Bake();
-            AnimFolder modelYawFolder = new AnimFolder("Roll", false, modelAnim);
-            //AnimFolder modelRotationFolder = new AnimFolder("Rotation", modelYawFolder);
-            AnimationContainer modelAnimContainer = new AnimationContainer(modelYawFolder);
-            skeleton.RootBones[0].ChildBones[0].FrameState.AddAnimation(modelAnimContainer, false);
+            if (skeleton != null)
+            {
+                AnimationScalar modelAnim = new AnimationScalar(360, true, true);
+                ScalarKeyframe first = new ScalarKeyframe(0.0f, 0.0f, 0.0f);
+                ScalarKeyframe second = new ScalarKeyframe(180.0f, 360.0f, 360.0f);
+                ScalarKeyframe last = new ScalarKeyframe(360.0f, 0.0f, 0.0f);
+                first.LinkNext(second).LinkNext(last);
+                modelAnim.Keyframes.AddFirst(first);
+                //modelAnim.Bake();
+                AnimFolder modelYawFolder = new AnimFolder("Roll", false, modelAnim);
+                //AnimFolder modelRotationFolder = new AnimFolder("Rotation", modelYawFolder);
+                AnimationContainer modelAnimContainer = new AnimationContainer(modelYawFolder);
+                skeleton.RootBones[0].ChildBones[0].FrameState.AddAnimation(modelAnimContainer, false);
+            }
 
             Actor importedActor = new Actor(comp);
 

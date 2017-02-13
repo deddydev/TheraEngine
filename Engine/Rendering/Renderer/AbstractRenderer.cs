@@ -156,19 +156,19 @@ namespace CustomEngine.Rendering
         }
         public void RenderCapsule(Vec3 topPoint, Vec3 bottomPoint, float topRadius, float bottomRadius, bool solid)
         {
-            throw new NotImplementedException();
+
         }
         public void RenderCylinder(Vec3 topPoint, Vec3 bottomPoint, float topRadius, float bottomRadius, bool solid)
         {
-            throw new NotImplementedException();
+
         }
         public void RenderCone(Vec3 topPoint, Vec3 bottomPoint, float bottomRadius, bool solid)
         {
-            throw new NotImplementedException();
+
         }
         public void RenderFrustum(Frustum f)
         {
-            throw new NotImplementedException();
+
         }
 
         protected int _programHandle;

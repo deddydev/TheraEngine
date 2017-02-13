@@ -133,7 +133,7 @@ namespace CustomEngine.Worlds
                 AnimFolder modelYawFolder = new AnimFolder("Roll", false, modelAnim);
                 //AnimFolder modelRotationFolder = new AnimFolder("Rotation", modelYawFolder);
                 AnimationContainer modelAnimContainer = new AnimationContainer(modelYawFolder);
-                skeleton.RootBones[0].ChildBones[0].FrameState.AddAnimation(modelAnimContainer, false);
+                skeleton.RootBones[0].ChildBones[0].FrameState.AddAnimation(modelAnimContainer, true);
             }
 
             Actor importedActor = new Actor(comp);

@@ -78,8 +78,8 @@ namespace CustomEngine.Rendering.Models.Collada
                     AssetEntry e = shell._assets[0];
                     isZup = e._upAxis == UpAxis.Z;
                     //baseTransform = Matrix4.CreateScale(e._scale);
-                    //if (isZup)
-                    //    baseTransform = Matrix4.CreateFromAxisAngle(Vec3.UnitX, -90.0f);
+                    if (isZup)
+                        baseTransform = Matrix4.ZupToYup * baseTransform;
                 }
 
                 //Extract materials
@@ -132,7 +132,7 @@ namespace CustomEngine.Rendering.Models.Collada
                 foreach (SceneEntry scene in shell._scenes)
                     foreach (NodeEntry node in scene._nodes)
                     {
-                        Bone b = EnumNode(null, node, scene, shell, objects, baseTransform);
+                        Bone b = EnumNode(null, node, scene, shell, objects, baseTransform, isZup);
                         if (b != null)
                             rootBones.Add(b);
                     }
@@ -167,16 +167,18 @@ namespace CustomEngine.Rendering.Models.Collada
             SceneEntry scene,
             DecoderShell shell,
             List<ObjectInfo> objects,
-            Matrix4 bindMatrix)
+            Matrix4 bindMatrix,
+            bool isZup)
         {
             Bone rootBone = null;
-            Matrix4 nodeMatrix = node._matrix;
-            bindMatrix = bindMatrix * nodeMatrix;
+            bindMatrix = bindMatrix * node._matrix;
 
-            if (node._type == NodeType.JOINT ||
-                (node._type == NodeType.NONE && node._instances.Count == 0))
+            if (node._type == NodeType.JOINT || node._instances.Count == 0)
             {
-                Bone bone = new Bone(node._name ?? node._id, FrameState.DeriveTRS(parent == null ? bindMatrix : nodeMatrix));
+                Matrix4 nodeMatrix = node._matrix;
+                if (isZup)
+                    nodeMatrix = Matrix4.ZupToYup * nodeMatrix;
+                Bone bone = new Bone(node._name ?? node._id, FrameState.DeriveTRS(nodeMatrix));
                 node._node = bone;
 
                 if (parent == null)
@@ -188,7 +190,7 @@ namespace CustomEngine.Rendering.Models.Collada
             }
             
             foreach (NodeEntry e in node._children)
-                EnumNode(parent, e, scene, shell, objects, bindMatrix);
+                EnumNode(parent, e, scene, shell, objects, bindMatrix, isZup);
 
             foreach (InstanceEntry inst in node._instances)
             {
@@ -200,7 +202,7 @@ namespace CustomEngine.Rendering.Models.Collada
                             foreach (GeometryEntry g in shell._geometry)
                                 if (g._id == skin._skinSource)
                                 {
-                                    objects.Add(new ObjectInfo(true, g, bindMatrix, skin, scene, inst, parent, node));
+                                    objects.Add(new ObjectInfo(true, g, bindMatrix, skin, scene, inst, parent, node, isZup));
                                     break;
                                 }
                             break;
@@ -211,14 +213,14 @@ namespace CustomEngine.Rendering.Models.Collada
                     foreach (GeometryEntry g in shell._geometry)
                         if (g._id == inst._url)
                         {
-                            objects.Add(new ObjectInfo(false, g, bindMatrix, null, null, inst, parent, node));
+                            objects.Add(new ObjectInfo(false, g, bindMatrix, null, null, inst, parent, node, isZup));
                             break;
                         }
                 }
                 else
                     foreach (NodeEntry e in shell._nodes)
                         if (e._id == inst._url)
-                            EnumNode(parent, e, scene, shell, objects, bindMatrix);
+                            EnumNode(parent, e, scene, shell, objects, bindMatrix, isZup);
             }
             return rootBone;
         }
@@ -243,7 +245,8 @@ namespace CustomEngine.Rendering.Models.Collada
                 SceneEntry scene,
                 InstanceEntry inst,
                 Bone parent,
-                NodeEntry node)
+                NodeEntry node,
+                bool isZup)
             {
                 _weighted = weighted;
                 _geoEntry = geoEntry;
@@ -253,15 +256,16 @@ namespace CustomEngine.Rendering.Models.Collada
                 _node = node;
                 _inst = inst;
                 _parent = parent;
+                _isZup = isZup;
             }
 
             public void Initialize(SkeletalMesh model, DecoderShell shell)
             {
                 PrimitiveData data;
                 if (_weighted)
-                    data = DecodePrimitivesWeighted(_bindMatrix, _geoEntry, _skin, _scene);
+                    data = DecodePrimitivesWeighted(_bindMatrix, _geoEntry, _skin, _scene, _isZup);
                 else
-                    data = DecodePrimitivesUnweighted(_bindMatrix, _geoEntry);
+                    data = DecodePrimitivesUnweighted(_bindMatrix, _geoEntry, _isZup);
 
                 Material m = null;
                 if (_inst._material != null)
@@ -279,9 +283,9 @@ namespace CustomEngine.Rendering.Models.Collada
             {
                 PrimitiveData data;
                 if (_weighted)
-                    data = DecodePrimitivesWeighted(_bindMatrix, _geoEntry, _skin, _scene);
+                    data = DecodePrimitivesWeighted(_bindMatrix, _geoEntry, _skin, _scene, _isZup);
                 else
-                    data = DecodePrimitivesUnweighted(_bindMatrix, _geoEntry);
+                    data = DecodePrimitivesUnweighted(_bindMatrix, _geoEntry, _isZup);
 
                 Material m = null;
                 if (_inst._material != null)

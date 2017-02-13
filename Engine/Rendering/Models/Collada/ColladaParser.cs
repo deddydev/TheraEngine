@@ -1132,7 +1132,7 @@ namespace CustomEngine.Rendering.Models.Collada
         }
         private class NodeEntry : ColladaEntry
         {
-            internal NodeType _type = NodeType.NONE;
+            internal NodeType _type = NodeType.NODE;
             internal Matrix4 _matrix = Matrix4.Identity;
             internal Matrix4 _invMatrix = Matrix4.Identity;
             internal List<NodeEntry> _children = new List<NodeEntry>();
@@ -1240,8 +1240,7 @@ namespace CustomEngine.Rendering.Models.Collada
         private enum NodeType
         {
             NODE,
-            JOINT,
-            NONE
+            JOINT
         }
     }
 }

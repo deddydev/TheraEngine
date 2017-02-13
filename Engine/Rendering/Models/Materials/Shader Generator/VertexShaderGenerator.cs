@@ -148,13 +148,13 @@ namespace CustomEngine.Rendering.Models.Materials
             {
                 wl("for (int i = 0; i < 4; ++i)");
                 wl("{");
-                wl("finalPosition += ({0}[int({1}0[i])] * basePosition) * {2}0[i];", Uniform.BoneMatricesName, BufferType.MatrixIds, BufferType.MatrixWeights);
+                wl("finalPosition += ({0}[{1}0[i]] * basePosition) * {2}0[i];", Uniform.BoneMatricesName, BufferType.MatrixIds, BufferType.MatrixWeights);
                 if (_info.HasNormals)
-                    wl("OutData.Normal += ({0}[int({1}0[i])] * baseNormal) * {2}0[i];", Uniform.BoneMatricesITName, BufferType.MatrixIds, BufferType.MatrixWeights);
+                    wl("OutData.Normal += ({0}[{1}0[i]] * baseNormal) * {2}0[i];", Uniform.BoneMatricesITName, BufferType.MatrixIds, BufferType.MatrixWeights);
                 if (_info.HasBinormals)
-                    wl("OutData.Binormal += ({0}[int({1}0[i])] * baseBinormal) * {2}0[i];", Uniform.BoneMatricesITName, BufferType.MatrixIds, BufferType.MatrixWeights);
+                    wl("OutData.Binormal += ({0}[{1}0[i]] * baseBinormal) * {2}0[i];", Uniform.BoneMatricesITName, BufferType.MatrixIds, BufferType.MatrixWeights);
                 if (_info.HasTangents)
-                    wl("OutData.Tangent += ({0}[int({1}0[i])] * baseTangent) * {2}0[i];", Uniform.BoneMatricesITName, BufferType.MatrixIds, BufferType.MatrixWeights);
+                    wl("OutData.Tangent += ({0}[{1}0[i]] * baseTangent) * {2}0[i];", Uniform.BoneMatricesITName, BufferType.MatrixIds, BufferType.MatrixWeights);
                 wl("}");
                 wl();
                 if (_info.HasNormals)

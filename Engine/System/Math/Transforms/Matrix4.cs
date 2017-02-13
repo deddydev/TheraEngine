@@ -24,6 +24,8 @@ namespace System
 
         public static readonly Matrix4 Identity = new Matrix4(Vec4.UnitX, Vec4.UnitY, Vec4.UnitZ, Vec4.UnitW);
         public static readonly Matrix4 Zero = new Matrix4(Vec4.Zero, Vec4.Zero, Vec4.Zero, Vec4.Zero);
+        public static readonly Matrix4 ZupToYup = new Matrix4(Vec4.UnitX, Vec4.UnitZ, -Vec4.UnitY, Vec4.UnitW);
+        public static readonly Matrix4 YupToZup = new Matrix4(Vec4.UnitX, -Vec4.UnitZ, Vec4.UnitY, Vec4.UnitW);
         public Matrix4(Vec4 row0, Vec4 row1, Vec4 row2, Vec4 row3)
         {
             Row0 = row0;

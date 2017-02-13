@@ -90,9 +90,9 @@ namespace CustomEngine.Files
                 else
                 {
                     string absolutePath = RefPathAbsolute;
-                    if (!System.IO.File.Exists(absolutePath))
-                        throw new FileNotFoundException();
-                    if (IsSpecial())
+                    //if (!System.IO.File.Exists(absolutePath))
+                    //    throw new FileNotFoundException();
+                    if (!System.IO.File.Exists(absolutePath) || IsSpecial())
                         _file = Activator.CreateInstance(_subType, absolutePath) as T;
                     else if (IsXML())
                         _file = FromXML(_subType, absolutePath) as T;

@@ -177,6 +177,8 @@
     <Compile Include="Audio\WaveFile.cs" />
     <Compile Include="Cutscenes\Cutscene.cs" />
     <Compile Include="Engine\EngineMethods.cs" />
+    <Compile Include="Input\Devices\AxisManager.cs" />
+    <Compile Include="Input\Devices\ButtonManager.cs" />
     <Compile Include="Input\Devices\Windows\WinMouse.cs" />
     <Compile Include="Rendering\Animation\AnimationVec4.cs" />
     <Compile Include="Rendering\HUD\RenderableHudComponent.cs" />

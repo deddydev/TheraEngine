@@ -108,21 +108,14 @@ namespace CustomEngine.Worlds
             Actor dirLightActor = new Actor(dirLightComp);
 
             ColladaImportOptions options = new ColladaImportOptions();
-            SkeletalMesh skelM;
-            StaticMesh staticM;
-            Skeleton skeleton;
-            Collada.ImportModel(
-                Environment.MachineName == "DAVID-DESKTOP" ? "X:\\Desktop\\TEST.DAE" : "C:\\Users\\David\\Desktop\\TEST.DAE",
-                options, out staticM, out skelM, out skeleton);
+            Collada.ImportModel(Environment.MachineName == "DAVID-DESKTOP" ? "X:\\Desktop\\TEST.DAE" : "C:\\Users\\David\\Desktop\\TEST.DAE",
+                options, out StaticMesh staticM, out SkeletalMesh skelM, out Skeleton skeleton);
 
             TRSComponent comp;
             if (skelM != null)
-                comp = new SkeletalMeshComponent(skelM, skeleton);
-            else
-                comp = new StaticMeshComponent(staticM, null);
-
-            if (skeleton != null)
             {
+                comp = new SkeletalMeshComponent(skelM, skeleton);
+
                 AnimationScalar modelAnim = new AnimationScalar(360, true, true);
                 ScalarKeyframe first = new ScalarKeyframe(0.0f, 0.0f, 0.0f);
                 ScalarKeyframe second = new ScalarKeyframe(180.0f, 360.0f, 360.0f);
@@ -135,6 +128,8 @@ namespace CustomEngine.Worlds
                 AnimationContainer modelAnimContainer = new AnimationContainer(modelYawFolder);
                 skeleton.RootBones[0].ChildBones[0].FrameState.AddAnimation(modelAnimContainer, true);
             }
+            else
+                comp = new StaticMeshComponent(staticM, null);
 
             Actor importedActor = new Actor(comp);
 

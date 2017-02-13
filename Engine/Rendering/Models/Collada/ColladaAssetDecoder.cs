@@ -109,8 +109,7 @@ namespace CustomEngine.Rendering.Models.Collada
                 int iCount = skin._weights[i].Length / pCmd.Length;
                 Influence inf = new Influence();
                 int[] iPtr = skin._weights[i];
-                int j = 0;
-                for (int x = 0; x < iCount; x++)
+                for (int x = 0, j = 0; x < iCount; x++)
                 {
                     for (int cmd = 0; cmd < pCmd.Length; cmd++, j++)
                     {

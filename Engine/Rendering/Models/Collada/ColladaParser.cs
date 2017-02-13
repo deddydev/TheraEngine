@@ -120,11 +120,7 @@ namespace CustomEngine.Rendering.Models.Collada
                     {
                         while (_reader.ReadAttribute())
                             if (_reader.Name.Equals("meter", true))
-                            {
                                 float.TryParse((string)_reader.Value, NumberStyles.Any, CultureInfo.InvariantCulture.NumberFormat, out entry._scale);
-                                //Convert 1.0 meter default to centimeter
-                                //entry._scale *= 100.0f;
-                            }
                     }
                     else if (_reader.Name.Equals("up_axis", true))
                         entry._upAxis = ((string)_reader.Value).ToLower().Contains("y") ? UpAxis.Y : UpAxis.Z;
@@ -329,8 +325,10 @@ namespace CustomEngine.Rendering.Models.Collada
             }
             private EffectShaderEntry ParseShader(ShaderType type)
             {
-                EffectShaderEntry s = new EffectShaderEntry();
-                s._type = type;
+                EffectShaderEntry s = new EffectShaderEntry()
+                {
+                    _type = type
+                };
                 float v;
 
                 while (_reader.BeginElement())
@@ -385,9 +383,10 @@ namespace CustomEngine.Rendering.Models.Collada
             }
             private LightEffectEntry ParseLightEffect(LightEffectType type)
             {
-                LightEffectEntry eff = new LightEffectEntry();
-                eff._type = type;
-
+                LightEffectEntry eff = new LightEffectEntry()
+                {
+                    _type = type
+                };
                 while (_reader.BeginElement())
                 {
                     if (_reader.Name.Equals("color", true))
@@ -704,9 +703,10 @@ namespace CustomEngine.Rendering.Models.Collada
 
             private SkinEntry ParseSkin(string id)
             {
-                SkinEntry skin = new SkinEntry();
-                skin._id = id;
-
+                SkinEntry skin = new SkinEntry()
+                {
+                    _id = id
+                };
                 while (_reader.ReadAttribute())
                     if (_reader.Name.Equals("source", false))
                         skin._skinSource = _reader.Value[0] == '#' ? (string)(_reader.Value + 1) : (string)_reader.Value;
@@ -890,9 +890,10 @@ namespace CustomEngine.Rendering.Models.Collada
 
             private InstanceEntry ParseInstance(InstanceType type)
             {
-                InstanceEntry c = new InstanceEntry();
-                c._type = type;
-
+                InstanceEntry c = new InstanceEntry()
+                {
+                    _type = type
+                };
                 while (_reader.ReadAttribute())
                     if (_reader.Name.Equals("url", true))
                         c._url = _reader.Value[0] == '#' ? (string)(_reader.Value + 1) : (string)_reader.Value;
@@ -958,9 +959,9 @@ namespace CustomEngine.Rendering.Models.Collada
             {
                 Matrix4 m;
                 float* pM = (float*)&m;
-                for (int y = 0; y < 4; y++)
-                    for (int x = 0; x < 4; x++)
-                        _reader.ReadValue(&pM[x * 4 + y]);
+                for (int columnIndex = 0; columnIndex < 4; columnIndex++)
+                    for (int rowOffset = 0; rowOffset < 16; rowOffset += 4)
+                        _reader.ReadValue(&pM[rowOffset + columnIndex]);
                 return m;
             }
             private ColorF4 ParseColor()
@@ -1038,9 +1039,7 @@ namespace CustomEngine.Rendering.Models.Collada
         {
             internal List<SourceEntry> _sources = new List<SourceEntry>();
             internal List<PrimitiveEntry> _primitives = new List<PrimitiveEntry>();
-
-            internal int _faces, _lines;
-
+            
             internal string _verticesId;
             internal InputEntry _verticesInput;
 

@@ -8,8 +8,6 @@ namespace CustomEngine.Rendering.Models.Materials
 {
     public static class VertexShaderGenerator
     {
-        //private const string BoneCountDef = "BONE_COUNT";
-        //private const string MorphCountDef = "MORPH_COUNT";
         private static ShaderGenerator _generator = new ShaderGenerator();
         private static PrimitiveBufferInfo _info;
         
@@ -89,7 +87,7 @@ namespace CustomEngine.Rendering.Models.Materials
             if (_info.IsWeighted)
                 for (int i = 0; i < (morphed ? _info._morphCount + 1 : 1); ++i)
                 {
-                    WriteInVar(GLTypeName._vec4, BufferType.MatrixIds.ToString() + i);
+                    WriteInVar(GLTypeName._ivec4, BufferType.MatrixIds.ToString() + i);
                     WriteInVar(GLTypeName._vec4, BufferType.MatrixWeights.ToString() + i);
                 }
         }

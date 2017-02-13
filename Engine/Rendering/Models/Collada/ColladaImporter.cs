@@ -78,8 +78,8 @@ namespace CustomEngine.Rendering.Models.Collada
                     AssetEntry e = shell._assets[0];
                     isZup = e._upAxis == UpAxis.Z;
                     //baseTransform = Matrix4.CreateScale(e._scale);
-                    if (isZup)
-                        baseTransform = Matrix4.ZupToYup * baseTransform;
+                    //if (isZup)
+                    //    baseTransform = Matrix4.ZupToYup;
                 }
 
                 //Extract materials
@@ -132,7 +132,7 @@ namespace CustomEngine.Rendering.Models.Collada
                 foreach (SceneEntry scene in shell._scenes)
                     foreach (NodeEntry node in scene._nodes)
                     {
-                        Bone b = EnumNode(null, node, scene, shell, objects, baseTransform, isZup);
+                        Bone b = EnumNode(null, node, scene, shell, objects, baseTransform, Matrix4.Identity, isZup);
                         if (b != null)
                             rootBones.Add(b);
                     }
@@ -168,17 +168,15 @@ namespace CustomEngine.Rendering.Models.Collada
             DecoderShell shell,
             List<ObjectInfo> objects,
             Matrix4 bindMatrix,
+            Matrix4 parentInv,
             bool isZup)
         {
             Bone rootBone = null;
             bindMatrix = bindMatrix * node._matrix;
 
-            if (node._type == NodeType.JOINT || node._instances.Count == 0)
+            if (node._type == NodeType.JOINT)
             {
-                Matrix4 nodeMatrix = node._matrix;
-                if (isZup)
-                    nodeMatrix = Matrix4.ZupToYup * nodeMatrix;
-                Bone bone = new Bone(node._name ?? node._id, FrameState.DeriveTRS(nodeMatrix));
+                Bone bone = new Bone(node._name ?? node._id, FrameState.DeriveTRS(bindMatrix * parentInv));
                 node._node = bone;
 
                 if (parent == null)
@@ -188,9 +186,10 @@ namespace CustomEngine.Rendering.Models.Collada
 
                 parent = bone;
             }
-            
+
+            Matrix4 pInv = bindMatrix.Inverted();
             foreach (NodeEntry e in node._children)
-                EnumNode(parent, e, scene, shell, objects, bindMatrix, isZup);
+                EnumNode(parent, e, scene, shell, objects, bindMatrix, pInv, isZup);
 
             foreach (InstanceEntry inst in node._instances)
             {
@@ -220,7 +219,7 @@ namespace CustomEngine.Rendering.Models.Collada
                 else
                     foreach (NodeEntry e in shell._nodes)
                         if (e._id == inst._url)
-                            EnumNode(parent, e, scene, shell, objects, bindMatrix, isZup);
+                            EnumNode(parent, e, scene, shell, objects, bindMatrix, pInv, isZup);
             }
             return rootBone;
         }

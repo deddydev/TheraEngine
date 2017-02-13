@@ -46,19 +46,22 @@ namespace CustomEngine.Worlds.Actors
     }
     public class FlyingCameraPawn : Pawn
     {
-        float _linearRight = 0.0f, _linearForward = 0.0f, _linearUp = 0.0f;
-        float 
-            _scrollSpeed = 5.0f, 
+        bool Rotating { get { return _rightClickPressed && _ctrl; } }
+        bool Translating { get { return _rightClickPressed && !_ctrl; } }
+
+        //Movement parameters
+        float
+            _scrollSpeed = 5.0f,
             _mouseRotateSpeed = 0.2f,
-            _mouseTranslateSpeed = 1.0f,
+            _mouseTranslateSpeed = 0.2f,
             _gamepadRotateSpeed = 150.0f,
             _gamepadTranslateSpeed = 30.0f,
             _keyboardTranslateSpeed = 30.0f;
 
+        float _linearRight = 0.0f, _linearForward = 0.0f, _linearUp = 0.0f;
         float _pitch = 0.0f, _yaw = 0.0f;
-        bool _rotating = false;
-        bool _translating = false;
-        bool _ctrl = false, _alt = false, _shift = false;
+
+        bool _ctrl = false, _alt = false, _shift = false, _rightClickPressed = false;
         Vec2 _cursorPos = Vec2.Zero;
 
         public FlyingCameraPawn() : base() { }
@@ -68,7 +71,7 @@ namespace CustomEngine.Worlds.Actors
         protected override void SetDefaults()
         {
             RegisterTick(ETickGroup.PrePhysics, ETickOrder.Input);
-            CameraComponent.Camera.TranslateAbsolute(new Vec3(0.0f, 0.0f, 400.0f));
+            CameraComponent.Camera.TranslateAbsolute(new Vec3(0.0f, 0.0f, 100.0f));
             //CameraComponent.Camera.Rotation.Pitch = -45.0f;
             base.SetDefaults();
         }
@@ -126,9 +129,9 @@ namespace CustomEngine.Worlds.Actors
         private void MoveForward(bool pressed) { _linearForward += _keyboardTranslateSpeed * (pressed ? 1.0f : -1.0f); }
 
         private void OnLeftStickX(float value) { _linearRight = value * _gamepadTranslateSpeed; }
-        private void OnLeftStickY(float value) { _linearForward = value * _gamepadTranslateSpeed; }
-        private void OnRightStickX(float value) { _yaw = value * _gamepadRotateSpeed; }
-        private void OnRightStickY(float value) { _pitch = value * _gamepadRotateSpeed; }
+        private void OnLeftStickY(float value) { _linearForward = -value * _gamepadTranslateSpeed; }
+        private void OnRightStickX(float value) { _yaw = -value * _gamepadRotateSpeed; }
+        private void OnRightStickY(float value) { _pitch = -value * _gamepadRotateSpeed; }
 
         private void OnControl(bool pressed) { _ctrl = pressed; }
         private void OnAlt(bool pressed) { _alt = pressed; }
@@ -145,13 +148,7 @@ namespace CustomEngine.Worlds.Actors
         }
         private void OnRightClick(bool pressed)
         {
-            if (pressed)
-            {
-                _rotating = !_alt;
-                _translating = _alt;
-            }
-            else
-                _translating = _rotating = false;
+            _rightClickPressed = pressed;
         }
         private void OnMiddleClick(bool pressed)
         {
@@ -165,14 +162,14 @@ namespace CustomEngine.Worlds.Actors
         //}
         public void MouseMove(float x, float y)
         {
-            float xDiff = x - _cursorPos.X;
-            float yDiff = y - _cursorPos.Y;
-            if (_rotating)
+            //float xDiff = x - _cursorPos.X;
+            //float yDiff = y - _cursorPos.Y;
+            if (Rotating)
                 CameraComponent.Camera.Rotate(-y * _mouseRotateSpeed, -x * _mouseRotateSpeed);
-            else if (_translating)
-                CameraComponent.Camera.TranslateRelative(new Vec3(-xDiff * _mouseTranslateSpeed, yDiff * _mouseTranslateSpeed, 0.0f));
-            _cursorPos.X = x;
-            _cursorPos.Y = y;
+            else if (Translating)
+                CameraComponent.Camera.TranslateRelative(new Vec3(-x * _mouseTranslateSpeed, y * _mouseTranslateSpeed, 0.0f));
+            //_cursorPos.X = x;
+            //_cursorPos.Y = y;
             HighlightScene(false);
         }
         public void ShowContextMenu()
@@ -186,18 +183,17 @@ namespace CustomEngine.Worlds.Actors
                 return;
 
             Actor actor = v.PickScene(gamepad ? v.Center : v.AbsoluteToRelative(_cursorPos), !gamepad);
-            if (actor is EditorTransformTool)
+            if (actor is EditorTransformTool tool)
             {
-                EditorTransformTool tool = (EditorTransformTool)actor;
+
             }
-            else if (actor is HudComponent)
+            else if (actor is HudComponent hudComp)
             {
-                HudComponent hudComp = (HudComponent)actor;
 
             }
             else if (actor != null)
             {
-                
+
             }
         }
         private void PickScene(bool gamepad)

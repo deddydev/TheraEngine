@@ -3,6 +3,7 @@ using FreeImageAPI;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -19,7 +20,7 @@ namespace CustomEngine.Rendering.Textures
 
         public TextureData(string path)
         {
-            _bitmap = new FreeImageBitmap(path).ToBitmap();
+            _bitmap = File.Exists(path) ? new FreeImageBitmap(path).ToBitmap() : null;
         }
         public TextureData(int width, int height)
         {

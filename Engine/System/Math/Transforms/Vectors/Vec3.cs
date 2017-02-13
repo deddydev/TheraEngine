@@ -764,7 +764,7 @@ namespace System
         }
         public static Vec3 operator *(Vec3 left, Matrix4 right)
         {
-            return TransformPerspective(right, left);
+            return TransformPerspective(left, right);
         }
         public static explicit operator Vec3(Vec2 v)
         {

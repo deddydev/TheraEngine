@@ -145,16 +145,16 @@ namespace CustomEngine.Worlds.Actors.Components
                 if (Visible)
                 {
                     Matrix4 world, invWorld;
-                    if (_singleBind != null)
-                    {
-                        world = _singleBind.WorldMatrix;
-                        invWorld = _singleBind.InverseWorldMatrix;
-                    }
-                    else
-                    {
+                    //if (_singleBind != null)
+                    //{
+                    //    world = _singleBind.WorldMatrix;
+                    //    invWorld = _singleBind.InverseWorldMatrix;
+                    //}
+                    //else
+                    //{
                         world = _component.WorldMatrix;
                         invWorld = _component.InverseWorldMatrix;
-                    }
+                    //}
                     _manager.Render(world, invWorld.Transposed().GetRotationMatrix3());
                 }
             }

@@ -174,12 +174,13 @@ namespace CustomEngine.Rendering
         protected int _programHandle;
         private Stack<Rectangle> _renderAreaStack = new Stack<Rectangle>();
         //private static List<DisplayList> _displayLists = new List<DisplayList>();
-
-        public abstract int GenObject(GenType type);
-        public abstract int[] GenObjects(GenType type, int count);
-        public T[] GenObjects<T>(GenType type, int count) where T : BaseRenderState
+        
+        public abstract int[] CreateObjects(GenType type, int count);
+        public abstract int[] CreateTextures(int target, int count);
+        public abstract int[] CreateQueries(int type, int count);
+        public T[] CreateObjects<T>(GenType type, int count) where T : BaseRenderState
         {
-            return GenObjects(type, count).Select(x => Activator.CreateInstance(typeof(T), x) as T).ToArray();
+            return CreateObjects(type, count).Select(x => Activator.CreateInstance(typeof(T), x) as T).ToArray();
         }
         public abstract void DeleteObject(GenType type, int bindingId);
         public abstract void DeleteObjects(GenType type, int[] bindingIds);

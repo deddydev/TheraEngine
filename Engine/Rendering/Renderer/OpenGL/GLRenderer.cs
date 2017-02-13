@@ -112,14 +112,8 @@ namespace CustomEngine.Rendering.OpenGL
             GL.Clear(newMask);
         }
         
-        public override void SetPointSize(float size)
-        {
-            GL.PointSize(size);
-        }
-        public override void SetLineSize(float size)
-        {
-            GL.LineWidth(size);
-        }
+        public override void SetPointSize(float size) { GL.PointSize(size); }
+        public override void SetLineSize(float size) { GL.LineWidth(size); }
 
         #region Objects
         public override void DeleteObject(GenType type, int bindingId)
@@ -128,9 +122,6 @@ namespace CustomEngine.Rendering.OpenGL
             {
                 case GenType.Buffer:
                     GL.DeleteBuffer(bindingId);
-                    break;
-                case GenType.DisplayList:
-                    GL.DeleteLists(bindingId, 1);
                     break;
                 case GenType.Framebuffer:
                     GL.DeleteFramebuffer(bindingId);
@@ -171,10 +162,6 @@ namespace CustomEngine.Rendering.OpenGL
                 case GenType.Buffer:
                     GL.DeleteBuffers(bindingIds.Length, bindingIds);
                     break;
-                case GenType.DisplayList:
-                    foreach (int i in bindingIds)
-                        GL.DeleteLists(i, 1);
-                    break;
                 case GenType.Framebuffer:
                     GL.DeleteFramebuffers(bindingIds.Length, bindingIds);
                     break;
@@ -209,84 +196,63 @@ namespace CustomEngine.Rendering.OpenGL
                     break;
             }
         }
-        public override int GenObject(GenType type)
-        {
-            switch (type)
-            {
-                case GenType.Buffer:
-                    return GL.GenBuffer();
-                case GenType.DisplayList:
-                    return GL.GenLists(1);
-                case GenType.Framebuffer:
-                    return GL.GenFramebuffer();
-                case GenType.Program:
-                    return GL.CreateProgram();
-                case GenType.ProgramPipeline:
-                    return GL.GenProgramPipeline();
-                case GenType.Query:
-                    return GL.GenQuery();
-                case GenType.Renderbuffer:
-                    return GL.GenRenderbuffer();
-                case GenType.Sampler:
-                    return GL.GenSampler();
-                case GenType.Texture:
-                    return GL.GenTexture();
-                case GenType.TransformFeedback:
-                    return GL.GenTransformFeedback();
-                case GenType.VertexArray:
-                    return GL.GenVertexArray();
-                case GenType.Shader:
-                    return GL.CreateShader(_currentShaderMode);
-            }
-            return 0;
-        }
-        public override int[] GenObjects(GenType type, int count)
+        public override int[] CreateObjects(GenType type, int count)
         {
             int[] ids = new int[count];
             switch (type)
             {
                 case GenType.Buffer:
-                    GL.GenBuffers(count, ids);
+                    GL.CreateBuffers(count, ids);
                     break;
                 case GenType.Framebuffer:
-                    GL.GenFramebuffers(count, ids);
+                    GL.CreateFramebuffers(count, ids);
                     break;
                 case GenType.Program:
                     for (int i = 0; i < count; ++i)
                         ids[i] = GL.CreateProgram();
                     break;
                 case GenType.ProgramPipeline:
-                    GL.GenProgramPipelines(count, ids);
+                    GL.CreateProgramPipelines(count, ids);
                     break;
                 case GenType.Query:
-                    GL.GenQueries(count, ids);
+                    
                     break;
                 case GenType.Renderbuffer:
-                    GL.GenRenderbuffers(count, ids);
+                    GL.CreateRenderbuffers(count, ids);
                     break;
                 case GenType.Sampler:
-                    GL.GenSamplers(count, ids);
+                    GL.CreateSamplers(count, ids);
                     break;
                 case GenType.Texture:
-                    GL.GenTextures(count, ids);
+                    
                     break;
                 case GenType.TransformFeedback:
-                    GL.GenTransformFeedbacks(count, ids);
+                    GL.CreateTransformFeedbacks(count, ids);
                     break;
                 case GenType.VertexArray:
-                    GL.GenVertexArrays(count, ids);
+                    GL.CreateVertexArrays(count, ids);
                     break;
                 case GenType.Shader:
                     for (int i = 0; i < count; ++i)
                         ids[i] = GL.CreateShader(_currentShaderMode);
                     break;
-                case GenType.DisplayList:
-                    return new int[] { GL.GenLists(count) };
             }
             return ids;
         }
+        public override int[] CreateTextures(int target, int count)
+        {
+            int[] ids = new int[count];
+            GL.CreateTextures((TextureTarget)target, count, ids);
+            return ids;
+        }
+        public override int[] CreateQueries(int type, int count)
+        {
+            int[] ids = new int[count];
+            GL.CreateQueries((QueryTarget)type, count, ids);
+            return ids;
+        }
         #endregion
-        
+
         #region Shaders
         public override void SetShaderMode(ShaderMode type)
         {
@@ -322,12 +288,10 @@ namespace CustomEngine.Rendering.OpenGL
             GL.ShaderSource(handle, source);
             GL.CompileShader(handle);
 #if DEBUG
-            int status;
-            GL.GetShader(handle, ShaderParameter.CompileStatus, out status);
+            GL.GetShader(handle, ShaderParameter.CompileStatus, out int status);
             if (status == 0)
             {
-                string info;
-                GL.GetShaderInfoLog(handle, out info);
+                GL.GetShaderInfoLog(handle, out string info);
                 Console.WriteLine(info + "\n\n");
 
                 //Split the source by new lines

@@ -1,0 +1,7 @@
+C:\Users\David\Documents\opentk-2.0-0\opentk-2.0-0\src\OpenTK\bin\Release\OpenTK.dll.config
+C:\Users\David\Documents\opentk-2.0-0\opentk-2.0-0\src\OpenTK\bin\Release\OpenTK.xml
+C:\Users\David\Documents\opentk-2.0-0\opentk-2.0-0\src\OpenTK\bin\Release\OpenTK.dll
+C:\Users\David\Documents\opentk-2.0-0\opentk-2.0-0\src\OpenTK\bin\Release\OpenTK.pdb
+C:\Users\David\Documents\opentk-2.0-0\opentk-2.0-0\src\OpenTK\obj\Release\OpenTK.csprojResolveAssemblyReference.cache
+C:\Users\David\Documents\opentk-2.0-0\opentk-2.0-0\src\OpenTK\obj\Release\OpenTK.dll
+C:\Users\David\Documents\opentk-2.0-0\opentk-2.0-0\src\OpenTK\obj\Release\OpenTK.pdb

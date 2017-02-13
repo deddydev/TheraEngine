@@ -11,6 +11,11 @@ namespace CustomEngine.Rendering.Textures
 {
     public class Texture : BaseRenderState
     {
+        protected override int CreateObject()
+        {
+            return Engine.Renderer.CreateTextures(3553, 1)[0];
+        }
+
         public Texture() : base(GenType.Texture) { }
         public Texture(int bindingId) : base(GenType.Texture, bindingId) { }
         public Texture(TextureData data) : base(GenType.Texture) { _data = data; }
@@ -63,7 +68,7 @@ namespace CustomEngine.Rendering.Textures
 
         public static Texture[] GenTextures(int count)
         {
-            return Engine.Renderer.GenObjects<Texture>(GenType.Texture, count);
+            return Engine.Renderer.CreateObjects<Texture>(GenType.Texture, count);
         }
 
         public void Bind()

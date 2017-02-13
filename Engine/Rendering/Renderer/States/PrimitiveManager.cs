@@ -110,15 +110,8 @@ namespace CustomEngine.Rendering.Models
                     }
                 }
 
-                _data.AddBuffer(
-                    matrixIndices.ToList(), 
-                    new VertexAttribInfo(BufferType.MatrixIds), 
-                    false, true, BufferTarget.ArrayBuffer);
-
-                _data.AddBuffer(
-                    matrixWeights.ToList(),
-                    new VertexAttribInfo(BufferType.MatrixWeights), 
-                    false, false, BufferTarget.ArrayBuffer);
+                _data.AddBuffer(matrixIndices.ToList(), new VertexAttribInfo(BufferType.MatrixIds), false, true);
+                _data.AddBuffer(matrixWeights.ToList(), new VertexAttribInfo(BufferType.MatrixWeights));
 
                 _bufferInfo._boneCount = _utilizedBones.Length;
             }

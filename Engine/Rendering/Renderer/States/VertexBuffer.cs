@@ -211,13 +211,17 @@ namespace CustomEngine.Rendering.Models
             if (_location >= 0)
             {
                 GL.EnableVertexAttribArray(_index);
+                //if (Integral)
+                //    GL.VertexAttribIPointer(_index, _componentCount, VertexAttribIntegerType.Int, 0, _data.Address);
+                //else
+                //    GL.VertexAttribPointer(_index, _componentCount, VertexAttribPointerType.Byte + (int)_componentType, _normalize, 0, 0);
                 if (Integral)
-                    GL.VertexAttribIPointer(_index, _componentCount, VertexAttribIntegerType.Byte + (int)_componentType, 0, (IntPtr)0);
+                    GL.VertexAttribIFormat(_index, _componentCount, VertexAttribIntegerType.Byte + (int)_componentType, 0);
                 else
-                    GL.VertexAttribPointer(_index, _componentCount, VertexAttribPointerType.Byte + (int)_componentType, _normalize, 0, 0);
-                //GL.VertexAttribFormat(_location, _componentCount, VertexAttribType.Byte + (int)_componentType, _normalize, 0);
-                //GL.VertexAttribBinding(_location, _index);
+                    GL.VertexAttribFormat(_index, _componentCount, VertexAttribType.Byte + (int)_componentType, _normalize, 0);
+                GL.VertexAttribBinding(_index, _index);
             }
+            
             if (MapData)
             {
                 GL.BufferStorage(_target, (IntPtr)_data.Length, _data.Address,
@@ -238,7 +242,11 @@ namespace CustomEngine.Rendering.Models
                 GL.BufferData(_target, (IntPtr)_data.Length, _data.Address, BufferUsageHint.StaticDraw);
             }
         }
-        public void Bind() { GL.BindBuffer(_target, BindingId); }
+        public void Bind()
+        {
+            GL.BindVertexBuffer(_index, BindingId, IntPtr.Zero, Stride);
+            //GL.BindBuffer(_target, BindingId);
+        }
         public T Get<T>(int offset) where T : struct
         {
             T value = default(T);

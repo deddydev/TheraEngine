@@ -132,7 +132,7 @@ namespace CustomEngine.Rendering
         /// Do not call. Override if special generation necessary.
         /// </summary>
         /// <returns></returns>
-        protected virtual int CreateObject() { return Engine.Renderer.GenObject(_type); }
+        protected virtual int CreateObject() { return Engine.Renderer.CreateObjects(_type, 1)[0]; }
         /// <summary>
         /// Called directly after this object is created on the current context.
         /// </summary>
@@ -172,6 +172,6 @@ namespace CustomEngine.Rendering
         Texture,
         Renderbuffer,
         Framebuffer,
-        DisplayList,
+        //DisplayList,
     }
 }

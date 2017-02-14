@@ -28,7 +28,7 @@ namespace CustomEngine.Rendering.Models
         public bool HasTexCoords { get { return _texcoordCount > 0; } }
         public bool HasColors { get { return _colorCount > 0; } }
     }
-    public class PrimitiveData
+    public class PrimitiveData : IDisposable
     {
         public bool HasSkinning
         {
@@ -117,11 +117,19 @@ namespace CustomEngine.Rendering.Models
                     throw new IndexOutOfRangeException();
             }
         }
-        public int[] GenerateBuffers()
+        public int[] GenerateBuffers(int vaoId)
         {
             List<int> bindingIds = new List<int>();
             foreach (VertexBuffer b in _buffers)
-                bindingIds.Add(b != null ? b.Generate() : 0);
+            {
+                if (b == null)
+                {
+                    //bindingIds.Add(0);
+                    continue;
+                }
+                b._vaoId = vaoId;
+                bindingIds.Add(b.Generate());
+            }
             return bindingIds.ToArray();
         }
         public int[] GetIndices()
@@ -129,11 +137,11 @@ namespace CustomEngine.Rendering.Models
             switch (_type)
             {
                 case PrimitiveType.Triangles:
-                    return _triangles != null ? _triangles.SelectMany(x => new int[] { x.Point0, x.Point1, x.Point2 }).ToArray() : null;
+                    return _triangles?.SelectMany(x => new int[] { x.Point0, x.Point1, x.Point2 }).ToArray();
                 case PrimitiveType.Lines:
-                    return _lines != null ? _lines.SelectMany(x => new int[] { x.Point0, x.Point1 }).ToArray() : null;
+                    return _lines?.SelectMany(x => new int[] { x.Point0, x.Point1 }).ToArray();
                 case PrimitiveType.Points:
-                    return _points != null ? _points.Select(x => (int)x).ToArray() : null;
+                    return _points?.Select(x => (int)x).ToArray();
             }
             return null;
             
@@ -228,6 +236,7 @@ namespace CustomEngine.Rendering.Models
             }
             _buffers[bufferIndex] = buffer;
         }
+
         public Remapper GetBuffer<T>(int bufferIndex, out T[] array, bool remap = false) where T : IBufferable
         {
             if (_buffers == null || bufferIndex < 0 || bufferIndex >= _buffers.Count)
@@ -430,6 +439,11 @@ namespace CustomEngine.Rendering.Models
                 var data = remapper.ImplementationTable.Select(x => vertices[x]._barycentric).ToList();
                 AddBuffer(data, new VertexAttribInfo(BufferType.Barycentric, 0));
             }
+        }
+
+        public void Dispose()
+        {
+            _buffers?.ForEach(x => x.Dispose());
         }
     }
 }

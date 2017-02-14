@@ -78,8 +78,8 @@ namespace CustomEngine.Rendering.Models.Collada
                     AssetEntry e = shell._assets[0];
                     isZup = e._upAxis == UpAxis.Z;
                     //baseTransform = Matrix4.CreateScale(e._scale);
-                    //if (isZup)
-                    //    baseTransform = Matrix4.ZupToYup;
+                    if (isZup)
+                        baseTransform = Matrix4.ZupToYup;
                 }
 
                 //Extract materials
@@ -176,7 +176,7 @@ namespace CustomEngine.Rendering.Models.Collada
 
             if (node._type == NodeType.JOINT)
             {
-                Bone bone = new Bone(node._name ?? node._id, FrameState.DeriveTRS(bindMatrix * parentInv));
+                Bone bone = new Bone(node._name ?? node._id, FrameState.DeriveTRS(isZup ? Matrix4.ZupToYup * node._matrix : node._matrix));
                 node._node = bone;
 
                 if (parent == null)

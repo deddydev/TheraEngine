@@ -46,7 +46,7 @@ namespace CustomEngine.Rendering.Models
                 _data = value;
                 if (_data != null)
                 {
-                    _indexBuffer = new VertexBuffer("FaceIndices", BufferTarget.ElementArrayBuffer, false);
+                    _indexBuffer = new VertexBuffer("FaceIndices", BufferTarget.ElementArrayBuffer, true);
                     if (_data._facePoints.Count <= byte.MaxValue)
                     {
                         _elementType = DrawElementsType.UnsignedByte;
@@ -204,13 +204,15 @@ namespace CustomEngine.Rendering.Models
             _program.Generate();
 
             GL.BindVertexArray(BindingId);
-            _bindingIds = _data.GenerateBuffers();
+            _bindingIds = _data.GenerateBuffers(BindingId);
+            _indexBuffer._vaoId = BindingId;
             _indexBuffer.Generate();
+            GL.VertexArrayElementBuffer(BindingId, _indexBuffer.BindingId);
             GL.BindVertexArray(0);
         }
         protected override void OnDeleted()
         {
-            //_data.Dispose();
+            _data.Dispose();
             _indexBuffer.Dispose();
             _program.Destroy();
         }

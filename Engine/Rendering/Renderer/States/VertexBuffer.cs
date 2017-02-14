@@ -45,8 +45,6 @@ namespace CustomEngine.Rendering.Models
     }
     public class VertexBuffer : BaseRenderState, IDisposable
     {
-        const bool MapData = true;
-
         public static readonly int MaxBufferCountPerType = 1;
         public static readonly int BufferTypeCount = 8;
         
@@ -76,7 +74,7 @@ namespace CustomEngine.Rendering.Models
             Int = 4,
             UInt = 5,
             Float = 6,
-            Double = 7
+            Double = 10
         }
         private ComponentType _componentType;
         private int _componentCount;
@@ -89,6 +87,7 @@ namespace CustomEngine.Rendering.Models
         private int _index, _location;
         private BufferTarget _target;
         private BufferType _type = BufferType.Other;
+        internal int _vaoId = 0;
 
         public bool Integral
         {
@@ -207,31 +206,72 @@ namespace CustomEngine.Rendering.Models
         }
         protected override void OnGenerated()
         {
-            Bind();
-            if (_location >= 0)
+            //if (_location >= 0)
             {
-                GL.EnableVertexAttribArray(_index);
-                //if (Integral)
-                //    GL.VertexAttribIPointer(_index, _componentCount, VertexAttribIntegerType.Int, 0, _data.Address);
-                //else
-                //    GL.VertexAttribPointer(_index, _componentCount, VertexAttribPointerType.Byte + (int)_componentType, _normalize, 0, 0);
-                if (Integral)
-                    GL.VertexAttribIFormat(_index, _componentCount, VertexAttribIntegerType.Byte + (int)_componentType, 0);
-                else
-                    GL.VertexAttribFormat(_index, _componentCount, VertexAttribType.Byte + (int)_componentType, _normalize, 0);
-                GL.VertexAttribBinding(_index, _index);
+                //TODO: get actual opengl version from engine
+                //Also, migrate all of this code into GLRenderer : AbstractRenderer
+                int glVer = 2;
+
+                switch (glVer)
+                {
+                    case 0:
+                        GL.BindBuffer(_target, BindingId);
+                        GL.EnableVertexAttribArray(_index);
+                        if (Integral)
+                            GL.VertexAttribIPointer(_index, _componentCount, VertexAttribIntegerType.Byte + (int)_componentType, 0, _data.Address);
+                        else
+                            GL.VertexAttribPointer(_index, _componentCount, VertexAttribPointerType.Byte + (int)_componentType, _normalize, 0, 0);
+                        PushData();
+                        break;
+                    case 1:
+                        GL.BindVertexBuffer(_index, BindingId, IntPtr.Zero, Stride);
+                        GL.EnableVertexAttribArray(_index);
+                        if (Integral)
+                            GL.VertexAttribIFormat(_index, _componentCount, VertexAttribIntegerType.Byte + (int)_componentType, 0);
+                        else
+                            GL.VertexAttribFormat(_index, _componentCount, VertexAttribType.Byte + (int)_componentType, _normalize, 0);
+                        PushData();
+                        GL.VertexAttribBinding(_index, _index);
+                        break;
+                    case 2:
+                        GL.EnableVertexArrayAttrib(_vaoId, _index);
+                        if (Integral)
+                            GL.VertexArrayAttribIFormat(_vaoId, _index, _componentCount, VertexAttribType.Byte + (int)_componentType, 0);
+                        else
+                            GL.VertexArrayAttribFormat(_vaoId, _index, _componentCount, VertexAttribType.Byte + (int)_componentType, _normalize, 0);
+                        PushData();
+                        GL.VertexArrayAttribBinding(_vaoId, _index, _index);
+                        GL.VertexArrayVertexBuffer(_vaoId, _index, BindingId, IntPtr.Zero, Stride);
+                        break;
+                }
             }
-            
+        }
+        const bool MapData = true;
+        private void PushData()
+        {
             if (MapData)
             {
-                GL.BufferStorage(_target, (IntPtr)_data.Length, _data.Address,
+                //GL.BufferStorage(_target, _data.Length, _data.Address,
+                //    BufferStorageFlags.MapWriteBit |
+                //    BufferStorageFlags.MapReadBit |
+                //    BufferStorageFlags.MapPersistentBit |
+                //    BufferStorageFlags.MapCoherentBit |
+                //    BufferStorageFlags.ClientStorageBit);
+                //_data.Dispose();
+                //_data = new DataSource(GL.MapBufferRange(_target, IntPtr.Zero, DataLength,
+                //    BufferAccessMask.MapPersistentBit |
+                //    BufferAccessMask.MapCoherentBit |
+                //    BufferAccessMask.MapReadBit |
+                //    BufferAccessMask.MapWriteBit), DataLength);
+
+                GL.NamedBufferStorage(BindingId, _data.Length, _data.Address,
                     BufferStorageFlags.MapWriteBit |
                     BufferStorageFlags.MapReadBit |
                     BufferStorageFlags.MapPersistentBit |
                     BufferStorageFlags.MapCoherentBit |
                     BufferStorageFlags.ClientStorageBit);
                 _data.Dispose();
-                _data = new DataSource(GL.MapBufferRange(_target, (IntPtr)0, (IntPtr)DataLength,
+                _data = new DataSource(GL.MapNamedBufferRange(BindingId, IntPtr.Zero, DataLength,
                     BufferAccessMask.MapPersistentBit |
                     BufferAccessMask.MapCoherentBit |
                     BufferAccessMask.MapReadBit |
@@ -239,13 +279,9 @@ namespace CustomEngine.Rendering.Models
             }
             else
             {
-                GL.BufferData(_target, (IntPtr)_data.Length, _data.Address, BufferUsageHint.StaticDraw);
+                //GL.BufferData(_target, (IntPtr)_data.Length, _data.Address, BufferUsageHint.StaticDraw);
+                GL.NamedBufferData(BindingId, _componentCount, _data.Address, BufferUsageHint.StaticDraw);
             }
-        }
-        public void Bind()
-        {
-            GL.BindVertexBuffer(_index, BindingId, IntPtr.Zero, Stride);
-            //GL.BindBuffer(_target, BindingId);
         }
         public T Get<T>(int offset) where T : struct
         {
@@ -394,6 +430,7 @@ namespace CustomEngine.Rendering.Models
                 _data.Dispose();
                 _data = null;
             }
+            _vaoId = 0;
         }
         ~VertexBuffer() { Dispose(); }
         public static implicit operator VoidPtr(VertexBuffer b) { return b.Data; }

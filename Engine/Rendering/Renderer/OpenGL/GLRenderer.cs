@@ -12,8 +12,6 @@ namespace CustomEngine.Rendering.OpenGL
     {
         // https://www.opengl.org/wiki/Rendering_Pipeline_Overview
 
-        public static GLRenderer Instance = new GLRenderer();
-
         public override RenderLibrary RenderLibrary { get { return RenderLibrary.OpenGL; } }
 
         public GLRenderer() { }

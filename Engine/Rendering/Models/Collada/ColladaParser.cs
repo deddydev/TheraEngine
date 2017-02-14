@@ -751,9 +751,8 @@ namespace CustomEngine.Rendering.Models.Collada
                                 for (int i = 0; i < skin._weightCount; i++)
                                 {
                                     int[] weights = skin._weights[i];
-                                    fixed (int* p = weights)
-                                        for (int x = 0; x < weights.Length; x++)
-                                        _reader.ReadValue(&p[x]);
+                                    for (int x = 0; x < weights.Length; x++)
+                                        _reader.ReadValue(ref weights[x]);
                                 }
                             }
                             _reader.EndElement();

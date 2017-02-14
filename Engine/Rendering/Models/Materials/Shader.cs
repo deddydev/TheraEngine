@@ -79,7 +79,7 @@ void main()
         public static Shader TestFrag()
         {
             string source = @"
-#version 410
+#version 450
 
 struct BaseLight
 {

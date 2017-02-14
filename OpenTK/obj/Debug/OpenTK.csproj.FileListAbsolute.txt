@@ -4,3 +4,4 @@ C:\Users\David\Documents\Repositories\CustomEngine\OpenTK\bin\Debug\OpenTK.dll
 C:\Users\David\Documents\Repositories\CustomEngine\OpenTK\bin\Debug\OpenTK.pdb
 C:\Users\David\Documents\Repositories\CustomEngine\OpenTK\obj\Debug\OpenTK.dll
 C:\Users\David\Documents\Repositories\CustomEngine\OpenTK\obj\Debug\OpenTK.pdb
+C:\Users\David\Documents\Repositories\CustomEngine\OpenTK\obj\Debug\OpenTK.csprojResolveAssemblyReference.cache

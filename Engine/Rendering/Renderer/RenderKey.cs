@@ -91,7 +91,7 @@ namespace CustomEngine.Rendering
         }
         public static void RadixSort(ref List<ulong> array)
         {
-            int id = Engine.StartDebugTimer();
+            int id = Engine.StartTimer();
             Queue<ulong>[] buckets = new Queue<ulong>[15];
             for (int i = 0; i < 0xF; i++)
                 buckets[i] = new Queue<ulong>();
@@ -104,7 +104,7 @@ namespace CustomEngine.Rendering
                     while (bucket.Count > 0)
                         array[x++] = bucket.Dequeue();
             }
-            float seconds = Engine.EndDebugTimer(id);
+            float seconds = Engine.EndTimer(id);
             Engine.DebugPrint("Radix Sort took " + seconds + " seconds.");
         }
         public override int GetHashCode()

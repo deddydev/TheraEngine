@@ -215,8 +215,7 @@ namespace CustomEngine.Rendering.OpenGL
                     GL.CreateProgramPipelines(count, ids);
                     break;
                 case GenType.Query:
-                    
-                    break;
+                    throw new Exception("Call CreateQueries instead.");
                 case GenType.Renderbuffer:
                     GL.CreateRenderbuffers(count, ids);
                     break;
@@ -224,8 +223,7 @@ namespace CustomEngine.Rendering.OpenGL
                     GL.CreateSamplers(count, ids);
                     break;
                 case GenType.Texture:
-                    
-                    break;
+                    throw new Exception("Call CreateTextures instead.");
                 case GenType.TransformFeedback:
                     GL.CreateTransformFeedbacks(count, ids);
                     break;

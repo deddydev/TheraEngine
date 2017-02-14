@@ -68,7 +68,6 @@ namespace CustomEngine.Rendering.OpenGL
 
         public unsafe override void Initialize()
         {
-            GL.ShadeModel(ShadingModel.Smooth);
             GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
             GL.Disable(OpenTK.Graphics.OpenGL.EnableCap.CullFace);
             GL.Disable(OpenTK.Graphics.OpenGL.EnableCap.Dither);

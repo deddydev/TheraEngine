@@ -49,13 +49,21 @@ namespace CustomEngine
         {
             _timer.RenderFrame -= func;
         }
-        public static int StartDebugTimer()
+        /// <summary>
+        /// Starts a quick timer to track the number of sceonds elapsed.
+        /// Returns the id of the timer.
+        /// </summary>
+        public static int StartTimer()
         {
             int id = _debugTimers.Count;
             _debugTimers.Add(0);
             return id;
         }
-        public static float EndDebugTimer(int id)
+        /// <summary>
+        /// Ends the timer and returns the amount of time elapsed, in seconds.
+        /// </summary>
+        /// <param name="id">The id of the timer.</param>
+        public static float EndTimer(int id)
         {
             float seconds = _debugTimers[id];
             _debugTimers.RemoveAt(id);

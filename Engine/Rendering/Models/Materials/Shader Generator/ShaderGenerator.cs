@@ -37,7 +37,7 @@ namespace CustomEngine.Rendering.Models.Materials
         }
         public void WriteInVar(int layoutLocation, GLTypeName type, string name)
         {
-            wl("layout (location = {0}) in {1} {2};", layoutLocation, type.ToString().Substring(1), name);
+            wl("layout(location = {0}) in {1} {2};", layoutLocation, type.ToString().Substring(1), name);
         }
         public void WriteInVar(GLTypeName type, string name)
         {
@@ -45,7 +45,7 @@ namespace CustomEngine.Rendering.Models.Materials
         }
         public void WriteUniform(int layoutLocation, GLTypeName type, string name)
         {
-            wl("layout (location = {0}) uniform {1} {2};", layoutLocation, type.ToString().Substring(1), name);
+            wl("layout(location = {0}) uniform {1} {2};", layoutLocation, type.ToString().Substring(1), name);
         }
         public void WriteUniform(GLTypeName type, string name)
         {

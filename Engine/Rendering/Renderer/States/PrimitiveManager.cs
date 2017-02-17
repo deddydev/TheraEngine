@@ -24,6 +24,7 @@ namespace CustomEngine.Rendering.Models
         private Bone[] _utilizedBones;
         private PrimitiveBufferInfo _bufferInfo = new PrimitiveBufferInfo();
         private Material _material;
+        private CPUSkinInfo _cpuSkinInfo;
 
         public PrimitiveManager() : base(GenType.VertexArray) { }
         public PrimitiveManager(PrimitiveData data, Material material) : base(GenType.VertexArray)
@@ -47,12 +48,13 @@ namespace CustomEngine.Rendering.Models
                 if (_data != null)
                 {
                     _indexBuffer = new VertexBuffer("FaceIndices", BufferTarget.ElementArrayBuffer, true);
-                    if (_data._facePoints.Count <= byte.MaxValue)
+                    //TODO: primitive restart will use MaxValue for restart id
+                    if (_data._facePoints.Count < byte.MaxValue)
                     {
                         _elementType = DrawElementsType.UnsignedByte;
                         _indexBuffer.SetDataNumeric(_data.GetIndices().Select(x => (byte)x).ToList());
                     }
-                    else if (_data._facePoints.Count <= short.MaxValue)
+                    else if (_data._facePoints.Count < short.MaxValue)
                     {
                         _elementType = DrawElementsType.UnsignedShort;
                         _indexBuffer.SetDataNumeric(_data.GetIndices().Select(x => (ushort)x).ToList());
@@ -110,9 +112,16 @@ namespace CustomEngine.Rendering.Models
                     }
                 }
 
-                _data.AddBuffer(matrixIndices.ToList(), new VertexAttribInfo(BufferType.MatrixIds), false, true);
-                _data.AddBuffer(matrixWeights.ToList(), new VertexAttribInfo(BufferType.MatrixWeights));
-
+                if (Engine._engineSettings.File.SkinOnGPU)
+                {
+                    _cpuSkinInfo = null;
+                    _data.AddBuffer(matrixIndices.ToList(), new VertexAttribInfo(BufferType.MatrixIds), false, true);
+                    _data.AddBuffer(matrixWeights.ToList(), new VertexAttribInfo(BufferType.MatrixWeights));
+                }
+                else
+                {
+                    _cpuSkinInfo = new CPUSkinInfo(_data, matrixWeights, matrixIndices);
+                }
                 _bufferInfo._boneCount = _utilizedBones.Length;
             }
             else
@@ -126,21 +135,40 @@ namespace CustomEngine.Rendering.Models
             if (!_bufferInfo.IsWeighted)
                 return;
 
-            Matrix4[] positionMatrices = new Matrix4[_utilizedBones.Length + 1];
-            Matrix3[] normalMatrices = new Matrix3[_utilizedBones.Length + 1];
-            positionMatrices[0] = Matrix4.Identity;
-            normalMatrices[0] = Matrix3.Identity;
-
-            for (int i = 1; i < _utilizedBones.Length + 1; ++i)
+            if (Engine._engineSettings.File.SkinOnGPU)
             {
-                Bone b = _utilizedBones[i - 1];
-                positionMatrices[i] = b.VertexMatrix;
-                normalMatrices[i] = b.VertexMatrixIT;
+                Matrix4[] positionMatrices = new Matrix4[_utilizedBones.Length + 1];
+                Matrix3[] normalMatrices = new Matrix3[_utilizedBones.Length + 1];
+                positionMatrices[0] = Matrix4.Identity;
+                normalMatrices[0] = Matrix3.Identity;
+
+                for (int i = 1; i < _utilizedBones.Length + 1; ++i)
+                {
+                    Bone b = _utilizedBones[i - 1];
+                    positionMatrices[i] = b.VertexMatrix;
+                    normalMatrices[i] = b.VertexMatrixIT.GetRotationMatrix3();
+                }
+
+                Engine.Renderer.Uniform(Uniform.BoneMatricesName, positionMatrices.ToArray());
+                Engine.Renderer.Uniform(Uniform.BoneMatricesITName, normalMatrices.ToArray());
+                //Engine.Renderer.Uniform(Uniform.MorphWeightsName, _morphWeights);
             }
-            
-            Engine.Renderer.Uniform(Uniform.BoneMatricesName, positionMatrices.ToArray());
-            Engine.Renderer.Uniform(Uniform.BoneMatricesITName, normalMatrices.ToArray());
-            //Engine.Renderer.Uniform(Uniform.MorphWeightsName, _morphWeights);
+            else
+            {
+                Matrix4[] positionMatrices = new Matrix4[_utilizedBones.Length + 1];
+                Matrix4[] normalMatrices = new Matrix4[_utilizedBones.Length + 1];
+                positionMatrices[0] = Matrix4.Identity;
+                normalMatrices[0] = Matrix4.Identity;
+
+                for (int i = 1; i < _utilizedBones.Length + 1; ++i)
+                {
+                    Bone b = _utilizedBones[i - 1];
+                    positionMatrices[i] = b.VertexMatrix;
+                    normalMatrices[i] = b.VertexMatrixIT;
+                }
+
+                _cpuSkinInfo.UpdatePNBT(positionMatrices, normalMatrices);
+            }
         }
 
         public T GetParameter<T>(int index) where T : GLVar

@@ -38,6 +38,9 @@ namespace CustomEngine.Files
 
         public static Type GetTypeWithExtension(string ext)
         {
+            if (ext.StartsWith("."))
+                ext = ext.Substring(1);
+            ext = ext.ToLower();
             return Filters.FirstOrDefault(x => x.Value._extensions[0] == ext).Key;
         }
         public static ResourceType? GetResourceTypeWithExtension(string ext)

@@ -44,7 +44,7 @@ namespace CustomEngine.Rendering.Models.Materials
             //Write the beginning of the main function
             _generator.Begin();
 
-            if (_info.IsWeighted)
+            if (_info.IsWeighted && Engine._engineSettings.File.SkinOnGPU)
                 WriteRiggedPNTB(allowMeshMorphing, allowMeshMorphing ? singleMorphRig : true);
             else
                 WriteStaticPNTB(allowMeshMorphing);

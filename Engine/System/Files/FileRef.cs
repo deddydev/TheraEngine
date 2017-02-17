@@ -129,7 +129,7 @@ namespace CustomEngine.Files
             writer.WriteEndElement();
         }
         public override void Write(XmlWriter writer) { Write(writer, false); }
-        public static implicit operator T(SingleFileRef<T> fileRef) { return fileRef == null ? null : fileRef.GetInstance(); }
+        public static implicit operator T(SingleFileRef<T> fileRef) { return fileRef?.GetInstance(); }
         public static implicit operator SingleFileRef<T>(T file) { return new SingleFileRef<T>(file); }
         public static implicit operator SingleFileRef<T>(Type type) { return new SingleFileRef<T>(type); }
         public static implicit operator SingleFileRef<T>(string relativePath) { return new SingleFileRef<T>(relativePath); }
@@ -180,26 +180,38 @@ namespace CustomEngine.Files
         }
         public FileRef(string filePath)
         {
-            _refPath = filePath;
-            if (_refPath.StartsWith("\\"))
-                _absolutePath = Engine.StartupPath + _refPath;
-            else
-                _absolutePath = _refPath;
             _subType = typeof(T);
+            //if (Path.HasExtension(filePath) && FileManager.GetTypeWithExtension(Path.GetExtension(filePath)) != _subType)
+            //    throw new InvalidOperationException("Extension does not match type");
+            RefPathAbsolute = filePath;
         }
-        public FileRef(string filePath, Type type) : this(filePath)
+        public FileRef(string filePath, Type type)
         {
             if (type.IsSubclassOf(typeof(T)))
                 _subType = type;
             else
                 throw new Exception(type.ToString() + " does not inherit " + typeof(T).ToString());
+            //if (Path.HasExtension(filePath) && FileManager.GetTypeWithExtension(Path.GetExtension(filePath)) != _subType)
+            //    throw new InvalidOperationException("Extension does not match type");
+            RefPathAbsolute = filePath;
         }
 
         protected Type _subType = null;
         protected string _refPath = null;
         private string _absolutePath = null;
 
-        public string RefPathAbsolute { get { return _absolutePath; } }
+        public string RefPathAbsolute
+        {
+            get { return _absolutePath; }
+            set
+            {
+                _refPath = value;
+                if (_refPath.StartsWith("\\"))
+                    _absolutePath = Engine.StartupPath + _refPath;
+                else
+                    _absolutePath = _refPath;
+            }
+        }
         public string Extension() { return Path.GetExtension(_refPath).ToLower().Substring(1); }
         public bool IsXML()
         {

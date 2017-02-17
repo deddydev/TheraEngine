@@ -10,6 +10,8 @@ namespace CustomEngine.Rendering.OpenGL
 {
     public unsafe class GLRenderer : AbstractRenderer
     {
+        public const bool ForceShaderOutput = false;
+
         // https://www.opengl.org/wiki/Rendering_Pipeline_Overview
 
         public override RenderLibrary RenderLibrary { get { return RenderLibrary.OpenGL; } }
@@ -285,9 +287,13 @@ namespace CustomEngine.Rendering.OpenGL
             GL.CompileShader(handle);
 #if DEBUG
             GL.GetShader(handle, ShaderParameter.CompileStatus, out int status);
-            if (status == 0)
+            if (status == 0 || ForceShaderOutput)
             {
                 GL.GetShaderInfoLog(handle, out string info);
+
+                if (string.IsNullOrEmpty(info))
+                    info = source;
+
                 Console.WriteLine(info + "\n\n");
 
                 //Split the source by new lines

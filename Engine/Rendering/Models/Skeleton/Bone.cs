@@ -103,7 +103,7 @@ namespace CustomEngine.Rendering.Models
             //Used for calculating vertex influences matrices quickly
             _vertexMatrix = Matrix4.Identity,
             _worldMatrix = Matrix4.Identity, _inverseWorldMatrix = Matrix4.Identity;
-        private Matrix3 _vertexMatrixIT = Matrix3.Identity;
+        private Matrix4 _vertexMatrixIT = Matrix4.Identity;
 
         public Bone Parent
         {
@@ -136,7 +136,7 @@ namespace CustomEngine.Rendering.Models
         public Matrix4 InverseFrameMatrix { get { return _inverseFrameMatrix; } }
         public Matrix4 InverseBindMatrix { get { return _inverseBindMatrix; } }
         public Matrix4 VertexMatrix { get { return _vertexMatrix; } }
-        public Matrix3 VertexMatrixIT { get { return _vertexMatrixIT; } }
+        public Matrix4 VertexMatrixIT { get { return _vertexMatrixIT; } }
         public Skeleton Skeleton { get { return _skeleton; } }
         public PhysicsDriver PhysicsDriver { get { return _physicsDriver; } }
 
@@ -154,7 +154,7 @@ namespace CustomEngine.Rendering.Models
             _vertexMatrix = FrameMatrix * InverseBindMatrix;
             Matrix4 m = InverseFrameMatrix * BindMatrix;
             m.Transpose();
-            _vertexMatrixIT = m.GetRotationMatrix3();
+            _vertexMatrixIT = m.GetRotationMatrix4();
 
             if (OwningComponent == null)
             {
@@ -186,7 +186,7 @@ namespace CustomEngine.Rendering.Models
             _vertexMatrix = FrameMatrix * InverseBindMatrix;
             Matrix4 m = InverseFrameMatrix * BindMatrix;
             m.Transpose();
-            _vertexMatrixIT = m.GetRotationMatrix3();
+            _vertexMatrixIT = m.GetRotationMatrix4();
 
             if (!updateMesh)
                 InfluenceAssets(true);

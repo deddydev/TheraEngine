@@ -132,7 +132,7 @@ namespace CustomEngine.Rendering.Models.Collada
                 foreach (SceneEntry scene in shell._scenes)
                     foreach (NodeEntry node in scene._nodes)
                     {
-                        Bone b = EnumNode(null, node, scene, shell, objects, baseTransform, Matrix4.Identity, isZup);
+                        Bone b = EnumNode(null, node, scene, shell, objects, baseTransform, isZup);
                         if (b != null)
                             rootBones.Add(b);
                     }
@@ -168,7 +168,6 @@ namespace CustomEngine.Rendering.Models.Collada
             DecoderShell shell,
             List<ObjectInfo> objects,
             Matrix4 bindMatrix,
-            Matrix4 parentInv,
             bool isZup)
         {
             Bone rootBone = null;
@@ -186,10 +185,9 @@ namespace CustomEngine.Rendering.Models.Collada
 
                 parent = bone;
             }
-
-            Matrix4 pInv = bindMatrix.Inverted();
+            
             foreach (NodeEntry e in node._children)
-                EnumNode(parent, e, scene, shell, objects, bindMatrix, pInv, isZup);
+                EnumNode(parent, e, scene, shell, objects, bindMatrix, isZup);
 
             foreach (InstanceEntry inst in node._instances)
             {
@@ -219,7 +217,7 @@ namespace CustomEngine.Rendering.Models.Collada
                 else
                     foreach (NodeEntry e in shell._nodes)
                         if (e._id == inst._url)
-                            EnumNode(parent, e, scene, shell, objects, bindMatrix, pInv, isZup);
+                            EnumNode(parent, e, scene, shell, objects, bindMatrix, isZup);
             }
             return rootBone;
         }

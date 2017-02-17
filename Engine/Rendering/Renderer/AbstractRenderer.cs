@@ -20,58 +20,58 @@ namespace CustomEngine.Rendering
 
         private Dictionary<int, Material> _activeMaterials = new Dictionary<int, Material>();
         private SceneProcessor _scene = new SceneProcessor();
-        private PrimitiveManager
-            _wireSphere,
-            _wireBox,
-            _wireCapsule,
-            _wireCylinder,
-            _wireCone,
-            _wireFrustum,
-            _wirePlane;
-        private PrimitiveManager 
-            _solidSphere,
-            _solidBox,
-            _solidCapsule,
-            _solidCylinder,
-            _solidCone,
-            _solidFrustum,
-            _solidPlane;
-        private PrimitiveManager
-            _line, _point;
+        private Dictionary<string, PrimitiveManager> _debugPrimitives = new Dictionary<string, PrimitiveManager>();
 
-        public void CachePoint()
+        private PrimitiveManager CacheDebugPrimitive(string name, PrimitiveManager m)
         {
-            _point = new PrimitiveManager(PrimitiveData.FromPoints(Vec3.Zero), Material.GetUnlitColorMaterial());
+            if (!_debugPrimitives.ContainsKey(name))
+                _debugPrimitives.Add(name, m);
+            else
+                _debugPrimitives[name] = m;
+            return m;
         }
-        public void CacheLine()
+        public PrimitiveManager CachePoint(string name)
         {
+            if (_debugPrimitives.ContainsKey(name))
+                return _debugPrimitives[name];
+            return CacheDebugPrimitive(name, new PrimitiveManager(
+                PrimitiveData.FromPoints(Vec3.Zero), 
+                Material.GetUnlitColorMaterial()));
+        }
+        public PrimitiveManager CacheLine(string name)
+        {
+            if (_debugPrimitives.ContainsKey(name))
+                return _debugPrimitives[name];
             VertexLine line = new VertexLine(new Vertex(Vec3.Zero), new Vertex(Vec3.Forward));
-            _line = new PrimitiveManager(PrimitiveData.FromLines(new PrimitiveBufferInfo() { _hasNormals = false, _texcoordCount = 0 }, line), Material.GetUnlitColorMaterial());
+            return CacheDebugPrimitive(name, new PrimitiveManager(
+                PrimitiveData.FromLines(new PrimitiveBufferInfo()
+            { _hasNormals = false, _texcoordCount = 0 }, line),
+                Material.GetUnlitColorMaterial()));
         }
-        public void CacheWireframeSphere()
-        {
-            _wireSphere = new PrimitiveManager(
-                Sphere.WireframeMesh(Vec3.Zero, 1.0f, 10.0f),
-                Material.GetUnlitColorMaterial());
-        }
-        public void CacheSolidSphere()
-        {
-            _solidSphere = new PrimitiveManager(
-                Sphere.SolidMesh(Vec3.Zero, 1.0f, 10.0f),
-                Material.GetUnlitColorMaterial());
-        }
-        public void CacheWireframePlane()
-        {
-            _wirePlane = new PrimitiveManager(
-                Plane.WireframeMesh(Vec3.Zero, Rotator.GetZero(), 1.0f, 1.0f),
-                Material.GetUnlitColorMaterial());
-        }
-        public void CacheSolidPlane()
-        {
-            _solidPlane = new PrimitiveManager(
-                Plane.SolidMesh(Vec3.Zero, Rotator.GetZero(), 1.0f, 1.0f, Culling.None),
-                Material.GetUnlitColorMaterial());
-        }
+        //public void CacheWireframeSphere()
+        //{
+        //    _wireSphere = new PrimitiveManager(
+        //        Sphere.WireframeMesh(Vec3.Zero, 1.0f, 10.0f),
+        //        Material.GetUnlitColorMaterial());
+        //}
+        //public void CacheSolidSphere()
+        //{
+        //    _solidSphere = new PrimitiveManager(
+        //        Sphere.SolidMesh(Vec3.Zero, 1.0f, 10.0f),
+        //        Material.GetUnlitColorMaterial());
+        //}
+        //public void CacheWireframePlane()
+        //{
+        //    _wirePlane = new PrimitiveManager(
+        //        Plane.WireframeMesh(Vec3.Zero, Rotator.GetZero(), 1.0f, 1.0f),
+        //        Material.GetUnlitColorMaterial());
+        //}
+        //public void CacheSolidPlane()
+        //{
+        //    _solidPlane = new PrimitiveManager(
+        //        Plane.SolidMesh(Vec3.Zero, Rotator.GetZero(), 1.0f, 1.0f, Culling.None),
+        //        Material.GetUnlitColorMaterial());
+        //}
 
         public void RenderAABB(Vec3 halfExtents, Vec3 translation, bool solid) => RenderBox(halfExtents, Matrix4.CreateTranslation(translation), solid);
         public void RenderCapsule(Vec3 center, Vec3 axis, float topHeight, float topRadius, float bottomHeight, float bottomRadius, Matrix4 transform, bool solid)
@@ -96,63 +96,61 @@ namespace CustomEngine.Rendering
         public void RenderCone(Vec3 topPoint, Vec3 bottomPoint, float bottomRadius, Matrix4 transform, bool solid)
             => RenderCone(Vec3.TransformPosition(topPoint, transform), Vec3.TransformPosition(bottomPoint, transform), bottomRadius, solid);
 
-        public void RenderPoint(Vec3 position, float size, ColorF4 color)
+        public void RenderPoint(string name, Vec3 position, float size, ColorF4 color)
         {
             SetPointSize(size);
-            if (_point == null)
-                CachePoint();
-            _point.GetParameter<GLVec4>(0).Value = color;
-            _point.Render(Matrix4.CreateTranslation(position));
+            PrimitiveManager m = CachePoint(name);
+            m.GetParameter<GLVec4>(0).Value = color;
+            m.Render(Matrix4.CreateTranslation(position));
         }
-        public unsafe void RenderLine(Vec3 start, Vec3 end, float size, ColorF4 color)
+        public unsafe void RenderLine(string name, Vec3 start, Vec3 end, float size, ColorF4 color)
         {
             SetLineSize(size);
-            if (_line == null)
-                CacheLine();
-            _line.GetParameter<GLVec4>(0).Value = color;
-            ((Vec3*)_line.Data._buffers[0].Data)[1] = end - start;
-            _line.Render(Matrix4.CreateTranslation(start), Matrix3.Identity);
+            PrimitiveManager m = CacheLine(name);
+            m.GetParameter<GLVec4>(0).Value = color;
+            ((Vec3*)m.Data._buffers[0].Data)[1] = end - start;
+            m.Render(Matrix4.CreateTranslation(start), Matrix3.Identity);
         }
         public void RenderPlane(Vec3 position, Vec3 normal, Vec2 dimensions, bool solid)
         {
-            Matrix4 mtx = Matrix4.CreateTranslation(position) * normal.LookatAngles().GetMatrix();
-            if (solid)
-            {
-                if (_solidPlane == null)
-                    CacheSolidPlane();
-                _solidPlane.Render(mtx, Matrix3.Identity);
-            }
-            else
-            {
-                if (_wirePlane == null)
-                    CacheWireframePlane();
-                _wirePlane.Render(mtx, Matrix3.Identity);
-            }
+            //Matrix4 mtx = Matrix4.CreateTranslation(position) * normal.LookatAngles().GetMatrix();
+            //if (solid)
+            //{
+            //    if (_solidPlane == null)
+            //        CacheSolidPlane();
+            //    _solidPlane.Render(mtx, Matrix3.Identity);
+            //}
+            //else
+            //{
+            //    if (_wirePlane == null)
+            //        CacheWireframePlane();
+            //    _wirePlane.Render(mtx, Matrix3.Identity);
+            //}
         }
         public void RenderSphere(Vec3 center, float radius, bool solid)
         {
-            Matrix4 mtx = Matrix4.CreateTranslation(center) * Matrix4.CreateScale(radius * 2.0f);
-            if (solid)
-            {
-                if (_solidSphere == null)
-                    CacheSolidSphere();
-                _solidSphere.Render(mtx, Matrix3.Identity);
-            }
-            else
-            {
-                if (_wireSphere == null)
-                    CacheWireframeSphere();
-                _wireSphere.Render(mtx, Matrix3.Identity);
-            }
+            //Matrix4 mtx = Matrix4.CreateTranslation(center) * Matrix4.CreateScale(radius * 2.0f);
+            //if (solid)
+            //{
+            //    if (_solidSphere == null)
+            //        CacheSolidSphere();
+            //    _solidSphere.Render(mtx, Matrix3.Identity);
+            //}
+            //else
+            //{
+            //    if (_wireSphere == null)
+            //        CacheWireframeSphere();
+            //    _wireSphere.Render(mtx, Matrix3.Identity);
+            //}
         }
         public void RenderBox(Vec3 halfExtents, Matrix4 transform, bool solid)
         {
-            Vec3 scale = halfExtents * 2.0f;
-            transform = transform * Matrix4.CreateScale(scale);
-            if (solid)
-                _solidBox.Render(transform);
-            else
-                _wireBox.Render(transform);
+            //Vec3 scale = halfExtents * 2.0f;
+            //transform = transform * Matrix4.CreateScale(scale);
+            //if (solid)
+            //    _solidBox.Render(transform);
+            //else
+            //    _wireBox.Render(transform);
         }
         public void RenderCapsule(Vec3 topPoint, Vec3 bottomPoint, float topRadius, float bottomRadius, bool solid)
         {

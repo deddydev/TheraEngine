@@ -184,7 +184,7 @@ namespace System
 
             angle *= 0.5f;
             axis.Normalize();
-            result.Xyz = axis * (float)Sin(angle);
+            result.Xyz = axis.Yzx * (float)Sin(angle);
             result.W = (float)Cos(angle);
 
             return result.Normalized();

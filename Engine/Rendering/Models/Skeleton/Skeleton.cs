@@ -83,6 +83,7 @@ namespace CustomEngine.Rendering.Models
         bool _visible, _rendering;
         Shape _cullingVolume = new Sphere(1.0f);
         RenderOctree.Node _renderNode;
+
         public Shape CullingVolume { get { return _cullingVolume; } }
         public bool IsRendering
         {
@@ -104,9 +105,13 @@ namespace CustomEngine.Rendering.Models
             foreach (Bone b in BoneCache.Values)
             {
                 Vec3 point = b.WorldMatrix.GetPoint();
-                Engine.Renderer.RenderPoint(point, 15.0f, b.Parent == null ? Color.Green : Color.Purple);
+                Engine.Renderer.RenderPoint(b.Name + "_Pos", point, 15.0f, b.Parent == null ? Color.Green : Color.Purple);
                 if (b.Parent != null)
-                    Engine.Renderer.RenderLine(point, b.Parent.WorldMatrix.GetPoint(), 5.0f, Color.Blue);
+                    Engine.Renderer.RenderLine(b.Name + "_Parent", point, b.Parent.WorldMatrix.GetPoint(), 5.0f, Color.Blue);
+                float scale = Engine.Renderer.Scene.CurrentCamera.DistanceScale(point, 2.0f);
+                Engine.Renderer.RenderLine(b.Name + "_Up", point, Vec3.TransformPosition(Vec3.Up * scale, b.WorldMatrix), 5.0f, Color.Red);
+                Engine.Renderer.RenderLine(b.Name + "_Right", point, Vec3.TransformPosition(Vec3.Right * scale, b.WorldMatrix), 5.0f, Color.Green);
+                Engine.Renderer.RenderLine(b.Name + "_Forward", point, Vec3.TransformPosition(Vec3.Forward * scale, b.WorldMatrix), 5.0f, Color.Blue);
             }
         }
     }

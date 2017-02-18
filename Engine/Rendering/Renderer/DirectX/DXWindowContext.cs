@@ -166,5 +166,10 @@ namespace CustomEngine.Rendering.DirectX
             _resource = SlimDX.Direct3D11.Resource.FromSwapChain<Texture2D>(_swapChain, 0);
             _renderTarget = new RenderTargetView(_device, _resource);
         }
+
+        public override void Flush()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

@@ -5,6 +5,7 @@ using CustomEngine.Rendering.Models.Materials;
 using CustomEngine.Worlds.Actors.Components;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -67,8 +68,7 @@ namespace System
             if (_head == null)
                 return false;
 
-            bool destroy;
-            bool removed = _head.Remove(value, out destroy);
+            bool removed = _head.Remove(value, out bool destroy);
             if (destroy)
                 _head = null;
             return removed;
@@ -193,8 +193,7 @@ namespace System
                                 break;
                             else
                             {
-                                bool remove;
-                                if (hasBeenRemoved = node.Remove(value, out remove))
+                                if (hasBeenRemoved = node.Remove(value, out bool remove))
                                 {
                                     if (remove)
                                         _subNodes[i] = null;
@@ -321,7 +320,13 @@ namespace System
                 if (!_visible)
                     return;
                 foreach (IRenderable r in _items)
+                {
+                    //int t = Engine.StartTimer();
                     r.Render();
+                    //float time = Engine.EndTimer(t);
+                    //if (time > 0.0f)
+                    //    Debug.WriteLine(r.ToString() + " took " + time + " seconds");
+                }
                 if (_subNodes != null)
                     foreach (Node node in _subNodes)
                         node?.Render();

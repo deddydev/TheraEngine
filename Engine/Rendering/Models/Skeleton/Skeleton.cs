@@ -69,8 +69,19 @@ namespace CustomEngine.Rendering.Models
         }
         public void CalcFrameMatrices()
         {
-            foreach (Bone b in RootBones)
-                b.CalcFrameMatrix();
+            if (Engine._engineSettings.File.SkinOnGPU)
+            {
+                foreach (Bone b in RootBones)
+                    b.CalcFrameMatrix();
+            }
+            else
+            {
+                HashSet<FacePoint> modified = new HashSet<FacePoint>();
+                foreach (Bone b in RootBones)
+                    b.CalcFrameMatrix(modified);
+                //foreach (FacePoint point in modified)
+                //    point.UpdatePNTB();
+            }
         }
         internal override void Tick(float delta)
         {
@@ -100,18 +111,53 @@ namespace CustomEngine.Rendering.Models
             get { return _visible; }
             set { _visible = value; }
         }
+
         public void Render()
         {
             foreach (Bone b in BoneCache.Values)
             {
                 Vec3 point = b.WorldMatrix.GetPoint();
-                Engine.Renderer.RenderPoint(b.Name + "_Pos", point, 15.0f, b.Parent == null ? Color.Green : Color.Purple);
+                Engine.Renderer.RenderPoint(b.Name + "_Pos", point, 15.0f, b.Parent == null ? Color.Orange : Color.Purple);
                 if (b.Parent != null)
                     Engine.Renderer.RenderLine(b.Name + "_Parent", point, b.Parent.WorldMatrix.GetPoint(), 5.0f, Color.Blue);
                 float scale = Engine.Renderer.Scene.CurrentCamera.DistanceScale(point, 2.0f);
                 Engine.Renderer.RenderLine(b.Name + "_Up", point, Vec3.TransformPosition(Vec3.Up * scale, b.WorldMatrix), 5.0f, Color.Red);
                 Engine.Renderer.RenderLine(b.Name + "_Right", point, Vec3.TransformPosition(Vec3.Right * scale, b.WorldMatrix), 5.0f, Color.Green);
                 Engine.Renderer.RenderLine(b.Name + "_Forward", point, Vec3.TransformPosition(Vec3.Forward * scale, b.WorldMatrix), 5.0f, Color.Blue);
+            }
+        }
+        private class LiveInfluence
+        {
+            static void FromInfluence(Influence inf)
+            {
+
+            }
+        }
+        public void GenerateInfluences(PrimitiveManager manager)
+        {
+            if (manager.Data._influences != null)
+                for (int i = 0; i < manager.Data._influences.Length; ++i)
+                {
+                    Influence inf = manager.Data._influences[i];
+                    FacePoint point = manager.Data._facePoints[i];
+                    for (int j = 0; j < inf.WeightCount; ++j)
+                    {
+                        Bone b = _boneCache[inf.Weights[j].Bone];
+                        b._influencedVertices.Add(point);
+                    }
+                }
+        }
+        public void ClearInfluences(PrimitiveManager manager)
+        {
+            for (int i = 0; i < manager.Data._influences.Length; ++i)
+            {
+                Influence inf = manager.Data._influences[i];
+                FacePoint point = manager.Data._facePoints[i];
+                for (int j = 0; j < inf.WeightCount; ++j)
+                {
+                    Bone b = _boneCache[inf.Weights[j].Bone];
+                    b._influencedVertices.Remove(point);
+                }
             }
         }
     }

@@ -148,7 +148,12 @@ namespace CustomEngine.Worlds.Actors.Components
             }
             public void Render()
             {
-                _manager.Render(_component.WorldMatrix, _component.InverseWorldMatrix.Transposed().GetRotationMatrix3());
+                _manager.Render(_component.WorldMatrix, _component.WorldMatrix.GetRotationMatrix3());
+                //_manager.Render(_component.WorldMatrix, _component.InverseWorldMatrix.Transposed().GetRotationMatrix3());
+            }
+            public override string ToString()
+            {
+                return ((ObjectBase)_mesh).Name;
             }
         }
     }

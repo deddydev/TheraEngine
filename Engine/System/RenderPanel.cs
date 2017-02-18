@@ -102,7 +102,8 @@ namespace CustomEngine
                     _context.Capture();
                     OnRender(e);
                     _context.Swap();
-                    _context.ErrorCheck();
+                    //_context.ErrorCheck();
+                    //_context.Flush();
                 }
                 finally { Monitor.Exit(_context); }
             }

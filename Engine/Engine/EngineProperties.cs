@@ -41,7 +41,7 @@ namespace CustomEngine
         private static RenderLibrary _renderLibrary;
         private static AudioLibrary _audioLibrary;
         private static InputLibrary _inputLibrary;
-        private static List<float> _debugTimers = new List<float>();
+        private static List<DateTime> _debugTimers = new List<DateTime>();
         private static InputAwaiter _inputAwaiter;
         private static Dictionary<PlayerIndex, Queue<Pawn>> _possessionQueue = new Dictionary<PlayerIndex, Queue<Pawn>>();
         internal static List<PhysicsDriver> _queuedCollisions = new List<PhysicsDriver>();

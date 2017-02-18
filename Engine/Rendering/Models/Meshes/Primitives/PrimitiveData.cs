@@ -21,12 +21,12 @@ namespace CustomEngine.Rendering.Models
         public bool _hasBarycentricCoord = false;
         public bool _hasNormals = true, _hasBinormals = false, _hasTangents = false;
 
-        public bool IsWeighted { get { return _boneCount > 1; } }
-        public bool HasNormals { get { return _hasNormals; } }
-        public bool HasBinormals { get { return _hasBinormals; } }
-        public bool HasTangents { get { return _hasTangents; } }
-        public bool HasTexCoords { get { return _texcoordCount > 0; } }
-        public bool HasColors { get { return _colorCount > 0; } }
+        public bool IsWeighted { get => _boneCount > 1; }
+        public bool HasNormals { get => _hasNormals; }
+        public bool HasBinormals { get => _hasBinormals; }
+        public bool HasTangents { get => _hasTangents; }
+        public bool HasTexCoords { get => _texcoordCount > 0; }
+        public bool HasColors { get => _colorCount > 0; }
     }
     public class PrimitiveData : IDisposable
     {
@@ -166,13 +166,15 @@ namespace CustomEngine.Rendering.Models
                     for (int i = 0; i < inf.WeightCount; ++i)
                         utilized.Add(inf.Weights[i].Bone);
             _utilizedBones = utilized.ToArray();
+            for (int i = 0; i < _influences.Length; ++i)
+                _facePoints[i]._influence = _influences[i];
         }
 
         private void CreateFacePoints(int pointCount)
         {
             _facePoints = new List<FacePoint>();
             for (int i = 0; i < pointCount; ++i)
-                _facePoints.Add(new FacePoint(i));
+                _facePoints.Add(new FacePoint(i, this));
         }
         public VertexBuffer FindBuffer(string name)
         {

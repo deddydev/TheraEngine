@@ -247,7 +247,7 @@ namespace CustomEngine.Rendering.Models.Collada
 
                             vtx = vertices[i][inp._set];
                             if (vtx == null)
-                                vtx = infList == null ? new Vertex() : new Vertex(infList[index]);
+                                vtx = new Vertex();
 
                             switch (inp._semantic)
                             {
@@ -255,6 +255,8 @@ namespace CustomEngine.Rendering.Models.Collada
                                     Vec3 position = new Vec3(list[startIndex], list[startIndex + 1], list[startIndex + 2]);
                                     position = position * bindMatrix;
                                     vtx._position = position;
+                                    if (infList != null)
+                                        vtx._influence = infList[index];
                                     break;
                                 case SemanticType.NORMAL:
                                     Vec3 normal = new Vec3(list[startIndex], list[startIndex + 1], list[startIndex + 2]);

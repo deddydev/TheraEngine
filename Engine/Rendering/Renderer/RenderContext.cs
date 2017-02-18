@@ -125,6 +125,7 @@ namespace CustomEngine.Rendering
             Release();
         }
 
+        public abstract void Flush();
         public abstract void Initialize();
         public abstract void BeginDraw();
         public abstract void EndDraw();

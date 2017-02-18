@@ -108,5 +108,10 @@ namespace CustomEngine.Rendering.OpenGL
             OnUpdated();
             _control.Invalidate();
         }
+
+        public override void Flush()
+        {
+            GL.Flush();
+        }
     }
 }

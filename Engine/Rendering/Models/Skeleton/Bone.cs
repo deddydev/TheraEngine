@@ -20,6 +20,8 @@ namespace CustomEngine.Rendering.Models
         private bool _parallelBillboard = true;
         private bool _scaleByDistance = false;
 
+        internal List<FacePoint> _influencedVertices = new List<FacePoint>();
+
         public Bone(string name, FrameState bindstate, PhysicsDriverInfo info)
         {
             Init(name, bindstate, info);
@@ -71,6 +73,7 @@ namespace CustomEngine.Rendering.Models
         {
 
         }
+
         public void SimulationUpdate(bool isSimulating)
         {
 
@@ -93,7 +96,6 @@ namespace CustomEngine.Rendering.Models
         private List<SkeletalRigidSubMesh> _singleBoundMeshes = new List<SkeletalRigidSubMesh>();
         private Skeleton _skeleton;
         private Bone _parent;
-        private List<FacePoint> _influencedVertices = new List<FacePoint>();
         private FrameState _frameState, _bindState;
         private Matrix4
             //Animated transformation matrix relative to the skeleton's root bone, aka model space
@@ -118,7 +120,7 @@ namespace CustomEngine.Rendering.Models
         }
         public MonitoredList<SceneComponent> ChildComponents { get { return _childComponents; } }
         public MonitoredList<Bone> ChildBones { get { return _childBones; } }
-        public SkeletalMeshComponent OwningComponent { get { return _skeleton == null ? null : _skeleton.OwningComponent; } }
+        public SkeletalMeshComponent OwningComponent { get { return _skeleton?.OwningComponent; } }
         public FrameState FrameState { get { return _frameState; } }
         public FrameState BindState
         {
@@ -140,21 +142,27 @@ namespace CustomEngine.Rendering.Models
         public Skeleton Skeleton { get { return _skeleton; } }
         public PhysicsDriver PhysicsDriver { get { return _physicsDriver; } }
 
+        public void CalcFrameMatrix(HashSet<FacePoint> modified)
+        {
+            CalcFrameMatrix(
+                _parent != null ? _parent._frameMatrix : Matrix4.Identity,
+                _parent != null ? _parent._inverseFrameMatrix : Matrix4.Identity,
+                modified);
+        }
         public void CalcFrameMatrix()
         {
             CalcFrameMatrix(
                 _parent != null ? _parent._frameMatrix : Matrix4.Identity,
-                _parent != null ? _parent._inverseFrameMatrix : Matrix4.Identity);
+                _parent != null ? _parent._inverseFrameMatrix : Matrix4.Identity,
+                null);
         }
-        public void CalcFrameMatrix(Matrix4 parentMatrix, Matrix4 inverseParentMatrix)
+        public void CalcFrameMatrix(Matrix4 parentMatrix, Matrix4 inverseParentMatrix, HashSet<FacePoint> modified)
         {
             _frameMatrix = parentMatrix * _frameState.Matrix;
             _inverseFrameMatrix = _frameState.InverseMatrix * inverseParentMatrix;
 
             _vertexMatrix = FrameMatrix * InverseBindMatrix;
-            Matrix4 m = InverseFrameMatrix * BindMatrix;
-            m.Transpose();
-            _vertexMatrixIT = m.GetRotationMatrix4();
+            _vertexMatrixIT = (InverseFrameMatrix * BindMatrix).Transposed().GetRotationMatrix4();
 
             if (OwningComponent == null)
             {
@@ -167,8 +175,12 @@ namespace CustomEngine.Rendering.Models
                 _inverseWorldMatrix = _inverseFrameMatrix * OwningComponent.InverseWorldMatrix;
             }
 
+            //if (modified != null)
+            //    foreach (FacePoint p in _influencedVertices)
+            //        modified.Add(p);
+
             foreach (Bone b in _childBones)
-                b.CalcFrameMatrix(_frameMatrix, _inverseFrameMatrix);
+                b.CalcFrameMatrix(_frameMatrix, _inverseFrameMatrix, modified);
         }
 
         public void CalcBindMatrix(bool updateMesh)
@@ -206,7 +218,7 @@ namespace CustomEngine.Rendering.Models
         {
             item._parent = this;
             item.CalcBindMatrix(BindMatrix, InverseBindMatrix, false);
-            item.CalcFrameMatrix(FrameMatrix, InverseFrameMatrix);
+            item.CalcFrameMatrix(FrameMatrix, InverseFrameMatrix, null);
             _skeleton?.RegenerateBoneCache();
         }
         private void ChildBonesAddedRange(IEnumerable<Bone> items)
@@ -215,7 +227,7 @@ namespace CustomEngine.Rendering.Models
             {
                 item._parent = this;
                 item.CalcBindMatrix(BindMatrix, InverseBindMatrix, false);
-                item.CalcFrameMatrix(FrameMatrix, InverseFrameMatrix);
+                item.CalcFrameMatrix(FrameMatrix, InverseFrameMatrix, null);
             }
             _skeleton?.RegenerateBoneCache();
         }
@@ -223,7 +235,7 @@ namespace CustomEngine.Rendering.Models
         {
             item._parent = this;
             item.CalcBindMatrix(BindMatrix, InverseBindMatrix, false);
-            item.CalcFrameMatrix(FrameMatrix, InverseFrameMatrix);
+            item.CalcFrameMatrix(FrameMatrix, InverseFrameMatrix, null);
             _skeleton?.RegenerateBoneCache();
         }
         private void ChildBonesInsertedRange(IEnumerable<Bone> items, int index)
@@ -232,7 +244,7 @@ namespace CustomEngine.Rendering.Models
             {
                 item._parent = this;
                 item.CalcBindMatrix(BindMatrix, InverseBindMatrix, false);
-                item.CalcFrameMatrix(FrameMatrix, InverseFrameMatrix);
+                item.CalcFrameMatrix(FrameMatrix, InverseFrameMatrix, null);
             }
             _skeleton?.RegenerateBoneCache();
         }

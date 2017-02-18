@@ -132,7 +132,7 @@ namespace CustomEngine.Rendering.Models.Collada
                 foreach (SceneEntry scene in shell._scenes)
                     foreach (NodeEntry node in scene._nodes)
                     {
-                        Bone b = EnumNode(null, node, scene, shell, objects, baseTransform, isZup);
+                        Bone b = EnumNode(null, node, scene, shell, objects, baseTransform, Matrix4.Identity, isZup);
                         if (b != null)
                             rootBones.Add(b);
                     }
@@ -168,6 +168,7 @@ namespace CustomEngine.Rendering.Models.Collada
             DecoderShell shell,
             List<ObjectInfo> objects,
             Matrix4 bindMatrix,
+            Matrix4 invParent,
             bool isZup)
         {
             Bone rootBone = null;
@@ -175,7 +176,7 @@ namespace CustomEngine.Rendering.Models.Collada
 
             if (node._type == NodeType.JOINT)
             {
-                Bone bone = new Bone(node._name ?? node._id, FrameState.DeriveTRS(isZup ? Matrix4.ZupToYup * node._matrix : node._matrix));
+                Bone bone = new Bone(node._name ?? node._id, FrameState.DeriveTRS(invParent * bindMatrix));
                 node._node = bone;
 
                 if (parent == null)
@@ -185,9 +186,10 @@ namespace CustomEngine.Rendering.Models.Collada
 
                 parent = bone;
             }
-            
+
+            Matrix4 inv = bindMatrix.Inverted();
             foreach (NodeEntry e in node._children)
-                EnumNode(parent, e, scene, shell, objects, bindMatrix, isZup);
+                EnumNode(parent, e, scene, shell, objects, bindMatrix, inv, isZup);
 
             foreach (InstanceEntry inst in node._instances)
             {
@@ -217,7 +219,7 @@ namespace CustomEngine.Rendering.Models.Collada
                 else
                     foreach (NodeEntry e in shell._nodes)
                         if (e._id == inst._url)
-                            EnumNode(parent, e, scene, shell, objects, bindMatrix, isZup);
+                            EnumNode(parent, e, scene, shell, objects, bindMatrix, inv, isZup);
             }
             return rootBone;
         }

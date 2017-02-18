@@ -130,10 +130,13 @@ namespace CustomEngine.Worlds.Actors.Components
                 get { return _skeleton; }
                 set
                 {
+                    _skeleton?.ClearInfluences(_manager);
                     _skeleton = value;
 
                     //TODO: support multi-bone influence as single bind as well
                     _singleBind = _mesh.SingleBindName != null && _skeleton != null ? _skeleton.GetBone(_mesh.SingleBindName) : null;
+                    
+                    _skeleton?.GenerateInfluences(_manager);
                     _manager.SkeletonChanged(_skeleton);
                 }
             }
@@ -153,10 +156,16 @@ namespace CustomEngine.Worlds.Actors.Components
                     //else
                     //{
                         world = _component.WorldMatrix;
-                        invWorld = _component.InverseWorldMatrix;
+                        //invWorld = _component.InverseWorldMatrix;
                     //}
-                    _manager.Render(world, invWorld.Transposed().GetRotationMatrix3());
+
+                    //_manager.Render(world, invWorld.Transposed().GetRotationMatrix3());
+                    _manager.Render(world, world.GetRotationMatrix3());
                 }
+            }
+            public override string ToString()
+            {
+                return ((ObjectBase)_mesh).Name;
             }
         }
     }

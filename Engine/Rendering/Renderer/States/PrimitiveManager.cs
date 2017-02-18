@@ -83,7 +83,7 @@ namespace CustomEngine.Rendering.Models
         {
             _data[BufferType.MatrixIds]?.Dispose();
             _data[BufferType.MatrixWeights]?.Dispose();
-            if (skeleton != null)
+            if (skeleton != null && _data._influences != null)
             {
                 _utilizedBones = _data._utilizedBones.Select(x => skeleton.BoneCache[x]).ToArray();
 
@@ -187,7 +187,7 @@ namespace CustomEngine.Rendering.Models
         public unsafe void Render(Matrix4 modelMatrix)
         {
             //TODO: don't invert, transpose, and get rotation matrix here
-            Render(modelMatrix, modelMatrix.Inverted().Transposed().GetRotationMatrix3());
+            Render(modelMatrix, modelMatrix.GetRotationMatrix3());//modelMatrix.Inverted().Transposed().GetRotationMatrix3());
         }
         public unsafe void Render(Matrix4 modelMatrix, Matrix3 normalMatrix)
         {

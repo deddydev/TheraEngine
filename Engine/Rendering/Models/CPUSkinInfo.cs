@@ -8,10 +8,7 @@ namespace CustomEngine.Rendering.Models
         IVec4[] _matrixIds;
         Vec4[] _matrixWeights;
         Vec3[] _basePositions, _baseNormals, _baseBinormals, _baseTangents;
-        VertexBuffer _positions;
-        VertexBuffer _normals;
-        VertexBuffer _binormals;
-        VertexBuffer _tangents;
+        VertexBuffer _positions, _normals, _binormals, _tangents;
         public CPUSkinInfo(PrimitiveData data, Vec4[] matrixWeights, IVec4[] matrixIds)
         {
             (_positions = data[BufferType.Position])?.GetData(out _basePositions, false);

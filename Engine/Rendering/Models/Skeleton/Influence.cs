@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace CustomEngine.Rendering.Models
 {
-    public class Influence : IEnumerable<BoneWeight>
+    public class Influence
     {
         public const int MaxWeightCount = 4;
 
@@ -144,8 +144,5 @@ namespace CustomEngine.Rendering.Models
         {
             return base.GetHashCode();
         }
-
-        public IEnumerator<BoneWeight> GetEnumerator() { return ((IEnumerable<BoneWeight>)_weights).GetEnumerator(); }
-        IEnumerator IEnumerable.GetEnumerator() { return ((IEnumerable<BoneWeight>)_weights).GetEnumerator(); }
     }
 }

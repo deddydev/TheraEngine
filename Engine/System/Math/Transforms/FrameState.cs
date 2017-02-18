@@ -146,8 +146,8 @@ namespace System
             Matrix4 oldMatrix = _transform;
             Matrix4 oldInvMatrix = _inverseTransform;
 
-            _transform = Matrix4.TransformMatrix(_scale, _quaternion, _translation, _transformOrder);
-            _inverseTransform = Matrix4.InverseTransformMatrix(_scale, _quaternion, _translation, _transformOrder);
+            _transform = Matrix4.TransformMatrix(_scale, _rotation, _translation, _transformOrder);
+            _inverseTransform = Matrix4.InverseTransformMatrix(_scale, _rotation, _translation, _transformOrder);
 
             MatrixChanged?.Invoke(oldMatrix, oldInvMatrix);
         }
@@ -280,38 +280,39 @@ namespace System
             {
                 _translation = m.Row3.Xyz,
                 _scale = new Vec3(m.Row0.Xyz.Length, m.Row1.Xyz.Length, m.Row2.Xyz.Length),
-                _quaternion = m.ExtractRotation(true)
+                //_quaternion = m.ExtractRotation(true)
             };
-            //float x, y, z, c;
-            //float* p = m.Data;
-            
-            //y = (float)Math.Asin(-p[2]);
-            //if (((Math.PI / 2.0f) - Math.Abs(y)) < 0.0001f)
-            //{
-            //    //Gimbal lock, occurs when the y rotation falls on pi/2 or -pi/2
-            //    z = 0.0f;
-            //    if (y > 0)
-            //        x = (float)Math.Atan2(p[4], p[8]);
-            //    else
-            //        x = (float)Math.Atan2(p[4], -p[8]);
-            //}
-            //else
-            //{
-            //    c = (float)Math.Cos(y);
-            //    x = (float)Math.Atan2(p[6] / c, p[10] / c);
-            //    z = (float)Math.Atan2(p[1] / c, p[0] / c);
 
-            //    //180 z/x inverts y, use second option
-            //    if (Math.PI - Math.Abs(z) < 0.05f)
-            //    {
-            //        y = (float)Math.PI - y;
-            //        c = (float)Math.Cos(y);
-            //        x = (float)Math.Atan2(p[6] / c, p[10] / c);
-            //        z = (float)Math.Atan2(p[1] / c, p[0] / c);
-            //    }
-            //}
-            
-            //state._rotation = new Rotator(CustomMath.RadToDeg(new Vec3(x, y, z)), Rotator.Order.YPR);
+            float x, y, z, c;
+            float* p = m.Data;
+
+            y = (float)Math.Asin(-p[2]);
+            if (((Math.PI / 2.0f) - Math.Abs(y)) < 0.0001f)
+            {
+                //Gimbal lock, occurs when the y rotation falls on pi/2 or -pi/2
+                z = 0.0f;
+                if (y > 0)
+                    x = (float)Math.Atan2(p[4], p[8]);
+                else
+                    x = (float)Math.Atan2(p[4], -p[8]);
+            }
+            else
+            {
+                c = (float)Math.Cos(y);
+                x = (float)Math.Atan2(p[6] / c, p[10] / c);
+                z = (float)Math.Atan2(p[1] / c, p[0] / c);
+
+                //180 z/x inverts y, use second option
+                if (Math.PI - Math.Abs(z) < 0.05f)
+                {
+                    y = (float)Math.PI - y;
+                    c = (float)Math.Cos(y);
+                    x = (float)Math.Atan2(p[6] / c, p[10] / c);
+                    z = (float)Math.Atan2(p[1] / c, p[0] / c);
+                }
+            }
+
+            state._rotation = new Rotator(CustomMath.RadToDeg(new Vec3(x, y, z)), Rotator.Order.YPR);
             state.CreateTransform();
             return state;
         }

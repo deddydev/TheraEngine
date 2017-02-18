@@ -56,7 +56,7 @@ namespace CustomEngine
         public static int StartTimer()
         {
             int id = _debugTimers.Count;
-            _debugTimers.Add(0);
+            _debugTimers.Add(DateTime.Now);
             return id;
         }
         /// <summary>
@@ -65,7 +65,7 @@ namespace CustomEngine
         /// <param name="id">The id of the timer.</param>
         public static float EndTimer(int id)
         {
-            float seconds = _debugTimers[id];
+            float seconds = (float)(DateTime.Now - _debugTimers[id]).TotalSeconds;
             _debugTimers.RemoveAt(id);
             return seconds;
         }
@@ -137,7 +137,7 @@ namespace CustomEngine
         private static /*async*/ void Tick(object sender, FrameEventArgs e)
         {
             float delta = (float)e.Time;
-            _debugTimers.ForEach(x => x += delta);
+            //_debugTimers.ForEach(x => x += delta);
             //delta /= PhysicsSubsteps;
             //for (int i = 0; i < 1; i++)
             //{

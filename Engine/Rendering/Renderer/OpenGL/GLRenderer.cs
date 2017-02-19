@@ -5,6 +5,7 @@ using System.Drawing;
 using CustomEngine.Rendering.Models.Materials;
 using System.Collections.Generic;
 using CustomEngine.Rendering.Models;
+using System.Diagnostics;
 
 namespace CustomEngine.Rendering.OpenGL
 {
@@ -294,7 +295,7 @@ namespace CustomEngine.Rendering.OpenGL
                 if (string.IsNullOrEmpty(info))
                     info = source;
 
-                Console.WriteLine(info + "\n\n");
+                Debug.WriteLine(info + "\n\n");
 
                 //Split the source by new lines
                 string[] s = source.Split(new string[] { Environment.NewLine }, StringSplitOptions.None);
@@ -302,9 +303,9 @@ namespace CustomEngine.Rendering.OpenGL
                 //Add the line number to the source so we can go right to errors on specific lines
                 int lineNumber = 1;
                 foreach (string line in s)
-                    Console.WriteLine(string.Format("{0}: {1}", (lineNumber++).ToString().PadLeft(s.Length.ToString().Length, '0'), line));
+                    Debug.WriteLine(string.Format("{0}: {1}", (lineNumber++).ToString().PadLeft(s.Length.ToString().Length, '0'), line));
 
-                Console.WriteLine("\n\n");
+                Debug.WriteLine("\n\n");
             }
 #endif
             return handle;

@@ -280,11 +280,16 @@ namespace System
             {
                 _translation = m.Row3.Xyz,
                 _scale = new Vec3(m.Row0.Xyz.Length, m.Row1.Xyz.Length, m.Row2.Xyz.Length),
-                //_quaternion = m.ExtractRotation(true)
+                //_rotation = m.ExtractRotation(true).ToEuler()
             };
 
             float x, y, z, c;
             float* p = m.Data;
+
+            m.Row0.Xyz = m.Row0.Xyz.Normalized();
+            m.Row1.Xyz = m.Row1.Xyz.Normalized();
+            m.Row2.Xyz = m.Row2.Xyz.Normalized();
+            m.Row3.Xyz = m.Row3.Xyz.Normalized();
 
             y = (float)Math.Asin(-p[2]);
             if (((Math.PI / 2.0f) - Math.Abs(y)) < 0.0001f)
@@ -313,6 +318,12 @@ namespace System
             }
 
             state._rotation = new Rotator(CustomMath.RadToDeg(new Vec3(x, y, z)), Rotator.Order.YPR);
+
+            if (state._rotation.Pitch == float.NaN || 
+                state._rotation.Yaw == float.NaN || 
+                state._rotation.Roll == float.NaN)
+                throw new Exception("Something went wrong when deriving rotation values.");
+
             state.CreateTransform();
             return state;
         }

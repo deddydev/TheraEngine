@@ -11,12 +11,16 @@ namespace CustomEngine.Rendering.Models
         private int _index;
         private List<int> _bufferIndices = new List<int>();
         internal PrimitiveData _data;
-        internal Influence _influence;
 
         public FacePoint(int index, PrimitiveData data)
         {
             _index = index;
             _data = data;
+        }
+
+        public Influence GetInfluence()
+        {
+            return _data._influences?[_index];
         }
 
         //public int this[string name]

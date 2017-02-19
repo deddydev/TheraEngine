@@ -31,6 +31,12 @@ namespace CustomEngine.Rendering.Models
             rootBone.CalcFrameMatrix();
             RegenerateBoneCache();
         }
+
+        public Bone this[string name]
+        {
+            get { return BoneCache.ContainsKey(name) ? BoneCache[name] : null; }
+        }
+
         public Dictionary<string, Bone> BoneCache
         {
             get { return _boneCache; }

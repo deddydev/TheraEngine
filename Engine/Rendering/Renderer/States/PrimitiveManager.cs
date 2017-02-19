@@ -112,6 +112,18 @@ namespace CustomEngine.Rendering.Models
                     }
                 }
 
+                _positionMatrices = new Matrix4[_utilizedBones.Length + 1];
+                _normalMatrices = new Matrix3[_utilizedBones.Length + 1];
+                _positionMatrices[0] = Matrix4.Identity;
+                _normalMatrices[0] = Matrix3.Identity;
+
+                for (int i = 1; i < _utilizedBones.Length + 1; ++i)
+                {
+                    Bone b = _utilizedBones[i - 1];
+                    _positionMatrices[i] = b.VertexMatrix;
+                    _normalMatrices[i] = b.VertexMatrixIT.GetRotationMatrix3();
+                }
+
                 if (Engine._engineSettings.File.SkinOnGPU)
                 {
                     _cpuSkinInfo = null;
@@ -130,6 +142,8 @@ namespace CustomEngine.Rendering.Models
                 _utilizedBones = null;
             }
         }
+        Matrix4[] _positionMatrices;
+        Matrix3[] _normalMatrices;
         private void SetSkinningUniforms()
         {
             if (!_bufferInfo.IsWeighted)
@@ -137,20 +151,8 @@ namespace CustomEngine.Rendering.Models
 
             if (Engine._engineSettings.File.SkinOnGPU)
             {
-                Matrix4[] positionMatrices = new Matrix4[_utilizedBones.Length + 1];
-                Matrix3[] normalMatrices = new Matrix3[_utilizedBones.Length + 1];
-                positionMatrices[0] = Matrix4.Identity;
-                normalMatrices[0] = Matrix3.Identity;
-
-                for (int i = 1; i < _utilizedBones.Length + 1; ++i)
-                {
-                    Bone b = _utilizedBones[i - 1];
-                    positionMatrices[i] = b.VertexMatrix;
-                    normalMatrices[i] = b.VertexMatrixIT.GetRotationMatrix3();
-                }
-
-                Engine.Renderer.Uniform(Uniform.BoneMatricesName, positionMatrices.ToArray());
-                Engine.Renderer.Uniform(Uniform.BoneMatricesITName, normalMatrices.ToArray());
+                Engine.Renderer.Uniform(Uniform.BoneMatricesName, _positionMatrices);
+                Engine.Renderer.Uniform(Uniform.BoneMatricesITName, _normalMatrices);
                 //Engine.Renderer.Uniform(Uniform.MorphWeightsName, _morphWeights);
             }
             else

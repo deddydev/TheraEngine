@@ -123,10 +123,10 @@ namespace CustomEngine.Worlds
                 first.LinkNext(second).LinkNext(last);
                 modelAnim.Keyframes.AddFirst(first);
                 //modelAnim.Bake();
-                AnimFolder modelYawFolder = new AnimFolder("Roll", false, modelAnim);
+                AnimFolder modelYawFolder = new AnimFolder("Yaw", false, modelAnim);
                 //AnimFolder modelRotationFolder = new AnimFolder("Rotation", modelYawFolder);
                 AnimationContainer modelAnimContainer = new AnimationContainer(modelYawFolder);
-                skeleton.RootBones[0].ChildBones[0].FrameState.AddAnimation(modelAnimContainer, true);
+                skeleton["LElbow"]?.FrameState.AddAnimation(modelAnimContainer, true);
             }
             else
                 comp = new StaticMeshComponent(staticM, null);

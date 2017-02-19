@@ -166,8 +166,6 @@ namespace CustomEngine.Rendering.Models
                     for (int i = 0; i < inf.WeightCount; ++i)
                         utilized.Add(inf.Weights[i].Bone);
             _utilizedBones = utilized.ToArray();
-            for (int i = 0; i < _influences.Length; ++i)
-                _facePoints[i]._influence = _influences[i];
         }
 
         private void CreateFacePoints(int pointCount)

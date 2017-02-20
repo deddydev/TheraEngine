@@ -123,10 +123,11 @@ namespace CustomEngine.Rendering
             if (!IsActive)
                 return;
 
+            PreDeleted();
             Engine.Renderer.DeleteObject(_type, _currentBind._bindingId);
             _currentBind._bindingId = 0;
             _currentBind._context = null;
-            OnDeleted();
+            PostDeleted();
         }
         /// <summary>
         /// Do not call. Override if special generation necessary.
@@ -138,9 +139,13 @@ namespace CustomEngine.Rendering
         /// </summary>
         protected virtual void OnGenerated() { }
         /// <summary>
+        /// Called directly before this object is deleted from the current context.
+        /// </summary>
+        protected virtual void PreDeleted() { }
+        /// <summary>
         /// Called directly after this object is deleted from the current context.
         /// </summary>
-        protected virtual void OnDeleted() { }
+        protected virtual void PostDeleted() { }
         /// <summary>
         /// Called by a context when it is being destroyed.
         /// </summary>

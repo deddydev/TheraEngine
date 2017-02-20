@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using OpenTK.Graphics.OpenGL;
 
 namespace CustomEngine.Rendering.Models
 {
@@ -11,6 +10,24 @@ namespace CustomEngine.Rendering.Models
         Back,
         Front,
         Both
+    }
+    public enum EPrimitiveType
+    {
+        Points                  = 0,
+        Lines                   = 1,
+        LineLoop                = 2,
+        LineStrip               = 3,
+        Triangles               = 4,
+        TriangleStrip           = 5,
+        TriangleFan             = 6,
+        Quads                   = 7,
+        QuadStrip               = 8,
+        Polygon                 = 9,
+        LinesAdjacency          = 10,
+        LineStripAdjacency      = 11,
+        TrianglesAdjacency      = 12,
+        TriangleStripAdjacency  = 13,
+        Patches                 = 14,
     }
     public class PrimitiveBufferInfo
     {
@@ -45,7 +62,7 @@ namespace CustomEngine.Rendering.Models
         public List<IndexTriangle> _triangles = null;
         public List<IndexLine> _lines = null;
         public List<IndexPoint> _points = null;
-        public PrimitiveType _type;
+        public EPrimitiveType _type;
 
         //Influence per raw vertex.
         //Count is same as _facePoints.Count
@@ -136,11 +153,11 @@ namespace CustomEngine.Rendering.Models
         {
             switch (_type)
             {
-                case PrimitiveType.Triangles:
+                case EPrimitiveType.Triangles:
                     return _triangles?.SelectMany(x => new int[] { x.Point0, x.Point1, x.Point2 }).ToArray();
-                case PrimitiveType.Lines:
+                case EPrimitiveType.Lines:
                     return _lines?.SelectMany(x => new int[] { x.Point0, x.Point1 }).ToArray();
-                case PrimitiveType.Points:
+                case EPrimitiveType.Points:
                     return _points?.Select(x => (int)x).ToArray();
             }
             return null;
@@ -187,7 +204,7 @@ namespace CustomEngine.Rendering.Models
             VertexAttribInfo info,
             bool remap = false,
             bool integral = false,
-            BufferTarget target = BufferTarget.ArrayBuffer) where T : IBufferable
+            EBufferTarget target = EBufferTarget.DataArray) where T : IBufferable
         {
             if (_buffers == null)
                 _buffers = new List<VertexBuffer>();
@@ -214,7 +231,7 @@ namespace CustomEngine.Rendering.Models
             VertexAttribInfo info,
             bool remap = false,
             bool integral = false,
-            BufferTarget target = BufferTarget.ArrayBuffer) where T : IBufferable
+            EBufferTarget target = EBufferTarget.DataArray) where T : IBufferable
         {
             if (_buffers == null)
                 throw new InvalidOperationException();
@@ -348,7 +365,7 @@ namespace CustomEngine.Rendering.Models
         public static PrimitiveData FromTriangleList(Culling culling, PrimitiveBufferInfo info, IEnumerable<VertexTriangle> triangles)
         {
             //TODO: convert triangles to tristrips and use primitive restart to render them all in one call
-            return new PrimitiveData(culling, info, triangles.SelectMany(x => x.Vertices), PrimitiveType.Triangles);
+            return new PrimitiveData(culling, info, triangles.SelectMany(x => x.Vertices), EPrimitiveType.Triangles);
         }
         public static PrimitiveData FromLineStrips(PrimitiveBufferInfo info, params VertexLineStrip[] lines)
         {
@@ -364,7 +381,7 @@ namespace CustomEngine.Rendering.Models
         }
         public static PrimitiveData FromLineList(PrimitiveBufferInfo info, IEnumerable<VertexLine> lines)
         {
-            return new PrimitiveData(Culling.None, info, lines.SelectMany(x => x.Vertices), PrimitiveType.Lines);
+            return new PrimitiveData(Culling.None, info, lines.SelectMany(x => x.Vertices), EPrimitiveType.Lines);
         }
         public static PrimitiveData FromPoints(params Vec3[] points)
         {
@@ -372,10 +389,10 @@ namespace CustomEngine.Rendering.Models
         }
         public static PrimitiveData FromPointList(IEnumerable<Vec3> points)
         {
-            return new PrimitiveData(Culling.None, new PrimitiveBufferInfo() { _hasNormals = false, _texcoordCount = 0 }, points.Select(x => new Vertex(x)), PrimitiveType.Points);
+            return new PrimitiveData(Culling.None, new PrimitiveBufferInfo() { _hasNormals = false, _texcoordCount = 0 }, points.Select(x => new Vertex(x)), EPrimitiveType.Points);
         }
 
-        public PrimitiveData(Culling culling, PrimitiveBufferInfo info, IEnumerable<Vertex> points, PrimitiveType type)
+        public PrimitiveData(Culling culling, PrimitiveBufferInfo info, IEnumerable<Vertex> points, EPrimitiveType type)
         {
             _type = type;
             _influences = null;
@@ -385,13 +402,13 @@ namespace CustomEngine.Rendering.Models
             Remapper remapper = null;
             switch (_type)
             {
-                case PrimitiveType.Triangles:
+                case EPrimitiveType.Triangles:
                     remapper = SetTriangleIndices(vertices);
                     break;
-                case PrimitiveType.Lines:
+                case EPrimitiveType.Lines:
                     remapper = SetLineIndices(vertices);
                     break;
-                case PrimitiveType.Points:
+                case EPrimitiveType.Points:
                     remapper = SetPointIndices(vertices);
                     break;
             }

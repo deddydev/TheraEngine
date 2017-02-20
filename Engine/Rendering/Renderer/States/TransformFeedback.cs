@@ -31,7 +31,7 @@ namespace CustomEngine.Rendering
 
         protected override int CreateObject()
         {
-            _feedbackBuffer = new VertexBuffer("Feedback", _bindingLocation, BufferTarget.TransformFeedbackBuffer, false);
+            //_feedbackBuffer = new VertexBuffer("Feedback", _bindingLocation, BufferTarget.TransformFeedbackBuffer, false);
             return base.CreateObject();
         }
 
@@ -40,7 +40,7 @@ namespace CustomEngine.Rendering
             
         }
 
-        protected override void OnDeleted()
+        protected override void PostDeleted()
         {
             _feedbackBuffer.Dispose();
             _feedbackBuffer = null;

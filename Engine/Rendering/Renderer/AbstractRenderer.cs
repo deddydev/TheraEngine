@@ -18,9 +18,11 @@ namespace CustomEngine.Rendering
         public RenderContext CurrentContext { get { return RenderContext.Current; } }
         public Viewport CurrentlyRenderingViewport { get { return Viewport.CurrentlyRendering; } }
 
-        private Dictionary<int, Material> _activeMaterials = new Dictionary<int, Material>();
-        private SceneProcessor _scene = new SceneProcessor();
-        private Dictionary<string, PrimitiveManager> _debugPrimitives = new Dictionary<string, PrimitiveManager>();
+        protected MeshProgram _currentMeshProgram;
+        protected PrimitiveManager _currentPrimitiveManager;
+        protected Dictionary<int, Material> _activeMaterials = new Dictionary<int, Material>();
+        protected SceneProcessor _scene = new SceneProcessor();
+        protected Dictionary<string, PrimitiveManager> _debugPrimitives = new Dictionary<string, PrimitiveManager>();
 
         private PrimitiveManager CacheDebugPrimitive(string name, PrimitiveManager m)
         {
@@ -143,6 +145,7 @@ namespace CustomEngine.Rendering
             //    _wireSphere.Render(mtx, Matrix3.Identity);
             //}
         }
+
         public void RenderBox(Vec3 halfExtents, Matrix4 transform, bool solid)
         {
             //Vec3 scale = halfExtents * 2.0f;
@@ -168,11 +171,11 @@ namespace CustomEngine.Rendering
         {
 
         }
-
-        protected int _programHandle;
-        private Stack<Rectangle> _renderAreaStack = new Stack<Rectangle>();
-        //private static List<DisplayList> _displayLists = new List<DisplayList>();
         
+        private Stack<Rectangle> _renderAreaStack = new Stack<Rectangle>();
+
+        //private static List<DisplayList> _displayLists = new List<DisplayList>();
+
         public abstract int[] CreateObjects(GenType type, int count);
         public abstract int[] CreateTextures(int target, int count);
         public abstract int[] CreateQueries(int type, int count);
@@ -189,6 +192,25 @@ namespace CustomEngine.Rendering
             _activeMaterials.Add(id, material);
             return id;
         }
+
+        public virtual void BindPrimitiveManager(PrimitiveManager manager)
+        {
+            _currentPrimitiveManager = manager;
+        }
+        public void RenderPrimitiveManager(PrimitiveManager manager, bool preservePreviouslyBound = true)
+        {
+            PrimitiveManager prev = _currentPrimitiveManager;
+            BindPrimitiveManager(manager);
+            RenderCurrentPrimitiveManager();
+            BindPrimitiveManager(preservePreviouslyBound ? prev : null);
+        }
+        public abstract void RenderCurrentPrimitiveManager();
+        public abstract void LinkRenderIndices(PrimitiveManager manager, VertexBuffer indexBuffer);
+        public abstract void InitializeBuffer(VertexBuffer buffer);
+        public abstract void PushBufferData(VertexBuffer buffer);
+        public abstract void MapBufferData(VertexBuffer buffer);
+        public abstract void UnmapBufferData(VertexBuffer buffer);
+
         internal void RemoveActiveMaterial(Material material)
         {
             _activeMaterials.Remove(material.BindingId);
@@ -239,19 +261,15 @@ namespace CustomEngine.Rendering
         public abstract int GenerateProgram(int[] shaderHandles, PrimitiveBufferInfo info);
         public virtual void UseProgram(MeshProgram program)
         {
-            _programHandle = program != null ? program.BindingId : BaseRenderState.NullBindingId;
-            if (_programHandle > BaseRenderState.NullBindingId)
+            _currentMeshProgram = program;
+            if (_currentMeshProgram != null)
             {
-                program?.SetUniforms();
+                _currentMeshProgram?.SetUniforms();
                 Scene.SetUniforms();
                 Uniform(Models.Materials.Uniform.GetLocation(ECommonUniform.RenderDelta), Engine.RenderDelta);
             }
         }
-        public virtual void DeleteProgram(int handle)
-        {
-            if (_programHandle == handle)
-                _programHandle = 0;
-        }
+        public abstract void DeleteProgram(int handle);
 
         public abstract int GetAttribLocation(string name);
         public abstract int GetUniformLocation(string name);

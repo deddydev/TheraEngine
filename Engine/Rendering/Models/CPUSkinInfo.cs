@@ -19,13 +19,14 @@ namespace CustomEngine.Rendering.Models
             _matrixWeights = matrixWeights;
             _vertexCount = _positions.ElementCount;
         }
-        public unsafe void UpdatePNBT(Matrix4[] boneMatrices, Matrix4[] boneMatricesIT)
+        public unsafe void UpdatePNBT(Matrix4[] boneMatrices, Matrix3[] boneMatricesIT)
         {
             for (int i = 0; i < _vertexCount; ++i)
             {
                 IVec4 ids = _matrixIds[i];
                 Vec4 weights = _matrixWeights[i];
-                Matrix4 finalMatrix = new Matrix4(), finalMatrixIT = new Matrix4();
+                Matrix4 finalMatrix = new Matrix4();
+                Matrix3 finalMatrixIT = new Matrix3();
                 for (int j = 0; j < 4; ++j)
                 {
                     finalMatrix += boneMatrices[ids[j]] * weights[j];

@@ -1,5 +1,4 @@
 ﻿using CustomEngine.Rendering.Models.Materials;
-using OpenTK.Graphics.OpenGL;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,6 +7,12 @@ using System.Threading.Tasks;
 
 namespace CustomEngine.Rendering.Models
 {
+    public enum EDrawElementType
+    {
+        Byte    = 0,
+        UShort  = 2,
+        UInt    = 4,
+    }
     /// <summary>
     /// Used to render raw primitive data.
     /// </summary>
@@ -19,8 +24,8 @@ namespace CustomEngine.Rendering.Models
 
         private MeshProgram _program;
         private PrimitiveData _data;
-        private VertexBuffer _indexBuffer;
-        public DrawElementsType _elementType;
+        internal VertexBuffer _indexBuffer;
+        public EDrawElementType _elementType;
         private Bone[] _utilizedBones;
         private PrimitiveBufferInfo _bufferInfo = new PrimitiveBufferInfo();
         private Material _material;
@@ -47,21 +52,21 @@ namespace CustomEngine.Rendering.Models
                 _data = value;
                 if (_data != null)
                 {
-                    _indexBuffer = new VertexBuffer("FaceIndices", BufferTarget.ElementArrayBuffer, true);
+                    _indexBuffer = new VertexBuffer("FaceIndices", EBufferTarget.DrawIndices, true);
                     //TODO: primitive restart will use MaxValue for restart id
                     if (_data._facePoints.Count < byte.MaxValue)
                     {
-                        _elementType = DrawElementsType.UnsignedByte;
+                        _elementType = EDrawElementType.Byte;
                         _indexBuffer.SetDataNumeric(_data.GetIndices().Select(x => (byte)x).ToList());
                     }
                     else if (_data._facePoints.Count < short.MaxValue)
                     {
-                        _elementType = DrawElementsType.UnsignedShort;
+                        _elementType = EDrawElementType.UShort;
                         _indexBuffer.SetDataNumeric(_data.GetIndices().Select(x => (ushort)x).ToList());
                     }
                     else
                     {
-                        _elementType = DrawElementsType.UnsignedInt;
+                        _elementType = EDrawElementType.UInt;
                         _indexBuffer.SetDataNumeric(_data.GetIndices());
                     }
                 }
@@ -157,28 +162,26 @@ namespace CustomEngine.Rendering.Models
             }
             else
             {
-                Matrix4[] positionMatrices = new Matrix4[_utilizedBones.Length + 1];
-                Matrix4[] normalMatrices = new Matrix4[_utilizedBones.Length + 1];
-                positionMatrices[0] = Matrix4.Identity;
-                normalMatrices[0] = Matrix4.Identity;
-
-                for (int i = 1; i < _utilizedBones.Length + 1; ++i)
-                {
-                    Bone b = _utilizedBones[i - 1];
-                    positionMatrices[i] = b.VertexMatrix;
-                    normalMatrices[i] = b.VertexMatrixIT;
-                }
-
-                _cpuSkinInfo.UpdatePNBT(positionMatrices, normalMatrices);
+                //_cpuSkinInfo.UpdatePNBT(_positionMatrices, _normalMatrices);
             }
         }
 
+        /// <summary>
+        /// Retrieves the linked material's uniform parameter at the given index.
+        /// Use this to set uniform values to be passed to the shader.
+        /// </summary>
         public T GetParameter<T>(int index) where T : GLVar
         {
             if (Program == null)
                 Generate();
-            return (T)Program.Parameters[index];
+            if (index >= 0 && index < Program.Parameters.Length)
+                return Program.Parameters[index] as T;
+            throw new IndexOutOfRangeException();
         }
+        /// <summary>
+        /// Retrieves the linked material's uniform parameter with the given name.
+        /// Use this to set uniform values to be passed to the shader.
+        /// </summary>
         public T GetParameter<T>(string name) where T : GLVar
         {
             if (Program == null)
@@ -208,24 +211,8 @@ namespace CustomEngine.Rendering.Models
             SetSkinningUniforms();
             Engine.Renderer.Uniform(Uniform.GetLocation(ECommonUniform.ModelMatrix), modelMatrix);
             Engine.Renderer.Uniform(Uniform.GetLocation(ECommonUniform.NormalMatrix), normalMatrix);
-
-            if (_program.Textures.Length > 0)
-            {
-                GL.Enable(OpenTK.Graphics.OpenGL.EnableCap.Texture2D);
-                for (int i = 0; i < _material.Textures.Count; ++i)
-                {
-                    GL.ActiveTexture(TextureUnit.Texture0 + i);
-                    Engine.Renderer.Uniform("Texture" + i, i);
-                    _program.Textures[i].Bind();
-                }
-            }
-            else
-                GL.Disable(OpenTK.Graphics.OpenGL.EnableCap.Texture2D);
-
-            GL.BindVertexArray(BindingId);
-            GL.DrawElements(_data._type, _indexBuffer.ElementCount, _elementType, 0);
-            GL.BindVertexArray(0);
-
+            
+            Engine.Renderer.RenderPrimitiveManager(this, false);
             Engine.Renderer.UseProgram(null);
         }
         protected override void OnGenerated()
@@ -233,14 +220,14 @@ namespace CustomEngine.Rendering.Models
             _program = new MeshProgram(_material, _bufferInfo);
             _program.Generate();
 
-            GL.BindVertexArray(BindingId);
+            Engine.Renderer.BindPrimitiveManager(this);
             _bindingIds = _data.GenerateBuffers(BindingId);
             _indexBuffer._vaoId = BindingId;
             _indexBuffer.Generate();
-            GL.VertexArrayElementBuffer(BindingId, _indexBuffer.BindingId);
-            GL.BindVertexArray(0);
+            Engine.Renderer.LinkRenderIndices(this, _indexBuffer);
+            Engine.Renderer.BindPrimitiveManager(null);
         }
-        protected override void OnDeleted()
+        protected override void PostDeleted()
         {
             _data.Dispose();
             _indexBuffer.Dispose();

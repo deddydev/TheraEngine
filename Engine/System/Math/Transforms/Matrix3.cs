@@ -809,6 +809,56 @@ namespace System
 
         #region Operators
 
+        public static Matrix3 operator *(Matrix3 left, float right)
+        {
+            left.Row0 *= right;
+            left.Row1 *= right;
+            left.Row2 *= right;
+            return left;
+        }
+        public static Matrix3 operator +(Matrix3 left, Matrix3 right)
+        {
+            left.Row0 += right.Row0;
+            left.Row1 += right.Row1;
+            left.Row2 += right.Row2;
+            return left;
+        }
+        /// <summary>Transform a Vector by the given Matrix</summary>
+        public static Vec3 operator *(Vec3 vec, Matrix3 mat)
+        {
+            Vec3 nv = new Vec3();
+            float* dPtr = nv.Data;
+            float* sPtr = vec.Data;
+            float*
+                row1 = (float*)&mat,
+                row2 = row1 + 4,
+                row3 = row2 + 4;
+
+            for (int i = 0; i < 3; i++)
+                dPtr[i] =
+                    row1[i] * sPtr[0] +
+                    row2[i] * sPtr[1] +
+                    row3[i] * sPtr[2];
+
+            return nv;
+        }
+        /// <summary>Transform a Vector by the given Matrix using right-handed notation</summary>
+        public static Vec3 operator *(Matrix3 mat, Vec3 vec)
+        {
+            Vec3 nv = new Vec3();
+            float* dPtr = nv.Data;
+            float* sPtr = vec.Data;
+            Vec3* row = (Vec3*)&mat;
+
+            for (int i = 0; i < 3; i++)
+                dPtr[i] =
+                    row[i].X * sPtr[0] +
+                    row[i].Y * sPtr[1] +
+                    row[i].Z * sPtr[2];
+
+            return nv;
+        }
+
         /// <summary>
         /// Matrix multiplication
         /// </summary>

@@ -120,9 +120,9 @@ namespace CustomEngine.Rendering.Textures
             }
         }
 
-        protected override void OnDeleted()
+        protected override void PostDeleted()
         {
-            base.OnDeleted();
+            base.PostDeleted();
         }
     }
 }

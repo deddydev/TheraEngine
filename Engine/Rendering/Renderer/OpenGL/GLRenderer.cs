@@ -1,11 +1,10 @@
-﻿using System;
-using OpenTK.Graphics.OpenGL;
-using System.Linq;
-using System.Drawing;
+﻿using CustomEngine.Rendering.Models;
 using CustomEngine.Rendering.Models.Materials;
-using System.Collections.Generic;
-using CustomEngine.Rendering.Models;
+using OpenTK.Graphics.OpenGL;
+using System;
 using System.Diagnostics;
+using System.Drawing;
+using System.Linq;
 
 namespace CustomEngine.Rendering.OpenGL
 {
@@ -379,16 +378,31 @@ namespace CustomEngine.Rendering.OpenGL
         {
             GL.UseProgram(program != null ? program.BindingId : BaseRenderState.NullBindingId);
             base.UseProgram(program);
+            if (_currentMeshProgram != null)
+            {
+                if (_currentMeshProgram.Textures.Length > 0)
+                {
+                    GL.Enable(OpenTK.Graphics.OpenGL.EnableCap.Texture2D);
+                    for (int i = 0; i < _currentMeshProgram.Textures.Length; ++i)
+                    {
+                        GL.ActiveTexture(TextureUnit.Texture0 + i);
+                        Uniform("Texture" + i, i);
+                        _currentMeshProgram.Textures[i].Bind();
+                    }
+                }
+                else
+                    GL.Disable(OpenTK.Graphics.OpenGL.EnableCap.Texture2D);
+            }
         }
 
         #region Uniforms
         public override int GetAttribLocation(string name)
         {
-            return GL.GetAttribLocation(_programHandle, name);
+            return GL.GetAttribLocation(_currentMeshProgram.BindingId, name);
         }
         public override int GetUniformLocation(string name)
         {
-            return GL.GetUniformLocation(_programHandle, name);
+            return GL.GetUniformLocation(_currentMeshProgram.BindingId, name);
         }
         public override void Uniform(int location, params IUniformable4Int[] p)
         {
@@ -689,6 +703,143 @@ namespace CustomEngine.Rendering.OpenGL
                         break;
                 }
             }
+        }
+        public override void MapBufferData(VertexBuffer buffer)
+        {
+            //GL.BufferStorage(_target, _data.Length, _data.Address,
+            //    BufferStorageFlags.MapWriteBit |
+            //    BufferStorageFlags.MapReadBit |
+            //    BufferStorageFlags.MapPersistentBit |
+            //    BufferStorageFlags.MapCoherentBit |
+            //    BufferStorageFlags.ClientStorageBit);
+            //_data.Dispose();
+            //_data = new DataSource(GL.MapBufferRange(_target, IntPtr.Zero, DataLength,
+            //    BufferAccessMask.MapPersistentBit |
+            //    BufferAccessMask.MapCoherentBit |
+            //    BufferAccessMask.MapReadBit |
+            //    BufferAccessMask.MapWriteBit), DataLength);
+
+            int length = buffer._data.Length;
+            GL.NamedBufferStorage(buffer.BindingId, length, buffer._data.Address,
+                BufferStorageFlags.MapWriteBit |
+                BufferStorageFlags.MapReadBit |
+                BufferStorageFlags.MapPersistentBit |
+                BufferStorageFlags.MapCoherentBit |
+                BufferStorageFlags.ClientStorageBit);
+            buffer._data.Dispose();
+            buffer._data = new DataSource(GL.MapNamedBufferRange(buffer.BindingId, IntPtr.Zero, length,
+                BufferAccessMask.MapPersistentBit |
+                BufferAccessMask.MapCoherentBit |
+                BufferAccessMask.MapReadBit |
+                BufferAccessMask.MapWriteBit), length);
+        }
+        public override void PushBufferData(VertexBuffer buffer)
+        {
+            //GL.BufferData(_target, (IntPtr)_data.Length, _data.Address, BufferUsageHint.StaticDraw);
+            GL.NamedBufferData(buffer.BindingId, buffer._componentCount, buffer._data.Address, BufferUsageHint.StreamDraw + (int)buffer._usage);
+        }
+
+        public override void InitializeBuffer(VertexBuffer buffer)
+        {
+            int glVer = 2;
+
+            int index = buffer._index;
+            int vaoId = buffer._vaoId;
+            int componentType = (int)buffer._componentType;
+            int componentCount = buffer._componentCount;
+            bool integral = buffer._integral;
+            switch (glVer)
+            {
+                case 0:
+
+                    GL.BindBuffer(buffer._target == EBufferTarget.DataArray ? BufferTarget.ArrayBuffer : BufferTarget.ElementArrayBuffer, buffer.BindingId);
+                    GL.EnableVertexAttribArray(index);
+                    if (integral)
+                        GL.VertexAttribIPointer(index, componentCount, VertexAttribIntegerType.Byte + componentType, 0, buffer._data.Address);
+                    else
+                        GL.VertexAttribPointer(index, componentCount, VertexAttribPointerType.Byte + componentType, buffer._normalize, 0, 0);
+
+                    if (VertexBuffer.MapData)
+                        MapBufferData(buffer);
+                    else
+                        PushBufferData(buffer);
+
+                    break;
+
+                case 1:
+
+                    GL.BindVertexBuffer(index, buffer.BindingId, IntPtr.Zero, buffer.Stride);
+                    GL.EnableVertexAttribArray(index);
+                    if (integral)
+                        GL.VertexAttribIFormat(index, componentCount, VertexAttribIntegerType.Byte + componentType, 0);
+                    else
+                        GL.VertexAttribFormat(index, componentCount, VertexAttribType.Byte + componentType, buffer._normalize, 0);
+
+                    if (VertexBuffer.MapData)
+                        MapBufferData(buffer);
+                    else
+                        PushBufferData(buffer);
+
+                    GL.VertexAttribBinding(index, index);
+
+                    break;
+
+                case 2:
+
+                    GL.EnableVertexArrayAttrib(vaoId, index);
+                    if (integral)
+                        GL.VertexArrayAttribIFormat(vaoId, index, componentCount, VertexAttribType.Byte + componentType, 0);
+                    else
+                        GL.VertexArrayAttribFormat(vaoId, index, componentCount, VertexAttribType.Byte + componentType, buffer._normalize, 0);
+
+                    if (VertexBuffer.MapData)
+                        MapBufferData(buffer);
+                    else
+                        PushBufferData(buffer);
+
+                    GL.VertexArrayAttribBinding(vaoId, index, index);
+                    GL.VertexArrayVertexBuffer(vaoId, index, buffer.BindingId, IntPtr.Zero, buffer.Stride);
+
+                    break;
+            }
+        }
+
+        public override void UnmapBufferData(VertexBuffer buffer)
+        {
+            //GL.UnmapBuffer(buffer._target);
+            GL.UnmapNamedBuffer(buffer.BindingId);
+        }
+
+        public override void BindPrimitiveManager(PrimitiveManager manager)
+        {
+            GL.BindVertexArray(manager == null ? 0 : manager.BindingId);
+            base.BindPrimitiveManager(manager);
+        }
+
+        /// <summary>
+        /// REQUIRES OPENGL V4.5
+        /// </summary>
+        public override void LinkRenderIndices(PrimitiveManager manager, VertexBuffer indexBuffer)
+        {
+            if (indexBuffer._target != EBufferTarget.DrawIndices)
+                throw new Exception("IndexBuffer needs target type of " + EBufferTarget.DrawIndices.ToString() + ".");
+            GL.VertexArrayElementBuffer(manager.BindingId, indexBuffer.BindingId);
+        }
+
+        public override void RenderCurrentPrimitiveManager()
+        {
+            if (_currentPrimitiveManager != null)
+                GL.DrawElements(
+                    PrimitiveType.Points + (int)_currentPrimitiveManager.Data._type,
+                    _currentPrimitiveManager._indexBuffer.ElementCount,
+                    DrawElementsType.UnsignedByte + (int)_currentPrimitiveManager._elementType,
+                    0);
+
+        }
+
+        public override void DeleteProgram(int handle)
+        {
+            throw new NotImplementedException();
         }
     }
 }

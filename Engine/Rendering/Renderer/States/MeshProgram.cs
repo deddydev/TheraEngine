@@ -46,7 +46,7 @@ namespace CustomEngine.Rendering
         {
 
         }
-        protected override void OnDeleted()
+        protected override void PostDeleted()
         {
 
         }

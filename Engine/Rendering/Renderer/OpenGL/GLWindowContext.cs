@@ -4,6 +4,7 @@ using OpenTK.Platform;
 using System.Windows.Controls;
 using System;
 using System.Drawing;
+using System.Diagnostics;
 
 namespace CustomEngine.Rendering.OpenGL
 {
@@ -21,6 +22,14 @@ namespace CustomEngine.Rendering.OpenGL
             _context.MakeCurrent(WindowInfo);
             _context.LoadAll();
             _context.SwapInterval = 1;
+            string version = GL.GetString(StringName.Version);
+            string renderer = GL.GetString(StringName.Renderer);
+            string shaderVersion = GL.GetString(StringName.ShadingLanguageVersion);
+            string extensions = GL.GetString(StringName.Extensions);
+            Debug.WriteLine("OPENGL VERSION: " + version);
+            Debug.WriteLine("OPENGL RENDERER: " + renderer);
+            Debug.WriteLine("OPENGL SHADER LANGUAGE VERSION: " + shaderVersion);
+            Debug.WriteLine("OPENGL EXTENSIONS: " + extensions);
         }
         public override bool IsCurrent()
         {

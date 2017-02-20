@@ -733,6 +733,8 @@
     <Compile Include="Worlds\Actors\Components\Scene\Lights\SpotLightComponent.cs" />
     <Compile Include="Worlds\Actors\Components\Scene\Lights\PointLightComponent.cs" />
     <Compile Include="Worlds\Actors\Components\Scene\Lights\DirectionalLightComponent.cs" />
+    <Compile Include="Worlds\Actors\Components\Scene\Mesh\SkeletalMeshComponent.RenderableMesh.cs" />
+    <Compile Include="Worlds\Actors\Components\Scene\Mesh\StaticMeshComponent.RenderableMesh.cs" />
     <Compile Include="Worlds\Actors\Components\Scene\Transforms\TRComponent.cs" />
     <Compile Include="Worlds\Actors\Components\Scene\Transforms\PositionComponent.cs" />
     <Compile Include="Worlds\Actors\Components\Scene\Transforms\TRSComponent.cs" />
@@ -748,7 +750,7 @@
     <Compile Include="Worlds\Actors\Components\Scene\Shapes\SphereComponent.cs" />
     <Compile Include="Worlds\Actors\Components\Scene\Shapes\ShapeComponent.cs" />
     <Compile Include="Worlds\Actors\Components\Scene\Shapes\BoxComponent.cs" />
-    <Compile Include="Worlds\Actors\Components\Scene\StaticMeshComponent.cs" />
+    <Compile Include="Worlds\Actors\Components\Scene\Mesh\StaticMeshComponent.cs" />
     <Compile Include="Worlds\Actors\Components\Scene\Volumes\TriggerVolumeComponent.cs" />
     <Compile Include="Worlds\Actors\Components\Scene\PrimitiveComponent.cs" />
     <Compile Include="Worlds\Actors\Components\Scene\Shapes\CapsuleComponent.cs" />
@@ -805,7 +807,7 @@
     <Compile Include="Worlds\Actors\Types\Vehicle.cs" />
     <Compile Include="Worlds\Actors\Components\Component.cs" />
     <Compile Include="Worlds\Actors\Components\Logic\InteractionComponent.cs" />
-    <Compile Include="Worlds\Actors\Components\Scene\SkeletalMeshComponent.cs" />
+    <Compile Include="Worlds\Actors\Components\Scene\Mesh\SkeletalMeshComponent.cs" />
     <Compile Include="Worlds\Actors\Components\Logic\MovementComponent.cs" />
     <Compile Include="Rendering\HUD\HudManager.cs" />
     <Compile Include="Input\AIController.cs" />

@@ -34,26 +34,20 @@ namespace CustomEngine.Rendering.Models
 
         public Shape CullingVolume
         {
-            get { return _cullingVolume; }
-            set { _cullingVolume = value; }
+            get => _cullingVolume;
+            set => _cullingVolume = value;
         }
-        public bool VisibleByDefault
-        {
-            get { return _visibleByDefault; }
-        }
+        public bool VisibleByDefault => _visibleByDefault;
         public Material Material
         {
-            get { return _material; }
-            set { _material = value; }
+            get => _material;
+            set => _material = value;
         }
-        public PrimitiveData Data
-        {
-            get { return _data; }
-        }
+        public PrimitiveData Data => _data;
         public StaticMesh Model
         {
-            get { return _parent; }
-            internal set { _parent = value; }
+            get => _parent;
+            internal set => _parent = value;
         }
     }
 }

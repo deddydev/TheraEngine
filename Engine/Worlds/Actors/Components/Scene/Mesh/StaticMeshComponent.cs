@@ -8,7 +8,7 @@ using BulletSharp;
 
 namespace CustomEngine.Worlds.Actors.Components
 {
-    public class StaticMeshComponent : TRSComponent, IPhysicsDrivable
+    public partial class StaticMeshComponent : TRSComponent, IPhysicsDrivable
     {
         public StaticMeshComponent(StaticMesh m, PhysicsDriverInfo info) 
             : this(m, Vec3.Zero, Rotator.GetZero(), Vec3.One, info) { }
@@ -97,64 +97,6 @@ namespace CustomEngine.Worlds.Actors.Components
         internal override void OriginRebased(Vec3 newOrigin)
         {
             Translation -= newOrigin;
-        }
-
-        internal class RenderableMesh : IRenderable
-        {
-            public RenderableMesh(IStaticMesh mesh, SceneComponent component)
-            {
-                _mesh = mesh;
-                _component = component;
-                _cullingVolume = _mesh.CullingVolume.HardCopy();
-                _manager = new PrimitiveManager(_mesh.Data, _mesh.Material);
-                Visible = false;
-                IsRendering = true;
-            }
-
-            private PrimitiveManager _manager;
-            private bool _isVisible, _isRendering;
-            private SceneComponent _component;
-            private IStaticMesh _mesh;
-            private RenderOctree.Node _renderNode;
-            private Shape _cullingVolume;
-            
-            public Shape CullingVolume { get { return _cullingVolume; } }
-            public bool Visible
-            {
-                get { return _isVisible; }
-                set
-                {
-                    _isVisible = value;
-                    if (_isVisible)
-                        Engine.Renderer.Scene.AddRenderable(this);
-                    else
-                        Engine.Renderer.Scene.RemoveRenderable(this);
-                }
-            }
-            public bool IsRendering
-            {
-                get { return _isRendering; }
-                set { _isRendering = value; }
-            }
-            public IStaticMesh Mesh
-            {
-                get { return _mesh; }
-                set { _mesh = value; }
-            }
-            public RenderOctree.Node RenderNode
-            {
-                get { return _renderNode; }
-                set { _renderNode = value; }
-            }
-            public void Render()
-            {
-                _manager.Render(_component.WorldMatrix, _component.WorldMatrix.GetRotationMatrix3());
-                //_manager.Render(_component.WorldMatrix, _component.InverseWorldMatrix.Transposed().GetRotationMatrix3());
-            }
-            public override string ToString()
-            {
-                return ((ObjectBase)_mesh).Name;
-            }
         }
     }
 }

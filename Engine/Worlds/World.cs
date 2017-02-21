@@ -103,9 +103,9 @@ namespace CustomEngine.Worlds
         {
             return base.CalculateSize(table);
         }
-        public override void Write(VoidPtr address)
+        public override void Write(VoidPtr address, StringTable table)
         {
-            base.Write(address);
+            base.Write(address, table);
         }
         public override void Read(VoidPtr address)
         {

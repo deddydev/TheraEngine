@@ -10,6 +10,8 @@ namespace CustomEngine.Rendering.OpenGL
 {
     public class GLWindowContext : RenderContext
     {
+        private int _versionMin, _versionMax;
+
         private IGraphicsContext _context;
         private IWindowInfo _winInfo = null;
 
@@ -22,14 +24,19 @@ namespace CustomEngine.Rendering.OpenGL
             _context.MakeCurrent(WindowInfo);
             _context.LoadAll();
             _context.SwapInterval = 1;
+            string vendor = GL.GetString(StringName.Vendor);
             string version = GL.GetString(StringName.Version);
             string renderer = GL.GetString(StringName.Renderer);
             string shaderVersion = GL.GetString(StringName.ShadingLanguageVersion);
-            string extensions = GL.GetString(StringName.Extensions);
+            //string extensions = GL.GetString(StringName.Extensions);
+            Debug.WriteLine("OPENGL VENDOR: " + vendor);
             Debug.WriteLine("OPENGL VERSION: " + version);
             Debug.WriteLine("OPENGL RENDERER: " + renderer);
             Debug.WriteLine("OPENGL SHADER LANGUAGE VERSION: " + shaderVersion);
-            Debug.WriteLine("OPENGL EXTENSIONS: " + extensions);
+            //Debug.WriteLine("OPENGL EXTENSIONS:\n" + string.Join("\n", extensions.Split(' ')));
+
+            _versionMax = version[0] - 0x30;
+            _versionMin = version[2] - 0x30;
         }
         public override bool IsCurrent()
         {

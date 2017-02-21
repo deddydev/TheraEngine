@@ -454,7 +454,7 @@ namespace System
         }
         #endregion
 
-        public unsafe override void Write(VoidPtr address)
+        public unsafe override void Write(VoidPtr address, StringTable table)
         {
             *(Header*)address = this;
         }
@@ -464,7 +464,7 @@ namespace System
             writer.WriteElementString("Order", TransformationOrder.ToString());
             writer.WriteElementString("Translation", Translation.ToString());
             writer.WriteElementString("Scale", Scale.ToString());
-            Rotation.Write(writer);
+            //Rotation.Write(writer);
             writer.WriteEndElement();
         }
         [StructLayout(LayoutKind.Sequential, Pack = 1)]

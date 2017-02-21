@@ -40,7 +40,7 @@ namespace CustomEngine.Files
         {
             return FileCommonHeader.Size;
         }
-        public virtual unsafe void Write(VoidPtr address) { }
+        public virtual unsafe void Write(VoidPtr address, StringTable table) { }
         public virtual unsafe void Read(VoidPtr address) { }
         public virtual void Write(XmlWriter writer)
         {
@@ -136,7 +136,7 @@ namespace CustomEngine.Files
                     table.WriteTable(hdr);
                     hdr->_fileLength = totalSize;
                     hdr->_stringTableLength = stringSize;
-                    Write(hdr->FileHeader);
+                    Write(hdr->FileHeader, table);
                 }
             }
         }

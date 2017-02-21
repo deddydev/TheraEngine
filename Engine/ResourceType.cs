@@ -84,5 +84,7 @@ namespace CustomEngine
         
         SingleFileRef,
         MultiFileRef,
+
+        Rotator,
     }
 }

@@ -229,7 +229,7 @@ namespace CustomEngine.Files
             table.Add(_refPath);
             return FileRefHeader.Size;
         }
-        public override void Write(VoidPtr address)
+        public override void Write(VoidPtr address, StringTable table)
         {
             throw new NotImplementedException();
         }

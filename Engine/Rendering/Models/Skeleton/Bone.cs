@@ -295,9 +295,9 @@ namespace CustomEngine.Rendering.Models
                 item._parent = null;
         }
 
-        public override void Write(VoidPtr address)
+        public override void Write(VoidPtr address, StringTable table)
         {
-            base.Write(address);
+            base.Write(address, table);
         }
         public override void Write(XmlWriter writer)
         {

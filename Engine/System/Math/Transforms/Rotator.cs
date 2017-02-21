@@ -10,7 +10,7 @@ namespace System
 {
     [Serializable]
     [StructLayout(LayoutKind.Sequential)]
-    public unsafe class Rotator : FileObject, IEquatable<Rotator>
+    public unsafe class Rotator : IEquatable<Rotator>
     {
         public Rotator() : this(Order.YPR) { }
 
@@ -389,9 +389,7 @@ namespace System
                 EndUpdate();
             }
         }
-
-        public override ResourceType ResourceType => throw new NotImplementedException();
-
+        
         public static bool operator ==(Rotator left, Rotator right) { return left.Equals(right); }
         public static bool operator !=(Rotator left, Rotator right) { return !left.Equals(right); }
         
@@ -439,17 +437,17 @@ namespace System
                 Abs(Pitch - other.Pitch) < precision &&
                 Abs(Roll - other.Roll) < precision;
         }
-        public override void Write(VoidPtr address)
-        {
-            base.Write(address);
-        }
-        public override void Write(XmlWriter writer)
-        {
-            base.Write(writer);
-            writer.WriteElementString("Order", _rotationOrder.ToString());
-            writer.WriteElementString("");
-            writer.WriteEndElement();
-        }
+        //public override void Write(VoidPtr address, StringTable table)
+        //{
+        //    base.Write(address, table);
+        //}
+        //public override void Write(XmlWriter writer)
+        //{
+        //    base.Write(writer);
+        //    writer.WriteElementString("Order", _rotationOrder.ToString());
+        //    writer.WriteElementString("", "");
+        //    writer.WriteEndElement();
+        //}
         public enum Order
         {
             YPR = 0,

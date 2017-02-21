@@ -6,6 +6,8 @@ using System.Collections.Generic;
 using System.Collections;
 using System.Drawing;
 using OpenTK.Graphics.OpenGL;
+using System.Xml;
+using System.Runtime.InteropServices;
 
 namespace CustomEngine.Rendering.Models
 {
@@ -37,27 +39,24 @@ namespace CustomEngine.Rendering.Models
             get { return BoneCache.ContainsKey(name) ? BoneCache[name] : null; }
         }
 
-        public Dictionary<string, Bone> BoneCache
-        {
-            get { return _boneCache; }
-        }
-
         private Dictionary<string, Bone> _boneCache = new Dictionary<string, Bone>();
         private SkeletalMeshComponent _owningComponent;
         private Bone[] _rootBones;
+
         public Bone[] RootBones
         {
-            get { return _rootBones; }
+            get => _rootBones;
             set
             {
                 _rootBones = value;
                 RegenerateBoneCache();
             }
         }
+        public Dictionary<string, Bone> BoneCache => _boneCache;
         public SkeletalMeshComponent OwningComponent
         {
-            get { return _owningComponent; }
-            set { _owningComponent = value; }
+            get => _owningComponent;
+            set => _owningComponent = value;
         }
 
         public Bone GetBone(string boneName)
@@ -89,10 +88,6 @@ namespace CustomEngine.Rendering.Models
                 //    point.UpdatePNTB();
             }
         }
-        internal override void Tick(float delta)
-        {
-            base.Tick(delta);
-        }
 
         public IEnumerator<Bone> GetEnumerator() { return ((IEnumerable<Bone>)_boneCache.Values).GetEnumerator(); }
         IEnumerator IEnumerable.GetEnumerator() { return ((IEnumerable<Bone>)_boneCache.Values).GetEnumerator(); }
@@ -101,21 +96,21 @@ namespace CustomEngine.Rendering.Models
         Shape _cullingVolume = new Sphere(1.0f);
         RenderOctree.Node _renderNode;
 
-        public Shape CullingVolume { get { return _cullingVolume; } }
+        public Shape CullingVolume => _cullingVolume;
         public bool IsRendering
         {
-            get { return _rendering; }
-            set { _rendering = value; }
+            get => _rendering;
+            set => _rendering = value;
         }
         public RenderOctree.Node RenderNode
         {
-            get { return _renderNode; }
-            set { _renderNode = value; }
+            get => _renderNode;
+            set => _renderNode = value;
         }
         public bool Visible
         {
-            get { return _visible; }
-            set { _visible = value; }
+            get => _visible;
+            set => _visible = value;
         }
 
         public void Render()
@@ -165,6 +160,22 @@ namespace CustomEngine.Rendering.Models
                     b._influencedVertices.Remove(point);
                 }
             }
+        }
+
+        public override void Write(VoidPtr address)
+        {
+            base.Write(address);
+
+        }
+        public override void Write(XmlWriter writer)
+        {
+            base.Write(writer);
+
+        }
+        [StructLayout(LayoutKind.Sequential, Pack = 1)]
+        struct SkeletonHeader
+        {
+            bfloat _boneCount;
         }
     }
 }

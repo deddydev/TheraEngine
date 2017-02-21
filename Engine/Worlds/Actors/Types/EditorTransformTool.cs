@@ -89,8 +89,7 @@ namespace CustomEngine.Worlds.Actors.Types
             float radius = camera.DistanceScale(_transform.Translation, 1.0f);
             if (_mode == TransformType.Rotate)
             {
-                Vec3 point;
-                if (!localRay.LineSphereIntersect(Vec3.Zero, radius, out point))
+                if (!localRay.LineSphereIntersect(Vec3.Zero, radius, out Vec3 point))
                 {
                     //If no intersect is found, project the ray through the plane perpendicular to the camera.
                     localRay.LinePlaneIntersect(Vec3.Zero, camera.Point.Normalized(_transform.Translation), out point);

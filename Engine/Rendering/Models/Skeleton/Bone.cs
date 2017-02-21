@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using BulletSharp;
 using CustomEngine.Files;
 using CustomEngine.Worlds.Actors.Components;
+using System.Xml;
+using System.Runtime.InteropServices;
 
 namespace CustomEngine.Rendering.Models
 {
@@ -291,6 +293,22 @@ namespace CustomEngine.Rendering.Models
         {
             foreach (SceneComponent item in items)
                 item._parent = null;
+        }
+
+        public override void Write(VoidPtr address)
+        {
+            base.Write(address);
+        }
+        public override void Write(XmlWriter writer)
+        {
+            base.Write(writer);
+        }
+        [StructLayout(LayoutKind.Sequential, Pack = 1)]
+        struct BoneHeader
+        {
+            bint _name;
+            bint _parentIndex;
+            FrameState.Header _state;
         }
     }
 }

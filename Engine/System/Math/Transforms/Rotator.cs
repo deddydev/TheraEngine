@@ -2,12 +2,15 @@
 using static System.CustomMath;
 using System.Runtime.InteropServices;
 using System.Xml.Serialization;
+using CustomEngine.Files;
+using CustomEngine;
+using System.Xml;
 
 namespace System
 {
     [Serializable]
     [StructLayout(LayoutKind.Sequential)]
-    public unsafe class Rotator : IEquatable<Rotator>
+    public unsafe class Rotator : FileObject, IEquatable<Rotator>
     {
         public Rotator() : this(Order.YPR) { }
 
@@ -140,10 +143,12 @@ namespace System
         }
         public static Rotator Clamp(Rotator value, Rotator min, Rotator max)
         {
-            Rotator v = new Rotator();
-            v.Yaw = value.Yaw < min.Yaw ? min.Yaw : value.Yaw > max.Yaw ? max.Yaw : value.Yaw;
-            v.Pitch = value.Pitch < min.Pitch ? min.Pitch : value.Pitch > max.Pitch ? max.Pitch : value.Pitch;
-            v.Roll = value.Roll < min.Roll ? min.Roll : value.Roll > max.Roll ? max.Roll : value.Roll;
+            Rotator v = new Rotator()
+            {
+                Yaw = value.Yaw < min.Yaw ? min.Yaw : value.Yaw > max.Yaw ? max.Yaw : value.Yaw,
+                Pitch = value.Pitch < min.Pitch ? min.Pitch : value.Pitch > max.Pitch ? max.Pitch : value.Pitch,
+                Roll = value.Roll < min.Roll ? min.Roll : value.Roll > max.Roll ? max.Roll : value.Roll
+            };
             return v;
         }
         public void Clamp(Rotator min, Rotator max)
@@ -156,10 +161,12 @@ namespace System
         }
         public Rotator Clamped(Rotator min, Rotator max)
         {
-            Rotator v = new Rotator();
-            v.Yaw = Yaw < min.Yaw ? min.Yaw : Yaw > max.Yaw ? max.Yaw : Yaw;
-            v.Pitch = Pitch < min.Pitch ? min.Pitch : Pitch > max.Pitch ? max.Pitch : Pitch;
-            v.Roll = Roll < min.Roll ? min.Roll : Roll > max.Roll ? max.Roll : Roll;
+            Rotator v = new Rotator()
+            {
+                Yaw = Yaw < min.Yaw ? min.Yaw : Yaw > max.Yaw ? max.Yaw : Yaw,
+                Pitch = Pitch < min.Pitch ? min.Pitch : Pitch > max.Pitch ? max.Pitch : Pitch,
+                Roll = Roll < min.Roll ? min.Roll : Roll > max.Roll ? max.Roll : Roll
+            };
             return v;
         }
 
@@ -382,7 +389,9 @@ namespace System
                 EndUpdate();
             }
         }
-        
+
+        public override ResourceType ResourceType => throw new NotImplementedException();
+
         public static bool operator ==(Rotator left, Rotator right) { return left.Equals(right); }
         public static bool operator !=(Rotator left, Rotator right) { return !left.Equals(right); }
         
@@ -430,6 +439,17 @@ namespace System
                 Abs(Pitch - other.Pitch) < precision &&
                 Abs(Roll - other.Roll) < precision;
         }
+        public override void Write(VoidPtr address)
+        {
+            base.Write(address);
+        }
+        public override void Write(XmlWriter writer)
+        {
+            base.Write(writer);
+            writer.WriteElementString("Order", _rotationOrder.ToString());
+            writer.WriteElementString("");
+            writer.WriteEndElement();
+        }
         public enum Order
         {
             YPR = 0,
@@ -438,6 +458,25 @@ namespace System
             PYR,
             RPY,
             RYP,
+        }
+        [StructLayout(LayoutKind.Sequential, Pack = 1)]
+        public struct Header
+        {
+            public bint _order;
+            public BVec3 _pyr;
+
+            public static implicit operator Header(Rotator r)
+            {
+                return new Header()
+                {
+                    _order = (int)r._rotationOrder,
+                    _pyr = r._pyr
+                };
+            }
+            public static implicit operator Rotator(Header h)
+            {
+                return new Rotator(h._pyr, (Order)(int)h._order);
+            }
         }
     }
 }

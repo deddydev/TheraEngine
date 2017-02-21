@@ -122,12 +122,7 @@ namespace CustomEngine.Rendering.Models
                 _positionMatrices[0] = Matrix4.Identity;
                 _normalMatrices[0] = Matrix3.Identity;
 
-                for (int i = 1; i < _utilizedBones.Length + 1; ++i)
-                {
-                    Bone b = _utilizedBones[i - 1];
-                    _positionMatrices[i] = b.VertexMatrix;
-                    _normalMatrices[i] = b.VertexMatrixIT.GetRotationMatrix3();
-                }
+                RegenerateSkinningMatries();
 
                 if (Engine._engineSettings.File.SkinOnGPU)
                 {
@@ -147,6 +142,15 @@ namespace CustomEngine.Rendering.Models
                 _utilizedBones = null;
             }
         }
+        private void RegenerateSkinningMatries()
+        {
+            for (int i = 1; i < _utilizedBones.Length + 1; ++i)
+            {
+                Bone b = _utilizedBones[i - 1];
+                _positionMatrices[i] = b.VertexMatrix;
+                _normalMatrices[i] = b.VertexMatrixIT.GetRotationMatrix3();
+            }
+        }
         Matrix4[] _positionMatrices;
         Matrix3[] _normalMatrices;
         private void SetSkinningUniforms()
@@ -162,7 +166,8 @@ namespace CustomEngine.Rendering.Models
             }
             else
             {
-                //_cpuSkinInfo.UpdatePNBT(_positionMatrices, _normalMatrices);
+                RegenerateSkinningMatries();
+                _cpuSkinInfo.UpdatePNBT(_positionMatrices, _normalMatrices);
             }
         }
 

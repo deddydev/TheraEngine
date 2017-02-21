@@ -1,5 +1,7 @@
 ﻿using CustomEngine;
 using CustomEngine.Files;
+using System.Runtime.InteropServices;
+using System.Xml;
 using System.Xml.Serialization;
 
 namespace System
@@ -68,44 +70,51 @@ namespace System
         public Vec3 GetRightVector() { return _rotation.TransformVector(Vec3.Right); }
         public Matrix4 GetRotationMatrix() { return _rotation.GetMatrix(); }
 
-        public Matrix4 Matrix { get { return _transform; } }
-        public Matrix4 InverseMatrix { get { return _inverseTransform; } }
-        
+        public Matrix4 Matrix => _transform;
+        public Matrix4 InverseMatrix => _inverseTransform;
+
         public Vec3 Translation
         {
-            get { return _translation; }
-            set { SetTranslate(value); }
+            get => _translation;
+            set => SetTranslate(value);
         }
         public float Yaw
         {
-            get { return _rotation.Yaw; }
-            set { SetYaw(value); }
+            get => _rotation.Yaw;
+            set => SetYaw(value);
         }
         public float Pitch
         {
-            get { return _rotation.Pitch; }
-            set { SetPitch(value); }
+            get => _rotation.Pitch;
+            set => SetPitch(value);
         }
         public float Roll
         {
-            get { return _rotation.Roll; }
-            set { SetRoll(value); }
+            get => _rotation.Roll;
+            set => SetRoll(value);
         }
         public Vec3 Scale
         {
-            get { return _scale; }
-            set { SetScale(value); }
+            get => _scale;
+            set => SetScale(value);
         }
         public Matrix4.MultiplyOrder TransformationOrder
         {
-            get { return _transformOrder; }
+            get => _transformOrder;
             set { _transformOrder = value; CreateTransform(); }
         }
         public Rotator.Order RotationOrder
         {
-            get { return _rotation._rotationOrder; }
+            get => _rotation._rotationOrder;
             set { _rotation._rotationOrder = value; CreateTransform(); }
         }
+
+        public Rotator Rotation
+        {
+            get => _rotation;
+            set => _rotation = value;
+        }
+
         private void SetTranslate(Vec3 value)
         {
             Vec3 oldTranslation = _translation;
@@ -444,5 +453,45 @@ namespace System
             ScaleChanged?.Invoke(oldScale);
         }
         #endregion
+
+        public unsafe override void Write(VoidPtr address)
+        {
+            *(Header*)address = this;
+        }
+        public override void Write(XmlWriter writer)
+        {
+            base.Write(writer);
+            writer.WriteElementString("Order", TransformationOrder.ToString());
+            writer.WriteElementString("Translation", Translation.ToString());
+            writer.WriteElementString("Scale", Scale.ToString());
+            Rotation.Write(writer);
+            writer.WriteEndElement();
+        }
+        [StructLayout(LayoutKind.Sequential, Pack = 1)]
+        public struct Header
+        {
+            public bint _order;
+            public BVec3 _translation, _scale;
+            public Rotator.Header _rotation;
+
+            public static implicit operator Header(FrameState f)
+            {
+                return new Header()
+                {
+                    _order = (int)f._transformOrder,
+                    _translation = f._translation,
+                    _scale = f._scale,
+                    _rotation = f._rotation
+                };
+            }
+            public static implicit operator FrameState(Header h)
+            {
+                return new FrameState(
+                    h._translation, 
+                    h._rotation, 
+                    h._scale,
+                    (Matrix4.MultiplyOrder)(int)h._order);
+            }
+        }
     }
 }

@@ -446,7 +446,10 @@ namespace System
                 Abs(Pitch - other.Pitch) < precision &&
                 Abs(Roll - other.Roll) < precision;
         }
-        
+        public bool IsZero()
+        {
+            return Pitch.IsZero() && Yaw.IsZero() && Roll.IsZero();
+        }
         public void Write(XmlWriter writer)
         {
             writer.WriteStartElement(GetType().ToString());

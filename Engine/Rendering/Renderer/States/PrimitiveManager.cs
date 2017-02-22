@@ -166,8 +166,8 @@ namespace CustomEngine.Rendering.Models
             }
             else
             {
-                RegenerateSkinningMatries();
-                _cpuSkinInfo.UpdatePNBT(_positionMatrices, _normalMatrices);
+                //RegenerateSkinningMatries();
+                //_cpuSkinInfo.UpdatePNBT(_positionMatrices, _normalMatrices);
             }
         }
 

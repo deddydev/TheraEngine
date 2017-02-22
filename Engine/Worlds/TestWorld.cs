@@ -133,6 +133,8 @@ namespace CustomEngine.Worlds
 
             Actor importedActor = new Actor(comp);
 
+            Rotator r = new Vec3(0.0f, 1.0f, 0.0f).LookatAngles(new Vec3(1.0f, 0.0f, 0.0f));
+
             _settings._defaultMaps.Add(new Map(this, new MapSettings(/*sphereActor,*/ /*lightActor,*//* floorActor,*/ dirLightActor, importedActor, new FlyingCameraPawn(PlayerIndex.One))));
         }
     }

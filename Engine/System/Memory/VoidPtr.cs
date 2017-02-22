@@ -39,6 +39,8 @@ namespace System
 
         public VoidPtr this[int count, int stride] { get { return this + (count * stride); } }
 
+        public string GetString(int offset) { return new string((sbyte*)this + offset); }
+
         //type casts
         public static implicit operator bool(VoidPtr ptr) { return ptr.address != null; }
 

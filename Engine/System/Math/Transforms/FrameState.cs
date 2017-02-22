@@ -463,6 +463,7 @@ namespace System
             ScaleChanged?.Invoke(oldScale);
         }
         #endregion
+
         public unsafe override void Read(VoidPtr address, VoidPtr strings)
         {
             Header h = *(Header*)address;

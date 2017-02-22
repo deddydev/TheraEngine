@@ -16,7 +16,7 @@ namespace CustomEngine
         public SingleFileRef<World> OpeningWorld;
         public string ContentPath;
 
-        public override void Read(XmlReader reader)
+        public override void Read(XMLReader reader)
         {
             base.Read(reader);
         }

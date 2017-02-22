@@ -59,7 +59,7 @@ namespace CustomEngine.Worlds
         {
             _originRebaseBounds = new BoundingBox(distance * 2.0f);
         }
-        public override void Read(VoidPtr address)
+        public override void Read(VoidPtr address, VoidPtr strings)
         {
             //foreach (Map m in _maps)
             //    if (m.Settings.VisibleByDefault)

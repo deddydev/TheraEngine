@@ -119,6 +119,7 @@ namespace CustomEngine.Files
             }
         }
         private void FileUnloaded() { _file = null; }
+        public override void Write(XmlWriter writer) { Write(writer, false); }
         public void Write(XmlWriter writer, bool writeInternal)
         {
             base.Write(writer);
@@ -128,7 +129,18 @@ namespace CustomEngine.Files
                 writer.WriteAttributeString("path", _refPath);
             writer.WriteEndElement();
         }
-        public override void Write(XmlWriter writer) { Write(writer, false); }
+        public override void Write(VoidPtr address, StringTable table)
+        {
+            base.Write(address, table);
+        }
+        public override void Read(VoidPtr address, VoidPtr strings)
+        {
+            base.Read(address, strings);
+        }
+        public override void Read(XMLReader reader)
+        {
+            base.Read(reader);
+        }
         public static implicit operator T(SingleFileRef<T> fileRef) { return fileRef?.GetInstance(); }
         public static implicit operator SingleFileRef<T>(T file) { return new SingleFileRef<T>(file); }
         public static implicit operator SingleFileRef<T>(Type type) { return new SingleFileRef<T>(type); }
@@ -229,17 +241,21 @@ namespace CustomEngine.Files
             table.Add(_refPath);
             return FileRefHeader.Size;
         }
+        public override void Write(XmlWriter writer)
+        {
+            base.Write(writer);
+        }
         public override void Write(VoidPtr address, StringTable table)
         {
-            throw new NotImplementedException();
+
         }
-        public override void Read(VoidPtr address)
+        public override void Read(VoidPtr address, VoidPtr strings)
         {
-            throw new NotImplementedException();
+
         }
-        public override void Read(XmlReader reader)
+        public override void Read(XMLReader reader)
         {
-            throw new NotImplementedException();
+
         }
     }
     [StructLayout(LayoutKind.Sequential, Pack = 1)]

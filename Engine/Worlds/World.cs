@@ -9,6 +9,7 @@ using System.Runtime.InteropServices;
 using CustomEngine.Files;
 using System.Xml;
 using CustomEngine.Rendering;
+using System.IO;
 
 namespace CustomEngine.Worlds
 {
@@ -107,15 +108,15 @@ namespace CustomEngine.Worlds
         {
             base.Write(address, table);
         }
-        public override void Read(VoidPtr address)
+        public override void Read(VoidPtr address, VoidPtr strings)
         {
-            base.Read(address);
+            base.Read(address, strings);
         }
         public override void Write(XmlWriter writer)
         {
             base.Write(writer);
         }
-        public override void Read(XmlReader reader)
+        public override void Read(XMLReader reader)
         {
             base.Read(reader);
         }

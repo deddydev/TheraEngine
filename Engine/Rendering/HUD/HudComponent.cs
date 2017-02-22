@@ -158,13 +158,13 @@ namespace CustomEngine.Rendering.HUD
                 new Vec3(ScaleX, ScaleY, 0.0f),
                 Quaternion.Identity, 
                 new Vec3(BottomLeftTranslation),
-                Matrix4.MultiplyOrder.TRS);
+                TransformOrder.TRS);
 
             _invLocalTransform = Matrix4.TransformMatrix(
                 new Vec3(1.0f / ScaleX, 1.0f / ScaleY, 0.0f),
                 Quaternion.Identity,
                 new Vec3(-BottomLeftTranslation),
-                Matrix4.MultiplyOrder.SRT);
+                TransformOrder.SRT);
 
             RecalcGlobalTransform();
         }

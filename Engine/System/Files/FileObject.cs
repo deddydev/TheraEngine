@@ -41,23 +41,16 @@ namespace CustomEngine.Files
             return FileCommonHeader.Size;
         }
         public virtual unsafe void Write(VoidPtr address, StringTable table) { }
-        public virtual unsafe void Read(VoidPtr address) { }
+        public virtual unsafe void Read(VoidPtr address, VoidPtr strings) { }
         public virtual void Write(XmlWriter writer)
         {
             writer.WriteStartElement(GetType().ToString());
             if (!string.IsNullOrEmpty(_name))
                 writer.WriteAttributeString("name", _name);
         }
-        public virtual void Read(XmlReader reader)
+        public virtual void Read(XMLReader reader)
         {
-            if (reader.Name != GetType().ToString())
-            {
-                reader.Skip();
-                return;
-            }
-            reader.MoveToFirstAttribute();
-            _name = reader.Name;
-            reader.MoveToContent();
+  
         }
         public void Unload()
         {
@@ -109,7 +102,7 @@ namespace CustomEngine.Files
 
             FileObject obj = Activator.CreateInstance(t) as FileObject;
             obj._filePath = filePath;
-            obj.Read(hdr->FileHeader);
+            obj.Read(hdr->FileHeader, hdr->Strings);
 
             Engine.AddLoadedFile(obj._filePath, obj);
 
@@ -144,23 +137,25 @@ namespace CustomEngine.Files
         {
             return FromXML(typeof(T), filePath) as T;
         }
-        public static FileObject FromXML(Type t, string filePath)
+        public static unsafe FileObject FromXML(Type t, string filePath)
         {
             if (!File.Exists(filePath))
                 return null;
 
-            using (TextReader stream = new StreamReader(filePath))
-            using (XmlReader reader = XmlReader.Create(stream))
+            using (FileMap map = FileMap.FromFile(filePath))
+            using (XMLReader reader = new XMLReader(map.Address, map.Length))
             {
-                reader.MoveToContent();
-
                 FileObject obj = Activator.CreateInstance(t) as FileObject;
                 obj._filePath = filePath;
 
-                reader.MoveToElement();
-                reader.ReadStartElement();
-                obj.Read(reader);
-                reader.ReadEndElement();
+                if (reader.BeginElement())
+                {
+                    if (reader.Name.Equals(t.ToString(), true))
+                        obj.Read(reader);
+                    else
+                        throw new Exception("File was not of expected type.");
+                    reader.EndElement();
+                }
 
                 Engine.AddLoadedFile(obj._filePath, obj);
 

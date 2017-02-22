@@ -800,26 +800,16 @@ namespace System
             Row3.Z = inverse[3, 2];
             Row3.W = inverse[3, 3];
         }
-        
-        public enum MultiplyOrder
-        {
-            TRS,
-            TSR,
-            RST,
-            RTS,
-            STR,
-            SRT,
-        }
-        public static MultiplyOrder OppositeOf(MultiplyOrder order)
+        public static TransformOrder OppositeOf(TransformOrder order)
         {
             switch (order)
             {
-                case MultiplyOrder.RST: return MultiplyOrder.TSR;
-                case MultiplyOrder.RTS: return MultiplyOrder.STR;
-                case MultiplyOrder.TSR: return MultiplyOrder.RST;
-                case MultiplyOrder.TRS: return MultiplyOrder.SRT;
-                case MultiplyOrder.STR: return MultiplyOrder.RTS;
-                case MultiplyOrder.SRT: return MultiplyOrder.TRS;
+                case TransformOrder.RST: return TransformOrder.TSR;
+                case TransformOrder.RTS: return TransformOrder.STR;
+                case TransformOrder.TSR: return TransformOrder.RST;
+                case TransformOrder.TRS: return TransformOrder.SRT;
+                case TransformOrder.STR: return TransformOrder.RTS;
+                case TransformOrder.SRT: return TransformOrder.TRS;
                 default: throw new Exception();
             }
         }
@@ -836,7 +826,7 @@ namespace System
             Vec3 scale,
             Quaternion rotate,
             Vec3 translate,
-            MultiplyOrder order = MultiplyOrder.SRT)
+            TransformOrder order = TransformOrder.SRT)
         {
             return TransformMatrix(scale, CreateFromQuaternion(rotate), translate, order);
         }
@@ -844,7 +834,7 @@ namespace System
             Vec3 scale,
             Rotator rotate,
             Vec3 translate,
-            MultiplyOrder order = MultiplyOrder.SRT)
+            TransformOrder order = TransformOrder.SRT)
         {
             return TransformMatrix(scale, CreateFromRotator(rotate), translate, order);
         }
@@ -852,19 +842,19 @@ namespace System
             Vec3 scale,
             Matrix4 rotate,
             Vec3 translate,
-            MultiplyOrder order = MultiplyOrder.SRT)
+            TransformOrder order = TransformOrder.SRT)
         {
             Matrix4 s = CreateScale(scale);
             Matrix4 r = rotate.GetRotationMatrix4();
             Matrix4 t = CreateTranslation(translate);
             switch (order)
             {
-                case MultiplyOrder.TRS: return t * r * s;
-                case MultiplyOrder.RTS: return r * t * s;
-                case MultiplyOrder.SRT: return s * r * t;
-                case MultiplyOrder.RST: return r * s * t;
-                case MultiplyOrder.STR: return s * t * r;
-                case MultiplyOrder.TSR: return t * s * r;
+                case TransformOrder.TRS: return t * r * s;
+                case TransformOrder.RTS: return r * t * s;
+                case TransformOrder.SRT: return s * r * t;
+                case TransformOrder.RST: return r * s * t;
+                case TransformOrder.STR: return s * t * r;
+                case TransformOrder.TSR: return t * s * r;
             }
             return Identity;
         }
@@ -880,7 +870,7 @@ namespace System
             Vec3 scale,
             Quaternion rotate,
             Vec3 translate, 
-            MultiplyOrder order = MultiplyOrder.TRS)
+            TransformOrder order = TransformOrder.TRS)
         {
             return InverseTransformMatrix(scale, CreateFromQuaternion(rotate.Inverted()), translate, order);
         }
@@ -888,7 +878,7 @@ namespace System
             Vec3 scale,
             Rotator rotate,
             Vec3 translate,
-            MultiplyOrder order = MultiplyOrder.TRS)
+            TransformOrder order = TransformOrder.TRS)
         {
             return InverseTransformMatrix(scale, CreateFromRotator(rotate.Inverted()), translate, order);
         }
@@ -904,7 +894,7 @@ namespace System
             Vec3 scale,
             Matrix4 rotate,
             Vec3 translate,
-            MultiplyOrder order = MultiplyOrder.TRS)
+            TransformOrder order = TransformOrder.TRS)
         {
             return TransformMatrix(1.0f / scale, rotate, -translate, OppositeOf(order));
         }

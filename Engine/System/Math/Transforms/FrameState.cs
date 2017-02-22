@@ -1,5 +1,6 @@
 ﻿using CustomEngine;
 using CustomEngine.Files;
+using System.IO;
 using System.Runtime.InteropServices;
 using System.Xml;
 using System.Xml.Serialization;
@@ -10,10 +11,19 @@ namespace System
     public delegate void RotateChange(float oldRotation);
     public delegate void ScaleChange(Vec3 oldScale);
     public delegate void MatrixChange(Matrix4 oldMatrix, Matrix4 oldInvMatrix);
+    public enum TransformOrder
+    {
+        TRS,
+        TSR,
+        RST,
+        RTS,
+        STR,
+        SRT,
+    }
     public class FrameState : FileObject
     {
         public override ResourceType ResourceType { get { return ResourceType.FrameState; } }
-        public static FrameState GetIdentity(Matrix4.MultiplyOrder transformationOrder, Rotator.Order rotationOrder)
+        public static FrameState GetIdentity(TransformOrder transformationOrder, Rotator.Order rotationOrder)
         {
             FrameState identity = Identity;
             identity._transformOrder = transformationOrder;
@@ -26,7 +36,7 @@ namespace System
             _translation = Vec3.Zero;
             _rotation = new Rotator(Rotator.Order.YPR);
             _scale = Vec3.One;
-            _transformOrder = Matrix4.MultiplyOrder.TRS;
+            _transformOrder = TransformOrder.TRS;
             _transform = Matrix4.Identity;
             _inverseTransform = Matrix4.Identity;
         }
@@ -34,7 +44,7 @@ namespace System
             Vec3 translate, 
             Rotator rotate,
             Vec3 scale,
-            Matrix4.MultiplyOrder transformOrder = Matrix4.MultiplyOrder.TRS)
+            TransformOrder transformOrder = TransformOrder.TRS)
         {
             _translation = translate;
             _scale = scale;
@@ -49,7 +59,7 @@ namespace System
         private Vec3 _scale = Vec3.One;
         private Matrix4 _transform = Matrix4.Identity;
         private Matrix4 _inverseTransform = Matrix4.Identity;
-        private Matrix4.MultiplyOrder _transformOrder = Matrix4.MultiplyOrder.TRS;
+        private TransformOrder _transformOrder = TransformOrder.TRS;
 
         public event TranslateChange TranslationChanged;
         public event RotateChange YawChanged;
@@ -98,7 +108,7 @@ namespace System
             get => _scale;
             set => SetScale(value);
         }
-        public Matrix4.MultiplyOrder TransformationOrder
+        public TransformOrder TransformationOrder
         {
             get => _transformOrder;
             set { _transformOrder = value; CreateTransform(); }
@@ -453,7 +463,32 @@ namespace System
             ScaleChanged?.Invoke(oldScale);
         }
         #endregion
-
+        public unsafe override void Read(VoidPtr address, VoidPtr strings)
+        {
+            Header h = *(Header*)address;
+            _transformOrder = (TransformOrder)(int)h._order;
+            _scale = h._scale;
+            _rotation = h._rotation;
+            _translation = h._translation;
+        }
+        public override void Read(XMLReader reader)
+        {
+            if (!reader.Name.Equals(GetType().ToString(), true))
+                throw new Exception();
+            while (reader.ReadAttribute())
+            {
+                if (reader.Name.Equals("name", true))
+                    _name = (string)reader.Value;
+                else if (reader.Name.Equals("order", true))
+                    _transformOrder = (TransformOrder)Enum.Parse(typeof(TransformOrder), (string)reader.Value);
+                else if (reader.Name.Equals("translation", true))
+                    _translation = Vec3.Parse((string)reader.Value);
+                else if (reader.Name.Equals("scale", true))
+                    _scale = Vec3.Parse((string)reader.Value);
+                else if (reader.Name.Equals("rotation", true))
+                    _rotation = Rotator.Parse((string)reader.Value);
+            }
+        }
         public unsafe override void Write(VoidPtr address, StringTable table)
         {
             *(Header*)address = this;
@@ -461,10 +496,14 @@ namespace System
         public override void Write(XmlWriter writer)
         {
             base.Write(writer);
-            writer.WriteElementString("Order", TransformationOrder.ToString());
-            writer.WriteElementString("Translation", Translation.ToString());
-            writer.WriteElementString("Scale", Scale.ToString());
-            //Rotation.Write(writer);
+            writer.WriteElementString("order", TransformationOrder.ToString());
+            if (Translation != Vec3.Zero)
+                writer.WriteElementString("translation", Translation.ToString());
+            if (Scale != Vec3.Zero)
+                writer.WriteElementString("scale", Scale.ToString());
+            if (!Rotation.IsZero())
+                writer.WriteElementString("rotation", Rotation.ToString());
+            Rotation.Write(writer);
             writer.WriteEndElement();
         }
         [StructLayout(LayoutKind.Sequential, Pack = 1)]
@@ -490,7 +529,7 @@ namespace System
                     h._translation, 
                     h._rotation, 
                     h._scale,
-                    (Matrix4.MultiplyOrder)(int)h._order);
+                    (TransformOrder)(int)h._order);
             }
         }
     }

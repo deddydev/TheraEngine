@@ -772,8 +772,8 @@
     <Compile Include="Rendering\Animation\AnimationString.cs" />
     <Compile Include="Rendering\Animation\AnimationBool.cs" />
     <Compile Include="Rendering\Animation\AnimationScalar.cs" />
-    <Compile Include="Rendering\Models\Skeleton\BoneWeight.cs" />
-    <Compile Include="Rendering\Models\Skeleton\Influence.cs" />
+    <Compile Include="Rendering\Models\Meshes\Faces\Skeleton\BoneWeight.cs" />
+    <Compile Include="Rendering\Models\Meshes\Faces\Skeleton\Influence.cs" />
     <Compile Include="System\Extensions\BitmapExtension.cs" />
     <Compile Include="System\Extensions\Numbers\SByteExtension.cs" />
     <Compile Include="System\Extensions\Numbers\DoubleExtension.cs" />
@@ -824,10 +824,10 @@
     <Compile Include="System\Math\Transforms\FrameState.cs" />
     <Compile Include="Rendering\Models\Meshes\Faces\Index\IndexTriangle.cs" />
     <Compile Include="Rendering\Models\Meshes\Primitives\FacePoint.cs" />
-    <Compile Include="Rendering\Models\Skeleton\Bone.cs" />
+    <Compile Include="Rendering\Models\Meshes\Faces\Skeleton\Bone.cs" />
     <Compile Include="Rendering\Models\Meshes\Skeletal\SkeletalMesh.cs" />
     <Compile Include="Rendering\Models\Meshes\Skeletal\SkeletalSoftSubMesh.cs" />
-    <Compile Include="Rendering\Models\Skeleton\Skeleton.cs" />
+    <Compile Include="Rendering\Models\Meshes\Faces\Skeleton\Skeleton.cs" />
     <Compile Include="Rendering\Renderer\States\Texture.cs" />
     <Compile Include="Worlds\WorldSettings.cs" />
     <Compile Include="Worlds\WorldState.cs" />

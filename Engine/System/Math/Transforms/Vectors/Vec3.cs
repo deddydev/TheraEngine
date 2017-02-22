@@ -398,6 +398,7 @@ namespace System
                 (Y - y) / height * 2.0f - 1.0f,
                 Z / (maxZ - minZ) * 2.0f - 1.0f);
         }
+
         /// <summary>
         /// Returns a YPR rotator relative to -Z with azimuth as yaw, elevation as pitch, and 0 as roll.
         /// </summary>
@@ -782,6 +783,14 @@ namespace System
         public static implicit operator Vec3(BulletSharp.Vector3 v) { return new Vec3(v.X, v.Y, v.Z); }
 
         private static string listSeparator = System.Globalization.CultureInfo.CurrentCulture.TextInfo.ListSeparator;
+        public static Vec3 Parse(string value)
+        {
+            string[] parts = value.Split(' ');
+            return new Vec3(
+            float.Parse(parts[0].Substring(1, parts[0].Length - 2)),
+            float.Parse(parts[1].Substring(0, parts[1].Length - 1)),
+            float.Parse(parts[2].Substring(0, parts[2].Length - 1)));
+        }
         public override string ToString()
         {
             return String.Format("({0}{3} {1}{3} {2})", X, Y, Z, listSeparator);

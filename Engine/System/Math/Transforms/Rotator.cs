@@ -5,6 +5,7 @@ using System.Xml.Serialization;
 using CustomEngine.Files;
 using CustomEngine;
 using System.Xml;
+using System.IO;
 
 namespace System
 {
@@ -401,10 +402,18 @@ namespace System
         {
            return new Rotator(0.0f, 0.0f, 0.0f, order);
         }
-
+        public static Rotator Parse(string value)
+        {
+            string[] parts = value.Split(' ');
+            return new Rotator(
+            float.Parse(parts[0].Substring(1, parts[0].Length - 2)),
+            float.Parse(parts[1].Substring(0, parts[1].Length - 1)),
+            float.Parse(parts[2].Substring(0, parts[2].Length - 1)),
+            (Order)Enum.Parse(typeof(Order), parts[3].Substring(0, parts[3].Length - 1)));
+        }
         public override string ToString()
         {
-            return String.Format("({0}{3} {1}{3} {2})", Yaw, Pitch, Roll, listSeparator);
+            return String.Format("({0}{3} {1}{3} {2}{3} {4})", Pitch, Yaw, Roll, listSeparator, _rotationOrder);
         }
         public override int GetHashCode()
         {
@@ -437,17 +446,40 @@ namespace System
                 Abs(Pitch - other.Pitch) < precision &&
                 Abs(Roll - other.Roll) < precision;
         }
-        //public override void Write(VoidPtr address, StringTable table)
-        //{
-        //    base.Write(address, table);
-        //}
-        //public override void Write(XmlWriter writer)
-        //{
-        //    base.Write(writer);
-        //    writer.WriteElementString("Order", _rotationOrder.ToString());
-        //    writer.WriteElementString("", "");
-        //    writer.WriteEndElement();
-        //}
+        
+        public void Write(XmlWriter writer)
+        {
+            writer.WriteStartElement(GetType().ToString());
+            writer.WriteAttributeString("order", _rotationOrder.ToString());
+            //writer.WriteElementString("order", _rotationOrder.ToString());
+            if (Pitch != 0.0f)
+                writer.WriteElementString("pitch", Pitch.ToString());
+            if (Yaw != 0.0f)
+                writer.WriteElementString("yaw", Yaw.ToString());
+            if (Roll != 0.0f)
+                writer.WriteElementString("roll", Roll.ToString());
+            writer.WriteEndElement();
+        }
+        public void Read(XMLReader reader)
+        {
+            while (reader.ReadAttribute())
+            {
+                if (reader.Name.Equals("order", true))
+                    _rotationOrder = (Order)Enum.Parse(typeof(Order), (string)reader.Value);
+            }
+            while (reader.BeginElement())
+            {
+                //if (reader.Name.Equals("order", true))
+                //    _rotationOrder = (Order)Enum.Parse(typeof(Order), reader.ReadElementString());
+                if (reader.Name.Equals("pitch", true))
+                    _pyr.X = float.Parse(reader.ReadElementString());
+                if (reader.Name.Equals("yaw", true))
+                    _pyr.Y = float.Parse(reader.ReadElementString());
+                if (reader.Name.Equals("roll", true))
+                    _pyr.Z = float.Parse(reader.ReadElementString());
+                reader.EndElement();
+            }
+        }
         public enum Order
         {
             YPR = 0,

@@ -5,6 +5,7 @@ using CustomEngine.Files;
 using CustomEngine.Worlds.Actors.Components;
 using System.Xml;
 using System.Runtime.InteropServices;
+using System.IO;
 
 namespace CustomEngine.Rendering.Models
 {
@@ -294,21 +295,37 @@ namespace CustomEngine.Rendering.Models
             foreach (SceneComponent item in items)
                 item._parent = null;
         }
-
-        public override void Write(VoidPtr address, StringTable table)
+        public override void Read(XMLReader reader)
         {
-            base.Write(address, table);
+            
+        }
+        public unsafe override void Read(VoidPtr address, VoidPtr strings)
+        {
+            Header h = *(Header*)address;
+            _name = strings.GetString(h._name);
+            _frameState = _bindState = h._state;
+        }
+        public unsafe override void Write(VoidPtr address, StringTable table)
+        {
+            Header* h = (Header*)address;
+            h->_name = table[_name];
+            h->_state = _bindState;
         }
         public override void Write(XmlWriter writer)
         {
-            base.Write(writer);
+            writer.WriteStartElement("bone");
+            writer.WriteAttributeString("name", _name);
+            _bindState.Write(writer);
+            writer.WriteEndElement();
         }
         [StructLayout(LayoutKind.Sequential, Pack = 1)]
-        struct BoneHeader
+        public unsafe struct Header
         {
-            bint _name;
-            bint _parentIndex;
-            FrameState.Header _state;
+            public bint _name;
+            public bint _parentIndex;
+            public FrameState.Header _state;
+
+            public VoidPtr Address { get { fixed (void* ptr = &this) return ptr; } }
         }
     }
 }

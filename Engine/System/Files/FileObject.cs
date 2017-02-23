@@ -40,18 +40,10 @@ namespace CustomEngine.Files
         {
             return FileCommonHeader.Size;
         }
-        public virtual unsafe void Write(VoidPtr address, StringTable table) { }
-        public virtual unsafe void Read(VoidPtr address, VoidPtr strings) { }
-        public virtual void Write(XmlWriter writer)
-        {
-            writer.WriteStartElement(GetType().ToString());
-            if (!string.IsNullOrEmpty(_name))
-                writer.WriteAttributeString("name", _name);
-        }
-        public virtual void Read(XMLReader reader)
-        {
-  
-        }
+        public abstract void Write(VoidPtr address, StringTable table);
+        public abstract void Read(VoidPtr address, VoidPtr strings);
+        public abstract void Write(XmlWriter writer);
+        public abstract void Read(XMLReader reader);
         public void Unload()
         {
             if (!string.IsNullOrEmpty(_filePath) && Engine.LoadedFiles.ContainsKey(_filePath))

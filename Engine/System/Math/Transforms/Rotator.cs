@@ -448,7 +448,10 @@ namespace System
         }
         public bool IsZero()
         {
-            return Pitch.IsZero() && Yaw.IsZero() && Roll.IsZero();
+            return
+                Pitch.IsZero() && 
+                Yaw.IsZero() && 
+                Roll.IsZero();
         }
         public void Write(XmlWriter writer)
         {

@@ -474,7 +474,7 @@ namespace System
         }
         public override void Read(XMLReader reader)
         {
-            if (!reader.Name.Equals(GetType().ToString(), true))
+            if (!reader.Name.Equals("transform", true))
                 throw new Exception();
             while (reader.ReadAttribute())
             {
@@ -482,12 +482,16 @@ namespace System
                     _name = (string)reader.Value;
                 else if (reader.Name.Equals("order", true))
                     _transformOrder = (TransformOrder)Enum.Parse(typeof(TransformOrder), (string)reader.Value);
-                else if (reader.Name.Equals("translation", true))
-                    _translation = Vec3.Parse((string)reader.Value);
+            }
+            while (reader.BeginElement())
+            {
+                if (reader.Name.Equals("translation", true))
+                    _translation = Vec3.Parse(reader.ReadElementString());
                 else if (reader.Name.Equals("scale", true))
-                    _scale = Vec3.Parse((string)reader.Value);
+                    _scale = Vec3.Parse(reader.ReadElementString());
                 else if (reader.Name.Equals("rotation", true))
-                    _rotation = Rotator.Parse((string)reader.Value);
+                    _rotation = Rotator.Parse(reader.ReadElementString());
+                reader.EndElement();
             }
         }
         public unsafe override void Write(VoidPtr address, StringTable table)
@@ -496,8 +500,8 @@ namespace System
         }
         public override void Write(XmlWriter writer)
         {
-            base.Write(writer);
-            writer.WriteElementString("order", TransformationOrder.ToString());
+            writer.WriteStartElement("");
+            writer.WriteAttributeString("order", TransformationOrder.ToString());
             if (Translation != Vec3.Zero)
                 writer.WriteElementString("translation", Translation.ToString());
             if (Scale != Vec3.Zero)

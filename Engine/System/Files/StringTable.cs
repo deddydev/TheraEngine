@@ -8,7 +8,7 @@ namespace CustomEngine.Files
 {
     public unsafe class StringTable
     {
-        SortedList<string, VoidPtr> _table = new SortedList<string, VoidPtr>(StringComparer.Ordinal);
+        SortedList<string, int> _table = new SortedList<string, int>(StringComparer.Ordinal);
 
         public void Add(string s)
         {
@@ -26,7 +26,7 @@ namespace CustomEngine.Files
 
         public void Clear() { _table.Clear(); }
 
-        public VoidPtr this[string s]
+        public int this[string s]
         {
             get
             {
@@ -35,15 +35,15 @@ namespace CustomEngine.Files
                 return _table.Values[0];
             }
         }
-
         public void WriteTable(FileCommonHeader* address)
         {
-            sbyte* addr = (sbyte*)address->Strings;
+            VoidPtr baseAddress = address->Strings;
+            VoidPtr currentAddress = baseAddress;
             for (int i = 0; i < _table.Count; i++)
             {
                 string s = _table.Keys[i];
-                _table[s] = addr;
-                s.Write(ref addr);
+                _table[s] = currentAddress - baseAddress;
+                s.Write(ref currentAddress);
             }
         }
     }

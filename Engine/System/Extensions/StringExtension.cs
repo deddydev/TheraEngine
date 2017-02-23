@@ -10,6 +10,22 @@ namespace System
         {
             return sWhitespace.Replace(input, replacement);
         }
+        public static VoidPtr Write(this string s, VoidPtr addr)
+        {
+            sbyte* dPtr = (sbyte*)addr;
+            foreach (char c in s)
+                *dPtr++ = (sbyte)c;
+            *dPtr++ = 0;
+            return dPtr;
+        }
+        public static void Write(this string s, ref VoidPtr addr)
+        {
+            sbyte* dPtr = (sbyte*)addr;
+            foreach (char c in s)
+                *dPtr++ = (sbyte)c;
+            *dPtr++ = 0;
+            addr = dPtr;
+        }
         public static void Write(this string s, ref sbyte* addr)
         {
             foreach (char c in s)

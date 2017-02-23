@@ -8,6 +8,7 @@ using System.Drawing;
 using OpenTK.Graphics.OpenGL;
 using System.Xml;
 using System.Runtime.InteropServices;
+using System.IO;
 
 namespace CustomEngine.Rendering.Models
 {
@@ -162,20 +163,60 @@ namespace CustomEngine.Rendering.Models
             }
         }
 
+        public override void Read(XMLReader reader)
+        {
+            List<Bone> rootBones = new List<Bone>();
+            while (reader.BeginElement())
+            {
+                if (reader.Name.Equals("bone", true))
+                    _translation = Vec3.Parse(reader.ReadElementString());
+                reader.EndElement();
+            }
+        }
+        public unsafe override void Read(VoidPtr address, VoidPtr strings)
+        {
+            Header* h = (Header*)address;
+            int boneCount = h->_boneCount;
+            Bone[] bones = new Bone[boneCount];
+            List<Bone> rootBones = new List<Bone>();
+            //int[] parentIndices = new int[boneCount];
+            for (int i = 0; i < boneCount; ++i)
+            {
+                Bone.Header* hdr = &h->Bones[i];
+                Bone b = new Bone();
+                b.Read(hdr, strings);
+                int parentIndex = hdr->_parentIndex;
+                if (parentIndex < 0)
+                    rootBones.Add(b);
+                else
+                    //Avoid a second loop by assuming the parent was written before the child
+                    b.Parent = bones[parentIndex];
+                bones[i] = b;
+                //parentIndices[i] = hdr->_parentIndex;
+            }
+            //for (int i = 0; i < boneCount; ++i)
+            //    bones[i].Parent = bones[parentIndices[i]];
+            CalcFrameMatrices();
+        }
         public override void Write(VoidPtr address, StringTable table)
         {
             base.Write(address, table);
-
         }
         public override void Write(XmlWriter writer)
         {
             base.Write(writer);
-
+            writer.WriteAttributeString("count", _boneCache.Count.ToString());
+            foreach (Bone b in _rootBones)
+                b.Write(writer);
+            writer.WriteEndElement();
         }
         [StructLayout(LayoutKind.Sequential, Pack = 1)]
-        struct SkeletonHeader
+        public unsafe struct Header
         {
-            bfloat _boneCount;
+            public bint _boneCount;
+
+            public Bone.Header* Bones { get { return (Bone.Header*)Address; } }
+            public VoidPtr Address { get { fixed (void* ptr = &this) return ptr; } }
         }
     }
 }

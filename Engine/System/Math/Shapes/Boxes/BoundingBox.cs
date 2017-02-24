@@ -339,14 +339,12 @@ namespace System
         {
             *(Header*)address = this;
         }
-
         public unsafe override void Read(VoidPtr address, VoidPtr strings)
         {
             Header h = *(Header*)address;
             _halfExtents = h._halfExtents;
             _translation = h._translation;
         }
-
         public override void Write(XmlWriter writer)
         {
             writer.WriteStartElement("aabb");
@@ -356,7 +354,6 @@ namespace System
                 writer.WriteElementString("translation", _translation.ToString(false, false));
             writer.WriteEndElement();
         }
-
         public override void Read(XMLReader reader)
         {
             if (!reader.Name.Equals("aabb", true))
@@ -370,7 +367,6 @@ namespace System
                 reader.EndElement();
             }
         }
-
         [StructLayout(LayoutKind.Sequential, Pack = 1)]
         public struct Header
         {

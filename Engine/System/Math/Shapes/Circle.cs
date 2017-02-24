@@ -22,11 +22,18 @@ namespace System
             get { return _radius; }
             set { _radius = value; }
         }
-        public static PrimitiveData SolidMesh(float radius, int pointCount)
+        public static PrimitiveData SolidMesh(float radius, Vec3 normal, Vec3 center, int sides)
         {
-            if (pointCount < 3)
+            if (sides < 3)
                 throw new Exception("A (very low res) circle needs at least 3 points.");
-            
+
+            normal.Normalize();
+            Quaternion offset = Quaternion.BetweenVectors(Vec3.Up, normal);
+            Vertex[] points = new Vertex[sides + 1];
+            points[0] = new Vertex(center, normal);
+            float angleInc = CustomMath.PIf * 2.0f / sides, angle = 0.0f;
+            for (int i = 1; i < sides; ++i, angle += angleInc)
+                points[i] = new Vertex(center + offset * (radius * new Vec3((float)Math.Cos(angle), 0.0f, -(float)Math.Sin(angle))), normal);
             VertexTriangleFan fan = new VertexTriangleFan();
             return PrimitiveData.FromTriangleFans(Culling.None, new PrimitiveBufferInfo(), fan);
         }
@@ -37,13 +44,10 @@ namespace System
 
             normal.Normalize();
             Quaternion offset = Quaternion.BetweenVectors(Vec3.Up, normal);
-            Vertex[] points = new Vertex[pointCount - 1];
-            float angleInc = CustomMath.PIf * 2.0f / pointCount;
-            for (int i = 0; i < pointCount - 1; ++i)
-            {
-                float angle = angleInc * i;
+            Vertex[] points = new Vertex[pointCount];
+            float angleInc = CustomMath.PIf * 2.0f / pointCount, angle = 0.0f;
+            for (int i = 0; i < pointCount; ++i, angle += angleInc)
                 points[i] = new Vertex(center + offset * (radius * new Vec3((float)Math.Cos(angle), 0.0f, -(float)Math.Sin(angle))));
-            }
             VertexLineStrip strip = new VertexLineStrip(true, points);
             return PrimitiveData.FromLineStrips(new PrimitiveBufferInfo(), strip);
         }

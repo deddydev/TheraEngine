@@ -480,6 +480,9 @@ namespace System
         {
             if (!reader.Name.Equals("transform", true))
                 throw new Exception();
+            _translation = Vec3.Zero;
+            _scale = Vec3.One;
+            _rotation = Rotator.GetZero();
             while (reader.ReadAttribute())
             {
                 if (reader.Name.Equals("name", true))
@@ -504,9 +507,9 @@ namespace System
             writer.WriteAttributeString("order", TransformationOrder.ToString());
             if (Translation != Vec3.Zero)
                 writer.WriteElementString("translation", Translation.ToString(false, false));
-            if (Scale != Vec3.Zero)
+            if (Scale != Vec3.One)
                 writer.WriteElementString("scale", Scale.ToString(false, false));
-            if (!Rotation.IsZero())
+            //if (!Rotation.IsZero())
                 Rotation.Write(writer);
             writer.WriteEndElement();
         }

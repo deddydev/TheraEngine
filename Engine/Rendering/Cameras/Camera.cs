@@ -12,10 +12,19 @@ namespace CustomEngine.Rendering.Cameras
         public Camera()
         {
             Resize(1.0f, 1.0f);
-            _rotate.Changed += CreateTransform;
+            _rotation.Changed += CreateTransform;
             _point.Changed += CreateTransform;
         }
-
+        public Camera(Vec3 point, Rotator rotation, float nearZ, float farZ)
+        {
+            Resize(1.0f, 1.0f);
+            _rotation = rotation;
+            _nearZ = nearZ;
+            _farZ = farZ;
+            _point = point;
+            _rotation.Changed += CreateTransform;
+            _point.Changed += CreateTransform;
+        }
         public Matrix4 ProjectionMatrix { get { return _projectionMatrix; } }
         public Matrix4 ProjectionMatrixInverse { get { return _projectionInverse; } }
         public Matrix4 Matrix { get { return _invTransform; } }
@@ -37,8 +46,8 @@ namespace CustomEngine.Rendering.Cameras
         }
         public Rotator Rotation
         {
-            get { return _rotate; }
-            set { _rotate.SetRotations(value); }
+            get { return _rotation; }
+            set { _rotation.SetRotations(value); }
         }
         public PostProcessSettings PostProcessSettings
         {
@@ -67,7 +76,7 @@ namespace CustomEngine.Rendering.Cameras
 
         protected EventVec3 _scale = Vec3.One;
         protected EventVec3 _point = Vec3.Zero;
-        protected Rotator _rotate = new Rotator(Rotator.Order.YPR);
+        protected Rotator _rotation = new Rotator(Rotator.Order.YPR);
         protected Vec3 _forwardDirection;
 
         /// <summary>
@@ -85,7 +94,7 @@ namespace CustomEngine.Rendering.Cameras
         }
         protected void CreateTransform()
         {
-            Matrix4 rotMatrix = _rotate.GetMatrix();
+            Matrix4 rotMatrix = _rotation.GetMatrix();
 
             _transform =
                 Matrix4.CreateTranslation(_point.Raw) *
@@ -94,7 +103,7 @@ namespace CustomEngine.Rendering.Cameras
 
             _invTransform =
                 Matrix4.CreateScale(1.0f / _scale) *
-                _rotate.GetInverseMatrix() *
+                _rotation.GetInverseMatrix() *
                 Matrix4.CreateTranslation(-_point.Raw);
 
             _forwardDirection = Vec3.TransformVector(Vec3.Forward, rotMatrix);
@@ -103,7 +112,7 @@ namespace CustomEngine.Rendering.Cameras
         }
         protected void UpdateTransformedFrustum()
         {
-            _transformedFrustum = _untransformedFrustum.TransformedBy(Matrix4.CreateTranslation(_point) * _rotate.GetMatrix() * Matrix4.CreateScale(_scale));
+            _transformedFrustum = _untransformedFrustum.TransformedBy(Matrix4.CreateTranslation(_point) * _rotation.GetMatrix() * Matrix4.CreateScale(_scale));
         }
         public abstract void Zoom(float amount);
         public void TranslateRelative(float x, float y, float z) => TranslateRelative(new Vec3(x, y, z));
@@ -126,27 +135,27 @@ namespace CustomEngine.Rendering.Cameras
 
             _point.Raw += translation;
         }
-        public Vec3 RotateVector(Vec3 dir) { return _rotate.TransformVector(dir); }
+        public Vec3 RotateVector(Vec3 dir) { return _rotation.TransformVector(dir); }
         public Vec3 GetUpVector() { return RotateVector(Vec3.Up); }
         public Vec3 GetForwardVector() { return _forwardDirection; }
         public Vec3 GetRightVector() { return RotateVector(Vec3.Right); }
         public void Rotate(float pitch, float yaw) { Rotate(pitch, yaw, 0.0f); }
         public void Rotate(float pitch, float yaw, float roll)
-            => SetRotate(_rotate.Pitch + pitch, _rotate.Yaw + yaw, _rotate.Roll + roll);
+            => SetRotate(_rotation.Pitch + pitch, _rotation.Yaw + yaw, _rotation.Roll + roll);
         public void SetRotate(Rotator r)
         {
-            _rotate = r;
-            _rotate.Changed += CreateTransform;
+            _rotation = r;
+            _rotation.Changed += CreateTransform;
             CreateTransform();
         }
         public void SetRotate(Vec3 pitchYawRoll)
         {
-            _rotate.PitchYawRoll = pitchYawRoll;
+            _rotation.PitchYawRoll = pitchYawRoll;
             CreateTransform();
         }
         public void SetRotate(float pitch, float yaw, float roll)
         {
-            _rotate.SetRotations(pitch, yaw, roll);
+            _rotation.SetRotations(pitch, yaw, roll);
         }
         public void Pivot(float y, float x, float radius)
         {
@@ -158,7 +167,7 @@ namespace CustomEngine.Rendering.Cameras
         }
         public void SetViewTarget(Vec3 target)
         {
-            _rotate = (target - _point).LookatAngles();
+            _rotation = (target - _point).LookatAngles();
             CreateTransform();
         }
         public void Reset()

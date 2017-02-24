@@ -121,7 +121,7 @@ namespace System
             set { _data = ((long)(value - Address)).Reverse(); }
         }
 
-        public long Value { get { return (long)this; } }
+        public long Value { get { return this; } }
         public override string ToString()
         {
             return Value.ToString();

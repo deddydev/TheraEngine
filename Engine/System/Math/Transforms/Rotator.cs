@@ -468,6 +468,8 @@ namespace System
         }
         public void Read(XMLReader reader)
         {
+            if (!reader.Name.Equals("euler", true))
+                throw new Exception();
             while (reader.ReadAttribute())
             {
                 if (reader.Name.Equals("order", true))

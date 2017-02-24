@@ -7,48 +7,46 @@ using BulletSharp;
 using CustomEngine.Worlds.Actors.Components;
 using System.IO;
 using System.Xml;
+using System.Runtime.InteropServices;
 
 namespace System
 {
     public class Box : Shape
     {
         public Vec3 _halfExtents;
-        public Matrix4 _transform;
+        public FrameState _transform;
 
         public event Action TransformChanged;
-        
-        public Matrix4 WorldMatrix
+
+        public Matrix4 WorldMatrix => _transform.Matrix;
+        public FrameState Transform
         {
-            get { return _transform; }
-            set
-            {
-                _transform = value;
-                TransformChanged?.Invoke();
-            }
+            get => _transform;
+            set => _transform = value;
         }
         public Vec3 HalfExtents
         {
             get { return _halfExtents; }
             set { _halfExtents = value; }
         }
-        public Vec3 Center { get { return _transform.GetPoint(); } }
-        public Box(float extentX, float extentY, float extentZ) 
-            : this(extentX, extentY, extentZ, Matrix4.Identity) { }
-        public Box(float extentX, float extentY, float extentZ, Matrix4 transform)
+        public Vec3 Center { get { return _transform.Matrix.GetPoint(); } }
+        public Box(float halfExtentX, float halfExtentY, float halfExtentZ) 
+            : this(halfExtentX, halfExtentY, halfExtentZ, FrameState.Identity) { }
+        public Box(float halfExtentX, float halfExtentY, float halfExtentZ, FrameState transform)
         {
-            _halfExtents = new Vec3(extentX, extentY, extentZ);
+            _halfExtents = new Vec3(halfExtentX, halfExtentY, halfExtentZ);
             _transform = transform;
         }
-        public Box(Vec3 extents) : this(extents, Matrix4.Identity) { }
-        public Box(Vec3 extents, Matrix4 transform)
+        public Box(Vec3 halfExtents) : this(halfExtents, FrameState.Identity) { }
+        public Box(Vec3 halfExtents, FrameState transform)
         {
-            _halfExtents = extents / 2.0f;
+            _halfExtents = halfExtents;
             _transform = transform;
         }
-        public Box(float uniformExtents) : this(uniformExtents, Matrix4.Identity) { }
-        public Box(float uniformExtents, Matrix4 transform)
+        public Box(float uniformHalfExtents) : this(uniformHalfExtents, FrameState.Identity) { }
+        public Box(float uniformHalfExtents, FrameState transform)
         {
-            _halfExtents = new Vec3(uniformExtents / 2.0f);
+            _halfExtents = new Vec3(uniformHalfExtents);
             _transform = transform;
         }
 
@@ -71,20 +69,18 @@ namespace System
         }
         public Vec3[] GetCorners()
         {
-            Vec3 TBL, TBR, TFL, TFR, BBL, BBR, BFL, BFR;
-            BoundingBox.GetCorners(_halfExtents, WorldMatrix, out TBL, out TBR, out TFL, out TFR, out BBL, out BBR, out BFL, out BFR);
+            BoundingBox.GetCorners(_halfExtents, WorldMatrix, out Vec3 TBL, out Vec3 TBR, out Vec3 TFL, out Vec3 TFR, out Vec3 BBL, out Vec3 BBR, out Vec3 BFL, out Vec3 BFR);
             return new Vec3[] { TBL, TBR, TFL, TFR, BBL, BBR, BFL, BFR };
         }
         public override void Render()
         {
-            Engine.Renderer.RenderBox(_halfExtents, _transform, _renderSolid);
+            Engine.Renderer.RenderBox(_halfExtents, _transform.Matrix, _renderSolid);
         }
         public static PrimitiveData Mesh(Vec3 halfExtents, Matrix4 transform)
         {
             VertexQuad left, right, top, bottom, front, back;
-            Vec3 TBL, TBR, TFL, TFR, BBL, BBR, BFL, BFR;
 
-            BoundingBox.GetCorners(halfExtents, transform, out TBL, out TBR, out TFL, out TFR, out BBL, out BBR, out BFL, out BFR);
+            BoundingBox.GetCorners(halfExtents, transform, out Vec3 TBL, out Vec3 TBR, out Vec3 TFL, out Vec3 TFR, out Vec3 BBL, out Vec3 BBR, out Vec3 BFL, out Vec3 BFR);
 
             Vec3 rightNormal = Vec3.Right;
             Vec3 frontNormal = Vec3.Forward;
@@ -114,13 +110,13 @@ namespace System
         }
         public static BoundingBox FromSphere(Sphere sphere)
         {
-            return new BoundingBox(
+            return BoundingBox.FromMinMax(
                 new Vec3(sphere.Center.X - sphere.Radius, sphere.Center.Y - sphere.Radius, sphere.Center.Z - sphere.Radius),
                 new Vec3(sphere.Center.X + sphere.Radius, sphere.Center.Y + sphere.Radius, sphere.Center.Z + sphere.Radius));
         }
         public static BoundingBox Merge(BoundingBox box1, BoundingBox box2)
         {
-            return new BoundingBox(Vec3.ComponentMin(box1.Minimum, box2.Maximum), Vec3.ComponentMax(box1.Maximum, box2.Maximum));
+            return BoundingBox.FromMinMax(Vec3.ComponentMin(box1.Minimum, box2.Maximum), Vec3.ComponentMax(box1.Maximum, box2.Maximum));
         }
         public static bool operator ==(Box left, Box right) { return left.Equals(ref right); }
         public static bool operator !=(Box left, Box right) { return !left.Equals(ref right); }
@@ -183,7 +179,8 @@ namespace System
         }
         public override void SetTransform(Matrix4 worldMatrix)
         {
-            _transform = worldMatrix;
+            throw new NotImplementedException();
+            //_transform = worldMatrix;
         }
         public override CollisionShape GetCollisionShape()
         {
@@ -191,31 +188,64 @@ namespace System
         }
         public override Shape HardCopy()
         {
-            return new Box(_halfExtents * 2.0f, _transform);
+            return new Box(_halfExtents, _transform);
         }
         public override Shape TransformedBy(Matrix4 worldMatrix)
         {
-            return new Box(_halfExtents * 2.0f, worldMatrix);
+            return new Box(_halfExtents, _transform);
         }
-
-        public override void Write(VoidPtr address, StringTable table)
+        public unsafe override void Write(VoidPtr address, StringTable table)
         {
-            throw new NotImplementedException();
+            *(Header*)address = this;
         }
-
-        public override void Read(VoidPtr address, VoidPtr strings)
+        public unsafe override void Read(VoidPtr address, VoidPtr strings)
         {
-            throw new NotImplementedException();
+            Header h = *(Header*)address;
+            _halfExtents = h._halfExtents;
+            _transform = h._transform;
         }
-
         public override void Write(XmlWriter writer)
         {
-            throw new NotImplementedException();
+            writer.WriteStartElement("box");
+            if (_halfExtents != Vec3.Zero)
+                writer.WriteElementString("halfExtents", _halfExtents.ToString(false, false));
+            _transform.Write(writer);
+            writer.WriteEndElement();
         }
-
         public override void Read(XMLReader reader)
         {
-            throw new NotImplementedException();
+            if (!reader.Name.Equals("box", true))
+                throw new Exception();
+            while (reader.BeginElement())
+            {
+                if (reader.Name.Equals("transform", true))
+                {
+                    _transform = new FrameState();
+                    _transform.Read(reader);
+                }
+                else if (reader.Name.Equals("halfExtents", true))
+                    _halfExtents = Vec3.Parse(reader.ReadElementString());
+                reader.EndElement();
+            }
+        }
+        [StructLayout(LayoutKind.Sequential, Pack = 1)]
+        public struct Header
+        {
+            public BVec3 _halfExtents;
+            public FrameState.Header _transform;
+
+            public static implicit operator Header(Box b)
+            {
+                return new Header()
+                {
+                    _halfExtents = b._halfExtents,
+                    _transform = b._transform,
+                };
+            }
+            public static implicit operator Box(Header h)
+            {
+                return new Box(h._halfExtents, h._transform);
+            }
         }
     }
 }

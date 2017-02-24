@@ -2,6 +2,7 @@
 using System.IO;
 using System.Xml;
 using CustomEngine.Files;
+using System.Runtime.InteropServices;
 
 namespace CustomEngine.Rendering.Cameras
 {
@@ -14,6 +15,7 @@ namespace CustomEngine.Rendering.Cameras
 
         public override Vec2 Origin { get { return new Vec2(_originX, _originY); } }
 
+        private bool _lockYaw = false, _lockPitch = false, _lockRoll = false;
         private float 
             _orthoLeft = 0.0f, 
             _orthoRight = 1.0f, 
@@ -84,32 +86,96 @@ namespace CustomEngine.Rendering.Cameras
         protected override Frustum CreateUntransformedFrustum()
         {
             float w = Width / 2.0f, h = Height / 2.0f;
-            return new BoundingBox(new Vec3(-w, -h, -_farZ), new Vec3(w, h, -_nearZ)).AsFrustum();
+            return BoundingBox.FromMinMax(new Vec3(-w, -h, -_farZ), new Vec3(w, h, -_nearZ)).AsFrustum();
         }
 
         public override float DistanceScale(Vec3 point, float radius)
         {
             return _scale.X * 80.0f;
         }
-
-        public override void Write(VoidPtr address, StringTable table)
+        public unsafe override void Write(VoidPtr address, StringTable table)
         {
-            throw new NotImplementedException();
+            *(Header*)address = this;
         }
-
-        public override void Read(VoidPtr address, VoidPtr strings)
+        public unsafe override void Read(VoidPtr address, VoidPtr strings)
         {
-            throw new NotImplementedException();
+            Header h = *(Header*)address;
+            _point.Raw = h._point;
+            _rotation.SetRotations(h._rotation);
+            _nearZ = h._nearZ;
+            _farZ = h._farZ;
         }
-
         public override void Write(XmlWriter writer)
         {
-            throw new NotImplementedException();
+            writer.WriteStartElement("orthographicCamera");
+            writer.WriteAttributeString("lockYaw", _lockYaw.ToString());
+            writer.WriteAttributeString("lockPitch", _lockPitch.ToString());
+            writer.WriteAttributeString("lockRoll", _lockRoll.ToString());
+            writer.WriteAttributeString("nearZ", _nearZ.ToString());
+            writer.WriteAttributeString("farZ", _farZ.ToString());
+            if (_point.Raw != Vec3.Zero)
+                writer.WriteElementString("point", _point.Raw.ToString(false, false));
+            //if (!_rotation.IsZero())
+            _rotation.Write(writer);
+            writer.WriteEndElement();
         }
-
         public override void Read(XMLReader reader)
         {
-            throw new NotImplementedException();
+            if (!reader.Name.Equals("orthographicCamera", true))
+                throw new Exception();
+            _point.Raw = Vec3.Zero;
+            _rotation.PitchYawRoll = Vec3.Zero;
+            while (reader.ReadAttribute())
+            {
+                if (reader.Name.Equals("fovY", true))
+                    VerticalFieldOfView = float.Parse((string)reader.Value);
+                if (reader.Name.Equals("fovX", true))
+                    HorizontalFieldOfView = float.Parse((string)reader.Value);
+                if (reader.Name.Equals("aspect", true))
+                    _aspect = float.Parse((string)reader.Value);
+                if (reader.Name.Equals("nearZ", true))
+                    _nearZ = float.Parse((string)reader.Value);
+                if (reader.Name.Equals("farZ", true))
+                    _farZ = float.Parse((string)reader.Value);
+            }
+            while (reader.BeginElement())
+            {
+                if (reader.Name.Equals("point", true))
+                    _point.Raw = Vec3.Parse(reader.ReadElementString());
+                else if (reader.Name.Equals("rotation", true))
+                    _rotation.Read(reader);
+                reader.EndElement();
+            }
+        }
+        [StructLayout(LayoutKind.Sequential, Pack = 1)]
+        public struct Header
+        {
+            public BVec3 _point;
+            public Rotator.Header _rotation;
+            public bfloat _fovY;
+            public bfloat _aspect;
+            public bfloat _nearZ;
+            public bfloat _farZ;
+
+            public static implicit operator Header(OrthographicCamera c)
+            {
+                return new Header()
+                {
+                    _point = c._point.Raw,
+                    _rotation = c._rotation,
+                    _fovY = c._fovY,
+                    _aspect = c._aspect,
+                    _nearZ = c._nearZ,
+                    _farZ = c._farZ,
+                };
+            }
+            public static implicit operator OrthographicCamera(Header h)
+            {
+                return new OrthographicCamera(h._point, h._rotation, h._nearZ, h._farZ, h._fovY)
+                {
+                    _aspect = h._aspect,
+                };
+            }
         }
     }
 }

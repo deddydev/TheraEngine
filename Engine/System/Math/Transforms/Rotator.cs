@@ -455,7 +455,7 @@ namespace System
         }
         public void Write(XmlWriter writer)
         {
-            writer.WriteStartElement(GetType().ToString());
+            writer.WriteStartElement("euler");
             writer.WriteAttributeString("order", _rotationOrder.ToString());
             //writer.WriteElementString("order", _rotationOrder.ToString());
             if (Pitch != 0.0f)

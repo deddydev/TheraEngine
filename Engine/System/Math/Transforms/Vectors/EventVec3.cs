@@ -216,7 +216,7 @@ namespace System
         /// </summary>
         public Vec3 Cross(Vec3 right)
         {
-            return _data.Cross(right);
+            return _data ^ right;
         }
         
         /// <summary>

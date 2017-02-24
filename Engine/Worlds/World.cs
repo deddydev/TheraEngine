@@ -106,19 +106,19 @@ namespace CustomEngine.Worlds
         }
         public override void Write(VoidPtr address, StringTable table)
         {
-            base.Write(address, table);
+
         }
         public override void Read(VoidPtr address, VoidPtr strings)
         {
-            base.Read(address, strings);
+
         }
         public override void Write(XmlWriter writer)
         {
-            base.Write(writer);
+
         }
         public override void Read(XMLReader reader)
         {
-            base.Read(reader);
+
         }
         public IEnumerator<Actor> GetEnumerator() { return State.SpawnedActors.GetEnumerator(); }
         IEnumerator IEnumerable.GetEnumerator() { return State.SpawnedActors.GetEnumerator(); }

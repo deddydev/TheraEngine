@@ -5,6 +5,8 @@ using CustomEngine.Files;
 using System.Globalization;
 using BulletSharp;
 using CustomEngine.Worlds.Actors.Components;
+using System.IO;
+using System.Xml;
 
 namespace System
 {
@@ -194,6 +196,26 @@ namespace System
         public override Shape TransformedBy(Matrix4 worldMatrix)
         {
             return new Box(_halfExtents * 2.0f, worldMatrix);
+        }
+
+        public override void Write(VoidPtr address, StringTable table)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void Read(VoidPtr address, VoidPtr strings)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void Write(XmlWriter writer)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void Read(XMLReader reader)
+        {
+            throw new NotImplementedException();
         }
     }
 }

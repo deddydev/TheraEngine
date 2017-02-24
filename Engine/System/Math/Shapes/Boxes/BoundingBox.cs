@@ -5,6 +5,9 @@ using CustomEngine.Files;
 using System.Globalization;
 using BulletSharp;
 using CustomEngine.Worlds.Actors.Components;
+using System.IO;
+using System.Xml;
+using System.Runtime.InteropServices;
 
 namespace System
 {
@@ -43,6 +46,10 @@ namespace System
             get { return _translation; }
             set { _translation = value; }
         }
+        public BoundingBox()
+        {
+
+        }
         public BoundingBox(float extentX, float extentY, float extentZ)
         {
             _halfExtents = new Vec3(extentX, extentY, extentZ);
@@ -55,10 +62,21 @@ namespace System
         {
             _halfExtents = new Vec3(uniformExtents / 2.0f);
         }
-        public BoundingBox(Vec3 min, Vec3 max)
+        public static BoundingBox FromMinMax(Vec3 min, Vec3 max)
         {
-            _translation = (max + min) / 2.0f;
-            _halfExtents = (max - min) / 2.0f;
+            return new BoundingBox()
+            {
+                _translation = (max + min) / 2.0f,
+                _halfExtents = (max - min) / 2.0f,
+            };
+        }
+        public static BoundingBox FromHalfExtentsTranslation(Vec3 halfExtents, Vec3 translation)
+        {
+            return new BoundingBox()
+            {
+                _translation = translation,
+                _halfExtents = halfExtents,
+            };
         }
         public override CollisionShape GetCollisionShape()
         {
@@ -158,26 +176,22 @@ namespace System
         }
         public Vec3[] GetCorners()
         {
-            Vec3 TBL, TBR, TFL, TFR, BBL, BBR, BFL, BFR;
-            GetCorners(out TBL, out TBR, out TFL, out TFR, out BBL, out BBR, out BFL, out BFR);
+            GetCorners(out Vec3 TBL, out Vec3 TBR, out Vec3 TFL, out Vec3 TFR, out Vec3 BBL, out Vec3 BBR, out Vec3 BFL, out Vec3 BFR);
             return new Vec3[] { TBL, TBR, TFL, TFR, BBL, BBR, BFL, BFR };
         }
         public Vec3[] GetCorners(Matrix4 transform)
         {
-            Vec3 TBL, TBR, TFL, TFR, BBL, BBR, BFL, BFR;
-            GetCorners(transform, out TBL, out TBR, out TFL, out TFR, out BBL, out BBR, out BFL, out BFR);
+            GetCorners(transform, out Vec3 TBL, out Vec3 TBR, out Vec3 TFL, out Vec3 TFR, out Vec3 BBL, out Vec3 BBR, out Vec3 BFL, out Vec3 BFR);
             return new Vec3[] { TBL, TBR, TFL, TFR, BBL, BBR, BFL, BFR };
         }
         public static Vec3[] GetCorners(Vec3 halfExtents, Matrix4 transform)
         {
-            Vec3 TBL, TBR, TFL, TFR, BBL, BBR, BFL, BFR;
-            GetCorners(halfExtents, transform, out TBL, out TBR, out TFL, out TFR, out BBL, out BBR, out BFL, out BFR);
+            GetCorners(halfExtents, transform, out Vec3 TBL, out Vec3 TBR, out Vec3 TFL, out Vec3 TFR, out Vec3 BBL, out Vec3 BBR, out Vec3 BFL, out Vec3 BFR);
             return new Vec3[] { TBL, TBR, TFL, TFR, BBL, BBR, BFL, BFR };
         }
         public static Vec3[] GetCorners(Vec3 boxMin, Vec3 boxMax)
         {
-            Vec3 TBL, TBR, TFL, TFR, BBL, BBR, BFL, BFR;
-            GetCorners(boxMin, boxMax, out TBL, out TBR, out TFL, out TFR, out BBL, out BBR, out BFL, out BFR);
+            GetCorners(boxMin, boxMax, out Vec3 TBL, out Vec3 TBR, out Vec3 TFL, out Vec3 TFR, out Vec3 BBL, out Vec3 BBR, out Vec3 BFL, out Vec3 BFR);
             return new Vec3[] { TBL, TBR, TFL, TFR, BBL, BBR, BFL, BFR };
         }
         public void ExpandBounds(Vec3 point)
@@ -192,9 +206,7 @@ namespace System
         public static PrimitiveData Mesh(Vec3 min, Vec3 max)
         {
             VertexQuad left, right, top, bottom, front, back;
-            Vec3 TBL, TBR, TFL, TFR, BBL, BBR, BFL, BFR;
-
-            GetCorners(min, max, out TBL, out TBR, out TFL, out TFR, out BBL, out BBR, out BFL, out BFR);
+            GetCorners(min, max, out Vec3 TBL, out Vec3 TBR, out Vec3 TFL, out Vec3 TFR, out Vec3 BBL, out Vec3 BBR, out Vec3 BFL, out Vec3 BFR);
 
             Vec3 rightNormal = Vec3.Right;
             Vec3 frontNormal = Vec3.Forward;
@@ -221,21 +233,19 @@ namespace System
         }
         public static Frustum GetFrustum(Vec3 min, Vec3 max)
         {
-            Vec3 ftl, ftr, ntl, ntr, fbl, fbr, nbl, nbr;
-            GetCorners(min, max, out ftl, out ftr, out ntl, out ntr, out fbl, out fbr, out nbl, out nbr);
+            GetCorners(min, max, out Vec3 ftl, out Vec3 ftr, out Vec3 ntl, out Vec3 ntr, out Vec3 fbl, out Vec3 fbr, out Vec3 nbl, out Vec3 nbr);
             return new Frustum(fbl, fbr, ftl, ftr, nbl, nbr, ntl, ntr);
         }
         public static Frustum GetFrustum(Vec3 halfExtents, Matrix4 transform)
         {
-            Vec3 ftl, ftr, ntl, ntr, fbl, fbr, nbl, nbr;
-            GetCorners(halfExtents, transform, out ftl, out ftr, out ntl, out ntr, out fbl, out fbr, out nbl, out nbr);
+            GetCorners(halfExtents, transform, out Vec3 ftl, out Vec3 ftr, out Vec3 ntl, out Vec3 ntr, out Vec3 fbl, out Vec3 fbr, out Vec3 nbl, out Vec3 nbr);
             return new Frustum(fbl, fbr, ftl, ftr, nbl, nbr, ntl, ntr);
         }
         public Frustum AsFrustum() { return GetFrustum(Minimum, Maximum); }
         public Frustum AsFrustum(Matrix4 transform) { return GetFrustum(_halfExtents, transform); }
         public bool Intersects(Ray ray)
         {
-            float distance; return Collision.RayIntersectsAABBDistance(ray.StartPoint, ray.Direction, Minimum, Maximum, out distance);
+            return Collision.RayIntersectsAABBDistance(ray.StartPoint, ray.Direction, Minimum, Maximum, out float distance);
         }
         public bool Intersects(Ray ray, out float distance)
         {
@@ -247,13 +257,13 @@ namespace System
         }
         public static BoundingBox FromSphere(Sphere sphere)
         {
-            return new BoundingBox(
+            return FromMinMax(
                 new Vec3(sphere.Center.X - sphere.Radius, sphere.Center.Y - sphere.Radius, sphere.Center.Z - sphere.Radius),
                 new Vec3(sphere.Center.X + sphere.Radius, sphere.Center.Y + sphere.Radius, sphere.Center.Z + sphere.Radius));
         }
         public static BoundingBox Merge(BoundingBox box1, BoundingBox box2)
         {
-            return new BoundingBox(Vec3.ComponentMin(box1.Minimum, box2.Maximum), Vec3.ComponentMax(box1.Maximum, box2.Maximum));
+            return FromMinMax(Vec3.ComponentMin(box1.Minimum, box2.Maximum), Vec3.ComponentMax(box1.Maximum, box2.Maximum));
         }
         public static bool operator ==(BoundingBox left, BoundingBox right) { return left.Equals(ref right); }
         public static bool operator !=(BoundingBox left, BoundingBox right) { return !left.Equals(ref right); }
@@ -316,13 +326,69 @@ namespace System
         }
         public override Shape HardCopy()
         {
-            return new BoundingBox(_halfExtents * 2.0f);
+            return FromHalfExtentsTranslation(_halfExtents, _translation);
         }
         public override Shape TransformedBy(Matrix4 worldMatrix)
         {
-            BoundingBox newBox = new BoundingBox(_halfExtents, _translation);
+            BoundingBox newBox = FromHalfExtentsTranslation(_halfExtents, _translation);
             newBox.SetTransform(worldMatrix);
             return newBox;
+        }
+
+        public unsafe override void Write(VoidPtr address, StringTable table)
+        {
+            *(Header*)address = this;
+        }
+
+        public unsafe override void Read(VoidPtr address, VoidPtr strings)
+        {
+            Header h = *(Header*)address;
+            _halfExtents = h._halfExtents;
+            _translation = h._translation;
+        }
+
+        public override void Write(XmlWriter writer)
+        {
+            writer.WriteStartElement("aabb");
+            if (_halfExtents != Vec3.Zero)
+                writer.WriteElementString("halfExtents", _halfExtents.ToString(false, false));
+            if (_translation != Vec3.Zero)
+                writer.WriteElementString("translation", _translation.ToString(false, false));
+            writer.WriteEndElement();
+        }
+
+        public override void Read(XMLReader reader)
+        {
+            if (!reader.Name.Equals("aabb", true))
+                throw new Exception();
+            while (reader.BeginElement())
+            {
+                if (reader.Name.Equals("translation", true))
+                    _translation = Vec3.Parse(reader.ReadElementString());
+                else if (reader.Name.Equals("halfExtents", true))
+                    _halfExtents = Vec3.Parse(reader.ReadElementString());
+                reader.EndElement();
+            }
+        }
+
+        [StructLayout(LayoutKind.Sequential, Pack = 1)]
+        public struct Header
+        {
+            public BVec3 _halfExtents;
+            public BVec3 _translation;
+
+            public static implicit operator Header(BoundingBox b)
+            {
+                return new Header()
+                {
+                    _halfExtents = b._halfExtents,
+                    _translation = b._translation,
+                };
+            }
+            public static implicit operator BoundingBox(Header h)
+            {
+                return FromHalfExtentsTranslation(h._halfExtents, h._translation);
+            }
         }
     }
 }

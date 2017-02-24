@@ -165,11 +165,24 @@ namespace CustomEngine.Rendering.Models
 
         public override void Read(XMLReader reader)
         {
-            List<Bone> rootBones = new List<Bone>();
+            if (!reader.Name.Equals("skeleton", true))
+                throw new Exception();
+            _rootBones = null;
+            _boneCache = new Dictionary<string, Bone>();
+            while (reader.ReadAttribute())
+            {
+                if (reader.Name.Equals("childCount", true))
+                    _rootBones = new Bone[int.Parse((string)reader.Value)];
+            }
+            int index = 0;
             while (reader.BeginElement())
             {
                 if (reader.Name.Equals("bone", true))
-                    _translation = Vec3.Parse(reader.ReadElementString());
+                {
+                    Bone b = new Bone(this);
+                    b.Read(reader);
+                    _rootBones[index++] = b;
+                }
                 reader.EndElement();
             }
         }
@@ -200,12 +213,13 @@ namespace CustomEngine.Rendering.Models
         }
         public override void Write(VoidPtr address, StringTable table)
         {
-            base.Write(address, table);
+
         }
         public override void Write(XmlWriter writer)
         {
-            base.Write(writer);
-            writer.WriteAttributeString("count", _boneCache.Count.ToString());
+            writer.WriteStartElement("skeleton");
+            writer.WriteAttributeString("totalCount", _boneCache.Count.ToString());
+            writer.WriteAttributeString("childCount", _rootBones.Length.ToString());
             foreach (Bone b in _rootBones)
                 b.Write(writer);
             writer.WriteEndElement();

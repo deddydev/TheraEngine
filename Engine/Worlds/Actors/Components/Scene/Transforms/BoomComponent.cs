@@ -1,5 +1,8 @@
 ﻿using BulletSharp;
 using System;
+using CustomEngine.Files;
+using System.IO;
+using System.Xml;
 
 namespace CustomEngine.Worlds.Actors.Components
 {
@@ -57,6 +60,26 @@ namespace CustomEngine.Worlds.Actors.Components
         }
 
         internal override void OriginRebased(Vec3 newOrigin)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void Write(VoidPtr address, StringTable table)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void Read(VoidPtr address, VoidPtr strings)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void Write(XmlWriter writer)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void Read(XMLReader reader)
         {
             throw new NotImplementedException();
         }

@@ -62,7 +62,7 @@ namespace System
         /// <returns></returns>
         public abstract Shape TransformedBy(Matrix4 worldMatrix);
         /// <summary>
-        /// Returns a completely unique copy of this shape (nothing shares the same instance).
+        /// Returns a completely unique copy of this shape (nothing shares the same memory location).
         /// </summary>
         public abstract Shape HardCopy();
     }

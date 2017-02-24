@@ -6,6 +6,8 @@ using System.Linq;
 using CustomEngine.Files;
 using System.Collections;
 using System.Collections.ObjectModel;
+using System.IO;
+using System.Xml;
 
 namespace CustomEngine.Rendering.Models
 {
@@ -52,6 +54,26 @@ namespace CustomEngine.Rendering.Models
                 //item.SkeletonChanged(null);
                 item.Model = null;
             }
+        }
+
+        public override void Write(VoidPtr address, StringTable table)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void Read(VoidPtr address, VoidPtr strings)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void Write(XmlWriter writer)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void Read(XMLReader reader)
+        {
+            throw new NotImplementedException();
         }
     }
 }

@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Reflection;
+using System.Xml;
+using CustomEngine.Files;
 
 namespace CustomEngine.Rendering.Animation
 {
@@ -60,6 +63,26 @@ namespace CustomEngine.Rendering.Animation
         }
         public IEnumerator<ScalarKeyframe> GetEnumerator() { return ((IEnumerable<ScalarKeyframe>)_keyframes).GetEnumerator(); }
         IEnumerator IEnumerable.GetEnumerator() { return ((IEnumerable<ScalarKeyframe>)_keyframes).GetEnumerator(); }
+
+        public override void Write(VoidPtr address, StringTable table)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void Read(VoidPtr address, VoidPtr strings)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void Write(XmlWriter writer)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void Read(XMLReader reader)
+        {
+            throw new NotImplementedException();
+        }
     }
     public class ScalarKeyframe : Keyframe
     {

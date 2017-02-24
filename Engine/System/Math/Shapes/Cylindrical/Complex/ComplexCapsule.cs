@@ -6,6 +6,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using CustomEngine.Worlds.Actors.Components;
+using CustomEngine.Files;
+using System.IO;
+using System.Xml;
 
 namespace System
 {
@@ -110,6 +113,26 @@ namespace System
         }
 
         public override Shape TransformedBy(Matrix4 worldMatrix)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void Write(VoidPtr address, StringTable table)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void Read(VoidPtr address, VoidPtr strings)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void Write(XmlWriter writer)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void Read(XMLReader reader)
         {
             throw new NotImplementedException();
         }

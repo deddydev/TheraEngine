@@ -2,6 +2,9 @@
 using CustomEngine.Input;
 using System.Collections.Generic;
 using System;
+using CustomEngine.Files;
+using System.IO;
+using System.Xml;
 
 namespace CustomEngine.Worlds.Actors.Components
 {
@@ -31,12 +34,8 @@ namespace CustomEngine.Worlds.Actors.Components
         protected override void GenerateChildCache(List<SceneComponent> cache)
         {
             base.GenerateChildCache(cache);
-            if (Owner is Pawn)
-            {
-                Pawn p = (Pawn)Owner;
-                if (p.CurrentCameraComponent == null)
-                    p.CurrentCameraComponent = this;
-            }
+            if (Owner is Pawn p && p.CurrentCameraComponent == null)
+                p.CurrentCameraComponent = this;
         }
         public void SetCurrentForController(LocalPlayerController controller)
         {
@@ -45,13 +44,8 @@ namespace CustomEngine.Worlds.Actors.Components
         }
         public void SetCurrentForOwner()
         {
-            Pawn pawn = Owner as Pawn;
-            if (pawn != null)
-            {
-                LocalPlayerController controller = pawn.Controller as LocalPlayerController;
-                if (controller != null)
-                    controller.CurrentCamera = _camera;
-            }
+            if (Owner is Pawn pawn && pawn.Controller is LocalPlayerController controller)
+                controller.CurrentCamera = _camera;
         }
         public void SetCurrentForPawn(Pawn pawn)
         {
@@ -65,6 +59,26 @@ namespace CustomEngine.Worlds.Actors.Components
         internal override void OriginRebased(Vec3 newOrigin)
         {
             _camera.TranslateAbsolute(-newOrigin);
+        }
+
+        public override void Write(VoidPtr address, StringTable table)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void Read(VoidPtr address, VoidPtr strings)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void Write(XmlWriter writer)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void Read(XMLReader reader)
+        {
+            throw new NotImplementedException();
         }
     }
 }

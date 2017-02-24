@@ -11,20 +11,27 @@ namespace CustomEngine.Rendering.Models
 {
     public enum BillboardType
     {
-        Y,
-        XY,
-        XYZ,
+        None,
+        RotationY,
+        PerspectiveY,
+        RotationXY,
+        PerspectiveXY,
+        RotationXYZ,
+        PerspectiveXYZ,
     }
     public class Bone : FileObject, IPhysicsDrivable, ISocket
     {
         public override ResourceType ResourceType { get { return ResourceType.Bone; } }
 
-        private BillboardType _type = BillboardType.XY;
-        private bool _parallelBillboard = true;
+        private BillboardType _billboardType = BillboardType.None;
         private bool _scaleByDistance = false;
 
         internal List<FacePoint> _influencedVertices = new List<FacePoint>();
 
+        public Bone(Skeleton owner)
+        {
+            _skeleton = owner;
+        }
         public Bone(string name, FrameState bindstate, PhysicsDriverInfo info)
         {
             Init(name, bindstate, info);
@@ -295,10 +302,6 @@ namespace CustomEngine.Rendering.Models
             foreach (SceneComponent item in items)
                 item._parent = null;
         }
-        public override void Read(XMLReader reader)
-        {
-            
-        }
         public unsafe override void Read(VoidPtr address, VoidPtr strings)
         {
             Header h = *(Header*)address;
@@ -315,15 +318,71 @@ namespace CustomEngine.Rendering.Models
         {
             writer.WriteStartElement("bone");
             writer.WriteAttributeString("name", _name);
+            writer.WriteAttributeString("distanceScale", _scaleByDistance.ToString());
+            writer.WriteAttributeString("billboard", _billboardType.ToString());
+            writer.WriteAttributeString("childCount", _childBones.Count.ToString());
             _bindState.Write(writer);
+            foreach (Bone b in ChildBones)
+                b.Write(writer);
             writer.WriteEndElement();
+        }
+        public override void Read(XMLReader reader)
+        {
+            if (!reader.Name.Equals("bone", true))
+                throw new Exception();
+            while (reader.ReadAttribute())
+            {
+                if (reader.Name.Equals("name", true))
+                    _name = (string)reader.Value;
+                else if (reader.Name.Equals("distanceScale", true))
+                    _scaleByDistance = bool.Parse((string)reader.Value);
+                else if (reader.Name.Equals("billboard", true))
+                    _billboardType = (BillboardType)Enum.Parse(typeof(BillboardType), (string)reader.Value);
+            }
+            _skeleton.BoneCache.Add(_name, this);
+            while (reader.BeginElement())
+            {
+                if (reader.Name.Equals("bone", true))
+                {
+                    Bone b = new Bone(_skeleton);
+                    b.Read(reader);
+                    ChildBones.Add(b);
+                }
+                else if (reader.Name.Equals("transform", true))
+                {
+                    _bindState = new FrameState();
+                    _bindState.Read(reader);
+                    _frameState = _bindState;
+                }
+                else if (reader.Name.Equals("fileRef", true))
+                {
+                    if (reader.ReadAttribute())
+                    {
+                        
+                    }
+                }
+                reader.EndElement();
+            }
         }
         [StructLayout(LayoutKind.Sequential, Pack = 1)]
         public unsafe struct Header
         {
             public bint _name;
             public bint _parentIndex;
+            public bushort _scaleByDistance;
+            public bushort _billboardType;
             public FrameState.Header _state;
+
+            public bool ScaleByDistance
+            {
+                get => _scaleByDistance == 0 ? false : true;
+                set => _scaleByDistance = (ushort)(value ? 1 : 0);
+            }
+            public BillboardType BillboardType
+            {
+                get => (BillboardType)(ushort)_billboardType;
+                set => _billboardType = (ushort)value;
+            }
 
             public VoidPtr Address { get { fixed (void* ptr = &this) return ptr; } }
         }

@@ -168,7 +168,7 @@ namespace CustomEngine.Files
             string directory = Path.GetDirectoryName(filePath);
             if (!Directory.Exists(directory))
                 Directory.CreateDirectory(directory);
-            filePath = directory + "\\" + _name + ".x" + FileManager.GetExtension(GetType());
+            filePath = directory + "\\" + (_name ?? "NewFile") + ".x" + FileManager.GetExtension(GetType());
             using (FileStream stream = new FileStream(filePath, FileMode.Create, FileAccess.ReadWrite, FileShare.None, 0x1000, FileOptions.SequentialScan))
             using (XmlWriter writer = XmlWriter.Create(stream, _writerSettings))
             {

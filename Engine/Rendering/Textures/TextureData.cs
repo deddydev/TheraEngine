@@ -7,6 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml;
 
 namespace CustomEngine.Rendering.Textures
 {
@@ -25,6 +26,26 @@ namespace CustomEngine.Rendering.Textures
         public TextureData(int width, int height)
         {
             _bitmap = new Bitmap(width, height);
+        }
+
+        public override void Write(VoidPtr address, StringTable table)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void Read(VoidPtr address, VoidPtr strings)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void Write(XmlWriter writer)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void Read(XMLReader reader)
+        {
+            throw new NotImplementedException();
         }
     }
     public enum PixelFormat

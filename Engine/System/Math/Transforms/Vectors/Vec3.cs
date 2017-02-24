@@ -205,7 +205,7 @@ namespace System
                 Z * right.X - X * right.Z,
                 X * right.Y - Y * right.X);
         }
-        public static Vec3 Cross(Vec3 left, Vec3 right) { return left.Cross(right); }
+        public static Vec3 Cross(Vec3 left, Vec3 right) { return left ^ right; }
 
         /// <summary>
         /// Returns a new Vector that is the linear blend of the 2 given Vectors
@@ -294,7 +294,7 @@ namespace System
             // Since vec.W == 0, we can optimize quat * vec * quat^-1 as follows:
             // vec + 2.0 * cross(quat.xyz, cross(quat.xyz, vec) + quat.w * vec)
             Vec3 xyz = quat.Xyz;
-            return this + 2.0f * xyz.Cross(xyz.Cross(this) + this * quat.W);
+            return this + 2.0f * xyz ^ ((xyz ^ this) + this * quat.W);
         }
         /// <summary>Transform a Vector by the given Matrix</summary>
         /// <param name="vec">The vector to transform</param>
@@ -410,8 +410,8 @@ namespace System
         {
             Vec3 thisNorm = NormalizedFast();
             Vec3 thatNorm = startNormal.NormalizedFast();
-            Vec3 axis = thisNorm.Cross(thatNorm).NormalizedFast();
-            float angle = RadToDeg((float)Acos(thisNorm.Dot(thatNorm)));
+            Vec3 axis = (thisNorm ^ thatNorm).NormalizedFast();
+            float angle = RadToDeg((float)Acos(thisNorm | thatNorm));
             Quaternion q = Quaternion.FromAxisAngle(axis, angle);
             Rotator r = q.ToEuler();
             //Rotator r = startNormal.LookatAngles(Forward);
@@ -782,18 +782,32 @@ namespace System
         public static implicit operator BulletSharp.Vector3(Vec3 v) { return new BulletSharp.Vector3(v.X, v.Y, v.Z); }
         public static implicit operator Vec3(BulletSharp.Vector3 v) { return new Vec3(v.X, v.Y, v.Z); }
 
-        private static string listSeparator = System.Globalization.CultureInfo.CurrentCulture.TextInfo.ListSeparator;
+        private static string listSeparator = 
+            Globalization.CultureInfo.CurrentCulture.TextInfo.ListSeparator;
         public static Vec3 Parse(string value)
         {
+            value = value.Trim();
+
+            if (value.StartsWith("("))
+                value = value.Substring(1);
+            if (value.EndsWith(")"))
+                value = value.Substring(0, value.Length - 1);
+
             string[] parts = value.Split(' ');
-            return new Vec3(
-            float.Parse(parts[0].Substring(1, parts[0].Length - 2)),
-            float.Parse(parts[1].Substring(0, parts[1].Length - 1)),
-            float.Parse(parts[2].Substring(0, parts[2].Length - 1)));
+            if (parts[0].EndsWith(listSeparator))
+                parts[0].Substring(0, parts[0].Length - 1);
+            if (parts[1].EndsWith(listSeparator))
+                parts[1].Substring(0, parts[1].Length - 1);
+
+            return new Vec3(float.Parse(parts[0]), float.Parse(parts[1]), float.Parse(parts[2]));
         }
         public override string ToString()
         {
-            return String.Format("({0}{3} {1}{3} {2})", X, Y, Z, listSeparator);
+            return ToString(true, true);
+        }
+        public string ToString(bool includeParentheses, bool includeSeparator)
+        {
+            return String.Format("{4}{0}{3} {1}{3} {2}{5}", X, Y, Z, includeSeparator ? listSeparator : "", includeParentheses ? "(" : "", includeParentheses ? ")" : "");
         }
         public override int GetHashCode()
         {

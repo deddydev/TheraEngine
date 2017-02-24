@@ -1,26 +1,36 @@
-﻿using CustomEngine.Rendering.Models;
+﻿using CustomEngine.Files;
+using CustomEngine.Rendering.Models;
+using System.Runtime.InteropServices;
+using CustomEngine;
+using System.IO;
+using System.Xml;
 
 namespace System
 {
-    public class Plane
+    public class Plane : FileObject
     {
-        /*      
-         * Represents a plane a certain distance from the origin.
-         * Ax + By + Cz + D = 0
-         * D is distance from the origin
-         * 
-         *      ________
-         *     /       /
-         *    /   \   /
-         *   /_____\_/
-         *          \
-         *          origin
-         */
+        public override ResourceType ResourceType => ResourceType.Plane;
+
+        /*
+        * Represents a plane a certain distance from the origin.
+        * Ax + By + Cz + D = 0
+        * D is distance from the origin
+        *      ________
+        *     /       /
+        *    /   \   /
+        *   /_____\_/
+        *          \
+        *          origin
+        */
 
         private Vec3 _normal;
         private float _distance;
 
-        public Plane() { }
+        public Plane()
+        {
+            _normal = Vec3.Up;
+            _distance = 0;
+        }
         /// <summary>
         /// Constructs a plane given a point.
         /// The normal points in the direction of the origin.
@@ -46,6 +56,12 @@ namespace System
         {
             normal.NormalizeFast();
             _normal = normal;
+            //Ax + By + Cz + D = 0
+            //Ax + By + Cz = -D
+            //-(Ax + By + Cz) = D
+            //normal = (A, B, C)
+            //point = (x, y, z)
+            //Distance is negative dot product between normal and point
             _distance = -point.Dot(normal);
         }
 
@@ -62,13 +78,15 @@ namespace System
         /// </summary>
         public Plane(Vec3 point0, Vec3 point1, Vec3 point2)
         {
+            //Get two difference vectors between points
             Vec3 v = point1 - point0;
             Vec3 u = point2 - point0;
-            _normal = v.Cross(u);
+            //Cross them to get normal vector
+            _normal = v ^ u;
             _normal.NormalizeFast();
+            //Solve for distance
             _distance = -point0.Dot(_normal);
         }
-
         public float Distance
         {
             get { return _distance; }
@@ -76,6 +94,9 @@ namespace System
         }
         public Vec3 Point
         {
+            //Ax + By + Cz + D = 0
+            //Ax + By + Cz = -D
+            //(x, y, z) = -D * (A, B, C)
             get { return _normal * -_distance; }
             set { _distance = -value.Dot(_normal); }
         }
@@ -90,6 +111,7 @@ namespace System
                 Point = point;
             }
         }
+
         public void NormalizeFast()
         {
             float magnitude = 1.0f / Normal.LengthFast;
@@ -182,6 +204,59 @@ namespace System
             Vertex v2 = new Vertex(topBack, normal, new Vec2(1.0f, 1.0f));
             Vertex v3 = new Vertex(topFront, normal, new Vec2(0.0f, 1.0f));
             return PrimitiveData.FromQuads(culling, new PrimitiveBufferInfo(), new VertexQuad(v0, v1, v2, v3));
+        }
+
+        public unsafe override void Write(VoidPtr address, StringTable table)
+        {
+            *(Header*)address = this;
+        }
+
+        public unsafe override void Read(VoidPtr address, VoidPtr strings)
+        {
+            Header h = *(Header*)address;
+            _normal = h._normal;
+            _distance = h._distance;
+        }
+
+        public override void Write(XmlWriter writer)
+        {
+            writer.WriteStartElement("aabb");
+            writer.WriteElementString("normal", _normal.ToString(false, false));
+            writer.WriteElementString("distance", _distance.ToString());
+            writer.WriteEndElement();
+        }
+
+        public override void Read(XMLReader reader)
+        {
+            if (!reader.Name.Equals("aabb", true))
+                throw new Exception();
+            while (reader.BeginElement())
+            {
+                if (reader.Name.Equals("normal", true))
+                    _normal = Vec3.Parse(reader.ReadElementString());
+                else if (reader.Name.Equals("distance", true))
+                    _distance = float.Parse(reader.ReadElementString());
+                reader.EndElement();
+            }
+        }
+        [StructLayout(LayoutKind.Sequential, Pack = 1)]
+        public struct Header
+        {
+            public float _distance;
+            public BVec3 _normal;
+
+            public static implicit operator Header(Plane p)
+            {
+                return new Header()
+                {
+                    _distance = p._distance,
+                    _normal = p._normal,
+                };
+            }
+            public static implicit operator Plane(Header h)
+            {
+                return new Plane(h._normal, h._distance);
+            }
         }
     }
 }

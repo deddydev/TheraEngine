@@ -4,6 +4,8 @@ using CustomEngine.Rendering.Models.Materials;
 using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
+using System.IO;
+using System.Xml;
 
 namespace CustomEngine.Worlds
 {
@@ -54,6 +56,26 @@ namespace CustomEngine.Worlds
         public void OnGravityChanged(Vec3 oldGravity) { GravityChanged?.Invoke(oldGravity); }
         public void OnGameModeChanged(GameMode oldMode) { GameModeChanged?.Invoke(oldMode); }
         public void OnTimeMultiplierChanged(float oldMult) { TimeMultiplierChanged?.Invoke(oldMult); }
+
+        public override void Write(VoidPtr address, StringTable table)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void Read(VoidPtr address, VoidPtr strings)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void Write(XmlWriter writer)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void Read(XMLReader reader)
+        {
+            throw new NotImplementedException();
+        }
 
         private List<Map> _spawnedMaps = new List<Map>();
         private List<Actor> _spawnedActors = new List<Actor>();

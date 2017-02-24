@@ -446,8 +446,8 @@ namespace System
         public static Quaternion operator *(Quaternion left, Quaternion right)
         {
             return new Quaternion(
-                right.W * left.Xyz + left.W * right.Xyz + left.Xyz.Cross(right.Xyz),
-                left.W * right.W - left.Xyz.Dot(right.Xyz));
+                right.W * left.Xyz + left.W * right.Xyz + (left.Xyz ^ right.Xyz),
+                left.W * right.W - (left.Xyz | right.Xyz));
         }
         public static Quaternion operator *(Quaternion quaternion, float scale)
         {

@@ -7,6 +7,8 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Runtime.InteropServices;
 using CustomEngine.Files;
+using System.IO;
+using System.Xml;
 
 namespace CustomEngine.Worlds
 {
@@ -158,6 +160,26 @@ namespace CustomEngine.Worlds
         private void _logicComponents_Added(LogicComponent item)
         {
             item.Owner = this;
+        }
+
+        public override void Write(VoidPtr address, StringTable table)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void Read(VoidPtr address, VoidPtr strings)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void Write(XmlWriter writer)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void Read(XMLReader reader)
+        {
+            throw new NotImplementedException();
         }
     }
     [StructLayout(LayoutKind.Sequential, Pack = 1)]

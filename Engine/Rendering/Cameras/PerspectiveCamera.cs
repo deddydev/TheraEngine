@@ -1,5 +1,8 @@
 ﻿using CustomEngine.Rendering.Models.Materials;
 using System;
+using CustomEngine.Files;
+using System.IO;
+using System.Xml;
 
 namespace CustomEngine.Rendering.Cameras
 {
@@ -102,6 +105,26 @@ namespace CustomEngine.Rendering.Cameras
         public override float DistanceScale(Vec3 point, float radius)
         {
             return _point.DistanceToFast(point) * radius / (_fovY / 45.0f) * 0.1f;
+        }
+
+        public override void Write(VoidPtr address, StringTable table)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void Read(VoidPtr address, VoidPtr strings)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void Write(XmlWriter writer)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void Read(XMLReader reader)
+        {
+            throw new NotImplementedException();
         }
     }
 }

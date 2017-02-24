@@ -18,12 +18,22 @@ namespace CustomEngine
 
         public override void Read(XMLReader reader)
         {
-            base.Read(reader);
+
         }
         public override void Write(XmlWriter writer)
         {
-            base.Write(writer);
+
             TransitionWorld.Write(writer);
+        }
+
+        public override void Write(VoidPtr address, StringTable table)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void Read(VoidPtr address, VoidPtr strings)
+        {
+            throw new NotImplementedException();
         }
     }
 }

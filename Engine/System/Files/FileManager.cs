@@ -78,6 +78,7 @@ namespace CustomEngine.Files
 
             { typeof(SkeletalMesh), new FilterInfo("Skeletal Model", "SKMD", ResourceType.SkeletalMesh, "cmdl") },
             { typeof(StaticMesh), new FilterInfo("Static Model", "STMD", ResourceType.SkeletalMesh, "cmdl") },
+            { typeof(Skeleton), new FilterInfo("Model Skeleton", "SKEL", ResourceType.Skeleton, "cskl") },
 
             { typeof(Camera), new FilterInfo("Camera", "CCAM", ResourceType.Camera, "ccam") },
             { typeof(Cutscene), new FilterInfo("Cutscene", "CCUT", ResourceType.Cutscene, "ccut") },

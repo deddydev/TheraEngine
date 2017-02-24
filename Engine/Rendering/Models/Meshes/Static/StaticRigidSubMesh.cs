@@ -1,9 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using BulletSharp;
 using CustomEngine.Rendering.Models.Materials;
 using CustomEngine.Files;
-using CustomEngine.Worlds.Actors.Components;
+using System.IO;
+using System.Xml;
 
 namespace CustomEngine.Rendering.Models
 {
@@ -48,6 +47,26 @@ namespace CustomEngine.Rendering.Models
         {
             get => _parent;
             internal set => _parent = value;
+        }
+
+        public override void Write(VoidPtr address, StringTable table)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void Read(VoidPtr address, VoidPtr strings)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void Write(XmlWriter writer)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void Read(XMLReader reader)
+        {
+            throw new NotImplementedException();
         }
     }
 }

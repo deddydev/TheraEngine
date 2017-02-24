@@ -472,6 +472,10 @@ namespace System
             _rotation = h._rotation;
             _translation = h._translation;
         }
+        public unsafe override void Write(VoidPtr address, StringTable table)
+        {
+            *(Header*)address = this;
+        }
         public override void Read(XMLReader reader)
         {
             if (!reader.Name.Equals("transform", true))
@@ -494,21 +498,16 @@ namespace System
                 reader.EndElement();
             }
         }
-        public unsafe override void Write(VoidPtr address, StringTable table)
-        {
-            *(Header*)address = this;
-        }
         public override void Write(XmlWriter writer)
         {
-            writer.WriteStartElement("");
+            writer.WriteStartElement("transform");
             writer.WriteAttributeString("order", TransformationOrder.ToString());
             if (Translation != Vec3.Zero)
-                writer.WriteElementString("translation", Translation.ToString());
+                writer.WriteElementString("translation", Translation.ToString(false, false));
             if (Scale != Vec3.Zero)
-                writer.WriteElementString("scale", Scale.ToString());
+                writer.WriteElementString("scale", Scale.ToString(false, false));
             if (!Rotation.IsZero())
-                writer.WriteElementString("rotation", Rotation.ToString());
-            Rotation.Write(writer);
+                Rotation.Write(writer);
             writer.WriteEndElement();
         }
         [StructLayout(LayoutKind.Sequential, Pack = 1)]

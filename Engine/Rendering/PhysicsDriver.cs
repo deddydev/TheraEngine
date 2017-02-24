@@ -7,6 +7,8 @@ using System.Text;
 using System.Threading.Tasks;
 using CustomEngine.Worlds.Actors.Components;
 using BulletSharp.SoftBody;
+using System.IO;
+using System.Xml;
 
 namespace CustomEngine.Rendering
 {
@@ -267,6 +269,26 @@ namespace CustomEngine.Rendering
             _collision.GetWorldTransform(out transform);
             _worldMatrix = transform;
             TransformChanged(_worldMatrix);
+        }
+
+        public override void Write(VoidPtr address, StringTable table)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void Read(VoidPtr address, VoidPtr strings)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void Write(XmlWriter writer)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void Read(XMLReader reader)
+        {
+            throw new NotImplementedException();
         }
     }
 }

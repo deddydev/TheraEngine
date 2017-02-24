@@ -5,6 +5,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.IO;
+using System.Xml;
 
 namespace CustomEngine.Worlds
 {
@@ -70,6 +72,21 @@ namespace CustomEngine.Worlds
         public static WorldSettings FromXML(string filePath)
         {
             return FromXML<WorldSettings>(filePath);
+        }
+
+        public override void Write(VoidPtr address, StringTable table)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void Write(XmlWriter writer)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void Read(XMLReader reader)
+        {
+            throw new NotImplementedException();
         }
     }
     [StructLayout(LayoutKind.Sequential, Pack = 1)]

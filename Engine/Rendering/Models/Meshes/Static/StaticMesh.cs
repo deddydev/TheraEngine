@@ -7,6 +7,8 @@ using CustomEngine.Files;
 using System.Collections;
 using System.Collections.ObjectModel;
 using CustomEngine.Rendering.Models.Materials;
+using System.IO;
+using System.Xml;
 
 namespace CustomEngine.Rendering.Models
 {
@@ -43,6 +45,26 @@ namespace CustomEngine.Rendering.Models
                 Vec3.Zero, Vec3.UnitX, new Vec3(1.0f, 1.0f, 0.0f), Vec3.UnitY, Vec3.UnitZ));
             m.RigidChildren.Add(new StaticRigidSubMesh(d, null, Material.GetDefaultMaterial(), "Square"));
             return m;
+        }
+
+        public override void Write(VoidPtr address, StringTable table)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void Read(VoidPtr address, VoidPtr strings)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void Write(XmlWriter writer)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void Read(XMLReader reader)
+        {
+            throw new NotImplementedException();
         }
     }
 }

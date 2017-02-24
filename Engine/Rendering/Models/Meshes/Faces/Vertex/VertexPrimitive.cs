@@ -18,7 +18,7 @@ namespace CustomEngine.Rendering.Models
         public BoundingBox GetCullingVolume()
         {
             Vec3[] positions = _vertices.Select(x => x._position).ToArray();
-            return new BoundingBox(CustomMath.ComponentMin(positions), CustomMath.ComponentMax(positions));
+            return BoundingBox.FromMinMax(CustomMath.ComponentMin(positions), CustomMath.ComponentMax(positions));
         }
 
         public IEnumerator<Vertex> GetEnumerator() { return ((IEnumerable<Vertex>)_vertices).GetEnumerator(); }

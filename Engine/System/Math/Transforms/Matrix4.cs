@@ -633,8 +633,8 @@ namespace System
         public static Matrix4 LookAt(Vec3 eye, Vec3 target, Vec3 up)
         {
             Vec3 z = eye.NormalizedFast(target);
-            Vec3 x = up.Cross(z).NormalizedFast();
-            Vec3 y = z.Cross(x).NormalizedFast();
+            Vec3 x = (up ^ z).NormalizedFast();
+            Vec3 y = (z ^ x).NormalizedFast();
 
             Matrix4 result;
             result.Row0.X = x.X;

@@ -243,7 +243,7 @@ namespace CustomEngine.Files
         }
         public override void Write(XmlWriter writer)
         {
-            base.Write(writer);
+
         }
         public override void Write(VoidPtr address, StringTable table)
         {

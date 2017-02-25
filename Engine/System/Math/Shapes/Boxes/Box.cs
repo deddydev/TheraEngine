@@ -18,7 +18,11 @@ namespace System
 
         public event Action TransformChanged;
 
-        public Matrix4 WorldMatrix => _transform.Matrix;
+        public Matrix4 WorldMatrix
+        {
+            get => _transform.Matrix;
+            set => _transform.Matrix = value;
+        }
         public FrameState Transform
         {
             get => _transform;

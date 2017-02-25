@@ -1,14 +1,16 @@
-﻿using CustomEngine.Worlds.Actors.Components;
+﻿using CustomEngine;
+using CustomEngine.Worlds.Actors.Components;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace System
 {
-    public class Frustum : IEnumerable<Plane>
+    public class Frustum :IRenderable, IEnumerable<Plane>
     {
         public static bool UseBoundingSphere = true;
 
@@ -39,7 +41,12 @@ namespace System
         public Plane Top { get { return _planes[4]; } }
         public Plane Bottom { get { return _planes[5]; } }
 
-        public IEnumerable<Vec3> Points { get { return _points; } }
+        public IEnumerable<Vec3> Points => _points;
+        public Shape CullingVolume => _boundingSphere;
+
+        public bool IsRendering { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        public RenderOctree.Node RenderNode { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        public bool Visible { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
 
         public Frustum(
             Vec3 farBottomLeft, Vec3 farBottomRight, Vec3 farTopLeft, Vec3 farTopRight,
@@ -65,18 +72,20 @@ namespace System
             //top, bottom
             _planes[4] = new Plane(farTopLeft, farTopRight, nearTopLeft);
             _planes[5] = new Plane(nearBottomLeft, nearBottomRight, farBottomLeft);
+
+            _boundingSphere = GetBoundingSphere();
         }
         public Frustum TransformedBy(Matrix4 transform)
         {
             return new Frustum(
-                Vec3.TransformPosition(FarBottomLeft, transform),
-                Vec3.TransformPosition(FarBottomRight, transform),
-                Vec3.TransformPosition(FarTopLeft, transform),
-                Vec3.TransformPosition(FarTopRight, transform),
-                Vec3.TransformPosition(NearBottomLeft, transform),
-                Vec3.TransformPosition(NearBottomRight, transform),
-                Vec3.TransformPosition(NearTopLeft, transform),
-                Vec3.TransformPosition(NearTopRight, transform));
+                FarBottomLeft * transform,
+                FarBottomRight * transform,
+                FarTopLeft * transform,
+                FarTopRight * transform,
+                NearBottomLeft * transform,
+                NearBottomRight * transform,
+                NearTopLeft * transform,
+                NearTopRight * transform);
         }
         public EContainment Contains(Box box) { return Collision.FrustumContainsBox1(this, box.HalfExtents, box.WorldMatrix); }
         public EContainment Contains(BoundingBox box) { return Collision.FrustumContainsAABB(this, box.Minimum, box.Maximum); }
@@ -116,6 +125,26 @@ namespace System
         IEnumerator IEnumerable.GetEnumerator()
         {
             return ((IEnumerable<Plane>)_planes).GetEnumerator();
+        }
+
+        public void Render()
+        {
+            //_boundingSphere.Render();
+
+            Engine.Renderer.RenderLine("frustumTopLeft", NearTopLeft, FarTopLeft, 3.0f, Color.Orange);
+            Engine.Renderer.RenderLine("frustumTopRight", NearTopRight, FarTopRight, 3.0f, Color.Orange);
+            Engine.Renderer.RenderLine("frustumBottomLeft", NearBottomLeft, FarBottomLeft, 3.0f, Color.Orange);
+            Engine.Renderer.RenderLine("frustumBottomRight", NearBottomRight, FarBottomRight, 3.0f, Color.Orange);
+
+            Engine.Renderer.RenderLine("frustumTopNear", NearTopLeft, NearTopRight, 3.0f, Color.Orange);
+            Engine.Renderer.RenderLine("frustumTopFar", FarTopLeft, FarTopRight, 3.0f, Color.Orange);
+            Engine.Renderer.RenderLine("frustumBottomNear", NearBottomLeft, NearBottomRight, 3.0f, Color.Orange);
+            Engine.Renderer.RenderLine("frustumBottomFar", FarBottomLeft, FarBottomRight, 3.0f, Color.Orange);
+
+            Engine.Renderer.RenderLine("frustumLeftNear", NearBottomLeft, NearTopLeft, 3.0f, Color.Orange);
+            Engine.Renderer.RenderLine("frustumLeftFar", FarBottomLeft, FarTopLeft, 3.0f, Color.Orange);
+            Engine.Renderer.RenderLine("frustumRightNear", NearBottomRight, NearTopRight, 3.0f, Color.Orange);
+            Engine.Renderer.RenderLine("frustumRightFar", FarBottomRight, FarTopRight, 3.0f, Color.Orange);
         }
     }
 }

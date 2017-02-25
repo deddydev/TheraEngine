@@ -80,7 +80,11 @@ namespace System
         public Vec3 GetRightVector() { return _rotation.TransformVector(Vec3.Right); }
         public Matrix4 GetRotationMatrix() { return _rotation.GetMatrix(); }
 
-        public Matrix4 Matrix => _transform;
+        public Matrix4 Matrix
+        {
+            get => _transform;
+            set => _transform = value;
+        }
         public Matrix4 InverseMatrix => _inverseTransform;
 
         public Vec3 Translation

@@ -74,7 +74,6 @@ namespace CustomEngine.Rendering.Cameras
             _transform = Matrix4.Identity,
             _invTransform = Matrix4.Identity;
 
-        protected EventVec3 _scale = Vec3.One;
         protected EventVec3 _point = Vec3.Zero;
         protected Rotator _rotation = new Rotator(Rotator.Order.YPR);
         protected Vec3 _forwardDirection;
@@ -92,27 +91,18 @@ namespace CustomEngine.Rendering.Cameras
         {
             return _invTransform * (_projectionInverse * ((screenPoint - _projectionOrigin) / _projectionRange * 2.0f - 1.0f));
         }
-        protected void CreateTransform()
+        protected virtual void CreateTransform()
         {
             Matrix4 rotMatrix = _rotation.GetMatrix();
-
-            _transform =
-                Matrix4.CreateTranslation(_point.Raw) *
-                rotMatrix *
-                Matrix4.CreateScale(_scale);
-
-            _invTransform =
-                Matrix4.CreateScale(1.0f / _scale) *
-                _rotation.GetInverseMatrix() *
-                Matrix4.CreateTranslation(-_point.Raw);
-
+            _transform = Matrix4.CreateTranslation(_point.Raw) * rotMatrix;
+            _invTransform = _rotation.GetInverseMatrix() * Matrix4.CreateTranslation(-_point.Raw);
             _forwardDirection = Vec3.TransformVector(Vec3.Forward, rotMatrix);
-
+            UpdateTransformedFrustum();
             OnTransformChanged();
         }
         protected void UpdateTransformedFrustum()
         {
-            _transformedFrustum = _untransformedFrustum.TransformedBy(Matrix4.CreateTranslation(_point) * _rotation.GetMatrix() * Matrix4.CreateScale(_scale));
+            _transformedFrustum = _untransformedFrustum.TransformedBy(_transform);
         }
         public abstract void Zoom(float amount);
         public void TranslateRelative(float x, float y, float z) => TranslateRelative(new Vec3(x, y, z));
@@ -151,7 +141,6 @@ namespace CustomEngine.Rendering.Cameras
         public void SetRotate(Vec3 pitchYawRoll)
         {
             _rotation.PitchYawRoll = pitchYawRoll;
-            CreateTransform();
         }
         public void SetRotate(float pitch, float yaw, float roll)
         {

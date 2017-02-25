@@ -8,14 +8,26 @@ namespace CustomEngine.Rendering.Cameras
 {
     public class OrthographicCamera : Camera
     {
-        public OrthographicCamera() : base() { }
+        public OrthographicCamera() : base()
+        {
+            _scale.Changed += CreateTransform;
+        }
+        public OrthographicCamera(Vec3 scale, Vec3 point, Rotator rotation, Vec2 originPercentages, float nearZ, float farZ) 
+            : base(point, rotation, nearZ, farZ)
+        {
+            _scale.SetRawNoUpdate(scale);
+            _scale.Changed += CreateTransform;
+            _originXPercentage = originPercentages.X;
+            _originYPercentage = originPercentages.Y;
+        }
 
         public override float Width { get { return Math.Abs(_orthoRight - _orthoLeft); } }
         public override float Height { get { return Math.Abs(_orthoTop - _orthoBottom); } }
 
         public override Vec2 Origin { get { return new Vec2(_originX, _originY); } }
 
-        private bool 
+        private EventVec3 _scale = Vec3.One;
+        private bool
             _lockYaw = false, 
             _lockPitch = false,
             _lockRoll = false;
@@ -91,7 +103,15 @@ namespace CustomEngine.Rendering.Cameras
             float w = Width / 2.0f, h = Height / 2.0f;
             return BoundingBox.FromMinMax(new Vec3(-w, -h, -_farZ), new Vec3(w, h, -_nearZ)).AsFrustum();
         }
+        protected override void CreateTransform()
+        {
+            Matrix4 rotMatrix = _rotation.GetMatrix();
+            _transform = Matrix4.CreateTranslation(_point.Raw) * rotMatrix * Matrix4.CreateScale(_scale);
+            _invTransform = Matrix4.CreateScale(1.0f / _scale) * _rotation.GetInverseMatrix() * Matrix4.CreateTranslation(-_point.Raw);
+            _forwardDirection = Vec3.TransformVector(Vec3.Forward, rotMatrix);
 
+            OnTransformChanged();
+        }
         public override float DistanceScale(Vec3 point, float radius)
         {
             return _scale.X * 80.0f;
@@ -111,6 +131,8 @@ namespace CustomEngine.Rendering.Cameras
         public override void Write(XmlWriter writer)
         {
             writer.WriteStartElement("orthographicCamera");
+            writer.WriteAttributeString("originXPercentage", _originXPercentage.ToString());
+            writer.WriteAttributeString("originYPercentage", _originYPercentage.ToString());
             writer.WriteAttributeString("lockYaw", _lockYaw.ToString());
             writer.WriteAttributeString("lockPitch", _lockPitch.ToString());
             writer.WriteAttributeString("lockRoll", _lockRoll.ToString());
@@ -136,13 +158,23 @@ namespace CustomEngine.Rendering.Cameras
                     _originXPercentage = float.Parse((string)reader.Value);
                 if (reader.Name.Equals("originYPercentage", true))
                     _originYPercentage = float.Parse((string)reader.Value);
+                if (reader.Name.Equals("lockYaw", true))
+                    _lockYaw = bool.Parse((string)reader.Value);
+                if (reader.Name.Equals("lockPitch", true))
+                    _lockPitch = bool.Parse((string)reader.Value);
+                if (reader.Name.Equals("lockRoll", true))
+                    _lockRoll = bool.Parse((string)reader.Value);
+                if (reader.Name.Equals("nearZ", true))
+                    _nearZ = float.Parse((string)reader.Value);
+                if (reader.Name.Equals("farZ", true))
+                    _farZ = float.Parse((string)reader.Value);
             }
             SetOriginPercentages(_originXPercentage, _originYPercentage);
             while (reader.BeginElement())
             {
                 if (reader.Name.Equals("point", true))
                     _point.Raw = Vec3.Parse(reader.ReadElementString());
-                else if (reader.Name.Equals("rotation", true))
+                else if (reader.Name.Equals("euler", true))
                     _rotation.Read(reader);
                 reader.EndElement();
             }
@@ -150,10 +182,12 @@ namespace CustomEngine.Rendering.Cameras
         [StructLayout(LayoutKind.Sequential, Pack = 1)]
         public struct Header
         {
-            public bfloat _scale;
             public BVec3 _point;
             public Rotator.Header _rotation;
+            public bfloat _nearZ;
+            public bfloat _farZ;
             public BVec2 _originPercentages;
+            public BVec3 _scale;
 
             public static implicit operator Header(OrthographicCamera c)
             {
@@ -161,18 +195,15 @@ namespace CustomEngine.Rendering.Cameras
                 {
                     _point = c._point.Raw,
                     _rotation = c._rotation,
-                    _fovY = c._fovY,
-                    _aspect = c._aspect,
+                    _scale = c._scale.Raw,
+                    _originPercentages = new BVec2(c._originXPercentage, c._originYPercentage),
                     _nearZ = c._nearZ,
                     _farZ = c._farZ,
                 };
             }
             public static implicit operator OrthographicCamera(Header h)
             {
-                return new OrthographicCamera(h._point, h._rotation, h._nearZ, h._farZ, h._fovY)
-                {
-                    _aspect = h._aspect,
-                };
+                return new OrthographicCamera(h._scale, h._point, h._rotation, h._originPercentages, h._nearZ, h._farZ);
             }
         }
     }

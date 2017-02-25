@@ -55,11 +55,15 @@ namespace CustomEngine.Rendering
                 return;
 
             _currentCamera = camera;
-            //_cullingTree.Cull(camera.GetFrustum());
+
+            Frustum f = camera.GetFrustum();
+            _cullingTree.Cull(f);
 
             //TODO: render in a sorted order by render keys, not just in whatever order like this
             //also perform culling directly before rendering something, to avoid an extra log(n) operation
             _cullingTree.Render();
+
+            f.Render();
 
             //if (_commandsInvalidated)
             //    RenderKey.RadixSort(ref _sortedCommands);

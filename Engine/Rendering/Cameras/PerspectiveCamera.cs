@@ -169,10 +169,10 @@ namespace CustomEngine.Rendering.Cameras
         {
             public BVec3 _point;
             public Rotator.Header _rotation;
-            public bfloat _fovY;
-            public bfloat _aspect;
             public bfloat _nearZ;
             public bfloat _farZ;
+            public bfloat _fovY;
+            public bfloat _aspect;
 
             public static implicit operator Header(PerspectiveCamera c)
             {

@@ -126,7 +126,7 @@ namespace CustomEngine.Worlds
                 AnimFolder modelYawFolder = new AnimFolder("Yaw", false, modelAnim);
                 //AnimFolder modelRotationFolder = new AnimFolder("Rotation", modelYawFolder);
                 AnimationContainer modelAnimContainer = new AnimationContainer(modelYawFolder);
-                skeleton["Bone002"]?.FrameState.AddAnimation(modelAnimContainer, true);
+                skeleton["LElbow"]?.FrameState.AddAnimation(modelAnimContainer, true);
 
                 skeleton.ToXML("C:\\Users\\David\\Desktop\\");
             }

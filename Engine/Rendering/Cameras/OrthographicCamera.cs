@@ -15,23 +15,26 @@ namespace CustomEngine.Rendering.Cameras
 
         public override Vec2 Origin { get { return new Vec2(_originX, _originY); } }
 
-        private bool _lockYaw = false, _lockPitch = false, _lockRoll = false;
-        private float 
-            _orthoLeft = 0.0f, 
-            _orthoRight = 1.0f, 
-            _orthoBottom = 0.0f, 
+        private bool 
+            _lockYaw = false, 
+            _lockPitch = false,
+            _lockRoll = false;
+        private float
+            _orthoLeft = 0.0f,
+            _orthoRight = 1.0f,
+            _orthoBottom = 0.0f,
             _orthoTop = 1.0f;
         private float
             _orthoLeftPercentage = 0.0f,
-            _orthoRightPercentage = 1.0f, 
-            _orthoBottomPercentage = 0.0f, 
+            _orthoRightPercentage = 1.0f,
+            _orthoBottomPercentage = 0.0f,
             _orthoTopPercentage = 1.0f;
         private float
             _originX,
             _originY;
-        private float 
-            _originXPercentage,
-            _originYPercentage;
+        private float
+            _originXPercentage = 0.0f,
+            _originYPercentage = 0.0f;
 
         public void SetCenteredStyle() { SetOriginPercentages(0.5f, 0.5f); }
         public void SetGraphStyle() { SetOriginPercentages(0.0f, 0.0f); }
@@ -125,19 +128,16 @@ namespace CustomEngine.Rendering.Cameras
                 throw new Exception();
             _point.Raw = Vec3.Zero;
             _rotation.PitchYawRoll = Vec3.Zero;
+            _originXPercentage = 0.0f;
+            _originYPercentage = 0.0f;
             while (reader.ReadAttribute())
             {
-                if (reader.Name.Equals("fovY", true))
-                    VerticalFieldOfView = float.Parse((string)reader.Value);
-                if (reader.Name.Equals("fovX", true))
-                    HorizontalFieldOfView = float.Parse((string)reader.Value);
-                if (reader.Name.Equals("aspect", true))
-                    _aspect = float.Parse((string)reader.Value);
-                if (reader.Name.Equals("nearZ", true))
-                    _nearZ = float.Parse((string)reader.Value);
-                if (reader.Name.Equals("farZ", true))
-                    _farZ = float.Parse((string)reader.Value);
+                if (reader.Name.Equals("originXPercentage", true))
+                    _originXPercentage = float.Parse((string)reader.Value);
+                if (reader.Name.Equals("originYPercentage", true))
+                    _originYPercentage = float.Parse((string)reader.Value);
             }
+            SetOriginPercentages(_originXPercentage, _originYPercentage);
             while (reader.BeginElement())
             {
                 if (reader.Name.Equals("point", true))
@@ -150,12 +150,10 @@ namespace CustomEngine.Rendering.Cameras
         [StructLayout(LayoutKind.Sequential, Pack = 1)]
         public struct Header
         {
+            public bfloat _scale;
             public BVec3 _point;
             public Rotator.Header _rotation;
-            public bfloat _fovY;
-            public bfloat _aspect;
-            public bfloat _nearZ;
-            public bfloat _farZ;
+            public BVec2 _originPercentages;
 
             public static implicit operator Header(OrthographicCamera c)
             {

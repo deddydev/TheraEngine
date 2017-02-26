@@ -18,14 +18,13 @@ namespace CustomEngine.Worlds.Actors
     public class Pawn : Actor
     {
         private PawnController _controller;
-
-        public PawnController Controller { get { return _controller; } }
-        public LocalPlayerController LocalPlayerController { get { return _controller as LocalPlayerController; } }
         private CameraComponent _currentCameraComponent;
 
+        public PawnController Controller => _controller;
+        public LocalPlayerController LocalPlayerController => _controller as LocalPlayerController;
         public CameraComponent CurrentCameraComponent
         {
-            get { return _currentCameraComponent; }
+            get => _currentCameraComponent;
             set
             {
                 _currentCameraComponent = value;

@@ -53,8 +53,8 @@ namespace CustomEngine.Rendering
             BoundContexts.Add(this);
         }
 
-        protected abstract void OnResized(object sender, EventArgs e);
-        protected abstract AbstractRenderer GetRendererInstance();
+        internal abstract void OnResized(object sender, EventArgs e);
+        internal abstract AbstractRenderer GetRendererInstance();
         public abstract void ErrorCheck();
         public abstract bool IsCurrent();
         public abstract bool IsContextDisposed();

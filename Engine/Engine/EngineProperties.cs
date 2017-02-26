@@ -56,17 +56,17 @@ namespace CustomEngine
 
         public static AbstractRenderer Renderer
         {
-            get { return _renderer; }
-            set { _renderer = value; }
+            get => _renderer;
+            set => _renderer = value;
         }
         public static AbstractAudioManager AudioManager
         {
-            get { return _audioManager; }
-            internal set { _audioManager = value; }
+            get => _audioManager;
+            internal set => _audioManager = value;
         }
 
-        public static float RenderDelta { get { return (float)_timer.RenderTime; } }
-        public static float UpdateDelta { get { return (float)_timer.UpdateTime; } }
+        public static float RenderDelta => (float)_timer.RenderTime;
+        public static float UpdateDelta => (float)_timer.UpdateTime;
 
         /// <summary>
         /// Frames per second that the game will try to render at.
@@ -108,12 +108,12 @@ namespace CustomEngine
             set { SetCurrentWorld(value, true); }
         }
 
-        public static bool IsPaused { get { return _isPaused; } }
+        public static bool IsPaused => _isPaused;
 
         /// <summary>
         /// Class containing this computer's specs. Use to adjust engine settings accordingly.
         /// </summary>
-        public static ComputerInfo ComputerInfo { get { return _computerInfo; } }
+        public static ComputerInfo ComputerInfo => _computerInfo;
         public static RenderPanel CurrentPanel
         {
             get
@@ -126,7 +126,7 @@ namespace CustomEngine
         }
         public static RenderLibrary RenderLibrary
         {
-            get { return _renderLibrary; }
+            get => _renderLibrary;
             set
             {
                 _renderLibrary = value;

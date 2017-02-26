@@ -31,28 +31,35 @@ namespace CustomEngine.Rendering
 
         public Camera Camera
         {
-            get { return _worldCamera; }
+            get => _worldCamera;
             set
             {
+                _worldCamera?.Viewports.Remove(this);
                 _worldCamera = value;
-                _worldCamera?.Resize(Width, Height);
+                if (_worldCamera != null)
+                {
+                    _worldCamera.Viewports.Add(this);
+                    //TODO: what if the same camera is used by multiple viewports?
+                    //Need to use a separate projection matrix per viewport instead of passing the width and height to the camera itself
+                    _worldCamera.Resize(Width, Height);
+                }
             }
         }
-        public RenderPanel OwningPanel { get { return _owningPanel; } }
-        public GBuffer GBuffer { get { return _gBuffer; } }
+        public RenderPanel OwningPanel => _owningPanel;
+        public GBuffer GBuffer => _gBuffer;
         public HudManager HUD
         {
-            get { return _hud; }
-            set { _hud = value ?? new HudManager(this); }
+            get => _hud;
+            set => _hud = value ?? new HudManager(this);
         }
-        public LocalPlayerController OwningPlayer { get { return _owner; } }
-        public Rectangle Region { get { return _region; } }
-        public int Height { get { return _region.Height; } }
-        public int Width { get { return _region.Width; } }
-        public int X { get { return _region.X; } }
-        public int Y { get { return _region.Y; } }
-        public int Index { get { return _index; } }
-        public Vec2 Center { get { return new Vec2(Width / 2.0f, Height / 2.0f); } }
+        public LocalPlayerController OwningPlayer => _owner;
+        public Rectangle Region => _region;
+        public int Height => _region.Height;
+        public int Width => _region.Width;
+        public int X => _region.X;
+        public int Y => _region.Y;
+        public int Index => _index;
+        public Vec2 Center => new Vec2(Width / 2.0f, Height / 2.0f);
 
         public Viewport(LocalPlayerController owner, RenderPanel panel, int index)
         {
@@ -143,20 +150,23 @@ namespace CustomEngine.Rendering
             _leftPercentage = _bottomPercentage = 0.0f;
             _rightPercentage = _topPercentage = 1.0f;
         }
-        public Vec3 ScreenToWorld(Vec2 viewportPoint, float depth) { return _worldCamera.ScreenToWorld(viewportPoint, depth); }
-        public Vec3 ScreenToWorld(Vec3 viewportPoint) { return _worldCamera.ScreenToWorld(viewportPoint); }
-        public Vec3 WorldToScreen(Vec3 worldPoint) { return _worldCamera.WorldToScreen(worldPoint); }
-        public Vec2 AbsoluteToRelative(Vec2 absolutePoint) { return new Vec2(absolutePoint.X - _region.X, absolutePoint.Y - _region.Y); }
-        public Vec2 RelativeToAbsolute(Vec2 viewportPoint) { return new Vec2(viewportPoint.X + _region.X, viewportPoint.Y + _region.Y); }
+        public Vec3 ScreenToWorld(Vec2 viewportPoint, float depth)
+            => _worldCamera.ScreenToWorld(viewportPoint, depth);
+        public Vec3 ScreenToWorld(Vec3 viewportPoint)
+            => _worldCamera.ScreenToWorld(viewportPoint);
+        public Vec3 WorldToScreen(Vec3 worldPoint) 
+            => _worldCamera.WorldToScreen(worldPoint);
+
+        public Vec2 AbsoluteToRelative(Vec2 absolutePoint) => new Vec2(absolutePoint.X - _region.X, absolutePoint.Y - _region.Y);
+        public Vec2 RelativeToAbsolute(Vec2 viewportPoint) => new Vec2(viewportPoint.X + _region.X, viewportPoint.Y + _region.Y);
         public float GetDepth(Vec2 viewportPoint)
         {
             Vec2 absolutePoint = RelativeToAbsolute(viewportPoint);
             return Engine.Renderer.GetDepth(absolutePoint.X, absolutePoint.Y);
         }
-        public Ray GetWorldRay(Vec2 viewportPoint)
-        {
-            return _worldCamera.GetWorldRay(viewportPoint);
-        }
+        public Ray GetWorldRay(Vec2 viewportPoint) 
+            => _worldCamera.GetWorldRay(viewportPoint);
+
         public unsafe void Render(SceneProcessor scene)
         {
             if (_worldCamera == null)

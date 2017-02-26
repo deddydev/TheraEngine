@@ -79,19 +79,19 @@
             // btnOpen
             // 
             this.btnOpen.Name = "btnOpen";
-            this.btnOpen.Size = new System.Drawing.Size(211, 30);
+            this.btnOpen.Size = new System.Drawing.Size(159, 30);
             this.btnOpen.Text = "Open";
             // 
             // btnSave
             // 
             this.btnSave.Name = "btnSave";
-            this.btnSave.Size = new System.Drawing.Size(211, 30);
+            this.btnSave.Size = new System.Drawing.Size(159, 30);
             this.btnSave.Text = "Save";
             // 
             // btnSaveAs
             // 
             this.btnSaveAs.Name = "btnSaveAs";
-            this.btnSaveAs.Size = new System.Drawing.Size(211, 30);
+            this.btnSaveAs.Size = new System.Drawing.Size(159, 30);
             this.btnSaveAs.Text = "Save As";
             // 
             // editToolStripMenuItem
@@ -207,7 +207,6 @@
             this.renderPanel1.Name = "renderPanel1";
             this.renderPanel1.Size = new System.Drawing.Size(1069, 937);
             this.renderPanel1.TabIndex = 0;
-            this.renderPanel1.Text = "renderPanel1";
             // 
             // Editor
             // 
@@ -254,8 +253,10 @@
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Splitter splitter1;
         private System.Windows.Forms.Panel panel3;
-        private CustomEngine.RenderPanel renderPanel1;
         private ResourceTree resourceTree1;
+        private CustomEngine.RenderPanel renderPanel1;
+        //private CustomEngine.RenderPanel renderPanel1;
+        //private ResourceTree resourceTree1;
     }
 }
 

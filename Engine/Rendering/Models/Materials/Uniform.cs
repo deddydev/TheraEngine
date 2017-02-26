@@ -59,6 +59,8 @@ namespace CustomEngine.Rendering.Models.Materials
         CameraFarZ,
         CameraPosition,
         CameraForward,
+        CameraUp,
+        CameraRight,
         RenderDelta,
     }
 }

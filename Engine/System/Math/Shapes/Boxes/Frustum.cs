@@ -118,33 +118,33 @@ namespace System
             center /= 8.0f;
             return new Sphere(center.DistanceToFast(FarBottomLeft), center);
         }
-        public IEnumerator<Plane> GetEnumerator()
-        {
-            return ((IEnumerable<Plane>)_planes).GetEnumerator();
-        }
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return ((IEnumerable<Plane>)_planes).GetEnumerator();
-        }
+
+        public IEnumerator<Plane> GetEnumerator() { return ((IEnumerable<Plane>)_planes).GetEnumerator(); }
+        IEnumerator IEnumerable.GetEnumerator() { return ((IEnumerable<Plane>)_planes).GetEnumerator(); }
 
         public void Render()
         {
             //_boundingSphere.Render();
 
-            Engine.Renderer.RenderLine("frustumTopLeft", NearTopLeft, FarTopLeft, 3.0f, Color.Orange);
-            Engine.Renderer.RenderLine("frustumTopRight", NearTopRight, FarTopRight, 3.0f, Color.Orange);
-            Engine.Renderer.RenderLine("frustumBottomLeft", NearBottomLeft, FarBottomLeft, 3.0f, Color.Orange);
-            Engine.Renderer.RenderLine("frustumBottomRight", NearBottomRight, FarBottomRight, 3.0f, Color.Orange);
+            float LineSize = 10.0f;
+            Color NearColor = Color.Orange;
+            Color FarColor = Color.DarkRed;
+            Color SideColor = Color.LightGreen;
 
-            Engine.Renderer.RenderLine("frustumTopNear", NearTopLeft, NearTopRight, 3.0f, Color.Orange);
-            Engine.Renderer.RenderLine("frustumTopFar", FarTopLeft, FarTopRight, 3.0f, Color.Orange);
-            Engine.Renderer.RenderLine("frustumBottomNear", NearBottomLeft, NearBottomRight, 3.0f, Color.Orange);
-            Engine.Renderer.RenderLine("frustumBottomFar", FarBottomLeft, FarBottomRight, 3.0f, Color.Orange);
+            Engine.Renderer.RenderLine("frustumTopLeft", NearTopLeft, FarTopLeft, LineSize, SideColor);
+            Engine.Renderer.RenderLine("frustumTopRight", NearTopRight, FarTopRight, LineSize, SideColor);
+            Engine.Renderer.RenderLine("frustumBottomLeft", NearBottomLeft, FarBottomLeft, LineSize, SideColor);
+            Engine.Renderer.RenderLine("frustumBottomRight", NearBottomRight, FarBottomRight, LineSize, SideColor);
 
-            Engine.Renderer.RenderLine("frustumLeftNear", NearBottomLeft, NearTopLeft, 3.0f, Color.Orange);
-            Engine.Renderer.RenderLine("frustumLeftFar", FarBottomLeft, FarTopLeft, 3.0f, Color.Orange);
-            Engine.Renderer.RenderLine("frustumRightNear", NearBottomRight, NearTopRight, 3.0f, Color.Orange);
-            Engine.Renderer.RenderLine("frustumRightFar", FarBottomRight, FarTopRight, 3.0f, Color.Orange);
+            //Engine.Renderer.RenderLine("frustumTopNear", NearTopLeft, NearTopRight, LineSize, NearColor);
+            //Engine.Renderer.RenderLine("frustumBottomNear", NearBottomLeft, NearBottomRight, LineSize, NearColor);
+            //Engine.Renderer.RenderLine("frustumLeftNear", NearBottomLeft, NearTopLeft, LineSize, NearColor);
+            //Engine.Renderer.RenderLine("frustumRightNear", NearBottomRight, NearTopRight, LineSize, NearColor);
+
+            Engine.Renderer.RenderLine("frustumTopFar", FarTopLeft, FarTopRight, LineSize, FarColor);
+            Engine.Renderer.RenderLine("frustumBottomFar", FarBottomLeft, FarBottomRight, LineSize, FarColor);
+            Engine.Renderer.RenderLine("frustumLeftFar", FarBottomLeft, FarTopLeft, LineSize, FarColor);
+            Engine.Renderer.RenderLine("frustumRightFar", FarBottomRight, FarTopRight, LineSize, FarColor);
         }
     }
 }

@@ -70,7 +70,7 @@ namespace CustomEngine.Rendering.OpenGL
             _winInfo = null;
         }
 
-        protected override AbstractRenderer GetRendererInstance() { return new GLRenderer(); }
+        internal override AbstractRenderer GetRendererInstance() { return new GLRenderer(); }
 
         public override void ErrorCheck()
         {
@@ -119,7 +119,7 @@ namespace CustomEngine.Rendering.OpenGL
         {
 
         }
-        protected override void OnResized(object sender, EventArgs e)
+        internal override void OnResized(object sender, EventArgs e)
         {
             OnUpdated();
             _control.Invalidate();

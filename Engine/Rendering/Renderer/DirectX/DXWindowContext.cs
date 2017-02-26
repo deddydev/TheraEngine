@@ -37,7 +37,7 @@ namespace CustomEngine.Rendering.DirectX
             SlimDX.Direct3D11.Device.CreateWithSwapChain(DriverType.Hardware, DeviceCreationFlags.None, swapChainDesc, out _device, out _swapChain);
         }
 
-        protected override AbstractRenderer GetRendererInstance()
+        internal override AbstractRenderer GetRendererInstance()
         {
             return null; //DXRenderer.Instance ?? (DXRenderer.Instance = new DXRenderer());
         }
@@ -152,7 +152,7 @@ namespace CustomEngine.Rendering.DirectX
             _swapChain.Dispose();
             _device.Dispose();
         }
-        protected override void OnResized(object sender, EventArgs e)
+        internal override void OnResized(object sender, EventArgs e)
         {
             if (_renderTarget != null)
                 _renderTarget.Dispose();

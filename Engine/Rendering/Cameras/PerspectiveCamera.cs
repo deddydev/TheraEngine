@@ -14,14 +14,23 @@ namespace CustomEngine.Rendering.Cameras
             : base(point, rotation, nearZ, farZ) { VerticalFieldOfView = fovY; }
 
         private float _width, _height, _aspect, _fovX = 90.0f, _fovY = 78.0f;
+        private bool _overrideAspect = false;
 
-        public override Vec2 Origin { get { return new Vec2(Width / 2.0f, Height / 2.0f); } }
-        public override float Width { get { return _width; } }
-        public override float Height { get { return _height; } }
-        public float Aspect { get { return _aspect; } set { _aspect = value; CalculateProjection(); } }
+        public override Vec2 Origin => new Vec2(Width / 2.0f, Height / 2.0f);
+        public override float Width => _width;
+        public override float Height => _height;
+        public float Aspect
+        {
+            get => _aspect;
+            set
+            {
+                _aspect = value;
+                CalculateProjection();
+            }
+        }
         public float VerticalFieldOfView
         {
-            get { return _fovY; }
+            get => _fovY;
             set
             {
                 _fovY = value;
@@ -31,7 +40,7 @@ namespace CustomEngine.Rendering.Cameras
         }
         public float HorizontalFieldOfView
         {
-            get { return _fovX; }
+            get => _fovX;
             set
             {
                 _fovX = value;
@@ -70,7 +79,8 @@ namespace CustomEngine.Rendering.Cameras
             _aspect = _width / _height;
             base.Resize(width, height);
         }
-        public override void Zoom(float amount) { TranslateRelative(0.0f, 0.0f, amount); }
+        public override void Zoom(float amount)
+            => TranslateRelative(0.0f, 0.0f, amount);
         protected override Frustum CreateUntransformedFrustum()
         {
             const bool transformed = false;

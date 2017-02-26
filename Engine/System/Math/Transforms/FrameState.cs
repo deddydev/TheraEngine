@@ -7,10 +7,6 @@ using System.Xml.Serialization;
 
 namespace System
 {
-    public delegate void TranslateChange(Vec3 oldTranslation);
-    public delegate void RotateChange(float oldRotation);
-    public delegate void ScaleChange(Vec3 oldScale);
-    public delegate void MatrixChange(Matrix4 oldMatrix, Matrix4 oldInvMatrix);
     public enum TransformOrder
     {
         TRS,
@@ -22,6 +18,10 @@ namespace System
     }
     public class FrameState : FileObject
     {
+        public delegate void TranslationChange(Vec3 oldTranslation);
+        public delegate void RotationChange(float oldRotation);
+        public delegate void ScaleChange(Vec3 oldScale);
+        public delegate void MatrixChange(Matrix4 oldMatrix, Matrix4 oldInvMatrix);
         public override ResourceType ResourceType { get { return ResourceType.FrameState; } }
         public static FrameState GetIdentity(TransformOrder transformationOrder, Rotator.Order rotationOrder)
         {
@@ -61,10 +61,10 @@ namespace System
         private Matrix4 _inverseTransform = Matrix4.Identity;
         private TransformOrder _transformOrder = TransformOrder.TRS;
 
-        public event TranslateChange TranslationChanged;
-        public event RotateChange YawChanged;
-        public event RotateChange PitchChanged;
-        public event RotateChange RollChanged;
+        public event TranslationChange TranslationChanged;
+        public event RotationChange YawChanged;
+        public event RotationChange PitchChanged;
+        public event RotationChange RollChanged;
         public event ScaleChange ScaleChanged;
         public event MatrixChange MatrixChanged;
         public void Lookat(Vec3 point)

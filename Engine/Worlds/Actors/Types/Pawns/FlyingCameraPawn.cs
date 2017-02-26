@@ -165,7 +165,7 @@ namespace CustomEngine.Worlds.Actors
             //float xDiff = x - _cursorPos.X;
             //float yDiff = y - _cursorPos.Y;
             if (Rotating)
-                CameraComponent.Camera.Rotate(-y * _mouseRotateSpeed, -x * _mouseRotateSpeed);
+                CameraComponent.Camera.AddRotation(-y * _mouseRotateSpeed, -x * _mouseRotateSpeed);
             else if (Translating)
                 CameraComponent.Camera.TranslateRelative(new Vec3(-x * _mouseTranslateSpeed, y * _mouseTranslateSpeed, 0.0f));
             //_cursorPos.X = x;
@@ -203,7 +203,7 @@ namespace CustomEngine.Worlds.Actors
         internal override void Tick(float delta)
         {
             CameraComponent.Camera.TranslateRelative(new Vec3(_linearRight, _linearUp, -_linearForward) * delta);
-            CameraComponent.Camera.Rotate(_pitch * delta, _yaw * delta);
+            CameraComponent.Camera.AddRotation(_pitch * delta, _yaw * delta);
             HighlightScene(true);
         }
 

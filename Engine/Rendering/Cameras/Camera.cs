@@ -2,13 +2,15 @@
 using CustomEngine.Rendering.Models;
 using CustomEngine.Rendering.Models.Materials;
 using System;
+using System.Collections.Generic;
 
 namespace CustomEngine.Rendering.Cameras
 {
     public abstract class Camera : FileObject
     {
-        public override ResourceType ResourceType { get { return ResourceType.Camera; } }
-
+        public delegate void TranslationChange(Vec3 oldTranslation);
+        public delegate void RotationChange(Rotator oldRotation);
+        public override ResourceType ResourceType => ResourceType.Camera;
         public Camera()
         {
             Resize(1.0f, 1.0f);
@@ -25,40 +27,54 @@ namespace CustomEngine.Rendering.Cameras
             _rotation.Changed += CreateTransform;
             _point.Changed += CreateTransform;
         }
-        public Matrix4 ProjectionMatrix { get { return _projectionMatrix; } }
-        public Matrix4 ProjectionMatrixInverse { get { return _projectionInverse; } }
-        public Matrix4 Matrix { get { return _invTransform; } }
-        public Matrix4 InverseMatrix { get { return _transform; } }
+        public Matrix4 ProjectionMatrix => _projectionMatrix;
+        public Matrix4 ProjectionMatrixInverse => _projectionInverse;
+        public Matrix4 Matrix => _invTransform;
+        public Matrix4 InverseMatrix => _transform;
         public float NearZ
         {
-            get { return _nearZ; }
-            set { _nearZ = value; CalculateProjection(); }
+            get => _nearZ;
+            set
+            {
+                _nearZ = value;
+                CalculateProjection();
+            }
         }
         public float FarZ
         {
-            get { return _farZ; }
-            set { _farZ = value; CalculateProjection(); }
+            get => _farZ;
+            set
+            {
+                _farZ = value;
+                CalculateProjection();
+            }
         }
         public Vec3 Point
         {
-            get { return _point.Raw; }
-            set { _point.Raw = value; }
+            get => _point.Raw;
+            set => _point.Raw = value;
         }
         public Rotator Rotation
         {
-            get { return _rotation; }
-            set { _rotation.SetRotations(value); }
+            get => _rotation;
+            set => _rotation.SetRotations(value);
         }
         public PostProcessSettings PostProcessSettings
         {
-            get { return _postProcessSettings; }
-            set { _postProcessSettings = value; }
+            get => _postProcessSettings;
+            set => _postProcessSettings = value;
         }
         public abstract float Width { get; }
         public abstract float Height { get; }
-        public Vec2 Dimensions { get { return new Vec2(Width, Height); } }
+        public Vec2 Dimensions => new Vec2(Width, Height);
         public abstract Vec2 Origin { get; }
+        public List<Viewport> Viewports
+        {
+            get => _viewports;
+            set => _viewports = value;
+        }
 
+        private List<Viewport> _viewports = new List<Viewport>();
         private bool _isActive = false;
         private Vec3 _projectionRange;
         private Vec3 _projectionOrigin;
@@ -76,104 +92,136 @@ namespace CustomEngine.Rendering.Cameras
 
         protected EventVec3 _point = Vec3.Zero;
         protected Rotator _rotation = new Rotator(Rotator.Order.YPR);
-        protected Vec3 _forwardDirection;
+        private Vec3 
+            _forwardDirection = Vec3.Forward,
+            _upDirection = Vec3.Up, 
+            _rightDirection = Vec3.Right;
+        private bool 
+            _forwardInvalidated = false,
+            _upInvalidated = false, 
+            _rightInvalidated = false;
 
         /// <summary>
         /// Returns an X, Y coordinate relative to the camera's Origin, with Z being the normalized depth from NearDepth to FarDepth.
         /// </summary>
         public Vec3 WorldToScreen(Vec3 point)
-        {
-            return _projectionOrigin + _projectionRange * ((_projectionMatrix * (_transform * point)) + 1.0f) / 2.0f;
-        }
-        public Vec3 ScreenToWorld(Vec2 point, float depth) { return ScreenToWorld(point.X, point.Y, depth); }
-        public Vec3 ScreenToWorld(float x, float y, float depth) { return ScreenToWorld(new Vec3(x, y, depth)); }
+            => _projectionOrigin + _projectionRange * ((_projectionMatrix * (_transform * point)) + 1.0f) / 2.0f;
+        public Vec3 ScreenToWorld(Vec2 point, float depth) 
+            => ScreenToWorld(point.X, point.Y, depth);
+        public Vec3 ScreenToWorld(float x, float y, float depth)
+            => ScreenToWorld(new Vec3(x, y, depth));
         public Vec3 ScreenToWorld(Vec3 screenPoint)
-        {
-            return _invTransform * (_projectionInverse * ((screenPoint - _projectionOrigin) / _projectionRange * 2.0f - 1.0f));
-        }
+            => _invTransform * (_projectionInverse * ((screenPoint - _projectionOrigin) / _projectionRange * 2.0f - 1.0f));
+
         protected virtual void CreateTransform()
         {
             Matrix4 rotMatrix = _rotation.GetMatrix();
             _transform = Matrix4.CreateTranslation(_point.Raw) * rotMatrix;
             _invTransform = _rotation.GetInverseMatrix() * Matrix4.CreateTranslation(-_point.Raw);
-            _forwardDirection = Vec3.TransformVector(Vec3.Forward, rotMatrix);
             UpdateTransformedFrustum();
             OnTransformChanged();
         }
         protected void UpdateTransformedFrustum()
-        {
-            _transformedFrustum = _untransformedFrustum.TransformedBy(_transform);
-        }
+            => _transformedFrustum = _untransformedFrustum.TransformedBy(_transform);
+
+        public abstract float DistanceScale(Vec3 point, float radius);
         public abstract void Zoom(float amount);
-        public void TranslateRelative(float x, float y, float z) => TranslateRelative(new Vec3(x, y, z));
+
+        public void TranslateRelative(float x, float y, float z) 
+            => TranslateRelative(new Vec3(x, y, z));
         public void TranslateRelative(Vec3 translation)
         {
-            if (translation == Vec3.Zero)
-                return;
-
             _transform = _transform * Matrix4.CreateTranslation(translation);
             _invTransform = Matrix4.CreateTranslation(-translation) * _invTransform;
             _point.SetRawNoUpdate(_transform.GetPoint());
             UpdateTransformedFrustum();
             OnTransformChanged();
         }
-        public void TranslateAbsolute(float x, float y, float z) => TranslateAbsolute(new Vec3(x, y, z));
-        public void TranslateAbsolute(Vec3 translation)
-        {
-            if (translation == Vec3.Zero)
-                return;
 
-            _point.Raw += translation;
-        }
-        public Vec3 RotateVector(Vec3 dir) { return _rotation.TransformVector(dir); }
-        public Vec3 GetUpVector() { return RotateVector(Vec3.Up); }
-        public Vec3 GetForwardVector() { return _forwardDirection; }
-        public Vec3 GetRightVector() { return RotateVector(Vec3.Right); }
-        public void Rotate(float pitch, float yaw) { Rotate(pitch, yaw, 0.0f); }
-        public void Rotate(float pitch, float yaw, float roll)
-            => SetRotate(_rotation.Pitch + pitch, _rotation.Yaw + yaw, _rotation.Roll + roll);
-        public void SetRotate(Rotator r)
+        public void TranslateAbsolute(float x, float y, float z) 
+            => TranslateAbsolute(new Vec3(x, y, z));
+        public void TranslateAbsolute(Vec3 translation)
+            => _point.Raw += translation;
+        
+        public Vec3 RotateVector(Vec3 dir)
+            => _rotation.TransformVector(dir);
+        public Vec3 GetUpVector()
         {
-            _rotation = r;
-            _rotation.Changed += CreateTransform;
-            CreateTransform();
+            if (_upInvalidated)
+            {
+                _upDirection = RotateVector(Vec3.Up);
+                _upInvalidated = false;
+            }
+            return _upDirection;
         }
-        public void SetRotate(Vec3 pitchYawRoll)
+        public Vec3 GetForwardVector()
         {
-            _rotation.PitchYawRoll = pitchYawRoll;
+            if (_forwardInvalidated)
+            {
+                _forwardDirection = RotateVector(Vec3.Forward);
+                _forwardInvalidated = false;
+            }
+            return _forwardDirection;
         }
-        public void SetRotate(float pitch, float yaw, float roll)
+        public Vec3 GetRightVector()
         {
-            _rotation.SetRotations(pitch, yaw, roll);
+            if (_rightInvalidated)
+            {
+                _rightDirection = RotateVector(Vec3.Right);
+                _rightInvalidated = false;
+            }
+            return _rightDirection;
         }
+
+        public void AddRotation(float pitch, float yaw) 
+            => AddRotation(pitch, yaw, 0.0f);
+        public void AddRotation(float pitch, float yaw, float roll) 
+            => SetRotation(
+                _rotation.Pitch + pitch,
+                _rotation.Yaw + yaw, 
+                _rotation.Roll + roll);
+
+        public void SetRotation(Rotator r) 
+            => _rotation.SetRotations(r);
+        public void SetRotation(Vec3 pitchYawRoll)
+            => _rotation.PitchYawRoll = pitchYawRoll;
+        public void SetRotation(float pitch, float yaw, float roll)
+            => _rotation.SetRotations(pitch, yaw, roll);
+
+        public void SetViewTarget(Vec3 target)
+            => SetRotation((target - _point).LookatAngles(Vec3.Forward));
+
         public void Pivot(float y, float x, float radius)
         {
             BeginUpdate();
             Zoom(-radius);
-            Rotate(y, x);
+            AddRotation(y, x);
             Zoom(radius);
             EndUpdate();
         }
-        public void SetViewTarget(Vec3 target)
-        {
-            _rotation = (target - _point).LookatAngles();
-            CreateTransform();
-        }
+        
         public void Reset()
         {
-
+            _point.Raw = Vec3.Zero;
+            _rotation.YawPitchRoll = Vec3.Zero;
         }
         public void SaveCurrentTransform() { }
-        public event TranslateChange TranslateChanged;
-        public event RotateChange RotateChanged;
-        public event ScaleChange ScaleChanged;
-        public event Action Resized;
-        public event Action TransformChanged;
-        
-        protected void OnTransformChanged() { TransformChanged?.Invoke(); }
-        protected void OnTranslateChanged(Vec3 oldTranslation) { TranslateChanged?.Invoke(oldTranslation); }
-        protected void OnScaleChanged(Vec3 oldScale) { ScaleChanged?.Invoke(oldScale); }
 
+        public event TranslationChange TranslationChanged;
+        public event RotationChange RotationChanged;
+        //public event Action Resized;
+        public event Action TransformChanged;
+
+        protected void OnTransformChanged()
+        {
+            _forwardInvalidated = _upInvalidated = _rightInvalidated = true;
+            TransformChanged?.Invoke();
+        }
+        protected void OnTranslationChanged(Vec3 oldTranslation) 
+            => TranslationChanged?.Invoke(oldTranslation);
+        protected void OnRotationChanged(Rotator oldRotation)
+            => RotationChanged?.Invoke(oldRotation);
+        
         public virtual void SetUniforms()
         {
             Engine.Renderer.Uniform(Uniform.GetLocation(ECommonUniform.ViewMatrix), Matrix);
@@ -184,7 +232,9 @@ namespace CustomEngine.Rendering.Cameras
             Engine.Renderer.Uniform(Uniform.GetLocation(ECommonUniform.CameraNearZ), NearZ);
             Engine.Renderer.Uniform(Uniform.GetLocation(ECommonUniform.CameraFarZ), FarZ);
             Engine.Renderer.Uniform(Uniform.GetLocation(ECommonUniform.CameraPosition), Point);
-            Engine.Renderer.Uniform(Uniform.GetLocation(ECommonUniform.CameraForward), _forwardDirection);
+            Engine.Renderer.Uniform(Uniform.GetLocation(ECommonUniform.CameraForward), GetForwardVector());
+            Engine.Renderer.Uniform(Uniform.GetLocation(ECommonUniform.CameraUp), GetUpVector());
+            Engine.Renderer.Uniform(Uniform.GetLocation(ECommonUniform.CameraRight), GetRightVector());
         }
         protected virtual void CalculateProjection()
         {
@@ -193,17 +243,14 @@ namespace CustomEngine.Rendering.Cameras
             _untransformedFrustum = CreateUntransformedFrustum();
             UpdateTransformedFrustum();
         }
-        protected abstract Frustum CreateUntransformedFrustum();
-        public Frustum GetFrustum() { return _transformedFrustum; }
+        //Child camera types must override this
         public virtual void Resize(float width, float height)
-        {
-            CalculateProjection();
-            Resized?.Invoke();
-        }
-        private void BeginUpdate()
-        {
-            _updating = true;
-        }
+            => CalculateProjection();
+        protected abstract Frustum CreateUntransformedFrustum();
+        public Frustum GetFrustum() 
+            => _transformedFrustum;
+        private void BeginUpdate() 
+            =>_updating = true;
         private void EndUpdate()
         {
             _updating = false;
@@ -215,6 +262,5 @@ namespace CustomEngine.Rendering.Cameras
             Vec3 end = ScreenToWorld(screenPoint, 1.0f);
             return new Ray(start, end);
         }
-        public abstract float DistanceScale(Vec3 point, float radius);
     }
 }

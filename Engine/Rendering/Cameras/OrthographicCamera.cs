@@ -108,8 +108,6 @@ namespace CustomEngine.Rendering.Cameras
             Matrix4 rotMatrix = _rotation.GetMatrix();
             _transform = Matrix4.CreateTranslation(_point.Raw) * rotMatrix * Matrix4.CreateScale(_scale);
             _invTransform = Matrix4.CreateScale(1.0f / _scale) * _rotation.GetInverseMatrix() * Matrix4.CreateTranslation(-_point.Raw);
-            _forwardDirection = Vec3.TransformVector(Vec3.Forward, rotMatrix);
-
             OnTransformChanged();
         }
         public override float DistanceScale(Vec3 point, float radius)

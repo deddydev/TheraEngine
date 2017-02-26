@@ -29,18 +29,23 @@ namespace CustomEngine
     /// <summary>
     /// Used for rendering using any rasterizer that inherits from AbstractRenderer.
     /// </summary>
-    public partial class RenderPanel : Control, IEnumerable<Viewport>
+    public class RenderPanel : UserControl, IEnumerable<Viewport>
     {
         public RenderPanel()
         {
             SetStyle(
-               ControlStyles.UserPaint |
-               ControlStyles.AllPaintingInWmPaint |
-               ControlStyles.Opaque |
-               ControlStyles.ResizeRedraw,
-               true);
+                ControlStyles.UserPaint |
+                ControlStyles.AllPaintingInWmPaint |
+                ControlStyles.Opaque |
+                ControlStyles.ResizeRedraw,
+                true);
             SetRenderLibrary();
             AddViewport(new LocalPlayerController());
+        }
+
+        protected override void OnLoad(EventArgs e)
+        {
+            base.OnLoad(e);
         }
 
         public static RenderPanel HoveredPanel;
@@ -53,10 +58,14 @@ namespace CustomEngine
 
         public HudManager GlobalHud
         {
-            get { return _globalHud; }
-            set { _globalHud = value; }
+            get => _globalHud;
+            set => _globalHud = value;
         }
-        public new ColorF4 BackColor { get { return _backColor; } set { _backColor = value; } }
+        public new ColorF4 BackColor
+        {
+            get => _backColor;
+            set => _backColor = value;
+        }
         public void SetRenderLibrary()
         {
             switch (Engine.RenderLibrary)
@@ -87,6 +96,7 @@ namespace CustomEngine
         /// </summary>
         public void PopUpdate() { if ((_updateCounter = Math.Max(_updateCounter - 1, 0)) == 0) Invalidate(); }
         public void CaptureContext() { _context?.Capture(); }
+        protected override void OnPaintBackground(PaintEventArgs e) { }
         protected override void OnPaint(PaintEventArgs e)
         {
             if (_updateCounter > 0)
@@ -109,19 +119,18 @@ namespace CustomEngine
             }
             PopUpdate();
         }
-
-        protected override void OnMouseEnter(EventArgs e)
-        {
-            base.OnMouseEnter(e);
-            if (HoveredPanel != this)
-                HoveredPanel = this;
-        }
-        protected override void OnMouseLeave(EventArgs e)
-        {
-            base.OnMouseLeave(e);
-            if (HoveredPanel == this)
-                HoveredPanel = null;
-        }
+        //protected override void OnMouseEnter(EventArgs e)
+        //{
+        //    base.OnMouseEnter(e);
+        //    if (HoveredPanel != this)
+        //        HoveredPanel = this;
+        //}
+        //protected override void OnMouseLeave(EventArgs e)
+        //{
+        //    base.OnMouseLeave(e);
+        //    if (HoveredPanel == this)
+        //        HoveredPanel = null;
+        //}
         protected virtual void OnRender(PaintEventArgs e)
         {
             _context.BeginDraw();
@@ -140,7 +149,6 @@ namespace CustomEngine
             //Engine.Renderer.PushRenderArea(region);
             //Engine.Renderer.CropRenderArea(region);
         }
-        protected override void OnPaintBackground(PaintEventArgs e) { }
         protected override void OnHandleCreated(EventArgs e)
         {
             if (_context == null)
@@ -179,6 +187,7 @@ namespace CustomEngine
         {
             if (_context != null)
             {
+                Resize -= _context.OnResized;
                 _context.Unbind();
                 _context.Dispose();
                 _context = null;

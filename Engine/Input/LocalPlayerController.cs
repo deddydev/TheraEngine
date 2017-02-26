@@ -14,21 +14,21 @@ namespace CustomEngine.Input
         private PlayerIndex _index;
         protected InputInterface _input;
 
-        public InputInterface Input { get { return _input; } }
-        public PlayerIndex LocalPlayerIndex { get { return (PlayerIndex)_viewport.Index; } }
+        public InputInterface Input => _input;
+        public PlayerIndex LocalPlayerIndex => (PlayerIndex)_viewport.Index;
         public Viewport Viewport
         {
-            get { return _viewport; }
-            internal set { _viewport = value; }
+            get => _viewport;
+            internal set => _viewport = value;
         }
         public Camera CurrentCamera
         {
-            get { return _viewport.Camera; }
-            set { _viewport.Camera = value; }
+            get => _viewport.Camera;
+            set => _viewport.Camera = value;
         }
         public override Pawn ControlledPawn
         {
-            get { return base.ControlledPawn; }
+            get => base.ControlledPawn;
             set
             {
                 if (_controlledPawn != null)

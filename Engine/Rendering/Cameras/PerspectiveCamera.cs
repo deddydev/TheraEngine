@@ -112,7 +112,13 @@ namespace CustomEngine.Rendering.Cameras
                 fbl = farPos - fY - fX,
                 fbr = farPos - fY + fX;
 
-            return new Frustum(fbl, fbr, ftl, ftr, nbl, nbr, ntl, ntr);
+            float h = _farZ - _nearZ;
+            float a = 2.0f * nearXDist;
+            float b = 2.0f * farXDist;
+            float centerDist = h - (h + (a - b) * (a + b) / (4.0f * h)) / 2.0f;
+            Vec3 center = Ray.PointAtLineDistance(nearPos, farPos, centerDist);
+
+            return new Frustum(fbl, fbr, ftl, ftr, nbl, nbr, ntl, ntr, center);
         }
 
         public override float DistanceScale(Vec3 point, float radius)

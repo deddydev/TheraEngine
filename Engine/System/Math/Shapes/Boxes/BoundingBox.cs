@@ -295,15 +295,15 @@ namespace System
         public static Frustum GetFrustum(Vec3 min, Vec3 max)
         {
             GetCorners(min, max, out Vec3 ftl, out Vec3 ftr, out Vec3 ntl, out Vec3 ntr, out Vec3 fbl, out Vec3 fbr, out Vec3 nbl, out Vec3 nbr);
-            return new Frustum(fbl, fbr, ftl, ftr, nbl, nbr, ntl, ntr);
+            return new Frustum(fbl, fbr, ftl, ftr, nbl, nbr, ntl, ntr, (min + max) / 2.0f);
         }
         public static Frustum GetFrustum(Vec3 halfExtents, Matrix4 transform)
         {
             GetCorners(halfExtents, transform, out Vec3 ftl, out Vec3 ftr, out Vec3 ntl, out Vec3 ntr, out Vec3 fbl, out Vec3 fbr, out Vec3 nbl, out Vec3 nbr);
-            return new Frustum(fbl, fbr, ftl, ftr, nbl, nbr, ntl, ntr);
+            return new Frustum(fbl, fbr, ftl, ftr, nbl, nbr, ntl, ntr, transform.GetPoint());
         }
-        public Frustum AsFrustum() { return GetFrustum(Minimum, Maximum); }
-        public Frustum AsFrustum(Matrix4 transform) { return GetFrustum(_halfExtents, transform); }
+        public Frustum AsFrustum() => GetFrustum(Minimum, Maximum);
+        public Frustum AsFrustum(Matrix4 transform) => GetFrustum(_halfExtents, transform);
         public bool Intersects(Ray ray)
         {
             return Collision.RayIntersectsAABBDistance(ray.StartPoint, ray.Direction, Minimum, Maximum, out float distance);

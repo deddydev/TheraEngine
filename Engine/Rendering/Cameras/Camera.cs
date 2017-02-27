@@ -270,8 +270,7 @@ namespace CustomEngine.Rendering.Cameras
             _projectionRange = new Vec3(Dimensions, FarZ - NearZ);
             _projectionOrigin = new Vec3(Origin, NearZ);
             _untransformedFrustum = CreateUntransformedFrustum();
-            _transformedFrustum = _untransformedFrustum.HardCopy();
-            UpdateTransformedFrustum();
+            _transformedFrustum = _untransformedFrustum.TransformedBy(_transform);
         }
         //Child camera types must override this
         public virtual void Resize(float width, float height)

@@ -22,11 +22,14 @@ namespace System
         }
         public Frustum(
            Vec3 farBottomLeft, Vec3 farBottomRight, Vec3 farTopLeft, Vec3 farTopRight,
-           Vec3 nearBottomLeft, Vec3 nearBottomRight, Vec3 nearTopLeft, Vec3 nearTopRight) : this()
+           Vec3 nearBottomLeft, Vec3 nearBottomRight, Vec3 nearTopLeft, Vec3 nearTopRight,
+           Vec3 sphereCenter) : this()
         {
+            _boundingSphere = new Sphere() { RenderSolid = true };
             UpdatePoints(
                 farBottomLeft, farBottomRight, farTopLeft, farTopRight,
-                nearBottomLeft, nearBottomRight, nearTopLeft, nearTopRight);
+                nearBottomLeft, nearBottomRight, nearTopLeft, nearTopRight,
+                sphereCenter);
         }
         ~Frustum()
         {
@@ -86,7 +89,8 @@ namespace System
 
         public void UpdatePoints(
             Vec3 farBottomLeft, Vec3 farBottomRight, Vec3 farTopLeft, Vec3 farTopRight,
-            Vec3 nearBottomLeft, Vec3 nearBottomRight, Vec3 nearTopLeft, Vec3 nearTopRight)
+            Vec3 nearBottomLeft, Vec3 nearBottomRight, Vec3 nearTopLeft, Vec3 nearTopRight, 
+            Vec3 sphereCenter)
         {
             _points[0] = farBottomLeft;
             _points[1] = farBottomRight;
@@ -96,6 +100,9 @@ namespace System
             _points[5] = nearBottomRight;
             _points[6] = nearTopLeft;
             _points[7] = nearTopRight;
+
+            _boundingSphere.Center = sphereCenter;
+            _boundingSphere.Radius = sphereCenter.DistanceToFast(farTopRight);
 
             //near, far
             _planes[0] = new Plane(nearBottomRight, nearBottomLeft, nearTopRight);
@@ -108,9 +115,6 @@ namespace System
             //top, bottom
             _planes[4] = new Plane(farTopLeft, farTopRight, nearTopLeft);
             _planes[5] = new Plane(nearBottomLeft, nearBottomRight, farBottomLeft);
-
-            _boundingSphere = GetBoundingSphere();
-            _boundingSphere.RenderSolid = true;
         }
         public void TransformedVersionOf(Frustum other, Matrix4 transform)
         {
@@ -122,7 +126,8 @@ namespace System
                 other.NearBottomLeft * transform,
                 other.NearBottomRight * transform,
                 other.NearTopLeft * transform,
-                other.NearTopRight * transform);
+                other.NearTopRight * transform,
+                other._boundingSphere.Center * transform);
         }
         public void TransformBy(Matrix4 transform)
         {
@@ -134,7 +139,8 @@ namespace System
                 NearBottomLeft * transform,
                 NearBottomRight * transform,
                 NearTopLeft * transform,
-                NearTopRight * transform);
+                NearTopRight * transform,
+                _boundingSphere.Center * transform);
         }
         public Frustum TransformedBy(Matrix4 transform)
         {
@@ -146,7 +152,8 @@ namespace System
                 NearBottomLeft * transform,
                 NearBottomRight * transform,
                 NearTopLeft * transform,
-                NearTopRight * transform);
+                NearTopRight * transform,
+                _boundingSphere.Center * transform);
         }
         public EContainment Contains(Box box) { return Collision.FrustumContainsBox1(this, box.HalfExtents, box.WorldMatrix); }
         public EContainment Contains(BoundingBox box) { return Collision.FrustumContainsAABB(this, box.Minimum, box.Maximum); }
@@ -171,17 +178,6 @@ namespace System
             //TODO: test for when both spheres lie outside, but the area between interects the frustum
             return EContainment.Disjoint;
         }
-        public Sphere GetBoundingSphere()
-        {
-            Vec3 center = (NearBottomLeft + FarTopRight) / 2.0f;
-            
-            //Vec3 center = Vec3.Zero;
-            //foreach (Vec3 v in _points)
-            //    center += v;
-            //center /= 8.0f;
-            return new Sphere(center.DistanceToFast(NearBottomLeft), center);
-        }
-
         public IEnumerator<Plane> GetEnumerator() { return ((IEnumerable<Plane>)_planes).GetEnumerator(); }
         IEnumerator IEnumerable.GetEnumerator() { return ((IEnumerable<Plane>)_planes).GetEnumerator(); }
 
@@ -214,7 +210,8 @@ namespace System
         {
             return new Frustum(
                 FarBottomLeft, FarBottomRight, FarTopLeft, FarTopRight,
-                NearBottomLeft, NearBottomRight, NearTopLeft, NearTopRight);
+                NearBottomLeft, NearBottomRight, NearTopLeft, NearTopRight,
+                _boundingSphere.Center);
         }
     }
 }

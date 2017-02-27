@@ -59,10 +59,10 @@ namespace CustomEngine.Rendering
                     { _hasNormals = false, _texcoordCount = 0 }, line);
                     break;
                 case DebugPrimitiveType.WireSphere:
-                    data = Sphere.WireframeMesh(Vec3.Zero, 1.0f, 10.0f);
+                    data = Sphere.WireframeMesh(Vec3.Zero, 1.0f, 30.0f);
                     break;
                 case DebugPrimitiveType.SolidSphere:
-                    data = Sphere.SolidMesh(Vec3.Zero, 1.0f, 10.0f);
+                    data = Sphere.SolidMesh(Vec3.Zero, 1.0f, 30.0f);
                     break;
                 case DebugPrimitiveType.WireBox:
                     data = BoundingBox.WireframeMesh(new Vec3(-0.5f), new Vec3(0.5f));
@@ -153,6 +153,7 @@ namespace CustomEngine.Rendering
         {
             PrimitiveManager m = CacheDebugPrimitive(name, solid ? DebugPrimitiveType.SolidBox : DebugPrimitiveType.WireBox);
             m.GetParameter<GLVec4>(0).Value = color;
+            transform = transform * Matrix4.CreateScale(halfExtents * 2.0f);
             m.Render(transform, transform.Inverted().Transposed().GetRotationMatrix3());
         }
         public void RenderCapsule(Vec3 topPoint, Vec3 bottomPoint, float topRadius, float bottomRadius, bool solid)

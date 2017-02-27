@@ -8,6 +8,7 @@ using CustomEngine.Worlds.Actors.Components;
 using System.IO;
 using System.Xml;
 using System.Runtime.InteropServices;
+using System.Drawing;
 
 namespace System
 {
@@ -16,7 +17,11 @@ namespace System
     /// </summary>
     public class BoundingBox : Shape
     {
-        protected Vec3 _halfExtents, _translation;
+        public static List<BoundingBox> Active = new List<BoundingBox>();
+
+        protected Vec3 
+            _halfExtents = Vec3.Half, 
+            _translation = Vec3.Zero;
 
         public Vec3 Minimum
         {
@@ -46,22 +51,32 @@ namespace System
             get { return _translation; }
             set { _translation = value; }
         }
+        public BoundingBox(float halfExtentX, float halfExtentY, float halfExtentZ)
+            : this(new Vec3(halfExtentX, halfExtentY, halfExtentZ)) { }
+        public BoundingBox(float halfExtentX, float halfExtentY, float halfExtentZ, Vec3 translation)
+            : this(new Vec3(halfExtentX, halfExtentY, halfExtentZ), translation) { }
+        public BoundingBox(Vec3 halfExtents)
+            : this(halfExtents, Vec3.Zero) { }
+        public BoundingBox(Vec3 halfExtents, Vec3 translation) 
+            : this()
+        {
+            _halfExtents = halfExtents / 2.0f;
+            _translation = translation;
+        }
+        public BoundingBox(float uniformHalfExtents) 
+            : this(new Vec3(uniformHalfExtents)) { }
+        public BoundingBox(float uniformHalfExtents, Vec3 translation)
+            : this(new Vec3(uniformHalfExtents), translation) { }
         public BoundingBox()
         {
+            ShapeIndex = Active.Count;
+            Active.Add(this);
+        }
+        ~BoundingBox()
+        {
+            Active.Remove(this);
+        }
 
-        }
-        public BoundingBox(float extentX, float extentY, float extentZ)
-        {
-            _halfExtents = new Vec3(extentX, extentY, extentZ);
-        }
-        public BoundingBox(Vec3 extents)
-        {
-            _halfExtents = extents / 2.0f;
-        }
-        public BoundingBox(float uniformExtents)
-        {
-            _halfExtents = new Vec3(uniformExtents / 2.0f);
-        }
         public static BoundingBox FromMinMax(Vec3 min, Vec3 max)
         {
             return new BoundingBox()
@@ -78,6 +93,7 @@ namespace System
                 _halfExtents = halfExtents,
             };
         }
+
         public override CollisionShape GetCollisionShape()
         {
             return new BoxShape(HalfExtents);
@@ -216,7 +232,7 @@ namespace System
         }
         public override void Render()
         {
-            Engine.Renderer.RenderAABB(HalfExtents, Translation, _renderSolid);
+            Engine.Renderer.RenderAABB("", HalfExtents, Translation, _renderSolid, Color.Blue);
         }
         public static PrimitiveData WireframeMesh(Vec3 min, Vec3 max)
         {

@@ -110,6 +110,7 @@ namespace System
             _planes[5] = new Plane(nearBottomLeft, nearBottomRight, farBottomLeft);
 
             _boundingSphere = GetBoundingSphere();
+            _boundingSphere.RenderSolid = true;
         }
         public void TransformedVersionOf(Frustum other, Matrix4 transform)
         {
@@ -172,11 +173,13 @@ namespace System
         }
         public Sphere GetBoundingSphere()
         {
-            Vec3 center = Vec3.Zero;
-            foreach (Vec3 v in _points)
-                center += v;
-            center /= 8.0f;
-            return new Sphere(center.DistanceToFast(FarBottomLeft), center);
+            Vec3 center = (NearBottomLeft + FarTopRight) / 2.0f;
+            
+            //Vec3 center = Vec3.Zero;
+            //foreach (Vec3 v in _points)
+            //    center += v;
+            //center /= 8.0f;
+            return new Sphere(center.DistanceToFast(NearBottomLeft), center);
         }
 
         public IEnumerator<Plane> GetEnumerator() { return ((IEnumerable<Plane>)_planes).GetEnumerator(); }

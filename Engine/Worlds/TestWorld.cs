@@ -131,7 +131,7 @@ namespace CustomEngine.Worlds
                 AnimationContainer modelAnimContainer = new AnimationContainer(modelYawFolder);
                 skeleton["LElbow"]?.FrameState.AddAnimation(modelAnimContainer, true);
 
-                skeleton.ToXML(desktop);
+                //skeleton.ToXML(desktop);
             }
             else
                 comp = new StaticMeshComponent(staticM, null);
@@ -142,9 +142,9 @@ namespace CustomEngine.Worlds
 
             CameraActor cameraActor = new CameraActor();
             Camera cam = cameraActor.CameraComponent.Camera;
-            cam.Point = new Vec3(100.0f, 10.0f, 0.0f);
-            cam.Rotation.Yaw = 45.0f;
-            cam.Rotation.Pitch = -30.0f;
+            //cam.Point = new Vec3(100.0f, 10.0f, 0.0f);
+            //cam.Rotation.Yaw = 45.0f;
+            //cam.Rotation.Pitch = -30.0f;
 
             Actor[] actors = new Actor[]
             {

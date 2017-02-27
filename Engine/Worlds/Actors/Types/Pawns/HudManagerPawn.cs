@@ -45,6 +45,7 @@ namespace CustomEngine.Rendering.HUD
             if (!Engine.IsPaused)
                 LocalPlayerController.ControlledPawn = null;
         }
+
         private void OnLeftStickX(float value) { }
         private void OnLeftStickY(float value) { }
         private void OnRightStickX(float value) { }
@@ -57,7 +58,7 @@ namespace CustomEngine.Rendering.HUD
 
         /// <summary>
         /// Called on either left click or A button.
-        /// Default behavior will OnClick the currently focused/highlighted UI component, if anyt.
+        /// Default behavior will OnClick the currently focused/highlighted UI component, if anything.
         /// </summary>
         protected virtual void OnSelect()
         {

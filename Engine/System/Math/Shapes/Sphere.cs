@@ -9,13 +9,16 @@ using CustomEngine.Files;
 using System.IO;
 using System.Xml;
 using System.Runtime.InteropServices;
+using System.Drawing;
 
 namespace System
 {
     public class Sphere : Shape
     {
-        private float _radius;
-        private Vec3 _center;
+        public static List<Sphere> Active = new List<Sphere>();
+
+        private float _radius = 1.0f;
+        private Vec3 _center = Vec3.Zero;
 
         public float Radius
         {
@@ -27,14 +30,27 @@ namespace System
             get { return _center; }
             set { _center = value; }
         }
-        public Sphere(float radius) : this(radius, Vec3.Zero) { }
-        public Sphere(float radius, Vec3 center) : base()
+
+        public Sphere(float radius)
+            : this(radius, Vec3.Zero) { }
+        public Sphere(float radius, Vec3 center) 
+            : this()
         {
             _radius = Abs(radius);
             _center = center;
         }
+        public Sphere()
+        {
+            ShapeIndex = Active.Count;
+            Active.Add(this);
+        }
+        ~Sphere()
+        {
+            Active.Remove(this);
+        }
+
         public override CollisionShape GetCollisionShape() { return new SphereShape(Radius); }
-        public override void Render() { Engine.Renderer.RenderSphere(Center, Radius, _renderSolid); }
+        public override void Render() { Engine.Renderer.RenderSphere(ShapeName, Center, Radius, _renderSolid, Color.Red); }
         public static PrimitiveData SolidMesh(Vec3 center, float radius, float precision)
         {
             float halfPI = CustomMath.PIf * 0.5f;
@@ -81,9 +97,12 @@ namespace System
             return PrimitiveData.FromTriangleList(Culling.Back, new PrimitiveBufferInfo(), strips.SelectMany(x => x.ToTriangles()));
         }
 
-        public static PrimitiveData WireframeMesh(Vec3 zero, float radius, float precision)
+        public static PrimitiveData WireframeMesh(Vec3 center, float radius, float precision)
         {
-            throw new NotImplementedException();
+            VertexLineStrip d1 = Circle.GetLineStrip(radius, Vec3.Forward, center, 20);
+            VertexLineStrip d2 = Circle.GetLineStrip(radius, Vec3.Up, center, 20);
+            VertexLineStrip d3 = Circle.GetLineStrip(radius, Vec3.Right, center, 20);
+            return PrimitiveData.FromLineStrips(new PrimitiveBufferInfo() { _texcoordCount = 0, _hasNormals = false }, d1, d2, d3);
         }
 
         public static PrimitiveData SolidMesh(Vec3 center, float radius, int slices, int stacks)

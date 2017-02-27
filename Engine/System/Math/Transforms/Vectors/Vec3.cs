@@ -128,6 +128,7 @@ namespace System
         public static readonly Vec3 UnitY = new Vec3(0.0f, 1.0f, 0.0f);
         public static readonly Vec3 UnitZ = new Vec3(0.0f, 0.0f, 1.0f);
         public static readonly Vec3 Zero = new Vec3(0.0f);
+        public static readonly Vec3 Half = new Vec3(0.5f);
         public static readonly Vec3 One = new Vec3(1.0f);
         public static readonly Vec3 Min = new Vec3(float.MinValue);
         public static readonly Vec3 Max = new Vec3(float.MaxValue);
@@ -781,6 +782,11 @@ namespace System
 
         public static implicit operator BulletSharp.Vector3(Vec3 v) { return new BulletSharp.Vector3(v.X, v.Y, v.Z); }
         public static implicit operator Vec3(BulletSharp.Vector3 v) { return new Vec3(v.X, v.Y, v.Z); }
+
+        public static implicit operator Vec3(float v)
+        {
+            return new Vec3(v);
+        }
 
         private static string listSeparator = 
             Globalization.CultureInfo.CurrentCulture.TextInfo.ListSeparator;

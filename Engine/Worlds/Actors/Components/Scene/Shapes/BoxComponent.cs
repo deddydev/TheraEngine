@@ -1,6 +1,7 @@
 ﻿using System;
 using BulletSharp;
 using CustomEngine.Rendering;
+using System.Drawing;
 
 namespace CustomEngine.Worlds.Actors.Components
 {
@@ -41,7 +42,7 @@ namespace CustomEngine.Worlds.Actors.Components
         }
         public override void Render()
         {
-            Engine.Renderer.RenderBox(HalfExtents, WorldMatrix, false);
+            Engine.Renderer.RenderBox(Box.ShapeName, HalfExtents, WorldMatrix, false, Color.Black);
         }
         protected override CollisionShape GetCollisionShape() { return _box.GetCollisionShape(); }
         public bool Contains(Vec3 point) { return _box.Contains(point); }

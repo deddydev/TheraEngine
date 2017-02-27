@@ -51,6 +51,19 @@ namespace System
             VertexLineStrip strip = new VertexLineStrip(true, points);
             return PrimitiveData.FromLineStrips(new PrimitiveBufferInfo(), strip);
         }
+        public static VertexLineStrip GetLineStrip(float radius, Vec3 normal, Vec3 center, int pointCount)
+        {
+            if (pointCount < 3)
+                throw new Exception("A (very low res) circle needs at least 3 points.");
+
+            normal.Normalize();
+            Quaternion offset = Quaternion.BetweenVectors(Vec3.Up, normal);
+            Vertex[] points = new Vertex[pointCount];
+            float angleInc = CustomMath.PIf * 2.0f / pointCount, angle = 0.0f;
+            for (int i = 0; i < pointCount; ++i, angle += angleInc)
+                points[i] = new Vertex(center + offset * (radius * new Vec3((float)Math.Cos(angle), 0.0f, -(float)Math.Sin(angle))));
+            return new VertexLineStrip(true, points);
+        }
         [StructLayout(LayoutKind.Sequential, Pack = 1)]
         public new struct Header
         {

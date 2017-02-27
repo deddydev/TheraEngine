@@ -56,7 +56,7 @@ namespace System
         public float GetTotalHeight() { return GetTotalTopHeight() + GetTotalBottomHeight(); }
         public override void Render()
         {
-            Engine.Renderer.RenderCapsule(_center, _upAxis, _topHeight, _topRadius, _bottomHeight, _bottomRadius, Matrix4.Identity, _renderSolid);
+            //Engine.Renderer.RenderCapsule(_center, _upAxis, _topHeight, _topRadius, _bottomHeight, _bottomRadius, Matrix4.Identity, _renderSolid);
         }
         public Sphere GetTopSphere()
         {

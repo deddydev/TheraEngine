@@ -121,17 +121,27 @@ namespace CustomEngine.Worlds.Actors
             //}
         }
 
-        private void MoveDown(bool pressed) { _linearUp += _keyboardTranslateSpeed * (pressed ? -1.0f : 1.0f); }
-        private void MoveUp(bool pressed) { _linearUp += _keyboardTranslateSpeed * (pressed ? 1.0f : -1.0f); }
-        private void MoveLeft(bool pressed) { _linearRight += _keyboardTranslateSpeed * (pressed ? -1.0f : 1.0f); }
-        private void MoveRight(bool pressed) { _linearRight += _keyboardTranslateSpeed * (pressed ? 1.0f : -1.0f); }
-        private void MoveBackward(bool pressed) { _linearForward += _keyboardTranslateSpeed * (pressed ? -1.0f : 1.0f); }
-        private void MoveForward(bool pressed) { _linearForward += _keyboardTranslateSpeed * (pressed ? 1.0f : -1.0f); }
+        private void MoveDown(bool pressed) 
+            => _linearUp += _keyboardTranslateSpeed * (pressed ? -1.0f : 1.0f);
+        private void MoveUp(bool pressed) 
+            => _linearUp += _keyboardTranslateSpeed * (pressed ? 1.0f : -1.0f);
+        private void MoveLeft(bool pressed)
+            => _linearRight += _keyboardTranslateSpeed * (pressed ? -1.0f : 1.0f);
+        private void MoveRight(bool pressed) 
+            => _linearRight += _keyboardTranslateSpeed * (pressed ? 1.0f : -1.0f);
+        private void MoveBackward(bool pressed) 
+            => _linearForward += _keyboardTranslateSpeed * (pressed ? -1.0f : 1.0f);
+        private void MoveForward(bool pressed)
+            => _linearForward += _keyboardTranslateSpeed * (pressed ? 1.0f : -1.0f);
 
-        private void OnLeftStickX(float value) { _linearRight = value * _gamepadTranslateSpeed; }
-        private void OnLeftStickY(float value) { _linearForward = -value * _gamepadTranslateSpeed; }
-        private void OnRightStickX(float value) { _yaw = -value * _gamepadRotateSpeed; }
-        private void OnRightStickY(float value) { _pitch = -value * _gamepadRotateSpeed; }
+        private void OnLeftStickX(float value) 
+            => _linearRight = value * _gamepadTranslateSpeed;
+        private void OnLeftStickY(float value)
+            => _linearForward = -value * _gamepadTranslateSpeed;
+        private void OnRightStickX(float value)
+            => _yaw = -value * _gamepadRotateSpeed;
+        private void OnRightStickY(float value) 
+            => _pitch = -value * _gamepadRotateSpeed;
 
         private void OnControl(bool pressed) { _ctrl = pressed; }
         private void OnAlt(bool pressed) { _alt = pressed; }

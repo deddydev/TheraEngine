@@ -4,6 +4,7 @@ using CustomEngine;
 using CustomEngine.Rendering.Models;
 using CustomEngine.Worlds.Actors.Components;
 using CustomEngine.Files;
+using System.Collections.Generic;
 
 namespace System
 {
@@ -11,13 +12,29 @@ namespace System
     {
         public override ResourceType ResourceType { get { return ResourceType.Shape; } }
 
-        public Shape() { }
-
         public event Action AttributeChanged;
 
         protected bool _isRendering, _isVisible, _visibleByDefault, _renderSolid;
         protected RenderOctree.Node _renderNode;
+        private int _shapeIndex;
+        private string _shapeName;
 
+        public bool RenderSolid
+        {
+            get => _renderSolid;
+            set => _renderSolid = value;
+        }
+        public string ShapeName => _shapeName;
+        public int ShapeIndex
+        {
+            get => _shapeIndex;
+            protected set
+            {
+                _shapeIndex = value;
+                _shapeName = GetType().Name + _shapeIndex;
+            }
+        }
+        
         public bool IsRendering
         {
             get { return _isRendering; }

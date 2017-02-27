@@ -8,11 +8,14 @@ using CustomEngine.Worlds.Actors.Components;
 using System.IO;
 using System.Xml;
 using System.Runtime.InteropServices;
+using System.Drawing;
 
 namespace System
 {
     public class Box : Shape
     {
+        public static List<Box> Active = new List<Box>();
+
         public Vec3 _halfExtents;
         public FrameState _transform;
 
@@ -34,24 +37,41 @@ namespace System
             set { _halfExtents = value; }
         }
         public Vec3 Center { get { return _transform.Matrix.GetPoint(); } }
+
         public Box(float halfExtentX, float halfExtentY, float halfExtentZ) 
             : this(halfExtentX, halfExtentY, halfExtentZ, FrameState.Identity) { }
         public Box(float halfExtentX, float halfExtentY, float halfExtentZ, FrameState transform)
+            : this()
         {
             _halfExtents = new Vec3(halfExtentX, halfExtentY, halfExtentZ);
             _transform = transform;
         }
-        public Box(Vec3 halfExtents) : this(halfExtents, FrameState.Identity) { }
+        public Box(Vec3 halfExtents) 
+            : this(halfExtents, FrameState.Identity) { }
         public Box(Vec3 halfExtents, FrameState transform)
+            : this()
         {
             _halfExtents = halfExtents;
             _transform = transform;
         }
-        public Box(float uniformHalfExtents) : this(uniformHalfExtents, FrameState.Identity) { }
-        public Box(float uniformHalfExtents, FrameState transform)
+        public Box(float uniformHalfExtents) 
+            : this(uniformHalfExtents, FrameState.Identity) { }
+        public Box(float uniformHalfExtents, FrameState transform) 
+            : this()
         {
             _halfExtents = new Vec3(uniformHalfExtents);
             _transform = transform;
+        }
+        public Box()
+        {
+            ShapeIndex = Active.Count;
+            Active.Add(this);
+            _halfExtents = Vec3.Half;
+            _transform = FrameState.Identity;
+        }
+        ~Box()
+        {
+            Active.Remove(this);
         }
 
         /// <summary>
@@ -78,7 +98,7 @@ namespace System
         }
         public override void Render()
         {
-            Engine.Renderer.RenderBox(_halfExtents, _transform.Matrix, _renderSolid);
+            Engine.Renderer.RenderBox(ShapeName, _halfExtents, _transform.Matrix, _renderSolid, Color.Black);
         }
         public static PrimitiveData Mesh(Vec3 halfExtents, Matrix4 transform)
         {

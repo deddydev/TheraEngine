@@ -83,9 +83,8 @@ namespace CustomEngine.Worlds.Actors
         {
             input.RegisterMouseScroll(OnScrolled);
             input.RegisterMouseMove(MouseMove, true);
+
             input.RegisterButtonPressed(EMouseButton.RightClick, OnRightClick);
-            input.RegisterButtonPressed(EMouseButton.LeftClick, OnLeftClick);
-            input.RegisterButtonPressed(EMouseButton.MiddleClick, OnMiddleClick);
 
             input.RegisterButtonPressed(EKey.A, MoveLeft);
             input.RegisterButtonPressed(EKey.W, MoveForward);
@@ -93,12 +92,14 @@ namespace CustomEngine.Worlds.Actors
             input.RegisterButtonPressed(EKey.D, MoveRight);
             input.RegisterButtonPressed(EKey.Q, MoveDown);
             input.RegisterButtonPressed(EKey.E, MoveUp);
+
             input.RegisterButtonPressed(EKey.ControlLeft, OnControl);
             input.RegisterButtonPressed(EKey.ControlRight, OnControl);
             input.RegisterButtonPressed(EKey.AltLeft, OnAlt);
             input.RegisterButtonPressed(EKey.AltRight, OnAlt);
             input.RegisterButtonPressed(EKey.ShiftLeft, OnShift);
             input.RegisterButtonPressed(EKey.ShiftRight, OnShift);
+
             input.RegisterButtonEvent(EKey.Escape, ButtonInputType.Pressed, OnTogglePause);
             input.RegisterButtonEvent(GamePadButton.SpecialRight, ButtonInputType.Pressed, OnTogglePause);
 
@@ -108,7 +109,6 @@ namespace CustomEngine.Worlds.Actors
             input.RegisterAxisUpdate(GamePadAxis.RightThumbstickY, OnRightStickY, false);
             input.RegisterButtonPressed(GamePadButton.RightBumper, MoveUp);
             input.RegisterButtonPressed(GamePadButton.LeftBumper, MoveDown);
-            input.RegisterButtonEvent(GamePadButton.FaceDown, ButtonInputType.Pressed, OnGamepadSelect);
         }
         
         private void OnTogglePause()
@@ -135,24 +135,17 @@ namespace CustomEngine.Worlds.Actors
 
         private void OnControl(bool pressed) { _ctrl = pressed; }
         private void OnAlt(bool pressed) { _alt = pressed; }
-        private void OnShift(bool pressed) { _shift = pressed; }
+        private void OnShift(bool pressed)
+        {
+            _shift = pressed;
+
+        }
 
         private void OnScrolled(bool up) { CameraComponent.Camera.Zoom(up ? _scrollSpeed : -_scrollSpeed); }
-        private void OnLeftClick(bool pressed)
-        {
-            PickScene(false);
-        }
-        private void OnGamepadSelect()
-        {
-            PickScene(true);
-        }
+
         private void OnRightClick(bool pressed)
         {
             _rightClickPressed = pressed;
-        }
-        private void OnMiddleClick(bool pressed)
-        {
-            
         }
         //private void ExecuteCombo(EMouseButton button, bool pressed)
         //{
@@ -196,10 +189,6 @@ namespace CustomEngine.Worlds.Actors
 
             }
         }
-        private void PickScene(bool gamepad)
-        {
-            
-        }
         internal override void Tick(float delta)
         {
             CameraComponent.Camera.TranslateRelative(new Vec3(_linearRight, _linearUp, -_linearForward) * delta);
@@ -238,5 +227,15 @@ namespace CustomEngine.Worlds.Actors
         //        else
         //            _combos.Add(mod, func);
         //}
+        internal override void OnSpawned(World world)
+        {
+            Engine.Renderer.Scene.AddRenderable(CameraComponent.Camera);
+            base.OnSpawned(world);
+        }
+        internal override void OnDespawned()
+        {
+            Engine.Renderer.Scene.RemoveRenderable(CameraComponent.Camera);
+            base.OnDespawned();
+        }
     }
 }

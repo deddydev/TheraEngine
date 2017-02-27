@@ -6,11 +6,13 @@ using System.Collections.Generic;
 
 namespace CustomEngine.Rendering.Cameras
 {
-    public abstract class Camera : FileObject
+    public abstract class Camera : FileObject, IRenderable
     {
         public delegate void TranslationChange(Vec3 oldTranslation);
         public delegate void RotationChange(Rotator oldRotation);
+
         public override ResourceType ResourceType => ResourceType.Camera;
+
         public Camera()
         {
             Resize(1.0f, 1.0f);
@@ -27,10 +29,12 @@ namespace CustomEngine.Rendering.Cameras
             _rotation.Changed += CreateTransform;
             _point.Changed += CreateTransform;
         }
+
         public Matrix4 ProjectionMatrix => _projectionMatrix;
         public Matrix4 ProjectionMatrixInverse => _projectionInverse;
         public Matrix4 Matrix => _invTransform;
         public Matrix4 InverseMatrix => _transform;
+
         public float NearZ
         {
             get => _nearZ;
@@ -64,22 +68,47 @@ namespace CustomEngine.Rendering.Cameras
             get => _postProcessSettings;
             set => _postProcessSettings = value;
         }
+
         public abstract float Width { get; }
         public abstract float Height { get; }
-        public Vec2 Dimensions => new Vec2(Width, Height);
         public abstract Vec2 Origin { get; }
+        public Vec2 Dimensions => new Vec2(Width, Height);
+
         public List<Viewport> Viewports
         {
             get => _viewports;
             set => _viewports = value;
         }
 
+        public Shape CullingVolume => _transformedFrustum.CullingVolume;
+
+        public bool IsRendering
+        {
+            get => _transformedFrustum.IsRendering;
+            set => _transformedFrustum.IsRendering = value;
+        }
+        public RenderOctree.Node RenderNode
+        {
+            get => _transformedFrustum.RenderNode;
+            set => _transformedFrustum.RenderNode = value;
+        }
+        public bool Visible
+        {
+            get => _transformedFrustum.Visible;
+            set => _transformedFrustum.Visible = value;
+        }
+
         private List<Viewport> _viewports = new List<Viewport>();
-        private bool _isActive = false;
+        internal bool _isActive = false;
         private Vec3 _projectionRange;
         private Vec3 _projectionOrigin;
         protected Frustum _untransformedFrustum, _transformedFrustum;
         
+        public bool IsActiveRenderCamera
+        {
+            get { return _isActive; }
+        }
+
         protected bool _updating = false;
         protected float _nearZ = 1.0f, _farZ = 2000.0f;
         private PostProcessSettings _postProcessSettings;
@@ -122,7 +151,7 @@ namespace CustomEngine.Rendering.Cameras
             OnTransformChanged();
         }
         protected void UpdateTransformedFrustum()
-            => _transformedFrustum = _untransformedFrustum.TransformedBy(_transform);
+            => _transformedFrustum.TransformedVersionOf(_untransformedFrustum, _transform);
 
         public abstract float DistanceScale(Vec3 point, float radius);
         public abstract void Zoom(float amount);
@@ -241,6 +270,7 @@ namespace CustomEngine.Rendering.Cameras
             _projectionRange = new Vec3(Dimensions, FarZ - NearZ);
             _projectionOrigin = new Vec3(Origin, NearZ);
             _untransformedFrustum = CreateUntransformedFrustum();
+            _transformedFrustum = _untransformedFrustum.HardCopy();
             UpdateTransformedFrustum();
         }
         //Child camera types must override this
@@ -261,6 +291,11 @@ namespace CustomEngine.Rendering.Cameras
             Vec3 start = ScreenToWorld(screenPoint, 0.0f);
             Vec3 end = ScreenToWorld(screenPoint, 1.0f);
             return new Ray(start, end);
+        }
+
+        public void Render()
+        {
+            _transformedFrustum.Render();
         }
     }
 }

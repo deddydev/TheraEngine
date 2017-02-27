@@ -24,7 +24,7 @@ namespace CustomEngine.Rendering
         protected SceneProcessor _scene = new SceneProcessor();
         protected Dictionary<string, PrimitiveManager> _debugPrimitives = new Dictionary<string, PrimitiveManager>();
 
-        private PrimitiveManager CacheDebugPrimitive(string name, PrimitiveManager m)
+        private PrimitiveManager AssignDebugPrimitive(string name, PrimitiveManager m)
         {
             if (!_debugPrimitives.ContainsKey(name))
                 _debugPrimitives.Add(name, m);
@@ -32,36 +32,47 @@ namespace CustomEngine.Rendering
                 _debugPrimitives[name] = m;
             return m;
         }
-        public PrimitiveManager CachePoint(string name)
+
+        public enum DebugPrimitiveType
+        {
+            Point,
+            Line,
+            WireSphere,
+            SolidSphere,
+            WireBox,
+            SolidBox,
+        }
+
+        public PrimitiveManager CacheDebugPrimitive(string name, DebugPrimitiveType type)
         {
             if (_debugPrimitives.ContainsKey(name))
                 return _debugPrimitives[name];
-            return CacheDebugPrimitive(name, new PrimitiveManager(
-                PrimitiveData.FromPoints(Vec3.Zero), 
-                Material.GetUnlitColorMaterial()));
+            PrimitiveData data = null;
+            switch (type)
+            {
+                case DebugPrimitiveType.Point:
+                    data = PrimitiveData.FromPoints(Vec3.Zero);
+                    break;
+                case DebugPrimitiveType.Line:
+                    VertexLine line = new VertexLine(new Vertex(Vec3.Zero), new Vertex(Vec3.Forward));
+                    data = PrimitiveData.FromLines(new PrimitiveBufferInfo()
+                    { _hasNormals = false, _texcoordCount = 0 }, line);
+                    break;
+                case DebugPrimitiveType.WireSphere:
+                    data = Sphere.WireframeMesh(Vec3.Zero, 1.0f, 10.0f);
+                    break;
+                case DebugPrimitiveType.SolidSphere:
+                    data = Sphere.SolidMesh(Vec3.Zero, 1.0f, 10.0f);
+                    break;
+                case DebugPrimitiveType.WireBox:
+                    data = BoundingBox.WireframeMesh(new Vec3(-0.5f), new Vec3(0.5f));
+                    break;
+                case DebugPrimitiveType.SolidBox:
+                    data = BoundingBox.SolidMesh(new Vec3(-0.5f), new Vec3(0.5f));
+                    break;
+            }
+            return AssignDebugPrimitive(name, new PrimitiveManager(data, Material.GetUnlitColorMaterial()));
         }
-        public PrimitiveManager CacheLine(string name)
-        {
-            if (_debugPrimitives.ContainsKey(name))
-                return _debugPrimitives[name];
-            VertexLine line = new VertexLine(new Vertex(Vec3.Zero), new Vertex(Vec3.Forward));
-            return CacheDebugPrimitive(name, new PrimitiveManager(
-                PrimitiveData.FromLines(new PrimitiveBufferInfo()
-            { _hasNormals = false, _texcoordCount = 0 }, line),
-                Material.GetUnlitColorMaterial()));
-        }
-        //public void CacheWireframeSphere()
-        //{
-        //    _wireSphere = new PrimitiveManager(
-        //        Sphere.WireframeMesh(Vec3.Zero, 1.0f, 10.0f),
-        //        Material.GetUnlitColorMaterial());
-        //}
-        //public void CacheSolidSphere()
-        //{
-        //    _solidSphere = new PrimitiveManager(
-        //        Sphere.SolidMesh(Vec3.Zero, 1.0f, 10.0f),
-        //        Material.GetUnlitColorMaterial());
-        //}
         //public void CacheWireframePlane()
         //{
         //    _wirePlane = new PrimitiveManager(
@@ -75,46 +86,46 @@ namespace CustomEngine.Rendering
         //        Material.GetUnlitColorMaterial());
         //}
 
-        public void RenderAABB(Vec3 halfExtents, Vec3 translation, bool solid) => RenderBox(halfExtents, Matrix4.CreateTranslation(translation), solid);
-        public void RenderCapsule(Vec3 center, Vec3 axis, float topHeight, float topRadius, float bottomHeight, float bottomRadius, Matrix4 transform, bool solid)
-        {
-            Vec3 normal = axis.GetSafeNormal();
-            RenderCapsule(center + normal * topHeight, center - normal * bottomHeight, topRadius, bottomRadius, transform, solid);
-        }
-        public void RenderCapsule(Vec3 topPoint, Vec3 bottomPoint, float topRadius, float bottomRadius, Matrix4 transform, bool solid)
-            => RenderCapsule(Vec3.TransformPosition(topPoint, transform), Vec3.TransformPosition(bottomPoint, transform), topRadius, bottomRadius, solid);
-        public void RenderCylinder(Vec3 center, Vec3 axis, float topHeight, float topRadius, float bottomHeight, float bottomRadius, Matrix4 transform, bool solid)
-        {
-            Vec3 normal = axis.GetSafeNormal();
-            RenderCylinder(center + normal * topHeight, center - normal * bottomHeight, topRadius, bottomRadius, transform, solid);
-        }
-        public void RenderCylinder(Vec3 topPoint, Vec3 bottomPoint, float topRadius, float bottomRadius, Matrix4 transform, bool solid)
-            => RenderCylinder(Vec3.TransformPosition(topPoint, transform), Vec3.TransformPosition(bottomPoint, transform), topRadius, bottomRadius, solid);
-        public void RenderCone(Vec3 center, Vec3 axis, float topHeight, float bottomHeight, float bottomRadius, Matrix4 transform, bool solid)
-        {
-            Vec3 normal = axis.GetSafeNormal();
-            RenderCone(center + normal * topHeight, center - normal * bottomHeight, bottomRadius, transform, solid);
-        }
-        public void RenderCone(Vec3 topPoint, Vec3 bottomPoint, float bottomRadius, Matrix4 transform, bool solid)
-            => RenderCone(Vec3.TransformPosition(topPoint, transform), Vec3.TransformPosition(bottomPoint, transform), bottomRadius, solid);
+        //public void RenderCapsule(string name, Vec3 center, Vec3 axis, float topHeight, float topRadius, float bottomHeight, float bottomRadius, Matrix4 transform, bool solid, ColorF4 color)
+        //{
+        //    Vec3 normal = axis.GetSafeNormal();
+        //    RenderCapsule(name, center + normal * topHeight, center - normal * bottomHeight, topRadius, bottomRadius, transform, solid, color);
+        //}
+        //public void RenderCapsule(string name, Vec3 topPoint, Vec3 bottomPoint, float topRadius, float bottomRadius, Matrix4 transform, bool solid, ColorF4 color)
+        //    => RenderCapsule(name, Vec3.TransformPosition(topPoint, transform), Vec3.TransformPosition(bottomPoint, transform), topRadius, bottomRadius, solid, color);
+        //public void RenderCylinder(string name, Vec3 center, Vec3 axis, float topHeight, float topRadius, float bottomHeight, float bottomRadius, Matrix4 transform, bool solid, ColorF4 color)
+        //{
+        //    Vec3 normal = axis.GetSafeNormal();
+        //    RenderCylinder(name, center + normal * topHeight, center - normal * bottomHeight, topRadius, bottomRadius, transform, solid, color);
+        //}
+        //public void RenderCylinder(string name, Vec3 topPoint, Vec3 bottomPoint, float topRadius, float bottomRadius, Matrix4 transform, bool solid, ColorF4 color)
+        //    => RenderCylinder(name, Vec3.TransformPosition(topPoint, transform), Vec3.TransformPosition(bottomPoint, transform), topRadius, bottomRadius, solid, color);
+        //public void RenderCone(string name, Vec3 center, Vec3 axis, float topHeight, float bottomHeight, float bottomRadius, Matrix4 transform, bool solid, ColorF4 color)
+        //{
+        //    Vec3 normal = axis.GetSafeNormal();
+        //    RenderCone(name, center + normal * topHeight, center - normal * bottomHeight, bottomRadius, transform, solid, color);
+        //}
+        //public void RenderCone(string name, Vec3 topPoint, Vec3 bottomPoint, float bottomRadius, Matrix4 transform, bool solid, ColorF4 color)
+        //    => RenderCone(name, Vec3.TransformPosition(topPoint, transform), bottomPoint * transform, bottomRadius, solid, color);
 
         public void RenderPoint(string name, Vec3 position, float size, ColorF4 color)
         {
             SetPointSize(size);
-            PrimitiveManager m = CachePoint(name);
+            PrimitiveManager m = CacheDebugPrimitive(name, DebugPrimitiveType.Point);
             m.GetParameter<GLVec4>(0).Value = color;
             m.Render(Matrix4.CreateTranslation(position));
         }
         public unsafe void RenderLine(string name, Vec3 start, Vec3 end, float size, ColorF4 color)
         {
             SetLineSize(size);
-            PrimitiveManager m = CacheLine(name);
+            PrimitiveManager m = CacheDebugPrimitive(name, DebugPrimitiveType.Line);
             m.GetParameter<GLVec4>(0).Value = color;
             ((Vec3*)m.Data._buffers[0].Data)[1] = end - start;
             m.Render(Matrix4.CreateTranslation(start), Matrix3.Identity);
         }
         public void RenderPlane(Vec3 position, Vec3 normal, Vec2 dimensions, bool solid)
         {
+            throw new NotImplementedException();
             //Matrix4 mtx = Matrix4.CreateTranslation(position) * normal.LookatAngles().GetMatrix();
             //if (solid)
             //{
@@ -129,49 +140,34 @@ namespace CustomEngine.Rendering
             //    _wirePlane.Render(mtx, Matrix3.Identity);
             //}
         }
-        public void RenderSphere(Vec3 center, float radius, bool solid)
+        public void RenderSphere(string name, Vec3 center, float radius, bool solid, ColorF4 color)
         {
-            //Matrix4 mtx = Matrix4.CreateTranslation(center) * Matrix4.CreateScale(radius * 2.0f);
-            //if (solid)
-            //{
-            //    if (_solidSphere == null)
-            //        CacheSolidSphere();
-            //    _solidSphere.Render(mtx, Matrix3.Identity);
-            //}
-            //else
-            //{
-            //    if (_wireSphere == null)
-            //        CacheWireframeSphere();
-            //    _wireSphere.Render(mtx, Matrix3.Identity);
-            //}
+            Matrix4 mtx = Matrix4.CreateTranslation(center) * Matrix4.CreateScale(radius * 2.0f);
+            PrimitiveManager m = CacheDebugPrimitive(name, solid ? DebugPrimitiveType.SolidSphere : DebugPrimitiveType.WireSphere);
+            m.GetParameter<GLVec4>(0).Value = color;
+            m.Render(mtx, Matrix3.Identity);
         }
-
-        public void RenderBox(Vec3 halfExtents, Matrix4 transform, bool solid)
+        public void RenderAABB(string name, Vec3 halfExtents, Vec3 translation, bool solid, ColorF4 color)
+            => RenderBox(name, halfExtents, Matrix4.CreateTranslation(translation), solid, color);
+        public void RenderBox(string name, Vec3 halfExtents, Matrix4 transform, bool solid, ColorF4 color)
         {
-            //Vec3 scale = halfExtents * 2.0f;
-            //transform = transform * Matrix4.CreateScale(scale);
-            //if (solid)
-            //    _solidBox.Render(transform);
-            //else
-            //    _wireBox.Render(transform);
+            PrimitiveManager m = CacheDebugPrimitive(name, solid ? DebugPrimitiveType.SolidBox : DebugPrimitiveType.WireBox);
+            m.GetParameter<GLVec4>(0).Value = color;
+            m.Render(transform, transform.Inverted().Transposed().GetRotationMatrix3());
         }
         public void RenderCapsule(Vec3 topPoint, Vec3 bottomPoint, float topRadius, float bottomRadius, bool solid)
         {
-
+            throw new NotImplementedException();
         }
         public void RenderCylinder(Vec3 topPoint, Vec3 bottomPoint, float topRadius, float bottomRadius, bool solid)
         {
-
+            throw new NotImplementedException();
         }
         public void RenderCone(Vec3 topPoint, Vec3 bottomPoint, float bottomRadius, bool solid)
         {
-
+            throw new NotImplementedException();
         }
-        public void RenderFrustum(Frustum f)
-        {
 
-        }
-        
         private Stack<Rectangle> _renderAreaStack = new Stack<Rectangle>();
 
         //private static List<DisplayList> _displayLists = new List<DisplayList>();

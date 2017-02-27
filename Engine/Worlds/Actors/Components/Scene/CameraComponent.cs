@@ -80,5 +80,10 @@ namespace CustomEngine.Worlds.Actors.Components
         {
             throw new NotImplementedException();
         }
+
+        public void Render()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

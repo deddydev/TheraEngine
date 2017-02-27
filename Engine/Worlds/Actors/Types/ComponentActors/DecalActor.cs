@@ -1,7 +1,7 @@
 ﻿using CustomEngine.Worlds.Actors.Components;
 using CustomEngine.Worlds;
 
-namespace CustomEngine.Rendering.Textures
+namespace CustomEngine.Worlds.Actors.Types
 {
     public class DecalActor : Actor
     {

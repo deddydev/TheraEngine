@@ -54,7 +54,12 @@ namespace CustomEngine.Rendering.HUD
         private void OnScrolled(bool up) { }
 
         private HudComponent _focusedComponent;
-        private void OnSelect()
+
+        /// <summary>
+        /// Called on either left click or A button.
+        /// Default behavior will OnClick the currently focused/highlighted UI component, if anyt.
+        /// </summary>
+        protected virtual void OnSelect()
         {
             _focusedComponent?.OnSelected();
         }

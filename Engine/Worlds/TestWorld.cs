@@ -11,6 +11,8 @@ using System.Drawing;
 using System.Linq;
 using CustomEngine.Rendering;
 using CustomEngine.Rendering.Models.Collada;
+using CustomEngine.Worlds.Actors.Types;
+using CustomEngine.Rendering.Cameras;
 
 namespace CustomEngine.Worlds
 {
@@ -136,9 +138,26 @@ namespace CustomEngine.Worlds
 
             Actor importedActor = new Actor(comp);
 
-            Rotator r = new Vec3(0.0f, 1.0f, 0.0f).LookatAngles(new Vec3(1.0f, 0.0f, 0.0f));
+            //Rotator r = new Vec3(0.0f, 1.0f, 0.0f).LookatAngles(new Vec3(0.0f, 0.0f, -1.0f));
 
-            _settings._defaultMaps.Add(new Map(this, new MapSettings(/*sphereActor,*/ /*lightActor,*//* floorActor,*/ dirLightActor, importedActor, new FlyingCameraPawn(PlayerIndex.One))));
+            CameraActor cameraActor = new CameraActor();
+            Camera cam = cameraActor.CameraComponent.Camera;
+            cam.Point = new Vec3(100.0f, 10.0f, 0.0f);
+            cam.Rotation.Yaw = 45.0f;
+            cam.Rotation.Pitch = -30.0f;
+
+            Actor[] actors = new Actor[]
+            {
+                //sphereActor,
+                //lightActor,
+                //floorActor,
+                dirLightActor,
+                importedActor,
+                cameraActor,
+                new FlyingCameraPawn(PlayerIndex.One),
+            };
+
+            _settings._defaultMaps.Add(new Map(this, new MapSettings(actors)));
         }
     }
 }

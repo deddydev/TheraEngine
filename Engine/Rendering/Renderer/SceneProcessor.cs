@@ -55,6 +55,7 @@ namespace CustomEngine.Rendering
                 return;
 
             _currentCamera = camera;
+            _currentCamera._isActive = true;
 
             Frustum f = camera.GetFrustum();
             _cullingTree.Cull(f);
@@ -63,8 +64,9 @@ namespace CustomEngine.Rendering
             //also perform culling directly before rendering something, to avoid an extra log(n) operation
             _cullingTree.Render();
 
-            f.Render();
-
+            _currentCamera._isActive = false;
+            _currentCamera = null;
+            
             //if (_commandsInvalidated)
             //    RenderKey.RadixSort(ref _sortedCommands);
 

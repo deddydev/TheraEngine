@@ -90,7 +90,7 @@ namespace System
                 pitch = (float)Asin(2.0f * test / unit);
                 roll = (float)Atan2(2.0f * X * W - 2.0f * Y * Z, -sqx + sqy - sqz + sqw);
             }
-            return new Rotator(RadToDeg(pitch), RadToDeg(yaw), RadToDeg(roll), Rotator.Order.PYR);
+            return new Rotator(RadToDeg(pitch), RadToDeg(yaw), RadToDeg(roll), Rotator.Order.YPR);
         }
         public Quaternion Normalized()
         {

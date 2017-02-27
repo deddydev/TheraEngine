@@ -83,9 +83,9 @@ namespace System
             return new BoxShape(HalfExtents);
         }
         /// <summary>
-        /// T = top, B = bottom
-        /// B = back, F = front
-        /// L = left,  R = right
+        /// [T = top, B = bottom] 
+        /// [B = back, F = front] 
+        /// [L = left,  R = right]
         /// </summary>
         public void GetCorners(
             out Vec3 TBL,
@@ -99,6 +99,11 @@ namespace System
         {
             GetCorners(Minimum, Maximum, out TBL, out TBR, out TFL, out TFR, out BBL, out BBR, out BFL, out BFR);
         }
+        /// <summary>
+        /// [T = top, B = bottom] 
+        /// [B = back, F = front] 
+        /// [L = left,  R = right]
+        /// </summary>
         public static void GetCorners(
             Vec3 min,
             Vec3 max,
@@ -130,6 +135,11 @@ namespace System
             BFL = new Vec3(Left, Bottom, Front);
             BFR = new Vec3(Right, Bottom, Front);
         }
+        /// <summary>
+        /// [T = top, B = bottom] 
+        /// [B = back, F = front] 
+        /// [L = left,  R = right]
+        /// </summary>
         public void GetCorners(
             Matrix4 transform,
             out Vec3 TBL,
@@ -143,6 +153,11 @@ namespace System
         {
             GetCorners(_halfExtents, transform, out TBL, out TBR, out TFL, out TFR, out BBL, out BBR, out BFL, out BFR);
         }
+        /// <summary>
+        /// [T = top, B = bottom] 
+        /// [B = back, F = front] 
+        /// [L = left,  R = right]
+        /// </summary>
         public static void GetCorners(
             Vec3 halfExtents,
             Matrix4 transform,
@@ -203,9 +218,39 @@ namespace System
         {
             Engine.Renderer.RenderAABB(HalfExtents, Translation, _renderSolid);
         }
-        public static PrimitiveData Mesh(Vec3 min, Vec3 max)
+        public static PrimitiveData WireframeMesh(Vec3 min, Vec3 max)
+        {
+            VertexLine 
+                topFront, topRight, topBack, topLeft, 
+                frontLeft, frontRight, backLeft, backRight,
+                bottomFront, bottomRight, bottomBack, bottomLeft;
+
+            GetCorners(min, max, out Vec3 TBL, out Vec3 TBR, out Vec3 TFL, out Vec3 TFR, out Vec3 BBL, out Vec3 BBR, out Vec3 BFL, out Vec3 BFR);
+
+            topFront = new VertexLine(new Vertex(TFL), new Vertex(TFR));
+            topBack = new VertexLine(new Vertex(TBL), new Vertex(TBR));
+            topLeft = new VertexLine(new Vertex(TFL), new Vertex(TBL));
+            topRight = new VertexLine(new Vertex(TFR), new Vertex(TBR));
+
+            bottomFront = new VertexLine(new Vertex(BFL), new Vertex(BFR));
+            bottomBack = new VertexLine(new Vertex(BBL), new Vertex(BBR));
+            bottomLeft = new VertexLine(new Vertex(BFL), new Vertex(BBL));
+            bottomRight = new VertexLine(new Vertex(BFR), new Vertex(BBR));
+
+            frontLeft = new VertexLine(new Vertex(TFL), new Vertex(BFL));
+            frontRight = new VertexLine(new Vertex(TFR), new Vertex(BFR));
+            backLeft = new VertexLine(new Vertex(TBL), new Vertex(BBL));
+            backRight = new VertexLine(new Vertex(TBR), new Vertex(BBR));
+
+            return PrimitiveData.FromLines(new PrimitiveBufferInfo(), 
+                topFront, topRight, topBack, topLeft,
+                frontLeft, frontRight, backLeft, backRight,
+                bottomFront, bottomRight, bottomBack, bottomLeft);
+        }
+        public static PrimitiveData SolidMesh(Vec3 min, Vec3 max)
         {
             VertexQuad left, right, top, bottom, front, back;
+
             GetCorners(min, max, out Vec3 TBL, out Vec3 TBR, out Vec3 TFL, out Vec3 TFR, out Vec3 BBL, out Vec3 BBR, out Vec3 BFL, out Vec3 BFR);
 
             Vec3 rightNormal = Vec3.Right;
@@ -227,9 +272,9 @@ namespace System
         public PrimitiveData GetMesh(bool includeTranslation)
         {
             if (includeTranslation)
-                return Mesh(Minimum, Maximum);
+                return SolidMesh(Minimum, Maximum);
             else
-                return Mesh(-_halfExtents, _halfExtents);
+                return SolidMesh(-_halfExtents, _halfExtents);
         }
         public static Frustum GetFrustum(Vec3 min, Vec3 max)
         {

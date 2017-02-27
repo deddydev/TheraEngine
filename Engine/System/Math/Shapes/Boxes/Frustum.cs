@@ -10,9 +10,33 @@ using System.Threading.Tasks;
 
 namespace System
 {
-    public class Frustum :IRenderable, IEnumerable<Plane>
+    public class Frustum : IRenderable, IEnumerable<Plane>
     {
+        private static List<Frustum> ActiveFrustums = new List<Frustum>();
+        private string _renderName;
+
+        public Frustum()
+        {
+            _renderName = "frustum" + ActiveFrustums.Count;
+            ActiveFrustums.Add(this);
+        }
+        public Frustum(
+           Vec3 farBottomLeft, Vec3 farBottomRight, Vec3 farTopLeft, Vec3 farTopRight,
+           Vec3 nearBottomLeft, Vec3 nearBottomRight, Vec3 nearTopLeft, Vec3 nearTopRight) : this()
+        {
+            UpdatePoints(
+                farBottomLeft, farBottomRight, farTopLeft, farTopRight,
+                nearBottomLeft, nearBottomRight, nearTopLeft, nearTopRight);
+        }
+        ~Frustum()
+        {
+            ActiveFrustums.Remove(this);
+        }
+
         public static bool UseBoundingSphere = true;
+
+        private bool _isRendering = false, _isVisible = true;
+        private RenderOctree.Node _renderNode;
 
         //For quickly testing if objects in large scenes should even be tested against the frustum at all
         private Sphere _boundingSphere;
@@ -44,11 +68,23 @@ namespace System
         public IEnumerable<Vec3> Points => _points;
         public Shape CullingVolume => _boundingSphere;
 
-        public bool IsRendering { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-        public RenderOctree.Node RenderNode { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-        public bool Visible { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        public bool IsRendering
+        {
+            get => _isRendering;
+            set => _isRendering = value;
+        }
+        public RenderOctree.Node RenderNode
+        {
+            get => _renderNode;
+            set => _renderNode = value;
+        }
+        public bool Visible
+        {
+            get => _isVisible;
+            set => _isVisible = value;
+        }
 
-        public Frustum(
+        public void UpdatePoints(
             Vec3 farBottomLeft, Vec3 farBottomRight, Vec3 farTopLeft, Vec3 farTopRight,
             Vec3 nearBottomLeft, Vec3 nearBottomRight, Vec3 nearTopLeft, Vec3 nearTopRight)
         {
@@ -74,6 +110,30 @@ namespace System
             _planes[5] = new Plane(nearBottomLeft, nearBottomRight, farBottomLeft);
 
             _boundingSphere = GetBoundingSphere();
+        }
+        public void TransformedVersionOf(Frustum other, Matrix4 transform)
+        {
+            UpdatePoints(
+                other.FarBottomLeft * transform,
+                other.FarBottomRight * transform,
+                other.FarTopLeft * transform,
+                other.FarTopRight * transform,
+                other.NearBottomLeft * transform,
+                other.NearBottomRight * transform,
+                other.NearTopLeft * transform,
+                other.NearTopRight * transform);
+        }
+        public void TransformBy(Matrix4 transform)
+        {
+            UpdatePoints(
+                FarBottomLeft * transform,
+                FarBottomRight * transform,
+                FarTopLeft * transform,
+                FarTopRight * transform,
+                NearBottomLeft * transform,
+                NearBottomRight * transform,
+                NearTopLeft * transform,
+                NearTopRight * transform);
         }
         public Frustum TransformedBy(Matrix4 transform)
         {
@@ -124,27 +184,34 @@ namespace System
 
         public void Render()
         {
-            //_boundingSphere.Render();
+            _boundingSphere.Render();
 
             float LineSize = 10.0f;
             Color NearColor = Color.Orange;
             Color FarColor = Color.DarkRed;
             Color SideColor = Color.LightGreen;
 
-            Engine.Renderer.RenderLine("frustumTopLeft", NearTopLeft, FarTopLeft, LineSize, SideColor);
-            Engine.Renderer.RenderLine("frustumTopRight", NearTopRight, FarTopRight, LineSize, SideColor);
-            Engine.Renderer.RenderLine("frustumBottomLeft", NearBottomLeft, FarBottomLeft, LineSize, SideColor);
-            Engine.Renderer.RenderLine("frustumBottomRight", NearBottomRight, FarBottomRight, LineSize, SideColor);
+            Engine.Renderer.RenderLine(_renderName + "TopLeft", NearTopLeft, FarTopLeft, LineSize, SideColor);
+            Engine.Renderer.RenderLine(_renderName + "TopRight", NearTopRight, FarTopRight, LineSize, SideColor);
+            Engine.Renderer.RenderLine(_renderName + "BottomLeft", NearBottomLeft, FarBottomLeft, LineSize, SideColor);
+            Engine.Renderer.RenderLine(_renderName + "BottomRight", NearBottomRight, FarBottomRight, LineSize, SideColor);
 
-            //Engine.Renderer.RenderLine("frustumTopNear", NearTopLeft, NearTopRight, LineSize, NearColor);
-            //Engine.Renderer.RenderLine("frustumBottomNear", NearBottomLeft, NearBottomRight, LineSize, NearColor);
-            //Engine.Renderer.RenderLine("frustumLeftNear", NearBottomLeft, NearTopLeft, LineSize, NearColor);
-            //Engine.Renderer.RenderLine("frustumRightNear", NearBottomRight, NearTopRight, LineSize, NearColor);
+            Engine.Renderer.RenderLine(_renderName + "TopNear", NearTopLeft, NearTopRight, LineSize, NearColor);
+            Engine.Renderer.RenderLine(_renderName + "BottomNear", NearBottomLeft, NearBottomRight, LineSize, NearColor);
+            Engine.Renderer.RenderLine(_renderName + "LeftNear", NearBottomLeft, NearTopLeft, LineSize, NearColor);
+            Engine.Renderer.RenderLine(_renderName + "RightNear", NearBottomRight, NearTopRight, LineSize, NearColor);
 
-            Engine.Renderer.RenderLine("frustumTopFar", FarTopLeft, FarTopRight, LineSize, FarColor);
-            Engine.Renderer.RenderLine("frustumBottomFar", FarBottomLeft, FarBottomRight, LineSize, FarColor);
-            Engine.Renderer.RenderLine("frustumLeftFar", FarBottomLeft, FarTopLeft, LineSize, FarColor);
-            Engine.Renderer.RenderLine("frustumRightFar", FarBottomRight, FarTopRight, LineSize, FarColor);
+            Engine.Renderer.RenderLine(_renderName + "TopFar", FarTopLeft, FarTopRight, LineSize, FarColor);
+            Engine.Renderer.RenderLine(_renderName + "BottomFar", FarBottomLeft, FarBottomRight, LineSize, FarColor);
+            Engine.Renderer.RenderLine(_renderName + "LeftFar", FarBottomLeft, FarTopLeft, LineSize, FarColor);
+            Engine.Renderer.RenderLine(_renderName + "RightFar", FarBottomRight, FarTopRight, LineSize, FarColor);
+        }
+
+        public Frustum HardCopy()
+        {
+            return new Frustum(
+                FarBottomLeft, FarBottomRight, FarTopLeft, FarTopRight,
+                NearBottomLeft, NearBottomRight, NearTopLeft, NearTopRight);
         }
     }
 }

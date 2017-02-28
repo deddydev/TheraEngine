@@ -133,28 +133,47 @@ namespace System
         }
         public static Quaternion BetweenVectors(Vec3 A, Vec3 B)
         {
-            float NormAB = 1.0f / InverseSqrtFast(A.LengthSquared * B.LengthSquared);
-            float W = NormAB + A.Dot(B);
-            Quaternion result;
+            float adotb = A | B;
+            if (adotb > 0.999999f)
+            {
 
-            if (W >= 1e-6f * NormAB)
-            {
-                result = new Quaternion(
-                    -A.X * B.Y - A.Y * -B.X,
-                    A.Y * B.Z - A.Z * B.Y,
-                    A.Z * -B.X - -A.X * B.Z,
-                    W);
             }
-            else
+            else if (adotb < -0.999999f)
             {
-                W = 0.0f;
-                result = Abs(A.Z) > Abs(A.X)
-                        ? new Quaternion(-A.Y, 0.0f, A.Z, W)
-                        : new Quaternion(0.0f, -A.Y, -A.X, W);
+
             }
 
-            result.Normalize();
-            return result;
+            Quaternion q = new Quaternion();
+            Vec3 a = A ^ B;
+            q.Xyz = a;
+
+            float alen = A.LengthFast, blen = B.LengthFast;
+            q.W = (float)Sqrt((alen * alen) * (blen * blen)) + adotb;
+
+            return q;
+
+            //float NormAB = 1.0f / InverseSqrtFast(A.LengthSquared * B.LengthSquared);
+            //float W = NormAB + A.Dot(B);
+            //Quaternion result;
+
+            //if (W >= 1e-6f * NormAB)
+            //{
+            //    result = new Quaternion(
+            //        -A.X * B.Y - A.Y * -B.X,
+            //        A.Y * B.Z - A.Z * B.Y,
+            //        A.Z * -B.X - -A.X * B.Z,
+            //        W);
+            //}
+            //else
+            //{
+            //    W = 0.0f;
+            //    result = Abs(A.Z) > Abs(A.X)
+            //            ? new Quaternion(-A.Y, 0.0f, A.Z, W)
+            //            : new Quaternion(0.0f, -A.Y, -A.X, W);
+            //}
+
+            //result.Normalize();
+            //return result;
         }
         public static Quaternion LookAt(Vec3 sourcePoint, Vec3 destPoint)
         {

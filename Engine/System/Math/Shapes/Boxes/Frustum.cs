@@ -25,7 +25,7 @@ namespace System
            Vec3 nearBottomLeft, Vec3 nearBottomRight, Vec3 nearTopLeft, Vec3 nearTopRight,
            Vec3 sphereCenter) : this()
         {
-            _boundingSphere = new Sphere() { RenderSolid = true };
+            _boundingSphere = new Sphere() { RenderSolid = false };
             UpdatePoints(
                 farBottomLeft, farBottomRight, farTopLeft, farTopRight,
                 nearBottomLeft, nearBottomRight, nearTopLeft, nearTopRight,

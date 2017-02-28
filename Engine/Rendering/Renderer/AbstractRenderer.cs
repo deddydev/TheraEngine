@@ -59,9 +59,11 @@ namespace CustomEngine.Rendering
                     { _hasNormals = false, _texcoordCount = 0 }, line);
                     break;
                 case DebugPrimitiveType.WireSphere:
+                    //Diameter is set to 2.0f on purpose
                     data = Sphere.WireframeMesh(Vec3.Zero, 1.0f, 30.0f);
                     break;
                 case DebugPrimitiveType.SolidSphere:
+                    //Diameter is set to 2.0f on purpose
                     data = Sphere.SolidMesh(Vec3.Zero, 1.0f, 30.0f);
                     break;
                 case DebugPrimitiveType.WireBox:
@@ -142,7 +144,8 @@ namespace CustomEngine.Rendering
         }
         public void RenderSphere(string name, Vec3 center, float radius, bool solid, ColorF4 color)
         {
-            Matrix4 mtx = Matrix4.CreateTranslation(center) * Matrix4.CreateScale(radius * 2.0f);
+            //Radius doesn't need to be multiplied by 2.0f; the sphere is already 2.0f in diameter
+            Matrix4 mtx = Matrix4.CreateTranslation(center) * Matrix4.CreateScale(radius);
             PrimitiveManager m = CacheDebugPrimitive(name, solid ? DebugPrimitiveType.SolidSphere : DebugPrimitiveType.WireSphere);
             m.GetParameter<GLVec4>(0).Value = color;
             m.Render(mtx, Matrix3.Identity);

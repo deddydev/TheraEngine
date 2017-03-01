@@ -292,10 +292,14 @@ namespace System
         /// <returns>The result of the operation.</returns>
         public Vec3 Transform(Quaternion quat)
         {
+            Vec3 t = 2.0f * (quat.Xyz ^ this);
+            return this + quat.W * t + (quat.Xyz ^ t);
+
             // Since vec.W == 0, we can optimize quat * vec * quat^-1 as follows:
             // vec + 2.0 * cross(quat.xyz, cross(quat.xyz, vec) + quat.w * vec)
-            Vec3 xyz = quat.Xyz;
-            return this + 2.0f * xyz ^ ((xyz ^ this) + this * quat.W);
+            //Vec3 xyz = quat.Xyz;
+
+            //return this + 2.0f * (xyz ^ ((xyz ^ this)) + this * quat.W);
         }
         /// <summary>Transform a Vector by the given Matrix</summary>
         /// <param name="vec">The vector to transform</param>

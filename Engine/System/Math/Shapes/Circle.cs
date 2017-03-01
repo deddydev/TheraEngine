@@ -33,23 +33,13 @@ namespace System
             points[0] = new Vertex(center, normal);
             float angleInc = CustomMath.PIf * 2.0f / sides, angle = 0.0f;
             for (int i = 1; i < sides; ++i, angle += angleInc)
-                points[i] = new Vertex(center + offset * (radius * new Vec3((float)Math.Cos(angle), 0.0f, -(float)Math.Sin(angle))), normal);
+                points[i] = new Vertex(center + offset * (radius * new Vec3((float)Math.Cos(angle), 0.0f, (float)Math.Sin(angle))), normal);
             VertexTriangleFan fan = new VertexTriangleFan();
             return PrimitiveData.FromTriangleFans(Culling.None, new PrimitiveBufferInfo(), fan);
         }
         public static PrimitiveData WireframeMesh(float radius, Vec3 normal, Vec3 center, int pointCount)
         {
-            if (pointCount < 3)
-                throw new Exception("A (very low res) circle needs at least 3 points.");
-
-            normal.Normalize();
-            Quaternion offset = Quaternion.BetweenVectors(Vec3.Up, normal);
-            Vertex[] points = new Vertex[pointCount];
-            float angleInc = CustomMath.PIf * 2.0f / pointCount, angle = 0.0f;
-            for (int i = 0; i < pointCount; ++i, angle += angleInc)
-                points[i] = new Vertex(center + offset * (radius * new Vec3((float)Math.Cos(angle), 0.0f, -(float)Math.Sin(angle))));
-            VertexLineStrip strip = new VertexLineStrip(true, points);
-            return PrimitiveData.FromLineStrips(new PrimitiveBufferInfo(), strip);
+            return PrimitiveData.FromLineStrips(new PrimitiveBufferInfo(), GetLineStrip(radius, normal, center, pointCount));
         }
         public static VertexLineStrip GetLineStrip(float radius, Vec3 normal, Vec3 center, int pointCount)
         {
@@ -57,12 +47,32 @@ namespace System
                 throw new Exception("A (very low res) circle needs at least 3 points.");
 
             normal.Normalize();
-            Quaternion offset = Quaternion.BetweenVectors(Vec3.Up, normal);
+            //Quaternion offset = Quaternion.BetweenVectors(Vec3.Up, normal);
+            Vec3 axis;
+            float angle;
+            float dot = Vec3.Up | normal;
+            if (dot > 0.999f)
+            {
+                axis = Vec3.Right;
+                angle = 0.0f;
+            }
+            else if (dot < -0.999f)
+            {
+                axis = Vec3.Right;
+                angle = 180.0f;
+            }
+            else
+            {
+                axis = normal ^ Vec3.Up;
+                angle = CustomMath.RadToDeg((float)Math.Acos(dot));
+            }
+            Quaternion offset = Quaternion.FromAxisAngle(axis, angle);
             Vertex[] points = new Vertex[pointCount];
-            float angleInc = CustomMath.PIf * 2.0f / pointCount, angle = 0.0f;
+            float angleInc = CustomMath.PIf * 2.0f / pointCount;
+            angle = 0.0f;
             for (int i = 0; i < pointCount; ++i, angle += angleInc)
             {
-                Vec3 v = new Vec3((float)Math.Cos(angle), 0.0f, -(float)Math.Sin(angle));
+                Vec3 v = new Vec3((float)Math.Cos(angle), 0.0f, (float)Math.Sin(angle));
                 Vec3 v2 = radius * v;
                 Vec3 v3 = offset * v2;
                 Vec3 v4 = center + v3;

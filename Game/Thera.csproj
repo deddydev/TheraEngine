@@ -151,10 +151,8 @@
     <Error Condition="Exists('..\packages\PostSharp.4.3.21\tools\PostSharp.targets')" Text="The build restored NuGet packages. Build the project again to include these packages in the build. For more information, see http://www.postsharp.net/links/nuget-restore." />
   </Target>
   <PropertyGroup>
-    <PostBuildEvent>xcopy /y $(SolutionDir)\Libraries\Steamworks.NET-Standalone_9.0.0\Windows-x86\CSteamworks.dll  $(ProjectDir)$(OutDir)
-xcopy /y $(SolutionDir)\Libraries\Steamworks.NET-Standalone_9.0.0\Windows-x86\steam_api.dll  $(ProjectDir)$(OutDir)
-xcopy /y $(SolutionDir)\Libraries\Steamworks.NET-Standalone_9.0.0\Windows-x86\steam_appid.txt  $(ProjectDir)$(OutDir)
-</PostBuildEvent>
+    <PostBuildEvent>
+    </PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

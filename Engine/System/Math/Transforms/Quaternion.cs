@@ -135,22 +135,16 @@ namespace System
         {
             float adotb = A | B;
             if (adotb > 0.999999f)
-            {
-
-            }
+                return Identity;
             else if (adotb < -0.999999f)
-            {
-
-            }
-
-            Quaternion q = new Quaternion();
-            Vec3 a = A ^ B;
-            q.Xyz = a;
+                return FromAxisAngle(Vec3.Right, 180.0f);
 
             float alen = A.LengthFast, blen = B.LengthFast;
-            q.W = (float)Sqrt((alen * alen) * (blen * blen)) + adotb;
-
-            return q;
+            return new Quaternion()
+            {
+                Xyz = A ^ B,
+                W = (float)Sqrt((alen * alen) * (blen * blen)) + adotb
+            };
 
             //float NormAB = 1.0f / InverseSqrtFast(A.LengthSquared * B.LengthSquared);
             //float W = NormAB + A.Dot(B);
@@ -175,9 +169,11 @@ namespace System
             //result.Normalize();
             //return result;
         }
-        public static Quaternion LookAt(Vec3 sourcePoint, Vec3 destPoint)
+        public static Quaternion LookAt(Vec3 sourcePoint, Vec3 destPoint, Vec3 initialDirection)
         {
-            return FromMatrix(Matrix4.LookAt(sourcePoint, destPoint, Vec3.Up));
+            return BetweenVectors(initialDirection, destPoint - sourcePoint);
+
+            //return FromMatrix(Matrix4.LookAt(sourcePoint, destPoint, Vec3.Up));
 
             //Vec3 forwardVector = (destPoint - sourcePoint).NormalizedFast();
 
@@ -203,7 +199,7 @@ namespace System
 
             angle *= 0.5f;
             axis.Normalize();
-            result.Xyz = axis.Yzx * (float)Sin(angle);
+            result.Xyz = axis.Xyz * (float)Sin(angle);
             result.W = (float)Cos(angle);
 
             return result.Normalized();

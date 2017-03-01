@@ -1,9 +1,35 @@
 ﻿using System;
 using CustomEngine.Worlds.Actors.Components;
 using CustomEngine.Rendering;
+using CustomEngine.GameModes;
 
 namespace CustomEngine.Worlds.Actors
 {
+    public struct ZoomLevel
+    {
+        public ZoomLevel(float fovY, float aimAssistDistance)
+        {
+            _fovY = fovY;
+            _aimAssistDistance = aimAssistDistance;
+        }
+
+        private float _fovY;
+        private float _aimAssistDistance;
+
+        public float FovY
+        {
+            get => _fovY;
+            set => _fovY = value;
+        }
+        public float Distance
+        {
+            get => _aimAssistDistance;
+            set => _aimAssistDistance = value;
+        }
+
+        public static ZoomLevel DefaultNonZoomed => new ZoomLevel(78.0f, 1000.0f);
+        public static ZoomLevel DefaultZoomed => new ZoomLevel(45.0f, 2000.0f);
+    }
     public class CharacterPawn : Pawn
     {
         public CharacterPawn() : base() { }
@@ -26,6 +52,11 @@ namespace CustomEngine.Worlds.Actors
         protected override void SetDefaults()
         {
             
+        }
+
+        public void Kill(CharacterPawn instigator, Actor killer)
+        {
+            GameMode mode = Engine.World.State.GameMode;
         }
     }
 }

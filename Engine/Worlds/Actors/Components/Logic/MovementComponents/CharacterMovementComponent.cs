@@ -24,20 +24,28 @@ namespace CustomEngine.Worlds.Actors.Components
             //Nothing to jump OFF of?
             if (_currentMovementMode != MovementMode.Walking)
                 return;
+            //Get root component of the character
             IPhysicsDrivable root = Owner.RootComponent as IPhysicsDrivable;
+            //If the root isn't physics drivable, the player can't jump
             if (root == null)
                 return;
+            //Start physics simulation of the root
             PhysicsDriver driver = root.PhysicsDriver;
             driver.SimulatingPhysics = true;
+            RigidBody character = driver.CollisionObject;
             if (_currentWalkingSurface.SimulatingPhysics)
             {
                 //TODO: calculate push off force using ground's mass.
                 //For example, you can't jump off a piece of debris.
+                RigidBody surface = _currentWalkingSurface.CollisionObject;
+                float surfaceMass = 1.0f / surface.InvMass;
+                float characterMass = 1.0f / character.InvMass;
+
             }
             else
             {
                 //The ground isn't movable, so just apply the jump force directly.
-
+                character.ApplyForce(_jumpVelocity, Vec3.Zero);
             }
             _currentMovementMode = MovementMode.Falling;
         }

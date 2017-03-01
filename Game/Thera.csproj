@@ -100,6 +100,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="GameModes\BaseGameMode.cs" />
+    <Compile Include="GameModes\PlayerTraits.cs" />
+    <Compile Include="GameModes\TeamTraits.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Worlds\Actors\Components\Scene\InteractionZoneComponent.cs" />
@@ -147,6 +150,12 @@
     <Error Condition="!Exists('..\packages\PostSharp.4.3.21\tools\PostSharp.targets')" Text="This project references NuGet package(s) that are missing on this computer. Enable NuGet Package Restore to download them.  For more information, see http://www.postsharp.net/links/nuget-restore." />
     <Error Condition="Exists('..\packages\PostSharp.4.3.21\tools\PostSharp.targets')" Text="The build restored NuGet packages. Build the project again to include these packages in the build. For more information, see http://www.postsharp.net/links/nuget-restore." />
   </Target>
+  <PropertyGroup>
+    <PostBuildEvent>xcopy /y $(SolutionDir)\Libraries\Steamworks.NET-Standalone_9.0.0\Windows-x86\CSteamworks.dll  $(ProjectDir)$(OutDir)
+xcopy /y $(SolutionDir)\Libraries\Steamworks.NET-Standalone_9.0.0\Windows-x86\steam_api.dll  $(ProjectDir)$(OutDir)
+xcopy /y $(SolutionDir)\Libraries\Steamworks.NET-Standalone_9.0.0\Windows-x86\steam_appid.txt  $(ProjectDir)$(OutDir)
+</PostBuildEvent>
+  </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

@@ -19,16 +19,6 @@ namespace CustomEngine.Worlds
         private MapSettings _settings;
         public MapSettings Settings { get { return _settings; } set { _settings = value; } }
 
-        enum enum1
-        {
-            thing1,
-            thing2
-        }
-        enum enum2
-        {
-            thing3 = enum1.thing1,
-        }
-
         public virtual void EndPlay()
         {
             foreach (Actor actor in Settings._defaultActors)

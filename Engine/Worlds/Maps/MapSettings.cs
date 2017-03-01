@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.IO;
 using System.Xml;
+using CustomEngine.GameModes;
 
 namespace CustomEngine.Worlds.Maps
 {
@@ -14,6 +15,7 @@ namespace CustomEngine.Worlds.Maps
         public bool _visibleByDefault;
         public List<Actor> _defaultActors;
         public Vec3 _spawnPosition;
+        public GameMode _defaultGameMode;
 
         public MapSettings(params Actor[] actors)
         {

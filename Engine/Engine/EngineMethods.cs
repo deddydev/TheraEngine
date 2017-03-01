@@ -19,6 +19,7 @@ namespace CustomEngine
     {
         static Engine()
         {
+            Steamworks.SteamAPI.Init();
             _timer = new GlobalTimer();
             _timer.UpdateFrame += Tick;
             for (int i = 0; i < 2; ++i)
@@ -195,6 +196,7 @@ namespace CustomEngine
         }
         public static void ShutDown()
         {
+            Steamworks.SteamAPI.Shutdown();
             Stop();
             var files = new List<FileObject>(LoadedFiles.SelectMany(x => x.Value));
             foreach (FileObject o in files)

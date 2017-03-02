@@ -15,9 +15,9 @@ namespace CustomEngine.Worlds.Actors.Components
         {
             _box = new Box(1.0f);
         }
-        public BoxComponent(Vec3 extents, PhysicsDriverInfo info) : base(info)
+        public BoxComponent(Vec3 halfExtents, PhysicsDriverInfo info) : base(info)
         {
-            _box = new Box(extents);
+            _box = new Box(halfExtents);
         }
         public BoxComponent(float extentsX, float extentsY, float extentsZ, PhysicsDriverInfo info) : base(info)
         {

@@ -115,7 +115,7 @@ namespace CustomEngine.Worlds.Actors.Components
             _inverseLocalTransform = inverse;
             RecalcGlobalTransform();
         }
-        protected bool SimulatingPhysics { get { return _simulatingPhysics; } }
+        protected bool SimulatingPhysics => _simulatingPhysics;
         protected void PhysicsSimulationStarted()
         {
             _simulatingPhysics = true;
@@ -149,7 +149,7 @@ namespace CustomEngine.Worlds.Actors.Components
             foreach (SceneComponent c in ChildComponents)
                 c.PhysicsSimulationEnded();
         }
-        public override Actor Owner
+        public override IActor Owner
         {
             get { return base.Owner; }
             set
@@ -168,23 +168,29 @@ namespace CustomEngine.Worlds.Actors.Components
                 _children = value ?? new MonitoredList<SceneComponent>();
             }
         }
-        public Vec3 GetWorldPoint() { return _worldTransform.GetPoint(); }
-        public Matrix4 GetWorldAnisotropicRotation() { return _worldTransform.GetRotationMatrix4(); }
+        public Vec3 GetWorldPoint() 
+            => _worldTransform.GetPoint();
+        public Matrix4 GetWorldAnisotropicRotation() 
+            => _worldTransform.GetRotationMatrix4();
 
-        public Matrix4 GetParentMatrix() { return Parent == null ? Matrix4.Identity : Parent.WorldMatrix; }
-        public Matrix4 GetInverseParentMatrix() { return Parent == null ? Matrix4.Identity : Parent.InverseWorldMatrix; }
+        public Matrix4 GetParentMatrix()
+            => Parent == null ? Matrix4.Identity : Parent.WorldMatrix;
+        public Matrix4 GetInverseParentMatrix()
+            => Parent == null ? Matrix4.Identity : Parent.InverseWorldMatrix;
         
         /// <summary>
         /// Gets the transformation of this component in relation to the actor's root component.
         /// </summary>
-        public Matrix4 GetActorTransform() { return WorldMatrix * Owner.RootComponent.InverseWorldMatrix; }
+        public Matrix4 GetActorTransform() 
+            => WorldMatrix * Owner.RootComponent.InverseWorldMatrix;
         /// <summary>
         /// Gets the inverse transformation of this component in relation to the actor's root component.
         /// </summary>
-        public Matrix4 GetInvActorTransform() { return InverseWorldMatrix * Owner.RootComponent.WorldMatrix; }
-        
+        public Matrix4 GetInvActorTransform() =>
+            InverseWorldMatrix * Owner.RootComponent.WorldMatrix;
+
         [Category("Rendering"), State]
-        public bool IsSpawned { get { return Owner.IsSpawned; } }
+        public bool IsSpawned => Owner.IsSpawned;
         [Category("Rendering"), Default, State, Animatable]
         public ISocket Parent
         {
@@ -254,8 +260,10 @@ namespace CustomEngine.Worlds.Actors.Components
             item.Owner = null;
             Owner?.GenerateSceneComponentCache();
         }
-        private void _children_InsertedRange(IEnumerable<SceneComponent> items, int index) => _children_AddedRange(items);
-        private void _children_Inserted(SceneComponent item, int index) => _children_Added(item);
+        private void _children_InsertedRange(IEnumerable<SceneComponent> items, int index)
+            => _children_AddedRange(items);
+        private void _children_Inserted(SceneComponent item, int index) 
+            => _children_Added(item);
         private void _children_AddedRange(IEnumerable<SceneComponent> items)
         {
             foreach (SceneComponent item in items)
@@ -274,15 +282,19 @@ namespace CustomEngine.Worlds.Actors.Components
         }
         public void AttachTo(SkeletalMeshComponent mesh, string socketName)
         {
-            Bone bone = mesh.Skeleton.GetBone(socketName);
+            Bone bone = mesh.Skeleton[socketName];
             if (bone != null)
                 bone.ChildComponents.Add(this);
             else
                 mesh.ChildComponents.Add(this);
         }
+        public void DetachFromParent()
+        {
+            Parent.ChildComponents.Remove(this);
+        }
         public void AttachTo(StaticMeshComponent mesh, string socketName)
         {
-
+            mesh[socketName]?.ChildComponents.Add(mesh);
         }
         public void AttachTo(SceneComponent component)
         {

@@ -43,7 +43,7 @@ namespace CustomEngine
         private static InputLibrary _inputLibrary;
         private static List<DateTime> _debugTimers = new List<DateTime>();
         private static InputAwaiter _inputAwaiter;
-        private static Dictionary<PlayerIndex, Queue<Pawn>> _possessionQueue = new Dictionary<PlayerIndex, Queue<Pawn>>();
+        private static Dictionary<PlayerIndex, Queue<IPawn>> _possessionQueue = new Dictionary<PlayerIndex, Queue<IPawn>>();
         internal static List<PhysicsDriver> _queuedCollisions = new List<PhysicsDriver>();
 
         public static Viewport.TwoPlayerViewportPreference TwoPlayerPref = 

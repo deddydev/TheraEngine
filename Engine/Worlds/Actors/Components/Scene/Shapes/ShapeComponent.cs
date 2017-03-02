@@ -11,7 +11,8 @@ namespace CustomEngine.Worlds.Actors.Components
             if (info != null)
             {
                 info.BodyInfo.CollisionShape = GetCollisionShape();
-                _physics = new PhysicsDriver(info, PhysicsTransformChanged, PhysicsSimulationStateChanged);
+                _physics = new PhysicsDriver(
+                    info, PhysicsTransformChanged, PhysicsSimulationStateChanged);
             }
         }
 
@@ -29,36 +30,36 @@ namespace CustomEngine.Worlds.Actors.Components
 
         public CustomCollisionGroup CollisionGroup
         {
-            get { return _physics.CollisionGroup; }
-            set { _physics.CollisionGroup = value; }
+            get => _physics.CollisionGroup;
+            set => _physics.CollisionGroup = value;
         }
         public CustomCollisionGroup CollidesWith
         {
-            get { return _physics.CollidesWith; }
-            set { _physics.CollidesWith = value; }
+            get => _physics.CollidesWith;
+            set => _physics.CollidesWith = value;
         }
         public bool IsRendering
         {
-            get { return _isRendering; }
-            set { _isRendering = value; }
+            get => _isRendering;
+            set => _isRendering = value;
         }
         public bool Visible
         {
-            get { return _isVisible; }
-            set { _isVisible = value; }
+            get => _isVisible;
+            set => _isVisible = value;
         }
         public abstract Shape CullingVolume { get; }
-        public bool VisibleByDefault { get { return _visibleByDefault; } }
-        public PhysicsDriver PhysicsDriver { get { return _physics; } }
-
+        public bool VisibleByDefault => _visibleByDefault;
+        public PhysicsDriver PhysicsDriver => _physics;
         public RenderOctree.Node RenderNode
         {
-            get { return _renderNode; }
-            set { _renderNode = value; }
+            get => _renderNode;
+            set => _renderNode = value;
         }
 
         public abstract void Render();
         protected abstract CollisionShape GetCollisionShape();
+
         protected virtual void PhysicsTransformChanged(Matrix4 worldMatrix)
         {
             WorldMatrix = worldMatrix;

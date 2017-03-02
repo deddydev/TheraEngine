@@ -26,7 +26,7 @@ namespace CustomEngine.Input
             get => _viewport.Camera;
             set => _viewport.Camera = value;
         }
-        public override Pawn ControlledPawn
+        public override IPawn ControlledPawn
         {
             get => base.ControlledPawn;
             set
@@ -51,7 +51,7 @@ namespace CustomEngine.Input
                 }
             }
         }
-        public LocalPlayerController(Queue<Pawn> possessionQueue = null) : base()
+        public LocalPlayerController(Queue<IPawn> possessionQueue = null) : base()
         {
             int index = Engine.ActivePlayers.Count;
             _index = (PlayerIndex)index;
@@ -67,7 +67,7 @@ namespace CustomEngine.Input
             _index = (PlayerIndex)index;
             _input = new InputInterface(index);
             Engine.ActivePlayers.Add(this);
-            _possessionQueue = new Queue<Pawn>();
+            _possessionQueue = new Queue<IPawn>();
             if (_possessionQueue.Count != 0)
                 ControlledPawn = _possessionQueue.Dequeue();
         }

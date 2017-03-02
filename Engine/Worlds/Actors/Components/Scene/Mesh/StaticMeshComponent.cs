@@ -5,9 +5,67 @@ using CustomEngine.Rendering.Animation;
 using CustomEngine.Rendering;
 using System.ComponentModel;
 using BulletSharp;
+using System.Collections.Generic;
 
 namespace CustomEngine.Worlds.Actors.Components
 {
+    public class StaticMeshSocket : ISocket
+    {
+        public StaticMeshSocket(FrameState transform, IActor owner)
+        {
+            _owner = owner;
+            _transform = transform;
+            _childComponents.Added          += _children_Added;
+            _childComponents.AddedRange     += _children_AddedRange;
+            _childComponents.Inserted       += _children_Inserted;
+            _childComponents.InsertedRange  += _children_InsertedRange;
+            _childComponents.Removed        += _children_Removed;
+            _childComponents.RemovedRange   += _children_RemovedRange;
+        }
+
+        private IActor _owner;
+        private FrameState _transform = FrameState.Identity;
+        private MonitoredList<SceneComponent> _childComponents;
+
+        public Matrix4 WorldMatrix => _transform.Matrix;
+        public Matrix4 InverseWorldMatrix => _transform.InverseMatrix;
+        public MonitoredList<SceneComponent> ChildComponents => throw new NotImplementedException();
+
+        private void _children_RemovedRange(IEnumerable<SceneComponent> items)
+        {
+            foreach (SceneComponent item in items)
+            {
+                item._parent = null;
+                item.Owner = null;
+            }
+            //_owner?.GenerateSceneComponentCache();
+        }
+        private void _children_Removed(SceneComponent item)
+        {
+            item._parent = null;
+            item.Owner = null;
+            //_owner?.GenerateSceneComponentCache();
+        }
+        private void _children_InsertedRange(IEnumerable<SceneComponent> items, int index)
+            => _children_AddedRange(items);
+        private void _children_Inserted(SceneComponent item, int index)
+            => _children_Added(item);
+        private void _children_AddedRange(IEnumerable<SceneComponent> items)
+        {
+            foreach (SceneComponent item in items)
+            {
+                item._parent = this;
+                item.Owner = _owner;
+            }
+            //_owner?.GenerateSceneComponentCache();
+        }
+        private void _children_Added(SceneComponent item)
+        {
+            item._parent = this;
+            item.Owner = _owner;
+            //_owner?.GenerateSceneComponentCache();
+        }
+    }
     public partial class StaticMeshComponent : TRSComponent, IPhysicsDrivable
     {
         public StaticMeshComponent(StaticMesh m, PhysicsDriverInfo info) 
@@ -42,6 +100,20 @@ namespace CustomEngine.Worlds.Actors.Components
                 _physicsDriver = new PhysicsDriver(info, _physicsDriver_TransformChanged);
             }
         }
+
+        public StaticMeshSocket this[string socketName]
+        {
+            get => _sockets.ContainsKey(socketName) ? _sockets[socketName] : null;
+            set
+            {
+                if (_sockets.ContainsKey(socketName))
+                    _sockets[socketName] = value;
+                else
+                    _sockets.Add(socketName, value);
+            }
+        }
+
+        private Dictionary<string, StaticMeshSocket> _sockets = new Dictionary<string, StaticMeshSocket>();
 
         private void _physicsDriver_TransformChanged(Matrix4 worldMatrix)
         {

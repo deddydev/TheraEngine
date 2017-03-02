@@ -30,12 +30,12 @@ namespace CustomEngine.Worlds.Actors
         public static ZoomLevel DefaultNonZoomed => new ZoomLevel(78.0f, 1000.0f);
         public static ZoomLevel DefaultZoomed => new ZoomLevel(45.0f, 2000.0f);
     }
-    public class CharacterPawn : Pawn
+    public class CharacterPawn : Pawn<CapsuleComponent>
     {
         public CharacterPawn() : base() { }
         public CharacterPawn(PlayerIndex possessor) : base(possessor) { }
 
-        protected override SceneComponent SetupComponents()
+        protected override CapsuleComponent SetupComponents()
         {
             PhysicsDriverInfo info = new PhysicsDriverInfo();
             CapsuleComponent root = new CapsuleComponent(0.2f, 0.8f, info);
@@ -54,7 +54,7 @@ namespace CustomEngine.Worlds.Actors
             
         }
 
-        public void Kill(CharacterPawn instigator, Actor killer)
+        public void Kill(CharacterPawn instigator, IActor killer)
         {
             GameMode mode = Engine.World.State.GameMode;
         }

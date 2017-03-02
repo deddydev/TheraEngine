@@ -63,6 +63,19 @@ namespace CustomEngine.GameModes
     }
     public class GameMode
     {
+        public void BeginGameplay()
+        {
 
+        }
+        public void EndGameplay()
+        {
+
+        }
+        public void AbortGameplay()
+        {
+
+        }
+
+        public int _numSpectators, _numPlayers, _numComputers;
     }
 }

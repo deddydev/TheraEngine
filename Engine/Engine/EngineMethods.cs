@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using CustomEngine.Worlds.Actors;
+using BulletSharp;
 
 namespace CustomEngine
 {
@@ -26,6 +27,23 @@ namespace CustomEngine
             }
             ActivePlayers.Added += ActivePlayers_Added;
             ActivePlayers.Removed += ActivePlayers_Removed;
+        }
+
+        public static ClosestRayResultCallback RaycastClosest(Vec3 from, Vec3 to)
+        {
+            if (World == null)
+                return null;
+            ClosestRayResultCallback callback = new ClosestRayResultCallback();
+            World.PhysicsScene.RayTest(from, to, callback);
+            return callback;
+        }
+        public static AllHitsRayResultCallback RaycastMultiple(Vec3 from, Vec3 to)
+        {
+            if (World == null)
+                return null;
+            AllHitsRayResultCallback callback = new AllHitsRayResultCallback(from, to);
+            World.PhysicsScene.RayTest(from, to, callback);
+            return callback;
         }
 
         private static void ActivePlayers_Removed(LocalPlayerController item)
@@ -233,7 +251,7 @@ namespace CustomEngine
             if (unloadPrevious)
                 previous?.Unload();
         }
-        internal static void QueuePossession(Pawn pawn, PlayerIndex possessor)
+        internal static void QueuePossession(IPawn pawn, PlayerIndex possessor)
         {
             int index = (int)possessor;
             if (index < ActivePlayers.Count)
@@ -242,7 +260,7 @@ namespace CustomEngine
                 _possessionQueue[possessor].Enqueue(pawn);
             else
             {
-                Queue<Pawn> queue = new Queue<Pawn>();
+                Queue<IPawn> queue = new Queue<IPawn>();
                 queue.Enqueue(pawn);
                 _possessionQueue.Add(possessor, queue);
             }

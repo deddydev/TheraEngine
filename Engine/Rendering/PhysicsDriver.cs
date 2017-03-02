@@ -13,9 +13,9 @@ using System.Xml;
 namespace CustomEngine.Rendering
 {
     [Flags]
-    public enum CustomCollisionGroup : short
+    public enum CustomCollisionGroup : ushort
     {
-        All             = -1,
+        All             = 0xFFFF,
         None            = 0x0000,
         Default         = 0x0001,
         Pawns           = 0x0002,
@@ -165,6 +165,12 @@ namespace CustomEngine.Rendering
                 if (_collisionEnabled == value)
                     return;
                 _collisionEnabled = value;
+
+                if (_collisionEnabled)
+                    _collision.CollisionFlags &= ~CollisionFlags.NoContactResponse;
+                else
+                    _collision.CollisionFlags |= CollisionFlags.NoContactResponse;
+
                 if (_collision != null && _collision.IsInWorld)
                     _collision.BroadphaseProxy.CollisionFilterMask = (CollisionFilterGroups)(short)(_collisionEnabled ? _collidesWith : CustomCollisionGroup.None);
             }
@@ -224,7 +230,9 @@ namespace CustomEngine.Rendering
                     _collision.CollisionFlags &= ~CollisionFlags.NoContactResponse;
                 else
                     _collision.CollisionFlags |= CollisionFlags.NoContactResponse;
-                
+
+                _collision.CollisionFlags |= CollisionFlags.CustomMaterialCallback;
+
                 _collision.UserObject = this;
                 if (!_simulatingPhysics)
                 {

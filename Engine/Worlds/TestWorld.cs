@@ -146,7 +146,7 @@ namespace CustomEngine.Worlds
             //cam.Rotation.Yaw = 45.0f;
             //cam.Rotation.Pitch = -30.0f;
 
-            Actor[] actors = new Actor[]
+            IActor[] actors = new IActor[]
             {
                 //sphereActor,
                 //lightActor,

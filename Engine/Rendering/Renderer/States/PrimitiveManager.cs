@@ -127,7 +127,7 @@ namespace CustomEngine.Rendering.Models
                 if (Engine._engineSettings.File.SkinOnGPU)
                 {
                     _cpuSkinInfo = null;
-                    _data.AddBuffer(matrixIndices.ToList(), new VertexAttribInfo(BufferType.MatrixIds), false, true);
+                    _data.AddBuffer(matrixIndices.ToList(), new VertexAttribInfo(BufferType.MatrixIds), false, false);
                     _data.AddBuffer(matrixWeights.ToList(), new VertexAttribInfo(BufferType.MatrixWeights));
                 }
                 else

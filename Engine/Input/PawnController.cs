@@ -11,18 +11,18 @@ namespace CustomEngine.Input
     {
         public PawnController()
         {
-            _possessionQueue = new Queue<Pawn>();
+            _possessionQueue = new Queue<IPawn>();
         }
-        public PawnController(Queue<Pawn> possessionQueue)
+        public PawnController(Queue<IPawn> possessionQueue)
         {
             _possessionQueue = possessionQueue;
             if (_possessionQueue.Count != 0)
                 ControlledPawn = _possessionQueue.Dequeue();
         }
 
-        protected Queue<Pawn> _possessionQueue;
-        protected Pawn _controlledPawn;
-        public virtual Pawn ControlledPawn
+        protected Queue<IPawn> _possessionQueue;
+        protected IPawn _controlledPawn;
+        public virtual IPawn ControlledPawn
         {
             get { return _controlledPawn; }
             set
@@ -36,7 +36,7 @@ namespace CustomEngine.Input
                 _controlledPawn?.OnPossessed(this);
             }
         }
-        public void EnqueuePosession(Pawn pawn)
+        public void EnqueuePosession(IPawn pawn)
         {
             if (ControlledPawn == null)
                 ControlledPawn = pawn;

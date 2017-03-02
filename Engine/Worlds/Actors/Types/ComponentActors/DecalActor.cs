@@ -3,18 +3,11 @@ using CustomEngine.Worlds;
 
 namespace CustomEngine.Worlds.Actors.Types
 {
-    public class DecalActor : Actor
+    public class DecalActor : Actor<DecalComponent>
     {
-        private DecalComponent _decalComponent;
-        public DecalComponent DecalComponent
+        protected override DecalComponent SetupComponents()
         {
-            get { return _decalComponent; }
-            set { _decalComponent = value; }
-        }
-
-        protected override SceneComponent SetupComponents()
-        {
-            return _decalComponent = new DecalComponent();
+            return new DecalComponent();
         }
     }
 }

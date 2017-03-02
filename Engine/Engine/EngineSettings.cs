@@ -22,7 +22,6 @@ namespace CustomEngine
         }
         public override void Write(XmlWriter writer)
         {
-
             TransitionWorld.Write(writer);
         }
 

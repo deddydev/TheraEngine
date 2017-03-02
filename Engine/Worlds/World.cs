@@ -17,7 +17,7 @@ namespace CustomEngine.Worlds
     {
         WorldSettings Settings { get; set; }
     }
-    public unsafe class World : FileObject, IEnumerable<Actor>
+    public unsafe class World : FileObject, IEnumerable<IActor>
     {
         public override ResourceType ResourceType { get { return ResourceType.World; } }
 
@@ -36,15 +36,24 @@ namespace CustomEngine.Worlds
             DefaultCollisionConfiguration config = new DefaultCollisionConfiguration();
             CollisionDispatcher dispatcher = new CollisionDispatcher(config);
             SequentialImpulseConstraintSolver solver = new SequentialImpulseConstraintSolver();
-            _physicsScene = new DiscreteDynamicsWorld(dispatcher, broadphase, solver, config);
-            _physicsScene.Gravity = _settings.State.Gravity;
+            _physicsScene = new DiscreteDynamicsWorld(dispatcher, broadphase, solver, config)
+            {
+                Gravity = _settings.State.Gravity
+            };
             _physicsScene.PairCache.SetOverlapFilterCallback(new CustomOvelapFilter());
+            _settings.State.GravityChanged += OnGravityChanged;
+            
+        }
+        private void OnGravityChanged(Vec3 oldGravity)
+        {
+            _physicsScene.Gravity = _settings.State.Gravity;
         }
         private class CustomOvelapFilter : OverlapFilterCallback
         {
             public override bool NeedBroadphaseCollision(BroadphaseProxy proxy0, BroadphaseProxy proxy1)
             {
-                if (proxy0 == null || proxy1 == null)
+                if (proxy0 == null || 
+                    proxy1 == null)
                     return false;
 
                 bool collides = 
@@ -59,28 +68,28 @@ namespace CustomEngine.Worlds
         /// </summary>
         public void RebaseOrigin(Vec3 newOrigin)
         {
-            foreach (Actor a in State.SpawnedActors)
+            foreach (IActor a in State.SpawnedActors)
                 a.RebaseOrigin(newOrigin);
         }
         public int ActorCount { get { return _settings.State.SpawnedActors.Count; } }
 
         public WorldState State { get { return _settings.State; } }
 
-        public void SpawnActor(Actor actor, Matrix4 transform)
+        public void SpawnActor(IActor actor, Matrix4 transform)
         {
             if (!_settings.State.SpawnedActors.Contains(actor))
                 _settings.State.SpawnedActors.Add(actor);
             //actor.Transform.TranslateAbsolute(worldPosition);
             actor.OnSpawned(this);
         }
-        public void DespawnActor(Actor actor)
+        public void DespawnActor(IActor actor)
         {
             if (_settings.State.SpawnedActors.Contains(actor))
                 _settings.State.SpawnedActors.Remove(actor);
             actor.OnDespawned();
         }
         public void StepSimulation(float delta) { _physicsScene.StepSimulation(delta); }
-        public Actor this[int index]
+        public IActor this[int index]
         {
             get { return _settings.State.SpawnedActors[index]; }
             set { _settings.State.SpawnedActors[index] = value; }
@@ -120,7 +129,7 @@ namespace CustomEngine.Worlds
         {
 
         }
-        public IEnumerator<Actor> GetEnumerator() { return State.SpawnedActors.GetEnumerator(); }
+        public IEnumerator<IActor> GetEnumerator() { return State.SpawnedActors.GetEnumerator(); }
         IEnumerator IEnumerable.GetEnumerator() { return State.SpawnedActors.GetEnumerator(); }
     }
     [StructLayout(LayoutKind.Sequential, Pack = 1)]

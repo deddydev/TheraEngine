@@ -2,8 +2,13 @@
 
 namespace CustomEngine.Worlds.Actors.Components
 {
+    public delegate void DelOnOverlapEnter(IActor actor);
+    public delegate void DelOnOverlapLeave(IActor actor);
     public class TriggerVolumeComponent : BoxComponent
     {
-        public TriggerVolumeComponent(Vec3 extents) : base(extents, null) { }
+        public DelOnOverlapEnter OnEntered;
+        public DelOnOverlapLeave OnLeft;
+        public TriggerVolumeComponent(Vec3 halfExtents)
+            : base(halfExtents, null) { }
     }
 }

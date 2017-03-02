@@ -91,18 +91,18 @@ namespace CustomEngine.Rendering.Models
 
         public bool Integral
         {
-            get { return _integral; }
-            set { _integral = value; }
+            get => _integral;
+            set => _integral = value;
         }
         public int Index
         {
-            get { return _index; }
-            set { _index = value; }
+            get => _index;
+            set => _index = value;
         }
         public BufferType BufferType
         {
-            get { return _type; }
-            set { _type = value; }
+            get => _type;
+            set => _type = value;
         }
 
         public VertexBuffer(
@@ -177,11 +177,11 @@ namespace CustomEngine.Rendering.Models
             _integral = integral;
         }
 
-        public VoidPtr Data { get { return _data.Address; } }
-        public int ComponentCount { get { return _componentCount; } }
-        public int ElementCount { get { return _elementCount; } }
-        public int DataLength { get { return _elementCount * Stride; } }
-        public int Stride { get { return _componentCount * ElementSize; } }
+        public VoidPtr Data => _data.Address;
+        public int ComponentCount => _componentCount;
+        public int ElementCount => _elementCount;
+        public int DataLength => _elementCount * Stride;
+        public int Stride => _componentCount * ElementSize;
         private int ElementSize
         {
             get

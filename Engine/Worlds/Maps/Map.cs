@@ -21,12 +21,12 @@ namespace CustomEngine.Worlds
 
         public virtual void EndPlay()
         {
-            foreach (Actor actor in Settings._defaultActors)
+            foreach (IActor actor in Settings._defaultActors)
                 _owningWorld.DespawnActor(actor);
         }
         public virtual void BeginPlay()
         {
-            foreach (Actor actor in Settings._defaultActors)
+            foreach (IActor actor in Settings._defaultActors)
                 _owningWorld.SpawnActor(actor, Matrix4.Identity);
         }
 

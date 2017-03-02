@@ -15,7 +15,33 @@ namespace CustomEngine.Worlds.Actors
         Three   = 2,
         Four    = 3
     }
-    public class Pawn : Actor
+    /// <summary>
+    /// A pawn is an actor that can be controlled by either a player or AI.
+    /// </summary>
+    public interface IPawn
+    {
+        PawnController Controller { get; }
+        LocalPlayerController LocalPlayerController { get; }
+        CameraComponent CurrentCameraComponent { get; set; }
+        void QueuePossession(PlayerIndex possessor);
+        void OnUnPossessed();
+        void OnPossessed(PawnController possessor);
+        void RegisterInput(InputInterface input);
+    }
+    /// <summary>
+    /// A pawn is an actor that can be controlled by either a player or AI.
+    /// </summary>
+    public class Pawn : Pawn<SceneComponent>
+    {
+        public Pawn() : base() { }
+        public Pawn(SceneComponent root, params LogicComponent[] logicComponents)
+            : base(root, logicComponents) { }
+    }
+    /// <summary>
+    /// A pawn is an actor that can be controlled by either a player or AI.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    public class Pawn<T> : Actor<T>, IPawn where T : SceneComponent
     {
         private PawnController _controller;
         private CameraComponent _currentCameraComponent;
@@ -36,9 +62,9 @@ namespace CustomEngine.Worlds.Actors
 
         public Pawn() : base() { }
         public Pawn(PlayerIndex possessor) : base() { QueuePossession(possessor); }
-        public Pawn(SceneComponent root, params LogicComponent[] logicComponents)
-        : base (root, logicComponents) { }
-        public Pawn(PlayerIndex possessor, SceneComponent root, params LogicComponent[] logicComponents)
+        public Pawn(T root, params LogicComponent[] logicComponents)
+        : base(root, logicComponents) { }
+        public Pawn(PlayerIndex possessor, T root, params LogicComponent[] logicComponents)
         : base(root, logicComponents) { QueuePossession(possessor); }
 
         public void QueuePossession(PlayerIndex possessor)
@@ -46,18 +72,18 @@ namespace CustomEngine.Worlds.Actors
             Engine.QueuePossession(this, possessor);
         }
 
-        internal virtual void OnPossessed(PawnController c)
+        public virtual void OnPossessed(PawnController possessor)
         {
-            if (c == null)
+            if (possessor == null)
                 OnUnPossessed();
 
-            _controller = c;
+            _controller = possessor;
 
             LocalPlayerController controller = LocalPlayerController;
             if (controller != null && _currentCameraComponent != null)
                 controller.CurrentCamera = _currentCameraComponent.Camera;
         }
-        internal virtual void OnUnPossessed()
+        public virtual void OnUnPossessed()
         {
             if (_controller == null)
                 return;

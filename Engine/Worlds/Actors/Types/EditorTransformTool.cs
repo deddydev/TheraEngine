@@ -53,13 +53,13 @@ namespace CustomEngine.Worlds.Actors.Types
             }
         }
 
-        internal override void OnSpawned(World world)
+        public override void OnSpawned(World world)
         {
             base.OnSpawned(world);
             CurrentInstance = this;
         }
 
-        internal override void OnDespawned()
+        public override void OnDespawned()
         {
             base.OnDespawned();
             CurrentInstance = null;

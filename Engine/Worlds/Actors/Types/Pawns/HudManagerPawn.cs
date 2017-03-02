@@ -9,7 +9,7 @@ namespace CustomEngine.Rendering.HUD
 {
     public partial class HudManager : DockableHudComponent
     {
-        Vec2 _cursorPos = Vec2.Zero;
+        protected Vec2 _cursorPos = Vec2.Zero;
 
         CameraComponent CameraComponent { get { return RootComponent as CameraComponent; } }
         protected override void SetDefaults()
@@ -23,7 +23,7 @@ namespace CustomEngine.Rendering.HUD
         }
         public override void RegisterInput(InputInterface input)
         {
-            input.RegisterMouseScroll(OnScrolled);
+            input.RegisterMouseScroll(OnScrolled, InputPauseType.TickOnlyWhenPaused);
             input.RegisterMouseMove(MouseMove, false);
             input.RegisterButtonEvent(EMouseButton.LeftClick, ButtonInputType.Pressed, OnSelect);
             input.RegisterButtonPressed(EKey.ShiftLeft, OnShift);

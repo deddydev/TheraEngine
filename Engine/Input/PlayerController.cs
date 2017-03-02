@@ -13,7 +13,7 @@ namespace CustomEngine.Input
 
         public int ServerPlayerIndex { get { return _playerInfo != null ? _playerInfo.Index : -1; } }
 
-        public PlayerController(Queue<Pawn> possessionQueue) : base(possessionQueue)
+        public PlayerController(Queue<IPawn> possessionQueue) : base(possessionQueue)
         {
 
         }

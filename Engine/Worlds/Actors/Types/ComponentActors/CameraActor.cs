@@ -4,7 +4,7 @@ using CustomEngine.Rendering.Cameras;
 
 namespace CustomEngine.Worlds.Actors.Types
 {
-    public class CameraActor : Actor
+    public class CameraActor : Actor<CameraComponent>
     {
         public CameraActor() : base() { }
 
@@ -15,7 +15,7 @@ namespace CustomEngine.Worlds.Actors.Types
             set { _cameraComponent = value; }
         }
 
-        protected override SceneComponent SetupComponents()
+        protected override CameraComponent SetupComponents()
         {
             _cameraComponent = new CameraComponent();
             PerspectiveCamera cam = (PerspectiveCamera)_cameraComponent.Camera;
@@ -24,13 +24,13 @@ namespace CustomEngine.Worlds.Actors.Types
             return _cameraComponent;
         }
 
-        internal override void OnSpawned(World world)
+        public override void OnSpawned(World world)
         {
             Engine.Renderer.Scene.AddRenderable(_cameraComponent.Camera);
             base.OnSpawned(world);
         }
 
-        internal override void OnDespawned()
+        public override void OnDespawned()
         {
             Engine.Renderer.Scene.RemoveRenderable(_cameraComponent.Camera);
             base.OnDespawned();

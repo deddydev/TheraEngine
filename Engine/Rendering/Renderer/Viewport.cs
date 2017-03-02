@@ -288,7 +288,12 @@ namespace CustomEngine.Rendering
             }
         }
         
-        public Actor PickScene(Vec2 viewportPoint, bool mouse, bool testHud = true, bool testWorld = true, bool highlightActors = true)
+        public IActor PickScene(
+            Vec2 viewportPoint,
+            bool mouse,
+            bool testHud = true,
+            bool testWorld = true,
+            bool highlightActors = true)
         {
             if (testHud)
             {

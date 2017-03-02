@@ -51,7 +51,7 @@ namespace CustomEngine.Worlds
             }
         }
         public List<Map> SpawnedMaps { get { return _spawnedMaps; } }
-        public List<Actor> SpawnedActors { get { return _spawnedActors; } }
+        public List<IActor> SpawnedActors { get { return _spawnedActors; } }
 
         public void OnGravityChanged(Vec3 oldGravity) { GravityChanged?.Invoke(oldGravity); }
         public void OnGameModeChanged(GameMode oldMode) { GameModeChanged?.Invoke(oldMode); }
@@ -78,7 +78,7 @@ namespace CustomEngine.Worlds
         }
 
         private List<Map> _spawnedMaps = new List<Map>();
-        private List<Actor> _spawnedActors = new List<Actor>();
+        private List<IActor> _spawnedActors = new List<IActor>();
         private Vec3 _gravity = new Vec3(0.0f, -9.81f, 0.0f);
         private GameMode _gameMode;
         private float _timeSpeed = 1.0f;

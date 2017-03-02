@@ -44,10 +44,15 @@ namespace CustomEngine.Worlds.Actors
         public EMouseButton _type;
         public ComboModifier _modifiers;
     }
-    public class FlyingCameraPawn : Pawn
+    public class FlyingCameraPawn : Pawn<CameraComponent>
     {
-        bool Rotating { get { return _rightClickPressed && _ctrl; } }
-        bool Translating { get { return _rightClickPressed && !_ctrl; } }
+        public FlyingCameraPawn() : base() { }
+        public FlyingCameraPawn(PlayerIndex possessor) : base(possessor) { }
+
+        protected override CameraComponent SetupComponents()
+        {
+            return new CameraComponent(false);
+        }
 
         //Movement parameters
         float
@@ -64,20 +69,15 @@ namespace CustomEngine.Worlds.Actors
         bool _ctrl = false, _alt = false, _shift = false, _rightClickPressed = false;
         Vec2 _cursorPos = Vec2.Zero;
 
-        public FlyingCameraPawn() : base() { }
-        public FlyingCameraPawn(PlayerIndex possessor) : base(possessor) { }
+        bool Rotating { get { return _rightClickPressed && _ctrl; } }
+        bool Translating { get { return _rightClickPressed && !_ctrl; } }
 
-        CameraComponent CameraComponent { get { return RootComponent as CameraComponent; } }
         protected override void SetDefaults()
         {
             RegisterTick(ETickGroup.PrePhysics, ETickOrder.Input);
-            CameraComponent.Camera.TranslateAbsolute(new Vec3(0.0f, 0.0f, 100.0f));
+            RootComponent.Camera.TranslateAbsolute(new Vec3(0.0f, 0.0f, 100.0f));
             //CameraComponent.Camera.Rotation.Pitch = -45.0f;
             base.SetDefaults();
-        }
-        protected override SceneComponent SetupComponents()
-        {
-            return new CameraComponent(false);
         }
         public override void RegisterInput(InputInterface input)
         {
@@ -151,8 +151,10 @@ namespace CustomEngine.Worlds.Actors
 
         }
 
-        private void OnScrolled(bool up) { CameraComponent.Camera.Zoom(up ? _scrollSpeed : -_scrollSpeed); }
-
+        private void OnScrolled(bool up)
+        {
+            RootComponent.Camera.Zoom(up ? _scrollSpeed : -_scrollSpeed);
+        }
         private void OnRightClick(bool pressed)
         {
             _rightClickPressed = pressed;
@@ -165,45 +167,20 @@ namespace CustomEngine.Worlds.Actors
         //}
         public void MouseMove(float x, float y)
         {
-            //float xDiff = x - _cursorPos.X;
-            //float yDiff = y - _cursorPos.Y;
             if (Rotating)
-                CameraComponent.Camera.AddRotation(-y * _mouseRotateSpeed, -x * _mouseRotateSpeed);
+                RootComponent.Camera.AddRotation(-y * _mouseRotateSpeed, -x * _mouseRotateSpeed);
             else if (Translating)
-                CameraComponent.Camera.TranslateRelative(new Vec3(-x * _mouseTranslateSpeed, y * _mouseTranslateSpeed, 0.0f));
-            //_cursorPos.X = x;
-            //_cursorPos.Y = y;
-            HighlightScene(false);
+                RootComponent.Camera.TranslateRelative(new Vec3(-x * _mouseTranslateSpeed, y * _mouseTranslateSpeed, 0.0f));
         }
         public void ShowContextMenu()
         {
 
         }
-        private void HighlightScene(bool gamepad)
-        {
-            Viewport v = GetViewport();
-            if (v == null)
-                return;
-
-            Actor actor = v.PickScene(gamepad ? v.Center : v.AbsoluteToRelative(_cursorPos), !gamepad);
-            if (actor is EditorTransformTool tool)
-            {
-
-            }
-            else if (actor is HudComponent hudComp)
-            {
-
-            }
-            else if (actor != null)
-            {
-
-            }
-        }
+        
         internal override void Tick(float delta)
         {
-            CameraComponent.Camera.TranslateRelative(new Vec3(_linearRight, _linearUp, -_linearForward) * delta);
-            CameraComponent.Camera.AddRotation(_pitch * delta, _yaw * delta);
-            HighlightScene(true);
+            RootComponent.Camera.TranslateRelative(new Vec3(_linearRight, _linearUp, -_linearForward) * delta);
+            RootComponent.Camera.AddRotation(_pitch * delta, _yaw * delta);
         }
 
         //Dictionary<ComboModifier, Action<bool>> _combos = new Dictionary<ComboModifier, Action<bool>>();
@@ -237,14 +214,14 @@ namespace CustomEngine.Worlds.Actors
         //        else
         //            _combos.Add(mod, func);
         //}
-        internal override void OnSpawned(World world)
+        public override void OnSpawned(World world)
         {
-            Engine.Renderer.Scene.AddRenderable(CameraComponent.Camera);
+            //Engine.Renderer.Scene.AddRenderable(CameraComponent.Camera);
             base.OnSpawned(world);
         }
-        internal override void OnDespawned()
+        public override void OnDespawned()
         {
-            Engine.Renderer.Scene.RemoveRenderable(CameraComponent.Camera);
+            //Engine.Renderer.Scene.RemoveRenderable(CameraComponent.Camera);
             base.OnDespawned();
         }
     }

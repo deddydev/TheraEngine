@@ -17,8 +17,26 @@ namespace CustomEngine.Worlds
         Static, //This actor is part of the map
         Dynamic, //This actor can be changed/manipulated
     }
-    public class Actor : FileObject
+    public interface IActor
     {
+        bool IsConstructing { get; }
+        World OwningWorld { get; }
+        bool IsSpawned { get; }
+        void OnSpawned(World world);
+        void OnDespawned();
+        void GenerateSceneComponentCache();
+        SceneComponent RootComponent { get; }
+        void RebaseOrigin(Vec3 newOrigin);
+    }
+    public class Actor : Actor<SceneComponent>
+    {
+        public Actor() : base() { }
+        public Actor(SceneComponent root, params LogicComponent[] logicComponents)
+            : base(root, logicComponents) { }
+    }
+    public class Actor<T> : FileObject, IActor where T : SceneComponent
+    {
+        public override ResourceType ResourceType { get { return ResourceType.Actor; } }
         public Actor()
         {
             _isConstructing = true;
@@ -27,7 +45,7 @@ namespace CustomEngine.Worlds
             _isConstructing = false;
             GenerateSceneComponentCache();
         }
-        public Actor(SceneComponent root, params LogicComponent[] logicComponents)
+        public Actor(T root, params LogicComponent[] logicComponents)
         {
             _isConstructing = true;
             RootComponent = root;
@@ -49,7 +67,9 @@ namespace CustomEngine.Worlds
         public World OwningWorld { get { return _owningWorld; } }
 
         public ReadOnlyCollection<SceneComponent> SceneComponentCache { get { return _sceneComponentCache; } }
-        public SceneComponent RootComponent
+
+        SceneComponent IActor.RootComponent => RootComponent;
+        public T RootComponent
         {
             get { return _rootSceneComponent; }
             set
@@ -72,7 +92,7 @@ namespace CustomEngine.Worlds
         private List<PrimitiveComponent> _renderableComponentCache = new List<PrimitiveComponent>();
         public int _spawnIndex = -1;
         private World _owningWorld;
-        private SceneComponent _rootSceneComponent;
+        private T _rootSceneComponent;
         protected ReadOnlyCollection<SceneComponent> _sceneComponentCache;
         private MonitoredList<LogicComponent> _logicComponents = new MonitoredList<LogicComponent>();
 
@@ -82,10 +102,8 @@ namespace CustomEngine.Worlds
         public List<PrimitiveComponent> RenderableComponentCache { get { return _renderableComponentCache; } }
         public bool HasRenderableComponents { get { return _renderableComponentCache.Count > 0; } }
 
-        public override ResourceType ResourceType { get { return ResourceType.Actor; } }
-
         protected virtual void SetDefaults() { }
-        protected virtual SceneComponent SetupComponents() { return new TRSComponent(); }
+        protected virtual T SetupComponents() { return Activator.CreateInstance<T>(); }
         public void GenerateSceneComponentCache()
         {
             if (!_isConstructing)
@@ -94,7 +112,7 @@ namespace CustomEngine.Worlds
                 _sceneComponentCache = _rootSceneComponent == null ? null : _rootSceneComponent.GenerateChildCache().AsReadOnly();
             }
         }
-        internal void RebaseOrigin(Vec3 newOrigin)
+        public void RebaseOrigin(Vec3 newOrigin)
         {
             RootComponent?.OriginRebased(newOrigin);
         }
@@ -109,7 +127,7 @@ namespace CustomEngine.Worlds
             if (IsSpawned && OwningWorld != null)
                 OwningWorld.DespawnActor(this);
         }
-        internal virtual void OnSpawned(World world)
+        public virtual void OnSpawned(World world)
         {
             if (IsSpawned)
                 return;
@@ -122,7 +140,7 @@ namespace CustomEngine.Worlds
             foreach (LogicComponent comp in _logicComponents)
                 comp.OnSpawned();
         }
-        internal virtual void OnDespawned()
+        public virtual void OnDespawned()
         {
             if (!IsSpawned)
                 return;

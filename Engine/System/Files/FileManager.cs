@@ -70,7 +70,7 @@ namespace CustomEngine.Files
             { typeof(MapSettings), new FilterInfo("Map Settings", "SETT", ResourceType.MapSettings, "csettings") },
             { typeof(MapState), new FilterInfo("Map State", "STAT", ResourceType.MapState, "cstate") },
 
-            { typeof(Actor), new FilterInfo("Actor", "CACT", ResourceType.Actor, "cactor") },
+            { typeof(IActor), new FilterInfo("Actor", "CACT", ResourceType.Actor, "cactor") },
             //{ typeof(ActorSettings), new FilterInfo("Actor Settings", "SETT", ResourceType.ActorSettings, "csettings") },
             //{ typeof(ActorState), new FilterInfo("Actor State", "STAT", ResourceType.ActorState, "cstate") },
             

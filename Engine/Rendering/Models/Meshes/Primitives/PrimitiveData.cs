@@ -69,6 +69,7 @@ namespace CustomEngine.Rendering.Models
         public Influence[] _influences;
         public string[] _utilizedBones;
         public string _singleBindBone;
+        internal HashSet<int> _modifiedVertexIndices = new HashSet<int>();
 
         //Face points have indices that refer to each buffer.
         //These may contain repeat buffer indices but each point is unique.
@@ -161,7 +162,6 @@ namespace CustomEngine.Rendering.Models
                     return _points?.Select(x => (int)x).ToArray();
             }
             return null;
-            
         }
         public VertexTriangle GetFace(int index)
         {
@@ -176,7 +176,14 @@ namespace CustomEngine.Rendering.Models
         }
         private void SetInfluences(params Influence[] influences)
         {
-            _influences = influences;
+            Remapper remap = new Remapper();
+            remap.Remap(influences);
+            for (int i = 0; i < remap.RemapTable.Length; ++i)
+                _facePoints[i]._influenceIndex = remap.RemapTable[i];
+            _influences = new Influence[remap.ImplementationLength];
+            for (int i = 0; i < remap.ImplementationLength; ++i)
+                _influences[i] = influences[remap.ImplementationTable[i]];
+
             HashSet<string> utilized = new HashSet<string>();
             foreach (Influence inf in _influences)
                 if (inf != null)
@@ -215,13 +222,13 @@ namespace CustomEngine.Rendering.Models
             {
                 Remapper remapper = buffer.SetData(bufferData, true);
                 for (int i = 0; i < bufferData.Count; ++i)
-                    _facePoints[i].Indices.Add(remapper.RemapTable[i]);
+                    _facePoints[i].BufferIndices.Add(remapper.RemapTable[i]);
             }
             else
             {
                 buffer.SetData(bufferData);
                 for (int i = 0; i < bufferData.Count; ++i)
-                    _facePoints[i].Indices.Add(i);
+                    _facePoints[i].BufferIndices.Add(i);
             }
             _buffers.Add(buffer);
         }
@@ -243,13 +250,13 @@ namespace CustomEngine.Rendering.Models
             {
                 Remapper remapper = buffer.SetData(bufferData, true);
                 for (int i = 0; i < bufferData.Count; ++i)
-                    _facePoints[i].Indices[bufferIndex] = remapper.ImplementationTable[remapper.RemapTable[i]];
+                    _facePoints[i].BufferIndices[bufferIndex] = remapper.ImplementationTable[remapper.RemapTable[i]];
             }
             else
             {
                 buffer.SetData(bufferData);
                 for (int i = 0; i < bufferData.Count; ++i)
-                    _facePoints[i].Indices[bufferIndex] = i;
+                    _facePoints[i].BufferIndices[bufferIndex] = i;
             }
             _buffers[bufferIndex] = buffer;
         }

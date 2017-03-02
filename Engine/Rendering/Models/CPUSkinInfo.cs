@@ -1,9 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace CustomEngine.Rendering.Models
 {
     public class CPUSkinInfo
     {
+        public HashSet<FacePoint> _modified = new HashSet<FacePoint>();
         int _vertexCount;
         IVec4[] _matrixIds;
         Vec4[] _matrixWeights;
@@ -19,9 +21,12 @@ namespace CustomEngine.Rendering.Models
             _matrixWeights = matrixWeights;
             _vertexCount = _positions.ElementCount;
         }
-        public unsafe void UpdatePNBT(Matrix4[] boneMatrices, Matrix3[] boneMatricesIT)
+        public unsafe void UpdatePNBT(
+            Matrix4[] boneMatrices,
+            Matrix3[] boneMatricesIT,
+            HashSet<int> modifiedVertexIndices)
         {
-            for (int i = 0; i < _vertexCount; ++i)
+            foreach (int i in modifiedVertexIndices)
             {
                 IVec4 ids = _matrixIds[i];
                 Vec4 weights = _matrixWeights[i];

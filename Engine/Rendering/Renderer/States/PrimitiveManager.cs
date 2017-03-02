@@ -90,7 +90,7 @@ namespace CustomEngine.Rendering.Models
             _data[BufferType.MatrixWeights]?.Dispose();
             if (skeleton != null && _data._influences != null)
             {
-                _utilizedBones = _data._utilizedBones.Select(x => skeleton.BoneCache[x]).ToArray();
+                _utilizedBones = _data._utilizedBones.Select(x => skeleton.BoneNameCache[x]).ToArray();
 
                 int infCount = _data._influences.Length;
                 IVec4[] matrixIndices = new IVec4[infCount];
@@ -122,7 +122,7 @@ namespace CustomEngine.Rendering.Models
                 _positionMatrices[0] = Matrix4.Identity;
                 _normalMatrices[0] = Matrix3.Identity;
 
-                RegenerateSkinningMatries();
+                RegenerateSkinningMatrices();
 
                 if (Engine._engineSettings.File.SkinOnGPU)
                 {
@@ -142,7 +142,7 @@ namespace CustomEngine.Rendering.Models
                 _utilizedBones = null;
             }
         }
-        private void RegenerateSkinningMatries()
+        private void RegenerateSkinningMatrices()
         {
             for (int i = 1; i < _utilizedBones.Length + 1; ++i)
             {
@@ -166,8 +166,9 @@ namespace CustomEngine.Rendering.Models
             }
             else
             {
-                //RegenerateSkinningMatries();
-                //_cpuSkinInfo.UpdatePNBT(_positionMatrices, _normalMatrices);
+                //RegenerateSkinningMatrices();
+                _cpuSkinInfo.UpdatePNBT(_positionMatrices, _normalMatrices, _data._modifiedVertexIndices);
+                _data._modifiedVertexIndices.Clear();
             }
         }
 

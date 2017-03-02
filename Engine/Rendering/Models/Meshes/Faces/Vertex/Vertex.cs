@@ -45,11 +45,11 @@ namespace CustomEngine.Rendering.Models
 
         public void SetData(FacePoint facepoint, List<VertexBuffer> buffers)
         {
-            if (facepoint.Indices == null) return;
-            for (int i = 0; i < facepoint.Indices.Count; ++i)
+            if (facepoint.BufferIndices == null) return;
+            for (int i = 0; i < facepoint.BufferIndices.Count; ++i)
             {
                 VertexBuffer b = buffers[i];
-                int index = facepoint.Indices[i];
+                int index = facepoint.BufferIndices[i];
                 BufferType type = b.BufferType;
                 switch (type)
                 {
@@ -79,13 +79,13 @@ namespace CustomEngine.Rendering.Models
         }
         public void GetData(FacePoint facepoint, List<VertexBuffer> buffers)
         {
-            if (facepoint.Indices == null)
+            if (facepoint.BufferIndices == null)
                 return;
 
-            for (int i = 0; i < facepoint.Indices.Count; ++i)
+            for (int i = 0; i < facepoint.BufferIndices.Count; ++i)
             {
                 VertexBuffer b = buffers[i];
-                int index = facepoint.Indices[i];
+                int index = facepoint.BufferIndices[i];
                 BufferType type = b.BufferType;
                 switch (type)
                 {

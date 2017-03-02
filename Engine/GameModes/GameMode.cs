@@ -1,4 +1,5 @@
 ﻿using CustomEngine.Worlds.Actors;
+using System;
 
 namespace CustomEngine.GameModes
 {
@@ -29,6 +30,8 @@ namespace CustomEngine.GameModes
         }
         public static implicit operator float(InheritableFloat value)
         {
+            if (value._inherited)
+                throw new Exception("Value not set.");
             return value._value;
         }
     }
@@ -53,6 +56,8 @@ namespace CustomEngine.GameModes
         }
         public static implicit operator int(InheritableInt value)
         {
+            if (value._inherited)
+                throw new Exception("Value not set.");
             return value._value;
         }
     }

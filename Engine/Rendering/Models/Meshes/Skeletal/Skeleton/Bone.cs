@@ -26,6 +26,7 @@ namespace CustomEngine.Rendering.Models
         private BillboardType _billboardType = BillboardType.None;
         private bool _scaleByDistance = false;
 
+        internal int _index;
         internal List<FacePoint> _influencedVertices = new List<FacePoint>();
 
         public Bone(Skeleton owner)
@@ -76,7 +77,14 @@ namespace CustomEngine.Rendering.Models
 
         private void _frameState_MatrixChanged(Matrix4 oldMatrix, Matrix4 oldInvMatrix)
         {
-            CalcFrameMatrix();
+            if (Engine._engineSettings.File.SkinOnGPU)
+                CalcFrameMatrix();
+            else
+            {
+                HashSet<int> modifiedVertexIndices = new HashSet<int>();
+                HashSet<int> modifiedBoneIndices = new HashSet<int>();
+                CalcFrameMatrix(modifiedVertexIndices, modifiedBoneIndices);
+            }
         }
 
         public void MatrixUpdate(Matrix4 worldMatrix)
@@ -89,16 +97,19 @@ namespace CustomEngine.Rendering.Models
 
         }
 
-        internal void CollectChildBones(Dictionary<string, Bone> boneCache, Skeleton owner)
+        internal void CollectChildBones(Skeleton owner)
         {
             _skeleton = owner;
-            boneCache.Add(Name, this);
+            _skeleton.BoneNameCache.Add(Name, this);
+            _skeleton.BoneIndexCache.Add(_index = _skeleton.BoneIndexCache.Count, this);
             foreach (Bone b in ChildBones)
-                b.CollectChildBones(boneCache, owner);
+                b.CollectChildBones(owner);
         }
 
-        public void LinkSingleBindMesh(SkeletalRigidSubMesh m) { _singleBoundMeshes.Add(m); }
-        public void UnlinkSingleBindMesh(SkeletalRigidSubMesh m) { _singleBoundMeshes.Remove(m); }
+        public void LinkSingleBindMesh(SkeletalRigidSubMesh m)
+            => _singleBoundMeshes.Add(m);
+        public void UnlinkSingleBindMesh(SkeletalRigidSubMesh m) 
+            => _singleBoundMeshes.Remove(m);
 
         private PhysicsDriver _physicsDriver;
         private MonitoredList<Bone> _childBones = new MonitoredList<Bone>();
@@ -113,9 +124,8 @@ namespace CustomEngine.Rendering.Models
             //Non-animated default bone position transforms, in model space
             _bindMatrix = Matrix4.Identity, _inverseBindMatrix = Matrix4.Identity,
             //Used for calculating vertex influences matrices quickly
-            _vertexMatrix = Matrix4.Identity,
+            _vertexMatrix = Matrix4.Identity, _vertexMatrixIT = Matrix4.Identity,
             _worldMatrix = Matrix4.Identity, _inverseWorldMatrix = Matrix4.Identity;
-        private Matrix4 _vertexMatrixIT = Matrix4.Identity;
 
         public Bone Parent
         {
@@ -128,45 +138,49 @@ namespace CustomEngine.Rendering.Models
                     value.ChildBones.Add(this);
             }
         }
-        public MonitoredList<SceneComponent> ChildComponents { get { return _childComponents; } }
-        public MonitoredList<Bone> ChildBones { get { return _childBones; } }
-        public SkeletalMeshComponent OwningComponent { get { return _skeleton?.OwningComponent; } }
-        public FrameState FrameState { get { return _frameState; } }
+        public MonitoredList<SceneComponent> ChildComponents => _childComponents;
+        public MonitoredList<Bone> ChildBones => _childBones;
+        public SkeletalMeshComponent OwningComponent => _skeleton?.OwningComponent;
+        public FrameState FrameState => _frameState;
         public FrameState BindState
         {
-            get { return _bindState; }
+            get => _bindState;
             set
             {
                 _bindState = value;
                 CalcBindMatrix(false);
             }
         }
-        public Matrix4 WorldMatrix { get { return _worldMatrix; } }
-        public Matrix4 InverseWorldMatrix { get { return _inverseWorldMatrix; } }
-        public Matrix4 FrameMatrix { get { return _frameMatrix; } }
-        public Matrix4 BindMatrix { get { return _bindMatrix; } }
-        public Matrix4 InverseFrameMatrix { get { return _inverseFrameMatrix; } }
-        public Matrix4 InverseBindMatrix { get { return _inverseBindMatrix; } }
-        public Matrix4 VertexMatrix { get { return _vertexMatrix; } }
-        public Matrix4 VertexMatrixIT { get { return _vertexMatrixIT; } }
-        public Skeleton Skeleton { get { return _skeleton; } }
-        public PhysicsDriver PhysicsDriver { get { return _physicsDriver; } }
+        public Matrix4 WorldMatrix => _worldMatrix;
+        public Matrix4 InverseWorldMatrix => _inverseWorldMatrix;
+        public Matrix4 FrameMatrix => _frameMatrix;
+        public Matrix4 BindMatrix => _bindMatrix;
+        public Matrix4 InverseFrameMatrix => _inverseFrameMatrix;
+        public Matrix4 InverseBindMatrix => _inverseBindMatrix;
+        public Matrix4 VertexMatrix => _vertexMatrix;
+        public Matrix4 VertexMatrixIT => _vertexMatrixIT;
+        public Skeleton Skeleton => _skeleton;
+        public PhysicsDriver PhysicsDriver => _physicsDriver;
 
-        public void CalcFrameMatrix(HashSet<FacePoint> modified)
+        public void CalcFrameMatrix(HashSet<int> modifiedVertexIndices, HashSet<int> modifiedBoneIndices)
         {
             CalcFrameMatrix(
                 _parent != null ? _parent._frameMatrix : Matrix4.Identity,
                 _parent != null ? _parent._inverseFrameMatrix : Matrix4.Identity,
-                modified);
+                modifiedVertexIndices, modifiedBoneIndices);
         }
         public void CalcFrameMatrix()
         {
             CalcFrameMatrix(
                 _parent != null ? _parent._frameMatrix : Matrix4.Identity,
                 _parent != null ? _parent._inverseFrameMatrix : Matrix4.Identity,
-                null);
+                null, null);
         }
-        public void CalcFrameMatrix(Matrix4 parentMatrix, Matrix4 inverseParentMatrix, HashSet<FacePoint> modified)
+        public void CalcFrameMatrix(
+            Matrix4 parentMatrix,
+            Matrix4 inverseParentMatrix,
+            HashSet<int> modifiedVertexIndices,
+            HashSet<int> modifiedBoneIndices)
         {
             _frameMatrix = parentMatrix * _frameState.Matrix;
             _inverseFrameMatrix = _frameState.InverseMatrix * inverseParentMatrix;
@@ -185,12 +199,13 @@ namespace CustomEngine.Rendering.Models
                 _inverseWorldMatrix = _inverseFrameMatrix * OwningComponent.InverseWorldMatrix;
             }
 
-            //if (modified != null)
-            //    foreach (FacePoint p in _influencedVertices)
-            //        modified.Add(p);
+            if (modifiedVertexIndices != null)
+                _influencedVertices.ForEach(x => modifiedVertexIndices.Add(x.VertexIndex));
+            if (modifiedBoneIndices != null)
+                modifiedBoneIndices.Add(_index);
 
             foreach (Bone b in _childBones)
-                b.CalcFrameMatrix(_frameMatrix, _inverseFrameMatrix, modified);
+                b.CalcFrameMatrix(_frameMatrix, _inverseFrameMatrix, modifiedVertexIndices, modifiedBoneIndices);
         }
 
         public void CalcBindMatrix(bool updateMesh)
@@ -206,9 +221,7 @@ namespace CustomEngine.Rendering.Models
             _inverseBindMatrix = _bindState.InverseMatrix * inverseParentMatrix;
 
             _vertexMatrix = FrameMatrix * InverseBindMatrix;
-            Matrix4 m = InverseFrameMatrix * BindMatrix;
-            m.Transpose();
-            _vertexMatrixIT = m.GetRotationMatrix4();
+            _vertexMatrixIT = (InverseFrameMatrix * BindMatrix).Transposed().GetRotationMatrix4();
 
             if (!updateMesh)
                 InfluenceAssets(true);
@@ -228,7 +241,7 @@ namespace CustomEngine.Rendering.Models
         {
             item._parent = this;
             item.CalcBindMatrix(BindMatrix, InverseBindMatrix, false);
-            item.CalcFrameMatrix(FrameMatrix, InverseFrameMatrix, null);
+            item.CalcFrameMatrix(FrameMatrix, InverseFrameMatrix, null, null);
             _skeleton?.RegenerateBoneCache();
         }
         private void ChildBonesAddedRange(IEnumerable<Bone> items)
@@ -237,7 +250,7 @@ namespace CustomEngine.Rendering.Models
             {
                 item._parent = this;
                 item.CalcBindMatrix(BindMatrix, InverseBindMatrix, false);
-                item.CalcFrameMatrix(FrameMatrix, InverseFrameMatrix, null);
+                item.CalcFrameMatrix(FrameMatrix, InverseFrameMatrix, null, null);
             }
             _skeleton?.RegenerateBoneCache();
         }
@@ -245,7 +258,7 @@ namespace CustomEngine.Rendering.Models
         {
             item._parent = this;
             item.CalcBindMatrix(BindMatrix, InverseBindMatrix, false);
-            item.CalcFrameMatrix(FrameMatrix, InverseFrameMatrix, null);
+            item.CalcFrameMatrix(FrameMatrix, InverseFrameMatrix, null, null);
             _skeleton?.RegenerateBoneCache();
         }
         private void ChildBonesInsertedRange(IEnumerable<Bone> items, int index)
@@ -254,7 +267,7 @@ namespace CustomEngine.Rendering.Models
             {
                 item._parent = this;
                 item.CalcBindMatrix(BindMatrix, InverseBindMatrix, false);
-                item.CalcFrameMatrix(FrameMatrix, InverseFrameMatrix, null);
+                item.CalcFrameMatrix(FrameMatrix, InverseFrameMatrix, null, null);
             }
             _skeleton?.RegenerateBoneCache();
         }
@@ -339,7 +352,7 @@ namespace CustomEngine.Rendering.Models
                 else if (reader.Name.Equals("billboard", true))
                     _billboardType = (BillboardType)Enum.Parse(typeof(BillboardType), (string)reader.Value);
             }
-            _skeleton.BoneCache.Add(_name, this);
+            _skeleton.BoneNameCache.Add(_name, this);
             while (reader.BeginElement())
             {
                 if (reader.Name.Equals("bone", true))
@@ -358,11 +371,15 @@ namespace CustomEngine.Rendering.Models
                 {
                     if (reader.ReadAttribute())
                     {
-                        
+
                     }
                 }
                 reader.EndElement();
             }
+        }
+        public override int GetHashCode()
+        {
+            return _name.GetHashCode();
         }
         [StructLayout(LayoutKind.Sequential, Pack = 1)]
         public unsafe struct Header

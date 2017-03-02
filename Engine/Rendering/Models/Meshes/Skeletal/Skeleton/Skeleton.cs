@@ -37,10 +37,16 @@ namespace CustomEngine.Rendering.Models
 
         public Bone this[string name]
         {
-            get { return BoneCache.ContainsKey(name) ? BoneCache[name] : null; }
+            get { return BoneNameCache.ContainsKey(name) ? BoneNameCache[name] : null; }
+        }
+        public Bone this[int index]
+        {
+            get { return BoneIndexCache.ContainsKey(index) ? BoneIndexCache[index] : null; }
         }
 
-        private Dictionary<string, Bone> _boneCache = new Dictionary<string, Bone>();
+        private Dictionary<string, Bone> _boneNameCache = new Dictionary<string, Bone>();
+        private Dictionary<int, Bone> _boneIndexCache = new Dictionary<int, Bone>();
+        
         private SkeletalMeshComponent _owningComponent;
         private Bone[] _rootBones;
 
@@ -53,7 +59,8 @@ namespace CustomEngine.Rendering.Models
                 RegenerateBoneCache();
             }
         }
-        public Dictionary<string, Bone> BoneCache => _boneCache;
+        public Dictionary<string, Bone> BoneNameCache => _boneNameCache;
+        public Dictionary<int, Bone> BoneIndexCache => _boneIndexCache;
         public SkeletalMeshComponent OwningComponent
         {
             get => _owningComponent;
@@ -62,16 +69,17 @@ namespace CustomEngine.Rendering.Models
 
         public Bone GetBone(string boneName)
         {
-            if (!_boneCache.ContainsKey(boneName))
+            if (!_boneNameCache.ContainsKey(boneName))
                 return RootBones[0];
-            return _boneCache[boneName];
+            return _boneNameCache[boneName];
         }
 
         public void RegenerateBoneCache()
         {
-            _boneCache.Clear();
+            _boneNameCache.Clear();
+            _boneIndexCache.Clear();
             foreach (Bone b in RootBones)
-                b.CollectChildBones(_boneCache, this);
+                b.CollectChildBones(this);
         }
         public void CalcFrameMatrices()
         {
@@ -82,16 +90,17 @@ namespace CustomEngine.Rendering.Models
             }
             else
             {
-                HashSet<FacePoint> modified = new HashSet<FacePoint>();
+                HashSet<int> modifiedVertexIndices = new HashSet<int>();
+                HashSet<int> modifiedBoneIndices = new HashSet<int>();
                 foreach (Bone b in RootBones)
-                    b.CalcFrameMatrix(modified);
+                    b.CalcFrameMatrix(modifiedVertexIndices, modifiedBoneIndices);
                 //foreach (FacePoint point in modified)
                 //    point.UpdatePNTB();
             }
         }
 
-        public IEnumerator<Bone> GetEnumerator() { return ((IEnumerable<Bone>)_boneCache.Values).GetEnumerator(); }
-        IEnumerator IEnumerable.GetEnumerator() { return ((IEnumerable<Bone>)_boneCache.Values).GetEnumerator(); }
+        public IEnumerator<Bone> GetEnumerator() { return ((IEnumerable<Bone>)_boneNameCache.Values).GetEnumerator(); }
+        IEnumerator IEnumerable.GetEnumerator() { return ((IEnumerable<Bone>)_boneNameCache.Values).GetEnumerator(); }
 
         bool _visible, _rendering;
         Shape _cullingVolume = new Sphere(1.0f);
@@ -116,7 +125,7 @@ namespace CustomEngine.Rendering.Models
 
         public void Render()
         {
-            foreach (Bone b in BoneCache.Values)
+            foreach (Bone b in BoneNameCache.Values)
             {
                 Vec3 point = b.WorldMatrix.GetPoint();
                 Engine.Renderer.RenderPoint(b.Name + "_Pos", point, 15.0f, b.Parent == null ? Color.Orange : Color.Purple);
@@ -128,26 +137,43 @@ namespace CustomEngine.Rendering.Models
                 Engine.Renderer.RenderLine(b.Name + "_Forward", point, Vec3.TransformPosition(Vec3.Forward * scale, b.WorldMatrix), 5.0f, Color.Blue);
             }
         }
-        private class LiveInfluence
+        public class LiveInfluence
         {
-            static void FromInfluence(Influence inf)
+            public int _weightCount;
+            public Bone[] _bones = new Bone[4];
+            public float[] _weights = new float[4];
+            public static LiveInfluence FromInfluence(Influence inf, Skeleton skel)
             {
-
+                LiveInfluence f = new LiveInfluence()
+                {
+                    _weightCount = inf.WeightCount
+                };
+                for (int i = 0; i < inf.WeightCount; ++i)
+                {
+                    BoneWeight w = inf.Weights[i];
+                    f._weights[i] = w.Weight;
+                    f._bones[i] = skel[w.Bone];
+                }
+                return f;
             }
         }
+
+        /// <summary>
+        /// Precompute pairings of vertex and bone indices with manager for each bone.
+        /// </summary>
         public void GenerateInfluences(PrimitiveManager manager)
         {
-            if (manager.Data._influences != null)
-                for (int i = 0; i < manager.Data._influences.Length; ++i)
-                {
-                    Influence inf = manager.Data._influences[i];
-                    FacePoint point = manager.Data._facePoints[i];
-                    for (int j = 0; j < inf.WeightCount; ++j)
-                    {
-                        Bone b = _boneCache[inf.Weights[j].Bone];
-                        b._influencedVertices.Add(point);
-                    }
-                }
+            //if (manager.Data._influences != null)
+            //    for (int i = 0; i < manager.Data._influences.Length; ++i)
+            //    {
+            //        LiveInfluence inf = LiveInfluence.FromInfluence(manager.Data._influences[i], this);
+            //        FacePoint point = manager.Data._facePoints[i];
+            //        for (int j = 0; j < inf.WeightCount; ++j)
+            //        {
+            //            Bone b = _boneNameCache[inf.Weights[j].Bone];
+            //            b._influencedVertices.Add(point);
+            //        }
+            //    }
         }
         public void ClearInfluences(PrimitiveManager manager)
         {
@@ -157,7 +183,7 @@ namespace CustomEngine.Rendering.Models
                 FacePoint point = manager.Data._facePoints[i];
                 for (int j = 0; j < inf.WeightCount; ++j)
                 {
-                    Bone b = _boneCache[inf.Weights[j].Bone];
+                    Bone b = _boneNameCache[inf.Weights[j].Bone];
                     b._influencedVertices.Remove(point);
                 }
             }
@@ -168,7 +194,7 @@ namespace CustomEngine.Rendering.Models
             if (!reader.Name.Equals("skeleton", true))
                 throw new Exception();
             _rootBones = null;
-            _boneCache = new Dictionary<string, Bone>();
+            _boneNameCache = new Dictionary<string, Bone>();
             while (reader.ReadAttribute())
             {
                 if (reader.Name.Equals("childCount", true))
@@ -218,7 +244,7 @@ namespace CustomEngine.Rendering.Models
         public override void Write(XmlWriter writer)
         {
             writer.WriteStartElement("skeleton");
-            writer.WriteAttributeString("totalCount", _boneCache.Count.ToString());
+            writer.WriteAttributeString("totalCount", _boneNameCache.Count.ToString());
             writer.WriteAttributeString("childCount", _rootBones.Length.ToString());
             foreach (Bone b in _rootBones)
                 b.Write(writer);

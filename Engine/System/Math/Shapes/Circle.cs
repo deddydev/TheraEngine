@@ -73,10 +73,7 @@ namespace System
             for (int i = 0; i < pointCount; ++i, angle += angleInc)
             {
                 Vec3 v = new Vec3((float)Math.Cos(angle), 0.0f, (float)Math.Sin(angle));
-                Vec3 v2 = radius * v;
-                Vec3 v3 = offset * v2;
-                Vec3 v4 = center + v3;
-                points[i] = new Vertex(v4);
+                points[i] = new Vertex(center + offset * (radius * v));
             }
             return new VertexLineStrip(true, points);
         }

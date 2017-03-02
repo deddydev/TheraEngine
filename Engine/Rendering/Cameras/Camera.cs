@@ -291,7 +291,6 @@ namespace CustomEngine.Rendering.Cameras
             Vec3 end = ScreenToWorld(screenPoint, 1.0f);
             return new Ray(start, end);
         }
-
         public void Render()
         {
             _transformedFrustum.Render();

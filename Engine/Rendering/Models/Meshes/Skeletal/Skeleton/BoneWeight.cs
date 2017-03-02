@@ -28,14 +28,18 @@ namespace CustomEngine.Rendering.Models
         {
             return other != null ? (other.Bone == Bone && Weight.CompareEquality(other.Weight, weightTolerance) && Locked == other.Locked) : false;
         }
-        //public static bool operator ==(BoneWeight left, BoneWeight right)
-        //{
-        //    return left.Equals(right);
-        //}
-        //public static bool operator !=(BoneWeight left, BoneWeight right)
-        //{
-        //    return !left.Equals(right);
-        //}
+        public static bool operator ==(BoneWeight left, BoneWeight right)
+        {
+            if (ReferenceEquals(left, null))
+                return ReferenceEquals(right, null);
+            return left.Equals(right);
+        }
+        public static bool operator !=(BoneWeight left, BoneWeight right)
+        {
+            if (ReferenceEquals(left, null))
+                return !ReferenceEquals(right, null);
+            return !left.Equals(right);
+        }
         public override int GetHashCode()
         {
             return base.GetHashCode();

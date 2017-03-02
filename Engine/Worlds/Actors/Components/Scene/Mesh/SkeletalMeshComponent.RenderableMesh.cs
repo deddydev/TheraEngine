@@ -66,7 +66,7 @@ namespace CustomEngine.Worlds.Actors.Components
                     _skeleton = value;
 
                     //TODO: support multi-bone influence as single bind as well
-                    _singleBind = _mesh.SingleBindName != null && _skeleton != null ? _skeleton.GetBone(_mesh.SingleBindName) : null;
+                    //_singleBind = _mesh.SingleBindName != null && _skeleton != null ? _skeleton.GetBone(_mesh.SingleBindName) : null;
                     
                     _skeleton?.GenerateInfluences(_manager);
                     _manager.SkeletonChanged(_skeleton);

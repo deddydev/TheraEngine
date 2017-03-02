@@ -11,7 +11,7 @@ namespace CustomEngine
     {
         public override ResourceType ResourceType { get { return ResourceType.EngineSettings; } }
 
-        public bool SkinOnGPU = true;
+        public bool SkinOnGPU = false;
         public SingleFileRef<World> TransitionWorld;
         public SingleFileRef<World> OpeningWorld;
         public string ContentPath;

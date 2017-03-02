@@ -119,15 +119,18 @@ namespace CustomEngine.Rendering.Models
                     if (b != null && !b.Locked) //Only normalize unlocked weights used in the calculation
                         b.Weight = (float)Math.Round(b.Weight / denom * num, weightDecimalPlaces);
         }
-
-        //public static bool operator ==(Influence left, Influence right)
-        //{
-        //    return left.Equals(right);
-        //}
-        //public static bool operator !=(Influence left, Influence right)
-        //{
-        //    return !left.Equals(right);
-        //}
+        public static bool operator ==(Influence left, Influence right)
+        {
+            if (ReferenceEquals(left, null))
+                return ReferenceEquals(right, null);
+            return left.Equals(right);
+        }
+        public static bool operator !=(Influence left, Influence right)
+        {
+            if (ReferenceEquals(left, null))
+                return !ReferenceEquals(right, null);
+            return !left.Equals(right);
+        }
         public override bool Equals(object obj)
         {
             Influence other = obj as Influence;

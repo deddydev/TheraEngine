@@ -5,6 +5,14 @@ namespace System
     {
         public static readonly float PIf = (float)PI;
 
+        public static double DegToRad(double degrees)
+        {
+            return degrees * PI / 180.0;
+        }
+        public static double RadToDeg(double radians)
+        {
+            return radians * 180.0 / PI;
+        }
         public static float DegToRad(float degrees)
         {
             return degrees * PIf / 180.0f;

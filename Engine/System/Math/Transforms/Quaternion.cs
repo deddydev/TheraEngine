@@ -131,43 +131,44 @@ namespace System
             q.Conjugate();
             return q;
         }
-        public static Quaternion BetweenVectors(Vec3 A, Vec3 B)
+        /// <summary>
+        /// Returns a quaternion containing the rotation from one vector direction to another.
+        /// </summary>
+        /// <param name="initialVector">The starting vector</param>
+        /// <param name="finalVector">The ending vector</param>
+        public static Quaternion BetweenVectors(Vec3 initialVector, Vec3 finalVector)
         {
-            float adotb = A | B;
-            if (adotb > 0.999999f)
-                return Identity;
-            else if (adotb < -0.999999f)
-                return FromAxisAngle(Vec3.Right, 180.0f);
+            Vec3 axis;
+            float angle;
 
-            float alen = A.LengthFast, blen = B.LengthFast;
-            return new Quaternion()
+            initialVector.NormalizeFast();
+            finalVector.NormalizeFast();
+
+            float dot = initialVector | finalVector;
+
+            //dot is the cosine adj/hyp ratio between the two vectors, so
+            //dot == 1 is same direction
+            //dot == -1 is opposite direction
+            //dot == 0 is a 90 degree angle
+
+            if (dot > 0.999f)
             {
-                Xyz = A ^ B,
-                W = (float)Sqrt((alen * alen) * (blen * blen)) + adotb
-            };
-
-            //float NormAB = 1.0f / InverseSqrtFast(A.LengthSquared * B.LengthSquared);
-            //float W = NormAB + A.Dot(B);
-            //Quaternion result;
-
-            //if (W >= 1e-6f * NormAB)
-            //{
-            //    result = new Quaternion(
-            //        -A.X * B.Y - A.Y * -B.X,
-            //        A.Y * B.Z - A.Z * B.Y,
-            //        A.Z * -B.X - -A.X * B.Z,
-            //        W);
-            //}
-            //else
-            //{
-            //    W = 0.0f;
-            //    result = Abs(A.Z) > Abs(A.X)
-            //            ? new Quaternion(-A.Y, 0.0f, A.Z, W)
-            //            : new Quaternion(0.0f, -A.Y, -A.X, W);
-            //}
-
-            //result.Normalize();
-            //return result;
+                axis = Vec3.Right;
+                angle = 0.0f;
+            }
+            else if (dot < -0.999f)
+            {
+                axis = Vec3.Right;
+                angle = 180.0f;
+            }
+            else
+            {
+                axis = initialVector ^ finalVector;
+                angle = RadToDeg((float)Acos(dot));
+            }
+            
+            //Invert the angle; a positive angle rotates DOWN instead of UP on the unit circle
+            return FromAxisAngle(axis, -angle);
         }
         public static Quaternion LookAt(Vec3 sourcePoint, Vec3 destPoint, Vec3 initialDirection)
         {

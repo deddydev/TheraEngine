@@ -60,7 +60,7 @@ namespace CustomEngine.Rendering
                     break;
                 case DebugPrimitiveType.WireSphere:
                     //Diameter is set to 2.0f on purpose
-                    data = Sphere.WireframeMesh(Vec3.Zero, 1.0f, 30.0f);
+                    data = Sphere.WireframeMesh(Vec3.Zero, 1.0f, 60);
                     break;
                 case DebugPrimitiveType.SolidSphere:
                     //Diameter is set to 2.0f on purpose

@@ -97,11 +97,11 @@ namespace System
             return PrimitiveData.FromTriangleList(Culling.Back, new PrimitiveBufferInfo(), strips.SelectMany(x => x.ToTriangles()));
         }
 
-        public static PrimitiveData WireframeMesh(Vec3 center, float radius, float precision)
+        public static PrimitiveData WireframeMesh(Vec3 center, float radius, int pointCount)
         {
-            VertexLineStrip d1 = Circle.GetLineStrip(radius, new Vec3(1.0f, 1.0f, 0.0f), center, 20);
-            VertexLineStrip d2 = Circle.GetLineStrip(radius, Vec3.Up, center, 20);
-            VertexLineStrip d3 = Circle.GetLineStrip(radius, Vec3.Right, center, 20);
+            VertexLineStrip d1 = Circle.GetLineStrip(radius, Vec3.Forward, center, pointCount);
+            VertexLineStrip d2 = Circle.GetLineStrip(radius, Vec3.Up, center, pointCount);
+            VertexLineStrip d3 = Circle.GetLineStrip(radius, Vec3.Right, center, pointCount);
             return PrimitiveData.FromLineStrips(new PrimitiveBufferInfo() { _texcoordCount = 0, _hasNormals = false }, d1, d2, d3);
         }
 

@@ -46,30 +46,11 @@ namespace System
             if (pointCount < 3)
                 throw new Exception("A (very low res) circle needs at least 3 points.");
 
-            normal.Normalize();
-            //Quaternion offset = Quaternion.BetweenVectors(Vec3.Up, normal);
-            Vec3 axis;
-            float angle;
-            float dot = Vec3.Up | normal;
-            if (dot > 0.999f)
-            {
-                axis = Vec3.Right;
-                angle = 0.0f;
-            }
-            else if (dot < -0.999f)
-            {
-                axis = Vec3.Right;
-                angle = 180.0f;
-            }
-            else
-            {
-                axis = normal ^ Vec3.Up;
-                angle = CustomMath.RadToDeg((float)Math.Acos(dot));
-            }
-            Quaternion offset = Quaternion.FromAxisAngle(axis, angle);
+            normal.NormalizeFast();
+            Quaternion offset = Quaternion.BetweenVectors(Vec3.Up, normal);
             Vertex[] points = new Vertex[pointCount];
             float angleInc = CustomMath.PIf * 2.0f / pointCount;
-            angle = 0.0f;
+            float angle = 0.0f;
             for (int i = 0; i < pointCount; ++i, angle += angleInc)
             {
                 Vec3 v = new Vec3((float)Math.Cos(angle), 0.0f, (float)Math.Sin(angle));

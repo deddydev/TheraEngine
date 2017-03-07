@@ -24,7 +24,7 @@ namespace CustomEngine.Worlds.Actors.Components
 
         public SkeletalMesh Model
         {
-            get { return _model; }
+            get => _model;
             set
             {
                 if (_model == value)
@@ -42,7 +42,7 @@ namespace CustomEngine.Worlds.Actors.Components
         }
         public Skeleton Skeleton
         {
-            get { return _skeleton; }
+            get => _skeleton;
             set
             {
                 if (value == _skeleton)
@@ -63,14 +63,18 @@ namespace CustomEngine.Worlds.Actors.Components
             base.OnSpawned();
             foreach (RenderableMesh m in _meshes)
                 m.Visible = m.Mesh.VisibleByDefault;
-            Engine.Renderer.Scene.AddRenderable(_skeleton);
+
+            if (Engine.Settings.RenderSkeletons)
+                Engine.Renderer.Scene.AddRenderable(_skeleton);
         }
         public override void OnDespawned()
         {
             base.OnDespawned();
             foreach (RenderableMesh m in _meshes)
                 m.Visible = false;
-            Engine.Renderer.Scene.RemoveRenderable(_skeleton);
+
+            if (Engine.Settings.RenderSkeletons)
+                Engine.Renderer.Scene.RemoveRenderable(_skeleton);
         }
     }
 }

@@ -47,14 +47,11 @@ namespace CustomEngine.Rendering.Models
     }
     public class PrimitiveData : IDisposable
     {
-        public bool HasSkinning
-        {
-            get { return _utilizedBones.Length > 0; }
-        }
+        public bool HasSkinning => _utilizedBones == null ? false : _utilizedBones.Length > 0;
         public Culling Culling
         {
-            get { return _culling; }
-            set { _culling = value; }
+            get => _culling;
+            set => _culling = value;
         }
 
         //Faces have indices that refer to face points.
@@ -69,7 +66,6 @@ namespace CustomEngine.Rendering.Models
         public Influence[] _influences;
         public string[] _utilizedBones;
         public string _singleBindBone;
-        internal HashSet<int> _modifiedVertexIndices = new HashSet<int>();
 
         //Face points have indices that refer to each buffer.
         //These may contain repeat buffer indices but each point is unique.
@@ -83,7 +79,7 @@ namespace CustomEngine.Rendering.Models
 
         public VertexBuffer this[BufferType type]
         {
-            get { return _buffers.FirstOrDefault(x => x.BufferType == type); }
+            get => _buffers.FirstOrDefault(x => x.BufferType == type);
             set
             {
                 //value.Name = _type.ToString();
@@ -103,7 +99,7 @@ namespace CustomEngine.Rendering.Models
         }
         public VertexBuffer this[string name]
         {
-            get { return _buffers.FirstOrDefault(x => x.Name == name); }
+            get => _buffers.FirstOrDefault(x => x.Name == name);
             set
             {
                 var buf = _buffers.FirstOrDefault(x => x.Name == name);
@@ -190,6 +186,11 @@ namespace CustomEngine.Rendering.Models
                     for (int i = 0; i < inf.WeightCount; ++i)
                         utilized.Add(inf.Weights[i].Bone);
             _utilizedBones = utilized.ToArray();
+            if (_utilizedBones.Length == 1)
+            {
+                _singleBindBone = _utilizedBones[0];
+                _utilizedBones = null;
+            }
         }
 
         private void CreateFacePoints(int pointCount)
@@ -206,8 +207,62 @@ namespace CustomEngine.Rendering.Models
                         return b;
             return null;
         }
+        public void AddBufferNumeric<T>(
+            IList<T> bufferData,
+            VertexAttribInfo info,
+            bool remap = false,
+            bool integral = false,
+            EBufferTarget target = EBufferTarget.DataArray) where T : struct
+        {
+            if (_buffers == null)
+                _buffers = new List<VertexBuffer>();
+
+            int bufferIndex = _buffers.Count;
+            VertexBuffer buffer = new VertexBuffer(bufferIndex, info, target, integral);
+            if (remap)
+            {
+                Remapper remapper = buffer.SetDataNumeric(bufferData, true);
+                for (int i = 0; i < bufferData.Count; ++i)
+                    _facePoints[i].BufferIndices.Add(remapper.RemapTable[i]);
+            }
+            else
+            {
+                buffer.SetDataNumeric(bufferData);
+                for (int i = 0; i < bufferData.Count; ++i)
+                    _facePoints[i].BufferIndices.Add(i);
+            }
+            _buffers.Add(buffer);
+        }
+        public void ReplaceBufferNumeric<T>(
+            IList<T> bufferData,
+            int bufferIndex,
+            VertexAttribInfo info,
+            bool remap = false,
+            bool integral = false,
+            EBufferTarget target = EBufferTarget.DataArray) where T : struct
+        {
+            if (_buffers == null)
+                throw new InvalidOperationException();
+            if (bufferIndex < 0 || bufferIndex >= _buffers.Count)
+                throw new IndexOutOfRangeException();
+
+            VertexBuffer buffer = new VertexBuffer(bufferIndex, info, target, integral);
+            if (remap)
+            {
+                Remapper remapper = buffer.SetDataNumeric(bufferData, true);
+                for (int i = 0; i < bufferData.Count; ++i)
+                    _facePoints[i].BufferIndices[bufferIndex] = remapper.ImplementationTable[remapper.RemapTable[i]];
+            }
+            else
+            {
+                buffer.SetDataNumeric(bufferData);
+                for (int i = 0; i < bufferData.Count; ++i)
+                    _facePoints[i].BufferIndices[bufferIndex] = i;
+            }
+            _buffers[bufferIndex] = buffer;
+        }
         public void AddBuffer<T>(
-            List<T> bufferData,
+            IList<T> bufferData,
             VertexAttribInfo info,
             bool remap = false,
             bool integral = false,
@@ -233,7 +288,7 @@ namespace CustomEngine.Rendering.Models
             _buffers.Add(buffer);
         }
         public void ReplaceBuffer<T>(
-            List<T> bufferData,
+            IList<T> bufferData,
             int bufferIndex,
             VertexAttribInfo info,
             bool remap = false,

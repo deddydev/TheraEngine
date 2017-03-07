@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices;
 
@@ -14,6 +15,8 @@ namespace CustomEngine.Rendering.Models.Collada
             SceneEntry scene,
             bool isZup)
         {
+            Debug.WriteLine("Weighted: " + geo._id);
+
             Bone[] boneList;
             Bone bone = null;
             int boneCount;
@@ -22,9 +25,6 @@ namespace CustomEngine.Rendering.Models.Collada
             float[] pWeights = null;
             Influence[] infList = new Influence[skin._weightCount];
             Matrix4* pMatrix = null;
-
-            DataSource remap = new DataSource(skin._weightCount * 2);
-            ushort* pRemap = (ushort*)remap.Address;
             
             //Find joint source
             string[] jointStringArray = null;
@@ -132,11 +132,9 @@ namespace CustomEngine.Rendering.Models.Collada
         }
         static NodeEntry RecursiveTestNode(string jointStrings, NodeEntry node)
         {
-            if (jointStrings.IndexOf(node._name) >= 0)
-                return node;
-            else if (jointStrings.IndexOf(node._sid) >= 0)
-                return node;
-            else if (jointStrings.IndexOf(node._id) >= 0)
+            if (jointStrings.IndexOf(node._name) >= 0 || 
+                jointStrings.IndexOf(node._sid) >= 0 || 
+                jointStrings.IndexOf(node._id) >= 0)
                 return node;
 
             NodeEntry e;
@@ -149,6 +147,7 @@ namespace CustomEngine.Rendering.Models.Collada
 
         static PrimitiveData DecodePrimitivesUnweighted(Matrix4 bindMatrix, GeometryEntry geo, bool isZup)
         {
+            Debug.WriteLine("Unweighted: " + geo._id);
             return DecodePrimitives(geo, bindMatrix, null);
         }
         static PrimitiveData DecodePrimitives(GeometryEntry geo, Matrix4 bindMatrix, Influence[] infList)
@@ -279,6 +278,8 @@ namespace CustomEngine.Rendering.Models.Collada
                                 case SemanticType.TEXCOORD:
                                     vtx._texCoord = new Vec2(list[startIndex], list[startIndex + 1]);
                                     vtx._texCoord.Y = 1.0f - vtx._texCoord.Y;
+                                    //vtx._texCoord.X = vtx._texCoord.X.RemapToRange(0.0f, 1.0f);
+                                    //vtx._texCoord.Y = vtx._texCoord.Y.RemapToRange(0.0f, 1.0f);
                                     break;
                                 case SemanticType.COLOR:
                                     vtx._color = new ColorF4(list[startIndex], list[startIndex + 1], list[startIndex + 2], list[startIndex + 3]);

@@ -14,7 +14,15 @@ namespace System
 
         public event Action AttributeChanged;
 
-        protected bool _isRendering, _isVisible, _visibleByDefault, _renderSolid;
+        protected bool 
+            _isRendering,
+            _isVisible,
+            _visibleByDefault,
+            _renderSolid,
+            _visibleInEditorOnly = false,
+            _hiddenFromOwner = false,
+            _visibleToOwnerOnly = false;
+
         protected RenderOctree.Node _renderNode;
         private int _shapeIndex;
         private string _shapeName;
@@ -48,6 +56,21 @@ namespace System
         {
             get { return _isVisible; }
             set { _isVisible = value; }
+        }
+        public bool VisibleInEditorOnly
+        {
+            get => _visibleInEditorOnly;
+            set => _visibleInEditorOnly = value;
+        }
+        public bool HiddenFromOwner
+        {
+            get => _hiddenFromOwner;
+            set => _hiddenFromOwner = value;
+        }
+        public bool VisibleToOwnerOnly
+        {
+            get => _visibleToOwnerOnly;
+            set => _visibleToOwnerOnly = value;
         }
         public Shape CullingVolume { get { return this; } }
         public RenderOctree.Node RenderNode

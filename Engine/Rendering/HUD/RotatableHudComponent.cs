@@ -20,8 +20,12 @@ namespace CustomEngine.Rendering.HUD
         [Category("Transform"), Default, State, Animatable]
         public float RotationAngle
         {
-            get { return _rotationAngle; }
-            set { _rotationAngle = value.RemapToRange(0.0f, 360.0f); OnTransformed(); }
+            get => _rotationAngle;
+            set
+            {
+                _rotationAngle = value.RemapToRange(0.0f, 360.0f);
+                OnTransformed();
+            }
         }
         /// <summary>
         /// The origin of the component's rotation angle, as a percentage.
@@ -30,8 +34,12 @@ namespace CustomEngine.Rendering.HUD
         [Category("Transform"), Default, State, Animatable]
         public Vec2 RotationLocalOrigin
         {
-            get { return _rotationLocalOrigin; }
-            set { _rotationLocalOrigin = value; OnTransformed(); }
+            get => _rotationLocalOrigin;
+            set
+            {
+                _rotationLocalOrigin = value;
+                OnTransformed();
+            }
         }
 
         public override void OnTransformed()

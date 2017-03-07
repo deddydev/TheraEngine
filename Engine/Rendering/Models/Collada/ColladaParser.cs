@@ -106,11 +106,33 @@ namespace CustomEngine.Rendering.Models.Collada
                         ParseLibScenes();
                     else if (_reader.Name.Equals("library_nodes", true))
                         ParseLibNodes();
+                    else if (_reader.Name.Equals("library_animation_clips", true))
+                        ParseLibAnimationClips();
+                    else if (_reader.Name.Equals("library_animations", true))
+                        ParseLibAnimations();
 
                     _reader.EndElement();
                 }
             }
-            
+
+            private void ParseLibAnimationClips()
+            {
+                while (_reader.BeginElement())
+                {
+                    if (_reader.Name.Equals("animation_clip", true))
+                        ParseLibEffects();
+                    _reader.EndElement();
+                }
+            }
+            private void ParseLibAnimations()
+            {
+                while (_reader.BeginElement())
+                {
+
+                    _reader.EndElement();
+                }
+            }
+
             private void ParseAsset()
             {
                 AssetEntry entry = new AssetEntry();

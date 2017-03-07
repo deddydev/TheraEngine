@@ -111,7 +111,7 @@ namespace CustomEngine.Worlds
 
             ColladaImportOptions options = new ColladaImportOptions();
             string desktop = Environment.MachineName == "DAVID-DESKTOP" ? "X:\\Desktop\\" : "C:\\Users\\David\\Desktop\\";
-            Collada.ImportModel(desktop + "TEST.DAE",
+            Collada.Import(desktop + "TEST.DAE",
                 options, out StaticMesh staticM, out SkeletalMesh skelM, out Skeleton skeleton);
 
             TRSComponent comp;
@@ -126,10 +126,10 @@ namespace CustomEngine.Worlds
                 first.LinkNext(second).LinkNext(last);
                 modelAnim.Keyframes.AddFirst(first);
                 //modelAnim.Bake();
-                AnimFolder modelYawFolder = new AnimFolder("Yaw", false, modelAnim);
+                AnimFolder modelYawFolder = new AnimFolder("Roll", false, modelAnim);
                 //AnimFolder modelRotationFolder = new AnimFolder("Rotation", modelYawFolder);
                 AnimationContainer modelAnimContainer = new AnimationContainer(modelYawFolder);
-                skeleton["LElbow"]?.FrameState.AddAnimation(modelAnimContainer, true);
+                skeleton["Bust"]?.FrameState.AddAnimation(modelAnimContainer, true);
 
                 //skeleton.ToXML(desktop);
             }

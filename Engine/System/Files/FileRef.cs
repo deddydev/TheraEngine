@@ -86,26 +86,34 @@ namespace CustomEngine.Files
             else
             {
                 if (Engine.LoadedFiles.ContainsKey(_refPath))
-                    _file = Engine.LoadedFiles[_refPath] as T;
-                else
                 {
-                    string absolutePath = RefPathAbsolute;
-                    //if (!System.IO.File.Exists(absolutePath))
-                    //    throw new FileNotFoundException();
-                    if (!System.IO.File.Exists(absolutePath) || IsSpecial())
-                        _file = Activator.CreateInstance(_subType, absolutePath) as T;
-                    else if (IsXML())
-                        _file = FromXML(_subType, absolutePath) as T;
+                    List<FileObject> files = Engine.LoadedFiles[_refPath];
+                    if (files.Count > 0)
+                        _file = files[0] as T;
                     else
-                        _file = FromBinary(_subType, absolutePath) as T;
-                    Engine.AddLoadedFile(_refPath, _file);
+                        GetFile();
                 }
+                else
+                    GetFile();
             }
 
-            _file._filePath = _refPath;
+            _file._filePath = RefPathAbsolute;
             _file._references.Add(this);
 
             return _file;
+        }
+        private void GetFile()
+        {
+            string absolutePath = RefPathAbsolute;
+            //if (!System.IO.File.Exists(absolutePath))
+            //    throw new FileNotFoundException();
+            if (!System.IO.File.Exists(absolutePath) || IsSpecial())
+                _file = Activator.CreateInstance(_subType, absolutePath) as T;
+            else if (IsXML())
+                _file = FromXML(_subType, absolutePath) as T;
+            else
+                _file = FromBinary(_subType, absolutePath) as T;
+            Engine.AddLoadedFile(_refPath, _file);
         }
         public void UnloadReference()
         {

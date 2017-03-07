@@ -29,6 +29,12 @@ namespace CustomEngine
             ActivePlayers.Removed += ActivePlayers_Removed;
         }
 
+        /// <summary>
+        /// Finds the closest ray intersection with any physics object.
+        /// </summary>
+        /// <returns></returns>
+        public static ClosestRayResultCallback RaycastClosest(Segment ray) 
+            => RaycastClosest(ray.StartPoint, ray.EndPoint);
         public static ClosestRayResultCallback RaycastClosest(Vec3 from, Vec3 to)
         {
             if (World == null)
@@ -37,6 +43,8 @@ namespace CustomEngine
             World.PhysicsScene.RayTest(from, to, callback);
             return callback;
         }
+        public static AllHitsRayResultCallback RaycastMultiple(Segment ray)
+            => RaycastMultiple(ray.StartPoint, ray.EndPoint);
         public static AllHitsRayResultCallback RaycastMultiple(Vec3 from, Vec3 to)
         {
             if (World == null)
@@ -48,7 +56,7 @@ namespace CustomEngine
 
         private static void ActivePlayers_Removed(LocalPlayerController item)
         {
-
+            
         }
 
         private static void ActivePlayers_Added(LocalPlayerController item)
@@ -178,7 +186,7 @@ namespace CustomEngine
             _computerInfo = ComputerInfo.Analyze();
 
             EngineSettings engineSettings;
-            if (_engineSettings.File == null)
+            if (Settings == null)
                 _engineSettings.SetFile(engineSettings = new EngineSettings(), true);
             else
                 engineSettings = _engineSettings;

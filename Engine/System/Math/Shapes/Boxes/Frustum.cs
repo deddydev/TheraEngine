@@ -38,7 +38,8 @@ namespace System
 
         public static bool UseBoundingSphere = true;
 
-        private bool _isRendering = false, _isVisible = true;
+        private bool _isRendering = false;
+
         private RenderOctree.Node _renderNode;
 
         //For quickly testing if objects in large scenes should even be tested against the frustum at all
@@ -47,26 +48,26 @@ namespace System
         private Plane[] _planes = new Plane[6];
         private Vec3[] _points = new Vec3[8];
 
-        public Vec3 FarBottomLeft { get { return _points[0]; } }
-        public Vec3 FarBottomRight { get { return _points[1]; } }
+        public Vec3 FarBottomLeft => _points[0];
+        public Vec3 FarBottomRight => _points[1];
 
-        public Vec3 FarTopLeft { get { return _points[2]; } }
-        public Vec3 FarTopRight { get { return _points[3]; } }
+        public Vec3 FarTopLeft => _points[2];
+        public Vec3 FarTopRight => _points[3];
 
-        public Vec3 NearBottomLeft { get { return _points[4]; } }
-        public Vec3 NearBottomRight { get { return _points[5]; } }
+        public Vec3 NearBottomLeft => _points[4];
+        public Vec3 NearBottomRight => _points[5];
 
-        public Vec3 NearTopLeft { get { return _points[6]; } }
-        public Vec3 NearTopRight { get { return _points[7]; } }
+        public Vec3 NearTopLeft => _points[6];
+        public Vec3 NearTopRight => _points[7];
 
-        public Plane Near { get { return _planes[0]; } }
-        public Plane Far { get { return _planes[1]; } }
+        public Plane Near => _planes[0];
+        public Plane Far => _planes[1];
 
-        public Plane Left { get { return _planes[2]; } }
-        public Plane Right { get { return _planes[3]; } }
+        public Plane Left => _planes[2];
+        public Plane Right => _planes[3];
 
-        public Plane Top { get { return _planes[4]; } }
-        public Plane Bottom { get { return _planes[5]; } }
+        public Plane Top => _planes[4];
+        public Plane Bottom => _planes[5];
 
         public IEnumerable<Vec3> Points => _points;
         public Shape CullingVolume => _boundingSphere;
@@ -80,11 +81,6 @@ namespace System
         {
             get => _renderNode;
             set => _renderNode = value;
-        }
-        public bool Visible
-        {
-            get => _isVisible;
-            set => _isVisible = value;
         }
 
         public void UpdatePoints(
@@ -117,8 +113,7 @@ namespace System
             _planes[5] = new Plane(nearBottomLeft, nearBottomRight, farBottomLeft);
         }
         public void TransformedVersionOf(Frustum other, Matrix4 transform)
-        {
-            UpdatePoints(
+            => UpdatePoints(
                 other.FarBottomLeft * transform,
                 other.FarBottomRight * transform,
                 other.FarTopLeft * transform,
@@ -128,10 +123,9 @@ namespace System
                 other.NearTopLeft * transform,
                 other.NearTopRight * transform,
                 other._boundingSphere.Center * transform);
-        }
+
         public void TransformBy(Matrix4 transform)
-        {
-            UpdatePoints(
+            => UpdatePoints(
                 FarBottomLeft * transform,
                 FarBottomRight * transform,
                 FarTopLeft * transform,
@@ -141,10 +135,9 @@ namespace System
                 NearTopLeft * transform,
                 NearTopRight * transform,
                 _boundingSphere.Center * transform);
-        }
+
         public Frustum TransformedBy(Matrix4 transform)
-        {
-            return new Frustum(
+            => new Frustum(
                 FarBottomLeft * transform,
                 FarBottomRight * transform,
                 FarTopLeft * transform,
@@ -154,10 +147,13 @@ namespace System
                 NearTopLeft * transform,
                 NearTopRight * transform,
                 _boundingSphere.Center * transform);
-        }
-        public EContainment Contains(Box box) { return Collision.FrustumContainsBox1(this, box.HalfExtents, box.WorldMatrix); }
-        public EContainment Contains(BoundingBox box) { return Collision.FrustumContainsAABB(this, box.Minimum, box.Maximum); }
-        public EContainment Contains(Sphere sphere) { return Collision.FrustumContainsSphere(this, sphere.Center, sphere.Radius); }
+        
+        public EContainment Contains(Box box) 
+            => Collision.FrustumContainsBox1(this, box.HalfExtents, box.WorldMatrix);
+        public EContainment Contains(BoundingBox box) 
+            => Collision.FrustumContainsAABB(this, box.Minimum, box.Maximum);
+        public EContainment Contains(Sphere sphere) 
+            => Collision.FrustumContainsSphere(this, sphere.Center, sphere.Radius);
         public EContainment Contains(CapsuleY capsule)
         {
             Sphere top = capsule.GetTopSphere();
@@ -178,8 +174,8 @@ namespace System
             //TODO: test for when both spheres lie outside, but the area between interects the frustum
             return EContainment.Disjoint;
         }
-        public IEnumerator<Plane> GetEnumerator() { return ((IEnumerable<Plane>)_planes).GetEnumerator(); }
-        IEnumerator IEnumerable.GetEnumerator() { return ((IEnumerable<Plane>)_planes).GetEnumerator(); }
+        public IEnumerator<Plane> GetEnumerator() => ((IEnumerable<Plane>)_planes).GetEnumerator();
+        IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable<Plane>)_planes).GetEnumerator();
 
         public void Render()
         {
@@ -207,11 +203,9 @@ namespace System
         }
 
         public Frustum HardCopy()
-        {
-            return new Frustum(
+            => new Frustum(
                 FarBottomLeft, FarBottomRight, FarTopLeft, FarTopRight,
                 NearBottomLeft, NearBottomRight, NearTopLeft, NearTopRight,
                 _boundingSphere.Center);
-        }
     }
 }

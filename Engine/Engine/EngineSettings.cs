@@ -9,9 +9,12 @@ namespace CustomEngine
 {
     public class EngineSettings : FileObject
     {
-        public override ResourceType ResourceType { get { return ResourceType.EngineSettings; } }
+        public override ResourceType ResourceType => ResourceType.EngineSettings;
 
         public bool SkinOnGPU = false;
+        public bool UseIntegerWeightingIds = false;
+        public bool RenderCameraFrustums = false;
+        public bool RenderSkeletons = false;
         public SingleFileRef<World> TransitionWorld;
         public SingleFileRef<World> OpeningWorld;
         public string ContentPath;

@@ -5,7 +5,7 @@ namespace CustomEngine.Worlds.Actors.Components
 {
     public partial class SkeletalMeshComponent : TRSComponent
     {
-        internal class RenderableMesh : IRenderable
+        internal class RenderableMesh : IMesh
         {
             public RenderableMesh(ISkeletalMesh mesh, Skeleton skeleton, SceneComponent component)
             {
@@ -18,7 +18,13 @@ namespace CustomEngine.Worlds.Actors.Components
             }
 
             private PrimitiveManager _manager;
-            private bool _isVisible, _isRendering;
+            private bool 
+                _isVisible, 
+                _isRendering,
+                _visibleInEditorOnly = false,
+                _hiddenFromOwner = false,
+                _visibleToOwnerOnly = false;
+
             private SceneComponent _component;
             private ISkeletalMesh _mesh;
             private RenderOctree.Node _renderNode;
@@ -28,7 +34,7 @@ namespace CustomEngine.Worlds.Actors.Components
             
             public bool Visible
             {
-                get { return _isVisible; }
+                get => _isVisible;
                 set
                 {
                     _isVisible = value;
@@ -38,41 +44,51 @@ namespace CustomEngine.Worlds.Actors.Components
                         Engine.Renderer.Scene.RemoveRenderable(this);
                 }
             }
-            public Bone SingleBind
-            {
-                get { return _singleBind; }
-            }
+            public Bone SingleBind => _singleBind;
             public bool IsRendering
             {
-                get { return _isRendering; }
-                set { _isRendering = value; }
+                get => _isRendering;
+                set => _isRendering = value;
+            }
+            public bool VisibleInEditorOnly
+            {
+                get => _visibleInEditorOnly;
+                set => _visibleInEditorOnly = value;
+            }
+            public bool HiddenFromOwner
+            {
+                get => _hiddenFromOwner;
+                set => _hiddenFromOwner = value;
+            }
+            public bool VisibleToOwnerOnly
+            {
+                get => _visibleToOwnerOnly;
+                set => _visibleToOwnerOnly = value;
             }
             public ISkeletalMesh Mesh
             {
-                get { return _mesh; }
-                set { _mesh = value; }
+                get => _mesh;
+                set => _mesh = value;
             }
             public RenderOctree.Node RenderNode
             {
-                get { return _renderNode; }
-                set { _renderNode = value; }
+                get => _renderNode;
+                set => _renderNode = value;
             }
             public Skeleton Skeleton
             {
-                get { return _skeleton; }
+                get => _skeleton;
                 set
                 {
-                    _skeleton?.ClearInfluences(_manager);
                     _skeleton = value;
 
                     //TODO: support multi-bone influence as single bind as well
                     //_singleBind = _mesh.SingleBindName != null && _skeleton != null ? _skeleton.GetBone(_mesh.SingleBindName) : null;
                     
-                    _skeleton?.GenerateInfluences(_manager);
                     _manager.SkeletonChanged(_skeleton);
                 }
             }
-            public Shape CullingVolume { get { return _cullingVolume; } }
+            public Shape CullingVolume => _cullingVolume;
 
             //IsRendering is checked by the octree before calling
             public void Render()
@@ -80,19 +96,19 @@ namespace CustomEngine.Worlds.Actors.Components
                 if (Visible)
                 {
                     Matrix4 world, invWorld;
-                    //if (_singleBind != null)
-                    //{
-                    //    world = _singleBind.WorldMatrix;
-                    //    invWorld = _singleBind.InverseWorldMatrix;
-                    //}
-                    //else
-                    //{
+                    if (_singleBind != null)
+                    {
+                        world = _singleBind.WorldMatrix;
+                        invWorld = _singleBind.InverseWorldMatrix;
+                    }
+                    else
+                    {
                         world = _component.WorldMatrix;
-                        //invWorld = _component.InverseWorldMatrix;
-                    //}
+                        invWorld = _component.InverseWorldMatrix;
+                    }
 
-                    //_manager.Render(world, invWorld.Transposed().GetRotationMatrix3());
-                    _manager.Render(world, world.GetRotationMatrix3());
+                    _manager.Render(world, invWorld.Transposed().GetRotationMatrix3());
+                    //_manager.Render(world, world.GetRotationMatrix3());
                 }
             }
             public override string ToString()

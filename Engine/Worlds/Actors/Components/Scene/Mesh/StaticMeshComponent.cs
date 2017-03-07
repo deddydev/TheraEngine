@@ -97,7 +97,7 @@ namespace CustomEngine.Worlds.Actors.Components
                     //else
                     //    info.BodyInfo.StartWorldTransform = WorldMatrix;
                 }
-                _physicsDriver = new PhysicsDriver(info, _physicsDriver_TransformChanged);
+                _physicsDriver = new PhysicsDriver(this, info, _physicsDriver_TransformChanged);
             }
         }
 

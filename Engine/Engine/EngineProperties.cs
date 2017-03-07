@@ -27,6 +27,9 @@ namespace CustomEngine
         public static SingleFileRef<EngineSettings> _engineSettings = new SingleFileRef<EngineSettings>(EngineSettingsPathRel);
         public static SingleFileRef<UserSettings> _userSettings = new SingleFileRef<UserSettings>(UserSettingsPathRel);
 
+        public static EngineSettings Settings => _engineSettings.File;
+        public static UserSettings UserSettings => _userSettings.File;
+
         public static Dictionary<string, List<FileObject>> LoadedFiles = new Dictionary<string, List<FileObject>>();
         public static MonitoredList<LocalPlayerController> ActivePlayers = new MonitoredList<LocalPlayerController>();
         public static List<AIController> ActiveAI = new List<AIController>();

@@ -27,12 +27,19 @@ namespace CustomEngine.Rendering.Models
         internal VertexBuffer _indexBuffer;
         public EDrawElementType _elementType;
         private Bone[] _utilizedBones;
+        private Dictionary<int, int> _boneRemap;
+        private HashSet<int> _modifiedVertexIndices = new HashSet<int>();
+        private HashSet<int> _modifiedBoneIndices = new HashSet<int>();
         private PrimitiveBufferInfo _bufferInfo = new PrimitiveBufferInfo();
         private Material _material;
-        private CPUSkinInfo _cpuSkinInfo;
+        internal CPUSkinInfo _cpuSkinInfo;
+        private Bone _singleBind;
+        internal bool _processingSkinning = false;
 
-        public PrimitiveManager() : base(GenType.VertexArray) { }
-        public PrimitiveManager(PrimitiveData data, Material material) : base(GenType.VertexArray)
+        public PrimitiveManager() 
+            : base(GenType.VertexArray) { }
+        public PrimitiveManager(PrimitiveData data, Material material)
+            : base(GenType.VertexArray)
         {
             Data = data;
             _material = material;
@@ -40,7 +47,7 @@ namespace CustomEngine.Rendering.Models
 
         public PrimitiveData Data
         {
-            get { return _data; }
+            get => _data;
             set
             {
                 Destroy();
@@ -74,102 +81,204 @@ namespace CustomEngine.Rendering.Models
         }
         public Material Material
         {
-            get { return _material; }
-            set
-            {
-                _material = value;
-                _program?.SetMaterial(_material);
-            }
+            get => _material;
+            set => _program?.SetMaterial(_material = value);
         }
 
-        public MeshProgram Program { get { return _program; } }
+        public MeshProgram Program => _program;
+        public HashSet<int> ModifiedVertexIndices => _modifiedVertexIndices;
+        public HashSet<int> ModifiedBoneIndices => _modifiedBoneIndices;
 
-        public void SkeletonChanged(Skeleton skeleton)
+        private void UpdateBoneInfo(bool set)
         {
-            _data[BufferType.MatrixIds]?.Dispose();
-            _data[BufferType.MatrixWeights]?.Dispose();
-            if (skeleton != null && _data._influences != null)
+            if (Data._influences != null && _cpuSkinInfo != null)
             {
-                _utilizedBones = _data._utilizedBones.Select(x => skeleton.BoneNameCache[x]).ToArray();
-
-                int infCount = _data._influences.Length;
-                IVec4[] matrixIndices = new IVec4[infCount];
-                Vec4[] matrixWeights = new Vec4[infCount];
-
-                for (int i = 0; i < infCount; ++i)
+                for (int i = 0; i < _cpuSkinInfo._influences.Length; ++i)
                 {
-                    matrixIndices[i] = new IVec4();
-                    matrixWeights[i] = new Vec4();
-                    Influence inf = _data._influences[i];
-                    for (int j = 0; j < Influence.MaxWeightCount; ++j)
+                    var inf = _cpuSkinInfo._influences[i];
+                    for (int j = 0; j < inf._weightCount; ++j)
                     {
-                        BoneWeight b = inf.Weights[j];
-                        if (b == null)
+                        Bone b = inf._bones[j];
+                        if (set)
                         {
-                            matrixIndices[i][j] = 0;
-                            matrixWeights[i][j] = 0.0f;
+                            if (!b._influencedInfluences.Contains(inf))
+                                b._influencedInfluences.Add(inf);
                         }
                         else
                         {
-                            matrixIndices[i][j] = _data._utilizedBones.IndexOf(b.Bone) + 1;
-                            matrixWeights[i][j] = b.Weight;
+                            if (b._influencedInfluences.Contains(inf))
+                                b._influencedInfluences.Remove(inf);
                         }
                     }
                 }
-
-                _positionMatrices = new Matrix4[_utilizedBones.Length + 1];
-                _normalMatrices = new Matrix3[_utilizedBones.Length + 1];
-                _positionMatrices[0] = Matrix4.Identity;
-                _normalMatrices[0] = Matrix3.Identity;
-
-                RegenerateSkinningMatrices();
-
-                if (Engine._engineSettings.File.SkinOnGPU)
+                for (int i = 0; i < Data._facePoints.Count; ++i)
                 {
+                    var inf = _cpuSkinInfo._influences[Data._facePoints[i]._influenceIndex];
+                    FacePoint point = Data._facePoints[i];
+                    for (int j = 0; j < inf._weightCount; ++j)
+                    {
+                        Bone b = inf._bones[j];
+                        if (set)
+                        {
+                            List<int> list;
+
+                            //if (!b._influencedVertices.ContainsKey(BindingId))
+                            //    b._influencedVertices.Add(BindingId, list = new List<int>());
+                            //else
+                                list = b._influencedVertices[BindingId];
+
+                            if (!list.Contains(point.VertexIndex))
+                                list.Add(point.VertexIndex);
+                        }
+                        else
+                        {
+                            //if (b._influencedVertices.ContainsKey(BindingId))
+                            //{
+                                List<int> list = b._influencedVertices[BindingId];
+                                if (list.Contains(point.VertexIndex))
+                                    list.Remove(point.VertexIndex);
+                                //if (list.Count == 0)
+                                //    b._influencedVertices.Remove(BindingId);
+                            //}
+                        }
+                    }
+                }
+            }
+        }
+        public void SkeletonChanged(Skeleton skeleton)
+        {
+            UpdateBoneInfo(false);
+            _modifiedBoneIndices.Clear();
+            _data[BufferType.MatrixIds]?.Dispose();
+            _data[BufferType.MatrixWeights]?.Dispose();
+            if (_utilizedBones != null)
+                foreach (Bone b in _utilizedBones)
+                    b.RemovePrimitiveManager(this);
+            _boneRemap = null;
+            if (skeleton != null && _data._influences != null)
+            {
+                if (_data._utilizedBones == null || _data._utilizedBones.Length == 1)
+                {
+                    _singleBind = skeleton.BoneNameCache[_data._singleBindBone];
                     _cpuSkinInfo = null;
-                    _data.AddBuffer(matrixIndices.ToList(), new VertexAttribInfo(BufferType.MatrixIds), false, false);
-                    _data.AddBuffer(matrixWeights.ToList(), new VertexAttribInfo(BufferType.MatrixWeights));
+                    _bufferInfo._boneCount = 1;
                 }
                 else
                 {
-                    _cpuSkinInfo = new CPUSkinInfo(_data, matrixWeights, matrixIndices);
+                    _utilizedBones = _data._utilizedBones.Select(x => skeleton.BoneNameCache[x]).ToArray();
+                    _boneRemap = new Dictionary<int, int>();
+                    for (int i = 0; i < _utilizedBones.Length; ++i)
+                    {
+                        Bone b = _utilizedBones[i];
+                        _modifiedBoneIndices.Add(b._index);
+                        b.AddPrimitiveManager(this);
+                        _boneRemap.Add(b._index, i);
+                    }
+
+                    int infCount = _data._influences.Length;
+                    if (Engine.Settings.UseIntegerWeightingIds || !Engine.Settings.SkinOnGPU)
+                    {
+                        if (Engine.Settings.SkinOnGPU)
+                        {
+                            _cpuSkinInfo = null;
+                            IVec4[] matrixIndices = new IVec4[infCount];
+                            Vec4[] matrixWeights = new Vec4[infCount];
+
+                            for (int i = 0; i < infCount; ++i)
+                            {
+                                matrixIndices[i] = new IVec4();
+                                matrixWeights[i] = new Vec4();
+                                Influence inf = _data._influences[i];
+                                for (int j = 0; j < Influence.MaxWeightCount; ++j)
+                                {
+                                    BoneWeight b = inf.Weights[j];
+                                    if (b == null)
+                                    {
+                                        matrixIndices[i][j] = 0;
+                                        matrixWeights[i][j] = 0.0f;
+                                    }
+                                    else
+                                    {
+                                        matrixIndices[i][j] = _data._utilizedBones.IndexOf(b.Bone) + 1;
+                                        matrixWeights[i][j] = b.Weight;
+                                    }
+                                }
+                            }
+                            _data.AddBufferNumeric(matrixIndices.SelectMany(x => new byte[] { (byte)x.X, (byte)x.Y, (byte)x.Z, (byte)x.W }).ToList(), new VertexAttribInfo(BufferType.MatrixIds), false, true);
+                            _data.AddBuffer(matrixWeights.ToList(), new VertexAttribInfo(BufferType.MatrixWeights));
+                        }
+                        else
+                            _cpuSkinInfo = new CPUSkinInfo(_data, skeleton);
+                    }
+                    else
+                    {
+                        Vec4[] matrixIndices = new Vec4[infCount];
+                        Vec4[] matrixWeights = new Vec4[infCount];
+
+                        for (int i = 0; i < infCount; ++i)
+                        {
+                            matrixIndices[i] = new Vec4();
+                            matrixWeights[i] = new Vec4();
+                            Influence inf = _data._influences[i];
+                            for (int j = 0; j < Influence.MaxWeightCount; ++j)
+                            {
+                                BoneWeight b = inf.Weights[j];
+                                if (b == null)
+                                {
+                                    matrixIndices[i][j] = 0.0f;
+                                    matrixWeights[i][j] = 0.0f;
+                                }
+                                else
+                                {
+                                    matrixIndices[i][j] = _data._utilizedBones.IndexOf(b.Bone) + 1;
+                                    matrixWeights[i][j] = b.Weight;
+                                }
+                            }
+                        }
+                        _cpuSkinInfo = null;
+                        _data.AddBuffer(matrixIndices.ToList(), new VertexAttribInfo(BufferType.MatrixIds), false, false);
+                        _data.AddBuffer(matrixWeights.ToList(), new VertexAttribInfo(BufferType.MatrixWeights));
+                    }
+                    _bufferInfo._boneCount = _utilizedBones.Length;
                 }
-                _bufferInfo._boneCount = _utilizedBones.Length;
             }
             else
             {
                 _bufferInfo._boneCount = 0;
                 _utilizedBones = null;
             }
+            UpdateBoneInfo(true);
         }
-        private void RegenerateSkinningMatrices()
-        {
-            for (int i = 1; i < _utilizedBones.Length + 1; ++i)
-            {
-                Bone b = _utilizedBones[i - 1];
-                _positionMatrices[i] = b.VertexMatrix;
-                _normalMatrices[i] = b.VertexMatrixIT.GetRotationMatrix3();
-            }
-        }
-        Matrix4[] _positionMatrices;
-        Matrix3[] _normalMatrices;
         private void SetSkinningUniforms()
         {
             if (!_bufferInfo.IsWeighted)
                 return;
 
-            if (Engine._engineSettings.File.SkinOnGPU)
+            _processingSkinning = true;
+            if (Engine.Settings.SkinOnGPU)
             {
-                Engine.Renderer.Uniform(Uniform.BoneMatricesName, _positionMatrices);
-                Engine.Renderer.Uniform(Uniform.BoneMatricesITName, _normalMatrices);
+                Engine.Renderer.Uniform(Uniform.BoneMatricesName + "[0]", Matrix4.Identity);
+                Engine.Renderer.Uniform(Uniform.BoneMatricesITName + "[0]", Matrix3.Identity);
+
+                //Update modified bone matrix uniforms
+                foreach (int index in _modifiedBoneIndices)
+                {
+                    int remappedIndex = _boneRemap[index];
+                    Bone b = _utilizedBones[remappedIndex];
+                    //Increase index to account for identity matrix at index 0
+                    ++remappedIndex;
+                    Engine.Renderer.Uniform(Uniform.BoneMatricesName + "[" + remappedIndex + "]", b.VertexMatrix);
+                    Engine.Renderer.Uniform(Uniform.BoneMatricesITName + "[" + remappedIndex + "]", b.VertexMatrixIT.GetRotationMatrix3());
+                }
                 //Engine.Renderer.Uniform(Uniform.MorphWeightsName, _morphWeights);
+                _modifiedBoneIndices.Clear();
             }
             else
             {
-                //RegenerateSkinningMatrices();
-                _cpuSkinInfo.UpdatePNBT(_positionMatrices, _normalMatrices, _data._modifiedVertexIndices);
-                _data._modifiedVertexIndices.Clear();
+                _cpuSkinInfo.UpdatePNBT(_modifiedVertexIndices);
+                _modifiedVertexIndices.Clear();
             }
+            _processingSkinning = false;
         }
 
         /// <summary>

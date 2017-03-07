@@ -15,7 +15,7 @@ namespace CustomEngine.Rendering.OpenGL
         private IGraphicsContext _context;
         private IWindowInfo _winInfo = null;
 
-        public IWindowInfo WindowInfo { get { return _winInfo; } }
+        public IWindowInfo WindowInfo => _winInfo;
 
         public GLWindowContext(RenderPanel c) : base(c)
         {
@@ -24,11 +24,14 @@ namespace CustomEngine.Rendering.OpenGL
             _context.MakeCurrent(WindowInfo);
             _context.LoadAll();
             _context.SwapInterval = 1;
+
+            //Retrieve OpenGL information
             string vendor = GL.GetString(StringName.Vendor);
             string version = GL.GetString(StringName.Version);
             string renderer = GL.GetString(StringName.Renderer);
             string shaderVersion = GL.GetString(StringName.ShadingLanguageVersion);
             //string extensions = GL.GetString(StringName.Extensions);
+
             Debug.WriteLine("OPENGL VENDOR: " + vendor);
             Debug.WriteLine("OPENGL VERSION: " + version);
             Debug.WriteLine("OPENGL RENDERER: " + renderer);
@@ -45,15 +48,14 @@ namespace CustomEngine.Rendering.OpenGL
             return false;
         }
         public override bool IsContextDisposed()
-        {
-            return _context == null || _context.IsDisposed;
-        }
+            => _context == null || _context.IsDisposed;
         protected override void OnSwapBuffers()
         {
             if (!IsContextDisposed())
                 _context.SwapBuffers();
         }
-        protected override void OnUpdated() { _context.Update(WindowInfo); }
+        protected override void OnUpdated()
+            => _context.Update(WindowInfo);
         public override void SetCurrent(bool current)
         {
             if (!IsContextDisposed())
@@ -70,13 +72,14 @@ namespace CustomEngine.Rendering.OpenGL
             _winInfo = null;
         }
 
-        internal override AbstractRenderer GetRendererInstance() { return new GLRenderer(); }
+        internal override AbstractRenderer GetRendererInstance()
+            => new GLRenderer();
 
         public override void ErrorCheck()
         {
-            //ErrorCode code = GL.GetError();
-            //if (code != ErrorCode.NoError && _control != null)
-            //    _control.Reset();
+            ErrorCode code = GL.GetError();
+            if (code != ErrorCode.NoError && _control != null)
+                _control.Reset();
         }
 
         public unsafe override void Initialize()

@@ -29,10 +29,9 @@ namespace System
     public interface IRenderable
     {
         Shape CullingVolume { get; }
-        bool IsRendering { get; set; }
         RenderOctree.Node RenderNode { get; set; }
-        bool Visible { get; set; }
         void Render();
+        bool IsRendering { get; set; }
     }
     public class RenderOctree
     {

@@ -23,12 +23,6 @@ namespace CustomEngine.Rendering.Models
     {
         public override ResourceType ResourceType { get { return ResourceType.Bone; } }
 
-        private BillboardType _billboardType = BillboardType.None;
-        private bool _scaleByDistance = false;
-
-        internal int _index;
-        internal List<FacePoint> _influencedVertices = new List<FacePoint>();
-
         public Bone(Skeleton owner)
         {
             _skeleton = owner;
@@ -58,7 +52,7 @@ namespace CustomEngine.Rendering.Models
             if (info == null)
                 _physicsDriver = null;
             else
-                _physicsDriver = new PhysicsDriver(info, MatrixUpdate, SimulationUpdate);
+                _physicsDriver = new PhysicsDriver(this, info, MatrixUpdate, SimulationUpdate);
 
             _childBones.Added += ChildBonesAdded;
             _childBones.AddedRange += ChildBonesAddedRange;
@@ -73,18 +67,26 @@ namespace CustomEngine.Rendering.Models
             _childComponents.RemovedRange += ChildComponentsRemovedRange;
             _childComponents.Inserted += ChildComponentsInserted;
             _childComponents.InsertedRange += ChildComponentsInsertedRange;
+
+            //_linkedPrimitiveManagers.Added += _linkedPrimitiveManagers_Added;
+            //_linkedPrimitiveManagers.Removed += _linkedPrimitiveManagers_Removed;
+        }
+
+        private void _linkedPrimitiveManagers_Removed(PrimitiveManager item)
+        {
+            //foreach (Bone b in ChildBones)
+            //    b.PrimitiveManagers.Remove(item);
+        }
+
+        private void _linkedPrimitiveManagers_Added(PrimitiveManager item)
+        {
+            //foreach (Bone b in ChildBones)
+            //    b.PrimitiveManagers.Add(item);
         }
 
         private void _frameState_MatrixChanged(Matrix4 oldMatrix, Matrix4 oldInvMatrix)
         {
-            if (Engine._engineSettings.File.SkinOnGPU)
-                CalcFrameMatrix();
-            else
-            {
-                HashSet<int> modifiedVertexIndices = new HashSet<int>();
-                HashSet<int> modifiedBoneIndices = new HashSet<int>();
-                CalcFrameMatrix(modifiedVertexIndices, modifiedBoneIndices);
-            }
+            CalcFrameMatrix();
         }
 
         public void MatrixUpdate(Matrix4 worldMatrix)
@@ -111,10 +113,22 @@ namespace CustomEngine.Rendering.Models
         public void UnlinkSingleBindMesh(SkeletalRigidSubMesh m) 
             => _singleBoundMeshes.Remove(m);
 
+        private BillboardType _billboardType = BillboardType.None;
+        private bool _scaleByDistance = false;
+
+        internal int _index;
+        internal Dictionary<int, List<int>> _influencedVertices = new Dictionary<int, List<int>>();
+        internal List<CPUSkinInfo.LiveInfluence> _influencedInfluences = new List<CPUSkinInfo.LiveInfluence>();
+
+        private List<PrimitiveManager> _linkedPrimitiveManagers
+            = new List<PrimitiveManager>();
+        private MonitoredList<Bone> _childBones
+            = new MonitoredList<Bone>();
+        private MonitoredList<SceneComponent> _childComponents
+            = new MonitoredList<SceneComponent>();
+        private List<SkeletalRigidSubMesh> _singleBoundMeshes
+            = new List<SkeletalRigidSubMesh>();
         private PhysicsDriver _physicsDriver;
-        private MonitoredList<Bone> _childBones = new MonitoredList<Bone>();
-        private MonitoredList<SceneComponent> _childComponents = new MonitoredList<SceneComponent>();
-        private List<SkeletalRigidSubMesh> _singleBoundMeshes = new List<SkeletalRigidSubMesh>();
         private Skeleton _skeleton;
         private Bone _parent;
         private FrameState _frameState, _bindState;
@@ -129,7 +143,7 @@ namespace CustomEngine.Rendering.Models
 
         public Bone Parent
         {
-            get { return _parent; }
+            get => _parent;
             set
             {
                 if (_parent != null)
@@ -161,26 +175,26 @@ namespace CustomEngine.Rendering.Models
         public Matrix4 VertexMatrixIT => _vertexMatrixIT;
         public Skeleton Skeleton => _skeleton;
         public PhysicsDriver PhysicsDriver => _physicsDriver;
+        //public List<PrimitiveManager> PrimitiveManagers => _linkedPrimitiveManagers;
 
-        public void CalcFrameMatrix(HashSet<int> modifiedVertexIndices, HashSet<int> modifiedBoneIndices)
+        public void AddPrimitiveManager(PrimitiveManager m)
         {
-            CalcFrameMatrix(
-                _parent != null ? _parent._frameMatrix : Matrix4.Identity,
-                _parent != null ? _parent._inverseFrameMatrix : Matrix4.Identity,
-                modifiedVertexIndices, modifiedBoneIndices);
+            _linkedPrimitiveManagers.Add(m);
+            _influencedVertices.Add(m.BindingId, new List<int>());
         }
+        public void RemovePrimitiveManager(PrimitiveManager m)
+        {
+            _linkedPrimitiveManagers.Remove(m);
+            _influencedVertices.Remove(m.BindingId);
+        }
+
         public void CalcFrameMatrix()
         {
             CalcFrameMatrix(
                 _parent != null ? _parent._frameMatrix : Matrix4.Identity,
-                _parent != null ? _parent._inverseFrameMatrix : Matrix4.Identity,
-                null, null);
+                _parent != null ? _parent._inverseFrameMatrix : Matrix4.Identity);
         }
-        public void CalcFrameMatrix(
-            Matrix4 parentMatrix,
-            Matrix4 inverseParentMatrix,
-            HashSet<int> modifiedVertexIndices,
-            HashSet<int> modifiedBoneIndices)
+        public void CalcFrameMatrix(Matrix4 parentMatrix, Matrix4 inverseParentMatrix)
         {
             _frameMatrix = parentMatrix * _frameState.Matrix;
             _inverseFrameMatrix = _frameState.InverseMatrix * inverseParentMatrix;
@@ -199,13 +213,27 @@ namespace CustomEngine.Rendering.Models
                 _inverseWorldMatrix = _inverseFrameMatrix * OwningComponent.InverseWorldMatrix;
             }
 
-            if (modifiedVertexIndices != null)
-                _influencedVertices.ForEach(x => modifiedVertexIndices.Add(x.VertexIndex));
-            if (modifiedBoneIndices != null)
-                modifiedBoneIndices.Add(_index);
+            if (Engine.Settings.SkinOnGPU)
+                foreach (PrimitiveManager m in _linkedPrimitiveManagers)
+                {
+                    if (!m._processingSkinning)
+                        m.ModifiedBoneIndices.Add(_index);
+                }
+            else
+            {
+                for (int i = 0; i < _linkedPrimitiveManagers.Count; ++i)
+                {
+                    PrimitiveManager m = _linkedPrimitiveManagers[i];
+                    List<int> influenced = _influencedVertices[m.BindingId];
+                    //m._cpuSkinInfo.UpdatePNBT(influenced);
+                    if (!m._processingSkinning)
+                        m.ModifiedVertexIndices.UnionWith(influenced);
+                }
+                _influencedInfluences.ForEach(x => x._hasChanged = true);
+            }
 
             foreach (Bone b in _childBones)
-                b.CalcFrameMatrix(_frameMatrix, _inverseFrameMatrix, modifiedVertexIndices, modifiedBoneIndices);
+                b.CalcFrameMatrix(_frameMatrix, _inverseFrameMatrix);
         }
 
         public void CalcBindMatrix(bool updateMesh)
@@ -241,7 +269,7 @@ namespace CustomEngine.Rendering.Models
         {
             item._parent = this;
             item.CalcBindMatrix(BindMatrix, InverseBindMatrix, false);
-            item.CalcFrameMatrix(FrameMatrix, InverseFrameMatrix, null, null);
+            item.CalcFrameMatrix(FrameMatrix, InverseFrameMatrix);
             _skeleton?.RegenerateBoneCache();
         }
         private void ChildBonesAddedRange(IEnumerable<Bone> items)
@@ -250,7 +278,7 @@ namespace CustomEngine.Rendering.Models
             {
                 item._parent = this;
                 item.CalcBindMatrix(BindMatrix, InverseBindMatrix, false);
-                item.CalcFrameMatrix(FrameMatrix, InverseFrameMatrix, null, null);
+                item.CalcFrameMatrix(FrameMatrix, InverseFrameMatrix);
             }
             _skeleton?.RegenerateBoneCache();
         }
@@ -258,7 +286,7 @@ namespace CustomEngine.Rendering.Models
         {
             item._parent = this;
             item.CalcBindMatrix(BindMatrix, InverseBindMatrix, false);
-            item.CalcFrameMatrix(FrameMatrix, InverseFrameMatrix, null, null);
+            item.CalcFrameMatrix(FrameMatrix, InverseFrameMatrix);
             _skeleton?.RegenerateBoneCache();
         }
         private void ChildBonesInsertedRange(IEnumerable<Bone> items, int index)
@@ -267,7 +295,7 @@ namespace CustomEngine.Rendering.Models
             {
                 item._parent = this;
                 item.CalcBindMatrix(BindMatrix, InverseBindMatrix, false);
-                item.CalcFrameMatrix(FrameMatrix, InverseFrameMatrix, null, null);
+                item.CalcFrameMatrix(FrameMatrix, InverseFrameMatrix);
             }
             _skeleton?.RegenerateBoneCache();
         }

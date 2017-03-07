@@ -6,7 +6,7 @@ namespace CustomEngine.Worlds.Actors.Components
 {
     public partial class StaticMeshComponent : TRSComponent, IPhysicsDrivable
     {
-        internal class RenderableMesh : IRenderable
+        internal class RenderableMesh : IMesh
         {
             public RenderableMesh(IStaticMesh mesh, SceneComponent component)
             {
@@ -18,8 +18,14 @@ namespace CustomEngine.Worlds.Actors.Components
                 IsRendering = true;
             }
 
+            private bool
+                _ownerNoSee = false,
+                _onlyOwnerSee = false, 
+                _visibleInEditorOnly = false,
+                _isVisible = true, 
+                _isRendering = false;
+
             private PrimitiveManager _manager;
-            private bool _isVisible, _isRendering;
             private SceneComponent _component;
             private IStaticMesh _mesh;
             private RenderOctree.Node _renderNode;
@@ -37,6 +43,21 @@ namespace CustomEngine.Worlds.Actors.Components
                     else
                         Engine.Renderer.Scene.RemoveRenderable(this);
                 }
+            }
+            public bool VisibleInEditorOnly
+            {
+                get => _visibleInEditorOnly;
+                set => _visibleInEditorOnly = value;
+            }
+            public bool HiddenFromOwner
+            {
+                get => _ownerNoSee;
+                set => _ownerNoSee = value;
+            }
+            public bool VisibleToOwnerOnly
+            {
+                get => _onlyOwnerSee;
+                set => _onlyOwnerSee = value;
             }
             public bool IsRendering
             {

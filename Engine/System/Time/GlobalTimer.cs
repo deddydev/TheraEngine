@@ -60,8 +60,8 @@ namespace System
         }
         void ProcessEvents()
         {
-            Application.DoEvents();
-            Thread.Sleep(0);
+            //Application.DoEvents();
+            Thread.Sleep(1);
         }
         void DispatchUpdateAndRenderFrame(object sender, EventArgs e)
         {

@@ -26,13 +26,13 @@ namespace CustomEngine.Worlds.Actors.Types
 
         public override void OnSpawned(World world)
         {
-            Engine.Renderer.Scene.AddRenderable(_cameraComponent.Camera);
+            //Engine.Renderer.Scene.AddRenderable(_cameraComponent.Camera);
             base.OnSpawned(world);
         }
 
         public override void OnDespawned()
         {
-            Engine.Renderer.Scene.RemoveRenderable(_cameraComponent.Camera);
+            //Engine.Renderer.Scene.RemoveRenderable(_cameraComponent.Camera);
             base.OnDespawned();
         }
     }

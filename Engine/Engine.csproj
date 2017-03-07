@@ -751,6 +751,7 @@
     <Compile Include="Worlds\Actors\Components\Scene\Lights\SpotLightComponent.cs" />
     <Compile Include="Worlds\Actors\Components\Scene\Lights\PointLightComponent.cs" />
     <Compile Include="Worlds\Actors\Components\Scene\Lights\DirectionalLightComponent.cs" />
+    <Compile Include="Worlds\Actors\Components\Scene\Mesh\IMesh.cs" />
     <Compile Include="Worlds\Actors\Components\Scene\Mesh\SkeletalMeshComponent.RenderableMesh.cs" />
     <Compile Include="Worlds\Actors\Components\Scene\Mesh\StaticMeshComponent.RenderableMesh.cs" />
     <Compile Include="Worlds\Actors\Components\Scene\Transforms\TRComponent.cs" />

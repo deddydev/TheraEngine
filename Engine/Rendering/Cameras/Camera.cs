@@ -80,6 +80,7 @@ namespace CustomEngine.Rendering.Cameras
             set => _viewports = value;
         }
 
+        public bool IsActiveRenderCamera => _isActive;
         public Shape CullingVolume => _transformedFrustum.CullingVolume;
 
         public bool IsRendering
@@ -92,22 +93,12 @@ namespace CustomEngine.Rendering.Cameras
             get => _transformedFrustum.RenderNode;
             set => _transformedFrustum.RenderNode = value;
         }
-        public bool Visible
-        {
-            get => _transformedFrustum.Visible;
-            set => _transformedFrustum.Visible = value;
-        }
 
         private List<Viewport> _viewports = new List<Viewport>();
         internal bool _isActive = false;
         private Vec3 _projectionRange;
         private Vec3 _projectionOrigin;
         protected Frustum _untransformedFrustum, _transformedFrustum;
-        
-        public bool IsActiveRenderCamera
-        {
-            get { return _isActive; }
-        }
 
         protected bool _updating = false;
         protected float _nearZ = 1.0f, _farZ = 2000.0f;

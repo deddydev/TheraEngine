@@ -209,7 +209,7 @@ void main()
     for (int i = 0; i < SpotLightCount; ++i)
         totalLight += CalcSpotLight(SpotLights[i], normal);
 
-    //vec4 texColor = texture(Texture0, InData.MultiTexCoord0);
+    vec4 texColor = texture(Texture0, InData.MultiTexCoord0);
 
     OutColor = MatColor * vec4(totalLight, 1.0);
 }

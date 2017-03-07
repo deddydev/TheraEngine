@@ -41,23 +41,38 @@ namespace CustomEngine.Rendering
         public CustomCollisionGroup CollidesWith;
         public RigidBodyConstructionInfo BodyInfo;
     }
+    public delegate void PhysicsOverlap(PhysicsDriver other);
     public class PhysicsDriver : FileObject
     {
         public override ResourceType ResourceType { get { return ResourceType.RigidPhysicsDriver; } }
-        
-        public PhysicsDriver(PhysicsDriverInfo info)
+
+        IPhysicsDrivable _owner;
+
+        public PhysicsDriver(IPhysicsDrivable owner, PhysicsDriverInfo info)
         {
+            _owner = owner;
             _collisionEnabled = info.CollisionEnabled;
             _simulatingPhysics = info.SimulatePhysics;
             _group = info.Group;
             _collidesWith = info.CollidesWith;
             UpdateBody(new RigidBody(info.BodyInfo));
         }
-        public PhysicsDriver(PhysicsDriverInfo info, MatrixUpdate func) : this(info)
+
+        internal void EndOverlap(PhysicsDriver other)
+        {
+            
+        }
+
+        internal void BeginOverlap(PhysicsDriver other)
+        {
+
+        }
+
+        public PhysicsDriver(IPhysicsDrivable owner, PhysicsDriverInfo info, MatrixUpdate func) : this(owner, info)
         {
             TransformChanged += func;
         }
-        public PhysicsDriver(PhysicsDriverInfo info, MatrixUpdate mtxFunc, SimulationUpdate simFunc) : this(info, mtxFunc)
+        public PhysicsDriver(IPhysicsDrivable owner, PhysicsDriverInfo info, MatrixUpdate mtxFunc, SimulationUpdate simFunc) : this(owner, info, mtxFunc)
         {
             SimulationStateChanged += simFunc;
         }

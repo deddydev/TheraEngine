@@ -1,6 +1,7 @@
 ﻿using CustomEngine.Files;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -85,6 +86,8 @@ namespace CustomEngine.Rendering
 
             _currentBind._bindingId = CreateObject();
             OnGenerated();
+
+            //Debug.WriteLine(this.ToString());
 
             return _currentBind._bindingId;
         }

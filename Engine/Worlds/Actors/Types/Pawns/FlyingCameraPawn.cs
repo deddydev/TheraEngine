@@ -69,8 +69,8 @@ namespace CustomEngine.Worlds.Actors
         bool _ctrl = false, _alt = false, _shift = false, _rightClickPressed = false;
         Vec2 _cursorPos = Vec2.Zero;
 
-        bool Rotating { get { return _rightClickPressed && _ctrl; } }
-        bool Translating { get { return _rightClickPressed && !_ctrl; } }
+        bool Rotating => _rightClickPressed && _ctrl;
+        bool Translating => _rightClickPressed && !_ctrl;
 
         protected override void SetDefaults()
         {
@@ -143,28 +143,26 @@ namespace CustomEngine.Worlds.Actors
         private void OnRightStickY(float value) 
             => _pitch = -value * _gamepadRotateSpeed;
 
-        private void OnControl(bool pressed) { _ctrl = pressed; }
-        private void OnAlt(bool pressed) { _alt = pressed; }
+        private void OnControl(bool pressed)
+            => _ctrl = pressed;
+        private void OnAlt(bool pressed)
+            => _alt = pressed;
         private void OnShift(bool pressed)
-        {
-            _shift = pressed;
-
-        }
+            => _shift = pressed;
 
         private void OnScrolled(bool up)
-        {
-            RootComponent.Camera.Zoom(up ? _scrollSpeed : -_scrollSpeed);
-        }
+            => RootComponent.Camera.Zoom(up ? _scrollSpeed : -_scrollSpeed);
+        
         private void OnRightClick(bool pressed)
-        {
-            _rightClickPressed = pressed;
-        }
+            => _rightClickPressed = pressed;
+        
         //private void ExecuteCombo(EMouseButton button, bool pressed)
         //{
         //    //ComboModifier mod = GetModifier(button, _alt, _ctrl, _shift);
         //    //if (_combos.ContainsKey(mod))
         //    //    _combos[mod](pressed);
         //}
+
         public void MouseMove(float x, float y)
         {
             if (Rotating)

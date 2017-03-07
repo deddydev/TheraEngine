@@ -5,6 +5,7 @@ using System.ComponentModel;
 using CustomEngine.Rendering.Models.Materials;
 using CustomEngine.Rendering.Textures;
 using System.Linq;
+using CustomEngine.Rendering.Animation;
 
 namespace CustomEngine.Rendering.Models.Collada
 {
@@ -62,13 +63,16 @@ namespace CustomEngine.Rendering.Models.Collada
     }
     public unsafe partial class Collada
     {
-        public static void ImportModel(
+        public static List<AnimationContainer> Import(
             string filePath,
             ColladaImportOptions options,
             out StaticMesh staticMesh,
             out SkeletalMesh skeletalMesh,
-            out Skeleton skeleton)
+            out Skeleton skeleton,
+            bool importAnimations = true,
+            bool importModels = true)
         {
+            List<AnimationContainer> anims = new List<AnimationContainer>();
             using (DecoderShell shell = DecoderShell.Import(filePath))
             {
                 Matrix4 baseTransform = Matrix4.Identity;
@@ -159,6 +163,7 @@ namespace CustomEngine.Rendering.Models.Collada
 
                 GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced);
             }
+            return anims;
         }
 
         private static Bone EnumNode(

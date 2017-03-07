@@ -54,7 +54,7 @@ namespace CustomEngine.Worlds.Actors
             
         }
 
-        public void Kill(CharacterPawn instigator, IActor killer)
+        public virtual void Kill(CharacterPawn instigator, IActor killer)
         {
             GameMode mode = Engine.World.State.GameMode;
         }

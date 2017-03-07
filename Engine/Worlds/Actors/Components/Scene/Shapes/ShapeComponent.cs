@@ -11,8 +11,7 @@ namespace CustomEngine.Worlds.Actors.Components
             if (info != null)
             {
                 info.BodyInfo.CollisionShape = GetCollisionShape();
-                _physics = new PhysicsDriver(
-                    info, PhysicsTransformChanged, PhysicsSimulationStateChanged);
+                _physics = new PhysicsDriver(this, info, PhysicsTransformChanged, PhysicsSimulationStateChanged);
             }
         }
 
@@ -26,7 +25,13 @@ namespace CustomEngine.Worlds.Actors.Components
 
         protected RenderOctree.Node _renderNode;
         protected PhysicsDriver _physics;
-        protected bool _isRendering, _isVisible, _visibleByDefault;
+        protected bool
+            _isRendering,
+            _isVisible,
+            _visibleByDefault,
+            _visibleInEditorOnly,
+            _hiddenFromOwner,
+            _visibleToOwnerOnly;
 
         public CustomCollisionGroup CollisionGroup
         {
@@ -55,6 +60,22 @@ namespace CustomEngine.Worlds.Actors.Components
         {
             get => _renderNode;
             set => _renderNode = value;
+        }
+
+        public bool VisibleInEditorOnly
+        {
+            get => _visibleInEditorOnly;
+            set => _visibleInEditorOnly = value;
+        }
+        public bool HiddenFromOwner
+        {
+            get => _hiddenFromOwner;
+            set => _hiddenFromOwner = value;
+        }
+        public bool VisibleToOwnerOnly
+        {
+            get => _visibleToOwnerOnly;
+            set => _visibleToOwnerOnly = value;
         }
 
         public abstract void Render();

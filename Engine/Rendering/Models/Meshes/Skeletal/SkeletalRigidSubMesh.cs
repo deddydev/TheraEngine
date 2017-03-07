@@ -11,7 +11,7 @@ namespace CustomEngine.Rendering.Models
 {
     public class SkeletalRigidSubMesh : FileObject, ISkeletalMesh
     {
-        public override ResourceType ResourceType { get { return ResourceType.SkeletalRigidSubMesh; } }
+        public override ResourceType ResourceType => ResourceType.SkeletalRigidSubMesh;
 
         public SkeletalRigidSubMesh()
         {
@@ -26,40 +26,33 @@ namespace CustomEngine.Rendering.Models
             _material = material;
             _cullingVolume = cullingVolume;
             _name = name;
-            _boneName = boneName;
         }
 
         protected SkeletalMesh _parent;
         protected PrimitiveData _data;
         protected Material _material;
-        protected string _boneName;
         protected Shape _cullingVolume;
         protected bool _visibleByDefault = true, _renderSolid;
         
         public Shape CullingVolume
         {
-            get { return _cullingVolume; }
-            set { _cullingVolume = value; }
+            get => _cullingVolume;
+            set => _cullingVolume = value;
         }
-        public bool VisibleByDefault
-        {
-            get { return _visibleByDefault; }
-        }
+        public bool VisibleByDefault => _visibleByDefault;
         public Material Material
         {
-            get { return _material; }
-            set { _material = value; }
+            get => _material;
+            set => _material = value;
         }
-        public PrimitiveData Data
-        {
-            get { return _data; }
-        }
+        public PrimitiveData Data => _data;
         public SkeletalMesh Model
         {
-            get { return _parent; }
-            internal set { _parent = value; }
+            get => _parent;
+            internal set => _parent = value;
         }
-        public string SingleBindName { get { return _boneName; } }
+
+        public string SingleBindName => _data._singleBindBone;
 
         public override void Write(VoidPtr address, StringTable table)
         {

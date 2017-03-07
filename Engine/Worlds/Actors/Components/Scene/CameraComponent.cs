@@ -85,5 +85,19 @@ namespace CustomEngine.Worlds.Actors.Components
         {
             throw new NotImplementedException();
         }
+
+        public override void OnSpawned()
+        {
+            if (Engine.Settings.RenderCameraFrustums)
+                Engine.Renderer.Scene.AddRenderable(_camera);
+            base.OnSpawned();
+        }
+
+        public override void OnDespawned()
+        {
+            if (Engine.Settings.RenderCameraFrustums)
+                Engine.Renderer.Scene.RemoveRenderable(_camera);
+            base.OnDespawned();
+        }
     }
 }

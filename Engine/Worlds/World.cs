@@ -21,6 +21,12 @@ namespace CustomEngine.Worlds
     {
         public override ResourceType ResourceType { get { return ResourceType.World; } }
 
+        static World()
+        {
+            PersistentManifold.ContactProcessed += PersistentManifold_ContactProcessed;
+            PersistentManifold.ContactDestroyed += PersistentManifold_ContactDestroyed;
+        }
+
         internal DiscreteDynamicsWorld _physicsScene;
         public WorldSettings _settings;
 
@@ -29,6 +35,29 @@ namespace CustomEngine.Worlds
         {
             get { return _settings; }
             set { _settings = value; }
+        }
+        private class PhysicsDriverPair
+        {
+            public PhysicsDriverPair(PhysicsDriver driver0, PhysicsDriver driver1)
+            {
+                _driver0 = driver0;
+                _driver1 = driver1;
+            }
+            public PhysicsDriver _driver0, _driver1;
+        }
+        private static void PersistentManifold_ContactDestroyed(object userPersistantData)
+        {
+            PhysicsDriverPair drivers = (PhysicsDriverPair)userPersistantData;
+            drivers._driver0.EndOverlap(drivers._driver1);
+            drivers._driver1.EndOverlap(drivers._driver0);
+        }
+        private static void PersistentManifold_ContactProcessed(ManifoldPoint cp, CollisionObject body0, CollisionObject body1)
+        {
+            PhysicsDriver driver0 = (PhysicsDriver)body0.UserObject;
+            PhysicsDriver driver1 = (PhysicsDriver)body1.UserObject;
+            driver0.BeginOverlap(driver1);
+            driver1.BeginOverlap(driver0);
+            cp.UserPersistentData = new PhysicsDriverPair(driver0, driver1);
         }
         private void CreatePhysicsScene()
         {
@@ -88,7 +117,16 @@ namespace CustomEngine.Worlds
                 _settings.State.SpawnedActors.Remove(actor);
             actor.OnDespawned();
         }
-        public void StepSimulation(float delta) { _physicsScene.StepSimulation(delta); }
+        public void StepSimulation(float delta)
+        {
+            _physicsScene.StepSimulation(delta);
+
+            for (int i = 0; i < _physicsScene.Dispatcher.NumManifolds; ++i)
+            {
+                PersistentManifold m = _physicsScene.Dispatcher.GetManifoldByIndexInternal(i);
+                 
+            }
+        }
         public IActor this[int index]
         {
             get { return _settings.State.SpawnedActors[index]; }

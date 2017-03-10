@@ -3,7 +3,7 @@ using grendgine_collada;
 using System;
 using System.Collections.Generic;
 
-namespace CustomEngine.Rendering.Models.Collada
+namespace CustomEngine.Rendering.Models
 {
     public static class ColladaConverter
     {

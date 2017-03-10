@@ -16,7 +16,7 @@ namespace CustomEngine.Worlds.Actors.Components
         private MovementMode _currentMovementMode = MovementMode.Falling;
         private bool _isCrouched = false;
         private float _maxWalkAngle = 50.0f;
-        private Vec3 _jumpVelocity = Vec3.Up * 10.0f;
+        private Vec3 _jumpVelocity = new Vec3(0.0f, 10.0f, 0.0f);
         private PhysicsDriver _currentWalkingSurface;
         
         public void Jump()

@@ -1,5 +1,6 @@
 ﻿using CustomEngine.Rendering.Models.Materials;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -28,8 +29,8 @@ namespace CustomEngine.Rendering.Models
         public EDrawElementType _elementType;
         private Bone[] _utilizedBones;
         private Dictionary<int, int> _boneRemap;
-        private HashSet<int> _modifiedVertexIndices = new HashSet<int>();
-        private HashSet<int> _modifiedBoneIndices = new HashSet<int>();
+        private volatile HashSet<int> _modifiedVertexIndices = new HashSet<int>();
+        private volatile HashSet<int> _modifiedBoneIndices = new HashSet<int>();
         private PrimitiveBufferInfo _bufferInfo = new PrimitiveBufferInfo();
         private Material _material;
         internal CPUSkinInfo _cpuSkinInfo;
@@ -261,8 +262,10 @@ namespace CustomEngine.Rendering.Models
                 Engine.Renderer.Uniform(Uniform.BoneMatricesITName + "[0]", Matrix3.Identity);
 
                 //Update modified bone matrix uniforms
-                foreach (int index in _modifiedBoneIndices)
+                var enumerator = _modifiedBoneIndices.GetEnumerator();
+                while (enumerator.MoveNext())
                 {
+                    int index = enumerator.Current;
                     int remappedIndex = _boneRemap[index];
                     Bone b = _utilizedBones[remappedIndex];
                     //Increase index to account for identity matrix at index 0
@@ -271,13 +274,10 @@ namespace CustomEngine.Rendering.Models
                     Engine.Renderer.Uniform(Uniform.BoneMatricesITName + "[" + remappedIndex + "]", b.VertexMatrixIT.GetRotationMatrix3());
                 }
                 //Engine.Renderer.Uniform(Uniform.MorphWeightsName, _morphWeights);
-                _modifiedBoneIndices.Clear();
+                //_modifiedBoneIndices.Clear();
             }
             else
-            {
-                _cpuSkinInfo.UpdatePNBT(_modifiedVertexIndices);
-                _modifiedVertexIndices.Clear();
-            }
+                _cpuSkinInfo.UpdatePNBT(_modifiedVertexIndices.GetEnumerator());
             _processingSkinning = false;
         }
 

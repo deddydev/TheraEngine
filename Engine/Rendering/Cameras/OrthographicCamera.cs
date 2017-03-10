@@ -177,6 +177,12 @@ namespace CustomEngine.Rendering.Cameras
                 reader.EndElement();
             }
         }
+
+        protected override int OnCalculateSize(StringTable table)
+        {
+            throw new NotImplementedException();
+        }
+
         [StructLayout(LayoutKind.Sequential, Pack = 1)]
         public struct Header
         {

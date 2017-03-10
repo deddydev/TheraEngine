@@ -42,5 +42,10 @@ namespace CustomEngine.Cutscenes
         {
             throw new NotImplementedException();
         }
+
+        protected override int OnCalculateSize(StringTable table)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

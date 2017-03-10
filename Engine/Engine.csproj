@@ -205,10 +205,12 @@
     <Compile Include="Rendering\HUD\TextureHudComponent.cs" />
     <Compile Include="Rendering\HUD\ModelHudComponent.cs" />
     <Compile Include="Rendering\ModelScene.cs" />
+    <Compile Include="Rendering\Models\Collada\Parser\ColladaParserAnimation.cs" />
     <Compile Include="Rendering\Models\Collada\ColladaAssetDecoder.cs" />
-    <Compile Include="Rendering\Models\Collada\ColladaConverter.cs" />
+    <Compile Include="Rendering\Models\Collada\Schema\SchemaImporter.cs" />
     <Compile Include="Rendering\Models\Collada\ColladaImporter.cs" />
-    <Compile Include="Rendering\Models\Collada\ColladaParser.cs" />
+    <Compile Include="Rendering\Models\Collada\Parser\ColladaParserModel.cs" />
+    <Compile Include="Rendering\Models\Collada\Parser\ColladaParserMain.cs" />
     <Compile Include="Rendering\Models\Collada\Schema\Collada_B_Rep\Curves\Grendgine_Collada_Circle.cs" />
     <Compile Include="Rendering\Models\Collada\Schema\Collada_B_Rep\Curves\Grendgine_Collada_Curve.cs" />
     <Compile Include="Rendering\Models\Collada\Schema\Collada_B_Rep\Curves\Grendgine_Collada_Curves.cs" />
@@ -664,6 +666,9 @@
     <Compile Include="Rendering\Textures\TextureData.cs" />
     <Compile Include="ResourceType.cs" />
     <Compile Include="System\ComputerInfo.cs" />
+    <Compile Include="System\Data Structures\HashedStack.cs" />
+    <Compile Include="System\Data Structures\HashedQueue.cs" />
+    <Compile Include="System\Data Structures\Quadtree.cs" />
     <Compile Include="System\Extensions\StringExtension.cs" />
     <Compile Include="System\Extensions\ArrayExtension.cs" />
     <Compile Include="System\Extensions\XmlExtension.cs" />

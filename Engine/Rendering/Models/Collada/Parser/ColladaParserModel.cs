@@ -4,60 +4,23 @@ using System.Windows.Forms;
 using System.Globalization;
 using System.IO;
 
-namespace CustomEngine.Rendering.Models.Collada
+namespace CustomEngine.Rendering.Models
 {
     public unsafe partial class Collada
     {
-        private class DecoderShell : IDisposable
+        private partial class DecoderShell
         {
-            internal List<AssetEntry> _assets = new List<AssetEntry>();
             internal List<ImageEntry> _images = new List<ImageEntry>();
             internal List<MaterialEntry> _materials = new List<MaterialEntry>();
             internal List<EffectEntry> _effects = new List<EffectEntry>();
             internal List<GeometryEntry> _geometry = new List<GeometryEntry>();
             internal List<SkinEntry> _skins = new List<SkinEntry>();
             internal List<NodeEntry> _nodes = new List<NodeEntry>();
-            internal List<SceneEntry> _scenes = new List<SceneEntry>();
-            internal XMLReader _reader;
-            internal int _v1, _v2, _v3;
-
-            public static DecoderShell Import(string path)
-            {
-                using (FileMap map = FileMap.FromFile(path))
-                using (XMLReader reader = new XMLReader(map.Address, map.Length))
-                    return new DecoderShell(reader);
-            }
-            ~DecoderShell() { Dispose(); }
-            public void Dispose()
-            {
-                foreach (GeometryEntry geo in _geometry)
-                    geo.Dispose();
-            }
-
-            private void Output(string message)
-            {
-                MessageBox.Show(message);
-            }
-
-            private DecoderShell(XMLReader reader)
-            {
-                _reader = reader;
-
-                while (reader.BeginElement())
-                {
-                    if (reader.Name.Equals("COLLADA", true))
-                        ParseMain();
-
-                    reader.EndElement();
-                }
-
-                _reader = null;
-            }
 
             public NodeEntry FindNode(string name)
             {
                 NodeEntry n;
-                foreach (SceneEntry scene in _scenes)
+                foreach (VisualSceneEntry scene in _visualScenes)
                     foreach (NodeEntry node in scene._nodes)
                         if ((n = FindNodeInternal(name, node)) != null)
                             return n;
@@ -76,82 +39,6 @@ namespace CustomEngine.Rendering.Models.Collada
 
                 return null;
             }
-
-            private void ParseMain()
-            {
-                while (_reader.ReadAttribute())
-                    if (_reader.Name.Equals("version", true))
-                    {
-                        string v = (string)_reader.Value;
-                        string[] s = v.Split('.');
-                        int.TryParse(s[0], NumberStyles.Number, CultureInfo.InvariantCulture.NumberFormat, out _v1);
-                        int.TryParse(s[1], NumberStyles.Number, CultureInfo.InvariantCulture.NumberFormat, out _v2);
-                        int.TryParse(s[2], NumberStyles.Number, CultureInfo.InvariantCulture.NumberFormat, out _v3);
-                    }
-                while (_reader.BeginElement())
-                {
-                    if (_reader.Name.Equals("asset", true))
-                        ParseAsset();
-                    else if (_reader.Name.Equals("library_images", true))
-                        ParseLibImages();
-                    else if (_reader.Name.Equals("library_materials", true))
-                        ParseLibMaterials();
-                    else if (_reader.Name.Equals("library_effects", true))
-                        ParseLibEffects();
-                    else if (_reader.Name.Equals("library_geometries", true))
-                        ParseLibGeometry();
-                    else if (_reader.Name.Equals("library_controllers", true))
-                        ParseLibControllers();
-                    else if (_reader.Name.Equals("library_visual_scenes", true))
-                        ParseLibScenes();
-                    else if (_reader.Name.Equals("library_nodes", true))
-                        ParseLibNodes();
-                    else if (_reader.Name.Equals("library_animation_clips", true))
-                        ParseLibAnimationClips();
-                    else if (_reader.Name.Equals("library_animations", true))
-                        ParseLibAnimations();
-
-                    _reader.EndElement();
-                }
-            }
-
-            private void ParseLibAnimationClips()
-            {
-                while (_reader.BeginElement())
-                {
-                    if (_reader.Name.Equals("animation_clip", true))
-                        ParseLibEffects();
-                    _reader.EndElement();
-                }
-            }
-            private void ParseLibAnimations()
-            {
-                while (_reader.BeginElement())
-                {
-
-                    _reader.EndElement();
-                }
-            }
-
-            private void ParseAsset()
-            {
-                AssetEntry entry = new AssetEntry();
-                while (_reader.BeginElement())
-                {
-                    if (_reader.Name.Equals("unit", true))
-                    {
-                        while (_reader.ReadAttribute())
-                            if (_reader.Name.Equals("meter", true))
-                                float.TryParse((string)_reader.Value, NumberStyles.Any, CultureInfo.InvariantCulture.NumberFormat, out entry._scale);
-                    }
-                    else if (_reader.Name.Equals("up_axis", true))
-                        entry._upAxis = ((string)_reader.Value).ToLower().Contains("y") ? UpAxis.Y : UpAxis.Z;
-
-                    _reader.EndElement();
-                }
-                _assets.Add(entry);
-            }
-
             private void ParseLibImages()
             {
                 ImageEntry img;
@@ -595,110 +482,6 @@ namespace CustomEngine.Rendering.Models.Collada
 
                 return inp;
             }
-            private SourceEntry ParseSource()
-            {
-                SourceEntry src = new SourceEntry();
-
-                while (_reader.ReadAttribute())
-                    if (_reader.Name.Equals("id", true))
-                        src._id = (string)_reader.Value;
-
-                while (_reader.BeginElement())
-                {
-                    if (_reader.Name.Equals("float_array", true))
-                    {
-                        if (src._arrayType == SourceType.None)
-                        {
-                            src._arrayType = SourceType.Float;
-
-                            while (_reader.ReadAttribute())
-                                if (_reader.Name.Equals("id", true))
-                                    src._arrayId = (string)_reader.Value;
-                                else if (_reader.Name.Equals("count", true))
-                                    src._arrayCount = int.Parse((string)_reader.Value);
-
-                            float[] list = new float[src._arrayCount];
-                            src._arrayData = list;
-                            
-                            for (int i = 0; i < src._arrayCount; i++)
-                                if (!_reader.ReadValue(ref list[i]))
-                                    break;
-                        }
-                    }
-                    else if (_reader.Name.Equals("int_array", true))
-                    {
-                        if (src._arrayType == SourceType.None)
-                        {
-                            src._arrayType = SourceType.Int;
-
-                            while (_reader.ReadAttribute())
-                                if (_reader.Name.Equals("id", true))
-                                    src._arrayId = (string)_reader.Value;
-                                else if (_reader.Name.Equals("count", true))
-                                    src._arrayCount = int.Parse((string)_reader.Value);
-
-                            int[] list = new int[src._arrayCount];
-                            src._arrayData = list;
-
-                            for (int i = 0; i < src._arrayCount; i++)
-                                if (!_reader.ReadValue(ref list[i]))
-                                    break;
-                        }
-                    }
-                    else if (_reader.Name.Equals("Name_array", true))
-                    {
-                        if (src._arrayType == SourceType.None)
-                        {
-                            src._arrayType = SourceType.Name;
-
-                            while (_reader.ReadAttribute())
-                                if (_reader.Name.Equals("id", true))
-                                    src._arrayId = (string)_reader.Value;
-                                else if (_reader.Name.Equals("count", true))
-                                    src._arrayCount = int.Parse((string)_reader.Value);
-
-                            string[] list = new string[src._arrayCount];
-                            src._arrayData = list;
-
-                            byte* tempPtr = _reader._ptr;
-                            bool tempInTag = _reader._inTag;
-                            src._arrayDataString = _reader.ReadElementString();
-                            _reader._ptr = tempPtr;
-                            _reader._inTag = tempInTag;
-
-                            for (int i = 0; i < src._arrayCount; i++)
-                                if (!_reader.ReadStringSingle())
-                                    break;
-                                else
-                                    list[i] = (string)_reader.Value;
-                        }
-                    }
-                    else if (_reader.Name.Equals("technique_common", true))
-                    {
-                        while (_reader.BeginElement())
-                        {
-                            if (_reader.Name.Equals("accessor", true))
-                            {
-                                while (_reader.ReadAttribute())
-                                    if (_reader.Name.Equals("source", true))
-                                        src._accessorSource = _reader.Value[0] == '#' ? (string)(_reader.Value + 1) : (string)_reader.Value;
-                                    else if (_reader.Name.Equals("count", true))
-                                        src._accessorCount = int.Parse((string)_reader.Value);
-                                    else if (_reader.Name.Equals("stride", true))
-                                        src._accessorStride = int.Parse((string)_reader.Value);
-
-                                //Ignore params
-                            }
-
-                            _reader.EndElement();
-                        }
-                    }
-
-                    _reader.EndElement();
-                }
-
-                return src;
-            }
 
             private void ParseLibControllers()
             {
@@ -798,20 +581,23 @@ namespace CustomEngine.Rendering.Models.Collada
                 }
             }
 
-            private void ParseLibScenes()
+            private void ParseLibVisualScenes()
             {
                 while (_reader.BeginElement())
                 {
                     if (_reader.Name.Equals("visual_scene", true))
-                        _scenes.Add(ParseScene());
-
+                        _visualScenes.Add(ParseVisualScene());
+                    else if (_reader.Name.Equals("visual_scene", true))
+                        _visualScenes.Add(ParseVisualScene());
+                    else if (_reader.Name.Equals("visual_scene", true))
+                        _visualScenes.Add(ParseVisualScene());
                     _reader.EndElement();
                 }
             }
 
-            private SceneEntry ParseScene()
+            private VisualSceneEntry ParseVisualScene()
             {
-                SceneEntry sc = new SceneEntry();
+                VisualSceneEntry sc = new VisualSceneEntry();
 
                 while (_reader.ReadAttribute())
                     if (_reader.Name.Equals("id", true))
@@ -922,7 +708,7 @@ namespace CustomEngine.Rendering.Models.Collada
                 while (_reader.BeginElement())
                 {
                     if (_reader.Name.Equals("skeleton", true))
-                        c.skeletons.Add(_reader.Value[0] == '#' ? (string)(_reader.Value + 1) : (string)_reader.Value);
+                        c._skeletons.Add(_reader.Value[0] == '#' ? (string)(_reader.Value + 1) : (string)_reader.Value);
 
                     if (_reader.Name.Equals("bind_material", true))
                         while (_reader.BeginElement())
@@ -975,73 +761,6 @@ namespace CustomEngine.Rendering.Models.Collada
 
                 return v;
             }
-
-            private Matrix4 ParseMatrix()
-            {
-                Matrix4 m;
-                float* pM = (float*)&m;
-                for (int columnIndex = 0; columnIndex < 4; columnIndex++)
-                    for (int rowOffset = 0; rowOffset < 16; rowOffset += 4)
-                        _reader.ReadValue(&pM[rowOffset + columnIndex]);
-                return m;
-            }
-            private ColorF4 ParseColor()
-            {
-                float f;
-                ColorF4 c;
-                float* p = (float*)&c;
-                for (int i = 0; i < 4; i++)
-                {
-                    if (!_reader.ReadValue(&f))
-                        p[i] = 1.0f;
-                    else
-                        p[i] = f;
-                }
-                return c;
-            }
-            private Vec3 ParseVec3()
-            {
-                float f;
-                Vec3 c;
-                float* p = (float*)&c;
-                for (int i = 0; i < 3; i++)
-                {
-                    if (!_reader.ReadValue(&f))
-                        p[i] = 0.0f;
-                    else
-                        p[i] = f;
-                }
-                return c;
-            }
-            private Vec4 ParseVec4()
-            {
-                float f;
-                Vec4 c;
-                float* p = (float*)&c;
-                for (int i = 0; i < 4; i++)
-                {
-                    if (!_reader.ReadValue(&f))
-                        p[i] = 0.0f;
-                    else
-                        p[i] = f;
-                }
-                return c;
-            }
-        }
-
-        private class ColladaEntry : IDisposable
-        {
-            internal string _id, _name, _sid;
-            internal object _node;
-
-            ~ColladaEntry() { Dispose(); }
-            public virtual void Dispose() { GC.SuppressFinalize(this); }
-        }
-        public enum UpAxis { Y, Z, }
-        private class AssetEntry : ColladaEntry
-        {
-            internal UpAxis _upAxis = UpAxis.Y;
-            internal float _scale = 1.0f;
         }
         private class ImageEntry : ColladaEntry
         {
@@ -1063,41 +782,8 @@ namespace CustomEngine.Rendering.Models.Collada
             
             internal string _verticesId;
             internal InputEntry _verticesInput;
-
-            public override void Dispose()
-            {
-                foreach (SourceEntry p in _sources)
-                    p.Dispose();
-                GC.SuppressFinalize(this);
-            }
         }
-        private class SourceEntry : ColladaEntry
-        {
-            internal SourceType _arrayType;
-            internal string _arrayId;
-            internal int _arrayCount;
-            internal object _arrayData; //Parser must dispose!
-            internal string _arrayDataString;
-
-            internal string _accessorSource;
-            internal int _accessorCount;
-            internal int _accessorStride;
-
-            public override void Dispose()
-            {
-                if (_arrayData is DataSource)
-                    ((DataSource)_arrayData).Dispose();
-                _arrayData = null;
-                GC.SuppressFinalize(this);
-            }
-        }
-        private class InputEntry : ColladaEntry
-        {
-            internal SemanticType _semantic;
-            internal int _set = 0;
-            internal int _offset;
-            internal string _source;
-        }
+        
         private class PrimitiveEntry
         {
             internal ColladaPrimitiveType _type;
@@ -1121,23 +807,15 @@ namespace CustomEngine.Rendering.Models.Collada
         {
             internal string _skinSource;
             internal Matrix4 _bindMatrix = Matrix4.Identity;
-
-            //internal Matrix _bindShape;
+            
             internal List<SourceEntry> _sources = new List<SourceEntry>();
             internal List<InputEntry> _jointInputs = new List<InputEntry>();
 
             internal List<InputEntry> _weightInputs = new List<InputEntry>();
             internal int _weightCount;
             internal int[][] _weights;
-
-            public override void Dispose()
-            {
-                foreach (SourceEntry src in _sources)
-                    src.Dispose();
-                GC.SuppressFinalize(this);
-            }
         }
-        private class SceneEntry : ColladaEntry
+        private class VisualSceneEntry : ColladaEntry
         {
             internal List<NodeEntry> _nodes = new List<NodeEntry>();
 
@@ -1157,19 +835,6 @@ namespace CustomEngine.Rendering.Models.Collada
             internal Matrix4 _invMatrix = Matrix4.Identity;
             internal List<NodeEntry> _children = new List<NodeEntry>();
             internal List<InstanceEntry> _instances = new List<InstanceEntry>();
-        }
-        private enum InstanceType
-        {
-            Controller,
-            Geometry,
-            Node
-        }
-        private class InstanceEntry : ColladaEntry
-        {
-            internal InstanceType _type;
-            internal string _url;
-            internal InstanceMaterial _material;
-            internal List<string> skeletons = new List<string>();
         }
         private class InstanceMaterial : ColladaEntry
         {
@@ -1248,14 +913,12 @@ namespace CustomEngine.Rendering.Models.Collada
             JOINT,
             INV_BIND_MATRIX,
             TEXTANGENT,
-            TEXBINORMAL
-        }
-        private enum SourceType
-        {
-            None,
-            Float,
-            Int,
-            Name
+            TEXBINORMAL,
+            INPUT,
+            OUTPUT,
+            IN_TANGENT,
+            OUT_TANGENT,
+            INTERPOLATION,
         }
         private enum NodeType
         {

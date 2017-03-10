@@ -4,7 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices;
 
-namespace CustomEngine.Rendering.Models.Collada
+namespace CustomEngine.Rendering.Models
 {
     public unsafe partial class Collada
     {
@@ -12,7 +12,7 @@ namespace CustomEngine.Rendering.Models.Collada
             Matrix4 bindMatrix,
             GeometryEntry geo,
             SkinEntry skin,
-            SceneEntry scene,
+            VisualSceneEntry scene,
             bool isZup)
         {
             Debug.WriteLine("Weighted: " + geo._id);

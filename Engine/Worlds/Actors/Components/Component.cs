@@ -5,16 +5,16 @@ namespace CustomEngine.Worlds.Actors.Components
 {
     public abstract class Component : FileObject
     {
-        public override ResourceType ResourceType { get { return ResourceType.Component; } }
+        public override ResourceType ResourceType => ResourceType.Component;
 
         /// <summary>
         /// Determines if this component was constructed by code and cannot be removed.
         /// </summary>
-        public bool Locked { get { return _locked; } }
+        public bool Locked => _locked;
         public virtual IActor Owner
         {
-            get { return _owner; }
-            set { _owner = value; }
+            get => _owner;
+            set => _owner = value;
         }
 
         private IActor _owner;

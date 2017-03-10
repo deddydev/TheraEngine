@@ -34,7 +34,7 @@ namespace System
 
         public bool this[int index]
         {
-            get { return (_data >> index & 1) != 0; }
+            get => ((_data >> index) & 1) != 0;
             set
             {
                 if (value)

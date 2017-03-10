@@ -33,7 +33,7 @@ namespace CustomEngine
     [Serializable]
     public class UserSettings : FileObject
     {
-        public override ResourceType ResourceType { get { return ResourceType.UserSettings; } }
+        public override ResourceType ResourceType => ResourceType.UserSettings;
 
         public bool VSync = true;
         public EngineQuality TextureQuality = EngineQuality.Highest;
@@ -64,6 +64,11 @@ namespace CustomEngine
         }
 
         public override void Read(XMLReader reader)
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override int OnCalculateSize(StringTable table)
         {
             throw new NotImplementedException();
         }

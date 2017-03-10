@@ -272,7 +272,9 @@ namespace System
         public static explicit operator Vec2(Vec4 v) { return new Vec2(v.X, v.Y); }
         public static implicit operator Vec2(PointF v) { return new Vec2(v.X, v.Y); }
         public static implicit operator PointF(Vec2 v) { return new PointF(v.X, v.Y); }
-        
+        public static implicit operator Vec2(SizeF v) { return new Vec2(v.Width, v.Height); }
+        public static implicit operator SizeF(Vec2 v) { return new SizeF(v.X, v.Y); }
+
         private static string listSeparator = Globalization.CultureInfo.CurrentCulture.TextInfo.ListSeparator;
         public override string ToString()
         {

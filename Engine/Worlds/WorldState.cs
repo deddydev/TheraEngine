@@ -77,6 +77,11 @@ namespace CustomEngine.Worlds
             throw new NotImplementedException();
         }
 
+        protected override int OnCalculateSize(StringTable table)
+        {
+            throw new NotImplementedException();
+        }
+
         private List<Map> _spawnedMaps = new List<Map>();
         private List<IActor> _spawnedActors = new List<IActor>();
         private Vec3 _gravity = new Vec3(0.0f, -9.81f, 0.0f);

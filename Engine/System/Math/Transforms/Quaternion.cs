@@ -29,10 +29,37 @@ namespace System
         }
 
         public float* Data { get { fixed (void* p = &this) return (float*)p; } }
-        public Vec3 Xyz { get { return new Vec3(X, Y, Z); } set { X = value.X; Y = value.Y; Z = value.Z; } }
-        public Vec4 Xyzw { get { return new Vec4(X, Y, Z, W); } set { X = value.X; Y = value.Y; Z = value.Z; W = value.W; } }
-        public float Length { get { return (float)Sqrt(W * W + Xyz.LengthSquared); } }
-        public float LengthSquared { get { return W * W + Xyz.LengthSquared; } }
+        public Vec3 Xyz
+        {
+            get => new Vec3(X, Y, Z);
+            set
+            {
+                X = value.X;
+                Y = value.Y;
+                Z = value.Z;
+            }
+        }
+        public Vec4 Xyzw
+        {
+            get => new Vec4(X, Y, Z, W);
+            set
+            {
+                X = value.X;
+                Y = value.Y;
+                Z = value.Z;
+                W = value.W;
+            }
+        }
+        public float LengthFast
+        {
+            get
+            {
+                float invLen = InverseSqrtFast(LengthSquared);
+                return invLen > 0.0f ? 1.0f / invLen : 0.0f;
+            }
+        }
+        public float Length => (float)Sqrt(LengthSquared);
+        public float LengthSquared => Xyzw.LengthSquared;
 
         public void ToAxisAngle(out Vec3 axis, out float angle)
         {
@@ -43,20 +70,10 @@ namespace System
         public Vec4 ToAxisAngle()
         {
             Quaternion q = this;
-            if (Abs(q.W) > 1.0f)
-                q.Normalize();
+            q.NormalizeFast();
 
-            Vec4 result = new Vec4();
-
-            result.W = 2.0f * (float)Acos(q.W); // angle
             float den = (float)Sqrt(1.0 - q.W * q.W);
-            if (den > 0.0001f)
-                result.Xyz = q.Xyz / den;
-            else
-                // This occurs when the angle is zero. 
-                // Not a problem: just set an arbitrary normalized axis.
-                result.Xyz = Vec3.UnitX;
-            return result;
+            return new Vec4(den > 0.0001f ? q.Xyz / den : Vec3.Right, 2.0f * (float)Acos(q.W));
         }
         /// <summary>
         /// Returns a euler rotation in the order of pitch, yaw, roll.
@@ -98,7 +115,24 @@ namespace System
             q.Normalize();
             return q;
         }
-        public void Normalize() { Xyzw /= Length; }
+        public Quaternion NormalizedFast()
+        {
+            Quaternion q = this;
+            q.NormalizeFast();
+            return q;
+        }
+        public void Normalize()
+        {
+            float len = Length;
+            if (len > 0.0f)
+                Xyzw /= len;
+        }
+        public void NormalizeFast()
+        {
+            float invLen = InverseSqrtFast(LengthSquared);
+            if (invLen > 0.0f)
+                Xyzw *= invLen;
+        }
         public void Invert() { W = -W; }
         public Quaternion Inverted()
         {
@@ -173,21 +207,6 @@ namespace System
         public static Quaternion LookAt(Vec3 sourcePoint, Vec3 destPoint, Vec3 initialDirection)
         {
             return BetweenVectors(initialDirection, destPoint - sourcePoint);
-
-            //return FromMatrix(Matrix4.LookAt(sourcePoint, destPoint, Vec3.Up));
-
-            //Vec3 forwardVector = (destPoint - sourcePoint).NormalizedFast();
-
-            //float dot = Vec3.Dot(Vec3.Forward, forwardVector);
-
-            //if (Abs(dot - (-1.0f)) < 0.000001f)
-            //    return new Quaternion(Vec3.Up.X, Vec3.Up.Y, Vec3.Up.Z, PIf);
-            //if (Abs(dot - (1.0f)) < 0.000001f)
-            //    return Identity;
-
-            //float rotAngle = (float)Acos(dot);
-            //Vec3 rotAxis = Vec3.Cross(Vec3.Forward, forwardVector).NormalizedFast();
-            //return FromAxisAngle(rotAxis, rotAngle);
         }
         public static Quaternion FromAxisAngle(Vec3 axis, float angle)
         {
@@ -199,12 +218,13 @@ namespace System
             Quaternion result = Identity;
 
             angle *= 0.5f;
-            axis.Normalize();
+            axis.NormalizeFast();
             result.Xyz = axis.Xyz * (float)Sin(angle);
             result.W = (float)Cos(angle);
 
-            return result.Normalized();
+            return result.NormalizedFast();
         }
+
         public static Quaternion FromRotator(Rotator rotator)
         {
             return FromEulerAngles(rotator.Yaw, rotator.Pitch, rotator.Roll, rotator._rotationOrder);
@@ -348,7 +368,7 @@ namespace System
 
             Quaternion result = new Quaternion(blendA * q1.Xyz + blendB * q2.Xyz, blendA * q1.W + blendB * q2.W);
             if (result.LengthSquared > 0.0f)
-                return result.Normalized();
+                return result.NormalizedFast();
             else
                 return Identity;
         }

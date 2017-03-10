@@ -147,9 +147,9 @@ namespace CustomEngine.Worlds
                 d.AddToWorld();
             Engine._queuedCollisions.Clear();
         }
-        public override int CalculateSize(StringTable table)
+        protected override int OnCalculateSize(StringTable table)
         {
-            return base.CalculateSize(table);
+            return 0;
         }
         public override void Write(VoidPtr address, StringTable table)
         {

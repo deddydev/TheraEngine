@@ -17,29 +17,30 @@ namespace CustomEngine.Files
     }
     public abstract class FileObject : ObjectBase
     {
+        public abstract ResourceType ResourceType { get; }
+
         public FileObject() { OnLoaded(); }
         
         public List<IFileRef> _references = new List<IFileRef>();
 
-        public string FilePathAbsolute { get { return Engine.StartupPath + _filePath; } }
-        public string FilePathRelative { get { return _filePath; } }
         internal string _filePath;
 
         private int _calculatedSize;
         bool _isCalculatingSize, _isWriting;
 
-        public int CalculatedSize { get { return _calculatedSize; } }
+        public string FilePath => _filePath;
+        public int CalculatedSize => _calculatedSize;
 
-        public bool IsCalculatingSize { get { return _isCalculatingSize; } }
-        public bool IsSaving { get { return IsCalculatingSize || IsWriting; } }
-        public bool IsWriting { get { return _isWriting; } }
+        public bool IsCalculatingSize => _isCalculatingSize;
+        public bool IsSaving => IsCalculatingSize || IsWriting;
+        public bool IsWriting => _isWriting;
 
-        public abstract ResourceType ResourceType { get; }
-
-        public virtual int CalculateSize(StringTable table)
+        public int CalculateSize(StringTable table)
         {
-            return FileCommonHeader.Size;
+            _calculatedSize = OnCalculateSize(table);
+            return _calculatedSize;
         }
+        protected abstract int OnCalculateSize(StringTable table);
         public abstract void Write(VoidPtr address, StringTable table);
         public abstract void Read(VoidPtr address, VoidPtr strings);
         public abstract void Write(XmlWriter writer);
@@ -62,16 +63,35 @@ namespace CustomEngine.Files
                 throw new Exception("No path to export to.");
             string directory = Path.GetDirectoryName(_filePath);
             if (asXML)
-                ToXML(directory);
+                ToXML(directory, _name);
             else
-                ToBinary(directory);
+                ToBinary(directory, _name);
+        }
+        public void Export(bool asXML, string fileName)
+        {
+            if (string.IsNullOrEmpty(_filePath))
+                throw new Exception("No path to export to.");
+            string directory = Path.GetDirectoryName(_filePath);
+            if (asXML)
+                ToXML(directory, fileName);
+            else
+                ToBinary(directory, fileName);
         }
         public void Export(string directory, bool asXML)
         {
+            if (string.IsNullOrEmpty(directory))
+                throw new Exception("No path to export to.");
             if (asXML)
-                ToXML(directory);
+                ToXML(directory, _name);
             else
-                ToBinary(directory);
+                ToBinary(directory, _name);
+        }
+        public void Export(string directory, string fileName, bool asXML)
+        {
+            if (asXML)
+                ToXML(directory, fileName);
+            else
+                ToBinary(directory, fileName);
         }
 
         protected virtual void OnLoaded() { }
@@ -100,13 +120,14 @@ namespace CustomEngine.Files
 
             return obj;
         }
-        public unsafe void ToBinary(string filePath)
+        private unsafe void ToBinary(string filePath, string fileName)
         {
             Type t = GetType();
             string directory = Path.GetDirectoryName(filePath);
             if (!Directory.Exists(directory))
                 Directory.CreateDirectory(directory);
-            filePath = directory + "\\" + _name + ".b" + FileManager.GetExtension(t);
+            fileName = String.IsNullOrEmpty(fileName) ? "NewFile" : fileName;
+            filePath = directory + "\\" + fileName + ".b" + FileManager.GetExtension(t);
             using (FileStream stream = new FileStream(filePath, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite, 8, FileOptions.SequentialScan))
             {
                 StringTable table = new StringTable();
@@ -162,13 +183,14 @@ namespace CustomEngine.Files
             NewLineHandling = NewLineHandling.Replace
         };
 
-        public void ToXML(string filePath)
+        private void ToXML(string filePath, string fileName)
         {
             _isWriting = true;
             string directory = Path.GetDirectoryName(filePath);
             if (!Directory.Exists(directory))
                 Directory.CreateDirectory(directory);
-            filePath = directory + "\\" + (_name ?? "NewFile") + ".x" + FileManager.GetExtension(GetType());
+            fileName = String.IsNullOrEmpty(fileName) ? "NewFile" : fileName;
+            filePath = directory + "\\" + fileName + ".x" + FileManager.GetExtension(GetType());
             using (FileStream stream = new FileStream(filePath, FileMode.Create, FileAccess.ReadWrite, FileShare.None, 0x1000, FileOptions.SequentialScan))
             using (XmlWriter writer = XmlWriter.Create(stream, _writerSettings))
             {

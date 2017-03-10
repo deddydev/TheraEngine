@@ -14,23 +14,27 @@ namespace System
     {
         public float X, Y, Z;
 
-        public float* Data { get { return (float*)Address; } }
+        public float* Data => (float*)Address;
         public VoidPtr Address { get { fixed (void* p = &this) return p; } }
-        public VertexBuffer.ComponentType ComponentType { get { return VertexBuffer.ComponentType.Float; } }
-        public int ComponentCount { get { return 3; } }
-        bool IBufferable.Normalize { get { return false; } }
-        public void Write(VoidPtr address) { *(Vec3*)address = this; }
-        public void Read(VoidPtr address) { this = *(Vec3*)address; }
+        public VertexBuffer.ComponentType ComponentType => VertexBuffer.ComponentType.Float;
+        public int ComponentCount => 3;
+        bool IBufferable.Normalize => false;
+        public void Write(VoidPtr address) => *(Vec3*)address = this;
+        public void Read(VoidPtr address) => this = *(Vec3*)address;
         public Vec3(float x, float y, float z)
         {
             X = x;
             Y = y;
             Z = z;
         }
-        public Vec3(float value) : this(value, value, value) { }
-        public Vec3(Vec2 v) : this(v.X, v.Y, 0.0f) { }
-        public Vec3(Vec2 v, float z) : this(v.X, v.Y, z) { }
-        public Vec3(float x, Vec2 v) : this(x, v.X, v.Y) { }
+        public Vec3(float value)
+            : this(value, value, value) { }
+        public Vec3(Vec2 v)
+            : this(v.X, v.Y, 0.0f) { }
+        public Vec3(Vec2 v, float z)
+            : this(v.X, v.Y, z) { }
+        public Vec3(float x, Vec2 v)
+            : this(x, v.X, v.Y) { }
         public Vec3(Vec4 v, bool divideByW)
         {
             if (divideByW)
@@ -63,13 +67,16 @@ namespace System
             }
         }
 
-        public float LengthSquared { get { return Dot(this); } }
-        public float Length { get { return (float)Sqrt(LengthSquared); } }
-        public float LengthFast { get { return 1.0f / InverseSqrtFast(LengthSquared); } }
+        public float LengthSquared => Dot(this);
+        public float Length => (float)Sqrt(LengthSquared);
+        public float LengthFast => 1.0f / InverseSqrtFast(LengthSquared);
 
-        public float DistanceTo(Vec3 point) { return (point - this).Length; }
-        public float DistanceToFast(Vec3 point) { return (point - this).LengthFast; }
-        public float DistanceToSquared(Vec3 point) { return (point - this).LengthSquared; }
+        public float DistanceTo(Vec3 point)
+            => (point - this).Length;
+        public float DistanceToFast(Vec3 point)
+            => (point - this).LengthFast;
+        public float DistanceToSquared(Vec3 point)
+            => (point - this).LengthSquared;
 
         public void Normalize()
         {
@@ -77,7 +84,8 @@ namespace System
             if (!length.IsZero())
                 this *= (1.0f / length);
         }
-        public Vec3 Normalized(Vec3 origin) { return (this - origin).Normalized(); }
+        public Vec3 Normalized(Vec3 origin)
+            => (this - origin).Normalized();
         public Vec3 Normalized()
         {
             Vec3 v = this;
@@ -90,7 +98,8 @@ namespace System
             if (!lengthSq.IsZero())
                 this *= InverseSqrtFast(lengthSq);
         }
-        public Vec3 NormalizedFast(Vec3 origin) { return (this - origin).NormalizedFast(); }
+        public Vec3 NormalizedFast(Vec3 origin) 
+            => (this - origin).NormalizedFast();
         public Vec3 NormalizedFast()
         {
             Vec3 v = this;
@@ -154,13 +163,9 @@ namespace System
             return a;
         }
         public static Vec3 MagnitudeMin(Vec3 left, Vec3 right)
-        {
-            return left.LengthSquared < right.LengthSquared ? left : right;
-        }
+            => left.LengthSquared < right.LengthSquared ? left : right;
         public static Vec3 MagnitudeMax(Vec3 left, Vec3 right)
-        {
-            return left.LengthSquared > right.LengthSquared ? left : right;
-        }
+            => left.LengthSquared > right.LengthSquared ? left : right;
         public static Vec3 Clamp(Vec3 value, Vec3 min, Vec3 max)
         {
             Vec3 v;
@@ -184,13 +189,9 @@ namespace System
             return v;
         }
         public static float Dot(Vec3 left, Vec3 right)
-        {
-            return left.Dot(right);
-        }
+            => left.Dot(right);
         public float Dot(Vec3 right)
-        {
-            return X * right.X + Y * right.Y + Z * right.Z;
-        }
+            => X * right.X + Y * right.Y + Z * right.Z;
 
         /// <summary>
         ///        |
@@ -199,14 +200,14 @@ namespace System
         /// -r x l |/_______ 
         ///            left
         /// </summary>
-        public Vec3 Cross(Vec3 right)
-        {
-            return new Vec3(
+        public Vec3 Cross(Vec3 right) 
+            => new Vec3(
                 Y * right.Z - Z * right.Y,
                 Z * right.X - X * right.Z,
                 X * right.Y - Y * right.X);
-        }
-        public static Vec3 Cross(Vec3 left, Vec3 right) { return left ^ right; }
+
+        public static Vec3 Cross(Vec3 left, Vec3 right)
+            => left ^ right;
 
         /// <summary>
         /// Returns a new Vector that is the linear blend of the 2 given Vectors
@@ -216,10 +217,10 @@ namespace System
         /// <param name="blend">The blend factor. a when blend=0, b when blend=1.</param>
         /// <returns>a when blend=0, b when blend=1, and a linear combination otherwise</returns>
         public static Vec3 Lerp(Vec3 a, Vec3 b, float time)
-        {
+        
             //initial value with a percentage of the difference between the two vectors added to it.
-            return a + (b - a) * time;
-        }
+            => a + (b - a) * time;
+        
         /// <summary>
         /// Interpolate 3 Vectors using Barycentric coordinates
         /// </summary>
@@ -230,9 +231,7 @@ namespace System
         /// <param name="v">Second Barycentric Coordinate</param>
         /// <returns>a when u=v=0, b when u=1,v=0, c when u=0,v=1, and a linear combination of a,b,c otherwise</returns>
         public static Vec3 BaryCentric(Vec3 a, Vec3 b, Vec3 c, float u, float v)
-        {
-            return a + u * (b - a) + v * (c - a);
-        }
+            => a + u * (b - a) + v * (c - a);
 
         /// <summary>Transform a direction vector by the given Matrix. 
         /// The translation part is ignored.
@@ -241,12 +240,10 @@ namespace System
         /// <param name="mat">The desired transformation</param>
         /// <returns>The transformed vector</returns>
         public static Vec3 TransformVector(Vec3 vec, Matrix4 mat)
-        {
-            return new Vec3(
+            => new Vec3(
                 vec.Dot(new Vec3(mat.Column0, false)), 
                 vec.Dot(new Vec3(mat.Column1, false)), 
                 vec.Dot(new Vec3(mat.Column2, false)));
-        }
 
         /// <summary>Transform a Normal by the given Matrix</summary>
         /// <remarks>
@@ -270,20 +267,25 @@ namespace System
         /// <param name="invMat">The inverse of the desired transformation</param>
         /// <returns>The transformed normal</returns>
         public static Vec3 TransformNormalInverse(Vec3 norm, Matrix4 invMat)
+            => TransformVector(norm, invMat.Transposed());
+
+        public void Round(int decimalPlaces)
         {
-            return TransformVector(norm, invMat.Transposed());
+            X = (float)Math.Round(X, decimalPlaces);
+            Y = (float)Math.Round(Y, decimalPlaces);
+            Z = (float)Math.Round(Z, decimalPlaces);
         }
+
         /// <summary>Transform a Position by the given Matrix</summary>
         /// <param name="pos">The position to transform</param>
         /// <param name="mat">The desired transformation</param>
         /// <returns>The transformed position</returns>
         public static Vec3 TransformPosition(Vec3 pos, Matrix4 mat)
-        {
-            return new Vec3(
+            => new Vec3(
                 pos.Dot(new Vec3(mat.Column0, false)) + mat.Row3.X,
                 pos.Dot(new Vec3(mat.Column1, false)) + mat.Row3.Y,
                 pos.Dot(new Vec3(mat.Column2, false)) + mat.Row3.Z);
-        }
+
         /// <summary>
         /// Transforms a vector by a quaternion rotation.
         /// </summary>
@@ -306,23 +308,20 @@ namespace System
         /// <param name="mat">The desired transformation</param>
         /// <param name="result">The transformed vector</param>
         public static Vec3 Transform(Vec3 vec, Matrix4 mat)
-        {
-            return new Vec3(
+            => new Vec3(
                 vec.X * mat.Row0.X + vec.Y * mat.Row1.X + vec.Z * mat.Row2.X,
                 vec.X * mat.Row0.Y + vec.Y * mat.Row1.Y + vec.Z * mat.Row2.Y,
                 vec.X * mat.Row0.Z + vec.Y * mat.Row1.Z + vec.Z * mat.Row2.Z);
-        }
+
         /// <summary>Transform a Vector by the given Matrix using right-handed notation</summary>
         /// <param name="mat">The desired transformation</param>
         /// <param name="vec">The vector to transform</param>
         /// <param name="result">The transformed vector</param>
         public static Vec3 Transform(Matrix4 mat, Vec3 vec)
-        {
-            return new Vec3(
+            => new Vec3(
                 mat.Row0.X * vec.X + mat.Row0.Y * vec.Y + mat.Row0.Z * vec.Z,
                 mat.Row1.X * vec.X + mat.Row1.Y * vec.Y + mat.Row1.Z * vec.Z,
                 mat.Row2.X * vec.X + mat.Row2.Y * vec.Y + mat.Row2.Z * vec.Z);
-        }
 
         /// <summary>Transform a Vector3 by the given Matrix, and project the resulting Vector4 back to a Vector3</summary>
         /// <param name="vec">The vector to transform</param>
@@ -351,9 +350,8 @@ namespace System
         /// <returns>Angle (in radians) between the vectors.</returns>
         /// <remarks>Note that the returned angle is never bigger than 180.</remarks>
         public float CalculateAngle(Vec3 second)
-        {
-            return RadToDeg((float)Acos((Dot(second) / (LengthFast * second.LengthFast)).Clamp(-1.0f, 1.0f)));
-        }
+            => RadToDeg((float)Acos((Dot(second) / (LengthFast * second.LengthFast)).Clamp(-1.0f, 1.0f)));
+
         /// <summary>
         /// Projects a vector from object space into screen space.
         /// </summary>
@@ -397,17 +395,16 @@ namespace System
         /// Project(vector, -1, -1, 2, 2, -1, 1, inverseWorldViewProjection).
         /// </remarks>
         public Vec3 Unproject(float x, float y, float width, float height, float minZ, float maxZ, Matrix4 inverseWorldViewProjection)
-        {
-            return inverseWorldViewProjection * new Vec3(
+            => inverseWorldViewProjection * new Vec3(
                 (X - x) / width * 2.0f - 1.0f,
                 (Y - y) / height * 2.0f - 1.0f,
                 Z / (maxZ - minZ) * 2.0f - 1.0f);
-        }
 
         /// <summary>
         /// Returns a YPR rotator relative to -Z with azimuth as yaw, elevation as pitch, and 0 as roll.
         /// </summary>
-        public Rotator LookatAngles() { return LookatAngles(Forward); }
+        public Rotator LookatAngles()
+            => LookatAngles(Forward);
         /// <summary>
         /// Returns a YPR rotator relative to the start normal with azimuth as yaw, elevation as pitch, and 0 as roll.
         /// </summary>
@@ -485,11 +482,16 @@ namespace System
         /// Radians
         /// </summary>
         /// <returns></returns>
-        public Vec3 GetAngles() { return new Vec3(AngleX(), AngleY(), AngleZ()); }
-        public Vec3 GetAngles(Vec3 origin) { return (this - origin).GetAngles(); }
-        public float AngleX() { return (float)Atan2(Y, -Z); }
-        public float AngleY() { return (float)Atan2(-Z, X); }
-        public float AngleZ() { return (float)Atan2(Y, X); }
+        public Vec3 GetAngles() 
+            => new Vec3(AngleX(), AngleY(), AngleZ());
+        public Vec3 GetAngles(Vec3 origin)
+            => (this - origin).GetAngles();
+        public float AngleX()
+            => (float)Atan2(Y, -Z);
+        public float AngleY()
+            => (float)Atan2(-Z, X);
+        public float AngleZ()
+            => (float)Atan2(Y, X);
 
         public bool IsInTriangle(Vec3 triPt1, Vec3 triPt2, Vec3 triPt3)
         {
@@ -514,7 +516,7 @@ namespace System
         [XmlIgnore]
         public Vec2 Xy
         {
-            get { return new Vec2(X, Y); }
+            get => new Vec2(X, Y);
             set
             {
                 X = value.X;
@@ -524,7 +526,7 @@ namespace System
         [XmlIgnore]
         public Vec2 Xz
         {
-            get { return new Vec2(X, Z); }
+            get => new Vec2(X, Z);
             set
             {
                 X = value.X;
@@ -534,7 +536,7 @@ namespace System
         [XmlIgnore]
         public Vec2 Yx
         {
-            get { return new Vec2(Y, X); }
+            get => new Vec2(Y, X);
             set
             {
                 Y = value.X;
@@ -544,7 +546,7 @@ namespace System
         [XmlIgnore]
         public Vec2 Yz
         {
-            get { return new Vec2(Y, Z); }
+            get => new Vec2(Y, Z);
             set
             {
                 Y = value.X;
@@ -554,7 +556,7 @@ namespace System
         [XmlIgnore]
         public Vec2 Zx
         {
-            get { return new Vec2(Z, X); }
+            get => new Vec2(Z, X);
             set
             {
                 Z = value.X;
@@ -564,7 +566,7 @@ namespace System
         [XmlIgnore]
         public Vec2 Zy
         {
-            get { return new Vec2(Z, Y); }
+            get => new Vec2(Z, Y);
             set
             {
                 Z = value.X;
@@ -574,7 +576,7 @@ namespace System
         [XmlIgnore]
         public Vec3 Xzy
         {
-            get { return new Vec3(X, Z, Y); }
+            get => new Vec3(X, Z, Y);
             set
             {
                 X = value.X;
@@ -585,7 +587,7 @@ namespace System
         [XmlIgnore]
         public Vec3 Yxz
         {
-            get { return new Vec3(Y, X, Z); }
+            get => new Vec3(Y, X, Z);
             set
             {
                 Y = value.X;
@@ -596,7 +598,7 @@ namespace System
         [XmlIgnore]
         public Vec3 Yzx
         {
-            get { return new Vec3(Y, Z, X); }
+            get => new Vec3(Y, Z, X);
             set
             {
                 Y = value.X;
@@ -607,7 +609,7 @@ namespace System
         [XmlIgnore]
         public Vec3 Zxy
         {
-            get { return new Vec3(Z, X, Y); }
+            get => new Vec3(Z, X, Y);
             set
             {
                 Z = value.X;
@@ -618,7 +620,7 @@ namespace System
         [XmlIgnore]
         public Vec3 Zyx
         {
-            get { return new Vec3(Z, Y, X); }
+            get => new Vec3(Z, Y, X);
             set
             {
                 Z = value.X;
@@ -629,7 +631,7 @@ namespace System
         [XmlIgnore]
         public Vec3 Xyz
         {
-            get { return new Vec3(X, Y, Z); }
+            get => new Vec3(X, Y, Z);
             set
             {
                 X = value.X;
@@ -638,90 +640,82 @@ namespace System
             }
         }
 
-        public static Vec3 operator +(float left, Vec3 right) { return right + left; }
+        public static Vec3 operator +(float left, Vec3 right)
+            => right + left;
         public static Vec3 operator +(Vec3 left, float right)
-        {
-            return new Vec3(
+            => new Vec3(
                 left.X + right,
                 left.Y + right,
                 left.Z + right);
-        }
+
         public static Vec3 operator -(float left, Vec3 right)
-        {
-            return new Vec3(
+            => new Vec3(
                 left - right.X,
                 left - right.Y,
                 left - right.Z);
-        }
+
         public static Vec3 operator -(Vec3 left, float right)
-        {
-            return new Vec3(
+            => new Vec3(
                 left.X - right, 
                 left.Y - right, 
                 left.Z - right);
-        }
 
         public static Vec3 operator +(Vec3 left, Vec3 right)
-        {
-            return new Vec3(
+            => new Vec3(
                 left.X + right.X,
                 left.Y + right.Y,
                 left.Z + right.Z);
-        }
+
         public static Vec3 operator -(Vec3 left, Vec3 right)
-        {
-            return new Vec3(
+            => new Vec3(
                 left.X - right.X,
                 left.Y - right.Y,
                 left.Z - right.Z);
-        }
-        public static Vec3 operator -(Vec3 vec) { return new Vec3(-vec.X, -vec.Y, -vec.Z); }
+
+        public static Vec3 operator -(Vec3 vec)
+            => new Vec3(-vec.X, -vec.Y, -vec.Z);
         public static Vec3 operator *(Vec3 vec, float scale)
-        {
-            return new Vec3(
+            => new Vec3(
                 vec.X * scale,
                 vec.Y * scale,
                 vec.Z * scale);
-        }
-        public static Vec3 operator *(float scale, Vec3 vec) { return vec * scale; }
+
+        public static Vec3 operator *(float scale, Vec3 vec)
+            => vec * scale;
         public static Vec3 operator *(Vec3 vec, Vec3 scale)
-        {
-            return new Vec3(
+            => new Vec3(
                 vec.X * scale.X,
                 vec.Y * scale.Y,
                 vec.Z * scale.Z);
-        }
-        public static Vec3 operator *(Quaternion quat, Vec3 vec) { return vec.Transform(quat); }
-        public static bool operator ==(Vec3 left, Vec3 right) { return left.Equals(right); }
-        public static bool operator !=(Vec3 left, Vec3 right) { return !left.Equals(right); }
+        
+        public static Vec3 operator *(Quaternion quat, Vec3 vec)
+            => vec.Transform(quat);
+        public static bool operator ==(Vec3 left, Vec3 right)
+            => left.Equals(right);
+        public static bool operator !=(Vec3 left, Vec3 right)
+            => !left.Equals(right);
         public static bool operator <(Vec3 left, Vec3 right)
-        {
-            return 
+            => 
                 left.X < right.X &&
                 left.Y < right.Y && 
                 left.Z < right.Z;
-        }
         public static bool operator >(Vec3 left, Vec3 right)
-        {
-            return 
+            => 
                 left.X > right.X &&
                 left.Y > right.Y && 
                 left.Z > right.Z;
-        }
+
         public static bool operator <=(Vec3 left, Vec3 right)
-        {
-            return
+            =>
                 left.X <= right.X && 
                 left.Y <= right.Y && 
                 left.Z <= right.Z;
-        }
+
         public static bool operator >=(Vec3 left, Vec3 right)
-        {
-            return 
+            => 
                 left.X >= right.X && 
                 left.Y >= right.Y && 
                 left.Z >= right.Z;
-        }
         public static Vec3 operator /(Vec3 vec, float scale)
         {
             scale = 1.0f / scale;
@@ -731,19 +725,17 @@ namespace System
                 vec.Z * scale);
         }
         public static Vec3 operator /(float scale, Vec3 vec)
-        {
-            return new Vec3(
+            => new Vec3(
                 scale / vec.X,
                 scale / vec.Y,
                 scale / vec.Z);
-        }
+
         public static Vec3 operator /(Vec3 left, Vec3 right)
-        {
-            return new Vec3(
+            => new Vec3(
                 left.X / right.X, 
                 left.Y / right.Y,
                 left.Z / right.Z);
-        }
+        
         /// <summary>
         /// Cross
         /// </summary>
@@ -751,9 +743,8 @@ namespace System
         /// <param name="vec2"></param>
         /// <returns></returns>
         public static Vec3 operator ^(Vec3 vec1, Vec3 vec2)
-        {
-            return vec1.Cross(vec2);
-        }
+            => vec1.Cross(vec2);
+
         /// <summary>
         /// Dot
         /// </summary>
@@ -761,36 +752,33 @@ namespace System
         /// <param name="vec2"></param>
         /// <returns></returns>
         public static float operator |(Vec3 vec1, Vec3 vec2)
-        {
-            return vec1.Dot(vec2);
-        }
-        public static Vec3 operator *(Matrix4 left, Vec3 right)
-        {
-            return TransformPerspective(left, right);
-        }
-        public static Vec3 operator *(Vec3 left, Matrix4 right)
-        {
-            return TransformPerspective(left, right);
-        }
-        public static explicit operator Vec3(Vec2 v)
-        {
-            return new Vec3(v.X, v.Y, 0.0f);
-        }
-        public static explicit operator Vec3(ColorF4 v)
-        {
-            return new Vec3(v.R, v.G, v.B);
-        }
-        private const float _colorFactor = 1.0f / 255.0f;
-        public static explicit operator Vec3(Color c) { return new Vec3(c.R * _colorFactor, c.G * _colorFactor, c.B * _colorFactor); }
-        public static explicit operator Color(Vec3 v) { return Color.FromArgb((int)(v.X / _colorFactor), (int)(v.Y / _colorFactor), (int)(v.Z / _colorFactor)); }
+            => vec1.Dot(vec2);
 
-        public static implicit operator BulletSharp.Vector3(Vec3 v) { return new BulletSharp.Vector3(v.X, v.Y, v.Z); }
-        public static implicit operator Vec3(BulletSharp.Vector3 v) { return new Vec3(v.X, v.Y, v.Z); }
+        public static Vec3 operator *(Matrix4 left, Vec3 right)
+            => TransformPerspective(left, right);
+        
+        public static Vec3 operator *(Vec3 left, Matrix4 right)
+            => TransformPerspective(left, right);
+        
+        public static explicit operator Vec3(Vec2 v)
+            => new Vec3(v.X, v.Y, 0.0f);
+        
+        public static explicit operator Vec3(ColorF4 v)
+            => new Vec3(v.R, v.G, v.B);
+
+        private const float _colorFactor = 1.0f / 255.0f;
+        public static explicit operator Vec3(Color c)
+            => new Vec3(c.R * _colorFactor, c.G * _colorFactor, c.B * _colorFactor);
+        public static explicit operator Color(Vec3 v)
+            => Color.FromArgb((int)(v.X / _colorFactor), (int)(v.Y / _colorFactor), (int)(v.Z / _colorFactor));
+
+        public static implicit operator BulletSharp.Vector3(Vec3 v) 
+            => new BulletSharp.Vector3(v.X, v.Y, v.Z);
+        public static implicit operator Vec3(BulletSharp.Vector3 v)
+            => new Vec3(v.X, v.Y, v.Z);
 
         public static implicit operator Vec3(float v)
-        {
-            return new Vec3(v);
-        }
+            => new Vec3(v);
 
         private static string listSeparator = 
             Globalization.CultureInfo.CurrentCulture.TextInfo.ListSeparator;
@@ -812,13 +800,11 @@ namespace System
             return new Vec3(float.Parse(parts[0]), float.Parse(parts[1]), float.Parse(parts[2]));
         }
         public override string ToString()
-        {
-            return ToString(true, true);
-        }
+            => ToString(true, true);
+        
         public string ToString(bool includeParentheses, bool includeSeparator)
-        {
-            return String.Format("{4}{0}{3} {1}{3} {2}{5}", X, Y, Z, includeSeparator ? listSeparator : "", includeParentheses ? "(" : "", includeParentheses ? ")" : "");
-        }
+            => String.Format("{4}{0}{3} {1}{3} {2}{5}", X, Y, Z, includeSeparator ? listSeparator : "", includeParentheses ? "(" : "", includeParentheses ? ")" : "");
+
         public override int GetHashCode()
         {
             unchecked
@@ -837,18 +823,15 @@ namespace System
             return Equals((Vec3)obj);
         }
         public bool Equals(Vec3 other)
-        {
-            return
+            =>
                 X == other.X &&
                 Y == other.Y &&
                 Z == other.Z;
-        }
+
         public bool Equals(Vec3 other, float precision)
-        {
-            return
+            =>
                 Abs(X - other.X) < precision &&
                 Abs(Y - other.Y) < precision &&
                 Abs(Z - other.Z) < precision;
-        }
     }
 }

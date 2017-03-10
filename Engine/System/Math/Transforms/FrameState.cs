@@ -54,7 +54,7 @@ namespace System
         }
         
         private Rotator _rotation;
-        private Quaternion _quaternion = Quaternion.Identity;
+        //private Quaternion _quaternion = Quaternion.Identity;
         private Vec3 _translation = Vec3.Zero;
         private Vec3 _scale = Vec3.One;
         private Matrix4 _transform = Matrix4.Identity;
@@ -306,16 +306,19 @@ namespace System
                 //_rotation = m.ExtractRotation(true).ToEuler()
             };
 
+            state._translation.Round(5);
+            state._scale.Round(5);
+
             float x, y, z, c;
             float* p = m.Data;
 
-            m.Row0.Xyz = m.Row0.Xyz.Normalized();
-            m.Row1.Xyz = m.Row1.Xyz.Normalized();
-            m.Row2.Xyz = m.Row2.Xyz.Normalized();
-            m.Row3.Xyz = m.Row3.Xyz.Normalized();
+            //m.Row0.Xyz = m.Row0.Xyz.Normalized();
+            //m.Row1.Xyz = m.Row1.Xyz.Normalized();
+            //m.Row2.Xyz = m.Row2.Xyz.Normalized();
+            //m.Row3.Xyz = m.Row3.Xyz.Normalized();
 
             y = (float)Math.Asin(-p[2]);
-            if (((Math.PI / 2.0f) - Math.Abs(y)) < 0.0001f)
+            if ((Math.PI / 2.0f - Math.Abs(y)) < 0.0001f)
             {
                 //Gimbal lock, occurs when the y rotation falls on pi/2 or -pi/2
                 z = 0.0f;
@@ -341,9 +344,10 @@ namespace System
             }
 
             state._rotation = new Rotator(CustomMath.RadToDeg(new Vec3(x, y, z)), Rotator.Order.YPR);
+            state._rotation.Round(5);
 
-            if (state._rotation.Pitch == float.NaN || 
-                state._rotation.Yaw == float.NaN || 
+            if (state._rotation.Pitch == float.NaN ||
+                state._rotation.Yaw == float.NaN ||
                 state._rotation.Roll == float.NaN)
                 throw new Exception("Something went wrong when deriving rotation values.");
 
@@ -468,6 +472,10 @@ namespace System
         }
         #endregion
 
+        protected override int OnCalculateSize(StringTable table)
+        {
+            return Header.Size;
+        }
         public unsafe override void Read(VoidPtr address, VoidPtr strings)
         {
             Header h = *(Header*)address;
@@ -517,9 +525,12 @@ namespace System
                 Rotation.Write(writer);
             writer.WriteEndElement();
         }
+
         [StructLayout(LayoutKind.Sequential, Pack = 1)]
         public struct Header
         {
+            public const int Size = 16 + Rotator.Header.Size;
+
             public bint _order;
             public BVec3 _translation, _scale;
             public Rotator.Header _rotation;

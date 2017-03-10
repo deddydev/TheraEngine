@@ -390,7 +390,16 @@ namespace System
                 EndUpdate();
             }
         }
-        
+
+        public void Round(int decimalPlaces)
+        {
+            BeginUpdate();
+            Roll = (float)Math.Round(Roll, decimalPlaces);
+            Pitch = (float)Math.Round(Pitch, decimalPlaces);
+            Yaw = (float)Math.Round(Yaw, decimalPlaces);
+            EndUpdate();
+        }
+
         public static bool operator ==(Rotator left, Rotator right) { return left.Equals(right); }
         public static bool operator !=(Rotator left, Rotator right) { return !left.Equals(right); }
         
@@ -500,6 +509,8 @@ namespace System
         [StructLayout(LayoutKind.Sequential, Pack = 1)]
         public struct Header
         {
+            public const int Size = 16;
+
             public bint _order;
             public BVec3 _pyr;
 

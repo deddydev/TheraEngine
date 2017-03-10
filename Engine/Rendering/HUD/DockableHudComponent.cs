@@ -17,7 +17,7 @@ namespace CustomEngine.Rendering.HUD
         /// <summary>
         /// Returns the available real estate for the next components to use.
         /// </summary>
-        public override RectangleF ParentResized(RectangleF parentRegion)
+        public override RectangleF Resize(RectangleF parentRegion)
         {
             RectangleF leftOver = parentRegion;
             if (_dockStyle != HudDockStyle.None || _sideAnchorFlags != AnchorFlags.None)
@@ -83,7 +83,7 @@ namespace CustomEngine.Rendering.HUD
 
             RectangleF region = Region;
             foreach (HudComponent c in _children)
-                region = c.ParentResized(region);
+                region = c.Resize(region);
 
             return leftOver;
         }

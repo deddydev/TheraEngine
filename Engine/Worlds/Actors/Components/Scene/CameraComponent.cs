@@ -13,8 +13,8 @@ namespace CustomEngine.Worlds.Actors.Components
         private Camera _camera = new PerspectiveCamera();
         public Camera Camera
         {
-            get { return _camera; }
-            set { _camera = value; }
+            get => _camera;
+            set => _camera = value;
         }
         public CameraComponent()
         {
@@ -60,39 +60,36 @@ namespace CustomEngine.Worlds.Actors.Components
         {
             _camera.TranslateAbsolute(-newOrigin);
         }
-
+        protected override int OnCalculateSize(StringTable table)
+        {
+            throw new NotImplementedException();
+        }
         public override void Write(VoidPtr address, StringTable table)
         {
             throw new NotImplementedException();
         }
-
         public override void Read(VoidPtr address, VoidPtr strings)
         {
             throw new NotImplementedException();
         }
-
         public override void Write(XmlWriter writer)
         {
             throw new NotImplementedException();
         }
-
         public override void Read(XMLReader reader)
         {
             throw new NotImplementedException();
         }
-
         public void Render()
         {
             throw new NotImplementedException();
         }
-
         public override void OnSpawned()
         {
             if (Engine.Settings.RenderCameraFrustums)
                 Engine.Renderer.Scene.AddRenderable(_camera);
             base.OnSpawned();
         }
-
         public override void OnDespawned()
         {
             if (Engine.Settings.RenderCameraFrustums)

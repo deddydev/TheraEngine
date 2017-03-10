@@ -207,9 +207,16 @@ namespace CustomEngine.Rendering.Models
             //    bones[i].Parent = bones[parentIndices[i]];
             CalcFrameMatrices();
         }
-        public override void Write(VoidPtr address, StringTable table)
+        public override unsafe void Write(VoidPtr address, StringTable table)
         {
-
+            Header* h = (Header*)address;
+            h->_boneCount = _boneIndexCache.Count;
+            int offset = 0;
+            foreach (Bone b in _rootBones)
+            {
+                b.Write(h->Bones + offset, table);
+                offset += b.CalculatedSize;
+            }
         }
         public override void Write(XmlWriter writer)
         {
@@ -220,6 +227,12 @@ namespace CustomEngine.Rendering.Models
                 b.Write(writer);
             writer.WriteEndElement();
         }
+
+        protected override int OnCalculateSize(StringTable table)
+        {
+            throw new NotImplementedException();
+        }
+
         [StructLayout(LayoutKind.Sequential, Pack = 1)]
         public unsafe struct Header
         {

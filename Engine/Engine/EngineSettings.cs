@@ -14,7 +14,7 @@ namespace CustomEngine
         public bool SkinOnGPU = false;
         public bool UseIntegerWeightingIds = false;
         public bool RenderCameraFrustums = false;
-        public bool RenderSkeletons = false;
+        public bool RenderSkeletons = true;
         public SingleFileRef<World> TransitionWorld;
         public SingleFileRef<World> OpeningWorld;
         public string ContentPath;
@@ -34,6 +34,11 @@ namespace CustomEngine
         }
 
         public override void Read(VoidPtr address, VoidPtr strings)
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override int OnCalculateSize(StringTable table)
         {
             throw new NotImplementedException();
         }

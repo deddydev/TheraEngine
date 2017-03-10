@@ -10,6 +10,7 @@ namespace CustomEngine.Rendering.HUD
     /// </summary>
     public partial class HudManager : DockableHudComponent
     {
+        private Quadtree _childComponentTree;
         private Viewport _owningViewport;
         private RenderPanel _owningPanel;
         private OrthographicCamera _camera;
@@ -26,9 +27,13 @@ namespace CustomEngine.Rendering.HUD
             _camera = new OrthographicCamera();
         }
 
-        public override RectangleF ParentResized(RectangleF parentRegion)
+        public override RectangleF Resize(RectangleF parentRegion)
         {
-            RectangleF region = base.ParentResized(parentRegion);
+            //base.Resize will handle resizing child components
+            RectangleF region = base.Resize(parentRegion);
+            //Child tree must be resized AFTER child components are resized
+            _childComponentTree.Resize(region.Size);
+            //Resize the drawing board
             _camera.Resize(Width, Height);
             return region;
         }

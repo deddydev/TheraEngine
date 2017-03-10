@@ -44,7 +44,7 @@ namespace CustomEngine.Rendering
     public delegate void PhysicsOverlap(PhysicsDriver other);
     public class PhysicsDriver : FileObject
     {
-        public override ResourceType ResourceType { get { return ResourceType.RigidPhysicsDriver; } }
+        public override ResourceType ResourceType => ResourceType.RigidPhysicsDriver;
 
         IPhysicsDrivable _owner;
 
@@ -288,8 +288,7 @@ namespace CustomEngine.Rendering
             _prevVelocity = _velocity;
             _velocity = _collision.LinearVelocity;
 
-            Matrix transform;
-            _collision.GetWorldTransform(out transform);
+            _collision.GetWorldTransform(out Matrix transform);
             _worldMatrix = transform;
             TransformChanged(_worldMatrix);
         }
@@ -310,6 +309,11 @@ namespace CustomEngine.Rendering
         }
 
         public override void Read(XMLReader reader)
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override int OnCalculateSize(StringTable table)
         {
             throw new NotImplementedException();
         }

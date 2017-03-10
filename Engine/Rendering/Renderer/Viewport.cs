@@ -82,7 +82,7 @@ namespace CustomEngine.Rendering
             _region.Height = (int)(_topPercentage * parentHeight - _region.Y);
 
             _worldCamera?.Resize(Width, Height);
-            _hud.ParentResized(_region);
+            _hud.Resize(_region);
             _gBuffer.Resize(Width, Height);
         }
         public void DebugPrint(string message)
@@ -164,8 +164,11 @@ namespace CustomEngine.Rendering
             Vec2 absolutePoint = RelativeToAbsolute(viewportPoint);
             return Engine.Renderer.GetDepth(absolutePoint.X, absolutePoint.Y);
         }
-        public Ray GetWorldRay(Vec2 viewportPoint) 
+
+        public Ray GetWorldRay(Vec2 viewportPoint)
             => _worldCamera.GetWorldRay(viewportPoint);
+        public Segment GetWorldSegment(Vec2 viewportPoint) 
+            => _worldCamera.GetWorldSegment(viewportPoint);
 
         public unsafe void Render(SceneProcessor scene)
         {

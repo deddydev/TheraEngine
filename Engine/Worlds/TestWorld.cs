@@ -10,7 +10,6 @@ using BulletSharp;
 using System.Drawing;
 using System.Linq;
 using CustomEngine.Rendering;
-using CustomEngine.Rendering.Models.Collada;
 using CustomEngine.Worlds.Actors.Types;
 using CustomEngine.Rendering.Cameras;
 
@@ -109,7 +108,7 @@ namespace CustomEngine.Worlds
             //Actor lightActor = new Actor(lightComp);
             Actor dirLightActor = new Actor(dirLightComp);
 
-            ColladaImportOptions options = new ColladaImportOptions();
+            Collada.ImportOptions options = new Collada.ImportOptions();
             string desktop = Environment.MachineName == "DAVID-DESKTOP" ? "X:\\Desktop\\" : "C:\\Users\\David\\Desktop\\";
             Collada.Import(desktop + "TEST.DAE",
                 options, out StaticMesh staticM, out SkeletalMesh skelM, out Skeleton skeleton);
@@ -125,13 +124,9 @@ namespace CustomEngine.Worlds
                 ScalarKeyframe last = new ScalarKeyframe(360.0f, 0.0f, 0.0f);
                 first.LinkNext(second).LinkNext(last);
                 modelAnim.Keyframes.AddFirst(first);
-                //modelAnim.Bake();
-                AnimFolder modelYawFolder = new AnimFolder("Roll", false, modelAnim);
-                //AnimFolder modelRotationFolder = new AnimFolder("Rotation", modelYawFolder);
-                AnimationContainer modelAnimContainer = new AnimationContainer(modelYawFolder);
-                skeleton["Bust"]?.FrameState.AddAnimation(modelAnimContainer, true);
+                skeleton["BustN"]?.FrameState.AddAnimation(new AnimationContainer("Roll", false, modelAnim), true);
 
-                //skeleton.ToXML(desktop);
+                //skeleton.Export(desktop, "TEST_SKELETON", true);
             }
             else
                 comp = new StaticMeshComponent(staticM, null);

@@ -11,8 +11,7 @@ namespace CustomEngine.Files
 {
     public interface IFileRef
     {
-        string FilePathRelative { get; }
-        string FilePathAbsolute { get; }
+        string FilePath { get; }
     }
     public interface ISingleFileRef : IFileRef
     {
@@ -149,6 +148,12 @@ namespace CustomEngine.Files
         {
             base.Read(reader);
         }
+
+        protected override int OnCalculateSize(StringTable table)
+        {
+            throw new NotImplementedException();
+        }
+
         public static implicit operator T(SingleFileRef<T> fileRef) { return fileRef?.GetInstance(); }
         public static implicit operator SingleFileRef<T>(T file) { return new SingleFileRef<T>(file); }
         public static implicit operator SingleFileRef<T>(Type type) { return new SingleFileRef<T>(type); }
@@ -180,6 +185,11 @@ namespace CustomEngine.Files
 
             file._references.Add(this);
             return file;
+        }
+
+        protected override int OnCalculateSize(StringTable table)
+        {
+            throw new NotImplementedException();
         }
     }
     /// <summary>
@@ -244,9 +254,9 @@ namespace CustomEngine.Files
             return FileManager.IsSpecial(ext);
         }
         public abstract T GetInstance();
-        public override int CalculateSize(StringTable table)
+        protected override int OnCalculateSize(StringTable table)
         {
-            table.Add(_refPath);
+            table.Add(RefPathAbsolute);
             return FileRefHeader.Size;
         }
         public override void Write(XmlWriter writer)
@@ -271,16 +281,34 @@ namespace CustomEngine.Files
     {
         public const int Size = 4;
 
-        buint _data;
+        Bin32 _data;
 
-        public bool IsInternal { get { return (_data & 0x80000000) != 0; } }
-        private uint Value { get { return _data & 0x7FFFFFFF; } }
+        public bool IsInternal
+        {
+            get => _data[31];
+            set => _data[31] = value;
+        }
+        public bool AllowMultiLoad
+        {
+            get => _data[30];
+            set => _data[30] = value;
+        }
+        private uint Value
+        {
+            get => _data[0, 30];
+            set => _data[0, 30] = value;
+        }
+
+        /// <summary>
+        /// String address if external, actual data address if internal
+        /// </summary>
         public VoidPtr DataAddress
         {
-            get { return Address + Value; }
-            set { _data = (uint)(value - Address); }
+            get => Address + Value;
+            set => Value = (uint)(value - Address);
         }
-        public string FilePath { get { return new string((sbyte*)DataAddress); } }
+
+        public string FilePath => DataAddress.GetString();
 
         public VoidPtr Address { get { fixed (void* ptr = &this) return ptr; } }
     }

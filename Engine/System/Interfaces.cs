@@ -15,7 +15,7 @@ namespace CustomEngine
     public interface IPanel
     {
         RectangleF Region { get; set; }
-        RectangleF ParentResized(RectangleF parentRegion);
+        RectangleF Resize(RectangleF parentRegion);
     }
     public interface IBufferable
     {

@@ -24,7 +24,7 @@ namespace CustomEngine.Rendering.Models.Materials
         private TexCoordWrap _uWrap = TexCoordWrap.Repeat, _vWrap = TexCoordWrap.Repeat;
         private float _lodBias = 0.0f;
 
-        public string Path { get { return _reference.FilePathAbsolute; } }
+        public string Path { get { return _reference.FilePath; } }
         public MagFilter MagFilter { get { return _magFilter; } set { _magFilter = value; } }
         public MinFilter MinFilter { get { return _minFilter; } set { _minFilter = value; } }
         public TexCoordWrap UWrap { get { return _uWrap; } set { _uWrap = value; } }

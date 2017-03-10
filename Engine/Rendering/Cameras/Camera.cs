@@ -109,7 +109,7 @@ namespace CustomEngine.Rendering.Cameras
             _projectionInverse = Matrix4.Identity,
             _transform = Matrix4.Identity,
             _invTransform = Matrix4.Identity;
-
+        
         protected EventVec3 _point = Vec3.Zero;
         protected Rotator _rotation = new Rotator(Rotator.Order.YPR);
         private Vec3 
@@ -276,15 +276,25 @@ namespace CustomEngine.Rendering.Cameras
             _updating = false;
             TransformChanged?.Invoke();
         }
+
+        public Segment GetWorldSegment(Vec2 screenPoint)
+        {
+            Vec3 start = ScreenToWorld(screenPoint, 0.0f);
+            Vec3 end = ScreenToWorld(screenPoint, 1.0f);
+            return new Segment(start, end);
+        }
         public Ray GetWorldRay(Vec2 screenPoint)
         {
             Vec3 start = ScreenToWorld(screenPoint, 0.0f);
             Vec3 end = ScreenToWorld(screenPoint, 1.0f);
-            return new Ray(start, end);
+            return new Ray(start, end - start);
         }
+        public Vec3 GetPointAtDepth(Vec2 screenPoint, float depth)
+            => ScreenToWorld(screenPoint, depth);
+        public Vec3 GetPointAtDistance(Vec2 screenPoint, float distance)
+            => GetWorldSegment(screenPoint).PointAtLineDistance(distance);
+        
         public void Render()
-        {
-            _transformedFrustum.Render();
-        }
+            => _transformedFrustum.Render();
     }
 }

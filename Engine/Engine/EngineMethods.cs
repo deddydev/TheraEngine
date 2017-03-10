@@ -101,8 +101,8 @@ namespace CustomEngine
         {
             _isPaused = paused;
         }
-        public static void Run() { _timer.Run(); }
-        public static void Stop() { _timer.Stop(); }
+        public static void Run() => _timer.Run();
+        public static void Stop() => _timer.Stop();
         private static void UpdateTick(ETickGroup order, float delta)
         {
             foreach (var g in _tick[order])

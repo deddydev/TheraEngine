@@ -216,7 +216,7 @@ namespace CustomEngine.Rendering.Models
             if (Engine.Settings.SkinOnGPU)
                 foreach (PrimitiveManager m in _linkedPrimitiveManagers)
                 {
-                    if (!m._processingSkinning)
+                    //if (!m._processingSkinning)
                         m.ModifiedBoneIndices.Add(_index);
                 }
             else
@@ -226,7 +226,7 @@ namespace CustomEngine.Rendering.Models
                     PrimitiveManager m = _linkedPrimitiveManagers[i];
                     List<int> influenced = _influencedVertices[m.BindingId];
                     //m._cpuSkinInfo.UpdatePNBT(influenced);
-                    if (!m._processingSkinning)
+                    //if (!m._processingSkinning)
                         m.ModifiedVertexIndices.UnionWith(influenced);
                 }
                 _influencedInfluences.ForEach(x => x._hasChanged = true);
@@ -343,6 +343,14 @@ namespace CustomEngine.Rendering.Models
             foreach (SceneComponent item in items)
                 item._parent = null;
         }
+        protected override int OnCalculateSize(StringTable table)
+        {
+            table.Add(_name);
+            int size = Header.Size;
+            foreach (Bone b in ChildBones)
+                size += b.CalculateSize(table);
+            return size;
+        }
         public unsafe override void Read(VoidPtr address, VoidPtr strings)
         {
             Header h = *(Header*)address;
@@ -409,9 +417,12 @@ namespace CustomEngine.Rendering.Models
         {
             return _name.GetHashCode();
         }
+
         [StructLayout(LayoutKind.Sequential, Pack = 1)]
         public unsafe struct Header
         {
+            public const int Size = 12 + FrameState.Header.Size;
+
             public bint _name;
             public bint _parentIndex;
             public bushort _scaleByDistance;

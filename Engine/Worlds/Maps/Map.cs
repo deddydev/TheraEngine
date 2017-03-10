@@ -49,5 +49,10 @@ namespace CustomEngine.Worlds
         {
             throw new NotImplementedException();
         }
+
+        protected override int OnCalculateSize(StringTable table)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

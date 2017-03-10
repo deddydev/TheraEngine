@@ -33,6 +33,18 @@ namespace CustomEngine.Worlds
         public Actor() : base() { }
         public Actor(SceneComponent root, params LogicComponent[] logicComponents)
             : base(root, logicComponents) { }
+
+        [StructLayout(LayoutKind.Sequential, Pack = 1)]
+        public unsafe struct Header
+        {
+            public const int Size = 8;
+
+            public bint _nameOffset;
+            public bint _logicCompCount;
+            public bint _sceneCompCount;
+
+            public VoidPtr Address { get { fixed (void* ptr = &this) return ptr; } }
+        }
     }
     public class Actor<T> : FileObject, IActor where T : SceneComponent
     {
@@ -109,7 +121,7 @@ namespace CustomEngine.Worlds
             if (!_isConstructing)
             {
                 _renderableComponentCache = new List<PrimitiveComponent>();
-                _sceneComponentCache = _rootSceneComponent == null ? null : _rootSceneComponent.GenerateChildCache().AsReadOnly();
+                _sceneComponentCache = _rootSceneComponent?.GenerateChildCache().AsReadOnly();
             }
         }
         public void RebaseOrigin(Vec3 newOrigin)
@@ -179,33 +191,38 @@ namespace CustomEngine.Worlds
         {
             item.Owner = this;
         }
-
-        public override void Write(VoidPtr address, StringTable table)
+        protected override int OnCalculateSize(StringTable table)
         {
-            throw new NotImplementedException();
+            int size = Actor.Header.Size;
+            LogicComponents.ForEach(x => size += x.CalculateSize(table));
+            size += RootComponent.CalculateSize(table);
+            return size;
         }
-
+        public unsafe override void Write(VoidPtr address, StringTable table)
+        {
+            VoidPtr addr = address;
+            Actor.Header* h = (Actor.Header*)addr;
+            h->_nameOffset = table[_name];
+            h->_sceneCompCount = SceneComponentCache.Count;
+            h->_logicCompCount = LogicComponents.Count;
+            foreach (LogicComponent comp in LogicComponents)
+            {
+                comp.Write(addr, table);
+                addr += comp.CalculatedSize;
+            }
+            RootComponent.Write(addr, table);
+        }
         public override void Read(VoidPtr address, VoidPtr strings)
         {
-            throw new NotImplementedException();
+            
         }
-
         public override void Write(XmlWriter writer)
         {
-            throw new NotImplementedException();
+            
         }
-
         public override void Read(XMLReader reader)
         {
-            throw new NotImplementedException();
+            
         }
-    }
-    [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    public unsafe struct ActorHeader
-    {
-        public bint _logicCompCount;
-        public bint _sceneCompCount;
-
-        public VoidPtr Address { get { fixed (void* ptr = &this) return ptr; } }
     }
 }

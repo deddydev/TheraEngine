@@ -12,7 +12,7 @@ namespace CustomEngine.Rendering.Models
             public Bone[] _bones = new Bone[4];
             public float[] _weights = new float[4];
             public Matrix4 _positionMatrix;
-            public Matrix3 _normalMatrix;
+            public Matrix4 _normalMatrix;
             internal bool _hasChanged;
 
             public static LiveInfluence FromInfluence(Influence inf, Skeleton skel)
@@ -33,13 +33,13 @@ namespace CustomEngine.Rendering.Models
             public void CalcMatrix()
             {
                 _positionMatrix = new Matrix4();
-                _normalMatrix = new Matrix3();
+                _normalMatrix = new Matrix4();
                 for (int i = 0; i < _weightCount; ++i)
                 {
                     Bone b = _bones[i];
                     float w = _weights[i];
                     _positionMatrix += b.VertexMatrix * w;
-                    _normalMatrix += b.VertexMatrixIT.GetRotationMatrix3() * w;
+                    _normalMatrix += b.VertexMatrixIT.GetRotationMatrix4() * w;
                 }
             }
         }
@@ -71,11 +71,11 @@ namespace CustomEngine.Rendering.Models
             _influences = data._influences.Select(x => LiveInfluence.FromInfluence(x, skeleton)).ToArray();
             _data = data;
         }
-        
-        public unsafe void UpdatePNBT(IEnumerable<int> modifiedVertexIndices)
+        public unsafe void UpdatePNBT(HashSet<int>.Enumerator modifiedVertexIndices)
         {
-            foreach (int i in modifiedVertexIndices)
+            while (modifiedVertexIndices.MoveNext())
             {
+                int i = modifiedVertexIndices.Current;
                 LiveInfluence inf = _influences[_influenceIndices[i]];
                 if (inf._hasChanged)
                 {
@@ -84,7 +84,7 @@ namespace CustomEngine.Rendering.Models
                 }
                 ((Vec3*)_positions.Data)[i] = _basePositions[i] * inf._positionMatrix;
                 if (_normals != null)
-                    ((Vec3*)_normals.Data)[i] = inf._normalMatrix * _baseNormals[i];
+                    ((Vec3*)_normals.Data)[i] = _baseNormals[i] * inf._normalMatrix;
                 if (_binormals != null)
                     ((Vec3*)_binormals.Data)[i] = _baseBinormals[i] * inf._normalMatrix;
                 if (_tangents != null)

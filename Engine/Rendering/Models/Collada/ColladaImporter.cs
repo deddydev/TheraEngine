@@ -7,65 +7,65 @@ using CustomEngine.Rendering.Textures;
 using System.Linq;
 using CustomEngine.Rendering.Animation;
 
-namespace CustomEngine.Rendering.Models.Collada
+namespace CustomEngine.Rendering.Models
 {
-    public class ColladaImportOptions
-    {
-        [Category("Primitives")]
-        public Culling DefaultCulling { get { return _culling; } set { _culling = value; } }
-        [Category("Primitives")]
-        public bool ReverseWinding { get { return _reverseWinding; } set { _reverseWinding = value; } }
-        [Category("Primitives")]
-        public float WeightPrecision { get { return _weightPrecision; } set { _weightPrecision = value.Clamp(0.0000001f, 0.999999f); } }
-        [Category("Primitives")]
-        public TexCoordWrap TexCoordWrap { get { return _wrap; } set { _wrap = value; } }
-
-        [Category("Compression")]
-        public bool AllowVertexCompression { get { return _allowVertexCompression; } set { _allowVertexCompression = value; } }
-        [Category("Compression")]
-        public bool AllowNormalCompression { get { return _allowNormalCompression; } set { _allowNormalCompression = value; } }
-        [Category("Compression")]
-        public bool AllowTangentCompression { get { return _allowTangentCompression; } set { _allowTangentCompression = value; } }
-        [Category("Compression")]
-        public bool AllowBinormalCompression { get { return _allowBinormalCompression; } set { _allowBinormalCompression = value; } }
-        [Category("Compression")]
-        public bool AllowTexCoordCompression { get { return _allowTexCoordCompression; } set { _allowTexCoordCompression = value; } }
-        [Category("Compression")]
-        public bool AllowColorCompression { get { return _allowColorCompression; } set { _allowColorCompression = value; } }
-
-        [Category("Tristripper")]
-        public bool UseTristrips { get { return _useTristrips; } set { _useTristrips = value; } }
-        [Category("Tristripper")]
-        public uint CacheSize { get { return _cacheSize; } set { _cacheSize = value; } }
-        [Category("Tristripper")]
-        public uint MinimumStripLength { get { return _minStripLen; } set { _minStripLen = value < 2 ? 2 : value; } }
-        [Category("Tristripper")]
-        public bool PushCacheHits { get { return _pushCacheHits; } set { _pushCacheHits = value; } }
-        //[Category("Tristripper")]
-        //public bool BackwardSearch { get { return _backwardSearch; } set { _backwardSearch = value; } }
-
-        public bool _allowVertexCompression = true;
-        public bool _allowNormalCompression = true;
-        public bool _allowTangentCompression = true;
-        public bool _allowBinormalCompression = true;
-        public bool _allowTexCoordCompression = true;
-        public bool _allowColorCompression = true;
-
-        public uint _cacheSize = 52;
-        public uint _minStripLen = 2;
-        public bool _pushCacheHits = true;
-        public bool _useTristrips = true;
-        public bool _reverseWinding = false;
-        public float _weightPrecision = 0.0001f;
-        public TexCoordWrap _wrap = TexCoordWrap.Repeat;
-        public Culling _culling = Culling.None;
-        public bool _backwardSearch = false; //Doesn't work
-    }
     public unsafe partial class Collada
     {
+        public class ImportOptions
+        {
+            [Category("Primitives")]
+            public Culling DefaultCulling { get { return _culling; } set { _culling = value; } }
+            [Category("Primitives")]
+            public bool ReverseWinding { get { return _reverseWinding; } set { _reverseWinding = value; } }
+            [Category("Primitives")]
+            public float WeightPrecision { get { return _weightPrecision; } set { _weightPrecision = value.Clamp(0.0000001f, 0.999999f); } }
+            [Category("Primitives")]
+            public TexCoordWrap TexCoordWrap { get { return _wrap; } set { _wrap = value; } }
+
+            [Category("Compression")]
+            public bool AllowVertexCompression { get { return _allowVertexCompression; } set { _allowVertexCompression = value; } }
+            [Category("Compression")]
+            public bool AllowNormalCompression { get { return _allowNormalCompression; } set { _allowNormalCompression = value; } }
+            [Category("Compression")]
+            public bool AllowTangentCompression { get { return _allowTangentCompression; } set { _allowTangentCompression = value; } }
+            [Category("Compression")]
+            public bool AllowBinormalCompression { get { return _allowBinormalCompression; } set { _allowBinormalCompression = value; } }
+            [Category("Compression")]
+            public bool AllowTexCoordCompression { get { return _allowTexCoordCompression; } set { _allowTexCoordCompression = value; } }
+            [Category("Compression")]
+            public bool AllowColorCompression { get { return _allowColorCompression; } set { _allowColorCompression = value; } }
+
+            [Category("Tristripper")]
+            public bool UseTristrips { get { return _useTristrips; } set { _useTristrips = value; } }
+            [Category("Tristripper")]
+            public uint CacheSize { get { return _cacheSize; } set { _cacheSize = value; } }
+            [Category("Tristripper")]
+            public uint MinimumStripLength { get { return _minStripLen; } set { _minStripLen = value < 2 ? 2 : value; } }
+            [Category("Tristripper")]
+            public bool PushCacheHits { get { return _pushCacheHits; } set { _pushCacheHits = value; } }
+            //[Category("Tristripper")]
+            //public bool BackwardSearch { get { return _backwardSearch; } set { _backwardSearch = value; } }
+
+            public bool _allowVertexCompression = true;
+            public bool _allowNormalCompression = true;
+            public bool _allowTangentCompression = true;
+            public bool _allowBinormalCompression = true;
+            public bool _allowTexCoordCompression = true;
+            public bool _allowColorCompression = true;
+
+            public uint _cacheSize = 52;
+            public uint _minStripLen = 2;
+            public bool _pushCacheHits = true;
+            public bool _useTristrips = true;
+            public bool _reverseWinding = false;
+            public float _weightPrecision = 0.0001f;
+            public TexCoordWrap _wrap = TexCoordWrap.Repeat;
+            public Culling _culling = Culling.None;
+            public bool _backwardSearch = false; //Doesn't work
+        }
         public static List<AnimationContainer> Import(
             string filePath,
-            ColladaImportOptions options,
+            ImportOptions options,
             out StaticMesh staticMesh,
             out SkeletalMesh skeletalMesh,
             out Skeleton skeleton,
@@ -73,103 +73,103 @@ namespace CustomEngine.Rendering.Models.Collada
             bool importModels = true)
         {
             List<AnimationContainer> anims = new List<AnimationContainer>();
-            using (DecoderShell shell = DecoderShell.Import(filePath))
+            DecoderShell shell = DecoderShell.Import(filePath);
+
+            Matrix4 baseTransform = Matrix4.Identity;
+            bool isZup = false;
+            if (shell._assets.Count > 0)
             {
-                Matrix4 baseTransform = Matrix4.Identity;
-                bool isZup = false;
-                if (shell._assets.Count > 0)
-                {
-                    AssetEntry e = shell._assets[0];
-                    isZup = e._upAxis == UpAxis.Z;
-                    //baseTransform = Matrix4.CreateScale(e._scale);
-                    if (isZup)
-                        baseTransform = Matrix4.ZupToYup;
-                }
-
-                //Extract materials
-                foreach (MaterialEntry mat in shell._materials)
-                {
-                    List<ImageEntry> imgEntries = new List<ImageEntry>();
-
-                    //Find effect
-                    if (mat._effect != null)
-                        foreach (EffectEntry eff in shell._effects)
-                            if (eff._id == mat._effect) //Attach textures and effects to material
-                                if (eff._shader != null)
-                                    foreach (LightEffectEntry l in eff._shader._effects)
-                                        if (l._type == LightEffectType.diffuse && l._texture != null)
-                                        {
-                                            string path = l._texture;
-                                            foreach (EffectNewParam p in eff._newParams)
-                                                if (p._sid == l._texture)
-                                                {
-                                                    path = p._sampler2D._url;
-                                                    if (!string.IsNullOrEmpty(p._sampler2D._source))
-                                                        foreach (EffectNewParam p2 in eff._newParams)
-                                                            if (p2._sid == p._sampler2D._source)
-                                                                path = p2._path;
-                                                }
-
-                                            foreach (ImageEntry img in shell._images)
-                                                if (img._id == path)
-                                                {
-                                                    imgEntries.Add(img);
-                                                    break;
-                                                }
-                                        }
-                    
-                    Material m = Material.GetDefaultMaterial();//new Material(mat._name != null ? mat._name : mat._id, s);
-                    mat._node = m;
-
-                    foreach (ImageEntry img in imgEntries)
-                    {
-                        TextureReference tr = new TextureReference(img._path);
-                        tr.UWrap = tr.VWrap = options._wrap;
-                        m.Textures.Add(tr);
-                    }
-                }
-
-                List<ObjectInfo> objects = new List<ObjectInfo>();
-                List<Bone> rootBones = new List<Bone>();
-
-                //Extract bones and objects and create bone tree
-                foreach (SceneEntry scene in shell._scenes)
-                    foreach (NodeEntry node in scene._nodes)
-                    {
-                        Bone b = EnumNode(null, node, scene, shell, objects, baseTransform, Matrix4.Identity, isZup);
-                        if (b != null)
-                            rootBones.Add(b);
-                    }
-
-                //Create meshes after all bones have been created
-                if (rootBones.Count == 0)
-                {
-                    staticMesh = new StaticMesh();
-                    skeletalMesh = null;
-                    skeleton = null;
-                    staticMesh.Name = Path.GetFileNameWithoutExtension(filePath);
-                    foreach (ObjectInfo obj in objects)
-                        obj.Initialize(staticMesh, shell);
-                }
-                else
-                {
-                    skeletalMesh = new SkeletalMesh();
-                    staticMesh = null;
-                    skeletalMesh.Name = Path.GetFileNameWithoutExtension(filePath);
-                    skeleton = new Skeleton(rootBones.ToArray());
-                    foreach (ObjectInfo obj in objects)
-                        obj.Initialize(skeletalMesh, shell);
-                }
-
-                GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced);
+                AssetEntry e = shell._assets[0];
+                isZup = e._upAxis == UpAxis.Z;
+                //baseTransform = Matrix4.CreateScale(e._scale);
+                if (isZup)
+                    baseTransform = Matrix4.ZupToYup;
             }
+
+            //Extract materials
+            foreach (MaterialEntry mat in shell._materials)
+            {
+                List<ImageEntry> imgEntries = new List<ImageEntry>();
+
+                //Find effect
+                if (mat._effect != null)
+                    foreach (EffectEntry eff in shell._effects)
+                        if (eff._id == mat._effect) //Attach textures and effects to material
+                            if (eff._shader != null)
+                                foreach (LightEffectEntry l in eff._shader._effects)
+                                    if (l._type == LightEffectType.diffuse && l._texture != null)
+                                    {
+                                        string path = l._texture;
+                                        foreach (EffectNewParam p in eff._newParams)
+                                            if (p._sid == l._texture)
+                                            {
+                                                path = p._sampler2D._url;
+                                                if (!string.IsNullOrEmpty(p._sampler2D._source))
+                                                    foreach (EffectNewParam p2 in eff._newParams)
+                                                        if (p2._sid == p._sampler2D._source)
+                                                            path = p2._path;
+                                            }
+
+                                        foreach (ImageEntry img in shell._images)
+                                            if (img._id == path)
+                                            {
+                                                imgEntries.Add(img);
+                                                break;
+                                            }
+                                    }
+                    
+                Material m = Material.GetDefaultMaterial();//new Material(mat._name != null ? mat._name : mat._id, s);
+                mat._node = m;
+
+                foreach (ImageEntry img in imgEntries)
+                {
+                    TextureReference tr = new TextureReference(img._path);
+                    tr.UWrap = tr.VWrap = options._wrap;
+                    m.Textures.Add(tr);
+                }
+            }
+
+            List<ObjectInfo> objects = new List<ObjectInfo>();
+            List<Bone> rootBones = new List<Bone>();
+
+            //Extract bones and objects and create bone tree
+            foreach (VisualSceneEntry scene in shell._visualScenes)
+                foreach (NodeEntry node in scene._nodes)
+                {
+                    Bone b = EnumNode(null, node, scene, shell, objects, baseTransform, Matrix4.Identity, isZup);
+                    if (b != null)
+                        rootBones.Add(b);
+                }
+
+            //Create meshes after all bones have been created
+            if (rootBones.Count == 0)
+            {
+                staticMesh = new StaticMesh();
+                skeletalMesh = null;
+                skeleton = null;
+                staticMesh.Name = Path.GetFileNameWithoutExtension(filePath);
+                foreach (ObjectInfo obj in objects)
+                    obj.Initialize(staticMesh, shell);
+            }
+            else
+            {
+                skeletalMesh = new SkeletalMesh();
+                staticMesh = null;
+                skeletalMesh.Name = Path.GetFileNameWithoutExtension(filePath);
+                skeleton = new Skeleton(rootBones.ToArray());
+                foreach (ObjectInfo obj in objects)
+                    obj.Initialize(skeletalMesh, shell);
+            }
+
+            //GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced);
+
             return anims;
         }
 
         private static Bone EnumNode(
             Bone parent,
             NodeEntry node,
-            SceneEntry scene,
+            VisualSceneEntry scene,
             DecoderShell shell,
             List<ObjectInfo> objects,
             Matrix4 bindMatrix,
@@ -236,7 +236,7 @@ namespace CustomEngine.Rendering.Models.Collada
             public Matrix4 _bindMatrix;
             public SkinEntry _skin;
             public InstanceEntry _inst;
-            public SceneEntry _scene;
+            public VisualSceneEntry _scene;
             public NodeEntry _node;
             public Bone _parent;
             public bool _isZup;
@@ -246,7 +246,7 @@ namespace CustomEngine.Rendering.Models.Collada
                 GeometryEntry geoEntry,
                 Matrix4 bindMatrix,
                 SkinEntry skin,
-                SceneEntry scene,
+                VisualSceneEntry scene,
                 InstanceEntry inst,
                 Bone parent,
                 NodeEntry node,

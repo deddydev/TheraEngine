@@ -19,7 +19,7 @@ namespace CustomEngine.Rendering
         private LocalPlayerController _owner;
         private HudManager _hud;
         private int _index;
-        private Rectangle _region;
+        private RectangleF _region;
         private Camera _worldCamera;
         private GBuffer _gBuffer;
         private RenderPanel _owningPanel;
@@ -53,7 +53,7 @@ namespace CustomEngine.Rendering
             set => _hud = value ?? new HudManager(this);
         }
         public LocalPlayerController OwningPlayer => _owner;
-        public Rectangle Region => _region;
+        public RectangleF Region => _region;
         public int Height => _region.Height;
         public int Width => _region.Width;
         public int X => _region.X;

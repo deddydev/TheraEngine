@@ -19,6 +19,7 @@ namespace CustomEngine.Rendering.HUD
             _owningViewport = v;
             _owningPanel = _owningViewport.OwningPanel;
             _camera = new OrthographicCamera();
+            _childComponentTree = new Quadtree(_owningViewport.Region.Size);
         }
         public HudManager(RenderPanel p) : base(null)
         {

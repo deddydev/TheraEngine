@@ -13,10 +13,10 @@ namespace CustomEngine.Rendering
     /// </summary>
     public abstract class AbstractRenderer
     {
-        public SceneProcessor Scene { get { return _scene; } }
+        public SceneProcessor Scene => _scene;
         public abstract RenderLibrary RenderLibrary { get; }
-        public RenderContext CurrentContext { get { return RenderContext.Current; } }
-        public Viewport CurrentlyRenderingViewport { get { return Viewport.CurrentlyRendering; } }
+        public RenderContext CurrentContext => RenderContext.Current;
+        public Viewport CurrentlyRenderingViewport => Viewport.CurrentlyRendering;
 
         protected MeshProgram _currentMeshProgram;
         protected PrimitiveManager _currentPrimitiveManager;
@@ -269,7 +269,6 @@ namespace CustomEngine.Rendering
                 Uniform(Models.Materials.Uniform.GetLocation(ECommonUniform.RenderDelta), Engine.RenderDelta);
             }
         }
-        public abstract void DeleteProgram(int handle);
 
         public abstract int GetAttribLocation(string name);
         public abstract int GetUniformLocation(string name);

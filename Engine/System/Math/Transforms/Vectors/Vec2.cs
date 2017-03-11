@@ -67,32 +67,29 @@ namespace System
                 Data[index] = value;
             }
         }
+        
+        public bool Contains(Vec2 point)
+            => point.X <= X && point.Y <= Y;
 
         public float DistanceToFast(Vec2 otherPoint)
-        {
-            return (otherPoint - this).LengthFast;
-        }
+            => (otherPoint - this).LengthFast;
         public float DistanceTo(Vec2 otherPoint)
-        {
-            return (otherPoint - this).Length;
-        }
+            => (otherPoint - this).Length;
         public float DistanceToSquared(Vec2 otherPoint)
-        {
-            return (otherPoint - this).LengthSquared;
-        }
+            => (otherPoint - this).LengthSquared;
 
-        public float Length { get { return (float)Sqrt(LengthSquared); } }
-        public float LengthFast { get { return 1.0f / InverseSqrtFast(LengthSquared); } }
-        public float LengthSquared { get { return X * X + Y * Y; } }
+        public float Length => (float)Sqrt(LengthSquared);
+        public float LengthFast => 1.0f / InverseSqrtFast(LengthSquared);
+        public float LengthSquared => X * X + Y * Y;
 
         /// <summary>
         /// Gets the perpendicular vector on the right side of this vector.
         /// </summary>
-        public Vec2 PerpendicularRight { get { return new Vec2(Y, -X); } }
+        public Vec2 PerpendicularRight => new Vec2(Y, -X);
         /// <summary>
         /// Gets the perpendicular vector on the left side of this vector.
         /// </summary>
-        public Vec2 PerpendicularLeft { get { return new Vec2(-Y, X); } }
+        public Vec2 PerpendicularLeft => new Vec2(-Y, X);
 
         public static readonly Vec2 UnitX = new Vec2(1.0f, 0.0f);
         public static readonly Vec2 UnitY = new Vec2(0.0f, 1.0f);
@@ -100,17 +97,15 @@ namespace System
         public static readonly Vec2 One = new Vec2(1.0f, 1.0f);
         
         public static Vec2 ComponentMin(Vec2 a, Vec2 b)
-        {
-            return new Vec2(
+            => new Vec2(
                 a.X < b.X ? a.X : b.X,
                 a.Y < b.Y ? a.Y : b.Y);
-        }
+
         public static Vec2 ComponentMax(Vec2 a, Vec2 b)
-        {
-            return new Vec2(
+            => new Vec2(
                 a.X > b.X ? a.X : b.X,
                 a.Y > b.Y ? a.Y : b.Y);
-        }
+
         public static Vec2 MagnitudeMin(Vec2 left, Vec2 right)
         {
             return left.LengthSquared < right.LengthSquared ? left : right;

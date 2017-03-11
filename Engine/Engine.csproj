@@ -679,6 +679,7 @@
     <Compile Include="System\Math\Collision\Collision.cs" />
     <Compile Include="System\Math\Collision\Tracing.cs" />
     <Compile Include="System\Math\Enums.cs" />
+    <Compile Include="System\Math\Shapes\BoundingRectangle.cs" />
     <Compile Include="System\Math\Transforms\Vectors\Vectors.cs" />
     <Compile Include="System\Math\Shapes\Cylindrical\BaseCapsule.cs" />
     <Compile Include="System\Math\Shapes\Cylindrical\Complex\ComplexCapsule.cs" />

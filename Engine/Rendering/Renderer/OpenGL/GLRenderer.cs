@@ -14,7 +14,7 @@ namespace CustomEngine.Rendering.OpenGL
 
         // https://www.opengl.org/wiki/Rendering_Pipeline_Overview
 
-        public override RenderLibrary RenderLibrary { get { return RenderLibrary.OpenGL; } }
+        public override RenderLibrary RenderLibrary => RenderLibrary.OpenGL;
 
         public GLRenderer() { }
 
@@ -835,11 +835,6 @@ namespace CustomEngine.Rendering.OpenGL
                     DrawElementsType.UnsignedByte + (int)_currentPrimitiveManager._elementType,
                     0);
 
-        }
-
-        public override void DeleteProgram(int handle)
-        {
-            throw new NotImplementedException();
         }
     }
 }

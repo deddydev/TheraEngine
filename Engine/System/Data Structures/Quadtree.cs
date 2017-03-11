@@ -7,7 +7,7 @@ namespace System
 {
     public interface IBoundable
     {
-        RectangleF AxisAlignedBounds { get; }
+        BoundingRectangle AxisAlignedBounds { get; }
         Quadtree.QuadtreeNode RenderNode { get; set; }
     }
     public class Quadtree
@@ -257,8 +257,7 @@ namespace System
                 _bounds.Location *= scaleFactor;
                 if (_subNodes != null)
                     foreach (QuadtreeNode node in _subNodes)
-                        if (node != null)
-                            node.Resize(scaleFactor);
+                        node?.Resize(scaleFactor);
             }
 
             public static implicit operator QuadtreeNode(RectangleF bounds)

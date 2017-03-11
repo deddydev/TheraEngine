@@ -286,23 +286,6 @@ namespace System
                 pos.Dot(new Vec3(mat.Column1, false)) + mat.Row3.Y,
                 pos.Dot(new Vec3(mat.Column2, false)) + mat.Row3.Z);
 
-        /// <summary>
-        /// Transforms a vector by a quaternion rotation.
-        /// </summary>
-        /// <param name="vec">The vector to transform.</param>
-        /// <param name="quat">The quaternion to rotate the vector by.</param>
-        /// <returns>The result of the operation.</returns>
-        public Vec3 Transform(Quaternion quat)
-        {
-            Vec3 t = 2.0f * (quat.Xyz ^ this);
-            return this + quat.W * t + (quat.Xyz ^ t);
-
-            // Since vec.W == 0, we can optimize quat * vec * quat^-1 as follows:
-            // vec + 2.0 * cross(quat.xyz, cross(quat.xyz, vec) + quat.w * vec)
-            //Vec3 xyz = quat.Xyz;
-
-            //return this + 2.0f * (xyz ^ ((xyz ^ this)) + this * quat.W);
-        }
         /// <summary>Transform a Vector by the given Matrix</summary>
         /// <param name="vec">The vector to transform</param>
         /// <param name="mat">The desired transformation</param>
@@ -688,8 +671,6 @@ namespace System
                 vec.Y * scale.Y,
                 vec.Z * scale.Z);
         
-        public static Vec3 operator *(Quaternion quat, Vec3 vec)
-            => vec.Transform(quat);
         public static bool operator ==(Vec3 left, Vec3 right)
             => left.Equals(right);
         public static bool operator !=(Vec3 left, Vec3 right)

@@ -790,12 +790,6 @@ namespace System
                 vec.Z * scale.Z,
                 vec.W * scale.W);
         }
-        public static Vec4 operator *(Vec4 vec, Quaternion quat)
-        {
-            Quaternion v = new Quaternion(vec.X, vec.Y, vec.Z, vec.W);
-            v = quat * v * quat.Inverted();
-            return new Vec4(v.X, v.Y, v.Z, v.W);
-        }
         public static bool operator ==(Vec4 left, Vec4 right)
         {
             return left.Equals(right);

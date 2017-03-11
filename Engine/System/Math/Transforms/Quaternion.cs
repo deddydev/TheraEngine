@@ -469,6 +469,27 @@ namespace System
 
             return q;
         }
+        //Optimized form for vec3's (W == 0)
+        public Vec3 Transform(Vec3 v)
+        {
+            Vec3 t = 2.0f * (Xyz ^ v);
+            return v + W * t + (Xyz ^ t);
+        }
+        //Slower, traditional form
+        public Vec4 Transform(Vec4 vec)
+        {
+            Quaternion v = new Quaternion(vec.X, vec.Y, vec.Z, vec.W);
+            v = this * v * Conjugated();
+            return new Vec4(v.X, v.Y, v.Z, v.W);
+        }
+        public static Vec3 operator *(Quaternion quat, Vec3 vec)
+            => quat.Transform(vec);
+        public static Vec3 operator *(Vec3 vec, Quaternion quat)
+            => quat.Transform(vec);
+        public static Vec4 operator *(Quaternion quat, Vec4 vec)
+            => quat.Transform(vec);
+        public static Vec4 operator *(Vec4 vec, Quaternion quat)
+            => quat.Transform(vec);
         public static Quaternion operator +(Quaternion left, Quaternion right)
         {
             left.Xyzw += right.Xyzw;
@@ -485,6 +506,7 @@ namespace System
                 right.W * left.Xyz + left.W * right.Xyz + (left.Xyz ^ right.Xyz),
                 left.W * right.W - (left.Xyz | right.Xyz));
         }
+        
         public static Quaternion operator *(Quaternion quaternion, float scale)
         {
             return new Quaternion(quaternion.X * scale, quaternion.Y * scale, quaternion.Z * scale, quaternion.W * scale);

@@ -1,4 +1,5 @@
 ﻿using CustomEngine.Rendering.Models;
+using CustomEngine.Rendering.Models.Materials;
 using CustomEngine.Rendering.Textures;
 using System;
 using System.Collections.Generic;
@@ -21,6 +22,9 @@ namespace CustomEngine.Rendering
             _types = types;
             _bufferCount = ((byte)types).CountBits();
             _textures = new Texture[_bufferCount];
+            _fullScreenQuad = new PrimitiveManager(PrimitiveData.FromQuads(Culling.Back, new PrimitiveBufferInfo(), 
+                VertexQuad.MakeQuad(Vec3.Zero, new Vec3(1.0f, 0.0f, 0.0f), new Vec3(1.0f, 1.0f, 0.0f), new Vec3(0.0f, 1.0f, 0.0f))),
+                Material.GetGBufferMaterial());
         }
 
         protected override void OnGenerated()
@@ -54,9 +58,29 @@ namespace CustomEngine.Rendering
         {
 
         }
-        public void Resize(float width, float height)
+        public unsafe void Resize(float width, float height)
         {
+            // 3--2
+            // |\ |
+            // | \|
+            // 0--1
+            //0 1 3 3 1 2
 
+            //Vec3 bottomLeft = new Vec3(0.0f, 0.0f, 0.0f);
+            Vec3 bottomRight = new Vec3(width, 0.0f, 0.0f);
+            Vec3 topRight = new Vec3(width, height, 0.0f);
+            Vec3 topLeft = new Vec3(0.0f, height, 0.0f);
+
+            Vec3* data = (Vec3*)_fullScreenQuad.Data[0].Address;
+            //data[0] = bottomLeft;
+            data[1] = data[4] = bottomRight;
+            data[2] = data[3] = topLeft;
+            data[5] = topRight;
+        }
+
+        public void Render()
+        {
+            _fullScreenQuad.Render(Matrix4.Identity, Matrix3.Identity);
         }
     }
 

@@ -19,7 +19,7 @@ namespace CustomEngine.Rendering.HUD
             _owningViewport = v;
             _owningPanel = _owningViewport.OwningPanel;
             _camera = new OrthographicCamera();
-            _childComponentTree = new Quadtree(_owningViewport.Region.Size);
+            _childComponentTree = new Quadtree(_owningViewport.Region.Bounds);
         }
         public HudManager(RenderPanel p) : base(null)
         {
@@ -28,12 +28,12 @@ namespace CustomEngine.Rendering.HUD
             _camera = new OrthographicCamera();
         }
 
-        public override RectangleF Resize(RectangleF parentRegion)
+        public override BoundingRectangle Resize(BoundingRectangle parentRegion)
         {
             //base.Resize will handle resizing child components
-            RectangleF region = base.Resize(parentRegion);
+            BoundingRectangle region = base.Resize(parentRegion);
             //Child tree must be resized AFTER child components are resized
-            _childComponentTree.Resize(region.Size);
+            _childComponentTree.Resize(region.Bounds);
             //Resize the drawing board
             _camera.Resize(Width, Height);
             return region;

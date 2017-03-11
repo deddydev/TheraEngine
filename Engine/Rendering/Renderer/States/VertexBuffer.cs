@@ -177,7 +177,7 @@ namespace CustomEngine.Rendering.Models
             _integral = integral;
         }
 
-        public VoidPtr Data => _data.Address;
+        public VoidPtr Address => _data.Address;
         public int ComponentCount => _componentCount;
         public int ElementCount => _elementCount;
         public int DataLength => _elementCount * Stride;
@@ -363,7 +363,7 @@ namespace CustomEngine.Rendering.Models
             _vaoId = 0;
         }
         ~VertexBuffer() { Dispose(); }
-        public static implicit operator VoidPtr(VertexBuffer b) { return b.Data; }
+        public static implicit operator VoidPtr(VertexBuffer b) { return b.Address; }
         public override string ToString() { return _name; }
     }
 }

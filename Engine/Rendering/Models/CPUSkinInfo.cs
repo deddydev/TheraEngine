@@ -82,13 +82,13 @@ namespace CustomEngine.Rendering.Models
                     inf.CalcMatrix();
                     inf._hasChanged = false;
                 }
-                ((Vec3*)_positions.Data)[i] = _basePositions[i] * inf._positionMatrix;
+                ((Vec3*)_positions.Address)[i] = _basePositions[i] * inf._positionMatrix;
                 if (_normals != null)
-                    ((Vec3*)_normals.Data)[i] = _baseNormals[i] * inf._normalMatrix;
+                    ((Vec3*)_normals.Address)[i] = _baseNormals[i] * inf._normalMatrix;
                 if (_binormals != null)
-                    ((Vec3*)_binormals.Data)[i] = _baseBinormals[i] * inf._normalMatrix;
+                    ((Vec3*)_binormals.Address)[i] = _baseBinormals[i] * inf._normalMatrix;
                 if (_tangents != null)
-                    ((Vec3*)_tangents.Data)[i] = _baseTangents[i] * inf._normalMatrix;
+                    ((Vec3*)_tangents.Address)[i] = _baseTangents[i] * inf._normalMatrix;
             }
         }
     }

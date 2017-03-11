@@ -74,6 +74,7 @@ namespace System
             }
             return points;
         }
+
         public static Vec2[] GetBezierPoints(Vec2 p0, Vec2 p1, Vec2 p2, Vec2 p3, int pointCount)
         {
             if (pointCount < 2)

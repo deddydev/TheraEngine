@@ -61,7 +61,7 @@ namespace CustomEngine.Rendering.Models.Materials
         /// <returns>The interpolated point.</returns>
         public Vec2 BezierToPoint(Vec2 otherPoint, float time)
         {
-            Vec2 p0 = Location;
+            Vec2 p0 = Translation;
 
             Vec2 p1 = p0;
             p1.X += 10.0f;
@@ -85,9 +85,9 @@ namespace CustomEngine.Rendering.Models.Materials
                 argIndex >= _connectedTo.Count ||
                 argIndex < 0 ||
                 _connectedTo[argIndex] == null)
-                return Location;
+                return Translation;
 
-            return BezierToPoint(_connectedTo[argIndex].Location, time);
+            return BezierToPoint(_connectedTo[argIndex].Translation, time);
         }
         public override bool CanConnectTo(BaseGLArgument other)
         {

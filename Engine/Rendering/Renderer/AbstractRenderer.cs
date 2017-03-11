@@ -122,7 +122,7 @@ namespace CustomEngine.Rendering
             SetLineSize(size);
             PrimitiveManager m = CacheDebugPrimitive(name, DebugPrimitiveType.Line);
             m.GetParameter<GLVec4>(0).Value = color;
-            ((Vec3*)m.Data._buffers[0].Data)[1] = end - start;
+            ((Vec3*)m.Data[0].Address)[1] = end - start;
             m.Render(Matrix4.CreateTranslation(start), Matrix3.Identity);
         }
         public void RenderPlane(Vec3 position, Vec3 normal, Vec2 dimensions, bool solid)

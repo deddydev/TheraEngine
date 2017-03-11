@@ -6,9 +6,43 @@ using System.Threading.Tasks;
 
 namespace System
 {
-    public class BoundingRectangle
+    public struct BoundingRectangle
     {
+        public static readonly BoundingRectangle Empty = new BoundingRectangle();
+
         private Vec2 _translation, _bounds;
+
+        public BoundingRectangle(float x, float y, float width, float height)
+        {
+            _translation = new Vec2(x, y);
+            _bounds = new Vec2(width, height);
+        }
+        public BoundingRectangle(Vec2 translation, Vec2 bounds)
+        {
+            _translation = translation;
+            _bounds = bounds;
+        }
+
+        public float X
+        {
+            get => _translation.X;
+            set => _translation.X = value;
+        }
+        public float Y
+        {
+            get => _translation.Y;
+            set => _translation.Y = value;
+        }
+        public float Width
+        {
+            get => _bounds.X;
+            set => _bounds.X = value;
+        }
+        public float Height
+        {
+            get => _bounds.Y;
+            set => _bounds.Y = value;
+        }
 
         public float MaxX
         {
@@ -110,7 +144,26 @@ namespace System
             => _bounds.Contains(point - _translation);
         public EContainment Contains(BoundingRectangle bounds)
         {
+            int flag = 0;
             
+            float r = MaxX - bounds.MaxX;
+            float t = MaxY - bounds.MaxY;
+            float l = bounds.MinX - MinX;
+            float b = bounds.MinY - MinY;
+
+            //contains right side?
+            flag |= r > 0 ? 0b0001 : 0;
+            //contains top side?
+            flag |= t > 0 ? 0b0010 : 0;
+            //contains left side?
+            flag |= l > 0 ? 0b0100 : 0;
+            //contains bottom side?
+            flag |= b > 0 ? 0b1000 : 0;
+
+            if (flag == 0b1111)
+                return EContainment.Contains;
+            else
+                return EContainment.Intersects;
         }
     }
 }

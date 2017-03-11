@@ -28,13 +28,13 @@ namespace System
         public void Add(IBoundable value)
         {
             if (_head == null)
-                _head = new QuadtreeNode(new RectangleF(Vec2.Zero, _totalBounds));
+                _head = new QuadtreeNode(new BoundingRectangle(Vec2.Zero, _totalBounds));
             _head.Add(value);
         }
         public void Add(List<IBoundable> value)
         {
             if (_head == null)
-                _head = new QuadtreeNode(new RectangleF(Vec2.Zero, _totalBounds));
+                _head = new QuadtreeNode(new BoundingRectangle(Vec2.Zero, _totalBounds));
             _head.Add(value);
         }
         public bool Remove(IBoundable value)
@@ -52,31 +52,31 @@ namespace System
         {
             Vec2 scaleFactor = newBounds / _totalBounds;
             _totalBounds = newBounds;
-            _head.Resize(scaleFactor);
+            _head?.Resize(scaleFactor);
         }
 
         public class QuadtreeNode
         {
-            private RectangleF _bounds;
+            private BoundingRectangle _region;
             public List<IBoundable> _items = new List<IBoundable>();
             public QuadtreeNode[] _subNodes;
             
             public List<IBoundable> Items
                 => _items;
-            public RectangleF Bounds
-                => _bounds;
+            public BoundingRectangle Region
+                => _region;
             public Vec2 Center
                 => (Min + Max) / 2.0f;
             public Vec2 Min
-                => _bounds.Location;
+                => _region.Translation;
             public Vec2 Max
-                => _bounds.Location + _bounds.Size;
+                => _region.Translation + _region.Bounds;
             public Vec2 Extents
-                => _bounds.Size;
+                => _region.Bounds;
 
             public List<IBoundable> FindClosest(Vec2 point)
             {
-                if (_bounds.Contains(point))
+                if (_region.Contains(point))
                 {
                     List<IBoundable> list = null;
                     foreach (QuadtreeNode node in _subNodes)
@@ -108,7 +108,7 @@ namespace System
                         list.AddRange(node.CollectChildren());
                 return list;
             }
-            public List<IBoundable> FindAll(RectangleF bounds, EContainmentFlags containment)
+            public List<IBoundable> FindAll(BoundingRectangle bounds, EContainmentFlags containment)
             {
                 List<IBoundable> list = new List<IBoundable>();
 
@@ -116,7 +116,7 @@ namespace System
                 if (containment == EContainmentFlags.None)
                     return list;
 
-                if (_bounds.Contains(bounds))
+                if (_region.Contains(bounds) == EContainment.Contains)
                 {
 
                 }
@@ -171,12 +171,12 @@ namespace System
                 for (int i = 0; i < 4; ++i)
                 {
                     items = new List<IBoundable>();
-                    RectangleF bounds = GetSubdivision(i);
+                    BoundingRectangle bounds = GetSubdivision(i);
                     foreach (IBoundable item in value)
                     {
                         if (item == null)
                             continue;
-                        if (bounds.Contains(item.AxisAlignedBounds))
+                        if (bounds.Contains(item.AxisAlignedBounds) == EContainment.Contains)
                         {
                             notSubdivided = false;
 
@@ -208,8 +208,8 @@ namespace System
                 bool notSubdivided = true;
                 for (int i = 0; i < 4; ++i)
                 {
-                    RectangleF bounds = GetSubdivision(i);
-                    if (bounds.Contains(item.AxisAlignedBounds))
+                    BoundingRectangle bounds = GetSubdivision(i);
+                    if (bounds.Contains(item.AxisAlignedBounds) == EContainment.Contains)
                     {
                         notSubdivided = false;
 
@@ -230,37 +230,37 @@ namespace System
                 if (notSubdivided)
                     Items.Add(item);
             }
-            public QuadtreeNode(RectangleF bounds)
-                => _bounds = bounds;
+            public QuadtreeNode(BoundingRectangle bounds)
+                => _region = bounds;
             
-            public RectangleF GetSubdivision(int index)
+            public BoundingRectangle GetSubdivision(int index)
             {
                 if (_subNodes != null && _subNodes[index] != null)
-                    return _subNodes[index].Bounds;
+                    return _subNodes[index].Region;
 
                 Vec2 center = Center;
                 Vec2 halfExtents = Extents / 2.0f;
                 Vec2 min = Min;
                 switch (index)
                 {
-                    case 0: return new RectangleF(min.X,                 min.Y,                 halfExtents.X, halfExtents.Y);
-                    case 1: return new RectangleF(min.X,                 min.Y + halfExtents.Y, halfExtents.X, halfExtents.Y);
-                    case 2: return new RectangleF(min.X + halfExtents.X, min.Y + halfExtents.Y, halfExtents.X, halfExtents.Y);
-                    case 3: return new RectangleF(min.X + halfExtents.X, min.Y,                 halfExtents.X, halfExtents.Y);
+                    case 0: return new BoundingRectangle(min.X,                 min.Y,                 halfExtents.X, halfExtents.Y);
+                    case 1: return new BoundingRectangle(min.X,                 min.Y + halfExtents.Y, halfExtents.X, halfExtents.Y);
+                    case 2: return new BoundingRectangle(min.X + halfExtents.X, min.Y + halfExtents.Y, halfExtents.X, halfExtents.Y);
+                    case 3: return new BoundingRectangle(min.X + halfExtents.X, min.Y,                 halfExtents.X, halfExtents.Y);
                 }
-                return RectangleF.Empty;
+                return BoundingRectangle.Empty;
             }
             
             public void Resize(Vec2 scaleFactor)
             {
-                _bounds.Size *= scaleFactor;
-                _bounds.Location *= scaleFactor;
+                _region.Bounds *= scaleFactor;
+                _region.Translation *= scaleFactor;
                 if (_subNodes != null)
                     foreach (QuadtreeNode node in _subNodes)
                         node?.Resize(scaleFactor);
             }
 
-            public static implicit operator QuadtreeNode(RectangleF bounds)
+            public static implicit operator QuadtreeNode(BoundingRectangle bounds)
                 => new QuadtreeNode(bounds);
         }
     }

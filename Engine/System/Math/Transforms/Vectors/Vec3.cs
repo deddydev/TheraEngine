@@ -35,6 +35,7 @@ namespace System
             : this(v.X, v.Y, z) { }
         public Vec3(float x, Vec2 v)
             : this(x, v.X, v.Y) { }
+
         public Vec3(Vec4 v, bool divideByW)
         {
             if (divideByW)
@@ -208,6 +209,36 @@ namespace System
 
         public static Vec3 Cross(Vec3 left, Vec3 right)
             => left ^ right;
+
+        /// <summary>
+        /// Constructs a normal given three points.
+        /// Points must be specified in this order 
+        /// to ensure the normal points in the right direction.
+        ///   ^
+        ///   |   p2
+        /// n |  /
+        ///   | / u
+        ///   |/_______ p1
+        ///  p0    v
+        /// </summary>
+        public static Vec3 CalculateNormal(Vec3 point0, Vec3 point1, Vec3 point2)
+        {
+            //Get two difference vectors between points
+            Vec3 v = point1 - point0;
+            Vec3 u = point2 - point0;
+            //Cross them to get normal vector
+            Vec3 normal = v ^ u;
+            normal.NormalizeFast();
+            return normal;
+        }
+
+        public static float AngleBetween(Vec3 vec1, Vec3 vec2, bool returnRadians = false)
+        {
+            float angle = (float)Acos(vec1 | vec2);
+            if (returnRadians)
+                return angle;
+            return RadToDeg(angle);
+        }
 
         /// <summary>
         /// Returns a new Vector that is the linear blend of the 2 given Vectors

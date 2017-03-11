@@ -23,7 +23,7 @@ namespace CustomEngine.Rendering.HUD
         protected AnchorFlags _positionAnchorFlags;
         protected Matrix4 _localTransform = Matrix4.Identity, _invLocalTransform = Matrix4.Identity;
         protected Matrix4 _globalTransform = Matrix4.Identity, _invGlobalTransform = Matrix4.Identity;
-        protected RectangleF _region = new RectangleF();
+        protected BoundingRectangle _region = new BoundingRectangle();
         protected Vec2 _scale = Vec2.One;
         protected Vec2 _translationLocalOrigin = Vec2.Zero;
 
@@ -55,16 +55,16 @@ namespace CustomEngine.Rendering.HUD
             set { _highlightable = value; }
         }
         [Category("Transform")]
-        public RectangleF Region
+        public BoundingRectangle Region
         {
             get { return _region; }
             set { _region = value; OnResized(); }
         }
         [Category("Transform")]
-        public SizeF Size
+        public Vec2 Size
         {
-            get { return _region.Size; }
-            set { _region.Size = value; OnResized(); }
+            get { return _region.Bounds; }
+            set { _region.Bounds = value; OnResized(); }
         }
         [Category("Transform")]
         public float Height
@@ -79,10 +79,10 @@ namespace CustomEngine.Rendering.HUD
             set { _region.Width = value; OnResized(); }
         }
         [Category("Transform")]
-        public PointF Location
+        public Vec2 Translation
         {
-            get { return _region.Location; }
-            set { _region.Location = value; OnTransformed(); }
+            get { return _region.Translation; }
+            set { _region.Translation = value; OnTransformed(); }
         }
         /// <summary>
         /// The origin of the component's rotation angle, as a percentage.
@@ -204,9 +204,9 @@ namespace CustomEngine.Rendering.HUD
         /// <summary>
         /// Returns the available real estate for the next components to use.
         /// </summary>
-        public virtual RectangleF Resize(RectangleF parentRegion)
+        public virtual BoundingRectangle Resize(BoundingRectangle parentRegion)
         {
-            RectangleF region = Region;
+            BoundingRectangle region = Region;
             foreach (HudComponent c in _children)
                 region = c.Resize(region);
             return parentRegion;

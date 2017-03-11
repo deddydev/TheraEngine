@@ -19,7 +19,7 @@ namespace CustomEngine.Rendering
         private LocalPlayerController _owner;
         private HudManager _hud;
         private int _index;
-        private RectangleF _region;
+        private BoundingRectangle _region;
         private Camera _worldCamera;
         private GBuffer _gBuffer;
         private RenderPanel _owningPanel;
@@ -53,11 +53,11 @@ namespace CustomEngine.Rendering
             set => _hud = value ?? new HudManager(this);
         }
         public LocalPlayerController OwningPlayer => _owner;
-        public RectangleF Region => _region;
-        public int Height => _region.Height;
-        public int Width => _region.Width;
-        public int X => _region.X;
-        public int Y => _region.Y;
+        public BoundingRectangle Region => _region;
+        public float Height => _region.Height;
+        public float Width => _region.Width;
+        public float X => _region.X;
+        public float Y => _region.Y;
         public int Index => _index;
         public Vec2 Center => new Vec2(Width / 2.0f, Height / 2.0f);
 
@@ -76,10 +76,10 @@ namespace CustomEngine.Rendering
         }
         internal void Resize(float parentWidth, float parentHeight)
         {
-            _region.X = (int)(_leftPercentage * parentWidth);
-            _region.Y = (int)(_bottomPercentage * parentHeight);
-            _region.Width = (int)(_rightPercentage * parentWidth - _region.X);
-            _region.Height = (int)(_topPercentage * parentHeight - _region.Y);
+            _region.X = _leftPercentage * parentWidth;
+            _region.Y = _bottomPercentage * parentHeight;
+            _region.Width = _rightPercentage * parentWidth - _region.X;
+            _region.Height = _topPercentage * parentHeight - _region.Y;
 
             _worldCamera?.Resize(Width, Height);
             _hud.Resize(_region);
@@ -176,13 +176,13 @@ namespace CustomEngine.Rendering
                 return;
 
             _currentlyRendering = this;
-            Engine.Renderer.PushRenderArea(Region);
-            Engine.Renderer.CropRenderArea(Region);
+            //Engine.Renderer.PushRenderArea(Region);
+            //Engine.Renderer.CropRenderArea(Region);
             
             scene.Render(_worldCamera);
             _hud.Render();
 
-            Engine.Renderer.PopRenderArea();
+            //Engine.Renderer.PopRenderArea();
             _currentlyRendering = null;
         }
 

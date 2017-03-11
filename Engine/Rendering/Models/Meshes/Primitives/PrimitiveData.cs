@@ -73,7 +73,7 @@ namespace CustomEngine.Rendering.Models
 
         //This is the array data that will be passed through the shader.
         //Each buffer may have repeated values, as there must be a value for each remapped face point.
-        public List<VertexBuffer> _buffers = null;
+        private List<VertexBuffer> _buffers = null;
         
         private Culling _culling = Culling.Back;
 

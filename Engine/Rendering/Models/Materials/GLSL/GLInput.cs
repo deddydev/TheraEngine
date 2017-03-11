@@ -69,7 +69,7 @@ namespace CustomEngine.Rendering.Models.Materials
             Vec2 p1 = p0;
             p1.X += 10.0f;
 
-            Vec2 p3 = Location;
+            Vec2 p3 = Translation;
 
             Vec2 p2 = p3;
             p2.X -= 10.0f;
@@ -85,9 +85,9 @@ namespace CustomEngine.Rendering.Models.Materials
         public Vec2 BezierFromOutputArg(float time)
         {
             if (_connectedTo == null)
-                return Location;
+                return Translation;
 
-            return BezierFromPoint(_connectedTo.Location, time);
+            return BezierFromPoint(_connectedTo.Translation, time);
         }
         public Vec2[] BezierPointsFromPoint(Vec2 otherPoint, int count)
         {
@@ -96,7 +96,7 @@ namespace CustomEngine.Rendering.Models.Materials
             Vec2 p1 = p0;
             p1.X += 10.0f;
 
-            Vec2 p3 = Location;
+            Vec2 p3 = Translation;
 
             Vec2 p2 = p3;
             p2.X -= 10.0f;
@@ -108,7 +108,7 @@ namespace CustomEngine.Rendering.Models.Materials
             if (_connectedTo == null)
                 return null;
 
-            return BezierPointsFromPoint(_connectedTo.Location, count);
+            return BezierPointsFromPoint(_connectedTo.Translation, count);
         }
         public override bool CanConnectTo(BaseGLArgument other)
         {

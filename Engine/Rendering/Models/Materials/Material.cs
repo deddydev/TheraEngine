@@ -15,7 +15,7 @@ namespace CustomEngine.Rendering.Models.Materials
 {
     public class Material : FileObject
     {
-        public override ResourceType ResourceType { get { return ResourceType.Material; } }
+        public override ResourceType ResourceType => ResourceType.Material;
 
         internal Shader
             _vertexShader,
@@ -28,7 +28,7 @@ namespace CustomEngine.Rendering.Models.Materials
         private List<GLVar> _parameters = new List<GLVar>();
         private List<IRenderable> _renderingReferences = new List<IRenderable>();
         private int _bindingId = -1;
-        
+
         public int BindingId
         {
             get { return _bindingId; }
@@ -106,7 +106,15 @@ namespace CustomEngine.Rendering.Models.Materials
             };
             return new Material("TestMaterial", p, frag);
         }
-
+        internal static Material GetGBufferMaterial()
+        {
+            Shader frag = Shader.UnlitColorFrag();
+            List<GLVar> p = new List<GLVar>()
+            {
+                //TODO: post process parameters here
+            };
+            return new Material("GBufferMaterial", p, frag);
+        }
         public override void Write(VoidPtr address, StringTable table)
         {
             throw new NotImplementedException();

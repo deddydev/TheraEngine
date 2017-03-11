@@ -25,6 +25,7 @@ namespace CustomEngine.Rendering.Models
             { _position = position; }
         public Vertex(Vec3 position, Influence inf) 
             : this(position) { _influence = inf; }
+
         public Vertex(Vec3 position, Influence inf, Vec3 normal) 
             : this(position, inf) { _normal = normal; }
         public Vertex(Vec3 position, Influence inf, Vec3 normal, Vec2 texCoord) 
@@ -33,6 +34,11 @@ namespace CustomEngine.Rendering.Models
             : this(position, inf, normal, texCoord) { _color = color; }
         public Vertex(Vec3 position, Influence inf, Vec3 normal, Vec3 binormal, Vec3 tangent, Vec2 texCoord, ColorF4 color) 
             : this(position, inf, normal, texCoord, color) { _binormal = binormal; _tangent = tangent; }
+
+        public Vertex(Vec3 position, Influence inf, Vec2 texCoord)
+            : this(position, inf) { _texCoord = texCoord; }
+        public Vertex(Vec3 position, Vec2 texCoord)
+            : this(position) { _texCoord = texCoord; }
 
         public Vertex(Vec3 position, Vec3 normal) 
             : this(position, null, normal) { }

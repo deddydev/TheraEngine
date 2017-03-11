@@ -220,17 +220,6 @@ namespace System
         }
         
         /// <summary>
-        /// Transforms a vector by a quaternion rotation.
-        /// </summary>
-        /// <param name="vec">The vector to transform.</param>
-        /// <param name="quat">The quaternion to rotate the vector by.</param>
-        /// <returns>The result of the operation.</returns>
-        public Vec3 Transform(Quaternion quat)
-        {
-            return _data.Transform(quat);
-        }
-        
-        /// <summary>
         /// Calculates the angle (in degrees) between two vectors.
         /// </summary>
         /// <param name="first">The first vector.</param>

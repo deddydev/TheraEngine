@@ -7,8 +7,14 @@ namespace CustomEngine.Rendering.Models.Materials
 {
     public abstract class BaseGLArgument : HudComponent
     {
-        public BaseGLArgument(string name) : base(null) { _name = name; }
-        public BaseGLArgument(string name, MaterialFunction parent) : base(parent) { _name = name; }
+        public BaseGLArgument(string name)
+        {
+            _name = name;
+        }
+        public BaseGLArgument(string name, MaterialFunction parent)
+        {
+            _name = name;
+        }
         
         public abstract bool IsOutput { get; }
 

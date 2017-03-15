@@ -898,6 +898,24 @@ namespace System
         {
             return TransformMatrix(1.0f / scale, rotate, -translate, OppositeOf(order));
         }
+        public enum Axis
+        {
+            X,Y,Z
+        }
+        public Vec3 GetScaledAxis(Axis axis)
+        {
+	        switch (axis)
+	        {
+	            case Axis.X:
+		            return new Vec3(M11, M12, M13);
+	            case Axis.Y:
+                    return new Vec3(M21, M22, M23);
+	            case Axis.Z:
+		            return new Vec3(M31, M32, M33);
+	            default:
+		            return Vec3.Zero;
+	        }
+        }
         public static Matrix4 operator *(Matrix4 left, Matrix4 right)
         {
             Matrix4 nm;

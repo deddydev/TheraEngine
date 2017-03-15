@@ -285,7 +285,7 @@ namespace CustomEngine.Rendering.Models
         /// Retrieves the linked material's uniform parameter at the given index.
         /// Use this to set uniform values to be passed to the shader.
         /// </summary>
-        public T GetParameter<T>(int index) where T : GLVar
+        public T Parameter<T>(int index) where T : GLVar
         {
             if (Program == null)
                 Generate();

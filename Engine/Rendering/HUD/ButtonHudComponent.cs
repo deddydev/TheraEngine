@@ -5,7 +5,7 @@ namespace CustomEngine.Rendering.HUD
 {
     public class ButtonHudComponent : DockableHudComponent
     {
-        public ButtonHudComponent(HudComponent owner) : base(owner)
+        public ButtonHudComponent()
         {
             _highlightable = true;
             _selectable = true;

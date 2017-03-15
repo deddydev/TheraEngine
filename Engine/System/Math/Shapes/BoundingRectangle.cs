@@ -122,6 +122,28 @@ namespace System
                 _bounds.Y = value.Y - _translation.Y;
             }
         }
+
+        public int IntX
+        {
+            get => (int)Math.Round(X);
+            set => X = value;
+        }
+        public int IntY
+        {
+            get => (int)Math.Round(Y);
+            set => Y = value;
+        }
+        public int IntWidth
+        {
+            get => (int)Math.Round(Width);
+            set => Width = value;
+        }
+        public int IntHeight
+        {
+            get => (int)Math.Round(Height);
+            set => Height = value;
+        }
+
         public void Translate(Vec2 offset)
         {
             _translation += offset;

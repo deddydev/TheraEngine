@@ -79,7 +79,16 @@ namespace System
             => (otherPoint - this).LengthSquared;
 
         public float Length => (float)Sqrt(LengthSquared);
-        public float LengthFast => 1.0f / InverseSqrtFast(LengthSquared);
+        public float LengthFast
+        {
+            get
+            {
+                float invLen = InverseSqrtFast(LengthSquared);
+                if (invLen != 0.0f)
+                    return 1.0f / invLen;
+                return 0.0f;
+            }
+        }
         public float LengthSquared => X * X + Y * Y;
 
         /// <summary>
@@ -107,27 +116,31 @@ namespace System
                 a.Y > b.Y ? a.Y : b.Y);
 
         public static Vec2 MagnitudeMin(Vec2 left, Vec2 right)
-        {
-            return left.LengthSquared < right.LengthSquared ? left : right;
-        }
+            => left.LengthSquared < right.LengthSquared ? left : right;
         public static Vec2 MagnitudeMax(Vec2 left, Vec2 right)
-        {
-            return left.LengthSquared >= right.LengthSquared ? left : right;
-        }
+            => left.LengthSquared >= right.LengthSquared ? left : right;
+        
         public static Vec2 Clamp(Vec2 vec, Vec2 min, Vec2 max)
-        {
-            return new Vec2(
+            => new Vec2(
                 vec.X < min.X ? min.X : vec.X > max.X ? max.X : vec.X,
                 vec.Y < min.Y ? min.Y : vec.Y > max.Y ? max.Y : vec.Y);
+
+        public void Normalize()
+        {
+            float len = Length;
+            if (len != 0.0f)
+                this *= (1.0f / len);
         }
-        public void Normalize() { this *= (1.0f / Length); }
         public Vec2 Normalized()
         {
             Vec2 v = this;
             v.Normalize();
             return v;
         }
-        public void NormalizeFast() { this *= InverseSqrtFast(X * X + Y * Y); }
+        public void NormalizeFast()
+        {
+            this *= InverseSqrtFast(LengthSquared);
+        }
         public Vec2 NormalizedFast()
         {
             Vec2 v = this;
@@ -260,15 +273,17 @@ namespace System
             return vec;
         }
 
-        public static bool operator ==(Vec2 left, Vec2 right) { return left.Equals(right); }
-        public static bool operator !=(Vec2 left, Vec2 right) { return !left.Equals(right); }
+        public static bool operator ==(Vec2 left, Vec2 right) => left.Equals(right);
+        public static bool operator !=(Vec2 left, Vec2 right) => !left.Equals(right);
 
-        public static explicit operator Vec2(Vec3 v) { return new Vec2(v.X, v.Y); }
-        public static explicit operator Vec2(Vec4 v) { return new Vec2(v.X, v.Y); }
-        public static implicit operator Vec2(PointF v) { return new Vec2(v.X, v.Y); }
-        public static implicit operator PointF(Vec2 v) { return new PointF(v.X, v.Y); }
-        public static implicit operator Vec2(SizeF v) { return new Vec2(v.Width, v.Height); }
-        public static implicit operator SizeF(Vec2 v) { return new SizeF(v.X, v.Y); }
+        public static explicit operator Vec2(Vec3 v)    => new Vec2(v.X, v.Y);
+        public static explicit operator Vec2(Vec4 v)    => new Vec2(v.X, v.Y);
+        public static implicit operator Vec2(PointF v)  => new Vec2(v.X, v.Y);
+        public static implicit operator PointF(Vec2 v)  => new PointF(v.X, v.Y);
+        public static implicit operator Vec2(SizeF v)   => new Vec2(v.Width, v.Height);
+        public static implicit operator SizeF(Vec2 v)   => new SizeF(v.X, v.Y);
+        public static implicit operator Vec2(Size v)    => new Vec2(v.Width, v.Height);
+        public static explicit operator Size(Vec2 v)    => new Size((int)Round(v.X), (int)Round(v.Y));
 
         private static string listSeparator = Globalization.CultureInfo.CurrentCulture.TextInfo.ListSeparator;
         public override string ToString()

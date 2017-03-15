@@ -720,6 +720,12 @@
     <Compile Include="System\Reflection\Attributes\PropertyChangedEventAttribute.cs" />
     <Compile Include="System\Reflection\CustomPropertyCollection.cs" />
     <Compile Include="System\Files\FileObject.cs" />
+    <Compile Include="System\Test.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="System\Test.Designer.cs">
+      <DependentUpon>Test.cs</DependentUpon>
+    </Compile>
     <Compile Include="System\Time\GlobalTimer.cs" />
     <Compile Include="System\RenderPanel.cs" />
     <Compile Include="System\RenderForm.cs">

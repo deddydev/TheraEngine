@@ -4,20 +4,22 @@ using System.Drawing;
 using System.Collections;
 using System.ComponentModel;
 using CustomEngine.Worlds.Actors;
+using CustomEngine.Worlds.Actors.Components;
 
 namespace CustomEngine.Rendering.HUD
 {
-    public class HudComponent : Pawn, IPanel, IEnumerable<HudComponent>
+    public class HudComponent : Pawn<SceneComponent>, IPanel, IBoundable, IEnumerable<HudComponent>
     {
-        public HudComponent(HudComponent owner)
+        public HudComponent() : base()
         {
-            if (owner != null)
-                owner.Add(this);
+
         }
 
+        private HudManager _manager;
         protected HudComponent _parent, _left, _right, _down, _up;
         protected List<HudComponent> _children = new List<HudComponent>();
 
+        protected Quadtree.QuadtreeNode _renderNode;
         protected bool _highlightable, _selectable;
         protected ushort _zIndex;
         protected AnchorFlags _positionAnchorFlags;
@@ -26,6 +28,7 @@ namespace CustomEngine.Rendering.HUD
         protected BoundingRectangle _region = new BoundingRectangle();
         protected Vec2 _scale = Vec2.One;
         protected Vec2 _translationLocalOrigin = Vec2.Zero;
+        protected BoundingRectangle _axisAlignedBounds;
 
         [Category("Events")]
         public event Action Highlighted;
@@ -45,44 +48,64 @@ namespace CustomEngine.Rendering.HUD
         [Category("Interaction")]
         public bool Selectable
         {
-            get { return _selectable; }
-            set { _selectable = value; }
+            get => _selectable;
+            set => _selectable = value;
         }
         [Category("Interaction")]
         public bool Highlightable
         {
-            get { return _highlightable; }
-            set { _highlightable = value; }
+            get => _highlightable;
+            set => _highlightable = value;
         }
         [Category("Transform")]
         public BoundingRectangle Region
         {
-            get { return _region; }
-            set { _region = value; OnResized(); }
+            get => _region;
+            set
+            {
+                _region = value;
+                OnResized();
+            }
         }
         [Category("Transform")]
         public Vec2 Size
         {
-            get { return _region.Bounds; }
-            set { _region.Bounds = value; OnResized(); }
+            get => _region.Bounds;
+            set
+            {
+                _region.Bounds = value;
+                OnResized();
+            }
         }
         [Category("Transform")]
         public float Height
         {
-            get { return _region.Height; }
-            set { _region.Height = value; OnResized(); }
+            get => _region.Height;
+            set
+            {
+                _region.Height = value;
+                OnResized();
+            }
         }
         [Category("Transform")]
         public float Width
         {
-            get { return _region.Width; }
-            set { _region.Width = value; OnResized(); }
+            get => _region.Width;
+            set
+            {
+                _region.Width = value;
+                OnResized();
+            }
         }
         [Category("Transform")]
         public Vec2 Translation
         {
-            get { return _region.Translation; }
-            set { _region.Translation = value; OnTransformed(); }
+            get => _region.Translation;
+            set
+            {
+                _region.Translation = value;
+                OnTransformed();
+            }
         }
         /// <summary>
         /// The origin of the component's rotation angle, as a percentage.
@@ -91,7 +114,7 @@ namespace CustomEngine.Rendering.HUD
         [Category("Transform")]
         public Vec2 TranslationLocalOrigin
         {
-            get { return _translationLocalOrigin; }
+            get => _translationLocalOrigin;
             set
             {
                 Vec2 diff = value - _translationLocalOrigin;
@@ -104,12 +127,9 @@ namespace CustomEngine.Rendering.HUD
         [Category("Transform")]
         public Vec2 BottomLeftTranslation
         {
-            get
-            {
-                return new Vec2(
-                    TranslationX - _translationLocalOrigin.X * Width,
-                    TranslationY - _translationLocalOrigin.Y * Height);
-            }
+            get => new Vec2(
+                TranslationX - _translationLocalOrigin.X * Width,
+                TranslationY - _translationLocalOrigin.Y * Height);
             set
             {
                 TranslationX = value.X + _translationLocalOrigin.X * Width;
@@ -120,32 +140,71 @@ namespace CustomEngine.Rendering.HUD
         [Category("Transform")]
         public float TranslationX
         {
-            get { return _region.X; }
-            set { _region.X = value; OnTransformed(); }
+            get => _region.X;
+            set
+            {
+                _region.X = value;
+                OnTransformed();
+            }
         }
         [Category("Transform")]
         public float TranslationY
         {
-            get { return _region.Y; }
-            set { _region.Y = value; OnTransformed(); }
+            get => _region.Y;
+            set
+            {
+                _region.Y = value;
+                OnTransformed();
+            }
         }
         [Category("Transform")]
         public Vec2 Scale
         {
-            get { return _scale; }
-            set { _scale = value; OnTransformed(); }
+            get => _scale;
+            set
+            {
+                _scale = value;
+                OnTransformed();
+            }
         }
         [Category("Transform")]
         public float ScaleX
         {
-            get { return _scale.X; }
-            set { _scale.X = value; OnTransformed(); }
+            get => _scale.X;
+            set
+            {
+                _scale.X = value;
+                OnTransformed();
+            }
         }
         [Category("Transform")]
         public float ScaleY
         {
-            get { return _scale.Y; }
-            set { _scale.Y = value; OnTransformed(); }
+            get => _scale.Y;
+            set
+            {
+                _scale.Y = value;
+                OnTransformed();
+            }
+        }
+
+        public BoundingRectangle AxisAlignedBounds
+            => _axisAlignedBounds;
+
+        public Quadtree.QuadtreeNode RenderNode
+        {
+            get => _renderNode;
+            set => _renderNode = value;
+        }
+        public HudManager Manager
+        {
+            get => _manager;
+            set
+            {
+                _manager?._childComponentTree.Remove(this);
+                _manager = value;
+                _manager?._childComponentTree.Add(this);
+            }
         }
 
         public virtual void OnTransformed()
@@ -168,7 +227,7 @@ namespace CustomEngine.Rendering.HUD
 
             RecalcGlobalTransform();
         }
-        private void RecalcGlobalTransform()
+        protected void RecalcGlobalTransform()
         {
             Matrix4 parentTransform = _parent == null ? Matrix4.Identity : _parent._globalTransform;
             Matrix4 invParentTransform = _parent == null ? Matrix4.Identity : _parent._invGlobalTransform;
@@ -176,8 +235,14 @@ namespace CustomEngine.Rendering.HUD
             _globalTransform = _localTransform * parentTransform;
             _invGlobalTransform = invParentTransform * _invLocalTransform;
 
+            _renderNode?.OnMoved(this);
+
             foreach (HudComponent c in _children)
                 c.RecalcGlobalTransform();
+        }
+        protected virtual void OnChildAdded(HudComponent child)
+        {
+            child.Manager = Manager;
         }
         public void Add(HudComponent child)
         {
@@ -187,6 +252,11 @@ namespace CustomEngine.Rendering.HUD
                 _children.Add(child);
             child._parent = this;
             child._zIndex = (ushort)(_zIndex + 1);
+            OnChildAdded(child);
+        }
+        protected virtual void OnChildRemoved(HudComponent child)
+        {
+
         }
         public void Remove(HudComponent child)
         {
@@ -194,6 +264,7 @@ namespace CustomEngine.Rendering.HUD
                 return;
             if (_children.Contains(child))
                 _children.Remove(child);
+            child.Manager = null;
             child._parent = null;
             child._zIndex = 0;
         }
@@ -232,8 +303,9 @@ namespace CustomEngine.Rendering.HUD
             
             return false;
         }
-        public IEnumerator<HudComponent> GetEnumerator() { return ((IEnumerable<HudComponent>)_children).GetEnumerator(); }
-        IEnumerator IEnumerable.GetEnumerator() { return ((IEnumerable<HudComponent>)_children).GetEnumerator(); }
+
+        public IEnumerator<HudComponent> GetEnumerator() => ((IEnumerable<HudComponent>)_children).GetEnumerator();
+        IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable<HudComponent>)_children).GetEnumerator();
     }
     [Flags]
     public enum AnchorFlags

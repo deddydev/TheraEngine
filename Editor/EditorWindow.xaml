@@ -8,6 +8,8 @@
         mc:Ignorable="d"
         Title="EditorWindow" Height="300" Width="300">
     <Grid>
+        <TreeView HorizontalAlignment="Left" VerticalAlignment="Top" Width="100"/>
+        <Separator HorizontalAlignment="Left" Height="100" Margin="390,265,-196.4,-94.6" VerticalAlignment="Top" Width="100"/>
         <Controls:EditorRenderPanel/>
     </Grid>
 </Window>

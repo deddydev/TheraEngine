@@ -49,7 +49,8 @@ namespace CustomEngine.Rendering
         public RenderContext(RenderPanel c)
         {
             _control = c;
-            _control.Resize += OnResized;
+            if (_control != null)
+                _control.Resize += OnResized;
             BoundContexts.Add(this);
         }
 

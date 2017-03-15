@@ -12,8 +12,6 @@ namespace CustomEngine.Rendering.HUD
 {
     public class ModelHudComponent : RenderableHudComponent
     {
-        public ModelHudComponent(HudComponent owner) : base(owner) { }
-        
         SkeletalMesh _model;
         Camera _camera;
     }

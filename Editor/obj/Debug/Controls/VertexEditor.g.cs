@@ -53,7 +53,7 @@ namespace Editor.Controls {
                 return;
             }
             _contentLoaded = true;
-            System.Uri resourceLocater = new System.Uri("/Editor;component/controls/vertexeditor.xaml", System.UriKind.Relative);
+            System.Uri resourceLocater = new System.Uri("/WPFEditor;component/controls/vertexeditor.xaml", System.UriKind.Relative);
             
             #line 1 "..\..\..\Controls\VertexEditor.xaml"
             System.Windows.Application.LoadComponent(this, resourceLocater);

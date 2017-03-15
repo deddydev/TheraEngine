@@ -10,8 +10,6 @@ namespace CustomEngine.Rendering.HUD
 {
     public class TextureHudComponent : DockableHudComponent
     {
-        public TextureHudComponent(HudComponent owner) : base(owner) { }
-
         string _text;
     }
 }

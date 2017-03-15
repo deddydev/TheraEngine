@@ -10,22 +10,23 @@ namespace CustomEngine.Rendering.HUD
     /// </summary>
     public partial class HudManager : DockableHudComponent
     {
-        private Quadtree _childComponentTree;
+        internal Quadtree _childComponentTree;
         private Viewport _owningViewport;
         private RenderPanel _owningPanel;
         private OrthographicCamera _camera;
-        public HudManager(Viewport v) : base(null)
+        public HudManager(Viewport v)
         {
             _owningViewport = v;
             _owningPanel = _owningViewport.OwningPanel;
             _camera = new OrthographicCamera();
             _childComponentTree = new Quadtree(_owningViewport.Region.Bounds);
         }
-        public HudManager(RenderPanel p) : base(null)
+        public HudManager(RenderPanel p)
         {
             _owningViewport = null;
             _owningPanel = p;
             _camera = new OrthographicCamera();
+            _childComponentTree = new Quadtree(_owningPanel.ClientSize);
         }
 
         public override BoundingRectangle Resize(BoundingRectangle parentRegion)
@@ -45,6 +46,10 @@ namespace CustomEngine.Rendering.HUD
         public void Render()
         {
 
+        }
+        protected override void OnChildAdded(HudComponent child)
+        {
+            child.Manager = this;
         }
     }
 }

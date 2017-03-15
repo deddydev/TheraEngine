@@ -9,8 +9,6 @@ namespace CustomEngine
 {
     public class MaterialHudGrid : DockableHudComponent
     {
-        public MaterialHudGrid(HudComponent owner) : base(owner) { }
 
-        
     }
 }

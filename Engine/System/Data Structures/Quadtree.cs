@@ -2,6 +2,7 @@
 using CustomEngine.Rendering.Models;
 using System.Collections.Generic;
 using System.Drawing;
+using CustomEngine.Rendering.HUD;
 
 namespace System
 {
@@ -28,13 +29,13 @@ namespace System
         public void Add(IBoundable value)
         {
             if (_head == null)
-                _head = new QuadtreeNode(new BoundingRectangle(Vec2.Zero, _totalBounds));
+                _head = new QuadtreeNode(new BoundingRectangle(Vec2.Zero, _totalBounds), null);
             _head.Add(value);
         }
         public void Add(List<IBoundable> value)
         {
             if (_head == null)
-                _head = new QuadtreeNode(new BoundingRectangle(Vec2.Zero, _totalBounds));
+                _head = new QuadtreeNode(new BoundingRectangle(Vec2.Zero, _totalBounds), null);
             _head.Add(value);
         }
         public bool Remove(IBoundable value)
@@ -57,6 +58,7 @@ namespace System
 
         public class QuadtreeNode
         {
+            private QuadtreeNode _parent;
             private BoundingRectangle _region;
             public List<IBoundable> _items = new List<IBoundable>();
             public QuadtreeNode[] _subNodes;
@@ -183,10 +185,10 @@ namespace System
                             if (_subNodes == null)
                             {
                                 _subNodes = new QuadtreeNode[4];
-                                _subNodes[i] = bounds;
+                                _subNodes[i] = new QuadtreeNode(bounds, this);
                             }
                             else if (_subNodes[i] == null)
-                                _subNodes[i] = bounds;
+                                _subNodes[i] = new QuadtreeNode(bounds, this);
 
                             items.Add(item);
 
@@ -198,8 +200,30 @@ namespace System
                 }
 
                 if (notSubdivided)
-                    Items.AddRange(value);
+                    foreach (IBoundable b in value)
+                        if (_parent == null || _region.Contains(b.AxisAlignedBounds) == EContainment.Contains)
+                            Items.Add(b);
             }
+
+            public void OnMoved(IBoundable item)
+            {
+                if (_region.Contains(item.AxisAlignedBounds) == EContainment.Contains)
+                {
+
+                    if (!_items.Contains(item))
+                    {
+                        _items.Add(item);
+                        return;
+                    }
+                }
+                else
+                {
+                    if (_items.Contains(item))
+                        _items.Remove(item);
+                    _parent?.OnMoved(item);
+                }
+            }
+
             public void Add(IBoundable item)
             {
                 if (item == null)
@@ -216,10 +240,10 @@ namespace System
                         if (_subNodes == null)
                         {
                             _subNodes = new QuadtreeNode[4];
-                            _subNodes[i] = bounds;
+                            _subNodes[i] = new QuadtreeNode(bounds, this);
                         }
                         else if (_subNodes[i] == null)
-                            _subNodes[i] = bounds;
+                            _subNodes[i] = new QuadtreeNode(bounds, this);
 
                         _subNodes[i].Add(item);
                         
@@ -230,9 +254,11 @@ namespace System
                 if (notSubdivided)
                     Items.Add(item);
             }
-            public QuadtreeNode(BoundingRectangle bounds)
-                => _region = bounds;
-            
+            public QuadtreeNode(BoundingRectangle bounds, QuadtreeNode parent)
+            {
+                _region = bounds;
+                _parent = parent;
+            }            
             public BoundingRectangle GetSubdivision(int index)
             {
                 if (_subNodes != null && _subNodes[index] != null)
@@ -259,9 +285,6 @@ namespace System
                     foreach (QuadtreeNode node in _subNodes)
                         node?.Resize(scaleFactor);
             }
-
-            public static implicit operator QuadtreeNode(BoundingRectangle bounds)
-                => new QuadtreeNode(bounds);
         }
     }
 }

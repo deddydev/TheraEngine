@@ -176,6 +176,8 @@ namespace CustomEngine.Rendering
                 return;
 
             _currentlyRendering = this;
+            GL.Viewport(Region.IntX, Region.IntY, Region.IntWidth, Region.IntHeight);
+            
             //Engine.Renderer.PushRenderArea(Region);
             //Engine.Renderer.CropRenderArea(Region);
             

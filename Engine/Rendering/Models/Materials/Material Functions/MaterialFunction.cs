@@ -95,7 +95,7 @@ namespace CustomEngine.Rendering.Models.Materials
             comp.Add(this);
         }
 
-        public MaterialFunction(bool _inline) : base(null)
+        public MaterialFunction(bool _inline)
         {
             AddInput(GetInputs());
             AddOutput(GetOutputs());

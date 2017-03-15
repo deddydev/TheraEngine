@@ -107,8 +107,8 @@ namespace CustomEngine
         [State]
         public static World World
         {
-            get { return _currentWorld; }
-            set { SetCurrentWorld(value, true); }
+            get => _currentWorld;
+            set => SetCurrentWorld(value, true);
         }
 
         public static bool IsPaused => _isPaused;
@@ -135,7 +135,7 @@ namespace CustomEngine
                 _renderLibrary = value;
                 List<RenderContext> contexts = new List<RenderContext>(RenderContext.BoundContexts);
                 foreach (RenderContext c in contexts)
-                    c.Control?.SetRenderLibrary();
+                    c.Control?.CreateContext();
             }
         }
         public static AudioLibrary AudioLibrary

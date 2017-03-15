@@ -4,40 +4,24 @@ using System.Threading;
 using System.Reflection;
 using System.Collections;
 using System.Collections.Generic;
-using System.Windows.Forms;
 using System.Security.Permissions;
 using CustomEngine.Input;
 using CustomEngine.Rendering;
 using CustomEngine.Rendering.HUD;
 using CustomEngine.Rendering.DirectX;
 using CustomEngine.Rendering.OpenGL;
+using System.Windows;
+using System.Windows.Controls;
 
 namespace CustomEngine
 {
-    public static class ControlExtension
-    {
-        [ReflectionPermission(SecurityAction.Demand, MemberAccess = true)]
-        public static void Reset(this Control c)
-        {
-            typeof(Control).InvokeMember("SetState", BindingFlags.NonPublic |
-            BindingFlags.InvokeMethod | BindingFlags.Instance, null,
-            c, new object[] { 0x400000, false });
-        }
-    }
     /// <summary>
     /// Used for rendering using any rasterizer that inherits from AbstractRenderer.
     /// </summary>
-    public class RenderPanel : UserControl, IEnumerable<Viewport>
+    public class RenderPanelWPF : UserControl, IEnumerable<Viewport>
     {
-        public RenderPanel()
+        public RenderPanelWPF()
         {
-            SetStyle(
-                ControlStyles.UserPaint |
-                ControlStyles.AllPaintingInWmPaint |
-                ControlStyles.Opaque |
-                ControlStyles.ResizeRedraw,
-                true);
-
             //if (_context == null)
                 CreateContext();
             AddViewport(new LocalPlayerController());
@@ -57,11 +41,6 @@ namespace CustomEngine
             get => _globalHud;
             set => _globalHud = value;
         }
-        public new ColorF4 BackColor
-        {
-            get => _backColor;
-            set => _backColor = value;
-        }
         
         /// <summary>
         /// Disables rendering until PopUpdate is called, unless there are other update calls on the stack.
@@ -76,7 +55,7 @@ namespace CustomEngine
         public void PopUpdate()
         {
             if ((_updateCounter = Math.Max(_updateCounter - 1, 0)) == 0)
-                Invalidate();
+                Refresh();
         }
         public void CaptureContext()
         {

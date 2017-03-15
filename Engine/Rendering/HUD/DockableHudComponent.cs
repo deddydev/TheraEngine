@@ -9,8 +9,6 @@ namespace CustomEngine.Rendering.HUD
 {
     public class DockableHudComponent : HudComponent
     {
-        public DockableHudComponent(HudComponent owner) : base(owner) { }
-        
         public HudDockStyle _dockStyle;
         public AnchorFlags _sideAnchorFlags;
 

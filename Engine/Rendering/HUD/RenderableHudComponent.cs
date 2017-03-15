@@ -11,6 +11,6 @@ namespace CustomEngine.Rendering.HUD
 {
     public class RenderableHudComponent : DockableHudComponent
     {
-        public RenderableHudComponent(HudComponent owner) : base(owner) { }
+
     }
 }

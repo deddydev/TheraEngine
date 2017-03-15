@@ -124,7 +124,7 @@ namespace CustomEngine.Worlds
                 ScalarKeyframe last = new ScalarKeyframe(360.0f, 0.0f, 0.0f);
                 first.LinkNext(second).LinkNext(last);
                 modelAnim.Keyframes.AddFirst(first);
-                skeleton["BustN"]?.FrameState.AddAnimation(new AnimationContainer("Roll", false, modelAnim), true);
+                skeleton["LElbow"]?.FrameState.AddAnimation(new AnimationContainer("Yaw", false, modelAnim), true);
 
                 //skeleton.Export(desktop, "TEST_SKELETON", true);
             }

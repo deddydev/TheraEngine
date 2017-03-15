@@ -9,8 +9,6 @@ namespace CustomEngine.Rendering.HUD
 {
     public class RotatableHudComponent : HudComponent
     {
-        public RotatableHudComponent(HudComponent owner) : base(owner) { }
-
         private float _rotationAngle = 0.0f;
         private Vec2 _rotationLocalOrigin = new Vec2(0.5f);
         
@@ -55,6 +53,14 @@ namespace CustomEngine.Rendering.HUD
                 Matrix4.CreateTranslation(-_rotationLocalOrigin.X * Width, -_rotationLocalOrigin.Y * Height, 0.0f) *
                 Matrix4.CreateRotationZ(RotationAngle) *
                 Matrix4.CreateTranslation(TranslationX, TranslationY, 0.0f);
+
+            _invLocalTransform =
+                Matrix4.CreateTranslation(-TranslationX, -TranslationY, 0.0f) *
+                Matrix4.CreateRotationZ(-RotationAngle) *
+                Matrix4.CreateTranslation(_rotationLocalOrigin.X * Width, _rotationLocalOrigin.Y * Height, 0.0f) *
+                Matrix4.CreateScale(1.0f / ScaleX, 1.0f / ScaleY, 1.0f);
+
+            RecalcGlobalTransform();
         }
     }
 }

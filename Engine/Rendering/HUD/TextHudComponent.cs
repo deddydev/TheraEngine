@@ -10,6 +10,6 @@ namespace CustomEngine.Rendering.HUD
 {
     public class TextHudComponent : RenderableHudComponent
     {
-        public TextHudComponent(HudComponent owner) : base(owner) { }
+        public TextHudComponent() { }
     }
 }

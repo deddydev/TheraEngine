@@ -114,14 +114,14 @@ namespace CustomEngine.Rendering
         {
             SetPointSize(size);
             PrimitiveManager m = CacheDebugPrimitive(name, DebugPrimitiveType.Point);
-            m.GetParameter<GLVec4>(0).Value = color;
+            m.Parameter<GLVec4>(0).Value = color;
             m.Render(Matrix4.CreateTranslation(position));
         }
         public unsafe void RenderLine(string name, Vec3 start, Vec3 end, float size, ColorF4 color)
         {
             SetLineSize(size);
             PrimitiveManager m = CacheDebugPrimitive(name, DebugPrimitiveType.Line);
-            m.GetParameter<GLVec4>(0).Value = color;
+            m.Parameter<GLVec4>(0).Value = color;
             ((Vec3*)m.Data[0].Address)[1] = end - start;
             m.Render(Matrix4.CreateTranslation(start), Matrix3.Identity);
         }
@@ -147,7 +147,7 @@ namespace CustomEngine.Rendering
             //Radius doesn't need to be multiplied by 2.0f; the sphere is already 2.0f in diameter
             Matrix4 mtx = Matrix4.CreateTranslation(center) * Matrix4.CreateScale(radius);
             PrimitiveManager m = CacheDebugPrimitive(name, solid ? DebugPrimitiveType.SolidSphere : DebugPrimitiveType.WireSphere);
-            m.GetParameter<GLVec4>(0).Value = color;
+            m.Parameter<GLVec4>(0).Value = color;
             m.Render(mtx, Matrix3.Identity);
         }
         public void RenderAABB(string name, Vec3 halfExtents, Vec3 translation, bool solid, ColorF4 color)
@@ -155,7 +155,7 @@ namespace CustomEngine.Rendering
         public void RenderBox(string name, Vec3 halfExtents, Matrix4 transform, bool solid, ColorF4 color)
         {
             PrimitiveManager m = CacheDebugPrimitive(name, solid ? DebugPrimitiveType.SolidBox : DebugPrimitiveType.WireBox);
-            m.GetParameter<GLVec4>(0).Value = color;
+            m.Parameter<GLVec4>(0).Value = color;
             transform = transform * Matrix4.CreateScale(halfExtents * 2.0f);
             m.Render(transform, transform.Inverted().Transposed().GetRotationMatrix3());
         }

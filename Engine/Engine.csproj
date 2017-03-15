@@ -720,6 +720,7 @@
     <Compile Include="System\Reflection\Attributes\PropertyChangedEventAttribute.cs" />
     <Compile Include="System\Reflection\CustomPropertyCollection.cs" />
     <Compile Include="System\Files\FileObject.cs" />
+    <Compile Include="System\RenderPanelWPF.cs" />
     <Compile Include="System\Test.cs">
       <SubType>UserControl</SubType>
     </Compile>

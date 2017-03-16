@@ -34,7 +34,7 @@ namespace CustomEngine.Rendering.HUD
             //base.Resize will handle resizing child components
             BoundingRectangle region = base.Resize(parentRegion);
             //Child tree must be resized AFTER child components are resized
-            _childComponentTree.Resize(region.Bounds);
+            //_childComponentTree.Resize(region.Bounds);
             //Resize the drawing board
             _camera.Resize(Width, Height);
             return region;

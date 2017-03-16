@@ -23,7 +23,7 @@ namespace System
             _hiddenFromOwner = false,
             _visibleToOwnerOnly = false;
 
-        protected RenderOctree.Node _renderNode;
+        protected Octree.Node _renderNode;
         private int _shapeIndex;
         private string _shapeName;
 
@@ -73,7 +73,7 @@ namespace System
             set => _visibleToOwnerOnly = value;
         }
         public Shape CullingVolume { get { return this; } }
-        public RenderOctree.Node RenderNode
+        public Octree.Node RenderNode
         {
             get { return _renderNode; }
             set { _renderNode = value; }

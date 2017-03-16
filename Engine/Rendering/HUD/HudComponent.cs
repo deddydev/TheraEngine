@@ -8,7 +8,7 @@ using CustomEngine.Worlds.Actors.Components;
 
 namespace CustomEngine.Rendering.HUD
 {
-    public class HudComponent : Pawn<SceneComponent>, IPanel, IBoundable, IEnumerable<HudComponent>
+    public class HudComponent : Pawn<SceneComponent>, IPanel, I2DBoundable, IEnumerable<HudComponent>
     {
         public HudComponent() : base()
         {
@@ -19,7 +19,7 @@ namespace CustomEngine.Rendering.HUD
         protected HudComponent _parent, _left, _right, _down, _up;
         protected List<HudComponent> _children = new List<HudComponent>();
 
-        protected Quadtree.QuadtreeNode _renderNode;
+        protected Quadtree.Node _renderNode;
         protected bool _highlightable, _selectable;
         protected ushort _zIndex;
         protected AnchorFlags _positionAnchorFlags;
@@ -29,6 +29,7 @@ namespace CustomEngine.Rendering.HUD
         protected Vec2 _scale = Vec2.One;
         protected Vec2 _translationLocalOrigin = Vec2.Zero;
         protected BoundingRectangle _axisAlignedBounds;
+        protected bool _isRendering;
 
         [Category("Events")]
         public event Action Highlighted;
@@ -191,7 +192,7 @@ namespace CustomEngine.Rendering.HUD
         public BoundingRectangle AxisAlignedBounds
             => _axisAlignedBounds;
 
-        public Quadtree.QuadtreeNode RenderNode
+        public Quadtree.Node RenderNode
         {
             get => _renderNode;
             set => _renderNode = value;
@@ -206,7 +207,11 @@ namespace CustomEngine.Rendering.HUD
                 _manager?._childComponentTree.Add(this);
             }
         }
-
+        public bool IsRendering
+        {
+            get => _isRendering;
+            set => _isRendering = value;
+        }
         public virtual void OnTransformed()
         {
             //step 1: set identity matrix

@@ -12,57 +12,36 @@ using System.Threading.Tasks;
 
 namespace System
 {
-    public interface IStaticMesh
-    {
-        Shape CullingVolume { get; }
-        PrimitiveData Data { get; }
-        Material Material { get; set; }
-        bool VisibleByDefault { get; }
-    }
-    public interface ISkeletalMesh
-    {
-        string SingleBindName { get; }
-        PrimitiveData Data { get; }
-        Material Material { get; set; }
-        bool VisibleByDefault { get; }
-    }
-    public interface IRenderable
-    {
-        Shape CullingVolume { get; }
-        RenderOctree.Node RenderNode { get; set; }
-        void Render();
-        bool IsRendering { get; set; }
-    }
-    public class RenderOctree
+    public class Octree
     {
         private BoundingBox _totalBounds;
         private Node _head;
         
-        public RenderOctree(BoundingBox bounds) { _totalBounds = bounds; }
-        public RenderOctree(BoundingBox bounds, List<IRenderable> items)
+        public Octree(BoundingBox bounds) { _totalBounds = bounds; }
+        public Octree(BoundingBox bounds, List<I3DBoundable> items)
         {
             _totalBounds = bounds;
             Add(items);
         }
 
-        public void Render() { _head?.Render(); }
+        //public void Render() { _head?.Render(); }
         public void Cull(Frustum frustum) { _head?.Cull(frustum); }
-        public List<IRenderable> FindClosest(Vec3 point) { return _head.FindClosest(point); }
-        public List<IRenderable> FindAllJustOutside(Shape shape) { return _head.FindAllJustOutside(shape); }
-        public List<IRenderable> FindAllInside(Shape shape) { return _head.FindAllInside(shape); }
-        public void Add(IRenderable value)
+        public List<I3DBoundable> FindClosest(Vec3 point) { return _head.FindClosest(point); }
+        public List<I3DBoundable> FindAllJustOutside(Shape shape) { return _head.FindAllJustOutside(shape); }
+        public List<I3DBoundable> FindAllInside(Shape shape) { return _head.FindAllInside(shape); }
+        public void Add(I3DBoundable value)
         {
             if (_head == null)
                 _head = new Node(_totalBounds);
             _head.Add(value);
         }
-        public void Add(List<IRenderable> value)
+        public void Add(List<I3DBoundable> value)
         {
             if (_head == null)
                 _head = new Node(_totalBounds);
             _head.Add(value);
         }
-        public bool Remove(IRenderable value)
+        public bool Remove(I3DBoundable value)
         {
             if (_head == null)
                 return false;
@@ -77,10 +56,10 @@ namespace System
         {
             private bool _visible = true;
             private BoundingBox _bounds;
-            public List<IRenderable> _items = new List<IRenderable>();
+            public List<I3DBoundable> _items = new List<I3DBoundable>();
             public Node[] _subNodes;
             
-            public List<IRenderable> Items { get { return _items; } }
+            public List<I3DBoundable> Items { get { return _items; } }
             public BoundingBox Bounds { get { return _bounds; } }
             public Vec3 Center { get { return _bounds.Translation; } }
             public Vec3 Min { get { return _bounds.Minimum; } }
@@ -94,7 +73,7 @@ namespace System
                     if (_visible == value)
                         return;
                     _visible = value;
-                    foreach (IRenderable item in _items)
+                    foreach (I3DBoundable item in _items)
                         item.IsRendering = _visible;
                     if (_subNodes != null)
                         foreach (Node node in _subNodes)
@@ -102,11 +81,11 @@ namespace System
                                 node.Visible = _visible;
                 }
             }
-            public List<IRenderable> FindClosest(Vec3 point)
+            public List<I3DBoundable> FindClosest(Vec3 point)
             {
                 if (_bounds.Contains(point))
                 {
-                    List<IRenderable> list = null;
+                    List<I3DBoundable> list = null;
                     if (_subNodes != null)
                         foreach (Node node in _subNodes)
                             if (node != null)
@@ -119,7 +98,7 @@ namespace System
                     if (_items.Count == 0)
                         return null;
 
-                    list = new List<IRenderable>(_items);
+                    list = new List<I3DBoundable>(_items);
                     for (int i = 0; i < list.Count; ++i)
                         if (list[i].CullingVolume != null && !list[i].CullingVolume.Contains(point))
                             list.RemoveAt(i--);
@@ -129,7 +108,7 @@ namespace System
                 else
                     return null;
             }
-            public List<IRenderable> FindAllJustOutside(Shape shape)
+            public List<I3DBoundable> FindAllJustOutside(Shape shape)
             {
                 foreach (Node node in _subNodes)
                     if (node != null)
@@ -141,15 +120,15 @@ namespace System
 
                 return CollectChildren();
             }
-            public List<IRenderable> CollectChildren()
+            public List<I3DBoundable> CollectChildren()
             {
-                List<IRenderable> list = _items;
+                List<I3DBoundable> list = _items;
                 foreach (Node node in _subNodes)
                     if (node != null)
                         list.AddRange(node.CollectChildren());
                 return list;
             }
-            public List<IRenderable> FindAllInside(Shape shape)
+            public List<I3DBoundable> FindAllInside(Shape shape)
             {
                 throw new NotImplementedException();
             }
@@ -163,7 +142,7 @@ namespace System
                 else
                 {
                     //Bounds is intersecting edge of frustum
-                    foreach (IRenderable item in _items)
+                    foreach (I3DBoundable item in _items)
                         item.IsRendering = item.CullingVolume != null ? item.CullingVolume.ContainedWithin(frustum) != EContainment.Disjoint : true;
 
                     if (_subNodes != null)
@@ -175,7 +154,7 @@ namespace System
             /// shouldDestroy returns true if this node has no items contained within it or its subdivisions.
             /// returns true if the value was found and removed.
             /// </summary>
-            public bool Remove(IRenderable value, out bool shouldDestroy)
+            public bool Remove(I3DBoundable value, out bool shouldDestroy)
             {
                 bool hasBeenRemoved = false;
                 if (_items.Contains(value))
@@ -208,15 +187,15 @@ namespace System
                 shouldDestroy = _items.Count == 0 && _subNodes == null;
                 return hasBeenRemoved;
             }
-            public void Add(List<IRenderable> value)
+            public void Add(List<I3DBoundable> value)
             {
                 bool notSubdivided = true;
-                List<IRenderable> items;
+                List<I3DBoundable> items;
                 for (int i = 0; i < 8; ++i)
                 {
-                    items = new List<IRenderable>();
+                    items = new List<I3DBoundable>();
                     BoundingBox bounds = GetSubdivision(i);
-                    foreach (IRenderable item in value)
+                    foreach (I3DBoundable item in value)
                     {
                         if (item == null)
                             continue;
@@ -255,7 +234,7 @@ namespace System
                     }
                 }
             }
-            public void Add(IRenderable item)
+            public void Add(I3DBoundable item)
             {
                 if (item == null)
                     return;
@@ -314,22 +293,22 @@ namespace System
                 }
                 return null;
             }
-            public void Render()
-            {
-                if (!_visible)
-                    return;
-                foreach (IRenderable r in _items)
-                {
-                    //int t = Engine.StartTimer();
-                    r.Render();
-                    //float time = Engine.EndTimer(t);
-                    //if (time > 0.0f)
-                    //    Debug.WriteLine(r.ToString() + " took " + time + " seconds");
-                }
-                if (_subNodes != null)
-                    foreach (Node node in _subNodes)
-                        node?.Render();
-            }
+            //public void Render()
+            //{
+            //    if (!_visible)
+            //        return;
+            //    foreach (I3DBoundable r in _items)
+            //    {
+            //        //int t = Engine.StartTimer();
+            //        r.Render();
+            //        //float time = Engine.EndTimer(t);
+            //        //if (time > 0.0f)
+            //        //    Debug.WriteLine(r.ToString() + " took " + time + " seconds");
+            //    }
+            //    if (_subNodes != null)
+            //        foreach (Node node in _subNodes)
+            //            node?.Render();
+            //}
             public static implicit operator Node(BoundingBox bounds) { return new Node(bounds); }
         }
     }

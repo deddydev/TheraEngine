@@ -20,10 +20,11 @@ namespace CustomEngine.Rendering
         Opaque = 1,
         Translucent = 0
     }
-    public enum ERenderCommand : uint
-    {
-        MultMatrix,
-    }
+    //public enum ERenderCommand : uint
+    //{
+    //    MultMatrix,
+    //    SetCurrentViewport,
+    //}
     public class RenderKey
     {
         private Bin32 _data;
@@ -40,30 +41,16 @@ namespace CustomEngine.Rendering
         //    DrawLayer = dlayer;
         //    Viewport = viewport;
         //}
-        //public RenderKey(
-        //    EDrawLayer dlayer,
-        //    EViewport viewport,
-        //    EViewportLayer vlayer,
-        //    EPassType translucencyPass,
-        //    float depth)
-        //{
-        //    DrawLayer = dlayer;
-        //    Viewport = viewport;
-        //    ViewportLayer = vlayer;
-        //    Pass = translucencyPass;
-        //    IsCommand = false;
-        //    Depth = (uint)(depth * 0xFFFFFF);
-        //}
-        //public EDrawLayer DrawLayer
-        //{
-        //    get { return (EDrawLayer)_data[31, 1]; }
-        //    set { _data[31, 1] = (uint)value; }
-        //}
-        //public EViewport Viewport
-        //{
-        //    get { return (EViewport)_data[29, 2]; }
-        //    set { _data[29, 2] = (uint)value; }
-        //}
+        public RenderKey(
+            EViewportLayer vlayer,
+            EPassType translucencyPass,
+            float depth)
+        {
+            ViewportLayer = vlayer;
+            Pass = translucencyPass;
+            IsCommand = false;
+            Depth = (uint)(depth * 0xFFFFFF);
+        }
         public EViewportLayer ViewportLayer
         {
             get { return (EViewportLayer)_data[27, 2]; }
@@ -89,23 +76,23 @@ namespace CustomEngine.Rendering
             get { return _data[0, 24]; }
             set { _data[0, 24] = value; }
         }
-        public static void RadixSort(ref List<ulong> array)
+        public static void RadixSort(ref List<uint> array)
         {
-            int id = Engine.StartTimer();
-            Queue<ulong>[] buckets = new Queue<ulong>[15];
+            //int id = Engine.StartTimer();
+            Queue<uint>[] buckets = new Queue<uint>[15];
             for (int i = 0; i < 0xF; i++)
-                buckets[i] = new Queue<ulong>();
+                buckets[i] = new Queue<uint>();
             for (int i = 60; i >= 0; i -= 4)
             {
-                foreach (ulong value in array)
+                foreach (uint value in array)
                     buckets[(int)((value >> i) & 0xF)].Enqueue(value);
                 int x = 0;
-                foreach (Queue<ulong> bucket in buckets)
+                foreach (Queue<uint> bucket in buckets)
                     while (bucket.Count > 0)
                         array[x++] = bucket.Dequeue();
             }
-            float seconds = Engine.EndTimer(id);
-            Engine.DebugPrint("Radix Sort took " + seconds + " seconds.");
+            //float seconds = Engine.EndTimer(id);
+            //Engine.DebugPrint("Radix Sort took " + seconds + " seconds.");
         }
         public override int GetHashCode()
         {

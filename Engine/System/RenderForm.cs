@@ -19,7 +19,7 @@ namespace CustomEngine
                 Icon = new Icon(iconPath);
 
             Engine.Initialize();
-            renderPanel1.AttachToEngine();
+            renderPanel1.BeginTick();
 
             //TopMost = true;
             //FormBorderStyle = FormBorderStyle.None;
@@ -28,7 +28,7 @@ namespace CustomEngine
         protected override void OnClosed(EventArgs e)
         {
             base.OnClosed(e);
-            renderPanel1.DetachFromEngine();
+            renderPanel1.EndTick();
             Engine.ShutDown();
         }
     }

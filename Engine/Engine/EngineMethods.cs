@@ -211,8 +211,8 @@ namespace CustomEngine
             World = engineSettings.OpeningWorld;
             _transitionWorld = engineSettings.TransitionWorld;
             
-            TargetRenderFreq = 60.0f;
-            TargetUpdateFreq = 120.0f;
+            TargetRenderFreq = TARGETFPS;
+            TargetUpdateFreq = TARGETUPS;
             Run();
         }
         public static void ShutDown()

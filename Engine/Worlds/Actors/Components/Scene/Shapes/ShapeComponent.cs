@@ -23,7 +23,7 @@ namespace CustomEngine.Worlds.Actors.Components
                 StopSimulatingPhysics(true);
         }
 
-        protected RenderOctree.Node _renderNode;
+        protected Octree.Node _renderNode;
         protected PhysicsDriver _physics;
         protected bool
             _isRendering,
@@ -56,7 +56,7 @@ namespace CustomEngine.Worlds.Actors.Components
         public abstract Shape CullingVolume { get; }
         public bool VisibleByDefault => _visibleByDefault;
         public PhysicsDriver PhysicsDriver => _physics;
-        public RenderOctree.Node RenderNode
+        public Octree.Node RenderNode
         {
             get => _renderNode;
             set => _renderNode = value;

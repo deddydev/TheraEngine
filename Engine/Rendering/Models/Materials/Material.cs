@@ -10,6 +10,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.IO;
 using System.Xml;
+using CustomEngine.Rendering.Cameras;
 
 namespace CustomEngine.Rendering.Models.Materials
 {
@@ -112,6 +113,10 @@ namespace CustomEngine.Rendering.Models.Materials
             List<GLVar> p = new List<GLVar>()
             {
                 //TODO: post process parameters here
+                //PostProcessSettings
+                new GLVec4((ColorF4)Color.Transparent, "Vignette.Color"),
+                new GLFloat(0.0f, "DOF.NearDistance"),
+                new GLFloat(0.0f, "DOF.FarDistance"),
             };
             return new Material("GBufferMaterial", p, frag);
         }

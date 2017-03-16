@@ -21,6 +21,7 @@ namespace TheraEditor
 
         public Editor()
         {
+            //DoubleBuffered = true;
             InitializeComponent();
             renderPanel1.GlobalHud = new EditorHud(renderPanel1);
             EngineSettings settings = new EngineSettings()
@@ -29,13 +30,13 @@ namespace TheraEditor
             };
             Engine._engineSettings.SetFile(settings, false);
             Engine.Initialize();
-            renderPanel1.AttachToEngine();
+            renderPanel1.BeginTick();
         }
 
         protected override void OnClosed(EventArgs e)
         {
             base.OnClosed(e);
-            renderPanel1.DetachFromEngine();
+            renderPanel1.EndTick();
             Engine.ShutDown();
         }
     }

@@ -82,8 +82,8 @@ namespace CustomEngine.Rendering
             _region.Height = _topPercentage * parentHeight - _region.Y;
 
             _worldCamera?.Resize(Width, Height);
-            _hud.Resize(_region);
-            _gBuffer.Resize(Width, Height);
+            _hud?.Resize(_region);
+            //_gBuffer.Resize(Width, Height);
         }
         public void DebugPrint(string message)
         {
@@ -318,7 +318,7 @@ namespace CustomEngine.Rendering
 #endif
                 float depth = 0.0f; //GetDepth(viewportPoint);
                 Vec3 worldPoint = ScreenToWorld(viewportPoint, depth);
-                List<IRenderable> r = Engine.Renderer.Scene.RenderTree.FindClosest(worldPoint);
+                List<I3DBoundable> r = Engine.Renderer.Scene.RenderTree.FindClosest(worldPoint);
 
             }
             return null;

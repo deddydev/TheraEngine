@@ -55,7 +55,7 @@ namespace CustomEngine.Rendering.OpenGL
                 _context.SwapBuffers();
         }
         protected override void OnUpdated()
-            => _context.Update(WindowInfo);
+            => _context?.Update(WindowInfo);
         public override void SetCurrent(bool current)
         {
             if (!IsContextDisposed())

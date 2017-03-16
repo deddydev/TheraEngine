@@ -38,9 +38,13 @@ namespace CustomEngine
                 ControlStyles.ResizeRedraw,
                 true);
 
-            //if (_context == null)
-                CreateContext();
+            CreateContext();
             AddViewport(new LocalPlayerController());
+        }
+        protected override void Dispose(bool disposing)
+        {
+            DisposeContext();
+            base.Dispose(disposing);
         }
 
         public static RenderPanel HoveredPanel;
@@ -90,14 +94,13 @@ namespace CustomEngine
         protected override void OnPaintBackground(PaintEventArgs e) { }
         protected override void OnPaint(PaintEventArgs e)
         {
-            //if (_updateCounter > 0)
-            //    return;
+            if (_updateCounter > 0)
+                return;
 
             if (_context == null || _context.IsContextDisposed())
                 base.OnPaint(e);
             else if (Monitor.TryEnter(_context))
             {
-                //PushUpdate();
                 try
                 {
                     _context.Capture();
@@ -109,7 +112,6 @@ namespace CustomEngine
                 finally
                 {
                     Monitor.Exit(_context);
-                    //PopUpdate();
                 }
             }
         }
@@ -143,29 +145,6 @@ namespace CustomEngine
             //Engine.Renderer.PushRenderArea(region);
             //Engine.Renderer.CropRenderArea(region);
         }
-        //protected override void OnLoad(EventArgs e)
-        //{
-        //    if (_context == null)
-        //        SetRenderLibrary();
-        //    base.OnLoad(e);
-        //}
-        //protected override void OnHandleCreated(EventArgs e)
-        //{
-        //    if (_context == null)
-        //        SetRenderLibrary();
-        //    _context.ContextChanged += OnContextChanged;
-        //    _context.ResetOccured += OnReset;
-        //}
-        //protected override void DestroyHandle()
-        //{
-        //    DisposeContext();
-        //    base.DestroyHandle();
-        //}
-        //protected override void OnHandleDestroyed(EventArgs e)
-        //{
-        //    DisposeContext();
-        //    base.OnHandleDestroyed(e);
-        //}
         protected virtual void OnReset(object sender, EventArgs e)
         {
             _context?.Initialize();
@@ -177,11 +156,6 @@ namespace CustomEngine
                 OnResize(EventArgs.Empty);
 
             //_currentPanel = isNowCurrent ? this : null;
-        }
-        protected override void Dispose(bool disposing)
-        {
-            DisposeContext();
-            base.Dispose(disposing);
         }
         public void CreateContext()
         {
@@ -243,31 +217,19 @@ namespace CustomEngine
         IEnumerator IEnumerable.GetEnumerator()
             => ((IEnumerable<Viewport>)_viewports).GetEnumerator();
 
-        public void AttachToEngine()
+        public void BeginTick()
         {
-            Redraw = new Action(Refresh);
             _attachedToEngine = true;
-            _context?.Initialize();
             Engine.RegisterRenderTick(RenderTick);
         }
-        public void DetachFromEngine()
+        public void EndTick()
         {
             Engine.UnregisterRenderTick(RenderTick);
-            DisposeContext();
             _attachedToEngine = false;
         }
-        private Action Redraw;
-        private double _time = 0.0;
         public void RenderTick(object sender, FrameEventArgs e)
         {
-            _time += e.Time;
-            //Invalidate();
-            if (_time > 0.05)
-            {
-                BeginInvoke(Redraw);
-                _time = 0.0;
-            }
-            //Thread.Sleep(40);
+            Invalidate();
         }
     }
 }

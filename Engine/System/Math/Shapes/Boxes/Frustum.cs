@@ -7,6 +7,7 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using CustomEngine.Rendering;
 
 namespace System
 {
@@ -40,7 +41,7 @@ namespace System
 
         private bool _isRendering = false;
 
-        private RenderOctree.Node _renderNode;
+        private Octree.Node _renderNode;
 
         //For quickly testing if objects in large scenes should even be tested against the frustum at all
         private Sphere _boundingSphere;
@@ -77,7 +78,7 @@ namespace System
             get => _isRendering;
             set => _isRendering = value;
         }
-        public RenderOctree.Node RenderNode
+        public Octree.Node RenderNode
         {
             get => _renderNode;
             set => _renderNode = value;

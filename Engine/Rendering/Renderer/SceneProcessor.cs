@@ -11,15 +11,17 @@ namespace CustomEngine.Rendering
 {
     public class SceneProcessor
     {
-        private bool _commandsInvalidated;
-        private Dictionary<ulong, IRenderable> _commands = new Dictionary<ulong, IRenderable>();
-        private List<ulong> _sortedCommands = new List<ulong>();
+        private List<IRenderable> _renderables = new List<IRenderable>();
 
-        private RenderOctree _cullingTree;
+        private bool _commandsInvalidated;
+        private Dictionary<uint, IRenderable> _commands = new Dictionary<uint, IRenderable>();
+        private List<uint> _sortedCommands = new List<uint>();
+
+        private Octree _cullingTree;
         private Camera _currentCamera;
         private LightManager _lightManager = new LightManager();
         
-        public RenderOctree RenderTree { get { return _cullingTree; } }
+        public Octree RenderTree { get { return _cullingTree; } }
         public Camera CurrentCamera { get { return _currentCamera; } }
         public LightManager Lights { get { return _lightManager; } }
 
@@ -32,22 +34,27 @@ namespace CustomEngine.Rendering
             }
 
             WorldSettings ws = Engine.World.Settings;
-            List<IRenderable> renderables = new List<IRenderable>();
+            List<I3DBoundable> renderables = new List<I3DBoundable>();
+
             //foreach (Map m in ws._defaultMaps)
             //    if (m.Settings.VisibleByDefault)
             //        foreach (Actor a in m.Settings._defaultActors)
-            //            foreach (PrimitiveComponent p in a.RenderableComponentCache)
-            //                if (p.Primitive != null)
+            //            foreach (SceneComponent p in a.SceneComponentCache)
+            //            {
+            //                if (p is IRenderable r)
+            //                    renderables.Add(r);
+            //                else
             //                {
             //                    IRenderable[] r = p.Primitive.GetChildren(true);
             //                    foreach (IRenderable o in r)
             //                    {
             //                        o.OnSpawned();
-            //                        renderables.Add(o);
+                                    
             //                    }
             //                }
+            //            }
 
-            _cullingTree = new RenderOctree(ws.WorldBounds, renderables);
+            _cullingTree = new Octree(ws.WorldBounds, renderables);
         }
         public void Render(Camera camera)
         {
@@ -62,34 +69,41 @@ namespace CustomEngine.Rendering
 
             //TODO: render in a sorted order by render keys, not just in whatever order like this
             //also perform culling directly before rendering something, to avoid an extra log(n) operation
-            _cullingTree.Render();
+            //_cullingTree.Render();
 
-            _currentCamera._isActive = false;
-            _currentCamera = null;
-            
             //if (_commandsInvalidated)
             //    RenderKey.RadixSort(ref _sortedCommands);
 
-            //Frustum f = camera.GetFrustum();
-            //foreach (ulong cmd in _sortedCommands)
+            //foreach (uint cmd in _sortedCommands)
             //{
             //    IRenderable r = _commands[cmd];
-            //    r.RenderNode.Cull(f);
+            //    //r.RenderNode.Cull(f);
             //    if (r.IsRendering)
             //        r.Render();
             //}
+
+            var e = _renderables.GetEnumerator();
+            while (e.MoveNext())
+                if (e.Current.IsRendering)
+                    e.Current.Render();
+
+            _currentCamera._isActive = false;
+            _currentCamera = null;
         }
         public void AddRenderable(IRenderable obj)
         {
-            _cullingTree?.Add(obj);
+            AddRenderable(obj, 0);
         }
         public void AddRenderable(IRenderable obj, RenderKey key)
         {
             _cullingTree?.Add(obj);
+            //_commands.Add(key, obj);
+            _renderables.Add(obj);
         }
         public void RemoveRenderable(IRenderable obj)
         {
             _cullingTree?.Remove(obj);
+            _renderables.Remove(obj);
         }
         internal void SetUniforms()
         {

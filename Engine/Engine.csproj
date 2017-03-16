@@ -652,7 +652,6 @@
     <Compile Include="Rendering\Models\CPUSkinInfo.cs" />
     <Compile Include="Rendering\Renderer\States\MeshProgram.cs" />
     <Compile Include="Rendering\Renderer\States\TransformFeedback.cs" />
-    <None Include="System\Data Structures\TriangleOctree.cs" />
     <Compile Include="Rendering\Renderer\SceneProcessor.cs" />
     <Compile Include="Rendering\Renderer\States\BaseRenderState.cs" />
     <Compile Include="Rendering\Renderer\States\FrameBuffer.cs" />
@@ -710,7 +709,7 @@
     <Compile Include="System\Memory\Bin24.cs" />
     <Compile Include="System\Memory\Bin32.cs" />
     <Compile Include="System\Data Structures\MonitoredList.cs" />
-    <Compile Include="System\Data Structures\RenderOctree.cs" />
+    <Compile Include="System\Data Structures\Octree.cs" />
     <Compile Include="System\Memory\PString.cs" />
     <Compile Include="System\Memory\FloatQuantizer.cs" />
     <Compile Include="System\Memory\VQuant.cs" />
@@ -720,7 +719,6 @@
     <Compile Include="System\Reflection\Attributes\PropertyChangedEventAttribute.cs" />
     <Compile Include="System\Reflection\CustomPropertyCollection.cs" />
     <Compile Include="System\Files\FileObject.cs" />
-    <Compile Include="System\RenderPanelWPF.cs" />
     <Compile Include="System\Test.cs">
       <SubType>UserControl</SubType>
     </Compile>

@@ -105,7 +105,7 @@ namespace CustomEngine.Rendering.Models
             _visibleToOwnerOnly = false;
 
         Shape _cullingVolume = new Sphere(1.0f);
-        RenderOctree.Node _renderNode;
+        Octree.Node _renderNode;
 
         public Shape CullingVolume => _cullingVolume;
         public bool IsRendering
@@ -113,7 +113,7 @@ namespace CustomEngine.Rendering.Models
             get => _rendering;
             set => _rendering = value;
         }
-        public RenderOctree.Node RenderNode
+        public Octree.Node RenderNode
         {
             get => _renderNode;
             set => _renderNode = value;

@@ -12,6 +12,36 @@ using BulletSharp;
 
 namespace CustomEngine
 {
+    public interface IStaticMesh
+    {
+        bool VisibleByDefault { get; }
+        Shape CullingVolume { get; }
+        PrimitiveData Data { get; }
+        Material Material { get; set; }
+    }
+    public interface ISkeletalMesh
+    {
+        bool VisibleByDefault { get; }
+        string SingleBindName { get; }
+        PrimitiveData Data { get; }
+        Material Material { get; set; }
+    }
+    public interface IRenderable : I3DBoundable
+    {
+        void Render();
+    }
+    public interface I3DBoundable
+    {
+        Shape CullingVolume { get; }
+        Octree.Node RenderNode { get; set; }
+        bool IsRendering { get; set; }
+    }
+    public interface I2DBoundable
+    {
+        BoundingRectangle AxisAlignedBounds { get; }
+        Quadtree.Node RenderNode { get; set; }
+        bool IsRendering { get; set; }
+    }
     public interface IPanel
     {
         BoundingRectangle Region { get; set; }

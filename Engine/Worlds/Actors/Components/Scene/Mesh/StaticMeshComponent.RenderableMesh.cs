@@ -28,7 +28,7 @@ namespace CustomEngine.Worlds.Actors.Components
             private PrimitiveManager _manager;
             private SceneComponent _component;
             private IStaticMesh _mesh;
-            private RenderOctree.Node _renderNode;
+            private Octree.Node _renderNode;
             private Shape _cullingVolume;
 
             public Shape CullingVolume => _cullingVolume;
@@ -69,7 +69,7 @@ namespace CustomEngine.Worlds.Actors.Components
                 get => _mesh;
                 set => _mesh = value;
             }
-            public RenderOctree.Node RenderNode
+            public Octree.Node RenderNode
             {
                 get => _renderNode;
                 set => _renderNode = value;

@@ -12,18 +12,15 @@ namespace CustomEngine.Rendering
     public class SceneProcessor
     {
         private List<IRenderable> _renderables = new List<IRenderable>();
-
-        private bool _commandsInvalidated;
-        private Dictionary<uint, IRenderable> _commands = new Dictionary<uint, IRenderable>();
-        private List<uint> _sortedCommands = new List<uint>();
+        private SortedDictionary<uint, IRenderable> _renderCommands = new SortedDictionary<uint, IRenderable>();
 
         private Octree _cullingTree;
         private Camera _currentCamera;
         private LightManager _lightManager = new LightManager();
-        
-        public Octree RenderTree { get { return _cullingTree; } }
-        public Camera CurrentCamera { get { return _currentCamera; } }
-        public LightManager Lights { get { return _lightManager; } }
+
+        public Octree RenderTree => _cullingTree;
+        public Camera CurrentCamera => _currentCamera;
+        public LightManager Lights => _lightManager;
 
         internal void WorldChanged()
         {
@@ -110,17 +107,5 @@ namespace CustomEngine.Rendering
             CurrentCamera.SetUniforms();
             Lights.SetUniforms();
         }
-        //public void QueueCommand(RenderKey key, Action method)
-        //{
-        //    _commandsInvalidated = true;
-        //    _sortedCommands.Add(key);
-        //    _commands.Add(key, method);
-        //}
-        //public void UnqueueCommand(RenderKey key)
-        //{
-        //    _commandsInvalidated = true;
-        //    _sortedCommands.Remove(key);
-        //    _commands.Remove(key);
-        //}
     }
 }

@@ -34,12 +34,12 @@ namespace CustomEngine.Rendering.DirectX
                 SwapEffect = SwapEffect.Discard
             };
 
-            SlimDX.Direct3D11.Device.CreateWithSwapChain(DriverType.Hardware, DeviceCreationFlags.None, swapChainDesc, out _device, out _swapChain);
+            Result r = SlimDX.Direct3D11.Device.CreateWithSwapChain(DriverType.Hardware, DeviceCreationFlags.None, swapChainDesc, out _device, out _swapChain);
         }
 
         internal override AbstractRenderer GetRendererInstance()
         {
-            return null; //DXRenderer.Instance ?? (DXRenderer.Instance = new DXRenderer());
+            return new DXRenderer();
         }
 
         public override bool IsCurrent()

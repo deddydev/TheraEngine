@@ -792,7 +792,7 @@
     <Compile Include="Rendering\HUD\HudComponent.cs" />
     <Compile Include="System\Interfaces.cs" />
     <Compile Include="Players\PlayerInfo.cs" />
-    <None Include="Rendering\Renderer\DirectX\DXRenderer.cs" />
+    <Compile Include="Rendering\Renderer\DirectX\DXRenderer.cs" />
     <Compile Include="Rendering\Renderer\DirectX\DXWindowContext.cs" />
     <Compile Include="Rendering\Renderer\OpenGL\GLRenderer.cs" />
     <Compile Include="Rendering\Renderer\OpenGL\GLWindowContext.cs" />

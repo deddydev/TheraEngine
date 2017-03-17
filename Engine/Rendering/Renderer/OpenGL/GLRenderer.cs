@@ -111,9 +111,9 @@ namespace CustomEngine.Rendering.OpenGL
                 newMask |= ClearBufferMask.AccumBufferBit;
             GL.Clear(newMask);
         }
-        
-        public override void SetPointSize(float size) { GL.PointSize(size); }
-        public override void SetLineSize(float size) { GL.LineWidth(size); }
+
+        public override void SetPointSize(float size) => GL.PointSize(size);
+        public override void SetLineSize(float size) => GL.LineWidth(size);
 
         #region Objects
         public override void DeleteObject(GenType type, int bindingId)

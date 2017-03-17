@@ -31,6 +31,7 @@ namespace CustomEngine.Files
 
         T _file;
 
+        public SingleFileRef() : base(typeof(T)) { }
         public SingleFileRef(Type type) : base(type) { }
         public SingleFileRef(string filePath) : base(filePath) { }
         public SingleFileRef(string filePath, Type type) : base(filePath, type) { }

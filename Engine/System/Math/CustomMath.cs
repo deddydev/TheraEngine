@@ -183,12 +183,10 @@ namespace System
         public static Vec3 VInterpNormalRotationTo(Vec3 Current, Vec3 Target, float DeltaTime, float RotationSpeedDegrees)
         {
             Quaternion DeltaQuat = Quaternion.BetweenVectors(Current, Target);
-            
-            Vec3 DeltaAxis;
-            float DeltaAngle;
-            DeltaQuat.ToAxisAngle(out DeltaAxis, out DeltaAngle);
-            
-	        float RotationStepRadians = RotationSpeedDegrees * (PIf / 180.0f) * DeltaTime;
+
+            DeltaQuat.ToAxisAngle(out Vec3 DeltaAxis, out float DeltaAngle);
+
+            float RotationStepRadians = RotationSpeedDegrees * (PIf / 180.0f) * DeltaTime;
 
 	        if (Abs(DeltaAngle) > RotationStepRadians)
 	        {

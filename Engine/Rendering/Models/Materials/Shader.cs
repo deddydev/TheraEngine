@@ -133,66 +133,7 @@ in Data
 
 out vec4 OutColor;
 
-vec3 CalcColor(BaseLight light, vec3 lightDirection, vec3 normal)
-{
-    vec3 AmbientColor = vec3(light.Color * light.AmbientIntensity);
-    vec3 DiffuseColor = vec3(0.0);
-    vec3 SpecularColor = vec3(0.0);
-
-    float DiffuseFactor = dot(normal, -lightDirection);
-    if (DiffuseFactor >= 0.0)
-    {
-        DiffuseColor = light.Color * light.DiffuseIntensity * DiffuseFactor;
-
-        vec3 posToEye = normalize(CameraPosition - InData.Position);
-        vec3 reflectDir = reflect(lightDirection, normal);
-        float SpecularFactor = dot(posToEye, reflectDir);
-        if (SpecularFactor >= 0.0)
-        {
-            SpecularColor = light.Color * MatSpecularIntensity * pow(SpecularFactor, MatShininess);
-        }
-    }
-
-    return AmbientColor + DiffuseColor + SpecularColor;
-}
-
-vec3 CalcDirLight(DirLight light, vec3 normal)
-{
-    return CalcColor(light.Base, light.Direction, normal);
-}
-
-vec3 CalcPointLight(PointLight light, vec3 normal)
-{
-    vec3 lightToPos = InData.Position - light.Position;
-    float dist = length(lightToPos);
-
-    //float attn = clamp(1.0 - dist * dist / (radius * radius), 0.0, 1.0); attn *= attn;
-    float attn = 1.0f / (light.Attenuation[0] + light.Attenuation[1] * dist + light.Attenuation[2] * dist * dist);
-
-    return attn * CalcColor(light.Base, normalize(lightToPos), normal);
-} 
-
-vec3 CalcSpotLight(SpotLight light, vec3 normal)
-{
-    if (light.Cutoff <= 1.5707) //~90 degrees in radians
-    {
-        vec3 lightToPos = InData.Position - light.Base.Position;
-        lightToPos = normalize(lightToPos);
-        float clampedCosine = max(0.0, dot(lightToPos, normalize(light.Direction)));
-	    if (clampedCosine >= cos(light.Cutoff))
-        {
-            vec3 lightToPos = InData.Position - light.Base.Position;
-            float dist = length(lightToPos);
-
-            float spotAttn = pow(clampedCosine, light.Exponent);
-            //float attn = clamp(1.0 - dist * dist / (radius * radius), 0.0, 1.0); attn *= attn;
-            float attn = 1.0f / (light.Base.Attenuation[0] + light.Base.Attenuation[1] * dist + light.Base.Attenuation[2] * dist * dist);
-
-            return spotAttn * attn * CalcColor(light.Base.Base, normalize(lightToPos), normal);
-        }
-    }
-    return vec3(0.0);
-} 
+" + CalcLight() + @"
 
 void main()
 {
@@ -220,7 +161,32 @@ void main()
         {
             string source = @"
 
-#version 410
+#version 450
+
+struct BaseLight
+{
+    vec3 Color;
+    float DiffuseIntensity;
+    float AmbientIntensity;
+};
+struct DirLight
+{
+    BaseLight Base;
+    vec3 Direction;
+};
+struct PointLight
+{
+    BaseLight Base;
+    vec3 Position;
+    vec3 Attenuation;
+};
+struct SpotLight
+{
+    PointLight Base;
+    vec3 Direction;
+    float Cutoff;
+    float Exponent;
+};
 
 out vec4 OutColor;
 in vec2 TexCoords;
@@ -229,36 +195,107 @@ uniform sampler2D gPosition;
 uniform sampler2D gNormal;
 uniform sampler2D gAlbedoSpec;
 
-struct Light {
-    vec3 Position;
-    vec3 Color;
-};
-const int NR_LIGHTS = 32;
-uniform Light lights[NR_LIGHTS];
-uniform vec3 viewPos;
+uniform int PointLightCount;
+uniform PointLight PointLights[16];
+
+uniform int DirLightCount; 
+uniform DirLight DirectionalLights[2];
+
+uniform int SpotLightCount;
+uniform SpotLight SpotLights[16];
+
+uniform vec3 CameraPosition;
+
+" + CalcLight() + @"
 
 void main()
 {
-    // Retrieve data from G-buffer
     vec3 FragPos = texture(gPosition, TexCoords).rgb;
     vec3 Normal = texture(gNormal, TexCoords).rgb;
     vec3 Albedo = texture(gAlbedoSpec, TexCoords).rgb;
     float Specular = texture(gAlbedoSpec, TexCoords).a;
     
-    // Then calculate lighting as usual
-    vec3 lighting = Albedo * 0.1; // hard-coded ambient component
-    vec3 viewDir = normalize(viewPos - FragPos);
-    for(int i = 0; i < NR_LIGHTS; ++i)
-    {
-        // Diffuse
-        vec3 lightDir = normalize(lights[i].Position - FragPos);
-        vec3 diffuse = max(dot(Normal, lightDir), 0.0) * Albedo * lights[i].Color;
-        lighting += diffuse;
-    }
-    
-    OutColor = vec4(lighting, 1.0);
+    vec3 totalLight = Albedo * 0.1;
+
+    for (int i = 0; i < DirLightCount; ++i)
+        totalLight += CalcDirLight(DirectionalLights[i], Normal, FragPos, Albedo, Specular);
+
+    for (int i = 0; i < PointLightCount; ++i)
+        totalLight += CalcPointLight(PointLights[i], Normal, FragPos, Albedo, Specular);
+
+    for (int i = 0; i < SpotLightCount; ++i)
+        totalLight += CalcSpotLight(SpotLights[i], Normal, FragPos, Albedo, Specular);
+
+    OutColor = vec4(totalLight, 1.0);
 }";
             return new Shader(ShaderMode.Fragment, source);
+        }
+        private static string CalcLight()
+        {
+            return @"
+
+vec3 CalcColor(BaseLight light, vec3 lightDirection, vec3 normal, vec3 fragPos, vec3 albedo, float spec)
+{
+    vec3 AmbientColor = vec3(light.Color * light.AmbientIntensity);
+    vec3 DiffuseColor = vec3(0.0);
+    vec3 SpecularColor = vec3(0.0);
+
+    float DiffuseFactor = dot(normal, -lightDirection);
+    if (DiffuseFactor >= 0.0)
+    {
+        DiffuseColor = light.Color * light.DiffuseIntensity * albedo * DiffuseFactor;
+
+        vec3 posToEye = normalize(CameraPosition - fragPos);
+        vec3 reflectDir = reflect(lightDirection, normal);
+        float SpecularFactor = dot(posToEye, reflectDir);
+        if (SpecularFactor >= 0.0)
+        {
+            SpecularColor = light.Color * spec;
+        }
+    }
+
+    return AmbientColor + DiffuseColor + SpecularColor;
+}
+
+vec3 CalcDirLight(DirLight light, vec3 normal)
+{
+    return CalcColor(light.Base, light.Direction, normal);
+}
+
+vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 albedo, float spec)
+{
+    vec3 lightToPos = fragPos - light.Position;
+    float dist = length(lightToPos);
+
+    //float attn = clamp(1.0 - dist * dist / (radius * radius), 0.0, 1.0); attn *= attn;
+    float attn = 1.0f / (light.Attenuation[0] + light.Attenuation[1] * dist + light.Attenuation[2] * dist * dist);
+
+    return attn * CalcColor(light.Base, normalize(lightToPos), normal, fragPos, albedo, spec);
+} 
+
+vec3 CalcSpotLight(SpotLight light, vec3 normal, vec3 fragPos, vec3 albedo, float spec)
+{
+    if (light.Cutoff <= 1.5707) //~90 degrees in radians
+    {
+        vec3 lightToPos = fragPos - light.Base.Position;
+        lightToPos = normalize(lightToPos);
+        float clampedCosine = max(0.0, dot(lightToPos, normalize(light.Direction)));
+	    if (clampedCosine >= cos(light.Cutoff))
+        {
+            vec3 lightToPos = fragPos - light.Base.Position;
+            float dist = length(lightToPos);
+
+            float spotAttn = pow(clampedCosine, light.Exponent);
+            //float attn = clamp(1.0 - dist * dist / (radius * radius), 0.0, 1.0); attn *= attn;
+            float attn = 1.0f / (light.Base.Attenuation[0] + light.Base.Attenuation[1] * dist + light.Base.Attenuation[2] * dist * dist);
+
+            return spotAttn * attn * CalcColor(light.Base.Base, normalize(lightToPos), normal, fragPos, albedo, spec);
+        }
+    }
+    return vec3(0.0);
+}
+
+";
         }
         public static Shader PBRFragmentShader()
         {

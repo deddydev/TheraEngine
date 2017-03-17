@@ -18,11 +18,11 @@ namespace CustomEngine.Rendering
         public RenderContext CurrentContext => RenderContext.Current;
         public Viewport CurrentlyRenderingViewport => Viewport.CurrentlyRendering;
 
-        protected MeshProgram _currentMeshProgram;
-        protected PrimitiveManager _currentPrimitiveManager;
-        protected Dictionary<int, Material> _activeMaterials = new Dictionary<int, Material>();
-        protected SceneProcessor _scene = new SceneProcessor();
-        protected Dictionary<string, PrimitiveManager> _debugPrimitives = new Dictionary<string, PrimitiveManager>();
+        protected static MeshProgram _currentMeshProgram;
+        protected static PrimitiveManager _currentPrimitiveManager;
+        protected static Dictionary<int, Material> _activeMaterials = new Dictionary<int, Material>();
+        protected static SceneProcessor _scene = new SceneProcessor();
+        protected static Dictionary<string, PrimitiveManager> _debugPrimitives = new Dictionary<string, PrimitiveManager>();
 
         private PrimitiveManager AssignDebugPrimitive(string name, PrimitiveManager m)
         {

@@ -59,10 +59,11 @@ namespace CustomEngine.Rendering.Models.Materials
                 _bindingId = -1;
             }
         }
-        public Material(string name, List<GLVar> parameters, params Shader[] shaders)
+        public Material(string name, List<GLVar> parameters, List<TextureReference> textures, params Shader[] shaders)
         {
             _name = name;
             _parameters = parameters;
+            _textures = textures;
             foreach (Shader s in shaders)
             {
                 switch (s.ShaderType)
@@ -88,16 +89,18 @@ namespace CustomEngine.Rendering.Models.Materials
 
         public static Material GetUnlitColorMaterial()
         {
+            List<TextureReference> refs = new List<TextureReference>();
             Shader frag = Shader.UnlitColorFrag();
             List<GLVar> p = new List<GLVar>()
             {
                 new GLVec4((ColorF4)Color.Green, "MatColor"),
             };
-            return new Material("UnlitColorMaterial", p, frag);
+            return new Material("UnlitColorMaterial", p, refs, frag);
         }
 
         public static Material GetDefaultMaterial()
         {
+            List<TextureReference> refs = new List<TextureReference>();
             Shader frag = Shader.TestFrag();
             List<GLVar> p = new List<GLVar>()
             {
@@ -105,10 +108,16 @@ namespace CustomEngine.Rendering.Models.Materials
                 new GLFloat(20.0f, "MatSpecularIntensity"),
                 new GLFloat(128.0f, "MatShininess"),
             };
-            return new Material("TestMaterial", p, frag);
+            return new Material("TestMaterial", p, refs, frag);
         }
         internal static Material GetGBufferMaterial()
         {
+            List<TextureReference> refs = new List<TextureReference>()
+            {
+                new TextureReference("Position"),
+                new TextureReference("Normal"),
+                new TextureReference("AlbedoSpec"),
+            };
             Shader frag = Shader.UnlitColorFrag();
             List<GLVar> p = new List<GLVar>()
             {
@@ -118,7 +127,7 @@ namespace CustomEngine.Rendering.Models.Materials
                 new GLFloat(0.0f, "DOF.NearDistance"),
                 new GLFloat(0.0f, "DOF.FarDistance"),
             };
-            return new Material("GBufferMaterial", p, frag);
+            return new Material("GBufferMaterial", p, refs, frag);
         }
         public override void Write(VoidPtr address, StringTable table)
         {

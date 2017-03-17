@@ -16,7 +16,7 @@ namespace CustomEngine
 {
     public static partial class Engine
     {
-        public const float TARGETFPS = 60.0f;
+        public const float TARGETFPS = 30.0f;
         public const float TARGETUPS = 90.0f;
 
         public static string StartupPath = Application.StartupPath;

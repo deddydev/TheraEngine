@@ -160,9 +160,7 @@ namespace CustomEngine.Rendering.Models
                 foreach (ObjectInfo obj in objects)
                     obj.Initialize(skeletalMesh, shell);
             }
-
-            //GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced);
-
+            
             return anims;
         }
 

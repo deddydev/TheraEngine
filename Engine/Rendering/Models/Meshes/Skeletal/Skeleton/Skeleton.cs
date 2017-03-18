@@ -40,9 +40,16 @@ namespace CustomEngine.Rendering.Models
         public Bone this[int index] 
             => BoneIndexCache.ContainsKey(index) ? BoneIndexCache[index] : null;
 
+        bool _visible,
+            _rendering,
+            _visibleInEditorOnly = true,
+            _hiddenFromOwner = false,
+            _visibleToOwnerOnly = false;
+
+        Shape _cullingVolume = new Sphere(1.0f);
+        Octree.Node _renderNode;
         private Dictionary<string, Bone> _boneNameCache = new Dictionary<string, Bone>();
         private Dictionary<int, Bone> _boneIndexCache = new Dictionary<int, Bone>();
-        
         private SkeletalMeshComponent _owningComponent;
         private Bone[] _rootBones;
 
@@ -63,49 +70,10 @@ namespace CustomEngine.Rendering.Models
             set => _owningComponent = value;
         }
 
-        public Bone GetBone(string boneName)
-        {
-            if (!_boneNameCache.ContainsKey(boneName))
-                return RootBones[0];
-            return _boneNameCache[boneName];
-        }
-
-        public void RegenerateBoneCache()
-        {
-            _boneNameCache.Clear();
-            _boneIndexCache.Clear();
-            foreach (Bone b in RootBones)
-                b.CollectChildBones(this);
-        }
-        public void CalcFrameMatrices()
-        {
-            if (Engine._engineSettings.File.SkinOnGPU)
-            {
-                foreach (Bone b in RootBones)
-                    b.CalcFrameMatrix();
-            }
-            else
-            {
-                foreach (Bone b in RootBones)
-                    b.CalcFrameMatrix();
-                //foreach (FacePoint point in modified)
-                //    point.UpdatePNTB();
-            }
-        }
-
         public IEnumerator<Bone> GetEnumerator() 
             => ((IEnumerable<Bone>)_boneNameCache.Values).GetEnumerator();
         IEnumerator IEnumerable.GetEnumerator() 
             => ((IEnumerable<Bone>)_boneNameCache.Values).GetEnumerator();
-
-        bool _visible,
-            _rendering,
-            _visibleInEditorOnly = false,
-            _hiddenFromOwner = false,
-            _visibleToOwnerOnly = false;
-
-        Shape _cullingVolume = new Sphere(1.0f);
-        Octree.Node _renderNode;
 
         public Shape CullingVolume => _cullingVolume;
         public bool IsRendering
@@ -143,19 +111,51 @@ namespace CustomEngine.Rendering.Models
             get => throw new NotImplementedException();
             set => throw new NotImplementedException();
         }
-
+        public Bone GetBone(string boneName)
+        {
+            if (!_boneNameCache.ContainsKey(boneName))
+                return RootBones[0];
+            return _boneNameCache[boneName];
+        }
+        public void RegenerateBoneCache()
+        {
+            _boneNameCache.Clear();
+            _boneIndexCache.Clear();
+            foreach (Bone b in RootBones)
+                b.CollectChildBones(this);
+        }
+        public void CalcFrameMatrices()
+        {
+            if (Engine.Settings.SkinOnGPU)
+            {
+                foreach (Bone b in RootBones)
+                    b.CalcFrameMatrix();
+            }
+            else
+            {
+                foreach (Bone b in RootBones)
+                    b.CalcFrameMatrix();
+                //foreach (FacePoint point in modified)
+                //    point.UpdatePNTB();
+            }
+        }
+        internal void WorldMatrixChanged()
+        {
+            _cullingVolume.SetTransform(_owningComponent == null ? Matrix4.Identity : _owningComponent.WorldMatrix);
+        }
         public void Render()
         {
+            _cullingVolume.Render();
             foreach (Bone b in BoneNameCache.Values)
             {
                 Vec3 point = b.WorldMatrix.GetPoint();
                 Engine.Renderer.RenderPoint(b.Name + "_Pos", point, 15.0f, b.Parent == null ? Color.Orange : Color.Purple);
                 if (b.Parent != null)
-                    Engine.Renderer.RenderLine(b.Name + "_Parent", point, b.Parent.WorldMatrix.GetPoint(), 5.0f, Color.Blue);
+                    Engine.Renderer.RenderLine(b.Name + "_Parent", point, b.Parent.WorldMatrix.GetPoint(), Color.Blue, 5.0f);
                 float scale = Engine.Renderer.Scene.CurrentCamera.DistanceScale(point, 2.0f);
-                Engine.Renderer.RenderLine(b.Name + "_Up", point, Vec3.TransformPosition(Vec3.Up * scale, b.WorldMatrix), 5.0f, Color.Red);
-                Engine.Renderer.RenderLine(b.Name + "_Right", point, Vec3.TransformPosition(Vec3.Right * scale, b.WorldMatrix), 5.0f, Color.Green);
-                Engine.Renderer.RenderLine(b.Name + "_Forward", point, Vec3.TransformPosition(Vec3.Forward * scale, b.WorldMatrix), 5.0f, Color.Blue);
+                Engine.Renderer.RenderLine(b.Name + "_Up", point, Vec3.TransformPosition(Vec3.Up * scale, b.WorldMatrix), Color.Red, 5.0f);
+                Engine.Renderer.RenderLine(b.Name + "_Right", point, Vec3.TransformPosition(Vec3.Right * scale, b.WorldMatrix), Color.Green, 5.0f);
+                Engine.Renderer.RenderLine(b.Name + "_Forward", point, Vec3.TransformPosition(Vec3.Forward * scale, b.WorldMatrix), Color.Blue, 5.0f);
             }
         }
 

@@ -19,7 +19,7 @@ namespace CustomEngine.Worlds
     }
     public unsafe class World : FileObject, IEnumerable<IActor>
     {
-        public override ResourceType ResourceType { get { return ResourceType.World; } }
+        public override ResourceType ResourceType => ResourceType.World;
 
         static World()
         {
@@ -45,12 +45,6 @@ namespace CustomEngine.Worlds
             }
             public PhysicsDriver _driver0, _driver1;
         }
-        private static void PersistentManifold_ContactDestroyed(object userPersistantData)
-        {
-            PhysicsDriverPair drivers = (PhysicsDriverPair)userPersistantData;
-            drivers._driver0.EndOverlap(drivers._driver1);
-            drivers._driver1.EndOverlap(drivers._driver0);
-        }
         private static void PersistentManifold_ContactProcessed(ManifoldPoint cp, CollisionObject body0, CollisionObject body1)
         {
             PhysicsDriver driver0 = (PhysicsDriver)body0.UserObject;
@@ -58,6 +52,12 @@ namespace CustomEngine.Worlds
             driver0.BeginOverlap(driver1);
             driver1.BeginOverlap(driver0);
             cp.UserPersistentData = new PhysicsDriverPair(driver0, driver1);
+        }
+        private static void PersistentManifold_ContactDestroyed(object userPersistantData)
+        {
+            PhysicsDriverPair drivers = (PhysicsDriverPair)userPersistantData;
+            drivers._driver0.EndOverlap(drivers._driver1);
+            drivers._driver1.EndOverlap(drivers._driver0);
         }
         private void CreatePhysicsScene()
         {
@@ -100,9 +100,9 @@ namespace CustomEngine.Worlds
             foreach (IActor a in State.SpawnedActors)
                 a.RebaseOrigin(newOrigin);
         }
-        public int ActorCount { get { return _settings.State.SpawnedActors.Count; } }
 
-        public WorldState State { get { return _settings.State; } }
+        public int ActorCount => _settings.State.SpawnedActors.Count;
+        public WorldState State => _settings.State;
 
         public void SpawnActor(IActor actor, Matrix4 transform)
         {
@@ -124,7 +124,7 @@ namespace CustomEngine.Worlds
             for (int i = 0; i < _physicsScene.Dispatcher.NumManifolds; ++i)
             {
                 PersistentManifold m = _physicsScene.Dispatcher.GetManifoldByIndexInternal(i);
-                 
+                
             }
         }
         public IActor this[int index]
@@ -167,8 +167,9 @@ namespace CustomEngine.Worlds
         {
 
         }
-        public IEnumerator<IActor> GetEnumerator() { return State.SpawnedActors.GetEnumerator(); }
-        IEnumerator IEnumerable.GetEnumerator() { return State.SpawnedActors.GetEnumerator(); }
+
+        public IEnumerator<IActor> GetEnumerator() => State.SpawnedActors.GetEnumerator();
+        IEnumerator IEnumerable.GetEnumerator() => State.SpawnedActors.GetEnumerator();
     }
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public unsafe struct WorldHeader

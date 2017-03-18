@@ -9,33 +9,41 @@
     public enum EContainment
     {
         /// <summary>
-        /// Not intersecting
+        /// Not intersecting the other shape.
         /// </summary>
         Disjoint = 0,
         /// <summary>
-        /// Fully contained within
+        /// Fully contains the other shape.
         /// </summary>
         Contains = 1,
         /// <summary>
-        /// Partially contained, not fully
+        /// Shapes are intersecting, but not fully contained within each other whatsoever
         /// </summary>
-        Intersects = 2
+        Intersects = 2,
+        /// <summary>
+        /// The other shape contains this.
+        /// </summary>
+        ContainedWithin = 3,
     }
     [Flags]
     public enum EContainmentFlags
     {
         None = 0,
         /// <summary>
-        /// Not intersecting
+        /// Not intersecting the other shape.
         /// </summary>
         Disjoint = 1,
         /// <summary>
-        /// Fully contained within
+        /// Fully contains the other shape.
         /// </summary>
         Contains = 2,
         /// <summary>
-        /// Partially contained, not fully
+        /// Shapes are intersecting, but not fully contained within each other whatsoever
         /// </summary>
-        Intersects = 4
+        Intersects = 4,
+        /// <summary>
+        /// The other shape contains this.
+        /// </summary>
+        ContainedWithin = 8,
     }
 }

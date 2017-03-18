@@ -18,7 +18,7 @@ namespace CustomEngine.Worlds
         public BoundingBox WorldBounds { get { return _worldBounds; } set { _worldBounds = value; } }
         public WorldState State { get { return _state; } set { _state = value; } }
 
-        private BoundingBox _worldBounds = BoundingBox.FromMinMax(new Vec3(-5000.0f), new Vec3(5000.0f));
+        private BoundingBox _worldBounds = BoundingBox.FromMinMax(new Vec3(-500.0f), new Vec3(500.0f));
         private BoundingBox _originRebaseBounds;
         public List<Map> _defaultMaps;
         public WorldState _state;

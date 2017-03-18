@@ -10,7 +10,7 @@ namespace CustomEngine.Worlds.Actors.Components
     {
         public SkeletalMeshComponent(SkeletalMesh m, Skeleton skeleton)
         {
-            _skeleton = skeleton;
+            Skeleton = skeleton;
             Model = m;
         }
         public SkeletalMeshComponent()
@@ -47,9 +47,14 @@ namespace CustomEngine.Worlds.Actors.Components
             {
                 if (value == _skeleton)
                     return;
+                if (_skeleton != null)
+                    _skeleton.OwningComponent = null;
                 _skeleton = value;
-                foreach (RenderableMesh m in _meshes)
-                    m.Skeleton = _skeleton;
+                if (_skeleton != null)
+                    _skeleton.OwningComponent = this;
+                if (_meshes != null)
+                    foreach (RenderableMesh m in _meshes)
+                        m.Skeleton = _skeleton;
             }
         }
         public void SetAllSimulatingPhysics(bool doSimulation)
@@ -75,6 +80,11 @@ namespace CustomEngine.Worlds.Actors.Components
 
             if (Engine.Settings.RenderSkeletons)
                 Engine.Renderer.Scene.RemoveRenderable(_skeleton);
+        }
+        internal override void RecalcGlobalTransform()
+        {
+            base.RecalcGlobalTransform();
+            _skeleton.WorldMatrixChanged();
         }
     }
 }

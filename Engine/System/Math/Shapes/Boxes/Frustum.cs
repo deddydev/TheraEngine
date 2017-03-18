@@ -187,20 +187,20 @@ namespace System
             Color FarColor = Color.DarkRed;
             Color SideColor = Color.LightGreen;
 
-            Engine.Renderer.RenderLine(_renderName + "TopLeft", NearTopLeft, FarTopLeft, LineSize, SideColor);
-            Engine.Renderer.RenderLine(_renderName + "TopRight", NearTopRight, FarTopRight, LineSize, SideColor);
-            Engine.Renderer.RenderLine(_renderName + "BottomLeft", NearBottomLeft, FarBottomLeft, LineSize, SideColor);
-            Engine.Renderer.RenderLine(_renderName + "BottomRight", NearBottomRight, FarBottomRight, LineSize, SideColor);
+            Engine.Renderer.RenderLine(_renderName + "TopLeft", NearTopLeft, FarTopLeft, SideColor, LineSize);
+            Engine.Renderer.RenderLine(_renderName + "TopRight", NearTopRight, FarTopRight, SideColor, LineSize);
+            Engine.Renderer.RenderLine(_renderName + "BottomLeft", NearBottomLeft, FarBottomLeft, SideColor, LineSize);
+            Engine.Renderer.RenderLine(_renderName + "BottomRight", NearBottomRight, FarBottomRight, SideColor, LineSize);
 
-            Engine.Renderer.RenderLine(_renderName + "TopNear", NearTopLeft, NearTopRight, LineSize, NearColor);
-            Engine.Renderer.RenderLine(_renderName + "BottomNear", NearBottomLeft, NearBottomRight, LineSize, NearColor);
-            Engine.Renderer.RenderLine(_renderName + "LeftNear", NearBottomLeft, NearTopLeft, LineSize, NearColor);
-            Engine.Renderer.RenderLine(_renderName + "RightNear", NearBottomRight, NearTopRight, LineSize, NearColor);
+            Engine.Renderer.RenderLine(_renderName + "TopNear", NearTopLeft, NearTopRight, NearColor, LineSize);
+            Engine.Renderer.RenderLine(_renderName + "BottomNear", NearBottomLeft, NearBottomRight, NearColor, LineSize);
+            Engine.Renderer.RenderLine(_renderName + "LeftNear", NearBottomLeft, NearTopLeft, NearColor, LineSize);
+            Engine.Renderer.RenderLine(_renderName + "RightNear", NearBottomRight, NearTopRight, NearColor, LineSize);
 
-            Engine.Renderer.RenderLine(_renderName + "TopFar", FarTopLeft, FarTopRight, LineSize, FarColor);
-            Engine.Renderer.RenderLine(_renderName + "BottomFar", FarBottomLeft, FarBottomRight, LineSize, FarColor);
-            Engine.Renderer.RenderLine(_renderName + "LeftFar", FarBottomLeft, FarTopLeft, LineSize, FarColor);
-            Engine.Renderer.RenderLine(_renderName + "RightFar", FarBottomRight, FarTopRight, LineSize, FarColor);
+            Engine.Renderer.RenderLine(_renderName + "TopFar", FarTopLeft, FarTopRight, FarColor, LineSize);
+            Engine.Renderer.RenderLine(_renderName + "BottomFar", FarBottomLeft, FarBottomRight, FarColor, LineSize);
+            Engine.Renderer.RenderLine(_renderName + "LeftFar", FarBottomLeft, FarTopLeft, FarColor, LineSize);
+            Engine.Renderer.RenderLine(_renderName + "RightFar", FarBottomRight, FarTopRight, FarColor, LineSize);
         }
 
         public Frustum HardCopy()

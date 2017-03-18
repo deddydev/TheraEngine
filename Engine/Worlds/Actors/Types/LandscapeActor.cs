@@ -4,23 +4,30 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using CustomEngine.Worlds.Actors.Components;
+using BulletSharp;
+using System.Drawing;
 
 namespace CustomEngine.Worlds.Actors.Types
 {
-    public class LandscapeActor : Actor
+    public class LandscapeActor : Actor<PositionComponent>
     {
-        Vec2 _dimensions;
-        int _xCount, _yCount;
+        Size _dimensions = new Size(100, 100);
 
-        PositionComponent Root { get { return RootComponent as PositionComponent; } }
+        public LandscapeActor()
+        {
+            HeightfieldTerrainShape shape = new HeightfieldTerrainShape(_dimensions.Width, _dimensions.Height, null, 1.0f, 0.0f, 1.0f, 1, PhyScalarType.Single, false);
+        }
 
         float BaseHeight { get { return Center.Y; } set { Center = new Vec3(Center.X, value, Center.Z); } }
         Vec3 Center
         {
-            get { return Root.Translation; }
-            set { Root.Translation = value; }
+            get { return RootComponent.Translation; }
+            set { RootComponent.Translation = value; }
         }
 
-        protected override SceneComponent SetupComponents() { return new PositionComponent(); }
+        protected override PositionComponent SetupComponents()
+        {
+            return new PositionComponent();
+        }
     }
 }

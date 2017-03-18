@@ -19,27 +19,38 @@ namespace CustomEngine.Rendering
         private Shader[] _shaders;
         private PrimitiveBufferInfo _info;
 
-        public GLVar[] Parameters { get { return _parameters; } }
-        public Texture[] Textures { get { return _textures; } }
-        public Shader VertexShader { get { return _vertexShader; } }
-        public Shader FragmentShader { get { return _fragmentShader; } }
-        public Shader GeometryShader { get { return _geometryShader; } }
-        public Shader TessellationControlShader { get { return _tControlShader; } }
-        public Shader TessellationEvaluationShader { get { return _tEvalShader; } }
+        public GLVar[] Parameters => _parameters;
+        public Texture[] Textures => _textures;
+        public Shader VertexShader => _vertexShader;
+        public Shader FragmentShader => _fragmentShader;
+        public Shader GeometryShader => _geometryShader;
+        public Shader TessellationControlShader => _tControlShader;
+        public Shader TessellationEvaluationShader => _tEvalShader;
 
         public MeshProgram(Material material, PrimitiveBufferInfo info) : base(GenType.Program)
         {
             if (material == null)
                 return;
 
-            _info = info;
-            _vertexShader = VertexShaderGenerator.Generate(info, false, false, false);
+            MakeVertexShader(info);
             SetMaterial(material);
+        }
+
+        public void MakeVertexShader(PrimitiveBufferInfo info)
+        {
+            _info = info;
+            _vertexShader = VertexShaderGenerator.Generate(_info, false, false, false);
+            RemakeShaderArray();
+            if (IsActive)
+            {
+                Destroy();
+                Generate();
+            }
         }
 
         protected override int CreateObject()
         {
-            int[] ids = _shaders.Select(x => x.Compile()).ToArray();
+            int[] ids = _shaders.Where(x => x != null).Select(x => x.Compile()).ToArray();
             return Engine.Renderer.GenerateProgram(ids, _info);
         }
         protected override void OnGenerated()
@@ -64,6 +75,11 @@ namespace CustomEngine.Rendering
             _geometryShader = material._geometryShader;
             _tControlShader = material._tessellationControlShader;
             _tEvalShader = material._tessellationEvaluationShader;
+            RemakeShaderArray();
+        }
+
+        private void RemakeShaderArray()
+        {
             _shaders = new Shader[]
             {
                 _vertexShader,
@@ -71,7 +87,7 @@ namespace CustomEngine.Rendering
                 _geometryShader,
                 _tControlShader,
                 _tEvalShader
-            }.Where(x => x != null).ToArray();
+            };
         }
     }
 }

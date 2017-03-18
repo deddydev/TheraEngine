@@ -142,13 +142,13 @@ void main()
     vec3 totalLight = vec3(0.0);
 
     for (int i = 0; i < DirLightCount; ++i)
-        totalLight += CalcDirLight(DirectionalLights[i], normal);
+        totalLight += CalcDirLight(DirectionalLights[i], normal, InData.Position, MatColor.rgb, MatSpecularIntensity);
 
     for (int i = 0; i < PointLightCount; ++i)
-        totalLight += CalcPointLight(PointLights[i], normal);
+        totalLight += CalcPointLight(PointLights[i], normal, InData.Position, MatColor.rgb, MatSpecularIntensity);
 
     for (int i = 0; i < SpotLightCount; ++i)
-        totalLight += CalcSpotLight(SpotLights[i], normal);
+        totalLight += CalcSpotLight(SpotLights[i], normal, InData.Position, MatColor.rgb, MatSpecularIntensity);
 
     vec4 texColor = texture(Texture0, InData.MultiTexCoord0);
 
@@ -250,16 +250,16 @@ vec3 CalcColor(BaseLight light, vec3 lightDirection, vec3 normal, vec3 fragPos, 
         float SpecularFactor = dot(posToEye, reflectDir);
         if (SpecularFactor >= 0.0)
         {
-            SpecularColor = light.Color * spec;
+            SpecularColor = light.Color * spec * pow(SpecularFactor, 64.0);
         }
     }
 
     return AmbientColor + DiffuseColor + SpecularColor;
 }
 
-vec3 CalcDirLight(DirLight light, vec3 normal)
+vec3 CalcDirLight(DirLight light, vec3 normal, vec3 fragPos, vec3 albedo, float spec)
 {
-    return CalcColor(light.Base, light.Direction, normal);
+    return CalcColor(light.Base, light.Direction, normal, fragPos, albedo, spec);
 }
 
 vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 albedo, float spec)

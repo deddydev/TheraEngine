@@ -156,7 +156,7 @@ namespace System
 
         public override void SetTransform(Matrix4 worldMatrix)
         {
-            _center = Vec3.TransformPosition(_center, worldMatrix);
+            _center = worldMatrix.GetPoint();
         }
         public override Shape HardCopy()
         {

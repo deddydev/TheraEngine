@@ -8,7 +8,7 @@ namespace CustomEngine.Rendering.Models.Materials
 {
     public class ShaderGenerator
     {
-        private const string GLSLVersion = "410";
+        private const string GLSLVersion = "450";
         private string NewLine = Environment.NewLine;
         
         private string _shaderCode = "";
@@ -111,7 +111,7 @@ namespace CustomEngine.Rendering.Models.Materials
             if (resultFunction == null)
                 return null;
 
-            Material m = new Material(name, new List<GLVar>());
+            Material m = new Material(name, new List<GLVar>(), new List<TextureReference>());
 
             //TODO: determine shader types needed
             foreach (BaseGLArgument arg in resultFunction.InputArguments)

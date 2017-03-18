@@ -1128,17 +1128,23 @@ namespace System
             }
 	        return result;
         }
-        public static bool AABBContainsFrustum(Vec3 boxMin, Vec3 boxMax, Frustum frustum)
+        public static EContainment AABBContainsFrustum(Vec3 boxMin, Vec3 boxMax, Frustum frustum)
         {
+            int numIn = 0, numOut = 0;
             foreach (Vec3 v in frustum.Points)
-                if (!AABBContainsPoint(boxMin, boxMax, v))
-                    return false;
-            return true;
+                if (AABBContainsPoint(boxMin, boxMax, v))
+                    ++numIn;
+                else
+                    ++numOut;
+            return numOut == 0 ? EContainment.Contains : numIn == 0 ? EContainment.Disjoint : EContainment.Intersects;
         }
         public static EContainment FrustumContainsAABB(Frustum frustum, Vec3 boxMin, Vec3 boxMax)
         {
-            if (AABBContainsFrustum(boxMin, boxMax, frustum))
+            EContainment c = AABBContainsFrustum(boxMin, boxMax, frustum);
+            if (c != EContainment.Disjoint)
                 return EContainment.Intersects;
+            else if (c == EContainment.Contains)
+                return EContainment.ContainedWithin;
 
             EContainment result = EContainment.Contains;
             int numOut, numIn;

@@ -249,6 +249,7 @@ namespace CustomEngine.Rendering.Models
                 _utilizedBones = null;
             }
             UpdateBoneInfo(true);
+            _program?.MakeVertexShader(_bufferInfo);
         }
         private void SetSkinningUniforms()
         {
@@ -259,7 +260,7 @@ namespace CustomEngine.Rendering.Models
             if (Engine.Settings.SkinOnGPU)
             {
                 Engine.Renderer.Uniform(Uniform.BoneMatricesName + "[0]", Matrix4.Identity);
-                Engine.Renderer.Uniform(Uniform.BoneMatricesITName + "[0]", Matrix3.Identity);
+                Engine.Renderer.Uniform(Uniform.BoneMatricesITName + "[0]", Matrix4.Identity);
 
                 //Update modified bone matrix uniforms
                 var enumerator = _modifiedBoneIndices.GetEnumerator();
@@ -271,7 +272,7 @@ namespace CustomEngine.Rendering.Models
                     //Increase index to account for identity matrix at index 0
                     ++remappedIndex;
                     Engine.Renderer.Uniform(Uniform.BoneMatricesName + "[" + remappedIndex + "]", b.VertexMatrix);
-                    Engine.Renderer.Uniform(Uniform.BoneMatricesITName + "[" + remappedIndex + "]", b.VertexMatrixIT.GetRotationMatrix3());
+                    Engine.Renderer.Uniform(Uniform.BoneMatricesITName + "[" + remappedIndex + "]", b.VertexMatrixIT);
                 }
                 //Engine.Renderer.Uniform(Uniform.MorphWeightsName, _morphWeights);
                 //_modifiedBoneIndices.Clear();

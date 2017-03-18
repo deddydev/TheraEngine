@@ -104,7 +104,7 @@ namespace CustomEngine.Rendering.Models.Materials
             Shader frag = Shader.TestFrag();
             List<GLVar> p = new List<GLVar>()
             {
-                new GLVec4((ColorF4)Color.Gray, "MatColor"),
+                new GLVec4((ColorF4)Color.DarkTurquoise, "MatColor"),
                 new GLFloat(20.0f, "MatSpecularIntensity"),
                 new GLFloat(128.0f, "MatShininess"),
             };
@@ -117,6 +117,7 @@ namespace CustomEngine.Rendering.Models.Materials
                 new TextureReference("Position"),
                 new TextureReference("Normal"),
                 new TextureReference("AlbedoSpec"),
+                new TextureReference("TexCoord"),
             };
             Shader frag = Shader.UnlitColorFrag();
             List<GLVar> p = new List<GLVar>()

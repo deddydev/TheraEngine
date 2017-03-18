@@ -131,6 +131,8 @@ namespace CustomEngine.Worlds
             else
                 comp = new StaticMeshComponent(staticM, null);
 
+            comp.Translation.Raw = new Vec3(100.0f, 100.0f, -100.0f);
+
             Actor importedActor = new Actor(comp);
 
             //Rotator r = new Vec3(0.0f, 1.0f, 0.0f).LookatAngles(new Vec3(0.0f, 0.0f, -1.0f));

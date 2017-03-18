@@ -6,6 +6,7 @@ using CustomEngine.Worlds.Actors.Components;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -52,8 +53,14 @@ namespace System
             return removed;
         }
 
+        public void DebugRender()
+        {
+            _head?.DebugRender();
+        }
+
         public class Node
         {
+            private int _subDivIndex = 0, _subDivLevel = 0;
             private bool _visible = true;
             private BoundingBox _bounds;
             public List<I3DBoundable> _items = new List<I3DBoundable>();
@@ -80,6 +87,13 @@ namespace System
                             if (node != null)
                                 node.Visible = _visible;
                 }
+            }
+            public void DebugRender()
+            {
+                Engine.Renderer.RenderAABB("OctSubDiv" + _subDivLevel + "-" + _subDivIndex, _bounds.HalfExtents, _bounds.Translation, false, Color.Gray, 5.0f);
+                if (_subNodes != null)
+                    foreach (Node n in _subNodes)
+                        n?.DebugRender();
             }
             public List<I3DBoundable> FindClosest(Vec3 point)
             {
@@ -137,8 +151,8 @@ namespace System
                 EContainment c = frustum.Contains(_bounds);
                 if (c == EContainment.Contains)
                     Visible = true;
-                //else if (c == EContainment.Disjoint)
-                //    Visible = false;
+                else if (c == EContainment.Disjoint)
+                    Visible = false;
                 else
                 {
                     //Bounds is intersecting edge of frustum
@@ -187,6 +201,19 @@ namespace System
                 shouldDestroy = _items.Count == 0 && _subNodes == null;
                 return hasBeenRemoved;
             }
+            private void CreateSubNode(BoundingBox bounds, int index)
+            {
+                if (_subNodes == null)
+                    _subNodes = new Node[8];
+                else if (_subNodes[index] != null)
+                    return;
+
+                Node node = bounds;
+                node.Visible = Visible;
+                node._subDivIndex = index;
+                node._subDivLevel = _subDivLevel + 1;
+                _subNodes[index] = node;
+            }
             public void Add(List<I3DBoundable> value)
             {
                 bool notSubdivided = true;
@@ -202,21 +229,8 @@ namespace System
                         if (item.CullingVolume.ContainedWithin(bounds) == EContainment.Contains)
                         {
                             notSubdivided = false;
-
-                            if (_subNodes == null)
-                            {
-                                _subNodes = new Node[8];
-                                _subNodes[i] = bounds;
-                                _subNodes[i].Visible = Visible;
-                            }
-                            else if (_subNodes[i] == null)
-                            {
-                                _subNodes[i] = bounds;
-                                _subNodes[i].Visible = Visible;
-                            }
-
+                            CreateSubNode(bounds, i);
                             items.Add(item);
-
                             break;
                         }
                     }
@@ -248,17 +262,8 @@ namespace System
                         if (item.CullingVolume.ContainedWithin(bounds) == EContainment.Contains)
                         {
                             notSubdivided = false;
-
-                            if (_subNodes == null)
-                            {
-                                _subNodes = new Node[8];
-                                _subNodes[i] = bounds;
-                            }
-                            else if (_subNodes[i] == null)
-                                _subNodes[i] = bounds;
-
+                            CreateSubNode(bounds, i);
                             _subNodes[i].Add(item);
-
                             break;
                         }
                     }

@@ -13,6 +13,23 @@ namespace CustomEngine.Rendering
     /// </summary>
     public abstract class AbstractRenderer
     {
+        public const float DefaultPointSize = 5.0f;
+        public const float DefaultLineSize = 5.0f;
+
+        private static Camera _currentCamera;
+        public static Camera CurrentCamera
+        {
+            get => _currentCamera;
+            set
+            {
+                if (_currentCamera != null)
+                    _currentCamera._isActive = false;
+                _currentCamera = value;
+                if (_currentCamera != null)
+                    _currentCamera._isActive = true;
+            }
+        }
+
         public SceneProcessor Scene => _scene;
         public abstract RenderLibrary RenderLibrary { get; }
         public RenderContext CurrentContext => RenderContext.Current;
@@ -67,10 +84,10 @@ namespace CustomEngine.Rendering
                     data = Sphere.SolidMesh(Vec3.Zero, 1.0f, 30.0f);
                     break;
                 case DebugPrimitiveType.WireBox:
-                    data = BoundingBox.WireframeMesh(new Vec3(-0.5f), new Vec3(0.5f));
+                    data = BoundingBox.WireframeMesh(new Vec3(-1.0f), new Vec3(1.0f));
                     break;
                 case DebugPrimitiveType.SolidBox:
-                    data = BoundingBox.SolidMesh(new Vec3(-0.5f), new Vec3(0.5f));
+                    data = BoundingBox.SolidMesh(new Vec3(-1.0f), new Vec3(1.0f));
                     break;
             }
             return AssignDebugPrimitive(name, new PrimitiveManager(data, Material.GetUnlitColorMaterial()));
@@ -110,23 +127,24 @@ namespace CustomEngine.Rendering
         //public void RenderCone(string name, Vec3 topPoint, Vec3 bottomPoint, float bottomRadius, Matrix4 transform, bool solid, ColorF4 color)
         //    => RenderCone(name, Vec3.TransformPosition(topPoint, transform), bottomPoint * transform, bottomRadius, solid, color);
 
-        public void RenderPoint(string name, Vec3 position, float size, ColorF4 color)
+        public void RenderPoint(string name, Vec3 position, float size, ColorF4 color, float pointSize = DefaultPointSize)
         {
             SetPointSize(size);
             PrimitiveManager m = CacheDebugPrimitive(name, DebugPrimitiveType.Point);
             m.Parameter<GLVec4>(0).Value = color;
             m.Render(Matrix4.CreateTranslation(position));
         }
-        public unsafe void RenderLine(string name, Vec3 start, Vec3 end, float size, ColorF4 color)
+        public unsafe void RenderLine(string name, Vec3 start, Vec3 end, ColorF4 color, float lineWidth = DefaultLineSize)
         {
-            SetLineSize(size);
+            SetLineSize(lineWidth);
             PrimitiveManager m = CacheDebugPrimitive(name, DebugPrimitiveType.Line);
             m.Parameter<GLVec4>(0).Value = color;
             ((Vec3*)m.Data[0].Address)[1] = end - start;
             m.Render(Matrix4.CreateTranslation(start), Matrix3.Identity);
         }
-        public void RenderPlane(Vec3 position, Vec3 normal, Vec2 dimensions, bool solid)
+        public void RenderPlane(Vec3 position, Vec3 normal, Vec2 dimensions, bool solid, float lineWidth = DefaultLineSize)
         {
+            SetLineSize(lineWidth);
             throw new NotImplementedException();
             //Matrix4 mtx = Matrix4.CreateTranslation(position) * normal.LookatAngles().GetMatrix();
             //if (solid)
@@ -142,21 +160,23 @@ namespace CustomEngine.Rendering
             //    _wirePlane.Render(mtx, Matrix3.Identity);
             //}
         }
-        public void RenderSphere(string name, Vec3 center, float radius, bool solid, ColorF4 color)
+        public void RenderSphere(string name, Vec3 center, float radius, bool solid, ColorF4 color, float lineWidth = DefaultLineSize)
         {
+            SetLineSize(lineWidth);
             //Radius doesn't need to be multiplied by 2.0f; the sphere is already 2.0f in diameter
             Matrix4 mtx = Matrix4.CreateTranslation(center) * Matrix4.CreateScale(radius);
             PrimitiveManager m = CacheDebugPrimitive(name, solid ? DebugPrimitiveType.SolidSphere : DebugPrimitiveType.WireSphere);
             m.Parameter<GLVec4>(0).Value = color;
             m.Render(mtx, Matrix3.Identity);
         }
-        public void RenderAABB(string name, Vec3 halfExtents, Vec3 translation, bool solid, ColorF4 color)
-            => RenderBox(name, halfExtents, Matrix4.CreateTranslation(translation), solid, color);
-        public void RenderBox(string name, Vec3 halfExtents, Matrix4 transform, bool solid, ColorF4 color)
+        public void RenderAABB(string name, Vec3 halfExtents, Vec3 translation, bool solid, ColorF4 color, float lineWidth = DefaultLineSize)
+            => RenderBox(name, halfExtents, Matrix4.CreateTranslation(translation), solid, color, lineWidth);
+        public void RenderBox(string name, Vec3 halfExtents, Matrix4 transform, bool solid, ColorF4 color, float lineWidth = DefaultLineSize)
         {
+            SetLineSize(lineWidth);
             PrimitiveManager m = CacheDebugPrimitive(name, solid ? DebugPrimitiveType.SolidBox : DebugPrimitiveType.WireBox);
             m.Parameter<GLVec4>(0).Value = color;
-            transform = transform * Matrix4.CreateScale(halfExtents * 2.0f);
+            transform = transform * Matrix4.CreateScale(halfExtents);
             m.Render(transform, transform.Inverted().Transposed().GetRotationMatrix3());
         }
         public void RenderCapsule(Vec3 topPoint, Vec3 bottomPoint, float topRadius, float bottomRadius, bool solid)

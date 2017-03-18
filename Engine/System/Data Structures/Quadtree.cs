@@ -52,6 +52,11 @@ namespace System
             _head?.Resize(scaleFactor);
         }
 
+        public void DebugRender()
+        {
+            _head?.DebugRender();
+        }
+
         public class Node
         {
             private Node _parent;
@@ -280,6 +285,11 @@ namespace System
                 if (_subNodes != null)
                     foreach (Node node in _subNodes)
                         node?.Resize(scaleFactor);
+            }
+
+            public void DebugRender()
+            {
+                
             }
         }
     }

@@ -202,9 +202,9 @@ namespace CustomEngine.Rendering.HUD
             get => _manager;
             set
             {
-                _manager?._childComponentTree.Remove(this);
+                _manager?.UncacheComponent(this);
                 _manager = value;
-                _manager?._childComponentTree.Add(this);
+                _manager?.CacheComponent(this);
             }
         }
         public bool IsRendering
@@ -308,6 +308,8 @@ namespace CustomEngine.Rendering.HUD
             
             return false;
         }
+
+        public virtual void Render() { }
 
         public IEnumerator<HudComponent> GetEnumerator() => ((IEnumerable<HudComponent>)_children).GetEnumerator();
         IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable<HudComponent>)_children).GetEnumerator();

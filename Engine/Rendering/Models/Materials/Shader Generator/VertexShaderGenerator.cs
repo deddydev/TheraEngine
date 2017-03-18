@@ -105,7 +105,7 @@ namespace CustomEngine.Rendering.Models.Materials
                 if (Engine.Settings.SkinOnGPU)
                 {
                     WriteUniform(GLTypeName._mat4, Uniform.BoneMatricesName + "[" + (_info._boneCount + 1) + "]");
-                    WriteUniform(GLTypeName._mat3, Uniform.BoneMatricesITName + "[" + (_info._boneCount + 1) + "]");
+                    WriteUniform(GLTypeName._mat4, Uniform.BoneMatricesITName + "[" + (_info._boneCount + 1) + "]");
                 }
                 if (morphed)
                     WriteUniform(GLTypeName._mat4, Uniform.MorphWeightsName + "[" + _info._morphCount + "]");
@@ -136,8 +136,8 @@ namespace CustomEngine.Rendering.Models.Materials
             {
                 if (_info.HasNormals)
                 {
-                    WriteLine("OutData.Normal = vec3(0.0);");
-                    WriteLine("vec3 baseNormal = Normal0;");
+                    WriteLine("vec4 finalNormal = vec4(0.0);");
+                    WriteLine("vec4 baseNormal = vec4(Normal0, 1.0);");
                 }
                 if (_info.HasBinormals)
                 {
@@ -169,7 +169,7 @@ namespace CustomEngine.Rendering.Models.Materials
                     WriteLine("weight = {0}0.{1};", BufferType.MatrixWeights.ToString(), part);
                     WriteLine("finalPosition += ({0}[index] * basePosition) * weight;", Uniform.BoneMatricesName);
                     if (_info.HasNormals)
-                        WriteLine("OutData.Normal += ({0}[index] * baseNormal) * weight;", Uniform.BoneMatricesITName);
+                        WriteLine("finalNormal += ({0}[index] * baseNormal) * weight;", Uniform.BoneMatricesITName);
                     if (_info.HasBinormals)
                         WriteLine("OutData.Binormal += ({0}[index] * baseBinormal) * weight;", Uniform.BoneMatricesITName);
                     if (_info.HasTangents)
@@ -178,7 +178,7 @@ namespace CustomEngine.Rendering.Models.Materials
                 //wl("}");
                 WriteLine();
                 if (_info.HasNormals)
-                    WriteLine("OutData.Normal = normalize(OutData.Normal);");
+                    WriteLine("OutData.Normal = normalize(finalNormal.xyz);");
                 if (_info.HasBinormals)
                     WriteLine("OutData.Binormal = normalize(OutData.Binormal);");
                 if (_info.HasTangents)

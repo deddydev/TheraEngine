@@ -13,8 +13,13 @@ namespace CustomEngine
 
         public bool SkinOnGPU = false;
         public bool UseIntegerWeightingIds = false;
-        public bool RenderCameraFrustums = false;
+        public bool RenderCameraFrustums = true;
         public bool RenderSkeletons = true;
+        public bool CapFPS = true;
+        public float TargetFPS = 60.0f;
+        public bool CapUPS = true;
+        public float TargetUPS = 90.0f;
+
         public SingleFileRef<World> TransitionWorld;
         public SingleFileRef<World> OpeningWorld;
         public string ContentPath;

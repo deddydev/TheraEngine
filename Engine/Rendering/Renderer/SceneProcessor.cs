@@ -15,11 +15,9 @@ namespace CustomEngine.Rendering
         private SortedDictionary<uint, IRenderable> _renderCommands = new SortedDictionary<uint, IRenderable>();
 
         private Octree _cullingTree;
-        private Camera _currentCamera;
         private LightManager _lightManager = new LightManager();
 
         public Octree RenderTree => _cullingTree;
-        public Camera CurrentCamera => _currentCamera;
         public LightManager Lights => _lightManager;
 
         internal void WorldChanged()
@@ -58,11 +56,11 @@ namespace CustomEngine.Rendering
             if (_cullingTree == null || camera == null)
                 return;
 
-            _currentCamera = camera;
-            _currentCamera._isActive = true;
+            AbstractRenderer.CurrentCamera = camera;
 
             Frustum f = camera.GetFrustum();
             _cullingTree.Cull(f);
+            _cullingTree.DebugRender();
 
             //TODO: render in a sorted order by render keys, not just in whatever order like this
             //also perform culling directly before rendering something, to avoid an extra log(n) operation
@@ -84,8 +82,7 @@ namespace CustomEngine.Rendering
                 if (e.Current.IsRendering)
                     e.Current.Render();
 
-            _currentCamera._isActive = false;
-            _currentCamera = null;
+            AbstractRenderer.CurrentCamera = null;
         }
         public void AddRenderable(IRenderable obj)
         {
@@ -104,7 +101,7 @@ namespace CustomEngine.Rendering
         }
         internal void SetUniforms()
         {
-            CurrentCamera.SetUniforms();
+            AbstractRenderer.CurrentCamera.SetUniforms();
             Lights.SetUniforms();
         }
     }

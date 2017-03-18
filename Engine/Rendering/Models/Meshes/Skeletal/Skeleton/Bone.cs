@@ -138,8 +138,7 @@ namespace CustomEngine.Rendering.Models
             //Non-animated default bone position transforms, in model space
             _bindMatrix = Matrix4.Identity, _inverseBindMatrix = Matrix4.Identity,
             //Used for calculating vertex influences matrices quickly
-            _vertexMatrix = Matrix4.Identity, _vertexMatrixIT = Matrix4.Identity,
-            _worldMatrix = Matrix4.Identity, _inverseWorldMatrix = Matrix4.Identity;
+            _vertexMatrix = Matrix4.Identity, _vertexMatrixIT = Matrix4.Identity;
 
         public Bone Parent
         {
@@ -165,8 +164,8 @@ namespace CustomEngine.Rendering.Models
                 CalcBindMatrix(false);
             }
         }
-        public Matrix4 WorldMatrix => _worldMatrix;
-        public Matrix4 InverseWorldMatrix => _inverseWorldMatrix;
+        public Matrix4 WorldMatrix => OwningComponent != null ? OwningComponent.WorldMatrix * FrameMatrix : FrameMatrix;
+        public Matrix4 InverseWorldMatrix => OwningComponent != null ? OwningComponent.InverseWorldMatrix * InverseFrameMatrix : InverseFrameMatrix;
         public Matrix4 FrameMatrix => _frameMatrix;
         public Matrix4 BindMatrix => _bindMatrix;
         public Matrix4 InverseFrameMatrix => _inverseFrameMatrix;
@@ -201,17 +200,6 @@ namespace CustomEngine.Rendering.Models
 
             _vertexMatrix = FrameMatrix * InverseBindMatrix;
             _vertexMatrixIT = (InverseFrameMatrix * BindMatrix).Transposed().GetRotationMatrix4();
-
-            if (OwningComponent == null)
-            {
-                _worldMatrix = _frameMatrix;
-                _inverseWorldMatrix = _inverseFrameMatrix;
-            }
-            else
-            {
-                _worldMatrix = OwningComponent.WorldMatrix * _frameMatrix;
-                _inverseWorldMatrix = _inverseFrameMatrix * OwningComponent.InverseWorldMatrix;
-            }
 
             if (Engine.Settings.SkinOnGPU)
                 foreach (PrimitiveManager m in _linkedPrimitiveManagers)

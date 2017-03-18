@@ -1,6 +1,7 @@
 ﻿using CustomEngine.Rendering.Cameras;
 using System.Drawing;
 using System;
+using System.Collections.Generic;
 
 namespace CustomEngine.Rendering.HUD
 {
@@ -10,6 +11,7 @@ namespace CustomEngine.Rendering.HUD
     /// </summary>
     public partial class HudManager : DockableHudComponent
     {
+        internal List<HudComponent> _renderables = new List<HudComponent>();
         internal Quadtree _childComponentTree;
         private Viewport _owningViewport;
         private RenderPanel _owningPanel;
@@ -45,11 +47,28 @@ namespace CustomEngine.Rendering.HUD
         }
         public void Render()
         {
-
+            AbstractRenderer.CurrentCamera = _camera;
+            _childComponentTree.DebugRender();
+            var e = _renderables.GetEnumerator();
+            while (e.MoveNext())
+                if (e.Current.IsRendering)
+                    e.Current.Render();
+            AbstractRenderer.CurrentCamera = null;
         }
         protected override void OnChildAdded(HudComponent child)
         {
             child.Manager = this;
+        }
+
+        internal void UncacheComponent(HudComponent component)
+        {
+            _childComponentTree.Remove(component);
+            _renderables.Remove(component);
+        }
+        internal void CacheComponent(HudComponent component)
+        {
+            _childComponentTree.Add(component);
+            _renderables.Add(component);
         }
     }
 }

@@ -68,11 +68,11 @@ namespace CustomEngine.Rendering
             _index = index;
             _owner = owner;
             _owner.Viewport = this;
-            _gBuffer = new GBuffer(
-                GBufferTextureType.Diffuse | 
-                GBufferTextureType.Normal |
-                GBufferTextureType.Position |
-                GBufferTextureType.TexCoord);
+            if (Engine.Settings.ShadingStyle == ShadingStyle.Deferred)
+                _gBuffer = new GBuffer(
+                    GBufferTextureType.Diffuse | 
+                    GBufferTextureType.Normal |
+                    GBufferTextureType.Position);
         }
         internal void Resize(float parentWidth, float parentHeight)
         {

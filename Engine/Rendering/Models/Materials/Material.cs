@@ -30,19 +30,16 @@ namespace CustomEngine.Rendering.Models.Materials
         private List<IRenderable> _renderingReferences = new List<IRenderable>();
         private int _bindingId = -1;
 
-        public int BindingId
-        {
-            get { return _bindingId; }
-        }
+        public int BindingId => _bindingId;
         public List<GLVar> Parameters
         {
-            get { return _parameters; }
-            set { _parameters = value; }
+            get => _parameters;
+            set => _parameters = value;
         }
         public List<TextureReference> Textures
         {
-            get { return _textures; }
-            set { _textures = value; }
+            get => _textures;
+            set => _textures = value;
         }
         internal void AddReference(IRenderable user)
         {
@@ -114,10 +111,10 @@ namespace CustomEngine.Rendering.Models.Materials
         {
             List<TextureReference> refs = new List<TextureReference>()
             {
+                new TextureReference("Depth"),
                 new TextureReference("Position"),
                 new TextureReference("Normal"),
                 new TextureReference("AlbedoSpec"),
-                new TextureReference("TexCoord"),
             };
             Shader frag = Shader.UnlitColorFrag();
             List<GLVar> p = new List<GLVar>()

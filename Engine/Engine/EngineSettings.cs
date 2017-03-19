@@ -7,6 +7,11 @@ using System.Xml;
 
 namespace CustomEngine
 {
+    public enum ShadingStyle
+    {
+        Forward,
+        Deferred,
+    }
     public class EngineSettings : FileObject
     {
         public override ResourceType ResourceType => ResourceType.EngineSettings;
@@ -16,9 +21,10 @@ namespace CustomEngine
         public bool RenderCameraFrustums = true;
         public bool RenderSkeletons = true;
         public bool CapFPS = true;
-        public float TargetFPS = 60.0f;
+        public float TargetFPS = 30.0f;
         public bool CapUPS = true;
         public float TargetUPS = 90.0f;
+        public ShadingStyle ShadingStyle = ShadingStyle.Deferred;
 
         public SingleFileRef<World> TransitionWorld;
         public SingleFileRef<World> OpeningWorld;

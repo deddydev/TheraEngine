@@ -76,24 +76,7 @@ namespace CustomEngine.Rendering
             get { return _data[0, 24]; }
             set { _data[0, 24] = value; }
         }
-        public static void RadixSort(ref List<uint> array)
-        {
-            //int id = Engine.StartTimer();
-            Queue<uint>[] buckets = new Queue<uint>[15];
-            for (int i = 0; i < 0xF; i++)
-                buckets[i] = new Queue<uint>();
-            for (int i = 60; i >= 0; i -= 4)
-            {
-                foreach (uint value in array)
-                    buckets[(int)((value >> i) & 0xF)].Enqueue(value);
-                int x = 0;
-                foreach (Queue<uint> bucket in buckets)
-                    while (bucket.Count > 0)
-                        array[x++] = bucket.Dequeue();
-            }
-            //float seconds = Engine.EndTimer(id);
-            //Engine.DebugPrint("Radix Sort took " + seconds + " seconds.");
-        }
+        
         public override int GetHashCode()
         {
             unchecked { return (int)(uint)_data; }

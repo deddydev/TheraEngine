@@ -45,7 +45,7 @@ namespace CustomEngine.Rendering.HUD
         {
             
         }
-        public void Render()
+        public override void Render()
         {
             AbstractRenderer.CurrentCamera = _camera;
             _childComponentTree.DebugRender();

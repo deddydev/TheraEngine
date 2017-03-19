@@ -86,7 +86,13 @@ namespace CustomEngine.Rendering.Models.Materials
                 }
             }
         }
-
+        public static Material GetBasicTextureMaterial(TextureReference texture)
+        {
+            List<TextureReference> refs = new List<TextureReference>() { texture };
+            Shader frag = Shader.UnlitTextureFrag();
+            List<GLVar> p = new List<GLVar>();
+            return new Material("UnlitTextureMaterial", p, refs, frag);
+        }
         public static Material GetUnlitColorMaterial()
         {
             List<TextureReference> refs = new List<TextureReference>();

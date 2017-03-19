@@ -102,6 +102,7 @@
     <Compile Include="Editors\MaterialEditor.Designer.cs">
       <DependentUpon>MaterialEditor.cs</DependentUpon>
     </Compile>
+    <Compile Include="Editors\MaterialEditorHud.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Project.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

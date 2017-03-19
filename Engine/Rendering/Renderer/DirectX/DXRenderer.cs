@@ -329,5 +329,15 @@ namespace CustomEngine.Rendering.DirectX
         {
             throw new NotImplementedException();
         }
+
+        internal override void DrawText(ScreenTextHandler screenTextHandler)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override Bitmap GetScreenshot(Rectangle region, bool withTransparency)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

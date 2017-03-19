@@ -304,7 +304,10 @@ namespace CustomEngine.Rendering.Models
                 Generate();
             return Program.Parameters.FirstOrDefault(x => x.Name == name) as T;
         }
-
+        public void Render()
+        {
+            Render(Matrix4.Identity, Matrix3.Identity);
+        }
         public unsafe void Render(Matrix4 modelMatrix)
         {
             //TODO: don't invert, transpose, and get rotation matrix here

@@ -73,6 +73,8 @@ namespace CustomEngine.Rendering.Textures
 
         public void Bind()
         {
+            if (!IsActive)
+                Generate();
             GL.BindTexture(OpenTK.Graphics.OpenGL.TextureTarget.Texture2D, BindingId);
         }
 
@@ -81,12 +83,13 @@ namespace CustomEngine.Rendering.Textures
 
         }
 
-        protected override void OnGenerated()
+        public void PushData()
         {
             if (_data == null)
                 return;
 
-            GL.BindTexture(OpenTK.Graphics.OpenGL.TextureTarget.Texture2D, BindingId);
+            Bind();
+
             GL.TexParameter(OpenTK.Graphics.OpenGL.TextureTarget.Texture2D, TextureParameterName.TextureBaseLevel, 0);
             GL.TexParameter(OpenTK.Graphics.OpenGL.TextureTarget.Texture2D, TextureParameterName.TextureMaxLevel, 0);
             GL.TexParameter(OpenTK.Graphics.OpenGL.TextureTarget.Texture2D, TextureParameterName.TextureMinLod, 0);
@@ -118,6 +121,11 @@ namespace CustomEngine.Rendering.Textures
 
                 bmp.UnlockBits(data);
             }
+        }
+
+        protected override void OnGenerated()
+        {
+            PushData();
         }
 
         protected override void PostDeleted()

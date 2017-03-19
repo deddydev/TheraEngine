@@ -15,6 +15,7 @@ namespace TheraEditor.Editors
         public MaterialEditor()
         {
             InitializeComponent();
+            renderPanel1.GlobalHud = new MaterialEditorHud(renderPanel1);
         }
     }
 }

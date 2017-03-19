@@ -2,6 +2,7 @@
 using CustomEngine.Rendering;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Text;
@@ -66,9 +67,8 @@ namespace CustomEngine.Input.Devices
         internal void Tick(float xPos, float yPos, float delta)
         {
             Point absolute = Cursor.Position;
-            //if (RenderPanel.HoveredPanel != null)
-            //    absolute = RenderPanel.HoveredPanel.PointToClient(absolute);
-            //Console.WriteLine("{0} {1}", absolute.X, absolute.Y);
+            if (RenderPanel.HoveredPanel != null)
+                absolute = (Point)RenderPanel.HoveredPanel.Invoke(RenderPanel.HoveredPanel.PointToClientDelegate, absolute);
             OnAbsolute(absolute.X, absolute.Y);
             OnRelative(xPos - _lastX, yPos - _lastY);
             _lastX = xPos;

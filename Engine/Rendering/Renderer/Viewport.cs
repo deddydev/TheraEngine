@@ -8,6 +8,10 @@ using CustomEngine.Worlds;
 using System.Linq;
 using CustomEngine.Worlds.Actors.Types;
 using System.Collections.Generic;
+using CustomEngine.Rendering.Models;
+using CustomEngine.Rendering.Models.Materials;
+using CustomEngine.Rendering.Textures;
+using System.Drawing.Text;
 
 namespace CustomEngine.Rendering
 {
@@ -23,6 +27,9 @@ namespace CustomEngine.Rendering
         private Camera _worldCamera;
         private GBuffer _gBuffer;
         private RenderPanel _owningPanel;
+        private ScreenTextHandler _text;
+
+        public ScreenTextHandler Text => _text;
 
         private float _leftPercentage = 0.0f;
         private float _rightPercentage = 1.0f;
@@ -83,7 +90,7 @@ namespace CustomEngine.Rendering
 
             _worldCamera?.Resize(Width, Height);
             _hud?.Resize(_region);
-            //_gBuffer.Resize(Width, Height);
+            _gBuffer.Resize(Width, Height);
         }
         public void DebugPrint(string message)
         {
@@ -322,6 +329,98 @@ namespace CustomEngine.Rendering
 
             }
             return null;
+        }
+    }
+
+    public class ScreenTextHandler
+    {
+        PrimitiveManager _manager;
+        Texture _texture;
+        
+        internal class TextData
+        {
+            public string _string;
+            public List<Vec3> _positions = new List<Vec3>();
+        }
+        internal static int _fontSize = 12;
+        internal static readonly Font _textFont = new Font("Arial", _fontSize);
+        internal Viewport _viewport;
+        internal Dictionary<string, TextData> _text = new Dictionary<string, TextData>();
+        public int Count { get { return _text.Count; } }
+
+        internal IVec2 _size = new IVec2();
+        internal Bitmap _bitmap = null;
+        internal int _texId = -1;
+        Matrix4 _transform = Matrix4.Identity;
+
+        public Vec3 this[string text]
+        {
+            set
+            {
+                if (!_text.ContainsKey(text))
+                    _text.Add(text, new TextData() { _string = text, _positions = new List<Vec3>() { value } });
+                else
+                    _text[text]._positions.Add(value);
+            }
+        }
+
+        public ScreenTextHandler(Viewport viewport)
+        {
+            _text = new Dictionary<string, TextData>();
+            _viewport = viewport;
+            TextureReference texRef = new TextureReference("Text", (int)_viewport.Width, (int)_viewport.Height);
+            _manager = new PrimitiveManager(PrimitiveData.FromQuads(Culling.Back, new PrimitiveBufferInfo(), VertexQuad.ZUpQuad(_viewport.Width, _viewport.Height)), Material.GetBasicTextureMaterial(texRef));
+            _texture = _manager.Program.Textures[0];
+        }
+
+        public void Clear() => _text.Clear();
+
+        public unsafe void Draw()
+        {
+            Bitmap b = _texture.Data.Bitmap;
+
+            //Resize bitmap if viewport bounds have changed
+            if (_size != (IVec2)_viewport.Region.Bounds ||
+                _viewport.Region.Bounds.X.IsZero() ||
+                _viewport.Region.Bounds.Y.IsZero())
+            {
+                _size = (IVec2)_viewport.Region.Bounds;
+                _transform = Matrix4.CreateTranslation(_viewport.Width / 2.0f, _viewport.Height / 2.0f, 0.0f);
+
+                if (b != null)
+                    b.Dispose();
+
+                if (_size.X == 0 || _size.Y == 0)
+                    return;
+
+                //Create a texture over the whole model panel
+                b = new Bitmap(_size.X, _size.Y);
+                b.MakeTransparent();
+                _texture.Data.Bitmap = b;
+            }
+
+            //Draw text information onto the bitmap
+            using (Graphics g = Graphics.FromImage(b))
+            {
+                g.Clear(Color.Transparent);
+                g.TextRenderingHint = TextRenderingHint.AntiAlias;
+
+                List<Vec2> _used = new List<Vec2>();
+
+                foreach (TextData d in _text.Values)
+                    foreach (Vec3 v in d._positions)
+                        if (v.X + d._string.Length * 10.0f > 0.0f && v.X < _viewport.Width &&
+                            v.Y > -10.0f && v.Y < _viewport.Height &&
+                            v.Z > 0.0f && v.Z < 1.0f && //near and far depth values
+                            !_used.Contains(new Vec2(v.X, v.Y)))
+                        {
+                            g.DrawString(d._string, _textFont, Brushes.Black, new PointF(v.X, v.Y));
+                            _used.Add(new Vec2(v.X, v.Y));
+                        }
+            }
+
+            _texture.PushData();
+            _manager.Render(_transform, Matrix3.Identity);
         }
     }
 }

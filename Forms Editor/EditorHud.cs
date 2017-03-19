@@ -4,6 +4,7 @@ using CustomEngine.Rendering;
 using CustomEngine.Rendering.HUD;
 using CustomEngine.Worlds;
 using CustomEngine.Worlds.Actors.Types;
+using System;
 
 namespace TheraEditor
 {
@@ -13,13 +14,21 @@ namespace TheraEditor
         {
 
         }
+        protected override void SetDefaults()
+        {
+            base.SetDefaults();
+            RegisterTick(ETickGroup.PrePhysics, ETickOrder.Logic);
+        }
         public override void RegisterInput(InputInterface input)
         {
             base.RegisterInput(input);
+            input.RegisterButtonEvent(GamePadButton.FaceDown, ButtonInputType.Pressed, OnGamepadSelect);
+            input.RegisterButtonPressed(EMouseButton.LeftClick, OnLeftClick);
         }
-        private void OnMouseMove(float x, float y)
+        protected override void OnMouseMove(float x, float y)
         {
-
+            base.OnMouseMove(x, y);
+            HighlightScene(false);
         }
         private void OnLeftClick(bool pressed)
         {
@@ -32,10 +41,6 @@ namespace TheraEditor
         private void PickScene(bool gamepad)
         {
 
-        }
-        protected override void OnSelect()
-        {
-            base.OnSelect();
         }
         private void HighlightScene(bool gamepad)
         {

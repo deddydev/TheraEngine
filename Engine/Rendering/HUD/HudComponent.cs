@@ -8,6 +8,7 @@ using CustomEngine.Worlds.Actors.Components;
 
 namespace CustomEngine.Rendering.HUD
 {
+    public delegate void DelScrolling(bool up);
     public class HudComponent : Pawn<SceneComponent>, IPanel, I2DBoundable, IEnumerable<HudComponent>
     {
         public HudComponent() : base()
@@ -20,7 +21,7 @@ namespace CustomEngine.Rendering.HUD
         protected List<HudComponent> _children = new List<HudComponent>();
 
         protected Quadtree.Node _renderNode;
-        protected bool _highlightable, _selectable;
+        protected bool _highlightable, _selectable, _scrollable;
         protected ushort _zIndex;
         protected AnchorFlags _positionAnchorFlags;
         protected Matrix4 _localTransform = Matrix4.Identity, _invLocalTransform = Matrix4.Identity;
@@ -30,22 +31,34 @@ namespace CustomEngine.Rendering.HUD
         protected Vec2 _translationLocalOrigin = Vec2.Zero;
         protected BoundingRectangle _axisAlignedBounds;
         protected bool _isRendering;
-
+        
         [Category("Events")]
         public event Action Highlighted;
         [Category("Events")]
         public event Action Selected;
+        [Category("Events")]
+        public event DelScrolling Scrolled;
 
         public virtual void OnHighlighted()
         {
             if (_highlightable)
                 Highlighted?.Invoke();
         }
-        public virtual void OnSelected()
+        public virtual void OnSelect()
         {
             if (_selectable)
                 Selected?.Invoke();
         }
+        public virtual void OnScrolled(bool up)
+        {
+            if (_scrollable)
+                Scrolled?.Invoke(up);
+        }
+        public virtual void OnBack()
+        {
+            
+        }
+
         [Category("Interaction")]
         public bool Selectable
         {
@@ -57,6 +70,12 @@ namespace CustomEngine.Rendering.HUD
         {
             get => _highlightable;
             set => _highlightable = value;
+        }
+        [Category("Interaction")]
+        public bool Scrollable
+        {
+            get => _scrollable;
+            set => _scrollable = value;
         }
         [Category("Transform")]
         public BoundingRectangle Region

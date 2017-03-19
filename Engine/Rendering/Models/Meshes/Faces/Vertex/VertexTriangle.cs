@@ -37,7 +37,7 @@ namespace CustomEngine.Rendering.Models
         {
             return new List<VertexTriangle>() { this };
         }
-        public List<VertexLine> ToLines()
+        public override List<VertexLine> ToLines()
         {
             return new List<VertexLine>() { _e01, _e12, _e20 };
         }

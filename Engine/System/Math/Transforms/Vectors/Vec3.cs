@@ -771,27 +771,20 @@ namespace System
         
         public static Vec3 operator *(Vec3 left, Matrix4 right)
             => TransformPerspective(left, right);
-        
-        public static explicit operator Vec3(Vec2 v)
-            => new Vec3(v.X, v.Y, 0.0f);
-        
-        public static explicit operator Vec3(ColorF4 v)
-            => new Vec3(v.R, v.G, v.B);
-
+       
         private const float _colorFactor = 1.0f / 255.0f;
         public static explicit operator Vec3(Color c)
             => new Vec3(c.R * _colorFactor, c.G * _colorFactor, c.B * _colorFactor);
         public static explicit operator Color(Vec3 v)
             => Color.FromArgb((int)(v.X / _colorFactor), (int)(v.Y / _colorFactor), (int)(v.Z / _colorFactor));
 
-        public static implicit operator BulletSharp.Vector3(Vec3 v) 
-            => new BulletSharp.Vector3(v.X, v.Y, v.Z);
-        public static implicit operator Vec3(BulletSharp.Vector3 v)
-            => new Vec3(v.X, v.Y, v.Z);
-
-        public static implicit operator Vec3(float v)
-            => new Vec3(v);
-
+        public static explicit operator Vec3(Vec2 v)                    => new Vec3(v.X, v.Y, 0.0f);
+        public static explicit operator Vec3(ColorF4 v)                 => new Vec3(v.R, v.G, v.B);
+        public static implicit operator BulletSharp.Vector3(Vec3 v)     => new BulletSharp.Vector3(v.X, v.Y, v.Z);
+        public static implicit operator Vec3(BulletSharp.Vector3 v)     => new Vec3(v.X, v.Y, v.Z);
+        public static implicit operator Vec3(float v)                   => new Vec3(v);
+        public static explicit operator IVec3(Vec3 v)                   => new IVec3((int)Math.Round(v.X), (int)Math.Round(v.Y), (int)Math.Round(v.Z));
+        
         private static string listSeparator = 
             Globalization.CultureInfo.CurrentCulture.TextInfo.ListSeparator;
         public static Vec3 Parse(string value)

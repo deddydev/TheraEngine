@@ -11,6 +11,7 @@ using CustomEngine.Rendering;
 using CustomEngine.Rendering.HUD;
 using CustomEngine.Rendering.DirectX;
 using CustomEngine.Rendering.OpenGL;
+using System.Drawing.Imaging;
 
 namespace CustomEngine
 {
@@ -29,6 +30,7 @@ namespace CustomEngine
     /// </summary>
     public class RenderPanel : UserControl, IEnumerable<Viewport>
     {
+        public static RenderPanel HoveredPanel;
         public RenderPanel()
         {
             SetStyle(
@@ -37,7 +39,9 @@ namespace CustomEngine
                 ControlStyles.Opaque |
                 ControlStyles.ResizeRedraw,
                 true);
-
+            
+            PointToClientDelegate = new DelPointConvert(PointToClient);
+            PointToScreenDelegate = new DelPointConvert(PointToScreen);
             CreateContext();
             AddViewport(new LocalPlayerController());
         }
@@ -47,7 +51,21 @@ namespace CustomEngine
             base.Dispose(disposing);
         }
 
-        public static RenderPanel HoveredPanel;
+        public new Point PointToClient(Point p)
+        {
+            p = base.PointToClient(p);
+            p.Y = Height - p.Y;
+            return p;
+        }
+        public new Point PointToScreen(Point p)
+        {
+            p.Y = Height - p.Y;
+            return base.PointToScreen(p);
+        }
+        
+        internal delegate Point DelPointConvert(Point p);
+        internal DelPointConvert PointToClientDelegate;
+        internal DelPointConvert PointToScreenDelegate;
 
         internal RenderContext _context;
         protected int _updateCounter;
@@ -109,24 +127,21 @@ namespace CustomEngine
                     //_context.ErrorCheck();
                     //_context.Flush();
                 }
-                finally
-                {
-                    Monitor.Exit(_context);
-                }
+                finally { Monitor.Exit(_context); }
             }
         }
-        //protected override void OnMouseEnter(EventArgs e)
-        //{
-        //    base.OnMouseEnter(e);
-        //    if (HoveredPanel != this)
-        //        HoveredPanel = this;
-        //}
-        //protected override void OnMouseLeave(EventArgs e)
-        //{
-        //    base.OnMouseLeave(e);
-        //    if (HoveredPanel == this)
-        //        HoveredPanel = null;
-        //}
+        protected override void OnMouseEnter(EventArgs e)
+        {
+            base.OnMouseEnter(e);
+            if (HoveredPanel != this)
+                HoveredPanel = this;
+        }
+        protected override void OnMouseLeave(EventArgs e)
+        {
+            base.OnMouseLeave(e);
+            if (HoveredPanel == this)
+                HoveredPanel = null;
+        }
         protected virtual void OnRender(PaintEventArgs e)
         {
             _context.BeginDraw();
@@ -212,11 +227,6 @@ namespace CustomEngine
             }
         }
 
-        public IEnumerator<Viewport> GetEnumerator()
-            => ((IEnumerable<Viewport>)_viewports).GetEnumerator();
-        IEnumerator IEnumerable.GetEnumerator()
-            => ((IEnumerable<Viewport>)_viewports).GetEnumerator();
-
         public void BeginTick()
         {
             _attachedToEngine = true;
@@ -231,5 +241,10 @@ namespace CustomEngine
         {
             Invalidate();
         }
+
+        public IEnumerator<Viewport> GetEnumerator()
+            => ((IEnumerable<Viewport>)_viewports).GetEnumerator();
+        IEnumerator IEnumerable.GetEnumerator()
+            => ((IEnumerable<Viewport>)_viewports).GetEnumerator();
     }
 }

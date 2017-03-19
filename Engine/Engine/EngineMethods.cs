@@ -93,11 +93,11 @@ namespace CustomEngine
         }
 
         #region Tick
-        public static void TogglePause()
+        public static void TogglePause(PlayerIndex toggler)
         {
-            SetPaused(!_isPaused);
+            SetPaused(!_isPaused, toggler);
         }
-        public static void SetPaused(bool paused)
+        public static void SetPaused(bool paused, PlayerIndex toggler)
         {
             _isPaused = paused;
         }

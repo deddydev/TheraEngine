@@ -10,11 +10,11 @@ namespace CustomEngine.Rendering.HUD
     public partial class HudManager : DockableHudComponent
     {
         protected Vec2 _cursorPos = Vec2.Zero;
+        private HudComponent _focusedComponent;
 
         CameraComponent CameraComponent { get { return RootComponent as CameraComponent; } }
         protected override void SetDefaults()
         {
-            RegisterTick(ETickGroup.PrePhysics, ETickOrder.Logic);
             base.SetDefaults();
         }
         protected override SceneComponent SetupComponents()
@@ -23,78 +23,54 @@ namespace CustomEngine.Rendering.HUD
         }
         public override void RegisterInput(InputInterface input)
         {
-            input.RegisterMouseScroll(OnScrolled, InputPauseType.TickOnlyWhenPaused);
-            input.RegisterMouseMove(MouseMove, false);
-            input.RegisterButtonEvent(EMouseButton.LeftClick, ButtonInputType.Pressed, OnSelect);
-            input.RegisterButtonPressed(EKey.ShiftLeft, OnShift);
-            input.RegisterButtonPressed(EKey.ShiftRight, OnShift);
+            input.RegisterMouseScroll(OnScrolledInput, InputPauseType.TickOnlyWhenPaused);
+            input.RegisterMouseMove(OnMouseMove, false, InputPauseType.TickOnlyWhenPaused);
+            input.RegisterButtonEvent(EMouseButton.LeftClick, ButtonInputType.Pressed, OnSelectInput, InputPauseType.TickOnlyWhenPaused);
 
-            input.RegisterAxisUpdate(GamePadAxis.LeftThumbstickX, OnLeftStickX, false);
-            input.RegisterAxisUpdate(GamePadAxis.LeftThumbstickY, OnLeftStickY, false);
-            input.RegisterAxisUpdate(GamePadAxis.RightThumbstickX, OnRightStickX, false);
-            input.RegisterAxisUpdate(GamePadAxis.RightThumbstickY, OnRightStickY, false);
-            input.RegisterButtonEvent(GamePadButton.FaceDown, ButtonInputType.Pressed, OnSelect);
-            input.RegisterButtonEvent(GamePadButton.FaceRight, ButtonInputType.Pressed, OnCancel);
+            input.RegisterAxisUpdate(GamePadAxis.LeftThumbstickX, OnLeftStickX, false, InputPauseType.TickOnlyWhenPaused);
+            input.RegisterAxisUpdate(GamePadAxis.LeftThumbstickY, OnLeftStickY, false, InputPauseType.TickOnlyWhenPaused);
+            input.RegisterButtonEvent(GamePadButton.DPadUp, ButtonInputType.Pressed, OnDPadUp, InputPauseType.TickOnlyWhenPaused);
+            input.RegisterButtonEvent(GamePadButton.FaceDown, ButtonInputType.Pressed, OnSelectInput, InputPauseType.TickOnlyWhenPaused);
+            input.RegisterButtonEvent(GamePadButton.FaceRight, ButtonInputType.Pressed, OnBackInput, InputPauseType.TickOnlyWhenPaused);
 
-            input.RegisterButtonEvent(EKey.Escape, ButtonInputType.Pressed, OnTogglePause);
-            input.RegisterButtonEvent(GamePadButton.SpecialRight, ButtonInputType.Pressed, OnTogglePause);
+            input.RegisterButtonEvent(EKey.Escape, ButtonInputType.Pressed, OnTogglePause, InputPauseType.TickAlways);
+            input.RegisterButtonEvent(GamePadButton.SpecialRight, ButtonInputType.Pressed, OnTogglePause, InputPauseType.TickAlways);
         }
         private void OnTogglePause()
         {
-            Engine.TogglePause();
+            Engine.TogglePause(LocalPlayerController.LocalPlayerIndex);
             if (!Engine.IsPaused)
                 LocalPlayerController.ControlledPawn = null;
         }
 
-        private void OnLeftStickX(float value) { }
-        private void OnLeftStickY(float value) { }
-        private void OnRightStickX(float value) { }
-        private void OnRightStickY(float value) { }
+        protected virtual void OnLeftStickX(float value) { }
+        protected virtual void OnLeftStickY(float value) { }
         
-        private void OnShift(bool pressed) { }
-        private void OnScrolled(bool up) { }
-
-        private HudComponent _focusedComponent;
-
         /// <summary>
         /// Called on either left click or A button.
         /// Default behavior will OnClick the currently focused/highlighted UI component, if anything.
         /// </summary>
-        protected virtual void OnSelect()
+        protected virtual void OnSelectInput()
         {
-            _focusedComponent?.OnSelected();
+            _focusedComponent?.OnSelect();
         }
-        private void OnCancel()
+        private void OnScrolledInput(bool up)
+        {
+            _focusedComponent?.OnScrolled(up);
+        }
+        protected virtual void OnBackInput()
+        {
+            _focusedComponent?.OnBack();
+        }
+        protected virtual void OnDPadUp()
         {
 
         }
-        
-        private void OnLeftClick(bool pressed)
-        {
 
-        }
-        private void OnGamepadSelect()
-        {
-
-        }
-        public void MouseMove(float x, float y)
+        protected virtual void OnMouseMove(float x, float y)
         {
             _cursorPos.X = x;
             _cursorPos.Y = y;
-            HighlightScene(false);
-        }
-        public void ShowContextMenu()
-        {
-
-        }
-        private void HighlightScene(bool gamepad)
-        {
-
-        }
-        
-        internal override void Tick(float delta)
-        {
-            
         }
     }
 }

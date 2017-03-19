@@ -58,6 +58,8 @@ namespace CustomEngine.Rendering
             SolidSphere,
             WireBox,
             SolidBox,
+            WireQuad,
+            SolidQuad,
         }
 
         public PrimitiveManager CacheDebugPrimitive(string name, DebugPrimitiveType type)
@@ -88,6 +90,12 @@ namespace CustomEngine.Rendering
                     break;
                 case DebugPrimitiveType.SolidBox:
                     data = BoundingBox.SolidMesh(new Vec3(-1.0f), new Vec3(1.0f));
+                    break;
+                case DebugPrimitiveType.WireQuad:
+                    data = PrimitiveData.FromLineList(new PrimitiveBufferInfo(), VertexQuad.YUpQuad(2.0f).ToLines());
+                    break;
+                case DebugPrimitiveType.SolidQuad:
+                    data = PrimitiveData.FromQuads(Culling.None, new PrimitiveBufferInfo(), VertexQuad.YUpQuad(2.0f));
                     break;
             }
             return AssignDebugPrimitive(name, new PrimitiveManager(data, Material.GetUnlitColorMaterial()));
@@ -142,28 +150,18 @@ namespace CustomEngine.Rendering
             ((Vec3*)m.Data[0].Address)[1] = end - start;
             m.Render(Matrix4.CreateTranslation(start), Matrix3.Identity);
         }
-        public void RenderPlane(Vec3 position, Vec3 normal, Vec2 dimensions, bool solid, float lineWidth = DefaultLineSize)
+        public void RenderQuad(string name, Vec3 position, Vec3 normal, Vec2 halfExtents, bool solid, float lineWidth = DefaultLineSize)
         {
             SetLineSize(lineWidth);
-            throw new NotImplementedException();
-            //Matrix4 mtx = Matrix4.CreateTranslation(position) * normal.LookatAngles().GetMatrix();
-            //if (solid)
-            //{
-            //    if (_solidPlane == null)
-            //        CacheSolidPlane();
-            //    _solidPlane.Render(mtx, Matrix3.Identity);
-            //}
-            //else
-            //{
-            //    if (_wirePlane == null)
-            //        CacheWireframePlane();
-            //    _wirePlane.Render(mtx, Matrix3.Identity);
-            //}
+            PrimitiveManager m = CacheDebugPrimitive(name, solid ? DebugPrimitiveType.SolidQuad : DebugPrimitiveType.WireQuad);
+            Quaternion lookat = Quaternion.BetweenVectors(Vec3.Up, normal);
+            Matrix4 mtx = Matrix4.CreateTranslation(position) * Matrix4.CreateFromQuaternion(lookat) * Matrix4.CreateScale(halfExtents.X, 1.0f, halfExtents.Y);
+            m.Render(mtx, mtx.Inverted().Transposed().GetRotationMatrix3());
         }
         public void RenderSphere(string name, Vec3 center, float radius, bool solid, ColorF4 color, float lineWidth = DefaultLineSize)
         {
             SetLineSize(lineWidth);
-            //Radius doesn't need to be multiplied by 2.0f; the sphere is already 2.0f in diameter
+            //radius doesn't need to be multiplied by 2.0f; the sphere is already 2.0f in diameter
             Matrix4 mtx = Matrix4.CreateTranslation(center) * Matrix4.CreateScale(radius);
             PrimitiveManager m = CacheDebugPrimitive(name, solid ? DebugPrimitiveType.SolidSphere : DebugPrimitiveType.WireSphere);
             m.Parameter<GLVec4>(0).Value = color;
@@ -176,6 +174,7 @@ namespace CustomEngine.Rendering
             SetLineSize(lineWidth);
             PrimitiveManager m = CacheDebugPrimitive(name, solid ? DebugPrimitiveType.SolidBox : DebugPrimitiveType.WireBox);
             m.Parameter<GLVec4>(0).Value = color;
+            //halfExtents doesn't need to be multiplied by 2.0f; the box is already 1.0f in each direction of each dimension (2.0f extents)
             transform = transform * Matrix4.CreateScale(halfExtents);
             m.Render(transform, transform.Inverted().Transposed().GetRotationMatrix3());
         }
@@ -187,15 +186,14 @@ namespace CustomEngine.Rendering
         {
             throw new NotImplementedException();
         }
+
         public void RenderCone(Vec3 topPoint, Vec3 bottomPoint, float bottomRadius, bool solid)
         {
             throw new NotImplementedException();
         }
 
         private Stack<Rectangle> _renderAreaStack = new Stack<Rectangle>();
-
-        //private static List<DisplayList> _displayLists = new List<DisplayList>();
-
+        
         public abstract int[] CreateObjects(GenType type, int count);
         public abstract int[] CreateTextures(int target, int count);
         public abstract int[] CreateQueries(int type, int count);
@@ -415,6 +413,8 @@ namespace CustomEngine.Rendering
 
         #endregion
 
+        internal abstract void DrawText(ScreenTextHandler screenTextHandler);
+
         public abstract void Clear(BufferClear mask);
         public abstract float GetDepth(float x, float y);
 
@@ -450,6 +450,8 @@ namespace CustomEngine.Rendering
         /// Binds a transform feedback buffer to "out" variables in the shader.
         /// </summary>
         public abstract void TransformFeedbackVaryings(int program, string[] varNames);
+
+        public abstract Bitmap GetScreenshot(Rectangle region, bool withTransparency);
     }
     public enum FramebufferType
     {

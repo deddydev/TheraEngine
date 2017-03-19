@@ -62,11 +62,11 @@ namespace CustomEngine.Files
             { typeof(IMultiFileRef), new FilterInfo("Multi File Reference", "FREF", ResourceType.MultiFileRef, "cmref") },
             { typeof(ISingleFileRef), new FilterInfo("Single File Reference", "FREF", ResourceType.SingleFileRef, "csref") },
 
-            { typeof(World), new FilterInfo("World", "CWRL", ResourceType.World, "cworld") },
+            { typeof(World), new FilterInfo("World", "CWRL", ResourceType.World, "xcworld", "bcworld") },
             { typeof(WorldSettings), new FilterInfo("World Settings", "SETT", ResourceType.WorldSettings, "csettings") },
             { typeof(WorldState), new FilterInfo("World State", "STAT", ResourceType.WorldState, "cstate") },
 
-            { typeof(Map), new FilterInfo("Map", "CMAP", ResourceType.Map, "cmap") },
+            { typeof(Map), new FilterInfo("Map", "CMAP", ResourceType.Map, "xcmap", "bcmap") },
             { typeof(MapSettings), new FilterInfo("Map Settings", "SETT", ResourceType.MapSettings, "csettings") },
             { typeof(MapState), new FilterInfo("Map State", "STAT", ResourceType.MapState, "cstate") },
 
@@ -291,7 +291,14 @@ namespace CustomEngine.Files
             _extensions = extensions;
         }
 
-        public string Filter { get { string s = ExtensionsFilter; return _name + " (" + s.Replace(";", ", ") + ")|" + s; } }
+        public string Filter
+        {
+            get
+            {
+                string s = ExtensionsFilter;
+                return _name + " (" + s.Replace(";", ", ") + ")|" + s;
+            }
+        }
         public string ExtensionsFilter
         {
             get
@@ -301,10 +308,9 @@ namespace CustomEngine.Files
                 foreach (string ext in _extensions)
                 {
                     if (first)
-                    {
-                        filter += ";";
                         first = false;
-                    }
+                    else
+                        filter += ";";
                     if (!ext.Contains('.'))
                         filter += "*.";
                     filter += ext;

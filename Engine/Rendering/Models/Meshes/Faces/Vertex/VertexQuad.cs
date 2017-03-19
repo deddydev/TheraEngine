@@ -88,6 +88,41 @@ namespace CustomEngine.Rendering.Models
                 new Vertex(topRight,    topRightInf,    topRightNormal,     new Vec2(1.0f, 1.0f)),
                 new Vertex(topLeft,     topLeftInf,     topLeftNormal,      new Vec2(0.0f, 1.0f)));
         }
+        /// <summary>
+        /// Y-up is facing the sky, like a floor.
+        /// </summary>
+        public static VertexQuad YUpQuad(float scale = 1.0f) => YUpQuad(scale, scale);
+        /// <summary>
+        /// Y-up is facing the sky, like a floor.
+        /// </summary>
+        public static VertexQuad YUpQuad(float xScale, float zScale)
+        {
+            float xHalf = xScale / 2.0f;
+            float zHalf = zScale / 2.0f;
+            Vec3 v1 = new Vec3(-xHalf, 0.0f, zHalf);
+            Vec3 v2 = new Vec3(xHalf, 0.0f, zHalf);
+            Vec3 v3 = new Vec3(xHalf, 0.0f, -zHalf);
+            Vec3 v4 = new Vec3(-xHalf, 0.0f, -zHalf);
+            return MakeQuad(v1, v2, v3, v4, Vec3.UnitY);
+        }
+        /// <summary>
+        /// Z-up is facing the camera, like a wall.
+        /// </summary>
+        public static VertexQuad ZUpQuad(float scale = 1.0f) => ZUpQuad(scale, scale);
+        /// <summary>
+        /// Z-up is facing the camera, like a wall.
+        /// </summary>
+        public static VertexQuad ZUpQuad(float xScale, float yScale)
+        {
+            float xHalf = xScale / 2.0f;
+            float yHalf = yScale / 2.0f;
+            Vec3 v1 = new Vec3(-xHalf, -yHalf, 0.0f);
+            Vec3 v2 = new Vec3(xHalf, -yHalf, 0.0f);
+            Vec3 v3 = new Vec3(xHalf, yHalf, 0.0f);
+            Vec3 v4 = new Vec3(-xHalf, yHalf, 0.0f);
+            return MakeQuad(v1, v2, v3, v4, Vec3.UnitZ);
+        }
+
         public static VertexQuad MakeQuad(
            Vec3 bottomLeft,     Influence bottomLeftInf,
            Vec3 bottomRight,    Influence bottomRightInf,

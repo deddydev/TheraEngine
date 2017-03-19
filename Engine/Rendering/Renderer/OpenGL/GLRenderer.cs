@@ -2,8 +2,10 @@
 using CustomEngine.Rendering.Models.Materials;
 using OpenTK.Graphics.OpenGL;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
+using System.Drawing.Imaging;
 using System.Linq;
 
 namespace CustomEngine.Rendering.OpenGL
@@ -19,84 +21,11 @@ namespace CustomEngine.Rendering.OpenGL
         public GLRenderer() { }
 
         private ShaderType _currentShaderMode;
-
-        #region Shapes
-        //public override void DrawBoxWireframe(System.Vec3 min, System.Vec3 max)
-        //{
-        //    GL.Begin(PrimitiveType.LineStrip);
-
-        //    GL.Vertex3(max.X, max.Y, max.Z);
-        //    GL.Vertex3(max.X, max.Y, min.Z);
-        //    GL.Vertex3(min.X, max.Y, min.Z);
-        //    GL.Vertex3(min.X, min.Y, min.Z);
-        //    GL.Vertex3(min.X, min.Y, max.Z);
-        //    GL.Vertex3(max.X, min.Y, max.Z);
-        //    GL.Vertex3(max.X, max.Y, max.Z);
-
-        //    GL.End();
-
-        //    GL.Begin(PrimitiveType.Lines);
-
-        //    GL.Vertex3(min.X, max.Y, max.Z);
-        //    GL.Vertex3(max.X, max.Y, max.Z);
-        //    GL.Vertex3(min.X, max.Y, max.Z);
-        //    GL.Vertex3(min.X, min.Y, max.Z);
-        //    GL.Vertex3(min.X, max.Y, max.Z);
-        //    GL.Vertex3(min.X, max.Y, min.Z);
-        //    GL.Vertex3(max.X, min.Y, min.Z);
-        //    GL.Vertex3(min.X, min.Y, min.Z);
-        //    GL.Vertex3(max.X, min.Y, min.Z);
-        //    GL.Vertex3(max.X, max.Y, min.Z);
-        //    GL.Vertex3(max.X, min.Y, min.Z);
-        //    GL.Vertex3(max.X, min.Y, max.Z);
-
-        //    GL.End();
-        //}
-        //public override void DrawBoxSolid(System.Vec3 min, System.Vec3 max)
-        //{
-        //    GL.Begin(PrimitiveType.QuadStrip);
-
-        //    GL.Vertex3(min.X, min.Y, min.Z);
-        //    GL.Vertex3(min.X, max.Y, min.Z);
-        //    GL.Vertex3(max.X, min.Y, min.Z);
-        //    GL.Vertex3(max.X, max.Y, min.Z);
-        //    GL.Vertex3(max.X, min.Y, max.Z);
-        //    GL.Vertex3(max.X, max.Y, max.Z);
-        //    GL.Vertex3(min.X, min.Y, max.Z);
-        //    GL.Vertex3(min.X, max.Y, max.Z);
-        //    GL.Vertex3(min.X, min.Y, min.Z);
-        //    GL.Vertex3(min.X, max.Y, min.Z);
-
-        //    GL.End();
-
-        //    GL.Begin(PrimitiveType.Quads);
-
-        //    GL.Vertex3(min.X, max.Y, min.Z);
-        //    GL.Vertex3(min.X, max.Y, max.Z);
-        //    GL.Vertex3(max.X, max.Y, max.Z);
-        //    GL.Vertex3(max.X, max.Y, min.Z);
-
-        //    GL.Vertex3(min.X, min.Y, min.Z);
-        //    GL.Vertex3(min.X, min.Y, max.Z);
-        //    GL.Vertex3(max.X, min.Y, max.Z);
-        //    GL.Vertex3(max.X, min.Y, min.Z);
-
-        //    GL.End();
-        //}
-        //public override void DrawCapsuleWireframe(System.Single radius, System.Single halfHeight)
-        //{
-        //    throw new NotImplementedException();
-        //}
-        //public override void DrawCapsuleSolid(System.Single radius, System.Single halfHeight)
-        //{
-        //    throw new NotImplementedException();
-        //}
-        #endregion
         
         public override void BindTextureData(int textureTargetEnum, int mipLevel, int pixelInternalFormatEnum, int width, int height, int pixelFormatEnum, int pixelTypeEnum, VoidPtr data)
         {
             // https://www.opengl.org/sdk/docs/man/html/glTexImage2D.xhtml
-            GL.TexImage2D((TextureTarget)textureTargetEnum, mipLevel, (OpenTK.Graphics.OpenGL.PixelInternalFormat)pixelInternalFormatEnum, width, height, 0, (PixelFormat)pixelFormatEnum, (PixelType)pixelTypeEnum, data);
+            GL.TexImage2D((TextureTarget)textureTargetEnum, mipLevel, (OpenTK.Graphics.OpenGL.PixelInternalFormat)pixelInternalFormatEnum, width, height, 0, (OpenTK.Graphics.OpenGL.PixelFormat)pixelFormatEnum, (PixelType)pixelTypeEnum, data);
         }
         public override void Clear(BufferClear mask)
         {
@@ -558,7 +487,7 @@ namespace CustomEngine.Rendering.OpenGL
         public override float GetDepth(float x, float y)
         {
             float val = 0;
-            GL.ReadPixels((int)x, (int)(Engine.CurrentPanel.Height - y), 1, 1, PixelFormat.DepthComponent, PixelType.Float, ref val);
+            GL.ReadPixels((int)x, (int)(Engine.CurrentPanel.Height - y), 1, 1, OpenTK.Graphics.OpenGL.PixelFormat.DepthComponent, PixelType.Float, ref val);
             return val;
         }
         protected override void SetRenderArea(Rectangle region)
@@ -835,6 +764,113 @@ namespace CustomEngine.Rendering.OpenGL
                     DrawElementsType.UnsignedByte + (int)_currentPrimitiveManager._elementType,
                     0);
 
+        }
+
+        public override Bitmap GetScreenshot(Rectangle region, bool withTransparency)
+        {
+            GL.ReadBuffer(ReadBufferMode.Back);
+            Bitmap bmp = new Bitmap(region.Width, region.Height);
+            BitmapData data;
+            if (withTransparency)
+            {
+                data = bmp.LockBits(new Rectangle(0, 0, region.Width, region.Height), ImageLockMode.WriteOnly, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+                GL.ReadPixels(region.X, region.Y, region.Width, region.Height, OpenTK.Graphics.OpenGL.PixelFormat.Bgra, PixelType.UnsignedByte, data.Scan0);
+            }
+            else
+            {
+                data = bmp.LockBits(new Rectangle(0, 0, region.Width, region.Height), ImageLockMode.WriteOnly, System.Drawing.Imaging.PixelFormat.Format24bppRgb);
+                GL.ReadPixels(region.X, region.Y, region.Width, region.Height, OpenTK.Graphics.OpenGL.PixelFormat.Bgr, PixelType.UnsignedByte, data.Scan0);
+            }
+            bmp.UnlockBits(data);
+            bmp.RotateFlip(RotateFlipType.RotateNoneFlipY);
+            return bmp;
+        }
+
+        internal override void DrawText(ScreenTextHandler text)
+        {
+            GL.Enable(OpenTK.Graphics.OpenGL.EnableCap.Texture2D);
+            GL.Enable(OpenTK.Graphics.OpenGL.EnableCap.Blend);
+
+            Bitmap b = text._bitmap;
+            Viewport vp = text._viewport;
+            int texId = text._texId;
+            IVec2 size = text._size;
+
+            GL.TexEnv(TextureEnvTarget.TextureEnv, TextureEnvParameter.TextureEnvMode, (float)TextureEnvMode.Replace);
+
+            if (size != (IVec2)vp.Region.Bounds ||
+                vp.Region.Bounds.X.IsZero() ||
+                vp.Region.Bounds.Y.IsZero())
+            {
+                size = (IVec2)vp.Region.Bounds;
+
+                if (b != null)
+                    b.Dispose();
+                if (texId != -1)
+                {
+                    GL.DeleteTexture(texId);
+                    texId = -1;
+                }
+
+                if (size.X == 0 || size.Y == 0)
+                    return;
+
+                //Create a texture over the whole model panel
+                text._bitmap = b = new Bitmap(size.X, size.Y);
+
+                b.MakeTransparent();
+
+                text._texId = texId = GL.GenTexture();
+                GL.BindTexture(TextureTarget.Texture2D, texId);
+                GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)All.Linear);
+                GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)All.Linear);
+                GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba, b.Width, b.Height, 0,
+                    OpenTK.Graphics.OpenGL.PixelFormat.Bgra, PixelType.UnsignedByte, IntPtr.Zero);
+            }
+
+            using (Graphics g = Graphics.FromImage(b))
+            {
+                g.Clear(Color.Transparent);
+                g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.AntiAlias;
+
+                List<Vec2> _used = new List<Vec2>();
+
+                foreach (ScreenTextHandler.TextData d in text._text.Values)
+                    foreach (Vec3 v in d._positions)
+                        if (v.X + d._string.Length * 10.0f > 0.0f && v.X < text._viewport.Width &&
+                            v.Y > -10.0f && v.Y < text._viewport.Height &&
+                            v.Z > 0.0f && v.Z < 1.0f && //near and far depth values
+                            !_used.Contains(new Vec2(v.X, v.Y)))
+                        {
+                            g.DrawString(d._string, ScreenTextHandler._textFont, Brushes.Black, new PointF(v.X, v.Y));
+                            _used.Add(new Vec2(v.X, v.Y));
+                        }
+            }
+
+            GL.BindTexture(TextureTarget.Texture2D, text._texId);
+
+            BitmapData data = text._bitmap.LockBits(new Rectangle(0, 0, text._bitmap.Width, text._bitmap.Height), ImageLockMode.ReadOnly, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+            GL.TexSubImage2D(TextureTarget.Texture2D, 0, 0, 0, text._bitmap.Width, text._bitmap.Height, OpenTK.Graphics.OpenGL.PixelFormat.Bgra, PixelType.UnsignedByte, data.Scan0);
+            text._bitmap.UnlockBits(data);
+            
+            GL.Begin(PrimitiveType.Quads);
+
+            GL.TexCoord2(0.0f, 0.0f);
+            GL.Vertex2(0.0f, 0.0f);
+
+            GL.TexCoord2(1.0f, 0.0f);
+            GL.Vertex2(text._size.X, 0.0f);
+
+            GL.TexCoord2(1.0f, 1.0f);
+            GL.Vertex2(text._size.X, text._size.Y);
+
+            GL.TexCoord2(0.0f, 1.0f);
+            GL.Vertex2(0.0f, text._size.Y);
+
+            GL.End();
+
+            GL.Disable(OpenTK.Graphics.OpenGL.EnableCap.Blend);
+            GL.Disable(OpenTK.Graphics.OpenGL.EnableCap.Texture2D);
         }
     }
 }

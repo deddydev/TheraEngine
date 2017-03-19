@@ -15,7 +15,7 @@ namespace CustomEngine.Rendering.Models.Materials
         public TextureReference(string name, int width, int height)
         {
             _name = name;
-            _reference = new TextureData(width, height);
+            TextureData = new TextureData(width, height);
         }
         public TextureReference(string path, string name = "")
         {
@@ -26,6 +26,12 @@ namespace CustomEngine.Rendering.Models.Materials
             _reference = new SingleFileRef<TextureData>(path);
         }
         
+        public TextureData TextureData
+        {
+            get => _reference;
+            set => _reference = value;
+        }
+
         private SingleFileRef<TextureData> _reference;
 
         private string _name;
@@ -34,17 +40,21 @@ namespace CustomEngine.Rendering.Models.Materials
         private TexCoordWrap _uWrap = TexCoordWrap.Repeat, _vWrap = TexCoordWrap.Repeat;
         private float _lodBias = 0.0f;
 
-        public string FilePath { get { return _reference.FilePath; } }
-        public MagFilter MagFilter { get { return _magFilter; } set { _magFilter = value; } }
-        public MinFilter MinFilter { get { return _minFilter; } set { _minFilter = value; } }
-        public TexCoordWrap UWrap { get { return _uWrap; } set { _uWrap = value; } }
-        public TexCoordWrap VWrap { get { return _vWrap; } set { _vWrap = value; } }
-        public float LodBias { get { return _lodBias; } set { _lodBias = value; } }
-        public Bitmap Bitmap => _reference.File.Bitmap;
+        public string FilePath => _reference.FilePath;
+        public MagFilter MagFilter { get => _magFilter; set => _magFilter = value; }
+        public MinFilter MinFilter { get => _minFilter; set => _minFilter = value; }
+        public TexCoordWrap UWrap { get => _uWrap; set => _uWrap = value; }
+        public TexCoordWrap VWrap { get => _vWrap; set => _vWrap = value; }
+        public float LodBias { get => _lodBias; set => _lodBias = value; }
+        public Bitmap Bitmap
+        {
+            get => TextureData?.Bitmap;
+            set => TextureData.Bitmap = value;
+        }
 
         public Texture GetTexture()
         {
-            TextureData data = _reference.File;
+            TextureData data = TextureData;
             if (data == null)
                 return null;
             return new Texture(data, _minFilter, _magFilter, _uWrap, _vWrap, _lodBias);

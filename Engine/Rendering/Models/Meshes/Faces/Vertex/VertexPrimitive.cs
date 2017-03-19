@@ -32,5 +32,9 @@ namespace CustomEngine.Rendering.Models
                 throw new InvalidOperationException("Not enough vertices for a polygon.");
         }
         public abstract List<VertexTriangle> ToTriangles();
+        public virtual List<VertexLine> ToLines()
+        {
+            return ToTriangles().SelectMany(x => x.ToLines()).ToList();
+        }
     }
 }

@@ -1,14 +1,6 @@
 ﻿using CustomEngine.Rendering.Models;
 using CustomEngine.Rendering.Models.Materials;
 using System;
-using System.Drawing;
-using System.Threading.Tasks;
-using CustomEngine.Rendering.Animation;
-using System.Collections.Generic;
-using CustomEngine.Rendering;
-using CustomEngine.Worlds.Actors.Components;
-using System.Collections.ObjectModel;
-using BulletSharp;
 
 namespace CustomEngine
 {

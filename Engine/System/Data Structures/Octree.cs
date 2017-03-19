@@ -24,8 +24,7 @@ namespace System
             _totalBounds = bounds;
             Add(items);
         }
-
-        //public void Render() { _head?.Render(); }
+        
         public void Cull(Frustum frustum) { _head?.Cull(frustum); }
         public List<I3DBoundable> FindClosest(Vec3 point) { return _head.FindClosest(point); }
         public List<I3DBoundable> FindAllJustOutside(Shape shape) { return _head.FindAllJustOutside(shape); }

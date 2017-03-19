@@ -21,8 +21,8 @@ namespace TheraEditor
 
         public Editor()
         {
-            //DoubleBuffered = true;
             InitializeComponent();
+            DoubleBuffered = false;
             renderPanel1.GlobalHud = new EditorHud(renderPanel1);
             EngineSettings settings = new EngineSettings()
             {
@@ -38,6 +38,33 @@ namespace TheraEditor
             base.OnClosed(e);
             renderPanel1.EndTick();
             Engine.ShutDown();
+        }
+
+        private void btnOpenWorld_Click(object sender, EventArgs e)
+        {
+            OpenFileDialog ofd = new OpenFileDialog()
+            {
+                Filter = FileManager.GetCompleteFilter(typeof(World))
+            };
+            if (ofd.ShowDialog() == DialogResult.OK)
+            {
+
+            }
+        }
+
+        private void btnNewProject_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void btnNewMaterial_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void btnNewWorld_Click(object sender, EventArgs e)
+        {
+
         }
     }
 }

@@ -11,52 +11,56 @@ namespace CustomEngine.Rendering
 {
     public class GBuffer : FrameBuffer
     {
-        int _bufferCount;
-        GBufferTextureType _types;
-        Texture[] _textures;
-        Texture _depthTexture;
         PrimitiveManager _fullScreenQuad;
 
-        public GBuffer(GBufferTextureType types)
+        Texture[] Textures => _fullScreenQuad?.Program.Textures;
+
+        DrawBuffersAttachment[] _attachments = new DrawBuffersAttachment[]
         {
-            _types = types;
-            _bufferCount = ((byte)types).CountBits();
-            _textures = new Texture[_bufferCount];
-            _fullScreenQuad = new PrimitiveManager(PrimitiveData.FromQuads(Culling.Back, new PrimitiveBufferInfo(), 
-                VertexQuad.MakeQuad(Vec3.Zero, new Vec3(1.0f, 0.0f, 0.0f), new Vec3(1.0f, 1.0f, 0.0f), new Vec3(0.0f, 1.0f, 0.0f))),
-                Material.GetGBufferMaterial());
+            DrawBuffersAttachment.ColorAttachment0, //AlbedoSpec
+            DrawBuffersAttachment.ColorAttachment1, //Position
+            DrawBuffersAttachment.ColorAttachment2, //Normal
+            DrawBuffersAttachment.ColorAttachment3, //Texcoord
+            DrawBuffersAttachment.ColorAttachment4, //Stencil
+            DrawBuffersAttachment.ColorAttachment5, //Text
+            DrawBuffersAttachment.DepthAttachement, //Depth
+        };
+
+        public GBuffer(int width, int height)
+        {
+            _fullScreenQuad = new PrimitiveManager(
+                PrimitiveData.FromQuads(Culling.Back, new PrimitiveBufferInfo(), 
+                VertexQuad.ZUpQuad(width, height)),
+                Material.GetGBufferMaterial(width, height));
+            _fullScreenQuad.SettingUniforms += Engine.Renderer.Scene.SetUniforms;
+        }
+        ~GBuffer()
+        {
+            _fullScreenQuad.SettingUniforms -= Engine.Renderer.Scene.SetUniforms;
         }
 
         protected override void OnGenerated()
         {
+            _fullScreenQuad.Generate();
             Bind(FramebufferType.Write);
 
-            Viewport v = Viewport.CurrentlyRendering;
+            //Bind depth texture
+            Textures[0].AttachToFrameBuffer(
+                OpenTK.Graphics.OpenGL.FramebufferTarget.Framebuffer,
+                OpenTK.Graphics.OpenGL.FramebufferAttachment.Depth,
+                OpenTK.Graphics.OpenGL.TextureTarget.Texture2D);
 
-            _textures = Texture.GenTextures(_bufferCount);
-            (_depthTexture = new Texture()).Generate();
-            for (int i = 0; i < _bufferCount; ++i)
+            //Bind other textures
+            for (int i = 1; i < Textures.Length; ++i)
             {
-                Texture t = _textures[i];
-                //t.SetData(TextureData.EmptyFrameBuffer(v.Width, v.Height));
-                t.Bind();
-                //t.PushData();
-                t.AttachFrameBuffer(FramebufferType.ReadWrite, (DrawBuffersAttachment)i, TextureTarget.Texture2D, 0);
+                Textures[i].AttachToFrameBuffer(
+                    OpenTK.Graphics.OpenGL.FramebufferTarget.Framebuffer,
+                    OpenTK.Graphics.OpenGL.FramebufferAttachment.ColorAttachment0 + i,
+                    OpenTK.Graphics.OpenGL.TextureTarget.Texture2D);
             }
-            //_depthTexture.SetData(TextureData.EmptyDepthFrameBuffer(v.Width, v.Height));
-            _depthTexture.Bind();
-            //_depthTexture.PushData();
-            _depthTexture.AttachFrameBuffer(FramebufferType.ReadWrite, DrawBuffersAttachment.DepthAttachement, TextureTarget.Texture2D, 0);
-
+            
+            Engine.Renderer.DrawBuffers(_attachments);
             Unbind(FramebufferType.Write);
-        }
-        public void BindForWriting()
-        {
-
-        }
-        public void BindForReading()
-        {
-
         }
         public unsafe void Resize(float width, float height)
         {
@@ -82,15 +86,5 @@ namespace CustomEngine.Rendering
         {
             _fullScreenQuad.Render(Matrix4.Identity, Matrix3.Identity);
         }
-    }
-
-    [Flags]
-    public enum GBufferTextureType
-    {
-        Position    = 0x01,
-        Normal      = 0x02,
-        Diffuse     = 0x04,
-        TexCoord    = 0x08,
-        Stencil     = 0x10,
     }
 }

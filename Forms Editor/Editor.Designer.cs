@@ -97,7 +97,7 @@
             this.btnOpenWorld.Name = "btnOpenWorld";
             this.btnOpenWorld.Size = new System.Drawing.Size(211, 30);
             this.btnOpenWorld.Text = "Open World";
-            this.btnOpenWorld.Click += new System.EventHandler(this.btnOpenWorld_Click);
+            this.btnOpenWorld.Click += new System.EventHandler(this.BtnOpenWorld_Click);
             // 
             // btnSave
             // 
@@ -288,21 +288,21 @@
             this.btnNewProject.Name = "btnNewProject";
             this.btnNewProject.Size = new System.Drawing.Size(211, 30);
             this.btnNewProject.Text = "Project";
-            this.btnNewProject.Click += new System.EventHandler(this.btnNewProject_Click);
+            this.btnNewProject.Click += new System.EventHandler(this.BtnNewProject_Click);
             // 
             // btnNewMaterial
             // 
             this.btnNewMaterial.Name = "btnNewMaterial";
             this.btnNewMaterial.Size = new System.Drawing.Size(211, 30);
             this.btnNewMaterial.Text = "Material";
-            this.btnNewMaterial.Click += new System.EventHandler(this.btnNewMaterial_Click);
+            this.btnNewMaterial.Click += new System.EventHandler(this.BtnNewMaterial_Click);
             // 
             // btnNewWorld
             // 
             this.btnNewWorld.Name = "btnNewWorld";
             this.btnNewWorld.Size = new System.Drawing.Size(211, 30);
             this.btnNewWorld.Text = "World";
-            this.btnNewWorld.Click += new System.EventHandler(this.btnNewWorld_Click);
+            this.btnNewWorld.Click += new System.EventHandler(this.BtnNewWorld_Click);
             // 
             // btnProjectSettings
             // 

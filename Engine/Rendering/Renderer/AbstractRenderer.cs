@@ -98,7 +98,7 @@ namespace CustomEngine.Rendering
                     data = PrimitiveData.FromQuads(Culling.None, new PrimitiveBufferInfo(), VertexQuad.YUpQuad(2.0f));
                     break;
             }
-            return AssignDebugPrimitive(name, new PrimitiveManager(data, Material.GetUnlitColorMaterial()));
+            return AssignDebugPrimitive(name, new PrimitiveManager(data, Material.GetUnlitColorMaterial(true)));
         }
         //public void CacheWireframePlane()
         //{
@@ -192,7 +192,7 @@ namespace CustomEngine.Rendering
             throw new NotImplementedException();
         }
 
-        private Stack<Rectangle> _renderAreaStack = new Stack<Rectangle>();
+        private Stack<BoundingRectangle> _renderAreaStack = new Stack<BoundingRectangle>();
         
         public abstract int[] CreateObjects(GenType type, int count);
         public abstract int[] CreateTextures(int target, int count);
@@ -283,7 +283,8 @@ namespace CustomEngine.Rendering
             if (_currentMeshProgram != null)
             {
                 _currentMeshProgram?.SetUniforms();
-                Scene.SetUniforms();
+                if (Engine.Settings.ShadingStyle == ShadingStyle.Forward)
+                    Scene.SetUniforms();
                 Uniform(Models.Materials.Uniform.GetLocation(ECommonUniform.RenderDelta), Engine.RenderDelta);
             }
         }
@@ -412,13 +413,11 @@ namespace CustomEngine.Rendering
         }
 
         #endregion
-
-        internal abstract void DrawText(ScreenTextHandler screenTextHandler);
-
+        
         public abstract void Clear(BufferClear mask);
         public abstract float GetDepth(float x, float y);
 
-        public virtual void PushRenderArea(Rectangle region)
+        public virtual void PushRenderArea(BoundingRectangle region)
         {
             _renderAreaStack.Push(region);
             SetRenderArea(region);
@@ -432,8 +431,9 @@ namespace CustomEngine.Rendering
                     SetRenderArea(_renderAreaStack.Peek());
             }
         }
-        public abstract void CropRenderArea(Rectangle region);
-        protected abstract void SetRenderArea(Rectangle region);
+
+        public abstract void CropRenderArea(BoundingRectangle region);
+        protected abstract void SetRenderArea(BoundingRectangle region);
 
         public abstract void BindTextureData(int textureTargetEnum, int mipLevel, int pixelInternalFormatEnum, int width, int height, int pixelFormatEnum, int pixelTypeEnum, VoidPtr data);
 
@@ -442,6 +442,30 @@ namespace CustomEngine.Rendering
         /// </summary>
         public abstract void DrawBuffers(DrawBuffersAttachment[] attachments);
         public abstract void BindFrameBuffer(FramebufferType type, int bindingId);
+        public abstract void BlitFrameBuffer(
+          int readBufferId, int writeBufferId,
+          int srcX0, int srcY0,
+          int srcX1, int srcY1,
+          int dstX0, int dstY0,
+          int dstX1, int dstY1,
+          EClearBufferMask mask,
+          EBlitFramebufferFilter filter);
+
+        public enum EBlitFramebufferFilter
+        {
+            Nearest,
+            Linear
+        }
+        [Flags]
+        public enum EClearBufferMask
+        {
+            None                = 0x00,
+            DepthBufferBit      = 0x01,
+            AccumBufferBit      = 0x02,
+            StencilBufferBit    = 0x04,
+            ColorBufferBit      = 0x08,
+            CoverageBufferBitNv = 0x10,
+        }
 
         public abstract void BindTransformFeedback(int bindingId);
         public abstract void BeginTransformFeedback(FeedbackPrimitiveType type);

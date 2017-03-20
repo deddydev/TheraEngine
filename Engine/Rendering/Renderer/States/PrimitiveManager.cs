@@ -19,6 +19,8 @@ namespace CustomEngine.Rendering.Models
     /// </summary>
     public class PrimitiveManager : BaseRenderState
     {
+        public event Action SettingUniforms;
+
         public int[] _bindingIds;
         public IntPtr[] _offsets;
         public int[] _strides;
@@ -330,10 +332,12 @@ namespace CustomEngine.Rendering.Models
             SetSkinningUniforms();
             Engine.Renderer.Uniform(Uniform.GetLocation(ECommonUniform.ModelMatrix), modelMatrix);
             Engine.Renderer.Uniform(Uniform.GetLocation(ECommonUniform.NormalMatrix), normalMatrix);
-            
+            OnSettingUniforms();
+
             Engine.Renderer.RenderPrimitiveManager(this, false);
             Engine.Renderer.UseProgram(null);
         }
+        private void OnSettingUniforms() => SettingUniforms?.Invoke();
         protected override void OnGenerated()
         {
             _program = new MeshProgram(_material, _bufferInfo);

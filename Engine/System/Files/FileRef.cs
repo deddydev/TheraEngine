@@ -108,12 +108,17 @@ namespace CustomEngine.Files
             //if (!System.IO.File.Exists(absolutePath))
             //    throw new FileNotFoundException();
             if (!System.IO.File.Exists(absolutePath) || IsSpecial())
-                _file = Activator.CreateInstance(_subType, absolutePath) as T;
-            else if (IsXML())
-                _file = FromXML(_subType, absolutePath) as T;
+                SetFile(Activator.CreateInstance(_subType) as T, true);
             else
-                _file = FromBinary(_subType, absolutePath) as T;
-            Engine.AddLoadedFile(_refPath, _file);
+            {
+                if (IsXML())
+                    _file = FromXML(_subType, absolutePath) as T;
+                else
+                    _file = FromBinary(_subType, absolutePath) as T;
+
+                Engine.AddLoadedFile(_refPath, _file);
+                _file._references.Add(this);
+            }
         }
         public void UnloadReference()
         {

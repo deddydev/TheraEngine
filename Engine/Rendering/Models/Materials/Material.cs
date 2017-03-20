@@ -83,17 +83,17 @@ namespace CustomEngine.Rendering.Models.Materials
                 }
             }
         }
-        public static Material GetBasicTextureMaterial(TextureReference texture)
+        public static Material GetBasicTextureMaterial(TextureReference texture, bool deferred)
         {
             List<TextureReference> refs = new List<TextureReference>() { texture };
-            Shader frag = Shader.UnlitTextureFrag();
+            Shader frag = deferred ? Shader.UnlitTextureFragDeferred() : Shader.UnlitTextureFragForward();
             List<GLVar> p = new List<GLVar>();
             return new Material("UnlitTextureMaterial", p, refs, frag);
         }
-        public static Material GetUnlitColorMaterial()
+        public static Material GetUnlitColorMaterial(bool deferred)
         {
             List<TextureReference> refs = new List<TextureReference>();
-            Shader frag = Shader.UnlitColorFrag();
+            Shader frag = deferred ? Shader.UnlitColorFragDeferred() : Shader.UnlitColorFragForward();
             List<GLVar> p = new List<GLVar>()
             {
                 new GLVec4((ColorF4)Color.Green, "MatColor"),
@@ -101,10 +101,10 @@ namespace CustomEngine.Rendering.Models.Materials
             return new Material("UnlitColorMaterial", p, refs, frag);
         }
 
-        public static Material GetDefaultMaterial()
+        public static Material GetDefaultMaterial(bool deferred)
         {
             List<TextureReference> refs = new List<TextureReference>();
-            Shader frag = Shader.TestFrag();
+            Shader frag = deferred ? Shader.TestFragDeferred() : Shader.TestFragForward();
             List<GLVar> p = new List<GLVar>()
             {
                 new GLVec4((ColorF4)Color.DarkTurquoise, "MatColor"),
@@ -113,16 +113,19 @@ namespace CustomEngine.Rendering.Models.Materials
             };
             return new Material("TestMaterial", p, refs, frag);
         }
-        internal static Material GetGBufferMaterial()
+        internal static Material GetGBufferMaterial(int width, int height)
         {
+            //These are listed in order of appearance in the shader
             List<TextureReference> refs = new List<TextureReference>()
             {
-                new TextureReference("Depth"),
-                new TextureReference("Position"),
-                new TextureReference("Normal"),
-                new TextureReference("AlbedoSpec"),
+                new TextureReference("AlbedoSpec", width, height),
+                new TextureReference("Position", width, height),
+                new TextureReference("Normal", width, height),
+                new TextureReference("TexCoord", width, height),
+                new TextureReference("Text", width, height),
+                new TextureReference("Stencil", width, height),
             };
-            Shader frag = Shader.UnlitColorFrag();
+            Shader frag = Shader.GBufferShader();
             List<GLVar> p = new List<GLVar>()
             {
                 //TODO: post process parameters here
@@ -133,29 +136,25 @@ namespace CustomEngine.Rendering.Models.Materials
             };
             return new Material("GBufferMaterial", p, refs, frag);
         }
-        public override void Write(VoidPtr address, StringTable table)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void Read(VoidPtr address, VoidPtr strings)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void Write(XmlWriter writer)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void Read(XMLReader reader)
-        {
-            throw new NotImplementedException();
-        }
-
         protected override int OnCalculateSize(StringTable table)
         {
-            throw new NotImplementedException();
+            return 0;
+        }
+        public override void Write(VoidPtr address, StringTable table)
+        {
+
+        }
+        public override void Read(VoidPtr address, VoidPtr strings)
+        {
+
+        }
+        public override void Write(XmlWriter writer)
+        {
+
+        }
+        public override void Read(XMLReader reader)
+        {
+
         }
     }
 }

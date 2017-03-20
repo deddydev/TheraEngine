@@ -40,7 +40,7 @@ namespace TheraEditor
             Engine.ShutDown();
         }
 
-        private void btnOpenWorld_Click(object sender, EventArgs e)
+        private void BtnOpenWorld_Click(object sender, EventArgs e)
         {
             OpenFileDialog ofd = new OpenFileDialog()
             {
@@ -52,17 +52,17 @@ namespace TheraEditor
             }
         }
 
-        private void btnNewProject_Click(object sender, EventArgs e)
+        private void BtnNewProject_Click(object sender, EventArgs e)
         {
 
         }
 
-        private void btnNewMaterial_Click(object sender, EventArgs e)
+        private void BtnNewMaterial_Click(object sender, EventArgs e)
         {
 
         }
 
-        private void btnNewWorld_Click(object sender, EventArgs e)
+        private void BtnNewWorld_Click(object sender, EventArgs e)
         {
 
         }

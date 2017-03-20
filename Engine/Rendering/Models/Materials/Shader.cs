@@ -53,7 +53,42 @@ namespace CustomEngine.Rendering.Models.Materials
 
             return id;
         }
-        public static Shader UnlitTextureFrag()
+        public static Shader UnlitTextureFragDeferred()
+        {
+            string source = @"
+#version 450
+
+layout (location = 0) out vec4 gAlbedoSpec;
+layout (location = 1) out vec3 gPosition;
+layout (location = 2) out vec3 gNormal;
+
+uniform sampler2D Texture0;
+uniform float MatSpecularIntensity;
+
+in Data
+{
+    vec3 Position;
+    vec3 Normal;
+    vec2 MultiTexCoord0;
+} InData;
+
+out vec4 OutColor;
+
+void main()
+{
+    gPosition = InData.Position;
+    gNormal = InData.Normal;
+    gAlbedoSpec = vec4(texture(Texture0, InData.MultiTexCoord0).rgb, MatSpecularIntensity);
+}
+";
+            return new Shader(ShaderMode.Fragment, source);
+        }
+        /// <summary>
+        /// Provides a fragment shader that outputs the color 
+        /// of a single texture with no shading
+        /// for a forward shading setup.
+        /// </summary>
+        public static Shader UnlitTextureFragForward()
         {
             string source = @"
 #version 450
@@ -76,7 +111,39 @@ void main()
 ";
             return new Shader(ShaderMode.Fragment, source);
         }
-        public static Shader UnlitColorFrag()
+        public static Shader UnlitColorFragDeferred()
+        {
+            string source = @"
+#version 450
+
+layout (location = 0) out vec4 gAlbedoSpec;
+layout (location = 1) out vec3 gPosition;
+layout (location = 2) out vec3 gNormal;
+
+uniform vec4 MatColor;
+uniform float MatSpecularIntensity;
+
+in Data
+{
+    vec3 Position;
+    vec3 Normal;
+    vec2 MultiTexCoord0;
+} InData;
+
+void main()
+{
+    gPosition = InData.Position;
+    gNormal = InData.Normal;
+    gAlbedoSpec = vec4(texture(Texture0, InData.MultiTexCoord0).rgb, MatSpecularIntensity);
+}
+";
+            return new Shader(ShaderMode.Fragment, source);
+        }
+        /// <summary>
+        /// Provides a fragment shader that outputs a single color
+        /// with no shading for a forward shading setup.
+        /// </summary>
+        public static Shader UnlitColorFragForward()
         {
             string source = @"
 #version 450
@@ -99,44 +166,41 @@ void main()
 ";
             return new Shader(ShaderMode.Fragment, source);
         }
-        public static Shader TestFrag()
+        public static Shader TestFragDeferred()
         {
             string source = @"
 #version 450
 
-struct BaseLight
+layout (location = 0) out vec4 gAlbedoSpec;
+layout (location = 1) out vec3 gPosition;
+layout (location = 2) out vec3 gNormal;
+
+uniform vec4 MatColor;
+uniform float MatSpecularIntensity;
+uniform float MatShininess;
+
+uniform sampler2D Texture0;
+
+in Data
 {
-    vec3 Color;
-    float DiffuseIntensity;
-    float AmbientIntensity;
-};
-struct DirLight
-{
-    BaseLight Base;
-    vec3 Direction;
-};
-struct PointLight
-{
-    BaseLight Base;
     vec3 Position;
-    vec3 Attenuation;
-};
-struct SpotLight
+    vec3 Normal;
+    vec2 MultiTexCoord0;
+} InData;
+
+void main()
 {
-    PointLight Base;
-    vec3 Direction;
-    float Cutoff;
-    float Exponent;
-};
-
-uniform int PointLightCount;
-uniform PointLight PointLights[16];
-
-uniform int DirLightCount; 
-uniform DirLight DirectionalLights[2];
-
-uniform int SpotLightCount;
-uniform SpotLight SpotLights[16];
+    gPosition = InData.Position;
+    gNormal = InData.Normal;
+    gAlbedoSpec = vec4(texture(Texture0, InData.MultiTexCoord0).rgb, MatSpecularIntensity);
+}
+";
+            return new Shader(ShaderMode.Fragment, source);
+        }
+        public static Shader TestFragForward()
+        {
+            string source = @"
+#version 450
 
 uniform vec4 MatColor;
 uniform float MatSpecularIntensity;
@@ -156,22 +220,13 @@ in Data
 
 out vec4 OutColor;
 
-" + CalcLight() + @"
+" + LightingSetup() + @"
 
 void main()
 {
     vec3 normal = normalize(InData.Normal);
 
-    vec3 totalLight = vec3(0.0);
-
-    for (int i = 0; i < DirLightCount; ++i)
-        totalLight += CalcDirLight(DirectionalLights[i], normal, InData.Position, MatColor.rgb, MatSpecularIntensity);
-
-    for (int i = 0; i < PointLightCount; ++i)
-        totalLight += CalcPointLight(PointLights[i], normal, InData.Position, MatColor.rgb, MatSpecularIntensity);
-
-    for (int i = 0; i < SpotLightCount; ++i)
-        totalLight += CalcSpotLight(SpotLights[i], normal, InData.Position, MatColor.rgb, MatSpecularIntensity);
+    " + LightingCalcForward() + @"
 
     vec4 texColor = texture(Texture0, InData.MultiTexCoord0);
 
@@ -185,6 +240,61 @@ void main()
             string source = @"
 
 #version 450
+
+out vec4 OutColor;
+in vec2 TexCoord0;
+
+uniform sampler2D gAlbedoSpec;
+uniform sampler2D gPosition;
+uniform sampler2D gNormal;
+uniform sampler2D gTexCoord;
+uniform sampler2D gText;
+uniform sampler2D gStencil;
+
+uniform vec3 CameraPosition;
+
+" + LightingSetup() + @"
+
+void main()
+{
+    vec3 FragPos = texture(gPosition, TexCoord0).rgb;
+    vec3 Normal = texture(gNormal, TexCoord0).rgb;
+    vec3 Albedo = texture(gAlbedoSpec, TexCoord0).rgb;
+    float Specular = texture(gAlbedoSpec, TexCoord0).a;
+    vec4 Text = texture(gText, TexCoord0);
+    
+    " + LightingCalc("totalLight", "Albedo * 0.1", "Normal", "FragPos", "Albedo", "Specular") + @"
+
+    OutColor = mix(vec4(totalLight, 1.0), Text.rgb, Text.a);
+}";
+            return new Shader(ShaderMode.Fragment, source);
+        }
+        private static string LightingCalcForward()
+            => LightingCalc("totalLight", "vec3(0.0)", "normal", "InData.Position", "MatColor.rgb", "MatSpecularIntensity");
+        private static string LightingCalc(
+            string lightVarName,
+            string baseLightVec3,
+            string normalNameVec3,
+            string fragPosNameVec3,
+            string albedoNameRGB,
+            string specNameIntensity)
+        {
+            return string.Format(@"
+    vec3 {0} = {1};
+
+    for (int i = 0; i < DirLightCount; ++i)
+        {0} += CalcDirLight(DirectionalLights[i], {2}, {3}, {4}, {5});
+
+    for (int i = 0; i < PointLightCount; ++i)
+        {0} += CalcPointLight(PointLights[i], {2}, {3}, {4}, {5});
+
+    for (int i = 0; i < SpotLightCount; ++i)
+        {0} += CalcSpotLight(SpotLights[i], {2}, {3}, {4}, {5});", 
+        lightVarName, baseLightVec3, normalNameVec3, fragPosNameVec3, albedoNameRGB, specNameIntensity);
+        }
+        private static string LightingSetup()
+        {
+            return @"
 
 struct BaseLight
 {
@@ -211,13 +321,6 @@ struct SpotLight
     float Exponent;
 };
 
-out vec4 OutColor;
-in vec2 TexCoords;
-
-uniform sampler2D gPosition;
-uniform sampler2D gNormal;
-uniform sampler2D gAlbedoSpec;
-
 uniform int PointLightCount;
 uniform PointLight PointLights[16];
 
@@ -226,36 +329,6 @@ uniform DirLight DirectionalLights[2];
 
 uniform int SpotLightCount;
 uniform SpotLight SpotLights[16];
-
-uniform vec3 CameraPosition;
-
-" + CalcLight() + @"
-
-void main()
-{
-    vec3 FragPos = texture(gPosition, TexCoords).rgb;
-    vec3 Normal = texture(gNormal, TexCoords).rgb;
-    vec3 Albedo = texture(gAlbedoSpec, TexCoords).rgb;
-    float Specular = texture(gAlbedoSpec, TexCoords).a;
-    
-    vec3 totalLight = Albedo * 0.1;
-
-    for (int i = 0; i < DirLightCount; ++i)
-        totalLight += CalcDirLight(DirectionalLights[i], Normal, FragPos, Albedo, Specular);
-
-    for (int i = 0; i < PointLightCount; ++i)
-        totalLight += CalcPointLight(PointLights[i], Normal, FragPos, Albedo, Specular);
-
-    for (int i = 0; i < SpotLightCount; ++i)
-        totalLight += CalcSpotLight(SpotLights[i], Normal, FragPos, Albedo, Specular);
-
-    OutColor = vec4(totalLight, 1.0);
-}";
-            return new Shader(ShaderMode.Fragment, source);
-        }
-        private static string CalcLight()
-        {
-            return @"
 
 vec3 CalcColor(BaseLight light, vec3 lightDirection, vec3 normal, vec3 fragPos, vec3 albedo, float spec)
 {
@@ -410,7 +483,6 @@ float G_schlick(in float roughness, in float NdV, in float NdL)
     return 0.25 / (V * L);
 }
 
-
 // simple phong specular calculation with normalization
 vec3 phong_specular(in vec3 V, in vec3 L, in vec3 N, in vec3 specular, in float roughness)
 {
@@ -448,7 +520,6 @@ vec3 cooktorrance_specular(in float NdL, in float NdV, in float NdH, in vec3 spe
     float rim = mix(1.0 - roughness * material.w * 0.9, 1.0, NdV);
     return (1.0 / rim) * specular * G * D;
 }
-
 
 void main()
 {
@@ -567,7 +638,6 @@ void main()
 
     color = vec4(result, 1);
 }
-
 ";
             return new Shader(ShaderMode.Fragment, source);
         }

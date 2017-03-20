@@ -320,22 +320,22 @@ namespace CustomEngine.Rendering.DirectX
             throw new NotImplementedException();
         }
 
-        public override void CropRenderArea(Rectangle region)
-        {
-            throw new NotImplementedException();
-        }
-
-        protected override void SetRenderArea(Rectangle region)
-        {
-            throw new NotImplementedException();
-        }
-
-        internal override void DrawText(ScreenTextHandler screenTextHandler)
-        {
-            throw new NotImplementedException();
-        }
-
         public override Bitmap GetScreenshot(Rectangle region, bool withTransparency)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void CropRenderArea(BoundingRectangle region)
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override void SetRenderArea(BoundingRectangle region)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void BlitFrameBuffer(int readBufferId, int writeBufferId, int srcX0, int srcY0, int srcX1, int srcY1, int dstX0, int dstY0, int dstX1, int dstY1, EClearBufferMask mask, EBlitFramebufferFilter filter)
         {
             throw new NotImplementedException();
         }

@@ -36,7 +36,19 @@ namespace CustomEngine
         }
         public override void Write(XmlWriter writer)
         {
-            TransitionWorld.Write(writer);
+            writer.WriteElementString("ContentPath", ContentPath.ToString());
+            writer.WriteElementString("SkinOnGPU", SkinOnGPU.ToString());
+            writer.WriteElementString("UseIntegerWeightingIds", UseIntegerWeightingIds.ToString());
+            writer.WriteStartElement("FPS");
+            writer.WriteAttributeString("Capped", CapFPS.ToString());
+            writer.WriteString(TargetFPS.ToString());
+            writer.WriteEndElement();
+            writer.WriteStartElement("FPS");
+            writer.WriteAttributeString("Capped", CapFPS.ToString());
+            writer.WriteString(TargetFPS.ToString());
+            writer.WriteEndElement();
+            TransitionWorld?.Write(writer, false);
+            OpeningWorld?.Write(writer, false);
         }
 
         public override void Write(VoidPtr address, StringTable table)

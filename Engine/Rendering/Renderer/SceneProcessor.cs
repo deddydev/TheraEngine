@@ -51,7 +51,7 @@ namespace CustomEngine.Rendering
 
             _cullingTree = new Octree(ws.WorldBounds, renderables);
         }
-        public void Render(Camera camera)
+        internal void Render(Camera camera, bool deferredPass)
         {
             if (_cullingTree == null || camera == null)
                 return;

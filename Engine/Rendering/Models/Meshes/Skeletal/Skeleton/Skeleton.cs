@@ -44,7 +44,8 @@ namespace CustomEngine.Rendering.Models
             _rendering,
             _visibleInEditorOnly = true,
             _hiddenFromOwner = false,
-            _visibleToOwnerOnly = false;
+            _visibleToOwnerOnly = false,
+            _visibleByDefault = false;
 
         Shape _cullingVolume = new Sphere(1.0f);
         Octree.Node _renderNode;
@@ -108,8 +109,8 @@ namespace CustomEngine.Rendering.Models
         }
         public bool VisibleByDefault
         {
-            get => throw new NotImplementedException();
-            set => throw new NotImplementedException();
+            get => _visibleByDefault;
+            set => _visibleByDefault = value;
         }
         public Bone GetBone(string boneName)
         {
@@ -230,12 +231,15 @@ namespace CustomEngine.Rendering.Models
 
         protected override int OnCalculateSize(StringTable table)
         {
-            throw new NotImplementedException();
+            table.AddRange(_boneNameCache.Keys);
+            return Header.Size + _boneNameCache.Count * Bone.Header.Size;
         }
 
         [StructLayout(LayoutKind.Sequential, Pack = 1)]
         public unsafe struct Header
         {
+            public const int Size = 4;
+
             public bint _boneCount;
 
             public Bone.Header* Bones { get { return (Bone.Header*)Address; } }

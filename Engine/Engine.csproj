@@ -669,6 +669,7 @@
     <Compile Include="System\Data Structures\HashedStack.cs" />
     <Compile Include="System\Data Structures\HashedQueue.cs" />
     <Compile Include="System\Data Structures\Quadtree.cs" />
+    <Compile Include="System\Extensions\ListExtension.cs" />
     <Compile Include="System\Extensions\StringExtension.cs" />
     <Compile Include="System\Extensions\ArrayExtension.cs" />
     <Compile Include="System\Extensions\XmlExtension.cs" />

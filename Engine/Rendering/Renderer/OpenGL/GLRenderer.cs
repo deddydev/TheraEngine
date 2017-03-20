@@ -479,24 +479,38 @@ namespace CustomEngine.Rendering.OpenGL
 
         #endregion
 
-        public override void DrawBuffers(DrawBuffersAttachment[] attachments)
+        #region Framebuffers
+        public override void BlitFrameBuffer(
+            int readBufferId, int writeBufferId,
+            int srcX0, int srcY0,
+            int srcX1, int srcY1,
+            int dstX0, int dstY0,
+            int dstX1, int dstY1,
+            EClearBufferMask mask,
+            EBlitFramebufferFilter filter)
         {
-            GL.DrawBuffers(attachments.Length, attachments.Select(x => (DrawBuffersEnum)x.Convert(typeof(DrawBuffersEnum))).ToArray());
-        }
+            ClearBufferMask maskgl = ClearBufferMask.None;
+            if (mask.HasFlag(EClearBufferMask.AccumBufferBit))
+                maskgl |= ClearBufferMask.AccumBufferBit;
+            if (mask.HasFlag(EClearBufferMask.ColorBufferBit))
+                maskgl |= ClearBufferMask.ColorBufferBit;
+            if (mask.HasFlag(EClearBufferMask.CoverageBufferBitNv))
+                maskgl |= ClearBufferMask.CoverageBufferBitNv;
+            if (mask.HasFlag(EClearBufferMask.DepthBufferBit))
+                maskgl |= ClearBufferMask.DepthBufferBit;
+            if (mask.HasFlag(EClearBufferMask.StencilBufferBit))
+                maskgl |= ClearBufferMask.StencilBufferBit;
 
-        public override float GetDepth(float x, float y)
-        {
-            float val = 0;
-            GL.ReadPixels((int)x, (int)(Engine.CurrentPanel.Height - y), 1, 1, OpenTK.Graphics.OpenGL.PixelFormat.DepthComponent, PixelType.Float, ref val);
-            return val;
-        }
-        protected override void SetRenderArea(Rectangle region)
-        {
-            GL.Viewport(region);
-        }
-        public override void CropRenderArea(Rectangle region)
-        {
-            GL.Scissor(region.X, region.Y, region.Width, region.Height);
+            BlitFramebufferFilter filtergl = filter == EBlitFramebufferFilter.Linear ? 
+                BlitFramebufferFilter.Linear : BlitFramebufferFilter.Nearest;
+
+            GL.BlitNamedFramebuffer(
+                readBufferId, writeBufferId,
+                srcX0, srcY0,
+                srcX1, srcY1,
+                dstX0, dstY0,
+                dstX1, dstY1,
+                maskgl, filtergl);
         }
         public override void BindFrameBuffer(FramebufferType type, int bindingId)
         {
@@ -513,7 +527,24 @@ namespace CustomEngine.Rendering.OpenGL
                     break;
             }
         }
+        public override void DrawBuffers(DrawBuffersAttachment[] attachments)
+        {
+            GL.DrawBuffers(attachments.Length, attachments.Select(x => (DrawBuffersEnum)x.Convert(typeof(DrawBuffersEnum))).ToArray());
+        }
+        #endregion
 
+        public override float GetDepth(float x, float y)
+        {
+            float val = 0;
+            GL.ReadPixels((int)x, (int)(Engine.CurrentPanel.Height - y), 1, 1, OpenTK.Graphics.OpenGL.PixelFormat.DepthComponent, PixelType.Float, ref val);
+            return val;
+        }
+
+        protected override void SetRenderArea(BoundingRectangle region)
+            => GL.Viewport(region.IntX, region.IntY, region.IntWidth, region.IntHeight);
+        public override void CropRenderArea(BoundingRectangle region)
+            => GL.Scissor(region.IntX, region.IntY, region.IntWidth, region.IntHeight);
+        
         public override void UniformMaterial(int matID, int location, params IUniformable4Int[] p)
         {
             const int count = 4;
@@ -595,6 +626,7 @@ namespace CustomEngine.Rendering.OpenGL
             throw new NotImplementedException();
         }
 
+        #region Transform Feedback
         public override void BindTransformFeedback(int bindingId)
         {
             GL.BindTransformFeedback(TransformFeedbackTarget.TransformFeedback, bindingId);
@@ -611,7 +643,9 @@ namespace CustomEngine.Rendering.OpenGL
         {
             GL.TransformFeedbackVaryings(matId, varNames.Length, varNames, TransformFeedbackMode.InterleavedAttribs);
         }
+        #endregion
 
+        #region Primitives
         public override void Cull(Culling culling)
         {
             if (culling == Culling.None)
@@ -667,7 +701,6 @@ namespace CustomEngine.Rendering.OpenGL
             //GL.BufferData(_target, (IntPtr)_data.Length, _data.Address, BufferUsageHint.StaticDraw);
             GL.NamedBufferData(buffer.BindingId, buffer._componentCount, buffer._data.Address, BufferUsageHint.StreamDraw + (int)buffer._usage);
         }
-
         public override void InitializeBuffer(VertexBuffer buffer)
         {
             int glVer = 2;
@@ -732,19 +765,16 @@ namespace CustomEngine.Rendering.OpenGL
                     break;
             }
         }
-
         public override void UnmapBufferData(VertexBuffer buffer)
         {
             //GL.UnmapBuffer(buffer._target);
             GL.UnmapNamedBuffer(buffer.BindingId);
         }
-
         public override void BindPrimitiveManager(PrimitiveManager manager)
         {
             GL.BindVertexArray(manager == null ? 0 : manager.BindingId);
             base.BindPrimitiveManager(manager);
         }
-
         /// <summary>
         /// REQUIRES OPENGL V4.5
         /// </summary>
@@ -754,7 +784,6 @@ namespace CustomEngine.Rendering.OpenGL
                 throw new Exception("IndexBuffer needs target type of " + EBufferTarget.DrawIndices.ToString() + ".");
             GL.VertexArrayElementBuffer(manager.BindingId, indexBuffer.BindingId);
         }
-
         public override void RenderCurrentPrimitiveManager()
         {
             if (_currentPrimitiveManager != null)
@@ -765,10 +794,11 @@ namespace CustomEngine.Rendering.OpenGL
                     0);
 
         }
+        #endregion
 
         public override Bitmap GetScreenshot(Rectangle region, bool withTransparency)
         {
-            GL.ReadBuffer(ReadBufferMode.Back);
+            GL.ReadBuffer(ReadBufferMode.Front);
             Bitmap bmp = new Bitmap(region.Width, region.Height);
             BitmapData data;
             if (withTransparency)
@@ -784,93 +814,6 @@ namespace CustomEngine.Rendering.OpenGL
             bmp.UnlockBits(data);
             bmp.RotateFlip(RotateFlipType.RotateNoneFlipY);
             return bmp;
-        }
-
-        internal override void DrawText(ScreenTextHandler text)
-        {
-            GL.Enable(OpenTK.Graphics.OpenGL.EnableCap.Texture2D);
-            GL.Enable(OpenTK.Graphics.OpenGL.EnableCap.Blend);
-
-            Bitmap b = text._bitmap;
-            Viewport vp = text._viewport;
-            int texId = text._texId;
-            IVec2 size = text._size;
-
-            GL.TexEnv(TextureEnvTarget.TextureEnv, TextureEnvParameter.TextureEnvMode, (float)TextureEnvMode.Replace);
-
-            if (size != (IVec2)vp.Region.Bounds ||
-                vp.Region.Bounds.X.IsZero() ||
-                vp.Region.Bounds.Y.IsZero())
-            {
-                size = (IVec2)vp.Region.Bounds;
-
-                if (b != null)
-                    b.Dispose();
-                if (texId != -1)
-                {
-                    GL.DeleteTexture(texId);
-                    texId = -1;
-                }
-
-                if (size.X == 0 || size.Y == 0)
-                    return;
-
-                //Create a texture over the whole model panel
-                text._bitmap = b = new Bitmap(size.X, size.Y);
-
-                b.MakeTransparent();
-
-                text._texId = texId = GL.GenTexture();
-                GL.BindTexture(TextureTarget.Texture2D, texId);
-                GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)All.Linear);
-                GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)All.Linear);
-                GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba, b.Width, b.Height, 0,
-                    OpenTK.Graphics.OpenGL.PixelFormat.Bgra, PixelType.UnsignedByte, IntPtr.Zero);
-            }
-
-            using (Graphics g = Graphics.FromImage(b))
-            {
-                g.Clear(Color.Transparent);
-                g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.AntiAlias;
-
-                List<Vec2> _used = new List<Vec2>();
-
-                foreach (ScreenTextHandler.TextData d in text._text.Values)
-                    foreach (Vec3 v in d._positions)
-                        if (v.X + d._string.Length * 10.0f > 0.0f && v.X < text._viewport.Width &&
-                            v.Y > -10.0f && v.Y < text._viewport.Height &&
-                            v.Z > 0.0f && v.Z < 1.0f && //near and far depth values
-                            !_used.Contains(new Vec2(v.X, v.Y)))
-                        {
-                            g.DrawString(d._string, ScreenTextHandler._textFont, Brushes.Black, new PointF(v.X, v.Y));
-                            _used.Add(new Vec2(v.X, v.Y));
-                        }
-            }
-
-            GL.BindTexture(TextureTarget.Texture2D, text._texId);
-
-            BitmapData data = text._bitmap.LockBits(new Rectangle(0, 0, text._bitmap.Width, text._bitmap.Height), ImageLockMode.ReadOnly, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
-            GL.TexSubImage2D(TextureTarget.Texture2D, 0, 0, 0, text._bitmap.Width, text._bitmap.Height, OpenTK.Graphics.OpenGL.PixelFormat.Bgra, PixelType.UnsignedByte, data.Scan0);
-            text._bitmap.UnlockBits(data);
-            
-            GL.Begin(PrimitiveType.Quads);
-
-            GL.TexCoord2(0.0f, 0.0f);
-            GL.Vertex2(0.0f, 0.0f);
-
-            GL.TexCoord2(1.0f, 0.0f);
-            GL.Vertex2(text._size.X, 0.0f);
-
-            GL.TexCoord2(1.0f, 1.0f);
-            GL.Vertex2(text._size.X, text._size.Y);
-
-            GL.TexCoord2(0.0f, 1.0f);
-            GL.Vertex2(0.0f, text._size.Y);
-
-            GL.End();
-
-            GL.Disable(OpenTK.Graphics.OpenGL.EnableCap.Blend);
-            GL.Disable(OpenTK.Graphics.OpenGL.EnableCap.Texture2D);
         }
     }
 }

@@ -54,6 +54,13 @@ namespace CustomEngine
             return callback;
         }
 
+        public static ClosestConvexResultCallback ShapeCastClosest(ConvexShape s, Matrix4 start, Matrix4 end)
+        {
+            ClosestConvexResultCallback callback = new ClosestConvexResultCallback();
+            World.PhysicsScene.ConvexSweepTest(s, start, end, callback);
+            return callback;
+        }
+
         private static void ActivePlayers_Removed(LocalPlayerController item)
         {
             

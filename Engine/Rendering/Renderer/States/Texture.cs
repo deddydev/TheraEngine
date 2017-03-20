@@ -78,9 +78,9 @@ namespace CustomEngine.Rendering.Textures
             GL.BindTexture(OpenTK.Graphics.OpenGL.TextureTarget.Texture2D, BindingId);
         }
 
-        public void AttachFrameBuffer(FramebufferType type, DrawBuffersAttachment attachment, TextureTarget target = TextureTarget.Texture2D, int mipLevel = 0)
+        public void AttachToFrameBuffer(FramebufferTarget target, FramebufferAttachment attachment, OpenTK.Graphics.OpenGL.TextureTarget texTarget)
         {
-
+            GL.FramebufferTexture2D(target, attachment, texTarget, BindingId, 0);
         }
 
         public void PushData()
@@ -122,15 +122,6 @@ namespace CustomEngine.Rendering.Textures
                 bmp.UnlockBits(data);
             }
         }
-
-        protected override void OnGenerated()
-        {
-            PushData();
-        }
-
-        protected override void PostDeleted()
-        {
-            base.PostDeleted();
-        }
+        protected override void OnGenerated() => PushData();
     }
 }

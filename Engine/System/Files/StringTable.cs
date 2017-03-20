@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using CustomEngine.Rendering.Models;
 
 namespace CustomEngine.Files
 {
@@ -14,6 +15,11 @@ namespace CustomEngine.Files
         {
             if ((!string.IsNullOrEmpty(s)) && (!_table.ContainsKey(s)))
                 _table.Add(s, 0);
+        }
+        public void AddRange(IEnumerable<string> values)
+        {
+            foreach (string s in values)
+                Add(s);
         }
 
         public int GetTotalSize()

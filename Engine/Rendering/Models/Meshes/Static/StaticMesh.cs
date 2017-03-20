@@ -37,16 +37,6 @@ namespace CustomEngine.Rendering.Models
         protected Shape _cullingVolume;
         protected PhysicsDriver _physicsDriver;
 
-        private static StaticMesh GetSquareMesh()
-        {
-            StaticMesh m = new StaticMesh("Square", null);
-            PrimitiveData d = PrimitiveData.FromQuads(
-                Culling.Back, new PrimitiveBufferInfo(), VertexQuad.MakeQuad(
-                Vec3.Zero, Vec3.UnitX, new Vec3(1.0f, 1.0f, 0.0f), Vec3.UnitY, Vec3.UnitZ));
-            m.RigidChildren.Add(new StaticRigidSubMesh(d, null, Material.GetDefaultMaterial(), "Square"));
-            return m;
-        }
-
         public override void Write(VoidPtr address, StringTable table)
         {
             throw new NotImplementedException();

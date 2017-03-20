@@ -113,7 +113,7 @@ namespace CustomEngine.Worlds.Actors
         
         private void OnTogglePause()
         {
-            Engine.TogglePause();
+            Engine.TogglePause(LocalPlayerController.LocalPlayerIndex);
             //if (Engine.IsPaused)
             //{
             //    LocalPlayerController.EnqueuePosession(this);

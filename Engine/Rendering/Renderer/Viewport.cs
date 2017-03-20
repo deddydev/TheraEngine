@@ -3,10 +3,7 @@ using System.Drawing;
 using CustomEngine.Rendering.Cameras;
 using CustomEngine.Input;
 using System;
-using OpenTK.Graphics.OpenGL;
 using CustomEngine.Worlds;
-using System.Linq;
-using CustomEngine.Worlds.Actors.Types;
 using System.Collections.Generic;
 using CustomEngine.Rendering.Models;
 using CustomEngine.Rendering.Models.Materials;
@@ -25,7 +22,6 @@ namespace CustomEngine.Rendering
         private int _index;
         private BoundingRectangle _region;
         private Camera _worldCamera;
-        private GBuffer _gBuffer;
         private RenderPanel _owningPanel;
         private ScreenTextHandler _text;
 
@@ -53,7 +49,6 @@ namespace CustomEngine.Rendering
             }
         }
         public RenderPanel OwningPanel => _owningPanel;
-        public GBuffer GBuffer => _gBuffer;
         public HudManager HUD
         {
             get => _hud;
@@ -75,11 +70,6 @@ namespace CustomEngine.Rendering
             _index = index;
             _owner = owner;
             _owner.Viewport = this;
-            if (Engine.Settings.ShadingStyle == ShadingStyle.Deferred)
-                _gBuffer = new GBuffer(
-                    GBufferTextureType.Diffuse | 
-                    GBufferTextureType.Normal |
-                    GBufferTextureType.Position);
         }
         internal void Resize(float parentWidth, float parentHeight)
         {
@@ -90,7 +80,6 @@ namespace CustomEngine.Rendering
 
             _worldCamera?.Resize(Width, Height);
             _hud?.Resize(_region);
-            _gBuffer.Resize(Width, Height);
         }
         public void DebugPrint(string message)
         {
@@ -177,21 +166,33 @@ namespace CustomEngine.Rendering
         public Segment GetWorldSegment(Vec2 viewportPoint) 
             => _worldCamera.GetWorldSegment(viewportPoint);
 
-        public unsafe void Render(SceneProcessor scene)
+        public void RenderDeferred(SceneProcessor scene)
         {
             if (_worldCamera == null)
                 return;
 
             _currentlyRendering = this;
-            GL.Viewport(Region.IntX, Region.IntY, Region.IntWidth, Region.IntHeight);
+            Engine.Renderer.PushRenderArea(Region);
+            Engine.Renderer.CropRenderArea(Region);
+
+            scene.Render(_worldCamera, true);
+
+            Engine.Renderer.PopRenderArea();
+            _currentlyRendering = null;
+        }
+        public void RenderForward(SceneProcessor scene)
+        {
+            if (_worldCamera == null)
+                return;
+
+            _currentlyRendering = this;
+            Engine.Renderer.PushRenderArea(Region);
+            Engine.Renderer.CropRenderArea(Region);
             
-            //Engine.Renderer.PushRenderArea(Region);
-            //Engine.Renderer.CropRenderArea(Region);
-            
-            scene.Render(_worldCamera);
+            scene.Render(_worldCamera, false);
             _hud.Render();
 
-            //Engine.Renderer.PopRenderArea();
+            Engine.Renderer.PopRenderArea();
             _currentlyRendering = null;
         }
 
@@ -369,7 +370,7 @@ namespace CustomEngine.Rendering
             _text = new Dictionary<string, TextData>();
             _viewport = viewport;
             TextureReference texRef = new TextureReference("Text", (int)_viewport.Width, (int)_viewport.Height);
-            _manager = new PrimitiveManager(PrimitiveData.FromQuads(Culling.Back, new PrimitiveBufferInfo(), VertexQuad.ZUpQuad(_viewport.Width, _viewport.Height)), Material.GetBasicTextureMaterial(texRef));
+            _manager = new PrimitiveManager(PrimitiveData.FromQuads(Culling.Back, new PrimitiveBufferInfo(), VertexQuad.ZUpQuad(_viewport.Width, _viewport.Height)), Material.GetBasicTextureMaterial(texRef, true));
             _texture = _manager.Program.Textures[0];
         }
 

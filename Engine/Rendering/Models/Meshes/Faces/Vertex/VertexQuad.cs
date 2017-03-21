@@ -105,6 +105,16 @@ namespace CustomEngine.Rendering.Models
             Vec3 v4 = new Vec3(-xHalf, 0.0f, -zHalf);
             return MakeQuad(v1, v2, v3, v4, Vec3.UnitY);
         }
+        public static VertexQuad YUpQuad(BoundingRectangle region)
+        {
+            return MakeQuad(
+                ((Vec3)region.BottomLeft).Xzy,
+                ((Vec3)region.BottomRight).Xzy,
+                ((Vec3)region.TopRight).Xzy,
+                ((Vec3)region.TopLeft).Xzy,
+                Vec3.UnitZ);
+        }
+
         /// <summary>
         /// Z-up is facing the camera, like a wall.
         /// </summary>
@@ -121,6 +131,15 @@ namespace CustomEngine.Rendering.Models
             Vec3 v3 = new Vec3(xHalf, yHalf, 0.0f);
             Vec3 v4 = new Vec3(-xHalf, yHalf, 0.0f);
             return MakeQuad(v1, v2, v3, v4, Vec3.UnitZ);
+        }
+        public static VertexQuad ZUpQuad(BoundingRectangle region)
+        {
+            return MakeQuad(
+                region.BottomLeft,
+                region.BottomRight,
+                region.TopRight,
+                region.TopLeft,
+                Vec3.UnitZ);
         }
 
         public static VertexQuad MakeQuad(

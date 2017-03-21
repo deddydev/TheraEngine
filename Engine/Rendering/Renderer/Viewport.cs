@@ -9,13 +9,17 @@ using CustomEngine.Rendering.Models;
 using CustomEngine.Rendering.Models.Materials;
 using CustomEngine.Rendering.Textures;
 using System.Drawing.Text;
+using CustomEngine.Worlds.Actors.Types;
 
 namespace CustomEngine.Rendering
 {
+    public delegate void DelOnRender(SceneProcessor scene);
     public class Viewport
     {
         public static Viewport CurrentlyRendering { get { return _currentlyRendering; } }
         private static Viewport _currentlyRendering = null;
+
+        public DelOnRender Render;
 
         private LocalPlayerController _owner;
         private HudManager _hud;
@@ -24,6 +28,8 @@ namespace CustomEngine.Rendering
         private Camera _worldCamera;
         private RenderPanel _owningPanel;
         private ScreenTextHandler _text;
+        private GBuffer _gBuffer;
+        private bool _hasAnyForward;
 
         public ScreenTextHandler Text => _text;
 
@@ -65,11 +71,24 @@ namespace CustomEngine.Rendering
 
         public Viewport(LocalPlayerController owner, RenderPanel panel, int index)
         {
+            ViewportCountChanged(index, panel._viewports.Count + 1, Engine.TwoPlayerPref, Engine.ThreePlayerPref);
             _owningPanel = panel;
             _hud = new HudManager(this);
             _index = index;
             _owner = owner;
             _owner.Viewport = this;
+            Resize(panel.Width, panel.Height);
+            _text = new ScreenTextHandler(this);
+            if (Engine.Settings.ShadingStyle == ShadingStyle.Deferred)
+            {
+                _gBuffer = new GBuffer(Region);
+                Render = RenderDeferred;
+            }
+            else
+            {
+                _gBuffer = null;
+                Render = RenderForward;
+            }
         }
         internal void Resize(float parentWidth, float parentHeight)
         {
@@ -80,6 +99,7 @@ namespace CustomEngine.Rendering
 
             _worldCamera?.Resize(Width, Height);
             _hud?.Resize(_region);
+            _gBuffer?.SetRegion(_region);
         }
         public void DebugPrint(string message)
         {
@@ -165,19 +185,31 @@ namespace CustomEngine.Rendering
             => _worldCamera.GetWorldRay(viewportPoint);
         public Segment GetWorldSegment(Vec2 viewportPoint) 
             => _worldCamera.GetWorldSegment(viewportPoint);
-
+        
         public void RenderDeferred(SceneProcessor scene)
         {
             if (_worldCamera == null)
                 return;
 
             _currentlyRendering = this;
-            Engine.Renderer.PushRenderArea(Region);
-            Engine.Renderer.CropRenderArea(Region);
-
+            _gBuffer.Bind(FramebufferType.ReadWrite);
+            Engine.Renderer.Clear(BufferClear.Color | BufferClear.Depth);
             scene.Render(_worldCamera, true);
+            Engine.Renderer.BindFrameBuffer(FramebufferType.ReadWrite, 0);
+            Engine.Renderer.Clear(BufferClear.Color);
+            _gBuffer.Render();
+            if (_hasAnyForward)
+            {
+                //Copy depth from GBuffer to main frame buffer
+                Engine.Renderer.BlitFrameBuffer(
+                    _gBuffer.BindingId, 0,
+                    0, 0, Region.IntWidth, Region.IntHeight,
+                    0, 0, Region.IntWidth, Region.IntHeight,
+                    AbstractRenderer.EClearBufferMask.DepthBufferBit,
+                    AbstractRenderer.EBlitFramebufferFilter.Nearest);
 
-            Engine.Renderer.PopRenderArea();
+                scene.Render(_worldCamera, false);
+            }
             _currentlyRendering = null;
         }
         public void RenderForward(SceneProcessor scene)
@@ -335,7 +367,7 @@ namespace CustomEngine.Rendering
 
     public class ScreenTextHandler
     {
-        PrimitiveManager _manager;
+        //PrimitiveManager _manager;
         Texture _texture;
         
         internal class TextData
@@ -343,17 +375,13 @@ namespace CustomEngine.Rendering
             public string _string;
             public List<Vec3> _positions = new List<Vec3>();
         }
+
         internal static int _fontSize = 12;
         internal static readonly Font _textFont = new Font("Arial", _fontSize);
+
         internal Viewport _viewport;
         internal Dictionary<string, TextData> _text = new Dictionary<string, TextData>();
-        public int Count { get { return _text.Count; } }
-
-        internal IVec2 _size = new IVec2();
-        internal Bitmap _bitmap = null;
-        internal int _texId = -1;
-        Matrix4 _transform = Matrix4.Identity;
-
+        
         public Vec3 this[string text]
         {
             set
@@ -369,33 +397,28 @@ namespace CustomEngine.Rendering
         {
             _text = new Dictionary<string, TextData>();
             _viewport = viewport;
-            TextureReference texRef = new TextureReference("Text", (int)_viewport.Width, (int)_viewport.Height);
-            _manager = new PrimitiveManager(PrimitiveData.FromQuads(Culling.Back, new PrimitiveBufferInfo(), VertexQuad.ZUpQuad(_viewport.Width, _viewport.Height)), Material.GetBasicTextureMaterial(texRef, true));
-            _texture = _manager.Program.Textures[0];
+            //TextureReference texRef = new TextureReference("Text", (int)_viewport.Width, (int)_viewport.Height);
+            //_manager = new PrimitiveManager(
+            //    PrimitiveData.FromQuads(Culling.Back, new PrimitiveBufferInfo(), VertexQuad.ZUpQuad(_viewport.Width, _viewport.Height)), 
+            //    Material.GetBasicTextureMaterial(texRef, true));
+            //_texture = _manager.Program.Textures[0];
         }
 
         public void Clear() => _text.Clear();
 
-        public unsafe void Draw()
+        public unsafe void Draw(Texture texture)
         {
             Bitmap b = _texture.Data.Bitmap;
 
-            //Resize bitmap if viewport bounds have changed
-            if (_size != (IVec2)_viewport.Region.Bounds ||
+            //Resize bitmap if viewport bounds do not match
+            if ((IVec2)b.Size != (IVec2)_viewport.Region.Bounds ||
                 _viewport.Region.Bounds.X.IsZero() ||
                 _viewport.Region.Bounds.Y.IsZero())
             {
-                _size = (IVec2)_viewport.Region.Bounds;
-                _transform = Matrix4.CreateTranslation(_viewport.Width / 2.0f, _viewport.Height / 2.0f, 0.0f);
-
                 if (b != null)
                     b.Dispose();
-
-                if (_size.X == 0 || _size.Y == 0)
-                    return;
-
-                //Create a texture over the whole model panel
-                b = new Bitmap(_size.X, _size.Y);
+                
+                b = new Bitmap(_viewport.Region.IntWidth, _viewport.Region.IntHeight);
                 b.MakeTransparent();
                 _texture.Data.Bitmap = b;
             }
@@ -421,7 +444,7 @@ namespace CustomEngine.Rendering
             }
 
             _texture.PushData();
-            _manager.Render(_transform, Matrix3.Identity);
+            //_manager.Render(_transform, Matrix3.Identity);
         }
     }
 }

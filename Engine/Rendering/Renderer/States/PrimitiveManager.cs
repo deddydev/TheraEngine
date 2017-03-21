@@ -88,7 +88,16 @@ namespace CustomEngine.Rendering.Models
             set => _program?.SetMaterial(_material = value);
         }
 
-        public MeshProgram Program => _program;
+        public MeshProgram Program
+        {
+            get
+            {
+                if (!IsActive)
+                    Generate();
+                return _program;
+            }
+        }
+
         public HashSet<int> ModifiedVertexIndices => _modifiedVertexIndices;
         public HashSet<int> ModifiedBoneIndices => _modifiedBoneIndices;
 

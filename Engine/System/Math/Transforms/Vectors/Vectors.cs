@@ -1,6 +1,7 @@
 ﻿using CustomEngine;
 using System.Runtime.InteropServices;
 using CustomEngine.Rendering.Models;
+using System.Drawing;
 
 namespace System
 {
@@ -105,6 +106,8 @@ namespace System
                 X == other.X &&
                 Y == other.Y;
         }
+        public static implicit operator Size(IVec2 v) => new Size(v.X, v.Y);
+        public static implicit operator IVec2(Size v) => new IVec2(v.Width, v.Height);
     }
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public unsafe struct UVec2 : IUniformable2UInt, IBufferable

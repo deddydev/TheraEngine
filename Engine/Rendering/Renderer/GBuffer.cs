@@ -23,15 +23,14 @@ namespace CustomEngine.Rendering
             DrawBuffersAttachment.ColorAttachment3, //Texcoord
             DrawBuffersAttachment.ColorAttachment4, //Stencil
             DrawBuffersAttachment.ColorAttachment5, //Text
-            DrawBuffersAttachment.DepthAttachement, //Depth
         };
 
-        public GBuffer(int width, int height)
+        public GBuffer(BoundingRectangle region)
         {
             _fullScreenQuad = new PrimitiveManager(
                 PrimitiveData.FromQuads(Culling.Back, new PrimitiveBufferInfo(), 
-                VertexQuad.ZUpQuad(width, height)),
-                Material.GetGBufferMaterial(width, height));
+                VertexQuad.ZUpQuad(region)),
+                Material.GetGBufferMaterial(region.IntWidth, region.IntHeight));
             _fullScreenQuad.SettingUniforms += Engine.Renderer.Scene.SetUniforms;
         }
         ~GBuffer()
@@ -62,24 +61,19 @@ namespace CustomEngine.Rendering
             Engine.Renderer.DrawBuffers(_attachments);
             Unbind(FramebufferType.Write);
         }
-        public unsafe void Resize(float width, float height)
+        public unsafe void SetRegion(BoundingRectangle region)
         {
             // 3--2
             // |\ |
             // | \|
             // 0--1
             //0 1 3 3 1 2
-
-            //Vec3 bottomLeft = new Vec3(0.0f, 0.0f, 0.0f);
-            Vec3 bottomRight = new Vec3(width, 0.0f, 0.0f);
-            Vec3 topRight = new Vec3(width, height, 0.0f);
-            Vec3 topLeft = new Vec3(0.0f, height, 0.0f);
-
+            
             Vec3* data = (Vec3*)_fullScreenQuad.Data[0].Address;
-            //data[0] = bottomLeft;
-            data[1] = data[4] = bottomRight;
-            data[2] = data[3] = topLeft;
-            data[5] = topRight;
+            data[0] = region.BottomLeft;
+            data[1] = data[4] = region.BottomRight;
+            data[2] = data[3] = region.TopLeft;
+            data[5] = region.TopRight;
         }
 
         public void Render()

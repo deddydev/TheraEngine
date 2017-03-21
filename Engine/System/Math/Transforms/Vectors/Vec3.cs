@@ -778,7 +778,7 @@ namespace System
         public static explicit operator Color(Vec3 v)
             => Color.FromArgb((int)(v.X / _colorFactor), (int)(v.Y / _colorFactor), (int)(v.Z / _colorFactor));
 
-        public static explicit operator Vec3(Vec2 v)                    => new Vec3(v.X, v.Y, 0.0f);
+        public static implicit operator Vec3(Vec2 v)                    => new Vec3(v.X, v.Y, 0.0f);
         public static explicit operator Vec3(ColorF4 v)                 => new Vec3(v.R, v.G, v.B);
         public static implicit operator BulletSharp.Vector3(Vec3 v)     => new BulletSharp.Vector3(v.X, v.Y, v.Z);
         public static implicit operator Vec3(BulletSharp.Vector3 v)     => new Vec3(v.X, v.Y, v.Z);

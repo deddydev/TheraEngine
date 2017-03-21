@@ -540,6 +540,5 @@ namespace CustomEngine.Rendering
         ColorAttachment13,
         ColorAttachment14,
         ColorAttachment15,
-        DepthAttachement,
     }
 }

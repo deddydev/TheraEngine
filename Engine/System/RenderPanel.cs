@@ -30,9 +30,6 @@ namespace CustomEngine
     /// </summary>
     public class RenderPanel : UserControl, IEnumerable<Viewport>
     {
-        private delegate void DelOnRender(PaintEventArgs e);
-        private DelOnRender OnRender;
-
         public static RenderPanel HoveredPanel;
         public RenderPanel()
         {
@@ -43,22 +40,17 @@ namespace CustomEngine
                 ControlStyles.ResizeRedraw,
                 true);
 
-            if (Engine.Settings.ShadingStyle == ShadingStyle.Deferred)
-            {
-                _gBuffer = new GBuffer(Width, Height);
-                OnRender = OnRenderDeferred;
-            }
-            else
-            {
-                _gBuffer = null;
-                OnRender = OnRenderForward;
-            }
-
             PointToClientDelegate = new DelPointConvert(PointToClient);
             PointToScreenDelegate = new DelPointConvert(PointToScreen);
+        }
+
+        protected override void OnLoad(EventArgs e)
+        {
+            base.OnLoad(e);
             CreateContext();
             AddViewport(new LocalPlayerController());
         }
+
         protected override void Dispose(bool disposing)
         {
             DisposeContext();
@@ -82,7 +74,6 @@ namespace CustomEngine
         internal DelPointConvert PointToScreenDelegate;
 
         private bool _hasAnyForward = true;
-        private GBuffer _gBuffer;
         internal RenderContext _context;
         protected int _updateCounter;
         private HudManager _globalHud;
@@ -158,31 +149,12 @@ namespace CustomEngine
             if (HoveredPanel == this)
                 HoveredPanel = null;
         }
-        protected virtual void OnRenderDeferred(PaintEventArgs e)
+        protected virtual void OnRender(PaintEventArgs e)
         {
-            _gBuffer.Bind(FramebufferType.ReadWrite);
             _context.BeginDraw();
 
             foreach (Viewport v in _viewports)
-                v.RenderDeferred(Engine.Renderer.Scene);
-
-            //Write to default frame buffer
-            Engine.Renderer.BindFrameBuffer(FramebufferType.ReadWrite, 0);
-            Engine.Renderer.Clear(BufferClear.Color);
-            _gBuffer.Render();
-
-            if (_hasAnyForward)
-            {
-                //Copy depth from GBuffer to main frame buffer
-                Engine.Renderer.BlitFrameBuffer(
-                    _gBuffer.BindingId, 0,
-                    0, 0, Width, Height, 0, 0, Width, Height, 
-                    AbstractRenderer.EClearBufferMask.DepthBufferBit, 
-                    AbstractRenderer.EBlitFramebufferFilter.Nearest);
-                
-                foreach (Viewport v in _viewports)
-                    v.RenderForward(Engine.Renderer.Scene);
-            }
+                v.Render(Engine.Renderer.Scene);
 
             _globalHud?.Render();
             _context.EndDraw();
@@ -198,7 +170,6 @@ namespace CustomEngine
         protected override void OnResize(EventArgs e)
         {
             base.OnResize(e);
-            _gBuffer?.Resize(Width, Height);
             foreach (Viewport v in _viewports)
                 v.Resize(Width, Height);
             //Rectangle region = new Rectangle(0, 0, Width, Height);
@@ -258,7 +229,8 @@ namespace CustomEngine
         public void AddViewport(LocalPlayerController owner)
         {
             _viewports.Add(new Viewport(owner, this, _viewports.Count));
-            for (int i = 0; i < _viewports.Count; ++i)
+            //Fix the regions of the rest of the viewports
+            for (int i = 0; i < _viewports.Count - 1; ++i)
                 _viewports[i].ViewportCountChanged(i, _viewports.Count, Engine.TwoPlayerPref, Engine.ThreePlayerPref);
         }
         public Viewport GetViewport(int index)

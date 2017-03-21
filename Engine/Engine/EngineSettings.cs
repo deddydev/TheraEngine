@@ -28,7 +28,7 @@ namespace CustomEngine
 
         public SingleFileRef<World> TransitionWorld;
         public SingleFileRef<World> OpeningWorld;
-        public string ContentPath;
+        public string ContentPath = Engine.StartupPath + Engine.ContentFolderRel;
 
         public override void Read(XMLReader reader)
         {
@@ -36,9 +36,12 @@ namespace CustomEngine
         }
         public override void Write(XmlWriter writer)
         {
+            writer.WriteStartElement("EngineSettings");
             writer.WriteElementString("ContentPath", ContentPath.ToString());
             writer.WriteElementString("SkinOnGPU", SkinOnGPU.ToString());
             writer.WriteElementString("UseIntegerWeightingIds", UseIntegerWeightingIds.ToString());
+            writer.WriteElementString("RenderSkeletons", RenderSkeletons.ToString());
+            writer.WriteElementString("RenderCameraFrustums", RenderCameraFrustums.ToString());
             writer.WriteStartElement("FPS");
             writer.WriteAttributeString("Capped", CapFPS.ToString());
             writer.WriteString(TargetFPS.ToString());
@@ -46,9 +49,14 @@ namespace CustomEngine
             writer.WriteStartElement("FPS");
             writer.WriteAttributeString("Capped", CapFPS.ToString());
             writer.WriteString(TargetFPS.ToString());
+            writer.WriteEndElement();
+            writer.WriteStartElement("UPS");
+            writer.WriteAttributeString("Capped", CapUPS.ToString());
+            writer.WriteString(TargetUPS.ToString());
             writer.WriteEndElement();
             TransitionWorld?.Write(writer, false);
             OpeningWorld?.Write(writer, false);
+            writer.WriteEndElement();
         }
 
         public override void Write(VoidPtr address, StringTable table)

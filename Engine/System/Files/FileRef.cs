@@ -242,7 +242,7 @@ namespace CustomEngine.Files
             set
             {
                 _refPath = value;
-                if (_refPath.StartsWith("\\"))
+                if (_refPath != null && _refPath.StartsWith("\\"))
                     _absolutePath = Engine.StartupPath + _refPath;
                 else
                     _absolutePath = _refPath;

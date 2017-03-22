@@ -19,16 +19,24 @@ namespace CustomEngine
         public static string StartupPath = Application.StartupPath;
         public static string ContentFolderRel = "\\Content";
         public static string ConfigFolderRel = "\\Config";
-        public static string EngineSettingsPathRel = ConfigFolderRel + "\\EngineSettings.xml";
-        public static string UserSettingsPathRel = ConfigFolderRel + "\\UserSettings.xml";
+        public static string EngineSettingsPathRel = ConfigFolderRel + "\\Engine.xcsettings";
+        public static string UserSettingsPathRel = ConfigFolderRel + "\\User.xcsettings";
 
         private static World _transitionWorld = null;
         private static World _currentWorld = null;
         public static SingleFileRef<EngineSettings> _engineSettings = new SingleFileRef<EngineSettings>(EngineSettingsPathRel);
         public static SingleFileRef<UserSettings> _userSettings = new SingleFileRef<UserSettings>(UserSettingsPathRel);
 
-        public static EngineSettings Settings => _engineSettings.File;
-        public static UserSettings UserSettings => _userSettings.File;
+        public static EngineSettings Settings
+        {
+            get => _engineSettings.File;
+            set => _engineSettings.File = value;
+        }
+        public static UserSettings UserSettings
+        {
+            get => _userSettings.File;
+            set => _userSettings.File = value;
+        }
 
         public static Dictionary<string, List<FileObject>> LoadedFiles = new Dictionary<string, List<FileObject>>();
         public static MonitoredList<LocalPlayerController> ActivePlayers = new MonitoredList<LocalPlayerController>();

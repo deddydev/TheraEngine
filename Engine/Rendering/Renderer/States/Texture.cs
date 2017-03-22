@@ -1,6 +1,5 @@
 ﻿using CustomEngine.Rendering.Models.Materials;
 using FreeImageAPI;
-using OpenTK.Graphics.OpenGL;
 using System;
 using System.Drawing;
 using System.Drawing.Imaging;
@@ -28,25 +27,25 @@ namespace CustomEngine.Rendering.Textures
             _lodBias = lodBias;
         }
 
-        public static readonly TextureMagFilter[] _magFilters = 
+        public static readonly ETexMagFilter[] _magFilters = 
         {
-            TextureMagFilter.Nearest,
-            TextureMagFilter.Linear
+            ETexMagFilter.Nearest,
+            ETexMagFilter.Linear
         };
-        public static readonly TextureMinFilter[] _minFilters = 
+        public static readonly ETexMinFilter[] _minFilters = 
         {
-            TextureMinFilter.Nearest,
-            TextureMinFilter.Linear,
-            TextureMinFilter.NearestMipmapNearest,
-            TextureMinFilter.NearestMipmapLinear,
-            TextureMinFilter.LinearMipmapNearest,
-            TextureMinFilter.LinearMipmapLinear,
+            ETexMinFilter.Nearest,
+            ETexMinFilter.Linear,
+            ETexMinFilter.NearestMipmapNearest,
+            ETexMinFilter.NearestMipmapLinear,
+            ETexMinFilter.LinearMipmapNearest,
+            ETexMinFilter.LinearMipmapLinear,
         };
-        public static readonly TextureWrapMode[] _wraps =
+        public static readonly ETexWrapMode[] _wraps =
         {
-            TextureWrapMode.ClampToEdge,
-            TextureWrapMode.Repeat,
-            TextureWrapMode.MirroredRepeat
+            ETexWrapMode.ClampToEdge,
+            ETexWrapMode.Repeat,
+            ETexWrapMode.MirroredRepeat
         };
 
         private TexCoordWrap _uWrapMode;
@@ -75,14 +74,12 @@ namespace CustomEngine.Rendering.Textures
         {
             if (!IsActive)
                 Generate();
-            GL.BindTexture(OpenTK.Graphics.OpenGL.TextureTarget.Texture2D, BindingId);
+            Engine.Renderer.BindTexture(ETexTarget.Texture2D, BindingId);
         }
 
-        public void AttachToFrameBuffer(FramebufferTarget target, FramebufferAttachment attachment, OpenTK.Graphics.OpenGL.TextureTarget texTarget)
-        {
-            GL.FramebufferTexture2D(target, attachment, texTarget, BindingId, 0);
-        }
-
+        public void AttachToFrameBuffer(EFramebufferTarget target, EFramebufferAttachment attachment, ETexTarget texTarget)
+            => Engine.Renderer.AttachTextureToFrameBuffer(target, attachment, texTarget, BindingId, 0);
+        
         public void PushData()
         {
             if (_data == null)
@@ -90,16 +87,16 @@ namespace CustomEngine.Rendering.Textures
 
             Bind();
 
-            GL.TexParameter(OpenTK.Graphics.OpenGL.TextureTarget.Texture2D, TextureParameterName.TextureBaseLevel, 0);
-            GL.TexParameter(OpenTK.Graphics.OpenGL.TextureTarget.Texture2D, TextureParameterName.TextureMaxLevel, 0);
-            GL.TexParameter(OpenTK.Graphics.OpenGL.TextureTarget.Texture2D, TextureParameterName.TextureMinLod, 0);
-            GL.TexParameter(OpenTK.Graphics.OpenGL.TextureTarget.Texture2D, TextureParameterName.TextureMaxLod, 0);
-            GL.TexParameter(OpenTK.Graphics.OpenGL.TextureTarget.Texture2D, TextureParameterName.TextureLodBias, _lodBias);
-            GL.TexParameter(OpenTK.Graphics.OpenGL.TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)_magFilters[(int)_magFilter]);
-            GL.TexParameter(OpenTK.Graphics.OpenGL.TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)_minFilters[(int)_minFilter]);
-            GL.TexParameter(OpenTK.Graphics.OpenGL.TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)_wraps[(int)_uWrapMode]);
-            GL.TexParameter(OpenTK.Graphics.OpenGL.TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)_wraps[(int)_vWrapMode]);
-
+            Engine.Renderer.TexParameter(ETexTarget.Texture2D, ETexParamName.TextureBaseLevel, 0);
+            Engine.Renderer.TexParameter(ETexTarget.Texture2D, ETexParamName.TextureMaxLevel, 0);
+            Engine.Renderer.TexParameter(ETexTarget.Texture2D, ETexParamName.TextureMinLod, 0);
+            Engine.Renderer.TexParameter(ETexTarget.Texture2D, ETexParamName.TextureMaxLod, 0);
+            Engine.Renderer.TexParameter(ETexTarget.Texture2D, ETexParamName.TextureLodBias, _lodBias);
+            Engine.Renderer.TexParameter(ETexTarget.Texture2D, ETexParamName.TextureMagFilter, (int)_magFilters[(int)_magFilter]);
+            Engine.Renderer.TexParameter(ETexTarget.Texture2D, ETexParamName.TextureMinFilter, (int)_minFilters[(int)_minFilter]);
+            Engine.Renderer.TexParameter(ETexTarget.Texture2D, ETexParamName.TextureWrapS, (int)_wraps[(int)_uWrapMode]);
+            Engine.Renderer.TexParameter(ETexTarget.Texture2D, ETexParamName.TextureWrapT, (int)_wraps[(int)_vWrapMode]);
+            
             Bitmap bmp = _data.Bitmap;
             if (bmp != null)
             {
@@ -108,7 +105,7 @@ namespace CustomEngine.Rendering.Textures
                     ImageLockMode.ReadOnly,
                     System.Drawing.Imaging.PixelFormat.Format32bppArgb);
 
-                GL.TexImage2D(
+                OpenTK.Graphics.OpenGL.GL.TexImage2D(
                     OpenTK.Graphics.OpenGL.TextureTarget.Texture2D,
                     0,
                     OpenTK.Graphics.OpenGL.PixelInternalFormat.Rgba8,
@@ -118,6 +115,14 @@ namespace CustomEngine.Rendering.Textures
                     OpenTK.Graphics.OpenGL.PixelFormat.Bgra,
                     OpenTK.Graphics.OpenGL.PixelType.UnsignedByte,
                     data.Scan0);
+
+                //Engine.Renderer.BindTextureData(
+                //    ETexTarget.Texture2D, 
+                //    0, 
+                //    EPixelInternalFormat.Rgba8,
+                //    data.Width,
+                //    data.Height,
+                //    )
 
                 bmp.UnlockBits(data);
             }

@@ -22,11 +22,6 @@ namespace CustomEngine.Rendering.OpenGL
 
         private ShaderType _currentShaderMode;
         
-        public override void BindTextureData(int textureTargetEnum, int mipLevel, int pixelInternalFormatEnum, int width, int height, int pixelFormatEnum, int pixelTypeEnum, VoidPtr data)
-        {
-            // https://www.opengl.org/sdk/docs/man/html/glTexImage2D.xhtml
-            GL.TexImage2D((TextureTarget)textureTargetEnum, mipLevel, (OpenTK.Graphics.OpenGL.PixelInternalFormat)pixelInternalFormatEnum, width, height, 0, (OpenTK.Graphics.OpenGL.PixelFormat)pixelFormatEnum, (PixelType)pixelTypeEnum, data);
-        }
         public override void Clear(BufferClear mask)
         {
             ClearBufferMask newMask = 0;
@@ -479,7 +474,31 @@ namespace CustomEngine.Rendering.OpenGL
 
         #endregion
 
-        #region Framebuffers
+        #region Framebuffers        
+        public override void SetDrawBuffer(DrawBuffersAttachment attachment)
+        {
+            GL.DrawBuffer(DrawBufferMode.ColorAttachment0 + (int) attachment);
+        }
+        public override void SetDrawBuffer(int bindingId, DrawBuffersAttachment attachment)
+        {
+            GL.NamedFramebufferDrawBuffer(bindingId, DrawBufferMode.ColorAttachment0 + (int)attachment);
+        }
+        public override void SetReadBuffer(DrawBuffersAttachment attachment)
+        {
+            GL.ReadBuffer(ReadBufferMode.ColorAttachment0 + (int) attachment);
+        }
+        public override void SetReadBuffer(int bindingId, DrawBuffersAttachment attachment)
+        {
+            GL.NamedFramebufferReadBuffer(bindingId, ReadBufferMode.ColorAttachment0 + (int)attachment);
+        }
+        public override void SetDrawBuffers(DrawBuffersAttachment[] attachments)
+        {
+            GL.DrawBuffers(attachments.Length, attachments.Select(x => (DrawBuffersEnum)x.Convert(typeof(DrawBuffersEnum))).ToArray());
+        }
+        public override void SetDrawBuffers(int bindingId, DrawBuffersAttachment[] attachments)
+        {
+            GL.NamedFramebufferDrawBuffers(bindingId, attachments.Length, attachments.Select(x => (DrawBuffersEnum)x.Convert(typeof(DrawBuffersEnum))).ToArray());
+        }
         public override void BlitFrameBuffer(
             int readBufferId, int writeBufferId,
             int srcX0, int srcY0,
@@ -526,10 +545,6 @@ namespace CustomEngine.Rendering.OpenGL
                     GL.BindFramebuffer(FramebufferTarget.DrawFramebuffer, bindingId);
                     break;
             }
-        }
-        public override void DrawBuffers(DrawBuffersAttachment[] attachments)
-        {
-            GL.DrawBuffers(attachments.Length, attachments.Select(x => (DrawBuffersEnum)x.Convert(typeof(DrawBuffersEnum))).ToArray());
         }
         #endregion
 
@@ -814,6 +829,41 @@ namespace CustomEngine.Rendering.OpenGL
             bmp.UnlockBits(data);
             bmp.RotateFlip(RotateFlipType.RotateNoneFlipY);
             return bmp;
+        }
+
+        public override void AttachTextureToFrameBuffer(EFramebufferTarget target, EFramebufferAttachment attachment, ETexTarget texTarget, int bindingId, int mipLevel)
+        {
+            GL.FramebufferTexture2D(
+                (FramebufferTarget)target.Convert(typeof(FramebufferTarget)),
+                (FramebufferAttachment)attachment.Convert(typeof(FramebufferAttachment)),
+                (TextureTarget)texTarget.Convert(typeof(TextureTarget)), 
+                bindingId, mipLevel);
+        }
+
+        public override void TexParameter(ETexTarget texTarget, ETexParamName texParam, float paramData)
+        {
+            GL.TexParameter(
+                (TextureTarget)texTarget.Convert(typeof(TextureTarget)),
+                (TextureParameterName)texParam.Convert(typeof(TextureParameterName)),
+                paramData);
+        }
+
+        public override void TexParameter(ETexTarget texTarget, ETexParamName texParam, int paramData)
+        {
+            GL.TexParameter(
+                (TextureTarget)texTarget.Convert(typeof(TextureTarget)),
+                (TextureParameterName)texParam.Convert(typeof(TextureParameterName)),
+                paramData);
+        }
+
+        public override void BindTextureData(ETexTarget texTarget, int mipLevel, int pixelInternalFormatEnum, int width, int height, int pixelFormatEnum, int pixelTypeEnum, VoidPtr data)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void BindTexture(ETexTarget texTarget, int bindingId)
+        {
+            GL.BindTexture((TextureTarget)texTarget.Convert(typeof(TextureTarget)), bindingId);
         }
     }
 }

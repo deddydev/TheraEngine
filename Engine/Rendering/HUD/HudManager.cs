@@ -16,6 +16,9 @@ namespace CustomEngine.Rendering.HUD
         private Viewport _owningViewport;
         private RenderPanel _owningPanel;
         private OrthographicCamera _camera;
+
+        public OrthographicCamera Camera => _camera;
+
         public HudManager(Viewport v)
         {
             _owningViewport = v;
@@ -38,7 +41,7 @@ namespace CustomEngine.Rendering.HUD
             //Child tree must be resized AFTER child components are resized
             //_childComponentTree.Resize(region.Bounds);
             //Resize the drawing board
-            _camera.Resize(Width, Height);
+            _camera.Resize(parentRegion.Width, parentRegion.Height);
             return region;
         }
         public void DebugPrint(string message)

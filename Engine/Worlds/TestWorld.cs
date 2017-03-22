@@ -1,15 +1,10 @@
 ﻿using System;
-using CustomEngine.Worlds;
 using CustomEngine.Rendering.Models;
 using CustomEngine.Worlds.Actors.Components;
 using CustomEngine.Worlds.Maps;
 using CustomEngine.Rendering.Animation;
-using CustomEngine.Rendering.Models.Materials;
 using CustomEngine.Worlds.Actors;
-using BulletSharp;
 using System.Drawing;
-using System.Linq;
-using CustomEngine.Rendering;
 using CustomEngine.Worlds.Actors.Types;
 using CustomEngine.Rendering.Cameras;
 

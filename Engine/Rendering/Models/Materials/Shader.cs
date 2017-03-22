@@ -134,7 +134,7 @@ void main()
 {
     gPosition = InData.Position;
     gNormal = InData.Normal;
-    gAlbedoSpec = vec4(texture(Texture0, InData.MultiTexCoord0).rgb, MatSpecularIntensity);
+    gAlbedoSpec = vec4(MatColor.rgb, MatSpecularIntensity);
 }
 ";
             return new Shader(ShaderMode.Fragment, source);
@@ -262,10 +262,10 @@ void main()
     vec3 Albedo = texture(gAlbedoSpec, TexCoord0).rgb;
     float Specular = texture(gAlbedoSpec, TexCoord0).a;
     vec4 Text = texture(gText, TexCoord0);
-    
+
     " + LightingCalc("totalLight", "Albedo * 0.1", "Normal", "FragPos", "Albedo", "Specular") + @"
 
-    OutColor = mix(vec4(totalLight, 1.0), Text.rgb, Text.a);
+    OutColor = vec4(mix(totalLight, Text.rgb, Text.a), 1.0);
 }";
             return new Shader(ShaderMode.Fragment, source);
         }

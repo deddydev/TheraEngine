@@ -42,13 +42,13 @@ namespace CustomEngine
 
             PointToClientDelegate = new DelPointConvert(PointToClient);
             PointToScreenDelegate = new DelPointConvert(PointToScreen);
+            CreateContext();
+            AddViewport(new LocalPlayerController());
         }
 
         protected override void OnLoad(EventArgs e)
         {
             base.OnLoad(e);
-            CreateContext();
-            AddViewport(new LocalPlayerController());
         }
 
         protected override void Dispose(bool disposing)
@@ -72,8 +72,7 @@ namespace CustomEngine
         internal delegate Point DelPointConvert(Point p);
         internal DelPointConvert PointToClientDelegate;
         internal DelPointConvert PointToScreenDelegate;
-
-        private bool _hasAnyForward = true;
+        
         internal RenderContext _context;
         protected int _updateCounter;
         private HudManager _globalHud;
@@ -156,14 +155,6 @@ namespace CustomEngine
             foreach (Viewport v in _viewports)
                 v.Render(Engine.Renderer.Scene);
 
-            _globalHud?.Render();
-            _context.EndDraw();
-        }
-        protected virtual void OnRenderForward(PaintEventArgs e)
-        {
-            _context.BeginDraw();
-            foreach (Viewport v in _viewports)
-                v.RenderForward(Engine.Renderer.Scene);
             _globalHud?.Render();
             _context.EndDraw();
         }

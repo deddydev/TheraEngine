@@ -54,13 +54,7 @@ namespace CustomEngine.Rendering.DirectX
         {
             throw new NotImplementedException();
         }
-
-        public override void BindTextureData(int textureTargetEnum, int mipLevel, int pixelInternalFormatEnum, int width, int height, int pixelFormatEnum, int pixelTypeEnum, VoidPtr data)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void DrawBuffers(DrawBuffersAttachment[] attachments)
+        public override void SetDrawBuffers(DrawBuffersAttachment[] attachments)
         {
             throw new NotImplementedException();
         }
@@ -336,6 +330,56 @@ namespace CustomEngine.Rendering.DirectX
         }
 
         public override void BlitFrameBuffer(int readBufferId, int writeBufferId, int srcX0, int srcY0, int srcX1, int srcY1, int dstX0, int dstY0, int dstX1, int dstY1, EClearBufferMask mask, EBlitFramebufferFilter filter)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void TexParameter(ETexTarget texTarget, ETexParamName texParam, float paramData)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void TexParameter(ETexTarget texTarget, ETexParamName texParam, int paramData)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void BindTextureData(ETexTarget texTarget, int mipLevel, int pixelInternalFormatEnum, int width, int height, int pixelFormatEnum, int pixelTypeEnum, VoidPtr data)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void AttachTextureToFrameBuffer(EFramebufferTarget target, EFramebufferAttachment attachment, ETexTarget texTarget, int bindingId, int mipLevel)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void SetDrawBuffer(DrawBuffersAttachment attachment)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void SetDrawBuffer(int bindingId, DrawBuffersAttachment attachment)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void SetDrawBuffers(int bindingId, DrawBuffersAttachment[] attachments)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void SetReadBuffer(DrawBuffersAttachment attachment)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void SetReadBuffer(int bindingId, DrawBuffersAttachment attachment)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void BindTexture(ETexTarget texTarget, int bindingId)
         {
             throw new NotImplementedException();
         }

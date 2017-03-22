@@ -83,6 +83,8 @@ namespace CustomEngine.Rendering.Models.Materials
                 }
             }
         }
+
+        public static Material GetBasicTextureMaterial(TextureReference texture) => GetBasicTextureMaterial(texture, Engine.Settings.ShadingStyle == ShadingStyle.Deferred);
         public static Material GetBasicTextureMaterial(TextureReference texture, bool deferred)
         {
             List<TextureReference> refs = new List<TextureReference>() { texture };
@@ -90,6 +92,8 @@ namespace CustomEngine.Rendering.Models.Materials
             List<GLVar> p = new List<GLVar>();
             return new Material("UnlitTextureMaterial", p, refs, frag);
         }
+
+        public static Material GetUnlitColorMaterial() => GetUnlitColorMaterial(Engine.Settings.ShadingStyle == ShadingStyle.Deferred);
         public static Material GetUnlitColorMaterial(bool deferred)
         {
             List<TextureReference> refs = new List<TextureReference>();
@@ -101,6 +105,7 @@ namespace CustomEngine.Rendering.Models.Materials
             return new Material("UnlitColorMaterial", p, refs, frag);
         }
 
+        public static Material GetDefaultMaterial() => GetDefaultMaterial(Engine.Settings.ShadingStyle == ShadingStyle.Deferred);
         public static Material GetDefaultMaterial(bool deferred)
         {
             List<TextureReference> refs = new List<TextureReference>();
@@ -113,6 +118,7 @@ namespace CustomEngine.Rendering.Models.Materials
             };
             return new Material("TestMaterial", p, refs, frag);
         }
+
         internal static Material GetGBufferMaterial(int width, int height)
         {
             //These are listed in order of appearance in the shader

@@ -24,11 +24,8 @@ namespace TheraEditor
             InitializeComponent();
             DoubleBuffered = false;
             renderPanel1.GlobalHud = new EditorHud(renderPanel1);
-            EngineSettings settings = new EngineSettings()
-            {
-                OpeningWorld = typeof(TestWorld)
-            };
-            Engine._engineSettings.SetFile(settings, false);
+            Engine.Settings.ShadingStyle = ShadingStyle.Forward;
+            Engine.Settings.OpeningWorld = typeof(TestWorld);
             Engine.Initialize();
             renderPanel1.BeginTick();
         }

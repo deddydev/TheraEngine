@@ -1,10 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
 using System.Xml;
 
 namespace CustomEngine.Files
@@ -39,11 +36,11 @@ namespace CustomEngine.Files
         {
             if (file != null)
                 file._filePath = filePath;
-            _file = file;
+            SetFile(file, true);
         }
         public SingleFileRef(T file) : base(file._filePath)
         {
-            _file = file;
+            SetFile(file, !string.IsNullOrEmpty(file._filePath));
         }
         public T File
         {
@@ -74,7 +71,8 @@ namespace CustomEngine.Files
         public void ExportFile()
         {
             string dir = Path.GetDirectoryName(RefPathAbsolute);
-            _file.Export(dir, IsXML());
+            string name = Path.GetFileNameWithoutExtension(RefPathAbsolute);
+            _file.Export(dir, name, IsXML());
         }
         public override T GetInstance()
         {
@@ -107,8 +105,10 @@ namespace CustomEngine.Files
             string absolutePath = RefPathAbsolute;
             //if (!System.IO.File.Exists(absolutePath))
             //    throw new FileNotFoundException();
-            if (!System.IO.File.Exists(absolutePath) || IsSpecial())
-                SetFile(Activator.CreateInstance(_subType) as T, true);
+            bool special = IsSpecial();
+            bool fileExists = System.IO.File.Exists(absolutePath);
+            if (!fileExists || special)
+                SetFile(Activator.CreateInstance(_subType) as T, !special);
             else
             {
                 if (IsXML())
@@ -248,11 +248,16 @@ namespace CustomEngine.Files
                     _absolutePath = _refPath;
             }
         }
-        public string Extension() { return Path.GetExtension(_refPath).ToLower().Substring(1); }
+        public string Extension()
+        {
+            if (_refPath == null)
+                return null;
+            return Path.GetExtension(_refPath).ToLower().Substring(1);
+        }
         public bool IsXML()
         {
             string ext = Extension();
-            return ext == "xml" || ext.StartsWith("x");
+            return ext != null && (ext == "xml" || ext.StartsWith("x"));
         }
         public bool IsSpecial()
         {

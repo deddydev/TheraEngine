@@ -186,27 +186,35 @@ namespace CustomEngine.Rendering
         public Segment GetWorldSegment(Vec2 viewportPoint) 
             => _worldCamera.GetWorldSegment(viewportPoint);
         
+        private void GeometryPass(SceneProcessor scene)
+        {
+        }
+        private void LightPass(SceneProcessor scene)
+        {
+
+        }
         public void RenderDeferred(SceneProcessor scene)
         {
             if (_worldCamera == null)
                 return;
 
             _currentlyRendering = this;
-            _gBuffer.Bind(FramebufferType.ReadWrite);
+            Engine.Renderer.BindFrameBuffer(FramebufferType.ReadWrite, 0);
+            _gBuffer?.Bind(FramebufferType.ReadWrite);
             Engine.Renderer.Clear(BufferClear.Color | BufferClear.Depth);
             scene.Render(_worldCamera, true);
             Engine.Renderer.BindFrameBuffer(FramebufferType.ReadWrite, 0);
             Engine.Renderer.Clear(BufferClear.Color);
-            _gBuffer.Render();
+            _gBuffer?.Render();
             if (_hasAnyForward)
             {
                 //Copy depth from GBuffer to main frame buffer
                 Engine.Renderer.BlitFrameBuffer(
-                    _gBuffer.BindingId, 0,
+                    _gBuffer == null ? 0 : _gBuffer.BindingId, 0,
                     0, 0, Region.IntWidth, Region.IntHeight,
                     0, 0, Region.IntWidth, Region.IntHeight,
-                    AbstractRenderer.EClearBufferMask.DepthBufferBit,
-                    AbstractRenderer.EBlitFramebufferFilter.Nearest);
+                    EClearBufferMask.DepthBufferBit,
+                    EBlitFramebufferFilter.Nearest);
 
                 scene.Render(_worldCamera, false);
             }

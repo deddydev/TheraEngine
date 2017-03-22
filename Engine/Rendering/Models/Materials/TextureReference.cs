@@ -25,7 +25,11 @@ namespace CustomEngine.Rendering.Models.Materials
                 _name = Path.GetFileNameWithoutExtension(path);
             _reference = new SingleFileRef<TextureData>(path);
         }
-        
+        public TextureReference()
+        {
+
+        }
+
         public TextureData TextureData
         {
             get => _reference;

@@ -173,7 +173,7 @@ namespace CustomEngine
             UpdateTick(ETickGroup.PrePhysics, delta);
             //Task t = AsyncDuringPhysicsTick(delta);
             if (!_isPaused)
-                World.StepSimulation(delta);
+                World?.StepSimulation(delta);
             //await t;
             UpdateTick(ETickGroup.PostPhysics, delta);
             //}
@@ -181,6 +181,9 @@ namespace CustomEngine
 
         internal static void AddLoadedFile<T>(string relativePath, T file) where T : FileObject
         {
+            if (string.IsNullOrEmpty(relativePath))
+                return;
+
             if (LoadedFiles.ContainsKey(relativePath))
                 LoadedFiles[relativePath].Add(file);
             else
@@ -192,34 +195,18 @@ namespace CustomEngine
         {
             _computerInfo = ComputerInfo.Analyze();
 
-            EngineSettings engineSettings;
-            if (Settings == null)
-                _engineSettings.SetFile(engineSettings = new EngineSettings(), true);
-            else
-                engineSettings = _engineSettings;
-
-            //UserSettings userSettings;
-            //if (_userSettings.File == null)
-            //    _userSettings.SetFile(userSettings = new UserSettings(), true);
-            //else
-            //    userSettings = _userSettings;
-
-            RenderLibrary = RenderLibrary.OpenGL;
-            AudioLibrary = AudioLibrary.OpenAL;
-            InputLibrary = InputLibrary.OpenTK;
+            RenderLibrary = RenderLibrary.OpenGL; //UserSettings.RenderLibrary;
+            AudioLibrary = AudioLibrary.OpenAL; //UserSettings.AudioLibrary;
+            InputLibrary = InputLibrary.OpenTK; //UserSettings.InputLibrary;
 
             if (Renderer == null)
-                return;
+                throw new Exception("Unable to create a renderer.");
 
-            //RenderLibrary = userSettings.RenderLibrary;
-            //AudioLibrary = userSettings.AudioLibrary;
-            //InputLibrary = userSettings.InputLibrary;
-
-            World = engineSettings.OpeningWorld;
-            _transitionWorld = engineSettings.TransitionWorld;
+            World = Settings.OpeningWorld;
+            _transitionWorld = Settings.TransitionWorld;
             
-            TargetRenderFreq = engineSettings.CapFPS ? engineSettings.TargetFPS.ClampMin(1.0f) : 0.0f;
-            TargetUpdateFreq = engineSettings.CapUPS ? engineSettings.TargetUPS.ClampMin(1.0f) : 0.0f;
+            TargetRenderFreq = Settings.CapFPS ? Settings.TargetFPS.ClampMin(1.0f) : 0.0f;
+            TargetUpdateFreq = Settings.CapUPS ? Settings.TargetUPS.ClampMin(1.0f) : 0.0f;
             Run();
         }
         public static void ShutDown()

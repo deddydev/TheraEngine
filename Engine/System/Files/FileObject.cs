@@ -120,15 +120,14 @@ namespace CustomEngine.Files
 
             return obj;
         }
-        private unsafe void ToBinary(string filePath, string fileName)
+        private unsafe void ToBinary(string directory, string fileName)
         {
             Type t = GetType();
-            string directory = Path.GetDirectoryName(filePath);
             if (!Directory.Exists(directory))
                 Directory.CreateDirectory(directory);
             fileName = String.IsNullOrEmpty(fileName) ? "NewFile" : fileName;
-            filePath = directory + "\\" + fileName + ".b" + FileManager.GetExtension(t);
-            using (FileStream stream = new FileStream(filePath, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite, 8, FileOptions.SequentialScan))
+            directory = directory + "\\" + fileName + ".b" + FileManager.GetExtension(t);
+            using (FileStream stream = new FileStream(directory, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite, 8, FileOptions.SequentialScan))
             {
                 StringTable table = new StringTable();
                 int dataSize = CalculateSize(table).Align(4);
@@ -163,10 +162,10 @@ namespace CustomEngine.Files
 
                 if (reader.BeginElement())
                 {
-                    if (reader.Name.Equals(t.ToString(), true))
+                    //if (reader.Name.Equals(t.ToString(), true))
                         obj.Read(reader);
-                    else
-                        throw new Exception("File was not of expected type.");
+                    //else
+                    //    throw new Exception("File was not of expected type.");
                     reader.EndElement();
                 }
 
@@ -183,15 +182,14 @@ namespace CustomEngine.Files
             NewLineHandling = NewLineHandling.Replace
         };
 
-        private void ToXML(string filePath, string fileName)
+        private void ToXML(string directory, string fileName)
         {
             _isWriting = true;
-            string directory = Path.GetDirectoryName(filePath);
             if (!Directory.Exists(directory))
                 Directory.CreateDirectory(directory);
             fileName = String.IsNullOrEmpty(fileName) ? "NewFile" : fileName;
-            filePath = directory + "\\" + fileName + ".x" + FileManager.GetExtension(GetType());
-            using (FileStream stream = new FileStream(filePath, FileMode.Create, FileAccess.ReadWrite, FileShare.None, 0x1000, FileOptions.SequentialScan))
+            directory = directory + "\\" + fileName + ".x" + FileManager.GetExtension(GetType());
+            using (FileStream stream = new FileStream(directory, FileMode.Create, FileAccess.ReadWrite, FileShare.None, 0x1000, FileOptions.SequentialScan))
             using (XmlWriter writer = XmlWriter.Create(stream, _writerSettings))
             {
                 writer.Flush();

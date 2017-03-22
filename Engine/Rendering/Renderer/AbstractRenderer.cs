@@ -98,8 +98,9 @@ namespace CustomEngine.Rendering
                     data = PrimitiveData.FromQuads(Culling.None, new PrimitiveBufferInfo(), VertexQuad.YUpQuad(2.0f));
                     break;
             }
-            return AssignDebugPrimitive(name, new PrimitiveManager(data, Material.GetUnlitColorMaterial(true)));
+            return AssignDebugPrimitive(name, new PrimitiveManager(data, Material.GetUnlitColorMaterial()));
         }
+        
         //public void CacheWireframePlane()
         //{
         //    _wirePlane = new PrimitiveManager(
@@ -193,7 +194,8 @@ namespace CustomEngine.Rendering
         }
 
         private Stack<BoundingRectangle> _renderAreaStack = new Stack<BoundingRectangle>();
-        
+
+        #region Objects
         public abstract int[] CreateObjects(GenType type, int count);
         public abstract int[] CreateTextures(int target, int count);
         public abstract int[] CreateQueries(int type, int count);
@@ -203,12 +205,17 @@ namespace CustomEngine.Rendering
         }
         public abstract void DeleteObject(GenType type, int bindingId);
         public abstract void DeleteObjects(GenType type, int[] bindingIds);
+        #endregion
 
         internal int AddActiveMaterial(Material material)
         {
             int id = _activeMaterials.Count;
             _activeMaterials.Add(id, material);
             return id;
+        }
+        internal void RemoveActiveMaterial(Material material)
+        {
+            _activeMaterials.Remove(material.BindingId);
         }
 
         public virtual void BindPrimitiveManager(PrimitiveManager manager)
@@ -229,14 +236,11 @@ namespace CustomEngine.Rendering
         public abstract void MapBufferData(VertexBuffer buffer);
         public abstract void UnmapBufferData(VertexBuffer buffer);
 
-        internal void RemoveActiveMaterial(Material material)
-        {
-            _activeMaterials.Remove(material.BindingId);
-        }
-
+        public abstract void Clear(BufferClear mask);
         public abstract void Cull(Culling culling);
         public abstract void SetPointSize(float size);
         public abstract void SetLineSize(float size);
+        public abstract float GetDepth(float x, float y);
 
         #region Shaders
         /*
@@ -413,10 +417,10 @@ namespace CustomEngine.Rendering
         }
 
         #endregion
-        
-        public abstract void Clear(BufferClear mask);
-        public abstract float GetDepth(float x, float y);
 
+        #region Render area
+        public abstract void CropRenderArea(BoundingRectangle region);
+        protected abstract void SetRenderArea(BoundingRectangle region);
         public virtual void PushRenderArea(BoundingRectangle region)
         {
             _renderAreaStack.Push(region);
@@ -431,16 +435,23 @@ namespace CustomEngine.Rendering
                     SetRenderArea(_renderAreaStack.Peek());
             }
         }
+        #endregion
 
-        public abstract void CropRenderArea(BoundingRectangle region);
-        protected abstract void SetRenderArea(BoundingRectangle region);
+        public abstract void TexParameter(ETexTarget texTarget, ETexParamName texParam, float paramData);
+        public abstract void TexParameter(ETexTarget texTarget, ETexParamName texParam, int paramData);
+        public abstract void BindTextureData(ETexTarget texTarget, int mipLevel, int pixelInternalFormatEnum, int width, int height, int pixelFormatEnum, int pixelTypeEnum, VoidPtr data);
+        public abstract void BindTexture(ETexTarget texTarget, int bindingId);
+        
+        //GL.TexImage2D((TextureTarget)textureTargetEnum, mipLevel, (OpenTK.Graphics.OpenGL.PixelInternalFormat)pixelInternalFormatEnum, width, height, 0, (OpenTK.Graphics.OpenGL.PixelFormat)pixelFormatEnum, (PixelType)pixelTypeEnum, data);
 
-        public abstract void BindTextureData(int textureTargetEnum, int mipLevel, int pixelInternalFormatEnum, int width, int height, int pixelFormatEnum, int pixelTypeEnum, VoidPtr data);
-
-        /// <summary>
-        /// Draws textures connected to these frame buffer attachments.
-        /// </summary>
-        public abstract void DrawBuffers(DrawBuffersAttachment[] attachments);
+        #region Frame Buffers
+        public abstract void AttachTextureToFrameBuffer(EFramebufferTarget target, EFramebufferAttachment attachment, ETexTarget texTarget, int bindingId, int mipLevel);
+        public abstract void SetDrawBuffer(DrawBuffersAttachment attachment);
+        public abstract void SetDrawBuffer(int bindingId, DrawBuffersAttachment attachment);
+        public abstract void SetDrawBuffers(DrawBuffersAttachment[] attachments);
+        public abstract void SetDrawBuffers(int bindingId, DrawBuffersAttachment[] attachments);
+        public abstract void SetReadBuffer(DrawBuffersAttachment attachment);
+        public abstract void SetReadBuffer(int bindingId, DrawBuffersAttachment attachment);
         public abstract void BindFrameBuffer(FramebufferType type, int bindingId);
         public abstract void BlitFrameBuffer(
           int readBufferId, int writeBufferId,
@@ -450,22 +461,7 @@ namespace CustomEngine.Rendering
           int dstX1, int dstY1,
           EClearBufferMask mask,
           EBlitFramebufferFilter filter);
-
-        public enum EBlitFramebufferFilter
-        {
-            Nearest,
-            Linear
-        }
-        [Flags]
-        public enum EClearBufferMask
-        {
-            None                = 0x00,
-            DepthBufferBit      = 0x01,
-            AccumBufferBit      = 0x02,
-            StencilBufferBit    = 0x04,
-            ColorBufferBit      = 0x08,
-            CoverageBufferBitNv = 0x10,
-        }
+        #endregion
 
         public abstract void BindTransformFeedback(int bindingId);
         public abstract void BeginTransformFeedback(FeedbackPrimitiveType type);

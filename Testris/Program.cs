@@ -14,9 +14,7 @@ namespace Testris
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            EngineSettings settings = new EngineSettings();
-            settings.OpeningWorld = typeof(TetrisWorld);
-            Engine._engineSettings.SetFile(settings, false);
+            Engine.Settings.OpeningWorld = typeof(TetrisWorld);
             Engine.Initialize();
             Application.Run(new RenderForm("Thera", null));
         }

@@ -22,6 +22,10 @@ namespace CustomEngine.Rendering.Textures
 
         Bitmap _bitmap;
 
+        public TextureData()
+        {
+            _bitmap = new Bitmap(1, 1, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+        }
         public TextureData(string path)
         {
             _bitmap = File.Exists(path) ? new FreeImageBitmap(path).ToBitmap() : null;

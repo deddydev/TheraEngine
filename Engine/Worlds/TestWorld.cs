@@ -101,17 +101,16 @@ namespace CustomEngine.Worlds
 
             //Actor floorActor = new Actor(floorComp);
             //Actor lightActor = new Actor(lightComp);
-            Actor dirLightActor = new Actor(dirLightComp);
+            Actor<DirectionalLightComponent> dirLightActor = new Actor<DirectionalLightComponent>(dirLightComp) { Name = "SunLight" };
 
             Collada.ImportOptions options = new Collada.ImportOptions();
             string desktop = Environment.MachineName == "DAVID-DESKTOP" ? "X:\\Desktop\\" : "C:\\Users\\David\\Desktop\\";
-            Collada.Import(desktop + "TEST.DAE",
-                options, out StaticMesh staticM, out SkeletalMesh skelM, out Skeleton skeleton);
+            Collada.Import(desktop + "TEST.DAE", options, out StaticMesh staticM, out SkeletalMesh skelM, out Skeleton skeleton);
 
-            TRSComponent comp;
+            IActor importedActor;
             if (skelM != null)
             {
-                comp = new SkeletalMeshComponent(skelM, skeleton);
+                SkeletalMeshComponent comp = new SkeletalMeshComponent(skelM, skeleton);
 
                 AnimationScalar modelAnim = new AnimationScalar(360, true, true);
                 ScalarKeyframe first = new ScalarKeyframe(0.0f, 0.0f, 0.0f);
@@ -122,17 +121,20 @@ namespace CustomEngine.Worlds
                 skeleton["LElbow"]?.FrameState.AddAnimation(new AnimationContainer("Yaw", false, modelAnim), true);
 
                 //skeleton.Export(desktop, "TEST_SKELETON", true);
+
+                comp.Translation.Raw = new Vec3(100.0f, 100.0f, -100.0f);
+                importedActor = new Actor<SkeletalMeshComponent>(comp) { Name = "SkeletalMeshActor" };
             }
             else
-                comp = new StaticMeshComponent(staticM, null);
-
-            comp.Translation.Raw = new Vec3(100.0f, 100.0f, -100.0f);
-
-            Actor importedActor = new Actor(comp);
+            {
+                StaticMeshComponent comp = new StaticMeshComponent(staticM, null);
+                comp.Translation.Raw = new Vec3(100.0f, 100.0f, -100.0f);
+                importedActor = new Actor<StaticMeshComponent>(comp) { Name = "StaticMeshActor" };
+            }
 
             //Rotator r = new Vec3(0.0f, 1.0f, 0.0f).LookatAngles(new Vec3(0.0f, 0.0f, -1.0f));
 
-            CameraActor cameraActor = new CameraActor();
+            CameraActor cameraActor = new CameraActor() { Name = "TestCamera" };
             Camera cam = cameraActor.CameraComponent.Camera;
             //cam.Point = new Vec3(100.0f, 10.0f, 0.0f);
             //cam.Rotation.Yaw = 45.0f;
@@ -146,7 +148,7 @@ namespace CustomEngine.Worlds
                 dirLightActor,
                 importedActor,
                 cameraActor,
-                new FlyingCameraPawn(PlayerIndex.One),
+                new FlyingCameraPawn(PlayerIndex.One) { Name = "PlayerCamera" },
             };
 
             _settings._defaultMaps.Add(new Map(this, new MapSettings(actors)));

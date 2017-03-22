@@ -24,10 +24,19 @@ namespace TheraEditor
             InitializeComponent();
             DoubleBuffered = false;
             renderPanel1.GlobalHud = new EditorHud(renderPanel1);
-            Engine.Settings.ShadingStyle = ShadingStyle.Forward;
             Engine.Settings.OpeningWorld = typeof(TestWorld);
             Engine.Initialize();
+
+            actorPropertyGrid.SelectedObject = Engine.World.Settings;
+            SpawnedActors_Modified();
+            Engine.World.State.SpawnedActors.Modified += SpawnedActors_Modified;
             renderPanel1.BeginTick();
+        }
+
+        private void SpawnedActors_Modified()
+        {
+            actorTree.Nodes.Clear();
+            actorTree.Nodes.AddRange(Engine.World.State.SpawnedActors.Select(x => new TreeNode(((ObjectBase)x).Name) { Tag = x }).ToArray());
         }
 
         protected override void OnClosed(EventArgs e)
@@ -62,6 +71,11 @@ namespace TheraEditor
         private void BtnNewWorld_Click(object sender, EventArgs e)
         {
 
+        }
+
+        private void actorTree_AfterSelect(object sender, TreeViewEventArgs e)
+        {
+            actorPropertyGrid.SelectedObject = actorTree.SelectedNode == null ? Engine.World.Settings : actorTree.SelectedNode.Tag;
         }
     }
 }

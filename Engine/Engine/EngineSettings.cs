@@ -23,11 +23,11 @@ namespace CustomEngine
         public bool RenderSkeletons = true;
         public bool RenderOctree = true;
         public bool RenderQuadtree = true;
-        public bool CapFPS = true;
-        public float TargetFPS = 30.0f;
-        public bool CapUPS = true;
-        public float TargetUPS = 90.0f;
-        public ShadingStyle ShadingStyle = ShadingStyle.Deferred;
+        public bool CapFPS = false;
+        public float TargetFPS = 60.0f;
+        public bool CapUPS = false;
+        public float TargetUPS = 120.0f;
+        public ShadingStyle ShadingStyle = ShadingStyle.Forward;
 
         public SingleFileRef<World> TransitionWorld;
         public SingleFileRef<World> OpeningWorld;
@@ -50,6 +50,8 @@ namespace CustomEngine
                     RenderSkeletons = bool.Parse(reader.ReadElementString());
                 else if (reader.Name.Equals("renderCameraFrustums", true))
                     RenderCameraFrustums = bool.Parse(reader.ReadElementString());
+                else if (reader.Name.Equals("shadingStyle", true))
+                    ShadingStyle = (ShadingStyle)Enum.Parse(typeof(ShadingStyle), reader.ReadElementString());
                 else if (reader.Name.Equals("FPS", true))
                 {
                     //Capped?
@@ -75,6 +77,7 @@ namespace CustomEngine
             writer.WriteElementString("useIntegerWeightingIds", UseIntegerWeightingIds.ToString());
             writer.WriteElementString("renderSkeletons", RenderSkeletons.ToString());
             writer.WriteElementString("renderCameraFrustums", RenderCameraFrustums.ToString());
+            writer.WriteElementString("shadingStyle", ShadingStyle.ToString());
             writer.WriteStartElement("FPS");
             writer.WriteAttributeString("capped", CapFPS.ToString());
             if (CapFPS)

@@ -23,7 +23,7 @@ namespace System.Collections.Generic
 
         bool _updating = false;
         bool _allowDuplicates = true;
-
+        
         public MonitoredList()
         {
 

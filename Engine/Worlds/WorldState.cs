@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.IO;
 using System.Xml;
+using System.ComponentModel;
 
 namespace CustomEngine.Worlds
 {
@@ -14,15 +15,15 @@ namespace CustomEngine.Worlds
     public delegate void TimeMultiplierChange(float oldMult);
     public class WorldState : FileObject
     {
-        public override ResourceType ResourceType { get { return ResourceType.WorldState; } }
+        public override ResourceType ResourceType => ResourceType.WorldState;
 
         public GravityChange GravityChanged;
         public GameModeChange GameModeChanged;
         public TimeMultiplierChange TimeMultiplierChanged;
-        
+
         public Vec3 Gravity
         {
-            get { return _gravity; }
+            get => _gravity;
             set
             {
                 Vec3 oldGravity = _gravity;
@@ -32,7 +33,7 @@ namespace CustomEngine.Worlds
         }
         public GameMode GameMode
         {
-            get { return _gameMode; }
+            get => _gameMode;
             set
             {
                 GameMode oldMode = _gameMode;
@@ -42,7 +43,7 @@ namespace CustomEngine.Worlds
         }
         public float TimeDilation
         {
-            get { return _timeSpeed; }
+            get => _timeSpeed;
             set
             {
                 float oldTimeSpeed = _timeSpeed;
@@ -50,12 +51,13 @@ namespace CustomEngine.Worlds
                 OnTimeMultiplierChanged(oldTimeSpeed);
             }
         }
-        public List<Map> SpawnedMaps { get { return _spawnedMaps; } }
-        public List<IActor> SpawnedActors { get { return _spawnedActors; } }
 
-        public void OnGravityChanged(Vec3 oldGravity) { GravityChanged?.Invoke(oldGravity); }
-        public void OnGameModeChanged(GameMode oldMode) { GameModeChanged?.Invoke(oldMode); }
-        public void OnTimeMultiplierChanged(float oldMult) { TimeMultiplierChanged?.Invoke(oldMult); }
+        public List<Map> SpawnedMaps => _spawnedMaps;
+        public MonitoredList<IActor> SpawnedActors => _spawnedActors;
+
+        public void OnGravityChanged(Vec3 oldGravity) => GravityChanged?.Invoke(oldGravity);
+        public void OnGameModeChanged(GameMode oldMode) => GameModeChanged?.Invoke(oldMode);
+        public void OnTimeMultiplierChanged(float oldMult) => TimeMultiplierChanged?.Invoke(oldMult);
 
         public override void Write(VoidPtr address, StringTable table)
         {
@@ -83,7 +85,7 @@ namespace CustomEngine.Worlds
         }
 
         private List<Map> _spawnedMaps = new List<Map>();
-        private List<IActor> _spawnedActors = new List<IActor>();
+        private MonitoredList<IActor> _spawnedActors = new MonitoredList<IActor>();
         private Vec3 _gravity = new Vec3(0.0f, -9.81f, 0.0f);
         private GameMode _gameMode;
         private float _timeSpeed = 1.0f;

@@ -12,11 +12,19 @@ namespace CustomEngine.Worlds
 {
     public class WorldSettings : FileObject
     {
-        public override ResourceType ResourceType { get { return ResourceType.WorldSettings; } }
+        public override ResourceType ResourceType => ResourceType.WorldSettings;
 
-        public BoundingBox OriginRebaseBounds { get { return _originRebaseBounds; } }
-        public BoundingBox WorldBounds { get { return _worldBounds; } set { _worldBounds = value; } }
-        public WorldState State { get { return _state; } set { _state = value; } }
+        public BoundingBox OriginRebaseBounds => _originRebaseBounds;
+        public BoundingBox WorldBounds
+        {
+            get => _worldBounds;
+            set => _worldBounds = value;
+        }
+        public WorldState State
+        {
+            get => _state;
+            set => _state = value;
+        }
 
         private BoundingBox _worldBounds = BoundingBox.FromMinMax(new Vec3(-500.0f), new Vec3(500.0f));
         private BoundingBox _originRebaseBounds;

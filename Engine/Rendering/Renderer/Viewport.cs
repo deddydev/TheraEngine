@@ -200,24 +200,25 @@ namespace CustomEngine.Rendering
 
             _currentlyRendering = this;
             Engine.Renderer.BindFrameBuffer(FramebufferType.ReadWrite, 0);
-            _gBuffer?.Bind(FramebufferType.ReadWrite);
+            _gBuffer.Bind(FramebufferType.ReadWrite);
             Engine.Renderer.Clear(BufferClear.Color | BufferClear.Depth);
             scene.Render(_worldCamera, true);
             Engine.Renderer.BindFrameBuffer(FramebufferType.ReadWrite, 0);
-            Engine.Renderer.Clear(BufferClear.Color);
-            _gBuffer?.Render();
-            if (_hasAnyForward)
-            {
-                //Copy depth from GBuffer to main frame buffer
-                Engine.Renderer.BlitFrameBuffer(
-                    _gBuffer == null ? 0 : _gBuffer.BindingId, 0,
-                    0, 0, Region.IntWidth, Region.IntHeight,
-                    0, 0, Region.IntWidth, Region.IntHeight,
-                    EClearBufferMask.DepthBufferBit,
-                    EBlitFramebufferFilter.Nearest);
+            //Engine.Renderer.Clear(BufferClear.Color);
+            _gBuffer.Render();
+            _hud?.Render();
+            //if (_hasAnyForward)
+            //{
+            //    //Copy depth from GBuffer to main frame buffer
+            //    Engine.Renderer.BlitFrameBuffer(
+            //        _gBuffer == null ? 0 : _gBuffer.BindingId, 0,
+            //        0, 0, Region.IntWidth, Region.IntHeight,
+            //        0, 0, Region.IntWidth, Region.IntHeight,
+            //        EClearBufferMask.DepthBufferBit,
+            //        EBlitFramebufferFilter.Nearest);
 
-                scene.Render(_worldCamera, false);
-            }
+            //    scene.Render(_worldCamera, false);
+            //}
             _currentlyRendering = null;
         }
         public void RenderForward(SceneProcessor scene)

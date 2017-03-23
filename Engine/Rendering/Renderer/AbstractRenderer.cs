@@ -439,7 +439,15 @@ namespace CustomEngine.Rendering
 
         public abstract void TexParameter(ETexTarget texTarget, ETexParamName texParam, float paramData);
         public abstract void TexParameter(ETexTarget texTarget, ETexParamName texParam, int paramData);
-        public abstract void BindTextureData(ETexTarget texTarget, int mipLevel, int pixelInternalFormatEnum, int width, int height, int pixelFormatEnum, int pixelTypeEnum, VoidPtr data);
+        public abstract void BindTextureData(
+            ETexTarget texTarget, 
+            int mipLevel, 
+            EPixelInternalFormat internalFormat,
+            int width,
+            int height,
+            EPixelFormat pixelFormat,
+            EPixelType type,
+            VoidPtr data);
         public abstract void BindTexture(ETexTarget texTarget, int bindingId);
         
         //GL.TexImage2D((TextureTarget)textureTargetEnum, mipLevel, (OpenTK.Graphics.OpenGL.PixelInternalFormat)pixelInternalFormatEnum, width, height, 0, (OpenTK.Graphics.OpenGL.PixelFormat)pixelFormatEnum, (PixelType)pixelTypeEnum, data);

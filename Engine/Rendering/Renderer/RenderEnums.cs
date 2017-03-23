@@ -6,6 +6,39 @@ using System.Threading.Tasks;
 
 namespace CustomEngine.Rendering
 {
+    public enum EPixelType
+    {
+        Byte                        = 5120,
+        UnsignedByte                = 5121,
+        Short                       = 5122,
+        UnsignedShort               = 5123,
+        Int                         = 5124,
+        UnsignedInt                 = 5125,
+        Float                       = 5126,
+        HalfFloat                   = 5131,
+        Bitmap                      = 6656,
+        UnsignedByte332             = 32818,
+        //UnsignedByte332Ext          = 32818,
+        UnsignedShort4444           = 32819,
+        //UnsignedShort4444Ext        = 32819,
+        UnsignedShort5551           = 32820,
+        //UnsignedShort5551Ext        = 32820,
+        UnsignedInt8888             = 32821,
+        //UnsignedInt8888Ext          = 32821,
+        UnsignedInt1010102          = 32822,
+        //UnsignedInt1010102Ext       = 32822,
+        UnsignedByte233Reversed     = 33634,
+        UnsignedShort565            = 33635,
+        UnsignedShort565Reversed    = 33636,
+        UnsignedShort4444Reversed   = 33637,
+        UnsignedShort1555Reversed   = 33638,
+        UnsignedInt8888Reversed     = 33639,
+        UnsignedInt2101010Reversed  = 33640,
+        UnsignedInt248              = 34042,
+        UnsignedInt10F11F11FRev     = 35899,
+        UnsignedInt5999Rev          = 35902,
+        Float32UnsignedInt248Rev    = 36269
+    }
     public enum EPixelFormat
     {
         UnsignedShort               = 5123,
@@ -14,7 +47,7 @@ namespace CustomEngine.Rendering
         StencilIndex                = 6401,
         DepthComponent              = 6402,
         Red                         = 6403,
-        RedExt                      = 6403,
+        //RedExt                      = 6403,
         Green                       = 6404,
         Blue                        = 6405,
         Alpha                       = 6406,
@@ -22,29 +55,29 @@ namespace CustomEngine.Rendering
         Rgba                        = 6408,
         Luminance                   = 6409,
         LuminanceAlpha              = 6410,
-        AbgrExt                     = 32768,
-        CmykExt                     = 32780,
-        CmykaExt                    = 32781,
+        //AbgrExt                     = 32768,
+        //CmykExt                     = 32780,
+        //CmykaExt                    = 32781,
         Bgr                         = 32992,
         Bgra                        = 32993,
-        Ycrcb422Sgix                = 33211,
-        Ycrcb444Sgix                = 33212,
+        //Ycrcb422Sgix                = 33211,
+        //Ycrcb444Sgix                = 33212,
         Rg                          = 33319,
         RgInteger                   = 33320,
-        R5G6B5IccSgix               = 33894,
-        R5G6B5A8IccSgix             = 33895,
-        Alpha16IccSgix              = 33896,
-        Luminance16IccSgix          = 33897,
-        Luminance16Alpha8IccSgix    = 33899,
+        //R5G6B5IccSgix               = 33894,
+        //R5G6B5A8IccSgix             = 33895,
+        //Alpha16IccSgix              = 33896,
+        //Luminance16IccSgix          = 33897,
+        //Luminance16Alpha8IccSgix    = 33899,
         DepthStencil                = 34041,
-        RedInteger = 36244,
-        GreenInteger = 36245,
-        BlueInteger = 36246,
-        AlphaInteger = 36247,
-        RgbInteger = 36248,
-        RgbaInteger = 36249,
-        BgrInteger = 36250,
-        BgraInteger = 36251
+        RedInteger                  = 36244,
+        GreenInteger                = 36245,
+        BlueInteger                 = 36246,
+        AlphaInteger                = 36247,
+        RgbInteger                  = 36248,
+        RgbaInteger                 = 36249,
+        BgrInteger                  = 36250,
+        BgraInteger                 = 36251
     }
     public enum EPixelInternalFormat
     {
@@ -89,121 +122,34 @@ namespace CustomEngine.Rendering
         Rgba4 = 32854,
         Rgb5A1 = 32855,
         Rgba8 = 32856,
-        //
-        // Summary:
-        //     Original was GL_RGB10_A2 = 0x8059
         Rgb10A2 = 32857,
-        //
-        // Summary:
-        //     Original was GL_RGBA12 = 0x805A
         Rgba12 = 32858,
-        //
-        // Summary:
-        //     Original was GL_RGBA16 = 0x805B
         Rgba16 = 32859,
-        //
-        // Summary:
-        //     Original was GL_DUAL_ALPHA4_SGIS = 0x8110
-        DualAlpha4Sgis = 33040,
-        //
-        // Summary:
-        //     Original was GL_DUAL_ALPHA8_SGIS = 0x8111
-        DualAlpha8Sgis = 33041,
-        //
-        // Summary:
-        //     Original was GL_DUAL_ALPHA12_SGIS = 0x8112
-        DualAlpha12Sgis = 33042,
-        //
-        // Summary:
-        //     Original was GL_DUAL_ALPHA16_SGIS = 0x8113
-        DualAlpha16Sgis = 33043,
-        //
-        // Summary:
-        //     Original was GL_DUAL_LUMINANCE4_SGIS = 0x8114
-        DualLuminance4Sgis = 33044,
-        //
-        // Summary:
-        //     Original was GL_DUAL_LUMINANCE8_SGIS = 0x8115
-        DualLuminance8Sgis = 33045,
-        //
-        // Summary:
-        //     Original was GL_DUAL_LUMINANCE12_SGIS = 0x8116
-        DualLuminance12Sgis = 33046,
-        //
-        // Summary:
-        //     Original was GL_DUAL_LUMINANCE16_SGIS = 0x8117
-        DualLuminance16Sgis = 33047,
-        //
-        // Summary:
-        //     Original was GL_DUAL_INTENSITY4_SGIS = 0x8118
-        DualIntensity4Sgis = 33048,
-        //
-        // Summary:
-        //     Original was GL_DUAL_INTENSITY8_SGIS = 0x8119
-        DualIntensity8Sgis = 33049,
-        //
-        // Summary:
-        //     Original was GL_DUAL_INTENSITY12_SGIS = 0x811A
-        DualIntensity12Sgis = 33050,
-        //
-        // Summary:
-        //     Original was GL_DUAL_INTENSITY16_SGIS = 0x811B
-        DualIntensity16Sgis = 33051,
-        //
-        // Summary:
-        //     Original was GL_DUAL_LUMINANCE_ALPHA4_SGIS = 0x811C
-        DualLuminanceAlpha4Sgis = 33052,
-        //
-        // Summary:
-        //     Original was GL_DUAL_LUMINANCE_ALPHA8_SGIS = 0x811D
-        DualLuminanceAlpha8Sgis = 33053,
-        //
-        // Summary:
-        //     Original was GL_QUAD_ALPHA4_SGIS = 0x811E
-        QuadAlpha4Sgis = 33054,
-        //
-        // Summary:
-        //     Original was GL_QUAD_ALPHA8_SGIS = 0x811F
-        QuadAlpha8Sgis = 33055,
-        //
-        // Summary:
-        //     Original was GL_QUAD_LUMINANCE4_SGIS = 0x8120
-        QuadLuminance4Sgis = 33056,
-        //
-        // Summary:
-        //     Original was GL_QUAD_LUMINANCE8_SGIS = 0x8121
-        QuadLuminance8Sgis = 33057,
-        //
-        // Summary:
-        //     Original was GL_QUAD_INTENSITY4_SGIS = 0x8122
-        QuadIntensity4Sgis = 33058,
-        //
-        // Summary:
-        //     Original was GL_QUAD_INTENSITY8_SGIS = 0x8123
-        QuadIntensity8Sgis = 33059,
-        //
-        // Summary:
-        //     Original was GL_DEPTH_COMPONENT16 = 0x81a5
+        //DualAlpha4Sgis = 33040,
+        //DualAlpha8Sgis = 33041,
+        //DualAlpha12Sgis = 33042,
+        //DualAlpha16Sgis = 33043,
+        //DualLuminance4Sgis = 33044,
+        //DualLuminance8Sgis = 33045,
+        //DualLuminance12Sgis = 33046,
+        //DualLuminance16Sgis = 33047,
+        //DualIntensity4Sgis = 33048,
+        //DualIntensity8Sgis = 33049,
+        //DualIntensity12Sgis = 33050,
+        //DualIntensity16Sgis = 33051,
+        //DualLuminanceAlpha4Sgis = 33052,
+        //DualLuminanceAlpha8Sgis = 33053,
+        //QuadAlpha4Sgis = 33054,
+        //QuadAlpha8Sgis = 33055,
+        //QuadLuminance4Sgis = 33056,
+        //QuadLuminance8Sgis = 33057,
+        //QuadIntensity4Sgis = 33058,
+        //QuadIntensity8Sgis = 33059,
         DepthComponent16 = 33189,
-        //
-        // Summary:
-        //     Original was GL_DEPTH_COMPONENT16_SGIX = 0x81A5
         DepthComponent16Sgix = 33189,
-        //
-        // Summary:
-        //     Original was GL_DEPTH_COMPONENT24 = 0x81a6
         DepthComponent24 = 33190,
-        //
-        // Summary:
-        //     Original was GL_DEPTH_COMPONENT24_SGIX = 0x81A6
         DepthComponent24Sgix = 33190,
-        //
-        // Summary:
-        //     Original was GL_DEPTH_COMPONENT32 = 0x81a7
         DepthComponent32 = 33191,
-        //
-        // Summary:
-        //     Original was GL_DEPTH_COMPONENT32_SGIX = 0x81A7
         DepthComponent32Sgix = 33191,
         //
         // Summary:
@@ -413,49 +359,16 @@ namespace CustomEngine.Rendering
         // Summary:
         //     Original was GL_RGB9_E5 = 0x8C3D
         Rgb9E5 = 35901,
-        //
-        // Summary:
-        //     Original was GL_SRGB = 0x8C40
         Srgb = 35904,
-        //
-        // Summary:
-        //     Original was GL_SRGB8 = 0x8C41
         Srgb8 = 35905,
-        //
-        // Summary:
-        //     Original was GL_SRGB_ALPHA = 0x8C42
         SrgbAlpha = 35906,
-        //
-        // Summary:
-        //     Original was GL_SRGB8_ALPHA8 = 0x8C43
         Srgb8Alpha8 = 35907,
-        //
-        // Summary:
-        //     Original was GL_SLUMINANCE_ALPHA = 0x8C44
         SluminanceAlpha = 35908,
-        //
-        // Summary:
-        //     Original was GL_SLUMINANCE8_ALPHA8 = 0x8C45
         Sluminance8Alpha8 = 35909,
-        //
-        // Summary:
-        //     Original was GL_SLUMINANCE = 0x8C46
         Sluminance = 35910,
-        //
-        // Summary:
-        //     Original was GL_SLUMINANCE8 = 0x8C47
         Sluminance8 = 35911,
-        //
-        // Summary:
-        //     Original was GL_COMPRESSED_SRGB = 0x8C48
         CompressedSrgb = 35912,
-        //
-        // Summary:
-        //     Original was GL_COMPRESSED_SRGB_ALPHA = 0x8C49
         CompressedSrgbAlpha = 35913,
-        //
-        // Summary:
-        //     Original was GL_COMPRESSED_SLUMINANCE = 0x8C4A
         CompressedSluminance = 35914,
         CompressedSluminanceAlpha = 35915,
         CompressedSrgbS3tcDxt1Ext = 35916,

@@ -10,15 +10,17 @@ namespace CustomEngine.Rendering.Textures
 {
     public class Texture : BaseRenderState
     {
-        protected override int CreateObject()
-        {
-            return Engine.Renderer.CreateTextures(3553, 1)[0];
-        }
-
         public Texture() : base(GenType.Texture) { }
         public Texture(int bindingId) : base(GenType.Texture, bindingId) { }
         public Texture(TextureData data) : base(GenType.Texture) { _data = data; }
-        public Texture(TextureData data, MinFilter minFilter, MagFilter magFilter, TexCoordWrap uWrap, TexCoordWrap vWrap, float lodBias) : this(data)
+        public Texture(
+            TextureData data,
+            MinFilter minFilter,
+            MagFilter magFilter,
+            TexCoordWrap uWrap,
+            TexCoordWrap vWrap,
+            float lodBias)
+            : this(data)
         {
             _minFilter = minFilter;
             _magFilter = magFilter;
@@ -57,7 +59,7 @@ namespace CustomEngine.Rendering.Textures
 
         public TextureData Data
         {
-            get { return _data; }
+            get => _data;
             set
             {
                 Delete();
@@ -66,9 +68,9 @@ namespace CustomEngine.Rendering.Textures
         }
 
         public static Texture[] GenTextures(int count)
-        {
-            return Engine.Renderer.CreateObjects<Texture>(GenType.Texture, count);
-        }
+            => Engine.Renderer.CreateObjects<Texture>(GenType.Texture, count);
+        public void AttachToFrameBuffer(EFramebufferTarget target, EFramebufferAttachment attachment, ETexTarget texTarget)
+            => Engine.Renderer.AttachTextureToFrameBuffer(target, attachment, texTarget, BindingId, 0);
 
         public void Bind()
         {
@@ -76,10 +78,6 @@ namespace CustomEngine.Rendering.Textures
                 Generate();
             Engine.Renderer.BindTexture(ETexTarget.Texture2D, BindingId);
         }
-
-        public void AttachToFrameBuffer(EFramebufferTarget target, EFramebufferAttachment attachment, ETexTarget texTarget)
-            => Engine.Renderer.AttachTextureToFrameBuffer(target, attachment, texTarget, BindingId, 0);
-        
         public void PushData()
         {
             if (_data == null)
@@ -103,30 +101,25 @@ namespace CustomEngine.Rendering.Textures
                 BitmapData data = bmp.LockBits(
                     new Rectangle(0, 0, bmp.Width, bmp.Height),
                     ImageLockMode.ReadOnly,
-                    System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+                    PixelFormat.Format32bppArgb);
 
-                OpenTK.Graphics.OpenGL.GL.TexImage2D(
-                    OpenTK.Graphics.OpenGL.TextureTarget.Texture2D,
+                Engine.Renderer.BindTextureData(
+                    ETexTarget.Texture2D,
                     0,
-                    OpenTK.Graphics.OpenGL.PixelInternalFormat.Rgba8,
+                    EPixelInternalFormat.Rgba8,
                     data.Width,
                     data.Height,
-                    0,
-                    OpenTK.Graphics.OpenGL.PixelFormat.Bgra,
-                    OpenTK.Graphics.OpenGL.PixelType.UnsignedByte,
+                    EPixelFormat.Rgba,
+                    EPixelType.UnsignedByte,
                     data.Scan0);
-
-                //Engine.Renderer.BindTextureData(
-                //    ETexTarget.Texture2D, 
-                //    0, 
-                //    EPixelInternalFormat.Rgba8,
-                //    data.Width,
-                //    data.Height,
-                //    )
 
                 bmp.UnlockBits(data);
             }
         }
-        protected override void OnGenerated() => PushData();
+
+        protected override int CreateObject()
+            => Engine.Renderer.CreateTextures(3553, 1)[0];
+        protected override void OnGenerated()
+            => PushData();
     }
 }

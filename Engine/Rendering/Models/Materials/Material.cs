@@ -124,12 +124,13 @@ namespace CustomEngine.Rendering.Models.Materials
             //These are listed in order of appearance in the shader
             List<TextureReference> refs = new List<TextureReference>()
             {
-                new TextureReference("AlbedoSpec", width, height),
-                new TextureReference("Position", width, height),
-                new TextureReference("Normal", width, height),
-                new TextureReference("TexCoord", width, height),
-                new TextureReference("Text", width, height),
-                new TextureReference("Stencil", width, height),
+                new TextureReference("AlbedoSpec", width, height, 
+                EPixelInternalFormat.Rgba8, EPixelFormat.Bgra, EPixelType.UnsignedByte),
+                new TextureReference("Position", width, height, EPixelInternalFormat.Rgb32f),
+                new TextureReference("Normal", width, height, EPixelInternalFormat.Rgb32f),
+                new TextureReference("TexCoord", width, height, EPixelInternalFormat.Rg16f),
+                new TextureReference("Text", width, height, EPixelInternalFormat.Rgba8),
+                new TextureReference("Stencil", width, height, EPixelInternalFormat.Depth32fStencil8),
             };
             Shader frag = Shader.GBufferShader();
             List<GLVar> p = new List<GLVar>()

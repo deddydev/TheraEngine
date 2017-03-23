@@ -46,7 +46,7 @@ namespace CustomEngine.Rendering
         protected override void OnGenerated()
         {
             _fullScreenQuad.Generate();
-            Bind(FramebufferType.Write);
+            Bind(FramebufferType.ReadWrite);
 
             //Bind depth texture
             Textures[0].AttachToFrameBuffer(
@@ -64,7 +64,7 @@ namespace CustomEngine.Rendering
             }
             
             Engine.Renderer.SetDrawBuffers(_attachments);
-            Unbind(FramebufferType.Write);
+            Unbind(FramebufferType.ReadWrite);
         }
         public unsafe void SetRegion(BoundingRectangle region)
         {

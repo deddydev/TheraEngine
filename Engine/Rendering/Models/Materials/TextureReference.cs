@@ -12,10 +12,18 @@ namespace CustomEngine.Rendering.Models.Materials
 {
     public class TextureReference
     {
-        public TextureReference(string name, int width, int height)
+
+
+        public TextureReference(
+            string name,
+            int width,
+            int height,
+            EPixelInternalFormat internalFormat,
+            EPixelFormat format,
+            EPixelType type)
         {
             _name = name;
-            TextureData = new TextureData(width, height);
+            TextureData = new TextureData(width, height, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
         }
         public TextureReference(string path, string name = "")
         {

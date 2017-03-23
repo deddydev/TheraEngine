@@ -664,10 +664,10 @@ namespace CustomEngine.Rendering.OpenGL
         public override void Cull(Culling culling)
         {
             if (culling == Culling.None)
-                GL.Disable(OpenTK.Graphics.OpenGL.EnableCap.CullFace);
+                GL.Disable(EnableCap.CullFace);
             else
             {
-                GL.Enable(OpenTK.Graphics.OpenGL.EnableCap.CullFace);
+                GL.Enable(EnableCap.CullFace);
                 switch (culling)
                 {
                     case Culling.Back:
@@ -856,9 +856,26 @@ namespace CustomEngine.Rendering.OpenGL
                 paramData);
         }
 
-        public override void BindTextureData(ETexTarget texTarget, int mipLevel, int pixelInternalFormatEnum, int width, int height, int pixelFormatEnum, int pixelTypeEnum, VoidPtr data)
+        public override void BindTextureData(
+            ETexTarget texTarget,
+            int mipLevel,
+            EPixelInternalFormat internalFormat,
+            int width,
+            int height,
+            EPixelFormat format,
+            EPixelType type,
+            VoidPtr data)
         {
-            throw new NotImplementedException();
+            GL.TexImage2D(
+                 (TextureTarget)texTarget.Convert(typeof(TextureTarget)),
+                 mipLevel,
+                 (PixelInternalFormat)internalFormat.Convert(typeof(PixelInternalFormat)),
+                 width,
+                 height,
+                 0,
+                 (OpenTK.Graphics.OpenGL.PixelFormat)format.Convert(typeof(OpenTK.Graphics.OpenGL.PixelFormat)),
+                 (PixelType)type.Convert(typeof(PixelType)),
+                 data);
         }
 
         public override void BindTexture(ETexTarget texTarget, int bindingId)

@@ -13,6 +13,8 @@ namespace System
     [StructLayout(LayoutKind.Sequential)]
     public unsafe class Rotator : IEquatable<Rotator>
     {
+        internal const string XMLTag = "rotator";
+
         public Rotator() : this(Order.YPR) { }
 
         public Rotator(Order order) : this(0.0f, 0.0f, 0.0f, order) { }
@@ -407,6 +409,7 @@ namespace System
         public static explicit operator Rotator(Vec3 v) { return new Rotator(v.X, v.Y, v.Z, Order.PYR); }
 
         private static string listSeparator = Globalization.CultureInfo.CurrentCulture.TextInfo.ListSeparator;
+
         public static Rotator GetZero(Order order = Order.YPR)
         {
            return new Rotator(0.0f, 0.0f, 0.0f, order);
@@ -464,7 +467,7 @@ namespace System
         }
         public void Write(XmlWriter writer)
         {
-            writer.WriteStartElement("euler");
+            writer.WriteStartElement(XMLTag);
             writer.WriteAttributeString("order", _rotationOrder.ToString());
             //writer.WriteElementString("order", _rotationOrder.ToString());
             if (Pitch != 0.0f)
@@ -477,7 +480,7 @@ namespace System
         }
         public void Read(XMLReader reader)
         {
-            if (!reader.Name.Equals("euler", true))
+            if (!reader.Name.Equals(XMLTag, true))
                 throw new Exception();
             while (reader.ReadAttribute())
             {

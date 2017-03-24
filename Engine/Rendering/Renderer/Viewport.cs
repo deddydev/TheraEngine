@@ -1,15 +1,13 @@
-﻿using CustomEngine.Rendering.HUD;
-using System.Drawing;
+﻿using CustomEngine.Input;
 using CustomEngine.Rendering.Cameras;
-using CustomEngine.Input;
-using System;
-using CustomEngine.Worlds;
-using System.Collections.Generic;
-using CustomEngine.Rendering.Models;
-using CustomEngine.Rendering.Models.Materials;
+using CustomEngine.Rendering.HUD;
 using CustomEngine.Rendering.Textures;
-using System.Drawing.Text;
+using CustomEngine.Worlds;
 using CustomEngine.Worlds.Actors.Types;
+using System;
+using System.Collections.Generic;
+using System.Drawing;
+using System.Drawing.Text;
 
 namespace CustomEngine.Rendering
 {
@@ -199,6 +197,11 @@ namespace CustomEngine.Rendering
                 return;
 
             _currentlyRendering = this;
+
+            if (_text.Modified)
+                _text.Draw(_gBuffer.Text);
+            _text.Clear();
+
             Engine.Renderer.BindFrameBuffer(FramebufferType.ReadWrite, 0);
             _gBuffer.Bind(FramebufferType.ReadWrite);
             Engine.Renderer.Clear(BufferClear.Color | BufferClear.Depth);
@@ -377,7 +380,7 @@ namespace CustomEngine.Rendering
     public class ScreenTextHandler
     {
         //PrimitiveManager _manager;
-        Texture _texture;
+        //Texture _texture;
         
         internal class TextData
         {
@@ -388,9 +391,12 @@ namespace CustomEngine.Rendering
         internal static int _fontSize = 12;
         internal static readonly Font _textFont = new Font("Arial", _fontSize);
 
+        private bool _modified = true;
         internal Viewport _viewport;
         internal Dictionary<string, TextData> _text = new Dictionary<string, TextData>();
-        
+
+        public bool Modified => _modified;
+
         public Vec3 this[string text]
         {
             set
@@ -399,6 +405,7 @@ namespace CustomEngine.Rendering
                     _text.Add(text, new TextData() { _string = text, _positions = new List<Vec3>() { value } });
                 else
                     _text[text]._positions.Add(value);
+                _modified = true;
             }
         }
 
@@ -413,11 +420,15 @@ namespace CustomEngine.Rendering
             //_texture = _manager.Program.Textures[0];
         }
 
-        public void Clear() => _text.Clear();
+        public void Clear()
+        {
+            _text.Clear();
+            _modified = true;
+        }
 
         public unsafe void Draw(Texture texture)
         {
-            Bitmap b = _texture.Data.Bitmap;
+            Bitmap b = texture.Data.Bitmap;
 
             //Resize bitmap if viewport bounds do not match
             if ((IVec2)b.Size != (IVec2)_viewport.Region.Bounds ||
@@ -429,7 +440,7 @@ namespace CustomEngine.Rendering
                 
                 b = new Bitmap(_viewport.Region.IntWidth, _viewport.Region.IntHeight);
                 b.MakeTransparent();
-                _texture.Data.Bitmap = b;
+                texture.Data.Bitmap = b;
             }
 
             //Draw text information onto the bitmap
@@ -452,8 +463,10 @@ namespace CustomEngine.Rendering
                         }
             }
 
-            _texture.PushData();
+            texture.PushData();
             //_manager.Render(_transform, Matrix3.Identity);
+
+            _modified = false;
         }
     }
 }

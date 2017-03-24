@@ -7,13 +7,12 @@ using CustomEngine.Files;
 using CustomEngine.Rendering.Textures;
 using System.IO;
 using System.Drawing;
+using System.Drawing.Imaging;
 
 namespace CustomEngine.Rendering.Models.Materials
 {
     public class TextureReference
     {
-
-
         public TextureReference(
             string name,
             int width,
@@ -23,7 +22,20 @@ namespace CustomEngine.Rendering.Models.Materials
             EPixelType type)
         {
             _name = name;
-            TextureData = new TextureData(width, height, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+            _internalFormat = internalFormat;
+            _pixelFormat = format;
+            _pixelType = type;
+        }
+        public TextureReference(string name,
+            int width,
+            int height,
+            EPixelInternalFormat internalFormat,
+            EPixelFormat format,
+            EPixelType type,
+            PixelFormat bitmapFormat) 
+            : this(name, width, height, internalFormat, format, type)
+        {
+            TextureData = new TextureData(width, height, bitmapFormat);
         }
         public TextureReference(string path, string name = "")
         {
@@ -46,6 +58,10 @@ namespace CustomEngine.Rendering.Models.Materials
 
         private SingleFileRef<TextureData> _reference;
 
+        private EPixelInternalFormat _internalFormat = EPixelInternalFormat.Rgba8;
+        private EPixelFormat _pixelFormat = EPixelFormat.Bgra;
+        private EPixelType _pixelType = EPixelType.UnsignedByte;
+
         private string _name;
         private MinFilter _minFilter = MinFilter.Linear_Mipmap_Linear;
         private MagFilter _magFilter = MagFilter.Linear;
@@ -61,15 +77,16 @@ namespace CustomEngine.Rendering.Models.Materials
         public Bitmap Bitmap
         {
             get => TextureData?.Bitmap;
-            set => TextureData.Bitmap = value;
+            set
+            {
+                if (TextureData != null)
+                    TextureData.Bitmap = value;
+            }
         }
 
         public Texture GetTexture()
         {
-            TextureData data = TextureData;
-            if (data == null)
-                return null;
-            return new Texture(data, _minFilter, _magFilter, _uWrap, _vWrap, _lodBias);
+            return new Texture(TextureData, _minFilter, _magFilter, _uWrap, _vWrap, _lodBias, _internalFormat, _pixelFormat, _pixelType);
         }
     }
     public enum TexCoordWrap

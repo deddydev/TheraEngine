@@ -548,11 +548,21 @@ namespace CustomEngine.Rendering.OpenGL
         }
         #endregion
 
+        public override int GetStencilIndex(float x, float y)
+        {
+            int val = 0;
+            GL.ReadPixels((int)x, (int)(Engine.CurrentPanel.Height - y), 1, 1, OpenTK.Graphics.OpenGL.PixelFormat.DepthStencil, PixelType.UnsignedInt248, ref val);
+            return val & 0xFF;
+        }
         public override float GetDepth(float x, float y)
         {
-            float val = 0;
-            GL.ReadPixels((int)x, (int)(Engine.CurrentPanel.Height - y), 1, 1, OpenTK.Graphics.OpenGL.PixelFormat.DepthComponent, PixelType.Float, ref val);
-            return val;
+            //float val = 0;
+            //GL.ReadPixels((int)x, (int)(Engine.CurrentPanel.Height - y), 1, 1, OpenTK.Graphics.OpenGL.PixelFormat.DepthComponent, PixelType.Float, ref val);
+            //return val;
+
+            int val = 0;
+            GL.ReadPixels((int)x, (int)(Engine.CurrentPanel.Height - y), 1, 1, OpenTK.Graphics.OpenGL.PixelFormat.DepthStencil, PixelType.UnsignedInt248, ref val);
+            return (float)(val >> 8) / UInt24.MaxValue;
         }
 
         protected override void SetRenderArea(BoundingRectangle region)
@@ -856,7 +866,7 @@ namespace CustomEngine.Rendering.OpenGL
                 paramData);
         }
 
-        public override void BindTextureData(
+        public override void PushTextureData(
             ETexTarget texTarget,
             int mipLevel,
             EPixelInternalFormat internalFormat,

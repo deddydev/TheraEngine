@@ -21,10 +21,10 @@ namespace CustomEngine.Rendering.Cameras
             _originYPercentage = originPercentages.Y;
         }
 
-        public override float Width { get { return Math.Abs(_orthoRight - _orthoLeft); } }
-        public override float Height { get { return Math.Abs(_orthoTop - _orthoBottom); } }
+        public override float Width => Math.Abs(_orthoRight - _orthoLeft);
+        public override float Height => Math.Abs(_orthoTop - _orthoBottom);
 
-        public override Vec2 Origin { get { return new Vec2(_originX, _originY); } }
+        public override Vec2 Origin => new Vec2(_originX, _originY);
 
         private EventVec3 _scale = Vec3.One;
         private bool
@@ -172,7 +172,7 @@ namespace CustomEngine.Rendering.Cameras
             {
                 if (reader.Name.Equals("point", true))
                     _point.Raw = Vec3.Parse(reader.ReadElementString());
-                else if (reader.Name.Equals("euler", true))
+                else if (reader.Name.Equals(Rotator.XMLTag, true))
                     _rotation.Read(reader);
                 reader.EndElement();
             }

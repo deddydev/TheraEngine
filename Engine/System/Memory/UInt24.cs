@@ -10,6 +10,8 @@ namespace System
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public unsafe struct UInt24
     {
+        public static readonly int MaxValue = 0x00FFFFFF;
+
         public byte _dat2, _dat1, _dat0;
 
         public uint Value

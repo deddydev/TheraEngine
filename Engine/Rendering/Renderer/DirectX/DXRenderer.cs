@@ -344,11 +344,6 @@ namespace CustomEngine.Rendering.DirectX
             throw new NotImplementedException();
         }
 
-        public override void BindTextureData(ETexTarget texTarget, int mipLevel, int pixelInternalFormatEnum, int width, int height, int pixelFormatEnum, int pixelTypeEnum, VoidPtr data)
-        {
-            throw new NotImplementedException();
-        }
-
         public override void AttachTextureToFrameBuffer(EFramebufferTarget target, EFramebufferAttachment attachment, ETexTarget texTarget, int bindingId, int mipLevel)
         {
             throw new NotImplementedException();
@@ -380,6 +375,16 @@ namespace CustomEngine.Rendering.DirectX
         }
 
         public override void BindTexture(ETexTarget texTarget, int bindingId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void PushTextureData(ETexTarget texTarget, int mipLevel, EPixelInternalFormat internalFormat, int width, int height, EPixelFormat pixelFormat, EPixelType type, VoidPtr data)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override int GetStencilIndex(float x, float y)
         {
             throw new NotImplementedException();
         }

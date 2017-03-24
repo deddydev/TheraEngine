@@ -10,9 +10,22 @@ namespace CustomEngine.Rendering.Textures
 {
     public class Texture : BaseRenderState
     {
-        public Texture() : base(GenType.Texture) { }
-        public Texture(int bindingId) : base(GenType.Texture, bindingId) { }
-        public Texture(TextureData data) : base(GenType.Texture) { _data = data; }
+        public Texture() : base(GenType.Texture)
+        {
+            _width = 1;
+            _height = 1;
+        }
+        public Texture(int bindingId) : base(GenType.Texture, bindingId)
+        {
+            _width = 1;
+            _height = 1;
+        }
+        public Texture(TextureData data) : base(GenType.Texture)
+        {
+            _data = data;
+            _width = _data != null && _data.Bitmap != null ? _data.Bitmap.Width : 1;
+            _height = _data != null && _data.Bitmap != null ? _data.Bitmap.Height : 1;
+        }
         public Texture(
             TextureData data,
             MinFilter minFilter,
@@ -27,6 +40,15 @@ namespace CustomEngine.Rendering.Textures
             _uWrapMode = uWrap;
             _vWrapMode = vWrap;
             _lodBias = lodBias;
+        }
+
+        public Texture(TextureData data, MinFilter minFilter, MagFilter magFilter, TexCoordWrap uWrap, TexCoordWrap vWrap, float lodBias, 
+            EPixelInternalFormat internalFormat, EPixelFormat pixelFormat, EPixelType pixelType)
+            : this(data, minFilter, magFilter, uWrap, vWrap, lodBias)
+        {
+            _internalFormat = internalFormat;
+            _pixelFormat = pixelFormat;
+            _pixelType = pixelType;
         }
 
         public static readonly ETexMagFilter[] _magFilters = 
@@ -50,12 +72,17 @@ namespace CustomEngine.Rendering.Textures
             ETexWrapMode.MirroredRepeat
         };
 
+        private int _width, _height;
         private TexCoordWrap _uWrapMode;
         private TexCoordWrap _vWrapMode;
         private MinFilter _minFilter;
         private MagFilter _magFilter;
         private float _lodBias;
         private TextureData _data;
+        private EPixelInternalFormat _internalFormat = EPixelInternalFormat.Rgba8;
+        private EPixelFormat _pixelFormat = EPixelFormat.Bgra;
+        private EPixelType _pixelType = EPixelType.Byte;
+        private ETexTarget _textureTarget = ETexTarget.Texture2D;
 
         public TextureData Data
         {
@@ -64,19 +91,21 @@ namespace CustomEngine.Rendering.Textures
             {
                 Delete();
                 _data = value;
+                _width = _data != null && _data.Bitmap != null ? _data.Bitmap.Width : 1;
+                _height = _data != null && _data.Bitmap != null ? _data.Bitmap.Height : 1;
             }
         }
 
         public static Texture[] GenTextures(int count)
             => Engine.Renderer.CreateObjects<Texture>(GenType.Texture, count);
-        public void AttachToFrameBuffer(EFramebufferTarget target, EFramebufferAttachment attachment, ETexTarget texTarget)
-            => Engine.Renderer.AttachTextureToFrameBuffer(target, attachment, texTarget, BindingId, 0);
+        public void AttachToFrameBuffer(EFramebufferTarget target, EFramebufferAttachment attachment)
+            => Engine.Renderer.AttachTextureToFrameBuffer(target, attachment, _textureTarget, BindingId, 0);
 
         public void Bind()
         {
             if (!IsActive)
                 Generate();
-            Engine.Renderer.BindTexture(ETexTarget.Texture2D, BindingId);
+            Engine.Renderer.BindTexture(_textureTarget, BindingId);
         }
         public void PushData()
         {
@@ -85,35 +114,26 @@ namespace CustomEngine.Rendering.Textures
 
             Bind();
 
-            Engine.Renderer.TexParameter(ETexTarget.Texture2D, ETexParamName.TextureBaseLevel, 0);
-            Engine.Renderer.TexParameter(ETexTarget.Texture2D, ETexParamName.TextureMaxLevel, 0);
-            Engine.Renderer.TexParameter(ETexTarget.Texture2D, ETexParamName.TextureMinLod, 0);
-            Engine.Renderer.TexParameter(ETexTarget.Texture2D, ETexParamName.TextureMaxLod, 0);
-            Engine.Renderer.TexParameter(ETexTarget.Texture2D, ETexParamName.TextureLodBias, _lodBias);
-            Engine.Renderer.TexParameter(ETexTarget.Texture2D, ETexParamName.TextureMagFilter, (int)_magFilters[(int)_magFilter]);
-            Engine.Renderer.TexParameter(ETexTarget.Texture2D, ETexParamName.TextureMinFilter, (int)_minFilters[(int)_minFilter]);
-            Engine.Renderer.TexParameter(ETexTarget.Texture2D, ETexParamName.TextureWrapS, (int)_wraps[(int)_uWrapMode]);
-            Engine.Renderer.TexParameter(ETexTarget.Texture2D, ETexParamName.TextureWrapT, (int)_wraps[(int)_vWrapMode]);
+            Engine.Renderer.TexParameter(_textureTarget, ETexParamName.TextureBaseLevel, 0);
+            Engine.Renderer.TexParameter(_textureTarget, ETexParamName.TextureMaxLevel, 0);
+            Engine.Renderer.TexParameter(_textureTarget, ETexParamName.TextureMinLod, 0);
+            Engine.Renderer.TexParameter(_textureTarget, ETexParamName.TextureMaxLod, 0);
+            Engine.Renderer.TexParameter(_textureTarget, ETexParamName.TextureLodBias, _lodBias);
+            Engine.Renderer.TexParameter(_textureTarget, ETexParamName.TextureMagFilter, (int)_magFilters[(int)_magFilter]);
+            Engine.Renderer.TexParameter(_textureTarget, ETexParamName.TextureMinFilter, (int)_minFilters[(int)_minFilter]);
+            Engine.Renderer.TexParameter(_textureTarget, ETexParamName.TextureWrapS, (int)_wraps[(int)_uWrapMode]);
+            Engine.Renderer.TexParameter(_textureTarget, ETexParamName.TextureWrapT, (int)_wraps[(int)_vWrapMode]);
             
             Bitmap bmp = _data.Bitmap;
             if (bmp != null)
             {
-                BitmapData data = bmp.LockBits(
-                    new Rectangle(0, 0, bmp.Width, bmp.Height),
-                    ImageLockMode.ReadOnly,
-                    PixelFormat.Format32bppArgb);
-
-                Engine.Renderer.BindTextureData(
-                    ETexTarget.Texture2D,
-                    0,
-                    EPixelInternalFormat.Rgba8,
-                    data.Width,
-                    data.Height,
-                    EPixelFormat.Rgba,
-                    EPixelType.UnsignedByte,
-                    data.Scan0);
-
+                BitmapData data = bmp.LockBits(new Rectangle(0, 0, _width, _height), ImageLockMode.ReadOnly, bmp.PixelFormat);
+                Engine.Renderer.PushTextureData(_textureTarget, 0, _internalFormat, _width, _height, _pixelFormat, _pixelType, data.Scan0);
                 bmp.UnlockBits(data);
+            }
+            else
+            {
+                Engine.Renderer.PushTextureData(_textureTarget, 0, _internalFormat, _width, _height, _pixelFormat, _pixelType, IntPtr.Zero);
             }
         }
 

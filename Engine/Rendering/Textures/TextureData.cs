@@ -31,7 +31,7 @@ namespace CustomEngine.Rendering.Textures
         {
             _bitmap = File.Exists(path) ? new FreeImageBitmap(path).ToBitmap() : null;
         }
-        public TextureData(int width, int height, System.Drawing.Imaging.PixelFormat format)
+        public TextureData(int width, int height, System.Drawing.Imaging.PixelFormat format = System.Drawing.Imaging.PixelFormat.Format32bppArgb)
         {
             _bitmap = new Bitmap(width, height, format);
         }

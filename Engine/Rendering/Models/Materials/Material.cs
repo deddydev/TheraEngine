@@ -89,8 +89,8 @@ namespace CustomEngine.Rendering.Models.Materials
         {
             List<TextureReference> refs = new List<TextureReference>() { texture };
             Shader frag = deferred ? Shader.UnlitTextureFragDeferred() : Shader.UnlitTextureFragForward();
-            List<GLVar> p = new List<GLVar>();
-            return new Material("UnlitTextureMaterial", p, refs, frag);
+            List<GLVar> parameters = new List<GLVar>();
+            return new Material("UnlitTextureMaterial", parameters, refs, frag);
         }
 
         public static Material GetUnlitColorMaterial() => GetUnlitColorMaterial(Engine.Settings.ShadingStyle == ShadingStyle.Deferred);
@@ -98,11 +98,11 @@ namespace CustomEngine.Rendering.Models.Materials
         {
             List<TextureReference> refs = new List<TextureReference>();
             Shader frag = deferred ? Shader.UnlitColorFragDeferred() : Shader.UnlitColorFragForward();
-            List<GLVar> p = new List<GLVar>()
+            List<GLVar> parameters = new List<GLVar>()
             {
                 new GLVec4((ColorF4)Color.Green, "MatColor"),
             };
-            return new Material("UnlitColorMaterial", p, refs, frag);
+            return new Material("UnlitColorMaterial", parameters, refs, frag);
         }
 
         public static Material GetDefaultMaterial() => GetDefaultMaterial(Engine.Settings.ShadingStyle == ShadingStyle.Deferred);
@@ -110,13 +110,13 @@ namespace CustomEngine.Rendering.Models.Materials
         {
             List<TextureReference> refs = new List<TextureReference>();
             Shader frag = deferred ? Shader.TestFragDeferred() : Shader.TestFragForward();
-            List<GLVar> p = new List<GLVar>()
+            List<GLVar> parameters = new List<GLVar>()
             {
                 new GLVec4((ColorF4)Color.DarkTurquoise, "MatColor"),
                 new GLFloat(20.0f, "MatSpecularIntensity"),
                 new GLFloat(128.0f, "MatShininess"),
             };
-            return new Material("TestMaterial", p, refs, frag);
+            return new Material("TestMaterial", parameters, refs, frag);
         }
 
         internal static Material GetGBufferMaterial(int width, int height)
@@ -124,16 +124,19 @@ namespace CustomEngine.Rendering.Models.Materials
             //These are listed in order of appearance in the shader
             List<TextureReference> refs = new List<TextureReference>()
             {
+                new TextureReference("DepthStencil", width, height,
+                    EPixelInternalFormat.Depth24Stencil8, EPixelFormat.DepthStencil, EPixelType.UnsignedInt248),
                 new TextureReference("AlbedoSpec", width, height, 
-                EPixelInternalFormat.Rgba8, EPixelFormat.Bgra, EPixelType.UnsignedByte),
-                new TextureReference("Position", width, height, EPixelInternalFormat.Rgb32f),
-                new TextureReference("Normal", width, height, EPixelInternalFormat.Rgb32f),
-                new TextureReference("TexCoord", width, height, EPixelInternalFormat.Rg16f),
-                new TextureReference("Text", width, height, EPixelInternalFormat.Rgba8),
-                new TextureReference("Stencil", width, height, EPixelInternalFormat.Depth32fStencil8),
+                    EPixelInternalFormat.Rgba8, EPixelFormat.Bgra, EPixelType.UnsignedByte),
+                new TextureReference("Position", width, height,
+                    EPixelInternalFormat.Rgb32f, EPixelFormat.Rgb, EPixelType.Float),
+                new TextureReference("Normal", width, height, 
+                    EPixelInternalFormat.Rgb32f, EPixelFormat.Rgb, EPixelType.Float),
+                new TextureReference("Text", width, height, 
+                    EPixelInternalFormat.Rgba8, EPixelFormat.Bgra, EPixelType.UnsignedByte, System.Drawing.Imaging.PixelFormat.Format32bppArgb),
             };
             Shader frag = Shader.GBufferShader();
-            List<GLVar> p = new List<GLVar>()
+            List<GLVar> parameters = new List<GLVar>()
             {
                 //TODO: post process parameters here
                 //PostProcessSettings
@@ -141,7 +144,7 @@ namespace CustomEngine.Rendering.Models.Materials
                 new GLFloat(0.0f, "DOF.NearDistance"),
                 new GLFloat(0.0f, "DOF.FarDistance"),
             };
-            return new Material("GBufferMaterial", p, refs, frag);
+            return new Material("GBufferMaterial", parameters, refs, frag);
         }
         protected override int OnCalculateSize(StringTable table)
         {

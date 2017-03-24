@@ -240,6 +240,7 @@ namespace CustomEngine.Rendering
         public abstract void Cull(Culling culling);
         public abstract void SetPointSize(float size);
         public abstract void SetLineSize(float size);
+        public abstract int GetStencilIndex(float x, float y);
         public abstract float GetDepth(float x, float y);
 
         #region Shaders
@@ -439,7 +440,7 @@ namespace CustomEngine.Rendering
 
         public abstract void TexParameter(ETexTarget texTarget, ETexParamName texParam, float paramData);
         public abstract void TexParameter(ETexTarget texTarget, ETexParamName texParam, int paramData);
-        public abstract void BindTextureData(
+        public abstract void PushTextureData(
             ETexTarget texTarget, 
             int mipLevel, 
             EPixelInternalFormat internalFormat,

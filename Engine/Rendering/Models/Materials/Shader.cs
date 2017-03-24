@@ -220,7 +220,7 @@ in Data
 
 out vec4 OutColor;
 
-" + LightingSetup() + @"
+" + LightingSetupBasic() + @"
 
 void main()
 {
@@ -244,16 +244,15 @@ void main()
 out vec4 OutColor;
 in vec2 TexCoord0;
 
+uniform sampler2D gDepthStencil;
 uniform sampler2D gAlbedoSpec;
 uniform sampler2D gPosition;
 uniform sampler2D gNormal;
-uniform sampler2D gTexCoord;
 uniform sampler2D gText;
-uniform sampler2D gStencil;
 
 uniform vec3 CameraPosition;
 
-" + LightingSetup() + @"
+" + LightingSetupBasic() + @"
 
 void main()
 {
@@ -292,7 +291,7 @@ void main()
         {0} += CalcSpotLight(SpotLights[i], {2}, {3}, {4}, {5});", 
         lightVarName, baseLightVec3, normalNameVec3, fragPosNameVec3, albedoNameRGB, specNameIntensity);
         }
-        private static string LightingSetup()
+        private static string LightingSetupBasic()
         {
             return @"
 

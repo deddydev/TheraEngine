@@ -16,16 +16,19 @@ namespace CustomEngine.Rendering
         PrimitiveManager _fullScreenQuad;
         OrthographicCamera _camera;
 
-        Texture[] Textures => _fullScreenQuad?.Program.Textures;
-
+        public Texture[] Textures => _fullScreenQuad?.Program.Textures;
+        public Texture DepthStencil => _fullScreenQuad?.Program.Textures[0];
+        public Texture AlbedoSpec => _fullScreenQuad?.Program.Textures[1];
+        public Texture Positions => _fullScreenQuad?.Program.Textures[2];
+        public Texture Normals => _fullScreenQuad?.Program.Textures[3];
+        public Texture Text => _fullScreenQuad?.Program.Textures[4];
+        
         DrawBuffersAttachment[] _attachments = new DrawBuffersAttachment[]
         {
             DrawBuffersAttachment.ColorAttachment0, //AlbedoSpec
             DrawBuffersAttachment.ColorAttachment1, //Position
             DrawBuffersAttachment.ColorAttachment2, //Normal
-            DrawBuffersAttachment.ColorAttachment3, //Texcoord
-            DrawBuffersAttachment.ColorAttachment4, //Stencil
-            DrawBuffersAttachment.ColorAttachment5, //Text
+            DrawBuffersAttachment.ColorAttachment3, //Text
         };
 
         public GBuffer(BoundingRectangle region)
@@ -45,24 +48,14 @@ namespace CustomEngine.Rendering
 
         protected override void OnGenerated()
         {
-            _fullScreenQuad.Generate();
             Bind(FramebufferType.ReadWrite);
-
-            //Bind depth texture
-            Textures[0].AttachToFrameBuffer(
-                EFramebufferTarget.Framebuffer,
-                EFramebufferAttachment.Depth,
-                ETexTarget.Texture2D);
-
-            //Bind other textures
-            for (int i = 1; i < Textures.Length; ++i)
-            {
-                Textures[i].AttachToFrameBuffer(
-                    EFramebufferTarget.Framebuffer,
-                    EFramebufferAttachment.ColorAttachment0 + i,
-                    ETexTarget.Texture2D);
-            }
             
+            DepthStencil.AttachToFrameBuffer(EFramebufferTarget.Framebuffer, EFramebufferAttachment.DepthStencilAttachment);
+            AlbedoSpec.AttachToFrameBuffer(EFramebufferTarget.Framebuffer, EFramebufferAttachment.ColorAttachment0);
+            Positions.AttachToFrameBuffer(EFramebufferTarget.Framebuffer, EFramebufferAttachment.ColorAttachment1);
+            Normals.AttachToFrameBuffer(EFramebufferTarget.Framebuffer, EFramebufferAttachment.ColorAttachment2);
+            Text.AttachToFrameBuffer(EFramebufferTarget.Framebuffer, EFramebufferAttachment.ColorAttachment3);
+
             Engine.Renderer.SetDrawBuffers(_attachments);
             Unbind(FramebufferType.ReadWrite);
         }

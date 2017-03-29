@@ -11,8 +11,6 @@ namespace CustomEngine.Rendering.Models
 {
     public class StaticSoftSubMesh : FileObject, IStaticMesh
     {
-        public override ResourceType ResourceType { get { return ResourceType.StaticSoftSubMesh; } }
-
         public StaticSoftSubMesh() { }
         public StaticSoftSubMesh(PrimitiveData data, string name)
         {

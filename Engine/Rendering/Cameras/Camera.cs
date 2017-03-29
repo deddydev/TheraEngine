@@ -3,6 +3,7 @@ using CustomEngine.Rendering.Models;
 using CustomEngine.Rendering.Models.Materials;
 using System;
 using System.Collections.Generic;
+using System.Xml.Serialization;
 
 namespace CustomEngine.Rendering.Cameras
 {
@@ -10,9 +11,7 @@ namespace CustomEngine.Rendering.Cameras
     {
         public delegate void TranslationChange(Vec3 oldTranslation);
         public delegate void RotationChange(Rotator oldRotation);
-
-        public override ResourceType ResourceType => ResourceType.Camera;
-
+        
         public Camera()
         {
             Resize(1.0f, 1.0f);
@@ -101,17 +100,25 @@ namespace CustomEngine.Rendering.Cameras
         protected Frustum _untransformedFrustum, _transformedFrustum;
 
         protected bool _updating = false;
-        protected float _nearZ = 1.0f, _farZ = 2000.0f;
+
+        [Serialize("Point")]
+        protected EventVec3 _point = Vec3.Zero;
+        [Serialize("Rotation")]
+        protected Rotator _rotation = new Rotator(Rotator.Order.YPR);
+        [Serialize("NearZ")]
+        protected float _nearZ = 1.0f;
+        [Serialize("FarZ")]
+        protected float _farZ = 2000.0f;
+
         private PostProcessSettings _postProcessSettings;
 
-        protected Matrix4 
+        protected Matrix4
             _projectionMatrix = Matrix4.Identity,
             _projectionInverse = Matrix4.Identity,
             _transform = Matrix4.Identity,
             _invTransform = Matrix4.Identity;
         
-        protected EventVec3 _point = Vec3.Zero;
-        protected Rotator _rotation = new Rotator(Rotator.Order.YPR);
+
         private Vec3 
             _forwardDirection = Vec3.Forward,
             _upDirection = Vec3.Up, 

@@ -192,6 +192,8 @@ namespace System
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public struct BVec2
     {
+        public const int Size = 8;
+
         public bfloat _x;
         public bfloat _y;
 
@@ -206,6 +208,8 @@ namespace System
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public struct BVec3
     {
+        public const int Size = 12;
+
         public bfloat _x;
         public bfloat _y;
         public bfloat _z;
@@ -238,7 +242,7 @@ namespace System
     }
 
     [StructLayout(LayoutKind.Sequential)]
-    public unsafe struct bMatrix43
+    public unsafe struct BMatrix43
     {
         fixed float _data[12];
 
@@ -260,7 +264,7 @@ namespace System
             return String.Format("({0},{1},{2},{3})({4},{5},{6},{7})({8},{9},{10},{11})", this[0], this[1], this[2], this[3], this[4], this[5], this[6], this[7], this[8], this[9], this[10], this[11]);
         }
 
-        public static implicit operator Matrix4(bMatrix43 bm)
+        public static implicit operator Matrix4(BMatrix43 bm)
         {
             Matrix4 m;
 
@@ -287,9 +291,9 @@ namespace System
             return m;
         }
 
-        public static implicit operator bMatrix43(Matrix4 m)
+        public static implicit operator BMatrix43(Matrix4 m)
         {
-            bMatrix43 bm;
+            BMatrix43 bm;
 
             bfloat* dPtr = (bfloat*)&bm;
             float* sPtr = (float*)&m;
@@ -310,7 +314,7 @@ namespace System
             return bm;
         }
 
-        public static implicit operator Matrix3x4(bMatrix43 bm)
+        public static implicit operator Matrix3x4(BMatrix43 bm)
         {
             Matrix3x4 m = new Matrix3x4();
             float* dPtr = (float*)&m;
@@ -320,9 +324,9 @@ namespace System
             return m;
         }
 
-        public static implicit operator bMatrix43(Matrix3x4 m)
+        public static implicit operator BMatrix43(Matrix3x4 m)
         {
-            bMatrix43 bm = new bMatrix43();
+            BMatrix43 bm = new BMatrix43();
             bfloat* dPtr = (bfloat*)&bm;
             float* sPtr = (float*)&m;
             for (int i = 0; i < 12; i++)
@@ -332,7 +336,7 @@ namespace System
     }
 
     [StructLayout(LayoutKind.Sequential)]
-    public unsafe struct bMatrix
+    public unsafe struct BMatrix4
     {
         fixed float _data[16];
 
@@ -354,7 +358,7 @@ namespace System
             return String.Format("({0},{1},{2},{3})({4},{5},{6},{7})({8},{9},{10},{11})({12},{13},{14},{15})", this[0], this[1], this[2], this[3], this[4], this[5], this[6], this[7], this[8], this[9], this[10], this[11], this[12], this[13], this[14], this[15]);
         }
 
-        public static implicit operator Matrix4(bMatrix bm)
+        public static implicit operator Matrix4(BMatrix4 bm)
         {
             Matrix4 m = new Matrix4();
             float* dPtr = (float*)&m;
@@ -364,9 +368,9 @@ namespace System
             return m;
         }
 
-        public static implicit operator bMatrix(Matrix4 m)
+        public static implicit operator BMatrix4(Matrix4 m)
         {
-            bMatrix bm = new bMatrix();
+            BMatrix4 bm = new BMatrix4();
             bfloat* dPtr = (bfloat*)&bm;
             float* sPtr = (float*)&m;
             for (int i = 0; i < 16; i++)

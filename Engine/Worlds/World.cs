@@ -17,24 +17,25 @@ namespace CustomEngine.Worlds
     {
         WorldSettings Settings { get; set; }
     }
+    [ObjectHeader()]
+    [FileHeader()]
     public unsafe class World : FileObject, IEnumerable<IActor>
     {
-        public override ResourceType ResourceType => ResourceType.World;
-
         static World()
         {
             PersistentManifold.ContactProcessed += PersistentManifold_ContactProcessed;
             PersistentManifold.ContactDestroyed += PersistentManifold_ContactDestroyed;
         }
 
+        [Serialize("PhysicsWorld")]
         internal DiscreteDynamicsWorld _physicsScene;
         public WorldSettings _settings;
 
-        public DiscreteDynamicsWorld PhysicsScene { get { return _physicsScene; } }
+        public DiscreteDynamicsWorld PhysicsScene => _physicsScene;
         public WorldSettings Settings
         {
-            get { return _settings; }
-            set { _settings = value; }
+            get => _settings;
+            set => _settings = value;
         }
         private class PhysicsDriverPair
         {
@@ -129,8 +130,8 @@ namespace CustomEngine.Worlds
         }
         public IActor this[int index]
         {
-            get { return _settings.State.SpawnedActors[index]; }
-            set { _settings.State.SpawnedActors[index] = value; }
+            get => _settings.State.SpawnedActors[index];
+            set => _settings.State.SpawnedActors[index] = value;
         }
         public virtual void EndPlay()
         {
@@ -153,7 +154,7 @@ namespace CustomEngine.Worlds
         }
         public override void Write(VoidPtr address, StringTable table)
         {
-
+            Header* h = (Header*)address;
         }
         public override void Read(VoidPtr address, VoidPtr strings)
         {
@@ -170,10 +171,27 @@ namespace CustomEngine.Worlds
 
         public IEnumerator<IActor> GetEnumerator() => State.SpawnedActors.GetEnumerator();
         IEnumerator IEnumerable.GetEnumerator() => State.SpawnedActors.GetEnumerator();
-    }
-    [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    public unsafe struct WorldHeader
-    {
-        public VoidPtr Address { get { fixed(void* ptr = &this) return ptr; } }
+
+        [StructLayout(LayoutKind.Sequential, Pack = 1)]
+        public unsafe struct Header
+        {
+            public const int Size = 4;
+
+            public buint _mapCount;
+            public WorldSettings.Header _settings;
+            public PhysicsWorldState _physicsState;
+            
+            public FileRefHeader* MapOffsets { get { return (FileRefHeader*)Address; } }
+            public VoidPtr Address { get { fixed (void* ptr = &this) return ptr; } }
+        }
+        [StructLayout(LayoutKind.Sequential, Pack = 1)]
+        public unsafe struct PhysicsWorldState
+        {
+            public const int Size = 4;
+
+            public buint _collisionObjectCount;
+            
+            public VoidPtr Address { get { fixed (void* ptr = &this) return ptr; } }
+        }
     }
 }

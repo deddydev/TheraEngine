@@ -787,6 +787,10 @@ namespace System
         
         private static string listSeparator = 
             Globalization.CultureInfo.CurrentCulture.TextInfo.ListSeparator;
+        public override string ToString()
+            => ToString(true, true);
+        public string ToString(bool includeParentheses, bool includeSeparator)
+            => String.Format("{4}{0}{3} {1}{3} {2}{5}", X, Y, Z, includeSeparator ? listSeparator : "", includeParentheses ? "(" : "", includeParentheses ? ")" : "");
         public static Vec3 Parse(string value)
         {
             value = value.Trim();
@@ -804,11 +808,6 @@ namespace System
 
             return new Vec3(float.Parse(parts[0]), float.Parse(parts[1]), float.Parse(parts[2]));
         }
-        public override string ToString()
-            => ToString(true, true);
-        
-        public string ToString(bool includeParentheses, bool includeSeparator)
-            => String.Format("{4}{0}{3} {1}{3} {2}{5}", X, Y, Z, includeSeparator ? listSeparator : "", includeParentheses ? "(" : "", includeParentheses ? ")" : "");
 
         public override int GetHashCode()
         {

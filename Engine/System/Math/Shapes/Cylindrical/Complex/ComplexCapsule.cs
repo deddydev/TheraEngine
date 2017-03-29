@@ -17,55 +17,64 @@ namespace System
         protected Vec3 _upAxis, _center;
         protected float _topRadius, _bottomRadius, _topHeight, _bottomHeight;
 
+        public Vec3 Center
+        {
+            get => _center;
+            set => _center = value;
+        }
         public Vec3 UpAxis
         {
-            get { return _upAxis; }
-            set { _upAxis = value; }
+            get => _upAxis;
+            set => _upAxis = value;
         }
         public float TopRadius
         {
-            get { return _topRadius; }
-            set { _topRadius = value; }
+            get => _topRadius;
+            set => _topRadius = value;
         }
         public float BottomRadius
         {
-            get { return _bottomRadius; }
-            set { _bottomRadius = value; }
+            get => _bottomRadius;
+            set => _bottomRadius = value;
         }
         public float TopHeight
         {
-            get { return _topHeight; }
-            set { _topHeight = value; }
+            get => _topHeight;
+            set => _topHeight = value;
         }
         public float BottomHeight
         {
-            get { return _bottomHeight; }
-            set { _bottomHeight = value; }
+            get => _bottomHeight;
+            set => _bottomHeight = value;
         }
 
-        public ComplexCapsule(Vec3 center, Vec3 upAxis, float topRadius, float bottomRadius, float topHeight, float bottomHeight)
+        public ComplexCapsule(
+            Vec3 center,
+            Vec3 upAxis,
+            float topRadius,
+            float bottomRadius,
+            float topHeight,
+            float bottomHeight)
         {
             _topRadius = Math.Abs(topRadius);
             _bottomRadius = Math.Abs(bottomRadius);
             _upAxis = upAxis;
             _topHeight = topHeight;
             _bottomHeight = bottomHeight;
+            _center = center;
         }
-        public float GetTotalTopHeight() { return _topHeight + _topRadius; }
-        public float GetTotalBottomHeight() { return _bottomHeight + _bottomRadius; }
-        public float GetTotalHeight() { return GetTotalTopHeight() + GetTotalBottomHeight(); }
+        public float GetTotalTopHeight() => _topHeight + _topRadius;
+        public float GetTotalBottomHeight() => _bottomHeight + _bottomRadius;
+        public float GetTotalHeight() => GetTotalTopHeight() + GetTotalBottomHeight();
         public override void Render()
         {
             //Engine.Renderer.RenderCapsule(_center, _upAxis, _topHeight, _topRadius, _bottomHeight, _bottomRadius, Matrix4.Identity, _renderSolid);
         }
         public Sphere GetTopSphere()
-        {
-            return new Sphere(_topRadius, _upAxis * _topHeight);
-        }
+            => new Sphere(_topRadius, _upAxis * _topHeight);
         public Sphere GetBottomSphere()
-        {
-            return new Sphere(_bottomRadius, _upAxis * -_bottomHeight);
-        }
+            => new Sphere(_bottomRadius, _upAxis * -_bottomHeight);
+        
         public override CollisionShape GetCollisionShape()
         {
             throw new InvalidOperationException("Complex capsule cannot be used for physics.");
@@ -108,9 +117,7 @@ namespace System
         }
 
         public override Shape HardCopy()
-        {
-            throw new NotImplementedException();
-        }
+            => new ComplexCapsule(Center, UpAxis, TopRadius, BottomRadius, TopHeight, BottomHeight);
 
         public override Shape TransformedBy(Matrix4 worldMatrix)
         {

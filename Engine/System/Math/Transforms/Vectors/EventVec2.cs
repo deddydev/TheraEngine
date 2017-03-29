@@ -15,9 +15,21 @@ namespace System
         private float _oldX, _oldY;
         private Vec2 _data;
 
+        public void SetRawNoUpdate(Vec2 raw)
+            => _data = raw;
+        public Vec2 Raw
+        {
+            get => _data;
+            set
+            {
+                BeginUpdate();
+                _data = value;
+                EndUpdate();
+            }
+        }
         public float X
         {
-            get { return _data.X; }
+            get => _data.X;
             set
             {
                 BeginUpdate();
@@ -27,7 +39,7 @@ namespace System
         }
         public float Y
         {
-            get { return _data.Y; }
+            get => _data.Y;
             set
             {
                 BeginUpdate();
@@ -36,15 +48,13 @@ namespace System
             }
         }
 
-        public float* Data { get { return _data.Data; } }
-        public VoidPtr Address { get { return _data.Address; } }
-        public VertexBuffer.ComponentType ComponentType { get { return VertexBuffer.ComponentType.Float; } }
-        public int ComponentCount { get { return 2; } }
-        bool IBufferable.Normalize { get { return false; } }
+        public float* Data => _data.Data;
+        public VoidPtr Address => _data.Address;
+        public VertexBuffer.ComponentType ComponentType => VertexBuffer.ComponentType.Float;
+        public int ComponentCount => 2;
+        bool IBufferable.Normalize => false;
         public void Write(VoidPtr address)
-        {
-            _data.Write(address);
-        }
+            => _data.Write(address);
         public void Read(VoidPtr address)
         {
             BeginUpdate();
@@ -229,7 +239,9 @@ namespace System
         public static explicit operator EventVec2(Vec4 v) { return new EventVec2(v.X, v.Y); }
         public static implicit operator EventVec2(PointF v) { return new EventVec2(v.X, v.Y); }
         public static implicit operator PointF(EventVec2 v) { return new PointF(v.X, v.Y); }
-        
+        public static implicit operator EventVec2(Vec2 v) { return new EventVec2(v.X, v.Y); }
+        public static implicit operator Vec2(EventVec2 v) { return v.Raw; }
+
         private static string listSeparator = Globalization.CultureInfo.CurrentCulture.TextInfo.ListSeparator;
         public override string ToString()
         {

@@ -189,9 +189,9 @@ namespace CustomEngine.Worlds.Actors.Components
         public Matrix4 GetInvActorTransform() =>
             InverseWorldMatrix * Owner.RootComponent.WorldMatrix;
 
-        [Category("Rendering"), State]
+        [Category("Rendering")]
         public bool IsSpawned => Owner.IsSpawned;
-        [Category("Rendering"), Default, State, Animatable]
+        [Category("Rendering")]
         public ISocket Parent
         {
             get { return _parent; }
@@ -282,6 +282,8 @@ namespace CustomEngine.Worlds.Actors.Components
         }
         public void AttachTo(SkeletalMeshComponent mesh, string socketName)
         {
+            if (mesh == null || mesh.Skeleton == null)
+                throw new InvalidOperationException("No available mesh or skeleton to attach to.");
             Bone bone = mesh.Skeleton[socketName];
             if (bone != null)
                 bone.ChildComponents.Add(this);

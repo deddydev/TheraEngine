@@ -6,7 +6,7 @@ namespace CustomEngine.Worlds.Actors.Components
 {
     public abstract class ShapeComponent : TRComponent, IRenderable, IPhysicsDrivable
     {
-        public ShapeComponent(PhysicsDriverInfo info)
+        public void InitPhysics(PhysicsDriverInfo info)
         {
             if (info != null)
             {

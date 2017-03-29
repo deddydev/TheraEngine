@@ -206,6 +206,7 @@
     <Compile Include="Rendering\HUD\TextureHudComponent.cs" />
     <Compile Include="Rendering\HUD\ModelHudComponent.cs" />
     <Compile Include="Rendering\ModelScene.cs" />
+    <Compile Include="Rendering\Models\Collada\ColladaImportOptions.cs" />
     <Compile Include="Rendering\Models\Collada\Parser\ColladaParserAnimation.cs" />
     <Compile Include="Rendering\Models\Collada\ColladaAssetDecoder.cs" />
     <Compile Include="Rendering\Models\Collada\Schema\SchemaImporter.cs" />
@@ -674,6 +675,8 @@
     <Compile Include="System\Extensions\ArrayExtension.cs" />
     <Compile Include="System\Extensions\XmlExtension.cs" />
     <Compile Include="Rendering\Fonts\TTF.cs" />
+    <Compile Include="System\Files\CustomXmlSerializer.cs" />
+    <Compile Include="System\Files\CustomBinarySerializer.cs" />
     <Compile Include="System\Files\FileRef.cs" />
     <Compile Include="System\Files\StringTable.cs" />
     <Compile Include="System\IO\XMLReader.cs" />
@@ -758,7 +761,6 @@
     <Compile Include="Worlds\Actors\Components\Scene\Lights\SpotLightComponent.cs" />
     <Compile Include="Worlds\Actors\Components\Scene\Lights\PointLightComponent.cs" />
     <Compile Include="Worlds\Actors\Components\Scene\Lights\DirectionalLightComponent.cs" />
-    <Compile Include="Worlds\Actors\Components\Scene\Mesh\IMesh.cs" />
     <Compile Include="Worlds\Actors\Components\Scene\Mesh\SkeletalMeshComponent.RenderableMesh.cs" />
     <Compile Include="Worlds\Actors\Components\Scene\Mesh\StaticMeshComponent.RenderableMesh.cs" />
     <Compile Include="Worlds\Actors\Components\Scene\Transforms\TRComponent.cs" />
@@ -771,8 +773,8 @@
     <Compile Include="Worlds\Actors\Components\Logic\MovementComponents\TransformMovementComponent.cs" />
     <Compile Include="Worlds\Actors\Components\Logic\MovementComponents\CharacterMovementComponent.cs" />
     <Compile Include="Worlds\Actors\Components\SceneComponent.cs" />
-    <Compile Include="Worlds\Actors\Components\Scene\Shapes\Cones\BasicConeYComponent.cs" />
-    <None Include="Worlds\Actors\Components\Scene\Shapes\Cones\ComplexConeComponent.cs" />
+    <Compile Include="Worlds\Actors\Components\Scene\Shapes\Cylindrical\YAligned\BasicConeYComponent.cs" />
+    <None Include="Worlds\Actors\Components\Scene\Shapes\Cylindrical\Complex\ComplexConeComponent.cs" />
     <Compile Include="Worlds\Actors\Components\Scene\Shapes\SphereComponent.cs" />
     <Compile Include="Worlds\Actors\Components\Scene\Shapes\ShapeComponent.cs" />
     <Compile Include="Worlds\Actors\Components\Scene\Shapes\BoxComponent.cs" />
@@ -889,6 +891,8 @@
     <Folder Include="AI\" />
     <Folder Include="System\Math\Shapes\Cylindrical\XAligned\" />
     <Folder Include="System\Math\Shapes\Cylindrical\ZAligned\" />
+    <Folder Include="Worlds\Actors\Components\Scene\Shapes\Cylindrical\XAligned\" />
+    <Folder Include="Worlds\Actors\Components\Scene\Shapes\Cylindrical\ZAligned\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\PostSharp.4.3.21\tools\PostSharp.targets" Condition="Exists('..\packages\PostSharp.4.3.21\tools\PostSharp.targets')" />

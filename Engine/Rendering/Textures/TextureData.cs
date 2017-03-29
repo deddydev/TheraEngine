@@ -14,7 +14,6 @@ namespace CustomEngine.Rendering.Textures
 {
     public class TextureData : FileObject
     {
-        public override ResourceType ResourceType => ResourceType.Texture;
         public Bitmap Bitmap
         {
             get => _bitmap;

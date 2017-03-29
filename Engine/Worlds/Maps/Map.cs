@@ -8,8 +8,6 @@ namespace CustomEngine.Worlds
 {
     public class Map : FileObject
     {
-        public override ResourceType ResourceType { get { return ResourceType.Map; } }
-
         public Map(World owner, MapSettings settings)
         {
             _settings = settings;

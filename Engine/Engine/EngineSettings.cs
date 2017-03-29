@@ -5,6 +5,7 @@ using System.IO;
 using System.Xml.Serialization;
 using System.Xml;
 using System.Runtime.InteropServices;
+using System.ComponentModel;
 
 namespace CustomEngine
 {
@@ -13,24 +14,55 @@ namespace CustomEngine
         Forward = 0,
         Deferred = 1,
     }
+    [ObjectHeader()]
+    [FileHeader(ManualBinSerialize = true, ManualXmlSerialize = true)]
     public class EngineSettings : FileObject
     {
-        public override ResourceType ResourceType => ResourceType.EngineSettings;
-
-        public bool SkinOnGPU = false;
-        public bool UseIntegerWeightingIds = false;
-        public bool RenderCameraFrustums = true;
-        public bool RenderSkeletons = true;
-        public bool RenderOctree = true;
-        public bool RenderQuadtree = true;
-        public bool CapFPS = false;
-        public float TargetFPS = 60.0f;
-        public bool CapUPS = false;
-        public float TargetUPS = 120.0f;
+        [Category("Performance")]
+        [Serialize]
         public ShadingStyle ShadingStyle = ShadingStyle.Forward;
+        [Category("Performance")]
+        [Serialize]
+        public bool SkinOnGPU = false;
+        [Category("Performance")]
+        [Serialize]
+        public bool UseIntegerWeightingIds = false;
 
+        [Category("Debug")]
+        [Serialize]
+        public bool RenderCameraFrustums = true;
+        [Category("Debug")]
+        [Serialize]
+        public bool RenderSkeletons = true;
+        [Category("Debug")]
+        [Serialize]
+        public bool RenderOctree = true;
+        [Category("Debug")]
+        [Serialize]
+        public bool RenderQuadtree = true;
+
+        [Category("Frames Per Second")]
+        [Serialize("Capped", XmlCategoryGrouping = "FramesPerSecond", IsXmlAttribute = true)]
+        public bool CapFPS = false;
+        [Category("Frames Per Second")]
+        [Serialize("Target", XmlCategoryGrouping = "FramesPerSecond", SerializeIf = "CapFPS == true")]
+        public float TargetFPS = 60.0f;
+
+        [Category("Updates Per Second")]
+        [Serialize("Capped", XmlCategoryGrouping = "UpdatesPerSecond", IsXmlAttribute = true)]
+        public bool CapUPS = false;
+        [Category("Updates Per Second")]
+        [Serialize("Target", XmlCategoryGrouping = "UpdatesPerSecond", SerializeIf = "CapUPS == true")]
+        public float TargetUPS = 120.0f;
+
+        [Category("Game")]
+        [Serialize]
         public SingleFileRef<World> TransitionWorld;
+        [Category("Game")]
+        [Serialize]
         public SingleFileRef<World> OpeningWorld;
+        [Category("Game")]
+        [Serialize]
         public string ContentPath = Engine.StartupPath + Engine.ContentFolderRel;
 
         public override void Read(XMLReader reader)

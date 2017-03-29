@@ -7,28 +7,33 @@ namespace CustomEngine.Worlds.Actors.Components
 {
     public class BoxComponent : ShapeComponent
     {
-        public BoxComponent() : base(null)
+        private Box _box;
+
+        public BoxComponent()
         {
             _box = new Box(1.0f);
         }
-        public BoxComponent(PhysicsDriverInfo info) : base(info)
+        public BoxComponent(PhysicsDriverInfo info)
         {
             _box = new Box(1.0f);
+            InitPhysics(info);
         }
-        public BoxComponent(Vec3 halfExtents, PhysicsDriverInfo info) : base(info)
+        public BoxComponent(Vec3 halfExtents, PhysicsDriverInfo info)
         {
             _box = new Box(halfExtents);
+            InitPhysics(info);
         }
-        public BoxComponent(float extentsX, float extentsY, float extentsZ, PhysicsDriverInfo info) : base(info)
+        public BoxComponent(float extentsX, float extentsY, float extentsZ, PhysicsDriverInfo info)
         {
             _box = new Box(extentsX, extentsY, extentsZ);
+            InitPhysics(info);
         }
-        public BoxComponent(float uniformExtents, PhysicsDriverInfo info) : base(info)
+        public BoxComponent(float uniformExtents, PhysicsDriverInfo info)
         {
             _box = new Box(uniformExtents);
+            InitPhysics(info);
         }
 
-        private Box _box;
         public Box Box
         {
             get { return _box; }

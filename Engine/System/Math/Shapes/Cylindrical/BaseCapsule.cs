@@ -11,14 +11,9 @@ namespace System
     {
         public BaseCapsule(Vec3 center, Vec3 upAxis, float radius, float halfHeight) 
             : base(center, upAxis, radius, halfHeight) { }
-
         public Sphere GetTopSphere()
-        {
-            return new Sphere(Radius, _upAxis * HalfHeight);
-        }
+            => new Sphere(Radius, _upAxis * HalfHeight);
         public Sphere GetBottomSphere()
-        {
-            return new Sphere(Radius, -_upAxis * HalfHeight);
-        }
+            => new Sphere(Radius, -_upAxis * HalfHeight);
     }
 }

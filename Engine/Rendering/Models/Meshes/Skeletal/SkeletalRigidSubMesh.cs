@@ -11,8 +11,6 @@ namespace CustomEngine.Rendering.Models
 {
     public class SkeletalRigidSubMesh : FileObject, ISkeletalMesh
     {
-        public override ResourceType ResourceType => ResourceType.SkeletalRigidSubMesh;
-
         public SkeletalRigidSubMesh()
         {
             _material = null;

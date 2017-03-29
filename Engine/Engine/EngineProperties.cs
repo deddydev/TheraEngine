@@ -65,15 +65,15 @@ namespace CustomEngine
         public static Dictionary<ETickGroup, Dictionary<ETickOrder, List<ObjectBase>>> _tick = 
             new Dictionary<ETickGroup, Dictionary<ETickOrder, List<ObjectBase>>>();
 
-        public static AbstractRenderer Renderer
+        internal static AbstractRenderer Renderer
         {
             get => _renderer;
             set => _renderer = value;
         }
-        public static AbstractAudioManager AudioManager
+        internal static AbstractAudioManager AudioManager
         {
             get => _audioManager;
-            internal set => _audioManager = value;
+            set => _audioManager = value;
         }
 
         public static float RenderDelta => (float)_timer.RenderTime;
@@ -105,14 +105,12 @@ namespace CustomEngine
             get { return _timer.TimeDilation; }
             set { _timer.TimeDilation = value; }
         }
-
-        [Default]
+        
         public static World TransitionWorld
         {
             get { return _transitionWorld; }
             set { _transitionWorld = value; }
         }
-        [State]
         public static World World
         {
             get => _currentWorld;

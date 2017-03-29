@@ -133,8 +133,6 @@ namespace CustomEngine.Rendering.Animation
     }
     public class AnimationContainer : FileObject
     {
-        public override ResourceType ResourceType { get { return ResourceType.AnimationContainer; } }
-
         public event Action<AnimationContainer> AnimationStarted;
         public event Action<AnimationContainer> AnimationEnded;
 

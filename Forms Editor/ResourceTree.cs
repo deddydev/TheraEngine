@@ -150,16 +150,16 @@ namespace TheraEditor
         }
         private void Populate()
         {
-            TreeNode rootNode;
+            //TreeNode rootNode;
 
-            DirectoryInfo info = new DirectoryInfo(_contentPath);
-            if (info.Exists)
-            {
-                rootNode = BaseWrapper.Wrap(_contentPath);
-                rootNode.Tag = info;
-                GetDirectories(info.GetDirectories(), rootNode);
-                Nodes.Add(rootNode);
-            }
+            //DirectoryInfo info = new DirectoryInfo(_contentPath);
+            //if (info.Exists)
+            //{
+            //    rootNode = BaseWrapper.Wrap(_contentPath);
+            //    rootNode.Tag = info;
+            //    GetDirectories(info.GetDirectories(), rootNode);
+            //    Nodes.Add(rootNode);
+            //}
         }
 
         private void GetDirectories(DirectoryInfo[] subDirs, TreeNode nodeToAddTo)
@@ -293,7 +293,7 @@ namespace TheraEditor
             {
                 if (!(dropNode is FolderWrapper))
                     dropNode = dropNode.Parent;
-                dropNode.Nodes.Add(BaseWrapper.Wrap(path));
+                //dropNode.Nodes.Add(BaseWrapper.Wrap(path));
             }
 
             _timer.Enabled = false;

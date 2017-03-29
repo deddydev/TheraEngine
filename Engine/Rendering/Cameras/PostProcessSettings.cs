@@ -31,9 +31,7 @@ namespace CustomEngine.Rendering.Cameras
         public ColorGradeSettings ColorGradeSettings { get => _colorGradeSettings; set => _colorGradeSettings = value; }
         public DepthOfFieldSettings DepthOfFieldSettings { get => _depthOfFieldSettings; set => _depthOfFieldSettings = value; }
         public VignetteSettings VignetteSettings { get => _vignetteSettings; set => _vignetteSettings = value; }
-
-        public override ResourceType ResourceType => throw new NotImplementedException();
-
+        
         public unsafe override void Write(VoidPtr address, StringTable table)
         {
             *(Header*)address = this;

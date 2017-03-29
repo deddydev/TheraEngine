@@ -9,8 +9,7 @@ namespace CustomEngine.Worlds.Maps
     public class MapState
     {
         private bool _visible;
-
-        [State]
+        
         public bool Visible
         {
             get { return _visible; }

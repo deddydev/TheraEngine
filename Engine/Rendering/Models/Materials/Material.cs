@@ -16,8 +16,6 @@ namespace CustomEngine.Rendering.Models.Materials
 {
     public class Material : FileObject
     {
-        public override ResourceType ResourceType => ResourceType.Material;
-
         internal Shader
             _vertexShader,
             _fragmentShader, 

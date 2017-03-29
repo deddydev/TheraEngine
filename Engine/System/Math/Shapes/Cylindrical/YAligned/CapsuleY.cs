@@ -1,12 +1,9 @@
 ﻿using static System.Math;
-using CustomEngine;
-using CustomEngine.Rendering.Models;
-using System.Collections.Generic;
 using BulletSharp;
-using CustomEngine.Worlds.Actors.Components;
 using CustomEngine.Files;
 using System.IO;
 using System.Xml;
+using System.Runtime.InteropServices;
 
 namespace System
 {
@@ -47,50 +44,56 @@ namespace System
         {
             throw new NotImplementedException();
         }
-
-        public override CollisionShape GetCollisionShape()
-        {
-            return new CapsuleShape(Radius, HalfHeight * 2.0f);
-        }
-
-        public override Shape HardCopy()
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void Read(VoidPtr address, VoidPtr strings)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void Read(XMLReader reader)
-        {
-            throw new NotImplementedException();
-        }
-
         public override void SetTransform(Matrix4 worldMatrix)
-        {
-            throw new NotImplementedException();
-        }
-
+            => Center = worldMatrix.GetPoint();
+        public override CollisionShape GetCollisionShape()
+            => new CapsuleShape(Radius, HalfHeight * 2.0f);
+        public override Shape HardCopy()
+            => new CapsuleY(Center, Radius, HalfHeight);
         public override Shape TransformedBy(Matrix4 worldMatrix)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void Write(VoidPtr address, StringTable table)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void Write(XmlWriter writer)
-        {
-            throw new NotImplementedException();
-        }
+            => new CapsuleY(worldMatrix.GetPoint(), Radius, HalfHeight);
 
         protected override int OnCalculateSize(StringTable table)
+            => Header.Size;
+        public override void Read(VoidPtr address, VoidPtr strings)
         {
-            throw new NotImplementedException();
+
+        }
+        public override void Read(XMLReader reader)
+        {
+
+        }
+        public override void Write(VoidPtr address, StringTable table)
+        {
+
+        }
+        public override void Write(XmlWriter writer)
+        {
+
+        }
+        
+        [StructLayout(LayoutKind.Sequential, Pack = 1)]
+        public struct Header
+        {
+            public const int Size = 0x14;
+
+            public BVec3 _center;
+            public float _radius;
+            public float _halfHeight;
+
+            public static implicit operator Header(CapsuleY c)
+            {
+                return new Header()
+                {
+                    _radius = c._radius,
+                    _center = c._center,
+                    _halfHeight = c._halfHeight,
+                };
+            }
+            public static implicit operator CapsuleY(Header h)
+            {
+                return new CapsuleY(h._center, h._radius, h._halfHeight);
+            }
         }
     }
 }

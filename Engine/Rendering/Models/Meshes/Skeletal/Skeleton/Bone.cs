@@ -21,8 +21,6 @@ namespace CustomEngine.Rendering.Models
     }
     public class Bone : FileObject, IPhysicsDrivable, ISocket
     {
-        public override ResourceType ResourceType { get { return ResourceType.Bone; } }
-
         public Bone(Skeleton owner)
         {
             _skeleton = owner;

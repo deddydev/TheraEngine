@@ -24,8 +24,6 @@ namespace CustomEngine.Files
     /// <typeparam name="T"></typeparam>
     public class SingleFileRef<T> : FileRef<T>, ISingleFileRef where T : FileObject
     {
-        public override ResourceType ResourceType { get { return ResourceType.SingleFileRef; } }
-
         T _file;
 
         public SingleFileRef() : base(typeof(T)) { }
@@ -167,8 +165,6 @@ namespace CustomEngine.Files
     }
     public class MultiFileRef<T> : FileRef<T>, IMultiFileRef where T : FileObject
     {
-        public override ResourceType ResourceType { get { return ResourceType.MultiFileRef; } }
-        
         public MultiFileRef(Type type) : base(type) { }
         public MultiFileRef(string filePath) : base(filePath) { }
         public MultiFileRef(string filePath, Type type) : base(filePath, type) { }

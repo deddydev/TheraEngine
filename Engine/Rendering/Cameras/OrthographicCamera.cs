@@ -17,16 +17,23 @@ namespace CustomEngine.Rendering.Cameras
         {
             _scale.SetRawNoUpdate(scale);
             _scale.Changed += CreateTransform;
-            _originXPercentage = originPercentages.X;
-            _originYPercentage = originPercentages.Y;
+            _originPercentages.Raw = originPercentages;
+            _originPercentages.Changed += _originPercentages_Changed;
+        }
+
+        private void _originPercentages_Changed()
+        {
+
         }
 
         public override float Width => Math.Abs(_orthoRight - _orthoLeft);
         public override float Height => Math.Abs(_orthoTop - _orthoBottom);
 
-        public override Vec2 Origin => new Vec2(_originX, _originY);
+        public override Vec2 Origin => _origin;
 
+        [Serialize("Scale")]
         private EventVec3 _scale = Vec3.One;
+
         private bool
             _lockYaw = false, 
             _lockPitch = false,
@@ -41,19 +48,20 @@ namespace CustomEngine.Rendering.Cameras
             _orthoRightPercentage = 1.0f,
             _orthoBottomPercentage = 0.0f,
             _orthoTopPercentage = 1.0f;
-        private float
-            _originX,
-            _originY;
-        private float
-            _originXPercentage = 0.0f,
-            _originYPercentage = 0.0f;
+        private Vec2 _origin;
+        private EventVec2 _originPercentages = Vec2.Zero;
 
-        public void SetCenteredStyle() { SetOriginPercentages(0.5f, 0.5f); }
-        public void SetGraphStyle() { SetOriginPercentages(0.0f, 0.0f); }
+        public void SetCenteredStyle() 
+            => SetOriginPercentages(0.5f, 0.5f);
+        public void SetGraphStyle() 
+            => SetOriginPercentages(0.0f, 0.0f);
+
+        public void SetOriginPercentages(Vec2 percentages)
+            => SetOriginPercentages(percentages.X, percentages.Y);
         public void SetOriginPercentages(float xPercentage, float yPercentage)
         {
-            _originXPercentage = xPercentage;
-            _originYPercentage = yPercentage;
+            _originPercentages.X = xPercentage;
+            _originPercentages.Y = yPercentage;
             _orthoLeftPercentage = 0.0f - xPercentage;
             _orthoRightPercentage = 1.0f - xPercentage;
             _orthoBottomPercentage = 0.0f - yPercentage;
@@ -86,8 +94,7 @@ namespace CustomEngine.Rendering.Cameras
             _orthoRight = _orthoRightPercentage * width;
             _orthoBottom = _orthoBottomPercentage * height;
             _orthoTop = _orthoTopPercentage * height;
-            _originX = _originXPercentage * width;
-            _originY = _originYPercentage * height;
+            _origin = _originPercentages * width;
             base.Resize(width, height);
         }
         protected Vec3 AlignScreenPoint(Vec3 screenPoint)
@@ -129,8 +136,7 @@ namespace CustomEngine.Rendering.Cameras
         public override void Write(XmlWriter writer)
         {
             writer.WriteStartElement("orthographicCamera");
-            writer.WriteAttributeString("originXPercentage", _originXPercentage.ToString());
-            writer.WriteAttributeString("originYPercentage", _originYPercentage.ToString());
+            writer.WriteAttributeString("originPercentages", _originPercentages.Raw.ToString(false, false));
             writer.WriteAttributeString("lockYaw", _lockYaw.ToString());
             writer.WriteAttributeString("lockPitch", _lockPitch.ToString());
             writer.WriteAttributeString("lockRoll", _lockRoll.ToString());
@@ -148,14 +154,11 @@ namespace CustomEngine.Rendering.Cameras
                 throw new Exception();
             _point.Raw = Vec3.Zero;
             _rotation.PitchYawRoll = Vec3.Zero;
-            _originXPercentage = 0.0f;
-            _originYPercentage = 0.0f;
+            _originPercentages = Vec2.Zero;
             while (reader.ReadAttribute())
             {
-                if (reader.Name.Equals("originXPercentage", true))
-                    _originXPercentage = float.Parse((string)reader.Value);
-                if (reader.Name.Equals("originYPercentage", true))
-                    _originYPercentage = float.Parse((string)reader.Value);
+                if (reader.Name.Equals("originPercentages", true))
+                    _originPercentages = Vec2.Parse((string)reader.Value);
                 if (reader.Name.Equals("lockYaw", true))
                     _lockYaw = bool.Parse((string)reader.Value);
                 if (reader.Name.Equals("lockPitch", true))
@@ -167,7 +170,7 @@ namespace CustomEngine.Rendering.Cameras
                 if (reader.Name.Equals("farZ", true))
                     _farZ = float.Parse((string)reader.Value);
             }
-            SetOriginPercentages(_originXPercentage, _originYPercentage);
+            SetOriginPercentages(_originPercentages);
             while (reader.BeginElement())
             {
                 if (reader.Name.Equals("point", true))
@@ -177,15 +180,14 @@ namespace CustomEngine.Rendering.Cameras
                 reader.EndElement();
             }
         }
-
         protected override int OnCalculateSize(StringTable table)
-        {
-            throw new NotImplementedException();
-        }
-
+            => Header.Size;
+        
         [StructLayout(LayoutKind.Sequential, Pack = 1)]
         public struct Header
         {
+            public const int Size = BVec3.Size * 2 + Rotator.Header.Size + 8 + BVec2.Size;
+
             public BVec3 _point;
             public Rotator.Header _rotation;
             public bfloat _nearZ;
@@ -200,7 +202,7 @@ namespace CustomEngine.Rendering.Cameras
                     _point = c._point.Raw,
                     _rotation = c._rotation,
                     _scale = c._scale.Raw,
-                    _originPercentages = new BVec2(c._originXPercentage, c._originYPercentage),
+                    _originPercentages = c._originPercentages.Raw,
                     _nearZ = c._nearZ,
                     _farZ = c._farZ,
                 };

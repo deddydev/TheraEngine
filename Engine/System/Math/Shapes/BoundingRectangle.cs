@@ -59,7 +59,9 @@ namespace System
             get => _translation.X;
             set
             {
-
+                float origX = _bounds.X;
+                _translation.X = value;
+                _bounds.X = origX - _translation.X;
             }
         }
         public float MinY
@@ -67,7 +69,9 @@ namespace System
             get => _translation.Y;
             set
             {
-
+                float origY = _bounds.Y;
+                _translation.Y = value;
+                _bounds.Y = origY - _translation.Y;
             }
         }
         public Vec2 Center
@@ -125,29 +129,28 @@ namespace System
 
         public int IntX
         {
-            get => (int)Math.Round(X);
+            get => (int)/*Math.Round(*/X/*)*/;
             set => X = value;
         }
         public int IntY
         {
-            get => (int)Math.Round(Y);
+            get => (int)/*Math.Round(*/Y/*)*/;
             set => Y = value;
         }
         public int IntWidth
         {
-            get => (int)Math.Round(Width);
+            get => (int)/*Math.Round(*/Width/*)*/;
             set => Width = value;
         }
         public int IntHeight
         {
-            get => (int)Math.Round(Height);
+            get => (int)/*Math.Round(*/Height/*)*/;
             set => Height = value;
         }
 
         public void Translate(Vec2 offset)
-        {
-            _translation += offset;
-        }
+            => _translation += offset;
+        
         public void AssertProperDimensions()
         {
             if (_bounds.X < 0)

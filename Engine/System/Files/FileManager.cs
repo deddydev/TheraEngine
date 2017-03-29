@@ -43,74 +43,71 @@ namespace CustomEngine.Files
             ext = ext.ToLower();
             return Filters.FirstOrDefault(x => x.Value._extensions[0] == ext).Key;
         }
-        public static ResourceType? GetResourceTypeWithExtension(string ext)
-        {
-            var kv = Filters.FirstOrDefault(x => x.Value._extensions[0] == ext);
-            if (kv.Value == null)
-                return null;
-            return kv.Value._resourceType;
-        }
+        //public static ResourceType? GetResourceTypeWithExtension(string ext)
+        //{
+        //    var kv = Filters.FirstOrDefault(x => x.Value._extensions[0] == ext);
+        //    if (kv.Value == null)
+        //        return null;
+        //    return kv.Value._resourceType;
+        //}
 
         const int MaxExtensionsInAllFilter = 5;
         private static string _allSupportedFilter = null;
         private static string _filterList = null;
         public static readonly Dictionary<Type, FilterInfo> Filters = new Dictionary<Type, FilterInfo>()
-        {   
-            { typeof(UserSettings), new FilterInfo("User Settings", "SETT", ResourceType.UserSettings, "csettings") },
-            { typeof(EngineSettings), new FilterInfo("Engine Settings", "SETT", ResourceType.EngineSettings, "csettings") },
+        {
+            { typeof(UserSettings), new FilterInfo("User Settings", "SETT", "csettings") },
+            { typeof(EngineSettings), new FilterInfo("Engine Settings", "SETT", "csettings") },
 
-            { typeof(IMultiFileRef), new FilterInfo("Multi File Reference", "FREF", ResourceType.MultiFileRef, "cmref") },
-            { typeof(ISingleFileRef), new FilterInfo("Single File Reference", "FREF", ResourceType.SingleFileRef, "csref") },
+            { typeof(IMultiFileRef), new FilterInfo("Multi File Reference", "FREF", "cmref") },
+            { typeof(ISingleFileRef), new FilterInfo("Single File Reference", "FREF", "csref") },
 
-            { typeof(World), new FilterInfo("World", "CWRL", ResourceType.World, "xcworld", "bcworld") },
-            { typeof(WorldSettings), new FilterInfo("World Settings", "SETT", ResourceType.WorldSettings, "csettings") },
-            { typeof(WorldState), new FilterInfo("World State", "STAT", ResourceType.WorldState, "cstate") },
+            { typeof(World), new FilterInfo("World", "CWRL", "xcworld", "bcworld") },
+            { typeof(WorldSettings), new FilterInfo("World Settings", "SETT", "csettings") },
+            { typeof(WorldState), new FilterInfo("World State", "STAT", "cstate") },
 
-            { typeof(Map), new FilterInfo("Map", "CMAP", ResourceType.Map, "xcmap", "bcmap") },
-            { typeof(MapSettings), new FilterInfo("Map Settings", "SETT", ResourceType.MapSettings, "csettings") },
-            { typeof(MapState), new FilterInfo("Map State", "STAT", ResourceType.MapState, "cstate") },
+            { typeof(Map), new FilterInfo("Map", "CMAP", "xcmap", "bcmap") },
+            { typeof(MapSettings), new FilterInfo("Map Settings", "SETT", "csettings") },
+            { typeof(MapState), new FilterInfo("Map State", "STAT", "cstate") },
 
-            { typeof(IActor), new FilterInfo("Actor", "CACT", ResourceType.Actor, "cactor") },
-            //{ typeof(ActorSettings), new FilterInfo("Actor Settings", "SETT", ResourceType.ActorSettings, "csettings") },
-            //{ typeof(ActorState), new FilterInfo("Actor State", "STAT", ResourceType.ActorState, "cstate") },
-            
-            { typeof(Component), new FilterInfo("Component", "COMP", ResourceType.Component, "ccomp") },
+            { typeof(IActor), new FilterInfo("Actor", "CACT", "cactor") },
+            { typeof(Component), new FilterInfo("Component", "COMP", "ccomp") },
 
-            { typeof(SkeletalMesh), new FilterInfo("Skeletal Model", "SKMD", ResourceType.SkeletalMesh, "cmdl") },
-            { typeof(StaticMesh), new FilterInfo("Static Model", "STMD", ResourceType.SkeletalMesh, "cmdl") },
-            { typeof(Skeleton), new FilterInfo("Model Skeleton", "SKEL", ResourceType.Skeleton, "cskl") },
+            { typeof(SkeletalMesh), new FilterInfo("Skeletal Model", "SKMD", "cmdl") },
+            { typeof(StaticMesh), new FilterInfo("Static Model", "STMD", "cmdl") },
+            { typeof(Skeleton), new FilterInfo("Model Skeleton", "SKEL", "cskl") },
 
-            { typeof(Camera), new FilterInfo("Camera", "CCAM", ResourceType.Camera, "ccam") },
-            { typeof(Cutscene), new FilterInfo("Cutscene", "CCUT", ResourceType.Cutscene, "ccut") },
-            { typeof(AnimationContainer), new FilterInfo("Animation Archive", "ANMA",ResourceType.AnimationContainer,  "cpac") },
-            { typeof(AnimationScalar), new FilterInfo("Numeric Property Animation", "PANM", ResourceType.AnimationScalar, "cpa") },
-            { typeof(AnimationString), new FilterInfo("String Property Animation", "PANM", ResourceType.AnimationString, "cpa") },
-            { typeof(AnimationBool), new FilterInfo("Boolean Animation", "PANM", ResourceType.AnimationBool, "cpa") },
-            { typeof(Texture), new FilterInfo("Texture", "CTEX", ResourceType.Texture, "ctex") },
+            { typeof(Camera), new FilterInfo("Camera", "CCAM", "ccam") },
+            { typeof(Cutscene), new FilterInfo("Cutscene", "CCUT", "ccut") },
+            { typeof(AnimationContainer), new FilterInfo("Animation Archive", "ANMA",  "cpac") },
+            { typeof(AnimationScalar), new FilterInfo("Numeric Property Animation", "PANM", "cpa") },
+            { typeof(AnimationString), new FilterInfo("String Property Animation", "PANM", "cpa") },
+            { typeof(AnimationBool), new FilterInfo("Boolean Animation", "PANM", "cpa") },
+            { typeof(Texture), new FilterInfo("Texture", "CTEX", "ctex") },
         };
         public static List<FilterInfo> GenericInfo = new List<FilterInfo>()
         {
-            new FilterInfo("Portable Network Graphics", "png", ResourceType.Texture)
+            new FilterInfo("Portable Network Graphics", "png")
             { _fileTypes = new Type[] { typeof(Texture) },
                 _canExport = true, _canImport = true },
 
-            new FilterInfo("Truevision TARGA", "tga", ResourceType.Texture)
+            new FilterInfo("Truevision TARGA", "tga")
             { _fileTypes = new Type[] { typeof(Texture) },
                 _canExport = true, _canImport = true },
 
-            new FilterInfo("Tagged Image File Format", "tif", ResourceType.Texture, "tiff")
+            new FilterInfo("Tagged Image File Format", "tif", "tiff")
             { _fileTypes = new Type[] { typeof(Texture) },
                 _canExport = true, _canImport = true },
 
-            new FilterInfo("Bitmap", "bmp", ResourceType.Texture)
+            new FilterInfo("Bitmap", "bmp")
             { _fileTypes = new Type[] { typeof(Texture) },
                 _canExport = true, _canImport = true },
 
-            new FilterInfo("JPEG Image", "jpg", ResourceType.Texture, "jpeg")
+            new FilterInfo("JPEG Image", "jpg", "jpeg")
             { _fileTypes = new Type[] { typeof(Texture) },
                 _canExport = true, _canImport = true },
 
-            new FilterInfo("Graphics Interchange Format", "gif", ResourceType.Texture)
+            new FilterInfo("Graphics Interchange Format", "gif")
             { _fileTypes = new Type[] { typeof(Texture) },
                 _canExport = true, _canImport = true },
 
@@ -122,7 +119,7 @@ namespace CustomEngine.Files
                 typeof(AnimationContainer) },
                 _canExport = true, _canImport = true },
 
-            new FilterInfo("Uncompressed PCM", "wav", ResourceType.Sound)
+            new FilterInfo("Uncompressed PCM", "wav")
             { _fileTypes = new Type[] { typeof(SoundDataBase) },
                 _canExport = true, _canImport = true },
 
@@ -269,7 +266,6 @@ namespace CustomEngine.Files
     {
         public string _name, _tag;
         public string[] _extensions;
-        public ResourceType _resourceType;
 
         public Type[] _fileTypes;
         public bool _canExport, _canImport;
@@ -277,13 +273,6 @@ namespace CustomEngine.Files
         public string _exportExt;
         public string _importExt;
 
-        public FilterInfo(string name, string tag, ResourceType type, params string[] extensions)
-        {
-            _name = name;
-            _tag = tag;
-            _extensions = extensions;
-            _resourceType = type;
-        }
         public FilterInfo(string name, string tag, params string[] extensions)
         {
             _name = name;

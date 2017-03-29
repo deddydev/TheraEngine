@@ -14,8 +14,6 @@ namespace CustomEngine.Rendering.Models
 {
     public class Skeleton : FileObject, IEnumerable<Bone>, IRenderable
     {
-        public override ResourceType ResourceType => ResourceType.Skeleton;
-
         public Skeleton() : base() { }
         public Skeleton(params Bone[] rootBones) : base()
         {

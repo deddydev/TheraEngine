@@ -20,7 +20,7 @@ namespace System
         public static implicit operator VoidPtr(PString p) { return *(VoidPtr*)&p; }
         public static implicit operator PString(VoidPtr p) { return *(PString*)&p; }
 
-        public static explicit operator string(PString p) { return new String((sbyte*)p._address); }
+        public static implicit operator string(PString p) { return new String((sbyte*)p._address); }
 
         public static PString operator +(PString p, int amount)
         {

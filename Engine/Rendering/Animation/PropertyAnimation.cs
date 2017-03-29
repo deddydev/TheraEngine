@@ -18,30 +18,30 @@ namespace CustomEngine.Rendering.Animation
         protected bool _isPlaying;
         protected bool _useKeyframes;
 
-        [Category("Property Animation"), Default]
+        [Category("Property Animation")]
         public bool UseKeyframes
         {
-            get { return _useKeyframes; }
+            get => _useKeyframes;
             set { _useKeyframes = value; UseKeyframesChanged(); }
         }
-        [Category("Property Animation"), Default]
-        public int FrameCount { get { return _frameCount; } }
-        [Category("Property Animation"), Default]
+        [Category("Property Animation")]
+        public int FrameCount => _frameCount;
+        [Category("Property Animation")]
         public bool Looped
         {
-            get { return _looped; }
-            set { _looped = value; }
+            get => _looped;
+            set => _looped = value;
         }
-        [Category("Property Animation"), State]
+        [Category("Property Animation")]
         public float CurrentFrame
         {
-            get { return _currentFrame; }
-            set { _currentFrame = value; }
+            get => _currentFrame;
+            set => _currentFrame = value;
         }
-        [Category("Property Animation"), State]
+        [Category("Property Animation")]
         public bool IsPlaying
         {
-            get { return _isPlaying; }
+            get => _isPlaying;
             set
             {
                 if (value)
@@ -95,7 +95,7 @@ namespace CustomEngine.Rendering.Animation
         protected abstract void UseKeyframesChanged();
         protected abstract object GetValue(float frame);
         
-        [Category("Property Animation"), Default]
+        [Category("Property Animation")]
         protected abstract BaseKeyframeTrack InternalKeyframes { get; }
         public abstract void Resize(int newSize);
         public abstract void Stretch(int newSize);
@@ -113,9 +113,9 @@ namespace CustomEngine.Rendering.Animation
             UseKeyframes = useKeyframes;
         }
 
-        [Category("Property Animation"), Default]
+        [Category("Property Animation")]
         protected override BaseKeyframeTrack InternalKeyframes { get { return _keyframes; } }
-        [Category("Property Animation"), Browsable(true), Default]
+        [Category("Property Animation"), Browsable(true)]
         public KeyframeTrack<T> Keyframes { get { return _keyframes; } }
 
         public abstract void Append(PropertyAnimation<T> other);

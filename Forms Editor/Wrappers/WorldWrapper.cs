@@ -6,7 +6,6 @@ using CustomEngine;
 
 namespace TheraEditor.Wrappers
 {
-    [NodeWrapper(ResourceType.World)]
     public class WorldWrapper : GenericWrapper
     {
         static WorldWrapper()

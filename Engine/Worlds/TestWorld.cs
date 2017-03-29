@@ -7,6 +7,7 @@ using CustomEngine.Worlds.Actors;
 using System.Drawing;
 using CustomEngine.Worlds.Actors.Types;
 using CustomEngine.Rendering.Cameras;
+using CustomEngine.Rendering;
 
 namespace CustomEngine.Worlds
 {
@@ -104,13 +105,15 @@ namespace CustomEngine.Worlds
             Actor<DirectionalLightComponent> dirLightActor = new Actor<DirectionalLightComponent>(dirLightComp) { Name = "SunLight" };
 
             Collada.ImportOptions options = new Collada.ImportOptions();
-            string desktop = Environment.MachineName == "DAVID-DESKTOP" ? "X:\\Desktop\\" : "C:\\Users\\David\\Desktop\\";
-            Collada.Import(desktop + "TEST.DAE", options, out StaticMesh staticM, out SkeletalMesh skelM, out Skeleton skeleton);
+            string desktop = Environment.MachineName == "DAVID-DESKTOP" ?
+                "X:\\Desktop\\" : 
+                "C:\\Users\\David\\Desktop\\";
+            ModelScene scene = Collada.Import(desktop + "TEST.DAE", options);
 
             IActor importedActor;
-            if (skelM != null)
+            if (scene._skeletalModel != null)
             {
-                SkeletalMeshComponent comp = new SkeletalMeshComponent(skelM, skeleton);
+                SkeletalMeshComponent comp = new SkeletalMeshComponent(scene._skeletalModel, scene._skeleton);
 
                 AnimationScalar modelAnim = new AnimationScalar(360, true, true);
                 ScalarKeyframe first = new ScalarKeyframe(0.0f, 0.0f, 0.0f);
@@ -118,7 +121,7 @@ namespace CustomEngine.Worlds
                 ScalarKeyframe last = new ScalarKeyframe(360.0f, 0.0f, 0.0f);
                 first.LinkNext(second).LinkNext(last);
                 modelAnim.Keyframes.AddFirst(first);
-                skeleton["LElbow"]?.FrameState.AddAnimation(new AnimationContainer("Yaw", false, modelAnim), true);
+                scene._skeleton["LElbow"]?.FrameState.AddAnimation(new AnimationContainer("Yaw", false, modelAnim), true);
 
                 //skeleton.Export(desktop, "TEST_SKELETON", true);
 
@@ -127,7 +130,7 @@ namespace CustomEngine.Worlds
             }
             else
             {
-                StaticMeshComponent comp = new StaticMeshComponent(staticM, null);
+                StaticMeshComponent comp = new StaticMeshComponent(scene._staticModel, null);
                 comp.Translation.Raw = new Vec3(100.0f, 100.0f, -100.0f);
                 importedActor = new Actor<StaticMeshComponent>(comp) { Name = "StaticMeshActor" };
             }
@@ -148,7 +151,8 @@ namespace CustomEngine.Worlds
                 dirLightActor,
                 importedActor,
                 cameraActor,
-                new FlyingCameraPawn(PlayerIndex.One) { Name = "PlayerCamera" },
+                //new FlyingCameraPawn(PlayerIndex.One) { Name = "PlayerCamera" },
+                new CharacterPawn(PlayerIndex.One) { Name = "PlayerCharacter" },
             };
 
             _settings._defaultMaps.Add(new Map(this, new MapSettings(actors)));

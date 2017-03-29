@@ -4,7 +4,10 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Runtime.Serialization;
+using System.Runtime.Serialization.Formatters.Binary;
 using System.Xml;
+using System.Xml.Serialization;
 
 namespace CustomEngine.Files
 {
@@ -15,10 +18,14 @@ namespace CustomEngine.Files
         ThirdParty  = 2,
         Programatic = 3,
     }
+    [FileHeader(ManualBinSerialize = false, ManualXmlSerialize = false)]
     public abstract class FileObject : ObjectBase
     {
-        public abstract ResourceType ResourceType { get; }
-
+        public FileHeader FileHeader
+            => GetFileHeader(GetType());
+        public static FileHeader GetFileHeader(Type t)
+            => (FileHeader)Attribute.GetCustomAttribute(t, typeof(FileHeader));
+        
         public FileObject() { OnLoaded(); }
         
         public List<IFileRef> _references = new List<IFileRef>();
@@ -55,8 +62,35 @@ namespace CustomEngine.Files
                     ((ISingleFileRef)r).UnloadReference();
             OnUnload();
         }
+
+        public static T Import<T>(string fileName) where T : FileObject
+        {
+            return Import<T>(fileName, Path.GetExtension(fileName)[1] == 'x');
+        }
+        public static T Import<T>(string fileName, bool isXML) where T : FileObject
+        {
+            if (isXML)
+                return FromXML<T>(fileName);
+            else
+                return FromBinary<T>(fileName);
+        }
+        public static FileObject Import(Type t, string fileName, bool isXML)
+        {
+            if (isXML)
+                return FromXML(t, fileName);
+            else
+                return FromBinary(t, fileName);
+        }
+
         protected virtual void OnUnload() { }
 
+        public void Export()
+        {
+            if (string.IsNullOrEmpty(_filePath))
+                throw new Exception("No path to export to.");
+            char ext = Path.GetExtension(_filePath)[1];
+            Export(ext == 'x');
+        }
         public void Export(bool asXML)
         {
             if (string.IsNullOrEmpty(_filePath))
@@ -129,19 +163,44 @@ namespace CustomEngine.Files
             directory = directory + "\\" + fileName + ".b" + FileManager.GetExtension(t);
             using (FileStream stream = new FileStream(directory, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite, 8, FileOptions.SequentialScan))
             {
-                StringTable table = new StringTable();
-                int dataSize = CalculateSize(table).Align(4);
-                int stringSize = table.GetTotalSize();
-                int totalSize = dataSize + stringSize;
-                stream.SetLength(totalSize);
-                using (FileMap map = FileMap.FromStream(stream))
+                if (FileHeader.ManualBinSerialize)
                 {
-                    FileCommonHeader* hdr = (FileCommonHeader*)map.Address;
-                    hdr->Tag = FileManager.GetTag(t);
-                    table.WriteTable(hdr);
-                    hdr->_fileLength = totalSize;
-                    hdr->_stringTableLength = stringSize;
-                    Write(hdr->FileHeader, table);
+                    StringTable table = new StringTable();
+                    int dataSize = CalculateSize(table).Align(4);
+                    int stringSize = table.GetTotalSize();
+                    int totalSize = dataSize + stringSize;
+                    stream.SetLength(totalSize);
+                    using (FileMap map = FileMap.FromStream(stream))
+                    {
+                        FileCommonHeader* hdr = (FileCommonHeader*)map.Address;
+                        hdr->Tag = FileManager.GetTag(t);
+                        table.WriteTable(hdr);
+                        hdr->_fileLength = totalSize;
+                        hdr->_stringTableLength = stringSize;
+                        Write(hdr->FileHeader, table);
+                    }
+                }
+                else
+                {
+                    CustomBinarySerializer s = new CustomBinarySerializer();
+                    s.Serialize(this, stream);
+
+                    StringTable table = new StringTable();
+                    int dataSize = FileCommonHeader.Size;
+
+                    
+                    int stringSize = table.GetTotalSize();
+                    int totalSize = dataSize + stringSize;
+                    stream.SetLength(totalSize);
+                    using (FileMap map = FileMap.FromStream(stream))
+                    {
+                        FileCommonHeader* hdr = (FileCommonHeader*)map.Address;
+                        hdr->Tag = FileManager.GetTag(t);
+                        table.WriteTable(hdr);
+                        hdr->_fileLength = totalSize;
+                        hdr->_stringTableLength = stringSize;
+                        Write(hdr->FileHeader, table);
+                    }
                 }
             }
         }
@@ -154,24 +213,32 @@ namespace CustomEngine.Files
             if (!File.Exists(filePath))
                 return null;
 
-            using (FileMap map = FileMap.FromFile(filePath))
-            using (XMLReader reader = new XMLReader(map.Address, map.Length))
+            if (GetFileHeader(t).ManualXmlSerialize)
             {
-                FileObject obj = Activator.CreateInstance(t) as FileObject;
-                obj._filePath = filePath;
-
-                if (reader.BeginElement())
+                using (FileMap map = FileMap.FromFile(filePath))
+                using (XMLReader reader = new XMLReader(map.Address, map.Length))
                 {
-                    //if (reader.Name.Equals(t.ToString(), true))
+                    FileObject obj = Activator.CreateInstance(t) as FileObject;
+                    obj._filePath = filePath;
+
+                    if (reader.BeginElement())
+                    {
+                        //if (reader.Name.Equals(t.ToString(), true))
                         obj.Read(reader);
-                    //else
-                    //    throw new Exception("File was not of expected type.");
-                    reader.EndElement();
+                        //else
+                        //    throw new Exception("File was not of expected type.");
+                        reader.EndElement();
+                    }
+
+                    Engine.AddLoadedFile(obj._filePath, obj);
+
+                    return obj;
                 }
-
-                Engine.AddLoadedFile(obj._filePath, obj);
-
-                return obj;
+            }
+            else
+            {
+                CustomXmlSerializer s = new CustomXmlSerializer();
+                return s.Deserialize(filePath, t);
             }
         }
         private static XmlWriterSettings _writerSettings = new XmlWriterSettings()
@@ -201,23 +268,14 @@ namespace CustomEngine.Files
             }
             _isWriting = false;
         }
-        protected void WriteSettings(VoidPtr address, StringTable table)
-        {
-            var info = GetType().GetFields().Where(
-                prop => Attribute.IsDefined(prop, typeof(Default)));
-        }
-        protected void WriteState(VoidPtr address, StringTable table)
-        {
-            var info = GetType().GetFields().Where(
-                prop => Attribute.IsDefined(prop, typeof(State)));
-        }
     }
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public unsafe struct FileCommonHeader
     {
-        public const int Size = 0xC;
+        public const int Size = 0x10;
 
         public buint _tag;
+        public bint _nameOffset;
         public bint _fileLength;
         public bint _stringTableLength;
 
@@ -231,8 +289,8 @@ namespace CustomEngine.Files
                     *dPtr++ = (sbyte)value[i >= value.Length ? ' ' : value[i]];
             }
         }
-        public VoidPtr Strings { get { return Address + Size; } }
-        public VoidPtr FileHeader { get { return Address + Size + _stringTableLength; } }
+        public VoidPtr Strings => Address + Size;
+        public VoidPtr FileHeader => Address + Size + _stringTableLength;
         public VoidPtr Address { get { fixed (void* ptr = &this) return ptr; } }
     }
 }

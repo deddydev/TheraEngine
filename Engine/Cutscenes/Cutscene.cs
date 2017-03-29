@@ -9,8 +9,6 @@ namespace CustomEngine.Cutscenes
 {
     public class Cutscene : FileObject
     {
-        public override ResourceType ResourceType { get { return ResourceType.Cutscene; } }
-
         public World World { get => world; set => world = value; }
         public float Length { get => length; set => length = value; }
         public List<IActor> InvolvedActors { get => involvedActors; set => involvedActors = value; }

@@ -10,11 +10,13 @@ namespace CustomEngine.Worlds.Maps
 {
     public class MapSettings : FileObject
     {
-        public override ResourceType ResourceType { get { return ResourceType.MapSettings; } }
-
+        [Serialize]
         public bool _visibleByDefault;
+        [Serialize]
         public List<IActor> _defaultActors;
+        [Serialize]
         public Vec3 _spawnPosition;
+        [Serialize]
         public GameMode _defaultGameMode;
 
         public MapSettings(params IActor[] actors)
@@ -59,8 +61,7 @@ namespace CustomEngine.Worlds.Maps
         {
             throw new NotImplementedException();
         }
-
-        [Default]
+        
         public bool VisibleByDefault
         {
             get { return _visibleByDefault; }
@@ -68,7 +69,6 @@ namespace CustomEngine.Worlds.Maps
             set { _visibleByDefault = value; }
 #endif
         }
-        [Default]
         public Vec3 SpawnPosition
         {
             get { return _spawnPosition; }

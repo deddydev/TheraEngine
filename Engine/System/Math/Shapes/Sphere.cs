@@ -15,20 +15,24 @@ namespace System
 {
     public class Sphere : Shape
     {
+        public const string XMLTag = "sphere";
+
         public static List<Sphere> Active = new List<Sphere>();
 
+        [Serialize("Radius")]
         private float _radius = 1.0f;
+        [Serialize("Center")]
         private Vec3 _center = Vec3.Zero;
 
         public float Radius
         {
-            get { return _radius; }
-            set { _radius = Abs(value); }
+            get => _radius;
+            set => _radius = Abs(value);
         }
         public Vec3 Center
         {
-            get { return _center; }
-            set { _center = value; }
+            get => _center;
+            set => _center = value;
         }
 
         public Sphere(float radius)
@@ -49,8 +53,9 @@ namespace System
             Active.Remove(this);
         }
 
-        public override CollisionShape GetCollisionShape() { return new SphereShape(Radius); }
-        public override void Render() { Engine.Renderer.RenderSphere(ShapeName, Center, Radius, _renderSolid, Color.Red); }
+        public override CollisionShape GetCollisionShape() => new SphereShape(Radius);
+        public override void Render()
+            => Engine.Renderer.RenderSphere(ShapeName, Center, Radius, _renderSolid, Color.Red);
         public static PrimitiveData SolidMesh(Vec3 center, float radius, float precision)
         {
             float halfPI = CustomMath.PIf * 0.5f;
@@ -137,31 +142,35 @@ namespace System
             }
             return PrimitiveData.FromTriangleList(Culling.Back, new PrimitiveBufferInfo(), triangles);
         }
+
         public PrimitiveData GetMesh(int slices, int stacks, bool includeCenter)
-        {
-            return SolidMesh(includeCenter ? Center : Vec3.Zero, _radius, slices, stacks);
-        }
+            => SolidMesh(includeCenter ? Center : Vec3.Zero, _radius, slices, stacks);
         public PrimitiveData GetMesh(float precision, bool includeCenter)
-        {
-            return SolidMesh(includeCenter ? Center : Vec3.Zero, _radius, precision);
-        }
-        public override bool Contains(Vec3 point) { return Collision.SphereContainsPoint(Center, Radius, point); }
-        public override EContainment Contains(BoundingBox box) { return Collision.SphereContainsAABB(Center, Radius, box.Minimum, box.Maximum); }
-        public override EContainment Contains(Box box) { return Collision.SphereContainsBox(Center, Radius, box.HalfExtents, box.WorldMatrix); }
-        public override EContainment Contains(Sphere sphere) { return Collision.SphereContainsSphere(Center, Radius, sphere.Center, sphere.Radius); }
-        public override EContainment ContainedWithin(BoundingBox box) { return box.Contains(this); }
-        public override EContainment ContainedWithin(Box box) { return box.Contains(this); }
-        public override EContainment ContainedWithin(Sphere sphere) { return sphere.Contains(this); }
-        public override EContainment ContainedWithin(Frustum frustum) { return frustum.Contains(this); }
+            => SolidMesh(includeCenter ? Center : Vec3.Zero, _radius, precision);
+        
+        public override bool Contains(Vec3 point)
+            => Collision.SphereContainsPoint(Center, Radius, point);
+        public override EContainment Contains(BoundingBox box)
+            => Collision.SphereContainsAABB(Center, Radius, box.Minimum, box.Maximum);
+        public override EContainment Contains(Box box)
+            => Collision.SphereContainsBox(Center, Radius, box.HalfExtents, box.WorldMatrix);
+        public override EContainment Contains(Sphere sphere)
+            => Collision.SphereContainsSphere(Center, Radius, sphere.Center, sphere.Radius); 
+        public override EContainment ContainedWithin(BoundingBox box)
+            => box.Contains(this);
+        public override EContainment ContainedWithin(Box box)
+            => box.Contains(this);
+        public override EContainment ContainedWithin(Sphere sphere)
+            => sphere.Contains(this);
+        public override EContainment ContainedWithin(Frustum frustum)
+            => frustum.Contains(this);
 
         public override void SetTransform(Matrix4 worldMatrix)
-        {
-            _center = worldMatrix.GetPoint();
-        }
+            => _center = worldMatrix.GetPoint();
+        
         public override Shape HardCopy()
-        {
-            return new Sphere(Radius, Center);
-        }
+            => new Sphere(Radius, Center);
+        
         public override Shape TransformedBy(Matrix4 worldMatrix)
         {
             Sphere s = new Sphere(Radius, Center);
@@ -169,30 +178,27 @@ namespace System
             return s;
         }
 
+        protected override int OnCalculateSize(StringTable table)
+            => Header.Size;
         public unsafe override void Write(VoidPtr address, StringTable table)
-        {
-            *(Header*)address = this;
-        }
-
+            => *(Header*)address = this;
         public unsafe override void Read(VoidPtr address, VoidPtr strings)
         {
             Header h = *(Header*)address;
             _radius = h._radius;
             _center = h._center;
         }
-
         public override void Write(XmlWriter writer)
         {
-            writer.WriteStartElement("sphere");
+            writer.WriteStartElement(XMLTag);
             writer.WriteAttributeString("radius", _radius.ToString());
             if (_center != Vec3.Zero)
                 writer.WriteElementString("center", _center.ToString(false, false));
             writer.WriteEndElement();
         }
-
         public override void Read(XMLReader reader)
         {
-            if (!reader.Name.Equals("sphere", true))
+            if (!reader.Name.Equals(XMLTag, true))
                 throw new Exception();
             _radius = 0;
             _center = Vec3.Zero;
@@ -209,14 +215,11 @@ namespace System
             }
         }
 
-        protected override int OnCalculateSize(StringTable table)
-        {
-            throw new NotImplementedException();
-        }
-
         [StructLayout(LayoutKind.Sequential, Pack = 1)]
         public struct Header
         {
+            public const int Size = 0x10;
+
             public float _radius;
             public BVec3 _center;
 

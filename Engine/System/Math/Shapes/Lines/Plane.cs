@@ -9,7 +9,7 @@ namespace System
 {
     public class Plane : FileObject
     {
-        public override ResourceType ResourceType => ResourceType.Plane;
+        public const string XMLTag = "plane";
 
         /*
         * Represents a plane a certain distance from the origin.
@@ -23,8 +23,8 @@ namespace System
         *          origin
         */
 
-        private Vec3 _normal;
-        private float _distance;
+        protected Vec3 _normal;
+        protected float _distance;
 
         public Plane()
         {
@@ -175,13 +175,9 @@ namespace System
             return new Plane(Vec3.TransformPosition(point, transform), Vec3.TransformNormal(normal, transform));
         }
         public PrimitiveData GetWireframeMesh(float xExtent, float yExtent)
-        {
-            return WireframeMesh(Point, Normal.LookatAngles(), xExtent, yExtent);
-        }
+            => WireframeMesh(Point, Normal.LookatAngles(), xExtent, yExtent);
         public PrimitiveData GetSolidMesh(float xExtent, float yExtent, Culling culling)
-        {
-            return SolidMesh(Point, Normal.LookatAngles(), xExtent, yExtent, culling);
-        }
+            => SolidMesh(Point, Normal.LookatAngles(), xExtent, yExtent, culling);
         public static PrimitiveData WireframeMesh(Vec3 position, Rotator rotation, float xExtent, float yExtent)
         {
             Vertex v0 = new Vertex();
@@ -206,48 +202,45 @@ namespace System
             return PrimitiveData.FromQuads(culling, new PrimitiveBufferInfo(), new VertexQuad(v0, v1, v2, v3));
         }
 
+        protected override int OnCalculateSize(StringTable table)
+            => Header.Size;
         public unsafe override void Write(VoidPtr address, StringTable table)
-        {
-            *(Header*)address = this;
-        }
-
+            => *(Header*)address = this;
         public unsafe override void Read(VoidPtr address, VoidPtr strings)
         {
             Header h = *(Header*)address;
             _normal = h._normal;
             _distance = h._distance;
         }
-
         public override void Write(XmlWriter writer)
         {
-            writer.WriteStartElement("aabb");
+            writer.WriteStartElement(XMLTag);
             writer.WriteElementString("normal", _normal.ToString(false, false));
             writer.WriteElementString("distance", _distance.ToString());
+            //writer.WriteElementString("point", Point.ToString(false, false));
             writer.WriteEndElement();
         }
-
         public override void Read(XMLReader reader)
         {
-            if (!reader.Name.Equals("aabb", true))
+            if (!reader.Name.Equals(XMLTag, true))
                 throw new Exception();
             while (reader.BeginElement())
             {
                 if (reader.Name.Equals("normal", true))
-                    _normal = Vec3.Parse(reader.ReadElementString());
+                    Normal = Vec3.Parse(reader.ReadElementString());
                 else if (reader.Name.Equals("distance", true))
                     _distance = float.Parse(reader.ReadElementString());
+                //else if (reader.Name.Equals("point", true))
+                //    Point = Vec3.Parse(reader.ReadElementString());
                 reader.EndElement();
             }
         }
-
-        protected override int OnCalculateSize(StringTable table)
-        {
-            throw new NotImplementedException();
-        }
-
+        
         [StructLayout(LayoutKind.Sequential, Pack = 1)]
         public struct Header
         {
+            public const int Size = 0x10;
+
             public float _distance;
             public BVec3 _normal;
 
@@ -260,9 +253,7 @@ namespace System
                 };
             }
             public static implicit operator Plane(Header h)
-            {
-                return new Plane(h._normal, h._distance);
-            }
+                => new Plane(h._normal, h._distance);
         }
     }
 }

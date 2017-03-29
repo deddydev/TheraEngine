@@ -11,15 +11,13 @@ namespace CustomEngine.Rendering.Animation
     delegate float ScalarGetValue(float frameIndex);
     public class AnimationScalar : PropertyAnimation<ScalarKeyframe>, IEnumerable<ScalarKeyframe>
     {
-        public override ResourceType ResourceType { get { return ResourceType.AnimationScalar; } }
-
         float[] _baked;
         ScalarGetValue _getValue;
 
         public AnimationScalar(int frameCount, bool looped, bool useKeyframes) 
             : base(frameCount, looped, useKeyframes) { }
 
-        protected override object GetValue(float frame) { return _getValue(frame); }
+        protected override object GetValue(float frame) => _getValue(frame);
         protected override void UseKeyframesChanged()
         {
             if (_useKeyframes)
@@ -28,9 +26,7 @@ namespace CustomEngine.Rendering.Animation
                 _getValue = GetValueBaked;
         }
         public float GetValueBaked(float frameIndex)
-        {
-            return _baked[(int)(frameIndex * _keyframes.FPS)];
-        }
+            => _baked[(int)(frameIndex * _keyframes.FPS)];
         public float GetValueKeyframed(float frameIndex)
         {
             ScalarKeyframe key = _keyframes.GetKeyBefore(frameIndex);
@@ -61,8 +57,6 @@ namespace CustomEngine.Rendering.Animation
         {
             throw new NotImplementedException();
         }
-        public IEnumerator<ScalarKeyframe> GetEnumerator() { return ((IEnumerable<ScalarKeyframe>)_keyframes).GetEnumerator(); }
-        IEnumerator IEnumerable.GetEnumerator() { return ((IEnumerable<ScalarKeyframe>)_keyframes).GetEnumerator(); }
 
         public override void Write(VoidPtr address, StringTable table)
         {
@@ -88,6 +82,9 @@ namespace CustomEngine.Rendering.Animation
         {
             throw new NotImplementedException();
         }
+
+        public IEnumerator<ScalarKeyframe> GetEnumerator() => ((IEnumerable<ScalarKeyframe>)_keyframes).GetEnumerator();
+        IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable<ScalarKeyframe>)_keyframes).GetEnumerator();
     }
     public class ScalarKeyframe : Keyframe
     {

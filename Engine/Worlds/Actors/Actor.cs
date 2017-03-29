@@ -48,7 +48,6 @@ namespace CustomEngine.Worlds
     }
     public class Actor<T> : FileObject, IActor where T : SceneComponent
     {
-        public override ResourceType ResourceType { get { return ResourceType.Actor; } }
         public Actor()
         {
             _isConstructing = true;
@@ -72,10 +71,8 @@ namespace CustomEngine.Worlds
             _isConstructing = false;
             GenerateSceneComponentCache();
         }
-
-        [State]
+        
         public bool IsSpawned { get { return _spawnIndex >= 0; } }
-        [State]
         public World OwningWorld { get { return _owningWorld; } }
 
         public ReadOnlyCollection<SceneComponent> SceneComponentCache { get { return _sceneComponentCache; } }
@@ -104,15 +101,17 @@ namespace CustomEngine.Worlds
         private List<PrimitiveComponent> _renderableComponentCache = new List<PrimitiveComponent>();
         public int _spawnIndex = -1;
         private World _owningWorld;
-        private T _rootSceneComponent;
         protected ReadOnlyCollection<SceneComponent> _sceneComponentCache;
+
+        [Serialize("RootSceneComponent")]
+        private T _rootSceneComponent;
+        [Serialize("LogicComponents")]
         private MonitoredList<LogicComponent> _logicComponents = new MonitoredList<LogicComponent>();
 
-        public MonitoredList<LogicComponent> LogicComponents { get { return _logicComponents; } }
-        public bool IsConstructing { get { return _isConstructing; } }
-
-        public List<PrimitiveComponent> RenderableComponentCache { get { return _renderableComponentCache; } }
-        public bool HasRenderableComponents { get { return _renderableComponentCache.Count > 0; } }
+        public MonitoredList<LogicComponent> LogicComponents => _logicComponents;
+        public bool IsConstructing => _isConstructing;
+        public List<PrimitiveComponent> RenderableComponentCache => _renderableComponentCache;
+        public bool HasRenderableComponents => _renderableComponentCache.Count > 0;
 
         protected virtual void SetDefaults() { }
         protected virtual T SetupComponents() { return Activator.CreateInstance<T>(); }

@@ -7,8 +7,6 @@ namespace CustomEngine.Particles
 {
     public class Emitter : FileObject
     {
-        public override ResourceType ResourceType { get { return ResourceType.Emitter; } }
-
         public override void Read(VoidPtr address, VoidPtr strings)
         {
             throw new NotImplementedException();

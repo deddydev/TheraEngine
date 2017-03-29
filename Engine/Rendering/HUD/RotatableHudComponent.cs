@@ -15,7 +15,7 @@ namespace CustomEngine.Rendering.HUD
         /// <summary>
         /// The rotation angle of the component in degrees.
         /// </summary>
-        [Category("Transform"), Default, State, Animatable]
+        [Category("Transform")]
         public float RotationAngle
         {
             get => _rotationAngle;
@@ -29,7 +29,7 @@ namespace CustomEngine.Rendering.HUD
         /// The origin of the component's rotation angle, as a percentage.
         /// 0,0 is bottom left, 0.5,0.5 is center, 1.0,1.0 is top right.
         /// </summary>
-        [Category("Transform"), Default, State, Animatable]
+        [Category("Transform")]
         public Vec2 RotationLocalOrigin
         {
             get => _rotationLocalOrigin;

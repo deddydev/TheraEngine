@@ -308,6 +308,7 @@ namespace CustomEngine.Rendering.Models
             Controller,
             Geometry,
             Node,
+
             Animation,
             Formula,
             Light,

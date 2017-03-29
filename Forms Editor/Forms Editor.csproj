@@ -96,6 +96,7 @@
       <DependentUpon>Editor.cs</DependentUpon>
     </Compile>
     <Compile Include="EditorHud.cs" />
+    <Compile Include="EditorState.cs" />
     <Compile Include="Editors\MaterialEditor.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -105,6 +106,7 @@
     <Compile Include="Editors\MaterialEditorHud.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Project.cs" />
+    <Compile Include="ProjectState.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ResourceTree.cs">
       <SubType>Component</SubType>

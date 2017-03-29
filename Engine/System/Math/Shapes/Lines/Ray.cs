@@ -10,13 +10,13 @@
         }
         public Vec3 StartPoint
         {
-            get { return _startPoint; }
-            set { _startPoint = value; }
+            get => _startPoint;
+            set => _startPoint = value;
         }
         public Vec3 Direction
         {
-            get { return _direction; }
-            set { _direction = value; }
+            get => _direction;
+            set => _direction = value;
         }
 
         private Vec3 _startPoint;
@@ -28,14 +28,32 @@
             Vec3 newEnd = Vec3.TransformPosition(StartPoint + Direction, transform);
             return new Ray(newStart, newEnd - newStart);
         }
+
+        public Segment SegmentToPoint(Vec3 point)
+        {
+            throw new NotImplementedException();
+        }
+        public Segment SegmentToRay(Ray ray)
+        {
+            throw new NotImplementedException();
+        }
+        public Segment SegmentToSegment(Segment segment)
+        {
+            throw new NotImplementedException();
+        }
+        public float DistanceToPointFast(Vec3 point)
+            => (Direction ^ (point - StartPoint)).LengthFast;
         public float DistanceToPoint(Vec3 point)
+            => (Direction ^ (point - StartPoint)).Length;
+        public float DistanceToRay(Ray ray)
         {
             throw new NotImplementedException();
         }
-        public float DistanceToLine(Ray line)
+        public float DistanceToSegment(Segment segment)
         {
             throw new NotImplementedException();
         }
+
         public bool LineSphereIntersect(Vec3 center, float radius, out Vec3 result)
         {
             Vec3 diff = Direction;

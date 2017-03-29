@@ -22,7 +22,6 @@ namespace System
         public delegate void RotationChange(float oldRotation);
         public delegate void ScaleChange(Vec3 oldScale);
         public delegate void MatrixChange(Matrix4 oldMatrix, Matrix4 oldInvMatrix);
-        public override ResourceType ResourceType { get { return ResourceType.FrameState; } }
         public static FrameState GetIdentity(TransformOrder transformationOrder, Rotator.Order rotationOrder)
         {
             FrameState identity = Identity;

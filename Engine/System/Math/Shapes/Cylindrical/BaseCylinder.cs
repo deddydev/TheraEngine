@@ -16,28 +16,31 @@ namespace System
             _halfHeight = Math.Abs(halfHeight);
             _upAxis = upAxis;
             _upAxis.NormalizeFast();
+            _center = center;
         }
 
         protected Vec3 _upAxis, _center;
         protected float _radius, _halfHeight;
-
+        
+        public Vec3 Center
+        {
+            get => _center;
+            set => _center = value;
+        }
         public float Radius
         {
-            get { return _radius; }
-            set { _radius = value; }
+            get => _radius;
+            set => _radius = value;
         }
         public float HalfHeight
         {
-            get { return _halfHeight; }
-            set { _halfHeight = value; }
+            get => _halfHeight;
+            set => _halfHeight = value;
         }
-        public Vec3 UpAxis
-        {
-            get { return _upAxis; }
-        }
+        public Vec3 UpAxis => _upAxis;
 
-        public float GetTotalHalfHeight() { return _halfHeight + _radius; }
-        public float GetTotalHeight() { return GetTotalHalfHeight() * 2.0f; }
+        public float GetTotalHalfHeight() => _halfHeight + _radius;
+        public float GetTotalHeight() => GetTotalHalfHeight() * 2.0f;
         public override void Render()
         {
             Engine.Renderer.RenderCylinder(

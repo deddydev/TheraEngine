@@ -1,5 +1,6 @@
 ﻿using CustomEngine.Worlds.Actors;
 using System;
+using System.Runtime.InteropServices;
 
 namespace CustomEngine.GameModes
 {
@@ -77,5 +78,15 @@ namespace CustomEngine.GameModes
         }
 
         public int _numSpectators, _numPlayers, _numComputers;
+
+        [StructLayout(LayoutKind.Sequential, Pack = 1)]
+        public unsafe struct Header
+        {
+            public const int Size = 4;
+
+            public BVec3 _gravity;
+
+            public VoidPtr Address { get { fixed (void* ptr = &this) return ptr; } }
+        }
     }
 }

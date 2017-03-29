@@ -23,24 +23,24 @@ namespace CustomEngine.Worlds.Actors.Components
 
         public ColorF3 LightColor
         {
-            get { return _color; }
-            set { _color = value; }
+            get => _color;
+            set => _color = value;
         }
         public float DiffuseIntensity
         {
-            get { return _diffuseIntensity; }
-            set { _diffuseIntensity = value; }
+            get => _diffuseIntensity;
+            set => _diffuseIntensity = value;
         }
         public float AmbientIntensity
         {
-            get { return _ambientIntensity; }
-            set { _ambientIntensity = value; }
+            get => _ambientIntensity;
+            set => _ambientIntensity = value;
         }
 
         public int LightIndex
         {
-            get { return _lightIndex; }
-            internal set { _lightIndex = value; }
+            get => _lightIndex;
+            internal set => _lightIndex = value;
         }
         
         public LightComponent(ColorF3 color, float diffuseIntensity, float ambientIntensity) : base()

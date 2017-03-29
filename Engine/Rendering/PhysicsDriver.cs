@@ -44,8 +44,6 @@ namespace CustomEngine.Rendering
     public delegate void PhysicsOverlap(PhysicsDriver other);
     public class PhysicsDriver : FileObject
     {
-        public override ResourceType ResourceType => ResourceType.RigidPhysicsDriver;
-
         IPhysicsDrivable _owner;
 
         public PhysicsDriver(IPhysicsDrivable owner, PhysicsDriverInfo info)

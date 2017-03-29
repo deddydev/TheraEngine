@@ -11,8 +11,6 @@ namespace CustomEngine.Rendering.Animation
     delegate string StringGetValue(float frameIndex);
     public class AnimationString : PropertyAnimation<StringKeyframe>, IEnumerable<StringKeyframe>
     {
-        public override ResourceType ResourceType { get { return ResourceType.AnimationString; } }
-
         string[] _baked;
         StringGetValue _getValue;
 

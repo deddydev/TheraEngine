@@ -8,10 +8,31 @@ using System.Collections.Generic;
 
 namespace System
 {
+    public enum ShapeType
+    {
+        Ray,
+        Segment,
+        Plane,
+        BoundingRectangle,
+        Sphere,
+        AABB,
+        Box,
+        Frustum,
+        CylinderX,
+        CylinderY,
+        CylinderZ,
+        CylinderComplex,
+        CapsuleX,
+        CapsuleY,
+        CapsuleZ,
+        CapsuleComplex,
+        ConeX,
+        ConeY,
+        ConeZ,
+        ConeComplex,
+    }
     public abstract class Shape : FileObject, IRenderable
     {
-        public override ResourceType ResourceType { get { return ResourceType.Shape; } }
-
         public event Action AttributeChanged;
 
         protected bool 

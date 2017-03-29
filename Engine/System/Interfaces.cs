@@ -4,6 +4,13 @@ using System;
 
 namespace CustomEngine
 {
+    public interface IMesh : IRenderable
+    {
+        bool Visible { get; set; }
+        bool VisibleInEditorOnly { get; set; }
+        bool HiddenFromOwner { get; set; }
+        bool VisibleToOwnerOnly { get; set; }
+    }
     public interface IStaticMesh
     {
         bool VisibleByDefault { get; }

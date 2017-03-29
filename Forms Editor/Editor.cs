@@ -11,6 +11,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using TheraEditor.Editors;
 
 namespace TheraEditor
 {
@@ -50,11 +51,13 @@ namespace TheraEditor
         {
             OpenFileDialog ofd = new OpenFileDialog()
             {
-                Filter = FileManager.GetCompleteFilter(typeof(World))
+                Filter = FileManager.GetCompleteFilter(typeof(World)),
+                Multiselect = false
             };
             if (ofd.ShowDialog() == DialogResult.OK)
             {
-
+                World world = FileObject.Import<World>(ofd.FileName);
+                Engine.World = world;
             }
         }
 
@@ -65,15 +68,34 @@ namespace TheraEditor
 
         private void BtnNewMaterial_Click(object sender, EventArgs e)
         {
-
+            new MaterialEditor().Show();
         }
 
         private void BtnNewWorld_Click(object sender, EventArgs e)
         {
-
+            CurrentWorld = new World();
         }
 
-        private void actorTree_AfterSelect(object sender, TreeViewEventArgs e)
+        public World CurrentWorld
+        {
+            get => Engine.World;
+            set
+            {
+                if (Engine.World != null && Engine.World.UserData is EditorState s && s._hasChanged)
+                {
+                    DialogResult r = MessageBox.Show(this, "Save changes to current world?", "Save changes?", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Exclamation);
+                    if (r == DialogResult.Cancel)
+                        return;
+                    else if (r == DialogResult.Yes)
+                        Engine.World.Export();
+                    Engine.World.UserData = null;
+                }
+                value.UserData = new EditorState();
+                Engine.World = value;
+            }
+        }
+        
+        private void ActorTree_AfterSelect(object sender, TreeViewEventArgs e)
         {
             actorPropertyGrid.SelectedObject = actorTree.SelectedNode == null ? Engine.World.Settings : actorTree.SelectedNode.Tag;
         }

@@ -5,14 +5,6 @@ namespace CustomEngine.Audio
 {
     public abstract class SoundDataBase : FileObject
     {
-        public override ResourceType ResourceType
-        {
-            get
-            {
-                return ResourceType.Sound;
-            }
-        }
-
         protected bool _looped;
 
         public virtual bool Looped

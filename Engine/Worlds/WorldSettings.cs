@@ -12,8 +12,6 @@ namespace CustomEngine.Worlds
 {
     public class WorldSettings : FileObject
     {
-        public override ResourceType ResourceType => ResourceType.WorldSettings;
-
         public BoundingBox OriginRebaseBounds => _originRebaseBounds;
         public BoundingBox WorldBounds
         {
@@ -84,27 +82,32 @@ namespace CustomEngine.Worlds
 
         public override void Write(VoidPtr address, StringTable table)
         {
-            throw new NotImplementedException();
+
         }
 
         public override void Write(XmlWriter writer)
         {
-            throw new NotImplementedException();
+
         }
 
         public override void Read(XMLReader reader)
         {
-            throw new NotImplementedException();
+
         }
 
         protected override int OnCalculateSize(StringTable table)
         {
-            throw new NotImplementedException();
+            return 0;
         }
-    }
-    [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    public unsafe struct WorldSettingsHeader
-    {
-        public VoidPtr Address { get { fixed (void* ptr = &this) return ptr; } }
+
+        [StructLayout(LayoutKind.Sequential, Pack = 1)]
+        public unsafe struct Header
+        {
+            public BoundingBox.Header _originRebaseBounds;
+            public BoundingBox.Header _bounds;
+            public WorldState.Header _state;
+
+            public VoidPtr Address { get { fixed (void* ptr = &this) return ptr; } }
+        }
     }
 }

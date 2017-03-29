@@ -8,13 +8,12 @@ using System.Collections;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Xml;
+using System.Runtime.InteropServices;
 
 namespace CustomEngine.Rendering.Models
 {
     public class SkeletalMesh : FileObject
     {
-        public override ResourceType ResourceType { get { return ResourceType.SkeletalMesh; } }
-        
         public SkeletalMesh() : base()
         {
             _rigidChildren.Removed += RigidChildRemoved;
@@ -25,10 +24,10 @@ namespace CustomEngine.Rendering.Models
 
         protected MonitoredList<SkeletalRigidSubMesh> _rigidChildren = new MonitoredList<SkeletalRigidSubMesh>();
         protected MonitoredList<SkeletalSoftSubMesh> _softChildren = new MonitoredList<SkeletalSoftSubMesh>();
-        
-        public MonitoredList<SkeletalRigidSubMesh> RigidChildren { get { return _rigidChildren; } }
-        public MonitoredList<SkeletalSoftSubMesh> SoftChildren { get { return _softChildren; } }
-        
+
+        public MonitoredList<SkeletalRigidSubMesh> RigidChildren => _rigidChildren;
+        public MonitoredList<SkeletalSoftSubMesh> SoftChildren => _softChildren;
+
         protected virtual void RigidChildAdded(SkeletalRigidSubMesh item)
         {
             item.Model = this;
@@ -78,7 +77,21 @@ namespace CustomEngine.Rendering.Models
 
         protected override int OnCalculateSize(StringTable table)
         {
-            throw new NotImplementedException();
+            int size = Header.Size;
+            foreach (SkeletalRigidSubMesh r in _rigidChildren)
+                size += r.CalculateSize(table);
+            foreach (SkeletalSoftSubMesh r in _softChildren)
+                size += r.CalculateSize(table);
+            return size;
+        }
+
+        [StructLayout(LayoutKind.Sequential, Pack = 1)]
+        public struct Header
+        {
+            public const int Size = 8;
+
+            public bint _rigidChildCount;
+            public bint _softChildCount;
         }
     }
 }

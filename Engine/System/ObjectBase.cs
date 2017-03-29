@@ -36,10 +36,17 @@ namespace System
         private ETickOrder? _tickOrder = null;
         protected bool _isTicking = false;
         private List<AnimationContainer> _animations = new List<AnimationContainer>();
+        private object _userData;
 
-        //[Browsable(false)]
-        //public virtual ResourceType ResourceType { get { return ResourceType.Object; } }
+        public object UserData
+        {
+            get => _userData;
+            set => _userData = value;
+        }
 
+        public ObjectHeader ClassHeader 
+            => (ObjectHeader)Attribute.GetCustomAttribute(GetType(), typeof(ObjectHeader));
+        
         public string Name
         {
             get { return _name; }
@@ -64,26 +71,6 @@ namespace System
             set { _tickOrder = value; }
         }
 
-#if EDITOR
-        /// <summary>
-        /// 
-        /// </summary>
-        [Category("State"), State, EditorOnly]
-        public bool HasChanged
-        {
-            get { return _changed; }
-            set { _changed = value; }
-        }
-        /// <summary>
-        /// If this class needs to be rebuilt.
-        /// </summary>
-        [Category("State"), State, EditorOnly]
-        public virtual bool IsDirty
-        {
-            get { return HasChanged; }
-            set { HasChanged = value; }
-        }
-#endif
         /// <summary>
         /// Specifies that this object wants tick calls.
         /// </summary>

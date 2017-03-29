@@ -288,8 +288,23 @@ namespace System
 
         private static string listSeparator = Globalization.CultureInfo.CurrentCulture.TextInfo.ListSeparator;
         public override string ToString()
+            => ToString(true, true);
+        public string ToString(bool includeParentheses, bool includeSeparator)
+            => String.Format("{3}{0}{2} {1}{4}", X, Y, includeSeparator ? listSeparator : "", includeParentheses ? "(" : "", includeParentheses ? ")" : "");
+        public static Vec2 Parse(string value)
         {
-            return String.Format("({0}{2} {1})", X, Y, listSeparator);
+            value = value.Trim();
+
+            if (value.StartsWith("("))
+                value = value.Substring(1);
+            if (value.EndsWith(")"))
+                value = value.Substring(0, value.Length - 1);
+
+            string[] parts = value.Split(' ');
+            if (parts[0].EndsWith(listSeparator))
+                parts[0].Substring(0, parts[0].Length - 1);
+
+            return new Vec2(float.Parse(parts[0]), float.Parse(parts[1]));
         }
         public override int GetHashCode()
         {

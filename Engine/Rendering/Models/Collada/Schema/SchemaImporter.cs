@@ -16,7 +16,7 @@ namespace CustomEngine.Rendering.Models
             GetMeshes(m, colladaFile);
             GetAnimations(a, colladaFile);
 
-            return new ModelScene(m, a);
+            return new ModelScene();
         }
         private static void GetSkeleton(SkeletalMesh m, Grendgine_Collada colladaFile)
         {
@@ -37,9 +37,10 @@ namespace CustomEngine.Rendering.Models
             {
                 Influence inf = null;
 
-                Bone bone = new Bone();
-                bone.Name = node.Name != null ? node.Name : node.ID;
-
+                Bone bone = new Bone()
+                {
+                    Name = node.Name != null ? node.Name : node.ID
+                };
                 Matrix4 localMatrix = Matrix4.Identity;
 
                 bone.BindState = FrameState.DeriveTRS(localMatrix);

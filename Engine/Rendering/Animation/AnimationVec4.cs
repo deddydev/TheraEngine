@@ -11,8 +11,6 @@ namespace CustomEngine.Rendering.Animation
     delegate Vec4 Vec4GetValue(float frameIndex);
     public class AnimationVec4 : PropertyAnimation<Vec4Keyframe>, IEnumerable<Vec4Keyframe>
     {
-        public override ResourceType ResourceType { get { return ResourceType.AnimationScalar; } }
-
         Vec4[] _baked;
         Vec4GetValue _getValue;
         

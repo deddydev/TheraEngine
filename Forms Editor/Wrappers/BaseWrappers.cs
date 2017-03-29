@@ -8,29 +8,29 @@ using System.IO;
 
 namespace TheraEditor.Wrappers
 {
-    [AttributeUsage(AttributeTargets.Class, Inherited = false, AllowMultiple = true)]
-    sealed class NodeWrapperAttribute : Attribute
-    {
-        ResourceType _type;
-        public NodeWrapperAttribute(ResourceType type) { _type = type; }
-        public ResourceType WrappedType { get { return _type; } }
+    //[AttributeUsage(AttributeTargets.Class, Inherited = false, AllowMultiple = true)]
+    //sealed class NodeWrapperAttribute : Attribute
+    //{
+    //    ResourceType _type;
+    //    public NodeWrapperAttribute(ResourceType type) { _type = type; }
+    //    public ResourceType WrappedType { get { return _type; } }
 
-        private static Dictionary<ResourceType, Type> _wrappers;
-        public static Dictionary<ResourceType, Type> Wrappers
-        {
-            get
-            {
-                if (_wrappers == null)
-                {
-                    _wrappers = new Dictionary<ResourceType, Type>();
-                    foreach (Type t in Assembly.GetExecutingAssembly().GetTypes())
-                        foreach (NodeWrapperAttribute attr in t.GetCustomAttributes(typeof(NodeWrapperAttribute), true))
-                            _wrappers[attr._type] = t;
-                }
-                return _wrappers;
-            }
-        }
-    }
+    //    private static Dictionary<ResourceType, Type> _wrappers;
+    //    public static Dictionary<ResourceType, Type> Wrappers
+    //    {
+    //        get
+    //        {
+    //            if (_wrappers == null)
+    //            {
+    //                _wrappers = new Dictionary<ResourceType, Type>();
+    //                foreach (Type t in Assembly.GetExecutingAssembly().GetTypes())
+    //                    foreach (NodeWrapperAttribute attr in t.GetCustomAttributes(typeof(NodeWrapperAttribute), true))
+    //                        _wrappers[attr._type] = t;
+    //            }
+    //            return _wrappers;
+    //        }
+    //    }
+    //}
     [Serializable]
     public abstract class BaseWrapper : TreeNode
     {
@@ -228,19 +228,19 @@ namespace TheraEditor.Wrappers
         //    }
         //}
         //internal protected virtual void OnDoubleClick() { }
-        public static BaseWrapper Wrap(string path)
-        {
-            BaseWrapper w;
-            ResourceType? type = FileManager.GetResourceTypeWithExtension(Path.GetExtension(path));
-            if (type.HasValue && NodeWrapperAttribute.Wrappers.ContainsKey(type.Value))
-                w = Activator.CreateInstance(NodeWrapperAttribute.Wrappers[type.Value], path) as BaseWrapper;
-            else
-                w = new GenericWrapper(path);
-            return w;
-        }
-        public static bool CanWrap(string path)
-        {
-            return FileManager.GetResourceTypeWithExtension(Path.GetExtension(path)).HasValue;
-        }
+        //public static BaseWrapper Wrap(string path)
+        //{
+        //    BaseWrapper w;
+        //    ResourceType? type = FileManager.GetResourceTypeWithExtension(Path.GetExtension(path));
+        //    if (type.HasValue && NodeWrapperAttribute.Wrappers.ContainsKey(type.Value))
+        //        w = Activator.CreateInstance(NodeWrapperAttribute.Wrappers[type.Value], path) as BaseWrapper;
+        //    else
+        //        w = new GenericWrapper(path);
+        //    return w;
+        //}
+        //public static bool CanWrap(string path)
+        //{
+        //    return FileManager.GetResourceTypeWithExtension(Path.GetExtension(path)).HasValue;
+        //}
     }
 }

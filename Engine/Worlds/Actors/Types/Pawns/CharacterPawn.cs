@@ -2,6 +2,11 @@
 using CustomEngine.Worlds.Actors.Components;
 using CustomEngine.Rendering;
 using CustomEngine.GameModes;
+using BulletSharp;
+using CustomEngine.Files;
+using CustomEngine.Rendering.Models;
+using System.ComponentModel;
+using System.Activities.Statements;
 
 namespace CustomEngine.Worlds.Actors
 {
@@ -35,14 +40,29 @@ namespace CustomEngine.Worlds.Actors
         public CharacterPawn() : base() { }
         public CharacterPawn(PlayerIndex possessor) : base(possessor) { }
 
+        private MultiFileRef<SkeletalMesh> mesh;
+        StateMachine _animationStateMachine = new StateMachine();
+        
+        [Category("")]
+        public MultiFileRef<SkeletalMesh> Mesh
+        {
+            get => mesh;
+            set => mesh = value;
+        }
+
         protected override CapsuleComponent SetupComponents()
         {
-            PhysicsDriverInfo info = new PhysicsDriverInfo();
+            PhysicsDriverInfo info = new PhysicsDriverInfo()
+            {
+                BodyInfo = new RigidBodyConstructionInfo(50.0f, new DefaultMotionState(), null),
+            };
             CapsuleComponent root = new CapsuleComponent(0.2f, 0.8f, info);
             SkeletalMeshComponent mesh = new SkeletalMeshComponent();
             root.ChildComponents.Add(mesh);
             CameraComponent firstPersonCamera = new CameraComponent();
             firstPersonCamera.AttachTo(mesh, "HeadCameraSocket");
+            BoomComponent cameraBoom = new BoomComponent();
+            root.ChildComponents.Add(cameraBoom);
 
             CharacterMovementComponent movement = new CharacterMovementComponent();
             LogicComponents.Add(movement);

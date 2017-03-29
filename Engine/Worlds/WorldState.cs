@@ -15,8 +15,6 @@ namespace CustomEngine.Worlds
     public delegate void TimeMultiplierChange(float oldMult);
     public class WorldState : FileObject
     {
-        public override ResourceType ResourceType => ResourceType.WorldState;
-
         public GravityChange GravityChanged;
         public GameModeChange GameModeChanged;
         public TimeMultiplierChange TimeMultiplierChanged;
@@ -61,27 +59,27 @@ namespace CustomEngine.Worlds
 
         public override void Write(VoidPtr address, StringTable table)
         {
-            throw new NotImplementedException();
+
         }
 
         public override void Read(VoidPtr address, VoidPtr strings)
         {
-            throw new NotImplementedException();
+
         }
 
         public override void Write(XmlWriter writer)
         {
-            throw new NotImplementedException();
+
         }
 
         public override void Read(XMLReader reader)
         {
-            throw new NotImplementedException();
+
         }
 
         protected override int OnCalculateSize(StringTable table)
         {
-            throw new NotImplementedException();
+            return 0;
         }
 
         private List<Map> _spawnedMaps = new List<Map>();
@@ -89,10 +87,22 @@ namespace CustomEngine.Worlds
         private Vec3 _gravity = new Vec3(0.0f, -9.81f, 0.0f);
         private GameMode _gameMode;
         private float _timeSpeed = 1.0f;
-    }
-    [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    public unsafe struct WorldStateHeader
-    {
-        public VoidPtr Address { get { fixed (void* ptr = &this) return ptr; } }
+
+        [StructLayout(LayoutKind.Sequential, Pack = 1)]
+        public unsafe struct Header
+        {
+            public const int Size = 4;
+
+            public BVec3 _gravity;
+            public float _timeDilation;
+            public bint _visibleMapCount;
+            public bint _visibleActorCount;
+            public GameMode.Header _gameMode;
+            
+            public bint* VisibleMapIndices => (bint*)(Address + Size);
+            public bint* VisibleActorIndices => (bint*)(Address + Size);
+
+            public VoidPtr Address { get { fixed (void* ptr = &this) return ptr; } }
+        }
     }
 }

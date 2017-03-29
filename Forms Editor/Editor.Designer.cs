@@ -306,7 +306,7 @@
             this.actorTree.Name = "actorTree";
             this.actorTree.Size = new System.Drawing.Size(307, 441);
             this.actorTree.TabIndex = 1;
-            this.actorTree.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.actorTree_AfterSelect);
+            this.actorTree.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.ActorTree_AfterSelect);
             // 
             // splitter2
             // 

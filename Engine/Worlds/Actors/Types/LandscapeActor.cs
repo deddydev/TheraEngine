@@ -25,7 +25,7 @@ namespace CustomEngine.Worlds.Actors.Types
             set { RootComponent.Translation = value; }
         }
 
-        protected override PositionComponent SetupComponents()
+        protected override PositionComponent OnConstruct()
         {
             return new PositionComponent();
         }

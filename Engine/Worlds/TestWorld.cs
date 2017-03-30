@@ -137,11 +137,11 @@ namespace CustomEngine.Worlds
 
             //Rotator r = new Vec3(0.0f, 1.0f, 0.0f).LookatAngles(new Vec3(0.0f, 0.0f, -1.0f));
 
-            CameraActor cameraActor = new CameraActor() { Name = "TestCamera" };
-            Camera cam = cameraActor.CameraComponent.Camera;
-            //cam.Point = new Vec3(100.0f, 10.0f, 0.0f);
-            //cam.Rotation.Yaw = 45.0f;
-            //cam.Rotation.Pitch = -30.0f;
+            PerspectiveCameraActor cameraActor = new PerspectiveCameraActor() { Name = "TestCamera" };
+            Camera cam = cameraActor.Camera;
+            cam.Point = new Vec3(100.0f, 10.0f, 0.0f);
+            cam.Rotation.Yaw = 45.0f;
+            cam.Rotation.Pitch = -30.0f;
 
             IActor[] actors = new IActor[]
             {

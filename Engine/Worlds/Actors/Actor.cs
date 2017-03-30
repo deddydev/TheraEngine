@@ -48,13 +48,14 @@ namespace CustomEngine.Worlds
     }
     public class Actor<T> : FileObject, IActor where T : SceneComponent
     {
+        internal Actor(bool initializeNow)
+        {
+            if (initializeNow)
+                Initialize();
+        }
         public Actor()
         {
-            _isConstructing = true;
-            RootComponent = SetupComponents();
-            SetDefaults();
-            _isConstructing = false;
-            GenerateSceneComponentCache();
+            Initialize();
         }
         public Actor(T root, params LogicComponent[] logicComponents)
         {
@@ -71,11 +72,11 @@ namespace CustomEngine.Worlds
             _isConstructing = false;
             GenerateSceneComponentCache();
         }
-        
-        public bool IsSpawned { get { return _spawnIndex >= 0; } }
-        public World OwningWorld { get { return _owningWorld; } }
 
-        public ReadOnlyCollection<SceneComponent> SceneComponentCache { get { return _sceneComponentCache; } }
+        public bool IsSpawned => _spawnIndex >= 0;
+        public World OwningWorld => _owningWorld;
+
+        public ReadOnlyCollection<SceneComponent> SceneComponentCache => _sceneComponentCache;
 
         SceneComponent IActor.RootComponent => RootComponent;
         public T RootComponent
@@ -108,13 +109,25 @@ namespace CustomEngine.Worlds
         [Serialize("LogicComponents")]
         private MonitoredList<LogicComponent> _logicComponents = new MonitoredList<LogicComponent>();
 
-        public MonitoredList<LogicComponent> LogicComponents => _logicComponents;
-        public bool IsConstructing => _isConstructing;
-        public List<PrimitiveComponent> RenderableComponentCache => _renderableComponentCache;
-        public bool HasRenderableComponents => _renderableComponentCache.Count > 0;
+        public MonitoredList<LogicComponent> LogicComponents
+            => _logicComponents;
+        public bool IsConstructing
+            => _isConstructing;
+        public List<PrimitiveComponent> RenderableComponentCache
+            => _renderableComponentCache;
+        public bool HasRenderableComponents
+            => _renderableComponentCache.Count > 0;
 
+        internal void Initialize()
+        {
+            _isConstructing = true;
+            RootComponent = OnConstruct();
+            SetDefaults();
+            _isConstructing = false;
+            GenerateSceneComponentCache();
+        }
         protected virtual void SetDefaults() { }
-        protected virtual T SetupComponents() { return Activator.CreateInstance<T>(); }
+        protected virtual T OnConstruct() { return Activator.CreateInstance<T>(); }
         public void GenerateSceneComponentCache()
         {
             if (!_isConstructing)

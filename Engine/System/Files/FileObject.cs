@@ -256,16 +256,26 @@ namespace CustomEngine.Files
                 Directory.CreateDirectory(directory);
             fileName = String.IsNullOrEmpty(fileName) ? "NewFile" : fileName;
             directory = directory + "\\" + fileName + ".x" + FileManager.GetExtension(GetType());
-            using (FileStream stream = new FileStream(directory, FileMode.Create, FileAccess.ReadWrite, FileShare.None, 0x1000, FileOptions.SequentialScan))
-            using (XmlWriter writer = XmlWriter.Create(stream, _writerSettings))
-            {
-                writer.Flush();
-                stream.Position = 0;
 
-                writer.WriteStartDocument();
-                Write(writer);
-                writer.WriteEndDocument();
+            if (FileHeader.ManualXmlSerialize)
+            {
+                using (FileStream stream = new FileStream(directory, FileMode.Create, FileAccess.ReadWrite, FileShare.None, 0x1000, FileOptions.SequentialScan))
+                using (XmlWriter writer = XmlWriter.Create(stream, _writerSettings))
+                {
+                    writer.Flush();
+                    stream.Position = 0;
+
+                    writer.WriteStartDocument();
+                    Write(writer);
+                    writer.WriteEndDocument();
+                }
             }
+            else
+            {
+                CustomXmlSerializer s = new CustomXmlSerializer();
+                s.Serialize(this, directory);
+            }
+            
             _isWriting = false;
         }
     }

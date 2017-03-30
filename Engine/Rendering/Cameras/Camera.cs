@@ -28,6 +28,14 @@ namespace CustomEngine.Rendering.Cameras
             _rotation.Changed += CreateTransform;
             _point.Changed += CreateTransform;
         }
+        public Camera(float nearZ, float farZ)
+        {
+            Resize(1.0f, 1.0f);
+            _nearZ = nearZ;
+            _farZ = farZ;
+            _rotation.Changed += CreateTransform;
+            _point.Changed += CreateTransform;
+        }
 
         public Matrix4 ProjectionMatrix => _projectionMatrix;
         public Matrix4 ProjectionMatrixInverse => _projectionInverse;

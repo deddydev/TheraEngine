@@ -17,7 +17,7 @@ namespace CustomEngine.Rendering.HUD
         {
             base.SetDefaults();
         }
-        protected override SceneComponent SetupComponents()
+        protected override SceneComponent OnConstruct()
         {
             return new PositionComponent();
         }

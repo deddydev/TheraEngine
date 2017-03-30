@@ -50,7 +50,7 @@ namespace CustomEngine.Worlds.Actors
             set => mesh = value;
         }
 
-        protected override CapsuleComponent SetupComponents()
+        protected override CapsuleComponent OnConstruct()
         {
             PhysicsDriverInfo info = new PhysicsDriverInfo()
             {

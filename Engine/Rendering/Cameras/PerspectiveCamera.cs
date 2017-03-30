@@ -12,6 +12,8 @@ namespace CustomEngine.Rendering.Cameras
         public PerspectiveCamera() : base() { }
         public PerspectiveCamera(Vec3 point, Rotator rotation, float nearZ, float farZ, float fovY)
             : base(point, rotation, nearZ, farZ) { VerticalFieldOfView = fovY; }
+        public PerspectiveCamera(float nearZ, float farZ, float fovY)
+            : base(nearZ, farZ) { VerticalFieldOfView = fovY; }
 
         private float _width, _height, _aspect, _fovX = 90.0f, _fovY = 78.0f;
         private bool _overrideAspect = false;
@@ -142,7 +144,7 @@ namespace CustomEngine.Rendering.Cameras
         }
         public override void Write(XmlWriter writer)
         {
-            writer.WriteStartElement("perspectiveCamera");
+            writer.WriteStartElement("PerspectiveCamera");
             writer.WriteAttributeString("fovY", _fovY.ToString());
             writer.WriteAttributeString("aspect", _aspect.ToString());
             writer.WriteAttributeString("nearZ", _nearZ.ToString());
@@ -155,7 +157,7 @@ namespace CustomEngine.Rendering.Cameras
         }
         public override void Read(XMLReader reader)
         {
-            if (!reader.Name.Equals("perspectiveCamera", true))
+            if (!reader.Name.Equals("PerspectiveCamera", true))
                 throw new Exception();
             _point.Raw = Vec3.Zero;
             _rotation.PitchYawRoll = Vec3.Zero;

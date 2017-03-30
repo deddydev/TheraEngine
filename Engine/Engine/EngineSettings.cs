@@ -15,7 +15,7 @@ namespace CustomEngine
         Deferred = 1,
     }
     [ObjectHeader()]
-    [FileHeader(ManualBinSerialize = true, ManualXmlSerialize = true)]
+    [FileHeader(ManualBinSerialize = false, ManualXmlSerialize = false)]
     public class EngineSettings : FileObject
     {
         [Category("Performance")]
@@ -42,14 +42,14 @@ namespace CustomEngine
         public bool RenderQuadtree = true;
 
         [Category("Frames Per Second")]
-        [Serialize("Capped", XmlCategoryGrouping = "FramesPerSecond", IsXmlAttribute = true)]
+        [Serialize("Capped", XmlCategoryGrouping = "FramesPerSecond"/*, IsXmlAttribute = true*/)]
         public bool CapFPS = false;
         [Category("Frames Per Second")]
         [Serialize("Target", XmlCategoryGrouping = "FramesPerSecond", SerializeIf = "CapFPS == true")]
         public float TargetFPS = 60.0f;
 
         [Category("Updates Per Second")]
-        [Serialize("Capped", XmlCategoryGrouping = "UpdatesPerSecond", IsXmlAttribute = true)]
+        [Serialize("Capped", XmlCategoryGrouping = "UpdatesPerSecond"/*, IsXmlAttribute = true*/)]
         public bool CapUPS = false;
         [Category("Updates Per Second")]
         [Serialize("Target", XmlCategoryGrouping = "UpdatesPerSecond", SerializeIf = "CapUPS == true")]
@@ -67,7 +67,7 @@ namespace CustomEngine
 
         public override void Read(XMLReader reader)
         {
-            if (!reader.Name.Equals("engineSettings", true))
+            if (!reader.Name.Equals("EngineSettings", true))
                 throw new Exception();
 
             while (reader.BeginElement())
@@ -103,7 +103,7 @@ namespace CustomEngine
         }
         public override void Write(XmlWriter writer)
         {
-            writer.WriteStartElement("engineSettings");
+            writer.WriteStartElement("EngineSettings");
             writer.WriteElementString("contentPath", ContentPath.ToString());
             writer.WriteElementString("skinOnGPU", SkinOnGPU.ToString());
             writer.WriteElementString("useIntegerWeightingIds", UseIntegerWeightingIds.ToString());

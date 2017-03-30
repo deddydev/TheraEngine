@@ -1,27 +1,24 @@
 ﻿using CustomEngine.Worlds.Actors.Components;
 using CustomEngine.Worlds;
 using CustomEngine.Rendering.Cameras;
+using System;
 
 namespace CustomEngine.Worlds.Actors.Types
 {
-    public class CameraActor : Actor<CameraComponent>
+    public class PerspectiveCameraActor : Actor<CameraComponent>
     {
-        public CameraActor() : base() { }
+        public PerspectiveCameraActor() : base() { }
 
-        private CameraComponent _cameraComponent;
-        public CameraComponent CameraComponent
+        public PerspectiveCamera Camera
         {
-            get { return _cameraComponent; }
-            set { _cameraComponent = value; }
+            get => (PerspectiveCamera)RootComponent.Camera;
+            set => RootComponent.Camera = value;
         }
-
-        protected override CameraComponent SetupComponents()
+        
+        protected override CameraComponent OnConstruct()
         {
-            _cameraComponent = new CameraComponent();
-            PerspectiveCamera cam = (PerspectiveCamera)_cameraComponent.Camera;
-            cam.FarZ = 500.0f;
-            cam.VerticalFieldOfView = 30.0f;
-            return _cameraComponent;
+            PerspectiveCamera camera = new PerspectiveCamera(1.0f, 500.0f, 30.0f);
+            return new CameraComponent(camera);
         }
 
         public override void OnSpawned(World world)

@@ -21,7 +21,7 @@ namespace CustomEngine.Worlds.Actors.Types
             _modified = modified;
         }
 
-        protected override SceneComponent SetupComponents()
+        protected override SceneComponent OnConstruct()
         {
             _transform = new TRSComponent();
             _transform.WorldTransformChanged += _transform_WorldTransformChanged;

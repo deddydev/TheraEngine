@@ -49,7 +49,7 @@ namespace CustomEngine.Worlds.Actors
         public FlyingCameraPawn() : base() { }
         public FlyingCameraPawn(PlayerIndex possessor) : base(possessor) { }
 
-        protected override CameraComponent SetupComponents()
+        protected override CameraComponent OnConstruct()
         {
             return new CameraComponent(false);
         }

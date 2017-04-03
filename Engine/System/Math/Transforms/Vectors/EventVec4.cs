@@ -825,9 +825,9 @@ namespace System
                 vec.Z * scale.Z,
                 vec.W * scale.W);
         }
-        public static EventVec4 operator *(EventVec4 vec, Quaternion quat)
+        public static EventVec4 operator *(EventVec4 vec, Quat quat)
         {
-            Quaternion v = new Quaternion(vec.X, vec.Y, vec.Z, vec.W);
+            Quat v = new Quat(vec.X, vec.Y, vec.Z, vec.W);
             v = quat * v * quat.Inverted();
             return new EventVec4(v.X, v.Y, v.Z, v.W);
         }

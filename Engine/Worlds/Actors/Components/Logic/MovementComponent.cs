@@ -2,42 +2,29 @@
 using System.IO;
 using System.Xml;
 using CustomEngine.Files;
-using OpenTK;
 
 namespace CustomEngine.Worlds.Actors.Components
 {
     public class MovementComponent : LogicComponent
     {
-        protected Vector3 _positionOffset;
+        protected Vec3 _frameInputDirection;
+        protected Vec3 _constantInputDirection;
 
-        public void AddMovementInput(Vector3 offset)
+        public void SetConstantInput(Vec3 direction)
+            => _constantInputDirection = direction;
+        public void AddMovementInput(Vec3 offset)
+            => _frameInputDirection += offset;
+        public void AddMovementInput(float x, float y, float z)
         {
-            _positionOffset += offset;
+            _frameInputDirection.X += x;
+            _frameInputDirection.Y += y;
+            _frameInputDirection.Z += z;
         }
-
-        public override void Read(VoidPtr address, VoidPtr strings)
+        public virtual Vec3 ConsumeInput()
         {
-            throw new NotImplementedException();
-        }
-
-        public override void Read(XMLReader reader)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void Write(VoidPtr address, StringTable table)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void Write(XmlWriter writer)
-        {
-            throw new NotImplementedException();
-        }
-
-        protected override int OnCalculateSize(StringTable table)
-        {
-            throw new NotImplementedException();
+            Vec3 temp = _frameInputDirection;
+            _frameInputDirection = Vec3.Zero;
+            return _constantInputDirection + temp;
         }
     }
 }

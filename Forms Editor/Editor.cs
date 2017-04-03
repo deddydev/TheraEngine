@@ -57,7 +57,7 @@ namespace TheraEditor
             if (ofd.ShowDialog() == DialogResult.OK)
             {
                 World world = FileObject.Import<World>(ofd.FileName);
-                Engine.World = world;
+                CurrentWorld = world;
             }
         }
 
@@ -81,7 +81,9 @@ namespace TheraEditor
             get => Engine.World;
             set
             {
-                if (Engine.World != null && Engine.World.UserData is EditorState s && s._hasChanged)
+                if (Engine.World != null && 
+                    Engine.World.UserData is EditorState s && 
+                    s._changedFields.Count > 0)
                 {
                     DialogResult r = MessageBox.Show(this, "Save changes to current world?", "Save changes?", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Exclamation);
                     if (r == DialogResult.Cancel)
@@ -91,10 +93,16 @@ namespace TheraEditor
                     Engine.World.UserData = null;
                 }
                 value.UserData = new EditorState();
+                value.PropertyChanged += Value_PropertyChanged;
                 Engine.World = value;
             }
         }
-        
+
+        private void Value_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            ((EditorState)((ObjectBase)sender).UserData)._changedFields.Add(e.PropertyName);
+        }
+
         private void ActorTree_AfterSelect(object sender, TreeViewEventArgs e)
         {
             actorPropertyGrid.SelectedObject = actorTree.SelectedNode == null ? Engine.World.Settings : actorTree.SelectedNode.Tag;

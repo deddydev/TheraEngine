@@ -189,10 +189,10 @@ namespace System
         /// <param name="vec">The vector to transform.</param>
         /// <param name="quat">The quaternion to rotate the vector by.</param>
         /// <returns>The result of the operation.</returns>
-        public static Vec2 Transform(Vec2 vec, Quaternion quat)
+        public static Vec2 Transform(Vec2 vec, Quat quat)
         {
-            Quaternion v = new Quaternion(vec.X, vec.Y, 0, 0);
-            Quaternion t = quat * v;
+            Quat v = new Quat(vec.X, vec.Y, 0, 0);
+            Quat t = quat * v;
             v = t * quat.Inverted();
             return new Vec2(v.X, v.Y);
         }

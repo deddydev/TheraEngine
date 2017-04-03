@@ -325,7 +325,7 @@ namespace System
         /// Returns the rotation component of this instance. Quite slow.
         /// </summary>
         /// <param name="row_normalise">Whether the method should row-normalise (i.e. remove scale from) the Matrix. Pass false if you know it's already normalised.</param>
-        public Quaternion ExtractRotation(bool row_normalise = true)
+        public Quat ExtractRotation(bool row_normalise = true)
         {
             var row0 = Row0;
             var row1 = Row1;
@@ -340,7 +340,7 @@ namespace System
 
             // code below adapted from Blender
 
-            Quaternion q = new Quaternion();
+            Quat q = new Quat();
             double trace = 0.25 * (row0[0] + row1[1] + row2[2] + 1.0);
 
             if (trace > 0)
@@ -447,7 +447,7 @@ namespace System
         /// </summary>
         /// <param name="q">Quaternion to translate.</param>
         /// <param name="result">Matrix result.</param>
-        public static Matrix3 CreateFromQuaternion(Quaternion q)
+        public static Matrix3 CreateFromQuaternion(Quat q)
         {
             Vec3 axis;
             float angle;

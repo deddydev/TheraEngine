@@ -48,18 +48,15 @@ namespace CustomEngine.Worlds
     }
     public class Actor<T> : FileObject, IActor where T : SceneComponent
     {
-        internal Actor(bool initializeNow)
+        public Actor(bool deferInitialization = false)
         {
-            if (initializeNow)
+            if (!deferInitialization)
                 Initialize();
-        }
-        public Actor()
-        {
-            Initialize();
         }
         public Actor(T root, params LogicComponent[] logicComponents)
         {
             _isConstructing = true;
+            PreConstruct();
             RootComponent = root;
             _logicComponents = new MonitoredList<LogicComponent>(logicComponents.ToList());
             _logicComponents.Added += _logicComponents_Added;
@@ -68,10 +65,40 @@ namespace CustomEngine.Worlds
             _logicComponents.RemovedRange += _logicComponents_RemovedRange;
             _logicComponents.Inserted += _logicComponents_Inserted;
             _logicComponents.InsertedRange += _logicComponents_InsertedRange;
-            SetDefaults();
+            PostConstruct();
             _isConstructing = false;
             GenerateSceneComponentCache();
         }
+        //Do not call Initialize when deserializing!
+        //The constructor is run before deserializing, so set defaults there.
+        /// <summary>
+        /// Sets all defaults, creates the root component, and generates the scene component cache.
+        /// </summary>
+        public virtual void Initialize()
+        {
+            //Has the actor already been initialized?
+            if (RootComponent != null)
+                return;
+            _isConstructing = true;
+            PreConstruct();
+            RootComponent = OnConstruct();
+            PostConstruct();
+            _isConstructing = false;
+            GenerateSceneComponentCache();
+        }
+        /// <summary>
+        /// Called before OnConstruct.
+        /// </summary>
+        protected virtual void PreConstruct() { }        
+        /// <summary>
+        /// Called after OnConstruct.
+        /// </summary>
+        protected virtual void PostConstruct() { }
+        /// <summary>
+        /// Sets the root component (and usually any logic components as well).
+        /// </summary>
+        /// <returns></returns>
+        protected virtual T OnConstruct() { return Activator.CreateInstance<T>(); }
 
         public bool IsSpawned => _spawnIndex >= 0;
         public World OwningWorld => _owningWorld;
@@ -81,7 +108,7 @@ namespace CustomEngine.Worlds
         SceneComponent IActor.RootComponent => RootComponent;
         public T RootComponent
         {
-            get { return _rootSceneComponent; }
+            get => _rootSceneComponent;
             set
             {
                 if (_rootSceneComponent != null)
@@ -102,7 +129,7 @@ namespace CustomEngine.Worlds
         private List<PrimitiveComponent> _renderableComponentCache = new List<PrimitiveComponent>();
         public int _spawnIndex = -1;
         private World _owningWorld;
-        protected ReadOnlyCollection<SceneComponent> _sceneComponentCache;
+        private ReadOnlyCollection<SceneComponent> _sceneComponentCache;
 
         [Serialize("RootSceneComponent")]
         private T _rootSceneComponent;
@@ -110,24 +137,18 @@ namespace CustomEngine.Worlds
         private MonitoredList<LogicComponent> _logicComponents = new MonitoredList<LogicComponent>();
 
         public MonitoredList<LogicComponent> LogicComponents
-            => _logicComponents;
+        {
+            get
+            {
+                return _logicComponents;
+            }
+        }
         public bool IsConstructing
             => _isConstructing;
         public List<PrimitiveComponent> RenderableComponentCache
             => _renderableComponentCache;
         public bool HasRenderableComponents
-            => _renderableComponentCache.Count > 0;
-
-        internal void Initialize()
-        {
-            _isConstructing = true;
-            RootComponent = OnConstruct();
-            SetDefaults();
-            _isConstructing = false;
-            GenerateSceneComponentCache();
-        }
-        protected virtual void SetDefaults() { }
-        protected virtual T OnConstruct() { return Activator.CreateInstance<T>(); }
+            => RenderableComponentCache.Count > 0;
         public void GenerateSceneComponentCache()
         {
             if (!_isConstructing)
@@ -203,38 +224,26 @@ namespace CustomEngine.Worlds
         {
             item.Owner = this;
         }
-        protected override int OnCalculateSize(StringTable table)
-        {
-            int size = Actor.Header.Size;
-            LogicComponents.ForEach(x => size += x.CalculateSize(table));
-            size += RootComponent.CalculateSize(table);
-            return size;
-        }
-        public unsafe override void Write(VoidPtr address, StringTable table)
-        {
-            VoidPtr addr = address;
-            Actor.Header* h = (Actor.Header*)addr;
-            h->_nameOffset = table[_name];
-            h->_sceneCompCount = SceneComponentCache.Count;
-            h->_logicCompCount = LogicComponents.Count;
-            foreach (LogicComponent comp in LogicComponents)
-            {
-                comp.Write(addr, table);
-                addr += comp.CalculatedSize;
-            }
-            RootComponent.Write(addr, table);
-        }
-        public override void Read(VoidPtr address, VoidPtr strings)
-        {
-            
-        }
-        public override void Write(XmlWriter writer)
-        {
-            
-        }
-        public override void Read(XMLReader reader)
-        {
-            
-        }
+        //protected override int OnCalculateSize(StringTable table)
+        //{
+        //    int size = Actor.Header.Size;
+        //    LogicComponents.ForEach(x => size += x.CalculateSize(table));
+        //    size += RootComponent.CalculateSize(table);
+        //    return size;
+        //}
+        //public unsafe override void Write(VoidPtr address, StringTable table)
+        //{
+        //    VoidPtr addr = address;
+        //    Actor.Header* h = (Actor.Header*)addr;
+        //    h->_nameOffset = table[_name];
+        //    h->_sceneCompCount = SceneComponentCache.Count;
+        //    h->_logicCompCount = LogicComponents.Count;
+        //    foreach (LogicComponent comp in LogicComponents)
+        //    {
+        //        comp.Write(addr, table);
+        //        addr += comp.CalculatedSize;
+        //    }
+        //    RootComponent.Write(addr, table);
+        //}
     }
 }

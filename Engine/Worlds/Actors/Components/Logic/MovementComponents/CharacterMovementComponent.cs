@@ -18,7 +18,20 @@ namespace CustomEngine.Worlds.Actors.Components
         private float _maxWalkAngle = 50.0f;
         private Vec3 _jumpVelocity = new Vec3(0.0f, 10.0f, 0.0f);
         private PhysicsDriver _currentWalkingSurface;
-        
+        private Vec3 _groundNormal;
+        private Quat _upToGroupNormalRotation = Quat.Identity;
+
+        public Vec3 GroundNormal
+        {
+            get => _groundNormal;
+            set
+            {
+                _groundNormal = value;
+                _upToGroupNormalRotation = Quat.BetweenVectors(Vec3.Up, GroundNormal);
+            }
+        }
+        public override Vec3 ConsumeInput()
+            => _upToGroupNormalRotation * base.ConsumeInput();
         public void Jump()
         {
             //Nothing to jump OFF of?
@@ -61,9 +74,10 @@ namespace CustomEngine.Worlds.Actors.Components
         {
 
         }
-        public void IsSurfaceNormalWalkable(Vec3 normal)
+        public bool IsSurfaceNormalWalkable(Vec3 normal)
         {
-
+            //TODO: use friction between surfaces, not just a constant angle
+            return CustomMath.AngleBetween(Vec3.Up, normal) <= _maxWalkAngle;
         }
     }
 }

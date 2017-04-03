@@ -30,6 +30,8 @@ namespace System
         private object _defaultValue = null;
         private string _xmlCategoryGrouping = null;
         private string _serializeIf = null;
+        private bool _useCategory = true;
+        private bool _ignoreIfNull = true;
 
         /// <summary>
         /// The order this field should be serialized in.
@@ -52,11 +54,20 @@ namespace System
         /// <summary>
         /// Groups a set of fields together in one tag under this name.
         /// </summary>
-        public string XmlCategoryGrouping { get => _xmlCategoryGrouping; set => _xmlCategoryGrouping = value; }
+        public string OverrideXmlCategory { get => _xmlCategoryGrouping; set => _xmlCategoryGrouping = value; }
         /// <summary>
         /// Determines if the field should be serialized using an expression using information from other fields.
         /// </summary>
         public string SerializeIf { get => _serializeIf; set => _serializeIf = value; }
+        /// <summary>
+        /// Determines if the element should be grouped into a category,
+        /// either using the category attribute or the OverrideXmlCategory property.
+        /// </summary>
+        public bool UseCategory { get => _useCategory; set => _useCategory = value; }
+        /// <summary>
+        /// Determines if this field should not be written if it is null.
+        /// </summary>
+        public bool IgnoreIfNull { get => _ignoreIfNull; set => _ignoreIfNull = value; }
 
         public Serialize() { }
         public Serialize(string nameOverride)
@@ -81,11 +92,24 @@ namespace System
 
         }
     }
+    public enum SerializeFormat
+    {
+        Binary,
+        XML,
+        //JSON,
+        //Text
+    }
     public class FileHeader : Attribute
     {
         private bool _manualXmlSerialize = false;
         private bool _manualBinSerialize = false;
-        
+        private SerializeFormat _preferredFormat =
+#if DEBUG
+            SerializeFormat.XML;
+#else
+            SerializeFormat.Binary;
+#endif
+
         public bool ManualXmlSerialize { get => _manualXmlSerialize; set => _manualXmlSerialize = value; }
         public bool ManualBinSerialize { get => _manualBinSerialize; set => _manualBinSerialize = value; }
     }

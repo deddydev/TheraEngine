@@ -9,9 +9,8 @@ namespace CustomEngine.Worlds.Actors.Components
         private Sphere _sphere;
 
         public SphereComponent(float radius)
-        {
-            _sphere = new Sphere(radius, Vec3.Zero);
-        }
+            => _sphere = new Sphere(radius, Vec3.Zero);
+        
         public SphereComponent(float radius, PhysicsDriverInfo info)
         {
             _sphere = new Sphere(radius, Vec3.Zero);

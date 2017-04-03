@@ -49,7 +49,7 @@ namespace CustomEngine.Rendering
             //                }
             //            }
 
-            _cullingTree = new Octree(ws.WorldBounds, renderables);
+            _cullingTree = new Octree(ws.Bounds, renderables);
         }
         internal void Render(Camera camera, bool deferredPass)
         {

@@ -34,7 +34,7 @@ namespace CustomEngine.Input.Devices
     {
         public int PlayerIndex
         {
-            get { return _playerIndex; }
+            get => _playerIndex;
             set
             {
                 _playerIndex = value;
@@ -96,55 +96,33 @@ namespace CustomEngine.Input.Devices
 
         #region Mouse input registration
         public void RegisterButtonPressed(EMouseButton button, DelButtonState func, InputPauseType pauseType = InputPauseType.TickOnlyWhenUnpaused)
-        {
-            _mouse?.RegisterButtonPressed(button, pauseType, func, _unregister);
-        }
+            => _mouse?.RegisterButtonPressed(button, pauseType, func, _unregister);
         public void RegisterButtonEvent(EMouseButton button, ButtonInputType type, Action func, InputPauseType pauseType = InputPauseType.TickOnlyWhenUnpaused)
-        {
-            _mouse?.RegisterButtonEvent(button, type, pauseType, func, _unregister);
-        }
+            => _mouse?.RegisterButtonEvent(button, type, pauseType, func, _unregister);
         public void RegisterMouseScroll(DelMouseScroll func, InputPauseType pauseType = InputPauseType.TickOnlyWhenUnpaused)
-        {
-            _mouse?.RegisterScroll(func, pauseType, _unregister);
-        }
+            => _mouse?.RegisterScroll(func, pauseType, _unregister);
         public void RegisterMouseMove(DelCursorUpdate func, bool relative, InputPauseType pauseType = InputPauseType.TickOnlyWhenUnpaused)
-        {
-            _mouse?.RegisterMouseMove(func, pauseType, relative, _unregister);
-        }
+            => _mouse?.RegisterMouseMove(func, pauseType, relative, _unregister);
         #endregion
 
         #region Keyboard input registration
         public void RegisterButtonPressed(EKey button, DelButtonState func, InputPauseType pauseType = InputPauseType.TickOnlyWhenUnpaused)
-        {
-            _keyboard?.RegisterButtonPressed(button, pauseType, func, _unregister);
-        }
+            => _keyboard?.RegisterButtonPressed(button, pauseType, func, _unregister);
         public void RegisterButtonEvent(EKey button, ButtonInputType type, Action func, InputPauseType pauseType = InputPauseType.TickOnlyWhenUnpaused)
-        {
-            _keyboard?.RegisterButtonEvent(button, type, pauseType, func, _unregister);
-        }
+            => _keyboard?.RegisterButtonEvent(button, type, pauseType, func, _unregister);
         #endregion
 
         #region Gamepad input registration
         public void RegisterButtonPressed(GamePadAxis axis, DelButtonState func, InputPauseType pauseType = InputPauseType.TickOnlyWhenUnpaused)
-        {
-            _gamepad?.RegisterButtonState(axis, pauseType, func, _unregister);
-        }
+            => _gamepad?.RegisterButtonState(axis, pauseType, func, _unregister);
         public void RegisterButtonPressed(GamePadButton button, DelButtonState func, InputPauseType pauseType = InputPauseType.TickOnlyWhenUnpaused)
-        {
-            _gamepad?.RegisterButtonState(button, pauseType, func, _unregister);
-        }
+            => _gamepad?.RegisterButtonState(button, pauseType, func, _unregister);
         public void RegisterButtonEvent(GamePadButton button, ButtonInputType type, Action func, InputPauseType pauseType = InputPauseType.TickOnlyWhenUnpaused)
-        {
-            _gamepad?.RegisterButtonEvent(button, type, pauseType, func, _unregister);
-        }
+            => _gamepad?.RegisterButtonEvent(button, type, pauseType, func, _unregister);
         public void RegisterButtonEvent(GamePadAxis button, ButtonInputType type, Action func, InputPauseType pauseType = InputPauseType.TickOnlyWhenUnpaused)
-        {
-            _gamepad?.RegisterButtonEvent(button, type, pauseType, func, _unregister);
-        }
+            => _gamepad?.RegisterButtonEvent(button, type, pauseType, func, _unregister);
         public void RegisterAxisUpdate(GamePadAxis axis, DelAxisValue func, bool continuousUpdate, InputPauseType pauseType = InputPauseType.TickOnlyWhenUnpaused)
-        {
-            _gamepad?.RegisterAxisUpdate(axis, pauseType, func, continuousUpdate, _unregister);
-        }
+            => _gamepad?.RegisterAxisUpdate(axis, pauseType, func, continuousUpdate, _unregister);
         #endregion
     }
 }

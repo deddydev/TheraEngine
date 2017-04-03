@@ -10,6 +10,7 @@ using CustomEngine.Files;
 using System.Xml;
 using CustomEngine.Rendering;
 using System.IO;
+using System.Diagnostics;
 
 namespace CustomEngine.Worlds
 {
@@ -26,10 +27,19 @@ namespace CustomEngine.Worlds
             PersistentManifold.ContactProcessed += PersistentManifold_ContactProcessed;
             PersistentManifold.ContactDestroyed += PersistentManifold_ContactDestroyed;
         }
+        
+        public World()
+        {
+            //_settings = new WorldSettings();
+        }
+        public World(WorldSettings settings)
+        {
+            _settings = settings;
+        }
 
-        [Serialize("PhysicsWorld")]
         internal DiscreteDynamicsWorld _physicsScene;
-        public WorldSettings _settings;
+        [Serialize("Settings")]
+        protected WorldSettings _settings;
 
         public DiscreteDynamicsWorld PhysicsScene => _physicsScene;
         public WorldSettings Settings
@@ -50,15 +60,25 @@ namespace CustomEngine.Worlds
         {
             PhysicsDriver driver0 = (PhysicsDriver)body0.UserObject;
             PhysicsDriver driver1 = (PhysicsDriver)body1.UserObject;
-            driver0.BeginOverlap(driver1);
-            driver1.BeginOverlap(driver0);
+            //if (cp.Distance < 0.0f)
+            //{
+            //    Debug.WriteLine("Collision");
+            //}
+            if (body0.CheckCollideWith(body1))
+            {
+                driver0.OnHit?.Invoke(driver1, cp);
+                driver1.OnHit?.Invoke(driver0, cp);
+                //Debug.WriteLine("Collision");
+            }
+            //driver0.BeginOverlap(driver1);
+            //driver1.BeginOverlap(driver0);
             cp.UserPersistentData = new PhysicsDriverPair(driver0, driver1);
         }
         private static void PersistentManifold_ContactDestroyed(object userPersistantData)
         {
             PhysicsDriverPair drivers = (PhysicsDriverPair)userPersistantData;
-            drivers._driver0.EndOverlap(drivers._driver1);
-            drivers._driver1.EndOverlap(drivers._driver0);
+            //drivers._driver0.EndOverlap(drivers._driver1);
+            //drivers._driver1.EndOverlap(drivers._driver0);
         }
         private void CreatePhysicsScene()
         {
@@ -135,63 +155,21 @@ namespace CustomEngine.Worlds
         }
         public virtual void EndPlay()
         {
-            foreach (Map m in _settings._defaultMaps)
+            foreach (Map m in _settings._maps)
                 m.EndPlay();
             _physicsScene = null;
         }
         public virtual void BeginPlay()
         {
             CreatePhysicsScene();
-            foreach (Map m in _settings._defaultMaps)
+            foreach (Map m in _settings._maps)
                 m.BeginPlay();
             foreach (PhysicsDriver d in Engine._queuedCollisions)
                 d.AddToWorld();
             Engine._queuedCollisions.Clear();
         }
-        protected override int OnCalculateSize(StringTable table)
-        {
-            return 0;
-        }
-        public override void Write(VoidPtr address, StringTable table)
-        {
-            Header* h = (Header*)address;
-        }
-        public override void Read(VoidPtr address, VoidPtr strings)
-        {
-
-        }
-        public override void Write(XmlWriter writer)
-        {
-
-        }
-        public override void Read(XMLReader reader)
-        {
-
-        }
-
+        
         public IEnumerator<IActor> GetEnumerator() => State.SpawnedActors.GetEnumerator();
         IEnumerator IEnumerable.GetEnumerator() => State.SpawnedActors.GetEnumerator();
-
-        [StructLayout(LayoutKind.Sequential, Pack = 1)]
-        public unsafe struct Header
-        {
-            public const int Size = 4;
-
-            public buint _mapCount;
-            public WorldSettings.Header _settings;
-            public PhysicsWorldState _physicsState;
-            
-            public FileRefHeader* MapOffsets { get { return (FileRefHeader*)Address; } }
-            public VoidPtr Address { get { fixed (void* ptr = &this) return ptr; } }
-        }
-        [StructLayout(LayoutKind.Sequential, Pack = 1)]
-        public unsafe struct PhysicsWorldState
-        {
-            public const int Size = 4;
-
-            public buint _collisionObjectCount;
-            
-            public VoidPtr Address { get { fixed (void* ptr = &this) return ptr; } }
-        }
     }
 }

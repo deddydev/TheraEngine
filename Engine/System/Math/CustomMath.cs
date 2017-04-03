@@ -148,7 +148,7 @@ namespace System
                 float mag = b * b - 4.0f * a * c;
                 if (!(mag < 0.0f))
                 {
-                    mag = (float)Math.Sqrt(mag);
+                    mag = (float)Sqrt(mag);
                     a *= 2.0f;
 
                     answer1 = (-b + mag) / a;
@@ -160,18 +160,84 @@ namespace System
             answer2 = 0.0f;
             return false;
         }
+
+        public static float AngleBetween(Vec3 initialVector, Vec3 finalVector)
+        {
+            initialVector.NormalizeFast();
+            finalVector.NormalizeFast();
+
+            float dot = initialVector | finalVector;
+
+            //dot is the cosine adj/hyp ratio between the two vectors, so
+            //dot == 1 is same direction
+            //dot == -1 is opposite direction
+            //dot == 0 is a 90 degree angle
+
+            if (dot > 0.999f)
+                return 0.0f;            
+            else if (dot < -0.999f)
+                return 180.0f;
+            else
+                return RadToDeg((float)Acos(dot));
+        }
+        public static Vec3 AxisBetween(Vec3 initialVector, Vec3 finalVector)
+        {
+            initialVector.NormalizeFast();
+            finalVector.NormalizeFast();
+
+            float dot = initialVector | finalVector;
+
+            //dot is the cosine adj/hyp ratio between the two vectors, so
+            //dot == 1 is same direction
+            //dot == -1 is opposite direction
+            //dot == 0 is a 90 degree angle
+
+            if (dot > 0.999f || dot < -0.999f)
+                return Vec3.Forward;
+            else
+                return initialVector ^ finalVector;
+        }
+        public static void AxisAngleBetween(Vec3 initialVector, Vec3 finalVector, out Vec3 axis, out float angle)
+        {
+            initialVector.NormalizeFast();
+            finalVector.NormalizeFast();
+
+            float dot = initialVector | finalVector;
+
+            //dot is the cosine adj/hyp ratio between the two vectors, so
+            //dot == 1 is same direction
+            //dot == -1 is opposite direction
+            //dot == 0 is a 90 degree angle
+
+            if (dot > 0.999f)
+            {
+                axis = Vec3.Forward;
+                angle = 0.0f;
+            }
+            else if (dot < -0.999f)
+            {
+                axis = Vec3.Forward;
+                angle = 180.0f;
+            }
+            else
+            {
+                axis = initialVector ^ finalVector;
+                angle = RadToDeg((float)Acos(dot));
+            }
+        }
+
         //Smoothed interpolation between two points. Eases in and out.
         //time is a value from 0.0f to 1.0f symbolizing the time between the two points
         public static Vec3 InterpCosineTo(Vec3 from, Vec3 to, float time, float speed = 1.0f)
         {
-            float time2 = (1.0f - (float)Math.Cos(time * speed * (float)Math.PI)) / 2.0f;
+            float time2 = (1.0f - (float)Cos(time * speed * (float)PI)) / 2.0f;
             return from * (1.0f - time2) + to * time2;
         }
         //Smoothed interpolation between two points. Eases in and out.
         //time is a value from 0.0f to 1.0f symbolizing the time between the two points
         public static float InterpCosineTo(float from, float to, float time, float speed = 1.0f)
         {
-            float time2 = (1.0f - (float)Math.Cos(time * speed * (float)Math.PI)) / 2.0f;
+            float time2 = (1.0f - (float)Cos(time * speed * (float)PI)) / 2.0f;
             return from * (1.0f - time2) + to * time2;
         }
         //Constant interpolation directly from one point to another.
@@ -182,7 +248,7 @@ namespace System
         }
         public static Vec3 VInterpNormalRotationTo(Vec3 Current, Vec3 Target, float DeltaTime, float RotationSpeedDegrees)
         {
-            Quaternion DeltaQuat = Quaternion.BetweenVectors(Current, Target);
+            Quat DeltaQuat = Quat.BetweenVectors(Current, Target);
 
             DeltaQuat.ToAxisAngle(out Vec3 DeltaAxis, out float DeltaAngle);
 
@@ -191,7 +257,7 @@ namespace System
 	        if (Abs(DeltaAngle) > RotationStepRadians)
 	        {
 		        DeltaAngle = DeltaAngle.Clamp(-RotationStepRadians, RotationStepRadians);
-		        DeltaQuat = new Quaternion(DeltaAxis, DeltaAngle);
+		        DeltaQuat = new Quat(DeltaAxis, DeltaAngle);
 		        return DeltaQuat * Current;
 	        }
 	        return Target;
@@ -200,7 +266,7 @@ namespace System
         {
             return point * Matrix4.CreateTranslation(-center) * angles.GetMatrix() * Matrix4.CreateTranslation(center);
         }
-        public static Vec3 RotateAboutPoint(Vec3 point, Vec3 center, Quaternion angles)
+        public static Vec3 RotateAboutPoint(Vec3 point, Vec3 center, Quat angles)
         {
             return point * Matrix4.CreateTranslation(-center) * Matrix4.CreateFromQuaternion(angles) * Matrix4.CreateTranslation(center);
         }

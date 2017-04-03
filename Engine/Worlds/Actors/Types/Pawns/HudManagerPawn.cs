@@ -13,9 +13,9 @@ namespace CustomEngine.Rendering.HUD
         private HudComponent _focusedComponent;
 
         CameraComponent CameraComponent { get { return RootComponent as CameraComponent; } }
-        protected override void SetDefaults()
+        protected override void PreConstruct()
         {
-            base.SetDefaults();
+            base.PreConstruct();
         }
         protected override SceneComponent OnConstruct()
         {

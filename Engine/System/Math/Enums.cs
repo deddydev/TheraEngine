@@ -23,7 +23,7 @@
         /// <summary>
         /// The other shape contains this.
         /// </summary>
-        ContainedWithin = 3,
+        //ContainedWithin = 3,
     }
     [Flags]
     public enum EContainmentFlags

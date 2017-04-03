@@ -24,7 +24,7 @@ namespace CustomEngine.Worlds.Actors.Components
         protected EventVec3 _translation;
         public EventVec3 Translation
         {
-            get { return _translation; }
+            get => _translation;
             set
             {
                 _translation = value;
@@ -33,39 +33,11 @@ namespace CustomEngine.Worlds.Actors.Components
             }
         }
         protected override void RecalcLocalTransform()
-        {
-            SetLocalTransforms(
+            => SetLocalTransforms(
                 Matrix4.CreateTranslation(_translation.Raw), 
                 Matrix4.CreateTranslation(-_translation.Raw));
-        }
+        
         internal override void OriginRebased(Vec3 newOrigin)
-        {
-            Translation -= newOrigin;
-        }
-
-        public override void Write(VoidPtr address, StringTable table)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void Read(VoidPtr address, VoidPtr strings)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void Write(XmlWriter writer)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void Read(XMLReader reader)
-        {
-            throw new NotImplementedException();
-        }
-
-        protected override int OnCalculateSize(StringTable table)
-        {
-            throw new NotImplementedException();
-        }
+            => Translation -= newOrigin;
     }
 }

@@ -15,6 +15,7 @@ namespace CustomEngine.Worlds.Actors.Components
         {
             _owner = owner;
             _transform = transform;
+            _childComponents = new MonitoredList<SceneComponent>();
             _childComponents.Added          += _children_Added;
             _childComponents.AddedRange     += _children_AddedRange;
             _childComponents.Inserted       += _children_Inserted;
@@ -37,6 +38,7 @@ namespace CustomEngine.Worlds.Actors.Components
             {
                 item._parent = null;
                 item.Owner = null;
+                item.RecalcGlobalTransform();
             }
             //_owner?.GenerateSceneComponentCache();
         }
@@ -44,6 +46,7 @@ namespace CustomEngine.Worlds.Actors.Components
         {
             item._parent = null;
             item.Owner = null;
+            item.RecalcGlobalTransform();
             //_owner?.GenerateSceneComponentCache();
         }
         private void _children_InsertedRange(IEnumerable<SceneComponent> items, int index)
@@ -56,6 +59,7 @@ namespace CustomEngine.Worlds.Actors.Components
             {
                 item._parent = this;
                 item.Owner = _owner;
+                item.RecalcGlobalTransform();
             }
             //_owner?.GenerateSceneComponentCache();
         }
@@ -63,6 +67,7 @@ namespace CustomEngine.Worlds.Actors.Components
         {
             item._parent = this;
             item.Owner = _owner;
+            item.RecalcGlobalTransform();
             //_owner?.GenerateSceneComponentCache();
         }
     }

@@ -41,9 +41,11 @@ namespace CustomEngine.Rendering
         public CustomCollisionGroup CollidesWith;
         public RigidBodyConstructionInfo BodyInfo;
     }
-    public delegate void PhysicsOverlap(PhysicsDriver other);
+    public delegate void PhysicsOverlap(PhysicsDriver other, ManifoldPoint point);
     public class PhysicsDriver : FileObject
     {
+        public PhysicsOverlap BeginOverlap, EndOverlap, OnHit;
+
         IPhysicsDrivable _owner;
 
         public PhysicsDriver(IPhysicsDrivable owner, PhysicsDriverInfo info)
@@ -56,25 +58,11 @@ namespace CustomEngine.Rendering
             UpdateBody(new RigidBody(info.BodyInfo));
         }
 
-        internal void EndOverlap(PhysicsDriver other)
-        {
-            
-        }
-
-        internal void BeginOverlap(PhysicsDriver other)
-        {
-
-        }
-
         public PhysicsDriver(IPhysicsDrivable owner, PhysicsDriverInfo info, MatrixUpdate func) : this(owner, info)
-        {
-            TransformChanged += func;
-        }
+            => TransformChanged += func;
         public PhysicsDriver(IPhysicsDrivable owner, PhysicsDriverInfo info, MatrixUpdate mtxFunc, SimulationUpdate simFunc) : this(owner, info, mtxFunc)
-        {
-            SimulationStateChanged += simFunc;
-        }
-
+            => SimulationStateChanged += simFunc;
+        
         public event MatrixUpdate TransformChanged;
         public event SimulationUpdate SimulationStateChanged;
 
@@ -84,12 +72,12 @@ namespace CustomEngine.Rendering
         public Matrix4 _prevWorldMatrix, _worldMatrix;
         private RigidBody _collision;
         
-        public Vec3 PreviousPosition { get { return _prevWorldMatrix.GetPoint(); } }
-        public Vec3 Position { get { return _worldMatrix.GetPoint(); } }
-        public Vec3 PreviousVelocity { get { return _prevVelocity; } }
+        public Vec3 PreviousPosition => _prevWorldMatrix.GetPoint();
+        public Vec3 Position => _worldMatrix.GetPoint();
+        public Vec3 PreviousVelocity => _prevVelocity;
         public Vec3 Velocity
         {
-            get { return _velocity; }
+            get => _velocity;
             set
             {
                 _prevVelocity = _velocity;
@@ -102,48 +90,39 @@ namespace CustomEngine.Rendering
         /// Uses a fast approximation to avoid using a slow square root operation.
         /// </summary>
         public float GetSpeedFast()
-        {
-            return Velocity.LengthFast;
-        }
+            => Velocity.LengthFast;
         /// <summary>
         /// Returns the instantaneous speed of this object right now.
         /// Uses square root for exact value; slower than GetSpeedFast.
         /// </summary>
         public float GetSpeed()
-        {
-            return Velocity.Length;
-        }
+            => Velocity.Length;
         /// <summary>
         /// Returns the instantaneous speed of this object on the last tick.
         /// Uses a fast approximation to avoid using a slow square root operation.
         /// </summary>
         public float GetPrevSpeedFast()
-        {
-            return PreviousVelocity.LengthFast;
-        }
+            => PreviousVelocity.LengthFast;
         /// <summary>
         /// Returns the instantaneous speed of this object on the last tick.
         /// Uses square root for exact value; slower than GetPrevSpeedFast.
         /// </summary>
         public float GetPrevSpeed()
-        {
-            return PreviousVelocity.Length;
-        }
+            => PreviousVelocity.Length;
         /// <summary>
         /// Returns the acceleration of this object from the last tick to the current one.
         /// </summary>
         public Vec3 GetAcceleration()
-        {
-            return (Velocity - PreviousVelocity) / Engine.UpdateDelta;
-        }
+            => _acceleration;
+        
         public Matrix4 WorldTransform
         {
-            get { return _worldMatrix; }
-            set { SetPhysicsTransform(_worldMatrix); }
+            get => _worldMatrix;
+            set => SetPhysicsTransform(_worldMatrix);
         }
         public bool SimulatingPhysics
         {
-            get { return _simulatingPhysics; }
+            get => _simulatingPhysics;
             set
             {
                 if (_simulatingPhysics == value)
@@ -172,7 +151,7 @@ namespace CustomEngine.Rendering
         }
         public bool CollisionEnabled
         {
-            get { return _collisionEnabled; }
+            get => _collisionEnabled;
             set
             {
                 if (_collisionEnabled == value)
@@ -188,10 +167,10 @@ namespace CustomEngine.Rendering
                     _collision.BroadphaseProxy.CollisionFilterMask = (CollisionFilterGroups)(short)(_collisionEnabled ? _collidesWith : CustomCollisionGroup.None);
             }
         }
-        public RigidBody CollisionObject { get { return _collision; } }
+        public RigidBody CollisionObject => _collision;
         public CustomCollisionGroup CollisionGroup
         {
-            get { return _group; }
+            get => _group;
             set
             {
                 if (_group == value)
@@ -207,7 +186,7 @@ namespace CustomEngine.Rendering
         }
         public CustomCollisionGroup CollidesWith
         {
-            get { return _collidesWith; }
+            get => _collidesWith;
             set
             {
                 if (_collidesWith == value)
@@ -285,35 +264,11 @@ namespace CustomEngine.Rendering
         {
             _prevVelocity = _velocity;
             _velocity = _collision.LinearVelocity;
+            _acceleration = (_velocity - _prevVelocity) / delta;
 
             _collision.GetWorldTransform(out Matrix transform);
             _worldMatrix = transform;
             TransformChanged(_worldMatrix);
-        }
-
-        public override void Write(VoidPtr address, StringTable table)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void Read(VoidPtr address, VoidPtr strings)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void Write(XmlWriter writer)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void Read(XMLReader reader)
-        {
-            throw new NotImplementedException();
-        }
-
-        protected override int OnCalculateSize(StringTable table)
-        {
-            throw new NotImplementedException();
         }
     }
 }

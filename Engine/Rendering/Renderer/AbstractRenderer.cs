@@ -155,7 +155,7 @@ namespace CustomEngine.Rendering
         {
             SetLineSize(lineWidth);
             PrimitiveManager m = CacheDebugPrimitive(name, solid ? DebugPrimitiveType.SolidQuad : DebugPrimitiveType.WireQuad);
-            Quaternion lookat = Quaternion.BetweenVectors(Vec3.Up, normal);
+            Quat lookat = Quat.BetweenVectors(Vec3.Up, normal);
             Matrix4 mtx = Matrix4.CreateTranslation(position) * Matrix4.CreateFromQuaternion(lookat) * Matrix4.CreateScale(halfExtents.X, 1.0f, halfExtents.Y);
             m.Render(mtx, mtx.Inverted().Transposed().GetRotationMatrix3());
         }

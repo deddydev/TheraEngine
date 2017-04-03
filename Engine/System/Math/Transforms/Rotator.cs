@@ -31,8 +31,11 @@ namespace System
             _rotationOrder = rotationOrder;
         }
 
+        [Serialize("PitchYawRoll")]
         public Vec3 _pyr;
+        [Serialize("Order", IsXmlAttribute = true)]
         public Order _rotationOrder = Order.YPR;
+
         public event Action Changed;
         private int _updateIndex = 0;
 
@@ -44,7 +47,7 @@ namespace System
             if (--_updateIndex == 0)
                 Changed?.Invoke();
         }
-        public Quaternion GetQuaternion() { return Quaternion.FromRotator(this); }
+        public Quat GetQuaternion() { return Quat.FromRotator(this); }
         public Matrix4 GetMatrix() { return Matrix4.CreateFromRotator(this); }
         public Matrix4 GetInverseMatrix() { return Matrix4.CreateFromRotator(Inverted()); }
         public Vec3 GetDirection() { return TransformVector(Vec3.Forward); }
@@ -52,9 +55,9 @@ namespace System
         public Matrix4 GetYawMatrix() { return Matrix4.CreateRotationY(Yaw); }
         public Matrix4 GetPitchMatrix() { return Matrix4.CreateRotationX(Pitch); }
         public Matrix4 GetRollMatrix() { return Matrix4.CreateRotationZ(Roll); }
-        public Quaternion GetYawQuat() { return Quaternion.FromAxisAngle(Vec3.Up, Yaw); }
-        public Quaternion GetPitchQuat() { return Quaternion.FromAxisAngle(Vec3.Right, Pitch); }
-        public Quaternion GetRollQuat() { return Quaternion.FromAxisAngle(Vec3.Forward, Roll); }
+        public Quat GetYawQuat() { return Quat.FromAxisAngle(Vec3.Up, Yaw); }
+        public Quat GetPitchQuat() { return Quat.FromAxisAngle(Vec3.Right, Pitch); }
+        public Quat GetRollQuat() { return Quat.FromAxisAngle(Vec3.Forward, Roll); }
         public void SetDirection(Vec3 value) { SetRotations(value.LookatAngles()); }
         public Rotator HardCopy()
         {

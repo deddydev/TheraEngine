@@ -7,20 +7,20 @@ namespace System
 {
     [Serializable]
     [StructLayout(LayoutKind.Sequential)]
-    public unsafe struct Quaternion : IEquatable<Quaternion>
+    public unsafe struct Quat : IEquatable<Quat>
     {
-        public static readonly Quaternion Identity = new Quaternion(0.0f, 0.0f, 0.0f, 1.0f);
+        public static readonly Quat Identity = new Quat(0.0f, 0.0f, 0.0f, 1.0f);
 
         public float X, Y, Z, W;
 
-        public Quaternion(Vec3 v, float w)
+        public Quat(Vec3 v, float w)
         {
             X = v.X;
             Y = v.Y;
             Z = v.Z;
             W = w;
         }
-        public Quaternion(float x, float y, float z, float w)
+        public Quat(float x, float y, float z, float w)
         {
             X = x;
             Y = y;
@@ -69,7 +69,7 @@ namespace System
         }
         public Vec4 ToAxisAngle()
         {
-            Quaternion q = this;
+            Quat q = this;
             q.NormalizeFast();
 
             float den = (float)Sqrt(1.0 - q.W * q.W);
@@ -109,15 +109,15 @@ namespace System
             }
             return new Rotator(RadToDeg(pitch), RadToDeg(yaw), RadToDeg(roll), Rotator.Order.YPR);
         }
-        public Quaternion Normalized()
+        public Quat Normalized()
         {
-            Quaternion q = this;
+            Quat q = this;
             q.Normalize();
             return q;
         }
-        public Quaternion NormalizedFast()
+        public Quat NormalizedFast()
         {
-            Quaternion q = this;
+            Quat q = this;
             q.NormalizeFast();
             return q;
         }
@@ -134,17 +134,17 @@ namespace System
                 Xyzw *= invLen;
         }
         public void Invert() { W = -W; }
-        public Quaternion Inverted()
+        public Quat Inverted()
         {
             var q = this;
             q.Invert();
             return q;
         }
-        public static Quaternion Invert(Quaternion q)
+        public static Quat Invert(Quat q)
         {
             float lengthSq = q.LengthSquared;
             if (lengthSq != 0.0)
-                return new Quaternion(q.Xyz / -lengthSq, q.W / lengthSq);
+                return new Quat(q.Xyz / -lengthSq, q.W / lengthSq);
             else
                 return q;
         }
@@ -159,7 +159,7 @@ namespace System
         /// There are two rotations about the same axis that equal the same rotation,
         /// but from different directions.
         /// </summary>
-        public Quaternion Conjugated()
+        public Quat Conjugated()
         {
             var q = this;
             q.Conjugate();
@@ -170,52 +170,25 @@ namespace System
         /// </summary>
         /// <param name="initialVector">The starting vector</param>
         /// <param name="finalVector">The ending vector</param>
-        public static Quaternion BetweenVectors(Vec3 initialVector, Vec3 finalVector)
+        public static Quat BetweenVectors(Vec3 initialVector, Vec3 finalVector)
         {
-            Vec3 axis;
-            float angle;
-
-            initialVector.NormalizeFast();
-            finalVector.NormalizeFast();
-
-            float dot = initialVector | finalVector;
-
-            //dot is the cosine adj/hyp ratio between the two vectors, so
-            //dot == 1 is same direction
-            //dot == -1 is opposite direction
-            //dot == 0 is a 90 degree angle
-
-            if (dot > 0.999f)
-            {
-                axis = Vec3.Right;
-                angle = 0.0f;
-            }
-            else if (dot < -0.999f)
-            {
-                axis = Vec3.Right;
-                angle = 180.0f;
-            }
-            else
-            {
-                axis = initialVector ^ finalVector;
-                angle = RadToDeg((float)Acos(dot));
-            }
-            
+            AxisAngleBetween(initialVector, finalVector, out Vec3 axis, out float angle);
+                        
             //Invert the angle; a positive angle rotates DOWN instead of UP on the unit circle
             return FromAxisAngle(axis, -angle);
         }
-        public static Quaternion LookAt(Vec3 sourcePoint, Vec3 destPoint, Vec3 initialDirection)
+        public static Quat LookAt(Vec3 sourcePoint, Vec3 destPoint, Vec3 initialDirection)
         {
             return BetweenVectors(initialDirection, destPoint - sourcePoint);
         }
-        public static Quaternion FromAxisAngle(Vec3 axis, float angle)
+        public static Quat FromAxisAngle(Vec3 axis, float angle)
         {
             angle = DegToRad(angle);
 
             if (axis.LengthSquared == 0.0f)
                 return Identity;
 
-            Quaternion result = Identity;
+            Quat result = Identity;
 
             angle *= 0.5f;
             axis.NormalizeFast();
@@ -225,7 +198,7 @@ namespace System
             return result.NormalizedFast();
         }
 
-        public static Quaternion FromRotator(Rotator rotator)
+        public static Quat FromRotator(Rotator rotator)
         {
             return FromEulerAngles(rotator.Yaw, rotator.Pitch, rotator.Roll, rotator._rotationOrder);
         }
@@ -235,11 +208,11 @@ namespace System
         /// <param name="yaw">The yaw (heading), rotation around Y axis</param>
         /// <param name="pitch">The pitch (attitude), rotation around X axis</param>
         /// <param name="roll">The roll (bank), rotation around Z axis</param>
-        public static Quaternion FromEulerAngles(float pitch, float yaw, float roll, Rotator.Order order = Rotator.Order.YPR)
+        public static Quat FromEulerAngles(float pitch, float yaw, float roll, Rotator.Order order = Rotator.Order.YPR)
         {
-            Quaternion p = FromAxisAngle(Vec3.Right, pitch);
-            Quaternion y = FromAxisAngle(Vec3.Up, yaw);
-            Quaternion r = FromAxisAngle(Vec3.Forward, roll);
+            Quat p = FromAxisAngle(Vec3.Right, pitch);
+            Quat y = FromAxisAngle(Vec3.Up, yaw);
+            Quat r = FromAxisAngle(Vec3.Forward, roll);
             switch (order)
             {
                 case Rotator.Order.RYP: return r * y * p;
@@ -251,9 +224,9 @@ namespace System
             }
             return Identity;
         }
-        public static Quaternion FromMatrix(Matrix4 matrix)
+        public static Quat FromMatrix(Matrix4 matrix)
         {
-            Quaternion result = new Quaternion();
+            Quat result = new Quat();
             float trace = matrix.Trace;
 
             if (trace > 0)
@@ -303,17 +276,17 @@ namespace System
             }
             return result;
         }
-        public static Quaternion Scubic(Quaternion p1, Quaternion p2, Quaternion p3, Quaternion p4, float time)
+        public static Quat Scubic(Quat p1, Quat p2, Quat p3, Quat p4, float time)
         {
-            Quaternion q1 = Slerp(p1, p2, time);
-            Quaternion q2 = Slerp(p1, p2, time);
-            Quaternion q3 = Slerp(p1, p2, time);
+            Quat q1 = Slerp(p1, p2, time);
+            Quat q2 = Slerp(p1, p2, time);
+            Quat q3 = Slerp(p1, p2, time);
             return Squad(q1, q2, q3, time);
         }
-        public static Quaternion Squad(Quaternion q1, Quaternion q2, Quaternion q3, float time)
+        public static Quat Squad(Quat q1, Quat q2, Quat q3, float time)
         {
-            Quaternion r1 = Slerp(q1, q2, time);
-            Quaternion r2 = Slerp(q2, q3, time);
+            Quat r1 = Slerp(q1, q2, time);
+            Quat r2 = Slerp(q2, q3, time);
             return Slerp(r1, r2, time);
         }
         /// <summary>
@@ -323,7 +296,7 @@ namespace System
         /// <param name="q2">The second quaternion</param>
         /// <param name="blend">The blend factor</param>
         /// <returns>A smooth blend between the given quaternions</returns>
-        public static Quaternion Slerp(Quaternion q1, Quaternion q2, float blend)
+        public static Quat Slerp(Quat q1, Quat q2, float blend)
         {
             // if either input is zero, return the other.
             if (q1.LengthSquared == 0.0f)
@@ -366,7 +339,7 @@ namespace System
                 blendB = blend;
             }
 
-            Quaternion result = new Quaternion(blendA * q1.Xyz + blendB * q2.Xyz, blendA * q1.W + blendB * q2.W);
+            Quat result = new Quat(blendA * q1.Xyz + blendB * q2.Xyz, blendA * q1.W + blendB * q2.W);
             if (result.LengthSquared > 0.0f)
                 return result.NormalizedFast();
             else
@@ -393,7 +366,7 @@ namespace System
             RYZX, RYZY, RYXZ, RYXY,
             RZXY, RZXZ, RZYX, RZYZ,
         }
-        public static Quaternion FromEulerAngles(float pitch, float yaw, float roll, AxisCombo axes)
+        public static Quat FromEulerAngles(float pitch, float yaw, float roll, AxisCombo axes)
         {
             float
                 ai = DegToRad(roll) * 0.5f,
@@ -447,7 +420,7 @@ namespace System
             //Z = c1 * s2 * c3 - s1 * c2 * s3;
             //W = c1 * c2 * c3 - s1 * s2 * s3;
 
-            Quaternion q = new Quaternion();
+            Quat q = new Quat();
             float* p = q.Data;
             if (repetition)
             {
@@ -478,48 +451,48 @@ namespace System
         //Slower, traditional form
         public Vec4 Transform(Vec4 vec)
         {
-            Quaternion v = new Quaternion(vec.X, vec.Y, vec.Z, vec.W);
+            Quat v = new Quat(vec.X, vec.Y, vec.Z, vec.W);
             v = this * v * Conjugated();
             return new Vec4(v.X, v.Y, v.Z, v.W);
         }
-        public static Vec3 operator *(Quaternion quat, Vec3 vec)
+        public static Vec3 operator *(Quat quat, Vec3 vec)
             => quat.Transform(vec);
-        public static Vec3 operator *(Vec3 vec, Quaternion quat)
+        public static Vec3 operator *(Vec3 vec, Quat quat)
             => quat.Transform(vec);
-        public static Vec4 operator *(Quaternion quat, Vec4 vec)
+        public static Vec4 operator *(Quat quat, Vec4 vec)
             => quat.Transform(vec);
-        public static Vec4 operator *(Vec4 vec, Quaternion quat)
+        public static Vec4 operator *(Vec4 vec, Quat quat)
             => quat.Transform(vec);
-        public static Quaternion operator +(Quaternion left, Quaternion right)
+        public static Quat operator +(Quat left, Quat right)
         {
             left.Xyzw += right.Xyzw;
             return left;
         }
-        public static Quaternion operator -(Quaternion left, Quaternion right)
+        public static Quat operator -(Quat left, Quat right)
         {
             left.Xyzw -= right.Xyzw;
             return left;
         }
-        public static Quaternion operator *(Quaternion left, Quaternion right)
+        public static Quat operator *(Quat left, Quat right)
         {
-            return new Quaternion(
+            return new Quat(
                 right.W * left.Xyz + left.W * right.Xyz + (left.Xyz ^ right.Xyz),
                 left.W * right.W - (left.Xyz | right.Xyz));
         }
         
-        public static Quaternion operator *(Quaternion quaternion, float scale)
+        public static Quat operator *(Quat quaternion, float scale)
         {
-            return new Quaternion(quaternion.X * scale, quaternion.Y * scale, quaternion.Z * scale, quaternion.W * scale);
+            return new Quat(quaternion.X * scale, quaternion.Y * scale, quaternion.Z * scale, quaternion.W * scale);
         }
-        public static Quaternion operator *(float scale, Quaternion quaternion)
+        public static Quat operator *(float scale, Quat quaternion)
         {
-            return new Quaternion(quaternion.X * scale, quaternion.Y * scale, quaternion.Z * scale, quaternion.W * scale);
+            return new Quat(quaternion.X * scale, quaternion.Y * scale, quaternion.Z * scale, quaternion.W * scale);
         }
-        public static bool operator ==(Quaternion left, Quaternion right)
+        public static bool operator ==(Quat left, Quat right)
         {
             return left.Equals(right);
         }
-        public static bool operator !=(Quaternion left, Quaternion right)
+        public static bool operator !=(Quat left, Quat right)
         {
             return !left.Equals(right);
         }
@@ -529,9 +502,9 @@ namespace System
         }
         public override bool Equals(object other)
         {
-            if (other is Quaternion == false)
+            if (other is Quat == false)
                 return false;
-            return this == (Quaternion)other;
+            return this == (Quat)other;
         }
         public override int GetHashCode()
         {
@@ -540,7 +513,7 @@ namespace System
                 return (Xyz.GetHashCode() * 397) ^ W.GetHashCode();
             }
         }
-        public bool Equals(Quaternion other)
+        public bool Equals(Quat other)
         {
             return Xyz == other.Xyz && W == other.W;
         }

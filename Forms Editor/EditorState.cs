@@ -8,6 +8,6 @@ namespace TheraEditor
 {
     public class EditorState
     {
-        public bool _hasChanged;
+        public List<string> _changedFields = new List<string>();
     }
 }

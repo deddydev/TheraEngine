@@ -14,9 +14,9 @@ namespace TheraEditor
         {
 
         }
-        protected override void SetDefaults()
+        protected override void PreConstruct()
         {
-            base.SetDefaults();
+            base.PreConstruct();
             RegisterTick(ETickGroup.PrePhysics, ETickOrder.Logic);
         }
         public override void RegisterInput(InputInterface input)

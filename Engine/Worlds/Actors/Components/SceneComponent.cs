@@ -17,12 +17,7 @@ namespace CustomEngine.Worlds.Actors.Components
     {
         public SceneComponent()
         {
-            _children.Added         += _children_Added;
-            _children.AddedRange    += _children_AddedRange;
-            _children.Inserted      += _children_Inserted;
-            _children.InsertedRange += _children_InsertedRange;
-            _children.Removed       += _children_Removed;
-            _children.RemovedRange  += _children_RemovedRange;
+            ChildComponents = new MonitoredList<SceneComponent>();
         }
 
         public event Action WorldTransformChanged;
@@ -34,7 +29,7 @@ namespace CustomEngine.Worlds.Actors.Components
         private Matrix4 _localTransform = Matrix4.Identity;
         private Matrix4 _inverseLocalTransform = Matrix4.Identity;
         internal ISocket _parent;
-        protected MonitoredList<SceneComponent> _children = new MonitoredList<SceneComponent>();
+        protected MonitoredList<SceneComponent> _children;
 
         public virtual Matrix4 WorldMatrix
         {
@@ -95,8 +90,8 @@ namespace CustomEngine.Worlds.Actors.Components
         {
             get
             {
-                if (_simulatingPhysics)
-                    throw new InvalidOperationException("Component is simulating physics; local transform is not updated.");
+                //if (_simulatingPhysics)
+                //    throw new InvalidOperationException("Component is simulating physics; local transform is not updated.");
                 return _localTransform;
             }
         }
@@ -104,12 +99,12 @@ namespace CustomEngine.Worlds.Actors.Components
         {
             get
             {
-                if (_simulatingPhysics)
-                    throw new InvalidOperationException("Component is simulating physics; inverse local transform is not updated.");
+                //if (_simulatingPhysics)
+                //    throw new InvalidOperationException("Component is simulating physics; inverse local transform is not updated.");
                 return _inverseLocalTransform;
             }
         }
-        protected void SetLocalTransforms(Matrix4 transform, Matrix4 inverse)
+        protected virtual void SetLocalTransforms(Matrix4 transform, Matrix4 inverse)
         {
             _localTransform = transform;
             _inverseLocalTransform = inverse;
@@ -133,9 +128,8 @@ namespace CustomEngine.Worlds.Actors.Components
             _simulatingPhysics = false;
             if (retainCurrentPosition)
             {
-                _localTransform = WorldMatrix * GetInverseParentMatrix();
-                _inverseLocalTransform = GetParentMatrix() * InverseWorldMatrix;
                 _inverseWorldTransform = WorldMatrix.Inverted();
+                SetLocalTransforms(WorldMatrix * GetInverseParentMatrix(), GetParentMatrix() * InverseWorldMatrix);
             }
             foreach (SceneComponent c in ChildComponents)
                 c.PhysicsSimulationEnded();
@@ -151,7 +145,7 @@ namespace CustomEngine.Worlds.Actors.Components
         }
         public override IActor Owner
         {
-            get { return base.Owner; }
+            get => base.Owner;
             set
             {
                 base.Owner = value;
@@ -161,20 +155,45 @@ namespace CustomEngine.Worlds.Actors.Components
         }
         public MonitoredList<SceneComponent> ChildComponents
         {
-            get { return _children; }
+            get => _children;
             set
             {
-                _children.Clear();
-                _children = value ?? new MonitoredList<SceneComponent>();
+                if (_children != null)
+                {
+                    _children.Clear();
+                    _children.Added -= _children_Added;
+                    _children.AddedRange -= _children_AddedRange;
+                    _children.Inserted -= _children_Inserted;
+                    _children.InsertedRange -= _children_InsertedRange;
+                    _children.Removed -= _children_Removed;
+                    _children.RemovedRange -= _children_RemovedRange;
+                }
+                if (value != null)
+                {
+                    _children = value;
+                    _children.Added += _children_Added;
+                    _children.AddedRange += _children_AddedRange;
+                    _children.Inserted += _children_Inserted;
+                    _children.InsertedRange += _children_InsertedRange;
+                    _children.Removed += _children_Removed;
+                    _children.RemovedRange += _children_RemovedRange;
+                }
             }
         }
+
         public Vec3 GetWorldPoint() 
             => _worldTransform.GetPoint();
         public Matrix4 GetWorldAnisotropicRotation() 
             => _worldTransform.GetRotationMatrix4();
 
+        /// <summary>
+        /// Returns the world transform of the parent scene component.
+        /// </summary>
         public Matrix4 GetParentMatrix()
             => Parent == null ? Matrix4.Identity : Parent.WorldMatrix;
+        /// <summary>
+        /// Returns the inverse of the world transform of the parent scene component.
+        /// </summary>
         public Matrix4 GetInverseParentMatrix()
             => Parent == null ? Matrix4.Identity : Parent.InverseWorldMatrix;
         
@@ -190,11 +209,12 @@ namespace CustomEngine.Worlds.Actors.Components
             InverseWorldMatrix * Owner.RootComponent.WorldMatrix;
 
         [Category("Rendering")]
-        public bool IsSpawned => Owner.IsSpawned;
+        public bool IsSpawned
+            => Owner.IsSpawned;
         [Category("Rendering")]
         public ISocket Parent
         {
-            get { return _parent; }
+            get => _parent;
             set
             {
                 if (_parent != null)
@@ -251,6 +271,7 @@ namespace CustomEngine.Worlds.Actors.Components
             {
                 item._parent = null;
                 item.Owner = null;
+                item.RecalcGlobalTransform();
             }
             Owner?.GenerateSceneComponentCache();
         }
@@ -258,6 +279,7 @@ namespace CustomEngine.Worlds.Actors.Components
         {
             item._parent = null;
             item.Owner = null;
+            item.RecalcGlobalTransform();
             Owner?.GenerateSceneComponentCache();
         }
         private void _children_InsertedRange(IEnumerable<SceneComponent> items, int index)
@@ -270,6 +292,7 @@ namespace CustomEngine.Worlds.Actors.Components
             {
                 item._parent = this;
                 item.Owner = Owner;
+                item.RecalcGlobalTransform();
             }
             Owner?.GenerateSceneComponentCache();
         }
@@ -278,6 +301,7 @@ namespace CustomEngine.Worlds.Actors.Components
         {
             item._parent = this;
             item.Owner = Owner;
+            item.RecalcGlobalTransform();
             Owner?.GenerateSceneComponentCache();
         }
         public void AttachTo(SkeletalMeshComponent mesh, string socketName)

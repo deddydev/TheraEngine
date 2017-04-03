@@ -89,15 +89,13 @@ namespace TheraEditor
             _openFileDelegate = new DelegateOpenFile(ImportFile);
             _nodes = new Dictionary<string, TreeNode>();
 
-            _contentPath = Engine.StartupPath + Engine.ContentFolderRel;
+            _contentPath = Engine.StartupPath + Engine.ContentFolderRel + "\\";
             if (!string.IsNullOrEmpty(_contentPath) && Directory.Exists(_contentPath))
             {
-                _contentWatcher = new FileSystemWatcher()
+                _contentWatcher = new FileSystemWatcher(_contentPath, FileManager.GetListFilter())
                 {
-                    Filter = FileManager.GetListFilter(),
                     EnableRaisingEvents = true,
                     IncludeSubdirectories = true,
-                    Path = _contentPath,
                 };
                 _contentWatcher.Changed += _contentWatcher_Changed;
                 _contentWatcher.Created += _contentWatcher_Created;

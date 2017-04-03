@@ -11,8 +11,23 @@ namespace CustomEngine.Worlds.Actors.Components
             if (info != null)
             {
                 info.BodyInfo.CollisionShape = GetCollisionShape();
+                if (info.BodyInfo != null)
+                {
+                    info.BodyInfo.MotionState = new DefaultMotionState(WorldMatrix);
+                    //if (info.BodyInfo.MotionState != null)
+                    //{
+                    //    DefaultMotionState ms = (DefaultMotionState)info.BodyInfo.MotionState;
+                    //    ms.StartWorldTrans = WorldMatrix;
+                    //    ms.WorldTransform = WorldMatrix;
+                    //    ms.GraphicsWorldTrans = WorldMatrix;
+                    //}
+                    //else
+                    //    info.BodyInfo.StartWorldTransform = WorldMatrix;
+                }
                 _physics = new PhysicsDriver(this, info, PhysicsTransformChanged, PhysicsSimulationStateChanged);
             }
+            else
+                _physics = null;
         }
 
         private void PhysicsSimulationStateChanged(bool isSimulating)
@@ -84,8 +99,6 @@ namespace CustomEngine.Worlds.Actors.Components
         protected virtual void PhysicsTransformChanged(Matrix4 worldMatrix)
         {
             WorldMatrix = worldMatrix;
-            foreach (SceneComponent c in _children)
-                c.RecalcGlobalTransform();
         }
     }
 }

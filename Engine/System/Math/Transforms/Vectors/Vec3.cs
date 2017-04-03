@@ -428,7 +428,7 @@ namespace System
             Vec3 thatNorm = startNormal.NormalizedFast();
             Vec3 axis = (thisNorm ^ thatNorm).NormalizedFast();
             float angle = RadToDeg((float)Acos(thisNorm | thatNorm));
-            Quaternion q = Quaternion.FromAxisAngle(axis, angle);
+            Quat q = Quat.FromAxisAngle(axis, angle);
             Rotator r = q.ToEuler();
             //Rotator r = startNormal.LookatAngles(Forward);
             //return new Rotator(

@@ -9,8 +9,6 @@ namespace System
 {
     public class Plane : FileObject
     {
-        public const string XMLTag = "plane";
-
         /*
         * Represents a plane a certain distance from the origin.
         * Ax + By + Cz + D = 0
@@ -23,7 +21,9 @@ namespace System
         *          origin
         */
 
+        [Serialize("Normal")]
         protected Vec3 _normal;
+        [Serialize("Distance")]
         protected float _distance;
 
         public Plane()
@@ -89,8 +89,8 @@ namespace System
         }
         public float Distance
         {
-            get { return _distance; }
-            set { _distance = value; }
+            get => _distance;
+            set => _distance = value;
         }
         public Vec3 Point
         {
@@ -102,7 +102,7 @@ namespace System
         }
         public Vec3 Normal
         {
-            get { return _normal; }
+            get => _normal;
             set
             {
                 Vec3 point = Point;
@@ -111,7 +111,6 @@ namespace System
                 Point = point;
             }
         }
-
         public void NormalizeFast()
         {
             float magnitude = 1.0f / Normal.LengthFast;
@@ -124,10 +123,7 @@ namespace System
             _normal *= magnitude;
             _distance *= magnitude;
         }
-        public void FlipNormal()
-        {
-            Normal = -Normal;
-        }
+        public void FlipNormal() => Normal = -Normal;
         public EPlaneIntersection IntersectsBox(BoundingBox box)
         {
             Vec3 min;
@@ -161,13 +157,9 @@ namespace System
             return EPlaneIntersection.Intersecting;
         }
         public Vec3 ClosestPoint(Vec3 point)
-        {
-            return Collision.ClosestPointPlanePoint(this, point);
-        }
+            => Collision.ClosestPointPlanePoint(this, point);
         public float DistanceTo(Vec3 point)
-        {
-            return Collision.DistancePlanePoint(this, point);
-        }
+            => Collision.DistancePlanePoint(this, point);
         public Plane TransformedBy(Matrix4 transform)
         {
             Vec3 point = Point;
@@ -202,58 +194,59 @@ namespace System
             return PrimitiveData.FromQuads(culling, new PrimitiveBufferInfo(), new VertexQuad(v0, v1, v2, v3));
         }
 
-        protected override int OnCalculateSize(StringTable table)
-            => Header.Size;
-        public unsafe override void Write(VoidPtr address, StringTable table)
-            => *(Header*)address = this;
-        public unsafe override void Read(VoidPtr address, VoidPtr strings)
-        {
-            Header h = *(Header*)address;
-            _normal = h._normal;
-            _distance = h._distance;
-        }
-        public override void Write(XmlWriter writer)
-        {
-            writer.WriteStartElement(XMLTag);
-            writer.WriteElementString("normal", _normal.ToString(false, false));
-            writer.WriteElementString("distance", _distance.ToString());
-            //writer.WriteElementString("point", Point.ToString(false, false));
-            writer.WriteEndElement();
-        }
-        public override void Read(XMLReader reader)
-        {
-            if (!reader.Name.Equals(XMLTag, true))
-                throw new Exception();
-            while (reader.BeginElement())
-            {
-                if (reader.Name.Equals("normal", true))
-                    Normal = Vec3.Parse(reader.ReadElementString());
-                else if (reader.Name.Equals("distance", true))
-                    _distance = float.Parse(reader.ReadElementString());
-                //else if (reader.Name.Equals("point", true))
-                //    Point = Vec3.Parse(reader.ReadElementString());
-                reader.EndElement();
-            }
-        }
+        //public const string XMLTag = "plane";
+        //protected override int OnCalculateSize(StringTable table)
+        //    => Header.Size;
+        //public unsafe override void Write(VoidPtr address, StringTable table)
+        //    => *(Header*)address = this;
+        //public unsafe override void Read(VoidPtr address, VoidPtr strings)
+        //{
+        //    Header h = *(Header*)address;
+        //    _normal = h._normal;
+        //    _distance = h._distance;
+        //}
+        //public override void Write(XmlWriter writer)
+        //{
+        //    writer.WriteStartElement(XMLTag);
+        //    writer.WriteElementString("normal", _normal.ToString(false, false));
+        //    writer.WriteElementString("distance", _distance.ToString());
+        //    //writer.WriteElementString("point", Point.ToString(false, false));
+        //    writer.WriteEndElement();
+        //}
+        //public override void Read(XMLReader reader)
+        //{
+        //    if (!reader.Name.Equals(XMLTag, true))
+        //        throw new Exception();
+        //    while (reader.BeginElement())
+        //    {
+        //        if (reader.Name.Equals("normal", true))
+        //            Normal = Vec3.Parse(reader.ReadElementString());
+        //        else if (reader.Name.Equals("distance", true))
+        //            _distance = float.Parse(reader.ReadElementString());
+        //        //else if (reader.Name.Equals("point", true))
+        //        //    Point = Vec3.Parse(reader.ReadElementString());
+        //        reader.EndElement();
+        //    }
+        //}
         
-        [StructLayout(LayoutKind.Sequential, Pack = 1)]
-        public struct Header
-        {
-            public const int Size = 0x10;
+        //[StructLayout(LayoutKind.Sequential, Pack = 1)]
+        //public struct Header
+        //{
+        //    public const int Size = 0x10;
 
-            public float _distance;
-            public BVec3 _normal;
+        //    public float _distance;
+        //    public BVec3 _normal;
 
-            public static implicit operator Header(Plane p)
-            {
-                return new Header()
-                {
-                    _distance = p._distance,
-                    _normal = p._normal,
-                };
-            }
-            public static implicit operator Plane(Header h)
-                => new Plane(h._normal, h._distance);
-        }
+        //    public static implicit operator Header(Plane p)
+        //    {
+        //        return new Header()
+        //        {
+        //            _distance = p._distance,
+        //            _normal = p._normal,
+        //        };
+        //    }
+        //    public static implicit operator Plane(Header h)
+        //        => new Plane(h._normal, h._distance);
+        //}
     }
 }

@@ -62,11 +62,11 @@ namespace CustomEngine.Files
             { typeof(IMultiFileRef), new FilterInfo("Multi File Reference", "FREF", "cmref") },
             { typeof(ISingleFileRef), new FilterInfo("Single File Reference", "FREF", "csref") },
 
-            { typeof(World), new FilterInfo("World", "CWRL", "xcworld", "bcworld") },
+            { typeof(World), new FilterInfo("World", "CWRL", "cworld") },
             { typeof(WorldSettings), new FilterInfo("World Settings", "SETT", "csettings") },
             { typeof(WorldState), new FilterInfo("World State", "STAT", "cstate") },
 
-            { typeof(Map), new FilterInfo("Map", "CMAP", "xcmap", "bcmap") },
+            { typeof(Map), new FilterInfo("Map", "CMAP", "cmap") },
             { typeof(MapSettings), new FilterInfo("Map Settings", "SETT", "csettings") },
             { typeof(MapState), new FilterInfo("Map State", "STAT", "cstate") },
 

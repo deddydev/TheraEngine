@@ -48,6 +48,10 @@ namespace CustomEngine.Worlds.Actors
 
         public PawnController Controller => _controller;
         public LocalPlayerController LocalPlayerController => _controller as LocalPlayerController;
+
+        /// <summary>
+        /// Dictates the component controlling the view of this pawn's controller.
+        /// </summary>
         public CameraComponent CurrentCameraComponent
         {
             get => _currentCameraComponent;
@@ -60,18 +64,16 @@ namespace CustomEngine.Worlds.Actors
             }
         }
 
-        public Pawn() : base() { }
-        public Pawn(PlayerIndex possessor) : base() { QueuePossession(possessor); }
+        public Pawn(bool deferInitialization = false) : base(deferInitialization) { }
+        public Pawn(bool deferInitialization, PlayerIndex possessor) : base(deferInitialization) { QueuePossession(possessor); }
         public Pawn(T root, params LogicComponent[] logicComponents)
         : base(root, logicComponents) { }
         public Pawn(PlayerIndex possessor, T root, params LogicComponent[] logicComponents)
         : base(root, logicComponents) { QueuePossession(possessor); }
 
         public void QueuePossession(PlayerIndex possessor)
-        {
-            Engine.QueuePossession(this, possessor);
-        }
-
+            => Engine.QueuePossession(this, possessor);
+        
         public virtual void OnPossessed(PawnController possessor)
         {
             if (possessor == null)
@@ -90,9 +92,9 @@ namespace CustomEngine.Worlds.Actors
 
             _controller = null;
         }
-        public void RequestRegisterInput()
+        public InputInterface RequestRegisterInput()
         {
-            
+            return LocalPlayerController.Input;
         }
         public virtual void RegisterInput(InputInterface input) { }
         internal override void Tick(float delta)

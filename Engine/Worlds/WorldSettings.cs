@@ -13,10 +13,10 @@ namespace CustomEngine.Worlds
     public class WorldSettings : FileObject
     {
         public BoundingBox OriginRebaseBounds => _originRebaseBounds;
-        public BoundingBox WorldBounds
+        public BoundingBox Bounds
         {
-            get => _worldBounds;
-            set => _worldBounds = value;
+            get => _bounds;
+            set => _bounds = value;
         }
         public WorldState State
         {
@@ -24,14 +24,18 @@ namespace CustomEngine.Worlds
             set => _state = value;
         }
 
-        private BoundingBox _worldBounds = BoundingBox.FromMinMax(new Vec3(-500.0f), new Vec3(500.0f));
+        [Serialize("Bounds")]
+        private BoundingBox _bounds = BoundingBox.FromMinMax(new Vec3(-500.0f), new Vec3(500.0f));
+        [Serialize("OriginRebaseBounds")]
         private BoundingBox _originRebaseBounds;
-        public List<Map> _defaultMaps;
+        [Serialize("Maps")]
+        public List<Map> _maps;
+        [Serialize("State")]
         public WorldState _state;
 
         public List<Material> CollectDefaultMaterials()
         {
-            foreach (Map m in _defaultMaps)
+            foreach (Map m in _maps)
             {
                 if (m.Settings.VisibleByDefault)
                 {
@@ -41,24 +45,28 @@ namespace CustomEngine.Worlds
             return null;
         }
 
+        public WorldSettings()
+        {
+
+        }
         public WorldSettings(string name, WorldState state, params Map[] maps)
         {
-            _defaultMaps = maps.ToList();
-            _originRebaseBounds = _worldBounds;
+            _maps = maps.ToList();
+            _originRebaseBounds = _bounds;
             _name = name;
             _state = state;
         }
         public WorldSettings(string name, WorldState state)
         {
-            _originRebaseBounds = _worldBounds;
-            _defaultMaps = new List<Map>();
+            _originRebaseBounds = _bounds;
+            _maps = new List<Map>();
             _name = name;
             _state = state;
         }
         public WorldSettings(string name)
         {
-            _originRebaseBounds = _worldBounds;
-            _defaultMaps = new List<Map>();
+            _originRebaseBounds = _bounds;
+            _maps = new List<Map>();
             _name = name;
             _state = new WorldState();
         }

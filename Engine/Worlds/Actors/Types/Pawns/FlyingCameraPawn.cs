@@ -47,7 +47,7 @@ namespace CustomEngine.Worlds.Actors
     public class FlyingCameraPawn : Pawn<CameraComponent>
     {
         public FlyingCameraPawn() : base() { }
-        public FlyingCameraPawn(PlayerIndex possessor) : base(possessor) { }
+        public FlyingCameraPawn(PlayerIndex possessor) : base(false, possessor) { }
 
         protected override CameraComponent OnConstruct()
         {
@@ -72,12 +72,16 @@ namespace CustomEngine.Worlds.Actors
         bool Rotating => _rightClickPressed && _ctrl;
         bool Translating => _rightClickPressed && !_ctrl;
 
-        protected override void SetDefaults()
+        protected override void PreConstruct()
         {
             RegisterTick(ETickGroup.PrePhysics, ETickOrder.Input);
+            base.PreConstruct();
+        }
+        protected override void PostConstruct()
+        {
             RootComponent.Camera.TranslateAbsolute(new Vec3(0.0f, 0.0f, 100.0f));
             //CameraComponent.Camera.Rotation.Pitch = -45.0f;
-            base.SetDefaults();
+            base.PostConstruct();
         }
         public override void RegisterInput(InputInterface input)
         {

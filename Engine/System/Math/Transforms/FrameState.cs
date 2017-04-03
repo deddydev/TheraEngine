@@ -51,14 +51,20 @@ namespace System
             _rotation = rotate;
             CreateTransform();
         }
-        
-        private Rotator _rotation;
+
         //private Quaternion _quaternion = Quaternion.Identity;
+
+        [Serialize("Rotation")]
+        private Rotator _rotation;
+        [Serialize("Translation")]
         private Vec3 _translation = Vec3.Zero;
+        [Serialize("Scale")]
         private Vec3 _scale = Vec3.One;
+        [Serialize("Order", IsXmlAttribute = true)]
+        private TransformOrder _transformOrder = TransformOrder.TRS;
+
         private Matrix4 _transform = Matrix4.Identity;
         private Matrix4 _inverseTransform = Matrix4.Identity;
-        private TransformOrder _transformOrder = TransformOrder.TRS;
 
         public event TranslationChange TranslationChanged;
         public event RotationChange YawChanged;

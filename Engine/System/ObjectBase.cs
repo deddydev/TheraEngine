@@ -30,13 +30,20 @@ namespace System
         public event RenamedEventHandler Renamed;
         public event ResourceEventHandler Disposing, UpdateProperties, UpdateEditor;
 
+        [Serialize("Name", IgnoreIfNull = false, IsXmlAttribute = true)]
         protected string _name;
-        protected bool _changed;
-        private ETickGroup? _tickGroup = null;
-        private ETickOrder? _tickOrder = null;
-        protected bool _isTicking = false;
-        private List<AnimationContainer> _animations = new List<AnimationContainer>();
+        [Serialize("UserData")]
         private object _userData;
+        [Serialize("TickGroup")]
+        private ETickGroup? _tickGroup = null;
+        [Serialize("TickOrder")]
+        private ETickOrder? _tickOrder = null;
+
+        protected bool _changed;
+        protected bool _isTicking = false;
+
+        [Serialize("Animations")]
+        private List<AnimationContainer> _animations;
 
         public object UserData
         {
@@ -118,6 +125,8 @@ namespace System
         public void AddAnimation(AnimationContainer anim, bool startNow = false)
         {
             anim.AnimationEnded += RemoveAnimation;
+            if (_animations == null)
+                _animations = new List<AnimationContainer>();
             _animations.Add(anim);
             anim._owners.Add(this);
             if (startNow)
@@ -125,10 +134,14 @@ namespace System
         }
         public void RemoveAnimation(AnimationContainer anim)
         {
+            if (_animations == null)
+                return;
             _animations.Remove(anim);
+            if (_animations.Count == 0)
+                _animations = null;
             anim._owners.Remove(this);
         }
-        public override string ToString() { return _name; }
+        public override string ToString() => _name;
     }
 //    [PSerializable]
 //    public class NotifyPropertyChangedAttribute : LocationInterceptionAspect

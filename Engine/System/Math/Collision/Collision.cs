@@ -1143,8 +1143,8 @@ namespace System
             EContainment c = AABBContainsFrustum(boxMin, boxMax, frustum);
             if (c != EContainment.Disjoint)
                 return EContainment.Intersects;
-            else if (c == EContainment.Contains)
-                return EContainment.ContainedWithin;
+            //else if (c == EContainment.Contains)
+            //    return EContainment.ContainedWithin;
 
             EContainment result = EContainment.Contains;
             int numOut, numIn;

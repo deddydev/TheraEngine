@@ -9,15 +9,18 @@ namespace CustomEngine.Worlds.Actors.Components
         CapsuleY _capsule;
         public CapsuleComponent(float radius, float halfHeight, PhysicsDriverInfo info) : base()
         {
-            _capsule = new CapsuleY(GetWorldPoint(), radius, halfHeight);
+            _capsule = new CapsuleY(Vec3.Zero, radius, halfHeight);
             InitPhysics(info);
         }
-
         public override Shape CullingVolume => _capsule;
-
+        internal override void RecalcGlobalTransform()
+        {
+            base.RecalcGlobalTransform();
+            _capsule.Center = GetWorldPoint();
+        }
         public override void Render()
         {
-            throw new NotImplementedException();
+            _capsule.Render();
         }
         protected override CollisionShape GetCollisionShape()
         {

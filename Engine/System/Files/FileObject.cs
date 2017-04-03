@@ -47,11 +47,11 @@ namespace CustomEngine.Files
             _calculatedSize = OnCalculateSize(table);
             return _calculatedSize;
         }
-        protected abstract int OnCalculateSize(StringTable table);
-        public abstract void Write(VoidPtr address, StringTable table);
-        public abstract void Read(VoidPtr address, VoidPtr strings);
-        public abstract void Write(XmlWriter writer);
-        public abstract void Read(XMLReader reader);
+        protected virtual int OnCalculateSize(StringTable table) => throw new NotImplementedException();
+        public virtual void Write(VoidPtr address, StringTable table) => throw new NotImplementedException();
+        public virtual void Read(VoidPtr address, VoidPtr strings) => throw new NotImplementedException();
+        public virtual void Write(XmlWriter writer) => throw new NotImplementedException();
+        public virtual void Read(XMLReader reader) => throw new NotImplementedException();
         public void Unload()
         {
             if (!string.IsNullOrEmpty(_filePath) && Engine.LoadedFiles.ContainsKey(_filePath))
@@ -237,8 +237,7 @@ namespace CustomEngine.Files
             }
             else
             {
-                CustomXmlSerializer s = new CustomXmlSerializer();
-                return s.Deserialize(filePath, t);
+                return CustomXmlSerializer.Deserialize(filePath, t);
             }
         }
         private static XmlWriterSettings _writerSettings = new XmlWriterSettings()
@@ -255,7 +254,9 @@ namespace CustomEngine.Files
             if (!Directory.Exists(directory))
                 Directory.CreateDirectory(directory);
             fileName = String.IsNullOrEmpty(fileName) ? "NewFile" : fileName;
-            directory = directory + "\\" + fileName + ".x" + FileManager.GetExtension(GetType());
+            if (!directory.EndsWith("\\"))
+                directory += "\\";
+            directory = directory + fileName + ".x" + FileManager.GetExtension(GetType());
 
             if (FileHeader.ManualXmlSerialize)
             {
@@ -272,8 +273,7 @@ namespace CustomEngine.Files
             }
             else
             {
-                CustomXmlSerializer s = new CustomXmlSerializer();
-                s.Serialize(this, directory);
+                CustomXmlSerializer.Serialize(this, directory);
             }
             
             _isWriting = false;

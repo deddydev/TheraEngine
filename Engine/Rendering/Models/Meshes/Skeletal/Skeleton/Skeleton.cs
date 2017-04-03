@@ -50,6 +50,8 @@ namespace CustomEngine.Rendering.Models
         private Dictionary<string, Bone> _boneNameCache = new Dictionary<string, Bone>();
         private Dictionary<int, Bone> _boneIndexCache = new Dictionary<int, Bone>();
         private SkeletalMeshComponent _owningComponent;
+
+        [Serialize("RootBones")]
         private Bone[] _rootBones;
 
         public Bone[] RootBones
@@ -158,90 +160,90 @@ namespace CustomEngine.Rendering.Models
             }
         }
 
-        public override void Read(XMLReader reader)
-        {
-            if (!reader.Name.Equals("skeleton", true))
-                throw new Exception();
-            _rootBones = null;
-            _boneNameCache = new Dictionary<string, Bone>();
-            while (reader.ReadAttribute())
-            {
-                if (reader.Name.Equals("childCount", true))
-                    _rootBones = new Bone[int.Parse((string)reader.Value)];
-            }
-            int index = 0;
-            while (reader.BeginElement())
-            {
-                if (reader.Name.Equals("bone", true))
-                {
-                    Bone b = new Bone(this);
-                    b.Read(reader);
-                    _rootBones[index++] = b;
-                }
-                reader.EndElement();
-            }
-        }
-        public unsafe override void Read(VoidPtr address, VoidPtr strings)
-        {
-            Header* h = (Header*)address;
-            int boneCount = h->_boneCount;
-            Bone[] bones = new Bone[boneCount];
-            List<Bone> rootBones = new List<Bone>();
-            //int[] parentIndices = new int[boneCount];
-            for (int i = 0; i < boneCount; ++i)
-            {
-                Bone.Header* hdr = &h->Bones[i];
-                Bone b = new Bone();
-                b.Read(hdr, strings);
-                int parentIndex = hdr->_parentIndex;
-                if (parentIndex < 0)
-                    rootBones.Add(b);
-                else
-                    //Avoid a second loop by assuming the parent was written before the child
-                    b.Parent = bones[parentIndex];
-                bones[i] = b;
-                //parentIndices[i] = hdr->_parentIndex;
-            }
-            //for (int i = 0; i < boneCount; ++i)
-            //    bones[i].Parent = bones[parentIndices[i]];
-            CalcFrameMatrices();
-        }
-        public override unsafe void Write(VoidPtr address, StringTable table)
-        {
-            Header* h = (Header*)address;
-            h->_boneCount = _boneIndexCache.Count;
-            int offset = 0;
-            foreach (Bone b in _rootBones)
-            {
-                b.Write(h->Bones + offset, table);
-                offset += b.CalculatedSize;
-            }
-        }
-        public override void Write(XmlWriter writer)
-        {
-            writer.WriteStartElement("skeleton");
-            writer.WriteAttributeString("totalCount", _boneNameCache.Count.ToString());
-            writer.WriteAttributeString("childCount", _rootBones.Length.ToString());
-            foreach (Bone b in _rootBones)
-                b.Write(writer);
-            writer.WriteEndElement();
-        }
+        //public override void Read(XMLReader reader)
+        //{
+        //    if (!reader.Name.Equals("skeleton", true))
+        //        throw new Exception();
+        //    _rootBones = null;
+        //    _boneNameCache = new Dictionary<string, Bone>();
+        //    while (reader.ReadAttribute())
+        //    {
+        //        if (reader.Name.Equals("childCount", true))
+        //            _rootBones = new Bone[int.Parse((string)reader.Value)];
+        //    }
+        //    int index = 0;
+        //    while (reader.BeginElement())
+        //    {
+        //        if (reader.Name.Equals("bone", true))
+        //        {
+        //            Bone b = new Bone(this);
+        //            b.Read(reader);
+        //            _rootBones[index++] = b;
+        //        }
+        //        reader.EndElement();
+        //    }
+        //}
+        //public unsafe override void Read(VoidPtr address, VoidPtr strings)
+        //{
+        //    Header* h = (Header*)address;
+        //    int boneCount = h->_boneCount;
+        //    Bone[] bones = new Bone[boneCount];
+        //    List<Bone> rootBones = new List<Bone>();
+        //    //int[] parentIndices = new int[boneCount];
+        //    for (int i = 0; i < boneCount; ++i)
+        //    {
+        //        Bone.Header* hdr = &h->Bones[i];
+        //        Bone b = new Bone();
+        //        b.Read(hdr, strings);
+        //        int parentIndex = hdr->_parentIndex;
+        //        if (parentIndex < 0)
+        //            rootBones.Add(b);
+        //        else
+        //            //Avoid a second loop by assuming the parent was written before the child
+        //            b.Parent = bones[parentIndex];
+        //        bones[i] = b;
+        //        //parentIndices[i] = hdr->_parentIndex;
+        //    }
+        //    //for (int i = 0; i < boneCount; ++i)
+        //    //    bones[i].Parent = bones[parentIndices[i]];
+        //    CalcFrameMatrices();
+        //}
+        //public override unsafe void Write(VoidPtr address, StringTable table)
+        //{
+        //    Header* h = (Header*)address;
+        //    h->_boneCount = _boneIndexCache.Count;
+        //    int offset = 0;
+        //    foreach (Bone b in _rootBones)
+        //    {
+        //        b.Write(h->Bones + offset, table);
+        //        offset += b.CalculatedSize;
+        //    }
+        //}
+        //public override void Write(XmlWriter writer)
+        //{
+        //    writer.WriteStartElement("skeleton");
+        //    writer.WriteAttributeString("totalCount", _boneNameCache.Count.ToString());
+        //    writer.WriteAttributeString("childCount", _rootBones.Length.ToString());
+        //    foreach (Bone b in _rootBones)
+        //        b.Write(writer);
+        //    writer.WriteEndElement();
+        //}
 
-        protected override int OnCalculateSize(StringTable table)
-        {
-            table.AddRange(_boneNameCache.Keys);
-            return Header.Size + _boneNameCache.Count * Bone.Header.Size;
-        }
+        //protected override int OnCalculateSize(StringTable table)
+        //{
+        //    table.AddRange(_boneNameCache.Keys);
+        //    return Header.Size + _boneNameCache.Count * Bone.Header.Size;
+        //}
 
-        [StructLayout(LayoutKind.Sequential, Pack = 1)]
-        public unsafe struct Header
-        {
-            public const int Size = 4;
+        //[StructLayout(LayoutKind.Sequential, Pack = 1)]
+        //public unsafe struct Header
+        //{
+        //    public const int Size = 4;
 
-            public bint _boneCount;
+        //    public bint _boneCount;
 
-            public Bone.Header* Bones { get { return (Bone.Header*)Address; } }
-            public VoidPtr Address { get { fixed (void* ptr = &this) return ptr; } }
-        }
+        //    public Bone.Header* Bones { get { return (Bone.Header*)Address; } }
+        //    public VoidPtr Address { get { fixed (void* ptr = &this) return ptr; } }
+        //}
     }
 }

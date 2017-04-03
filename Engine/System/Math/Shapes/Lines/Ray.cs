@@ -29,31 +29,30 @@
             return new Ray(newStart, newEnd - newStart);
         }
 
-        public Segment SegmentToPoint(Vec3 point)
-        {
-            throw new NotImplementedException();
-        }
-        public Segment SegmentToRay(Ray ray)
-        {
-            throw new NotImplementedException();
-        }
-        public Segment SegmentToSegment(Segment segment)
-        {
-            throw new NotImplementedException();
-        }
         public float DistanceToPointFast(Vec3 point)
             => (Direction ^ (point - StartPoint)).LengthFast;
         public float DistanceToPoint(Vec3 point)
             => (Direction ^ (point - StartPoint)).Length;
-        public float DistanceToRay(Ray ray)
-        {
-            throw new NotImplementedException();
-        }
-        public float DistanceToSegment(Segment segment)
-        {
-            throw new NotImplementedException();
-        }
 
+        //public float DistanceToRay(Ray ray)
+        //{
+        //    throw new NotImplementedException();
+        //}
+        //public float DistanceToSegment(Segment segment)
+        //{
+        //    throw new NotImplementedException();
+        //}
+
+        public static Vec3 GetPerpendicularVectorFromPoint(Vec3 startPoint, Vec3 direction, Vec3 point)
+        {
+            direction.NormalizeFast();
+            return (startPoint + ((point - startPoint).Dot(direction)) * direction) - point;
+        }
+        public Vec3 PerpendicularVectorFromPoint(Vec3 point)
+            => GetPerpendicularVectorFromPoint(StartPoint, Direction, point);
+        public Segment PerpendicularSegmentFromPoint(Vec3 point)
+            => new Segment(point, point + PerpendicularVectorFromPoint(point));
+        
         public bool LineSphereIntersect(Vec3 center, float radius, out Vec3 result)
         {
             Vec3 diff = Direction;
@@ -77,9 +76,8 @@
             return false;
         }
         public bool LinePlaneIntersect(Plane p, out Vec3 result)
-        {
-            return LinePlaneIntersect(p.Point, p.Normal, out result);
-        }
+            => LinePlaneIntersect(p.Point, p.Normal, out result);
+
         public bool LinePlaneIntersect(Vec3 point, Vec3 normal, out Vec3 result)
         {
             Vec3 diff = Direction;
@@ -90,14 +88,11 @@
                 result = new Vec3();
                 return false;
             }
-
             result = StartPoint + (diff * scale);
             return true;
         }
         public Vec3 PointAtNormalizedLineDistance(float distance)
-        {
-            return StartPoint + Direction * distance;
-        }
+            => StartPoint + Direction * distance;
         public Vec3 PointAtLineDistance(float distance)
         {
             Vec3 diff = Direction;

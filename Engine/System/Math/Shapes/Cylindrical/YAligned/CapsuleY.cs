@@ -11,39 +11,7 @@ namespace System
     {
         public CapsuleY(Vec3 center, float radius, float halfHeight) 
             : base(center, Vec3.UnitY, radius, halfHeight) { }
-
-        public override EContainment ContainedWithin(Frustum frustum)
-        {
-            throw new NotImplementedException();
-        }
-        public override EContainment ContainedWithin(Sphere sphere)
-        {
-            throw new NotImplementedException();
-        }
-        public override EContainment ContainedWithin(Box box)
-        {
-            throw new NotImplementedException();
-        }
-        public override EContainment ContainedWithin(BoundingBox box)
-        {
-            throw new NotImplementedException();
-        }
-        public override EContainment Contains(Box box)
-        {
-            throw new NotImplementedException();
-        }
-        public override EContainment Contains(Sphere sphere)
-        {
-            throw new NotImplementedException();
-        }
-        public override EContainment Contains(BoundingBox box)
-        {
-            throw new NotImplementedException();
-        }
-        public override bool Contains(Vec3 point)
-        {
-            throw new NotImplementedException();
-        }
+        
         public override void SetTransform(Matrix4 worldMatrix)
             => Center = worldMatrix.GetPoint();
         public override CollisionShape GetCollisionShape()
@@ -53,47 +21,28 @@ namespace System
         public override Shape TransformedBy(Matrix4 worldMatrix)
             => new CapsuleY(worldMatrix.GetPoint(), Radius, HalfHeight);
 
-        protected override int OnCalculateSize(StringTable table)
-            => Header.Size;
-        public override void Read(VoidPtr address, VoidPtr strings)
-        {
+        //[StructLayout(LayoutKind.Sequential, Pack = 1)]
+        //public struct Header
+        //{
+        //    public const int Size = 0x14;
 
-        }
-        public override void Read(XMLReader reader)
-        {
+        //    public BVec3 _center;
+        //    public float _radius;
+        //    public float _halfHeight;
 
-        }
-        public override void Write(VoidPtr address, StringTable table)
-        {
-
-        }
-        public override void Write(XmlWriter writer)
-        {
-
-        }
-        
-        [StructLayout(LayoutKind.Sequential, Pack = 1)]
-        public struct Header
-        {
-            public const int Size = 0x14;
-
-            public BVec3 _center;
-            public float _radius;
-            public float _halfHeight;
-
-            public static implicit operator Header(CapsuleY c)
-            {
-                return new Header()
-                {
-                    _radius = c._radius,
-                    _center = c._center,
-                    _halfHeight = c._halfHeight,
-                };
-            }
-            public static implicit operator CapsuleY(Header h)
-            {
-                return new CapsuleY(h._center, h._radius, h._halfHeight);
-            }
-        }
+        //    public static implicit operator Header(CapsuleY c)
+        //    {
+        //        return new Header()
+        //        {
+        //            _radius = c._radius,
+        //            _center = c._center,
+        //            _halfHeight = c._halfHeight,
+        //        };
+        //    }
+        //    public static implicit operator CapsuleY(Header h)
+        //    {
+        //        return new CapsuleY(h._center, h._radius, h._halfHeight);
+        //    }
+        //}
     }
 }

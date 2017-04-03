@@ -130,33 +130,6 @@ namespace CustomEngine.Files
             }
         }
         private void FileUnloaded() { _file = null; }
-        public override void Write(XmlWriter writer) { Write(writer, false); }
-        public void Write(XmlWriter writer, bool writeInternal)
-        {
-            base.Write(writer);
-            if (writeInternal && File != null)
-                _file.Write(writer);
-            else
-                writer.WriteAttributeString("path", _refPath);
-            writer.WriteEndElement();
-        }
-        public override void Write(VoidPtr address, StringTable table)
-        {
-            base.Write(address, table);
-        }
-        public override void Read(VoidPtr address, VoidPtr strings)
-        {
-            base.Read(address, strings);
-        }
-        public override void Read(XMLReader reader)
-        {
-            base.Read(reader);
-        }
-
-        protected override int OnCalculateSize(StringTable table)
-        {
-            throw new NotImplementedException();
-        }
 
         public static implicit operator T(SingleFileRef<T> fileRef) { return fileRef?.GetInstance(); }
         public static implicit operator SingleFileRef<T>(T file) { return new SingleFileRef<T>(file); }
@@ -168,6 +141,11 @@ namespace CustomEngine.Files
         public MultiFileRef(Type type) : base(type) { }
         public MultiFileRef(string filePath) : base(filePath) { }
         public MultiFileRef(string filePath, Type type) : base(filePath, type) { }
+        public MultiFileRef(T file) : base(file._filePath)
+        {
+            //SetFile(file, !string.IsNullOrEmpty(file._filePath));
+        }
+        
         public override T GetInstance()
         {
             if (string.IsNullOrEmpty(_refPath))
@@ -189,10 +167,10 @@ namespace CustomEngine.Files
             return file;
         }
 
-        protected override int OnCalculateSize(StringTable table)
-        {
-            throw new NotImplementedException();
-        }
+        public static implicit operator T(MultiFileRef<T> fileRef) { return fileRef?.GetInstance(); }
+        public static implicit operator MultiFileRef<T>(T file) { return new MultiFileRef<T>(file); }
+        public static implicit operator MultiFileRef<T>(Type type) { return new MultiFileRef<T>(type); }
+        public static implicit operator MultiFileRef<T>(string relativePath) { return new MultiFileRef<T>(relativePath); }
     }
     /// <summary>
     /// Indicates that this variable references a file that must be loaded.
@@ -228,9 +206,10 @@ namespace CustomEngine.Files
             RefPathAbsolute = filePath;
         }
 
-        protected Type _subType = null;
+        [Serialize("Path", IsXmlAttribute = true)]
         protected string _refPath = null;
         private string _absolutePath = null;
+        protected Type _subType = null;
 
         public string RefPathAbsolute
         {
@@ -261,27 +240,6 @@ namespace CustomEngine.Files
             return FileManager.IsSpecial(ext);
         }
         public abstract T GetInstance();
-        protected override int OnCalculateSize(StringTable table)
-        {
-            table.Add(RefPathAbsolute);
-            return FileRefHeader.Size;
-        }
-        public override void Write(XmlWriter writer)
-        {
-
-        }
-        public override void Write(VoidPtr address, StringTable table)
-        {
-
-        }
-        public override void Read(VoidPtr address, VoidPtr strings)
-        {
-
-        }
-        public override void Read(XMLReader reader)
-        {
-
-        }
     }
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public unsafe struct FileRefHeader

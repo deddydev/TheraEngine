@@ -239,13 +239,13 @@ namespace CustomEngine.Rendering.HUD
 
             _localTransform = Matrix4.TransformMatrix(
                 new Vec3(ScaleX, ScaleY, 0.0f),
-                Quaternion.Identity, 
+                Quat.Identity, 
                 new Vec3(BottomLeftTranslation),
                 TransformOrder.TRS);
 
             _invLocalTransform = Matrix4.TransformMatrix(
                 new Vec3(1.0f / ScaleX, 1.0f / ScaleY, 0.0f),
-                Quaternion.Identity,
+                Quat.Identity,
                 new Vec3(-BottomLeftTranslation),
                 TransformOrder.SRT);
 

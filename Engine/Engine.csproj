@@ -733,6 +733,7 @@
       <DependentUpon>RenderForm.cs</DependentUpon>
     </Compile>
     <Compile Include="System\Files\FileManager.cs" />
+    <Compile Include="System\Tools\BooleanExpressionParser.cs" />
     <Compile Include="System\Tools\Remapper.cs" />
     <Compile Include="System\Tools\Triangle Converter\CacheSimulator.cs" />
     <Compile Include="System\Data Structures\Deque\Deque.cs" />

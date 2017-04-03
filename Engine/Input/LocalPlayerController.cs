@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using CustomEngine.Input.Devices;
-using CustomEngine.Players;
 using CustomEngine.Rendering;
 using CustomEngine.Rendering.Cameras;
 using CustomEngine.Worlds.Actors;

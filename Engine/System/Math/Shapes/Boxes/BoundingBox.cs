@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using CustomEngine.Files;
 using System.Globalization;
 using BulletSharp;
-using CustomEngine.Worlds.Actors.Components;
 using System.IO;
 using System.Xml;
 using System.Runtime.InteropServices;
@@ -19,13 +18,14 @@ namespace System
     {
         public static List<BoundingBox> Active = new List<BoundingBox>();
 
-        protected Vec3 
-            _halfExtents = Vec3.Half, 
-            _translation = Vec3.Zero;
+        [Serialize("HalfExtents")]
+        protected Vec3 _halfExtents = Vec3.Half;
+        [Serialize("Translation")]
+        protected Vec3 _translation = Vec3.Zero;
 
         public Vec3 Minimum
         {
-            get { return _translation - _halfExtents; }
+            get => _translation - _halfExtents;
             set
             {
                 _translation = (Maximum + value) / 2.0f;
@@ -34,7 +34,7 @@ namespace System
         }
         public Vec3 Maximum
         {
-            get { return _translation + _halfExtents; }
+            get => _translation + _halfExtents;
             set
             {
                 _translation = (value + Minimum) / 2.0f;
@@ -43,13 +43,13 @@ namespace System
         }
         public Vec3 HalfExtents
         {
-            get { return _halfExtents; }
-            set { _halfExtents = value; }
+            get => _halfExtents;
+            set => _halfExtents = value;
         }
         public Vec3 Translation
         {
-            get { return _translation; }
-            set { _translation = value; }
+            get => _translation;
+            set => _translation = value;
         }
         public BoundingBox(float halfExtentX, float halfExtentY, float halfExtentZ)
             : this(new Vec3(halfExtentX, halfExtentY, halfExtentZ)) { }
@@ -78,26 +78,21 @@ namespace System
         }
 
         public static BoundingBox FromMinMax(Vec3 min, Vec3 max)
-        {
-            return new BoundingBox()
+            => new BoundingBox()
             {
                 _translation = (max + min) / 2.0f,
                 _halfExtents = (max - min) / 2.0f,
             };
-        }
         public static BoundingBox FromHalfExtentsTranslation(Vec3 halfExtents, Vec3 translation)
-        {
-            return new BoundingBox()
+            => new BoundingBox()
             {
                 _translation = translation,
                 _halfExtents = halfExtents,
             };
-        }
-
+        
         public override CollisionShape GetCollisionShape()
-        {
-            return new BoxShape(HalfExtents);
-        }
+            => new BoxShape(HalfExtents);
+        
         /// <summary>
         /// [T = top, B = bottom] 
         /// [B = back, F = front] 
@@ -112,9 +107,8 @@ namespace System
             out Vec3 BBR,
             out Vec3 BFL,
             out Vec3 BFR)
-        {
-            GetCorners(Minimum, Maximum, out TBL, out TBR, out TFL, out TFR, out BBL, out BBR, out BFL, out BFR);
-        }
+            => GetCorners(Minimum, Maximum, out TBL, out TBR, out TFL, out TFR, out BBL, out BBR, out BFL, out BFR);
+        
         /// <summary>
         /// [T = top, B = bottom] 
         /// [B = back, F = front] 
@@ -166,9 +160,8 @@ namespace System
             out Vec3 BBR,
             out Vec3 BFL,
             out Vec3 BFR)
-        {
-            GetCorners(_halfExtents, transform, out TBL, out TBR, out TFL, out TFR, out BBL, out BBR, out BFL, out BFR);
-        }
+            => GetCorners(_halfExtents, transform, out TBL, out TBR, out TFL, out TFR, out BBL, out BBR, out BFL, out BFR);
+        
         /// <summary>
         /// [T = top, B = bottom] 
         /// [B = back, F = front] 
@@ -230,10 +223,10 @@ namespace System
             Minimum.SetLequalTo(point);
             Maximum.SetGequalTo(point);
         }
+
         public override void Render()
-        {
-            Engine.Renderer.RenderAABB("", HalfExtents, Translation, _renderSolid, Color.Blue);
-        }
+            => Engine.Renderer.RenderAABB(ShapeName, HalfExtents, Translation, _renderSolid, Color.Blue);
+
         public static PrimitiveData WireframeMesh(Vec3 min, Vec3 max)
         {
             VertexLine 

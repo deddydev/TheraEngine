@@ -22,6 +22,22 @@ namespace System
         protected Vec3 _upAxis, _center;
         protected float _radius, _halfHeight;
         
+        public Vec3 GetTopCenterPoint()
+        {
+            return _center + _upAxis * _halfHeight;
+        }
+        public Vec3 GetBottomCenterPoint()
+        {
+            return _center + _upAxis * _halfHeight;
+        }
+        public Circle GetBottomCircle(bool normalFacingIn = false)
+        {
+            return new Circle(_radius, GetBottomCenterPoint(), normalFacingIn ? _upAxis : -_upAxis);
+        }
+        public Circle GetTopCircle(bool normalFacingIn = false)
+        {
+            return new Circle(_radius, GetTopCenterPoint(), normalFacingIn ? -_upAxis : _upAxis);
+        }
         public Vec3 Center
         {
             get => _center;

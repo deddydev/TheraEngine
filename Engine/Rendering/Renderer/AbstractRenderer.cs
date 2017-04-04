@@ -60,6 +60,14 @@ namespace CustomEngine.Rendering
             SolidBox,
             WireQuad,
             SolidQuad,
+            //WireCapsuleMiddleCylinder,
+            //WireCapsuleHalfSphere,
+            //SolidCapsuleMiddleCylinder,
+            //SolidCapsuleHalfSphere,
+            WireCylinder,
+            SolidCylinder,
+            WireCone,
+            SolidCone,
         }
 
         public PrimitiveManager CacheDebugPrimitive(string name, DebugPrimitiveType type)
@@ -179,16 +187,54 @@ namespace CustomEngine.Rendering
             transform = transform * Matrix4.CreateScale(halfExtents);
             m.Render(transform, transform.Inverted().Transposed().GetRotationMatrix3());
         }
-        public void RenderCapsule(Vec3 topPoint, Vec3 bottomPoint, float topRadius, float bottomRadius, bool solid)
+        public void RenderCapsule(string name, Matrix4 transform, Vec3 localCenter, Vec3 localUpAxis, float radius, float halfHeight, bool solid, ColorF4 color, float lineWidth = DefaultLineSize)
+        {
+            SetLineSize(lineWidth);
+            PrimitiveManager mCyl = null, mTop = null, mBot = null;
+            string cylStr = name + "_CYLINDER";
+            string topStr = name + "_TOPHALF";
+            string botStr = name + "_BOTTOMHALF";
+            if (_debugPrimitives.ContainsKey(cylStr))
+                mCyl = _debugPrimitives[cylStr];
+            if (_debugPrimitives.ContainsKey(topStr))
+                mTop = _debugPrimitives[topStr];
+            if (_debugPrimitives.ContainsKey(botStr))
+                mBot = _debugPrimitives[botStr];
+            if (mCyl == null || mTop == null || mBot == null)
+            {
+                BaseCapsule.WireframeMeshParts(
+                    Vec3.Zero, Vec3.Up, 1.0f, 1.0f, 30, 
+                    out PrimitiveData cylData, out PrimitiveData topData, out PrimitiveData botData);
+                if (mCyl == null)
+                    mCyl = AssignDebugPrimitive(cylStr, new PrimitiveManager(cylData, Material.GetUnlitColorMaterial()));
+                if (mTop == null)
+                    mTop = AssignDebugPrimitive(topStr, new PrimitiveManager(topData, Material.GetUnlitColorMaterial()));
+                if (mBot == null)
+                    mBot = AssignDebugPrimitive(botStr, new PrimitiveManager(botData, Material.GetUnlitColorMaterial()));
+            }
+            mCyl.Parameter<GLVec4>(0).Value = color;
+            mTop.Parameter<GLVec4>(0).Value = color;
+            mBot.Parameter<GLVec4>(0).Value = color;
+            Matrix4 cylTransform = transform * Matrix4.CreateScale(radius, halfHeight, radius);
+            Matrix4 topTransform = transform * 
+                Matrix4.CreateTranslation(localCenter) * 
+                Matrix4.CreateFromQuaternion(Quat.BetweenVectors(Vec3.Up, localUpAxis)) * 
+                Matrix4.CreateTranslation(halfHeight) * 
+                Matrix4.CreateScale(radius);
+            Matrix4 botTransform = transform * 
+                Matrix4.CreateTranslation(localCenter) * 
+                Matrix4.CreateFromQuaternion(Quat.BetweenVectors(-Vec3.Up, -localUpAxis)) * 
+                Matrix4.CreateTranslation(-halfHeight) * 
+                Matrix4.CreateScale(radius);
+            mCyl.Render(cylTransform, Matrix3.Identity);
+            mTop.Render(topTransform, Matrix3.Identity);
+            mBot.Render(botTransform, Matrix3.Identity);
+        }
+        public void RenderCylinder(string name, Matrix4 transform, Vec3 localCenter, Vec3 localUpAxis, float radius, float halfHeight, bool solid, ColorF4 color, float lineWidth = DefaultLineSize)
         {
             throw new NotImplementedException();
         }
-        public void RenderCylinder(Vec3 topPoint, Vec3 bottomPoint, float topRadius, float bottomRadius, bool solid)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void RenderCone(Vec3 topPoint, Vec3 bottomPoint, float bottomRadius, bool solid)
+        public void RenderCone(string name, Matrix4 transform, float radius, float height, bool solid, ColorF4 color, float lineWidth = DefaultLineSize)
         {
             throw new NotImplementedException();
         }

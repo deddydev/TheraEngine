@@ -199,7 +199,7 @@ namespace CustomEngine.Worlds.Actors
                 CollidesWith = CustomCollisionGroup.StaticWorld,
             };
 
-            CapsuleComponent rootCapsule = new CapsuleComponent(0.2f, 0.8f, info);
+            CapsuleComponent rootCapsule = new CapsuleComponent(10.0f, 50.0f, info);
             rootCapsule.PhysicsDriver.OnHit += OnHit;
             rootCapsule.Translation.Raw = new Vec3(0.0f, 300.0f, 0.0f);
 

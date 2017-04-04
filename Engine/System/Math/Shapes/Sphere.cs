@@ -15,7 +15,7 @@ namespace System
 {
     public class Sphere : Shape
     {
-        public const string XMLTag = "sphere";
+        //public const string XMLTag = "sphere";
 
         public static List<Sphere> Active = new List<Sphere>();
 

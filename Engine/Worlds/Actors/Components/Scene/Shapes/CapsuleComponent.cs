@@ -18,13 +18,10 @@ namespace CustomEngine.Worlds.Actors.Components
             base.RecalcGlobalTransform();
             _capsule.Center = GetWorldPoint();
         }
+
         public override void Render()
-        {
-            _capsule.Render();
-        }
+            => _capsule.Render();
         protected override CollisionShape GetCollisionShape()
-        {
-            return _capsule.GetCollisionShape();
-        }
+            => _capsule.GetCollisionShape();
     }
 }

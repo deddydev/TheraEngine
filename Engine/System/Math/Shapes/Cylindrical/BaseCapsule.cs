@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using BulletSharp;
-using CustomEngine;
+﻿using CustomEngine;
+using CustomEngine.Rendering.Models;
 
 namespace System
 {
@@ -79,6 +74,51 @@ namespace System
         public override EContainment ContainedWithin(Sphere sphere)
         {
             throw new NotImplementedException();
+        }
+        public static PrimitiveData WireframeMesh(Vec3 center, Vec3 upAxis, float radius, float halfHeight, int pointCountHalfCircle)
+        {
+            upAxis.NormalizeFast();
+
+            Vec3 topPoint = center + upAxis * halfHeight;
+            Vec3 bottomPoint = center - upAxis * halfHeight;
+
+            Vec3 forwardNormal, rightNormal;
+            if (upAxis == Vec3.Right)
+            {
+                forwardNormal = Vec3.Forward;
+                rightNormal = Vec3.Up;
+            }
+            else if (upAxis == -Vec3.Right)
+            {
+                forwardNormal = Vec3.Forward;
+                rightNormal = -Vec3.Up;
+            }
+            else if (upAxis == Vec3.Forward)
+            {
+                forwardNormal = Vec3.Up;
+                rightNormal = Vec3.Right;
+            }
+            else if (upAxis == -Vec3.Forward)
+            {
+                forwardNormal = -Vec3.Up;
+                rightNormal = Vec3.Right;
+            }
+            else
+            {
+                forwardNormal = Vec3.Right ^ upAxis;
+                rightNormal = Vec3.Forward ^ upAxis;
+            }
+
+            VertexLineStrip topCircleUp = Circle.LineStrip(radius, upAxis, topPoint, pointCountHalfCircle * 2);
+            VertexLineStrip topHalfCircleToward = Circle.HalfCircleLineStrip(radius, upAxis, rightNormal, topPoint, pointCountHalfCircle);
+            VertexLineStrip topHalfCircleRight = Circle.HalfCircleLineStrip(radius, rightNormal, topPoint, pointCountHalfCircle);
+            
+            VertexLineStrip bottomCircleDown = Circle.LineStrip(radius, -upAxis, topPoint, pointCountHalfCircle * 2);
+            VertexLineStrip bottomHalfCircleAway = Circle.HalfCircleLineStrip(radius, -forwardNormal, topPoint, pointCountHalfCircle);
+            VertexLineStrip bottomHalfCircleRight = Circle.HalfCircleLineStrip(radius, rightNormal, topPoint, pointCountHalfCircle);
+            
+            VertexLineStrip d3 = Circle.LineStrip(radius, Vec3.Right, center, pointCountHalfCircle * 2);
+            return PrimitiveData.FromLineStrips(new PrimitiveBufferInfo() { _texcoordCount = 0, _hasNormals = false }, d1, d2, d3);
         }
     }
 }

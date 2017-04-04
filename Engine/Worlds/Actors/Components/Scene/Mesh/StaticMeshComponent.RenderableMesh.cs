@@ -16,6 +16,12 @@ namespace CustomEngine.Worlds.Actors.Components
                 _manager = new PrimitiveManager(_mesh.Data, _mesh.Material);
                 Visible = false;
                 IsRendering = true;
+                _component.WorldTransformChanged += _component_WorldTransformChanged;
+            }
+
+            private void _component_WorldTransformChanged()
+            {
+                _cullingVolume.SetTransform(_component.WorldMatrix);
             }
 
             private bool
@@ -39,9 +45,15 @@ namespace CustomEngine.Worlds.Actors.Components
                 {
                     _isVisible = value;
                     if (_isVisible)
+                    {
+                        Engine.Renderer.Scene.AddRenderable(_cullingVolume);
                         Engine.Renderer.Scene.AddRenderable(this);
+                    }
                     else
+                    {
+                        Engine.Renderer.Scene.RemoveRenderable(_cullingVolume);
                         Engine.Renderer.Scene.RemoveRenderable(this);
+                    }
                 }
             }
             public bool VisibleInEditorOnly
@@ -76,8 +88,8 @@ namespace CustomEngine.Worlds.Actors.Components
             }
             public void Render()
             {
-                _manager.Render(_component.WorldMatrix, _component.WorldMatrix.GetRotationMatrix3());
-                //_manager.Render(_component.WorldMatrix, _component.InverseWorldMatrix.Transposed().GetRotationMatrix3());
+                //_manager.Render(_component.WorldMatrix, _component.WorldMatrix.GetRotationMatrix3());
+                _manager.Render(_component.WorldMatrix, _component.InverseWorldMatrix.Transposed().GetRotationMatrix3());
             }
             public override string ToString()
             {

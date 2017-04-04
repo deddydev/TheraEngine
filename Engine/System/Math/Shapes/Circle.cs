@@ -37,7 +37,7 @@ namespace System
         public static PrimitiveData SolidMesh(float radius, Vec3 normal, Vec3 center, int sides)
         {
             if (sides < 3)
-                throw new Exception("A (very low res) circle needs at least 3 points.");
+                throw new Exception("A (very low res) circle needs at least 3 sides.");
 
             normal.Normalize();
             Quat offset = Quat.BetweenVectors(Vec3.Up, normal);
@@ -57,20 +57,53 @@ namespace System
         {
             return PrimitiveData.FromLineStrips(new PrimitiveBufferInfo(), LineStrip(radius, normal, center, sides));
         }
+        public static PrimitiveData HalfCircleWireframeMesh(float radius, Vec3 upNormal, Vec3 rightNormal, Vec3 center, int sides)
+        {
+            return PrimitiveData.FromLineStrips(new PrimitiveBufferInfo(), HalfCircleLineStrip(radius, upNormal, rightNormal, center, sides));
+        }
         public static VertexLineStrip LineStrip(float radius, Vec3 normal, Vec3 center, int sides)
         {
             Vec3[] points = Points(radius, normal, center, sides);
             return new VertexLineStrip(true, points.Select(x => new Vertex(x)).ToArray());
         }
+        public static VertexLineStrip HalfCircleLineStrip(float radius, Vec3 upNormal, Vec3 rightNormal, Vec3 center, int sides)
+        {
+            Vec3[] points = HalfCirclePoints(radius, upNormal, rightNormal, center, sides);
+            return new VertexLineStrip(false, points.Select(x => new Vertex(x)).ToArray());
+        }
         public static Vec3[] Points(float radius, Vec3 normal, Vec3 center, int sides)
         {
             if (sides < 3)
-                throw new Exception("A (very low res) circle needs at least 3 points.");
+                throw new Exception("A (very low res) circle needs at least 3 sides.");
 
             normal.NormalizeFast();
             Quat offset = Quat.BetweenVectors(Vec3.Up, normal);
             Vec3[] points = new Vec3[sides];
             float angleInc = CustomMath.PIf * 2.0f / sides;
+            float angle = 0.0f;
+            for (int i = 0; i < sides; ++i, angle += angleInc)
+            {
+                Vec3 v = new Vec3((float)Math.Cos(angle), 0.0f, (float)Math.Sin(angle));
+                points[i] = center + offset * (radius * v);
+            }
+            return points;
+        }
+        public static Vec3[] HalfCirclePoints(float radius, Vec3 upNormal, Vec3 rightNormal, Vec3 center, int sides)
+        {
+            if (sides < 3)
+                throw new Exception("A (very low res) circle needs at least 3 sides.");
+
+            if (upNormal == rightNormal || upNormal == -rightNormal)
+                throw new Exception("Normals for half circle cannot be colinear/parallel.");
+
+            sides += 1;
+            Vec3 forwardNormal = upNormal ^ rightNormal;
+            Quat pitch = Quat.BetweenVectors(Vec3.Up, upNormal);
+            Quat roll = Quat.BetweenVectors(Vec3.Right, rightNormal);
+            Quat yaw = Quat.BetweenVectors(Vec3.Forward, forwardNormal);
+            Quat offset = roll * pitch * yaw;
+            Vec3[] points = new Vec3[sides];
+            float angleInc = CustomMath.PIf / sides;
             float angle = 0.0f;
             for (int i = 0; i < sides; ++i, angle += angleInc)
             {

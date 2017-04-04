@@ -253,7 +253,7 @@ namespace CustomEngine.Worlds.Actors.Components
             }
             foreach (SceneComponent c in _children)
                 c.RecalcGlobalTransform();
-            WorldTransformChanged?.Invoke();
+            OnWorldTransformChanged();
         }
         public List<SceneComponent> GenerateChildCache()
         {

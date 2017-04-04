@@ -271,10 +271,9 @@ namespace CustomEngine.Rendering
             _prevVelocity = _velocity;
             _velocity = _collision.LinearVelocity;
             _acceleration = (_velocity - _prevVelocity) / delta;
-
             _collision.GetWorldTransform(out Matrix transform);
             _worldMatrix = transform;
-            TransformChanged(_worldMatrix);
+            TransformChanged?.Invoke(_worldMatrix);
         }
     }
 }

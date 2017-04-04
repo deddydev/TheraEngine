@@ -178,63 +178,63 @@ namespace System
             return s;
         }
 
-        protected override int OnCalculateSize(StringTable table)
-            => Header.Size;
-        public unsafe override void Write(VoidPtr address, StringTable table)
-            => *(Header*)address = this;
-        public unsafe override void Read(VoidPtr address, VoidPtr strings)
-        {
-            Header h = *(Header*)address;
-            _radius = h._radius;
-            _center = h._center;
-        }
-        public override void Write(XmlWriter writer)
-        {
-            writer.WriteStartElement(XMLTag);
-            writer.WriteAttributeString("radius", _radius.ToString());
-            if (_center != Vec3.Zero)
-                writer.WriteElementString("center", _center.ToString(false, false));
-            writer.WriteEndElement();
-        }
-        public override void Read(XMLReader reader)
-        {
-            if (!reader.Name.Equals(XMLTag, true))
-                throw new Exception();
-            _radius = 0;
-            _center = Vec3.Zero;
-            while (reader.ReadAttribute())
-            {
-                if (reader.Name.Equals("radius", true))
-                    _radius = float.Parse((string)reader.Value);
-            }
-            while (reader.BeginElement())
-            {
-                if (reader.Name.Equals("center", true))
-                    _center = Vec3.Parse(reader.ReadElementString());
-                reader.EndElement();
-            }
-        }
+        //protected override int OnCalculateSize(StringTable table)
+        //    => Header.Size;
+        //public unsafe override void Write(VoidPtr address, StringTable table)
+        //    => *(Header*)address = this;
+        //public unsafe override void Read(VoidPtr address, VoidPtr strings)
+        //{
+        //    Header h = *(Header*)address;
+        //    _radius = h._radius;
+        //    _center = h._center;
+        //}
+        //public override void Write(XmlWriter writer)
+        //{
+        //    writer.WriteStartElement(XMLTag);
+        //    writer.WriteAttributeString("radius", _radius.ToString());
+        //    if (_center != Vec3.Zero)
+        //        writer.WriteElementString("center", _center.ToString(false, false));
+        //    writer.WriteEndElement();
+        //}
+        //public override void Read(XMLReader reader)
+        //{
+        //    if (!reader.Name.Equals(XMLTag, true))
+        //        throw new Exception();
+        //    _radius = 0;
+        //    _center = Vec3.Zero;
+        //    while (reader.ReadAttribute())
+        //    {
+        //        if (reader.Name.Equals("radius", true))
+        //            _radius = float.Parse((string)reader.Value);
+        //    }
+        //    while (reader.BeginElement())
+        //    {
+        //        if (reader.Name.Equals("center", true))
+        //            _center = Vec3.Parse(reader.ReadElementString());
+        //        reader.EndElement();
+        //    }
+        //}
 
-        [StructLayout(LayoutKind.Sequential, Pack = 1)]
-        public struct Header
-        {
-            public const int Size = 0x10;
+        //[StructLayout(LayoutKind.Sequential, Pack = 1)]
+        //public struct Header
+        //{
+        //    public const int Size = 0x10;
 
-            public float _radius;
-            public BVec3 _center;
+        //    public float _radius;
+        //    public BVec3 _center;
 
-            public static implicit operator Header(Sphere s)
-            {
-                return new Header()
-                {
-                    _radius = s._radius,
-                    _center = s._center,
-                };
-            }
-            public static implicit operator Sphere(Header h)
-            {
-                return new Sphere(h._radius, h._center);
-            }
-        }
+        //    public static implicit operator Header(Sphere s)
+        //    {
+        //        return new Header()
+        //        {
+        //            _radius = s._radius,
+        //            _center = s._center,
+        //        };
+        //    }
+        //    public static implicit operator Sphere(Header h)
+        //    {
+        //        return new Sphere(h._radius, h._center);
+        //    }
+        //}
     }
 }

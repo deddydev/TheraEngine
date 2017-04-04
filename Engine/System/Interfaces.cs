@@ -17,6 +17,7 @@ namespace CustomEngine
         Shape CullingVolume { get; }
         PrimitiveData Data { get; }
         Material Material { get; set; }
+        StaticMesh Model { get; }
     }
     public interface ISkeletalMesh
     {
@@ -24,6 +25,7 @@ namespace CustomEngine
         string SingleBindName { get; }
         PrimitiveData Data { get; }
         Material Material { get; set; }
+        SkeletalMesh Model { get; }
     }
     public interface IRenderable : I3DBoundable
     {

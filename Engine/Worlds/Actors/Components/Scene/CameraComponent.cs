@@ -2,9 +2,6 @@
 using CustomEngine.Input;
 using System.Collections.Generic;
 using System;
-using CustomEngine.Files;
-using System.IO;
-using System.Xml;
 
 namespace CustomEngine.Worlds.Actors.Components
 {
@@ -102,6 +99,11 @@ namespace CustomEngine.Worlds.Actors.Components
             if (Engine.Settings.RenderCameraFrustums)
                 Engine.Renderer.Scene.RemoveRenderable(_camera);
             base.OnDespawned();
+        }
+
+        protected override void RecalcLocalTransform()
+        {
+            throw new NotImplementedException();
         }
     }
 }

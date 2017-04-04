@@ -43,6 +43,9 @@
         //    throw new NotImplementedException();
         //}
 
+        /// <summary>
+        /// Returns a vector that starts at the given point and perpendicularly intersects with a ray formed by the given start and end points.
+        /// </summary>
         public static Vec3 GetPerpendicularVectorFromPoint(Vec3 startPoint, Vec3 direction, Vec3 point)
         {
             direction.NormalizeFast();

@@ -75,7 +75,7 @@ namespace CustomEngine
             RenderSkeletons = true;
             RenderCameraFrustums = true;
             CapFPS = true;
-            TargetFPS = 20.0f;
+            TargetFPS = 60.0f;
             CapUPS = true;
             TargetUPS = 90.0f;
             ContentPath = Engine.StartupPath + Engine.ContentFolderRel;

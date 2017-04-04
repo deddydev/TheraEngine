@@ -10,12 +10,6 @@ namespace CustomEngine.Worlds.Actors.Components
 {
     public class CameraComponent : SceneComponent
     {
-        private Camera _camera = new PerspectiveCamera();
-        public Camera Camera
-        {
-            get => _camera;
-            set => _camera = value;
-        }
         public CameraComponent()
         {
             _camera = new PerspectiveCamera();
@@ -30,6 +24,15 @@ namespace CustomEngine.Worlds.Actors.Components
         {
             _camera = camera;
             _camera.TransformChanged += RecalcGlobalTransform;
+        }
+
+        bool _updatingTransform = false;
+        private Camera _camera = new PerspectiveCamera();
+
+        public Camera Camera
+        {
+            get => _camera;
+            set => _camera = value;
         }
         protected override void GenerateChildCache(List<SceneComponent> cache)
         {
@@ -52,37 +55,41 @@ namespace CustomEngine.Worlds.Actors.Components
             if (pawn != null)
                 pawn.CurrentCameraComponent = this;
         }
-        protected override void RecalcLocalTransform()
+        public override Matrix4 WorldMatrix
         {
-            SetLocalTransforms(Camera.Matrix, Camera.InverseMatrix);
+            get => base.WorldMatrix;
+            protected set => base.WorldMatrix = value;
         }
+        public override Matrix4 InverseWorldMatrix
+        {
+            get => base.InverseWorldMatrix;
+            set => base.InverseWorldMatrix = value;
+        }
+
+        //protected override void RecalcLocalTransform()
+        //{
+        //    if (_updatingTransform)
+        //        return;
+        //    _updatingTransform = true;
+        //    SetLocalTransforms(Camera.Matrix, Camera.InverseMatrix);
+        //    _updatingTransform = false;
+        //}
+        //internal override void RecalcGlobalTransform()
+        //{
+        //    if (!_simulatingPhysics)
+        //    {
+        //        _worldTransform = GetParentMatrix() * Camera.Matrix;
+        //        if (_ancestorSimulatingPhysics == null)
+        //            _inverseWorldTransform = InverseLocalMatrix * GetInverseParentMatrix();
+        //    }
+        //    foreach (SceneComponent c in _children)
+        //        c.RecalcGlobalTransform();
+        //    OnWorldTransformChanged();
+        //}
+
         internal override void OriginRebased(Vec3 newOrigin)
         {
             _camera.TranslateAbsolute(-newOrigin);
-        }
-        protected override int OnCalculateSize(StringTable table)
-        {
-            throw new NotImplementedException();
-        }
-        public override void Write(VoidPtr address, StringTable table)
-        {
-            throw new NotImplementedException();
-        }
-        public override void Read(VoidPtr address, VoidPtr strings)
-        {
-            throw new NotImplementedException();
-        }
-        public override void Write(XmlWriter writer)
-        {
-            throw new NotImplementedException();
-        }
-        public override void Read(XMLReader reader)
-        {
-            throw new NotImplementedException();
-        }
-        public void Render()
-        {
-            throw new NotImplementedException();
         }
         public override void OnSpawned()
         {

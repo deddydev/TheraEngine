@@ -47,26 +47,45 @@ namespace System
             if (--_updateIndex == 0)
                 Changed?.Invoke();
         }
-        public Quat GetQuaternion() { return Quat.FromRotator(this); }
-        public Matrix4 GetMatrix() { return Matrix4.CreateFromRotator(this); }
-        public Matrix4 GetInverseMatrix() { return Matrix4.CreateFromRotator(Inverted()); }
-        public Vec3 GetDirection() { return TransformVector(Vec3.Forward); }
-        public Vec3 TransformVector(Vec3 vector) { return Vec3.TransformVector(vector, GetMatrix()); }
-        public Matrix4 GetYawMatrix() { return Matrix4.CreateRotationY(Yaw); }
-        public Matrix4 GetPitchMatrix() { return Matrix4.CreateRotationX(Pitch); }
-        public Matrix4 GetRollMatrix() { return Matrix4.CreateRotationZ(Roll); }
-        public Quat GetYawQuat() { return Quat.FromAxisAngle(Vec3.Up, Yaw); }
-        public Quat GetPitchQuat() { return Quat.FromAxisAngle(Vec3.Right, Pitch); }
-        public Quat GetRollQuat() { return Quat.FromAxisAngle(Vec3.Forward, Roll); }
-        public void SetDirection(Vec3 value) { SetRotations(value.LookatAngles()); }
+
+        public Quat GetQuaternion()
+            => Quat.FromRotator(this);
+
+        public Matrix4 GetMatrix() 
+            => Matrix4.CreateFromRotator(this);
+
+        public Matrix4 GetInverseMatrix()
+            => Matrix4.CreateFromRotator(Inverted());
+
+        public Vec3 GetDirection()
+            => TransformVector(Vec3.Forward);
+
+        public Vec3 TransformVector(Vec3 vector)
+            => Vec3.TransformVector(vector, GetMatrix());
+
+        public Matrix4 GetYawMatrix()
+            => Matrix4.CreateRotationY(Yaw);
+        public Matrix4 GetPitchMatrix()
+            => Matrix4.CreateRotationX(Pitch);
+        public Matrix4 GetRollMatrix()
+            => Matrix4.CreateRotationZ(Roll);
+
+        public Quat GetYawQuat() 
+            => Quat.FromAxisAngle(Vec3.Up, Yaw);
+        public Quat GetPitchQuat()
+            => Quat.FromAxisAngle(Vec3.Right, Pitch);
+        public Quat GetRollQuat()
+            => Quat.FromAxisAngle(Vec3.Forward, Roll);
+
+        public void SetDirection(Vec3 value)
+            => SetRotations(value.LookatAngles());
+
         public Rotator HardCopy()
-        {
-            return new Rotator(Pitch, Yaw, Roll, _rotationOrder);
-        }
+            => new Rotator(Pitch, Yaw, Roll, _rotationOrder);
+
         public Rotator WithNegatedRotations()
-        {
-            return new Rotator(-Pitch, -Yaw, -Roll, _rotationOrder);
-        }
+            => new Rotator(-Pitch, -Yaw, -Roll, _rotationOrder);
+
         public void NegateRotations()
         {
             BeginUpdate();

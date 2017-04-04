@@ -21,13 +21,15 @@ namespace CustomEngine.Worlds.Actors.Components
         }
 
         public event Action WorldTransformChanged;
-
-        private ISocket _ancestorSimulatingPhysics;
-        private bool _simulatingPhysics = false;
-        private Matrix4 _worldTransform = Matrix4.Identity;
-        private Matrix4 _inverseWorldTransform = Matrix4.Identity;
-        private Matrix4 _localTransform = Matrix4.Identity;
-        private Matrix4 _inverseLocalTransform = Matrix4.Identity;
+        protected void OnWorldTransformChanged()
+            => WorldTransformChanged?.Invoke();
+        
+        protected ISocket _ancestorSimulatingPhysics;
+        protected bool _simulatingPhysics = false;
+        protected Matrix4 _worldTransform = Matrix4.Identity;
+        protected Matrix4 _inverseWorldTransform = Matrix4.Identity;
+        protected Matrix4 _localTransform = Matrix4.Identity;
+        protected Matrix4 _inverseLocalTransform = Matrix4.Identity;
         internal ISocket _parent;
         protected MonitoredList<SceneComponent> _children;
 
@@ -49,7 +51,7 @@ namespace CustomEngine.Worlds.Actors.Components
         /// and also has to follow the parent heirarchy to create the inverse transform tree.
         /// Avoid calling if possible when simulating physics.
         /// </summary>
-        public Matrix4 InverseWorldMatrix
+        public virtual Matrix4 InverseWorldMatrix
         {
             get
             {
@@ -81,10 +83,10 @@ namespace CustomEngine.Worlds.Actors.Components
 
                 return _inverseWorldTransform;
             }
-            //set
-            //{
-            //    _inverseWorldTransform = value;
-            //}
+            set
+            {
+                _inverseWorldTransform = value;
+            }
         }
         public Matrix4 LocalMatrix
         {

@@ -41,7 +41,7 @@ namespace CustomEngine.Rendering
         public CustomCollisionGroup CollidesWith;
         public RigidBodyConstructionInfo BodyInfo;
     }
-    public delegate void PhysicsOverlap(PhysicsDriver other, ManifoldPoint point);
+    public delegate void PhysicsOverlap(IPhysicsDrivable other, ManifoldPoint point);
     public class PhysicsDriver : FileObject
     {
         public PhysicsOverlap BeginOverlap, EndOverlap, OnHit;
@@ -58,9 +58,11 @@ namespace CustomEngine.Rendering
             UpdateBody(new RigidBody(info.BodyInfo));
         }
 
-        public PhysicsDriver(IPhysicsDrivable owner, PhysicsDriverInfo info, MatrixUpdate func) : this(owner, info)
+        public PhysicsDriver(IPhysicsDrivable owner, PhysicsDriverInfo info, MatrixUpdate func)
+            : this(owner, info)
             => TransformChanged += func;
-        public PhysicsDriver(IPhysicsDrivable owner, PhysicsDriverInfo info, MatrixUpdate mtxFunc, SimulationUpdate simFunc) : this(owner, info, mtxFunc)
+        public PhysicsDriver(IPhysicsDrivable owner, PhysicsDriverInfo info, MatrixUpdate mtxFunc, SimulationUpdate simFunc)
+            : this(owner, info, mtxFunc)
             => SimulationStateChanged += simFunc;
         
         public event MatrixUpdate TransformChanged;
@@ -84,7 +86,6 @@ namespace CustomEngine.Rendering
                 _collision.LinearVelocity = _velocity = value;
             }
         }
-        
         /// <summary>
         /// Returns the instantaneous speed of this object right now.
         /// Uses a fast approximation to avoid using a slow square root operation.
@@ -142,7 +143,7 @@ namespace CustomEngine.Rendering
                     {
                         _collision.LinearFactor = new Vector3(1.0f);
                         _collision.AngularFactor = new Vector3(1.0f);
-                        _collision.ForceActivationState(ActivationState.IslandSleeping);
+                        _collision.ForceActivationState(ActivationState.ActiveTag);
                         SimulationStateChanged?.Invoke(true);
                         RegisterTick(ETickGroup.PostPhysics, ETickOrder.Scene);
                     }
@@ -199,6 +200,11 @@ namespace CustomEngine.Rendering
                     //Engine.World.PhysicsScene.AddRigidBody(_collision, (short)_group, (short)(_collisionEnabled ? _collidesWith : CustomCollisionGroup.None));
                 }
             }
+        }
+        public IPhysicsDrivable Owner
+        {
+            get => _owner;
+            set => _owner = value;
         }
         public void UpdateBody(RigidBody body)
         {

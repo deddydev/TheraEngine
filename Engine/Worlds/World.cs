@@ -66,8 +66,8 @@ namespace CustomEngine.Worlds
             //}
             if (body0.CheckCollideWith(body1))
             {
-                driver0.OnHit?.Invoke(driver1, cp);
-                driver1.OnHit?.Invoke(driver0, cp);
+                driver0.OnHit?.Invoke(driver1.Owner, cp);
+                driver1.OnHit?.Invoke(driver0.Owner, cp);
                 //Debug.WriteLine("Collision");
             }
             //driver0.BeginOverlap(driver1);

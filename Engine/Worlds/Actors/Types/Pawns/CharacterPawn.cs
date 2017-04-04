@@ -9,6 +9,7 @@ using System.ComponentModel;
 using System.Activities.Statements;
 using CustomEngine.Input.Devices;
 using CustomEngine.Rendering.Cameras;
+using System.Diagnostics;
 
 namespace CustomEngine.Worlds.Actors
 {
@@ -173,7 +174,10 @@ namespace CustomEngine.Worlds.Actors
             //RootComponent.Rotation.Yaw += value;
             //CurrentCameraComponent.Camera.AddRotation(value, 0.0f);
         }
-
+        private void OnHit(IPhysicsDrivable other, ManifoldPoint point)
+        {
+            Debug.WriteLine(((ObjectBase)other).Name + " collided with " + Name);
+        }
         protected override CapsuleComponent OnConstruct()
         {
             PhysicsDriverInfo info = new PhysicsDriverInfo()
@@ -196,6 +200,7 @@ namespace CustomEngine.Worlds.Actors
             };
 
             CapsuleComponent rootCapsule = new CapsuleComponent(0.2f, 0.8f, info);
+            rootCapsule.PhysicsDriver.OnHit += OnHit;
             rootCapsule.Translation.Raw = new Vec3(0.0f, 300.0f, 0.0f);
 
             SkeletalMeshComponent mesh = new SkeletalMeshComponent(_mesh, _skeleton);

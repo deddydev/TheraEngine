@@ -14,6 +14,7 @@ namespace CustomEngine.Rendering.Cameras
         
         public Camera()
         {
+            _transformedFrustum = new Frustum();
             Resize(1.0f, 1.0f);
             _rotation.Changed += CreateTransform;
             _point.Changed += CreateTransform;
@@ -39,8 +40,8 @@ namespace CustomEngine.Rendering.Cameras
 
         public Matrix4 ProjectionMatrix => _projectionMatrix;
         public Matrix4 ProjectionMatrixInverse => _projectionInverse;
-        public Matrix4 Matrix => _invTransform;
-        public Matrix4 InverseMatrix => _transform;
+        public Matrix4 InverseMatrix => _invTransform;
+        public Matrix4 Matrix => _transform;
 
         public float NearZ
         {
@@ -126,7 +127,6 @@ namespace CustomEngine.Rendering.Cameras
             _transform = Matrix4.Identity,
             _invTransform = Matrix4.Identity;
         
-
         private Vec3 
             _forwardDirection = Vec3.Forward,
             _upDirection = Vec3.Up, 
@@ -259,24 +259,24 @@ namespace CustomEngine.Rendering.Cameras
         
         public virtual void SetUniforms()
         {
-            Engine.Renderer.Uniform(Uniform.GetLocation(ECommonUniform.ViewMatrix), Matrix);
-            Engine.Renderer.Uniform(Uniform.GetLocation(ECommonUniform.ProjMatrix), ProjectionMatrix);
-            Engine.Renderer.Uniform(Uniform.GetLocation(ECommonUniform.ScreenWidth), Width);
-            Engine.Renderer.Uniform(Uniform.GetLocation(ECommonUniform.ScreenHeight), Height);
-            Engine.Renderer.Uniform(Uniform.GetLocation(ECommonUniform.ScreenOrigin), Origin);
-            Engine.Renderer.Uniform(Uniform.GetLocation(ECommonUniform.CameraNearZ), NearZ);
-            Engine.Renderer.Uniform(Uniform.GetLocation(ECommonUniform.CameraFarZ), FarZ);
+            Engine.Renderer.Uniform(Uniform.GetLocation(ECommonUniform.ViewMatrix),     InverseMatrix);
+            Engine.Renderer.Uniform(Uniform.GetLocation(ECommonUniform.ProjMatrix),     ProjectionMatrix);
+            Engine.Renderer.Uniform(Uniform.GetLocation(ECommonUniform.ScreenWidth),    Width);
+            Engine.Renderer.Uniform(Uniform.GetLocation(ECommonUniform.ScreenHeight),   Height);
+            Engine.Renderer.Uniform(Uniform.GetLocation(ECommonUniform.ScreenOrigin),   Origin);
+            Engine.Renderer.Uniform(Uniform.GetLocation(ECommonUniform.CameraNearZ),    NearZ);
+            Engine.Renderer.Uniform(Uniform.GetLocation(ECommonUniform.CameraFarZ),     FarZ);
             Engine.Renderer.Uniform(Uniform.GetLocation(ECommonUniform.CameraPosition), Point);
-            Engine.Renderer.Uniform(Uniform.GetLocation(ECommonUniform.CameraForward), GetForwardVector());
-            Engine.Renderer.Uniform(Uniform.GetLocation(ECommonUniform.CameraUp), GetUpVector());
-            Engine.Renderer.Uniform(Uniform.GetLocation(ECommonUniform.CameraRight), GetRightVector());
+            Engine.Renderer.Uniform(Uniform.GetLocation(ECommonUniform.CameraForward),  GetForwardVector());
+            Engine.Renderer.Uniform(Uniform.GetLocation(ECommonUniform.CameraUp),       GetUpVector());
+            Engine.Renderer.Uniform(Uniform.GetLocation(ECommonUniform.CameraRight),    GetRightVector());
         }
         protected virtual void CalculateProjection()
         {
             _projectionRange = new Vec3(Dimensions, FarZ - NearZ);
             _projectionOrigin = new Vec3(Origin, NearZ);
             _untransformedFrustum = CreateUntransformedFrustum();
-            _transformedFrustum = _untransformedFrustum.TransformedBy(_transform);
+            UpdateTransformedFrustum();
         }
         //Child camera types must override this
         public virtual void Resize(float width, float height)

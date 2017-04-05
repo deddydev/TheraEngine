@@ -155,7 +155,7 @@ namespace CustomEngine.Worlds.Actors
         }
         private void MoveForward(float value)
         {
-            Rotator r = CurrentCameraComponent.Camera.Rotation;
+            Rotator r = CurrentCameraComponent.Camera.LocalRotation;
             r.Pitch = 0;
             Vec3 dir = r.TransformVector(Vec3.Forward);
             _movement.AddMovementInput(dir * value * Engine.RenderDelta);
@@ -203,15 +203,15 @@ namespace CustomEngine.Worlds.Actors
                 CollidesWith = CustomCollisionGroup.StaticWorld,
             };
 
-            float characterHeight = 172.72f; //5'8" in cm
-            float radius = 10.0f;
+            float characterHeight = 65.0f; //5'8" in cm = 172.72f
+            float radius = 7.0f;
             float capsuleTotalHalfHeight = characterHeight / 2.0f;
             float halfHeight = capsuleTotalHalfHeight - radius;
 
             CapsuleComponent rootCapsule = new CapsuleComponent(radius, halfHeight, info);
             rootCapsule.PhysicsDriver.OnHit += _movement.OnHit;
             rootCapsule.PhysicsDriver.AngularFactor = Vec3.Zero;
-            rootCapsule.Translation.Raw = new Vec3(0.0f, capsuleTotalHalfHeight, 0.0f);
+            rootCapsule.Translation.Raw = new Vec3(0.0f, capsuleTotalHalfHeight + 50.0f, 0.0f);
 
             SkeletalMeshComponent mesh = new SkeletalMeshComponent(_mesh, _skeleton);
             mesh.Translation.Raw = new Vec3(0.0f, -capsuleTotalHalfHeight, 0.0f);
@@ -225,7 +225,7 @@ namespace CustomEngine.Worlds.Actors
 
             _tpCameraBoom = new BoomComponent();
             _tpCameraBoom.Translation.Raw = new Vec3(-200.0f, 100.0f, 0.0f);
-            //_tpCameraBoom.Rotation.Yaw = 180.0f;
+            _tpCameraBoom.Rotation.Yaw = 180.0f;
             rootCapsule.ChildComponents.Add(_tpCameraBoom);
 
             PerspectiveCamera TPCam = new PerspectiveCamera()
@@ -233,11 +233,12 @@ namespace CustomEngine.Worlds.Actors
                 VerticalFieldOfView = 70.0f,
                 FarZ = 100.0f
             };
+
             _tpCameraComponent = new CameraComponent(TPCam);
             _tpCameraBoom.ChildComponents.Add(_tpCameraComponent);
             
             rootCapsule.PhysicsDriver.SimulatingPhysics = true;
-            CurrentCameraComponent = _tpCameraComponent;
+            //CurrentCameraComponent = _tpCameraComponent;
 
             return rootCapsule;
         }

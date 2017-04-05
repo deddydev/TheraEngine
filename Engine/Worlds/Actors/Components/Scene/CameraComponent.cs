@@ -9,27 +9,37 @@ namespace CustomEngine.Worlds.Actors.Components
     {
         public CameraComponent()
         {
-            _camera = new PerspectiveCamera();
-            _camera.TransformChanged += RecalcGlobalTransform;
+            Camera = new PerspectiveCamera();
         }
         public CameraComponent(bool orthographic)
         {
-            _camera = orthographic ? (Camera)new OrthographicCamera() : new PerspectiveCamera();
-            _camera.TransformChanged += RecalcGlobalTransform;
+            Camera = orthographic ? (Camera)new OrthographicCamera() : new PerspectiveCamera();
         }
         public CameraComponent(Camera camera)
         {
-            _camera = camera;
-            _camera.TransformChanged += RecalcGlobalTransform;
+            Camera = camera;
         }
 
         bool _updatingTransform = false;
-        private Camera _camera = new PerspectiveCamera();
+        private Camera _camera;
 
         public Camera Camera
         {
             get => _camera;
-            set => _camera = value;
+            set
+            {
+                if (_camera != null)
+                {
+                    _camera.OwningComponent = null;
+                    _camera.TransformChanged -= RecalcLocalTransform;
+                }
+                _camera = value;
+                if (_camera != null)
+                {
+                    _camera.OwningComponent = this;
+                    _camera.TransformChanged += RecalcLocalTransform;
+                }
+            }
         }
         protected override void GenerateChildCache(List<SceneComponent> cache)
         {
@@ -52,30 +62,15 @@ namespace CustomEngine.Worlds.Actors.Components
             if (pawn != null)
                 pawn.CurrentCameraComponent = this;
         }
-        public override Matrix4 WorldMatrix
+        protected override void RecalcLocalTransform()
         {
-            get => base.WorldMatrix;
-            protected set => base.WorldMatrix = value;
+            SetLocalTransforms(Camera.LocalMatrix, Camera.InverseLocalMatrix);
         }
-        public override Matrix4 InverseWorldMatrix
-        {
-            get => base.InverseWorldMatrix;
-            set => base.InverseWorldMatrix = value;
-        }
-
-        //protected override void RecalcLocalTransform()
-        //{
-        //    if (_updatingTransform)
-        //        return;
-        //    _updatingTransform = true;
-        //    SetLocalTransforms(Camera.Matrix, Camera.InverseMatrix);
-        //    _updatingTransform = false;
-        //}
         //internal override void RecalcGlobalTransform()
         //{
         //    if (!_simulatingPhysics)
         //    {
-        //        _worldTransform = GetParentMatrix() * Camera.Matrix;
+        //        _worldTransform = GetParentMatrix() * LocalMatrix;
         //        if (_ancestorSimulatingPhysics == null)
         //            _inverseWorldTransform = InverseLocalMatrix * GetInverseParentMatrix();
         //    }

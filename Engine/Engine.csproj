@@ -783,7 +783,7 @@
     <Compile Include="Worlds\Actors\Components\Scene\Volumes\GravityVolumeComponent.cs" />
     <Compile Include="Worlds\Actors\Components\Scene\Volumes\TriggerVolumeComponent.cs" />
     <Compile Include="Worlds\Actors\Components\Scene\PrimitiveComponent.cs" />
-    <Compile Include="Worlds\Actors\Components\Scene\Shapes\CapsuleComponent.cs" />
+    <Compile Include="Worlds\Actors\Components\Scene\Shapes\Cylindrical\CapsuleComponent.cs" />
     <Compile Include="Engine\EngineProperties.cs" />
     <Compile Include="GameModes\GameMode.cs" />
     <Compile Include="Rendering\Animation\AnimationContainer.cs" />

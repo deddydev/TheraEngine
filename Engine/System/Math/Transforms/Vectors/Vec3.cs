@@ -68,6 +68,11 @@ namespace System
             }
         }
 
+        public Matrix4 GetTranslationMatrix()
+            => Matrix4.CreateTranslation(this);
+        public Matrix4 GetScaleMatrix()
+            => Matrix4.CreateScale(this);
+
         public float LengthSquared => Dot(this);
         public float Length => (float)Sqrt(LengthSquared);
         public float LengthFast => 1.0f / InverseSqrtFast(LengthSquared);

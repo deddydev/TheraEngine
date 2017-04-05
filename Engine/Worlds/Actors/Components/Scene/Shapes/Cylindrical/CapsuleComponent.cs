@@ -22,7 +22,7 @@ namespace CustomEngine.Worlds.Actors.Components
         }
 
         public override void Render()
-            => Engine.Renderer.RenderCapsule(_capsule.ShapeName, WorldMatrix, _capsule.LocalUpAxis, _capsule.Radius, _capsule.HalfHeight, _capsule.RenderSolid, Color.Red);
+            => Engine.Renderer.RenderCapsule(_capsule.ShapeName, _capsule.State.Matrix, _capsule.LocalUpAxis, _capsule.Radius, _capsule.HalfHeight, _capsule.RenderSolid, Color.Red);
         protected override CollisionShape GetCollisionShape()
             => _capsule.GetCollisionShape();
         public override void OnSpawned()

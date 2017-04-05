@@ -95,7 +95,7 @@ namespace CustomEngine.Rendering.Cameras
                 farXDist = _aspect * farYDist;
 
             Vec3
-                point = transformed ? _point.Raw : Vec3.Zero,
+                point = transformed ? _localPoint.Raw : Vec3.Zero,
                 forwardDir = transformed ? GetForwardVector() : Vec3.Forward,
                 rightDir = transformed ? GetRightVector() : Vec3.Right,
                 upDir = transformed ? GetUpVector() : Vec3.Up,
@@ -126,7 +126,7 @@ namespace CustomEngine.Rendering.Cameras
 
         public override float DistanceScale(Vec3 point, float radius)
         {
-            return _point.DistanceToFast(point) * radius / (_fovY / 45.0f) * 0.1f;
+            return _localPoint.DistanceToFast(point) * radius / (_fovY / 45.0f) * 0.1f;
         }
         //public unsafe override void Write(VoidPtr address, StringTable table)
         //{

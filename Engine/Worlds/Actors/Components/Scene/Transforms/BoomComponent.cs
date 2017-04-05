@@ -35,8 +35,8 @@ namespace CustomEngine.Worlds.Actors.Components
                 t = Matrix4.CreateTranslation(_translation),
                 it = Matrix4.CreateTranslation(-_translation);
             Matrix4 
-                translation = Matrix4.CreateTranslation(0.0f, 0.0f, -_currentLength),
-                invTranslation = Matrix4.CreateTranslation(0.0f, 0.0f, _currentLength);
+                translation = Matrix4.CreateTranslation(0.0f, 0.0f, _currentLength),
+                invTranslation = Matrix4.CreateTranslation(0.0f, 0.0f, -_currentLength);
 
             SetLocalTransforms(t * r * translation, invTranslation * ir * it);
         }
@@ -44,8 +44,11 @@ namespace CustomEngine.Worlds.Actors.Components
         protected internal override void Tick(float delta)
         {
             Matrix4 parentMtx = GetParentMatrix();
-            Vector3 start = parentMtx.GetPoint();
-            Vector3 end = (parentMtx * Translation.GetMatrix() * Rotation.GetMatrix() * Matrix4.CreateTranslation(new Vec3(0.0f, 0.0f, -_maxLength))).GetPoint();
+            Matrix4 startTrace = parentMtx * Translation.GetTranslationMatrix();
+            Vec3 start = startTrace.GetPoint();
+            Vec3 end = (startTrace * Rotation.GetMatrix() *
+                Matrix4.CreateTranslation(new Vec3(0.0f, 0.0f, _maxLength))).GetPoint();
+
             //TODO: use a sphere, not a point
             ClosestRayResultCallback result = Engine.RaycastClosest(start, end);
             Vec3 newEndPoint;
@@ -75,7 +78,7 @@ namespace CustomEngine.Worlds.Actors.Components
 
         public void Render()
         {
-            Engine.Renderer.RenderLine("CameraBoom", GetParentMatrix().GetPoint(), _currentEndPoint, Color.LightGreen);
+            Engine.Renderer.RenderLine("CameraBoom", GetParentMatrix().GetPoint(), _currentEndPoint, Color.LightYellow);
         }
     }
 }

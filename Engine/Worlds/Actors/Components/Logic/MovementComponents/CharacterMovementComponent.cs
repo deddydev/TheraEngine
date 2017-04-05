@@ -24,7 +24,7 @@ namespace CustomEngine.Worlds.Actors.Components
         public Vec3 GroundNormal
         {
             get => _groundNormal;
-            set
+            private set
             {
                 _groundNormal = value;
                 _upToGroupNormalRotation = Quat.BetweenVectors(Vec3.Up, GroundNormal);
@@ -51,7 +51,25 @@ namespace CustomEngine.Worlds.Actors.Components
         }
         protected internal override void Tick(float delta)
         {
-            base.Tick(delta);
+            CapsuleComponent root = Owner.RootComponent as CapsuleComponent;
+            ClosestConvexResultCallback callback = new ClosestConvexResultCallback();
+            BaseCapsule c = (BaseCapsule)root.CullingVolume;
+            Vec3 down = Engine.World.Settings.State.Gravity.NormalizedFast();
+            //Vec3 downScale = new Vec3(c.Radius * 2.0f, (c.HalfHeight + c.Radius) * 2.0f, c.Radius * 2.0f);
+            Vec3 downScale = new Vec3(5.0f);
+            Matrix4 downTransform = Matrix4.CreateTranslation(down * downScale);
+            Engine.World.PhysicsScene.ConvexSweepTest((ConvexShape)c.GetCollisionShape(), root.WorldMatrix, root.WorldMatrix * downTransform, callback);
+            if (callback.HasHit)
+            {
+                GroundNormal = callback.HitNormalWorld;
+                _currentWalkingSurface = (PhysicsDriver)callback.HitCollisionObject.UserObject;
+                root.WorldMatrix = Matrix4.CreateTranslation(callback.ConvexFromWorld.Lerp(callback.ConvexToWorld, callback.ClosestHitFraction));
+            }
+            else
+            {
+                CurrentMovementMode = MovementMode.Falling;
+                _currentWalkingSurface = null;
+            }
         }
         public override Vec3 ConsumeInput()
             => _upToGroupNormalRotation * base.ConsumeInput();
@@ -105,10 +123,15 @@ namespace CustomEngine.Worlds.Actors.Components
         public void OnHit(IPhysicsDrivable other, ManifoldPoint point)
         {
             if (CurrentMovementMode == MovementMode.Falling && 
-                IsSurfaceNormalWalkable(point.NormalWorldOnB))
+                IsSurfaceNormalWalkable(-point.NormalWorldOnB))
             {
                 _currentWalkingSurface = other.PhysicsDriver;
                 CurrentMovementMode = MovementMode.Walking;
+
+                if (Owner.RootComponent is IPhysicsDrivable root)
+                {
+                    root.PhysicsDriver.SimulatingPhysics = false;
+                }
             }
         }
     }

@@ -112,9 +112,9 @@ namespace CustomEngine.Rendering.Cameras
         }
         protected override void CreateTransform()
         {
-            Matrix4 rotMatrix = _rotation.GetMatrix();
-            _transform = Matrix4.CreateTranslation(_point.Raw) * rotMatrix * Matrix4.CreateScale(_scale);
-            _invTransform = Matrix4.CreateScale(1.0f / _scale) * _rotation.GetInverseMatrix() * Matrix4.CreateTranslation(-_point.Raw);
+            Matrix4 rotMatrix = _localRotation.GetMatrix();
+            _transform = Matrix4.CreateTranslation(_localPoint.Raw) * rotMatrix * Matrix4.CreateScale(_scale);
+            _invTransform = Matrix4.CreateScale(1.0f / _scale) * _localRotation.GetInverseMatrix() * Matrix4.CreateTranslation(-_localPoint.Raw);
             OnTransformChanged();
         }
         public override float DistanceScale(Vec3 point, float radius)

@@ -36,10 +36,12 @@ namespace CustomEngine.Worlds.Actors.Components
         public virtual Matrix4 WorldMatrix
         {
             get { return _worldTransform; }
-            protected set
+            protected internal set
             {
                 _worldTransform = value;
                 _inverseWorldTransform = _worldTransform.Inverted();
+                _localTransform = GetInverseParentMatrix() * WorldMatrix;
+                _inverseLocalTransform = InverseWorldMatrix * GetParentMatrix();
                 foreach (SceneComponent c in _children)
                     c.RecalcGlobalTransform();
             }
@@ -86,6 +88,11 @@ namespace CustomEngine.Worlds.Actors.Components
             set
             {
                 _inverseWorldTransform = value;
+                _worldTransform = _inverseWorldTransform.Inverted();
+                _localTransform = GetInverseParentMatrix() * WorldMatrix;
+                _inverseLocalTransform = InverseWorldMatrix * GetParentMatrix();
+                foreach (SceneComponent c in _children)
+                    c.RecalcGlobalTransform();
             }
         }
         public Matrix4 LocalMatrix

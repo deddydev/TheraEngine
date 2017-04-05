@@ -1,21 +1,26 @@
 ﻿using CustomEngine;
 using CustomEngine.Rendering.Models;
+using System.Collections.Generic;
 using System.Drawing;
+using System.Linq;
+using static System.Math;
 
 namespace System
 {
     public abstract class BaseCapsule : BaseCylinder
     {
-        public BaseCapsule(Vec3 center, Vec3 upAxis, float radius, float halfHeight) 
-            : base(center, upAxis, radius, halfHeight) { }
+        public BaseCapsule(Vec3 center, Rotator rotation, Vec3 scale, Vec3 upAxis, float radius, float halfHeight) 
+            : base(center, rotation, scale, upAxis, radius, halfHeight) { }
+
         public Sphere GetTopSphere()
             => new Sphere(Radius, GetTopCenterPoint());
         public Sphere GetBottomSphere()
             => new Sphere(Radius, GetBottomCenterPoint());
+
         public override void Render()
         {
             Engine.Renderer.RenderCapsule(
-                ShapeName, _transform, _localCenter, _localUpAxis, _radius, _halfHeight, _renderSolid, Color.Black);
+                ShapeName, _state.Matrix, _localUpAxis, _radius, _halfHeight, _renderSolid, Color.Red);
         }
         public override bool Contains(Vec3 point)
             => Segment.GetClosestDistanceToPoint(GetBottomCenterPoint(), GetTopCenterPoint(), point) <= _radius;
@@ -68,24 +73,25 @@ namespace System
         }
         public override EContainment ContainedWithin(Frustum frustum)
         {
-            Sphere ts = GetTopSphere();
-            Sphere bs = GetBottomSphere();
-            EContainment top = frustum.Contains(ts);
-            EContainment bot = frustum.Contains(bs);
-            if (top == EContainment.Intersects || bot == EContainment.Intersects)
-                return EContainment.Intersects;
-            if (top == EContainment.Contains && bot == EContainment.Contains)
-                return EContainment.Contains;
-            else
-            {
-                Ray r = new Ray(bs.Center, ts.Center - bs.Center);
-                //TODO: get closest perpendicular vector from ray to a plane on the frustum
-                //Ray trace at the point
-                ////Handle if the cylinder intersects with the frustum but not either sphere
-                //if (frustum.IntersectsRay(bs.Center, ts.Center - bs.Center, out Vec3 point1, out Vec3 point2))
-                //    return EContainment.Intersects;
-                return EContainment.Disjoint;
-            }
+            return ContainedWithin(frustum.BoundingSphere);
+            //Sphere ts = GetTopSphere();
+            //Sphere bs = GetBottomSphere();
+            //EContainment top = frustum.Contains(ts);
+            //EContainment bot = frustum.Contains(bs);
+            //if (top == EContainment.Intersects || bot == EContainment.Intersects)
+            //    return EContainment.Intersects;
+            //if (top == EContainment.Contains && bot == EContainment.Contains)
+            //    return EContainment.Contains;
+            //else
+            //{
+            //    //Ray r = new Ray(bs.Center, ts.Center - bs.Center);
+            //    //TODO: get closest perpendicular vector from ray to a plane on the frustum
+            //    //Ray trace at the point
+            //    ////Handle if the cylinder intersects with the frustum but not either sphere
+            //    if (frustum.IntersectsRay(bs.Center, ts.Center - bs.Center, out List<Vec3> points))
+            //        return EContainment.Intersects;
+            //    return EContainment.Disjoint;
+            //}
         }
         public override EContainment ContainedWithin(Sphere sphere)
         {
@@ -138,13 +144,29 @@ namespace System
                 rightNormal = Vec3.Forward ^ upAxis;
             }
 
+            int pts = pointCountHalfCircle + 1;
+            Vertex[] topPoints1 = new Vertex[pts], topPoints2 = new Vertex[pts];
+            Vertex[] botPoints1 = new Vertex[pts], botPoints2 = new Vertex[pts];
+
+            float angleInc = CustomMath.PIf / pointCountHalfCircle;
+            float angle = 0.0f;
+            for (int i = 0; i < pts; ++i, angle += angleInc)
+            {
+                Vec3 v1 = new Vec3((float)Cos(angle), (float)Sin(angle), 0.0f);
+                Vec3 v2 = new Vec3(0.0f, (float)Sin(angle), (float)Cos(angle));
+                topPoints1[i] = new Vertex(topPoint + radius * v1);
+                topPoints2[i] = new Vertex(topPoint + radius * v2);
+                botPoints1[i] = new Vertex(bottomPoint - radius * v1);
+                botPoints2[i] = new Vertex(bottomPoint - radius * v2);
+            }
+
             VertexLineStrip topCircleUp = Circle.LineStrip(radius, upAxis, topPoint, pointCountHalfCircle * 2);
-            VertexLineStrip topHalfCircleToward = Circle.HalfCircleLineStrip(radius, upAxis, rightNormal, topPoint, pointCountHalfCircle);
-            VertexLineStrip topHalfCircleRight = Circle.HalfCircleLineStrip(radius, upAxis, forwardNormal, topPoint, pointCountHalfCircle);
-            
+            VertexLineStrip topHalfCircleToward = new VertexLineStrip(false, topPoints1);
+            VertexLineStrip topHalfCircleRight = new VertexLineStrip(false, topPoints2);
+
             VertexLineStrip bottomCircleDown = Circle.LineStrip(radius, -upAxis, bottomPoint, pointCountHalfCircle * 2);
-            VertexLineStrip bottomHalfCircleAway = Circle.HalfCircleLineStrip(radius, -upAxis, rightNormal, bottomPoint, pointCountHalfCircle);
-            VertexLineStrip bottomHalfCircleRight = Circle.HalfCircleLineStrip(radius, -upAxis, forwardNormal, bottomPoint, pointCountHalfCircle);
+            VertexLineStrip bottomHalfCircleAway = new VertexLineStrip(false, botPoints1);
+            VertexLineStrip bottomHalfCircleRight = new VertexLineStrip(false, botPoints2);
 
             VertexLineStrip right = new VertexLineStrip(false, 
                 new Vertex(bottomPoint + rightNormal * radius),
@@ -200,13 +222,32 @@ namespace System
                 rightNormal = Vec3.Forward ^ upAxis;
             }
 
+            int pts = pointCountHalfCircle + 1;
+
+            Vertex[] topPoints1 = new Vertex[pts], topPoints2 = new Vertex[pts];
+            Vertex[] botPoints1 = new Vertex[pts], botPoints2 = new Vertex[pts];
+
+            Quat offset = Quat.BetweenVectors(Vec3.Up, upAxis);
+
+            float angleInc = CustomMath.PIf / pointCountHalfCircle;
+            float angle = 0.0f;
+            for (int i = 0; i < pts; ++i, angle += angleInc)
+            {
+                Vec3 v1 = new Vec3((float)Cos(angle), (float)Sin(angle), 0.0f);
+                Vec3 v2 = new Vec3(0.0f, (float)Sin(angle), (float)Cos(angle));
+                topPoints1[i] = new Vertex(offset * (radius * v1));
+                topPoints2[i] = new Vertex(offset * (radius * v2));
+                botPoints1[i] = new Vertex(-(offset * (radius * v1)));
+                botPoints2[i] = new Vertex(-(offset * (radius * v2)));
+            }
+
             VertexLineStrip topCircleUp = Circle.LineStrip(radius, upAxis, topPoint, pointCountHalfCircle * 2);
-            VertexLineStrip topHalfCircleToward = Circle.HalfCircleLineStrip(radius, upAxis, rightNormal, topPoint, pointCountHalfCircle);
-            VertexLineStrip topHalfCircleRight = Circle.HalfCircleLineStrip(radius, upAxis, forwardNormal, topPoint, pointCountHalfCircle);
+            VertexLineStrip topHalfCircleToward = new VertexLineStrip(false, topPoints1);
+            VertexLineStrip topHalfCircleRight = new VertexLineStrip(false, topPoints2);
 
             VertexLineStrip bottomCircleDown = Circle.LineStrip(radius, -upAxis, bottomPoint, pointCountHalfCircle * 2);
-            VertexLineStrip bottomHalfCircleAway = Circle.HalfCircleLineStrip(radius, -upAxis, rightNormal, bottomPoint, pointCountHalfCircle);
-            VertexLineStrip bottomHalfCircleRight = Circle.HalfCircleLineStrip(radius, -upAxis, forwardNormal, bottomPoint, pointCountHalfCircle);
+            VertexLineStrip bottomHalfCircleAway = new VertexLineStrip(false, botPoints1);
+            VertexLineStrip bottomHalfCircleRight = new VertexLineStrip(false, botPoints2);
 
             VertexLineStrip right = new VertexLineStrip(false,
                 new Vertex(bottomPoint + rightNormal * radius),

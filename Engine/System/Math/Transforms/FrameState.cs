@@ -80,15 +80,19 @@ namespace System
         {
 
         }
-        public Vec3 GetForwardVector() { return _rotation.TransformVector(Vec3.Forward); }
-        public Vec3 GetUpVector() { return _rotation.TransformVector(Vec3.Up); }
-        public Vec3 GetRightVector() { return _rotation.TransformVector(Vec3.Right); }
-        public Matrix4 GetRotationMatrix() { return _rotation.GetMatrix(); }
+        public Vec3 GetForwardVector() => _rotation.TransformVector(Vec3.Forward);
+        public Vec3 GetUpVector() => _rotation.TransformVector(Vec3.Up);
+        public Vec3 GetRightVector() => _rotation.TransformVector(Vec3.Right);
+        public Matrix4 GetRotationMatrix() => _rotation.GetMatrix();
 
         public Matrix4 Matrix
         {
             get => _transform;
-            set => _transform = value;
+            set
+            {
+                _transform = value;
+                _inverseTransform = _transform.Inverted();
+            }
         }
         public Matrix4 InverseMatrix => _inverseTransform;
 

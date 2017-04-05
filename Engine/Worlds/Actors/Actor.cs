@@ -161,7 +161,7 @@ namespace CustomEngine.Worlds
         {
             RootComponent?.OriginRebased(newOrigin);
         }
-        internal override void Tick(float delta)
+        protected internal override void Tick(float delta)
         {
             _rootSceneComponent.Tick(delta);
             foreach (Component c in _logicComponents)

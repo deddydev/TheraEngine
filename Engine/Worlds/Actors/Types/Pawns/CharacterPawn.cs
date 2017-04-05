@@ -111,7 +111,7 @@ namespace CustomEngine.Worlds.Actors
                 _firstPerson = value;
             }
         }
-        internal override void Tick(float delta)
+        protected internal override void Tick(float delta)
         {
             Vec3 movementInput = _movement.ConsumeInput();
             RootComponent.Translation.Raw += movementInput;
@@ -174,12 +174,16 @@ namespace CustomEngine.Worlds.Actors
             //RootComponent.Rotation.Yaw += value;
             //CurrentCameraComponent.Camera.AddRotation(value, 0.0f);
         }
-        private void OnHit(IPhysicsDrivable other, ManifoldPoint point)
+        protected void OnHit(IPhysicsDrivable other, ManifoldPoint point)
         {
             Debug.WriteLine(((ObjectBase)other).Name + " collided with " + Name);
+            _movement.OnHit(other, point);
         }
         protected override CapsuleComponent OnConstruct()
         {
+            _movement = Activator.CreateInstance<MovementClass>();
+            LogicComponents.Add(_movement);
+
             PhysicsDriverInfo info = new PhysicsDriverInfo()
             {
                 BodyInfo = new RigidBodyConstructionInfo(
@@ -199,11 +203,18 @@ namespace CustomEngine.Worlds.Actors
                 CollidesWith = CustomCollisionGroup.StaticWorld,
             };
 
-            CapsuleComponent rootCapsule = new CapsuleComponent(10.0f, 50.0f, info);
-            rootCapsule.PhysicsDriver.OnHit += OnHit;
-            rootCapsule.Translation.Raw = new Vec3(0.0f, 300.0f, 0.0f);
+            float characterHeight = 172.72f; //5'8" in cm
+            float radius = 10.0f;
+            float capsuleTotalHalfHeight = characterHeight / 2.0f;
+            float halfHeight = capsuleTotalHalfHeight - radius;
+
+            CapsuleComponent rootCapsule = new CapsuleComponent(radius, halfHeight, info);
+            rootCapsule.PhysicsDriver.OnHit += _movement.OnHit;
+            rootCapsule.PhysicsDriver.AngularFactor = Vec3.Zero;
+            rootCapsule.Translation.Raw = new Vec3(0.0f, capsuleTotalHalfHeight, 0.0f);
 
             SkeletalMeshComponent mesh = new SkeletalMeshComponent(_mesh, _skeleton);
+            mesh.Translation.Raw = new Vec3(0.0f, -capsuleTotalHalfHeight, 0.0f);
             rootCapsule.ChildComponents.Add(mesh);
 
             //PerspectiveCamera FPCam = new PerspectiveCamera();
@@ -213,7 +224,8 @@ namespace CustomEngine.Worlds.Actors
             //_fpCameraComponent.AttachTo(mesh, "Head");
 
             _tpCameraBoom = new BoomComponent();
-            _tpCameraBoom.Translation.Raw = new Vec3(0.0f, 100.0f, 0.0f);
+            _tpCameraBoom.Translation.Raw = new Vec3(-200.0f, 100.0f, 0.0f);
+            //_tpCameraBoom.Rotation.Yaw = 180.0f;
             rootCapsule.ChildComponents.Add(_tpCameraBoom);
 
             PerspectiveCamera TPCam = new PerspectiveCamera()
@@ -223,9 +235,6 @@ namespace CustomEngine.Worlds.Actors
             };
             _tpCameraComponent = new CameraComponent(TPCam);
             _tpCameraBoom.ChildComponents.Add(_tpCameraComponent);
-
-            _movement = Activator.CreateInstance<MovementClass>();
-            LogicComponents.Add(_movement);
             
             rootCapsule.PhysicsDriver.SimulatingPhysics = true;
             CurrentCameraComponent = _tpCameraComponent;

@@ -28,7 +28,7 @@ namespace CustomEngine.Input.Devices.DirectX
         {
             throw new NotImplementedException();
         }
-        internal override void Tick(float delta)
+        protected internal override void Tick(float delta)
         {
             base.Tick(delta);
         }

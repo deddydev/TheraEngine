@@ -60,7 +60,7 @@ namespace CustomEngine.Input.Devices
             ConnectionStateChanged?.Invoke(_isConnected);
             return _isConnected;
         }
-        internal override void Tick(float delta) { UpdateStates(delta); }
+        protected internal override void Tick(float delta) { UpdateStates(delta); }
         public static void RegisterButtonEvent(ButtonManager m, ButtonInputType type, InputPauseType pauseType, Action func, bool unregister)
         {
             m?.Register(func, type, pauseType, unregister);

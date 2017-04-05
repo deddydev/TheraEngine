@@ -68,6 +68,12 @@ namespace System
         }
 
         public float* Data { get { return _data.Data; } }
+
+        internal Matrix4 GetMatrix()
+        {
+            throw new NotImplementedException();
+        }
+
         public VoidPtr Address { get { return _data.Address; } }
         public VertexBuffer.ComponentType ComponentType { get { return VertexBuffer.ComponentType.Float; } }
         public int ComponentCount { get { return 3; } }

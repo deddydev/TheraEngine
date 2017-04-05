@@ -67,7 +67,7 @@ namespace CustomEngine.Worlds
                 CollisionEnabled = true,
                 SimulatePhysics = false,
                 Group = CustomCollisionGroup.StaticWorld,
-                CollidesWith = CustomCollisionGroup.DynamicWorld,
+                CollidesWith = CustomCollisionGroup.DynamicWorld | CustomCollisionGroup.Characters,
             };
             BoundingBox floorBox = new BoundingBox(new Vec3(20.0f, 0.5f, 20.0f), Vec3.Zero);
             StaticMesh floorModel = new StaticMesh("Floor", floorBox);

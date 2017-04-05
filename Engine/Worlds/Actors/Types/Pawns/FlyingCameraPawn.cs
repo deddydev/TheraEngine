@@ -179,7 +179,7 @@ namespace CustomEngine.Worlds.Actors
 
         }
         
-        internal override void Tick(float delta)
+        protected internal override void Tick(float delta)
         {
             RootComponent.Camera.TranslateRelative(new Vec3(_linearRight, _linearUp, -_linearForward) * delta);
             RootComponent.Camera.AddRotation(_pitch * delta, _yaw * delta);

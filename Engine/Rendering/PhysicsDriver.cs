@@ -32,6 +32,7 @@ namespace CustomEngine.Rendering
     public interface IPhysicsDrivable
     {
         PhysicsDriver PhysicsDriver { get; }
+        Matrix4 WorldMatrix { get; }
     }
     public class PhysicsDriverInfo
     {
@@ -141,8 +142,9 @@ namespace CustomEngine.Rendering
                     }
                     else
                     {
-                        _collision.LinearFactor = new Vector3(1.0f);
-                        _collision.AngularFactor = new Vector3(1.0f);
+                        _collision.LinearFactor = _linearFactor;
+                        _collision.AngularFactor = _angularFactor;
+                        SetPhysicsTransform(_owner.WorldMatrix);
                         _collision.ForceActivationState(ActivationState.ActiveTag);
                         SimulationStateChanged?.Invoke(true);
                         RegisterTick(ETickGroup.PostPhysics, ETickOrder.Scene);
@@ -206,6 +208,16 @@ namespace CustomEngine.Rendering
             get => _owner;
             set => _owner = value;
         }
+        public Vec3 LinearFactor
+        {
+            get => _linearFactor;
+            set => _linearFactor = value;
+        }
+        public Vec3 AngularFactor
+        {
+            get => _angularFactor;
+            set => _angularFactor = value;
+        }
         public void UpdateBody(RigidBody body)
         {
             if (_collision == body)
@@ -243,8 +255,8 @@ namespace CustomEngine.Rendering
                 }
                 else
                 {
-                    _collision.LinearFactor = new Vector3(1.0f);
-                    _collision.AngularFactor = new Vector3(1.0f);
+                    _collision.LinearFactor = _linearFactor;
+                    _collision.AngularFactor = _angularFactor;
                     //_collision.CollisionFlags |= CollisionFlags.KinematicObject;
                     //_collision.CollisionFlags &= ~CollisionFlags.StaticObject;
                     //_collision.ForceActivationState(ActivationState.IslandSleeping);
@@ -252,6 +264,7 @@ namespace CustomEngine.Rendering
                 }
             }
         }
+        private Vec3 _linearFactor = Vec3.One, _angularFactor = Vec3.One;
         internal void AddToWorld()
         {
             Engine.World.PhysicsScene.AddRigidBody(
@@ -262,11 +275,16 @@ namespace CustomEngine.Rendering
         internal virtual void SetPhysicsTransform(Matrix4 newTransform)
         {
             _worldMatrix = newTransform;
-            _collision.WorldTransform = _worldMatrix;
-            _collision.InterpolationWorldTransform = _worldMatrix;
-            Engine.World.PhysicsScene.UpdateAabbs();
+            //if (_collision.MotionState != null)
+            //    _collision.MotionState.WorldTransform = _worldMatrix;
+            //else
+            {
+                _collision.WorldTransform = _worldMatrix;
+                //_collision.InterpolationWorldTransform = _worldMatrix;
+            }
+            Engine.World?.PhysicsScene.UpdateAabbs();
         }
-        internal override void Tick(float delta)
+        protected internal override void Tick(float delta)
         {
             _prevVelocity = _velocity;
             _velocity = _collision.LinearVelocity;

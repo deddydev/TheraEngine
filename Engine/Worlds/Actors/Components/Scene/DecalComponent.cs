@@ -16,7 +16,7 @@ namespace CustomEngine.Worlds.Actors.Components
         public DecalComponent() : base() { }
         public DecalComponent(Vec3 extents) : base(extents, null) { }
 
-        internal override void Tick(float delta)
+        protected internal override void Tick(float delta)
         {
             //var objects = Engine.Renderer.Scene.RenderTree.FindAllJustOutside(BoundingBox).Where(x => x is Mesh);
             //foreach (var obj in objects)

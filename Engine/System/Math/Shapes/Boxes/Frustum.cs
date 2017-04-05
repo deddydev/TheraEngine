@@ -83,6 +83,7 @@ namespace System
             get => _renderNode;
             set => _renderNode = value;
         }
+        public Sphere BoundingSphere { get => _boundingSphere; set => _boundingSphere = value; }
 
         public void UpdatePoints(
             Vec3 farBottomLeft, Vec3 farBottomRight, Vec3 farTopLeft, Vec3 farTopRight,
@@ -114,22 +115,14 @@ namespace System
             _planes[5] = new Plane(nearBottomLeft, nearBottomRight, farBottomLeft);
         }
 
-        public bool IntersectsRay(Vec3 startPoint, Vec3 direction, out Vec3 point1, out Vec3 point2)
+        public bool IntersectsRay(Vec3 startPoint, Vec3 direction, out List<Vec3> points)
         {
             Ray r = new Ray(startPoint, direction);
-            List<Vec3> points = new List<Vec3>();
+            points = new List<Vec3>();
             foreach (Plane p in this)
                 if (Collision.RayIntersectsPlane(r, p, out Vec3 point))
                     points.Add(point);
-            if (points.Count > 0)
-            {
-                point1 = points[0];
-                point2 = points[1];
-                return true;
-            }
-            point1 = Vec3.Zero;
-            point2 = Vec3.Zero;
-            return false;
+            return points.Count > 0;
         }
         public void TransformedVersionOf(Frustum other, Matrix4 transform)
             => UpdatePoints(

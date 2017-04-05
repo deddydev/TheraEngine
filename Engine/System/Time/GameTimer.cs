@@ -60,7 +60,7 @@ namespace System
 
             RegisterTick(ETickGroup.PrePhysics, ETickOrder.Timers);
         }
-        internal override void Tick(float delta)
+        protected internal override void Tick(float delta)
         {
             _totalElapsed += delta;
             _elapsedSinceLastFire += delta;

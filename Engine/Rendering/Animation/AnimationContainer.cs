@@ -239,7 +239,7 @@ namespace CustomEngine.Rendering.Animation
             _isPlaying = false;
             AnimationEnded?.Invoke(this);
         }
-        internal override void Tick(float delta)
+        protected internal override void Tick(float delta)
         {
             foreach (ObjectBase b in _owners)
                 Tick(delta, b);

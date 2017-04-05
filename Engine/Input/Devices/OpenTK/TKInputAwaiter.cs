@@ -17,7 +17,7 @@ namespace CustomEngine.Input.Devices.OpenTK
         public override CKeyboard CreateKeyboard(int index) { return new TKKeyboard(index); }
         public override CMouse CreateMouse(int index) { return new TKMouse(index); }
 
-        internal override void Tick(float delta)
+        protected internal override void Tick(float delta)
         {
             var gamepads = InputDevice.CurrentDevices[InputDeviceType.Gamepad];
             var keyboards = InputDevice.CurrentDevices[InputDeviceType.Keyboard];

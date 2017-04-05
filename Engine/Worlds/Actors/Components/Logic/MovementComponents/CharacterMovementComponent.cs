@@ -30,6 +30,29 @@ namespace CustomEngine.Worlds.Actors.Components
                 _upToGroupNormalRotation = Quat.BetweenVectors(Vec3.Up, GroundNormal);
             }
         }
+        public MovementMode CurrentMovementMode
+        {
+            get => _currentMovementMode;
+            set
+            {
+                if (_currentMovementMode == value)
+                    return;
+                _currentMovementMode = value;
+                if (_currentMovementMode == MovementMode.Walking)
+                    RegisterTick(ETickGroup.PostPhysics, ETickOrder.Scene);
+                else
+                    UnregisterTick();
+            }
+        }
+        public PhysicsDriver CurrentWalkingSurface
+        {
+            get => _currentWalkingSurface;
+            set => _currentWalkingSurface = value;
+        }
+        protected internal override void Tick(float delta)
+        {
+            base.Tick(delta);
+        }
         public override Vec3 ConsumeInput()
             => _upToGroupNormalRotation * base.ConsumeInput();
         public void Jump()
@@ -78,6 +101,15 @@ namespace CustomEngine.Worlds.Actors.Components
         {
             //TODO: use friction between surfaces, not just a constant angle
             return CustomMath.AngleBetween(Vec3.Up, normal) <= _maxWalkAngle;
+        }
+        public void OnHit(IPhysicsDrivable other, ManifoldPoint point)
+        {
+            if (CurrentMovementMode == MovementMode.Falling && 
+                IsSurfaceNormalWalkable(point.NormalWorldOnB))
+            {
+                _currentWalkingSurface = other.PhysicsDriver;
+                CurrentMovementMode = MovementMode.Walking;
+            }
         }
     }
 }

@@ -88,6 +88,7 @@ namespace System
             _isTicking = true;
             Engine.RegisterTick(this, group, order);
         }
+
         /// <summary>
         /// Specifies that this object will not have any tick calls.
         /// </summary>
@@ -98,11 +99,12 @@ namespace System
             _isTicking = false;
             Engine.UnregisterTick(this);
         }
+
         /// <summary>
         /// Updates logic for this class
         /// </summary>
         /// <param name="delta">The amount of time that has passed since the last tick update</param>
-        internal virtual void Tick(float delta) { }
+        protected internal virtual void Tick(float delta) { }
 
         public void OnPropertyChanged(PropertyInfo info, object previousValue)
         {

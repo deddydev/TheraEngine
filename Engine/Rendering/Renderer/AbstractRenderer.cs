@@ -187,7 +187,7 @@ namespace CustomEngine.Rendering
             transform = transform * Matrix4.CreateScale(halfExtents);
             m.Render(transform, transform.Inverted().Transposed().GetRotationMatrix3());
         }
-        public void RenderCapsule(string name, Matrix4 transform, Vec3 localCenter, Vec3 localUpAxis, float radius, float halfHeight, bool solid, ColorF4 color, float lineWidth = DefaultLineSize)
+        public void RenderCapsule(string name, Matrix4 transform, Vec3 localUpAxis, float radius, float halfHeight, bool solid, ColorF4 color, float lineWidth = DefaultLineSize)
         {
             SetLineSize(lineWidth);
             PrimitiveManager mCyl = null, mTop = null, mBot = null;
@@ -212,25 +212,19 @@ namespace CustomEngine.Rendering
                 if (mBot == null)
                     mBot = AssignDebugPrimitive(botStr, new PrimitiveManager(botData, Material.GetUnlitColorMaterial()));
             }
+            Matrix4 axisRotation = Matrix4.CreateFromQuaternion(Quat.BetweenVectors(Vec3.Up, localUpAxis));
+            Matrix4 radiusMtx = Matrix4.CreateScale(radius);
             mCyl.Parameter<GLVec4>(0).Value = color;
             mTop.Parameter<GLVec4>(0).Value = color;
             mBot.Parameter<GLVec4>(0).Value = color;
-            Matrix4 cylTransform = transform * Matrix4.CreateScale(radius, halfHeight, radius);
-            Matrix4 topTransform = transform * 
-                Matrix4.CreateTranslation(localCenter) * 
-                Matrix4.CreateFromQuaternion(Quat.BetweenVectors(Vec3.Up, localUpAxis)) * 
-                Matrix4.CreateTranslation(halfHeight) * 
-                Matrix4.CreateScale(radius);
-            Matrix4 botTransform = transform * 
-                Matrix4.CreateTranslation(localCenter) * 
-                Matrix4.CreateFromQuaternion(Quat.BetweenVectors(-Vec3.Up, -localUpAxis)) * 
-                Matrix4.CreateTranslation(-halfHeight) * 
-                Matrix4.CreateScale(radius);
+            Matrix4 cylTransform = transform * axisRotation * Matrix4.CreateScale(radius, halfHeight, radius);
+            Matrix4 topTransform = transform * axisRotation * Matrix4.CreateTranslation(0.0f, halfHeight, 0.0f) * radiusMtx;
+            Matrix4 botTransform = transform * axisRotation * Matrix4.CreateTranslation(0.0f, -halfHeight, 0.0f) * radiusMtx;
             mCyl.Render(cylTransform, Matrix3.Identity);
             mTop.Render(topTransform, Matrix3.Identity);
             mBot.Render(botTransform, Matrix3.Identity);
         }
-        public void RenderCylinder(string name, Matrix4 transform, Vec3 localCenter, Vec3 localUpAxis, float radius, float halfHeight, bool solid, ColorF4 color, float lineWidth = DefaultLineSize)
+        public void RenderCylinder(string name, Matrix4 transform, Vec3 localUpAxis, float radius, float halfHeight, bool solid, ColorF4 color, float lineWidth = DefaultLineSize)
         {
             throw new NotImplementedException();
         }
@@ -549,10 +543,10 @@ namespace CustomEngine.Rendering
     [Flags]
     public enum BufferClear
     {
-        Color = 1,
-        Depth = 2,
+        Color   = 1,
+        Depth   = 2,
         Stencil = 4,
-        Accum = 8,
+        Accum   = 8,
     }
     public enum DisplayListMode
     {
@@ -563,15 +557,15 @@ namespace CustomEngine.Rendering
     }
     public enum EPrimitive
     {
-        Points = 0,
-        Lines = 1,
-        LineLoop = 2,
-        LineStrip = 3,
-        Triangles = 4,
-        TriangleStrip = 5,
-        TriangleFan = 6,
-        Quads = 7,
-        QuadStrip = 8,
+        Points          = 0,
+        Lines           = 1,
+        LineLoop        = 2,
+        LineStrip       = 3,
+        Triangles       = 4,
+        TriangleStrip   = 5,
+        TriangleFan     = 6,
+        Quads           = 7,
+        QuadStrip       = 8,
     }
     public enum DrawBuffersAttachment : ushort
     {

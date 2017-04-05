@@ -1,6 +1,7 @@
 ﻿using BulletSharp;
 using CustomEngine.Rendering;
 using System;
+using System.Drawing;
 
 namespace CustomEngine.Worlds.Actors.Components
 {
@@ -10,7 +11,7 @@ namespace CustomEngine.Worlds.Actors.Components
 
         public CapsuleComponent(float radius, float halfHeight, PhysicsDriverInfo info) : base()
         {
-            _capsule = new CapsuleY(Vec3.Zero, radius, halfHeight);
+            _capsule = new CapsuleY(Vec3.Zero, Rotator.GetZero(), Vec3.One, radius, halfHeight);
             InitPhysics(info);
         }
         public override Shape CullingVolume => _capsule;
@@ -21,7 +22,7 @@ namespace CustomEngine.Worlds.Actors.Components
         }
 
         public override void Render()
-            => _capsule.Render();
+            => Engine.Renderer.RenderCapsule(_capsule.ShapeName, WorldMatrix, _capsule.LocalUpAxis, _capsule.Radius, _capsule.HalfHeight, _capsule.RenderSolid, Color.Red);
         protected override CollisionShape GetCollisionShape()
             => _capsule.GetCollisionShape();
         public override void OnSpawned()

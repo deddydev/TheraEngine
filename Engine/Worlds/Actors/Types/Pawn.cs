@@ -97,7 +97,7 @@ namespace CustomEngine.Worlds.Actors
             return LocalPlayerController.Input;
         }
         public virtual void RegisterInput(InputInterface input) { }
-        internal override void Tick(float delta)
+        protected internal override void Tick(float delta)
         {
             if (Engine.World == null)
                 return;

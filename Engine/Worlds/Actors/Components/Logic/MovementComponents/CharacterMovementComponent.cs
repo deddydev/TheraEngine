@@ -19,7 +19,9 @@ namespace CustomEngine.Worlds.Actors.Components
         private Vec3 _jumpVelocity = new Vec3(0.0f, 10.0f, 0.0f);
         private PhysicsDriver _currentWalkingSurface;
         private Vec3 _groundNormal;
-        private Quat _upToGroupNormalRotation = Quat.Identity;
+        private Quat _upToGroundNormalRotation = Quat.Identity;
+        private float _verticalStepUpHeight = 10.0f;
+        private DelTick _tick;
 
         public Vec3 GroundNormal
         {
@@ -27,21 +29,25 @@ namespace CustomEngine.Worlds.Actors.Components
             private set
             {
                 _groundNormal = value;
-                _upToGroupNormalRotation = Quat.BetweenVectors(Vec3.Up, GroundNormal);
+                _upToGroundNormalRotation = Quat.BetweenVectors(Vec3.Up, GroundNormal);
             }
         }
         public MovementMode CurrentMovementMode
         {
             get => _currentMovementMode;
-            set
+            protected set
             {
                 if (_currentMovementMode == value)
                     return;
                 _currentMovementMode = value;
-                if (_currentMovementMode == MovementMode.Walking)
-                    RegisterTick(ETickGroup.PostPhysics, ETickOrder.Scene);
-                else
-                    UnregisterTick();
+                switch (_currentMovementMode)
+                {
+                    case MovementMode.Walking:
+                        if (Owner.RootComponent is IPhysicsDrivable root)
+                            root.PhysicsDriver.SimulatingPhysics = false;
+                        _tick = TickWalking;
+                        break;
+                }
             }
         }
         public PhysicsDriver CurrentWalkingSurface
@@ -49,30 +55,65 @@ namespace CustomEngine.Worlds.Actors.Components
             get => _currentWalkingSurface;
             set => _currentWalkingSurface = value;
         }
-        protected internal override void Tick(float delta)
+        public float VerticalStepUpHeight
         {
+            get => _verticalStepUpHeight;
+            set => _verticalStepUpHeight = value;
+        }
+
+        protected void TickWalking(float delta)
+        {
+            Vec3 down = Engine.World.Settings.State.Gravity;
+            Vec3 movementInput = ConsumeInput();
+            Vec3 normalAdjustedInput = _upToGroundNormalRotation * movementInput;
+            Vec3 finalInput = normalAdjustedInput + new Vec3(0.0f, _verticalStepUpHeight, 0.0f);
+
             CapsuleComponent root = Owner.RootComponent as CapsuleComponent;
             ClosestConvexResultCallback callback = new ClosestConvexResultCallback();
             BaseCapsule c = (BaseCapsule)root.CullingVolume;
-            Vec3 down = Engine.World.Settings.State.Gravity.NormalizedFast();
-            //Vec3 downScale = new Vec3(c.Radius * 2.0f, (c.HalfHeight + c.Radius) * 2.0f, c.Radius * 2.0f);
-            Vec3 downScale = new Vec3(5.0f);
-            Matrix4 downTransform = Matrix4.CreateTranslation(down * downScale);
-            Engine.World.PhysicsScene.ConvexSweepTest((ConvexShape)c.GetCollisionShape(), root.WorldMatrix, root.WorldMatrix * downTransform, callback);
+
+            ////Vec3 downScale = new Vec3(c.Radius * 2.0f, (c.HalfHeight + c.Radius) * 2.0f, c.Radius * 2.0f);
+            //Vec3 downScale = new Vec3(5.0f);
+
+            ConvexShape shape = (ConvexShape)c.GetCollisionShape();
+
+            Matrix4 inputTransform = Matrix4.CreateTranslation(finalInput);
+            Engine.World.PhysicsScene.ConvexSweepTest(shape, root.WorldMatrix, root.WorldMatrix * inputTransform, callback);
+
             if (callback.HasHit)
             {
-                GroundNormal = callback.HitNormalWorld;
-                _currentWalkingSurface = (PhysicsDriver)callback.HitCollisionObject.UserObject;
-                root.WorldMatrix = Matrix4.CreateTranslation(callback.ConvexFromWorld.Lerp(callback.ConvexToWorld, callback.ClosestHitFraction));
+                //Something is in the way
+                Vec3 normal = callback.HitNormalWorld;
+                if (IsSurfaceNormalWalkable(normal))
+                {
+                    GroundNormal = callback.HitNormalWorld;
+                    _currentWalkingSurface = (PhysicsDriver)callback.HitCollisionObject.UserObject;
+                }
+                root.Translation.Raw += finalInput * callback.ClosestHitFraction;
             }
             else
+                root.Translation.Raw += finalInput;
+
+            inputTransform = Matrix4.CreateTranslation(down);
+            callback = new ClosestConvexResultCallback();
+            Engine.World.PhysicsScene.ConvexSweepTest(shape, root.WorldMatrix, root.WorldMatrix * inputTransform, callback);
+
+            if (!callback.HasHit)
             {
                 CurrentMovementMode = MovementMode.Falling;
                 _currentWalkingSurface = null;
             }
         }
-        public override Vec3 ConsumeInput()
-            => _upToGroupNormalRotation * base.ConsumeInput();
+        protected void TickFalling(float delta)
+        {
+            CapsuleComponent root = Owner.RootComponent as CapsuleComponent;
+            root.Translation.Raw += ConsumeInput() * 0.1f;
+        }
+        private delegate void DelTick(float delta);
+        protected internal override void Tick(float delta)
+        {
+            _tick(delta);
+        }
         public void Jump()
         {
             //Nothing to jump OFF of?
@@ -127,12 +168,19 @@ namespace CustomEngine.Worlds.Actors.Components
             {
                 _currentWalkingSurface = other.PhysicsDriver;
                 CurrentMovementMode = MovementMode.Walking;
-
-                if (Owner.RootComponent is IPhysicsDrivable root)
-                {
-                    root.PhysicsDriver.SimulatingPhysics = false;
-                }
             }
+        }
+        public override void OnSpawned()
+        {
+            _tick = TickFalling;
+            RegisterTick(ETickGroup.PostPhysics, ETickOrder.Scene);
+            base.OnSpawned();
+        }
+        public override void OnDespawned()
+        {
+            _tick = null;
+            UnregisterTick();
+            base.OnDespawned();
         }
     }
 }

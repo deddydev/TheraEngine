@@ -50,6 +50,13 @@ namespace CustomEngine.Worlds
     {
         public Actor(bool deferInitialization = false)
         {
+            _logicComponents = new MonitoredList<LogicComponent>();
+            _logicComponents.Added += _logicComponents_Added;
+            _logicComponents.AddedRange += _logicComponents_AddedRange;
+            _logicComponents.Removed += _logicComponents_Removed;
+            _logicComponents.RemovedRange += _logicComponents_RemovedRange;
+            _logicComponents.Inserted += _logicComponents_Inserted;
+            _logicComponents.InsertedRange += _logicComponents_InsertedRange;
             if (!deferInitialization)
                 Initialize();
         }
@@ -134,7 +141,7 @@ namespace CustomEngine.Worlds
         [Serialize("RootSceneComponent")]
         private T _rootSceneComponent;
         [Serialize("LogicComponents")]
-        private MonitoredList<LogicComponent> _logicComponents = new MonitoredList<LogicComponent>();
+        private MonitoredList<LogicComponent> _logicComponents;
 
         public MonitoredList<LogicComponent> LogicComponents
         {

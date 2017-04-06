@@ -16,10 +16,10 @@ namespace CustomEngine.Input.Devices.DirectX
             new Controller(UserIndex.Three),
             new Controller(UserIndex.Four),
         };
+
         public override CGamePad CreateGamepad(int controllerIndex)
-        {
-            return new DXGamepad(controllerIndex);
-        }
+            => new DXGamepad(controllerIndex);
+
         public override CKeyboard CreateKeyboard(int index)
         {
             throw new NotImplementedException();
@@ -28,10 +28,12 @@ namespace CustomEngine.Input.Devices.DirectX
         {
             throw new NotImplementedException();
         }
+
         protected internal override void Tick(float delta)
         {
             base.Tick(delta);
         }
+
         public DXInputAwaiter(Action<InputDevice> uponFound) : base(uponFound) { }
     }
 }

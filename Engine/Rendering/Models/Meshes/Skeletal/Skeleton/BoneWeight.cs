@@ -26,7 +26,7 @@ namespace CustomEngine.Rendering.Models
         }
         public bool Equals(BoneWeight other, float weightTolerance)
         {
-            return other != null ? (other.Bone == Bone && Weight.CompareEquality(other.Weight, weightTolerance) && Locked == other.Locked) : false;
+            return other != null ? (other.Bone == Bone && Weight.EqualTo(other.Weight, weightTolerance) && Locked == other.Locked) : false;
         }
         public static bool operator ==(BoneWeight left, BoneWeight right)
         {

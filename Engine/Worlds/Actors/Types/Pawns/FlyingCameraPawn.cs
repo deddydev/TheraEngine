@@ -49,11 +49,8 @@ namespace CustomEngine.Worlds.Actors
         public FlyingCameraPawn() : base() { }
         public FlyingCameraPawn(PlayerIndex possessor) : base(false, possessor) { }
 
-        protected override CameraComponent OnConstruct()
-        {
-            return new CameraComponent(false);
-        }
-
+        protected override CameraComponent OnConstruct() => new CameraComponent(false);
+        
         //Movement parameters
         float
             _scrollSpeed = 5.0f,
@@ -72,11 +69,6 @@ namespace CustomEngine.Worlds.Actors
         bool Rotating => _rightClickPressed && _ctrl;
         bool Translating => _rightClickPressed && !_ctrl;
 
-        protected override void PreConstruct()
-        {
-            RegisterTick(ETickGroup.PrePhysics, ETickOrder.Input);
-            base.PreConstruct();
-        }
         protected override void PostConstruct()
         {
             RootComponent.Camera.TranslateAbsolute(new Vec3(0.0f, 0.0f, 100.0f));
@@ -218,11 +210,13 @@ namespace CustomEngine.Worlds.Actors
         //}
         public override void OnSpawned(World world)
         {
+            RegisterTick(ETickGroup.PrePhysics, ETickOrder.Input);
             //Engine.Renderer.Scene.AddRenderable(CameraComponent.Camera);
             base.OnSpawned(world);
         }
         public override void OnDespawned()
         {
+            UnregisterTick();
             //Engine.Renderer.Scene.RemoveRenderable(CameraComponent.Camera);
             base.OnDespawned();
         }

@@ -8,25 +8,24 @@ using System.Threading.Tasks;
 namespace CustomEngine.Worlds.Actors.Components
 {
     /// <summary>
-    /// Translates first, then rotates.
+    /// rotates first, then translates.
     /// </summary>
-    public class TRComponent : PositionComponent
+    public class RTComponent : PositionComponent
     {
-        public TRComponent() : base()
+        public RTComponent() : base()
         {
-            _rotation = new Rotator();
-            _rotation.Changed += RecalcLocalTransform;
+            Rotation = new Rotator();
         }
-        public TRComponent(Vec3 translation, Rotator rotation)
+        public RTComponent(Rotator rotation, Vec3 translation)
         {
-            SetTR(translation, rotation);
+            SetRT(rotation, translation);
         }
-        public void SetTR(Vec3 translation, Rotator rotation)
+        public void SetRT(Rotator rotation, Vec3 translation)
         {
-            _translation = translation;
-            _translation.Changed += RecalcLocalTransform;
             _rotation = rotation;
             _rotation.Changed += RecalcLocalTransform;
+            _translation = translation;
+            _translation.Changed += RecalcLocalTransform;
             RecalcLocalTransform();
         }
 
@@ -51,18 +50,8 @@ namespace CustomEngine.Worlds.Actors.Components
                 t = Matrix4.CreateTranslation(_translation), 
                 it = Matrix4.CreateTranslation(-_translation);
 
-            SetLocalTransforms(t * r, ir * it);
+            SetLocalTransforms(r * t, it * ir);
         }
-        public void TranslateRelative(Vec3 translation)
-        {
-            SetLocalTransforms(
-                LocalMatrix * Matrix4.CreateTranslation(translation),
-                Matrix4.CreateTranslation(-translation) * InverseLocalMatrix);
-            _translation = LocalMatrix.GetPoint();
-        }
-        protected internal override void OriginRebased(Vec3 newOrigin)
-        {
-            Translation -= newOrigin;
-        }
+        protected internal override void OriginRebased(Vec3 newOrigin) { }
     }
 }

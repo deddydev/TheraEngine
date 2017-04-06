@@ -121,10 +121,8 @@ namespace CustomEngine.Worlds.Actors.Components
         private Dictionary<string, StaticMeshSocket> _sockets = new Dictionary<string, StaticMeshSocket>();
 
         private void _physicsDriver_TransformChanged(Matrix4 worldMatrix)
-        {
-            WorldMatrix = worldMatrix;
-        }
-
+            => WorldMatrix = worldMatrix;
+        
         internal override void RecalcGlobalTransform()
         {
             if (_physicsDriver == null || !_physicsDriver.SimulatingPhysics)
@@ -141,7 +139,7 @@ namespace CustomEngine.Worlds.Actors.Components
 
         public StaticMesh Model
         {
-            get { return _model; }
+            get => _model;
             set
             {
                 if (_model == value)
@@ -157,7 +155,7 @@ namespace CustomEngine.Worlds.Actors.Components
                 }
             }
         }
-        public PhysicsDriver PhysicsDriver { get { return _physicsDriver; } }
+        public PhysicsDriver PhysicsDriver => _physicsDriver;
 
         public override void OnSpawned()
         {
@@ -171,7 +169,7 @@ namespace CustomEngine.Worlds.Actors.Components
             foreach (RenderableMesh m in _meshes)
                 m.Visible = false;
         }
-        internal override void OriginRebased(Vec3 newOrigin)
+        protected internal override void OriginRebased(Vec3 newOrigin)
         {
             Translation -= newOrigin;
         }

@@ -551,6 +551,73 @@ namespace System
             return true;
         }
 
+        private static bool RaySlabIntersect(float slabmin, float slabmax, float raystart, float rayend, ref float tbenter, ref float tbexit)
+        {
+            float raydir = rayend - raystart;
+
+            // ray parallel to the slab
+            if (Math.Abs(raydir) < 1.0E-9f)
+            {
+                // ray parallel to the slab, but ray not inside the slab planes
+                if (raystart < slabmin || raystart > slabmax)
+                    return false;
+                // ray parallel to the slab, but ray inside the slab planes
+                else
+                    return true;
+            }
+
+            // slab's enter and exit parameters
+            float tsenter = (slabmin - raystart) / raydir;
+            float tsexit = (slabmax - raystart) / raydir;
+
+            // order the enter / exit values.
+            if (tsenter > tsexit)
+                CustomMath.Swap(ref tsenter, ref tsexit);
+            
+            // make sure the slab interval and the current box intersection interval overlap
+            if (tbenter > tsexit || tsenter > tbexit)
+            {
+                // nope. Ray missed the box.
+                return false;
+            }
+            // yep, the slab and current intersection interval overlap
+            else
+            {
+                // update the intersection interval
+                tbenter = Math.Max(tbenter, tsenter);
+                tbexit = Math.Min(tbexit, tsexit);
+                return true;
+            }
+        }
+
+        public static bool SegmentIntersectsAABB(Vec3 segmentStart, Vec3 segmentEnd, Vec3 boxMin, Vec3 boxMax, out Vec3 enterPoint, out Vec3 exitPoint)
+        {
+            enterPoint = segmentStart;
+            exitPoint = segmentEnd;
+
+            // initialise to the segment's boundaries. 
+            float tenter = 0.0f;
+            float texit = 1.0f;
+
+            // test X slab
+            if (!RaySlabIntersect(boxMin.X, boxMax.X, segmentStart.X, segmentEnd.X, ref tenter, ref texit))
+                return false;
+
+	        // test Y slab
+	        if (!RaySlabIntersect(boxMin.Y, boxMax.Y, segmentStart.Y, segmentEnd.Y, ref tenter, ref texit)) 
+		        return false;
+	 
+	        // test Z slab
+	        if (!RaySlabIntersect(boxMin.Z, boxMax.Z, segmentStart.Z, segmentEnd.Z, ref tenter, ref texit)) 
+		        return false;
+
+            enterPoint = Vec3.Lerp(segmentStart, segmentEnd, tenter);
+            exitPoint = Vec3.Lerp(segmentStart, segmentEnd, texit);
+
+            // all intersections in the green.
+            return  true;
+        }   
+
         /// <summary>
         /// Determines whether there is an intersection between a <see cref="Ray"/> and a <see cref="Plane"/>.
         /// </summary>
@@ -561,8 +628,7 @@ namespace System
         /// <returns>Whether the two objects intersected.</returns>
         public static bool RayIntersectsAABB(Ray ray, Vec3 boxMin, Vec3 boxMax, out Vec3 point)
         {
-            float distance;
-            if (!RayIntersectsAABBDistance(ray.StartPoint, ray.Direction, boxMin, boxMax, out distance))
+            if (!RayIntersectsAABBDistance(ray.StartPoint, ray.Direction, boxMin, boxMax, out float distance))
             {
                 point = Vec3.Zero;
                 return false;

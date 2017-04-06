@@ -7,20 +7,23 @@ namespace CustomEngine.Worlds.Actors.Components
 {
     public class CameraComponent : SceneComponent
     {
+        //bool _updatingTransform = false;
         public CameraComponent()
         {
             Camera = new PerspectiveCamera();
+            WorldTransformChanged += CameraComponent_WorldTransformChanged;
         }
         public CameraComponent(bool orthographic)
         {
             Camera = orthographic ? (Camera)new OrthographicCamera() : new PerspectiveCamera();
+            WorldTransformChanged += CameraComponent_WorldTransformChanged;
         }
         public CameraComponent(Camera camera)
         {
             Camera = camera;
+            WorldTransformChanged += CameraComponent_WorldTransformChanged;
         }
-
-        bool _updatingTransform = false;
+        
         private Camera _camera;
 
         public Camera Camera
@@ -41,6 +44,14 @@ namespace CustomEngine.Worlds.Actors.Components
                 }
             }
         }
+
+        private void CameraComponent_WorldTransformChanged()
+        {
+            //_updatingTransform = true;
+            //_camera.LocalMatrix = _localTransform;
+            //_updatingTransform = false;
+        }
+
         protected override void GenerateChildCache(List<SceneComponent> cache)
         {
             base.GenerateChildCache(cache);
@@ -79,7 +90,7 @@ namespace CustomEngine.Worlds.Actors.Components
         //    OnWorldTransformChanged();
         //}
 
-        internal override void OriginRebased(Vec3 newOrigin)
+        protected internal override void OriginRebased(Vec3 newOrigin)
         {
             _camera.TranslateAbsolute(-newOrigin);
         }
@@ -94,11 +105,6 @@ namespace CustomEngine.Worlds.Actors.Components
             if (Engine.Settings.RenderCameraFrustums)
                 Engine.Renderer.Scene.RemoveRenderable(_camera);
             base.OnDespawned();
-        }
-
-        protected override void RecalcLocalTransform()
-        {
-            throw new NotImplementedException();
         }
     }
 }

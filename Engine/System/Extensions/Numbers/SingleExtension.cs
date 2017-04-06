@@ -59,7 +59,7 @@
 
             return value;
         }
-        public static bool CompareEquality(this Single value, Single other, Single tolerance = 0.0001f)
+        public static bool EqualTo(this Single value, Single other, Single tolerance = 0.0001f)
         {
             return Math.Abs(value - other) < tolerance;
         }

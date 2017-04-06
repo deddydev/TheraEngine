@@ -78,7 +78,19 @@ namespace CustomEngine.Rendering.Cameras
             //}
         }
         public Matrix4 InverseLocalMatrix => _invTransform;
-        public Matrix4 LocalMatrix => _transform;
+        public Matrix4 LocalMatrix
+        {
+            get => _transform;
+            internal set
+            {
+                _localPoint.Raw = _transform.GetPoint();
+                _localRotation.SetRotations(_transform.GetRotationMatrix4().ExtractRotation().ToEuler());
+                _transform = value;
+                _invTransform = _transform.Inverted();
+                UpdateTransformedFrustum();
+                OnTransformChanged();
+            }
+        }
         public float NearZ
         {
             get => _nearZ;
@@ -97,6 +109,7 @@ namespace CustomEngine.Rendering.Cameras
                 CalculateProjection();
             }
         }
+        public Vec3 WorldPoint => _owningComponent != null ? _owningComponent.WorldMatrix.GetPoint() : _localPoint.Raw;
         public Vec3 LocalPoint
         {
             get => _localPoint.Raw;
@@ -298,14 +311,14 @@ namespace CustomEngine.Rendering.Cameras
         
         public virtual void SetUniforms()
         {
-            Engine.Renderer.Uniform(Uniform.GetLocation(ECommonUniform.ViewMatrix),     InverseLocalMatrix);
+            Engine.Renderer.Uniform(Uniform.GetLocation(ECommonUniform.ViewMatrix),     InverseWorldMatrix);
             Engine.Renderer.Uniform(Uniform.GetLocation(ECommonUniform.ProjMatrix),     ProjectionMatrix);
             Engine.Renderer.Uniform(Uniform.GetLocation(ECommonUniform.ScreenWidth),    Width);
             Engine.Renderer.Uniform(Uniform.GetLocation(ECommonUniform.ScreenHeight),   Height);
             Engine.Renderer.Uniform(Uniform.GetLocation(ECommonUniform.ScreenOrigin),   Origin);
             Engine.Renderer.Uniform(Uniform.GetLocation(ECommonUniform.CameraNearZ),    NearZ);
             Engine.Renderer.Uniform(Uniform.GetLocation(ECommonUniform.CameraFarZ),     FarZ);
-            Engine.Renderer.Uniform(Uniform.GetLocation(ECommonUniform.CameraPosition), LocalPoint);
+            Engine.Renderer.Uniform(Uniform.GetLocation(ECommonUniform.CameraPosition), WorldPoint);
             Engine.Renderer.Uniform(Uniform.GetLocation(ECommonUniform.CameraForward),  GetForwardVector());
             Engine.Renderer.Uniform(Uniform.GetLocation(ECommonUniform.CameraUp),       GetUpVector());
             Engine.Renderer.Uniform(Uniform.GetLocation(ECommonUniform.CameraRight),    GetRightVector());

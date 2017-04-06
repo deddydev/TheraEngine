@@ -44,6 +44,7 @@ namespace CustomEngine.Worlds.Actors.Components
                 _inverseLocalTransform = InverseWorldMatrix * GetParentMatrix();
                 foreach (SceneComponent c in _children)
                     c.RecalcGlobalTransform();
+                OnWorldTransformChanged();
             }
         }
         /// <summary>
@@ -93,6 +94,7 @@ namespace CustomEngine.Worlds.Actors.Components
                 _inverseLocalTransform = InverseWorldMatrix * GetParentMatrix();
                 foreach (SceneComponent c in _children)
                     c.RecalcGlobalTransform();
+                OnWorldTransformChanged();
             }
         }
         public Matrix4 LocalMatrix
@@ -238,7 +240,7 @@ namespace CustomEngine.Worlds.Actors.Components
                 }
             }
         }
-        internal abstract void OriginRebased(Vec3 newOrigin);
+        protected internal abstract void OriginRebased(Vec3 newOrigin);
         public override void OnSpawned()
         {
             foreach (SceneComponent c in _children)

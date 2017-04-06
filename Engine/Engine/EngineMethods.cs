@@ -11,6 +11,54 @@ using BulletSharp;
 
 namespace CustomEngine
 {
+    public class CustomClosestRayResultCallback : RayResultCallback
+    {
+        public CustomClosestRayResultCallback() : base()
+        {
+
+        }
+        public CustomClosestRayResultCallback(Vec3 rayFromWorld, Vec3 rayToWorld) : base()
+        {
+
+        }
+
+        private Vec3 _rayStartWorld;
+        private Vec3 _rayEndWorld;
+        private Vec3 _hitPointWorld;
+        private Vec3 _hitNormalWorld;
+        private float _hitFraction = 1.0f;
+        private CustomCollisionGroup
+            _collidesWith = CustomCollisionGroup.All,
+            _group = CustomCollisionGroup.All,
+            _ignore = CustomCollisionGroup.None;
+
+        public Vec3 RayStartWorld { get => _rayStartWorld; set => _rayStartWorld = value; }
+        public Vec3 RayEndWorld { get => _rayEndWorld; set => _rayEndWorld = value; }
+        public Vec3 HitPointWorld { get => _hitPointWorld; }
+        public Vec3 HitNormalWorld { get => _hitNormalWorld; }
+        public CustomCollisionGroup CollidesWith { get => _collidesWith; set => _collidesWith = value; }
+        public CustomCollisionGroup Ignore { get => _ignore; set => _ignore = value; }
+
+        public override float AddSingleResult(LocalRayResult rayResult, bool normalInWorldSpace)
+        {
+            if (rayResult.HitFraction < _hitFraction)
+            {
+                CollisionObject = rayResult.CollisionObject;
+                _hitFraction = rayResult.HitFraction;
+                _hitNormalWorld = Vec3.TransformNormal(rayResult.HitNormalLocal, rayResult.CollisionObject.WorldTransform).NormalizedFast();
+                _hitPointWorld = Vec3.Lerp(_rayStartWorld, _rayEndWorld, _hitFraction);
+            }
+
+            return rayResult.HitFraction;
+        }
+        public override bool NeedsCollision(BroadphaseProxy proxy0)
+        {
+            CustomCollisionGroup g = (CustomCollisionGroup)(short)proxy0.CollisionFilterGroup;
+            if ((_collidesWith & g) != 0 && (_ignore & g) == 0)
+                return Collision.SegmentIntersectsAABB(RayStartWorld, RayEndWorld, proxy0.AabbMin, proxy0.AabbMax, out Vec3 enterPoint, out Vec3 exitPoint);
+            return false;
+        }
+    }
     public static partial class Engine
     {
         static Engine()
@@ -28,18 +76,30 @@ namespace CustomEngine
             ActivePlayers.Added += ActivePlayers_Added;
             ActivePlayers.Removed += ActivePlayers_Removed;
         }
-
+        
         /// <summary>
         /// Finds the closest ray intersection with any physics object.
         /// </summary>
         /// <returns></returns>
-        public static ClosestRayResultCallback RaycastClosest(Segment ray) 
-            => RaycastClosest(ray.StartPoint, ray.EndPoint);
-        public static ClosestRayResultCallback RaycastClosest(Vec3 from, Vec3 to)
+        public static CustomClosestRayResultCallback RaycastClosest(
+            Segment ray,
+            CustomCollisionGroup collideWith = CustomCollisionGroup.All,
+            CustomCollisionGroup ignore = CustomCollisionGroup.None)
+            => RaycastClosest(ray.StartPoint, ray.EndPoint, collideWith, ignore);
+        public static CustomClosestRayResultCallback RaycastClosest(
+            Vec3 from, Vec3 to,
+            CustomCollisionGroup collideWith = CustomCollisionGroup.All, 
+            CustomCollisionGroup ignore = CustomCollisionGroup.None)
         {
             if (World == null)
                 return null;
-            ClosestRayResultCallback callback = new ClosestRayResultCallback();
+            CustomClosestRayResultCallback callback = new CustomClosestRayResultCallback()
+            {
+                CollidesWith = collideWith,
+                Ignore = ignore,
+                RayStartWorld = from,
+                RayEndWorld = to,
+            };
             World.PhysicsScene.RayTest(from, to, callback);
             return callback;
         }

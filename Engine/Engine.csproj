@@ -764,6 +764,8 @@
     <Compile Include="Worlds\Actors\Components\Scene\Lights\DirectionalLightComponent.cs" />
     <Compile Include="Worlds\Actors\Components\Scene\Mesh\SkeletalMeshComponent.RenderableMesh.cs" />
     <Compile Include="Worlds\Actors\Components\Scene\Mesh\StaticMeshComponent.RenderableMesh.cs" />
+    <Compile Include="Worlds\Actors\Components\Scene\Transforms\RotationComponent.cs" />
+    <Compile Include="Worlds\Actors\Components\Scene\Transforms\RTComponent.cs" />
     <Compile Include="Worlds\Actors\Components\Scene\Transforms\TRComponent.cs" />
     <Compile Include="Worlds\Actors\Components\Scene\Transforms\PositionComponent.cs" />
     <Compile Include="Worlds\Actors\Components\Scene\Transforms\TRSComponent.cs" />

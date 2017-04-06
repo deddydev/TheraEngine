@@ -37,7 +37,7 @@ namespace CustomEngine.Worlds.Actors.Components
                 Matrix4.CreateTranslation(_translation.Raw), 
                 Matrix4.CreateTranslation(-_translation.Raw));
         
-        internal override void OriginRebased(Vec3 newOrigin)
+        protected internal override void OriginRebased(Vec3 newOrigin)
             => Translation -= newOrigin;
     }
 }

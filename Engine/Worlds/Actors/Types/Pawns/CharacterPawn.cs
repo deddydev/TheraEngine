@@ -82,6 +82,7 @@ namespace CustomEngine.Worlds.Actors
             _left = 0.0f,
             _right = 0.0f,
             _backward = 0.0f;
+
         private MovementClass _movement;
         private SingleFileRef<SkeletalMesh> _mesh;
         private SingleFileRef<Skeleton> _skeleton;
@@ -111,12 +112,6 @@ namespace CustomEngine.Worlds.Actors
                 _firstPerson = value;
             }
         }
-        protected internal override void Tick(float delta)
-        {
-            Vec3 movementInput = _movement.ConsumeInput();
-            RootComponent.Translation.Raw += movementInput;
-            base.Tick(delta);
-        }
         public override void RegisterInput(InputInterface input)
         {
             input.RegisterAxisUpdate(GamePadAxis.LeftThumbstickX, MoveRight, false);
@@ -143,8 +138,9 @@ namespace CustomEngine.Worlds.Actors
         
         private void Look(float x, float y)
         {
-            RootComponent.Rotation.Yaw += x;
-            _tpCameraBoom.Rotation.Pitch += y;
+            //RootComponent.Rotation.Yaw += x;
+            _tpCameraBoom.Rotation.Pitch += -y;
+            _tpCameraBoom.Rotation.Yaw += -x;
             //_fpCameraComponent.Camera.AddRotation(y, 0.0f);
         }
         private void Jump() => _movement.Jump();
@@ -224,14 +220,15 @@ namespace CustomEngine.Worlds.Actors
             //_fpCameraComponent.AttachTo(mesh, "Head");
 
             _tpCameraBoom = new BoomComponent();
-            _tpCameraBoom.Translation.Raw = new Vec3(-200.0f, 100.0f, 0.0f);
+            _tpCameraBoom.Translation.Raw = new Vec3(0.0f, 0.0f, 0.0f);
             _tpCameraBoom.Rotation.Yaw = 180.0f;
+            _tpCameraBoom.MaxLength = 200.0f;
             rootCapsule.ChildComponents.Add(_tpCameraBoom);
 
             PerspectiveCamera TPCam = new PerspectiveCamera()
             {
-                VerticalFieldOfView = 70.0f,
-                FarZ = 100.0f
+                //VerticalFieldOfView = 70.0f,
+                //FarZ = 100.0f
             };
 
             _tpCameraComponent = new CameraComponent(TPCam);

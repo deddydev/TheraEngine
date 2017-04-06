@@ -126,7 +126,7 @@ namespace CustomEngine.Rendering.Cameras
 
         public override float DistanceScale(Vec3 point, float radius)
         {
-            return _localPoint.DistanceToFast(point) * radius / (_fovY / 45.0f) * 0.1f;
+            return WorldPoint.DistanceToFast(point) * radius / (_fovY / 45.0f) * 0.1f;
         }
         //public unsafe override void Write(VoidPtr address, StringTable table)
         //{

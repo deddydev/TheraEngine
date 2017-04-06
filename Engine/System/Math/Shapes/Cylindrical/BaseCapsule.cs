@@ -65,7 +65,40 @@ namespace System
         }
         public override EContainment ContainedWithin(BoundingBox box)
         {
-            return ContainedWithin(box.AsFrustum());
+            Vec3 top = GetTopCenterPoint();
+            Vec3 bot = GetBottomCenterPoint();
+            
+            EContainment containsTop = Collision.AABBContainsSphere(box.Minimum, box.Maximum, top, _radius);
+            EContainment containsBot = Collision.AABBContainsSphere(box.Minimum, box.Maximum, bot, _radius);
+            if (containsTop == EContainment.Contains &&
+                containsBot == EContainment.Contains)
+                return EContainment.Contains;
+            else if (containsTop == EContainment.Intersects ||
+                containsBot == EContainment.Intersects)
+                return EContainment.Intersects;
+            else
+            {
+                Frustum f = box.AsFrustum();
+                foreach (Plane p in f)
+                {
+                    if (Collision.RayIntersectsPlane(bot, top, p.Point, p.Normal, out Vec3 point))
+                    {
+                        //TODO: make sure the returned point is within the plane bounds
+                        //(currently an infinite plane intersection)
+                        float closestDist = Segment.GetClosestDistanceToPoint(bot, top, point);
+                        if (closestDist < _radius)
+                            return EContainment.Intersects;
+                    }
+                    else
+                    {
+                        //segment is parallel to plane, can use any point for distance
+                        float closestDist = p.DistanceTo(bot);
+                        if (closestDist < _radius)
+                            return EContainment.Intersects;
+                    }
+                }
+                return EContainment.Disjoint;
+            }
         }
         public override EContainment ContainedWithin(Box box)
         {

@@ -76,13 +76,7 @@ namespace CustomEngine.Worlds.Actors
             _mesh = mesh;
             Initialize();
         }
-
-        private float
-            _forward = 0.0f,
-            _left = 0.0f,
-            _right = 0.0f,
-            _backward = 0.0f;
-
+        
         private MovementClass _movement;
         private SingleFileRef<SkeletalMesh> _mesh;
         private SingleFileRef<Skeleton> _skeleton;
@@ -91,7 +85,9 @@ namespace CustomEngine.Worlds.Actors
         private CameraComponent _fpCameraComponent, _tpCameraComponent;
         private bool _firstPerson = false;
         private Rotator _viewRotation;
-
+        private Vec2 _keyboardMovementInput = Vec2.Zero;
+        private Vec2 _gamepadMovementInput = Vec2.Zero;
+        
         [Category("Reference Files")]
         public SingleFileRef<SkeletalMesh> Mesh
         {
@@ -112,6 +108,35 @@ namespace CustomEngine.Worlds.Actors
                 _firstPerson = value;
             }
         }
+        public override void OnSpawned(World world)
+        {
+            RegisterTick(ETickGroup.PrePhysics, ETickOrder.Input);
+            base.OnSpawned(world);
+        }
+        public override void OnDespawned()
+        {
+            UnregisterTick();
+            base.OnDespawned();
+        }
+        protected internal override void Tick(float delta)
+        {
+            base.Tick(delta);
+            Vec3 forward = Vec3.TransformVector(Vec3.Forward, _tpCameraBoom.Rotation.GetYawMatrix());
+            Vec3 right = forward ^ Vec3.Up;
+            if (_keyboardMovementInput.X != 0.0f || _keyboardMovementInput.Y != 0.0f)
+            {
+                Vec3 finalInput = forward * _keyboardMovementInput.Y + right * _keyboardMovementInput.X;
+                finalInput.Y = 0.0f;
+                _movement.AddMovementInput(finalInput);
+            }
+            if (_gamepadMovementInput.X != 0.0f || _gamepadMovementInput.Y != 0.0f)
+            {
+                Vec3 finalInput = forward * _gamepadMovementInput.Y + right * _gamepadMovementInput.X;
+                finalInput *= delta;
+                finalInput.Y = 0.0f;
+                _movement.AddMovementInput(finalInput);
+            }
+        }
         public override void RegisterInput(InputInterface input)
         {
             input.RegisterAxisUpdate(GamePadAxis.LeftThumbstickX, MoveRight, false);
@@ -125,36 +150,33 @@ namespace CustomEngine.Worlds.Actors
             input.RegisterButtonPressed(EKey.A, MoveLeft);
             input.RegisterButtonPressed(EKey.S, MoveBackward);
             input.RegisterButtonPressed(EKey.D, MoveRight);
+            input.RegisterButtonEvent(EKey.Space, ButtonInputType.Pressed, Jump);
         }
-
-        private void MoveForward(bool pressed)
-            => _forward = pressed ? 1.0f : 0.0f;
-        private void MoveLeft(bool pressed)
-            => _left = pressed ? 1.0f : 0.0f;
-        private void MoveRight(bool pressed)
-            => _right = pressed ? 1.0f : 0.0f;
-        private void MoveBackward(bool pressed)
-            => _backward = pressed ? 1.0f : 0.0f;
         
+        private void MoveForward(bool pressed)
+            => _keyboardMovementInput.Y += pressed ? 1.0f : -1.0f;
+        private void MoveLeft(bool pressed)
+            => _keyboardMovementInput.X += pressed ? -1.0f : 1.0f;
+        private void MoveRight(bool pressed)
+            => _keyboardMovementInput.X += pressed ? 1.0f : -1.0f;
+        private void MoveBackward(bool pressed)
+            => _keyboardMovementInput.Y += pressed ? -1.0f : 1.0f;
+
         private void Look(float x, float y)
         {
             //RootComponent.Rotation.Yaw += x;
-            _tpCameraBoom.Rotation.Pitch += -y;
-            _tpCameraBoom.Rotation.Yaw += -x;
+            _tpCameraBoom.Rotation.Pitch -= y;
+            _tpCameraBoom.Rotation.Yaw -= x;
             //_fpCameraComponent.Camera.AddRotation(y, 0.0f);
         }
         private void Jump() => _movement.Jump();
         private void MoveRight(float value)
         {
-            Vec3 dir = CurrentCameraComponent.Camera.GetRightVector();
-            _movement.AddMovementInput(dir * value * Engine.RenderDelta);
+            _gamepadMovementInput.X = value;
         }
         private void MoveForward(float value)
         {
-            Rotator r = CurrentCameraComponent.Camera.LocalRotation;
-            r.Pitch = 0;
-            Vec3 dir = r.TransformVector(Vec3.Forward);
-            _movement.AddMovementInput(dir * value * Engine.RenderDelta);
+            _gamepadMovementInput.Y = value;
         }
         private void LookRight(float value)
         {

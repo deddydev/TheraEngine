@@ -429,19 +429,7 @@ namespace System
         /// </summary>
         public Rotator LookatAngles(Vec3 startNormal)
         {
-            Vec3 thisNorm = NormalizedFast();
-            Vec3 thatNorm = startNormal.NormalizedFast();
-            Vec3 axis = (thisNorm ^ thatNorm).NormalizedFast();
-            float angle = RadToDeg((float)Acos(thisNorm | thatNorm));
-            Quat q = Quat.FromAxisAngle(axis, angle);
-            Rotator r = q.ToEuler();
-            //Rotator r = startNormal.LookatAngles(Forward);
-            //return new Rotator(
-            //    RadToDeg((float)Atan2(Y, Sqrt(X * X + Z * Z))),
-            //    //RadToDeg((float)Atan2(-Z, X)),
-            //    RadToDeg((float)Atan2(-X, -Z)),
-            //    0.0f, Rotator.Order.YPR);
-            return r;
+            return Quat.BetweenVectors(startNormal, this).ToEuler();
         }
         //public void LookatAngles(Vec3 startNormal, out float yaw, out float pitch)
         //{
@@ -497,20 +485,16 @@ namespace System
             float Scale = InverseSqrtFast(SquareSum);
 	        return new Vec3(X * Scale, Y * Scale, Z * Scale);
         }
-        /// <summary>
-        /// Radians
-        /// </summary>
-        /// <returns></returns>
         public Vec3 GetAngles() 
             => new Vec3(AngleX(), AngleY(), AngleZ());
         public Vec3 GetAngles(Vec3 origin)
             => (this - origin).GetAngles();
         public float AngleX()
-            => (float)Atan2(Y, -Z);
+            => RadToDeg((float)Atan2(Y, -Z));
         public float AngleY()
-            => (float)Atan2(-Z, X);
+            => RadToDeg((float)Atan2(-Z, X));
         public float AngleZ()
-            => (float)Atan2(Y, X);
+            => RadToDeg((float)Atan2(Y, X));
 
         public bool IsInTriangle(Vec3 triPt1, Vec3 triPt2, Vec3 triPt3)
         {
@@ -523,15 +507,35 @@ namespace System
             float dot02 = v0.Dot(v2);
             float dot11 = v1.Dot(v1);
             float dot12 = v1.Dot(v2);
+            
+            float invDenom = 1.0f / (dot00 * dot11 - dot01 * dot01);
+            float u = (dot11 * dot02 - dot01 * dot12) * invDenom;
+            float v = (dot00 * dot12 - dot01 * dot02) * invDenom;
 
-            //Get barycentric coordinates
-            float d = (dot00 * dot11 - dot01 * dot01);
-            float u = (dot11 * dot02 - dot01 * dot12) / d;
-            float v = (dot00 * dot12 - dot01 * dot02) / d;
-
-            return u >= 0 && v >= 0 && u + v < 1;
+            return u >= 0.0f && v >= 0.0f && u + v < 1.0f;
         }
-        
+        public bool BarycentricCoordsWithin(
+            Vec3 triPt1, Vec3 triPt2, Vec3 triPt3,
+            out float u, out float v, out float w)
+        {
+            Vec3 v0 = triPt2 - triPt1;
+            Vec3 v1 = triPt3 - triPt1;
+            Vec3 v2 = this - triPt1;
+
+            float d00 = v0.Dot(v0);
+            float d01 = v0.Dot(v1);
+            float d02 = v0.Dot(v2);
+            float d11 = v1.Dot(v1);
+            float d12 = v1.Dot(v2);
+
+            float invDenom = 1.0f / (d00 * d11 - d01 * d01);
+            v = (d11 * d02 - d01 * d12) * invDenom;
+            w = (d00 * d12 - d01 * d02) * invDenom;
+            u = 1.0f - v - w;
+
+            return u >= 0.0f && v >= 0.0f && u + v < 1.0f;
+        }
+
         [XmlIgnore]
         public Vec2 Xy
         {
@@ -752,13 +756,16 @@ namespace System
                 left.X / right.X, 
                 left.Y / right.Y,
                 left.Z / right.Z);
-        
+
         /// <summary>
         /// Cross
+        /// 
+        ///        |
+        /// normal |  /
+        /// l x r, | / right
+        /// -r x l |/_______ 
+        ///            left
         /// </summary>
-        /// <param name="vec1"></param>
-        /// <param name="vec2"></param>
-        /// <returns></returns>
         public static Vec3 operator ^(Vec3 vec1, Vec3 vec2)
             => vec1.Cross(vec2);
 

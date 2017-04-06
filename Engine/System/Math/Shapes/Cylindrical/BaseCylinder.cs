@@ -34,9 +34,9 @@ namespace System
         protected float _radius = 0.5f, _halfHeight = 1.0f;
         
         public Vec3 GetTopCenterPoint()
-            => _state.Matrix * (_localUpAxis * _halfHeight);
+            => Vec3.TransformPosition(_localUpAxis * _halfHeight, _state.Matrix);
         public Vec3 GetBottomCenterPoint()
-            => _state.Matrix * (-_localUpAxis * _halfHeight);
+            => Vec3.TransformPosition(_localUpAxis * -_halfHeight, _state.Matrix);
         public Circle GetBottomCircle(bool normalFacingIn = false)
             => new Circle(_radius, GetBottomCenterPoint(), normalFacingIn ? WorldUpAxis : -WorldUpAxis);
         public Circle GetTopCircle(bool normalFacingIn = false)

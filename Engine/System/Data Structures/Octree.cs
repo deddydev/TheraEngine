@@ -64,12 +64,13 @@ namespace System
             private BoundingBox _bounds;
             public List<I3DBoundable> _items = new List<I3DBoundable>();
             public Node[] _subNodes;
-            
-            public List<I3DBoundable> Items { get { return _items; } }
-            public BoundingBox Bounds { get { return _bounds; } }
-            public Vec3 Center { get { return _bounds.Translation; } }
-            public Vec3 Min { get { return _bounds.Minimum; } }
-            public Vec3 Max { get { return _bounds.Maximum; } }
+            public Node _parentNode;
+
+            public List<I3DBoundable> Items => _items;
+            public BoundingBox Bounds => _bounds;
+            public Vec3 Center => _bounds.Translation;
+            public Vec3 Min => _bounds.Minimum;
+            public Vec3 Max => _bounds.Maximum;
 
             public bool Visible
             {
@@ -94,6 +95,84 @@ namespace System
                     foreach (Node n in _subNodes)
                         n?.DebugRender();
             }
+
+            public void ItemMoved(I3DBoundable item)
+            {
+                Remove(item, out bool shouldDestroy1);
+                if (!Add(item) && _parentNode != null)
+                {
+                    bool shouldDestroy = _items.Count == 1 && _subNodes == null;
+                    if (!_parentNode.AddReversedHierarchy(item, shouldDestroy ? _subDivIndex : -1))
+                    {
+                        //Force add to root node
+                        Node m = this;
+                        while (m._parentNode != null)
+                            m = m._parentNode;
+                        m.Items.Add(item);
+                        item.RenderNode = m;
+                        item.IsRendering = m._visible;
+                    }
+                }
+                else //Force add back to this node
+                {
+                    Items.Add(item);
+                    item.RenderNode = this;
+                    item.IsRendering = _visible;
+                }
+            }
+            /// <summary>
+            /// Returns true if the item was added to this node (clarification: not its subnodes)
+            /// </summary>
+            private bool AddReversedHierarchy(I3DBoundable item, int childDestroyIndex)
+            {
+                if (item.CullingVolume.ContainedWithin(_bounds) == EContainment.Contains)
+                {
+                    Add(item);
+                    //Items.Add(item);
+                    //item.IsRendering = _visible;
+                    //item.RenderNode = this;
+
+                    if (childDestroyIndex >= 0 &&
+                        _subNodes != null &&
+                        _subNodes[childDestroyIndex] != null)
+                    {
+                        _subNodes[childDestroyIndex] = null;
+                        if (!_subNodes.Any(x => x != null))
+                            _subNodes = null;
+                    }
+                    return true;
+                }
+
+                bool shouldDestroy = _items.Count == 0 && HasNoSubNodesExcept(childDestroyIndex);
+                if (_parentNode != null)
+                {
+                    if (_parentNode.AddReversedHierarchy(item, shouldDestroy ? _subDivIndex : -1))
+                    {
+                        if (childDestroyIndex >= 0 &&
+                            _subNodes != null &&
+                            _subNodes[childDestroyIndex] != null)
+                        {
+                            _subNodes[childDestroyIndex] = null;
+                            if (!_subNodes.Any(x => x != null))
+                                _subNodes = null;
+                        }
+                        return true;
+                    }
+                }
+                return false;
+                
+            }
+
+            private bool HasNoSubNodesExcept(int index)
+            {
+                if (_subNodes == null)
+                    return true;
+                for (int i = 0; i < 8; ++i)
+                    if (i != index && _subNodes[i] != null)
+                        return false;
+                return true;
+            }
+
             public List<I3DBoundable> FindClosest(Vec3 point)
             {
                 if (_bounds.Contains(point))
@@ -211,50 +290,59 @@ namespace System
                 node.Visible = Visible;
                 node._subDivIndex = index;
                 node._subDivLevel = _subDivLevel + 1;
+                node._parentNode = this;
                 _subNodes[index] = node;
             }
-            public void Add(List<I3DBoundable> value)
+            public bool Add(List<I3DBoundable> items)
             {
-                bool notSubdivided = true;
-                List<I3DBoundable> items;
-                for (int i = 0; i < 8; ++i)
-                {
-                    items = new List<I3DBoundable>();
-                    BoundingBox bounds = GetSubdivision(i);
-                    foreach (I3DBoundable item in value)
-                    {
-                        if (item == null)
-                            continue;
-                        if (item.CullingVolume.ContainedWithin(bounds) == EContainment.Contains)
-                        {
-                            notSubdivided = false;
-                            CreateSubNode(bounds, i);
-                            items.Add(item);
-                            break;
-                        }
-                    }
-                    if (_subNodes != null && _subNodes[i] != null && items.Count > 0)
-                        _subNodes[i].Add(items);
-                }
+                bool addedAny = false;
+                foreach (I3DBoundable item in items)
+                    addedAny = addedAny || Add(item);
+                return addedAny;
 
-                if (notSubdivided)
-                {
-                    Items.AddRange(value);
-                    foreach (var v in value)
-                    {
-                        v.IsRendering = _visible;
-                        v.RenderNode = this;
-                    }
-                }
+                //bool notSubdivided = true;
+                //List<I3DBoundable> items;
+                //for (int i = 0; i < 8; ++i)
+                //{
+                //    items = new List<I3DBoundable>();
+                //    BoundingBox bounds = GetSubdivision(i);
+                //    foreach (I3DBoundable item in value)
+                //    {
+                //        if (item == null)
+                //            continue;
+                //        if (item.CullingVolume.ContainedWithin(bounds) == EContainment.Contains)
+                //        {
+                //            notSubdivided = false;
+                //            CreateSubNode(bounds, i);
+                //            items.Add(item);
+                //            break;
+                //        }
+                //    }
+                //    if (_subNodes != null && _subNodes[i] != null && items.Count > 0)
+                //        _subNodes[i].Add(items);
+                //}
+
+                //if (notSubdivided)
+                //{
+                //    Items.AddRange(value);
+                //    foreach (var v in value)
+                //    {
+                //        v.IsRendering = _visible;
+                //        v.RenderNode = this;
+                //    }
+                //}
             }
-            public void Add(I3DBoundable item)
+            public bool Add(I3DBoundable item)
             {
                 if (item == null)
-                    return;
+                    return false;
 
                 bool notSubdivided = true;
-
                 if (item.CullingVolume != null)
+                {
+                    if (item.CullingVolume.ContainedWithin(_bounds) != EContainment.Contains)
+                        return false;
+
                     for (int i = 0; i < 8; ++i)
                     {
                         BoundingBox bounds = GetSubdivision(i);
@@ -266,13 +354,15 @@ namespace System
                             break;
                         }
                     }
-
+                }
                 if (notSubdivided)
                 {
                     Items.Add(item);
                     item.IsRendering = _visible;
                     item.RenderNode = this;
                 }
+
+                return true;
             }
             public Node(BoundingBox bounds)
             {

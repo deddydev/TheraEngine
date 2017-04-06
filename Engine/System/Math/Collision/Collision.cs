@@ -323,12 +323,15 @@ namespace System
         /// <param name="distance">When the method completes, contains the distance of the intersection,
         /// or 0 if there was no intersection.</param>
         /// <returns>Whether the two objects intersect.</returns>
-        public static bool RayIntersectsPlane(Ray ray, Plane plane, out float distance)
+        public static bool RayIntersectsPlane(Vec3 rayStartPoint, Vec3 rayDirection, Vec3 planePoint, Vec3 planeNormal, out float distance)
         {
+            rayDirection.NormalizeFast();
+            planeNormal.NormalizeFast();
+
             //Source: Real-Time Collision Detection by Christer Ericson
             //Reference: Page 175
-
-            float direction = Vec3.Dot(plane.Normal, ray.Direction);
+            
+            float direction = Vec3.Dot(planeNormal, rayDirection);
 
             if (direction.IsZero())
             {
@@ -336,8 +339,8 @@ namespace System
                 return false;
             }
 
-            float position = Vec3.Dot(plane.Normal, ray.StartPoint);
-            distance = (-plane.Distance - position) / direction;
+            float position = Vec3.Dot(planeNormal, rayStartPoint);
+            distance = (-Plane.ComputeDistance(planePoint, planeNormal) - position) / direction;
 
             if (distance < 0.0f)
             {
@@ -356,19 +359,18 @@ namespace System
         /// <param name="point">When the method completes, contains the point of intersection,
         /// or <see cref="Vec3.Zero"/> if there was no intersection.</param>
         /// <returns>Whether the two objects intersected.</returns>
-        public static bool RayIntersectsPlane(Ray ray, Plane plane, out Vec3 point)
+        public static bool RayIntersectsPlane(Vec3 rayStartPoint, Vec3 rayDirection, Vec3 planePoint, Vec3 planeNormal, out Vec3 point)
         {
             //Source: Real-Time Collision Detection by Christer Ericson
             //Reference: Page 175
 
-            float distance;
-            if (!RayIntersectsPlane(ray, plane, out distance))
+            if (!RayIntersectsPlane(rayStartPoint, rayDirection, planePoint, planeNormal, out float distance))
             {
                 point = Vec3.Zero;
                 return false;
             }
 
-            point = ray.StartPoint + (ray.Direction * distance);
+            point = rayStartPoint + (rayDirection.NormalizedFast() * distance);
             return true;
         }
 

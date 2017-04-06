@@ -218,64 +218,64 @@ namespace System
         {
             return new Box(_halfExtents, _transform);
         }
-        public unsafe override void Write(VoidPtr address, StringTable table)
-        {
-            *(Header*)address = this;
-        }
-        public unsafe override void Read(VoidPtr address, VoidPtr strings)
-        {
-            Header h = *(Header*)address;
-            _halfExtents = h._halfExtents;
-            _transform = h._transform;
-        }
-        public override void Write(XmlWriter writer)
-        {
-            writer.WriteStartElement("box");
-            if (_halfExtents != Vec3.Zero)
-                writer.WriteElementString("halfExtents", _halfExtents.ToString(false, false));
-            _transform.Write(writer);
-            writer.WriteEndElement();
-        }
-        public override void Read(XMLReader reader)
-        {
-            if (!reader.Name.Equals("box", true))
-                throw new Exception();
-            while (reader.BeginElement())
-            {
-                if (reader.Name.Equals("transform", true))
-                {
-                    _transform = new FrameState();
-                    _transform.Read(reader);
-                }
-                else if (reader.Name.Equals("halfExtents", true))
-                    _halfExtents = Vec3.Parse(reader.ReadElementString());
-                reader.EndElement();
-            }
-        }
+        //public unsafe override void Write(VoidPtr address, StringTable table)
+        //{
+        //    *(Header*)address = this;
+        //}
+        //public unsafe override void Read(VoidPtr address, VoidPtr strings)
+        //{
+        //    Header h = *(Header*)address;
+        //    _halfExtents = h._halfExtents;
+        //    _transform = h._transform;
+        //}
+        //public override void Write(XmlWriter writer)
+        //{
+        //    writer.WriteStartElement("box");
+        //    if (_halfExtents != Vec3.Zero)
+        //        writer.WriteElementString("halfExtents", _halfExtents.ToString(false, false));
+        //    _transform.Write(writer);
+        //    writer.WriteEndElement();
+        //}
+        //public override void Read(XMLReader reader)
+        //{
+        //    if (!reader.Name.Equals("box", true))
+        //        throw new Exception();
+        //    while (reader.BeginElement())
+        //    {
+        //        if (reader.Name.Equals("transform", true))
+        //        {
+        //            _transform = new FrameState();
+        //            _transform.Read(reader);
+        //        }
+        //        else if (reader.Name.Equals("halfExtents", true))
+        //            _halfExtents = Vec3.Parse(reader.ReadElementString());
+        //        reader.EndElement();
+        //    }
+        //}
 
-        protected override int OnCalculateSize(StringTable table)
-        {
-            throw new NotImplementedException();
-        }
+        //protected override int OnCalculateSize(StringTable table)
+        //{
+        //    throw new NotImplementedException();
+        //}
 
-        [StructLayout(LayoutKind.Sequential, Pack = 1)]
-        public struct Header
-        {
-            public BVec3 _halfExtents;
-            public FrameState.Header _transform;
+        //[StructLayout(LayoutKind.Sequential, Pack = 1)]
+        //public struct Header
+        //{
+        //    public BVec3 _halfExtents;
+        //    public FrameState.Header _transform;
 
-            public static implicit operator Header(Box b)
-            {
-                return new Header()
-                {
-                    _halfExtents = b._halfExtents,
-                    _transform = b._transform,
-                };
-            }
-            public static implicit operator Box(Header h)
-            {
-                return new Box(h._halfExtents, h._transform);
-            }
-        }
+        //    public static implicit operator Header(Box b)
+        //    {
+        //        return new Header()
+        //        {
+        //            _halfExtents = b._halfExtents,
+        //            _transform = b._transform,
+        //        };
+        //    }
+        //    public static implicit operator Box(Header h)
+        //    {
+        //        return new Box(h._halfExtents, h._transform);
+        //    }
+        //}
     }
 }

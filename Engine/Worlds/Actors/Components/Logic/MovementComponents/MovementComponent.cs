@@ -8,10 +8,8 @@ namespace CustomEngine.Worlds.Actors.Components
     public class MovementComponent : LogicComponent
     {
         protected Vec3 _frameInputDirection;
-        protected Vec3 _constantInputDirection;
-
-        public void SetConstantInput(Vec3 direction)
-            => _constantInputDirection = direction;
+        public Vec3 ConstantInputDirection;
+        
         public void AddMovementInput(Vec3 offset)
             => _frameInputDirection += offset;
         public void AddMovementInput(float x, float y, float z)
@@ -24,7 +22,7 @@ namespace CustomEngine.Worlds.Actors.Components
         {
             Vec3 temp = _frameInputDirection;
             _frameInputDirection = Vec3.Zero;
-            return _constantInputDirection + temp;
+            return ConstantInputDirection + temp;
         }
     }
 }

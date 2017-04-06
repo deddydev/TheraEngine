@@ -312,54 +312,53 @@ namespace System
             {
                 _translation = m.Row3.Xyz,
                 _scale = new Vec3(m.Row0.Xyz.Length, m.Row1.Xyz.Length, m.Row2.Xyz.Length),
-                //_rotation = m.ExtractRotation(true).ToEuler()
+                _rotation = m.ExtractRotation(true).ToEuler()
             };
 
-            state._translation.Round(5);
-            state._scale.Round(5);
+            //float x, y, z, c;
+            //float* p = m.Data;
 
-            float x, y, z, c;
-            float* p = m.Data;
+            ////m.Row0.Xyz = m.Row0.Xyz.Normalized();
+            ////m.Row1.Xyz = m.Row1.Xyz.Normalized();
+            ////m.Row2.Xyz = m.Row2.Xyz.Normalized();
+            ////m.Row3.Xyz = m.Row3.Xyz.Normalized();
 
-            //m.Row0.Xyz = m.Row0.Xyz.Normalized();
-            //m.Row1.Xyz = m.Row1.Xyz.Normalized();
-            //m.Row2.Xyz = m.Row2.Xyz.Normalized();
-            //m.Row3.Xyz = m.Row3.Xyz.Normalized();
+            //y = (float)Math.Asin(-p[2]);
+            //if ((Math.PI / 2.0f - Math.Abs(y)) < 0.0001f)
+            //{
+            //    //Gimbal lock, occurs when the y rotation falls on pi/2 or -pi/2
+            //    z = 0.0f;
+            //    if (y > 0)
+            //        x = (float)Math.Atan2(p[4], p[8]);
+            //    else
+            //        x = (float)Math.Atan2(p[4], -p[8]);
+            //}
+            //else
+            //{
+            //    c = (float)Math.Cos(y);
+            //    x = (float)Math.Atan2(p[6] / c, p[10] / c);
+            //    z = (float)Math.Atan2(p[1] / c, p[0] / c);
 
-            y = (float)Math.Asin(-p[2]);
-            if ((Math.PI / 2.0f - Math.Abs(y)) < 0.0001f)
-            {
-                //Gimbal lock, occurs when the y rotation falls on pi/2 or -pi/2
-                z = 0.0f;
-                if (y > 0)
-                    x = (float)Math.Atan2(p[4], p[8]);
-                else
-                    x = (float)Math.Atan2(p[4], -p[8]);
-            }
-            else
-            {
-                c = (float)Math.Cos(y);
-                x = (float)Math.Atan2(p[6] / c, p[10] / c);
-                z = (float)Math.Atan2(p[1] / c, p[0] / c);
+            //    //180 z/x inverts y, use second option
+            //    if (Math.PI - Math.Abs(z) < 0.05f)
+            //    {
+            //        y = (float)Math.PI - y;
+            //        c = (float)Math.Cos(y);
+            //        x = (float)Math.Atan2(p[6] / c, p[10] / c);
+            //        z = (float)Math.Atan2(p[1] / c, p[0] / c);
+            //    }
+            //}
 
-                //180 z/x inverts y, use second option
-                if (Math.PI - Math.Abs(z) < 0.05f)
-                {
-                    y = (float)Math.PI - y;
-                    c = (float)Math.Cos(y);
-                    x = (float)Math.Atan2(p[6] / c, p[10] / c);
-                    z = (float)Math.Atan2(p[1] / c, p[0] / c);
-                }
-            }
-
-            state._rotation = new Rotator(CustomMath.RadToDeg(new Vec3(x, y, z)), Rotator.Order.YPR);
-            state._rotation.Round(5);
+            //state._rotation = new Rotator(CustomMath.RadToDeg(new Vec3(x, y, z)), Rotator.Order.YPR);
 
             if (state._rotation.Pitch == float.NaN ||
                 state._rotation.Yaw == float.NaN ||
                 state._rotation.Roll == float.NaN)
                 throw new Exception("Something went wrong when deriving rotation values.");
 
+            state._translation.Round(5);
+            state._scale.Round(5);
+            state._rotation.Round(5);
             state.CreateTransform();
             return state;
         }
@@ -481,87 +480,87 @@ namespace System
         }
         #endregion
 
-        protected override int OnCalculateSize(StringTable table)
-        {
-            return Header.Size;
-        }
-        public unsafe override void Read(VoidPtr address, VoidPtr strings)
-        {
-            Header h = *(Header*)address;
-            _transformOrder = (TransformOrder)(int)h._order;
-            _scale = h._scale;
-            _rotation = h._rotation;
-            _translation = h._translation;
-        }
-        public unsafe override void Write(VoidPtr address, StringTable table)
-        {
-            *(Header*)address = this;
-        }
-        public override void Read(XMLReader reader)
-        {
-            if (!reader.Name.Equals("transform", true))
-                throw new Exception();
-            _translation = Vec3.Zero;
-            _scale = Vec3.One;
-            _rotation = Rotator.GetZero();
-            while (reader.ReadAttribute())
-            {
-                if (reader.Name.Equals("name", true))
-                    _name = (string)reader.Value;
-                else if (reader.Name.Equals("order", true))
-                    _transformOrder = (TransformOrder)Enum.Parse(typeof(TransformOrder), (string)reader.Value);
-            }
-            while (reader.BeginElement())
-            {
-                if (reader.Name.Equals("translation", true))
-                    _translation = Vec3.Parse(reader.ReadElementString());
-                else if (reader.Name.Equals("scale", true))
-                    _scale = Vec3.Parse(reader.ReadElementString());
-                else if (reader.Name.Equals("rotation", true))
-                    _rotation = Rotator.Parse(reader.ReadElementString());
-                reader.EndElement();
-            }
-        }
-        public override void Write(XmlWriter writer)
-        {
-            writer.WriteStartElement("transform");
-            writer.WriteAttributeString("order", TransformationOrder.ToString());
-            if (Translation != Vec3.Zero)
-                writer.WriteElementString("translation", Translation.ToString(false, false));
-            if (Scale != Vec3.One)
-                writer.WriteElementString("scale", Scale.ToString(false, false));
-            //if (!Rotation.IsZero())
-                Rotation.Write(writer);
-            writer.WriteEndElement();
-        }
+        //protected override int OnCalculateSize(StringTable table)
+        //{
+        //    return Header.Size;
+        //}
+        //public unsafe override void Read(VoidPtr address, VoidPtr strings)
+        //{
+        //    Header h = *(Header*)address;
+        //    _transformOrder = (TransformOrder)(int)h._order;
+        //    _scale = h._scale;
+        //    _rotation = h._rotation;
+        //    _translation = h._translation;
+        //}
+        //public unsafe override void Write(VoidPtr address, StringTable table)
+        //{
+        //    *(Header*)address = this;
+        //}
+        //public override void Read(XMLReader reader)
+        //{
+        //    if (!reader.Name.Equals("transform", true))
+        //        throw new Exception();
+        //    _translation = Vec3.Zero;
+        //    _scale = Vec3.One;
+        //    _rotation = Rotator.GetZero();
+        //    while (reader.ReadAttribute())
+        //    {
+        //        if (reader.Name.Equals("name", true))
+        //            _name = (string)reader.Value;
+        //        else if (reader.Name.Equals("order", true))
+        //            _transformOrder = (TransformOrder)Enum.Parse(typeof(TransformOrder), (string)reader.Value);
+        //    }
+        //    while (reader.BeginElement())
+        //    {
+        //        if (reader.Name.Equals("translation", true))
+        //            _translation = Vec3.Parse(reader.ReadElementString());
+        //        else if (reader.Name.Equals("scale", true))
+        //            _scale = Vec3.Parse(reader.ReadElementString());
+        //        else if (reader.Name.Equals("rotation", true))
+        //            _rotation = Rotator.Parse(reader.ReadElementString());
+        //        reader.EndElement();
+        //    }
+        //}
+        //public override void Write(XmlWriter writer)
+        //{
+        //    writer.WriteStartElement("transform");
+        //    writer.WriteAttributeString("order", TransformationOrder.ToString());
+        //    if (Translation != Vec3.Zero)
+        //        writer.WriteElementString("translation", Translation.ToString(false, false));
+        //    if (Scale != Vec3.One)
+        //        writer.WriteElementString("scale", Scale.ToString(false, false));
+        //    //if (!Rotation.IsZero())
+        //        Rotation.Write(writer);
+        //    writer.WriteEndElement();
+        //}
 
-        [StructLayout(LayoutKind.Sequential, Pack = 1)]
-        public struct Header
-        {
-            public const int Size = 16 + Rotator.Header.Size;
+        //[StructLayout(LayoutKind.Sequential, Pack = 1)]
+        //public struct Header
+        //{
+        //    public const int Size = 16 + Rotator.Header.Size;
 
-            public bint _order;
-            public BVec3 _translation, _scale;
-            public Rotator.Header _rotation;
+        //    public bint _order;
+        //    public BVec3 _translation, _scale;
+        //    public Rotator.Header _rotation;
 
-            public static implicit operator Header(FrameState f)
-            {
-                return new Header()
-                {
-                    _order = (int)f._transformOrder,
-                    _translation = f._translation,
-                    _scale = f._scale,
-                    _rotation = f._rotation
-                };
-            }
-            public static implicit operator FrameState(Header h)
-            {
-                return new FrameState(
-                    h._translation, 
-                    h._rotation, 
-                    h._scale,
-                    (TransformOrder)(int)h._order);
-            }
-        }
+        //    public static implicit operator Header(FrameState f)
+        //    {
+        //        return new Header()
+        //        {
+        //            _order = (int)f._transformOrder,
+        //            _translation = f._translation,
+        //            _scale = f._scale,
+        //            _rotation = f._rotation
+        //        };
+        //    }
+        //    public static implicit operator FrameState(Header h)
+        //    {
+        //        return new FrameState(
+        //            h._translation, 
+        //            h._rotation, 
+        //            h._scale,
+        //            (TransformOrder)(int)h._order);
+        //    }
+        //}
     }
 }

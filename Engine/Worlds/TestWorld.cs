@@ -73,9 +73,10 @@ namespace CustomEngine.Worlds
             StaticMesh floorModel = new StaticMesh("Floor", floorBox);
             floorModel.RigidChildren.Add(new StaticRigidSubMesh(floorBox.GetMesh(false), floorBox, Material.GetDefaultMaterial(), "FloorMesh"));
             StaticMeshComponent floorComp = new StaticMeshComponent(
-                floorModel, Vec3.Zero,
+                floorModel, new Vec3(0.0f, 10.0f, 0.0f),
                 new Rotator(0.0f, 0.0f, 0.0f, Rotator.Order.YPR),
                 Vec3.One, floorInfo);
+
             Actor floorActor = new Actor(floorComp)
             {
                 Name = "Floor"
@@ -140,8 +141,8 @@ namespace CustomEngine.Worlds
                 floorActor,
                 dirLightActor,
                 //importedActor,
-                new FlyingCameraPawn(PlayerIndex.One) { Name = "PlayerCamera" },
-                new CharacterPawn(PlayerIndex.Two, scene._skeletalModel, scene._skeleton) { Name = "PlayerCharacter", },
+                //new FlyingCameraPawn(PlayerIndex.One) { Name = "PlayerCamera" },
+                new CharacterPawn(PlayerIndex.One, scene._skeletalModel, scene._skeleton) { Name = "PlayerCharacter", },
             };
 
             _settings._maps.Add(new Map(this, new MapSettings(actors)));

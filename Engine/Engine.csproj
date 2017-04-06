@@ -840,7 +840,7 @@
     <Compile Include="Worlds\Actors\Components\Component.cs" />
     <Compile Include="Worlds\Actors\Components\Logic\InteractionComponent.cs" />
     <Compile Include="Worlds\Actors\Components\Scene\Mesh\SkeletalMeshComponent.cs" />
-    <Compile Include="Worlds\Actors\Components\Logic\MovementComponent.cs" />
+    <Compile Include="Worlds\Actors\Components\Logic\MovementComponents\MovementComponent.cs" />
     <Compile Include="Rendering\HUD\HudManager.cs" />
     <Compile Include="Input\AIController.cs" />
     <Compile Include="Input\PawnController.cs" />

@@ -16,11 +16,11 @@ namespace CustomEngine.Worlds.Actors.Components
         private MovementMode _currentMovementMode = MovementMode.Falling;
         private bool _isCrouched = false;
         private float _maxWalkAngle = 50.0f;
-        private Vec3 _jumpVelocity = new Vec3(0.0f, 10.0f, 0.0f);
+        private Vec3 _jumpVelocity = new Vec3(0.0f, 100.0f, 0.0f);
         private PhysicsDriver _currentWalkingSurface;
         private Vec3 _groundNormal;
         private Quat _upToGroundNormalRotation = Quat.Identity;
-        private float _verticalStepUpHeight = 10.0f;
+        private float _verticalStepUpHeight = 100.0f;
         private DelTick _tick;
 
         public Vec3 GroundNormal
@@ -43,9 +43,19 @@ namespace CustomEngine.Worlds.Actors.Components
                 switch (_currentMovementMode)
                 {
                     case MovementMode.Walking:
-                        if (Owner.RootComponent is IPhysicsDrivable root)
-                            root.PhysicsDriver.SimulatingPhysics = false;
+                        if (Owner.RootComponent is CapsuleComponent root1)
+                        {
+                            root1.PhysicsDriver.SimulatingPhysics = false;
+                            root1.Translation = root1.WorldMatrix.GetPoint();
+                        }
                         _tick = TickWalking;
+                        break;
+                    case MovementMode.Falling:
+                        if (Owner.RootComponent is CapsuleComponent root2)
+                        {
+                            root2.PhysicsDriver.SimulatingPhysics = true;
+                        }
+                        _tick = TickFalling;
                         break;
                 }
             }
@@ -63,46 +73,62 @@ namespace CustomEngine.Worlds.Actors.Components
 
         protected void TickWalking(float delta)
         {
-            Vec3 down = Engine.World.Settings.State.Gravity;
-            Vec3 movementInput = ConsumeInput();
-            Vec3 normalAdjustedInput = _upToGroundNormalRotation * movementInput;
-            Vec3 finalInput = normalAdjustedInput + new Vec3(0.0f, _verticalStepUpHeight, 0.0f);
-
+            ClosestConvexResultCallback callback;
+            Matrix4 inputTransform;
             CapsuleComponent root = Owner.RootComponent as CapsuleComponent;
-            ClosestConvexResultCallback callback = new ClosestConvexResultCallback();
             BaseCapsule c = (BaseCapsule)root.CullingVolume;
-
-            ////Vec3 downScale = new Vec3(c.Radius * 2.0f, (c.HalfHeight + c.Radius) * 2.0f, c.Radius * 2.0f);
-            //Vec3 downScale = new Vec3(5.0f);
-
             ConvexShape shape = (ConvexShape)c.GetCollisionShape();
-
-            Matrix4 inputTransform = Matrix4.CreateTranslation(finalInput);
-            Engine.World.PhysicsScene.ConvexSweepTest(shape, root.WorldMatrix, root.WorldMatrix * inputTransform, callback);
-
-            if (callback.HasHit)
+            Vec3 movementInput = ConsumeInput();
+            if (movementInput != Vec3.Zero)
             {
-                //Something is in the way
-                Vec3 normal = callback.HitNormalWorld;
-                if (IsSurfaceNormalWalkable(normal))
+                Vec3 normalAdjustedInput = _upToGroundNormalRotation * movementInput;
+                Vec3 stepUpVector = new Vec3(0.0f, _verticalStepUpHeight, 0.0f);
+                Vec3 finalInput = normalAdjustedInput;
+
+                callback = new ClosestConvexResultCallback()
                 {
-                    GroundNormal = callback.HitNormalWorld;
-                    _currentWalkingSurface = (PhysicsDriver)callback.HitCollisionObject.UserObject;
+                    CollisionFilterMask = CollisionFilterGroups.AllFilter,
+                    CollisionFilterGroup = CollisionFilterGroups.AllFilter
+                };
+
+                ////Vec3 downScale = new Vec3(c.Radius * 2.0f, (c.HalfHeight + c.Radius) * 2.0f, c.Radius * 2.0f);
+                //Vec3 downScale = new Vec3(5.0f);
+
+                inputTransform = Matrix4.CreateTranslation(finalInput);
+                Matrix4 stepUpMatrix = Matrix4.CreateTranslation(stepUpVector);
+                Engine.World.PhysicsScene.ConvexSweepTest(shape, stepUpMatrix * root.WorldMatrix, stepUpMatrix * inputTransform * root.WorldMatrix, callback);
+
+                if (callback.HasHit)
+                {
+                    //Something is in the way
+                    Vec3 normal = callback.HitNormalWorld;
+                    if (IsSurfaceNormalWalkable(normal))
+                    {
+                        GroundNormal = callback.HitNormalWorld;
+                        _currentWalkingSurface = (PhysicsDriver)callback.HitCollisionObject.UserObject;
+                    }
+                    root.Translation.Raw += finalInput * callback.ClosestHitFraction;
                 }
-                root.Translation.Raw += finalInput * callback.ClosestHitFraction;
+                else
+                    root.Translation.Raw += finalInput;
             }
-            else
-                root.Translation.Raw += finalInput;
 
-            inputTransform = Matrix4.CreateTranslation(down);
-            callback = new ClosestConvexResultCallback();
-            Engine.World.PhysicsScene.ConvexSweepTest(shape, root.WorldMatrix, root.WorldMatrix * inputTransform, callback);
+            //Vec3 down = Engine.World.Settings.State.Gravity;
+            //inputTransform = Matrix4.CreateTranslation(down);
+            //callback = new ClosestConvexResultCallback()
+            //{
+            //    CollisionFilterMask = CollisionFilterGroups.AllFilter,
+            //    CollisionFilterGroup = CollisionFilterGroups.AllFilter
+            //};
 
-            if (!callback.HasHit)
-            {
-                CurrentMovementMode = MovementMode.Falling;
-                _currentWalkingSurface = null;
-            }
+            //Engine.World.PhysicsScene.ConvexSweepTest(
+            //    shape, root.WorldMatrix, inputTransform * root.WorldMatrix, callback, 1.0f);
+
+            //if (!callback.HasHit)
+            //{
+            //    CurrentMovementMode = MovementMode.Falling;
+            //    _currentWalkingSurface = null;
+            //}
         }
         protected void TickFalling(float delta)
         {
@@ -128,7 +154,8 @@ namespace CustomEngine.Worlds.Actors.Components
             PhysicsDriver driver = root.PhysicsDriver;
             driver.SimulatingPhysics = true;
             RigidBody character = driver.CollisionObject;
-            if (_currentWalkingSurface.SimulatingPhysics)
+            if (_currentWalkingSurface.SimulatingPhysics && 
+                _currentWalkingSurface.LinearFactor != Vec3.Zero)
             {
                 //TODO: calculate push off force using ground's mass.
                 //For example, you can't jump off a piece of debris.

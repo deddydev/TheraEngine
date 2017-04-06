@@ -58,9 +58,10 @@ namespace System
                 return invLen > 0.0f ? 1.0f / invLen : 0.0f;
             }
         }
+
         public float Length => (float)Sqrt(LengthSquared);
         public float LengthSquared => Xyzw.LengthSquared;
-
+        
         public void ToAxisAngle(out Vec3 axis, out float angle)
         {
             Vec4 result = ToAxisAngle();
@@ -76,25 +77,26 @@ namespace System
             return new Vec4(den > 0.0001f ? q.Xyz / den : Vec3.Right, 2.0f * (float)Acos(q.W));
         }
         /// <summary>
-        /// Returns a euler rotation in the order of pitch, yaw, roll.
+        /// Returns a euler rotation in the order of yaw, pitch, roll.
         /// </summary>
         public Rotator ToEuler()
         {
+            NormalizeFast();
             float sqx = X * X;
             float sqy = Y * Y;
             float sqz = Z * Z;
             float sqw = W * W;
             float unit = sqx + sqy + sqz + sqw;
-            float test = X * Y + Z * W;
+            float test = (X * Y + Z * W) / unit;
             float yaw, pitch, roll;
-            if (test > 0.499f * unit)
+            if (test.EqualTo(0.5f, 0.001f))
             {
                 //North pole singularity
                 yaw = 2.0f * (float)Atan2(X, W);
                 pitch = (float)PI / 2.0f;
                 roll = 0.0f;
             }
-            else if (test < -0.499f * unit)
+            else if (test.EqualTo(-0.5f, 0.001f))
             {
                 //South pole singularity
                 yaw = -2.0f * (float)Atan2(X, W);
@@ -103,9 +105,13 @@ namespace System
             }
             else
             {
-                yaw = (float)Atan2(2.0f * Y * W - 2.0f * X * Z, sqx - sqy - sqz + sqw);
-                pitch = (float)Asin(2.0f * test / unit);
-                roll = (float)Atan2(2.0f * X * W - 2.0f * Y * Z, -sqx + sqy - sqz + sqw);
+                yaw = (float)Atan2(2.0f * Y * W - 2.0f * X * Z, 1.0f - 2.0f * sqy - 2.0f * sqz);
+                roll = (float)Asin(2.0f * X * Y + 2.0f * Z * W);
+                pitch = (float)Atan2(2.0f * X * W - 2.0f * Y * Z, 1.0f - 2.0f * sqx - 2.0f * sqz);
+
+                //yaw = (float)Atan2(2.0f * Y * W - 2.0f * X * Z, sqx - sqy - sqz + sqw);
+                //pitch = (float)Asin(2.0f * test / unit);
+                //roll = (float)Atan2(2.0f * X * W - 2.0f * Y * Z, -sqx + sqy - sqz + sqw);
             }
             return new Rotator(RadToDeg(pitch), RadToDeg(yaw), RadToDeg(roll), Rotator.Order.YPR);
         }
@@ -173,9 +179,7 @@ namespace System
         public static Quat BetweenVectors(Vec3 initialVector, Vec3 finalVector)
         {
             AxisAngleBetween(initialVector, finalVector, out Vec3 axis, out float angle);
-                        
-            //Invert the angle; a positive angle rotates DOWN instead of UP on the unit circle
-            return FromAxisAngle(axis, -angle);
+            return FromAxisAngle(axis, angle);
         }
         public static Quat LookAt(Vec3 sourcePoint, Vec3 destPoint, Vec3 initialDirection)
         {
@@ -212,7 +216,7 @@ namespace System
         {
             Quat p = FromAxisAngle(Vec3.Right, pitch);
             Quat y = FromAxisAngle(Vec3.Up, yaw);
-            Quat r = FromAxisAngle(Vec3.Forward, roll);
+            Quat r = FromAxisAngle(-Vec3.Forward, roll);
             switch (order)
             {
                 case Rotator.Order.RYP: return r * y * p;

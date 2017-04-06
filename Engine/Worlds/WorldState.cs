@@ -57,52 +57,32 @@ namespace CustomEngine.Worlds
         public void OnGameModeChanged(GameMode oldMode) => GameModeChanged?.Invoke(oldMode);
         public void OnTimeMultiplierChanged(float oldMult) => TimeMultiplierChanged?.Invoke(oldMult);
 
-        public override void Write(VoidPtr address, StringTable table)
-        {
-
-        }
-
-        public override void Read(VoidPtr address, VoidPtr strings)
-        {
-
-        }
-
-        public override void Write(XmlWriter writer)
-        {
-
-        }
-
-        public override void Read(XMLReader reader)
-        {
-
-        }
-
-        protected override int OnCalculateSize(StringTable table)
-        {
-            return 0;
-        }
-
+        [Serialize("SpawnedMaps")]
         private List<Map> _spawnedMaps = new List<Map>();
+        [Serialize("SpawnedActors")]
         private MonitoredList<IActor> _spawnedActors = new MonitoredList<IActor>();
+        [Serialize("Gravity")]
         private Vec3 _gravity = new Vec3(0.0f, -9.81f, 0.0f);
+        [Serialize("GameMode")]
         private GameMode _gameMode;
+        [Serialize("TimeDilation")]
         private float _timeSpeed = 1.0f;
 
-        [StructLayout(LayoutKind.Sequential, Pack = 1)]
-        public unsafe struct Header
-        {
-            public const int Size = 4;
+        //[StructLayout(LayoutKind.Sequential, Pack = 1)]
+        //public unsafe struct Header
+        //{
+        //    public const int Size = 4;
 
-            public BVec3 _gravity;
-            public float _timeDilation;
-            public bint _visibleMapCount;
-            public bint _visibleActorCount;
-            public GameMode.Header _gameMode;
+        //    public BVec3 _gravity;
+        //    public float _timeDilation;
+        //    public bint _visibleMapCount;
+        //    public bint _visibleActorCount;
+        //    public GameMode.Header _gameMode;
             
-            public bint* VisibleMapIndices => (bint*)(Address + Size);
-            public bint* VisibleActorIndices => (bint*)(Address + Size);
+        //    public bint* VisibleMapIndices => (bint*)(Address + Size);
+        //    public bint* VisibleActorIndices => (bint*)(Address + Size);
 
-            public VoidPtr Address { get { fixed (void* ptr = &this) return ptr; } }
-        }
+        //    public VoidPtr Address { get { fixed (void* ptr = &this) return ptr; } }
+        //}
     }
 }

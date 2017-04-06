@@ -65,6 +65,11 @@ namespace System
             _distance = -point.Dot(normal);
         }
 
+        public static float ComputeDistance(Vec3 planePoint, Vec3 planeNormal)
+        {
+            return -planePoint.Dot(planeNormal);
+        }
+
         /// <summary>
         /// Constructs a plane given three points.
         /// Points must be specified in this order 
@@ -228,7 +233,7 @@ namespace System
         //        reader.EndElement();
         //    }
         //}
-        
+
         //[StructLayout(LayoutKind.Sequential, Pack = 1)]
         //public struct Header
         //{

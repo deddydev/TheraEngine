@@ -13,7 +13,7 @@ namespace System
     [StructLayout(LayoutKind.Sequential)]
     public unsafe class Rotator : IEquatable<Rotator>
     {
-        internal const string XMLTag = "rotator";
+        //internal const string XMLTag = "rotator";
 
         public Rotator() : this(Order.YPR) { }
 
@@ -487,41 +487,41 @@ namespace System
                 Yaw.IsZero() && 
                 Roll.IsZero();
         }
-        public void Write(XmlWriter writer)
-        {
-            writer.WriteStartElement(XMLTag);
-            writer.WriteAttributeString("order", _rotationOrder.ToString());
-            //writer.WriteElementString("order", _rotationOrder.ToString());
-            if (Pitch != 0.0f)
-                writer.WriteElementString("pitch", Pitch.ToString());
-            if (Yaw != 0.0f)
-                writer.WriteElementString("yaw", Yaw.ToString());
-            if (Roll != 0.0f)
-                writer.WriteElementString("roll", Roll.ToString());
-            writer.WriteEndElement();
-        }
-        public void Read(XMLReader reader)
-        {
-            if (!reader.Name.Equals(XMLTag, true))
-                throw new Exception();
-            while (reader.ReadAttribute())
-            {
-                if (reader.Name.Equals("order", true))
-                    _rotationOrder = (Order)Enum.Parse(typeof(Order), (string)reader.Value);
-            }
-            while (reader.BeginElement())
-            {
-                //if (reader.Name.Equals("order", true))
-                //    _rotationOrder = (Order)Enum.Parse(typeof(Order), reader.ReadElementString());
-                if (reader.Name.Equals("pitch", true))
-                    _pyr.X = float.Parse(reader.ReadElementString());
-                if (reader.Name.Equals("yaw", true))
-                    _pyr.Y = float.Parse(reader.ReadElementString());
-                if (reader.Name.Equals("roll", true))
-                    _pyr.Z = float.Parse(reader.ReadElementString());
-                reader.EndElement();
-            }
-        }
+        //public void Write(XmlWriter writer)
+        //{
+        //    writer.WriteStartElement(XMLTag);
+        //    writer.WriteAttributeString("order", _rotationOrder.ToString());
+        //    //writer.WriteElementString("order", _rotationOrder.ToString());
+        //    if (Pitch != 0.0f)
+        //        writer.WriteElementString("pitch", Pitch.ToString());
+        //    if (Yaw != 0.0f)
+        //        writer.WriteElementString("yaw", Yaw.ToString());
+        //    if (Roll != 0.0f)
+        //        writer.WriteElementString("roll", Roll.ToString());
+        //    writer.WriteEndElement();
+        //}
+        //public void Read(XMLReader reader)
+        //{
+        //    if (!reader.Name.Equals(XMLTag, true))
+        //        throw new Exception();
+        //    while (reader.ReadAttribute())
+        //    {
+        //        if (reader.Name.Equals("order", true))
+        //            _rotationOrder = (Order)Enum.Parse(typeof(Order), (string)reader.Value);
+        //    }
+        //    while (reader.BeginElement())
+        //    {
+        //        //if (reader.Name.Equals("order", true))
+        //        //    _rotationOrder = (Order)Enum.Parse(typeof(Order), reader.ReadElementString());
+        //        if (reader.Name.Equals("pitch", true))
+        //            _pyr.X = float.Parse(reader.ReadElementString());
+        //        if (reader.Name.Equals("yaw", true))
+        //            _pyr.Y = float.Parse(reader.ReadElementString());
+        //        if (reader.Name.Equals("roll", true))
+        //            _pyr.Z = float.Parse(reader.ReadElementString());
+        //        reader.EndElement();
+        //    }
+        //}
         public enum Order
         {
             YPR = 0,
@@ -531,26 +531,26 @@ namespace System
             RPY,
             RYP,
         }
-        [StructLayout(LayoutKind.Sequential, Pack = 1)]
-        public struct Header
-        {
-            public const int Size = 16;
+        //[StructLayout(LayoutKind.Sequential, Pack = 1)]
+        //public struct Header
+        //{
+        //    public const int Size = 16;
 
-            public bint _order;
-            public BVec3 _pyr;
+        //    public bint _order;
+        //    public BVec3 _pyr;
 
-            public static implicit operator Header(Rotator r)
-            {
-                return new Header()
-                {
-                    _order = (int)r._rotationOrder,
-                    _pyr = r._pyr
-                };
-            }
-            public static implicit operator Rotator(Header h)
-            {
-                return new Rotator(h._pyr, (Order)(int)h._order);
-            }
-        }
+        //    public static implicit operator Header(Rotator r)
+        //    {
+        //        return new Header()
+        //        {
+        //            _order = (int)r._rotationOrder,
+        //            _pyr = r._pyr
+        //        };
+        //    }
+        //    public static implicit operator Rotator(Header h)
+        //    {
+        //        return new Rotator(h._pyr, (Order)(int)h._order);
+        //    }
+        //}
     }
 }

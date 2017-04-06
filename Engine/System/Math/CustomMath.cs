@@ -161,12 +161,12 @@ namespace System
             return false;
         }
 
-        public static float AngleBetween(Vec3 initialVector, Vec3 finalVector)
+        public static float AngleBetween(Vec3 vector1, Vec3 vector2)
         {
-            initialVector.NormalizeFast();
-            finalVector.NormalizeFast();
+            vector1.NormalizeFast();
+            vector2.NormalizeFast();
 
-            float dot = initialVector | finalVector;
+            float dot = vector1 | vector2;
 
             //dot is the cosine adj/hyp ratio between the two vectors, so
             //dot == 1 is same direction
@@ -211,12 +211,12 @@ namespace System
 
             if (dot > 0.999f)
             {
-                axis = Vec3.Forward;
+                axis = -Vec3.Forward;
                 angle = 0.0f;
             }
             else if (dot < -0.999f)
             {
-                axis = Vec3.Forward;
+                axis = -Vec3.Forward;
                 angle = 180.0f;
             }
             else

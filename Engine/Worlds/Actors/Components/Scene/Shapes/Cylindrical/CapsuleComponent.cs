@@ -19,6 +19,7 @@ namespace CustomEngine.Worlds.Actors.Components
         {
             base.RecalcGlobalTransform();
             _capsule.SetTransform(WorldMatrix);
+            RenderNode?.ItemMoved(this);
         }
 
         public override void Render()

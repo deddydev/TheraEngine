@@ -120,7 +120,7 @@ namespace System
             Ray r = new Ray(startPoint, direction);
             points = new List<Vec3>();
             foreach (Plane p in this)
-                if (Collision.RayIntersectsPlane(r, p, out Vec3 point))
+                if (Collision.RayIntersectsPlane(r.StartPoint, r.Direction, p.Point, p.Normal, out Vec3 point))
                     points.Add(point);
             return points.Count > 0;
         }

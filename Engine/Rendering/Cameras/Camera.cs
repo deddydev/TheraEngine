@@ -150,7 +150,20 @@ namespace CustomEngine.Rendering.Cameras
         public CameraComponent OwningComponent
         {
             get => _owningComponent;
-            set => _owningComponent = value;
+            set
+            {
+                if (_owningComponent != null)
+                    _owningComponent.WorldTransformChanged -= _owningComponent_WorldTransformChanged;
+                _owningComponent = value;
+                if (_owningComponent != null)
+                    _owningComponent.WorldTransformChanged += _owningComponent_WorldTransformChanged;
+                UpdateTransformedFrustum();
+            }
+        }
+
+        private void _owningComponent_WorldTransformChanged()
+        {
+            UpdateTransformedFrustum();
         }
 
         private CameraComponent _owningComponent;
@@ -209,7 +222,7 @@ namespace CustomEngine.Rendering.Cameras
             OnTransformChanged();
         }
         protected void UpdateTransformedFrustum()
-            => _transformedFrustum.TransformedVersionOf(_untransformedFrustum, _transform);
+            => _transformedFrustum.TransformedVersionOf(_untransformedFrustum, WorldMatrix);
 
         public abstract float DistanceScale(Vec3 point, float radius);
         public abstract void Zoom(float amount);
@@ -276,8 +289,11 @@ namespace CustomEngine.Rendering.Cameras
             => _localRotation.SetRotations(pitch, yaw, roll);
 
         public void SetViewTarget(Vec3 target)
-            => SetRotation((target - _localPoint).LookatAngles(Vec3.Forward));
-
+        {
+            if (_owningComponent != null)
+                target = Vec3.TransformPosition(target, _owningComponent.InverseWorldMatrix);
+            SetRotation((target - _localPoint).LookatAngles(Vec3.Forward));
+        }
         public void Pivot(float y, float x, float radius)
         {
             BeginUpdate();

@@ -29,7 +29,7 @@ namespace CustomEngine
         private float _hitFraction = 1.0f;
         private CustomCollisionGroup
             _collidesWith = CustomCollisionGroup.All,
-            _group = CustomCollisionGroup.All,
+            //_group = CustomCollisionGroup.All,
             _ignore = CustomCollisionGroup.None;
 
         public Vec3 RayStartWorld { get => _rayStartWorld; set => _rayStartWorld = value; }
@@ -45,7 +45,7 @@ namespace CustomEngine
             {
                 CollisionObject = rayResult.CollisionObject;
                 _hitFraction = rayResult.HitFraction;
-                _hitNormalWorld = Vec3.TransformNormal(rayResult.HitNormalLocal, rayResult.CollisionObject.WorldTransform).NormalizedFast();
+                _hitNormalWorld = normalInWorldSpace ? (Vec3)rayResult.HitNormalLocal : Vec3.TransformNormal(rayResult.HitNormalLocal, rayResult.CollisionObject.WorldTransform).NormalizedFast();
                 _hitPointWorld = Vec3.Lerp(_rayStartWorld, _rayEndWorld, _hitFraction);
             }
 

@@ -88,34 +88,34 @@ namespace CustomEngine.Worlds
             return FromXML<WorldSettings>(filePath);
         }
 
-        public override void Write(VoidPtr address, StringTable table)
-        {
+        //public override void Write(VoidPtr address, StringTable table)
+        //{
 
-        }
+        //}
 
-        public override void Write(XmlWriter writer)
-        {
+        //public override void Write(XmlWriter writer)
+        //{
 
-        }
+        //}
 
-        public override void Read(XMLReader reader)
-        {
+        //public override void Read(XMLReader reader)
+        //{
 
-        }
+        //}
 
-        protected override int OnCalculateSize(StringTable table)
-        {
-            return 0;
-        }
+        //protected override int OnCalculateSize(StringTable table)
+        //{
+        //    return 0;
+        //}
 
-        [StructLayout(LayoutKind.Sequential, Pack = 1)]
-        public unsafe struct Header
-        {
-            public BoundingBox.Header _originRebaseBounds;
-            public BoundingBox.Header _bounds;
-            public WorldState.Header _state;
+        //[StructLayout(LayoutKind.Sequential, Pack = 1)]
+        //public unsafe struct Header
+        //{
+        //    public BoundingBox.Header _originRebaseBounds;
+        //    public BoundingBox.Header _bounds;
+        //    public WorldState.Header _state;
 
-            public VoidPtr Address { get { fixed (void* ptr = &this) return ptr; } }
-        }
+        //    public VoidPtr Address { get { fixed (void* ptr = &this) return ptr; } }
+        //}
     }
 }

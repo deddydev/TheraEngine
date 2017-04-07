@@ -70,14 +70,14 @@ namespace System
             
             EContainment containsTop = Collision.AABBContainsSphere(box.Minimum, box.Maximum, top, _radius);
             EContainment containsBot = Collision.AABBContainsSphere(box.Minimum, box.Maximum, bot, _radius);
-            if (containsTop == EContainment.Contains &&
-                containsBot == EContainment.Contains)
+            if (containsTop == EContainment.Contains && containsBot == EContainment.Contains)
                 return EContainment.Contains;
-            else if (containsTop == EContainment.Intersects ||
-                containsBot == EContainment.Intersects)
+            else if (containsTop != EContainment.Disjoint || containsBot != EContainment.Disjoint)
                 return EContainment.Intersects;
             else
             {
+                //This part probably won't happen often unless the capsule is fairly long or the box is not an AABB
+                //only occurs when both spheres are disjoint, but we need to still check if the cylinder part intersects.
                 Frustum f = box.AsFrustum();
                 foreach (Plane p in f)
                 {

@@ -132,8 +132,8 @@ namespace CustomEngine.Worlds.Actors
             if (_gamepadMovementInput.X != 0.0f || _gamepadMovementInput.Y != 0.0f)
             {
                 Vec3 finalInput = forward * _gamepadMovementInput.Y + right * _gamepadMovementInput.X;
-                finalInput *= delta;
                 finalInput.Y = 0.0f;
+                finalInput *= delta;
                 _movement.AddMovementInput(finalInput);
             }
         }
@@ -242,9 +242,9 @@ namespace CustomEngine.Worlds.Actors
             //_fpCameraComponent.AttachTo(mesh, "Head");
 
             _tpCameraBoom = new BoomComponent();
-            _tpCameraBoom.Translation.Raw = new Vec3(0.0f, 0.0f, 0.0f);
+            _tpCameraBoom.Translation.Raw = new Vec3(30.0f, 20.0f, 0.0f);
             _tpCameraBoom.Rotation.Yaw = 180.0f;
-            _tpCameraBoom.MaxLength = 200.0f;
+            _tpCameraBoom.MaxLength = 70.0f;
             rootCapsule.ChildComponents.Add(_tpCameraBoom);
 
             PerspectiveCamera TPCam = new PerspectiveCamera()

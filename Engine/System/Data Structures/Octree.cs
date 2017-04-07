@@ -98,10 +98,16 @@ namespace System
 
             public void ItemMoved(I3DBoundable item)
             {
-                Remove(item, out bool shouldDestroy1);
+                Remove(item, out bool shouldDestroy);
                 if (!Add(item) && _parentNode != null)
                 {
-                    bool shouldDestroy = _items.Count == 1 && _subNodes == null;
+                    //if (shouldDestroy && _parentNode != null)
+                    //{
+                    //    _parentNode._subNodes[_subDivIndex] = null;
+                    //    if (!(_parentNode._subNodes.Any(x => x != null)))
+                    //        _parentNode._subNodes = null;
+                    //}
+                    shouldDestroy = _items.Count == 0 && _subNodes == null;
                     if (!_parentNode.AddReversedHierarchy(item, shouldDestroy ? _subDivIndex : -1))
                     {
                         //Force add to root node

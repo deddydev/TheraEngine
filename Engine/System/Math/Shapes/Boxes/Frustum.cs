@@ -46,6 +46,57 @@ namespace System
         //For quickly testing if objects in large scenes should even be tested against the frustum at all
         private Sphere _boundingSphere;
 
+        public void GetCornerPoints(int planeIndex, out Vec3 bottomLeft, out Vec3 bottomRight, out Vec3 topRight, out Vec3 topLeft)
+        {
+            if (planeIndex < 0 || planeIndex > 6)
+                throw new IndexOutOfRangeException();
+            switch (planeIndex)
+            {
+                case 0: //Near
+                    bottomLeft = NearBottomLeft;
+                    bottomRight = NearBottomRight;
+                    topRight = NearTopRight;
+                    topLeft = NearTopLeft;
+                    break;
+                case 1: //Far
+                    bottomLeft = FarBottomLeft;
+                    bottomRight = FarBottomRight;
+                    topRight = FarTopRight;
+                    topLeft = FarTopLeft;
+                    break;
+                case 2: //Left
+                    bottomLeft = FarBottomLeft;
+                    bottomRight = NearBottomLeft;
+                    topRight = NearTopLeft;
+                    topLeft = FarTopLeft;
+                    break;
+                case 3: //Right
+                    bottomLeft = NearBottomRight;
+                    bottomRight = FarBottomRight;
+                    topRight = FarTopRight;
+                    topLeft = NearTopRight;
+                    break;
+                case 4: //Top
+                    bottomLeft = NearTopLeft;
+                    bottomRight = NearTopRight;
+                    topRight = FarTopRight;
+                    topLeft = FarTopLeft;
+                    break;
+                case 5: //Bottom
+                    bottomLeft = NearBottomRight;
+                    bottomRight = NearBottomLeft;
+                    topRight = FarBottomLeft;
+                    topLeft = FarBottomRight;
+                    break;
+                default:
+                    bottomLeft = Vec3.Zero;
+                    bottomRight = Vec3.Zero;
+                    topRight = Vec3.Zero;
+                    topLeft = Vec3.Zero;
+                    break;
+            }
+        }
+
         private Plane[] _planes = new Plane[6];
         private Vec3[] _points = new Vec3[8];
 
@@ -83,7 +134,11 @@ namespace System
             get => _renderNode;
             set => _renderNode = value;
         }
-        public Sphere BoundingSphere { get => _boundingSphere; set => _boundingSphere = value; }
+        public Sphere BoundingSphere
+        {
+            get => _boundingSphere;
+            private set => _boundingSphere = value;
+        }
 
         public void UpdatePoints(
             Vec3 farBottomLeft, Vec3 farBottomRight, Vec3 farTopLeft, Vec3 farTopRight,
@@ -166,7 +221,7 @@ namespace System
             => Collision.FrustumContainsAABB(this, box.Minimum, box.Maximum);
         public EContainment Contains(Sphere sphere) 
             => Collision.FrustumContainsSphere(this, sphere.Center, sphere.Radius);
-        public EContainment Contains(CapsuleY capsule)
+        public EContainment Contains(BaseCapsule capsule)
         {
             Sphere top = capsule.GetTopSphere();
             Sphere bottom = capsule.GetBottomSphere();
@@ -175,11 +230,9 @@ namespace System
 
             if (ct == EContainment.Contains && cb == EContainment.Contains)
                 return EContainment.Contains;
-
-            if (ct == EContainment.Intersects || cb == EContainment.Intersects)
-                return EContainment.Intersects;
-
-            if ((ct == EContainment.Disjoint && cb == EContainment.Contains) ||
+            
+            if (ct == EContainment.Intersects || cb == EContainment.Intersects ||
+                (ct == EContainment.Disjoint && cb == EContainment.Contains) ||
                 (ct == EContainment.Contains && cb == EContainment.Disjoint))
                 return EContainment.Intersects;
 

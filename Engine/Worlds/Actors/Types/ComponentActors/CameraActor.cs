@@ -1,4 +1,4 @@
-﻿using CustomEngine.Worlds.Actors.Components;
+﻿using CustomEngine.Worlds.Actors;
 using CustomEngine.Worlds;
 using CustomEngine.Rendering.Cameras;
 using System;

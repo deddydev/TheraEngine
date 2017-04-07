@@ -67,38 +67,26 @@ namespace System
         {
             Vec3 top = GetTopCenterPoint();
             Vec3 bot = GetBottomCenterPoint();
+            Vec3 radiusVec = new Vec3(_radius);
+            Vec3 capsuleMin = Vec3.ComponentMin(top, bot) - radiusVec;
+            Vec3 capsuleMax = Vec3.ComponentMax(top, bot) + radiusVec;
+            Vec3 min = box.Minimum;
+            Vec3 max = box.Maximum;
+
+            bool containsX = false, containsY = false, containsZ = false;
+            bool disjointX = false, disjointY = false, disjointZ = false;
             
-            EContainment containsTop = Collision.AABBContainsSphere(box.Minimum, box.Maximum, top, _radius);
-            EContainment containsBot = Collision.AABBContainsSphere(box.Minimum, box.Maximum, bot, _radius);
-            if (containsTop == EContainment.Contains && containsBot == EContainment.Contains)
+            containsX = capsuleMin.X >= min.X && capsuleMax.X <= max.X;
+            containsY = capsuleMin.Y >= min.Y && capsuleMax.Y <= max.Y;
+            containsZ = capsuleMin.Z >= min.Z && capsuleMax.Z <= max.Z;
+            if (!containsX) disjointX = capsuleMax.X < min.X || capsuleMin.X > max.X;
+            if (!containsY) disjointY = capsuleMax.Y < min.Y || capsuleMin.Y > max.Y;
+            if (!containsZ) disjointZ = capsuleMax.Z < min.Z || capsuleMin.Z > max.Z;
+            if (containsX && containsY && containsZ)
                 return EContainment.Contains;
-            else if (containsTop != EContainment.Disjoint || containsBot != EContainment.Disjoint)
-                return EContainment.Intersects;
-            else
-            {
-                //This part probably won't happen often unless the capsule is fairly long or the box is not an AABB
-                //only occurs when both spheres are disjoint, but we need to still check if the cylinder part intersects.
-                Frustum f = box.AsFrustum();
-                foreach (Plane p in f)
-                {
-                    if (Collision.RayIntersectsPlane(bot, top, p.Point, p.Normal, out Vec3 point))
-                    {
-                        //TODO: make sure the returned point is within the plane bounds
-                        //(currently an infinite plane intersection)
-                        float closestDist = Segment.GetClosestDistanceToPoint(bot, top, point);
-                        if (closestDist < _radius)
-                            return EContainment.Intersects;
-                    }
-                    else
-                    {
-                        //segment is parallel to plane, can use any point for distance
-                        float closestDist = p.DistanceTo(bot);
-                        if (closestDist < _radius)
-                            return EContainment.Intersects;
-                    }
-                }
+            if (disjointX && disjointY && disjointZ)
                 return EContainment.Disjoint;
-            }
+            return EContainment.Intersects;
         }
         public override EContainment ContainedWithin(Box box)
         {
@@ -106,25 +94,9 @@ namespace System
         }
         public override EContainment ContainedWithin(Frustum frustum)
         {
-            return ContainedWithin(frustum.BoundingSphere);
-            //Sphere ts = GetTopSphere();
-            //Sphere bs = GetBottomSphere();
-            //EContainment top = frustum.Contains(ts);
-            //EContainment bot = frustum.Contains(bs);
-            //if (top == EContainment.Intersects || bot == EContainment.Intersects)
-            //    return EContainment.Intersects;
-            //if (top == EContainment.Contains && bot == EContainment.Contains)
-            //    return EContainment.Contains;
-            //else
-            //{
-            //    //Ray r = new Ray(bs.Center, ts.Center - bs.Center);
-            //    //TODO: get closest perpendicular vector from ray to a plane on the frustum
-            //    //Ray trace at the point
-            //    ////Handle if the cylinder intersects with the frustum but not either sphere
-            //    if (frustum.IntersectsRay(bs.Center, ts.Center - bs.Center, out List<Vec3> points))
-            //        return EContainment.Intersects;
-            //    return EContainment.Disjoint;
-            //}
+            if (frustum == null)
+                return EContainment.Disjoint;
+            return frustum.Contains(this);
         }
         public override EContainment ContainedWithin(Sphere sphere)
         {

@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using CustomEngine.Rendering.Models;
 
-namespace CustomEngine.Worlds.Actors.Components
+namespace CustomEngine.Worlds.Actors
 {
     public class DecalComponent : BoxComponent
     {

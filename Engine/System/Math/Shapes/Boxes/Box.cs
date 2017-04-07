@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using CustomEngine.Files;
 using System.Globalization;
 using BulletSharp;
-using CustomEngine.Worlds.Actors.Components;
+using CustomEngine.Worlds.Actors;
 using System.IO;
 using System.Xml;
 using System.Runtime.InteropServices;

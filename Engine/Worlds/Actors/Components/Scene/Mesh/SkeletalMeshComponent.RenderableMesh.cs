@@ -1,7 +1,7 @@
 ﻿using CustomEngine.Rendering.Models;
 using System;
 
-namespace CustomEngine.Worlds.Actors.Components
+namespace CustomEngine.Worlds.Actors
 {
     public partial class SkeletalMeshComponent : TRSComponent
     {

@@ -2,7 +2,7 @@
 using CustomEngine.Rendering;
 using BulletSharp;
 
-namespace CustomEngine.Worlds.Actors.Components
+namespace CustomEngine.Worlds.Actors
 {
     public class SphereComponent : ShapeComponent
     {

@@ -2,7 +2,7 @@
 using System.Collections;
 using CustomEngine.Rendering.Models;
 using System;
-using CustomEngine.Worlds.Actors.Components;
+using CustomEngine.Worlds.Actors;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Runtime.InteropServices;

@@ -3,7 +3,7 @@ using CustomEngine.Rendering;
 using System;
 using System.Drawing;
 
-namespace CustomEngine.Worlds.Actors.Components
+namespace CustomEngine.Worlds.Actors
 {
     public class CapsuleComponent : ShapeComponent
     {

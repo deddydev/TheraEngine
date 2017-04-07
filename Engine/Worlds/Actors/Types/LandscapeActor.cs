@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using CustomEngine.Worlds.Actors.Components;
+using CustomEngine.Worlds.Actors;
 using BulletSharp;
 using System.Drawing;
 

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using BulletSharp;
 using CustomEngine.Files;
-using CustomEngine.Worlds.Actors.Components;
+using CustomEngine.Worlds.Actors;
 using System.Xml;
 using System.Runtime.InteropServices;
 using System.IO;

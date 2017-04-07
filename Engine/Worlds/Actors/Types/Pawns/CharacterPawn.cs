@@ -1,5 +1,5 @@
 ﻿using System;
-using CustomEngine.Worlds.Actors.Components;
+using CustomEngine.Worlds.Actors;
 using CustomEngine.Rendering;
 using CustomEngine.GameModes;
 using BulletSharp;
@@ -270,6 +270,7 @@ namespace CustomEngine.Worlds.Actors
         public virtual void Kill(ICharacterPawn instigator, IActor killer)
         {
             GameMode mode = Engine.World.State.GameMode;
+            
         }
     }
 }

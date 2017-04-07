@@ -1,7 +1,7 @@
 ﻿using CustomEngine.Rendering;
 using System;
 
-namespace CustomEngine.Worlds.Actors.Components
+namespace CustomEngine.Worlds.Actors
 {
     public class GravityVolumeComponent : BoxComponent
     {

@@ -2,7 +2,7 @@
 using CustomEngine.Rendering;
 using System;
 
-namespace CustomEngine.Worlds.Actors.Components
+namespace CustomEngine.Worlds.Actors
 {
     public enum MovementMode
     {
@@ -167,7 +167,7 @@ namespace CustomEngine.Worlds.Actors.Components
             else
             {
                 //The ground isn't movable, so just apply the jump force directly.
-                character.ApplyForce(_jumpVelocity, Vec3.Zero);
+                character.LinearVelocity = character.LinearVelocity + (Vector3)_jumpVelocity;
             }
             _currentMovementMode = MovementMode.Falling;
         }

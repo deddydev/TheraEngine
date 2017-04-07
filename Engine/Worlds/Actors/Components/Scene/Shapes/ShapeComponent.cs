@@ -2,7 +2,7 @@
 using System;
 using CustomEngine.Rendering;
 
-namespace CustomEngine.Worlds.Actors.Components
+namespace CustomEngine.Worlds.Actors
 {
     public abstract class ShapeComponent : TRComponent, IRenderable, IPhysicsDrivable
     {

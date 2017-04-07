@@ -142,11 +142,11 @@ namespace CustomEngine.Worlds
         {
             _physicsScene.StepSimulation(delta);
 
-            for (int i = 0; i < _physicsScene.Dispatcher.NumManifolds; ++i)
-            {
-                PersistentManifold m = _physicsScene.Dispatcher.GetManifoldByIndexInternal(i);
+            //for (int i = 0; i < _physicsScene.Dispatcher.NumManifolds; ++i)
+            //{
+            //    PersistentManifold m = _physicsScene.Dispatcher.GetManifoldByIndexInternal(i);
                 
-            }
+            //}
         }
         public IActor this[int index]
         {

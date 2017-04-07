@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using CustomEngine.Worlds.Actors.Components;
+using CustomEngine.Worlds.Actors;
 
 namespace CustomEngine.Rendering
 {

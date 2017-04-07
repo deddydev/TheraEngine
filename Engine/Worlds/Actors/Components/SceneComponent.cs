@@ -5,7 +5,7 @@ using System.Collections;
 using System.ComponentModel;
 using CustomEngine.Rendering;
 
-namespace CustomEngine.Worlds.Actors.Components
+namespace CustomEngine.Worlds.Actors
 {
     public interface ISocket
     {

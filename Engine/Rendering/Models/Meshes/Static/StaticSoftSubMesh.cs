@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using BulletSharp;
 using CustomEngine.Rendering.Models.Materials;
 using CustomEngine.Files;
-using CustomEngine.Worlds.Actors.Components;
+using CustomEngine.Worlds.Actors;
 using System.IO;
 using System.Xml;
 

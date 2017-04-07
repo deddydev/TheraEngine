@@ -3,7 +3,7 @@ using CustomEngine.Rendering.Textures;
 using CustomEngine.Rendering.Models.Materials;
 using System.Drawing;
 
-namespace CustomEngine.Worlds.Actors.Components
+namespace CustomEngine.Worlds.Actors
 {
     public enum LightType
     {

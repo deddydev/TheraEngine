@@ -1,5 +1,5 @@
 ﻿using CustomEngine;
-using CustomEngine.Worlds.Actors.Components;
+using CustomEngine.Worlds.Actors;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -139,6 +139,10 @@ namespace System
             get => _boundingSphere;
             private set => _boundingSphere = value;
         }
+        public Plane[] Planes
+        {
+            get => _planes;
+        }
 
         public void UpdatePoints(
             Vec3 farBottomLeft, Vec3 farBottomRight, Vec3 farTopLeft, Vec3 farTopRight,
@@ -223,20 +227,82 @@ namespace System
             => Collision.FrustumContainsSphere(this, sphere.Center, sphere.Radius);
         public EContainment Contains(BaseCapsule capsule)
         {
+            if (capsule.ContainedWithin(BoundingSphere) == EContainment.Disjoint)
+                return EContainment.Disjoint;
+
             Sphere top = capsule.GetTopSphere();
-            Sphere bottom = capsule.GetBottomSphere();
+            Sphere bot = capsule.GetBottomSphere();
             EContainment ct = Contains(top);
-            EContainment cb = Contains(bottom);
+            EContainment cb = Contains(bot);
 
             if (ct == EContainment.Contains && cb == EContainment.Contains)
                 return EContainment.Contains;
             
-            if (ct == EContainment.Intersects || cb == EContainment.Intersects ||
-                (ct == EContainment.Disjoint && cb == EContainment.Contains) ||
-                (ct == EContainment.Contains && cb == EContainment.Disjoint))
+            if (ct == EContainment.Intersects || cb == EContainment.Intersects || cb != ct)
                 return EContainment.Intersects;
 
-            //TODO: test for when both spheres lie outside, but the area between interects the frustum
+            //Both spheres are disjoint, but the cylinder might be intersecting
+            float radius = capsule.Radius;
+            for (int i = 0; i < 6; ++i)
+            {
+                Plane p = Planes[i];
+                GetCornerPoints(i, out Vec3 bottomLeft, out Vec3 bottomRight, out Vec3 topRight, out Vec3 topLeft);
+                //Intersect the capsule's inner segment with the plane as a ray
+                if (Collision.RayIntersectsPlane(bot.Center, top.Center, p.Point, p.Normal, out Vec3 point))
+                {
+                    //Make sure the resulting point is even within the range of the capsule
+                    Segment.Part part = Segment.GetDistancePointToSegmentPart(bot.Center, top.Center, point, out float closestPartDist);
+                    if (closestPartDist > radius)
+                        continue;
+
+                    switch (part)
+                    {
+                        case Segment.Part.Line:
+                            Vec3 perp = Ray.GetPerpendicularVectorFromPoint(bot.Center, top.Center - bot.Center, point);
+
+                            break;
+                        case Segment.Part.StartPoint:
+                        case Segment.Part.EndPoint:
+                            Vec3 partPoint = part == Segment.Part.StartPoint ? bot.Center : top.Center;
+
+                            break;
+                    }
+
+                    //First test for direct intersections with the plane, within its bounds
+                    if (point.IsInTriangle(bottomLeft, bottomRight, topRight) &&
+                        point.IsInTriangle(bottomLeft, topLeft, topRight))
+                    {
+
+                        return EContainment.Intersects;
+                    }
+
+                    //Now test distances to each plane edge
+                    if (Segment.GetClosestDistanceToPoint(bottomLeft, bottomRight, point) < radius)
+                        return EContainment.Intersects;
+                    if (Segment.GetClosestDistanceToPoint(bottomRight, topRight, point) < radius)
+                        return EContainment.Intersects;
+                    if (Segment.GetClosestDistanceToPoint(topRight, topLeft, point) < radius)
+                        return EContainment.Intersects;
+                    if (Segment.GetClosestDistanceToPoint(topLeft, bottomLeft, point) < radius)
+                        return EContainment.Intersects;
+                }
+                else
+                {
+                    //Segment is parallel to plane, can use any point for distance
+                    float closestDist = p.DistanceTo(bot.Center);
+                    if (closestDist < radius)
+                    {
+                        //Close enough to intersect, make sure within plane bounds
+                        Vec3 normal = -p.Normal * closestDist;
+                        Vec3 projectedEndPoint = top.Center + normal;
+                        Vec3 projectedStartPoint = bot.Center + normal;
+
+                        //TODO: test if any part of the segment is within plane bounds
+
+                        return EContainment.Intersects;
+                    }
+                }
+            }
             return EContainment.Disjoint;
         }
         public IEnumerator<Plane> GetEnumerator() => ((IEnumerable<Plane>)_planes).GetEnumerator();

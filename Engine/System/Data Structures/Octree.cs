@@ -2,7 +2,7 @@
 using CustomEngine.Rendering;
 using CustomEngine.Rendering.Models;
 using CustomEngine.Rendering.Models.Materials;
-using CustomEngine.Worlds.Actors.Components;
+using CustomEngine.Worlds.Actors;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -33,13 +33,13 @@ namespace System
         {
             if (_head == null)
                 _head = new Node(_totalBounds);
-            _head.Add(value);
+            _head.Add(value, true);
         }
         public void Add(List<I3DBoundable> value)
         {
             if (_head == null)
                 _head = new Node(_totalBounds);
-            _head.Add(value);
+            _head.Add(value, true);
         }
         public bool Remove(I3DBoundable value)
         {
@@ -98,16 +98,28 @@ namespace System
 
             public void ItemMoved(I3DBoundable item)
             {
-                Remove(item, out bool shouldDestroy);
-                if (!Add(item) && _parentNode != null)
+                //Still within the same volume?
+                if (item.CullingVolume.ContainedWithin(_bounds) == EContainment.Contains)
                 {
-                    //if (shouldDestroy && _parentNode != null)
-                    //{
-                    //    _parentNode._subNodes[_subDivIndex] = null;
-                    //    if (!(_parentNode._subNodes.Any(x => x != null)))
-                    //        _parentNode._subNodes = null;
-                    //}
-                    shouldDestroy = _items.Count == 0 && _subNodes == null;
+                    //Try subdividing
+                    for (int i = 0; i < 8; ++i)
+                    {
+                        BoundingBox bounds = GetSubdivision(i);
+                        if (item.CullingVolume.ContainedWithin(bounds) == EContainment.Contains)
+                        {
+                            _items.Remove(item);
+                            CreateSubNode(bounds, i);
+                            _subNodes[i].Add(item);
+                            break;
+                        }
+                    }
+                    return;
+                }
+
+                //Belongs in larger parent volume, remove from this node
+                if (_parentNode != null)
+                {
+                    Remove(item, out bool shouldDestroy);
                     if (!_parentNode.AddReversedHierarchy(item, shouldDestroy ? _subDivIndex : -1))
                     {
                         //Force add to root node
@@ -119,25 +131,33 @@ namespace System
                         item.IsRendering = m._visible;
                     }
                 }
-                else //Force add back to this node
-                {
-                    Items.Add(item);
-                    item.RenderNode = this;
-                    item.IsRendering = _visible;
-                }
             }
             /// <summary>
             /// Returns true if the item was added to this node (clarification: not its subnodes)
             /// </summary>
             private bool AddReversedHierarchy(I3DBoundable item, int childDestroyIndex)
             {
-                if (item.CullingVolume.ContainedWithin(_bounds) == EContainment.Contains)
+                if (!Add(item))
                 {
-                    Add(item);
-                    //Items.Add(item);
-                    //item.IsRendering = _visible;
-                    //item.RenderNode = this;
-
+                    bool shouldDestroy = _items.Count == 0 && HasNoSubNodesExcept(childDestroyIndex);
+                    if (_parentNode != null)
+                    {
+                        if (_parentNode.AddReversedHierarchy(item, shouldDestroy ? _subDivIndex : -1))
+                        {
+                            if (childDestroyIndex >= 0 &&
+                                _subNodes != null &&
+                                _subNodes[childDestroyIndex] != null)
+                            {
+                                _subNodes[childDestroyIndex] = null;
+                                if (!_subNodes.Any(x => x != null))
+                                    _subNodes = null;
+                            }
+                            return true;
+                        }
+                    }
+                }
+                else
+                {
                     if (childDestroyIndex >= 0 &&
                         _subNodes != null &&
                         _subNodes[childDestroyIndex] != null)
@@ -149,24 +169,15 @@ namespace System
                     return true;
                 }
 
-                bool shouldDestroy = _items.Count == 0 && HasNoSubNodesExcept(childDestroyIndex);
-                if (_parentNode != null)
+                if (childDestroyIndex >= 0 &&
+                    _subNodes != null &&
+                    _subNodes[childDestroyIndex] != null)
                 {
-                    if (_parentNode.AddReversedHierarchy(item, shouldDestroy ? _subDivIndex : -1))
-                    {
-                        if (childDestroyIndex >= 0 &&
-                            _subNodes != null &&
-                            _subNodes[childDestroyIndex] != null)
-                        {
-                            _subNodes[childDestroyIndex] = null;
-                            if (!_subNodes.Any(x => x != null))
-                                _subNodes = null;
-                        }
-                        return true;
-                    }
+                    _subNodes[childDestroyIndex] = null;
+                    if (!_subNodes.Any(x => x != null))
+                        _subNodes = null;
                 }
                 return false;
-                
             }
 
             private bool HasNoSubNodesExcept(int index)
@@ -240,8 +251,15 @@ namespace System
                 else
                 {
                     //Bounds is intersecting edge of frustum
-                    foreach (I3DBoundable item in _items)
-                        item.IsRendering = item.CullingVolume != null ? item.CullingVolume.ContainedWithin(frustum) != EContainment.Disjoint : true;
+                    for (int i = 0; i < _items.Count; ++i)
+                    {
+                        if (i > _items.Count)
+                            break;
+
+                        I3DBoundable item = _items[i];
+                        item.IsRendering = item.CullingVolume != null ?
+                            item.CullingVolume.ContainedWithin(frustum) != EContainment.Disjoint : true;
+                    }
 
                     if (_subNodes != null)
                         foreach (Node n in _subNodes)
@@ -299,11 +317,11 @@ namespace System
                 node._parentNode = this;
                 _subNodes[index] = node;
             }
-            public bool Add(List<I3DBoundable> items)
+            public bool Add(List<I3DBoundable> items, bool force = false)
             {
                 bool addedAny = false;
                 foreach (I3DBoundable item in items)
-                    addedAny = addedAny || Add(item);
+                    addedAny = addedAny || Add(item, force);
                 return addedAny;
 
                 //bool notSubdivided = true;
@@ -338,7 +356,7 @@ namespace System
                 //    }
                 //}
             }
-            public bool Add(I3DBoundable item)
+            public bool Add(I3DBoundable item, bool force = false)
             {
                 if (item == null)
                     return false;
@@ -347,8 +365,16 @@ namespace System
                 if (item.CullingVolume != null)
                 {
                     if (item.CullingVolume.ContainedWithin(_bounds) != EContainment.Contains)
+                    {
+                        if (force)
+                        {
+                            Items.Add(item);
+                            item.IsRendering = _visible;
+                            item.RenderNode = this;
+                            return true;
+                        }
                         return false;
-
+                    }
                     for (int i = 0; i < 8; ++i)
                     {
                         BoundingBox bounds = GetSubdivision(i);

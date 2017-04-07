@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace CustomEngine.Worlds.Actors.Components
+namespace CustomEngine.Worlds.Actors
 {
     public class ComplexConeComponent : ShapeComponent
     {

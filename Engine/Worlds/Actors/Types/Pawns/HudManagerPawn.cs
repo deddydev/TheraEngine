@@ -1,6 +1,6 @@
 ﻿using CustomEngine.Input;
 using CustomEngine.Input.Devices;
-using CustomEngine.Worlds.Actors.Components;
+using CustomEngine.Worlds.Actors;
 using System;
 using CustomEngine.Worlds.Actors.Types;
 using CustomEngine.Worlds;

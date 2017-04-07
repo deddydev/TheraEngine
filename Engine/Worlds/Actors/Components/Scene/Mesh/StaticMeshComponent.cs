@@ -7,7 +7,7 @@ using System.ComponentModel;
 using BulletSharp;
 using System.Collections.Generic;
 
-namespace CustomEngine.Worlds.Actors.Components
+namespace CustomEngine.Worlds.Actors
 {
     public class StaticMeshSocket : ISocket
     {

@@ -2,7 +2,7 @@
 using CustomEngine.Rendering.Textures;
 using CustomEngine.Rendering.Models.Materials;
 
-namespace CustomEngine.Worlds.Actors.Components
+namespace CustomEngine.Worlds.Actors
 {
     public class SpotLightComponent : PointLightComponent
     {

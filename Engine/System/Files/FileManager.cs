@@ -6,7 +6,7 @@ using CustomEngine.Rendering.Models;
 using CustomEngine.Rendering.Textures;
 using CustomEngine.Audio;
 using CustomEngine.Worlds;
-using CustomEngine.Worlds.Actors.Components;
+using CustomEngine.Worlds.Actors;
 using System;
 using System.Collections.Generic;
 using System.Linq;

@@ -5,7 +5,7 @@ using System.IO;
 using System.Xml;
 using System.Drawing;
 
-namespace CustomEngine.Worlds.Actors.Components
+namespace CustomEngine.Worlds.Actors
 {
     public class BoomComponent : RTComponent, IRenderable
     {

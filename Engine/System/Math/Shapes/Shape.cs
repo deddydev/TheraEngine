@@ -2,7 +2,7 @@
 using CustomEngine.Rendering;
 using CustomEngine;
 using CustomEngine.Rendering.Models;
-using CustomEngine.Worlds.Actors.Components;
+using CustomEngine.Worlds.Actors;
 using CustomEngine.Files;
 using System.Collections.Generic;
 

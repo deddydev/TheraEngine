@@ -3,7 +3,7 @@ using BulletSharp;
 using CustomEngine.Rendering;
 using System.Drawing;
 
-namespace CustomEngine.Worlds.Actors.Components
+namespace CustomEngine.Worlds.Actors
 {
     public class BoxComponent : ShapeComponent
     {

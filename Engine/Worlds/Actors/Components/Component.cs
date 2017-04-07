@@ -1,7 +1,7 @@
 ﻿using System;
 using CustomEngine.Files;
 
-namespace CustomEngine.Worlds.Actors.Components
+namespace CustomEngine.Worlds.Actors
 {
     public abstract class Component : FileObject
     {

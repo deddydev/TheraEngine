@@ -1,6 +1,6 @@
 ﻿using System;
 using CustomEngine.Rendering.Models;
-using CustomEngine.Worlds.Actors.Components;
+using CustomEngine.Worlds.Actors;
 using CustomEngine.Worlds.Maps;
 using CustomEngine.Rendering.Animation;
 using CustomEngine.Worlds.Actors;
@@ -55,27 +55,7 @@ namespace CustomEngine.Worlds
             #endregion
 
             #region Floor
-            PhysicsDriverInfo floorInfo = new PhysicsDriverInfo()
-            {
-                BodyInfo = new RigidBodyConstructionInfo(
-                    20.0f, null,
-                    /*new DefaultMotionState(Matrix4.CreateFromAxisAngle(Vec3.Forward, 10.0f)),*/
-                    new BoxShape(new Vec3(20.0f, 0.5f, 20.0f)))
-                {
-                    Restitution = 0.5f,
-                },
-                CollisionEnabled = true,
-                SimulatePhysics = false,
-                Group = CustomCollisionGroup.StaticWorld,
-                CollidesWith = CustomCollisionGroup.DynamicWorld | CustomCollisionGroup.Characters,
-            };
-            BoundingBox floorBox = new BoundingBox(new Vec3(20.0f, 0.5f, 20.0f), Vec3.Zero);
-            StaticMesh floorModel = new StaticMesh("Floor", floorBox);
-            floorModel.RigidChildren.Add(new StaticRigidSubMesh(floorBox.GetMesh(false), floorBox, Material.GetDefaultMaterial(), "FloorMesh"));
-            StaticMeshComponent floorComp = new StaticMeshComponent(
-                floorModel, new Vec3(0.0f, 10.0f, 0.0f),
-                new Rotator(0.0f, 0.0f, 0.0f, Rotator.Order.YPR),
-                Vec3.One, floorInfo);
+            
 
             Actor floorActor = new Actor(floorComp)
             {

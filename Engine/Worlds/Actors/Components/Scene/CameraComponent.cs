@@ -3,7 +3,7 @@ using CustomEngine.Input;
 using System.Collections.Generic;
 using System;
 
-namespace CustomEngine.Worlds.Actors.Components
+namespace CustomEngine.Worlds.Actors
 {
     public class CameraComponent : SceneComponent
     {
@@ -33,12 +33,16 @@ namespace CustomEngine.Worlds.Actors.Components
             {
                 if (_camera != null)
                 {
+                    if (Engine.Settings.RenderCameraFrustums)
+                        Engine.Renderer.Scene.RemoveRenderable(_camera);
                     _camera.OwningComponent = null;
                     _camera.TransformChanged -= RecalcLocalTransform;
                 }
                 _camera = value;
                 if (_camera != null)
                 {
+                    if (Engine.Settings.RenderCameraFrustums)
+                        Engine.Renderer.Scene.AddRenderable(_camera);
                     _camera.OwningComponent = this;
                     _camera.TransformChanged += RecalcLocalTransform;
                 }

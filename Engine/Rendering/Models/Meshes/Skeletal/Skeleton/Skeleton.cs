@@ -1,6 +1,6 @@
 ﻿using BulletSharp;
 using CustomEngine.Files;
-using CustomEngine.Worlds.Actors.Components;
+using CustomEngine.Worlds.Actors;
 using System;
 using System.Collections.Generic;
 using System.Collections;

@@ -2,7 +2,7 @@
 using BulletSharp;
 using CustomEngine.Rendering;
 
-namespace CustomEngine.Worlds.Actors.Components
+namespace CustomEngine.Worlds.Actors
 {
     public class BasicConeYComponent : ShapeComponent
     {

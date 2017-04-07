@@ -4,7 +4,7 @@ using System.Drawing;
 using System.Collections;
 using System.ComponentModel;
 using CustomEngine.Worlds.Actors;
-using CustomEngine.Worlds.Actors.Components;
+using CustomEngine.Worlds.Actors;
 
 namespace CustomEngine.Rendering.HUD
 {

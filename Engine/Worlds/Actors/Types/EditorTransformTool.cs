@@ -1,5 +1,5 @@
 ﻿using CustomEngine.Rendering.Cameras;
-using CustomEngine.Worlds.Actors.Components;
+using CustomEngine.Worlds.Actors;
 using System;
 using System.Collections.Generic;
 using System.Linq;

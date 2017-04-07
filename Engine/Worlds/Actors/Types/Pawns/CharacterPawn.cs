@@ -162,21 +162,19 @@ namespace CustomEngine.Worlds.Actors
         private void MoveBackward(bool pressed)
             => _keyboardMovementInput.Y += pressed ? -1.0f : 1.0f;
 
+        private void Jump()
+            => _movement.Jump();
+        private void MoveRight(float value)
+            => _gamepadMovementInput.X = value;
+        private void MoveForward(float value)
+            => _gamepadMovementInput.Y = value;
+
         private void Look(float x, float y)
         {
             //RootComponent.Rotation.Yaw += x;
             _tpCameraBoom.Rotation.Pitch -= y;
             _tpCameraBoom.Rotation.Yaw -= x;
             //_fpCameraComponent.Camera.AddRotation(y, 0.0f);
-        }
-        private void Jump() => _movement.Jump();
-        private void MoveRight(float value)
-        {
-            _gamepadMovementInput.X = value;
-        }
-        private void MoveForward(float value)
-        {
-            _gamepadMovementInput.Y = value;
         }
         private void LookRight(float value)
         {
@@ -201,35 +199,30 @@ namespace CustomEngine.Worlds.Actors
         {
             _movement = Activator.CreateInstance<MovementClass>();
             LogicComponents.Add(_movement);
+            
+            float characterHeight = 1.72f; //5'8" in m = 1.72f
+            float radius = 0.07f;
+            float capsuleTotalHalfHeight = characterHeight / 2.0f;
+            float halfHeight = capsuleTotalHalfHeight - radius;
 
             PhysicsDriverInfo info = new PhysicsDriverInfo()
             {
-                BodyInfo = new RigidBodyConstructionInfo(
-                    50.0f,
-                    new DefaultMotionState(),
-                    null)
-                {
-                    AngularDamping = 0.05f,
-                    LinearDamping = 0.005f,
-                    Restitution = 0.9f,
-                    Friction = 0.01f,
-                    RollingFriction = 0.01f,
-                },
+                Mass = 14.0f,
+                AngularDamping = 0.05f,
+                LinearDamping = 0.005f,
+                Restitution = 0.9f,
+                Friction = 0.01f,
+                RollingFriction = 0.01f,
                 CollisionEnabled = true,
                 SimulatePhysics = false,
                 Group = CustomCollisionGroup.Characters,
                 CollidesWith = CustomCollisionGroup.StaticWorld,
             };
 
-            float characterHeight = 65.0f; //5'8" in cm = 172.72f
-            float radius = 7.0f;
-            float capsuleTotalHalfHeight = characterHeight / 2.0f;
-            float halfHeight = capsuleTotalHalfHeight - radius;
-
             CapsuleComponent rootCapsule = new CapsuleComponent(radius, halfHeight, info);
             rootCapsule.PhysicsDriver.OnHit += _movement.OnHit;
             rootCapsule.PhysicsDriver.AngularFactor = Vec3.Zero;
-            rootCapsule.Translation.Raw = new Vec3(0.0f, capsuleTotalHalfHeight + 50.0f, 0.0f);
+            rootCapsule.Translation.Raw = new Vec3(0.0f, capsuleTotalHalfHeight + 11.0f, 0.0f);
 
             SkeletalMeshComponent mesh = new SkeletalMeshComponent(_mesh, _skeleton);
             mesh.Translation.Raw = new Vec3(0.0f, -capsuleTotalHalfHeight, 0.0f);
@@ -242,9 +235,9 @@ namespace CustomEngine.Worlds.Actors
             //_fpCameraComponent.AttachTo(mesh, "Head");
 
             _tpCameraBoom = new BoomComponent();
-            _tpCameraBoom.Translation.Raw = new Vec3(30.0f, 20.0f, 0.0f);
+            _tpCameraBoom.Translation.Raw = new Vec3(2.0f, 0.0f, 0.0f);
             _tpCameraBoom.Rotation.Yaw = 180.0f;
-            _tpCameraBoom.MaxLength = 70.0f;
+            _tpCameraBoom.MaxLength = 7.0f;
             rootCapsule.ChildComponents.Add(_tpCameraBoom);
 
             PerspectiveCamera TPCam = new PerspectiveCamera()

@@ -3,7 +3,6 @@ using CustomEngine.Rendering.Models;
 using CustomEngine.Worlds.Actors;
 using CustomEngine.Worlds.Maps;
 using CustomEngine.Rendering.Animation;
-using CustomEngine.Worlds.Actors;
 using System.Drawing;
 using CustomEngine.Rendering;
 using BulletSharp;
@@ -17,55 +16,46 @@ namespace CustomEngine.Worlds
         {
             _settings = new WorldSettings("TestWorld");
 
-            #region Sphere
             PhysicsDriverInfo sphereInfo = new PhysicsDriverInfo()
             {
-                BodyInfo = new RigidBodyConstructionInfo(
-                    50.0f,
-                    new DefaultMotionState(/*Matrix4.CreateTranslation(new Vec3(0.0f, 20.0f, 0.0f))*/),
-                    new SphereShape(1.0f))
-                {
-                    AngularDamping = 0.05f,
-                    LinearDamping = 0.005f,
-                    Restitution = 0.9f,
-                    Friction = 0.01f,
-                    RollingFriction = 0.01f,
-                },
+                Mass = 50.0f,
+                AngularDamping = 0.05f,
+                LinearDamping = 0.005f,
+                Restitution = 0.9f,
+                Friction = 0.01f,
+                RollingFriction = 0.01f,
                 CollisionEnabled = true,
                 SimulatePhysics = true,
                 Group = CustomCollisionGroup.DynamicWorld,
                 CollidesWith = CustomCollisionGroup.StaticWorld,
             };
-            Sphere sphere = new Sphere(1.0f, Vec3.Zero);
-            StaticMesh sphereModel = new StaticMesh("Sphere", sphere);
-            sphereModel.RigidChildren.Add(new StaticRigidSubMesh(
-                sphere.GetMesh(30.0f, false),
-                sphere,
-                Material.GetDefaultMaterial(),
-                "Mesh"));
-            Actor sphereActor = new Actor(new StaticMeshComponent(
-                sphereModel,
-                new Vec3(0.0f, 20.0f, 0.0f),
+            SphereActor sphereActor = new SphereActor(
+               "Sphere",
+               sphereInfo,
+               5.0f,
+               new Vec3(0.0f, 20.0f, 0.0f),
+               Rotator.GetZero(),
+               Material.GetDefaultMaterial());
+
+            PhysicsDriverInfo floorInfo = new PhysicsDriverInfo()
+            {
+                Mass = 20.0f,
+                Restitution = 0.5f,
+                CollisionEnabled = true,
+                SimulatePhysics = false,
+                Group = CustomCollisionGroup.StaticWorld,
+                CollidesWith = CustomCollisionGroup.DynamicWorld | CustomCollisionGroup.Characters,
+            };
+            BoxActor floorActor = new BoxActor(
+                "Floor", 
+                floorInfo,
+                new Vec3(20.0f, 0.5f, 20.0f), 
+                new Vec3(0.0f, 10.0f, 0.0f),
                 Rotator.GetZero(),
-                Vec3.One,
-                sphereInfo))
-            {
-                Name = "SphereActor"
-            };
-            #endregion
-
-            #region Floor
+                Material.GetDefaultMaterial());
             
-
-            Actor floorActor = new Actor(floorComp)
-            {
-                Name = "Floor"
-            };
-            #endregion
-
-            #region Skylight
             DirectionalLightComponent dirLightComp = new DirectionalLightComponent(
-                Color.Beige, 1.0f, 0.6f, new Rotator(-90.0f, 0.0f, 0.0f, Rotator.Order.YPR));
+                Color.Beige, 1.0f, 0.6f, new Rotator(-45.0f, 0.0f, 0.0f, Rotator.Order.YPR));
             dirLightComp.Translation.Y = 30.0f;
 
             AnimationScalar lightAnim = new AnimationScalar(360, true, true);
@@ -81,12 +71,12 @@ namespace CustomEngine.Worlds
             dirLightComp.AddAnimation(lightAnimContainer, false);
 
             Actor<DirectionalLightComponent> dirLightActor = new Actor<DirectionalLightComponent>(dirLightComp) { Name = "SunLight" };
-            #endregion
 
             string desktop = Environment.MachineName == "DAVID-DESKTOP" ?
                 "X:\\Desktop\\" :
                 "C:\\Users\\David\\Desktop\\";
             Collada.ImportOptions options = new Collada.ImportOptions();
+            options.InitialTransform.Scale = new Vec3(0.02646f);
             ModelScene scene = Collada.Import(desktop + "TEST.DAE", options);
 
             //IActor importedActor;

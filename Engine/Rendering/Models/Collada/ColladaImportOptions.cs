@@ -14,9 +14,9 @@ namespace CustomEngine.Rendering.Models
         public class ImportOptions
         {
             [Category("Primitives")]
-            public Culling DefaultCulling { get { return _culling; } set { _culling = value; } }
+            public Culling DefaultCulling { get => _culling; set => _culling = value; }
             [Category("Primitives")]
-            public bool ReverseWinding { get { return _reverseWinding; } set { _reverseWinding = value; } }
+            public bool ReverseWinding { get => _reverseWinding; set => _reverseWinding = value; }
             [Category("Primitives")]
             public float WeightPrecision { get { return _weightPrecision; } set { _weightPrecision = value.Clamp(0.0000001f, 0.999999f); } }
             [Category("Primitives")]
@@ -43,8 +43,13 @@ namespace CustomEngine.Rendering.Models
             public uint MinimumStripLength { get { return _minStripLen; } set { _minStripLen = value < 2 ? 2 : value; } }
             [Category("Tristripper")]
             public bool PushCacheHits { get { return _pushCacheHits; } set { _pushCacheHits = value; } }
+
+            public FrameState InitialTransform { get => _initialTransform; set => _initialTransform = value; }
+
             //[Category("Tristripper")]
             //public bool BackwardSearch { get { return _backwardSearch; } set { _backwardSearch = value; } }
+
+            private FrameState _initialTransform = FrameState.GetIdentity(TransformOrder.TRS, Rotator.Order.YPR);
 
             public bool _allowVertexCompression = true;
             public bool _allowNormalCompression = true;

@@ -9,6 +9,7 @@ using CustomEngine.Worlds.Actors;
 using BulletSharp.SoftBody;
 using System.IO;
 using System.Xml;
+using System.Diagnostics;
 
 namespace CustomEngine.Rendering
 {
@@ -36,11 +37,29 @@ namespace CustomEngine.Rendering
     }
     public class PhysicsDriverInfo
     {
-        public bool CollisionEnabled;
-        public bool SimulatePhysics;
-        public CustomCollisionGroup Group;
-        public CustomCollisionGroup CollidesWith;
-        public RigidBodyConstructionInfo BodyInfo;
+        public bool CollisionEnabled = true;
+        public bool SimulatePhysics = true;
+        public CustomCollisionGroup Group = CustomCollisionGroup.Default;
+        public CustomCollisionGroup CollidesWith = CustomCollisionGroup.All;
+        
+        public float Mass = 1.0f;
+        public MotionState MotionState = null;
+        public CollisionShape CollisionShape = null;
+        public Vec3 LocalInertia = Vec3.Zero;
+
+        public bool AdditionalDamping = false;
+        public float AdditionalDampingFactor = 0.005f;
+        public float AdditionalLinearDampingThresholdSqr = 0.01f;
+        public float AngularDamping = 0.0f;
+        public float AngularSleepingThreshold = 1.0f;
+        public float Friction = 0.5f;
+        public float LinearDamping = 0.0f;
+        public float AdditionalAngularDampingThresholdSqr = 0.01f;
+        public float Restitution = 0.0f;
+        public float RollingFriction = 0.0f;
+        public Matrix4 InitialWorldTransform = Matrix4.Identity;
+        public float LinearSleepingThreshold = 0.8f;
+        public float AdditionalAngularDampingFactor = 0.01f;
     }
     public delegate void PhysicsOverlap(IPhysicsDrivable other, ManifoldPoint point);
     public class PhysicsDriver : FileObject
@@ -56,7 +75,24 @@ namespace CustomEngine.Rendering
             _simulatingPhysics = info.SimulatePhysics;
             _group = info.Group;
             _collidesWith = info.CollidesWith;
-            UpdateBody(new RigidBody(info.BodyInfo));
+
+            RigidBodyConstructionInfo bodyInfo = new RigidBodyConstructionInfo(info.Mass, info.MotionState, info.CollisionShape, info.LocalInertia)
+            {
+                AdditionalDamping = info.AdditionalDamping,
+                AdditionalDampingFactor = info.AdditionalDampingFactor,
+                AdditionalLinearDampingThresholdSqr = info.AdditionalLinearDampingThresholdSqr,
+                AngularDamping = info.AngularDamping,
+                AngularSleepingThreshold = info.AngularSleepingThreshold,
+                Friction = info.Friction,
+                LinearDamping = info.LinearDamping,
+                AdditionalAngularDampingThresholdSqr = info.AdditionalAngularDampingThresholdSqr,
+                Restitution = info.Restitution,
+                RollingFriction = info.RollingFriction,
+                StartWorldTransform = info.InitialWorldTransform,
+                LinearSleepingThreshold = info.LinearSleepingThreshold,
+                AdditionalAngularDampingFactor = info.AdditionalAngularDampingFactor,
+            };
+            UpdateBody(new RigidBody(bodyInfo));
         }
 
         public PhysicsDriver(IPhysicsDrivable owner, PhysicsDriverInfo info, MatrixUpdate func)
@@ -248,8 +284,9 @@ namespace CustomEngine.Rendering
                 {
                     _collision.LinearFactor = new Vector3(0.0f);
                     _collision.AngularFactor = new Vector3(0.0f);
+                    //The body is not simulating but can be moved by the user and bullet will calculate velocity
+                    //_collision.CollisionFlags |= CollisionFlags.KinematicObject;
                     //_collision.CollisionFlags |= CollisionFlags.StaticObject;
-                    //_collision.CollisionFlags &= ~CollisionFlags.KinematicObject;
                     _collision.ForceActivationState(ActivationState.DisableSimulation);
                     UnregisterTick();
                 }
@@ -257,7 +294,7 @@ namespace CustomEngine.Rendering
                 {
                     _collision.LinearFactor = _linearFactor;
                     _collision.AngularFactor = _angularFactor;
-                    //_collision.CollisionFlags |= CollisionFlags.KinematicObject;
+                    //_collision.CollisionFlags &= ~CollisionFlags.KinematicObject;
                     //_collision.CollisionFlags &= ~CollisionFlags.StaticObject;
                     //_collision.ForceActivationState(ActivationState.IslandSleeping);
                     RegisterTick(ETickGroup.PostPhysics, ETickOrder.Scene);
@@ -274,23 +311,28 @@ namespace CustomEngine.Rendering
         }
         internal virtual void SetPhysicsTransform(Matrix4 newTransform)
         {
+            //_prevWorldMatrix = _worldMatrix;
             _worldMatrix = newTransform;
+            //_prevVelocity = _velocity;
+            //_velocity = (Position - PreviousPosition) / Engine.RenderDelta;
+            //_acceleration = (_velocity - _prevVelocity) / Engine.RenderDelta;
             //if (_collision.MotionState != null)
             //    _collision.MotionState.WorldTransform = _worldMatrix;
             //else
-            {
-                _collision.WorldTransform = _worldMatrix;
+            //{
+            _collision.WorldTransform = _worldMatrix;
                 //_collision.InterpolationWorldTransform = _worldMatrix;
-            }
+            //}
             Engine.World?.PhysicsScene.UpdateAabbs();
         }
         protected internal override void Tick(float delta)
         {
-            _prevVelocity = _velocity;
-            _velocity = _collision.LinearVelocity;
-            _acceleration = (_velocity - _prevVelocity) / delta;
             _collision.GetWorldTransform(out Matrix transform);
+            //_prevWorldMatrix = _worldMatrix;
             _worldMatrix = transform;
+            //_prevVelocity = _velocity;
+            //_velocity = (Position - PreviousPosition) / delta;
+            //_acceleration = (_velocity - _prevVelocity) / delta;
             TransformChanged?.Invoke(_worldMatrix);
         }
     }

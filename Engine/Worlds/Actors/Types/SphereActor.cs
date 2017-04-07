@@ -10,15 +10,15 @@ using System.Threading.Tasks;
 
 namespace CustomEngine.Worlds.Actors
 {
-    public class BoxActor : Actor<StaticMeshComponent>
+    public class SphereActor : Actor<StaticMeshComponent>
     {
-        public BoxActor(string name, PhysicsDriverInfo info, Vec3 halfExtents, Vec3 translation, Rotator rotation, Material m) : base(true)
+        public SphereActor(string name, PhysicsDriverInfo info, float radius, Vec3 translation, Rotator rotation, Material m) : base(true)
         {
             _name = name;
-            BoundingBox box = new BoundingBox(halfExtents, Vec3.Zero);
-            StaticMesh model = new StaticMesh(_name + "_Model", box);
-            model.RigidChildren.Add(new StaticRigidSubMesh(box.GetMesh(false), box, m, _name + "_Mesh"));
-            RootComponent = new StaticMeshComponent(model, translation, rotation, Vec3.One, info);
+            Sphere sphere = new Sphere(radius);
+            StaticMesh model = new StaticMesh(_name + "_Model", sphere);
+            model.RigidChildren.Add(new StaticRigidSubMesh(sphere.GetMesh(30.0f, false), sphere, m, _name + "_Mesh"));
+            RootComponent = new StaticMeshComponent(model, translation, rotation, -Vec3.One, info);
             Initialize();
         }
         public override void OnSpawned(World world)

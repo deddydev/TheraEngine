@@ -16,7 +16,7 @@ namespace CustomEngine.Rendering.Models
             List<AnimationContainer> anims = new List<AnimationContainer>();
             DecoderShell shell = DecoderShell.Import(filePath);
 
-            Matrix4 baseTransform = Matrix4.Identity;
+            Matrix4 baseTransform = options.InitialTransform.Matrix;
             bool isZup = false;
             if (shell._assets.Count > 0)
             {
@@ -24,7 +24,7 @@ namespace CustomEngine.Rendering.Models
                 isZup = e._upAxis == UpAxis.Z;
                 //baseTransform = Matrix4.CreateScale(e._scale);
                 if (isZup)
-                    baseTransform = Matrix4.ZupToYup;
+                    baseTransform = Matrix4.ZupToYup * baseTransform;
             }
 
             //Extract materials

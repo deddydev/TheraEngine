@@ -1,6 +1,7 @@
 ﻿using BulletSharp;
 using CustomEngine.Rendering;
 using System;
+using System.Diagnostics;
 
 namespace CustomEngine.Worlds.Actors
 {
@@ -16,11 +17,13 @@ namespace CustomEngine.Worlds.Actors
         private MovementMode _currentMovementMode = MovementMode.Falling;
         private bool _isCrouched = false;
         private float _maxWalkAngle = 50.0f;
-        private Vec3 _jumpVelocity = new Vec3(0.0f, 100.0f, 0.0f);
+        
+        private Vec3 _jumpVelocity = new Vec3(0.0f, 3.0f, 0.0f);
+
         private PhysicsDriver _currentWalkingSurface;
         private Vec3 _groundNormal;
         private Quat _upToGroundNormalRotation = Quat.Identity;
-        private float _verticalStepUpHeight = 100.0f;
+        private float _verticalStepUpHeight = 10.0f;
         private DelTick _tick;
 
         public Vec3 GroundNormal
@@ -71,6 +74,8 @@ namespace CustomEngine.Worlds.Actors
             set => _verticalStepUpHeight = value;
         }
 
+        Vec3 _position, _prevPosition, _velocity, _prevVelocity, _acceleration;
+
         protected void TickWalking(float delta)
         {
             ClosestConvexResultCallback callback;
@@ -78,6 +83,7 @@ namespace CustomEngine.Worlds.Actors
             CapsuleComponent root = Owner.RootComponent as CapsuleComponent;
             BaseCapsule c = (BaseCapsule)root.CullingVolume;
             ConvexShape shape = (ConvexShape)c.GetCollisionShape();
+            _prevPosition = root.Translation;
             Vec3 movementInput = ConsumeInput();
             if (movementInput != Vec3.Zero)
             {
@@ -111,6 +117,12 @@ namespace CustomEngine.Worlds.Actors
                 }
                 else
                     root.Translation.Raw += finalInput;
+                _position = root.Translation;
+                root.PhysicsDriver.WorldTransform = root.WorldMatrix;
+                _prevVelocity = _velocity;
+                _velocity = (_position - _prevPosition) / delta;
+                _acceleration = (_velocity - _prevVelocity) / delta;
+                Debug.WriteLine(_velocity);
             }
 
             //Vec3 down = Engine.World.Settings.State.Gravity;
@@ -151,8 +163,8 @@ namespace CustomEngine.Worlds.Actors
             if (root == null)
                 return;
             //Start physics simulation of the root
+            CurrentMovementMode = MovementMode.Falling;
             PhysicsDriver driver = root.PhysicsDriver;
-            driver.SimulatingPhysics = true;
             RigidBody character = driver.CollisionObject;
             if (_currentWalkingSurface.SimulatingPhysics && 
                 _currentWalkingSurface.LinearFactor != Vec3.Zero)
@@ -167,9 +179,8 @@ namespace CustomEngine.Worlds.Actors
             else
             {
                 //The ground isn't movable, so just apply the jump force directly.
-                character.LinearVelocity = character.LinearVelocity + (Vector3)_jumpVelocity;
+                character.LinearVelocity = driver.Velocity + _jumpVelocity;
             }
-            _currentMovementMode = MovementMode.Falling;
         }
         public void EndJump()
         {

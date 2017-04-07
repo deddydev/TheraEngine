@@ -10,20 +10,8 @@ namespace CustomEngine.Worlds.Actors
         {
             if (info != null)
             {
-                info.BodyInfo.CollisionShape = GetCollisionShape();
-                if (info.BodyInfo != null)
-                {
-                    info.BodyInfo.MotionState = new DefaultMotionState(WorldMatrix);
-                    //if (info.BodyInfo.MotionState != null)
-                    //{
-                    //    DefaultMotionState ms = (DefaultMotionState)info.BodyInfo.MotionState;
-                    //    ms.StartWorldTrans = WorldMatrix;
-                    //    ms.WorldTransform = WorldMatrix;
-                    //    ms.GraphicsWorldTrans = WorldMatrix;
-                    //}
-                    //else
-                    //    info.BodyInfo.StartWorldTransform = WorldMatrix;
-                }
+                info.CollisionShape = GetCollisionShape();
+                info.MotionState = new DefaultMotionState(WorldMatrix);
                 _physics = new PhysicsDriver(this, info, PhysicsTransformChanged, PhysicsSimulationStateChanged);
             }
             else

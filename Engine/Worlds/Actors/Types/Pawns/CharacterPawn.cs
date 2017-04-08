@@ -237,7 +237,7 @@ namespace CustomEngine.Worlds.Actors
             _tpCameraBoom = new BoomComponent();
             _tpCameraBoom.Translation.Raw = new Vec3(2.0f, 0.0f, 0.0f);
             _tpCameraBoom.Rotation.Yaw = 180.0f;
-            _tpCameraBoom.MaxLength = 7.0f;
+            _tpCameraBoom.MaxLength = 5.0f;
             rootCapsule.ChildComponents.Add(_tpCameraBoom);
 
             PerspectiveCamera TPCam = new PerspectiveCamera()

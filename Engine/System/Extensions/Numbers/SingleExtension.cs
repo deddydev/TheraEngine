@@ -63,5 +63,44 @@
         {
             return Math.Abs(value - other) < tolerance;
         }
+        public static Single FeetToMeters(this Single value)
+        {
+            return value * 0.3048f;
+        }
+        /// <summary>
+        /// Positive is to a bigger unit (ex Meters to Kilometers is 2 steps)
+        /// Negative is to a smaller unit (ex Meters to Cenimeters is -2 steps)
+        /// </summary>
+        public static Single MetricUnitScale(this Single value, int steps)
+        {
+            if (steps == 0)
+                return value;
+            float scale = 1.0f;
+            if (steps > 0)
+                scale = (float)Math.Pow(10.0f, steps);
+            else
+                scale = (float)Math.Pow(0.1f, -steps);
+            return value * scale;
+        }
+        public static Single MetersToFeet(this Single value)
+        {
+            return value * 3.280839895f;
+        }
+        public static Single FeetToYards(this Single value)
+        {
+            return value * 0.33333333333f;
+        }
+        public static Single YardsToFeet(this Single value)
+        {
+            return value * 3.0f;
+        }
+        public static Single MilesToKilometers(this Single value)
+        {
+            return value * 1.60934f;
+        }
+        public static Single KilometersToMiles(this Single value)
+        {
+            return value * 0.6213727366498068f;
+        }
     }
 }

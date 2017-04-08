@@ -2,10 +2,6 @@
 using CustomEngine.Worlds;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using CustomEngine.Worlds.Actors;
 
 namespace CustomEngine.Rendering
 {

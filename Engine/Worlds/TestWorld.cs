@@ -126,7 +126,7 @@ namespace CustomEngine.Worlds
 
             IActor[] actors = new IActor[]
             {
-                sphereActor,
+                //sphereActor,
                 floorActor,
                 dirLightActor,
                 floor2Actor,

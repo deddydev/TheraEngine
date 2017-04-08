@@ -248,6 +248,20 @@ namespace CustomEngine.Rendering
             get => _angularFactor;
             set => _angularFactor = value;
         }
+        public void OnSpawned()
+        {
+            //if (Engine.World == null)
+            //    Engine.QueueCollisionSpawn(this);
+            //else
+                Engine.World.PhysicsScene.AddRigidBody(_collision, (short)_group, _collisionEnabled ? (short)_collidesWith : (short)CustomCollisionGroup.None);
+
+            if (_simulatingPhysics)
+                RegisterTick(ETickGroup.PostPhysics, ETickOrder.Scene);
+        }
+        public void OnDespawned()
+        {
+
+        }
         public void UpdateBody(RigidBody body)
         {
             if (_collision == body)
@@ -261,11 +275,6 @@ namespace CustomEngine.Rendering
             _collision = body;
             if (_collision != null)
             {
-                if (Engine.World == null)
-                    Engine.QueueCollisionSpawn(this);
-                else
-                    Engine.World.PhysicsScene.AddRigidBody(_collision, (short)_group, _collisionEnabled ? (short)_collidesWith : (short)CustomCollisionGroup.None);
-
                 if (_collisionEnabled)
                     _collision.CollisionFlags &= ~CollisionFlags.NoContactResponse;
                 else

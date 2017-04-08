@@ -25,7 +25,7 @@ namespace CustomEngine.Worlds.Actors
         private PhysicsDriver _currentWalkingSurface;
         private Vec3 _groundNormal;
         private Quat _upToGroundNormalRotation = Quat.Identity;
-        private float _verticalStepUpHeight = 10.0f;
+        private float _verticalStepUpHeight = 0.1f;
         private DelTick _tick;
 
         public Vec3 GroundNormal
@@ -33,6 +33,9 @@ namespace CustomEngine.Worlds.Actors
             get => _groundNormal;
             private set
             {
+                if (value != Vec3.Up)
+                    return;
+
                 _groundNormal = value;
                 _upToGroundNormalRotation = Quat.BetweenVectors(Vec3.Up, GroundNormal);
             }

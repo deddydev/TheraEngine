@@ -12,10 +12,10 @@ namespace CustomEngine.Worlds.Actors
             {
                 info.CollisionShape = GetCollisionShape();
                 info.MotionState = new DefaultMotionState(WorldMatrix);
-                _physics = new PhysicsDriver(this, info, PhysicsTransformChanged, PhysicsSimulationStateChanged);
+                _physicsDriver = new PhysicsDriver(this, info, PhysicsTransformChanged, PhysicsSimulationStateChanged);
             }
             else
-                _physics = null;
+                _physicsDriver = null;
         }
 
         private void PhysicsSimulationStateChanged(bool isSimulating)
@@ -26,8 +26,19 @@ namespace CustomEngine.Worlds.Actors
                 StopSimulatingPhysics(true);
         }
 
+        public override void OnSpawned()
+        {
+            _physicsDriver?.OnSpawned();
+            base.OnSpawned();
+        }
+        public override void OnDespawned()
+        {
+            _physicsDriver?.OnDespawned();
+            base.OnDespawned();
+        }
+
         protected Octree.Node _renderNode;
-        protected PhysicsDriver _physics;
+        protected PhysicsDriver _physicsDriver;
         protected bool
             _isRendering,
             _isVisible,
@@ -38,13 +49,13 @@ namespace CustomEngine.Worlds.Actors
 
         public CustomCollisionGroup CollisionGroup
         {
-            get => _physics.CollisionGroup;
-            set => _physics.CollisionGroup = value;
+            get => _physicsDriver.CollisionGroup;
+            set => _physicsDriver.CollisionGroup = value;
         }
         public CustomCollisionGroup CollidesWith
         {
-            get => _physics.CollidesWith;
-            set => _physics.CollidesWith = value;
+            get => _physicsDriver.CollidesWith;
+            set => _physicsDriver.CollidesWith = value;
         }
         public bool IsRendering
         {
@@ -58,7 +69,7 @@ namespace CustomEngine.Worlds.Actors
         }
         public abstract Shape CullingVolume { get; }
         public bool VisibleByDefault => _visibleByDefault;
-        public PhysicsDriver PhysicsDriver => _physics;
+        public PhysicsDriver PhysicsDriver => _physicsDriver;
         public Octree.Node RenderNode
         {
             get => _renderNode;

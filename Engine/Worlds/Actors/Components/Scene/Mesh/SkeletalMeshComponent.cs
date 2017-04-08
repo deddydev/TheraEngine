@@ -65,18 +65,20 @@ namespace CustomEngine.Worlds.Actors
         }
         public override void OnSpawned()
         {
-            base.OnSpawned();
             foreach (RenderableMesh m in _meshes)
                 m.Visible = m.Mesh.VisibleByDefault;
 
             if (Engine.Settings.RenderSkeletons)
                 Engine.Renderer.Scene.AddRenderable(_skeleton);
+
+            base.OnSpawned();
         }
         public override void OnDespawned()
         {
-            base.OnDespawned();
             foreach (RenderableMesh m in _meshes)
                 m.Visible = false;
+
+            base.OnDespawned();
 
             if (Engine.Settings.RenderSkeletons)
                 Engine.Renderer.Scene.RemoveRenderable(_skeleton);

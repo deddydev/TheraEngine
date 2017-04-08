@@ -149,15 +149,17 @@ namespace CustomEngine.Worlds.Actors
 
         public override void OnSpawned()
         {
-            base.OnSpawned();
+            _physicsDriver?.OnSpawned();
             foreach (RenderableMesh m in _meshes)
                 m.Visible = m.Mesh.VisibleByDefault;
+            base.OnSpawned();
         }
         public override void OnDespawned()
         {
-            base.OnDespawned();
+            _physicsDriver?.OnDespawned();
             foreach (RenderableMesh m in _meshes)
                 m.Visible = false;
+            base.OnDespawned();
         }
         protected internal override void OriginRebased(Vec3 newOrigin)
         {

@@ -30,7 +30,7 @@ namespace CustomEngine.Worlds.Actors
 
         public Matrix4 WorldMatrix => _transform.Matrix;
         public Matrix4 InverseWorldMatrix => _transform.InverseMatrix;
-        public MonitoredList<SceneComponent> ChildComponents => throw new NotImplementedException();
+        public MonitoredList<SceneComponent> ChildComponents => _childComponents;
 
         private void _children_RemovedRange(IEnumerable<SceneComponent> items)
         {
@@ -73,14 +73,14 @@ namespace CustomEngine.Worlds.Actors
     }
     public partial class StaticMeshComponent : TRSComponent, IPhysicsDrivable
     {
-        public StaticMeshComponent(StaticMesh m, PhysicsDriverInfo info) 
+        public StaticMeshComponent(StaticMesh m, PhysicsConstructionInfo info) 
             : this(m, Vec3.Zero, Rotator.GetZero(), Vec3.One, info) { }
         public StaticMeshComponent(
             StaticMesh m,
             Vec3 translation,
             Rotator rotation,
             Vec3 scale,
-            PhysicsDriverInfo info)
+            PhysicsConstructionInfo info)
         {
             Model = m;
             SetTRS(translation, rotation, scale);

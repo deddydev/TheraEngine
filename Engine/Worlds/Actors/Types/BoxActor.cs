@@ -12,7 +12,7 @@ namespace CustomEngine.Worlds.Actors
 {
     public class BoxActor : Actor<StaticMeshComponent>
     {
-        public BoxActor(string name, PhysicsDriverInfo info, Vec3 halfExtents, Vec3 translation, Rotator rotation, Material m) : base(true)
+        public BoxActor(string name, PhysicsConstructionInfo info, Vec3 halfExtents, Vec3 translation, Rotator rotation, Material m) : base(true)
         {
             _name = name;
             BoundingBox box = new BoundingBox(halfExtents, Vec3.Zero);

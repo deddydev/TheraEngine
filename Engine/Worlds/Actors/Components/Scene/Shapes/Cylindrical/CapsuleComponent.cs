@@ -9,7 +9,7 @@ namespace CustomEngine.Worlds.Actors
     {
         BaseCapsule _capsule;
 
-        public CapsuleComponent(float radius, float halfHeight, PhysicsDriverInfo info) : base()
+        public CapsuleComponent(float radius, float halfHeight, PhysicsConstructionInfo info) : base()
         {
             _capsule = new CapsuleY(Vec3.Zero, Rotator.GetZero(), Vec3.One, radius, halfHeight);
             InitPhysics(info);

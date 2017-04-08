@@ -200,6 +200,7 @@
     <Compile Include="Input\Devices\ButtonManager.cs" />
     <Compile Include="Input\Devices\Windows\WinMouse.cs" />
     <Compile Include="Rendering\Animation\AnimationVec4.cs" />
+    <Compile Include="Rendering\Animation\AnimStateMachine.cs" />
     <Compile Include="Rendering\HUD\RenderableHudComponent.cs" />
     <Compile Include="Rendering\HUD\ButtonHudComponent.cs" />
     <Compile Include="Rendering\HUD\TextHudComponent.cs" />

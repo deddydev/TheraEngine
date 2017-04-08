@@ -99,8 +99,11 @@ namespace System
         //JSON,
         //Text
     }
-    public class FileHeader : Attribute
+    public class FileClass : Attribute
     {
+        private string _userFriendlyName;
+        private string _extension;
+        private string _binaryTag;
         private bool _manualXmlSerialize = false;
         private bool _manualBinSerialize = false;
         private SerializeFormat _preferredFormat =
@@ -109,8 +112,12 @@ namespace System
 #else
             SerializeFormat.Binary;
 #endif
-
+        
+        public SerializeFormat PreferredFormat { get => _preferredFormat; set => _preferredFormat = value; }
         public bool ManualXmlSerialize { get => _manualXmlSerialize; set => _manualXmlSerialize = value; }
         public bool ManualBinSerialize { get => _manualBinSerialize; set => _manualBinSerialize = value; }
+        public string UserFriendlyName { get => _userFriendlyName; set => _userFriendlyName = value; }
+        public string Extension { get => _extension; set => _extension = value; }
+        public string BinaryTag { get => _binaryTag; set => _binaryTag = value; }
     }
 }

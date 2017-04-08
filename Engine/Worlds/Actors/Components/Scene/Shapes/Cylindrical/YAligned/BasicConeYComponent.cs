@@ -36,7 +36,7 @@ namespace CustomEngine.Worlds.Actors
             return Vec3.TransformPosition(new Vec3(0.0f, -_height / 2.0f, 0.0f), WorldMatrix);
         }
         
-        public BasicConeYComponent(float radius, float height, PhysicsDriverInfo info) : base()
+        public BasicConeYComponent(float radius, float height, PhysicsConstructionInfo info) : base()
         {
             _radius = radius;
             _height = height;

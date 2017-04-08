@@ -257,7 +257,7 @@ namespace CustomEngine.Worlds.Actors
             if (!_simulatingPhysics)
             {
                 _worldTransform = GetParentMatrix() * LocalMatrix;
-                if (_ancestorSimulatingPhysics == null)
+                //if (_ancestorSimulatingPhysics == null)
                     _inverseWorldTransform = InverseLocalMatrix * GetInverseParentMatrix();
             }
             foreach (SceneComponent c in _children)

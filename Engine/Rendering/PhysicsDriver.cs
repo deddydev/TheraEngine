@@ -35,7 +35,7 @@ namespace CustomEngine.Rendering
         PhysicsDriver PhysicsDriver { get; }
         Matrix4 WorldMatrix { get; }
     }
-    public class PhysicsDriverInfo
+    public class PhysicsConstructionInfo
     {
         public bool CollisionEnabled = true;
         public bool SimulatePhysics = true;
@@ -65,10 +65,10 @@ namespace CustomEngine.Rendering
     public class PhysicsDriver : FileObject
     {
         public PhysicsOverlap BeginOverlap, EndOverlap, OnHit;
+        public event MatrixUpdate TransformChanged;
+        public event SimulationUpdate SimulationStateChanged;
 
-        IPhysicsDrivable _owner;
-
-        public PhysicsDriver(IPhysicsDrivable owner, PhysicsDriverInfo info)
+        public PhysicsDriver(IPhysicsDrivable owner, PhysicsConstructionInfo info)
         {
             _owner = owner;
             _collisionEnabled = info.CollisionEnabled;
@@ -95,24 +95,23 @@ namespace CustomEngine.Rendering
             UpdateBody(new RigidBody(bodyInfo));
         }
 
-        public PhysicsDriver(IPhysicsDrivable owner, PhysicsDriverInfo info, MatrixUpdate func)
+        public PhysicsDriver(IPhysicsDrivable owner, PhysicsConstructionInfo info, MatrixUpdate func)
             : this(owner, info)
             => TransformChanged += func;
-        public PhysicsDriver(IPhysicsDrivable owner, PhysicsDriverInfo info, MatrixUpdate mtxFunc, SimulationUpdate simFunc)
+        public PhysicsDriver(IPhysicsDrivable owner, PhysicsConstructionInfo info, MatrixUpdate mtxFunc, SimulationUpdate simFunc)
             : this(owner, info, mtxFunc)
             => SimulationStateChanged += simFunc;
         
-        public event MatrixUpdate TransformChanged;
-        public event SimulationUpdate SimulationStateChanged;
-
+        IPhysicsDrivable _owner;
+        private Vec3 _linearFactor = Vec3.One, _angularFactor = Vec3.One;
         private bool _collisionEnabled, _simulatingPhysics;
         private CustomCollisionGroup _group, _collidesWith;
         public Vec3 _prevVelocity, _velocity, _acceleration;
-        public Matrix4 _prevWorldMatrix, _worldMatrix;
+        public Matrix4 _prevWorldMatrix;
         private RigidBody _collision;
         
         public Vec3 PreviousPosition => _prevWorldMatrix.GetPoint();
-        public Vec3 Position => _worldMatrix.GetPoint();
+        public Vec3 Position => _owner.WorldMatrix.GetPoint();
         public Vec3 PreviousVelocity => _prevVelocity;
         public Vec3 Velocity
         {
@@ -152,12 +151,7 @@ namespace CustomEngine.Rendering
         /// </summary>
         public Vec3 GetAcceleration()
             => _acceleration;
-        
-        public Matrix4 WorldTransform
-        {
-            get => _worldMatrix;
-            set => SetPhysicsTransform(_worldMatrix);
-        }
+
         public bool SimulatingPhysics
         {
             get => _simulatingPhysics;
@@ -301,7 +295,6 @@ namespace CustomEngine.Rendering
                 }
             }
         }
-        private Vec3 _linearFactor = Vec3.One, _angularFactor = Vec3.One;
         internal void AddToWorld()
         {
             Engine.World.PhysicsScene.AddRigidBody(
@@ -311,29 +304,17 @@ namespace CustomEngine.Rendering
         }
         internal virtual void SetPhysicsTransform(Matrix4 newTransform)
         {
-            //_prevWorldMatrix = _worldMatrix;
-            _worldMatrix = newTransform;
-            //_prevVelocity = _velocity;
-            //_velocity = (Position - PreviousPosition) / Engine.RenderDelta;
-            //_acceleration = (_velocity - _prevVelocity) / Engine.RenderDelta;
-            //if (_collision.MotionState != null)
-            //    _collision.MotionState.WorldTransform = _worldMatrix;
-            //else
-            //{
-            _collision.WorldTransform = _worldMatrix;
-                //_collision.InterpolationWorldTransform = _worldMatrix;
-            //}
+            _collision.WorldTransform = newTransform;
             Engine.World?.PhysicsScene.UpdateAabbs();
         }
         protected internal override void Tick(float delta)
         {
             _collision.GetWorldTransform(out Matrix transform);
             //_prevWorldMatrix = _worldMatrix;
-            _worldMatrix = transform;
             //_prevVelocity = _velocity;
             //_velocity = (Position - PreviousPosition) / delta;
             //_acceleration = (_velocity - _prevVelocity) / delta;
-            TransformChanged?.Invoke(_worldMatrix);
+            TransformChanged?.Invoke(transform);
         }
     }
 }

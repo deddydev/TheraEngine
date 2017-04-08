@@ -12,7 +12,7 @@ namespace CustomEngine.Worlds.Actors
 {
     public class SphereActor : Actor<StaticMeshComponent>
     {
-        public SphereActor(string name, PhysicsDriverInfo info, float radius, Vec3 translation, Rotator rotation, Material m) : base(true)
+        public SphereActor(string name, PhysicsConstructionInfo info, float radius, Vec3 translation, Rotator rotation, Material m) : base(true)
         {
             _name = name;
             Sphere sphere = new Sphere(radius);

@@ -13,22 +13,22 @@ namespace CustomEngine.Worlds.Actors
         {
             _box = new Box(1.0f);
         }
-        public BoxComponent(PhysicsDriverInfo info)
+        public BoxComponent(PhysicsConstructionInfo info)
         {
             _box = new Box(1.0f);
             InitPhysics(info);
         }
-        public BoxComponent(Vec3 halfExtents, PhysicsDriverInfo info)
+        public BoxComponent(Vec3 halfExtents, PhysicsConstructionInfo info)
         {
             _box = new Box(halfExtents);
             InitPhysics(info);
         }
-        public BoxComponent(float extentsX, float extentsY, float extentsZ, PhysicsDriverInfo info)
+        public BoxComponent(float extentsX, float extentsY, float extentsZ, PhysicsConstructionInfo info)
         {
             _box = new Box(extentsX, extentsY, extentsZ);
             InitPhysics(info);
         }
-        public BoxComponent(float uniformExtents, PhysicsDriverInfo info)
+        public BoxComponent(float uniformExtents, PhysicsConstructionInfo info)
         {
             _box = new Box(uniformExtents);
             InitPhysics(info);

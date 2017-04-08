@@ -18,13 +18,13 @@ namespace CustomEngine.Files
         ThirdParty  = 2,
         Programatic = 3,
     }
-    [FileHeader(ManualBinSerialize = false, ManualXmlSerialize = false)]
+    [FileClass(ManualBinSerialize = false, ManualXmlSerialize = false)]
     public abstract class FileObject : ObjectBase
     {
-        public FileHeader FileHeader
+        public FileClass FileHeader
             => GetFileHeader(GetType());
-        public static FileHeader GetFileHeader(Type t)
-            => (FileHeader)Attribute.GetCustomAttribute(t, typeof(FileHeader));
+        public static FileClass GetFileHeader(Type t)
+            => (FileClass)Attribute.GetCustomAttribute(t, typeof(FileClass));
         
         public FileObject() { OnLoaded(); }
         

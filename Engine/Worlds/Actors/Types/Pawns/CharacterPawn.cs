@@ -201,11 +201,11 @@ namespace CustomEngine.Worlds.Actors
             LogicComponents.Add(_movement);
             
             float characterHeight = 1.72f; //5'8" in m = 1.72f
-            float radius = 0.07f;
+            float radius = 0.172f;
             float capsuleTotalHalfHeight = characterHeight / 2.0f;
             float halfHeight = capsuleTotalHalfHeight - radius;
 
-            PhysicsDriverInfo info = new PhysicsDriverInfo()
+            PhysicsConstructionInfo info = new PhysicsConstructionInfo()
             {
                 Mass = 14.0f,
                 AngularDamping = 0.05f,

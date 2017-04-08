@@ -15,7 +15,7 @@ namespace CustomEngine
         Deferred = 1,
     }
     [ObjectHeader()]
-    [FileHeader(ManualBinSerialize = false, ManualXmlSerialize = false)]
+    [FileClass(ManualBinSerialize = false, ManualXmlSerialize = false)]
     public class EngineSettings : FileObject
     {
         [Category("Performance")]

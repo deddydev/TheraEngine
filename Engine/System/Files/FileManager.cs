@@ -11,7 +11,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using CustomEngine.Worlds.Actors;
 using CustomEngine.Worlds.Maps;
 
 namespace CustomEngine.Files

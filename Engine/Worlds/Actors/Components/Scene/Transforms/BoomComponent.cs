@@ -1,8 +1,4 @@
-﻿using BulletSharp;
-using System;
-using CustomEngine.Files;
-using System.IO;
-using System.Xml;
+﻿using System;
 using System.Drawing;
 
 namespace CustomEngine.Worlds.Actors
@@ -37,8 +33,8 @@ namespace CustomEngine.Worlds.Actors
                 t = Matrix4.CreateTranslation(_translation),
                 it = Matrix4.CreateTranslation(-_translation);
             Matrix4 
-                translation = Matrix4.CreateTranslation(0.0f, 0.0f, _maxLength),
-                invTranslation = Matrix4.CreateTranslation(0.0f, 0.0f, -_maxLength);
+                translation = Matrix4.CreateTranslation(0.0f, 0.0f, -_currentLength),
+                invTranslation = Matrix4.CreateTranslation(0.0f, 0.0f, _currentLength);
 
             SetLocalTransforms(r * t *  translation, invTranslation * it * ir);
         }
@@ -47,7 +43,7 @@ namespace CustomEngine.Worlds.Actors
         {
             Matrix4 startMatrix = GetParentMatrix() * Rotation.GetMatrix() * Translation.GetTranslationMatrix();
             _startPoint = startMatrix.GetPoint();
-            Vec3 testEnd = (startMatrix * Matrix4.CreateTranslation(new Vec3(0.0f, 0.0f, _maxLength))).GetPoint();
+            Vec3 testEnd = (startMatrix * Matrix4.CreateTranslation(new Vec3(0.0f, 0.0f, -_maxLength))).GetPoint();
 
             //TODO: use a sphere, not a point
             CustomClosestRayResultCallback result = Engine.RaycastClosest(_startPoint, testEnd, Rendering.CustomCollisionGroup.All, Rendering.CustomCollisionGroup.Characters);

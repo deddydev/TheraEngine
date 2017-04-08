@@ -16,7 +16,7 @@ namespace CustomEngine.Worlds
         {
             _settings = new WorldSettings("TestWorld");
 
-            PhysicsDriverInfo sphereInfo = new PhysicsDriverInfo()
+            PhysicsConstructionInfo sphereInfo = new PhysicsConstructionInfo()
             {
                 Mass = 50.0f,
                 AngularDamping = 0.05f,
@@ -37,7 +37,7 @@ namespace CustomEngine.Worlds
                Rotator.GetZero(),
                Material.GetDefaultMaterial());
 
-            PhysicsDriverInfo floorInfo = new PhysicsDriverInfo()
+            PhysicsConstructionInfo floorInfo = new PhysicsConstructionInfo()
             {
                 Mass = 20.0f,
                 Restitution = 0.5f,
@@ -53,7 +53,26 @@ namespace CustomEngine.Worlds
                 new Vec3(0.0f, 10.0f, 0.0f),
                 Rotator.GetZero(),
                 Material.GetDefaultMaterial());
-            
+
+            PhysicsConstructionInfo floor2Info = new PhysicsConstructionInfo()
+            {
+                Mass = 20.0f,
+                Restitution = 0.5f,
+                CollisionEnabled = true,
+                SimulatePhysics = false,
+                Group = CustomCollisionGroup.StaticWorld,
+                CollidesWith = CustomCollisionGroup.DynamicWorld | CustomCollisionGroup.Characters,
+            };
+            Material floor2Mat = Material.GetDefaultMaterial();
+            ((GLVec4)floor2Mat.Parameters[0]).Value = (ColorF4)Color.Green;
+            BoxActor floor2Actor = new BoxActor(
+                "Floor2",
+                floor2Info, 
+                new Vec3(2000.0f, 0.5f, 2000.0f),
+                new Vec3(0.0f, -20.0f, 0.0f),
+                Rotator.GetZero(),
+                floor2Mat);
+
             DirectionalLightComponent dirLightComp = new DirectionalLightComponent(
                 Color.Beige, 1.0f, 0.6f, new Rotator(-45.0f, 0.0f, 0.0f, Rotator.Order.YPR));
             dirLightComp.Translation.Y = 30.0f;
@@ -110,6 +129,7 @@ namespace CustomEngine.Worlds
                 sphereActor,
                 floorActor,
                 dirLightActor,
+                floor2Actor,
                 //importedActor,
                 //new FlyingCameraPawn(PlayerIndex.One) { Name = "PlayerCamera" },
                 new CharacterPawn(PlayerIndex.One, scene._skeletalModel, scene._skeleton) { Name = "PlayerCharacter", },

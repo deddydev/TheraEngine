@@ -25,7 +25,7 @@ namespace CustomEngine.Rendering.Models
         {
             _skeleton = owner;
         }
-        public Bone(string name, FrameState bindstate, PhysicsDriverInfo info)
+        public Bone(string name, FrameState bindstate, PhysicsConstructionInfo info)
         {
             Init(name, bindstate, info);
         }
@@ -41,7 +41,7 @@ namespace CustomEngine.Rendering.Models
         {
             Init("NewBone", new FrameState(), null);
         }
-        private void Init(string name, FrameState bindState, PhysicsDriverInfo info)
+        private void Init(string name, FrameState bindState, PhysicsConstructionInfo info)
         {
             _frameState = _bindState = bindState;
             _frameState.MatrixChanged += _frameState_MatrixChanged;

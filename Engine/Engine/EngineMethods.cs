@@ -81,24 +81,18 @@ namespace CustomEngine
         /// Finds the closest ray intersection with any physics object.
         /// </summary>
         /// <returns></returns>
-        public static CustomClosestRayResultCallback RaycastClosest(
-            Segment ray,
-            CustomCollisionGroup collideWith = CustomCollisionGroup.All,
-            CustomCollisionGroup ignore = CustomCollisionGroup.None)
-            => RaycastClosest(ray.StartPoint, ray.EndPoint, collideWith, ignore);
-        public static CustomClosestRayResultCallback RaycastClosest(
-            Vec3 from, Vec3 to,
-            CustomCollisionGroup collideWith = CustomCollisionGroup.All, 
-            CustomCollisionGroup ignore = CustomCollisionGroup.None)
+        public static ClosestRayResultCallback RaycastClosest(Segment ray)
+            => RaycastClosest(ray.StartPoint, ray.EndPoint);
+        public static ClosestRayResultCallback RaycastClosest(Vec3 from, Vec3 to)
         {
             if (World == null)
                 return null;
-            CustomClosestRayResultCallback callback = new CustomClosestRayResultCallback()
+            Vector3 fromRef = from;
+            Vector3 toRef = to;
+            ClosestRayResultCallback callback = new ClosestRayResultCallback(ref fromRef, ref toRef)
             {
-                CollidesWith = collideWith,
-                Ignore = ignore,
-                RayStartWorld = from,
-                RayEndWorld = to,
+                CollisionFilterMask = (CollisionFilterGroups)(ushort)CustomCollisionGroup.All,
+                CollisionFilterGroup = (CollisionFilterGroups)(ushort)CustomCollisionGroup.All,
             };
             World.PhysicsScene.RayTest(from, to, callback);
             return callback;

@@ -76,7 +76,8 @@ namespace CustomEngine.Worlds.Actors
             _mesh = mesh;
             Initialize();
         }
-        
+
+        private SkeletalMeshComponent _meshComp;
         private MovementClass _movement;
         private SingleFileRef<SkeletalMesh> _mesh;
         private SingleFileRef<Skeleton> _skeleton;
@@ -174,6 +175,23 @@ namespace CustomEngine.Worlds.Actors
             //RootComponent.Rotation.Yaw += x;
             _tpCameraBoom.Rotation.Pitch -= y;
             _tpCameraBoom.Rotation.Yaw -= x;
+            float yaw = _tpCameraBoom.Rotation.Yaw.RemapToRange(0.0f, 360.0f);
+            if (yaw < 45.0f || yaw >= 315.0f)
+            {
+                _meshComp.Rotation.Yaw = 180.0f;
+            }
+            else if (yaw < 135.0f)
+            {
+                _meshComp.Rotation.Yaw = 270.0f;
+            }
+            else if (yaw < 225.0f)
+            {
+                _meshComp.Rotation.Yaw = 0.0f;
+            }
+            else if (yaw < 315.0f)
+            {
+                _meshComp.Rotation.Yaw = 90.0f;
+            }
             //_fpCameraComponent.Camera.AddRotation(y, 0.0f);
         }
         private void LookRight(float value)
@@ -224,9 +242,9 @@ namespace CustomEngine.Worlds.Actors
             rootCapsule.PhysicsDriver.AngularFactor = Vec3.Zero;
             rootCapsule.Translation.Raw = new Vec3(0.0f, capsuleTotalHalfHeight + 11.0f, 0.0f);
 
-            SkeletalMeshComponent mesh = new SkeletalMeshComponent(_mesh, _skeleton);
-            mesh.Translation.Raw = new Vec3(0.0f, -capsuleTotalHalfHeight, 0.0f);
-            rootCapsule.ChildComponents.Add(mesh);
+            _meshComp = new SkeletalMeshComponent(_mesh, _skeleton);
+            _meshComp.Translation.Raw = new Vec3(0.0f, -capsuleTotalHalfHeight, 0.0f);
+            rootCapsule.ChildComponents.Add(_meshComp);
 
             //PerspectiveCamera FPCam = new PerspectiveCamera();
             //FPCam.VerticalFieldOfView = 30.0f;

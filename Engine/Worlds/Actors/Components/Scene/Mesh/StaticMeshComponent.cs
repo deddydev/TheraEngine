@@ -93,7 +93,13 @@ namespace CustomEngine.Worlds.Actors
                 info.CollisionShape = m.CullingVolume.GetCollisionShape();
                 info.MotionState = new DefaultMotionState(WorldMatrix);
                 _physicsDriver = new PhysicsDriver(this, info, _physicsDriver_TransformChanged);
+                WorldTransformChanged += StaticMeshComponent_WorldTransformChanged;
             }
+        }
+
+        private void StaticMeshComponent_WorldTransformChanged()
+        {
+            _physicsDriver.SetPhysicsTransform(WorldMatrix);
         }
 
         public StaticMeshSocket this[string socketName]
@@ -143,6 +149,7 @@ namespace CustomEngine.Worlds.Actors
                 }
             }
         }
+
         public PhysicsDriver PhysicsDriver => _physicsDriver;
 
         public override void OnSpawned()

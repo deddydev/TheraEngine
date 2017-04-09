@@ -26,6 +26,8 @@ namespace CustomEngine.Worlds.Actors
         
         protected ISocket _ancestorSimulatingPhysics;
         protected bool _simulatingPhysics = false;
+        protected Matrix4 _previousWorldTransform = Matrix4.Identity;
+        protected Matrix4 _previousInverseWorldTransform = Matrix4.Identity;
         protected Matrix4 _worldTransform = Matrix4.Identity;
         protected Matrix4 _inverseWorldTransform = Matrix4.Identity;
         protected Matrix4 _localTransform = Matrix4.Identity;
@@ -38,6 +40,8 @@ namespace CustomEngine.Worlds.Actors
             get { return _worldTransform; }
             protected internal set
             {
+                _previousWorldTransform = _worldTransform;
+                _previousInverseWorldTransform = _inverseWorldTransform;
                 _worldTransform = value;
                 _inverseWorldTransform = _worldTransform.Inverted();
                 _localTransform = GetInverseParentMatrix() * WorldMatrix;
@@ -88,6 +92,8 @@ namespace CustomEngine.Worlds.Actors
             }
             set
             {
+                _previousWorldTransform = _worldTransform;
+                _previousInverseWorldTransform = _inverseWorldTransform;
                 _inverseWorldTransform = value;
                 _worldTransform = _inverseWorldTransform.Inverted();
                 _localTransform = GetInverseParentMatrix() * WorldMatrix;
@@ -143,6 +149,8 @@ namespace CustomEngine.Worlds.Actors
         }
         protected void PhysicsSimulationEnded()
         {
+            _previousWorldTransform = _worldTransform;
+            _previousInverseWorldTransform = _inverseWorldTransform;
             _worldTransform = GetParentMatrix() * LocalMatrix;
             _inverseWorldTransform = InverseLocalMatrix * GetInverseParentMatrix();
 
@@ -236,6 +244,10 @@ namespace CustomEngine.Worlds.Actors
                 }
             }
         }
+
+        public Matrix4 PreviousWorldTransform { get => _previousWorldTransform; set => _previousWorldTransform = value; }
+        public Matrix4 PreviousInverseWorldTransform { get => _previousInverseWorldTransform; set => _previousInverseWorldTransform = value; }
+
         protected internal abstract void OriginRebased(Vec3 newOrigin);
         public override void OnSpawned()
         {
@@ -255,12 +267,14 @@ namespace CustomEngine.Worlds.Actors
         protected abstract void OnRecalcLocalTransform(out Matrix4 localTransform, out Matrix4 inverseLocalTransform);
         internal virtual void RecalcGlobalTransform()
         {
-            if (!_simulatingPhysics)
-            {
+            //if (!_simulatingPhysics)
+            //{
+                _previousWorldTransform = _worldTransform;
                 _worldTransform = GetParentMatrix() * LocalMatrix;
                 //if (_ancestorSimulatingPhysics == null)
                 //    _inverseWorldTransform = InverseLocalMatrix * GetInverseParentMatrix();
-            }
+            //}
+            _previousInverseWorldTransform = _inverseWorldTransform;
             _inverseWorldTransform = InverseLocalMatrix * GetInverseParentMatrix();
             foreach (SceneComponent c in _children)
                 c.RecalcGlobalTransform();

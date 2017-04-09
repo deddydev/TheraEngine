@@ -69,8 +69,24 @@ namespace CustomEngine.Worlds.Actors
         public PhysicsDriver CurrentWalkingSurface
         {
             get => _currentWalkingSurface;
-            set => _currentWalkingSurface = value;
+            set
+            {
+                if (_currentWalkingSurface != null)
+                    ((SceneComponent)_currentWalkingSurface.Owner).WorldTransformChanged -= FloorTransformChanged;
+                _currentWalkingSurface = value;
+                if (_currentWalkingSurface != null)
+                    ((SceneComponent)_currentWalkingSurface.Owner).WorldTransformChanged += FloorTransformChanged;
+            }
         }
+
+        private void FloorTransformChanged()
+        {
+            SceneComponent comp = (SceneComponent)_currentWalkingSurface.Owner;
+            Matrix4 transformDelta = comp.PreviousInverseWorldTransform * comp.WorldMatrix;
+            CapsuleComponent root = Owner.RootComponent as CapsuleComponent;
+            root.Translation += transformDelta.GetPoint();
+        }
+
         public float VerticalStepUpHeight
         {
             get => _verticalStepUpHeight;
@@ -96,6 +112,35 @@ namespace CustomEngine.Worlds.Actors
             Vec3 stepUpVector = _verticalStepUpHeight * -down;
             Matrix4 stepUpMatrix = Matrix4.CreateTranslation(stepUpVector);
             Matrix4 invStepUpMatrix = Matrix4.CreateTranslation(-stepUpVector);
+
+            //Test for walkable ground first
+            inputTransform = Matrix4.CreateTranslation(down);
+            callback = new ClosestConvexResultCallback()
+            {
+                CollisionFilterMask = CollisionFilterGroups.AllFilter,
+                CollisionFilterGroup = CollisionFilterGroups.AllFilter
+            };
+
+            Engine.World.PhysicsScene.ConvexSweepTest(
+                shape, root.WorldMatrix, inputTransform * root.WorldMatrix, callback, 1.0f);
+
+            _prevVelocity = _velocity;
+
+            _position = root.Translation;
+            _velocity = (_position - _prevPosition) / delta;
+
+            if (!callback.HasHit)
+            {
+                CurrentMovementMode = MovementMode.Falling;
+                _currentWalkingSurface = null;
+                return;
+            }
+            else
+            {
+                //root.Translation += -down * callback.ClosestHitFraction;
+            }
+
+            //Now add input
             Vec3 movementInput = ConsumeInput();
             Top:
             if (movementInput != Vec3.Zero)
@@ -137,30 +182,6 @@ namespace CustomEngine.Worlds.Actors
                 //Debug.WriteLine(_velocity);
             }
 
-            inputTransform = Matrix4.CreateTranslation(down);
-            callback = new ClosestConvexResultCallback()
-            {
-                CollisionFilterMask = CollisionFilterGroups.AllFilter,
-                CollisionFilterGroup = CollisionFilterGroups.AllFilter
-            };
-
-            Engine.World.PhysicsScene.ConvexSweepTest(
-                shape, root.WorldMatrix, inputTransform * root.WorldMatrix, callback, 1.0f);
-
-            _prevVelocity = _velocity;
-
-            _position = root.Translation;
-            _velocity = (_position - _prevPosition) / delta;
-
-            if (!callback.HasHit)
-            {
-                CurrentMovementMode = MovementMode.Falling;
-                _currentWalkingSurface = null;
-            }
-            else
-            {
-                root.Translation += -down * callback.ClosestHitFraction;
-            }
             _acceleration = (_velocity - _prevVelocity) / delta;
         }
         protected void TickFalling(float delta)

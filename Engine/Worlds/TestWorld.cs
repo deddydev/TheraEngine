@@ -84,10 +84,11 @@ namespace CustomEngine.Worlds
             first2.MakeOutLinear();
             last2.MakeInLinear();
             lightAnim.Keyframes.AddFirst(first2);
-            AnimFolder lightPitchFolder = new AnimFolder("Pitch", false, lightAnim);
+            AnimFolder lightPitchFolder = new AnimFolder("Yaw", false, lightAnim);
             AnimFolder lightRotationFolder = new AnimFolder("Rotation", lightPitchFolder);
             AnimationContainer lightAnimContainer = new AnimationContainer(lightRotationFolder);
-            dirLightComp.AddAnimation(lightAnimContainer, false);
+            //dirLightComp.AddAnimation(lightAnimContainer, false);
+            floorActor.RootComponent.AddAnimation(lightAnimContainer, true);
 
             Actor<DirectionalLightComponent> dirLightActor = new Actor<DirectionalLightComponent>(dirLightComp) { Name = "SunLight" };
 

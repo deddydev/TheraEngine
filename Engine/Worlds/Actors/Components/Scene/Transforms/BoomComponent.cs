@@ -4,8 +4,11 @@ using System.Drawing;
 
 namespace CustomEngine.Worlds.Actors
 {
+    public delegate void LengthChange(float newLength);
     public class BoomComponent : RTComponent, IRenderable
     {
+        public event LengthChange CurrentDistanceChanged;
+
         private float _maxLength = 300.0f;
         private float _currentLength = 0.0f;
         private Vec3 _currentEndPoint = Vec3.Zero;
@@ -16,16 +19,28 @@ namespace CustomEngine.Worlds.Actors
 
         public Shape CullingVolume => _cullingVolume;
 
-        public Octree.Node RenderNode { get => _renderNode; set => _renderNode = value; }
-        public bool IsRendering { get => _isRendering; set => _isRendering = value; }
-        public float MaxLength { get => _maxLength; set => _maxLength = value; }
+        public Octree.Node RenderNode
+        {
+            get => _renderNode;
+            set => _renderNode = value;
+        }
+        public bool IsRendering
+        {
+            get => _isRendering;
+            set => _isRendering = value;
+        }
+        public float MaxLength
+        {
+            get => _maxLength;
+            set => _maxLength = value;
+        }
 
         public BoomComponent() : base()
         {
 
         }
         
-        protected override void RecalcLocalTransform()
+        protected override void OnRecalcLocalTransform(out Matrix4 localTransform, out Matrix4 inverseLocalTransform)
         {
             Matrix4
                 r = _rotation.GetMatrix(),
@@ -37,7 +52,8 @@ namespace CustomEngine.Worlds.Actors
                 translation = Matrix4.CreateTranslation(0.0f, 0.0f, _currentLength),
                 invTranslation = Matrix4.CreateTranslation(0.0f, 0.0f, -_currentLength);
 
-            SetLocalTransforms(r * t *  translation, invTranslation * it * ir);
+            localTransform = r * t * translation;
+            inverseLocalTransform = invTranslation * it * ir;
         }
 
         protected internal override void Tick(float delta)
@@ -59,19 +75,20 @@ namespace CustomEngine.Worlds.Actors
                 _currentEndPoint = newEndPoint;
                 _currentLength = length;
                 RecalcLocalTransform();
+                CurrentDistanceChanged?.Invoke(_currentLength);
             }
         }
 
         public override void OnSpawned()
         {
             RegisterTick(ETickGroup.PostPhysics, ETickOrder.Scene);
-            Engine.Renderer.Scene.AddRenderable(this);
+            //Engine.Renderer.Scene.AddRenderable(this);
             base.OnSpawned();
         }
         public override void OnDespawned()
         {
             UnregisterTick();
-            Engine.Renderer.Scene.RemoveRenderable(this);
+            //Engine.Renderer.Scene.RemoveRenderable(this);
             base.OnDespawned();
         }
 

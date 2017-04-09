@@ -72,7 +72,7 @@ namespace System
         public Matrix4 GetScaleMatrix()
             => _data.GetScaleMatrix();
         public Matrix4 GetTranslationMatrix()
-            => _data.GetTranslationMatrix();
+            => _data.AsTranslationMatrix();
         
         public VoidPtr Address { get { return _data.Address; } }
         public VertexBuffer.ComponentType ComponentType { get { return VertexBuffer.ComponentType.Float; } }

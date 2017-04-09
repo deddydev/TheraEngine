@@ -38,7 +38,7 @@ namespace CustomEngine.Worlds.Actors
                 RecalcLocalTransform();
             }
         }
-        protected override void RecalcLocalTransform()
+        protected override void OnRecalcLocalTransform(out Matrix4 localTransform, out Matrix4 inverseLocalTransform)
         {
             Matrix4
                 r = Matrix4.CreateFromRotator(_rotation),
@@ -52,7 +52,8 @@ namespace CustomEngine.Worlds.Actors
                 s = Matrix4.CreateScale(_scale),
                 iS = Matrix4.CreateScale(1.0f / _scale);
 
-            SetLocalTransforms(t * r * s, iS * ir * it);
+            localTransform = t * r * s;
+            inverseLocalTransform = iS * ir * it;
         }
     }
 }

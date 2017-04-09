@@ -77,9 +77,10 @@ namespace CustomEngine.Worlds.Actors
             if (pawn != null)
                 pawn.CurrentCameraComponent = this;
         }
-        protected override void RecalcLocalTransform()
+        protected override void OnRecalcLocalTransform(out Matrix4 localTransform, out Matrix4 inverseLocalTransform)
         {
-            SetLocalTransforms(Camera.LocalMatrix, Camera.InverseLocalMatrix);
+            localTransform = Camera.LocalMatrix;
+            inverseLocalTransform = Camera.InverseLocalMatrix;
         }
         //internal override void RecalcGlobalTransform()
         //{

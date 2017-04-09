@@ -68,7 +68,7 @@ namespace System
             }
         }
 
-        public Matrix4 GetTranslationMatrix()
+        public Matrix4 AsTranslationMatrix()
             => Matrix4.CreateTranslation(this);
         public Matrix4 GetScaleMatrix()
             => Matrix4.CreateScale(this);
@@ -475,6 +475,11 @@ namespace System
         //{
         //    (this - origin).LookatAngles(startNormal, out yaw, out pitch);
         //}
+        public static Vec3 ReflectionVector(Vec3 normal, Vec3 vector)
+        {
+            normal.NormalizeFast();
+            return vector - 2.0f * vector.Dot(normal) * normal;
+        }
         public Vec3 GetSafeNormal(float Tolerance = 1.0e-8f)
         {
             float SquareSum = LengthSquared;

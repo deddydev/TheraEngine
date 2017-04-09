@@ -115,12 +115,6 @@ namespace CustomEngine.Worlds.Actors
                 return _inverseLocalTransform;
             }
         }
-        protected virtual void SetLocalTransforms(Matrix4 transform, Matrix4 inverse)
-        {
-            _localTransform = transform;
-            _inverseLocalTransform = inverse;
-            RecalcGlobalTransform();
-        }
         protected bool SimulatingPhysics => _simulatingPhysics;
         protected void PhysicsSimulationStarted()
         {
@@ -140,7 +134,9 @@ namespace CustomEngine.Worlds.Actors
             if (retainCurrentPosition)
             {
                 _inverseWorldTransform = WorldMatrix.Inverted();
-                SetLocalTransforms(WorldMatrix * GetInverseParentMatrix(), GetParentMatrix() * InverseWorldMatrix);
+                _localTransform = WorldMatrix * GetInverseParentMatrix();
+                _inverseLocalTransform = GetParentMatrix() * InverseWorldMatrix;
+                RecalcGlobalTransform();
             }
             foreach (SceneComponent c in ChildComponents)
                 c.PhysicsSimulationEnded();
@@ -251,15 +247,21 @@ namespace CustomEngine.Worlds.Actors
             foreach (SceneComponent c in _children)
                 c.OnDespawned();
         }
-        protected abstract void RecalcLocalTransform();
+        protected void RecalcLocalTransform()
+        {
+            OnRecalcLocalTransform(out _localTransform, out _inverseLocalTransform);
+            RecalcGlobalTransform();
+        }
+        protected abstract void OnRecalcLocalTransform(out Matrix4 localTransform, out Matrix4 inverseLocalTransform);
         internal virtual void RecalcGlobalTransform()
         {
             if (!_simulatingPhysics)
             {
                 _worldTransform = GetParentMatrix() * LocalMatrix;
                 //if (_ancestorSimulatingPhysics == null)
-                    _inverseWorldTransform = InverseLocalMatrix * GetInverseParentMatrix();
+                //    _inverseWorldTransform = InverseLocalMatrix * GetInverseParentMatrix();
             }
+            _inverseWorldTransform = InverseLocalMatrix * GetInverseParentMatrix();
             foreach (SceneComponent c in _children)
                 c.RecalcGlobalTransform();
             OnWorldTransformChanged();

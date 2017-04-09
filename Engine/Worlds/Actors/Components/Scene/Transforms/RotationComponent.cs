@@ -45,8 +45,11 @@ namespace CustomEngine.Worlds.Actors
             }
         }
 
-        protected override void RecalcLocalTransform() 
-            => SetLocalTransforms(_rotation.GetMatrix(), _rotation.GetInverseMatrix());
+        protected override void OnRecalcLocalTransform(out Matrix4 localTransform, out Matrix4 inverseLocalTransform)
+        {
+            localTransform = _rotation.GetMatrix();
+            inverseLocalTransform = _rotation.GetInverseMatrix();
+        }
         protected internal override void OriginRebased(Vec3 newOrigin) { }
     }
 }

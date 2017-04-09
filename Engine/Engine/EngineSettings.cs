@@ -72,11 +72,11 @@ namespace CustomEngine
             UseIntegerWeightingIds = false;
             RenderOctree = true;
             RenderQuadtree = true;
-            RenderSkeletons = true;
-            RenderCameraFrustums = true;
-            CapFPS = true;
+            RenderSkeletons = false;
+            RenderCameraFrustums = false;
+            CapFPS = false;
             TargetFPS = 60.0f;
-            CapUPS = true;
+            CapUPS = false;
             TargetUPS = 90.0f;
             ContentPath = Engine.StartupPath + Engine.ContentFolderRel;
             OpeningWorld = new SingleFileRef<World>(ContentPath + "\\OpeningWorld.xcworld");

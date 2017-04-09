@@ -82,8 +82,8 @@ namespace CustomEngine.Worlds.Actors
             Vec3 scale,
             PhysicsConstructionInfo info)
         {
-            Model = m;
             SetTRS(translation, rotation, scale);
+            Model = m;
 
             if (info == null)
                 _physicsDriver = null;
@@ -113,15 +113,13 @@ namespace CustomEngine.Worlds.Actors
         private void _physicsDriver_TransformChanged(Matrix4 worldMatrix)
             => WorldMatrix = worldMatrix;
         
-        internal override void RecalcGlobalTransform()
-        {
-            if (_physicsDriver == null || !_physicsDriver.SimulatingPhysics)
-            {
-                base.RecalcGlobalTransform();
-                foreach (RenderableMesh m in _meshes)
-                    m.CullingVolume.SetTransform(WorldMatrix);
-            }
-        }
+        //internal override void RecalcGlobalTransform()
+        //{
+        //    base.RecalcGlobalTransform();
+        //    if (_meshes != null)
+        //        foreach (RenderableMesh m in _meshes)
+        //            m.CullingVolume.SetTransform(WorldMatrix);
+        //}
 
         private StaticMesh _model;
         private PhysicsDriver _physicsDriver;

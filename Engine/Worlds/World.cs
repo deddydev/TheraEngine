@@ -164,9 +164,9 @@ namespace CustomEngine.Worlds
             CreatePhysicsScene();
             foreach (Map m in _settings._maps)
                 m.BeginPlay();
-            foreach (PhysicsDriver d in Engine._queuedCollisions)
-                d.AddToWorld();
-            Engine._queuedCollisions.Clear();
+            //foreach (PhysicsDriver d in Engine._queuedCollisions)
+            //    d.AddToWorld();
+            //Engine._queuedCollisions.Clear();
         }
         
         public IEnumerator<IActor> GetEnumerator() => State.SpawnedActors.GetEnumerator();

@@ -47,11 +47,6 @@ namespace CustomEngine.Rendering.Models
             _frameState.MatrixChanged += _frameState_MatrixChanged;
             _name = name;
 
-            if (info == null)
-                _physicsDriver = null;
-            else
-                _physicsDriver = new PhysicsDriver(this, info, MatrixUpdate, SimulationUpdate);
-
             _childBones.Added += ChildBonesAdded;
             _childBones.AddedRange += ChildBonesAddedRange;
             _childBones.Removed += ChildBonesRemoved;
@@ -65,6 +60,8 @@ namespace CustomEngine.Rendering.Models
             _childComponents.RemovedRange += ChildComponentsRemovedRange;
             _childComponents.Inserted += ChildComponentsInserted;
             _childComponents.InsertedRange += ChildComponentsInsertedRange;
+
+            _physicsDriver = info == null ? null : new PhysicsDriver(this, info, MatrixUpdate, SimulationUpdate);
 
             //_linkedPrimitiveManagers.Added += _linkedPrimitiveManagers_Added;
             //_linkedPrimitiveManagers.Removed += _linkedPrimitiveManagers_Removed;
@@ -102,6 +99,8 @@ namespace CustomEngine.Rendering.Models
             _skeleton = owner;
             _skeleton.BoneNameCache.Add(Name, this);
             _skeleton.BoneIndexCache.Add(_index = _skeleton.BoneIndexCache.Count, this);
+            if (_physicsDriver != null)
+                _skeleton.PhysicsDrivableBones.Add(this);
             foreach (Bone b in ChildBones)
                 b.CollectChildBones(owner);
         }
@@ -203,6 +202,7 @@ namespace CustomEngine.Rendering.Models
             _vertexMatrix = FrameMatrix * InverseBindMatrix;
             _vertexMatrixIT = (InverseFrameMatrix * BindMatrix).Transposed().GetRotationMatrix4();
 
+            //Process skinning information dealing with this bone
             if (Engine.Settings.SkinOnGPU)
                 foreach (PrimitiveManager m in _linkedPrimitiveManagers)
                 {

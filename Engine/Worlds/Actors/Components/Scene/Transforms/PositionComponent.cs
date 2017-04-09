@@ -32,10 +32,11 @@ namespace CustomEngine.Worlds.Actors
                 RecalcLocalTransform();
             }
         }
-        protected override void RecalcLocalTransform()
-            => SetLocalTransforms(
-                Matrix4.CreateTranslation(_translation.Raw), 
-                Matrix4.CreateTranslation(-_translation.Raw));
+        protected override void OnRecalcLocalTransform(out Matrix4 localTransform, out Matrix4 inverseLocalTransform)
+        {
+            localTransform = Matrix4.CreateTranslation(_translation.Raw);
+            inverseLocalTransform = Matrix4.CreateTranslation(-_translation.Raw);
+        }
         
         protected internal override void OriginRebased(Vec3 newOrigin)
             => Translation -= newOrigin;

@@ -30,10 +30,10 @@ namespace CustomEngine.Worlds.Actors
             _exponent = exponent;
         }
 
-        protected override void RecalcLocalTransform()
+        protected override void OnRecalcLocalTransform(out Matrix4 localTransform, out Matrix4 inverseLocalTransform)
         {
             _direction = _rotation.GetDirection();
-            base.RecalcLocalTransform();
+            base.OnRecalcLocalTransform(out localTransform, out inverseLocalTransform);
         }
 
         public Vec3 Direction

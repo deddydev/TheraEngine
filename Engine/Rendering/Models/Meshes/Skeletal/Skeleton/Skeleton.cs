@@ -9,6 +9,7 @@ using OpenTK.Graphics.OpenGL;
 using System.Xml;
 using System.Runtime.InteropServices;
 using System.IO;
+using System.Collections.ObjectModel;
 
 namespace CustomEngine.Rendering.Models
 {
@@ -47,6 +48,7 @@ namespace CustomEngine.Rendering.Models
 
         Shape _cullingVolume = new Sphere(1.0f);
         Octree.Node _renderNode;
+        private List<Bone> _physicsDrivableBones = new List<Bone>();
         private Dictionary<string, Bone> _boneNameCache = new Dictionary<string, Bone>();
         private Dictionary<int, Bone> _boneIndexCache = new Dictionary<int, Bone>();
         private SkeletalMeshComponent _owningComponent;
@@ -112,6 +114,9 @@ namespace CustomEngine.Rendering.Models
             get => _visibleByDefault;
             set => _visibleByDefault = value;
         }
+
+        public List<Bone> PhysicsDrivableBones => _physicsDrivableBones;
+        
         public Bone GetBone(string boneName)
         {
             if (!_boneNameCache.ContainsKey(boneName))
@@ -122,6 +127,7 @@ namespace CustomEngine.Rendering.Models
         {
             _boneNameCache.Clear();
             _boneIndexCache.Clear();
+            _physicsDrivableBones.Clear();
             foreach (Bone b in RootBones)
                 b.CollectChildBones(this);
         }

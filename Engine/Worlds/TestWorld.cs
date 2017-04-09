@@ -70,7 +70,7 @@ namespace CustomEngine.Worlds
                 floor2Info, 
                 new Vec3(2000.0f, 0.5f, 2000.0f),
                 new Vec3(0.0f, -20.0f, 0.0f),
-                Rotator.GetZero(),
+                new Rotator(30.0f, 00.0f, 0.0f, Rotator.Order.YPR),
                 floor2Mat);
 
             DirectionalLightComponent dirLightComp = new DirectionalLightComponent(

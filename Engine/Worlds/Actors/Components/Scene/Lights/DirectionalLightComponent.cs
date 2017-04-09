@@ -22,10 +22,10 @@ namespace CustomEngine.Worlds.Actors
             Direction = direction;
         }
 
-        protected override void RecalcLocalTransform()
+        protected override void OnRecalcLocalTransform(out Matrix4 localTransform, out Matrix4 inverseLocalTransform)
         {
             _direction = _rotation.GetDirection();
-            base.RecalcLocalTransform();
+            base.OnRecalcLocalTransform(out localTransform, out inverseLocalTransform);
         }
 
         private Vec3 _direction;

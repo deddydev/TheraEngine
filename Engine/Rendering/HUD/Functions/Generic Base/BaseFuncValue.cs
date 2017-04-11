@@ -3,42 +3,47 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace CustomEngine.Rendering.Models.Materials
+namespace CustomEngine.Rendering
 {
     public interface IBaseFuncValue
     {
+        Vec2 Translation { get; set; }
+        void Arrange(int argumentIndex);
         int CurrentArgumentType { get; }
+        int[] AllowedArgumentTypes { get; }
     }
-    public abstract class BaseFuncArg<T> : HudComponent where T : IBaseFuncValue
+    public static class BaseFuncValue
     {
-        public BaseFuncArg(string name)
+        internal const float ConnectionBoxDims = 6.0f;
+        internal const float PaddingBetweenBoxes = 1.0f;
+    }
+    public abstract class BaseFuncValue<T> : HudComponent where T : IBaseFuncValue
+    {
+        public BaseFuncValue(string name)
         {
             _name = name;
         }
-        public BaseFuncArg(string name, IFunction parent)
+        public BaseFuncValue(string name, IFunction parent)
         {
             _name = name;
             _parent = (HudComponent)parent;
         }
         
         public abstract bool IsOutput { get; }
-        public List<T> SyncedArguments => _syncedArgs;
+        public List<IBaseFuncValue> SyncedArguments => _syncedArgs;
         public int[] AllowedArgumentTypes => _allowedArgTypes;
         public int CurrentArgumentType => _currentArgType;
         
-        protected List<T> _syncedArgs = new List<T>();
+        protected List<IBaseFuncValue> _syncedArgs = new List<IBaseFuncValue>();
         protected int[] _allowedArgTypes = null;
         protected int _currentArgType = -1;
 
         public abstract bool CanConnectTo(T other);
 
-        public void SetSyncedArguments(params T[] args)
+        public void SetSyncedArguments(params IBaseFuncValue[] args)
             => _syncedArgs = args.ToList();
         public override string ToString()
             => Name;
-
-        internal const float ConnectionBoxDims = 6.0f;
-        internal const float PaddingBetweenBoxes = 1.0f;
         
         public void Arrange(int argumentIndex)
         {

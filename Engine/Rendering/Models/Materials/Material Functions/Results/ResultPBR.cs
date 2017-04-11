@@ -9,32 +9,28 @@ namespace CustomEngine.Rendering.Models.Materials
     /// <summary>
     /// Physically-based rendering result.
     /// </summary>
-    public class ResultPBRFunc : ResultBasicFunc
-    {
-        public static new FunctionDefinition GetInfo()
-        {
-            return new FunctionDefinition(
+    [FunctionDefinition(
                 "Output",
                 "Output PBR",
                 "Outputs the given vec4 color as the color for this fragment.",
-                "result output final return physically based rendering PBR");
-        }
-
+                "result output final return physically based rendering PBR")]
+    public class ResultPBRFunc : ResultBasicFunc
+    {
         protected override string GetOperation()
         {
             return base.GetOperation();
         }
 
-        protected override List<FuncValueInput> GetInputs()
+        protected override List<MatFuncValueInput> GetValueInputs()
         {
-            return new List<FuncValueInput>()
+            return new List<MatFuncValueInput>()
             {
-                new FuncValueInput("Diffuse", GLTypeName._vec4),
-                new FuncValueInput("Roughness", GLTypeName._float),
-                new FuncValueInput("Shininess", GLTypeName._float),
-                new FuncValueInput("Specularity", GLTypeName._float),
-                new FuncValueInput("Metallic", GLTypeName._float),
-                new FuncValueInput("Refraction", GLTypeName._float),
+                new MatFuncValueInput("Diffuse", GLTypeName._vec4),
+                new MatFuncValueInput("Roughness", GLTypeName._float),
+                new MatFuncValueInput("Shininess", GLTypeName._float),
+                new MatFuncValueInput("Specularity", GLTypeName._float),
+                new MatFuncValueInput("Metallic", GLTypeName._float),
+                new MatFuncValueInput("Refraction", GLTypeName._float),
             };
         }
     }

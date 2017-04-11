@@ -7,7 +7,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CustomEngine.Rendering.Models.Materials
+namespace CustomEngine.Rendering
 {
     public class FunctionDefinition : Attribute
     {
@@ -26,9 +26,9 @@ namespace CustomEngine.Rendering.Models.Materials
     {
 
     }
-    public abstract class Function : Function<IFuncValueInput, IFuncValueOutput>
+    public static class Function
     {
-        public static List<Type> FindFunctions<T>(string keywords) where T : IFunction
+        public static List<Type> Find<T>(string keywords) where T : IFunction
         {
             string[] keyArray = keywords.Split(' ');
             Dictionary<int, List<Type>> types = new Dictionary<int, List<Type>>();
@@ -68,36 +68,45 @@ namespace CustomEngine.Rendering.Models.Materials
     /// <summary>
     /// Provides a hud component that can connect to other functions with parameters and execution flow.
     /// </summary>
-    /// <typeparam name="TIn">The input class to use.</typeparam>
-    /// <typeparam name="TOut">The output class to use.</typeparam>
-    public abstract class Function<TIn, TOut> : HudComponent, IGLVarOwner, IFunction
-        where TIn : HudComponent, IFuncValueInput where TOut : HudComponent, IFuncValueOutput
+    /// <typeparam name="TVIn">The input value argument class to use.</typeparam>
+    /// <typeparam name="TVOut">The output value class to use.</typeparam>
+    /// <typeparam name="TEIn">The input execution argument class to use.</typeparam>
+    /// <typeparam name="TEOut">The output execution class to use.</typeparam>
+    public abstract class Function<TVIn, TVOut, TEIn, TEOut> : HudComponent, IGLVarOwner, IFunction
+        where TVIn : HudComponent, IFuncValueInput where TVOut : HudComponent, IFuncValueOutput
+        where TEIn : HudComponent, IFuncExecInput where TEOut : HudComponent, IFuncExecOutput
     {
-        protected List<TIn> _inputs = new List<TIn>();
-        protected List<TOut> _outputs = new List<TOut>();
+        protected List<TVIn> _inputs = new List<TVIn>();
+        protected List<TVOut> _outputs = new List<TVOut>();
+        protected TEIn _mainExecIn;
+        protected TEOut _mainExecOut;
 
         public Function()
         {
-            AddInput(GetInputs());
-            AddOutput(GetOutputs());
+            AddInput(GetValueInputs());
+            AddOutput(GetValueOutputs());
         }
 
-        public List<TIn> InputArguments => _inputs;
-        public List<TOut> OutputArguments => _outputs;
+        public List<TVIn> InputArguments => _inputs;
+        public List<TVOut> OutputArguments => _outputs;
 
-        public void SetOwner(HudComponent comp)
+        protected virtual List<TVIn> GetValueInputs() => new List<TVIn>();
+        protected virtual List<TVOut> GetValueOutputs() => new List<TVOut>();
+        protected virtual List<TEIn> GetExecutionInputs(out TEIn mainInput)
         {
-            _parent?.Remove(this);
-            comp.Add(this);
+            mainInput = Activator.CreateInstance<TEIn>();
+            return new List<TEIn>();
+        }
+        protected virtual List<TEOut> GetExecutionInputs(out TEOut mainOutput)
+        {
+            mainOutput = Activator.CreateInstance<TEOut>();
+            return new List<TEOut>();
         }
 
-        protected virtual List<TIn> GetInputs() => new List<TIn>();
-        protected virtual List<TOut> GetOutputs() => new List<TOut>();
-
-        protected void AddInput(List<TIn> input)
+        protected void AddInput(List<TVIn> input)
         {
             if (input != null)
-                foreach (TIn v in input)
+                foreach (TVIn v in input)
                 {
                     v.Arrange(_inputs.Count);
                     _inputs.Add(v);
@@ -105,17 +114,17 @@ namespace CustomEngine.Rendering.Models.Materials
                 }
             Resized();
         }
-        protected void AddInput(TIn input)
+        protected void AddInput(TVIn input)
         {
             input.Arrange(_inputs.Count);
             _inputs.Add(input);
             _children.Add(input);
             Resized();
         }
-        protected void AddOutput(List<TOut> output)
+        protected void AddOutput(List<TVOut> output)
         {
             if (output != null)
-                foreach (TOut v in output)
+                foreach (TVOut v in output)
                 {
                     v.Arrange(_outputs.Count);
                     _outputs.Add(v);
@@ -123,7 +132,7 @@ namespace CustomEngine.Rendering.Models.Materials
                 }
             Resized();
         }
-        protected void AddOutput(TOut output)
+        protected void AddOutput(TVOut output)
         {
             output.Arrange(_outputs.Count);
             _outputs.Add(output);
@@ -140,7 +149,7 @@ namespace CustomEngine.Rendering.Models.Materials
         internal const float MaxArgTextWidth = 20.0f;
         public void Resized()
         {
-            Height = _name.Length * TextCharWidth + Math.Max(_inputs.Count, _outputs.Count) * (BaseFuncArg.ConnectionBoxDims + BaseFuncArg.PaddingBetweenBoxes);
+            Height = _name.Length * TextCharWidth + Math.Max(_inputs.Count, _outputs.Count) * (BaseFuncValue.ConnectionBoxDims + BaseFuncValue.PaddingBetweenBoxes);
         }
 
         public FunctionDefinition Definition => GetType().GetCustomAttribute<FunctionDefinition>();
@@ -148,5 +157,8 @@ namespace CustomEngine.Rendering.Models.Materials
         public string FunctionName => Definition?._name;
         public string Description => Definition?._description;
         public string Category => Definition?._category;
+
+        protected TEIn MainExecIn { get => _mainExecIn; set => _mainExecIn = value; }
+        protected TEOut MainExecOut { get => _mainExecOut; set => _mainExecOut = value; }
     }
 }

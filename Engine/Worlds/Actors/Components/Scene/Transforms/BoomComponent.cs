@@ -13,13 +13,13 @@ namespace CustomEngine.Worlds.Actors
         private float _currentLength = 0.0f;
         private Vec3 _currentEndPoint = Vec3.Zero;
         private bool _isRendering = false;
-        private Octree.Node _renderNode;
+        private IOctreeNode _renderNode;
         private Shape _cullingVolume = new Sphere(1.0f);
         private Vec3 _startPoint = Vec3.Zero;
 
         public Shape CullingVolume => _cullingVolume;
 
-        public Octree.Node RenderNode
+        public IOctreeNode RenderNode
         {
             get => _renderNode;
             set => _renderNode = value;

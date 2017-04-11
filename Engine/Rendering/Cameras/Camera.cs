@@ -142,7 +142,7 @@ namespace CustomEngine.Rendering.Cameras
             get => _transformedFrustum.IsRendering;
             set => _transformedFrustum.IsRendering = value;
         }
-        public Octree.Node RenderNode
+        public IOctreeNode RenderNode
         {
             get => _transformedFrustum.RenderNode;
             set => _transformedFrustum.RenderNode = value;

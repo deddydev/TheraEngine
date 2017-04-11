@@ -5,19 +5,17 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Text.RegularExpressions;
+using CustomEngine.Rendering.HUD;
 
-namespace CustomEngine.Rendering.Models.Materials
+namespace CustomEngine.Rendering
 {
-    public interface IFuncExecInput : IBaseFuncValue
+    public interface IFuncValueInput : IBaseFuncValue
     {
-        Vec2 Translation { get; set; }
-        int[] AllowedArgumentTypes { get; }
-        
-        void SetConnection(IFuncExecOutput other);
+        void SetConnection(IFuncValueOutput other);
         void ClearConnection();
     }
-    public class FuncExecInput<TOutput, TParent> : BaseFuncArg<TOutput>, IFuncValueInput
-        where TOutput : class, IFuncValueOutput where TParent : class, IFunction
+    public class FuncValueInput<TOutput, TParent> : BaseFuncValue<TOutput>, IFuncValueInput
+        where TOutput : HudComponent, IFuncValueOutput where TParent : HudComponent, IFunction
     {
         public override bool IsOutput => false;
         public TOutput ConnectedTo
@@ -27,29 +25,29 @@ namespace CustomEngine.Rendering.Models.Materials
         }
         protected TOutput _connectedTo;
 
-        public FuncExecInput(string name, params int[] types)
+        public FuncValueInput(string name, params int[] types)
             : base(name)
         {
             _allowedArgTypes = types;
         }
-        public FuncExecInput(string name, TParent parent, params int[] types)
+        public FuncValueInput(string name, TParent parent, params int[] types)
             : base(name, parent)
         {
             _allowedArgTypes = types;
         }
-        public FuncExecInput(string name, TOutput linkedMultiArg)
+        public FuncValueInput(string name, IBaseFuncValue linkedMultiArg)
             : base(name)
         {
             _syncedArgs.Add(linkedMultiArg);
             _allowedArgTypes = linkedMultiArg.AllowedArgumentTypes;
         }
-        public FuncExecInput(string name, TParent parent, TOutput linkedMultiArg)
+        public FuncValueInput(string name, TParent parent, IBaseFuncValue linkedMultiArg)
             : base(name, parent)
         {
             _syncedArgs.Add(linkedMultiArg);
             _allowedArgTypes = linkedMultiArg.AllowedArgumentTypes;
         }
-        
+
         public bool TryConnectTo(TOutput other)
         {
             if (!CanConnectTo(other))

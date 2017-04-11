@@ -16,24 +16,23 @@ namespace CustomEngine.Rendering.Models.Materials
                 "lerp mix linear interpolate blend")]
     public class LerpFunc : MaterialFunction
     {
-        FuncValueInput A, B, Time;
-        FuncValueOutput Result;
+        MatFuncValueInput A, B, Time;
+        MatFuncValueOutput Result;
 
         public LerpFunc() : base(true) { }
         protected override string GetOperation() { return "mix({0}, {1}, {2})"; }
-        protected override List<FuncValueInput> GetInputs()
+        protected override List<MatFuncValueInput> GetValueInputs()
         {
-            A = new FuncValueInput("A", FloatingPointTypes);
-            B = new FuncValueInput("B", A);
-            Time = new FuncValueInput("Time", GLTypeName._float);
+            A = new MatFuncValueInput("A", FloatingPointTypes);
+            B = new MatFuncValueInput("B", A);
+            Time = new MatFuncValueInput("Time", GLTypeName._float);
 
-            return new List<FuncValueInput>() { A, B, Time };
+            return new List<MatFuncValueInput>() { A, B, Time };
         }
-        protected override List<FuncValueOutput> GetOutputs()
+        protected override List<MatFuncValueOutput> GetValueOutputs()
         {
-            Result = new FuncValueOutput("Result", A);
-
-            return new List<FuncValueOutput>() { Result };
+            Result = new MatFuncValueOutput("Result", A);
+            return new List<MatFuncValueOutput>() { Result };
         }
     }
 }

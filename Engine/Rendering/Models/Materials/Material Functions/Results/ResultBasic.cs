@@ -20,7 +20,7 @@ namespace CustomEngine.Rendering.Models.Materials
         MatFuncValueInput WorldPositionOffset;
 
         public ResultBasicFunc() : base(true) { }
-        protected override List<MatFuncValueInput> GetInputs()
+        protected override List<MatFuncValueInput> GetValueInputs()
         {
             FinalColor = new MatFuncValueInput("FinalColor", GLTypeName._vec4);
             WorldPositionOffset = new MatFuncValueInput("WorldPositionOffset", GLTypeName._vec3);
@@ -28,7 +28,7 @@ namespace CustomEngine.Rendering.Models.Materials
         }
         protected override string GetOperation()
         {
-            return FragmentShaderGenerator.OutputColorName + " = {0};";
+            return FragmentShaderGenerator.OutputColorName + " = {0}";
         }
     }
 }

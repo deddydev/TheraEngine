@@ -47,7 +47,7 @@ namespace CustomEngine.Rendering.Models
             _visibleByDefault = false;
 
         Shape _cullingVolume = new Sphere(1.0f);
-        Octree.Node _renderNode;
+        IOctreeNode _renderNode;
         private List<Bone> _physicsDrivableBones = new List<Bone>();
         private Dictionary<string, Bone> _boneNameCache = new Dictionary<string, Bone>();
         private Dictionary<int, Bone> _boneIndexCache = new Dictionary<int, Bone>();
@@ -84,7 +84,7 @@ namespace CustomEngine.Rendering.Models
             get => _rendering;
             set => _rendering = value;
         }
-        public Octree.Node RenderNode
+        public IOctreeNode RenderNode
         {
             get => _renderNode;
             set => _renderNode = value;

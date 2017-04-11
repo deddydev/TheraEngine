@@ -8,20 +8,20 @@ namespace CustomEngine.Rendering.Models.Materials
 {
     public abstract class ComparableFunc : MaterialFunction
     {
-        FuncValueInput A, B;
-        FuncValueOutput Result;
+        MatFuncValueInput A, B;
+        MatFuncValueOutput Result;
 
         public ComparableFunc() : base(true) { }
-        protected override List<FuncValueInput> GetInputs()
+        protected override List<MatFuncValueInput> GetValueInputs()
         {
-            A = new FuncValueInput("A", NumericTypes);
-            B = new FuncValueInput("B", A);
-            return new List<FuncValueInput>() { A, B };
+            A = new MatFuncValueInput("A", NumericTypes);
+            B = new MatFuncValueInput("B", A);
+            return new List<MatFuncValueInput>() { A, B };
         }
-        protected override List<FuncValueOutput> GetOutputs()
+        protected override List<MatFuncValueOutput> GetValueOutputs()
         {
-            Result = new FuncValueOutput("Result", GLTypeName._bool);
-            return new List<FuncValueOutput>() { Result };
+            Result = new MatFuncValueOutput("Result", GLTypeName._bool);
+            return new List<MatFuncValueOutput>() { Result };
         }
         protected override string GetOperation()
         {

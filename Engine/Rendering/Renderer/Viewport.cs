@@ -96,7 +96,7 @@ namespace CustomEngine.Rendering
             _region.Height = _topPercentage * parentHeight - _region.Y;
 
             _worldCamera?.Resize(Width, Height);
-            _hud?.Resize(_region);
+            _hud?.Resize(_region.Bounds);
             _gBuffer?.SetRegion(_region);
         }
         public void DebugPrint(string message)

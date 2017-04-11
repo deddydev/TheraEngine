@@ -16,13 +16,13 @@ namespace CustomEngine.Rendering.Models.Materials
                 "one minus value 1 - subtract")]
     public class OneMinusFunc : MaterialFunction
     {
-        FuncValueInput InputValue;
-        FuncValueOutput Result;
+        MatFuncValueInput InputValue;
+        MatFuncValueOutput Result;
 
         public OneMinusFunc() : base(true) { }
         protected override string GetOperation()
         {
-            switch (InputValue.CurrentArgumentType)
+            switch ((GLTypeName)InputValue.CurrentArgumentType)
             {
                 case GLTypeName._float:
                 case GLTypeName._double:
@@ -57,15 +57,15 @@ namespace CustomEngine.Rendering.Models.Materials
             }
             throw new InvalidOperationException();
         }
-        protected override List<FuncValueInput> GetInputs()
+        protected override List<MatFuncValueInput> GetValueInputs()
         {
-            InputValue = new FuncValueInput("Value", NumericTypes);
-            return new List<FuncValueInput>() { InputValue };
+            InputValue = new MatFuncValueInput("Value", NumericTypes);
+            return new List<MatFuncValueInput>() { InputValue };
         }
-        protected override List<FuncValueOutput> GetOutputs()
+        protected override List<MatFuncValueOutput> GetValueOutputs()
         {
-            Result = new FuncValueOutput("Result", InputValue);
-            return new List<FuncValueOutput>() { Result };
+            Result = new MatFuncValueOutput("Result", InputValue);
+            return new List<MatFuncValueOutput>() { Result };
         }
     }
 }

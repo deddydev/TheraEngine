@@ -13,35 +13,50 @@ using System.Threading.Tasks;
 
 namespace System
 {
-    public class Octree
+    public interface IOctreeNode
+    {
+        bool Visible { get; set; }
+        BoundingBox Bounds { get; }
+        Vec3 Center { get; }
+        Vec3 Min { get; }
+        Vec3 Max { get; }
+        void ItemMoved(I3DBoundable item);
+        void DebugRender();
+    }
+    public class Octree : Octree<I3DBoundable>
+    {
+        public Octree(BoundingBox bounds) : base(bounds) { }
+        public Octree(BoundingBox bounds, List<I3DBoundable> items) : base(bounds, items) { }
+    }
+    public class Octree<T> where T : I3DBoundable
     {
         private BoundingBox _totalBounds;
         private Node _head;
         
         public Octree(BoundingBox bounds) { _totalBounds = bounds; }
-        public Octree(BoundingBox bounds, List<I3DBoundable> items)
+        public Octree(BoundingBox bounds, List<T> items)
         {
             _totalBounds = bounds;
             Add(items);
         }
         
         public void Cull(Frustum frustum) { _head?.Cull(frustum); }
-        public List<I3DBoundable> FindClosest(Vec3 point) { return _head.FindClosest(point); }
-        public List<I3DBoundable> FindAllJustOutside(Shape shape) { return _head.FindAllJustOutside(shape); }
-        public List<I3DBoundable> FindAllInside(Shape shape) { return _head.FindAllInside(shape); }
-        public void Add(I3DBoundable value)
+        public List<T> FindClosest(Vec3 point) { return _head.FindClosest(point); }
+        public List<T> FindAllJustOutside(Shape shape) { return _head.FindAllJustOutside(shape); }
+        public List<T> FindAllInside(Shape shape) { return _head.FindAllInside(shape); }
+        public void Add(T value)
         {
             if (_head == null)
                 _head = new Node(_totalBounds);
             _head.Add(value, true);
         }
-        public void Add(List<I3DBoundable> value)
+        public void Add(List<T> value)
         {
             if (_head == null)
                 _head = new Node(_totalBounds);
             _head.Add(value, true);
         }
-        public bool Remove(I3DBoundable value)
+        public bool Remove(T value)
         {
             if (_head == null)
                 return false;
@@ -57,16 +72,16 @@ namespace System
             _head?.DebugRender();
         }
 
-        public class Node
+        public class Node : IOctreeNode
         {
             private int _subDivIndex = 0, _subDivLevel = 0;
             private bool _visible = true;
             private BoundingBox _bounds;
-            public List<I3DBoundable> _items = new List<I3DBoundable>();
+            public List<T> _items = new List<T>();
             public Node[] _subNodes;
             public Node _parentNode;
 
-            public List<I3DBoundable> Items => _items;
+            public List<T> Items => _items;
             public BoundingBox Bounds => _bounds;
             public Vec3 Center => _bounds.Translation;
             public Vec3 Min => _bounds.Minimum;
@@ -80,7 +95,7 @@ namespace System
                     if (_visible == value)
                         return;
                     _visible = value;
-                    foreach (I3DBoundable item in _items)
+                    foreach (T item in _items)
                         item.IsRendering = _visible;
                     if (_subNodes != null)
                         foreach (Node node in _subNodes)
@@ -95,8 +110,8 @@ namespace System
                     foreach (Node n in _subNodes)
                         n?.DebugRender();
             }
-
-            public void ItemMoved(I3DBoundable item)
+            public void ItemMoved(I3DBoundable item) => ItemMoved((T)item);
+            public void ItemMoved(T item)
             {
                 //Still within the same volume?
                 if (item.CullingVolume.ContainedWithin(_bounds) == EContainment.Contains)
@@ -135,7 +150,7 @@ namespace System
             /// <summary>
             /// Returns true if the item was added to this node (clarification: not its subnodes)
             /// </summary>
-            private bool AddReversedHierarchy(I3DBoundable item, int childDestroyIndex)
+            private bool AddReversedHierarchy(T item, int childDestroyIndex)
             {
                 if (!Add(item))
                 {
@@ -190,11 +205,11 @@ namespace System
                 return true;
             }
 
-            public List<I3DBoundable> FindClosest(Vec3 point)
+            public List<T> FindClosest(Vec3 point)
             {
                 if (_bounds.Contains(point))
                 {
-                    List<I3DBoundable> list = null;
+                    List<T> list = null;
                     if (_subNodes != null)
                         foreach (Node node in _subNodes)
                             if (node != null)
@@ -207,7 +222,7 @@ namespace System
                     if (_items.Count == 0)
                         return null;
 
-                    list = new List<I3DBoundable>(_items);
+                    list = new List<T>(_items);
                     for (int i = 0; i < list.Count; ++i)
                         if (list[i].CullingVolume != null && !list[i].CullingVolume.Contains(point))
                             list.RemoveAt(i--);
@@ -217,7 +232,7 @@ namespace System
                 else
                     return null;
             }
-            public List<I3DBoundable> FindAllJustOutside(Shape shape)
+            public List<T> FindAllJustOutside(Shape shape)
             {
                 foreach (Node node in _subNodes)
                     if (node != null)
@@ -229,19 +244,19 @@ namespace System
 
                 return CollectChildren();
             }
-            public List<I3DBoundable> CollectChildren()
+            public List<T> CollectChildren()
             {
-                List<I3DBoundable> list = _items;
+                List<T> list = _items;
                 foreach (Node node in _subNodes)
                     if (node != null)
                         list.AddRange(node.CollectChildren());
                 return list;
             }
-            public List<I3DBoundable> FindAllInside(Shape shape)
+            public List<T> FindAllInside(Shape shape)
             {
                 throw new NotImplementedException();
             }
-            public void Cull(Frustum frustum)
+            internal void Cull(Frustum frustum)
             {
                 EContainment c = frustum.Contains(_bounds);
                 if (c == EContainment.Contains)
@@ -256,7 +271,7 @@ namespace System
                         if (i > _items.Count)
                             break;
 
-                        I3DBoundable item = _items[i];
+                        T item = _items[i];
                         item.IsRendering = item.CullingVolume != null ?
                             item.CullingVolume.ContainedWithin(frustum) != EContainment.Disjoint : true;
                     }
@@ -270,7 +285,12 @@ namespace System
             /// shouldDestroy returns true if this node has no items contained within it or its subdivisions.
             /// returns true if the value was found and removed.
             /// </summary>
-            public bool Remove(I3DBoundable value, out bool shouldDestroy)
+            //public bool Remove(I3DBoundable value) => Remove((T)value);
+            //public bool Remove(T value)
+            //{
+            //    bool removed = Remove(value, out bool shouldDestroy);
+            //}
+            internal bool Remove(T value, out bool shouldDestroy)
             {
                 bool hasBeenRemoved = false;
                 if (_items.Contains(value))
@@ -317,20 +337,20 @@ namespace System
                 node._parentNode = this;
                 _subNodes[index] = node;
             }
-            public bool Add(List<I3DBoundable> items, bool force = false)
+            public bool Add(List<T> items, bool force = false)
             {
                 bool addedAny = false;
-                foreach (I3DBoundable item in items)
+                foreach (T item in items)
                     addedAny = addedAny || Add(item, force);
                 return addedAny;
 
                 //bool notSubdivided = true;
-                //List<I3DBoundable> items;
+                //List<T> items;
                 //for (int i = 0; i < 8; ++i)
                 //{
-                //    items = new List<I3DBoundable>();
+                //    items = new List<T>();
                 //    BoundingBox bounds = GetSubdivision(i);
-                //    foreach (I3DBoundable item in value)
+                //    foreach (T item in value)
                 //    {
                 //        if (item == null)
                 //            continue;
@@ -356,7 +376,7 @@ namespace System
                 //    }
                 //}
             }
-            public bool Add(I3DBoundable item, bool force = false)
+            public bool Add(T item, bool force = false)
             {
                 if (item == null)
                     return false;
@@ -423,7 +443,7 @@ namespace System
             //{
             //    if (!_visible)
             //        return;
-            //    foreach (I3DBoundable r in _items)
+            //    foreach (T r in _items)
             //    {
             //        //int t = Engine.StartTimer();
             //        r.Render();

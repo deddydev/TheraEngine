@@ -4,31 +4,28 @@ using System.Drawing;
 using System.Collections;
 using System.ComponentModel;
 using CustomEngine.Worlds.Actors;
-using CustomEngine.Worlds.Actors;
+using CustomEngine.Worlds;
 
 namespace CustomEngine.Rendering.HUD
 {
     public delegate void DelScrolling(bool up);
-    public class HudComponent : Pawn<SceneComponent>, IPanel, I2DBoundable, IEnumerable<HudComponent>
+    public class HudComponent : SceneComponent, IPanel, I2DBoundable, IEnumerable<HudComponent>
     {
         public HudComponent() : base()
         {
 
         }
-
-        private HudManager _manager;
-        protected HudComponent _parent, _left, _right, _down, _up;
-        protected List<HudComponent> _children = new List<HudComponent>();
+        
+        //Used to select a new component when the user moves the gamepad stick.
+        protected HudComponent _left, _right, _down, _up;
 
         protected Quadtree.Node _renderNode;
         protected bool _highlightable, _selectable, _scrollable;
         protected ushort _zIndex;
         protected AnchorFlags _positionAnchorFlags;
-        protected Matrix4 _localTransform = Matrix4.Identity, _invLocalTransform = Matrix4.Identity;
-        protected Matrix4 _globalTransform = Matrix4.Identity, _invGlobalTransform = Matrix4.Identity;
         protected BoundingRectangle _region = new BoundingRectangle();
-        protected Vec2 _scale = Vec2.One;
         protected Vec2 _translationLocalOrigin = Vec2.Zero;
+        protected Vec2 _scale = Vec2.One;
         protected BoundingRectangle _axisAlignedBounds;
         protected bool _isRendering;
         
@@ -124,7 +121,7 @@ namespace CustomEngine.Rendering.HUD
             set
             {
                 _region.Translation = value;
-                OnTransformed();
+                RecalcLocalTransform();
             }
         }
         /// <summary>
@@ -141,7 +138,7 @@ namespace CustomEngine.Rendering.HUD
                 _region.X += diff.X;
                 _region.Y += diff.Y;
                 _translationLocalOrigin = value;
-                OnTransformed();
+                RecalcLocalTransform();
             }
         }
         [Category("Transform")]
@@ -154,7 +151,7 @@ namespace CustomEngine.Rendering.HUD
             {
                 TranslationX = value.X + _translationLocalOrigin.X * Width;
                 TranslationY = value.Y + _translationLocalOrigin.Y * Height;
-                OnTransformed();
+                RecalcLocalTransform();
             }
         }
         [Category("Transform")]
@@ -164,7 +161,7 @@ namespace CustomEngine.Rendering.HUD
             set
             {
                 _region.X = value;
-                OnTransformed();
+                RecalcLocalTransform();
             }
         }
         [Category("Transform")]
@@ -174,7 +171,7 @@ namespace CustomEngine.Rendering.HUD
             set
             {
                 _region.Y = value;
-                OnTransformed();
+                RecalcLocalTransform();
             }
         }
         [Category("Transform")]
@@ -184,7 +181,7 @@ namespace CustomEngine.Rendering.HUD
             set
             {
                 _scale = value;
-                OnTransformed();
+                RecalcLocalTransform();
             }
         }
         [Category("Transform")]
@@ -194,7 +191,7 @@ namespace CustomEngine.Rendering.HUD
             set
             {
                 _scale.X = value;
-                OnTransformed();
+                RecalcLocalTransform();
             }
         }
         [Category("Transform")]
@@ -204,7 +201,7 @@ namespace CustomEngine.Rendering.HUD
             set
             {
                 _scale.Y = value;
-                OnTransformed();
+                RecalcLocalTransform();
             }
         }
 
@@ -216,14 +213,16 @@ namespace CustomEngine.Rendering.HUD
             get => _renderNode;
             set => _renderNode = value;
         }
-        public HudManager Manager
+        public new HudManager Owner
         {
-            get => _manager;
+            get => (HudManager)base.Owner;
             set
             {
-                _manager?.UncacheComponent(this);
-                _manager = value;
-                _manager?.CacheComponent(this);
+                HudManager manager = Owner;
+                manager?.UncacheComponent(this);
+                manager = value;
+                manager?.CacheComponent(this);
+                base.Owner = value;
             }
         }
         public bool IsRendering
@@ -231,42 +230,46 @@ namespace CustomEngine.Rendering.HUD
             get => _isRendering;
             set => _isRendering = value;
         }
+        protected override void OnRecalcLocalTransform(out Matrix4 localTransform, out Matrix4 inverseLocalTransform)
+        {
+            localTransform = Matrix4.TransformMatrix(
+                new Vec3(ScaleX, ScaleY, 1.0f),
+                Quat.Identity,
+                new Vec3(BottomLeftTranslation),
+                TransformOrder.TRS);
+
+            inverseLocalTransform = Matrix4.TransformMatrix(
+                new Vec3(1.0f / ScaleX, 1.0f / ScaleY, 1.0f),
+                Quat.Identity,
+                new Vec3(-BottomLeftTranslation),
+                TransformOrder.SRT);
+        }
         public virtual void OnTransformed()
         {
             //step 1: set identity matrix
             //step 2: translate into position (bottom left corner)
             //step 5: scale the component
 
-            _localTransform = Matrix4.TransformMatrix(
-                new Vec3(ScaleX, ScaleY, 0.0f),
-                Quat.Identity, 
-                new Vec3(BottomLeftTranslation),
-                TransformOrder.TRS);
 
-            _invLocalTransform = Matrix4.TransformMatrix(
-                new Vec3(1.0f / ScaleX, 1.0f / ScaleY, 0.0f),
-                Quat.Identity,
-                new Vec3(-BottomLeftTranslation),
-                TransformOrder.SRT);
 
             RecalcGlobalTransform();
         }
-        protected void RecalcGlobalTransform()
+        internal override void RecalcGlobalTransform()
         {
-            Matrix4 parentTransform = _parent == null ? Matrix4.Identity : _parent._globalTransform;
-            Matrix4 invParentTransform = _parent == null ? Matrix4.Identity : _parent._invGlobalTransform;
+            Matrix4 parentTransform = GetParentMatrix();
+            Matrix4 invParentTransform = GetInverseParentMatrix();
 
-            _globalTransform = _localTransform * parentTransform;
-            _invGlobalTransform = invParentTransform * _invLocalTransform;
+            _worldTransform = parentTransform * _localTransform;
+            _inverseWorldTransform = _inverseLocalTransform * invParentTransform;
 
-            _renderNode?.OnMoved(this);
+            _renderNode?.ItemMoved(this);
 
             foreach (HudComponent c in _children)
                 c.RecalcGlobalTransform();
         }
         protected virtual void OnChildAdded(HudComponent child)
         {
-            child.Manager = Manager;
+            child.Owner = Owner;
         }
         public void Add(HudComponent child)
         {
@@ -288,7 +291,7 @@ namespace CustomEngine.Rendering.HUD
                 return;
             if (_children.Contains(child))
                 _children.Remove(child);
-            child.Manager = null;
+            child.Owner = null;
             child._parent = null;
             child._zIndex = 0;
         }
@@ -323,12 +326,16 @@ namespace CustomEngine.Rendering.HUD
         }
         public bool ContainsPoint(Vec2 viewportPoint)
         {
-            Vec3 localPoint = _invGlobalTransform * new Vec3(viewportPoint, 0.0f);
-            
-            return false;
+            Vec2 localPoint = (Vec2)(_inverseWorldTransform * new Vec3(viewportPoint, 0.0f));
+            return Region.Bounds.Contains(viewportPoint);
         }
 
         public virtual void Render() { }
+
+        protected internal override void OriginRebased(Vec3 newOrigin)
+        {
+            throw new NotImplementedException();
+        }
 
         public IEnumerator<HudComponent> GetEnumerator() => ((IEnumerable<HudComponent>)_children).GetEnumerator();
         IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable<HudComponent>)_children).GetEnumerator();

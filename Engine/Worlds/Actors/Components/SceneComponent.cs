@@ -264,6 +264,10 @@ namespace CustomEngine.Worlds.Actors
             OnRecalcLocalTransform(out _localTransform, out _inverseLocalTransform);
             RecalcGlobalTransform();
         }
+        /// <summary>
+        /// Override to set local transforms.
+        /// Do not call directly! Call RecalcLocalTransform() instead.
+        /// </summary>
         protected abstract void OnRecalcLocalTransform(out Matrix4 localTransform, out Matrix4 inverseLocalTransform);
         internal virtual void RecalcGlobalTransform()
         {

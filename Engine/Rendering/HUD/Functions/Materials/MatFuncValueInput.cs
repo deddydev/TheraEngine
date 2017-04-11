@@ -8,9 +8,9 @@ namespace CustomEngine.Rendering.Models.Materials
             : base(name, types.Select(x => (int)x).ToArray()) { }
         public MatFuncValueInput(string name, MaterialFunction parent, params GLTypeName[] types)
             : base(name, parent, types.Select(x => (int)x).ToArray()) { }
-        public MatFuncValueInput(string name, MatFuncValueOutput linkedMultiArg)
+        public MatFuncValueInput(string name, IBaseFuncValue linkedMultiArg)
             : base(name, linkedMultiArg) { }
-        public MatFuncValueInput(string name, MaterialFunction parent, MatFuncValueOutput linkedMultiArg)
+        public MatFuncValueInput(string name, MaterialFunction parent, IBaseFuncValue linkedMultiArg)
             : base(name, parent, linkedMultiArg) { }
     }
 }

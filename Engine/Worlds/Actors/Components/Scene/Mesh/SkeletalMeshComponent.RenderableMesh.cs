@@ -27,7 +27,7 @@ namespace CustomEngine.Worlds.Actors
 
             private SceneComponent _component;
             private ISkeletalMesh _mesh;
-            private Octree.Node _renderNode;
+            private IOctreeNode _renderNode;
             private Bone _singleBind;
             private Skeleton _skeleton;
             private Shape _cullingVolume;
@@ -70,7 +70,7 @@ namespace CustomEngine.Worlds.Actors
                 get => _mesh;
                 set => _mesh = value;
             }
-            public Octree.Node RenderNode
+            public IOctreeNode RenderNode
             {
                 get => _renderNode;
                 set => _renderNode = value;

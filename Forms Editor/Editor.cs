@@ -68,7 +68,7 @@ namespace TheraEditor
 
         private void BtnNewMaterial_Click(object sender, EventArgs e)
         {
-            new MaterialEditor().Show();
+            new MaterialEditorForm().Show();
         }
 
         private void BtnNewWorld_Click(object sender, EventArgs e)

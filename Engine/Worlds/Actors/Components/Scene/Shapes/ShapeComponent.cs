@@ -37,7 +37,7 @@ namespace CustomEngine.Worlds.Actors
             base.OnDespawned();
         }
 
-        protected Octree.Node _renderNode;
+        protected IOctreeNode _renderNode;
         protected PhysicsDriver _physicsDriver;
         protected bool
             _isRendering,
@@ -70,7 +70,7 @@ namespace CustomEngine.Worlds.Actors
         public abstract Shape CullingVolume { get; }
         public bool VisibleByDefault => _visibleByDefault;
         public PhysicsDriver PhysicsDriver => _physicsDriver;
-        public Octree.Node RenderNode
+        public IOctreeNode RenderNode
         {
             get => _renderNode;
             set => _renderNode = value;

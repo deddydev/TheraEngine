@@ -13,13 +13,13 @@ namespace CustomEngine.Rendering.Models.Materials
         {
             return "if ({0})";
         }
-        protected override List<FuncValueInput> GetInputs()
+        protected override List<MatFuncValueInput> GetValueInputs()
         {
-            return base.GetInputs();
+            return base.GetValueInputs();
         }
-        protected override List<FuncValueOutput> GetOutputs()
+        protected override List<MatFuncValueOutput> GetValueOutputs()
         {
-            return new List<FuncValueOutput>()
+            return new List<MatFuncValueOutput>()
             {
 
             };

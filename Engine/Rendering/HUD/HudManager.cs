@@ -2,14 +2,16 @@
 using System.Drawing;
 using System;
 using System.Collections.Generic;
+using CustomEngine.Worlds.Actors;
 
 namespace CustomEngine.Rendering.HUD
 {
+    //TODO: make base hud component that contains quadtree
     /// <summary>
     /// Each viewport has a hud manager. 
     /// The main form also has a hud manager to overlay over everything if necessary.
     /// </summary>
-    public partial class HudManager : DockableHudComponent
+    public partial class HudManager : Pawn<DockableHudComponent>
     {
         internal List<HudComponent> _renderables = new List<HudComponent>();
         internal Quadtree _childComponentTree;
@@ -34,21 +36,16 @@ namespace CustomEngine.Rendering.HUD
             _childComponentTree = new Quadtree(_owningPanel.ClientSize);
         }
 
-        public override BoundingRectangle Resize(BoundingRectangle parentRegion)
+        public void Resize(Vec2 bounds)
         {
-            //base.Resize will handle resizing child components
-            BoundingRectangle region = base.Resize(parentRegion);
-            //Child tree must be resized AFTER child components are resized
-            //_childComponentTree.Resize(region.Bounds);
-            //Resize the drawing board
-            _camera.Resize(parentRegion.Width, parentRegion.Height);
-            return region;
+            _camera.Resize(bounds.X, bounds.Y);
+            RootComponent.Resize(new BoundingRectangle(Vec2.Zero, bounds));
         }
         public void DebugPrint(string message)
         {
             
         }
-        public override void Render()
+        public void Render()
         {
             AbstractRenderer.CurrentCamera = _camera;
             _childComponentTree.DebugRender();
@@ -58,7 +55,7 @@ namespace CustomEngine.Rendering.HUD
                     e.Current.Render();
             AbstractRenderer.CurrentCamera = null;
         }
-        protected override void OnChildAdded(HudComponent child)
+        protected void OnChildAdded(HudComponent child)
         {
             child.Manager = this;
         }

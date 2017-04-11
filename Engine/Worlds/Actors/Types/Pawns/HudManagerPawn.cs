@@ -2,24 +2,18 @@
 using CustomEngine.Input.Devices;
 using CustomEngine.Worlds.Actors;
 using System;
-using CustomEngine.Worlds.Actors.Types;
-using CustomEngine.Worlds;
+using System.Collections.Generic;
 
 namespace CustomEngine.Rendering.HUD
 {
-    public partial class HudManager : DockableHudComponent
+    public partial class HudManager : Pawn<DockableHudComponent>
     {
         protected Vec2 _cursorPos = Vec2.Zero;
         private HudComponent _focusedComponent;
-
-        CameraComponent CameraComponent { get { return RootComponent as CameraComponent; } }
-        protected override void PreConstruct()
+        
+        protected override DockableHudComponent OnConstruct()
         {
-            base.PreConstruct();
-        }
-        protected override SceneComponent OnConstruct()
-        {
-            return new PositionComponent();
+            return new DockableHudComponent();
         }
         public override void RegisterInput(InputInterface input)
         {
@@ -71,6 +65,13 @@ namespace CustomEngine.Rendering.HUD
         {
             _cursorPos.X = x;
             _cursorPos.Y = y;
+        }
+
+        public List<HudComponent> FindAllComponents(Vec2 viewportPoint)
+        {
+            List<I2DBoundable> results = _childComponentTree.FindClosest(viewportPoint);
+
+            //return RootComponent.FindComponent(viewportPoint);
         }
     }
 }

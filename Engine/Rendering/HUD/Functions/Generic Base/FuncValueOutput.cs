@@ -1,24 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Text.RegularExpressions;
-using CustomEngine.Rendering.HUD;
 
-namespace CustomEngine.Rendering.Models.Materials
+namespace CustomEngine.Rendering
 {
     public interface IFuncValueOutput : IBaseFuncValue
     {
-        Vec2 Translation { get; set; }
-        int[] AllowedArgumentTypes { get; }
-
         void AddConnection(IFuncValueInput other);
         void RemoveConnection(IFuncValueInput other);
-        void Arrange(int argumentIndex);
     }
-    public class FuncValueOutput<TInput, TParent> : BaseFuncArg<TInput>, IFuncValueOutput
+    public class FuncValueOutput<TInput, TParent> : BaseFuncValue<TInput>, IFuncValueOutput
         where TInput : class, IFuncValueInput where TParent : class, IFunction
     {
         public override bool IsOutput => true;

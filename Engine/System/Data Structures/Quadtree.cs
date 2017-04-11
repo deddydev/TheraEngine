@@ -7,34 +7,48 @@ using CustomEngine;
 
 namespace System
 {
-    public class Quadtree
+    public interface IQuadtreeNode
+    {
+        BoundingRectangle Region { get; }
+        Vec2 Center { get; }
+        Vec2 Min { get; }
+        Vec2 Max { get; }
+        Vec2 Extents { get; }
+        void ItemMoved(I2DBoundable item);
+    }
+    public class Quadtree : Quadtree<I2DBoundable>
+    {
+        public Quadtree(Vec2 bounds) : base(bounds) { }
+        public Quadtree(Vec2 bounds, List<I2DBoundable> items) : base(bounds, items) { }
+    }
+    public class Quadtree<T> where T : I2DBoundable
     {
         private Vec2 _totalBounds;
         private Node _head;
         
         public Quadtree(Vec2 bounds)
             => _totalBounds = bounds;
-        public Quadtree(Vec2 bounds, List<I2DBoundable> items)
+        public Quadtree(Vec2 bounds, List<T> items)
         {
             _totalBounds = bounds;
             Add(items);
         }
         
-        public List<I2DBoundable> FindClosest(Vec2 point)
+        public List<T> FindClosest(Vec2 point)
             => _head.FindClosest(point);
-        public void Add(I2DBoundable value)
+        public void Add(T value)
         {
             if (_head == null)
                 _head = new Node(new BoundingRectangle(Vec2.Zero, _totalBounds), null);
             _head.Add(value);
         }
-        public void Add(List<I2DBoundable> value)
+        public void Add(List<T> value)
         {
             if (_head == null)
                 _head = new Node(new BoundingRectangle(Vec2.Zero, _totalBounds), null);
             _head.Add(value);
         }
-        public bool Remove(I2DBoundable value)
+        public bool Remove(T value)
         {
             if (_head == null)
                 return false;
@@ -57,14 +71,14 @@ namespace System
             _head?.DebugRender();
         }
 
-        public class Node
+        public class Node : IQuadtreeNode
         {
             private Node _parent;
             private BoundingRectangle _region;
-            public List<I2DBoundable> _items = new List<I2DBoundable>();
+            public List<T> _items = new List<T>();
             public Node[] _subNodes;
             
-            public List<I2DBoundable> Items
+            public List<T> Items
                 => _items;
             public BoundingRectangle Region
                 => _region;
@@ -77,11 +91,11 @@ namespace System
             public Vec2 Extents
                 => _region.Bounds;
 
-            public List<I2DBoundable> FindClosest(Vec2 point)
+            public List<T> FindClosest(Vec2 point)
             {
                 if (_region.Contains(point))
                 {
-                    List<I2DBoundable> list = null;
+                    List<T> list = null;
                     foreach (Node node in _subNodes)
                         if (node != null)
                         {
@@ -93,7 +107,7 @@ namespace System
                     if (_items.Count == 0)
                         return null;
 
-                    list = new List<I2DBoundable>(_items);
+                    list = new List<T>(_items);
                     for (int i = 0; i < list.Count; ++i)
                         if (!list[i].AxisAlignedBounds.Contains(point))
                             list.RemoveAt(i--);
@@ -103,17 +117,17 @@ namespace System
                 else
                     return null;
             }
-            public List<I2DBoundable> CollectChildren()
+            public List<T> CollectChildren()
             {
-                List<I2DBoundable> list = _items;
+                List<T> list = _items;
                 foreach (Node node in _subNodes)
                     if (node != null)
                         list.AddRange(node.CollectChildren());
                 return list;
             }
-            public List<I2DBoundable> FindAll(BoundingRectangle bounds, EContainmentFlags containment)
+            public List<T> FindAll(BoundingRectangle bounds, EContainmentFlags containment)
             {
-                List<I2DBoundable> list = new List<I2DBoundable>();
+                List<T> list = new List<T>();
 
                 //Not searching for anything?
                 if (containment == EContainmentFlags.None)
@@ -126,7 +140,7 @@ namespace System
 
                 return null;
             }
-            private void FindAllInternal(RectangleF bounds, EContainmentFlags containment, List<I2DBoundable> found)
+            private void FindAllInternal(RectangleF bounds, EContainmentFlags containment, List<T> found)
             {
 
             }
@@ -134,7 +148,7 @@ namespace System
             /// shouldDestroy returns true if this node has no items contained within it or its subdivisions.
             /// returns true if the value was found and removed.
             /// </summary>
-            public bool Remove(I2DBoundable value, out bool shouldDestroy)
+            public bool Remove(T value, out bool shouldDestroy)
             {
                 bool hasBeenRemoved = false;
                 if (_items.Contains(value))
@@ -167,15 +181,15 @@ namespace System
                 shouldDestroy = _items.Count == 0 && _subNodes == null;
                 return hasBeenRemoved;
             }
-            public void Add(List<I2DBoundable> value)
+            public void Add(List<T> value)
             {
                 bool notSubdivided = true;
-                List<I2DBoundable> items;
+                List<T> items;
                 for (int i = 0; i < 4; ++i)
                 {
-                    items = new List<I2DBoundable>();
+                    items = new List<T>();
                     BoundingRectangle bounds = GetSubdivision(i);
-                    foreach (I2DBoundable item in value)
+                    foreach (T item in value)
                     {
                         if (item == null)
                             continue;
@@ -201,12 +215,12 @@ namespace System
                 }
 
                 if (notSubdivided)
-                    foreach (I2DBoundable b in value)
+                    foreach (T b in value)
                         if (_parent == null || _region.Contains(b.AxisAlignedBounds) == EContainment.Contains)
                             Items.Add(b);
             }
-
-            public void OnMoved(I2DBoundable item)
+            public void ItemMoved(I2DBoundable item) => ItemMoved((T)item);
+            public void ItemMoved(T item)
             {
                 if (_region.Contains(item.AxisAlignedBounds) == EContainment.Contains)
                 {
@@ -221,11 +235,11 @@ namespace System
                 {
                     if (_items.Contains(item))
                         _items.Remove(item);
-                    _parent?.OnMoved(item);
+                    _parent?.ItemMoved(item);
                 }
             }
 
-            public void Add(I2DBoundable item)
+            public void Add(T item)
             {
                 if (item == null)
                     return;

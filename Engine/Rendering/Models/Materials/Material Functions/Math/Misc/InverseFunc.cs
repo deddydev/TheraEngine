@@ -16,13 +16,13 @@ namespace CustomEngine.Rendering.Models.Materials
                 "inverse divided divison one 1 over value")]
     public class InverseFunc : MaterialFunction
     {
-        FuncValueInput InputValue;
-        FuncValueOutput Result;
+        MatFuncValueInput InputValue;
+        MatFuncValueOutput Result;
         
         public InverseFunc() : base(true) { }
         protected override string GetOperation()
         {
-            switch (InputValue.CurrentArgumentType)
+            switch ((GLTypeName)InputValue.CurrentArgumentType)
             {
                 case GLTypeName._float:
                 case GLTypeName._double:
@@ -42,15 +42,15 @@ namespace CustomEngine.Rendering.Models.Materials
             }
             throw new InvalidOperationException();
         }
-        protected override List<FuncValueInput> GetInputs()
+        protected override List<MatFuncValueInput> GetValueInputs()
         {
-            InputValue = new FuncValueInput("Value", FloatingPointTypes);
-            return new List<FuncValueInput>() { InputValue };
+            InputValue = new MatFuncValueInput("Value", FloatingPointTypes);
+            return new List<MatFuncValueInput>() { InputValue };
         }
-        protected override List<FuncValueOutput> GetOutputs()
+        protected override List<MatFuncValueOutput> GetValueOutputs()
         {
-            Result = new FuncValueOutput("Result", InputValue);
-            return new List<FuncValueOutput>() { Result };
+            Result = new MatFuncValueOutput("Result", InputValue);
+            return new List<MatFuncValueOutput>() { Result };
         }
     }
 }

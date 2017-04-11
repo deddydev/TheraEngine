@@ -1,15 +1,9 @@
-﻿using CustomEngine.Rendering.HUD;
-using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System;
 
 namespace CustomEngine.Rendering.Models.Materials
 {
-    public abstract class MaterialFunction : Function<MatFuncValueInput, MatFuncValueOutput>
+    public abstract class MaterialFunction
+        : Function<MatFuncValueInput, MatFuncValueOutput, MatFuncExecInput, MatFuncExecOutput>
     {
         /// <summary>
         /// Determines if this function can be contained within one line.

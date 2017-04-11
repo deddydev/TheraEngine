@@ -10,10 +10,10 @@ namespace CustomEngine.Rendering
         private List<IRenderable> _renderables = new List<IRenderable>();
         private SortedDictionary<uint, IRenderable> _renderCommands = new SortedDictionary<uint, IRenderable>();
 
-        private Octree _cullingTree;
+        private Octree<IRenderable> _cullingTree;
         private LightManager _lightManager = new LightManager();
 
-        public Octree RenderTree => _cullingTree;
+        public Octree<IRenderable> RenderTree => _cullingTree;
         public LightManager Lights => _lightManager;
 
         internal void WorldChanged()
@@ -25,7 +25,7 @@ namespace CustomEngine.Rendering
             }
 
             WorldSettings ws = Engine.World.Settings;
-            List<I3DBoundable> renderables = new List<I3DBoundable>();
+            List<IRenderable> renderables = new List<IRenderable>();
 
             //foreach (Map m in ws._defaultMaps)
             //    if (m.Settings.VisibleByDefault)
@@ -45,7 +45,7 @@ namespace CustomEngine.Rendering
             //                }
             //            }
 
-            _cullingTree = new Octree(ws.Bounds, renderables);
+            _cullingTree = new Octree<IRenderable>(ws.Bounds, renderables);
         }
         internal void Render(Camera camera, bool deferredPass)
         {

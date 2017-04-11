@@ -31,6 +31,7 @@ namespace CustomEngine
     public class RenderPanel : UserControl, IEnumerable<Viewport>
     {
         public static RenderPanel HoveredPanel;
+        public static RenderPanel CapturedPanel;
         public RenderPanel()
         {
             SetStyle(
@@ -148,19 +149,38 @@ namespace CustomEngine
             if (HoveredPanel == this)
                 HoveredPanel = null;
         }
+        protected override void OnMouseDown(MouseEventArgs e)
+        {
+            base.OnMouseDown(e);
+            //Cursor.Hide();
+            Capture = true;
+        }
+        protected override void OnMouseCaptureChanged(EventArgs e)
+        {
+            base.OnMouseCaptureChanged(e);
+            if (Capture)
+            {
+                if (CapturedPanel != this)
+                    CapturedPanel = this;
+            }
+            else
+            {
+                if (CapturedPanel == this)
+                    CapturedPanel = null;
+            }
+        }
         protected virtual void OnRender(PaintEventArgs e)
         {
             _context.BeginDraw();
-
             foreach (Viewport v in _viewports)
                 v.Render(Engine.Renderer.Scene);
-
             _globalHud?.Render();
             _context.EndDraw();
         }
         protected override void OnResize(EventArgs e)
         {
             base.OnResize(e);
+            _globalHud.Resize(new Vec2(Width, Height));
             foreach (Viewport v in _viewports)
                 v.Resize(Width, Height);
             //Rectangle region = new Rectangle(0, 0, Width, Height);

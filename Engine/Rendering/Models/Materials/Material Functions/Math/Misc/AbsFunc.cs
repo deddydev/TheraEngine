@@ -16,23 +16,23 @@ namespace CustomEngine.Rendering.Models.Materials
                 "absolute value")]
     public class AbsFunc : MaterialFunction
     {
-        FuncValueInput InputValue;
-        FuncValueOutput OutputValue;
+        MatFuncValueInput InputValue;
+        MatFuncValueOutput OutputValue;
         
         public AbsFunc() : base(true) { }
         protected override string GetOperation()
         {
             return "Abs({0})";
         }
-        protected override List<FuncValueInput> GetInputs()
+        protected override List<MatFuncValueInput> GetValueInputs()
         {
-            InputValue = new FuncValueInput("Value", SignedTypes);
-            return new List<FuncValueInput>() { InputValue };
+            InputValue = new MatFuncValueInput("Value", SignedTypes);
+            return new List<MatFuncValueInput>() { InputValue };
         }
-        protected override List<FuncValueOutput> GetOutputs()
+        protected override List<MatFuncValueOutput> GetValueOutputs()
         {
-            OutputValue = new FuncValueOutput("Result", InputValue);
-            return new List<FuncValueOutput>() { OutputValue };
+            OutputValue = new MatFuncValueOutput("Result", InputValue);
+            return new List<MatFuncValueOutput>() { OutputValue };
         }
     }
 }

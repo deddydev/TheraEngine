@@ -41,7 +41,7 @@ namespace System
 
         private bool _isRendering = false;
 
-        private Octree.Node _renderNode;
+        private IOctreeNode _renderNode;
 
         //For quickly testing if objects in large scenes should even be tested against the frustum at all
         private Sphere _boundingSphere;
@@ -129,7 +129,7 @@ namespace System
             get => _isRendering;
             set => _isRendering = value;
         }
-        public Octree.Node RenderNode
+        public IOctreeNode RenderNode
         {
             get => _renderNode;
             set => _renderNode = value;

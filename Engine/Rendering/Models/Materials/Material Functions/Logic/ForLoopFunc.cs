@@ -18,21 +18,21 @@ namespace CustomEngine.Rendering.Models.Materials
         {
             return "for (int i = {0}; {1}, ";
         }
-        protected override List<FuncValueInput> GetInputs()
+        protected override List<MatFuncValueInput> GetValueInputs()
         {
-            return new List<FuncValueInput>()
+            return new List<MatFuncValueInput>()
             {
-                new FuncValueInput("Start Index", false, GLTypeName._int),
-                new FuncValueInput("Loop Operation", true, GLTypeName._bool),
+                new MatFuncValueInput("Start Index", GLTypeName._int),
+                new MatFuncValueInput("Loop Operation", GLTypeName._bool),
                 //TODO: material function argument for each loop?
             };
         }
-        protected override List<FuncValueOutput> GetOutputs()
+        protected override List<MatFuncValueOutput> GetValueOutputs()
         {
-            return new List<FuncValueOutput>()
+            return new List<MatFuncValueOutput>()
             {
-                new FuncValueOutput("Loop Index", false, GLTypeName._int),
-                new FuncValueOutput("Loop Count", false, GLTypeName._bool),
+                new MatFuncValueOutput("Loop Index", GLTypeName._int),
+                new MatFuncValueOutput("Loop Count", GLTypeName._bool),
                 //TODO: material function argument for each loop?
             };
         }

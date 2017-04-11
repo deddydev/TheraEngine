@@ -16,19 +16,15 @@ namespace CustomEngine.Rendering.Models.Materials
                 "result output final return")]
     public class ResultBasicFunc : MaterialFunction
     {
-        FuncValueInput FinalColor;
-        FuncValueInput WorldPositionOffset;
+        MatFuncValueInput FinalColor;
+        MatFuncValueInput WorldPositionOffset;
 
         public ResultBasicFunc() : base(true) { }
-        protected override List<FuncValueInput> GetInputs()
+        protected override List<MatFuncValueInput> GetInputs()
         {
-            FinalColor = new FuncValueInput("FinalColor", GLTypeName._vec4);
-            WorldPositionOffset = new FuncValueInput("WorldPositionOffset", GLTypeName._vec3);
-            return new List<FuncValueInput>() { FinalColor };
-        }
-        public static FunctionDefinition GetInfo()
-        {
-            return new;
+            FinalColor = new MatFuncValueInput("FinalColor", GLTypeName._vec4);
+            WorldPositionOffset = new MatFuncValueInput("WorldPositionOffset", GLTypeName._vec3);
+            return new List<MatFuncValueInput>() { FinalColor };
         }
         protected override string GetOperation()
         {

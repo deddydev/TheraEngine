@@ -16,6 +16,7 @@ namespace CustomEngine.Rendering.Models.Materials
 
         void AddConnection(IFuncValueInput other);
         void RemoveConnection(IFuncValueInput other);
+        void Arrange(int argumentIndex);
     }
     public class FuncValueOutput<TInput, TParent> : BaseFuncArg<TInput>, IFuncValueOutput
         where TInput : class, IFuncValueInput where TParent : class, IFunction

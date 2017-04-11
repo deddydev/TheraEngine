@@ -20,58 +20,16 @@ namespace CustomEngine.Rendering.Models.Materials
         /// </summary>
         protected bool _inline = false;
         
-        public MaterialFunction(bool inline)
+        public MaterialFunction(bool inline) : base()
         {
-            AddInput(GetInputs());
-            AddOutput(GetOutputs());
-
-            foreach (FuncValueInput input in _inputs)
-            {
-                input.Arrange(_inputs.Count);
-                _children.Add(input);
-            }
-            foreach (FuncValueOutput output in _outputs)
-            {
-                output.Arrange(_outputs.Count);
-                _children.Add(output);
-            }
+            _inline = inline;
         }
-
-        internal const float _titleHeight = 10.0f;
-        internal const float _textCharWidth = 5.0f;
-        internal const float _padding = 3.0f;
-        internal const float _maxArgTextWidth = 20.0f;
-
-        protected virtual List<FuncValueInput> GetInputs() => new List<FuncValueInput>();
-        protected virtual List<FuncValueOutput> GetOutputs() => new List<FuncValueOutput>();
-
+        
         /// <summary>
         /// Returns the base operation for string.Format.
         /// </summary>
         protected abstract string GetOperation();
-
-        protected void AddInput(List<FuncValueInput> input)
-        {
-            if (input != null)
-                foreach (FuncValueInput v in input)
-                    AddInput(v);
-        }
-        protected void AddInput(FuncValueInput input)
-        {
-            input.Arrange(_inputs.Count);
-            _inputs.Add(input);
-        }
-        protected void AddOutput(List<FuncValueOutput> output)
-        {
-            if (output != null)
-                foreach (FuncValueOutput v in output)
-                    AddOutput(v);
-        }
-        protected void AddOutput(FuncValueOutput output)
-        {
-            _outputs.Add(output);
-        }
-        public override string ToString() => FunctionName;
+        
         public string GetLineOperation(
             string[] inputNames,
             string[] outputNames,
@@ -116,7 +74,7 @@ namespace CustomEngine.Rendering.Models.Materials
         {
             string s = "void " + FunctionName + "(";
             bool first = true;
-            foreach (FuncValueInput arg in InputArguments)
+            foreach (MatFuncValueInput arg in InputArguments)
             {
                 if (first)
                     first = false;
@@ -124,7 +82,7 @@ namespace CustomEngine.Rendering.Models.Materials
                     s += ", ";
                 s += "in " + arg.CurrentArgumentType.ToString().Substring(1) + " " + arg.Name;
             }
-            foreach (FuncValueOutput arg in OutputArguments)
+            foreach (MatFuncValueOutput arg in OutputArguments)
             {
                 if (first)
                     first = false;
@@ -135,13 +93,7 @@ namespace CustomEngine.Rendering.Models.Materials
             s += ")\n{\n" + GetOperation() + "\n}\n";
             return s;
         }
-
-        public FunctionDefinition Definition => GetType().GetCustomAttribute<FunctionDefinition>();
-        public ReadOnlyCollection<string> Keywords => Definition?._keywords.AsReadOnly();
-        public string FunctionName => Definition?._name;
-        public string Description => Definition?._description;
-        public string Category => Definition?._category;
-
+        
         public static readonly GLTypeName[] SignedIntTypes = new GLTypeName[]
         {
             GLTypeName._int,

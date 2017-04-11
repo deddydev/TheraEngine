@@ -26,7 +26,7 @@ namespace CustomEngine.Rendering.Models.Materials
     {
 
     }
-    public abstract class Function : Function<FuncValueInput, FuncValueOutput>
+    public abstract class Function : Function<IFuncValueInput, IFuncValueOutput>
     {
         public static List<Type> FindFunctions<T>(string keywords) where T : IFunction
         {
@@ -71,10 +71,10 @@ namespace CustomEngine.Rendering.Models.Materials
     /// <typeparam name="TIn">The input class to use.</typeparam>
     /// <typeparam name="TOut">The output class to use.</typeparam>
     public abstract class Function<TIn, TOut> : HudComponent, IGLVarOwner, IFunction
-        where TIn : FuncValueInput where TOut : FuncValueOutput
+        where TIn : HudComponent, IFuncValueInput where TOut : HudComponent, IFuncValueOutput
     {
-        protected List<FuncValueInput> _inputs = new List<FuncValueInput>();
-        protected List<FuncValueOutput> _outputs = new List<FuncValueOutput>();
+        protected List<TIn> _inputs = new List<TIn>();
+        protected List<TOut> _outputs = new List<TOut>();
 
         public Function()
         {
@@ -82,8 +82,8 @@ namespace CustomEngine.Rendering.Models.Materials
             AddOutput(GetOutputs());
         }
 
-        public List<FuncValueInput> InputArguments => _inputs;
-        public List<FuncValueOutput> OutputArguments => _outputs;
+        public List<TIn> InputArguments => _inputs;
+        public List<TOut> OutputArguments => _outputs;
 
         public void SetOwner(HudComponent comp)
         {
@@ -91,13 +91,13 @@ namespace CustomEngine.Rendering.Models.Materials
             comp.Add(this);
         }
 
-        protected virtual List<FuncValueInput> GetInputs() => new List<FuncValueInput>();
-        protected virtual List<FuncValueOutput> GetOutputs() => new List<FuncValueOutput>();
+        protected virtual List<TIn> GetInputs() => new List<TIn>();
+        protected virtual List<TOut> GetOutputs() => new List<TOut>();
 
-        protected void AddInput(List<FuncValueInput> input)
+        protected void AddInput(List<TIn> input)
         {
             if (input != null)
-                foreach (FuncValueInput v in input)
+                foreach (TIn v in input)
                 {
                     v.Arrange(_inputs.Count);
                     _inputs.Add(v);
@@ -105,17 +105,17 @@ namespace CustomEngine.Rendering.Models.Materials
                 }
             Resized();
         }
-        protected void AddInput(FuncValueInput input)
+        protected void AddInput(TIn input)
         {
             input.Arrange(_inputs.Count);
             _inputs.Add(input);
             _children.Add(input);
             Resized();
         }
-        protected void AddOutput(List<FuncValueOutput> output)
+        protected void AddOutput(List<TOut> output)
         {
             if (output != null)
-                foreach (FuncValueOutput v in output)
+                foreach (TOut v in output)
                 {
                     v.Arrange(_outputs.Count);
                     _outputs.Add(v);
@@ -123,7 +123,7 @@ namespace CustomEngine.Rendering.Models.Materials
                 }
             Resized();
         }
-        protected void AddOutput(FuncValueOutput output)
+        protected void AddOutput(TOut output)
         {
             output.Arrange(_outputs.Count);
             _outputs.Add(output);

@@ -6,17 +6,14 @@ using System.Threading.Tasks;
 
 namespace CustomEngine.Rendering.Models.Materials
 {
-    public class MultiplyFunc : OperatorFunc
-    {
-        public MultiplyFunc() : base() { }
-        protected override string GetOperator() { return "*"; }
-        public static MaterialFuncInfo GetInfo()
-        {
-            return new MaterialFuncInfo(
+    [FunctionDefinition(
                 "Math",
                 "A * B",
                 "Returns A * B.",
-                "multiply multiplied multiplication *");
-        }
+                "multiply multiplied multiplication *")]
+    public class MultiplyFunc : OperatorFunc
+    {
+        public MultiplyFunc() : base() { }
+        protected override string GetOperator() => "*";
     }
 }

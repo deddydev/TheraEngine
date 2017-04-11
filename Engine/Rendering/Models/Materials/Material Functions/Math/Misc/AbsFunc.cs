@@ -7,35 +7,32 @@ using System.Threading.Tasks;
 namespace CustomEngine.Rendering.Models.Materials
 {
     /// <summary>
-    /// returns the absolute value of the input value
+    /// Returns the absolute value of the input value
     /// </summary>
+    [FunctionDefinition(
+                "Math",
+                "Absolute Value",
+                "Returns the absolute value of the given value.", 
+                "absolute value")]
     public class AbsFunc : MaterialFunction
     {
-        GLInput InputValue;
-        GLOutput OutputValue;
+        FuncValueInput InputValue;
+        FuncValueOutput OutputValue;
         
         public AbsFunc() : base(true) { }
         protected override string GetOperation()
         {
             return "Abs({0})";
         }
-        protected override List<GLInput> GetInputs()
+        protected override List<FuncValueInput> GetInputs()
         {
-            InputValue = new GLInput("Value", SignedTypes);
-            return new List<GLInput>() { InputValue };
+            InputValue = new FuncValueInput("Value", SignedTypes);
+            return new List<FuncValueInput>() { InputValue };
         }
-        protected override List<GLOutput> GetOutputs()
+        protected override List<FuncValueOutput> GetOutputs()
         {
-            OutputValue = new GLOutput("Result", InputValue);
-            return new List<GLOutput>() { OutputValue };
-        }
-        public static MaterialFuncInfo GetInfo()
-        {
-            return new MaterialFuncInfo(
-                "Math",
-                "Absolute Value",
-                "Returns the absolute value of the given value.", 
-                "absolute value");
+            OutputValue = new FuncValueOutput("Result", InputValue);
+            return new List<FuncValueOutput>() { OutputValue };
         }
     }
 }

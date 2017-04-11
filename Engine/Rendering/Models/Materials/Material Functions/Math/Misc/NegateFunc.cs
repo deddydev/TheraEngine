@@ -9,10 +9,15 @@ namespace CustomEngine.Rendering.Models.Materials
     /// <summary>
     /// returns the absolute value of the input value
     /// </summary>
+    [FunctionDefinition(
+                "Math",
+                "Negate",
+                "Returns the negated value of the given value.",
+                "negate negative value")]
     public class NegateFunc : MaterialFunction
     {
-        GLInput InputValue;
-        GLOutput Result;
+        FuncValueInput InputValue;
+        FuncValueOutput Result;
         
         public NegateFunc() : base(true) { }
         protected override string GetOperation()
@@ -45,23 +50,15 @@ namespace CustomEngine.Rendering.Models.Materials
             }
             throw new InvalidOperationException();
         }
-        protected override List<GLInput> GetInputs()
+        protected override List<FuncValueInput> GetInputs()
         {
-            InputValue = new GLInput("Value", SignedTypes);
-            return new List<GLInput>() { InputValue };
+            InputValue = new FuncValueInput("Value", SignedTypes);
+            return new List<FuncValueInput>() { InputValue };
         }
-        protected override List<GLOutput> GetOutputs()
+        protected override List<FuncValueOutput> GetOutputs()
         {
-            Result = new GLOutput("Result", InputValue);
-            return new List<GLOutput>() { Result };
-        }
-        public static MaterialFuncInfo GetInfo()
-        {
-            return new MaterialFuncInfo(
-                "Math",
-                "Negate",
-                "Returns the negated value of the given value.", 
-                "negate negative value");
+            Result = new FuncValueOutput("Result", InputValue);
+            return new List<FuncValueOutput>() { Result };
         }
     }
 }

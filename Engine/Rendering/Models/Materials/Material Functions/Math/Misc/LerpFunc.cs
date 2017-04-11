@@ -9,34 +9,31 @@ namespace CustomEngine.Rendering.Models.Materials
     /// <summary>
     /// a * (1 − t) + b * t. 
     /// </summary>
+    [FunctionDefinition(
+                "Math",
+                "Linear Interpolate",
+                "Linearly interpolates between A and B using Time: A + (B - A) * Time",
+                "lerp mix linear interpolate blend")]
     public class LerpFunc : MaterialFunction
     {
-        GLInput A, B, Time;
-        GLOutput Result;
+        FuncValueInput A, B, Time;
+        FuncValueOutput Result;
 
         public LerpFunc() : base(true) { }
         protected override string GetOperation() { return "mix({0}, {1}, {2})"; }
-        protected override List<GLInput> GetInputs()
+        protected override List<FuncValueInput> GetInputs()
         {
-            A = new GLInput("A", FloatingPointTypes);
-            B = new GLInput("B", A);
-            Time = new GLInput("Time", GLTypeName._float);
+            A = new FuncValueInput("A", FloatingPointTypes);
+            B = new FuncValueInput("B", A);
+            Time = new FuncValueInput("Time", GLTypeName._float);
 
-            return new List<GLInput>() { A, B, Time };
+            return new List<FuncValueInput>() { A, B, Time };
         }
-        protected override List<GLOutput> GetOutputs()
+        protected override List<FuncValueOutput> GetOutputs()
         {
-            Result = new GLOutput("Result", A);
+            Result = new FuncValueOutput("Result", A);
 
-            return new List<GLOutput>() { Result };
-        }
-        public static MaterialFuncInfo GetInfo()
-        {
-            return new MaterialFuncInfo(
-                "Math",
-                "Linear Interpolate",
-                "Linearly interpolates between A and B using Time: A + (B - A) * Time", 
-                "lerp mix linear interpolate blend");
+            return new List<FuncValueOutput>() { Result };
         }
     }
 }

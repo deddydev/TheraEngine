@@ -5,36 +5,50 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Text.RegularExpressions;
+using CustomEngine.Rendering.HUD;
 
 namespace CustomEngine.Rendering.Models.Materials
 {
-    public class GLOutput : BaseGLArgument
+    public interface IFuncValueOutput : IBaseFuncValue
     {
-        public override bool IsOutput { get { return true; } }
-        public MonitoredList<GLInput> ConnectedTo { get { return _connectedTo; } }
+        Vec2 Translation { get; set; }
+        int[] AllowedArgumentTypes { get; }
 
-        protected MonitoredList<GLInput> _connectedTo = new MonitoredList<GLInput>(false);
+        void AddConnection(IFuncValueInput other);
+        void RemoveConnection(IFuncValueInput other);
+    }
+    public class FuncValueOutput<TInput, TParent> : BaseFuncArg<TInput>, IFuncValueOutput
+        where TInput : class, IFuncValueInput where TParent : class, IFunction
+    {
+        public override bool IsOutput => true;
+        public MonitoredList<TInput> ConnectedTo => _connectedTo;
 
-        public GLOutput(string name, params GLTypeName[] types) : base(name)
+        protected MonitoredList<TInput> _connectedTo = new MonitoredList<TInput>(false);
+
+        public FuncValueOutput(string name, params int[] types)
+            : base(name)
         {
             _allowedArgTypes = types;
             _connectedTo.Added += _connectedTo_Added;
             _connectedTo.Removed += _connectedTo_Removed;
         }
-        public GLOutput(string name, MaterialFunction parent, params GLTypeName[] types) : base(name, parent)
+        public FuncValueOutput(string name, TParent parent, params int[] types)
+            : base(name, parent)
         {
             _allowedArgTypes = types;
             _connectedTo.Added += _connectedTo_Added;
             _connectedTo.Removed += _connectedTo_Removed;
         }
-        public GLOutput(string name, BaseGLArgument linkedMultiArg) : base(name)
+        public FuncValueOutput(string name, TInput linkedMultiArg)
+            : base(name)
         {
             _syncedArgs.Add(linkedMultiArg);
             _allowedArgTypes = linkedMultiArg.AllowedArgumentTypes;
             _connectedTo.Added += _connectedTo_Added;
             _connectedTo.Removed += _connectedTo_Removed;
         }
-        public GLOutput(string name, MaterialFunction parent, BaseGLArgument linkedMultiArg) : base(name, parent)
+        public FuncValueOutput(string name, TParent parent, TInput linkedMultiArg)
+            : base(name, parent)
         {
             _syncedArgs.Add(linkedMultiArg);
             _allowedArgTypes = linkedMultiArg.AllowedArgumentTypes;
@@ -42,17 +56,19 @@ namespace CustomEngine.Rendering.Models.Materials
             _connectedTo.Removed += _connectedTo_Removed;
         }
         
-        public bool TryConnectTo(GLInput other)
+        public bool TryConnectTo(TInput other)
         {
             if (!CanConnectTo(other))
                 return false;
             DoConnection(other);
             return true;
         }
-        internal virtual void DoConnection(GLInput other) { _connectedTo.AddSilent(other); }
-        internal virtual void ClearConnection(GLInput other) { _connectedTo.RemoveSilent(other); }
-        private void _connectedTo_Added(GLInput item) { item.DoConnection(this); }
-        private void _connectedTo_Removed(GLInput item) { item.ClearConnection(); }
+        public virtual void AddConnection(IFuncValueInput other) => DoConnection(other as TInput);
+        public virtual void DoConnection(TInput other) { _connectedTo.AddSilent(other); }
+        public virtual void RemoveConnection(IFuncValueInput other) => ClearConnection(other as TInput);
+        public virtual void ClearConnection(TInput other) { _connectedTo.RemoveSilent(other); }
+        private void _connectedTo_Added(TInput item) { item.SetConnection(this); }
+        private void _connectedTo_Removed(TInput item) { item.ClearConnection(); }
         /// <summary>
         /// Returns interpolated point from the connected output argument to this argument.
         /// Used for rendering the material editor graph.
@@ -87,37 +103,37 @@ namespace CustomEngine.Rendering.Models.Materials
                 _connectedTo[argIndex] == null)
                 return Translation;
 
-            return BezierToPoint(_connectedTo[argIndex].Translation, time);
+            return BezierToPoint((_connectedTo[argIndex]).Translation, time);
         }
-        public override bool CanConnectTo(BaseGLArgument other)
+        public override bool CanConnectTo(TInput other)
         {
-            if (other == null || other.IsOutput == IsOutput)
+            if (other == null /*|| other.IsOutput == IsOutput*/)
                 return false;
 
-            GLTypeName otherType = other.CurrentArgumentType;
+            int otherType = other.CurrentArgumentType;
 
             //Edge case: the other node is just invalid
-            if (otherType == GLTypeName.Invalid)
+            if (otherType < 0)
                 return false;
 
-            GLTypeName thisType = CurrentArgumentType;
-            if (thisType != GLTypeName.Invalid)
+            int thisType = CurrentArgumentType;
+            if (thisType >= 0)
             {
-                if (otherType != GLTypeName.Invalid)
+                if (otherType >= 0)
                     return thisType == otherType;
 
-                //Has to be a GLMultiArgument as per the edge case check above
-                GLInput otherMultiArg = (GLInput)other;
+                //Has to be a multi arg as per the edge case check above
+                TInput otherMultiArg = other;
 
                 return otherMultiArg.AllowedArgumentTypes.Contains(thisType);
             }
             else //this type is invalid, use allowed arg types
             {
-                if (otherType != GLTypeName.Invalid)
+                if (otherType >= 0)
                     return _allowedArgTypes.Contains(otherType);
 
-                //Has to be a GLMultiArgument as per the edge case check above
-                GLInput otherMultiArg = (GLInput)other;
+                //Has to be a multi arg as per the edge case check above
+                TInput otherMultiArg = other;
 
                 //Returns true if there are any matching allowed types between the two
                 return _allowedArgTypes.Intersect(otherMultiArg.AllowedArgumentTypes).ToArray().Length != 0;

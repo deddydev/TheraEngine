@@ -6,6 +6,11 @@ using System.Threading.Tasks;
 
 namespace CustomEngine.Rendering.Models.Materials
 {
+    [FunctionDefinition(
+                "Constants",
+                "Constant Value",
+                "Hardcodes a constant value in the shader.",
+                "constant scalar vector parameter value")]
     public class ConstantFunc<T> : MaterialFunction where T : GLVar
     {
         public ConstantFunc() : base(true) { }
@@ -15,20 +20,10 @@ namespace CustomEngine.Rendering.Models.Materials
 
         public T Value
         {
-            get { return _value; }
-            set { _value = value; }
-        }
-        public static MaterialFuncInfo GetInfo()
-        {
-            return new MaterialFuncInfo(
-                "Constants",
-                "Constant Value",
-                "Hardcodes a constant value to the shader.", 
-                "constant scalar parameter value");
+            get => _value;
+            set => _value = value;
         }
         protected override string GetOperation()
-        {
-            return _value.ToString();
-        }
+            => _value.ToString();
     }
 }

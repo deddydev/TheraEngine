@@ -10,6 +10,11 @@ namespace CustomEngine.Rendering.Models.Materials
     {
         void SetUniform();
     }
+    [FunctionDefinition(
+                "Constants",
+                "Parameter Value",
+                "Provides an animatable value to the shader.",
+                "constant scalar vector parameter value uniform animatable animate animation")]
     public class ParameterFunc<T> : MaterialFunction, IParameterFunc where T : GLVar
     {
         public ParameterFunc() : base(true) { }
@@ -19,16 +24,8 @@ namespace CustomEngine.Rendering.Models.Materials
 
         public T Value
         {
-            get { return _value; }
-            set { _value = value; }
-        }
-        public static MaterialFuncInfo GetInfo()
-        {
-            return new MaterialFuncInfo(
-                "Constants",
-                "Parameter Value",
-                "Provides an animatable value to the shader.", 
-                "constant scalar parameter value");
+            get => _value;
+            set => _value = value;
         }
         protected override string GetOperation()
         {
@@ -42,9 +39,7 @@ namespace CustomEngine.Rendering.Models.Materials
                 return "";
             return _value.GetUniformDeclaration(layoutId);
         }
-        public void SetUniform()
-        {
-            _value?.SetUniform();
-        }
+        public void SetUniform() 
+            => _value?.SetUniform();
     }
 }

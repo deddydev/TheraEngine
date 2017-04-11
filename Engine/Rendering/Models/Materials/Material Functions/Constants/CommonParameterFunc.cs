@@ -6,6 +6,11 @@ using System.Threading.Tasks;
 
 namespace CustomEngine.Rendering.Models.Materials
 {
+    [FunctionDefinition(
+                "Constants",
+                "Common Parameter",
+                "Provides a commom engine parameter value to the shader.",
+                "constant scalar parameter")]
     public class CommonParameterFunc : MaterialFunction
     {
         public CommonParameterFunc() : base(true) { }
@@ -16,7 +21,7 @@ namespace CustomEngine.Rendering.Models.Materials
 
         public ECommonUniform Value
         {
-            get { return _value; }
+            get => _value;
             set
             {
                 switch (_value = value)
@@ -38,28 +43,16 @@ namespace CustomEngine.Rendering.Models.Materials
 
                     case ECommonUniform.CameraPosition:
                     case ECommonUniform.CameraForward:
+                    case ECommonUniform.CameraUp:
+                    case ECommonUniform.CameraRight:
                         _type = GLTypeName._vec3;
                         break;
                 }
             }
         }
-
         public string GetDeclaration()
-        {
-            return _type.ToString().Substring(1) + _value.ToString();
-        }
-        
-        public static MaterialFuncInfo GetInfo()
-        {
-            return new MaterialFuncInfo(
-                "Constants",
-                "Common Parameter",
-                "Provides a commom engine parameter value to the shader.", 
-                "constant scalar parameter");
-        }
+            => _type.ToString().Substring(1) + _value.ToString();
         protected override string GetOperation()
-        {
-            return _value.ToString();
-        }
+            => _value.ToString();
     }
 }

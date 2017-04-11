@@ -6,17 +6,14 @@ using System.Threading.Tasks;
 
 namespace CustomEngine.Rendering.Models.Materials
 {
-    public class DivideFunc : OperatorFunc
-    {
-        public DivideFunc() : base() { }
-        protected override string GetOperator() { return "/"; }
-        public static MaterialFuncInfo GetInfo()
-        {
-            return new MaterialFuncInfo(
+    [FunctionDefinition(
                 "Math",
                 "A / B",
                 "Returns A / B.",
-                "divided division /");
-        }
+                "divided division /")]
+    public class DivideFunc : OperatorFunc
+    {
+        public DivideFunc() : base() { }
+        protected override string GetOperator() => "/";
     }
 }

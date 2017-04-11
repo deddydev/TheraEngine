@@ -4,10 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using CustomEngine.Rendering.HUD;
+using CustomEngine.Rendering.Models.Materials;
 
 namespace CustomEngine
 {
-    public class MaterialHudGrid : DockableHudComponent
+    public class EditorFunctionGrid : DockableHudComponent
     {
 
     }

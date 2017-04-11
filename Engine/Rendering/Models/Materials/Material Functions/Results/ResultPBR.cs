@@ -11,9 +11,9 @@ namespace CustomEngine.Rendering.Models.Materials
     /// </summary>
     public class ResultPBRFunc : ResultBasicFunc
     {
-        public static new MaterialFuncInfo GetInfo()
+        public static new FunctionDefinition GetInfo()
         {
-            return new MaterialFuncInfo(
+            return new FunctionDefinition(
                 "Output",
                 "Output PBR",
                 "Outputs the given vec4 color as the color for this fragment.",
@@ -25,16 +25,16 @@ namespace CustomEngine.Rendering.Models.Materials
             return base.GetOperation();
         }
 
-        protected override List<GLInput> GetInputs()
+        protected override List<FuncValueInput> GetInputs()
         {
-            return new List<GLInput>()
+            return new List<FuncValueInput>()
             {
-                new GLInput("Diffuse", GLTypeName._vec4),
-                new GLInput("Roughness", GLTypeName._float),
-                new GLInput("Shininess", GLTypeName._float),
-                new GLInput("Specularity", GLTypeName._float),
-                new GLInput("Metallic", GLTypeName._float),
-                new GLInput("Refraction", GLTypeName._float),
+                new FuncValueInput("Diffuse", GLTypeName._vec4),
+                new FuncValueInput("Roughness", GLTypeName._float),
+                new FuncValueInput("Shininess", GLTypeName._float),
+                new FuncValueInput("Specularity", GLTypeName._float),
+                new FuncValueInput("Metallic", GLTypeName._float),
+                new FuncValueInput("Refraction", GLTypeName._float),
             };
         }
     }

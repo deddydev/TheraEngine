@@ -9,21 +9,8 @@ using System.Threading.Tasks;
 
 namespace CustomEngine.Rendering.Models.Materials
 {
-    public class MaterialFuncInfo
+    public abstract class MaterialFunction : Function<MatFuncValueInput, MatFuncValueOutput>
     {
-        public MaterialFuncInfo(string category, string name, string description, string keywords)
-        {
-            _keywords = keywords.Split(' ').ToList();
-            _description = description;
-        }
-
-        public List<string> _keywords;
-        public string _name, _description, _category;
-    }
-    public abstract class MaterialFunction : HudComponent, IGLVarOwner
-    {
-        private static Dictionary<Type, MaterialFuncInfo> _info = new Dictionary<Type, MaterialFuncInfo>();
-
         /// <summary>
         /// Determines if this function can be contained within one line.
         /// Otherwise written as a method located outside of main().
@@ -32,80 +19,18 @@ namespace CustomEngine.Rendering.Models.Materials
         /// type FUNC_NAME(in/out type args) { FUNC_OPERATION }
         /// </summary>
         protected bool _inline = false;
-
-        public static MaterialFunction Instantiate(Type t, HudComponent owner)
-        {
-            if (!t.IsAssignableFrom(typeof(MaterialFunction)))
-                return null;
-
-            return Activator.CreateInstance(t, owner) as MaterialFunction;
-        }
-        public static List<Type> FindFunctions(string keywords)
-        {
-            string[] keyArray = keywords.Split(' ');
-            Dictionary<int, List<Type>> types = new Dictionary<int, List<Type>>();
-            foreach (var keyval in _info)
-            {
-                int count = 0;
-                foreach (string keyword in keyval.Value._keywords)
-                {
-                    foreach (string typedKeyword in keyArray)
-                        if (keyword.Contains(typedKeyword))
-                        {
-                            ++count;
-                            break;
-                        }
-                }
-                if (count > 0)
-                {
-                    if (types.ContainsKey(count))
-                        types[count].Add(keyval.Key);
-                    else
-                        types.Add(count, new List<Type>() { keyval.Key });
-                }
-            }
-            int maxVal = CustomMath.Max(types.Keys.ToArray());
-            return types[maxVal];
-        }
         
-        protected List<GLInput> _inputs = new List<GLInput>();
-        protected List<GLOutput> _outputs = new List<GLOutput>();
-        
-        public List<GLInput> InputArguments { get { return _inputs; } }
-        public List<GLOutput> OutputArguments { get { return _outputs; } }
-
-        static MaterialFunction()
-        {
-            IEnumerable<Type> funcTypes = Assembly.GetExecutingAssembly().GetTypes().Where(t => typeof(MaterialFunction).IsAssignableFrom(t) && !t.IsAbstract);
-            foreach (Type t in funcTypes)
-            {
-                MethodInfo method = t.GetMethod("GetInfo", BindingFlags.Static | BindingFlags.Public);
-                if (method == null)
-                    throw new Exception("public static MaterialFuncInfo GetInfo() not found in " + t.ToString());
-                MaterialFuncInfo info = method.Invoke(null, new object[0]) as MaterialFuncInfo;
-                if (info == null)
-                    throw new Exception(t.ToString() + "'s GetInfo function did not return MaterialFuncInfo.");
-                _info.Add(t, info);
-            }
-        }
-
-        public void SetOwner(HudComponent comp)
-        {
-            _parent?.Remove(this);
-            comp.Add(this);
-        }
-
-        public MaterialFunction(bool _inline)
+        public MaterialFunction(bool inline)
         {
             AddInput(GetInputs());
             AddOutput(GetOutputs());
 
-            foreach (GLInput input in _inputs)
+            foreach (FuncValueInput input in _inputs)
             {
                 input.Arrange(_inputs.Count);
                 _children.Add(input);
             }
-            foreach (GLOutput output in _outputs)
+            foreach (FuncValueOutput output in _outputs)
             {
                 output.Arrange(_outputs.Count);
                 _children.Add(output);
@@ -117,36 +42,36 @@ namespace CustomEngine.Rendering.Models.Materials
         internal const float _padding = 3.0f;
         internal const float _maxArgTextWidth = 20.0f;
 
-        protected virtual List<GLInput> GetInputs() { return new List<GLInput>(); }
-        protected virtual List<GLOutput> GetOutputs() { return new List<GLOutput>(); }
+        protected virtual List<FuncValueInput> GetInputs() => new List<FuncValueInput>();
+        protected virtual List<FuncValueOutput> GetOutputs() => new List<FuncValueOutput>();
 
         /// <summary>
         /// Returns the base operation for string.Format.
         /// </summary>
         protected abstract string GetOperation();
 
-        protected void AddInput(List<GLInput> input)
+        protected void AddInput(List<FuncValueInput> input)
         {
             if (input != null)
-                foreach (GLInput v in input)
+                foreach (FuncValueInput v in input)
                     AddInput(v);
         }
-        protected void AddInput(GLInput input)
+        protected void AddInput(FuncValueInput input)
         {
             input.Arrange(_inputs.Count);
             _inputs.Add(input);
         }
-        protected void AddOutput(List<GLOutput> output)
+        protected void AddOutput(List<FuncValueOutput> output)
         {
             if (output != null)
-                foreach (GLOutput v in output)
+                foreach (FuncValueOutput v in output)
                     AddOutput(v);
         }
-        protected void AddOutput(GLOutput output)
+        protected void AddOutput(FuncValueOutput output)
         {
             _outputs.Add(output);
         }
-        public override string ToString() { return FunctionName; }
+        public override string ToString() => FunctionName;
         public string GetLineOperation(
             string[] inputNames,
             string[] outputNames,
@@ -164,7 +89,7 @@ namespace CustomEngine.Rendering.Models.Materials
                 for (int i = 0; i < _outputs.Count; ++i)
                 {
                     string name = outputNames[i];
-                    GLTypeName type = _outputs[i].CurrentArgumentType;
+                    GLTypeName type = (GLTypeName)_outputs[i].CurrentArgumentType;
                     s += type + " " + name + ";\n";
                 }
 
@@ -191,7 +116,7 @@ namespace CustomEngine.Rendering.Models.Materials
         {
             string s = "void " + FunctionName + "(";
             bool first = true;
-            foreach (GLInput arg in InputArguments)
+            foreach (FuncValueInput arg in InputArguments)
             {
                 if (first)
                     first = false;
@@ -199,7 +124,7 @@ namespace CustomEngine.Rendering.Models.Materials
                     s += ", ";
                 s += "in " + arg.CurrentArgumentType.ToString().Substring(1) + " " + arg.Name;
             }
-            foreach (GLOutput arg in OutputArguments)
+            foreach (FuncValueOutput arg in OutputArguments)
             {
                 if (first)
                     first = false;
@@ -210,56 +135,13 @@ namespace CustomEngine.Rendering.Models.Materials
             s += ")\n{\n" + GetOperation() + "\n}\n";
             return s;
         }
-        public MaterialFuncInfo FunctionInfo
-        {
-            get
-            {
-                Type t = GetType();
-                if (_info.ContainsKey(t))
-                    return _info[t];
-                return null;
-            }
-        }
-        public ReadOnlyCollection<string> Keywords
-        {
-            get
-            {
-                Type t = GetType();
-                if (_info.ContainsKey(t))
-                    return _info[t]._keywords.AsReadOnly();
-                return null;
-            }
-        }
-        public string FunctionName
-        {
-            get
-            {
-                Type t = GetType();
-                if (_info.ContainsKey(t))
-                    return _info[t]._name;
-                return null;
-            }
-        }
-        public string Description
-        {
-            get
-            {
-                Type t = GetType();
-                if (_info.ContainsKey(t))
-                    return _info[t]._description;
-                return null;
-            }
-        }
-        public string Category
-        {
-            get
-            {
-                Type t = GetType();
-                if (_info.ContainsKey(t))
-                    return _info[t]._category;
-                return null;
-            }
-        }
+
+        public FunctionDefinition Definition => GetType().GetCustomAttribute<FunctionDefinition>();
+        public ReadOnlyCollection<string> Keywords => Definition?._keywords.AsReadOnly();
+        public string FunctionName => Definition?._name;
+        public string Description => Definition?._description;
+        public string Category => Definition?._category;
+
         public static readonly GLTypeName[] SignedIntTypes = new GLTypeName[]
         {
             GLTypeName._int,

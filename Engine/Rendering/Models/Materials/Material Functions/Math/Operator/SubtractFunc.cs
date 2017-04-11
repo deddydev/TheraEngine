@@ -6,17 +6,14 @@ using System.Threading.Tasks;
 
 namespace CustomEngine.Rendering.Models.Materials
 {
-    public class SubtractFunc : OperatorFunc
-    {
-        public SubtractFunc() : base() { }
-        protected override string GetOperator() { return "-"; }
-        public static MaterialFuncInfo GetInfo()
-        {
-            return new MaterialFuncInfo(
+    [FunctionDefinition(
                 "Math",
                 "A - B",
                 "Returns A - B.",
-                "subtracted - subtraction");
-        }
+                "subtracted - subtraction")]
+    public class SubtractFunc : OperatorFunc
+    {
+        public SubtractFunc() : base() { }
+        protected override string GetOperator() => "-";
     }
 }

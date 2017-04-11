@@ -7,12 +7,17 @@ using System.Threading.Tasks;
 namespace CustomEngine.Rendering.Models.Materials
 {
     /// <summary>
-    /// returns the absolute value of the input value
+    /// Returns 1.0f divided by the input value
     /// </summary>
+    [FunctionDefinition(
+                "Math",
+                "Inverse",
+                "Returns 1.0 / value.",
+                "inverse divided divison one 1 over value")]
     public class InverseFunc : MaterialFunction
     {
-        GLInput InputValue;
-        GLOutput Result;
+        FuncValueInput InputValue;
+        FuncValueOutput Result;
         
         public InverseFunc() : base(true) { }
         protected override string GetOperation()
@@ -37,23 +42,15 @@ namespace CustomEngine.Rendering.Models.Materials
             }
             throw new InvalidOperationException();
         }
-        protected override List<GLInput> GetInputs()
+        protected override List<FuncValueInput> GetInputs()
         {
-            InputValue = new GLInput("Value", FloatingPointTypes);
-            return new List<GLInput>() { InputValue };
+            InputValue = new FuncValueInput("Value", FloatingPointTypes);
+            return new List<FuncValueInput>() { InputValue };
         }
-        protected override List<GLOutput> GetOutputs()
+        protected override List<FuncValueOutput> GetOutputs()
         {
-            Result = new GLOutput("Result", InputValue);
-            return new List<GLOutput>() { Result };
-        }
-        public static MaterialFuncInfo GetInfo()
-        {
-            return new MaterialFuncInfo(
-                "Math",
-                "Inverse",
-                "Returns 1.0 / value.", 
-                "inverse divided divison one 1 over value");
+            Result = new FuncValueOutput("Result", InputValue);
+            return new List<FuncValueOutput>() { Result };
         }
     }
 }

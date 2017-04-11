@@ -6,17 +6,14 @@ using System.Threading.Tasks;
 
 namespace CustomEngine.Rendering.Models.Materials
 {
-    public class AddFunc : OperatorFunc
-    {
-        public AddFunc() : base() { }
-        protected override string GetOperator() { return "+"; }
-        public static MaterialFuncInfo GetInfo()
-        {
-            return new MaterialFuncInfo(
+    [FunctionDefinition(
                 "Math",
                 "A + B",
                 "Returns A + B.",
-                "added + concatenate addition");
-        }
+                "added + concatenate addition")]
+    public class AddFunc : OperatorFunc
+    {
+        public AddFunc() : base() { }
+        protected override string GetOperator() => "+";
     }
 }

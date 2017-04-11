@@ -9,10 +9,15 @@ namespace CustomEngine.Rendering.Models.Materials
     /// <summary>
     /// 1.0f - input
     /// </summary>
+    [FunctionDefinition(
+                "Math",
+                "One Minus Value",
+                "Returns 1.0f - value.",
+                "one minus value 1 - subtract")]
     public class OneMinusFunc : MaterialFunction
     {
-        GLInput InputValue;
-        GLOutput Result;
+        FuncValueInput InputValue;
+        FuncValueOutput Result;
 
         public OneMinusFunc() : base(true) { }
         protected override string GetOperation()
@@ -52,23 +57,15 @@ namespace CustomEngine.Rendering.Models.Materials
             }
             throw new InvalidOperationException();
         }
-        protected override List<GLInput> GetInputs()
+        protected override List<FuncValueInput> GetInputs()
         {
-            InputValue = new GLInput("Value", NumericTypes);
-            return new List<GLInput>() { InputValue };
+            InputValue = new FuncValueInput("Value", NumericTypes);
+            return new List<FuncValueInput>() { InputValue };
         }
-        protected override List<GLOutput> GetOutputs()
+        protected override List<FuncValueOutput> GetOutputs()
         {
-            Result = new GLOutput("Result", InputValue);
-            return new List<GLOutput>() { Result };
-        }
-        public static MaterialFuncInfo GetInfo()
-        {
-            return new MaterialFuncInfo(
-                "Math",
-                "One Minus Value",
-                "Returns 1.0f - value.", 
-                "one minus value 1 - subtract");
+            Result = new FuncValueOutput("Result", InputValue);
+            return new List<FuncValueOutput>() { Result };
         }
     }
 }

@@ -6,17 +6,14 @@ using System.Threading.Tasks;
 
 namespace CustomEngine.Rendering.Models.Materials
 {
+    [FunctionDefinition(
+                "Math",
+                "A > B",
+                "Returns true bool/bvec if A's individual components are greater than B's.",
+                "greater than >")]
     public class GreaterFunc : ComparableFunc
     {
         public GreaterFunc() : base() { }
         protected override string GetOperator() { return ">"; }
-        public static MaterialFuncInfo GetInfo()
-        {
-            return new MaterialFuncInfo(
-                "Math",
-                "A > B",
-                "Returns true bool/bvec if A's individual components are greater than B's.",
-                "greater than >");
-        }
     }
 }

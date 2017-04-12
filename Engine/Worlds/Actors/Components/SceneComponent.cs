@@ -158,14 +158,14 @@ namespace CustomEngine.Worlds.Actors
             foreach (SceneComponent c in ChildComponents)
                 c.PhysicsSimulationEnded();
         }
-        public override IActor Owner
+        public override IActor OwningActor
         {
-            get => base.Owner;
+            get => base.OwningActor;
             set
             {
-                base.Owner = value;
+                base.OwningActor = value;
                 foreach (SceneComponent c in _children)
-                    c.Owner = value;
+                    c.OwningActor = value;
             }
         }
         public MonitoredList<SceneComponent> ChildComponents
@@ -216,16 +216,16 @@ namespace CustomEngine.Worlds.Actors
         /// Gets the transformation of this component in relation to the actor's root component.
         /// </summary>
         public Matrix4 GetActorTransform() 
-            => WorldMatrix * Owner.RootComponent.InverseWorldMatrix;
+            => WorldMatrix * OwningActor.RootComponent.InverseWorldMatrix;
         /// <summary>
         /// Gets the inverse transformation of this component in relation to the actor's root component.
         /// </summary>
         public Matrix4 GetInvActorTransform() =>
-            InverseWorldMatrix * Owner.RootComponent.WorldMatrix;
+            InverseWorldMatrix * OwningActor.RootComponent.WorldMatrix;
 
         [Category("Rendering")]
         public bool IsSpawned
-            => Owner.IsSpawned;
+            => OwningActor.IsSpawned;
         [Category("Rendering")]
         public ISocket Parent
         {
@@ -239,8 +239,8 @@ namespace CustomEngine.Worlds.Actors
                 else
                 {
                     _parent = null;
-                    Owner?.GenerateSceneComponentCache();
-                    Owner = null;
+                    OwningActor?.GenerateSceneComponentCache();
+                    OwningActor = null;
                 }
             }
         }
@@ -301,17 +301,17 @@ namespace CustomEngine.Worlds.Actors
             foreach (SceneComponent item in items)
             {
                 item._parent = null;
-                item.Owner = null;
+                item.OwningActor = null;
                 item.RecalcGlobalTransform();
             }
-            Owner?.GenerateSceneComponentCache();
+            OwningActor?.GenerateSceneComponentCache();
         }
         private void _children_Removed(SceneComponent item)
         {
             item._parent = null;
-            item.Owner = null;
+            item.OwningActor = null;
             item.RecalcGlobalTransform();
-            Owner?.GenerateSceneComponentCache();
+            OwningActor?.GenerateSceneComponentCache();
         }
         private void _children_InsertedRange(IEnumerable<SceneComponent> items, int index)
             => _children_AddedRange(items);
@@ -322,18 +322,18 @@ namespace CustomEngine.Worlds.Actors
             foreach (SceneComponent item in items)
             {
                 item._parent = this;
-                item.Owner = Owner;
+                item.OwningActor = OwningActor;
                 item.RecalcGlobalTransform();
             }
-            Owner?.GenerateSceneComponentCache();
+            OwningActor?.GenerateSceneComponentCache();
         }
 
         private void _children_Added(SceneComponent item)
         {
             item._parent = this;
-            item.Owner = Owner;
+            item.OwningActor = OwningActor;
             item.RecalcGlobalTransform();
-            Owner?.GenerateSceneComponentCache();
+            OwningActor?.GenerateSceneComponentCache();
         }
         public void AttachTo(SkeletalMeshComponent mesh, string socketName)
         {

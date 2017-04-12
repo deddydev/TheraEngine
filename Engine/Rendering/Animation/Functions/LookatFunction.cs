@@ -21,7 +21,6 @@ namespace CustomEngine.Rendering.Animation
                 Vec3.Zero)));
             Vec3 sourcePoint = bone.WorldMatrix.GetPoint();
             bone.FrameState.Rotation.SetRotations(Quat.LookAt(sourcePoint, destPoint, Vec3.TransformVector(Vec3.Forward, bone.Parent.WorldMatrix)).ToEuler());
-            return null;
         }
 
         protected override List<AnimFuncValueInput> GetValueInputs()

@@ -57,7 +57,7 @@ namespace CustomEngine.Rendering.HUD
         }
         protected void OnChildAdded(HudComponent child)
         {
-            child.Manager = this;
+            child.Owner = this;
         }
 
         internal void UncacheComponent(HudComponent component)

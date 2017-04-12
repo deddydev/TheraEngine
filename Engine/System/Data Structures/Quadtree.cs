@@ -109,7 +109,7 @@ namespace System
 
                     list = new List<T>(_items);
                     for (int i = 0; i < list.Count; ++i)
-                        if (!list[i].AxisAlignedBounds.Contains(point))
+                        if (!list[i].Contains(point))
                             list.RemoveAt(i--);
 
                     return list;

@@ -311,7 +311,7 @@ namespace CustomEngine.Rendering.Models
         private void ChildComponentsAdded(SceneComponent item)
         {
             item._parent = this;
-            item.Owner = OwningComponent.Owner;
+            item.OwningActor = OwningComponent.OwningActor;
             item.RecalcGlobalTransform();
         }
         private void ChildComponentsAddedRange(IEnumerable<SceneComponent> items)
@@ -319,7 +319,7 @@ namespace CustomEngine.Rendering.Models
             foreach (SceneComponent item in items)
             {
                 item._parent = this;
-                item.Owner = OwningComponent.Owner;
+                item.OwningActor = OwningComponent.OwningActor;
                 item.RecalcGlobalTransform();
             }
         }
@@ -330,7 +330,7 @@ namespace CustomEngine.Rendering.Models
         private void ChildComponentsRemoved(SceneComponent item)
         {
             item._parent = null;
-            item.Owner = null;
+            item.OwningActor = null;
             item.RecalcGlobalTransform();
         }
         private void ChildComponentsRemovedRange(IEnumerable<SceneComponent> items)
@@ -338,7 +338,7 @@ namespace CustomEngine.Rendering.Models
             foreach (SceneComponent item in items)
             {
                 item._parent = null;
-                item.Owner = null;
+                item.OwningActor = null;
                 item.RecalcGlobalTransform();
             }
         }

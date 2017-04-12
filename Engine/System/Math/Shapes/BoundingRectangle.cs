@@ -10,15 +10,43 @@ namespace System
     {
         public static readonly BoundingRectangle Empty = new BoundingRectangle();
 
-        private Vec2 _translation, _bounds;
+        private Vec2 _translation, _bounds, _localOriginPercentage;
+
+        /// <summary>
+        /// The origin of the component's rotation angle, as a percentage.
+        /// 0,0 is bottom left, 0.5,0.5 is center, 1.0,1.0 is top right.
+        /// </summary>
+        public Vec2 LocalOriginPercentage
+        {
+            get => _localOriginPercentage;
+            set
+            {
+                Vec2 diff = value - _localOriginPercentage;
+                _translation.X += diff.X * Width;
+                _translation.Y += diff.Y * Height;
+                _localOriginPercentage = value;
+            }
+        }
+        public Vec2 LocalOrigin
+        {
+            get => _localOriginPercentage * _bounds;
+            set => _localOriginPercentage = value / _bounds;
+        }
+        public Vec2 WorldOrigin
+        {
+            get => _translation + LocalOrigin;
+            set => LocalOrigin = value - _translation;
+        }
 
         public BoundingRectangle(float x, float y, float width, float height)
         {
+            _localOriginPercentage = Vec2.Zero;
             _translation = new Vec2(x, y);
             _bounds = new Vec2(width, height);
         }
         public BoundingRectangle(Vec2 translation, Vec2 bounds)
         {
+            _localOriginPercentage = Vec2.Zero;
             _translation = translation;
             _bounds = bounds;
         }

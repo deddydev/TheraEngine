@@ -42,6 +42,7 @@ namespace CustomEngine
         BoundingRectangle AxisAlignedBounds { get; }
         Quadtree.Node RenderNode { get; set; }
         bool IsRendering { get; set; }
+        bool Contains(Vec2 point);
     }
     public interface IPanel
     {

@@ -215,14 +215,14 @@ namespace CustomEngine.Rendering.HUD
         }
         public new HudManager Owner
         {
-            get => (HudManager)base.Owner;
+            get => (HudManager)base.OwningActor;
             set
             {
                 HudManager manager = Owner;
                 manager?.UncacheComponent(this);
                 manager = value;
                 manager?.CacheComponent(this);
-                base.Owner = value;
+                base.OwningActor = value;
             }
         }
         public bool IsRendering
@@ -230,6 +230,11 @@ namespace CustomEngine.Rendering.HUD
             get => _isRendering;
             set => _isRendering = value;
         }
+        public ushort ZIndex => _zIndex;
+        
+        public bool Contains(Vec2 point)
+            => _region.Contains(point);
+        
         protected override void OnRecalcLocalTransform(out Matrix4 localTransform, out Matrix4 inverseLocalTransform)
         {
             localTransform = Matrix4.TransformMatrix(

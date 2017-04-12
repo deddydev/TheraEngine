@@ -91,14 +91,19 @@ namespace CustomEngine.Rendering.Models.Materials
             return new Material("UnlitTextureMaterial", parameters, refs, frag);
         }
 
-        public static Material GetUnlitColorMaterial() => GetUnlitColorMaterial(Engine.Settings.ShadingStyle == ShadingStyle.Deferred);
+        public static Material GetUnlitColorMaterial()
+            => GetUnlitColorMaterial(Engine.Settings.ShadingStyle == ShadingStyle.Deferred);
         public static Material GetUnlitColorMaterial(bool deferred)
+            => GetUnlitColorMaterial(Color.Green, deferred);
+        public static Material GetUnlitColorMaterial(Color color)
+            => GetUnlitColorMaterial(color, Engine.Settings.ShadingStyle == ShadingStyle.Deferred);
+        public static Material GetUnlitColorMaterial(Color color, bool deferred)
         {
             List<TextureReference> refs = new List<TextureReference>();
             Shader frag = deferred ? Shader.UnlitColorFragDeferred() : Shader.UnlitColorFragForward();
             List<GLVar> parameters = new List<GLVar>()
             {
-                new GLVec4((ColorF4)Color.Green, "MatColor"),
+                new GLVec4((ColorF4)color, "MatColor"),
             };
             return new Material("UnlitColorMaterial", parameters, refs, frag);
         }

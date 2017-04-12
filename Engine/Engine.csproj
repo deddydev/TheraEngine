@@ -850,12 +850,13 @@
     <Compile Include="Rendering\Renderer\Viewport.cs" />
     <Compile Include="System\Memory\VoidPtr.cs" />
     <Compile Include="Worlds\Actors\Actor.cs" />
+    <Compile Include="Worlds\Actors\Types\EditorTransformTool2D.cs" />
     <Compile Include="Worlds\Actors\Types\Pawns\CharacterPawn.cs" />
     <Compile Include="Worlds\Actors\Types\Pawns\HudManagerPawn.cs" />
     <Compile Include="Worlds\Actors\Types\Pawns\FlyingCameraPawn.cs" />
     <Compile Include="Worlds\Actors\Types\LandscapeActor.cs" />
     <Compile Include="Worlds\Actors\Types\Pawn.cs" />
-    <Compile Include="Worlds\Actors\Types\EditorTransformTool.cs" />
+    <Compile Include="Worlds\Actors\Types\EditorTransformTool3D.cs" />
     <Compile Include="Worlds\Actors\Types\Vehicle.cs" />
     <Compile Include="Worlds\Actors\Components\Component.cs" />
     <Compile Include="Worlds\Actors\Components\Logic\InteractionComponent.cs" />

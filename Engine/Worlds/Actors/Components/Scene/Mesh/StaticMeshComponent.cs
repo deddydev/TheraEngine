@@ -37,7 +37,7 @@ namespace CustomEngine.Worlds.Actors
             foreach (SceneComponent item in items)
             {
                 item._parent = null;
-                item.Owner = null;
+                item.OwningActor = null;
                 item.RecalcGlobalTransform();
             }
             //_owner?.GenerateSceneComponentCache();
@@ -45,7 +45,7 @@ namespace CustomEngine.Worlds.Actors
         private void _children_Removed(SceneComponent item)
         {
             item._parent = null;
-            item.Owner = null;
+            item.OwningActor = null;
             item.RecalcGlobalTransform();
             //_owner?.GenerateSceneComponentCache();
         }
@@ -58,7 +58,7 @@ namespace CustomEngine.Worlds.Actors
             foreach (SceneComponent item in items)
             {
                 item._parent = this;
-                item.Owner = _owner;
+                item.OwningActor = _owner;
                 item.RecalcGlobalTransform();
             }
             //_owner?.GenerateSceneComponentCache();
@@ -66,7 +66,7 @@ namespace CustomEngine.Worlds.Actors
         private void _children_Added(SceneComponent item)
         {
             item._parent = this;
-            item.Owner = _owner;
+            item.OwningActor = _owner;
             item.RecalcGlobalTransform();
             //_owner?.GenerateSceneComponentCache();
         }

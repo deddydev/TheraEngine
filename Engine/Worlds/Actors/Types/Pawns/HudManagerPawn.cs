@@ -3,6 +3,7 @@ using CustomEngine.Input.Devices;
 using CustomEngine.Worlds.Actors;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace CustomEngine.Rendering.HUD
 {
@@ -70,7 +71,18 @@ namespace CustomEngine.Rendering.HUD
         public List<HudComponent> FindAllComponents(Vec2 viewportPoint)
         {
             List<I2DBoundable> results = _childComponentTree.FindClosest(viewportPoint);
-
+            return results.Select(x => (HudComponent)x).ToList();
+            //return RootComponent.FindComponent(viewportPoint);
+        }
+        public HudComponent FindClosestComponent(Vec2 viewportPoint)
+        {
+            List<HudComponent> results = FindAllComponents(viewportPoint);
+            HudComponent current = null;
+            //Larger z-indices means the component is closer
+            foreach (HudComponent comp in results)
+                if (current == null || comp.ZIndex >= current.ZIndex)
+                    current = comp;
+            return current;
             //return RootComponent.FindComponent(viewportPoint);
         }
     }

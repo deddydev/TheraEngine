@@ -48,7 +48,7 @@ namespace CustomEngine.Worlds.Actors
                 switch (_currentMovementMode)
                 {
                     case MovementMode.Walking:
-                        if (Owner.RootComponent is CapsuleComponent root1)
+                        if (OwningActor.RootComponent is CapsuleComponent root1)
                         {
                             root1.PhysicsDriver.SimulatingPhysics = false;
                             root1.Translation = root1.WorldMatrix.GetPoint();
@@ -56,7 +56,7 @@ namespace CustomEngine.Worlds.Actors
                         _tick = TickWalking;
                         break;
                     case MovementMode.Falling:
-                        if (Owner.RootComponent is CapsuleComponent root2)
+                        if (OwningActor.RootComponent is CapsuleComponent root2)
                         {
                             root2.PhysicsDriver.SimulatingPhysics = true;
                             root2.PhysicsDriver.CollisionObject.LinearVelocity = _velocity;
@@ -83,7 +83,7 @@ namespace CustomEngine.Worlds.Actors
         {
             SceneComponent comp = (SceneComponent)_currentWalkingSurface.Owner;
             Matrix4 transformDelta = comp.PreviousInverseWorldTransform * comp.WorldMatrix;
-            CapsuleComponent root = Owner.RootComponent as CapsuleComponent;
+            CapsuleComponent root = OwningActor.RootComponent as CapsuleComponent;
             root.Translation += transformDelta.GetPoint();
         }
 
@@ -99,7 +99,7 @@ namespace CustomEngine.Worlds.Actors
         {
             ClosestConvexResultCallback callback;
             Matrix4 inputTransform;
-            CapsuleComponent root = Owner.RootComponent as CapsuleComponent;
+            CapsuleComponent root = OwningActor.RootComponent as CapsuleComponent;
             BaseCapsule c = (BaseCapsule)root.CullingVolume;
             ConvexShape shape = (ConvexShape)c.GetCollisionShape();
 
@@ -200,7 +200,7 @@ namespace CustomEngine.Worlds.Actors
             if (_currentMovementMode != MovementMode.Walking)
                 return;
             //Get root component of the character
-            IPhysicsDrivable root = Owner.RootComponent as IPhysicsDrivable;
+            IPhysicsDrivable root = OwningActor.RootComponent as IPhysicsDrivable;
             //If the root isn't physics drivable, the player can't jump
             if (root == null)
                 return;

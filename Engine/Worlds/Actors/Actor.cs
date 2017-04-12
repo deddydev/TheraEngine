@@ -119,13 +119,13 @@ namespace CustomEngine.Worlds
             set
             {
                 if (_rootSceneComponent != null)
-                    _rootSceneComponent.Owner = null;
+                    _rootSceneComponent.OwningActor = null;
                 
                 _rootSceneComponent = value;
 
                 if (_rootSceneComponent != null)
                 {
-                    _rootSceneComponent.Owner = this;
+                    _rootSceneComponent.OwningActor = this;
                     _rootSceneComponent.RecalcGlobalTransform();
                 }
                 GenerateSceneComponentCache();
@@ -207,29 +207,29 @@ namespace CustomEngine.Worlds
         private void _logicComponents_InsertedRange(IEnumerable<LogicComponent> items, int index)
         {
             foreach (LogicComponent item in items)
-                item.Owner = this;
+                item.OwningActor = this;
         }
         private void _logicComponents_Inserted(LogicComponent item, int index)
         {
-            item.Owner = this;
+            item.OwningActor = this;
         }
         private void _logicComponents_RemovedRange(IEnumerable<LogicComponent> items)
         {
             foreach (LogicComponent item in items)
-                item.Owner = null;
+                item.OwningActor = null;
         }
         private void _logicComponents_Removed(LogicComponent item)
         {
-            item.Owner = null;
+            item.OwningActor = null;
         }
         private void _logicComponents_AddedRange(IEnumerable<LogicComponent> items)
         {
             foreach (LogicComponent item in items)
-                item.Owner = this;
+                item.OwningActor = this;
         }
         private void _logicComponents_Added(LogicComponent item)
         {
-            item.Owner = this;
+            item.OwningActor = this;
         }
         //protected override int OnCalculateSize(StringTable table)
         //{

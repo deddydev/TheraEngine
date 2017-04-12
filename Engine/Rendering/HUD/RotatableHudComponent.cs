@@ -39,8 +39,7 @@ namespace CustomEngine.Rendering.HUD
                 OnTransformed();
             }
         }
-
-        public override void OnTransformed()
+        protected override void OnRecalcLocalTransform(out Matrix4 localTransform, out Matrix4 inverseLocalTransform)
         {
             //step 1: set identity matrix
             //step 2: translate into position (bottom left corner)
@@ -48,19 +47,17 @@ namespace CustomEngine.Rendering.HUD
             //step 4: translate backward, relative to the rotation, by the local rotation origin to center on the rotation point
             //step 5: scale the component
 
-            _localTransform =
+            localTransform =
                 Matrix4.CreateScale(ScaleX, ScaleY, 1.0f) *
                 Matrix4.CreateTranslation(-_rotationLocalOrigin.X * Width, -_rotationLocalOrigin.Y * Height, 0.0f) *
                 Matrix4.CreateRotationZ(RotationAngle) *
                 Matrix4.CreateTranslation(TranslationX, TranslationY, 0.0f);
 
-            _invLocalTransform =
+            inverseLocalTransform =
                 Matrix4.CreateTranslation(-TranslationX, -TranslationY, 0.0f) *
                 Matrix4.CreateRotationZ(-RotationAngle) *
                 Matrix4.CreateTranslation(_rotationLocalOrigin.X * Width, _rotationLocalOrigin.Y * Height, 0.0f) *
                 Matrix4.CreateScale(1.0f / ScaleX, 1.0f / ScaleY, 1.0f);
-
-            RecalcGlobalTransform();
         }
     }
 }

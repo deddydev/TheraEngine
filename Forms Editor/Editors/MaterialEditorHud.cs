@@ -22,7 +22,7 @@ namespace TheraEditor.Editors
             };
             ResultBasicFunc end = new ResultBasicFunc();
             root.ChildComponents.Add(end);
-            return comp;
+            return root;
         }
 
         public override void OnSpawned(World world)

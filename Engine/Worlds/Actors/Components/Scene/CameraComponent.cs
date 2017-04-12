@@ -59,7 +59,7 @@ namespace CustomEngine.Worlds.Actors
         protected override void GenerateChildCache(List<SceneComponent> cache)
         {
             base.GenerateChildCache(cache);
-            if (Owner is IPawn p && p.CurrentCameraComponent == null)
+            if (OwningActor is IPawn p && p.CurrentCameraComponent == null)
                 p.CurrentCameraComponent = this;
         }
         public void SetCurrentForController(LocalPlayerController controller)
@@ -69,7 +69,7 @@ namespace CustomEngine.Worlds.Actors
         }
         public void SetCurrentForOwner()
         {
-            if (Owner is IPawn pawn && pawn.Controller is LocalPlayerController controller)
+            if (OwningActor is IPawn pawn && pawn.Controller is LocalPlayerController controller)
                 controller.CurrentCamera = _camera;
         }
         public void SetCurrentForPawn(IPawn pawn)

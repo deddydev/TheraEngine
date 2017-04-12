@@ -9,13 +9,12 @@ namespace CustomEngine.Rendering.Animation
 {
     public class IfFunction : AnimationFunction
     {
-        public override object[] Execute(AnimationContainer output, Skeleton skeleton, object[] input)
+        protected override void Execute(AnimationContainer output, Skeleton skeleton, object[] input)
         {
             if ((bool)input[0])
             {
 
             }
-            return new object[0];
         }
         protected override List<AnimFuncValueInput> GetValueInputs()
         {

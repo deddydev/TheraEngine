@@ -1,31 +1,15 @@
 ﻿using CustomEngine.Rendering.Cameras;
-using CustomEngine.Worlds.Actors;
+using CustomEngine.Rendering.HUD;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CustomEngine.Worlds.Actors.Types
 {
-    public enum TransformType
+    public class EditorTransformTool2D : HudComponent
     {
-        Scale,
-        Rotate,
-        Translate
-    }
-    public class EditorTransformTool : Actor
-    {
-        public EditorTransformTool(SceneComponent modified)
+        public EditorTransformTool2D(HudComponent modified)
         {
             _modified = modified;
-        }
-
-        protected override SceneComponent OnConstruct()
-        {
-            _transform = new TRSComponent();
-            _transform.WorldTransformChanged += _transform_WorldTransformChanged;
-            return _transform;
         }
         
         private void _transform_WorldTransformChanged()
@@ -40,32 +24,16 @@ namespace CustomEngine.Worlds.Actors.Types
 
         public TransformType Mode
         {
-            get { return _mode; }
-            set { _mode = value; }
+            get => _mode;
+            set => _mode = value;
         }
         public ISocket ModifiedComponent
         {
-            get { return _modified; }
-            set
-            {
-                _modified = value;
-
-            }
+            get => _modified;
+            set => _modified = value;
         }
 
-        public override void OnSpawned(World world)
-        {
-            base.OnSpawned(world);
-            CurrentInstance = this;
-        }
-
-        public override void OnDespawned()
-        {
-            base.OnDespawned();
-            CurrentInstance = null;
-        }
-
-        public static EditorTransformTool CurrentInstance;
+        public static EditorTransformTool2D CurrentInstance;
 
         private bool _hiX, _hiY, _hiZ, _hiCirc, _hiSphere;
         private const float _orbRadius = 1.0f;
@@ -229,6 +197,22 @@ namespace CustomEngine.Worlds.Actors.Types
             }
 
             return false;
+        }
+
+        public void Render()
+        {
+            switch (_mode)
+            {
+                case TransformType.Translate:
+
+                    break;
+                case TransformType.Rotate:
+
+                    break;
+                case TransformType.Scale:
+
+                    break;
+            }
         }
     }
 }

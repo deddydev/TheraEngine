@@ -3,6 +3,7 @@ using CustomEngine.Rendering.Cameras;
 using CustomEngine.Rendering.HUD;
 using CustomEngine.Rendering.Textures;
 using CustomEngine.Worlds;
+using CustomEngine.Worlds.Actors;
 using CustomEngine.Worlds.Actors.Types;
 using System;
 using System.Collections.Generic;
@@ -345,7 +346,7 @@ namespace CustomEngine.Rendering
             }
         }
         
-        public IActor PickScene(
+        public SceneComponent PickScene(
             Vec2 viewportPoint,
             bool mouse,
             bool testHud = true,
@@ -354,7 +355,7 @@ namespace CustomEngine.Rendering
         {
             if (testHud)
             {
-                HudComponent hudComp = _hud.FindComponent(viewportPoint);
+                HudComponent hudComp = _hud.FindClosestComponent(viewportPoint);
                 if (hudComp != null)
                     return hudComp;
             }
@@ -362,15 +363,15 @@ namespace CustomEngine.Rendering
             {
 #if EDITOR
                 Ray cursor = GetWorldRay(viewportPoint);
-                if (EditorTransformTool.CurrentInstance != null)
+                if (EditorTransformTool3D.CurrentInstance != null)
                 {
-                    if (EditorTransformTool.CurrentInstance.UpdateCursorRay(cursor, _worldCamera, false))
-                        return EditorTransformTool.CurrentInstance;
+                    if (EditorTransformTool3D.CurrentInstance.UpdateCursorRay(cursor, _worldCamera, false))
+                        return EditorTransformTool3D.CurrentInstance.RootComponent;
                 }
 #endif
-                float depth = 0.0f; //GetDepth(viewportPoint);
+                float depth = GetDepth(viewportPoint);
                 Vec3 worldPoint = ScreenToWorld(viewportPoint, depth);
-                List<I3DBoundable> r = Engine.Renderer.Scene.RenderTree.FindClosest(worldPoint);
+                List<IRenderable> r = Engine.Renderer.Scene.RenderTree.FindClosest(worldPoint);
 
             }
             return null;

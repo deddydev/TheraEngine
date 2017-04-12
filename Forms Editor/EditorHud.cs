@@ -3,6 +3,7 @@ using CustomEngine.Input.Devices;
 using CustomEngine.Rendering;
 using CustomEngine.Rendering.HUD;
 using CustomEngine.Worlds;
+using CustomEngine.Worlds.Actors;
 using CustomEngine.Worlds.Actors.Types;
 using System;
 
@@ -48,16 +49,16 @@ namespace TheraEditor
             if (v == null)
                 return;
 
-            IActor actor = v.PickScene(gamepad ? v.Center : v.AbsoluteToRelative(_cursorPos), !gamepad);
-            if (actor is EditorTransformTool tool)
+            SceneComponent comp = v.PickScene(gamepad ? v.Center : v.AbsoluteToRelative(_cursorPos), !gamepad);
+            if (comp.OwningActor is EditorTransformTool3D tool)
             {
 
             }
-            else if (actor is HudComponent hudComp)
+            else if (comp is HudComponent hudComp)
             {
 
             }
-            else if (actor != null)
+            else if (comp != null)
             {
 
             }

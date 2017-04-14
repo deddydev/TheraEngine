@@ -1,6 +1,7 @@
 ﻿using CustomEngine.Rendering.Cameras;
 using CustomEngine.Rendering.Models;
 using CustomEngine.Rendering.Models.Materials;
+using CustomEngine.Worlds.Actors.Types;
 using System;
 using System.Collections.Generic;
 using System.Drawing;

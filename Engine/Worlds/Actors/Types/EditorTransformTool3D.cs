@@ -17,19 +17,34 @@ namespace CustomEngine.Worlds.Actors.Types
         Rotate,
         Translate
     }
-    public class EditorTransformTool3D : Actor<StaticMeshComponent>, IRenderable
+    public class EditorTransformTool3D : Actor<SkeletalMeshComponent>, IRenderable
     {
         public EditorTransformTool3D(SceneComponent modified)
         {
             _modified = modified;
         }
-        protected override StaticMeshComponent OnConstruct()
+        protected override SkeletalMeshComponent OnConstruct()
         {
-            StaticMesh mesh = new StaticMesh("TransformTool", new Sphere(1.0f));
-            mesh.RigidChildren.Add(new StaticRigidSubMesh(Circle.WireframeMesh(1.0f, Vec3.UnitX, Vec3.Zero, 30), new Sphere(1.0f), Material.GetUnlitColorMaterial(Color.Red), "X"));
-            mesh.RigidChildren.Add(new StaticRigidSubMesh(Circle.WireframeMesh(1.0f, Vec3.UnitY, Vec3.Zero, 30), new Sphere(1.0f), Material.GetUnlitColorMaterial(Color.Green), "Y"));
-            mesh.RigidChildren.Add(new StaticRigidSubMesh(Circle.WireframeMesh(1.0f, Vec3.UnitZ, Vec3.Zero, 30), new Sphere(1.0f), Material.GetUnlitColorMaterial(Color.Blue), "Z"));
-            StaticMeshComponent meshComp = new StaticMeshComponent(mesh, null);
+            Bone root = new Bone("Root")
+            {
+                ScaleByDistance = true
+            };
+            Bone screen = new Bone("Screen")
+            {
+                BillboardType = BillboardType.PerspectiveXY
+            };
+            root.ChildBones.Add(screen);
+            Skeleton skel = new Skeleton(root);
+            SkeletalMesh mesh = new SkeletalMesh("TransformTool");
+            mesh.RigidChildren.Add(new SkeletalRigidSubMesh(Segment.Mesh(Vec3.Zero, Vec3.UnitX), null, Material.GetUnlitColorMaterial(Color.Red), "Root", "XAxis"));
+            mesh.RigidChildren.Add(new SkeletalRigidSubMesh(Segment.Mesh(Vec3.Zero, Vec3.UnitY), null, Material.GetUnlitColorMaterial(Color.Green), "Root", "YAxis"));
+            mesh.RigidChildren.Add(new SkeletalRigidSubMesh(Segment.Mesh(Vec3.Zero, Vec3.UnitZ), null, Material.GetUnlitColorMaterial(Color.Blue), "Root", "ZAxis"));
+            mesh.RigidChildren.Add(new SkeletalRigidSubMesh(Circle.WireframeMesh(1.0f, Vec3.UnitX, Vec3.Zero, 30), new Sphere(1.0f), Material.GetUnlitColorMaterial(Color.Red), "Root", "XRotation"));
+            mesh.RigidChildren.Add(new SkeletalRigidSubMesh(Circle.WireframeMesh(1.0f, Vec3.UnitY, Vec3.Zero, 30), new Sphere(1.0f), Material.GetUnlitColorMaterial(Color.Green), "Root", "YRotation"));
+            mesh.RigidChildren.Add(new SkeletalRigidSubMesh(Circle.WireframeMesh(1.0f, Vec3.UnitZ, Vec3.Zero, 30), new Sphere(1.0f), Material.GetUnlitColorMaterial(Color.Blue), "Root", "ZRotation"));
+            mesh.RigidChildren.Add(new SkeletalRigidSubMesh(Circle.WireframeMesh(1.0f, Vec3.UnitZ, Vec3.Zero, 30), new Sphere(1.0f), Material.GetUnlitColorMaterial(Color.Gray), "Screen", "ScreenRotation"));
+            mesh.RigidChildren.Add(new SkeletalRigidSubMesh(Circle.WireframeMesh(1.0f, Vec3.UnitZ, Vec3.Zero, 30), new Sphere(1.0f), Material.GetUnlitColorMaterial(Color.Gray), "Screen", "ScreenTranslation"));
+            SkeletalMeshComponent meshComp = new SkeletalMeshComponent(mesh, null);
             meshComp.WorldTransformChanged += _transform_WorldTransformChanged;
             return meshComp;
         }

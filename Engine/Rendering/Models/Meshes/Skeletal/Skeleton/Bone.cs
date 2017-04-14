@@ -175,6 +175,33 @@ namespace CustomEngine.Rendering.Models
         public Matrix4 VertexMatrixIT => _vertexMatrixIT;
         public Skeleton Skeleton => _skeleton;
         public PhysicsDriver PhysicsDriver => _physicsDriver;
+
+        public Matrix4 WorldToLocalMatrix(Matrix4 worldMatrix)
+        {
+            return (Parent == null ? (OwningComponent == null ? Matrix4.Identity : OwningComponent.InverseWorldMatrix) : Parent.InverseWorldMatrix) * worldMatrix;
+        }
+
+        public BillboardType BillboardType
+        {
+            get => _billboardType;
+            set
+            {
+                if (_billboardType == value)
+                    return;
+                _billboardType = value;
+            }
+        }
+        public bool ScaleByDistance
+        {
+            get => _scaleByDistance;
+            set
+            {
+                if (_scaleByDistance == value)
+                    return;
+                _scaleByDistance = value;
+            }
+        }
+
         //public List<PrimitiveManager> PrimitiveManagers => _linkedPrimitiveManagers;
 
         public void AddPrimitiveManager(PrimitiveManager m)

@@ -41,6 +41,10 @@ namespace CustomEngine.Rendering.Models
             set => _material = value;
         }
         public PrimitiveData Data => _data;
-        public StaticMesh Model => _parent;
+        public StaticMesh Model
+        {
+            get => _parent;
+            internal set => _parent = value;
+        }
     }
 }

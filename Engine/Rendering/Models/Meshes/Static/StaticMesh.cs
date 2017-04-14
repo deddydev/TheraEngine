@@ -14,22 +14,43 @@ namespace CustomEngine.Rendering.Models
 {
     public class StaticMesh : FileObject
     {
-        public StaticMesh() : base() { }
-        public StaticMesh(string name, Shape cullingVolume)
+        public StaticMesh() : base()
+        {
+            _rigidChildren.Removed += RigidChildRemoved;
+            _rigidChildren.Added += RigidChildAdded;
+            _softChildren.Removed += SoftChildRemoved;
+            _softChildren.Added += SoftChildAdded;
+        }
+        public StaticMesh(string name)
         {
             _name = name;
-            _cullingVolume = cullingVolume;
         }
-        public Shape CullingVolume
-        {
-            get => _cullingVolume;
-            set => _cullingVolume = value;
-        }
+
         public MonitoredList<StaticRigidSubMesh> RigidChildren => _rigidChildren;
         public MonitoredList<StaticSoftSubMesh> SoftChildren => _softChildren;
 
+        [Serialize("RigidChildren")]
         protected MonitoredList<StaticRigidSubMesh> _rigidChildren = new MonitoredList<StaticRigidSubMesh>();
+        [Serialize("SoftChildren")]
         protected MonitoredList<StaticSoftSubMesh> _softChildren = new MonitoredList<StaticSoftSubMesh>();
-        protected Shape _cullingVolume;
+
+        protected virtual void RigidChildAdded(StaticRigidSubMesh item)
+        {
+            item.Model = this;
+        }
+        protected virtual void RigidChildRemoved(StaticRigidSubMesh item)
+        {
+            if (item.Model == this)
+                item.Model = null;
+        }
+        protected virtual void SoftChildAdded(StaticSoftSubMesh item)
+        {
+            item.Model = this;
+        }
+        protected virtual void SoftChildRemoved(StaticSoftSubMesh item)
+        {
+            if (item.Model == this)
+                item.Model = null;
+        }
     }
 }

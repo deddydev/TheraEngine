@@ -21,8 +21,14 @@ namespace CustomEngine.Rendering.Models
             _softChildren.Removed += SoftChildRemoved;
             _softChildren.Added += SoftChildAdded;
         }
+        public SkeletalMesh(string name) : this()
+        {
+            _name = name;
+        }
 
+        [Serialize("RigidChildren")]
         protected MonitoredList<SkeletalRigidSubMesh> _rigidChildren = new MonitoredList<SkeletalRigidSubMesh>();
+        [Serialize("SoftChildren")]
         protected MonitoredList<SkeletalSoftSubMesh> _softChildren = new MonitoredList<SkeletalSoftSubMesh>();
 
         public MonitoredList<SkeletalRigidSubMesh> RigidChildren => _rigidChildren;
@@ -53,45 +59,6 @@ namespace CustomEngine.Rendering.Models
                 //item.SkeletonChanged(null);
                 item.Model = null;
             }
-        }
-
-        public override void Write(VoidPtr address, StringTable table)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void Read(VoidPtr address, VoidPtr strings)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void Write(XmlWriter writer)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void Read(XMLReader reader)
-        {
-            throw new NotImplementedException();
-        }
-
-        protected override int OnCalculateSize(StringTable table)
-        {
-            int size = Header.Size;
-            foreach (SkeletalRigidSubMesh r in _rigidChildren)
-                size += r.CalculateSize(table);
-            foreach (SkeletalSoftSubMesh r in _softChildren)
-                size += r.CalculateSize(table);
-            return size;
-        }
-
-        [StructLayout(LayoutKind.Sequential, Pack = 1)]
-        public struct Header
-        {
-            public const int Size = 8;
-
-            public bint _rigidChildCount;
-            public bint _softChildCount;
         }
     }
 }

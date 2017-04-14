@@ -881,25 +881,6 @@ namespace CustomEngine.Rendering.Models
             lines,
             linestrips
         }
-        private enum SemanticType
-        {
-            None,
-            POSITION,
-            VERTEX,
-            NORMAL,
-            TEXCOORD,
-            COLOR,
-            WEIGHT,
-            JOINT,
-            INV_BIND_MATRIX,
-            TEXTANGENT,
-            TEXBINORMAL,
-            INPUT,
-            OUTPUT,
-            IN_TANGENT,
-            OUT_TANGENT,
-            INTERPOLATION,
-        }
         private enum NodeType
         {
             NODE,

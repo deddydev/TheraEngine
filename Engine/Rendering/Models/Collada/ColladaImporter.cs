@@ -130,7 +130,7 @@ namespace CustomEngine.Rendering.Models
                 string[] target = channel._target.Split('/');
                 string nodeId = target[0];
                 string targetName = target[1];
-                float[] timeData = null, matrixData = null;
+                float[] timeData = null, outputData = null;
                 string[] interpData = null;
                 foreach (InputEntry input in sampler._inputs)
                 {
@@ -148,7 +148,7 @@ namespace CustomEngine.Rendering.Models
                             timeData = (float[])source._arrayData;
                             break;
                         case SemanticType.OUTPUT:
-                            matrixData = (float[])source._arrayData;
+                            outputData = (float[])source._arrayData;
                             break;
                         case SemanticType.INTERPOLATION:
                             interpData = (string[])source._arrayData;
@@ -161,11 +161,41 @@ namespace CustomEngine.Rendering.Models
                             break;
                     }
                 }
-                for (int i = 0; i < timeData.Length; ++i)
+                int x = 0;
+                for (int i = 0; i < timeData.Length; ++i, x += 16)
                 {
+                    float second = timeData[i];
+                    InterpType type = (InterpType)Enum.Parse(typeof(InterpType), interpData[i]);
 
+                    Matrix4 matrix = new Matrix4(
+                        outputData[x + 0],
+                        outputData[x + 1],
+                        outputData[x + 2],
+                        outputData[x + 3],
+                        outputData[x + 4],
+                        outputData[x + 5],
+                        outputData[x + 6],
+                        outputData[x + 7],
+                        outputData[x + 8],
+                        outputData[x + 9],
+                        outputData[x + 10],
+                        outputData[x + 11],
+                        outputData[x + 12],
+                        outputData[x + 13],
+                        outputData[x + 14],
+                        outputData[x + 15]);
+                    if (type == InterpType.LINEAR)
+                    {
+
+                    }
                 }
             }
+        }
+
+        private enum InterpType
+        {
+            LINEAR,
+            BEZIER
         }
 
         private static Bone EnumNode(
@@ -305,6 +335,25 @@ namespace CustomEngine.Rendering.Models
                 
                 model.RigidChildren.Add(new StaticRigidSubMesh(data, new Sphere(10.0f), m, _node._name ?? _node._id));
             }
+        }
+        private enum SemanticType
+        {
+            None,
+            POSITION,
+            VERTEX,
+            NORMAL,
+            TEXCOORD,
+            COLOR,
+            WEIGHT,
+            JOINT,
+            INV_BIND_MATRIX,
+            TEXTANGENT,
+            TEXBINORMAL,
+            INPUT,
+            OUTPUT,
+            IN_TANGENT,
+            OUT_TANGENT,
+            INTERPOLATION,
         }
     }
 }

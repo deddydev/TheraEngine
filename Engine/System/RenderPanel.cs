@@ -180,7 +180,7 @@ namespace CustomEngine
         protected override void OnResize(EventArgs e)
         {
             base.OnResize(e);
-            _globalHud.Resize(new Vec2(Width, Height));
+            _globalHud?.Resize(new Vec2(Width, Height));
             foreach (Viewport v in _viewports)
                 v.Resize(Width, Height);
             //Rectangle region = new Rectangle(0, 0, Width, Height);

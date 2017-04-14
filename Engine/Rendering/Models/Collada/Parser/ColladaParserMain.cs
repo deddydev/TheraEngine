@@ -22,7 +22,8 @@ namespace CustomEngine.Rendering.Models
                     return new DecoderShell(reader);
             }
 
-            private void Output(string message) => MessageBox.Show(message);
+            private void Output(string message)
+                => MessageBox.Show(message);
             
             private DecoderShell(XMLReader reader)
             {
@@ -44,7 +45,7 @@ namespace CustomEngine.Rendering.Models
                 while (_reader.ReadAttribute())
                     if (_reader.Name.Equals("version", true))
                     {
-                        string v = (string)_reader.Value;
+                        string v = _reader.Value;
                         string[] s = v.Split('.');
                         int.TryParse(s[0], NumberStyles.Number, CultureInfo.InvariantCulture.NumberFormat, out _v1);
                         int.TryParse(s[1], NumberStyles.Number, CultureInfo.InvariantCulture.NumberFormat, out _v2);
@@ -54,6 +55,8 @@ namespace CustomEngine.Rendering.Models
                 {
                     if (_reader.Name.Equals("asset", true))
                         ParseAsset();
+                    else if (_reader.Name.Equals("library_cameras", true))
+                        ParseLibCameras();
                     else if (_reader.Name.Equals("library_images", true))
                         ParseLibImages();
                     else if (_reader.Name.Equals("library_materials", true))
@@ -80,7 +83,46 @@ namespace CustomEngine.Rendering.Models
                     _reader.EndElement();
                 }
             }
+            private void ParseLibCameras()
+            {
+                //CameraEntry cam;
+                //while (_reader.BeginElement())
+                //{
+                //    if (_reader.Name.Equals("camera", true))
+                //    {
+                //        cam = new CameraEntry();
+                //        while (_reader.ReadAttribute())
+                //        {
+                //            if (_reader.Name.Equals("id", true))
+                //                img._id = (string)_reader.Value;
+                //            else if (_reader.Name.Equals("name", true))
+                //                img._name = (string)_reader.Value;
+                //        }
 
+                //        while (_reader.BeginElement())
+                //        {
+                //            img._path = null;
+                //            if (_reader.Name.Equals("init_from", true))
+                //            {
+                //                if (_v2 < 5)
+                //                    img._path = _reader.ReadElementString();
+                //                else
+                //                    while (_reader.BeginElement())
+                //                    {
+                //                        if (_reader.Name.Equals("ref", true))
+                //                            img._path = _reader.ReadElementString();
+                //                        _reader.EndElement();
+                //                    }
+                //            }
+
+                //            _reader.EndElement();
+                //        }
+
+                //        _images.Add(img);
+                //    }
+                //    _reader.EndElement();
+                //}
+            }
             private void ParseAsset()
             {
                 AssetEntry entry = new AssetEntry();
@@ -101,14 +143,33 @@ namespace CustomEngine.Rendering.Models
                 }
                 _assets.Add(entry);
             }
-            
+            private InputEntry ParseInput()
+            {
+                InputEntry inp = new InputEntry();
+
+                while (_reader.ReadAttribute())
+                    if (_reader.Name.Equals("id", true))
+                        inp._id = _reader.Value;
+                    else if (_reader.Name.Equals("name", true))
+                        inp._name = _reader.Value;
+                    else if (_reader.Name.Equals("semantic", true))
+                        inp._semantic = (SemanticType)Enum.Parse(typeof(SemanticType), _reader.Value, true);
+                    else if (_reader.Name.Equals("set", true))
+                        inp._set = int.Parse(_reader.Value);
+                    else if (_reader.Name.Equals("offset", true))
+                        inp._offset = int.Parse(_reader.Value);
+                    else if (_reader.Name.Equals("source", true))
+                        inp._source = _reader.Value[0] == '#' ? (_reader.Value + 1) : (string)_reader.Value;
+
+                return inp;
+            }
             private SourceEntry ParseSource()
             {
                 SourceEntry src = new SourceEntry();
 
                 while (_reader.ReadAttribute())
                     if (_reader.Name.Equals("id", true))
-                        src._id = (string)_reader.Value;
+                        src._id = _reader.Value;
 
                 while (_reader.BeginElement())
                 {
@@ -120,9 +181,12 @@ namespace CustomEngine.Rendering.Models
 
                             while (_reader.ReadAttribute())
                                 if (_reader.Name.Equals("id", true))
-                                    src._arrayId = (string)_reader.Value;
+                                    src._arrayId = _reader.Value;
                                 else if (_reader.Name.Equals("count", true))
-                                    src._arrayCount = int.Parse((string)_reader.Value);
+                                {
+                                    string c = _reader.Value.ToString();
+                                    src._arrayCount = int.Parse(c);
+                                }
 
                             float[] list = new float[src._arrayCount];
                             src._arrayData = list;
@@ -140,9 +204,12 @@ namespace CustomEngine.Rendering.Models
 
                             while (_reader.ReadAttribute())
                                 if (_reader.Name.Equals("id", true))
-                                    src._arrayId = (string)_reader.Value;
+                                    src._arrayId = _reader.Value;
                                 else if (_reader.Name.Equals("count", true))
-                                    src._arrayCount = int.Parse((string)_reader.Value);
+                                {
+                                    string c = _reader.Value;
+                                    src._arrayCount = int.Parse(c);
+                                }
 
                             int[] list = new int[src._arrayCount];
                             src._arrayData = list;
@@ -160,9 +227,12 @@ namespace CustomEngine.Rendering.Models
 
                             while (_reader.ReadAttribute())
                                 if (_reader.Name.Equals("id", true))
-                                    src._arrayId = (string)_reader.Value;
+                                    src._arrayId = _reader.Value;
                                 else if (_reader.Name.Equals("count", true))
-                                    src._arrayCount = int.Parse((string)_reader.Value);
+                                {
+                                    string c = _reader.Value;
+                                    src._arrayCount = int.Parse(c);
+                                }
 
                             string[] list = new string[src._arrayCount];
                             src._arrayData = list;
@@ -177,7 +247,7 @@ namespace CustomEngine.Rendering.Models
                                 if (!_reader.ReadStringSingle())
                                     break;
                                 else
-                                    list[i] = (string)_reader.Value;
+                                    list[i] = _reader.Value;
                         }
                     }
                     else if (_reader.Name.Equals("technique_common", true))
@@ -188,11 +258,11 @@ namespace CustomEngine.Rendering.Models
                             {
                                 while (_reader.ReadAttribute())
                                     if (_reader.Name.Equals("source", true))
-                                        src._accessorSource = _reader.Value[0] == '#' ? (string)(_reader.Value + 1) : (string)_reader.Value;
+                                        src._accessorSource = _reader.Value[0] == '#' ? (_reader.Value + 1) : (string)_reader.Value;
                                     else if (_reader.Name.Equals("count", true))
-                                        src._accessorCount = int.Parse((string)_reader.Value);
+                                        src._accessorCount = int.Parse(_reader.Value);
                                     else if (_reader.Name.Equals("stride", true))
-                                        src._accessorStride = int.Parse((string)_reader.Value);
+                                        src._accessorStride = int.Parse(_reader.Value);
 
                                 //Ignore params
                             }
@@ -270,7 +340,8 @@ namespace CustomEngine.Rendering.Models
         }
         public enum UpAxis
         {
-                //Right,    Up,    Inward
+                //Coordinate systems for each up axis:
+                //Right,    Up,    Toward Camera
             X,  //  -Y,     +X,     +Z
             Y,  //  +X,     +Y,     +Z
             Z,  //  +X      +Z,     -Y

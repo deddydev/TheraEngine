@@ -97,7 +97,9 @@ namespace CustomEngine.Worlds
                 "C:\\Users\\David\\Desktop\\";
             Collada.ImportOptions options = new Collada.ImportOptions();
             options.InitialTransform.Scale = new Vec3(0.02646f);
-            ModelScene scene = Collada.Import(desktop + "TEST.DAE", options);
+            ModelScene scene = Collada.Import(desktop + "TEST.DAE", options, false, true);
+            ModelScene anims = Collada.Import("C:\\Users\\David\\Google Drive\\Game\\Thera Assets\\Characters\\Temp\\Carly_Idle.dae", options, true, false);
+            anims.CleanAnimations(scene._skeletalModel, scene._skeleton);
 
             //IActor importedActor;
             //if (scene._skeletalModel != null)

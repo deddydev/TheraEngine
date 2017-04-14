@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.ComponentModel;
 using CustomEngine.Rendering.Models.Materials;
-using CustomEngine.Rendering.Textures;
 using System.Linq;
 using CustomEngine.Rendering.Animation;
 
@@ -13,7 +11,6 @@ namespace CustomEngine.Rendering.Models
     {
         public static ModelScene Import(string filePath, ImportOptions options, bool importAnimations = true, bool importModels = true)
         {
-            List<AnimationContainer> anims = new List<AnimationContainer>();
             DecoderShell shell = DecoderShell.Import(filePath);
 
             Matrix4 baseTransform = options.InitialTransform.Matrix;
@@ -106,8 +103,69 @@ namespace CustomEngine.Rendering.Models
                 foreach (ObjectInfo obj in objects)
                     obj.Initialize(scene._skeletalModel, shell);
             }
-            
+            scene._animations = new List<AnimationContainer>();
+            AnimationContainer anim = new AnimationContainer()
+            {
+                Name = Path.GetFileNameWithoutExtension(filePath)
+            };
+            foreach (AnimationEntry e in shell._animations)
+                ParseAnimation(e, anim);
             return scene;
+        }
+
+        private static void ParseAnimation(AnimationEntry e, AnimationContainer c)
+        {
+            foreach (AnimationEntry e2 in e._animations)
+                ParseAnimation(e2, c);
+            foreach (ChannelEntry channel in e._channels)
+            {
+                SamplerEntry sampler = null;
+                foreach (SamplerEntry s in e._samplers)
+                    if (channel._source.Equals(s._id))
+                    {
+                        sampler = s;
+                        break;
+                    }
+
+                string[] target = channel._target.Split('/');
+                string nodeId = target[0];
+                string targetName = target[1];
+                float[] timeData = null, matrixData = null;
+                string[] interpData = null;
+                foreach (InputEntry input in sampler._inputs)
+                {
+                    SourceEntry source = null;
+                    foreach (SourceEntry s in e._sources)
+                        if (s._id.Equals(input._source))
+                        {
+                            source = s;
+                            break;
+                        }
+
+                    switch (input._semantic)
+                    {
+                        case SemanticType.INPUT:
+                            timeData = (float[])source._arrayData;
+                            break;
+                        case SemanticType.OUTPUT:
+                            matrixData = (float[])source._arrayData;
+                            break;
+                        case SemanticType.INTERPOLATION:
+                            interpData = (string[])source._arrayData;
+                            break;
+                        case SemanticType.IN_TANGENT:
+
+                            break;
+                        case SemanticType.OUT_TANGENT:
+
+                            break;
+                    }
+                }
+                for (int i = 0; i < timeData.Length; ++i)
+                {
+
+                }
+            }
         }
 
         private static Bone EnumNode(

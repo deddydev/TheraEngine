@@ -462,26 +462,6 @@ namespace CustomEngine.Rendering.Models
 
                 return prim;
             }
-            private InputEntry ParseInput()
-            {
-                InputEntry inp = new InputEntry();
-
-                while (_reader.ReadAttribute())
-                    if (_reader.Name.Equals("id", true))
-                        inp._id = (string)_reader.Value;
-                    else if (_reader.Name.Equals("name", true))
-                        inp._name = (string)_reader.Value;
-                    else if (_reader.Name.Equals("semantic", true))
-                        inp._semantic = (SemanticType)Enum.Parse(typeof(SemanticType), (string)_reader.Value, true);
-                    else if (_reader.Name.Equals("set", true))
-                        inp._set = int.Parse((string)_reader.Value);
-                    else if (_reader.Name.Equals("offset", true))
-                        inp._offset = int.Parse((string)_reader.Value);
-                    else if (_reader.Name.Equals("source", true))
-                        inp._source = _reader.Value[0] == '#' ? (string)(_reader.Value + 1) : (string)_reader.Value;
-
-                return inp;
-            }
 
             private void ParseLibControllers()
             {

@@ -16,7 +16,7 @@ namespace CustomEngine.Worlds.Actors
         {
             _name = name;
             Sphere sphere = new Sphere(radius);
-            StaticMesh model = new StaticMesh(_name + "_Model", sphere);
+            StaticMesh model = new StaticMesh(_name + "_Model");
             model.RigidChildren.Add(new StaticRigidSubMesh(sphere.GetMesh(30.0f, false), sphere, m, _name + "_Mesh"));
             RootComponent = new StaticMeshComponent(model, translation, rotation, -Vec3.One, info);
             Initialize();

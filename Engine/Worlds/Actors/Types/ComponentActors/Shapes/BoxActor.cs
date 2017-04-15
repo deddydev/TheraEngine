@@ -16,7 +16,7 @@ namespace CustomEngine.Worlds.Actors
         {
             _name = name;
             BoundingBox box = new BoundingBox(halfExtents, Vec3.Zero);
-            StaticMesh model = new StaticMesh(_name + "_Model", box);
+            StaticMesh model = new StaticMesh(_name + "_Model");
             model.RigidChildren.Add(new StaticRigidSubMesh(box.GetMesh(false), box, m, _name + "_Mesh"));
             RootComponent = new StaticMeshComponent(model, translation, rotation, Vec3.One, info);
             Initialize();

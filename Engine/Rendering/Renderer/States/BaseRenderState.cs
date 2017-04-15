@@ -14,11 +14,11 @@ namespace CustomEngine.Rendering
         {
             public int _bindingId = 0;
             public RenderContext _context = null;
-            public ContextBind(RenderContext c) { _context = c; }
+            public ContextBind(RenderContext c) => _context = c;
         }
 
         public const int NullBindingId = 0;
-        public bool IsActive { get { return _currentBind._bindingId > NullBindingId; } }
+        public bool IsActive => _currentBind._bindingId > NullBindingId;
         public int BindingId
         {
             get
@@ -28,7 +28,8 @@ namespace CustomEngine.Rendering
                 return _currentBind._bindingId;
             }
         }
-        public GenType Type { get { return _type; } }
+
+        public GenType Type => _type;
 
         private GenType _type;
         private List<ContextBind> _owners = new List<ContextBind>();
@@ -180,6 +181,5 @@ namespace CustomEngine.Rendering
         Texture,
         Renderbuffer,
         Framebuffer,
-        //DisplayList,
     }
 }

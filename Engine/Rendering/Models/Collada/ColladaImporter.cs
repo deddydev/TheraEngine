@@ -128,8 +128,9 @@ namespace CustomEngine.Rendering.Models
                     }
 
                 string[] target = channel._target.Split('/');
-                string nodeId = target[0];
-                string targetName = target[1];
+                string nodeName = target[0];
+                TargetType targetName = target[1].AsEnum<TargetType>();
+
                 float[] timeData = null, outputData = null;
                 string[] interpData = null;
                 foreach (InputEntry input in sampler._inputs)
@@ -192,6 +193,11 @@ namespace CustomEngine.Rendering.Models
             }
         }
 
+        private enum TargetType
+        {
+            matrix,
+            visibility,
+        }
         private enum InterpType
         {
             LINEAR,

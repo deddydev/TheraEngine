@@ -5,36 +5,14 @@ using CustomEngine.Files;
 
 namespace CustomEngine.Audio
 {
+    /// <summary>
+    /// Plays equally in both speakers; not tied to any world position.
+    /// </summary>
     public class AmbientSound : SoundDataBase
     {
         AmbientSound()
         {
             _looped = true;
-        }
-
-        public override void Read(VoidPtr address, VoidPtr strings)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void Read(XMLReader reader)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void Write(VoidPtr address, StringTable table)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void Write(XmlWriter writer)
-        {
-            throw new NotImplementedException();
-        }
-
-        protected override int OnCalculateSize(StringTable table)
-        {
-            throw new NotImplementedException();
         }
     }
 }

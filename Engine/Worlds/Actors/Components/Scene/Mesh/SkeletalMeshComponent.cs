@@ -1,8 +1,5 @@
 ﻿using CustomEngine.Rendering.Models;
-using System.Reflection;
-using CustomEngine.Rendering.Animation;
-using CustomEngine.Rendering;
-using System.ComponentModel;
+using System;
 
 namespace CustomEngine.Worlds.Actors
 {
@@ -17,11 +14,13 @@ namespace CustomEngine.Worlds.Actors
         {
 
         }
-        
+
         private SkeletalMesh _model;
         private Skeleton _skeleton;
+        //For internal runtime use
         internal RenderableMesh[] _meshes;
 
+        [Serialize]
         public SkeletalMesh Model
         {
             get => _model;
@@ -40,6 +39,7 @@ namespace CustomEngine.Worlds.Actors
                 }
             }
         }
+        [Serialize]
         public Skeleton Skeleton
         {
             get => _skeleton;

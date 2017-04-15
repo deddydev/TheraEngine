@@ -84,8 +84,8 @@ namespace CustomEngine
         /// </summary>
         public static double TargetRenderFreq
         {
-            get { return _timer.TargetRenderFrequency; }
-            set { _timer.TargetRenderFrequency = value; }
+            get => _timer.TargetRenderFrequency;
+            set => _timer.TargetRenderFrequency = value;
         }
 
         /// <summary>
@@ -93,8 +93,8 @@ namespace CustomEngine
         /// </summary>
         public static double TargetUpdateFreq
         {
-            get { return _timer.TargetUpdateFrequency; }
-            set { _timer.TargetUpdateFrequency = value; }
+            get => _timer.TargetUpdateFrequency;
+            set => _timer.TargetUpdateFrequency = value;
         }
 
         /// <summary>
@@ -102,14 +102,14 @@ namespace CustomEngine
         /// </summary>
         public static double TimeDilation
         {
-            get { return _timer.TimeDilation; }
-            set { _timer.TimeDilation = value; }
+            get => _timer.TimeDilation;
+            set => _timer.TimeDilation = value;
         }
         
         public static World TransitionWorld
         {
-            get { return _transitionWorld; }
-            set { _transitionWorld = value; }
+            get => _transitionWorld;
+            set => _transitionWorld = value;
         }
         public static World World
         {
@@ -146,12 +146,21 @@ namespace CustomEngine
         }
         public static AudioLibrary AudioLibrary
         {
-            get { return _audioLibrary; }
-            set { _audioLibrary = value; }
+            get => _audioLibrary;
+            set
+            {
+                _audioLibrary = value;
+                switch (_audioLibrary)
+                {
+                    case AudioLibrary.OpenAL:
+                        AudioManager = new ALAudioManager();
+                        break;
+                }
+            }
         }
         public static InputLibrary InputLibrary
         {
-            get { return _inputLibrary; }
+            get => _inputLibrary;
             set
             {
                 _inputLibrary = value;

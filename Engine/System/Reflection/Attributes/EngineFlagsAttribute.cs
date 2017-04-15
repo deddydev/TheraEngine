@@ -21,7 +21,7 @@ namespace System
     /// <summary>
     /// This attribute means the field should be serialized upon saving.
     /// </summary>
-    [AttributeUsage(AttributeTargets.Field, AllowMultiple = false)]
+    [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property, AllowMultiple = false)]
     public class Serialize : Attribute
     {
         private int _order = -1;
@@ -32,6 +32,7 @@ namespace System
         private string _serializeIf = null;
         private bool _useCategory = true;
         private bool _ignoreIfNull = true;
+        private bool _external = false;
 
         /// <summary>
         /// The order this field should be serialized in.
@@ -68,6 +69,7 @@ namespace System
         /// Determines if this field should not be written if it is null.
         /// </summary>
         public bool IgnoreIfNull { get => _ignoreIfNull; set => _ignoreIfNull = value; }
+        public bool External { get => _external; set => _external = value; }
 
         public Serialize() { }
         public Serialize(string nameOverride)

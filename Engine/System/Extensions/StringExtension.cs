@@ -5,6 +5,13 @@ namespace System
 {
     public static unsafe class StringExtension
     {
+        /// <summary>
+        /// Parses the given string as an enum of the given type.
+        /// </summary>
+        public static T AsEnum<T>(this string s) where T : struct
+        {
+            return (T)Enum.Parse(typeof(T), s);
+        }
         private static readonly Regex sWhitespace = new Regex(@"\s+");
         public static string ReplaceWhitespace(this string input, string replacement)
         {

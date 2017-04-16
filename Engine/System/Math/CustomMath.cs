@@ -83,11 +83,11 @@ namespace System
             Vec2[] points = new Vec2[pointCount];
             float timeDelta = 1.0f / (pointCount - 1);
             for (int i = 0; i < pointCount; ++i)
-                points[i] = Bezier(p0, p1, p2, p3, timeDelta);
+                points[i] = CubicBezier(p0, p1, p2, p3, timeDelta);
 
             return points;
         }
-        public static Vec2 Bezier(Vec2 p0, Vec2 p1, Vec2 p2, Vec2 p3, float time)
+        public static float CubicBezier(float p0, float p1, float p2, float p3, float time)
         {
             float invT = 1.0f - time;
             float invT2 = invT * invT;
@@ -100,7 +100,7 @@ namespace System
                 p2 * 3.0f * invT * t2 +
                 p3 * t3;
         }
-        public static Vec3 Bezier(Vec3 p0, Vec3 p1, Vec3 p2, Vec3 p3, float time)
+        public static Vec2 CubicBezier(Vec2 p0, Vec2 p1, Vec2 p2, Vec2 p3, float time)
         {
             float invT = 1.0f - time;
             float invT2 = invT * invT;
@@ -112,6 +112,72 @@ namespace System
                 p1 * 3.0f * invT2 * time +
                 p2 * 3.0f * invT * t2 +
                 p3 * t3;
+        }
+        public static Vec3 CubicBezier(Vec3 p0, Vec3 p1, Vec3 p2, Vec3 p3, float time)
+        {
+            float invT = 1.0f - time;
+            float invT2 = invT * invT;
+            float invT3 = invT2 * invT;
+            float t2 = time * time;
+            float t3 = t2 * time;
+            return
+                p0 * invT3 +
+                p1 * 3.0f * invT2 * time +
+                p2 * 3.0f * invT * t2 +
+                p3 * t3;
+        }
+        public static Vec4 CubicBezier(Vec4 p0, Vec4 p1, Vec4 p2, Vec4 p3, float time)
+        {
+            float invT = 1.0f - time;
+            float invT2 = invT * invT;
+            float invT3 = invT2 * invT;
+            float t2 = time * time;
+            float t3 = t2 * time;
+            return
+                p0 * invT3 +
+                p1 * 3.0f * invT2 * time +
+                p2 * 3.0f * invT * t2 +
+                p3 * t3;
+        }
+        public static float CubicHermite(float p0, float t0, float t1, float p1, float time)
+        {
+            float time2 = time * time;
+            float time3 = time2 * time;
+            return
+                p0 * (2.0f * time3 - 3.0f * time2 + 1.0f) +
+                t0 * (time3 - 2.0f * time2 + time) +
+                p1 * (-2.0f * time3 + 3.0f * time2) +
+                t1 * (time3 - time2);
+        }
+        public static Vec2 CubicHermite(Vec2 p0, Vec2 t0, Vec2 t1, Vec2 p1, float time)
+        {
+            float time2 = time * time;
+            float time3 = time2 * time;
+            return
+                p0 * (2.0f * time3 - 3.0f * time2 + 1.0f) +
+                t0 * (time3 - 2.0f * time2 + time) +
+                p1 * (-2.0f * time3 + 3.0f * time2) +
+                t1 * (time3 - time2);
+        }
+        public static Vec3 CubicHermite(Vec3 p0, Vec3 t0, Vec3 t1, Vec3 p1, float time)
+        {
+            float time2 = time * time;
+            float time3 = time2 * time;
+            return
+                p0 * (2.0f * time3 - 3.0f * time2 + 1.0f) +
+                t0 * (time3 - 2.0f * time2 + time) +
+                p1 * (-2.0f * time3 + 3.0f * time2) +
+                t1 * (time3 - time2);
+        }
+        public static Vec4 CubicHermite(Vec4 p0, Vec4 t0, Vec4 t1, Vec4 p1, float time)
+        {
+            float time2 = time * time;
+            float time3 = time2 * time;
+            return
+                p0 * (2.0f * time3 - 3.0f * time2 + 1.0f) +
+                t0 * (time3 - 2.0f * time2 + time) +
+                p1 * (-2.0f * time3 + 3.0f * time2) +
+                t1 * (time3 - time2);
         }
         /// <summary>
         /// Gets an approximation of the vector length (magnitude).
@@ -135,6 +201,13 @@ namespace System
             value1 = value2;
             value2 = temp;
         }
+
+        public static float Lerp(float startValue, float endValue, float time)
+        {
+            //return startValue * (1.0f - time) + endValue * time;
+            return startValue + (endValue - startValue) * time;
+        }
+
         public static void Swap(ref int value1, ref int value2)
         {
             int temp = value1;

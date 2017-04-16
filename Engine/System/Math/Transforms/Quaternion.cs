@@ -283,8 +283,8 @@ namespace System
         public static Quat Scubic(Quat p1, Quat p2, Quat p3, Quat p4, float time)
         {
             Quat q1 = Slerp(p1, p2, time);
-            Quat q2 = Slerp(p1, p2, time);
-            Quat q3 = Slerp(p1, p2, time);
+            Quat q2 = Slerp(p2, p3, time);
+            Quat q3 = Slerp(p3, p4, time);
             return Squad(q1, q2, q3, time);
         }
         public static Quat Squad(Quat q1, Quat q2, Quat q3, float time)

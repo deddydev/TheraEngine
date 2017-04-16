@@ -39,7 +39,7 @@ namespace CustomEngine.Rendering
             Vec2 p2 = p3;
             p2.X += Translation.X < point.X ? -10.0f : 10.0f;
 
-            return CustomMath.Bezier(p0, p1, p2, p3, time);
+            return CustomMath.CubicBezier(p0, p1, p2, p3, time);
         }
         public Vec2[] BezierToPointAsPoints(Vec2 point, int count)
         {

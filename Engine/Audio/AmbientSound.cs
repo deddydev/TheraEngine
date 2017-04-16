@@ -12,7 +12,7 @@ namespace CustomEngine.Audio
     {
         AmbientSound()
         {
-            _looped = true;
+
         }
     }
 }

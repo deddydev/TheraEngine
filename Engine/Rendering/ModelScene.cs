@@ -13,11 +13,6 @@ namespace CustomEngine.Rendering
         public SkeletalMesh _skeletalModel;
         public StaticMesh _staticModel;
         public Skeleton _skeleton;
-        public List<AnimationContainer> _animations;
-        
-        public void CleanAnimations(SkeletalMesh model, Skeleton skeleton)
-        {
-
-        }
+        public ModelAnimation _animation;
     }
 }

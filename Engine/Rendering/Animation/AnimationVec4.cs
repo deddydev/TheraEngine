@@ -17,7 +17,6 @@ namespace CustomEngine.Rendering.Animation
         public AnimationVec4(int frameCount, bool looped, bool useKeyframes) 
             : base(frameCount, looped, useKeyframes) { }
 
-        protected override object GetValue(float frame) { return _getValue(frame); }
         protected override void UseKeyframesChanged()
         {
             if (_useKeyframes)
@@ -25,19 +24,16 @@ namespace CustomEngine.Rendering.Animation
             else
                 _getValue = GetValueBaked;
         }
+        protected override object GetValue(float frame)
+            => _getValue(frame);
         public Vec4 GetValueBaked(float frameIndex)
-        {
-            return _baked[(int)frameIndex];
-        }
+            => _baked[(int)(frameIndex * _keyframes.FPS)];
         public Vec4 GetValueKeyframed(float frameIndex)
-        {
-            Vec4Keyframe key = _keyframes.GetKeyBefore(frameIndex);
-            if (key != null)
-                return key.Interpolate(frameIndex);
-            throw new IndexOutOfRangeException("Invalid frame index.");
-        }
+            => _keyframes.First.Interpolate(frameIndex);
+
         /// <summary>
         /// Bakes the interpolated data for fastest access by the game.
+        /// However, this method takes up more space and does not support time dilation (speeding up and slowing down with proper in-betweens)
         /// </summary>
         public override void Bake()
         {
@@ -59,31 +55,6 @@ namespace CustomEngine.Rendering.Animation
         }
         public IEnumerator<Vec4Keyframe> GetEnumerator() { return ((IEnumerable<Vec4Keyframe>)_keyframes).GetEnumerator(); }
         IEnumerator IEnumerable.GetEnumerator() { return ((IEnumerable<Vec4Keyframe>)_keyframes).GetEnumerator(); }
-
-        public override void Write(VoidPtr address, StringTable table)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void Read(VoidPtr address, VoidPtr strings)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void Write(XmlWriter writer)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void Read(XMLReader reader)
-        {
-            throw new NotImplementedException();
-        }
-
-        protected override int OnCalculateSize(StringTable table)
-        {
-            throw new NotImplementedException();
-        }
     }
     public class Vec4Keyframe : Keyframe
     {
@@ -93,23 +64,67 @@ namespace CustomEngine.Rendering.Animation
             _inValue = inValue;
             _outValue = outValue;
         }
-        
+
         protected Vec4 _inValue;
         protected Vec4 _inTangent;
-
         protected Vec4 _outValue;
         protected Vec4 _outTangent;
+        protected PlanarInterpType _interpolationType;
 
-        public Vec4 InValue { get { return _inValue; } set { _inValue = value; } }
-        public Vec4 OutValue { get { return _outValue; } set { _outValue = value; } }
-
-        public Vec4 InTanget { get { return _inTangent; } set { _inTangent = value; } }
-        public Vec4 OutTangent { get { return _outTangent; } set { _outTangent = value; } }
-        
-        public new Vec4Keyframe Next { get { return _next as Vec4Keyframe; } set { _next = value; } }
-        public new Vec4Keyframe Prev { get { return _prev as Vec4Keyframe; } set { _prev = value; } }
-        
-        delegate Vec4 DelInterpolate(float t, Vec4 p0, Vec4 p1, Vec4 t0, Vec4 t1);
+        public Vec4 InValue
+        {
+            get => _inValue;
+            set => _inValue = value;
+        }
+        public Vec4 OutValue
+        {
+            get => _outValue;
+            set => _outValue = value;
+        }
+        public Vec4 InTangent
+        {
+            get => _inTangent;
+            set => _inTangent = value;
+        }
+        public Vec4 OutTangent
+        {
+            get => _outTangent;
+            set => _outTangent = value;
+        }
+        public new Vec4Keyframe Next
+        {
+            get => _next as Vec4Keyframe;
+            set => _next = value;
+        }
+        public new Vec4Keyframe Prev
+        {
+            get => _prev as Vec4Keyframe;
+            set => _prev = value;
+        }
+        public PlanarInterpType InterpolationType
+        {
+            get => _interpolationType;
+            set
+            {
+                _interpolationType = value;
+                switch (_interpolationType)
+                {
+                    case PlanarInterpType.Step:
+                        _interpolate = Step;
+                        break;
+                    case PlanarInterpType.Linear:
+                        _interpolate = Lerp;
+                        break;
+                    case PlanarInterpType.CubicHermite:
+                        _interpolate = CubicHermite;
+                        break;
+                    case PlanarInterpType.CubicBezier:
+                        _interpolate = Bezier;
+                        break;
+                }
+            }
+        }
+        delegate Vec4 DelInterpolate(Vec4Keyframe key1, Vec4Keyframe key2, float time);
         private DelInterpolate _interpolate = CubicHermite;
         public Vec4 Interpolate(float frameIndex)
         {
@@ -128,40 +143,37 @@ namespace CustomEngine.Rendering.Animation
                 return Next.Interpolate(frameIndex);
 
             float t = (frameIndex - _frameIndex) / (_next._frameIndex - _frameIndex);
-            return _interpolate(t, _outValue, Next._inValue, _outTangent, Next._inTangent);
+            return _interpolate(this, Next, t);
         }
-        
-        public static Vec4 CubicHermite(float time, Vec4 p0, Vec4 p1, Vec4 t0, Vec4 t1)
+        public static Vec4 Step(Vec4Keyframe key1, Vec4Keyframe key2, float time)
+            => time < 1.0f ? key1.OutValue : key2.OutValue;
+        public static Vec4 Lerp(Vec4Keyframe key1, Vec4Keyframe key2, float time)
+            => Vec4.Lerp(key1.OutValue, key2.InValue, time);
+        public static Vec4 Bezier(Vec4Keyframe key1, Vec4Keyframe key2, float time)
+            => CustomMath.CubicBezier(key1.OutValue, key1.OutTangent, key2.InTangent, key2.InValue, time);
+        public static Vec4 CubicHermite(Vec4Keyframe key1, Vec4Keyframe key2, float time)
         {
             float time2 = time * time;
             float time3 = time2 * time;
-            return 
-                p0 * (2.0f * time3 - 3.0f * time2 + 1.0f) +
-                t0 * (time3 - 2.0f * time2 + time) +
-                p1 * (-2.0f * time3 + 3.0f * time2) +
-                t1 * (time3 - time2);
+            return
+                key1.OutValue * (2.0f * time3 - 3.0f * time2 + 1.0f) +
+                key1.OutTangent * (time3 - 2.0f * time2 + time) +
+                key2.InValue * (-2.0f * time3 + 3.0f * time2) +
+                key2.InTangent * (time3 - time2);
         }
-
+        
         public void AverageKeyframe()
         {
             AverageValues();
             AverageTangents();
         }
         public void AverageTangents()
-        {
-            _inTangent = _outTangent = (_inTangent + _outTangent) / 2.0f;
-        }
+            => _inTangent = _outTangent = (_inTangent + _outTangent) / 2.0f;
         public void AverageValues()
-        {
-            _inValue = _outValue = (_inValue + _outValue) / 2.0f;
-        }
+            => _inValue = _outValue = (_inValue + _outValue) / 2.0f;
         public void MakeOutLinear()
-        {
-            _outTangent = (Next.InValue - OutValue) / (Next._frameIndex - _frameIndex);
-        }
+            => _outTangent = (Next.InValue - OutValue) / (Next._frameIndex - _frameIndex);
         public void MakeInLinear()
-        {
-            _inTangent = (InValue - Prev.OutValue) / (_frameIndex - Prev._frameIndex);
-        }
+            => _inTangent = (InValue - Prev.OutValue) / (_frameIndex - Prev._frameIndex);
     }
 }

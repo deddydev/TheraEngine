@@ -103,11 +103,12 @@ namespace CustomEngine.Rendering.Models
                 foreach (ObjectInfo obj in objects)
                     obj.Initialize(scene._skeletalModel, shell);
             }
-            scene._animations = new List<AnimationContainer>();
-            AnimationContainer anim = new AnimationContainer()
+            scene._animation = new ModelAnimation()
             {
-                Name = Path.GetFileNameWithoutExtension(filePath)
+                Name = Path.GetFileNameWithoutExtension(filePath),
+                RootFolder = new AnimFolder("Skeleton"),
             };
+            scene._animations.Add(anim);
             foreach (AnimationEntry e in shell._animations)
                 ParseAnimation(e, anim);
             return scene;
@@ -130,7 +131,7 @@ namespace CustomEngine.Rendering.Models
                 string[] target = channel._target.Split('/');
                 string nodeName = target[0];
                 TargetType targetName = target[1].AsEnum<TargetType>();
-
+                
                 float[] timeData = null, outputData = null;
                 string[] interpData = null;
                 foreach (InputEntry input in sampler._inputs)
@@ -162,32 +163,40 @@ namespace CustomEngine.Rendering.Models
                             break;
                     }
                 }
-                int x = 0;
-                for (int i = 0; i < timeData.Length; ++i, x += 16)
+                if (targetName == TargetType.matrix)
                 {
-                    float second = timeData[i];
-                    InterpType type = (InterpType)Enum.Parse(typeof(InterpType), interpData[i]);
-
-                    Matrix4 matrix = new Matrix4(
-                        outputData[x + 0],
-                        outputData[x + 1],
-                        outputData[x + 2],
-                        outputData[x + 3],
-                        outputData[x + 4],
-                        outputData[x + 5],
-                        outputData[x + 6],
-                        outputData[x + 7],
-                        outputData[x + 8],
-                        outputData[x + 9],
-                        outputData[x + 10],
-                        outputData[x + 11],
-                        outputData[x + 12],
-                        outputData[x + 13],
-                        outputData[x + 14],
-                        outputData[x + 15]);
-                    if (type == InterpType.LINEAR)
+                    int x = 0;
+                    for (int i = 0; i < timeData.Length; ++i, x += 16)
                     {
-
+                        float second = timeData[i];
+                        InterpType type = interpData[i].AsEnum<InterpType>();
+                        Matrix4 matrix = new Matrix4(
+                                outputData[x + 0],
+                                outputData[x + 1],
+                                outputData[x + 2],
+                                outputData[x + 3],
+                                outputData[x + 4],
+                                outputData[x + 5],
+                                outputData[x + 6],
+                                outputData[x + 7],
+                                outputData[x + 8],
+                                outputData[x + 9],
+                                outputData[x + 10],
+                                outputData[x + 11],
+                                outputData[x + 12],
+                                outputData[x + 13],
+                                outputData[x + 14],
+                                outputData[x + 15]);
+                        FrameState transform = FrameState.DeriveTRS(matrix);
+                    }
+                }
+                else if (targetName == TargetType.visibility)
+                {
+                    for (int i = 0; i < timeData.Length; ++i)
+                    {
+                        float second = timeData[i];
+                        float vis = outputData[i];
+                        InterpType type = interpData[i].AsEnum<InterpType>();
                     }
                 }
             }
@@ -201,7 +210,9 @@ namespace CustomEngine.Rendering.Models
         private enum InterpType
         {
             LINEAR,
-            BEZIER
+            BEZIER,
+            HERMITE,
+            STEP,
         }
 
         private static Bone EnumNode(

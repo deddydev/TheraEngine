@@ -10,11 +10,23 @@ namespace CustomEngine.Rendering.Animation
     [FileClass()]
     public class AnimStateMachine : LogicComponent
     {
+        private AnimState _initialState;
+        private Dictionary<string, AnimState> _states;
         private AnimState _currentState;
         private Skeleton _skeleton;
 
+        internal void SetCurrentState(AnimState state)
+            => _currentState = state;
+        public AnimState CurrentState => _currentState;
+        public AnimState InitialState
+        {
+            get => _initialState;
+            set => _initialState = value;
+        }
+
         public override void OnSpawned()
         {
+            _currentState = _initialState;
             RegisterTick(ETickGroup.PrePhysics, ETickOrder.Animation);
             base.OnSpawned();
         }
@@ -25,30 +37,50 @@ namespace CustomEngine.Rendering.Animation
         }
         protected internal override void Tick(float delta)
         {
-            _currentState.TryTransition();
+            _currentState.TryTransition(this);
+        }
+        public void Start()
+        {
+
+        }
+        public void End()
+        {
+
         }
     }
     public class AnimState
     {
+        public ModelAnimation _animation;
         public List<AnimStateTransition> _transitions = new List<AnimStateTransition>();
-        public AnimState TryTransition()
+        public void TryTransition(AnimStateMachine machine)
         {
             foreach (AnimStateTransition t in _transitions)
-            {
-                AnimState nextState = t.TryTransition();
-                if (nextState != null)
-                    return nextState;
-            }
-            return null;
+                if (t.TryTransition(machine))
+                    return;
+        }
+        public void Tick(Skeleton skel)
+        {
+
         }
     }
     public class AnimStateTransition
     {
         AnimState _destinationState;
-        public AnimState TryTransition()
+        Func<bool> _method;
+        float _blendDuration;
+
+
+        public AnimStateTransition()
         {
-            bool canTransition = false;
-            return canTransition ? _destinationState : null;
+
+        }
+
+        public bool TryTransition(AnimStateMachine machine)
+        {
+            bool canTransition = _method();
+            if (canTransition)
+                machine.SetCurrentState(_destinationState);
+            return canTransition;
         }
     }
 }

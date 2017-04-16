@@ -13,23 +13,10 @@ namespace CustomEngine.Audio
 
         byte[] sound_data;
 
-        public byte[] SoundData
-        {
-            get { return sound_data; }
-        }
-
-        public int Channels
-        {
-            get { return _channels; }
-        }
-        public int BitsPerSample
-        {
-            get { return _bps; }
-        }
-        public int SampleRate
-        {
-            get { return _sampleRate; }
-        }
+        public byte[] SoundData => sound_data;
+        public int Channels => _channels;
+        public int BitsPerSample => _bps;
+        public int SampleRate => _sampleRate;
 
         public WaveFile(string filename)
         {
@@ -49,7 +36,7 @@ namespace CustomEngine.Audio
                 if (signature != "RIFF")
                     throw new NotSupportedException("Specified stream is not a wave file.");
 
-                int riff_chunck_size = reader.ReadInt32();
+                int riff_chunk_size = reader.ReadInt32();
 
                 string format = new string(reader.ReadChars(4));
                 if (format != "WAVE")
@@ -78,7 +65,7 @@ namespace CustomEngine.Audio
                 bits = bits_per_sample;
                 rate = sample_rate;
 
-                return reader.ReadBytes((int)reader.BaseStream.Length);
+                return reader.ReadBytes(data_chunk_size);
             }
         }
 

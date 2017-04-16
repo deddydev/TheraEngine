@@ -90,7 +90,7 @@ namespace CustomEngine.Worlds.Actors
             else
             {
                 //info.InitialWorldTransform = WorldMatrix;
-                info.CollisionShape = m.CullingVolume.GetCollisionShape();
+                info.CollisionShape = m.Collision;
                 info.MotionState = new DefaultMotionState(WorldMatrix);
                 _physicsDriver = new PhysicsDriver(this, info, _physicsDriver_TransformChanged);
                 WorldTransformChanged += StaticMeshComponent_WorldTransformChanged;

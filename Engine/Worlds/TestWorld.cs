@@ -95,10 +95,13 @@ namespace CustomEngine.Worlds
             string desktop = Environment.MachineName == "DAVID-DESKTOP" ?
                 "X:\\Desktop\\" :
                 "C:\\Users\\David\\Desktop\\";
+            string googleDrive = Environment.MachineName == "DAVID-DESKTOP" ?
+                "X:\\Cloud Storage\\Google Drive\\Game\\" :
+                "C:\\Users\\David\\Google Drive\\Game\\";
             Collada.ImportOptions options = new Collada.ImportOptions();
             options.InitialTransform.Scale = new Vec3(0.02646f);
             ModelScene scene = Collada.Import(desktop + "TEST.DAE", options, false, true);
-            ModelScene anims = Collada.Import("C:\\Users\\David\\Google Drive\\Game\\Thera Assets\\Characters\\Temp\\Carly_Idle.dae", options, true, false);
+            ModelScene anims = Collada.Import(googleDrive + "Thera Assets\\Characters\\Temp\\Carly_Idle.dae", options, true, false);
             anims.CleanAnimations(scene._skeletalModel, scene._skeleton);
 
             //IActor importedActor;

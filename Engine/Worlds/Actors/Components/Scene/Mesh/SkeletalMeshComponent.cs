@@ -1,4 +1,5 @@
-﻿using CustomEngine.Rendering.Models;
+﻿using CustomEngine.Rendering.Animation;
+using CustomEngine.Rendering.Models;
 using System;
 
 namespace CustomEngine.Worlds.Actors

@@ -10,6 +10,8 @@ using System.Activities.Statements;
 using CustomEngine.Input.Devices;
 using CustomEngine.Rendering.Cameras;
 using System.Diagnostics;
+using CustomEngine.Input;
+using CustomEngine.Rendering.Animation;
 
 namespace CustomEngine.Worlds.Actors
 {
@@ -81,7 +83,7 @@ namespace CustomEngine.Worlds.Actors
         private MovementClass _movement;
         private SingleFileRef<SkeletalMesh> _mesh;
         private SingleFileRef<Skeleton> _skeleton;
-        private StateMachine _animationStateMachine = new StateMachine();
+        private AnimStateMachine _animationStateMachine;
         private BoomComponent _tpCameraBoom;
         private CameraComponent _fpCameraComponent, _tpCameraComponent;
         private bool _firstPerson = false;
@@ -112,12 +114,22 @@ namespace CustomEngine.Worlds.Actors
         public override void OnSpawned(World world)
         {
             RegisterTick(ETickGroup.PrePhysics, ETickOrder.Input);
+            _animationStateMachine?.Start();
             base.OnSpawned(world);
         }
         public override void OnDespawned()
         {
+            _animationStateMachine?.End();
             UnregisterTick();
             base.OnDespawned();
+        }
+        public override void OnPossessed(PawnController possessor)
+        {
+            base.OnPossessed(possessor);
+        }
+        public override void OnUnPossessed()
+        {
+            base.OnUnPossessed();
         }
         protected internal override void Tick(float delta)
         {

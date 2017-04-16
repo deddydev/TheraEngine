@@ -9,6 +9,7 @@ using System.Collections.ObjectModel;
 using CustomEngine.Rendering.Models.Materials;
 using System.IO;
 using System.Xml;
+using BulletSharp;
 
 namespace CustomEngine.Rendering.Models
 {
@@ -26,8 +27,12 @@ namespace CustomEngine.Rendering.Models
             _name = name;
         }
 
+        ConvexShape _collision;
+
         public MonitoredList<StaticRigidSubMesh> RigidChildren => _rigidChildren;
         public MonitoredList<StaticSoftSubMesh> SoftChildren => _softChildren;
+
+        public ConvexShape Collision { get => _collision; set => _collision = value; }
 
         [Serialize("RigidChildren")]
         protected MonitoredList<StaticRigidSubMesh> _rigidChildren = new MonitoredList<StaticRigidSubMesh>();

@@ -200,10 +200,12 @@
     <Compile Include="Input\Devices\AxisManager.cs" />
     <Compile Include="Input\Devices\ButtonManager.cs" />
     <Compile Include="Input\Devices\Windows\WinMouse.cs" />
+    <Compile Include="Rendering\Animation\AnimationQuaternion.cs" />
     <Compile Include="Rendering\Animation\AnimationVec4.cs" />
     <Compile Include="Rendering\Animation\AnimStateMachine.cs" />
     <Compile Include="Rendering\Animation\Functions\Logic\IfFunction.cs" />
     <Compile Include="Rendering\Animation\Misc\BlendSpace1D.cs" />
+    <Compile Include="Rendering\Animation\ModelAnimation.cs" />
     <Compile Include="Rendering\HUD\Functions\Animations\AnimationFunction.cs" />
     <Compile Include="Rendering\HUD\Functions\Animations\AnimFuncExecInput.cs" />
     <Compile Include="Rendering\HUD\Functions\Animations\AnimFuncExecOutput.cs" />

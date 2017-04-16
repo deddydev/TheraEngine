@@ -32,7 +32,7 @@ namespace CustomEngine.Rendering.Animation
         private bool _propertyNotFound = false;
 
         public string _propertyName;
-        public List<AnimFolder> _children = new List<AnimFolder>();
+        private List<AnimFolder> _children = new List<AnimFolder>();
         public BasePropertyAnimation _animation;
 
         public void CollectAnimations(string path, Dictionary<string, BasePropertyAnimation> animations)
@@ -49,6 +49,9 @@ namespace CustomEngine.Rendering.Animation
         }
 
         internal Action<object, float> _tick = null;
+
+        public List<AnimFolder> Children => _children;
+
         public void MethodTick(object obj, float delta)
         {
             bool noObject = obj == null;

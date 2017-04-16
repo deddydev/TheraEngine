@@ -37,11 +37,11 @@ namespace CustomEngine.Rendering.Animation
         
         private T _first = null;
 
-        public T First { get { return _first; } }
-        public T Last { get { return (T)_first.Prev; } }
+        public T First => _first;
+        public T Last => (T)_first.Prev;
 
-        public override BasePropertyAnimation Owner { get { return _owner; } }
-        protected override Keyframe FirstKey { get { return First; } }
+        public override BasePropertyAnimation Owner => _owner;
+        protected override Keyframe FirstKey => First;
 
         public KeyframeTrack(PropertyAnimation<T> node) { _owner = node; }
 
@@ -168,31 +168,23 @@ namespace CustomEngine.Rendering.Animation
             }
             while (node != _first);
         }
+    }
+    public enum RadialInterpType
+    {
+        Step,
+        Linear,
+        CubicBezier
+    }
+    public enum PlanarInterpType
+    {
+        Step,
+        Linear,
+        CubicHermite,
+        CubicBezier
+    }
+    public interface IKeyframe
+    {
 
-        public override void Write(VoidPtr address, StringTable table)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void Read(VoidPtr address, VoidPtr strings)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void Write(XmlWriter writer)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void Read(XMLReader reader)
-        {
-            throw new NotImplementedException();
-        }
-
-        protected override int OnCalculateSize(StringTable table)
-        {
-            throw new NotImplementedException();
-        }
     }
     public abstract class Keyframe
     {
@@ -204,10 +196,16 @@ namespace CustomEngine.Rendering.Animation
             _next = this;
             _prev = this;
         }
-        
-        public Keyframe Next { get { return _next; } set { _next = value; } }
-        public Keyframe Prev { get { return _prev; } set { _prev = value; } }
-
+        public Keyframe Next
+        {
+            get => _next;
+            set => _next = value;
+        }
+        public Keyframe Prev
+        {
+            get => _prev;
+            set => _prev = value;
+        }
         public void Unlink()
         {
             _next.Prev = Prev;

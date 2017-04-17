@@ -102,5 +102,13 @@
         {
             return value * 0.6213727366498068f;
         }
+        public static Single InchesToMeters(this Single value)
+        {
+            return value * 0.0254f;
+        }
+        public static Single MetersToInches(this Single value)
+        {
+            return value * 39.3701f;
+        }
     }
 }

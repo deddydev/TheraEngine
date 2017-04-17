@@ -189,11 +189,8 @@
     <Compile Include="3rdParty\7zip\ICoder.cs" />
     <Compile Include="Audio\AbstractAudioManager.cs" />
     <Compile Include="Audio\ALAudioManager.cs" />
-    <Compile Include="Audio\AmbientSound.cs" />
     <Compile Include="Audio\AudioParameters.cs" />
-    <Compile Include="Audio\DynamicSoundEffect.cs" />
-    <Compile Include="Audio\SoundDataBase.cs" />
-    <Compile Include="Audio\StaticSoundEffect.cs" />
+    <Compile Include="Audio\SoundFile.cs" />
     <Compile Include="Audio\WaveFile.cs" />
     <Compile Include="Cutscenes\Cutscene.cs" />
     <Compile Include="Engine\EngineMethods.cs" />

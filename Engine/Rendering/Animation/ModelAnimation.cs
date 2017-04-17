@@ -14,8 +14,8 @@ namespace CustomEngine.Rendering.Animation
     public class BoneAnimation
     {
         public string _name;
-        public KeyframeTrack<RotatorKeyframe> _rotation;
-        public KeyframeTrack<Vec3Keyframe> _translation;
-        public KeyframeTrack<Vec3Keyframe> _scale;
+        //public KeyframeTrack<RotatorKeyframe> _rotation;
+        //public KeyframeTrack<Vec3Keyframe> _translation;
+        //public KeyframeTrack<Vec3Keyframe> _scale;
     }
 }

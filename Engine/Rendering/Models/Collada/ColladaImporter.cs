@@ -106,15 +106,14 @@ namespace CustomEngine.Rendering.Models
             scene._animation = new ModelAnimation()
             {
                 Name = Path.GetFileNameWithoutExtension(filePath),
-                RootFolder = new AnimFolder("Skeleton"),
+                //RootFolder = new AnimFolder("Skeleton"),
             };
-            scene._animations.Add(anim);
             foreach (AnimationEntry e in shell._animations)
-                ParseAnimation(e, anim);
+                ParseAnimation(e, scene._animation);
             return scene;
         }
 
-        private static void ParseAnimation(AnimationEntry e, AnimationContainer c)
+        private static void ParseAnimation(AnimationEntry e, ModelAnimation c)
         {
             foreach (AnimationEntry e2 in e._animations)
                 ParseAnimation(e2, c);

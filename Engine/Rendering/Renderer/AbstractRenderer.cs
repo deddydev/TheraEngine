@@ -549,13 +549,13 @@ namespace CustomEngine.Rendering
         Stencil = 4,
         Accum   = 8,
     }
-    public enum DisplayListMode
-    {
-        //Means this displaylist should not be applied until it is called.
-        Compile,
-        //Means this displaylist should be applied while compiling.
-        CompileAndExecute,
-    }
+    //public enum DisplayListMode
+    //{
+    //    //Means this displaylist should not be applied until it is called.
+    //    Compile,
+    //    //Means this displaylist should be applied while compiling.
+    //    CompileAndExecute,
+    //}
     public enum EPrimitive
     {
         Points          = 0,

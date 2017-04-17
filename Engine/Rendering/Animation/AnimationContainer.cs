@@ -184,7 +184,7 @@ namespace CustomEngine.Rendering.Animation
                 else
                 {
                     AnimFolder folder = new AnimFolder(i);
-                    last._children.Add(folder);
+                    last.Children.Add(folder);
                     last = folder;
                 }
             }

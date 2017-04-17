@@ -5,6 +5,7 @@ using System.Linq;
 using System.IO;
 using System.Xml;
 using CustomEngine.GameModes;
+using CustomEngine.Audio;
 
 namespace CustomEngine.Worlds.Maps
 {
@@ -36,45 +37,16 @@ namespace CustomEngine.Worlds.Maps
         {
             _defaultActors = actors.ToList();
         }
-
-        public override void Write(VoidPtr address, StringTable table)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void Read(VoidPtr address, VoidPtr strings)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void Write(XmlWriter writer)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void Read(XMLReader reader)
-        {
-            throw new NotImplementedException();
-        }
-
-        protected override int OnCalculateSize(StringTable table)
-        {
-            throw new NotImplementedException();
-        }
         
         public bool VisibleByDefault
         {
-            get { return _visibleByDefault; }
-#if EDITOR
-            set { _visibleByDefault = value; }
-#endif
+            get => _visibleByDefault;
+            set => _visibleByDefault = value;
         }
         public Vec3 SpawnPosition
         {
-            get { return _spawnPosition; }
-#if EDITOR
-            set { _spawnPosition = value; }
-#endif
+            get => _spawnPosition;
+            set => _spawnPosition = value;
         }
     }
 }

@@ -51,6 +51,10 @@ namespace System
             get => _translation;
             set => _translation = value;
         }
+        public BoundingBox(float uniformHalfExtents)
+            : this(new Vec3(uniformHalfExtents)) { }
+        public BoundingBox(float uniformHalfExtents, Vec3 translation)
+            : this(new Vec3(uniformHalfExtents), translation) { }
         public BoundingBox(float halfExtentX, float halfExtentY, float halfExtentZ)
             : this(new Vec3(halfExtentX, halfExtentY, halfExtentZ)) { }
         public BoundingBox(float halfExtentX, float halfExtentY, float halfExtentZ, Vec3 translation)
@@ -60,13 +64,9 @@ namespace System
         public BoundingBox(Vec3 halfExtents, Vec3 translation) 
             : this()
         {
-            _halfExtents = halfExtents / 2.0f;
+            _halfExtents = halfExtents;
             _translation = translation;
         }
-        public BoundingBox(float uniformHalfExtents) 
-            : this(new Vec3(uniformHalfExtents)) { }
-        public BoundingBox(float uniformHalfExtents, Vec3 translation)
-            : this(new Vec3(uniformHalfExtents), translation) { }
         public BoundingBox()
         {
             ShapeIndex = Active.Count;

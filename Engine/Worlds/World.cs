@@ -2,15 +2,8 @@
 using System.Collections;
 using BulletSharp;
 using System;
-using System.Threading.Tasks;
-using System.Linq;
-using CustomEngine.Rendering.Models.Materials;
-using System.Runtime.InteropServices;
 using CustomEngine.Files;
-using System.Xml;
 using CustomEngine.Rendering;
-using System.IO;
-using System.Diagnostics;
 
 namespace CustomEngine.Worlds
 {
@@ -155,14 +148,15 @@ namespace CustomEngine.Worlds
         }
         public virtual void EndPlay()
         {
-            foreach (Map m in _settings._maps)
+            foreach (Map m in _settings.Maps)
                 m.EndPlay();
             _physicsScene = null;
         }
         public virtual void BeginPlay()
         {
             CreatePhysicsScene();
-            foreach (Map m in _settings._maps)
+            _settings.AmbientSound?.Play(_settings.AmbientParams);
+            foreach (Map m in _settings.Maps)
                 m.BeginPlay();
             //foreach (PhysicsDriver d in Engine._queuedCollisions)
             //    d.AddToWorld();

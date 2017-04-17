@@ -7,12 +7,14 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.IO;
 using System.Xml;
+using CustomEngine.Audio;
 
 namespace CustomEngine.Worlds
 {
     public class WorldSettings : FileObject
     {
-        public BoundingBox OriginRebaseBounds => _originRebaseBounds;
+        public BoundingBox OriginRebaseBounds
+            => _originRebaseBounds;
         public BoundingBox Bounds
         {
             get => _bounds;
@@ -23,15 +25,39 @@ namespace CustomEngine.Worlds
             get => _state;
             set => _state = value;
         }
+        public SoundFile AmbientSound
+        {
+            get => _ambientSound;
+            set => _ambientSound = value;
+        }
+        public List<Map> Maps
+        {
+            get => _maps;
+            set => _maps = value;
+        }
+        public AudioParameters AmbientParams
+        {
+            get => _ambientParams;
+            set => _ambientParams = value;
+        }
 
         [Serialize("Bounds")]
-        private BoundingBox _bounds = BoundingBox.FromMinMax(new Vec3(-500.0f), new Vec3(500.0f));
+        private BoundingBox _bounds = BoundingBox.FromMinMax(-500.0f, 500.0f);
         [Serialize("OriginRebaseBounds")]
-        private BoundingBox _originRebaseBounds;
+        private BoundingBox _originRebaseBounds = BoundingBox.FromMinMax(float.MinValue, float.MaxValue);
         [Serialize("Maps")]
-        public List<Map> _maps;
+        private List<Map> _maps = new List<Map>();
         [Serialize("State")]
-        public WorldState _state;
+        private WorldState _state;
+        [Serialize("AmbientSound")]
+        private SoundFile _ambientSound = new SoundFile();
+        [Serialize("AmbientParams")]
+        private AudioParameters _ambientParams = new AudioParameters()
+        {
+            SourceRelative = new UsableValue<bool>(true, false, true),
+            Gain = new UsableValue<float>(0.6f, 1.0f, true),
+            Loop = new UsableValue<bool>(true, false, true),
+        };
 
         public List<Material> CollectDefaultMaterials()
         {
@@ -73,7 +99,7 @@ namespace CustomEngine.Worlds
 
         public void SetOriginRebaseDistance(float distance)
         {
-            _originRebaseBounds = new BoundingBox(distance * 2.0f);
+            _originRebaseBounds = new BoundingBox(distance);
         }
         public override void Read(VoidPtr address, VoidPtr strings)
         {
@@ -87,35 +113,5 @@ namespace CustomEngine.Worlds
         {
             return FromXML<WorldSettings>(filePath);
         }
-
-        //public override void Write(VoidPtr address, StringTable table)
-        //{
-
-        //}
-
-        //public override void Write(XmlWriter writer)
-        //{
-
-        //}
-
-        //public override void Read(XMLReader reader)
-        //{
-
-        //}
-
-        //protected override int OnCalculateSize(StringTable table)
-        //{
-        //    return 0;
-        //}
-
-        //[StructLayout(LayoutKind.Sequential, Pack = 1)]
-        //public unsafe struct Header
-        //{
-        //    public BoundingBox.Header _originRebaseBounds;
-        //    public BoundingBox.Header _bounds;
-        //    public WorldState.Header _state;
-
-        //    public VoidPtr Address { get { fixed (void* ptr = &this) return ptr; } }
-        //}
     }
 }

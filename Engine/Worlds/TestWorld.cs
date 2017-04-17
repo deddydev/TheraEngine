@@ -98,11 +98,13 @@ namespace CustomEngine.Worlds
             string googleDrive = Environment.MachineName == "DAVID-DESKTOP" ?
                 "X:\\Cloud Storage\\Google Drive\\Game\\" :
                 "C:\\Users\\David\\Google Drive\\Game\\";
+
             Collada.ImportOptions options = new Collada.ImportOptions();
-            options.InitialTransform.Scale = new Vec3(0.02646f);
+            //0.02646f
+            options.InitialTransform.Scale = new Vec3(1.0f.InchesToMeters());
             ModelScene scene = Collada.Import(desktop + "TEST.DAE", options, false, true);
             ModelScene anims = Collada.Import(googleDrive + "Thera Assets\\Characters\\Temp\\Carly_Idle.dae", options, true, false);
-            anims.CleanAnimations(scene._skeletalModel, scene._skeleton);
+            //anims.CleanAnimations(scene._skeletalModel, scene._skeleton);
 
             //IActor importedActor;
             //if (scene._skeletalModel != null)
@@ -141,7 +143,8 @@ namespace CustomEngine.Worlds
                 new CharacterPawn(PlayerIndex.One, scene._skeletalModel, scene._skeleton) { Name = "PlayerCharacter", },
             };
 
-            _settings._maps.Add(new Map(this, new MapSettings(actors)));
+            _settings.Maps.Add(new Map(this, new MapSettings(actors)));
+            _settings.AmbientSound.Path = desktop + "ocean.wav";
         }
     }
 }

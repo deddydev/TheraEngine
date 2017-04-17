@@ -119,7 +119,7 @@ namespace CustomEngine.Files
                 _canExport = true, _canImport = true },
 
             new FilterInfo("Uncompressed PCM", "wav")
-            { _fileTypes = new Type[] { typeof(SoundDataBase) },
+            { _fileTypes = new Type[] { typeof(SoundFile) },
                 _canExport = true, _canImport = true },
 
             new FilterInfo("3D Mesh", "obj")

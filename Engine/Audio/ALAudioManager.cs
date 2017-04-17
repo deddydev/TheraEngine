@@ -31,7 +31,7 @@ namespace CustomEngine.Audio
                 default: throw new NotSupportedException("The specified sound format is not supported.");
             }
         }
-        public override void Pause(SoundDataBase sound)
+        public override void Pause(SoundFile sound)
         {
             AL.SourcePause(sound.SourceId);
         }
@@ -90,14 +90,14 @@ namespace CustomEngine.Audio
             ApplyParam(source, param.Velocity, ALSource3f.Velocity, initialPlay);
         }
 
-        public override void Update(SoundDataBase sound, AudioParameters param)
+        public override void Update(SoundFile sound, AudioParameters param)
             => ApplyParameters(sound.SourceId, param, false);
-        public override void Play(SoundDataBase sound) => Play(sound, null);
-        public override void Play(SoundDataBase sound, AudioParameters param)
+        public override void Play(SoundFile sound) => Play(sound, null);
+        public override void Play(SoundFile sound, AudioParameters param)
         {
             sound.BufferId = AL.GenBuffer();
             sound.SourceId = AL.GenSource();
-            int state;
+            //int state;
             
             byte[] data = sound.WaveFile.SoundData;
             AL.BufferData(sound.BufferId, 
@@ -111,18 +111,22 @@ namespace CustomEngine.Audio
 
             AL.SourcePlay(sound.SourceId);
             
-            do
-            {
-                Thread.Sleep(250);
-                AL.GetSource(sound.SourceId, ALGetSourcei.SourceState, out state);
-            }
-            while ((ALSourceState)state == ALSourceState.Playing);
+            //do
+            //{
+            //    Thread.Sleep(250);
+            //    AL.GetSource(sound.SourceId, ALGetSourcei.SourceState, out state);
+            //}
+            //while ((ALSourceState)state == ALSourceState.Playing);
         }
-        public override void Stop(SoundDataBase sound)
+        public override void Stop(SoundFile sound)
         {
             AL.SourceStop(sound.SourceId);
             AL.DeleteSource(sound.SourceId);
             AL.DeleteBuffer(sound.BufferId);
+        }
+        public override AudioState GetState(SoundFile sound)
+        {
+            return AudioState.Initial + ((int)AL.GetSourceState(sound.SourceId) - (int)ALSourceState.Initial);
         }
     }
 }

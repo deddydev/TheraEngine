@@ -35,7 +35,7 @@ namespace CustomEngine.Worlds
             get => _maps;
             set => _maps = value;
         }
-        public AudioParameters AmbientParams
+        public AudioSourceParameters AmbientParams
         {
             get => _ambientParams;
             set => _ambientParams = value;
@@ -50,9 +50,9 @@ namespace CustomEngine.Worlds
         [Serialize("State")]
         private WorldState _state;
         [Serialize("AmbientSound")]
-        private SoundFile _ambientSound = new SoundFile();
+        private SoundFile _ambientSound;
         [Serialize("AmbientParams")]
-        private AudioParameters _ambientParams = new AudioParameters()
+        private AudioSourceParameters _ambientParams = new AudioSourceParameters()
         {
             SourceRelative = new UsableValue<bool>(true, false, true),
             Gain = new UsableValue<float>(0.6f, 1.0f, true),

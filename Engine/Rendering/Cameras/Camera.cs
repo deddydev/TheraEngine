@@ -8,8 +8,10 @@ using CustomEngine.Worlds.Actors;
 
 namespace CustomEngine.Rendering.Cameras
 {
+    public delegate void OwningComponentChange(CameraComponent previous, CameraComponent current);
     public abstract class Camera : FileObject, IRenderable
     {
+        public event OwningComponentChange OwningComponentChanged;
         public delegate void TranslationChange(Vec3 oldTranslation);
         public delegate void RotationChange(Rotator oldRotation);
         
@@ -19,24 +21,29 @@ namespace CustomEngine.Rendering.Cameras
             Resize(1.0f, 1.0f);
             _localRotation.Changed += CreateTransform;
             _localPoint.Changed += CreateTransform;
+            CreateTransform();
         }
         public Camera(Vec3 point, Rotator rotation, float nearZ, float farZ)
         {
+            _transformedFrustum = new Frustum();
             Resize(1.0f, 1.0f);
-            _localRotation = rotation;
+            _localRotation.SetRotations(rotation);
             _nearZ = nearZ;
             _farZ = farZ;
             _localPoint = point;
             _localRotation.Changed += CreateTransform;
             _localPoint.Changed += CreateTransform;
+            CreateTransform();
         }
         public Camera(float nearZ, float farZ)
         {
+            _transformedFrustum = new Frustum();
             Resize(1.0f, 1.0f);
             _nearZ = nearZ;
             _farZ = farZ;
             _localRotation.Changed += CreateTransform;
             _localPoint.Changed += CreateTransform;
+            CreateTransform();
         }
 
         public Matrix4 ProjectionMatrix => _projectionMatrix;
@@ -152,20 +159,27 @@ namespace CustomEngine.Rendering.Cameras
             get => _owningComponent;
             set
             {
+                CameraComponent prev = _owningComponent;
                 if (_owningComponent != null)
                     _owningComponent.WorldTransformChanged -= _owningComponent_WorldTransformChanged;
                 _owningComponent = value;
                 if (_owningComponent != null)
                     _owningComponent.WorldTransformChanged += _owningComponent_WorldTransformChanged;
+                OwningComponentChanged?.Invoke(prev, _owningComponent);
                 UpdateTransformedFrustum();
             }
         }
 
         private void _owningComponent_WorldTransformChanged()
         {
+            _forwardInvalidated = true;
+            _upInvalidated = true;
+            _rightInvalidated = true;
             UpdateTransformedFrustum();
+            if (!_updating)
+                OnTransformChanged();
         }
-
+        
         private CameraComponent _owningComponent;
         private List<Viewport> _viewports = new List<Viewport>();
         internal bool _isActive = false;
@@ -197,9 +211,9 @@ namespace CustomEngine.Rendering.Cameras
             _upDirection = Vec3.Up, 
             _rightDirection = Vec3.Right;
         private bool 
-            _forwardInvalidated = false,
-            _upInvalidated = false, 
-            _rightInvalidated = false;
+            _forwardInvalidated = true,
+            _upInvalidated = true, 
+            _rightInvalidated = true;
 
         /// <summary>
         /// Returns an X, Y coordinate relative to the camera's Origin, with Z being the normalized depth from NearDepth to FarDepth.
@@ -244,7 +258,7 @@ namespace CustomEngine.Rendering.Cameras
             => _localPoint.Raw += translation;
         
         public Vec3 RotateVector(Vec3 dir)
-            => _localRotation.TransformVector(dir);
+            => Vec3.TransformVector(dir, WorldMatrix).NormalizedFast();
         public Vec3 GetUpVector()
         {
             if (_upInvalidated)
@@ -318,7 +332,9 @@ namespace CustomEngine.Rendering.Cameras
         protected void OnTransformChanged()
         {
             _forwardInvalidated = _upInvalidated = _rightInvalidated = true;
+            _updating = true;
             TransformChanged?.Invoke();
+            _updating = false;
         }
         protected void OnTranslationChanged(Vec3 oldTranslation) 
             => TranslationChanged?.Invoke(oldTranslation);

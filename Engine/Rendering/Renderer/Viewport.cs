@@ -28,7 +28,6 @@ namespace CustomEngine.Rendering
         private RenderPanel _owningPanel;
         private ScreenTextHandler _text;
         private GBuffer _gBuffer;
-        private bool _hasAnyForward;
 
         public ScreenTextHandler Text => _text;
 
@@ -42,17 +41,55 @@ namespace CustomEngine.Rendering
             get => _worldCamera;
             set
             {
-                _worldCamera?.Viewports.Remove(this);
+                if (_worldCamera != null)
+                {
+                    if (_worldCamera.OwningComponent != null)
+                        _worldCamera.OwningComponent.WorldTransformChanged -= CameraTransformChanged;
+                    else
+                        _worldCamera.TransformChanged -= CameraTransformChanged;
+
+                    _worldCamera.OwningComponentChanged -= _worldCamera_OwningComponentChanged;
+
+                    _worldCamera.Viewports.Remove(this);
+                }
                 _worldCamera = value;
                 if (_worldCamera != null)
                 {
                     _worldCamera.Viewports.Add(this);
+
+                    if (_worldCamera.OwningComponent != null)
+                        _worldCamera.OwningComponent.WorldTransformChanged += CameraTransformChanged;
+                    else
+                        _worldCamera.TransformChanged += CameraTransformChanged;
+
+                    _worldCamera.OwningComponentChanged += _worldCamera_OwningComponentChanged;
+
                     //TODO: what if the same camera is used by multiple viewports?
                     //Need to use a separate projection matrix per viewport instead of passing the width and height to the camera itself
                     _worldCamera.Resize(Width, Height);
                 }
             }
         }
+
+        private void _worldCamera_OwningComponentChanged(CameraComponent previous, CameraComponent current)
+        {
+            if (previous != null)
+                previous.WorldTransformChanged -= CameraTransformChanged;
+            else
+                _worldCamera.TransformChanged -= CameraTransformChanged;
+            if (current != null)
+                current.WorldTransformChanged += CameraTransformChanged;
+            else
+                _worldCamera.TransformChanged += CameraTransformChanged;
+        }
+
+        private void CameraTransformChanged()
+        {
+            Vec3 forward = _worldCamera.GetForwardVector();
+            Vec3 up = _worldCamera.GetUpVector();
+            Engine.AudioManager.UpdateListener(_owner.LocalPlayerIndex, _worldCamera.WorldPoint, forward, up, Vec3.Zero, 0.5f);
+        }
+
         public RenderPanel OwningPanel => _owningPanel;
         public HudManager HUD
         {

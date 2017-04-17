@@ -28,7 +28,7 @@ namespace CustomEngine.Audio
             internal set => _sourceId = value;
         }
         [Serialize]
-        public string Path
+        public string SoundPath
         {
             get => _path;
             set
@@ -38,7 +38,7 @@ namespace CustomEngine.Audio
             }
         }
 
-        public void Update(AudioParameters param)
+        public void Update(AudioSourceParameters param)
         {
             Engine.AudioManager.Update(this, param);
         }
@@ -46,7 +46,7 @@ namespace CustomEngine.Audio
         {
             Engine.AudioManager.Play(this);
         }
-        public void Play(AudioParameters param)
+        public void Play(AudioSourceParameters param)
         {
             Engine.AudioManager.Play(this, param);
         }

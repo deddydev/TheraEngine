@@ -9,7 +9,14 @@ namespace CustomEngine.Rendering.Models
 {
     public unsafe partial class Collada
     {
-        public static ModelScene Import(string filePath, ImportOptions options, bool importAnimations = true, bool importModels = true)
+        public class Scene
+        {
+            public SkeletalMesh _skeletalModel;
+            public StaticMesh _staticModel;
+            public Skeleton _skeleton;
+            public ModelAnimation _animation;
+        }
+        public static Scene Import(string filePath, ImportOptions options, bool importAnimations = true, bool importModels = true)
         {
             DecoderShell shell = DecoderShell.Import(filePath);
 
@@ -79,7 +86,7 @@ namespace CustomEngine.Rendering.Models
                         rootBones.Add(b);
                 }
 
-            ModelScene scene = new ModelScene();
+            Scene scene = new Scene();
             //Create meshes after all bones have been created
             if (rootBones.Count == 0)
             {

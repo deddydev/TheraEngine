@@ -7,7 +7,7 @@ namespace CustomEngine.Rendering.Models
 {
     public static class ColladaConverter
     {
-        public static ModelScene Convert(Grendgine_Collada colladaFile)
+        public static Collada.Scene Convert(Grendgine_Collada colladaFile)
         {
             SkeletalMesh m = new SkeletalMesh();
             List<AnimationContainer> a = new List<AnimationContainer>();
@@ -16,7 +16,7 @@ namespace CustomEngine.Rendering.Models
             GetMeshes(m, colladaFile);
             GetAnimations(a, colladaFile);
 
-            return new ModelScene();
+            return new Collada.Scene();
         }
         private static void GetSkeleton(SkeletalMesh m, Grendgine_Collada colladaFile)
         {

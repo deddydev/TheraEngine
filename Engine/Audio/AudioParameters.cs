@@ -2,7 +2,7 @@
 
 namespace CustomEngine.Audio
 {
-    public class AudioParameters
+    public class AudioSourceParameters
     {
         /// <summary>
         /// Determines if Position, Direction and Velocity are relative to the listener or the world.
@@ -73,7 +73,7 @@ namespace CustomEngine.Audio
         /// <summary>
         /// Source specific rolloff factor. Type: float Range: [0.0f - float.PositiveInfinity]
         /// </summary>
-        public UsableValue<float> RolloffFactor = new UsableValue<float>(0.0f, 0.0f, false);
+        public UsableValue<float> RolloffFactor = new UsableValue<float>(1.0f, 1.0f, false);
         /// <summary>
         /// Directional Source, outer cone gain. Default: 0.0f Range: [0.0f - 1.0] (Logarithmic)
         /// </summary>
@@ -107,10 +107,18 @@ namespace CustomEngine.Audio
         /// is attenuated as the listener circles the Source away from the front. Range [0.0f .. 1.0f] Default: 1.0f
         /// </summary>
         public UsableValue<float> EfxConeOuterGainHighFrequency = new UsableValue<float>(1.0f, 1.0f, false);
-
-        public UsableValue<Vec3> Position = new UsableValue<Vec3>(1.0f, 1.0f, false);
-        public UsableValue<Vec3> Direction = new UsableValue<Vec3>(1.0f, 1.0f, false);
-        public UsableValue<Vec3> Velocity = new UsableValue<Vec3>(1.0f, 1.0f, false);
+        /// <summary>
+        /// 
+        /// </summary>
+        public UsableValue<Vec3> Position = new UsableValue<Vec3>(0.0f, 0.0f, false);
+        /// <summary>
+        /// 
+        /// </summary>
+        public UsableValue<Vec3> Direction = new UsableValue<Vec3>(Vec3.Forward, Vec3.Forward, false);
+        /// <summary>
+        /// 
+        /// </summary>
+        public UsableValue<Vec3> Velocity = new UsableValue<Vec3>(0.0f, 0.0f, false);
     }
     public struct UsableValue<T> where T : struct
     {
@@ -131,7 +139,11 @@ namespace CustomEngine.Audio
         public T Value
         {
             get => _value;
-            set => _value = value;
+            set
+            {
+                _value = value;
+                _use = _value.Equals(_defaultValue);
+            }
         }
         public bool Use
         {

@@ -1,4 +1,5 @@
-﻿using CustomEngine.Worlds;
+﻿using CustomEngine;
+using CustomEngine.Worlds;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,7 +12,9 @@ namespace Testris
     {
         protected override void OnLoaded()
         {
-            base.OnLoaded();
+            _settings = new WorldSettings("Tetris");
+            string[] no = new string[] { "a", "b", "c", "d", "e", };
+            _settings.AmbientSound.SoundPath = Engine.StartupPath + Engine.ContentFolderRel + string.Format("\\bgm-{0}.wav", no[DateTime.Now.Millisecond % 5]);
         }
 
         public override void BeginPlay()

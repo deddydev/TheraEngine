@@ -7,6 +7,7 @@ using System.Drawing;
 using CustomEngine.Rendering;
 using BulletSharp;
 using CustomEngine.Rendering.Models.Materials;
+using CustomEngine.Audio;
 
 namespace CustomEngine.Worlds
 {
@@ -102,8 +103,8 @@ namespace CustomEngine.Worlds
             Collada.ImportOptions options = new Collada.ImportOptions();
             //0.02646f
             options.InitialTransform.Scale = new Vec3(1.0f.InchesToMeters());
-            ModelScene scene = Collada.Import(desktop + "TEST.DAE", options, false, true);
-            ModelScene anims = Collada.Import(googleDrive + "Thera Assets\\Characters\\Temp\\Carly_Idle.dae", options, true, false);
+            Collada.Scene scene = Collada.Import(desktop + "TEST.DAE", options, false, true);
+            //Collada.Scene anims = Collada.Import(googleDrive + "Thera Assets\\Characters\\Temp\\Carly_Idle.dae", options, true, false);
             //anims.CleanAnimations(scene._skeletalModel, scene._skeleton);
 
             //IActor importedActor;
@@ -144,7 +145,10 @@ namespace CustomEngine.Worlds
             };
 
             _settings.Maps.Add(new Map(this, new MapSettings(actors)));
-            _settings.AmbientSound.Path = desktop + "ocean.wav";
+            _settings.AmbientSound = new SoundFile() { SoundPath = desktop + "test.wav" };
+            _settings.AmbientParams.SourceRelative.Value = false;
+            _settings.AmbientParams.ReferenceDistance.Value = 1.0f;
+            _settings.AmbientParams.MaxDistance.Value = 50.0f;
         }
     }
 }

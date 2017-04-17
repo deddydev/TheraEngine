@@ -20,6 +20,8 @@ namespace CustomEngine.Audio
 
         public WaveFile(string filename)
         {
+            if (!File.Exists(filename))
+                return;
             sound_data = LoadWave(File.Open(filename, FileMode.Open), 
                 out _channels, out _bps, out _sampleRate);
         }

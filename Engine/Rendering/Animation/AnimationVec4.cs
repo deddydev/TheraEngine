@@ -152,16 +152,8 @@ namespace CustomEngine.Rendering.Animation
         public static Vec4 Bezier(Vec4Keyframe key1, Vec4Keyframe key2, float time)
             => CustomMath.CubicBezier(key1.OutValue, key1.OutTangent, key2.InTangent, key2.InValue, time);
         public static Vec4 CubicHermite(Vec4Keyframe key1, Vec4Keyframe key2, float time)
-        {
-            float time2 = time * time;
-            float time3 = time2 * time;
-            return
-                key1.OutValue * (2.0f * time3 - 3.0f * time2 + 1.0f) +
-                key1.OutTangent * (time3 - 2.0f * time2 + time) +
-                key2.InValue * (-2.0f * time3 + 3.0f * time2) +
-                key2.InTangent * (time3 - time2);
-        }
-        
+            => CustomMath.CubicHermite(key1.OutValue, key1.OutTangent, key2.InTangent, key2.InValue, time);
+
         public void AverageKeyframe()
         {
             AverageValues();

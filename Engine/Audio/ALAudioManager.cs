@@ -4,6 +4,7 @@ using OpenTK.Audio.OpenAL;
 using System;
 using System.Collections.Generic;
 using System.Threading;
+using CustomEngine.Worlds.Actors;
 
 namespace CustomEngine.Audio
 {
@@ -17,6 +18,7 @@ namespace CustomEngine.Audio
             _context = new AudioContext(AudioContext.DefaultDevice, 0, 0, true, true, AudioContext.MaxAuxiliarySends.UseDriverDefault);
             _context.MakeCurrent();
             _efx = new EffectsExtension();
+            AL.DistanceModel(ALDistanceModel.LinearDistanceClamped);
         }
         ~ALAudioManager()
         {
@@ -64,7 +66,7 @@ namespace CustomEngine.Audio
                 AL.Source(source, dest, param.Value.X, param.Value.Y, param.Value.Z);
         }
 
-        private void ApplyParameters(int source, AudioParameters param, bool initialPlay)
+        private void ApplyParameters(int source, AudioSourceParameters param, bool initialPlay)
         {
             ApplyParam(source, param.SourceRelative, ALSourceb.SourceRelative, initialPlay);
             ApplyParam(source, param.Loop, ALSourceb.Looping, initialPlay);
@@ -90,10 +92,10 @@ namespace CustomEngine.Audio
             ApplyParam(source, param.Velocity, ALSource3f.Velocity, initialPlay);
         }
 
-        public override void Update(SoundFile sound, AudioParameters param)
+        public override void Update(SoundFile sound, AudioSourceParameters param)
             => ApplyParameters(sound.SourceId, param, false);
         public override void Play(SoundFile sound) => Play(sound, null);
-        public override void Play(SoundFile sound, AudioParameters param)
+        public override void Play(SoundFile sound, AudioSourceParameters param)
         {
             sound.BufferId = AL.GenBuffer();
             sound.SourceId = AL.GenSource();
@@ -127,6 +129,39 @@ namespace CustomEngine.Audio
         public override AudioState GetState(SoundFile sound)
         {
             return AudioState.Initial + ((int)AL.GetSourceState(sound.SourceId) - (int)ALSourceState.Initial);
+        }
+        public override void UpdateListener(PlayerIndex player, Vec3 position, Vec3 forward, Vec3 up, Vec3 velocity, float gain, float efxMetersPerUnit = 1.0f)
+        {
+            float f;
+            Vector3 v;
+
+            AL.GetListener(ALListenerf.EfxMetersPerUnit, out f);
+            if (f != efxMetersPerUnit)
+                AL.Listener(ALListenerf.EfxMetersPerUnit, efxMetersPerUnit);
+
+            AL.GetListener(ALListenerf.Gain, out f);
+            if (f != gain)
+                AL.Listener(ALListenerf.Gain, gain);
+
+            AL.GetListener(ALListener3f.Position, out v);
+            if (v.X != position.X || v.Y != position.Y || v.Z != position.Z)
+                AL.Listener(ALListener3f.Position, position.X, position.Y, position.Z);
+
+            AL.GetListener(ALListener3f.Position, out v);
+            if (v.X != velocity.X || v.Y != velocity.Y || v.Z != velocity.Z)
+                AL.Listener(ALListener3f.Velocity, velocity.X, velocity.Y, velocity.Z);
+            
+            AL.GetListener(ALListenerfv.Orientation, out Vector3 fv, out Vector3 uv);
+            if (fv.X != forward.X || fv.Y != forward.Y || fv.Z != forward.Z ||
+                uv.X != up.X || uv.Y != up.Y || uv.Z != up.Z)
+            {
+                float[] o = new float[]
+                {
+                    forward.X, forward.Y, forward.Z,
+                    up.X, up.Y, up.Z
+                };
+                AL.Listener(ALListenerfv.Orientation, ref o);
+            }
         }
     }
 }

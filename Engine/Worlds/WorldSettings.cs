@@ -8,6 +8,7 @@ using System.Runtime.InteropServices;
 using System.IO;
 using System.Xml;
 using CustomEngine.Audio;
+using CustomEngine.Rendering.HUD;
 
 namespace CustomEngine.Worlds
 {
@@ -41,6 +42,8 @@ namespace CustomEngine.Worlds
             set => _ambientParams = value;
         }
 
+        [Serialize("DefaultHud")]
+        public HudManager _defaultHud;
         [Serialize("Bounds")]
         private BoundingBox _bounds = BoundingBox.FromMinMax(-500.0f, 500.0f);
         [Serialize("OriginRebaseBounds")]

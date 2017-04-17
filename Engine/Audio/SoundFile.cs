@@ -9,6 +9,17 @@ namespace CustomEngine.Audio
         protected WaveFile _waveFile;
         protected internal int _bufferId, _sourceId;
 
+        public SoundFile()
+        {
+            _path = null;
+            _waveFile = null;
+        }
+        public SoundFile(string path)
+        {
+            _path = path;
+            _waveFile = null;
+        }
+
         public WaveFile WaveFile
         {
             get

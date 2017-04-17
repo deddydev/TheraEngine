@@ -6,37 +6,21 @@ namespace System
         public static readonly float PIf = (float)PI;
 
         public static double DegToRad(double degrees)
-        {
-            return degrees * PI / 180.0;
-        }
+            => degrees * PI / 180.0;
         public static double RadToDeg(double radians)
-        {
-            return radians * 180.0 / PI;
-        }
+            => radians * 180.0 / PI;
         public static float DegToRad(float degrees)
-        {
-            return degrees * PIf / 180.0f;
-        }
+            => degrees * PIf / 180.0f;
         public static float RadToDeg(float radians)
-        {
-            return radians * 180.0f / PIf;
-        }
+            => radians * 180.0f / PIf;
         public static Vec2 DegToRad(Vec2 degrees)
-        {
-            return degrees * PIf / 180.0f;
-        }
+            => degrees * PIf / 180.0f;
         public static Vec2 RadToDeg(Vec2 radians)
-        {
-            return radians * 180.0f / PIf;
-        }
+            => radians * 180.0f / PIf;
         public static Vec3 DegToRad(Vec3 degrees)
-        {
-            return degrees * PIf / 180.0f;
-        }
+            => degrees * PIf / 180.0f;
         public static Vec3 RadToDeg(Vec3 radians)
-        {
-            return radians * 180.0f / PIf;
-        }
+            => radians * 180.0f / PIf;
         public static Vec2[] GetBezierPoints(Vec2 p0, Vec2 p1, Vec2 p2, Vec2 p3, int pointCount, out float length)
         {
             Vec2[] points = new Vec2[pointCount];
@@ -298,27 +282,32 @@ namespace System
                 angle = RadToDeg((float)Acos(dot));
             }
         }
+        public static float InterpQuadraticEaseEnd(float start, float end, float time, float speed = 1.0f, float power = 2.0f)
+            => Lerp(start, end, 1.0f - (float)Pow(1.0f - (time * speed), power));
+        public static float InterpQuadraticEaseStart(float start, float end, float time, float speed = 1.0f, float power = 2.0f)
+            => Lerp(start, end, (float)Pow(time * speed, power));
+        /// <summary>
+        /// Smoothed interpolation between two points. Eases in and out.
+        /// A speed of 2 symbolizes the interpolation will occur in half a second
+        /// if update/frame delta is used as time.
+        /// </summary>
+        public static Vec3 InterpCosineTo(Vec3 start, Vec3 end, float time, float speed = 1.0f)
+            => Vec3.Lerp(start, end, (1.0f - (float)Cos(time * speed * PIf)) / 2.0f);
+        /// <summary>
+        /// Smoothed interpolation between two points. Eases in and out.
+        /// A speed of 2 symbolizes the interpolation will occur in half a second
+        /// if update/frame delta is used as time.
+        /// </summary>
+        public static float InterpCosineTo(float start, float end, float time, float speed = 1.0f)
+            => Lerp(start, end, (1.0f - (float)Cos(time * speed * PIf)) / 2.0f);
+        /// <summary>
+        /// Constant interpolation directly from one point to another.
+        /// A speed of 2 symbolizes the interpolation will occur in half a second
+        /// if update/frame delta is used as time.
+        /// </summary>
+        public static float InterpLinearTo(float start, float end, float time, float speed = 1.0f)
+            => start + (end - start) * time * speed;
 
-        //Smoothed interpolation between two points. Eases in and out.
-        //time is a value from 0.0f to 1.0f symbolizing the time between the two points
-        public static Vec3 InterpCosineTo(Vec3 from, Vec3 to, float time, float speed = 1.0f)
-        {
-            float time2 = (1.0f - (float)Cos(time * speed * (float)PI)) / 2.0f;
-            return from * (1.0f - time2) + to * time2;
-        }
-        //Smoothed interpolation between two points. Eases in and out.
-        //time is a value from 0.0f to 1.0f symbolizing the time between the two points
-        public static float InterpCosineTo(float from, float to, float time, float speed = 1.0f)
-        {
-            float time2 = (1.0f - (float)Cos(time * speed * (float)PI)) / 2.0f;
-            return from * (1.0f - time2) + to * time2;
-        }
-        //Constant interpolation directly from one point to another.
-        //time is a value from 0.0f to 1.0f symbolizing the time between the two points
-        public static float InterpLinearTo(float from, float to, float time, float speed = 1.0f)
-        {
-            return from + (to - from) * time * speed;
-        }
         public static Vec3 VInterpNormalRotationTo(Vec3 Current, Vec3 Target, float DeltaTime, float RotationSpeedDegrees)
         {
             Quat DeltaQuat = Quat.BetweenVectors(Current, Target);
@@ -345,7 +334,7 @@ namespace System
         }
         public static Vec2 RotateAboutPoint(Vec2 point, Vec2 center, float angle)
         {
-            return (Vec2)((Vec3)point * Matrix4.CreateTranslation((Vec3)(-center)) * Matrix4.CreateRotationZ(angle) * Matrix4.CreateTranslation((Vec3)center));
+            return (Vec2)((Vec3)point * Matrix4.CreateTranslation(-center) * Matrix4.CreateRotationZ(angle) * Matrix4.CreateTranslation(center));
         }
         public static Vec3 ScaleAboutPoint(Vec3 point, Vec3 center, Vec3 scale)
         {

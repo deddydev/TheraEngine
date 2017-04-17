@@ -63,12 +63,20 @@ namespace CustomEngine.Rendering.Animation
 
         }
     }
+    public enum AnimBlendType
+    {
+        Linear,             //start + (end - start) * time
+        CosineEaseInOut,    //start + (end - start) * (1.0f - cos(time)) / 2.0f
+        QuadraticEaseStart, //start + (end - start) * time^power
+        QuadraticEaseEnd,   //start + (end - start) * (1.0f - (1.0f - x)^power)
+        Custom,
+    }
     public class AnimStateTransition
     {
         AnimState _destinationState;
         Func<bool> _method;
         float _blendDuration;
-
+        AnimBlendType _type;
 
         public AnimStateTransition()
         {

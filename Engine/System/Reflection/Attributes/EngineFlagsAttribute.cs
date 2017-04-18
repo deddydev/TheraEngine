@@ -17,11 +17,54 @@ namespace System
     {
 
     }
-    //public delegate void Write(VoidPtr address, StringTable table);
+
+    /// <summary>
+    /// Called after a class has just been deserialized.
+    /// Can be used for setup after all values have been set.
+    /// </summary>
+    [AttributeUsage(AttributeTargets.Method, AllowMultiple = true, Inherited = true)]
+    public class PostDeserialize : Attribute
+    {
+        private int _order = -1;
+        private object[] _arguments;
+        private SerializeFormatFlag _runForFormats;
+        public PostDeserialize(int order = -1, SerializeFormatFlag runForFormats = SerializeFormatFlag.All, params object[] arguments)
+        {
+            _order = order;
+            _arguments = arguments;
+            _runForFormats = runForFormats;
+        }
+
+        public int Order { get => _order; set => _order = value; }
+        public object[] Arguments { get => _arguments; set => _arguments = value; }
+        public SerializeFormatFlag RunForFormats { get => _runForFormats; set => _runForFormats = value; }
+    }
+    /// <summary>
+    /// Called before a class is deserialized.
+    /// Can be used for setup before all values are set.
+    /// </summary>
+    [AttributeUsage(AttributeTargets.Method, AllowMultiple = true, Inherited = true)]
+    public class PreDeserialize : Attribute
+    {
+        private int _order = -1;
+        private object[] _arguments;
+        private SerializeFormatFlag _runForFormats;
+        public PreDeserialize(int order = -1, SerializeFormatFlag runForFormats = SerializeFormatFlag.All, params object[] arguments)
+        {
+            _order = order;
+            _arguments = arguments;
+            _runForFormats = runForFormats;
+        }
+
+        public int Order { get => _order; set => _order = value; }
+        public object[] Arguments { get => _arguments; set => _arguments = value; }
+        public SerializeFormatFlag RunForFormats { get => _runForFormats; set => _runForFormats = value; }
+    }
+
     /// <summary>
     /// This attribute means the field should be serialized upon saving.
     /// </summary>
-    [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property, AllowMultiple = false)]
+    [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
     public class Serialize : Attribute
     {
         private int _order = -1;
@@ -100,6 +143,16 @@ namespace System
         XML,
         //JSON,
         //Text
+    }
+    [Flags]
+    public enum SerializeFormatFlag
+    {
+        None    = 0b0000,
+        Binary  = 0b0001,
+        XML     = 0b0010,
+        //JSON    = 0b0100,
+        //Text    = 0b1000,
+        All     = 0b1111,
     }
     public class FileClass : Attribute
     {

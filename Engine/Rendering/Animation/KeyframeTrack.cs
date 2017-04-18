@@ -118,25 +118,38 @@ namespace CustomEngine.Rendering.Animation
             }
             --_keyCount;
         }
-        public void AddLast(T key)
+        public void Add(T key)
         {
             if (_first == null)
                 _first = key;
-            else
-                _first.LinkPrev(key);
-            ++_keyCount;
-        }
-        public void AddFirst(T key)
-        {
-            if (_first == null)
-                _first = key;
-            else
+            else if (key._frameIndex < _first._frameIndex)
             {
                 _first.LinkPrev(key);
                 _first = key;
             }
+            else
+                _first.LinkNext(key);
             ++_keyCount;
         }
+        //public void AddLast(T key)
+        //{
+        //    if (_first == null)
+        //        _first = key;
+        //    else
+        //        _first.LinkPrev(key);
+        //    ++_keyCount;
+        //}
+        //public void AddFirst(T key)
+        //{
+        //    if (_first == null)
+        //        _first = key;
+        //    else
+        //    {
+        //        _first.LinkPrev(key);
+        //        _first = key;
+        //    }
+        //    ++_keyCount;
+        //}
         public T GetKeyBefore(float frameIndex)
         {
             foreach (T key in this)
@@ -214,6 +227,11 @@ namespace CustomEngine.Rendering.Animation
         }
         public Keyframe LinkNext(Keyframe next)
         {
+            if (next._frameIndex > _next._frameIndex && _next != this)
+                return _next.LinkNext(next);
+            if (next._frameIndex < _prev._frameIndex && _prev != this)
+                return _prev.LinkPrev(next);
+
             next.Next = _next;
             next.Prev = this;
 
@@ -224,6 +242,11 @@ namespace CustomEngine.Rendering.Animation
         }
         public Keyframe LinkPrev(Keyframe prev)
         {
+            if (prev._frameIndex < _prev._frameIndex && _prev != this)
+                return _prev.LinkPrev(prev);
+            if (prev._frameIndex > _next._frameIndex && _next != this)
+                return _next.LinkNext(prev);
+            
             prev.Next = this;
             prev.Prev = _prev;
 

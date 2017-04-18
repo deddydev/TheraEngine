@@ -6,94 +6,36 @@ using System.Threading.Tasks;
 
 namespace CustomEngine.Rendering.Animation
 {
-    public abstract class BasePropertyAnimation : FileObject
+    public abstract class BasePropertyAnimation : BaseAnimation
     {
-        public event EventHandler AnimationStarted;
-        public event EventHandler AnimationEnded;
-
-        protected float _fps = 60.0f;
-        protected int _frameCount;
-        protected float _currentFrame;
-        protected bool _looped;
-        protected bool _isPlaying;
-        protected bool _useKeyframes;
-
-        [Category("Property Animation")]
+        /// <summary>
+        /// Determines which method to use, baked or keyframed.
+        /// Keyframed takes up less memory and calculates in-between frames on the fly, which allows for time dilation.
+        /// Baked takes up more memory but requires no calculations. However, the animation cannot be sped up at all, nor slowed down without artifacts.
+        /// </summary>
+        [Category("Property Animation"), Serialize]
         public bool UseKeyframes
         {
             get => _useKeyframes;
             set { _useKeyframes = value; UseKeyframesChanged(); }
-        }
-        [Category("Property Animation")]
-        public int FrameCount => _frameCount;
-        [Category("Property Animation")]
-        public bool Looped
-        {
-            get => _looped;
-            set => _looped = value;
-        }
-        [Category("Property Animation")]
-        public float CurrentFrame
-        {
-            get => _currentFrame;
-            set => _currentFrame = value;
-        }
-        [Category("Property Animation")]
-        public bool IsPlaying
-        {
-            get => _isPlaying;
-            set
-            {
-                if (value)
-                    Start();
-                else
-                    Stop();
-            }
-        }
-        public void Start()
-        {
-            if (_isPlaying)
-                return;
-            _currentFrame = 0.0f;
-            _isPlaying = true;
-            AnimationStarted?.Invoke(this, null);
-        }
-        public void Stop()
-        {
-            if (!_isPlaying)
-                return;
-            _isPlaying = false;
-            AnimationEnded?.Invoke(this, null);
         }
         public void Tick(object obj, PropertyInfo property, float delta)
         {
             if (!_isPlaying)
                 return;
             property.SetValue(obj, GetValue(_currentFrame));
-            OnTick(delta);
+            Progress(delta);
         }
         public void Tick(object obj, MethodInfo method, float delta)
         {
             if (!_isPlaying)
                 return;
             method.Invoke(obj, new object[] { GetValue(_currentFrame) });
-            OnTick(delta);
-        }
-        private void OnTick(float delta)
-        {
-            _currentFrame += delta * _fps;
-            if (_currentFrame > _frameCount - 1)
-                if (_looped)
-                    _currentFrame = _currentFrame.RemapToRange(0.0f, _frameCount - 1);
-                else
-                {
-                    Stop();
-                    return;
-                }
+            Progress(delta);
         }
 
-        protected abstract void UseKeyframesChanged();
         protected abstract object GetValue(float frame);
+        protected abstract void UseKeyframesChanged();
         
         [Category("Property Animation")]
         protected abstract BaseKeyframeTrack InternalKeyframes { get; }

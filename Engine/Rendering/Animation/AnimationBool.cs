@@ -8,7 +8,7 @@ using CustomEngine.Files;
 
 namespace CustomEngine.Rendering.Animation
 {
-    delegate bool BoolGetValue(float frameIndex);
+    public delegate bool BoolGetValue(float frameIndex);
     public class AnimationBool : PropertyAnimation<BoolKeyframe>, IEnumerable<BoolKeyframe>
     {
         bool[] _baked;
@@ -52,46 +52,27 @@ namespace CustomEngine.Rendering.Animation
             throw new NotImplementedException();
         }
         public IEnumerator<BoolKeyframe> GetEnumerator()
-        {
-            return ((IEnumerable<BoolKeyframe>)_keyframes).GetEnumerator();
-        }
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return ((IEnumerable<BoolKeyframe>)_keyframes).GetEnumerator();
-        }
-
-        public override void Write(VoidPtr address, StringTable table)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void Read(VoidPtr address, VoidPtr strings)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void Write(XmlWriter writer)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void Read(XMLReader reader)
-        {
-            throw new NotImplementedException();
-        }
-
-        protected override int OnCalculateSize(StringTable table)
-        {
-            throw new NotImplementedException();
-        }
+            => ((IEnumerable<BoolKeyframe>)_keyframes).GetEnumerator();
+        IEnumerator IEnumerable.GetEnumerator() 
+            => ((IEnumerable<BoolKeyframe>)_keyframes).GetEnumerator();
     }
     public class BoolKeyframe : Keyframe
     {
         protected bool _value;
-
-        public bool Value { get { return _value; } set { _value = value; } }
-        public new BoolKeyframe Next { get { return _next as BoolKeyframe; } set { _next = value; } }
-        public new BoolKeyframe Prev { get { return _prev as BoolKeyframe; } set { _prev = value; } }
-
+        public bool Value
+        {
+            get => _value;
+            set => _value = value;
+        }
+        public new BoolKeyframe Next
+        {
+            get => _next as BoolKeyframe;
+            set => _next = value;
+        }
+        public new BoolKeyframe Prev
+        {
+            get => _prev as BoolKeyframe;
+            set => _prev = value;
+        }
     }
 }

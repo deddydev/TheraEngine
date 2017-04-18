@@ -38,9 +38,10 @@ namespace CustomEngine.Files
         }
         private static object ReadObject(Type t, XMLReader reader)
         {
-            List<VarInfo> fields = CollectFields(t);
+            List<VarInfo> fields = CollectSerializedMembers(t);
             //FileObject obj = (FileObject)FormatterServices.GetUninitializedObject(t);
             object obj = Activator.CreateInstance(t);
+            MethodInfo[] methods = t.GetMethods();
 
             var categorized = fields.
                 Where(x => x.Category != null).
@@ -137,7 +138,7 @@ namespace CustomEngine.Files
         /// </summary>
         public static void Serialize(FileObject obj, string filePath)
         {
-            List<VarInfo> fields = CollectFields(obj.GetType());
+            List<VarInfo> fields = CollectSerializedMembers(obj.GetType());
             using (FileStream stream = new FileStream(filePath, FileMode.Create, FileAccess.ReadWrite, FileShare.None, 0x1000, FileOptions.SequentialScan))
             using (XmlWriter writer = XmlWriter.Create(stream, _writerSettings))
             {
@@ -225,7 +226,7 @@ namespace CustomEngine.Files
                         {
                             //Struct
                             case "ValueType":
-                                List<VarInfo> structFields = CollectFields(info.VariableType);
+                                List<VarInfo> structFields = CollectSerializedMembers(info.VariableType);
                                 if (structFields.Count > 0)
                                 {
                                     foreach (object o in array)
@@ -239,7 +240,7 @@ namespace CustomEngine.Files
                                 break;
                             //Class
                             case "Object":
-                                List<VarInfo> classFields = CollectFields(info.VariableType);
+                                List<VarInfo> classFields = CollectSerializedMembers(info.VariableType);
                                 foreach (object o in array)
                                     WriteObjectElement(o, classFields, writer);
                                 break;
@@ -303,7 +304,7 @@ namespace CustomEngine.Files
                 {
                     //Struct
                     case "ValueType":
-                        List<VarInfo> structFields = CollectFields(info.VariableType);
+                        List<VarInfo> structFields = CollectSerializedMembers(info.VariableType);
                         if (structFields.Count > 0)
                             WriteObjectElement(value, structFields, writer);
                         else
@@ -311,7 +312,7 @@ namespace CustomEngine.Files
                         break;
                     //Class
                     case "Object":
-                        List<VarInfo> classFields = CollectFields(info.VariableType);
+                        List<VarInfo> classFields = CollectSerializedMembers(info.VariableType);
                         WriteObjectElement(value, classFields, writer);
                         break;
                     //Primitive class
@@ -428,10 +429,10 @@ namespace CustomEngine.Files
             }
             return name;
         }
-        private static List<VarInfo> CollectFields(Type t)
+        private static List<VarInfo> CollectSerializedMembers(Type t)
         {
-            List<VarInfo> fields = t.GetFields(BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Public | BindingFlags.FlattenHierarchy).
-                Where(prop => Attribute.IsDefined(prop, typeof(Serialize))).
+            List<VarInfo> fields = t.GetMembers(BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Public | BindingFlags.FlattenHierarchy).
+                Where(x => (x is FieldInfo || x is PropertyInfo) && Attribute.IsDefined(x, typeof(Serialize))).
                 Select(x => new VarInfo(x)).
                 //False comes first, so negate the bool so attributes are first
                 OrderBy(x => !x.Attrib.IsXmlAttribute).ToList();

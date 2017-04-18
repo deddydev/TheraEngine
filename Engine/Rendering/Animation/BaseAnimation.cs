@@ -1,0 +1,117 @@
+﻿using CustomEngine.Files;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Linq;
+using System.Reflection;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace CustomEngine.Rendering.Animation
+{
+    public abstract class BaseAnimation : FileObject
+    {
+        public event Action AnimationStarted;
+        public event Action AnimationEnded;
+        public event Action CurrentFrameChanged;
+        
+        protected int _frameCount;
+        protected float _fps = 60.0f;
+        protected float _speed = 1.0f;
+        protected float _currentFrame = 0.0f;
+        protected bool _looped = false;
+        protected bool _isPlaying = false;
+        protected bool _useKeyframes = true;
+
+        [Category("Animation"), Serialize]
+        public float LengthInSeconds => FrameCount / FramesPerSecond;
+        /// <summary>
+        /// How fast the animation plays back.
+        /// A speed of 2.0f would shorten the animation to play in half the time, where 0.5f would be lengthen the animation to play two times slower.
+        /// CAN be negative to play the animation in reverse.
+        /// </summary>
+        [Category("Animation"), Serialize]
+        public float Speed
+        {
+            get => _speed;
+            set => _speed = value;
+        }
+        /// <summary>
+        /// How many frames of this animation should pass in a second.
+        /// For example, if the animation is 30fps, and the game is running at 60fps,
+        /// Only one frame of this animation will show for every two game frames (the animation won't be sped up).
+        /// </summary>
+        [Category("Animation"), Serialize]
+        public float FramesPerSecond
+        {
+            get => _fps;
+            set => _fps = value;
+        }
+        /// <summary>
+        /// How many frames this animation contains.
+        /// </summary>
+        [Category("Animation"), Serialize]
+        public int FrameCount
+        {
+            get => _frameCount;
+            set => _frameCount = value;
+        }
+        [Category("Animation"), Serialize]
+        public bool Looped
+        {
+            get => _looped;
+            set => _looped = value;
+        }
+        [Category("Animation"), Serialize]
+        public float CurrentFrame
+        {
+            get => _currentFrame;
+            set
+            {
+                _currentFrame = value;
+                if (_currentFrame > _frameCount - 1 || _currentFrame < 0.0f)
+                {
+                    if (_isPlaying)
+                    {
+                        if (_looped)
+                            _currentFrame = _currentFrame.RemapToRange(0.0f, _frameCount - 1);
+                        else
+                            Stop();
+                    }
+                }
+                OnCurrentFrameChanged();
+            }
+        }
+        [Category("Animation"), Serialize]
+        public bool IsPlaying
+        {
+            get => _isPlaying;
+            set
+            {
+                if (value)
+                    Start();
+                else
+                    Stop();
+            }
+        }
+        public void Start()
+        {
+            if (_isPlaying)
+                return;
+            _currentFrame = 0.0f;
+            _isPlaying = true;
+            AnimationStarted?.Invoke();
+        }
+        public void Stop()
+        {
+            if (!_isPlaying)
+                return;
+            _isPlaying = false;
+            AnimationEnded?.Invoke();
+        }
+        public void Progress(float delta)
+            => CurrentFrame += delta * _fps * _speed;
+        protected virtual void OnCurrentFrameChanged()
+            => CurrentFrameChanged?.Invoke();
+    }
+}

@@ -34,11 +34,18 @@ namespace System
         {
             _translation = Vec3.Zero;
             _rotation = new Rotator(Rotator.Order.YPR);
+            _rotation.Changed += _rotation_Changed;
             _scale = Vec3.One;
             _transformOrder = TransformOrder.TRS;
             _transform = Matrix4.Identity;
             _inverseTransform = Matrix4.Identity;
         }
+
+        private void _rotation_Changed()
+        {
+            throw new NotImplementedException();
+        }
+
         public FrameState(
             Vec3 translate, 
             Rotator rotate,
@@ -52,14 +59,12 @@ namespace System
             CreateTransform();
         }
 
-        //private Quaternion _quaternion = Quaternion.Identity;
-
-        [Serialize("Rotation")]
+        private Quat _quaternion = Quat.Identity;
         private Rotator _rotation;
         [Serialize("Translation")]
         private Vec3 _translation = Vec3.Zero;
         [Serialize("Scale")]
-        private Vec3 _scale = Vec3.One;
+        private EventVec3 _scale;
         [Serialize("Order", IsXmlAttribute = true)]
         private TransformOrder _transformOrder = TransformOrder.TRS;
 
@@ -80,9 +85,9 @@ namespace System
         {
 
         }
-        public Vec3 GetForwardVector() => _rotation.TransformVector(Vec3.Forward);
-        public Vec3 GetUpVector() => _rotation.TransformVector(Vec3.Up);
-        public Vec3 GetRightVector() => _rotation.TransformVector(Vec3.Right);
+        public Vec3 GetForwardVector() => _quaternion * Vec3.Forward;
+        public Vec3 GetUpVector() => _quaternion * Vec3.Up;
+        public Vec3 GetRightVector() => _quaternion * Vec3.Right;
         public Matrix4 GetRotationMatrix() => _rotation.GetMatrix();
 
         public Matrix4 Matrix
@@ -131,11 +136,19 @@ namespace System
             get => _rotation._rotationOrder;
             set { _rotation._rotationOrder = value; CreateTransform(); }
         }
-
         public Rotator Rotation
         {
             get => _rotation;
-            set => _rotation = value;
+            set => _rotation.SetRotations(value);
+        }
+        public Quat Quaternion
+        {
+            get => _quaternion;
+            set
+            {
+                _quaternion = value;
+                Rotation = _quaternion.ToEuler();
+            }
         }
 
         private void SetTranslate(Vec3 value)
@@ -312,7 +325,7 @@ namespace System
             {
                 _translation = m.Row3.Xyz,
                 _scale = new Vec3(m.Row0.Xyz.Length, m.Row1.Xyz.Length, m.Row2.Xyz.Length),
-                _rotation = m.ExtractRotation(true).ToEuler()
+                Quaternion = m.ExtractRotation(true)
             };
 
             //float x, y, z, c;

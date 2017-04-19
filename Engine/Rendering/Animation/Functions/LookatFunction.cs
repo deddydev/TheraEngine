@@ -20,7 +20,7 @@ namespace CustomEngine.Rendering.Animation
                 (arg2 is Matrix4 ? ((Matrix4)arg2).GetPoint() : 
                 Vec3.Zero)));
             Vec3 sourcePoint = bone.WorldMatrix.GetPoint();
-            bone.FrameState.Rotation.SetRotations(Quat.LookAt(sourcePoint, destPoint, Vec3.TransformVector(Vec3.Forward, bone.Parent.WorldMatrix)).ToEuler());
+            bone.FrameState.Rotation.SetRotations(Quat.LookAt(sourcePoint, destPoint, Vec3.TransformVector(Vec3.Forward, bone.Parent.WorldMatrix)).ToYawPitchRoll());
         }
 
         protected override List<AnimFuncValueInput> GetValueInputs()

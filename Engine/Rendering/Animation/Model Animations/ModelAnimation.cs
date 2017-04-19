@@ -115,6 +115,24 @@ namespace CustomEngine.Rendering.Animation
         public KeyframeTrack<QuatKeyframe> _rotation;
         public KeyframeTrack<Vec3Keyframe> _scale;
 
+        public BoneFrame GetFrame()
+            => GetFrame(_parent.CurrentFrame);
+        public BoneFrame GetFrame(float frameIndex)
+        {
+            Vec3? t = null;
+            if (_translation.First != null)
+                t = _translation.First.Interpolate(frameIndex);
+
+            Quat? r = null;
+            if (_rotation.First != null)
+                r = _rotation.First.Interpolate(frameIndex);
+
+            Vec3? s = null;
+            if (_scale.First != null)
+                s = _scale.First.Interpolate(frameIndex);
+
+            return new BoneFrame(_name, t, r, s);
+        }
         public void SetValue(Matrix4 transform, float frameIndex, PlanarInterpType planar, RadialInterpType radial)
         {
             FrameState state = FrameState.DeriveTRS(transform);
@@ -188,7 +206,7 @@ namespace CustomEngine.Rendering.Animation
         {
             Bone bone = skeleton[_name];
             if (bone != null)
-                UpdateStateBlended(bone.FrameState, bone.BindState, otherBoneAnim, _parent.CurrentFrame, otherWeight, blendType);
+                UpdateStateBlended(bone.FrameState, bone.BindState, otherBoneAnim, otherWeight, blendType);
         }
     }
 }

@@ -48,7 +48,7 @@ namespace System
                 Changed?.Invoke();
         }
 
-        public Quat GetQuaternion()
+        public Quat ToQuaternion()
             => Quat.FromRotator(this);
 
         public Matrix4 GetMatrix() 

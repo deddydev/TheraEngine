@@ -51,15 +51,32 @@ namespace System
             _scale = scale;
             _scale.Changed += _scale_Changed;
             _rotation = rotate;
+            _quaternion = _rotation.ToQuaternion();
             _rotation.Changed += _rotation_Changed;
-            _quaternion = _rotation.GetQuaternion();
+            _transformOrder = transformOrder;
+            CreateTransform();
+        }
+        public FrameState(
+            Vec3 translate,
+            Quat rotate,
+            Vec3 scale,
+            TransformOrder transformOrder = TransformOrder.TRS)
+        {
+            _translation = translate;
+            _translation.Changed += _translation_Changed;
+            _scale = scale;
+            _scale.Changed += _scale_Changed;
+            _quaternion = rotate;
+            _rotation = _quaternion.ToYawPitchRoll();
+            _rotation.Changed += _rotation_Changed;
+            _quaternion = _rotation.ToQuaternion();
             _transformOrder = transformOrder;
             CreateTransform();
         }
 
         private void _rotation_Changed()
         {
-            throw new NotImplementedException();
+            _quaternion = _rotation.ToQuaternion();
         }
 
         private void _scale_Changed()
@@ -77,7 +94,7 @@ namespace System
             _translation.SetRawNoUpdate(translate);
             _scale.SetRawNoUpdate(scale);
             _rotation.SetRotationsNoUpdate(rotation);
-            _quaternion = _rotation.GetQuaternion();
+            _quaternion = _rotation.ToQuaternion();
             CreateTransform();
         }
         public void SetAll(Vec3 translate, Quat rotation, Vec3 scale)
@@ -85,7 +102,7 @@ namespace System
             _translation = translate;
             _scale = scale;
             _quaternion = rotation;
-            _rotation.SetRotationsNoUpdate(_quaternion.ToEuler());
+            _rotation.SetRotationsNoUpdate(_quaternion.ToYawPitchRoll());
             CreateTransform();
         }
 
@@ -177,7 +194,7 @@ namespace System
             set
             {
                 _quaternion = value;
-                Rotation = _quaternion.ToEuler();
+                Rotation = _quaternion.ToYawPitchRoll();
             }
         }
 
@@ -399,8 +416,8 @@ namespace System
                 state._rotation.Roll == float.NaN)
                 throw new Exception("Something went wrong when deriving rotation values.");
 
-            state._translation.Round(5);
-            state._scale.Round(5);
+            state._translation.Raw.Round(5);
+            state._scale.Raw.Round(5);
             state._rotation.Round(5);
             state.CreateTransform();
             return state;

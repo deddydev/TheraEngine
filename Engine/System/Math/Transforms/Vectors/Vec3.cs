@@ -429,7 +429,7 @@ namespace System
         /// </summary>
         public Rotator LookatAngles(Vec3 startNormal)
         {
-            return Quat.BetweenVectors(startNormal, this).ToEuler();
+            return Quat.BetweenVectors(startNormal, this).ToYawPitchRoll();
         }
         //public void LookatAngles(Vec3 startNormal, out float yaw, out float pitch)
         //{

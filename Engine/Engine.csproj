@@ -197,6 +197,7 @@
     <Compile Include="Input\Devices\AxisManager.cs" />
     <Compile Include="Input\Devices\ButtonManager.cs" />
     <Compile Include="Input\Devices\Windows\WinMouse.cs" />
+    <Compile Include="Rendering\Animation\Model Animations\ModelAnimationFrame.cs" />
     <Compile Include="Rendering\Animation\Property Animations\PropAnimQuat.cs" />
     <Compile Include="Rendering\Animation\Property Animations\PropAnimVec2.cs" />
     <Compile Include="Rendering\Animation\Property Animations\PropAnimVec3.cs" />

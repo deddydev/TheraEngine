@@ -91,7 +91,7 @@ namespace CustomEngine.Rendering.Cameras
             internal set
             {
                 _localPoint.Raw = _transform.GetPoint();
-                _localRotation.SetRotations(_transform.GetRotationMatrix4().ExtractRotation().ToEuler());
+                _localRotation.SetRotations(_transform.GetRotationMatrix4().ExtractRotation().ToYawPitchRoll());
                 _transform = value;
                 _invTransform = _transform.Inverted();
                 UpdateTransformedFrustum();

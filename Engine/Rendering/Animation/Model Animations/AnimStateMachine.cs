@@ -6,14 +6,37 @@ using System.Collections.Generic;
 
 namespace CustomEngine.Rendering.Animation
 {
+    public class AnimBlendState
+    {
+        AnimBlendState _previous = null;
+        AnimState _current;
+        float _remainingBlendTime;
+
+        public void Apply(Skeleton skeleton)
+        {
+
+        }
+
+        /// <summary>
+        /// Returns true if done blending.
+        /// </summary>
+        public bool TickBlendTime(float delta)
+        {
+            _remainingBlendTime -= delta;
+            return _remainingBlendTime <= 0.0f;
+        }
+    }
+
     [ObjectHeader()]
     [FileClass()]
     public class AnimStateMachine : LogicComponent
     {
         private AnimState _initialState;
         private Dictionary<string, AnimState> _states;
+        private AnimState _previousState = null;
         private AnimState _currentState;
         private Skeleton _skeleton;
+        private float _remainingBlendTime;
         
         public AnimState CurrentState => _currentState;
         public AnimState InitialState

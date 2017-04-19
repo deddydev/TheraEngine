@@ -16,12 +16,16 @@ namespace CustomEngine
 {
     public static partial class Engine
     {
-        public static string StartupPath = Application.StartupPath;
-        public static string ContentFolderRel = "\\Content";
-        public static string ConfigFolderRel = "\\Config";
-        public static string EngineSettingsPathRel = ConfigFolderRel + "\\Engine.xcsettings";
-        public static string UserSettingsPathRel = ConfigFolderRel + "\\User.xcsettings";
-
+        public static string StartupPath = Application.StartupPath + "\\";
+        public static string ContentFolderAbs = StartupPath + "Content\\";
+        public static string ContentFolderRel = "Content\\";
+        public static string ConfigFolderAbs = StartupPath + "Config\\";
+        public static string ConfigFolderRel = "Config\\";
+        public static string EngineSettingsPathAbs = ConfigFolderAbs + "Engine.xcsettings";
+        public static string EngineSettingsPathRel = ConfigFolderRel + "Engine.xcsettings";
+        public static string UserSettingsPathAbs = ConfigFolderAbs + "User.xcsettings";
+        public static string UserSettingsPathRel = ConfigFolderRel + "User.xcsettings";
+        
         private static World _transitionWorld = null;
         private static World _currentWorld = null;
         public static SingleFileRef<EngineSettings> _engineSettings = new SingleFileRef<EngineSettings>(EngineSettingsPathRel);

@@ -34,16 +34,10 @@ namespace System
         {
             _translation = Vec3.Zero;
             _rotation = new Rotator(Rotator.Order.YPR);
-            _rotation.Changed += _rotation_Changed;
             _scale = Vec3.One;
             _transformOrder = TransformOrder.TRS;
             _transform = Matrix4.Identity;
             _inverseTransform = Matrix4.Identity;
-        }
-
-        private void _rotation_Changed()
-        {
-            throw new NotImplementedException();
         }
 
         public FrameState(
@@ -53,16 +47,52 @@ namespace System
             TransformOrder transformOrder = TransformOrder.TRS)
         {
             _translation = translate;
+            _translation.Changed += _translation_Changed;
             _scale = scale;
-            _transformOrder = transformOrder;
+            _scale.Changed += _scale_Changed;
             _rotation = rotate;
+            _rotation.Changed += _rotation_Changed;
+            _quaternion = _rotation.GetQuaternion();
+            _transformOrder = transformOrder;
+            CreateTransform();
+        }
+
+        private void _rotation_Changed()
+        {
+            throw new NotImplementedException();
+        }
+
+        private void _scale_Changed()
+        {
+            throw new NotImplementedException();
+        }
+
+        private void _translation_Changed()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void SetAll(Vec3 translate, Rotator rotation, Vec3 scale)
+        {
+            _translation.SetRawNoUpdate(translate);
+            _scale.SetRawNoUpdate(scale);
+            _rotation.SetRotationsNoUpdate(rotation);
+            _quaternion = _rotation.GetQuaternion();
+            CreateTransform();
+        }
+        public void SetAll(Vec3 translate, Quat rotation, Vec3 scale)
+        {
+            _translation = translate;
+            _scale = scale;
+            _quaternion = rotation;
+            _rotation.SetRotationsNoUpdate(_quaternion.ToEuler());
             CreateTransform();
         }
 
         private Quat _quaternion = Quat.Identity;
         private Rotator _rotation;
         [Serialize("Translation")]
-        private Vec3 _translation = Vec3.Zero;
+        private EventVec3 _translation;
         [Serialize("Scale")]
         private EventVec3 _scale;
         [Serialize("Order", IsXmlAttribute = true)]

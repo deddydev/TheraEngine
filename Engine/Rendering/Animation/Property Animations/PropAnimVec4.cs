@@ -9,12 +9,12 @@ using CustomEngine.Files;
 namespace CustomEngine.Rendering.Animation
 {
     delegate Vec4 Vec4GetValue(float frameIndex);
-    public class AnimationVec4 : PropertyAnimation<Vec4Keyframe>, IEnumerable<Vec4Keyframe>
+    public class PropAnimVec4 : PropertyAnimation<Vec4Keyframe>, IEnumerable<Vec4Keyframe>
     {
         Vec4[] _baked;
         Vec4GetValue _getValue;
         
-        public AnimationVec4(int frameCount, bool looped, bool useKeyframes) 
+        public PropAnimVec4(int frameCount, bool looped, bool useKeyframes) 
             : base(frameCount, looped, useKeyframes) { }
 
         protected override void UseKeyframesChanged()
@@ -27,7 +27,7 @@ namespace CustomEngine.Rendering.Animation
         protected override object GetValue(float frame)
             => _getValue(frame);
         public Vec4 GetValueBaked(float frameIndex)
-            => _baked[(int)(frameIndex * _keyframes.FPS)];
+            => _baked[(int)(frameIndex * _keyframes.FramesPerSecond)];
         public Vec4 GetValueKeyframed(float frameIndex)
             => _keyframes.First.Interpolate(frameIndex);
 

@@ -222,6 +222,27 @@ namespace System
             EndUpdate();
         }
 
+        public void SetRotationsNoUpdate(float pitch, float yaw, float roll)
+        {
+            _pyr.X = pitch;
+            _pyr.Y = yaw;
+            _pyr.Z = roll;
+        }
+        public void SetRotationsNoUpdate(Rotator other)
+        {
+            _pyr.X = other.Pitch;
+            _pyr.Y = other.Yaw;
+            _pyr.Z = other.Roll;
+            _rotationOrder = other._rotationOrder;
+        }
+        public void SetRotationsNoUpdate(float pitch, float yaw, float roll, Order order)
+        {
+            _pyr.X = pitch;
+            _pyr.Y = yaw;
+            _pyr.Z = roll;
+            _rotationOrder = order;
+        }
+
         [XmlIgnore]
         public Vec2 YawPitch
         {

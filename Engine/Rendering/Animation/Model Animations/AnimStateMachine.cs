@@ -14,9 +14,7 @@ namespace CustomEngine.Rendering.Animation
         private Dictionary<string, AnimState> _states;
         private AnimState _currentState;
         private Skeleton _skeleton;
-
-        internal void SetCurrentState(AnimState state)
-            => _currentState = state;
+        
         public AnimState CurrentState => _currentState;
         public AnimState InitialState
         {
@@ -47,6 +45,10 @@ namespace CustomEngine.Rendering.Animation
         {
 
         }
+        public void SetCurrentState(AnimState destinationState, float blendDuration, AnimBlendType type, KeyframeTrack<FloatKeyframe> customBlendMethod)
+        {
+
+        }
     }
     public class AnimState
     {
@@ -69,14 +71,15 @@ namespace CustomEngine.Rendering.Animation
         CosineEaseInOut,    //start + (end - start) * (1.0f - cos(time)) / 2.0f
         QuadraticEaseStart, //start + (end - start) * time^power
         QuadraticEaseEnd,   //start + (end - start) * (1.0f - (1.0f - x)^power)
-        Custom,
+        Custom,             //start + (end - start) * customInterp(time)
     }
     public class AnimStateTransition
     {
         AnimState _destinationState;
-        Func<bool> _method;
+        Func<bool> _transitionMethod;
         float _blendDuration;
         AnimBlendType _type;
+        KeyframeTrack<FloatKeyframe> _customBlendMethod;
 
         public AnimStateTransition()
         {
@@ -85,9 +88,9 @@ namespace CustomEngine.Rendering.Animation
 
         public bool TryTransition(AnimStateMachine machine)
         {
-            bool canTransition = _method();
+            bool canTransition = _transitionMethod();
             if (canTransition)
-                machine.SetCurrentState(_destinationState);
+                machine.SetCurrentState(_destinationState, _blendDuration, _type, _customBlendMethod);
             return canTransition;
         }
     }

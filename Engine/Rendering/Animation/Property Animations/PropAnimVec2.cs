@@ -8,13 +8,13 @@ using CustomEngine.Files;
 
 namespace CustomEngine.Rendering.Animation
 {
-    delegate Vec3 Vec3GetValue(float frameIndex);
-    public class AnimationVec3 : PropertyAnimation<Vec3Keyframe>, IEnumerable<Vec3Keyframe>
+    delegate Vec2 Vec2GetValue(float frameIndex);
+    public class PropAnimVec2 : PropertyAnimation<Vec2Keyframe>, IEnumerable<Vec2Keyframe>
     {
-        Vec3[] _baked;
-        Vec3GetValue _getValue;
+        Vec2[] _baked;
+        Vec2GetValue _getValue;
         
-        public AnimationVec3(int frameCount, bool looped, bool useKeyframes) 
+        public PropAnimVec2(int frameCount, bool looped, bool useKeyframes) 
             : base(frameCount, looped, useKeyframes) { }
 
         protected override void UseKeyframesChanged()
@@ -26,9 +26,9 @@ namespace CustomEngine.Rendering.Animation
         }
         protected override object GetValue(float frame)
             => _getValue(frame);
-        public Vec3 GetValueBaked(float frameIndex)
-            => _baked[(int)(frameIndex * _keyframes.FPS)];
-        public Vec3 GetValueKeyframed(float frameIndex)
+        public Vec2 GetValueBaked(float frameIndex)
+            => _baked[(int)(frameIndex * _keyframes.FramesPerSecond)];
+        public Vec2 GetValueKeyframed(float frameIndex)
             => _keyframes.First.Interpolate(frameIndex);
 
         /// <summary>
@@ -37,7 +37,7 @@ namespace CustomEngine.Rendering.Animation
         /// </summary>
         public override void Bake()
         {
-            _baked = new Vec3[FrameCount];
+            _baked = new Vec2[FrameCount];
             for (int i = 0; i < FrameCount; ++i)
                 _baked[i] = GetValueKeyframed(i);
         }
@@ -49,62 +49,56 @@ namespace CustomEngine.Rendering.Animation
         {
             throw new NotImplementedException();
         }
-        public override void Append(PropertyAnimation<Vec3Keyframe> other)
+        public override void Append(PropertyAnimation<Vec2Keyframe> other)
         {
             throw new NotImplementedException();
         }
-        public IEnumerator<Vec3Keyframe> GetEnumerator() { return ((IEnumerable<Vec3Keyframe>)_keyframes).GetEnumerator(); }
-        IEnumerator IEnumerable.GetEnumerator() { return ((IEnumerable<Vec3Keyframe>)_keyframes).GetEnumerator(); }
+        public IEnumerator<Vec2Keyframe> GetEnumerator() { return ((IEnumerable<Vec2Keyframe>)_keyframes).GetEnumerator(); }
+        IEnumerator IEnumerable.GetEnumerator() { return ((IEnumerable<Vec2Keyframe>)_keyframes).GetEnumerator(); }
     }
-    public class Vec3Keyframe : Keyframe
+    public class Vec2Keyframe : Keyframe
     {
-        public Vec3Keyframe(float frameIndex, Vec3 value, PlanarInterpType type = PlanarInterpType.Linear)
-            : this(frameIndex, value, value, type) { }
-        public Vec3Keyframe(float frameIndex, Vec3 inValue, Vec3 outValue, PlanarInterpType type = PlanarInterpType.Linear)
-            : this(frameIndex, inValue, outValue, Vec3.Zero, Vec3.Zero, type) { }
-        public Vec3Keyframe(float frameIndex, Vec3 inValue, Vec3 outValue, Vec3 inTangent, Vec3 outTangent, PlanarInterpType type = PlanarInterpType.Linear) : base()
+        public Vec2Keyframe(float frameIndex, Vec2 inValue, Vec2 outValue) : base()
         {
             _frameIndex = frameIndex;
             _inValue = inValue;
             _outValue = outValue;
-            _inTangent = inTangent;
-            _outTangent = outTangent;
         }
 
-        protected Vec3 _inValue;
-        protected Vec3 _inTangent;
-        protected Vec3 _outValue;
-        protected Vec3 _outTangent;
+        protected Vec2 _inValue;
+        protected Vec2 _inTangent;
+        protected Vec2 _outValue;
+        protected Vec2 _outTangent;
         protected PlanarInterpType _interpolationType;
 
-        public Vec3 InValue
+        public Vec2 InValue
         {
             get => _inValue;
             set => _inValue = value;
         }
-        public Vec3 OutValue
+        public Vec2 OutValue
         {
             get => _outValue;
             set => _outValue = value;
         }
-        public Vec3 InTangent
+        public Vec2 InTangent
         {
             get => _inTangent;
             set => _inTangent = value;
         }
-        public Vec3 OutTangent
+        public Vec2 OutTangent
         {
             get => _outTangent;
             set => _outTangent = value;
         }
-        public new Vec3Keyframe Next
+        public new Vec2Keyframe Next
         {
-            get => _next as Vec3Keyframe;
+            get => _next as Vec2Keyframe;
             set => _next = value;
         }
-        public new Vec3Keyframe Prev
+        public new Vec2Keyframe Prev
         {
-            get => _prev as Vec3Keyframe;
+            get => _prev as Vec2Keyframe;
             set => _prev = value;
         }
         public PlanarInterpType InterpolationType
@@ -130,9 +124,9 @@ namespace CustomEngine.Rendering.Animation
                 }
             }
         }
-        delegate Vec3 DelInterpolate(Vec3Keyframe key1, Vec3Keyframe key2, float time);
+        delegate Vec2 DelInterpolate(Vec2Keyframe key1, Vec2Keyframe key2, float time);
         private DelInterpolate _interpolate = CubicHermite;
-        public Vec3 Interpolate(float frameIndex)
+        public Vec2 Interpolate(float frameIndex)
         {
             if (frameIndex < _frameIndex)
             {
@@ -151,13 +145,13 @@ namespace CustomEngine.Rendering.Animation
             float t = (frameIndex - _frameIndex) / (_next._frameIndex - _frameIndex);
             return _interpolate(this, Next, t);
         }
-        public static Vec3 Step(Vec3Keyframe key1, Vec3Keyframe key2, float time)
+        public static Vec2 Step(Vec2Keyframe key1, Vec2Keyframe key2, float time)
             => time < 1.0f ? key1.OutValue : key2.OutValue;
-        public static Vec3 Lerp(Vec3Keyframe key1, Vec3Keyframe key2, float time)
-            => Vec3.Lerp(key1.OutValue, key2.InValue, time);
-        public static Vec3 Bezier(Vec3Keyframe key1, Vec3Keyframe key2, float time)
+        public static Vec2 Lerp(Vec2Keyframe key1, Vec2Keyframe key2, float time)
+            => Vec2.Lerp(key1.OutValue, key2.InValue, time);
+        public static Vec2 Bezier(Vec2Keyframe key1, Vec2Keyframe key2, float time)
             => CustomMath.CubicBezier(key1.OutValue, key1.OutTangent, key2.InTangent, key2.InValue, time);
-        public static Vec3 CubicHermite(Vec3Keyframe key1, Vec3Keyframe key2, float time)
+        public static Vec2 CubicHermite(Vec2Keyframe key1, Vec2Keyframe key2, float time)
             => CustomMath.CubicHermite(key1.OutValue, key1.OutTangent, key2.InTangent, key2.InValue, time);
 
         public void AverageKeyframe()

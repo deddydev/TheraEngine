@@ -44,6 +44,15 @@ namespace CustomEngine.Rendering.Models
         public bool HasTangents { get => _hasTangents; }
         public bool HasTexCoords { get => _texcoordCount > 0; }
         public bool HasColors { get => _colorCount > 0; }
+
+        public static PrimitiveBufferInfo PosNormTex1()
+        {
+            return new PrimitiveBufferInfo() { _texcoordCount = 1, _hasNormals = true };
+        }
+        public static PrimitiveBufferInfo JustPositions()
+        {
+            return new PrimitiveBufferInfo() { _texcoordCount = 0, _hasNormals = false };
+        }
     }
     public class PrimitiveData : IDisposable
     {

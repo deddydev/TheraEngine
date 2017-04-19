@@ -14,7 +14,13 @@ namespace CustomEngine.Rendering.Animation
         public event Action AnimationStarted;
         public event Action AnimationEnded;
         public event Action CurrentFrameChanged;
-        
+        public event Action FramesPerSecondChanged;
+        public event Action SpeedChanged;
+        public event Action LoopChanged;
+        public event Action FrameCountChanged;
+
+
+
         protected int _frameCount;
         protected float _fps = 60.0f;
         protected float _speed = 1.0f;
@@ -34,7 +40,11 @@ namespace CustomEngine.Rendering.Animation
         public float Speed
         {
             get => _speed;
-            set => _speed = value;
+            set
+            {
+                _speed = value;
+                SpeedChanged?.Invoke();
+            }
         }
         /// <summary>
         /// How many frames of this animation should pass in a second.
@@ -45,7 +55,11 @@ namespace CustomEngine.Rendering.Animation
         public float FramesPerSecond
         {
             get => _fps;
-            set => _fps = value;
+            set
+            {
+                _fps = value;
+                FramesPerSecondChanged?.Invoke();
+            }
         }
         /// <summary>
         /// How many frames this animation contains.
@@ -54,13 +68,21 @@ namespace CustomEngine.Rendering.Animation
         public int FrameCount
         {
             get => _frameCount;
-            set => _frameCount = value;
+            set
+            {
+                _frameCount = value;
+                FrameCountChanged?.Invoke();
+            }
         }
         [Category("Animation"), Serialize]
         public bool Looped
         {
             get => _looped;
-            set => _looped = value;
+            set
+            {
+                _looped = value;
+                LoopChanged?.Invoke();
+            }
         }
         [Category("Animation"), Serialize]
         public float CurrentFrame
@@ -98,9 +120,9 @@ namespace CustomEngine.Rendering.Animation
         {
             if (_isPlaying)
                 return;
-            _currentFrame = 0.0f;
             _isPlaying = true;
             AnimationStarted?.Invoke();
+            CurrentFrame = 0.0f;
         }
         public void Stop()
         {
@@ -112,6 +134,9 @@ namespace CustomEngine.Rendering.Animation
         public void Progress(float delta)
             => CurrentFrame += delta * _fps * _speed;
         protected virtual void OnCurrentFrameChanged()
-            => CurrentFrameChanged?.Invoke();
+        {
+
+            CurrentFrameChanged?.Invoke();
+        }
     }
 }

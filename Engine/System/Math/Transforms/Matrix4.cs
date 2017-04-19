@@ -840,14 +840,14 @@ namespace System
         {
             return TransformMatrix(scale, CreateFromRotator(rotate), translate, order);
         }
-        public static Matrix4 TransformMatrix(
+        private static Matrix4 TransformMatrix(
             Vec3 scale,
             Matrix4 rotate,
             Vec3 translate,
             TransformOrder order = TransformOrder.SRT)
         {
             Matrix4 s = CreateScale(scale);
-            Matrix4 r = rotate.GetRotationMatrix4();
+            Matrix4 r = rotate;
             Matrix4 t = CreateTranslation(translate);
             switch (order)
             {

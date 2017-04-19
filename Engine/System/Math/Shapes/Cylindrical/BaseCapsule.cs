@@ -1,8 +1,6 @@
 ﻿using CustomEngine;
 using CustomEngine.Rendering.Models;
-using System.Collections.Generic;
 using System.Drawing;
-using System.Linq;
 using static System.Math;
 
 namespace System

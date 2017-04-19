@@ -73,7 +73,7 @@ namespace System
             Quat q = this;
             q.NormalizeFast();
 
-            float den = (float)Sqrt(1.0 - q.W * q.W);
+            float den = (float)Sqrt(1.0f - q.W * q.W);
             return new Vec4(den > 0.0001f ? q.Xyz / den : Vec3.Right, 2.0f * (float)Acos(q.W));
         }
         /// <summary>
@@ -182,9 +182,7 @@ namespace System
             return FromAxisAngle(axis, angle);
         }
         public static Quat LookAt(Vec3 sourcePoint, Vec3 destPoint, Vec3 initialDirection)
-        {
-            return BetweenVectors(initialDirection, destPoint - sourcePoint);
-        }
+            => BetweenVectors(initialDirection, destPoint - sourcePoint);
         public static Quat FromAxisAngle(Vec3 axis, float angle)
         {
             angle = DegToRad(angle);
@@ -203,9 +201,8 @@ namespace System
         }
 
         public static Quat FromRotator(Rotator rotator)
-        {
-            return FromEulerAngles(rotator.Yaw, rotator.Pitch, rotator.Roll, rotator._rotationOrder);
-        }
+            => FromEulerAngles(rotator.Yaw, rotator.Pitch, rotator.Roll, rotator._rotationOrder);
+        
         /// <summary>
         /// Builds a Quaternion from the given euler angles
         /// </summary>
@@ -249,7 +246,7 @@ namespace System
 
                 if (m00 > m11 && m00 > m22)
                 {
-                    float s = (float)Sqrt(1 + m00 - m11 - m22) * 2.0f;
+                    float s = (float)Sqrt(1.0f + m00 - m11 - m22) * 2.0f;
                     float invS = 1.0f / s;
 
                     result.W = (matrix.Row2.Y - matrix.Row1.Z) * invS;
@@ -259,7 +256,7 @@ namespace System
                 }
                 else if (m11 > m22)
                 {
-                    float s = (float)Sqrt(1 + m11 - m00 - m22) * 2.0f;
+                    float s = (float)Sqrt(1.0f + m11 - m00 - m22) * 2.0f;
                     float invS = 1.0f / s;
 
                     result.W = (matrix.Row0.Z - matrix.Row2.X) * invS;

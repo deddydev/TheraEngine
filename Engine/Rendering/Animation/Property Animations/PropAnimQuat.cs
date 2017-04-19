@@ -1,20 +1,16 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.IO;
-using System.Reflection;
-using System.Xml;
-using CustomEngine.Files;
 
 namespace CustomEngine.Rendering.Animation
 {
-    delegate Quat QuatGetValue(float frameIndex);
-    public class AnimationQuat : PropertyAnimation<QuatKeyframe>, IEnumerable<QuatKeyframe>
+    public delegate Quat QuatGetValue(float frameIndex);
+    public class PropAnimQuat : PropertyAnimation<QuatKeyframe>, IEnumerable<QuatKeyframe>
     {
         Quat[] _baked;
         QuatGetValue _getValue;
-        
-        public AnimationQuat(int frameCount, bool looped, bool useKeyframes) 
+
+        public PropAnimQuat(int frameCount, bool looped, bool useKeyframes) 
             : base(frameCount, looped, useKeyframes) { }
 
         protected override void UseKeyframesChanged()
@@ -27,7 +23,7 @@ namespace CustomEngine.Rendering.Animation
         protected override object GetValue(float frame)
             => _getValue(frame);
         public Quat GetValueBaked(float frameIndex)
-            => _baked[(int)(frameIndex * _keyframes.FPS)];
+            => _baked[(int)(frameIndex * Engine.TargetUpdateFreq)];
         public Quat GetValueKeyframed(float frameIndex)
             => _keyframes.First.Interpolate(frameIndex);
 
@@ -58,16 +54,21 @@ namespace CustomEngine.Rendering.Animation
     }
     public class QuatKeyframe : Keyframe
     {
-        public QuatKeyframe(float frameIndex, Quat inValue, Quat outValue) : base()
+        public QuatKeyframe(float frameIndex, Quat value, RadialInterpType type)
+            : this(frameIndex, value, value, type) { }
+        public QuatKeyframe(float frameIndex, Quat inValue, Quat outValue, RadialInterpType type) : base()
         {
             _frameIndex = frameIndex;
             _inValue = inValue;
             _outValue = outValue;
+            InterpolationType = type;
         }
 
+        delegate Quat DelInterpolate(QuatKeyframe key1, QuatKeyframe key2, float time);
+        private DelInterpolate _interpolate = CubicBezier;
+        protected RadialInterpType _interpolationType;
         protected Quat _inValue;
         protected Quat _inTangent;
-
         protected Quat _outValue;
         protected Quat _outTangent;
 
@@ -101,9 +102,26 @@ namespace CustomEngine.Rendering.Animation
             get => _prev as QuatKeyframe;
             set => _prev = value;
         }
-
-        delegate Quat DelInterpolate(QuatKeyframe key1, QuatKeyframe key2, float time);
-        private DelInterpolate _interpolate = Scubic;
+        public RadialInterpType InterpolationType
+        {
+            get => _interpolationType;
+            set
+            {
+                _interpolationType = value;
+                switch (_interpolationType)
+                {
+                    case RadialInterpType.Step:
+                        _interpolate = Step;
+                        break;
+                    case RadialInterpType.Linear:
+                        _interpolate = Linear;
+                        break;
+                    case RadialInterpType.CubicBezier:
+                        _interpolate = CubicBezier;
+                        break;
+                }
+            }
+        }
         public Quat Interpolate(float frameIndex)
         {
             if (frameIndex < _frameIndex)
@@ -123,13 +141,11 @@ namespace CustomEngine.Rendering.Animation
             float t = (frameIndex - _frameIndex) / (_next._frameIndex - _frameIndex);
             return _interpolate(this, Next, t);
         }
-        public static Quat Scubic(QuatKeyframe key1, QuatKeyframe key2, float time)
-        {
-            return Quat.Scubic(key1.OutValue, key1.OutTangent, key2.InTanget, key2.InValue, time);
-        }
-        public static Quat Slerp(QuatKeyframe key1, QuatKeyframe key2, float time)
-        {
-            return Quat.Slerp(key1.OutValue, key2.InValue, time);
-        }
+        public static Quat Step(QuatKeyframe key1, QuatKeyframe key2, float time)
+            => time < 1.0f ? key1.OutValue : key2.OutValue;
+        public static Quat Linear(QuatKeyframe key1, QuatKeyframe key2, float time)
+            => Quat.Slerp(key1.OutValue, key2.InValue, time);
+        public static Quat CubicBezier(QuatKeyframe key1, QuatKeyframe key2, float time)
+            => Quat.Scubic(key1.OutValue, key1.OutTangent, key2.InTanget, key2.InValue, time);
     }
 }

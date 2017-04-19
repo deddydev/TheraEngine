@@ -1,20 +1,16 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.IO;
-using System.Reflection;
-using System.Xml;
-using CustomEngine.Files;
 
 namespace CustomEngine.Rendering.Animation
 {
-    delegate float ScalarGetValue(float frameIndex);
-    public class AnimationScalar : PropertyAnimation<ScalarKeyframe>, IEnumerable<ScalarKeyframe>
+    public delegate float FloatGetValue(float frameIndex);
+    public class PropAnimFloat : PropertyAnimation<FloatKeyframe>, IEnumerable<FloatKeyframe>
     {
         float[] _baked;
-        ScalarGetValue _getValue;
+        FloatGetValue _getValue;
 
-        public AnimationScalar(int frameCount, bool looped, bool useKeyframes) 
+        public PropAnimFloat(int frameCount, bool looped, bool useKeyframes) 
             : base(frameCount, looped, useKeyframes) { }
 
         protected override void UseKeyframesChanged()
@@ -24,11 +20,10 @@ namespace CustomEngine.Rendering.Animation
             else
                 _getValue = GetValueBaked;
         }
-
         protected override object GetValue(float frame)
             => _getValue(frame);
         public float GetValueBaked(float frameIndex)
-            => _baked[(int)(frameIndex * _keyframes.FPS)];
+            => _baked[(int)(frameIndex * FramesPerSecond)];
         public float GetValueKeyframed(float frameIndex)
             => _keyframes.First.Interpolate(frameIndex);
 
@@ -37,8 +32,8 @@ namespace CustomEngine.Rendering.Animation
         /// </summary>
         public override void Bake()
         {
-            float oneOverFPS = 1.0f / _keyframes.FPS;
-            int totalFrames = FrameCount * _keyframes.FPS;
+            float oneOverFPS = 1.0f / _keyframes.FramesPerSecond;
+            int totalFrames = FrameCount;
             _baked = new float[totalFrames];
             for (int i = 0; i < totalFrames; ++i)
                 _baked[i] = GetValueKeyframed(i * oneOverFPS);
@@ -51,27 +46,30 @@ namespace CustomEngine.Rendering.Animation
         {
             throw new NotImplementedException();
         }
-        public override void Append(PropertyAnimation<ScalarKeyframe> other)
+        public override void Append(PropertyAnimation<FloatKeyframe> other)
         {
             throw new NotImplementedException();
         }
-        public IEnumerator<ScalarKeyframe> GetEnumerator() => ((IEnumerable<ScalarKeyframe>)_keyframes).GetEnumerator();
-        IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable<ScalarKeyframe>)_keyframes).GetEnumerator();
+        public IEnumerator<FloatKeyframe> GetEnumerator() => ((IEnumerable<FloatKeyframe>)_keyframes).GetEnumerator();
+        IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable<FloatKeyframe>)_keyframes).GetEnumerator();
     }
-    public class ScalarKeyframe : Keyframe
+    public class FloatKeyframe : Keyframe
     {
-        public ScalarKeyframe(float frameIndex, float inValue, float outValue) : base()
+        public FloatKeyframe(float frameIndex, float inValue, float outValue, PlanarInterpType type) : base()
         {
             _frameIndex = frameIndex;
             _inValue = inValue;
             _outValue = outValue;
+            InterpolationType = type;
         }
 
+        delegate float DelInterpolate(FloatKeyframe key1, FloatKeyframe key2, float time);
+        private DelInterpolate _interpolate = CubicHermite;
+        protected PlanarInterpType _interpolationType;
         protected float _inValue;
         protected float _inTangent;
         protected float _outValue;
         protected float _outTangent;
-        protected PlanarInterpType _interpolationType;
 
         public float InValue
         {
@@ -93,14 +91,14 @@ namespace CustomEngine.Rendering.Animation
             get => _outTangent;
             set => _outTangent = value;
         }
-        public new ScalarKeyframe Next
+        public new FloatKeyframe Next
         {
-            get => _next as ScalarKeyframe;
+            get => _next as FloatKeyframe;
             set => _next = value;
         }
-        public new ScalarKeyframe Prev
+        public new FloatKeyframe Prev
         {
-            get => _prev as ScalarKeyframe;
+            get => _prev as FloatKeyframe;
             set => _prev = value;
         }
         public PlanarInterpType InterpolationType
@@ -126,8 +124,6 @@ namespace CustomEngine.Rendering.Animation
                 }
             }
         }
-        delegate float DelInterpolate(ScalarKeyframe key1, ScalarKeyframe key2, float time);
-        private DelInterpolate _interpolate = CubicHermite;
         public float Interpolate(float frameIndex)
         {
             if (frameIndex < _frameIndex)
@@ -147,13 +143,13 @@ namespace CustomEngine.Rendering.Animation
             float t = (frameIndex - _frameIndex) / (_next._frameIndex - _frameIndex);
             return _interpolate(this, Next, t);
         }
-        public static float Step(ScalarKeyframe key1, ScalarKeyframe key2, float time)
+        public static float Step(FloatKeyframe key1, FloatKeyframe key2, float time)
             => time < 1.0f ? key1.OutValue : key2.OutValue;
-        public static float Linear(ScalarKeyframe key1, ScalarKeyframe key2, float time)
+        public static float Linear(FloatKeyframe key1, FloatKeyframe key2, float time)
             => CustomMath.Lerp(key1.OutValue, key2.InValue, time);
-        public static float CubicBezier(ScalarKeyframe key1, ScalarKeyframe key2, float time)
+        public static float CubicBezier(FloatKeyframe key1, FloatKeyframe key2, float time)
             => CustomMath.CubicBezier(key1.OutValue, key1.OutTangent, key2.InTangent, key2.InValue, time);
-        public static float CubicHermite(ScalarKeyframe key1, ScalarKeyframe key2, float time)
+        public static float CubicHermite(FloatKeyframe key1, FloatKeyframe key2, float time)
             => CustomMath.CubicHermite(key1.OutValue, key1.OutTangent, key2.InTangent, key2.InValue, time);
         public void AverageKeyframe()
         {

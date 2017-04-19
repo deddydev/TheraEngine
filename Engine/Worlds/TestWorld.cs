@@ -78,9 +78,9 @@ namespace CustomEngine.Worlds
                 Color.Beige, 1.0f, 0.6f, new Rotator(-45.0f, 0.0f, 0.0f, Rotator.Order.YPR));
             dirLightComp.Translation.Y = 30.0f;
 
-            AnimationScalar lightAnim = new AnimationScalar(360, true, true);
-            ScalarKeyframe first2 = new ScalarKeyframe(0.0f, 0.0f, 0.0f);
-            ScalarKeyframe last2 = new ScalarKeyframe(360.0f, 360.0f, 0.0f);
+            PropAnimFloat lightAnim = new PropAnimFloat(360, true, true);
+            FloatKeyframe first2 = new FloatKeyframe(0.0f, 0.0f, 0.0f);
+            FloatKeyframe last2 = new FloatKeyframe(360.0f, 360.0f, 0.0f);
             first2.LinkNext(last2);
             first2.MakeOutLinear();
             last2.MakeInLinear();

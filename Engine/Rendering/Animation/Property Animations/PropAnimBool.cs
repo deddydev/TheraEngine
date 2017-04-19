@@ -9,12 +9,12 @@ using CustomEngine.Files;
 namespace CustomEngine.Rendering.Animation
 {
     public delegate bool BoolGetValue(float frameIndex);
-    public class AnimationBool : PropertyAnimation<BoolKeyframe>, IEnumerable<BoolKeyframe>
+    public class PropAnimBool : PropertyAnimation<BoolKeyframe>, IEnumerable<BoolKeyframe>
     {
         bool[] _baked;
         BoolGetValue _getValue;
 
-        public AnimationBool(int frameCount, bool looped, bool useKeyframes) 
+        public PropAnimBool(int frameCount, bool looped, bool useKeyframes) 
             : base(frameCount, looped, useKeyframes) { }
 
         protected override object GetValue(float frame) { return _getValue(frame); }

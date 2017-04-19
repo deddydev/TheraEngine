@@ -54,11 +54,11 @@ namespace CustomEngine.Rendering.Animation
             Looped = looped;
             UseKeyframes = useKeyframes;
         }
-
+        
         [Category("Property Animation")]
-        protected override BaseKeyframeTrack InternalKeyframes { get { return _keyframes; } }
+        protected override BaseKeyframeTrack InternalKeyframes => _keyframes;
         [Category("Property Animation"), Browsable(true)]
-        public KeyframeTrack<T> Keyframes { get { return _keyframes; } }
+        public KeyframeTrack<T> Keyframes => _keyframes;
 
         public abstract void Append(PropertyAnimation<T> other);
     }

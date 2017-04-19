@@ -79,9 +79,9 @@ namespace CustomEngine.Files
             { typeof(Camera), new FilterInfo("Camera", "CCAM", "ccam") },
             { typeof(Cutscene), new FilterInfo("Cutscene", "CCUT", "ccut") },
             { typeof(AnimationContainer), new FilterInfo("Animation Archive", "ANMA",  "cpac") },
-            { typeof(AnimationScalar), new FilterInfo("Numeric Property Animation", "PANM", "cpa") },
-            { typeof(AnimationString), new FilterInfo("String Property Animation", "PANM", "cpa") },
-            { typeof(AnimationBool), new FilterInfo("Boolean Animation", "PANM", "cpa") },
+            { typeof(PropAnimFloat), new FilterInfo("Numeric Property Animation", "PANM", "cpa") },
+            { typeof(PropAnimString), new FilterInfo("String Property Animation", "PANM", "cpa") },
+            { typeof(PropAnimBool), new FilterInfo("Boolean Animation", "PANM", "cpa") },
             { typeof(Texture), new FilterInfo("Texture", "CTEX", "ctex") },
         };
         public static List<FilterInfo> GenericInfo = new List<FilterInfo>()
@@ -112,9 +112,9 @@ namespace CustomEngine.Files
 
             new FilterInfo("Text File", "txt")
             { _fileTypes = new Type[] {
-                typeof(AnimationScalar),
-                typeof(AnimationBool),
-                typeof(AnimationString),
+                typeof(PropAnimFloat),
+                typeof(PropAnimBool),
+                typeof(PropAnimString),
                 typeof(AnimationContainer) },
                 _canExport = true, _canImport = true },
 

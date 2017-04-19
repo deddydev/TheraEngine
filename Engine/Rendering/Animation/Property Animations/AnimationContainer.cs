@@ -149,15 +149,15 @@ namespace CustomEngine.Rendering.Animation
         private AnimFolder _root;
         public MonitoredList<ObjectBase> _owners = new MonitoredList<ObjectBase>();
 
-        public AnimationContainer(Action<bool> func, AnimationBool anim)
+        public AnimationContainer(Action<bool> func, PropAnimBool anim)
         {
 
         }
-        public AnimationContainer(Action<string> func, AnimationString anim)
+        public AnimationContainer(Action<string> func, PropAnimString anim)
         {
 
         }
-        public AnimationContainer(Action<float> func, AnimationScalar anim)
+        public AnimationContainer(Action<float> func, PropAnimFloat anim)
         {
 
         }

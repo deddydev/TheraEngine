@@ -2,22 +2,27 @@
 using System.Collections;
 using System;
 using CustomEngine.Files;
-using System.IO;
-using System.Xml;
 
 namespace CustomEngine.Rendering.Animation
 {
     public abstract class BaseKeyframeTrack : FileObject
     {
-        protected int _fps = 60;
+        public event Action Changed;
+
+        protected void OnChanged()
+            => Changed?.Invoke();
+        
+        protected float _fps = 60.0f;
         protected int _keyCount = 0;
 
-        public abstract BasePropertyAnimation Owner { get; }
-        public float FrameCount { get { return Owner.FrameCount; } }
-        public int KeyCount { get { return _keyCount; } }
-        public int FPS
+        protected abstract Keyframe FirstKey { get; }
+        public abstract BaseAnimation Owner { get; }
+
+        public float FrameCount => Owner.FrameCount;
+        public int KeyCount => _keyCount;
+        public float FramesPerSecond
         {
-            get { return _fps; }
+            get => _fps;
             set
             {
                 float ratio = _fps / value;
@@ -29,21 +34,29 @@ namespace CustomEngine.Rendering.Animation
                 }
             }
         }
-        protected abstract Keyframe FirstKey { get; }
     }
     public class KeyframeTrack<T> : BaseKeyframeTrack, IEnumerable<T> where T : Keyframe
     {
-        PropertyAnimation<T> _owner;
+        BaseAnimation _owner;
         
         private T _first = null;
 
         public T First => _first;
         public T Last => (T)_first.Prev;
 
-        public override BasePropertyAnimation Owner => _owner;
+        public override BaseAnimation Owner => _owner;
         protected override Keyframe FirstKey => First;
 
-        public KeyframeTrack(PropertyAnimation<T> node) { _owner = node; }
+        public KeyframeTrack(BaseAnimation node)
+        {
+            _owner = node;
+            _owner.FramesPerSecondChanged += _owner_FramesPerSecondChanged;
+        }
+
+        private void _owner_FramesPerSecondChanged()
+        {
+            FramesPerSecond = Owner.FramesPerSecond;
+        }
 
         public bool Insert(T key)
         {
@@ -54,6 +67,7 @@ namespace CustomEngine.Rendering.Animation
             {
                 _first = key;
                 ++_keyCount;
+                OnChanged();
                 return true;
             }
             else
@@ -65,6 +79,7 @@ namespace CustomEngine.Rendering.Animation
                     {
                         node.LinkNext(key);
                         ++_keyCount;
+                        OnChanged();
                         return true;
                     }
                     node = node.Next;
@@ -85,6 +100,7 @@ namespace CustomEngine.Rendering.Animation
                 {
                     node.Unlink();
                     --_keyCount;
+                    OnChanged();
                     return true;
                 }
                 node = node.Next;
@@ -102,6 +118,7 @@ namespace CustomEngine.Rendering.Animation
             else
                 Last.Unlink();
             --_keyCount;
+            OnChanged();
         }
         public void RemoveFirst()
         {
@@ -117,6 +134,7 @@ namespace CustomEngine.Rendering.Animation
                 _first = (T)newFirst;
             }
             --_keyCount;
+            OnChanged();
         }
         public void Add(T key)
         {
@@ -130,6 +148,7 @@ namespace CustomEngine.Rendering.Animation
             else
                 _first.LinkNext(key);
             ++_keyCount;
+            OnChanged();
         }
         //public void AddLast(T key)
         //{
@@ -194,10 +213,6 @@ namespace CustomEngine.Rendering.Animation
         Linear,
         CubicHermite,
         CubicBezier
-    }
-    public interface IKeyframe
-    {
-
     }
     public abstract class Keyframe
     {

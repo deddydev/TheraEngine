@@ -29,18 +29,25 @@ namespace CustomEngine.Rendering.Animation
             foreach (BoneAnimation bone in _boneAnimations.Values)
                 bone.UpdateSkeleton(skeleton);
         }
+        public IEnumerable<string> GetAllNames(ModelAnimationFrame other)
+        {
+            return other.GetAllNames(this);
+        }
+        public IEnumerable<string> GetAllNames(ModelAnimation other)
+        {
+            string[] theseNames = new string[_boneAnimations.Keys.Count];
+            _boneAnimations.Keys.CopyTo(theseNames, 0);
+            string[] thoseNames = new string[other._boneAnimations.Keys.Count];
+            other._boneAnimations.Keys.CopyTo(thoseNames, 0);
+            return theseNames.Intersect(thoseNames);
+        }
         public void UpdateSkeletonBlended(
             Skeleton skeleton,
             ModelAnimation other,
             float otherWeight,
             AnimBlendType blendType)
         {
-            string[] theseNames = new string[_boneAnimations.Keys.Count];
-            _boneAnimations.Keys.CopyTo(theseNames, 0);
-            string[] thoseNames = new string[other._boneAnimations.Keys.Count];
-            other._boneAnimations.Keys.CopyTo(thoseNames, 0);
-            IEnumerable<string> names = theseNames.Intersect(thoseNames);
-            foreach (string name in names)
+            foreach (string name in GetAllNames(other))
             {
                 if (_boneAnimations.ContainsKey(name))
                 {
@@ -58,6 +65,12 @@ namespace CustomEngine.Rendering.Animation
                 }
             }
         }
+
+        public ModelAnimationFrame GetFrame()
+        {
+
+        }
+
         public void UpdateSkeletonBlendedMulti(Skeleton skeleton, ModelAnimation[] other, float[] otherWeight)
         {
             //string[] theseNames = new string[_boneAnimations.Keys.Count];
@@ -92,6 +105,11 @@ namespace CustomEngine.Rendering.Animation
             _translation = new KeyframeTrack<Vec3Keyframe>(parent);
             _rotation = new KeyframeTrack<QuatKeyframe>(parent);
             _scale = new KeyframeTrack<Vec3Keyframe>(parent);
+        }
+
+        public BoneFrame BlendedWith(float frameIndex, BoneFrame other, float otherWeight)
+        {
+            return GetFrame(frameIndex).BlendedWith(other, otherWeight);
         }
 
         /// <summary>
@@ -131,7 +149,11 @@ namespace CustomEngine.Rendering.Animation
             if (_scale.First != null)
                 s = _scale.First.Interpolate(frameIndex);
 
-            return new BoneFrame(_name, t, r, s);
+            return new BoneFrame(
+                _name,
+                t.GetValueOrDefault(Vec3.Zero),     t.HasValue ? 1.0f : 0.0f,
+                r.GetValueOrDefault(Quat.Identity), r.HasValue ? 1.0f : 0.0f,
+                s.GetValueOrDefault(Vec3.One),      s.HasValue ? 1.0f : 0.0f);
         }
         public void SetValue(Matrix4 transform, float frameIndex, PlanarInterpType planar, RadialInterpType radial)
         {

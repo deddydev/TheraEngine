@@ -125,9 +125,9 @@ namespace CustomEngine.Rendering.Animation
         }
         public void UpdateState(FrameState frameState, FrameState bindState)
         {
-            Vec3 t = Vec3.Lerp(bindState.Translation, _translation, _translationWeight);
-            Quat r = Quat.Slerp(bindState.Quaternion, _rotation, _rotationWeight);
-            Vec3 s = Vec3.Lerp(bindState.Scale, _scale, _scaleWeight);
+            Vec3 t = GetTranslation(bindState.Translation);
+            Quat r = GetRotation(bindState.Quaternion);
+            Vec3 s = GetScale(bindState.Scale);
             frameState.SetAll(t, r, s);
         }
         public void UpdateSkeletonBlended(Skeleton skeleton, BoneFrame otherBoneFrame, float otherWeight)
@@ -136,39 +136,66 @@ namespace CustomEngine.Rendering.Animation
             if (bone != null)
                 UpdateStateBlended(bone.FrameState, bone.BindState, otherBoneFrame, otherWeight);
         }
-        public void UpdateStateBlended(FrameState frameState, FrameState bindState, BoneFrame otherBoneFrame, float otherWeight)
+        public void UpdateStateBlended(
+            FrameState frameState,
+            FrameState bindState,
+            BoneFrame otherBoneFrame,
+            float otherWeight)
         {
-            Vec3 t1 = _translation ?? bindState.Translation;
-            Vec3 t2 = otherBoneFrame._translation ?? bindState.Translation;
-            Vec3 t = Vec3.Lerp(t1, t2, otherWeight);
+            Vec3 t;
+            Quat r;
+            Vec3 s;
 
-            Quat r1 = _rotation ?? bindState.Quaternion;
-            Quat r2 = otherBoneFrame._rotation ?? bindState.Quaternion;
-            Quat r = Quat.Slerp(r1, r2, otherWeight);
+            if (otherBoneFrame == null)
+            {
+                t = _translation;
+                r = _rotation;
+                s = _scale;
+                otherWeight = 1.0f - otherWeight;
+                _translationWeight *= otherWeight;
+                _rotationWeight *= otherWeight;
+                _scaleWeight *= otherWeight;
+            }
+            else
+            {
+                Vec3 t1 = GetTranslation(bindState.Translation);
+                Vec3 t2 = otherBoneFrame.GetTranslation(bindState.Translation);
+                t = Vec3.Lerp(t1, t2, otherWeight);
 
-            Vec3 s1 = _scale ?? bindState.Scale;
-            Vec3 s2 = otherBoneFrame._scale ?? bindState.Scale;
-            Vec3 s = Vec3.Lerp(s1, s2, otherWeight);
+                Quat r1 = GetRotation(bindState.Quaternion);
+                Quat r2 = otherBoneFrame.GetRotation(bindState.Quaternion);
+                r = Quat.Slerp(r1, r2, otherWeight);
+
+                Vec3 s1 = GetScale(bindState.Scale);
+                Vec3 s2 = otherBoneFrame.GetScale(bindState.Scale);
+                s = Vec3.Lerp(s1, s2, otherWeight);
+            }
 
             frameState.SetAll(t, r, s);
         }
-        public BoneFrame BlendedWith(BoneFrame other, float otherWeight)
+        public BoneFrame BlendedWith(BoneFrame otherBoneFrame, float otherWeight)
         {
-            Vec3 t1 = _translation ?? bindState.Translation;
-            Vec3 t2 = otherBoneFrame._translation ?? bindState.Translation;
+            Vec3 t1 = _translation;
+            Vec3 t2 = otherBoneFrame._translation;
             Vec3 t = Vec3.Lerp(t1, t2, otherWeight);
 
-            Quat r1 = _rotation ?? bindState.Quaternion;
-            Quat r2 = otherBoneFrame._rotation ?? bindState.Quaternion;
+            Quat r1 = _rotation;
+            Quat r2 = otherBoneFrame._rotation;
             Quat r = Quat.Slerp(r1, r2, otherWeight);
 
-            Vec3 s1 = _scale ?? bindState.Scale;
-            Vec3 s2 = otherBoneFrame._scale ?? bindState.Scale;
+            Vec3 s1 = _scale;
+            Vec3 s2 = otherBoneFrame._scale;
             Vec3 s = Vec3.Lerp(s1, s2, otherWeight);
+
+            return new BoneFrame(
+                _name,
+                t, _translationWeight * otherBoneFrame._translationWeight,
+                r, _rotationWeight * otherBoneFrame._rotationWeight,
+                s, _scaleWeight * otherBoneFrame._scaleWeight);
         }
         public BoneFrame BlendedWith(BoneAnimation other, float frameIndex, float otherWeight)
         {
-
+            return BlendedWith(other.GetFrame(frameIndex), otherWeight);
         }
     }
 }

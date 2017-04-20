@@ -16,12 +16,19 @@ namespace CustomEngine.Rendering.Cameras
     }
     public class PostProcessSettings : FileObject
     {
+        [Serialize("Vignette")]
         VignetteSettings _vignetteSettings;
+        [Serialize("DOF")]
         DepthOfFieldSettings _depthOfFieldSettings;
+        [Serialize("ColorGrade")]
         ColorGradeSettings _colorGradeSettings;
+        [Serialize("Bloom")]
         BloomSettings _bloomSettings;
+        [Serialize("Lens Flare")]
         LensFlareSettings _lensFlareSettings;
+        [Serialize("Anti-Alias")]
         AntiAliasSettings _antiAliasSettings;
+        [Serialize("Exposure")]
         ExposureSettings _exposureSettings;
 
         public ExposureSettings ExposureSettings { get => _exposureSettings; set => _exposureSettings = value; }
@@ -31,54 +38,6 @@ namespace CustomEngine.Rendering.Cameras
         public ColorGradeSettings ColorGradeSettings { get => _colorGradeSettings; set => _colorGradeSettings = value; }
         public DepthOfFieldSettings DepthOfFieldSettings { get => _depthOfFieldSettings; set => _depthOfFieldSettings = value; }
         public VignetteSettings VignetteSettings { get => _vignetteSettings; set => _vignetteSettings = value; }
-        
-        public unsafe override void Write(VoidPtr address, StringTable table)
-        {
-            *(Header*)address = this;
-        }
-        public unsafe override void Read(VoidPtr address, VoidPtr strings)
-        {
-            Header h = *(Header*)address;
-
-        }
-        public override void Write(XmlWriter writer)
-        {
-            writer.WriteStartElement("postProcess");
-
-            writer.WriteEndElement();
-        }
-        public override void Read(XMLReader reader)
-        {
-            if (!reader.Name.Equals("postProcess", true))
-                throw new Exception();
-            while (reader.BeginElement())
-            {
-                reader.EndElement();
-            }
-        }
-
-        protected override int OnCalculateSize(StringTable table)
-        {
-            throw new NotImplementedException();
-        }
-
-        [StructLayout(LayoutKind.Sequential, Pack = 1)]
-        public struct Header
-        {
-
-
-            public static implicit operator Header(PostProcessSettings p)
-            {
-                return new Header()
-                {
-
-                };
-            }
-            public static implicit operator PostProcessSettings(Header h)
-            {
-                return new PostProcessSettings();
-            }
-        }
     }
     public class VignetteSettings
     {

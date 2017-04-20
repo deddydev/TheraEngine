@@ -88,6 +88,7 @@ namespace CustomEngine.Rendering.Animation
             }
             return false;
         }
+
         public bool Remove(T key)
         {
             if (_first == null)

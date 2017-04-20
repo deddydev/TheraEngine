@@ -8,13 +8,73 @@ namespace CustomEngine.Rendering.Animation
 {
     public class AnimBlendState
     {
-        AnimBlendState _previous = null;
+        public event Action DoneBlending;
+
+        public AnimBlendState(AnimState state)
+        {
+            _current = state;
+            _previous = null;
+            _remainingBlendTime = 0.0f;
+        }
+        public AnimBlendState(AnimState state, AnimBlendState prevState)
+        {
+            _current = state;
+            _previous = prevState;
+            _remainingBlendTime = 0.0f;
+        }
+        public AnimBlendState(
+            AnimState state,
+            AnimBlendState prevState,
+            float blendTime,
+            AnimBlendType type,
+            KeyframeTrack<FloatKeyframe> customBlendMethod,
+            Action onDoneBlending)
+        {
+            _current = state;
+            _previous = prevState;
+            _remainingBlendTime = _totalBlendTime = blendTime;
+            _type = type;
+            _customBlendMethod = customBlendMethod;
+            DoneBlending += onDoneBlending;
+        }
+
+        AnimBlendState _previous;
         AnimState _current;
+        float _totalBlendTime;
         float _remainingBlendTime;
+        AnimBlendType _type;
+        KeyframeTrack<FloatKeyframe> _customBlendMethod;
+
+        public ModelAnimationFrame GetFrame()
+        {
+            if (_previous == null)
+                return _current._animation.GetFrame();
+            else
+                return _previous.GetFrame().BlendedWith(_current._animation.GetFrame(), GetBlendTime());
+        }
+
+        public float GetBlendTime()
+        {
+            float funcTime = 1.0f - (_remainingBlendTime / _totalBlendTime);
+            switch (_type)
+            {
+                default:
+                case AnimBlendType.Linear:
+                    return CustomMath.Lerp(0.0f, 1.0f, funcTime);
+                case AnimBlendType.CosineEaseInOut:
+                    return CustomMath.InterpCosineTo(0.0f, 1.0f, funcTime);
+                case AnimBlendType.QuadraticEaseStart:
+                    return CustomMath.InterpQuadraticEaseStart(0.0f, 1.0f, funcTime);
+                case AnimBlendType.QuadraticEaseEnd:
+                    return CustomMath.InterpQuadraticEaseEnd(0.0f, 1.0f, funcTime);
+                case AnimBlendType.Custom:
+                    return _customBlendMethod.First.Interpolate(funcTime);
+            }
+        }
 
         public void Apply(Skeleton skeleton)
         {
-
+            GetFrame().UpdateSkeleton(skeleton);
         }
 
         /// <summary>
@@ -22,8 +82,14 @@ namespace CustomEngine.Rendering.Animation
         /// </summary>
         public bool TickBlendTime(float delta)
         {
+            _previous?.TickBlendTime(delta);
+            if (_remainingBlendTime <= 0.0f)
+                return true;
             _remainingBlendTime -= delta;
-            return _remainingBlendTime <= 0.0f;
+            bool done = _remainingBlendTime <= 0.0f;
+            if (done)
+                DoneBlending?.Invoke();
+            return done;
         }
     }
 
@@ -33,12 +99,10 @@ namespace CustomEngine.Rendering.Animation
     {
         private AnimState _initialState;
         private Dictionary<string, AnimState> _states;
-        private AnimState _previousState = null;
-        private AnimState _currentState;
+        private AnimBlendState _currentState;
         private Skeleton _skeleton;
         private float _remainingBlendTime;
         
-        public AnimState CurrentState => _currentState;
         public AnimState InitialState
         {
             get => _initialState;
@@ -47,7 +111,7 @@ namespace CustomEngine.Rendering.Animation
 
         public override void OnSpawned()
         {
-            _currentState = _initialState;
+            _currentState = new AnimBlendState(_initialState);
             RegisterTick(ETickGroup.PrePhysics, ETickOrder.Animation);
             base.OnSpawned();
         }

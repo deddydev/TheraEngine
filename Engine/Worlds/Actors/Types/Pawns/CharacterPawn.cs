@@ -83,7 +83,7 @@ namespace CustomEngine.Worlds.Actors
         private MovementClass _movement;
         private SingleFileRef<SkeletalMesh> _mesh;
         private SingleFileRef<Skeleton> _skeleton;
-        private AnimStateMachine _animationStateMachine;
+        private AnimStateMachineComponent _animationStateMachine;
         private BoomComponent _tpCameraBoom;
         private CameraComponent _fpCameraComponent, _tpCameraComponent;
         private bool _firstPerson = false;
@@ -114,12 +114,10 @@ namespace CustomEngine.Worlds.Actors
         public override void OnSpawned(World world)
         {
             RegisterTick(ETickGroup.PrePhysics, ETickOrder.Input);
-            _animationStateMachine?.Start();
             base.OnSpawned(world);
         }
         public override void OnDespawned()
         {
-            _animationStateMachine?.End();
             UnregisterTick();
             base.OnDespawned();
         }
@@ -225,11 +223,14 @@ namespace CustomEngine.Worlds.Actors
             Debug.WriteLine(((ObjectBase)other).Name + " collided with " + Name);
             _movement.OnHit(other, point);
         }
-        protected override CapsuleComponent OnConstruct()
+        protected override void PreConstruct()
         {
             _movement = Activator.CreateInstance<MovementClass>();
             LogicComponents.Add(_movement);
-            
+            LogicComponents.Add(_animationStateMachine = new AnimStateMachineComponent());
+        }
+        protected override CapsuleComponent OnConstruct()
+        {
             float characterHeight = 1.72f; //5'8" in m = 1.72f
             float radius = 0.172f;
             float capsuleTotalHalfHeight = characterHeight / 2.0f;
@@ -283,11 +284,6 @@ namespace CustomEngine.Worlds.Actors
             //CurrentCameraComponent = _tpCameraComponent;
 
             return rootCapsule;
-        }
-        
-        protected override void PreConstruct()
-        {
-            
         }
 
         public virtual void Kill(ICharacterPawn instigator, IActor killer)

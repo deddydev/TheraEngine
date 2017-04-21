@@ -39,7 +39,7 @@ namespace CustomEngine.Rendering.Animation
         }
 
         AnimBlendState _previous;
-        AnimState _current;
+        public AnimState _current;
         float _totalBlendTime;
         float _remainingBlendTime;
         AnimBlendType _type;
@@ -95,7 +95,7 @@ namespace CustomEngine.Rendering.Animation
 
     [ObjectHeader()]
     [FileClass()]
-    public class AnimStateMachine : LogicComponent
+    public class AnimStateMachineComponent : LogicComponent
     {
         private AnimState _initialState;
         private Dictionary<string, AnimState> _states;
@@ -122,7 +122,7 @@ namespace CustomEngine.Rendering.Animation
         }
         protected internal override void Tick(float delta)
         {
-            _currentState.TryTransition(this);
+            _currentState._current.TryTransition(this);
         }
         public void Start()
         {
@@ -141,7 +141,7 @@ namespace CustomEngine.Rendering.Animation
     {
         public ModelAnimation _animation;
         public List<AnimStateTransition> _transitions = new List<AnimStateTransition>();
-        public void TryTransition(AnimStateMachine machine)
+        public void TryTransition(AnimStateMachineComponent machine)
         {
             foreach (AnimStateTransition t in _transitions)
                 if (t.TryTransition(machine))
@@ -173,7 +173,7 @@ namespace CustomEngine.Rendering.Animation
 
         }
 
-        public bool TryTransition(AnimStateMachine machine)
+        public bool TryTransition(AnimStateMachineComponent machine)
         {
             bool canTransition = _transitionMethod();
             if (canTransition)

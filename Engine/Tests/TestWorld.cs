@@ -5,12 +5,11 @@ using CustomEngine.Worlds.Maps;
 using CustomEngine.Rendering.Animation;
 using System.Drawing;
 using CustomEngine.Rendering;
-using BulletSharp;
 using CustomEngine.Rendering.Models.Materials;
 using CustomEngine.Audio;
-using CustomEngine.GameModes;
+using CustomEngine.Worlds;
 
-namespace CustomEngine.Worlds
+namespace CustomEngine.Tests
 {
     public unsafe class TestWorld : World
     {
@@ -142,10 +141,10 @@ namespace CustomEngine.Worlds
                 floor2Actor,
                 //importedActor,
                 //new FlyingCameraPawn(PlayerIndex.One) { Name = "PlayerCamera" },
-                new CharacterPawn(PlayerIndex.One, scene._skeletalModel, scene._skeleton) { Name = "PlayerCharacter", },
+                //new CharacterPawn(PlayerIndex.One, scene._skeletalModel, scene._skeleton) { Name = "PlayerCharacter", },
             };
 
-            _settings.GameMode = new GameMode(); 
+            _settings.GameMode = new TestGameMode();
             _settings.Maps.Add(new Map(this, new MapSettings(actors)));
             _settings.AmbientSound = new SoundFile() { SoundPath = desktop + "test.wav" };
             _settings.AmbientParams.SourceRelative.Value = false;

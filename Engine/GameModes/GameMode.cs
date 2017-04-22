@@ -62,32 +62,36 @@ namespace CustomEngine.GameModes
             return value._value;
         }
     }
-    public interface ISubClass
+    public struct SubClassOf<T> where T : class, new()
     {
-
-    }
-    public class Class<T> : ISubClass
-    {
+        public SubClassOf(Type t) { }
         public T CreateNew()
         {
-            return Activator.CreateInstance<T>();
+            return new T();
+        }
+        public T2 CreateNew<T2>() where T2 : T, new()
+        {
+            return new T2();
         }
     }
-    public interface IPawnClass
-    {
-        
-    }
-    public class PawnClass<T> : Class<T>, IPawnClass where T : IPawn
+    public interface IGameMode
     {
 
     }
-    public class GameMode
+    public abstract class GameMode<PawnType> : IGameMode
+        where PawnType : class, IPawn, new()
     {
-        protected IPawnClass _pawnClass = new PawnClass<CharacterPawn>();
+        private SubClassOf<PawnType> _pawnClass;
+
+        protected SubClassOf<PawnType> PawnClass
+        {
+            get => _pawnClass;
+            set => _pawnClass = value;
+        }
 
         public void BeginGameplay()
         {
-            _pawnClass.CreateNew();
+            PawnType pawn = _pawnClass.CreateNew();
         }
         public void EndGameplay()
         {
@@ -97,7 +101,6 @@ namespace CustomEngine.GameModes
         {
 
         }
-
         public int _numSpectators, _numPlayers, _numComputers;
     }
 }

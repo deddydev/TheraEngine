@@ -291,22 +291,28 @@ namespace System
         /// A speed of 2 symbolizes the interpolation will occur in half a second
         /// if update/frame delta is used as time.
         /// </summary>
-        public static Vec3 InterpCosineTo(Vec3 start, Vec3 end, float time, float speed = 1.0f)
-            => Vec3.Lerp(start, end, (1.0f - (float)Cos(time * speed * PIf)) / 2.0f);
+        public static float InterpCosineTo(float start, float end, float time, float speed = 1.0f)
+            => Lerp(start, end, (1.0f - (float)Cos(time * speed * PIf)) / 2.0f);
         /// <summary>
         /// Smoothed interpolation between two points. Eases in and out.
         /// A speed of 2 symbolizes the interpolation will occur in half a second
         /// if update/frame delta is used as time.
         /// </summary>
-        public static float InterpCosineTo(float start, float end, float time, float speed = 1.0f)
-            => Lerp(start, end, (1.0f - (float)Cos(time * speed * PIf)) / 2.0f);
+        public static Vec3 InterpCosineTo(Vec3 start, Vec3 end, float time, float speed = 1.0f)
+            => Vec3.Lerp(start, end, (1.0f - (float)Cos(time * speed * PIf)) / 2.0f);
         /// <summary>
         /// Constant interpolation directly from one point to another.
         /// A speed of 2 symbolizes the interpolation will occur in half a second
         /// if update/frame delta is used as time.
         /// </summary>
         public static float InterpLinearTo(float start, float end, float time, float speed = 1.0f)
-            => start + (end - start) * time * speed;
+            => Lerp(start, end, time * speed);
+        public static Vec2 InterpLinearTo(Vec2 start, Vec2 end, float time, float speed = 1.0f)
+            => Vec2.Lerp(start, end, time * speed);
+        public static Vec3 InterpLinearTo(Vec3 start, Vec3 end, float time, float speed = 1.0f)
+            => Vec3.Lerp(start, end, time * speed);
+        public static Vec4 InterpLinearTo(Vec4 start, Vec4 end, float time, float speed = 1.0f)
+            => Vec4.Lerp(start, end, time * speed);
 
         public static Vec3 VInterpNormalRotationTo(Vec3 Current, Vec3 Target, float DeltaTime, float RotationSpeedDegrees)
         {

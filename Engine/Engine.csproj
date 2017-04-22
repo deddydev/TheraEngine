@@ -876,7 +876,8 @@
     <Compile Include="Worlds\Maps\Map.cs" />
     <Compile Include="Worlds\Maps\MapSettings.cs" />
     <Compile Include="Worlds\Maps\MapState.cs" />
-    <Compile Include="Worlds\TestWorld.cs" />
+    <Compile Include="Tests\TestGameMode.cs" />
+    <Compile Include="Tests\TestWorld.cs" />
     <Compile Include="Worlds\World.cs" />
     <Compile Include="Rendering\Animation\Property Animations\PropertyAnimation.cs" />
     <Compile Include="System\Math\Transforms\FrameState.cs" />

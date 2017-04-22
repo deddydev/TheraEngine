@@ -97,11 +97,14 @@ namespace CustomEngine.Audio
         public override void Play(SoundFile sound) => Play(sound, null);
         public override void Play(SoundFile sound, AudioSourceParameters param)
         {
+            byte[] data = sound.WaveFile.SoundData;
+            if (data == null)
+                return;
+
             sound.BufferId = AL.GenBuffer();
             sound.SourceId = AL.GenSource();
             //int state;
-            
-            byte[] data = sound.WaveFile.SoundData;
+
             AL.BufferData(sound.BufferId, 
                 GetSoundFormat(sound.WaveFile.Channels, sound.WaveFile.BitsPerSample),
                 data, data.Length, sound.WaveFile.SampleRate);

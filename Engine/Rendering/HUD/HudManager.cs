@@ -21,17 +21,43 @@ namespace CustomEngine.Rendering.HUD
 
         public OrthographicCamera Camera => _camera;
 
+        public Viewport OwningViewport
+        {
+            get => _owningViewport;
+            set
+            {
+                _owningViewport = value;
+                if (_owningViewport == null)
+                    _owningPanel = null;
+                else
+                    _owningPanel = _owningViewport.OwningPanel;
+            }
+        }
+        public RenderPanel OwningPanel
+        {
+            get => _owningPanel;
+            set
+            {
+                _owningPanel = value;
+                _owningViewport = null;
+            }
+        }
+
+        public HudManager()
+        {
+            OwningPanel = null;
+            _camera = new OrthographicCamera();
+            _childComponentTree = null;
+        }
         public HudManager(Viewport v)
         {
-            _owningViewport = v;
-            _owningPanel = _owningViewport.OwningPanel;
+            OwningViewport = v;
             _camera = new OrthographicCamera();
             _childComponentTree = new Quadtree(_owningViewport.Region.Bounds);
         }
         public HudManager(RenderPanel p)
         {
-            _owningViewport = null;
-            _owningPanel = p;
+            OwningPanel = p;
             _camera = new OrthographicCamera();
             _childComponentTree = new Quadtree(_owningPanel.ClientSize);
         }

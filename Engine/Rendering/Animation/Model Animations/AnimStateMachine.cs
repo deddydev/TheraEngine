@@ -113,12 +113,14 @@ namespace CustomEngine.Rendering.Animation
         public override void OnSpawned()
         {
             _currentState = new AnimBlendState(_initialState);
-            RegisterTick(ETickGroup.PrePhysics, ETickOrder.Animation);
+            if (_initialState != null)
+                RegisterTick(ETickGroup.PrePhysics, ETickOrder.Animation);
             base.OnSpawned();
         }
         public override void OnDespawned()
         {
-            UnregisterTick();
+            if (_initialState != null)
+                UnregisterTick();
             _currentState = null;
             base.OnDespawned();
         }

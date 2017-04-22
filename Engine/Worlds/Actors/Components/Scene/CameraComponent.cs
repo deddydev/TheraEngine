@@ -82,6 +82,16 @@ namespace CustomEngine.Worlds.Actors
             localTransform = Camera.LocalMatrix;
             inverseLocalTransform = Camera.InverseLocalMatrix;
         }
+        internal override void RecalcGlobalTransform()
+        {
+            _previousWorldTransform = _worldTransform;
+            _worldTransform = GetParentMatrix() * LocalMatrix;
+            _previousInverseWorldTransform = _inverseWorldTransform;
+            _inverseWorldTransform = InverseLocalMatrix * GetInverseParentMatrix();
+            foreach (SceneComponent c in _children)
+                c.RecalcGlobalTransform();
+            OnWorldTransformChanged();
+        }
         //internal override void RecalcGlobalTransform()
         //{
         //    if (!_simulatingPhysics)
@@ -99,14 +109,24 @@ namespace CustomEngine.Worlds.Actors
         {
             _camera.TranslateAbsolute(-newOrigin);
         }
+        Vec3 _destPoint;
+        protected internal override void Tick(float delta)
+        {
+            Vec3 currentPoint = _worldTransform.GetPoint();
+            Vec3 destPoint = (GetParentMatrix() * LocalMatrix).GetPoint();
+
+            _destPoint = CustomMath.InterpCosineTo(currentPoint, destPoint, delta);
+        }
         public override void OnSpawned()
         {
+            RegisterTick(ETickGroup.PostPhysics, ETickOrder.Logic);
             if (Engine.Settings.RenderCameraFrustums)
                 Engine.Renderer.Scene.AddRenderable(_camera);
             base.OnSpawned();
         }
         public override void OnDespawned()
         {
+            UnregisterTick();
             if (Engine.Settings.RenderCameraFrustums)
                 Engine.Renderer.Scene.RemoveRenderable(_camera);
             base.OnDespawned();

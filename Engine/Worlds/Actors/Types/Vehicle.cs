@@ -4,7 +4,7 @@ namespace CustomEngine.Worlds.Actors
 {
     public class Vehicle
     {
-        private CharacterPawn _driver;
-        private List<CharacterPawn> _passengers;
+        private ICharacterPawn _driver;
+        private List<ICharacterPawn> _passengers;
     }
 }

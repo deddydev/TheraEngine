@@ -16,7 +16,7 @@ namespace Testris
             _settings = new WorldSettings("Tetris")
             {
                 AmbientSound = new SoundFile(Engine.StartupPath + Engine.ContentFolderRel + string.Format("\\bgm{0}.wav", 2/*(DateTime.Now.Millisecond % 5) + 1*/)),
-                                
+                GameMode = new TetrisGameMode()
             };
         }
 

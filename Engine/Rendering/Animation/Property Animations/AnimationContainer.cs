@@ -213,7 +213,7 @@ namespace CustomEngine.Rendering.Animation
             }
         }
         
-        internal void AnimationHasEnded(object sender, EventArgs e)
+        internal void AnimationHasEnded()
         {
             if (++_endedAnimations >= _totalAnimCount)
                 Stop(true);

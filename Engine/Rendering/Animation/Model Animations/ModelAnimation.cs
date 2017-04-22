@@ -68,7 +68,10 @@ namespace CustomEngine.Rendering.Animation
 
         public ModelAnimationFrame GetFrame()
         {
-
+            ModelAnimationFrame frame = new ModelAnimationFrame();
+            foreach (BoneAnimation bone in _boneAnimations.Values)
+                frame.AddBoneFrame(bone.GetFrame());
+            return frame;
         }
 
         public void UpdateSkeletonBlendedMulti(Skeleton skeleton, ModelAnimation[] other, float[] otherWeight)

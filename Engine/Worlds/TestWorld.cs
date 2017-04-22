@@ -8,6 +8,7 @@ using CustomEngine.Rendering;
 using BulletSharp;
 using CustomEngine.Rendering.Models.Materials;
 using CustomEngine.Audio;
+using CustomEngine.GameModes;
 
 namespace CustomEngine.Worlds
 {
@@ -79,12 +80,12 @@ namespace CustomEngine.Worlds
             dirLightComp.Translation.Y = 30.0f;
 
             PropAnimFloat lightAnim = new PropAnimFloat(360, true, true);
-            FloatKeyframe first2 = new FloatKeyframe(0.0f, 0.0f, 0.0f);
-            FloatKeyframe last2 = new FloatKeyframe(360.0f, 360.0f, 0.0f);
+            FloatKeyframe first2 = new FloatKeyframe(0.0f, 0.0f, 0.0f, PlanarInterpType.Linear);
+            FloatKeyframe last2 = new FloatKeyframe(360.0f, 360.0f, 0.0f, PlanarInterpType.Linear);
             first2.LinkNext(last2);
             first2.MakeOutLinear();
             last2.MakeInLinear();
-            lightAnim.Keyframes.AddFirst(first2);
+            lightAnim.Keyframes.Add(first2);
             AnimFolder lightPitchFolder = new AnimFolder("Yaw", false, lightAnim);
             AnimFolder lightRotationFolder = new AnimFolder("Rotation", lightPitchFolder);
             AnimationContainer lightAnimContainer = new AnimationContainer(lightRotationFolder);
@@ -144,6 +145,7 @@ namespace CustomEngine.Worlds
                 new CharacterPawn(PlayerIndex.One, scene._skeletalModel, scene._skeleton) { Name = "PlayerCharacter", },
             };
 
+            _settings.GameMode = new GameMode(); 
             _settings.Maps.Add(new Map(this, new MapSettings(actors)));
             _settings.AmbientSound = new SoundFile() { SoundPath = desktop + "test.wav" };
             _settings.AmbientParams.SourceRelative.Value = false;

@@ -81,15 +81,15 @@ namespace CustomEngine.Worlds
             SequentialImpulseConstraintSolver solver = new SequentialImpulseConstraintSolver();
             _physicsScene = new DiscreteDynamicsWorld(dispatcher, broadphase, solver, config)
             {
-                Gravity = _settings.State.Gravity
+                Gravity = _settings.Gravity
             };
             _physicsScene.PairCache.SetOverlapFilterCallback(new CustomOvelapFilter());
-            _settings.State.GravityChanged += OnGravityChanged;
+            _settings.GravityChanged += OnGravityChanged;
             
         }
         private void OnGravityChanged(Vec3 oldGravity)
         {
-            _physicsScene.Gravity = _settings.State.Gravity;
+            _physicsScene.Gravity = _settings.Gravity;
         }
         private class CustomOvelapFilter : OverlapFilterCallback
         {

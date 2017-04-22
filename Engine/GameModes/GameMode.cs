@@ -62,11 +62,32 @@ namespace CustomEngine.GameModes
             return value._value;
         }
     }
+    public interface ISubClass
+    {
+
+    }
+    public class Class<T> : ISubClass
+    {
+        public T CreateNew()
+        {
+            return Activator.CreateInstance<T>();
+        }
+    }
+    public interface IPawnClass
+    {
+        
+    }
+    public class PawnClass<T> : Class<T>, IPawnClass where T : IPawn
+    {
+
+    }
     public class GameMode
     {
+        protected IPawnClass _pawnClass = new PawnClass<CharacterPawn>();
+
         public void BeginGameplay()
         {
-
+            _pawnClass.CreateNew();
         }
         public void EndGameplay()
         {
@@ -78,15 +99,5 @@ namespace CustomEngine.GameModes
         }
 
         public int _numSpectators, _numPlayers, _numComputers;
-
-        [StructLayout(LayoutKind.Sequential, Pack = 1)]
-        public unsafe struct Header
-        {
-            public const int Size = 4;
-
-            public BVec3 _gravity;
-
-            public VoidPtr Address { get { fixed (void* ptr = &this) return ptr; } }
-        }
     }
 }

@@ -27,23 +27,21 @@ namespace CustomEngine.Rendering.Animation
             AnimBlendState prevState,
             float blendTime,
             AnimBlendType type,
-            KeyframeTrack<FloatKeyframe> customBlendMethod,
-            Action onDoneBlending)
+            KeyframeTrack<FloatKeyframe> customBlendMethod)
         {
             _current = state;
             _previous = prevState;
             _remainingBlendTime = _totalBlendTime = blendTime;
             _type = type;
             _customBlendMethod = customBlendMethod;
-            DoneBlending += onDoneBlending;
         }
 
-        AnimBlendState _previous;
+        public AnimBlendState _previous;
         public AnimState _current;
-        float _totalBlendTime;
-        float _remainingBlendTime;
-        AnimBlendType _type;
-        KeyframeTrack<FloatKeyframe> _customBlendMethod;
+        public float _totalBlendTime;
+        public float _remainingBlendTime;
+        public AnimBlendType _type;
+        public KeyframeTrack<FloatKeyframe> _customBlendMethod;
 
         public ModelAnimationFrame GetFrame()
         {
@@ -88,7 +86,10 @@ namespace CustomEngine.Rendering.Animation
             _remainingBlendTime -= delta;
             bool done = _remainingBlendTime <= 0.0f;
             if (done)
+            {
+                _previous = null;
                 DoneBlending?.Invoke();
+            }
             return done;
         }
     }
@@ -118,23 +119,16 @@ namespace CustomEngine.Rendering.Animation
         public override void OnDespawned()
         {
             UnregisterTick();
+            _currentState = null;
             base.OnDespawned();
         }
         protected internal override void Tick(float delta)
         {
             _currentState._current.TryTransition(this);
         }
-        public void Start()
-        {
-
-        }
-        public void End()
-        {
-
-        }
         public void SetCurrentState(AnimState destinationState, float blendDuration, AnimBlendType type, KeyframeTrack<FloatKeyframe> customBlendMethod)
         {
-
+            _currentState = new AnimBlendState(destinationState, _currentState, blendDuration, type, customBlendMethod);
         }
     }
     public class AnimState

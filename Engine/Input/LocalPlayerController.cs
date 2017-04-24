@@ -60,7 +60,7 @@ namespace CustomEngine.Input
             if (_possessionQueue.Count != 0)
                 ControlledPawn = _possessionQueue.Dequeue();
         }
-        public LocalPlayerController()
+        public LocalPlayerController() : base()
         {
             int index = Engine.ActivePlayers.Count;
             _index = (PlayerIndex)index;

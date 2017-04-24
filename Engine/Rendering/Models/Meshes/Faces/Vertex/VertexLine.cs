@@ -8,10 +8,10 @@ namespace CustomEngine.Rendering.Models
 {
     public class VertexLine : VertexPrimitive
     {
-        public Vertex Vertex0 { get { return _vertices[0]; } }
-        public Vertex Vertex1 { get { return _vertices[1]; } }
+        public Vertex Vertex0 => _vertices[0];
+        public Vertex Vertex1 => _vertices[1];
 
-        public override FaceType Type { get { return FaceType.Triangles; } }
+        public override FaceType Type => FaceType.Triangles;
 
         private List<VertexTriangle> _triangles = new List<VertexTriangle>();
 

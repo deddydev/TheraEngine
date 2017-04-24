@@ -8,13 +8,13 @@ namespace CustomEngine.Rendering.Models
 {
     public class VertexTriangle : VertexPolygon
     {
-        public Vertex Vertex0 { get { return _vertices[0]; } }
-        public Vertex Vertex1 { get { return _vertices[1]; } }
-        public Vertex Vertex2 { get { return _vertices[2]; } }
+        public Vertex Vertex0 => _vertices[0];
+        public Vertex Vertex1 => _vertices[1];
+        public Vertex Vertex2 => _vertices[2];
 
         private VertexLine _e01, _e12, _e20;
 
-        public override FaceType Type { get { return FaceType.Triangles; } }
+        public override FaceType Type => FaceType.Triangles;
 
         /// <summary>
         ///    2
@@ -34,12 +34,8 @@ namespace CustomEngine.Rendering.Models
         }
 
         public override List<VertexTriangle> ToTriangles()
-        {
-            return new List<VertexTriangle>() { this };
-        }
-        public override List<VertexLine> ToLines()
-        {
-            return new List<VertexLine>() { _e01, _e12, _e20 };
-        }
+            => new List<VertexTriangle>() { this };
+        public override List<VertexLine> ToLines() 
+            => new List<VertexLine>() { _e01, _e12, _e20 };
     }
 }

@@ -4,6 +4,7 @@ using BulletSharp;
 using System;
 using CustomEngine.Files;
 using CustomEngine.Rendering;
+using CustomEngine.Input;
 
 namespace CustomEngine.Worlds
 {
@@ -23,7 +24,7 @@ namespace CustomEngine.Worlds
         
         public World()
         {
-            //_settings = new WorldSettings();
+            _settings = new WorldSettings();
         }
         public World(WorldSettings settings)
         {
@@ -117,7 +118,7 @@ namespace CustomEngine.Worlds
 
         public int ActorCount => _settings.State.SpawnedActors.Count;
         public WorldState State => _settings.State;
-
+        
         public void SpawnActor(IActor actor, Matrix4 transform)
         {
             if (!_settings.State.SpawnedActors.Contains(actor))

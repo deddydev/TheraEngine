@@ -1,4 +1,5 @@
-﻿using CustomEngine.Worlds.Actors;
+﻿using CustomEngine.Input;
+using CustomEngine.Worlds.Actors;
 using System;
 using System.Runtime.InteropServices;
 
@@ -81,18 +82,15 @@ namespace CustomEngine.GameModes
     public abstract class GameMode<PawnType> : IGameMode
         where PawnType : class, IPawn, new()
     {
-        private SubClassOf<PawnType> _pawnClass;
+        protected SubClassOf<PawnType> _pawnClass;
 
-        protected SubClassOf<PawnType> PawnClass
+        public SubClassOf<PawnType> PawnClass
         {
             get => _pawnClass;
             set => _pawnClass = value;
         }
 
-        public void BeginGameplay()
-        {
-            PawnType pawn = _pawnClass.CreateNew();
-        }
+        public abstract void BeginGameplay();
         public void EndGameplay()
         {
 

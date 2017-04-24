@@ -45,7 +45,7 @@ namespace CustomEngine.Worlds.Actors
     /// </summary>
     public interface ICharacterPawn : IActor
     {
-
+        Matrix4 FindSpawnPoint();
     }
     /// <summary>
     /// Use this character pawn type for default functionality.
@@ -110,6 +110,10 @@ namespace CustomEngine.Worlds.Actors
             {
                 _firstPerson = value;
             }
+        }
+        public Matrix4 FindSpawnPoint()
+        {
+            return Matrix4.Identity;
         }
         public override void OnSpawned(World world)
         {

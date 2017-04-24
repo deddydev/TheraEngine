@@ -8,6 +8,7 @@ using CustomEngine.Rendering;
 using CustomEngine.Rendering.Models.Materials;
 using CustomEngine.Audio;
 using CustomEngine.Worlds;
+using CustomEngine.Input;
 
 namespace CustomEngine.Tests
 {

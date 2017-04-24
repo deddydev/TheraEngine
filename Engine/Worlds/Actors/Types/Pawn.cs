@@ -18,7 +18,7 @@ namespace CustomEngine.Worlds.Actors
     /// <summary>
     /// A pawn is an actor that can be controlled by either a player or AI.
     /// </summary>
-    public interface IPawn
+    public interface IPawn : IActor
     {
         PawnController Controller { get; }
         LocalPlayerController LocalPlayerController { get; }

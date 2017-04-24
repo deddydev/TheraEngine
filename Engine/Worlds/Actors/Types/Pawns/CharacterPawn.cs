@@ -111,10 +111,6 @@ namespace CustomEngine.Worlds.Actors
                 _firstPerson = value;
             }
         }
-        public Matrix4 FindSpawnPoint()
-        {
-            return Matrix4.Identity;
-        }
         public override void OnSpawned(World world)
         {
             RegisterTick(ETickGroup.PrePhysics, ETickOrder.Input);

@@ -153,14 +153,6 @@ namespace CustomEngine.Worlds
         {
             _originRebaseBounds = new BoundingBox(distance);
         }
-        public override void Read(VoidPtr address, VoidPtr strings)
-        {
-            //foreach (Map m in _maps)
-            //    if (m.Settings.VisibleByDefault)
-            //        m.Load();
-            //_state._activeMaterials = new HashSet<Material>(CollectDefaultMaterials());
-        }
-
         public static WorldSettings FromXML(string filePath)
         {
             return FromXML<WorldSettings>(filePath);

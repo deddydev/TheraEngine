@@ -145,7 +145,7 @@ namespace CustomEngine.Tests
                 //new CharacterPawn(PlayerIndex.One, scene._skeletalModel, scene._skeleton) { Name = "PlayerCharacter", },
             };
 
-            _settings.GameMode = new TestGameMode();
+            _settings.GameMode = new CharacterGameMode();
             _settings.Maps.Add(new Map(this, new MapSettings(actors)));
             _settings.AmbientSound = new SoundFile() { SoundPath = desktop + "test.wav" };
             _settings.AmbientParams.SourceRelative.Value = false;

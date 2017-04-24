@@ -91,14 +91,9 @@ namespace CustomEngine.GameModes
         }
 
         public abstract void BeginGameplay();
-        public void EndGameplay()
-        {
+        public abstract void EndGameplay();
+        public abstract void AbortGameplay();
 
-        }
-        public void AbortGameplay()
-        {
-
-        }
         public int _numSpectators, _numPlayers, _numComputers;
     }
 }

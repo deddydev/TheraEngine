@@ -24,7 +24,7 @@ namespace CustomEngine.Worlds
         
         public World()
         {
-            _settings = new WorldSettings();
+
         }
         public World(WorldSettings settings)
         {
@@ -149,6 +149,7 @@ namespace CustomEngine.Worlds
         }
         public virtual void EndPlay()
         {
+            _settings.GameMode.EndGameplay();
             foreach (Map m in _settings.Maps)
                 m.EndPlay();
             _physicsScene = null;
@@ -159,6 +160,7 @@ namespace CustomEngine.Worlds
             _settings.AmbientSound?.Play(_settings.AmbientParams);
             foreach (Map m in _settings.Maps)
                 m.BeginPlay();
+            _settings.GameMode.BeginGameplay();
             //foreach (PhysicsDriver d in Engine._queuedCollisions)
             //    d.AddToWorld();
             //Engine._queuedCollisions.Clear();

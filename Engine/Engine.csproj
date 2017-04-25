@@ -777,6 +777,8 @@
     <None Include="System\Tools\V-HACD\Mesh.cs" />
     <None Include="System\Tools\V-HACD\VHACD.cs" />
     <None Include="System\Tools\V-HACD\Volume.cs" />
+    <Compile Include="Tests\TestCharacter.cs" />
+    <Compile Include="GameModes\CharacterGameMode.cs" />
     <Compile Include="Worlds\Actors\ActorState.cs" />
     <Compile Include="Worlds\Actors\Components\ComponentState.cs" />
     <Compile Include="Worlds\Actors\Components\Scene\Lights\LightComponent.cs" />

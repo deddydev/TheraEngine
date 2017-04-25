@@ -77,7 +77,9 @@ namespace CustomEngine.GameModes
     }
     public interface IGameMode
     {
-
+        void BeginGameplay();
+        void EndGameplay();
+        void AbortGameplay();
     }
     public abstract class GameMode<PawnType> : IGameMode
         where PawnType : class, IPawn, new()

@@ -125,7 +125,7 @@ namespace CustomEngine.Worlds
 
         public WorldSettings()
         {
-
+            _state = new WorldState();
         }
         public WorldSettings(string name, WorldState state, params Map[] maps)
         {

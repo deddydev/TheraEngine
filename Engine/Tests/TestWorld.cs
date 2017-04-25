@@ -83,12 +83,8 @@ namespace CustomEngine.Tests
             FloatKeyframe first2 = new FloatKeyframe(0.0f, 0.0f, 0.0f, PlanarInterpType.Linear);
             FloatKeyframe last2 = new FloatKeyframe(360.0f, 360.0f, 0.0f, PlanarInterpType.Linear);
             first2.LinkNext(last2);
-            first2.MakeOutLinear();
-            last2.MakeInLinear();
             lightAnim.Keyframes.Add(first2);
-            AnimFolder lightPitchFolder = new AnimFolder("Yaw", false, lightAnim);
-            AnimFolder lightRotationFolder = new AnimFolder("Rotation", lightPitchFolder);
-            AnimationContainer lightAnimContainer = new AnimationContainer(lightRotationFolder);
+            AnimationContainer lightAnimContainer = new AnimationContainer("Rotation.Yaw", false, lightAnim);
             //dirLightComp.AddAnimation(lightAnimContainer, false);
             floorActor.RootComponent.AddAnimation(lightAnimContainer, true);
 
@@ -144,8 +140,8 @@ namespace CustomEngine.Tests
                 //new FlyingCameraPawn(PlayerIndex.One) { Name = "PlayerCamera" },
                 //new CharacterPawn(PlayerIndex.One, scene._skeletalModel, scene._skeleton) { Name = "PlayerCharacter", },
             };
-
-            _settings.GameMode = new CharacterGameMode();
+            
+            _settings.GameMode = new TestCharacterGameMode();
             _settings.Maps.Add(new Map(this, new MapSettings(actors)));
             _settings.AmbientSound = new SoundFile() { SoundPath = desktop + "test.wav" };
             _settings.AmbientParams.SourceRelative.Value = false;

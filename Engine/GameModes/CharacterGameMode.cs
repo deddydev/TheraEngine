@@ -5,7 +5,7 @@ using CustomEngine.Input;
 
 namespace CustomEngine.Tests
 {
-    public class CharacterGameMode : GameMode<CharacterPawn>
+    public class CharacterGameMode<T> : GameMode<T> where T : class, ICharacterPawn, new()
     {
         public CharacterGameMode()
         {
@@ -21,7 +21,7 @@ namespace CustomEngine.Tests
         {
             foreach (LocalPlayerController c in Engine.ActivePlayers)
             {
-                CharacterPawn pawn = _pawnClass.CreateNew();
+                ICharacterPawn pawn = _pawnClass.CreateNew();
                 c.ControlledPawn = pawn;
                 Engine.World.SpawnActor(pawn, FindSpawnPoint());
             }

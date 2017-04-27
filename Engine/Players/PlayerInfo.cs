@@ -9,13 +9,13 @@ namespace CustomEngine.Players
             _controller = controller;
         }
 
-        public PlayerController _controller;
         private string _userName;
+        public PlayerController _controller;
 
         //This player's index on the server.
         private int _index = -1;
 
-        public int Index { get { return _index; } }
-        public string UserName { get { return _userName; } }
+        public int Index => _index;
+        public string UserName => _userName;
     }
 }

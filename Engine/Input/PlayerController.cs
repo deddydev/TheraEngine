@@ -11,15 +11,21 @@ namespace CustomEngine.Input
     {
         PlayerInfo _playerInfo;
 
-        public int ServerPlayerIndex => _playerInfo != null ? _playerInfo.Index : -1;
+        public int ServerPlayerIndex => PlayerInfo != null ? PlayerInfo.Index : -1;
+
+        public PlayerInfo PlayerInfo
+        {
+            get => _playerInfo;
+            set => _playerInfo = value;
+        }
 
         public PlayerController(Queue<IPawn> possessionQueue) : base(possessionQueue)
         {
-            _playerInfo = new PlayerInfo(this);
+            PlayerInfo = new PlayerInfo(this);
         }
         public PlayerController() : base()
         {
-            _playerInfo = new PlayerInfo(this);
+            PlayerInfo = new PlayerInfo(this);
         }
         ~PlayerController()
         {

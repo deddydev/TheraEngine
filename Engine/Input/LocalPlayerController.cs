@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using CustomEngine.Input.Devices;
 using CustomEngine.Rendering;
 using CustomEngine.Rendering.Cameras;

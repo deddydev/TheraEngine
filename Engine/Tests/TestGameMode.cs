@@ -5,7 +5,7 @@ using CustomEngine.Input;
 
 namespace CustomEngine.Tests
 {
-    public class TestGameMode : CharacterGameMode
+    public class TestGameMode : CharacterGameMode<CharacterPawn>
     {
         public TestGameMode()
         {

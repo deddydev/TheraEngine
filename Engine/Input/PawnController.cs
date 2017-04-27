@@ -24,7 +24,7 @@ namespace CustomEngine.Input
         protected IPawn _controlledPawn;
         public virtual IPawn ControlledPawn
         {
-            get { return _controlledPawn; }
+            get => _controlledPawn;
             set
             {
                 _controlledPawn?.OnUnPossessed();

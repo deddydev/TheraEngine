@@ -1,12 +1,10 @@
 ﻿using System;
-using CustomEngine.Worlds.Actors;
 using CustomEngine.Rendering;
 using CustomEngine.GameModes;
 using BulletSharp;
 using CustomEngine.Files;
 using CustomEngine.Rendering.Models;
 using System.ComponentModel;
-using System.Activities.Statements;
 using CustomEngine.Input.Devices;
 using CustomEngine.Rendering.Cameras;
 using System.Diagnostics;
@@ -43,7 +41,7 @@ namespace CustomEngine.Worlds.Actors
     /// <summary>
     /// Use this interface for interaction with pawns.
     /// </summary>
-    public interface ICharacterPawn : IActor
+    public interface ICharacterPawn : IPawn
     {
 
     }

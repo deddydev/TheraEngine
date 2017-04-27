@@ -87,7 +87,7 @@ namespace CustomEngine.Worlds.Actors
         internal override void RecalcGlobalTransform()
         {
             base.RecalcGlobalTransform();
-            _skeleton.WorldMatrixChanged();
+            _skeleton?.WorldMatrixChanged();
         }
     }
 }

@@ -77,17 +77,17 @@ namespace CustomEngine.Worlds.Actors
             Initialize();
         }
 
-        private SkeletalMeshComponent _meshComp;
-        private MovementClass _movement;
+        protected SkeletalMeshComponent _meshComp;
+        protected MovementClass _movement;
         private SingleFileRef<SkeletalMesh> _mesh;
         private SingleFileRef<Skeleton> _skeleton;
-        private AnimStateMachineComponent _animationStateMachine;
-        private BoomComponent _tpCameraBoom;
-        private CameraComponent _fpCameraComponent, _tpCameraComponent;
+        protected AnimStateMachineComponent _animationStateMachine;
+        protected BoomComponent _tpCameraBoom;
+        protected CameraComponent _fpCameraComponent, _tpCameraComponent;
         private bool _firstPerson = false;
         private Rotator _viewRotation;
-        private Vec2 _keyboardMovementInput = Vec2.Zero;
-        private Vec2 _gamepadMovementInput = Vec2.Zero;
+        protected Vec2 _keyboardMovementInput = Vec2.Zero;
+        protected Vec2 _gamepadMovementInput = Vec2.Zero;
         
         [Category("Reference Files")]
         public SingleFileRef<SkeletalMesh> Mesh
@@ -118,14 +118,6 @@ namespace CustomEngine.Worlds.Actors
         {
             UnregisterTick();
             base.OnDespawned();
-        }
-        public override void OnPossessed(PawnController possessor)
-        {
-            base.OnPossessed(possessor);
-        }
-        public override void OnUnPossessed()
-        {
-            base.OnUnPossessed();
         }
         protected internal override void Tick(float delta)
         {

@@ -21,7 +21,7 @@ namespace CustomEngine.Tests
         {
             foreach (LocalPlayerController c in Engine.ActivePlayers)
             {
-                ICharacterPawn pawn = _pawnClass.CreateNew();
+                T pawn = _pawnClass.CreateNew();
                 c.ControlledPawn = pawn;
                 Engine.World.SpawnActor(pawn, FindSpawnPoint());
             }
@@ -34,7 +34,7 @@ namespace CustomEngine.Tests
         {
             throw new NotImplementedException();
         }
-        public virtual void OnKilled(CharacterPawn pawn)
+        public virtual void OnKilled(T pawn)
         {
 
         }

@@ -325,9 +325,9 @@ namespace CustomEngine.Rendering.Models
                         while (_reader.ReadAttribute())
                         {
                             if (_reader.Name.Equals("id", true))
-                                geo._id = (string)_reader.Value;
+                                geo._id = _reader.Value;
                             else if (_reader.Name.Equals("name", true))
-                                geo._name = (string)_reader.Value;
+                                geo._name = _reader.Value;
                         }
 
                         while (_reader.BeginElement())
@@ -342,7 +342,7 @@ namespace CustomEngine.Rendering.Models
                                     {
                                         while (_reader.ReadAttribute())
                                             if (_reader.Name.Equals("id", true))
-                                                geo._verticesId = (string)_reader.Value;
+                                                geo._verticesId = _reader.Value;
 
                                         while (_reader.BeginElement())
                                         {

@@ -98,7 +98,7 @@ namespace CustomEngine.Tests
                 "C:\\Users\\David\\Google Drive\\Game\\";
 
             Collada.ImportOptions options = new Collada.ImportOptions();
-            //0.02646f
+            ////0.02646f
             options.InitialTransform.Scale = new Vec3(1.0f.InchesToMeters());
             Collada.Scene scene = Collada.Import(desktop + "TEST.DAE", options, false, true);
             //Collada.Scene anims = Collada.Import(googleDrive + "Thera Assets\\Characters\\Temp\\Carly_Idle.dae", options, true, false);
@@ -143,10 +143,10 @@ namespace CustomEngine.Tests
             
             _settings.GameMode = new TestGameMode();
             _settings.Maps.Add(new Map(this, new MapSettings(actors)));
-            _settings.AmbientSound = new SoundFile() { SoundPath = desktop + "test.wav" };
-            _settings.AmbientParams.SourceRelative.Value = false;
-            _settings.AmbientParams.ReferenceDistance.Value = 1.0f;
-            _settings.AmbientParams.MaxDistance.Value = 50.0f;
+            //_settings.AmbientSound = new SoundFile() { SoundPath = desktop + "test.wav" };
+            //_settings.AmbientParams.SourceRelative.Value = false;
+            //_settings.AmbientParams.ReferenceDistance.Value = 1.0f;
+            //_settings.AmbientParams.MaxDistance.Value = 50.0f;
         }
     }
 }

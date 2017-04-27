@@ -34,8 +34,8 @@ namespace System.IO
             //Find start of Xml file
             if (BeginElement() && Name.Equals("?xml"))
             {
-                while ((_ptr < _ceil) && (*_ptr++ != '>'))
-                    ;
+                while ((_ptr < _ceil) && (*_ptr++ != '>'));
+
                 _inTag = false;
             }
             else
@@ -262,8 +262,8 @@ namespace System.IO
             if (!_inTag || (_ptr >= _ceil) || (*_ptr != '/'))
                 return;
 
-            while ((_ptr < _ceil) && (*_ptr++ != '>'))
-                ;
+            while ((_ptr < _ceil) && (*_ptr++ != '>'));
+
             _inTag = false;
         }
 
@@ -313,8 +313,7 @@ namespace System.IO
 
             if (ReadString(_valPtr, _valueMax))
             {
-                float f;
-                if (float.TryParse((string)Value, NumberStyles.Any, CultureInfo.InvariantCulture.NumberFormat, out f))
+                if (float.TryParse((string)Value, NumberStyles.Any, CultureInfo.InvariantCulture.NumberFormat, out float f))
                 {
                     *pOut = f;
                     return true;
@@ -329,8 +328,7 @@ namespace System.IO
 
             if (ReadString(_valPtr, _valueMax))
             {
-                float f;
-                if (float.TryParse((string)Value, NumberStyles.Any, CultureInfo.InvariantCulture.NumberFormat, out f))
+                if (float.TryParse(Value, NumberStyles.Any, CultureInfo.InvariantCulture.NumberFormat, out float f))
                 {
                     pOut = f;
                     return true;
@@ -346,8 +344,7 @@ namespace System.IO
 
             if (ReadString(_valPtr, _valueMax))
             {
-                float f;
-                if (float.TryParse((string)Value, NumberStyles.Any, CultureInfo.InvariantCulture.NumberFormat, out f))
+                if (float.TryParse(Value, NumberStyles.Any, CultureInfo.InvariantCulture.NumberFormat, out float f))
                 {
                     *pOut = f * scale;
                     return true;
@@ -362,8 +359,7 @@ namespace System.IO
 
             if (ReadString(_valPtr, _valueMax))
             {
-                float f;
-                if (float.TryParse((string)Value, NumberStyles.Any, CultureInfo.InvariantCulture.NumberFormat, out f))
+                if (float.TryParse(Value, NumberStyles.Any, CultureInfo.InvariantCulture.NumberFormat, out float f))
                 {
                     pOut = f * scale;
                     return true;
@@ -379,8 +375,7 @@ namespace System.IO
 
             if (ReadString(_valPtr, _valueMax))
             {
-                int f;
-                if (int.TryParse((string)Value, NumberStyles.Any, CultureInfo.InvariantCulture.NumberFormat, out f))
+                if (int.TryParse(Value, NumberStyles.Any, CultureInfo.InvariantCulture.NumberFormat, out int f))
                 {
                     *pOut = f;
                     return true;
@@ -396,8 +391,7 @@ namespace System.IO
 
             if (ReadString(_valPtr, _valueMax))
             {
-                int f;
-                if (int.TryParse((string)Value, NumberStyles.Any, CultureInfo.InvariantCulture.NumberFormat, out f))
+                if (int.TryParse(Value, NumberStyles.Any, CultureInfo.InvariantCulture.NumberFormat, out int f))
                 {
                     pOut = f;
                     return true;

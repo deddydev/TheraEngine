@@ -5,7 +5,7 @@ using CustomEngine.Input;
 
 namespace CustomEngine.Tests
 {
-    public class TestGameMode : CharacterGameMode<CharacterPawn>
+    public class TestGameMode : CharacterGameMode<TestCharacter>
     {
         public TestGameMode()
         {
@@ -21,7 +21,7 @@ namespace CustomEngine.Tests
         {
             foreach (LocalPlayerController c in Engine.ActivePlayers)
             {
-                CharacterPawn pawn = _pawnClass.CreateNew();
+                TestCharacter pawn = _pawnClass.CreateNew();
                 c.ControlledPawn = pawn;
                 Engine.World.SpawnActor(pawn, FindSpawnPoint());
             }
@@ -34,7 +34,7 @@ namespace CustomEngine.Tests
         {
             throw new NotImplementedException();
         }
-        public override void OnKilled(CharacterPawn pawn)
+        public override void OnKilled(TestCharacter pawn)
         {
 
         }

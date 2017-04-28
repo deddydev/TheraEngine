@@ -1,4 +1,5 @@
 ﻿using System.Globalization;
+using System.Text;
 
 namespace System.IO
 {
@@ -25,7 +26,7 @@ namespace System.IO
 
         public XMLReader(Stream stream)
         {
-            _reader = new StreamReader(stream, Text.Encoding.UTF8, false);
+            _reader = new StreamReader(stream, Encoding.UTF8, false);
             _nameBuffer = new char[NameMax];
             _valueBuffer = new char[ValueMax];
 

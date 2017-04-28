@@ -23,8 +23,8 @@ namespace CustomEngine.Files
         {
             FileObject obj;
             using (FileMap map = FileMap.FromFile(filePath))
-            using (XMLReader reader = new XMLReader(map.Address, map.Length))
             {
+                XMLReader reader = new XMLReader(map.BaseStream);
                 if (reader.BeginElement())
                 {
                     obj = (FileObject)ReadObject(t, reader);

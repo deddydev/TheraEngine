@@ -1,14 +1,11 @@
 ﻿using System;
-using CustomEngine.Rendering.Models;
 using CustomEngine.Worlds.Actors;
 using CustomEngine.Worlds.Maps;
 using CustomEngine.Rendering.Animation;
 using System.Drawing;
 using CustomEngine.Rendering;
 using CustomEngine.Rendering.Models.Materials;
-using CustomEngine.Audio;
 using CustomEngine.Worlds;
-using CustomEngine.Input;
 
 namespace CustomEngine.Tests
 {
@@ -97,10 +94,10 @@ namespace CustomEngine.Tests
                 "X:\\Cloud Storage\\Google Drive\\Game\\" :
                 "C:\\Users\\David\\Google Drive\\Game\\";
 
-            Collada.ImportOptions options = new Collada.ImportOptions();
+            //Collada.ImportOptions options = new Collada.ImportOptions();
             ////0.02646f
-            options.InitialTransform.Scale = new Vec3(1.0f.InchesToMeters());
-            Collada.Scene scene = Collada.Import(desktop + "TEST.DAE", options, false, true);
+            //options.InitialTransform.Scale = new Vec3(1.0f.InchesToMeters());
+            //Collada.Scene scene = Collada.Import(desktop + "TEST.DAE", options, false, true);
             //Collada.Scene anims = Collada.Import(googleDrive + "Thera Assets\\Characters\\Temp\\Carly_Idle.dae", options, true, false);
             //anims.CleanAnimations(scene._skeletalModel, scene._skeleton);
 

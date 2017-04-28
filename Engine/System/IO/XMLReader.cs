@@ -2,39 +2,37 @@
 
 namespace System.IO
 {
-    public unsafe class XMLReader : IDisposable
+    public unsafe class XMLReader
     {
-        private const int _nameMax = 128;
-        private const int _valueMax = 384;
+        private const char NullTerminator = '\0';
+        private const int NameMax = 128;
+        private const int ValueMax = 384;
+        
+        internal bool _inTag;
+        private char[] _nameBuffer, _valueBuffer;
+        private string _name, _value;
+        private StreamReader _reader;
 
-        internal byte* _base, _ptr, _ceil;
-        private int _length, _position, _depth;
-        //private byte[] _buffer = new byte[512];
-        internal bool _inTag, _inString;
-        //private string _nameBuffer = new string(' ', _nameMax);
-        //private string _valueBuffer = new string(' ', _valueMax);
+        public String Name => _name;
+        public String Value => _value;
 
-        private DataSource _stringBuffer;// = new UnsafeBuffer(_nameMax + _valueMax);
-        private byte* _namePtr, _valPtr;
+        public bool End => _reader.EndOfStream;
 
-        public PString Name { get { return _namePtr; } }
-        public PString Value { get { return _valPtr; } }
+        public StreamReader Reader => _reader;
 
-        public XMLReader(void* pSource, int length)
+        public int Byte(bool advance = false)
+            => advance ? _reader.Read() : _reader.Peek();
+
+        public XMLReader(Stream stream)
         {
-            _position = 0;
-            _length = length;
-            _base = _ptr = (byte*)pSource;
-            _ceil = _ptr + length;
-
-            _stringBuffer = new DataSource(_nameMax + _valueMax + 2);
-            _namePtr = (byte*)_stringBuffer.Address;
-            _valPtr = _namePtr + _nameMax + 1;
+            _reader = new StreamReader(stream, Text.Encoding.UTF8, false);
+            _nameBuffer = new char[NameMax];
+            _valueBuffer = new char[ValueMax];
 
             //Find start of Xml file
             if (BeginElement() && Name.Equals("?xml"))
             {
-                while ((_ptr < _ceil) && (*_ptr++ != '>'));
+                while (!End && (Byte(true) != '>'));
 
                 _inTag = false;
             }
@@ -42,62 +40,51 @@ namespace System.IO
                 throw new IOException("File is not a valid XML file.");
 
         }
-        ~XMLReader() { Dispose(); }
-        public void Dispose()
-        {
-            if (_stringBuffer != null)
-            {
-                _stringBuffer.Dispose();
-                _stringBuffer = null;
-            }
-        }
 
-        private bool ReadString()
-        {
-            int len = 0;
-            bool inStr = false;
-            byte* pOut = _valPtr;
+        //private bool ReadString()
+        //{
+        //    int len = 0;
+        //    bool inStr = false;
 
-            while ((len < _valueMax) && (_ptr < _ceil))
-            {
-                if (*_ptr <= 0x20)
-                {
-                    if (inStr)
-                        break;
+        //    while ((len < _valueMax) && (_ptr < _ceil))
+        //    {
+        //        if (*_ptr <= 0x20)
+        //        {
+        //            if (inStr)
+        //                break;
 
-                    inStr = true;
-                    continue;
-                }
-                else if ((*_ptr == '<') || (*_ptr == '>') || (*_ptr == '/'))
-                {
-                    if (!inStr)
-                        break;
-                }
-                else
-                {
-                    if (!inStr)
-                        inStr = true;
-                }
-                pOut[len++] = *_ptr++;
-            }
-            pOut[len] = 0;
+        //            inStr = true;
+        //            continue;
+        //        }
+        //        else if ((*_ptr == '<') || (*_ptr == '>') || (*_ptr == '/'))
+        //        {
+        //            if (!inStr)
+        //                break;
+        //        }
+        //        else
+        //        {
+        //            if (!inStr)
+        //                inStr = true;
+        //        }
+        //        _valueBuffer[len++] = (char)*_ptr++;
+        //    }
+        //    _valueBuffer[len] = NullTerminator;
 
-            return len > 0;
-        }
+        //    return len > 0;
+        //}
         //Reads characters into name pointer. Mainly for element/attribute names
-        private bool ReadString(byte* pOut, int length)
+        private bool ReadString(char[] pOut)
         {
             int len = 0;
             bool inStr = false;
-            //byte* pOut = _namePtr;
-            byte b;
+            int b;
 
             SkipWhitespace();
-            while ((len < length) && (_ptr < _ceil))
+            while ((len < pOut.Length) && !End)
             {
                 if (inStr)
                 {
-                    b = *_ptr++;
+                    b = Byte(true);
                     if (b == '"')
                         break;
                     //if (b < 0x20)
@@ -105,7 +92,7 @@ namespace System.IO
                 }
                 else
                 {
-                    b = *_ptr;
+                    b = Byte();
 
                     if ((b <= 0x20) || (b == '<') || (b == '>') || (b == '/') || (b == '='))
                         break;
@@ -114,54 +101,26 @@ namespace System.IO
                     {
                         if (len == 0)
                         {
-                            _ptr++;
+                            Byte(true);
                             inStr = true;
                             continue;
                         }
                         break;
                     }
-                    _ptr++;
+                    Byte(true);
                 }
-
-                pOut[len++] = b;
+                pOut[len++] = (char)b;
             }
-            pOut[len] = 0;
-
+            pOut[len] = NullTerminator;
             return len > 0;
         }
 
         private void SkipWhitespace()
         {
-            while ((_ptr < _ceil) && (*_ptr <= 0x20))
-                _ptr++;
+            while (!End && (Byte() <= 0x20))
+                Byte(true);
         }
-
-        //Read next non-whitespace byte. Returns 0 on EOF
-        private int ReadByte()
-        {
-            byte b;
-            if (_position < _length)
-            {
-                b = _base[_position++];
-                if (b >= 0x20)
-                    return b;
-            }
-            return -1;
-
-            //byte b;
-            //while (_position < _length)
-            //{
-            //    b = _base[_position];
-            //    if ((b == 0x3C) || (b == 0x3E))
-            //        return false;
-
-            //    *p = b;
-            //    _position++;
-            //    return true;
-            //}
-            //return false;
-        }
-
+        
         //Stops on tag end when inside tag.
         //Ignores comments
         //Exits current tag before searching
@@ -169,24 +128,29 @@ namespace System.IO
         {
             bool comment = false;
             bool literal = false;
-            byte b;
+            int b;
 
             Top:
             SkipWhitespace();
-            while (_ptr < _ceil)
+            while (!End)
             {
                 if (!_inTag)
                 {
-                    if (*_ptr++ == '<')
+                    if (Byte(true) == '<')
                     {
                         _inTag = true;
-                        if (ReadString(_namePtr, _nameMax)) //Will fail on delimiter
+                        if (ReadString(_nameBuffer)) //Will fail on delimiter
                         {
-                            if ((_namePtr[0] == '!') && (_namePtr[1] == '-') && (_namePtr[2] == '-'))
+                            _name = new string(_nameBuffer);
+                            if (_nameBuffer[0] == '!' &&
+                                _nameBuffer[1] == '-' &&
+                                _nameBuffer[2] == '-')
                                 comment = true;
                             else
                                 return true;
                         }
+                        else
+                            _name = "";
                     }
                 }
                 else
@@ -194,7 +158,7 @@ namespace System.IO
                     //Skip string literals when inside tags
                     if (literal)
                     {
-                        if (*_ptr++ == '"')
+                        if (Byte(true) == '"')
                             literal = false;
                         continue;
                     }
@@ -202,7 +166,7 @@ namespace System.IO
                     //Skip comments
                     if (comment)
                     {
-                        if ((*_ptr++ == '>') && (_ptr[-2] == '-') && (_ptr[-3] == '-'))
+                        if ((Byte(true) == '-') && (Byte(true) == '-') && (Byte(true) == '>'))
                         {
                             comment = false;
                             _inTag = false;
@@ -211,10 +175,10 @@ namespace System.IO
                         continue;
                     }
 
-                    if (*_ptr == '/')
+                    if (Byte() == '/')
                         return false;
 
-                    b = *_ptr++;
+                    b = Byte(true);
                     if (b == '"')
                         literal = true;
                     else if (b == '>')
@@ -259,10 +223,10 @@ namespace System.IO
             while (BeginElement())
                 EndElement();
 
-            if (!_inTag || (_ptr >= _ceil) || (*_ptr != '/'))
+            if (!_inTag || End || (Byte() != '/'))
                 return;
 
-            while ((_ptr < _ceil) && (*_ptr++ != '>'));
+            while (!End && (Byte(true) != '>'));
 
             _inTag = false;
         }
@@ -273,16 +237,24 @@ namespace System.IO
                 return false;
 
             SkipWhitespace();
-            if (ReadString(_namePtr, _nameMax))
+            if (ReadString(_nameBuffer))
             {
+                _name = new string(_nameBuffer);
                 SkipWhitespace();
-                if ((_ptr < _ceil) && (*_ptr == '='))
+                if (!End && (Byte() == '='))
                 {
-                    _ptr++;
-                    if (ReadString(_valPtr, _valueMax))
+                    Byte(true);
+                    if (ReadString(_valueBuffer))
+                    {
+                        _value = new string(_valueBuffer);
                         return true;
+                    }
+                    else
+                        _value = "";
                 }
             }
+            else
+                _name = "";
 
             return false;
         }
@@ -291,12 +263,12 @@ namespace System.IO
             if (!_inTag)
                 return true;
 
-            while (_ptr < _ceil)
+            while (!End)
             {
-                if (*_ptr == '/')
+                if (Byte() == '/')
                     return false;
 
-                if (*_ptr++ == '>')
+                if (Byte(true) == '>')
                 {
                     _inTag = false;
                     return true;
@@ -305,15 +277,42 @@ namespace System.IO
 
             return false;
         }
+        private unsafe bool ReadValue()
+        {
+            int len = 0;
+            int b;
 
+            SkipWhitespace();
+            while ((len + 1 < ValueMax) && !End)
+            {
+                b = Byte();
+
+                if ((b <= 0x20) || (b == '<'))
+                    break;
+
+                Byte(true);
+                _valueBuffer[len++] = (char)b;
+            }
+            _valueBuffer[len] = NullTerminator;
+            if (len > 0)
+            {
+                _value = new string(_valueBuffer);
+                return true;
+            }
+            else
+            {
+                _value = "";
+                return false;
+            }
+        }
         public unsafe bool ReadValue(float* pOut)
         {
             if (!LeaveTag())
                 return false;
 
-            if (ReadString(_valPtr, _valueMax))
+            if (ReadValue())
             {
-                if (float.TryParse((string)Value, NumberStyles.Any, CultureInfo.InvariantCulture.NumberFormat, out float f))
+                if (float.TryParse(Value, NumberStyles.Any, CultureInfo.InvariantCulture.NumberFormat, out float f))
                 {
                     *pOut = f;
                     return true;
@@ -325,8 +324,8 @@ namespace System.IO
         {
             if (!LeaveTag())
                 return false;
-
-            if (ReadString(_valPtr, _valueMax))
+            
+            if (ReadValue())
             {
                 if (float.TryParse(Value, NumberStyles.Any, CultureInfo.InvariantCulture.NumberFormat, out float f))
                 {
@@ -336,44 +335,12 @@ namespace System.IO
             }
             return false;
         }
-
-        public unsafe bool ReadValue(float* pOut, float scale)
-        {
-            if (!LeaveTag())
-                return false;
-
-            if (ReadString(_valPtr, _valueMax))
-            {
-                if (float.TryParse(Value, NumberStyles.Any, CultureInfo.InvariantCulture.NumberFormat, out float f))
-                {
-                    *pOut = f * scale;
-                    return true;
-                }
-            }
-            return false;
-        }
-        public unsafe bool ReadValue(ref float pOut, float scale)
-        {
-            if (!LeaveTag())
-                return false;
-
-            if (ReadString(_valPtr, _valueMax))
-            {
-                if (float.TryParse(Value, NumberStyles.Any, CultureInfo.InvariantCulture.NumberFormat, out float f))
-                {
-                    pOut = f * scale;
-                    return true;
-                }
-            }
-            return false;
-        }
-
         public unsafe bool ReadValue(int* pOut)
         {
             if (!LeaveTag())
                 return false;
 
-            if (ReadString(_valPtr, _valueMax))
+            if (ReadValue())
             {
                 if (int.TryParse(Value, NumberStyles.Any, CultureInfo.InvariantCulture.NumberFormat, out int f))
                 {
@@ -389,7 +356,7 @@ namespace System.IO
             if (!LeaveTag())
                 return false;
 
-            if (ReadString(_valPtr, _valueMax))
+            if (ReadValue())
             {
                 if (int.TryParse(Value, NumberStyles.Any, CultureInfo.InvariantCulture.NumberFormat, out int f))
                 {
@@ -406,23 +373,38 @@ namespace System.IO
             if (!LeaveTag())
                 return false;
 
-            if (ReadString(_valPtr, _valueMax))
+            if (ReadString(_valueBuffer))
+            {
+                _value = new string(_valueBuffer);
                 return true;
+            }
+            else
+                _value = "";
 
             return false;
         }
 
-        public string ReadElementString()
+        public string ReadElementString(bool advance = true)
         {
+            long pos = _reader.BaseStream.Position;
+            bool inTag = _inTag;
+
             if (!LeaveTag())
                 return null;
 
             int len = 0;
-            while ((len < _valueMax) && (_ptr < _ceil) && (*_ptr != '<'))
-                _valPtr[len++] = *_ptr++;
+            while ((len < ValueMax) && !End && (Byte() != '<'))
+                _valueBuffer[len++] = (char)Byte(true);
 
-            _valPtr[len] = 0;
-            return new string((sbyte*)_valPtr);
+            _valueBuffer[len] = NullTerminator;
+
+            if (!advance)
+            {
+                _reader.BaseStream.Position = pos;
+                _inTag = inTag;
+            }
+
+            return _value = new string(_valueBuffer);
         }
     }
 }

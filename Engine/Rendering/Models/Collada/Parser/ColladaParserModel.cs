@@ -234,10 +234,7 @@ namespace CustomEngine.Rendering.Models
             }
             private EffectShaderEntry ParseShader(ShaderType type)
             {
-                EffectShaderEntry s = new EffectShaderEntry()
-                {
-                    _type = type
-                };
+                EffectShaderEntry s = new EffectShaderEntry() { _type = type };
                 float v;
 
                 while (_reader.BeginElement())
@@ -292,10 +289,8 @@ namespace CustomEngine.Rendering.Models
             }
             private LightEffectEntry ParseLightEffect(LightEffectType type)
             {
-                LightEffectEntry eff = new LightEffectEntry()
-                {
-                    _type = type
-                };
+                LightEffectEntry eff = new LightEffectEntry() { _type = type };
+
                 while (_reader.BeginElement())
                 {
                     if (_reader.Name.Equals("color", true))
@@ -403,9 +398,9 @@ namespace CustomEngine.Rendering.Models
 
                 while (_reader.ReadAttribute())
                     if (_reader.Name.Equals("material", true))
-                        prim._material = (string)_reader.Value;
+                        prim._material = _reader.Value;
                     else if (_reader.Name.Equals("count", true))
-                        prim._entryCount = int.Parse((string)_reader.Value);
+                        prim._entryCount = int.Parse(_reader.Value);
 
                 prim._faces.Capacity = prim._entryCount;
 
@@ -488,10 +483,8 @@ namespace CustomEngine.Rendering.Models
 
             private SkinEntry ParseSkin(string id)
             {
-                SkinEntry skin = new SkinEntry()
-                {
-                    _id = id
-                };
+                SkinEntry skin = new SkinEntry() { _id = id };
+
                 while (_reader.ReadAttribute())
                     if (_reader.Name.Equals("source", false))
                         skin._skinSource = _reader.Value[0] == '#' ? (string)(_reader.Value + 1) : (string)_reader.Value;

@@ -14,9 +14,9 @@ namespace CustomEngine.Tests
             string desktop = Environment.MachineName == "DAVID-DESKTOP" ?
                "X:\\Desktop\\" :
                "C:\\Users\\David\\Desktop\\";
-            Collada.Scene scene = Collada.Import(desktop + "TEST.DAE", options, false, true);
-            Mesh = scene._skeletalModel;
-            Skeleton = scene._skeleton;
+            //Collada.Scene scene = Collada.Import(desktop + "TEST.DAE", options, false, true);
+            Mesh = TestWorld.ColladaScene._skeletalModel;
+            Skeleton = TestWorld.ColladaScene._skeleton;
             base.PreConstruct();
         }
     }

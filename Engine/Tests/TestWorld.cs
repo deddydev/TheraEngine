@@ -14,6 +14,7 @@ namespace CustomEngine.Tests
 {
     public unsafe class TestWorld : World
     {
+        public static Collada.Scene ColladaScene;
         protected override void OnLoaded()
         {
             _settings = new WorldSettings("TestWorld");
@@ -100,7 +101,7 @@ namespace CustomEngine.Tests
             Collada.ImportOptions options = new Collada.ImportOptions();
             ////0.02646f
             options.InitialTransform.Scale = new Vec3(1.0f.InchesToMeters());
-            Collada.Scene scene = Collada.Import(desktop + "TEST.DAE", options, false, true);
+            ColladaScene = Collada.Import(desktop + "TEST.DAE", options, false, true);
             //Collada.Scene anims = Collada.Import(googleDrive + "Thera Assets\\Characters\\Temp\\Carly_Idle.dae", options, true, false);
             //anims.CleanAnimations(scene._skeletalModel, scene._skeleton);
 

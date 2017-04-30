@@ -11,10 +11,11 @@ namespace System
         protected string _path;
         protected FileStream _baseStream;
 
-        public VoidPtr Address => _addr;
-        public int Length { get => _length; set => _length = value; }
-        public string FilePath => _path;
-        public FileStream BaseStream => _baseStream;
+        public VoidPtr Address { get { return _addr; } }
+        public int Length { get { return _length; } set { _length = value; } }
+        public string FilePath { get { return _path; } }
+
+        public FileStream BaseStream { get { return _baseStream; } }
 
         ~FileMap() { Dispose(); }
         public virtual void Dispose()

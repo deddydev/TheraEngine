@@ -5,10 +5,6 @@ namespace System
 {
     public static unsafe class StringExtension
     {
-        public static bool Equals(this string s, string other, bool ignoreCase)
-        {
-            return String.Equals(s, other, ignoreCase ? StringComparison.InvariantCultureIgnoreCase : StringComparison.InvariantCulture);
-        }
         /// <summary>
         /// Parses the given string as an enum of the given type.
         /// </summary>

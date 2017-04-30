@@ -10,16 +10,8 @@ namespace System
         private int _length;
         private VoidPtr _address;
 
-        public int Length
-        {
-            get => _length;
-            set => _length = value;
-        }
-        public VoidPtr Address
-        {
-            get => _address;
-            set => _address = value;
-        }
+        public int Length { get { return _length; } set { _length = value; } }
+        public VoidPtr Address { get { return _address; } set { _address = value; } }
 
         public event Action Modified;
 
@@ -39,12 +31,9 @@ namespace System
             _address = Marshal.AllocHGlobal(_length);
             _external = false;
         }
+        ~DataSource() { Dispose(); }
 
-        ~DataSource() => Dispose();
-
-        public static DataSource Allocate(int size)
-            => new DataSource(size);
-
+        public static DataSource Allocate(int size) { return new DataSource(size); }
         public void Dispose()
         {
             try
@@ -57,7 +46,6 @@ namespace System
             }
             catch (Exception e) { Console.WriteLine(e.ToString()); }
         }
-        public void NotifyModified()
-            => Modified?.Invoke();
+        public void NotifyModified() { Modified?.Invoke(); }
     }
 }

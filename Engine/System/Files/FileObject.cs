@@ -216,8 +216,8 @@ namespace CustomEngine.Files
             if (GetFileHeader(t).ManualXmlSerialize)
             {
                 using (FileMap map = FileMap.FromFile(filePath))
+                using (XMLReader reader = new XMLReader(map.Address, map.Length))
                 {
-                    XMLReader reader = new XMLReader(map.BaseStream);
                     FileObject obj = Activator.CreateInstance(t) as FileObject;
                     obj._filePath = filePath;
 

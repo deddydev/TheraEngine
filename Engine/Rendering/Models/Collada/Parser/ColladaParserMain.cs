@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Windows.Forms;
 using System.Globalization;
 using System.IO;
-using System.Diagnostics;
 
 namespace CustomEngine.Rendering.Models
 {
@@ -19,10 +18,8 @@ namespace CustomEngine.Rendering.Models
             public static DecoderShell Import(string path)
             {
                 using (FileMap map = FileMap.FromFile(path))
-                {
-                    XMLReader reader = new XMLReader(map.BaseStream);
+                using (XMLReader reader = new XMLReader(map.Address, map.Length))
                     return new DecoderShell(reader);
-                }
             }
 
             private void Output(string message)
@@ -239,8 +236,12 @@ namespace CustomEngine.Rendering.Models
 
                             string[] list = new string[src._arrayCount];
                             src._arrayData = list;
-                            
-                            src._arrayDataString = _reader.ReadElementString(false);
+
+                            byte* tempPtr = _reader._ptr;
+                            bool tempInTag = _reader._inTag;
+                            src._arrayDataString = _reader.ReadElementString();
+                            _reader._ptr = tempPtr;
+                            _reader._inTag = tempInTag;
 
                             for (int i = 0; i < src._arrayCount; i++)
                                 if (!_reader.ReadStringSingle())
@@ -257,7 +258,7 @@ namespace CustomEngine.Rendering.Models
                             {
                                 while (_reader.ReadAttribute())
                                     if (_reader.Name.Equals("source", true))
-                                        src._accessorSource = _reader.Value[0] == '#' ? (_reader.Value + 1) : _reader.Value;
+                                        src._accessorSource = _reader.Value[0] == '#' ? (_reader.Value + 1) : (string)_reader.Value;
                                     else if (_reader.Name.Equals("count", true))
                                         src._accessorCount = int.Parse(_reader.Value);
                                     else if (_reader.Name.Equals("stride", true))

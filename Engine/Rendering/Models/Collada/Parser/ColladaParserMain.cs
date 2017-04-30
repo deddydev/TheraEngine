@@ -34,7 +34,7 @@ namespace CustomEngine.Rendering.Models
 
                 while (reader.BeginElement())
                 {
-                    if (reader.Name.Equals2("COLLADA", true))
+                    if (reader.Name.Equals("COLLADA", true))
                         ParseMain();
 
                     reader.EndElement();
@@ -46,7 +46,7 @@ namespace CustomEngine.Rendering.Models
             private void ParseMain()
             {
                 while (_reader.ReadAttribute())
-                    if (_reader.Name.Equals2("version", true))
+                    if (_reader.Name.Equals("version", true))
                     {
                         string v = _reader.Value;
                         string[] s = v.Split('.');
@@ -56,31 +56,31 @@ namespace CustomEngine.Rendering.Models
                     }
                 while (_reader.BeginElement())
                 {
-                    if (_reader.Name.Equals2("asset", true))
+                    if (_reader.Name.Equals("asset", true))
                         ParseAsset();
-                    else if (_reader.Name.Equals2("library_cameras", true))
+                    else if (_reader.Name.Equals("library_cameras", true))
                         ParseLibCameras();
-                    else if (_reader.Name.Equals2("library_images", true))
+                    else if (_reader.Name.Equals("library_images", true))
                         ParseLibImages();
-                    else if (_reader.Name.Equals2("library_materials", true))
+                    else if (_reader.Name.Equals("library_materials", true))
                         ParseLibMaterials();
-                    else if (_reader.Name.Equals2("library_effects", true))
+                    else if (_reader.Name.Equals("library_effects", true))
                         ParseLibEffects();
-                    else if (_reader.Name.Equals2("library_geometries", true))
+                    else if (_reader.Name.Equals("library_geometries", true))
                         ParseLibGeometry();
-                    else if (_reader.Name.Equals2("library_controllers", true))
+                    else if (_reader.Name.Equals("library_controllers", true))
                         ParseLibControllers();
-                    else if (_reader.Name.Equals2("library_visual_scenes", true))
+                    else if (_reader.Name.Equals("library_visual_scenes", true))
                         ParseLibVisualScenes();
                     //else if (_reader.Name.Equals("library_physics_scenes", true))
                     //    ParseLibPhysicsScenes();
                     //else if (_reader.Name.Equals("library_kinematics_scenes", true))
                     //    ParseLibKinematicsScenes();
-                    else if (_reader.Name.Equals2("library_nodes", true))
+                    else if (_reader.Name.Equals("library_nodes", true))
                         ParseLibNodes();
-                    else if (_reader.Name.Equals2("library_animation_clips", true))
+                    else if (_reader.Name.Equals("library_animation_clips", true))
                         ParseLibAnimationClips();
-                    else if (_reader.Name.Equals2("library_animations", true))
+                    else if (_reader.Name.Equals("library_animations", true))
                         ParseLibAnimations();
 
                     _reader.EndElement();
@@ -131,15 +131,15 @@ namespace CustomEngine.Rendering.Models
                 AssetEntry entry = new AssetEntry();
                 while (_reader.BeginElement())
                 {
-                    if (_reader.Name.Equals2("unit", true))
+                    if (_reader.Name.Equals("unit", true))
                     {
                         while (_reader.ReadAttribute())
-                            if (_reader.Name.Equals2("meter", true))
+                            if (_reader.Name.Equals("meter", true))
                                 float.TryParse((string)_reader.Value, NumberStyles.Any, CultureInfo.InvariantCulture.NumberFormat, out entry._scale);
                     }
-                    else if (_reader.Name.Equals2("up_axis", true))
+                    else if (_reader.Name.Equals("up_axis", true))
                     {
-                        string axis = (_reader.Value).ToLower();
+                        string axis = ((string)_reader.Value).ToLower();
                         entry._upAxis = axis.Contains("y") ? UpAxis.Y : axis.Contains("x") ? UpAxis.X : UpAxis.Z;
                     }
                     _reader.EndElement();
@@ -151,17 +151,17 @@ namespace CustomEngine.Rendering.Models
                 InputEntry inp = new InputEntry();
 
                 while (_reader.ReadAttribute())
-                    if (_reader.Name.Equals2("id", true))
+                    if (_reader.Name.Equals("id", true))
                         inp._id = _reader.Value;
-                    else if (_reader.Name.Equals2("name", true))
+                    else if (_reader.Name.Equals("name", true))
                         inp._name = _reader.Value;
-                    else if (_reader.Name.Equals2("semantic", true))
+                    else if (_reader.Name.Equals("semantic", true))
                         inp._semantic = (SemanticType)Enum.Parse(typeof(SemanticType), _reader.Value, true);
-                    else if (_reader.Name.Equals2("set", true))
+                    else if (_reader.Name.Equals("set", true))
                         inp._set = int.Parse(_reader.Value);
-                    else if (_reader.Name.Equals2("offset", true))
+                    else if (_reader.Name.Equals("offset", true))
                         inp._offset = int.Parse(_reader.Value);
-                    else if (_reader.Name.Equals2("source", true))
+                    else if (_reader.Name.Equals("source", true))
                         inp._source = _reader.Value[0] == '#' ? (_reader.Value + 1) : (string)_reader.Value;
 
                 return inp;
@@ -171,45 +171,44 @@ namespace CustomEngine.Rendering.Models
                 SourceEntry src = new SourceEntry();
 
                 while (_reader.ReadAttribute())
-                    if (_reader.Name.Equals2("id", true))
+                    if (_reader.Name.Equals("id", true))
                         src._id = _reader.Value;
 
                 while (_reader.BeginElement())
                 {
-                    if (_reader.Name.Equals2("float_array", true))
+                    if (_reader.Name.Equals("float_array", true))
                     {
                         if (src._arrayType == SourceType.None)
                         {
                             src._arrayType = SourceType.Float;
 
                             while (_reader.ReadAttribute())
-                                if (_reader.Name.Equals2("id", true))
+                                if (_reader.Name.Equals("id", true))
                                     src._arrayId = _reader.Value;
-                                else if (_reader.Name.Equals2("count", true))
+                                else if (_reader.Name.Equals("count", true))
                                 {
                                     string c = _reader.Value.ToString();
                                     src._arrayCount = int.Parse(c);
                                 }
 
                             float[] list = new float[src._arrayCount];
+                            src._arrayData = list;
                             
                             for (int i = 0; i < src._arrayCount; i++)
-                                if (!_reader.ReadValue(out list[i]))
+                                if (!_reader.ReadValue(ref list[i]))
                                     break;
-
-                            src._arrayData = list;
                         }
                     }
-                    else if (_reader.Name.Equals2("int_array", true))
+                    else if (_reader.Name.Equals("int_array", true))
                     {
                         if (src._arrayType == SourceType.None)
                         {
                             src._arrayType = SourceType.Int;
 
                             while (_reader.ReadAttribute())
-                                if (_reader.Name.Equals2("id", true))
+                                if (_reader.Name.Equals("id", true))
                                     src._arrayId = _reader.Value;
-                                else if (_reader.Name.Equals2("count", true))
+                                else if (_reader.Name.Equals("count", true))
                                 {
                                     string c = _reader.Value;
                                     src._arrayCount = int.Parse(c);
@@ -219,20 +218,20 @@ namespace CustomEngine.Rendering.Models
                             src._arrayData = list;
 
                             for (int i = 0; i < src._arrayCount; i++)
-                                if (!_reader.ReadValue(out list[i]))
+                                if (!_reader.ReadValue(ref list[i]))
                                     break;
                         }
                     }
-                    else if (_reader.Name.Equals2("Name_array", true))
+                    else if (_reader.Name.Equals("Name_array", true))
                     {
                         if (src._arrayType == SourceType.None)
                         {
                             src._arrayType = SourceType.Name;
 
                             while (_reader.ReadAttribute())
-                                if (_reader.Name.Equals2("id", true))
+                                if (_reader.Name.Equals("id", true))
                                     src._arrayId = _reader.Value;
-                                else if (_reader.Name.Equals2("count", true))
+                                else if (_reader.Name.Equals("count", true))
                                 {
                                     string c = _reader.Value;
                                     src._arrayCount = int.Parse(c);
@@ -250,18 +249,18 @@ namespace CustomEngine.Rendering.Models
                                     list[i] = _reader.Value;
                         }
                     }
-                    else if (_reader.Name.Equals2("technique_common", true))
+                    else if (_reader.Name.Equals("technique_common", true))
                     {
                         while (_reader.BeginElement())
                         {
-                            if (_reader.Name.Equals2("accessor", true))
+                            if (_reader.Name.Equals("accessor", true))
                             {
                                 while (_reader.ReadAttribute())
-                                    if (_reader.Name.Equals2("source", true))
+                                    if (_reader.Name.Equals("source", true))
                                         src._accessorSource = _reader.Value[0] == '#' ? (_reader.Value + 1) : _reader.Value;
-                                    else if (_reader.Name.Equals2("count", true))
+                                    else if (_reader.Name.Equals("count", true))
                                         src._accessorCount = int.Parse(_reader.Value);
-                                    else if (_reader.Name.Equals2("stride", true))
+                                    else if (_reader.Name.Equals("stride", true))
                                         src._accessorStride = int.Parse(_reader.Value);
 
                                 //Ignore params
@@ -283,31 +282,49 @@ namespace CustomEngine.Rendering.Models
                 float* pM = (float*)&m;
                 for (int columnIndex = 0; columnIndex < 4; columnIndex++)
                     for (int rowOffset = 0; rowOffset < 16; rowOffset += 4)
-                        _reader.ReadValue(out pM[rowOffset + columnIndex]);
+                        _reader.ReadValue(&pM[rowOffset + columnIndex]);
                 return m;
             }
             private ColorF4 ParseColor()
             {
+                float f;
                 ColorF4 c;
                 float* p = (float*)&c;
                 for (int i = 0; i < 4; i++)
-                    _reader.ReadValue(out p[i]);
+                {
+                    if (!_reader.ReadValue(&f))
+                        p[i] = 1.0f;
+                    else
+                        p[i] = f;
+                }
                 return c;
             }
             private Vec3 ParseVec3()
             {
+                float f;
                 Vec3 c;
                 float* p = (float*)&c;
                 for (int i = 0; i < 3; i++)
-                    _reader.ReadValue(out p[i]);
+                {
+                    if (!_reader.ReadValue(&f))
+                        p[i] = 0.0f;
+                    else
+                        p[i] = f;
+                }
                 return c;
             }
             private Vec4 ParseVec4()
             {
+                float f;
                 Vec4 c;
                 float* p = (float*)&c;
                 for (int i = 0; i < 4; i++)
-                    _reader.ReadValue(out p[i]);
+                {
+                    if (!_reader.ReadValue(&f))
+                        p[i] = 0.0f;
+                    else
+                        p[i] = f;
+                }
                 return c;
             }
         }

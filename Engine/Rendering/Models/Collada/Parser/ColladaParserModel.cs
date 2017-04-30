@@ -44,28 +44,28 @@ namespace CustomEngine.Rendering.Models
                 ImageEntry img;
                 while (_reader.BeginElement())
                 {
-                    if (_reader.Name.Equals2("image", true))
+                    if (_reader.Name.Equals("image", true))
                     {
                         img = new ImageEntry();
                         while (_reader.ReadAttribute())
                         {
-                            if (_reader.Name.Equals2("id", true))
+                            if (_reader.Name.Equals("id", true))
                                 img._id = (string)_reader.Value;
-                            else if (_reader.Name.Equals2("name", true))
+                            else if (_reader.Name.Equals("name", true))
                                 img._name = (string)_reader.Value;
                         }
 
                         while (_reader.BeginElement())
                         {
                             img._path = null;
-                            if (_reader.Name.Equals2("init_from", true))
+                            if (_reader.Name.Equals("init_from", true))
                             {
                                 if (_v2 < 5)
                                     img._path = _reader.ReadElementString();
                                 else
                                     while (_reader.BeginElement())
                                     {
-                                        if (_reader.Name.Equals2("ref", true))
+                                        if (_reader.Name.Equals("ref", true))
                                             img._path = _reader.ReadElementString();
                                         _reader.EndElement();
                                     }
@@ -84,22 +84,22 @@ namespace CustomEngine.Rendering.Models
                 MaterialEntry mat;
                 while (_reader.BeginElement())
                 {
-                    if (_reader.Name.Equals2("material", true))
+                    if (_reader.Name.Equals("material", true))
                     {
                         mat = new MaterialEntry();
                         while (_reader.ReadAttribute())
                         {
-                            if (_reader.Name.Equals2("id", true))
+                            if (_reader.Name.Equals("id", true))
                                 mat._id = (string)_reader.Value;
-                            else if (_reader.Name.Equals2("name", true))
+                            else if (_reader.Name.Equals("name", true))
                                 mat._name = (string)_reader.Value;
                         }
 
                         while (_reader.BeginElement())
                         {
-                            if (_reader.Name.Equals2("instance_effect", true))
+                            if (_reader.Name.Equals("instance_effect", true))
                                 while (_reader.ReadAttribute())
-                                    if (_reader.Name.Equals2("url", true))
+                                    if (_reader.Name.Equals("url", true))
                                         mat._effect = _reader.Value[0] == '#' ? (string)(_reader.Value + 1) : (string)_reader.Value;
 
                             _reader.EndElement();
@@ -115,7 +115,7 @@ namespace CustomEngine.Rendering.Models
             {
                 while (_reader.BeginElement())
                 {
-                    if (_reader.Name.Equals2("effect", true))
+                    if (_reader.Name.Equals("effect", true))
                         _effects.Add(ParseEffect());
                     _reader.EndElement();
                 }
@@ -126,29 +126,29 @@ namespace CustomEngine.Rendering.Models
 
                 while (_reader.ReadAttribute())
                 {
-                    if (_reader.Name.Equals2("id", true))
+                    if (_reader.Name.Equals("id", true))
                         eff._id = (string)_reader.Value;
-                    else if (_reader.Name.Equals2("name", true))
+                    else if (_reader.Name.Equals("name", true))
                         eff._name = (string)_reader.Value;
                 }
 
                 while (_reader.BeginElement())
                 {
                     //Only common is supported
-                    if (_reader.Name.Equals2("profile_COMMON", true))
+                    if (_reader.Name.Equals("profile_COMMON", true))
                         while (_reader.BeginElement())
                         {
-                            if (_reader.Name.Equals2("newparam", true))
+                            if (_reader.Name.Equals("newparam", true))
                                 eff._newParams.Add(ParseNewParam());
-                            else if (_reader.Name.Equals2("technique", true))
+                            else if (_reader.Name.Equals("technique", true))
                             {
                                 while (_reader.BeginElement())
                                 {
-                                    if (_reader.Name.Equals2("phong", true))
+                                    if (_reader.Name.Equals("phong", true))
                                         eff._shader = ParseShader(ShaderType.phong);
-                                    else if (_reader.Name.Equals2("lambert", true))
+                                    else if (_reader.Name.Equals("lambert", true))
                                         eff._shader = ParseShader(ShaderType.lambert);
-                                    else if (_reader.Name.Equals2("blinn", true))
+                                    else if (_reader.Name.Equals("blinn", true))
                                         eff._shader = ParseShader(ShaderType.blinn);
 
                                     _reader.EndElement();
@@ -167,26 +167,26 @@ namespace CustomEngine.Rendering.Models
 
                 while (_reader.ReadAttribute())
                 {
-                    if (_reader.Name.Equals2("sid", true))
+                    if (_reader.Name.Equals("sid", true))
                         p._sid = (string)_reader.Value;
-                    else if (_reader.Name.Equals2("id", true))
+                    else if (_reader.Name.Equals("id", true))
                         p._id = (string)_reader.Value;
                 }
                 while (_reader.BeginElement())
                 {
-                    if (_reader.Name.Equals2("surface", true))
+                    if (_reader.Name.Equals("surface", true))
                     {
                         while (_reader.BeginElement())
                         {
                             p._path = null;
-                            if (_reader.Name.Equals2("init_from", true))
+                            if (_reader.Name.Equals("init_from", true))
                             {
                                 if (_v2 < 5)
                                     p._path = _reader.ReadElementString();
                                 else
                                     while (_reader.BeginElement())
                                     {
-                                        if (_reader.Name.Equals2("ref", true))
+                                        if (_reader.Name.Equals("ref", true))
                                             p._path = _reader.ReadElementString();
                                         _reader.EndElement();
                                     }
@@ -194,7 +194,7 @@ namespace CustomEngine.Rendering.Models
                             _reader.EndElement();
                         }
                     }
-                    else if (_reader.Name.Equals2("sampler2D", true))
+                    else if (_reader.Name.Equals("sampler2D", true))
                         p._sampler2D = ParseSampler2D();
 
                     _reader.EndElement();
@@ -208,23 +208,23 @@ namespace CustomEngine.Rendering.Models
 
                 while (_reader.BeginElement())
                 {
-                    if (_reader.Name.Equals2("source", true))
+                    if (_reader.Name.Equals("source", true))
                         s._source = _reader.ReadElementString();
-                    else if (_reader.Name.Equals2("instance_image", true))
+                    else if (_reader.Name.Equals("instance_image", true))
                     {
                         while (_reader.ReadAttribute())
                         {
-                            if (_reader.Name.Equals2("url", true))
+                            if (_reader.Name.Equals("url", true))
                                 s._url = _reader.Value[0] == '#' ? (string)(_reader.Value + 1) : (string)_reader.Value;
                         }
                     }
-                    else if (_reader.Name.Equals2("wrap_s", true))
+                    else if (_reader.Name.Equals("wrap_s", true))
                         s._wrapS = _reader.ReadElementString();
-                    else if (_reader.Name.Equals2("wrap_t", true))
+                    else if (_reader.Name.Equals("wrap_t", true))
                         s._wrapT = _reader.ReadElementString();
-                    else if (_reader.Name.Equals2("minfilter", true))
+                    else if (_reader.Name.Equals("minfilter", true))
                         s._minFilter = _reader.ReadElementString();
-                    else if (_reader.Name.Equals2("magfilter", true))
+                    else if (_reader.Name.Equals("magfilter", true))
                         s._magFilter = _reader.ReadElementString();
 
                     _reader.EndElement();
@@ -235,44 +235,49 @@ namespace CustomEngine.Rendering.Models
             private EffectShaderEntry ParseShader(ShaderType type)
             {
                 EffectShaderEntry s = new EffectShaderEntry() { _type = type };
+                float v;
+
                 while (_reader.BeginElement())
                 {
-                    if (_reader.Name.Equals2("ambient", true))
+                    if (_reader.Name.Equals("ambient", true))
                         s._effects.Add(ParseLightEffect(LightEffectType.ambient));
-                    else if (_reader.Name.Equals2("diffuse", true))
+                    else if (_reader.Name.Equals("diffuse", true))
                         s._effects.Add(ParseLightEffect(LightEffectType.diffuse));
-                    else if (_reader.Name.Equals2("emission", true))
+                    else if (_reader.Name.Equals("emission", true))
                         s._effects.Add(ParseLightEffect(LightEffectType.emission));
-                    else if (_reader.Name.Equals2("reflective", true))
+                    else if (_reader.Name.Equals("reflective", true))
                         s._effects.Add(ParseLightEffect(LightEffectType.reflective));
-                    else if (_reader.Name.Equals2("specular", true))
+                    else if (_reader.Name.Equals("specular", true))
                         s._effects.Add(ParseLightEffect(LightEffectType.specular));
-                    else if (_reader.Name.Equals2("transparent", true))
+                    else if (_reader.Name.Equals("transparent", true))
                         s._effects.Add(ParseLightEffect(LightEffectType.transparent));
-                    else if (_reader.Name.Equals2("shininess", true))
+                    else if (_reader.Name.Equals("shininess", true))
                     {
                         while (_reader.BeginElement())
                         {
-                            if (_reader.Name.Equals2("float", true))
-                                _reader.ReadValue(out s._shininess);
+                            if (_reader.Name.Equals("float", true))
+                                if (_reader.ReadValue(&v))
+                                    s._shininess = v;
                             _reader.EndElement();
                         }
                     }
-                    else if (_reader.Name.Equals2("reflectivity", true))
+                    else if (_reader.Name.Equals("reflectivity", true))
                     {
                         while (_reader.BeginElement())
                         {
-                            if (_reader.Name.Equals2("float", true))
-                                _reader.ReadValue(out s._reflectivity);
+                            if (_reader.Name.Equals("float", true))
+                                if (_reader.ReadValue(&v))
+                                    s._reflectivity = v;
                             _reader.EndElement();
                         }
                     }
-                    else if (_reader.Name.Equals2("transparency", true))
+                    else if (_reader.Name.Equals("transparency", true))
                     {
                         while (_reader.BeginElement())
                         {
-                            if (_reader.Name.Equals2("float", true))
-                                _reader.ReadValue(out s._transparency);
+                            if (_reader.Name.Equals("float", true))
+                                if (_reader.ReadValue(&v))
+                                    s._transparency = v;
                             _reader.EndElement();
                         }
                     }
@@ -288,15 +293,15 @@ namespace CustomEngine.Rendering.Models
 
                 while (_reader.BeginElement())
                 {
-                    if (_reader.Name.Equals2("color", true))
+                    if (_reader.Name.Equals("color", true))
                         eff._color = ParseColor();
-                    else if (_reader.Name.Equals2("texture", true))
+                    else if (_reader.Name.Equals("texture", true))
                     {
                         while (_reader.ReadAttribute())
-                            if (_reader.Name.Equals2("texture", true))
-                                eff._texture = _reader.Value;
-                            else if (_reader.Name.Equals2("texcoord", true))
-                                eff._texCoord = _reader.Value;
+                            if (_reader.Name.Equals("texture", true))
+                                eff._texture = (string)_reader.Value;
+                            else if (_reader.Name.Equals("texcoord", true))
+                                eff._texCoord = (string)_reader.Value;
                     }
 
                     _reader.EndElement();
@@ -309,52 +314,52 @@ namespace CustomEngine.Rendering.Models
                 GeometryEntry geo;
                 while (_reader.BeginElement())
                 {
-                    if (_reader.Name.Equals2("geometry", true))
+                    if (_reader.Name.Equals("geometry", true))
                     {
                         geo = new GeometryEntry();
                         while (_reader.ReadAttribute())
                         {
-                            if (_reader.Name.Equals2("id", true))
+                            if (_reader.Name.Equals("id", true))
                                 geo._id = _reader.Value;
-                            else if (_reader.Name.Equals2("name", true))
+                            else if (_reader.Name.Equals("name", true))
                                 geo._name = _reader.Value;
                         }
 
                         while (_reader.BeginElement())
                         {
-                            if (_reader.Name.Equals2("mesh", true))
+                            if (_reader.Name.Equals("mesh", true))
                             {
                                 while (_reader.BeginElement())
                                 {
-                                    if (_reader.Name.Equals2("source", true))
+                                    if (_reader.Name.Equals("source", true))
                                         geo._sources.Add(ParseSource());
-                                    else if (_reader.Name.Equals2("vertices", true))
+                                    else if (_reader.Name.Equals("vertices", true))
                                     {
                                         while (_reader.ReadAttribute())
-                                            if (_reader.Name.Equals2("id", true))
+                                            if (_reader.Name.Equals("id", true))
                                                 geo._verticesId = _reader.Value;
 
                                         while (_reader.BeginElement())
                                         {
-                                            if (_reader.Name.Equals2("input", true))
+                                            if (_reader.Name.Equals("input", true))
                                                 geo._verticesInput = ParseInput();
 
                                             _reader.EndElement();
                                         }
                                     }
-                                    else if (_reader.Name.Equals2("polygons", true))
+                                    else if (_reader.Name.Equals("polygons", true))
                                         geo._primitives.Add(ParsePrimitive(ColladaPrimitiveType.polygons));
-                                    else if (_reader.Name.Equals2("polylist", true))
+                                    else if (_reader.Name.Equals("polylist", true))
                                         geo._primitives.Add(ParsePrimitive(ColladaPrimitiveType.polylist));
-                                    else if (_reader.Name.Equals2("triangles", true))
+                                    else if (_reader.Name.Equals("triangles", true))
                                         geo._primitives.Add(ParsePrimitive(ColladaPrimitiveType.triangles));
-                                    else if (_reader.Name.Equals2("tristrips", true))
+                                    else if (_reader.Name.Equals("tristrips", true))
                                         geo._primitives.Add(ParsePrimitive(ColladaPrimitiveType.tristrips));
-                                    else if (_reader.Name.Equals2("trifans", true))
+                                    else if (_reader.Name.Equals("trifans", true))
                                         geo._primitives.Add(ParsePrimitive(ColladaPrimitiveType.trifans));
-                                    else if (_reader.Name.Equals2("lines", true))
+                                    else if (_reader.Name.Equals("lines", true))
                                         geo._primitives.Add(ParsePrimitive(ColladaPrimitiveType.lines));
-                                    else if (_reader.Name.Equals2("linestrips", true))
+                                    else if (_reader.Name.Equals("linestrips", true))
                                         geo._primitives.Add(ParsePrimitive(ColladaPrimitiveType.linestrips));
 
                                     _reader.EndElement();
@@ -392,26 +397,27 @@ namespace CustomEngine.Rendering.Models
                 }
 
                 while (_reader.ReadAttribute())
-                    if (_reader.Name.Equals2("material", true))
+                    if (_reader.Name.Equals("material", true))
                         prim._material = _reader.Value;
-                    else if (_reader.Name.Equals2("count", true))
+                    else if (_reader.Name.Equals("count", true))
                         prim._entryCount = int.Parse(_reader.Value);
 
                 prim._faces.Capacity = prim._entryCount;
 
                 while (_reader.BeginElement())
                 {
-                    if (_reader.Name.Equals2("input", true))
+                    if (_reader.Name.Equals("input", true))
                     {
                         prim._inputs.Add(ParseInput());
                         elements++;
                     }
-                    else if (_reader.Name.Equals2("p", true))
+                    else if (_reader.Name.Equals("p", true))
                     {
                         List<int> indices = new List<int>(stride * elements);
 
                         p = new PrimitiveFace();
-                        while (_reader.ReadValue(out int val))
+                        int val;
+                        while (_reader.ReadValue(&val))
                             indices.Add(val);
 
                         p._pointCount = indices.Count / elements;
@@ -456,16 +462,16 @@ namespace CustomEngine.Rendering.Models
             {
                 while (_reader.BeginElement())
                 {
-                    if (_reader.Name.Equals2("controller", false))
+                    if (_reader.Name.Equals("controller", false))
                     {
                         string id = null;
                         while (_reader.ReadAttribute())
-                            if (_reader.Name.Equals2("id", false))
+                            if (_reader.Name.Equals("id", false))
                                 id = (string)_reader.Value;
 
                         while (_reader.BeginElement())
                         {
-                            if (_reader.Name.Equals2("skin", false))
+                            if (_reader.Name.Equals("skin", false))
                                 _skins.Add(ParseSkin(id));
 
                             _reader.EndElement();
@@ -480,50 +486,51 @@ namespace CustomEngine.Rendering.Models
                 SkinEntry skin = new SkinEntry() { _id = id };
 
                 while (_reader.ReadAttribute())
-                    if (_reader.Name.Equals2("source", false))
+                    if (_reader.Name.Equals("source", false))
                         skin._skinSource = _reader.Value[0] == '#' ? (string)(_reader.Value + 1) : (string)_reader.Value;
 
                 while (_reader.BeginElement())
                 {
-                    if (_reader.Name.Equals2("bind_shape_matrix", false))
+                    if (_reader.Name.Equals("bind_shape_matrix", false))
                         skin._bindMatrix = ParseMatrix();
-                    else if (_reader.Name.Equals2("source", false))
+                    else if (_reader.Name.Equals("source", false))
                         skin._sources.Add(ParseSource());
-                    else if (_reader.Name.Equals2("joints", false))
+                    else if (_reader.Name.Equals("joints", false))
                         while (_reader.BeginElement())
                         {
-                            if (_reader.Name.Equals2("input", false))
+                            if (_reader.Name.Equals("input", false))
                                 skin._jointInputs.Add(ParseInput());
 
                             _reader.EndElement();
                         }
-                    else if (_reader.Name.Equals2("vertex_weights", false))
+                    else if (_reader.Name.Equals("vertex_weights", false))
                     {
                         while (_reader.ReadAttribute())
-                            if (_reader.Name.Equals2("count", false))
+                            if (_reader.Name.Equals("count", false))
                                 skin._weightCount = int.Parse((string)_reader.Value);
 
                         skin._weights = new int[skin._weightCount][];
 
                         while (_reader.BeginElement())
                         {
-                            if (_reader.Name.Equals2("input", false))
+                            if (_reader.Name.Equals("input", false))
                                 skin._weightInputs.Add(ParseInput());
-                            else if (_reader.Name.Equals2("vcount", false))
+                            else if (_reader.Name.Equals("vcount", false))
                             {
                                 for (int i = 0; i < skin._weightCount; i++)
                                 {
-                                    _reader.ReadValue(out int val);
+                                    int val;
+                                    _reader.ReadValue(&val);
                                     skin._weights[i] = new int[val * skin._weightInputs.Count];
                                 }
                             }
-                            else if (_reader.Name.Equals2("v", false))
+                            else if (_reader.Name.Equals("v", false))
                             {
                                 for (int i = 0; i < skin._weightCount; i++)
                                 {
                                     int[] weights = skin._weights[i];
                                     for (int x = 0; x < weights.Length; x++)
-                                        _reader.ReadValue(out weights[x]);
+                                        _reader.ReadValue(ref weights[x]);
                                 }
                             }
                             _reader.EndElement();
@@ -540,7 +547,7 @@ namespace CustomEngine.Rendering.Models
             {
                 while (_reader.BeginElement())
                 {
-                    if (_reader.Name.Equals2("node", true))
+                    if (_reader.Name.Equals("node", true))
                         _nodes.Add(ParseNode());
 
                     _reader.EndElement();
@@ -551,11 +558,11 @@ namespace CustomEngine.Rendering.Models
             {
                 while (_reader.BeginElement())
                 {
-                    if (_reader.Name.Equals2("visual_scene", true))
+                    if (_reader.Name.Equals("visual_scene", true))
                         _visualScenes.Add(ParseVisualScene());
-                    else if (_reader.Name.Equals2("visual_scene", true))
+                    else if (_reader.Name.Equals("visual_scene", true))
                         _visualScenes.Add(ParseVisualScene());
-                    else if (_reader.Name.Equals2("visual_scene", true))
+                    else if (_reader.Name.Equals("visual_scene", true))
                         _visualScenes.Add(ParseVisualScene());
                     _reader.EndElement();
                 }
@@ -566,16 +573,16 @@ namespace CustomEngine.Rendering.Models
                 VisualSceneEntry sc = new VisualSceneEntry();
 
                 while (_reader.ReadAttribute())
-                    if (_reader.Name.Equals2("id", true))
+                    if (_reader.Name.Equals("id", true))
                         sc._id = (string)_reader.Value;
 
                 while (_reader.ReadAttribute())
-                    if (_reader.Name.Equals2("name", true))
+                    if (_reader.Name.Equals("name", true))
                         sc._name = (string)_reader.Value;
 
                 while (_reader.BeginElement())
                 {
-                    if (_reader.Name.Equals2("node", true))
+                    if (_reader.Name.Equals("node", true))
                         sc._nodes.Add(ParseNode());
 
                     _reader.EndElement();
@@ -589,61 +596,61 @@ namespace CustomEngine.Rendering.Models
                 NodeEntry node = new NodeEntry();
 
                 while (_reader.ReadAttribute())
-                    if (_reader.Name.Equals2("id", true))
+                    if (_reader.Name.Equals("id", true))
                         node._id = (string)_reader.Value;
-                    else if (_reader.Name.Equals2("name", true))
+                    else if (_reader.Name.Equals("name", true))
                         node._name = (string)_reader.Value;
-                    else if (_reader.Name.Equals2("sid", true))
+                    else if (_reader.Name.Equals("sid", true))
                         node._sid = (string)_reader.Value;
-                    else if (_reader.Name.Equals2("type", true))
+                    else if (_reader.Name.Equals("type", true))
                         node._type = (NodeType)Enum.Parse(typeof(NodeType), (string)_reader.Value, true);
 
                 Matrix4 m = Matrix4.Identity;
                 Matrix4 mInv = Matrix4.Identity;
                 while (_reader.BeginElement())
                 {
-                    if (_reader.Name.Equals2("matrix", true))
+                    if (_reader.Name.Equals("matrix", true))
                     {
                         Matrix4 matrix = ParseMatrix();
                         m = m * matrix;
                         matrix.Invert();
                         mInv = matrix * mInv;
                     }
-                    else if (_reader.Name.Equals2("rotate", true))
+                    else if (_reader.Name.Equals("rotate", true))
                     {
                         Vec4 v = ParseVec4();
                         m = m * Matrix4.CreateFromAxisAngle(v.Xyz, v.W);
                         mInv = Matrix4.CreateFromAxisAngle(v.Xyz, -v.W) * mInv;
                     }
-                    else if (_reader.Name.Equals2("scale", true))
+                    else if (_reader.Name.Equals("scale", true))
                     {
                         Vec3 scale = ParseVec3();
                         m = m * Matrix4.CreateScale(scale);
                         mInv = Matrix4.CreateScale(1.0f / scale) * mInv;
                     }
-                    else if (_reader.Name.Equals2("translate", true))
+                    else if (_reader.Name.Equals("translate", true))
                     {
                         Vec3 translate = ParseVec3();
                         m = m * Matrix4.CreateTranslation(translate);
                         mInv = Matrix4.CreateTranslation(-translate) * mInv;
                     }
-                    else if (_reader.Name.Equals2("node", true))
+                    else if (_reader.Name.Equals("node", true))
                         node._children.Add(ParseNode());
-                    else if (_reader.Name.Equals2("instance_controller", true))
+                    else if (_reader.Name.Equals("instance_controller", true))
                         node._instances.Add(ParseInstance(InstanceType.Controller));
-                    else if (_reader.Name.Equals2("instance_geometry", true))
+                    else if (_reader.Name.Equals("instance_geometry", true))
                         node._instances.Add(ParseInstance(InstanceType.Geometry));
-                    else if (_reader.Name.Equals2("instance_node", true))
+                    else if (_reader.Name.Equals("instance_node", true))
                         node._instances.Add(ParseInstance(InstanceType.Node));
-                    //else if (_reader.Name.Equals2("extra", true))
+                    //else if (_reader.Name.Equals("extra", true))
                     //{
                     //    while (_reader.BeginElement())
                     //    {
-                    //        if (_reader.Name.Equals2("technique", true))
+                    //        if (_reader.Name.Equals("technique", true))
                     //        {
                     //            while (_reader.BeginElement())
                     //            {
-                    //                if (_reader.Name.Equals2("visibility", true))
+                    //                if (_reader.Name.Equals("visibility", true))
                     //                {
 
                     //                }
@@ -668,21 +675,21 @@ namespace CustomEngine.Rendering.Models
                     _type = type
                 };
                 while (_reader.ReadAttribute())
-                    if (_reader.Name.Equals2("url", true))
+                    if (_reader.Name.Equals("url", true))
                         c._url = _reader.Value[0] == '#' ? (string)(_reader.Value + 1) : (string)_reader.Value;
 
                 while (_reader.BeginElement())
                 {
-                    if (_reader.Name.Equals2("skeleton", true))
+                    if (_reader.Name.Equals("skeleton", true))
                         c._skeletons.Add(_reader.Value[0] == '#' ? (string)(_reader.Value + 1) : (string)_reader.Value);
 
-                    if (_reader.Name.Equals2("bind_material", true))
+                    if (_reader.Name.Equals("bind_material", true))
                         while (_reader.BeginElement())
                         {
-                            if (_reader.Name.Equals2("technique_common", true))
+                            if (_reader.Name.Equals("technique_common", true))
                                 while (_reader.BeginElement())
                                 {
-                                    if (_reader.Name.Equals2("instance_material", true))
+                                    if (_reader.Name.Equals("instance_material", true))
                                         c._material = ParseMatInstance();
                                     _reader.EndElement();
                                 }
@@ -700,14 +707,14 @@ namespace CustomEngine.Rendering.Models
                 InstanceMaterial mat = new InstanceMaterial();
 
                 while (_reader.ReadAttribute())
-                    if (_reader.Name.Equals2("symbol", true))
+                    if (_reader.Name.Equals("symbol", true))
                         mat._symbol = (string)_reader.Value;
-                    else if (_reader.Name.Equals2("target", true))
+                    else if (_reader.Name.Equals("target", true))
                         mat._target = _reader.Value[0] == '#' ? (string)(_reader.Value + 1) : (string)_reader.Value;
 
                 while (_reader.BeginElement())
                 {
-                    if (_reader.Name.Equals2("bind_vertex_input", true))
+                    if (_reader.Name.Equals("bind_vertex_input", true))
                         mat._vertexBinds.Add(ParseVertexInput());
                     _reader.EndElement();
                 }
@@ -718,11 +725,11 @@ namespace CustomEngine.Rendering.Models
                 VertexBind v = new VertexBind();
 
                 while (_reader.ReadAttribute())
-                    if (_reader.Name.Equals2("semantic", true))
+                    if (_reader.Name.Equals("semantic", true))
                         v._semantic = (string)_reader.Value;
-                    else if (_reader.Name.Equals2("input_semantic", true))
+                    else if (_reader.Name.Equals("input_semantic", true))
                         v._inputSemantic = (string)_reader.Value;
-                    else if (_reader.Name.Equals2("input_set", true))
+                    else if (_reader.Name.Equals("input_set", true))
                         v._inputSet = int.Parse((string)_reader.Value);
 
                 return v;

@@ -75,7 +75,7 @@ namespace CustomEngine.Files
                 {
                     while (reader.ReadAttribute())
                     {
-                        VarInfo p = category.FirstOrDefault(x => x.Attrib.IsXmlAttribute && String.Equals(reader.Name, x.Name, StringComparison.InvariantCultureIgnoreCase));
+                        VarInfo p = category.FirstOrDefault(x => x.Attrib.IsXmlAttribute && String.Equals(reader.Name., x.Name, true));
                         
                     }
                     while (reader.BeginElement())

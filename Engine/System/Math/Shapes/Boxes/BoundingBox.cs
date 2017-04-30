@@ -388,5 +388,63 @@ namespace System
             newBox.SetTransform(worldMatrix);
             return newBox;
         }
+
+        public unsafe override void Write(VoidPtr address, StringTable table)
+        {
+            *(Header*)address = this;
+        }
+        public unsafe override void Read(VoidPtr address, VoidPtr strings)
+        {
+            Header h = *(Header*)address;
+            _halfExtents = h._halfExtents;
+            _translation = h._translation;
+        }
+        public override void Write(XmlWriter writer)
+        {
+            writer.WriteStartElement("aabb");
+            if (_halfExtents != Vec3.Zero)
+                writer.WriteElementString("halfExtents", _halfExtents.ToString(false, false));
+            if (_translation != Vec3.Zero)
+                writer.WriteElementString("translation", _translation.ToString(false, false));
+            writer.WriteEndElement();
+        }
+        public override void Read(XMLReader reader)
+        {
+            if (!reader.Name.Equals("aabb", true))
+                throw new Exception();
+            while (reader.BeginElement())
+            {
+                if (reader.Name.Equals("translation", true))
+                    _translation = Vec3.Parse(reader.ReadElementString());
+                else if (reader.Name.Equals("halfExtents", true))
+                    _halfExtents = Vec3.Parse(reader.ReadElementString());
+                reader.EndElement();
+            }
+        }
+
+        protected override int OnCalculateSize(StringTable table)
+        {
+            throw new NotImplementedException();
+        }
+
+        [StructLayout(LayoutKind.Sequential, Pack = 1)]
+        public struct Header
+        {
+            public BVec3 _halfExtents;
+            public BVec3 _translation;
+
+            public static implicit operator Header(BoundingBox b)
+            {
+                return new Header()
+                {
+                    _halfExtents = b._halfExtents,
+                    _translation = b._translation,
+                };
+            }
+            public static implicit operator BoundingBox(Header h)
+            {
+                return FromHalfExtentsTranslation(h._halfExtents, h._translation);
+            }
+        }
     }
 }

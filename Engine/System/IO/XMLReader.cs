@@ -3,9 +3,9 @@ using System.Text;
 
 namespace System.IO
 {
-    public class XMLReader
+    public unsafe class XMLReader
     {
-        //private const char NullTerminator = '\0';
+        private const char NullTerminator = '\0';
         private const int NameMax = 128;
         private const int ValueMax = 384;
         
@@ -74,13 +74,11 @@ namespace System.IO
         //    return len > 0;
         //}
         //Reads characters into name pointer. Mainly for element/attribute names
-        private bool ReadString(ref char[] pOut, int length)
+        private bool ReadString(char[] pOut)
         {
             int len = 0;
             bool inStr = false;
             int b;
-
-            pOut = new char[length];
 
             SkipWhitespace();
             while ((len < pOut.Length) && !End)
@@ -114,8 +112,7 @@ namespace System.IO
                 }
                 pOut[len++] = (char)b;
             }
-            Array.Resize(ref pOut, len);
-            //pOut[len] = NullTerminator;
+            pOut[len] = NullTerminator;
             return len > 0;
         }
 
@@ -143,7 +140,7 @@ namespace System.IO
                     if (Byte(true) == '<')
                     {
                         _inTag = true;
-                        if (ReadString(ref _nameBuffer, NameMax)) //Will fail on delimiter
+                        if (ReadString(_nameBuffer)) //Will fail on delimiter
                         {
                             _name = new string(_nameBuffer);
                             if (_nameBuffer[0] == '!' &&
@@ -241,14 +238,14 @@ namespace System.IO
                 return false;
 
             SkipWhitespace();
-            if (ReadString(ref _nameBuffer, NameMax))
+            if (ReadString(_nameBuffer))
             {
                 _name = new string(_nameBuffer);
                 SkipWhitespace();
                 if (!End && (Byte() == '='))
                 {
                     Byte(true);
-                    if (ReadString(ref _valueBuffer, ValueMax))
+                    if (ReadString(_valueBuffer))
                     {
                         _value = new string(_valueBuffer);
                         return true;
@@ -262,7 +259,7 @@ namespace System.IO
 
             return false;
         }
-        private bool LeaveTag()
+        private unsafe bool LeaveTag()
         {
             if (!_inTag)
                 return true;
@@ -281,12 +278,10 @@ namespace System.IO
 
             return false;
         }
-        private bool ReadValue()
+        private unsafe bool ReadValue()
         {
             int len = 0;
             int b;
-
-            _valueBuffer = new char[ValueMax];
 
             SkipWhitespace();
             while ((len + 1 < ValueMax) && !End)
@@ -299,8 +294,7 @@ namespace System.IO
                 Byte(true);
                 _valueBuffer[len++] = (char)b;
             }
-            Array.Resize(ref _valueBuffer, len);
-            //_valueBuffer[len] = NullTerminator;
+            _valueBuffer[len] = NullTerminator;
             if (len > 0)
             {
                 _value = new string(_valueBuffer);
@@ -312,29 +306,26 @@ namespace System.IO
                 return false;
             }
         }
-        //public unsafe bool ReadValue(float* pOut)
-        //{
-        //    if (!LeaveTag())
-        //        return false;
-
-        //    if (ReadValue())
-        //    {
-        //        if (float.TryParse(Value, NumberStyles.Any, CultureInfo.InvariantCulture.NumberFormat, out float f))
-        //        {
-        //            *pOut = f;
-        //            return true;
-        //        }
-        //    }
-        //    return false;
-        //}
-        public bool ReadValue(out float pOut)
+        public unsafe bool ReadValue(float* pOut)
         {
             if (!LeaveTag())
-            {
-                pOut = 0.0f;
                 return false;
-            }
 
+            if (ReadValue())
+            {
+                if (float.TryParse(Value, NumberStyles.Any, CultureInfo.InvariantCulture.NumberFormat, out float f))
+                {
+                    *pOut = f;
+                    return true;
+                }
+            }
+            return false;
+        }
+        public unsafe bool ReadValue(ref float pOut)
+        {
+            if (!LeaveTag())
+                return false;
+            
             if (ReadValue())
             {
                 if (float.TryParse(Value, NumberStyles.Any, CultureInfo.InvariantCulture.NumberFormat, out float f))
@@ -343,32 +334,29 @@ namespace System.IO
                     return true;
                 }
             }
-            pOut = 0.0f;
             return false;
         }
-        //public unsafe bool ReadValue(int* pOut)
-        //{
-        //    if (!LeaveTag())
-        //        return false;
-
-        //    if (ReadValue())
-        //    {
-        //        if (int.TryParse(Value, NumberStyles.Any, CultureInfo.InvariantCulture.NumberFormat, out int f))
-        //        {
-        //            *pOut = f;
-        //            return true;
-        //        }
-        //    }
-
-        //    return false;
-        //}
-        public bool ReadValue(out int pOut)
+        public unsafe bool ReadValue(int* pOut)
         {
             if (!LeaveTag())
-            {
-                pOut = 0;
                 return false;
+
+            if (ReadValue())
+            {
+                if (int.TryParse(Value, NumberStyles.Any, CultureInfo.InvariantCulture.NumberFormat, out int f))
+                {
+                    *pOut = f;
+                    return true;
+                }
             }
+
+            return false;
+        }
+        public unsafe bool ReadValue(ref int pOut)
+        {
+            if (!LeaveTag())
+                return false;
+
             if (ReadValue())
             {
                 if (int.TryParse(Value, NumberStyles.Any, CultureInfo.InvariantCulture.NumberFormat, out int f))
@@ -377,7 +365,7 @@ namespace System.IO
                     return true;
                 }
             }
-            pOut = 0;
+
             return false;
         }
 
@@ -386,7 +374,7 @@ namespace System.IO
             if (!LeaveTag())
                 return false;
 
-            if (ReadString(ref _valueBuffer, ValueMax))
+            if (ReadString(_valueBuffer))
             {
                 _value = new string(_valueBuffer);
                 return true;
@@ -405,14 +393,11 @@ namespace System.IO
             if (!LeaveTag())
                 return null;
 
-            _valueBuffer = new char[ValueMax];
-
             int len = 0;
             while ((len < ValueMax) && !End && (Byte() != '<'))
                 _valueBuffer[len++] = (char)Byte(true);
 
-            Array.Resize(ref _valueBuffer, len);
-            //_valueBuffer[len] = NullTerminator;
+            _valueBuffer[len] = NullTerminator;
 
             if (!advance)
             {

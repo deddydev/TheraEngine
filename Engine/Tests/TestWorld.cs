@@ -102,6 +102,9 @@ namespace CustomEngine.Tests
             ////0.02646f
             options.InitialTransform.Scale = new Vec3(1.0f.InchesToMeters());
             ColladaScene = Collada.Import(desktop + "TEST.DAE", options, false, true);
+            ColladaScene._skeletalModel.Export(Engine.ContentFolderAbs, "TESTMESH", true);
+            ColladaScene._skeleton.Export(Engine.ContentFolderAbs, "TESTSKEL", true);
+
             //Collada.Scene anims = Collada.Import(googleDrive + "Thera Assets\\Characters\\Temp\\Carly_Idle.dae", options, true, false);
             //anims.CleanAnimations(scene._skeletalModel, scene._skeleton);
 

@@ -19,6 +19,7 @@ namespace CustomEngine.Rendering.Models
         RotationXYZ,
         PerspectiveXYZ,
     }
+    [FileClass("BONE", "BONE", "Bone")]
     public class Bone : FileObject, IPhysicsDrivable, ISocket
     {
         public Bone(Skeleton owner)

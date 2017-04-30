@@ -12,6 +12,7 @@ using System.Runtime.InteropServices;
 
 namespace CustomEngine.Rendering.Models
 {
+    [FileClass("SKLM", "SKLM", "Skeletal Mesh")]
     public class SkeletalMesh : FileObject
     {
         public SkeletalMesh() : base()

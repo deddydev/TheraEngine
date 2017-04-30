@@ -209,8 +209,7 @@ namespace CustomEngine.Files
             }
             else
             {
-                if (info.Attrib.SerializeIf != null && 
-                    !BooleanExpressionParser.Evaluate(info.Attrib.SerializeIf, obj))
+                if (info.Attrib.SerializeIf != null && !BooleanExpressionParser.Evaluate(info.Attrib.SerializeIf, obj))
                     return;
 
                 if (t.GetInterface("IList") != null)

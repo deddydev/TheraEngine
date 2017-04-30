@@ -13,6 +13,7 @@ using System.Collections.ObjectModel;
 
 namespace CustomEngine.Rendering.Models
 {
+    [FileClass("SKEL", "CSKEL", "Skeleton")]
     public class Skeleton : FileObject, IEnumerable<Bone>, IRenderable
     {
         public Skeleton() : base() { }

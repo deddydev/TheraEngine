@@ -95,7 +95,7 @@ namespace CustomEngine.Rendering.Animation
     }
 
     [ObjectHeader()]
-    [FileClass()]
+    [FileClass("CSTM", "CSTM", "Animation State Machine Component")]
     public class AnimStateMachineComponent : LogicComponent
     {
         private AnimState _initialState;

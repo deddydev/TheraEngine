@@ -18,7 +18,7 @@ namespace CustomEngine.Files
         ThirdParty  = 2,
         Programatic = 3,
     }
-    [FileClass(ManualBinSerialize = false, ManualXmlSerialize = false)]
+    [FileClass("", "", "")]
     public abstract class FileObject : ObjectBase
     {
         public FileClass FileHeader
@@ -160,7 +160,7 @@ namespace CustomEngine.Files
             if (!Directory.Exists(directory))
                 Directory.CreateDirectory(directory);
             fileName = String.IsNullOrEmpty(fileName) ? "NewFile" : fileName;
-            directory = directory + "\\" + fileName + ".b" + FileManager.GetExtension(t);
+            directory = directory + "\\" + fileName + ".b" + FileHeader.Extension.ToLower();
             using (FileStream stream = new FileStream(directory, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite, 8, FileOptions.SequentialScan))
             {
                 if (FileHeader.ManualBinSerialize)
@@ -256,7 +256,7 @@ namespace CustomEngine.Files
             fileName = String.IsNullOrEmpty(fileName) ? "NewFile" : fileName;
             if (!directory.EndsWith("\\"))
                 directory += "\\";
-            directory = directory + fileName + ".x" + FileManager.GetExtension(GetType());
+            directory = directory + fileName + ".x" + FileHeader.Extension.ToLower();
 
             if (FileHeader.ManualXmlSerialize)
             {

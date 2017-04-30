@@ -13,7 +13,7 @@ namespace CustomEngine.Worlds
         WorldSettings Settings { get; set; }
     }
     [ObjectHeader()]
-    [FileClass()]
+    [FileClass("WRLD", "WORLD", "World")]
     public unsafe class World : FileObject, IEnumerable<IActor>
     {
         static World()

@@ -15,7 +15,7 @@ namespace CustomEngine
         Deferred = 1,
     }
     [ObjectHeader()]
-    [FileClass(ManualBinSerialize = false, ManualXmlSerialize = false)]
+    [FileClass("ESET", "CESET", "Engine Settings")]
     public class EngineSettings : FileObject
     {
         [Category("Performance")]

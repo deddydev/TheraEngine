@@ -17,7 +17,7 @@ namespace CustomEngine.Rendering.Models
             {
                 while (_reader.BeginElement())
                 {
-                    if (_reader.Name.Equals("animation_clip", true))
+                    if (_reader.Name.Equals2("animation_clip", true))
                         _animationClips.Add(ParseAnimationClip());
                     _reader.EndElement();
                 }
@@ -29,13 +29,13 @@ namespace CustomEngine.Rendering.Models
 
                 while (_reader.ReadAttribute())
                 {
-                    if (_reader.Name.Equals("id", true))
+                    if (_reader.Name.Equals2("id", true))
                         clip._id = _reader.Value;
-                    else if (_reader.Name.Equals("name", true))
+                    else if (_reader.Name.Equals2("name", true))
                         clip._name = _reader.Value;
-                    else if (_reader.Name.Equals("start", true))
+                    else if (_reader.Name.Equals2("start", true))
                         clip._start = float.Parse(_reader.Value);
-                    else if (_reader.Name.Equals("end", true))
+                    else if (_reader.Name.Equals2("end", true))
                         clip._end = float.Parse(_reader.Value);
                 }
 
@@ -46,7 +46,7 @@ namespace CustomEngine.Rendering.Models
             {
                 while (_reader.BeginElement())
                 {
-                    if (_reader.Name.Equals("animation", true))
+                    if (_reader.Name.Equals2("animation", true))
                         _animations.Add(ParseAnimation());
                     _reader.EndElement();
                 }
@@ -57,20 +57,20 @@ namespace CustomEngine.Rendering.Models
                 AnimationEntry anim = new AnimationEntry();
                 while (_reader.ReadAttribute())
                 {
-                    if (_reader.Name.Equals("id", true))
+                    if (_reader.Name.Equals2("id", true))
                         anim._id = _reader.Value;
-                    else if (_reader.Name.Equals("name", true))
+                    else if (_reader.Name.Equals2("name", true))
                         anim._name = _reader.Value;
                 }
                 while (_reader.BeginElement())
                 {
-                    if (_reader.Name.Equals("animation", true))
+                    if (_reader.Name.Equals2("animation", true))
                         anim._animations.Add(ParseAnimation());
-                    else if (_reader.Name.Equals("source", true))
+                    else if (_reader.Name.Equals2("source", true))
                         anim._sources.Add(ParseSource());
-                    else if (_reader.Name.Equals("sampler", true))
+                    else if (_reader.Name.Equals2("sampler", true))
                         anim._samplers.Add(ParseSampler());
-                    else if (_reader.Name.Equals("channel", true))
+                    else if (_reader.Name.Equals2("channel", true))
                         anim._channels.Add(ParseChannel());
                     _reader.EndElement();
                 }
@@ -81,9 +81,9 @@ namespace CustomEngine.Rendering.Models
                 ChannelEntry entry = new ChannelEntry();
                 while (_reader.ReadAttribute())
                 {
-                    if (_reader.Name.Equals("source", true))
+                    if (_reader.Name.Equals2("source", true))
                         entry._source = _reader.Value[0] == '#' ? (_reader.Value + 1) : (string)_reader.Value;
-                    else if (_reader.Name.Equals("target", true))
+                    else if (_reader.Name.Equals2("target", true))
                         entry._target = _reader.Value;
                 }
                 return entry;
@@ -93,16 +93,16 @@ namespace CustomEngine.Rendering.Models
                 SamplerEntry entry = new SamplerEntry();
                 while (_reader.ReadAttribute())
                 {
-                    if (_reader.Name.Equals("id", true))
+                    if (_reader.Name.Equals2("id", true))
                         entry._id = _reader.Value;
-                    else if (_reader.Name.Equals("pre_behavior", true))
+                    else if (_reader.Name.Equals2("pre_behavior", true))
                         entry._preBehavior = (SamplerBehavior)Enum.Parse(typeof(SamplerBehavior), _reader.Value);
-                    else if (_reader.Name.Equals("post_behavior", true))
+                    else if (_reader.Name.Equals2("post_behavior", true))
                         entry._postBehavior = (SamplerBehavior)Enum.Parse(typeof(SamplerBehavior), _reader.Value);
                 }
                 while (_reader.BeginElement())
                 {
-                    if (_reader.Name.Equals("input", true))
+                    if (_reader.Name.Equals2("input", true))
                         entry._inputs.Add(ParseInput());
                     _reader.EndElement();
                 }

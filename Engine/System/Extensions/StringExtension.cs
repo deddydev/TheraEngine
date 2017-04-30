@@ -5,7 +5,7 @@ namespace System
 {
     public static unsafe class StringExtension
     {
-        public static bool Equals(this string s, string other, bool ignoreCase)
+        public static bool Equals2(this string s, string other, bool ignoreCase)
         {
             return String.Equals(s, other, ignoreCase ? StringComparison.InvariantCultureIgnoreCase : StringComparison.InvariantCulture);
         }

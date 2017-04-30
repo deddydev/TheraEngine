@@ -54,7 +54,7 @@ namespace CustomEngine.Files
             List<VarInfo> attribs = fields.Where(x => x.Attrib.IsXmlAttribute).ToList();
             while (reader.ReadAttribute())
             {
-                VarInfo attrib = attribs.FirstOrDefault(x => String.Equals(reader.Name, x.Name, StringComparison.InvariantCultureIgnoreCase));
+                VarInfo attrib = attribs.FirstOrDefault(x => reader.Name.Equals(x.Name, true));
                 if (attrib != null)
                 {
                     Type fieldType = attrib.VariableType;
@@ -70,12 +70,12 @@ namespace CustomEngine.Files
             List<VarInfo> elements = fields.Where(x => !x.Attrib.IsXmlAttribute).ToList();
             while (reader.BeginElement())
             {
-                var category = categorized.FirstOrDefault(x => String.Equals(reader.Name, x.Key, StringComparison.InvariantCultureIgnoreCase));
+                var category = categorized.FirstOrDefault(x => reader.Name.Equals(x.Key, true));
                 if (category != null)
                 {
                     while (reader.ReadAttribute())
                     {
-                        VarInfo p = category.FirstOrDefault(x => x.Attrib.IsXmlAttribute && String.Equals(reader.Name., x.Name, true));
+                        VarInfo p = category.FirstOrDefault(x => x.Attrib.IsXmlAttribute && reader.Name.Equals(x.Name, true));
                         
                     }
                     while (reader.BeginElement())
@@ -85,7 +85,7 @@ namespace CustomEngine.Files
                 }
                 else
                 {
-                    VarInfo element = elements.FirstOrDefault(x => reader.Name.Equals(x.Name, StringComparison.InvariantCultureIgnoreCase));
+                    VarInfo element = elements.FirstOrDefault(x => reader.Name.Equals(x.Name, true));
                     if (element != null)
                     {
                         Type fieldType = element.VariableType;

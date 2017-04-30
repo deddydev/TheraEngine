@@ -17,9 +17,9 @@ namespace CustomEngine
     public static partial class Engine
     {
         public static string StartupPath = Application.StartupPath + "\\";
-        public static string ContentFolderAbs = StartupPath + ContentFolderRel;
+        public static string ContentFolderAbs = StartupPath + "Content\\";
         public static string ContentFolderRel = "Content\\";
-        public static string ConfigFolderAbs = StartupPath + ConfigFolderRel;
+        public static string ConfigFolderAbs = StartupPath + "Config\\";
         public static string ConfigFolderRel = "Config\\";
         public static string EngineSettingsPathAbs = ConfigFolderAbs + "Engine.xcsettings";
         public static string EngineSettingsPathRel = ConfigFolderRel + "Engine.xcsettings";

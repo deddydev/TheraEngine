@@ -67,7 +67,7 @@ namespace CustomEngine.Worlds.Actors
         public override void OnSpawned()
         {
             foreach (RenderableMesh m in _meshes)
-                m.Visible = m.Mesh.VisibleByDefault;
+                m.Visible = m.Mesh.Visible;
 
             if (Engine.Settings.RenderSkeletons)
                 Engine.Renderer.Scene.AddRenderable(_skeleton);

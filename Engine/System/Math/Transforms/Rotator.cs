@@ -2,19 +2,15 @@
 using static System.CustomMath;
 using System.Runtime.InteropServices;
 using System.Xml.Serialization;
-using CustomEngine.Files;
-using CustomEngine;
-using System.Xml;
-using System.IO;
 
 namespace System
 {
+    public delegate void FloatChange(float newValue, float oldValue);
+    public delegate void RotatorChange(Rotator rotation);
     [Serializable]
     [StructLayout(LayoutKind.Sequential)]
     public unsafe class Rotator : IEquatable<Rotator>
     {
-        //internal const string XMLTag = "rotator";
-
         public Rotator() : this(Order.YPR) { }
 
         public Rotator(Order order) : this(0.0f, 0.0f, 0.0f, order) { }
@@ -31,21 +27,151 @@ namespace System
             _rotationOrder = rotationOrder;
         }
 
-        [Serialize("PitchYawRoll")]
+        public event FloatChange PitchChanged;
+        public event FloatChange YawChanged;
+        public event FloatChange RollChanged;
+        public event RotatorChange AllChanged;
+        public event Action Changed;
+        private int _updateIndex = 0;
+        private Vec3 _prevPyr;
+        private Rotator _syncPitch, _syncYaw, _syncRoll, _syncAll;
+
+        [Serialize("PitchYawRoll", IsXmlAttribute = true)]
         public Vec3 _pyr;
         [Serialize("Order", IsXmlAttribute = true)]
         public Order _rotationOrder = Order.YPR;
-
-        public event Action Changed;
-        private int _updateIndex = 0;
-
-        public static readonly int SizeInBytes = Marshal.SizeOf(new Rotator());
+        [Serialize("LockYaw", IsXmlAttribute = true)]
+        private bool _lockYaw = false;
+        [Serialize("LockPitch", IsXmlAttribute = true)]
+        private bool _lockPitch = false;
+        [Serialize("LockRoll", IsXmlAttribute = true)]
+        private bool _lockRoll = false;
         
-        private void BeginUpdate() { ++_updateIndex; }
+        private void BeginUpdate()
+        {
+            if (_updateIndex++ == 0)
+                _prevPyr = _pyr;
+        }
         private void EndUpdate()
         {
             if (--_updateIndex == 0)
-                Changed?.Invoke();
+            {
+                bool anyChanged = false;
+                if (!_prevPyr.X.EqualTo(_pyr.X))
+                {
+                    anyChanged = true;
+                    PitchChanged?.Invoke(_pyr.X, _prevPyr.X);
+                }
+                if (!_prevPyr.Y.EqualTo(_pyr.Y))
+                {
+                    anyChanged = true;
+                    YawChanged?.Invoke(_pyr.Y, _prevPyr.Y);
+                }
+                if (!_prevPyr.Z.EqualTo(_pyr.Z))
+                {
+                    anyChanged = true;
+                    RollChanged?.Invoke(_pyr.Z, _prevPyr.Z);
+                }
+                if (anyChanged)
+                {
+                    AllChanged?.Invoke(this);
+                    Changed?.Invoke();
+                }
+            }
+        }
+        public void SyncPitchFrom(Rotator other)
+        {
+            if (_syncAll != null)
+            {
+                _syncAll.AllChanged -= Other_Changed;
+                _syncAll = null;
+            }
+            other.PitchChanged += Other_PitchChanged;
+            _syncPitch = other;
+            Pitch = other.Pitch;
+        }
+        public void SyncYawFrom(Rotator other)
+        {
+            if (_syncAll != null)
+            {
+                _syncAll.AllChanged -= Other_Changed;
+                _syncAll = null;
+            }
+            other.YawChanged += Other_YawChanged;
+            _syncYaw = other;
+            Yaw = other.Yaw;
+        }
+        public void SyncRollFrom(Rotator other)
+        {
+            if (_syncAll != null)
+            {
+                _syncAll.AllChanged -= Other_Changed;
+                _syncAll = null;
+            }
+            other.RollChanged += Other_RollChanged;
+            _syncRoll = other;
+            Roll = other.Roll;
+        }
+        public void SyncFrom(Rotator other)
+        {
+            if (_syncPitch != null)
+            {
+                _syncPitch.PitchChanged -= Other_PitchChanged;
+                _syncPitch = null;
+            }
+            if (_syncYaw != null)
+            {
+                _syncYaw.YawChanged -= Other_YawChanged;
+                _syncYaw = null;
+            }
+            if (_syncRoll != null)
+            {
+                _syncRoll.RollChanged -= Other_RollChanged;
+                _syncRoll = null;
+            }
+            other.AllChanged += Other_Changed;
+            _syncAll = other;
+            SetRotations(other);
+        }
+        public void StopSynchronization()
+        {
+            if (_syncAll != null)
+            {
+                _syncAll.AllChanged -= Other_Changed;
+                _syncAll = null;
+            }
+            if (_syncPitch != null)
+            {
+                _syncPitch.PitchChanged -= Other_PitchChanged;
+                _syncPitch = null;
+            }
+            if (_syncYaw != null)
+            {
+                _syncYaw.YawChanged -= Other_YawChanged;
+                _syncYaw = null;
+            }
+            if (_syncRoll != null)
+            {
+                _syncRoll.RollChanged -= Other_RollChanged;
+                _syncRoll = null;
+            }
+        }
+
+        private void Other_Changed(Rotator other)
+        {
+            SetRotations(other);
+        }
+        private void Other_PitchChanged(float newValue, float oldValue)
+        {
+            Pitch = newValue;
+        }
+        private void Other_YawChanged(float newValue, float oldValue)
+        {
+            Yaw = newValue;
+        }
+        private void Other_RollChanged(float newValue, float oldValue)
+        {
+            Roll = newValue;
         }
 
         public Quat ToQuaternion()
@@ -224,29 +350,38 @@ namespace System
 
         public void SetRotationsNoUpdate(float pitch, float yaw, float roll)
         {
-            _pyr.X = pitch;
-            _pyr.Y = yaw;
-            _pyr.Z = roll;
+            if (!_lockPitch)
+                _pyr.X = pitch;
+            if (!_lockYaw)
+                _pyr.Y = yaw;
+            if (!_lockRoll)
+                _pyr.Z = roll;
         }
         public void SetRotationsNoUpdate(Rotator other)
         {
-            _pyr.X = other.Pitch;
-            _pyr.Y = other.Yaw;
-            _pyr.Z = other.Roll;
+            if (!_lockPitch)
+                _pyr.X = other.Pitch;
+            if (!_lockYaw)
+                _pyr.Y = other.Yaw;
+            if (!_lockRoll)
+                _pyr.Z = other.Roll;
             _rotationOrder = other._rotationOrder;
         }
         public void SetRotationsNoUpdate(float pitch, float yaw, float roll, Order order)
         {
-            _pyr.X = pitch;
-            _pyr.Y = yaw;
-            _pyr.Z = roll;
+            if (!_lockPitch)
+                _pyr.X = pitch;
+            if (!_lockYaw)
+                _pyr.Y = yaw;
+            if (!_lockRoll)
+                _pyr.Z = roll;
             _rotationOrder = order;
         }
 
         [XmlIgnore]
         public Vec2 YawPitch
         {
-            get { return new Vec2(Yaw, Pitch); }
+            get => new Vec2(Yaw, Pitch);
             set
             {
                 BeginUpdate();
@@ -258,9 +393,11 @@ namespace System
         [XmlIgnore]
         public float Yaw
         {
-            get { return _pyr.Y; }
+            get => _pyr.Y;
             set
             {
+                if (_lockYaw)
+                    return;
                 BeginUpdate();
                 _pyr.Y = value;
                 EndUpdate();
@@ -269,9 +406,11 @@ namespace System
         [XmlIgnore]
         public float Pitch
         {
-            get { return _pyr.X; }
+            get => _pyr.X;
             set
             {
+                if (_lockPitch)
+                    return;
                 BeginUpdate();
                 _pyr.X = value;
                 EndUpdate();
@@ -280,9 +419,11 @@ namespace System
         [XmlIgnore]
         public float Roll
         {
-            get { return _pyr.Z; }
+            get => _pyr.Z;
             set
             {
+                if (_lockRoll)
+                    return;
                 BeginUpdate();
                 _pyr.Z = value;
                 EndUpdate();
@@ -291,7 +432,7 @@ namespace System
         [XmlIgnore]
         public Vec2 YawRoll
         {
-            get { return new Vec2(Yaw, Roll); }
+            get => new Vec2(Yaw, Roll);
             set
             {
                 BeginUpdate();
@@ -445,11 +586,23 @@ namespace System
             EndUpdate();
         }
 
-        public static bool operator ==(Rotator left, Rotator right) { return left.Equals(right); }
-        public static bool operator !=(Rotator left, Rotator right) { return !left.Equals(right); }
+        public static bool operator ==(Rotator left, Rotator right)
+        {
+            if (ReferenceEquals(left, null))
+                return ReferenceEquals(right, null);
+            return left.Equals(right);
+        }
+        public static bool operator !=(Rotator left, Rotator right)
+        {
+            if (ReferenceEquals(left, null))
+                return !ReferenceEquals(right, null);
+            return !left.Equals(right);
+        }
         
-        public static explicit operator Vec3(Rotator v) { return new Vec3(v.Yaw, v.Pitch, v.Roll); }
-        public static explicit operator Rotator(Vec3 v) { return new Rotator(v.X, v.Y, v.Z, Order.PYR); }
+        public static explicit operator Vec3(Rotator v)
+            => new Vec3(v.Yaw, v.Pitch, v.Roll);
+        public static explicit operator Rotator(Vec3 v)
+            => new Rotator(v.X, v.Y, v.Z, Order.PYR);
 
         private static string listSeparator = Globalization.CultureInfo.CurrentCulture.TextInfo.ListSeparator;
 
@@ -489,6 +642,8 @@ namespace System
         }
         public bool Equals(Rotator other)
         {
+            if (ReferenceEquals(other, null))
+                return false;
             return
                 Yaw == other.Yaw &&
                 Pitch == other.Pitch &&
@@ -496,6 +651,8 @@ namespace System
         }
         public bool Equals(Rotator other, float precision)
         {
+            if (ReferenceEquals(other, null))
+                return false;
             return
                 Abs(Yaw - other.Yaw) < precision &&
                 Abs(Pitch - other.Pitch) < precision &&
@@ -508,41 +665,6 @@ namespace System
                 Yaw.IsZero() && 
                 Roll.IsZero();
         }
-        //public void Write(XmlWriter writer)
-        //{
-        //    writer.WriteStartElement(XMLTag);
-        //    writer.WriteAttributeString("order", _rotationOrder.ToString());
-        //    //writer.WriteElementString("order", _rotationOrder.ToString());
-        //    if (Pitch != 0.0f)
-        //        writer.WriteElementString("pitch", Pitch.ToString());
-        //    if (Yaw != 0.0f)
-        //        writer.WriteElementString("yaw", Yaw.ToString());
-        //    if (Roll != 0.0f)
-        //        writer.WriteElementString("roll", Roll.ToString());
-        //    writer.WriteEndElement();
-        //}
-        //public void Read(XMLReader reader)
-        //{
-        //    if (!reader.Name.Equals(XMLTag, true))
-        //        throw new Exception();
-        //    while (reader.ReadAttribute())
-        //    {
-        //        if (reader.Name.Equals("order", true))
-        //            _rotationOrder = (Order)Enum.Parse(typeof(Order), (string)reader.Value);
-        //    }
-        //    while (reader.BeginElement())
-        //    {
-        //        //if (reader.Name.Equals("order", true))
-        //        //    _rotationOrder = (Order)Enum.Parse(typeof(Order), reader.ReadElementString());
-        //        if (reader.Name.Equals("pitch", true))
-        //            _pyr.X = float.Parse(reader.ReadElementString());
-        //        if (reader.Name.Equals("yaw", true))
-        //            _pyr.Y = float.Parse(reader.ReadElementString());
-        //        if (reader.Name.Equals("roll", true))
-        //            _pyr.Z = float.Parse(reader.ReadElementString());
-        //        reader.EndElement();
-        //    }
-        //}
         public enum Order
         {
             YPR = 0,
@@ -552,26 +674,5 @@ namespace System
             RPY,
             RYP,
         }
-        //[StructLayout(LayoutKind.Sequential, Pack = 1)]
-        //public struct Header
-        //{
-        //    public const int Size = 16;
-
-        //    public bint _order;
-        //    public BVec3 _pyr;
-
-        //    public static implicit operator Header(Rotator r)
-        //    {
-        //        return new Header()
-        //        {
-        //            _order = (int)r._rotationOrder,
-        //            _pyr = r._pyr
-        //        };
-        //    }
-        //    public static implicit operator Rotator(Header h)
-        //    {
-        //        return new Rotator(h._pyr, (Order)(int)h._order);
-        //    }
-        //}
     }
 }

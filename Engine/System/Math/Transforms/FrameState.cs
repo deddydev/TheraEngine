@@ -107,12 +107,13 @@ namespace System
         }
 
         private Quat _quaternion = Quat.Identity;
+        [Serialize("Rotation", DefaultValue = "(0, 0, 0, YPR)")]
         private Rotator _rotation;
-        [Serialize("Translation")]
+        [Serialize("Translation", DefaultValue = "(0, 0, 0)")]
         private EventVec3 _translation;
-        [Serialize("Scale")]
+        [Serialize("Scale", DefaultValue = "(1, 1, 1)")]
         private EventVec3 _scale;
-        [Serialize("Order", IsXmlAttribute = true)]
+        [Serialize("Order", DefaultValue = "TRS", IsXmlAttribute = true)]
         private TransformOrder _transformOrder = TransformOrder.TRS;
 
         private Matrix4 _transform = Matrix4.Identity;
@@ -233,6 +234,7 @@ namespace System
             CreateTransform();
             ScaleChanged?.Invoke(oldScale);
         }
+        [PostDeserialize]
         public void CreateTransform()
         {
             Matrix4 oldMatrix = _transform;

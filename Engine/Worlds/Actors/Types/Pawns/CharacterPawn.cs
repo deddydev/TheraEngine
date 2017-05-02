@@ -13,31 +13,6 @@ using CustomEngine.Rendering.Animation;
 
 namespace CustomEngine.Worlds.Actors
 {
-    public struct ZoomLevel
-    {
-        public ZoomLevel(float fovY, float aimAssistDistance)
-        {
-            _fovY = fovY;
-            _aimAssistDistance = aimAssistDistance;
-        }
-
-        private float _fovY;
-        private float _aimAssistDistance;
-
-        public float FovY
-        {
-            get => _fovY;
-            set => _fovY = value;
-        }
-        public float Distance
-        {
-            get => _aimAssistDistance;
-            set => _aimAssistDistance = value;
-        }
-
-        public static ZoomLevel DefaultNonZoomed => new ZoomLevel(78.0f, 1000.0f);
-        public static ZoomLevel DefaultZoomed => new ZoomLevel(45.0f, 2000.0f);
-    }
     /// <summary>
     /// Use this interface for interaction with pawns.
     /// </summary>
@@ -85,7 +60,7 @@ namespace CustomEngine.Worlds.Actors
         protected BoomComponent _tpCameraBoom;
         protected CameraComponent _fpCameraComponent, _tpCameraComponent;
         private bool _firstPerson = false;
-        private Rotator _viewRotation;
+        private Rotator _viewRotation = Rotator.GetZero(Rotator.Order.YPR);
         protected Vec2 _keyboardMovementInput = Vec2.Zero;
         protected Vec2 _gamepadMovementInput = Vec2.Zero;
         
@@ -173,9 +148,11 @@ namespace CustomEngine.Worlds.Actors
         private void Look(float x, float y)
         {
             //RootComponent.Rotation.Yaw += x;
-            _tpCameraBoom.Rotation.Pitch -= y;
-            _tpCameraBoom.Rotation.Yaw -= x;
-            float yaw = _tpCameraBoom.Rotation.Yaw.RemapToRange(0.0f, 360.0f);
+            _viewRotation.Pitch -= y;
+            _viewRotation.Yaw -= x;
+            //_tpCameraBoom.Rotation.Pitch -= y;
+            //_tpCameraBoom.Rotation.Yaw -= x;
+            float yaw = _viewRotation.Yaw.RemapToRange(0.0f, 360.0f);
             if (yaw < 45.0f || yaw >= 315.0f)
             {
                 _meshComp.Rotation.Yaw = 180.0f;
@@ -196,14 +173,17 @@ namespace CustomEngine.Worlds.Actors
         }
         private void LookRight(float value)
         {
+            value *= Engine.RenderDelta;
+            _viewRotation.Yaw += value;
             //_tpCameraBoom.Yaw += value;
-            RootComponent.Rotation.Yaw += value * Engine.RenderDelta;
+            //RootComponent.Rotation.Yaw += value * Engine.RenderDelta;
             //CurrentCameraComponent.Camera.AddRotation(0.0f, value);
         }
         private void LookUp(float value)
         {
             value *= Engine.RenderDelta;
-            _tpCameraBoom.Rotation.Pitch += value;
+            _viewRotation.Pitch += value;
+            //_tpCameraBoom.Rotation.Pitch += value;
             //_fpCameraComponent.Camera.AddRotation(value, 0.0f);
             //RootComponent.Rotation.Yaw += value;
             //CurrentCameraComponent.Camera.AddRotation(value, 0.0f);
@@ -249,15 +229,18 @@ namespace CustomEngine.Worlds.Actors
             _meshComp.Translation.Raw = new Vec3(0.0f, -capsuleTotalHalfHeight, 0.0f);
             rootCapsule.ChildComponents.Add(_meshComp);
 
-            //PerspectiveCamera FPCam = new PerspectiveCamera();
-            //FPCam.VerticalFieldOfView = 30.0f;
-            //FPCam.FarZ = 50.0f;
-            //_fpCameraComponent = new CameraComponent(FPCam);
-            //_fpCameraComponent.AttachTo(mesh, "Head");
+            PerspectiveCamera FPCam = new PerspectiveCamera()
+            {
+                VerticalFieldOfView = 30.0f,
+                FarZ = 50.0f
+            };
+            FPCam.LocalRotation.SyncFrom(_viewRotation);
+            _fpCameraComponent = new CameraComponent(FPCam);
+            _fpCameraComponent.AttachTo(_meshComp, "Head");
 
             _tpCameraBoom = new BoomComponent();
             _tpCameraBoom.Translation.Raw = new Vec3(0.4f, 0.2f, 0.0f);
-            _tpCameraBoom.Rotation.Yaw = 180.0f;
+            _tpCameraBoom.Rotation.SyncFrom(_viewRotation);
             _tpCameraBoom.MaxLength = 2.0f;
             rootCapsule.ChildComponents.Add(_tpCameraBoom);
 
@@ -271,7 +254,9 @@ namespace CustomEngine.Worlds.Actors
             _tpCameraBoom.ChildComponents.Add(_tpCameraComponent);
             
             rootCapsule.PhysicsDriver.SimulatingPhysics = true;
-            //CurrentCameraComponent = _tpCameraComponent;
+            CurrentCameraComponent = _tpCameraComponent;
+
+            _viewRotation.Yaw = 180.0f;
 
             return rootCapsule;
         }

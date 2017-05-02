@@ -7,15 +7,17 @@ namespace CustomEngine.Tests
 {
     public class TestCharacter : CharacterPawn
     {
+        public const string MeshName = "TESTMESH";
+        public const string SkelName = "TESTSKEL";
         protected override void PreConstruct()
         {
             Collada.ImportOptions options = new Collada.ImportOptions();
             options.InitialTransform.Scale = new Vec3(1.0f.InchesToMeters());
             string desktop = Environment.MachineName == "DAVID-DESKTOP" ? "X:\\Desktop\\" : "C:\\Users\\David\\Desktop\\";
             //Collada.Scene scene = Collada.Import(desktop + "TEST.DAE", options, false, true);
-            Mesh = new SingleFileRef<SkeletalMesh>(Engine.ContentFolderAbs + "TESTMESH.XCSKLM");
+            Mesh = new SingleFileRef<SkeletalMesh>(Engine.ContentFolderAbs + MeshName + "." + GetFileHeader(typeof(SkeletalMesh)).Extension);
             //Mesh = TestWorld.ColladaScene._skeletalModel;
-            Skeleton = new SingleFileRef<Skeleton>(Engine.ContentFolderAbs + "TESTSKEL.XCSKEL");
+            Skeleton = new SingleFileRef<Skeleton>(Engine.ContentFolderAbs + SkelName + "." + GetFileHeader(typeof(Skeleton)).Extension);
             //Skeleton = TestWorld.ColladaScene._skeleton;
             base.PreConstruct();
         }

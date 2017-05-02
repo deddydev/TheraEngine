@@ -149,25 +149,5 @@ namespace CustomEngine.Rendering.Models.Materials
             };
             return new Material("GBufferMaterial", parameters, refs, frag);
         }
-        protected override int OnCalculateSize(StringTable table)
-        {
-            return 0;
-        }
-        public override void Write(VoidPtr address, StringTable table)
-        {
-
-        }
-        public override void Read(VoidPtr address, VoidPtr strings)
-        {
-
-        }
-        public override void Write(XmlWriter writer)
-        {
-
-        }
-        public override void Read(XMLReader reader)
-        {
-
-        }
     }
 }

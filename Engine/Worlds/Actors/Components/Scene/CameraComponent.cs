@@ -109,24 +109,15 @@ namespace CustomEngine.Worlds.Actors
         {
             _camera.TranslateAbsolute(-newOrigin);
         }
-        Vec3 _destPoint;
-        protected internal override void Tick(float delta)
-        {
-            Vec3 currentPoint = _worldTransform.GetPoint();
-            Vec3 destPoint = (GetParentMatrix() * LocalMatrix).GetPoint();
-
-            _destPoint = CustomMath.InterpCosineTo(currentPoint, destPoint, delta);
-        }
         public override void OnSpawned()
         {
-            RegisterTick(ETickGroup.PostPhysics, ETickOrder.Logic);
             if (Engine.Settings.RenderCameraFrustums)
                 Engine.Renderer.Scene.AddRenderable(_camera);
             base.OnSpawned();
         }
         public override void OnDespawned()
         {
-            UnregisterTick();
+            //UnregisterTick();
             if (Engine.Settings.RenderCameraFrustums)
                 Engine.Renderer.Scene.RemoveRenderable(_camera);
             base.OnDespawned();

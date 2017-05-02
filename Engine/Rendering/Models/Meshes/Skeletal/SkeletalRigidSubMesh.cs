@@ -27,17 +27,24 @@ namespace CustomEngine.Rendering.Models
         }
 
         protected SkeletalMesh _parent;
+        [Serialize("Primitives")]
         protected PrimitiveData _data;
         protected Material _material;
+        [Serialize("CullingVolume")]
         protected Shape _cullingVolume;
-        protected bool _visibleByDefault = true, _renderSolid;
-        
+        [Serialize("Visible")]
+        protected bool _visible;
+
+        public bool Visible
+        {
+            get => _visible;
+            set => _visible = value;
+        }
         public Shape CullingVolume
         {
             get => _cullingVolume;
             set => _cullingVolume = value;
         }
-        public bool VisibleByDefault => _visibleByDefault;
         public Material Material
         {
             get => _material;
@@ -51,30 +58,5 @@ namespace CustomEngine.Rendering.Models
         }
 
         public string SingleBindName => _data._singleBindBone;
-
-        public override void Write(VoidPtr address, StringTable table)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void Read(VoidPtr address, VoidPtr strings)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void Write(XmlWriter writer)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void Read(XMLReader reader)
-        {
-            throw new NotImplementedException();
-        }
-
-        protected override int OnCalculateSize(StringTable table)
-        {
-            throw new NotImplementedException();
-        }
     }
 }

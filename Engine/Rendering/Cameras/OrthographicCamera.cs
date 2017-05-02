@@ -34,21 +34,22 @@ namespace CustomEngine.Rendering.Cameras
         [Serialize("Scale")]
         private EventVec3 _scale = Vec3.One;
 
-        private bool
-            _lockYaw = false, 
-            _lockPitch = false,
-            _lockRoll = false;
-        private float
-            _orthoLeft = 0.0f,
-            _orthoRight = 1.0f,
-            _orthoBottom = 0.0f,
-            _orthoTop = 1.0f;
-        private float
-            _orthoLeftPercentage = 0.0f,
-            _orthoRightPercentage = 1.0f,
-            _orthoBottomPercentage = 0.0f,
-            _orthoTopPercentage = 1.0f;
+        private float _orthoLeft = 0.0f;
+        private float _orthoRight = 1.0f;
+        private float _orthoBottom = 0.0f;
+        private float _orthoTop = 1.0f;
+
+        [Serialize("OrthoLeftPercentage")]
+        private float _orthoLeftPercentage = 0.0f;
+        [Serialize("OrthoRightPercentage")]
+        private float _orthoRightPercentage = 1.0f;
+        [Serialize("OrthoBottomPercentage")]
+        private float _orthoBottomPercentage = 0.0f;
+        [Serialize("OrthoTopPercentage")]
+        private float _orthoTopPercentage = 1.0f;
+
         private Vec2 _origin;
+        [Serialize("OriginPercentages")]
         private EventVec2 _originPercentages = Vec2.Zero;
 
         public void SetCenteredStyle() 
@@ -121,96 +122,5 @@ namespace CustomEngine.Rendering.Cameras
         {
             return _scale.X * 80.0f;
         }
-        //public unsafe override void Write(VoidPtr address, StringTable table)
-        //{
-        //    *(Header*)address = this;
-        //}
-        //public unsafe override void Read(VoidPtr address, VoidPtr strings)
-        //{
-        //    Header h = *(Header*)address;
-        //    _point.Raw = h._point;
-        //    _rotation.SetRotations(h._rotation);
-        //    _nearZ = h._nearZ;
-        //    _farZ = h._farZ;
-        //}
-        //public override void Write(XmlWriter writer)
-        //{
-        //    writer.WriteStartElement("orthographicCamera");
-        //    writer.WriteAttributeString("originPercentages", _originPercentages.Raw.ToString(false, false));
-        //    writer.WriteAttributeString("lockYaw", _lockYaw.ToString());
-        //    writer.WriteAttributeString("lockPitch", _lockPitch.ToString());
-        //    writer.WriteAttributeString("lockRoll", _lockRoll.ToString());
-        //    writer.WriteAttributeString("nearZ", _nearZ.ToString());
-        //    writer.WriteAttributeString("farZ", _farZ.ToString());
-        //    if (_point.Raw != Vec3.Zero)
-        //        writer.WriteElementString("point", _point.Raw.ToString(false, false));
-        //    //if (!_rotation.IsZero())
-        //    _rotation.Write(writer);
-        //    writer.WriteEndElement();
-        //}
-        //public override void Read(XMLReader reader)
-        //{
-        //    if (!reader.Name.Equals("orthographicCamera", true))
-        //        throw new Exception();
-        //    _point.Raw = Vec3.Zero;
-        //    _rotation.PitchYawRoll = Vec3.Zero;
-        //    _originPercentages = Vec2.Zero;
-        //    while (reader.ReadAttribute())
-        //    {
-        //        if (reader.Name.Equals("originPercentages", true))
-        //            _originPercentages = Vec2.Parse((string)reader.Value);
-        //        if (reader.Name.Equals("lockYaw", true))
-        //            _lockYaw = bool.Parse((string)reader.Value);
-        //        if (reader.Name.Equals("lockPitch", true))
-        //            _lockPitch = bool.Parse((string)reader.Value);
-        //        if (reader.Name.Equals("lockRoll", true))
-        //            _lockRoll = bool.Parse((string)reader.Value);
-        //        if (reader.Name.Equals("nearZ", true))
-        //            _nearZ = float.Parse((string)reader.Value);
-        //        if (reader.Name.Equals("farZ", true))
-        //            _farZ = float.Parse((string)reader.Value);
-        //    }
-        //    SetOriginPercentages(_originPercentages);
-        //    while (reader.BeginElement())
-        //    {
-        //        if (reader.Name.Equals("point", true))
-        //            _point.Raw = Vec3.Parse(reader.ReadElementString());
-        //        else if (reader.Name.Equals(Rotator.XMLTag, true))
-        //            _rotation.Read(reader);
-        //        reader.EndElement();
-        //    }
-        //}
-        //protected override int OnCalculateSize(StringTable table)
-        //    => Header.Size;
-        
-        //[StructLayout(LayoutKind.Sequential, Pack = 1)]
-        //public struct Header
-        //{
-        //    public const int Size = BVec3.Size * 2 + Rotator.Header.Size + 8 + BVec2.Size;
-
-        //    public BVec3 _point;
-        //    public Rotator.Header _rotation;
-        //    public bfloat _nearZ;
-        //    public bfloat _farZ;
-        //    public BVec2 _originPercentages;
-        //    public BVec3 _scale;
-
-        //    public static implicit operator Header(OrthographicCamera c)
-        //    {
-        //        return new Header()
-        //        {
-        //            _point = c._point.Raw,
-        //            _rotation = c._rotation,
-        //            _scale = c._scale.Raw,
-        //            _originPercentages = c._originPercentages.Raw,
-        //            _nearZ = c._nearZ,
-        //            _farZ = c._farZ,
-        //        };
-        //    }
-        //    public static implicit operator OrthographicCamera(Header h)
-        //    {
-        //        return new OrthographicCamera(h._scale, h._point, h._rotation, h._originPercentages, h._nearZ, h._farZ);
-        //    }
-        //}
     }
 }

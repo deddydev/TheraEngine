@@ -184,23 +184,6 @@ namespace CustomEngine.Files
                 {
                     CustomBinarySerializer s = new CustomBinarySerializer();
                     s.Serialize(this, stream);
-
-                    StringTable table = new StringTable();
-                    int dataSize = FileCommonHeader.Size;
-
-                    
-                    int stringSize = table.GetTotalSize();
-                    int totalSize = dataSize + stringSize;
-                    stream.SetLength(totalSize);
-                    using (FileMap map = FileMap.FromStream(stream))
-                    {
-                        FileCommonHeader* hdr = (FileCommonHeader*)map.Address;
-                        hdr->Tag = FileManager.GetTag(t);
-                        table.WriteTable(hdr);
-                        hdr->_fileLength = totalSize;
-                        hdr->_stringTableLength = stringSize;
-                        Write(hdr->FileHeader, table);
-                    }
                 }
             }
         }
@@ -237,7 +220,7 @@ namespace CustomEngine.Files
             }
             else
             {
-                return CustomXmlSerializer.Deserialize(filePath, t);
+                return (FileObject)CustomXmlSerializer.Deserialize(filePath, t);
             }
         }
         private static XmlWriterSettings _writerSettings = new XmlWriterSettings()
@@ -296,7 +279,7 @@ namespace CustomEngine.Files
             {
                 sbyte* dPtr = (sbyte*)Address;
                 for (int i = 0; i < 4; ++i)
-                    *dPtr++ = (sbyte)value[i >= value.Length ? ' ' : value[i]];
+                    *dPtr++ = (sbyte)(i >= value.Length ? ' ' : value[i]);
             }
         }
         public VoidPtr Strings => Address + Size;

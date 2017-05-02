@@ -197,7 +197,7 @@ namespace CustomEngine.Rendering.Cameras
         protected float _nearZ = 1.0f;
         [Serialize("FarZ")]
         protected float _farZ = 2000.0f;
-
+        [Serialize("PostProcessSettings")]
         private PostProcessSettings _postProcessSettings;
 
         protected Matrix4
@@ -355,6 +355,7 @@ namespace CustomEngine.Rendering.Cameras
             Engine.Renderer.Uniform(Uniform.GetLocation(ECommonUniform.CameraUp),       GetUpVector());
             Engine.Renderer.Uniform(Uniform.GetLocation(ECommonUniform.CameraRight),    GetRightVector());
         }
+        [PostDeserialize]
         protected virtual void CalculateProjection()
         {
             _projectionRange = new Vec3(Dimensions, FarZ - NearZ);

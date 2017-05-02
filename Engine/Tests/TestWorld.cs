@@ -99,7 +99,7 @@ namespace CustomEngine.Tests
                 "C:\\Users\\David\\Google Drive\\Game\\";
 
             Collada.ImportOptions options = new Collada.ImportOptions();
-            ////0.02646f
+            //0.02646f
             options.InitialTransform.Scale = new Vec3(1.0f.InchesToMeters());
             ColladaScene = Collada.Import(desktop + "TEST.DAE", options, false, true);
             ColladaScene._skeletalModel.Export(Engine.ContentFolderAbs, "TESTMESH", true);

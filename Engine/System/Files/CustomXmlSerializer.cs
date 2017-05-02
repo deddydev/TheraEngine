@@ -15,13 +15,18 @@ namespace CustomEngine.Files
 {
     public static class CustomXmlSerializer
     {
+        private static object CreateObject(Type t)
+        {
+            //return FormatterServices.GetUninitializedObject(t);
+            return Activator.CreateInstance(t);
+        }
         #region Deserialization
         /// <summary>
         /// Reads a file from the stream as xml.
         /// </summary>
-        public static unsafe FileObject Deserialize(string filePath, Type t)
+        public static unsafe object Deserialize(string filePath, Type t)
         {
-            FileObject obj;
+            object obj;
             using (FileMap map = FileMap.FromFile(filePath))
             using (XMLReader reader = new XMLReader(map.Address, map.Length))
             {
@@ -31,17 +36,31 @@ namespace CustomEngine.Files
                     reader.EndElement();
                 }
                 else
-                    obj = (FileObject)Activator.CreateInstance(t);
-                obj._filePath = filePath;
+                    obj = CreateObject(t);
+                if (obj is FileObject o)
+                    o._filePath = filePath;
             }
             return obj;
         }
         private static object ReadObject(Type t, XMLReader reader)
         {
             List<VarInfo> fields = CollectSerializedMembers(t);
-            //FileObject obj = (FileObject)FormatterServices.GetUninitializedObject(t);
-            object obj = Activator.CreateInstance(t);
-            MethodInfo[] methods = t.GetMethods();
+            object obj = CreateObject(t);
+            MethodInfo[] methods = t.GetMethods(BindingFlags.NonPublic | BindingFlags.Public);
+            List<MethodInfo> preMethods = new List<MethodInfo>();
+            List<MethodInfo> postMethods = new List<MethodInfo>();
+            foreach (MethodInfo m in methods)
+            {
+                PreDeserialize pre = m.GetCustomAttribute<PreDeserialize>();
+                if (pre != null && pre.RunForFormats.HasFlag(SerializeFormatFlag.XML))
+                    preMethods.Add(m);
+                PostDeserialize post = m.GetCustomAttribute<PostDeserialize>();
+                if (post != null && post.RunForFormats.HasFlag(SerializeFormatFlag.XML))
+                    postMethods.Add(m);
+            }
+
+            foreach (MethodInfo m in preMethods.OrderBy(x => x.GetCustomAttribute<PreDeserialize>().Order))
+                m.Invoke(obj, m.GetCustomAttribute<PreDeserialize>().Arguments);
 
             var categorized = fields.
                 Where(x => x.Category != null).
@@ -95,6 +114,10 @@ namespace CustomEngine.Files
                 reader.EndElement();
             }
 
+
+            foreach (MethodInfo m in postMethods.OrderBy(x => x.GetCustomAttribute<PostDeserialize>().Order))
+                m.Invoke(obj, m.GetCustomAttribute<PostDeserialize>().Arguments);
+
             return obj;
         }
         private static object ParseString(string value, Type t)
@@ -134,18 +157,17 @@ namespace CustomEngine.Files
 
         #region Serialization
         /// <summary>
-        /// Writes the given file to the stream as xml.
+        /// Writes the given object to the path as xml.
         /// </summary>
         public static void Serialize(FileObject obj, string filePath)
         {
-            List<VarInfo> fields = CollectSerializedMembers(obj.GetType());
             using (FileStream stream = new FileStream(filePath, FileMode.Create, FileAccess.ReadWrite, FileShare.None, 0x1000, FileOptions.SequentialScan))
             using (XmlWriter writer = XmlWriter.Create(stream, _writerSettings))
             {
                 writer.Flush();
                 stream.Position = 0;
                 writer.WriteStartDocument();
-                WriteObjectElement(obj, fields, writer);
+                WriteObjectElement(obj, null, writer);
                 writer.WriteEndDocument();
             }
         }
@@ -156,7 +178,16 @@ namespace CustomEngine.Files
             NewLineChars = "\r\n",
             NewLineHandling = NewLineHandling.Replace
         };
-        private static void WriteObjectElement(object obj, List<VarInfo> fields, XmlWriter writer)
+        private static void WriteObjectElement(object obj, string name, XmlWriter writer)
+        {
+            if (obj == null)
+                return;
+
+            Type t = obj.GetType();
+            List<VarInfo> fields = CollectSerializedMembers(t);
+            WriteObjectElement(obj, fields, name, writer);
+        }
+        private static void WriteObjectElement(object obj, List<VarInfo> fields, string name, XmlWriter writer)
         {
             if (obj == null)
                 return;
@@ -172,7 +203,9 @@ namespace CustomEngine.Files
                     fields.Remove(p);
 
             //Write start tag for this object
-            string name = GetTypeName(t);
+            if (string.IsNullOrEmpty(name))
+                name = GetTypeName(t);
+
             writer.WriteStartElement(name);
             {
                 //Write attributes and then elements
@@ -225,11 +258,11 @@ namespace CustomEngine.Files
                         {
                             //Struct
                             case "ValueType":
-                                List<VarInfo> structFields = CollectSerializedMembers(info.VariableType);
+                                List<VarInfo> structFields = CollectSerializedMembers(array[0].GetType());
                                 if (structFields.Count > 0)
                                 {
                                     foreach (object o in array)
-                                        WriteObjectElement(o, structFields, writer);
+                                        WriteObjectElement(o, structFields, "Item", writer);
                                 }
                                 else
                                 {
@@ -239,9 +272,8 @@ namespace CustomEngine.Files
                                 break;
                             //Class
                             case "Object":
-                                List<VarInfo> classFields = CollectSerializedMembers(info.VariableType);
                                 foreach (object o in array)
-                                    WriteObjectElement(o, classFields, writer);
+                                    WriteObjectElement(o, "Item", writer);
                                 break;
                             //Primitive class
                             case "String":
@@ -305,14 +337,14 @@ namespace CustomEngine.Files
                     case "ValueType":
                         List<VarInfo> structFields = CollectSerializedMembers(info.VariableType);
                         if (structFields.Count > 0)
-                            WriteObjectElement(value, structFields, writer);
+                            WriteObjectElement(value, structFields, info.Name, writer);
                         else
                             writer.WriteElementString(info.Name, value.ToString());
                         break;
                     //Class
                     case "Object":
                         List<VarInfo> classFields = CollectSerializedMembers(info.VariableType);
-                        WriteObjectElement(value, classFields, writer);
+                        WriteObjectElement(value, classFields, info.Name, writer);
                         break;
                     //Primitive class
                     case "String":

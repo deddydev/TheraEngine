@@ -21,7 +21,7 @@ namespace CustomEngine
     }
     public interface ISkeletalMesh
     {
-        bool VisibleByDefault { get; }
+        bool Visible { get; }
         string SingleBindName { get; }
         PrimitiveData Data { get; }
         Material Material { get; set; }

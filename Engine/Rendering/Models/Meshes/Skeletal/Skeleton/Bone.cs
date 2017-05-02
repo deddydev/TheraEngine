@@ -124,7 +124,7 @@ namespace CustomEngine.Rendering.Models
 
         [Serialize("ChildBones")]
         private MonitoredList<Bone> _childBones = new MonitoredList<Bone>();
-        [Serialize("ChildComponents")]
+        //[Serialize("ChildComponents")]
         private MonitoredList<SceneComponent> _childComponents = new MonitoredList<SceneComponent>();
         [Serialize("PhysicsDriver")]
         private PhysicsDriver _physicsDriver;

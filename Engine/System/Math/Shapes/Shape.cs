@@ -35,14 +35,17 @@ namespace System
     {
         public event Action AttributeChanged;
 
-        protected bool 
-            _isRendering,
-            _isVisible,
-            _visibleByDefault,
-            _renderSolid,
-            _visibleInEditorOnly = false,
-            _hiddenFromOwner = false,
-            _visibleToOwnerOnly = false;
+        protected bool _isRendering;
+        [Serialize("IsVisible")]
+        protected bool _isVisible;
+        [Serialize("RenderSolid")]
+        protected bool _renderSolid;
+        [Serialize("VisibleInEditorOnly")]
+        protected bool _visibleInEditorOnly = false;
+        [Serialize("HiddenFromOwner")]
+        protected bool _hiddenFromOwner = false;
+        [Serialize("VisibleToOwnerOnly")]
+        protected bool _visibleToOwnerOnly = false;
 
         protected IOctreeNode _renderNode;
         private int _shapeIndex;
@@ -68,10 +71,6 @@ namespace System
         {
             get { return _isRendering; }
             set { _isRendering = value; }
-        }
-        public bool VisibleByDefault
-        {
-            get { return _visibleByDefault; }
         }
         public bool Visible
         {

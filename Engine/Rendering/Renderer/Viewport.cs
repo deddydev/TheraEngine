@@ -134,7 +134,7 @@ namespace CustomEngine.Rendering
             _region.Height = _topPercentage * parentHeight - _region.Y;
 
             _worldCamera?.Resize(Width, Height);
-            _hud?.Resize(_region.Bounds);
+            _hud.Resize(_region.Bounds);
             _gBuffer?.SetRegion(_region);
         }
         public void DebugPrint(string message)
@@ -247,7 +247,7 @@ namespace CustomEngine.Rendering
             Engine.Renderer.BindFrameBuffer(FramebufferType.ReadWrite, 0);
             //Engine.Renderer.Clear(BufferClear.Color);
             _gBuffer.Render();
-            _hud?.Render();
+            _hud.Render();
             //if (_hasAnyForward)
             //{
             //    //Copy depth from GBuffer to main frame buffer
@@ -392,7 +392,7 @@ namespace CustomEngine.Rendering
         {
             if (testHud)
             {
-                HudComponent hudComp = _hud.FindClosestComponent(viewportPoint);
+                HudComponent hudComp = _hud?.FindClosestComponent(viewportPoint);
                 if (hudComp != null)
                     return hudComp;
             }

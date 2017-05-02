@@ -1,10 +1,8 @@
 ﻿using CustomEngine.Input;
 using CustomEngine.Input.Devices;
-using CustomEngine.Worlds.Actors;
 using System;
-using CustomEngine.Rendering.Cameras;
-using System.Linq;
 using CustomEngine.Rendering;
+using CustomEngine.Rendering.HUD;
 
 namespace CustomEngine.Worlds.Actors
 {
@@ -45,6 +43,7 @@ namespace CustomEngine.Worlds.Actors
     {
         private PawnController _controller;
         private CameraComponent _currentCameraComponent;
+        private HudManager _hud = null;
 
         public PawnController Controller => _controller;
         public LocalPlayerController LocalPlayerController => _controller as LocalPlayerController;
@@ -64,6 +63,12 @@ namespace CustomEngine.Worlds.Actors
             }
         }
 
+        public HudManager Hud
+        {
+            get => _hud;
+            set => _hud = value;
+        }
+
         public Pawn(bool deferInitialization = false) : base(deferInitialization) { }
         public Pawn(bool deferInitialization, PlayerIndex possessor) : base(deferInitialization) { QueuePossession(possessor); }
         public Pawn(T root, params LogicComponent[] logicComponents)
@@ -81,9 +86,14 @@ namespace CustomEngine.Worlds.Actors
 
             _controller = possessor;
 
+            //Possessed by a local controller?
             LocalPlayerController controller = LocalPlayerController;
-            if (controller != null && _currentCameraComponent != null)
-                controller.CurrentCamera = _currentCameraComponent.Camera;
+            if (controller != null)
+            {
+                controller.Viewport.HUD = _hud;
+                if (_currentCameraComponent != null)
+                    controller.CurrentCamera = _currentCameraComponent.Camera;
+            }
         }
         public virtual void OnUnPossessed()
         {

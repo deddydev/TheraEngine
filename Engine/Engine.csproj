@@ -742,7 +742,10 @@
     <Compile Include="System\Platform\Linux.cs" />
     <Compile Include="System\Platform\OSX.cs" />
     <Compile Include="System\Platform\Win32.cs" />
+    <Compile Include="System\Reflection\Attributes\Serialization\FileClassAttribute.cs" />
+    <Compile Include="System\Reflection\Attributes\Serialization\PrePostDeserializeAttributes.cs" />
     <Compile Include="System\Reflection\Attributes\PropertyChangedEventAttribute.cs" />
+    <Compile Include="System\Reflection\Attributes\Serialization\SerializeAttribute.cs" />
     <Compile Include="System\Reflection\CustomPropertyCollection.cs" />
     <Compile Include="System\Files\FileObject.cs" />
     <Compile Include="System\Time\GlobalTimer.cs" />
@@ -787,6 +790,7 @@
     <Compile Include="Worlds\Actors\Components\Scene\Lights\DirectionalLightComponent.cs" />
     <Compile Include="Worlds\Actors\Components\Scene\Mesh\SkeletalMeshComponent.RenderableMesh.cs" />
     <Compile Include="Worlds\Actors\Components\Scene\Mesh\StaticMeshComponent.RenderableMesh.cs" />
+    <Compile Include="Worlds\Actors\Components\Scene\MovementLagComponent.cs" />
     <Compile Include="Worlds\Actors\Components\Scene\SoundComponent.cs" />
     <Compile Include="Worlds\Actors\Components\Scene\Transforms\RotationComponent.cs" />
     <Compile Include="Worlds\Actors\Components\Scene\Transforms\RTComponent.cs" />

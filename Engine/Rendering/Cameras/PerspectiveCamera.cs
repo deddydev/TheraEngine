@@ -15,8 +15,29 @@ namespace CustomEngine.Rendering.Cameras
         public PerspectiveCamera(float nearZ, float farZ, float fovY)
             : base(nearZ, farZ) { VerticalFieldOfView = fovY; }
 
-        private float _width, _height, _aspect, _fovX = 90.0f, _fovY = 78.0f;
+        [Serialize("Width", IsXmlAttribute = true)]
+        private float _width;
+        [Serialize("Height", IsXmlAttribute = true)]
+        private float _height;
+        [Serialize("Aspect", SerializeIf = "_overrideAspect == true")]
+        private float _aspect;
+        [Serialize("FovX", IsXmlAttribute = true)]
+        private float _fovX = 90.0f;
+        //[Serialize("FovY", IsXmlAttribute = true)]
+        private float _fovY = 78.0f;
+        [Serialize("OverrideAspect")]
         private bool _overrideAspect = false;
+
+        public bool OverrideAspect
+        {
+            get => _overrideAspect;
+            set
+            {
+                _overrideAspect = value;
+                if (!_overrideAspect)
+                    _aspect = Width / Height;
+            }
+        }
 
         public override Vec2 Origin => new Vec2(Width / 2.0f, Height / 2.0f);
         public override float Width => _width;
@@ -78,7 +99,8 @@ namespace CustomEngine.Rendering.Cameras
         {
             _width = width;
             _height = height;
-            _aspect = _width / _height;
+            if (!_overrideAspect)
+                _aspect = _width / _height;
             base.Resize(width, height);
         }
         public override void Zoom(float amount)

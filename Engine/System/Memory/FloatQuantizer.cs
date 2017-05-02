@@ -118,21 +118,22 @@ namespace System
             _pData = (float*)_handle.AddrOfPinnedObject();
             Evaluate();
         }
+
         public FloatQuantizeHeader GetHeader()
-        {
-            FloatQuantizeHeader hdr = new FloatQuantizeHeader();
-            hdr.Signed = _signed;
-            hdr.BitCount = _bitCount;
-            hdr.DataLength = _dataLen;
-            hdr.Divisor = _quantScale;
-            hdr.ElementCount = _srcCount;
-            hdr.HasX = _includedComponents.X;
-            hdr.HasY = _includedComponents.Y;
-            hdr.HasZ = _includedComponents.Z;
-            hdr.HasW = _includedComponents.W;
-            hdr.ComponentCount = _srcComponents;
-            return hdr;
-        }
+            => new FloatQuantizeHeader()
+            {
+                Signed = _signed,
+                BitCount = _bitCount,
+                DataLength = _dataLen,
+                Divisor = _quantScale,
+                ElementCount = _srcCount,
+                HasX = _includedComponents.X,
+                HasY = _includedComponents.Y,
+                HasZ = _includedComponents.Z,
+                HasW = _includedComponents.W,
+                ComponentCount = _srcComponents
+            };
+        
         private int GetMaxValue(int bitCount, bool signed)
         {
             int value = 0;

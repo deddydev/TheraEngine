@@ -65,25 +65,35 @@ namespace CustomEngine.Rendering.Models
 
         //Faces have indices that refer to face points.
         //These may contain repeat vertex indices but each triangle is unique.
+        [Serialize("Triangles")]
         public List<IndexTriangle> _triangles = null;
+        [Serialize("Lines")]
         public List<IndexLine> _lines = null;
+        [Serialize("Points")]
         public List<IndexPoint> _points = null;
+        [Serialize("Types")]
         public EPrimitiveType _type;
 
         //Influence per raw vertex.
         //Count is same as _facePoints.Count
+        [Serialize("Influences")]
         public Influence[] _influences;
+        [Serialize("UtilizedBones")]
         public string[] _utilizedBones;
+        [Serialize("SingleBindBone")]
         public string _singleBindBone;
 
         //Face points have indices that refer to each buffer.
         //These may contain repeat buffer indices but each point is unique.
+        [Serialize("FacePoints")]
         public List<FacePoint> _facePoints = null;
 
         //This is the array data that will be passed through the shader.
         //Each buffer may have repeated values, as there must be a value for each remapped face point.
+        [Serialize("VertexBuffers")]
         private List<VertexBuffer> _buffers = null;
-        
+
+        [Serialize("Culling")]
         private Culling _culling = Culling.Back;
 
         public VertexBuffer this[BufferType type]

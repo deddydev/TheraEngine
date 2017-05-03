@@ -15,11 +15,15 @@ namespace CustomEngine.Rendering.Models
             _point1.AddLine(this);
         }
 
-        IndexPoint _point0, _point1;
+        [Serialize("Point0")]
+        private IndexPoint _point0;
+        [Serialize("Point1")]
+        private IndexPoint _point1;
+
         public List<IndexPrimitive> _connectedFaces = new List<IndexPrimitive>();
 
-        public IndexPoint Point0 { get { return _point0; } }
-        public IndexPoint Point1 { get { return _point1; } }
+        public IndexPoint Point0 => _point0;
+        public IndexPoint Point1 => _point1;
 
         public void Unlink()
         {

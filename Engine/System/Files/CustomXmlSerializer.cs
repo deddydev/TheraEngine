@@ -245,10 +245,9 @@ namespace CustomEngine.Files
                 if (info.Attrib.SerializeIf != null && !BooleanExpressionParser.Evaluate(info.Attrib.SerializeIf, obj))
                     return;
 
-                if (t.GetInterface("IList") != null)
+                if (t.GetInterface("IList") != null && info.GetValue(obj) is IList array)
                 {
                     writer.WriteStartElement(info.Name);
-                    IList array = (IList)info.GetValue(obj);
                     writer.WriteAttributeString("Count", array.Count.ToString());
                     if (array.Count > 0)
                     {
@@ -322,7 +321,6 @@ namespace CustomEngine.Files
                                 goto Top1;
                         }
                     }
-                    
                     writer.WriteEndElement();
                     return;
                 }

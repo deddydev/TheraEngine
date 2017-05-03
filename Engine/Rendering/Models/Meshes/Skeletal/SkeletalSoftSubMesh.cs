@@ -22,13 +22,13 @@ namespace CustomEngine.Rendering.Models
         protected PrimitiveData _data;
         protected Material _material;
         protected Shape _cullingVolume;
-        protected bool _visibleByDefault;
+        protected bool _visible;
         protected string _boneName;
 
         public Shape CullingVolume { get { return _cullingVolume; } }
-        public bool VisibleByDefault
+        public bool Visible
         {
-            get { return _visibleByDefault; }
+            get { return _visible; }
         }
         public Material Material
         {

@@ -8,28 +8,27 @@ namespace CustomEngine.Rendering.Models
     {
         public IndexPoint() { }
         public IndexPoint(int vertexIndex)
-        {
-            _vertexIndex = vertexIndex;
-        }
+            => _vertexIndex = vertexIndex;
 
-        public int VertexIndex { get { return _vertexIndex; } }
-        public ReadOnlyCollection<IndexLine> ConnectedEdges { get { return _connectedEdges.AsReadOnly(); } }
-        
-        int _vertexIndex;
-        List<IndexLine> _connectedEdges = new List<IndexLine>();
+        public int VertexIndex
+            => _vertexIndex;
+        public ReadOnlyCollection<IndexLine> ConnectedEdges
+            => _connectedEdges.AsReadOnly();
+
+        [Serialize("Index", IsXmlAttribute = true)]
+        private int _vertexIndex;
+        private List<IndexLine> _connectedEdges = new List<IndexLine>();
 
         internal void AddLine(IndexLine edge)
         {
             if (!_connectedEdges.Contains(edge))
                 _connectedEdges.Add(edge);
         }
-
         internal void RemoveLine(IndexLine edge)
         {
             if (_connectedEdges.Contains(edge))
                 _connectedEdges.Remove(edge);
         }
-
         public IndexLine LinkTo(IndexPoint otherPoint)
         {
             foreach (IndexLine edge in _connectedEdges)
@@ -50,8 +49,7 @@ namespace CustomEngine.Rendering.Models
                     return;
                 }
         }
-
-        public static implicit operator IndexPoint(int i) { return new IndexPoint(i); }
-        public static implicit operator int(IndexPoint i) { return i.VertexIndex; }
+        public static implicit operator IndexPoint(int i) => new IndexPoint(i);
+        public static implicit operator int(IndexPoint i) => i.VertexIndex;
     }
 }

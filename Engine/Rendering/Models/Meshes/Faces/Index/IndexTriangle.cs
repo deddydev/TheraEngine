@@ -5,11 +5,11 @@ namespace CustomEngine.Rendering.Models
 {
     public class IndexTriangle : IndexPolygon
     {
-        public override FaceType Type { get { return FaceType.Triangles; } }
+        public override FaceType Type => FaceType.Triangles;
 
-        public IndexPoint Point0 { get { return _points[0]; } }
-        public IndexPoint Point1 { get { return _points[1]; } }
-        public IndexPoint Point2 { get { return _points[2]; } }
+        public IndexPoint Point0 => _points[0];
+        public IndexPoint Point1 => _points[1];
+        public IndexPoint Point2 => _points[2];
 
         public IndexTriangle() { }
         /// <summary>
@@ -35,9 +35,7 @@ namespace CustomEngine.Rendering.Models
         }
 
         public override List<IndexTriangle> ToTriangles()
-        {
-            return new List<IndexTriangle>() { this };
-        }
+            => new List<IndexTriangle>() { this };
 
         public override bool Equals(object obj)
         {
@@ -45,8 +43,6 @@ namespace CustomEngine.Rendering.Models
             return t == null ? false : t.Point0 == Point0 && t.Point1 == Point1 && t.Point2 == Point2;
         }
         public override int GetHashCode()
-        {
-            return base.GetHashCode();
-        }
+            => base.GetHashCode();
     }
 }

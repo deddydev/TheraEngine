@@ -20,6 +20,7 @@ namespace CustomEngine.Rendering.Models
     }
     public abstract class IndexPrimitive : ObjectBase
     {
+        [Serialize("Points")]
         protected List<IndexPoint> _points = new List<IndexPoint>();
 
         public IndexPrimitive(params IndexPoint[] points)

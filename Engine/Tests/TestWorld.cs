@@ -147,6 +147,9 @@ namespace CustomEngine.Tests
             
             _settings.GameMode = new TestGameMode();
             _settings.Maps.Add(new Map(this, new MapSettings(actors)));
+
+            Export(desktop, "testworld", true);
+
             //_settings.AmbientSound = new SoundFile() { SoundPath = desktop + "test.wav" };
             //_settings.AmbientParams.SourceRelative.Value = false;
             //_settings.AmbientParams.ReferenceDistance.Value = 1.0f;

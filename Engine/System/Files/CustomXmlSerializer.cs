@@ -369,6 +369,8 @@ namespace CustomEngine.Files
                         writer.WriteElementString(info.Name, value.ToString());
                         break;
                     default:
+                        if (t == null)
+                            break;
                         t = t.BaseType;
                         goto Top;
                 }
@@ -442,7 +444,13 @@ namespace CustomEngine.Files
         }
         private static string GetTypeName(Type t)
         {
+            if (t == null)
+                return "NULL";
             string name = t.Name;
+            if (t.IsInterface)
+            {
+                return null;
+            }
             if (t.IsGenericType)
             {
                 name = t.Name.Remove(t.Name.IndexOf('`'))/* + "-"*/;

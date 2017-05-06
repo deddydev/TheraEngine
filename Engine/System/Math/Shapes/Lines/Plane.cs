@@ -4,6 +4,7 @@ using System.Runtime.InteropServices;
 using CustomEngine;
 using System.IO;
 using System.Xml;
+using System.ComponentModel;
 
 namespace System
 {
@@ -21,8 +22,10 @@ namespace System
         *          origin
         */
 
+        [DefaultValue("0 1 0")]
         [Serialize("Normal")]
         protected Vec3 _normal;
+        [DefaultValue(0)]
         [Serialize("Distance")]
         protected float _distance;
 

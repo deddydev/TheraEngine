@@ -8,8 +8,8 @@ namespace System
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public unsafe struct BoolVec2 : IUniformable2Bool, IBufferable
     {
-        public bool X { get { return _x; } set { _x = value; } }
-        public bool Y { get { return _y; } set { _y = value; } }
+        public bool X { get => _x; set => _x = value; }
+        public bool Y { get => _y; set => _y = value; }
 
         private bool _x, _y;
         public bool* Data { get { fixed (void* ptr = &this) return (bool*)ptr; } }
@@ -39,8 +39,8 @@ namespace System
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public unsafe struct IVec2 : IUniformable2Int, IBufferable
     {
-        public int X { get { return _x; } set { _x = value; } }
-        public int Y { get { return _y; } set { _y = value; } }
+        public int X { get => _x; set => _x = value; }
+        public int Y { get => _y; set => _y = value; }
 
         private int _x, _y;
         public int* Data { get { fixed (void* ptr = &this) return (int*)ptr; } }
@@ -112,8 +112,8 @@ namespace System
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public unsafe struct UVec2 : IUniformable2UInt, IBufferable
     {
-        public uint X { get { return _x; } set { _x = value; } }
-        public uint Y { get { return _y; } set { _y = value; } }
+        public uint X { get => _x; set => _x = value; }
+        public uint Y { get => _y; set => _y = value; }
 
         private uint _x, _y;
         public uint* Data { get { fixed (void* ptr = &this) return (uint*)ptr; } }
@@ -143,8 +143,8 @@ namespace System
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public unsafe struct DVec2 : IUniformable2Double, IBufferable
     {
-        public double X { get { return _x; } set { _x = value; } }
-        public double Y { get { return _y; } set { _y = value; } }
+        public double X { get => _x; set => _x = value; }
+        public double Y { get => _y; set => _y = value; }
 
         private double _x, _y;
         public double* Data { get { fixed (void* ptr = &this) return (double*)ptr; } }
@@ -174,9 +174,9 @@ namespace System
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public unsafe struct BoolVec3 : IUniformable3Bool, IBufferable
     {
-        public bool X { get { return _x; } set { _x = value; } }
-        public bool Y { get { return _y; } set { _y = value; } }
-        public bool Z { get { return _z; } set { _z = value; } }
+        public bool X { get => _x; set => _x = value; }
+        public bool Y { get => _y; set => _y = value; }
+        public bool Z { get => _z; set => _z = value; }
 
         private bool _x, _y, _z;
         public bool* Data { get { fixed (void* ptr = &this) return (bool*)ptr; } }
@@ -207,9 +207,9 @@ namespace System
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public unsafe struct IVec3 : IUniformable3Int, IBufferable
     {
-        public int X { get { return _x; } set { _x = value; } }
-        public int Y { get { return _y; } set { _y = value; } }
-        public int Z { get { return _z; } set { _z = value; } }
+        public int X { get => _x; set => _x = value; }
+        public int Y { get => _y; set => _y = value; }
+        public int Z { get => _z; set => _z = value; }
 
         private int _x, _y, _z;
         public int* Data { get { fixed (void* ptr = &this) return (int*)ptr; } }
@@ -240,9 +240,9 @@ namespace System
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public unsafe struct UVec3 : IUniformable3UInt, IBufferable
     {
-        public uint X { get { return _x; } set { _x = value; } }
-        public uint Y { get { return _y; } set { _y = value; } }
-        public uint Z { get { return _z; } set { _z = value; } }
+        public uint X { get => _x; set => _x = value; }
+        public uint Y { get => _y; set => _y = value; }
+        public uint Z { get => _z; set => _z = value; }
 
         private uint _x, _y, _z;
         public uint* Data { get { fixed (void* ptr = &this) return (uint*)ptr; } }
@@ -273,16 +273,16 @@ namespace System
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public unsafe struct DVec3 : IUniformable3Double, IBufferable
     {
-        public double X { get { return _x; } set { _x = value; } }
-        public double Y { get { return _y; } set { _y = value; } }
-        public double Z { get { return _z; } set { _z = value; } }
+        public double X { get => _x; set => _x = value; }
+        public double Y { get => _y; set => _y = value; }
+        public double Z { get => _z; set => _z = value; }
 
         private double _x, _y, _z;
         public double* Data { get { fixed (void* ptr = &this) return (double*)ptr; } }
 
-        public VertexBuffer.ComponentType ComponentType { get { return VertexBuffer.ComponentType.Double; } }
-        public int ComponentCount { get { return 3; } }
-        public bool Normalize { get { return false; } }
+        public VertexBuffer.ComponentType ComponentType => VertexBuffer.ComponentType.Double;
+        public int ComponentCount => 3;
+        public bool Normalize => false;
         public void Write(VoidPtr address)
         {
             double* dPtr = (double*)address;
@@ -306,17 +306,17 @@ namespace System
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public unsafe struct BoolVec4 : IUniformable4Bool, IBufferable
     {
-        public bool X { get { return _x; } set { _x = value; } }
-        public bool Y { get { return _y; } set { _y = value; } }
-        public bool Z { get { return _z; } set { _z = value; } }
-        public bool W { get { return _w; } set { _w = value; } }
+        public bool X { get => _x; set => _x = value; }
+        public bool Y { get => _y; set => _y = value; }
+        public bool Z { get => _z; set => _z = value; }
+        public bool W { get => _w; set => _w = value; }
 
         private bool _x, _y, _z, _w;
         public bool* Data { get { fixed (void* ptr = &this) return (bool*)ptr; } }
 
-        public VertexBuffer.ComponentType ComponentType { get { return VertexBuffer.ComponentType.Byte; } }
-        public int ComponentCount { get { return 4; } }
-        public bool Normalize { get { return false; } }
+        public VertexBuffer.ComponentType ComponentType => VertexBuffer.ComponentType.Byte;
+        public int ComponentCount => 4;
+        public bool Normalize => false;
         public void Write(VoidPtr address)
         {
             byte* dPtr = (byte*)address;
@@ -330,6 +330,22 @@ namespace System
                 Data[i] = *data++ != 0;
         }
 
+        public bool this[int index]
+        {
+            get
+            {
+                if (index < 0 || index > 3)
+                    throw new IndexOutOfRangeException("Cannot access vector at index " + index);
+                return Data[index];
+            }
+            set
+            {
+                if (index < 0 || index > 3)
+                    throw new IndexOutOfRangeException("Cannot access vector at index " + index);
+                Data[index] = value;
+            }
+        }
+
         public BoolVec4(bool x, bool y, bool z, bool w)
         {
             _x = x;
@@ -341,10 +357,10 @@ namespace System
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public unsafe struct IVec4 : IUniformable4Int, IBufferable
     {
-        public int X { get { return _x; } set { _x = value; } }
-        public int Y { get { return _y; } set { _y = value; } }
-        public int Z { get { return _z; } set { _z = value; } }
-        public int W { get { return _w; } set { _w = value; } }
+        public int X { get => _x; set => _x = value; }
+        public int Y { get => _y; set => _y = value; }
+        public int Z { get => _z; set => _z = value; }
+        public int W { get => _w; set => _w = value; }
 
         private int _x, _y, _z, _w;
         public int* Data { get { fixed (void* ptr = &this) return (int*)ptr; } }
@@ -397,10 +413,10 @@ namespace System
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public unsafe struct UVec4 : IUniformable4UInt, IBufferable
     {
-        public uint X { get { return _x; } set { _x = value; } }
-        public uint Y { get { return _y; } set { _y = value; } }
-        public uint Z { get { return _z; } set { _z = value; } }
-        public uint W { get { return _w; } set { _w = value; } }
+        public uint X { get => _x; set => _x = value; }
+        public uint Y { get => _y; set => _y = value; }
+        public uint Z { get => _z; set => _z = value; }
+        public uint W { get => _w; set => _w = value; }
 
         private uint _x, _y, _z, _w;
         public uint* Data { get { fixed (void* ptr = &this) return (uint*)ptr; } }
@@ -421,6 +437,22 @@ namespace System
                 Data[i] = *data++;
         }
 
+        public uint this[int index]
+        {
+            get
+            {
+                if (index < 0 || index > 3)
+                    throw new IndexOutOfRangeException("Cannot access vector at index " + index);
+                return Data[index];
+            }
+            set
+            {
+                if (index < 0 || index > 3)
+                    throw new IndexOutOfRangeException("Cannot access vector at index " + index);
+                Data[index] = value;
+            }
+        }
+
         public UVec4(uint x, uint y, uint z, uint w)
         {
             _x = x;
@@ -432,10 +464,10 @@ namespace System
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public unsafe struct DVec4 : IUniformable4Double, IBufferable
     {
-        public double X { get { return _x; } set { _x = value; } }
-        public double Y { get { return _y; } set { _y = value; } }
-        public double Z { get { return _z; } set { _z = value; } }
-        public double W { get { return _w; } set { _w = value; } }
+        public double X { get => _x; set => _x = value; }
+        public double Y { get => _y; set => _y = value; }
+        public double Z { get => _z; set => _z = value; }
+        public double W { get => _w; set => _w = value; }
 
         private double _x, _y, _z, _w;
         public double* Data { get { fixed (void* ptr = &this) return (double*)ptr; } }
@@ -455,7 +487,23 @@ namespace System
             for (int i = 0; i < ComponentCount; ++i)
                 Data[i] = *data++;
         }
-        
+
+        public double this[int index]
+        {
+            get
+            {
+                if (index < 0 || index > 3)
+                    throw new IndexOutOfRangeException("Cannot access vector at index " + index);
+                return Data[index];
+            }
+            set
+            {
+                if (index < 0 || index > 3)
+                    throw new IndexOutOfRangeException("Cannot access vector at index " + index);
+                Data[index] = value;
+            }
+        }
+
         public DVec4(double x, double y, double z, double w)
         {
             _x = x;

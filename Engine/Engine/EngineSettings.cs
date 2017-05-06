@@ -14,8 +14,7 @@ namespace CustomEngine
         Forward = 0,
         Deferred = 1,
     }
-    [ObjectHeader()]
-    [FileClass("ESET", "CESET", "Engine Settings")]
+    [FileClass("ESET", "Engine Settings")]
     public class EngineSettings : FileObject
     {
         [Category("Performance")]

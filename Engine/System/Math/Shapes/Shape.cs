@@ -5,6 +5,7 @@ using CustomEngine.Rendering.Models;
 using CustomEngine.Worlds.Actors;
 using CustomEngine.Files;
 using System.Collections.Generic;
+using System.ComponentModel;
 
 namespace System
 {
@@ -36,15 +37,15 @@ namespace System
         public event Action AttributeChanged;
 
         protected bool _isRendering;
-        [Serialize("IsVisible")]
+        [Serialize("IsVisible", IsXmlAttribute = true)]
         protected bool _isVisible;
-        [Serialize("RenderSolid")]
+        [Serialize("RenderSolid", IsXmlAttribute = true)]
         protected bool _renderSolid;
-        [Serialize("VisibleInEditorOnly")]
+        [Serialize("VisibleInEditorOnly", IsXmlAttribute = true)]
         protected bool _visibleInEditorOnly = false;
-        [Serialize("HiddenFromOwner")]
+        [Serialize("HiddenFromOwner", IsXmlAttribute = true)]
         protected bool _hiddenFromOwner = false;
-        [Serialize("VisibleToOwnerOnly")]
+        [Serialize("VisibleToOwnerOnly", IsXmlAttribute = true)]
         protected bool _visibleToOwnerOnly = false;
 
         protected IOctreeNode _renderNode;

@@ -6,6 +6,7 @@ using System.IO;
 using System.Xml;
 using CustomEngine.GameModes;
 using CustomEngine.Audio;
+using System.ComponentModel;
 
 namespace CustomEngine.Worlds.Maps
 {

@@ -4,6 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Runtime.InteropServices;
+using System.Xml;
+using System.ComponentModel;
 
 namespace CustomEngine.Rendering.Models
 {
@@ -36,7 +38,7 @@ namespace CustomEngine.Rendering.Models
         public BufferType _type;
         public int _index;
 
-        public string GetAttribName() { return _type.ToString() + _index; }
+        public string GetAttribName() => _type.ToString() + _index;
         public int GetLocation()
         {
             if (_type < BufferType.Barycentric)
@@ -80,14 +82,83 @@ namespace CustomEngine.Rendering.Models
             Double  = 10
         }
 
+        [Serialize("ComponentType", IsXmlAttribute = true)]
         internal ComponentType _componentType;
+        [Serialize("Normalize", IsXmlAttribute = true)]
         internal bool _normalize;
         internal BufferUsage _usage = BufferUsage.StaticDraw;
+        [Serialize("Data")]
         internal DataSource _data;
+        [Serialize("Integral", IsXmlAttribute = true)]
         internal bool _integral = false;
-        internal int _index, _location, _vaoId = 0, _componentCount, _elementCount;
+        internal int _index;
+        internal int _location, _vaoId = 0;
+        [Serialize("ComponentCount", IsXmlAttribute = true)]
+        internal int _componentCount;
+        [Serialize("ElementCount", IsXmlAttribute = true)]
+        internal int _elementCount;
         internal EBufferTarget _target;
+        [Serialize("Type", IsXmlAttribute = true)]
         internal BufferType _type = BufferType.Other;
+
+        [CustomSerializeMethod("Data")]
+        private unsafe bool CustomDataSerialize(XmlWriter writer)
+        {
+            string s = "";
+            switch (_componentType)
+            {
+                case ComponentType.SByte:
+                    sbyte* ptr1 = (sbyte*)_data.Address;
+                    for (int i = 0; i < _elementCount; ++i)
+                        for (int j = 0; j < _componentCount; ++j)
+                            s += (*ptr1++).ToString() + " ";
+                    break;
+                case ComponentType.Byte:
+                    byte* ptr2 = (byte*)_data.Address;
+                    for (int i = 0; i < _elementCount; ++i)
+                        for (int j = 0; j < _componentCount; ++j)
+                            s += (*ptr2++).ToString() + " ";
+                    break;
+                case ComponentType.Short:
+                    short* ptr3 = (short*)_data.Address;
+                    for (int i = 0; i < _elementCount; ++i)
+                        for (int j = 0; j < _componentCount; ++j)
+                            s += (*ptr3++).ToString() + " ";
+                    break;
+                case ComponentType.UShort:
+                    ushort* ptr4 = (ushort*)_data.Address;
+                    for (int i = 0; i < _elementCount; ++i)
+                        for (int j = 0; j < _componentCount; ++j)
+                            s += (*ptr4++).ToString() + " ";
+                    break;
+                case ComponentType.Int:
+                    int* ptr5 = (int*)_data.Address;
+                    for (int i = 0; i < _elementCount; ++i)
+                        for (int j = 0; j < _componentCount; ++j)
+                            s += (*ptr5++).ToString() + " ";
+                    break;
+                case ComponentType.UInt:
+                    uint* ptr6 = (uint*)_data.Address;
+                    for (int i = 0; i < _elementCount; ++i)
+                        for (int j = 0; j < _componentCount; ++j)
+                            s += (*ptr6++).ToString() + " ";
+                    break;
+                case ComponentType.Float:
+                    float* ptr7 = (float*)_data.Address;
+                    for (int i = 0; i < _elementCount; ++i)
+                        for (int j = 0; j < _componentCount; ++j)
+                            s += (*ptr7++).ToString() + " ";
+                    break;
+                case ComponentType.Double:
+                    double* ptr8 = (double*)_data.Address;
+                    for (int i = 0; i < _elementCount; ++i)
+                        for (int j = 0; j < _componentCount; ++j)
+                            s += (*ptr8++).ToString() + " ";
+                    break;
+            }
+            writer.WriteString(s);
+            return true;
+        }
 
         public bool Integral
         {

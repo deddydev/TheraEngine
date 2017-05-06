@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace System
+namespace System.ComponentModel
 {
     public enum SerializeFormat
     {
@@ -32,7 +32,6 @@ namespace System
         private int _order = -1;
         private string _nameOverride = null;
         private bool _isXmlAttribute = false;
-        private object _defaultValue = null;
         private string _xmlCategoryGrouping = null;
         private string _serializeIf = null;
         private bool _useCategory = true;
@@ -54,10 +53,6 @@ namespace System
         /// Determines if this object should be serialized as an attribute or element.
         /// </summary>
         public bool IsXmlAttribute { get => _isXmlAttribute; set => _isXmlAttribute = value; }
-        /// <summary>
-        /// Determines what the default value of this field is.
-        /// </summary>
-        public object DefaultValue { get => _defaultValue; set => _defaultValue = value; }
         /// <summary>
         /// Groups a set of fields together in one tag under this name.
         /// </summary>

@@ -7,7 +7,8 @@ using CustomEngine.Rendering.Models;
 namespace System
 {
     [Serializable]
-    public unsafe class EventVec4 : IEquatable<EventVec4>, IUniformable4Float, IBufferable
+    public unsafe class EventVec4 : 
+        IEquatable<EventVec4>, IUniformable4Float, IBufferable, IParsable
     {
         public event Action XChanged;
         public event Action YChanged;
@@ -886,5 +887,10 @@ namespace System
                 Abs(Z - other.Z) < precision &&
                 Abs(W - other.W) < precision;
         }
+
+        public string WriteToString()
+            => _data.WriteToString();
+        public void ReadFromString(string str)
+            => _data.ReadFromString(str);
     }
 }

@@ -17,11 +17,4 @@ namespace System
     {
 
     }
-    public class ObjectHeader : Attribute
-    {
-        public ObjectHeader()
-        {
-
-        }
-    }
 }

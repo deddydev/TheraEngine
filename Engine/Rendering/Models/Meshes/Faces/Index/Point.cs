@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 
 namespace CustomEngine.Rendering.Models
 {
@@ -14,6 +15,11 @@ namespace CustomEngine.Rendering.Models
             => _vertexIndex;
         public ReadOnlyCollection<IndexLine> ConnectedEdges
             => _connectedEdges.AsReadOnly();
+
+        public override string ToString()
+        {
+            return _vertexIndex.ToString();
+        }
 
         [Serialize("Index", IsXmlAttribute = true)]
         private int _vertexIndex;

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 
 namespace CustomEngine.Rendering.Models
@@ -19,7 +20,9 @@ namespace CustomEngine.Rendering.Models
         public int WeightCount { get { return _weightCount; } }
         public BoneWeight[] Weights { get { return _weights; } }
 
+        [Serialize("Count", IsXmlAttribute = true)]
         private int _weightCount = 0;
+        [Serialize("Weights")]
         private BoneWeight[] _weights = new BoneWeight[MaxWeightCount];
 
         public void AddWeight(BoneWeight weight)

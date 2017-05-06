@@ -4,11 +4,13 @@ using System.Xml.Serialization;
 using System.Drawing;
 using CustomEngine;
 using CustomEngine.Rendering.Models;
+using System.ComponentModel;
 
 namespace System
 {
     public delegate void ValueChange(float oldValue, float newValue);
-    public unsafe class EventVec3 : IEquatable<EventVec3>, IUniformable3Float, IBufferable
+    public unsafe class EventVec3 : 
+        IEquatable<EventVec3>, IUniformable3Float, IBufferable, IParsable
     {
         public event Action XChanged;
         public event Action YChanged;
@@ -509,5 +511,10 @@ namespace System
                 Abs(Y - other.Y) < precision &&
                 Abs(Z - other.Z) < precision;
         }
+
+        public string WriteToString()
+            => _data.WriteToString();
+        public void ReadFromString(string str)
+            => _data.ReadFromString(str);
     }
 }

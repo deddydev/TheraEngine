@@ -9,6 +9,7 @@ using System.Runtime.InteropServices;
 using CustomEngine.Files;
 using System.IO;
 using System.Xml;
+using System.ComponentModel;
 
 namespace CustomEngine.Worlds
 {
@@ -143,13 +144,8 @@ namespace CustomEngine.Worlds
         [Serialize("LogicComponents")]
         private MonitoredList<LogicComponent> _logicComponents;
 
-        public MonitoredList<LogicComponent> LogicComponents
-        {
-            get
-            {
-                return _logicComponents;
-            }
-        }
+        public MonitoredList<LogicComponent> LogicComponents => _logicComponents;
+
         public bool IsConstructing
             => _isConstructing;
         public List<PrimitiveComponent> RenderableComponentCache
@@ -171,7 +167,7 @@ namespace CustomEngine.Worlds
         protected internal override void Tick(float delta)
         {
             _rootSceneComponent.Tick(delta);
-            foreach (Component c in _logicComponents)
+            foreach (LogicComponent c in _logicComponents)
                 c.Tick(delta);
         }
         public void Despawn()

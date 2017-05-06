@@ -6,6 +6,7 @@ using CustomEngine.Files;
 using CustomEngine.Worlds.Actors;
 using System.IO;
 using System.Xml;
+using System.ComponentModel;
 
 namespace CustomEngine.Rendering.Models
 {
@@ -27,12 +28,13 @@ namespace CustomEngine.Rendering.Models
         }
 
         protected SkeletalMesh _parent;
+
         [Serialize("Primitives")]
-        protected PrimitiveData _data;
+        protected SingleFileRef<PrimitiveData> _data;
         protected Material _material;
         [Serialize("CullingVolume")]
-        protected Shape _cullingVolume;
-        [Serialize("Visible")]
+        protected SingleFileRef<Shape> _cullingVolume;
+        [Serialize("Visible", IsXmlAttribute = true)]
         protected bool _visible;
 
         public bool Visible
@@ -57,6 +59,6 @@ namespace CustomEngine.Rendering.Models
             internal set => _parent = value;
         }
 
-        public string SingleBindName => _data._singleBindBone;
+        public string SingleBindName => "";
     }
 }

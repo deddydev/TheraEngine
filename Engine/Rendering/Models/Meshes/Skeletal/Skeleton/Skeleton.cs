@@ -10,10 +10,11 @@ using System.Xml;
 using System.Runtime.InteropServices;
 using System.IO;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 
 namespace CustomEngine.Rendering.Models
 {
-    [FileClass("SKEL", "CSKEL", "Skeleton")]
+    [FileClass("SKEL", "Skeleton")]
     public class Skeleton : FileObject, IEnumerable<Bone>, IRenderable
     {
         public Skeleton() : base() { }

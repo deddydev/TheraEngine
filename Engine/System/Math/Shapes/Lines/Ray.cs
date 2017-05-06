@@ -1,4 +1,6 @@
-﻿namespace System
+﻿using System.ComponentModel;
+
+namespace System
 {
     public class Ray
     {
@@ -19,7 +21,11 @@
             set => _direction = value;
         }
 
+        [DefaultValue("0 0 0")]
+        [Serialize("StartPoint")]
         private Vec3 _startPoint;
+        [DefaultValue("0 1 0")]
+        [Serialize("Direction")]
         private Vec3 _direction;
 
         public Ray TransformedBy(Matrix4 transform)

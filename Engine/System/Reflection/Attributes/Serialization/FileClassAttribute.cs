@@ -4,19 +4,18 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace System
+namespace System.ComponentModel
 {
+    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct, AllowMultiple = false, Inherited = true)]
     public class FileClass : Attribute
     {
         public FileClass(
-            string binaryTag,
             string extension,
             string userFriendlyName,
             bool manualBinSerialize = false,
             bool manualXmlSerialize = false,
             SerializeFormat preferredFormat = SerializeFormat.XML)
         {
-            _binaryTag = binaryTag;
             _extension = extension;
             _manualBinSerialize = manualBinSerialize;
             _manualXmlSerialize = manualXmlSerialize;
@@ -26,7 +25,6 @@ namespace System
 
         private string _userFriendlyName;
         private string _extension;
-        private string _binaryTag;
         private bool _manualXmlSerialize = false;
         private bool _manualBinSerialize = false;
         private SerializeFormat _preferredFormat =
@@ -60,11 +58,6 @@ namespace System
         {
             get => _extension;
             set => _extension = value;
-        }
-        public string BinaryTag
-        {
-            get => _binaryTag;
-            set => _binaryTag = value;
         }
     }
 }

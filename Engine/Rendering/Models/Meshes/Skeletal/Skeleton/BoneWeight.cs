@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 
 namespace CustomEngine.Rendering.Models
 {
@@ -6,7 +7,9 @@ namespace CustomEngine.Rendering.Models
     {
         public static float ComparisonTolerance = 0.00001f;
 
+        [Serialize("Bone", IsXmlAttribute = true)]
         private string _bone;
+        [Serialize("Weight", IsXmlAttribute = true)]
         private float _weight;
         private bool _locked;
 

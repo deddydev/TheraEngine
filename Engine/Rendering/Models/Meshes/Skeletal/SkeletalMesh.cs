@@ -9,10 +9,11 @@ using System.Collections.ObjectModel;
 using System.IO;
 using System.Xml;
 using System.Runtime.InteropServices;
+using System.ComponentModel;
 
 namespace CustomEngine.Rendering.Models
 {
-    [FileClass("SKLM", "SKLM", "Skeletal Mesh")]
+    [FileClass("SKLM", "Skeletal Mesh")]
     public class SkeletalMesh : FileObject
     {
         public SkeletalMesh() : base()

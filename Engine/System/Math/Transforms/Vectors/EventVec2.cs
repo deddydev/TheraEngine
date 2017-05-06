@@ -9,7 +9,8 @@ using static System.Math;
 namespace System
 {
     [Serializable]
-    public unsafe class EventVec2 : IEquatable<EventVec2>, IUniformable2Float, IBufferable
+    public unsafe class EventVec2 : 
+        IEquatable<EventVec2>, IUniformable2Float, IBufferable, IParsable
     {
         private int _updating = 0;
         private float _oldX, _oldY;
@@ -273,5 +274,10 @@ namespace System
                 Abs(X - other.X) < precision &&
                 Abs(Y - other.Y) < precision;
         }
+
+        public string WriteToString()
+            => _data.WriteToString();
+        public void ReadFromString(string str)
+            => _data.ReadFromString(str);
     }
 }

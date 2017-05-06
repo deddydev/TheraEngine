@@ -5,6 +5,7 @@ using System;
 using CustomEngine.Files;
 using CustomEngine.Rendering;
 using CustomEngine.Input;
+using System.ComponentModel;
 
 namespace CustomEngine.Worlds
 {
@@ -12,8 +13,7 @@ namespace CustomEngine.Worlds
     {
         WorldSettings Settings { get; set; }
     }
-    [ObjectHeader()]
-    [FileClass("WRLD", "WORLD", "World")]
+    [FileClass("WORLD", "World")]
     public unsafe class World : FileObject, IEnumerable<IActor>
     {
         static World()

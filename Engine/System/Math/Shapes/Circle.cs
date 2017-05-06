@@ -5,6 +5,7 @@ using System.Runtime.InteropServices;
 using CustomEngine.Files;
 using System.Xml;
 using System.IO;
+using System.ComponentModel;
 
 namespace System
 {
@@ -20,7 +21,8 @@ namespace System
         public Circle(float radius, Vec3 point0, Vec3 point1, Vec3 point2)
             : base(point0, point1, point2) { _radius = radius; }
 
-        [Serialize("Radius", IsXmlAttribute = true)]
+        [DefaultValue(1.0f)]
+        [Serialize("Radius")]
         private float _radius;
         public float Radius
         {

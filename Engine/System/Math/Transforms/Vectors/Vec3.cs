@@ -10,7 +10,8 @@ namespace System
 {
     [Serializable]
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    public unsafe struct Vec3 : IEquatable<Vec3>, IUniformable3Float, IBufferable
+    public unsafe struct Vec3 : 
+        IEquatable<Vec3>, IUniformable3Float, IBufferable, IParsable
     {
         public float X, Y, Z;
 
@@ -854,5 +855,10 @@ namespace System
                 Abs(X - other.X) < precision &&
                 Abs(Y - other.Y) < precision &&
                 Abs(Z - other.Z) < precision;
+
+        public string WriteToString()
+            => ToString(false, false);
+        public void ReadFromString(string str)
+            => this = Parse(str);
     }
 }

@@ -1,5 +1,6 @@
 ﻿using CustomEngine;
 using CustomEngine.Files;
+using System.ComponentModel;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Xml;
@@ -107,13 +108,13 @@ namespace System
         }
 
         private Quat _quaternion = Quat.Identity;
-        [Serialize("Rotation", DefaultValue = "(0, 0, 0, YPR)")]
+        [Serialize("Rotation")]
         private Rotator _rotation;
-        [Serialize("Translation", DefaultValue = "(0, 0, 0)")]
+        [Serialize("Translation")]
         private EventVec3 _translation;
-        [Serialize("Scale", DefaultValue = "(1, 1, 1)")]
+        [Serialize("Scale")]
         private EventVec3 _scale;
-        [Serialize("Order", DefaultValue = "TRS", IsXmlAttribute = true)]
+        [Serialize("Order", IsXmlAttribute = true)]
         private TransformOrder _transformOrder = TransformOrder.TRS;
 
         private Matrix4 _transform = Matrix4.Identity;

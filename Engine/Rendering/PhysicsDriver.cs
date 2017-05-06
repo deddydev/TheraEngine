@@ -10,6 +10,7 @@ using BulletSharp.SoftBody;
 using System.IO;
 using System.Xml;
 using System.Diagnostics;
+using System.ComponentModel;
 
 namespace CustomEngine.Rendering
 {

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Xml;
@@ -24,7 +25,20 @@ namespace CustomEngine.Files
     /// <typeparam name="T"></typeparam>
     public class SingleFileRef<T> : FileRef<T>, ISingleFileRef where T : FileObject
     {
+        [Serialize("File")]
         T _file;
+
+        [CustomSerializeMethod("File")]
+        private bool CustomSerializeFile(XmlWriter writer)
+        {
+            writer.WriteStartElement("File");
+            if (!string.IsNullOrEmpty(_filePath))
+                writer.WriteAttributeString("Path", _filePath);
+            else
+                return false;
+            writer.WriteEndElement();
+            return true;
+        }
 
         public SingleFileRef() : base(typeof(T)) { }
         public SingleFileRef(Type type) : base(type) { }

@@ -1,5 +1,6 @@
 ﻿using System;
 using CustomEngine.Files;
+using System.ComponentModel;
 
 namespace CustomEngine.Audio
 {

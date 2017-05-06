@@ -1,6 +1,7 @@
 ﻿using CustomEngine.Files;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -10,11 +11,9 @@ namespace CustomEngine.Rendering.Animation
     public class BlendSpace1D : FileObject
     {
         [Serialize("Poses")]
-        AnimationContainer[] _poses;
+        ModelAnimation[] _poses;
         [Serialize("BlendAmount")]
         private float _blendAmount = 0.0f;
-
-        AnimationContainer _result;
 
         public float BlendAmount
         {

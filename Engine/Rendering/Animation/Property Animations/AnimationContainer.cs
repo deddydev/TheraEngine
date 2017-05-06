@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reflection;
 using System.IO;
 using System.Xml;
+using System.ComponentModel;
 
 namespace CustomEngine.Rendering.Animation
 {

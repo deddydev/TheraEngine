@@ -4,12 +4,8 @@ using CustomEngine.Rendering.Models;
 using BulletSharp;
 using System.Collections.Generic;
 using System.Linq;
-using CustomEngine.Worlds.Actors;
-using CustomEngine.Files;
-using System.IO;
-using System.Xml;
-using System.Runtime.InteropServices;
 using System.Drawing;
+using System.ComponentModel;
 
 namespace System
 {
@@ -19,8 +15,10 @@ namespace System
 
         public static List<Sphere> Active = new List<Sphere>();
 
+        [DefaultValue(1.0f)]
         [Serialize("Radius")]
         private float _radius = 1.0f;
+        [DefaultValue("0 0 0")]
         [Serialize("Center")]
         private Vec3 _center = Vec3.Zero;
 

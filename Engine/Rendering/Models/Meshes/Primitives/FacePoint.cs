@@ -1,17 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 
 namespace CustomEngine.Rendering.Models
 {
     public class FacePoint : ObjectBase
     {
-        public int VertexIndex { get { return _vertexIndex; } }
-        public List<int> BufferIndices { get { return _bufferIndices; } }
+        public int VertexIndex => _vertexIndex;
+        public List<int> BufferIndices => _bufferIndices;
 
+        //[Serialize("VertexIndex")]
         private int _vertexIndex;
+        [Serialize("BufferIndices")]
         private List<int> _bufferIndices = new List<int>();
-        internal PrimitiveData _data;
+        [Serialize("InfluenceIndex")]
         internal int _influenceIndex;
+        internal PrimitiveData _data;
 
         public FacePoint(int index, PrimitiveData data)
         {
@@ -20,9 +24,7 @@ namespace CustomEngine.Rendering.Models
         }
 
         public Influence GetInfluence()
-        {
-            return _data._influences?[_influenceIndex];
-        }
+            => _data._influences?[_influenceIndex];
 
         //public int this[string name]
         //{
@@ -36,7 +38,7 @@ namespace CustomEngine.Rendering.Models
         //    }
         //}
 
-        public override int GetHashCode() { return ToString().GetHashCode(); }
+        public override int GetHashCode() => ToString().GetHashCode();
         public override string ToString()
         {
             string vtx = "VTX" + _vertexIndex;

@@ -1,6 +1,9 @@
-﻿using System;
+﻿using CustomEngine.Files;
+using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
+using System.Xml;
 
 namespace CustomEngine.Rendering.Models
 {
@@ -38,12 +41,12 @@ namespace CustomEngine.Rendering.Models
         public bool _hasBarycentricCoord = false;
         public bool _hasNormals = true, _hasBinormals = false, _hasTangents = false;
 
-        public bool IsWeighted { get => _boneCount > 1; }
-        public bool HasNormals { get => _hasNormals; }
-        public bool HasBinormals { get => _hasBinormals; }
-        public bool HasTangents { get => _hasTangents; }
-        public bool HasTexCoords { get => _texcoordCount > 0; }
-        public bool HasColors { get => _colorCount > 0; }
+        public bool IsWeighted => _boneCount > 1;
+        public bool HasNormals => _hasNormals;
+        public bool HasBinormals => _hasBinormals;
+        public bool HasTangents => _hasTangents;
+        public bool HasTexCoords => _texcoordCount > 0;
+        public bool HasColors => _colorCount > 0;
 
         public static PrimitiveBufferInfo PosNormTex1()
         {
@@ -54,7 +57,7 @@ namespace CustomEngine.Rendering.Models
             return new PrimitiveBufferInfo() { _texcoordCount = 0, _hasNormals = false };
         }
     }
-    public class PrimitiveData : IDisposable
+    public class PrimitiveData : FileObject, IDisposable
     {
         public bool HasSkinning => _utilizedBones == null ? false : _utilizedBones.Length > 0;
         public Culling Culling
@@ -65,35 +68,34 @@ namespace CustomEngine.Rendering.Models
 
         //Faces have indices that refer to face points.
         //These may contain repeat vertex indices but each triangle is unique.
-        [Serialize("Triangles")]
+        [Serialize("Triangles", Order = 7)]
         public List<IndexTriangle> _triangles = null;
-        [Serialize("Lines")]
+        [Serialize("Lines", Order = 6)]
         public List<IndexLine> _lines = null;
-        [Serialize("Points")]
+        [Serialize("Points", Order = 5)]
         public List<IndexPoint> _points = null;
-        [Serialize("Types")]
         public EPrimitiveType _type;
-
+        
         //Influence per raw vertex.
         //Count is same as _facePoints.Count
-        [Serialize("Influences")]
+        [Serialize("Influences", Order = 2)]
         public Influence[] _influences;
-        [Serialize("UtilizedBones")]
+        [Serialize("UtilizedBones", Order = 1)]
         public string[] _utilizedBones;
-        [Serialize("SingleBindBone")]
+        [Serialize("SingleBindBone", Order = 0)]
         public string _singleBindBone;
 
         //Face points have indices that refer to each buffer.
         //These may contain repeat buffer indices but each point is unique.
-        [Serialize("FacePoints")]
+        [Serialize("FacePoints", Order = 4)]
         public List<FacePoint> _facePoints = null;
 
         //This is the array data that will be passed through the shader.
         //Each buffer may have repeated values, as there must be a value for each remapped face point.
-        [Serialize("VertexBuffers")]
+        [Serialize("VertexBuffers", Order = 3)]
         private List<VertexBuffer> _buffers = null;
 
-        [Serialize("Culling")]
+        [Serialize("Culling", IsXmlAttribute = true)]
         private Culling _culling = Culling.Back;
 
         public VertexBuffer this[BufferType type]
@@ -542,6 +544,84 @@ namespace CustomEngine.Rendering.Models
         public void Dispose()
         {
             _buffers?.ForEach(x => x.Dispose());
+        }
+
+        [CustomSerializeMethod("Triangles")]
+        private bool CustomTrianglesSerialize(XmlWriter writer)
+        {
+            if (_triangles != null)
+                writer.WriteElementString("Triangles", string.Join(" ", _triangles.SelectMany(x => x.Points.Select(y => y.VertexIndex))));
+            return true;
+        }
+        [CustomSerializeMethod("Lines")]
+        private bool CustomLinesSerialize(XmlWriter writer)
+        {
+            if (_lines != null)
+                writer.WriteElementString("Lines", string.Join(" ", _lines.SelectMany(x => new int[] { x.Point0.VertexIndex, x.Point1.VertexIndex })));
+            return true;
+        }
+        [CustomSerializeMethod("Points")]
+        private bool CustomPointsSerialize(XmlWriter writer)
+        {
+            if (_points != null)
+                writer.WriteElementString("Points", string.Join(" ", _points.Select(x => x.VertexIndex)));
+            return true;
+        }
+        [CustomSerializeMethod("FacePoints")]
+        private bool CustomFacePointsSerialize(XmlWriter writer)
+        {
+            writer.WriteStartElement("FacePoints");
+            writer.WriteAttributeString("Count", _facePoints.Count.ToString());
+            {
+                bool hasInfs = _influences != null && _influences.Length > 0;
+                foreach (FacePoint p in _facePoints)
+                {
+                    if (hasInfs)
+                        writer.WriteString(p._influenceIndex.ToString() + " ");
+                    foreach (int i in p.BufferIndices)
+                        writer.WriteString(i.ToString() + " ");
+                }
+            }
+            writer.WriteEndElement();
+            return true;
+        }
+
+        [CustomSerializeMethod("Influences")]
+        private bool CustomInfluencesSerialize(XmlWriter writer)
+        {
+            if (_influences != null)
+            {
+                writer.WriteStartElement("Influences");
+                writer.WriteAttributeString("Count", _influences.Length.ToString());
+                {
+                    writer.WriteStartElement("Counts");
+                    foreach (Influence inf in _influences)
+                    {
+                        writer.WriteString(inf.WeightCount.ToString() + " ");
+                    }
+                    writer.WriteEndElement();
+                    writer.WriteStartElement("Indices");
+                    foreach (Influence inf in _influences)
+                    {
+                        for (int i = 0; i < inf.WeightCount; ++i)
+                        {
+                            writer.WriteString(_utilizedBones.IndexOf(inf.Weights[i].Bone).ToString() + " ");
+                        }
+                    }
+                    writer.WriteEndElement();
+                    writer.WriteStartElement("Weights");
+                    foreach (Influence inf in _influences)
+                    {
+                        for (int i = 0; i < inf.WeightCount; ++i)
+                        {
+                            writer.WriteString(inf.Weights[i].Weight.ToString() + " ");
+                        }
+                    }
+                    writer.WriteEndElement();
+                }
+                writer.WriteEndElement();
+            }
+            return true;
         }
     }
 }

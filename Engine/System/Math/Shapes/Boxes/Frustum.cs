@@ -8,6 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using CustomEngine.Rendering;
+using System.ComponentModel;
 
 namespace System
 {
@@ -21,6 +22,49 @@ namespace System
             _boundingSphere = new Sphere() { RenderSolid = false };
             _renderName = "frustum" + ActiveFrustums.Count;
             ActiveFrustums.Add(this);
+        }
+        public Frustum(
+            float fovY,
+            float aspect,
+            float nearZ,
+            float farZ,
+            Vec3 forward,
+            Vec3 up,
+            Vec3 position)
+            : this()
+        {
+            float
+                tan = (float)Math.Tan(CustomMath.DegToRad(fovY / 2.0f)),
+                nearYDist = tan * nearZ,
+                nearXDist = aspect * nearYDist,
+                farYDist = tan * farZ,
+                farXDist = aspect * farYDist;
+
+            Vec3
+                rightDir = forward ^ up,
+                nearPos = position + forward * nearZ,
+                farPos = position + forward * farZ,
+                nX = rightDir * nearXDist,
+                fX = rightDir * farXDist,
+                nY = up * nearYDist,
+                fY = up * farYDist,
+                ntl = nearPos + nY - nX,
+                ntr = nearPos + nY + nX,
+                nbl = nearPos - nY - nX,
+                nbr = nearPos - nY + nX,
+                ftl = farPos + fY - fX,
+                ftr = farPos + fY + fX,
+                fbl = farPos - fY - fX,
+                fbr = farPos - fY + fX;
+
+            //TODO: calculation is incorrect; sphere does not intersect with near points
+            float h = farZ - nearZ;
+            float a = 2.0f * nearXDist;
+            float b = 2.0f * farXDist;
+            float centerDist = h - (h + (a - b) * (a + b) / (4.0f * h)) / 2.0f;
+            Vec3 center = Ray.PointAtLineDistance(nearPos, farPos, centerDist);
+
+            UpdatePoints(fbl, fbr, ftl, ftr, nbl, nbr, ntl, ntr, center);
         }
         public Frustum(
            Vec3 farBottomLeft, Vec3 farBottomRight, Vec3 farTopLeft, Vec3 farTopRight,
@@ -97,8 +141,16 @@ namespace System
             }
         }
 
-        private Plane[] _planes = new Plane[6];
+        [Serialize("Points")]
         private Vec3[] _points = new Vec3[8];
+
+        [PostDeserialize]
+        public void PostDeserialize()
+        {
+
+        }
+
+        private Plane[] _planes = new Plane[6];
 
         public Vec3 FarBottomLeft => _points[0];
         public Vec3 FarBottomRight => _points[1];

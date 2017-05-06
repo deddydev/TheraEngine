@@ -2,12 +2,13 @@
 using static System.Math;
 using static System.CustomMath;
 using System.Collections.Generic;
+using CustomEngine;
 
 namespace System
 {
     [Serializable]
     [StructLayout(LayoutKind.Sequential)]
-    public unsafe struct Quat : IEquatable<Quat>
+    public unsafe struct Quat : IEquatable<Quat>, IParsable
     {
         public static readonly Quat Identity = new Quat(0.0f, 0.0f, 0.0f, 1.0f);
 
@@ -497,9 +498,32 @@ namespace System
         {
             return !left.Equals(right);
         }
+        private static string listSeparator = Globalization.CultureInfo.CurrentCulture.TextInfo.ListSeparator;
         public override string ToString()
         {
-            return string.Format("V: {0}, W: {1}", Xyz, W);
+            return String.Format("({0}{4} {1}{4} {2}{4} {3})", X, Y, Z, W, listSeparator);
+        }
+        public string ToString(bool includeParentheses, bool includeSeparator)
+           => String.Format("{5}{0}{4} {1}{4} {2}{4} {3}{6}", X, Y, Z, W,
+               includeSeparator ? listSeparator : "", includeParentheses ? "(" : "", includeParentheses ? ")" : "");
+        public static Quat Parse(string value)
+        {
+            value = value.Trim();
+
+            if (value.StartsWith("("))
+                value = value.Substring(1);
+            if (value.EndsWith(")"))
+                value = value.Substring(0, value.Length - 1);
+
+            string[] parts = value.Split(' ');
+            if (parts[0].EndsWith(listSeparator))
+                parts[0].Substring(0, parts[0].Length - 1);
+            if (parts[1].EndsWith(listSeparator))
+                parts[1].Substring(0, parts[1].Length - 1);
+            if (parts[2].EndsWith(listSeparator))
+                parts[2].Substring(0, parts[2].Length - 1);
+
+            return new Quat(float.Parse(parts[0]), float.Parse(parts[1]), float.Parse(parts[2]), float.Parse(parts[3]));
         }
         public override bool Equals(object other)
         {
@@ -518,5 +542,10 @@ namespace System
         {
             return Xyz == other.Xyz && W == other.W;
         }
+
+        public string WriteToString()
+            => ToString(false, false);
+        public void ReadFromString(string str)
+            => this = Parse(str);
     }
 }

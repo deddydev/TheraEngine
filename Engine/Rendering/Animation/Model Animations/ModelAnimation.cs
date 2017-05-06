@@ -8,6 +8,7 @@ namespace CustomEngine.Rendering.Animation
 {
     public class ModelAnimation : BaseAnimation
     {
+        [Serialize("BoneAnimations")]
         public Dictionary<string, BoneAnimation> _boneAnimations
             = new Dictionary<string, BoneAnimation>();
         protected internal override void Tick(float delta)

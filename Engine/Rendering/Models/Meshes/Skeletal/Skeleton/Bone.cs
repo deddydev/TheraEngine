@@ -6,6 +6,7 @@ using CustomEngine.Worlds.Actors;
 using System.Xml;
 using System.Runtime.InteropServices;
 using System.IO;
+using System.ComponentModel;
 
 namespace CustomEngine.Rendering.Models
 {
@@ -19,7 +20,7 @@ namespace CustomEngine.Rendering.Models
         RotationXYZ,
         PerspectiveXYZ,
     }
-    [FileClass("BONE", "BONE", "Bone")]
+    [FileClass("BONE", "Bone")]
     public class Bone : FileObject, IPhysicsDrivable, ISocket
     {
         public Bone(Skeleton owner)

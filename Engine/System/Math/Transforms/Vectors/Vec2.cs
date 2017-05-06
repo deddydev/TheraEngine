@@ -10,7 +10,8 @@ namespace System
 {
     [Serializable]
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    public unsafe struct Vec2 : IEquatable<Vec2>, IUniformable2Float, IBufferable
+    public unsafe struct Vec2 : 
+        IEquatable<Vec2>, IUniformable2Float, IBufferable, IParsable
     {
         public float X, Y;
 
@@ -321,16 +322,17 @@ namespace System
             return Equals((Vec2)obj);
         }
         public bool Equals(Vec2 other)
-        {
-            return
+            =>
                 X == other.X &&
                 Y == other.Y;
-        }
         public bool Equals(Vec2 other, float precision)
-        {
-            return
+            =>
                 Abs(X - other.X) < precision &&
                 Abs(Y - other.Y) < precision;
-        }
+
+        public string WriteToString()
+            => ToString(false, false);
+        public void ReadFromString(string str)
+            => this = Parse(str);
     }
 }

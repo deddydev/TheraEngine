@@ -10,7 +10,7 @@ namespace System
     /// </summary>
     [Serializable]
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    public unsafe struct Matrix3 : IEquatable<Matrix3>, IUniformable
+    public unsafe struct Matrix3 : IEquatable<Matrix3>, IUniformable, IParsable
     {
         public float* Data { get { fixed (void* p = &this) return (float*)p; } }
 
@@ -957,5 +957,21 @@ namespace System
         }
 
         #endregion
+
+        public string WriteToString()
+        {
+            return
+                Row0.WriteToString() + " " +
+                Row1.WriteToString() + " " +
+                Row2.WriteToString();
+        }
+
+        public void ReadFromString(string str)
+        {
+            string[] v = str.Split(' ');
+            Row0 = new Vec3(float.Parse(v[0]), float.Parse(v[1]), float.Parse(v[2]));
+            Row1 = new Vec3(float.Parse(v[3]), float.Parse(v[4]), float.Parse(v[5]));
+            Row2 = new Vec3(float.Parse(v[6]), float.Parse(v[7]), float.Parse(v[8]));
+        }
     }
 }

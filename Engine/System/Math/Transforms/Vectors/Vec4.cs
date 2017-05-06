@@ -9,7 +9,8 @@ namespace System
 {
     [Serializable]
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    public unsafe struct Vec4 : IEquatable<Vec4>, IUniformable4Float, IBufferable
+    public unsafe struct Vec4 : 
+        IEquatable<Vec4>, IUniformable4Float, IBufferable, IParsable
     {
         public float X, Y, Z, W;
 
@@ -783,21 +784,15 @@ namespace System
             return vec * scale;
         }
         public static Vec4 operator *(Vec4 vec, Vec4 scale)
-        {
-            return new Vec4(
+            => new Vec4(
                 vec.X * scale.X,
                 vec.Y * scale.Y,
                 vec.Z * scale.Z,
                 vec.W * scale.W);
-        }
         public static bool operator ==(Vec4 left, Vec4 right)
-        {
-            return left.Equals(right);
-        }
+            => left.Equals(right);
         public static bool operator !=(Vec4 left, Vec4 right)
-        {
-            return !left.Equals(right);
-        }
+            => !left.Equals(right);
         public static implicit operator BulletSharp.Vector4(Vec4 v)
         {
             return new BulletSharp.Vector4(v.X, v.Y, v.Z, v.W);
@@ -810,6 +805,28 @@ namespace System
         public override string ToString()
         {
             return String.Format("({0}{4} {1}{4} {2}{4} {3})", X, Y, Z, W, listSeparator);
+        }
+        public string ToString(bool includeParentheses, bool includeSeparator)
+           => String.Format("{5}{0}{4} {1}{4} {2}{4} {3}{6}", X, Y, Z, W,
+               includeSeparator ? listSeparator : "", includeParentheses ? "(" : "", includeParentheses ? ")" : "");
+        public static Vec4 Parse(string value)
+        {
+            value = value.Trim();
+
+            if (value.StartsWith("("))
+                value = value.Substring(1);
+            if (value.EndsWith(")"))
+                value = value.Substring(0, value.Length - 1);
+
+            string[] parts = value.Split(' ');
+            if (parts[0].EndsWith(listSeparator))
+                parts[0].Substring(0, parts[0].Length - 1);
+            if (parts[1].EndsWith(listSeparator))
+                parts[1].Substring(0, parts[1].Length - 1);
+            if (parts[2].EndsWith(listSeparator))
+                parts[2].Substring(0, parts[1].Length - 1);
+
+            return new Vec4(float.Parse(parts[0]), float.Parse(parts[1]), float.Parse(parts[2]), float.Parse(parts[3]));
         }
         public override int GetHashCode()
         {
@@ -845,5 +862,9 @@ namespace System
                 Abs(Z - other.Z) < precision &&
                 Abs(W - other.W) < precision;
         }
+        public string WriteToString()
+            => ToString(false, false);
+        public void ReadFromString(string str)
+            => this = Parse(str);
     }
 }

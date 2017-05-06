@@ -1,14 +1,10 @@
 ﻿using CustomEngine;
 using CustomEngine.Rendering.Models;
 using System.Collections.Generic;
-using CustomEngine.Files;
 using System.Globalization;
 using BulletSharp;
-using CustomEngine.Worlds.Actors;
-using System.IO;
-using System.Xml;
-using System.Runtime.InteropServices;
 using System.Drawing;
+using System.ComponentModel;
 
 namespace System
 {
@@ -16,7 +12,10 @@ namespace System
     {
         public static List<Box> Active = new List<Box>();
 
+        [DefaultValue("0 0 0")]
+        [Serialize("HalfExtents")]
         public Vec3 _halfExtents;
+        [Serialize("Transform")]
         public FrameState _transform;
 
         public event Action TransformChanged;
@@ -218,64 +217,5 @@ namespace System
         {
             return new Box(_halfExtents, _transform);
         }
-        //public unsafe override void Write(VoidPtr address, StringTable table)
-        //{
-        //    *(Header*)address = this;
-        //}
-        //public unsafe override void Read(VoidPtr address, VoidPtr strings)
-        //{
-        //    Header h = *(Header*)address;
-        //    _halfExtents = h._halfExtents;
-        //    _transform = h._transform;
-        //}
-        //public override void Write(XmlWriter writer)
-        //{
-        //    writer.WriteStartElement("box");
-        //    if (_halfExtents != Vec3.Zero)
-        //        writer.WriteElementString("halfExtents", _halfExtents.ToString(false, false));
-        //    _transform.Write(writer);
-        //    writer.WriteEndElement();
-        //}
-        //public override void Read(XMLReader reader)
-        //{
-        //    if (!reader.Name.Equals("box", true))
-        //        throw new Exception();
-        //    while (reader.BeginElement())
-        //    {
-        //        if (reader.Name.Equals("transform", true))
-        //        {
-        //            _transform = new FrameState();
-        //            _transform.Read(reader);
-        //        }
-        //        else if (reader.Name.Equals("halfExtents", true))
-        //            _halfExtents = Vec3.Parse(reader.ReadElementString());
-        //        reader.EndElement();
-        //    }
-        //}
-
-        //protected override int OnCalculateSize(StringTable table)
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        //[StructLayout(LayoutKind.Sequential, Pack = 1)]
-        //public struct Header
-        //{
-        //    public BVec3 _halfExtents;
-        //    public FrameState.Header _transform;
-
-        //    public static implicit operator Header(Box b)
-        //    {
-        //        return new Header()
-        //        {
-        //            _halfExtents = b._halfExtents,
-        //            _transform = b._transform,
-        //        };
-        //    }
-        //    public static implicit operator Box(Header h)
-        //    {
-        //        return new Box(h._halfExtents, h._transform);
-        //    }
-        //}
     }
 }

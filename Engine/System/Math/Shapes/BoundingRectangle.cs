@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -10,7 +11,15 @@ namespace System
     {
         public static readonly BoundingRectangle Empty = new BoundingRectangle();
 
-        private Vec2 _translation, _bounds, _localOriginPercentage;
+        [DefaultValue("0 0")]
+        [Serialize("Translation")]
+        private Vec2 _translation;
+        [DefaultValue("0 0")]
+        [Serialize("Bounds")]
+        private Vec2 _bounds;
+        [DefaultValue("0 0")]
+        [Serialize("LocalOriginPercentage")]
+        private Vec2 _localOriginPercentage;
 
         /// <summary>
         /// The origin of the component's rotation angle, as a percentage.

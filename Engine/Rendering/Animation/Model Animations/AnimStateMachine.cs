@@ -3,6 +3,7 @@ using CustomEngine.Rendering.Models;
 using CustomEngine.Worlds.Actors;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 
 namespace CustomEngine.Rendering.Animation
 {
@@ -93,9 +94,8 @@ namespace CustomEngine.Rendering.Animation
             return done;
         }
     }
-
-    [ObjectHeader()]
-    [FileClass("CSTM", "CSTM", "Animation State Machine Component")]
+    
+    [FileClass("CSTM", "Animation State Machine Component")]
     public class AnimStateMachineComponent : LogicComponent
     {
         private AnimState _initialState;

@@ -56,11 +56,10 @@ namespace System
             }
         }
     }
-    public unsafe class FloatQuantizer : IDisposable
+    public unsafe class FloatQuantizer
     {
         private const float _maxError = 0.0005f;
-
-        private Vec4[] _values;
+        
         private Vec4 _min, _max;
         private BoolVec4 _includedComponents;
         private int _bitCount = 1;
@@ -70,52 +69,36 @@ namespace System
         private int _srcComponents, _srcCount;
         private int _scale;
         private int _dataLen;
-
-        private GCHandle _handle;
-        private float* _pData;
+        
+        private float[] _pData;
 
         private FloatQuantizer() { }
-        ~FloatQuantizer() { Dispose(); }
-        public void Dispose()
-        {
-            if (_handle.IsAllocated)
-                _handle.Free();
-            _pData = null;
-        }
         public FloatQuantizer(params Vec4[] values)
         {
-            _values = values;
             _srcCount = values.Length;
             _srcComponents = 4;
-            _handle = GCHandle.Alloc(values, GCHandleType.Pinned);
-            _pData = (float*)_handle.AddrOfPinnedObject();
+            _pData = values.SelectMany(x => new float[] { x.X, x.Y, x.Z, x.W }).ToArray();
             Evaluate();
         }
         public FloatQuantizer(params Vec3[] values)
         {
-            _values = values.Select(x => new Vec4(x.X, x.Y, x.Z, 0.0f)).ToArray();
             _srcCount = values.Length;
             _srcComponents = 3;
-            _handle = GCHandle.Alloc(values, GCHandleType.Pinned);
-            _pData = (float*)_handle.AddrOfPinnedObject();
+            _pData = values.SelectMany(x => new float[] { x.X, x.Y, x.Z }).ToArray();
             Evaluate();
         }
         public FloatQuantizer(params Vec2[] values)
         {
-            _values = values.Select(x => new Vec4(x.X, x.Y, 0.0f, 0.0f)).ToArray();
             _srcCount = values.Length;
             _srcComponents = 2;
-            _handle = GCHandle.Alloc(values, GCHandleType.Pinned);
-            _pData = (float*)_handle.AddrOfPinnedObject();
+            _pData = values.SelectMany(x => new float[] { x.X, x.Y }).ToArray();
             Evaluate();
         }
         public FloatQuantizer(params float[] values)
         {
-            _values = values.Select(x => new Vec4(x, 0.0f, 0.0f, 0.0f)).ToArray();
             _srcCount = values.Length;
             _srcComponents = 1;
-            _handle = GCHandle.Alloc(values, GCHandleType.Pinned);
-            _pData = (float*)_handle.AddrOfPinnedObject();
+            _pData = values;
             Evaluate();
         }
 
@@ -159,7 +142,6 @@ namespace System
         }
         private void Evaluate()
         {
-            float* fPtr;
             int bestScale = 0;
             bool negateScale;
 
@@ -172,10 +154,9 @@ namespace System
             //Find max and min for each component and overall
             for (int i = 0, offset = 0; i < _srcCount; i++, offset += _srcComponents)
             {
-                fPtr = &_pData[offset];
                 for (int x = 0; x < _srcComponents; x++)
                 {
-                    val = *fPtr++;
+                    val = _pData[offset + x];
                     if (val < _min[x])
                         _min[x] = val;
                     if (val > _max[x])
@@ -231,10 +212,9 @@ namespace System
                     float worstError = float.MinValue;
                     for (int y = 0, offset = 0; y < _srcCount; y++, offset += _srcComponents)
                     {
-                        fPtr = &_pData[offset];
                         for (int z = 0; z < _srcComponents; z++)
                         {
-                            if ((val = *fPtr++) == 0)
+                            if ((val = _pData[offset + z]) == 0)
                                 continue;
 
                             val *= scale;
@@ -381,17 +361,13 @@ namespace System
             byte* dPtr = (byte*)address;
 
             int bitOffset = 0;
-            foreach (Vec4 v in _values)
-            {
-                if (_includedComponents.X)
-                    WriteValue(v.X, ref dPtr, ref bitOffset);
-                if (_includedComponents.Y)
-                    WriteValue(v.Y, ref dPtr, ref bitOffset);
-                if (_includedComponents.Z)
-                    WriteValue(v.Z, ref dPtr, ref bitOffset);
-                if (_includedComponents.W)
-                    WriteValue(v.W, ref dPtr, ref bitOffset);
-            }
+            for (int i = 0; i < _srcCount; ++i)
+                for (int j = 0; j < _srcComponents; ++j)
+                {
+                    int offset = i * _srcComponents;
+                    if (_includedComponents[j])
+                        WriteValue(_pData[offset + j], ref dPtr, ref bitOffset);
+                }
         }
         private void WriteValue(float value, ref byte* dPtr, ref int bitOffset)
         {

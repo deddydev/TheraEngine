@@ -3,6 +3,7 @@ using System.IO;
 using System.Xml;
 using CustomEngine.Files;
 using System.Runtime.InteropServices;
+using System.ComponentModel;
 
 namespace CustomEngine.Rendering.Cameras
 {

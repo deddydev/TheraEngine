@@ -4,6 +4,11 @@ using System;
 
 namespace CustomEngine
 {
+    public interface IParsable
+    {
+        string WriteToString();
+        void ReadFromString(string str);
+    }
     public interface IMesh : IRenderable
     {
         bool Visible { get; set; }

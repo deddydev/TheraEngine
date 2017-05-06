@@ -4,6 +4,7 @@ using CustomEngine.Files;
 using System.IO;
 using System.Xml;
 using System.Runtime.InteropServices;
+using System.ComponentModel;
 
 namespace CustomEngine.Rendering.Cameras
 {
@@ -108,42 +109,11 @@ namespace CustomEngine.Rendering.Cameras
         protected override Frustum CreateUntransformedFrustum()
         {
             const bool transformed = false;
-
-            float
-                tan = (float)Math.Tan(CustomMath.DegToRad(_fovY / 2.0f)),
-                nearYDist = tan * _nearZ,
-                nearXDist = _aspect * nearYDist,
-                farYDist = tan * _farZ,
-                farXDist = _aspect * farYDist;
-
-            Vec3
-                point = transformed ? _localPoint.Raw : Vec3.Zero,
-                forwardDir = transformed ? GetForwardVector() : Vec3.Forward,
-                rightDir = transformed ? GetRightVector() : Vec3.Right,
-                upDir = transformed ? GetUpVector() : Vec3.Up,
-                nearPos = point + forwardDir * _nearZ,
-                farPos = point + forwardDir * _farZ,
-                nX = rightDir * nearXDist,
-                fX = rightDir * farXDist,
-                nY = upDir * nearYDist,
-                fY = upDir * farYDist,
-                ntl = nearPos + nY - nX,
-                ntr = nearPos + nY + nX,
-                nbl = nearPos - nY - nX,
-                nbr = nearPos - nY + nX,
-                ftl = farPos + fY - fX,
-                ftr = farPos + fY + fX,
-                fbl = farPos - fY - fX,
-                fbr = farPos - fY + fX;
-
-            //TODO: calculation is incorrect; sphere does not intersect with near points
-            float h = _farZ - _nearZ;
-            float a = 2.0f * nearXDist;
-            float b = 2.0f * farXDist;
-            float centerDist = h - (h + (a - b) * (a + b) / (4.0f * h)) / 2.0f;
-            Vec3 center = Ray.PointAtLineDistance(nearPos, farPos, centerDist);
             
-            return new Frustum(fbl, fbr, ftl, ftr, nbl, nbr, ntl, ntr, center);
+            return new Frustum(_fovY, _aspect, _nearZ, _farZ,
+                transformed ? GetForwardVector() : Vec3.Forward,
+                transformed ? GetUpVector() : Vec3.Up,
+                transformed ? _localPoint.Raw : Vec3.Zero);
         }
         public override float DistanceScale(Vec3 point, float radius)
         {

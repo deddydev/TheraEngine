@@ -696,8 +696,10 @@
     <Compile Include="System\Extensions\ArrayExtension.cs" />
     <Compile Include="System\Extensions\XmlExtension.cs" />
     <Compile Include="Rendering\Fonts\TTF.cs" />
-    <Compile Include="System\Files\CustomXmlSerializer.cs" />
-    <Compile Include="System\Files\CustomBinarySerializer.cs" />
+    <Compile Include="System\Files\XML Serializer\CustomXmlDeserializer.cs" />
+    <Compile Include="System\Files\XML Serializer\CustomXmlSerializerCommon.cs" />
+    <Compile Include="System\Files\XML Serializer\CustomXmlSerializer.cs" />
+    <Compile Include="System\Files\Binary Serializer\CustomBinarySerializer.cs" />
     <Compile Include="System\Files\FileRef.cs" />
     <Compile Include="System\Files\StringTable.cs" />
     <Compile Include="System\IO\XMLReader.cs" />
@@ -742,6 +744,7 @@
     <Compile Include="System\Platform\Linux.cs" />
     <Compile Include="System\Platform\OSX.cs" />
     <Compile Include="System\Platform\Win32.cs" />
+    <Compile Include="System\Reflection\Attributes\Serialization\CustomSerializeMethodAttribute.cs" />
     <Compile Include="System\Reflection\Attributes\Serialization\FileClassAttribute.cs" />
     <Compile Include="System\Reflection\Attributes\Serialization\PrePostDeserializeAttributes.cs" />
     <Compile Include="System\Reflection\Attributes\PropertyChangedEventAttribute.cs" />

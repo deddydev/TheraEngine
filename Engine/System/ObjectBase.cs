@@ -51,8 +51,8 @@ namespace System
             set => _userData = value;
         }
 
-        public ObjectHeader ClassHeader 
-            => (ObjectHeader)Attribute.GetCustomAttribute(GetType(), typeof(ObjectHeader));
+        //public ObjectHeader ClassHeader 
+        //    => (ObjectHeader)Attribute.GetCustomAttribute(GetType(), typeof(ObjectHeader));
         
         public string Name
         {

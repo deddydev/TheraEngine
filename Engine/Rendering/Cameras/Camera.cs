@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Xml.Serialization;
 using CustomEngine.Worlds.Actors;
+using System.ComponentModel;
 
 namespace CustomEngine.Rendering.Cameras
 {

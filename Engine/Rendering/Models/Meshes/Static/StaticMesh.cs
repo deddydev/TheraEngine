@@ -10,6 +10,7 @@ using CustomEngine.Rendering.Models.Materials;
 using System.IO;
 using System.Xml;
 using BulletSharp;
+using System.ComponentModel;
 
 namespace CustomEngine.Rendering.Models
 {

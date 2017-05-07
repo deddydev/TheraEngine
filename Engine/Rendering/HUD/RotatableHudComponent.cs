@@ -22,7 +22,7 @@ namespace CustomEngine.Rendering.HUD
             set
             {
                 _rotationAngle = value.RemapToRange(0.0f, 360.0f);
-                OnTransformed();
+                RecalcLocalTransform();
             }
         }
         /// <summary>
@@ -36,7 +36,7 @@ namespace CustomEngine.Rendering.HUD
             set
             {
                 _rotationLocalOrigin = value;
-                OnTransformed();
+                RecalcLocalTransform();
             }
         }
         protected override void OnRecalcLocalTransform(out Matrix4 localTransform, out Matrix4 inverseLocalTransform)

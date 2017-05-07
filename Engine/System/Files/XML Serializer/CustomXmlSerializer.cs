@@ -109,22 +109,19 @@ namespace CustomEngine.Files
             }
             else
             {
-                if (info.Attrib.SerializeIf != null && !BooleanExpressionParser.Evaluate(info.Attrib.SerializeIf, obj))
+                if (info.Attrib.SerializeIf != null && 
+                    !ExpressionParser.Evaluate<bool>(info.Attrib.SerializeIf, obj))
                     return;
 
-                if (t.GetInterface("IList") != null && info.GetValue(obj) is IList array)
+                if (t.GetInterface("IList") != null && 
+                    info.GetValue(obj) is IList array)
                 {
                     writer.WriteStartElement(info.Name);
                     writer.WriteAttributeString("Count", array.Count.ToString());
                     if (array.Count > 0)
                     {
                         Type elementType = array[0].GetType();
-                        if (elementType.IsEnum)
-                        {
-                            foreach (object o in array)
-                                writer.WriteElementString("Item", o.ToString());
-                        }
-                        else if (array[0] is string)
+                        if (elementType.IsEnum || array[0] is string)
                         {
                             string output = array[0].ToString();
                             if (output.Contains(" "))
@@ -141,80 +138,24 @@ namespace CustomEngine.Files
                         else if (elementType.IsValueType)
                         {
                             List<VarInfo> structFields = CollectSerializedMembers(array[0].GetType());
+                            //Struct has serialized members within it?
+                            //Needs a full element
                             if (structFields.Count > 0)
                                 foreach (object o in array)
                                     WriteObjectElement(o, structFields, "Item", writer);
                             else
                             {
+                                //Write each struct as a string
                                 string output = array[0].ToString();
                                 for (int i = 1; i < array.Count; ++i)
                                     output += " " + array[i].ToString();
                                 writer.WriteString(output);
                             }
                         }
-                        Top1:
-                        switch (GetTypeName(elementType))
+                        else
                         {
-                            //Struct
-                            case "ValueType":
-                                List<VarInfo> structFields = CollectSerializedMembers(array[0].GetType());
-                                if (structFields.Count > 0)
-                                    foreach (object o in array)
-                                        WriteObjectElement(o, structFields, "Item", writer);
-                                else
-                                    foreach (object o in array)
-                                        writer.WriteElementString("Item", o.ToString());
-                                break;
-                            //Class
-                            case "Object":
-                                foreach (object o in array)
-                                    WriteObjectElement(o, "Item", writer);
-                                break;
-                            //Primitive class
-                            case "String":
-                                string output1 = "";
-                                if (array.Count > 0)
-                                {
-                                    output1 = array[0].ToString();
-                                    if (output1.Contains(" "))
-                                        output1 = "\"" + output1 + "\"";
-                                    for (int i = 1; i < array.Count; ++i)
-                                    {
-                                        string s = array[i].ToString();
-                                        if (s.Contains(" "))
-                                            s = "\"" + s + "\"";
-                                        output1 += " " + s;
-                                    }
-                                }
-                                writer.WriteString(output1);
-                                break;
-                            //Primitive struct
-                            case "Enum":
-                            case "Boolean":
-                            case "SByte":
-                            case "Byte":
-                            case "Char":
-                            case "Int16":
-                            case "UInt16":
-                            case "Int32":
-                            case "UInt32":
-                            case "Int64":
-                            case "UInt64":
-                            case "Single":
-                            case "Double":
-                            case "Decimal":
-                                string output2 = "";
-                                if (array.Count > 0)
-                                {
-                                    output2 = array[0].ToString();
-                                    for (int i = 1; i < array.Count; ++i)
-                                        output2 += " " + array[i].ToString();
-                                }
-                                writer.WriteString(output2);
-                                break;
-                            default:
-                                elementType = elementType.BaseType;
-                                goto Top1;
+                            foreach (object o in array)
+                                WriteObjectElement(o, "Item", writer);
                         }
                     }
                     writer.WriteEndElement();

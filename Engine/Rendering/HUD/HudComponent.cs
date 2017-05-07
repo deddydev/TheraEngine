@@ -213,7 +213,7 @@ namespace CustomEngine.Rendering.HUD
             get => _renderNode;
             set => _renderNode = value;
         }
-        public new HudManager Owner
+        public HudManager Owner
         {
             get => (HudManager)base.OwningActor;
             set
@@ -248,16 +248,6 @@ namespace CustomEngine.Rendering.HUD
                 Quat.Identity,
                 new Vec3(-BottomLeftTranslation),
                 TransformOrder.SRT);
-        }
-        public virtual void OnTransformed()
-        {
-            //step 1: set identity matrix
-            //step 2: translate into position (bottom left corner)
-            //step 5: scale the component
-
-
-
-            RecalcGlobalTransform();
         }
         internal override void RecalcGlobalTransform()
         {

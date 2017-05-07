@@ -9,6 +9,8 @@ using CustomEngine.Rendering.Models.Materials;
 using CustomEngine.Audio;
 using CustomEngine.Worlds;
 using CustomEngine.Input;
+using CustomEngine.Tools;
+using System.Diagnostics;
 
 namespace CustomEngine.Tests
 {
@@ -104,7 +106,7 @@ namespace CustomEngine.Tests
             ColladaScene = Collada.Import(desktop + "TEST.DAE", options, false, true);
             ColladaScene._skeletalModel.Export(Engine.ContentFolderAbs, "TESTMESH", true);
             ColladaScene._skeleton.Export(Engine.ContentFolderAbs, "TESTSKEL", true);
-
+            
             //Collada.Scene anims = Collada.Import(googleDrive + "Thera Assets\\Characters\\Temp\\Carly_Idle.dae", options, true, false);
             //anims.CleanAnimations(scene._skeletalModel, scene._skeleton);
 

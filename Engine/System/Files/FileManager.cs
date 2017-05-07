@@ -151,10 +151,10 @@ namespace CustomEngine.Files
         }
         public static string CompleteImportFilter { get { return GetAllSupportedFilter() + "|" + GetListFilter(); } }
 
-        public static bool IsSpecial(string ext)
-        {
-            return GenericInfo.Select(x => x._tag).Contains(ext.ToLower());
-        }
+        //public static bool IsSpecial(string ext)
+        //{
+        //    return GenericInfo.Select(x => x._tag).Contains(ext.ToLower());
+        //}
 
         public static string CompleteExportFilter { get { return GetAllSupportedFilter() + "|" + GetListFilter(); } }
         public static string GetCompleteFilter(params Type[] types)

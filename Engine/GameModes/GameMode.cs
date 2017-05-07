@@ -1,4 +1,5 @@
-﻿using CustomEngine.Input;
+﻿using CustomEngine.Files;
+using CustomEngine.Input;
 using CustomEngine.Worlds.Actors;
 using System;
 using System.Runtime.InteropServices;
@@ -75,13 +76,13 @@ namespace CustomEngine.GameModes
             return new T2();
         }
     }
-    public interface IGameMode
+    public abstract class BaseGameMode : FileObject
     {
-        void BeginGameplay();
-        void EndGameplay();
-        void AbortGameplay();
+        public abstract void BeginGameplay();
+        public abstract void EndGameplay();
+        public abstract void AbortGameplay();
     }
-    public abstract class GameMode<PawnType> : IGameMode
+    public abstract class GameMode<PawnType> : BaseGameMode
         where PawnType : class, IPawn, new()
     {
         protected SubClassOf<PawnType> _pawnClass;
@@ -91,11 +92,7 @@ namespace CustomEngine.GameModes
             get => _pawnClass;
             set => _pawnClass = value;
         }
-
-        public abstract void BeginGameplay();
-        public abstract void EndGameplay();
-        public abstract void AbortGameplay();
-
+        
         public int _numSpectators, _numPlayers, _numComputers;
     }
 }

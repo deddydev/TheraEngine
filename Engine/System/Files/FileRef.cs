@@ -51,40 +51,35 @@ namespace CustomEngine.Files
         {
             if (file != null)
                 file._filePath = filePath;
-            SetFile(file, true);
+            File = file;
         }
         public SingleFileRef(T file) : base(file._filePath)
         {
-            SetFile(file, !string.IsNullOrEmpty(file._filePath));
+            File = file;
         }
         public T File
         {
             get { return GetInstance(); }
-            set { SetFile(value, false); }
-        }
-        public void SetFile(T value, bool exportToPath)
-        {
-            if (_file == value)
+            set
             {
-                if (exportToPath)
-                    ExportFile();
-                return;
-            }
+                if (_file == value)
+                    return;
 
-            if (_file != null && _file._references.Contains(this))
-                _file._references.Remove(this);
+                if (_file != null && _file._references.Contains(this))
+                    _file._references.Remove(this);
 
-            _file = value;
-            if (_file != null)
-            {
-                if (exportToPath)
-                    ExportFile();
-                Engine.AddLoadedFile(_refPath, _file);
-                _file._references.Add(this);
+                _file = value;
+                if (_file != null)
+                {
+                    Engine.AddLoadedFile(_refPath, _file);
+                    _file._references.Add(this);
+                }
             }
         }
         public void ExportFile()
         {
+            if (_file == null || string.IsNullOrEmpty(_refPath))
+                return;
             string dir = Path.GetDirectoryName(RefPathAbsolute);
             string name = Path.GetFileNameWithoutExtension(RefPathAbsolute);
             _file.Export(dir, name, IsXML());
@@ -118,21 +113,18 @@ namespace CustomEngine.Files
         private void GetFile()
         {
             string absolutePath = RefPathAbsolute;
-            //if (!System.IO.File.Exists(absolutePath))
-            //    throw new FileNotFoundException();
-            bool special = IsSpecial();
             bool fileExists = System.IO.File.Exists(absolutePath);
-            if (!fileExists || special)
-                SetFile(Activator.CreateInstance(_subType) as T, !special);
+            if (!fileExists)
+            {
+                File = Activator.CreateInstance(_subType) as T;
+                Engine.DebugMessage(string.Format("Could not load file at \"{0}\".", absolutePath));
+            }
             else
             {
                 if (IsXML())
-                    _file = FromXML(_subType, absolutePath) as T;
+                    File = FromXML(_subType, absolutePath) as T;
                 else
-                    _file = FromBinary(_subType, absolutePath) as T;
-
-                Engine.AddLoadedFile(_refPath, _file);
-                _file._references.Add(this);
+                    File = FromBinary(_subType, absolutePath) as T;
             }
         }
         public void UnloadReference()
@@ -173,9 +165,10 @@ namespace CustomEngine.Files
                 throw new FileNotFoundException();
 
             T file;
-            if (IsSpecial())
-                file = Activator.CreateInstance(_subType, absolutePath) as T;
-            else if (IsXML())
+            //if (IsSpecial())
+            //    file = Activator.CreateInstance(_subType, absolutePath) as T;
+            //else
+            if (IsXML())
                 file = FromXML(_subType, absolutePath) as T;
             else
                 file = FromBinary(_subType, absolutePath) as T;
@@ -251,11 +244,11 @@ namespace CustomEngine.Files
             string ext = Extension();
             return ext != null && (ext == "xml" || ext.StartsWith("x"));
         }
-        public bool IsSpecial()
-        {
-            string ext = Extension();
-            return FileManager.IsSpecial(ext);
-        }
+        //public bool IsSpecial()
+        //{
+        //    string ext = Extension();
+        //    return FileManager.IsSpecial(ext);
+        //}
         public abstract T GetInstance();
     }
     [StructLayout(LayoutKind.Sequential, Pack = 1)]

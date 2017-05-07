@@ -78,8 +78,8 @@ namespace CustomEngine
             CapUPS = false;
             TargetUPS = 90.0f;
             ContentPath = Engine.StartupPath + Engine.ContentFolderRel;
-            OpeningWorld = new SingleFileRef<World>(ContentPath + "\\OpeningWorld.xcworld");
-            TransitionWorld = new SingleFileRef<World>(ContentPath + "\\TransitionWorld.xcworld");
+            OpeningWorld = new SingleFileRef<World>(ContentPath + "OpeningWorld.xworld");
+            TransitionWorld = new SingleFileRef<World>(ContentPath + "TransitionWorld.xworld");
         }
 
         //public override void Read(XMLReader reader)

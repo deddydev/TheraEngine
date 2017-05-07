@@ -11,6 +11,7 @@ using CustomEngine.Input.Devices.DirectX;
 using CustomEngine.Files;
 using CustomEngine.Worlds.Actors;
 using System.Drawing.Text;
+using System.Diagnostics;
 
 namespace CustomEngine
 {
@@ -78,6 +79,12 @@ namespace CustomEngine
         {
             get => _audioManager;
             set => _audioManager = value;
+        }
+
+        public static void DebugMessage(string message)
+        {
+            Debug.WriteLine(message);
+            RenderPanel.CapturedPanel?.GlobalHud?.DebugPrint(message);
         }
 
         public static float RenderDelta => (float)_timer.RenderTime;

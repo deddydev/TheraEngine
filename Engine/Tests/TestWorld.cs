@@ -104,11 +104,11 @@ namespace CustomEngine.Tests
             options.InitialTransform.Scale = new Vec3(1.0f.InchesToMeters());
             ColladaScene = Collada.Import(desktop + "TEST.DAE", options, false, true);
             ColladaScene.SkeletalModel.Export(Engine.ContentFolderAbs, "TESTMESH", true);
-            foreach (SkeletalRigidSubMesh mesh in ColladaScene.SkeletalModel.RigidChildren)
-            {
-                mesh.Data.Export(Engine.ContentFolderAbs + "TESTMESH\\", mesh.Name + "_Prims", true);
-                mesh.CullingVolume.Export(Engine.ContentFolderAbs + "TESTMESH\\", mesh.Name + "_CullVol", true);
-            }
+            //foreach (SkeletalRigidSubMesh mesh in ColladaScene.SkeletalModel.RigidChildren)
+            //{
+            //    mesh.Data.Export(Engine.ContentFolderAbs + "TESTMESH\\", mesh.Name + "_Prims", true);
+            //    mesh.CullingVolume.Export(Engine.ContentFolderAbs + "TESTMESH\\", mesh.Name + "_CullVol", true);
+            //}
             ColladaScene.Skeleton.Export(Engine.ContentFolderAbs, "TESTSKEL", true);
             
             //Collada.Scene anims = Collada.Import(googleDrive + "Thera Assets\\Characters\\Temp\\Carly_Idle.dae", options, true, false);
@@ -154,7 +154,7 @@ namespace CustomEngine.Tests
             _settings.GameMode = new TestGameMode();
             _settings.Maps.Add(new Map(this, new MapSettings(actors)));
 
-            Export(desktop, "TestWorld", true);
+            Export(Engine.ContentFolderAbs, "TestWorld", true);
 
             //_settings.AmbientSound = new SoundFile() { SoundPath = desktop + "test.wav" };
             //_settings.AmbientParams.SourceRelative.Value = false;

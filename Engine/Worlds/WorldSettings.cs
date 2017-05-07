@@ -11,7 +11,7 @@ using System.ComponentModel;
 namespace CustomEngine.Worlds
 {
     public delegate void GravityChange(Vec3 oldGravity);
-    public delegate void GameModeChange(IGameMode oldMode);
+    public delegate void GameModeChange(BaseGameMode oldMode);
     public delegate void TimeMultiplierChange(float oldMult);
     public class WorldSettings : FileObject
     {
@@ -20,7 +20,7 @@ namespace CustomEngine.Worlds
         public TimeMultiplierChange TimeMultiplierChanged;
 
         public void OnGravityChanged(Vec3 oldGravity) => GravityChanged?.Invoke(oldGravity);
-        public void OnGameModeChanged(IGameMode oldMode) => GameModeChanged?.Invoke(oldMode);
+        public void OnGameModeChanged(BaseGameMode oldMode) => GameModeChanged?.Invoke(oldMode);
         public void OnTimeMultiplierChanged(float oldMult) => TimeMultiplierChanged?.Invoke(oldMult);
 
         public Vec3 Gravity
@@ -33,12 +33,12 @@ namespace CustomEngine.Worlds
                 OnGravityChanged(oldGravity);
             }
         }
-        public IGameMode GameMode
+        public BaseGameMode GameMode
         {
             get => _gameMode;
             set
             {
-                IGameMode oldMode = _gameMode;
+                BaseGameMode oldMode = _gameMode;
                 _gameMode = value;
                 OnGameModeChanged(oldMode);
             }
@@ -56,7 +56,7 @@ namespace CustomEngine.Worlds
         [Serialize("Gravity")]
         private Vec3 _gravity = new Vec3(0.0f, -9.81f, 0.0f);
         [Serialize("GameMode")]
-        private IGameMode _gameMode;
+        private SingleFileRef<BaseGameMode> _gameMode;
         [Serialize("TimeDilation")]
         private float _timeSpeed = 1.0f;
         public BoundingBox OriginRebaseBounds

@@ -32,6 +32,7 @@ namespace System
         ConeZ,
         ConeComplex,
     }
+    [FileClass("Shape", "Shape")]
     public abstract class Shape : FileObject, IRenderable
     {
         public event Action AttributeChanged;
@@ -47,7 +48,7 @@ namespace System
         protected bool _hiddenFromOwner = false;
         [Serialize("VisibleToOwnerOnly", IsXmlAttribute = true)]
         protected bool _visibleToOwnerOnly = false;
-
+        
         protected IOctreeNode _renderNode;
         private int _shapeIndex;
         private string _shapeName;

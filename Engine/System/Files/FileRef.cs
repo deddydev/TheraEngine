@@ -32,10 +32,13 @@ namespace CustomEngine.Files
         private bool CustomSerializeFile(XmlWriter writer)
         {
             writer.WriteStartElement("File");
-            if (!string.IsNullOrEmpty(_filePath))
-                writer.WriteAttributeString("Path", _filePath);
+            if (!string.IsNullOrEmpty(_refPath))
+                writer.WriteAttributeString("Path", _refPath);
             else
+            {
+                writer.WriteEndElement();
                 return false;
+            }
             writer.WriteEndElement();
             return true;
         }

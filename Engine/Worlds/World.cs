@@ -139,7 +139,6 @@ namespace CustomEngine.Worlds
             //for (int i = 0; i < _physicsScene.Dispatcher.NumManifolds; ++i)
             //{
             //    PersistentManifold m = _physicsScene.Dispatcher.GetManifoldByIndexInternal(i);
-                
             //}
         }
         public IActor this[int index]

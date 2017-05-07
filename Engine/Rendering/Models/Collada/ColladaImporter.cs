@@ -1,9 +1,9 @@
-﻿using System;
+﻿using CustomEngine.Rendering.Animation;
+using CustomEngine.Rendering.Models.Materials;
+using System;
 using System.Collections.Generic;
 using System.IO;
-using CustomEngine.Rendering.Models.Materials;
 using System.Linq;
-using CustomEngine.Rendering.Animation;
 
 namespace CustomEngine.Rendering.Models
 {
@@ -11,10 +11,10 @@ namespace CustomEngine.Rendering.Models
     {
         public class Scene
         {
-            public SkeletalMesh _skeletalModel;
-            public StaticMesh _staticModel;
-            public Skeleton _skeleton;
-            public ModelAnimation _animation;
+            public SkeletalMesh SkeletalModel;
+            public StaticMesh StaticModel;
+            public Skeleton Skeleton;
+            public ModelAnimation Animation;
         }
         public static Scene Import(string filePath, ImportOptions options, bool importAnimations = true, bool importModels = true)
         {
@@ -90,33 +90,33 @@ namespace CustomEngine.Rendering.Models
             //Create meshes after all bones have been created
             if (rootBones.Count == 0)
             {
-                scene._staticModel = new StaticMesh()
+                scene.StaticModel = new StaticMesh()
                 {
                     Name = Path.GetFileNameWithoutExtension(filePath)
                 };
-                scene._skeletalModel = null;
-                scene._skeleton = null;
+                scene.SkeletalModel = null;
+                scene.Skeleton = null;
                 foreach (ObjectInfo obj in objects)
-                    obj.Initialize(scene._staticModel, shell);
+                    obj.Initialize(scene.StaticModel, shell);
             }
             else
             {
-                scene._skeletalModel = new SkeletalMesh()
+                scene.SkeletalModel = new SkeletalMesh()
                 {
                     Name = Path.GetFileNameWithoutExtension(filePath)
                 };
-                scene._staticModel = null;
-                scene._skeleton = new Skeleton(rootBones.ToArray());
+                scene.StaticModel = null;
+                scene.Skeleton = new Skeleton(rootBones.ToArray());
                 foreach (ObjectInfo obj in objects)
-                    obj.Initialize(scene._skeletalModel, shell);
+                    obj.Initialize(scene.SkeletalModel, shell);
             }
-            scene._animation = new ModelAnimation()
+            scene.Animation = new ModelAnimation()
             {
                 Name = Path.GetFileNameWithoutExtension(filePath),
                 //RootFolder = new AnimFolder("Skeleton"),
             };
             foreach (AnimationEntry e in shell._animations)
-                ParseAnimation(e, scene._animation);
+                ParseAnimation(e, scene.Animation);
             return scene;
         }
 

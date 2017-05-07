@@ -57,6 +57,7 @@ namespace CustomEngine.Rendering.Models
             return new PrimitiveBufferInfo() { _texcoordCount = 0, _hasNormals = false };
         }
     }
+    [FileClass("PRIM", "Mesh Data")]
     public class PrimitiveData : FileObject, IDisposable
     {
         public bool HasSkinning => _utilizedBones == null ? false : _utilizedBones.Length > 0;

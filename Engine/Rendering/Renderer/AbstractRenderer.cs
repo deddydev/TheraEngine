@@ -5,6 +5,7 @@ using CustomEngine.Worlds.Actors.Types;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Drawing.Text;
 using System.Linq;
 
 namespace CustomEngine.Rendering
@@ -41,6 +42,7 @@ namespace CustomEngine.Rendering
         protected static Dictionary<int, Material> _activeMaterials = new Dictionary<int, Material>();
         protected static SceneProcessor _scene = new SceneProcessor();
         protected static Dictionary<string, PrimitiveManager> _debugPrimitives = new Dictionary<string, PrimitiveManager>();
+        protected static PrivateFontCollection _fonts;
 
         private PrimitiveManager AssignDebugPrimitive(string name, PrimitiveManager m)
         {

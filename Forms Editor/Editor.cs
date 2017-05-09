@@ -85,7 +85,7 @@ namespace TheraEditor
                     if (r == DialogResult.Cancel)
                         return;
                     else if (r == DialogResult.Yes)
-                        Engine.World.Export();
+                        Engine.World.Export(FileFormat.XML);
                     Engine.World.UserData = null;
                 }
                 value.UserData = new EditorState();

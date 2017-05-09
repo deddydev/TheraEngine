@@ -1,4 +1,5 @@
-﻿using CustomEngine.Rendering.Models;
+﻿using CustomEngine.Files;
+using CustomEngine.Rendering.Models;
 using CustomEngine.Rendering.Models.Materials;
 using System;
 
@@ -18,7 +19,7 @@ namespace CustomEngine
     }
     public interface IStaticMesh
     {
-        bool VisibleByDefault { get; }
+        bool Visible { get; }
         Shape CullingVolume { get; }
         PrimitiveData Data { get; }
         Material Material { get; set; }
@@ -27,8 +28,7 @@ namespace CustomEngine
     public interface ISkeletalMesh
     {
         bool Visible { get; }
-        string SingleBindName { get; }
-        PrimitiveData Data { get; }
+        SingleFileRef<PrimitiveData> Data { get; }
         Material Material { get; set; }
         SkeletalMesh Model { get; }
     }

@@ -23,7 +23,7 @@ namespace CustomEngine.Rendering.Models
         protected PrimitiveData _data;
         protected Material _material;
         protected Shape _cullingVolume;
-        protected bool _isRendering, _isVisible, _visibleByDefault, _renderSolid;
+        protected bool _isRendering, _visible, _renderSolid;
 
         public Shape CullingVolume { get { return _cullingVolume; } }
         public bool IsRendering
@@ -31,14 +31,10 @@ namespace CustomEngine.Rendering.Models
             get { return _isRendering; }
             set { _isRendering = value; }
         }
-        public bool VisibleByDefault
-        {
-            get { return _visibleByDefault; }
-        }
         public bool Visible
         {
-            get { return _isVisible; }
-            set { _isVisible = value; }
+            get { return _visible; }
+            set { _visible = value; }
         }
         public Material Material
         {

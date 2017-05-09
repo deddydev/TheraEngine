@@ -50,39 +50,41 @@ namespace CustomEngine.Files
         public SingleFileRef(T file, string filePath) : base(filePath)
         {
             if (file != null)
-                file._filePath = filePath;
+                file.FilePath = filePath;
             File = file;
         }
-        public SingleFileRef(T file) : base(file._filePath)
+        public SingleFileRef(T file) : base(file.FilePath)
         {
             File = file;
         }
         public T File
         {
-            get { return GetInstance(); }
+            get => GetInstance();
             set
             {
                 if (_file == value)
                     return;
 
-                if (_file != null && _file._references.Contains(this))
-                    _file._references.Remove(this);
+                if (_file != null && _file.References.Contains(this))
+                    _file.References.Remove(this);
 
                 _file = value;
                 if (_file != null)
                 {
                     Engine.AddLoadedFile(_refPath, _file);
-                    _file._references.Add(this);
+                    _file.References.Add(this);
                 }
             }
         }
-        public void ExportFile()
+        public void ExportReference(string dir, string name, FileFormat format, bool setPath = true)
         {
-            if (_file == null || string.IsNullOrEmpty(_refPath))
-                return;
-            string dir = Path.GetDirectoryName(RefPathAbsolute);
-            string name = Path.GetFileNameWithoutExtension(RefPathAbsolute);
-            _file.Export(dir, name, IsXML());
+            //if (_file == null || string.IsNullOrEmpty(_refPath))
+            //    return;
+            //string dir = Path.GetDirectoryName(RefPathAbsolute);
+            //string name = Path.GetFileNameWithoutExtension(RefPathAbsolute);
+            _file.Export(dir, name, format);
+            if (setPath)
+                RefPathAbsolute = _file.FilePath;
         }
         public override T GetInstance()
         {
@@ -105,8 +107,8 @@ namespace CustomEngine.Files
                     GetFile();
             }
 
-            _file._filePath = RefPathAbsolute;
-            _file._references.Add(this);
+            _file.FilePath = RefPathAbsolute;
+            _file.References.Add(this);
 
             return _file;
         }
@@ -131,9 +133,9 @@ namespace CustomEngine.Files
         {
             if (_file != null)
             {
-                if (_file._references.Contains(this))
-                    _file._references.Remove(this);
-                if (_file._references.Count == 0)
+                if (_file.References.Contains(this))
+                    _file.References.Remove(this);
+                if (_file.References.Count == 0)
                     _file.Unload();
                 _file = null;
             }
@@ -150,7 +152,7 @@ namespace CustomEngine.Files
         public MultiFileRef(Type type) : base(type) { }
         public MultiFileRef(string filePath) : base(filePath) { }
         public MultiFileRef(string filePath, Type type) : base(filePath, type) { }
-        public MultiFileRef(T file) : base(file._filePath)
+        public MultiFileRef(T file) : base(file.FilePath)
         {
             //SetFile(file, !string.IsNullOrEmpty(file._filePath));
         }
@@ -173,7 +175,7 @@ namespace CustomEngine.Files
             else
                 file = FromBinary(_subType, absolutePath) as T;
 
-            file._references.Add(this);
+            file.References.Add(this);
             return file;
         }
 

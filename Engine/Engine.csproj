@@ -696,10 +696,11 @@
     <Compile Include="System\Extensions\ArrayExtension.cs" />
     <Compile Include="System\Extensions\XmlExtension.cs" />
     <Compile Include="Rendering\Fonts\TTF.cs" />
-    <Compile Include="System\Files\XML Serializer\CustomXmlDeserializer.cs" />
-    <Compile Include="System\Files\XML Serializer\CustomXmlSerializerCommon.cs" />
-    <Compile Include="System\Files\XML Serializer\CustomXmlSerializer.cs" />
-    <Compile Include="System\Files\Binary Serializer\CustomBinarySerializer.cs" />
+    <Compile Include="System\Files\Serialization\Binary\CustomBinaryDeserializer.cs" />
+    <Compile Include="System\Files\Serialization\Binary\CustomBinarySerializer.cs" />
+    <Compile Include="System\Files\Serialization\SerializationCommon.cs" />
+    <Compile Include="System\Files\Serialization\XML\CustomXmlDeserializer.cs" />
+    <Compile Include="System\Files\Serialization\XML\CustomXmlSerializer.cs" />
     <Compile Include="System\Files\FileRef.cs" />
     <Compile Include="System\Files\StringTable.cs" />
     <Compile Include="System\IO\XMLReader.cs" />
@@ -928,6 +929,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="AI\" />
+    <Folder Include="System\Files\Serialization\JSON\" />
     <Folder Include="System\Math\Shapes\Cylindrical\XAligned\" />
     <Folder Include="System\Math\Shapes\Cylindrical\ZAligned\" />
     <Folder Include="Worlds\Actors\Components\Scene\Shapes\Cylindrical\XAligned\" />

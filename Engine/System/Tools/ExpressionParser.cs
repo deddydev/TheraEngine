@@ -324,6 +324,112 @@ namespace CustomEngine.Tools
             //The result of the expression is now the only number in the stack
             return stack.Pop();
         }
+        private static string EvaluateOperation(
+            Type t1, Type t2,
+            object value1, object value2,
+            string token)
+        {
+            if (t1.BaseType != typeof(ValueType) || t2.BaseType != typeof(ValueType))
+                throw new Exception(string.Format("Cannot evaluate {0} {1] {2]", t1.Name, token, t2.Name));
+
+            //types are the same?
+            if (string.Equals(t1.Name, t2.Name))
+                return EvalToken(value1, value2, token, t1.Name);
+
+            //t1 can be converted to t2's type?
+            else if (_implicitConversions.ContainsKey(t1.Name) &&
+                _implicitConversions[t1.Name].FirstOrDefault(x => string.Equals(x, t2.Name)) != null)
+                return EvalToken(value1, value2, token, t2.Name);
+
+            //t2 can be converted to t1's type?
+            else if (_implicitConversions.ContainsKey(t2.Name) &&
+                _implicitConversions[t2.Name].FirstOrDefault(x => string.Equals(x, t1.Name)) != null)
+                return EvalToken(value1, value2, token, t1.Name);
+
+            //both can be converted to a next largest common type?
+            else if (_implicitConversions.ContainsKey(t1.Name) &&
+                _implicitConversions.ContainsKey(t2.Name))
+            {
+                string[] commonImplicitTypes = _implicitConversions[t1.Name].Intersect(_implicitConversions[t2.Name]).ToArray();
+                if (commonImplicitTypes.Length > 0)
+                    return EvalToken(value1, value2, token, commonImplicitTypes[0]);
+                else
+                    throw new Exception(string.Format("Cannot evaluate {0} {1] {2]", t1.Name, token, t2.Name));
+            }
+            else
+                throw new Exception(string.Format("Cannot evaluate {0} {1] {2]", t1.Name, token, t2.Name)); 
+        }
+        private static bool IsOperator(String s)
+            => _precedence.Any(x => x.Contains(s));
+        private static readonly string[][] _precedence = new string[][]
+        {
+            new string[] { "*", "/" },
+            new string[] { "+", "-" },
+            new string[] { "<<", ">>" },
+            new string[] { "<", ">", "<=", ">=" },
+            new string[] { "==", "!=" },
+            new string[] { "&" },
+            new string[] { "^" },
+            new string[] { "|" },
+            new string[] { "&&" },
+            new string[] { "||" },
+        };
+        // True if op1 >= op2 in precedence.
+        private static bool ComparePrecedence(String op1, String op2)
+        {
+            int op1p = -1, op2p = -1;
+            for (int i = 0; i < _precedence.Length; ++i)
+            {
+                string[] ops = _precedence[i];
+                foreach (string s in ops)
+                {
+                    if (op1.Equals(s))
+                        op1p = i;
+                    if (op2.Equals(s))
+                        op2p = i;
+                    if (op1p >= 0 && op2p >= 0)
+                        return op1p >= op2p;
+                }
+            }
+            return false;
+        }
+        private static string EvalToken(object value1, object value2, string token, string commonType)
+        {
+            switch (token)
+            {
+                case "*":
+                    return EvalMult(value1, value2, commonType);
+                case "/":
+                    return EvalDiv(value1, value2, commonType);
+                case "+":
+                    return EvalAdd(value1, value2, commonType);
+                case "-":
+                    return EvalSub(value1, value2, commonType);
+                case "<<":
+                    return EvalLeftShift(value1, value2, commonType);
+                case ">>":
+                    return EvalRightShift(value1, value2, commonType);
+                case "<":
+                    return EvalLess(value1, value2, commonType);
+                case ">":
+                    return EvalGreater(value1, value2, commonType);
+                case "<=":
+                    return EvalLessEqual(value1, value2, commonType);
+                case ">=":
+                    return EvalGreaterEqual(value1, value2, commonType);
+                case "&":
+                    return EvalAnd(value1, value2, commonType);
+                case "^":
+                    return EvalXor(value1, value2, commonType);
+                case "|":
+                    return EvalOr(value1, value2, commonType);
+                case "==":
+                    return EvalEquals(value1, value2, commonType);
+                case "!=":
+                    return EvalNotEquals(value1, value2, commonType);
+            }
+            throw new Exception("Not a numeric primitive type");
+        }
         private static string EvalMult(object value1, object value2, string commonType)
         {
             switch (commonType)
@@ -752,112 +858,6 @@ namespace CustomEngine.Tools
                     return ((decimal)value1 != (decimal)value2).ToString();
             }
             throw new Exception("Not a primitive type");
-        }
-        private static string EvalToken(object value1, object value2, string token, string commonType)
-        {
-            switch (token)
-            {
-                case "*":
-                    return EvalMult(value1, value2, commonType);
-                case "/":
-                    return EvalDiv(value1, value2, commonType);
-                case "+":
-                    return EvalAdd(value1, value2, commonType);
-                case "-":
-                    return EvalSub(value1, value2, commonType);
-                case "<<":
-                    return EvalLeftShift(value1, value2, commonType);
-                case ">>":
-                    return EvalRightShift(value1, value2, commonType);
-                case "<":
-                    return EvalLess(value1, value2, commonType);
-                case ">":
-                    return EvalGreater(value1, value2, commonType);
-                case "<=":
-                    return EvalLessEqual(value1, value2, commonType);
-                case ">=":
-                    return EvalGreaterEqual(value1, value2, commonType);
-                case "&":
-                    return EvalAnd(value1, value2, commonType);
-                case "^":
-                    return EvalXor(value1, value2, commonType);
-                case "|":
-                    return EvalOr(value1, value2, commonType);
-                case "==":
-                    return EvalEquals(value1, value2, commonType);
-                case "!=":
-                    return EvalNotEquals(value1, value2, commonType);
-            }
-            throw new Exception("Not a numeric primitive type");
-        }
-        private static string EvaluateOperation(
-            Type t1, Type t2,
-            object value1, object value2,
-            string token)
-        {
-            if (t1.BaseType != typeof(ValueType) || t2.BaseType != typeof(ValueType))
-                throw new Exception(string.Format("Cannot evaluate {0} {1] {2]", t1.Name, token, t2.Name));
-
-            //types are the same?
-            if (string.Equals(t1.Name, t2.Name))
-                return EvalToken(value1, value2, token, t1.Name);
-
-            //t1 can be converted to t2's type?
-            else if (_implicitConversions.ContainsKey(t1.Name) &&
-                _implicitConversions[t1.Name].FirstOrDefault(x => string.Equals(x, t2.Name)) != null)
-                return EvalToken(value1, value2, token, t2.Name);
-
-            //t2 can be converted to t1's type?
-            else if (_implicitConversions.ContainsKey(t2.Name) &&
-                _implicitConversions[t2.Name].FirstOrDefault(x => string.Equals(x, t1.Name)) != null)
-                return EvalToken(value1, value2, token, t1.Name);
-
-            //both can be converted to a next largest common type?
-            else if (_implicitConversions.ContainsKey(t1.Name) &&
-                _implicitConversions.ContainsKey(t2.Name))
-            {
-                string[] commonImplicitTypes = _implicitConversions[t1.Name].Intersect(_implicitConversions[t2.Name]).ToArray();
-                if (commonImplicitTypes.Length > 0)
-                    return EvalToken(value1, value2, token, commonImplicitTypes[0]);
-                else
-                    throw new Exception(string.Format("Cannot evaluate {0} {1] {2]", t1.Name, token, t2.Name));
-            }
-            else
-                throw new Exception(string.Format("Cannot evaluate {0} {1] {2]", t1.Name, token, t2.Name)); 
-        }
-        private static bool IsOperator(String s)
-            => _precedence.Any(x => x.Contains(s));
-        private static readonly string[][] _precedence = new string[][]
-        {
-            new string[] { "*", "/" },
-            new string[] { "+", "-" },
-            new string[] { "<<", ">>" },
-            new string[] { "<", ">", "<=", ">=" },
-            new string[] { "==", "!=" },
-            new string[] { "&" },
-            new string[] { "^" },
-            new string[] { "|" },
-            new string[] { "&&" },
-            new string[] { "||" },
-        };
-        // True if op1 >= op2 in precedence.
-        private static bool ComparePrecedence(String op1, String op2)
-        {
-            int op1p = -1, op2p = -1;
-            for (int i = 0; i < _precedence.Length; ++i)
-            {
-                string[] ops = _precedence[i];
-                foreach (string s in ops)
-                {
-                    if (op1.Equals(s))
-                        op1p = i;
-                    if (op2.Equals(s))
-                        op2p = i;
-                    if (op1p >= 0 && op2p >= 0)
-                        return op1p >= op2p;
-                }
-            }
-            return false;
         }
     }
 }

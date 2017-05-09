@@ -19,7 +19,7 @@ namespace CustomEngine.Worlds.Maps
         [Serialize]
         public Vec3 _spawnPosition;
         [Serialize]
-        public IGameMode _defaultGameMode;
+        public BaseGameMode _defaultGameMode;
 
         public MapSettings(params IActor[] actors)
         {

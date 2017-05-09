@@ -336,7 +336,7 @@ namespace CustomEngine.Rendering.Models
                 else
                     m = Material.GetDefaultMaterial();
 
-                model.RigidChildren.Add(new SkeletalRigidSubMesh(data, new Sphere(10.0f), m, "Root", _node._name ?? _node._id));
+                model.RigidChildren.Add(new SkeletalRigidSubMesh(data, m, _node._name ?? _node._id));
             }
             public void Initialize(StaticMesh model, DecoderShell shell)
             {

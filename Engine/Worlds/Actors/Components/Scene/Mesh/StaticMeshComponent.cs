@@ -156,7 +156,7 @@ namespace CustomEngine.Worlds.Actors
         {
             _physicsDriver?.OnSpawned();
             foreach (RenderableMesh m in _meshes)
-                m.Visible = m.Mesh.VisibleByDefault;
+                m.Visible = m.Mesh.Visible;
             base.OnSpawned();
         }
         public override void OnDespawned()

@@ -16,15 +16,15 @@ namespace CustomEngine.Rendering.Models
         {
             _material = null;
             _data = null;
-            _cullingVolume = new Sphere(1.0f);
-            _name = "Mesh";
+            _name = "Unnamed Mesh";
+            _visible = true;
         }
-        public SkeletalRigidSubMesh(PrimitiveData data, Shape cullingVolume, Material material, string boneName, string name)
+        public SkeletalRigidSubMesh(PrimitiveData data, Material material, string name, bool visible = true)
         {
             _data = data;
             _material = material;
-            _cullingVolume = cullingVolume;
             _name = name;
+            _visible = visible;
         }
 
         protected SkeletalMesh _parent;
@@ -32,8 +32,6 @@ namespace CustomEngine.Rendering.Models
         [Serialize("Primitives")]
         protected SingleFileRef<PrimitiveData> _data;
         protected Material _material;
-        [Serialize("CullingVolume")]
-        protected SingleFileRef<Shape> _cullingVolume;
         [Serialize("Visible", IsXmlAttribute = true)]
         protected bool _visible;
 
@@ -42,23 +40,16 @@ namespace CustomEngine.Rendering.Models
             get => _visible;
             set => _visible = value;
         }
-        public Shape CullingVolume
-        {
-            get => _cullingVolume;
-            set => _cullingVolume = value;
-        }
         public Material Material
         {
             get => _material;
             set => _material = value;
         }
-        public PrimitiveData Data => _data;
+        public SingleFileRef<PrimitiveData> Data => _data;
         public SkeletalMesh Model
         {
             get => _parent;
             internal set => _parent = value;
         }
-
-        public string SingleBindName => "";
     }
 }

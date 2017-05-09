@@ -263,7 +263,7 @@ namespace CustomEngine.Worlds.Actors
 
         public virtual void Kill(ICharacterPawn instigator, IActor killer)
         {
-            IGameMode mode = Engine.World.Settings.GameMode;
+            BaseGameMode mode = Engine.World.Settings.GameMode;
             
         }
     }

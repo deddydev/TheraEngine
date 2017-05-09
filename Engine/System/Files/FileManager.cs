@@ -21,11 +21,6 @@ namespace CustomEngine.Files
         {
             return assembly.GetTypes().Where(t => t != baseType && baseType.IsAssignableFrom(t));
         }
-
-        public static string GetTag(Type type)
-        {
-            return Filters[type]._tag;
-        }
         public static Type GetType(string tag)
         {
             return Filters.FirstOrDefault(x => x.Value._tag == tag).Key;

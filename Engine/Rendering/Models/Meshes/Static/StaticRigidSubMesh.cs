@@ -34,7 +34,7 @@ namespace CustomEngine.Rendering.Models
             get => _cullingVolume;
             set => _cullingVolume = value;
         }
-        public bool VisibleByDefault => _visibleByDefault;
+        public bool Visible => _visibleByDefault;
         public Material Material
         {
             get => _material;

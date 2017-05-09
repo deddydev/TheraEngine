@@ -11,6 +11,7 @@ using CustomEngine.Worlds;
 using CustomEngine.Input;
 using CustomEngine.Tools;
 using System.Diagnostics;
+using CustomEngine.Files;
 
 namespace CustomEngine.Tests
 {
@@ -103,13 +104,10 @@ namespace CustomEngine.Tests
             Collada.ImportOptions options = new Collada.ImportOptions();
             options.InitialTransform.Scale = new Vec3(1.0f.InchesToMeters());
             ColladaScene = Collada.Import(desktop + "TEST.DAE", options, false, true);
-            ColladaScene.SkeletalModel.Export(Engine.ContentFolderAbs, "TESTMESH", true);
-            //foreach (SkeletalRigidSubMesh mesh in ColladaScene.SkeletalModel.RigidChildren)
-            //{
-            //    mesh.Data.Export(Engine.ContentFolderAbs + "TESTMESH\\", mesh.Name + "_Prims", true);
-            //    mesh.CullingVolume.Export(Engine.ContentFolderAbs + "TESTMESH\\", mesh.Name + "_CullVol", true);
-            //}
-            ColladaScene.Skeleton.Export(Engine.ContentFolderAbs, "TESTSKEL", true);
+            ColladaScene.SkeletalModel.Export(Engine.ContentFolderAbs, "TESTMESH", FileFormat.XML);
+            foreach (SkeletalRigidSubMesh mesh in ColladaScene.SkeletalModel.RigidChildren)
+                mesh.Data.ExportReference(Engine.ContentFolderAbs + "TESTMESH\\", mesh.Name + "_Prims", FileFormat.XML);
+            ColladaScene.Skeleton.Export(Engine.ContentFolderAbs, "TESTSKEL", FileFormat.XML);
             
             //Collada.Scene anims = Collada.Import(googleDrive + "Thera Assets\\Characters\\Temp\\Carly_Idle.dae", options, true, false);
             //anims.CleanAnimations(scene._skeletalModel, scene._skeleton);
@@ -154,7 +152,7 @@ namespace CustomEngine.Tests
             _settings.GameMode = new TestGameMode();
             _settings.Maps.Add(new Map(this, new MapSettings(actors)));
 
-            Export(Engine.ContentFolderAbs, "TestWorld", true);
+            Export(Engine.ContentFolderAbs, "TestWorld", FileFormat.XML);
 
             //_settings.AmbientSound = new SoundFile() { SoundPath = desktop + "test.wav" };
             //_settings.AmbientParams.SourceRelative.Value = false;

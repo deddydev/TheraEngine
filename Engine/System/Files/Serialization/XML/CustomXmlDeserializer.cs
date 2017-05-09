@@ -5,7 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 
-namespace CustomEngine.Files
+namespace CustomEngine.Files.Serialization
 {
     public static partial class CustomXmlSerializer
     {
@@ -36,14 +36,14 @@ namespace CustomEngine.Files
                 else
                     obj = CreateObject(t);
                 if (obj is FileObject o)
-                    o._filePath = filePath;
+                    o.FilePath = filePath;
             }
             return obj;
         }
         private static object ReadObject(Type t, XMLReader reader)
         {
             //Collect the members of this object's type that are serialized
-            List<VarInfo> serializedMembers = CollectSerializedMembers(t);
+            List<VarInfo> serializedMembers = SerializationCommon.CollectSerializedMembers(t);
 
             //Create the object
             object obj = CreateObject(t);

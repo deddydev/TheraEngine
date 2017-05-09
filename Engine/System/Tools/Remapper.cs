@@ -16,12 +16,12 @@ namespace System
         /// <summary>
         /// Contains the indices of all first appearances.
         /// </summary>
-        public int[] ImplementationTable { get { return _impTable; } }
+        public int[] ImplementationTable => _impTable;
         /// <summary>
         /// Contains indices into the ImplementationTable, same length as original list
         /// </summary>
-        public int[] RemapTable { get { return _remapTable; } }
-        public int ImplementationLength { get { return _impTable.Length; } }
+        public int[] RemapTable => _remapTable;
+        public int ImplementationLength => _impTable.Length;
 
         public void Remap<T>(IList<T> source) => Remap(source, null);
         public void Remap<T>(IList<T> source, Comparison<T> comp)

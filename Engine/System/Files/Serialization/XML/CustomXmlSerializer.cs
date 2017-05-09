@@ -2,16 +2,12 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.Serialization;
-using System.Text;
-using System.Threading.Tasks;
 using System.Xml;
 
-namespace CustomEngine.Files
+namespace CustomEngine.Files.Serialization
 {
     public static partial class CustomXmlSerializer
     {
@@ -43,7 +39,7 @@ namespace CustomEngine.Files
                 return;
 
             Type t = obj.GetType();
-            List<VarInfo> fields = CollectSerializedMembers(t);
+            List<VarInfo> fields = SerializationCommon.CollectSerializedMembers(t);
             WriteObjectElement(obj, fields, name, writer);
         }
         private static void WriteObjectElement(object obj, List<VarInfo> fields, string name, XmlWriter writer)
@@ -63,7 +59,7 @@ namespace CustomEngine.Files
 
             //Write start tag for this object
             if (string.IsNullOrEmpty(name))
-                name = GetTypeName(t);
+                name = SerializationCommon.GetTypeName(t);
 
             MethodInfo[] customMethods = t.GetMethods(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public).
                 Where(x => x.GetCustomAttribute<CustomSerializeMethod>() != null).ToArray();
@@ -113,6 +109,11 @@ namespace CustomEngine.Files
                     !ExpressionParser.Evaluate<bool>(info.Attrib.SerializeIf, obj))
                     return;
 
+                object value = info.GetValue(obj);
+                if (value == null)
+                    return;
+
+                if ()
                 if (t.GetInterface("IList") != null && 
                     info.GetValue(obj) is IList array)
                 {
@@ -122,56 +123,24 @@ namespace CustomEngine.Files
                     {
                         Type elementType = array[0].GetType();
                         if (elementType.IsEnum || array[0] is string)
-                        {
-                            string output = array[0].ToString();
-                            if (output.Contains(" "))
-                                output = "\"" + output + "\"";
-                            for (int i = 1; i < array.Count; ++i)
-                            {
-                                string s = array[i].ToString();
-                                if (s.Contains(" "))
-                                    s = "\"" + s + "\"";
-                                output += " " + s;
-                            }
-                            writer.WriteString(output);
-                        }
+                            WriteStringArray(array, writer);
                         else if (elementType.IsValueType)
-                        {
-                            List<VarInfo> structFields = CollectSerializedMembers(array[0].GetType());
-                            //Struct has serialized members within it?
-                            //Needs a full element
-                            if (structFields.Count > 0)
-                                foreach (object o in array)
-                                    WriteObjectElement(o, structFields, "Item", writer);
-                            else
-                            {
-                                //Write each struct as a string
-                                string output = array[0].ToString();
-                                for (int i = 1; i < array.Count; ++i)
-                                    output += " " + array[i].ToString();
-                                writer.WriteString(output);
-                            }
-                        }
+                            WriteStructArray(array, writer);
                         else
-                        {
                             foreach (object o in array)
                                 WriteObjectElement(o, "Item", writer);
-                        }
                     }
                     writer.WriteEndElement();
                     return;
                 }
 
-                object value = info.GetValue(obj);
-                if (value == null)
-                    return;
                 if (value is IParsable)
                     writer.WriteElementString(info.Name, ((IParsable)value).WriteToString());
                 else if (t.IsEnum || value is string)
                     writer.WriteElementString(info.Name, value.ToString());
                 else if (t.IsValueType)
                 {
-                    List<VarInfo> structFields = CollectSerializedMembers(info.VariableType);
+                    List<VarInfo> structFields = SerializationCommon.CollectSerializedMembers(info.VariableType);
                     if (structFields.Count > 0)
                         WriteObjectElement(value, structFields, info.Name, writer);
                     else
@@ -181,6 +150,39 @@ namespace CustomEngine.Files
                 else
                     WriteObjectElement(value, info.Name, writer);
             }
+        }
+
+        private static void WriteStructArray(IList array, XmlWriter writer)
+        {
+            List<VarInfo> structFields = SerializationCommon.CollectSerializedMembers(array[0].GetType());
+            //Struct has serialized members within it?
+            //Needs a full element
+            if (structFields.Count > 0)
+                foreach (object o in array)
+                    WriteObjectElement(o, structFields, "Item", writer);
+            else
+            {
+                //Write each struct as a string
+                string output = array[0].ToString();
+                for (int i = 1; i < array.Count; ++i)
+                    output += " " + array[i].ToString();
+                writer.WriteString(output);
+            }
+        }
+
+        private static void WriteStringArray(IList array, XmlWriter writer)
+        {
+            string output = array[0].ToString();
+            if (output.Contains(" "))
+                output = "\"" + output + "\"";
+            for (int i = 1; i < array.Count; ++i)
+            {
+                string s = array[i].ToString();
+                if (s.Contains(" "))
+                    s = "\"" + s + "\"";
+                output += " " + s;
+            }
+            writer.WriteString(output);
         }
     }
 }

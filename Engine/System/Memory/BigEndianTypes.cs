@@ -3,129 +3,172 @@ using System.Runtime.InteropServices;
 
 namespace System
 {
-    [StructLayout(LayoutKind.Sequential)]
-    public unsafe struct bint
+    public static class Endian
     {
-        public int _data;
-        public static implicit operator int(bint val) { return val._data.Reverse(); }
-        public static implicit operator bint(int val) { return new bint { _data = val.Reverse() }; }
-        public static explicit operator uint(bint val) { return (uint)val._data.Reverse(); }
-        public static explicit operator bint(uint val) { return new bint { _data = (int)val.Reverse() }; }
-
-        public VoidPtr Address { get { fixed (void* p = &this) return p; } }
-
-        public VoidPtr OffsetAddress
+        public enum EOrder
         {
-            get { return Address + Value; }
-            set { _data = ((int)(value - Address)).Reverse(); }
+            Big,
+            Little,
         }
-
-        public int Value { get { return (int)this; } }
-        public override string ToString()
-        {
-            return Value.ToString();
-        }
+        public static EOrder Order = EOrder.Big;
+        public static bool Big => Order == EOrder.Big;
+        public static bool Little => Order == EOrder.Little;
     }
-
-    [StructLayout(LayoutKind.Sequential)]
-    public unsafe struct buint
-    {
-        public uint _data;
-        public static implicit operator uint(buint val) { return val._data.Reverse(); }
-        public static implicit operator buint(uint val) { return new buint { _data = val.Reverse() }; }
-        public static explicit operator int(buint val) { return (int)val._data.Reverse(); }
-        public static explicit operator buint(int val) { return new buint { _data = (uint)val.Reverse() }; }
-
-        public VoidPtr Address { get { fixed (void* p = &this) return p; } }
-
-        public VoidPtr OffsetAddress
-        {
-            get { return Address + Value; }
-            set { _data = ((uint)(value - Address)).Reverse(); }
-        }
-
-        public uint Value { get { return (uint)this; } }
-        public override string ToString()
-        {
-            return Value.ToString();
-        }
-    }
-
-    [StructLayout(LayoutKind.Sequential)]
-    public unsafe struct bfloat
-    {
-        public float _data;
-        public static implicit operator float(bfloat val) { return val._data.Reverse(); }
-        public static implicit operator bfloat(float val) { return new bfloat { _data = val.Reverse() }; }
-
-        public VoidPtr Address { get { fixed (void* p = &this) return p; } }
-
-        public float Value { get { return (float)this; } }
-        public override string ToString()
-        {
-            return Value.ToString();
-        }
-    }
-
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public unsafe struct bshort
     {
         public short _data;
-        public static implicit operator short(bshort val) { return val._data.Reverse(); }
-        public static implicit operator bshort(short val) { return new bshort { _data = val.Reverse() }; }
-        public static explicit operator ushort(bshort val) { return (ushort)val._data.Reverse(); }
-        public static explicit operator bshort(ushort val) { return new bshort { _data = (short)val.Reverse() }; }
+
+        public static implicit operator short(bshort val)
+            => Endian.Big ? val._data.Reverse() : val._data;
+        public static implicit operator bshort(short val)
+            => new bshort { _data = Endian.Big ? val.Reverse() : val };
+
+        public short Value
+        {
+            get => this;
+            set => this = value;
+        }
+        public override string ToString()
+            => Value.ToString();
 
         public VoidPtr Address { get { fixed (void* p = &this) return p; } }
-
-        public short Value { get { return (short)this; } }
-        public override string ToString()
-        {
-            return Value.ToString();
-        }
     }
-
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public unsafe struct bushort
     {
         public ushort _data;
-        public static implicit operator ushort(bushort val) { return val._data.Reverse(); }
-        public static implicit operator bushort(ushort val) { return new bushort { _data = val.Reverse() }; }
-        public static explicit operator short(bushort val) { return (short)val._data.Reverse(); }
-        public static explicit operator bushort(short val) { return new bushort { _data = (ushort)val.Reverse() }; }
+
+        public static implicit operator ushort(bushort val)
+            => Endian.Big ? val._data.Reverse() : val._data;
+        public static implicit operator bushort(ushort val)
+            => new bushort { _data = Endian.Big ? val.Reverse() : val };
+
+        public ushort Value
+        {
+            get => this;
+            set => this = value;
+        }
+        public override string ToString()
+            => Value.ToString();
 
         public VoidPtr Address { get { fixed (void* p = &this) return p; } }
-
-        public ushort Value { get { return (ushort)this; } }
-        public override string ToString()
-        {
-            return Value.ToString();
-        }
     }
+    [StructLayout(LayoutKind.Sequential)]
+    public unsafe struct bint
+    {
+        public int _data;
 
+        public static implicit operator int(bint val)
+            => Endian.Big ? val._data.Reverse() : val._data;
+        public static implicit operator bint(int val)
+            => new bint { _data = Endian.Big ? val.Reverse() : val };
+
+        public int Value
+        {
+            get => this;
+            set => this = value;
+        }
+        public override string ToString()
+            => Value.ToString();
+
+        public VoidPtr OffsetAddress
+        {
+            get => Address + Value;
+            set => Value = value - Address;
+        }
+        public VoidPtr Address { get { fixed (void* p = &this) return p; } }
+    }
+    [StructLayout(LayoutKind.Sequential)]
+    public unsafe struct buint
+    {
+        public uint _data;
+
+        public static implicit operator uint(buint val)
+            => Endian.Big ? val._data.Reverse() : val._data;
+        public static implicit operator buint(uint val)
+            => new buint { _data = Endian.Big ? val.Reverse() : val };
+
+        public uint Value
+        {
+            get => this;
+            set => this = value;
+        }
+        public override string ToString()
+            => Value.ToString();
+
+        public VoidPtr OffsetAddress
+        {
+            get => Address + Value;
+            set => Value = (uint)value - (uint)Address;
+        }
+        public VoidPtr Address { get { fixed (void* p = &this) return p; } }
+    }
+    [StructLayout(LayoutKind.Sequential)]
+    public unsafe struct bfloat
+    {
+        public float _data;
+
+        public static implicit operator float(bfloat val)
+            => Endian.Big ? val._data.Reverse() : val._data;
+        public static implicit operator bfloat(float val)
+            => new bfloat { _data = Endian.Big ? val.Reverse() : val };
+
+        public float Value
+        {
+            get => this;
+            set => this = value;
+        }
+        public override string ToString()
+            => Value.ToString();
+
+        public VoidPtr Address { get { fixed (void* p = &this) return p; } }
+    }
+    [StructLayout(LayoutKind.Sequential)]
+    public unsafe struct bdouble
+    {
+        public double _data;
+
+        public static implicit operator double(bdouble val)
+            => Endian.Big ? val._data.Reverse() : val._data;
+        public static implicit operator bdouble(double val)
+            => new bdouble { _data = Endian.Big ? val.Reverse() : val };
+
+        public double Value
+        {
+            get => this;
+            set => this = value;
+        }
+        public override string ToString()
+            => Value.ToString();
+
+        public VoidPtr Address { get { fixed (void* p = &this) return p; } }
+    }
     [StructLayout(LayoutKind.Sequential)]
     public unsafe struct blong
     {
         public long _data;
 
-        public static implicit operator long(blong val) { return val._data.Reverse(); }
-        public static implicit operator blong(long val) { return new blong { _data = val.Reverse() }; }
-        public static explicit operator ulong(blong val) { return (ulong)val._data.Reverse(); }
-        public static explicit operator blong(ulong val) { return new blong { _data = (long)val.Reverse() }; }
+        public static implicit operator long(blong val)
+            => Endian.Big ? val._data.Reverse() : val._data;
+        public static implicit operator blong(long val)
+            => new blong { _data = Endian.Big ? val.Reverse() : val };
 
-        public VoidPtr Address { get { fixed (void* p = &this) return p; } }
+        public long Value
+        {
+            get => this;
+            set => this = value;
+        }
+        public override string ToString()
+            => Value.ToString();
 
         public VoidPtr OffsetAddress
         {
-            get { return Address + Value; }
-            set { _data = ((long)(value - Address)).Reverse(); }
+            get => Address + Value;
+            set => Value = (long)value - (long)Address;
         }
 
-        public long Value { get { return this; } }
-        public override string ToString()
-        {
-            return Value.ToString();
-        }
+        public VoidPtr Address { get { fixed (void* p = &this) return p; } }
     }
 
     [StructLayout(LayoutKind.Sequential)]
@@ -133,24 +176,26 @@ namespace System
     {
         public ulong _data;
 
-        public static implicit operator ulong(bulong val) { return val._data.Reverse(); }
-        public static implicit operator bulong(ulong val) { return new bulong { _data = val.Reverse() }; }
-        public static explicit operator long(bulong val) { return (long)val._data.Reverse(); }
-        public static explicit operator bulong(long val) { return new bulong { _data = (ulong)val.Reverse() }; }
+        public static implicit operator ulong(bulong val)
+            => Endian.Big ? val._data.Reverse() : val._data;
+        public static implicit operator bulong(ulong val)
+            => new bulong { _data = Endian.Big ? val.Reverse() : val };
 
-        public VoidPtr Address { get { fixed (void* p = &this) return p; } }
+        public ulong Value
+        {
+            get => this;
+            set => this = value;
+        }
+        public override string ToString()
+            => Value.ToString();
 
         public VoidPtr OffsetAddress
         {
-            get { return Address + Value; }
-            set { _data = ((ulong)(value - Address)).Reverse(); }
+            get => Address + Value;
+            set => Value = (ulong)value - (ulong)Address;
         }
 
-        public ulong Value { get { return (ulong)this; } }
-        public override string ToString()
-        {
-            return Value.ToString();
-        }
+        public VoidPtr Address { get { fixed (void* p = &this) return p; } }
     }
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public unsafe struct BUInt24
@@ -159,7 +204,7 @@ namespace System
 
         public uint Value
         {
-            get { return ((uint)_dat0 << 16) | ((uint)_dat1 << 8) | ((uint)_dat2); }
+            get { return ((uint)_dat0 << 16) | ((uint)_dat1 << 8) | _dat2; }
             set
             {
                 _dat2 = (byte)((value) & 0xFF);

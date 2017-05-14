@@ -28,7 +28,7 @@ namespace CustomEngine.Files
         [Serialize("File")]
         T _file;
 
-        [CustomSerializeMethod("File")]
+        [CustomXMLSerializeMethod("File")]
         private bool CustomSerializeFile(XmlWriter writer)
         {
             writer.WriteStartElement("File");

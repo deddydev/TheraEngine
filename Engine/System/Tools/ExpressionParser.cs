@@ -10,7 +10,7 @@ namespace CustomEngine.Tools
     public static class ExpressionParser
     {
         /// <summary>
-        /// Parses an expression and returns the result as a primitive.
+        /// Parses an expression and returns the resulting primitive type.
         /// </summary>
         /// <param name="expression">The expression to evaluate, as a string.</param>
         /// <param name="provider">The object to provide variable values.</param>

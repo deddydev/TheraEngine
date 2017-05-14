@@ -101,7 +101,7 @@ namespace CustomEngine.Rendering.Models
         [Serialize("Type", IsXmlAttribute = true)]
         internal BufferType _type = BufferType.Other;
 
-        [CustomSerializeMethod("Data")]
+        [CustomXMLSerializeMethod("Data")]
         private unsafe bool CustomDataSerialize(XmlWriter writer)
         {
             string s = "";

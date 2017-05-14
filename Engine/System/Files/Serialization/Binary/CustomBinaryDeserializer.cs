@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.Serialization;
 
 namespace CustomEngine.Files.Serialization
 {
@@ -15,8 +16,8 @@ namespace CustomEngine.Files.Serialization
         /// </summary>
         private static object CreateObject(Type t)
         {
-            //return FormatterServices.GetUninitializedObject(t);
-            return Activator.CreateInstance(t);
+            return FormatterServices.GetUninitializedObject(t);
+            //return Activator.CreateInstance(t);
         }
         
         /// <summary>
@@ -43,7 +44,7 @@ namespace CustomEngine.Files.Serialization
         private static object ReadObject(Type t, XMLReader reader)
         {
             //Collect the members of this object's type that are serialized
-            List<VarInfo> serializedMembers = CollectSerializedMembers(t);
+            List<VarInfo> serializedMembers = SerializationCommon.CollectSerializedMembers(t);
 
             //Create the object
             object obj = CreateObject(t);
@@ -55,10 +56,10 @@ namespace CustomEngine.Files.Serialization
             foreach (MethodInfo m in methods)
             {
                 PreDeserialize pre = m.GetCustomAttribute<PreDeserialize>();
-                if (pre != null && pre.RunForFormats.HasFlag(SerializeFormatFlag.XML))
+                if (pre != null && pre.RunForFormats.HasFlag(SerializeFormatFlag.Binary))
                     preMethods.Add(m);
                 PostDeserialize post = m.GetCustomAttribute<PostDeserialize>();
-                if (post != null && post.RunForFormats.HasFlag(SerializeFormatFlag.XML))
+                if (post != null && post.RunForFormats.HasFlag(SerializeFormatFlag.Binary))
                     postMethods.Add(m);
             }
 

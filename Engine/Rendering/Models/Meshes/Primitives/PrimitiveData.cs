@@ -547,28 +547,28 @@ namespace CustomEngine.Rendering.Models
             _buffers?.ForEach(x => x.Dispose());
         }
 
-        [CustomSerializeMethod("Triangles")]
+        [CustomXMLSerializeMethod("Triangles")]
         private bool CustomTrianglesSerialize(XmlWriter writer)
         {
             if (_triangles != null)
                 writer.WriteElementString("Triangles", string.Join(" ", _triangles.SelectMany(x => x.Points.Select(y => y.VertexIndex))));
             return true;
         }
-        [CustomSerializeMethod("Lines")]
+        [CustomXMLSerializeMethod("Lines")]
         private bool CustomLinesSerialize(XmlWriter writer)
         {
             if (_lines != null)
                 writer.WriteElementString("Lines", string.Join(" ", _lines.SelectMany(x => new int[] { x.Point0.VertexIndex, x.Point1.VertexIndex })));
             return true;
         }
-        [CustomSerializeMethod("Points")]
+        [CustomXMLSerializeMethod("Points")]
         private bool CustomPointsSerialize(XmlWriter writer)
         {
             if (_points != null)
                 writer.WriteElementString("Points", string.Join(" ", _points.Select(x => x.VertexIndex)));
             return true;
         }
-        [CustomSerializeMethod("FacePoints")]
+        [CustomXMLSerializeMethod("FacePoints")]
         private bool CustomFacePointsSerialize(XmlWriter writer)
         {
             writer.WriteStartElement("FacePoints");
@@ -587,7 +587,7 @@ namespace CustomEngine.Rendering.Models
             return true;
         }
 
-        [CustomSerializeMethod("Influences")]
+        [CustomXMLSerializeMethod("Influences")]
         private bool CustomInfluencesSerialize(XmlWriter writer)
         {
             if (_influences != null)

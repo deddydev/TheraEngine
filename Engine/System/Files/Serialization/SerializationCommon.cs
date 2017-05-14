@@ -46,6 +46,14 @@ namespace CustomEngine.Files.Serialization
                 return ((PropertyInfo)_info).GetValue(obj);
             return null;
         }
+        public VarInfo(Type type)
+        {
+            _info = null;
+            _attrib = null;
+            _variableType = type;
+            _name = null;
+            _category = null;
+        }
         public VarInfo(MemberInfo info)
         {
             _info = info;

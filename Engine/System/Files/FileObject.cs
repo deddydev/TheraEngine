@@ -9,16 +9,24 @@ using System;
 namespace CustomEngine.Files
 {
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
+    public unsafe struct CompressionHeader
+    {
+        public const int Size = 0x4;
+
+        public Bin32 _flags;
+
+        public VoidPtr Address { get { fixed (void* ptr = &this) return ptr; } }
+    }
+    [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public unsafe struct FileCommonHeader
     {
-        public const int Size = 0xC;
-
-        public bint _nameOffset;
+        public const int Size = 0x8;
+        
         public bint _fileLength;
         public bint _stringTableLength;
 
         public VoidPtr Strings => Address + Size;
-        public VoidPtr FileHeader => Address + Size + _stringTableLength;
+        public VoidPtr Data => Address + Size + _stringTableLength;
         public VoidPtr Address { get { fixed (void* ptr = &this) return ptr; } }
     }
     public enum FileFormat
@@ -132,7 +140,7 @@ namespace CustomEngine.Files
 
             FileObject obj = Activator.CreateInstance(t) as FileObject;
             obj._filePath = filePath;
-            obj.Read(hdr->FileHeader, hdr->Strings);
+            obj.Read(hdr->Data, hdr->Strings);
 
             Engine.AddLoadedFile(obj._filePath, obj);
 
@@ -163,18 +171,15 @@ namespace CustomEngine.Files
                     using (FileMap map = FileMap.FromStream(stream))
                     {
                         FileCommonHeader* hdr = (FileCommonHeader*)map.Address;
-                        hdr->Tag = FileManager.GetTag(t);
                         table.WriteTable(hdr);
                         hdr->_fileLength = totalSize;
                         hdr->_stringTableLength = stringSize;
-                        Write(hdr->FileHeader, table);
+                        Write(hdr->Data, table);
                     }
                 }
             }
             else
-            {
-                CustomBinarySerializer.Serialize(this, _filePath);
-            }
+                CustomBinarySerializer.Serialize(this, _filePath, Endian.EOrder.Big, false, null);
         }
         public static T FromXML<T>(string filePath) where T : FileObject
         {

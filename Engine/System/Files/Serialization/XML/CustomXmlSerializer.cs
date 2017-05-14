@@ -42,38 +42,39 @@ namespace CustomEngine.Files.Serialization
             List<VarInfo> fields = SerializationCommon.CollectSerializedMembers(t);
             WriteObjectElement(obj, fields, name, writer);
         }
-        private static void WriteObjectElement(object obj, List<VarInfo> fields, string name, XmlWriter writer)
+        private static void WriteObjectElement(object obj, List<VarInfo> members, string name, XmlWriter writer)
         {
             if (obj == null)
                 return;
 
             Type t = obj.GetType();
 
-            var categorized = fields.
+            var categorized = members.
                 Where(x => x.Category != null).
                 GroupBy(x => x.Category).ToList();
 
             foreach (var grouping in categorized)
                 foreach (VarInfo p in grouping)
-                    fields.Remove(p);
+                    members.Remove(p);
 
             //Write start tag for this object
             if (string.IsNullOrEmpty(name))
                 name = SerializationCommon.GetTypeName(t);
 
             MethodInfo[] customMethods = t.GetMethods(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public).
-                Where(x => x.GetCustomAttribute<CustomSerializeMethod>() != null).ToArray();
+                Where(x => x.GetCustomAttribute<CustomXMLSerializeMethod>() != null).ToArray();
 
             writer.WriteStartElement(name);
             {
                 //Write attributes and then elements
-                foreach (VarInfo p in fields)
+                foreach (VarInfo p in members)
                 {
-                    MethodInfo customMethod = customMethods.FirstOrDefault(x => string.Equals(p.Name, x.GetCustomAttribute<CustomSerializeMethod>().Name));
+                    MethodInfo customMethod = customMethods.FirstOrDefault(
+                        x => string.Equals(p.Name, x.GetCustomAttribute<CustomXMLSerializeMethod>().Name));
                     if (customMethod != null)
                         customMethod.Invoke(obj, new object[] { writer });
                     else
-                        WriteField(obj, p, writer);
+                        WriteMember(obj, p, writer);
                 }
                 //Write categorized elements
                 foreach (var grouping in categorized)
@@ -83,15 +84,26 @@ namespace CustomEngine.Files.Serialization
                     {
                         //Write fields on this element
                         foreach (VarInfo p in grouping.OrderBy(x => !x.Attrib.IsXmlAttribute))
-                            WriteField(obj, p, writer);
+                        {
+                            MethodInfo customMethod = customMethods.FirstOrDefault(
+                                x => string.Equals(p.Name, x.GetCustomAttribute<CustomXMLSerializeMethod>().Name));
+                            if (customMethod != null)
+                                customMethod.Invoke(obj, new object[] { writer });
+                            else
+                                WriteMember(obj, p, writer);
+                        }
                     }
                     writer.WriteEndElement();
                 }
             }
             writer.WriteEndElement();
         }
-        private static void WriteField(object obj, VarInfo info, XmlWriter writer)
+
+        private static void WriteMember(object obj, VarInfo info, XmlWriter writer)
         {
+            if (info.Attrib.SerializeIf != null &&
+                !ExpressionParser.Evaluate<bool>(info.Attrib.SerializeIf, obj))
+                return;
             Type t = info.VariableType;
             if (info.Attrib.IsXmlAttribute)
             {
@@ -105,15 +117,10 @@ namespace CustomEngine.Files.Serialization
             }
             else
             {
-                if (info.Attrib.SerializeIf != null && 
-                    !ExpressionParser.Evaluate<bool>(info.Attrib.SerializeIf, obj))
-                    return;
-
                 object value = info.GetValue(obj);
                 if (value == null)
                     return;
-
-                if ()
+                
                 if (t.GetInterface("IList") != null && 
                     info.GetValue(obj) is IList array)
                 {

@@ -104,10 +104,10 @@ namespace CustomEngine.Tests
             Collada.ImportOptions options = new Collada.ImportOptions();
             options.InitialTransform.Scale = new Vec3(1.0f.InchesToMeters());
             ColladaScene = Collada.Import(desktop + "TEST.DAE", options, false, true);
-            ColladaScene.SkeletalModel.Export(Engine.ContentFolderAbs, "TESTMESH", FileFormat.XML);
+            ColladaScene.SkeletalModel.Export(Engine.ContentFolderAbs, "TESTMESH", FileFormat.Binary);
             foreach (SkeletalRigidSubMesh mesh in ColladaScene.SkeletalModel.RigidChildren)
-                mesh.Data.ExportReference(Engine.ContentFolderAbs + "TESTMESH\\", mesh.Name + "_Prims", FileFormat.XML);
-            ColladaScene.Skeleton.Export(Engine.ContentFolderAbs, "TESTSKEL", FileFormat.XML);
+                mesh.Data.ExportReference(Engine.ContentFolderAbs + "TESTMESH\\", mesh.Name + "_Prims", FileFormat.Binary);
+            ColladaScene.Skeleton.Export(Engine.ContentFolderAbs, "TESTSKEL", FileFormat.Binary);
             
             //Collada.Scene anims = Collada.Import(googleDrive + "Thera Assets\\Characters\\Temp\\Carly_Idle.dae", options, true, false);
             //anims.CleanAnimations(scene._skeletalModel, scene._skeleton);

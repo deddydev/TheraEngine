@@ -11,11 +11,10 @@ namespace System
         protected string _path;
         protected FileStream _baseStream;
 
-        public VoidPtr Address { get { return _addr; } }
-        public int Length { get { return _length; } set { _length = value; } }
-        public string FilePath { get { return _path; } }
-
-        public FileStream BaseStream { get { return _baseStream; } }
+        public VoidPtr Address => _addr;
+        public int Length { get => _length; set => _length = value; }
+        public string FilePath => _path;
+        public FileStream BaseStream => _baseStream;
 
         ~FileMap() { Dispose(); }
         public virtual void Dispose()
@@ -29,9 +28,12 @@ namespace System
             GC.SuppressFinalize(this);
         }
 
-        public static FileMap FromFile(string path) { return FromFile(path, FileMapProtect.ReadWrite, 0, 0); }
-        public static FileMap FromFile(string path, FileMapProtect prot) { return FromFile(path, prot, 0, 0); }
-        public static FileMap FromFile(string path, FileMapProtect prot, int offset, int length) { return FromFile(path, prot, 0, 0, FileOptions.RandomAccess); }
+        public static FileMap FromFile(string path)
+            => FromFile(path, FileMapProtect.ReadWrite, 0, 0);
+        public static FileMap FromFile(string path, FileMapProtect prot) 
+            => FromFile(path, prot, 0, 0);
+        public static FileMap FromFile(string path, FileMapProtect prot, int offset, int length)
+            => FromFile(path, prot, 0, 0, FileOptions.RandomAccess);
         public static FileMap FromFile(string path, FileMapProtect prot, int offset, int length, FileOptions options)
         {
             FileStream stream;
@@ -59,10 +61,7 @@ namespace System
             return map;
         }
         public static FileMap FromTempFile(int length)
-        {
-            string path;
-            return FromTempFile(length, out path);
-        }
+            => FromTempFile(length, out string path);
         public static FileMap FromTempFile(int length, out string path)
         {
             FileStream stream = new FileStream(path = Path.GetTempFileName(), FileMode.Open, FileAccess.ReadWrite, FileShare.Read, 8, FileOptions.RandomAccess | FileOptions.DeleteOnClose);
@@ -77,8 +76,10 @@ namespace System
             //}
         }
 
-        public static FileMap FromStream(FileStream stream) { return FromStream(stream, FileMapProtect.ReadWrite, 0, 0); }
-        public static FileMap FromStream(FileStream stream, FileMapProtect prot) { return FromStream(stream, prot, 0, 0); }
+        public static FileMap FromStream(FileStream stream) 
+            => FromStream(stream, FileMapProtect.ReadWrite, 0, 0);
+        public static FileMap FromStream(FileStream stream, FileMapProtect prot)
+            => FromStream(stream, prot, 0, 0);
         public static FileMap FromStream(FileStream stream, FileMapProtect prot, int offset, int length)
         {
             //FileStream newStream = new FileStream(stream.Name, FileMode.Open, prot == FileMapProtect.Read ? FileAccess.Read : FileAccess.ReadWrite, FileShare.Read, 8, FileOptions.RandomAccess);
@@ -91,9 +92,9 @@ namespace System
             switch (Environment.OSVersion.Platform)
             {
                 case PlatformID.Win32NT:
-                    return new wFileMap(stream.SafeFileHandle.DangerousGetHandle(), prot, offset, (uint)length) { _path = stream.Name };
+                    return new WFileMap(stream.SafeFileHandle.DangerousGetHandle(), prot, offset, (uint)length) { _path = stream.Name };
                 default:
-                    return new cFileMap(stream, prot, offset, length) { _path = stream.Name };
+                    return new CFileMap(stream, prot, offset, length) { _path = stream.Name };
             }
         }
 
@@ -105,9 +106,9 @@ namespace System
             switch (Environment.OSVersion.Platform)
             {
                 case PlatformID.Win32NT:
-                    return new wFileMap(stream.SafeFileHandle.DangerousGetHandle(), prot, offset, (uint)length) { _baseStream = stream, _path = stream.Name };
+                    return new WFileMap(stream.SafeFileHandle.DangerousGetHandle(), prot, offset, (uint)length) { _baseStream = stream, _path = stream.Name };
                 default:
-                    return new cFileMap(stream, prot, offset, length) { _baseStream = stream, _path = stream.Name };
+                    return new CFileMap(stream, prot, offset, length) { _baseStream = stream, _path = stream.Name };
             }
         }
     }
@@ -118,9 +119,9 @@ namespace System
         ReadWrite = 0x02
     }
 
-    public class wFileMap : FileMap
+    public class WFileMap : FileMap
     {
-        internal wFileMap(VoidPtr hFile, FileMapProtect protect, long offset, uint length)
+        internal WFileMap(VoidPtr hFile, FileMapProtect protect, long offset, uint length)
         {
             long maxSize = offset + length;
             uint maxHigh = (uint)(maxSize >> 32);
@@ -159,12 +160,12 @@ namespace System
             base.Dispose();
         }
     }
-    public unsafe class cFileMap : FileMap
+    public unsafe class CFileMap : FileMap
     {
         protected MemoryMappedFile _mappedFile;
         protected MemoryMappedViewAccessor _mappedFileAccessor;
 
-        public cFileMap(FileStream stream, FileMapProtect protect, int offset, int length)
+        public CFileMap(FileStream stream, FileMapProtect protect, int offset, int length)
         {
             MemoryMappedFileAccess cProtect = (protect == FileMapProtect.ReadWrite) ? MemoryMappedFileAccess.ReadWrite : MemoryMappedFileAccess.Read;
             _length = length;

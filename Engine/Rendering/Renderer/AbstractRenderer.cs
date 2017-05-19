@@ -111,7 +111,7 @@ namespace CustomEngine.Rendering
             }
             return AssignDebugPrimitive(name, new PrimitiveManager(data, Material.GetUnlitColorMaterial()));
         }
-        
+
         //public void CacheWireframePlane()
         //{
         //    _wirePlane = new PrimitiveManager(
@@ -147,14 +147,15 @@ namespace CustomEngine.Rendering
         //public void RenderCone(string name, Vec3 topPoint, Vec3 bottomPoint, float bottomRadius, Matrix4 transform, bool solid, ColorF4 color)
         //    => RenderCone(name, Vec3.TransformPosition(topPoint, transform), bottomPoint * transform, bottomRadius, solid, color);
 
-        public void RenderPoint(string name, Vec3 position, float size, ColorF4 color, float pointSize = DefaultPointSize)
+        public abstract void RenderLineLoop(bool closedLoop, params Vec3[] points);
+        public virtual void RenderPoint(string name, Vec3 position, ColorF4 color, float pointSize = DefaultPointSize)
         {
-            SetPointSize(size);
+            SetPointSize(pointSize);
             PrimitiveManager m = CacheDebugPrimitive(name, DebugPrimitiveType.Point);
             m.Parameter<GLVec4>(0).Value = color;
             m.Render(Matrix4.CreateTranslation(position));
         }
-        public unsafe void RenderLine(string name, Vec3 start, Vec3 end, ColorF4 color, float lineWidth = DefaultLineSize)
+        public virtual unsafe void RenderLine(string name, Vec3 start, Vec3 end, ColorF4 color, float lineWidth = DefaultLineSize)
         {
             SetLineSize(lineWidth);
             PrimitiveManager m = CacheDebugPrimitive(name, DebugPrimitiveType.Line);
@@ -162,7 +163,7 @@ namespace CustomEngine.Rendering
             ((Vec3*)m.Data[0].Address)[1] = end - start;
             m.Render(Matrix4.CreateTranslation(start), Matrix3.Identity);
         }
-        public void RenderQuad(string name, Vec3 position, Vec3 normal, Vec2 halfExtents, bool solid, float lineWidth = DefaultLineSize)
+        public virtual void RenderQuad(string name, Vec3 position, Vec3 normal, Vec2 halfExtents, bool solid, float lineWidth = DefaultLineSize)
         {
             SetLineSize(lineWidth);
             PrimitiveManager m = CacheDebugPrimitive(name, solid ? DebugPrimitiveType.SolidQuad : DebugPrimitiveType.WireQuad);
@@ -170,7 +171,7 @@ namespace CustomEngine.Rendering
             Matrix4 mtx = Matrix4.CreateTranslation(position) * Matrix4.CreateFromQuaternion(lookat) * Matrix4.CreateScale(halfExtents.X, 1.0f, halfExtents.Y);
             m.Render(mtx, mtx.Inverted().Transposed().GetRotationMatrix3());
         }
-        public void RenderSphere(string name, Vec3 center, float radius, bool solid, ColorF4 color, float lineWidth = DefaultLineSize)
+        public virtual void RenderSphere(string name, Vec3 center, float radius, bool solid, ColorF4 color, float lineWidth = DefaultLineSize)
         {
             SetLineSize(lineWidth);
             //radius doesn't need to be multiplied by 2.0f; the sphere is already 2.0f in diameter
@@ -179,9 +180,9 @@ namespace CustomEngine.Rendering
             m.Parameter<GLVec4>(0).Value = color;
             m.Render(mtx, Matrix3.Identity);
         }
-        public void RenderAABB(string name, Vec3 halfExtents, Vec3 translation, bool solid, ColorF4 color, float lineWidth = DefaultLineSize)
+        public virtual void RenderAABB(string name, Vec3 halfExtents, Vec3 translation, bool solid, ColorF4 color, float lineWidth = DefaultLineSize)
             => RenderBox(name, halfExtents, Matrix4.CreateTranslation(translation), solid, color, lineWidth);
-        public void RenderBox(string name, Vec3 halfExtents, Matrix4 transform, bool solid, ColorF4 color, float lineWidth = DefaultLineSize)
+        public virtual void RenderBox(string name, Vec3 halfExtents, Matrix4 transform, bool solid, ColorF4 color, float lineWidth = DefaultLineSize)
         {
             SetLineSize(lineWidth);
             PrimitiveManager m = CacheDebugPrimitive(name, solid ? DebugPrimitiveType.SolidBox : DebugPrimitiveType.WireBox);

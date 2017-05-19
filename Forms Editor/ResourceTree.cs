@@ -22,9 +22,9 @@ namespace TheraEditor
     {
         private delegate void DelegateOpenFile(string s, TreeNode t);
         private DelegateOpenFile _openFileDelegate;
-        private string _contentPath;
         private Dictionary<string, TreeNode> _nodes;
         private FileSystemWatcher _contentWatcher;
+
         private static ImageList _imgList;
         public static ImageList Images
         {
@@ -50,8 +50,11 @@ namespace TheraEditor
 
         public void ListDirectory(string path)
         {
-            Nodes.Clear();
+            _contentWatcher = null;
 
+            _nodes = new Dictionary<string, TreeNode>();
+
+            Nodes.Clear();
             var stack = new Stack<TreeNode>();
             var rootDirectory = new DirectoryInfo(path);
             var node = new TreeNode(rootDirectory.Name) { Tag = rootDirectory };
@@ -72,6 +75,20 @@ namespace TheraEditor
             }
 
             Nodes.Add(node);
+
+            if (!string.IsNullOrEmpty(path) && Directory.Exists(path))
+            {
+                _contentWatcher = new FileSystemWatcher(path, "*.*")
+                {
+                    EnableRaisingEvents = true,
+                    IncludeSubdirectories = true,
+                    NotifyFilter = NotifyFilters.LastWrite,
+                };
+                _contentWatcher.Changed += _contentWatcher_Changed;
+                _contentWatcher.Created += _contentWatcher_Created;
+                _contentWatcher.Deleted += _contentWatcher_Deleted;
+                _contentWatcher.Renamed += _contentWatcher_Renamed;
+            }
         }
 
         public event EventHandler SelectionChanged;
@@ -80,22 +97,22 @@ namespace TheraEditor
         [DefaultValue(true)]
         public bool AllowContextMenus
         {
-            get { return _allowContextMenus; }
-            set { _allowContextMenus = value; }
+            get => _allowContextMenus;
+            set => _allowContextMenus = value;
         }
 
         private bool _allowIcons = false;
         [DefaultValue(false)]
         public bool ShowIcons
         {
-            get { return _allowIcons; }
-            set { ImageList = (_allowIcons = value) ? Images : null; }
+            get => _allowIcons;
+            set => ImageList = (_allowIcons = value) ? Images : null;
         }
 
         private TreeNode _selected;
         new public TreeNode SelectedNode
         {
-            get { return base.SelectedNode; }
+            get => base.SelectedNode;
             set
             {
                 if (_selected == value)
@@ -122,22 +139,11 @@ namespace TheraEditor
             GiveFeedback += new GiveFeedbackEventHandler(treeView1_GiveFeedback);
 
             _openFileDelegate = new DelegateOpenFile(ImportFile);
-            _nodes = new Dictionary<string, TreeNode>();
-
-            _contentPath = Engine.StartupPath + Engine.ContentFolderRel + "\\";
-            if (!string.IsNullOrEmpty(_contentPath) && Directory.Exists(_contentPath))
-            {
-                _contentWatcher = new FileSystemWatcher(_contentPath, FileManager.GetListFilter())
-                {
-                    EnableRaisingEvents = true,
-                    IncludeSubdirectories = true,
-                };
-                _contentWatcher.Changed += _contentWatcher_Changed;
-                _contentWatcher.Created += _contentWatcher_Created;
-                _contentWatcher.Deleted += _contentWatcher_Deleted;
-            }
         }
+        private void _contentWatcher_Renamed(object sender, RenamedEventArgs e)
+        {
 
+        }
         private void _contentWatcher_Deleted(object sender, FileSystemEventArgs e)
         {
 

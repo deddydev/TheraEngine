@@ -134,6 +134,8 @@ namespace TheraEditor
             p.UserData = new EditorState();
             p.PropertyChanged += Value_PropertyChanged;
             Project = p;
+
+            contentTree.ListDirectory(Path.GetDirectoryName(p.FilePath));
         }
         private void btnNewProject_Click(object sender, EventArgs e)
         {

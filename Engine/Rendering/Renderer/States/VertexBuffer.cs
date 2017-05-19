@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Runtime.InteropServices;
 using System.Xml;
 using System.ComponentModel;
+using System.IO;
 
 namespace CustomEngine.Rendering.Models
 {
@@ -157,6 +158,63 @@ namespace CustomEngine.Rendering.Models
                     break;
             }
             writer.WriteString(s);
+            return true;
+        }
+        [CustomXMLDeserializeMethod("Data")]
+        private unsafe bool CustomDataDeserialize(XMLReader reader)
+        {
+            string[] s = reader.ReadElementString().Split(' ');
+            switch (_componentType)
+            {
+                case ComponentType.SByte:
+                    sbyte* ptr1 = (sbyte*)_data.Address;
+                    for (int i = 0, k = 0; i < _elementCount; ++i)
+                        for (int j = 0; j < _componentCount; ++j, ++k)
+                            *ptr1++ = sbyte.Parse(s[k]);
+                    break;
+                case ComponentType.Byte:
+                    byte* ptr2 = (byte*)_data.Address;
+                    for (int i = 0, k = 0; i < _elementCount; ++i)
+                        for (int j = 0; j < _componentCount; ++j, ++k)
+                            *ptr2++ = byte.Parse(s[k]);
+                    break;
+                case ComponentType.Short:
+                    short* ptr3 = (short*)_data.Address;
+                    for (int i = 0, k = 0; i < _elementCount; ++i)
+                        for (int j = 0; j < _componentCount; ++j, ++k)
+                            *ptr3++ = short.Parse(s[k]);
+                    break;
+                case ComponentType.UShort:
+                    ushort* ptr4 = (ushort*)_data.Address;
+                    for (int i = 0, k = 0; i < _elementCount; ++i)
+                        for (int j = 0; j < _componentCount; ++j, ++k)
+                            *ptr4++ = ushort.Parse(s[k]);
+                    break;
+                case ComponentType.Int:
+                    int* ptr5 = (int*)_data.Address;
+                    for (int i = 0, k = 0; i < _elementCount; ++i)
+                        for (int j = 0; j < _componentCount; ++j, ++k)
+                            *ptr5++ = int.Parse(s[k]);
+                    break;
+                case ComponentType.UInt:
+                    uint* ptr6 = (uint*)_data.Address;
+                    for (int i = 0, k = 0; i < _elementCount; ++i)
+                        for (int j = 0; j < _componentCount; ++j, ++k)
+                            *ptr6++ = uint.Parse(s[k]);
+                    break;
+                case ComponentType.Float:
+                    float* ptr7 = (float*)_data.Address;
+                    for (int i = 0, k = 0; i < _elementCount; ++i)
+                        for (int j = 0; j < _componentCount; ++j, ++k)
+                            *ptr7++ = float.Parse(s[k]);
+                    break;
+                case ComponentType.Double:
+                    double* ptr8 = (double*)_data.Address;
+                    for (int i = 0, k = 0; i < _elementCount; ++i)
+                        for (int j = 0; j < _componentCount; ++j, ++k)
+                            *ptr8++ = double.Parse(s[k]);
+                    break;
+            }
             return true;
         }
 

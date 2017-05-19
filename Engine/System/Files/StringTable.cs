@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using CustomEngine.Rendering.Models;
+using CustomEngine.Files.Serialization;
 
 namespace CustomEngine.Files
 {
@@ -30,7 +31,8 @@ namespace CustomEngine.Files
             return len.Align(4);
         }
 
-        public void Clear() { _table.Clear(); }
+        public void Clear() 
+            => _table.Clear();
 
         public int this[string s]
         {

@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.IO;
 using System.Linq;
 using System.Xml;
 
@@ -546,12 +547,21 @@ namespace CustomEngine.Rendering.Models
         {
             _buffers?.ForEach(x => x.Dispose());
         }
-
-        [CustomXMLSerializeMethod("Triangles")]
+        [CustomXMLDeserializeMethod("Triangles")]
         private bool CustomTrianglesSerialize(XmlWriter writer)
         {
             if (_triangles != null)
                 writer.WriteElementString("Triangles", string.Join(" ", _triangles.SelectMany(x => x.Points.Select(y => y.VertexIndex))));
+            return true;
+        }
+        [CustomXMLDeserializeMethod("Triangles")]
+        private bool CustomTrianglesDeserialize(XMLReader reader)
+        {
+            string values = reader.ReadElementString();
+            int[] points = values.Split(' ').Select(x => int.Parse(x)).ToArray();
+            _triangles = new List<IndexTriangle>(points.Length / 3);
+            for (int i = 0; i < points.Length; )
+                _triangles.Add(new IndexTriangle(points[i++], points[i++], points[i++]));
             return true;
         }
         [CustomXMLSerializeMethod("Lines")]
@@ -561,11 +571,31 @@ namespace CustomEngine.Rendering.Models
                 writer.WriteElementString("Lines", string.Join(" ", _lines.SelectMany(x => new int[] { x.Point0.VertexIndex, x.Point1.VertexIndex })));
             return true;
         }
+        [CustomXMLDeserializeMethod("Lines")]
+        private bool CustomLinesDeserialize(XMLReader reader)
+        {
+            string values = reader.ReadElementString();
+            int[] points = values.Split(' ').Select(x => int.Parse(x)).ToArray();
+            _triangles = new List<IndexTriangle>(points.Length / 2);
+            for (int i = 0; i < points.Length;)
+                _lines.Add(new IndexLine(points[i++], points[i++]));
+            return true;
+        }
         [CustomXMLSerializeMethod("Points")]
         private bool CustomPointsSerialize(XmlWriter writer)
         {
             if (_points != null)
                 writer.WriteElementString("Points", string.Join(" ", _points.Select(x => x.VertexIndex)));
+            return true;
+        }
+        [CustomXMLDeserializeMethod("Points")]
+        private bool CustomPointsDeserialize(XMLReader reader)
+        {
+            string values = reader.ReadElementString();
+            int[] points = values.Split(' ').Select(x => int.Parse(x)).ToArray();
+            _triangles = new List<IndexTriangle>(points.Length);
+            for (int i = 0; i < points.Length;)
+                _points.Add(points[i++]);
             return true;
         }
         [CustomXMLSerializeMethod("FacePoints")]
@@ -586,7 +616,31 @@ namespace CustomEngine.Rendering.Models
             writer.WriteEndElement();
             return true;
         }
-
+        [CustomXMLDeserializeMethod("FacePoints")]
+        private bool CustomFacePointsDeserialize(XMLReader reader)
+        {
+            int count = 0;
+            while (reader.ReadAttribute())
+            {
+                if (reader.Name.Equals("Count", true))
+                    count = reader.Value;
+            }
+            bool hasInfs = _influences != null && _influences.Length > 0;
+            int bufferCount = _buffers.Count;
+            int valuesPerPoint = bufferCount + (hasInfs ? 1 : 0);
+            string values = reader.ReadElementString();
+            int[] points = values.Split(' ').Select(x => int.Parse(x)).ToArray();
+            _facePoints = new List<FacePoint>(points.Length / valuesPerPoint);
+            for (int i = 0, x = 0; x < points.Length; ++i)
+            {
+                FacePoint p = new FacePoint(i, this);
+                if (hasInfs)
+                    p._influenceIndex = points[x++];
+                for (int r = 0; r < bufferCount; ++r)
+                    p.BufferIndices.Add(points[x++]);
+            }
+            return true;
+        }
         [CustomXMLSerializeMethod("Influences")]
         private bool CustomInfluencesSerialize(XmlWriter writer)
         {
@@ -621,6 +675,41 @@ namespace CustomEngine.Rendering.Models
                     writer.WriteEndElement();
                 }
                 writer.WriteEndElement();
+            }
+            return true;
+        }
+        [CustomXMLDeserializeMethod("Influences")]
+        private bool CustomInfluencesDeserialize(XMLReader reader)
+        {
+            while (reader.ReadAttribute())
+            {
+                if (reader.Name.Equals("Count", true))
+                {
+                    int count = int.Parse(reader.Value);
+                    _influences = new Influence[count];
+                }
+            }
+            int[] counts = null, indices = null;
+            float[] weights = null;
+            string s;
+            while (reader.BeginElement())
+            {
+                s = reader.ReadElementString();
+                if (reader.Name.Equals("Counts", true))
+                    counts = s.Split(' ').Select(x => int.Parse(x)).ToArray();
+                else if (reader.Name.Equals("Indices", true))
+                    indices = s.Split(' ').Select(x => int.Parse(x)).ToArray();
+                else if (reader.Name.Equals("Weights", true))
+                    weights = s.Split(' ').Select(x => float.Parse(x)).ToArray();
+                reader.EndElement();
+            }
+            int k = 0;
+            for (int i = 0; i < _influences.Length; ++i)
+            {
+                Influence inf = new Influence();
+                for (int j = 0; j < counts[i]; ++j, ++k)
+                    inf.AddWeight(new BoneWeight(_utilizedBones[indices[k]], weights[k]));
+                _influences[i] = inf;
             }
             return true;
         }

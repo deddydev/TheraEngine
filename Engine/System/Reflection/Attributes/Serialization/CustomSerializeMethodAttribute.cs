@@ -64,14 +64,17 @@ namespace System
     /// with the same name and this method will be called to deserialize that field/property.
     /// </summary>
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = false, Inherited = true)]
-    public class CustomDeserializeMethod : Attribute
+    public class CustomXMLDeserializeMethod : Attribute
     {
         string _name;
-        public CustomDeserializeMethod(string name)
+        public CustomXMLDeserializeMethod(string name)
         {
             _name = name;
         }
-
-        public string Name { get => _name; set => _name = value; }
+        public string Name
+        {
+            get => _name;
+            set => _name = value;
+        }
     }
 }

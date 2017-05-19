@@ -336,7 +336,6 @@ namespace System.IO
             }
             return false;
         }
-
         public unsafe bool ReadValue(float* pOut, float scale)
         {
             if (!LeaveTag())

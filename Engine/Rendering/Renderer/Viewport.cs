@@ -115,6 +115,12 @@ namespace CustomEngine.Rendering
             _owner.Viewport = this;
             Resize(panel.Width, panel.Height);
             _text = new ScreenTextHandler(this);
+            if (Engine.Settings == null)
+            {
+                _gBuffer = null;
+                Render = RenderForward;
+                return;
+            }
             if (Engine.Settings.ShadingStyle == ShadingStyle.Deferred)
             {
                 _gBuffer = new GBuffer(Region);

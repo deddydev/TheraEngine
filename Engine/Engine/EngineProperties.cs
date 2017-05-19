@@ -22,24 +22,23 @@ namespace CustomEngine
         public static string ContentFolderRel = "Content\\";
         public static string ConfigFolderAbs = StartupPath + "Config\\";
         public static string ConfigFolderRel = "Config\\";
-        public static string EngineSettingsPathAbs = ConfigFolderAbs + "Engine.xcsettings";
-        public static string EngineSettingsPathRel = ConfigFolderRel + "Engine.xcsettings";
-        public static string UserSettingsPathAbs = ConfigFolderAbs + "User.xcsettings";
-        public static string UserSettingsPathRel = ConfigFolderRel + "User.xcsettings";
+        public static string EngineSettingsPathAbs = ConfigFolderAbs + "Engine.xeset";
+        public static string EngineSettingsPathRel = ConfigFolderRel + "Engine.xeset";
+        public static string UserSettingsPathAbs = ConfigFolderAbs + "User.xuset";
+        public static string UserSettingsPathRel = ConfigFolderRel + "User.xuset";
         
-        private static World _transitionWorld = null;
         private static World _currentWorld = null;
         public static SingleFileRef<EngineSettings> _engineSettings = new SingleFileRef<EngineSettings>(EngineSettingsPathRel);
         public static SingleFileRef<UserSettings> _userSettings = new SingleFileRef<UserSettings>(UserSettingsPathRel);
 
         public static EngineSettings Settings
         {
-            get => _engineSettings.File;
+            get => _engineSettings.File ?? (_engineSettings.File = new EngineSettings());
             set => _engineSettings.File = value;
         }
         public static UserSettings UserSettings
         {
-            get => _userSettings.File;
+            get => _userSettings.File ?? (_userSettings.File = new UserSettings());
             set => _userSettings.File = value;
         }
 
@@ -117,11 +116,6 @@ namespace CustomEngine
             set => _timer.TimeDilation = value;
         }
         
-        public static World TransitionWorld
-        {
-            get => _transitionWorld;
-            set => _transitionWorld = value;
-        }
         public static World World
         {
             get => _currentWorld;

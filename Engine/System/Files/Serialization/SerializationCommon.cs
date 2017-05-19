@@ -13,6 +13,48 @@ using System.Xml;
 
 namespace CustomEngine.Files.Serialization
 {
+    internal enum InterfaceType
+    {
+        None,
+        IList,
+    }
+    internal class MemberTreeNode
+    {
+        public MemberTreeNode(object root)
+            : this(root, root == null ? null : new VarInfo(root.GetType())) { }
+        public MemberTreeNode(object obj, VarInfo info)
+        {
+            Object = obj;
+            Info = info;
+            Interface = InterfaceType.None;
+            if (info == null)
+                return;
+            List<VarInfo> members = SerializationCommon.CollectSerializedMembers(info.VariableType);
+            Members = members.Select(x => new MemberTreeNode(obj == null ? null : x.GetValue(obj), x)).ToList();
+            CategorizedMembers = Members.Where(x => x.Info.Category != null).GroupBy(x => x.Info.Category).ToList();
+            foreach (var grouping in CategorizedMembers)
+                foreach (MemberTreeNode p in grouping)
+                    Members.Remove(p);
+            if (Object is IList array)
+            {
+                Interface = InterfaceType.IList;
+                IListMembers = new MemberTreeNode[array.Count];
+                for (int i = 0; i < array.Count; ++i)
+                    IListMembers[i] = new MemberTreeNode(array[i]);
+            }
+            ShouldSerialize = info.Attrib.SerializeIf == null ? true : ExpressionParser.Evaluate<bool>(info.Attrib.SerializeIf, obj);
+        }
+
+        public bool ShouldSerialize;
+        public object Object;
+        public VarInfo Info;
+        public int CalculatedSize;
+        public int FlagSize;
+        public List<MemberTreeNode> Members;
+        public List<IGrouping<string, MemberTreeNode>> CategorizedMembers;
+        public InterfaceType Interface;
+        public MemberTreeNode[] IListMembers;
+    }
     /// <summary>
     /// Stores a field/property's information.
     /// </summary>
@@ -144,6 +186,16 @@ namespace CustomEngine.Files.Serialization
                 }
             }
             return fields;
+        }
+
+        //TODO: run constructor or not?
+        /// <summary>
+        /// Creates an object of the given type.
+        /// </summary>
+        public static object CreateObject(Type t)
+        {
+            //return FormatterServices.GetUninitializedObject(t);
+            return Activator.CreateInstance(t);
         }
     }
 }

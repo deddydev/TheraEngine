@@ -5,30 +5,10 @@ using System.ComponentModel;
 using System.Xml;
 using System.IO;
 using System;
+using SevenZip;
 
 namespace CustomEngine.Files
 {
-    [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    public unsafe struct CompressionHeader
-    {
-        public const int Size = 0x4;
-
-        public Bin32 _flags;
-
-        public VoidPtr Address { get { fixed (void* ptr = &this) return ptr; } }
-    }
-    [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    public unsafe struct FileCommonHeader
-    {
-        public const int Size = 0x8;
-        
-        public bint _fileLength;
-        public bint _stringTableLength;
-
-        public VoidPtr Strings => Address + Size;
-        public VoidPtr Data => Address + Size + _stringTableLength;
-        public VoidPtr Address { get { fixed (void* ptr = &this) return ptr; } }
-    }
     public enum FileFormat
     {
         Binary      = 0,
@@ -37,8 +17,9 @@ namespace CustomEngine.Files
         //Programatic = 3,
     }
     [FileClass("", "")]
-    public abstract class FileObject : ObjectBase
+    public abstract class FileObject : ObjectBase, ICodeProgress
     {
+        [Browsable(false)]
         public FileClass FileHeader
             => GetFileHeader(GetType());
         public static FileClass GetFileHeader(Type t)
@@ -56,8 +37,9 @@ namespace CustomEngine.Files
             get => _filePath;
             internal set => _filePath = value;
         }
+        [Browsable(false)]
         public int CalculatedSize => _calculatedSize;
-
+        [Browsable(false)]
         public List<IFileRef> References { get => _references; set => _references = value; }
 
         public int CalculateSize(StringTable table)
@@ -82,31 +64,39 @@ namespace CustomEngine.Files
         }
 
         public static T Import<T>(string fileName) where T : FileObject
+            => Import<T>(fileName, GetFormat(fileName));
+        
+        public static T Import<T>(string fileName, FileFormat format) where T : FileObject
         {
-            return Import<T>(fileName, Path.GetExtension(fileName)[1] == 'x');
+            switch (format)
+            {
+                case FileFormat.Binary:
+                    return FromBinary<T>(fileName);
+                case FileFormat.XML:
+                    return FromXML<T>(fileName);
+            }
+            return default(T);
         }
-        public static T Import<T>(string fileName, bool isXML) where T : FileObject
+        public static FileObject Import(Type t, string fileName, FileFormat format)
         {
-            if (isXML)
-                return FromXML<T>(fileName);
-            else
-                return FromBinary<T>(fileName);
-        }
-        public static FileObject Import(Type t, string fileName, bool isXML)
-        {
-            if (isXML)
-                return FromXML(t, fileName);
-            else
-                return FromBinary(t, fileName);
+            switch (format)
+            {
+                case FileFormat.Binary:
+                    return FromBinary(t, fileName);
+                case FileFormat.XML:
+                    return FromXML(t, fileName);
+            }
+            return null;
         }
 
         protected virtual void OnUnload() { }
         
-        public void Export(FileFormat format)
+        public void Export()
         {
             if (string.IsNullOrEmpty(_filePath))
                 throw new Exception("File has no path to export to.");
-            Export(Path.GetDirectoryName(_filePath), Path.GetFileNameWithoutExtension(_filePath), format);
+            GetDirNameFmt(_filePath, out string dir, out string name, out FileFormat fmt);
+            Export(dir, name, fmt);
         }
         public void Export(string directory, string fileName, FileFormat format)
         {
@@ -122,28 +112,31 @@ namespace CustomEngine.Files
         }
 
         public unsafe static T FromBinary<T>(string filePath) where T : FileObject
-        {
-            return FromBinary(typeof(T), filePath) as T;
-        }
+            => FromBinary(typeof(T), filePath) as T;
         public unsafe static FileObject FromBinary(Type t, string filePath)
         {
             if (!File.Exists(filePath))
                 return null;
 
-            FileMap map = FileMap.FromFile(filePath);
-            FileCommonHeader* hdr = (FileCommonHeader*)map.Address;
-            string tag = hdr->Tag;
+            FileObject obj;
+            if (GetFileHeader(t).ManualBinSerialize)
+            {
+                obj = SerializationCommon.CreateObject(t) as FileObject;
+                if (obj != null)
+                {
+                    FileMap map = FileMap.FromFile(filePath);
+                    FileCommonHeader* hdr = (FileCommonHeader*)map.Address;
+                    obj.Read(hdr->Data, hdr->Strings);
+                }
+            }
+            else
+                obj = CustomBinarySerializer.Deserialize(filePath, t) as FileObject;
 
-            Type t2 = FileManager.GetType(tag);
-            if (t != t2)
-                throw new Exception("Type mismatch: want " + t.ToString() + ", got " + t2.ToString());
-
-            FileObject obj = Activator.CreateInstance(t) as FileObject;
-            obj._filePath = filePath;
-            obj.Read(hdr->Data, hdr->Strings);
-
-            Engine.AddLoadedFile(obj._filePath, obj);
-
+            if (obj != null)
+            {
+                obj._filePath = filePath;
+                Engine.AddLoadedFile(obj._filePath, obj);
+            }
             return obj;
         }
         private unsafe void ToBinary(string directory, string fileName)
@@ -174,31 +167,52 @@ namespace CustomEngine.Files
                         table.WriteTable(hdr);
                         hdr->_fileLength = totalSize;
                         hdr->_stringTableLength = stringSize;
+                        hdr->_endian = (byte)Endian.EOrder.Big;
                         Write(hdr->Data, table);
                     }
                 }
             }
             else
-                CustomBinarySerializer.Serialize(this, _filePath, Endian.EOrder.Big, false, null);
+                CustomBinarySerializer.Serialize(this, _filePath, Endian.EOrder.Big, true, true, null);
         }
-        public static T FromXML<T>(string filePath) where T : FileObject
+        public static FileFormat GetFormat(string path)
         {
-            return FromXML(typeof(T), filePath) as T;
+            string ext = Path.GetExtension(path);
+            switch (ext[1])
+            {
+                default:
+                case 'b':
+                    return FileFormat.Binary;
+                case 'x':
+                    return FileFormat.XML;
+            }
         }
+        public static void GetDirNameFmt(string path, out string dir, out string name, out FileFormat fmt)
+        {
+            dir = Path.GetDirectoryName(path);
+            name = Path.GetFileNameWithoutExtension(path);
+            fmt = GetFormat(path);
+        }
+        public static string GetFilePath(string dir, string name, FileFormat format, Type fileType)
+        {
+            return dir + "\\" + name + "." + format.ToString().ToLower()[0] + GetFileHeader(fileType).Extension.ToLower();
+        }
+
+        public static T FromXML<T>(string filePath) where T : FileObject
+            => FromXML(typeof(T), filePath) as T;
         public static unsafe FileObject FromXML(Type t, string filePath)
         {
             if (!File.Exists(filePath))
                 return null;
 
+            FileObject obj;
             if (GetFileHeader(t).ManualXmlSerialize)
             {
                 using (FileMap map = FileMap.FromFile(filePath))
                 using (XMLReader reader = new XMLReader(map.Address, map.Length))
                 {
-                    FileObject obj = Activator.CreateInstance(t) as FileObject;
-                    obj._filePath = filePath;
-
-                    if (reader.BeginElement())
+                    obj = SerializationCommon.CreateObject(t) as FileObject;
+                    if (obj != null && reader.BeginElement())
                     {
                         //if (reader.Name.Equals(t.ToString(), true))
                         obj.Read(reader);
@@ -206,16 +220,16 @@ namespace CustomEngine.Files
                         //    throw new Exception("File was not of expected type.");
                         reader.EndElement();
                     }
-
-                    Engine.AddLoadedFile(obj._filePath, obj);
-
-                    return obj;
                 }
             }
             else
+                obj = (FileObject)CustomXmlSerializer.Deserialize(filePath, t);
+            if (obj != null)
             {
-                return (FileObject)CustomXmlSerializer.Deserialize(filePath, t);
+                obj._filePath = filePath;
+                Engine.AddLoadedFile(obj._filePath, obj);
             }
+            return obj;
         }
         private static XmlWriterSettings _writerSettings = new XmlWriterSettings()
         {
@@ -249,6 +263,11 @@ namespace CustomEngine.Files
             }
             else
                 CustomXmlSerializer.Serialize(this, _filePath);
+        }
+
+        public void SetProgress(long inSize, long outSize)
+        {
+
         }
     }
 }

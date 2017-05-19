@@ -9,16 +9,6 @@ namespace CustomEngine.Files.Serialization
 {
     public static partial class CustomXmlSerializer
     {
-        //TODO: run constructor or not?
-        /// <summary>
-        /// Creates an object of the given type.
-        /// </summary>
-        private static object CreateObject(Type t)
-        {
-            //return FormatterServices.GetUninitializedObject(t);
-            return Activator.CreateInstance(t);
-        }
-        
         /// <summary>
         /// Reads a file from the stream as xml.
         /// </summary>
@@ -30,23 +20,23 @@ namespace CustomEngine.Files.Serialization
             {
                 if (reader.BeginElement())
                 {
-                    obj = (FileObject)ReadObject(t, reader);
+                    obj = (FileObject)ReadObjectElement(t, reader);
                     reader.EndElement();
                 }
                 else
-                    obj = CreateObject(t);
+                    obj = SerializationCommon.CreateObject(t);
                 if (obj is FileObject o)
                     o.FilePath = filePath;
             }
             return obj;
         }
-        private static object ReadObject(Type t, XMLReader reader)
+        private static object ReadObjectElement(Type t, XMLReader reader)
         {
             //Collect the members of this object's type that are serialized
-            List<VarInfo> serializedMembers = SerializationCommon.CollectSerializedMembers(t);
+            List<VarInfo> members = SerializationCommon.CollectSerializedMembers(t);
 
             //Create the object
-            object obj = CreateObject(t);
+            object obj = SerializationCommon.CreateObject(t);
 
             //Get pre and post deserialize methods
             MethodInfo[] methods = t.GetMethods(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
@@ -67,17 +57,19 @@ namespace CustomEngine.Files.Serialization
                 m.Invoke(obj, m.GetCustomAttribute<PreDeserialize>().Arguments);
 
             //Get members categorized together
-            List<IGrouping<string, VarInfo>> categorized = serializedMembers.
+            List<IGrouping<string, VarInfo>> categorized = members.
                 Where(x => x.Category != null).
                 GroupBy(x => x.Category).ToList();
 
             //Remove categorized members from original list
-            foreach (IGrouping<string, VarInfo> grouping in categorized)
+            foreach (var grouping in categorized)
                 foreach (VarInfo p in grouping)
-                    serializedMembers.Remove(p);
+                    members.Remove(p);
+
+            List<VarInfo> attribs = members.Where(x => x.Attrib.IsXmlAttribute).ToList();
+            List<VarInfo> elements = members.Where(x => !x.Attrib.IsXmlAttribute).ToList();
 
             //Read attributes first
-            List<VarInfo> attribs = serializedMembers.Where(x => x.Attrib.IsXmlAttribute).ToList();
             while (reader.ReadAttribute())
             {
                 //Look for matching attribute member with the same name
@@ -90,24 +82,26 @@ namespace CustomEngine.Files.Serialization
                     attribs.Remove(attrib);
                 }
             }
-
-            //foreach (VarInfo attrib in attribs)
-            //    attrib.SetValue(obj, attrib.Attrib.DefaultValue);
-
-            List<VarInfo> elements = serializedMembers.Where(x => !x.Attrib.IsXmlAttribute).ToList();
+            //Now read elements
             while (reader.BeginElement())
             {
-                var category = categorized.FirstOrDefault(x => reader.Name.Equals(x.Key, true));
+                var category = categorized.Where(x => reader.Name.Equals(x.Key, true)).ToArray();
                 if (category != null)
                 {
                     while (reader.ReadAttribute())
                     {
-                        VarInfo p = category.FirstOrDefault(x => x.Attrib.IsXmlAttribute && reader.Name.Equals(x.Name, true));
-                        
+                        VarInfo attrib = attribs.FirstOrDefault(x => reader.Name.Equals(x.Name, true));
+                        if (attrib != null)
+                        {
+                            Type fieldType = attrib.VariableType;
+                            object value = ParseString(reader.Value, fieldType);
+                            attrib.SetValue(obj, value);
+                            attribs.Remove(attrib);
+                        }
                     }
                     while (reader.BeginElement())
                     {
-
+                        reader.EndElement();
                     }
                 }
                 else
@@ -126,6 +120,10 @@ namespace CustomEngine.Files.Serialization
                 m.Invoke(obj, m.GetCustomAttribute<PostDeserialize>().Arguments);
 
             return obj;
+        }
+        private static void ReadAttribute(XMLReader reader)
+        {
+
         }
         private static object ParseString(string value, Type t)
         {
@@ -163,9 +161,10 @@ namespace CustomEngine.Files.Serialization
                     return Double.Parse(value);
                 case "Decimal":
                     return Decimal.Parse(value);
+                case "String":
+                    return value;
             }
             throw new Exception(t.ToString() + " is not parsable");
-            return null;
         }
     }
 }

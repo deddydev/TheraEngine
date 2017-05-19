@@ -5,41 +5,48 @@ using System.Reflection;
 using CustomEngine;
 using CustomEngine.Files;
 using System.IO;
+using System.Drawing;
 
 namespace TheraEditor.Wrappers
 {
-    //[AttributeUsage(AttributeTargets.Class, Inherited = false, AllowMultiple = true)]
-    //sealed class NodeWrapperAttribute : Attribute
-    //{
-    //    ResourceType _type;
-    //    public NodeWrapperAttribute(ResourceType type) { _type = type; }
-    //    public ResourceType WrappedType { get { return _type; } }
+    [AttributeUsage(AttributeTargets.Class, Inherited = false, AllowMultiple = false)]
+    sealed class NodeWrapperAttribute : Attribute
+    {
+        private Type _type;
+        private SystemImages _image;
+        
+        public NodeWrapperAttribute(Type type, SystemImages image)
+        {
+            _type = type;
+            _image = image;
+        }
 
-    //    private static Dictionary<ResourceType, Type> _wrappers;
-    //    public static Dictionary<ResourceType, Type> Wrappers
-    //    {
-    //        get
-    //        {
-    //            if (_wrappers == null)
-    //            {
-    //                _wrappers = new Dictionary<ResourceType, Type>();
-    //                foreach (Type t in Assembly.GetExecutingAssembly().GetTypes())
-    //                    foreach (NodeWrapperAttribute attr in t.GetCustomAttributes(typeof(NodeWrapperAttribute), true))
-    //                        _wrappers[attr._type] = t;
-    //            }
-    //            return _wrappers;
-    //        }
-    //    }
-    //}
-    [Serializable]
+        public Type WrappedType => _type;
+
+        private static Dictionary<Type, Type> _wrappers;
+        public static Dictionary<Type, Type> Wrappers
+        {
+            get
+            {
+                if (_wrappers == null)
+                {
+                    _wrappers = new Dictionary<Type, Type>();
+                    foreach (Type t in Assembly.GetExecutingAssembly().GetTypes())
+                        foreach (NodeWrapperAttribute attr in t.GetCustomAttributes(typeof(NodeWrapperAttribute), true))
+                            _wrappers[attr._type] = t;
+                }
+                return _wrappers;
+            }
+        }
+    }
     public abstract class BaseWrapper : TreeNode
     {
         protected string _filePath;
         protected FileObject _file;
         protected bool _discovered = false;
 
-        public string FilePath { get { return _filePath; } }
-        public FileObject File { get { return _file; } }
+        public string FilePath => _filePath;
+        public FileObject File => _file;
 
         protected BaseWrapper() { }
 

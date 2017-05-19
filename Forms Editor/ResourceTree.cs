@@ -12,6 +12,12 @@ using System.Collections.Generic;
 
 namespace TheraEditor
 {
+    public enum SystemImages
+    {
+        GenericFile,
+        ClosedFolder,
+        OpenFolder,
+    }
     public class ResourceTree : TreeView
     {
         private delegate void DelegateOpenFile(string s, TreeNode t);
@@ -26,17 +32,46 @@ namespace TheraEditor
             {
                 if (_imgList == null)
                 {
-                    _imgList = new ImageList();
-                    _imgList.ImageSize = new Size(24, 24);
-                    _imgList.ColorDepth = ColorDepth.Depth32Bit;
-                    _imgList.Images.AddRange(new Image[]{
-                        Resources.GenericFile, //0
+                    _imgList = new ImageList()
+                    {
+                        ImageSize = new Size(24, 24),
+                        ColorDepth = ColorDepth.Depth32Bit,
+                    };
+                    _imgList.Images.AddRange(new Image[]
+                    {
+                        Resources.GenericFile,
                         Resources.ClosedFolder,
                         Resources.OpenFolder,
                     });
                 }
                 return _imgList;
             }
+        }
+
+        public void ListDirectory(string path)
+        {
+            Nodes.Clear();
+
+            var stack = new Stack<TreeNode>();
+            var rootDirectory = new DirectoryInfo(path);
+            var node = new TreeNode(rootDirectory.Name) { Tag = rootDirectory };
+            stack.Push(node);
+
+            while (stack.Count > 0)
+            {
+                var currentNode = stack.Pop();
+                var directoryInfo = (DirectoryInfo)currentNode.Tag;
+                foreach (var directory in directoryInfo.GetDirectories())
+                {
+                    var childDirectoryNode = new TreeNode(directory.Name) { Tag = directory };
+                    currentNode.Nodes.Add(childDirectoryNode);
+                    stack.Push(childDirectoryNode);
+                }
+                foreach (var file in directoryInfo.GetFiles())
+                    currentNode.Nodes.Add(new TreeNode(file.Name));
+            }
+
+            Nodes.Add(node);
         }
 
         public event EventHandler SelectionChanged;

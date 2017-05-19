@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CustomEngine.Files;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -14,7 +15,13 @@ namespace System.ComponentModel
             string userFriendlyName,
             bool manualBinSerialize = false,
             bool manualXmlSerialize = false,
-            SerializeFormat preferredFormat = SerializeFormat.XML)
+            SerializeFormat preferredFormat =
+#if DEBUG
+            SerializeFormat.XML
+#else
+            SerializeFormat.Binary
+#endif
+            )
         {
             _extension = extension;
             _manualBinSerialize = manualBinSerialize;
@@ -22,6 +29,8 @@ namespace System.ComponentModel
             _userFriendlyName = userFriendlyName;
             _preferredFormat = preferredFormat;
         }
+        
+        //TODO: add importable and exportable 3rd party extensions
 
         private string _userFriendlyName;
         private string _extension;
@@ -58,6 +67,29 @@ namespace System.ComponentModel
         {
             get => _extension;
             set => _extension = value;
+        }
+
+        public string GetFilter()
+        {
+            string allTypes = "";
+            string eachType = "";
+            string ext = Extension.ToLower();
+            bool first = true;
+            foreach (string type in Enum.GetNames(typeof(FileFormat)))
+            {
+                if (first)
+                    first = false;
+                else
+                {
+                    allTypes += ";";
+                    eachType += "|";
+                }
+                string fmt = String.Format("*.{0}{1}", type.Substring(0, 1).ToLower(), ext);
+                eachType += String.Format("{0} [{2}] ({1})|{1}", UserFriendlyName, fmt, type);
+                allTypes += fmt;
+            }
+            string allTypesFull = String.Format("{0} ({1})|{1}", UserFriendlyName, allTypes);
+            return allTypesFull + "|" + eachType;
         }
     }
 }

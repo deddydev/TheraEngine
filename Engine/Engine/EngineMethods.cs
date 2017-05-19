@@ -257,7 +257,7 @@ namespace CustomEngine
                 throw new Exception("Unable to create a renderer.");
 
             World = Settings.OpeningWorld;
-            _transitionWorld = Settings.TransitionWorld;
+            Settings.TransitionWorld.GetInstance();
             
             TargetRenderFreq = Settings.CapFPS ? Settings.TargetFPS.ClampMin(1.0f) : 0.0f;
             TargetUpdateFreq = Settings.CapUPS ? Settings.TargetUPS.ClampMin(1.0f) : 0.0f;

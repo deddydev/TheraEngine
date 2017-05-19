@@ -9,6 +9,7 @@ namespace CustomEngine.Worlds.Actors
     {
         public event LengthChange CurrentDistanceChanged;
 
+        private SphereShape _traceShape = new SphereShape(5.0f);
         private float _maxLength = 300.0f;
         private float _currentLength = 0.0f;
         private Vec3 _currentEndPoint = Vec3.Zero;
@@ -60,13 +61,14 @@ namespace CustomEngine.Worlds.Actors
         {
             Matrix4 startMatrix = GetParentMatrix() * Rotation.GetMatrix() * Translation.GetTranslationMatrix();
             _startPoint = startMatrix.GetPoint();
-            Vec3 testEnd = (startMatrix * Matrix4.CreateTranslation(new Vec3(0.0f, 0.0f, _maxLength))).GetPoint();
+            Matrix4 endMatrix = startMatrix * Matrix4.CreateTranslation(new Vec3(0.0f, 0.0f, _maxLength));
+            Vec3 testEnd = endMatrix.GetPoint();
 
             //TODO: use a sphere, not a point
-            ClosestRayResultCallback result = Engine.RaycastClosest(_startPoint, testEnd);
+            ClosestConvexResultCallback result = Engine.ShapeCastClosest(_traceShape, startMatrix, endMatrix);
             Vec3 newEndPoint;
             if (result.HasHit)
-                newEndPoint = result.HitPointWorld;
+                newEndPoint = result.HitPointWorld + result.HitNormalWorld * 5.0f;
             else
                 newEndPoint = testEnd;
             float length = (newEndPoint - _startPoint).LengthFast;

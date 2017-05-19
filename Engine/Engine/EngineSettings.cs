@@ -17,52 +17,70 @@ namespace CustomEngine
     [FileClass("ESET", "Engine Settings")]
     public class EngineSettings : FileObject
     {
-        [Category("Performance")]
-        [Serialize]
-        public ShadingStyle ShadingStyle;
-        [Category("Performance")]
-        [Serialize]
-        public bool SkinOnGPU;
-        [Category("Performance")]
-        [Serialize]
-        public bool UseIntegerWeightingIds;
+        private ShadingStyle _shadingStyle;
+        private bool _skinOnGPU;
+        private bool _useIntegerWeightingIds;
+        
+        private bool _renderCameraFrustums;
+        private bool _renderSkeletons;
+        private bool _renderQuadtree;
+        private bool _renderOctree;
 
+        private bool _capFPS;
+        private float _targetFPS;
+        
+        private bool _capUPS;
+        private float _targetUPS;
+        
+        private SingleFileRef<World> _transitionWorld;
+        private SingleFileRef<World> _openingWorld;
+        private string _gamePath;
+
+        [Category("Performance")]
+        [Serialize]
+        public ShadingStyle ShadingStyle { get => _shadingStyle; set => _shadingStyle = value; }
+        [Category("Performance")]
+        [Serialize]
+        public bool SkinOnGPU { get => _skinOnGPU; set => _skinOnGPU = value; }
+        [Category("Performance")]
+        [Serialize]
+        public bool UseIntegerWeightingIds { get => _useIntegerWeightingIds; set => _useIntegerWeightingIds = value; }
         [Category("Debug")]
         [Serialize]
-        public bool RenderCameraFrustums;
+        public bool RenderCameraFrustums { get => _renderCameraFrustums; set => _renderCameraFrustums = value; }
         [Category("Debug")]
         [Serialize]
-        public bool RenderSkeletons;
+        public bool RenderSkeletons { get => _renderSkeletons; set => _renderSkeletons = value; }
         [Category("Debug")]
         [Serialize]
-        public bool RenderQuadtree;
+        public bool RenderQuadtree { get => _renderQuadtree; set => _renderQuadtree = value; }
         [Category("Debug")]
         [Serialize]
-        public bool RenderOctree;
+        public bool RenderOctree { get => _renderOctree; set => _renderOctree = value; }
 
         [Category("Frames Per Second")]
         [Serialize("Capped", OverrideXmlCategory = "FramesPerSecond"/*, IsXmlAttribute = true*/)]
-        public bool CapFPS;
+        public bool CapFPS { get => _capFPS; set => _capFPS = value; }
         [Category("Frames Per Second")]
         [Serialize("Target", OverrideXmlCategory = "FramesPerSecond", SerializeIf = "CapFPS")]
-        public float TargetFPS;
+        public float TargetFPS { get => _targetFPS; set => _targetFPS = value; }
 
         [Category("Updates Per Second")]
         [Serialize("Capped", OverrideXmlCategory = "UpdatesPerSecond"/*, IsXmlAttribute = true*/)]
-        public bool CapUPS;
+        public bool CapUPS { get => _capUPS; set => _capUPS = value; }
         [Category("Updates Per Second")]
         [Serialize("Target", OverrideXmlCategory = "UpdatesPerSecond", SerializeIf = "CapUPS")]
-        public float TargetUPS;
+        public float TargetUPS { get => _targetUPS; set => _targetUPS = value; }
 
         [Category("Game")]
         [Serialize]
-        public SingleFileRef<World> TransitionWorld;
+        public SingleFileRef<World> TransitionWorld { get => _transitionWorld; set => _transitionWorld = value; }
         [Category("Game")]
         [Serialize]
-        public SingleFileRef<World> OpeningWorld;
+        public SingleFileRef<World> OpeningWorld { get => _openingWorld; set => _openingWorld = value; }
         [Category("Game")]
         [Serialize]
-        public string ContentPath;
+        public string GamePath { get => _gamePath; set => _gamePath = value; }
 
         public EngineSettings()
         {
@@ -73,153 +91,13 @@ namespace CustomEngine
             RenderQuadtree = true;
             RenderSkeletons = false;
             RenderCameraFrustums = false;
-            CapFPS = false;
-            TargetFPS = 60.0f;
+            CapFPS = true;
+            TargetFPS = 30.0f;
             CapUPS = false;
             TargetUPS = 90.0f;
-            ContentPath = Engine.StartupPath + Engine.ContentFolderRel;
-            OpeningWorld = new SingleFileRef<World>(ContentPath + "OpeningWorld.xworld");
-            TransitionWorld = new SingleFileRef<World>(ContentPath + "TransitionWorld.xworld");
+            GamePath = Engine.StartupPath;
+            OpeningWorld = new SingleFileRef<World>("OpeningWorld.xworld");
+            TransitionWorld = new SingleFileRef<World>("TransitionWorld.xworld");
         }
-
-        //public override void Read(XMLReader reader)
-        //{
-        //    if (!reader.Name.Equals("EngineSettings", true))
-        //        throw new Exception();
-
-        //    while (reader.BeginElement())
-        //    {
-        //        if (reader.Name.Equals("contentPath", true))
-        //            ContentPath = reader.ReadElementString();
-        //        else if (reader.Name.Equals("skinOnGPU", true))
-        //            SkinOnGPU = bool.Parse(reader.ReadElementString());
-        //        else if (reader.Name.Equals("useIntegerWeightingIds", true))
-        //            UseIntegerWeightingIds = bool.Parse(reader.ReadElementString());
-        //        else if (reader.Name.Equals("renderSkeletons", true))
-        //            RenderSkeletons = bool.Parse(reader.ReadElementString());
-        //        else if (reader.Name.Equals("renderCameraFrustums", true))
-        //            RenderCameraFrustums = bool.Parse(reader.ReadElementString());
-        //        else if (reader.Name.Equals("shadingStyle", true))
-        //            ShadingStyle = (ShadingStyle)Enum.Parse(typeof(ShadingStyle), reader.ReadElementString());
-        //        else if (reader.Name.Equals("FPS", true))
-        //        {
-        //            //Capped?
-        //            reader.ReadAttribute();
-        //            if (reader.Name.Equals("capped", true) && (CapFPS = bool.Parse((string)reader.Value)))
-        //                TargetFPS = float.Parse(reader.ReadElementString());
-        //        }
-        //        else if (reader.Name.Equals("UPS", true))
-        //        {
-        //            //Capped?
-        //            reader.ReadAttribute();
-        //            if (reader.Name.Equals("capped", true) && (CapUPS = bool.Parse((string)reader.Value)))
-        //                TargetUPS = float.Parse(reader.ReadElementString());
-        //        }
-        //        reader.EndElement();
-        //    }
-        //}
-        //public override void Write(XmlWriter writer)
-        //{
-        //    writer.WriteStartElement("EngineSettings");
-        //    writer.WriteElementString("contentPath", ContentPath.ToString());
-        //    writer.WriteElementString("skinOnGPU", SkinOnGPU.ToString());
-        //    writer.WriteElementString("useIntegerWeightingIds", UseIntegerWeightingIds.ToString());
-        //    writer.WriteElementString("renderSkeletons", RenderSkeletons.ToString());
-        //    writer.WriteElementString("renderCameraFrustums", RenderCameraFrustums.ToString());
-        //    writer.WriteElementString("shadingStyle", ShadingStyle.ToString());
-        //    writer.WriteStartElement("FPS");
-        //    writer.WriteAttributeString("capped", CapFPS.ToString());
-        //    if (CapFPS)
-        //        writer.WriteString(TargetFPS.ToString());
-        //    writer.WriteEndElement();
-        //    writer.WriteStartElement("UPS");
-        //    writer.WriteAttributeString("capped", CapUPS.ToString());
-        //    if (CapUPS)
-        //        writer.WriteString(TargetUPS.ToString());
-        //    writer.WriteEndElement();
-        //    TransitionWorld?.Write(writer, false);
-        //    OpeningWorld?.Write(writer, false);
-        //    writer.WriteEndElement();
-        //}
-
-        //public override void Write(VoidPtr address, StringTable table)
-        //{
-            
-        //}
-
-        //public override void Read(VoidPtr address, VoidPtr strings)
-        //{
-            
-        //}
-
-        //protected override int OnCalculateSize(StringTable table)
-        //{
-        //    if (TransitionWorld.File != null)
-        //        table.Add(TransitionWorld.RefPathAbsolute);
-        //    if (OpeningWorld.File != null)
-        //        table.Add(OpeningWorld.RefPathAbsolute);
-        //    return Header.Size;
-        //}
-
-        //[StructLayout(LayoutKind.Sequential, Pack = 1)]
-        //public unsafe struct Header
-        //{
-        //    public const int Size = 0x18;
-            
-        //    private Bin32 _flags;
-        //    public buint _contentPathString;
-        //    public bfloat _framesPerSecond;
-        //    public bfloat _updatesPerSecond;
-        //    public FileRefHeader _openingWorld;
-        //    public FileRefHeader _transitionWorld;
-
-        //    public ShadingStyle ShadingStyle
-        //    {
-        //        get => (ShadingStyle)(_flags[0] ? 1 : 0);
-        //        set => _flags[0] = value != 0;
-        //    }
-        //    public bool CapFPS
-        //    {
-        //        get => _flags[1];
-        //        set => _flags[1] = value;
-        //    }
-        //    public bool CapUPS
-        //    {
-        //        get => _flags[2];
-        //        set => _flags[2] = value;
-        //    }
-        //    public bool SkinOnGPU
-        //    {
-        //        get => _flags[3];
-        //        set => _flags[3] = value;
-        //    }
-        //    public bool UseIntegerWeightingIds
-        //    {
-        //        get => _flags[4];
-        //        set => _flags[4] = value;
-        //    }
-        //    public bool RenderCameraFrustums
-        //    {
-        //        get => _flags[5];
-        //        set => _flags[5] = value;
-        //    }
-        //    public bool RenderSkeletons
-        //    {
-        //        get => _flags[6];
-        //        set => _flags[6] = value;
-        //    }
-        //    public bool RenderOctree
-        //    {
-        //        get => _flags[7];
-        //        set => _flags[7] = value;
-        //    }
-        //    public bool RenderQuadtree
-        //    {
-        //        get => _flags[8];
-        //        set => _flags[8] = value;
-        //    }
-
-        //    public VoidPtr Address { get { fixed (void* ptr = &this) return ptr; } }
-        //}
     }
 }

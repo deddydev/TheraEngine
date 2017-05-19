@@ -16,19 +16,19 @@ namespace CustomEngine.Rendering.Cameras
         public PerspectiveCamera(float nearZ, float farZ, float fovY)
             : base(nearZ, farZ) { VerticalFieldOfView = fovY; }
 
-        [Serialize("Width", IsXmlAttribute = true)]
+        [Serialize("Width", IsXmlAttribute = true, Order = 0)]
         private float _width;
-        [Serialize("Height", IsXmlAttribute = true)]
+        [Serialize("Height", IsXmlAttribute = true, Order = 1)]
         private float _height;
-        [Serialize("Aspect", SerializeIf = "_overrideAspect == true")]
-        private float _aspect;
-        [Serialize("FovX", IsXmlAttribute = true)]
-        private float _fovX = 90.0f;
-        //[Serialize("FovY", IsXmlAttribute = true)]
-        private float _fovY = 78.0f;
-        [Serialize("OverrideAspect")]
-        private bool _overrideAspect = false;
 
+        private bool _overrideAspect = false;
+        [Serialize("Aspect", Order = 4, SerializeIf = "_overrideAspect == true")]
+        private float _aspect;
+
+        private float _fovX = 90.0f;
+        private float _fovY = 78.0f;
+
+        [Serialize("OverrideAspect", Order = 3)]
         public bool OverrideAspect
         {
             get => _overrideAspect;
@@ -52,6 +52,7 @@ namespace CustomEngine.Rendering.Cameras
                 CalculateProjection();
             }
         }
+        //[Serialize("FovY", IsXmlAttribute = true, Order = 2)]
         public float VerticalFieldOfView
         {
             get => _fovY;
@@ -62,6 +63,7 @@ namespace CustomEngine.Rendering.Cameras
                 CalculateProjection();
             }
         }
+        [Serialize("FovX", IsXmlAttribute = true, Order = 2)]
         public float HorizontalFieldOfView
         {
             get => _fovX;

@@ -4,6 +4,7 @@ using System.IO;
 using System.Xml.Serialization;
 using System.Xml;
 using System.Runtime.InteropServices;
+using System.ComponentModel;
 
 namespace CustomEngine
 {
@@ -31,108 +32,37 @@ namespace CustomEngine
         XInput,
         Raw,
     }
-    [Serializable]
+    [FileClass("USET", "User Settings")]
     public class UserSettings : FileObject
     {
-        public bool VSync = true;
-        public EngineQuality TextureQuality = EngineQuality.Highest;
-        public EngineQuality ModelQuality = EngineQuality.Highest;
-        public EngineQuality SoundQuality = EngineQuality.Highest;
+        private bool _vSync = true;
+        private EngineQuality _textureQuality = EngineQuality.Highest;
+        private EngineQuality _modelQuality = EngineQuality.Highest;
+        private EngineQuality _soundQuality = EngineQuality.Highest;
 
         //Preferred libraries - will use whichever is available if the preferred one is not.
-        public RenderLibrary RenderLibrary = RenderLibrary.OpenGL;
-        public AudioLibrary AudioLibrary = AudioLibrary.OpenAL;
-        public InputLibrary InputLibrary = InputLibrary.OpenTK;
-        
+        private RenderLibrary _renderLibrary = RenderLibrary.OpenGL;
+        private AudioLibrary _audioLibrary = AudioLibrary.OpenAL;
+        private InputLibrary _inputLibrary = InputLibrary.OpenTK;
+
+        [Serialize]
+        public bool VSync { get => _vSync; set => _vSync = value; }
+        [Serialize]
+        public EngineQuality TextureQuality { get => _textureQuality; set => _textureQuality = value; }
+        [Serialize]
+        public EngineQuality ModelQuality { get => _modelQuality; set => _modelQuality = value; }
+        [Serialize]
+        public EngineQuality SoundQuality { get => _soundQuality; set => _soundQuality = value; }
+        [Serialize]
+        public RenderLibrary RenderLibrary { get => _renderLibrary; set => _renderLibrary = value; }
+        [Serialize]
+        public AudioLibrary AudioLibrary { get => _audioLibrary; set => _audioLibrary = value; }
+        [Serialize]
+        public InputLibrary InputLibrary { get => _inputLibrary; set => _inputLibrary = value; }
+
         public static UserSettings FromXML(string filePath)
         {
             return FromXML<UserSettings>(filePath);
-        }
-
-        public override void Write(VoidPtr address, StringTable table)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void Read(VoidPtr address, VoidPtr strings)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void Write(XmlWriter writer)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void Read(XMLReader reader)
-        {
-            throw new NotImplementedException();
-        }
-
-        protected override int OnCalculateSize(StringTable table)
-        {
-            throw new NotImplementedException();
-        }
-
-        [StructLayout(LayoutKind.Sequential, Pack = 1)]
-        public unsafe struct Header
-        {
-            public const int Size = 0x18;
-
-            private Bin32 _flags;
-            public buint _contentPathString;
-            public bfloat _framesPerSecond;
-            public bfloat _updatesPerSecond;
-            public FileRefHeader _openingWorld;
-            public FileRefHeader _transitionWorld;
-
-            public ShadingStyle ShadingStyle
-            {
-                get => (ShadingStyle)(_flags[0] ? 1 : 0);
-                set => _flags[0] = value != 0;
-            }
-            public bool CapFPS
-            {
-                get => _flags[1];
-                set => _flags[1] = value;
-            }
-            public bool CapUPS
-            {
-                get => _flags[2];
-                set => _flags[2] = value;
-            }
-            public bool SkinOnGPU
-            {
-                get => _flags[3];
-                set => _flags[3] = value;
-            }
-            public bool UseIntegerWeightingIds
-            {
-                get => _flags[4];
-                set => _flags[4] = value;
-            }
-            public bool RenderCameraFrustums
-            {
-                get => _flags[5];
-                set => _flags[5] = value;
-            }
-            public bool RenderSkeletons
-            {
-                get => _flags[6];
-                set => _flags[6] = value;
-            }
-            public bool RenderOctree
-            {
-                get => _flags[7];
-                set => _flags[7] = value;
-            }
-            public bool RenderQuadtree
-            {
-                get => _flags[8];
-                set => _flags[8] = value;
-            }
-
-            public VoidPtr Address { get { fixed (void* ptr = &this) return ptr; } }
         }
     }
 }

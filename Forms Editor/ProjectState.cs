@@ -1,8 +1,14 @@
-﻿using CustomEngine.Worlds;
+﻿using CustomEngine.Files;
+using CustomEngine.Worlds;
+using System.ComponentModel;
 
 namespace TheraEditor
 {
-    public class ProjectState
+    /// <summary>
+    /// Stores all information on the state of the project within the editor.
+    /// </summary>
+    [FileClass("SPROJ", "Project State")]
+    public class ProjectState : FileObject
     {
         private World _currentWorld;
         private Map _currentMap;

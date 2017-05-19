@@ -5,10 +5,10 @@ namespace System
 {
     public static class Endian
     {
-        public enum EOrder
+        public enum EOrder : ushort
         {
-            Big,
-            Little,
+            Big = 0x0001,
+            Little = 0x0100,
         }
         public static EOrder Order = EOrder.Big;
         public static bool Big => Order == EOrder.Big;
@@ -212,11 +212,10 @@ namespace System
                 _dat0 = (byte)((value >> 16) & 0xFF);
             }
         }
-
-        public static implicit operator int(BUInt24 val) { return (int)val.Value; }
-        public static implicit operator BUInt24(int val) { return new BUInt24((uint)val); }
-        public static implicit operator uint(BUInt24 val) { return (uint)val.Value; }
+        
+        public static implicit operator uint(BUInt24 val) { return val.Value; }
         public static implicit operator BUInt24(uint val) { return new BUInt24(val); }
+        public static implicit operator int(BUInt24 val) { return (int)val.Value; }
 
         public BUInt24(uint value)
         {
@@ -226,6 +225,41 @@ namespace System
         }
 
         public BUInt24(byte v0, byte v1, byte v2)
+        {
+            _dat2 = v2;
+            _dat1 = v1;
+            _dat0 = v0;
+        }
+
+        public VoidPtr Address { get { fixed (void* ptr = &this) return ptr; } }
+    }
+    [StructLayout(LayoutKind.Sequential, Pack = 1)]
+    public unsafe struct BInt24
+    {
+        public byte _dat0, _dat1, _dat2;
+
+        public int Value
+        {
+            get { return (_dat0 << 16) | (_dat1 << 8) | _dat2; }
+            set
+            {
+                _dat2 = (byte)((value) & 0xFF);
+                _dat1 = (byte)((value >> 8) & 0xFF);
+                _dat0 = (byte)((value >> 16) & 0xFF);
+            }
+        }
+
+        public static implicit operator int(BInt24 val) { return val.Value; }
+        public static implicit operator BInt24(int val) { return new BInt24(val); }
+        
+        public BInt24(int value)
+        {
+            _dat2 = (byte)((value) & 0xFF);
+            _dat1 = (byte)((value >> 8) & 0xFF);
+            _dat0 = (byte)((value >> 16) & 0xFF);
+        }
+
+        public BInt24(byte v0, byte v1, byte v2)
         {
             _dat2 = v2;
             _dat1 = v1;

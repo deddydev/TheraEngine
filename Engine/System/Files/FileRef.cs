@@ -22,27 +22,11 @@ namespace CustomEngine.Files
     /// <summary>
     /// Allows only one loaded instance of this file
     /// </summary>
-    /// <typeparam name="T"></typeparam>
+    [FileClass("SREF", "Single File Reference")]
     public class SingleFileRef<T> : FileRef<T>, ISingleFileRef where T : FileObject
     {
-        [Serialize("File")]
         T _file;
-
-        [CustomXMLSerializeMethod("File")]
-        private bool CustomSerializeFile(XmlWriter writer)
-        {
-            writer.WriteStartElement("File");
-            if (!string.IsNullOrEmpty(_refPath))
-                writer.WriteAttributeString("Path", _refPath);
-            else
-            {
-                writer.WriteEndElement();
-                return false;
-            }
-            writer.WriteEndElement();
-            return true;
-        }
-
+        
         public SingleFileRef() : base(typeof(T)) { }
         public SingleFileRef(Type type) : base(type) { }
         public SingleFileRef(string filePath) : base(filePath) { }
@@ -51,6 +35,12 @@ namespace CustomEngine.Files
         {
             if (file != null)
                 file.FilePath = filePath;
+            File = file;
+        }
+        public SingleFileRef(T file, string dir, string name, FileFormat format) : base(GetFilePath(dir, name, format, typeof(T)))
+        {
+            if (file != null)
+                file.FilePath = RefPathAbsolute;
             File = file;
         }
         public SingleFileRef(T file) : base(file.FilePath)
@@ -71,10 +61,17 @@ namespace CustomEngine.Files
                 _file = value;
                 if (_file != null)
                 {
+                    if (!string.IsNullOrEmpty(_file.FilePath))
+                        RefPathAbsolute = _file.FilePath;
+
                     Engine.AddLoadedFile(_refPath, _file);
                     _file.References.Add(this);
                 }
             }
+        }
+        public void ExportReference()
+        {
+            _file.Export();
         }
         public void ExportReference(string dir, string name, FileFormat format, bool setPath = true)
         {
@@ -107,8 +104,11 @@ namespace CustomEngine.Files
                     GetFile();
             }
 
-            _file.FilePath = RefPathAbsolute;
-            _file.References.Add(this);
+            if (_file != null)
+            {
+                _file.FilePath = RefPathAbsolute;
+                _file.References.Add(this);
+            }
 
             return _file;
         }
@@ -118,7 +118,7 @@ namespace CustomEngine.Files
             bool fileExists = System.IO.File.Exists(absolutePath);
             if (!fileExists)
             {
-                File = Activator.CreateInstance(_subType) as T;
+                //File = Activator.CreateInstance(_subType) as T;
                 Engine.DebugMessage(string.Format("Could not load file at \"{0}\".", absolutePath));
             }
             else
@@ -143,10 +143,11 @@ namespace CustomEngine.Files
         private void FileUnloaded() { _file = null; }
 
         public static implicit operator T(SingleFileRef<T> fileRef) { return fileRef?.GetInstance(); }
-        public static implicit operator SingleFileRef<T>(T file) { return new SingleFileRef<T>(file); }
+        public static implicit operator SingleFileRef<T>(T file) { return file == null ? null : new SingleFileRef<T>(file); }
         public static implicit operator SingleFileRef<T>(Type type) { return new SingleFileRef<T>(type); }
         public static implicit operator SingleFileRef<T>(string relativePath) { return new SingleFileRef<T>(relativePath); }
     }
+    [FileClass("MREF", "Multi File Reference")]
     public class MultiFileRef<T> : FileRef<T>, IMultiFileRef where T : FileObject
     {
         public MultiFileRef(Type type) : base(type) { }
@@ -222,19 +223,35 @@ namespace CustomEngine.Files
         protected string _refPath = null;
         private string _absolutePath = null;
         protected Type _subType = null;
+        private bool _storeInternally = false;
 
+        protected bool StoreInternally
+        {
+            get => _storeInternally;
+            set => _storeInternally = value;
+        }
         public string RefPathAbsolute
         {
-            get { return _absolutePath; }
+            get
+            {
+                if (string.IsNullOrEmpty(_absolutePath) && Engine.Settings != null && !string.IsNullOrEmpty(Engine.Settings.GamePath) && !string.IsNullOrEmpty(_refPath))
+                    _absolutePath = Engine.Settings.GamePath + _refPath;
+                return _absolutePath;
+            }
             set
             {
                 _refPath = value;
-                if (_refPath != null && _refPath.StartsWith("\\"))
-                    _absolutePath = Engine.StartupPath + _refPath;
-                else
-                    _absolutePath = _refPath;
+                _absolutePath = _refPath;
+                if (_refPath != null)
+                {
+                    if (_refPath.StartsWith("\\"))
+                        _refPath.Substring(1);
+                    if (!_refPath.Contains("\\"))
+                        _absolutePath = Engine.StartupPath + _refPath;
+                }
             }
         }
+
         public string Extension()
         {
             if (_refPath == null)
@@ -252,41 +269,5 @@ namespace CustomEngine.Files
         //    return FileManager.IsSpecial(ext);
         //}
         public abstract T GetInstance();
-    }
-    [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    public unsafe struct FileRefHeader
-    {
-        public const int Size = 4;
-
-        Bin32 _data;
-
-        public bool IsInternal
-        {
-            get => _data[31];
-            set => _data[31] = value;
-        }
-        public bool AllowMultiLoad
-        {
-            get => _data[30];
-            set => _data[30] = value;
-        }
-        private uint Value
-        {
-            get => _data[0, 30];
-            set => _data[0, 30] = value;
-        }
-
-        /// <summary>
-        /// String address if external, actual data address if internal
-        /// </summary>
-        public VoidPtr DataAddress
-        {
-            get => Address + Value;
-            set => Value = (uint)(value - Address);
-        }
-
-        public string FilePath => DataAddress.GetString();
-
-        public VoidPtr Address { get { fixed (void* ptr = &this) return ptr; } }
     }
 }

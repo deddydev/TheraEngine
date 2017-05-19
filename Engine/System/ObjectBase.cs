@@ -26,8 +26,11 @@ namespace System
     }
     public class ObjectBase
     {
+        [Browsable(false)]
         public event PropertyChangedEventHandler PropertyChanged;
+        [Browsable(false)]
         public event RenamedEventHandler Renamed;
+        [Browsable(false)]
         public event ResourceEventHandler Disposing, UpdateProperties, UpdateEditor;
 
         [Serialize("Name", IgnoreIfNull = false, IsXmlAttribute = true)]
@@ -45,6 +48,7 @@ namespace System
         [Serialize("Animations")]
         private List<AnimationContainer> _animations;
 
+        [Browsable(false)]
         public object UserData
         {
             get => _userData;
@@ -64,13 +68,15 @@ namespace System
                 OnRenamed(oldName);
             }
         }
-        
+
+        [Browsable(false)]
         //[Category("Tick"), PreChanged("UnregisterTick"), PostChanged("RegisterTick")]
         public ETickGroup? TickGroup
         {
             get { return _tickGroup; }
             set { _tickGroup = value; }
         }
+        [Browsable(false)]
         //[Category("Tick"), PreChanged("UnregisterTick"), PostChanged("RegisterTick")]
         public ETickOrder? TickOrder
         {

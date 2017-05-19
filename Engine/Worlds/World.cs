@@ -24,7 +24,8 @@ namespace CustomEngine.Worlds
         
         public World()
         {
-
+            if (_settings == null)
+                _settings = new WorldSettings();
         }
         public World(WorldSettings settings)
         {
@@ -134,7 +135,7 @@ namespace CustomEngine.Worlds
         }
         public void StepSimulation(float delta)
         {
-            _physicsScene.StepSimulation(delta);
+            _physicsScene?.StepSimulation(delta);
 
             //for (int i = 0; i < _physicsScene.Dispatcher.NumManifolds; ++i)
             //{
@@ -148,7 +149,7 @@ namespace CustomEngine.Worlds
         }
         public virtual void EndPlay()
         {
-            _settings.GameMode.EndGameplay();
+            _settings.GameMode?.EndGameplay();
             foreach (Map m in _settings.Maps)
                 m.EndPlay();
             _physicsScene = null;
@@ -159,7 +160,7 @@ namespace CustomEngine.Worlds
             _settings.AmbientSound?.Play(_settings.AmbientParams);
             foreach (Map m in _settings.Maps)
                 m.BeginPlay();
-            _settings.GameMode.BeginGameplay();
+            _settings.GameMode?.BeginGameplay();
             //foreach (PhysicsDriver d in Engine._queuedCollisions)
             //    d.AddToWorld();
             //Engine._queuedCollisions.Clear();

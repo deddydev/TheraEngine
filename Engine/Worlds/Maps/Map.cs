@@ -13,9 +13,15 @@ namespace CustomEngine.Worlds
             _settings = settings;
             _owningWorld = owner;
         }
+
         private World _owningWorld;
         private MapSettings _settings;
-        public MapSettings Settings { get { return _settings; } set { _settings = value; } }
+
+        public MapSettings Settings
+        {
+            get { return _settings; }
+            set { _settings = value; }
+        }
 
         public virtual void EndPlay()
         {
@@ -26,31 +32,6 @@ namespace CustomEngine.Worlds
         {
             foreach (IActor actor in Settings._defaultActors)
                 _owningWorld.SpawnActor(actor, Matrix4.Identity);
-        }
-
-        public override void Write(VoidPtr address, StringTable table)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void Read(VoidPtr address, VoidPtr strings)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void Write(XmlWriter writer)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void Read(XMLReader reader)
-        {
-            throw new NotImplementedException();
-        }
-
-        protected override int OnCalculateSize(StringTable table)
-        {
-            throw new NotImplementedException();
         }
     }
 }

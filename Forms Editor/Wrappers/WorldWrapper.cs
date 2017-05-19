@@ -3,9 +3,12 @@ using System.Windows.Forms;
 using System.IO;
 using System.ComponentModel;
 using CustomEngine;
+using CustomEngine.Worlds;
+using TheraEditor.Properties;
 
 namespace TheraEditor.Wrappers
 {
+    [NodeWrapper(typeof(World), SystemImages.GenericFile)]
     public class WorldWrapper : GenericWrapper
     {
         static WorldWrapper()

@@ -70,9 +70,10 @@ namespace TheraEditor
             Project p = new Project()
             {
                 Name = name,
-                EngineSettings = new SingleFileRef<EngineSettings>(new EngineSettings(), directory, name, FileFormat.XML),
+                FilePath = GetFilePath(directory, name, FileFormat.XML, typeof(Project)),
+                State = new SingleFileRef<ProjectState>(new ProjectState(), directory, name, FileFormat.XML),
                 UserSettings = new SingleFileRef<UserSettings>(new UserSettings(), directory, name, FileFormat.XML),
-                State = new SingleFileRef<ProjectState>(new ProjectState(), directory, name, FileFormat.XML)
+                EngineSettings = new SingleFileRef<EngineSettings>(new EngineSettings(), directory, name, FileFormat.XML),
             };
             return p;
         }

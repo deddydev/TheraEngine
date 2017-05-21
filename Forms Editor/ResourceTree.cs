@@ -64,16 +64,22 @@ namespace TheraEditor
             {
                 var currentNode = stack.Pop();
                 var directoryInfo = (DirectoryInfo)currentNode.Tag;
-                foreach (var directory in directoryInfo.GetDirectories())
+                foreach (var dirInfo in directoryInfo.GetDirectories())
                 {
-                    var childDirectoryNode = new TreeNode(directory.Name) { Tag = directory };
+                    var childDirectoryNode = new TreeNode(dirInfo.Name) { Tag = dirInfo };
+                    _nodes[dirInfo.FullName] = childDirectoryNode;
                     currentNode.Nodes.Add(childDirectoryNode);
                     stack.Push(childDirectoryNode);
                 }
-                foreach (var file in directoryInfo.GetFiles())
-                    currentNode.Nodes.Add(new TreeNode(file.Name));
+                foreach (var fileInfo in directoryInfo.GetFiles())
+                {
+                    var treeNode = new TreeNode(fileInfo.Name) { Tag = fileInfo };
+                    _nodes[fileInfo.FullName] = treeNode;
+                    currentNode.Nodes.Add(treeNode);
+                }
             }
 
+            _nodes[path] = node;
             Nodes.Add(node);
 
             if (!string.IsNullOrEmpty(path) && Directory.Exists(path))
@@ -142,14 +148,25 @@ namespace TheraEditor
         }
         private void _contentWatcher_Renamed(object sender, RenamedEventArgs e)
         {
-
+            if (!_nodes.ContainsKey(e.OldFullPath))
+                return;
+            TreeNode node = _nodes[e.OldFullPath];
+            node.Name = e.Name;
+            _nodes.Remove(e.OldFullPath);
+            _nodes.Add(e.FullPath, node);
         }
         private void _contentWatcher_Deleted(object sender, FileSystemEventArgs e)
         {
-
+            if (!_nodes.ContainsKey(e.FullPath))
+                return;
+            _nodes[e.FullPath].Remove();
+            _nodes.Remove(e.FullPath);
         }
         private void _contentWatcher_Created(object sender, FileSystemEventArgs e)
         {
+            TreeNode node = new TreeNode();
+            _nodes.Add(e.FullPath, node);
+
             string dir, name;
             FileAttributes attr = File.GetAttributes(e.FullPath);
             if (attr.HasFlag(FileAttributes.Directory))
@@ -207,9 +224,11 @@ namespace TheraEditor
             DirectoryInfo[] subSubDirs;
             foreach (DirectoryInfo subDir in subDirs)
             {
-                aNode = new TreeNode(subDir.Name, 0, 0);
-                aNode.Tag = subDir;
-                aNode.ImageKey = "folder";
+                aNode = new TreeNode(subDir.Name, 0, 0)
+                {
+                    Tag = subDir,
+                    ImageKey = "folder"
+                };
                 subSubDirs = subDir.GetDirectories();
                 if (subSubDirs.Length != 0)
                 {

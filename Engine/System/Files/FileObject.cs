@@ -35,7 +35,7 @@ namespace CustomEngine.Files
         public string FilePath
         {
             get => _filePath;
-            internal set => _filePath = value;
+            set => _filePath = value;
         }
         [Browsable(false)]
         public int CalculatedSize => _calculatedSize;
@@ -145,7 +145,7 @@ namespace CustomEngine.Files
             if (!Directory.Exists(directory))
                 Directory.CreateDirectory(directory);
             fileName = String.IsNullOrEmpty(fileName) ? "NewFile" : fileName;
-            _filePath = directory + "\\" + fileName + ".b" + FileHeader.Extension.ToLower();
+            _filePath = directory + "\\" + fileName + "." + FileHeader.GetProperExtension(FileFormat.Binary);
 
             if (FileHeader.ManualBinSerialize)
             {
@@ -177,7 +177,7 @@ namespace CustomEngine.Files
         }
         public static FileFormat GetFormat(string path)
         {
-            string ext = Path.GetExtension(path);
+            string ext = Path.GetExtension(path).ToLower();
             switch (ext[1])
             {
                 default:
@@ -195,7 +195,7 @@ namespace CustomEngine.Files
         }
         public static string GetFilePath(string dir, string name, FileFormat format, Type fileType)
         {
-            return dir + "\\" + name + "." + format.ToString().ToLower()[0] + GetFileHeader(fileType).Extension.ToLower();
+            return dir + "\\" + name + "." + GetFileHeader(fileType).GetProperExtension(format);
         }
 
         public static T FromXML<T>(string filePath) where T : FileObject
@@ -246,7 +246,7 @@ namespace CustomEngine.Files
             fileName = String.IsNullOrEmpty(fileName) ? "NewFile" : fileName;
             if (!directory.EndsWith("\\"))
                 directory += "\\";
-            _filePath = directory + fileName + ".x" + FileHeader.Extension.ToLower();
+            _filePath = directory + fileName + "." + FileHeader.GetProperExtension(FileFormat.XML);
 
             if (FileHeader.ManualXmlSerialize)
             {

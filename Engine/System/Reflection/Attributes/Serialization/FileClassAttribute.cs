@@ -23,7 +23,7 @@ namespace System.ComponentModel
 #endif
             )
         {
-            _extension = extension;
+            _extension = extension.ToLower();
             _manualBinSerialize = manualBinSerialize;
             _manualXmlSerialize = manualXmlSerialize;
             _userFriendlyName = userFriendlyName;
@@ -68,12 +68,15 @@ namespace System.ComponentModel
             get => _extension;
             set => _extension = value;
         }
-
+        public string GetProperExtension(FileFormat format)
+        {
+            return format.ToString().ToLower()[0] + _extension;
+        }
         public string GetFilter()
         {
             string allTypes = "";
             string eachType = "";
-            string ext = Extension.ToLower();
+            string ext = _extension;
             bool first = true;
             foreach (string type in Enum.GetNames(typeof(FileFormat)))
             {

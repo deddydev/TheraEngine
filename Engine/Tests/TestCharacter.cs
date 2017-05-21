@@ -15,9 +15,9 @@ namespace CustomEngine.Tests
             options.InitialTransform.Scale = new Vec3(1.0f.InchesToMeters());
             string desktop = Environment.MachineName == "DAVID-DESKTOP" ? "X:\\Desktop\\" : "C:\\Users\\David\\Desktop\\";
             //Collada.Scene scene = Collada.Import(desktop + "TEST.DAE", options, false, true);
-            Mesh = new SingleFileRef<SkeletalMesh>(Engine.ContentFolderAbs + MeshName + "." + GetFileHeader(typeof(SkeletalMesh)).Extension);
+            Mesh = new SingleFileRef<SkeletalMesh>(Engine.ContentFolderAbs + MeshName + "." + GetFileHeader(typeof(SkeletalMesh)).GetProperExtension(FileFormat.XML));
             //Mesh = TestWorld.ColladaScene._skeletalModel;
-            Skeleton = new SingleFileRef<Skeleton>(Engine.ContentFolderAbs + SkelName + "." + GetFileHeader(typeof(Skeleton)).Extension);
+            Skeleton = new SingleFileRef<Skeleton>(Engine.ContentFolderAbs + SkelName + "." + GetFileHeader(typeof(Skeleton)).GetProperExtension(FileFormat.XML));
             //Skeleton = TestWorld.ColladaScene._skeleton;
             base.PreConstruct();
         }

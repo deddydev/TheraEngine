@@ -40,6 +40,7 @@
             this.btnProjectSettings = new System.Windows.Forms.ToolStripMenuItem();
             this.btnEngineSettings = new System.Windows.Forms.ToolStripMenuItem();
             this.btnUserSettings = new System.Windows.Forms.ToolStripMenuItem();
+            this.btnWorldSettings = new System.Windows.Forms.ToolStripMenuItem();
             this.viewToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.leftPanel = new System.Windows.Forms.Panel();
             this.contentTree = new TheraEditor.ResourceTree();
@@ -64,7 +65,7 @@
             this.btnNewSceneComponent = new System.Windows.Forms.ToolStripMenuItem();
             this.btnNewLogicComponent = new System.Windows.Forms.ToolStripMenuItem();
             this.btnNewMaterial = new System.Windows.Forms.ToolStripMenuItem();
-            this.btnWorldSettings = new System.Windows.Forms.ToolStripMenuItem();
+            this.cboContentViewTypes = new System.Windows.Forms.ComboBox();
             this.menuStrip1.SuspendLayout();
             this.leftPanel.SuspendLayout();
             this.rightPanel.SuspendLayout();
@@ -168,6 +169,13 @@
             this.btnUserSettings.Text = "User Settings";
             this.btnUserSettings.Click += new System.EventHandler(this.btnUserSettings_Click);
             // 
+            // btnWorldSettings
+            // 
+            this.btnWorldSettings.Name = "btnWorldSettings";
+            this.btnWorldSettings.Size = new System.Drawing.Size(219, 30);
+            this.btnWorldSettings.Text = "World Settings";
+            this.btnWorldSettings.Click += new System.EventHandler(this.btnWorldSettings_Click);
+            // 
             // viewToolStripMenuItem
             // 
             this.viewToolStripMenuItem.Name = "viewToolStripMenuItem";
@@ -177,6 +185,7 @@
             // leftPanel
             // 
             this.leftPanel.Controls.Add(this.contentTree);
+            this.leftPanel.Controls.Add(this.cboContentViewTypes);
             this.leftPanel.Dock = System.Windows.Forms.DockStyle.Left;
             this.leftPanel.Location = new System.Drawing.Point(0, 33);
             this.leftPanel.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
@@ -188,10 +197,10 @@
             // 
             this.contentTree.AllowDrop = true;
             this.contentTree.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.contentTree.Location = new System.Drawing.Point(0, 0);
+            this.contentTree.Location = new System.Drawing.Point(0, 28);
             this.contentTree.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.contentTree.Name = "contentTree";
-            this.contentTree.Size = new System.Drawing.Size(306, 952);
+            this.contentTree.Size = new System.Drawing.Size(306, 924);
             this.contentTree.TabIndex = 3;
             // 
             // splitter1
@@ -375,12 +384,16 @@
             this.btnNewMaterial.Size = new System.Drawing.Size(242, 30);
             this.btnNewMaterial.Text = "Material";
             // 
-            // btnWorldSettings
+            // cboContentViewTypes
             // 
-            this.btnWorldSettings.Name = "btnWorldSettings";
-            this.btnWorldSettings.Size = new System.Drawing.Size(219, 30);
-            this.btnWorldSettings.Text = "World Settings";
-            this.btnWorldSettings.Click += new System.EventHandler(this.btnWorldSettings_Click);
+            this.cboContentViewTypes.Dock = System.Windows.Forms.DockStyle.Top;
+            this.cboContentViewTypes.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cboContentViewTypes.FormattingEnabled = true;
+            this.cboContentViewTypes.IntegralHeight = false;
+            this.cboContentViewTypes.Location = new System.Drawing.Point(0, 0);
+            this.cboContentViewTypes.Name = "cboContentViewTypes";
+            this.cboContentViewTypes.Size = new System.Drawing.Size(306, 28);
+            this.cboContentViewTypes.TabIndex = 0;
             // 
             // Editor
             // 
@@ -448,6 +461,7 @@
         private System.Windows.Forms.ToolStripMenuItem btnSaveProjectAs;
         private System.Windows.Forms.ToolStripMenuItem btnUserSettings;
         private System.Windows.Forms.ToolStripMenuItem btnWorldSettings;
+        private System.Windows.Forms.ComboBox cboContentViewTypes;
         //private CustomEngine.RenderPanel renderPanel1;
         //private ResourceTree resourceTree1;
     }

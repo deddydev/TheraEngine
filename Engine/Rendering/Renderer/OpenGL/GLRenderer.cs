@@ -39,6 +39,19 @@ namespace CustomEngine.Rendering.OpenGL
         public override void SetPointSize(float size) => GL.PointSize(size);
         public override void SetLineSize(float size) => GL.LineWidth(size);
 
+        public override void RenderPoint(string name, Vec3 position, ColorF4 color, float pointSize = DefaultPointSize)
+        {
+            SetPointSize(pointSize);
+            GL.Color4(color.Data);
+            GL.Begin(PrimitiveType.Points);
+            GL.Vertex3(position.Data);
+            GL.End();
+        }
+        public override void RenderLineLoop(bool closedLoop, params Vec3[] points)
+        {
+            
+        }
+
         #region Objects
         public override void DeleteObject(GenType type, int bindingId)
         {

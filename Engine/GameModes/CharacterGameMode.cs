@@ -2,10 +2,16 @@
 using CustomEngine.GameModes;
 using CustomEngine.Worlds.Actors;
 using CustomEngine.Input;
+using CustomEngine.Worlds.Actors.Types;
+using CustomEngine.Worlds;
 
-namespace CustomEngine.Tests
+namespace CustomEngine.GameModes
 {
-    public class CharacterGameMode<T> : GameMode<T> where T : class, ICharacterPawn, new()
+    public interface ICharacterGameMode
+    {
+
+    }
+    public class CharacterGameMode<T> : GameMode<T>, ICharacterGameMode where T : class, ICharacterPawn, new()
     {
         public CharacterGameMode()
         {
@@ -23,12 +29,19 @@ namespace CustomEngine.Tests
             {
                 T pawn = _pawnClass.CreateNew();
                 c.ControlledPawn = pawn;
-                Engine.World.SpawnActor(pawn, FindSpawnPoint());
+                c.AwaitRespawn();
             }
         }
-        public virtual Matrix4 FindSpawnPoint()
+        public virtual bool FindSpawnPoint(PawnController c, out Matrix4 transform)
         {
-            return Matrix4.Identity;
+            foreach (IActor a in Engine.World.State.SpawnedActors)
+                if (a is CharacterSpawnPointActor p && p.CanSpawnPlayer(c))
+                {
+                    transform = p.RootComponent.WorldMatrix;
+                    return true;
+                }
+            transform = Matrix4.Identity;
+            return false;
         }
         public override void EndGameplay()
         {

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Game.Worlds.Actors.Items
+namespace Thera.Worlds.Actors.Items
 {
     public class EquippableItem : InventoryItem
     {

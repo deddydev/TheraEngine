@@ -1,6 +1,5 @@
 ﻿using CustomEngine;
-using CustomEngine.Input.Devices;
-using CustomEngine.Worlds;
+using CustomEngine.Tests;
 using System;
 using System.Windows.Forms;
 
@@ -20,7 +19,7 @@ namespace Game
             {
                 OpeningWorld = typeof(TestWorld)
             };
-            Engine._engineSettings.SetFile(settings, false);
+            Engine.Settings = settings;
             Application.Run(new RenderForm("Thera", null));
         }
     }

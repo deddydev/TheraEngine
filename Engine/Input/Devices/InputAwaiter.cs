@@ -13,11 +13,11 @@ namespace CustomEngine.Input.Devices
         public InputAwaiter(Action<InputDevice> uponFound)
         {
             FoundInput += uponFound;
-            RegisterTick(ETickGroup.PrePhysics, ETickOrder.Input);
+            RegisterTick(ETickGroup.PrePhysics, ETickOrder.Input, Tick);
         }
         ~InputAwaiter() { Dispose(); }
 
-        public void Dispose() { UnregisterTick(); }
+        public void Dispose() { UnregisterTick(ETickGroup.PrePhysics, ETickOrder.Input, Tick); }
         
         public abstract CGamePad CreateGamepad(int index);
         public abstract CKeyboard CreateKeyboard(int index);
@@ -41,5 +41,7 @@ namespace CustomEngine.Input.Devices
             InputDevice.CurrentDevices[InputDeviceType.Mouse][index] = device;
             FoundInput?.Invoke(device);
         }
+
+        protected abstract void Tick(float delta);
     }
 }

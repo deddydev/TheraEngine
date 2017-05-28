@@ -1,12 +1,14 @@
 ﻿using CustomEngine;
+using CustomEngine.Worlds.Actors;
 using CustomEngine.Worlds.Actors.Components;
+using Thera.Worlds.Actors;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Game.Worlds.Actors.Components.Scene
+namespace Thera.Worlds.Actors.Components.Scene
 {
     public enum RequestedHand
     {
@@ -34,9 +36,9 @@ namespace Game.Worlds.Actors.Components.Scene
         }
 #endif
 
-        protected List<GameCharacter> _overlapping;
-        protected List<GameCharacter> _viewers;
-        protected List<GameCharacter> _pendingInteraction;
+        protected List<TheraCharacter> _overlapping;
+        protected List<TheraCharacter> _viewers;
+        protected List<TheraCharacter> _pendingInteraction;
 
         protected bool _lookAtInteraction;
         protected bool _viewMustBeInProximity;
@@ -50,19 +52,19 @@ namespace Game.Worlds.Actors.Components.Scene
 
         public bool PendingAnyInteraction { get { return _pendingInteraction.Count > 0; } }
 
-        public void OnViewed(GameCharacter instigator, HitInfo hit)
+        public void OnViewed(TheraCharacter instigator, HitInfo hit)
         {
 
         }
-        public void OnLeft(GameCharacter instigator)
+        public void OnLeft(TheraCharacter instigator)
         {
 
         }
-        public void ButtonDown(GameCharacter instigator)
+        public void ButtonDown(TheraCharacter instigator)
         {
 
         }
-        public void ButtonUp(GameCharacter instigator)
+        public void ButtonUp(TheraCharacter instigator)
         {
             
         }

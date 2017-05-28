@@ -69,9 +69,9 @@ namespace CustomEngine
             for (int i = 0; i < 2; ++i)
             {
                 ETickGroup order = (ETickGroup)i;
-                _tick.Add(order, new Dictionary<ETickOrder, List<ObjectBase>>());
+                _tick.Add(order, new Dictionary<ETickOrder, ThreadSafeList<DelTick>>());
                 for (int j = 0; j < 5; ++j)
-                    _tick[order].Add((ETickOrder)j, new List<ObjectBase>());
+                    _tick[order].Add((ETickOrder)j, new ThreadSafeList<DelTick>());
             }
             ActivePlayers.Added += ActivePlayers_Added;
             ActivePlayers.Removed += ActivePlayers_Removed;
@@ -195,26 +195,18 @@ namespace CustomEngine
         //        }
         //    }
         //}
-        public static void RegisterTick(ObjectBase obj, ETickGroup group, ETickOrder order)
+        internal static void RegisterTick(ETickGroup group, ETickOrder order, DelTick function)
         {
-            if (obj != null)
-            {
-                obj.TickGroup = group;
-                obj.TickOrder = order;
-                if (!_tick[group][order].Contains(obj))
-                    _tick[group][order].Add(obj);
-            }
+            if (function != null)
+                _tick[group][order].Add(function);
         }
-        public static void UnregisterTick(ObjectBase obj)
+        internal static void UnregisterTick(ETickGroup group, ETickOrder order, DelTick function)
         {
-            if (obj != null && obj.TickOrder != null && obj.TickGroup != null)
+            if (function != null)
             {
-                ETickOrder order = obj.TickOrder.Value;
-                ETickGroup group = obj.TickGroup.Value;
-                if (_tick[group][order].Contains(obj))
-                    _tick[group][order].Remove(obj);
-                obj.TickOrder = null;
-                obj.TickGroup = null;
+                var list = _tick[group][order];
+                if (list.Contains(function))
+                    list.Remove(function);
             }
         }
         private static /*async*/ void Tick(object sender, FrameEventArgs e)

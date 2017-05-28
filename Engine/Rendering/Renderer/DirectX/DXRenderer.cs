@@ -388,5 +388,10 @@ namespace CustomEngine.Rendering.DirectX
         {
             throw new NotImplementedException();
         }
+
+        public override void RenderLineLoop(bool closedLoop, params Vec3[] points)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

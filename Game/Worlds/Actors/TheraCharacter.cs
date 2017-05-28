@@ -6,10 +6,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using CustomEngine.Worlds;
+using Thera.GameModes;
 
-namespace Game.Worlds.Actors
+namespace Thera.Worlds.Actors
 {
-    public class GameCharacter : CharacterPawn
+    public class TheraCharacter : CharacterPawn
     {
         StaticPlayerTraits _staticPlayerTraits;
         InheritablePlayerTraits _inheritablePlayerTraits;

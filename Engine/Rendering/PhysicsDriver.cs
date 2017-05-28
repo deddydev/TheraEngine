@@ -184,7 +184,7 @@ namespace CustomEngine.Rendering
                         _collision.AngularFactor = new Vector3(0.0f);
                         _collision.ForceActivationState(ActivationState.DisableSimulation);
                         if (_isSpawned)
-                            UnregisterTick();
+                            UnregisterTick(ETickGroup.PostPhysics, ETickOrder.Scene, Tick);
                     }
                     else
                     {
@@ -193,7 +193,7 @@ namespace CustomEngine.Rendering
                         SetPhysicsTransform(_owner.WorldMatrix);
                         _collision.ForceActivationState(ActivationState.ActiveTag);
                         if (_isSpawned)
-                            RegisterTick(ETickGroup.PostPhysics, ETickOrder.Scene);
+                            RegisterTick(ETickGroup.PostPhysics, ETickOrder.Scene, Tick);
                     }
                 }
                 SimulationStateChanged?.Invoke(_simulatingPhysics);

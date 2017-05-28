@@ -66,8 +66,8 @@ namespace CustomEngine
         public static Viewport.ThreePlayerViewportPreference ThreePlayerPref =
             Viewport.ThreePlayerViewportPreference.PreferFirstPlayer;
 
-        public static Dictionary<ETickGroup, Dictionary<ETickOrder, List<ObjectBase>>> _tick = 
-            new Dictionary<ETickGroup, Dictionary<ETickOrder, List<ObjectBase>>>();
+        public static Dictionary<ETickGroup, Dictionary<ETickOrder, ThreadSafeList<DelTick>>> _tick = 
+            new Dictionary<ETickGroup, Dictionary<ETickOrder, ThreadSafeList<DelTick>>>();
 
         internal static AbstractRenderer Renderer
         {

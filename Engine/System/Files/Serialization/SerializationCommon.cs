@@ -42,7 +42,7 @@ namespace CustomEngine.Files.Serialization
                 for (int i = 0; i < array.Count; ++i)
                     IListMembers[i] = new MemberTreeNode(array[i]);
             }
-            ShouldSerialize = info.Attrib.SerializeIf == null ? true : ExpressionParser.Evaluate<bool>(info.Attrib.SerializeIf, obj);
+            ShouldSerialize = (info.Attrib == null || info.Attrib.SerializeIf == null) ? true : ExpressionParser.Evaluate<bool>(info.Attrib.SerializeIf, obj);
         }
 
         public bool ShouldSerialize;

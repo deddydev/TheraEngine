@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26206.0
+VisualStudioVersion = 15.0.26430.6
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Engine", "Engine\Engine.csproj", "{3BA74071-A8FB-473A-9388-0C8F75872F41}"
 EndProject
@@ -19,18 +19,12 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "hacd", "hacd\hacd.vcxproj",
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
-		Debug|Any CPU = Debug|Any CPU
-		Debug|x64 = Debug|x64
-		Debug|x86 = Debug|x86
 		DebugEditor|Any CPU = DebugEditor|Any CPU
 		DebugEditor|x64 = DebugEditor|x64
 		DebugEditor|x86 = DebugEditor|x86
 		DebugGame|Any CPU = DebugGame|Any CPU
 		DebugGame|x64 = DebugGame|x64
 		DebugGame|x86 = DebugGame|x86
-		Release|Any CPU = Release|Any CPU
-		Release|x64 = Release|x64
-		Release|x86 = Release|x86
 		ReleaseEditor|Any CPU = ReleaseEditor|Any CPU
 		ReleaseEditor|x64 = ReleaseEditor|x64
 		ReleaseEditor|x86 = ReleaseEditor|x86
@@ -39,12 +33,6 @@ Global
 		ReleaseGame|x86 = ReleaseGame|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{3BA74071-A8FB-473A-9388-0C8F75872F41}.Debug|Any CPU.ActiveCfg = DebugGame|Any CPU
-		{3BA74071-A8FB-473A-9388-0C8F75872F41}.Debug|Any CPU.Build.0 = DebugGame|Any CPU
-		{3BA74071-A8FB-473A-9388-0C8F75872F41}.Debug|x64.ActiveCfg = DebugGame|x64
-		{3BA74071-A8FB-473A-9388-0C8F75872F41}.Debug|x64.Build.0 = DebugGame|x64
-		{3BA74071-A8FB-473A-9388-0C8F75872F41}.Debug|x86.ActiveCfg = DebugGame|x86
-		{3BA74071-A8FB-473A-9388-0C8F75872F41}.Debug|x86.Build.0 = DebugGame|x86
 		{3BA74071-A8FB-473A-9388-0C8F75872F41}.DebugEditor|Any CPU.ActiveCfg = DebugEditor|Any CPU
 		{3BA74071-A8FB-473A-9388-0C8F75872F41}.DebugEditor|Any CPU.Build.0 = DebugEditor|Any CPU
 		{3BA74071-A8FB-473A-9388-0C8F75872F41}.DebugEditor|x64.ActiveCfg = DebugEditor|x64
@@ -57,12 +45,6 @@ Global
 		{3BA74071-A8FB-473A-9388-0C8F75872F41}.DebugGame|x64.Build.0 = DebugGame|x64
 		{3BA74071-A8FB-473A-9388-0C8F75872F41}.DebugGame|x86.ActiveCfg = DebugGame|x86
 		{3BA74071-A8FB-473A-9388-0C8F75872F41}.DebugGame|x86.Build.0 = DebugGame|x86
-		{3BA74071-A8FB-473A-9388-0C8F75872F41}.Release|Any CPU.ActiveCfg = ReleaseGame|Any CPU
-		{3BA74071-A8FB-473A-9388-0C8F75872F41}.Release|Any CPU.Build.0 = ReleaseGame|Any CPU
-		{3BA74071-A8FB-473A-9388-0C8F75872F41}.Release|x64.ActiveCfg = ReleaseGame|x64
-		{3BA74071-A8FB-473A-9388-0C8F75872F41}.Release|x64.Build.0 = ReleaseGame|x64
-		{3BA74071-A8FB-473A-9388-0C8F75872F41}.Release|x86.ActiveCfg = ReleaseGame|x86
-		{3BA74071-A8FB-473A-9388-0C8F75872F41}.Release|x86.Build.0 = ReleaseGame|x86
 		{3BA74071-A8FB-473A-9388-0C8F75872F41}.ReleaseEditor|Any CPU.ActiveCfg = ReleaseEditor|Any CPU
 		{3BA74071-A8FB-473A-9388-0C8F75872F41}.ReleaseEditor|Any CPU.Build.0 = ReleaseEditor|Any CPU
 		{3BA74071-A8FB-473A-9388-0C8F75872F41}.ReleaseEditor|x64.ActiveCfg = ReleaseEditor|x64
@@ -75,12 +57,6 @@ Global
 		{3BA74071-A8FB-473A-9388-0C8F75872F41}.ReleaseGame|x64.Build.0 = ReleaseGame|x64
 		{3BA74071-A8FB-473A-9388-0C8F75872F41}.ReleaseGame|x86.ActiveCfg = ReleaseGame|x86
 		{3BA74071-A8FB-473A-9388-0C8F75872F41}.ReleaseGame|x86.Build.0 = ReleaseGame|x86
-		{9F363CE1-89EB-46E4-9274-48D58F337377}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{9F363CE1-89EB-46E4-9274-48D58F337377}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{9F363CE1-89EB-46E4-9274-48D58F337377}.Debug|x64.ActiveCfg = Debug|x64
-		{9F363CE1-89EB-46E4-9274-48D58F337377}.Debug|x64.Build.0 = Debug|x64
-		{9F363CE1-89EB-46E4-9274-48D58F337377}.Debug|x86.ActiveCfg = Debug|x86
-		{9F363CE1-89EB-46E4-9274-48D58F337377}.Debug|x86.Build.0 = Debug|x86
 		{9F363CE1-89EB-46E4-9274-48D58F337377}.DebugEditor|Any CPU.ActiveCfg = Debug|Any CPU
 		{9F363CE1-89EB-46E4-9274-48D58F337377}.DebugEditor|Any CPU.Build.0 = Debug|Any CPU
 		{9F363CE1-89EB-46E4-9274-48D58F337377}.DebugEditor|x64.ActiveCfg = Debug|x64
@@ -93,12 +69,6 @@ Global
 		{9F363CE1-89EB-46E4-9274-48D58F337377}.DebugGame|x64.Build.0 = Debug|x64
 		{9F363CE1-89EB-46E4-9274-48D58F337377}.DebugGame|x86.ActiveCfg = Debug|x86
 		{9F363CE1-89EB-46E4-9274-48D58F337377}.DebugGame|x86.Build.0 = Debug|x86
-		{9F363CE1-89EB-46E4-9274-48D58F337377}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{9F363CE1-89EB-46E4-9274-48D58F337377}.Release|Any CPU.Build.0 = Release|Any CPU
-		{9F363CE1-89EB-46E4-9274-48D58F337377}.Release|x64.ActiveCfg = Release|x64
-		{9F363CE1-89EB-46E4-9274-48D58F337377}.Release|x64.Build.0 = Release|x64
-		{9F363CE1-89EB-46E4-9274-48D58F337377}.Release|x86.ActiveCfg = Release|x86
-		{9F363CE1-89EB-46E4-9274-48D58F337377}.Release|x86.Build.0 = Release|x86
 		{9F363CE1-89EB-46E4-9274-48D58F337377}.ReleaseEditor|Any CPU.ActiveCfg = Release|Any CPU
 		{9F363CE1-89EB-46E4-9274-48D58F337377}.ReleaseEditor|Any CPU.Build.0 = Release|Any CPU
 		{9F363CE1-89EB-46E4-9274-48D58F337377}.ReleaseEditor|x64.ActiveCfg = Release|x64
@@ -111,12 +81,6 @@ Global
 		{9F363CE1-89EB-46E4-9274-48D58F337377}.ReleaseGame|x64.Build.0 = Release|x64
 		{9F363CE1-89EB-46E4-9274-48D58F337377}.ReleaseGame|x86.ActiveCfg = Release|x86
 		{9F363CE1-89EB-46E4-9274-48D58F337377}.ReleaseGame|x86.Build.0 = Release|x86
-		{8953C1AF-EC68-49D0-A62D-4D3DB1D2E8CE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{8953C1AF-EC68-49D0-A62D-4D3DB1D2E8CE}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{8953C1AF-EC68-49D0-A62D-4D3DB1D2E8CE}.Debug|x64.ActiveCfg = Debug|x64
-		{8953C1AF-EC68-49D0-A62D-4D3DB1D2E8CE}.Debug|x64.Build.0 = Debug|x64
-		{8953C1AF-EC68-49D0-A62D-4D3DB1D2E8CE}.Debug|x86.ActiveCfg = Debug|x86
-		{8953C1AF-EC68-49D0-A62D-4D3DB1D2E8CE}.Debug|x86.Build.0 = Debug|x86
 		{8953C1AF-EC68-49D0-A62D-4D3DB1D2E8CE}.DebugEditor|Any CPU.ActiveCfg = Debug|Any CPU
 		{8953C1AF-EC68-49D0-A62D-4D3DB1D2E8CE}.DebugEditor|Any CPU.Build.0 = Debug|Any CPU
 		{8953C1AF-EC68-49D0-A62D-4D3DB1D2E8CE}.DebugEditor|x64.ActiveCfg = Debug|x64
@@ -129,12 +93,6 @@ Global
 		{8953C1AF-EC68-49D0-A62D-4D3DB1D2E8CE}.DebugGame|x64.Build.0 = Debug|x64
 		{8953C1AF-EC68-49D0-A62D-4D3DB1D2E8CE}.DebugGame|x86.ActiveCfg = Debug|x86
 		{8953C1AF-EC68-49D0-A62D-4D3DB1D2E8CE}.DebugGame|x86.Build.0 = Debug|x86
-		{8953C1AF-EC68-49D0-A62D-4D3DB1D2E8CE}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{8953C1AF-EC68-49D0-A62D-4D3DB1D2E8CE}.Release|Any CPU.Build.0 = Release|Any CPU
-		{8953C1AF-EC68-49D0-A62D-4D3DB1D2E8CE}.Release|x64.ActiveCfg = Release|x64
-		{8953C1AF-EC68-49D0-A62D-4D3DB1D2E8CE}.Release|x64.Build.0 = Release|x64
-		{8953C1AF-EC68-49D0-A62D-4D3DB1D2E8CE}.Release|x86.ActiveCfg = Release|x86
-		{8953C1AF-EC68-49D0-A62D-4D3DB1D2E8CE}.Release|x86.Build.0 = Release|x86
 		{8953C1AF-EC68-49D0-A62D-4D3DB1D2E8CE}.ReleaseEditor|Any CPU.ActiveCfg = Release|Any CPU
 		{8953C1AF-EC68-49D0-A62D-4D3DB1D2E8CE}.ReleaseEditor|Any CPU.Build.0 = Release|Any CPU
 		{8953C1AF-EC68-49D0-A62D-4D3DB1D2E8CE}.ReleaseEditor|x64.ActiveCfg = Release|x64
@@ -147,30 +105,18 @@ Global
 		{8953C1AF-EC68-49D0-A62D-4D3DB1D2E8CE}.ReleaseGame|x64.Build.0 = Release|x64
 		{8953C1AF-EC68-49D0-A62D-4D3DB1D2E8CE}.ReleaseGame|x86.ActiveCfg = Release|x86
 		{8953C1AF-EC68-49D0-A62D-4D3DB1D2E8CE}.ReleaseGame|x86.Build.0 = Release|x86
-		{D8BCDE8D-4A1D-4471-898C-D98C8B26E471}.Debug|Any CPU.ActiveCfg = Debug|Win32
-		{D8BCDE8D-4A1D-4471-898C-D98C8B26E471}.Debug|x64.ActiveCfg = Debug|x64
-		{D8BCDE8D-4A1D-4471-898C-D98C8B26E471}.Debug|x86.ActiveCfg = Debug|Win32
 		{D8BCDE8D-4A1D-4471-898C-D98C8B26E471}.DebugEditor|Any CPU.ActiveCfg = Debug|Win32
 		{D8BCDE8D-4A1D-4471-898C-D98C8B26E471}.DebugEditor|x64.ActiveCfg = Debug|x64
 		{D8BCDE8D-4A1D-4471-898C-D98C8B26E471}.DebugEditor|x86.ActiveCfg = Debug|Win32
 		{D8BCDE8D-4A1D-4471-898C-D98C8B26E471}.DebugGame|Any CPU.ActiveCfg = Debug|Win32
 		{D8BCDE8D-4A1D-4471-898C-D98C8B26E471}.DebugGame|x64.ActiveCfg = Debug|x64
 		{D8BCDE8D-4A1D-4471-898C-D98C8B26E471}.DebugGame|x86.ActiveCfg = Debug|Win32
-		{D8BCDE8D-4A1D-4471-898C-D98C8B26E471}.Release|Any CPU.ActiveCfg = Release|Win32
-		{D8BCDE8D-4A1D-4471-898C-D98C8B26E471}.Release|x64.ActiveCfg = Release|x64
-		{D8BCDE8D-4A1D-4471-898C-D98C8B26E471}.Release|x86.ActiveCfg = Release|Win32
 		{D8BCDE8D-4A1D-4471-898C-D98C8B26E471}.ReleaseEditor|Any CPU.ActiveCfg = Release|Win32
 		{D8BCDE8D-4A1D-4471-898C-D98C8B26E471}.ReleaseEditor|x64.ActiveCfg = Release|x64
 		{D8BCDE8D-4A1D-4471-898C-D98C8B26E471}.ReleaseEditor|x86.ActiveCfg = Release|Win32
 		{D8BCDE8D-4A1D-4471-898C-D98C8B26E471}.ReleaseGame|Any CPU.ActiveCfg = Release|Win32
 		{D8BCDE8D-4A1D-4471-898C-D98C8B26E471}.ReleaseGame|x64.ActiveCfg = Release|x64
 		{D8BCDE8D-4A1D-4471-898C-D98C8B26E471}.ReleaseGame|x86.ActiveCfg = Release|Win32
-		{DB715DBE-E6DC-439C-BF3E-562978015829}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{DB715DBE-E6DC-439C-BF3E-562978015829}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{DB715DBE-E6DC-439C-BF3E-562978015829}.Debug|x64.ActiveCfg = Debug|x64
-		{DB715DBE-E6DC-439C-BF3E-562978015829}.Debug|x64.Build.0 = Debug|x64
-		{DB715DBE-E6DC-439C-BF3E-562978015829}.Debug|x86.ActiveCfg = Debug|x86
-		{DB715DBE-E6DC-439C-BF3E-562978015829}.Debug|x86.Build.0 = Debug|x86
 		{DB715DBE-E6DC-439C-BF3E-562978015829}.DebugEditor|Any CPU.ActiveCfg = Debug|Any CPU
 		{DB715DBE-E6DC-439C-BF3E-562978015829}.DebugEditor|Any CPU.Build.0 = Debug|Any CPU
 		{DB715DBE-E6DC-439C-BF3E-562978015829}.DebugEditor|x64.ActiveCfg = Debug|x64
@@ -183,12 +129,6 @@ Global
 		{DB715DBE-E6DC-439C-BF3E-562978015829}.DebugGame|x64.Build.0 = Debug|x64
 		{DB715DBE-E6DC-439C-BF3E-562978015829}.DebugGame|x86.ActiveCfg = Debug|x86
 		{DB715DBE-E6DC-439C-BF3E-562978015829}.DebugGame|x86.Build.0 = Debug|x86
-		{DB715DBE-E6DC-439C-BF3E-562978015829}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{DB715DBE-E6DC-439C-BF3E-562978015829}.Release|Any CPU.Build.0 = Release|Any CPU
-		{DB715DBE-E6DC-439C-BF3E-562978015829}.Release|x64.ActiveCfg = Release|x64
-		{DB715DBE-E6DC-439C-BF3E-562978015829}.Release|x64.Build.0 = Release|x64
-		{DB715DBE-E6DC-439C-BF3E-562978015829}.Release|x86.ActiveCfg = Release|x86
-		{DB715DBE-E6DC-439C-BF3E-562978015829}.Release|x86.Build.0 = Release|x86
 		{DB715DBE-E6DC-439C-BF3E-562978015829}.ReleaseEditor|Any CPU.ActiveCfg = Release|Any CPU
 		{DB715DBE-E6DC-439C-BF3E-562978015829}.ReleaseEditor|Any CPU.Build.0 = Release|Any CPU
 		{DB715DBE-E6DC-439C-BF3E-562978015829}.ReleaseEditor|x64.ActiveCfg = Release|x64
@@ -201,12 +141,6 @@ Global
 		{DB715DBE-E6DC-439C-BF3E-562978015829}.ReleaseGame|x64.Build.0 = Release|x64
 		{DB715DBE-E6DC-439C-BF3E-562978015829}.ReleaseGame|x86.ActiveCfg = Release|x86
 		{DB715DBE-E6DC-439C-BF3E-562978015829}.ReleaseGame|x86.Build.0 = Release|x86
-		{87E68E70-16FA-4807-B5DB-04AB2468A8EF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{87E68E70-16FA-4807-B5DB-04AB2468A8EF}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{87E68E70-16FA-4807-B5DB-04AB2468A8EF}.Debug|x64.ActiveCfg = Debug|x64
-		{87E68E70-16FA-4807-B5DB-04AB2468A8EF}.Debug|x64.Build.0 = Debug|x64
-		{87E68E70-16FA-4807-B5DB-04AB2468A8EF}.Debug|x86.ActiveCfg = Debug|x86
-		{87E68E70-16FA-4807-B5DB-04AB2468A8EF}.Debug|x86.Build.0 = Debug|x86
 		{87E68E70-16FA-4807-B5DB-04AB2468A8EF}.DebugEditor|Any CPU.ActiveCfg = Debug|Any CPU
 		{87E68E70-16FA-4807-B5DB-04AB2468A8EF}.DebugEditor|Any CPU.Build.0 = Debug|Any CPU
 		{87E68E70-16FA-4807-B5DB-04AB2468A8EF}.DebugEditor|x64.ActiveCfg = Debug|x64
@@ -219,12 +153,6 @@ Global
 		{87E68E70-16FA-4807-B5DB-04AB2468A8EF}.DebugGame|x64.Build.0 = Debug|x64
 		{87E68E70-16FA-4807-B5DB-04AB2468A8EF}.DebugGame|x86.ActiveCfg = Debug|x86
 		{87E68E70-16FA-4807-B5DB-04AB2468A8EF}.DebugGame|x86.Build.0 = Debug|x86
-		{87E68E70-16FA-4807-B5DB-04AB2468A8EF}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{87E68E70-16FA-4807-B5DB-04AB2468A8EF}.Release|Any CPU.Build.0 = Release|Any CPU
-		{87E68E70-16FA-4807-B5DB-04AB2468A8EF}.Release|x64.ActiveCfg = Release|x64
-		{87E68E70-16FA-4807-B5DB-04AB2468A8EF}.Release|x64.Build.0 = Release|x64
-		{87E68E70-16FA-4807-B5DB-04AB2468A8EF}.Release|x86.ActiveCfg = Release|x86
-		{87E68E70-16FA-4807-B5DB-04AB2468A8EF}.Release|x86.Build.0 = Release|x86
 		{87E68E70-16FA-4807-B5DB-04AB2468A8EF}.ReleaseEditor|Any CPU.ActiveCfg = Release|Any CPU
 		{87E68E70-16FA-4807-B5DB-04AB2468A8EF}.ReleaseEditor|Any CPU.Build.0 = Release|Any CPU
 		{87E68E70-16FA-4807-B5DB-04AB2468A8EF}.ReleaseEditor|x64.ActiveCfg = Release|x64
@@ -237,12 +165,6 @@ Global
 		{87E68E70-16FA-4807-B5DB-04AB2468A8EF}.ReleaseGame|x64.Build.0 = Release|x64
 		{87E68E70-16FA-4807-B5DB-04AB2468A8EF}.ReleaseGame|x86.ActiveCfg = Release|x86
 		{87E68E70-16FA-4807-B5DB-04AB2468A8EF}.ReleaseGame|x86.Build.0 = Release|x86
-		{D7099C02-EB34-498E-844E-9A2888A84767}.Debug|Any CPU.ActiveCfg = Debug|Win32
-		{D7099C02-EB34-498E-844E-9A2888A84767}.Debug|Any CPU.Build.0 = Debug|Win32
-		{D7099C02-EB34-498E-844E-9A2888A84767}.Debug|x64.ActiveCfg = Debug|x64
-		{D7099C02-EB34-498E-844E-9A2888A84767}.Debug|x64.Build.0 = Debug|x64
-		{D7099C02-EB34-498E-844E-9A2888A84767}.Debug|x86.ActiveCfg = Debug|Win32
-		{D7099C02-EB34-498E-844E-9A2888A84767}.Debug|x86.Build.0 = Debug|Win32
 		{D7099C02-EB34-498E-844E-9A2888A84767}.DebugEditor|Any CPU.ActiveCfg = Debug|Win32
 		{D7099C02-EB34-498E-844E-9A2888A84767}.DebugEditor|Any CPU.Build.0 = Debug|Win32
 		{D7099C02-EB34-498E-844E-9A2888A84767}.DebugEditor|x64.ActiveCfg = Debug|x64
@@ -255,12 +177,6 @@ Global
 		{D7099C02-EB34-498E-844E-9A2888A84767}.DebugGame|x64.Build.0 = Debug|x64
 		{D7099C02-EB34-498E-844E-9A2888A84767}.DebugGame|x86.ActiveCfg = Debug|Win32
 		{D7099C02-EB34-498E-844E-9A2888A84767}.DebugGame|x86.Build.0 = Debug|Win32
-		{D7099C02-EB34-498E-844E-9A2888A84767}.Release|Any CPU.ActiveCfg = Release|Win32
-		{D7099C02-EB34-498E-844E-9A2888A84767}.Release|Any CPU.Build.0 = Release|Win32
-		{D7099C02-EB34-498E-844E-9A2888A84767}.Release|x64.ActiveCfg = Release|x64
-		{D7099C02-EB34-498E-844E-9A2888A84767}.Release|x64.Build.0 = Release|x64
-		{D7099C02-EB34-498E-844E-9A2888A84767}.Release|x86.ActiveCfg = Release|Win32
-		{D7099C02-EB34-498E-844E-9A2888A84767}.Release|x86.Build.0 = Release|Win32
 		{D7099C02-EB34-498E-844E-9A2888A84767}.ReleaseEditor|Any CPU.ActiveCfg = Release|Win32
 		{D7099C02-EB34-498E-844E-9A2888A84767}.ReleaseEditor|Any CPU.Build.0 = Release|Win32
 		{D7099C02-EB34-498E-844E-9A2888A84767}.ReleaseEditor|x64.ActiveCfg = Release|x64

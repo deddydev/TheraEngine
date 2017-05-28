@@ -27,7 +27,7 @@ namespace CustomEngine.Worlds
         //    public bint _visibleMapCount;
         //    public bint _visibleActorCount;
         //    public GameMode.Header _gameMode;
-            
+
         //    public bint* VisibleMapIndices => (bint*)(Address + Size);
         //    public bint* VisibleActorIndices => (bint*)(Address + Size);
 

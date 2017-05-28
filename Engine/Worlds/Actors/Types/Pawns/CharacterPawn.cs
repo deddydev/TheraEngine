@@ -10,6 +10,7 @@ using CustomEngine.Rendering.Cameras;
 using System.Diagnostics;
 using CustomEngine.Input;
 using CustomEngine.Rendering.Animation;
+using CustomEngine.Tests;
 
 namespace CustomEngine.Worlds.Actors
 {
@@ -229,14 +230,14 @@ namespace CustomEngine.Worlds.Actors
             _meshComp.Translation.Raw = new Vec3(0.0f, -capsuleTotalHalfHeight, 0.0f);
             rootCapsule.ChildComponents.Add(_meshComp);
 
-            PerspectiveCamera FPCam = new PerspectiveCamera()
-            {
-                VerticalFieldOfView = 30.0f,
-                FarZ = 50.0f
-            };
-            FPCam.LocalRotation.SyncFrom(_viewRotation);
-            _fpCameraComponent = new CameraComponent(FPCam);
-            _fpCameraComponent.AttachTo(_meshComp, "Head");
+            //PerspectiveCamera FPCam = new PerspectiveCamera()
+            //{
+            //    VerticalFieldOfView = 30.0f,
+            //    FarZ = 50.0f
+            //};
+            //FPCam.LocalRotation.SyncFrom(_viewRotation);
+            //_fpCameraComponent = new CameraComponent(FPCam);
+            //_fpCameraComponent.AttachTo(_meshComp, "Head");
 
             _tpCameraBoom = new BoomComponent();
             _tpCameraBoom.Translation.Raw = new Vec3(0.4f, 0.2f, 0.0f);

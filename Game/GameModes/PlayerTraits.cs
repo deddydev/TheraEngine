@@ -1,4 +1,5 @@
-﻿using CustomEngine.Worlds.Actors;
+﻿using CustomEngine.GameModes;
+using CustomEngine.Worlds.Actors;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -6,8 +7,25 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CustomEngine.GameModes
+namespace Thera.GameModes
 {
+    public struct ZoomLevel
+    {
+        public ZoomLevel(float fovX, float aimAssistDistance)
+        {
+            _fovX = fovX;
+            _aimAssistDistance = aimAssistDistance;
+        }
+
+        private float _fovX;
+        private float _aimAssistDistance;
+
+        public static readonly ZoomLevel DefaultNonZoomed = new ZoomLevel(90.0f, 1000.0f);
+        public static readonly ZoomLevel DefaultZoomed = new ZoomLevel(60.0f, 2000.0f);
+
+        public float FovX { get => _fovX; set => _fovX = value; }
+        public float AimAssistDistance { get => _aimAssistDistance; set => _aimAssistDistance = value; }
+    }
     public struct StaticPlayerTraits
     {
         ZoomLevel _defaultNonZoomed;

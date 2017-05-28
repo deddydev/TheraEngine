@@ -20,7 +20,7 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
+    <OutputPath>bin\Any CPU\DebugGame\</OutputPath>
     <DefineConstants>TRACE;DEBUG</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -40,7 +40,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'DebugEditor|AnyCPU'">
     <DebugSymbols>true</DebugSymbols>
-    <OutputPath>bin\DebugEditor\</OutputPath>
+    <OutputPath>bin\Any CPU\DebugEditor\</OutputPath>
     <DefineConstants>TRACE;DEBUG;EDITOR</DefineConstants>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <DebugType>full</DebugType>
@@ -134,8 +134,7 @@
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="BulletSharp, Version=2.83.7.1, Culture=neutral, processorArchitecture=x86">
-      <SpecificVersion>False</SpecificVersion>
+    <Reference Include="BulletSharp">
       <HintPath>..\Libraries\bulletsharp-x64-2.83.7.1\Release Generic\BulletSharp.dll</HintPath>
     </Reference>
     <Reference Include="FreeImageNET">
@@ -690,8 +689,11 @@
     <Compile Include="System\ComputerInfo.cs" />
     <Compile Include="System\Data Structures\HashedStack.cs" />
     <Compile Include="System\Data Structures\HashedQueue.cs" />
+    <Compile Include="System\Data Structures\ThreadSafeList.cs" />
     <Compile Include="System\Data Structures\Quadtree.cs" />
+    <Compile Include="System\Extensions\EnumerableExtension.cs" />
     <Compile Include="System\Extensions\ListExtension.cs" />
+    <Compile Include="System\Extensions\ReaderWriterLockSlimExtension.cs" />
     <Compile Include="System\Extensions\StringExtension.cs" />
     <Compile Include="System\Extensions\ArrayExtension.cs" />
     <Compile Include="System\Extensions\XmlExtension.cs" />
@@ -873,6 +875,7 @@
     <Compile Include="Worlds\Actors\Types\LandscapeActor.cs" />
     <Compile Include="Worlds\Actors\Types\Pawn.cs" />
     <Compile Include="Worlds\Actors\Types\EditorTransformTool3D.cs" />
+    <Compile Include="Worlds\Actors\Types\CharacterSpawnPointActor.cs" />
     <Compile Include="Worlds\Actors\Types\Vehicle.cs" />
     <Compile Include="Worlds\Actors\Components\Component.cs" />
     <Compile Include="Worlds\Actors\Components\Logic\InteractionComponent.cs" />

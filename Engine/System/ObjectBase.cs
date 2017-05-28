@@ -4,24 +4,31 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.ComponentModel;
 using CustomEngine.Rendering.Animation;
+using System.Linq;
 
 namespace System
 {
+    public class TickInfo : Tuple<ETickGroup, ETickOrder, DelTick>
+    {
+        public TickInfo(ETickGroup group, ETickOrder order, DelTick function)
+            : base(group, order, function) { }
+    }
+    public delegate void DelTick(float delta);
     public delegate void ResourceEventHandler(ObjectBase node);
     public delegate void RenamedEventHandler(ObjectBase node, string oldName);
     public delegate void ObjectPropertyChangedEventHandler(object sender, PropertyChangedEventArgs e);
     public enum ETickGroup
     {
         PrePhysics      = 0,
-        PostPhysics     = 1,
-        DuringPhysics   = 2,
+        DuringPhysics   = 5,
+        PostPhysics     = 10,
     }
     public enum ETickOrder
     {
         Timers      = 0, //Call timing events
         Input       = 1, //Call input events
         Animation   = 2, //Update animation positions
-        Logic       = 3, //Call update tick
+        Logic       = 3, //Gameplay calculations
         Scene       = 4, //Update scene
     }
     public class ObjectBase
@@ -33,17 +40,29 @@ namespace System
         [Browsable(false)]
         public event ResourceEventHandler Disposing, UpdateProperties, UpdateEditor;
 
-        [Serialize("Name", IgnoreIfNull = false, IsXmlAttribute = true)]
+        [Serialize("Name", IsXmlAttribute = true)]
         protected string _name;
         [Serialize("UserData")]
         private object _userData;
-        [Serialize("TickGroup")]
-        private ETickGroup? _tickGroup = null;
-        [Serialize("TickOrder")]
-        private ETickOrder? _tickOrder = null;
+
+        [Browsable(false)]
+        public bool IsTicking => _tickFunctions.Count > 0;
+
+        public void RegisterTick(ETickGroup group, ETickOrder order, DelTick tickFunc)
+        {
+            _tickFunctions.Add(new TickInfo(group, order, tickFunc));
+            Engine.RegisterTick(group, order, tickFunc);
+        }
+        public void UnregisterTick(ETickGroup group, ETickOrder order, DelTick tickFunc)
+        {
+            int info = _tickFunctions.FindIndex(x => x.Item1 == group && x.Item2 == order && x.Item3 == tickFunc);
+            if (info != null)
+            Engine.UnregisterTick(group, order, tickFunc);
+        }
 
         protected bool _changed;
-        protected bool _isTicking = false;
+        private ThreadSafeList<TickInfo> _tickFunctions = new ThreadSafeList<TickInfo>();
+        //protected bool _isTicking = false;
 
         [Serialize("Animations")]
         private List<AnimationContainer> _animations;
@@ -69,48 +88,42 @@ namespace System
             }
         }
 
-        [Browsable(false)]
-        //[Category("Tick"), PreChanged("UnregisterTick"), PostChanged("RegisterTick")]
-        public ETickGroup? TickGroup
-        {
-            get { return _tickGroup; }
-            set { _tickGroup = value; }
-        }
-        [Browsable(false)]
-        //[Category("Tick"), PreChanged("UnregisterTick"), PostChanged("RegisterTick")]
-        public ETickOrder? TickOrder
-        {
-            get { return _tickOrder; }
-            set { _tickOrder = value; }
-        }
+        //[Browsable(false)]
+        ////[Category("Tick"), PreChanged("UnregisterTick"), PostChanged("RegisterTick")]
+        //public ETickGroup? TickGroup
+        //{
+        //    get { return _tickGroup; }
+        //    set { _tickGroup = value; }
+        //}
+        //[Browsable(false)]
+        ////[Category("Tick"), PreChanged("UnregisterTick"), PostChanged("RegisterTick")]
+        //public ETickOrder? TickOrder
+        //{
+        //    get { return _tickOrder; }
+        //    set { _tickOrder = value; }
+        //}
 
         /// <summary>
         /// Specifies that this object wants tick calls.
         /// </summary>
-        public void RegisterTick(ETickGroup group, ETickOrder order)
-        {
-            if (_isTicking)
-                return;
-            _isTicking = true;
-            Engine.RegisterTick(this, group, order);
-        }
+        //public void RegisterTick(ETickGroup group, ETickOrder order)
+        //{
+        //    Engine.RegisterTick(this, group, order);
+        //}
 
         /// <summary>
         /// Specifies that this object will not have any tick calls.
         /// </summary>
-        public void UnregisterTick()
-        {
-            if (!_isTicking)
-                return;
-            _isTicking = false;
-            Engine.UnregisterTick(this);
-        }
+        //public void UnregisterTick()
+        //{
+        //    Engine.UnregisterTick(this);
+        //}
 
         /// <summary>
         /// Updates logic for this class
         /// </summary>
         /// <param name="delta">The amount of time that has passed since the last tick update</param>
-        protected internal virtual void Tick(float delta) { }
+        //protected internal virtual void Tick(float delta) { }
 
         public void OnPropertyChanged(PropertyInfo info, object previousValue)
         {

@@ -1,8 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using CustomEngine.Input.Devices;
 using CustomEngine.Rendering;
 using CustomEngine.Rendering.Cameras;
 using CustomEngine.Worlds.Actors;
+using CustomEngine.GameModes;
 
 namespace CustomEngine.Input
 {
@@ -11,6 +13,7 @@ namespace CustomEngine.Input
         private Viewport _viewport;
         private PlayerIndex _index;
         protected InputInterface _input;
+        private bool _awaitingRespawn = false;
 
         public InputInterface Input => _input;
         public PlayerIndex LocalPlayerIndex => (PlayerIndex)_viewport.Index;
@@ -24,6 +27,18 @@ namespace CustomEngine.Input
             get => _viewport.Camera;
             set => _viewport.Camera = value;
         }
+
+        internal void AwaitRespawn()
+        {
+            RegisterTick(ETickGroup.PostPhysics, ETickOrder.Scene, TickRespawn);
+
+        }
+
+        protected void TickRespawn(float delta)
+        {
+            if (((ICharacterGameMode)Engine.World.Settings.GameMode).
+        }
+
         public override IPawn ControlledPawn
         {
             get => base.ControlledPawn;

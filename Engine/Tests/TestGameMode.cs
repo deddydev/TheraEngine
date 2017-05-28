@@ -23,16 +23,16 @@ namespace CustomEngine.Tests
             {
                 TestCharacter pawn = _pawnClass.CreateNew();
                 c.ControlledPawn = pawn;
-                Engine.World.SpawnActor(pawn, FindSpawnPoint());
+                Engine.World.SpawnActor(pawn, FindSpawnPoint(c));
             }
         }
-        public override Matrix4 FindSpawnPoint()
+        public override Matrix4 FindSpawnPoint(PawnController c)
         {
             return Matrix4.Identity;
         }
         public override void EndGameplay()
         {
-            throw new NotImplementedException();
+
         }
         public override void OnKilled(TestCharacter pawn)
         {

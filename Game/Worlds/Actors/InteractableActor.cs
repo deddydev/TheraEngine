@@ -8,7 +8,7 @@ using System.Collections.ObjectModel;
 using CustomEngine.Worlds.Actors.Components;
 using CustomEngine;
 
-namespace Game.Worlds.Actors
+namespace Thera.Worlds.Actors
 {
     public class InteractableActor : Actor
     {

@@ -135,7 +135,7 @@ namespace TheraEditor
             p.PropertyChanged += Value_PropertyChanged;
             Project = p;
 
-            contentTree.ListDirectory(Path.GetDirectoryName(p.FilePath));
+            contentTree.DisplayProject(p);
         }
         private void btnNewProject_Click(object sender, EventArgs e)
         {

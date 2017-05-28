@@ -24,6 +24,19 @@ namespace TheraEditor
         private DelegateOpenFile _openFileDelegate;
         private Dictionary<string, TreeNode> _nodes;
         private FileSystemWatcher _contentWatcher;
+        
+        public const string ConfigFolder = "Config";
+        public const string SourceFolder = "Source";
+        public const string AssetsFolder = "Assets";
+        public const string IntermediateFolder = "Intermediate";
+
+        public static readonly string[] ReservedRootFolders =
+        {
+            ConfigFolder,
+            SourceFolder,
+            AssetsFolder,
+            IntermediateFolder,
+        };
 
         private static ImageList _imgList;
         public static ImageList Images
@@ -48,16 +61,38 @@ namespace TheraEditor
             }
         }
 
-        public void ListDirectory(string path)
+        public void AddNode(TreeNode node)
+        {
+            Nodes.Add(node);
+        }
+        public void RemoveNode(TreeNode node)
+        {
+            Nodes.Remove(node);
+        }
+        public void RemoveNodeAt(int index)
+        {
+            Nodes.RemoveAt(index);
+        }
+        public void AddNode(TreeNode node, TreeNode parent)
+        {
+
+        }
+        public void RemoveNode(TreeNode node, TreeNode parent)
+        {
+
+        }
+
+        public void DisplayProject(Project p)
         {
             _contentWatcher = null;
 
             _nodes = new Dictionary<string, TreeNode>();
+            string path = Path.GetDirectoryName(p.FilePath);
 
             Nodes.Clear();
             var stack = new Stack<TreeNode>();
-            var rootDirectory = new DirectoryInfo(path);
-            var node = new TreeNode(rootDirectory.Name) { Tag = rootDirectory };
+            var rootDirectory = new DirectoryInfo(p.FilePath);
+            var node = new TreeNode(p.Name) { Tag = p };
             stack.Push(node);
 
             while (stack.Count > 0)
@@ -79,7 +114,6 @@ namespace TheraEditor
                 }
             }
 
-            _nodes[path] = node;
             Nodes.Add(node);
 
             if (!string.IsNullOrEmpty(path) && Directory.Exists(path))

@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using CustomEngine.GameModes;
 
-namespace CustomEngine.GameModes
+namespace Thera.GameModes
 {
     public class TeamTraits
     {

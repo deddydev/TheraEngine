@@ -158,7 +158,7 @@ namespace CustomEngine.Rendering.Models
             foreach (Bone b in BoneNameCache.Values)
             {
                 Vec3 point = b.WorldMatrix.GetPoint();
-                Engine.Renderer.RenderPoint(b.Name + "_Pos", point, 15.0f, b.Parent == null ? Color.Orange : Color.Purple);
+                Engine.Renderer.RenderPoint(b.Name + "_Pos", point, b.Parent == null ? Color.Orange : Color.Purple, 15.0f);
                 if (b.Parent != null)
                     Engine.Renderer.RenderLine(b.Name + "_Parent", point, b.Parent.WorldMatrix.GetPoint(), Color.Blue, 5.0f);
                 float scale = AbstractRenderer.CurrentCamera.DistanceScale(point, 2.0f);

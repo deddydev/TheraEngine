@@ -6,9 +6,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Game.GameModes
+namespace Thera.GameModes
 {
-    public class BaseGameMode : GameMode
+    public class BaseGameMode : GameMode<CharacterPawn>
     {
         private bool _spawnVehicles;
         private bool _spawnGuns;
@@ -122,6 +122,21 @@ namespace Game.GameModes
         public virtual void OnCharacterDied(CharacterPawn character)
         {
 
+        }
+
+        public override void BeginGameplay()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void EndGameplay()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void AbortGameplay()
+        {
+            throw new NotImplementedException();
         }
     }
 }

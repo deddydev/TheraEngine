@@ -18,10 +18,10 @@ namespace CustomEngine.Rendering.Models
     {
         public StaticMesh() : base()
         {
-            _rigidChildren.Removed += RigidChildRemoved;
-            _rigidChildren.Added += RigidChildAdded;
-            _softChildren.Removed += SoftChildRemoved;
-            _softChildren.Added += SoftChildAdded;
+            _rigidChildren.PostRemoved += RigidChildRemoved;
+            _rigidChildren.PostAdded += RigidChildAdded;
+            _softChildren.PostRemoved += SoftChildRemoved;
+            _softChildren.PostAdded += SoftChildAdded;
         }
         public StaticMesh(string name)
         {

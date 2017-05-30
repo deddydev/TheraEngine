@@ -55,25 +55,14 @@ namespace CustomEngine.Worlds
         {
             PhysicsDriver driver0 = (PhysicsDriver)body0.UserObject;
             PhysicsDriver driver1 = (PhysicsDriver)body1.UserObject;
-            //if (cp.Distance < 0.0f)
-            //{
-            //    Debug.WriteLine("Collision");
-            //}
-            if (body0.CheckCollideWith(body1))
-            {
-                driver0.OnHit?.Invoke(driver1.Owner, cp);
-                driver1.OnHit?.Invoke(driver0.Owner, cp);
-                //Debug.WriteLine("Collision");
-            }
-            //driver0.BeginOverlap(driver1);
-            //driver1.BeginOverlap(driver0);
             cp.UserPersistentData = new PhysicsDriverPair(driver0, driver1);
+            driver0.ContactStarted(driver1, cp);
         }
         private static void PersistentManifold_ContactDestroyed(object userPersistantData)
         {
             PhysicsDriverPair drivers = (PhysicsDriverPair)userPersistantData;
-            //drivers._driver0.EndOverlap(drivers._driver1);
-            //drivers._driver1.EndOverlap(drivers._driver0);
+            drivers._driver0.ContactEnded(drivers._driver1);
+            drivers._driver1.ContactEnded(drivers._driver0);
         }
         private void CreatePhysicsScene()
         {

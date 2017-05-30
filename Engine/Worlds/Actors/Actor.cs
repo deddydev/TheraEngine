@@ -34,30 +34,18 @@ namespace CustomEngine.Worlds
         public Actor() : base() { }
         public Actor(SceneComponent root, params LogicComponent[] logicComponents)
             : base(root, logicComponents) { }
-
-        [StructLayout(LayoutKind.Sequential, Pack = 1)]
-        public unsafe struct Header
-        {
-            public const int Size = 8;
-
-            public bint _nameOffset;
-            public bint _logicCompCount;
-            public bint _sceneCompCount;
-
-            public VoidPtr Address { get { fixed (void* ptr = &this) return ptr; } }
-        }
     }
     public class Actor<T> : FileObject, IActor where T : SceneComponent
     {
         public Actor(bool deferInitialization = false)
         {
             _logicComponents = new MonitoredList<LogicComponent>();
-            _logicComponents.Added += _logicComponents_Added;
-            _logicComponents.AddedRange += _logicComponents_AddedRange;
-            _logicComponents.Removed += _logicComponents_Removed;
-            _logicComponents.RemovedRange += _logicComponents_RemovedRange;
-            _logicComponents.Inserted += _logicComponents_Inserted;
-            _logicComponents.InsertedRange += _logicComponents_InsertedRange;
+            _logicComponents.PostAdded += _logicComponents_Added;
+            _logicComponents.PostAddedRange += _logicComponents_AddedRange;
+            _logicComponents.PostRemoved += _logicComponents_Removed;
+            _logicComponents.PostRemovedRange += _logicComponents_RemovedRange;
+            _logicComponents.PostInserted += _logicComponents_Inserted;
+            _logicComponents.PostInsertedRange += _logicComponents_InsertedRange;
             if (!deferInitialization)
                 Initialize();
         }
@@ -67,12 +55,12 @@ namespace CustomEngine.Worlds
             PreConstruct();
             RootComponent = root;
             _logicComponents = new MonitoredList<LogicComponent>(logicComponents.ToList());
-            _logicComponents.Added += _logicComponents_Added;
-            _logicComponents.AddedRange += _logicComponents_AddedRange;
-            _logicComponents.Removed += _logicComponents_Removed;
-            _logicComponents.RemovedRange += _logicComponents_RemovedRange;
-            _logicComponents.Inserted += _logicComponents_Inserted;
-            _logicComponents.InsertedRange += _logicComponents_InsertedRange;
+            _logicComponents.PostAdded += _logicComponents_Added;
+            _logicComponents.PostAddedRange += _logicComponents_AddedRange;
+            _logicComponents.PostRemoved += _logicComponents_Removed;
+            _logicComponents.PostRemovedRange += _logicComponents_RemovedRange;
+            _logicComponents.PostInserted += _logicComponents_Inserted;
+            _logicComponents.PostInsertedRange += _logicComponents_InsertedRange;
             PostConstruct();
             _isConstructing = false;
             GenerateSceneComponentCache();
@@ -163,12 +151,6 @@ namespace CustomEngine.Worlds
         public void RebaseOrigin(Vec3 newOrigin)
         {
             RootComponent?.OriginRebased(newOrigin);
-        }
-        protected internal override void Tick(float delta)
-        {
-            _rootSceneComponent.Tick(delta);
-            foreach (LogicComponent c in _logicComponents)
-                c.Tick(delta);
         }
         public void Despawn()
         {

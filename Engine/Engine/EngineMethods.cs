@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using CustomEngine.Worlds.Actors;
 using BulletSharp;
+using System.Threading.Tasks;
 
 namespace CustomEngine
 {
@@ -66,17 +67,39 @@ namespace CustomEngine
             //Steamworks.SteamAPI.Init();
             _timer = new GlobalTimer();
             _timer.UpdateFrame += Tick;
-            for (int i = 0; i < 2; ++i)
-            {
-                ETickGroup order = (ETickGroup)i;
-                _tick.Add(order, new Dictionary<ETickOrder, ThreadSafeList<DelTick>>());
-                for (int j = 0; j < 5; ++j)
-                    _tick[order].Add((ETickOrder)j, new ThreadSafeList<DelTick>());
-            }
-            ActivePlayers.Added += ActivePlayers_Added;
-            ActivePlayers.Removed += ActivePlayers_Removed;
+            ActivePlayers.PostAdded += ActivePlayers_Added;
+            ActivePlayers.PostRemoved += ActivePlayers_Removed;
         }
-        
+        public static void Initialize()
+        {
+            _computerInfo = ComputerInfo.Analyze();
+
+            RenderLibrary = RenderLibrary.OpenGL; //UserSettings.RenderLibrary;
+            AudioLibrary = AudioLibrary.OpenAL; //UserSettings.AudioLibrary;
+            InputLibrary = InputLibrary.OpenTK; //UserSettings.InputLibrary;
+
+            if (Renderer == null)
+                throw new Exception("Unable to create a renderer.");
+
+            World = Settings.OpeningWorld;
+            Settings.TransitionWorld.GetInstance();
+
+            TargetRenderFreq = Settings.CapFPS ? Settings.TargetFPS.ClampMin(1.0f) : 0.0f;
+            TargetUpdateFreq = Settings.CapUPS ? Settings.TargetUPS.ClampMin(1.0f) : 0.0f;
+            Run();
+        }
+        public static void ShutDown()
+        {
+            //Steamworks.SteamAPI.Shutdown();
+            Stop();
+            var files = new List<FileObject>(LoadedFiles.SelectMany(x => x.Value));
+            foreach (FileObject o in files)
+                o?.Unload();
+            var contexts = new List<RenderContext>(RenderContext.BoundContexts);
+            foreach (RenderContext c in contexts)
+                c?.Dispose();
+        }
+
         /// <summary>
         /// Finds the closest ray intersection with any physics object.
         /// </summary>
@@ -164,108 +187,34 @@ namespace CustomEngine
         }
         public static void Run() => _timer.Run();
         public static void Stop() => _timer.Stop();
-        private static void UpdateTick(ETickGroup order, float delta)
-        {
-            foreach (var g in _tick[order])
-            {
-                Top:
-                int count = g.Value.Count;
-                for (int i = 0; i < count; ++i)
-                {
-                    ObjectBase b = g.Value[i];
-                    b.Tick(delta);
-                    if (g.Value.Count != count)
-                        goto Top;
-                }
-            }
-        }
-        //public static async Task AsyncDuringPhysicsTick(float delta)
-        //{
-        //    foreach (var g in _tick[ETickGroup.DuringPhysics])
-        //    {
-        //        for (int i = 0; i < g.Value.Count; ++i)
-        //        {
-        //            ObjectBase b = g.Value[i];
-        //            int oldCount = g.Value.Count;
-        //            b.Tick(delta);
-        //            if (g.Value.Count < oldCount)
-        //                --i;
-
-        //            await Task.Delay(100);
-        //        }
-        //    }
-        //}
         internal static void RegisterTick(ETickGroup group, ETickOrder order, DelTick function)
         {
             if (function != null)
-                _tick[group][order].Add(function);
+                GetTickList(group, order).Add(function);
         }
         internal static void UnregisterTick(ETickGroup group, ETickOrder order, DelTick function)
         {
             if (function != null)
-            {
-                var list = _tick[group][order];
-                if (list.Contains(function))
-                    list.Remove(function);
-            }
+                GetTickList(group, order).Remove(function);
         }
-        private static /*async*/ void Tick(object sender, FrameEventArgs e)
+        private static ThreadSafeList<DelTick> GetTickList(ETickGroup group, ETickOrder order)
+            => _tick[(int)group + (int)order];
+        private static void Tick(object sender, FrameEventArgs e)
         {
             float delta = (float)e.Time;
-            //_debugTimers.ForEach(x => x += delta);
-            //delta /= PhysicsSubsteps;
-            //for (int i = 0; i < 1; i++)
-            //{
             UpdateTick(ETickGroup.PrePhysics, delta);
-            //Task t = AsyncDuringPhysicsTick(delta);
             if (!_isPaused)
                 World?.StepSimulation(delta);
-            //await t;
             UpdateTick(ETickGroup.PostPhysics, delta);
-            //}
         }
-
-        internal static void AddLoadedFile<T>(string relativePath, T file) where T : FileObject
+        private static void UpdateTick(ETickGroup group, float delta)
         {
-            if (string.IsNullOrEmpty(relativePath))
-                return;
-
-            if (LoadedFiles.ContainsKey(relativePath))
-                LoadedFiles[relativePath].Add(file);
-            else
-                LoadedFiles.Add(relativePath, new List<FileObject>() { file });
+            int start = (int)group;
+            for (int i = start; i < start + 5; ++i)
+                Parallel.ForEach(_tick[i], currentFunc => currentFunc(delta));
         }
         #endregion
 
-        public static void Initialize()
-        {
-            _computerInfo = ComputerInfo.Analyze();
-
-            RenderLibrary = RenderLibrary.OpenGL; //UserSettings.RenderLibrary;
-            AudioLibrary = AudioLibrary.OpenAL; //UserSettings.AudioLibrary;
-            InputLibrary = InputLibrary.OpenTK; //UserSettings.InputLibrary;
-
-            if (Renderer == null)
-                throw new Exception("Unable to create a renderer.");
-
-            World = Settings.OpeningWorld;
-            Settings.TransitionWorld.GetInstance();
-            
-            TargetRenderFreq = Settings.CapFPS ? Settings.TargetFPS.ClampMin(1.0f) : 0.0f;
-            TargetUpdateFreq = Settings.CapUPS ? Settings.TargetUPS.ClampMin(1.0f) : 0.0f;
-            Run();
-        }
-        public static void ShutDown()
-        {
-            //Steamworks.SteamAPI.Shutdown();
-            Stop();
-            var files = new List<FileObject>(LoadedFiles.SelectMany(x => x.Value));
-            foreach (FileObject o in files)
-                o?.Unload();
-            var contexts = new List<RenderContext>(RenderContext.BoundContexts);
-            foreach (RenderContext c in contexts)
-                c?.Dispose();
-        }
         public static Viewport GetViewport(int index)
         {
             RenderPanel panel = CurrentPanel;
@@ -313,10 +262,6 @@ namespace CustomEngine
                 _possessionQueue.Add(possessor, queue);
             }
         }
-        //internal static void QueueCollisionSpawn(PhysicsDriver driver)
-        //{
-        //    _queuedCollisions.Add(driver);
-        //}
         internal static void FoundInput(InputDevice device)
         {
             if (device.Index >= ActivePlayers.Count)
@@ -333,6 +278,16 @@ namespace CustomEngine
             }
             else
                 ActivePlayers[device.Index].Input.UpdateDevices();
+        }
+        internal static void AddLoadedFile<T>(string relativePath, T file) where T : FileObject
+        {
+            if (string.IsNullOrEmpty(relativePath))
+                return;
+
+            if (LoadedFiles.ContainsKey(relativePath))
+                LoadedFiles[relativePath].Add(file);
+            else
+                LoadedFiles.Add(relativePath, new List<FileObject>() { file });
         }
     }
 }

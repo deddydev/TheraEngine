@@ -49,19 +49,19 @@ namespace CustomEngine.Rendering.Models
             _frameState.MatrixChanged += _frameState_MatrixChanged;
             _name = name;
 
-            _childBones.Added += ChildBonesAdded;
-            _childBones.AddedRange += ChildBonesAddedRange;
-            _childBones.Removed += ChildBonesRemoved;
-            _childBones.RemovedRange += ChildBonesRemovedRange;
-            _childBones.Inserted += ChildBonesInserted;
-            _childBones.InsertedRange += ChildBonesInsertedRange;
+            _childBones.PostAdded += ChildBonesAdded;
+            _childBones.PostAddedRange += ChildBonesAddedRange;
+            _childBones.PostRemoved += ChildBonesRemoved;
+            _childBones.PostRemovedRange += ChildBonesRemovedRange;
+            _childBones.PostInserted += ChildBonesInserted;
+            _childBones.PostInsertedRange += ChildBonesInsertedRange;
 
-            _childComponents.Added += ChildComponentsAdded;
-            _childComponents.AddedRange += ChildComponentsAddedRange;
-            _childComponents.Removed += ChildComponentsRemoved;
-            _childComponents.RemovedRange += ChildComponentsRemovedRange;
-            _childComponents.Inserted += ChildComponentsInserted;
-            _childComponents.InsertedRange += ChildComponentsInsertedRange;
+            _childComponents.PostAdded += ChildComponentsAdded;
+            _childComponents.PostAddedRange += ChildComponentsAddedRange;
+            _childComponents.PostRemoved += ChildComponentsRemoved;
+            _childComponents.PostRemovedRange += ChildComponentsRemovedRange;
+            _childComponents.PostInserted += ChildComponentsInserted;
+            _childComponents.PostInsertedRange += ChildComponentsInsertedRange;
 
             _physicsDriver = info == null ? null : new PhysicsDriver(this, info, MatrixUpdate, SimulationUpdate);
 

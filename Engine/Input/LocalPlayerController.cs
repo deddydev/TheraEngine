@@ -28,17 +28,6 @@ namespace CustomEngine.Input
             set => _viewport.Camera = value;
         }
 
-        internal void AwaitRespawn()
-        {
-            RegisterTick(ETickGroup.PostPhysics, ETickOrder.Scene, TickRespawn);
-
-        }
-
-        protected void TickRespawn(float delta)
-        {
-            if (((ICharacterGameMode)Engine.World.Settings.GameMode).
-        }
-
         public override IPawn ControlledPawn
         {
             get => base.ControlledPawn;

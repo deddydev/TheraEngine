@@ -38,7 +38,7 @@ namespace TheraEditor
             actorPropertyGrid.SelectedObject = Engine.World?.Settings;
             SpawnedActors_Modified();
             if (Engine.World != null)
-                Engine.World.State.SpawnedActors.Modified += SpawnedActors_Modified;
+                Engine.World.State.SpawnedActors.PostModified += SpawnedActors_Modified;
             renderPanel1.BeginTick();
         }
 

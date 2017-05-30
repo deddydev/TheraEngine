@@ -20,7 +20,7 @@ namespace System
     public enum ETickGroup
     {
         PrePhysics      = 0,
-        DuringPhysics   = 5,
+        //DuringPhysics   = 5,
         PostPhysics     = 10,
     }
     public enum ETickOrder

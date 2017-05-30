@@ -9,7 +9,7 @@ namespace CustomEngine.GameModes
 {
     public interface ICharacterGameMode
     {
-
+        bool FindSpawnPoint(PawnController c, out Matrix4 transform);
     }
     public class CharacterGameMode<T> : GameMode<T>, ICharacterGameMode where T : class, ICharacterPawn, new()
     {
@@ -20,7 +20,18 @@ namespace CustomEngine.GameModes
 
         public override void AbortGameplay()
         {
-            
+
+        }
+
+        internal void AwaitRespawn()
+        {
+            //RegisterTick(ETickGroup.PostPhysics, ETickOrder.Scene, TickRespawn);
+
+        }
+
+        protected void TickRespawn(float delta)
+        {
+            //if (((ICharacterGameMode)Engine.World.Settings.GameMode).
         }
 
         public override void BeginGameplay()
@@ -29,7 +40,7 @@ namespace CustomEngine.GameModes
             {
                 T pawn = _pawnClass.CreateNew();
                 c.ControlledPawn = pawn;
-                c.AwaitRespawn();
+                //c.AwaitRespawn();
             }
         }
         public virtual bool FindSpawnPoint(PawnController c, out Matrix4 transform)

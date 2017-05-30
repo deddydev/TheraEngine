@@ -162,10 +162,8 @@ namespace System.Collections.Generic
             using (_lock.Read())
                 base.ForEach(action);
         }
-        public new Enumerator GetEnumerator()
-        {
-            return new ThreadSafeEnumerator<T>(GetEnumerator(), _lock);
-        }
+        public new IEnumerator<T> GetEnumerator()
+            => new ThreadSafeEnumerator<T>(base.GetEnumerator(), _lock);
         public new List<T> GetRange(int index, int count)
         {
             using (_lock.Read())

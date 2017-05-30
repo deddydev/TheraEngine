@@ -85,7 +85,7 @@ namespace CustomEngine.Rendering
     public delegate void PhysicsOverlap(IPhysicsDrivable other, ManifoldPoint point);
     public class PhysicsDriver : FileObject
     {
-        public PhysicsOverlap BeginOverlap, EndOverlap, OnHit;
+        public event PhysicsOverlap BeginOverlap, EndOverlap, OnHit;
         public event MatrixUpdate TransformChanged;
         public event SimulationUpdate SimulationStateChanged;
 
@@ -110,6 +110,7 @@ namespace CustomEngine.Rendering
         private Vec3
             _previousLinearFactor = Vec3.One,
             _previousAngularFactor = Vec3.One;
+
         [Serialize("CollisionEnabled")]
         private bool _collisionEnabled;
         [Serialize("SimulatingPhysics")]
@@ -122,7 +123,9 @@ namespace CustomEngine.Rendering
 
         private IPhysicsDrivable _owner;
         private RigidBody _collision;
+        private ThreadSafeList<PhysicsDriver> _overlapping = new ThreadSafeList<PhysicsDriver>();
 
+        public ThreadSafeList<PhysicsDriver> Overlapping => _overlapping;
         public RigidBody CollisionObject
         {
             get => _collision;
@@ -252,6 +255,7 @@ namespace CustomEngine.Rendering
             get => _previousAngularFactor;
             set => _previousAngularFactor = value;
         }
+
         public void OnSpawned()
         {
             _isSpawned = true;
@@ -262,7 +266,7 @@ namespace CustomEngine.Rendering
                 Engine.World.PhysicsScene.AddRigidBody(_collision, (short)_group, _collisionEnabled ? (short)_collidesWith : (short)CustomCollisionGroup.None);
 
             if (_simulatingPhysics)
-                RegisterTick(ETickGroup.PostPhysics, ETickOrder.Scene);
+                RegisterTick(ETickGroup.PostPhysics, ETickOrder.Scene, Tick);
         }
         public void OnDespawned()
         {
@@ -272,6 +276,9 @@ namespace CustomEngine.Rendering
 
             if (_collision.IsInWorld/* && Engine.World != null*/)
                 Engine.World.PhysicsScene.RemoveRigidBody(_collision);
+
+            if (_simulatingPhysics)
+                UnregisterTick(ETickGroup.PostPhysics, ETickOrder.Scene, Tick);
         }
         //internal void AddToWorld()
         //{
@@ -285,10 +292,48 @@ namespace CustomEngine.Rendering
             _collision.WorldTransform = newTransform;
             Engine.World?.PhysicsScene.UpdateAabbs();
         }
-        protected internal override void Tick(float delta)
+        protected internal void Tick(float delta)
         {
             _collision.GetWorldTransform(out Matrix transform);
             TransformChanged?.Invoke(transform);
+        }
+
+        internal void InvokeHit(IPhysicsDrivable other, ManifoldPoint cp)
+        {
+            OnHit?.Invoke(other, cp);
+        }
+        internal void InvokeBeginOverlap(IPhysicsDrivable other, ManifoldPoint cp)
+        {
+            BeginOverlap?.Invoke(other, cp);
+        }
+        internal void InvokeEndOverlap(IPhysicsDrivable other, ManifoldPoint cp)
+        {
+            EndOverlap?.Invoke(other, cp);
+        }
+
+        internal void ContactStarted(PhysicsDriver other, ManifoldPoint cp)
+        {
+            bool thisCollides = (CollidesWith & other.CollisionGroup) == other.CollisionGroup;
+            bool thatCollides = (other.CollidesWith & CollisionGroup) == CollisionGroup;
+            if (thisCollides || thatCollides)
+            {
+                InvokeHit(other.Owner, cp);
+                other.InvokeHit(Owner, cp);
+            }
+            else
+            {
+                _overlapping.Add(other);
+                other._overlapping.Add(this);
+
+                InvokeBeginOverlap(other.Owner, cp);
+                other.InvokeBeginOverlap(Owner, cp);
+            }
+        }
+
+        internal void ContactEnded(PhysicsDriver other)
+        {
+            _overlapping.Remove(other);
+            other._overlapping.Remove(this);
         }
     }
 }

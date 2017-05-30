@@ -195,13 +195,13 @@ namespace CustomEngine.Rendering.Animation
                 last._tick = method ? (Action<object, float>)last.MethodTick : last.PropertyTick;
             }
         }
-        private void RegisterOwners() { _owners.Modified += OwnersModified; }
+        private void RegisterOwners() { _owners.PostModified += OwnersModified; }
         private void OwnersModified()
         {
-            if (_owners.Count == 0 && _isTicking)
-                UnregisterTick();
-            else if (_owners.Count != 0 && !_isTicking)
-                RegisterTick(ETickGroup.PrePhysics, ETickOrder.Animation);
+            if (_owners.Count == 0 && IsTicking)
+                UnregisterTick(ETickGroup.PrePhysics, ETickOrder.Animation, Tick);
+            else if (_owners.Count != 0 && !IsTicking)
+                RegisterTick(ETickGroup.PrePhysics, ETickOrder.Animation, Tick);
         }
 
         public AnimFolder RootFolder
@@ -247,7 +247,7 @@ namespace CustomEngine.Rendering.Animation
             _isPlaying = false;
             AnimationEnded?.Invoke(this);
         }
-        protected internal override void Tick(float delta)
+        protected internal void Tick(float delta)
         {
             foreach (ObjectBase b in _owners)
                 Tick(delta, b);

@@ -176,22 +176,22 @@ namespace CustomEngine.Worlds.Actors
                 if (_children != null)
                 {
                     _children.Clear();
-                    _children.Added -= _children_Added;
-                    _children.AddedRange -= _children_AddedRange;
-                    _children.Inserted -= _children_Inserted;
-                    _children.InsertedRange -= _children_InsertedRange;
-                    _children.Removed -= _children_Removed;
-                    _children.RemovedRange -= _children_RemovedRange;
+                    _children.PostAdded -= _children_Added;
+                    _children.PostAddedRange -= _children_AddedRange;
+                    _children.PostInserted -= _children_Inserted;
+                    _children.PostInsertedRange -= _children_InsertedRange;
+                    _children.PostRemoved -= _children_Removed;
+                    _children.PostRemovedRange -= _children_RemovedRange;
                 }
                 if (value != null)
                 {
                     _children = value;
-                    _children.Added += _children_Added;
-                    _children.AddedRange += _children_AddedRange;
-                    _children.Inserted += _children_Inserted;
-                    _children.InsertedRange += _children_InsertedRange;
-                    _children.Removed += _children_Removed;
-                    _children.RemovedRange += _children_RemovedRange;
+                    _children.PostAdded += _children_Added;
+                    _children.PostAddedRange += _children_AddedRange;
+                    _children.PostInserted += _children_Inserted;
+                    _children.PostInsertedRange += _children_InsertedRange;
+                    _children.PostRemoved += _children_Removed;
+                    _children.PostRemovedRange += _children_RemovedRange;
                 }
             }
         }

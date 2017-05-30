@@ -12,6 +12,7 @@ using CustomEngine.Files;
 using CustomEngine.Worlds.Actors;
 using System.Drawing.Text;
 using System.Diagnostics;
+using System.Threading;
 
 namespace CustomEngine
 {
@@ -47,7 +48,7 @@ namespace CustomEngine
         public static List<AIController> ActiveAI = new List<AIController>();
         public static List<World> LoadedWorlds = new List<World>();
         //public static int PhysicsSubsteps = 10;
-
+        
         private static bool _isPaused = false;
         private static ComputerInfo _computerInfo;
         private static GlobalTimer _timer = new GlobalTimer();
@@ -66,8 +67,24 @@ namespace CustomEngine
         public static Viewport.ThreePlayerViewportPreference ThreePlayerPref =
             Viewport.ThreePlayerViewportPreference.PreferFirstPlayer;
 
-        public static Dictionary<ETickGroup, Dictionary<ETickOrder, ThreadSafeList<DelTick>>> _tick = 
-            new Dictionary<ETickGroup, Dictionary<ETickOrder, ThreadSafeList<DelTick>>>();
+        public static ThreadSafeList<DelTick>[] _tick = new ThreadSafeList<DelTick>[15]
+        {
+            new ThreadSafeList<DelTick>(),
+            new ThreadSafeList<DelTick>(),
+            new ThreadSafeList<DelTick>(),
+            new ThreadSafeList<DelTick>(),
+            new ThreadSafeList<DelTick>(),
+            new ThreadSafeList<DelTick>(),
+            new ThreadSafeList<DelTick>(),
+            new ThreadSafeList<DelTick>(),
+            new ThreadSafeList<DelTick>(),
+            new ThreadSafeList<DelTick>(),
+            new ThreadSafeList<DelTick>(),
+            new ThreadSafeList<DelTick>(),
+            new ThreadSafeList<DelTick>(),
+            new ThreadSafeList<DelTick>(),
+            new ThreadSafeList<DelTick>(),
+        };
 
         internal static AbstractRenderer Renderer
         {

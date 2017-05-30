@@ -16,12 +16,12 @@ namespace CustomEngine.Worlds.Actors
             _owner = owner;
             _transform = transform;
             _childComponents = new MonitoredList<SceneComponent>();
-            _childComponents.Added          += _children_Added;
-            _childComponents.AddedRange     += _children_AddedRange;
-            _childComponents.Inserted       += _children_Inserted;
-            _childComponents.InsertedRange  += _children_InsertedRange;
-            _childComponents.Removed        += _children_Removed;
-            _childComponents.RemovedRange   += _children_RemovedRange;
+            _childComponents.PostAdded          += _children_Added;
+            _childComponents.PostAddedRange     += _children_AddedRange;
+            _childComponents.PostInserted       += _children_Inserted;
+            _childComponents.PostInsertedRange  += _children_InsertedRange;
+            _childComponents.PostRemoved        += _children_Removed;
+            _childComponents.PostRemovedRange   += _children_RemovedRange;
         }
 
         private IActor _owner;

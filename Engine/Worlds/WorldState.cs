@@ -4,6 +4,7 @@ using CustomEngine.Rendering.Models.Materials;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
 
 namespace CustomEngine.Worlds
 {
@@ -13,25 +14,79 @@ namespace CustomEngine.Worlds
         public MonitoredList<IActor> SpawnedActors => _spawnedActors;
 
         [Serialize("SpawnedMaps")]
-        private List<Map> _spawnedMaps = new List<Map>();
+        private List<Map> _spawnedMaps;
         [Serialize("SpawnedActors")]
-        private MonitoredList<IActor> _spawnedActors = new MonitoredList<IActor>();
+        private MonitoredList<IActor> _spawnedActors;
 
-        //[StructLayout(LayoutKind.Sequential, Pack = 1)]
-        //public unsafe struct Header
-        //{
-        //    public const int Size = 4;
+        public Dictionary<Type, HashSet<int>> _actorMap;
 
-        //    public BVec3 _gravity;
-        //    public float _timeDilation;
-        //    public bint _visibleMapCount;
-        //    public bint _visibleActorCount;
-        //    public GameMode.Header _gameMode;
+        public WorldState()
+        {
+            _spawnedMaps = new List<Map>();
+            _spawnedActors = new MonitoredList<IActor>();
+            _actorMap = new Dictionary<Type, HashSet<int>>();
 
-        //    public bint* VisibleMapIndices => (bint*)(Address + Size);
-        //    public bint* VisibleActorIndices => (bint*)(Address + Size);
+            _spawnedActors.PostAdded += _spawnedActors_Added;
+            _spawnedActors.PostInserted += _spawnedActors_Inserted;
 
-        //    public VoidPtr Address { get { fixed (void* ptr = &this) return ptr; } }
-        //}
+            _spawnedActors.PreAddedRange += _spawnedActors_AddedRange;
+            _spawnedActors.PostInsertedRange += _spawnedActors_InsertedRange;
+        }
+        private void _spawnedActors_Added(IActor item)
+        {
+            _spawnedActors_Inserted(item, _spawnedActors.Count - 1);
+        }
+        private void _spawnedActors_Inserted(IActor item, int index)
+        {
+            Type t = item.GetType();
+            if (!_actorMap.ContainsKey(t))
+                _actorMap[t] = new HashSet<int>() { index };
+            else
+                _actorMap[t].Add(index);
+        }
+        private void _spawnedActors_AddedRange(IEnumerable<IActor> items)
+        {
+            _spawnedActors_InsertedRange(items, _spawnedActors.Count);
+        }
+        private void _spawnedActors_InsertedRange(IEnumerable<IActor> items, int index)
+        {
+            int i = 0;
+            foreach (IActor item in items)
+            {
+                Type t = item.GetType();
+                if (!_actorMap.ContainsKey(t))
+                    _actorMap[t] = new HashSet<int>() { index + i };
+                else
+                    _actorMap[t].Add(index + i);
+                ++i;
+            }
+        }
+
+        [PostDeserialize]
+        private void CreateActorMap()
+        {
+            _actorMap = new Dictionary<Type, HashSet<int>>();
+            for (int i = 0; i < _spawnedActors.Count; ++i)
+            {
+                Type t = _spawnedActors[i].GetType();
+                if (!_actorMap.ContainsKey(t))
+                    _actorMap[t] = new HashSet<int>() { i };
+                else
+                    _actorMap[t].Add(i);
+            }
+        }
+        public IEnumerable<T> GetSpawnedActorsOfType<T>() where T : IActor
+        {
+            Type t = typeof(T);
+            if (_actorMap.ContainsKey(t))
+                return _actorMap[t].Select(x => (T)_spawnedActors[x]);
+            return null;
+        }
+        public IEnumerable<IActor> GetSpawnedActorsOfType(Type t)
+        {
+            if (_actorMap.ContainsKey(t))
+                return _actorMap[t].Select(x => _spawnedActors[x]);
+            return null;
+        }
     }
 }

@@ -14,13 +14,26 @@ namespace System.Collections.Generic
         public delegate void SingleInsertHandler(T item, int index);
         public delegate void MultiInsertHandler(IEnumerable<T> items, int index);
 
-        public event SingleHandler Added;
-        public event MultiHandler AddedRange;
-        public event SingleHandler Removed;
-        public event MultiHandler RemovedRange;
-        public event SingleInsertHandler Inserted;
-        public event MultiInsertHandler InsertedRange;
-        public event Action Modified;
+        public event SingleHandler PreAdded;
+        public event SingleHandler PostAdded;
+
+        public event MultiHandler PreAddedRange;
+        public event MultiHandler PostAddedRange;
+        
+        public event SingleHandler PreRemoved;
+        public event SingleHandler PostRemoved;
+        
+        public event MultiHandler PreRemovedRange;
+        public event MultiHandler PostRemovedRange;
+        
+        public event SingleInsertHandler PreInserted;
+        public event SingleInsertHandler PostInserted;
+        
+        public event MultiInsertHandler PreInsertedRange;
+        public event MultiInsertHandler PostInsertedRange;
+
+        public event Action PreModified;
+        public event Action PostModified;
         
         private bool _allowDuplicates = true;
 
@@ -34,13 +47,23 @@ namespace System.Collections.Generic
         {
             if (!_allowDuplicates && Contains(item))
                 return;
-            base.Add(item);
+
             if (!_updating)
             {
                 if (reportAdded)
-                    Added?.Invoke(item);
+                    PreAdded?.Invoke(item);
                 if (reportModified)
-                    Modified?.Invoke();
+                    PreModified?.Invoke();
+            }
+
+            base.Add(item);
+
+            if (!_updating)
+            {
+                if (reportAdded)
+                    PostAdded?.Invoke(item);
+                if (reportModified)
+                    PostModified?.Invoke();
             }
         }
         public new void AddRange(IEnumerable<T> collection) => AddRange(collection, true, true);
@@ -52,48 +75,72 @@ namespace System.Collections.Generic
             if (!_allowDuplicates)
                collection = collection.Where(x => !Contains(x));
 
+            if (!_updating)
+            {
+                if (reportAddedRange)
+                    PreAddedRange?.Invoke(collection);
+                if (reportModified)
+                    PreModified?.Invoke();
+            }
+
             base.AddRange(collection);
 
             if (!_updating)
             {
                 if (reportAddedRange)
-                    AddedRange?.Invoke(collection);
+                    PostAddedRange?.Invoke(collection);
                 if (reportModified)
-                    Modified?.Invoke();
+                    PostModified?.Invoke();
             }
         }
         public new bool Remove(T item) => Remove(item, true, true);
         public bool Remove(T item, bool reportRemoved, bool reportModified)
         {
+            if (!_updating)
+            {
+                if (reportRemoved)
+                    PreRemoved?.Invoke(item);
+                if (reportModified)
+                    PreModified?.Invoke();
+            }
+
             if (base.Remove(item))
             {
                 if (!_updating)
                 {
                     if (reportRemoved)
-                        Removed?.Invoke(item);
+                        PostRemoved?.Invoke(item);
                     if (reportModified)
-                        Modified?.Invoke();
+                        PostModified?.Invoke();
                 }
                 return true;
             }
             return false;
         }
         public new void RemoveRange(int index, int count) => RemoveRange(index, count, true, true);
-        public void RemoveRange(int index, int count, bool reportModified, bool reportRemovedRange)
+        public void RemoveRange(int index, int count, bool reportRemovedRange, bool reportModified)
         {
             IEnumerable<T> range = null;
 
             if (!_updating && reportRemovedRange)
                 range = GetRange(index, count);
 
+            if (!_updating)
+            {
+                if (reportRemovedRange)
+                    PreRemovedRange?.Invoke(range);
+                if (reportModified)
+                    PreModified?.Invoke();
+            }
+
             base.RemoveRange(index, count);
 
             if (!_updating)
             {
                 if (reportRemovedRange)
-                    RemovedRange?.Invoke(range);
+                    PostRemovedRange?.Invoke(range);
                 if (reportModified)
-                    Modified?.Invoke();
+                    PostModified?.Invoke();
             }
 
         }
@@ -102,14 +149,22 @@ namespace System.Collections.Generic
         {
             T item = this[index];
 
+            if (!_updating)
+            {
+                if (reportRemoved)
+                    PreRemoved?.Invoke(item);
+                if (reportModified)
+                    PreModified?.Invoke();
+            }
+
             base.RemoveAt(index);
 
             if (!_updating)
             {
                 if (reportRemoved)
-                    Removed?.Invoke(item);
+                    PostRemoved?.Invoke(item);
                 if (reportModified)
-                    Modified?.Invoke();
+                    PostModified?.Invoke();
             }
         }
         public new void Clear() => Clear(true, true);
@@ -120,14 +175,22 @@ namespace System.Collections.Generic
             if (reportRemovedRange)
                 range = GetRange(0, Count);
 
+            if (!_updating)
+            {
+                if (reportRemovedRange)
+                    PreRemovedRange?.Invoke(range);
+                if (reportModified)
+                    PreModified?.Invoke();
+            }
+
             base.Clear();
 
             if (!_updating)
             {
                 if (reportRemovedRange)
-                    RemovedRange?.Invoke(range);
+                    PostRemovedRange?.Invoke(range);
                 if (reportModified)
-                    Modified?.Invoke();
+                    PostModified?.Invoke();
             }
         }
         public new void RemoveAll(Predicate<T> match) => RemoveAll(match, true, true);
@@ -140,12 +203,20 @@ namespace System.Collections.Generic
                 if (reportRemovedRange)
                     matches = FindAll(match);
 
+                if (!_updating)
+                {
+                    if (reportRemovedRange)
+                        PreRemovedRange?.Invoke(matches);
+                    if (reportModified)
+                        PreModified?.Invoke();
+                }
+
                 base.RemoveAll(match);
 
                 if (reportRemovedRange)
-                    RemovedRange?.Invoke(matches);
+                    PostRemovedRange?.Invoke(matches);
                 if (reportModified)
-                    Modified?.Invoke();
+                    PostModified?.Invoke();
             }
             else
                 base.RemoveAll(match);
@@ -155,13 +226,23 @@ namespace System.Collections.Generic
         {
             if (!_allowDuplicates && Contains(item))
                 return;
-            base.Insert(index, item);
+
             if (!_updating)
             {
                 if (reportInserted)
-                    Inserted?.Invoke(item, index);
+                    PreInserted?.Invoke(item, index);
                 if (reportModified)
-                    Modified?.Invoke();
+                    PreModified?.Invoke();
+            }
+
+            base.Insert(index, item);
+
+            if (!_updating)
+            {
+                if (reportInserted)
+                    PostInserted?.Invoke(item, index);
+                if (reportModified)
+                    PostModified?.Invoke();
             }
         }
         public new void InsertRange(int index, IEnumerable<T> collection) => InsertRange(index, collection, true, true);
@@ -173,50 +254,73 @@ namespace System.Collections.Generic
             if (!_allowDuplicates)
                 collection = collection.Where(x => !Contains(x));
 
+            if (!_updating)
+            {
+                if (reportInsertedRange)
+                    PreInsertedRange?.Invoke(collection, index);
+                if (reportModified)
+                    PreModified?.Invoke();
+            }
+
             base.InsertRange(index, collection);
 
             if (!_updating)
             {
                 if (reportInsertedRange)
-                    InsertedRange?.Invoke(collection, index);
+                    PostInsertedRange?.Invoke(collection, index);
                 if (reportModified)
-                    Modified?.Invoke();
+                    PostModified?.Invoke();
             }
         }
         public new void Reverse(int index, int count) => Reverse(index, count, true);
         public void Reverse(int index, int count, bool reportModified)
         {
+            bool report = reportModified && !_updating;
+            if (report)
+                PreModified?.Invoke();
             base.Reverse(index, count);
-            if (reportModified && !_updating)
-                Modified?.Invoke();
+            if (report)
+                PostModified?.Invoke();
         }
         public new void Reverse() => Reverse(true);
         public void Reverse(bool reportModified)
         {
+            bool report = reportModified && !_updating;
+            if (report)
+                PreModified?.Invoke();
             base.Reverse();
-            if (reportModified && !_updating)
-                Modified?.Invoke();
+            if (report)
+                PostModified?.Invoke();
         }
         public new void Sort(int index, int count, IComparer<T> comparer) => Sort(index, count, comparer, true);
         public void Sort(int index, int count, IComparer<T> comparer, bool reportModified)
         {
+            bool report = reportModified && !_updating;
+            if (report)
+                PreModified?.Invoke();
             base.Sort(index, count, comparer);
-            if (reportModified && !_updating)
-                Modified?.Invoke();
+            if (report)
+                PostModified?.Invoke();
         }
         public new void Sort() => Sort(true);
         public void Sort(bool reportModified)
         {
+            bool report = reportModified && !_updating;
+            if (report)
+                PreModified?.Invoke();
             base.Sort();
-            if (reportModified && !_updating)
-                Modified?.Invoke();
+            if (report)
+                PostModified?.Invoke();
         }
         public new void Sort(IComparer<T> comparer) => Sort(comparer, true);
         public void Sort(IComparer<T> comparer, bool reportModified)
         {
+            bool report = reportModified && !_updating;
+            if (report)
+                PreModified?.Invoke();
             base.Sort(comparer);
-            if (reportModified && !_updating)
-                Modified?.Invoke();
+            if (report)
+                PostModified?.Invoke();
         }
     }
 }

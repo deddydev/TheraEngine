@@ -21,31 +21,31 @@ namespace CustomEngine.Rendering
             : base(name)
         {
             _allowedArgTypes = types;
-            _connectedTo.Added += _connectedTo_Added;
-            _connectedTo.Removed += _connectedTo_Removed;
+            _connectedTo.PostAdded += _connectedTo_Added;
+            _connectedTo.PostRemoved += _connectedTo_Removed;
         }
         public FuncValueOutput(string name, TParent parent, params int[] types)
             : base(name, parent)
         {
             _allowedArgTypes = types;
-            _connectedTo.Added += _connectedTo_Added;
-            _connectedTo.Removed += _connectedTo_Removed;
+            _connectedTo.PostAdded += _connectedTo_Added;
+            _connectedTo.PostRemoved += _connectedTo_Removed;
         }
         public FuncValueOutput(string name, TInput linkedMultiArg)
             : base(name)
         {
             _syncedArgs.Add(linkedMultiArg);
             _allowedArgTypes = linkedMultiArg.AllowedArgumentTypes;
-            _connectedTo.Added += _connectedTo_Added;
-            _connectedTo.Removed += _connectedTo_Removed;
+            _connectedTo.PostAdded += _connectedTo_Added;
+            _connectedTo.PostRemoved += _connectedTo_Removed;
         }
         public FuncValueOutput(string name, TParent parent, TInput linkedMultiArg)
             : base(name, parent)
         {
             _syncedArgs.Add(linkedMultiArg);
             _allowedArgTypes = linkedMultiArg.AllowedArgumentTypes;
-            _connectedTo.Added += _connectedTo_Added;
-            _connectedTo.Removed += _connectedTo_Removed;
+            _connectedTo.PostAdded += _connectedTo_Added;
+            _connectedTo.PostRemoved += _connectedTo_Removed;
         }
         
         public bool TryConnectTo(TInput other)

@@ -4,14 +4,22 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using CustomEngine.Input;
+using BulletSharp;
+using CustomEngine.Rendering;
 
 namespace CustomEngine.Worlds.Actors.Types
 {
     public class CharacterSpawnPointActor : Actor<CapsuleComponent>
     {
-        internal bool CanSpawnPlayer(PawnController c)
+        protected override void PostConstruct()
         {
-            throw new NotImplementedException();
+            base.PostConstruct();
         }
+        
+        public bool CanSpawnPlayer(PawnController c)
+        {
+            return true;
+        }
+        public bool IsBlocked => RootComponent.PhysicsDriver.Overlapping.Count > 0;
     }
 }

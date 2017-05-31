@@ -31,14 +31,14 @@ namespace CustomEngine.Input.Devices
 
         public ConnectedStateChange ConnectionStateChanged;
 
-        public bool IsConnected { get { return _isConnected; } }
-        public int Index { get { return _index; } }
+        public bool IsConnected => _isConnected;
+        public int Index => _index;
 
         public InputDevice(int index)
         {
             _index = index;
             //Console.WriteLine(GetType().ToString() + _index + " created.");
-            RegisterTick(ETickGroup.PrePhysics, ETickOrder.Input);
+            RegisterTick(ETickGroup.PrePhysics, ETickOrder.Input, UpdateStates);
             ResetStates();
         }
         protected abstract int GetButtonCount();
@@ -60,7 +60,6 @@ namespace CustomEngine.Input.Devices
             ConnectionStateChanged?.Invoke(_isConnected);
             return _isConnected;
         }
-        protected internal override void Tick(float delta) { UpdateStates(delta); }
         public static void RegisterButtonEvent(ButtonManager m, ButtonInputType type, InputPauseType pauseType, Action func, bool unregister)
         {
             m?.Register(func, type, pauseType, unregister);

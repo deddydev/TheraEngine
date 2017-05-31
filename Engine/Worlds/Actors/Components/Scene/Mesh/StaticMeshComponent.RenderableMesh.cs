@@ -46,13 +46,13 @@ namespace CustomEngine.Worlds.Actors
                     _isVisible = value;
                     if (_isVisible)
                     {
-                        Engine.Renderer.Scene.AddRenderable(_cullingVolume);
-                        Engine.Renderer.Scene.AddRenderable(this);
+                        Engine.Renderer.Scene.Add(_cullingVolume);
+                        Engine.Renderer.Scene.Add(this);
                     }
                     else
                     {
-                        Engine.Renderer.Scene.RemoveRenderable(_cullingVolume);
-                        Engine.Renderer.Scene.RemoveRenderable(this);
+                        Engine.Renderer.Scene.Remove(_cullingVolume);
+                        Engine.Renderer.Scene.Remove(this);
                     }
                 }
             }

@@ -7,12 +7,15 @@ using CustomEngine.Worlds;
 
 namespace CustomEngine.GameModes
 {
-    public interface ICharacterGameMode
+    public interface ICharacterGameMode : IGameMode
     {
         bool FindSpawnPoint(PawnController c, out Matrix4 transform);
+        void OnCharacterKilled(ICharacterPawn killed, ICharacterPawn instigator, IActor killer);
     }
     public class CharacterGameMode<T> : GameMode<T>, ICharacterGameMode where T : class, ICharacterPawn, new()
     {
+        public float _respawnTime = 3;
+
         public CharacterGameMode()
         {
 
@@ -22,25 +25,14 @@ namespace CustomEngine.GameModes
         {
 
         }
-
-        internal void AwaitRespawn()
-        {
-            //RegisterTick(ETickGroup.PostPhysics, ETickOrder.Scene, TickRespawn);
-
-        }
-
-        protected void TickRespawn(float delta)
-        {
-            //if (((ICharacterGameMode)Engine.World.Settings.GameMode).
-        }
-
+        
         public override void BeginGameplay()
         {
             foreach (LocalPlayerController c in Engine.ActivePlayers)
             {
                 T pawn = _pawnClass.CreateNew();
                 c.ControlledPawn = pawn;
-                //c.AwaitRespawn();
+                pawn.QueueRespawn();
             }
         }
         public virtual bool FindSpawnPoint(PawnController c, out Matrix4 transform)
@@ -58,9 +50,9 @@ namespace CustomEngine.GameModes
         {
             throw new NotImplementedException();
         }
-        public virtual void OnKilled(T pawn)
+        public virtual void OnCharacterKilled(ICharacterPawn killed, ICharacterPawn instigator, IActor killer)
         {
-
+            killed.QueueRespawn(_respawnTime);
         }
     }
 }

@@ -76,7 +76,13 @@ namespace CustomEngine.GameModes
             return new T2();
         }
     }
-    public abstract class BaseGameMode : FileObject
+    public interface IGameMode
+    {
+        void BeginGameplay();
+        void EndGameplay();
+        void AbortGameplay();
+    }
+    public abstract class BaseGameMode : FileObject, IGameMode
     {
         public abstract void BeginGameplay();
         public abstract void EndGameplay();

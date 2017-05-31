@@ -71,11 +71,10 @@ namespace CustomEngine.Rendering.Models
             _influences = data._influences.Select(x => LiveInfluence.FromInfluence(x, skeleton)).ToArray();
             _data = data;
         }
-        public unsafe void UpdatePNBT(HashSet<int>.Enumerator modifiedVertexIndices)
+        public unsafe void UpdatePNBT(IEnumerable<int> modifiedVertexIndices)
         {
-            while (modifiedVertexIndices.MoveNext())
+            foreach (int i in modifiedVertexIndices)
             {
-                int i = modifiedVertexIndices.Current;
                 LiveInfluence inf = _influences[_influenceIndices[i]];
                 if (inf._hasChanged)
                 {

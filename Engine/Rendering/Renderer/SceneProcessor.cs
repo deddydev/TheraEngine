@@ -80,7 +80,7 @@ namespace CustomEngine.Rendering
 
             AbstractRenderer.CurrentCamera = null;
         }
-        public void AddRenderable(IRenderable obj)
+        public void Add(IRenderable obj)
         {
             AddRenderable(obj, 0);
         }
@@ -90,7 +90,7 @@ namespace CustomEngine.Rendering
             //_commands.Add(key, obj);
             _renderables.Add(obj);
         }
-        public void RemoveRenderable(IRenderable obj)
+        public void Remove(IRenderable obj)
         {
             _cullingTree?.Remove(obj);
             _renderables.Remove(obj);

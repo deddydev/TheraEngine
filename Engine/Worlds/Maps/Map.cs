@@ -31,7 +31,7 @@ namespace CustomEngine.Worlds
         public virtual void BeginPlay()
         {
             foreach (IActor actor in Settings._defaultActors)
-                _owningWorld.SpawnActor(actor, Matrix4.Identity);
+                _owningWorld.SpawnActor(actor);
         }
     }
 }

@@ -16,6 +16,9 @@ namespace CustomEngine.Files
         //ThirdParty  = 2,
         //Programatic = 3,
     }
+
+    //TODO: this class can probably be removed, since any class can be serialized
+
     [FileClass("", "")]
     public abstract class FileObject : ObjectBase, ICodeProgress
     {

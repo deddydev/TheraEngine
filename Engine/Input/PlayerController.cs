@@ -21,11 +21,11 @@ namespace CustomEngine.Input
 
         public PlayerController(Queue<IPawn> possessionQueue) : base(possessionQueue)
         {
-            PlayerInfo = new PlayerInfo(this);
+            PlayerInfo = new PlayerInfo();
         }
         public PlayerController() : base()
         {
-            PlayerInfo = new PlayerInfo(this);
+            PlayerInfo = new PlayerInfo();
         }
         ~PlayerController()
         {

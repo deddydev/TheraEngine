@@ -72,7 +72,7 @@ namespace CustomEngine.Worlds.Actors
                     m.Visible = m.Mesh.Visible;
 
             if (Engine.Settings.RenderSkeletons && _skeleton != null)
-                Engine.Renderer.Scene.AddRenderable(_skeleton);
+                Engine.Renderer.Scene.Add(_skeleton);
 
             base.OnSpawned();
         }
@@ -85,7 +85,7 @@ namespace CustomEngine.Worlds.Actors
             base.OnDespawned();
 
             if (Engine.Settings.RenderSkeletons && _skeleton != null)
-                Engine.Renderer.Scene.RemoveRenderable(_skeleton);
+                Engine.Renderer.Scene.Remove(_skeleton);
         }
         internal override void RecalcGlobalTransform()
         {

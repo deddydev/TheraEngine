@@ -7,8 +7,15 @@ namespace CustomEngine.Rendering.Animation
     public delegate float FloatGetValue(float frameIndex);
     public class PropAnimFloat : PropertyAnimation<FloatKeyframe>, IEnumerable<FloatKeyframe>
     {
-        float[] _baked;
-        FloatGetValue _getValue;
+        private float _defaultValue = 0.0f;
+        private float[] _baked;
+        private FloatGetValue _getValue;
+
+        public float DefaultValue
+        {
+            get => _defaultValue;
+            set => _defaultValue = value;
+        }
 
         public PropAnimFloat(int frameCount, bool looped, bool useKeyframes) 
             : base(frameCount, looped, useKeyframes) { }
@@ -23,9 +30,9 @@ namespace CustomEngine.Rendering.Animation
         protected override object GetValue(float frame)
             => _getValue(frame);
         public float GetValueBaked(float frameIndex)
-            => _baked[(int)(frameIndex * FramesPerSecond)];
+            => _baked[(int)(frameIndex / Engine.TargetUpdateFreq * FramesPerSecond)];
         public float GetValueKeyframed(float frameIndex)
-            => _keyframes.First.Interpolate(frameIndex);
+            => _keyframes.KeyCount == 0 ? _defaultValue : _keyframes.First.Interpolate(frameIndex);
 
         /// <summary>
         /// Bakes the interpolated data for fastest access by the game.
@@ -55,6 +62,12 @@ namespace CustomEngine.Rendering.Animation
     }
     public class FloatKeyframe : Keyframe
     {
+        public FloatKeyframe(float frameIndex, float inoutValue, PlanarInterpType type) : base()
+        {
+            _frameIndex = frameIndex;
+            _inValue = _outValue = inoutValue;
+            InterpolationType = type;
+        }
         public FloatKeyframe(float frameIndex, float inValue, float outValue, PlanarInterpType type) : base()
         {
             _frameIndex = frameIndex;

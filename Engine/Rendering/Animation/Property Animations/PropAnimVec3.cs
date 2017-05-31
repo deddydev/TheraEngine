@@ -10,11 +10,18 @@ namespace CustomEngine.Rendering.Animation
     delegate Vec3 Vec3GetValue(float frameIndex);
     public class PropAnimVec3 : PropertyAnimation<Vec3Keyframe>, IEnumerable<Vec3Keyframe>, IRenderable
     {
+        private Vec3 _defaultValue = Vec3.Zero;
         private Vec3[] _baked;
         private Vec3GetValue _getValue;
         private PrimitiveManager _spline;
         private IOctreeNode _renderNode;
         private bool _isRendering;
+
+        public Vec3 DefaultValue
+        {
+            get => _defaultValue;
+            set => _defaultValue = value;
+        }
 
         public Shape CullingVolume => null;
         public IOctreeNode RenderNode
@@ -49,9 +56,9 @@ namespace CustomEngine.Rendering.Animation
         protected override object GetValue(float frame)
             => _getValue(frame);
         public Vec3 GetValueBaked(float frameIndex)
-            => _baked[(int)(frameIndex * _keyframes.FramesPerSecond)];
+            => _baked[(int)(frameIndex / Engine.TargetUpdateFreq * FramesPerSecond)];
         public Vec3 GetValueKeyframed(float frameIndex)
-            => _keyframes.First.Interpolate(frameIndex);
+            => _keyframes.KeyCount == 0 ? _defaultValue : _keyframes.First.Interpolate(frameIndex);
 
         /// <summary>
         /// Bakes the interpolated data for fastest access by the game.

@@ -29,18 +29,6 @@ namespace CustomEngine.Tools
             var ops = _precedence.SelectMany(x => x).ToList();
             foreach (var o in ops)
                 inFix = inFix.Replace(o, " " + o + " ");
-            //for (int i = 0; i < inFix.Length; ++i)
-            //{
-            //    char c = inFix[i];
-            //    string cs = c.ToString();
-            //    if (ops.Contains(cs))
-            //    {
-            //        inFix = inFix.Insert(i++, " ");
-            //        if (inFix[i + 1] == c && ops.Contains(cs + cs))
-            //            ++i;
-            //        inFix = inFix.Insert(++i, " ");
-            //    }
-            //}
             return inFix.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
         }
         private static void ConvertToPostFix(String inFix, Queue<String> queue, Stack<String> stack)

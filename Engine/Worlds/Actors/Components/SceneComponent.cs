@@ -46,6 +46,8 @@ namespace CustomEngine.Worlds.Actors
                 _inverseWorldTransform = _worldTransform.Inverted();
                 _localTransform = GetInverseParentMatrix() * WorldMatrix;
                 _inverseLocalTransform = InverseWorldMatrix * GetParentMatrix();
+                if (this is IPhysicsDrivable p)
+                    p.PhysicsDriver.SetPhysicsTransform(_worldTransform);
                 foreach (SceneComponent c in _children)
                     c.RecalcGlobalTransform();
                 OnWorldTransformChanged();
@@ -98,6 +100,8 @@ namespace CustomEngine.Worlds.Actors
                 _worldTransform = _inverseWorldTransform.Inverted();
                 _localTransform = GetInverseParentMatrix() * WorldMatrix;
                 _inverseLocalTransform = InverseWorldMatrix * GetParentMatrix();
+                if (this is IPhysicsDrivable p)
+                    p.PhysicsDriver.SetPhysicsTransform(_worldTransform);
                 foreach (SceneComponent c in _children)
                     c.RecalcGlobalTransform();
                 OnWorldTransformChanged();
@@ -280,6 +284,7 @@ namespace CustomEngine.Worlds.Actors
             //}
             _previousInverseWorldTransform = _inverseWorldTransform;
             _inverseWorldTransform = InverseLocalMatrix * GetInverseParentMatrix();
+            
             foreach (SceneComponent c in _children)
                 c.RecalcGlobalTransform();
             OnWorldTransformChanged();

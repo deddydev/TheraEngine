@@ -11,9 +11,16 @@ namespace CustomEngine.Rendering.Animation
     delegate Vec4 Vec4GetValue(float frameIndex);
     public class PropAnimVec4 : PropertyAnimation<Vec4Keyframe>, IEnumerable<Vec4Keyframe>
     {
-        Vec4[] _baked;
-        Vec4GetValue _getValue;
-        
+        private Vec4 _defaultValue = Vec4.Zero;
+        private Vec4[] _baked;
+        private Vec4GetValue _getValue;
+
+        public Vec4 DefaultValue
+        {
+            get => _defaultValue;
+            set => _defaultValue = value;
+        }
+
         public PropAnimVec4(int frameCount, bool looped, bool useKeyframes) 
             : base(frameCount, looped, useKeyframes) { }
 
@@ -27,9 +34,9 @@ namespace CustomEngine.Rendering.Animation
         protected override object GetValue(float frame)
             => _getValue(frame);
         public Vec4 GetValueBaked(float frameIndex)
-            => _baked[(int)(frameIndex * _keyframes.FramesPerSecond)];
+            => _baked[(int)(frameIndex / Engine.TargetUpdateFreq * FramesPerSecond)];
         public Vec4 GetValueKeyframed(float frameIndex)
-            => _keyframes.First.Interpolate(frameIndex);
+            => _keyframes.KeyCount == 0 ? _defaultValue : _keyframes.First.Interpolate(frameIndex);
 
         /// <summary>
         /// Bakes the interpolated data for fastest access by the game.

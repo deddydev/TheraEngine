@@ -11,14 +11,24 @@ namespace CustomEngine.Worlds.Actors.Types
 {
     public class CharacterSpawnPointActor : Actor<CapsuleComponent>
     {
+        protected override CapsuleComponent OnConstruct()
+        {
+            PhysicsConstructionInfo info = new PhysicsConstructionInfo()
+            {
+                CollidesWith = CustomCollisionGroup.All,
+                Group = CustomCollisionGroup.StaticWorld,
+                CollisionEnabled = false,
+                SimulatePhysics = false
+            };
+            return new CapsuleComponent(0.5f, 1.0f, info);
+        }
         protected override void PostConstruct()
         {
             base.PostConstruct();
         }
-        
         public bool CanSpawnPlayer(PawnController c)
         {
-            return true;
+            return !IsBlocked;
         }
         public bool IsBlocked => RootComponent.PhysicsDriver.Overlapping.Count > 0;
     }

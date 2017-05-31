@@ -243,10 +243,10 @@ namespace CustomEngine.Rendering.Animation
         }
         public Keyframe LinkNext(Keyframe next)
         {
-            if (next._frameIndex > _next._frameIndex && _next != this)
-                return _next.LinkNext(next);
-            if (next._frameIndex < _prev._frameIndex && _prev != this)
-                return _prev.LinkPrev(next);
+            //if (next._frameIndex > _next._frameIndex && _next._frameIndex != _frameIndex)
+            //    return _next.LinkNext(next);
+            //if (next._frameIndex < _prev._frameIndex && _prev._frameIndex != _frameIndex)
+            //    return _prev.LinkPrev(next);
 
             next.Next = _next;
             next.Prev = this;
@@ -258,10 +258,10 @@ namespace CustomEngine.Rendering.Animation
         }
         public Keyframe LinkPrev(Keyframe prev)
         {
-            if (prev._frameIndex < _prev._frameIndex && _prev != this)
-                return _prev.LinkPrev(prev);
-            if (prev._frameIndex > _next._frameIndex && _next != this)
-                return _next.LinkNext(prev);
+            //if (prev._frameIndex < _prev._frameIndex && _prev._frameIndex != _frameIndex)
+            //    return _prev.LinkPrev(prev);
+            //if (prev._frameIndex > _next._frameIndex && _next._frameIndex != _frameIndex)
+            //    return _next.LinkNext(prev);
             
             prev.Next = this;
             prev.Prev = _prev;

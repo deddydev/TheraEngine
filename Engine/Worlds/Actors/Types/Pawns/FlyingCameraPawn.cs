@@ -170,13 +170,6 @@ namespace CustomEngine.Worlds.Actors
         {
 
         }
-        
-        protected internal override void Tick(float delta)
-        {
-            RootComponent.Camera.TranslateRelative(new Vec3(_linearRight, _linearUp, -_linearForward) * delta);
-            RootComponent.Camera.AddRotation(_pitch * delta, _yaw * delta);
-        }
-
         //Dictionary<ComboModifier, Action<bool>> _combos = new Dictionary<ComboModifier, Action<bool>>();
 
         //private ComboModifier GetModifier(EMouseButton button, bool alt, bool ctrl, bool shift)
@@ -210,15 +203,18 @@ namespace CustomEngine.Worlds.Actors
         //}
         public override void OnSpawned(World world)
         {
-            RegisterTick(ETickGroup.PrePhysics, ETickOrder.Input);
-            //Engine.Renderer.Scene.AddRenderable(CameraComponent.Camera);
+            RegisterTick(ETickGroup.PrePhysics, ETickOrder.Input, Tick);
             base.OnSpawned(world);
         }
         public override void OnDespawned()
         {
-            UnregisterTick();
-            //Engine.Renderer.Scene.RemoveRenderable(CameraComponent.Camera);
+            UnregisterTick(ETickGroup.PrePhysics, ETickOrder.Input, Tick);
             base.OnDespawned();
+        }
+        private void Tick(float delta)
+        {
+            RootComponent.Camera.TranslateRelative(new Vec3(_linearRight, _linearUp, -_linearForward) * delta);
+            RootComponent.Camera.AddRotation(_pitch * delta, _yaw * delta);
         }
     }
 }

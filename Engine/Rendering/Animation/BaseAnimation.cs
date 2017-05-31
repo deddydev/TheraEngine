@@ -18,9 +18,7 @@ namespace CustomEngine.Rendering.Animation
         public event Action SpeedChanged;
         public event Action LoopChanged;
         public event Action FrameCountChanged;
-
-
-
+        
         protected int _frameCount;
         protected float _fps = 60.0f;
         protected float _speed = 1.0f;
@@ -29,7 +27,7 @@ namespace CustomEngine.Rendering.Animation
         protected bool _isPlaying = false;
         protected bool _useKeyframes = true;
 
-        [Category("Animation"), Serialize]
+        [Category("Animation")]
         public float LengthInSeconds => FrameCount / FramesPerSecond;
         /// <summary>
         /// How fast the animation plays back.
@@ -116,6 +114,15 @@ namespace CustomEngine.Rendering.Animation
                     Stop();
             }
         }
+        [PostDeserialize]
+        private void PostDeserialize()
+        {
+            if (_isPlaying)
+            {
+                AnimationStarted?.Invoke();
+                RegisterTick(ETickGroup.PrePhysics, ETickOrder.Animation, Progress);
+            }
+        }
         public void Start()
         {
             if (_isPlaying)
@@ -123,6 +130,7 @@ namespace CustomEngine.Rendering.Animation
             _isPlaying = true;
             AnimationStarted?.Invoke();
             CurrentFrame = 0.0f;
+            RegisterTick(ETickGroup.PrePhysics, ETickOrder.Animation, Progress);
         }
         public void Stop()
         {
@@ -130,13 +138,9 @@ namespace CustomEngine.Rendering.Animation
                 return;
             _isPlaying = false;
             AnimationEnded?.Invoke();
+            UnregisterTick(ETickGroup.PrePhysics, ETickOrder.Animation, Progress);
         }
-        public void Progress(float delta)
-            => CurrentFrame += delta * _fps * _speed;
-        protected virtual void OnCurrentFrameChanged()
-        {
-
-            CurrentFrameChanged?.Invoke();
-        }
+        public void Progress(float delta) => CurrentFrame += delta * _fps * _speed;
+        protected virtual void OnCurrentFrameChanged() => CurrentFrameChanged?.Invoke();
     }
 }

@@ -57,7 +57,10 @@ namespace CustomEngine.Rendering.Animation
         
         [Category("Property Animation")]
         protected override BaseKeyframeTrack InternalKeyframes => _keyframes;
-        [Category("Property Animation"), Browsable(true)]
+
+        [Category("Property Animation")]
+        [Browsable(true)]
+        [Serialize]
         public KeyframeTrack<T> Keyframes => _keyframes;
 
         public abstract void Append(PropertyAnimation<T> other);

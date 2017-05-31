@@ -19,7 +19,7 @@ namespace CustomEngine.Worlds.Actors
     /// </summary>
     public interface ICharacterPawn : IPawn
     {
-
+        void QueueRespawn(float respawnTimeInSeconds = 0);
     }
     /// <summary>
     /// Use this character pawn type for default functionality.
@@ -53,6 +53,7 @@ namespace CustomEngine.Worlds.Actors
             Initialize();
         }
 
+        private GameTimer _respawnTimer = new GameTimer();
         protected SkeletalMeshComponent _meshComp;
         protected MovementClass _movement;
         private SingleFileRef<SkeletalMesh> _mesh;
@@ -85,19 +86,46 @@ namespace CustomEngine.Worlds.Actors
                 _firstPerson = value;
             }
         }
+        public virtual void Kill(ICharacterPawn instigator, IActor killer)
+        {
+            ICharacterGameMode mode = Engine.World.GetGameMode<ICharacterGameMode>();
+            _meshComp.SetAllSimulatingPhysics(true);
+            mode.OnCharacterKilled(this, instigator, killer);
+        }
+        public void QueueRespawn(float respawnTimeInSeconds = 0)
+        {
+            _respawnTimer.StartSingleFire(WantsRespawn, respawnTimeInSeconds);
+        }
+        protected virtual void WantsRespawn()
+        {
+            _respawnTimer.StartMultiFire(AttemptSpawn, 0.1f);
+        }
+        private void AttemptSpawn(float totalElapsed, int fireNumber)
+        {
+            ICharacterGameMode mode = Engine.World.GetGameMode<ICharacterGameMode>();
+            if (mode.FindSpawnPoint(Controller, out Matrix4 transform))
+            {
+                _respawnTimer.Stop();
+
+                if (IsSpawned)
+                    Engine.World.DespawnActor(this);
+
+                RootComponent.WorldMatrix = transform;
+                Engine.World.SpawnActor(this);
+            }
+        }
         public override void OnSpawned(World world)
         {
-            RegisterTick(ETickGroup.PrePhysics, ETickOrder.Input);
+            RegisterTick(ETickGroup.PrePhysics, ETickOrder.Logic, TickMovementInput);
             base.OnSpawned(world);
         }
         public override void OnDespawned()
         {
-            UnregisterTick();
+            UnregisterTick(ETickGroup.PrePhysics, ETickOrder.Logic, TickMovementInput);
             base.OnDespawned();
         }
-        protected internal override void Tick(float delta)
+        protected void TickMovementInput(float delta)
         {
-            base.Tick(delta);
             Vec3 forward = Vec3.TransformVector(Vec3.Forward, _tpCameraBoom.Rotation.GetYawMatrix());
             Vec3 right = forward ^ Vec3.Up;
             if (_keyboardMovementInput.X != 0.0f || _keyboardMovementInput.Y != 0.0f)
@@ -148,46 +176,36 @@ namespace CustomEngine.Worlds.Actors
 
         private void Look(float x, float y)
         {
-            //RootComponent.Rotation.Yaw += x;
             _viewRotation.Pitch -= y;
             _viewRotation.Yaw -= x;
-            //_tpCameraBoom.Rotation.Pitch -= y;
-            //_tpCameraBoom.Rotation.Yaw -= x;
-            float yaw = _viewRotation.Yaw.RemapToRange(0.0f, 360.0f);
-            if (yaw < 45.0f || yaw >= 315.0f)
-            {
-                _meshComp.Rotation.Yaw = 180.0f;
-            }
-            else if (yaw < 135.0f)
-            {
-                _meshComp.Rotation.Yaw = 270.0f;
-            }
-            else if (yaw < 225.0f)
-            {
-                _meshComp.Rotation.Yaw = 0.0f;
-            }
-            else if (yaw < 315.0f)
-            {
-                _meshComp.Rotation.Yaw = 90.0f;
-            }
+            //float yaw = _viewRotation.Yaw.RemapToRange(0.0f, 360.0f);
+            //if (yaw < 45.0f || yaw >= 315.0f)
+            //{
+            //    _meshComp.Rotation.Yaw = 180.0f;
+            //}
+            //else if (yaw < 135.0f)
+            //{
+            //    _meshComp.Rotation.Yaw = 270.0f;
+            //}
+            //else if (yaw < 225.0f)
+            //{
+            //    _meshComp.Rotation.Yaw = 0.0f;
+            //}
+            //else if (yaw < 315.0f)
+            //{
+            //    _meshComp.Rotation.Yaw = 90.0f;
+            //}
             //_fpCameraComponent.Camera.AddRotation(y, 0.0f);
         }
         private void LookRight(float value)
         {
             value *= Engine.RenderDelta;
             _viewRotation.Yaw += value;
-            //_tpCameraBoom.Yaw += value;
-            //RootComponent.Rotation.Yaw += value * Engine.RenderDelta;
-            //CurrentCameraComponent.Camera.AddRotation(0.0f, value);
         }
         private void LookUp(float value)
         {
             value *= Engine.RenderDelta;
             _viewRotation.Pitch += value;
-            //_tpCameraBoom.Rotation.Pitch += value;
-            //_fpCameraComponent.Camera.AddRotation(value, 0.0f);
-            //RootComponent.Rotation.Yaw += value;
-            //CurrentCameraComponent.Camera.AddRotation(value, 0.0f);
         }
         protected void OnHit(IPhysicsDrivable other, ManifoldPoint point)
         {
@@ -260,12 +278,6 @@ namespace CustomEngine.Worlds.Actors
             _viewRotation.Yaw = 180.0f;
 
             return rootCapsule;
-        }
-
-        public virtual void Kill(ICharacterPawn instigator, IActor killer)
-        {
-            BaseGameMode mode = Engine.World.Settings.GameMode;
-            
         }
     }
 }

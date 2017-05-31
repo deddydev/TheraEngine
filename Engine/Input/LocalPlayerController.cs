@@ -5,11 +5,38 @@ using CustomEngine.Rendering;
 using CustomEngine.Rendering.Cameras;
 using CustomEngine.Worlds.Actors;
 using CustomEngine.GameModes;
+using CustomEngine.Players;
 
 namespace CustomEngine.Input
 {
     public class LocalPlayerController : PlayerController
     {
+        public LocalPlayerController(Queue<IPawn> possessionQueue = null) : base()
+        {
+            int index = Engine.ActivePlayers.Count;
+            _index = (PlayerIndex)index;
+            _input = new InputInterface(index);
+            Engine.ActivePlayers.Add(this);
+            _possessionQueue = possessionQueue;
+            if (_possessionQueue.Count != 0)
+                ControlledPawn = _possessionQueue.Dequeue();
+        }
+        public LocalPlayerController() : base()
+        {
+            int index = Engine.ActivePlayers.Count;
+            _index = (PlayerIndex)index;
+            _input = new InputInterface(index);
+            Engine.ActivePlayers.Add(this);
+            _possessionQueue = new Queue<IPawn>();
+            if (_possessionQueue.Count != 0)
+                ControlledPawn = _possessionQueue.Dequeue();
+        }
+        ~LocalPlayerController()
+        {
+            if (Engine.ActivePlayers.Contains(this))
+                Engine.ActivePlayers.Remove(this);
+        }
+
         private Viewport _viewport;
         private PlayerIndex _index;
         protected InputInterface _input;
@@ -20,7 +47,7 @@ namespace CustomEngine.Input
         public Viewport Viewport
         {
             get => _viewport;
-            internal set => _viewport = value;
+            set => _viewport = value;
         }
         public Camera CurrentCamera
         {
@@ -52,31 +79,6 @@ namespace CustomEngine.Input
                     _input.TryRegisterInput();
                 }
             }
-        }
-        public LocalPlayerController(Queue<IPawn> possessionQueue = null) : base()
-        {
-            int index = Engine.ActivePlayers.Count;
-            _index = (PlayerIndex)index;
-            _input = new InputInterface(index);
-            Engine.ActivePlayers.Add(this);
-            _possessionQueue = possessionQueue;
-            if (_possessionQueue.Count != 0)
-                ControlledPawn = _possessionQueue.Dequeue();
-        }
-        public LocalPlayerController() : base()
-        {
-            int index = Engine.ActivePlayers.Count;
-            _index = (PlayerIndex)index;
-            _input = new InputInterface(index);
-            Engine.ActivePlayers.Add(this);
-            _possessionQueue = new Queue<IPawn>();
-            if (_possessionQueue.Count != 0)
-                ControlledPawn = _possessionQueue.Dequeue();
-        }
-        ~LocalPlayerController()
-        {
-            if (Engine.ActivePlayers.Contains(this))
-                Engine.ActivePlayers.Remove(this);
         }
     }
 }

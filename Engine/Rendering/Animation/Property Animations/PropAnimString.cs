@@ -11,16 +11,21 @@ namespace CustomEngine.Rendering.Animation
     delegate string StringGetValue(float frameIndex);
     public class PropAnimString : PropertyAnimation<StringKeyframe>, IEnumerable<StringKeyframe>
     {
-        string[] _baked;
-        StringGetValue _getValue;
+        private string _defaultValue = "";
+        private string[] _baked;
+        private StringGetValue _getValue;
+
+        public string DefaultValue
+        {
+            get => _defaultValue;
+            set => _defaultValue = value;
+        }
 
         public PropAnimString(int frameCount, bool looped, bool useKeyframes) 
             : base(frameCount, looped, useKeyframes) { }
 
         protected override object GetValue(float frame)
-        {
-            return _getValue(frame);
-        }
+            => _getValue(frame);
         protected override void UseKeyframesChanged()
         {
             if (_useKeyframes)
@@ -28,13 +33,14 @@ namespace CustomEngine.Rendering.Animation
             else
                 _getValue = GetValueBaked;
         }
-        public string GetValueBaked(float frameIndex) { return _baked[(int)frameIndex]; }
+        public string GetValueBaked(float frameIndex)
+            => _baked[(int)(frameIndex / Engine.TargetUpdateFreq * FramesPerSecond)];
         public string GetValueKeyframed(float frameIndex)
         {
             StringKeyframe key = _keyframes.GetKeyBefore(frameIndex);
             if (key != null)
                 return key.Value;
-            throw new Exception("Invalid frame index.");
+            return _defaultValue;
         }
         /// <summary>
         /// Bakes the interpolated data for fastest access by the game.

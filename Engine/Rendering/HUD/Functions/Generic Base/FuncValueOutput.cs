@@ -56,9 +56,9 @@ namespace CustomEngine.Rendering
             return true;
         }
         public virtual void AddConnection(IFuncValueInput other) => DoConnection(other as TInput);
-        public virtual void DoConnection(TInput other) { _connectedTo.AddSilent(other); }
+        public virtual void DoConnection(TInput other) { _connectedTo.Add(other, false, false); }
         public virtual void RemoveConnection(IFuncValueInput other) => ClearConnection(other as TInput);
-        public virtual void ClearConnection(TInput other) { _connectedTo.RemoveSilent(other); }
+        public virtual void ClearConnection(TInput other) { _connectedTo.Remove(other, false, false); }
         private void _connectedTo_Added(TInput item) { item.SetConnection(this); }
         private void _connectedTo_Removed(TInput item) { item.ClearConnection(); }
         /// <summary>

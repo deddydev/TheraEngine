@@ -118,7 +118,7 @@ namespace CustomEngine.Rendering.Models
         private bool _scaleByDistance = false;
 
         internal int _index;
-        internal Dictionary<int, List<int>> _influencedVertices = new Dictionary<int, List<int>>();
+        internal Dictionary<int, ThreadSafeList<int>> _influencedVertices = new Dictionary<int, ThreadSafeList<int>>();
         internal List<CPUSkinInfo.LiveInfluence> _influencedInfluences = new List<CPUSkinInfo.LiveInfluence>();
         internal List<SkeletalRigidSubMesh> _singleBoundMeshes = new List<SkeletalRigidSubMesh>();
         internal List<PrimitiveManager> _linkedPrimitiveManagers = new List<PrimitiveManager>();
@@ -209,7 +209,7 @@ namespace CustomEngine.Rendering.Models
         public void AddPrimitiveManager(PrimitiveManager m)
         {
             _linkedPrimitiveManagers.Add(m);
-            _influencedVertices.Add(m.BindingId, new List<int>());
+            _influencedVertices.Add(m.BindingId, new ThreadSafeList<int>());
         }
         public void RemovePrimitiveManager(PrimitiveManager m)
         {
@@ -243,7 +243,7 @@ namespace CustomEngine.Rendering.Models
                 for (int i = 0; i < _linkedPrimitiveManagers.Count; ++i)
                 {
                     PrimitiveManager m = _linkedPrimitiveManagers[i];
-                    List<int> influenced = _influencedVertices[m.BindingId];
+                    ThreadSafeList<int> influenced = _influencedVertices[m.BindingId];
                     //m._cpuSkinInfo.UpdatePNBT(influenced);
                     //if (!m._processingSkinning)
                         m.ModifiedVertexIndices.UnionWith(influenced);
@@ -371,104 +371,5 @@ namespace CustomEngine.Rendering.Models
                 item.RecalcGlobalTransform();
             }
         }
-        //protected override int OnCalculateSize(StringTable table)
-        //{
-        //    table.Add(_name);
-        //    int size = Header.Size;
-        //    foreach (Bone b in ChildBones)
-        //        size += b.CalculateSize(table);
-        //    return size;
-        //}
-        //public unsafe override void Read(VoidPtr address, VoidPtr strings)
-        //{
-        //    Header h = *(Header*)address;
-        //    _name = strings.GetString(h._name);
-        //    _frameState = _bindState = h._state;
-        //}
-        //public unsafe override void Write(VoidPtr address, StringTable table)
-        //{
-        //    Header* h = (Header*)address;
-        //    h->_name = table[_name];
-        //    h->_state = _bindState;
-        //}
-        //public override void Write(XmlWriter writer)
-        //{
-        //    writer.WriteStartElement("bone");
-        //    writer.WriteAttributeString("name", _name);
-        //    writer.WriteAttributeString("distanceScale", _scaleByDistance.ToString());
-        //    writer.WriteAttributeString("billboard", _billboardType.ToString());
-        //    writer.WriteAttributeString("childCount", _childBones.Count.ToString());
-        //    _bindState.Write(writer);
-        //    foreach (Bone b in ChildBones)
-        //        b.Write(writer);
-        //    writer.WriteEndElement();
-        //}
-        //public override void Read(XMLReader reader)
-        //{
-        //    if (!reader.Name.Equals("bone", true))
-        //        throw new Exception();
-        //    while (reader.ReadAttribute())
-        //    {
-        //        if (reader.Name.Equals("name", true))
-        //            _name = (string)reader.Value;
-        //        else if (reader.Name.Equals("distanceScale", true))
-        //            _scaleByDistance = bool.Parse((string)reader.Value);
-        //        else if (reader.Name.Equals("billboard", true))
-        //            _billboardType = (BillboardType)Enum.Parse(typeof(BillboardType), (string)reader.Value);
-        //    }
-        //    _skeleton.BoneNameCache.Add(_name, this);
-        //    while (reader.BeginElement())
-        //    {
-        //        if (reader.Name.Equals("bone", true))
-        //        {
-        //            Bone b = new Bone(_skeleton);
-        //            b.Read(reader);
-        //            ChildBones.Add(b);
-        //        }
-        //        else if (reader.Name.Equals("transform", true))
-        //        {
-        //            _bindState = new FrameState();
-        //            _bindState.Read(reader);
-        //            _frameState = _bindState;
-        //        }
-        //        else if (reader.Name.Equals("fileRef", true))
-        //        {
-        //            if (reader.ReadAttribute())
-        //            {
-
-        //            }
-        //        }
-        //        reader.EndElement();
-        //    }
-        //}
-        public override int GetHashCode()
-        {
-            return _name.GetHashCode();
-        }
-
-        //[StructLayout(LayoutKind.Sequential, Pack = 1)]
-        //public unsafe struct Header
-        //{
-        //    public const int Size = 12 + FrameState.Header.Size;
-
-        //    public bint _name;
-        //    public bint _parentIndex;
-        //    public bushort _scaleByDistance;
-        //    public bushort _billboardType;
-        //    public FrameState.Header _state;
-
-        //    public bool ScaleByDistance
-        //    {
-        //        get => _scaleByDistance == 0 ? false : true;
-        //        set => _scaleByDistance = (ushort)(value ? 1 : 0);
-        //    }
-        //    public BillboardType BillboardType
-        //    {
-        //        get => (BillboardType)(ushort)_billboardType;
-        //        set => _billboardType = (ushort)value;
-        //    }
-
-        //    public VoidPtr Address { get { fixed (void* ptr = &this) return ptr; } }
-        //}
     }
 }

@@ -17,7 +17,7 @@ namespace CustomEngine.Worlds.Actors
         {
             base.RecalcGlobalTransform();
         }
-        protected internal override void Tick(float delta)
+        protected internal void Tick(float delta)
         {
             Vec3 currentPoint = _worldTransform.GetPoint();
             Vec3 destPoint = (GetParentMatrix() * LocalMatrix).GetPoint();
@@ -26,12 +26,12 @@ namespace CustomEngine.Worlds.Actors
         }
         public override void OnSpawned()
         {
-            RegisterTick(ETickGroup.PostPhysics, ETickOrder.Logic);
+            RegisterTick(ETickGroup.PostPhysics, ETickOrder.Logic, Tick);
             base.OnSpawned();
         }
         public override void OnDespawned()
         {
-            UnregisterTick();
+            UnregisterTick(ETickGroup.PostPhysics, ETickOrder.Logic, Tick);
             base.OnDespawned();
         }
     }

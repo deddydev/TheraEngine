@@ -19,6 +19,8 @@ namespace CustomEngine.Worlds.Actors
     public interface IPawn : IActor
     {
         PawnController Controller { get; }
+        PlayerController ServerPlayerController { get; }
+        AIController AIController { get; }
         LocalPlayerController LocalPlayerController { get; }
         CameraComponent CurrentCameraComponent { get; set; }
         void QueuePossession(PlayerIndex possessor);
@@ -44,9 +46,11 @@ namespace CustomEngine.Worlds.Actors
         private PawnController _controller;
         private CameraComponent _currentCameraComponent;
         private HudManager _hud = null;
-
+        
         public PawnController Controller => _controller;
-        public LocalPlayerController LocalPlayerController => _controller as LocalPlayerController;
+        public PlayerController ServerPlayerController => Controller as PlayerController;
+        public AIController AIController => Controller as AIController;
+        public LocalPlayerController LocalPlayerController => Controller as LocalPlayerController;
 
         /// <summary>
         /// Dictates the component controlling the view of this pawn's controller.
@@ -102,12 +106,15 @@ namespace CustomEngine.Worlds.Actors
 
             _controller = null;
         }
-        public InputInterface RequestRegisterInput()
+        protected Viewport GetViewport()
         {
-            return LocalPlayerController.Input;
+            LocalPlayerController player = LocalPlayerController;
+            if (player == null)
+                return null;
+            return player.Viewport;
         }
         public virtual void RegisterInput(InputInterface input) { }
-        protected internal override void Tick(float delta)
+        public void TryWorldRebase()
         {
             if (Engine.World == null)
                 return;
@@ -117,12 +124,14 @@ namespace CustomEngine.Worlds.Actors
             if (!bounds.Contains(point))
                 Engine.World.RebaseOrigin(point);
         }
-        protected Viewport GetViewport()
+        public bool IsInWorldBounds()
         {
-            LocalPlayerController player = LocalPlayerController;
-            if (player == null)
-                return null;
-            return player.Viewport;
+            if (Engine.World == null)
+                return true;
+
+            BoundingBox bounds = Engine.World.Settings.Bounds;
+            Vec3 point = RootComponent.WorldMatrix.GetPoint();
+            return bounds.Contains(point);
         }
     }
 }

@@ -57,7 +57,7 @@ namespace CustomEngine.Worlds.Actors
             inverseLocalTransform = invTranslation * it * ir;
         }
 
-        protected internal override void Tick(float delta)
+        private void Tick(float delta)
         {
             Matrix4 startMatrix = GetParentMatrix() * Rotation.GetMatrix() * Translation.GetTranslationMatrix();
             _startPoint = startMatrix.GetPoint();
@@ -83,13 +83,13 @@ namespace CustomEngine.Worlds.Actors
 
         public override void OnSpawned()
         {
-            RegisterTick(ETickGroup.PostPhysics, ETickOrder.Scene);
+            RegisterTick(ETickGroup.PostPhysics, ETickOrder.Scene, Tick);
             //Engine.Renderer.Scene.AddRenderable(this);
             base.OnSpawned();
         }
         public override void OnDespawned()
         {
-            UnregisterTick();
+            UnregisterTick(ETickGroup.PostPhysics, ETickOrder.Scene, Tick);
             //Engine.Renderer.Scene.RemoveRenderable(this);
             base.OnDespawned();
         }

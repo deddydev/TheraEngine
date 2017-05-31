@@ -39,9 +39,9 @@ namespace CustomEngine.Worlds.Actors
                 {
                     _isVisible = value;
                     if (_isVisible)
-                        Engine.Renderer.Scene.AddRenderable(this);
+                        Engine.Renderer.Scene.Add(this);
                     else
-                        Engine.Renderer.Scene.RemoveRenderable(this);
+                        Engine.Renderer.Scene.Remove(this);
                 }
             }
             public Bone SingleBind => _singleBind;

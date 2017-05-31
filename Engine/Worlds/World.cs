@@ -6,6 +6,7 @@ using CustomEngine.Files;
 using CustomEngine.Rendering;
 using CustomEngine.Input;
 using System.ComponentModel;
+using CustomEngine.GameModes;
 
 namespace CustomEngine.Worlds
 {
@@ -97,23 +98,17 @@ namespace CustomEngine.Worlds
                 return collides;
             }
         }
-        /// <summary>
-        /// Moves the origin to preserve float precision when traveling large distances from the origin.
-        /// </summary>
-        public void RebaseOrigin(Vec3 newOrigin)
-        {
-            foreach (IActor a in State.SpawnedActors)
-                a.RebaseOrigin(newOrigin);
-        }
+
+        public T GetGameMode<T>() where T : class, IGameMode
+            => Settings?.GameMode as T;
 
         public int ActorCount => _settings.State.SpawnedActors.Count;
         public WorldState State => _settings.State;
         
-        public void SpawnActor(IActor actor, Matrix4 transform)
+        public void SpawnActor(IActor actor)
         {
             if (!_settings.State.SpawnedActors.Contains(actor))
                 _settings.State.SpawnedActors.Add(actor);
-            //actor.Transform.TranslateAbsolute(worldPosition);
             actor.OnSpawned(this);
         }
         public void DespawnActor(IActor actor)
@@ -122,15 +117,10 @@ namespace CustomEngine.Worlds
                 _settings.State.SpawnedActors.Remove(actor);
             actor.OnDespawned();
         }
-        public void StepSimulation(float delta)
-        {
-            _physicsScene?.StepSimulation(delta);
 
-            //for (int i = 0; i < _physicsScene.Dispatcher.NumManifolds; ++i)
-            //{
-            //    PersistentManifold m = _physicsScene.Dispatcher.GetManifoldByIndexInternal(i);
-            //}
-        }
+        public void StepSimulation(float delta)
+            => _physicsScene?.StepSimulation(delta);
+        
         public IActor this[int index]
         {
             get => _settings.State.SpawnedActors[index];
@@ -154,7 +144,15 @@ namespace CustomEngine.Worlds
             //    d.AddToWorld();
             //Engine._queuedCollisions.Clear();
         }
-        
+        /// <summary>
+        /// Moves the origin to preserve float precision when traveling large distances from the origin.
+        /// </summary>
+        public void RebaseOrigin(Vec3 newOrigin)
+        {
+            foreach (IActor a in State.SpawnedActors)
+                a.RebaseOrigin(newOrigin);
+        }
+
         public IEnumerator<IActor> GetEnumerator() => State.SpawnedActors.GetEnumerator();
         IEnumerator IEnumerable.GetEnumerator() => State.SpawnedActors.GetEnumerator();
     }

@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace System
 {
-    public class ThreadSafeEnumerator<T> : IEnumerator<T>
+    public class ThreadSafeEnumerator<T> : IEnumerator<T>, IDisposable
     {
         private readonly IEnumerator<T> _inner;
         ReaderWriterLockSlim _lock;
@@ -18,7 +18,7 @@ namespace System
             _lock = rwlock;
             _lock.EnterReadLock();
         }
-        ~ThreadSafeEnumerator() => Dispose();
+        //~ThreadSafeEnumerator() => Dispose();
         public void Dispose()
         {
             _lock.ExitReadLock();
@@ -49,7 +49,7 @@ namespace System
     }
     public static class EnumerableExtension
     {
-        public static ThreadSafeEnumerable<T> AsThreadSafeEnumerable<T>(this IEnumerable<T> enumerable, ReaderWriterLockSlim rwlock)
+        public static IEnumerable<T> AsThreadSafeEnumerable<T>(this IEnumerable<T> enumerable, ReaderWriterLockSlim rwlock)
         {
             return new ThreadSafeEnumerable<T>(enumerable, rwlock);
         }

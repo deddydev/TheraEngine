@@ -34,7 +34,8 @@ namespace System.Collections.Generic
 
         public event Action PreModified;
         public event Action PostModified;
-        
+
+        private bool _updating = false;
         private bool _allowDuplicates = true;
 
         public MonitoredList() { }

@@ -1,9 +1,11 @@
-﻿using SlimDX.XInput;
+﻿using CustomEngine.Players;
+using SlimDX.XInput;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using CustomEngine.Worlds.Actors;
 
 namespace CustomEngine.Input.Devices.DirectX
 {
@@ -29,11 +31,11 @@ namespace CustomEngine.Input.Devices.DirectX
             throw new NotImplementedException();
         }
 
-        protected internal override void Tick(float delta)
+        protected override void Tick(float delta)
         {
-            base.Tick(delta);
+            throw new NotImplementedException();
         }
-
-        public DXInputAwaiter(Action<InputDevice> uponFound) : base(uponFound) { }
+        
+        public DXInputAwaiter(DelFoundInput uponFound) : base(uponFound) { }
     }
 }

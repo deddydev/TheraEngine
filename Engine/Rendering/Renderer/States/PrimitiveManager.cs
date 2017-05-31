@@ -4,6 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace CustomEngine.Rendering.Models
@@ -31,8 +32,8 @@ namespace CustomEngine.Rendering.Models
         public EDrawElementType _elementType;
         private Bone[] _utilizedBones;
         private Dictionary<int, int> _boneRemap;
-        private volatile HashSet<int> _modifiedVertexIndices = new HashSet<int>();
-        private volatile HashSet<int> _modifiedBoneIndices = new HashSet<int>();
+        private volatile ThreadSafeHashSet<int> _modifiedVertexIndices = new ThreadSafeHashSet<int>();
+        private volatile ThreadSafeHashSet<int> _modifiedBoneIndices = new ThreadSafeHashSet<int>();
         private PrimitiveBufferInfo _bufferInfo = new PrimitiveBufferInfo();
         private Material _material;
         internal CPUSkinInfo _cpuSkinInfo;
@@ -98,8 +99,8 @@ namespace CustomEngine.Rendering.Models
             }
         }
 
-        public HashSet<int> ModifiedVertexIndices => _modifiedVertexIndices;
-        public HashSet<int> ModifiedBoneIndices => _modifiedBoneIndices;
+        public ThreadSafeHashSet<int> ModifiedVertexIndices => _modifiedVertexIndices;
+        public ThreadSafeHashSet<int> ModifiedBoneIndices => _modifiedBoneIndices;
 
         private void UpdateBoneInfo(bool set)
         {
@@ -132,7 +133,7 @@ namespace CustomEngine.Rendering.Models
                         Bone b = inf._bones[j];
                         if (set)
                         {
-                            List<int> list;
+                            ThreadSafeList<int> list;
 
                             //if (!b._influencedVertices.ContainsKey(BindingId))
                             //    b._influencedVertices.Add(BindingId, list = new List<int>());
@@ -146,7 +147,7 @@ namespace CustomEngine.Rendering.Models
                         {
                             //if (b._influencedVertices.ContainsKey(BindingId))
                             //{
-                                List<int> list = b._influencedVertices[BindingId];
+                            ThreadSafeList<int> list = b._influencedVertices[BindingId];
                                 if (list.Contains(point.VertexIndex))
                                     list.Remove(point.VertexIndex);
                                 //if (list.Count == 0)
@@ -160,12 +161,16 @@ namespace CustomEngine.Rendering.Models
         public void SkeletonChanged(Skeleton skeleton)
         {
             UpdateBoneInfo(false);
+
             _modifiedBoneIndices.Clear();
+
             _data[BufferType.MatrixIds]?.Dispose();
             _data[BufferType.MatrixWeights]?.Dispose();
+
             if (_utilizedBones != null)
                 foreach (Bone b in _utilizedBones)
                     b.RemovePrimitiveManager(this);
+
             _boneRemap = null;
             if (skeleton != null && _data._influences != null)
             {
@@ -182,7 +187,9 @@ namespace CustomEngine.Rendering.Models
                     for (int i = 0; i < _utilizedBones.Length; ++i)
                     {
                         Bone b = _utilizedBones[i];
+
                         _modifiedBoneIndices.Add(b._index);
+
                         b.AddPrimitiveManager(this);
                         _boneRemap.Add(b._index, i);
                     }
@@ -274,10 +281,8 @@ namespace CustomEngine.Rendering.Models
                 Engine.Renderer.Uniform(Uniform.BoneMatricesITName + "[0]", Matrix4.Identity);
 
                 //Update modified bone matrix uniforms
-                var enumerator = _modifiedBoneIndices.GetEnumerator();
-                while (enumerator.MoveNext())
+                foreach (int index in _modifiedBoneIndices)
                 {
-                    int index = enumerator.Current;
                     int remappedIndex = _boneRemap[index];
                     Bone b = _utilizedBones[remappedIndex];
                     //Increase index to account for identity matrix at index 0
@@ -289,7 +294,7 @@ namespace CustomEngine.Rendering.Models
                 //_modifiedBoneIndices.Clear();
             }
             else
-                _cpuSkinInfo.UpdatePNBT(_modifiedVertexIndices.GetEnumerator());
+                _cpuSkinInfo.UpdatePNBT(_modifiedVertexIndices);
             _processingSkinning = false;
         }
 

@@ -9,6 +9,8 @@ using System.Linq;
 using CustomEngine.Worlds.Actors;
 using BulletSharp;
 using System.Threading.Tasks;
+using CustomEngine.Players;
+using System.Collections.Concurrent;
 
 namespace CustomEngine
 {
@@ -69,6 +71,10 @@ namespace CustomEngine
             _timer.UpdateFrame += Tick;
             ActivePlayers.PostAdded += ActivePlayers_Added;
             ActivePlayers.PostRemoved += ActivePlayers_Removed;
+
+            _tickLists = new ThreadSafeList<DelTick>[15];
+            for (int i = 0; i < _tickLists.Length; ++i)
+                _tickLists[i] = new ThreadSafeList<DelTick>();
         }
         public static void Initialize()
         {
@@ -198,20 +204,22 @@ namespace CustomEngine
                 GetTickList(group, order).Remove(function);
         }
         private static ThreadSafeList<DelTick> GetTickList(ETickGroup group, ETickOrder order)
-            => _tick[(int)group + (int)order];
+            => _tickLists[(int)group + (int)order];
         private static void Tick(object sender, FrameEventArgs e)
         {
             float delta = (float)e.Time;
-            UpdateTick(ETickGroup.PrePhysics, delta);
+            TickGroup(ETickGroup.PrePhysics, delta);
             if (!_isPaused)
                 World?.StepSimulation(delta);
-            UpdateTick(ETickGroup.PostPhysics, delta);
+            TickGroup(ETickGroup.PostPhysics, delta);
         }
-        private static void UpdateTick(ETickGroup group, float delta)
+        private static void TickGroup(ETickGroup group, float delta)
         {
             int start = (int)group;
             for (int i = start; i < start + 5; ++i)
-                Parallel.ForEach(_tick[i], currentFunc => currentFunc(delta));
+                Parallel.ForEach(_tickLists[i], currentFunc => currentFunc(delta));
+                //foreach (var currentFunc in _tickLists[i])
+                //    currentFunc.Key(delta);
         }
         #endregion
 
@@ -262,6 +270,16 @@ namespace CustomEngine
                 _possessionQueue.Add(possessor, queue);
             }
         }
+        internal static void AddLoadedFile<T>(string relativePath, T file) where T : FileObject
+        {
+            if (string.IsNullOrEmpty(relativePath))
+                return;
+
+            if (LoadedFiles.ContainsKey(relativePath))
+                LoadedFiles[relativePath].Add(file);
+            else
+                LoadedFiles.Add(relativePath, new List<FileObject>() { file });
+        }
         internal static void FoundInput(InputDevice device)
         {
             if (device.Index >= ActivePlayers.Count)
@@ -278,16 +296,6 @@ namespace CustomEngine
             }
             else
                 ActivePlayers[device.Index].Input.UpdateDevices();
-        }
-        internal static void AddLoadedFile<T>(string relativePath, T file) where T : FileObject
-        {
-            if (string.IsNullOrEmpty(relativePath))
-                return;
-
-            if (LoadedFiles.ContainsKey(relativePath))
-                LoadedFiles[relativePath].Add(file);
-            else
-                LoadedFiles.Add(relativePath, new List<FileObject>() { file });
         }
     }
 }

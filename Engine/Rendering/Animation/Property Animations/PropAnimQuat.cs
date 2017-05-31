@@ -7,8 +7,15 @@ namespace CustomEngine.Rendering.Animation
     public delegate Quat QuatGetValue(float frameIndex);
     public class PropAnimQuat : PropertyAnimation<QuatKeyframe>, IEnumerable<QuatKeyframe>
     {
-        Quat[] _baked;
-        QuatGetValue _getValue;
+        private Quat _defaultValue = Quat.Identity;
+        private Quat[] _baked;
+        private QuatGetValue _getValue;
+
+        public Quat DefaultValue
+        {
+            get => _defaultValue;
+            set => _defaultValue = value;
+        }
 
         public PropAnimQuat(int frameCount, bool looped, bool useKeyframes) 
             : base(frameCount, looped, useKeyframes) { }
@@ -23,9 +30,9 @@ namespace CustomEngine.Rendering.Animation
         protected override object GetValue(float frame)
             => _getValue(frame);
         public Quat GetValueBaked(float frameIndex)
-            => _baked[(int)(frameIndex * Engine.TargetUpdateFreq)];
+            => _baked[(int)(frameIndex / Engine.TargetUpdateFreq * FramesPerSecond)];
         public Quat GetValueKeyframed(float frameIndex)
-            => _keyframes.First.Interpolate(frameIndex);
+            => _keyframes.KeyCount == 0 ? _defaultValue : _keyframes.First.Interpolate(frameIndex);
 
         /// <summary>
         /// Bakes the interpolated data for fastest access by the game.

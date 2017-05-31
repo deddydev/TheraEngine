@@ -12,6 +12,7 @@ using CustomEngine.Rendering.HUD;
 using CustomEngine.Rendering.DirectX;
 using CustomEngine.Rendering.OpenGL;
 using System.Drawing.Imaging;
+using CustomEngine.Players;
 
 namespace CustomEngine
 {

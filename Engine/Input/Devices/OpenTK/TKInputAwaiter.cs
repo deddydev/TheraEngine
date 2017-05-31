@@ -1,9 +1,11 @@
-﻿using OpenTK.Input;
+﻿using CustomEngine.Players;
+using OpenTK.Input;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using CustomEngine.Worlds.Actors;
 
 namespace CustomEngine.Input.Devices.OpenTK
 {
@@ -11,19 +13,18 @@ namespace CustomEngine.Input.Devices.OpenTK
     {
         public const int MaxControllers = 4;
 
-        public TKInputAwaiter(Action<InputDevice> uponFound) : base(uponFound) { }
+        public TKInputAwaiter(DelFoundInput uponFound) : base(uponFound) { }
+        
+        public override CGamePad CreateGamepad(int index) => new TKGamepad(index);
+        public override CKeyboard CreateKeyboard(int index) => new TKKeyboard(index);
+        public override CMouse CreateMouse(int index) => new TKMouse(index);
 
-        public override CGamePad CreateGamepad(int index) { return new TKGamepad(index); }
-        public override CKeyboard CreateKeyboard(int index) { return new TKKeyboard(index); }
-        public override CMouse CreateMouse(int index) { return new TKMouse(index); }
-
-        protected internal override void Tick(float delta)
+        protected override void Tick(float delta)
         {
             var gamepads = InputDevice.CurrentDevices[InputDeviceType.Gamepad];
             var keyboards = InputDevice.CurrentDevices[InputDeviceType.Keyboard];
             var mice = InputDevice.CurrentDevices[InputDeviceType.Mouse];
             for (int i = 0; i < MaxControllers; ++i)
-            {
                 if (gamepads[i] == null)
                 {
                     GamePadState gamepadState = GamePad.GetState(i);
@@ -33,7 +34,7 @@ namespace CustomEngine.Input.Devices.OpenTK
                         OnFoundGamepad(i);
                     }
                 }
-            }
+
             if (keyboards[0] == null)
             {
                 KeyboardState keyboardState = Keyboard.GetState();

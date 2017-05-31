@@ -11,8 +11,15 @@ namespace CustomEngine.Rendering.Animation
     public delegate bool BoolGetValue(float frameIndex);
     public class PropAnimBool : PropertyAnimation<BoolKeyframe>, IEnumerable<BoolKeyframe>
     {
-        bool[] _baked;
-        BoolGetValue _getValue;
+        private bool _defaultValue = false;
+        private bool[] _baked;
+        private BoolGetValue _getValue;
+
+        public bool DefaultValue
+        {
+            get => _defaultValue;
+            set => _defaultValue = value;
+        }
 
         public PropAnimBool(int frameCount, bool looped, bool useKeyframes) 
             : base(frameCount, looped, useKeyframes) { }
@@ -25,13 +32,14 @@ namespace CustomEngine.Rendering.Animation
             else
                 _getValue = GetValueBaked;
         }
-        public bool GetValueBaked(float frameIndex) { return _baked[(int)frameIndex]; }
+        public bool GetValueBaked(float frameIndex)
+            => _baked[(int)(frameIndex / Engine.TargetUpdateFreq * FramesPerSecond)];
         public bool GetValueKeyframed(float frameIndex)
         {
             BoolKeyframe key = _keyframes.GetKeyBefore(frameIndex);
             if (key != null)
                 return key.Value;
-            throw new Exception("Invalid frame index.");
+            return _defaultValue;
         }
         public override void Bake()
         {

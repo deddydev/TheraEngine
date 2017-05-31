@@ -5,9 +5,14 @@ using System.Collections.Generic;
 
 namespace CustomEngine.Input
 {
+    public interface IPawnController
+    {
+        IPawn ControlledPawn { get; set; }
+        void EnqueuePosession(IPawn pawn);
+    }
     //This class will be used to send input information to a movement component for an actor.
     //Input can come from a player's gamepad or an AI (these are subclasses to controller).
-    public abstract class PawnController : ObjectBase
+    public abstract class PawnController : ObjectBase, IPawnController
     {
         public PawnController()
         {

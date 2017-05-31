@@ -1,23 +1,29 @@
-﻿using System;
+﻿using CustomEngine.Players;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using CustomEngine.Worlds.Actors;
 
 namespace CustomEngine.Input.Devices
 {
-    public abstract class InputAwaiter : ObjectBase, IDisposable
+    public delegate void DelFoundInput(InputDevice device);
+    public abstract class InputAwaiter : ObjectBase
     {
-        public event Action<InputDevice> FoundInput;
+        public event DelFoundInput FoundInput;
 
-        public InputAwaiter(Action<InputDevice> uponFound)
+        public InputAwaiter(DelFoundInput uponFound)
         {
             FoundInput += uponFound;
             RegisterTick(ETickGroup.PrePhysics, ETickOrder.Input, Tick);
         }
         ~InputAwaiter() { Dispose(); }
 
-        public void Dispose() { UnregisterTick(ETickGroup.PrePhysics, ETickOrder.Input, Tick); }
+        public void Dispose()
+        {
+            UnregisterTick(ETickGroup.PrePhysics, ETickOrder.Input, Tick);
+        }
         
         public abstract CGamePad CreateGamepad(int index);
         public abstract CKeyboard CreateKeyboard(int index);

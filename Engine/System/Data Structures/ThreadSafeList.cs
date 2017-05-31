@@ -8,236 +8,311 @@ using System.Threading.Tasks;
 
 namespace System.Collections.Generic
 {
-    public class ThreadSafeList<T> : List<T>
+    public class ThreadSafeList<T> : IList<T>, ICollection<T>, IEnumerable<T>, IEnumerable, IList, ICollection, IReadOnlyList<T>, IReadOnlyCollection<T>
     {
-        protected bool _updating = false;
-        protected readonly ReaderWriterLockSlim _lock = new ReaderWriterLockSlim();
+        protected readonly ReaderWriterLockSlim _lock = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
+        protected List<T> _inner;
 
-        public ThreadSafeList() : base() { }
-        public ThreadSafeList(int capacity) : base(capacity) { }
-        public ThreadSafeList(IEnumerable<T> list) : base(list) { }
+        public int Count => ((IList<T>)_inner).Count;
+        public bool IsReadOnly => ((IList<T>)_inner).IsReadOnly;
+        public bool IsFixedSize => ((IList)_inner).IsFixedSize;
+        public object SyncRoot => ((IList)_inner).SyncRoot;
+        public bool IsSynchronized => ((IList)_inner).IsSynchronized;
+        object IList.this[int index]
+        {
+            get
+            {
+                using (_lock.Read())
+                    return ((IList)_inner)[index];
+            }
+            set
+            {
+                using (_lock.Write())
+                    ((IList)_inner)[index] = value;
+            }
+        }
+        public T this[int index]
+        {
+            get
+            {
+                using (_lock.Read())
+                    return ((IList<T>)_inner)[index];
+            }
+            set
+            {
+                using (_lock.Write())
+                    ((IList<T>)_inner)[index] = value;
+            }
+        }
 
-        public new void Add(T item)
+        public ThreadSafeList() : base()
+        {
+            _inner = new List<T>();
+        }
+        public ThreadSafeList(int capacity)
+        {
+            _inner = new List<T>(capacity);
+        }
+        public ThreadSafeList(IEnumerable<T> list)
+        {
+            _inner = new List<T>(list);
+        }
+
+        public void Add(T item)
         {
             using (_lock.Write())
-                base.Add(item);
+                _inner.Add(item);
         }
-        public new void AddRange(IEnumerable<T> collection)
+        public void AddRange(IEnumerable<T> collection)
         {
             using (_lock.Write())
-                base.AddRange(collection);
+                _inner.AddRange(collection);
         }
-        public new bool Remove(T item)
+        public bool Remove(T item)
         {
             using (_lock.Write())
-                return base.Remove(item);
+                return _inner.Remove(item);
         }
-        public new void RemoveRange(int index, int count)
+        public void RemoveRange(int index, int count)
         {
             using (_lock.Write())
-                base.RemoveRange(index, count);
+                _inner.RemoveRange(index, count);
         }
-        public new void RemoveAt(int index)
+        public void RemoveAt(int index)
         {
             using (_lock.Write())
-                base.RemoveAt(index);
+                _inner.RemoveAt(index);
         }
-        public new void Clear()
+        public void Clear()
         {
             using (_lock.Write())
-                base.Clear();
+                _inner.Clear();
         }
-        public new void RemoveAll(Predicate<T> match)
+        public void RemoveAll(Predicate<T> match)
         {
             using (_lock.Write())
-                base.RemoveAll(match);
+                _inner.RemoveAll(match);
         }
-        public new void Insert(int index, T item)
+        public void Insert(int index, T item)
         {
             using (_lock.Write())
-                base.Insert(index, item);
+                _inner.Insert(index, item);
         }
-        public new void InsertRange(int index, IEnumerable<T> collection)
+        public void InsertRange(int index, IEnumerable<T> collection)
         {
             using (_lock.Write())
-                base.InsertRange(index, collection);
+                _inner.InsertRange(index, collection);
         }
-        public new ReadOnlyCollection<T> AsReadOnly()
+        public ReadOnlyCollection<T> AsReadOnly()
         {
             using (_lock.Read())
-                return base.AsReadOnly();
+                return _inner.AsReadOnly();
         }
-        public new int BinarySearch(int index, int count, T item, IComparer<T> comparer)
+        public int BinarySearch(int index, int count, T item, IComparer<T> comparer)
         {
             using (_lock.Read())
-                return base.BinarySearch(index, count, item, comparer);
+                return _inner.BinarySearch(index, count, item, comparer);
         }
-        public new int BinarySearch(T item)
+        public int BinarySearch(T item)
         {
             using (_lock.Read())
-                return base.BinarySearch(item);
+                return _inner.BinarySearch(item);
         }
-        public new int BinarySearch(T item, IComparer<T> comparer)
+        public int BinarySearch(T item, IComparer<T> comparer)
         {
             using (_lock.Read())
-                return base.BinarySearch(item, comparer);
+                return _inner.BinarySearch(item, comparer);
         }
-        public new bool Contains(T item)
+        public bool Contains(T item)
         {
             using (_lock.Read())
-                return base.Contains(item);
+                return _inner.Contains(item);
         }
-        public new List<TOutput> ConvertAll<TOutput>(Converter<T, TOutput> converter)
+        public List<TOutput> ConvertAll<TOutput>(Converter<T, TOutput> converter)
         {
             using (_lock.Read())
-                return base.ConvertAll(converter);
+                return _inner.ConvertAll(converter);
         }
-        public new void CopyTo(T[] array, int arrayIndex)
+        public void CopyTo(T[] array, int arrayIndex)
         {
             using (_lock.Read())
-                base.CopyTo(array, arrayIndex);
+                _inner.CopyTo(array, arrayIndex);
         }
-        public new void CopyTo(int index, T[] array, int arrayIndex, int count)
+        public void CopyTo(int index, T[] array, int arrayIndex, int count)
         {
             using (_lock.Read())
-                base.CopyTo(array, arrayIndex);
+                _inner.CopyTo(array, arrayIndex);
         }
-        public new void CopyTo(T[] array)
+        public void CopyTo(T[] array)
         {
             using (_lock.Read())
-                base.CopyTo(array);
+                _inner.CopyTo(array);
         }
-        public new bool Exists(Predicate<T> match)
+        public bool Exists(Predicate<T> match)
         {
             using (_lock.Read())
-                return base.Exists(match);
+                return _inner.Exists(match);
         }
-        public new T Find(Predicate<T> match)
+        public T Find(Predicate<T> match)
         {
             using (_lock.Read())
-                return base.Find(match);
+                return _inner.Find(match);
         }
-        public new List<T> FindAll(Predicate<T> match)
+        public List<T> FindAll(Predicate<T> match)
         {
             using (_lock.Read())
-                return base.FindAll(match);
+                return _inner.FindAll(match);
         }
-        public new int FindIndex(Predicate<T> match)
+        public int FindIndex(Predicate<T> match)
         {
             using (_lock.Read())
-                return base.FindIndex(match);
+                return _inner.FindIndex(match);
         }
-        public new int FindIndex(int startIndex, Predicate<T> match)
+        public int FindIndex(int startIndex, Predicate<T> match)
         {
             using (_lock.Read())
-                return base.FindIndex(startIndex, match);
+                return _inner.FindIndex(startIndex, match);
         }
-        public new int FindIndex(int startIndex, int count, Predicate<T> match)
+        public int FindIndex(int startIndex, int count, Predicate<T> match)
         {
             using (_lock.Read())
-                return base.FindIndex(startIndex, count, match);
+                return _inner.FindIndex(startIndex, count, match);
         }
-        public new T FindLast(Predicate<T> match)
+        public T FindLast(Predicate<T> match)
         {
             using (_lock.Read())
-                return base.FindLast(match);
+                return _inner.FindLast(match);
         }
-        public new int FindLastIndex(Predicate<T> match)
+        public int FindLastIndex(Predicate<T> match)
         {
             using (_lock.Read())
-                return base.FindLastIndex(match);
+                return _inner.FindLastIndex(match);
         }
-        public new int FindLastIndex(int startIndex, Predicate<T> match)
+        public int FindLastIndex(int startIndex, Predicate<T> match)
         {
             using (_lock.Read())
-                return base.FindLastIndex(startIndex, match);
+                return _inner.FindLastIndex(startIndex, match);
         }
-        public new int FindLastIndex(int startIndex, int count, Predicate<T> match)
+        public int FindLastIndex(int startIndex, int count, Predicate<T> match)
         {
             using (_lock.Read())
-                return base.FindLastIndex(startIndex, count, match);
+                return _inner.FindLastIndex(startIndex, count, match);
         }
-        public new void ForEach(Action<T> action)
+        public void ForEach(Action<T> action)
         {
             using (_lock.Read())
-                base.ForEach(action);
+                _inner.ForEach(action);
         }
-        public new IEnumerator<T> GetEnumerator()
-            => new ThreadSafeEnumerator<T>(base.GetEnumerator(), _lock);
-        public new List<T> GetRange(int index, int count)
+        public IEnumerator<T> GetEnumerator()
+            => new ThreadSafeEnumerator<T>(_inner.GetEnumerator(), _lock);
+        public List<T> GetRange(int index, int count)
         {
             using (_lock.Read())
-                return base.GetRange(index, count);
+                return _inner.GetRange(index, count);
         }
-        public new int IndexOf(T item, int index, int count)
+        public int IndexOf(T item, int index, int count)
         {
             using (_lock.Read())
-                return base.IndexOf(item, index, count);
+                return _inner.IndexOf(item, index, count);
         }
-        public new int IndexOf(T item, int index)
+        public int IndexOf(T item, int index)
         {
             using (_lock.Read())
-                return base.IndexOf(item, index);
+                return _inner.IndexOf(item, index);
         }
-        public new int IndexOf(T item)
+        public int IndexOf(T item)
         {
             using (_lock.Read())
-                return base.IndexOf(item);
+                return _inner.IndexOf(item);
         }
-        public new int LastIndexOf(T item)
+        public int LastIndexOf(T item)
         {
             using (_lock.Read())
-                return base.LastIndexOf(item);
+                return _inner.LastIndexOf(item);
         }
-        public new int LastIndexOf(T item, int index)
+        public int LastIndexOf(T item, int index)
         {
             using (_lock.Read())
-                return base.LastIndexOf(item, index);
+                return _inner.LastIndexOf(item, index);
         }
-        public new int LastIndexOf(T item, int index, int count)
+        public int LastIndexOf(T item, int index, int count)
         {
             using (_lock.Read())
-                return base.LastIndexOf(item, index, count);
+                return _inner.LastIndexOf(item, index, count);
         }
-        public new void Reverse(int index, int count)
+        public void Reverse(int index, int count)
         {
             using (_lock.Write())
-                base.Reverse(index, count);
+                _inner.Reverse(index, count);
         }
-        public new void Reverse()
+        public void Reverse()
         {
             using (_lock.Write())
-                base.Reverse();
+                _inner.Reverse();
         }
-        public new void Sort(int index, int count, IComparer<T> comparer)
+        public void Sort(int index, int count, IComparer<T> comparer)
         {
             using (_lock.Write())
-                base.Sort(index, count, comparer);
+                _inner.Sort(index, count, comparer);
         }
-        public new void Sort(Comparison<T> comparison)
+        public void Sort(Comparison<T> comparison)
         {
             using (_lock.Write())
-                base.Sort(comparison);
+                _inner.Sort(comparison);
         }
-        public new void Sort()
+        public void Sort()
         {
             using (_lock.Write())
-                base.Sort();
+                _inner.Sort();
         }
-        public new void Sort(IComparer<T> comparer)
+        public void Sort(IComparer<T> comparer)
         {
             using (_lock.Write())
-                base.Sort(comparer);
+                _inner.Sort(comparer);
         }
-        public new T[] ToArray()
+        public T[] ToArray()
         {
             using (_lock.Read())
-                return base.ToArray();
+                return _inner.ToArray();
         }
-        public new bool TrueForAll(Predicate<T> match)
+        public bool TrueForAll(Predicate<T> match)
         {
             using (_lock.Read())
-                return base.TrueForAll(match);
+                return _inner.TrueForAll(match);
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+            => GetEnumerator();
+        
+        public int Add(object value)
+        {
+            using (_lock.Write())
+                return ((IList)_inner).Add(value);
+        }
+        public bool Contains(object value)
+        {
+            using (_lock.Read())
+                return ((IList)_inner).Contains(value);
+        }
+        public int IndexOf(object value)
+        {
+            using (_lock.Read())
+                return ((IList)_inner).IndexOf(value);
+        }
+        public void Insert(int index, object value)
+        {
+            using (_lock.Write())
+                ((IList)_inner).Insert(index, value);
+        }
+        public void Remove(object value)
+        {
+            using (_lock.Write())
+                ((IList)_inner).Remove(value);
+        }
+        public void CopyTo(Array array, int index)
+        {
+            using (_lock.Read())
+                ((IList)_inner).CopyTo(array, index);
         }
     }
 }

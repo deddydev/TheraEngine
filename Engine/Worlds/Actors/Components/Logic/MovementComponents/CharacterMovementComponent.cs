@@ -26,7 +26,7 @@ namespace CustomEngine.Worlds.Actors
         private Vec3 _groundNormal;
         private Quat _upToGroundNormalRotation = Quat.Identity;
         private float _verticalStepUpHeight = 0.0f;
-        private DelTick _tick;
+        private DelTick _subUpdateTick;
 
         public Vec3 GroundNormal
         {
@@ -53,7 +53,7 @@ namespace CustomEngine.Worlds.Actors
                             root1.PhysicsDriver.SimulatingPhysics = false;
                             root1.Translation = root1.WorldMatrix.GetPoint();
                         }
-                        _tick = TickWalking;
+                        _subUpdateTick = TickWalking;
                         break;
                     case MovementMode.Falling:
                         if (OwningActor.RootComponent is CapsuleComponent root2)
@@ -61,7 +61,7 @@ namespace CustomEngine.Worlds.Actors
                             root2.PhysicsDriver.SimulatingPhysics = true;
                             root2.PhysicsDriver.CollisionObject.LinearVelocity = _velocity;
                         }
-                        _tick = TickFalling;
+                        _subUpdateTick = TickFalling;
                         break;
                 }
             }
@@ -95,7 +95,8 @@ namespace CustomEngine.Worlds.Actors
 
         Vec3 _position, _prevPosition, _velocity, _prevVelocity, _acceleration;
 
-        protected void TickWalking(float delta)
+        private void MainUpdateTick(float delta) => _subUpdateTick(delta);
+        protected virtual void TickWalking(float delta)
         {
             ClosestConvexResultCallback callback;
             Matrix4 inputTransform;
@@ -184,15 +185,12 @@ namespace CustomEngine.Worlds.Actors
 
             _acceleration = (_velocity - _prevVelocity) / delta;
         }
-        protected void TickFalling(float delta)
+        protected virtual void TickFalling(float delta)
         {
             //CapsuleComponent root = Owner.RootComponent as CapsuleComponent;
             //root.PhysicsDriver.SetPhysicsTransform(ConsumeInput().AsTranslationMatrix() * root.WorldMatrix);
             //root.Translation.Raw += ConsumeInput() * _fallingMovementSpeed;
         }
-
-        private delegate void DelTick(float delta);
-        protected internal override void Tick(float delta) => _tick(delta);
         
         public void Jump()
         {
@@ -252,14 +250,14 @@ namespace CustomEngine.Worlds.Actors
         }
         public override void OnSpawned()
         {
-            _tick = TickFalling;
-            RegisterTick(ETickGroup.PostPhysics, ETickOrder.Scene);
+            _subUpdateTick = TickFalling;
+            RegisterTick(ETickGroup.PostPhysics, ETickOrder.Scene, MainUpdateTick);
             base.OnSpawned();
         }
         public override void OnDespawned()
         {
-            _tick = null;
-            UnregisterTick();
+            _subUpdateTick = null;
+            UnregisterTick(ETickGroup.PostPhysics, ETickOrder.Scene, MainUpdateTick);
             base.OnDespawned();
         }
     }

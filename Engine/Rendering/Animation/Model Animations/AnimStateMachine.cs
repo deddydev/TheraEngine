@@ -114,17 +114,17 @@ namespace CustomEngine.Rendering.Animation
         {
             _currentState = new AnimBlendState(_initialState);
             if (_initialState != null)
-                RegisterTick(ETickGroup.PrePhysics, ETickOrder.Animation);
+                RegisterTick(ETickGroup.PrePhysics, ETickOrder.Animation, Tick);
             base.OnSpawned();
         }
         public override void OnDespawned()
         {
             if (_initialState != null)
-                UnregisterTick();
+                UnregisterTick(ETickGroup.PrePhysics, ETickOrder.Animation, Tick);
             _currentState = null;
             base.OnDespawned();
         }
-        protected internal override void Tick(float delta)
+        protected internal void Tick(float delta)
         {
             _currentState._current.TryTransition(this);
         }

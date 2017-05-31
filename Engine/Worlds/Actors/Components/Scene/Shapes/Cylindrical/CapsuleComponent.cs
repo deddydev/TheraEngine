@@ -29,12 +29,12 @@ namespace CustomEngine.Worlds.Actors
             => _capsule.GetCollisionShape();
         public override void OnSpawned()
         {
-            Engine.Renderer.Scene.AddRenderable(this);
+            Engine.Renderer.Scene.Add(this);
             base.OnSpawned();
         }
         public override void OnDespawned()
         {
-            Engine.Renderer.Scene.RemoveRenderable(this);
+            Engine.Renderer.Scene.Remove(this);
             base.OnDespawned();
         }
     }

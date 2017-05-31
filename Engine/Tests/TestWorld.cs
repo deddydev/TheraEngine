@@ -12,6 +12,7 @@ using CustomEngine.Input;
 using CustomEngine.Tools;
 using System.Diagnostics;
 using CustomEngine.Files;
+using CustomEngine.Worlds.Actors.Types;
 
 namespace CustomEngine.Tests
 {
@@ -22,26 +23,26 @@ namespace CustomEngine.Tests
         {
             _settings = new WorldSettings("TestWorld");
 
-            PhysicsConstructionInfo sphereInfo = new PhysicsConstructionInfo()
-            {
-                Mass = 50.0f,
-                AngularDamping = 0.05f,
-                LinearDamping = 0.005f,
-                Restitution = 0.9f,
-                Friction = 0.01f,
-                RollingFriction = 0.01f,
-                CollisionEnabled = true,
-                SimulatePhysics = true,
-                Group = CustomCollisionGroup.DynamicWorld,
-                CollidesWith = CustomCollisionGroup.StaticWorld,
-            };
-            SphereActor sphereActor = new SphereActor(
-               "Sphere",
-               sphereInfo,
-               5.0f,
-               new Vec3(0.0f, 20.0f, 0.0f),
-               Rotator.GetZero(),
-               Material.GetDefaultMaterial());
+            //PhysicsConstructionInfo sphereInfo = new PhysicsConstructionInfo()
+            //{
+            //    Mass = 50.0f,
+            //    AngularDamping = 0.05f,
+            //    LinearDamping = 0.005f,
+            //    Restitution = 0.9f,
+            //    Friction = 0.01f,
+            //    RollingFriction = 0.01f,
+            //    CollisionEnabled = true,
+            //    SimulatePhysics = true,
+            //    Group = CustomCollisionGroup.DynamicWorld,
+            //    CollidesWith = CustomCollisionGroup.StaticWorld,
+            //};
+            //SphereActor sphereActor = new SphereActor(
+            //   "Sphere",
+            //   sphereInfo,
+            //   5.0f,
+            //   new Vec3(0.0f, 20.0f, 0.0f),
+            //   Rotator.GetZero(),
+            //   Material.GetDefaultMaterial());
 
             PhysicsConstructionInfo floorInfo = new PhysicsConstructionInfo()
             {
@@ -50,7 +51,7 @@ namespace CustomEngine.Tests
                 CollisionEnabled = true,
                 SimulatePhysics = false,
                 Group = CustomCollisionGroup.StaticWorld,
-                CollidesWith = CustomCollisionGroup.DynamicWorld | CustomCollisionGroup.Characters,
+                CollidesWith = CustomCollisionGroup.Characters,
             };
             BoxActor floorActor = new BoxActor(
                 "Floor", 
@@ -67,10 +68,10 @@ namespace CustomEngine.Tests
                 CollisionEnabled = true,
                 SimulatePhysics = false,
                 Group = CustomCollisionGroup.StaticWorld,
-                CollidesWith = CustomCollisionGroup.DynamicWorld | CustomCollisionGroup.Characters,
+                CollidesWith = CustomCollisionGroup.Characters,
             };
             Material floor2Mat = Material.GetDefaultMaterial();
-            ((GLVec4)floor2Mat.Parameters[0]).Value = (ColorF4)Color.Green;
+            ((GLVec4)floor2Mat.Parameters[0]).Value = (ColorF4)Color.Gray;
             BoxActor floor2Actor = new BoxActor(
                 "Floor2",
                 floor2Info, 
@@ -89,8 +90,8 @@ namespace CustomEngine.Tests
             first2.LinkNext(last2);
             lightAnim.Keyframes.Add(first2);
             AnimationContainer lightAnimContainer = new AnimationContainer("Rotation.Yaw", false, lightAnim);
-            //dirLightComp.AddAnimation(lightAnimContainer, false);
-            floorActor.RootComponent.AddAnimation(lightAnimContainer, true);
+            dirLightComp.AddAnimation(lightAnimContainer, true);
+            //floorActor.RootComponent.AddAnimation(lightAnimContainer, true);
 
             Actor<DirectionalLightComponent> dirLightActor = new Actor<DirectionalLightComponent>(dirLightComp) { Name = "SunLight" };
 
@@ -107,8 +108,8 @@ namespace CustomEngine.Tests
             //ColladaScene.SkeletalModel.Export(Engine.ContentFolderAbs, "TESTMESH", FileFormat.Binary);
             //foreach (SkeletalRigidSubMesh mesh in ColladaScene.SkeletalModel.RigidChildren)
             //    mesh.Data.ExportReference(Engine.ContentFolderAbs + "TESTMESH\\", mesh.Name + "_Prims", FileFormat.Binary);
-            ColladaScene.Skeleton.Export(Engine.ContentFolderAbs, "TESTSKEL", FileFormat.Binary);
-            
+            //ColladaScene.Skeleton.Export(Engine.ContentFolderAbs, "TESTSKEL", FileFormat.Binary);
+
             //Collada.Scene anims = Collada.Import(googleDrive + "Thera Assets\\Characters\\Temp\\Carly_Idle.dae", options, true, false);
             //anims.CleanAnimations(scene._skeletalModel, scene._skeleton);
 
@@ -116,15 +117,7 @@ namespace CustomEngine.Tests
             //if (scene._skeletalModel != null)
             //{
             //    SkeletalMeshComponent comp = new SkeletalMeshComponent(scene._skeletalModel, scene._skeleton);
-
-            //    AnimationScalar modelAnim = new AnimationScalar(360, true, true);
-            //    ScalarKeyframe first = new ScalarKeyframe(0.0f, 0.0f, 0.0f);
-            //    ScalarKeyframe second = new ScalarKeyframe(180.0f, 360.0f, 360.0f);
-            //    ScalarKeyframe last = new ScalarKeyframe(360.0f, 0.0f, 0.0f);
-            //    first.LinkNext(second).LinkNext(last);
-            //    modelAnim.Keyframes.AddFirst(first);
-            //    scene._skeleton["LElbow"]?.FrameState.AddAnimation(new AnimationContainer("Yaw", false, modelAnim), true);
-
+            
             //    scene._skeleton.Export(desktop, "TEST_SKELETON", true);
             //    //Skeleton newSkel = Import<Skeleton>(desktop + "TEST_SKELETON.xcskl");
 
@@ -138,12 +131,16 @@ namespace CustomEngine.Tests
             //    importedActor = new Actor<StaticMeshComponent>(comp) { Name = "StaticMeshActor" };
             //}
 
+            CharacterSpawnPointActor a = new CharacterSpawnPointActor();
+            a.RootComponent.Translation.Raw = new Vec3(0.0f, 1000.0f, 0.0f);
+
             IActor[] actors = new IActor[]
             {
                 //sphereActor,
                 floorActor,
                 dirLightActor,
                 floor2Actor,
+                a,
                 //importedActor,
                 //new FlyingCameraPawn(PlayerIndex.One) { Name = "PlayerCamera" },
                 //new CharacterPawn(PlayerIndex.One, scene._skeletalModel, scene._skeleton) { Name = "PlayerCharacter", },

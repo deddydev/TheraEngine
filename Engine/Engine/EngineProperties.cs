@@ -13,6 +13,7 @@ using CustomEngine.Worlds.Actors;
 using System.Drawing.Text;
 using System.Diagnostics;
 using System.Threading;
+using System.Collections.Concurrent;
 
 namespace CustomEngine
 {
@@ -67,24 +68,7 @@ namespace CustomEngine
         public static Viewport.ThreePlayerViewportPreference ThreePlayerPref =
             Viewport.ThreePlayerViewportPreference.PreferFirstPlayer;
 
-        public static ThreadSafeList<DelTick>[] _tick = new ThreadSafeList<DelTick>[15]
-        {
-            new ThreadSafeList<DelTick>(),
-            new ThreadSafeList<DelTick>(),
-            new ThreadSafeList<DelTick>(),
-            new ThreadSafeList<DelTick>(),
-            new ThreadSafeList<DelTick>(),
-            new ThreadSafeList<DelTick>(),
-            new ThreadSafeList<DelTick>(),
-            new ThreadSafeList<DelTick>(),
-            new ThreadSafeList<DelTick>(),
-            new ThreadSafeList<DelTick>(),
-            new ThreadSafeList<DelTick>(),
-            new ThreadSafeList<DelTick>(),
-            new ThreadSafeList<DelTick>(),
-            new ThreadSafeList<DelTick>(),
-            new ThreadSafeList<DelTick>(),
-        };
+        public static ThreadSafeList<DelTick>[] _tickLists;
 
         internal static AbstractRenderer Renderer
         {

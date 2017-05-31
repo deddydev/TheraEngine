@@ -7,23 +7,25 @@ namespace CustomEngine.Worlds.Actors
 {
     public class CameraComponent : SceneComponent
     {
-        //bool _updatingTransform = false;
+        #region Constructors
         public CameraComponent()
         {
             Camera = new PerspectiveCamera();
-            WorldTransformChanged += CameraComponent_WorldTransformChanged;
+            //WorldTransformChanged += CameraComponent_WorldTransformChanged;
         }
         public CameraComponent(bool orthographic)
         {
             Camera = orthographic ? (Camera)new OrthographicCamera() : new PerspectiveCamera();
-            WorldTransformChanged += CameraComponent_WorldTransformChanged;
+            //WorldTransformChanged += CameraComponent_WorldTransformChanged;
         }
         public CameraComponent(Camera camera)
         {
             Camera = camera;
-            WorldTransformChanged += CameraComponent_WorldTransformChanged;
+            //WorldTransformChanged += CameraComponent_WorldTransformChanged;
         }
-        
+        #endregion
+
+        //private bool _updatingTransform = false;
         private Camera _camera;
 
         public Camera Camera
@@ -34,7 +36,7 @@ namespace CustomEngine.Worlds.Actors
                 if (_camera != null)
                 {
                     if (Engine.Settings.RenderCameraFrustums)
-                        Engine.Renderer.Scene.RemoveRenderable(_camera);
+                        Engine.Renderer.Scene.Remove(_camera);
                     _camera.OwningComponent = null;
                     _camera.TransformChanged -= RecalcLocalTransform;
                 }
@@ -42,7 +44,7 @@ namespace CustomEngine.Worlds.Actors
                 if (_camera != null)
                 {
                     if (Engine.Settings.RenderCameraFrustums)
-                        Engine.Renderer.Scene.AddRenderable(_camera);
+                        Engine.Renderer.Scene.Add(_camera);
                     _camera.OwningComponent = this;
                     _camera.TransformChanged += RecalcLocalTransform;
                 }
@@ -56,26 +58,54 @@ namespace CustomEngine.Worlds.Actors
             //_updatingTransform = false;
         }
 
+        /// <summary>
+        /// The provided local player controller will see through this camera.
+        /// </summary>
+        /// <param name="controller"></param>
+        public void SetCurrentForController(LocalPlayerController controller)
+        {
+            if (controller != null)
+                controller.CurrentCamera = _camera;
+        }
+        /// <summary>
+        /// The local player controller of the pawn actor that contains this camera in its scene component tree will see through this camera.
+        /// </summary>
+        public void SetCurrentForOwner()
+        {
+            if (OwningActor is IPawn pawn && pawn.Controller is LocalPlayerController controller)
+                controller.CurrentCamera = _camera;
+        }
+        /// <summary>
+        /// The local player controller of the provided pawn will see through this camera.
+        /// </summary>
+        public void SetCurrentForPawn(IPawn pawn)
+        {
+            if (pawn != null)
+                pawn.CurrentCameraComponent = this;
+        }
+
+        #region Overrides
         protected override void GenerateChildCache(List<SceneComponent> cache)
         {
             base.GenerateChildCache(cache);
             if (OwningActor is IPawn p && p.CurrentCameraComponent == null)
                 p.CurrentCameraComponent = this;
         }
-        public void SetCurrentForController(LocalPlayerController controller)
+        protected internal override void OriginRebased(Vec3 newOrigin)
         {
-            if (controller != null)
-                controller.CurrentCamera = _camera;
+            _camera.TranslateAbsolute(-newOrigin);
         }
-        public void SetCurrentForOwner()
+        public override void OnSpawned()
         {
-            if (OwningActor is IPawn pawn && pawn.Controller is LocalPlayerController controller)
-                controller.CurrentCamera = _camera;
+            if (Engine.Settings.RenderCameraFrustums)
+                Engine.Renderer.Scene.Add(_camera);
+            base.OnSpawned();
         }
-        public void SetCurrentForPawn(IPawn pawn)
+        public override void OnDespawned()
         {
-            if (pawn != null)
-                pawn.CurrentCameraComponent = this;
+            if (Engine.Settings.RenderCameraFrustums)
+                Engine.Renderer.Scene.Remove(_camera);
+            base.OnDespawned();
         }
         protected override void OnRecalcLocalTransform(out Matrix4 localTransform, out Matrix4 inverseLocalTransform)
         {
@@ -104,23 +134,6 @@ namespace CustomEngine.Worlds.Actors
         //        c.RecalcGlobalTransform();
         //    OnWorldTransformChanged();
         //}
-
-        protected internal override void OriginRebased(Vec3 newOrigin)
-        {
-            _camera.TranslateAbsolute(-newOrigin);
-        }
-        public override void OnSpawned()
-        {
-            if (Engine.Settings.RenderCameraFrustums)
-                Engine.Renderer.Scene.AddRenderable(_camera);
-            base.OnSpawned();
-        }
-        public override void OnDespawned()
-        {
-            //UnregisterTick();
-            if (Engine.Settings.RenderCameraFrustums)
-                Engine.Renderer.Scene.RemoveRenderable(_camera);
-            base.OnDespawned();
-        }
+        #endregion
     }
 }

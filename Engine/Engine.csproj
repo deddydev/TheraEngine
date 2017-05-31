@@ -689,6 +689,7 @@
     <Compile Include="System\ComputerInfo.cs" />
     <Compile Include="System\Data Structures\HashedStack.cs" />
     <Compile Include="System\Data Structures\HashedQueue.cs" />
+    <Compile Include="System\Data Structures\ThreadSafeHashSet.cs" />
     <Compile Include="System\Data Structures\ThreadSafeList.cs" />
     <Compile Include="System\Data Structures\Quadtree.cs" />
     <Compile Include="System\Extensions\EnumerableExtension.cs" />

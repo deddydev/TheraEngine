@@ -11,7 +11,7 @@ namespace CustomEngine.Rendering.Animation
         [Serialize("BoneAnimations")]
         public Dictionary<string, BoneAnimation> _boneAnimations
             = new Dictionary<string, BoneAnimation>();
-        protected internal override void Tick(float delta)
+        protected internal void Tick(float delta)
             => Progress(delta);
         public void AddBoneAnimation(BoneAnimation anim)
         {

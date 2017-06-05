@@ -154,14 +154,12 @@ namespace CustomEngine.Worlds.Actors
 
         public override void OnSpawned()
         {
-            _physicsDriver?.OnSpawned();
             foreach (RenderableMesh m in _meshes)
                 m.Visible = m.Mesh.Visible;
             base.OnSpawned();
         }
         public override void OnDespawned()
         {
-            _physicsDriver?.OnDespawned();
             foreach (RenderableMesh m in _meshes)
                 m.Visible = false;
             base.OnDespawned();

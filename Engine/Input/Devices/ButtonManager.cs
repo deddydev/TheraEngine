@@ -60,7 +60,7 @@ namespace CustomEngine.Input.Devices
         }
         public void Register(Action func, ButtonInputType type, InputPauseType pauseType, bool unregister)
         {
-            int index = (int)type * (int)pauseType;
+            int index = (int)type * 3 + (int)pauseType;
             if (unregister)
             {
                 List<Action> list = _actions[index];
@@ -152,7 +152,7 @@ namespace CustomEngine.Input.Devices
         protected void PerformAction(ButtonInputType type)
         {
             int index = (int)type * 3;
-            List<Action> list = _actions[index + (int)InputPauseType.TickAlways];
+            List<Action> list = _actions[index];
             if (list != null)
             {
                 int i = list.Count;

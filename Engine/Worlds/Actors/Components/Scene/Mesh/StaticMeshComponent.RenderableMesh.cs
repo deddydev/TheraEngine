@@ -22,6 +22,7 @@ namespace CustomEngine.Worlds.Actors
             private void _component_WorldTransformChanged()
             {
                 _cullingVolume.SetTransform(_component.WorldMatrix);
+                RenderNode?.ItemMoved(this);
             }
 
             private bool

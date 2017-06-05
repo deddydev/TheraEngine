@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel;
 
 namespace CustomEngine.Rendering.Animation
 {
@@ -11,6 +12,7 @@ namespace CustomEngine.Rendering.Animation
         private Quat[] _baked;
         private QuatGetValue _getValue;
 
+        [Serialize]
         public Quat DefaultValue
         {
             get => _defaultValue;

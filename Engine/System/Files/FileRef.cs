@@ -123,12 +123,34 @@ namespace CustomEngine.Files
             }
             else
             {
-                if (IsXML())
-                    File = FromXML(_subType, absolutePath) as T;
-                else
-                    File = FromBinary(_subType, absolutePath) as T;
+                try
+                {
+                    if (IsSpecial())
+                        File = Activator.CreateInstance(_subType, absolutePath) as T;
+                    else
+                        switch (GetFormat())
+                        {
+                            case FileFormat.XML:
+                                File = FromXML(_subType, absolutePath) as T;
+                                break;
+                            case FileFormat.Binary:
+                                File = FromBinary(_subType, absolutePath) as T;
+                                break;
+                        }
+                }
+                catch (Exception e)
+                {
+                    Engine.DebugMessage(string.Format("Could not load file at \"{0}\".\nException:\n\n{1}", absolutePath, e.ToString()));
+                }
             }
         }
+
+        private bool IsSpecial()
+        {
+            FileClass header = GetFileHeader(_subType);
+            return header == null ? false : header.IsSpecialDeserialize;
+        }
+        
         public void UnloadReference()
         {
             if (_file != null)
@@ -171,7 +193,7 @@ namespace CustomEngine.Files
             //if (IsSpecial())
             //    file = Activator.CreateInstance(_subType, absolutePath) as T;
             //else
-            if (IsXML())
+            if (GetFormat() == FileFormat.XML)
                 file = FromXML(_subType, absolutePath) as T;
             else
                 file = FromBinary(_subType, absolutePath) as T;
@@ -258,10 +280,14 @@ namespace CustomEngine.Files
                 return null;
             return Path.GetExtension(_refPath).ToLower().Substring(1);
         }
-        public bool IsXML()
+        public FileFormat GetFormat()
         {
             string ext = Extension();
-            return ext != null && (ext == "xml" || ext.StartsWith("x"));
+            if (string.IsNullOrEmpty(ext))
+                return FileFormat.Binary;
+            if (ext == "xml" || ext.StartsWith("x"))
+                return FileFormat.XML;
+            return FileFormat.Binary;
         }
         //public bool IsSpecial()
         //{

@@ -63,7 +63,7 @@ namespace CustomEngine.Rendering.Models
                                             }
                                     }
                     
-                Material m = Material.GetDefaultMaterial();//new Material(mat._name != null ? mat._name : mat._id, s);
+                Material m = imgEntries.Count > 0 ? Material.GetUnlitTextureMaterial() : Material.GetDefaultMaterial();//new Material(mat._name != null ? mat._name : mat._id, s);
                 mat._node = m;
 
                 foreach (ImageEntry img in imgEntries)

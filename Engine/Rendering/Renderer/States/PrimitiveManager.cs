@@ -288,10 +288,10 @@ namespace CustomEngine.Rendering.Models
                     //Increase index to account for identity matrix at index 0
                     ++remappedIndex;
                     Engine.Renderer.Uniform(Uniform.BoneMatricesName + "[" + remappedIndex + "]", b.VertexMatrix);
-                    Engine.Renderer.Uniform(Uniform.BoneMatricesITName + "[" + remappedIndex + "]", b.VertexMatrixIT);
+                    Engine.Renderer.Uniform(Uniform.BoneMatricesITName + "[" + remappedIndex + "]", b.NormalMatrix);
                 }
                 //Engine.Renderer.Uniform(Uniform.MorphWeightsName, _morphWeights);
-                //_modifiedBoneIndices.Clear();
+                _modifiedBoneIndices.Clear();
             }
             else
                 _cpuSkinInfo.UpdatePNBT(_modifiedVertexIndices);

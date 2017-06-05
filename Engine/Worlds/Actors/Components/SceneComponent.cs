@@ -22,7 +22,18 @@ namespace CustomEngine.Worlds.Actors
 
         public event Action WorldTransformChanged;
         protected void OnWorldTransformChanged()
-            => WorldTransformChanged?.Invoke();
+        {
+            if (this is IPhysicsDrivable p)
+                p.PhysicsDriver?.SetPhysicsTransform(_worldTransform);
+
+            if (this is I3DBoundable r)
+                r.RenderNode?.ItemMoved(r);
+
+            foreach (SceneComponent c in _children)
+                c.RecalcGlobalTransform();
+
+            WorldTransformChanged?.Invoke();
+        }
         
         protected ISocket _ancestorSimulatingPhysics;
         protected bool _simulatingPhysics = false;
@@ -42,14 +53,13 @@ namespace CustomEngine.Worlds.Actors
             {
                 _previousWorldTransform = _worldTransform;
                 _previousInverseWorldTransform = _inverseWorldTransform;
+
                 _worldTransform = value;
                 _inverseWorldTransform = _worldTransform.Inverted();
+
                 _localTransform = GetInverseParentMatrix() * WorldMatrix;
                 _inverseLocalTransform = InverseWorldMatrix * GetParentMatrix();
-                if (this is IPhysicsDrivable p)
-                    p.PhysicsDriver.SetPhysicsTransform(_worldTransform);
-                foreach (SceneComponent c in _children)
-                    c.RecalcGlobalTransform();
+                
                 OnWorldTransformChanged();
             }
         }
@@ -96,14 +106,13 @@ namespace CustomEngine.Worlds.Actors
             {
                 _previousWorldTransform = _worldTransform;
                 _previousInverseWorldTransform = _inverseWorldTransform;
+
                 _inverseWorldTransform = value;
                 _worldTransform = _inverseWorldTransform.Inverted();
+
                 _localTransform = GetInverseParentMatrix() * WorldMatrix;
                 _inverseLocalTransform = InverseWorldMatrix * GetParentMatrix();
-                if (this is IPhysicsDrivable p)
-                    p.PhysicsDriver.SetPhysicsTransform(_worldTransform);
-                foreach (SceneComponent c in _children)
-                    c.RecalcGlobalTransform();
+                
                 OnWorldTransformChanged();
             }
         }
@@ -220,16 +229,16 @@ namespace CustomEngine.Worlds.Actors
         /// Gets the transformation of this component in relation to the actor's root component.
         /// </summary>
         public Matrix4 GetActorTransform() 
-            => WorldMatrix * OwningActor.RootComponent.InverseWorldMatrix;
+            => WorldMatrix * (OwningActor == null ? Matrix4.Identity : OwningActor.RootComponent.InverseWorldMatrix);
         /// <summary>
         /// Gets the inverse transformation of this component in relation to the actor's root component.
         /// </summary>
         public Matrix4 GetInvActorTransform() =>
-            InverseWorldMatrix * OwningActor.RootComponent.WorldMatrix;
+            InverseWorldMatrix * (OwningActor == null ? Matrix4.Identity : OwningActor.RootComponent.WorldMatrix);
 
         [Category("Rendering")]
         public bool IsSpawned
-            => OwningActor.IsSpawned;
+            => OwningActor == null ? false : OwningActor.IsSpawned;
         [Category("Rendering")]
         public ISocket Parent
         {
@@ -255,11 +264,15 @@ namespace CustomEngine.Worlds.Actors
         protected internal abstract void OriginRebased(Vec3 newOrigin);
         public override void OnSpawned()
         {
+            if (this is IPhysicsDrivable p)
+                p.PhysicsDriver?.OnSpawned();
             foreach (SceneComponent c in _children)
                 c.OnSpawned();
         }
         public override void OnDespawned()
         {
+            if (this is IPhysicsDrivable p)
+                p.PhysicsDriver?.OnDespawned();
             foreach (SceneComponent c in _children)
                 c.OnDespawned();
         }
@@ -285,8 +298,6 @@ namespace CustomEngine.Worlds.Actors
             _previousInverseWorldTransform = _inverseWorldTransform;
             _inverseWorldTransform = InverseLocalMatrix * GetInverseParentMatrix();
             
-            foreach (SceneComponent c in _children)
-                c.RecalcGlobalTransform();
             OnWorldTransformChanged();
         }
         public List<SceneComponent> GenerateChildCache()

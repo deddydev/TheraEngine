@@ -13,6 +13,7 @@ namespace System.ComponentModel
         public FileClass(
             string extension,
             string userFriendlyName,
+            bool isSpecialDeserialize = false,
             bool manualBinSerialize = false,
             bool manualXmlSerialize = false,
             SerializeFormat preferredFormat =
@@ -28,6 +29,7 @@ namespace System.ComponentModel
             _manualXmlSerialize = manualXmlSerialize;
             _userFriendlyName = userFriendlyName;
             _preferredFormat = preferredFormat;
+            _isSpecialDeserialize = isSpecialDeserialize;
         }
         
         //TODO: add importable and exportable 3rd party extensions
@@ -42,6 +44,7 @@ namespace System.ComponentModel
 #else
             SerializeFormat.Binary;
 #endif
+        private bool _isSpecialDeserialize = false;
 
         public SerializeFormat PreferredFormat
         {
@@ -68,6 +71,12 @@ namespace System.ComponentModel
             get => _extension;
             set => _extension = value;
         }
+        public bool IsSpecialDeserialize
+        {
+            get => _isSpecialDeserialize;
+            set => _isSpecialDeserialize = value;
+        }
+
         public string GetProperExtension(FileFormat format)
         {
             return format.ToString().ToLower()[0] + _extension;

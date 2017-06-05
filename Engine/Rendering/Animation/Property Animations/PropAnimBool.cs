@@ -5,6 +5,7 @@ using System.IO;
 using System.Reflection;
 using System.Xml;
 using CustomEngine.Files;
+using System.ComponentModel;
 
 namespace CustomEngine.Rendering.Animation
 {
@@ -15,6 +16,7 @@ namespace CustomEngine.Rendering.Animation
         private bool[] _baked;
         private BoolGetValue _getValue;
 
+        [Serialize]
         public bool DefaultValue
         {
             get => _defaultValue;

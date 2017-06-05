@@ -196,6 +196,11 @@ namespace System
             get => _planes;
         }
 
+        public string RenderName
+        {
+            get => _renderName;
+        }
+
         public void UpdatePoints(
             Vec3 farBottomLeft, Vec3 farBottomRight, Vec3 farTopLeft, Vec3 farTopRight,
             Vec3 nearBottomLeft, Vec3 nearBottomRight, Vec3 nearTopLeft, Vec3 nearTopRight, 

@@ -19,7 +19,7 @@ namespace CustomEngine.Rendering.Models
         public VertexLine[] ToLines()
         {
             int count = _vertices.Count;
-            if (!_closedLoop)
+            if (!_closedLoop && count > 0)
                 --count;
             VertexLine[] lines = new VertexLine[count];
             for (int i = 0; i < count; ++i)

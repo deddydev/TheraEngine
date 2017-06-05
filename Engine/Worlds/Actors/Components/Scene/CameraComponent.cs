@@ -2,6 +2,7 @@
 using CustomEngine.Input;
 using System.Collections.Generic;
 using System;
+using System.Collections.Concurrent;
 
 namespace CustomEngine.Worlds.Actors
 {
@@ -35,7 +36,7 @@ namespace CustomEngine.Worlds.Actors
             {
                 if (_camera != null)
                 {
-                    if (Engine.Settings.RenderCameraFrustums)
+                    if (IsSpawned && Engine.Settings.RenderCameraFrustums)
                         Engine.Renderer.Scene.Remove(_camera);
                     _camera.OwningComponent = null;
                     _camera.TransformChanged -= RecalcLocalTransform;
@@ -43,7 +44,7 @@ namespace CustomEngine.Worlds.Actors
                 _camera = value;
                 if (_camera != null)
                 {
-                    if (Engine.Settings.RenderCameraFrustums)
+                    if (IsSpawned && Engine.Settings.RenderCameraFrustums)
                         Engine.Renderer.Scene.Add(_camera);
                     _camera.OwningComponent = this;
                     _camera.TransformChanged += RecalcLocalTransform;
@@ -57,11 +58,27 @@ namespace CustomEngine.Worlds.Actors
             //_camera.LocalMatrix = _localTransform;
             //_updatingTransform = false;
         }
-
+        public void SetCurrentForPlayer(PlayerIndex playerIndex)
+        {
+            int index = (int)playerIndex;
+            if (index >= 0 && index < Engine.ActivePlayers.Count)
+                Engine.ActivePlayers[index].CurrentCamera = _camera;
+            else
+            {
+                Dictionary<int, ConcurrentQueue<Camera>> v = LocalPlayerController.CameraPossessionQueue;
+                if (v.ContainsKey(index))
+                    v[index].Enqueue(_camera);
+                else
+                {
+                    ConcurrentQueue<Camera> queue = new ConcurrentQueue<Camera>();
+                    queue.Enqueue(_camera);
+                    v.Add(index, queue);
+                }
+            }
+        }
         /// <summary>
         /// The provided local player controller will see through this camera.
         /// </summary>
-        /// <param name="controller"></param>
         public void SetCurrentForController(LocalPlayerController controller)
         {
             if (controller != null)
@@ -118,22 +135,8 @@ namespace CustomEngine.Worlds.Actors
             _worldTransform = GetParentMatrix() * LocalMatrix;
             _previousInverseWorldTransform = _inverseWorldTransform;
             _inverseWorldTransform = InverseLocalMatrix * GetInverseParentMatrix();
-            foreach (SceneComponent c in _children)
-                c.RecalcGlobalTransform();
             OnWorldTransformChanged();
         }
-        //internal override void RecalcGlobalTransform()
-        //{
-        //    if (!_simulatingPhysics)
-        //    {
-        //        _worldTransform = GetParentMatrix() * LocalMatrix;
-        //        if (_ancestorSimulatingPhysics == null)
-        //            _inverseWorldTransform = InverseLocalMatrix * GetInverseParentMatrix();
-        //    }
-        //    foreach (SceneComponent c in _children)
-        //        c.RecalcGlobalTransform();
-        //    OnWorldTransformChanged();
-        //}
         #endregion
     }
 }

@@ -58,8 +58,8 @@ namespace CustomEngine.Rendering.Models.Materials
 
         private SingleFileRef<TextureData> _reference;
 
-        private EPixelInternalFormat _internalFormat = EPixelInternalFormat.Rgba8;
-        private EPixelFormat _pixelFormat = EPixelFormat.Bgra;
+        private EPixelInternalFormat _internalFormat = EPixelInternalFormat.Rgb8;
+        private EPixelFormat _pixelFormat = EPixelFormat.Rgb;
         private EPixelType _pixelType = EPixelType.UnsignedByte;
 
         private string _name;

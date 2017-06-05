@@ -27,8 +27,23 @@ namespace CustomEngine.Rendering.Animation
         protected bool _isPlaying = false;
         protected bool _useKeyframes = true;
 
+        /// <summary>
+        /// Sets this animation to use a new number of frames.
+        /// </summary>
+        /// <param name="frameCount">The new number of frames (independent of speed or frames per second)</param>
+        /// <param name="stretchAnimation">If true, will compress or expand all keyframes to match the new length.</param>
+        public virtual void SetFrameCount(int frameCount, bool stretchAnimation)
+        {
+            _frameCount = frameCount;
+            FrameCountChanged?.Invoke();
+        }
+
         [Category("Animation")]
-        public float LengthInSeconds => FrameCount / FramesPerSecond;
+        public float LengthInSeconds
+        {
+            get => FrameCount / FramesPerSecond / Speed;
+            set => SetFrameCount((int)(value * Speed * FramesPerSecond), true);
+        }
         /// <summary>
         /// How fast the animation plays back.
         /// A speed of 2.0f would shorten the animation to play in half the time, where 0.5f would be lengthen the animation to play two times slower.
@@ -66,11 +81,6 @@ namespace CustomEngine.Rendering.Animation
         public int FrameCount
         {
             get => _frameCount;
-            set
-            {
-                _frameCount = value;
-                FrameCountChanged?.Invoke();
-            }
         }
         [Category("Animation"), Serialize]
         public bool Looped

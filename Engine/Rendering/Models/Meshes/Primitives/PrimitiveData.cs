@@ -474,7 +474,7 @@ namespace CustomEngine.Rendering.Models
         }
         public static PrimitiveData FromPointList(IEnumerable<Vec3> points)
         {
-            return new PrimitiveData(Culling.None, new PrimitiveBufferInfo() { _hasNormals = false, _texcoordCount = 0 }, points.Select(x => new Vertex(x)), EPrimitiveType.Points);
+            return new PrimitiveData(Culling.None, PrimitiveBufferInfo.JustPositions(), points.Select(x => new Vertex(x)), EPrimitiveType.Points);
         }
 
         public PrimitiveData(Culling culling, PrimitiveBufferInfo info, IEnumerable<Vertex> points, EPrimitiveType type)

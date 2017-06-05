@@ -146,6 +146,10 @@ namespace System
             {
                 _transform = value;
                 _inverseTransform = _transform.Inverted();
+                //DeriveTRS(_transform, out Vec3 t, out Vec3 s, out Quat r);
+                //_translation = t;
+                //_scale = s;
+                //Quaternion = r;
             }
         }
         public Matrix4 InverseMatrix => _inverseTransform;
@@ -369,6 +373,14 @@ namespace System
         //    }
         //}
 
+        public static void DeriveTRS(Matrix4 m, out Vec3 translation, out Vec3 scale, out Quat rotation)
+        {
+            translation = m.Row3.Xyz;
+            scale = new Vec3(m.Row0.Xyz.Length, m.Row1.Xyz.Length, m.Row2.Xyz.Length);
+            rotation = m.ExtractRotation(true);
+            translation.Round(5);
+            scale.Round(5);
+        }
         public static unsafe FrameState DeriveTRS(Matrix4 m)
         {
             FrameState state = new FrameState()

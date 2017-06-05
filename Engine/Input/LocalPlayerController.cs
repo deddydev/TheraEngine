@@ -6,41 +6,64 @@ using CustomEngine.Rendering.Cameras;
 using CustomEngine.Worlds.Actors;
 using CustomEngine.GameModes;
 using CustomEngine.Players;
+using System.Collections.Concurrent;
 
 namespace CustomEngine.Input
 {
     public class LocalPlayerController : PlayerController
     {
+        public static Dictionary<int, ConcurrentQueue<Camera>> CameraPossessionQueue = new Dictionary<int, ConcurrentQueue<Camera>>();
+
         public LocalPlayerController(Queue<IPawn> possessionQueue = null) : base()
         {
             int index = Engine.ActivePlayers.Count;
             _index = (PlayerIndex)index;
-            _input = new InputInterface(index);
             Engine.ActivePlayers.Add(this);
+
+            _input = new InputInterface(index);
+            //_input.WantsInputsRegistered += RegisterInput;
+
             _possessionQueue = possessionQueue;
             if (_possessionQueue.Count != 0)
                 ControlledPawn = _possessionQueue.Dequeue();
+
+            if (CameraPossessionQueue.ContainsKey(index))
+            {
+                Camera camera;
+                while (!CameraPossessionQueue[index].TryDequeue(out camera)) ;
+                CurrentCamera = camera;
+            }
         }
         public LocalPlayerController() : base()
         {
             int index = Engine.ActivePlayers.Count;
             _index = (PlayerIndex)index;
-            _input = new InputInterface(index);
             Engine.ActivePlayers.Add(this);
+
+            _input = new InputInterface(index);
+            //_input.WantsInputsRegistered += RegisterInput;
+
             _possessionQueue = new Queue<IPawn>();
             if (_possessionQueue.Count != 0)
                 ControlledPawn = _possessionQueue.Dequeue();
+
+            if (CameraPossessionQueue.ContainsKey(index))
+            {
+                Camera camera;
+                while (!CameraPossessionQueue[index].TryDequeue(out camera)) ;
+                CurrentCamera = camera;
+            }
         }
         ~LocalPlayerController()
         {
-            if (Engine.ActivePlayers.Contains(this))
-                Engine.ActivePlayers.Remove(this);
+            int index = (int)_index;
+            if (index >= 0 && index < Engine.ActivePlayers.Count)
+                Engine.ActivePlayers.RemoveAt(index);
         }
 
         private Viewport _viewport;
         private PlayerIndex _index;
         protected InputInterface _input;
-        private bool _awaitingRespawn = false;
 
         public InputInterface Input => _input;
         public PlayerIndex LocalPlayerIndex => (PlayerIndex)_viewport.Index;
@@ -66,7 +89,7 @@ namespace CustomEngine.Input
                     _input.TryUnregisterInput();
                     _input.WantsInputsRegistered -= _controlledPawn.RegisterInput;
                 }
-                
+
                 _controlledPawn = value;
 
                 if (_controlledPawn == null && _possessionQueue.Count != 0)
@@ -80,5 +103,15 @@ namespace CustomEngine.Input
                 }
             }
         }
+
+        //protected virtual void RegisterInput(InputInterface input)
+        //{
+        //    input.RegisterButtonEvent(EKey.Escape, ButtonInputType.Pressed, OnTogglePause);
+        //    input.RegisterButtonEvent(GamePadButton.SpecialRight, ButtonInputType.Pressed, OnTogglePause);
+        //}
+        //private void OnTogglePause()
+        //{
+        //    Engine.TogglePause(LocalPlayerIndex);
+        //}
     }
 }

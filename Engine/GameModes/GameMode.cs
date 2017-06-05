@@ -88,7 +88,7 @@ namespace CustomEngine.GameModes
         public abstract void EndGameplay();
         public abstract void AbortGameplay();
     }
-    public abstract class GameMode<PawnType> : BaseGameMode
+    public class GameMode<PawnType> : BaseGameMode
         where PawnType : class, IPawn, new()
     {
         protected SubClassOf<PawnType> _pawnClass;
@@ -100,5 +100,20 @@ namespace CustomEngine.GameModes
         }
         
         public int _numSpectators, _numPlayers, _numComputers;
+
+        public override void BeginGameplay()
+        {
+
+        }
+
+        public override void EndGameplay()
+        {
+
+        }
+
+        public override void AbortGameplay()
+        {
+
+        }
     }
 }

@@ -1,4 +1,5 @@
-﻿using CustomEngine.Rendering.Models;
+﻿using CustomEngine.Rendering.Animation;
+using CustomEngine.Rendering.Models;
 using CustomEngine.Rendering.Models.Materials;
 using OpenTK.Graphics.OpenGL;
 using System;
@@ -39,18 +40,30 @@ namespace CustomEngine.Rendering.OpenGL
         public override void SetPointSize(float size) => GL.PointSize(size);
         public override void SetLineSize(float size) => GL.LineWidth(size);
 
-        public override void RenderPoint(string name, Vec3 position, ColorF4 color, float pointSize = DefaultPointSize)
-        {
-            SetPointSize(pointSize);
-            GL.Color4(color.Data);
-            GL.Begin(PrimitiveType.Points);
-            GL.Vertex3(position.Data);
-            GL.End();
-        }
-        public override void RenderLineLoop(bool closedLoop, params Vec3[] points)
-        {
-            
-        }
+        //public override void RenderLine(string name, Vec3 start, Vec3 end, ColorF4 color, float lineWidth = 5)
+        //{
+        //    //base.RenderLine(name, start, end, color, lineWidth);
+        //    GL.EnableVertexArrayAttrib(vaoId, index);
+
+        //    GL.VertexArrayAttribFormat(vaoId, index, componentCount, VertexAttribType.Byte + componentType, buffer._normalize, 0);
+        //    GL.NamedBufferData(buffer.BindingId, buffer._componentCount, buffer._data.Address, BufferUsageHint.StreamDraw + (int)buffer._usage);
+        //    GL.VertexArrayAttribBinding(vaoId, index, index);
+        //    GL.VertexArrayVertexBuffer(vaoId, index, buffer.BindingId, IntPtr.Zero, buffer.Stride);
+        //}
+        //public override void RenderPoint(string name, Vec3 position, ColorF4 color, float pointSize = DefaultPointSize)
+        //{
+        //    SetPointSize(pointSize);
+        //    UseProgram(null);
+
+        //}
+        //public override void RenderLineLoop(bool closedLoop, params Vec3[] points)
+        //{
+
+        //}
+        //public override void RenderLineLoop(bool closedLoop, PropAnimVec3 points)
+        //{
+
+        //}
 
         #region Objects
         public override void DeleteObject(GenType type, int bindingId)
@@ -281,7 +294,7 @@ namespace CustomEngine.Rendering.OpenGL
 
             j = (int)BufferType.TexCoord * VertexBuffer.MaxBufferCountPerType;
             for (int i = 0; i < info._texcoordCount; ++i, ++j)
-                GL.BindAttribLocation(handle, j, "TexCoord" + i);
+                GL.BindAttribLocation(handle, j, "MultiTexCoord" + i);
 
             if (info.IsWeighted)
             {
@@ -319,7 +332,7 @@ namespace CustomEngine.Rendering.OpenGL
             {
                 if (_currentMeshProgram.Textures.Length > 0)
                 {
-                    GL.Enable(OpenTK.Graphics.OpenGL.EnableCap.Texture2D);
+                    GL.Enable(EnableCap.Texture2D);
                     for (int i = 0; i < _currentMeshProgram.Textures.Length; ++i)
                     {
                         GL.ActiveTexture(TextureUnit.Texture0 + i);
@@ -328,7 +341,7 @@ namespace CustomEngine.Rendering.OpenGL
                     }
                 }
                 else
-                    GL.Disable(OpenTK.Graphics.OpenGL.EnableCap.Texture2D);
+                    GL.Disable(EnableCap.Texture2D);
             }
         }
 
@@ -889,16 +902,11 @@ namespace CustomEngine.Rendering.OpenGL
             EPixelType type,
             VoidPtr data)
         {
-            GL.TexImage2D(
-                 (TextureTarget)texTarget.Convert(typeof(TextureTarget)),
-                 mipLevel,
-                 (PixelInternalFormat)internalFormat.Convert(typeof(PixelInternalFormat)),
-                 width,
-                 height,
-                 0,
-                 (OpenTK.Graphics.OpenGL.PixelFormat)format.Convert(typeof(OpenTK.Graphics.OpenGL.PixelFormat)),
-                 (PixelType)type.Convert(typeof(PixelType)),
-                 data);
+            TextureTarget tt = (TextureTarget)texTarget.Convert(typeof(TextureTarget));
+            PixelInternalFormat pit = (PixelInternalFormat)internalFormat.Convert(typeof(PixelInternalFormat));
+            OpenTK.Graphics.OpenGL.PixelFormat pf = (OpenTK.Graphics.OpenGL.PixelFormat)format.Convert(typeof(OpenTK.Graphics.OpenGL.PixelFormat));
+            PixelType pt = (PixelType)type.Convert(typeof(PixelType));
+            GL.TexImage2D(tt, mipLevel, pit, width, height, 0, pf, pt, data);
         }
 
         public override void BindTexture(ETexTarget texTarget, int bindingId)

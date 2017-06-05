@@ -150,21 +150,22 @@ namespace CustomEngine.Rendering.Animation
         private AnimFolder _root;
         public MonitoredList<ObjectBase> _owners = new MonitoredList<ObjectBase>();
 
-        public AnimationContainer(Action<bool> func, PropAnimBool anim)
-        {
+        //public AnimationContainer(Action<bool> func, PropAnimBool anim) : this()
+        //{
 
-        }
-        public AnimationContainer(Action<string> func, PropAnimString anim)
-        {
+        //}
+        //public AnimationContainer(Action<string> func, PropAnimString anim) : this()
+        //{
 
-        }
-        public AnimationContainer(Action<float> func, PropAnimFloat anim)
-        {
+        //}
+        //public AnimationContainer(Action<float> func, PropAnimFloat anim) : this()
+        //{
 
-        }
+        //}
+
         public AnimationContainer()
         {
-            RegisterOwners();
+            _owners.PostModified += OwnersModified;
         }
         public AnimationContainer(AnimFolder rootFolder) : this()
         {
@@ -195,7 +196,6 @@ namespace CustomEngine.Rendering.Animation
                 last._tick = method ? (Action<object, float>)last.MethodTick : last.PropertyTick;
             }
         }
-        private void RegisterOwners() { _owners.PostModified += OwnersModified; }
         private void OwnersModified()
         {
             if (_owners.Count == 0 && IsTicking)

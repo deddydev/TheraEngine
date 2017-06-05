@@ -25,7 +25,7 @@ namespace CustomEngine.Tests
             FloatKeyframe f1 = new FloatKeyframe(0.0f, 0.0f, PlanarInterpType.CubicHermite);
             FloatKeyframe s1 = new FloatKeyframe(180.0f, -145.0f, PlanarInterpType.CubicHermite);
             FloatKeyframe l1 = new FloatKeyframe(360.0f, 0.0f, PlanarInterpType.CubicHermite);
-            f1.LinkNext(s1).LinkNext(l1);
+            f1.Link(s1).Link(l1);
             elbowAnim.Keyframes.Add(f1);
             scene.Skeleton["LElbow"]?.FrameState.AddAnimation(new AnimationContainer("Yaw", false, elbowAnim), true);
 
@@ -33,7 +33,7 @@ namespace CustomEngine.Tests
             FloatKeyframe f2 = new FloatKeyframe(0.0f, -180.0f, PlanarInterpType.CubicHermite);
             FloatKeyframe s2 = new FloatKeyframe(180.0f, -90.0f, PlanarInterpType.CubicHermite);
             FloatKeyframe l2 = new FloatKeyframe(360.0f, -180.0f, PlanarInterpType.CubicHermite);
-            f2.LinkNext(s2).LinkNext(l2);
+            f2.Link(s2).Link(l2);
             legAnim.Keyframes.Add(f2);
             scene.Skeleton["LLeg"]?.FrameState.AddAnimation(new AnimationContainer("Pitch", false, legAnim), true);
 
@@ -41,7 +41,7 @@ namespace CustomEngine.Tests
             FloatKeyframe f3 = new FloatKeyframe(0.0f, -180.0f, PlanarInterpType.CubicHermite);
             FloatKeyframe s3 = new FloatKeyframe(180.0f, -90.0f, PlanarInterpType.CubicHermite);
             FloatKeyframe l3 = new FloatKeyframe(360.0f, -180.0f, PlanarInterpType.CubicHermite);
-            f3.LinkNext(s3).LinkNext(l3);
+            f3.Link(s3).Link(l3);
             kneeAnim.Keyframes.Add(f3);
             scene.Skeleton["LKnee"]?.FrameState.AddAnimation(new AnimationContainer("Pitch", false, kneeAnim), true);
 

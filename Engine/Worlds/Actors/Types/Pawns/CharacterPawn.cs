@@ -240,7 +240,7 @@ namespace CustomEngine.Worlds.Actors
             };
 
             CapsuleComponent rootCapsule = new CapsuleComponent(radius, halfHeight, info);
-            rootCapsule.PhysicsDriver.OnHit += _movement.OnHit;
+            rootCapsule.PhysicsDriver.OnHit += OnHit;
             rootCapsule.PhysicsDriver.AngularFactor = Vec3.Zero;
             rootCapsule.Translation.Raw = new Vec3(0.0f, capsuleTotalHalfHeight + 11.0f, 0.0f);
 

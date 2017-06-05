@@ -7,7 +7,7 @@ namespace CustomEngine.Rendering
 {
     public class SceneProcessor
     {
-        private List<IRenderable> _renderables = new List<IRenderable>();
+        private ThreadSafeList<IRenderable> _renderables = new ThreadSafeList<IRenderable>();
         private SortedDictionary<uint, IRenderable> _renderCommands = new SortedDictionary<uint, IRenderable>();
 
         private Octree<IRenderable> _cullingTree;
@@ -73,10 +73,8 @@ namespace CustomEngine.Rendering
             //        r.Render();
             //}
 
-            var e = _renderables.GetEnumerator();
-            while (e.MoveNext())
-                if (e.Current.IsRendering)
-                    e.Current.Render();
+            foreach (IRenderable r in _renderables)
+                r.Render();
 
             AbstractRenderer.CurrentCamera = null;
         }

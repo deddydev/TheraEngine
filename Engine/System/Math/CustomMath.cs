@@ -84,6 +84,26 @@ namespace System
                 p2 * 3.0f * invT * t2 +
                 p3 * t3;
         }
+        public static float CubicBezierVelocity(float p0, float p1, float p2, float p3, float time)
+        {
+            float invT = 1.0f - time;
+            float invT2 = invT * invT;
+            float t2 = time * time;
+            return
+                p0 * (-3.0f * invT2) +
+                p1 * (9.0f * t2 - 12.0f * time + 3.0f) +
+                p2 * (6.0f * time - 9.0f * t2) +
+                p3 * 3.0f * t2;
+        }
+        public static float CubicBezierAcceleration(float p0, float p1, float p2, float p3, float time)
+        {
+            float invT = 1.0f - time;
+            return
+                p0 * (6.0f * invT) +
+                p1 * (18.0f * time - 12.0f) +
+                p2 * (-18.0f * time + 6.0f) +
+                p3 * 6.0f * time;
+        }
         public static Vec2 CubicBezier(Vec2 p0, Vec2 p1, Vec2 p2, Vec2 p3, float time)
         {
             float invT = 1.0f - time;
@@ -96,6 +116,26 @@ namespace System
                 p1 * 3.0f * invT2 * time +
                 p2 * 3.0f * invT * t2 +
                 p3 * t3;
+        }
+        public static Vec2 CubicBezierVelocity(Vec2 p0, Vec2 p1, Vec2 p2, Vec2 p3, float time)
+        {
+            float invT = 1.0f - time;
+            float invT2 = invT * invT;
+            float t2 = time * time;
+            return
+                p0 * (-3.0f * invT2) +
+                p1 * (9.0f * t2 - 12.0f * time + 3.0f) +
+                p2 * (6.0f * time - 9.0f * t2) +
+                p3 * 3.0f * t2;
+        }
+        public static Vec2 CubicBezierAcceleration(Vec2 p0, Vec2 p1, Vec2 p2, Vec2 p3, float time)
+        {
+            float invT = 1.0f - time;
+            return
+                p0 * (6.0f * invT) +
+                p1 * (18.0f * time - 12.0f) +
+                p2 * (-18.0f * time + 6.0f) +
+                p3 * 6.0f * time;
         }
         public static Vec3 CubicBezier(Vec3 p0, Vec3 p1, Vec3 p2, Vec3 p3, float time)
         {
@@ -110,6 +150,26 @@ namespace System
                 p2 * 3.0f * invT * t2 +
                 p3 * t3;
         }
+        public static Vec3 CubicBezierVelocity(Vec3 p0, Vec3 p1, Vec3 p2, Vec3 p3, float time)
+        {
+            float invT = 1.0f - time;
+            float invT2 = invT * invT;
+            float t2 = time * time;
+            return
+                p0 * (-3.0f * invT2) +
+                p1 * (9.0f * t2 - 12.0f * time + 3.0f) +
+                p2 * (6.0f * time - 9.0f * t2) +
+                p3 * 3.0f * t2;
+        }
+        public static Vec3 CubicBezierAcceleration(Vec3 p0, Vec3 p1, Vec3 p2, Vec3 p3, float time)
+        {
+            float invT = 1.0f - time;
+            return
+                p0 * (6.0f * invT) +
+                p1 * (18.0f * time - 12.0f) +
+                p2 * (-18.0f * time + 6.0f) +
+                p3 * 6.0f * time;
+        }
         public static Vec4 CubicBezier(Vec4 p0, Vec4 p1, Vec4 p2, Vec4 p3, float time)
         {
             float invT = 1.0f - time;
@@ -123,6 +183,26 @@ namespace System
                 p2 * 3.0f * invT * t2 +
                 p3 * t3;
         }
+        public static Vec4 CubicBezierVelocity(Vec4 p0, Vec4 p1, Vec4 p2, Vec4 p3, float time)
+        {
+            float invT = 1.0f - time;
+            float invT2 = invT * invT;
+            float t2 = time * time;
+            return
+                p0 * (-3.0f * invT2) +
+                p1 * (9.0f * t2 - 12.0f * time + 3.0f) +
+                p2 * (6.0f * time - 9.0f * t2) +
+                p3 * 3.0f * t2;
+        }
+        public static Vec4 CubicBezierAcceleration(Vec4 p0, Vec4 p1, Vec4 p2, Vec4 p3, float time)
+        {
+            float invT = 1.0f - time;
+            return
+                p0 * (6.0f * invT) +
+                p1 * (18.0f * time - 12.0f) +
+                p2 * (-18.0f * time + 6.0f) +
+                p3 * 6.0f * time;
+        }
         public static float CubicHermite(float p0, float t0, float t1, float p1, float time)
         {
             float time2 = time * time;
@@ -132,6 +212,23 @@ namespace System
                 t0 * (time3 - 2.0f * time2 + time) +
                 p1 * (-2.0f * time3 + 3.0f * time2) +
                 t1 * (time3 - time2);
+        }
+        public static float CubicHermiteVelocity(float p0, float t0, float t1, float p1, float time)
+        {
+            float time2 = time * time;
+            return
+                p0 * (6.0f * time2 - 6.0f * time) +
+                t0 * (3.0f * time2 - 4.0f * time + 1.0f) +
+                p1 * (-6.0f * time2 + 6.0f * time) +
+                t1 * (3.0f * time2 - 2.0f * time);
+        }
+        public static float CubicHermiteAcceleration(float p0, float t0, float t1, float p1, float time)
+        {
+            return
+                p0 * (12.0f * time - 6.0f) +
+                t0 * (6.0f * time - 4.0f) +
+                p1 * (-12.0f * time + 6.0f) +
+                t1 * (6.0f * time - 2.0f);
         }
         public static Vec2 CubicHermite(Vec2 p0, Vec2 t0, Vec2 t1, Vec2 p1, float time)
         {
@@ -143,6 +240,23 @@ namespace System
                 p1 * (-2.0f * time3 + 3.0f * time2) +
                 t1 * (time3 - time2);
         }
+        public static Vec2 CubicHermiteVelocity(Vec2 p0, Vec2 t0, Vec2 t1, Vec2 p1, float time)
+        {
+            float time2 = time * time;
+            return
+                p0 * (6.0f * time2 - 6.0f * time) +
+                t0 * (3.0f * time2 - 4.0f * time + 1.0f) +
+                p1 * (-6.0f * time2 + 6.0f * time) +
+                t1 * (3.0f * time2 - 2.0f * time);
+        }
+        public static Vec2 CubicHermiteAcceleration(Vec2 p0, Vec2 t0, Vec2 t1, Vec2 p1, float time)
+        {
+            return
+                p0 * (12.0f * time - 6.0f) +
+                t0 * (6.0f * time - 4.0f) +
+                p1 * (-12.0f * time + 6.0f) +
+                t1 * (6.0f * time - 2.0f);
+        }
         public static Vec3 CubicHermite(Vec3 p0, Vec3 t0, Vec3 t1, Vec3 p1, float time)
         {
             float time2 = time * time;
@@ -153,6 +267,23 @@ namespace System
                 p1 * (-2.0f * time3 + 3.0f * time2) +
                 t1 * (time3 - time2);
         }
+        public static Vec3 CubicHermiteVelocity(Vec3 p0, Vec3 t0, Vec3 t1, Vec3 p1, float time)
+        {
+            float time2 = time * time;
+            return
+                p0 * (6.0f * time2 - 6.0f * time) +
+                t0 * (3.0f * time2 - 4.0f * time + 1.0f) +
+                p1 * (-6.0f * time2 + 6.0f * time) +
+                t1 * (3.0f * time2 - 2.0f * time);
+        }
+        public static Vec3 CubicHermiteAcceleration(Vec3 p0, Vec3 t0, Vec3 t1, Vec3 p1, float time)
+        {
+            return
+                p0 * (12.0f * time - 6.0f) +
+                t0 * (6.0f * time - 4.0f) +
+                p1 * (-12.0f * time + 6.0f) +
+                t1 * (6.0f * time - 2.0f);
+        }
         public static Vec4 CubicHermite(Vec4 p0, Vec4 t0, Vec4 t1, Vec4 p1, float time)
         {
             float time2 = time * time;
@@ -162,6 +293,23 @@ namespace System
                 t0 * (time3 - 2.0f * time2 + time) +
                 p1 * (-2.0f * time3 + 3.0f * time2) +
                 t1 * (time3 - time2);
+        }
+        public static Vec4 CubicHermiteVelocity(Vec4 p0, Vec4 t0, Vec4 t1, Vec4 p1, float time)
+        {
+            float time2 = time * time;
+            return
+                p0 * (6.0f * time2 - 6.0f * time) +
+                t0 * (3.0f * time2 - 4.0f * time + 1.0f) +
+                p1 * (-6.0f * time2 + 6.0f * time) +
+                t1 * (3.0f * time2 - 2.0f * time);
+        }
+        public static Vec4 CubicHermiteAcceleration(Vec4 p0, Vec4 t0, Vec4 t1, Vec4 p1, float time)
+        {
+            return
+                p0 * (12.0f * time - 6.0f) +
+                t0 * (6.0f * time - 4.0f) +
+                p1 * (-12.0f * time + 6.0f) +
+                t1 * (6.0f * time - 2.0f);
         }
         /// <summary>
         /// Gets an approximation of the vector length (magnitude).

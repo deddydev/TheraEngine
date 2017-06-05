@@ -37,6 +37,8 @@ namespace System
         }
         public Vec3 Center { get { return _transform.Matrix.GetPoint(); } }
 
+        public Box(BoundingBox aabb)
+            : this(aabb.HalfExtents, new FrameState(aabb.Translation, Quat.Identity, Vec3.One)) { }
         public Box(float halfExtentX, float halfExtentY, float halfExtentZ) 
             : this(halfExtentX, halfExtentY, halfExtentZ, FrameState.Identity) { }
         public Box(float halfExtentX, float halfExtentY, float halfExtentZ, FrameState transform)
@@ -202,7 +204,7 @@ namespace System
         }
         public override void SetTransform(Matrix4 worldMatrix)
         {
-            throw new NotImplementedException();
+            _transform.Matrix = worldMatrix;
             //_transform = worldMatrix;
         }
         public override CollisionShape GetCollisionShape()

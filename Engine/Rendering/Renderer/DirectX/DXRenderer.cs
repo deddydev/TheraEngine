@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using CustomEngine.Rendering.Models;
 using CustomEngine.Rendering.Models.Materials;
 using System.Drawing;
+using CustomEngine.Rendering.Animation;
 
 namespace CustomEngine.Rendering.DirectX
 {
@@ -385,11 +386,6 @@ namespace CustomEngine.Rendering.DirectX
         }
 
         public override int GetStencilIndex(float x, float y)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void RenderLineLoop(bool closedLoop, params Vec3[] points)
         {
             throw new NotImplementedException();
         }

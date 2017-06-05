@@ -11,6 +11,7 @@ using SevenZip.Compression.LZMA;
 using SevenZip;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography;
+using System.Diagnostics;
 
 namespace CustomEngine.Files.Serialization
 {
@@ -47,105 +48,149 @@ namespace CustomEngine.Files.Serialization
     }
     public static unsafe partial class CustomBinarySerializer
     {
-        const string PASSWORD = "test_password";
-        static readonly byte[] SALT = { 0x02, 0x47, 0x62, 0x32, 0x05, 0x25, 0x39, 0x84 };
-        
+        public static bool SerializeRaw(
+            object obj,
+            string filePath,
+            Endian.EOrder order,
+            out byte[] integrityHash)
+        {
+            return Serialize(obj, filePath, order, false, false, null, out byte[] encryptionSalt, out integrityHash, null);
+        }
+        public static bool SerializeCompressed(
+            object obj,
+            string filePath,
+            Endian.EOrder order,
+            out byte[] integrityHash,
+            ICodeProgress compressionProgress)
+        {
+            return Serialize(obj, filePath, order, false, true, null, out byte[] encryptionSalt, out integrityHash, compressionProgress);
+        }
+        public static bool SerializeEncrypted(
+            object obj,
+            string filePath,
+            Endian.EOrder order,
+            out byte[] integrityHash,
+            out byte[] encryptionSalt,
+            string encryptionPassword)
+        {
+            return Serialize(obj, filePath, order, true, false, encryptionPassword, out encryptionSalt, out integrityHash, null);
+        }
         /// <summary>
         /// Writes the given object to the path as binary.
         /// </summary>
-        public static void Serialize(
+        public static bool Serialize(
             object obj,
             string filePath,
             Endian.EOrder order,
             bool encrypted,
             bool compressed,
+            string encryptionPassword,
+            out byte[] encryptionSalt,
+            out byte[] integrityHash,
             ICodeProgress compressionProgress)
         {
+            encryptionSalt = new byte[8];
             Endian.Order = order;
-
-            //Create serialization tree, as it will be accessed in two passes:
-            //Getting the size of the tree, allocating the space, and then writing the tree's data
-            MemberTreeNode root = new MemberTreeNode(obj);
-            
-            StringTable table = new StringTable();
-            int dataSize = GetSizeObject(root, table);
-            int stringSize = table.GetTotalSize();
-            int totalSize = FileCommonHeader.Size + dataSize + stringSize;
-
-            using (FileMap uncompMap = compressed ? FileMap.FromTempFile(totalSize) :
-                FileMap.FromFile(filePath, FileMapProtect.ReadWrite, 0, totalSize))
+            try
             {
-                FileCommonHeader* hdr = (FileCommonHeader*)uncompMap.Address;
-                hdr->_fileLength = totalSize;
-                hdr->_stringTableLength = stringSize;
-                hdr->Endian = order;
-                hdr->Encrypted = encrypted;
-                hdr->Compressed = compressed;
-                table.WriteTable(hdr);
-                VoidPtr addr = hdr->Data;
-                WriteObject(root, ref addr, table);
+                //Create serialization tree, as it will be accessed in two passes:
+                //Getting the size of the tree, allocating the space, and then writing the tree's data
+                MemberTreeNode root = new MemberTreeNode(obj);
 
-                SHA256Managed SHhash = new SHA256Managed();
-                byte[] hash = SHhash.ComputeHash(uncompMap.BaseStream);
-                for (int i = 0; i < 0x20; ++i)
-                    hdr->_hash[i] = hash[i];
+                StringTable table = new StringTable();
+                int dataSize = GetSizeObject(root, table);
+                int stringSize = table.GetTotalSize();
+                int totalSize = FileCommonHeader.Size + dataSize + stringSize;
 
-                FileStream outStream;
-                if (compressed)
+                using (FileMap uncompMap = compressed ? FileMap.FromTempFile(totalSize) :
+                    FileMap.FromFile(filePath, FileMapProtect.ReadWrite, 0, totalSize))
                 {
-                    outStream = new FileStream(filePath,
-                            FileMode.OpenOrCreate,
-                            FileAccess.ReadWrite,
-                            FileShare.ReadWrite,
-                            8,
-                            FileOptions.RandomAccess);
-                    outStream.SetLength(totalSize);
-                    outStream.Position = 2;
-                    new Encoder().Code(uncompMap.BaseStream, outStream, totalSize, totalSize, compressionProgress);
-                    outStream.SetLength(outStream.Position);
-                }
-                else
-                    outStream = uncompMap.BaseStream;
+                    FileCommonHeader* hdr = (FileCommonHeader*)uncompMap.Address;
+                    hdr->_fileLength = totalSize;
+                    hdr->_stringTableLength = stringSize;
+                    hdr->Endian = order;
+                    hdr->Encrypted = encrypted;
+                    hdr->Compressed = compressed;
 
-                if (encrypted)
-                {
-                    SymmetricAlgorithm crypto = new RijndaelManaged();
+                    table.WriteTable(hdr);
 
-                    MakeKeyAndIV(PASSWORD, SALT, crypto.KeySize, crypto.BlockSize, out byte[] key, out byte[] iv);
+                    VoidPtr addr = hdr->Data;
+                    WriteObject(root, ref addr, table);
 
-                    outStream.Position = 2;
-                    int blockSize = 0x1000;
-                    int bytesRead = 0;
-                    long tempPos;
-                    byte[] buffer = new byte[blockSize];
-                    using (CryptoStream cryptoStream = new CryptoStream(outStream, crypto.CreateEncryptor(key, iv), CryptoStreamMode.Write))
+                    SHA256Managed SHhash = new SHA256Managed();
+                    integrityHash = SHhash.ComputeHash(uncompMap.BaseStream);
+                    for (int i = 0; i < 0x20; ++i)
+                        hdr->_hash[i] = integrityHash[i];
+                    uncompMap.BaseStream.Position = 0;
+
+                    FileStream outStream;
+                    if (compressed)
                     {
-                        while (true)
+                        outStream = new FileStream(filePath,
+                                FileMode.OpenOrCreate,
+                                FileAccess.ReadWrite,
+                                FileShare.ReadWrite,
+                                8,
+                                FileOptions.RandomAccess);
+                        outStream.SetLength(totalSize);
+                        outStream.Position = 0;
+                        new Encoder().Code(uncompMap.BaseStream, outStream, totalSize, totalSize, compressionProgress);
+                        outStream.SetLength(outStream.Position);
+                    }
+                    else
+                        outStream = uncompMap.BaseStream;
+
+                    if (encrypted)
+                    {
+                        SymmetricAlgorithm crypto = new RijndaelManaged();
+
+                        new Random().NextBytes(encryptionSalt);
+
+                        MakeKeyAndIV(encryptionPassword, encryptionSalt, crypto.KeySize, crypto.BlockSize, out byte[] key, out byte[] iv);
+
+                        outStream.Position = 0;
+                        int blockSize = 0x1000;
+                        int bytesRead = 0;
+                        long tempPos;
+                        byte[] buffer = new byte[blockSize];
+                        using (CryptoStream cryptoStream = new CryptoStream(outStream, crypto.CreateEncryptor(key, iv), CryptoStreamMode.Write))
                         {
-                            tempPos = outStream.Position;
-                            bytesRead = outStream.Read(buffer, 0, blockSize);
-                            if (bytesRead <= 0)
-                                break;
-                            outStream.Position = tempPos;
-                            cryptoStream.Write(buffer, 0, bytesRead);
+                            while (true)
+                            {
+                                tempPos = outStream.Position;
+                                bytesRead = outStream.Read(buffer, 0, blockSize);
+                                if (bytesRead <= 0)
+                                    break;
+                                outStream.Position = tempPos;
+                                cryptoStream.Write(buffer, 0, bytesRead);
+                            }
                         }
                     }
-                }
 
-                if (compressed)
-                    outStream.Dispose();
+                    if (compressed)
+                        outStream.Dispose();
+                }
+                return true;
+            }
+            catch (Exception ex)
+            {
+                integrityHash = new byte[0x20];
+                Debug.WriteLine("Error serializing binary file to " + filePath + ".\n\nException:\n" + ex.ToString());
+                return false;
             }
         }
         private static void MakeKeyAndIV(
-            string password, byte[] salt,
-            int key_size_bits, int block_size_bits,
-            out byte[] key, out byte[] iv)
+            string password, 
+            byte[] salt,
+            int keySizeBits,
+            int blockSizeBits,
+            out byte[] key,
+            out byte[] iv)
         {
-            Rfc2898DeriveBytes derive_bytes =
-                new Rfc2898DeriveBytes(password, salt, 1000);
+            Rfc2898DeriveBytes deriveBytes = new Rfc2898DeriveBytes(password, salt, 1000);
 
-            key = derive_bytes.GetBytes(key_size_bits / 8);
-            iv = derive_bytes.GetBytes(block_size_bits / 8);
+            key = deriveBytes.GetBytes(keySizeBits / 8);
+            iv = deriveBytes.GetBytes(blockSizeBits / 8);
         }
         private static int GetSizeObject(MemberTreeNode node, StringTable table)
         {
@@ -191,8 +236,7 @@ namespace CustomEngine.Files.Serialization
 
             //Write flags at the start of the object data block
             int flagIndex = 0;
-            VoidPtr flagsAddr = address;
-            address += node.FlagSize;
+            byte[] flagBytes = new byte[node.FlagSize];
 
             MethodInfo[] customMethods = node.Info.VariableType.GetMethods(
                 BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public).
@@ -205,7 +249,7 @@ namespace CustomEngine.Files.Serialization
                 if (customMethod != null)
                     customMethod.Invoke(node.Object, new object[] { address, table });
                 else
-                    WriteMember(p, ref address, table, ref flagsAddr, ref flagIndex);
+                    WriteMember(p, ref address, table, flagBytes, ref flagIndex);
             }
             foreach (var grouping in node.CategorizedMembers)
             {
@@ -216,9 +260,13 @@ namespace CustomEngine.Files.Serialization
                     if (customMethod != null)
                         customMethod.Invoke(node.Object, new object[] { address, table });
                     else
-                        WriteMember(p, ref address, table, ref flagsAddr, ref flagIndex);
+                        WriteMember(p, ref address, table, flagBytes, ref flagIndex);
                 }
             }
+
+            byte* flagData = (byte*)address;
+            foreach (byte b in flagBytes)
+                *flagData++ = b;
         }
         private static int GetSizeMember(MemberTreeNode node, StringTable table, ref int flagCount)
         {
@@ -258,7 +306,7 @@ namespace CustomEngine.Files.Serialization
             MemberTreeNode node,
             ref VoidPtr address,
             StringTable table,
-            ref VoidPtr flagsAddr,
+            byte[] flagBytes,
             ref int flagIndex)
         {
             object value = node.Object;
@@ -270,14 +318,19 @@ namespace CustomEngine.Files.Serialization
 
             if (t == typeof(bool))
             {
-                if (flagIndex == 0)
-                    flagsAddr.Byte = 0;
-                else if (flagIndex == 8)
-                {
-                    flagsAddr += 1;
-                    flagIndex = 0;
-                }
-                flagsAddr.Byte |= (byte)(1 << (7 - flagIndex++));
+                int bitIndex = flagIndex & 7;
+                int byteIndex = flagIndex >> 3;
+
+                if (bitIndex == 0)
+                    flagBytes[byteIndex] = 0;
+                
+                int data = 1 << (7 - bitIndex);
+                if ((bool)value)
+                    flagBytes[byteIndex] |= (byte)data;
+                else
+                    flagBytes[byteIndex] &= (byte)~data;
+
+                ++flagIndex;
             }
             else if (t == typeof(string))
             {

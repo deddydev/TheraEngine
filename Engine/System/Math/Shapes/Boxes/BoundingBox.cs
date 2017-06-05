@@ -17,7 +17,7 @@ namespace System
     /// </summary>
     public class BoundingBox : Shape
     {
-        public static List<BoundingBox> Active = new List<BoundingBox>();
+        //public static List<BoundingBox> Active = new List<BoundingBox>();
 
         [DefaultValue("0 0 0")]
         [Serialize("HalfExtents")]
@@ -72,13 +72,13 @@ namespace System
         }
         public BoundingBox()
         {
-            ShapeIndex = Active.Count;
-            Active.Add(this);
+        //    ShapeIndex = Active.Count;
+        //    Active.Add(this);
         }
-        ~BoundingBox()
-        {
-            Active.Remove(this);
-        }
+        //~BoundingBox()
+        //{
+        //    Active.RemoveAt(ShapeIndex);
+        //}
 
         public static BoundingBox FromMinMax(Vec3 min, Vec3 max)
             => new BoundingBox()
@@ -189,17 +189,17 @@ namespace System
             float Right = halfExtents.X;
             float Left = -halfExtents.X;
 
-            TBL = transform * new Vec3(Left, Top, Back);
-            TBR = transform * new Vec3(Right, Top, Back);
+            TBL = Vec3.TransformPosition(new Vec3(Left, Top, Back), transform);
+            TBR = Vec3.TransformPosition(new Vec3(Right, Top, Back), transform);
 
-            TFL = transform * new Vec3(Left, Top, Front);
-            TFR = transform * new Vec3(Right, Top, Front);
+            TFL = Vec3.TransformPosition(new Vec3(Left, Top, Front), transform);
+            TFR = Vec3.TransformPosition(new Vec3(Right, Top, Front), transform);
 
-            BBL = transform * new Vec3(Left, Bottom, Back);
-            BBR = transform * new Vec3(Right, Bottom, Back);
+            BBL = Vec3.TransformPosition(new Vec3(Left, Bottom, Back), transform);
+            BBR = Vec3.TransformPosition(new Vec3(Right, Bottom, Back), transform);
 
-            BFL = transform * new Vec3(Left, Bottom, Front);
-            BFR = transform * new Vec3(Right, Bottom, Front);
+            BFL = Vec3.TransformPosition(new Vec3(Left, Bottom, Front), transform);
+            BFR = Vec3.TransformPosition(new Vec3(Right, Bottom, Front), transform);
         }
         public Vec3[] GetCorners()
         {

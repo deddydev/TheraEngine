@@ -10,11 +10,21 @@ namespace CustomEngine.Rendering.Cameras
 {
     public class PerspectiveCamera : Camera
     {
-        public PerspectiveCamera() : base() { }
-        public PerspectiveCamera(Vec3 point, Rotator rotation, float nearZ, float farZ, float fovY)
-            : base(point, rotation, nearZ, farZ) { VerticalFieldOfView = fovY; }
-        public PerspectiveCamera(float nearZ, float farZ, float fovY)
-            : base(nearZ, farZ) { VerticalFieldOfView = fovY; }
+        public PerspectiveCamera() : base()
+        {
+            HorizontalFieldOfView = 90.0f;
+        }
+        public PerspectiveCamera(Vec3 point, Rotator rotation, float nearZ, float farZ, float fovY, float aspect)
+            : base(aspect, 1.0f, nearZ, farZ, point, rotation)
+        {
+            VerticalFieldOfView = fovY;
+        }
+
+        public PerspectiveCamera(float nearZ, float farZ, float fovY, float aspect)
+            : base(aspect, 1.0f, nearZ, farZ)
+        {
+            VerticalFieldOfView = fovY;
+        }
 
         [Serialize("Width", IsXmlAttribute = true, Order = 0)]
         private float _width;

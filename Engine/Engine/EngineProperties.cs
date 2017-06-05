@@ -48,11 +48,20 @@ namespace CustomEngine
         public static MonitoredList<LocalPlayerController> ActivePlayers = new MonitoredList<LocalPlayerController>();
         public static List<AIController> ActiveAI = new List<AIController>();
         public static List<World> LoadedWorlds = new List<World>();
-        //public static int PhysicsSubsteps = 10;
-        
+        public static int PhysicsSubsteps = 10;
+
+        /// <summary>
+        /// The index of the currently ticking list of functions (group + order)
+        /// </summary>
+        private static int _currentTickList = -1;
+        /// <summary>
+        /// Queue for adding to or removing from the currently ticking list
+        /// </summary>
+        private static ConcurrentQueue<Tuple<bool, DelTick>> _tickListQueue = new ConcurrentQueue<Tuple<bool, DelTick>>();
+
         private static bool _isPaused = false;
         private static ComputerInfo _computerInfo;
-        private static GlobalTimer _timer = new GlobalTimer();
+        private static EngineTimer _timer = new EngineTimer();
         private static AbstractRenderer _renderer;
         private static AbstractAudioManager _audioManager;
         private static RenderLibrary _renderLibrary;
@@ -107,6 +116,9 @@ namespace CustomEngine
             get => _timer.TargetUpdateFrequency;
             set => _timer.TargetUpdateFrequency = value;
         }
+
+        public static double TargetRenderPeriod => _timer.RenderPeriod;
+        public static double TargetUpdatePeriod => _timer.UpdatePeriod;
 
         /// <summary>
         /// How fast/slow the game time looks

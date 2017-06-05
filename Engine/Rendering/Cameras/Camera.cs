@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Xml.Serialization;
 using CustomEngine.Worlds.Actors;
 using System.ComponentModel;
+using System.Drawing;
 
 namespace CustomEngine.Rendering.Cameras
 {
@@ -15,36 +16,25 @@ namespace CustomEngine.Rendering.Cameras
         public event OwningComponentChange OwningComponentChanged;
         public delegate void TranslationChange(Vec3 oldTranslation);
         public delegate void RotationChange(Rotator oldRotation);
-        
-        public Camera()
+
+        public Camera() 
+            : this(16.0f, 9.0f) { }
+        public Camera(float width, float height)
+            : this(width, height, 1.0f, 10000.0f) { }
+        public Camera(float width, float height, float nearZ, float farZ)
+            : this(width, height, nearZ, farZ, Vec3.Zero, Rotator.GetZero()) { }
+        public Camera(float width, float height, float nearZ, float farZ, Vec3 point, Rotator rotation)
         {
             _transformedFrustum = new Frustum();
-            Resize(1.0f, 1.0f);
-            _localRotation.Changed += CreateTransform;
-            _localPoint.Changed += CreateTransform;
-            CreateTransform();
-        }
-        public Camera(Vec3 point, Rotator rotation, float nearZ, float farZ)
-        {
-            _transformedFrustum = new Frustum();
-            Resize(1.0f, 1.0f);
-            _localRotation.SetRotations(rotation);
-            _nearZ = nearZ;
-            _farZ = farZ;
+            _localRotation = rotation;
             _localPoint = point;
-            _localRotation.Changed += CreateTransform;
-            _localPoint.Changed += CreateTransform;
-            CreateTransform();
-        }
-        public Camera(float nearZ, float farZ)
-        {
-            _transformedFrustum = new Frustum();
-            Resize(1.0f, 1.0f);
             _nearZ = nearZ;
             _farZ = farZ;
+            Resize(width, height);
+            _viewTarget = null;
             _localRotation.Changed += CreateTransform;
-            _localPoint.Changed += CreateTransform;
-            CreateTransform();
+            _localPoint.Changed += PositionChanged;
+            PositionChanged();
         }
 
         public Matrix4 ProjectionMatrix => _projectionMatrix;
@@ -117,7 +107,10 @@ namespace CustomEngine.Rendering.Cameras
                 CalculateProjection();
             }
         }
-        public Vec3 WorldPoint => _owningComponent != null ? _owningComponent.WorldMatrix.GetPoint() : _localPoint.Raw;
+        public Vec3 WorldPoint
+        {
+            get => _owningComponent != null ? _owningComponent.WorldMatrix.GetPoint() : _localPoint.Raw;
+        }
         public Vec3 LocalPoint
         {
             get => _localPoint.Raw;
@@ -170,6 +163,25 @@ namespace CustomEngine.Rendering.Cameras
                 UpdateTransformedFrustum();
             }
         }
+        
+        public EventVec3 ViewTarget
+        {
+            get => _viewTarget;
+            set
+            {
+                if (_viewTarget != null)
+                    _viewTarget.Changed -= _viewTarget_Changed;
+                _viewTarget = value;
+                if (_viewTarget != null)
+                    _viewTarget.Changed += _viewTarget_Changed;
+                _viewTarget_Changed();
+            }
+        }
+        
+        private void _viewTarget_Changed()
+        {
+            SetRotationWithTarget(_viewTarget.Raw);
+        }
 
         private void _owningComponent_WorldTransformChanged()
         {
@@ -187,17 +199,18 @@ namespace CustomEngine.Rendering.Cameras
         private Vec3 _projectionRange;
         private Vec3 _projectionOrigin;
         protected Frustum _untransformedFrustum, _transformedFrustum;
+        private EventVec3 _viewTarget = null;
 
         protected bool _updating = false;
 
         [Serialize("Point")]
-        protected EventVec3 _localPoint = Vec3.Zero;
+        protected EventVec3 _localPoint;
         [Serialize("Rotation")]
-        protected Rotator _localRotation = new Rotator(Rotator.Order.YPR);
+        protected Rotator _localRotation;
         [Serialize("NearZ")]
-        protected float _nearZ = 1.0f;
+        protected float _nearZ;
         [Serialize("FarZ")]
-        protected float _farZ = 2000.0f;
+        protected float _farZ;
         [Serialize("PostProcessSettings")]
         private PostProcessSettings _postProcessSettings;
 
@@ -227,7 +240,13 @@ namespace CustomEngine.Rendering.Cameras
             => ScreenToWorld(new Vec3(x, y, depth));
         public Vec3 ScreenToWorld(Vec3 screenPoint)
             => _invTransform * (_projectionInverse * ((screenPoint - _projectionOrigin) / _projectionRange * 2.0f - 1.0f));
-
+        
+        protected virtual void PositionChanged()
+        {
+            if (_viewTarget != null)
+                _localRotation.SetRotationsNoUpdate((_viewTarget.Raw - _localPoint).LookatAngles(Vec3.Forward));
+            CreateTransform();
+        }
         protected virtual void CreateTransform()
         {
             Matrix4 rotMatrix = _localRotation.GetMatrix();
@@ -249,8 +268,13 @@ namespace CustomEngine.Rendering.Cameras
             _transform = _transform * Matrix4.CreateTranslation(translation);
             _invTransform = Matrix4.CreateTranslation(-translation) * _invTransform;
             _localPoint.SetRawNoUpdate(_transform.GetPoint());
-            UpdateTransformedFrustum();
-            OnTransformChanged();
+            if (_viewTarget != null)
+                SetRotationWithTarget(_viewTarget.Raw);
+            else
+            {
+                UpdateTransformedFrustum();
+                OnTransformChanged();
+            }
         }
 
         public void TranslateAbsolute(float x, float y, float z) 
@@ -302,11 +326,10 @@ namespace CustomEngine.Rendering.Cameras
             => _localRotation.PitchYawRoll = pitchYawRoll;
         public void SetRotation(float pitch, float yaw, float roll)
             => _localRotation.SetRotations(pitch, yaw, roll);
-
-        public void SetViewTarget(Vec3 target)
+        public void SetRotationWithTarget(Vec3 target)
         {
-            if (_owningComponent != null)
-                target = Vec3.TransformPosition(target, _owningComponent.InverseWorldMatrix);
+            //if (_owningComponent != null)
+            //    target = Vec3.TransformPosition(target, _owningComponent.InverseWorldMatrix);
             SetRotation((target - _localPoint).LookatAngles(Vec3.Forward));
         }
         public void Pivot(float y, float x, float radius)
@@ -394,8 +417,12 @@ namespace CustomEngine.Rendering.Cameras
             => ScreenToWorld(screenPoint, depth);
         public Vec3 GetPointAtDistance(Vec2 screenPoint, float distance)
             => GetWorldSegment(screenPoint).PointAtLineDistance(distance);
-        
+
         public void Render()
-            => _transformedFrustum.Render();
+        {
+            _transformedFrustum.Render();
+            if (_viewTarget != null)
+                Engine.Renderer.RenderLine(_transformedFrustum.RenderName + "_ViewTarget", WorldPoint, _viewTarget.Raw, Color.DarkGray, 10.0f);
+        }
     }
 }

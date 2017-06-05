@@ -145,14 +145,20 @@ namespace CustomEngine.Files
         private unsafe void ToBinary(string directory, string fileName)
         {
             Type t = GetType();
+
             if (!Directory.Exists(directory))
                 Directory.CreateDirectory(directory);
+
             fileName = String.IsNullOrEmpty(fileName) ? "NewFile" : fileName;
-            _filePath = directory + "\\" + fileName + "." + FileHeader.GetProperExtension(FileFormat.Binary);
+
+            if (!directory.EndsWith("\\"))
+                directory += "\\";
+
+            _filePath = directory + fileName + "." + FileHeader.GetProperExtension(FileFormat.Binary);
 
             if (FileHeader.ManualBinSerialize)
             {
-                using (FileStream stream = new FileStream(_filePath, 
+                using (FileStream stream = new FileStream(_filePath,
                     FileMode.OpenOrCreate,
                     FileAccess.ReadWrite,
                     FileShare.ReadWrite,
@@ -176,7 +182,9 @@ namespace CustomEngine.Files
                 }
             }
             else
-                CustomBinarySerializer.Serialize(this, _filePath, Endian.EOrder.Big, true, true, null);
+            {
+                CustomBinarySerializer.Serialize(this, _filePath, Endian.EOrder.Big, true, true, "test", out byte[] encryptionSalt, out byte[] integrityHash, null);
+            }
         }
         public static FileFormat GetFormat(string path)
         {
@@ -246,9 +254,12 @@ namespace CustomEngine.Files
         {
             if (!Directory.Exists(directory))
                 Directory.CreateDirectory(directory);
+
             fileName = String.IsNullOrEmpty(fileName) ? "NewFile" : fileName;
+
             if (!directory.EndsWith("\\"))
                 directory += "\\";
+
             _filePath = directory + fileName + "." + FileHeader.GetProperExtension(FileFormat.XML);
 
             if (FileHeader.ManualXmlSerialize)

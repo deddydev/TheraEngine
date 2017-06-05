@@ -41,9 +41,9 @@ namespace System
         }
         
         public void Cull(Frustum frustum) { _head?.Cull(frustum); }
-        public List<T> FindClosest(Vec3 point) { return _head.FindClosest(point); }
-        public List<T> FindAllJustOutside(Shape shape) { return _head.FindAllJustOutside(shape); }
-        public List<T> FindAllInside(Shape shape) { return _head.FindAllInside(shape); }
+        public ThreadSafeList<T> FindClosest(Vec3 point) { return _head.FindClosest(point); }
+        public ThreadSafeList<T> FindAllJustOutside(Shape shape) { return _head.FindAllJustOutside(shape); }
+        public ThreadSafeList<T> FindAllInside(Shape shape) { return _head.FindAllInside(shape); }
         public void Add(T value)
         {
             if (_head == null)
@@ -68,20 +68,18 @@ namespace System
         }
 
         public void DebugRender()
-        {
-            _head?.DebugRender();
-        }
-
+            => _head?.DebugRender();
+        
         public class Node : IOctreeNode
         {
             private int _subDivIndex = 0, _subDivLevel = 0;
             private bool _visible = true;
             private BoundingBox _bounds;
-            public List<T> _items = new List<T>();
+            public ThreadSafeList<T> _items = new ThreadSafeList<T>();
             public Node[] _subNodes;
             public Node _parentNode;
 
-            public List<T> Items => _items;
+            public ThreadSafeList<T> Items => _items;
             public BoundingBox Bounds => _bounds;
             public Vec3 Center => _bounds.Translation;
             public Vec3 Min => _bounds.Minimum;
@@ -113,6 +111,10 @@ namespace System
             public void ItemMoved(I3DBoundable item) => ItemMoved((T)item);
             public void ItemMoved(T item)
             {
+                //TODO: if the item is the only item within its volume, no need to subdivide more!!!
+                //However, if the item is inserted into a volume with at least one other item in it, 
+                //need to try subdividing for all items at that point.
+
                 //Still within the same volume?
                 if (item.CullingVolume.ContainedWithin(_bounds) == EContainment.Contains)
                 {
@@ -128,12 +130,10 @@ namespace System
                             break;
                         }
                     }
-                    return;
                 }
-
-                //Belongs in larger parent volume, remove from this node
-                if (_parentNode != null)
+                else if (_parentNode != null)
                 {
+                    //Belongs in larger parent volume, remove from this node
                     Remove(item, out bool shouldDestroy);
                     if (!_parentNode.AddReversedHierarchy(item, shouldDestroy ? _subDivIndex : -1))
                     {
@@ -205,11 +205,11 @@ namespace System
                 return true;
             }
 
-            public List<T> FindClosest(Vec3 point)
+            public ThreadSafeList<T> FindClosest(Vec3 point)
             {
                 if (_bounds.Contains(point))
                 {
-                    List<T> list = null;
+                    ThreadSafeList<T> list = null;
                     if (_subNodes != null)
                         foreach (Node node in _subNodes)
                             if (node != null)
@@ -222,7 +222,7 @@ namespace System
                     if (_items.Count == 0)
                         return null;
 
-                    list = new List<T>(_items);
+                    list = new ThreadSafeList<T>(_items);
                     for (int i = 0; i < list.Count; ++i)
                         if (list[i].CullingVolume != null && !list[i].CullingVolume.Contains(point))
                             list.RemoveAt(i--);
@@ -232,7 +232,7 @@ namespace System
                 else
                     return null;
             }
-            public List<T> FindAllJustOutside(Shape shape)
+            public ThreadSafeList<T> FindAllJustOutside(Shape shape)
             {
                 foreach (Node node in _subNodes)
                     if (node != null)
@@ -244,15 +244,15 @@ namespace System
 
                 return CollectChildren();
             }
-            public List<T> CollectChildren()
+            public ThreadSafeList<T> CollectChildren()
             {
-                List<T> list = _items;
+                ThreadSafeList<T> list = _items;
                 foreach (Node node in _subNodes)
                     if (node != null)
                         list.AddRange(node.CollectChildren());
                 return list;
             }
-            public List<T> FindAllInside(Shape shape)
+            public ThreadSafeList<T> FindAllInside(Shape shape)
             {
                 throw new NotImplementedException();
             }
@@ -268,12 +268,14 @@ namespace System
                     //Bounds is intersecting edge of frustum
                     for (int i = 0; i < _items.Count; ++i)
                     {
-                        if (i > _items.Count)
+                        if (i >= _items.Count)
                             break;
 
                         T item = _items[i];
-                        item.IsRendering = item.CullingVolume != null ?
-                            item.CullingVolume.ContainedWithin(frustum) != EContainment.Disjoint : true;
+                        if (item == null)
+                            _items.RemoveAt(i--);
+                        else
+                            item.IsRendering = item.CullingVolume != null ? item.CullingVolume.ContainedWithin(frustum) != EContainment.Disjoint : true;
                     }
 
                     if (_subNodes != null)

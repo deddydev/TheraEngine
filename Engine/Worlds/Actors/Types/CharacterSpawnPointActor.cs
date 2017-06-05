@@ -22,11 +22,8 @@ namespace CustomEngine.Worlds.Actors.Types
             };
             return new CapsuleComponent(0.5f, 1.0f, info);
         }
-        protected override void PostConstruct()
-        {
-            base.PostConstruct();
-        }
-        public bool CanSpawnPlayer(PawnController c)
+        //TODO: test player's variable-sized capsule against space directly, not fixed-size root component capsule
+        public virtual bool CanSpawnPlayer(PawnController c)
         {
             return !IsBlocked;
         }

@@ -103,6 +103,14 @@ namespace System
 
         public Vec3 GetPoint() => Vec3.TransformPosition(Vec3.Zero, this);
 
+        public void OnlyRotationMatrix()
+        {
+            Matrix4 m = Identity;
+            m.Row0.Xyz = Row0.Xyz;
+            m.Row1.Xyz = Row1.Xyz;
+            m.Row2.Xyz = Row2.Xyz;
+            this = m;
+        }
         public Matrix4 GetRotationMatrix4()
         {
             Matrix4 m = Identity;

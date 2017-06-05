@@ -55,8 +55,9 @@ namespace System
         }
         public void UnregisterTick(ETickGroup group, ETickOrder order, DelTick tickFunc)
         {
-            int info = _tickFunctions.FindIndex(x => x.Item1 == group && x.Item2 == order && x.Item3 == tickFunc);
-            if (info != null)
+            int index = _tickFunctions.FindIndex(x => x.Item1 == group && x.Item2 == order && x.Item3 == tickFunc);
+            if (index >= 0)
+                _tickFunctions.RemoveAt(index);
             Engine.UnregisterTick(group, order, tickFunc);
         }
 

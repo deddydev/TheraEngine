@@ -67,10 +67,8 @@ namespace System
         }
 
         public void DebugRender()
-        {
-            _head?.DebugRender();
-        }
-
+            => _head?.DebugRender();
+        
         public class Node : IQuadtreeNode
         {
             private Node _parent;

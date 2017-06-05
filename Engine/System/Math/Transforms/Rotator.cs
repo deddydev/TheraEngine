@@ -37,6 +37,7 @@ namespace System
         private int _updateIndex = 0;
         private Vec3 _prevPyr;
         private Rotator _syncPitch, _syncYaw, _syncRoll, _syncAll;
+        private readonly object _lock = new object();
 
         [Serialize("PitchYawRoll", IsXmlAttribute = true)]
         public Vec3 _pyr;
@@ -51,13 +52,13 @@ namespace System
         
         private void BeginUpdate()
         {
-            if (_updateIndex++ == 0)
+            //if (_updateIndex++ == 0)
                 _prevPyr = _pyr;
         }
         private void EndUpdate()
         {
-            if (--_updateIndex == 0)
-            {
+            //if (--_updateIndex == 0)
+            //{
                 bool anyChanged = false;
                 if (!_prevPyr.X.EqualTo(_pyr.X))
                 {
@@ -79,7 +80,7 @@ namespace System
                     AllChanged?.Invoke(this);
                     Changed?.Invoke();
                 }
-            }
+            //}
         }
         public void SyncPitchFrom(Rotator other)
         {

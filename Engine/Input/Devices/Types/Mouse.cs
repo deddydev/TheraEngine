@@ -52,9 +52,9 @@ namespace CustomEngine.Input.Devices
         {
             _cursor.Register(func, pauseType, relative, unregister);
         }
-        public ButtonManager LeftClick { get { return _buttonStates[(int)EMouseButton.LeftClick]; } }
-        public ButtonManager RightClick { get { return _buttonStates[(int)EMouseButton.RightClick]; } }
-        public ButtonManager MiddleClick { get { return _buttonStates[(int)EMouseButton.MiddleClick]; } }
+        public ButtonManager LeftClick => _buttonStates[(int)EMouseButton.LeftClick];
+        public ButtonManager RightClick => _buttonStates[(int)EMouseButton.RightClick];
+        public ButtonManager MiddleClick => _buttonStates[(int)EMouseButton.MiddleClick];
     }
     public delegate void DelMouseScroll(bool up);
     public delegate void DelCursorUpdate(float x, float y);
@@ -76,7 +76,7 @@ namespace CustomEngine.Input.Devices
         }
         public void Register(DelCursorUpdate func, InputPauseType pauseType, bool relative, bool unregister)
         {
-            int index = (relative ? 0 : 1) * (int)pauseType;
+            int index = (relative ? 0 : 3) + (int)pauseType;
             if (unregister)
             {
                 List<DelCursorUpdate> list = _onCursorUpdate[index];
@@ -104,7 +104,7 @@ namespace CustomEngine.Input.Devices
         }
         protected void PerformAction(bool relative, float x, float y)
         {
-            int index = (relative ? 0 : 1) * 3;
+            int index = relative ? 0 : 3;
             List<DelCursorUpdate> list = _onCursorUpdate[index];
             if (list != null)
             {
@@ -126,7 +126,7 @@ namespace CustomEngine.Input.Devices
     }
     public class ScrollWheelManager
     {
-        List<DelMouseScroll> _onUpdate = new List<DelMouseScroll>();
+        List<Tuple<InputPauseType, DelMouseScroll>> _onUpdate = new List<Tuple<InputPauseType, DelMouseScroll>>();
 
         float _lastValue = 0.0f;
 
@@ -148,15 +148,25 @@ namespace CustomEngine.Input.Devices
         public void Register(DelMouseScroll func, InputPauseType pauseType, bool unregister)
         {
             if (unregister)
-                _onUpdate.Remove(func);
+            {
+                int index = _onUpdate.FindIndex(x => x.Item2 == func);
+                if (index >= 0 && index < _onUpdate.Count)
+                    _onUpdate.RemoveAt(index);
+            }
             else
-                _onUpdate.Add(func);
+                _onUpdate.Add(new Tuple<InputPauseType, DelMouseScroll>(pauseType, func));
         }
         private void OnUpdate(bool up)
         {
             int i = _onUpdate.Count;
             for (int x = 0; x < i; ++x)
-                _onUpdate[x](up);
+            {
+                var update = _onUpdate[x];
+                if (update.Item1 == InputPauseType.TickAlways ||
+                    (update.Item1 == InputPauseType.TickOnlyWhenUnpaused && !Engine.IsPaused) ||
+                    (update.Item1 == InputPauseType.TickOnlyWhenPaused && Engine.IsPaused))
+                    update.Item2(up);
+            }
         }
     }
     public enum EMouseButton

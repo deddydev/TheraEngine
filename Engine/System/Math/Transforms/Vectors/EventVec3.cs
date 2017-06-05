@@ -135,16 +135,16 @@ namespace System
 
         private void BeginUpdate()
         {
-            ++_updating;
+            //++_updating;
             _oldX = X;
             _oldY = Y;
             _oldZ = Z;
         }
         private void EndUpdate()
         {
-            --_updating;
-            if (_updating > 0)
-                return;
+            //--_updating;
+            //if (_updating > 0)
+            //    return;
             bool anyChanged = false;
             if (X != _oldX)
             {
@@ -458,8 +458,30 @@ namespace System
         public static bool operator >=(Vec3 left, EventVec3 right) { return left >= right._data; }
         public static bool operator >=(EventVec3 left, Vec3 right) { return left._data >= right; }
 
-        public static bool operator ==(EventVec3 left, EventVec3 right) { return left.Equals(right); }
-        public static bool operator !=(EventVec3 left, EventVec3 right) { return !left.Equals(right); }
+        public static bool operator ==(EventVec3 left, EventVec3 right)
+        {
+            if (ReferenceEquals(left, null))
+                if (ReferenceEquals(right, null))
+                    return true;
+                else
+                    return false;
+            else if (ReferenceEquals(right, null))
+                return false;
+
+            return left.Equals(right);
+        }
+        public static bool operator !=(EventVec3 left, EventVec3 right)
+        {
+            if (ReferenceEquals(left, null))
+                if (ReferenceEquals(right, null))
+                    return false;
+                else
+                    return true;
+            else if (ReferenceEquals(right, null))
+                return true;
+
+            return !left.Equals(right);
+        }
 
         public static implicit operator Vec3(EventVec3 v) { return v._data; }
         public static implicit operator EventVec3(Vec3 v) { return new EventVec3(v); }

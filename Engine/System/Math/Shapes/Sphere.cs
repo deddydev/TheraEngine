@@ -76,18 +76,18 @@ namespace System
                 {
                     theta3 = i * twoPIThroughPrecision;
 
-                    norm.X = (float)(Cos(theta2) * Cos(theta3));
-                    norm.Y = (float)Sin(theta2);
-                    norm.Z = (float)(Cos(theta2) * Sin(theta3));
+                    norm.X = -(float)(Cos(theta2) * Cos(theta3));
+                    norm.Y = -(float)Sin(theta2);
+                    norm.Z = -(float)(Cos(theta2) * Sin(theta3));
                     pos = center + radius * norm;
                     uv.X = i * invPrecision;
                     uv.Y = 2.0f * (j + 1) * invPrecision;
 
                     stripVertices[x++] = new Vertex(pos, norm, uv);
 
-                    norm.X = (float)(Cos(theta1) * Cos(theta3));
-                    norm.Y = (float)Sin(theta1);
-                    norm.Z = (float)(Cos(theta1) * Sin(theta3));
+                    norm.X = -(float)(Cos(theta1) * Cos(theta3));
+                    norm.Y = -(float)Sin(theta1);
+                    norm.Z = -(float)(Cos(theta1) * Sin(theta3));
                     pos = center + radius * norm;
                     uv.X = i * invPrecision;
                     uv.Y = 2.0f * j * invPrecision;

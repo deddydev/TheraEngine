@@ -1,4 +1,5 @@
-﻿using CustomEngine.Rendering.Cameras;
+﻿using CustomEngine.Rendering.Animation;
+using CustomEngine.Rendering.Cameras;
 using CustomEngine.Rendering.Models;
 using CustomEngine.Rendering.Models.Materials;
 using CustomEngine.Worlds.Actors.Types;
@@ -147,7 +148,10 @@ namespace CustomEngine.Rendering
         //public void RenderCone(string name, Vec3 topPoint, Vec3 bottomPoint, float bottomRadius, Matrix4 transform, bool solid, ColorF4 color)
         //    => RenderCone(name, Vec3.TransformPosition(topPoint, transform), bottomPoint * transform, bottomRadius, solid, color);
 
-        public abstract void RenderLineLoop(bool closedLoop, params Vec3[] points);
+        //public abstract void RenderPoint(Vec3 position, ColorF4 color, float pointSize = DefaultPointSize);
+        //public abstract void RenderLine(Vec3 start, Vec3 end, ColorF4 color, float lineWidth = DefaultLineSize);
+        //public abstract void RenderLineLoop(bool closedLoop, params Vec3[] points);
+        //public abstract void RenderLineLoop(bool closedLoop, PropAnimVec3 points);
         public virtual void RenderPoint(string name, Vec3 position, ColorF4 color, float pointSize = DefaultPointSize)
         {
             SetPointSize(pointSize);

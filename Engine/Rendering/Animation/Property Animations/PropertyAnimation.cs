@@ -19,6 +19,11 @@ namespace CustomEngine.Rendering.Animation
             get => _useKeyframes;
             set { _useKeyframes = value; UseKeyframesChanged(); }
         }
+        public override void SetFrameCount(int frameCount, bool stretchAnimation)
+        {
+            InternalKeyframes.SetFrameCount(frameCount, stretchAnimation);
+            base.SetFrameCount(frameCount, stretchAnimation);
+        }
         public void Tick(object obj, PropertyInfo property, float delta)
         {
             if (!_isPlaying)

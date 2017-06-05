@@ -34,6 +34,8 @@ namespace CustomEngine.Rendering.Animation
                 }
             }
         }
+
+        public abstract void SetFrameCount(int frameCount, bool stretchAnimation);
     }
     public class KeyframeTrack<T> : BaseKeyframeTrack, IEnumerable<T> where T : Keyframe
     {
@@ -77,7 +79,7 @@ namespace CustomEngine.Rendering.Animation
                 {
                     if (key._frameIndex >= node._frameIndex)
                     {
-                        node.LinkNext(key);
+                        node.Link(key);
                         ++_keyCount;
                         OnChanged();
                         return true;
@@ -88,7 +90,6 @@ namespace CustomEngine.Rendering.Animation
             }
             return false;
         }
-
         public bool Remove(T key)
         {
             if (_first == null)
@@ -143,33 +144,14 @@ namespace CustomEngine.Rendering.Animation
                 _first = key;
             else if (key._frameIndex < _first._frameIndex)
             {
-                _first.LinkPrev(key);
+                _first.Link(key);
                 _first = key;
             }
             else
-                _first.LinkNext(key);
+                _first.Link(key);
             ++_keyCount;
             OnChanged();
         }
-        //public void AddLast(T key)
-        //{
-        //    if (_first == null)
-        //        _first = key;
-        //    else
-        //        _first.LinkPrev(key);
-        //    ++_keyCount;
-        //}
-        //public void AddFirst(T key)
-        //{
-        //    if (_first == null)
-        //        _first = key;
-        //    else
-        //    {
-        //        _first.LinkPrev(key);
-        //        _first = key;
-        //    }
-        //    ++_keyCount;
-        //}
         public T GetKeyBefore(float frameIndex)
         {
             foreach (T key in this)
@@ -200,6 +182,11 @@ namespace CustomEngine.Rendering.Animation
                 node = node.Next;
             }
             while (node != _first);
+        }
+
+        public override void SetFrameCount(int frameCount, bool stretchAnimation)
+        {
+            throw new NotImplementedException();
         }
     }
     public enum RadialInterpType
@@ -241,35 +228,23 @@ namespace CustomEngine.Rendering.Animation
             _prev.Next = Next;
             _next = _prev = this;
         }
-        public Keyframe LinkNext(Keyframe next)
+        public Keyframe Link(Keyframe key)
         {
-            //if (next._frameIndex > _next._frameIndex && _next._frameIndex != _frameIndex)
-            //    return _next.LinkNext(next);
-            //if (next._frameIndex < _prev._frameIndex && _prev._frameIndex != _frameIndex)
-            //    return _prev.LinkPrev(next);
+            if (key._frameIndex > _next._frameIndex && 
+                _next._frameIndex > _frameIndex)
+                return _next.Link(key);
 
-            next.Next = _next;
-            next.Prev = this;
+            if (key._frameIndex < _prev._frameIndex && 
+                _prev._frameIndex < _frameIndex)
+                return _prev.Link(key);
 
-            _next._prev = next;
-            _next = next;
+            key.Next = _next;
+            key.Prev = this;
 
-            return next;
-        }
-        public Keyframe LinkPrev(Keyframe prev)
-        {
-            //if (prev._frameIndex < _prev._frameIndex && _prev._frameIndex != _frameIndex)
-            //    return _prev.LinkPrev(prev);
-            //if (prev._frameIndex > _next._frameIndex && _next._frameIndex != _frameIndex)
-            //    return _next.LinkNext(prev);
-            
-            prev.Next = this;
-            prev.Prev = _prev;
+            _next._prev = key;
+            _next = key;
 
-            _prev._next = prev;
-            _prev = prev;
-
-            return prev;
+            return key;
         }
     }
 }

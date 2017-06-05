@@ -85,11 +85,11 @@ namespace CustomEngine.Rendering.OpenGL
         public unsafe override void Initialize()
         {
             GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
-            GL.Disable(OpenTK.Graphics.OpenGL.EnableCap.CullFace);
-            GL.Disable(OpenTK.Graphics.OpenGL.EnableCap.Dither);
+            GL.Disable(EnableCap.CullFace);
+            GL.Disable(EnableCap.Dither);
             //GL.FrontFace(FrontFaceDirection.Ccw);
             //GL.CullFace(CullFaceMode.Front);
-            GL.Enable(OpenTK.Graphics.OpenGL.EnableCap.DepthTest);
+            GL.Enable(EnableCap.DepthTest);
             GL.DepthFunc(DepthFunction.Less);
             GL.DepthMask(true);
             GL.ClearDepth(1.0f);
@@ -99,6 +99,9 @@ namespace CustomEngine.Rendering.OpenGL
             GL.Hint(HintTarget.PointSmoothHint, HintMode.Nicest);
             GL.Hint(HintTarget.PolygonSmoothHint, HintMode.Nicest);
             GL.Hint(HintTarget.GenerateMipmapHint, HintMode.Nicest);
+
+            GL.MatrixMode(MatrixMode.Modelview);
+            GL.LoadMatrix(Matrix4.Identity.Data);
 
             //GL.Enable(OpenTK.Graphics.OpenGL.EnableCap.DepthTest);
             //GL.Disable(OpenTK.Graphics.OpenGL.EnableCap.Blend);

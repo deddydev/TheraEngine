@@ -79,8 +79,8 @@ namespace CustomEngine.Rendering.Textures
         private MagFilter _magFilter;
         private float _lodBias;
         private TextureData _data;
-        private EPixelInternalFormat _internalFormat = EPixelInternalFormat.Rgba8;
-        private EPixelFormat _pixelFormat = EPixelFormat.Bgra;
+        private EPixelInternalFormat _internalFormat = EPixelInternalFormat.Rgb8;
+        private EPixelFormat _pixelFormat = EPixelFormat.Bgr;
         private EPixelType _pixelType = EPixelType.Byte;
         private ETexTarget _textureTarget = ETexTarget.Texture2D;
 
@@ -127,8 +127,24 @@ namespace CustomEngine.Rendering.Textures
             Bitmap bmp = _data.Bitmap;
             if (bmp != null)
             {
-                BitmapData data = bmp.LockBits(new Rectangle(0, 0, _width, _height), ImageLockMode.ReadOnly, bmp.PixelFormat);
-                Engine.Renderer.PushTextureData(_textureTarget, 0, _internalFormat, _width, _height, _pixelFormat, _pixelType, data.Scan0);
+                BitmapData data = bmp.LockBits(new Rectangle(0, 0, _width, _height), ImageLockMode.ReadOnly, PixelFormat.Format32bppArgb);
+                EPixelFormat pixelFormat = EPixelFormat.Bgra;
+                EPixelType pixelType = EPixelType.UnsignedByte;
+                //switch (bmp.PixelFormat)
+                //{
+                //    case PixelFormat.Format24bppRgb:
+                //        pixelFormat = EPixelFormat.Bgr;
+                //        pixelType = EPixelType.UnsignedByte;
+                //        break;
+                //    case PixelFormat.Format32bppArgb:
+                //        pixelFormat = EPixelFormat.Bgra;
+                //        pixelType = EPixelType.UnsignedByte;
+                //        break;
+                //    default:
+                //        throw new Exception();
+                //}
+
+                Engine.Renderer.PushTextureData(_textureTarget, 0, EPixelInternalFormat.Four, _width, _height, pixelFormat, pixelType, data.Scan0);
                 bmp.UnlockBits(data);
             }
             else

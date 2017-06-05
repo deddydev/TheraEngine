@@ -27,14 +27,22 @@ namespace CustomEngine.Files.Serialization
             Object = obj;
             Info = info;
             Interface = InterfaceType.None;
+
             if (info == null)
                 return;
+
             List<VarInfo> members = SerializationCommon.CollectSerializedMembers(info.VariableType);
-            Members = members.Select(x => new MemberTreeNode(obj == null ? null : x.GetValue(obj), x)).ToList();
+
+            Members = members.
+                Where(x => (x.Attrib == null || x.Attrib.SerializeIf == null) ? true : ExpressionParser.Evaluate<bool>(x.Attrib.SerializeIf, obj)).
+                Select(x => new MemberTreeNode(obj == null ? null : x.GetValue(obj), x)).
+                ToList();
+
             CategorizedMembers = Members.Where(x => x.Info.Category != null).GroupBy(x => x.Info.Category).ToList();
             foreach (var grouping in CategorizedMembers)
                 foreach (MemberTreeNode p in grouping)
                     Members.Remove(p);
+
             if (Object is IList array)
             {
                 Interface = InterfaceType.IList;
@@ -42,10 +50,8 @@ namespace CustomEngine.Files.Serialization
                 for (int i = 0; i < array.Count; ++i)
                     IListMembers[i] = new MemberTreeNode(array[i]);
             }
-            ShouldSerialize = (info.Attrib == null || info.Attrib.SerializeIf == null) ? true : ExpressionParser.Evaluate<bool>(info.Attrib.SerializeIf, obj);
         }
-
-        public bool ShouldSerialize;
+        
         public object Object;
         public VarInfo Info;
         public int CalculatedSize;
@@ -54,6 +60,11 @@ namespace CustomEngine.Files.Serialization
         public List<IGrouping<string, MemberTreeNode>> CategorizedMembers;
         public InterfaceType Interface;
         public MemberTreeNode[] IListMembers;
+
+        public override string ToString()
+        {
+            return Info.Name;
+        }
     }
     /// <summary>
     /// Stores a field/property's information.

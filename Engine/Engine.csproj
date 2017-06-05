@@ -755,7 +755,7 @@
     <Compile Include="System\Reflection\Attributes\Serialization\SerializeAttribute.cs" />
     <Compile Include="System\Reflection\CustomPropertyCollection.cs" />
     <Compile Include="System\Files\FileObject.cs" />
-    <Compile Include="System\Time\GlobalTimer.cs" />
+    <Compile Include="System\Time\EngineTimer.cs" />
     <Compile Include="System\RenderPanel.cs" />
     <Compile Include="System\RenderForm.cs">
       <SubType>Form</SubType>
@@ -798,6 +798,7 @@
     <Compile Include="Worlds\Actors\Components\Scene\Mesh\SkeletalMeshComponent.RenderableMesh.cs" />
     <Compile Include="Worlds\Actors\Components\Scene\Mesh\StaticMeshComponent.RenderableMesh.cs" />
     <Compile Include="Worlds\Actors\Components\Scene\MovementLagComponent.cs" />
+    <Compile Include="Worlds\Actors\Components\Scene\SplineComponent.cs" />
     <Compile Include="Worlds\Actors\Components\Scene\SoundComponent.cs" />
     <Compile Include="Worlds\Actors\Components\Scene\Transforms\NoisePositionComponent.cs" />
     <Compile Include="Worlds\Actors\Components\Scene\Transforms\RotationComponent.cs" />
@@ -837,7 +838,7 @@
     <Compile Include="Rendering\Renderer\RenderContext.cs" />
     <Compile Include="Worlds\Actors\Types\ComponentActors\Shapes\SphereActor.cs" />
     <Compile Include="Worlds\Actors\Types\ComponentActors\Shapes\BoxActor.cs" />
-    <Compile Include="Worlds\Actors\Types\ComponentActors\CameraActor.cs" />
+    <Compile Include="Worlds\Actors\Types\ComponentActors\PerspectiveCameraActor.cs" />
     <Compile Include="Worlds\Actors\Types\ComponentActors\DecalActor.cs" />
     <Compile Include="Rendering\Animation\Property Animations\PropAnimString.cs" />
     <Compile Include="Rendering\Animation\Property Animations\PropAnimBool.cs" />
@@ -868,6 +869,7 @@
     <Compile Include="Rendering\Renderer\Viewport.cs" />
     <Compile Include="System\Memory\VoidPtr.cs" />
     <Compile Include="Worlds\Actors\Actor.cs" />
+    <Compile Include="Worlds\Actors\Types\ComponentActors\SplineActor.cs" />
     <Compile Include="Worlds\Actors\Types\ComponentActors\SoundActor.cs" />
     <Compile Include="Worlds\Actors\Types\EditorTransformTool2D.cs" />
     <Compile Include="Worlds\Actors\Types\Pawns\CharacterPawn.cs" />
@@ -903,6 +905,7 @@
     <Compile Include="Rendering\Models\Meshes\Skeletal\SkeletalSoftSubMesh.cs" />
     <Compile Include="Rendering\Models\Meshes\Skeletal\Skeleton\Skeleton.cs" />
     <Compile Include="Rendering\Renderer\States\Texture.cs" />
+    <Compile Include="Worlds\WorldDebugDrawer.cs" />
     <Compile Include="Worlds\WorldSettings.cs" />
     <Compile Include="Worlds\WorldState.cs" />
     <EmbeddedResource Include="Properties\Resources.resx">

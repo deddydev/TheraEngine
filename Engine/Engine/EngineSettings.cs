@@ -92,7 +92,7 @@ namespace CustomEngine
             RenderSkeletons = false;
             RenderCameraFrustums = false;
             CapFPS = true;
-            TargetFPS = 30.0f;
+            TargetFPS = 60.0f;
             CapUPS = false;
             TargetUPS = 90.0f;
             GamePath = Engine.StartupPath;

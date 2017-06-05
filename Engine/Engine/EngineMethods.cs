@@ -11,6 +11,7 @@ using BulletSharp;
 using System.Threading.Tasks;
 using CustomEngine.Players;
 using System.Collections.Concurrent;
+using System.Threading;
 
 namespace CustomEngine
 {
@@ -67,7 +68,7 @@ namespace CustomEngine
         static Engine()
         {
             //Steamworks.SteamAPI.Init();
-            _timer = new GlobalTimer();
+            _timer = new EngineTimer();
             _timer.UpdateFrame += Tick;
             ActivePlayers.PostAdded += ActivePlayers_Added;
             ActivePlayers.PostRemoved += ActivePlayers_Removed;
@@ -75,6 +76,8 @@ namespace CustomEngine
             _tickLists = new ThreadSafeList<DelTick>[15];
             for (int i = 0; i < _tickLists.Length; ++i)
                 _tickLists[i] = new ThreadSafeList<DelTick>();
+
+            Thread.CurrentThread.Name = "UI Thread";
         }
         public static void Initialize()
         {
@@ -196,12 +199,26 @@ namespace CustomEngine
         internal static void RegisterTick(ETickGroup group, ETickOrder order, DelTick function)
         {
             if (function != null)
-                GetTickList(group, order).Add(function);
+            {
+                var list = GetTickList(group, order);
+                int tickIndex = (int)group + (int)order;
+                if (_currentTickList == tickIndex)
+                    _tickListQueue.Enqueue(new Tuple<bool, DelTick>(true, function));
+                else
+                    list.Add(function);
+            }
         }
         internal static void UnregisterTick(ETickGroup group, ETickOrder order, DelTick function)
         {
             if (function != null)
-                GetTickList(group, order).Remove(function);
+            {
+                var list = GetTickList(group, order);
+                int tickIndex = (int)group + (int)order;
+                if (_currentTickList == tickIndex)
+                    _tickListQueue.Enqueue(new Tuple<bool, DelTick>(false, function));
+                else
+                    list.Remove(function);
+            }
         }
         private static ThreadSafeList<DelTick> GetTickList(ETickGroup group, ETickOrder order)
             => _tickLists[(int)group + (int)order];
@@ -216,10 +233,26 @@ namespace CustomEngine
         private static void TickGroup(ETickGroup group, float delta)
         {
             int start = (int)group;
+            ThreadSafeList<DelTick> currentList;
             for (int i = start; i < start + 5; ++i)
-                Parallel.ForEach(_tickLists[i], currentFunc => currentFunc(delta));
-                //foreach (var currentFunc in _tickLists[i])
-                //    currentFunc.Key(delta);
+            {
+                currentList = _tickLists[_currentTickList = i];
+
+                Parallel.ForEach(currentList, currentFunc => currentFunc(delta));
+
+                //foreach (var currentFunc in currentList)
+                //    currentFunc(delta);
+
+                _currentTickList = -1;
+
+                while (!_tickListQueue.IsEmpty && _tickListQueue.TryDequeue(out Tuple<bool, DelTick> result))
+                {
+                    if (result.Item1)
+                        currentList.Add(result.Item2);
+                    else
+                        currentList.Remove(result.Item2);
+                }
+            }
         }
         #endregion
 

@@ -42,10 +42,10 @@ namespace CustomEngine.Rendering
         public bool SimulatePhysics = true;
         public CustomCollisionGroup Group = CustomCollisionGroup.Default;
         public CustomCollisionGroup CollidesWith = CustomCollisionGroup.All;
-        
-        public float Mass = 1.0f;
+
+        private float _mass = 1.0f;
         public MotionState MotionState = null;
-        public CollisionShape CollisionShape = null;
+        private CollisionShape _collisionShape = null;
         public Vec3 LocalInertia = Vec3.Zero;
 
         public bool AdditionalDamping = false;
@@ -61,6 +61,27 @@ namespace CustomEngine.Rendering
         public Matrix4 InitialWorldTransform = Matrix4.Identity;
         public float LinearSleepingThreshold = 0.8f;
         public float AdditionalAngularDampingFactor = 0.01f;
+
+        public CollisionShape CollisionShape
+        {
+            get => _collisionShape;
+            set
+            {
+                _collisionShape = value;
+                if (CollisionShape != null)
+                    LocalInertia = CollisionShape.CalculateLocalInertia(Mass);
+            }
+        }
+        public float Mass
+        {
+            get => _mass;
+            set
+            {
+                _mass = value;
+                if (CollisionShape != null)
+                    LocalInertia = CollisionShape.CalculateLocalInertia(Mass);
+            }
+        }
 
         public RigidBodyConstructionInfo ForBullet()
         {
@@ -96,8 +117,8 @@ namespace CustomEngine.Rendering
             _simulatingPhysics = info.SimulatePhysics;
             _group = info.Group;
             _collidesWith = info.CollidesWith;
-            
-            CollisionObject = new RigidBody(info.ForBullet());
+            using (var bulletInfo = info.ForBullet())
+                CollisionObject = new RigidBody(bulletInfo);
         }
 
         public PhysicsDriver(IPhysicsDrivable owner, PhysicsConstructionInfo info, MatrixUpdate func)
@@ -290,7 +311,7 @@ namespace CustomEngine.Rendering
         internal virtual void SetPhysicsTransform(Matrix4 newTransform)
         {
             _collision.WorldTransform = newTransform;
-            Engine.World?.PhysicsScene.UpdateAabbs();
+            //Engine.World?.PhysicsScene.UpdateAabbs();
         }
         protected internal void Tick(float delta)
         {

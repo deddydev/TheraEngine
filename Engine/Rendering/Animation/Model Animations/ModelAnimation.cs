@@ -11,6 +11,14 @@ namespace CustomEngine.Rendering.Animation
         [Serialize("BoneAnimations")]
         public Dictionary<string, BoneAnimation> _boneAnimations
             = new Dictionary<string, BoneAnimation>();
+
+        public override void SetFrameCount(int frameCount, bool stretchAnimation)
+        {
+            foreach (BoneAnimation b in _boneAnimations.Values)
+                b.SetFrameCount(frameCount, stretchAnimation);
+            base.SetFrameCount(frameCount, stretchAnimation);
+        }
+
         protected internal void Tick(float delta)
             => Progress(delta);
         public void AddBoneAnimation(BoneAnimation anim)
@@ -129,7 +137,14 @@ namespace CustomEngine.Rendering.Animation
         }
 
         protected virtual void UseKeyframesChanged() { }
-        
+
+        public void SetFrameCount(int frameCount, bool stretchAnimation)
+        {
+            _translation.SetFrameCount(frameCount, stretchAnimation);
+            _rotation.SetFrameCount(frameCount, stretchAnimation);
+            _scale.SetFrameCount(frameCount, stretchAnimation);
+        }
+
         public ModelAnimation _parent;
         public string _name;
         private bool _useKeyframes = true;

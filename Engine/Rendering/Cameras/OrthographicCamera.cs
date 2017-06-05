@@ -14,7 +14,7 @@ namespace CustomEngine.Rendering.Cameras
             _scale.Changed += CreateTransform;
         }
         public OrthographicCamera(Vec3 scale, Vec3 point, Rotator rotation, Vec2 originPercentages, float nearZ, float farZ) 
-            : base(point, rotation, nearZ, farZ)
+            : base(16.0f, 9.0f, nearZ, farZ, point, rotation)
         {
             _scale.SetRawNoUpdate(scale);
             _scale.Changed += CreateTransform;

@@ -7,6 +7,7 @@ using System.Xml;
 using System.Runtime.InteropServices;
 using System.IO;
 using System.ComponentModel;
+using System.Threading;
 
 namespace CustomEngine.Rendering.Models
 {
@@ -141,7 +142,7 @@ namespace CustomEngine.Rendering.Models
             //Non-animated default bone position transforms, in model space
             _bindMatrix = Matrix4.Identity, _inverseBindMatrix = Matrix4.Identity,
             //Used for calculating vertex influences matrices quickly
-            _vertexMatrix = Matrix4.Identity, _vertexMatrixIT = Matrix4.Identity;
+            _vertexMatrix = Matrix4.Identity, _normalMatrix = Matrix4.Identity;
 
         public Bone Parent
         {
@@ -174,7 +175,7 @@ namespace CustomEngine.Rendering.Models
         public Matrix4 InverseFrameMatrix => _inverseFrameMatrix;
         public Matrix4 InverseBindMatrix => _inverseBindMatrix;
         public Matrix4 VertexMatrix => _vertexMatrix;
-        public Matrix4 VertexMatrixIT => _vertexMatrixIT;
+        public Matrix4 NormalMatrix => _normalMatrix;
         public Skeleton Skeleton => _skeleton;
         public PhysicsDriver PhysicsDriver => _physicsDriver;
 
@@ -229,14 +230,18 @@ namespace CustomEngine.Rendering.Models
             _inverseFrameMatrix = _frameState.InverseMatrix * inverseParentMatrix;
 
             _vertexMatrix = FrameMatrix * InverseBindMatrix;
-            _vertexMatrixIT = (InverseFrameMatrix * BindMatrix).Transposed().GetRotationMatrix4();
+            _normalMatrix = BindMatrix * InverseFrameMatrix;
+            _normalMatrix.Transpose();
+            _normalMatrix.OnlyRotationMatrix();
 
             //Process skinning information dealing with this bone
             if (Engine.Settings.SkinOnGPU)
                 foreach (PrimitiveManager m in _linkedPrimitiveManagers)
                 {
-                    //if (!m._processingSkinning)
-                        m.ModifiedBoneIndices.Add(_index);
+                    while (m._processingSkinning)
+                        Thread.Sleep(1);
+
+                    m.ModifiedBoneIndices.Add(_index);
                 }
             else
             {
@@ -244,9 +249,11 @@ namespace CustomEngine.Rendering.Models
                 {
                     PrimitiveManager m = _linkedPrimitiveManagers[i];
                     ThreadSafeList<int> influenced = _influencedVertices[m.BindingId];
-                    //m._cpuSkinInfo.UpdatePNBT(influenced);
-                    //if (!m._processingSkinning)
-                        m.ModifiedVertexIndices.UnionWith(influenced);
+
+                    while (m._processingSkinning)
+                        Thread.Sleep(1);
+
+                    m.ModifiedVertexIndices.UnionWith(influenced);
                 }
                 _influencedInfluences.ForEach(x => x._hasChanged = true);
             }
@@ -270,7 +277,7 @@ namespace CustomEngine.Rendering.Models
             _inverseBindMatrix = _bindState.InverseMatrix * inverseParentMatrix;
 
             _vertexMatrix = FrameMatrix * InverseBindMatrix;
-            _vertexMatrixIT = (InverseFrameMatrix * BindMatrix).Transposed().GetRotationMatrix4();
+            _normalMatrix = (InverseFrameMatrix * BindMatrix).Transposed();
 
             if (!updateMesh)
                 InfluenceAssets(true);

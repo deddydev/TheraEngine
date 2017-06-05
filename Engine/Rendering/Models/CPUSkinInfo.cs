@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 
 namespace CustomEngine.Rendering.Models
@@ -39,7 +40,7 @@ namespace CustomEngine.Rendering.Models
                     Bone b = _bones[i];
                     float w = _weights[i];
                     _positionMatrix += b.VertexMatrix * w;
-                    _normalMatrix += b.VertexMatrixIT.GetRotationMatrix4() * w;
+                    _normalMatrix += b.NormalMatrix * w;
                 }
             }
         }
@@ -73,21 +74,28 @@ namespace CustomEngine.Rendering.Models
         }
         public unsafe void UpdatePNBT(IEnumerable<int> modifiedVertexIndices)
         {
-            foreach (int i in modifiedVertexIndices)
+            try
             {
-                LiveInfluence inf = _influences[_influenceIndices[i]];
-                if (inf._hasChanged)
+                foreach (int i in modifiedVertexIndices)
                 {
-                    inf.CalcMatrix();
-                    inf._hasChanged = false;
+                    LiveInfluence inf = _influences[_influenceIndices[i]];
+                    if (inf._hasChanged)
+                    {
+                        inf.CalcMatrix();
+                        inf._hasChanged = false;
+                    }
+                    ((Vec3*)_positions.Address)[i] = _basePositions[i] * inf._positionMatrix;
+                    if (_normals != null)
+                        ((Vec3*)_normals.Address)[i] = _baseNormals[i] * inf._normalMatrix;
+                    if (_binormals != null)
+                        ((Vec3*)_binormals.Address)[i] = _baseBinormals[i] * inf._normalMatrix;
+                    if (_tangents != null)
+                        ((Vec3*)_tangents.Address)[i] = _baseTangents[i] * inf._normalMatrix;
                 }
-                ((Vec3*)_positions.Address)[i] = _basePositions[i] * inf._positionMatrix;
-                if (_normals != null)
-                    ((Vec3*)_normals.Address)[i] = _baseNormals[i] * inf._normalMatrix;
-                if (_binormals != null)
-                    ((Vec3*)_binormals.Address)[i] = _baseBinormals[i] * inf._normalMatrix;
-                if (_tangents != null)
-                    ((Vec3*)_tangents.Address)[i] = _baseTangents[i] * inf._normalMatrix;
+            }
+            catch
+            {
+                Debug.WriteLine("Modified vertex indices was modified while being evaluated; could not finish updating buffers.");
             }
         }
     }

@@ -54,6 +54,12 @@ namespace CustomEngine.Rendering.Models.Materials
                 _bindingId = -1;
             }
         }
+        public Material(string name, params Shader[] shaders) 
+            : this(name, new List<GLVar>(), new List<TextureReference>(), shaders) { }
+        public Material(string name, List<GLVar> parameters, params Shader[] shaders)
+            : this(name, parameters, new List<TextureReference>(), shaders) { }
+        public Material(string name, List<TextureReference> textures, params Shader[] shaders)
+            : this(name, new List<GLVar>(), textures, shaders) { }
         public Material(string name, List<GLVar> parameters, List<TextureReference> textures, params Shader[] shaders)
         {
             _name = name;
@@ -82,13 +88,11 @@ namespace CustomEngine.Rendering.Models.Materials
             }
         }
 
-        public static Material GetBasicTextureMaterial(TextureReference texture) => GetBasicTextureMaterial(texture, Engine.Settings.ShadingStyle == ShadingStyle.Deferred);
-        public static Material GetBasicTextureMaterial(TextureReference texture, bool deferred)
+        public static Material GetUnlitTextureMaterial() => GetUnlitTextureMaterial(Engine.Settings.ShadingStyle == ShadingStyle.Deferred);
+        public static Material GetUnlitTextureMaterial(bool deferred)
         {
-            List<TextureReference> refs = new List<TextureReference>() { texture };
             Shader frag = deferred ? Shader.UnlitTextureFragDeferred() : Shader.UnlitTextureFragForward();
-            List<GLVar> parameters = new List<GLVar>();
-            return new Material("UnlitTextureMaterial", parameters, refs, frag);
+            return new Material("UnlitTextureMaterial", frag);
         }
 
         public static Material GetUnlitColorMaterial()

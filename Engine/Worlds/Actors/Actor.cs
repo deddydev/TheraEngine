@@ -209,26 +209,5 @@ namespace CustomEngine.Worlds
         {
             item.OwningActor = this;
         }
-        //protected override int OnCalculateSize(StringTable table)
-        //{
-        //    int size = Actor.Header.Size;
-        //    LogicComponents.ForEach(x => size += x.CalculateSize(table));
-        //    size += RootComponent.CalculateSize(table);
-        //    return size;
-        //}
-        //public unsafe override void Write(VoidPtr address, StringTable table)
-        //{
-        //    VoidPtr addr = address;
-        //    Actor.Header* h = (Actor.Header*)addr;
-        //    h->_nameOffset = table[_name];
-        //    h->_sceneCompCount = SceneComponentCache.Count;
-        //    h->_logicCompCount = LogicComponents.Count;
-        //    foreach (LogicComponent comp in LogicComponents)
-        //    {
-        //        comp.Write(addr, table);
-        //        addr += comp.CalculatedSize;
-        //    }
-        //    RootComponent.Write(addr, table);
-        //}
     }
 }

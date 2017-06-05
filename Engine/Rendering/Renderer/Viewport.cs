@@ -414,7 +414,7 @@ namespace CustomEngine.Rendering
 #endif
                 float depth = GetDepth(viewportPoint);
                 Vec3 worldPoint = ScreenToWorld(viewportPoint, depth);
-                List<IRenderable> r = Engine.Renderer.Scene.RenderTree.FindClosest(worldPoint);
+                ThreadSafeList<IRenderable> r = Engine.Renderer.Scene.RenderTree.FindClosest(worldPoint);
 
             }
             return null;

@@ -3,6 +3,7 @@ using FreeImageAPI;
 using OpenTK.Graphics.OpenGL;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Drawing;
 using System.IO;
 using System.Linq;
@@ -12,6 +13,7 @@ using System.Xml;
 
 namespace CustomEngine.Rendering.Textures
 {
+    [FileClass("", "", true)]
     public class TextureData : FileObject
     {
         public Bitmap Bitmap

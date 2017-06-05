@@ -15,7 +15,7 @@ namespace CustomEngine.Worlds
         WorldSettings Settings { get; set; }
     }
     [FileClass("WORLD", "World")]
-    public unsafe class World : FileObject, IEnumerable<IActor>
+    public unsafe class World : FileObject, IEnumerable<IActor>, IDisposable
     {
         static World()
         {
@@ -65,39 +65,25 @@ namespace CustomEngine.Worlds
             drivers._driver0.ContactEnded(drivers._driver1);
             drivers._driver1.ContactEnded(drivers._driver0);
         }
-        private void CreatePhysicsScene()
-        {
-            BroadphaseInterface broadphase = new DbvtBroadphase();
-            DefaultCollisionConfiguration config = new DefaultCollisionConfiguration();
-            CollisionDispatcher dispatcher = new CollisionDispatcher(config);
-            SequentialImpulseConstraintSolver solver = new SequentialImpulseConstraintSolver();
-            _physicsScene = new DiscreteDynamicsWorld(dispatcher, broadphase, solver, config)
-            {
-                Gravity = _settings.Gravity
-            };
-            _physicsScene.PairCache.SetOverlapFilterCallback(new CustomOvelapFilter());
-            _settings.GravityChanged += OnGravityChanged;
-            
-        }
         private void OnGravityChanged(Vec3 oldGravity)
         {
             _physicsScene.Gravity = _settings.Gravity;
         }
-        private class CustomOvelapFilter : OverlapFilterCallback
-        {
-            public override bool NeedBroadphaseCollision(BroadphaseProxy proxy0, BroadphaseProxy proxy1)
-            {
-                if (proxy0 == null || 
-                    proxy1 == null)
-                    return false;
+        //private class CustomOvelapFilter : OverlapFilterCallback
+        //{
+        //    public override bool NeedBroadphaseCollision(BroadphaseProxy proxy0, BroadphaseProxy proxy1)
+        //    {
+        //        if (proxy0 == null || 
+        //            proxy1 == null)
+        //            return false;
 
-                bool collides = 
-                    (proxy0.CollisionFilterGroup & proxy1.CollisionFilterMask) != 0 &&
-                    (proxy1.CollisionFilterGroup & proxy0.CollisionFilterMask) != 0;
+        //        bool collides = 
+        //            (proxy0.CollisionFilterGroup & proxy1.CollisionFilterMask) != 0 &&
+        //            (proxy1.CollisionFilterGroup & proxy0.CollisionFilterMask) != 0;
                 
-                return collides;
-            }
-        }
+        //        return collides;
+        //    }
+        //}
 
         public T GetGameMode<T>() where T : class, IGameMode
             => Settings?.GameMode as T;
@@ -117,9 +103,9 @@ namespace CustomEngine.Worlds
                 _settings.State.SpawnedActors.Remove(actor);
             actor.OnDespawned();
         }
-
+        
         public void StepSimulation(float delta)
-            => _physicsScene?.StepSimulation(delta);
+            => _physicsScene?.StepSimulation(delta, 7, (float)Engine.TargetRenderPeriod);
         
         public IActor this[int index]
         {
@@ -131,7 +117,7 @@ namespace CustomEngine.Worlds
             _settings.GameMode?.EndGameplay();
             foreach (Map m in _settings.Maps)
                 m.EndPlay();
-            _physicsScene = null;
+            Dispose();
         }
         public virtual void BeginPlay()
         {
@@ -152,7 +138,72 @@ namespace CustomEngine.Worlds
             foreach (IActor a in State.SpawnedActors)
                 a.RebaseOrigin(newOrigin);
         }
+        BroadphaseInterface _physicsBroadphase;
+        CollisionConfiguration _collisionConfig;
+        CollisionDispatcher _collisionDispatcher;
+        ConstraintSolver _constraintSolver;
+        WorldDebugDrawer _physicsDebugDrawer;
+        private void CreatePhysicsScene()
+        {
+            _physicsBroadphase = new DbvtBroadphase();
+            _collisionConfig = new DefaultCollisionConfiguration();
+            _collisionDispatcher = new CollisionDispatcher(_collisionConfig);
+            _constraintSolver = new SequentialImpulseConstraintSolver();
+            _physicsScene = new DiscreteDynamicsWorld(_collisionDispatcher, _physicsBroadphase, _constraintSolver, _collisionConfig)
+            {
+                Gravity = _settings.Gravity
+            };
+            _physicsScene.DebugDrawer = _physicsDebugDrawer = new WorldDebugDrawer()
+            {
+                DebugMode = DebugDrawModes.DrawAabb
+            };
+            _physicsScene.DispatchInfo.UseContinuous = false;
+            //_physicsScene.PairCache.SetOverlapFilterCallback(new CustomOvelapFilter());
+            _settings.GravityChanged += OnGravityChanged;
 
+        }
+        public void Dispose()
+        {
+            if (_physicsScene != null)
+            {
+                //Remove and dispose of constraints
+                int i;
+                for (i = _physicsScene.NumConstraints - 1; i >= 0; --i)
+                {
+                    TypedConstraint constraint = _physicsScene.GetConstraint(i);
+                    _physicsScene.RemoveConstraint(constraint);
+                    constraint.Dispose();
+                }
+
+                //Remove the rigidbodies from the dynamics world and delete them
+                for (i = _physicsScene.NumCollisionObjects - 1; i >= 0; --i)
+                {
+                    CollisionObject obj = _physicsScene.CollisionObjectArray[i];
+                    if (obj is RigidBody body && body.MotionState != null)
+                        body.MotionState.Dispose();
+                    _physicsScene.RemoveCollisionObject(obj);
+                    obj.Dispose();
+                }
+                
+                _physicsScene.Dispose();
+                _physicsScene = null;
+
+                _constraintSolver.Dispose();
+                _constraintSolver = null;
+
+                _physicsBroadphase.Dispose();
+                _physicsBroadphase = null;
+
+                _collisionDispatcher.Dispose();
+                _collisionDispatcher = null;
+
+                _collisionConfig.Dispose();
+                _collisionConfig = null;
+
+                _physicsDebugDrawer.Dispose();
+                _physicsDebugDrawer = null;
+            }
+        }
         public IEnumerator<IActor> GetEnumerator() => State.SpawnedActors.GetEnumerator();
         IEnumerator IEnumerable.GetEnumerator() => State.SpawnedActors.GetEnumerator();
     }

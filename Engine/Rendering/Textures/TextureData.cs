@@ -24,17 +24,14 @@ namespace CustomEngine.Rendering.Textures
 
         Bitmap _bitmap;
 
-        public TextureData()
+        public TextureData() : this(1, 1) { }
+        public TextureData(int width, int height, System.Drawing.Imaging.PixelFormat format = System.Drawing.Imaging.PixelFormat.Format32bppArgb)
         {
-            _bitmap = new Bitmap(1, 1, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+            _bitmap = new Bitmap(width, height, format);
         }
         public TextureData(string path)
         {
             _bitmap = File.Exists(path) ? new FreeImageBitmap(path).ToBitmap() : null;
-        }
-        public TextureData(int width, int height, System.Drawing.Imaging.PixelFormat format = System.Drawing.Imaging.PixelFormat.Format32bppArgb)
-        {
-            _bitmap = new Bitmap(width, height, format);
         }
     }
 }

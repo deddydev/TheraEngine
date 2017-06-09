@@ -25,7 +25,9 @@ namespace CustomEngine
         private bool _renderSkeletons;
         private bool _renderQuadtree;
         private bool _renderOctree;
-
+        private bool _renderSplines;
+        private bool _renderCullingVolumes;
+        
         private bool _capFPS;
         private float _targetFPS;
         
@@ -57,6 +59,12 @@ namespace CustomEngine
         [Category("Debug")]
         [Serialize]
         public bool RenderOctree { get => _renderOctree; set => _renderOctree = value; }
+        [Category("Debug")]
+        [Serialize]
+        public bool RenderSplines { get => _renderSplines; set => _renderSplines = value; }
+        [Category("Debug")]
+        [Serialize]
+        public bool RenderCullingVolumes { get => _renderCullingVolumes; set => _renderCullingVolumes = value; }
 
         [Category("Frames Per Second")]
         [Serialize("Capped", OverrideXmlCategory = "FramesPerSecond"/*, IsXmlAttribute = true*/)]
@@ -84,17 +92,19 @@ namespace CustomEngine
 
         public EngineSettings()
         {
-            ShadingStyle = ShadingStyle.Forward;
+            ShadingStyle = ShadingStyle.Deferred;
             SkinOnGPU = false;
             UseIntegerWeightingIds = false;
-            RenderOctree = true;
+            RenderOctree = false;
             RenderQuadtree = true;
             RenderSkeletons = false;
             RenderCameraFrustums = false;
-            CapFPS = true;
+            RenderSplines = true;
+            RenderCullingVolumes = false;
+            CapFPS = false;
             TargetFPS = 60.0f;
             CapUPS = false;
-            TargetUPS = 90.0f;
+            TargetUPS = 30.0f;
             GamePath = Engine.StartupPath;
             OpeningWorld = new SingleFileRef<World>("OpeningWorld.xworld");
             TransitionWorld = new SingleFileRef<World>("TransitionWorld.xworld");

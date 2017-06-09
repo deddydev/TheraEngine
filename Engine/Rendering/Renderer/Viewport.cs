@@ -5,6 +5,7 @@ using CustomEngine.Rendering.Textures;
 using CustomEngine.Worlds;
 using CustomEngine.Worlds.Actors;
 using CustomEngine.Worlds.Actors.Types;
+using FreeImageAPI;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -115,21 +116,16 @@ namespace CustomEngine.Rendering
             _owner.Viewport = this;
             Resize(panel.Width, panel.Height);
             _text = new ScreenTextHandler(this);
-            if (Engine.Settings == null)
+
+            if (Engine.Settings == null || Engine.Settings.ShadingStyle == ShadingStyle.Forward)
             {
-                _gBuffer = null;
+                _gBuffer = new GBuffer(Region, true);
                 Render = RenderForward;
-                return;
-            }
-            if (Engine.Settings.ShadingStyle == ShadingStyle.Deferred)
-            {
-                _gBuffer = new GBuffer(Region);
-                Render = RenderDeferred;
             }
             else
             {
-                _gBuffer = null;
-                Render = RenderForward;
+                _gBuffer = new GBuffer(Region, false);
+                Render = RenderDeferred;
             }
         }
         internal void Resize(float parentWidth, float parentHeight)
@@ -230,6 +226,7 @@ namespace CustomEngine.Rendering
         
         private void GeometryPass(SceneProcessor scene)
         {
+
         }
         private void LightPass(SceneProcessor scene)
         {
@@ -241,19 +238,31 @@ namespace CustomEngine.Rendering
                 return;
 
             _currentlyRendering = this;
+            Engine.Renderer.PushRenderArea(Region);
+            Engine.Renderer.CropRenderArea(Region);
 
-            if (_text.Modified)
-                _text.Draw(_gBuffer.Text);
-            _text.Clear();
+            //if (_text.Modified)
+            //    _text.Draw(_gBuffer.Text);
+            //_text.Clear();
 
-            Engine.Renderer.BindFrameBuffer(FramebufferType.ReadWrite, 0);
-            _gBuffer.Bind(FramebufferType.ReadWrite);
-            Engine.Renderer.Clear(BufferClear.Color | BufferClear.Depth);
-            scene.Render(_worldCamera, true);
-            Engine.Renderer.BindFrameBuffer(FramebufferType.ReadWrite, 0);
+            //We want to render to GBuffer textures
+            //_gBuffer.Bind(EFramebufferType.ReadWrite);
+
+            ////Render scene
+            //Engine.Renderer.Clear(BufferClear.Color | BufferClear.Depth);
+            //scene.Render(_worldCamera, true);
+
+            ////We want to render to back buffer now
+            //Engine.Renderer.BindFrameBuffer(EFramebufferType.ReadWrite, 0);
+
             //Engine.Renderer.Clear(BufferClear.Color);
+
+            //Render quad
             _gBuffer.Render();
-            _hud.Render();
+
+            //Render HUD on top: GBuffer is simply for the world scene so HUD is not included.
+            //_hud.Render();
+
             //if (_hasAnyForward)
             //{
             //    //Copy depth from GBuffer to main frame buffer
@@ -266,6 +275,7 @@ namespace CustomEngine.Rendering
 
             //    scene.Render(_worldCamera, false);
             //}
+            Engine.Renderer.PopRenderArea();
             _currentlyRendering = null;
         }
         public void RenderForward(SceneProcessor scene)

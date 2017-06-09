@@ -1,6 +1,7 @@
 ﻿using System;
 using CustomEngine.Files;
 using System.ComponentModel;
+using System.Collections.Generic;
 
 namespace CustomEngine.Audio
 {
@@ -8,7 +9,8 @@ namespace CustomEngine.Audio
     {
         private string _path;
         protected WaveFile _waveFile;
-        protected internal int _bufferId, _sourceId;
+        protected internal int _bufferId;
+        protected List<int> _sourceIds = new List<int>();
 
         public SoundFile()
         {
@@ -34,11 +36,6 @@ namespace CustomEngine.Audio
             get => _bufferId;
             internal set => _bufferId = value;
         }
-        public int SourceId
-        {
-            get => _sourceId;
-            internal set => _sourceId = value;
-        }
         [Serialize]
         public string SoundPath
         {
@@ -50,25 +47,19 @@ namespace CustomEngine.Audio
             }
         }
 
-        public void Update(AudioSourceParameters param)
+        public int PlayingCount => _sourceIds.Count;
+
+        public int Play()
         {
-            Engine.AudioManager.Update(this, param);
+            int soundId = Engine.AudioManager.Play(this);
+            _sourceIds.Add(soundId);
+            return soundId;
         }
-        public void Play()
+        public int Play(AudioSourceParameters param)
         {
-            Engine.AudioManager.Play(this);
-        }
-        public void Play(AudioSourceParameters param)
-        {
-            Engine.AudioManager.Play(this, param);
-        }
-        public void Stop()
-        {
-            Engine.AudioManager.Stop(this);
-        }
-        public void Pause()
-        {
-            Engine.AudioManager.Pause(this);
+            int soundId = Engine.AudioManager.Play(this, param);
+            _sourceIds.Add(soundId);
+            return soundId;
         }
     }
 }

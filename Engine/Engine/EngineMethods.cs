@@ -77,7 +77,7 @@ namespace CustomEngine
             for (int i = 0; i < _tickLists.Length; ++i)
                 _tickLists[i] = new ThreadSafeList<DelTick>();
 
-            Thread.CurrentThread.Name = "UI Thread";
+            Thread.CurrentThread.Name = "Main Thread";
         }
         public static void Initialize()
         {
@@ -101,6 +101,7 @@ namespace CustomEngine
         {
             //Steamworks.SteamAPI.Shutdown();
             Stop();
+            World = null;
             var files = new List<FileObject>(LoadedFiles.SelectMany(x => x.Value));
             foreach (FileObject o in files)
                 o?.Unload();
@@ -123,8 +124,8 @@ namespace CustomEngine
             Vector3 toRef = to;
             ClosestRayResultCallback callback = new ClosestRayResultCallback(ref fromRef, ref toRef)
             {
-                CollisionFilterMask = (CollisionFilterGroups)(ushort)CustomCollisionGroup.All,
-                CollisionFilterGroup = (CollisionFilterGroups)(ushort)CustomCollisionGroup.All,
+                CollisionFilterMask = (CollisionFilterGroups)(short)CustomCollisionGroup.All,
+                CollisionFilterGroup = (CollisionFilterGroups)(short)CustomCollisionGroup.All,
             };
             World.PhysicsScene.RayTest(from, to, callback);
             return callback;
@@ -142,7 +143,11 @@ namespace CustomEngine
 
         public static ClosestConvexResultCallback ShapeCastClosest(ConvexShape s, Matrix4 start, Matrix4 end)
         {
-            ClosestConvexResultCallback callback = new ClosestConvexResultCallback();
+            ClosestConvexResultCallback callback = new ClosestConvexResultCallback()
+            {
+                CollisionFilterMask = (CollisionFilterGroups)(short)CustomCollisionGroup.All,
+                CollisionFilterGroup = (CollisionFilterGroups)(short)CustomCollisionGroup.All,
+            };
             World.PhysicsScene.ConvexSweepTest(s, start, end, callback);
             return callback;
         }
@@ -226,8 +231,8 @@ namespace CustomEngine
         {
             float delta = (float)e.Time;
             TickGroup(ETickGroup.PrePhysics, delta);
-            if (!_isPaused)
-                World?.StepSimulation(delta);
+            if (!_isPaused && World != null)
+                World.StepSimulation(delta * (float)TimeDilation);
             TickGroup(ETickGroup.PostPhysics, delta);
         }
         private static void TickGroup(ETickGroup group, float delta)

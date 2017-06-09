@@ -14,7 +14,8 @@ using System.ComponentModel;
 
 namespace CustomEngine.Rendering.Models
 {
-    public class StaticMesh : FileObject
+    [FileClass("STM", "Static Mesh")]
+    public class StaticMesh : FileObject, IModelFile
     {
         public StaticMesh() : base()
         {

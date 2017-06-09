@@ -9,7 +9,7 @@ namespace CustomEngine.Worlds.Actors
     {
         public event LengthChange CurrentDistanceChanged;
 
-        private SphereShape _traceShape = new SphereShape(5.0f);
+        private SphereShape _traceShape = new SphereShape(0.2f);
         private float _maxLength = 300.0f;
         private float _currentLength = 0.0f;
         private Vec3 _currentEndPoint = Vec3.Zero;
@@ -68,7 +68,7 @@ namespace CustomEngine.Worlds.Actors
             ClosestConvexResultCallback result = Engine.ShapeCastClosest(_traceShape, startMatrix, endMatrix);
             Vec3 newEndPoint;
             if (result.HasHit)
-                newEndPoint = result.HitPointWorld + result.HitNormalWorld * 5.0f;
+                newEndPoint = result.HitPointWorld/* + result.HitNormalWorld * 5.0f*/;
             else
                 newEndPoint = testEnd;
             float length = (newEndPoint - _startPoint).LengthFast;

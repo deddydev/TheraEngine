@@ -9,9 +9,9 @@ using CustomEngine.Rendering;
 
 namespace CustomEngine.Worlds.Actors.Types
 {
-    public class CharacterSpawnPointActor : Actor<CapsuleComponent>
+    public class CharacterSpawnPointActor : Actor<PositionComponent>
     {
-        protected override CapsuleComponent OnConstruct()
+        protected override PositionComponent OnConstruct()
         {
             PhysicsConstructionInfo info = new PhysicsConstructionInfo()
             {
@@ -20,13 +20,13 @@ namespace CustomEngine.Worlds.Actors.Types
                 CollisionEnabled = false,
                 SimulatePhysics = false
             };
-            return new CapsuleComponent(0.5f, 1.0f, info);
+            return new PositionComponent(Vec3.Zero);
         }
         //TODO: test player's variable-sized capsule against space directly, not fixed-size root component capsule
         public virtual bool CanSpawnPlayer(PawnController c)
         {
-            return !IsBlocked;
+            return true;//!IsBlocked;
         }
-        public bool IsBlocked => RootComponent.PhysicsDriver.Overlapping.Count > 0;
+        //public bool IsBlocked => RootComponent.PhysicsDriver.Overlapping.Count > 0;
     }
 }

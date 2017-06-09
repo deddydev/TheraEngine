@@ -10,7 +10,7 @@ using System.ComponentModel;
 
 namespace CustomEngine.Rendering.Models
 {
-    public class SkeletalRigidSubMesh : FileObject, ISkeletalMesh
+    public class SkeletalRigidSubMesh : FileObject, ISkeletalSubMesh
     {
         public SkeletalRigidSubMesh()
         {

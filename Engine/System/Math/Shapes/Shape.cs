@@ -116,7 +116,10 @@ namespace System
         /// Applies the transform to this shape.
         /// </summary>
         /// <param name="worldMatrix"></param>
-        public abstract void SetTransform(Matrix4 worldMatrix);
+        public virtual void SetTransform(Matrix4 worldMatrix)
+        {
+            RenderNode?.ItemMoved(this);
+        }
         /// <summary>
         /// Returns a hard copy of this shape, transformed by the given transform.
         /// </summary>

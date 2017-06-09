@@ -266,7 +266,7 @@ namespace System
             GetCorners(min, max, out Vec3 TBL, out Vec3 TBR, out Vec3 TFL, out Vec3 TFR, out Vec3 BBL, out Vec3 BBR, out Vec3 BFL, out Vec3 BFR);
 
             Vec3 rightNormal = Vec3.Right;
-            Vec3 frontNormal = Vec3.Forward;
+            Vec3 frontNormal = -Vec3.Forward;
             Vec3 topNormal = Vec3.Up;
             Vec3 leftNormal = -rightNormal;
             Vec3 backNormal = -frontNormal;
@@ -380,6 +380,7 @@ namespace System
         public override void SetTransform(Matrix4 worldMatrix)
         {
             _translation = worldMatrix.GetPoint();
+            base.SetTransform(worldMatrix);
         }
         public override Shape HardCopy()
         {

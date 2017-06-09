@@ -15,9 +15,9 @@ using System.ComponentModel;
 namespace CustomEngine.Rendering
 {
     [Flags]
-    public enum CustomCollisionGroup : ushort
+    public enum CustomCollisionGroup : short
     {
-        All             = 0xFFFF,
+        All             = -1,
         None            = 0x0000,
         Default         = 0x0001,
         Pawns           = 0x0002,
@@ -103,10 +103,12 @@ namespace CustomEngine.Rendering
             };
         }
     }
-    public delegate void PhysicsOverlap(IPhysicsDrivable other, ManifoldPoint point);
+    public delegate void PhysicsEndContact(IPhysicsDrivable me, IPhysicsDrivable other);
+    public delegate void PhysicsOverlap(IPhysicsDrivable me, IPhysicsDrivable other, ManifoldPoint point);
     public class PhysicsDriver : FileObject
     {
         public event PhysicsOverlap BeginOverlap, EndOverlap, OnHit;
+        public event PhysicsEndContact OnContactEnded;
         public event MatrixUpdate TransformChanged;
         public event SimulationUpdate SimulationStateChanged;
 
@@ -206,6 +208,7 @@ namespace CustomEngine.Rendering
                     {
                         _collision.LinearFactor = new Vector3(0.0f);
                         _collision.AngularFactor = new Vector3(0.0f);
+                        //_collision.CollisionFlags |= CollisionFlags.StaticObject;
                         _collision.ForceActivationState(ActivationState.DisableSimulation);
                         if (_isSpawned)
                             UnregisterTick(ETickGroup.PostPhysics, ETickOrder.Scene, Tick);
@@ -214,6 +217,7 @@ namespace CustomEngine.Rendering
                     {
                         _collision.LinearFactor = _previousLinearFactor;
                         _collision.AngularFactor = _previousAngularFactor;
+                        //_collision.CollisionFlags &= ~CollisionFlags.StaticObject;
                         SetPhysicsTransform(_owner.WorldMatrix);
                         _collision.ForceActivationState(ActivationState.ActiveTag);
                         if (_isSpawned)
@@ -239,6 +243,20 @@ namespace CustomEngine.Rendering
 
                 if (_collision != null && _collision.IsInWorld)
                     _collision.BroadphaseProxy.CollisionFilterMask = (CollisionFilterGroups)(short)(_collisionEnabled ? _collidesWith : CustomCollisionGroup.None);
+            }
+        }
+        public bool Kinematic
+        {
+            get => _collision == null ? false : _collision.CollisionFlags.HasFlag(CollisionFlags.KinematicObject);
+            set
+            {
+                if (_collision == null)
+                    return;
+
+                if (value)
+                    _collision.CollisionFlags &= ~CollisionFlags.KinematicObject;
+                else
+                    _collision.CollisionFlags |= CollisionFlags.KinematicObject;
             }
         }
         public CustomCollisionGroup CollisionGroup
@@ -321,15 +339,15 @@ namespace CustomEngine.Rendering
 
         internal void InvokeHit(IPhysicsDrivable other, ManifoldPoint cp)
         {
-            OnHit?.Invoke(other, cp);
+            OnHit?.Invoke(Owner, other, cp);
         }
         internal void InvokeBeginOverlap(IPhysicsDrivable other, ManifoldPoint cp)
         {
-            BeginOverlap?.Invoke(other, cp);
+            BeginOverlap?.Invoke(Owner, other, cp);
         }
         internal void InvokeEndOverlap(IPhysicsDrivable other, ManifoldPoint cp)
         {
-            EndOverlap?.Invoke(other, cp);
+            EndOverlap?.Invoke(Owner, other, cp);
         }
 
         internal void ContactStarted(PhysicsDriver other, ManifoldPoint cp)
@@ -353,6 +371,7 @@ namespace CustomEngine.Rendering
 
         internal void ContactEnded(PhysicsDriver other)
         {
+            OnContactEnded?.Invoke(Owner, other.Owner);
             _overlapping.Remove(other);
             other._overlapping.Remove(this);
         }

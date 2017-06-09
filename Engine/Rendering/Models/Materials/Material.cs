@@ -94,11 +94,17 @@ namespace CustomEngine.Rendering.Models.Materials
             Shader frag = deferred ? Shader.UnlitTextureFragDeferred() : Shader.UnlitTextureFragForward();
             return new Material("UnlitTextureMaterial", frag);
         }
+        public static Material GetLitTextureMaterial() => GetLitTextureMaterial(Engine.Settings.ShadingStyle == ShadingStyle.Deferred);
+        public static Material GetLitTextureMaterial(bool deferred)
+        {
+            Shader frag = deferred ? Shader.LitTextureFragDeferred() : Shader.LitTextureFragForward();
+            return new Material("LitTextureMaterial", frag);
+        }
 
         public static Material GetUnlitColorMaterial()
             => GetUnlitColorMaterial(Engine.Settings.ShadingStyle == ShadingStyle.Deferred);
         public static Material GetUnlitColorMaterial(bool deferred)
-            => GetUnlitColorMaterial(Color.Green, deferred);
+            => GetUnlitColorMaterial(Color.DarkTurquoise, deferred);
         public static Material GetUnlitColorMaterial(Color color)
             => GetUnlitColorMaterial(color, Engine.Settings.ShadingStyle == ShadingStyle.Deferred);
         public static Material GetUnlitColorMaterial(Color color, bool deferred)
@@ -111,37 +117,72 @@ namespace CustomEngine.Rendering.Models.Materials
             };
             return new Material("UnlitColorMaterial", parameters, refs, frag);
         }
-
-        public static Material GetDefaultMaterial() => GetDefaultMaterial(Engine.Settings.ShadingStyle == ShadingStyle.Deferred);
-        public static Material GetDefaultMaterial(bool deferred)
+        public static Material GetLitColorMaterial()
+            => GetLitColorMaterial(Engine.Settings.ShadingStyle == ShadingStyle.Deferred);
+        public static Material GetLitColorMaterial(bool deferred)
+            => GetLitColorMaterial(Color.DarkTurquoise, Engine.Settings.ShadingStyle == ShadingStyle.Deferred);
+        public static Material GetLitColorMaterial(Color color)
+            => GetLitColorMaterial(color, Engine.Settings.ShadingStyle == ShadingStyle.Deferred);
+        public static Material GetLitColorMaterial(Color color, bool deferred)
         {
             List<TextureReference> refs = new List<TextureReference>();
-            Shader frag = deferred ? Shader.TestFragDeferred() : Shader.TestFragForward();
+            Shader frag = deferred ? Shader.LitColorFragDeferred() : Shader.LitColorFragForward();
             List<GLVar> parameters = new List<GLVar>()
             {
-                new GLVec4((ColorF4)Color.DarkTurquoise, "MatColor"),
+                new GLVec4((ColorF4)color, "MatColor"),
                 new GLFloat(20.0f, "MatSpecularIntensity"),
                 new GLFloat(128.0f, "MatShininess"),
             };
             return new Material("TestMaterial", parameters, refs, frag);
         }
 
-        internal static Material GetGBufferMaterial(int width, int height)
+        internal static Material GetGBufferMaterial(int width, int height, bool forward)
         {
             //These are listed in order of appearance in the shader
-            List<TextureReference> refs = new List<TextureReference>()
-            {
-                new TextureReference("DepthStencil", width, height,
-                    EPixelInternalFormat.Depth24Stencil8, EPixelFormat.DepthStencil, EPixelType.UnsignedInt248),
-                new TextureReference("AlbedoSpec", width, height, 
-                    EPixelInternalFormat.Rgba8, EPixelFormat.Bgra, EPixelType.UnsignedByte),
-                new TextureReference("Position", width, height,
-                    EPixelInternalFormat.Rgb32f, EPixelFormat.Rgb, EPixelType.Float),
-                new TextureReference("Normal", width, height, 
-                    EPixelInternalFormat.Rgb32f, EPixelFormat.Rgb, EPixelType.Float),
-                new TextureReference("Text", width, height, 
-                    EPixelInternalFormat.Rgba8, EPixelFormat.Bgra, EPixelType.UnsignedByte, System.Drawing.Imaging.PixelFormat.Format32bppArgb),
-            };
+            List<TextureReference> refs = forward ?
+                new List<TextureReference>()
+                {
+                    new TextureReference("OutputColor", width, height,
+                        EPixelInternalFormat.Rgba8, EPixelFormat.Bgra, EPixelType.UnsignedByte)
+                    {
+                        MinFilter = MinFilter.Nearest,
+                        MagFilter = MagFilter.Nearest,
+                    },
+                }
+                :
+                new List<TextureReference>()
+                {
+                    new TextureReference("AlbedoSpec", width, height,
+                        EPixelInternalFormat.Rgba8, EPixelFormat.Bgra, EPixelType.UnsignedByte)
+                    {
+                        MinFilter = MinFilter.Nearest,
+                        MagFilter = MagFilter.Nearest,
+                    },
+                    new TextureReference("Position", width, height,
+                        EPixelInternalFormat.Rgb32f, EPixelFormat.Rgb, EPixelType.Float)
+                    {
+                        MinFilter = MinFilter.Nearest,
+                        MagFilter = MagFilter.Nearest,
+                    },
+                    new TextureReference("Normal", width, height, 
+                        EPixelInternalFormat.Rgb32f, EPixelFormat.Rgb, EPixelType.Float)
+                    {
+                        MinFilter = MinFilter.Nearest,
+                        MagFilter = MagFilter.Nearest,
+                    },
+                    new TextureReference("Text", width, height, 
+                        EPixelInternalFormat.Rgba8, EPixelFormat.Bgra, EPixelType.UnsignedByte, System.Drawing.Imaging.PixelFormat.Format32bppArgb)
+                    {
+                        MinFilter = MinFilter.Nearest,
+                        MagFilter = MagFilter.Nearest,
+                    },
+                    new TextureReference("DepthStencil", width, height,
+                        EPixelInternalFormat.Depth24Stencil8, EPixelFormat.DepthStencil, EPixelType.UnsignedInt248)
+                    {
+                        MinFilter = MinFilter.Nearest,
+                        MagFilter = MagFilter.Nearest,
+                    },
+                };
             Shader frag = Shader.GBufferShader();
             List<GLVar> parameters = new List<GLVar>()
             {

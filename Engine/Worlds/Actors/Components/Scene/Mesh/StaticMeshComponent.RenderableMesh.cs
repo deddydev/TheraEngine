@@ -6,13 +6,13 @@ namespace CustomEngine.Worlds.Actors
 {
     public partial class StaticMeshComponent : TRSComponent, IPhysicsDrivable
     {
-        internal class RenderableMesh : IMesh
+        internal class RenderableMesh : ISubMesh
         {
-            public RenderableMesh(IStaticMesh mesh, SceneComponent component)
+            public RenderableMesh(IStaticSubMesh mesh, SceneComponent component)
             {
                 _mesh = mesh;
                 _component = component;
-                _cullingVolume = _mesh.CullingVolume.HardCopy();
+                _cullingVolume = _mesh.CullingVolume?.HardCopy();
                 _manager = new PrimitiveManager(_mesh.Data, _mesh.Material);
                 Visible = false;
                 IsRendering = true;
@@ -21,8 +21,11 @@ namespace CustomEngine.Worlds.Actors
 
             private void _component_WorldTransformChanged()
             {
-                _cullingVolume.SetTransform(_component.WorldMatrix);
-                RenderNode?.ItemMoved(this);
+                if (_cullingVolume != null)
+                {
+                    _cullingVolume.SetTransform(_component.WorldMatrix);
+                    RenderNode?.ItemMoved(this);
+                }
             }
 
             private bool
@@ -34,7 +37,7 @@ namespace CustomEngine.Worlds.Actors
 
             private PrimitiveManager _manager;
             private SceneComponent _component;
-            private IStaticMesh _mesh;
+            private IStaticSubMesh _mesh;
             private IOctreeNode _renderNode;
             private Shape _cullingVolume;
 
@@ -47,12 +50,14 @@ namespace CustomEngine.Worlds.Actors
                     _isVisible = value;
                     if (_isVisible)
                     {
-                        Engine.Renderer.Scene.Add(_cullingVolume);
+                        if (_cullingVolume != null && Engine.Settings.RenderCullingVolumes)
+                            Engine.Renderer.Scene.Add(_cullingVolume);
                         Engine.Renderer.Scene.Add(this);
                     }
                     else
                     {
-                        Engine.Renderer.Scene.Remove(_cullingVolume);
+                        if (_cullingVolume != null && Engine.Settings.RenderCullingVolumes)
+                            Engine.Renderer.Scene.Remove(_cullingVolume);
                         Engine.Renderer.Scene.Remove(this);
                     }
                 }
@@ -77,7 +82,7 @@ namespace CustomEngine.Worlds.Actors
                 get => _isRendering;
                 set => _isRendering = value;
             }
-            public IStaticMesh Mesh
+            public IStaticSubMesh Mesh
             {
                 get => _mesh;
                 set => _mesh = value;

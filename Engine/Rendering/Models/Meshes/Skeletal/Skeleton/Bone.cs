@@ -238,8 +238,8 @@ namespace CustomEngine.Rendering.Models
             if (Engine.Settings.SkinOnGPU)
                 foreach (PrimitiveManager m in _linkedPrimitiveManagers)
                 {
-                    while (m._processingSkinning)
-                        Thread.Sleep(1);
+                    //while (m._processingSkinning)
+                    //    Thread.Sleep(1);
 
                     m.ModifiedBoneIndices.Add(_index);
                 }

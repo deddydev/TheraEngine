@@ -222,13 +222,13 @@ namespace CustomEngine.Rendering.Animation
             get => _prev;
             set => _prev = value;
         }
-        public void Unlink()
+        internal void Unlink()
         {
             _next.Prev = Prev;
             _prev.Next = Next;
             _next = _prev = this;
         }
-        public Keyframe Link(Keyframe key)
+        internal Keyframe Link(Keyframe key)
         {
             if (key._frameIndex > _next._frameIndex && 
                 _next._frameIndex > _frameIndex)

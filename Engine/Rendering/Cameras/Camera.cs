@@ -244,7 +244,7 @@ namespace CustomEngine.Rendering.Cameras
         protected virtual void PositionChanged()
         {
             if (_viewTarget != null)
-                _localRotation.SetRotationsNoUpdate((_viewTarget.Raw - _localPoint).LookatAngles(Vec3.Forward));
+                _localRotation.SetRotationsNoUpdate((_viewTarget.Raw - _localPoint).LookatAngles());
             CreateTransform();
         }
         protected virtual void CreateTransform()
@@ -330,7 +330,7 @@ namespace CustomEngine.Rendering.Cameras
         {
             //if (_owningComponent != null)
             //    target = Vec3.TransformPosition(target, _owningComponent.InverseWorldMatrix);
-            SetRotation((target - _localPoint).LookatAngles(Vec3.Forward));
+            SetRotation((target - _localPoint).LookatAngles());
         }
         public void Pivot(float y, float x, float radius)
         {

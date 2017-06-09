@@ -187,10 +187,10 @@ namespace CustomEngine.Rendering.OpenGL
             }
             return ids;
         }
-        public override int[] CreateTextures(int target, int count)
+        public override int[] CreateTextures(ETexTarget target, int count)
         {
             int[] ids = new int[count];
-            GL.CreateTextures((TextureTarget)target, count, ids);
+            GL.CreateTextures((TextureTarget)(int)target, count, ids);
             return ids;
         }
         public override int[] CreateQueries(int type, int count)
@@ -500,7 +500,11 @@ namespace CustomEngine.Rendering.OpenGL
 
         #endregion
 
-        #region Framebuffers        
+        #region Framebuffers     
+        public override void AttachTextureToFrameBuffer(int frameBufferBindingId, EFramebufferAttachment attachment, int textureBindingId, int mipLevel)
+        {
+            GL.NamedFramebufferTexture(frameBufferBindingId, (FramebufferAttachment)(int)attachment, textureBindingId, mipLevel);
+        }
         public override void SetDrawBuffer(DrawBuffersAttachment attachment)
         {
             GL.DrawBuffer(DrawBufferMode.ColorAttachment0 + (int) attachment);
@@ -524,6 +528,22 @@ namespace CustomEngine.Rendering.OpenGL
         public override void SetDrawBuffers(int bindingId, DrawBuffersAttachment[] attachments)
         {
             GL.NamedFramebufferDrawBuffers(bindingId, attachments.Length, attachments.Select(x => (DrawBuffersEnum)x.Convert(typeof(DrawBuffersEnum))).ToArray());
+        }
+        public override void BindRenderBuffer(int bindingId)
+        {
+            GL.BindRenderbuffer(RenderbufferTarget.Renderbuffer, bindingId);
+        }
+        public override void RenderbufferStorage(ERenderBufferStorage storage, int width, int height)
+        {
+            GL.RenderbufferStorage(RenderbufferTarget.Renderbuffer, (RenderbufferStorage)(int)storage, width, height);
+        }
+        public override void FramebufferRenderBuffer(EFramebufferTarget target, EFramebufferAttachment attachement, int renderBufferBindingId)
+        {
+            GL.FramebufferRenderbuffer((FramebufferTarget)(int)target, (FramebufferAttachment)(int)attachement, RenderbufferTarget.Renderbuffer, renderBufferBindingId);
+        }
+        public override void FramebufferRenderBuffer(int frameBufferBindingId, EFramebufferAttachment attachement, int renderBufferBindingId)
+        {
+            GL.NamedFramebufferRenderbuffer(frameBufferBindingId, (FramebufferAttachment)(int)attachement, RenderbufferTarget.Renderbuffer, renderBufferBindingId);
         }
         public override void BlitFrameBuffer(
             int readBufferId, int writeBufferId,
@@ -557,17 +577,17 @@ namespace CustomEngine.Rendering.OpenGL
                 dstX1, dstY1,
                 maskgl, filtergl);
         }
-        public override void BindFrameBuffer(FramebufferType type, int bindingId)
+        public override void BindFrameBuffer(EFramebufferType type, int bindingId)
         {
             switch (type)
             {
-                case FramebufferType.ReadWrite:
+                case EFramebufferType.ReadWrite:
                     GL.BindFramebuffer(FramebufferTarget.Framebuffer, bindingId);
                     break;
-                case FramebufferType.Read:
+                case EFramebufferType.Read:
                     GL.BindFramebuffer(FramebufferTarget.ReadFramebuffer, bindingId);
                     break;
-                case FramebufferType.Write:
+                case EFramebufferType.Write:
                     GL.BindFramebuffer(FramebufferTarget.DrawFramebuffer, bindingId);
                     break;
             }
@@ -596,87 +616,22 @@ namespace CustomEngine.Rendering.OpenGL
         public override void CropRenderArea(BoundingRectangle region)
             => GL.Scissor(region.IntX, region.IntY, region.IntWidth, region.IntHeight);
         
-        public override void UniformMaterial(int matID, int location, params IUniformable4Int[] p)
-        {
-            const int count = 4;
+        //public override void UniformMaterial(int matID, int location, params IUniformable4Int[] p)
+        //{
+        //    const int count = 4;
 
-            if (location < 0)
-                return;
+        //    if (location < 0)
+        //        return;
 
-            float[] values = new float[p.Length << 2];
+        //    float[] values = new float[p.Length << 2];
 
-            for (int i = 0; i < p.Length; ++i)
-                for (int x = 0; x < count; ++x)
-                    values[i << 2 + x] = p[i].Data[x];
+        //    for (int i = 0; i < p.Length; ++i)
+        //        for (int x = 0; x < count; ++x)
+        //            values[i << 2 + x] = p[i].Data[x];
 
-            GL.ProgramUniform4(matID, location, p.Length, values);
-        }
-
-        public override void UniformMaterial(int matID, int location, params IUniformable4Float[] p)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void UniformMaterial(int matID, int location, params IUniformable3Int[] p)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void UniformMaterial(int matID, int location, params IUniformable3Float[] p)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void UniformMaterial(int matID, int location, params IUniformable2Int[] p)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void UniformMaterial(int matID, int location, params IUniformable2Float[] p)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void UniformMaterial(int matID, int location, params IUniformable1Int[] p)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void UniformMaterial(int matID, int location, params IUniformable1Float[] p)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void UniformMaterial(int matID, int location, params int[] p)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void UniformMaterial(int matID, int location, params float[] p)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void UniformMaterial(int matID, int location, Matrix4 p)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void UniformMaterial(int matID, int location, params Matrix4[] p)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void UniformMaterial(int matID, int location, Matrix3 p)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void UniformMaterial(int matID, int location, params Matrix3[] p)
-        {
-            throw new NotImplementedException();
-        }
-
+        //    GL.ProgramUniform4(matID, location, p.Length, values);
+        //}
+        
         #region Transform Feedback
         public override void BindTransformFeedback(int bindingId)
         {
@@ -867,15 +822,6 @@ namespace CustomEngine.Rendering.OpenGL
             return bmp;
         }
 
-        public override void AttachTextureToFrameBuffer(EFramebufferTarget target, EFramebufferAttachment attachment, ETexTarget texTarget, int bindingId, int mipLevel)
-        {
-            GL.FramebufferTexture2D(
-                (FramebufferTarget)target.Convert(typeof(FramebufferTarget)),
-                (FramebufferAttachment)attachment.Convert(typeof(FramebufferAttachment)),
-                (TextureTarget)texTarget.Convert(typeof(TextureTarget)), 
-                bindingId, mipLevel);
-        }
-
         public override void TexParameter(ETexTarget texTarget, ETexParamName texParam, float paramData)
         {
             GL.TexParameter(
@@ -901,6 +847,22 @@ namespace CustomEngine.Rendering.OpenGL
             EPixelFormat format,
             EPixelType type,
             VoidPtr data)
+        {
+            TextureTarget tt = (TextureTarget)texTarget.Convert(typeof(TextureTarget));
+            PixelInternalFormat pit = (PixelInternalFormat)internalFormat.Convert(typeof(PixelInternalFormat));
+            OpenTK.Graphics.OpenGL.PixelFormat pf = (OpenTK.Graphics.OpenGL.PixelFormat)format.Convert(typeof(OpenTK.Graphics.OpenGL.PixelFormat));
+            PixelType pt = (PixelType)type.Convert(typeof(PixelType));
+            GL.TexImage2D(tt, mipLevel, pit, width, height, 0, pf, pt, data);
+        }
+        public override void PushTextureData(
+            ETexTarget texTarget,
+            int mipLevel,
+            EPixelInternalFormat internalFormat,
+            int width,
+            int height,
+            EPixelFormat format,
+            EPixelType type,
+            byte[] data)
         {
             TextureTarget tt = (TextureTarget)texTarget.Convert(typeof(TextureTarget));
             PixelInternalFormat pit = (PixelInternalFormat)internalFormat.Convert(typeof(PixelInternalFormat));

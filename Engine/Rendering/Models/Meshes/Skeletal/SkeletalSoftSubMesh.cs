@@ -9,7 +9,7 @@ using System.Xml;
 
 namespace CustomEngine.Rendering.Models
 {
-    public class SkeletalSoftSubMesh : FileObject, ISkeletalMesh
+    public class SkeletalSoftSubMesh : FileObject, ISkeletalSubMesh
     {
         public SkeletalSoftSubMesh() { }
         public SkeletalSoftSubMesh(PrimitiveData data, string name)

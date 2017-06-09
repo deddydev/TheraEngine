@@ -4,6 +4,7 @@ using CustomEngine.Rendering.Models;
 using CustomEngine.Rendering.Models.Materials;
 using CustomEngine.Worlds.Actors;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
@@ -78,6 +79,26 @@ namespace System
             public ThreadSafeList<T> _items = new ThreadSafeList<T>();
             public Node[] _subNodes;
             public Node _parentNode;
+            object _lock = new object();
+
+            ConcurrentQueue<Tuple<bool, T>> _itemQueue = new ConcurrentQueue<Tuple<bool, T>>();
+            private bool _isLoopingItems = false;
+
+            private bool IsLoopingItems
+            {
+                get => _isLoopingItems;
+                set
+                {
+                    _isLoopingItems = value;
+                    while (!_isLoopingItems && !_itemQueue.IsEmpty && _itemQueue.TryDequeue(out Tuple<bool, T> result))
+                    {
+                        if (result.Item1)
+                            _items.Add(result.Item2);
+                        else
+                            _items.Remove(result.Item2);
+                    }
+                }
+            }
 
             public ThreadSafeList<T> Items => _items;
             public BoundingBox Bounds => _bounds;
@@ -93,14 +114,28 @@ namespace System
                     if (_visible == value)
                         return;
                     _visible = value;
-                    foreach (T item in _items)
-                        item.IsRendering = _visible;
+                    try
+                    {
+                        IsLoopingItems = true;
+                        foreach (T item in _items)
+                            item.IsRendering = _visible;
+                        IsLoopingItems = false;
+                    }
+                    catch
+                    {
+
+                    }
+                    finally
+                    {
+                        IsLoopingItems = false;
+                    }
                     if (_subNodes != null)
                         foreach (Node node in _subNodes)
                             if (node != null)
                                 node.Visible = _visible;
                 }
             }
+
             public void DebugRender()
             {
                 Engine.Renderer.RenderAABB("OctSubDiv" + _subDivLevel + "-" + _subDivIndex, _bounds.HalfExtents, _bounds.Translation, false, Color.Gray, 5.0f);
@@ -115,6 +150,9 @@ namespace System
                 //However, if the item is inserted into a volume with at least one other item in it, 
                 //need to try subdividing for all items at that point.
 
+                if (item == null || item.CullingVolume == null)
+                    return;
+
                 //Still within the same volume?
                 if (item.CullingVolume.ContainedWithin(_bounds) == EContainment.Contains)
                 {
@@ -124,7 +162,11 @@ namespace System
                         BoundingBox bounds = GetSubdivision(i);
                         if (item.CullingVolume.ContainedWithin(bounds) == EContainment.Contains)
                         {
-                            _items.Remove(item);
+                            if (_isLoopingItems)
+                                _itemQueue.Enqueue(new Tuple<bool, T>(false, item));
+                            else
+                                _items.Remove(item);
+
                             CreateSubNode(bounds, i);
                             _subNodes[i].Add(item);
                             break;
@@ -159,52 +201,20 @@ namespace System
                     {
                         if (_parentNode.AddReversedHierarchy(item, shouldDestroy ? _subDivIndex : -1))
                         {
-                            if (childDestroyIndex >= 0 &&
-                                _subNodes != null &&
-                                _subNodes[childDestroyIndex] != null)
-                            {
-                                _subNodes[childDestroyIndex] = null;
-                                if (!_subNodes.Any(x => x != null))
-                                    _subNodes = null;
-                            }
+                            ClearSubNode(childDestroyIndex);
                             return true;
                         }
                     }
                 }
                 else
                 {
-                    if (childDestroyIndex >= 0 &&
-                        _subNodes != null &&
-                        _subNodes[childDestroyIndex] != null)
-                    {
-                        _subNodes[childDestroyIndex] = null;
-                        if (!_subNodes.Any(x => x != null))
-                            _subNodes = null;
-                    }
+                    ClearSubNode(childDestroyIndex);
                     return true;
                 }
 
-                if (childDestroyIndex >= 0 &&
-                    _subNodes != null &&
-                    _subNodes[childDestroyIndex] != null)
-                {
-                    _subNodes[childDestroyIndex] = null;
-                    if (!_subNodes.Any(x => x != null))
-                        _subNodes = null;
-                }
+                ClearSubNode(childDestroyIndex);
                 return false;
             }
-
-            private bool HasNoSubNodesExcept(int index)
-            {
-                if (_subNodes == null)
-                    return true;
-                for (int i = 0; i < 8; ++i)
-                    if (i != index && _subNodes[i] != null)
-                        return false;
-                return true;
-            }
-
             public ThreadSafeList<T> FindClosest(Vec3 point)
             {
                 if (_bounds.Contains(point))
@@ -246,7 +256,7 @@ namespace System
             }
             public ThreadSafeList<T> CollectChildren()
             {
-                ThreadSafeList<T> list = _items;
+                ThreadSafeList<T> list = new ThreadSafeList<T>(_items);
                 foreach (Node node in _subNodes)
                     if (node != null)
                         list.AddRange(node.CollectChildren());
@@ -256,7 +266,7 @@ namespace System
             {
                 throw new NotImplementedException();
             }
-            internal void Cull(Frustum frustum)
+            public void Cull(Frustum frustum)
             {
                 EContainment c = frustum.Contains(_bounds);
                 if (c == EContainment.Contains)
@@ -265,18 +275,30 @@ namespace System
                     Visible = false;
                 else
                 {
-                    //Bounds is intersecting edge of frustum
-                    for (int i = 0; i < _items.Count; ++i)
-                    {
-                        if (i >= _items.Count)
-                            break;
+                    //lock (_lock)
+                    //{
+                    //    IsLoopingItems = true;
+                    //    try
+                    //    {
+                    //        //Bounds is intersecting edge of frustum
+                    //        //for (int i = 0; i < _items.Count; ++i)
+                    //        foreach (T item in _items)
+                    //        {
+                    //            //if (i >= _items.Count)
+                    //            //    break;
 
-                        T item = _items[i];
-                        if (item == null)
-                            _items.RemoveAt(i--);
-                        else
-                            item.IsRendering = item.CullingVolume != null ? item.CullingVolume.ContainedWithin(frustum) != EContainment.Disjoint : true;
-                    }
+                    //            //T item = _items[i];
+                    //            //if (item == null)
+                    //            //    _items.RemoveAt(i--);
+                    //            //else
+                    //                item.IsRendering = item.CullingVolume != null ? item.CullingVolume.ContainedWithin(frustum) != EContainment.Disjoint : true;
+                    //        }
+                    //    }
+                    //    finally
+                    //    {
+                    //        IsLoopingItems = false;
+                    //    }
+                    //}
 
                     if (_subNodes != null)
                         foreach (Node n in _subNodes)
@@ -296,7 +318,10 @@ namespace System
             {
                 bool hasBeenRemoved = false;
                 if (_items.Contains(value))
-                    hasBeenRemoved = _items.Remove(value);
+                {
+                    QueueRemove(value);
+                    hasBeenRemoved = true;
+                }
                 else if (_subNodes != null)
                 {
                     bool anyNotNull = false;
@@ -324,20 +349,6 @@ namespace System
                 }
                 shouldDestroy = _items.Count == 0 && _subNodes == null;
                 return hasBeenRemoved;
-            }
-            private void CreateSubNode(BoundingBox bounds, int index)
-            {
-                if (_subNodes == null)
-                    _subNodes = new Node[8];
-                else if (_subNodes[index] != null)
-                    return;
-
-                Node node = bounds;
-                node.Visible = Visible;
-                node._subDivIndex = index;
-                node._subDivLevel = _subDivLevel + 1;
-                node._parentNode = this;
-                _subNodes[index] = node;
             }
             public bool Add(List<T> items, bool force = false)
             {
@@ -390,7 +401,8 @@ namespace System
                     {
                         if (force)
                         {
-                            Items.Add(item);
+                            QueueAdd(item);
+
                             item.IsRendering = _visible;
                             item.RenderNode = this;
                             return true;
@@ -411,7 +423,8 @@ namespace System
                 }
                 if (notSubdivided)
                 {
-                    Items.Add(item);
+                    QueueAdd(item);
+
                     item.IsRendering = _visible;
                     item.RenderNode = this;
                 }
@@ -424,8 +437,14 @@ namespace System
             }
             public BoundingBox GetSubdivision(int index)
             {
-                if (_subNodes != null && _subNodes[index] != null)
-                    return _subNodes[index].Bounds;
+                //IsLoopingItems = true;
+                Node[] subNodes = _subNodes;
+                Node node;
+                if (subNodes != null && (node = subNodes[index]) != null)
+                {
+                    //IsLoopingItems = false;
+                    return node.Bounds;
+                }
 
                 Vec3 center = Center;
                 switch (index)
@@ -441,23 +460,69 @@ namespace System
                 }
                 return null;
             }
-            //public void Render()
-            //{
-            //    if (!_visible)
-            //        return;
-            //    foreach (T r in _items)
-            //    {
-            //        //int t = Engine.StartTimer();
-            //        r.Render();
-            //        //float time = Engine.EndTimer(t);
-            //        //if (time > 0.0f)
-            //        //    Debug.WriteLine(r.ToString() + " took " + time + " seconds");
-            //    }
-            //    if (_subNodes != null)
-            //        foreach (Node node in _subNodes)
-            //            node?.Render();
-            //}
+
+            #region Private Helper Methods
+            private void QueueAdd(T item)
+            {
+                if (_isLoopingItems)
+                    _itemQueue.Enqueue(new Tuple<bool, T>(true, item));
+                else
+                    _items.Add(item);
+            }
+            private void QueueRemove(T item)
+            {
+                if (_isLoopingItems)
+                    _itemQueue.Enqueue(new Tuple<bool, T>(false, item));
+                else
+                    _items.Remove(item);
+            }
+            private void ClearSubNode(int index)
+            {
+                lock (_lock)
+                {
+                    if (index >= 0 &&
+                       _subNodes != null &&
+                       _subNodes[index] != null)
+                    {
+                        _subNodes[index] = null;
+                        if (!_subNodes.Any(x => x != null))
+                            _subNodes = null;
+                    }
+                }
+            }
+            private bool HasNoSubNodesExcept(int index)
+            {
+                if (_subNodes == null)
+                    return true;
+                lock (_lock)
+                {
+                    for (int i = 0; i < 8; ++i)
+                        if (i != index && _subNodes[i] != null)
+                            return false;
+                }
+                return true;
+            }
+            private void CreateSubNode(BoundingBox bounds, int index)
+            {
+                lock (_lock)
+                {
+                    Node[] subNodes = _subNodes;
+                    if (subNodes == null)
+                        subNodes = new Node[8];
+                    else if (subNodes[index] != null)
+                        return;
+
+                    Node node = bounds;
+                    node.Visible = Visible;
+                    node._subDivIndex = index;
+                    node._subDivLevel = _subDivLevel + 1;
+                    node._parentNode = this;
+                    subNodes[index] = node;
+                    _subNodes = subNodes;
+                }
+            }
             public static implicit operator Node(BoundingBox bounds) { return new Node(bounds); }
         }
+        #endregion
     }
 }

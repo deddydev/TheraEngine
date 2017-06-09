@@ -64,17 +64,15 @@ namespace CustomEngine.Rendering.Animation
     }
     public class FloatKeyframe : Keyframe
     {
-        public FloatKeyframe(float frameIndex, float inoutValue, PlanarInterpType type) : base()
-        {
-            _frameIndex = frameIndex;
-            _inValue = _outValue = inoutValue;
-            InterpolationType = type;
-        }
-        public FloatKeyframe(float frameIndex, float inValue, float outValue, PlanarInterpType type) : base()
+        public FloatKeyframe(float frameIndex, float inoutValue, float inoutTangent, PlanarInterpType type)
+            : this(frameIndex, inoutValue, inoutValue, inoutTangent, inoutTangent, type) { }
+        public FloatKeyframe(float frameIndex, float inValue, float outValue, float inTangent, float outTangent, PlanarInterpType type) : base()
         {
             _frameIndex = frameIndex;
             _inValue = inValue;
             _outValue = outValue;
+            _inTangent = inTangent;
+            _outTangent = outTangent;
             InterpolationType = type;
         }
 
@@ -163,7 +161,7 @@ namespace CustomEngine.Rendering.Animation
         public static float Linear(FloatKeyframe key1, FloatKeyframe key2, float time)
             => CustomMath.Lerp(key1.OutValue, key2.InValue, time);
         public static float CubicBezier(FloatKeyframe key1, FloatKeyframe key2, float time)
-            => CustomMath.CubicBezier(key1.OutValue, key1.OutTangent, key2.InTangent, key2.InValue, time);
+            => CustomMath.CubicBezier(key1.OutValue, key1.OutValue + key1.OutTangent, key2.InValue + key2.InTangent, key2.InValue, time);
         public static float CubicHermite(FloatKeyframe key1, FloatKeyframe key2, float time)
             => CustomMath.CubicHermite(key1.OutValue, key1.OutTangent, key2.InTangent, key2.InValue, time);
         public void AverageKeyframe()

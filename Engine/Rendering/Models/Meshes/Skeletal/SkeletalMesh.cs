@@ -13,8 +13,8 @@ using System.ComponentModel;
 
 namespace CustomEngine.Rendering.Models
 {
-    [FileClass("SKLM", "Skeletal Mesh")]
-    public class SkeletalMesh : FileObject
+    [FileClass("SKM", "Skeletal Mesh")]
+    public class SkeletalMesh : FileObject, IModelFile
     {
         public SkeletalMesh() : base()
         {

@@ -64,6 +64,7 @@ namespace System
         public override void SetTransform(Matrix4 worldMatrix)
         {
             _state.Matrix = worldMatrix;
+            base.SetTransform(worldMatrix);
         }
         public float GetTotalHalfHeight() => _halfHeight + _radius;
         public float GetTotalHeight() => GetTotalHalfHeight() * 2.0f;

@@ -10,14 +10,18 @@ namespace CustomEngine
         string WriteToString();
         void ReadFromString(string str);
     }
-    public interface IMesh : IRenderable
+    public interface IModelFile
+    {
+
+    }
+    public interface ISubMesh : IRenderable
     {
         bool Visible { get; set; }
         bool VisibleInEditorOnly { get; set; }
         bool HiddenFromOwner { get; set; }
         bool VisibleToOwnerOnly { get; set; }
     }
-    public interface IStaticMesh
+    public interface IStaticSubMesh
     {
         bool Visible { get; }
         Shape CullingVolume { get; }
@@ -25,7 +29,7 @@ namespace CustomEngine
         Material Material { get; set; }
         StaticMesh Model { get; }
     }
-    public interface ISkeletalMesh
+    public interface ISkeletalSubMesh
     {
         bool Visible { get; }
         SingleFileRef<PrimitiveData> Data { get; }

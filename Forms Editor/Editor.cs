@@ -39,7 +39,7 @@ namespace TheraEditor
             SpawnedActors_Modified();
             if (Engine.World != null)
                 Engine.World.State.SpawnedActors.PostModified += SpawnedActors_Modified;
-            renderPanel1.BeginTick();
+            renderPanel1.RegisterTick();
         }
 
         private void SpawnedActors_Modified()
@@ -52,7 +52,7 @@ namespace TheraEditor
         protected override void OnClosed(EventArgs e)
         {
             base.OnClosed(e);
-            renderPanel1.EndTick();
+            renderPanel1.UnregisterTick();
             Engine.ShutDown();
         }
 

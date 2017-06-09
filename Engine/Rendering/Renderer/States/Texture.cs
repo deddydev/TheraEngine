@@ -10,21 +10,24 @@ namespace CustomEngine.Rendering.Textures
 {
     public class Texture : BaseRenderState
     {
-        public Texture() : base(GenType.Texture)
+        public Texture() : this(null) { }
+        public Texture(TextureData data, int bindingId) : base(GenType.Texture, bindingId)
         {
+            _data = null;
             _width = 1;
             _height = 1;
-        }
-        public Texture(int bindingId) : base(GenType.Texture, bindingId)
-        {
-            _width = 1;
-            _height = 1;
+            _internalFormat = EPixelInternalFormat.Four;
+            _pixelFormat = EPixelFormat.Bgra;
+            _pixelType = EPixelType.UnsignedByte;
         }
         public Texture(TextureData data) : base(GenType.Texture)
         {
             _data = data;
             _width = _data != null && _data.Bitmap != null ? _data.Bitmap.Width : 1;
             _height = _data != null && _data.Bitmap != null ? _data.Bitmap.Height : 1;
+            _internalFormat = EPixelInternalFormat.Four;
+            _pixelFormat = EPixelFormat.Bgra;
+            _pixelType = EPixelType.UnsignedByte;
         }
         public Texture(
             TextureData data,
@@ -40,10 +43,20 @@ namespace CustomEngine.Rendering.Textures
             _uWrapMode = uWrap;
             _vWrapMode = vWrap;
             _lodBias = lodBias;
+            _internalFormat = EPixelInternalFormat.Four;
+            _pixelFormat = EPixelFormat.Bgra;
+            _pixelType = EPixelType.UnsignedByte;
         }
-
-        public Texture(TextureData data, MinFilter minFilter, MagFilter magFilter, TexCoordWrap uWrap, TexCoordWrap vWrap, float lodBias, 
-            EPixelInternalFormat internalFormat, EPixelFormat pixelFormat, EPixelType pixelType)
+        public Texture(
+            TextureData data,
+            MinFilter minFilter,
+            MagFilter magFilter,
+            TexCoordWrap uWrap,
+            TexCoordWrap vWrap,
+            float lodBias,
+            EPixelInternalFormat internalFormat,
+            EPixelFormat pixelFormat,
+            EPixelType pixelType)
             : this(data, minFilter, magFilter, uWrap, vWrap, lodBias)
         {
             _internalFormat = internalFormat;
@@ -79,9 +92,9 @@ namespace CustomEngine.Rendering.Textures
         private MagFilter _magFilter;
         private float _lodBias;
         private TextureData _data;
-        private EPixelInternalFormat _internalFormat = EPixelInternalFormat.Rgb8;
-        private EPixelFormat _pixelFormat = EPixelFormat.Bgr;
-        private EPixelType _pixelType = EPixelType.Byte;
+        private EPixelInternalFormat _internalFormat;
+        private EPixelFormat _pixelFormat;
+        private EPixelType _pixelType;
         private ETexTarget _textureTarget = ETexTarget.Texture2D;
 
         public TextureData Data
@@ -98,9 +111,11 @@ namespace CustomEngine.Rendering.Textures
 
         public static Texture[] GenTextures(int count)
             => Engine.Renderer.CreateObjects<Texture>(GenType.Texture, count);
-        public void AttachToFrameBuffer(EFramebufferTarget target, EFramebufferAttachment attachment)
-            => Engine.Renderer.AttachTextureToFrameBuffer(target, attachment, _textureTarget, BindingId, 0);
-
+        public void AttachToFrameBuffer(int frameBufferBindingId, EFramebufferAttachment attachment)
+        {
+            Engine.Renderer.BindTexture(ETexTarget.Texture2D, BindingId);
+            Engine.Renderer.AttachTextureToFrameBuffer(frameBufferBindingId, attachment, BindingId, 0);
+        }
         public void Bind()
         {
             if (!IsActive)
@@ -109,9 +124,6 @@ namespace CustomEngine.Rendering.Textures
         }
         public void PushData()
         {
-            if (_data == null)
-                return;
-
             Bind();
 
             Engine.Renderer.TexParameter(_textureTarget, ETexParamName.TextureBaseLevel, 0);
@@ -123,38 +135,20 @@ namespace CustomEngine.Rendering.Textures
             Engine.Renderer.TexParameter(_textureTarget, ETexParamName.TextureMinFilter, (int)_minFilters[(int)_minFilter]);
             Engine.Renderer.TexParameter(_textureTarget, ETexParamName.TextureWrapS, (int)_wraps[(int)_uWrapMode]);
             Engine.Renderer.TexParameter(_textureTarget, ETexParamName.TextureWrapT, (int)_wraps[(int)_vWrapMode]);
-            
-            Bitmap bmp = _data.Bitmap;
+
+            Bitmap bmp = _data?.Bitmap;
             if (bmp != null)
             {
                 BitmapData data = bmp.LockBits(new Rectangle(0, 0, _width, _height), ImageLockMode.ReadOnly, PixelFormat.Format32bppArgb);
-                EPixelFormat pixelFormat = EPixelFormat.Bgra;
-                EPixelType pixelType = EPixelType.UnsignedByte;
-                //switch (bmp.PixelFormat)
-                //{
-                //    case PixelFormat.Format24bppRgb:
-                //        pixelFormat = EPixelFormat.Bgr;
-                //        pixelType = EPixelType.UnsignedByte;
-                //        break;
-                //    case PixelFormat.Format32bppArgb:
-                //        pixelFormat = EPixelFormat.Bgra;
-                //        pixelType = EPixelType.UnsignedByte;
-                //        break;
-                //    default:
-                //        throw new Exception();
-                //}
-
-                Engine.Renderer.PushTextureData(_textureTarget, 0, EPixelInternalFormat.Four, _width, _height, pixelFormat, pixelType, data.Scan0);
+                Engine.Renderer.PushTextureData(_textureTarget, 0, _internalFormat, _width, _height, _pixelFormat, _pixelType, data.Scan0);
                 bmp.UnlockBits(data);
             }
             else
-            {
                 Engine.Renderer.PushTextureData(_textureTarget, 0, _internalFormat, _width, _height, _pixelFormat, _pixelType, IntPtr.Zero);
-            }
         }
 
         protected override int CreateObject()
-            => Engine.Renderer.CreateTextures(3553, 1)[0];
+            => Engine.Renderer.CreateTextures(ETexTarget.Texture2D, 1)[0];
         protected override void OnGenerated()
             => PushData();
     }

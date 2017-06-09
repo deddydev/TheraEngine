@@ -23,7 +23,10 @@ namespace System
             Active.Add(this);
         }
         public override void SetTransform(Matrix4 worldMatrix)
-            => _state.Matrix = worldMatrix;
+        {
+            _state.Matrix = worldMatrix;
+            base.SetTransform(worldMatrix);
+        }
         public override CollisionShape GetCollisionShape()
             => new CapsuleShape(Radius, HalfHeight * 2.0f);
         public override Shape HardCopy()

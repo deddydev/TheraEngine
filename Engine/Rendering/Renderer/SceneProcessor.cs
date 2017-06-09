@@ -13,8 +13,8 @@ namespace CustomEngine.Rendering
         private Octree<IRenderable> _cullingTree;
         private LightManager _lightManager = new LightManager();
 
-        public Octree<IRenderable> RenderTree => _cullingTree;
-        public LightManager Lights => _lightManager;
+        internal Octree<IRenderable> RenderTree => _cullingTree;
+        internal LightManager Lights => _lightManager;
 
         internal void WorldChanged()
         {
@@ -55,8 +55,10 @@ namespace CustomEngine.Rendering
             AbstractRenderer.CurrentCamera = camera;
 
             Frustum f = camera.GetFrustum();
-            _cullingTree.Cull(f);
-            _cullingTree.DebugRender();
+            //_cullingTree.Cull(f);
+
+            if (Engine.Settings.RenderOctree)
+                _cullingTree.DebugRender();
 
             //TODO: render in a sorted order by render keys, not just in whatever order like this
             //also perform culling directly before rendering something, to avoid an extra log(n) operation

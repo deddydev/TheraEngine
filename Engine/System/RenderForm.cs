@@ -18,17 +18,20 @@ namespace CustomEngine
             if (!string.IsNullOrEmpty(iconPath) && File.Exists(iconPath))
                 Icon = new Icon(iconPath);
 
-            Engine.Initialize();
-            renderPanel1.BeginTick();
-
             //TopMost = true;
             //FormBorderStyle = FormBorderStyle.None;
-            //WindowState = FormWindowState.Maximized;
+            WindowState = FormWindowState.Maximized;
+            renderPanel1.RegisterTick();
+            Engine.Initialize();
         }
+        //protected override void OnLoad(EventArgs e)
+        //{
+        //    base.OnLoad(e);
+        //}
         protected override void OnClosed(EventArgs e)
         {
             base.OnClosed(e);
-            renderPanel1.EndTick();
+            renderPanel1.UnregisterTick();
             Engine.ShutDown();
         }
     }

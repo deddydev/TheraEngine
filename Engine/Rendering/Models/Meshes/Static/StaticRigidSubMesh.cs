@@ -6,7 +6,7 @@ using System.Xml;
 
 namespace CustomEngine.Rendering.Models
 {
-    public class StaticRigidSubMesh : FileObject, IStaticMesh
+    public class StaticRigidSubMesh : FileObject, IStaticSubMesh
     {
         public StaticRigidSubMesh()
         {

@@ -63,6 +63,8 @@ namespace CustomEngine.Worlds.Actors
         protected CameraComponent _fpCameraComponent, _tpCameraComponent;
         private bool _firstPerson = false;
         private Rotator _viewRotation = Rotator.GetZero(Rotator.Order.YPR);
+        float _gamePadMovementInputMultiplier = 90.0f;
+        float _gamePadLookInputMultiplier = 5.0f;
         protected Vec2 _keyboardMovementInput = Vec2.Zero;
         protected Vec2 _gamepadMovementInput = Vec2.Zero;
         
@@ -138,16 +140,16 @@ namespace CustomEngine.Worlds.Actors
             {
                 Vec3 finalInput = forward * _gamepadMovementInput.Y + right * _gamepadMovementInput.X;
                 finalInput.Y = 0.0f;
-                finalInput *= delta;
+                finalInput *= delta * _gamePadMovementInputMultiplier;
                 _movement.AddMovementInput(finalInput);
             }
         }
         public override void RegisterInput(InputInterface input)
         {
-            input.RegisterAxisUpdate(GamePadAxis.LeftThumbstickX, MoveRight, false);
-            input.RegisterAxisUpdate(GamePadAxis.LeftThumbstickY, MoveForward, false);
-            input.RegisterAxisUpdate(GamePadAxis.RightThumbstickX, LookRight, false);
-            input.RegisterAxisUpdate(GamePadAxis.RightThumbstickY, LookUp, false);
+            input.RegisterAxisUpdate(GamePadAxis.LeftThumbstickX, MoveRight, true);
+            input.RegisterAxisUpdate(GamePadAxis.LeftThumbstickY, MoveForward, true);
+            input.RegisterAxisUpdate(GamePadAxis.RightThumbstickX, LookRight, true);
+            input.RegisterAxisUpdate(GamePadAxis.RightThumbstickY, LookUp, true);
             input.RegisterButtonEvent(GamePadButton.FaceDown, ButtonInputType.Pressed, Jump);
 
             input.RegisterMouseMove(Look, true);
@@ -199,17 +201,15 @@ namespace CustomEngine.Worlds.Actors
         }
         private void LookRight(float value)
         {
-            value *= Engine.RenderDelta;
-            _viewRotation.Yaw += value;
+            _viewRotation.Yaw -= value * _gamePadLookInputMultiplier;
         }
         private void LookUp(float value)
         {
-            value *= Engine.RenderDelta;
-            _viewRotation.Pitch += value;
+            _viewRotation.Pitch += value * _gamePadLookInputMultiplier;
         }
-        protected void OnHit(IPhysicsDrivable other, ManifoldPoint point)
+        protected void OnHit(IPhysicsDrivable me, IPhysicsDrivable other, ManifoldPoint point)
         {
-            Debug.WriteLine(((ObjectBase)other).Name + " collided with " + Name);
+            //Debug.WriteLine(((ObjectBase)other).Name + " collided with " + Name);
             _movement.OnHit(other, point);
         }
         protected override void PreConstruct()
@@ -227,10 +227,10 @@ namespace CustomEngine.Worlds.Actors
 
             PhysicsConstructionInfo info = new PhysicsConstructionInfo()
             {
-                Mass = 14.0f,
+                Mass = 10.0f,
                 AngularDamping = 0.05f,
                 LinearDamping = 0.005f,
-                Restitution = 0.9f,
+                Restitution = 0.0f,
                 Friction = 0.01f,
                 RollingFriction = 0.01f,
                 CollisionEnabled = true,
@@ -260,7 +260,7 @@ namespace CustomEngine.Worlds.Actors
             _tpCameraBoom = new BoomComponent();
             _tpCameraBoom.Translation.Raw = new Vec3(0.4f, 0.2f, 0.0f);
             _tpCameraBoom.Rotation.SyncFrom(_viewRotation);
-            _tpCameraBoom.MaxLength = 2.0f;
+            _tpCameraBoom.MaxLength = 3.0f;
             rootCapsule.ChildComponents.Add(_tpCameraBoom);
 
             PerspectiveCamera TPCam = new PerspectiveCamera()
@@ -272,7 +272,7 @@ namespace CustomEngine.Worlds.Actors
             _tpCameraComponent = new CameraComponent(TPCam);
             _tpCameraBoom.ChildComponents.Add(_tpCameraComponent);
             
-            rootCapsule.PhysicsDriver.SimulatingPhysics = true;
+            rootCapsule.PhysicsDriver.SimulatingPhysics = false;
             CurrentCameraComponent = _tpCameraComponent;
 
             _viewRotation.Yaw = 180.0f;

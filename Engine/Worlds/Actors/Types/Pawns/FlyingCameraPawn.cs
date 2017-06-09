@@ -147,7 +147,12 @@ namespace CustomEngine.Worlds.Actors
             => _shift = pressed;
 
         private void OnScrolled(bool up)
-            => RootComponent.Camera.Zoom(up ? _scrollSpeed : -_scrollSpeed);
+        {
+            if (_ctrl)
+                Engine.TimeDilation *= up ? 0.8 : 1.2;
+            else
+                RootComponent.Camera.Zoom(up ? _scrollSpeed : -_scrollSpeed);
+        }
         
         private void OnRightClick(bool pressed)
             => _rightClickPressed = pressed;

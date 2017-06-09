@@ -105,7 +105,7 @@ namespace CustomEngine.Worlds
         }
         
         public void StepSimulation(float delta)
-            => _physicsScene?.StepSimulation(delta, 7, (float)Engine.TargetRenderPeriod);
+            => _physicsScene?.StepSimulation(delta, 7, (float)(Engine.TargetRenderPeriod * Engine.TimeDilation));
         
         public IActor this[int index]
         {
@@ -157,7 +157,7 @@ namespace CustomEngine.Worlds
             {
                 DebugMode = DebugDrawModes.DrawAabb
             };
-            _physicsScene.DispatchInfo.UseContinuous = false;
+            _physicsScene.DispatchInfo.UseContinuous = true;
             //_physicsScene.PairCache.SetOverlapFilterCallback(new CustomOvelapFilter());
             _settings.GravityChanged += OnGravityChanged;
 

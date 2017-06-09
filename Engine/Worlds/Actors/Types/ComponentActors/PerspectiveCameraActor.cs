@@ -17,20 +17,8 @@ namespace CustomEngine.Worlds.Actors.Types
         
         protected override CameraComponent OnConstruct()
         {
-            PerspectiveCamera camera = new PerspectiveCamera(1.0f, 500.0f, 30.0f, 16.0f / 9.0f);
+            PerspectiveCamera camera = new PerspectiveCamera(1.0f, 10000.0f, 45.0f, 16.0f / 9.0f);
             return new CameraComponent(camera);
-        }
-
-        public override void OnSpawned(World world)
-        {
-            Engine.Renderer.Scene.Add(RootComponent.Camera);
-            base.OnSpawned(world);
-        }
-
-        public override void OnDespawned()
-        {
-            Engine.Renderer.Scene.Remove(RootComponent.Camera);
-            base.OnDespawned();
         }
     }
 }

@@ -73,12 +73,14 @@ namespace CustomEngine.Worlds.Actors
         }
         public override void OnSpawned()
         {
-            Engine.Renderer.Scene.Add(this);
+            if (Engine.Settings.RenderSplines)
+                Engine.Renderer.Scene.Add(this);
             base.OnSpawned();
         }
         public override void OnDespawned()
         {
-            Engine.Renderer.Scene.Remove(this);
+            if (Engine.Settings.RenderSplines)
+                Engine.Renderer.Scene.Remove(this);
             base.OnDespawned();
         }
 

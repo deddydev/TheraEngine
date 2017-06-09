@@ -5,9 +5,9 @@ namespace CustomEngine.Worlds.Actors
 {
     public partial class SkeletalMeshComponent : TRSComponent
     {
-        internal class RenderableMesh : IMesh
+        internal class RenderableMesh : ISubMesh
         {
-            public RenderableMesh(ISkeletalMesh mesh, Skeleton skeleton, SceneComponent component)
+            public RenderableMesh(ISkeletalSubMesh mesh, Skeleton skeleton, SceneComponent component)
             {
                 _mesh = mesh;
                 _manager = new PrimitiveManager(mesh.Data, mesh.Material);
@@ -26,7 +26,7 @@ namespace CustomEngine.Worlds.Actors
                 _visibleToOwnerOnly = false;
 
             private SceneComponent _component;
-            private ISkeletalMesh _mesh;
+            private ISkeletalSubMesh _mesh;
             private IOctreeNode _renderNode;
             private Bone _singleBind;
             private Skeleton _skeleton;
@@ -65,7 +65,7 @@ namespace CustomEngine.Worlds.Actors
                 get => _visibleToOwnerOnly;
                 set => _visibleToOwnerOnly = value;
             }
-            public ISkeletalMesh Mesh
+            public ISkeletalSubMesh Mesh
             {
                 get => _mesh;
                 set => _mesh = value;

@@ -162,11 +162,11 @@ namespace CustomEngine.Rendering.Models.Materials
                     string part = i == 0 ? "x" : i == 1 ? "y" : i == 2 ? "z" : "w";
 
                     if (Engine.Settings.UseIntegerWeightingIds)
-                        WriteLine("index = {0}0.{1};", BufferType.MatrixIds.ToString(), part);
+                        WriteLine("index = {0}0.{1};", "MatrixIds"/*BufferType.MatrixIds.ToString()*/, part);
                     else
-                        WriteLine("index = int({0}0.{1});", BufferType.MatrixIds.ToString(), part);
+                        WriteLine("index = int({0}0.{1});", "MatrixIds"/*BufferType.MatrixIds.ToString()*/, part);
 
-                    WriteLine("weight = {0}0.{1};", BufferType.MatrixWeights.ToString(), part);
+                    WriteLine("weight = {0}0.{1};", "MatrixWeights"/*BufferType.MatrixWeights.ToString()*/, part);
                     WriteLine("finalPosition += ({0}[index] * basePosition) * weight;", Uniform.BoneMatricesName);
                     if (_info.HasNormals)
                         WriteLine("finalNormal += ({0}[index] * baseNormal) * weight;", Uniform.BoneMatricesITName);

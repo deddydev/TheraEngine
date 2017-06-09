@@ -63,7 +63,7 @@ namespace CustomEngine.Rendering.Models
                                             }
                                     }
                     
-                Material m = imgEntries.Count > 0 ? Material.GetUnlitTextureMaterial() : Material.GetDefaultMaterial();//new Material(mat._name != null ? mat._name : mat._id, s);
+                Material m = /*imgEntries.Count > 0 ? Material.GetLitTextureMaterial() : */Material.GetLitColorMaterial();//new Material(mat._name != null ? mat._name : mat._id, s);
                 mat._node = m;
 
                 foreach (ImageEntry img in imgEntries)
@@ -334,7 +334,7 @@ namespace CustomEngine.Rendering.Models
                         m = e._node as Material;
                 }
                 else
-                    m = Material.GetDefaultMaterial();
+                    m = Material.GetLitColorMaterial();
 
                 model.RigidChildren.Add(new SkeletalRigidSubMesh(data, m, _node._name ?? _node._id));
             }
@@ -354,9 +354,9 @@ namespace CustomEngine.Rendering.Models
                         m = e._node as Material;
                 }
                 else
-                    m = Material.GetDefaultMaterial();
+                    m = Material.GetLitColorMaterial();
                 
-                model.RigidChildren.Add(new StaticRigidSubMesh(data, new Sphere(10.0f), m, _node._name ?? _node._id));
+                model.RigidChildren.Add(new StaticRigidSubMesh(data, null, m, _node._name ?? _node._id));
             }
         }
         private enum SemanticType

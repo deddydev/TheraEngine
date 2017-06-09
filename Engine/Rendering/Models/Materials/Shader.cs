@@ -53,6 +53,78 @@ namespace CustomEngine.Rendering.Models.Materials
 
             return id;
         }
+        public static Shader LitTextureFragForward()
+        {
+            string source = @"
+#version 450
+
+uniform float MatSpecularIntensity;
+uniform float MatShininess;
+
+uniform vec3 CameraPosition;
+uniform vec3 CameraForward;
+
+uniform sampler2D Texture0;
+
+in Data
+{
+    vec3 Position;
+    vec3 Normal;
+    vec2 MultiTexCoord0;
+} InData;
+
+out vec4 OutColor;
+
+" + LightingSetupBasic() + @"
+
+void main()
+{
+    vec3 normal = normalize(InData.Normal);
+    vec4 texColor = texture(Texture0, InData.MultiTexCoord0);
+
+    " + LightingCalc("totalLight", "vec3(0.0)", "normal", "InData.Position", "texColor.rgb", "MatSpecularIntensity") + @"
+
+    OutColor = texColor * vec4(totalLight, 1.0);
+}
+";
+            return new Shader(ShaderMode.Fragment, source);
+        }
+        public static Shader LitTextureFragDeferred()
+        {
+            string source = @"
+#version 450
+
+uniform float MatSpecularIntensity;
+uniform float MatShininess;
+
+uniform vec3 CameraPosition;
+uniform vec3 CameraForward;
+
+uniform sampler2D Texture0;
+
+in Data
+{
+    vec3 Position;
+    vec3 Normal;
+    vec2 MultiTexCoord0;
+} InData;
+
+out vec4 OutColor;
+
+" + LightingSetupBasic() + @"
+
+void main()
+{
+    vec3 normal = normalize(InData.Normal);
+    vec4 texColor = texture(Texture0, InData.MultiTexCoord0);
+
+    " + LightingCalc("totalLight", "vec3(0.0)", "normal", "InData.Position", "texColor.rgb", "MatSpecularIntensity") + @"
+
+    OutColor = vec4(totalLight, 1.0);
+}
+";
+            return new Shader(ShaderMode.Fragment, source);
+        }
         public static Shader UnlitTextureFragDeferred()
         {
             string source = @"
@@ -166,7 +238,7 @@ void main()
 ";
             return new Shader(ShaderMode.Fragment, source);
         }
-        public static Shader TestFragDeferred()
+        public static Shader LitColorFragDeferred()
         {
             string source = @"
 #version 450
@@ -197,7 +269,7 @@ void main()
 ";
             return new Shader(ShaderMode.Fragment, source);
         }
-        public static Shader TestFragForward()
+        public static Shader LitColorFragForward()
         {
             string source = @"
 #version 450
@@ -241,14 +313,19 @@ void main()
 
 #version 450
 
-out vec4 OutColor;
-in vec2 TexCoord0;
+uniform sampler2D Texture0;
+uniform sampler2D Texture1;
+uniform sampler2D Texture2;
+uniform sampler2D Texture3;
 
-uniform sampler2D gDepthStencil;
-uniform sampler2D gAlbedoSpec;
-uniform sampler2D gPosition;
-uniform sampler2D gNormal;
-uniform sampler2D gText;
+in Data
+{
+    vec3 Position;
+    vec3 Normal;
+    vec2 MultiTexCoord0;
+} InData;
+
+out vec4 OutColor;
 
 uniform vec3 CameraPosition;
 
@@ -256,16 +333,16 @@ uniform vec3 CameraPosition;
 
 void main()
 {
-    vec3 FragPos = texture(gPosition, TexCoord0).rgb;
-    vec3 Normal = texture(gNormal, TexCoord0).rgb;
-    vec3 Albedo = texture(gAlbedoSpec, TexCoord0).rgb;
-    float Specular = texture(gAlbedoSpec, TexCoord0).a;
-    vec4 Text = texture(gText, TexCoord0);
+    vec4 AlbedoSpec = texture(Texture0, InData.MultiTexCoord0);
+    vec3 FragPos = texture(Texture1, InData.MultiTexCoord0).rgb;
+    vec3 Normal = texture(Texture2, InData.MultiTexCoord0).rgb;
+    vec4 Text = texture(Texture3, InData.MultiTexCoord0);
 
-    " + LightingCalc("totalLight", "Albedo * 0.1", "Normal", "FragPos", "Albedo", "Specular") + @"
+    " + LightingCalc("totalLight", "AlbedoSpec.rgb * 0.1", "Normal", "FragPos", "AlbedoSpec.rgb", "AlbedoSpec.a") + @"
 
-    OutColor = vec4(mix(totalLight, Text.rgb, Text.a), 1.0);
+    OutColor = vec4(1.0, 0.0, 0.0, 1.0);
 }";
+            //vec4(mix(totalLight, Text.rgb, Text.a), 1.0)
             return new Shader(ShaderMode.Fragment, source);
         }
         private static string LightingCalcForward()

@@ -12,6 +12,9 @@ namespace CustomEngine.Audio
     {
         private AudioContext _context;
         private EffectsExtension _efx;
+        private const int MaxOpenALSources = 32;
+        private int[] _sourceBuffer = new int[MaxOpenALSources];
+
         public ALAudioManager()
         {
             //IList<string> devices = AudioContext.AvailableDevices;
@@ -33,89 +36,92 @@ namespace CustomEngine.Audio
                 default: throw new NotSupportedException("The specified sound format is not supported.");
             }
         }
-        public override void Pause(SoundFile sound)
+        public override bool Pause(int soundId)
         {
-            AL.SourcePause(sound.SourceId);
+            AL.SourcePause(soundId);
+            return GetState(soundId) == AudioState.Paused;
         }
 
-        private void ApplyParam(int source, UsableValue<bool> param, ALSourceb dest, bool initialPlay)
+        private void ApplyParam(int soundId, UsableValue<bool> param, ALSourceb dest, bool initialPlay)
         {
             bool value = param.GetActualValue();
-            AL.GetSource(source, dest, out bool currentValue);
+            AL.GetSource(soundId, dest, out bool currentValue);
             bool changed = value != currentValue;
             if (changed || initialPlay)
-                AL.Source(source, dest, param.Value);
+                AL.Source(soundId, dest, param.Value);
         }
-        private void ApplyParam(int source, UsableValue<float> param, ALSourcef dest, bool initialPlay)
+        private void ApplyParam(int soundId, UsableValue<float> param, ALSourcef dest, bool initialPlay)
         {
             float value = param.GetActualValue();
-            AL.GetSource(source, dest, out float currentValue);
+            AL.GetSource(soundId, dest, out float currentValue);
             bool changed = value != currentValue;
             if (changed || initialPlay)
-                AL.Source(source, dest, param.Value);
+                AL.Source(soundId, dest, param.Value);
         }
-        private void ApplyParam(int source, UsableValue<Vec3> param, ALSource3f dest, bool initialPlay)
+        private void ApplyParam(int soundId, UsableValue<Vec3> param, ALSource3f dest, bool initialPlay)
         {
             Vec3 value = param.GetActualValue();
-            AL.GetSource(source, dest, out Vector3 currentValue);
+            AL.GetSource(soundId, dest, out Vector3 currentValue);
             bool changed = 
                 value.X != currentValue.X || 
                 value.Y != currentValue.Y || 
                 value.Z != currentValue.Z;
             if (changed || initialPlay)
-                AL.Source(source, dest, param.Value.X, param.Value.Y, param.Value.Z);
+                AL.Source(soundId, dest, param.Value.X, param.Value.Y, param.Value.Z);
         }
 
-        private void ApplyParameters(int source, AudioSourceParameters param, bool initialPlay)
+        private void ApplyParameters(int soundId, AudioSourceParameters param, bool initialPlay)
         {
-            ApplyParam(source, param.SourceRelative, ALSourceb.SourceRelative, initialPlay);
-            ApplyParam(source, param.Loop, ALSourceb.Looping, initialPlay);
-            ApplyParam(source, param.EfxDirectFilterGainHighFrequencyAuto, ALSourceb.EfxDirectFilterGainHighFrequencyAuto, initialPlay);
-            ApplyParam(source, param.EfxAuxiliarySendFilterGainAuto, ALSourceb.EfxAuxiliarySendFilterGainAuto, initialPlay);
-            ApplyParam(source, param.EfxAuxiliarySendFilterGainHighFrequencyAuto, ALSourceb.EfxAuxiliarySendFilterGainHighFrequencyAuto, initialPlay);
-            ApplyParam(source, param.ConeInnerAngle, ALSourcef.ConeInnerAngle, initialPlay);
-            ApplyParam(source, param.ConeOuterAngle, ALSourcef.ConeOuterAngle, initialPlay);
-            ApplyParam(source, param.Pitch, ALSourcef.Pitch, initialPlay);
-            ApplyParam(source, param.Gain, ALSourcef.Gain, initialPlay);
-            ApplyParam(source, param.MinGain, ALSourcef.MinGain, initialPlay);
-            ApplyParam(source, param.MaxGain, ALSourcef.MaxGain, initialPlay);
-            ApplyParam(source, param.ReferenceDistance, ALSourcef.ReferenceDistance, initialPlay);
-            ApplyParam(source, param.RolloffFactor, ALSourcef.RolloffFactor, initialPlay);
-            ApplyParam(source, param.ConeOuterGain, ALSourcef.ConeOuterGain, initialPlay);
-            ApplyParam(source, param.MaxDistance, ALSourcef.MaxDistance, initialPlay);
-            ApplyParam(source, param.SecOffset, ALSourcef.SecOffset, initialPlay);
-            ApplyParam(source, param.EfxAirAbsorptionFactor, ALSourcef.EfxAirAbsorptionFactor, initialPlay);
-            ApplyParam(source, param.EfxRoomRolloffFactor, ALSourcef.EfxRoomRolloffFactor, initialPlay);
-            ApplyParam(source, param.EfxConeOuterGainHighFrequency, ALSourcef.EfxConeOuterGainHighFrequency, initialPlay);
-            ApplyParam(source, param.Position, ALSource3f.Position, initialPlay);
-            ApplyParam(source, param.Direction, ALSource3f.Direction, initialPlay);
-            ApplyParam(source, param.Velocity, ALSource3f.Velocity, initialPlay);
+            ApplyParam(soundId, param.SourceRelative, ALSourceb.SourceRelative, initialPlay);
+            ApplyParam(soundId, param.Loop, ALSourceb.Looping, initialPlay);
+            ApplyParam(soundId, param.EfxDirectFilterGainHighFrequencyAuto, ALSourceb.EfxDirectFilterGainHighFrequencyAuto, initialPlay);
+            ApplyParam(soundId, param.EfxAuxiliarySendFilterGainAuto, ALSourceb.EfxAuxiliarySendFilterGainAuto, initialPlay);
+            ApplyParam(soundId, param.EfxAuxiliarySendFilterGainHighFrequencyAuto, ALSourceb.EfxAuxiliarySendFilterGainHighFrequencyAuto, initialPlay);
+            ApplyParam(soundId, param.ConeInnerAngle, ALSourcef.ConeInnerAngle, initialPlay);
+            ApplyParam(soundId, param.ConeOuterAngle, ALSourcef.ConeOuterAngle, initialPlay);
+            ApplyParam(soundId, param.Pitch, ALSourcef.Pitch, initialPlay);
+            ApplyParam(soundId, param.Gain, ALSourcef.Gain, initialPlay);
+            ApplyParam(soundId, param.MinGain, ALSourcef.MinGain, initialPlay);
+            ApplyParam(soundId, param.MaxGain, ALSourcef.MaxGain, initialPlay);
+            ApplyParam(soundId, param.ReferenceDistance, ALSourcef.ReferenceDistance, initialPlay);
+            ApplyParam(soundId, param.RolloffFactor, ALSourcef.RolloffFactor, initialPlay);
+            ApplyParam(soundId, param.ConeOuterGain, ALSourcef.ConeOuterGain, initialPlay);
+            ApplyParam(soundId, param.MaxDistance, ALSourcef.MaxDistance, initialPlay);
+            ApplyParam(soundId, param.SecOffset, ALSourcef.SecOffset, initialPlay);
+            ApplyParam(soundId, param.EfxAirAbsorptionFactor, ALSourcef.EfxAirAbsorptionFactor, initialPlay);
+            ApplyParam(soundId, param.EfxRoomRolloffFactor, ALSourcef.EfxRoomRolloffFactor, initialPlay);
+            ApplyParam(soundId, param.EfxConeOuterGainHighFrequency, ALSourcef.EfxConeOuterGainHighFrequency, initialPlay);
+            ApplyParam(soundId, param.Position, ALSource3f.Position, initialPlay);
+            ApplyParam(soundId, param.Direction, ALSource3f.Direction, initialPlay);
+            ApplyParam(soundId, param.Velocity, ALSource3f.Velocity, initialPlay);
         }
-
-        public override void Update(SoundFile sound, AudioSourceParameters param)
-            => ApplyParameters(sound.SourceId, param, false);
-        public override void Play(SoundFile sound) => Play(sound, null);
-        public override void Play(SoundFile sound, AudioSourceParameters param)
+        
+        public override void Update(int soundId, AudioSourceParameters param)
+            => ApplyParameters(soundId, param, false);
+        public override int Play(SoundFile sound) => Play(sound, null);
+        public override int Play(SoundFile sound, AudioSourceParameters param)
         {
             byte[] data = sound.WaveFile.SoundData;
             if (data == null)
-                return;
+                return -1;
+            
+            if (sound.PlayingCount == 0)
+            {
+                sound.BufferId = AL.GenBuffer();
+                AL.BufferData(sound.BufferId,
+                    GetSoundFormat(sound.WaveFile.Channels, sound.WaveFile.BitsPerSample),
+                    data, data.Length, sound.WaveFile.SampleRate);
+            }
 
-            sound.BufferId = AL.GenBuffer();
-            sound.SourceId = AL.GenSource();
-            //int state;
-
-            AL.BufferData(sound.BufferId, 
-                GetSoundFormat(sound.WaveFile.Channels, sound.WaveFile.BitsPerSample),
-                data, data.Length, sound.WaveFile.SampleRate);
-
-            AL.Source(sound.SourceId, ALSourcei.Buffer, sound.BufferId);
+            int soundId = AL.GenSource();
+            AL.Source(soundId, ALSourcei.Buffer, sound.BufferId);
 
             if (param != null)
-                ApplyParameters(sound.SourceId, param, true);
+                ApplyParameters(soundId, param, true);
 
-            AL.SourcePlay(sound.SourceId);
-            
+            AL.SourcePlay(soundId);
+            return soundId;
+
             //do
             //{
             //    Thread.Sleep(250);
@@ -123,15 +129,15 @@ namespace CustomEngine.Audio
             //}
             //while ((ALSourceState)state == ALSourceState.Playing);
         }
-        public override void Stop(SoundFile sound)
+        public override bool Stop(int soundId)
         {
-            AL.SourceStop(sound.SourceId);
-            AL.DeleteSource(sound.SourceId);
-            AL.DeleteBuffer(sound.BufferId);
+            AL.SourceStop(soundId);
+            AL.DeleteSource(soundId);
+            return GetState(soundId) == AudioState.Stopped;
         }
-        public override AudioState GetState(SoundFile sound)
+        public override AudioState GetState(int soundId)
         {
-            return AudioState.Initial + ((int)AL.GetSourceState(sound.SourceId) - (int)ALSourceState.Initial);
+            return AudioState.Initial + ((int)AL.GetSourceState(soundId) - (int)ALSourceState.Initial);
         }
         public override void UpdateListener(PlayerIndex player, Vec3 position, Vec3 forward, Vec3 up, Vec3 velocity, float gain, float efxMetersPerUnit = 1.0f)
         {
@@ -165,6 +171,12 @@ namespace CustomEngine.Audio
                 };
                 AL.Listener(ALListenerfv.Orientation, ref o);
             }
+        }
+
+        public override bool Play(int soundId)
+        {
+            AL.SourcePlay(soundId);
+            return GetState(soundId) == AudioState.Playing;
         }
     }
 }

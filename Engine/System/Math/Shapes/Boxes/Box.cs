@@ -206,6 +206,7 @@ namespace System
         {
             _transform.Matrix = worldMatrix;
             //_transform = worldMatrix;
+            base.SetTransform(worldMatrix);
         }
         public override CollisionShape GetCollisionShape()
         {

@@ -423,15 +423,20 @@ namespace System
         /// <summary>
         /// Returns a YPR rotator relative to -Z with azimuth as yaw, elevation as pitch, and 0 as roll.
         /// </summary>
-        public Rotator LookatAngles()
-            => LookatAngles(Forward);
+        //public Rotator LookatAngles()
+        //    => LookatAngles(Forward);
         /// <summary>
         /// Returns a YPR rotator relative to the start normal with azimuth as yaw, elevation as pitch, and 0 as roll.
         /// </summary>
-        public Rotator LookatAngles(Vec3 startNormal)
-        {
-            return Quat.BetweenVectors(startNormal, this).ToYawPitchRoll();
-        }
+        //public Rotator LookatAngles(Vec3 startNormal)
+        //{
+
+        //    return Quat.BetweenVectors(startNormal, this).ToYawPitchRoll();
+        //}
+
+        public Rotator LookatAngles() { return new Rotator((float)RadToDeg(Atan2(Y, Sqrt(X * X + Z * Z))), (float)RadToDeg(Atan2(-X, -Z)), 0.0f, Rotator.Order.YPR); }
+        public Rotator LookatAngles(Vec3 origin) { return (this - origin).LookatAngles(); }
+
         //public void LookatAngles(Vec3 startNormal, out float yaw, out float pitch)
         //{
         //    pitch = RadToDeg((float)Atan2(Y, Sqrt(X * X + Z * Z)));

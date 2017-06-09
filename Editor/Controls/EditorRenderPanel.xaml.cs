@@ -20,7 +20,7 @@ namespace Editor.Controls
             };
             Engine._engineSettings.SetFile(settings, false);
             Engine.Initialize();
-            _panel.BeginTick();
+            _panel.RegisterTick();
         }
     }
 }

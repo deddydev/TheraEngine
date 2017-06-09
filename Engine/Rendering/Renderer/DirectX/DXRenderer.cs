@@ -51,7 +51,7 @@ namespace CustomEngine.Rendering.DirectX
             throw new NotImplementedException();
         }
 
-        public override void BindFrameBuffer(FramebufferType type, int bindingId)
+        public override void BindFrameBuffer(EFramebufferType type, int bindingId)
         {
             throw new NotImplementedException();
         }
@@ -64,12 +64,7 @@ namespace CustomEngine.Rendering.DirectX
         {
             throw new NotImplementedException();
         }
-
-        public override int[] CreateTextures(int target, int count)
-        {
-            throw new NotImplementedException();
-        }
-
+        
         public override int[] CreateQueries(int type, int count)
         {
             throw new NotImplementedException();
@@ -194,77 +189,6 @@ namespace CustomEngine.Rendering.DirectX
         {
             throw new NotImplementedException();
         }
-
-        public override void UniformMaterial(int matID, int location, params IUniformable4Int[] p)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void UniformMaterial(int matID, int location, params IUniformable4Float[] p)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void UniformMaterial(int matID, int location, params IUniformable3Int[] p)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void UniformMaterial(int matID, int location, params IUniformable3Float[] p)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void UniformMaterial(int matID, int location, params IUniformable2Int[] p)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void UniformMaterial(int matID, int location, params IUniformable2Float[] p)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void UniformMaterial(int matID, int location, params IUniformable1Int[] p)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void UniformMaterial(int matID, int location, params IUniformable1Float[] p)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void UniformMaterial(int matID, int location, params int[] p)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void UniformMaterial(int matID, int location, params float[] p)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void UniformMaterial(int matID, int location, Matrix4 p)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void UniformMaterial(int matID, int location, params Matrix4[] p)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void UniformMaterial(int matID, int location, Matrix3 p)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void UniformMaterial(int matID, int location, params Matrix3[] p)
-        {
-            throw new NotImplementedException();
-        }
-
         public override void BindTransformFeedback(int bindingId)
         {
             throw new NotImplementedException();
@@ -344,11 +268,7 @@ namespace CustomEngine.Rendering.DirectX
         {
             throw new NotImplementedException();
         }
-
-        public override void AttachTextureToFrameBuffer(EFramebufferTarget target, EFramebufferAttachment attachment, ETexTarget texTarget, int bindingId, int mipLevel)
-        {
-            throw new NotImplementedException();
-        }
+        
 
         public override void SetDrawBuffer(DrawBuffersAttachment attachment)
         {
@@ -386,6 +306,41 @@ namespace CustomEngine.Rendering.DirectX
         }
 
         public override int GetStencilIndex(float x, float y)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override int[] CreateTextures(ETexTarget target, int count)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void PushTextureData(ETexTarget texTarget, int mipLevel, EPixelInternalFormat internalFormat, int width, int height, EPixelFormat pixelFormat, EPixelType type, byte[] data)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void AttachTextureToFrameBuffer(int frameBufferBindingId, EFramebufferAttachment attachment, int textureBindingId, int mipLevel)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void BindRenderBuffer(int bindingId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void RenderbufferStorage(ERenderBufferStorage storage, int width, int height)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void FramebufferRenderBuffer(EFramebufferTarget target, EFramebufferAttachment attachement, int renderBufferBindingId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void FramebufferRenderBuffer(int frameBufferBindingId, EFramebufferAttachment attachement, int renderBufferBindingId)
         {
             throw new NotImplementedException();
         }

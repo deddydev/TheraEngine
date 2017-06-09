@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -12,7 +13,7 @@ namespace System.Collections.Generic
     {
         protected readonly ReaderWriterLockSlim _lock = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
         protected List<T> _inner;
-
+        
         public int Count => ((IList<T>)_inner).Count;
         public bool IsReadOnly => ((IList<T>)_inner).IsReadOnly;
         public bool IsFixedSize => ((IList)_inner).IsFixedSize;

@@ -9,7 +9,7 @@ using System.Xml;
 
 namespace CustomEngine.Rendering.Models
 {
-    public class StaticSoftSubMesh : FileObject, IStaticMesh
+    public class StaticSoftSubMesh : FileObject, IStaticSubMesh
     {
         public StaticSoftSubMesh() { }
         public StaticSoftSubMesh(PrimitiveData data, string name)

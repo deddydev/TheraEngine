@@ -18,7 +18,7 @@ namespace System
         double _updateTimestamp; // timestamp of last UpdateFrame event
         double _renderTimestamp; // timestamp of last RenderFrame event
 
-        double _updateEpsilon; // quantization error for UpdateFrame events
+        double _updateEpsilon = 0.0; // quantization error for UpdateFrame events
 
         bool _isRunningSlowly; // true, when UpdatePeriod cannot reach TargetUpdatePeriod
 
@@ -27,7 +27,7 @@ namespace System
 
         readonly Stopwatch _watch = new Stopwatch();
 
-        Thread _renderThread, _updateThread;
+        Thread _updateThread;
 
         public event EventHandler<FrameEventArgs> RenderFrame = delegate { };
         public event EventHandler<FrameEventArgs> UpdateFrame = delegate { };
@@ -41,32 +41,21 @@ namespace System
                 return;
             _running = true;
             _watch.Start();
-            _updateThread = new Thread(RunUpdateInternal);
-            _renderThread = new Thread(RunRenderInternal);
-            _updateThread.Name = "Update Loop";
-            _renderThread.Name = "Render Loop";
+            _updateThread = new Thread(RunUpdateInternal)
+            {
+                Name = "Game Loop"
+            };
             _updateThread.Start();
-            _renderThread.Start();
         }
         private void RunUpdateInternal()
         {
-            Debug.WriteLine("Started update loop on thread " + Thread.CurrentThread.ManagedThreadId);
+            Debug.WriteLine("Started Game loop on thread " + Thread.CurrentThread.ManagedThreadId);
             while (_running)
             {
                 ProcessEvents();
-                DispatchUpdateFrame(this, EventArgs.Empty);
+                DispatchUpdateAndRenderFrame(this, EventArgs.Empty);
             }
-            Debug.WriteLine("Update loop ended.");
-        }
-        private void RunRenderInternal()
-        {
-            Debug.WriteLine("Started render loop on thread " + Thread.CurrentThread.ManagedThreadId);
-            while (_running)
-            {
-                ProcessEvents();
-                DispatchRenderFrame(this, EventArgs.Empty);
-            }
-            Debug.WriteLine("Render loop ended.");
+            Debug.WriteLine("Game loop ended.");
         }
         public void Stop()
         {
@@ -78,14 +67,7 @@ namespace System
             Application.DoEvents();
             Thread.Sleep(0);
         }
-        void DispatchRenderFrame(object sender, EventArgs e)
-        {
-            double timestamp = _watch.Elapsed.TotalSeconds;
-            double elapsed = (timestamp - _renderTimestamp).Clamp(0.0f, 1.0f);
-            if (elapsed > 0 && elapsed >= TargetRenderPeriod)
-                RaiseRenderFrame(elapsed, ref timestamp);
-        }
-        void DispatchUpdateFrame(object sender, EventArgs e)
+        void DispatchUpdateAndRenderFrame(object sender, EventArgs e)
         {
             int runningSlowlyRetries = 4;
             double timestamp = _watch.Elapsed.TotalSeconds;
@@ -119,11 +101,14 @@ namespace System
                     break;
                 }
             }
+
+            timestamp = _watch.Elapsed.TotalSeconds;
+            elapsed = (timestamp - _renderTimestamp).Clamp(0.0f, 1.0f);
+            if (elapsed > 0 && elapsed >= TargetRenderPeriod)
+                RaiseRenderFrame(elapsed, ref timestamp);
         }
         void RaiseUpdateFrame(double elapsed, ref double timestamp)
         {
-            elapsed *= _timeDilation;
-
             // Raise UpdateFrame event
             _updateArgs.Time = elapsed;
             OnUpdateFrameInternal(_updateArgs);
@@ -133,7 +118,7 @@ namespace System
 
             // Update UpdateTime property
             _updateTimestamp = timestamp;
-            timestamp = _watch.Elapsed.TotalSeconds;
+            timestamp = _watch.Elapsed.TotalSeconds * _timeDilation;
             _updateTime = timestamp - _updateTimestamp;
         }
         void RaiseRenderFrame(double elapsed, ref double timestamp)

@@ -46,7 +46,7 @@ namespace CustomEngine.Rendering
             _feedbackBuffer = null;
         }
 
-        public void Bind(FramebufferType type) { Engine.Renderer.BindTransformFeedback(BindingId); }
-        public void Unbind(FramebufferType type) { Engine.Renderer.BindTransformFeedback(NullBindingId); }
+        public void Bind(EFramebufferType type) { Engine.Renderer.BindTransformFeedback(BindingId); }
+        public void Unbind(EFramebufferType type) { Engine.Renderer.BindTransformFeedback(NullBindingId); }
     }
 }

@@ -13,8 +13,11 @@ namespace CustomEngine.Rendering
 {
     public class GBuffer : FrameBuffer
     {
-        PrimitiveManager _fullScreenQuad;
+        BoundingRectangle _region;
         OrthographicCamera _camera;
+        PrimitiveManager _fullScreenQuad;
+        int _renderBufferId;
+        bool _forward;
 
         public Texture[] Textures => _fullScreenQuad?.Program.Textures;
         public Texture DepthStencil => _fullScreenQuad?.Program.Textures[0];
@@ -28,18 +31,18 @@ namespace CustomEngine.Rendering
             DrawBuffersAttachment.ColorAttachment0, //AlbedoSpec
             DrawBuffersAttachment.ColorAttachment1, //Position
             DrawBuffersAttachment.ColorAttachment2, //Normal
-            DrawBuffersAttachment.ColorAttachment3, //Text
         };
 
-        public GBuffer(BoundingRectangle region)
+        public GBuffer(BoundingRectangle region, bool forward)
         {
+            _forward = forward;
             _fullScreenQuad = new PrimitiveManager(
                 PrimitiveData.FromQuads(Culling.Back, new PrimitiveBufferInfo(), 
                 VertexQuad.ZUpQuad(region)),
-                Material.GetGBufferMaterial(region.IntWidth, region.IntHeight));
+                Material.GetGBufferMaterial(region.IntWidth, region.IntHeight, forward));
             _fullScreenQuad.SettingUniforms += Engine.Renderer.Scene.SetUniforms;
             _camera = new OrthographicCamera();
-            _camera.SetCenteredStyle();
+            _camera.SetGraphStyle();
         }
         ~GBuffer()
         {
@@ -48,16 +51,26 @@ namespace CustomEngine.Rendering
 
         protected override void OnGenerated()
         {
-            Bind(FramebufferType.ReadWrite);
+            _renderBufferId = Engine.Renderer.CreateObjects(GenType.Renderbuffer, 1)[0];
+            Engine.Renderer.BindRenderBuffer(_renderBufferId);
+            Engine.Renderer.RenderbufferStorage(ERenderBufferStorage.Depth24Stencil8, _region.IntWidth, _region.IntHeight);
+            Engine.Renderer.FramebufferRenderBuffer(BindingId, EFramebufferAttachment.DepthStencilAttachment, _renderBufferId);
             
-            DepthStencil.AttachToFrameBuffer(EFramebufferTarget.Framebuffer, EFramebufferAttachment.DepthStencilAttachment);
-            AlbedoSpec.AttachToFrameBuffer(EFramebufferTarget.Framebuffer, EFramebufferAttachment.ColorAttachment0);
-            Positions.AttachToFrameBuffer(EFramebufferTarget.Framebuffer, EFramebufferAttachment.ColorAttachment1);
-            Normals.AttachToFrameBuffer(EFramebufferTarget.Framebuffer, EFramebufferAttachment.ColorAttachment2);
-            Text.AttachToFrameBuffer(EFramebufferTarget.Framebuffer, EFramebufferAttachment.ColorAttachment3);
+            DepthStencil.AttachToFrameBuffer(BindingId, EFramebufferAttachment.DepthStencilAttachment);
+            AlbedoSpec.AttachToFrameBuffer(BindingId, EFramebufferAttachment.ColorAttachment0);
+            //Text.AttachToFrameBuffer(BindingId, EFramebufferAttachment.ColorAttachment3);
+            if (!_forward)
+            {
+                Positions.AttachToFrameBuffer(BindingId, EFramebufferAttachment.ColorAttachment1);
+                Normals.AttachToFrameBuffer(BindingId, EFramebufferAttachment.ColorAttachment2);
+            }
 
-            Engine.Renderer.SetDrawBuffers(_attachments);
-            Unbind(FramebufferType.ReadWrite);
+            Engine.Renderer.SetDrawBuffers(BindingId, _attachments);
+        }
+        protected override void PostDeleted()
+        {
+            Engine.Renderer.DeleteObject(GenType.Renderbuffer, _renderBufferId);
+            base.PostDeleted();
         }
         public unsafe void SetRegion(BoundingRectangle region)
         {
@@ -71,10 +84,10 @@ namespace CustomEngine.Rendering
 
             VertexBuffer buffer = _fullScreenQuad.Data[0];
             Vec3* data = (Vec3*)buffer.Address;
-            data[0] = region.BottomLeft;
-            data[1] = region.BottomRight;
-            data[2] = region.TopLeft;
-            data[3] = region.TopRight;
+            data[0] = new Vec3(region.BottomLeft, 0.0f);
+            data[1] = new Vec3(region.BottomRight, 0.0f);
+            data[2] = new Vec3(region.TopLeft, 0.0f);
+            data[3] = new Vec3(region.TopRight, 0.0f);
 
             _camera.Resize(region.Width, region.Height);
         }

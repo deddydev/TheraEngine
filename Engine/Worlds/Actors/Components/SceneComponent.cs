@@ -21,7 +21,7 @@ namespace CustomEngine.Worlds.Actors
         }
 
         public event Action WorldTransformChanged;
-        protected void OnWorldTransformChanged()
+        protected virtual void OnWorldTransformChanged()
         {
             if (this is IPhysicsDrivable p)
                 p.PhysicsDriver?.SetPhysicsTransform(_worldTransform);

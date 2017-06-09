@@ -164,7 +164,10 @@ namespace System
             => frustum.Contains(this);
 
         public override void SetTransform(Matrix4 worldMatrix)
-            => _center = worldMatrix.GetPoint();
+        {
+            _center = worldMatrix.GetPoint();
+            base.SetTransform(worldMatrix);
+        }
         
         public override Shape HardCopy()
             => new Sphere(Radius, Center);

@@ -32,32 +32,32 @@ namespace CustomEngine.Rendering
             foreach (PointLightComponent l in _pointLights)
                 l.SetUniforms();
         }
-        public void Add(DirectionalLightComponent light)
+        internal void Add(DirectionalLightComponent light)
         {
             light.LightIndex = _directionalLights.Count;
             _directionalLights.Add(light);
         }
-        public void Remove(DirectionalLightComponent light)
+        internal void Remove(DirectionalLightComponent light)
         {
             _directionalLights.Remove(light);
             light.LightIndex = -1;
         }
-        public void Add(SpotLightComponent light)
+        internal void Add(SpotLightComponent light)
         {
             light.LightIndex = _spotLights.Count;
             _spotLights.Add(light);
         }
-        public void Remove(SpotLightComponent light)
+        internal void Remove(SpotLightComponent light)
         {
             _spotLights.Remove(light);
             light.LightIndex = -1;
         }
-        public void Add(PointLightComponent light)
+        internal void Add(PointLightComponent light)
         {
             light.LightIndex = _pointLights.Count;
             _pointLights.Add(light);
         }
-        public void Remove(PointLightComponent light)
+        internal void Remove(PointLightComponent light)
         {
             _pointLights.Remove(light);
             light.LightIndex = -1;

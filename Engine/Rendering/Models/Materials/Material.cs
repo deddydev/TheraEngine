@@ -136,7 +136,7 @@ namespace CustomEngine.Rendering.Models.Materials
             return new Material("TestMaterial", parameters, refs, frag);
         }
 
-        internal static Material GetGBufferMaterial(int width, int height, bool forward)
+        internal static Material GetGBufferMaterial(int width, int height, bool forward, GBuffer buffer)
         {
             //These are listed in order of appearance in the shader
             List<TextureReference> refs = forward ?
@@ -147,6 +147,8 @@ namespace CustomEngine.Rendering.Models.Materials
                     {
                         MinFilter = MinFilter.Nearest,
                         MagFilter = MagFilter.Nearest,
+                        UWrap = TexCoordWrap.Clamp,
+                        VWrap = TexCoordWrap.Clamp,
                     },
                 }
                 :
@@ -157,30 +159,40 @@ namespace CustomEngine.Rendering.Models.Materials
                     {
                         MinFilter = MinFilter.Nearest,
                         MagFilter = MagFilter.Nearest,
+                        UWrap = TexCoordWrap.Clamp,
+                        VWrap = TexCoordWrap.Clamp,
                     },
                     new TextureReference("Position", width, height,
                         EPixelInternalFormat.Rgb32f, EPixelFormat.Rgb, EPixelType.Float)
                     {
                         MinFilter = MinFilter.Nearest,
                         MagFilter = MagFilter.Nearest,
+                        UWrap = TexCoordWrap.Clamp,
+                        VWrap = TexCoordWrap.Clamp,
                     },
-                    new TextureReference("Normal", width, height, 
+                    new TextureReference("Normal", width, height,
                         EPixelInternalFormat.Rgb32f, EPixelFormat.Rgb, EPixelType.Float)
                     {
                         MinFilter = MinFilter.Nearest,
                         MagFilter = MagFilter.Nearest,
+                        UWrap = TexCoordWrap.Clamp,
+                        VWrap = TexCoordWrap.Clamp,
                     },
-                    new TextureReference("Text", width, height, 
-                        EPixelInternalFormat.Rgba8, EPixelFormat.Bgra, EPixelType.UnsignedByte, System.Drawing.Imaging.PixelFormat.Format32bppArgb)
+                    //new TextureReference("Text", width, height,
+                    //    EPixelInternalFormat.Rgba8, EPixelFormat.Bgra, EPixelType.UnsignedByte)
+                    //{
+                    //    MinFilter = MinFilter.Nearest,
+                    //    MagFilter = MagFilter.Nearest,
+                    //    UWrap = TexCoordWrap.Clamp,
+                    //    VWrap = TexCoordWrap.Clamp,
+                    //},
+                    new TextureReference("Depth", width, height,
+                        EPixelInternalFormat.DepthComponent24, EPixelFormat.DepthComponent, EPixelType.Float)
                     {
                         MinFilter = MinFilter.Nearest,
                         MagFilter = MagFilter.Nearest,
-                    },
-                    new TextureReference("DepthStencil", width, height,
-                        EPixelInternalFormat.Depth24Stencil8, EPixelFormat.DepthStencil, EPixelType.UnsignedInt248)
-                    {
-                        MinFilter = MinFilter.Nearest,
-                        MagFilter = MagFilter.Nearest,
+                        UWrap = TexCoordWrap.Clamp,
+                        VWrap = TexCoordWrap.Clamp,
                     },
                 };
             Shader frag = Shader.GBufferShader();
@@ -188,9 +200,9 @@ namespace CustomEngine.Rendering.Models.Materials
             {
                 //TODO: post process parameters here
                 //PostProcessSettings
-                new GLVec4((ColorF4)Color.Transparent, "Vignette.Color"),
-                new GLFloat(0.0f, "DOF.NearDistance"),
-                new GLFloat(0.0f, "DOF.FarDistance"),
+                //new GLVec4((ColorF4)Color.Transparent, "Vignette.Color"),
+                //new GLFloat(0.0f, "DOF.NearDistance"),
+                //new GLFloat(0.0f, "DOF.FarDistance"),
             };
             return new Material("GBufferMaterial", parameters, refs, frag);
         }

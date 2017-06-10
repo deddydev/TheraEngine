@@ -39,12 +39,14 @@ namespace CustomEngine.Rendering
         public Viewport CurrentlyRenderingViewport => Viewport.CurrentlyRendering;
 
         protected static MeshProgram _currentMeshProgram;
-        protected static PrimitiveManager _currentPrimitiveManager;
+        protected static IPrimitiveManager _currentPrimitiveManager;
         protected static Dictionary<int, Material> _activeMaterials = new Dictionary<int, Material>();
         protected static SceneProcessor _scene = new SceneProcessor();
-        protected static Dictionary<string, PrimitiveManager> _debugPrimitives = new Dictionary<string, PrimitiveManager>();
+        protected static Dictionary<string, IPrimitiveManager> _debugPrimitives = new Dictionary<string, IPrimitiveManager>();
         protected static PrivateFontCollection _fonts;
         private Stack<BoundingRectangle> _renderAreaStack = new Stack<BoundingRectangle>();
+
+        public abstract void SetActiveTexture(int unit);
 
         #region Debug Primitives
 
@@ -77,7 +79,7 @@ namespace CustomEngine.Rendering
             SolidCone,
         }
 
-        public PrimitiveManager CacheDebugPrimitive(string name, DebugPrimitiveType type)
+        public IPrimitiveManager CacheDebugPrimitive(string name, DebugPrimitiveType type)
         {
             if (_debugPrimitives.ContainsKey(name))
                 return _debugPrimitives[name];
@@ -158,14 +160,14 @@ namespace CustomEngine.Rendering
         public virtual void RenderPoint(string name, Vec3 position, ColorF4 color, float pointSize = DefaultPointSize)
         {
             SetPointSize(pointSize);
-            PrimitiveManager m = CacheDebugPrimitive(name, DebugPrimitiveType.Point);
+            IPrimitiveManager m = CacheDebugPrimitive(name, DebugPrimitiveType.Point);
             m.Parameter<GLVec4>(0).Value = color;
             m.Render(Matrix4.CreateTranslation(position));
         }
         public virtual unsafe void RenderLine(string name, Vec3 start, Vec3 end, ColorF4 color, float lineWidth = DefaultLineSize)
         {
             SetLineSize(lineWidth);
-            PrimitiveManager m = CacheDebugPrimitive(name, DebugPrimitiveType.Line);
+            IPrimitiveManager m = CacheDebugPrimitive(name, DebugPrimitiveType.Line);
             m.Parameter<GLVec4>(0).Value = color;
             ((Vec3*)m.Data[0].Address)[1] = end - start;
             m.Render(Matrix4.CreateTranslation(start), Matrix3.Identity);
@@ -173,7 +175,7 @@ namespace CustomEngine.Rendering
         public virtual void RenderQuad(string name, Vec3 position, Vec3 normal, Vec2 halfExtents, bool solid, float lineWidth = DefaultLineSize)
         {
             SetLineSize(lineWidth);
-            PrimitiveManager m = CacheDebugPrimitive(name, solid ? DebugPrimitiveType.SolidQuad : DebugPrimitiveType.WireQuad);
+            IPrimitiveManager m = CacheDebugPrimitive(name, solid ? DebugPrimitiveType.SolidQuad : DebugPrimitiveType.WireQuad);
             Quat lookat = Quat.BetweenVectors(Vec3.Up, normal);
             Matrix4 mtx = Matrix4.CreateTranslation(position) * Matrix4.CreateFromQuaternion(lookat) * Matrix4.CreateScale(halfExtents.X, 1.0f, halfExtents.Y);
             m.Render(mtx, mtx.Inverted().Transposed().GetRotationMatrix3());
@@ -183,7 +185,7 @@ namespace CustomEngine.Rendering
             SetLineSize(lineWidth);
             //radius doesn't need to be multiplied by 2.0f; the sphere is already 2.0f in diameter
             Matrix4 mtx = Matrix4.CreateTranslation(center) * Matrix4.CreateScale(radius);
-            PrimitiveManager m = CacheDebugPrimitive(name, solid ? DebugPrimitiveType.SolidSphere : DebugPrimitiveType.WireSphere);
+            IPrimitiveManager m = CacheDebugPrimitive(name, solid ? DebugPrimitiveType.SolidSphere : DebugPrimitiveType.WireSphere);
             m.Parameter<GLVec4>(0).Value = color;
             m.Render(mtx, Matrix3.Identity);
         }
@@ -192,7 +194,7 @@ namespace CustomEngine.Rendering
         public virtual void RenderBox(string name, Vec3 halfExtents, Matrix4 transform, bool solid, ColorF4 color, float lineWidth = DefaultLineSize)
         {
             SetLineSize(lineWidth);
-            PrimitiveManager m = CacheDebugPrimitive(name, solid ? DebugPrimitiveType.SolidBox : DebugPrimitiveType.WireBox);
+            IPrimitiveManager m = CacheDebugPrimitive(name, solid ? DebugPrimitiveType.SolidBox : DebugPrimitiveType.WireBox);
             m.Parameter<GLVec4>(0).Value = color;
             //halfExtents doesn't need to be multiplied by 2.0f; the box is already 1.0f in each direction of each dimension (2.0f extents)
             transform = transform * Matrix4.CreateScale(halfExtents);
@@ -201,7 +203,7 @@ namespace CustomEngine.Rendering
         public void RenderCapsule(string name, Matrix4 transform, Vec3 localUpAxis, float radius, float halfHeight, bool solid, ColorF4 color, float lineWidth = DefaultLineSize)
         {
             SetLineSize(lineWidth);
-            PrimitiveManager mCyl = null, mTop = null, mBot = null;
+            IPrimitiveManager mCyl = null, mTop = null, mBot = null;
             string cylStr = name + "_CYLINDER";
             string topStr = name + "_TOPHALF";
             string botStr = name + "_BOTTOMHALF";
@@ -269,19 +271,19 @@ namespace CustomEngine.Rendering
             _activeMaterials.Remove(material.BindingId);
         }
 
-        public virtual void BindPrimitiveManager(PrimitiveManager manager)
+        public virtual void BindPrimitiveManager(IPrimitiveManager manager)
         {
             _currentPrimitiveManager = manager;
         }
-        public void RenderPrimitiveManager(PrimitiveManager manager, bool preservePreviouslyBound = true)
+        public void RenderPrimitiveManager(IPrimitiveManager manager, bool preservePreviouslyBound = true)
         {
-            PrimitiveManager prev = _currentPrimitiveManager;
+            IPrimitiveManager prev = _currentPrimitiveManager;
             BindPrimitiveManager(manager);
             RenderCurrentPrimitiveManager();
             BindPrimitiveManager(preservePreviouslyBound ? prev : null);
         }
         public abstract void RenderCurrentPrimitiveManager();
-        public abstract void LinkRenderIndices(PrimitiveManager manager, VertexBuffer indexBuffer);
+        public abstract void LinkRenderIndices(IPrimitiveManager manager, VertexBuffer indexBuffer);
         public abstract void InitializeBuffer(VertexBuffer buffer);
         public abstract void PushBufferData(VertexBuffer buffer);
         public abstract void MapBufferData(VertexBuffer buffer);
@@ -514,13 +516,14 @@ namespace CustomEngine.Rendering
 
         #region Frame Buffers
         public abstract void AttachTextureToFrameBuffer(int frameBufferBindingId, EFramebufferAttachment attachment, int textureBindingId, int mipLevel);
+        public abstract void AttachTextureToFrameBuffer(EFramebufferTarget target, EFramebufferAttachment attachment, ETexTarget texTarget, int textureBindingId, int mipLevel);
         public abstract void SetDrawBuffer(DrawBuffersAttachment attachment);
         public abstract void SetDrawBuffer(int bindingId, DrawBuffersAttachment attachment);
         public abstract void SetDrawBuffers(DrawBuffersAttachment[] attachments);
         public abstract void SetDrawBuffers(int bindingId, DrawBuffersAttachment[] attachments);
         public abstract void SetReadBuffer(DrawBuffersAttachment attachment);
         public abstract void SetReadBuffer(int bindingId, DrawBuffersAttachment attachment);
-        public abstract void BindFrameBuffer(EFramebufferType type, int bindingId);
+        public abstract void BindFrameBuffer(EFramebufferTarget type, int bindingId);
         public abstract void BindRenderBuffer(int bindingId);
         public abstract void RenderbufferStorage(ERenderBufferStorage storage, int width, int height);
         public abstract void FramebufferRenderBuffer(EFramebufferTarget target, EFramebufferAttachment attachement, int renderBufferBindingId);
@@ -622,12 +625,6 @@ namespace CustomEngine.Rendering
         Rgb8i = 36239,
         Rgb10A2ui = 36975
     }
-    public enum EFramebufferType
-    {
-        Read,
-        Write,
-        ReadWrite,
-    }
     public enum FeedbackPrimitiveType
     {
         Points,
@@ -666,24 +663,5 @@ namespace CustomEngine.Rendering
         TriangleFan     = 6,
         Quads           = 7,
         QuadStrip       = 8,
-    }
-    public enum DrawBuffersAttachment : ushort
-    {
-        ColorAttachment0,
-        ColorAttachment1,
-        ColorAttachment2,
-        ColorAttachment3,
-        ColorAttachment4,
-        ColorAttachment5,
-        ColorAttachment6,
-        ColorAttachment7,
-        ColorAttachment8,
-        ColorAttachment9,
-        ColorAttachment10,
-        ColorAttachment11,
-        ColorAttachment12,
-        ColorAttachment13,
-        ColorAttachment14,
-        ColorAttachment15,
     }
 }

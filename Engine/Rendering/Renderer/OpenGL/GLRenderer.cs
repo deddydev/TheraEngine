@@ -1,6 +1,7 @@
 ﻿using CustomEngine.Rendering.Animation;
 using CustomEngine.Rendering.Models;
 using CustomEngine.Rendering.Models.Materials;
+using CustomEngine.Rendering.Textures;
 using OpenTK.Graphics.OpenGL;
 using System;
 using System.Collections.Generic;
@@ -268,49 +269,49 @@ namespace CustomEngine.Rendering.OpenGL
             //Have to bind 'in' attributes before linking
             int j = (int)BufferType.Position * VertexBuffer.MaxBufferCountPerType;
             for (int i = 0; i < info._morphCount + 1; ++i, ++j)
-                GL.BindAttribLocation(handle, j, "Position" + i);
+                GL.BindAttribLocation(handle, j, BufferType.Position.ToString() + i);
 
             if (info.HasNormals)
             {
                 j = (int)BufferType.Normal * VertexBuffer.MaxBufferCountPerType;
                 for (int i = 0; i < info._morphCount + 1; ++i, ++j)
-                    GL.BindAttribLocation(handle, j, "Normal" + i);
+                    GL.BindAttribLocation(handle, j, BufferType.Normal.ToString() + i);
             }
             if (info.HasBinormals)
             {
                 j = (int)BufferType.Binormal * VertexBuffer.MaxBufferCountPerType;
                 for (int i = 0; i < info._morphCount + 1; ++i, ++j)
-                    GL.BindAttribLocation(handle, j, "Binormal" + i);
+                    GL.BindAttribLocation(handle, j, BufferType.Binormal.ToString() + i);
             }
             if (info.HasTangents)
             {
                 j = (int)BufferType.Tangent * VertexBuffer.MaxBufferCountPerType;
                 for (int i = 0; i < info._morphCount + 1; ++i, ++j)
-                    GL.BindAttribLocation(handle, j, "Tangent" + i);
+                    GL.BindAttribLocation(handle, j, BufferType.Tangent.ToString() + i);
             }
             j = (int)BufferType.Color * VertexBuffer.MaxBufferCountPerType;
             for (int i = 0; i < info._colorCount; ++i, ++j)
-                GL.BindAttribLocation(handle, j, "Color" + i);
+                GL.BindAttribLocation(handle, j, BufferType.Color.ToString() + i);
 
             j = (int)BufferType.TexCoord * VertexBuffer.MaxBufferCountPerType;
             for (int i = 0; i < info._texcoordCount; ++i, ++j)
-                GL.BindAttribLocation(handle, j, "MultiTexCoord" + i);
+                GL.BindAttribLocation(handle, j, BufferType.TexCoord.ToString() + i);
 
             if (info.IsWeighted)
             {
                 j = (int)BufferType.MatrixIds * VertexBuffer.MaxBufferCountPerType;
                 for (int i = 0; i < info._morphCount + 1; ++i, ++j)
-                    GL.BindAttribLocation(handle, j, "MatrixIds" + i);
+                    GL.BindAttribLocation(handle, j, BufferType.MatrixIds.ToString() + i);
 
                 j = (int)BufferType.MatrixWeights * VertexBuffer.MaxBufferCountPerType;
                 for (int i = 0; i < info._morphCount + 1; ++i, ++j)
-                    GL.BindAttribLocation(handle, j, "MatrixWeights" + i);
+                    GL.BindAttribLocation(handle, j, BufferType.MatrixWeights.ToString() + i);
             }
 
             if (info._hasBarycentricCoord)
             {
                 j = (int)BufferType.Barycentric * VertexBuffer.MaxBufferCountPerType;
-                GL.BindAttribLocation(handle, j++, "Barycentric");
+                GL.BindAttribLocation(handle, j++, BufferType.Barycentric.ToString());
             }
 
             GL.LinkProgram(handle);
@@ -324,6 +325,10 @@ namespace CustomEngine.Rendering.OpenGL
 
             return handle;
         }
+        public override void SetActiveTexture(int unit)
+        {
+            GL.ActiveTexture(TextureUnit.Texture0 + unit.Clamp(0, 31));
+        }
         public override void UseProgram(MeshProgram program)
         {
             GL.UseProgram(program != null ? program.BindingId : BaseRenderState.NullBindingId);
@@ -333,12 +338,7 @@ namespace CustomEngine.Rendering.OpenGL
                 if (_currentMeshProgram.Textures.Length > 0)
                 {
                     GL.Enable(EnableCap.Texture2D);
-                    for (int i = 0; i < _currentMeshProgram.Textures.Length; ++i)
-                    {
-                        GL.ActiveTexture(TextureUnit.Texture0 + i);
-                        Uniform("Texture" + i, i);
-                        _currentMeshProgram.Textures[i].Bind();
-                    }
+                    program.BindTextures();
                 }
                 else
                     GL.Disable(EnableCap.Texture2D);
@@ -505,29 +505,33 @@ namespace CustomEngine.Rendering.OpenGL
         {
             GL.NamedFramebufferTexture(frameBufferBindingId, (FramebufferAttachment)(int)attachment, textureBindingId, mipLevel);
         }
+        public override void AttachTextureToFrameBuffer(EFramebufferTarget target, EFramebufferAttachment attachment, ETexTarget texTarget, int textureBindingId, int mipLevel)
+        {
+            GL.FramebufferTexture2D((FramebufferTarget)(int)target, (FramebufferAttachment)(int)attachment, (TextureTarget)(int)texTarget, textureBindingId, mipLevel);
+        }
         public override void SetDrawBuffer(DrawBuffersAttachment attachment)
         {
-            GL.DrawBuffer(DrawBufferMode.ColorAttachment0 + (int) attachment);
+            GL.DrawBuffer((DrawBufferMode)(int)attachment);
         }
         public override void SetDrawBuffer(int bindingId, DrawBuffersAttachment attachment)
         {
-            GL.NamedFramebufferDrawBuffer(bindingId, DrawBufferMode.ColorAttachment0 + (int)attachment);
+            GL.NamedFramebufferDrawBuffer(bindingId, (DrawBufferMode)(int)attachment);
         }
         public override void SetReadBuffer(DrawBuffersAttachment attachment)
         {
-            GL.ReadBuffer(ReadBufferMode.ColorAttachment0 + (int) attachment);
+            GL.ReadBuffer((ReadBufferMode)(int)attachment);
         }
         public override void SetReadBuffer(int bindingId, DrawBuffersAttachment attachment)
         {
-            GL.NamedFramebufferReadBuffer(bindingId, ReadBufferMode.ColorAttachment0 + (int)attachment);
+            GL.NamedFramebufferReadBuffer(bindingId, (ReadBufferMode)(int)attachment);
         }
         public override void SetDrawBuffers(DrawBuffersAttachment[] attachments)
         {
-            GL.DrawBuffers(attachments.Length, attachments.Select(x => (DrawBuffersEnum)x.Convert(typeof(DrawBuffersEnum))).ToArray());
+            GL.DrawBuffers(attachments.Length, attachments.Select(x => (DrawBuffersEnum)(int)x).ToArray());
         }
         public override void SetDrawBuffers(int bindingId, DrawBuffersAttachment[] attachments)
         {
-            GL.NamedFramebufferDrawBuffers(bindingId, attachments.Length, attachments.Select(x => (DrawBuffersEnum)x.Convert(typeof(DrawBuffersEnum))).ToArray());
+            GL.NamedFramebufferDrawBuffers(bindingId, attachments.Length, attachments.Select(x => (DrawBuffersEnum)(int)x).ToArray());
         }
         public override void BindRenderBuffer(int bindingId)
         {
@@ -577,20 +581,9 @@ namespace CustomEngine.Rendering.OpenGL
                 dstX1, dstY1,
                 maskgl, filtergl);
         }
-        public override void BindFrameBuffer(EFramebufferType type, int bindingId)
+        public override void BindFrameBuffer(EFramebufferTarget type, int bindingId)
         {
-            switch (type)
-            {
-                case EFramebufferType.ReadWrite:
-                    GL.BindFramebuffer(FramebufferTarget.Framebuffer, bindingId);
-                    break;
-                case EFramebufferType.Read:
-                    GL.BindFramebuffer(FramebufferTarget.ReadFramebuffer, bindingId);
-                    break;
-                case EFramebufferType.Write:
-                    GL.BindFramebuffer(FramebufferTarget.DrawFramebuffer, bindingId);
-                    break;
-            }
+            GL.BindFramebuffer((FramebufferTarget)type, bindingId);
         }
         #endregion
 
@@ -776,7 +769,7 @@ namespace CustomEngine.Rendering.OpenGL
             //GL.UnmapBuffer(buffer._target);
             GL.UnmapNamedBuffer(buffer.BindingId);
         }
-        public override void BindPrimitiveManager(PrimitiveManager manager)
+        public override void BindPrimitiveManager(IPrimitiveManager manager)
         {
             GL.BindVertexArray(manager == null ? 0 : manager.BindingId);
             base.BindPrimitiveManager(manager);
@@ -784,7 +777,7 @@ namespace CustomEngine.Rendering.OpenGL
         /// <summary>
         /// REQUIRES OPENGL V4.5
         /// </summary>
-        public override void LinkRenderIndices(PrimitiveManager manager, VertexBuffer indexBuffer)
+        public override void LinkRenderIndices(IPrimitiveManager manager, VertexBuffer indexBuffer)
         {
             if (indexBuffer._target != EBufferTarget.DrawIndices)
                 throw new Exception("IndexBuffer needs target type of " + EBufferTarget.DrawIndices.ToString() + ".");
@@ -795,8 +788,8 @@ namespace CustomEngine.Rendering.OpenGL
             if (_currentPrimitiveManager != null)
                 GL.DrawElements(
                     PrimitiveType.Points + (int)_currentPrimitiveManager.Data._type,
-                    _currentPrimitiveManager._indexBuffer.ElementCount,
-                    DrawElementsType.UnsignedByte + (int)_currentPrimitiveManager._elementType,
+                    _currentPrimitiveManager.IndexBuffer.ElementCount,
+                    DrawElementsType.UnsignedByte + (int)_currentPrimitiveManager.ElementType,
                     0);
 
         }

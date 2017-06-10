@@ -2,22 +2,23 @@
 using CustomEngine.Rendering.Models.Materials;
 using CustomEngine.Rendering.Textures;
 using System.Linq;
+using System;
 
 namespace CustomEngine.Rendering
 {
     public class MeshProgram : BaseRenderState
     {
-        private Shader 
+        protected Shader 
             _vertexShader, 
             _fragmentShader, 
             _geometryShader,
             _tControlShader,
             _tEvalShader;
 
-        private GLVar[] _parameters;
-        private Texture[] _textures;
-        private Shader[] _shaders;
-        private PrimitiveBufferInfo _info;
+        protected GLVar[] _parameters;
+        protected Texture[] _textures;
+        protected Shader[] _shaders;
+        protected PrimitiveBufferInfo _info;
 
         public GLVar[] Parameters => _parameters;
         public Texture[] Textures => _textures;
@@ -67,18 +68,23 @@ namespace CustomEngine.Rendering
                 v.SetUniform();
         }
 
-        public void SetMaterial(Material material)
+        public virtual void SetMaterial(Material material)
         {
             _parameters = material.Parameters.ToArray();
-            _textures = material.Textures.Select(x => x.GetTexture()).ToArray();
+            _textures = new Texture[material.Textures.Count];
+            for (int i = 0; i < material.Textures.Count; ++i)
+            {
+                Texture t = material.Textures[i].GetTexture();
+                t.Index = i;
+                _textures[i] = t;
+            }
             _fragmentShader = material._fragmentShader;
             _geometryShader = material._geometryShader;
             _tControlShader = material._tessellationControlShader;
             _tEvalShader = material._tessellationEvaluationShader;
             RemakeShaderArray();
         }
-
-        private void RemakeShaderArray()
+        protected void RemakeShaderArray()
         {
             _shaders = new Shader[]
             {
@@ -88,6 +94,15 @@ namespace CustomEngine.Rendering
                 _tControlShader,
                 _tEvalShader
             };
+        }
+        protected internal virtual void BindTextures()
+        {
+            for (int i = 0; i < Textures.Length; ++i)
+            {
+                Engine.Renderer.SetActiveTexture(i);
+                Engine.Renderer.Uniform("Texture" + i, i);
+                Textures[i].Bind();
+            }
         }
     }
 }

@@ -43,8 +43,8 @@ namespace System
         
         public void Cull(Frustum frustum) { _head?.Cull(frustum); }
         public ThreadSafeList<T> FindClosest(Vec3 point) { return _head.FindClosest(point); }
-        public ThreadSafeList<T> FindAllJustOutside(Shape shape) { return _head.FindAllJustOutside(shape); }
-        public ThreadSafeList<T> FindAllInside(Shape shape) { return _head.FindAllInside(shape); }
+        //public ThreadSafeList<T> FindAllJustOutside(Shape shape) { return _head.FindAllOutside(shape); }
+        //public ThreadSafeList<T> FindAllInside(Shape shape) { return _head.FindAllInside(shape); }
         public void Add(T value)
         {
             if (_head == null)
@@ -77,13 +77,17 @@ namespace System
             private bool _visible = true;
             private BoundingBox _bounds;
             public ThreadSafeList<T> _items = new ThreadSafeList<T>();
-            public Node[] _subNodes;
+            public Node[] _subNodes = new Node[8];
             public Node _parentNode;
             object _lock = new object();
 
+            //Backlog for adding and removing items when other threads are currently looping
             ConcurrentQueue<Tuple<bool, T>> _itemQueue = new ConcurrentQueue<Tuple<bool, T>>();
+            //Backlog for setting sub nodes when other threads are currently looping
+            ConcurrentQueue<Tuple<int, Node>> _subNodeQueue = new ConcurrentQueue<Tuple<int, Node>>();
             private bool _isLoopingItems = false;
-
+            private bool _isLoopingSubNodes = false;
+            
             private bool IsLoopingItems
             {
                 get => _isLoopingItems;
@@ -97,6 +101,16 @@ namespace System
                         else
                             _items.Remove(result.Item2);
                     }
+                }
+            }
+            private bool IsLoopingSubNodes
+            {
+                get => _isLoopingSubNodes;
+                set
+                {
+                    _isLoopingSubNodes = value;
+                    while (!_isLoopingSubNodes && !_subNodeQueue.IsEmpty && _subNodeQueue.TryDequeue(out Tuple<int, Node> result))
+                        _subNodes[result.Item1] = result.Item2;
                 }
             }
 
@@ -114,6 +128,7 @@ namespace System
                     if (_visible == value)
                         return;
                     _visible = value;
+
                     try
                     {
                         IsLoopingItems = true;
@@ -123,25 +138,36 @@ namespace System
                     }
                     catch
                     {
-
+                        Debug.WriteLine("OCTREE: Error looping through items to set visibility");
                     }
                     finally
                     {
                         IsLoopingItems = false;
                     }
-                    if (_subNodes != null)
+
+                    try
+                    {
+                        IsLoopingSubNodes = true;
                         foreach (Node node in _subNodes)
                             if (node != null)
                                 node.Visible = _visible;
+                    }
+                    catch
+                    {
+                        Debug.WriteLine("OCTREE: Error looping through sub nodes to set visibility");
+                    }
+                    finally
+                    {
+                        IsLoopingSubNodes = false;
+                    }
                 }
             }
 
             public void DebugRender()
             {
                 Engine.Renderer.RenderAABB("OctSubDiv" + _subDivLevel + "-" + _subDivIndex, _bounds.HalfExtents, _bounds.Translation, false, Color.Gray, 5.0f);
-                if (_subNodes != null)
-                    foreach (Node n in _subNodes)
-                        n?.DebugRender();
+                foreach (Node n in _subNodes)
+                    n?.DebugRender();
             }
             public void ItemMoved(I3DBoundable item) => ItemMoved((T)item);
             public void ItemMoved(T item)
@@ -220,14 +246,28 @@ namespace System
                 if (_bounds.Contains(point))
                 {
                     ThreadSafeList<T> list = null;
-                    if (_subNodes != null)
-                        foreach (Node node in _subNodes)
-                            if (node != null)
-                            {
-                                list = node.FindClosest(point);
-                                if (list != null)
-                                    return list;
-                            }
+                    lock (_lock)
+                    {
+                        IsLoopingItems = true;
+                        try
+                        {
+                            foreach (Node node in _subNodes)
+                                if (node != null)
+                                {
+                                    list = node.FindClosest(point);
+                                    if (list != null)
+                                        return list;
+                                }
+                        }
+                        catch
+                        {
+                            Debug.WriteLine("OCTREE: Error looping through items to find closest to point");
+                        }
+                        finally
+                        {
+                            IsLoopingItems = false;
+                        }
+                    }
 
                     if (_items.Count == 0)
                         return null;
@@ -242,18 +282,11 @@ namespace System
                 else
                     return null;
             }
-            public ThreadSafeList<T> FindAllJustOutside(Shape shape)
-            {
-                foreach (Node node in _subNodes)
-                    if (node != null)
-                    {
-                        EContainment c = shape.ContainedWithin(node._bounds);
-                        if (c == EContainment.Contains)
-                            return node.FindAllJustOutside(shape);
-                    }
-
-                return CollectChildren();
-            }
+            //public ThreadSafeList<T> FindAllInside(Shape shape)
+            //{
+            //    if (shape.ContainedWithin(Bounds) == EContainment.Disjoint)
+            //        return null;
+            //}
             public ThreadSafeList<T> CollectChildren()
             {
                 ThreadSafeList<T> list = new ThreadSafeList<T>(_items);
@@ -261,10 +294,6 @@ namespace System
                     if (node != null)
                         list.AddRange(node.CollectChildren());
                 return list;
-            }
-            public ThreadSafeList<T> FindAllInside(Shape shape)
-            {
-                throw new NotImplementedException();
             }
             public void Cull(Frustum frustum)
             {
@@ -275,34 +304,36 @@ namespace System
                     Visible = false;
                 else
                 {
-                    //lock (_lock)
-                    //{
-                    //    IsLoopingItems = true;
-                    //    try
-                    //    {
-                    //        //Bounds is intersecting edge of frustum
-                    //        //for (int i = 0; i < _items.Count; ++i)
-                    //        foreach (T item in _items)
-                    //        {
-                    //            //if (i >= _items.Count)
-                    //            //    break;
+                    IsLoopingItems = true;
+                    try
+                    {
+                        //Bounds is intersecting edge of frustum
+                        foreach (T item in _items)
+                            item.IsRendering = item.CullingVolume != null ? item.CullingVolume.ContainedWithin(frustum) != EContainment.Disjoint : true;
+                    }
+                    catch
+                    {
+                        Debug.WriteLine("OCTREE: Error looping through items to cull");
+                    }
+                    finally
+                    {
+                        IsLoopingItems = false;
+                    }
 
-                    //            //T item = _items[i];
-                    //            //if (item == null)
-                    //            //    _items.RemoveAt(i--);
-                    //            //else
-                    //                item.IsRendering = item.CullingVolume != null ? item.CullingVolume.ContainedWithin(frustum) != EContainment.Disjoint : true;
-                    //        }
-                    //    }
-                    //    finally
-                    //    {
-                    //        IsLoopingItems = false;
-                    //    }
-                    //}
-
-                    if (_subNodes != null)
+                    IsLoopingSubNodes = true;
+                    try
+                    {
                         foreach (Node n in _subNodes)
                             n?.Cull(frustum);
+                    }
+                    catch
+                    {
+                        Debug.WriteLine("OCTREE: Error looping through sub nodes to cull");
+                    }
+                    finally
+                    {
+                        IsLoopingSubNodes = false;
+                    }
                 }
             }
             /// <summary>
@@ -317,14 +348,14 @@ namespace System
             internal bool Remove(T value, out bool shouldDestroy)
             {
                 bool hasBeenRemoved = false;
+                bool anyNotNull = false;
                 if (_items.Contains(value))
                 {
                     QueueRemove(value);
                     hasBeenRemoved = true;
                 }
-                else if (_subNodes != null)
+                else
                 {
-                    bool anyNotNull = false;
                     for (int i = 0; i < 8; ++i)
                     {
                         Node node = _subNodes[i];
@@ -344,10 +375,10 @@ namespace System
                             }
                         }
                     }
-                    if (!anyNotNull)
-                        _subNodes = null;
+                    //if (!anyNotNull)
+                    //    _subNodes = null;
                 }
-                shouldDestroy = _items.Count == 0 && _subNodes == null;
+                shouldDestroy = _items.Count == 0 && !anyNotNull;
                 return hasBeenRemoved;
             }
             public bool Add(List<T> items, bool force = false)
@@ -438,12 +469,16 @@ namespace System
             public BoundingBox GetSubdivision(int index)
             {
                 //IsLoopingItems = true;
-                Node[] subNodes = _subNodes;
-                Node node;
-                if (subNodes != null && (node = subNodes[index]) != null)
+                //Node[] subNodes = _subNodes;
+                //Node node;
+                lock (_lock)
                 {
-                    //IsLoopingItems = false;
-                    return node.Bounds;
+                    Node node = _subNodes[index];
+                    if (node != null)
+                    {
+                        //IsLoopingItems = false;
+                        return node.Bounds;
+                    }
                 }
 
                 Vec3 center = Center;
@@ -485,19 +520,17 @@ namespace System
                        _subNodes[index] != null)
                     {
                         _subNodes[index] = null;
-                        if (!_subNodes.Any(x => x != null))
-                            _subNodes = null;
+                        //if (!_subNodes.Any(x => x != null))
+                        //    _subNodes = null;
                     }
                 }
             }
             private bool HasNoSubNodesExcept(int index)
             {
-                if (_subNodes == null)
-                    return true;
                 lock (_lock)
                 {
                     for (int i = 0; i < 8; ++i)
-                        if (i != index && _subNodes[i] != null)
+                        if (_subNodes[i] == null && i != index)
                             return false;
                 }
                 return true;
@@ -506,10 +539,10 @@ namespace System
             {
                 lock (_lock)
                 {
-                    Node[] subNodes = _subNodes;
-                    if (subNodes == null)
-                        subNodes = new Node[8];
-                    else if (subNodes[index] != null)
+                    //if (_subNodes == null)
+                    //    _subNodes = new Node[8];
+                    //else 
+                    if (_subNodes[index] != null)
                         return;
 
                     Node node = bounds;
@@ -517,8 +550,7 @@ namespace System
                     node._subDivIndex = index;
                     node._subDivLevel = _subDivLevel + 1;
                     node._parentNode = this;
-                    subNodes[index] = node;
-                    _subNodes = subNodes;
+                    _subNodes[index] = node;
                 }
             }
             public static implicit operator Node(BoundingBox bounds) { return new Node(bounds); }

@@ -2,10 +2,7 @@
 using CustomEngine.Rendering.Cameras;
 using CustomEngine.Rendering.HUD;
 using CustomEngine.Rendering.Textures;
-using CustomEngine.Worlds;
 using CustomEngine.Worlds.Actors;
-using CustomEngine.Worlds.Actors.Types;
-using FreeImageAPI;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -137,7 +134,7 @@ namespace CustomEngine.Rendering
 
             _worldCamera?.Resize(Width, Height);
             _hud.Resize(_region.Bounds);
-            _gBuffer?.SetRegion(_region);
+            _gBuffer?.Resize(_region.IntWidth, _region.IntHeight);
         }
         public void DebugPrint(string message)
         {
@@ -246,16 +243,16 @@ namespace CustomEngine.Rendering
             //_text.Clear();
 
             //We want to render to GBuffer textures
-            //_gBuffer.Bind(EFramebufferType.ReadWrite);
+            _gBuffer.Bind(EFramebufferTarget.Framebuffer);
 
-            ////Render scene
-            //Engine.Renderer.Clear(BufferClear.Color | BufferClear.Depth);
-            //scene.Render(_worldCamera, true);
+            //Render scene
+            Engine.Renderer.Clear(BufferClear.Color | BufferClear.Depth);
+            scene.Render(_worldCamera, true);
 
-            ////We want to render to back buffer now
-            //Engine.Renderer.BindFrameBuffer(EFramebufferType.ReadWrite, 0);
-
-            //Engine.Renderer.Clear(BufferClear.Color);
+            //We want to render to back buffer now
+            _gBuffer.Unbind(EFramebufferTarget.Framebuffer);
+            
+            Engine.Renderer.Clear(BufferClear.Color);
 
             //Render quad
             _gBuffer.Render();

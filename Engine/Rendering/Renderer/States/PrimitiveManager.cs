@@ -18,27 +18,59 @@ namespace CustomEngine.Rendering.Models
     /// <summary>
     /// Used to render raw primitive data.
     /// </summary>
-    public class PrimitiveManager : BaseRenderState
+    public interface IPrimitiveManager
+    {
+        int BindingId { get; }
+        ThreadSafeHashSet<int> ModifiedBoneIndices { get; }
+        ThreadSafeHashSet<int> ModifiedVertexIndices { get; }
+        PrimitiveData Data { get; set; }
+        VertexBuffer IndexBuffer { get; }
+        Material Material { get; set; }
+        EDrawElementType ElementType { get; }
+
+        void SkeletonChanged(Skeleton skeleton);
+        T2 Parameter<T2>(int index) where T2 : GLVar;
+        T2 Parameter<T2>(string name) where T2 : GLVar;
+        void Render();
+        void Render(Matrix4 modelMatrix);
+        void Render(Matrix4 modelMatrix, Matrix3 normalMatrix);
+    }
+    /// <summary>
+    /// Used to render raw primitive data.
+    /// </summary>
+    public class PrimitiveManager : PrimitiveManager<MeshProgram>
+    {
+        public PrimitiveManager() : base() { }
+        public PrimitiveManager(PrimitiveData data, Material material) : base(data, material) { }
+
+    }
+    /// <summary>
+    /// Used to render raw primitive data.
+    /// </summary>
+    public class PrimitiveManager<T> : BaseRenderState, IPrimitiveManager where T : MeshProgram
     {
         public event Action SettingUniforms;
 
-        public int[] _bindingIds;
-        public IntPtr[] _offsets;
-        public int[] _strides;
+        private int[] _bindingIds;
+        private IntPtr[] _offsets;
+        private int[] _strides;
 
-        private MeshProgram _program;
+        private T _program;
         private PrimitiveData _data;
-        internal VertexBuffer _indexBuffer;
-        public EDrawElementType _elementType;
+        private Material _material;
+        private PrimitiveBufferInfo _bufferInfo = new PrimitiveBufferInfo();
+
+        private VertexBuffer _indexBuffer;
+        private EDrawElementType _elementType;
+
+        private Bone _singleBind;
         private Bone[] _utilizedBones;
         private Dictionary<int, int> _boneRemap;
+
         private volatile ThreadSafeHashSet<int> _modifiedVertexIndices = new ThreadSafeHashSet<int>();
         private volatile ThreadSafeHashSet<int> _modifiedBoneIndices = new ThreadSafeHashSet<int>();
-        private PrimitiveBufferInfo _bufferInfo = new PrimitiveBufferInfo();
-        private Material _material;
-        internal CPUSkinInfo _cpuSkinInfo;
-        private Bone _singleBind;
-        internal bool _processingSkinning = false;
+        private CPUSkinInfo _cpuSkinInfo;
+        private bool _processingSkinning = false;
 
         public PrimitiveManager() 
             : base(GenType.VertexArray) { }
@@ -49,6 +81,7 @@ namespace CustomEngine.Rendering.Models
             _material = material;
         }
 
+        //TODO: move vertex buffer allocations out of PrimitiveData and into this class, so the original PrimitiveData can be disposed of.
         public PrimitiveData Data
         {
             get => _data;
@@ -89,7 +122,7 @@ namespace CustomEngine.Rendering.Models
             set => _program?.SetMaterial(_material = value);
         }
 
-        public MeshProgram Program
+        public T Program
         {
             get
             {
@@ -101,6 +134,10 @@ namespace CustomEngine.Rendering.Models
 
         public ThreadSafeHashSet<int> ModifiedVertexIndices => _modifiedVertexIndices;
         public ThreadSafeHashSet<int> ModifiedBoneIndices => _modifiedBoneIndices;
+
+        public VertexBuffer IndexBuffer => _indexBuffer;
+
+        public EDrawElementType ElementType { get => _elementType; }
 
         private void UpdateBoneInfo(bool set)
         {
@@ -302,23 +339,23 @@ namespace CustomEngine.Rendering.Models
         /// Retrieves the linked material's uniform parameter at the given index.
         /// Use this to set uniform values to be passed to the shader.
         /// </summary>
-        public T Parameter<T>(int index) where T : GLVar
+        public T2 Parameter<T2>(int index) where T2 : GLVar
         {
             if (Program == null)
                 Generate();
             if (index >= 0 && index < Program.Parameters.Length)
-                return Program.Parameters[index] as T;
+                return Program.Parameters[index] as T2;
             throw new IndexOutOfRangeException();
         }
         /// <summary>
         /// Retrieves the linked material's uniform parameter with the given name.
         /// Use this to set uniform values to be passed to the shader.
         /// </summary>
-        public T GetParameter<T>(string name) where T : GLVar
+        public T2 Parameter<T2>(string name) where T2 : GLVar
         {
             if (Program == null)
                 Generate();
-            return Program.Parameters.FirstOrDefault(x => x.Name == name) as T;
+            return Program.Parameters.FirstOrDefault(x => x.Name == name) as T2;
         }
         public void Render()
         {
@@ -354,7 +391,7 @@ namespace CustomEngine.Rendering.Models
         private void OnSettingUniforms() => SettingUniforms?.Invoke();
         protected override void OnGenerated()
         {
-            _program = new MeshProgram(_material, _bufferInfo);
+            _program = (T)Activator.CreateInstance(typeof(T), _material, _bufferInfo);
             _program.Generate();
 
             Engine.Renderer.BindPrimitiveManager(this);

@@ -175,6 +175,9 @@ namespace CustomEngine.Rendering.Models
                     return;
                 }
         }
+
+        public static implicit operator Vertex(Vec3 pos) => new Vertex(pos);
+
         public override int GetHashCode()
         {
             return base.GetHashCode();

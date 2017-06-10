@@ -122,7 +122,7 @@ namespace CustomEngine.Rendering.Models
         internal Dictionary<int, ThreadSafeList<int>> _influencedVertices = new Dictionary<int, ThreadSafeList<int>>();
         internal List<CPUSkinInfo.LiveInfluence> _influencedInfluences = new List<CPUSkinInfo.LiveInfluence>();
         internal List<SkeletalRigidSubMesh> _singleBoundMeshes = new List<SkeletalRigidSubMesh>();
-        internal List<PrimitiveManager> _linkedPrimitiveManagers = new List<PrimitiveManager>();
+        internal List<IPrimitiveManager> _linkedPrimitiveManagers = new List<IPrimitiveManager>();
 
         [Serialize("ChildBones")]
         private MonitoredList<Bone> _childBones = new MonitoredList<Bone>();
@@ -207,12 +207,12 @@ namespace CustomEngine.Rendering.Models
 
         //public List<PrimitiveManager> PrimitiveManagers => _linkedPrimitiveManagers;
 
-        public void AddPrimitiveManager(PrimitiveManager m)
+        public void AddPrimitiveManager(IPrimitiveManager m)
         {
             _linkedPrimitiveManagers.Add(m);
             _influencedVertices.Add(m.BindingId, new ThreadSafeList<int>());
         }
-        public void RemovePrimitiveManager(PrimitiveManager m)
+        public void RemovePrimitiveManager(IPrimitiveManager m)
         {
             _linkedPrimitiveManagers.Remove(m);
             _influencedVertices.Remove(m.BindingId);
@@ -236,7 +236,7 @@ namespace CustomEngine.Rendering.Models
 
             //Process skinning information dealing with this bone
             if (Engine.Settings.SkinOnGPU)
-                foreach (PrimitiveManager m in _linkedPrimitiveManagers)
+                foreach (IPrimitiveManager m in _linkedPrimitiveManagers)
                 {
                     //while (m._processingSkinning)
                     //    Thread.Sleep(1);
@@ -247,11 +247,11 @@ namespace CustomEngine.Rendering.Models
             {
                 for (int i = 0; i < _linkedPrimitiveManagers.Count; ++i)
                 {
-                    PrimitiveManager m = _linkedPrimitiveManagers[i];
+                    IPrimitiveManager m = _linkedPrimitiveManagers[i];
                     ThreadSafeList<int> influenced = _influencedVertices[m.BindingId];
 
-                    while (m._processingSkinning)
-                        Thread.Sleep(1);
+                    //while (m._processingSkinning)
+                    //    Thread.Sleep(1);
 
                     m.ModifiedVertexIndices.UnionWith(influenced);
                 }

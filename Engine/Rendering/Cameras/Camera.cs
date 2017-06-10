@@ -37,6 +37,11 @@ namespace CustomEngine.Rendering.Cameras
             PositionChanged();
         }
 
+        public bool Moved
+        {
+            get => _moved;
+            internal set => _moved = value;
+        }
         public Matrix4 ProjectionMatrix => _projectionMatrix;
         public Matrix4 ProjectionMatrixInverse => _projectionInverse;
         public Matrix4 WorldMatrix
@@ -126,7 +131,6 @@ namespace CustomEngine.Rendering.Cameras
             get => _postProcessSettings;
             set => _postProcessSettings = value;
         }
-
         public abstract float Width { get; }
         public abstract float Height { get; }
         public abstract Vec2 Origin { get; }
@@ -163,7 +167,6 @@ namespace CustomEngine.Rendering.Cameras
                 UpdateTransformedFrustum();
             }
         }
-        
         public EventVec3 ViewTarget
         {
             get => _viewTarget;
@@ -178,21 +181,7 @@ namespace CustomEngine.Rendering.Cameras
             }
         }
         
-        private void _viewTarget_Changed()
-        {
-            SetRotationWithTarget(_viewTarget.Raw);
-        }
-
-        private void _owningComponent_WorldTransformChanged()
-        {
-            _forwardInvalidated = true;
-            _upInvalidated = true;
-            _rightInvalidated = true;
-            UpdateTransformedFrustum();
-            if (!_updating)
-                OnTransformChanged();
-        }
-        
+        private bool _moved;
         private CameraComponent _owningComponent;
         private List<Viewport> _viewports = new List<Viewport>();
         internal bool _isActive = false;
@@ -200,8 +189,20 @@ namespace CustomEngine.Rendering.Cameras
         private Vec3 _projectionOrigin;
         protected Frustum _untransformedFrustum, _transformedFrustum;
         private EventVec3 _viewTarget = null;
-
         protected bool _updating = false;
+        protected Matrix4
+            _projectionMatrix = Matrix4.Identity,
+            _projectionInverse = Matrix4.Identity,
+            _transform = Matrix4.Identity,
+            _invTransform = Matrix4.Identity;
+        private Vec3
+            _forwardDirection = Vec3.Forward,
+            _upDirection = Vec3.Up,
+            _rightDirection = Vec3.Right;
+        private bool
+            _forwardInvalidated = true,
+            _upInvalidated = true,
+            _rightInvalidated = true;
 
         [Serialize("Point")]
         protected EventVec3 _localPoint;
@@ -214,20 +215,17 @@ namespace CustomEngine.Rendering.Cameras
         [Serialize("PostProcessSettings")]
         private PostProcessSettings _postProcessSettings;
 
-        protected Matrix4
-            _projectionMatrix = Matrix4.Identity,
-            _projectionInverse = Matrix4.Identity,
-            _transform = Matrix4.Identity,
-            _invTransform = Matrix4.Identity;
-        
-        private Vec3 
-            _forwardDirection = Vec3.Forward,
-            _upDirection = Vec3.Up, 
-            _rightDirection = Vec3.Right;
-        private bool 
-            _forwardInvalidated = true,
-            _upInvalidated = true, 
+        private void _viewTarget_Changed()
+            => SetRotationWithTarget(_viewTarget.Raw);
+        private void _owningComponent_WorldTransformChanged()
+        {
+            _forwardInvalidated = true;
+            _upInvalidated = true;
             _rightInvalidated = true;
+            UpdateTransformedFrustum();
+            if (!_updating)
+                OnTransformChanged();
+        }
 
         /// <summary>
         /// Returns an X, Y coordinate relative to the camera's Origin, with Z being the normalized depth from NearDepth to FarDepth.
@@ -355,6 +353,7 @@ namespace CustomEngine.Rendering.Cameras
 
         protected void OnTransformChanged()
         {
+            _moved = true;
             _forwardInvalidated = _upInvalidated = _rightInvalidated = true;
             _updating = true;
             TransformChanged?.Invoke();

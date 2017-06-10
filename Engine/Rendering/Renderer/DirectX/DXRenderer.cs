@@ -51,7 +51,7 @@ namespace CustomEngine.Rendering.DirectX
             throw new NotImplementedException();
         }
 
-        public override void BindFrameBuffer(EFramebufferType type, int bindingId)
+        public override void BindFrameBuffer(EFramebufferTarget type, int bindingId)
         {
             throw new NotImplementedException();
         }
@@ -74,12 +74,7 @@ namespace CustomEngine.Rendering.DirectX
         {
             throw new NotImplementedException();
         }
-
-        public override void LinkRenderIndices(PrimitiveManager manager, VertexBuffer indexBuffer)
-        {
-            throw new NotImplementedException();
-        }
-
+        
         public override void InitializeBuffer(VertexBuffer buffer)
         {
             throw new NotImplementedException();
@@ -341,6 +336,21 @@ namespace CustomEngine.Rendering.DirectX
         }
 
         public override void FramebufferRenderBuffer(int frameBufferBindingId, EFramebufferAttachment attachement, int renderBufferBindingId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void SetActiveTexture(int unit)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void LinkRenderIndices(IPrimitiveManager manager, VertexBuffer indexBuffer)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void AttachTextureToFrameBuffer(EFramebufferTarget target, EFramebufferAttachment attachment, ETexTarget texTarget, int textureBindingId, int mipLevel)
         {
             throw new NotImplementedException();
         }

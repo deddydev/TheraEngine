@@ -310,25 +310,21 @@ namespace CustomEngine.Rendering.Models
         public int ComponentCount => _componentCount;
         public int ElementCount => _elementCount;
         public int DataLength => _elementCount * Stride;
-        public int Stride => _componentCount * ElementSize;
-        private int ElementSize
+        public int Stride => _componentCount * ComponentSize;
+        private int ComponentSize
         {
             get
             {
                 switch (_componentType)
                 {
-                    case ComponentType.SByte:
-                    case ComponentType.Byte:
-                        return 1;
-                    case ComponentType.Short:
-                    case ComponentType.UShort:
-                        return 2;
-                    case ComponentType.Int:
-                    case ComponentType.UInt:
-                    case ComponentType.Float:
-                        return 4;
-                    case ComponentType.Double:
-                        return 8;
+                    case ComponentType.SByte: return sizeof(sbyte);
+                    case ComponentType.Byte: return sizeof(byte);
+                    case ComponentType.Short: return sizeof(short);
+                    case ComponentType.UShort: return sizeof(ushort);
+                    case ComponentType.Int: return sizeof(int);
+                    case ComponentType.UInt: return sizeof(uint);
+                    case ComponentType.Float: return sizeof(float);
+                    case ComponentType.Double: return sizeof(double);
                 }
                 return -1;
             }
@@ -384,7 +380,7 @@ namespace CustomEngine.Rendering.Models
                 _elementCount = remapper.ImplementationLength;
                 _data = DataSource.Allocate(DataLength);
                 int stride = Stride;
-                int elementSize = ElementSize;
+                int elementSize = ComponentSize;
                 for (int i = 0; i < remapper.ImplementationLength; ++i)
                 {
                     VoidPtr addr = _data.Address[i, stride];
@@ -400,7 +396,7 @@ namespace CustomEngine.Rendering.Models
                 _elementCount = list.Count;
                 _data = DataSource.Allocate(DataLength);
                 int stride = Stride;
-                int elementSize = ElementSize;
+                int elementSize = ComponentSize;
                 for (int i = 0; i < list.Count; ++i)
                 {
                     VoidPtr addr = _data.Address[i, stride];

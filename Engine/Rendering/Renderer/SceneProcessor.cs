@@ -8,19 +8,21 @@ namespace CustomEngine.Rendering
     public class SceneProcessor
     {
         private ThreadSafeList<IRenderable> _renderables = new ThreadSafeList<IRenderable>();
-        private SortedDictionary<uint, IRenderable> _renderCommands = new SortedDictionary<uint, IRenderable>();
 
-        private Octree<IRenderable> _cullingTree;
+        private SortedDictionary<uint, IRenderable> _opaque = new SortedDictionary<uint, IRenderable>();
+        private SortedDictionary<uint, IRenderable> _transparent = new SortedDictionary<uint, IRenderable>();
+
+        private Octree<IRenderable> _renderTree;
         private LightManager _lightManager = new LightManager();
 
-        internal Octree<IRenderable> RenderTree => _cullingTree;
+        internal Octree<IRenderable> RenderTree => _renderTree;
         internal LightManager Lights => _lightManager;
 
         internal void WorldChanged()
         {
             if (Engine.World == null)
             {
-                _cullingTree = null;
+                _renderTree = null;
                 return;
             }
 
@@ -45,20 +47,24 @@ namespace CustomEngine.Rendering
             //                }
             //            }
 
-            _cullingTree = new Octree<IRenderable>(ws.Bounds, renderables);
+            _renderTree = new Octree<IRenderable>(ws.Bounds, renderables);
         }
         internal void Render(Camera camera, bool deferredPass)
         {
-            if (_cullingTree == null || camera == null)
+            if (_renderTree == null || camera == null)
                 return;
 
             AbstractRenderer.CurrentCamera = camera;
 
             Frustum f = camera.GetFrustum();
-            //_cullingTree.Cull(f);
+            if (camera.Moved)
+            {
+                _renderTree.Cull(f);
+                camera.Moved = false;
+            }
 
             if (Engine.Settings.RenderOctree)
-                _cullingTree.DebugRender();
+                _renderTree.DebugRender();
 
             //TODO: render in a sorted order by render keys, not just in whatever order like this
             //also perform culling directly before rendering something, to avoid an extra log(n) operation
@@ -86,13 +92,13 @@ namespace CustomEngine.Rendering
         }
         public void AddRenderable(IRenderable obj, RenderKey key)
         {
-            _cullingTree?.Add(obj);
+            _renderTree?.Add(obj);
             //_commands.Add(key, obj);
             _renderables.Add(obj);
         }
         public void Remove(IRenderable obj)
         {
-            _cullingTree?.Remove(obj);
+            _renderTree?.Remove(obj);
             _renderables.Remove(obj);
         }
         internal void SetUniforms()

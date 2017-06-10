@@ -16,6 +16,8 @@ namespace CustomEngine.Rendering.Models.Materials
             int height)
         {
             _name = name;
+            _width = width;
+            _height = height;
             _internalFormat = EPixelInternalFormat.Four;
             _pixelFormat = EPixelFormat.Bgra;
             _pixelType = EPixelType.UnsignedByte;
@@ -71,7 +73,8 @@ namespace CustomEngine.Rendering.Models.Materials
         }
 
         private SingleFileRef<TextureData> _reference;
-        
+
+        private int _width, _height;
         private string _name;
         private MinFilter _minFilter = MinFilter.Linear_Mipmap_Linear;
         private MagFilter _magFilter = MagFilter.Linear;
@@ -117,8 +120,16 @@ namespace CustomEngine.Rendering.Models.Materials
             }
         }
 
+        public int Width => (TextureData != null && TextureData.Bitmap != null) ? TextureData.Bitmap.Width : _width;
+        public int Height => (TextureData != null && TextureData.Bitmap != null) ? TextureData.Bitmap.Height : _height;
+
         public Texture GetTexture()
-            => new Texture(TextureData, _minFilter, _magFilter, _uWrap, _vWrap, _lodBias, _internalFormat, _pixelFormat, _pixelType);
+        {
+            if (TextureData != null)
+                return new Texture(TextureData, _minFilter, _magFilter, _uWrap, _vWrap, _lodBias, _internalFormat, _pixelFormat, _pixelType);
+            else
+                return new Texture(_width, _height, _minFilter, _magFilter, _uWrap, _vWrap, _lodBias, _internalFormat, _pixelFormat, _pixelType);
+        }
     }
     public enum TexCoordWrap
     {

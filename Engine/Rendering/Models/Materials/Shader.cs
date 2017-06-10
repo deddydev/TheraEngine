@@ -130,9 +130,9 @@ void main()
             string source = @"
 #version 450
 
-layout (location = 0) out vec4 gAlbedoSpec;
-layout (location = 1) out vec3 gPosition;
-layout (location = 2) out vec3 gNormal;
+layout (location = 0) out vec4 AlbedoSpec;
+layout (location = 1) out vec3 Position;
+layout (location = 2) out vec3 Normal;
 
 uniform sampler2D Texture0;
 uniform float MatSpecularIntensity;
@@ -148,9 +148,9 @@ out vec4 OutColor;
 
 void main()
 {
-    gPosition = InData.Position;
-    gNormal = InData.Normal;
-    gAlbedoSpec = vec4(texture(Texture0, InData.MultiTexCoord0).rgb, MatSpecularIntensity);
+    AlbedoSpec = vec4(texture(Texture0, InData.MultiTexCoord0).rgb, MatSpecularIntensity);
+    Position = InData.Position;
+    Normal = InData.Normal;
 }
 ";
             return new Shader(ShaderMode.Fragment, source);
@@ -188,9 +188,9 @@ void main()
             string source = @"
 #version 450
 
-layout (location = 0) out vec4 gAlbedoSpec;
-layout (location = 1) out vec3 gPosition;
-layout (location = 2) out vec3 gNormal;
+layout (location = 0) out vec4 AlbedoSpec;
+layout (location = 1) out vec3 Position;
+layout (location = 2) out vec3 Normal;
 
 uniform vec4 MatColor;
 uniform float MatSpecularIntensity;
@@ -204,9 +204,9 @@ in Data
 
 void main()
 {
-    gPosition = InData.Position;
-    gNormal = InData.Normal;
-    gAlbedoSpec = vec4(MatColor.rgb, MatSpecularIntensity);
+    AlbedoSpec = vec4(MatColor.rgb, MatSpecularIntensity);
+    Position = InData.Position;
+    Normal = InData.Normal;
 }
 ";
             return new Shader(ShaderMode.Fragment, source);
@@ -243,15 +243,12 @@ void main()
             string source = @"
 #version 450
 
-layout (location = 0) out vec4 gAlbedoSpec;
-layout (location = 1) out vec3 gPosition;
-layout (location = 2) out vec3 gNormal;
+layout (location = 0) out vec4 AlbedoSpec;
+layout (location = 1) out vec3 Position;
+layout (location = 2) out vec3 Normal;
 
 uniform vec4 MatColor;
 uniform float MatSpecularIntensity;
-uniform float MatShininess;
-
-uniform sampler2D Texture0;
 
 in Data
 {
@@ -262,9 +259,9 @@ in Data
 
 void main()
 {
-    gPosition = InData.Position;
-    gNormal = InData.Normal;
-    gAlbedoSpec = vec4(texture(Texture0, InData.MultiTexCoord0).rgb, MatSpecularIntensity);
+    AlbedoSpec = vec4(MatColor.rgb, MatSpecularIntensity);
+    Position = InData.Position;
+    Normal = InData.Normal;
 }
 ";
             return new Shader(ShaderMode.Fragment, source);
@@ -300,8 +297,6 @@ void main()
 
     " + LightingCalcForward() + @"
 
-    vec4 texColor = texture(Texture0, InData.MultiTexCoord0);
-
     OutColor = MatColor * vec4(totalLight, 1.0);
 }
 ";
@@ -316,7 +311,6 @@ void main()
 uniform sampler2D Texture0;
 uniform sampler2D Texture1;
 uniform sampler2D Texture2;
-uniform sampler2D Texture3;
 
 in Data
 {
@@ -328,21 +322,40 @@ in Data
 out vec4 OutColor;
 
 uniform vec3 CameraPosition;
+uniform vec3 CameraForward;
 
 " + LightingSetupBasic() + @"
 
 void main()
 {
-    vec4 AlbedoSpec = texture(Texture0, InData.MultiTexCoord0);
-    vec3 FragPos = texture(Texture1, InData.MultiTexCoord0).rgb;
-    vec3 Normal = texture(Texture2, InData.MultiTexCoord0).rgb;
-    vec4 Text = texture(Texture3, InData.MultiTexCoord0);
+    vec4 AlbedoSpec = texture(Texture0, InData.Position.xy);
+    vec3 FragPos = texture(Texture1, InData.Position.xy).rgb;
+    vec3 Normal = texture(Texture2, InData.Position.xy).rgb;
 
     " + LightingCalc("totalLight", "AlbedoSpec.rgb * 0.1", "Normal", "FragPos", "AlbedoSpec.rgb", "AlbedoSpec.a") + @"
 
-    OutColor = vec4(1.0, 0.0, 0.0, 1.0);
+    OutColor = vec4(totalLight, 1.0);
 }";
-            //vec4(mix(totalLight, Text.rgb, Text.a), 1.0)
+            return new Shader(ShaderMode.Fragment, source);
+        }
+        public static Shader TestShader()
+        {
+            string source = @"
+#version 450
+
+in Data
+{
+    vec3 Position;
+    vec3 Normal;
+    vec2 MultiTexCoord0;
+} InData;
+
+out vec4 OutColor;
+
+void main()
+{
+    OutColor = vec4(InData.Position.x, 0.0, InData.Position.y, 1.0);
+}";
             return new Shader(ShaderMode.Fragment, source);
         }
         private static string LightingCalcForward()

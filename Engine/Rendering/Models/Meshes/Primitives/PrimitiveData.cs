@@ -493,52 +493,63 @@ namespace CustomEngine.Rendering.Models
                 case EPrimitiveType.Lines:
                     remapper = SetLineIndices(vertices);
                     break;
-                case EPrimitiveType.Points:
+                default:
+                //case EPrimitiveType.Points:
                     remapper = SetPointIndices(vertices);
                     break;
             }
-            
-            CreateFacePoints(remapper.ImplementationLength);
+
+            int[] firstAppearanceArray = null;
+            if (remapper == null)
+            {
+                firstAppearanceArray = new int[vertices.Count];
+                for (int i = 0; i < vertices.Count; ++i)
+                    firstAppearanceArray[i] = i;
+            }
+            else
+                firstAppearanceArray = remapper.ImplementationTable;
+
+            CreateFacePoints(firstAppearanceArray.Length);
 
             if (info.IsWeighted)
-                SetInfluences(remapper.ImplementationTable.Select(x => vertices[x]._influence).ToArray());
+                SetInfluences(firstAppearanceArray.Select(x => vertices[x]._influence).ToArray());
 
             for (int i = 0; i < info._morphCount + 1; ++i)
             {
-                var data = remapper.ImplementationTable.Select(x => vertices[x]._position).ToList();
+                var data = firstAppearanceArray.Select(x => vertices[x]._position).ToList();
                 AddBuffer(data, new VertexAttribInfo(BufferType.Position, i));
             }
             if (info.HasNormals)
                 for (int i = 0; i < info._morphCount + 1; ++i)
                 {
-                    var data = remapper.ImplementationTable.Select(x => vertices[x]._normal).ToList();
+                    var data = firstAppearanceArray.Select(x => vertices[x]._normal).ToList();
                     AddBuffer(data, new VertexAttribInfo(BufferType.Normal, i));
                 }
             if (info.HasBinormals)
                 for (int i = 0; i < info._morphCount + 1; ++i)
                 {
-                    var data = remapper.ImplementationTable.Select(x => vertices[x]._binormal).ToList();
+                    var data = firstAppearanceArray.Select(x => vertices[x]._binormal).ToList();
                     AddBuffer(data, new VertexAttribInfo(BufferType.Binormal, i));
                 }
             if (info.HasTangents)
                 for (int i = 0; i < info._morphCount + 1; ++i)
                 {
-                    var data = remapper.ImplementationTable.Select(x => vertices[x]._tangent).ToList();
+                    var data = firstAppearanceArray.Select(x => vertices[x]._tangent).ToList();
                     AddBuffer(data, new VertexAttribInfo(BufferType.Tangent, i));
                 }
             for (int i = 0; i < info._colorCount; ++i)
             {
-                var data = remapper.ImplementationTable.Select(x => vertices[x]._color).ToList();
+                var data = firstAppearanceArray.Select(x => vertices[x]._color).ToList();
                 AddBuffer(data, new VertexAttribInfo(BufferType.Color, i));
             }
             for (int i = 0; i < info._texcoordCount; ++i)
             {
-                var data = remapper.ImplementationTable.Select(x => vertices[x]._texCoord).ToList();
+                var data = firstAppearanceArray.Select(x => vertices[x]._texCoord).ToList();
                 AddBuffer(data, new VertexAttribInfo(BufferType.TexCoord, i));
             }
             if (info._hasBarycentricCoord)
             {
-                var data = remapper.ImplementationTable.Select(x => vertices[x]._barycentric).ToList();
+                var data = firstAppearanceArray.Select(x => vertices[x]._barycentric).ToList();
                 AddBuffer(data, new VertexAttribInfo(BufferType.Barycentric, 0));
             }
         }

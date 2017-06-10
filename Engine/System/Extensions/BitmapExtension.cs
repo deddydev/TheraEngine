@@ -6,7 +6,7 @@ namespace System
 {
     public static class BitmapExtension
     {
-        public static Bitmap Resize(this Bitmap i, int width, int height, InterpolationMode mode = InterpolationMode.HighQualityBicubic)
+        public static Bitmap Resized(this Bitmap i, int width, int height, InterpolationMode mode = InterpolationMode.HighQualityBicubic)
         {
             Bitmap r = new Bitmap(width, height);
             r.SetResolution(i.HorizontalResolution, i.VerticalResolution);

@@ -11,7 +11,7 @@ namespace CustomEngine.Rendering
     {
         public FrameBuffer() : base(GenType.Framebuffer) { }
 
-        public void Bind(EFramebufferType type) { Engine.Renderer.BindFrameBuffer(type, BindingId); }
-        public void Unbind(EFramebufferType type) { Engine.Renderer.BindFrameBuffer(type, 0); }
+        public void Bind(EFramebufferTarget type) { Engine.Renderer.BindFrameBuffer(type, BindingId); }
+        public void Unbind(EFramebufferTarget type) { Engine.Renderer.BindFrameBuffer(type, 0); }
     }
 }

@@ -1,9 +1,9 @@
-﻿using CustomEngine.Worlds.Actors;
-using CustomEngine.Worlds;
-using CustomEngine.Rendering.Cameras;
+﻿using TheraEngine.Worlds.Actors;
+using TheraEngine.Worlds;
+using TheraEngine.Rendering.Cameras;
 using System;
 
-namespace CustomEngine.Worlds.Actors.Types
+namespace TheraEngine.Worlds.Actors.Types
 {
     public class PerspectiveCameraActor : Actor<CameraComponent>
     {

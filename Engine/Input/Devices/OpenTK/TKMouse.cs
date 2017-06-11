@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using OpenTK.Input;
 
-namespace CustomEngine.Input.Devices.OpenTK
+namespace TheraEngine.Input.Devices.OpenTK
 {
     public class TKMouse : CMouse
     {

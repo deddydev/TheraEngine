@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Collections;
 using System.ComponentModel;
-using CustomEngine.Worlds.Actors;
-using CustomEngine.Worlds;
+using TheraEngine.Worlds.Actors;
+using TheraEngine.Worlds;
 
-namespace CustomEngine.Rendering.HUD
+namespace TheraEngine.Rendering.HUD
 {
     public delegate void DelScrolling(bool up);
     public class HudComponent : SceneComponent, IPanel, I2DBoundable, IEnumerable<HudComponent>

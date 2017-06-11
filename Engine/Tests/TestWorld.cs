@@ -1,17 +1,17 @@
 ﻿using System;
-using CustomEngine.Rendering.Models;
-using CustomEngine.Worlds.Actors;
-using CustomEngine.Worlds.Maps;
+using TheraEngine.Rendering.Models;
+using TheraEngine.Worlds.Actors;
+using TheraEngine.Worlds.Maps;
 using System.Drawing;
-using CustomEngine.Rendering;
-using CustomEngine.Rendering.Models.Materials;
-using CustomEngine.Worlds;
-using CustomEngine.Worlds.Actors.Types;
-using CustomEngine.GameModes;
-using CustomEngine.Rendering.Animation;
-using CustomEngine.Audio;
+using TheraEngine.Rendering;
+using TheraEngine.Rendering.Models.Materials;
+using TheraEngine.Worlds;
+using TheraEngine.Worlds.Actors.Types;
+using TheraEngine.GameModes;
+using TheraEngine.Rendering.Animation;
+using TheraEngine.Audio;
 
-namespace CustomEngine.Tests
+namespace TheraEngine.Tests
 {
     public unsafe class TestWorld : World
     {

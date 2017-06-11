@@ -1,11 +1,11 @@
-﻿using CustomEngine.Rendering.Animation;
-using CustomEngine.Rendering.Models.Materials;
+﻿using TheraEngine.Rendering.Animation;
+using TheraEngine.Rendering.Models.Materials;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
-namespace CustomEngine.Rendering.Models
+namespace TheraEngine.Rendering.Models
 {
     public unsafe partial class Collada
     {

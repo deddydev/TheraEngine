@@ -1,12 +1,12 @@
 ﻿using System;
-using CustomEngine.Rendering.DirectX;
+using TheraEngine.Rendering.DirectX;
 using System.Collections.Generic;
-using CustomEngine.Rendering.Models;
-using CustomEngine.Rendering.Models.Materials;
+using TheraEngine.Rendering.Models;
+using TheraEngine.Rendering.Models.Materials;
 using System.Drawing;
-using CustomEngine.Rendering.Animation;
+using TheraEngine.Rendering.Animation;
 
-namespace CustomEngine.Rendering.DirectX
+namespace TheraEngine.Rendering.DirectX
 {
     internal unsafe class DXRenderer : AbstractRenderer
     {

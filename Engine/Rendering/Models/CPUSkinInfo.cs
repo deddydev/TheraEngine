@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 
-namespace CustomEngine.Rendering.Models
+namespace TheraEngine.Rendering.Models
 {
     public class CPUSkinInfo
     {

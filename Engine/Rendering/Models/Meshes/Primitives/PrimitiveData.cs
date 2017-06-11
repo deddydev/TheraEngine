@@ -1,4 +1,4 @@
-﻿using CustomEngine.Files;
+﻿using TheraEngine.Files;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -6,7 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Xml;
 
-namespace CustomEngine.Rendering.Models
+namespace TheraEngine.Rendering.Models
 {
     public enum Culling
     {

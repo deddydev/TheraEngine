@@ -4,10 +4,10 @@ using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using System.Xml;
-using CustomEngine.Files;
+using TheraEngine.Files;
 using System.ComponentModel;
 
-namespace CustomEngine.Rendering.Animation
+namespace TheraEngine.Rendering.Animation
 {
     public delegate bool BoolGetValue(float frameIndex);
     public class PropAnimBool : PropertyAnimation<BoolKeyframe>, IEnumerable<BoolKeyframe>

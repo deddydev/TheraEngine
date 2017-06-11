@@ -1,14 +1,17 @@
-﻿using CustomEngine.Rendering.Cameras;
-using CustomEngine.Worlds;
+﻿using TheraEngine.Rendering.Cameras;
+using TheraEngine.Worlds;
 using System;
 using System.Collections.Generic;
 
-namespace CustomEngine.Rendering
+namespace TheraEngine.Rendering
 {
     public class RenderPass
     {
         private Deque<IRenderable> _opaque = new Deque<IRenderable>();
         private Deque<IRenderable> _transparent = new Deque<IRenderable>();
+
+        public Deque<IRenderable> Opaque => _opaque;
+        public Deque<IRenderable> Transparent => _transparent;
 
         public void Render()
         {
@@ -16,6 +19,9 @@ namespace CustomEngine.Rendering
                 r.Render();
             foreach (IRenderable r in _transparent)
                 r.Render();
+
+            _opaque.Clear();
+            _transparent.Clear();
         }
     }
     public class SceneProcessor
@@ -24,10 +30,10 @@ namespace CustomEngine.Rendering
             _deferredPass = new RenderPass(), 
             _forwardPass = new RenderPass();
 
-        private Octree<IRenderable> _renderTree;
+        private RenderOctree _renderTree;
         private LightManager _lightManager;
 
-        internal Octree<IRenderable> RenderTree => _renderTree;
+        internal RenderOctree RenderTree => _renderTree;
         internal LightManager Lights => _lightManager;
 
         internal void WorldChanged()
@@ -60,7 +66,7 @@ namespace CustomEngine.Rendering
             //                }
             //            }
 
-            _renderTree = new Octree<IRenderable>(ws.Bounds, renderables);
+            _renderTree = new RenderOctree(ws.Bounds, renderables);
             _lightManager = new LightManager();
         }
         internal void Render(Camera camera, bool deferredPass)
@@ -69,16 +75,11 @@ namespace CustomEngine.Rendering
                 return;
 
             AbstractRenderer.CurrentCamera = camera;
+
+            RenderPass pass = deferredPass ? _deferredPass : _forwardPass;
+            _renderTree.Cull(camera.GetFrustum(), Engine.Settings.RenderOctree, pass.Opaque, pass.Transparent);
+            pass.Render();
             
-            _renderTree.Cull(camera.GetFrustum(), Engine.Settings.RenderOctree);
-            if (deferredPass)
-                _deferredPass.Render();
-            else
-                _forwardPass.Render();
-
-            foreach (IRenderable r in _renderables)
-                r.Render();
-
             AbstractRenderer.CurrentCamera = null;
         }
         public void Add(IRenderable obj)

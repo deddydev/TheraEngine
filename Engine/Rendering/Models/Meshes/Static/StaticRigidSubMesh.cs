@@ -1,10 +1,10 @@
 ﻿using System;
-using CustomEngine.Rendering.Models.Materials;
-using CustomEngine.Files;
+using TheraEngine.Rendering.Models.Materials;
+using TheraEngine.Files;
 using System.IO;
 using System.Xml;
 
-namespace CustomEngine.Rendering.Models
+namespace TheraEngine.Rendering.Models
 {
     public class StaticRigidSubMesh : FileObject, IStaticSubMesh
     {

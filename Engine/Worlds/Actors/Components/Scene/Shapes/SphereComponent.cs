@@ -1,8 +1,8 @@
 ﻿using System;
-using CustomEngine.Rendering;
+using TheraEngine.Rendering;
 using BulletSharp;
 
-namespace CustomEngine.Worlds.Actors
+namespace TheraEngine.Worlds.Actors
 {
     public class SphereComponent : ShapeComponent
     {

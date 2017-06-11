@@ -1,13 +1,13 @@
-﻿using CustomEngine.Players;
+﻿using TheraEngine.Players;
 using OpenTK.Input;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using CustomEngine.Worlds.Actors;
+using TheraEngine.Worlds.Actors;
 
-namespace CustomEngine.Input.Devices.OpenTK
+namespace TheraEngine.Input.Devices.OpenTK
 {
     public class TKInputAwaiter : InputAwaiter
     {

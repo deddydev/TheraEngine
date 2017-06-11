@@ -1,15 +1,15 @@
-﻿using CustomEngine.Input;
-using CustomEngine.Input.Devices;
-using CustomEngine.Worlds.Actors;
+﻿using TheraEngine.Input;
+using TheraEngine.Input.Devices;
+using TheraEngine.Worlds.Actors;
 using System;
-using CustomEngine.Rendering.Cameras;
+using TheraEngine.Rendering.Cameras;
 using System.Linq;
-using CustomEngine.Rendering;
+using TheraEngine.Rendering;
 using System.Collections.Generic;
-using CustomEngine.Rendering.HUD;
-using CustomEngine.Worlds.Actors.Types;
+using TheraEngine.Rendering.HUD;
+using TheraEngine.Worlds.Actors.Types;
 
-namespace CustomEngine.Worlds.Actors
+namespace TheraEngine.Worlds.Actors
 {
     public enum CameraInputType
     {

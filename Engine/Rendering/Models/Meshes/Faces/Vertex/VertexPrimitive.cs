@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 
-namespace CustomEngine.Rendering.Models
+namespace TheraEngine.Rendering.Models
 {
     public abstract class VertexPrimitive : ObjectBase, IEnumerable<Vertex>
     {

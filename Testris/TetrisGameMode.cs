@@ -1,5 +1,5 @@
 ﻿using System;
-using CustomEngine.GameModes;
+using TheraEngine.GameModes;
 
 namespace Testris
 {

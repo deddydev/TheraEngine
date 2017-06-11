@@ -1,7 +1,7 @@
-﻿using CustomEngine.Rendering.Cameras;
-using CustomEngine.Rendering.Models;
-using CustomEngine.Rendering.Models.Materials;
-using CustomEngine.Worlds.Actors;
+﻿using TheraEngine.Rendering.Cameras;
+using TheraEngine.Rendering.Models;
+using TheraEngine.Rendering.Models.Materials;
+using TheraEngine.Worlds.Actors;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -9,7 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CustomEngine.Worlds.Actors.Types
+namespace TheraEngine.Worlds.Actors.Types
 {
     public enum TransformType
     {
@@ -90,6 +90,8 @@ namespace CustomEngine.Worlds.Actors.Types
             get => _isRendering;
             set => _isRendering = value;
         }
+
+        public bool HasTransparency => false;
 
         public override void OnSpawned(World world)
         {

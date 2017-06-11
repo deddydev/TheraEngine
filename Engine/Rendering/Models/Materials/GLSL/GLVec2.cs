@@ -5,7 +5,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CustomEngine.Rendering.Models.Materials
+namespace TheraEngine.Rendering.Models.Materials
 {
     public class GLBVec2 : GLVar
     {

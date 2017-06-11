@@ -1,12 +1,12 @@
-﻿using CustomEngine.Rendering.Models.Materials;
+﻿using TheraEngine.Rendering.Models.Materials;
 using System;
-using CustomEngine.Files;
+using TheraEngine.Files;
 using System.IO;
 using System.Xml;
 using System.Runtime.InteropServices;
 using System.ComponentModel;
 
-namespace CustomEngine.Rendering.Cameras
+namespace TheraEngine.Rendering.Cameras
 {
     public class PerspectiveCamera : Camera
     {

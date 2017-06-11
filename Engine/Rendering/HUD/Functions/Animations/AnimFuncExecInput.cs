@@ -1,4 +1,4 @@
-﻿namespace CustomEngine.Rendering.Animation
+﻿namespace TheraEngine.Rendering.Animation
 {
     public class AnimFuncExecInput : FuncExecInput<AnimFuncExecOutput, AnimationFunction>
     {

@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using OpenTK.Graphics.OpenGL;
-using CustomEngine.Rendering.Models;
+using TheraEngine.Rendering.Models;
 
-namespace CustomEngine.Rendering
+namespace TheraEngine.Rendering
 {
     public enum FeedbackType
     {

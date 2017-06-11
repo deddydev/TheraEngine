@@ -1,9 +1,9 @@
-﻿using CustomEngine.Input.Devices;
-using CustomEngine.Worlds.Actors;
+﻿using TheraEngine.Input.Devices;
+using TheraEngine.Worlds.Actors;
 using System;
 using System.Collections.Generic;
 
-namespace CustomEngine.Input
+namespace TheraEngine.Input
 {
     public interface IPawnController
     {

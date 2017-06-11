@@ -1,5 +1,5 @@
-﻿using CustomEngine.Input.Devices.OpenTK;
-using CustomEngine.Rendering;
+﻿using TheraEngine.Input.Devices.OpenTK;
+using TheraEngine.Rendering;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -9,7 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace CustomEngine.Input.Devices
+namespace TheraEngine.Input.Devices
 {
     public abstract class CMouse : InputDevice
     {

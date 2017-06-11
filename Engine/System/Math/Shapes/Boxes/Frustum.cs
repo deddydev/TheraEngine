@@ -1,5 +1,5 @@
-﻿using CustomEngine;
-using CustomEngine.Worlds.Actors;
+﻿using TheraEngine;
+using TheraEngine.Worlds.Actors;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -7,7 +7,7 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using CustomEngine.Rendering;
+using TheraEngine.Rendering;
 using System.ComponentModel;
 
 namespace System
@@ -17,6 +17,7 @@ namespace System
         private static List<Frustum> ActiveFrustums = new List<Frustum>();
         private string _renderName;
 
+        public bool HasTransparency => false;
         public Frustum()
         {
             _boundingSphere = new Sphere() { RenderSolid = false };

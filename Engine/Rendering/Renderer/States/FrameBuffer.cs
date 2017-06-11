@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using OpenTK.Graphics.OpenGL;
 
-namespace CustomEngine.Rendering
+namespace TheraEngine.Rendering
 {
     public class FrameBuffer : BaseRenderState
     {

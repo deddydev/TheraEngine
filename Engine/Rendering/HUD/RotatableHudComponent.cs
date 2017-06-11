@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Collections;
 using System.ComponentModel;
-using CustomEngine.Rendering.Models.Materials;
+using TheraEngine.Rendering.Models.Materials;
 
-namespace CustomEngine.Rendering.HUD
+namespace TheraEngine.Rendering.HUD
 {
     public class RotatableHudComponent : HudComponent
     {

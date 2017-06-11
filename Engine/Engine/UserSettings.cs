@@ -1,4 +1,4 @@
-﻿using CustomEngine.Files;
+﻿using TheraEngine.Files;
 using System;
 using System.IO;
 using System.Xml.Serialization;
@@ -6,7 +6,7 @@ using System.Xml;
 using System.Runtime.InteropServices;
 using System.ComponentModel;
 
-namespace CustomEngine
+namespace TheraEngine
 {
     public enum EngineQuality
     {

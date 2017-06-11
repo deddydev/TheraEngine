@@ -1,18 +1,18 @@
 ﻿using BulletSharp;
-using CustomEngine.Files;
+using TheraEngine.Files;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using CustomEngine.Worlds.Actors;
+using TheraEngine.Worlds.Actors;
 using BulletSharp.SoftBody;
 using System.IO;
 using System.Xml;
 using System.Diagnostics;
 using System.ComponentModel;
 
-namespace CustomEngine.Rendering
+namespace TheraEngine.Rendering
 {
     [Flags]
     public enum CustomCollisionGroup : short

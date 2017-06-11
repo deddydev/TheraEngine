@@ -6,7 +6,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CustomEngine.Rendering.Textures
+namespace TheraEngine.Rendering.Textures
 {
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public struct wRGBXPixel

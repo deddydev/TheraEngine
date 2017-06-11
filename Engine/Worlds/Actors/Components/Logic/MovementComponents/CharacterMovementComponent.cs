@@ -1,9 +1,9 @@
 ﻿using BulletSharp;
-using CustomEngine.Rendering;
+using TheraEngine.Rendering;
 using System;
 using System.Diagnostics;
 
-namespace CustomEngine.Worlds.Actors
+namespace TheraEngine.Worlds.Actors
 {
     public enum MovementMode
     {

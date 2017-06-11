@@ -1,7 +1,7 @@
-﻿using CustomEngine.Rendering.Models;
+﻿using TheraEngine.Rendering.Models;
 using System;
 
-namespace CustomEngine.Worlds.Actors
+namespace TheraEngine.Worlds.Actors
 {
     public partial class SkeletalMeshComponent : TRSComponent
     {
@@ -31,7 +31,8 @@ namespace CustomEngine.Worlds.Actors
             private Bone _singleBind;
             private Skeleton _skeleton;
             private Shape _cullingVolume;
-            
+            public bool HasTransparency => _mesh.Material.HasTransparency;
+
             public bool Visible
             {
                 get => _isVisible;

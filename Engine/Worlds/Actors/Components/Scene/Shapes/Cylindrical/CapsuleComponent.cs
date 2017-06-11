@@ -1,9 +1,9 @@
 ﻿using BulletSharp;
-using CustomEngine.Rendering;
+using TheraEngine.Rendering;
 using System;
 using System.Drawing;
 
-namespace CustomEngine.Worlds.Actors
+namespace TheraEngine.Worlds.Actors
 {
     public class CapsuleComponent : ShapeComponent
     {

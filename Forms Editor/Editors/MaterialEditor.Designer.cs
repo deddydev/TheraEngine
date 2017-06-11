@@ -28,7 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.renderPanel1 = new CustomEngine.RenderPanel();
+            this.renderPanel1 = new TheraEngine.RenderPanel();
             this.lstFunctions = new System.Windows.Forms.ListBox();
             this.splitter1 = new System.Windows.Forms.Splitter();
             this.panel1 = new System.Windows.Forms.Panel();
@@ -100,7 +100,7 @@
 
         #endregion
 
-        private CustomEngine.RenderPanel renderPanel1;
+        private TheraEngine.RenderPanel renderPanel1;
         private System.Windows.Forms.ListBox lstFunctions;
         private System.Windows.Forms.Splitter splitter1;
         private System.Windows.Forms.Panel panel1;

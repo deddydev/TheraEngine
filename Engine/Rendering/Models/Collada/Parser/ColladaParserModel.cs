@@ -4,7 +4,7 @@ using System.Windows.Forms;
 using System.Globalization;
 using System.IO;
 
-namespace CustomEngine.Rendering.Models
+namespace TheraEngine.Rendering.Models
 {
     public unsafe partial class Collada
     {

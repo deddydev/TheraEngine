@@ -1,9 +1,9 @@
-﻿using CustomEngine.Rendering.Animation;
-using CustomEngine.Rendering.Models;
+﻿using TheraEngine.Rendering.Animation;
+using TheraEngine.Rendering.Models;
 using System;
 using System.ComponentModel;
 
-namespace CustomEngine.Worlds.Actors
+namespace TheraEngine.Worlds.Actors
 {
     public partial class SkeletalMeshComponent : TRSComponent
     {

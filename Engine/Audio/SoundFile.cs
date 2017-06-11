@@ -1,9 +1,9 @@
 ﻿using System;
-using CustomEngine.Files;
+using TheraEngine.Files;
 using System.ComponentModel;
 using System.Collections.Generic;
 
-namespace CustomEngine.Audio
+namespace TheraEngine.Audio
 {
     public class SoundFile : FileObject
     {

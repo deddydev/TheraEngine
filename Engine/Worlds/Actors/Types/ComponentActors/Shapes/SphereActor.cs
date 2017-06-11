@@ -1,7 +1,7 @@
 ﻿using BulletSharp;
-using CustomEngine.Rendering;
-using CustomEngine.Rendering.Models;
-using CustomEngine.Rendering.Models.Materials;
+using TheraEngine.Rendering;
+using TheraEngine.Rendering.Models;
+using TheraEngine.Rendering.Models.Materials;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -9,7 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CustomEngine.Worlds.Actors
+namespace TheraEngine.Worlds.Actors
 {
     public class SphereActor : Actor<StaticMeshComponent>
     {

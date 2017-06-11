@@ -5,9 +5,9 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Text.RegularExpressions;
-using CustomEngine.Rendering.HUD;
+using TheraEngine.Rendering.HUD;
 
-namespace CustomEngine.Rendering
+namespace TheraEngine.Rendering
 {
     public interface IFuncExecInput : IBaseFuncExec
     {

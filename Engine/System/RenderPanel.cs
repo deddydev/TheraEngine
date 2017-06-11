@@ -6,15 +6,15 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Windows.Forms;
 using System.Security.Permissions;
-using CustomEngine.Input;
-using CustomEngine.Rendering;
-using CustomEngine.Rendering.HUD;
-using CustomEngine.Rendering.DirectX;
-using CustomEngine.Rendering.OpenGL;
+using TheraEngine.Input;
+using TheraEngine.Rendering;
+using TheraEngine.Rendering.HUD;
+using TheraEngine.Rendering.DirectX;
+using TheraEngine.Rendering.OpenGL;
 using System.Drawing.Imaging;
-using CustomEngine.Players;
+using TheraEngine.Players;
 
-namespace CustomEngine
+namespace TheraEngine
 {
     public static class ControlExtension
     {

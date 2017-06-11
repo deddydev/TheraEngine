@@ -1,14 +1,15 @@
-﻿using CustomEngine.Input;
-using CustomEngine.Rendering.Cameras;
-using CustomEngine.Rendering.HUD;
-using CustomEngine.Rendering.Textures;
-using CustomEngine.Worlds.Actors;
+﻿using TheraEngine.Input;
+using TheraEngine.Rendering.Cameras;
+using TheraEngine.Rendering.HUD;
+using TheraEngine.Rendering.Textures;
+using TheraEngine.Worlds.Actors;
+using TheraEngine.Worlds.Actors.Types;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Text;
 
-namespace CustomEngine.Rendering
+namespace TheraEngine.Rendering
 {
     public delegate void DelOnRender(SceneProcessor scene);
     public class Viewport

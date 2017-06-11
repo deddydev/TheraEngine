@@ -1,4 +1,4 @@
-﻿using CustomEngine.Files;
+﻿using TheraEngine.Files;
 using FreeImageAPI;
 using OpenTK.Graphics.OpenGL;
 using System;
@@ -11,7 +11,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
 
-namespace CustomEngine.Rendering.Textures
+namespace TheraEngine.Rendering.Textures
 {
     [FileClass("", "", true)]
     public class TextureData : FileObject

@@ -1,9 +1,9 @@
-﻿using CustomEngine.Rendering.Animation;
+﻿using TheraEngine.Rendering.Animation;
 using grendgine_collada;
 using System;
 using System.Collections.Generic;
 
-namespace CustomEngine.Rendering.Models
+namespace TheraEngine.Rendering.Models
 {
     public static class ColladaConverter
     {

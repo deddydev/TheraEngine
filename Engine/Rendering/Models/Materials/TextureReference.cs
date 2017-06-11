@@ -1,11 +1,11 @@
-﻿using CustomEngine.Files;
-using CustomEngine.Rendering.Textures;
+﻿using TheraEngine.Files;
+using TheraEngine.Rendering.Textures;
 using System.IO;
 using System.Drawing.Imaging;
 using FreeImageAPI;
 using System.Drawing;
 
-namespace CustomEngine.Rendering.Models.Materials
+namespace TheraEngine.Rendering.Models.Materials
 {
     public class TextureReference
     {

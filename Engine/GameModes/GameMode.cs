@@ -1,10 +1,10 @@
-﻿using CustomEngine.Files;
-using CustomEngine.Input;
-using CustomEngine.Worlds.Actors;
+﻿using TheraEngine.Files;
+using TheraEngine.Input;
+using TheraEngine.Worlds.Actors;
 using System;
 using System.Runtime.InteropServices;
 
-namespace CustomEngine.GameModes
+namespace TheraEngine.GameModes
 {
     public enum InheritableBool
     {

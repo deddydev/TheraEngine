@@ -1,14 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-using CustomEngine.Input.Devices;
-using CustomEngine.Rendering;
-using CustomEngine.Rendering.Cameras;
-using CustomEngine.Worlds.Actors;
-using CustomEngine.GameModes;
-using CustomEngine.Players;
+using TheraEngine.Input.Devices;
+using TheraEngine.Rendering;
+using TheraEngine.Rendering.Cameras;
+using TheraEngine.Worlds.Actors;
+using TheraEngine.GameModes;
+using TheraEngine.Players;
 using System.Collections.Concurrent;
 
-namespace CustomEngine.Input
+namespace TheraEngine.Input
 {
     public class LocalPlayerController : PlayerController
     {

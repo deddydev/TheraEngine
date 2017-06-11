@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using OpenTK.Input;
 using System.Linq;
 
-namespace CustomEngine.Input.Devices.OpenTK
+namespace TheraEngine.Input.Devices.OpenTK
 {
     public class TKGamepad : CGamePad
     {

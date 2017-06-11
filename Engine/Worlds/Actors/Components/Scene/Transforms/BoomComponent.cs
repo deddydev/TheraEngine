@@ -2,7 +2,7 @@
 using System;
 using System.Drawing;
 
-namespace CustomEngine.Worlds.Actors
+namespace TheraEngine.Worlds.Actors
 {
     public delegate void LengthChange(float newLength);
     public class BoomComponent : RTComponent, IRenderable
@@ -35,6 +35,8 @@ namespace CustomEngine.Worlds.Actors
             get => _maxLength;
             set => _maxLength = value;
         }
+
+        public bool HasTransparency => false;
 
         public BoomComponent() : base()
         {

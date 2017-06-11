@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Windows.Controls;
-using CustomEngine;
+using TheraEngine;
 using System.Collections.Generic;
 using System.Reflection;
 using System.ComponentModel;
@@ -11,25 +11,25 @@ namespace Editor.Wrappers
     [AttributeUsage(AttributeTargets.Class, Inherited = false, AllowMultiple = true)]
     sealed class NodeWrapperAttribute : Attribute
     {
-        ResourceType _type;
-        public NodeWrapperAttribute(ResourceType type) { _type = type; }
-        public ResourceType WrappedType { get { return _type; } }
+        //ResourceType _type;
+        //public NodeWrapperAttribute(ResourceType type) { _type = type; }
+        //public ResourceType WrappedType { get { return _type; } }
 
-        private static Dictionary<ResourceType, Type> _wrappers;
-        public static Dictionary<ResourceType, Type> Wrappers
-        {
-            get
-            {
-                if (_wrappers == null)
-                {
-                    _wrappers = new Dictionary<ResourceType, Type>();
-                    foreach (Type t in Assembly.GetExecutingAssembly().GetTypes())
-                        foreach (NodeWrapperAttribute attr in t.GetCustomAttributes(typeof(NodeWrapperAttribute), true))
-                            _wrappers[attr._type] = t;
-                }
-                return _wrappers;
-            }
-        }
+        //private static Dictionary<ResourceType, Type> _wrappers;
+        //public static Dictionary<ResourceType, Type> Wrappers
+        //{
+        //    get
+        //    {
+        //        if (_wrappers == null)
+        //        {
+        //            _wrappers = new Dictionary<ResourceType, Type>();
+        //            foreach (Type t in Assembly.GetExecutingAssembly().GetTypes())
+        //                foreach (NodeWrapperAttribute attr in t.GetCustomAttributes(typeof(NodeWrapperAttribute), true))
+        //                    _wrappers[attr._type] = t;
+        //        }
+        //        return _wrappers;
+        //    }
+        //}
     }
     [Serializable]
     public abstract class BaseWrapper : TreeViewItem

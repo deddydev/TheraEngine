@@ -1,10 +1,10 @@
-﻿using CustomEngine.Files;
-using CustomEngine.Rendering.Animation;
-using CustomEngine.Rendering.Models;
-using CustomEngine.Worlds.Actors;
+﻿using TheraEngine.Files;
+using TheraEngine.Rendering.Animation;
+using TheraEngine.Rendering.Models;
+using TheraEngine.Worlds.Actors;
 using System;
 
-namespace CustomEngine.Tests
+namespace TheraEngine.Tests
 {
     public class TestCharacter : CharacterPawn
     {

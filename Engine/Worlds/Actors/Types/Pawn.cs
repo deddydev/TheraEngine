@@ -1,10 +1,10 @@
-﻿using CustomEngine.Input;
-using CustomEngine.Input.Devices;
+﻿using TheraEngine.Input;
+using TheraEngine.Input.Devices;
 using System;
-using CustomEngine.Rendering;
-using CustomEngine.Rendering.HUD;
+using TheraEngine.Rendering;
+using TheraEngine.Rendering.HUD;
 
-namespace CustomEngine.Worlds.Actors
+namespace TheraEngine.Worlds.Actors
 {
     public enum PlayerIndex
     {

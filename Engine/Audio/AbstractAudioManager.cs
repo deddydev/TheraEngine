@@ -1,7 +1,7 @@
 ﻿using System;
-using CustomEngine.Worlds.Actors;
+using TheraEngine.Worlds.Actors;
 
-namespace CustomEngine.Audio
+namespace TheraEngine.Audio
 {
     public abstract class AbstractAudioManager
     {

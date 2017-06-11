@@ -1,10 +1,10 @@
-﻿using CustomEngine.Files;
+﻿using TheraEngine.Files;
 using System;
 using System.ComponentModel;
 using System.Reflection;
 using System.Threading.Tasks;
 
-namespace CustomEngine.Rendering.Animation
+namespace TheraEngine.Rendering.Animation
 {
     public abstract class BasePropertyAnimation : BaseAnimation
     {

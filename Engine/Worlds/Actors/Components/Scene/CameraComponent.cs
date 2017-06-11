@@ -1,10 +1,10 @@
-﻿using CustomEngine.Rendering.Cameras;
-using CustomEngine.Input;
+﻿using TheraEngine.Rendering.Cameras;
+using TheraEngine.Input;
 using System.Collections.Generic;
 using System;
 using System.Collections.Concurrent;
 
-namespace CustomEngine.Worlds.Actors
+namespace TheraEngine.Worlds.Actors
 {
     public class CameraComponent : SceneComponent
     {

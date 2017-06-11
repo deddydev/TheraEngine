@@ -2,12 +2,12 @@
 using System.Collections.Generic;
 using System.IO;
 using System.ComponentModel;
-using CustomEngine.Rendering.Models.Materials;
-using CustomEngine.Rendering.Textures;
+using TheraEngine.Rendering.Models.Materials;
+using TheraEngine.Rendering.Textures;
 using System.Linq;
-using CustomEngine.Rendering.Animation;
+using TheraEngine.Rendering.Animation;
 
-namespace CustomEngine.Rendering.Models
+namespace TheraEngine.Rendering.Models
 {
     public unsafe partial class Collada
     {

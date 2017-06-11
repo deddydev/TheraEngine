@@ -1,5 +1,5 @@
-﻿using CustomEngine.Files;
-using CustomEngine.Worlds;
+﻿using TheraEngine.Files;
+using TheraEngine.Worlds;
 using System;
 using System.IO;
 using System.Xml.Serialization;
@@ -7,7 +7,7 @@ using System.Xml;
 using System.Runtime.InteropServices;
 using System.ComponentModel;
 
-namespace CustomEngine
+namespace TheraEngine
 {
     public enum ShadingStyle
     {

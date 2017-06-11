@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CustomEngine.Rendering.Models.Materials
+namespace TheraEngine.Rendering.Models.Materials
 {
     /// <summary>
     /// 1.0f - input

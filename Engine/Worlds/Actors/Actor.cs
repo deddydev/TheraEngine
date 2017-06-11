@@ -1,17 +1,17 @@
 ﻿using System.Collections.Generic;
 using System.Collections;
-using CustomEngine.Rendering.Models;
+using TheraEngine.Rendering.Models;
 using System;
-using CustomEngine.Worlds.Actors;
+using TheraEngine.Worlds.Actors;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Runtime.InteropServices;
-using CustomEngine.Files;
+using TheraEngine.Files;
 using System.IO;
 using System.Xml;
 using System.ComponentModel;
 
-namespace CustomEngine.Worlds
+namespace TheraEngine.Worlds
 {
     public enum EActorType
     {

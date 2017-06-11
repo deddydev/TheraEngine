@@ -1,11 +1,11 @@
 ﻿using System;
 using System.IO;
 using System.Xml;
-using CustomEngine.Files;
+using TheraEngine.Files;
 using System.Runtime.InteropServices;
 using System.ComponentModel;
 
-namespace CustomEngine.Rendering.Cameras
+namespace TheraEngine.Rendering.Cameras
 {
     public class OrthographicCamera : Camera
     {

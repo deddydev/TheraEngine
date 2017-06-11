@@ -1,11 +1,11 @@
-﻿using CustomEngine.Files;
-using CustomEngine.Rendering.Models;
-using CustomEngine.Worlds.Actors;
+﻿using TheraEngine.Files;
+using TheraEngine.Rendering.Models;
+using TheraEngine.Worlds.Actors;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 
-namespace CustomEngine.Rendering.Animation
+namespace TheraEngine.Rendering.Animation
 {
     public class AnimBlendState
     {

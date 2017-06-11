@@ -1,11 +1,11 @@
-﻿using CustomEngine.Input.Devices;
-using CustomEngine.Players;
-using CustomEngine.Rendering;
-using CustomEngine.Rendering.Cameras;
-using CustomEngine.Worlds.Actors;
+﻿using TheraEngine.Input.Devices;
+using TheraEngine.Players;
+using TheraEngine.Rendering;
+using TheraEngine.Rendering.Cameras;
+using TheraEngine.Worlds.Actors;
 using System.Collections.Generic;
 
-namespace CustomEngine.Input
+namespace TheraEngine.Input
 {
     public class PlayerController : PawnController
     {

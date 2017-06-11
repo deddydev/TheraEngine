@@ -1,9 +1,9 @@
-﻿using CustomEngine.Rendering.Models.Materials;
+﻿using TheraEngine.Rendering.Models.Materials;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace CustomEngine.Rendering.Models.Materials
+namespace TheraEngine.Rendering.Models.Materials
 {
     public class MatFuncExecOutput : FuncExecOutput<MatFuncExecInput, MaterialFunction>
     {

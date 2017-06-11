@@ -1,4 +1,4 @@
-﻿using CustomEngine.Files.Serialization;
+﻿using TheraEngine.Files.Serialization;
 using System.Runtime.InteropServices;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -7,7 +7,7 @@ using System.IO;
 using System;
 using SevenZip;
 
-namespace CustomEngine.Files
+namespace TheraEngine.Files
 {
     public enum FileFormat
     {

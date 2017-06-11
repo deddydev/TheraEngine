@@ -1,9 +1,9 @@
 ﻿using System;
-using CustomEngine.GameModes;
-using CustomEngine.Worlds.Actors;
-using CustomEngine.Input;
+using TheraEngine.GameModes;
+using TheraEngine.Worlds.Actors;
+using TheraEngine.Input;
 
-namespace CustomEngine.Tests
+namespace TheraEngine.Tests
 {
     public class TestGameMode : CharacterGameMode<TestCharacter>
     {

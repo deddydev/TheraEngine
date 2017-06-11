@@ -1,11 +1,11 @@
-﻿using CustomEngine.Input;
-using CustomEngine.Input.Devices;
-using CustomEngine.Worlds.Actors;
+﻿using TheraEngine.Input;
+using TheraEngine.Input.Devices;
+using TheraEngine.Worlds.Actors;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace CustomEngine.Rendering.HUD
+namespace TheraEngine.Rendering.HUD
 {
     public partial class HudManager : Pawn<DockableHudComponent>
     {

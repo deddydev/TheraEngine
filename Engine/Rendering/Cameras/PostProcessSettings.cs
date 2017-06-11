@@ -1,4 +1,4 @@
-﻿using CustomEngine.Files;
+﻿using TheraEngine.Files;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -8,9 +8,9 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
-using CustomEngine.Rendering.Models.Materials;
+using TheraEngine.Rendering.Models.Materials;
 
-namespace CustomEngine.Rendering.Cameras
+namespace TheraEngine.Rendering.Cameras
 {
     public class PostSettings
     {

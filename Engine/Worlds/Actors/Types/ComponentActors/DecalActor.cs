@@ -1,7 +1,7 @@
-﻿using CustomEngine.Worlds.Actors;
-using CustomEngine.Worlds;
+﻿using TheraEngine.Worlds.Actors;
+using TheraEngine.Worlds;
 
-namespace CustomEngine.Worlds.Actors.Types
+namespace TheraEngine.Worlds.Actors.Types
 {
     public class DecalActor : Actor<DecalComponent>
     {

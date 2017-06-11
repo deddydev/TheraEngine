@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using CustomEngine.Rendering.Models;
+using TheraEngine.Rendering.Models;
 
-namespace CustomEngine.Particles
+namespace TheraEngine.Particles
 {
     public class ParticleState
     {

@@ -4,9 +4,9 @@ using OpenTK.Audio.OpenAL;
 using System;
 using System.Collections.Generic;
 using System.Threading;
-using CustomEngine.Worlds.Actors;
+using TheraEngine.Worlds.Actors;
 
-namespace CustomEngine.Audio
+namespace TheraEngine.Audio
 {
     public class ALAudioManager : AbstractAudioManager
     {

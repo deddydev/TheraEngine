@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace CustomEngine.Audio
+namespace TheraEngine.Audio
 {
     public class AudioSourceParameters
     {

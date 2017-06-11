@@ -1,10 +1,10 @@
-﻿using CustomEngine.Rendering.Models;
+﻿using TheraEngine.Rendering.Models;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 
-namespace CustomEngine.Rendering.Animation
+namespace TheraEngine.Rendering.Animation
 {
     public class ModelAnimation : BaseAnimation
     {

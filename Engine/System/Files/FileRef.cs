@@ -5,7 +5,7 @@ using System.IO;
 using System.Runtime.InteropServices;
 using System.Xml;
 
-namespace CustomEngine.Files
+namespace TheraEngine.Files
 {
     public interface IFileRef
     {

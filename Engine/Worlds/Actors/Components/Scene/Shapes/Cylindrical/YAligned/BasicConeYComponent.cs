@@ -1,8 +1,8 @@
 ﻿using System;
 using BulletSharp;
-using CustomEngine.Rendering;
+using TheraEngine.Rendering;
 
-namespace CustomEngine.Worlds.Actors
+namespace TheraEngine.Worlds.Actors
 {
     public class BasicConeYComponent : ShapeComponent
     {

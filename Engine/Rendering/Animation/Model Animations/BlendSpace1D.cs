@@ -1,4 +1,4 @@
-﻿using CustomEngine.Files;
+﻿using TheraEngine.Files;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CustomEngine.Rendering.Animation
+namespace TheraEngine.Rendering.Animation
 {
     public class BlendSpace1D : FileObject
     {

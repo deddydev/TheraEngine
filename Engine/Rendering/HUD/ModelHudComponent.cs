@@ -3,12 +3,12 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Collections;
 using System.ComponentModel;
-using CustomEngine.Rendering.Models.Materials;
-using CustomEngine.Rendering.Models;
-using CustomEngine.Worlds;
-using CustomEngine.Rendering.Cameras;
+using TheraEngine.Rendering.Models.Materials;
+using TheraEngine.Rendering.Models;
+using TheraEngine.Worlds;
+using TheraEngine.Rendering.Cameras;
 
-namespace CustomEngine.Rendering.HUD
+namespace TheraEngine.Rendering.HUD
 {
     public class ModelHudComponent : RenderableHudComponent
     {

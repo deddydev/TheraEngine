@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace CustomEngine.Rendering.Models.Materials
+namespace TheraEngine.Rendering.Models.Materials
 {
     public class MatFuncExecInput : FuncExecInput<MatFuncExecOutput, MaterialFunction>
     {

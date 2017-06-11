@@ -45,7 +45,7 @@
             this.leftPanel = new System.Windows.Forms.Panel();
             this.contentTree = new TheraEditor.ResourceTree();
             this.splitter1 = new System.Windows.Forms.Splitter();
-            this.renderPanel1 = new CustomEngine.RenderPanel();
+            this.renderPanel1 = new TheraEngine.RenderPanel();
             this.actorTree = new System.Windows.Forms.TreeView();
             this.splitter2 = new System.Windows.Forms.Splitter();
             this.rightPanel = new System.Windows.Forms.Panel();
@@ -432,7 +432,7 @@
         private System.Windows.Forms.Panel leftPanel;
         private System.Windows.Forms.Splitter splitter1;
         private ResourceTree contentTree;
-        private CustomEngine.RenderPanel renderPanel1;
+        private TheraEngine.RenderPanel renderPanel1;
         private System.Windows.Forms.TreeView actorTree;
         private System.Windows.Forms.Splitter splitter2;
         private System.Windows.Forms.Panel rightPanel;
@@ -462,7 +462,7 @@
         private System.Windows.Forms.ToolStripMenuItem btnUserSettings;
         private System.Windows.Forms.ToolStripMenuItem btnWorldSettings;
         private System.Windows.Forms.ComboBox cboContentViewTypes;
-        //private CustomEngine.RenderPanel renderPanel1;
+        //private TheraEngine.RenderPanel renderPanel1;
         //private ResourceTree resourceTree1;
     }
 }

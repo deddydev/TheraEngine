@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-namespace CustomEngine.Input.Devices
+namespace TheraEngine.Input.Devices
 {
     public abstract class CKeyboard : InputDevice
     {

@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace CustomEngine.Input.Devices.DirectX
+namespace TheraEngine.Input.Devices.DirectX
 {
     public class DXGamepad : CGamePad
     {

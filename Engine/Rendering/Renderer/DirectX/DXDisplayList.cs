@@ -1,4 +1,4 @@
-﻿namespace CustomEngine.Rendering.DirectX
+﻿namespace TheraEngine.Rendering.DirectX
 {
     public class DXDisplayList
     {

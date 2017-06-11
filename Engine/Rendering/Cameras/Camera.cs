@@ -1,14 +1,14 @@
-﻿using CustomEngine.Files;
-using CustomEngine.Rendering.Models;
-using CustomEngine.Rendering.Models.Materials;
+﻿using TheraEngine.Files;
+using TheraEngine.Rendering.Models;
+using TheraEngine.Rendering.Models.Materials;
 using System;
 using System.Collections.Generic;
 using System.Xml.Serialization;
-using CustomEngine.Worlds.Actors;
+using TheraEngine.Worlds.Actors;
 using System.ComponentModel;
 using System.Drawing;
 
-namespace CustomEngine.Rendering.Cameras
+namespace TheraEngine.Rendering.Cameras
 {
     public delegate void OwningComponentChange(CameraComponent previous, CameraComponent current);
     public abstract class Camera : FileObject, IRenderable
@@ -16,6 +16,8 @@ namespace CustomEngine.Rendering.Cameras
         public event OwningComponentChange OwningComponentChanged;
         public delegate void TranslationChange(Vec3 oldTranslation);
         public delegate void RotationChange(Rotator oldRotation);
+
+        public bool HasTransparency => false;
 
         public Camera() 
             : this(16.0f, 9.0f) { }

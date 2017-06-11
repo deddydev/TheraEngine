@@ -1,4 +1,4 @@
-﻿using CustomEngine.Rendering.Models.Materials;
+﻿using TheraEngine.Rendering.Models.Materials;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -7,7 +7,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace CustomEngine.Rendering.Models
+namespace TheraEngine.Rendering.Models
 {
     public enum EDrawElementType
     {

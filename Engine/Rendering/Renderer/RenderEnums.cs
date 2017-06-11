@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CustomEngine.Rendering
+namespace TheraEngine.Rendering
 {
     public enum EPixelType
     {

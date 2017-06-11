@@ -1,9 +1,9 @@
 ﻿using System;
 using System.IO;
 using System.Xml;
-using CustomEngine.Files;
+using TheraEngine.Files;
 
-namespace CustomEngine.Particles
+namespace TheraEngine.Particles
 {
     public class Emitter : FileObject
     {

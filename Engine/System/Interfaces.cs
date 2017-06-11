@@ -1,9 +1,9 @@
-﻿using CustomEngine.Files;
-using CustomEngine.Rendering.Models;
-using CustomEngine.Rendering.Models.Materials;
+﻿using TheraEngine.Files;
+using TheraEngine.Rendering.Models;
+using TheraEngine.Rendering.Models.Materials;
 using System;
 
-namespace CustomEngine
+namespace TheraEngine
 {
     public interface IParsable
     {
@@ -39,6 +39,7 @@ namespace CustomEngine
     public interface IRenderable : I3DBoundable
     {
         void Render();
+        bool HasTransparency { get; }
     }
     public interface I3DBoundable
     {

@@ -1,4 +1,4 @@
-﻿using CustomEngine.Rendering.HUD;
+﻿using TheraEngine.Rendering.HUD;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -7,7 +7,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CustomEngine.Rendering
+namespace TheraEngine.Rendering
 {
     public class FunctionDefinition : Attribute
     {

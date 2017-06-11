@@ -1,4 +1,4 @@
-﻿namespace CustomEngine.Worlds.Actors
+﻿namespace TheraEngine.Worlds.Actors
 {
     public class TransformMovementComponent
     {

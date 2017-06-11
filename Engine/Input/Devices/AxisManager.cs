@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CustomEngine.Input.Devices
+namespace TheraEngine.Input.Devices
 {
     public delegate void DelAxisValue(float value);
     public class AxisManager : ButtonManager

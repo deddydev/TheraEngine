@@ -5,7 +5,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CustomEngine.Worlds.Actors
+namespace TheraEngine.Worlds.Actors
 {
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public unsafe struct ActorStateHeader

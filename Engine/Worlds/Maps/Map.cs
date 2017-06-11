@@ -1,10 +1,10 @@
-﻿using CustomEngine.Worlds.Maps;
-using CustomEngine.Files;
+﻿using TheraEngine.Worlds.Maps;
+using TheraEngine.Files;
 using System;
 using System.IO;
 using System.Xml;
 
-namespace CustomEngine.Worlds
+namespace TheraEngine.Worlds
 {
     public class Map : FileObject
     {

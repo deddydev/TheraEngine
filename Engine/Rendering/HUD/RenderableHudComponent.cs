@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Collections;
 using System.ComponentModel;
-using CustomEngine.Rendering.Models.Materials;
-using CustomEngine.Rendering.Models;
-using CustomEngine.Worlds;
+using TheraEngine.Rendering.Models.Materials;
+using TheraEngine.Rendering.Models;
+using TheraEngine.Worlds;
 
-namespace CustomEngine.Rendering.HUD
+namespace TheraEngine.Rendering.HUD
 {
     public class RenderableHudComponent : DockableHudComponent
     {

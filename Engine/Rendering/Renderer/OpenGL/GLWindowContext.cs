@@ -6,7 +6,7 @@ using System;
 using System.Drawing;
 using System.Diagnostics;
 
-namespace CustomEngine.Rendering.OpenGL
+namespace TheraEngine.Rendering.OpenGL
 {
     public class GLWindowContext : RenderContext
     {

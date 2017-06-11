@@ -4,10 +4,10 @@ using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using System.Xml;
-using CustomEngine.Files;
+using TheraEngine.Files;
 using System.ComponentModel;
 
-namespace CustomEngine.Rendering.Animation
+namespace TheraEngine.Rendering.Animation
 {
     delegate Vec2 Vec2GetValue(float frameIndex);
     public class PropAnimVec2 : PropertyAnimation<Vec2Keyframe>, IEnumerable<Vec2Keyframe>

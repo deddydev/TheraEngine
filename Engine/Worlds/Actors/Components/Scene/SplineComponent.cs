@@ -1,14 +1,15 @@
-﻿using CustomEngine.Rendering.Animation;
-using CustomEngine.Rendering.Models;
-using CustomEngine.Rendering.Models.Materials;
+﻿using TheraEngine.Rendering.Animation;
+using TheraEngine.Rendering.Models;
+using TheraEngine.Rendering.Models.Materials;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
 
-namespace CustomEngine.Worlds.Actors
+namespace TheraEngine.Worlds.Actors
 {
     public class SplineComponent : TRSComponent, IRenderable
     {
+        public bool HasTransparency => false;
         private PropAnimVec3 _spline;
         private PrimitiveManager _splinePrimitive;
         private PrimitiveManager _velocityPrimitive;

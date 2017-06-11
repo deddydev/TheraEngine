@@ -1,13 +1,13 @@
-﻿using CustomEngine.Rendering.Models;
+﻿using TheraEngine.Rendering.Models;
 using System;
 using System.Reflection;
-using CustomEngine.Rendering.Animation;
-using CustomEngine.Rendering;
+using TheraEngine.Rendering.Animation;
+using TheraEngine.Rendering;
 using System.ComponentModel;
 using BulletSharp;
 using System.Collections.Generic;
 
-namespace CustomEngine.Worlds.Actors
+namespace TheraEngine.Worlds.Actors
 {
     public class StaticMeshSocket : ISocket
     {

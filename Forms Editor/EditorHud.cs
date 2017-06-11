@@ -1,10 +1,10 @@
-﻿using CustomEngine;
-using CustomEngine.Input.Devices;
-using CustomEngine.Rendering;
-using CustomEngine.Rendering.HUD;
-using CustomEngine.Worlds;
-using CustomEngine.Worlds.Actors;
-using CustomEngine.Worlds.Actors.Types;
+﻿using TheraEngine;
+using TheraEngine.Input.Devices;
+using TheraEngine.Rendering;
+using TheraEngine.Rendering.HUD;
+using TheraEngine.Worlds;
+using TheraEngine.Worlds.Actors;
+using TheraEngine.Worlds.Actors.Types;
 using System;
 
 namespace TheraEditor

@@ -8,7 +8,7 @@ using System.Xml;
 using System.ComponentModel;
 using System.IO;
 
-namespace CustomEngine.Rendering.Models
+namespace TheraEngine.Rendering.Models
 {
     public enum EBufferTarget
     {

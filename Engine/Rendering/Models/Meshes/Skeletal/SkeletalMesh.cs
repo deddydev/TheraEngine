@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using CustomEngine.Worlds.Actors;
+using TheraEngine.Worlds.Actors;
 using System.Linq;
-using CustomEngine.Files;
+using TheraEngine.Files;
 using System.Collections;
 using System.Collections.ObjectModel;
 using System.IO;
@@ -11,7 +11,7 @@ using System.Xml;
 using System.Runtime.InteropServices;
 using System.ComponentModel;
 
-namespace CustomEngine.Rendering.Models
+namespace TheraEngine.Rendering.Models
 {
     [FileClass("SKM", "Skeletal Mesh")]
     public class SkeletalMesh : FileObject, IModelFile

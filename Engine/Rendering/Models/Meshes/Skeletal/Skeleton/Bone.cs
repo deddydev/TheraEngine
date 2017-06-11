@@ -1,15 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using BulletSharp;
-using CustomEngine.Files;
-using CustomEngine.Worlds.Actors;
+using TheraEngine.Files;
+using TheraEngine.Worlds.Actors;
 using System.Xml;
 using System.Runtime.InteropServices;
 using System.IO;
 using System.ComponentModel;
 using System.Threading;
 
-namespace CustomEngine.Rendering.Models
+namespace TheraEngine.Rendering.Models
 {
     public enum BillboardType
     {

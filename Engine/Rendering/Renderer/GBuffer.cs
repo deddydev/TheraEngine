@@ -1,13 +1,13 @@
-﻿using CustomEngine.Rendering.Cameras;
-using CustomEngine.Rendering.Models;
-using CustomEngine.Rendering.Models.Materials;
-using CustomEngine.Rendering.Textures;
+﻿using TheraEngine.Rendering.Cameras;
+using TheraEngine.Rendering.Models;
+using TheraEngine.Rendering.Models.Materials;
+using TheraEngine.Rendering.Textures;
 using OpenTK.Graphics.OpenGL;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace CustomEngine.Rendering
+namespace TheraEngine.Rendering
 {
     public class GBufferMeshProgram : MeshProgram
     {

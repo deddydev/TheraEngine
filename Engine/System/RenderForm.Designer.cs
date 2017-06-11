@@ -1,4 +1,4 @@
-﻿namespace CustomEngine
+﻿namespace TheraEngine
 {
     partial class RenderForm
     {
@@ -28,7 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.renderPanel1 = new CustomEngine.RenderPanel();
+            this.renderPanel1 = new TheraEngine.RenderPanel();
             this.SuspendLayout();
             // 
             // renderPanel1

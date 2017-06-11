@@ -1,6 +1,6 @@
 ﻿using BulletSharp;
-using CustomEngine.Files;
-using CustomEngine.Worlds.Actors;
+using TheraEngine.Files;
+using TheraEngine.Worlds.Actors;
 using System;
 using System.Collections.Generic;
 using System.Collections;
@@ -12,11 +12,12 @@ using System.IO;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 
-namespace CustomEngine.Rendering.Models
+namespace TheraEngine.Rendering.Models
 {
     [FileClass("SKEL", "Skeleton")]
     public class Skeleton : FileObject, IEnumerable<Bone>, IRenderable
     {
+        public bool HasTransparency => false;
         public Skeleton() : base() { }
         public Skeleton(params Bone[] rootBones) : base()
         {

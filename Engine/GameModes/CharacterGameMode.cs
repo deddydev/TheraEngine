@@ -1,11 +1,11 @@
 ﻿using System;
-using CustomEngine.GameModes;
-using CustomEngine.Worlds.Actors;
-using CustomEngine.Input;
-using CustomEngine.Worlds.Actors.Types;
-using CustomEngine.Worlds;
+using TheraEngine.GameModes;
+using TheraEngine.Worlds.Actors;
+using TheraEngine.Input;
+using TheraEngine.Worlds.Actors.Types;
+using TheraEngine.Worlds;
 
-namespace CustomEngine.GameModes
+namespace TheraEngine.GameModes
 {
     public interface ICharacterGameMode : IGameMode
     {

@@ -1,7 +1,7 @@
-﻿using CustomEngine.Rendering;
+﻿using TheraEngine.Rendering;
 using System;
 
-namespace CustomEngine.Worlds.Actors
+namespace TheraEngine.Worlds.Actors
 {
     public class GravityVolumeComponent : BoxComponent
     {

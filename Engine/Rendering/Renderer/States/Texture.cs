@@ -1,4 +1,4 @@
-﻿using CustomEngine.Rendering.Models.Materials;
+﻿using TheraEngine.Rendering.Models.Materials;
 using FreeImageAPI;
 using System;
 using System.Drawing;
@@ -6,7 +6,7 @@ using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 
-namespace CustomEngine.Rendering.Textures
+namespace TheraEngine.Rendering.Textures
 {
     public class Texture : BaseRenderState
     {

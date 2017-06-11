@@ -1,10 +1,10 @@
-﻿using CustomEngine.Rendering.Models;
-using CustomEngine.Rendering.Models.Materials;
-using CustomEngine.Rendering.Textures;
+﻿using TheraEngine.Rendering.Models;
+using TheraEngine.Rendering.Models.Materials;
+using TheraEngine.Rendering.Textures;
 using System.Linq;
 using System;
 
-namespace CustomEngine.Rendering
+namespace TheraEngine.Rendering
 {
     public class MeshProgram : BaseRenderState
     {

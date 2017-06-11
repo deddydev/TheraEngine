@@ -1,18 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using CustomEngine.Worlds.Actors;
+using TheraEngine.Worlds.Actors;
 using System.Linq;
-using CustomEngine.Files;
+using TheraEngine.Files;
 using System.Collections;
 using System.Collections.ObjectModel;
-using CustomEngine.Rendering.Models.Materials;
+using TheraEngine.Rendering.Models.Materials;
 using System.IO;
 using System.Xml;
 using BulletSharp;
 using System.ComponentModel;
 
-namespace CustomEngine.Rendering.Models
+namespace TheraEngine.Rendering.Models
 {
     [FileClass("STM", "Static Mesh")]
     public class StaticMesh : FileObject, IModelFile

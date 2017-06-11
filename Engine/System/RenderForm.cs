@@ -1,12 +1,12 @@
-﻿using CustomEngine;
+﻿using TheraEngine;
 using System.Threading;
 using System.Windows.Forms;
 using System;
 using System.Drawing;
 using System.IO;
-using CustomEngine.Worlds;
+using TheraEngine.Worlds;
 
-namespace CustomEngine
+namespace TheraEngine
 {
     public partial class RenderForm : Form
     {

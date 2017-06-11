@@ -1,14 +1,14 @@
-﻿using CustomEngine.Files;
+﻿using TheraEngine.Files;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.IO;
 using System.Xml;
-using CustomEngine.GameModes;
-using CustomEngine.Audio;
+using TheraEngine.GameModes;
+using TheraEngine.Audio;
 using System.ComponentModel;
 
-namespace CustomEngine.Worlds.Maps
+namespace TheraEngine.Worlds.Maps
 {
     public class MapSettings : FileObject
     {

@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using CustomEngine.Worlds.Actors;
+using TheraEngine.Worlds.Actors;
 using BulletSharp;
 using System.Drawing;
 
-namespace CustomEngine.Worlds.Actors.Types
+namespace TheraEngine.Worlds.Actors.Types
 {
     public class LandscapeActor : Actor<PositionComponent>
     {

@@ -1,14 +1,14 @@
-﻿using CustomEngine.Worlds.Actors.Components;
+﻿using TheraEngine.Worlds.Actors.Components;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Collections;
-using CustomEngine.Files;
+using TheraEngine.Files;
 using System.IO;
 using System.Xml;
-using CustomEngine.Worlds.Actors;
+using TheraEngine.Worlds.Actors;
 using Thera.Worlds.Actors.Items;
 
 namespace Thera.Worlds.Actors.Components.Logic

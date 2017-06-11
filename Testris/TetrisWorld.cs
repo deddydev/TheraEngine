@@ -1,6 +1,6 @@
-﻿using CustomEngine;
-using CustomEngine.Audio;
-using CustomEngine.Worlds;
+﻿using TheraEngine;
+using TheraEngine.Audio;
+using TheraEngine.Worlds;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,6 +11,11 @@ namespace Testris
 {
     public class TetrisWorld : World
     {
+        public TetrisWorld(WorldSettings settings) : base(settings)
+        {
+
+        }
+
         protected override void OnLoaded()
         {
             _settings = new WorldSettings("Tetris")

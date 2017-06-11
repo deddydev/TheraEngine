@@ -1,12 +1,12 @@
-﻿using CustomEngine.Rendering.Models;
-using CustomEngine.Rendering.Models.Materials;
+﻿using TheraEngine.Rendering.Models;
+using TheraEngine.Rendering.Models.Materials;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 
-namespace CustomEngine.Rendering.Animation
+namespace TheraEngine.Rendering.Animation
 {
     delegate Vec3 Vec3GetValue(float frameIndex);
     public class PropAnimVec3 : PropertyAnimation<Vec3Keyframe>, IEnumerable<Vec3Keyframe>

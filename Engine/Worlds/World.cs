@@ -2,13 +2,13 @@
 using System.Collections;
 using BulletSharp;
 using System;
-using CustomEngine.Files;
-using CustomEngine.Rendering;
-using CustomEngine.Input;
+using TheraEngine.Files;
+using TheraEngine.Rendering;
+using TheraEngine.Input;
 using System.ComponentModel;
-using CustomEngine.GameModes;
+using TheraEngine.GameModes;
 
-namespace CustomEngine.Worlds
+namespace TheraEngine.Worlds
 {
     public interface IWorld
     {

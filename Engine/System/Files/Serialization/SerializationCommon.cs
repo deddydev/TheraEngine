@@ -1,4 +1,4 @@
-﻿using CustomEngine.Tools;
+﻿using TheraEngine.Tools;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -11,7 +11,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
 
-namespace CustomEngine.Files.Serialization
+namespace TheraEngine.Files.Serialization
 {
     internal enum InterfaceType
     {

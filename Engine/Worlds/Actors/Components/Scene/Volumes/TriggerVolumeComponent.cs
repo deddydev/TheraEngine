@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace CustomEngine.Worlds.Actors
+namespace TheraEngine.Worlds.Actors
 {
     public delegate void DelOnOverlapEnter(IActor actor);
     public delegate void DelOnOverlapLeave(IActor actor);

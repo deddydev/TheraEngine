@@ -1,8 +1,8 @@
-﻿using CustomEngine.Rendering.Models;
-using CustomEngine.Worlds;
+﻿using TheraEngine.Rendering.Models;
+using TheraEngine.Worlds;
 using System;
 
-namespace CustomEngine
+namespace TheraEngine
 {
     public delegate void OnTraceHit(HitInfo hit);
     public class HitInfo

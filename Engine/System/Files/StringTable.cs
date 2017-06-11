@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using CustomEngine.Rendering.Models;
-using CustomEngine.Files.Serialization;
+using TheraEngine.Rendering.Models;
+using TheraEngine.Files.Serialization;
 
-namespace CustomEngine.Files
+namespace TheraEngine.Files
 {
     public unsafe class StringTable
     {

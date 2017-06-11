@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Windows.Controls;
 
-namespace CustomEngine.Rendering
+namespace TheraEngine.Rendering
 {
     public abstract class RenderContext : IDisposable
     {

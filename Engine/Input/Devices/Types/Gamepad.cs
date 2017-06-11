@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using CustomEngine.Input.Devices.OpenTK;
-using CustomEngine.Input.Devices.DirectX;
+using TheraEngine.Input.Devices.OpenTK;
+using TheraEngine.Input.Devices.DirectX;
 
-namespace CustomEngine.Input.Devices
+namespace TheraEngine.Input.Devices
 {
     public enum GamePadButton : int
     {

@@ -1,4 +1,4 @@
-﻿using CustomEngine.Tools;
+﻿using TheraEngine.Tools;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -7,7 +7,7 @@ using System.Linq;
 using System.Reflection;
 using System.Xml;
 
-namespace CustomEngine.Files.Serialization
+namespace TheraEngine.Files.Serialization
 {
     public static partial class CustomXmlSerializer
     {

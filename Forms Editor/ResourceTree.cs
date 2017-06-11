@@ -3,11 +3,11 @@ using System.Windows.Forms;
 using System.ComponentModel;
 using System.Drawing;
 using System.Runtime.InteropServices;
-using CustomEngine.Files;
+using TheraEngine.Files;
 using TheraEditor.Properties;
 using TheraEditor.Wrappers;
 using System.IO;
-using CustomEngine;
+using TheraEngine;
 using System.Collections.Generic;
 
 namespace TheraEditor

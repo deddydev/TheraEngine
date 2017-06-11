@@ -1,9 +1,9 @@
 ﻿using BulletSharp;
-using CustomEngine.Rendering;
-using CustomEngine;
-using CustomEngine.Rendering.Models;
-using CustomEngine.Worlds.Actors;
-using CustomEngine.Files;
+using TheraEngine.Rendering;
+using TheraEngine;
+using TheraEngine.Rendering.Models;
+using TheraEngine.Worlds.Actors;
+using TheraEngine.Files;
 using System.Collections.Generic;
 using System.ComponentModel;
 
@@ -100,6 +100,8 @@ namespace System
             get { return _renderNode; }
             set { _renderNode = value; }
         }
+
+        public bool HasTransparency => false;
 
         public abstract void Render();
         public abstract CollisionShape GetCollisionShape();

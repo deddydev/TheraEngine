@@ -1,8 +1,8 @@
-﻿using CustomEngine.Rendering.Animation;
-using CustomEngine.Rendering.Models;
+﻿using TheraEngine.Rendering.Animation;
+using TheraEngine.Rendering.Models;
 using System;
 
-namespace CustomEngine.Rendering.Animation
+namespace TheraEngine.Rendering.Animation
 {
     public abstract class AnimationFunction
         : Function<AnimFuncValueInput, AnimFuncValueOutput, AnimFuncExecInput, AnimFuncExecOutput>

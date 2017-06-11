@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CustomEngine.Rendering.Textures
+namespace TheraEngine.Rendering.Textures
 {
     public unsafe abstract class TextureConverter
     {

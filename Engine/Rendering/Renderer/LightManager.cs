@@ -1,13 +1,13 @@
-﻿using CustomEngine.Rendering.Cameras;
-using CustomEngine.Worlds;
+﻿using TheraEngine.Rendering.Cameras;
+using TheraEngine.Worlds;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using CustomEngine.Worlds.Actors;
+using TheraEngine.Worlds.Actors;
 
-namespace CustomEngine.Rendering
+namespace TheraEngine.Rendering
 {
     public class LightManager
     {

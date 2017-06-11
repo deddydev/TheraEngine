@@ -1,6 +1,6 @@
 ﻿using OpenTK.Input;
 
-namespace CustomEngine.Input.Devices.OpenTK
+namespace TheraEngine.Input.Devices.OpenTK
 {
     public class TKKeyboard : CKeyboard
     {

@@ -1,6 +1,6 @@
 ﻿using System.Linq;
 
-namespace CustomEngine.Rendering.Models.Materials
+namespace TheraEngine.Rendering.Models.Materials
 {
     public class MatFuncValueInput : FuncValueInput<MatFuncValueOutput, MaterialFunction>
     {

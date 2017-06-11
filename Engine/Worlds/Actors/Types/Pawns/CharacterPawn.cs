@@ -1,18 +1,18 @@
 ﻿using System;
-using CustomEngine.Rendering;
-using CustomEngine.GameModes;
+using TheraEngine.Rendering;
+using TheraEngine.GameModes;
 using BulletSharp;
-using CustomEngine.Files;
-using CustomEngine.Rendering.Models;
+using TheraEngine.Files;
+using TheraEngine.Rendering.Models;
 using System.ComponentModel;
-using CustomEngine.Input.Devices;
-using CustomEngine.Rendering.Cameras;
+using TheraEngine.Input.Devices;
+using TheraEngine.Rendering.Cameras;
 using System.Diagnostics;
-using CustomEngine.Input;
-using CustomEngine.Rendering.Animation;
-using CustomEngine.Tests;
+using TheraEngine.Input;
+using TheraEngine.Rendering.Animation;
+using TheraEngine.Tests;
 
-namespace CustomEngine.Worlds.Actors
+namespace TheraEngine.Worlds.Actors
 {
     /// <summary>
     /// Use this interface for interaction with pawns.

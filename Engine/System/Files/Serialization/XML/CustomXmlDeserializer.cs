@@ -5,7 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 
-namespace CustomEngine.Files.Serialization
+namespace TheraEngine.Files.Serialization
 {
     public static partial class CustomXmlSerializer
     {

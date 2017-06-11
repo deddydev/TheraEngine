@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Drawing;
 
-namespace CustomEngine.Worlds
+namespace TheraEngine.Worlds
 {
     public class WorldDebugDrawer : DebugDraw
     {
@@ -16,6 +16,8 @@ namespace CustomEngine.Worlds
             get => _mode;
             set => _mode = value;
         }
+
+       
 
         public override void Draw3dText(ref Vector3 location, string textString)
         {

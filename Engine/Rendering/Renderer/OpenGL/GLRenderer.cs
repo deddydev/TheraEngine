@@ -1,7 +1,7 @@
-﻿using CustomEngine.Rendering.Animation;
-using CustomEngine.Rendering.Models;
-using CustomEngine.Rendering.Models.Materials;
-using CustomEngine.Rendering.Textures;
+﻿using TheraEngine.Rendering.Animation;
+using TheraEngine.Rendering.Models;
+using TheraEngine.Rendering.Models.Materials;
+using TheraEngine.Rendering.Textures;
 using OpenTK.Graphics.OpenGL;
 using System;
 using System.Collections.Generic;
@@ -10,7 +10,7 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.Linq;
 
-namespace CustomEngine.Rendering.OpenGL
+namespace TheraEngine.Rendering.OpenGL
 {
     public unsafe class GLRenderer : AbstractRenderer
     {

@@ -2,8 +2,8 @@
 using System.Windows.Forms;
 using System.IO;
 using System.ComponentModel;
-using CustomEngine;
-using CustomEngine.Worlds;
+using TheraEngine;
+using TheraEngine.Worlds;
 using TheraEditor.Properties;
 
 namespace TheraEditor.Wrappers

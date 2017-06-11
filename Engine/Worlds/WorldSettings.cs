@@ -1,14 +1,14 @@
-﻿using CustomEngine.Files;
-using CustomEngine.GameModes;
-using CustomEngine.Rendering.Models.Materials;
+﻿using TheraEngine.Files;
+using TheraEngine.GameModes;
+using TheraEngine.Rendering.Models.Materials;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using CustomEngine.Audio;
-using CustomEngine.Rendering.HUD;
+using TheraEngine.Audio;
+using TheraEngine.Rendering.HUD;
 using System.ComponentModel;
 
-namespace CustomEngine.Worlds
+namespace TheraEngine.Worlds
 {
     public delegate void GravityChange(Vec3 oldGravity);
     public delegate void GameModeChange(BaseGameMode oldMode);

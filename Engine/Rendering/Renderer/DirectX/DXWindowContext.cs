@@ -4,7 +4,7 @@ using SlimDX.Direct3D11;
 using SlimDX.DXGI;
 using SlimDX;
 
-namespace CustomEngine.Rendering.DirectX
+namespace TheraEngine.Rendering.DirectX
 {
     public class DXWindowContext : RenderContext
     {

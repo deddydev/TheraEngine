@@ -6,7 +6,7 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.Serialization;
 
-namespace CustomEngine.Files.Serialization
+namespace TheraEngine.Files.Serialization
 {
     public static partial class CustomBinarySerializer
     {

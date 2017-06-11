@@ -1,5 +1,5 @@
-﻿using CustomEngine.Files;
-using CustomEngine.Rendering.Models.Materials;
+﻿using TheraEngine.Files;
+using TheraEngine.Rendering.Models.Materials;
 using OpenTK.Graphics.OpenGL;
 using System;
 using System.Collections.Generic;
@@ -10,9 +10,9 @@ using System.Text;
 using System.Threading.Tasks;
 using System.IO;
 using System.Xml;
-using CustomEngine.Rendering.Cameras;
+using TheraEngine.Rendering.Cameras;
 
-namespace CustomEngine.Rendering.Models.Materials
+namespace TheraEngine.Rendering.Models.Materials
 {
     public class Material : FileObject
     {
@@ -29,6 +29,7 @@ namespace CustomEngine.Rendering.Models.Materials
         private List<GLVar> _parameters = new List<GLVar>();
         private List<IRenderable> _renderingReferences = new List<IRenderable>();
         private int _bindingId = -1;
+        private bool _hasTransparency = false;
 
         public int BindingId => _bindingId;
         public List<GLVar> Parameters
@@ -41,6 +42,8 @@ namespace CustomEngine.Rendering.Models.Materials
             get => _textures;
             set => _textures = value;
         }
+        public bool HasTransparency { get => _hasTransparency; set => _hasTransparency = value; }
+
         internal void AddReference(IRenderable user)
         {
             if (_renderingReferences.Count == 0)

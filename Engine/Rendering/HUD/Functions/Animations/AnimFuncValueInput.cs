@@ -1,6 +1,6 @@
 ﻿using System.Linq;
 
-namespace CustomEngine.Rendering.Animation
+namespace TheraEngine.Rendering.Animation
 {
     public class AnimFuncValueInput : FuncValueInput<AnimFuncValueOutput, AnimationFunction>
     {

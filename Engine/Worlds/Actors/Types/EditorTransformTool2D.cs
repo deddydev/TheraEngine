@@ -1,9 +1,9 @@
-﻿using CustomEngine.Rendering.Cameras;
-using CustomEngine.Rendering.HUD;
+﻿using TheraEngine.Rendering.Cameras;
+using TheraEngine.Rendering.HUD;
 using System;
 using System.Collections.Generic;
 
-namespace CustomEngine.Worlds.Actors.Types
+namespace TheraEngine.Worlds.Actors.Types
 {
     public class EditorTransformTool2D : HudComponent
     {

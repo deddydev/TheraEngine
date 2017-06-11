@@ -1,10 +1,10 @@
-﻿using CustomEngine.Rendering.Cameras;
+﻿using TheraEngine.Rendering.Cameras;
 using System.Drawing;
 using System;
 using System.Collections.Generic;
-using CustomEngine.Worlds.Actors;
+using TheraEngine.Worlds.Actors;
 
-namespace CustomEngine.Rendering.HUD
+namespace TheraEngine.Rendering.HUD
 {
     //TODO: make base hud component that contains quadtree
     /// <summary>

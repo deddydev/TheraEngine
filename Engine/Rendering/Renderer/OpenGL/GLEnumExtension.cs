@@ -1,11 +1,11 @@
-﻿using CustomEngine.Rendering;
+﻿using TheraEngine.Rendering;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CustomEngine.Rendering.OpenGL
+namespace TheraEngine.Rendering.OpenGL
 {
     public static class GLEnumExtension
     {

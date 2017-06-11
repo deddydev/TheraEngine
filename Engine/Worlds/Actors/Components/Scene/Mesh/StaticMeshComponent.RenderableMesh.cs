@@ -1,8 +1,8 @@
-﻿using CustomEngine.Rendering.Models;
+﻿using TheraEngine.Rendering.Models;
 using System;
-using CustomEngine.Rendering;
+using TheraEngine.Rendering;
 
-namespace CustomEngine.Worlds.Actors
+namespace TheraEngine.Worlds.Actors
 {
     public partial class StaticMeshComponent : TRSComponent, IPhysicsDrivable
     {
@@ -41,6 +41,7 @@ namespace CustomEngine.Worlds.Actors
             private IOctreeNode _renderNode;
             private Shape _cullingVolume;
 
+            public bool HasTransparency => _mesh.Material.HasTransparency;
             public Shape CullingVolume => _cullingVolume;
             public bool Visible
             {

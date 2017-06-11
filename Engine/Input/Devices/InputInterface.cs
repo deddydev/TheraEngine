@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace CustomEngine.Input.Devices
+namespace TheraEngine.Input.Devices
 {
     public enum ButtonInputType
     {

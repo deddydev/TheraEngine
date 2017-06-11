@@ -1,11 +1,11 @@
-﻿using CustomEngine.Rendering.Models;
+﻿using TheraEngine.Rendering.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CustomEngine.Rendering.Animation
+namespace TheraEngine.Rendering.Animation
 {
     public class ModelAnimationFrame
     {

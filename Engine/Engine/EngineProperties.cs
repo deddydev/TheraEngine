@@ -1,21 +1,21 @@
 ﻿using System;
 using System.Windows.Forms;
 using System.Collections.Generic;
-using CustomEngine.Rendering;
-using CustomEngine.Worlds;
-using CustomEngine.Input;
-using CustomEngine.Audio;
-using CustomEngine.Input.Devices;
-using CustomEngine.Input.Devices.OpenTK;
-using CustomEngine.Input.Devices.DirectX;
-using CustomEngine.Files;
-using CustomEngine.Worlds.Actors;
+using TheraEngine.Rendering;
+using TheraEngine.Worlds;
+using TheraEngine.Input;
+using TheraEngine.Audio;
+using TheraEngine.Input.Devices;
+using TheraEngine.Input.Devices.OpenTK;
+using TheraEngine.Input.Devices.DirectX;
+using TheraEngine.Files;
+using TheraEngine.Worlds.Actors;
 using System.Drawing.Text;
 using System.Diagnostics;
 using System.Threading;
 using System.Collections.Concurrent;
 
-namespace CustomEngine
+namespace TheraEngine
 {
     public static partial class Engine
     {

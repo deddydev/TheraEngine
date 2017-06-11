@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace CustomEngine.Input.Devices.Windows
+namespace TheraEngine.Input.Devices.Windows
 {
     public class WinMouse : CMouse
     {

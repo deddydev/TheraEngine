@@ -1,15 +1,15 @@
-﻿using CustomEngine.Rendering.Animation;
-using CustomEngine.Rendering.Cameras;
-using CustomEngine.Rendering.Models;
-using CustomEngine.Rendering.Models.Materials;
-using CustomEngine.Worlds.Actors.Types;
+﻿using TheraEngine.Rendering.Animation;
+using TheraEngine.Rendering.Cameras;
+using TheraEngine.Rendering.Models;
+using TheraEngine.Rendering.Models.Materials;
+using TheraEngine.Worlds.Actors.Types;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Text;
 using System.Linq;
 
-namespace CustomEngine.Rendering
+namespace TheraEngine.Rendering
 {
     /// <summary>
     /// This class is meant to be overridden with an implementation such as OpenTK or DirectX

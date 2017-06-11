@@ -1,11 +1,11 @@
-﻿using CustomEngine.Rendering.Models;
+﻿using TheraEngine.Rendering.Models;
 using System;
 using System.Collections.Generic;
 using System.Collections;
 using System.ComponentModel;
-using CustomEngine.Rendering;
+using TheraEngine.Rendering;
 
-namespace CustomEngine.Worlds.Actors
+namespace TheraEngine.Worlds.Actors
 {
     public interface ISocket
     {

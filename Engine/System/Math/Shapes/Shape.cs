@@ -108,10 +108,37 @@ namespace System
         public abstract EContainment Contains(BoundingBox box);
         public abstract EContainment Contains(Box box);
         public abstract EContainment Contains(Sphere sphere);
+        public EContainment Contains(Shape shape)
+        {
+            if (shape != null)
+            {
+                if (shape is BoundingBox bb)
+                    return Contains(bb);
+                else if (shape is Box b)
+                    return Contains(b);
+                else if (shape is Sphere s)
+                    return Contains(s);
+            }
+            return EContainment.Disjoint;
+        }
         public abstract EContainment ContainedWithin(BoundingBox box);
         public abstract EContainment ContainedWithin(Box box);
         public abstract EContainment ContainedWithin(Sphere sphere);
         public abstract EContainment ContainedWithin(Frustum frustum);
+        public EContainment ContainedWithin(Shape shape)
+        {
+            if (shape != null)
+            {
+                if (shape is BoundingBox bb)
+                    return ContainedWithin(bb);
+                else if (shape is Box b)
+                    return ContainedWithin(b);
+                else if (shape is Sphere s)
+                    return ContainedWithin(s);
+            }
+            return EContainment.Disjoint;
+        }
+
         /// <summary>
         /// Applies the transform to this shape.
         /// </summary>

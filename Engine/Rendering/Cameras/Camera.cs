@@ -36,12 +36,7 @@ namespace CustomEngine.Rendering.Cameras
             _localPoint.Changed += PositionChanged;
             PositionChanged();
         }
-
-        public bool Moved
-        {
-            get => _moved;
-            internal set => _moved = value;
-        }
+        
         public Matrix4 ProjectionMatrix => _projectionMatrix;
         public Matrix4 ProjectionMatrixInverse => _projectionInverse;
         public Matrix4 WorldMatrix
@@ -181,7 +176,6 @@ namespace CustomEngine.Rendering.Cameras
             }
         }
         
-        private bool _moved;
         private CameraComponent _owningComponent;
         private List<Viewport> _viewports = new List<Viewport>();
         internal bool _isActive = false;
@@ -353,7 +347,6 @@ namespace CustomEngine.Rendering.Cameras
 
         protected void OnTransformChanged()
         {
-            _moved = true;
             _forwardInvalidated = _upInvalidated = _rightInvalidated = true;
             _updating = true;
             TransformChanged?.Invoke();

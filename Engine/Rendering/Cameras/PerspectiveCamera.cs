@@ -131,5 +131,13 @@ namespace CustomEngine.Rendering.Cameras
         {
             return WorldPoint.DistanceToFast(point) * radius / (_fovY / 45.0f) * 0.1f;
         }
+        public float FrustumHeightAtDistance(float distance)
+        {
+            return 2.0f * distance * (float)Math.Tan(CustomMath.DegToRad(_fovY * 0.5f));
+        }
+        public float FOVForHeightAndDistance(float height, float distance)
+        {
+            return 2.0f * CustomMath.RadToDeg((float)Math.Atan(height * 0.5f / distance));
+        }
     }
 }

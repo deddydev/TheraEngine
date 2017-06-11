@@ -7,14 +7,14 @@ namespace CustomEngine.Rendering
 {
     public class RenderPass
     {
-        private SortedDictionary<uint, IRenderable> _opaque = new SortedDictionary<uint, IRenderable>();
-        private SortedDictionary<uint, IRenderable> _transparent = new SortedDictionary<uint, IRenderable>();
+        private Deque<IRenderable> _opaque = new Deque<IRenderable>();
+        private Deque<IRenderable> _transparent = new Deque<IRenderable>();
 
         public void Render()
         {
-            foreach (IRenderable r in _opaque.Values)
+            foreach (IRenderable r in _opaque)
                 r.Render();
-            foreach (IRenderable r in _transparent.Values)
+            foreach (IRenderable r in _transparent)
                 r.Render();
         }
     }
@@ -25,7 +25,7 @@ namespace CustomEngine.Rendering
             _forwardPass = new RenderPass();
 
         private Octree<IRenderable> _renderTree;
-        private LightManager _lightManager = new LightManager();
+        private LightManager _lightManager;
 
         internal Octree<IRenderable> RenderTree => _renderTree;
         internal LightManager Lights => _lightManager;
@@ -35,6 +35,7 @@ namespace CustomEngine.Rendering
             if (Engine.World == null)
             {
                 _renderTree = null;
+                _lightManager = null;
                 return;
             }
 
@@ -60,6 +61,7 @@ namespace CustomEngine.Rendering
             //            }
 
             _renderTree = new Octree<IRenderable>(ws.Bounds, renderables);
+            _lightManager = new LightManager();
         }
         internal void Render(Camera camera, bool deferredPass)
         {
@@ -67,31 +69,12 @@ namespace CustomEngine.Rendering
                 return;
 
             AbstractRenderer.CurrentCamera = camera;
-
-            Frustum f = camera.GetFrustum();
-            if (camera.Moved)
-            {
-                _renderTree.Cull(f);
-                camera.Moved = false;
-            }
-
-            if (Engine.Settings.RenderOctree)
-                _renderTree.DebugRender();
-
-            //TODO: render in a sorted order by render keys, not just in whatever order like this
-            //also perform culling directly before rendering something, to avoid an extra log(n) operation
-            //_cullingTree.Render();
-
-            //if (_commandsInvalidated)
-            //    RenderKey.RadixSort(ref _sortedCommands);
-
-            //foreach (uint cmd in _sortedCommands)
-            //{
-            //    IRenderable r = _commands[cmd];
-            //    //r.RenderNode.Cull(f);
-            //    if (r.IsRendering)
-            //        r.Render();
-            //}
+            
+            _renderTree.Cull(camera.GetFrustum(), Engine.Settings.RenderOctree);
+            if (deferredPass)
+                _deferredPass.Render();
+            else
+                _forwardPass.Render();
 
             foreach (IRenderable r in _renderables)
                 r.Render();
@@ -101,12 +84,10 @@ namespace CustomEngine.Rendering
         public void Add(IRenderable obj)
         {
             _renderTree?.Add(obj);
-            _renderables.Add(obj);
         }
         public void Remove(IRenderable obj)
         {
             _renderTree?.Remove(obj);
-            _renderables.Remove(obj);
         }
         internal void SetUniforms()
         {

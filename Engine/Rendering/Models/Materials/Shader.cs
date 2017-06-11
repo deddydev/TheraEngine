@@ -302,42 +302,6 @@ void main()
 ";
             return new Shader(ShaderMode.Fragment, source);
         }
-        public static Shader GBufferShader()
-        {
-            string source = @"
-
-#version 450
-
-uniform sampler2D Texture0;
-uniform sampler2D Texture1;
-uniform sampler2D Texture2;
-
-in Data
-{
-    vec3 Position;
-    vec3 Normal;
-    vec2 MultiTexCoord0;
-} InData;
-
-out vec4 OutColor;
-
-uniform vec3 CameraPosition;
-uniform vec3 CameraForward;
-
-" + LightingSetupBasic() + @"
-
-void main()
-{
-    vec4 AlbedoSpec = texture(Texture0, InData.Position.xy);
-    vec3 FragPos = texture(Texture1, InData.Position.xy).rgb;
-    vec3 Normal = texture(Texture2, InData.Position.xy).rgb;
-
-    " + LightingCalc("totalLight", "AlbedoSpec.rgb * 0.1", "Normal", "FragPos", "AlbedoSpec.rgb", "AlbedoSpec.a") + @"
-
-    OutColor = vec4(totalLight, 1.0);
-}";
-            return new Shader(ShaderMode.Fragment, source);
-        }
         public static Shader TestShader()
         {
             string source = @"
@@ -358,9 +322,9 @@ void main()
 }";
             return new Shader(ShaderMode.Fragment, source);
         }
-        private static string LightingCalcForward()
+        public static string LightingCalcForward()
             => LightingCalc("totalLight", "vec3(0.0)", "normal", "InData.Position", "MatColor.rgb", "MatSpecularIntensity");
-        private static string LightingCalc(
+        public static string LightingCalc(
             string lightVarName,
             string baseLightVec3,
             string normalNameVec3,
@@ -381,7 +345,7 @@ void main()
         {0} += CalcSpotLight(SpotLights[i], {2}, {3}, {4}, {5});", 
         lightVarName, baseLightVec3, normalNameVec3, fragPosNameVec3, albedoNameRGB, specNameIntensity);
         }
-        private static string LightingSetupBasic()
+        public static string LightingSetupBasic()
         {
             return @"
 

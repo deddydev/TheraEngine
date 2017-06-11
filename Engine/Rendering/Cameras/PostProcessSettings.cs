@@ -8,6 +8,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
+using CustomEngine.Rendering.Models.Materials;
 
 namespace CustomEngine.Rendering.Cameras
 {
@@ -39,6 +40,17 @@ namespace CustomEngine.Rendering.Cameras
         public ColorGradeSettings ColorGradeSettings { get => _colorGradeSettings; set => _colorGradeSettings = value; }
         public DepthOfFieldSettings DepthOfFieldSettings { get => _depthOfFieldSettings; set => _depthOfFieldSettings = value; }
         public VignetteSettings VignetteSettings { get => _vignetteSettings; set => _vignetteSettings = value; }
+
+        public static List<GLVar> GetParameterList()
+        {
+            List<GLVar> parameters = new List<GLVar>()
+            {
+                //new GLVec4((ColorF4)Color.Transparent, "Vignette.Color"),
+                //new GLFloat(0.0f, "DOF.NearDistance"),
+                //new GLFloat(0.0f, "DOF.FarDistance"),
+            };
+            return parameters;
+        }
     }
     public class VignetteSettings
     {

@@ -116,12 +116,12 @@ namespace CustomEngine.Rendering
 
             if (Engine.Settings == null || Engine.Settings.ShadingStyle == ShadingStyle.Forward)
             {
-                _gBuffer = new GBuffer(Region, true);
-                Render = RenderForward;
+                _gBuffer = new GBuffer(this, true);
+                Render = RenderDeferred;
             }
             else
             {
-                _gBuffer = new GBuffer(Region, false);
+                _gBuffer = new GBuffer(this, false);
                 Render = RenderDeferred;
             }
         }
@@ -252,13 +252,10 @@ namespace CustomEngine.Rendering
             //We want to render to back buffer now
             _gBuffer.Unbind(EFramebufferTarget.Framebuffer);
             
-            Engine.Renderer.Clear(BufferClear.Color);
+            //Engine.Renderer.Clear(BufferClear.Color);
 
             //Render quad
             _gBuffer.Render();
-
-            //Render HUD on top: GBuffer is simply for the world scene so HUD is not included.
-            //_hud.Render();
 
             //if (_hasAnyForward)
             //{
@@ -272,6 +269,10 @@ namespace CustomEngine.Rendering
 
             //    scene.Render(_worldCamera, false);
             //}
+
+            //Render HUD on top: GBuffer is simply for the world scene so HUD is not included.
+            _hud.Render();
+
             Engine.Renderer.PopRenderArea();
             _currentlyRendering = null;
         }

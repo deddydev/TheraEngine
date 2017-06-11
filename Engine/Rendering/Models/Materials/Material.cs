@@ -16,6 +16,8 @@ namespace CustomEngine.Rendering.Models.Materials
 {
     public class Material : FileObject
     {
+
+
         internal Shader
             _vertexShader,
             _fragmentShader, 
@@ -134,77 +136,6 @@ namespace CustomEngine.Rendering.Models.Materials
                 new GLFloat(128.0f, "MatShininess"),
             };
             return new Material("TestMaterial", parameters, refs, frag);
-        }
-
-        internal static Material GetGBufferMaterial(int width, int height, bool forward, GBuffer buffer)
-        {
-            //These are listed in order of appearance in the shader
-            List<TextureReference> refs = forward ?
-                new List<TextureReference>()
-                {
-                    new TextureReference("OutputColor", width, height,
-                        EPixelInternalFormat.Rgba8, EPixelFormat.Bgra, EPixelType.UnsignedByte)
-                    {
-                        MinFilter = MinFilter.Nearest,
-                        MagFilter = MagFilter.Nearest,
-                        UWrap = TexCoordWrap.Clamp,
-                        VWrap = TexCoordWrap.Clamp,
-                    },
-                }
-                :
-                new List<TextureReference>()
-                {
-                    new TextureReference("AlbedoSpec", width, height,
-                        EPixelInternalFormat.Rgba8, EPixelFormat.Bgra, EPixelType.UnsignedByte)
-                    {
-                        MinFilter = MinFilter.Nearest,
-                        MagFilter = MagFilter.Nearest,
-                        UWrap = TexCoordWrap.Clamp,
-                        VWrap = TexCoordWrap.Clamp,
-                    },
-                    new TextureReference("Position", width, height,
-                        EPixelInternalFormat.Rgb32f, EPixelFormat.Rgb, EPixelType.Float)
-                    {
-                        MinFilter = MinFilter.Nearest,
-                        MagFilter = MagFilter.Nearest,
-                        UWrap = TexCoordWrap.Clamp,
-                        VWrap = TexCoordWrap.Clamp,
-                    },
-                    new TextureReference("Normal", width, height,
-                        EPixelInternalFormat.Rgb32f, EPixelFormat.Rgb, EPixelType.Float)
-                    {
-                        MinFilter = MinFilter.Nearest,
-                        MagFilter = MagFilter.Nearest,
-                        UWrap = TexCoordWrap.Clamp,
-                        VWrap = TexCoordWrap.Clamp,
-                    },
-                    //new TextureReference("Text", width, height,
-                    //    EPixelInternalFormat.Rgba8, EPixelFormat.Bgra, EPixelType.UnsignedByte)
-                    //{
-                    //    MinFilter = MinFilter.Nearest,
-                    //    MagFilter = MagFilter.Nearest,
-                    //    UWrap = TexCoordWrap.Clamp,
-                    //    VWrap = TexCoordWrap.Clamp,
-                    //},
-                    new TextureReference("Depth", width, height,
-                        EPixelInternalFormat.DepthComponent24, EPixelFormat.DepthComponent, EPixelType.Float)
-                    {
-                        MinFilter = MinFilter.Nearest,
-                        MagFilter = MagFilter.Nearest,
-                        UWrap = TexCoordWrap.Clamp,
-                        VWrap = TexCoordWrap.Clamp,
-                    },
-                };
-            Shader frag = Shader.GBufferShader();
-            List<GLVar> parameters = new List<GLVar>()
-            {
-                //TODO: post process parameters here
-                //PostProcessSettings
-                //new GLVec4((ColorF4)Color.Transparent, "Vignette.Color"),
-                //new GLFloat(0.0f, "DOF.NearDistance"),
-                //new GLFloat(0.0f, "DOF.FarDistance"),
-            };
-            return new Material("GBufferMaterial", parameters, refs, frag);
         }
     }
 }

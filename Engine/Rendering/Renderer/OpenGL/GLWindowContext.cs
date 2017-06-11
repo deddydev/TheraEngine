@@ -93,6 +93,7 @@ namespace CustomEngine.Rendering.OpenGL
             GL.DepthFunc(DepthFunction.Less);
             GL.DepthMask(true);
             GL.ClearDepth(1.0f);
+            GL.Enable(EnableCap.FramebufferSrgb);
 
             //GL.Hint(HintTarget.PerspectiveCorrectionHint, HintMode.Nicest);
             //GL.Hint(HintTarget.LineSmoothHint, HintMode.Nicest);

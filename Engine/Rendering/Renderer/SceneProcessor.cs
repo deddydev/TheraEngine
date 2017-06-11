@@ -5,12 +5,24 @@ using System.Collections.Generic;
 
 namespace CustomEngine.Rendering
 {
-    public class SceneProcessor
+    public class RenderPass
     {
-        private ThreadSafeList<IRenderable> _renderables = new ThreadSafeList<IRenderable>();
-
         private SortedDictionary<uint, IRenderable> _opaque = new SortedDictionary<uint, IRenderable>();
         private SortedDictionary<uint, IRenderable> _transparent = new SortedDictionary<uint, IRenderable>();
+
+        public void Render()
+        {
+            foreach (IRenderable r in _opaque.Values)
+                r.Render();
+            foreach (IRenderable r in _transparent.Values)
+                r.Render();
+        }
+    }
+    public class SceneProcessor
+    {
+        private RenderPass 
+            _deferredPass = new RenderPass(), 
+            _forwardPass = new RenderPass();
 
         private Octree<IRenderable> _renderTree;
         private LightManager _lightManager = new LightManager();
@@ -88,12 +100,7 @@ namespace CustomEngine.Rendering
         }
         public void Add(IRenderable obj)
         {
-            AddRenderable(obj, 0);
-        }
-        public void AddRenderable(IRenderable obj, RenderKey key)
-        {
             _renderTree?.Add(obj);
-            //_commands.Add(key, obj);
             _renderables.Add(obj);
         }
         public void Remove(IRenderable obj)

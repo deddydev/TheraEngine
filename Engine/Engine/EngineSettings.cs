@@ -92,7 +92,7 @@ namespace CustomEngine
 
         public EngineSettings()
         {
-            ShadingStyle = ShadingStyle.Deferred;
+            ShadingStyle = ShadingStyle.Forward;
             SkinOnGPU = false;
             UseIntegerWeightingIds = false;
             RenderOctree = false;

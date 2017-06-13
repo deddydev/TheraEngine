@@ -1,29 +1,27 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.ComponentModel;
 
 namespace System
 {
+    /// <summary>
+    /// Axis-aligned rectangle struct. Supports position, size, and a local origin.
+    /// </summary>
     public struct BoundingRectangle
     {
+        /// <summary>
+        /// A rectangle with a location at 0,0 (bottom left), a size of 0, and a local origin at the bottom left.
+        /// </summary>
         public static readonly BoundingRectangle Empty = new BoundingRectangle();
-
-        [DefaultValue("0 0")]
+        
         [Serialize("Translation")]
         private Vec2 _translation;
-        [DefaultValue("0 0")]
         [Serialize("Bounds")]
         private Vec2 _bounds;
-        [DefaultValue("0 0")]
         [Serialize("LocalOriginPercentage")]
         private Vec2 _localOriginPercentage;
 
         /// <summary>
-        /// The origin of the component's rotation angle, as a percentage.
-        /// 0,0 is bottom left, 0.5,0.5 is center, 1.0,1.0 is top right.
+        /// The relative translation of the origin from the bottom left, as a percentage.
+        /// 0,0 is bottom left, 0.5,0.5 is center, 1,1 is top right.
         /// </summary>
         public Vec2 LocalOriginPercentage
         {
@@ -36,61 +34,86 @@ namespace System
                 _localOriginPercentage = value;
             }
         }
+        /// <summary>
+        /// The actual translation of the origin of this rectangle, relative to the bottom left.
+        /// </summary>
         public Vec2 LocalOrigin
         {
             get => _localOriginPercentage * _bounds;
             set => _localOriginPercentage = value / _bounds;
         }
-        public Vec2 WorldOrigin
+        /// <summary>
+        /// The location of the origin of this rectangle as a world point relative to the bottom left (0, 0).
+        /// </summary>
+        public Vec2 Position
         {
             get => _translation + LocalOrigin;
-            set => LocalOrigin = value - _translation;
+            set => _translation = value - LocalOrigin;
         }
 
+        public BoundingRectangle(float x, float y, float width, float height, float localOriginPercentageX, float localOriginPercentageY)
+            : this(new Vec2(x, y), new Vec2(width, height), new Vec2(localOriginPercentageX, localOriginPercentageY)) { }
         public BoundingRectangle(float x, float y, float width, float height)
-        {
-            _localOriginPercentage = Vec2.Zero;
-            _translation = new Vec2(x, y);
-            _bounds = new Vec2(width, height);
-        }
+            : this(new Vec2(x, y), new Vec2(width, height)) { }
         public BoundingRectangle(Vec2 translation, Vec2 bounds)
+            : this(translation, bounds, Vec2.Zero) { }
+        public BoundingRectangle(Vec2 translation, Vec2 bounds, Vec2 localOriginPercentage)
         {
-            _localOriginPercentage = Vec2.Zero;
+            _localOriginPercentage = localOriginPercentage;
             _translation = translation;
             _bounds = bounds;
         }
-
+        /// <summary>
+        /// The horizontal translation of this rectangle's position. 0 is fully left, positive values are right.
+        /// </summary>
         public float X
         {
-            get => _translation.X;
-            set => _translation.X = value;
-        }
+            get => Position.X;
+            set => _translation.X = value - LocalOrigin.X;
+        }        
+        /// <summary>
+        /// The vertical translation of this rectangle's position. 0 is fully down, positive values are up.
+        /// </summary>
         public float Y
         {
-            get => _translation.Y;
-            set => _translation.Y = value;
+            get => Position.Y;
+            set => _translation.Y = value - LocalOrigin.Y;
         }
+        /// <summary>
+        /// The width of this rectangle.
+        /// </summary>
         public float Width
         {
             get => _bounds.X;
             set => _bounds.X = value;
         }
+        /// <summary>
+        /// The height of this rectangle.
+        /// </summary>
         public float Height
         {
             get => _bounds.Y;
             set => _bounds.Y = value;
         }
-
+        /// <summary>
+        /// The X value of the right boundary line.
+        /// </summary>
         public float MaxX
         {
             get => _translation.X + _bounds.X;
             set => _bounds.X = value - _translation.X;
         }
+        /// <summary>
+        /// The Y value of the top boundary line.
+        /// </summary>
         public float MaxY
         {
             get => _translation.Y + _bounds.Y;
             set => _bounds.Y = value - _translation.Y;
         }
+        /// <summary>
+        /// The X value of the left boundary line.
+        /// </summary>
         public float MinX
         {
             get => _translation.X;
@@ -101,6 +124,9 @@ namespace System
                 _bounds.X = origX - _translation.X;
             }
         }
+        /// <summary>
+        /// The Y value of the bottom boundary line.
+        /// </summary>
         public float MinY
         {
             get => _translation.Y;
@@ -111,16 +137,25 @@ namespace System
                 _bounds.Y = origY - _translation.Y;
             }
         }
+        /// <summary>
+        /// The world position of the center point of the rectangle (regardless of the local origin).
+        /// </summary>
         public Vec2 Center
         {
             get => _translation + (_bounds / 2.0f);
             set => _translation = value - (_bounds / 2.0f);
         }
+        /// <summary>
+        /// The width and height of this rectangle.
+        /// </summary>
         public Vec2 Bounds
         {
             get => _bounds;
             set => _bounds = value;
         }
+        /// <summary>
+        /// The location of this rectangle's origin. 0 is fully left/down, positive values are right/up.
+        /// </summary>
         public Vec2 Translation
         {
             get => _translation;
@@ -163,32 +198,48 @@ namespace System
                 _bounds.Y = value.Y - _translation.Y;
             }
         }
-
+        /// <summary>
+        /// The horizontal location of this rectangle's origin, as an integer value floored from float value. 0 is fully left, positive values are right.
+        /// </summary>
         public int IntX
         {
-            get => (int)/*Math.Round(*/X/*)*/;
+            get => (int)X;
             set => X = value;
         }
+        /// <summary>
+        /// The vertical location of this rectangle's origin, as an integer value floored from float value. 0 is fully down, positive values are up.
+        /// </summary>
         public int IntY
         {
-            get => (int)/*Math.Round(*/Y/*)*/;
+            get => (int)Y;
             set => Y = value;
         }
+        /// <summary>
+        /// The width of this rectangle, as an integer value floored from float value.
+        /// </summary>
         public int IntWidth
         {
-            get => (int)/*Math.Round(*/Width/*)*/;
+            get => (int)Width;
             set => Width = value;
         }
+        /// <summary>
+        /// The height of this rectangle, as an integer value floored from float value.
+        /// </summary>
         public int IntHeight
         {
-            get => (int)/*Math.Round(*/Height/*)*/;
+            get => (int)Height;
             set => Height = value;
         }
-
+        /// <summary>
+        /// Translates this rectangle relative to the current translation using an offset.
+        /// </summary>
+        /// <param name="offset">The translation delta to add to the current translation.</param>
         public void Translate(Vec2 offset)
             => _translation += offset;
-        
-        public void AssertProperDimensions()
+        /// <summary>
+        /// Checks that the width and height are positive values. Will move the location of the rectangle to fix this.
+        /// </summary>
+        public void CheckProperDimensions()
         {
             if (_bounds.X < 0)
             {
@@ -201,9 +252,25 @@ namespace System
                 _bounds.Y = -_bounds.Y;
             }
         }
-
+        /// <summary>
+        /// Checks if the point is contained within this rectangle.
+        /// </summary>
+        /// <param name="point">The point to check.</param>
+        /// <returns>True if the point is contained within this rectangle.</returns>
         public bool Contains(Vec2 point)
             => _bounds.Contains(point - _translation);
+        /// <summary>
+        /// Determines if this rectangle is contained within another.
+        /// </summary>
+        /// <param name="other">The other rectangle.</param>
+        /// <returns>EContainment.Disjoint if not intersecting. EContainment.Intersecting if intersecting, but not fully contained. EContainment.Contains if fully contained.</returns>
+        public EContainment ContainedWithin(BoundingRectangle other)
+            => other.Contains(this);
+        /// <summary>
+        /// Determines if this rectangle contains another.
+        /// </summary>
+        /// <param name="other">The other rectangle.</param>
+        /// <returns>EContainment.Disjoint if not intersecting. EContainment.Intersecting if intersecting, but not fully contained. EContainment.Contains if fully contained.</returns>
         public EContainment Contains(BoundingRectangle bounds)
         {
             int flag = 0;
@@ -226,6 +293,14 @@ namespace System
                 return EContainment.Contains;
             else
                 return EContainment.Intersects;
+        }
+        public bool Intersects(BoundingRectangle other)
+        {
+            return
+                MinX <= other.MaxX &&
+                MaxX >= other.MinX &&
+                MinY <= other.MaxY &&
+                MaxY >= other.MinY;
         }
     }
 }

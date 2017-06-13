@@ -10,20 +10,18 @@ namespace TheraEngine.Worlds.Actors
         private Vec3 _direction;
 
         public SpotLightComponent(
-            float constantAtt, float linearAtt, float quadraticAtt, 
-            ColorF3 color, float diffuseIntensity, float ambientIntensity,
+            float radius, ColorF3 color, float diffuseIntensity, float ambientIntensity,
             Vec3 direction, float cutoffAngleDegrees, float exponent) 
-            : base(constantAtt, linearAtt, quadraticAtt, color, diffuseIntensity, ambientIntensity)
+            : base(radius, color, diffuseIntensity, ambientIntensity)
         {
             Direction = direction;
             _cutoff = CustomMath.DegToRad(cutoffAngleDegrees);
             _exponent = exponent;
         }
         public SpotLightComponent(
-            float constantAtt, float linearAtt, float quadraticAtt,
-            ColorF3 color, float diffuseIntensity, float ambientIntensity,
+            float radius, ColorF3 color, float diffuseIntensity, float ambientIntensity,
             Rotator rotation, float cutoffAngleDegrees, float exponent)
-            : base(constantAtt, linearAtt, quadraticAtt, color, diffuseIntensity, ambientIntensity)
+            : base(radius, color, diffuseIntensity, ambientIntensity)
         {
             _rotation.SetRotations(rotation);
             _cutoff = CustomMath.DegToRad(cutoffAngleDegrees);
@@ -38,7 +36,7 @@ namespace TheraEngine.Worlds.Actors
 
         public Vec3 Direction
         {
-            get { return _direction; }
+            get => _direction;
             set
             {
                 _direction = value.NormalizedFast();
@@ -47,13 +45,13 @@ namespace TheraEngine.Worlds.Actors
         }
         public float CutoffAngleDegrees
         {
-            get { return CustomMath.RadToDeg(_cutoff); }
-            set { _cutoff = CustomMath.DegToRad(value); }
+            get => CustomMath.RadToDeg(_cutoff);
+            set => _cutoff = CustomMath.DegToRad(value);
         }
         public float Exponent
         {
-            get { return _exponent; }
-            set { _exponent = value; }
+            get => _exponent;
+            set => _exponent = value;
         }
 
         public override void OnSpawned()
@@ -76,7 +74,7 @@ namespace TheraEngine.Worlds.Actors
             Engine.Renderer.Uniform(indexer + "Base.Base.AmbientIntensity", _ambientIntensity);
             Engine.Renderer.Uniform(indexer + "Base.Base.DiffuseIntensity", _diffuseIntensity);
             Engine.Renderer.Uniform(indexer + "Base.Position", point);
-            Engine.Renderer.Uniform(indexer + "Base.Attenuation", _attenuation);
+            Engine.Renderer.Uniform(indexer + "Base.Radius", _radius);
             Engine.Renderer.Uniform(indexer + "Direction", _direction);
             Engine.Renderer.Uniform(indexer + "Cutoff", _cutoff);
             Engine.Renderer.Uniform(indexer + "Exponent", _exponent);

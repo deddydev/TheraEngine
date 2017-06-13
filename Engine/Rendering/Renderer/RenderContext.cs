@@ -15,7 +15,7 @@ namespace TheraEngine.Rendering
         private static RenderContext _current;
         public static RenderContext Current
         {
-            get { return _current; }
+            get => _current;
             set
             {
                 if (_current == value)
@@ -39,7 +39,7 @@ namespace TheraEngine.Rendering
             }
         }
 
-        public RenderPanel Control { get { return _control; } }
+        public RenderPanel Control => _control;
 
         protected RenderPanel _control;
         private bool _resetting = false;

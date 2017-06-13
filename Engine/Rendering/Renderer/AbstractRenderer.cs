@@ -189,6 +189,7 @@ namespace TheraEngine.Rendering
             m.Parameter<GLVec4>(0).Value = color;
             m.Render(mtx, Matrix3.Identity);
         }
+
         public virtual void RenderAABB(string name, Vec3 halfExtents, Vec3 translation, bool solid, ColorF4 color, float lineWidth = DefaultLineSize)
             => RenderBox(name, halfExtents, Matrix4.CreateTranslation(translation), solid, color, lineWidth);
         public virtual void RenderBox(string name, Vec3 halfExtents, Matrix4 transform, bool solid, ColorF4 color, float lineWidth = DefaultLineSize)
@@ -547,121 +548,15 @@ namespace TheraEngine.Rendering
         public abstract void TransformFeedbackVaryings(int program, string[] varNames);
 
         public abstract Bitmap GetScreenshot(Rectangle region, bool withTransparency);
-    }
-    public enum ERenderBufferStorage
-    {
-        DepthComponent = 6402,
-        R3G3B2 = 10768,
-        Alpha4 = 32827,
-        Alpha8 = 32828,
-        Alpha12 = 32829,
-        Alpha16 = 32830,
-        Rgb4 = 32847,
-        Rgb5 = 32848,
-        Rgb8 = 32849,
-        Rgb10 = 32850,
-        Rgb12 = 32851,
-        Rgb16 = 32852,
-        Rgba2 = 32853,
-        Rgba4 = 32854,
-        Rgba8 = 32856,
-        Rgb10A2 = 32857,
-        Rgba12 = 32858,
-        Rgba16 = 32859,
-        DepthComponent16 = 33189,
-        DepthComponent24 = 33190,
-        DepthComponent32 = 33191,
-        R8 = 33321,
-        R16 = 33322,
-        Rg8 = 33323,
-        Rg16 = 33324,
-        R16f = 33325,
-        R32f = 33326,
-        Rg16f = 33327,
-        Rg32f = 33328,
-        R8i = 33329,
-        R8ui = 33330,
-        R16i = 33331,
-        R16ui = 33332,
-        R32i = 33333,
-        R32ui = 33334,
-        Rg8i = 33335,
-        Rg8ui = 33336,
-        Rg16i = 33337,
-        Rg16ui = 33338,
-        Rg32i = 33339,
-        Rg32ui = 33340,
-        DepthStencil = 34041,
-        Rgba32f = 34836,
-        Rgb32f = 34837,
-        Rgba16f = 34842,
-        Rgb16f = 34843,
-        Depth24Stencil8 = 35056,
-        R11fG11fB10f = 35898,
-        Rgb9E5 = 35901,
-        Srgb8 = 35905,
-        Srgb8Alpha8 = 35907,
-        DepthComponent32f = 36012,
-        Depth32fStencil8 = 36013,
-        StencilIndex1 = 36166,
-        StencilIndex1Ext = 36166,
-        StencilIndex4 = 36167,
-        StencilIndex4Ext = 36167,
-        StencilIndex8 = 36168,
-        StencilIndex8Ext = 36168,
-        StencilIndex16 = 36169,
-        StencilIndex16Ext = 36169,
-        Rgba32ui = 36208,
-        Rgb32ui = 36209,
-        Rgba16ui = 36214,
-        Rgb16ui = 36215,
-        Rgba8ui = 36220,
-        Rgb8ui = 36221,
-        Rgba32i = 36226,
-        Rgb32i = 36227,
-        Rgba16i = 36232,
-        Rgb16i = 36233,
-        Rgba8i = 36238,
-        Rgb8i = 36239,
-        Rgb10A2ui = 36975
-    }
-    public enum FeedbackPrimitiveType
-    {
-        Points,
-        Lines,
-        Triangles,
-    }
-    public enum MtxMode
-    {
-        Model,
-        Texture,
-        Color
-    }
-    [Flags]
-    public enum BufferClear
-    {
-        Color   = 1,
-        Depth   = 2,
-        Stencil = 4,
-        Accum   = 8,
-    }
-    //public enum DisplayListMode
-    //{
-    //    //Means this displaylist should not be applied until it is called.
-    //    Compile,
-    //    //Means this displaylist should be applied while compiling.
-    //    CompileAndExecute,
-    //}
-    public enum EPrimitive
-    {
-        Points          = 0,
-        Lines           = 1,
-        LineLoop        = 2,
-        LineStrip       = 3,
-        Triangles       = 4,
-        TriangleStrip   = 5,
-        TriangleFan     = 6,
-        Quads           = 7,
-        QuadStrip       = 8,
+
+        public abstract void BlendColor(ColorF4 color);
+        public abstract void BlendFunc(EBlendingFactor srcFactor, EBlendingFactor destFactor);
+        public abstract void BlendFuncSeparate(EBlendingFactor srcFactorRGB, EBlendingFactor destFactorRGB, EBlendingFactor srcFactorAlpha, EBlendingFactor destFactorAlpha);
+        public abstract void BlendEquation(EBlendEquationMode rgb, EBlendEquationMode alpha);
+        public abstract void BlendEquationSeparate(EBlendEquationMode rgb, EBlendEquationMode alpha);
+        public abstract void ClearDepth(float defaultDepth);
+        public abstract void AllowDepthWrite(bool allow);
+        public abstract void DepthFunc(EComparison func);
+        public abstract void DepthRange(double near, double far);
     }
 }

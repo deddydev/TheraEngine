@@ -3,12 +3,14 @@ using System.Windows.Controls;
 using SlimDX.Direct3D11;
 using SlimDX.DXGI;
 using SlimDX;
+using Device = SlimDX.Direct3D11.Device;
 
 namespace TheraEngine.Rendering.DirectX
 {
     public class DXWindowContext : RenderContext
     {
-        private static SlimDX.Direct3D11.Device _device;
+        private Device _device;
+        private PresentFlags _presentParameters;
         private static SwapChain _swapChain;
         private static RenderTargetView _renderTarget;
         private static Texture2D _resource;
@@ -34,7 +36,7 @@ namespace TheraEngine.Rendering.DirectX
                 SwapEffect = SwapEffect.Discard
             };
 
-            Result r = SlimDX.Direct3D11.Device.CreateWithSwapChain(DriverType.Hardware, DeviceCreationFlags.None, swapChainDesc, out _device, out _swapChain);
+            //_device = Device.CreateWithSwapChain(DriverType.Hardware, DeviceCreationFlags.None, swapChainDesc, out _device, out _swapChain);
         }
 
         internal override AbstractRenderer GetRendererInstance()

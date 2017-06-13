@@ -115,10 +115,12 @@ namespace TheraEngine.Rendering
             Resize(panel.Width, panel.Height);
             _text = new ScreenTextHandler(this);
 
+            _text.Add(new TextData("Hello", new Font("Arial", 20),Color.Blue, new Vec2(Region.Width / 2.0f, Region.Height / 2.0f), Vec2.Half, Vec2.One, 0.5f));
+
             if (Engine.Settings == null || Engine.Settings.ShadingStyle == ShadingStyle.Forward)
             {
                 _gBuffer = new GBuffer(this, true);
-                Render = RenderDeferred;
+                Render = RenderForward;
             }
             else
             {
@@ -222,54 +224,54 @@ namespace TheraEngine.Rendering
         public Segment GetWorldSegment(Vec2 viewportPoint) 
             => _worldCamera.GetWorldSegment(viewportPoint);
         
-        private void GeometryPass(SceneProcessor scene)
-        {
-
-        }
-        private void LightPass(SceneProcessor scene)
-        {
-
-        }
         public void RenderDeferred(SceneProcessor scene)
         {
-            if (_worldCamera == null)
+            if (Camera == null)
                 return;
 
             _currentlyRendering = this;
             Engine.Renderer.PushRenderArea(Region);
             Engine.Renderer.CropRenderArea(Region);
 
-            //if (_text.Modified)
-            //    _text.Draw(_gBuffer.Text);
-            //_text.Clear();
+            if (_text.Modified)
+                _text.Draw(_gBuffer.Textures[3]);
 
             //We want to render to GBuffer textures
             _gBuffer.Bind(EFramebufferTarget.Framebuffer);
 
-            //Render scene
+            //Clear color and depth and allow writing to depth
             Engine.Renderer.Clear(BufferClear.Color | BufferClear.Depth);
-            scene.Render(_worldCamera, true);
+            Engine.Renderer.AllowDepthWrite(true);
+
+            //Cull scene and retrieve renderables for each buffer
+            scene.Cull(Camera);
+
+            //Render opaque deferred items first
+            scene.Render(Camera, RenderPass.OpaqueDeferred);
 
             //We want to render to back buffer now
             _gBuffer.Unbind(EFramebufferTarget.Framebuffer);
             
-            //Engine.Renderer.Clear(BufferClear.Color);
-
             //Render quad
             _gBuffer.Render();
 
-            //if (_hasAnyForward)
-            //{
-            //    //Copy depth from GBuffer to main frame buffer
-            //    Engine.Renderer.BlitFrameBuffer(
-            //        _gBuffer == null ? 0 : _gBuffer.BindingId, 0,
-            //        0, 0, Region.IntWidth, Region.IntHeight,
-            //        0, 0, Region.IntWidth, Region.IntHeight,
-            //        EClearBufferMask.DepthBufferBit,
-            //        EBlitFramebufferFilter.Nearest);
+            if (scene.RenderPasses.OpaqueForward.Count > 0 ||
+                scene.RenderPasses.TransparentForward.Count > 0)
+            {
+                //Copy depth from GBuffer to main frame buffer
+                Engine.Renderer.BlitFrameBuffer(
+                    _gBuffer.BindingId, 0,
+                    0, 0, Region.IntWidth, Region.IntHeight,
+                    0, 0, Region.IntWidth, Region.IntHeight,
+                    EClearBufferMask.DepthBufferBit,
+                    EBlitFramebufferFilter.Nearest);
 
-            //    scene.Render(_worldCamera, false);
-            //}
+                scene.Render(Camera, RenderPass.OpaqueForward);
+
+                Engine.Renderer.AllowDepthWrite(false);
+                scene.Render(Camera, RenderPass.TransparentForward);
+                Engine.Renderer.AllowDepthWrite(true);
+            }
 
             //Render HUD on top: GBuffer is simply for the world scene so HUD is not included.
             _hud.Render();
@@ -279,14 +281,38 @@ namespace TheraEngine.Rendering
         }
         public void RenderForward(SceneProcessor scene)
         {
-            if (_worldCamera == null)
+            if (Camera == null)
                 return;
 
             _currentlyRendering = this;
             Engine.Renderer.PushRenderArea(Region);
             Engine.Renderer.CropRenderArea(Region);
+
+            if (_text.Modified)
+                _text.Draw(_gBuffer.Textures[1]);
+
+            //We want to render to GBuffer textures
+            _gBuffer.Bind(EFramebufferTarget.Framebuffer);
+
+            //Clear color and depth and allow writing to depth
+            Engine.Renderer.Clear(BufferClear.Color | BufferClear.Depth);
+            Engine.Renderer.AllowDepthWrite(true);
+
+            //Cull scene and retrieve renderables for each buffer
+            scene.Cull(Camera);
+
+            scene.Render(Camera, RenderPass.OpaqueForward);
+            Engine.Renderer.AllowDepthWrite(false);
+            scene.Render(Camera, RenderPass.TransparentForward);
+            Engine.Renderer.AllowDepthWrite(true);
             
-            scene.Render(_worldCamera, false);
+            //We want to render to back buffer now
+            _gBuffer.Unbind(EFramebufferTarget.Framebuffer);
+
+            //Render quad
+            _gBuffer.Render();
+
+            //Render HUD on top: GBuffer is simply for the world scene so HUD is not included.
             _hud.Render();
 
             Engine.Renderer.PopRenderArea();
@@ -430,53 +456,130 @@ namespace TheraEngine.Rendering
         }
     }
 
-    public class ScreenTextHandler
+    public class TextData
     {
-        //PrimitiveManager _manager;
-        //Texture _texture;
-        
-        internal class TextData
+        /// <summary>
+        /// Constructs a new text data class.
+        /// </summary>
+        /// <param name="text">The text string to render.</param>
+        /// <param name="font">The font to render it with.</param>
+        /// <param name="color">The color of the text.</param>
+        /// <param name="position">The 2D location of the text relative to the bottom left (0, 0).</param>
+        /// <param name="originPercentages">The relative position of the origin of the text from the bottom left, as a UV-style coordinate (0 is left/bottom, 1 is right/top).</param>
+        /// <param name="scale">The scale of the text.</param>
+        /// <param name="depth">The order to render this text in. 0.0 is first, 1.0 is last.</param>
+        public TextData(string text, Font font, ColorF4 color, Vec2 position, Vec2 originPercentages, Vec2 scale, float depth)
         {
-            public string _string;
-            public List<Vec3> _positions = new List<Vec3>();
+            _text = text;
+            _font = font;
+            _brush = new SolidBrush(color);
+            _position = position;
+            _originPercentages = originPercentages;
+            _scale = scale;
+            _depth = depth;
         }
 
-        internal static int _fontSize = 12;
-        internal static readonly Font _textFont = new Font("Arial", _fontSize);
+        private string _text;
+        private Font _font;
+        private SolidBrush _brush;
+        private Vec2 _position, _originPercentages;
+        private Vec2 _scale;
+        private float _depth;
 
-        private bool _modified = true;
-        internal Viewport _viewport;
-        internal Dictionary<string, TextData> _text = new Dictionary<string, TextData>();
+        internal ScreenTextHandler _parent;
+        internal BoundingRectangle _bounds; //Set after being drawn
+        internal List<TextData> _overlapping; //Set after being drawn
 
-        public bool Modified => _modified;
-
-        public Vec3 this[string text]
+        public string Text
         {
+            get => _text;
             set
             {
-                if (!_text.ContainsKey(text))
-                    _text.Add(text, new TextData() { _string = text, _positions = new List<Vec3>() { value } });
-                else
-                    _text[text]._positions.Add(value);
-                _modified = true;
+                _text = value;
+                _parent?.TextChanged(this);
             }
         }
+        public Font Font
+        {
+            get => _font;
+            set
+            {
+                _font = value;
+                _parent?.TextChanged(this);
+            }
+        }
+        public SolidBrush Brush
+        {
+            get => _brush;
+            set
+            {
+                _brush = value;
+                _parent?.TextChanged(this);
+            }
+        }
+        public Vec2 Position
+        {
+            get => _position;
+            set
+            {
+                _position = value;
+                _parent?.TextChanged(this);
+            }
+        }
+        public Vec2 OriginPercentages
+        {
+            get => _originPercentages;
+            set
+            {
+                _originPercentages = value;
+                _parent?.TextChanged(this);
+            }
+        }
+        public Vec2 Scale
+        {
+            get => _scale;
+            set
+            {
+                _scale = value;
+                _parent?.TextChanged(this);
+            }
+        }
+        public float Depth
+        {
+            get => _depth;
+            set
+            {
+                _depth = value;
+                _parent?.TextChanged(this);
+            }
+        }
+    }
+
+    public class ScreenTextHandler
+    {
+        internal Viewport _viewport;
+        internal SortedDictionary<float, TextData> _text;
+        private LinkedList<TextData> _modified;
+
+        public bool Modified => _modified.Count > 0;
 
         public ScreenTextHandler(Viewport viewport)
         {
-            _text = new Dictionary<string, TextData>();
+            _text = new SortedDictionary<float, TextData>();
+            _modified = new LinkedList<TextData>();
             _viewport = viewport;
-            //TextureReference texRef = new TextureReference("Text", (int)_viewport.Width, (int)_viewport.Height);
-            //_manager = new PrimitiveManager(
-            //    PrimitiveData.FromQuads(Culling.Back, new PrimitiveBufferInfo(), VertexQuad.ZUpQuad(_viewport.Width, _viewport.Height)), 
-            //    Material.GetBasicTextureMaterial(texRef, true));
-            //_texture = _manager.Program.Textures[0];
         }
 
         public void Clear()
         {
             _text.Clear();
-            _modified = true;
+        }
+
+        public void Add(TextData text)
+        {
+            text._parent = this;
+            _text.Add(text.Depth, text);
+            _modified.AddLast(text);
         }
 
         public unsafe void Draw(Texture texture)
@@ -484,42 +587,53 @@ namespace TheraEngine.Rendering
             Bitmap b = texture.Data.Bitmap;
 
             //Resize bitmap if viewport bounds do not match
-            if ((IVec2)b.Size != (IVec2)_viewport.Region.Bounds ||
-                _viewport.Region.Bounds.X.IsZero() ||
-                _viewport.Region.Bounds.Y.IsZero())
+            if ((IVec2)b.Size != (IVec2)_viewport.Region.Bounds)
             {
                 if (b != null)
                     b.Dispose();
-                
+
+                if (_viewport.Region.IntWidth == 0 || _viewport.Region.IntHeight == 0)
+                {
+                    texture.Data.Bitmap = null;
+                    return;
+                }
+
                 b = new Bitmap(_viewport.Region.IntWidth, _viewport.Region.IntHeight);
                 b.MakeTransparent();
                 texture.Data.Bitmap = b;
             }
 
+            //TODO: instead of redrawing the whole image, keep track of overlapping text
+            //and only redraw the previous and new regions. Repeat for any other overlapping texts.
+            //Then textsubimage2d using the min and max values of all updated texts.
+
             //Draw text information onto the bitmap
             using (Graphics g = Graphics.FromImage(b))
             {
                 g.Clear(Color.Transparent);
-                g.TextRenderingHint = TextRenderingHint.AntiAlias;
-
-                List<Vec2> _used = new List<Vec2>();
-
-                foreach (TextData d in _text.Values)
-                    foreach (Vec3 v in d._positions)
-                        if (v.X + d._string.Length * 10.0f > 0.0f && v.X < _viewport.Width &&
-                            v.Y > -10.0f && v.Y < _viewport.Height &&
-                            v.Z > 0.0f && v.Z < 1.0f && //near and far depth values
-                            !_used.Contains(new Vec2(v.X, v.Y)))
-                        {
-                            g.DrawString(d._string, _textFont, Brushes.Black, new PointF(v.X, v.Y));
-                            _used.Add(new Vec2(v.X, v.Y));
-                        }
+                g.TextRenderingHint = TextRenderingHint.ClearTypeGridFit;
+                
+                foreach (TextData text in _text.Values)
+                {
+                    SizeF textSize = g.MeasureString(text.Text, text.Font);
+                    Vec2 v = text.Position;
+                    text._bounds = new BoundingRectangle(v, textSize);
+                    if (text._bounds.ContainedWithin(_viewport.Region) != EContainment.Disjoint)
+                    {
+                        g.ResetTransform();
+                        g.TranslateTransform(text._position.X, text._position.Y);
+                        g.ScaleTransform(text._scale.X, text._scale.Y);
+                        g.DrawString(text._text, text._font, text._brush, 0.0f, 0.0f);
+                    }
+                }
             }
-
             texture.PushData();
-            //_manager.Render(_transform, Matrix3.Identity);
+            _modified.Clear();
+        }
 
-            _modified = false;
+        internal void TextChanged(TextData textData)
+        {
+            _modified.AddLast(textData);
         }
     }
 }

@@ -103,8 +103,9 @@ namespace System
 
         public static readonly Vec2 UnitX = new Vec2(1.0f, 0.0f);
         public static readonly Vec2 UnitY = new Vec2(0.0f, 1.0f);
-        public static readonly Vec2 Zero = new Vec2(0.0f, 0.0f);
-        public static readonly Vec2 One = new Vec2(1.0f, 1.0f);
+        public static readonly Vec2 Zero = new Vec2(0.0f);
+        public static readonly Vec2 Half = new Vec2(0.5f);
+        public static readonly Vec2 One = new Vec2(1.0f);
         
         public static Vec2 ComponentMin(Vec2 a, Vec2 b)
             => new Vec2(

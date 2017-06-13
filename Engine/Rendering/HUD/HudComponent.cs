@@ -21,7 +21,7 @@ namespace TheraEngine.Rendering.HUD
 
         protected Quadtree.Node _renderNode;
         protected bool _highlightable, _selectable, _scrollable;
-        protected ushort _zIndex;
+        protected ushort _layerIndex, _sameLayerIndex;
         protected AnchorFlags _positionAnchorFlags;
         protected BoundingRectangle _region = new BoundingRectangle();
         protected Vec2 _translationLocalOrigin = Vec2.Zero;
@@ -230,7 +230,8 @@ namespace TheraEngine.Rendering.HUD
             get => _isRendering;
             set => _isRendering = value;
         }
-        public ushort ZIndex => _zIndex;
+        public ushort LayerIndex => _layerIndex;
+        public ushort SameLayerIndex => _sameLayerIndex;
         
         public bool Contains(Vec2 point)
             => _region.Contains(point);
@@ -273,7 +274,7 @@ namespace TheraEngine.Rendering.HUD
             if (!_children.Contains(child))
                 _children.Add(child);
             child._parent = this;
-            child._zIndex = (ushort)(_zIndex + 1);
+            child._layerIndex = (ushort)(_layerIndex + 1);
             OnChildAdded(child);
         }
         protected virtual void OnChildRemoved(HudComponent child)
@@ -288,7 +289,7 @@ namespace TheraEngine.Rendering.HUD
                 _children.Remove(child);
             child.Owner = null;
             child._parent = null;
-            child._zIndex = 0;
+            child._layerIndex = 0;
         }
         protected virtual void OnResized()
         {

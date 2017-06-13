@@ -11,5 +11,9 @@ namespace TheraEngine.Rendering.HUD
     public class TextHudComponent : RenderableHudComponent
     {
         public TextHudComponent() { }
+
+        public string _text;
+        public bool _wordWrap;
+        Font _font;
     }
 }

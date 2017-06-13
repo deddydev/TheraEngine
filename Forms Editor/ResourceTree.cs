@@ -167,16 +167,16 @@ namespace TheraEditor
             SetStyle(ControlStyles.UserMouse, true);
 
             _timer.Interval = 200;
-            _timer.Tick += new EventHandler(timer_Tick);
+            _timer.Tick += new EventHandler(Timer_Tick);
 
             AllowDrop = true;
 
-            ItemDrag += new ItemDragEventHandler(treeView_ItemDrag);
-            DragOver += new DragEventHandler(treeView1_DragOver);
-            DragDrop += new DragEventHandler(treeView1_DragDrop);
-            DragEnter += new DragEventHandler(treeView1_DragEnter);
-            DragLeave += new EventHandler(treeView1_DragLeave);
-            GiveFeedback += new GiveFeedbackEventHandler(treeView1_GiveFeedback);
+            ItemDrag += new ItemDragEventHandler(TreeView_ItemDrag);
+            DragOver += new DragEventHandler(TreeView1_DragOver);
+            DragDrop += new DragEventHandler(TreeView1_DragDrop);
+            DragEnter += new DragEventHandler(TreeView1_DragEnter);
+            DragLeave += new EventHandler(TreeView1_DragLeave);
+            GiveFeedback += new GiveFeedbackEventHandler(TreeView1_GiveFeedback);
 
             _openFileDelegate = new DelegateOpenFile(ImportFile);
         }
@@ -343,7 +343,7 @@ namespace TheraEditor
 
         private ImageList imageListDrag = new ImageList();
 
-        private void treeView_ItemDrag(object sender, ItemDragEventArgs e)
+        private void TreeView_ItemDrag(object sender, ItemDragEventArgs e)
         {
             _dragNode = (TreeNode)e.Item;
             SelectedNode = _dragNode;
@@ -391,7 +391,7 @@ namespace TheraEditor
             _timer.Enabled = false;
             _dragNode = null;
         }
-        private void treeView1_DragOver(object sender, DragEventArgs e)
+        private void TreeView1_DragOver(object sender, DragEventArgs e)
         {
             Array a = (Array)e.Data.GetData(DataFormats.FileDrop);
 
@@ -523,7 +523,7 @@ namespace TheraEditor
         //    return good;
         //}
 
-        private void treeView1_DragDrop(object sender, DragEventArgs e)
+        private void TreeView1_DragDrop(object sender, DragEventArgs e)
         {
             DragHelper.ImageList_DragLeave(Handle);
             TreeNode dropNode = GetNodeAt(PointToClient(new Point(e.X, e.Y)));
@@ -573,19 +573,19 @@ namespace TheraEditor
             }
         }
 
-        private void treeView1_DragEnter(object sender, DragEventArgs e)
+        private void TreeView1_DragEnter(object sender, DragEventArgs e)
         {
             DragHelper.ImageList_DragEnter(Handle, e.X - Left, e.Y - Top);
             _timer.Enabled = true;
         }
 
-        private void treeView1_DragLeave(object sender, EventArgs e)
+        private void TreeView1_DragLeave(object sender, EventArgs e)
         {
             DragHelper.ImageList_DragLeave(Handle);
             _timer.Enabled = false;
         }
 
-        private void treeView1_GiveFeedback(object sender, GiveFeedbackEventArgs e)
+        private void TreeView1_GiveFeedback(object sender, GiveFeedbackEventArgs e)
         {
             if (e.Effect == DragDropEffects.Move)
             {
@@ -596,7 +596,7 @@ namespace TheraEditor
                 e.UseDefaultCursors = true;
         }
 
-        private void timer_Tick(object sender, EventArgs e)
+        private void Timer_Tick(object sender, EventArgs e)
         {
             Point pt = PointToClient(MousePosition);
             TreeNode node = GetNodeAt(pt);

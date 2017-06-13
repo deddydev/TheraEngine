@@ -109,7 +109,7 @@ namespace TheraEngine.Rendering
             _fullScreenTriangle = new PrimitiveManager<GBufferMeshProgram>(
                 PrimitiveData.FromTriangles(Culling.None, PrimitiveBufferInfo.JustPositions(), triangle1/*, triangle2*/),
                 //PrimitiveData.FromQuads(Culling.Back, new PrimitiveBufferInfo(), VertexQuad.ZUpQuad(region)),
-                GetGBufferMaterial(region.IntWidth, region.IntHeight, forward, this));
+                GetGBufferMaterial(region.IntWidth, region.IntHeight, forward, this, DepthStencilUse.Depth32f));
 
             if (forward)
             {
@@ -208,14 +208,24 @@ namespace TheraEngine.Rendering
             _fullScreenTriangle.Render(Matrix4.Identity, Matrix3.Identity);
             AbstractRenderer.CurrentCamera = null;
         }
-        internal static Material GetGBufferMaterial(int width, int height, bool forward, GBuffer buffer)
+        public enum DepthStencilUse
+        {
+            None,
+            Depth24,
+            Depth32,
+            Depth32f,
+            Stencil8,
+            Depth24Stencil8,
+            Depth32Stencil8,
+        }
+        internal static Material GetGBufferMaterial(int width, int height, bool forward, GBuffer buffer, DepthStencilUse depthStencilUse)
         {
             //These are listed in order of appearance in the shader
             List<TextureReference> refs = forward ?
                 new List<TextureReference>()
                 {
                     new TextureReference("OutputColor", width, height,
-                        EPixelInternalFormat.Srgb8, EPixelFormat.Bgr, EPixelType.UnsignedByte)
+                        EPixelInternalFormat.Srgb8Alpha8, EPixelFormat.Bgra, EPixelType.UnsignedByte, System.Drawing.Imaging.PixelFormat.Format32bppArgb)
                     {
                         MinFilter = MinFilter.Nearest,
                         MagFilter = MagFilter.Nearest,
@@ -231,7 +241,7 @@ namespace TheraEngine.Rendering
                         VWrap = TexCoordWrap.Clamp,
                     },
                     new TextureReference("Depth", width, height,
-                        EPixelInternalFormat.DepthComponent24, EPixelFormat.DepthComponent, EPixelType.Float)
+                        EPixelInternalFormat.DepthComponent32f, EPixelFormat.DepthComponent, EPixelType.Float)
                     {
                         MinFilter = MinFilter.Nearest,
                         MagFilter = MagFilter.Nearest,
@@ -275,7 +285,7 @@ namespace TheraEngine.Rendering
                         VWrap = TexCoordWrap.Clamp,
                     },
                     new TextureReference("Depth", width, height,
-                        EPixelInternalFormat.DepthComponent24, EPixelFormat.DepthComponent, EPixelType.Float)
+                        EPixelInternalFormat.DepthComponent32f, EPixelFormat.DepthComponent, EPixelType.Float)
                     {
                         MinFilter = MinFilter.Nearest,
                         MagFilter = MagFilter.Nearest,
@@ -296,6 +306,7 @@ uniform sampler2D Texture0;
 uniform sampler2D Texture1;
 uniform sampler2D Texture2;
 uniform sampler2D Texture3;
+uniform sampler2D Texture4;
 
 in Data
 {
@@ -308,8 +319,26 @@ out vec4 OutColor;
 
 uniform vec3 CameraPosition;
 uniform vec3 CameraForward;
+uniform float CameraNearZ;
+uniform float CameraFarZ;
+uniform float ScreenWidth;
+uniform float ScreenHeight;
+uniform float ScreenOrigin;
 
 " + Shader.LightingSetupBasic() + @"
+
+float GetDistanceFromDepth(float depth)
+{
+    float depthSample = 2.0 * depth - 1.0;
+    float zLinear = 2.0 * CameraNearZ * CameraFarZ / (CameraFarZ + CameraNearZ - depthSample * (CameraFarZ - CameraNearZ));
+    return zLinear;
+}
+float GetDepthFromDistance(float z)
+{
+    float nonLinearDepth = (CameraFarZ + CameraNearZ - 2.0 * CameraNearZ * CameraFarZ / z) / (CameraFarZ - CameraNearZ);
+    nonLinearDepth = (nonLinearDepth + 1.0) / 2.0;
+    return nonLinearDepth;
+}
 
 void main()
 {
@@ -317,11 +346,12 @@ void main()
     vec4 AlbedoSpec = texture(Texture0, uv);
     vec3 FragPos = texture(Texture1, uv).rgb;
     vec3 Normal = texture(Texture2, uv).rgb;
-    vec4 Text = texture(Texture3, uv);
+    vec4 Text = texture(Texture3, vec2(uv.x, 1.0 - uv.y));
+    float Depth = GetDistanceFromDepth(texture(Texture4, uv).r) / (CameraFarZ - CameraNearZ);
 
     " + Shader.LightingCalc("totalLight", "vec3(0.0)", "Normal", "FragPos", "AlbedoSpec.rgb", "AlbedoSpec.a") + @"
 
-    OutColor = vec4(mix(totalLight, Text.rgb, Text.a), 1.0);
+    OutColor = vec4(mix(AlbedoSpec.rgb * totalLight, Text.rgb, Text.a), 1.0);
 }";
             return new Shader(ShaderMode.Fragment, source);
         }
@@ -334,6 +364,7 @@ void main()
 
 uniform sampler2D Texture0;
 uniform sampler2D Texture1;
+uniform sampler2D Texture2;
 
 in Data
 {
@@ -346,14 +377,33 @@ out vec4 OutColor;
 
 uniform vec3 CameraPosition;
 uniform vec3 CameraForward;
+uniform float CameraNearZ;
+uniform float CameraFarZ;
+uniform float ScreenWidth;
+uniform float ScreenHeight;
+uniform float ScreenOrigin;
+
+float GetDistanceFromDepth(float depth)
+{
+    float depthSample = 2.0 * depth - 1.0;
+    float zLinear = 2.0 * CameraNearZ * CameraFarZ / (CameraFarZ + CameraNearZ - depthSample * (CameraFarZ - CameraNearZ));
+    return zLinear;
+}
+float GetDepthFromDistance(float z)
+{
+    float nonLinearDepth = (CameraFarZ + CameraNearZ - 2.0 * CameraNearZ * CameraFarZ / z) / (CameraFarZ - CameraNearZ);
+    nonLinearDepth = (nonLinearDepth + 1.0) / 2.0;
+    return nonLinearDepth;
+}
 
 void main()
 {
     vec2 uv = InData.Position.xy;
-    vec3 OutputColor = texture(Texture0, uv).rgb;
-    vec4 Text = texture(Texture1, uv);
+    vec3 SceneColor = texture(Texture0, uv).rgb;
+    vec4 Text = texture(Texture1, vec2(uv.x, 1.0 - uv.y));
+    float Depth = GetDistanceFromDepth(texture(Texture2, uv).r) / (CameraFarZ - CameraNearZ);
 
-    OutColor = vec4(mix(OutputColor, Text.rgb, Text.a), 1.0);
+    OutColor = vec4(mix(SceneColor, Text.rgb, Text.a), 1.0);
 }";
             return new Shader(ShaderMode.Fragment, source);
         }

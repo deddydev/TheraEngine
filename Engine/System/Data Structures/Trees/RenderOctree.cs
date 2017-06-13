@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TheraEngine.Rendering;
 
 namespace System
 {
@@ -16,20 +17,19 @@ namespace System
         public void Cull(
             Frustum frustum,
             bool debugRender,
-            Deque<IRenderable> opaque,
-            Deque<IRenderable> transparent)
+            RenderPasses passes)
         {
             if (_head == null)
                 return;
 
-            ((RenderNode)_head).Cull(frustum, debugRender, opaque, transparent);
+            _head.Cull(frustum, debugRender, passes);
         }
     }
     public class RenderNode : OctreeNode<IRenderable>
     {
         public RenderNode(BoundingBox bounds) : base(bounds) { }
 
-        public void Cull(Frustum frustum, bool debugRender, Deque<IRenderable> opaque, Deque<IRenderable> transparent)
+        public void Cull(Frustum frustum, bool debugRender, RenderPasses passes)
         {
             EContainment c = frustum.Contains(_bounds);
             if (c != EContainment.Intersects)
@@ -47,11 +47,14 @@ namespace System
                         {
                             if (item.HasTransparency)
                             {
-                                transparent.PushFront(item);
+                                passes.TransparentForward.PushFront(item);
                             }
                             else
                             {
-                                opaque.PushFront(item);
+                                if (Engine.Settings.ShadingStyle == ShadingStyle.Deferred)
+                                    passes.OpaqueDeferred.PushFront(item);
+                                else
+                                    passes.OpaqueForward.PushFront(item);
                             }
                         }
                     }

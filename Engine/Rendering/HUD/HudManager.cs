@@ -13,7 +13,7 @@ namespace TheraEngine.Rendering.HUD
     /// </summary>
     public partial class HudManager : Pawn<DockableHudComponent>
     {
-        internal List<HudComponent> _renderables = new List<HudComponent>();
+        internal LinkedList<HudComponent> _renderables = new LinkedList<HudComponent>();
         internal Quadtree _childComponentTree;
         private Viewport _owningViewport;
         private RenderPanel _owningPanel;
@@ -75,10 +75,9 @@ namespace TheraEngine.Rendering.HUD
         {
             AbstractRenderer.CurrentCamera = _camera;
             _childComponentTree.DebugRender();
-            var e = _renderables.GetEnumerator();
-            while (e.MoveNext())
-                if (e.Current.IsRendering)
-                    e.Current.Render();
+            foreach (HudComponent comp in _renderables)
+                if (comp.IsRendering)
+                    comp.Render();
             AbstractRenderer.CurrentCamera = null;
         }
         protected void OnChildAdded(HudComponent child)
@@ -94,7 +93,39 @@ namespace TheraEngine.Rendering.HUD
         internal void CacheComponent(HudComponent component)
         {
             _childComponentTree.Add(component);
-            _renderables.Add(component);
+            if (_renderables.Count == 0)
+            {
+                _renderables.AddFirst(component);
+                return;
+            }
+
+            int frontDist = _renderables.First.Value.LayerIndex - component.LayerIndex;
+            if (frontDist > 0)
+            {
+                _renderables.AddFirst(component);
+                return;
+            }
+            
+            int backDist = component.LayerIndex - _renderables.Last.Value.LayerIndex;
+            if (backDist > 0)
+            {
+                _renderables.AddLast(component);
+                return;
+            }
+            
+            if (frontDist < backDist)
+            {
+                //loop from back
+                var last = _renderables.Last;
+                while (last.Value.LayerIndex > component.LayerIndex)
+                    last = last.Previous;
+                _renderables.AddAfter(last, component);
+            }
+            else
+            {
+                //loop from front
+
+            }
         }
     }
 }

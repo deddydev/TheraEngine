@@ -502,6 +502,20 @@ namespace System
         {
             return point * Matrix4.CreateTranslation(-center) * transform * Matrix4.CreateTranslation(center);
         }
+        
+        public static float DepthToDistance(float depth, float nearZ, float farZ)
+        {
+            float depthSample = 2.0f * depth - 1.0f;
+            float zLinear = 2.0f * nearZ * farZ / (farZ + nearZ - depthSample * (farZ - nearZ));
+            return zLinear;
+        }
+        public static float DistanceToDepth(float z, float nearZ, float farZ)
+        {
+            float nonLinearDepth = (farZ + nearZ - 2.0f * nearZ * farZ / z) / (farZ - nearZ);
+            nonLinearDepth = (nonLinearDepth + 1.0f) / 2.0f;
+            return nonLinearDepth;
+        }
+
         public static float Max(params float[] values)
         {
             float v = values[0];

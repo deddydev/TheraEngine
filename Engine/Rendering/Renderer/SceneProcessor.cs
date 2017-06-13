@@ -5,36 +5,60 @@ using System.Collections.Generic;
 
 namespace TheraEngine.Rendering
 {
-    public class RenderPass
+    public enum RenderPass
     {
-        private Deque<IRenderable> _opaque = new Deque<IRenderable>();
-        private Deque<IRenderable> _transparent = new Deque<IRenderable>();
+        OpaqueDeferred,
+        OpaqueForward,
+        TransparentForward
+    }
+    [Flags]
+    public enum RenderPassFlags
+    {
+        OpaqueDeferred,
+        OpaqueForward,
+        TransparentForward
+    }
+    public class RenderPasses
+    {
+        private Deque<IRenderable> _opaqueDeferred = new Deque<IRenderable>();
+        private Deque<IRenderable> _opaqueForward = new Deque<IRenderable>();
+        private Deque<IRenderable> _transparentForward = new Deque<IRenderable>();
 
-        public Deque<IRenderable> Opaque => _opaque;
-        public Deque<IRenderable> Transparent => _transparent;
+        public Deque<IRenderable> OpaqueDeferred => _opaqueDeferred;
+        public Deque<IRenderable> OpaqueForward => _opaqueForward;
+        public Deque<IRenderable> TransparentForward => _transparentForward;
 
-        public void Render()
+        public void Render(RenderPass pass)
         {
-            foreach (IRenderable r in _opaque)
-                r.Render();
-            foreach (IRenderable r in _transparent)
-                r.Render();
-
-            _opaque.Clear();
-            _transparent.Clear();
+            switch (pass)
+            {
+                case RenderPass.OpaqueDeferred:
+                    foreach (IRenderable r in OpaqueDeferred)
+                        r.Render();
+                    OpaqueDeferred.Clear();
+                    break;
+                case RenderPass.OpaqueForward:
+                    foreach (IRenderable r in OpaqueForward)
+                        r.Render();
+                    OpaqueForward.Clear();
+                    break;
+                case RenderPass.TransparentForward:
+                    foreach (IRenderable r in TransparentForward)
+                        r.Render();
+                    TransparentForward.Clear();
+                    break;
+            }
         }
     }
     public class SceneProcessor
     {
-        private RenderPass 
-            _deferredPass = new RenderPass(), 
-            _forwardPass = new RenderPass();
-
+        private RenderPasses _passes;
         private RenderOctree _renderTree;
         private LightManager _lightManager;
 
         internal RenderOctree RenderTree => _renderTree;
         internal LightManager Lights => _lightManager;
+        public RenderPasses RenderPasses => _passes;
 
         internal void WorldChanged()
         {
@@ -42,44 +66,27 @@ namespace TheraEngine.Rendering
             {
                 _renderTree = null;
                 _lightManager = null;
+                _passes = null;
                 return;
             }
-
-            WorldSettings ws = Engine.World.Settings;
-            List<IRenderable> renderables = new List<IRenderable>();
-
-            //foreach (Map m in ws._defaultMaps)
-            //    if (m.Settings.VisibleByDefault)
-            //        foreach (Actor a in m.Settings._defaultActors)
-            //            foreach (SceneComponent p in a.SceneComponentCache)
-            //            {
-            //                if (p is IRenderable r)
-            //                    renderables.Add(r);
-            //                else
-            //                {
-            //                    IRenderable[] r = p.Primitive.GetChildren(true);
-            //                    foreach (IRenderable o in r)
-            //                    {
-            //                        o.OnSpawned();
-                                    
-            //                    }
-            //                }
-            //            }
-
-            _renderTree = new RenderOctree(ws.Bounds, renderables);
+            
+            _renderTree = new RenderOctree(Engine.World.Settings.Bounds);
             _lightManager = new LightManager();
+            _passes = new RenderPasses();
         }
-        internal void Render(Camera camera, bool deferredPass)
+        internal void Cull(Camera camera)
+        {
+            AbstractRenderer.CurrentCamera = camera;
+            _renderTree.Cull(camera.GetFrustum(), Engine.Settings.RenderOctree, _passes);
+            AbstractRenderer.CurrentCamera = null;
+        }
+        internal void Render(Camera camera, RenderPass pass)
         {
             if (_renderTree == null || camera == null)
                 return;
 
             AbstractRenderer.CurrentCamera = camera;
-
-            RenderPass pass = deferredPass ? _deferredPass : _forwardPass;
-            _renderTree.Cull(camera.GetFrustum(), Engine.Settings.RenderOctree, pass.Opaque, pass.Transparent);
-            pass.Render();
-            
+            _passes.Render(pass);
             AbstractRenderer.CurrentCamera = null;
         }
         public void Add(IRenderable obj)

@@ -17,25 +17,7 @@ namespace TheraEngine.Rendering.DirectX
         }
 
         public override RenderLibrary RenderLibrary => RenderLibrary.Direct3D11;
-
-        private class DLCompileInfo
-        {
-            public int _id;
-            public bool _executeAfterCompiling;
-            public bool _temporary;
-
-            public DLCompileInfo(int id, bool execute, bool temporary)
-            {
-                _id = id;
-                _executeAfterCompiling = execute;
-                _temporary = temporary;
-            }
-        }
-
-        private Dictionary<int, DXDisplayList> _displayLists = new Dictionary<int, DXDisplayList>();
-        private Stack<DLCompileInfo> _compilingDisplayLists = new Stack<DLCompileInfo>();
-        public DXDisplayList CurrentList { get { return _compilingDisplayLists.Count > 0 && _displayLists.Count > 0 ? _displayLists[_compilingDisplayLists.Peek()._id] : null; } }
-
+        
         public override void Clear(BufferClear clearBufferMask)
         {
             throw new NotImplementedException();
@@ -351,6 +333,51 @@ namespace TheraEngine.Rendering.DirectX
         }
 
         public override void AttachTextureToFrameBuffer(EFramebufferTarget target, EFramebufferAttachment attachment, ETexTarget texTarget, int textureBindingId, int mipLevel)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void AllowDepthWrite(bool allow)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void DepthFunc(EComparison func)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void DepthRange(double near, double far)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void BlendColor(ColorF4 color)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void BlendFunc(EBlendingFactor srcFactor, EBlendingFactor destFactor)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void BlendFuncSeparate(EBlendingFactor srcFactorRGB, EBlendingFactor destFactorRGB, EBlendingFactor srcFactorAlpha, EBlendingFactor destFactorAlpha)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void BlendEquation(EBlendEquationMode rgb, EBlendEquationMode alpha)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void BlendEquationSeparate(EBlendEquationMode rgb, EBlendEquationMode alpha)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void ClearDepth(float defaultDepth)
         {
             throw new NotImplementedException();
         }

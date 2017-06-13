@@ -1,6 +1,5 @@
 ﻿using TheraEngine.Files;
 using TheraEngine.Rendering.Models.Materials;
-using OpenTK.Graphics.OpenGL;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -14,10 +13,91 @@ using TheraEngine.Rendering.Cameras;
 
 namespace TheraEngine.Rendering.Models.Materials
 {
+    public class AlphaTest
+    {
+        private bool _enableAlphaTest;
+        private bool _useConstantAlpha;
+        private float _constantAlphaValue;
+        private bool _useAlphaToCoverage;
+
+
+        public bool EnableAlphaTest { get => _enableAlphaTest; set => _enableAlphaTest = value; }
+    }
+    public class StencilFace
+    {
+        private EComparison _func;
+        private int _ref;
+        private int _mask;
+
+        public EComparison Func { get => _func; set => _func = value; }
+        public int Ref { get => _ref; set => _ref = value; }
+        public int Mask { get => _mask; set => _mask = value; }
+    }
+    public class StencilTest
+    {
+        private bool _enableStencilFunc;
+        private StencilFace _frontFace, _backFace;
+
+        public bool EnableStencilFunc { get => _enableStencilFunc; set => _enableStencilFunc = value; }
+        public StencilFace FrontFace { get => _frontFace; set => _frontFace = value; }
+        public StencilFace BackFace { get => _backFace; set => _backFace = value; }
+    }
+    public class DepthTest
+    {
+        private bool _enableDepthTest;
+        private bool _depthMask;
+        private EComparison _depthFunction;
+
+        public bool EnableDepthTest { get => _enableDepthTest; set => _enableDepthTest = value; }
+        public bool DepthMask { get => _depthMask; set => _depthMask = value; }
+        public EComparison DepthFunction { get => _depthFunction; set => _depthFunction = value; }
+    }
+    public class Blend
+    {
+        private bool _enableBlending;
+
+        public bool EnableBlending { get => _enableBlending; set => _enableBlending = value; }
+    }
     public class Material : FileObject
     {
+        private AlphaTest _alpha = new AlphaTest();
+        private DepthTest _depth = new DepthTest();
+        private StencilTest _stencil = new StencilTest();
+        private Blend _blend = new Blend();
+        private bool _writeRed, _writeGreen, _writeBlue, _writeAlpha;
 
+        [Category("Depth Test")]
+        [DisplayName("Enable")]
+        public bool EnableDepthTest { get => _depth.EnableDepthTest; set => _depth.EnableDepthTest = value; }
+        [Category("Depth Test")]
+        [DisplayName("Enable Depth Write")]
+        public bool DepthMask { get => _depth.DepthMask; set => _depth.DepthMask = value; }
+        [Category("Depth Test")]
+        [DisplayName("Depth Function")]
+        public EComparison DepthFunction { get => _depth.DepthFunction; set => DepthFunction = value; }
 
+        [Category("Stencil Test")]
+        [DisplayName("Enable")]
+        public bool EnableStencilFunc { get => _stencil.EnableStencilFunc; set => _stencil.EnableStencilFunc = value; }
+        [Category("Stencil Test")]
+        [DisplayName("Front Face Func")]
+        public EComparison FrontFaceStencilFunc { get => _stencil.FrontFace.Func; set => _stencil.FrontFace.Func = value; }
+        [Category("Stencil Test")]
+        [DisplayName("Front Face Ref")]
+        public int FrontFaceStencilRef { get => _stencil.FrontFace.Ref; set => _stencil.FrontFace.Ref = value; }
+        [Category("Stencil Test")]
+        [DisplayName("Front Face Mask")]
+        public int FrontFaceStencilMask { get => _stencil.FrontFace.Mask; set => _stencil.FrontFace.Mask = value; }
+        [Category("Stencil Test")]
+        [DisplayName("Back Face Func")]
+        public EComparison BackFaceStencilFunc { get => _stencil.BackFace.Func; set => _stencil.BackFace.Func = value; }
+        [Category("Stencil Test")]
+        [DisplayName("Back Face Ref")]
+        public int BackFaceStencilRef { get => _stencil.BackFace.Ref; set => _stencil.BackFace.Ref = value; }
+        [Category("Stencil Test")]
+        [DisplayName("Back Face Mask")]
+        public int BackFaceStencilMask { get => _stencil.BackFace.Mask; set => _stencil.BackFace.Mask = value; }
+        
         internal Shader
             _vertexShader,
             _fragmentShader, 
@@ -42,7 +122,8 @@ namespace TheraEngine.Rendering.Models.Materials
             get => _textures;
             set => _textures = value;
         }
-        public bool HasTransparency { get => _hasTransparency; set => _hasTransparency = value; }
+
+        public bool HasTransparency => _blend.EnableBlending || _alpha.EnableAlphaTest;
 
         internal void AddReference(IRenderable user)
         {
@@ -59,6 +140,9 @@ namespace TheraEngine.Rendering.Models.Materials
                 _bindingId = -1;
             }
         }
+
+        public Material()
+            : this("NewMaterial", new List<GLVar>(), new List<TextureReference>()) { }
         public Material(string name, params Shader[] shaders) 
             : this(name, new List<GLVar>(), new List<TextureReference>(), shaders) { }
         public Material(string name, List<GLVar> parameters, params Shader[] shaders)

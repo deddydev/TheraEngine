@@ -6,30 +6,18 @@ namespace TheraEngine.Worlds.Actors
 {
     public class PointLightComponent : LightComponent
     {
-        public float ConstantAttenuation
+        public float Radius
         {
-            get { return _attenuation.X; }
-            set { _attenuation.X = value; }
-        }
-        public float LinearAttenuation
-        {
-            get { return _attenuation.Y; }
-            set { _attenuation.Y = value; }
-        }
-        public float QuadraticAttenuation
-        {
-            get { return _attenuation.Z; }
-            set { _attenuation.Z = value; }
+            get => _radius;
+            set => _radius = value;
         }
 
-        protected Vec3 _attenuation = new Vec3(1.0f, 0.0f, 0.1f);
+        protected float _radius = 1.0f;
         
-        public PointLightComponent(float constantAtt, float linearAtt, float quadraticAtt, ColorF3 color, float diffuseIntensity, float ambientIntensity) 
+        public PointLightComponent(float radius, ColorF3 color, float diffuseIntensity, float ambientIntensity) 
             : base(color, diffuseIntensity, ambientIntensity)
         {
-            ConstantAttenuation = constantAtt;
-            LinearAttenuation = linearAtt;
-            QuadraticAttenuation = quadraticAtt;
+            Radius = radius;
         }
 
         public override void OnSpawned()
@@ -52,7 +40,7 @@ namespace TheraEngine.Worlds.Actors
             Engine.Renderer.Uniform(indexer + "Base.AmbientIntensity", _ambientIntensity);
             Engine.Renderer.Uniform(indexer + "Base.DiffuseIntensity", _diffuseIntensity);
             Engine.Renderer.Uniform(indexer + "Position", point);
-            Engine.Renderer.Uniform(indexer + "Attenuation", _attenuation);
+            Engine.Renderer.Uniform(indexer + "Radius", _radius);
         }
     }
 }

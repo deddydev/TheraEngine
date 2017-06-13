@@ -80,7 +80,6 @@ namespace TheraEngine
         private HudManager _globalHud;
         public List<Viewport> _viewports = new List<Viewport>();
         private ColorF4 _backColor = Color.Lavender;
-        private bool _attachedToEngine = false;
 
         public HudManager GlobalHud
         {
@@ -259,13 +258,11 @@ namespace TheraEngine
 
         public void RegisterTick()
         {
-            _attachedToEngine = true;
             Engine.RegisterRenderTick(RenderTick);
         }
         public void UnregisterTick()
         {
             Engine.UnregisterRenderTick(RenderTick);
-            _attachedToEngine = false;
         }
         public void RenderTick(object sender, FrameEventArgs e)
         {

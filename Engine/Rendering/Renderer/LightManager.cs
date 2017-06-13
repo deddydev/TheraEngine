@@ -34,6 +34,8 @@ namespace TheraEngine.Rendering
         }
         internal void Add(DirectionalLightComponent light)
         {
+            if (_directionalLights.Count >= MaxDirectionalLights)
+                return;
             light.LightIndex = _directionalLights.Count;
             _directionalLights.Add(light);
         }
@@ -44,6 +46,8 @@ namespace TheraEngine.Rendering
         }
         internal void Add(SpotLightComponent light)
         {
+            if (_spotLights.Count >= MaxSpotLights)
+                return;
             light.LightIndex = _spotLights.Count;
             _spotLights.Add(light);
         }
@@ -54,6 +58,8 @@ namespace TheraEngine.Rendering
         }
         internal void Add(PointLightComponent light)
         {
+            if (_pointLights.Count >= MaxPointLights)
+                return;
             light.LightIndex = _pointLights.Count;
             _pointLights.Add(light);
         }

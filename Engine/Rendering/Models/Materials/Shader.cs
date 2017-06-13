@@ -18,6 +18,11 @@ namespace TheraEngine.Rendering.Models.Materials
     }
     public class Shader
     {
+        public const string LightFalloff = "pow(clamp(1.0 - pow({1} / {0}, 4), 0.0, 1.0), 2.0) / ({1} * {1} + 1.0);";
+        public static string GetLightFalloff(string radiusName, string distanceName) { return string.Format(LightFalloff, radiusName, distanceName); }
+        //public const string LightFallof = "clamp(1.0 - dist * dist / (radius * radius), 0.0, 1.0); attn *= attn;";
+        //public const string LightFallof = "1.0f / (light.Attenuation[0] + light.Attenuation[1] * dist + light.Attenuation[2] * dist* dist)";
+
         public event EventHandler Compiled;
 
         public bool NeedsCompile { get { return _sourceChanged; } }
@@ -58,6 +63,8 @@ namespace TheraEngine.Rendering.Models.Materials
             string source = @"
 #version 450
 
+layout (location = 0) out vec4 OutColor;
+
 uniform float MatSpecularIntensity;
 uniform float MatShininess;
 
@@ -72,8 +79,6 @@ in Data
     vec3 Normal;
     vec2 MultiTexCoord0;
 } InData;
-
-out vec4 OutColor;
 
 " + LightingSetupBasic() + @"
 
@@ -94,6 +99,10 @@ void main()
             string source = @"
 #version 450
 
+layout (location = 0) out vec4 AlbedoSpec;
+layout (location = 1) out vec3 Position;
+layout (location = 2) out vec3 Normal;
+
 uniform float MatSpecularIntensity;
 uniform float MatShininess;
 
@@ -109,18 +118,12 @@ in Data
     vec2 MultiTexCoord0;
 } InData;
 
-out vec4 OutColor;
-
-" + LightingSetupBasic() + @"
-
 void main()
 {
-    vec3 normal = normalize(InData.Normal);
-    vec4 texColor = texture(Texture0, InData.MultiTexCoord0);
-
-    " + LightingCalc("totalLight", "vec3(0.0)", "normal", "InData.Position", "texColor.rgb", "MatSpecularIntensity") + @"
-
-    OutColor = vec4(totalLight, 1.0);
+    Position = InData.Position;
+    Normal = normalize(InData.Normal);
+    AlbedoSpec.rgb = texture(Texture0, InData.MultiTexCoord0).rgb;
+    AlbedoSpec.a = MatSpecularIntensity;
 }
 ";
             return new Shader(ShaderMode.Fragment, source);
@@ -144,8 +147,6 @@ in Data
     vec2 MultiTexCoord0;
 } InData;
 
-out vec4 OutColor;
-
 void main()
 {
     AlbedoSpec = vec4(texture(Texture0, InData.MultiTexCoord0).rgb, MatSpecularIntensity);
@@ -165,6 +166,8 @@ void main()
             string source = @"
 #version 450
 
+layout (location = 0) out vec4 OutColor;
+
 uniform sampler2D Texture0;
 
 in Data
@@ -173,8 +176,6 @@ in Data
     vec3 Normal;
     vec2 MultiTexCoord0;
 } InData;
-
-out vec4 OutColor;
 
 void main()
 {
@@ -220,6 +221,8 @@ void main()
             string source = @"
 #version 450
 
+layout (location = 0) out vec4 OutColor;
+
 uniform vec4 MatColor;
 
 in Data
@@ -228,8 +231,6 @@ in Data
     vec3 Normal;
     vec2 MultiTexCoord0;
 } InData;
-
-out vec4 OutColor;
 
 void main()
 {
@@ -271,6 +272,8 @@ void main()
             string source = @"
 #version 450
 
+layout (location = 0) out vec4 OutColor;
+
 uniform vec4 MatColor;
 uniform float MatSpecularIntensity;
 uniform float MatShininess;
@@ -278,16 +281,12 @@ uniform float MatShininess;
 uniform vec3 CameraPosition;
 uniform vec3 CameraForward;
 
-uniform sampler2D Texture0;
-
 in Data
 {
     vec3 Position;
     vec3 Normal;
     vec2 MultiTexCoord0;
 } InData;
-
-out vec4 OutColor;
 
 " + LightingSetupBasic() + @"
 
@@ -364,7 +363,7 @@ struct PointLight
 {
     BaseLight Base;
     vec3 Position;
-    vec3 Attenuation;
+    float Radius;
 };
 struct SpotLight
 {
@@ -416,8 +415,7 @@ vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 albedo, fl
     vec3 lightToPos = fragPos - light.Position;
     float dist = length(lightToPos);
 
-    //float attn = clamp(1.0 - dist * dist / (radius * radius), 0.0, 1.0); attn *= attn;
-    float attn = 1.0f / (light.Attenuation[0] + light.Attenuation[1] * dist + light.Attenuation[2] * dist * dist);
+    float attn = " + GetLightFalloff("light.Radius", "dist") + @"
 
     return attn * CalcColor(light.Base, normalize(lightToPos), normal, fragPos, albedo, spec);
 } 
@@ -435,8 +433,7 @@ vec3 CalcSpotLight(SpotLight light, vec3 normal, vec3 fragPos, vec3 albedo, floa
             float dist = length(lightToPos);
 
             float spotAttn = pow(clampedCosine, light.Exponent);
-            //float attn = clamp(1.0 - dist * dist / (radius * radius), 0.0, 1.0); attn *= attn;
-            float attn = 1.0f / (light.Base.Attenuation[0] + light.Base.Attenuation[1] * dist + light.Base.Attenuation[2] * dist * dist);
+            float attn = " + GetLightFalloff("light.Base.Radius", "dist") + @"
 
             return spotAttn * attn * CalcColor(light.Base.Base, normalize(lightToPos), normal, fragPos, albedo, spec);
         }
@@ -456,14 +453,6 @@ in vec3 v_binormal; // binormal (for TBN basis calc)
 in vec3 v_pos;      // pixel view space position
 
 out vec4 color;
-
-layout(std140) uniform Transforms
-{
-    mat4x4 world_matrix;  // object's world position
-    mat4x4 view_matrix;   // view (camera) transform
-    mat4x4 proj_matrix;   // projection matrix
-    mat3x3 normal_matrix; // normal transformation matrix ( transpose(inverse(W * V)) )
-};
 
 layout(std140) uniform Material
 {

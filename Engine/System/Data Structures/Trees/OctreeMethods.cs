@@ -14,7 +14,7 @@ using System.Threading.Tasks;
 
 namespace System
 {
-    public partial class Octree<T, T2> where T : I3DBoundable where T2 : IOctreeNode
+    public partial class Octree<T, T2> where T : I3DBoundable where T2 : OctreeNode<T>
     {
         public ThreadSafeList<T> FindClosest(Vec3 point) { return _head?.FindClosest(point); }
         public ThreadSafeList<T> FindAllInside(Shape shape, bool allowPartialContains, bool testVisibleOnly)
@@ -32,13 +32,13 @@ namespace System
         public void Add(T value)
         {
             if (_head == null)
-                _head = new OctreeNode<T>(_totalBounds);
+                _head = (T2)Activator.CreateInstance(typeof(T2), _totalBounds);
             _head.Add(value, true);
         }
         public void Add(List<T> value)
         {
             if (_head == null)
-                _head = new OctreeNode<T>(_totalBounds);
+                _head = (T2)Activator.CreateInstance(typeof(T2), _totalBounds);
             _head.Add(value, true);
         }
         public bool Remove(T value)
@@ -48,7 +48,7 @@ namespace System
 
             bool removed = _head.Remove(value, out bool destroy);
             if (destroy)
-                _head = null;
+                _head = default(T2);
             return removed;
         }
     }

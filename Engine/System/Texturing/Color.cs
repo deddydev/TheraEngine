@@ -21,13 +21,25 @@ namespace System
         public void Write(VoidPtr address) { this = *(ColorF4*)address; }
         public void Read(VoidPtr address) { *(ColorF4*)address = this; }
 
-        public static implicit operator ColorF4(RGBAPixel p) { return new ColorF4() { A = p.A / 255.0f, B = p.B / 255.0f, G = p.G / 255.0f, R = p.R / 255.0f }; }
-        public static implicit operator ColorF4(ARGBPixel p) { return new ColorF4() { A = p.A / 255.0f, B = p.B / 255.0f, G = p.G / 255.0f, R = p.R / 255.0f }; }
-        public static implicit operator ColorF4(Color p) { return new ColorF4() { A = p.A / 255.0f, B = p.B / 255.0f, G = p.G / 255.0f, R = p.R / 255.0f }; }
-        public static implicit operator ColorF4(Vec3 v) { return new ColorF4(v.X, v.Y, v.Z, 1.0f); }
-        public static implicit operator ColorF4(Vec4 v) { return new ColorF4(v.X, v.Y, v.Z, v.W); }
-        public static implicit operator Vec4(ColorF4 v) { return new Vec4(v.R, v.G, v.B, v.A); }
-        public static implicit operator ColorF4(ColorF3 p) { return new ColorF4(p.R, p.G, p.B, 1.0f); }
+        private const float ByteToFloat = 1.0f / 255.0f;
+        private const float FloatToByte = 255.0f;
+
+        public static implicit operator ColorF4(RGBAPixel p)
+            => new ColorF4() { A = p.A * ByteToFloat, B = p.B * ByteToFloat, G = p.G * ByteToFloat, R = p.R * ByteToFloat };
+        public static implicit operator ColorF4(ARGBPixel p)
+            => new ColorF4() { A = p.A * ByteToFloat, B = p.B * ByteToFloat, G = p.G * ByteToFloat, R = p.R * ByteToFloat };
+        public static implicit operator ColorF4(Color p)
+            => new ColorF4() { A = p.A * ByteToFloat, B = p.B * ByteToFloat, G = p.G * ByteToFloat, R = p.R * ByteToFloat };
+        public static implicit operator Color(ColorF4 p)
+            => Color.FromArgb((int)(p.A * FloatToByte), (int)(p.B * FloatToByte), (int)(p.G * FloatToByte), (int)(p.R * FloatToByte));
+        public static implicit operator ColorF4(Vec3 v)
+            => new ColorF4(v.X, v.Y, v.Z, 1.0f);
+        public static implicit operator ColorF4(Vec4 v)
+            => new ColorF4(v.X, v.Y, v.Z, v.W);
+        public static implicit operator Vec4(ColorF4 v)
+            => new Vec4(v.R, v.G, v.B, v.A);
+        public static implicit operator ColorF4(ColorF3 p) 
+            => new ColorF4(p.R, p.G, p.B, 1.0f);
 
         public bool Equals(ColorF4 other, float precision)
         {

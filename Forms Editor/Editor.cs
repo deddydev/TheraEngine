@@ -10,6 +10,8 @@ using System.IO;
 using System.Linq;
 using System.Windows.Forms;
 using TheraEditor.Editors;
+using System.Security;
+using System.Runtime.InteropServices;
 
 namespace TheraEditor
 {
@@ -32,30 +34,57 @@ namespace TheraEditor
             DoubleBuffered = false;
             renderPanel1.GlobalHud = new EditorHud(renderPanel1);
             renderPanel1.GlobalHud.QueuePossession(PlayerIndex.One);
-            //Engine.Settings.OpeningWorld = typeof(TestWorld);
-            Engine.Initialize();
 
             actorPropertyGrid.SelectedObject = Engine.World?.Settings;
             SpawnedActors_Modified();
             if (Engine.World != null)
                 Engine.World.State.SpawnedActors.PostModified += SpawnedActors_Modified;
-            renderPanel1.RegisterTick();
         }
-
+        protected override void OnLoad(EventArgs e)
+        {
+            Engine.Settings.CapFPS = true;
+            Engine.Settings.TargetFPS = 30.0f;
+            Engine.Settings.OpeningWorld = typeof(TestWorld);
+            Engine.Initialize();
+            OnRedrawn = Application.DoEvents;
+            Engine.RegisterRenderTick(RenderTick);
+            base.OnLoad(e);
+        }
+        protected override void OnClosing(CancelEventArgs e)
+        {
+            Engine.UnregisterRenderTick(RenderTick);
+            Engine.ShutDown();
+            base.OnClosing(e);
+        }
+        public Action OnRedrawn;
+        private void RenderTick(object sender, FrameEventArgs e)
+        {
+            renderPanel1.Invalidate();
+            Invoke(OnRedrawn);
+        }
         private void SpawnedActors_Modified()
         {
+            if (InvokeRequired)
+            {
+                Invoke(new Action(SpawnedActors_Modified));
+                return;
+            }
             actorTree.Nodes.Clear();
             if (Engine.World != null)
                 actorTree.Nodes.AddRange(Engine.World.State.SpawnedActors.Select(x => new TreeNode(((ObjectBase)x).Name) { Tag = x }).ToArray());
         }
-
-        protected override void OnClosed(EventArgs e)
+        protected override void OnResizeBegin(EventArgs e)
         {
-            base.OnClosed(e);
-            renderPanel1.UnregisterTick();
-            Engine.ShutDown();
+            renderPanel1.Visible = false;
+            //SuspendLayout();
+            base.OnResizeBegin(e);
         }
-
+        protected override void OnResizeEnd(EventArgs e)
+        {
+            renderPanel1.Visible = true;
+            //ResumeLayout(true);
+            base.OnResizeEnd(e);
+        }
         private void BtnOpenWorld_Click(object sender, EventArgs e)
         {
             OpenFileDialog ofd = new OpenFileDialog()

@@ -139,5 +139,56 @@ namespace TheraEngine.Rendering.Cameras
         {
             return 2.0f * CustomMath.RadToDeg((float)Math.Atan(height * 0.5f / distance));
         }
+
+        // half of the the horizontal field of view
+ //       float angleX;
+	//// store the information
+	//this->ratio = ratio;
+	//this->nearD = nearD;
+	//this->farD = farD;
+
+	//angle *= HALF_ANG2RAD;
+	//// compute width and height of the near and far plane sections
+	//tang = tan(angle);
+ //       sphereFactorY = 1.0/cos(angle);
+
+ //       // compute half of the the horizontal field of view and sphereFactorX
+ //       float anglex = atan(tang * ratio);
+ //       sphereFactorX = 1.0/cos(anglex);
+        //public static EContainment ContainsSphere(Frustum frustum, Vec3 center, float radius)
+        //{
+        //    float d;
+        //    float az, ax, ay;
+        //    EContainment result = EContainment.Contains;
+
+        //    Vec3 v = p - camPos;
+
+        //    az = v.innerProduct(-Z);
+        //    if (az > farD + radius || az < nearD - radius)
+        //        return  EContainment.Disjoint;
+
+        //    if (az > farD - radius || az < nearD + radius)
+        //        result = EContainment.Intersects;
+
+        //    ay = v.innerProduct(Y);
+        //    d = sphereFactorY * radius;
+        //    az *= tang;
+        //    if (ay > az + d || ay < -az - d)
+        //        return (OUTSIDE);
+
+        //    if (ay > az - d || ay < -az + d)
+        //        result = INTERSECT;
+
+        //    ax = v.innerProduct(X);
+        //    az *= ratio;
+        //    d = sphereFactorX * radius;
+        //    if (ax > az + d || ax < -az - d)
+        //        return EContainment.Disjoint;
+
+        //    if (ax > az - d || ax < -az + d)
+        //        result = EContainment.Intersects;
+
+        //    return result;
+        //}
     }
 }

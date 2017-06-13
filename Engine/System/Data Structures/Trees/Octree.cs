@@ -24,6 +24,8 @@ namespace System
         int SubDivLevel { get; set; }
         int SubDivIndex { get; set; }
         
+        void Cull(Frustum frustum, bool debugRender);
+        void DebugRender(bool v);
         void ItemMoved(I3DBoundable item);
     }
     public class Octree : Octree<I3DBoundable, OctreeNode<I3DBoundable>>
@@ -31,10 +33,10 @@ namespace System
         public Octree(BoundingBox bounds) : base(bounds) { }
         public Octree(BoundingBox bounds, List<I3DBoundable> items) : base(bounds, items) { }
     }
-    public partial class Octree<T, T2> where T : I3DBoundable where T2 : IOctreeNode
+    public partial class Octree<T, T2> where T : I3DBoundable where T2 : OctreeNode<T>
     {
         private BoundingBox _totalBounds;
-        protected OctreeNode<T> _head;
+        protected T2 _head;
         
         public Octree(BoundingBox bounds) { _totalBounds = bounds; }
         public Octree(BoundingBox bounds, List<T> items)
@@ -138,7 +140,7 @@ namespace System
             }
             return null;
         }
-
+        
         #region Loop Threading Backlog
 
         //Backlog for adding and removing items when other threads are currently looping

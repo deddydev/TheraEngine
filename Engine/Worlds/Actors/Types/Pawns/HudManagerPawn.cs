@@ -80,7 +80,7 @@ namespace TheraEngine.Rendering.HUD
             HudComponent current = null;
             //Larger z-indices means the component is closer
             foreach (HudComponent comp in results)
-                if (current == null || comp.ZIndex >= current.ZIndex)
+                if (current == null || comp.LayerIndex >= current.LayerIndex)
                     current = comp;
             return current;
             //return RootComponent.FindComponent(viewportPoint);

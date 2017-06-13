@@ -139,7 +139,7 @@ namespace TheraEngine.Rendering.Animation
         }
         public float Interpolate(float frameIndex)
         {
-            if (frameIndex < _frameIndex)
+            if (frameIndex < _frameIndex && _prev._frameIndex > _frameIndex)
             {
                 if (_prev == this)
                     return _inValue;
@@ -150,12 +150,13 @@ namespace TheraEngine.Rendering.Animation
             if (_next == this)
                 return _outValue;
 
-            if (frameIndex > _next._frameIndex)
+            if (frameIndex > _next._frameIndex && _next._frameIndex > _frameIndex)
                 return Next.Interpolate(frameIndex);
 
             float t = (frameIndex - _frameIndex) / (_next._frameIndex - _frameIndex);
             return _interpolate(this, Next, t);
         }
+
         public static float Step(FloatKeyframe key1, FloatKeyframe key2, float time)
             => time < 1.0f ? key1.OutValue : key2.OutValue;
         public static float Linear(FloatKeyframe key1, FloatKeyframe key2, float time)
@@ -164,6 +165,7 @@ namespace TheraEngine.Rendering.Animation
             => CustomMath.CubicBezier(key1.OutValue, key1.OutValue + key1.OutTangent, key2.InValue + key2.InTangent, key2.InValue, time);
         public static float CubicHermite(FloatKeyframe key1, FloatKeyframe key2, float time)
             => CustomMath.CubicHermite(key1.OutValue, key1.OutTangent, key2.InTangent, key2.InValue, time);
+
         public void AverageKeyframe()
         {
             AverageValues();

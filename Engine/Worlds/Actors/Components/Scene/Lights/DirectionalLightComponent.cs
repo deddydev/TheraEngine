@@ -1,6 +1,7 @@
 ﻿using System;
 using TheraEngine.Rendering.Textures;
 using TheraEngine.Rendering.Models.Materials;
+using TheraEngine.Rendering.Cameras;
 
 namespace TheraEngine.Worlds.Actors
 {
@@ -28,10 +29,11 @@ namespace TheraEngine.Worlds.Actors
             base.OnRecalcLocalTransform(out localTransform, out inverseLocalTransform);
         }
 
+        private OrthographicCamera _shadowCamera;
         private Vec3 _direction;
         public Vec3 Direction
         {
-            get { return _direction; }
+            get => _direction;
             set
             {
                 _direction = value.NormalizedFast();

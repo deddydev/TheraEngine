@@ -22,11 +22,6 @@ namespace TheraEngine.Rendering
 
         public GLVar[] Parameters => _parameters;
         public Texture[] Textures => _textures;
-        public Shader VertexShader => _vertexShader;
-        public Shader FragmentShader => _fragmentShader;
-        public Shader GeometryShader => _geometryShader;
-        public Shader TessellationControlShader => _tControlShader;
-        public Shader TessellationEvaluationShader => _tEvalShader;
 
         public MeshProgram(Material material, PrimitiveBufferInfo info) : base(GenType.Program)
         {

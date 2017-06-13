@@ -13,6 +13,7 @@ namespace TheraEngine
     {
         Forward = 0,
         Deferred = 1,
+        DeferredOpaqueForwardTransparent,
     }
     [FileClass("ESET", "Engine Settings")]
     public class EngineSettings : FileObject
@@ -95,7 +96,7 @@ namespace TheraEngine
             ShadingStyle = ShadingStyle.Forward;
             SkinOnGPU = false;
             UseIntegerWeightingIds = false;
-            RenderOctree = false;
+            RenderOctree = true;
             RenderQuadtree = true;
             RenderSkeletons = false;
             RenderCameraFrustums = false;

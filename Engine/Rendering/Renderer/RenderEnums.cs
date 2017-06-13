@@ -6,6 +6,154 @@ using System.Threading.Tasks;
 
 namespace TheraEngine.Rendering
 {
+    public enum EBlendingFactor
+    {
+        Zero = 0,
+        One = 1,
+        SrcColor = 768,
+        OneMinusSrcColor = 769,
+        SrcAlpha = 770,
+        OneMinusSrcAlpha = 771,
+        DstAlpha = 772,
+        OneMinusDstAlpha = 773,
+        DstColor = 774,
+        OneMinusDstColor = 775,
+        SrcAlphaSaturate = 776,
+        ConstantColor = 32769,
+        ConstantColorExt = 32769,
+        OneMinusConstantColor = 32770,
+        OneMinusConstantColorExt = 32770,
+        ConstantAlpha = 32771,
+        ConstantAlphaExt = 32771,
+        OneMinusConstantAlpha = 32772,
+        OneMinusConstantAlphaExt = 32772,
+        Src1Alpha = 34185,
+        Src1Color = 35065,
+        OneMinusSrc1Color = 35066,
+        OneMinusSrc1Alpha = 35067
+    }
+    public enum EBlendEquationMode
+    {
+        FuncAdd = 32774,
+        Min = 32775,
+        Max = 32776,
+        FuncSubtract = 32778,
+        FuncReverseSubtract = 32779
+    }
+    public enum EComparison
+    {
+        Never,
+        Less,
+        Equal,
+        Lequal,
+        Greater,
+        Nequal,
+        Gequal,
+        Always
+    }
+    public enum ERenderBufferStorage
+    {
+        DepthComponent = 6402,
+        R3G3B2 = 10768,
+        Alpha4 = 32827,
+        Alpha8 = 32828,
+        Alpha12 = 32829,
+        Alpha16 = 32830,
+        Rgb4 = 32847,
+        Rgb5 = 32848,
+        Rgb8 = 32849,
+        Rgb10 = 32850,
+        Rgb12 = 32851,
+        Rgb16 = 32852,
+        Rgba2 = 32853,
+        Rgba4 = 32854,
+        Rgba8 = 32856,
+        Rgb10A2 = 32857,
+        Rgba12 = 32858,
+        Rgba16 = 32859,
+        DepthComponent16 = 33189,
+        DepthComponent24 = 33190,
+        DepthComponent32 = 33191,
+        R8 = 33321,
+        R16 = 33322,
+        Rg8 = 33323,
+        Rg16 = 33324,
+        R16f = 33325,
+        R32f = 33326,
+        Rg16f = 33327,
+        Rg32f = 33328,
+        R8i = 33329,
+        R8ui = 33330,
+        R16i = 33331,
+        R16ui = 33332,
+        R32i = 33333,
+        R32ui = 33334,
+        Rg8i = 33335,
+        Rg8ui = 33336,
+        Rg16i = 33337,
+        Rg16ui = 33338,
+        Rg32i = 33339,
+        Rg32ui = 33340,
+        DepthStencil = 34041,
+        Rgba32f = 34836,
+        Rgb32f = 34837,
+        Rgba16f = 34842,
+        Rgb16f = 34843,
+        Depth24Stencil8 = 35056,
+        R11fG11fB10f = 35898,
+        Rgb9E5 = 35901,
+        Srgb8 = 35905,
+        Srgb8Alpha8 = 35907,
+        DepthComponent32f = 36012,
+        Depth32fStencil8 = 36013,
+        StencilIndex1 = 36166,
+        StencilIndex1Ext = 36166,
+        StencilIndex4 = 36167,
+        StencilIndex4Ext = 36167,
+        StencilIndex8 = 36168,
+        StencilIndex8Ext = 36168,
+        StencilIndex16 = 36169,
+        StencilIndex16Ext = 36169,
+        Rgba32ui = 36208,
+        Rgb32ui = 36209,
+        Rgba16ui = 36214,
+        Rgb16ui = 36215,
+        Rgba8ui = 36220,
+        Rgb8ui = 36221,
+        Rgba32i = 36226,
+        Rgb32i = 36227,
+        Rgba16i = 36232,
+        Rgb16i = 36233,
+        Rgba8i = 36238,
+        Rgb8i = 36239,
+        Rgb10A2ui = 36975
+    }
+    public enum FeedbackPrimitiveType
+    {
+        Points,
+        Lines,
+        Triangles,
+    }
+    [Flags]
+    public enum BufferClear
+    {
+        Color = 1,
+        Depth = 2,
+        Stencil = 4,
+        Accum = 8,
+    }
+    public enum EPrimitive
+    {
+        Points = 0,
+        Lines = 1,
+        LineLoop = 2,
+        LineStrip = 3,
+        Triangles = 4,
+        TriangleStrip = 5,
+        TriangleFan = 6,
+        Quads = 7,
+        QuadStrip = 8,
+    }
     public enum EPixelType
     {
         Byte                        = 5120,
@@ -125,239 +273,83 @@ namespace TheraEngine.Rendering
         Rgb10A2 = 32857,
         Rgba12 = 32858,
         Rgba16 = 32859,
-        //DualAlpha4Sgis = 33040,
-        //DualAlpha8Sgis = 33041,
-        //DualAlpha12Sgis = 33042,
-        //DualAlpha16Sgis = 33043,
-        //DualLuminance4Sgis = 33044,
-        //DualLuminance8Sgis = 33045,
-        //DualLuminance12Sgis = 33046,
-        //DualLuminance16Sgis = 33047,
-        //DualIntensity4Sgis = 33048,
-        //DualIntensity8Sgis = 33049,
-        //DualIntensity12Sgis = 33050,
-        //DualIntensity16Sgis = 33051,
-        //DualLuminanceAlpha4Sgis = 33052,
-        //DualLuminanceAlpha8Sgis = 33053,
-        //QuadAlpha4Sgis = 33054,
-        //QuadAlpha8Sgis = 33055,
-        //QuadLuminance4Sgis = 33056,
-        //QuadLuminance8Sgis = 33057,
-        //QuadIntensity4Sgis = 33058,
-        //QuadIntensity8Sgis = 33059,
+        DualAlpha4Sgis = 33040,
+        DualAlpha8Sgis = 33041,
+        DualAlpha12Sgis = 33042,
+        DualAlpha16Sgis = 33043,
+        DualLuminance4Sgis = 33044,
+        DualLuminance8Sgis = 33045,
+        DualLuminance12Sgis = 33046,
+        DualLuminance16Sgis = 33047,
+        DualIntensity4Sgis = 33048,
+        DualIntensity8Sgis = 33049,
+        DualIntensity12Sgis = 33050,
+        DualIntensity16Sgis = 33051,
+        DualLuminanceAlpha4Sgis = 33052,
+        DualLuminanceAlpha8Sgis = 33053,
+        QuadAlpha4Sgis = 33054,
+        QuadAlpha8Sgis = 33055,
+        QuadLuminance4Sgis = 33056,
+        QuadLuminance8Sgis = 33057,
+        QuadIntensity4Sgis = 33058,
+        QuadIntensity8Sgis = 33059,
         DepthComponent16 = 33189,
-        DepthComponent16Sgix = 33189,
+        //DepthComponent16Sgix = 33189,
         DepthComponent24 = 33190,
-        DepthComponent24Sgix = 33190,
+        //DepthComponent24Sgix = 33190,
         DepthComponent32 = 33191,
-        DepthComponent32Sgix = 33191,
-        //
-        // Summary:
-        //     Original was GL_COMPRESSED_RED = 0x8225
+        //DepthComponent32Sgix = 33191,
         CompressedRed = 33317,
-        //
-        // Summary:
-        //     Original was GL_COMPRESSED_RG = 0x8226
         CompressedRg = 33318,
-        //
-        // Summary:
-        //     Original was GL_R8 = 0x8229
         R8 = 33321,
-        //
-        // Summary:
-        //     Original was GL_R16 = 0x822A
         R16 = 33322,
-        //
-        // Summary:
-        //     Original was GL_RG8 = 0x822B
         Rg8 = 33323,
-        //
-        // Summary:
-        //     Original was GL_RG16 = 0x822C
         Rg16 = 33324,
-        //
-        // Summary:
-        //     Original was GL_R16F = 0x822D
         R16f = 33325,
-        //
-        // Summary:
-        //     Original was GL_R32F = 0x822E
         R32f = 33326,
-        //
-        // Summary:
-        //     Original was GL_RG16F = 0x822F
         Rg16f = 33327,
-        //
-        // Summary:
-        //     Original was GL_RG32F = 0x8230
         Rg32f = 33328,
-        //
-        // Summary:
-        //     Original was GL_R8I = 0x8231
         R8i = 33329,
-        //
-        // Summary:
-        //     Original was GL_R8UI = 0x8232
         R8ui = 33330,
-        //
-        // Summary:
-        //     Original was GL_R16I = 0x8233
         R16i = 33331,
-        //
-        // Summary:
-        //     Original was GL_R16UI = 0x8234
         R16ui = 33332,
-        //
-        // Summary:
-        //     Original was GL_R32I = 0x8235
         R32i = 33333,
-        //
-        // Summary:
-        //     Original was GL_R32UI = 0x8236
         R32ui = 33334,
-        //
-        // Summary:
-        //     Original was GL_RG8I = 0x8237
         Rg8i = 33335,
-        //
-        // Summary:
-        //     Original was GL_RG8UI = 0x8238
         Rg8ui = 33336,
-        //
-        // Summary:
-        //     Original was GL_RG16I = 0x8239
         Rg16i = 33337,
-        //
-        // Summary:
-        //     Original was GL_RG16UI = 0x823A
         Rg16ui = 33338,
-        //
-        // Summary:
-        //     Original was GL_RG32I = 0x823B
         Rg32i = 33339,
-        //
-        // Summary:
-        //     Original was GL_RG32UI = 0x823C
         Rg32ui = 33340,
-        //
-        // Summary:
-        //     Original was GL_COMPRESSED_RGB_S3TC_DXT1_EXT = 0x83F0
         CompressedRgbS3tcDxt1Ext = 33776,
-        //
-        // Summary:
-        //     Original was GL_COMPRESSED_RGBA_S3TC_DXT1_EXT = 0x83F1
         CompressedRgbaS3tcDxt1Ext = 33777,
-        //
-        // Summary:
-        //     Original was GL_COMPRESSED_RGBA_S3TC_DXT3_EXT = 0x83F2
         CompressedRgbaS3tcDxt3Ext = 33778,
-        //
-        // Summary:
-        //     Original was GL_COMPRESSED_RGBA_S3TC_DXT5_EXT = 0x83F3
         CompressedRgbaS3tcDxt5Ext = 33779,
-        //
-        // Summary:
-        //     Original was GL_RGB_ICC_SGIX = 0x8460
         RgbIccSgix = 33888,
-        //
-        // Summary:
-        //     Original was GL_RGBA_ICC_SGIX = 0x8461
         RgbaIccSgix = 33889,
-        //
-        // Summary:
-        //     Original was GL_ALPHA_ICC_SGIX = 0x8462
         AlphaIccSgix = 33890,
-        //
-        // Summary:
-        //     Original was GL_LUMINANCE_ICC_SGIX = 0x8463
         LuminanceIccSgix = 33891,
-        //
-        // Summary:
-        //     Original was GL_INTENSITY_ICC_SGIX = 0x8464
         IntensityIccSgix = 33892,
-        //
-        // Summary:
-        //     Original was GL_LUMINANCE_ALPHA_ICC_SGIX = 0x8465
         LuminanceAlphaIccSgix = 33893,
-        //
-        // Summary:
-        //     Original was GL_R5_G6_B5_ICC_SGIX = 0x8466
         R5G6B5IccSgix = 33894,
-        //
-        // Summary:
-        //     Original was GL_R5_G6_B5_A8_ICC_SGIX = 0x8467
         R5G6B5A8IccSgix = 33895,
-        //
-        // Summary:
-        //     Original was GL_ALPHA16_ICC_SGIX = 0x8468
         Alpha16IccSgix = 33896,
-        //
-        // Summary:
-        //     Original was GL_LUMINANCE16_ICC_SGIX = 0x8469
         Luminance16IccSgix = 33897,
-        //
-        // Summary:
-        //     Original was GL_INTENSITY16_ICC_SGIX = 0x846A
         Intensity16IccSgix = 33898,
-        //
-        // Summary:
-        //     Original was GL_LUMINANCE16_ALPHA8_ICC_SGIX = 0x846B
         Luminance16Alpha8IccSgix = 33899,
-        //
-        // Summary:
-        //     Original was GL_COMPRESSED_ALPHA = 0x84E9
         CompressedAlpha = 34025,
-        //
-        // Summary:
-        //     Original was GL_COMPRESSED_LUMINANCE = 0x84EA
         CompressedLuminance = 34026,
-        //
-        // Summary:
-        //     Original was GL_COMPRESSED_LUMINANCE_ALPHA = 0x84EB
         CompressedLuminanceAlpha = 34027,
-        //
-        // Summary:
-        //     Original was GL_COMPRESSED_INTENSITY = 0x84EC
         CompressedIntensity = 34028,
-        //
-        // Summary:
-        //     Original was GL_COMPRESSED_RGB = 0x84ED
         CompressedRgb = 34029,
-        //
-        // Summary:
-        //     Original was GL_COMPRESSED_RGBA = 0x84EE
         CompressedRgba = 34030,
-        //
-        // Summary:
-        //     Original was GL_DEPTH_STENCIL = 0x84F9
         DepthStencil = 34041,
-        //
-        // Summary:
-        //     Original was GL_RGBA32F = 0x8814
         Rgba32f = 34836,
-        //
-        // Summary:
-        //     Original was GL_RGB32F = 0x8815
         Rgb32f = 34837,
-        //
-        // Summary:
-        //     Original was GL_RGBA16F = 0x881A
         Rgba16f = 34842,
-        //
-        // Summary:
-        //     Original was GL_RGB16F = 0x881B
         Rgb16f = 34843,
-        //
-        // Summary:
-        //     Original was GL_DEPTH24_STENCIL8 = 0x88F0
         Depth24Stencil8 = 35056,
-        //
-        // Summary:
-        //     Original was GL_R11F_G11F_B10F = 0x8C3A
         R11fG11fB10f = 35898,
-        //
-        // Summary:
-        //     Original was GL_RGB9_E5 = 0x8C3D
         Rgb9E5 = 35901,
         Srgb = 35904,
         Srgb8 = 35905,

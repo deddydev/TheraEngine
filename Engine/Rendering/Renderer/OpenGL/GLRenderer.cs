@@ -865,8 +865,50 @@ namespace TheraEngine.Rendering.OpenGL
         }
 
         public override void BindTexture(ETexTarget texTarget, int bindingId)
+            => GL.BindTexture((TextureTarget)texTarget.Convert(typeof(TextureTarget)), bindingId);
+
+        #region Blending Methods
+        public override void BlendColor(ColorF4 color)
+            => GL.BlendColor(color.R, color.G, color.B, color.A);
+        public override void BlendFunc(EBlendingFactor srcFactor, EBlendingFactor destFactor)
+            => GL.BlendFunc((BlendingFactorSrc)(int)srcFactor, (BlendingFactorDest)(int)destFactor);
+        public override void BlendFuncSeparate(EBlendingFactor srcFactorRGB, EBlendingFactor destFactorRGB, EBlendingFactor srcFactorAlpha, EBlendingFactor destFactorAlpha)
+            => GL.BlendFuncSeparate((BlendingFactorSrc)(int)srcFactorRGB, (BlendingFactorDest)(int)destFactorRGB, (BlendingFactorSrc)(int)srcFactorAlpha, (BlendingFactorDest)(int)destFactorAlpha);
+        public override void BlendEquation(EBlendEquationMode rgb, EBlendEquationMode alpha)
+            => GL.BlendEquationSeparate((BlendEquationMode)(int)rgb, (BlendEquationMode)(int)alpha);
+        public override void BlendEquationSeparate(EBlendEquationMode rgb, EBlendEquationMode alpha)
+            => GL.BlendEquationSeparate((BlendEquationMode)(int)rgb, (BlendEquationMode)(int)alpha);
+        #endregion
+
+        #region Depth Methods
+        public override void ClearDepth(float defaultDepth)
+            => GL.ClearDepth(defaultDepth);
+        public override void AllowDepthWrite(bool allow)
+            => GL.DepthMask(allow);
+        public override void DepthFunc(EComparison func)
+            => GL.DepthFunc(GetDepthFunc(func));
+        public override void DepthRange(double near, double far)
+            => GL.DepthRange(near, far);
+        private DepthFunction GetDepthFunc(EComparison comp)
         {
-            GL.BindTexture((TextureTarget)texTarget.Convert(typeof(TextureTarget)), bindingId);
+            switch (comp)
+            {
+                case EComparison.Never:
+                    return DepthFunction.Never;
+                case EComparison.Less:
+                    return DepthFunction.Less;
+                case EComparison.Equal:
+                    return DepthFunction.Equal;
+                case EComparison.Lequal:
+                    return DepthFunction.Lequal;
+                case EComparison.Greater:
+                    return DepthFunction.Greater;
+                case EComparison.Nequal:
+                    return DepthFunction.Notequal;
+                default:
+                    return DepthFunction.Always;
+            }
         }
+        #endregion
     }
 }

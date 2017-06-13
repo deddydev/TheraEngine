@@ -10,6 +10,6 @@ namespace TheraEngine.Rendering.HUD
 {
     public class TextureHudComponent : DockableHudComponent
     {
-        string _text;
+        PrimitiveManager _quad = new PrimitiveManager();
     }
 }

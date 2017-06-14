@@ -164,6 +164,11 @@ namespace TheraEngine.Rendering
             Engine.Renderer.Uniform(Uniform.GetLocation(ECommonUniform.CameraForward), _parent.Camera.GetForwardVector());
             Engine.Renderer.Uniform(Uniform.GetLocation(ECommonUniform.CameraUp), _parent.Camera.GetUpVector());
             Engine.Renderer.Uniform(Uniform.GetLocation(ECommonUniform.CameraRight), _parent.Camera.GetRightVector());
+            Engine.Renderer.Uniform("ProjOrigin", _parent.Camera._projectionOrigin);
+            Engine.Renderer.Uniform("ProjRange", _parent.Camera._projectionRange);
+            Engine.Renderer.Uniform("InvViewMatrix", _parent.Camera.InverseWorldMatrix);
+            Engine.Renderer.Uniform("InvProjMatrix", _parent.Camera.InverseProjectionMatrix);
+            _parent.Camera.PostProcessSettings.SetUniforms();
 
             Engine.Renderer.Scene.Lights.SetUniforms();
         }
@@ -324,6 +329,11 @@ uniform float CameraFarZ;
 uniform float ScreenWidth;
 uniform float ScreenHeight;
 uniform float ScreenOrigin;
+uniform float ProjOrigin;
+uniform float ProjRange;
+uniform float InvViewMatrix;
+uniform float InvProjMatrix;
+uniform float Exposure;
 
 " + Shader.LightingSetupBasic() + @"
 
@@ -347,11 +357,16 @@ void main()
     vec3 FragPos = texture(Texture1, uv).rgb;
     vec3 Normal = texture(Texture2, uv).rgb;
     vec4 Text = texture(Texture3, vec2(uv.x, 1.0 - uv.y));
-    float Depth = GetDistanceFromDepth(texture(Texture4, uv).r) / (CameraFarZ - CameraNearZ);
+    float Depth = texture(Texture4, uv).r;
 
     " + Shader.LightingCalc("totalLight", "vec3(0.0)", "Normal", "FragPos", "AlbedoSpec.rgb", "AlbedoSpec.a") + @"
 
-    OutColor = vec4(mix(AlbedoSpec.rgb * totalLight, Text.rgb, Text.a), 1.0);
+    vec3 hdrSceneColor = AlbedoSpec.rgb * totalLight;
+
+    // Exposure tone mapping
+    vec3 mapped = vec3(1.0) - exp(-hdrSceneColor * Exposure);
+  
+    OutColor = vec4(mix(mapped, Text.rgb, Text.a), 1.0);
 }";
             return new Shader(ShaderMode.Fragment, source);
         }

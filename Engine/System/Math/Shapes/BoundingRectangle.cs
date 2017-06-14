@@ -3,7 +3,7 @@
 namespace System
 {
     /// <summary>
-    /// Axis-aligned rectangle struct. Supports position, size, and a local origin.
+    /// Axis-aligned rectangle struct. Supports position, size, and a local origin. All translations are relative to the bottom left (0, 0), like a graph.
     /// </summary>
     public struct BoundingRectangle
     {
@@ -44,6 +44,7 @@ namespace System
         }
         /// <summary>
         /// The location of the origin of this rectangle as a world point relative to the bottom left (0, 0).
+        /// Bottom left point of this rectangle is Position - LocalOrigin.
         /// </summary>
         public Vec2 Position
         {
@@ -85,7 +86,11 @@ namespace System
         public float Width
         {
             get => _bounds.X;
-            set => _bounds.X = value;
+            set
+            {
+                _bounds.X = value;
+                CheckProperDimensions();
+            }
         }
         /// <summary>
         /// The height of this rectangle.
@@ -93,32 +98,45 @@ namespace System
         public float Height
         {
             get => _bounds.Y;
-            set => _bounds.Y = value;
+            set
+            {
+                _bounds.Y = value;
+                CheckProperDimensions();
+            }
         }
         /// <summary>
         /// The X value of the right boundary line.
         /// </summary>
         public float MaxX
         {
-            get => _translation.X + _bounds.X;
-            set => _bounds.X = value - _translation.X;
+            get => _translation.X + (Width < 0 ? 0 : Width);
+            set
+            {
+                CheckProperDimensions();
+                _bounds.X = value - _translation.X;
+            }
         }
         /// <summary>
         /// The Y value of the top boundary line.
         /// </summary>
         public float MaxY
         {
-            get => _translation.Y + _bounds.Y;
-            set => _bounds.Y = value - _translation.Y;
+            get => _translation.Y + (Height < 0 ? 0 : Height);
+            set
+            {
+                CheckProperDimensions();
+                _bounds.Y = value - _translation.Y;
+            }
         }
         /// <summary>
         /// The X value of the left boundary line.
         /// </summary>
         public float MinX
         {
-            get => _translation.X;
+            get => _translation.X + (Width < 0 ? Width : 0);
             set
             {
+                CheckProperDimensions();
                 float origX = _bounds.X;
                 _translation.X = value;
                 _bounds.X = origX - _translation.X;
@@ -129,9 +147,10 @@ namespace System
         /// </summary>
         public float MinY
         {
-            get => _translation.Y;
+            get => _translation.Y + (Height < 0 ? Height : 0);
             set
             {
+                CheckProperDimensions();
                 float origY = _bounds.Y;
                 _translation.Y = value;
                 _bounds.Y = origY - _translation.Y;
@@ -154,7 +173,7 @@ namespace System
             set => _bounds = value;
         }
         /// <summary>
-        /// The location of this rectangle's origin. 0 is fully left/down, positive values are right/up.
+        /// The location of this rectangle's bottom left point (top right if both width and height are negative). 0 is fully left/down, positive values are right/up.
         /// </summary>
         public Vec2 Translation
         {
@@ -163,9 +182,10 @@ namespace System
         }
         public Vec2 BottomLeft
         {
-            get => _translation;
+            get => new Vec2(MinX, MinY);
             set
             {
+                CheckProperDimensions();
                 Vec2 upper = TopRight;
                 _translation = value;
                 _bounds = TopRight - _translation;
@@ -173,14 +193,19 @@ namespace System
         }
         public Vec2 TopRight
         {
-            get => _translation + _bounds;
-            set => _bounds = value - _translation;
+            get => new Vec2(MaxX, MaxY);
+            set
+            {
+                CheckProperDimensions();
+                _bounds = value - _translation;
+            }
         }
         public Vec2 BottomRight
         {
-            get => new Vec2(_translation.X + _bounds.X, _translation.Y);
+            get => new Vec2(MaxX, MinY);
             set
             {
+                CheckProperDimensions();
                 float upperY = _translation.Y + _bounds.Y;
                 _translation.Y = value.Y;
                 _bounds.X = value.X - _translation.X;
@@ -189,9 +214,10 @@ namespace System
         }
         public Vec2 TopLeft
         {
-            get => new Vec2(_translation.X, _translation.Y + _bounds.Y);
+            get => new Vec2(MinX, MaxY);
             set
             {
+                CheckProperDimensions();
                 float upperX = _translation.X + _bounds.X;
                 _translation.X = value.X;
                 _bounds.X = upperX - value.X;
@@ -241,15 +267,15 @@ namespace System
         /// </summary>
         public void CheckProperDimensions()
         {
-            if (_bounds.X < 0)
+            if (Width < 0)
             {
-                _translation.X += _bounds.X;
-                _bounds.X = -_bounds.X;
+                _translation.X += Width;
+                Width = -Width;
             }
-            if (_bounds.Y < 0)
+            if (Height < 0)
             {
-                _translation.Y += _bounds.Y;
-                _bounds.Y = -_bounds.Y;
+                _translation.Y += Height;
+                Height = -Height;
             }
         }
         /// <summary>
@@ -258,42 +284,53 @@ namespace System
         /// <param name="point">The point to check.</param>
         /// <returns>True if the point is contained within this rectangle.</returns>
         public bool Contains(Vec2 point)
-            => _bounds.Contains(point - _translation);
+            => _bounds.Contains(point - BottomLeft);
         /// <summary>
         /// Determines if this rectangle is contained within another.
         /// </summary>
         /// <param name="other">The other rectangle.</param>
         /// <returns>EContainment.Disjoint if not intersecting. EContainment.Intersecting if intersecting, but not fully contained. EContainment.Contains if fully contained.</returns>
-        public EContainment ContainedWithin(BoundingRectangle other)
-            => other.Contains(this);
+        public EContainment ContainmentWithin(BoundingRectangle other)
+            => other.ContainmentOf(this);
         /// <summary>
         /// Determines if this rectangle contains another.
         /// </summary>
         /// <param name="other">The other rectangle.</param>
         /// <returns>EContainment.Disjoint if not intersecting. EContainment.Intersecting if intersecting, but not fully contained. EContainment.Contains if fully contained.</returns>
-        public EContainment Contains(BoundingRectangle bounds)
+        public EContainment ContainmentOf(BoundingRectangle other)
         {
-            int flag = 0;
-            
-            float r = MaxX - bounds.MaxX;
-            float t = MaxY - bounds.MaxY;
-            float l = bounds.MinX - MinX;
-            float b = bounds.MinY - MinY;
-
-            //contains right side?
-            flag |= r > 0 ? 0b0001 : 0;
-            //contains top side?
-            flag |= t > 0 ? 0b0010 : 0;
-            //contains left side?
-            flag |= l > 0 ? 0b0100 : 0;
-            //contains bottom side?
-            flag |= b > 0 ? 0b1000 : 0;
-
-            if (flag == 0b1111)
-                return EContainment.Contains;
-            else
+            if (Intersects(other))
                 return EContainment.Intersects;
+            return Contains(other) ? EContainment.Contains : EContainment.Disjoint;
         }
+        /// <summary>
+        /// Returns true if this rectangle and the given rectangle are not touching or contained within another.
+        /// </summary>
+        /// <param name="other"></param>
+        /// <returns></returns>
+        public bool DisjointWith(BoundingRectangle other)
+        {
+            //Can't just negate contains operation, because that would also include intersection.
+            return
+                other.MinX > MaxX ||
+                other.MaxX < MinX ||
+                other.MinY > MaxY ||
+                other.MaxY < MinY;
+        }
+        /// <summary>
+        /// Returns true if full contains the given rectangle. If intersecting at all (including a same edge) or disjoint, returns false.
+        /// </summary>
+        public bool Contains(BoundingRectangle other)
+        {
+            return
+                other.MaxX < MaxX &&
+                other.MinX > MinX &&
+                other.MaxY < MaxY &&
+                other.MinY > MinY;
+        }
+        /// <summary>
+        /// Returns true if intersecting at all (including a same edge). If no edges are touching, returns false.
+        /// </summary>
         public bool Intersects(BoundingRectangle other)
         {
             return

@@ -51,6 +51,11 @@ namespace TheraEngine.Rendering.Cameras
             };
             return parameters;
         }
+
+        internal void SetUniforms()
+        {
+            Engine.Renderer.Uniform("Exposure", 1.0f);
+        }
     }
     public class VignetteSettings
     {

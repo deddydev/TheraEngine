@@ -77,7 +77,7 @@ namespace TheraEngine.Rendering
         internal void Cull(Camera camera)
         {
             AbstractRenderer.CurrentCamera = camera;
-            _renderTree.Cull(camera.GetFrustum(), Engine.Settings.RenderOctree, _passes);
+            _renderTree.Cull(camera, true, true, _passes, Engine.Settings.RenderOctree);
             AbstractRenderer.CurrentCamera = null;
         }
         internal void Render(Camera camera, RenderPass pass)

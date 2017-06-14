@@ -31,7 +31,7 @@ namespace System
         public static implicit operator ColorF4(Color p)
             => new ColorF4() { A = p.A * ByteToFloat, B = p.B * ByteToFloat, G = p.G * ByteToFloat, R = p.R * ByteToFloat };
         public static implicit operator Color(ColorF4 p)
-            => Color.FromArgb((int)(p.A * FloatToByte), (int)(p.B * FloatToByte), (int)(p.G * FloatToByte), (int)(p.R * FloatToByte));
+            => Color.FromArgb((int)(p.A * FloatToByte), (int)(p.R * FloatToByte), (int)(p.G * FloatToByte), (int)(p.B * FloatToByte));
         public static implicit operator ColorF4(Vec3 v)
             => new ColorF4(v.X, v.Y, v.Z, 1.0f);
         public static implicit operator ColorF4(Vec4 v)

@@ -40,7 +40,7 @@ namespace TheraEngine.Rendering.Cameras
         }
         
         public Matrix4 ProjectionMatrix => _projectionMatrix;
-        public Matrix4 ProjectionMatrixInverse => _projectionInverse;
+        public Matrix4 InverseProjectionMatrix => _projectionInverse;
         public Matrix4 WorldMatrix
         {
             get => _owningComponent != null ? _owningComponent.WorldMatrix : _transform;
@@ -181,8 +181,8 @@ namespace TheraEngine.Rendering.Cameras
         private CameraComponent _owningComponent;
         private List<Viewport> _viewports = new List<Viewport>();
         internal bool _isActive = false;
-        private Vec3 _projectionRange;
-        private Vec3 _projectionOrigin;
+        internal Vec3 _projectionRange;
+        internal Vec3 _projectionOrigin;
         protected Frustum _untransformedFrustum, _transformedFrustum;
         private EventVec3 _viewTarget = null;
         protected bool _updating = false;
@@ -227,13 +227,13 @@ namespace TheraEngine.Rendering.Cameras
         /// Returns an X, Y coordinate relative to the camera's Origin, with Z being the normalized depth from NearDepth to FarDepth.
         /// </summary>
         public Vec3 WorldToScreen(Vec3 point)
-            => _projectionOrigin + _projectionRange * ((_projectionMatrix * (_transform * point)) + 1.0f) / 2.0f;
+            => _projectionOrigin + _projectionRange * ((_projectionMatrix * (WorldMatrix * point)) + 1.0f) / 2.0f;
         public Vec3 ScreenToWorld(Vec2 point, float depth) 
             => ScreenToWorld(point.X, point.Y, depth);
         public Vec3 ScreenToWorld(float x, float y, float depth)
             => ScreenToWorld(new Vec3(x, y, depth));
         public Vec3 ScreenToWorld(Vec3 screenPoint)
-            => _invTransform * (_projectionInverse * ((screenPoint - _projectionOrigin) / _projectionRange * 2.0f - 1.0f));
+            => InverseWorldMatrix * (_projectionInverse * ((screenPoint - _projectionOrigin) / _projectionRange * 2.0f - 1.0f));
         
         protected virtual void PositionChanged()
         {

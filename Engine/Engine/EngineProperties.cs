@@ -28,11 +28,16 @@ namespace TheraEngine
         public static string EngineSettingsPathRel = ConfigFolderRel + "Engine.xeset";
         public static string UserSettingsPathAbs = ConfigFolderAbs + "User.xuset";
         public static string UserSettingsPathRel = ConfigFolderRel + "User.xuset";
-        
+
+        public static Dictionary<string, List<FileObject>> LoadedFiles = new Dictionary<string, List<FileObject>>();
+        public static MonitoredList<LocalPlayerController> ActivePlayers = new MonitoredList<LocalPlayerController>();
+        public static List<AIController> ActiveAI = new List<AIController>();
+        public static List<World> LoadedWorlds = new List<World>();
+
         private static World _currentWorld = null;
         public static SingleFileRef<EngineSettings> _engineSettings = new SingleFileRef<EngineSettings>(EngineSettingsPathRel);
         public static SingleFileRef<UserSettings> _userSettings = new SingleFileRef<UserSettings>(UserSettingsPathRel);
-
+        
         public static EngineSettings Settings
         {
             get => _engineSettings.File ?? (_engineSettings.File = new EngineSettings());
@@ -44,12 +49,6 @@ namespace TheraEngine
             set => _userSettings.File = value;
         }
 
-        public static Dictionary<string, List<FileObject>> LoadedFiles = new Dictionary<string, List<FileObject>>();
-        public static MonitoredList<LocalPlayerController> ActivePlayers = new MonitoredList<LocalPlayerController>();
-        public static List<AIController> ActiveAI = new List<AIController>();
-        public static List<World> LoadedWorlds = new List<World>();
-        public static int PhysicsSubsteps = 10;
-
         /// <summary>
         /// The index of the currently ticking list of functions (group + order)
         /// </summary>
@@ -59,15 +58,18 @@ namespace TheraEngine
         /// </summary>
         private static ConcurrentQueue<Tuple<bool, DelTick>> _tickListQueue = new ConcurrentQueue<Tuple<bool, DelTick>>();
 
-        private static bool _isPaused = false;
-        private static ComputerInfo _computerInfo;
-        private static EngineTimer _timer = new EngineTimer();
-        private static AbstractRenderer _renderer;
-        private static AbstractAudioManager _audioManager;
         private static RenderLibrary _renderLibrary;
         private static AudioLibrary _audioLibrary;
         private static InputLibrary _inputLibrary;
+
+        private static bool _isPaused = false;
+        private static EngineTimer _timer = new EngineTimer();
         private static List<DateTime> _debugTimers = new List<DateTime>();
+
+        private static ComputerInfo _computerInfo;
+        private static AbstractRenderer _renderer;
+        private static AbstractAudioManager _audioManager;
+
         private static InputAwaiter _inputAwaiter;
         private static Dictionary<PlayerIndex, Queue<IPawn>> _possessionQueue = new Dictionary<PlayerIndex, Queue<IPawn>>();
         //internal static List<PhysicsDriver> _queuedCollisions = new List<PhysicsDriver>();

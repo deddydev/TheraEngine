@@ -93,7 +93,7 @@ namespace TheraEngine
 
         public EngineSettings()
         {
-            ShadingStyle = ShadingStyle.Forward;
+            ShadingStyle = ShadingStyle.Deferred;
             SkinOnGPU = false;
             UseIntegerWeightingIds = false;
             RenderOctree = true;

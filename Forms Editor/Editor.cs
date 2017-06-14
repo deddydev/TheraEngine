@@ -60,7 +60,11 @@ namespace TheraEditor
         private void RenderTick(object sender, FrameEventArgs e)
         {
             renderPanel1.Invalidate();
-            Invoke(OnRedrawn);
+            try
+            {
+                Invoke(OnRedrawn);
+            }
+            catch { }
         }
         private void SpawnedActors_Modified()
         {

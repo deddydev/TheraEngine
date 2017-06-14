@@ -679,6 +679,7 @@
     <Compile Include="Rendering\Renderer\States\PrimitiveManager.cs" />
     <Compile Include="Rendering\Renderer\States\VertexBuffer.cs" />
     <None Include="Rendering\Renderer\States\DisplayList.cs" />
+    <Compile Include="Rendering\Renderer\Text.cs" />
     <Compile Include="Rendering\Textures\PixelTypes.cs" />
     <Compile Include="Rendering\Textures\TextureConverter.cs" />
     <Compile Include="Rendering\Textures\TextureData.cs" />

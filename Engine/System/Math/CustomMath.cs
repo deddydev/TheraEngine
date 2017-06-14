@@ -1,4 +1,6 @@
-﻿using static System.Math;
+﻿using System.Collections.Generic;
+using System.Linq;
+using static System.Math;
 namespace System
 {
     public unsafe static class CustomMath
@@ -514,6 +516,19 @@ namespace System
             float nonLinearDepth = (farZ + nearZ - 2.0f * nearZ * farZ / z) / (farZ - nearZ);
             nonLinearDepth = (nonLinearDepth + 1.0f) / 2.0f;
             return nonLinearDepth;
+        }
+        public static Circle SmallestEnclosingCircle(params Vec2[] points)
+        {
+            float radius = 0;
+            Vec2 center = Vec2.Zero;
+            List<Vec2> Q = new List<Vec2>();
+            MiniballRecurse(ref center, ref radius, points.ToList(), Q);
+            return new Circle(radius, center);
+        }
+        private static void MiniballRecurse(ref Vec2 center, ref float radius, List<Vec2> S, List<Vec2> Q)
+        {
+            List<Vec2> processed = new List<Vec2>();
+
         }
 
         public static float Max(params float[] values)

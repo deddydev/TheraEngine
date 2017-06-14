@@ -131,10 +131,10 @@ namespace System
                 if (containment == EContainmentFlags.None)
                     return list;
 
-                if (_region.Contains(bounds) == EContainment.Contains)
-                {
+                //if (_region.Contains(bounds) == EContainment.Contains)
+                //{
 
-                }
+                //}
 
                 return null;
             }
@@ -191,7 +191,7 @@ namespace System
                     {
                         if (item == null)
                             continue;
-                        if (bounds.Contains(item.AxisAlignedBounds) == EContainment.Contains)
+                        if (bounds.Contains(item.AxisAlignedBounds))
                         {
                             notSubdivided = false;
 
@@ -214,15 +214,14 @@ namespace System
 
                 if (notSubdivided)
                     foreach (T b in value)
-                        if (_parent == null || _region.Contains(b.AxisAlignedBounds) == EContainment.Contains)
+                        if (_parent == null || _region.Contains(b.AxisAlignedBounds))
                             Items.Add(b);
             }
             public void ItemMoved(I2DBoundable item) => ItemMoved((T)item);
             public void ItemMoved(T item)
             {
-                if (_region.Contains(item.AxisAlignedBounds) == EContainment.Contains)
+                if (_region.Contains(item.AxisAlignedBounds))
                 {
-
                     if (!_items.Contains(item))
                     {
                         _items.Add(item);
@@ -246,7 +245,7 @@ namespace System
                 for (int i = 0; i < 4; ++i)
                 {
                     BoundingRectangle bounds = GetSubdivision(i);
-                    if (bounds.Contains(item.AxisAlignedBounds) == EContainment.Contains)
+                    if (bounds.Contains(item.AxisAlignedBounds))
                     {
                         notSubdivided = false;
 

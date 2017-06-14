@@ -8,6 +8,12 @@ using System.Linq;
 
 namespace TheraEngine.Rendering.Textures
 {
+    public enum TextureType
+    {
+        Texture2D,
+        Texture3D,
+        TextureCubeMap
+    }
     public class Texture : BaseRenderState
     {
         public Texture() : this(null) { }

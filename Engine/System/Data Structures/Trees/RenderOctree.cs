@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TheraEngine.Rendering;
+using TheraEngine.Rendering.Cameras;
 
 namespace System
 {
@@ -14,14 +15,25 @@ namespace System
         public RenderOctree(BoundingBox bounds) : base(bounds) { }
         public RenderOctree(BoundingBox bounds, List<IRenderable> items) : base(bounds, items) { }
 
+        /// <summary>
+        /// Disables rendering of scene items not visible from the given camera.
+        /// </summary>
+        /// <param name="frustum"></param>
+        /// <param name="resetVisibility">If false, does not reset the visibility of objects that have been previously enabled.</param>
+        /// <param name="cullOffscreen">If true, will disable the visibility of offscreen objects.</param>
+        /// <param name="passes">The varying passes for objects of different types.</param>
+        /// <param name="debugRender">If true, bounding boxes for visible octree subdivisions will be rendered.</param>
         public void Cull(
-            Frustum frustum,
-            bool debugRender,
-            RenderPasses passes)
+            Camera camera,
+            bool resetVisibility,
+            bool cullOffscreen,
+            RenderPasses passes,
+            bool debugRender)
         {
             if (_head == null)
                 return;
-
+            
+            Frustum frustum = camera.GetFrustum();
             _head.Cull(frustum, debugRender, passes);
         }
     }

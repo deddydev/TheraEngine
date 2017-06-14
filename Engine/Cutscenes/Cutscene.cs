@@ -20,5 +20,34 @@ namespace TheraEngine.Cutscenes
         private List<IActor> involvedActors;
         //How long this cutscene runs for, in seconds
         private float length;
+
+        /// <summary>
+        /// Initializes starting positions of all cutscene actors and animations.
+        /// </summary>
+        public void Reset()
+        {
+            throw new NotImplementedException();
+        }
+        /// <summary>
+        /// Resumes progression of the cutscene.
+        /// </summary>
+        public void Play()
+        {
+            throw new NotImplementedException();
+        }
+        /// <summary>
+        /// Pauses progression of the cutscene, but does not end it.
+        /// </summary>
+        public void Pause()
+        {
+            throw new NotImplementedException();
+        }
+        /// <summary>
+        /// Ends the cutscene early and resumes gameplay.
+        /// </summary>
+        public void End()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

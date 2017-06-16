@@ -250,15 +250,23 @@ namespace TheraEngine.Rendering
         #endregion
 
         #region Objects
-        public abstract int[] CreateObjects(GenType type, int count);
+
+        public abstract int[] CreateObjects(EObjectType type, int count);
+        public int CreateObject(EObjectType type) => CreateObjects(type, 1)[0];
+
         public abstract int[] CreateTextures(ETexTarget target, int count);
+        public int CreateTexture(ETexTarget target) => CreateTextures(target, 1)[0];
+
         public abstract int[] CreateQueries(int type, int count);
-        public T[] CreateObjects<T>(GenType type, int count) where T : BaseRenderState
+
+        public T[] CreateObjects<T>(EObjectType type, int count) where T : BaseRenderState
         {
             return CreateObjects(type, count).Select(x => Activator.CreateInstance(typeof(T), x) as T).ToArray();
         }
-        public abstract void DeleteObject(GenType type, int bindingId);
-        public abstract void DeleteObjects(GenType type, int[] bindingIds);
+
+        public abstract void DeleteObject(EObjectType type, int bindingId);
+        public abstract void DeleteObjects(EObjectType type, int[] bindingIds);
+
         #endregion
 
         internal int AddActiveMaterial(Material material)
@@ -290,7 +298,7 @@ namespace TheraEngine.Rendering
         public abstract void MapBufferData(VertexBuffer buffer);
         public abstract void UnmapBufferData(VertexBuffer buffer);
 
-        public abstract void Clear(BufferClear mask);
+        public abstract void Clear(EBufferClear mask);
         public abstract void Cull(Culling culling);
         public abstract void SetPointSize(float size);
         public abstract void SetLineSize(float size);

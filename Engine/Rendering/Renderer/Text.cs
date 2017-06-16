@@ -33,15 +33,16 @@ namespace TheraEngine.Rendering
 
         private string _text;
         private Font _font;
-        private SolidBrush _brush;
         private Vec2 _position, _originPercentages;
         private Vec2 _scale;
         private float _depth;
         private float _rotation;
+        private ColorF4 _color;
 
-        internal ScreenTextHandler _parent;
+        internal TextDrawer _parent;
         internal BoundingRectangle _bounds; //Set after being drawn
         internal List<TextData> _overlapping; //Set after being drawn
+        internal SolidBrush _brush;
 
         public string Text
         {
@@ -61,12 +62,13 @@ namespace TheraEngine.Rendering
                 _parent?.TextChanged(this);
             }
         }
-        public SolidBrush Brush
+        public ColorF4 Color
         {
-            get => _brush;
+            get => _color;
             set
             {
-                _brush = value;
+                _color = value;
+                _brush = new SolidBrush(_color);
                 _parent?.TextChanged(this);
             }
         }
@@ -110,19 +112,18 @@ namespace TheraEngine.Rendering
         public float Rotation { get => _rotation; set => _rotation = value; }
     }
 
-    public class ScreenTextHandler
+    public class TextDrawer
     {
-        internal Viewport _viewport;
         internal SortedDictionary<float, TextData> _text;
         private LinkedList<TextData> _modified;
+        public event Action NeedsRedraw;
 
         public bool Modified => _modified.Count > 0;
 
-        public ScreenTextHandler(Viewport viewport)
+        public TextDrawer()
         {
             _text = new SortedDictionary<float, TextData>();
             _modified = new LinkedList<TextData>();
-            _viewport = viewport;
         }
 
         public void Clear()
@@ -138,26 +139,10 @@ namespace TheraEngine.Rendering
             _modified.AddLast(text);
         }
 
-        public unsafe void Draw(Texture texture)
+        public unsafe void Draw(Texture2D texture)
         {
             Bitmap b = texture.Data.Bitmap;
-
-            //Resize bitmap if viewport bounds do not match
-            if ((IVec2)b.Size != (IVec2)_viewport.Region.Bounds)
-            {
-                if (b != null)
-                    b.Dispose();
-
-                if (_viewport.Region.IntWidth == 0 || _viewport.Region.IntHeight == 0)
-                {
-                    texture.Data.Bitmap = null;
-                    return;
-                }
-
-                b = new Bitmap(_viewport.Region.IntWidth, _viewport.Region.IntHeight);
-                b.MakeTransparent();
-                texture.Data.Bitmap = b;
-            }
+            b.MakeTransparent();
 
             //TODO: instead of redrawing the whole image, keep track of overlapping text
             //and only redraw the previous and new regions. Repeat for any other overlapping texts.
@@ -174,13 +159,13 @@ namespace TheraEngine.Rendering
                     Vec2 size = g.MeasureString(text.Text, text.Font);
                     Vec2 localOrigin = size * text.OriginPercentages;
                     text._bounds = new BoundingRectangle(text.Position, size, text.OriginPercentages);
-                    if (!text._bounds.DisjointWith(_viewport.Region))
+                    if (!text._bounds.DisjointWith(b.Width, b.Height))
                     {
                         g.ResetTransform();
                         g.TranslateTransform(text.Position.X - localOrigin.X, text.Position.Y - localOrigin.Y);
                         //g.RotateTransformAt(text.Rotation);
                         //g.ScaleTransform(text.Scale.X, text.Scale.Y);
-                        g.DrawString(text.Text, text.Font, text.Brush, 0.0f, 0.0f);
+                        g.DrawString(text.Text, text.Font, text._brush, 0.0f, 0.0f);
                     }
                 }
             }
@@ -191,6 +176,7 @@ namespace TheraEngine.Rendering
         internal void TextChanged(TextData textData)
         {
             _modified.AddLast(textData);
+            NeedsRedraw?.Invoke();
         }
     }
 }

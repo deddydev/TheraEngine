@@ -77,32 +77,32 @@ namespace TheraEngine.Files
             { typeof(PropAnimFloat), new FilterInfo("Numeric Property Animation", "PANM", "cpa") },
             { typeof(PropAnimString), new FilterInfo("String Property Animation", "PANM", "cpa") },
             { typeof(PropAnimBool), new FilterInfo("Boolean Animation", "PANM", "cpa") },
-            { typeof(Texture), new FilterInfo("Texture", "CTEX", "ctex") },
+            { typeof(Texture2D), new FilterInfo("Texture", "CTEX", "ctex") },
         };
         public static List<FilterInfo> GenericInfo = new List<FilterInfo>()
         {
             new FilterInfo("Portable Network Graphics", "png")
-            { _fileTypes = new Type[] { typeof(Texture) },
+            { _fileTypes = new Type[] { typeof(Texture2D) },
                 _canExport = true, _canImport = true },
 
             new FilterInfo("Truevision TARGA", "tga")
-            { _fileTypes = new Type[] { typeof(Texture) },
+            { _fileTypes = new Type[] { typeof(Texture2D) },
                 _canExport = true, _canImport = true },
 
             new FilterInfo("Tagged Image File Format", "tif", "tiff")
-            { _fileTypes = new Type[] { typeof(Texture) },
+            { _fileTypes = new Type[] { typeof(Texture2D) },
                 _canExport = true, _canImport = true },
 
             new FilterInfo("Bitmap", "bmp")
-            { _fileTypes = new Type[] { typeof(Texture) },
+            { _fileTypes = new Type[] { typeof(Texture2D) },
                 _canExport = true, _canImport = true },
 
             new FilterInfo("JPEG Image", "jpg", "jpeg")
-            { _fileTypes = new Type[] { typeof(Texture) },
+            { _fileTypes = new Type[] { typeof(Texture2D) },
                 _canExport = true, _canImport = true },
 
             new FilterInfo("Graphics Interchange Format", "gif")
-            { _fileTypes = new Type[] { typeof(Texture) },
+            { _fileTypes = new Type[] { typeof(Texture2D) },
                 _canExport = true, _canImport = true },
 
             new FilterInfo("Text File", "txt")

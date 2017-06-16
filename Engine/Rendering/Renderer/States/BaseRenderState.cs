@@ -29,14 +29,14 @@ namespace TheraEngine.Rendering
             }
         }
 
-        public GenType Type => _type;
+        public EObjectType Type => _type;
 
-        private GenType _type;
+        private EObjectType _type;
         private List<ContextBind> _owners = new List<ContextBind>();
         private ContextBind _currentBind = new ContextBind(null);
         
-        public BaseRenderState(GenType type) { _type = type; }
-        public BaseRenderState(GenType type, int bindingId)
+        public BaseRenderState(EObjectType type) { _type = type; }
+        public BaseRenderState(EObjectType type, int bindingId)
         {
             _type = type;
 
@@ -168,7 +168,7 @@ namespace TheraEngine.Rendering
             return obj != null && ToString().Equals(obj.ToString());
         }
     }
-    public enum GenType
+    public enum EObjectType
     {
         Buffer,
         Shader,

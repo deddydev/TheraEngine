@@ -37,10 +37,10 @@ namespace System
             => Vec3.TransformPosition(_localUpAxis * _halfHeight, _state.Matrix);
         public Vec3 GetBottomCenterPoint()
             => Vec3.TransformPosition(_localUpAxis * -_halfHeight, _state.Matrix);
-        public Circle GetBottomCircle(bool normalFacingIn = false)
-            => new Circle(_radius, GetBottomCenterPoint(), normalFacingIn ? WorldUpAxis : -WorldUpAxis);
-        public Circle GetTopCircle(bool normalFacingIn = false)
-            => new Circle(_radius, GetTopCenterPoint(), normalFacingIn ? -WorldUpAxis : WorldUpAxis);
+        public Circle3D GetBottomCircle(bool normalFacingIn = false)
+            => new Circle3D(_radius, GetBottomCenterPoint(), normalFacingIn ? WorldUpAxis : -WorldUpAxis);
+        public Circle3D GetTopCircle(bool normalFacingIn = false)
+            => new Circle3D(_radius, GetTopCenterPoint(), normalFacingIn ? -WorldUpAxis : WorldUpAxis);
         
         public Vec3 Center
         {

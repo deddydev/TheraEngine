@@ -73,9 +73,9 @@ namespace TheraEngine.Rendering.Models
         private bool _processingSkinning = false;
 
         public PrimitiveManager() 
-            : base(GenType.VertexArray) { }
+            : base(EObjectType.VertexArray) { }
         public PrimitiveManager(PrimitiveData data, Material material)
-            : base(GenType.VertexArray)
+            : base(EObjectType.VertexArray)
         {
             Data = data;
             _material = material;

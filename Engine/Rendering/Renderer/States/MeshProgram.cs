@@ -16,14 +16,14 @@ namespace TheraEngine.Rendering
             _tEvalShader;
 
         protected GLVar[] _parameters;
-        protected Texture[] _textures;
+        protected Texture2D[] _textures;
         protected Shader[] _shaders;
         protected PrimitiveBufferInfo _info;
 
         public GLVar[] Parameters => _parameters;
-        public Texture[] Textures => _textures;
+        public Texture2D[] Textures => _textures;
 
-        public MeshProgram(Material material, PrimitiveBufferInfo info) : base(GenType.Program)
+        public MeshProgram(Material material, PrimitiveBufferInfo info) : base(EObjectType.Program)
         {
             if (material == null)
                 return;
@@ -66,10 +66,10 @@ namespace TheraEngine.Rendering
         public virtual void SetMaterial(Material material)
         {
             _parameters = material.Parameters.ToArray();
-            _textures = new Texture[material.Textures.Count];
+            _textures = new Texture2D[material.Textures.Count];
             for (int i = 0; i < material.Textures.Count; ++i)
             {
-                Texture t = material.Textures[i].GetTexture();
+                Texture2D t = material.Textures[i].GetTexture();
                 t.Index = i;
                 _textures[i] = t;
             }

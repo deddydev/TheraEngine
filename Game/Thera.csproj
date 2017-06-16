@@ -150,9 +150,8 @@
     <Error Condition="Exists('..\packages\PostSharp.4.3.21\tools\PostSharp.targets')" Text="The build restored NuGet packages. Build the project again to include these packages in the build. For more information, see http://www.postsharp.net/links/nuget-restore." />
   </Target>
   <PropertyGroup>
-    <PostBuildEvent>copy "$(SolutionDir)Libraries\BulletSharp\$(PlatformName)\Release Generic\BulletSharp.dll" "$(TargetDir)"
-copy "$(SolutionDir)Libraries\FreeImage\$(PlatformName)\FreeImage.dll" "$(TargetDir)"
-copy "$(SolutionDir)Libraries\FreeImage\FreeImageNET.dll" "$(TargetDir)"</PostBuildEvent>
+    <PostBuildEvent>
+    </PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

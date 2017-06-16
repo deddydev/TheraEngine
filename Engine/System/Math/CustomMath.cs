@@ -498,7 +498,7 @@ namespace System
         }
         public static Vec2 ScaleAboutPoint(Vec2 point, Vec2 center, Vec2 scale)
         {
-            return (Vec2)((Vec3)point * Matrix4.CreateTranslation((Vec3)(-center)) * Matrix4.CreateScale(scale.X, scale.Y, 1.0f) * Matrix4.CreateTranslation((Vec3)center));
+            return (Vec2)((Vec3)point * Matrix4.CreateTranslation(-center) * Matrix4.CreateScale(scale.X, scale.Y, 1.0f) * Matrix4.CreateTranslation(center));
         }
         public static Vec3 TransformAboutPoint(Vec3 point, Vec3 center, Matrix4 transform)
         {
@@ -517,20 +517,6 @@ namespace System
             nonLinearDepth = (nonLinearDepth + 1.0f) / 2.0f;
             return nonLinearDepth;
         }
-        public static Circle SmallestEnclosingCircle(params Vec2[] points)
-        {
-            float radius = 0;
-            Vec2 center = Vec2.Zero;
-            List<Vec2> Q = new List<Vec2>();
-            MiniballRecurse(ref center, ref radius, points.ToList(), Q);
-            return new Circle(radius, center);
-        }
-        private static void MiniballRecurse(ref Vec2 center, ref float radius, List<Vec2> S, List<Vec2> Q)
-        {
-            List<Vec2> processed = new List<Vec2>();
-
-        }
-
         public static float Max(params float[] values)
         {
             float v = values[0];

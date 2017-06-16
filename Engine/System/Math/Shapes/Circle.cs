@@ -9,16 +9,16 @@ using System.ComponentModel;
 
 namespace System
 {
-    public class Circle : Plane
+    public class Circle3D : Plane
     {
-        public Circle() : base() { _radius = 1.0f; }
-        public Circle(float radius, Vec3 normal, float distance) 
+        public Circle3D() : base() { _radius = 1.0f; }
+        public Circle3D(float radius, Vec3 normal, float distance) 
             : base(normal, distance)  { _radius = radius; }
-        public Circle(float radius, Vec3 point)
+        public Circle3D(float radius, Vec3 point)
             : base(point) { _radius = radius; }
-        public Circle(float radius, Vec3 point, Vec3 normal) 
+        public Circle3D(float radius, Vec3 point, Vec3 normal) 
             : base(point, normal) { _radius = radius; }
-        public Circle(float radius, Vec3 point0, Vec3 point1, Vec3 point2)
+        public Circle3D(float radius, Vec3 point0, Vec3 point1, Vec3 point2)
             : base(point0, point1, point2) { _radius = radius; }
 
         [DefaultValue(1.0f)]

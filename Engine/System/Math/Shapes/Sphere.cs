@@ -102,9 +102,9 @@ namespace System
 
         public static PrimitiveData WireframeMesh(Vec3 center, float radius, int pointCount)
         {
-            VertexLineStrip d1 = Circle.LineStrip(radius, Vec3.Forward, center, pointCount);
-            VertexLineStrip d2 = Circle.LineStrip(radius, Vec3.Up, center, pointCount);
-            VertexLineStrip d3 = Circle.LineStrip(radius, Vec3.Right, center, pointCount);
+            VertexLineStrip d1 = Circle3D.LineStrip(radius, Vec3.Forward, center, pointCount);
+            VertexLineStrip d2 = Circle3D.LineStrip(radius, Vec3.Up, center, pointCount);
+            VertexLineStrip d3 = Circle3D.LineStrip(radius, Vec3.Right, center, pointCount);
             return PrimitiveData.FromLineStrips(new PrimitiveBufferInfo() { _texcoordCount = 0, _hasNormals = false }, d1, d2, d3);
         }
 

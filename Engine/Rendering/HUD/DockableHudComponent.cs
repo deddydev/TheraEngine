@@ -9,8 +9,25 @@ namespace TheraEngine.Rendering.HUD
 {
     public class DockableHudComponent : HudComponent
     {
-        public HudDockStyle _dockStyle;
-        public AnchorFlags _sideAnchorFlags;
+        private HudDockStyle _dockStyle;
+        private AnchorFlags _sideAnchorFlags;
+
+        public HudDockStyle DockStyle
+        {
+            get => _dockStyle;
+            set
+            {
+                _dockStyle = value;
+            }
+        }
+        public AnchorFlags SideAnchorFlags
+        {
+            get => _sideAnchorFlags;
+            set
+            {
+                _sideAnchorFlags = value;
+            }
+        }
 
         /// <summary>
         /// Returns the available real estate for the next components to use.

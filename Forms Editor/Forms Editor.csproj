@@ -98,16 +98,16 @@
     </Compile>
     <Compile Include="EditorHud.cs" />
     <Compile Include="EditorState.cs" />
-    <Compile Include="Editors\MaterialEditor.cs">
+    <Compile Include="System\Windows\Controls\MaterialEditor.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Editors\MaterialEditor.Designer.cs">
+    <Compile Include="System\Windows\Controls\MaterialEditor.Designer.cs">
       <DependentUpon>MaterialEditor.cs</DependentUpon>
     </Compile>
-    <Compile Include="Editors\MaterialEditorForm.cs">
+    <Compile Include="System\Windows\Forms\MaterialEditorForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Editors\MaterialEditorForm.Designer.cs">
+    <Compile Include="System\Windows\Forms\MaterialEditorForm.Designer.cs">
       <DependentUpon>MaterialEditorForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Editors\MaterialEditorHud.cs" />
@@ -115,7 +115,7 @@
     <Compile Include="Project.cs" />
     <Compile Include="ProjectState.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ResourceTree.cs">
+    <Compile Include="System\Windows\Controls\ResourceTree.cs">
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="Wrappers\BaseWrappers.cs" />
@@ -125,10 +125,10 @@
     <EmbeddedResource Include="Editor.resx">
       <DependentUpon>Editor.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Editors\MaterialEditor.resx">
+    <EmbeddedResource Include="System\Windows\Controls\MaterialEditor.resx">
       <DependentUpon>MaterialEditor.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Editors\MaterialEditorForm.resx">
+    <EmbeddedResource Include="System\Windows\Forms\MaterialEditorForm.resx">
       <DependentUpon>MaterialEditorForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
@@ -170,6 +170,10 @@
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>
+    </PostBuildEvent>
+  </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

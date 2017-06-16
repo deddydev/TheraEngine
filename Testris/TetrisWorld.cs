@@ -11,10 +11,8 @@ namespace Testris
 {
     public class TetrisWorld : World
     {
-        public TetrisWorld(WorldSettings settings) : base(settings)
-        {
-
-        }
+        public TetrisWorld() : base() { }
+        public TetrisWorld(WorldSettings settings) : base(settings) { }
 
         protected override void OnLoaded()
         {
@@ -23,16 +21,6 @@ namespace Testris
                 AmbientSound = new SoundFile(Engine.StartupPath + Engine.ContentFolderRel + string.Format("\\bgm{0}.wav", 2/*(DateTime.Now.Millisecond % 5) + 1*/)),
                 GameMode = new TetrisGameMode()
             };
-        }
-
-        public override void BeginPlay()
-        {
-            base.BeginPlay();
-        }
-
-        public override void EndPlay()
-        {
-            base.EndPlay();
         }
     }
 }

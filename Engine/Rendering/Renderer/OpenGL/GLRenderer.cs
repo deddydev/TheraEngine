@@ -24,16 +24,16 @@ namespace TheraEngine.Rendering.OpenGL
 
         private ShaderType _currentShaderMode;
         
-        public override void Clear(BufferClear mask)
+        public override void Clear(EBufferClear mask)
         {
             ClearBufferMask newMask = 0;
-            if (mask.HasFlag(BufferClear.Color))
+            if (mask.HasFlag(EBufferClear.Color))
                 newMask |= ClearBufferMask.ColorBufferBit;
-            if (mask.HasFlag(BufferClear.Depth))
+            if (mask.HasFlag(EBufferClear.Depth))
                 newMask |= ClearBufferMask.DepthBufferBit;
-            if (mask.HasFlag(BufferClear.Stencil))
+            if (mask.HasFlag(EBufferClear.Stencil))
                 newMask |= ClearBufferMask.StencilBufferBit;
-            if (mask.HasFlag(BufferClear.Accum))
+            if (mask.HasFlag(EBufferClear.Accum))
                 newMask |= ClearBufferMask.AccumBufferBit;
             GL.Clear(newMask);
         }
@@ -67,121 +67,121 @@ namespace TheraEngine.Rendering.OpenGL
         //}
 
         #region Objects
-        public override void DeleteObject(GenType type, int bindingId)
+        public override void DeleteObject(EObjectType type, int bindingId)
         {
             switch (type)
             {
-                case GenType.Buffer:
+                case EObjectType.Buffer:
                     GL.DeleteBuffer(bindingId);
                     break;
-                case GenType.Framebuffer:
+                case EObjectType.Framebuffer:
                     GL.DeleteFramebuffer(bindingId);
                     break;
-                case GenType.Program:
+                case EObjectType.Program:
                     GL.DeleteProgram(bindingId);
                     break;
-                case GenType.ProgramPipeline:
+                case EObjectType.ProgramPipeline:
                     GL.DeleteProgramPipeline(bindingId);
                     break;
-                case GenType.Query:
+                case EObjectType.Query:
                     GL.DeleteQuery(bindingId);
                     break;
-                case GenType.Renderbuffer:
+                case EObjectType.Renderbuffer:
                     GL.DeleteRenderbuffer(bindingId);
                     break;
-                case GenType.Sampler:
+                case EObjectType.Sampler:
                     GL.DeleteSampler(bindingId);
                     break;
-                case GenType.Texture:
+                case EObjectType.Texture:
                     GL.DeleteTexture(bindingId);
                     break;
-                case GenType.TransformFeedback:
+                case EObjectType.TransformFeedback:
                     GL.DeleteTransformFeedback(bindingId);
                     break;
-                case GenType.VertexArray:
+                case EObjectType.VertexArray:
                     GL.DeleteVertexArray(bindingId);
                     break;
-                case GenType.Shader:
+                case EObjectType.Shader:
                     GL.DeleteShader(bindingId);
                     break;
             }
         }
-        public override void DeleteObjects(GenType type, int[] bindingIds)
+        public override void DeleteObjects(EObjectType type, int[] bindingIds)
         {
             switch (type)
             {
-                case GenType.Buffer:
+                case EObjectType.Buffer:
                     GL.DeleteBuffers(bindingIds.Length, bindingIds);
                     break;
-                case GenType.Framebuffer:
+                case EObjectType.Framebuffer:
                     GL.DeleteFramebuffers(bindingIds.Length, bindingIds);
                     break;
-                case GenType.Program:
+                case EObjectType.Program:
                     foreach (int i in bindingIds)
                         GL.DeleteProgram(i);
                     break;
-                case GenType.ProgramPipeline:
+                case EObjectType.ProgramPipeline:
                     GL.DeleteProgramPipelines(bindingIds.Length, bindingIds);
                     break;
-                case GenType.Query:
+                case EObjectType.Query:
                     GL.DeleteQueries(bindingIds.Length, bindingIds);
                     break;
-                case GenType.Renderbuffer:
+                case EObjectType.Renderbuffer:
                     GL.DeleteRenderbuffers(bindingIds.Length, bindingIds);
                     break;
-                case GenType.Sampler:
+                case EObjectType.Sampler:
                     GL.DeleteSamplers(bindingIds.Length, bindingIds);
                     break;
-                case GenType.Texture:
+                case EObjectType.Texture:
                     GL.DeleteTextures(bindingIds.Length, bindingIds);
                     break;
-                case GenType.TransformFeedback:
+                case EObjectType.TransformFeedback:
                     GL.DeleteTransformFeedbacks(bindingIds.Length, bindingIds);
                     break;
-                case GenType.VertexArray:
+                case EObjectType.VertexArray:
                     GL.DeleteVertexArrays(bindingIds.Length, bindingIds);
                     break;
-                case GenType.Shader:
+                case EObjectType.Shader:
                     foreach (int i in bindingIds)
                         GL.DeleteShader(i);
                     break;
             }
         }
-        public override int[] CreateObjects(GenType type, int count)
+        public override int[] CreateObjects(EObjectType type, int count)
         {
             int[] ids = new int[count];
             switch (type)
             {
-                case GenType.Buffer:
+                case EObjectType.Buffer:
                     GL.CreateBuffers(count, ids);
                     break;
-                case GenType.Framebuffer:
+                case EObjectType.Framebuffer:
                     GL.CreateFramebuffers(count, ids);
                     break;
-                case GenType.Program:
+                case EObjectType.Program:
                     for (int i = 0; i < count; ++i)
                         ids[i] = GL.CreateProgram();
                     break;
-                case GenType.ProgramPipeline:
+                case EObjectType.ProgramPipeline:
                     GL.CreateProgramPipelines(count, ids);
                     break;
-                case GenType.Query:
+                case EObjectType.Query:
                     throw new Exception("Call CreateQueries instead.");
-                case GenType.Renderbuffer:
+                case EObjectType.Renderbuffer:
                     GL.CreateRenderbuffers(count, ids);
                     break;
-                case GenType.Sampler:
+                case EObjectType.Sampler:
                     GL.CreateSamplers(count, ids);
                     break;
-                case GenType.Texture:
+                case EObjectType.Texture:
                     throw new Exception("Call CreateTextures instead.");
-                case GenType.TransformFeedback:
+                case EObjectType.TransformFeedback:
                     GL.CreateTransformFeedbacks(count, ids);
                     break;
-                case GenType.VertexArray:
+                case EObjectType.VertexArray:
                     GL.CreateVertexArrays(count, ids);
                     break;
-                case GenType.Shader:
+                case EObjectType.Shader:
                     for (int i = 0; i < count; ++i)
                         ids[i] = GL.CreateShader(_currentShaderMode);
                     break;

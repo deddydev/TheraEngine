@@ -25,10 +25,10 @@ namespace TheraEngine.Rendering
         private BoundingRectangle _region;
         private Camera _worldCamera;
         private RenderPanel _owningPanel;
-        private ScreenTextHandler _text;
+        private TextDrawer _text;
         private GBuffer _gBuffer;
 
-        public ScreenTextHandler Text => _text;
+        public TextDrawer Text => _text;
 
         private float _leftPercentage = 0.0f;
         private float _rightPercentage = 1.0f;
@@ -113,7 +113,7 @@ namespace TheraEngine.Rendering
             _owner = owner;
             _owner.Viewport = this;
             Resize(panel.Width, panel.Height);
-            _text = new ScreenTextHandler(this);
+            _text = new TextDrawer();
 
             if (Engine.Settings == null || Engine.Settings.ShadingStyle == ShadingStyle.Forward)
             {
@@ -141,87 +141,6 @@ namespace TheraEngine.Rendering
         {
             _hud.DebugPrint(message);
         }
-        private void SetTopLeft()
-        {
-            _leftPercentage = 0.0f;
-            _rightPercentage = 0.5f;
-            _topPercentage = 1.0f;
-            _bottomPercentage = 0.5f;
-        }
-        private void SetTopRight()
-        {
-            _leftPercentage = 0.0f;
-            _rightPercentage = 0.5f;
-            _topPercentage = 1.0f;
-            _bottomPercentage = 0.5f;
-        }
-        private void SetBottomLeft()
-        {
-            _leftPercentage = 0.0f;
-            _rightPercentage = 0.5f;
-            _topPercentage = 1.0f;
-            _bottomPercentage = 0.5f;
-        }
-        private void SetBottomRight()
-        {
-            _leftPercentage = 0.0f;
-            _rightPercentage = 0.5f;
-            _topPercentage = 1.0f;
-            _bottomPercentage = 0.5f;
-        }
-        private void SetTop()
-        {
-            _leftPercentage = 0.0f;
-            _rightPercentage = 1.0f;
-            _topPercentage = 1.0f;
-            _bottomPercentage = 0.5f;
-        }
-        private void SetBottom()
-        {
-            _leftPercentage = 0.0f;
-            _rightPercentage = 1.0f;
-            _topPercentage = 0.5f;
-            _bottomPercentage = 0.0f;
-        }
-        private void SetLeft()
-        {
-            _leftPercentage = 0.0f;
-            _rightPercentage = 0.5f;
-            _topPercentage = 1.0f;
-            _bottomPercentage = 0.0f;
-        }
-        private void SetRight()
-        {
-            _leftPercentage = 0.5f;
-            _rightPercentage = 1.0f;
-            _topPercentage = 1.0f;
-            _bottomPercentage = 0.0f;
-        }
-        private void SetFullScreen()
-        {
-            _leftPercentage = _bottomPercentage = 0.0f;
-            _rightPercentage = _topPercentage = 1.0f;
-        }
-        public Vec3 ScreenToWorld(Vec2 viewportPoint, float depth)
-            => _worldCamera.ScreenToWorld(viewportPoint, depth);
-        public Vec3 ScreenToWorld(Vec3 viewportPoint)
-            => _worldCamera.ScreenToWorld(viewportPoint);
-        public Vec3 WorldToScreen(Vec3 worldPoint) 
-            => _worldCamera.WorldToScreen(worldPoint);
-
-        public Vec2 AbsoluteToRelative(Vec2 absolutePoint) => new Vec2(absolutePoint.X - _region.X, absolutePoint.Y - _region.Y);
-        public Vec2 RelativeToAbsolute(Vec2 viewportPoint) => new Vec2(viewportPoint.X + _region.X, viewportPoint.Y + _region.Y);
-        public float GetDepth(Vec2 viewportPoint)
-        {
-            Vec2 absolutePoint = RelativeToAbsolute(viewportPoint);
-            return Engine.Renderer.GetDepth(absolutePoint.X, absolutePoint.Y);
-        }
-
-        public Ray GetWorldRay(Vec2 viewportPoint)
-            => _worldCamera.GetWorldRay(viewportPoint);
-        public Segment GetWorldSegment(Vec2 viewportPoint) 
-            => _worldCamera.GetWorldSegment(viewportPoint);
-        
         public void RenderDeferred(SceneProcessor scene)
         {
             if (Camera == null)
@@ -240,7 +159,7 @@ namespace TheraEngine.Rendering
             _gBuffer.Bind(EFramebufferTarget.Framebuffer);
 
             //Clear color and depth and allow writing to depth
-            Engine.Renderer.Clear(BufferClear.Color | BufferClear.Depth);
+            Engine.Renderer.Clear(EBufferClear.Color | EBufferClear.Depth);
             Engine.Renderer.AllowDepthWrite(true);
 
             //Cull scene and retrieve renderables for each buffer
@@ -295,7 +214,7 @@ namespace TheraEngine.Rendering
             _gBuffer.Bind(EFramebufferTarget.Framebuffer);
 
             //Clear color and depth and allow writing to depth
-            Engine.Renderer.Clear(BufferClear.Color | BufferClear.Depth);
+            Engine.Renderer.Clear(EBufferClear.Color | EBufferClear.Depth);
             Engine.Renderer.AllowDepthWrite(true);
 
             //Cull scene and retrieve renderables for each buffer
@@ -318,7 +237,53 @@ namespace TheraEngine.Rendering
             Engine.Renderer.PopRenderArea();
             _currentlyRendering = null;
         }
+        public Vec3 ScreenToWorld(Vec2 viewportPoint, float depth)
+            => _worldCamera.ScreenToWorld(viewportPoint, depth);
+        public Vec3 ScreenToWorld(Vec3 viewportPoint)
+            => _worldCamera.ScreenToWorld(viewportPoint);
+        public Vec3 WorldToScreen(Vec3 worldPoint)
+            => _worldCamera.WorldToScreen(worldPoint);
+        public Vec2 AbsoluteToRelative(Vec2 absolutePoint) => new Vec2(absolutePoint.X - _region.X, absolutePoint.Y - _region.Y);
+        public Vec2 RelativeToAbsolute(Vec2 viewportPoint) => new Vec2(viewportPoint.X + _region.X, viewportPoint.Y + _region.Y);
+        public float GetDepth(Vec2 viewportPoint)
+        {
+            Vec2 absolutePoint = RelativeToAbsolute(viewportPoint);
+            return Engine.Renderer.GetDepth(absolutePoint.X, absolutePoint.Y);
+        }
+        public Ray GetWorldRay(Vec2 viewportPoint)
+            => _worldCamera.GetWorldRay(viewportPoint);
+        public Segment GetWorldSegment(Vec2 viewportPoint)
+            => _worldCamera.GetWorldSegment(viewportPoint);
+        public SceneComponent PickScene(
+            Vec2 viewportPoint,
+            bool mouse,
+            bool testHud = true,
+            bool testWorld = true,
+            bool highlightActors = true)
+        {
+            if (testHud)
+            {
+                HudComponent hudComp = _hud?.FindClosestComponent(viewportPoint);
+                if (hudComp != null)
+                    return hudComp;
+            }
+            if (testWorld)
+            {
+#if EDITOR
+                Ray cursor = GetWorldRay(viewportPoint);
+                if (EditorTransformTool3D.CurrentInstance != null)
+                {
+                    if (EditorTransformTool3D.CurrentInstance.UpdateCursorRay(cursor, _worldCamera, false))
+                        return EditorTransformTool3D.CurrentInstance.RootComponent;
+                }
+#endif
+                float depth = GetDepth(viewportPoint);
+                Vec3 worldPoint = ScreenToWorld(viewportPoint, depth);
+                ThreadSafeList<IRenderable> r = Engine.Renderer.Scene.RenderTree.FindClosest(worldPoint);
 
+            }
+            return null;
+        }
         public enum TwoPlayerViewportPreference
         {
             SplitHorizontally,
@@ -423,36 +388,66 @@ namespace TheraEngine.Rendering
                     break;
             }
         }
-        
-        public SceneComponent PickScene(
-            Vec2 viewportPoint,
-            bool mouse,
-            bool testHud = true,
-            bool testWorld = true,
-            bool highlightActors = true)
+        private void SetTopLeft()
         {
-            if (testHud)
-            {
-                HudComponent hudComp = _hud?.FindClosestComponent(viewportPoint);
-                if (hudComp != null)
-                    return hudComp;
-            }
-            if (testWorld)
-            {
-#if EDITOR
-                Ray cursor = GetWorldRay(viewportPoint);
-                if (EditorTransformTool3D.CurrentInstance != null)
-                {
-                    if (EditorTransformTool3D.CurrentInstance.UpdateCursorRay(cursor, _worldCamera, false))
-                        return EditorTransformTool3D.CurrentInstance.RootComponent;
-                }
-#endif
-                float depth = GetDepth(viewportPoint);
-                Vec3 worldPoint = ScreenToWorld(viewportPoint, depth);
-                ThreadSafeList<IRenderable> r = Engine.Renderer.Scene.RenderTree.FindClosest(worldPoint);
-
-            }
-            return null;
+            _leftPercentage = 0.0f;
+            _rightPercentage = 0.5f;
+            _topPercentage = 1.0f;
+            _bottomPercentage = 0.5f;
+        }
+        private void SetTopRight()
+        {
+            _leftPercentage = 0.0f;
+            _rightPercentage = 0.5f;
+            _topPercentage = 1.0f;
+            _bottomPercentage = 0.5f;
+        }
+        private void SetBottomLeft()
+        {
+            _leftPercentage = 0.0f;
+            _rightPercentage = 0.5f;
+            _topPercentage = 1.0f;
+            _bottomPercentage = 0.5f;
+        }
+        private void SetBottomRight()
+        {
+            _leftPercentage = 0.0f;
+            _rightPercentage = 0.5f;
+            _topPercentage = 1.0f;
+            _bottomPercentage = 0.5f;
+        }
+        private void SetTop()
+        {
+            _leftPercentage = 0.0f;
+            _rightPercentage = 1.0f;
+            _topPercentage = 1.0f;
+            _bottomPercentage = 0.5f;
+        }
+        private void SetBottom()
+        {
+            _leftPercentage = 0.0f;
+            _rightPercentage = 1.0f;
+            _topPercentage = 0.5f;
+            _bottomPercentage = 0.0f;
+        }
+        private void SetLeft()
+        {
+            _leftPercentage = 0.0f;
+            _rightPercentage = 0.5f;
+            _topPercentage = 1.0f;
+            _bottomPercentage = 0.0f;
+        }
+        private void SetRight()
+        {
+            _leftPercentage = 0.5f;
+            _rightPercentage = 1.0f;
+            _topPercentage = 1.0f;
+            _bottomPercentage = 0.0f;
+        }
+        private void SetFullScreen()
+        {
+            _leftPercentage = _bottomPercentage = 0.0f;
+            _rightPercentage = _topPercentage = 1.0f;
         }
     }
 }

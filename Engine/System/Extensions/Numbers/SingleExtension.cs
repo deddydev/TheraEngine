@@ -30,7 +30,7 @@
         }
         /// <summary>
         /// Remaps values outside of a range into the first multiple of that range.
-        /// When it comes to signed numbers, negative is highest.
+        /// When it comes to signed numbers, negative is farther from zero.
         /// For example, -128 (0xFF) vs 127 (0x7F).
         /// Because of this, the max value is non-inclusive while the min value is.
         /// </summary>
@@ -69,7 +69,7 @@
         }
         /// <summary>
         /// Positive is to a bigger unit (ex Meters to Kilometers is 2 steps)
-        /// Negative is to a smaller unit (ex Meters to Cenimeters is -2 steps)
+        /// Negative is to a smaller unit (ex Meters to Centimeters is -2 steps)
         /// </summary>
         public static Single MetricUnitScale(this Single value, int steps)
         {
@@ -109,6 +109,20 @@
         public static Single MetersToInches(this Single value)
         {
             return value * 39.3701f;
+        }
+        /// <summary>
+        /// Converts a float from the range 0.0-1.0 to 0-255.
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static byte ToByte(this Single value)
+        {
+            //Casting a decimal to an integer floors the value
+            //So multiply by 256 to get the proper value.
+            //1.0f is the edge case, so clamp to ensure no rounding issues 
+            //and handle edge case appropriately
+            float f2 = value.Clamp(0.0f, 1.0f);
+            return (byte)Math.Floor(f2 == 1.0f ? 255.0f : f2 * 256.0f);
         }
     }
 }

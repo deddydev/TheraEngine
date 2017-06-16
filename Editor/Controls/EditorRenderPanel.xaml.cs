@@ -1,5 +1,6 @@
 ﻿using System.Windows.Controls;
 using TheraEngine;
+using TheraEngine.Tests;
 using TheraEngine.Worlds;
 
 namespace Editor.Controls
@@ -18,7 +19,7 @@ namespace Editor.Controls
             {
                 OpeningWorld = typeof(TestWorld)
             };
-            Engine._engineSettings.SetFile(settings, false);
+            Engine.Settings = settings;
             Engine.Initialize();
             _panel.RegisterTick();
         }

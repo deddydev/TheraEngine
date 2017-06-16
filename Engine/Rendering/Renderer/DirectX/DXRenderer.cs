@@ -18,12 +18,12 @@ namespace TheraEngine.Rendering.DirectX
 
         public override RenderLibrary RenderLibrary => RenderLibrary.Direct3D11;
         
-        public override void Clear(BufferClear clearBufferMask)
+        public override void Clear(EBufferClear clearBufferMask)
         {
             throw new NotImplementedException();
         }
 
-        public override void DeleteObjects(GenType type, int[] bindingIds)
+        public override void DeleteObjects(EObjectType type, int[] bindingIds)
         {
             throw new NotImplementedException();
         }
@@ -42,7 +42,7 @@ namespace TheraEngine.Rendering.DirectX
             throw new NotImplementedException();
         }
 
-        public override int[] CreateObjects(GenType type, int count)
+        public override int[] CreateObjects(EObjectType type, int count)
         {
             throw new NotImplementedException();
         }
@@ -186,7 +186,7 @@ namespace TheraEngine.Rendering.DirectX
             throw new NotImplementedException();
         }
 
-        public override void DeleteObject(GenType type, int bindingId)
+        public override void DeleteObject(EObjectType type, int bindingId)
         {
             throw new NotImplementedException();
         }

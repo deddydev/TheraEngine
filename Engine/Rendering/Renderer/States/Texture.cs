@@ -14,10 +14,10 @@ namespace TheraEngine.Rendering.Textures
         Texture3D,
         TextureCubeMap
     }
-    public class Texture : BaseRenderState
+    public class Texture2D : BaseRenderState
     {
-        public Texture() : this(null) { }
-        public Texture(TextureData data, int bindingId) : base(GenType.Texture, bindingId)
+        public Texture2D() : this(null) { }
+        public Texture2D(TextureData data, int bindingId) : base(EObjectType.Texture, bindingId)
         {
             _data = data;
             _width = _data != null && _data.Bitmap != null ? _data.Bitmap.Width : 1;
@@ -26,7 +26,7 @@ namespace TheraEngine.Rendering.Textures
             _pixelFormat = EPixelFormat.Bgra;
             _pixelType = EPixelType.UnsignedByte;
         }
-        public Texture(TextureData data) : base(GenType.Texture)
+        public Texture2D(TextureData data) : base(EObjectType.Texture)
         {
             _data = data;
             _width = _data != null && _data.Bitmap != null ? _data.Bitmap.Width : 1;
@@ -35,7 +35,7 @@ namespace TheraEngine.Rendering.Textures
             _pixelFormat = EPixelFormat.Bgra;
             _pixelType = EPixelType.UnsignedByte;
         }
-        public Texture(
+        public Texture2D(
             TextureData data,
             MinFilter minFilter,
             MagFilter magFilter,
@@ -54,7 +54,7 @@ namespace TheraEngine.Rendering.Textures
             _pixelType = EPixelType.UnsignedByte;
         }
 
-        public Texture(
+        public Texture2D(
             int width,
             int height,
             MinFilter minFilter,
@@ -74,7 +74,7 @@ namespace TheraEngine.Rendering.Textures
             _pixelType = pixelType;
         }
 
-        public Texture(
+        public Texture2D(
             TextureData data,
             MinFilter minFilter,
             MagFilter magFilter,
@@ -139,15 +139,21 @@ namespace TheraEngine.Rendering.Textures
             }
         }
 
-        public int Index { get => _index; set => _index = value; }
+        public int Index
+        {
+            get => _index;
+            set => _index = value;
+        }
 
-        public static Texture[] GenTextures(int count)
-            => Engine.Renderer.CreateObjects<Texture>(GenType.Texture, count);
+        public static Texture2D[] GenTextures(int count)
+            => Engine.Renderer.CreateObjects<Texture2D>(EObjectType.Texture, count);
+
         //public void AttachToFrameBuffer(int frameBufferBindingId, EFramebufferAttachment attachment)
         //{
         //    Engine.Renderer.BindTexture(ETexTarget.Texture2D, BindingId);
         //    Engine.Renderer.AttachTextureToFrameBuffer(frameBufferBindingId, attachment, BindingId, 0);
         //}
+
         public void Bind()
         {
             Engine.Renderer.BindTexture(_textureTarget, BindingId);
@@ -187,7 +193,7 @@ namespace TheraEngine.Rendering.Textures
             PushData();
         }
         protected override int CreateObject()
-            => Engine.Renderer.CreateTextures(ETexTarget.Texture2D, 1)[0];
+            => Engine.Renderer.CreateTexture(ETexTarget.Texture2D);
         protected override void OnGenerated()
             => PushData();
     }

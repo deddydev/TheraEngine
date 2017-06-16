@@ -123,12 +123,12 @@ namespace TheraEngine.Rendering.Models.Materials
         public int Width => (TextureData != null && TextureData.Bitmap != null) ? TextureData.Bitmap.Width : _width;
         public int Height => (TextureData != null && TextureData.Bitmap != null) ? TextureData.Bitmap.Height : _height;
 
-        public Texture GetTexture()
+        public Texture2D GetTexture()
         {
             if (TextureData != null)
-                return new Texture(TextureData, _minFilter, _magFilter, _uWrap, _vWrap, _lodBias, _internalFormat, _pixelFormat, _pixelType);
+                return new Texture2D(TextureData, _minFilter, _magFilter, _uWrap, _vWrap, _lodBias, _internalFormat, _pixelFormat, _pixelType);
             else
-                return new Texture(_width, _height, _minFilter, _magFilter, _uWrap, _vWrap, _lodBias, _internalFormat, _pixelFormat, _pixelType);
+                return new Texture2D(_width, _height, _minFilter, _magFilter, _uWrap, _vWrap, _lodBias, _internalFormat, _pixelFormat, _pixelType);
         }
     }
     public enum TexCoordWrap

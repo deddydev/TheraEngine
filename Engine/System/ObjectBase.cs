@@ -5,8 +5,10 @@ using System.Reflection;
 using System.ComponentModel;
 using TheraEngine.Rendering.Animation;
 using System.Linq;
+using System;
+using TheraEngine.Input.Devices;
 
-namespace System
+namespace TheraEngine
 {
     public class TickInfo : Tuple<ETickGroup, ETickOrder, DelTick>
     {
@@ -20,16 +22,16 @@ namespace System
     public enum ETickGroup
     {
         PrePhysics      = 0,
-        //DuringPhysics   = 5,
-        PostPhysics     = 10,
+        //DuringPhysics   = 13,
+        PostPhysics     = 26,
     }
     public enum ETickOrder
     {
         Timers      = 0, //Call timing events
-        Input       = 1, //Call input events
-        Animation   = 2, //Update animation positions
-        Logic       = 3, //Gameplay calculations
-        Scene       = 4, //Update scene
+        Input       = 3, //Call input events
+        Animation   = 6, //Update animation positions
+        Logic       = 9, //Gameplay calculations
+        Scene       = 12, //Update scene
     }
     public class ObjectBase
     {
@@ -48,17 +50,17 @@ namespace System
         [Browsable(false)]
         public bool IsTicking => _tickFunctions.Count > 0;
 
-        public void RegisterTick(ETickGroup group, ETickOrder order, DelTick tickFunc)
+        public void RegisterTick(ETickGroup group, ETickOrder order, DelTick tickFunc, InputPauseType pausedBehavior = InputPauseType.TickAlways)
         {
             _tickFunctions.Add(new TickInfo(group, order, tickFunc));
-            Engine.RegisterTick(group, order, tickFunc);
+            Engine.RegisterTick(group, order, tickFunc, pausedBehavior);
         }
-        public void UnregisterTick(ETickGroup group, ETickOrder order, DelTick tickFunc)
+        public void UnregisterTick(ETickGroup group, ETickOrder order, DelTick tickFunc, InputPauseType pausedBehavior = InputPauseType.TickAlways)
         {
             int index = _tickFunctions.FindIndex(x => x.Item1 == group && x.Item2 == order && x.Item3 == tickFunc);
             if (index >= 0)
                 _tickFunctions.RemoveAt(index);
-            Engine.UnregisterTick(group, order, tickFunc);
+            Engine.UnregisterTick(group, order, tickFunc, pausedBehavior);
         }
 
         protected bool _changed;

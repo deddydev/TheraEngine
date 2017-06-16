@@ -39,11 +39,11 @@ namespace TheraEngine.Worlds.Actors.Types
             mesh.RigidChildren.Add(new SkeletalRigidSubMesh(Segment.Mesh(Vec3.Zero, Vec3.UnitX), Material.GetUnlitColorMaterial(Color.Red), "XAxis"));
             mesh.RigidChildren.Add(new SkeletalRigidSubMesh(Segment.Mesh(Vec3.Zero, Vec3.UnitY), Material.GetUnlitColorMaterial(Color.Green), "YAxis"));
             mesh.RigidChildren.Add(new SkeletalRigidSubMesh(Segment.Mesh(Vec3.Zero, Vec3.UnitZ), Material.GetUnlitColorMaterial(Color.Blue), "ZAxis"));
-            mesh.RigidChildren.Add(new SkeletalRigidSubMesh(Circle.WireframeMesh(1.0f, Vec3.UnitX, Vec3.Zero, 30), Material.GetUnlitColorMaterial(Color.Red), "XRotation"));
-            mesh.RigidChildren.Add(new SkeletalRigidSubMesh(Circle.WireframeMesh(1.0f, Vec3.UnitY, Vec3.Zero, 30), Material.GetUnlitColorMaterial(Color.Green), "YRotation"));
-            mesh.RigidChildren.Add(new SkeletalRigidSubMesh(Circle.WireframeMesh(1.0f, Vec3.UnitZ, Vec3.Zero, 30), Material.GetUnlitColorMaterial(Color.Blue), "ZRotation"));
-            mesh.RigidChildren.Add(new SkeletalRigidSubMesh(Circle.WireframeMesh(1.0f, Vec3.UnitZ, Vec3.Zero, 30), Material.GetUnlitColorMaterial(Color.Gray), "ScreenRotation"));
-            mesh.RigidChildren.Add(new SkeletalRigidSubMesh(Circle.WireframeMesh(1.0f, Vec3.UnitZ, Vec3.Zero, 30), Material.GetUnlitColorMaterial(Color.Gray), "ScreenTranslation"));
+            mesh.RigidChildren.Add(new SkeletalRigidSubMesh(Circle3D.WireframeMesh(1.0f, Vec3.UnitX, Vec3.Zero, 30), Material.GetUnlitColorMaterial(Color.Red), "XRotation"));
+            mesh.RigidChildren.Add(new SkeletalRigidSubMesh(Circle3D.WireframeMesh(1.0f, Vec3.UnitY, Vec3.Zero, 30), Material.GetUnlitColorMaterial(Color.Green), "YRotation"));
+            mesh.RigidChildren.Add(new SkeletalRigidSubMesh(Circle3D.WireframeMesh(1.0f, Vec3.UnitZ, Vec3.Zero, 30), Material.GetUnlitColorMaterial(Color.Blue), "ZRotation"));
+            mesh.RigidChildren.Add(new SkeletalRigidSubMesh(Circle3D.WireframeMesh(1.0f, Vec3.UnitZ, Vec3.Zero, 30), Material.GetUnlitColorMaterial(Color.Gray), "ScreenRotation"));
+            mesh.RigidChildren.Add(new SkeletalRigidSubMesh(Circle3D.WireframeMesh(1.0f, Vec3.UnitZ, Vec3.Zero, 30), Material.GetUnlitColorMaterial(Color.Gray), "ScreenTranslation"));
             SkeletalMeshComponent meshComp = new SkeletalMeshComponent(mesh, null);
             meshComp.WorldTransformChanged += _transform_WorldTransformChanged;
             return meshComp;

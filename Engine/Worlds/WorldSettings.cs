@@ -91,11 +91,18 @@ namespace TheraEngine.Worlds
             get => _defaultHud;
             set => _defaultHud = value;
         }
+        public Vec3 GlobalAmbient
+        {
+            get => _globalAmbient;
+            set => _globalAmbient = value;
+        }
 
+        [Serialize("GlobalAmbient")]
+        private ColorF3 _globalAmbient = new ColorF3(0.2f, 0.2f, 0.2f);
         [Serialize("DefaultHud")]
         private HudManager _defaultHud;
         [Serialize("Bounds")]
-        private BoundingBox _bounds = BoundingBox.FromMinMax(-500.0f, 500.0f);
+        private BoundingBox _bounds = BoundingBox.FromMinMax(-50000.0f, 50000.0f);
         [Serialize("OriginRebaseBounds")]
         private BoundingBox _originRebaseBounds = BoundingBox.FromMinMax(float.MinValue, float.MaxValue);
         [Serialize("Maps")]

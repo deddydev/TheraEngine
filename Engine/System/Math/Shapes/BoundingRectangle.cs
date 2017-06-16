@@ -303,6 +303,15 @@ namespace System
                 return EContainment.Intersects;
             return Contains(other) ? EContainment.Contains : EContainment.Disjoint;
         }
+        public bool DisjointWith(float width, float height)
+        {
+            //Can't just negate contains operation, because that would also include intersection.
+            return
+                0.0f > MaxX ||
+                width < MinX ||
+                0.0f > MaxY ||
+                height < MinY;
+        }
         /// <summary>
         /// Returns true if this rectangle and the given rectangle are not touching or contained within another.
         /// </summary>

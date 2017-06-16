@@ -242,7 +242,7 @@ namespace TheraEngine.Rendering.Models
             ComponentType componentType,
             int componentCount,
             bool normalize,
-            bool integral) : base(GenType.Buffer)
+            bool integral) : base(EObjectType.Buffer)
         {
             _index = index;
             _target = target;
@@ -262,7 +262,7 @@ namespace TheraEngine.Rendering.Models
             string name,
             int location,
             EBufferTarget target,
-            bool integral) : base(GenType.Buffer)
+            bool integral) : base(EObjectType.Buffer)
         {
             _index = -1;
             _location = location;
@@ -273,7 +273,7 @@ namespace TheraEngine.Rendering.Models
         public VertexBuffer(
             string name,
             EBufferTarget target,
-            bool integral) : base(GenType.Buffer)
+            bool integral) : base(EObjectType.Buffer)
         {
             _index = -1;
             _location = -1;
@@ -296,7 +296,7 @@ namespace TheraEngine.Rendering.Models
            int index,
            VertexAttribInfo info,
            EBufferTarget target,
-           bool integral) : base(GenType.Buffer)
+           bool integral) : base(EObjectType.Buffer)
         {
             _index = index;
             _target = target;

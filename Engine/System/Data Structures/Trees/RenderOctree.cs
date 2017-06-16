@@ -83,7 +83,7 @@ namespace System
                 IsLoopingSubNodes = true;
                 try
                 {
-                    foreach (RenderNode n in _subNodes)
+                    foreach (OctreeNode<IRenderable> n in _subNodes)
                         n?.Cull(frustum, debugRender);
                 }
                 catch

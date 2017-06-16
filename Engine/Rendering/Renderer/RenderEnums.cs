@@ -135,7 +135,7 @@ namespace TheraEngine.Rendering
         Triangles,
     }
     [Flags]
-    public enum BufferClear
+    public enum EBufferClear
     {
         Color = 1,
         Depth = 2,

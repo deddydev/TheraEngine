@@ -40,8 +40,9 @@ namespace TheraEngine.Worlds.Actors
 
         public void SetShadowMapResolution(int width, int height)
         {
-
+            _shadowMapTexture.Resize(width, height);
         }
+        private Texture2D _shadowMapTexture;
         private FrameBuffer _shadowMap;
         private float _worldRadius;
         private OrthographicCamera _shadowCamera;

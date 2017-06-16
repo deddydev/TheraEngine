@@ -29,6 +29,8 @@ namespace TheraEngine
         public static string UserSettingsPathAbs = ConfigFolderAbs + "User.xuset";
         public static string UserSettingsPathRel = ConfigFolderRel + "User.xuset";
 
+        public static event Action<bool, PlayerIndex> Paused;
+
         public static Dictionary<string, List<FileObject>> LoadedFiles = new Dictionary<string, List<FileObject>>();
         public static MonitoredList<LocalPlayerController> ActivePlayers = new MonitoredList<LocalPlayerController>();
         public static List<AIController> ActiveAI = new List<AIController>();
@@ -57,6 +59,7 @@ namespace TheraEngine
         /// Queue for adding to or removing from the currently ticking list
         /// </summary>
         private static ConcurrentQueue<Tuple<bool, DelTick>> _tickListQueue = new ConcurrentQueue<Tuple<bool, DelTick>>();
+        public static ThreadSafeList<DelTick>[] _tickLists;
 
         private static RenderLibrary _renderLibrary;
         private static AudioLibrary _audioLibrary;
@@ -74,12 +77,12 @@ namespace TheraEngine
         private static Dictionary<PlayerIndex, Queue<IPawn>> _possessionQueue = new Dictionary<PlayerIndex, Queue<IPawn>>();
         //internal static List<PhysicsDriver> _queuedCollisions = new List<PhysicsDriver>();
 
+        private static PrivateFontCollection _fontCollection = new PrivateFontCollection();
+
         public static Viewport.TwoPlayerViewportPreference TwoPlayerPref = 
             Viewport.TwoPlayerViewportPreference.SplitHorizontally;
         public static Viewport.ThreePlayerViewportPreference ThreePlayerPref =
             Viewport.ThreePlayerViewportPreference.PreferFirstPlayer;
-
-        public static ThreadSafeList<DelTick>[] _tickLists;
 
         internal static AbstractRenderer Renderer
         {

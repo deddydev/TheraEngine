@@ -8,7 +8,7 @@ namespace TheraEngine.Worlds.Actors
     {
         float _cutoff, _exponent;
         private Vec3 _direction;
-
+        
         public SpotLightComponent(
             float radius, ColorF3 color, float diffuseIntensity, float ambientIntensity,
             Vec3 direction, float cutoffAngleDegrees, float exponent) 

@@ -16,7 +16,7 @@ namespace TheraEngine.Rendering
     public class TransformFeedback : BaseRenderState
     {
         public TransformFeedback(FeedbackType type, int bindingLocation, params string[] names) 
-            : base(GenType.TransformFeedback)
+            : base(EObjectType.TransformFeedback)
         {
             _type = type;
             _names = names;

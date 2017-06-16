@@ -7,17 +7,17 @@ namespace Testris
     {
         public override void AbortGameplay()
         {
-            throw new NotImplementedException();
+
         }
 
         public override void BeginGameplay()
         {
-            throw new NotImplementedException();
+
         }
 
         public override void EndGameplay()
         {
-            throw new NotImplementedException();
+
         }
     }
 }

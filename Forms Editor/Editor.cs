@@ -43,7 +43,7 @@ namespace TheraEditor
         protected override void OnLoad(EventArgs e)
         {
             Engine.Settings.CapFPS = true;
-            Engine.Settings.TargetFPS = 30.0f;
+            Engine.Settings.TargetFPS = 60.0f;
             Engine.Settings.OpeningWorld = typeof(TestWorld);
             Engine.Initialize();
             OnRedrawn = Application.DoEvents;

@@ -67,7 +67,7 @@ namespace TheraEngine.Tests
                 new Vec3(20.0f, 0.5f, 20.0f),
                 new Vec3(5.0f, 0.0f, -100.0f),
                 new Rotator(0.0f, 0.0f, 0, Rotator.Order.YPR),
-                Material.GetLitColorMaterial(Color.Orange));
+                Material.GetLitColorMaterial(Color.Blue));
 
             //PhysicsConstructionInfo floor2Info = new PhysicsConstructionInfo()
             //{
@@ -87,7 +87,7 @@ namespace TheraEngine.Tests
             //    Material.GetLitColorMaterial(Color.Green));
 
             DirectionalLightComponent dirLightComp = new DirectionalLightComponent(
-                Color.DarkGray, 1.0f, 0.6f, new Rotator(-45.0f, 45.0f, 0.0f, Rotator.Order.YPR));
+                new ColorF3(0.0f, 0.0f, 0.0f), 1.0f, 0.6f, new Rotator(-45.0f, 45.0f, 0.0f, Rotator.Order.YPR));
             dirLightComp.Translation.Y = 30.0f;
 
             PropAnimFloat lightAnim = new PropAnimFloat(360, true, true);

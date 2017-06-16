@@ -135,10 +135,14 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="BulletSharp">
-      <HintPath>..\Libraries\BulletSharp\Any CPU\Release Generic\BulletSharp.dll</HintPath>
+      <HintPath Condition="'$(Platform)'=='x86'">..\Libraries\x86\BulletSharp.dll</HintPath>
+      <HintPath Condition="'$(Platform)'=='x64'">..\Libraries\x64\BulletSharp.dll</HintPath>
+      <HintPath Condition="'$(Platform)'=='AnyCPU'">..\Libraries\AnyCPU\BulletSharp.dll</HintPath>
     </Reference>
     <Reference Include="FreeImageNET">
-      <HintPath>..\Libraries\FreeImageNET.dll</HintPath>
+      <HintPath Condition="'$(Platform)'=='x86'">..\Libraries\x86\FreeImageNET.dll</HintPath>
+      <HintPath Condition="'$(Platform)'=='x64'">..\Libraries\x64\FreeImageNET.dll</HintPath>
+      <HintPath Condition="'$(Platform)'=='AnyCPU'">..\Libraries\AnyCPU\FreeImageNET.dll</HintPath>
     </Reference>
     <Reference Include="OpenTK, Version=2.0.0.0, Culture=neutral, PublicKeyToken=bad199fe84eb3df4, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -612,6 +616,7 @@
     <Compile Include="Rendering\Models\Materials\Shader Generator\GeometryShaderGenerator.cs" />
     <Compile Include="Rendering\Models\Materials\Shader Generator\ShaderGenerator.cs" />
     <Compile Include="Rendering\Models\Materials\Shader Generator\VertexShaderGenerator.cs" />
+    <Compile Include="Rendering\Models\Materials\ShaderHelpers.cs" />
     <Compile Include="Rendering\Models\Materials\TextureReference.cs" />
     <Compile Include="Rendering\Models\Materials\Uniform.cs" />
     <Compile Include="Rendering\Models\Meshes\Faces\Vertex\VertexLineStrip.cs" />
@@ -712,6 +717,7 @@
     <Compile Include="System\Math\Collision\Collision.cs" />
     <Compile Include="System\Math\Collision\Tracing.cs" />
     <Compile Include="System\Math\Enums.cs" />
+    <None Include="System\Math\Miniball.cs" />
     <Compile Include="System\Math\Shapes\BoundingRectangle.cs" />
     <Compile Include="System\Math\Transforms\Vectors\Vectors.cs" />
     <Compile Include="System\Math\Shapes\Cylindrical\BaseCapsule.cs" />

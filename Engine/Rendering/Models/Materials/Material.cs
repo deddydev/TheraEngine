@@ -152,41 +152,42 @@ namespace TheraEngine.Rendering.Models.Materials
         public Material(string name, List<GLVar> parameters, List<TextureReference> textures, params Shader[] shaders)
         {
             _name = name;
-            _parameters = parameters;
-            _textures = textures;
-            foreach (Shader s in shaders)
-            {
-                switch (s.ShaderType)
+            _parameters = parameters ?? new List<GLVar>();
+            _textures = textures ?? new List<TextureReference>();
+            if (shaders != null)
+                foreach (Shader s in shaders)
                 {
-                    case ShaderMode.Vertex:
-                        _vertexShader = s;
-                        break;
-                    case ShaderMode.Fragment:
-                        _fragmentShader = s;
-                        break;
-                    case ShaderMode.Geometry:
-                        _geometryShader = s;
-                        break;
-                    case ShaderMode.TessControl:
-                        _tessellationControlShader = s;
-                        break;
-                    case ShaderMode.TessEvaluation:
-                        _tessellationEvaluationShader = s;
-                        break;
+                    switch (s.ShaderType)
+                    {
+                        case ShaderMode.Vertex:
+                            _vertexShader = s;
+                            break;
+                        case ShaderMode.Fragment:
+                            _fragmentShader = s;
+                            break;
+                        case ShaderMode.Geometry:
+                            _geometryShader = s;
+                            break;
+                        case ShaderMode.TessControl:
+                            _tessellationControlShader = s;
+                            break;
+                        case ShaderMode.TessEvaluation:
+                            _tessellationEvaluationShader = s;
+                            break;
+                    }
                 }
-            }
         }
 
         public static Material GetUnlitTextureMaterial() => GetUnlitTextureMaterial(Engine.Settings.ShadingStyle == ShadingStyle.Deferred);
         public static Material GetUnlitTextureMaterial(bool deferred)
         {
-            Shader frag = deferred ? Shader.UnlitTextureFragDeferred() : Shader.UnlitTextureFragForward();
+            Shader frag = deferred ? ShaderHelpers.UnlitTextureFragDeferred() : ShaderHelpers.UnlitTextureFragForward();
             return new Material("UnlitTextureMaterial", frag);
         }
         public static Material GetLitTextureMaterial() => GetLitTextureMaterial(Engine.Settings.ShadingStyle == ShadingStyle.Deferred);
         public static Material GetLitTextureMaterial(bool deferred)
         {
-            Shader frag = deferred ? Shader.LitTextureFragDeferred() : Shader.LitTextureFragForward();
+            Shader frag = deferred ? ShaderHelpers.LitTextureFragDeferred() : ShaderHelpers.LitTextureFragForward();
             return new Material("LitTextureMaterial", frag);
         }
 
@@ -199,7 +200,7 @@ namespace TheraEngine.Rendering.Models.Materials
         public static Material GetUnlitColorMaterial(Color color, bool deferred)
         {
             List<TextureReference> refs = new List<TextureReference>();
-            Shader frag = deferred ? Shader.UnlitColorFragDeferred() : Shader.UnlitColorFragForward();
+            Shader frag = deferred ? ShaderHelpers.UnlitColorFragDeferred() : ShaderHelpers.UnlitColorFragForward();
             List<GLVar> parameters = new List<GLVar>()
             {
                 new GLVec4((ColorF4)color, "MatColor"),
@@ -215,7 +216,7 @@ namespace TheraEngine.Rendering.Models.Materials
         public static Material GetLitColorMaterial(Color color, bool deferred)
         {
             List<TextureReference> refs = new List<TextureReference>();
-            Shader frag = deferred ? Shader.LitColorFragDeferred() : Shader.LitColorFragForward();
+            Shader frag = deferred ? ShaderHelpers.LitColorFragDeferred() : ShaderHelpers.LitColorFragForward();
             List<GLVar> parameters = new List<GLVar>()
             {
                 new GLVec4((ColorF4)color, "MatColor"),

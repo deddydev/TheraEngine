@@ -30,7 +30,7 @@ namespace TheraEngine.Rendering
             _buffer.Bind(EFramebufferTarget.Framebuffer);
             for (int i = 0; i < Textures.Length; ++i)
             {
-                Texture t = _textures[i];
+                Texture2D t = _textures[i];
                 t.Index = i;
                 t.PostPushData += TexturePostPushData;
                 t.Generate();
@@ -49,7 +49,7 @@ namespace TheraEngine.Rendering
         {
             _parameters = material.Parameters.ToArray();
 
-            _textures = new Texture[material.Textures.Count];
+            _textures = new Texture2D[material.Textures.Count];
             for (int i = 0; i < material.Textures.Count; ++i)
                 _textures[i] = material.Textures[i].GetTexture();
 
@@ -73,7 +73,7 @@ namespace TheraEngine.Rendering
         }
         public void Resized(int width, int height)
         {
-            foreach (Texture t in Textures)
+            foreach (Texture2D t in Textures)
                 t.Resize(width, height);
         }
     }
@@ -84,7 +84,7 @@ namespace TheraEngine.Rendering
         bool _forward;
         Viewport _parent;
 
-        public Texture[] Textures => _fullScreenTriangle?.Program.Textures;
+        public Texture2D[] Textures => _fullScreenTriangle?.Program.Textures;
 
         EFramebufferAttachment?[] _attachmentsPerTexture;
         DrawBuffersAttachment[] _colorAttachments;
@@ -168,8 +168,8 @@ namespace TheraEngine.Rendering
             Engine.Renderer.Uniform("ProjRange", _parent.Camera._projectionRange);
             Engine.Renderer.Uniform("InvViewMatrix", _parent.Camera.InverseWorldMatrix);
             Engine.Renderer.Uniform("InvProjMatrix", _parent.Camera.InverseProjectionMatrix);
-            _parent.Camera.PostProcessSettings.SetUniforms();
 
+            _parent.Camera.PostProcessSettings.SetUniforms();
             Engine.Renderer.Scene.Lights.SetUniforms();
         }
 
@@ -230,7 +230,7 @@ namespace TheraEngine.Rendering
                 new List<TextureReference>()
                 {
                     new TextureReference("OutputColor", width, height,
-                        EPixelInternalFormat.Srgb8Alpha8, EPixelFormat.Bgra, EPixelType.UnsignedByte, System.Drawing.Imaging.PixelFormat.Format32bppArgb)
+                        EPixelInternalFormat.Rgba8, EPixelFormat.Bgra, EPixelType.UnsignedByte, System.Drawing.Imaging.PixelFormat.Format32bppArgb)
                     {
                         MinFilter = MinFilter.Nearest,
                         MagFilter = MagFilter.Nearest,
@@ -258,7 +258,7 @@ namespace TheraEngine.Rendering
                 new List<TextureReference>()
                 {
                     new TextureReference("AlbedoSpec", width, height,
-                        EPixelInternalFormat.Srgb8Alpha8, EPixelFormat.Bgra, EPixelType.UnsignedByte, System.Drawing.Imaging.PixelFormat.Format32bppArgb)
+                        EPixelInternalFormat.Rgba8, EPixelFormat.Bgra, EPixelType.UnsignedByte, System.Drawing.Imaging.PixelFormat.Format32bppArgb)
                     {
                         MinFilter = MinFilter.Nearest,
                         MagFilter = MagFilter.Nearest,
@@ -299,7 +299,7 @@ namespace TheraEngine.Rendering
                     },
                 };
 
-            return new Material("GBufferMaterial", PostProcessSettings.GetParameterList(), refs, forward ? GBufferShaderForward() : GBufferShaderDeferred());
+            return new Material("GBufferMaterial", new List<GLVar>(), refs, forward ? GBufferShaderForward() : GBufferShaderDeferred());
         }
         public static Shader GBufferShaderDeferred()
         {
@@ -333,22 +333,9 @@ uniform float ProjOrigin;
 uniform float ProjRange;
 uniform float InvViewMatrix;
 uniform float InvProjMatrix;
-uniform float Exposure;
 
-" + Shader.LightingSetupBasic() + @"
-
-float GetDistanceFromDepth(float depth)
-{
-    float depthSample = 2.0 * depth - 1.0;
-    float zLinear = 2.0 * CameraNearZ * CameraFarZ / (CameraFarZ + CameraNearZ - depthSample * (CameraFarZ - CameraNearZ));
-    return zLinear;
-}
-float GetDepthFromDistance(float z)
-{
-    float nonLinearDepth = (CameraFarZ + CameraNearZ - 2.0 * CameraNearZ * CameraFarZ / z) / (CameraFarZ - CameraNearZ);
-    nonLinearDepth = (nonLinearDepth + 1.0) / 2.0;
-    return nonLinearDepth;
-}
+" + PostProcessSettings.ShaderSetup() + @"
+" + ShaderHelpers.LightingSetupBasic() + @"
 
 void main()
 {
@@ -359,14 +346,28 @@ void main()
     vec4 Text = texture(Texture3, vec2(uv.x, 1.0 - uv.y));
     float Depth = texture(Texture4, uv).r;
 
-    " + Shader.LightingCalc("totalLight", "vec3(0.0)", "Normal", "FragPos", "AlbedoSpec.rgb", "AlbedoSpec.a") + @"
+    " + ShaderHelpers.LightingCalc("totalLight", "vec3(0.0)", "Normal", "FragPos", "AlbedoSpec.rgb", "AlbedoSpec.a") + @"
 
     vec3 hdrSceneColor = AlbedoSpec.rgb * totalLight;
 
-    // Exposure tone mapping
-    vec3 mapped = vec3(1.0) - exp(-hdrSceneColor * Exposure);
-  
-    OutColor = vec4(mix(mapped, Text.rgb, Text.a), 1.0);
+    //Color grading
+    hdrSceneColor *= ColorGrade.Tint;
+
+    //Tone mapping
+    vec3 ldrSceneColor = hdrSceneColor / (hdrSceneColor + 0.187) * 1.035;
+
+    //Vignette
+    //float alpha = clamp(pow(distance(uv, vec2(0.5)), Vignette.Intensity), 0.0, 1.0);
+    //vec4 smoothed = smoothstep(vec4(1.0), Vignette.Color, Vignette.Color * vec4(alpha));
+    //ldrSceneColor = mix(ldrSceneColor, smoothed.rgb, alpha * smoothed.a);
+
+    //Add text overlay
+    vec3 textAdded = mix(ldrSceneColor, Text.rgb, Text.a);
+
+    //Gamma-correct
+    vec3 gammaCorrected = pow(textAdded.rgb, vec3(1.0 / ColorGrade.Gamma));
+
+    OutColor = vec4(gammaCorrected, 1.0);
 }";
             return new Shader(ShaderMode.Fragment, source);
         }

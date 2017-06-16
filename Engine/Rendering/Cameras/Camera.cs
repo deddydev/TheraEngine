@@ -27,6 +27,7 @@ namespace TheraEngine.Rendering.Cameras
             : this(width, height, nearZ, farZ, Vec3.Zero, Rotator.GetZero()) { }
         public Camera(float width, float height, float nearZ, float farZ, Vec3 point, Rotator rotation)
         {
+            _postProcessSettings = new PostProcessSettings();
             _transformedFrustum = new Frustum();
             _localRotation = rotation;
             _localPoint = point;
@@ -126,7 +127,7 @@ namespace TheraEngine.Rendering.Cameras
         public PostProcessSettings PostProcessSettings
         {
             get => _postProcessSettings;
-            set => _postProcessSettings = value;
+            set => _postProcessSettings = value ?? new PostProcessSettings();
         }
         public abstract float Width { get; }
         public abstract float Height { get; }

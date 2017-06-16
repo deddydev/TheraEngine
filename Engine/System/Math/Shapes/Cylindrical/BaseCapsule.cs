@@ -163,11 +163,11 @@ namespace System
                 botPoints2[i] = new Vertex(bottomPoint - radius * v2);
             }
 
-            VertexLineStrip topCircleUp = Circle.LineStrip(radius, upAxis, topPoint, pointCountHalfCircle * 2);
+            VertexLineStrip topCircleUp = Circle3D.LineStrip(radius, upAxis, topPoint, pointCountHalfCircle * 2);
             VertexLineStrip topHalfCircleToward = new VertexLineStrip(false, topPoints1);
             VertexLineStrip topHalfCircleRight = new VertexLineStrip(false, topPoints2);
 
-            VertexLineStrip bottomCircleDown = Circle.LineStrip(radius, -upAxis, bottomPoint, pointCountHalfCircle * 2);
+            VertexLineStrip bottomCircleDown = Circle3D.LineStrip(radius, -upAxis, bottomPoint, pointCountHalfCircle * 2);
             VertexLineStrip bottomHalfCircleAway = new VertexLineStrip(false, botPoints1);
             VertexLineStrip bottomHalfCircleRight = new VertexLineStrip(false, botPoints2);
 
@@ -244,11 +244,11 @@ namespace System
                 botPoints2[i] = new Vertex(-(offset * (radius * v2)));
             }
 
-            VertexLineStrip topCircleUp = Circle.LineStrip(radius, upAxis, topPoint, pointCountHalfCircle * 2);
+            VertexLineStrip topCircleUp = Circle3D.LineStrip(radius, upAxis, topPoint, pointCountHalfCircle * 2);
             VertexLineStrip topHalfCircleToward = new VertexLineStrip(false, topPoints1);
             VertexLineStrip topHalfCircleRight = new VertexLineStrip(false, topPoints2);
 
-            VertexLineStrip bottomCircleDown = Circle.LineStrip(radius, -upAxis, bottomPoint, pointCountHalfCircle * 2);
+            VertexLineStrip bottomCircleDown = Circle3D.LineStrip(radius, -upAxis, bottomPoint, pointCountHalfCircle * 2);
             VertexLineStrip bottomHalfCircleAway = new VertexLineStrip(false, botPoints1);
             VertexLineStrip bottomHalfCircleRight = new VertexLineStrip(false, botPoints2);
 

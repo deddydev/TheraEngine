@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using TheraEngine.Players;
 using System.Collections.Concurrent;
 using System.Threading;
+using System.IO;
 
 namespace TheraEngine
 {
@@ -198,35 +199,37 @@ namespace TheraEngine
         public static void SetPaused(bool paused, PlayerIndex toggler)
         {
             _isPaused = paused;
+            Paused?.Invoke(_isPaused, toggler);
         }
         public static void Run() => _timer.Run();
         public static void Stop() => _timer.Stop();
-        internal static void RegisterTick(ETickGroup group, ETickOrder order, DelTick function)
+        
+        internal static void RegisterTick(ETickGroup group, ETickOrder order, DelTick function, InputPauseType pausedBehavior = InputPauseType.TickAlways)
         {
             if (function != null)
             {
-                var list = GetTickList(group, order);
-                int tickIndex = (int)group + (int)order;
+                var list = GetTickList(group, order, pausedBehavior);
+                int tickIndex = (int)group + (int)order + (int)pausedBehavior;
                 if (_currentTickList == tickIndex)
                     _tickListQueue.Enqueue(new Tuple<bool, DelTick>(true, function));
                 else
                     list.Add(function);
             }
         }
-        internal static void UnregisterTick(ETickGroup group, ETickOrder order, DelTick function)
+        internal static void UnregisterTick(ETickGroup group, ETickOrder order, DelTick function, InputPauseType pausedBehavior = InputPauseType.TickAlways)
         {
             if (function != null)
             {
-                var list = GetTickList(group, order);
-                int tickIndex = (int)group + (int)order;
+                var list = GetTickList(group, order, pausedBehavior);
+                int tickIndex = (int)group + (int)order + (int)pausedBehavior;
                 if (_currentTickList == tickIndex)
                     _tickListQueue.Enqueue(new Tuple<bool, DelTick>(false, function));
                 else
                     list.Remove(function);
             }
         }
-        private static ThreadSafeList<DelTick> GetTickList(ETickGroup group, ETickOrder order)
-            => _tickLists[(int)group + (int)order];
+        private static ThreadSafeList<DelTick> GetTickList(ETickGroup group, ETickOrder order, InputPauseType pausedBehavior)
+            => _tickLists[(int)group + (int)order + (int)pausedBehavior];
         private static void Tick(object sender, FrameEventArgs e)
         {
             float delta = (float)e.Time;
@@ -239,9 +242,15 @@ namespace TheraEngine
         {
             int start = (int)group;
             ThreadSafeList<DelTick> currentList;
-            for (int i = start; i < start + 5; ++i)
+            for (int i = start; i < start + 13; ++i)
             {
-                currentList = _tickLists[_currentTickList = i];
+                _currentTickList = i;
+                
+                int j = i & 3;
+                if (!(j == 0 || (j == 1 && !IsPaused) || (j == 2 && IsPaused)))
+                    continue;
+
+                currentList = _tickLists[_currentTickList];
 
                 Parallel.ForEach(currentList, currentFunc => currentFunc(delta));
 
@@ -260,6 +269,16 @@ namespace TheraEngine
             }
         }
         #endregion
+
+        public static void LoadFont(string path)
+        {
+            if (!File.Exists(path))
+                return;
+            string ext = Path.GetExtension(path).ToLower().Substring(1);
+            if (!(ext.Equals("ttf") || ext.Equals("otf")))
+                return;
+            _fontCollection.AddFontFile(path);
+        }
 
         public static Viewport GetViewport(int index)
         {

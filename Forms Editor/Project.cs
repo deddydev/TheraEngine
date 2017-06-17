@@ -11,6 +11,7 @@ using System.ComponentModel;
 using System.Drawing.Design;
 using System.Design;
 using System.ComponentModel.Design;
+using Microsoft.Build.Construction;
 
 namespace TheraEditor
 {
@@ -75,6 +76,12 @@ namespace TheraEditor
                 UserSettings = new SingleFileRef<UserSettings>(new UserSettings(), directory, name, FileFormat.XML),
                 EngineSettings = new SingleFileRef<EngineSettings>(new EngineSettings(), directory, name, FileFormat.XML),
             };
+
+            var project = ProjectRootElement.Create();
+            project.DefaultTargets = "Build";
+            project.ToolsVersion = "4.0";
+            project.Save(directory, Encoding.ASCII);
+
             return p;
         }
     }

@@ -133,6 +133,12 @@
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
+  <PropertyGroup>
+    <SignAssembly>false</SignAssembly>
+  </PropertyGroup>
+  <PropertyGroup>
+    <AssemblyOriginatorKeyFile>key.snk</AssemblyOriginatorKeyFile>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="BulletSharp">
       <HintPath Condition="'$(Platform)'=='x86'">..\Libraries\x86\BulletSharp.dll</HintPath>
@@ -683,6 +689,7 @@
     <Compile Include="Rendering\Renderer\States\FrameBuffer.cs" />
     <Compile Include="Rendering\Renderer\States\PrimitiveManager.cs" />
     <Compile Include="Rendering\Renderer\States\VertexBuffer.cs" />
+    <None Include="key.snk" />
     <None Include="Rendering\Renderer\States\DisplayList.cs" />
     <Compile Include="Rendering\Renderer\Text.cs" />
     <Compile Include="Rendering\Textures\PixelTypes.cs" />
@@ -705,7 +712,6 @@
     <Compile Include="System\Extensions\StringExtension.cs" />
     <Compile Include="System\Extensions\ArrayExtension.cs" />
     <Compile Include="System\Extensions\XmlExtension.cs" />
-    <Compile Include="Rendering\Fonts\TTF.cs" />
     <Compile Include="System\Files\Serialization\Binary\CustomBinaryDeserializer.cs" />
     <Compile Include="System\Files\Serialization\Binary\CustomBinarySerializer.cs" />
     <Compile Include="System\Files\Serialization\SerializationCommon.cs" />

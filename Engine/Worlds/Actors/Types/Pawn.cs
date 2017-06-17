@@ -23,6 +23,8 @@ namespace TheraEngine.Worlds.Actors
         AIController AIController { get; }
         LocalPlayerController LocalPlayerController { get; }
         CameraComponent CurrentCameraComponent { get; set; }
+        HudManager HUD { get; set; }
+
         void QueuePossession(PlayerIndex possessor);
         void OnUnPossessed();
         void OnPossessed(PawnController possessor);
@@ -94,7 +96,7 @@ namespace TheraEngine.Worlds.Actors
             LocalPlayerController controller = LocalPlayerController;
             if (controller != null)
             {
-                controller.Viewport.HUD = _hud;
+                controller.Viewport.PawnHUD = _hud;
                 if (_currentCameraComponent != null)
                     controller.CurrentCamera = _currentCameraComponent.Camera;
             }

@@ -35,7 +35,6 @@ namespace TheraEditor
             renderPanel1.GlobalHud = new EditorHud(renderPanel1);
             renderPanel1.GlobalHud.QueuePossession(PlayerIndex.One);
 
-            actorPropertyGrid.SelectedObject = Engine.World?.Settings;
             SpawnedActors_Modified();
             if (Engine.World != null)
                 Engine.World.State.SpawnedActors.PostModified += SpawnedActors_Modified;
@@ -48,6 +47,7 @@ namespace TheraEditor
             Engine.Initialize();
             OnRedrawn = Application.DoEvents;
             Engine.RegisterRenderTick(RenderTick);
+            actorPropertyGrid.SelectedObject = Engine.World?.Settings;
             base.OnLoad(e);
         }
         protected override void OnClosing(CancelEventArgs e)

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Drawing;
 using TheraEngine;
 using TheraEngine.Input.Devices;
@@ -8,33 +9,7 @@ using TheraEngine.Worlds.Actors;
 
 namespace Testris
 {
-    public class TetrisPiece
-    {
-        private ColorF3 _color;
-        private IVec2[] _blocks;
-        private int _columnShift, _rowShift;
-
-        public TetrisPiece(bool[,] blocks, ColorF3 color, int initialColumnShift)
-        {
-            _color = color;
-            _rowShift = 0;
-            _columnShift = initialColumnShift;
-
-            int rows = blocks.GetLength(0);
-            int cols = blocks.GetLength(1);
-            for (int i = 0; i < rows; ++i)
-                for (int j = 0; j < cols; ++j)
-                {
-                    bool value = blocks[i, j];
-                }
-        }
-
-        public ColorF3 Color { get => _color; set => _color = value; }
-        public IVec2[] BlockIndices { get => _blocks; set => _blocks = value; }
-        public int ColumnShift { get => _columnShift; set => _columnShift = value; }
-        public int RowShift { get => _rowShift; set => _rowShift = value; }
-    }
-    public class TetrisPawn : HudManager
+    public class TetrisPawn : HudManager, IRenderable
     {
         private int _columns = 10;
         private int _rows = 20;
@@ -45,58 +20,22 @@ namespace Testris
         private float _delta;
         private bool _playing = false;
         private int _score;
-
-        private ColorF3[] _colors = new ColorF3[]
-        {
-            Color.LightSkyBlue,
-            Color.Orange,
-            Color.Blue,
-            Color.Red,
-            Color.Green,
-            Color.Yellow,
-            Color.Magenta
-        };
-
-        bool[,] _block1 = new bool[,]
-        {
-            { true, true, true, true },
-        };
-        bool[,] _block2 = new bool[,]
-        {
-             { true, true, true },
-             { true, false, false },
-        };
-        bool[,] _block3 = new bool[,]
-        {
-            { true, true, true },
-            { false, false, true },
-        };
-        bool[,] _block4 = new bool[,]
-        {
-            { true, true, false },
-            { false, true, true },
-        };
-        bool[,] _block5 = new bool[,]
-        {
-            { false, true, true },
-            { true, true, false },
-        };
-        bool[,] _block6 = new bool[,]
-        {
-            { true, true, },
-            { true, true, },
-        };
-        bool[,] _block7 = new bool[,]
-        {
-            { true, true, true },
-            { false, true, false },
-        };
+        private int _level = 0;
+        private Random _rng = new Random();
+        private IOctreeNode _renderNode;
+        private bool _isRendering;
 
         public float BlocksPerSec
         {
             get => 1.0f / _secondsPerBlock;
             set => _secondsPerBlock = 1.0f / value;
         }
+
+        public bool HasTransparency => false;
+        public Shape CullingVolume => null;
+
+        public IOctreeNode RenderNode { get => _renderNode; set => _renderNode = value; }
+        public bool IsRendering { get => _isRendering; set => _isRendering = value; }
 
         public override void RegisterInput(InputInterface input)
         {
@@ -138,17 +77,33 @@ namespace Testris
 
         private void MoveRight()
         {
-
+            if (_currentBlock != null)
+            {
+                ++_currentBlock.ColumnShift;
+            }
         }
 
         private void MoveLeft()
         {
-
+            if (_currentBlock != null)
+            {
+                --_currentBlock.ColumnShift;
+            }
         }
 
         private void Rotate()
         {
+            _currentBlock?.Rotate();
+        }
 
+        private bool MoveDown()
+        {
+            if (_currentBlock != null)
+            {
+                ++_currentBlock.RowShift;
+                return true;
+            }
+            return false;
         }
 
         protected override DockableHudComponent OnConstruct()
@@ -179,17 +134,262 @@ namespace Testris
             if (_delta >= _secondsPerBlock)
             {
                 _delta = 0.0f;
-                if (!TryMoveBlock())
+                if (!MoveDown())
+                {
                     _currentBlock = null;
+                    BlockPlaced();
+                }
             }
         }
+
+        private void BlockPlaced()
+        {
+
+        }
+
         private void SpawnBlock()
         {
             _currentBlock = _nextBlock;
         }
-        private bool TryMoveBlock()
+    }
+    public class TetrisPiece
+    {
+        private ColorF3 _color;
+
+        private int _currentIndex;
+        private bool[,] _current;
+        private bool[,] _pos1;
+        private bool[,] _pos2;
+        private bool[,] _pos3;
+        private bool[,] _pos4;
+
+        private int _columnShift, _rowShift;
+
+        private TetrisPiece(ColorF3 color, int initialRowShift, int initialColumnShift, bool[,] pos1, bool[,] pos2, bool[,] pos3, bool[,] pos4)
         {
-            throw new NotImplementedException();
+            _color = color;
+            _rowShift = initialRowShift;
+            _columnShift = initialColumnShift;
+            _pos1 = pos1;
+            _pos2 = pos2;
+            _pos3 = pos3;
+            _pos4 = pos4;
+            _currentIndex = 0;
+        }
+
+        public ColorF3 RGB => _color;
+        public int ColumnShift { get => _columnShift; set => _columnShift = value; }
+        public int RowShift { get => _rowShift; set => _rowShift = value; }
+
+        internal void MoveRight()
+        {
+
+        }
+
+        internal void MoveLeft()
+        {
+
+        }
+
+        internal void Rotate()
+        {
+            if (_currentIndex == 3)
+                _currentIndex = 0;
+            else
+                _currentIndex++;
+        }
+
+        public static TetrisPiece New(int id, int boardColumns)
+        {
+            ColorF3 color = new ColorF3();
+            int rowShift = 0, colShift = 0;
+            bool[,] pos1 = null, pos2 = null, pos3 = null, pos4 = null;
+            switch (id)
+            {
+                case 0:
+                    colShift = 3;
+                    rowShift = -4;
+                    color = Color.LightSkyBlue;
+                    pos3 = new bool[,]
+                    {
+                        { false, false, false, false },
+                        { true,  true,  true,  true  },
+                        { false, false, false, false },
+                        { false, false, false, false },
+                    };
+                    pos4 = new bool[,]
+                    {
+                        { false, false, true, false },
+                        { false, false, true, false },
+                        { false, false, true, false },
+                        { false, false, true, false },
+                    };
+                    pos1 = new bool[,]
+                    {
+                        { false, false, false, false },
+                        { false, false, false, false },
+                        { true,  true,  true,  true  },
+                        { false, false, false, false },
+                    };
+                    pos2 = new bool[,]
+                    {
+                        { false, true, false, false },
+                        { false, true, false, false },
+                        { false, true, false, false },
+                        { false, true, false, false },
+                    };
+                    break;
+                case 1:
+                    colShift = 4;
+                    rowShift = -3;
+                    color = Color.Blue;
+                    pos3 = new bool[,]
+                    {
+                        { true,  false, false },
+                        { true,  true,  true  },
+                        { false, false, false },
+                    };
+                    pos4 = new bool[,]
+                    {
+                        { false, true, true  },
+                        { false, true, false },
+                        { false, true, false },
+                    };
+                    pos1 = new bool[,]
+                    {
+                        { false, false, false },
+                        { true,  true,  true  },
+                        { false, false, true  },
+                    };
+                    pos2 = new bool[,]
+                    {
+                        { false, true, false },
+                        { false, true, false },
+                        { true,  true, false },
+                    };
+                    break;
+                case 2:
+                    colShift = 4;
+                    rowShift = -3;
+                    color = Color.Orange;
+                    pos3 = new bool[,]
+                    {
+                        { false, false, true  },
+                        { true,  true,  true  },
+                        { false, false, false },
+                    };
+                    pos4 = new bool[,]
+                    {
+                        { false, true, false },
+                        { false, true, false },
+                        { false, true, true  },
+                    };
+                    pos1 = new bool[,]
+                    {
+                        { false, false, false },
+                        { true,  true,  true  },
+                        { true,  false, false },
+                    };
+                    pos2 = new bool[,]
+                    {
+                        { true,  true, false },
+                        { false, true, false },
+                        { false, true, false },
+                    };
+                    break;
+                case 3:
+                    color = Color.Yellow;
+                    pos1 = pos2 = pos3 = pos4 = new bool[,]
+                    {
+                        { true, true, },
+                        { true, true, },
+                    };
+                    break;
+                case 4:
+                    color = Color.Green;
+                    pos3 = new bool[,]
+                    {
+                        { false, true,  true  },
+                        { true,  true,  false },
+                        { false, false, false },
+                    };
+                    pos4 = new bool[,]
+                    {
+                        { false, true,  false },
+                        { false, true,  true  },
+                        { false, false, true  },
+                    };
+                    pos1 = new bool[,]
+                    {
+                        { false, false, false },
+                        { false, true,  true  },
+                        { true,  true,  false },
+                    };
+                    pos2 = new bool[,]
+                    {
+                        { true,  false, false },
+                        { true,  true,  false },
+                        { false, true,  false },
+                    };
+                    break;
+                case 5:
+                    color = Color.Magenta;
+                    pos3 = new bool[,]
+                    {
+                        { false, true,  false },
+                        { true,  true,  true  },
+                        { false, false, false },
+                    };
+                    pos4 = new bool[,]
+                    {
+                        { false, true, false },
+                        { false, true, true  },
+                        { false, true, false },
+                    };
+                    pos1 = new bool[,]
+                    {
+                        { false, false, false },
+                        { true,  true,  true  },
+                        { false, true,  false },
+                    };
+                    pos2 = new bool[,]
+                    {
+                        { false, true, false },
+                        { true,  true, false },
+                        { false, true, false },
+                    };
+                    break;
+                case 6:
+                    color = Color.Red;
+                    pos3 = new bool[,]
+                    {
+                        { true,  true,  false },
+                        { false, true,  true  },
+                        { false, false, false },
+                    };
+                    pos4 = new bool[,]
+                    {
+                        { false, false, true  },
+                        { false, true,  true  },
+                        { false, true,  false },
+                    };
+                    pos1 = new bool[,]
+                    {
+                        { false, false, false },
+                        { true,  true,  false },
+                        { false, true,  true  },
+                    };
+                    pos2 = new bool[,]
+                    {
+                        { false, true,  false },
+                        { true,  true,  false },
+                        { true,  false, false },
+                    };
+                    break;
+                default:
+                    return null;
+            }
+            return new TetrisPiece(color, rowShift, colShift, pos1, pos2, pos3, pos4);
         }
     }
 }

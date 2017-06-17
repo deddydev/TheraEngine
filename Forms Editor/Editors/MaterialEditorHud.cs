@@ -17,8 +17,8 @@ namespace TheraEditor.Editors
         {
             DockableHudComponent root = new DockableHudComponent()
             {
-                _dockStyle = HudDockStyle.Fill,
-                _sideAnchorFlags = AnchorFlags.Right | AnchorFlags.Left | AnchorFlags.Top | AnchorFlags.Bottom
+                DockStyle = HudDockStyle.Fill,
+                SideAnchorFlags = AnchorFlags.Right | AnchorFlags.Left | AnchorFlags.Top | AnchorFlags.Bottom
             };
             ResultBasicFunc end = new ResultBasicFunc();
             root.ChildComponents.Add(end);

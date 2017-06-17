@@ -348,13 +348,13 @@ void main()
 
     " + ShaderHelpers.LightingCalc("totalLight", "vec3(0.0)", "Normal", "FragPos", "AlbedoSpec.rgb", "AlbedoSpec.a") + @"
 
-    vec3 hdrSceneColor = AlbedoSpec.rgb * totalLight;
+    //vec3 hdrSceneColor = AlbedoSpec.rgb * totalLight;
 
     //Color grading
-    hdrSceneColor *= ColorGrade.Tint;
+    //hdrSceneColor *= ColorGrade.Tint;
 
     //Tone mapping
-    vec3 ldrSceneColor = hdrSceneColor / (hdrSceneColor + 0.187) * 1.035;
+    //vec3 ldrSceneColor = hdrSceneColor / (hdrSceneColor + 0.187) * 1.035;
 
     //Vignette
     //float alpha = clamp(pow(distance(uv, vec2(0.5)), Vignette.Intensity), 0.0, 1.0);
@@ -362,12 +362,12 @@ void main()
     //ldrSceneColor = mix(ldrSceneColor, smoothed.rgb, alpha * smoothed.a);
 
     //Add text overlay
-    vec3 textAdded = mix(ldrSceneColor, Text.rgb, Text.a);
+    //vec3 textAdded = mix(ldrSceneColor, Text.rgb, Text.a);
 
     //Gamma-correct
-    vec3 gammaCorrected = pow(textAdded.rgb, vec3(1.0 / ColorGrade.Gamma));
+    //vec3 gammaCorrected = pow(textAdded.rgb, vec3(1.0 / ColorGrade.Gamma));
 
-    OutColor = vec4(gammaCorrected, 1.0);
+    OutColor = vec4(Normal.rgb, 1.0);
 }";
             return new Shader(ShaderMode.Fragment, source);
         }
@@ -399,25 +399,12 @@ uniform float ScreenWidth;
 uniform float ScreenHeight;
 uniform float ScreenOrigin;
 
-float GetDistanceFromDepth(float depth)
-{
-    float depthSample = 2.0 * depth - 1.0;
-    float zLinear = 2.0 * CameraNearZ * CameraFarZ / (CameraFarZ + CameraNearZ - depthSample * (CameraFarZ - CameraNearZ));
-    return zLinear;
-}
-float GetDepthFromDistance(float z)
-{
-    float nonLinearDepth = (CameraFarZ + CameraNearZ - 2.0 * CameraNearZ * CameraFarZ / z) / (CameraFarZ - CameraNearZ);
-    nonLinearDepth = (nonLinearDepth + 1.0) / 2.0;
-    return nonLinearDepth;
-}
-
 void main()
 {
     vec2 uv = InData.Position.xy;
     vec3 SceneColor = texture(Texture0, uv).rgb;
     vec4 Text = texture(Texture1, vec2(uv.x, 1.0 - uv.y));
-    float Depth = GetDistanceFromDepth(texture(Texture2, uv).r) / (CameraFarZ - CameraNearZ);
+    float Depth = texture(Texture2, uv).r;
 
     OutColor = vec4(mix(SceneColor, Text.rgb, Text.a), 1.0);
 }";

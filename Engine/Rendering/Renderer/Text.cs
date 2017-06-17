@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using TheraEngine.Rendering.Textures;
 using System.Drawing.Text;
+using System.Drawing.Drawing2D;
 
 namespace TheraEngine.Rendering
 {
@@ -153,7 +154,7 @@ namespace TheraEngine.Rendering
             {
                 g.Clear(Color.Transparent);
                 g.TextRenderingHint = TextRenderingHint.ClearTypeGridFit;
-
+                g.SmoothingMode = SmoothingMode.HighQuality;
                 foreach (TextData text in _text.Values)
                 {
                     Vec2 size = g.MeasureString(text.Text, text.Font);

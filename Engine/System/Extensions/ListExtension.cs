@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace System
+namespace System.Collections.Generic
 {
     public static class ListExtension
     {

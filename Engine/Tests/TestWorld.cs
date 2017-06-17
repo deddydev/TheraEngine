@@ -87,7 +87,7 @@ namespace TheraEngine.Tests
             //    Material.GetLitColorMaterial(Color.Green));
 
             DirectionalLightComponent dirLightComp = new DirectionalLightComponent(
-                new ColorF3(0.0f, 0.0f, 0.0f), 1.0f, 0.6f, new Rotator(-45.0f, 45.0f, 0.0f, Rotator.Order.YPR));
+                new ColorF3(0.9f, 0.9f, 0.9f), 1.0f, 0.6f, new Rotator(-45.0f, 45.0f, 0.0f, Rotator.Order.YPR));
             dirLightComp.Translation.Y = 30.0f;
 
             PropAnimFloat lightAnim = new PropAnimFloat(360, true, true);

@@ -193,7 +193,7 @@ namespace TheraEngine.Rendering.Textures
             PushData();
         }
         protected override int CreateObject()
-            => Engine.Renderer.CreateTexture(ETexTarget.Texture2D);
+            => Engine.Renderer.CreateTextures(ETexTarget.Texture2D, 1)[0];
         protected override void OnGenerated()
             => PushData();
     }

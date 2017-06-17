@@ -20,7 +20,7 @@ namespace TheraEngine.Rendering
         public DelOnRender Render;
 
         private LocalPlayerController _owner;
-        private HudManager _hud;
+        private HudManager _pawnHUD;
         private int _index;
         private BoundingRectangle _region;
         private Camera _worldCamera;
@@ -90,10 +90,10 @@ namespace TheraEngine.Rendering
         }
 
         public RenderPanel OwningPanel => _owningPanel;
-        public HudManager HUD
+        public HudManager PawnHUD
         {
-            get => _hud;
-            set => _hud = value ?? new HudManager(this);
+            get => _pawnHUD;
+            set => _pawnHUD = value ?? new HudManager(this);
         }
         public LocalPlayerController OwningPlayer => _owner;
         public BoundingRectangle Region => _region;
@@ -108,7 +108,7 @@ namespace TheraEngine.Rendering
         {
             ViewportCountChanged(index, panel._viewports.Count + 1, Engine.TwoPlayerPref, Engine.ThreePlayerPref);
             _owningPanel = panel;
-            _hud = new HudManager(this);
+            _pawnHUD = new HudManager(this);
             _index = index;
             _owner = owner;
             _owner.Viewport = this;
@@ -134,12 +134,12 @@ namespace TheraEngine.Rendering
             _region.Height = _topPercentage * parentHeight - _region.Y;
 
             _worldCamera?.Resize(Width, Height);
-            _hud.Resize(_region.Bounds);
+            _pawnHUD.Resize(_region.Bounds);
             _gBuffer?.Resize(_region.IntWidth, _region.IntHeight);
         }
         public void DebugPrint(string message)
         {
-            _hud.DebugPrint(message);
+            _pawnHUD.DebugPrint(message);
         }
         public void RenderDeferred(SceneProcessor scene)
         {
@@ -193,7 +193,7 @@ namespace TheraEngine.Rendering
             }
 
             //Render HUD on top: GBuffer is simply for the world scene so HUD is not included.
-            _hud.Render();
+            _pawnHUD.Render();
 
             Engine.Renderer.PopRenderArea();
             _currentlyRendering = null;
@@ -232,7 +232,7 @@ namespace TheraEngine.Rendering
             _gBuffer.Render();
 
             //Render HUD on top: GBuffer is simply for the world scene so HUD is not included.
-            _hud.Render();
+            _pawnHUD.Render();
 
             Engine.Renderer.PopRenderArea();
             _currentlyRendering = null;
@@ -263,7 +263,7 @@ namespace TheraEngine.Rendering
         {
             if (testHud)
             {
-                HudComponent hudComp = _hud?.FindClosestComponent(viewportPoint);
+                HudComponent hudComp = _pawnHUD.FindClosestComponent(viewportPoint);
                 if (hudComp != null)
                     return hudComp;
             }

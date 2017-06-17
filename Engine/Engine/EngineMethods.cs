@@ -74,7 +74,7 @@ namespace TheraEngine
             ActivePlayers.PostAdded += ActivePlayers_Added;
             ActivePlayers.PostRemoved += ActivePlayers_Removed;
 
-            _tickLists = new ThreadSafeList<DelTick>[15];
+            _tickLists = new ThreadSafeList<DelTick>[45];
             for (int i = 0; i < _tickLists.Length; ++i)
                 _tickLists[i] = new ThreadSafeList<DelTick>();
 
@@ -241,31 +241,32 @@ namespace TheraEngine
         private static void TickGroup(ETickGroup group, float delta)
         {
             int start = (int)group;
-            ThreadSafeList<DelTick> currentList;
-            for (int i = start; i < start + 13; ++i)
+            for (int i = start; i < start + 15; i += 3)
             {
-                _currentTickList = i;
-                
-                int j = i & 3;
-                if (!(j == 0 || (j == 1 && !IsPaused) || (j == 2 && IsPaused)))
-                    continue;
-
-                currentList = _tickLists[_currentTickList];
-
-                Parallel.ForEach(currentList, currentFunc => currentFunc(delta));
-
-                //foreach (var currentFunc in currentList)
-                //    currentFunc(delta);
-
-                _currentTickList = -1;
-
-                while (!_tickListQueue.IsEmpty && _tickListQueue.TryDequeue(out Tuple<bool, DelTick> result))
+                Parallel.For(0, 3, (int j) => 
                 {
-                    if (result.Item1)
-                        currentList.Add(result.Item2);
-                    else
-                        currentList.Remove(result.Item2);
-                }
+                    if (j == 0 || (j == 1 && !IsPaused) || (j == 2 && IsPaused))
+                        TickList(i + j, delta);
+                });
+            }
+        }
+        private static void TickList(int index, float delta)
+        {
+            ThreadSafeList<DelTick> currentList = _tickLists[_currentTickList = index];
+
+            Parallel.ForEach(currentList, currentFunc => currentFunc(delta));
+
+            //foreach (var currentFunc in currentList)
+            //    currentFunc(delta);
+
+            _currentTickList = -1;
+
+            while (!_tickListQueue.IsEmpty && _tickListQueue.TryDequeue(out Tuple<bool, DelTick> result))
+            {
+                if (result.Item1)
+                    currentList.Add(result.Item2);
+                else
+                    currentList.Remove(result.Item2);
             }
         }
         #endregion

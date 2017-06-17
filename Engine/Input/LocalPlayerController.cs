@@ -98,7 +98,7 @@ namespace TheraEngine.Input
                 if (_controlledPawn != null)
                 {
                     _input.WantsInputsRegistered += _controlledPawn.RegisterInput;
-                    _viewport.PawnHUD = _controlledPawn.HUD;
+                    _viewport.PawnHUD = _controlledPawn.Hud;
                     _controlledPawn.OnPossessed(this);
                     _input.TryRegisterInput();
                 }

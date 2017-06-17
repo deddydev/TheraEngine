@@ -181,7 +181,7 @@ namespace TheraEditor
                 };
                 if (fbd.ShowDialog() == DialogResult.OK)
                 {
-                    OpenProject(Project.New(fbd.SelectedPath, "NewProject"));
+                    OpenProject(Project.Create(fbd.SelectedPath, "NewProject"));
                 }
             }
 

@@ -11,19 +11,21 @@ using System.ComponentModel;
 using System.Drawing.Design;
 using System.Design;
 using System.ComponentModel.Design;
-using Microsoft.Build.Construction;
 
 namespace TheraEditor
 {
+    /// <summary>
+    /// Extension of the game class for use with the editor.
+    /// </summary>
     [FileClass("TPROJ", "Game Project")]
-    public class Project : FileObject
+    public class Project : Game
     {
+        public const string BinDirName = "Bin";
+        public const string ConfigDirName = "Config";
+        public const string SourceDirName = "Source";
+        public const string ContentDirName = "Content";
+
         private SingleFileRef<ProjectState> _state;
-        private SingleFileRef<EngineSettings> _engineSettings;
-        private SingleFileRef<UserSettings> _userSettings;
-        private string _description;
-        private string _copyright;
-        private string _credits;
 
         [Serialize]
         [Browsable(false)]
@@ -32,44 +34,18 @@ namespace TheraEditor
             get => _state;
             set => _state = value;
         }
-        [Serialize]
-        [Browsable(false)]
-        public EngineSettings EngineSettings
-        {
-            get => _engineSettings;
-            set => _engineSettings = value;
-        }
-        [Serialize]
-        [Browsable(false)]
-        public UserSettings UserSettings
-        {
-            get => _userSettings;
-            set => _userSettings = value;
-        }
-        [Serialize]
-        [Editor(typeof(MultilineStringEditor), typeof(UITypeEditor))]
-        public string Description
-        {
-            get => _description;
-            set => _description = value;
-        }
-        [Serialize]
-        public string Copyright
-        {
-            get => _copyright;
-            set => _copyright = value;
-        }
-        [Serialize]
-        [Editor(typeof(MultilineStringEditor), typeof(UITypeEditor))]
-        public string Credits
-        {
-            get => _credits;
-            set => _credits = value;
-        }
-        public static Project New(string directory, string name)
+        public static Project Create(string directory, string name)
         {
             if (!directory.EndsWith("\\"))
                 directory += "\\";
+            string compileDir = directory + BinDirName + "\\";
+            string configDir = directory + ConfigDirName + "\\";
+            string sourceDir = directory + SourceDirName + "\\";
+            string contentDir = directory + ContentDirName + "\\";
+            Directory.CreateDirectory(sourceDir);
+            Directory.CreateDirectory(configDir);
+            Directory.CreateDirectory(sourceDir);
+            Directory.CreateDirectory(contentDir);
             Project p = new Project()
             {
                 Name = name,
@@ -78,8 +54,6 @@ namespace TheraEditor
                 UserSettings = new SingleFileRef<UserSettings>(new UserSettings(), directory, name, FileFormat.XML),
                 EngineSettings = new SingleFileRef<EngineSettings>(new EngineSettings(), directory, name, FileFormat.XML),
             };
-            Directory.CreateDirectory(directory + "Source");
-            Directory.CreateDirectory(directory + "Content");
             return p;
         }
     }

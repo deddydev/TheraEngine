@@ -76,13 +76,7 @@ namespace TheraEngine
         private static InputAwaiter _inputAwaiter;
         private static Dictionary<PlayerIndex, Queue<IPawn>> _possessionQueue = new Dictionary<PlayerIndex, Queue<IPawn>>();
         //internal static List<PhysicsDriver> _queuedCollisions = new List<PhysicsDriver>();
-
         private static PrivateFontCollection _fontCollection = new PrivateFontCollection();
-
-        public static Viewport.TwoPlayerViewportPreference TwoPlayerPref = 
-            Viewport.TwoPlayerViewportPreference.SplitHorizontally;
-        public static Viewport.ThreePlayerViewportPreference ThreePlayerPref =
-            Viewport.ThreePlayerViewportPreference.PreferFirstPlayer;
 
         internal static AbstractRenderer Renderer
         {
@@ -93,12 +87,6 @@ namespace TheraEngine
         {
             get => _audioManager;
             set => _audioManager = value;
-        }
-
-        public static void DebugMessage(string message)
-        {
-            Debug.WriteLine(message);
-            RenderPanel.CapturedPanel?.GlobalHud?.DebugPrint(message);
         }
 
         public static float RenderDelta => (float)_timer.RenderTime;

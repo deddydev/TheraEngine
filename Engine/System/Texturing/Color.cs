@@ -24,11 +24,11 @@ namespace System
         private const float ByteToFloat = 1.0f / 255.0f;
 
         public static implicit operator ColorF4(RGBAPixel p)
-            => new ColorF4() { A = p.A * ByteToFloat, B = p.B * ByteToFloat, G = p.G * ByteToFloat, R = p.R * ByteToFloat };
+            => new ColorF4(p.R * ByteToFloat, p.G * ByteToFloat, p.B * ByteToFloat, p.A * ByteToFloat);
         public static implicit operator ColorF4(ARGBPixel p)
-            => new ColorF4() { A = p.A * ByteToFloat, B = p.B * ByteToFloat, G = p.G * ByteToFloat, R = p.R * ByteToFloat };
+            => new ColorF4(p.R * ByteToFloat, p.G * ByteToFloat, p.B * ByteToFloat, p.A * ByteToFloat);
         public static implicit operator ColorF4(Color p)
-            => new ColorF4() { A = p.A * ByteToFloat, B = p.B * ByteToFloat, G = p.G * ByteToFloat, R = p.R * ByteToFloat };
+            => new ColorF4(p.R * ByteToFloat, p.G * ByteToFloat, p.B * ByteToFloat, p.A * ByteToFloat);
         public static implicit operator Color(ColorF4 p)
             => Color.FromArgb(p.A.ToByte(), p.R.ToByte(), p.G.ToByte(), p.B.ToByte());
         public static implicit operator ColorF4(Vec3 v)

@@ -13,6 +13,7 @@ using TheraEngine.Players;
 using System.Collections.Concurrent;
 using System.Threading;
 using System.IO;
+using System.Diagnostics;
 
 namespace TheraEngine
 {
@@ -155,21 +156,14 @@ namespace TheraEngine
 
         private static void ActivePlayers_Removed(LocalPlayerController item)
         {
-            
+            World?.GetGameMode()?.HandleLocalPlayerLeft(item);
         }
 
         private static void ActivePlayers_Added(LocalPlayerController item)
         {
+            World?.GetGameMode()?.HandleLocalPlayerJoined(item);
+        }
 
-        }
-        public static void RegisterRenderTick(EventHandler<FrameEventArgs> func)
-        {
-            _timer.RenderFrame += func;
-        }
-        public static void UnregisterRenderTick(EventHandler<FrameEventArgs> func)
-        {
-            _timer.RenderFrame -= func;
-        }
         /// <summary>
         /// Starts a quick timer to track the number of sceonds elapsed.
         /// Returns the id of the timer.
@@ -191,7 +185,6 @@ namespace TheraEngine
             return seconds;
         }
 
-        #region Tick
         public static void TogglePause(PlayerIndex toggler)
         {
             SetPaused(!_isPaused, toggler);
@@ -201,9 +194,14 @@ namespace TheraEngine
             _isPaused = paused;
             Paused?.Invoke(_isPaused, toggler);
         }
+
+        #region Tick
         public static void Run() => _timer.Run();
         public static void Stop() => _timer.Stop();
-        
+        public static void RegisterRenderTick(EventHandler<FrameEventArgs> func)
+            => _timer.RenderFrame += func;
+        public static void UnregisterRenderTick(EventHandler<FrameEventArgs> func)
+            => _timer.RenderFrame -= func;
         internal static void RegisterTick(ETickGroup group, ETickOrder order, DelTick function, InputPauseType pausedBehavior = InputPauseType.TickAlways)
         {
             if (function != null)
@@ -290,6 +288,7 @@ namespace TheraEngine
         }
         public static void DebugPrint(string message, int viewport = -1)
         {
+            Debug.WriteLine(message);
             RenderPanel panel = CurrentPanel;
             if (panel == null)
                 return;

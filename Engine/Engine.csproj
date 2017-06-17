@@ -167,6 +167,7 @@
     <Reference Include="System" />
     <Reference Include="System.Activities" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Design" />
     <Reference Include="System.ServiceModel" />
     <Reference Include="System.ServiceModel.Activities" />
     <Reference Include="System.Xaml" />
@@ -217,6 +218,7 @@
     <Compile Include="Animation\Functions\Logic\IfFunction.cs" />
     <Compile Include="Animation\Model Animations\BlendSpace1D.cs" />
     <Compile Include="Animation\Model Animations\ModelAnimation.cs" />
+    <Compile Include="Game.cs" />
     <Compile Include="Rendering\HUD\Functions\Animations\AnimationFunction.cs" />
     <Compile Include="Rendering\HUD\Functions\Animations\AnimFuncExecInput.cs" />
     <Compile Include="Rendering\HUD\Functions\Animations\AnimFuncExecOutput.cs" />

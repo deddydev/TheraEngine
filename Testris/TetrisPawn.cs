@@ -20,10 +20,16 @@ namespace Testris
         private float _delta;
         private bool _playing = false;
         private int _score;
+        private int[] _baseScores = { 40, 100, 300, 1200 };
         private int _level = 0;
         private Random _rng = new Random();
         private IOctreeNode _renderNode;
         private bool _isRendering;
+
+        private void AddScore(int lines)
+        {
+            _score += _baseScores[lines] * (_level + 1);
+        }
 
         public float BlocksPerSec
         {
@@ -39,8 +45,12 @@ namespace Testris
 
         public override void RegisterInput(InputInterface input)
         {
-            input.RegisterButtonEvent(EKey.Escape, ButtonInputType.Pressed, Pause, InputPauseType.TickOnlyWhenUnpaused);
-            input.RegisterButtonEvent(EKey.Enter, ButtonInputType.Pressed, Start, InputPauseType.TickOnlyWhenUnpaused);
+            input.RegisterButtonEvent(GamePadButton.SpecialRight, ButtonInputType.Pressed, Pause, InputPauseType.TickAlways);
+            input.RegisterButtonEvent(EKey.Escape, ButtonInputType.Pressed, Pause, InputPauseType.TickAlways);
+
+            input.RegisterButtonEvent(EKey.Enter, ButtonInputType.Pressed, BeginGame, InputPauseType.TickOnlyWhenPaused);
+            input.RegisterButtonEvent(GamePadButton.FaceDown, ButtonInputType.Pressed, BeginGame, InputPauseType.TickOnlyWhenPaused);
+
             input.RegisterButtonEvent(EKey.Up, ButtonInputType.Pressed, Rotate, InputPauseType.TickOnlyWhenUnpaused);
             input.RegisterButtonEvent(EKey.Left, ButtonInputType.Pressed, MoveLeft, InputPauseType.TickOnlyWhenUnpaused);
             input.RegisterButtonEvent(EKey.Right, ButtonInputType.Pressed, MoveRight, InputPauseType.TickOnlyWhenUnpaused);
@@ -48,8 +58,10 @@ namespace Testris
             input.RegisterButtonEvent(EKey.Down, ButtonInputType.Released, EndSpeedUp, InputPauseType.TickOnlyWhenUnpaused);
         }
 
-        private void Start()
+        private void BeginGame()
         {
+            Hud.Visible = false;
+
             _score = 0;
             _playing = true;
             RegisterTick(ETickGroup.PostPhysics, ETickOrder.Scene, SceneUpdate);
@@ -108,6 +120,7 @@ namespace Testris
 
         protected override DockableHudComponent OnConstruct()
         {
+            Hud = new TetrisHud();
             DockableHudComponent root = new DockableHudComponent()
             {
                 DockStyle = HudDockStyle.Fill

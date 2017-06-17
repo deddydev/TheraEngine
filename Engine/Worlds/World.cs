@@ -80,11 +80,13 @@ namespace TheraEngine.Worlds
         //        bool collides = 
         //            (proxy0.CollisionFilterGroup & proxy1.CollisionFilterMask) != 0 &&
         //            (proxy1.CollisionFilterGroup & proxy0.CollisionFilterMask) != 0;
-                
+
         //        return collides;
         //    }
         //}
 
+        public BaseGameMode GetGameMode()
+            => Settings?.GameMode;
         public T GetGameMode<T>() where T : class, IGameMode
             => Settings?.GameMode as T;
 

@@ -18,6 +18,7 @@ namespace TheraEngine.Rendering.HUD
         private Viewport _owningViewport;
         private RenderPanel _owningPanel;
         private OrthographicCamera _camera;
+        private bool _visible;
 
         public OrthographicCamera Camera => _camera;
 
@@ -41,6 +42,12 @@ namespace TheraEngine.Rendering.HUD
                 _owningPanel = value;
                 _owningViewport = null;
             }
+        }
+
+        public virtual bool Visible
+        {
+            get => _visible;
+            set => _visible = value;
         }
 
         public HudManager()
@@ -73,6 +80,8 @@ namespace TheraEngine.Rendering.HUD
         }
         public void Render()
         {
+            if (!Visible)
+                return;
             AbstractRenderer.CurrentCamera = _camera;
             _childComponentTree.DebugRender();
             foreach (HudComponent comp in _renderables)

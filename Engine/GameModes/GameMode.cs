@@ -87,6 +87,8 @@ namespace TheraEngine.GameModes
         public abstract void BeginGameplay();
         public abstract void EndGameplay();
         public abstract void AbortGameplay();
+        protected internal abstract void HandleLocalPlayerLeft(LocalPlayerController item);
+        protected internal abstract void HandleLocalPlayerJoined(LocalPlayerController item);
     }
     public class GameMode<PawnType> : BaseGameMode
         where PawnType : class, IPawn, new()
@@ -112,6 +114,16 @@ namespace TheraEngine.GameModes
         }
 
         public override void AbortGameplay()
+        {
+
+        }
+
+        protected internal override void HandleLocalPlayerLeft(LocalPlayerController item)
+        {
+
+        }
+
+        protected internal override void HandleLocalPlayerJoined(LocalPlayerController item)
         {
 
         }

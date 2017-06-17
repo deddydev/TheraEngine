@@ -120,7 +120,7 @@ namespace TheraEngine.Rendering.OpenGL
         public unsafe override void BeginDraw()
         {
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
-            GL.ClearColor(Control.BackColor.R, Control.BackColor.G, Control.BackColor.B, Control.BackColor.A);
+            GL.ClearColor(Control.BackColor.R, Control.BackColor.G, Control.BackColor.B, 0.0f);
         }
         public override void EndDraw()
         {

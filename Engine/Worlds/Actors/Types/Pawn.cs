@@ -23,7 +23,7 @@ namespace TheraEngine.Worlds.Actors
         AIController AIController { get; }
         LocalPlayerController LocalPlayerController { get; }
         CameraComponent CurrentCameraComponent { get; set; }
-        HudManager HUD { get; set; }
+        HudManager Hud { get; set; }
 
         void QueuePossession(PlayerIndex possessor);
         void OnUnPossessed();

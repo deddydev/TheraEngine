@@ -284,19 +284,44 @@ namespace TheraEngine.Rendering
             }
             return null;
         }
-        public enum TwoPlayerViewportPreference
+        /// <summary>
+        /// Viewport layout preference for when only two people are playing.
+        /// </summary>
+        public enum TwoPlayerPreference
         {
+            /// <summary>
+            /// 1st player is on the top of the screen, 2nd player is on bottom.
+            /// </summary>
             SplitHorizontally,
+            /// <summary>
+            /// 1st player is on the left side of the screen, 2nd player is on the right side.
+            /// </summary>
             SplitVertically,
         }
-        public enum ThreePlayerViewportPreference
+        /// <summary>
+        /// Viewport layout preference for when only three people are playing.
+        /// </summary>
+        public enum ThreePlayerPreference
         {
+            /// <summary>
+            /// Top left, top right, and bottom left quadrants of the screen are used for viewports.
+            /// The bottom right is blank (can be drawn in using global hud; for example, a world map)
+            /// </summary>
             BlankBottomRight,
+            /// <summary>
+            /// First player has a wide screen on top (two quadrants), and the remaining two players have smaller screens in the bottom two quadrants.
+            /// </summary>
             PreferFirstPlayer,
+            /// <summary>
+            /// Second player has a wide screen on top (two quadrants), and the remaining two players have smaller screens in the bottom two quadrants.
+            /// </summary>
             PreferSecondPlayer,
+            /// <summary>
+            /// Third player has a wide screen on top (two quadrants), and the remaining two players have smaller screens in the bottom two quadrants.
+            /// </summary>
             PreferThirdPlayer,
         }
-        public void ViewportCountChanged(int newIndex, int total, TwoPlayerViewportPreference twoPlayerPref, ThreePlayerViewportPreference threePlayerPref)
+        public void ViewportCountChanged(int newIndex, int total, TwoPlayerPreference twoPlayerPref, ThreePlayerPreference threePlayerPref)
         {
             _index = newIndex;
             switch (total)
@@ -308,13 +333,13 @@ namespace TheraEngine.Rendering
                     switch (newIndex)
                     {
                         case 0:
-                            if (twoPlayerPref == TwoPlayerViewportPreference.SplitHorizontally)
+                            if (twoPlayerPref == TwoPlayerPreference.SplitHorizontally)
                                 SetTop();
                             else
                                 SetLeft();
                             break;
                         case 1:
-                            if (twoPlayerPref == TwoPlayerViewportPreference.SplitHorizontally)
+                            if (twoPlayerPref == TwoPlayerPreference.SplitHorizontally)
                                 SetBottom();
                             else
                                 SetRight();
@@ -327,16 +352,16 @@ namespace TheraEngine.Rendering
                         case 0:
                             switch (threePlayerPref)
                             {
-                                case ThreePlayerViewportPreference.BlankBottomRight:
+                                case ThreePlayerPreference.BlankBottomRight:
                                     SetTopLeft();
                                     break;
-                                case ThreePlayerViewportPreference.PreferFirstPlayer:
+                                case ThreePlayerPreference.PreferFirstPlayer:
                                     SetTop();
                                     break;
-                                case ThreePlayerViewportPreference.PreferSecondPlayer:
+                                case ThreePlayerPreference.PreferSecondPlayer:
                                     SetBottomLeft();
                                     break;
-                                case ThreePlayerViewportPreference.PreferThirdPlayer:
+                                case ThreePlayerPreference.PreferThirdPlayer:
                                     SetTopLeft();
                                     break;
                             }
@@ -344,16 +369,16 @@ namespace TheraEngine.Rendering
                         case 1:
                             switch (threePlayerPref)
                             {
-                                case ThreePlayerViewportPreference.BlankBottomRight:
+                                case ThreePlayerPreference.BlankBottomRight:
                                     SetTopRight();
                                     break;
-                                case ThreePlayerViewportPreference.PreferFirstPlayer:
+                                case ThreePlayerPreference.PreferFirstPlayer:
                                     SetBottomLeft();
                                     break;
-                                case ThreePlayerViewportPreference.PreferSecondPlayer:
+                                case ThreePlayerPreference.PreferSecondPlayer:
                                     SetTop();
                                     break;
-                                case ThreePlayerViewportPreference.PreferThirdPlayer:
+                                case ThreePlayerPreference.PreferThirdPlayer:
                                     SetTopRight();
                                     break;
                             }
@@ -361,16 +386,16 @@ namespace TheraEngine.Rendering
                         case 2:
                             switch (threePlayerPref)
                             {
-                                case ThreePlayerViewportPreference.BlankBottomRight:
+                                case ThreePlayerPreference.BlankBottomRight:
                                     SetBottomLeft();
                                     break;
-                                case ThreePlayerViewportPreference.PreferFirstPlayer:
+                                case ThreePlayerPreference.PreferFirstPlayer:
                                     SetBottomRight();
                                     break;
-                                case ThreePlayerViewportPreference.PreferSecondPlayer:
+                                case ThreePlayerPreference.PreferSecondPlayer:
                                     SetBottomRight();
                                     break;
-                                case ThreePlayerViewportPreference.PreferThirdPlayer:
+                                case ThreePlayerPreference.PreferThirdPlayer:
                                     SetBottom();
                                     break;
                             }

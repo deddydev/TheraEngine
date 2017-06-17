@@ -79,7 +79,7 @@ namespace TheraEngine
         protected int _updateCounter;
         private HudManager _globalHud;
         public List<Viewport> _viewports = new List<Viewport>();
-        private ColorF4 _backColor = Color.Lavender;
+        private ColorF4 _backColor = Color.Black;
 
         public HudManager GlobalHud
         {
@@ -242,7 +242,7 @@ namespace TheraEngine
             _viewports.Add(new Viewport(owner, this, _viewports.Count));
             //Fix the regions of the rest of the viewports
             for (int i = 0; i < _viewports.Count - 1; ++i)
-                _viewports[i].ViewportCountChanged(i, _viewports.Count, Engine.TwoPlayerPref, Engine.ThreePlayerPref);
+                _viewports[i].ViewportCountChanged(i, _viewports.Count, Engine.Game.TwoPlayerPref, Engine.Game.ThreePlayerPref);
         }
         public Viewport GetViewport(int index)
             => index >= 0 && index < _viewports.Count ? _viewports[index] : null;
@@ -252,7 +252,7 @@ namespace TheraEngine
             {
                 _viewports.Remove(owner.Viewport);
                 for (int i = 0; i < _viewports.Count; ++i)
-                    _viewports[i].ViewportCountChanged(i, _viewports.Count, Engine.TwoPlayerPref, Engine.ThreePlayerPref);
+                    _viewports[i].ViewportCountChanged(i, _viewports.Count, Engine.Game.TwoPlayerPref, Engine.Game.ThreePlayerPref);
             }
         }
 

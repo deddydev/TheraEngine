@@ -98,7 +98,7 @@ namespace TheraEngine.Worlds
         }
 
         [Serialize("GlobalAmbient")]
-        private ColorF3 _globalAmbient = new ColorF3(0.2f, 0.2f, 0.2f);
+        private ColorF3 _globalAmbient;
         [Serialize("DefaultHud")]
         private HudManager _defaultHud;
         [Serialize("Bounds")]

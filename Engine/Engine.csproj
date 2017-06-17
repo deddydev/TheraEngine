@@ -137,7 +137,8 @@
     <SignAssembly>false</SignAssembly>
   </PropertyGroup>
   <PropertyGroup>
-    <AssemblyOriginatorKeyFile>key.snk</AssemblyOriginatorKeyFile>
+    <AssemblyOriginatorKeyFile>
+    </AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="BulletSharp">
@@ -689,7 +690,6 @@
     <Compile Include="Rendering\Renderer\States\FrameBuffer.cs" />
     <Compile Include="Rendering\Renderer\States\PrimitiveManager.cs" />
     <Compile Include="Rendering\Renderer\States\VertexBuffer.cs" />
-    <None Include="key.snk" />
     <None Include="Rendering\Renderer\States\DisplayList.cs" />
     <Compile Include="Rendering\Renderer\Text.cs" />
     <Compile Include="Rendering\Textures\PixelTypes.cs" />

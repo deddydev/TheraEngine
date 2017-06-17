@@ -68,6 +68,8 @@ namespace TheraEditor
         }
         public static Project New(string directory, string name)
         {
+            if (!directory.EndsWith("\\"))
+                directory += "\\";
             Project p = new Project()
             {
                 Name = name,
@@ -76,12 +78,8 @@ namespace TheraEditor
                 UserSettings = new SingleFileRef<UserSettings>(new UserSettings(), directory, name, FileFormat.XML),
                 EngineSettings = new SingleFileRef<EngineSettings>(new EngineSettings(), directory, name, FileFormat.XML),
             };
-
-            var project = ProjectRootElement.Create();
-            project.DefaultTargets = "Build";
-            project.ToolsVersion = "4.0";
-            project.Save(directory, Encoding.ASCII);
-
+            Directory.CreateDirectory(directory + "Source");
+            Directory.CreateDirectory(directory + "Content");
             return p;
         }
     }

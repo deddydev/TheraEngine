@@ -41,10 +41,18 @@ namespace TheraEditor
         }
         protected override void OnLoad(EventArgs e)
         {
-            Engine.Settings.CapFPS = true;
-            Engine.Settings.TargetFPS = 60.0f;
-            Engine.Settings.OpeningWorld = typeof(TestWorld);
-            Engine.Initialize();
+            string lastOpened = Properties.Settings.Default.LastOpened;
+            if (!string.IsNullOrEmpty(lastOpened))
+                OpenProject(FileObject.FromXML<Project>(lastOpened));
+            else
+            {
+                Project = new Project();
+                Project.OpeningWorld = typeof(TestWorld);
+                Project.EngineSettings.CapFPS = true;
+                Project.EngineSettings.TargetFPS = 60.0f;
+            }
+
+            Engine.Initialize(Project);
             OnRedrawn = Application.DoEvents;
             Engine.RegisterRenderTick(RenderTick);
             actorPropertyGrid.SelectedObject = Engine.World?.Settings;

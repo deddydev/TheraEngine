@@ -122,18 +122,22 @@ namespace TheraEngine.Rendering.HUD
                 return;
             }
             
+            //TODO: check if the following code is right
             if (frontDist < backDist)
             {
                 //loop from back
                 var last = _renderables.Last;
                 while (last.Value.LayerIndex > component.LayerIndex)
                     last = last.Previous;
-                _renderables.AddAfter(last, component);
+                _renderables.AddBefore(last, component);
             }
             else
             {
                 //loop from front
-
+                var first = _renderables.First;
+                while (first.Value.LayerIndex < component.LayerIndex)
+                    first = first.Next;
+                _renderables.AddAfter(first, component);
             }
         }
     }

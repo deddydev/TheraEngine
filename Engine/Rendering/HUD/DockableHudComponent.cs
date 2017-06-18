@@ -28,10 +28,7 @@ namespace TheraEngine.Rendering.HUD
                 _sideAnchorFlags = value;
             }
         }
-
-        /// <summary>
-        /// Returns the available real estate for the next components to use.
-        /// </summary>
+        
         public override BoundingRectangle Resize(BoundingRectangle parentRegion)
         {
             BoundingRectangle leftOver = parentRegion;
@@ -93,7 +90,8 @@ namespace TheraEngine.Rendering.HUD
 
                     }
                 }
-                leftOver = RegionComplement(parentRegion, Region);
+                if (_dockStyle != HudDockStyle.None)
+                    leftOver = RegionComplement(parentRegion, Region);
             }
 
             BoundingRectangle region = Region;

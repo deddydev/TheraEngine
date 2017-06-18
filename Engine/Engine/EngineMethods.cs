@@ -81,19 +81,19 @@ namespace TheraEngine
 
             Thread.CurrentThread.Name = "Main Thread";
         }
-        public static void Initialize()
+        public static void Initialize(Game game)
         {
             _computerInfo = ComputerInfo.Analyze();
 
-            RenderLibrary = RenderLibrary.OpenGL; //UserSettings.RenderLibrary;
-            AudioLibrary = AudioLibrary.OpenAL; //UserSettings.AudioLibrary;
-            InputLibrary = InputLibrary.OpenTK; //UserSettings.InputLibrary;
+            RenderLibrary = game.UserSettings.RenderLibrary;
+            AudioLibrary = game.UserSettings.AudioLibrary;
+            InputLibrary = game.UserSettings.InputLibrary;
 
             if (Renderer == null)
                 throw new Exception("Unable to create a renderer.");
 
-            World = Settings.OpeningWorld;
-            Settings.TransitionWorld.GetInstance();
+            World = Game.OpeningWorld;
+            Game.TransitionWorld.GetInstance();
 
             TargetRenderFreq = Settings.CapFPS ? Settings.TargetFPS.ClampMin(1.0f) : 0.0f;
             TargetUpdateFreq = Settings.CapUPS ? Settings.TargetUPS.ClampMin(1.0f) : 0.0f;

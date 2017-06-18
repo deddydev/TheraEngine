@@ -119,7 +119,7 @@ namespace TheraEngine.Files
             if (!fileExists)
             {
                 //File = Activator.CreateInstance(_subType) as T;
-                Engine.DebugMessage(string.Format("Could not load file at \"{0}\".", absolutePath));
+                Engine.DebugPrint(string.Format("Could not load file at \"{0}\".", absolutePath));
             }
             else
             {
@@ -140,7 +140,7 @@ namespace TheraEngine.Files
                 }
                 catch (Exception e)
                 {
-                    Engine.DebugMessage(string.Format("Could not load file at \"{0}\".\nException:\n\n{1}", absolutePath, e.ToString()));
+                    Engine.DebugPrint(string.Format("Could not load file at \"{0}\".\nException:\n\n{1}", absolutePath, e.ToString()));
                 }
             }
         }
@@ -256,8 +256,8 @@ namespace TheraEngine.Files
         {
             get
             {
-                if (string.IsNullOrEmpty(_absolutePath) && Engine.Settings != null && !string.IsNullOrEmpty(Engine.Settings.GamePath) && !string.IsNullOrEmpty(_refPath))
-                    _absolutePath = Engine.Settings.GamePath + _refPath;
+                if (string.IsNullOrEmpty(_absolutePath) && Engine.Settings != null && !string.IsNullOrEmpty(Engine.Game.FilePath) && !string.IsNullOrEmpty(_refPath))
+                    _absolutePath = Engine.Game.FilePath + _refPath;
                 return _absolutePath;
             }
             set

@@ -10,19 +10,19 @@ namespace TheraEngine
 {
     public partial class RenderForm : Form
     {
-        public RenderForm(string name, string iconPath)
+        public RenderForm(Game game)
         {
             InitializeComponent();
 
-            Text = name;
-            if (!string.IsNullOrEmpty(iconPath) && File.Exists(iconPath))
-                Icon = new Icon(iconPath);
+            Text = game.Name;
+            if (!string.IsNullOrEmpty(game.IconPath) && File.Exists(game.IconPath))
+                Icon = new Icon(game.IconPath);
 
             //TopMost = true;
             //FormBorderStyle = FormBorderStyle.None;
             WindowState = FormWindowState.Maximized;
             renderPanel1.RegisterTick();
-            Engine.Initialize();
+            Engine.Initialize(game);
         }
         //protected override void OnLoad(EventArgs e)
         //{

@@ -106,7 +106,7 @@ namespace TheraEngine.Rendering
 
         public Viewport(LocalPlayerController owner, RenderPanel panel, int index)
         {
-            ViewportCountChanged(index, panel._viewports.Count + 1, Engine.TwoPlayerPref, Engine.ThreePlayerPref);
+            ViewportCountChanged(index, panel._viewports.Count + 1, Engine.Game.TwoPlayerPref, Engine.Game.ThreePlayerPref);
             _owningPanel = panel;
             _pawnHUD = new HudManager(this);
             _index = index;

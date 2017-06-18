@@ -23,7 +23,7 @@ namespace System
         /// <param name="cullOffscreen">If true, will disable the visibility of offscreen objects.</param>
         /// <param name="passes">The varying passes for objects of different types.</param>
         /// <param name="debugRender">If true, bounding boxes for visible octree subdivisions will be rendered.</param>
-        public void Cull(
+        internal void Cull(
             Camera camera,
             bool resetVisibility,
             bool cullOffscreen,
@@ -41,7 +41,7 @@ namespace System
     {
         public RenderNode(BoundingBox bounds) : base(bounds) { }
 
-        public void Cull(Frustum frustum, bool debugRender, RenderPasses passes)
+        internal void Cull(Frustum frustum, bool debugRender, RenderPasses passes)
         {
             EContainment c = frustum.Contains(_bounds);
             if (c != EContainment.Intersects)

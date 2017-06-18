@@ -3,7 +3,7 @@ using System.ComponentModel;
 
 namespace TheraEngine.Rendering.HUD
 {
-    public class ButtonHudComponent : DockableHudComponent
+    public class ButtonHudComponent : InteractableHudComponent
     {
         public ButtonHudComponent()
         {

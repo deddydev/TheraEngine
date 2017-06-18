@@ -37,20 +37,14 @@ namespace TheraEngine
         public static List<World> LoadedWorlds = new List<World>();
 
         private static World _currentWorld = null;
-        public static SingleFileRef<EngineSettings> _engineSettings = new SingleFileRef<EngineSettings>(EngineSettingsPathRel);
-        public static SingleFileRef<UserSettings> _userSettings = new SingleFileRef<UserSettings>(UserSettingsPathRel);
-        
-        public static EngineSettings Settings
-        {
-            get => _engineSettings.File ?? (_engineSettings.File = new EngineSettings());
-            set => _engineSettings.File = value;
-        }
-        public static UserSettings UserSettings
-        {
-            get => _userSettings.File ?? (_userSettings.File = new UserSettings());
-            set => _userSettings.File = value;
-        }
 
+        //public static SingleFileRef<EngineSettings> _engineSettings = new SingleFileRef<EngineSettings>(EngineSettingsPathRel);
+        //public static SingleFileRef<UserSettings> _userSettings = new SingleFileRef<UserSettings>(UserSettingsPathRel);
+
+        public static Game Game => _game;
+        public static EngineSettings Settings => Game.EngineSettings;
+        public static UserSettings UserSettings => Game.UserSettings;
+        
         /// <summary>
         /// The index of the currently ticking list of functions (group + order)
         /// </summary>
@@ -61,6 +55,7 @@ namespace TheraEngine
         private static ConcurrentQueue<Tuple<bool, DelTick>> _tickListQueue = new ConcurrentQueue<Tuple<bool, DelTick>>();
         public static ThreadSafeList<DelTick>[] _tickLists;
 
+        private static Game _game;
         private static RenderLibrary _renderLibrary;
         private static AudioLibrary _audioLibrary;
         private static InputLibrary _inputLibrary;

@@ -225,7 +225,7 @@
     <Compile Include="Rendering\HUD\Functions\Animations\AnimFuncValueInput.cs" />
     <Compile Include="Rendering\HUD\Functions\Animations\AnimFuncValueOutput.cs" />
     <Compile Include="Animation\Functions\LookatFunction.cs" />
-    <Compile Include="Rendering\HUD\DropDownListHudComponent.cs" />
+    <Compile Include="Rendering\HUD\Interactable\DropDownListHudComponent.cs" />
     <Compile Include="Rendering\HUD\Functions\Generic Base\BaseFuncArg.cs" />
     <Compile Include="Rendering\HUD\Functions\Generic Base\BaseFuncExec.cs" />
     <Compile Include="Rendering\HUD\Functions\Generic Base\FuncExecInput.cs" />
@@ -233,11 +233,12 @@
     <Compile Include="Rendering\HUD\Functions\Materials\MaterialFunction.cs" />
     <Compile Include="Rendering\HUD\Functions\Materials\MatFuncExecInput.cs" />
     <Compile Include="Rendering\HUD\Functions\Materials\MatFuncExecOutput.cs" />
-    <Compile Include="Rendering\HUD\RenderableHudComponent.cs" />
-    <Compile Include="Rendering\HUD\ButtonHudComponent.cs" />
-    <Compile Include="Rendering\HUD\TextHudComponent.cs" />
-    <Compile Include="Rendering\HUD\TextureHudComponent.cs" />
-    <Compile Include="Rendering\HUD\ModelHudComponent.cs" />
+    <Compile Include="Rendering\HUD\InteractableHudComponent.cs" />
+    <Compile Include="Rendering\HUD\Interactable\RenderableHudComponent.cs" />
+    <Compile Include="Rendering\HUD\Interactable\ButtonHudComponent.cs" />
+    <Compile Include="Rendering\HUD\Interactable\TextHudComponent.cs" />
+    <Compile Include="Rendering\HUD\Interactable\TextureHudComponent.cs" />
+    <Compile Include="Rendering\HUD\Interactable\ModelHudComponent.cs" />
     <Compile Include="3rdParty\Collada\ColladaImportOptions.cs" />
     <Compile Include="3rdParty\Collada\Parser\ColladaParserAnimation.cs" />
     <Compile Include="3rdParty\Collada\ColladaAssetDecoder.cs" />

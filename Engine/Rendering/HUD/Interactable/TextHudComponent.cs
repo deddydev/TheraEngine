@@ -8,7 +8,7 @@ using TheraEngine.Rendering.Models;
 
 namespace TheraEngine.Rendering.HUD
 {
-    public class TextHudComponent : RenderableHudComponent
+    public class TextHudComponent : TextureHudComponent
     {
         public TextHudComponent() { }
 

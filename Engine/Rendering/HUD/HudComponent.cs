@@ -8,7 +8,6 @@ using TheraEngine.Worlds;
 
 namespace TheraEngine.Rendering.HUD
 {
-    public delegate void DelScrolling(bool up);
     public class HudComponent : SceneComponent, IPanel, I2DBoundable, IEnumerable<HudComponent>
     {
         public HudComponent() : base()
@@ -29,51 +28,6 @@ namespace TheraEngine.Rendering.HUD
         protected BoundingRectangle _axisAlignedBounds;
         protected bool _isRendering;
         
-        [Category("Events")]
-        public event Action Highlighted;
-        [Category("Events")]
-        public event Action Selected;
-        [Category("Events")]
-        public event DelScrolling Scrolled;
-
-        public virtual void OnHighlighted()
-        {
-            if (_highlightable)
-                Highlighted?.Invoke();
-        }
-        public virtual void OnSelect()
-        {
-            if (_selectable)
-                Selected?.Invoke();
-        }
-        public virtual void OnScrolled(bool up)
-        {
-            if (_scrollable)
-                Scrolled?.Invoke(up);
-        }
-        public virtual void OnBack()
-        {
-            
-        }
-
-        [Category("Interaction")]
-        public bool Selectable
-        {
-            get => _selectable;
-            set => _selectable = value;
-        }
-        [Category("Interaction")]
-        public bool Highlightable
-        {
-            get => _highlightable;
-            set => _highlightable = value;
-        }
-        [Category("Interaction")]
-        public bool Scrollable
-        {
-            get => _scrollable;
-            set => _scrollable = value;
-        }
         [Category("Transform")]
         public BoundingRectangle Region
         {
@@ -328,10 +282,7 @@ namespace TheraEngine.Rendering.HUD
 
         public virtual void Render() { }
 
-        protected internal override void OriginRebased(Vec3 newOrigin)
-        {
-            throw new NotImplementedException();
-        }
+        protected internal override void OriginRebased(Vec3 newOrigin) { }
 
         public IEnumerator<HudComponent> GetEnumerator() => ((IEnumerable<HudComponent>)_children).GetEnumerator();
         IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable<HudComponent>)_children).GetEnumerator();

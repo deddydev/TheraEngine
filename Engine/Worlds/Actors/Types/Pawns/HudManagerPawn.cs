@@ -47,15 +47,15 @@ namespace TheraEngine.Rendering.HUD
         /// </summary>
         protected virtual void OnSelectInput()
         {
-            _focusedComponent?.OnSelect();
+            //_focusedComponent?.OnSelect();
         }
         private void OnScrolledInput(bool up)
         {
-            _focusedComponent?.OnScrolled(up);
+            //_focusedComponent?.OnScrolled(up);
         }
         protected virtual void OnBackInput()
         {
-            _focusedComponent?.OnBack();
+            //_focusedComponent?.OnBack();
         }
         protected virtual void OnDPadUp()
         {

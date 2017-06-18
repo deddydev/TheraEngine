@@ -11,14 +11,7 @@ namespace TheraEngine.Rendering
         OpaqueForward,
         TransparentForward
     }
-    [Flags]
-    public enum RenderPassFlags
-    {
-        OpaqueDeferred,
-        OpaqueForward,
-        TransparentForward
-    }
-    public class RenderPasses
+    internal class RenderPasses
     {
         private Deque<IRenderable> _opaqueDeferred = new Deque<IRenderable>();
         private Deque<IRenderable> _opaqueForward = new Deque<IRenderable>();
@@ -50,37 +43,33 @@ namespace TheraEngine.Rendering
             }
         }
     }
+    /// <summary>
+    /// Processes all scene information that will be sent to the renderer.
+    /// </summary>
     public class SceneProcessor
     {
         private RenderPasses _passes;
         private RenderOctree _renderTree;
         private LightManager _lightManager;
 
-        internal RenderOctree RenderTree => _renderTree;
-        internal LightManager Lights => _lightManager;
-        public RenderPasses RenderPasses => _passes;
+        public RenderOctree RenderTree => _renderTree;
+        public LightManager Lights => _lightManager;
+        internal RenderPasses RenderPasses => _passes;
 
-        internal void WorldChanged()
-        {
-            if (Engine.World == null)
-            {
-                _renderTree = null;
-                _lightManager = null;
-                _passes = null;
-                return;
-            }
-            
-            _renderTree = new RenderOctree(Engine.World.Settings.Bounds);
-            _lightManager = new LightManager();
-            _passes = new RenderPasses();
-        }
-        internal void Cull(Camera camera)
+        /// <summary>
+        /// Call this to only enable visibility for items visible from the given camera.
+        /// </summary>
+        /// <param name="camera">The camera viewpoint.</param>
+        /// <param name="resetVisibility">If true, changes all visible objects back to invisible before testing for visibility again.</param>
+        /// <param name="cullOffscreen">If true, will set all offscreen items to invisible.</param>
+        /// <param name="renderOctree">If true, will render the subdivisions of the octree.</param>
+        public void Cull(Camera camera, bool resetVisibility = true, bool cullOffscreen = true, bool renderOctree = false)
         {
             AbstractRenderer.CurrentCamera = camera;
             _renderTree.Cull(camera, true, true, _passes, Engine.Settings.RenderOctree);
             AbstractRenderer.CurrentCamera = null;
         }
-        internal void Render(Camera camera, RenderPass pass)
+        public void Render(Camera camera, RenderPass pass)
         {
             if (_renderTree == null || camera == null)
                 return;
@@ -96,6 +85,20 @@ namespace TheraEngine.Rendering
         public void Remove(IRenderable obj)
         {
             _renderTree?.Remove(obj);
+        }
+        internal void WorldChanged()
+        {
+            if (Engine.World == null)
+            {
+                _renderTree = null;
+                _lightManager = null;
+                _passes = null;
+                return;
+            }
+
+            _renderTree = new RenderOctree(Engine.World.Settings.Bounds);
+            _lightManager = new LightManager();
+            _passes = new RenderPasses();
         }
         internal void SetUniforms()
         {

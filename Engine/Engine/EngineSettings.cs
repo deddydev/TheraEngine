@@ -35,10 +35,6 @@ namespace TheraEngine
         private bool _capUPS;
         private float _targetUPS;
         
-        private SingleFileRef<World> _transitionWorld;
-        private SingleFileRef<World> _openingWorld;
-        private string _gamePath;
-
         [Category("Performance")]
         [Serialize]
         public ShadingStyle ShadingStyle { get => _shadingStyle; set => _shadingStyle = value; }
@@ -80,17 +76,7 @@ namespace TheraEngine
         [Category("Updates Per Second")]
         [Serialize("Target", OverrideXmlCategory = "UpdatesPerSecond", SerializeIf = "CapUPS")]
         public float TargetUPS { get => _targetUPS; set => _targetUPS = value; }
-
-        [Category("Game")]
-        [Serialize]
-        public SingleFileRef<World> TransitionWorld { get => _transitionWorld; set => _transitionWorld = value; }
-        [Category("Game")]
-        [Serialize]
-        public SingleFileRef<World> OpeningWorld { get => _openingWorld; set => _openingWorld = value; }
-        [Category("Game")]
-        [Serialize]
-        public string GamePath { get => _gamePath; set => _gamePath = value; }
-
+        
         public EngineSettings()
         {
             ShadingStyle = ShadingStyle.Deferred;
@@ -106,9 +92,6 @@ namespace TheraEngine
             TargetFPS = 60.0f;
             CapUPS = false;
             TargetUPS = 30.0f;
-            GamePath = Engine.StartupPath;
-            OpeningWorld = new SingleFileRef<World>("OpeningWorld.xworld");
-            TransitionWorld = new SingleFileRef<World>("TransitionWorld.xworld");
         }
     }
 }

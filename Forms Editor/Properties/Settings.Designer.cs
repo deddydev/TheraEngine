@@ -22,5 +22,17 @@ namespace TheraEditor.Properties {
                 return defaultInstance;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string LastOpened {
+            get {
+                return ((string)(this["LastOpened"]));
+            }
+            set {
+                this["LastOpened"] = value;
+            }
+        }
     }
 }

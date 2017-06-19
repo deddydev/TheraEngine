@@ -72,7 +72,7 @@ namespace TheraEngine.Worlds.Actors
                     m.Visible = m.Mesh.Visible;
 
             if (Engine.Settings.RenderSkeletons && _skeleton != null)
-                Engine.Renderer.Scene.Add(_skeleton);
+                Engine.Scene.Add(_skeleton);
 
             base.OnSpawned();
         }
@@ -85,7 +85,7 @@ namespace TheraEngine.Worlds.Actors
             base.OnDespawned();
 
             if (Engine.Settings.RenderSkeletons && _skeleton != null)
-                Engine.Renderer.Scene.Remove(_skeleton);
+                Engine.Scene.Remove(_skeleton);
         }
         internal override void RecalcGlobalTransform()
         {

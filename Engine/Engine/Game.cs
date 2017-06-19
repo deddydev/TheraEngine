@@ -17,6 +17,8 @@ namespace TheraEngine
     {
         public Game()
         {
+            UserSettings = new UserSettings();
+            EngineSettings = new EngineSettings();
             OpeningWorld = new SingleFileRef<World>("OpeningWorld.xworld");
             TransitionWorld = new SingleFileRef<World>("TransitionWorld.xworld");
         }

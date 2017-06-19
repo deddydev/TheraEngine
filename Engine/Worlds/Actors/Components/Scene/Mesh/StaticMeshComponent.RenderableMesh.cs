@@ -49,17 +49,20 @@ namespace TheraEngine.Worlds.Actors
                 set
                 {
                     _isVisible = value;
-                    if (_isVisible)
+                    if (Engine.Renderer != null && Engine.Scene != null)
                     {
-                        if (_cullingVolume != null && Engine.Settings.RenderCullingVolumes)
-                            Engine.Renderer.Scene.Add(_cullingVolume);
-                        Engine.Renderer.Scene.Add(this);
-                    }
-                    else
-                    {
-                        if (_cullingVolume != null && Engine.Settings.RenderCullingVolumes)
-                            Engine.Renderer.Scene.Remove(_cullingVolume);
-                        Engine.Renderer.Scene.Remove(this);
+                        if (_isVisible)
+                        {
+                            if (_cullingVolume != null && Engine.Settings.RenderCullingVolumes)
+                                Engine.Scene.Add(_cullingVolume);
+                            Engine.Scene.Add(this);
+                        }
+                        else
+                        {
+                            if (_cullingVolume != null && Engine.Settings.RenderCullingVolumes)
+                                Engine.Scene.Remove(_cullingVolume);
+                            Engine.Scene.Remove(this);
+                        }
                     }
                 }
             }

@@ -61,7 +61,7 @@ namespace TheraEngine.Worlds.Actors
         {
             if (_type == LightType.Dynamic)
             {
-                Engine.Renderer.Scene.Lights.Add(this);
+                Engine.Scene.Lights.Add(this);
                 _worldRadius = Engine.World.Settings.Bounds.HalfExtents.LengthFast;
                 _shadowCamera.TranslateRelative(0.0f, 0.0f, _worldRadius + 1.0f);
             }
@@ -70,7 +70,7 @@ namespace TheraEngine.Worlds.Actors
         {
             if (_type == LightType.Dynamic)
             {
-                Engine.Renderer.Scene.Lights.Remove(this);
+                Engine.Scene.Lights.Remove(this);
             }
         }
 

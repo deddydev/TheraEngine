@@ -3,7 +3,7 @@ using TheraEngine.Tests;
 using System;
 using System.Windows.Forms;
 
-namespace Game
+namespace Thera
 {
     static class Program
     {
@@ -15,12 +15,11 @@ namespace Game
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            EngineSettings settings = new EngineSettings()
+            Game game = new Game()
             {
-                OpeningWorld = typeof(TestWorld)
+                OpeningWorld = typeof(TestWorld),
             };
-            Engine.Settings = settings;
-            Application.Run(new RenderForm("Thera", null));
+            Application.Run(new RenderForm(game));
         }
     }
 }

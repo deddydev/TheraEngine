@@ -208,5 +208,11 @@ namespace TheraEngine.Worlds
         }
         public IEnumerator<IActor> GetEnumerator() => State.SpawnedActors.GetEnumerator();
         IEnumerator IEnumerable.GetEnumerator() => State.SpawnedActors.GetEnumerator();
+
+        public event Action<LocalPlayerController> LocalPlayerAdded;
+        internal protected virtual void OnLocalPlayerAdded(LocalPlayerController controller)
+        {
+            LocalPlayerAdded?.Invoke(controller);
+        }
     }
 }

@@ -36,6 +36,9 @@ namespace TheraEngine
         public static List<AIController> ActiveAI = new List<AIController>();
         public static List<World> LoadedWorlds = new List<World>();
 
+        public static SceneProcessor Scene => _scene;
+        private static SceneProcessor _scene = new SceneProcessor();
+
         private static World _currentWorld = null;
 
         //public static SingleFileRef<EngineSettings> _engineSettings = new SingleFileRef<EngineSettings>(EngineSettingsPathRel);
@@ -68,8 +71,13 @@ namespace TheraEngine
         private static AbstractRenderer _renderer;
         private static AbstractAudioManager _audioManager;
 
+        //Continually scans for and processes new input devices.
+        //TODO: allow disabling
         private static InputAwaiter _inputAwaiter;
-        private static Dictionary<PlayerIndex, Queue<IPawn>> _possessionQueue = new Dictionary<PlayerIndex, Queue<IPawn>>();
+
+        //Queue of what pawns should be possessed next for each player index when they either first join the game, or have their controlled pawn set to null.
+        private static Dictionary<PlayerIndex, Queue<IPawn>> _possessionQueues = new Dictionary<PlayerIndex, Queue<IPawn>>();
+
         //internal static List<PhysicsDriver> _queuedCollisions = new List<PhysicsDriver>();
         private static PrivateFontCollection _fontCollection = new PrivateFontCollection();
 

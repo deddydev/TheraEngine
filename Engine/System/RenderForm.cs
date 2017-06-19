@@ -5,6 +5,7 @@ using System;
 using System.Drawing;
 using System.IO;
 using TheraEngine.Worlds;
+using TheraEngine.Input;
 
 namespace TheraEngine
 {
@@ -21,8 +22,8 @@ namespace TheraEngine
             //TopMost = true;
             //FormBorderStyle = FormBorderStyle.None;
             WindowState = FormWindowState.Maximized;
-            renderPanel1.RegisterTick();
             Engine.Initialize(game);
+            renderPanel1.RegisterTick();
         }
         //protected override void OnLoad(EventArgs e)
         //{

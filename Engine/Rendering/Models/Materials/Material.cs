@@ -128,7 +128,7 @@ namespace TheraEngine.Rendering.Models.Materials
         internal void AddReference(IRenderable user)
         {
             if (_renderingReferences.Count == 0)
-                _bindingId = Engine.Renderer.AddActiveMaterial(this);
+                _bindingId = Engine.Scene.AddActiveMaterial(this);
             _renderingReferences.Add(user);
         }
         internal void RemoveReference(IRenderable user)
@@ -136,7 +136,7 @@ namespace TheraEngine.Rendering.Models.Materials
             _renderingReferences.Add(user);
             if (_renderingReferences.Count == 0)
             {
-                Engine.Renderer.RemoveActiveMaterial(this);
+                Engine.Scene.RemoveActiveMaterial(this);
                 _bindingId = -1;
             }
         }

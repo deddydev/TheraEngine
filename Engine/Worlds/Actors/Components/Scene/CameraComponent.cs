@@ -37,7 +37,7 @@ namespace TheraEngine.Worlds.Actors
                 if (_camera != null)
                 {
                     if (IsSpawned && Engine.Settings.RenderCameraFrustums)
-                        Engine.Renderer.Scene.Remove(_camera);
+                        Engine.Scene.Remove(_camera);
                     _camera.OwningComponent = null;
                     _camera.TransformChanged -= RecalcLocalTransform;
                 }
@@ -45,7 +45,7 @@ namespace TheraEngine.Worlds.Actors
                 if (_camera != null)
                 {
                     if (IsSpawned && Engine.Settings.RenderCameraFrustums)
-                        Engine.Renderer.Scene.Add(_camera);
+                        Engine.Scene.Add(_camera);
                     _camera.OwningComponent = this;
                     _camera.TransformChanged += RecalcLocalTransform;
                 }
@@ -115,13 +115,13 @@ namespace TheraEngine.Worlds.Actors
         public override void OnSpawned()
         {
             if (Engine.Settings.RenderCameraFrustums)
-                Engine.Renderer.Scene.Add(_camera);
+                Engine.Scene.Add(_camera);
             base.OnSpawned();
         }
         public override void OnDespawned()
         {
             if (Engine.Settings.RenderCameraFrustums)
-                Engine.Renderer.Scene.Remove(_camera);
+                Engine.Scene.Remove(_camera);
             base.OnDespawned();
         }
         protected override void OnRecalcLocalTransform(out Matrix4 localTransform, out Matrix4 inverseLocalTransform)

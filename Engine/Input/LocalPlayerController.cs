@@ -44,8 +44,6 @@ namespace TheraEngine.Input
             //_input.WantsInputsRegistered += RegisterInput;
 
             _possessionQueue = new Queue<IPawn>();
-            if (_possessionQueue.Count != 0)
-                ControlledPawn = _possessionQueue.Dequeue();
 
             if (CameraPossessionQueue.ContainsKey(index))
             {
@@ -70,7 +68,12 @@ namespace TheraEngine.Input
         public Viewport Viewport
         {
             get => _viewport;
-            set => _viewport = value;
+            set
+            {
+                _viewport = value;
+                if (_viewport != null && _controlledPawn != null)
+                    _viewport.PawnHUD = _controlledPawn.Hud;
+            }
         }
         public Camera CurrentCamera
         {
@@ -97,8 +100,12 @@ namespace TheraEngine.Input
 
                 if (_controlledPawn != null)
                 {
+                    if (_viewport != null)
+                        _viewport.PawnHUD = _controlledPawn.Hud;
+                    if (_controlledPawn.CurrentCameraComponent != null)
+                        CurrentCamera = _controlledPawn.CurrentCameraComponent.Camera;
+
                     _input.WantsInputsRegistered += _controlledPawn.RegisterInput;
-                    _viewport.PawnHUD = _controlledPawn.Hud;
                     _controlledPawn.OnPossessed(this);
                     _input.TryRegisterInput();
                 }

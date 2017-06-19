@@ -40,9 +40,9 @@ namespace TheraEngine.Worlds.Actors
                 {
                     _isVisible = value;
                     if (_isVisible)
-                        Engine.Renderer.Scene.Add(this);
+                        Engine.Scene.Add(this);
                     else
-                        Engine.Renderer.Scene.Remove(this);
+                        Engine.Scene.Remove(this);
                 }
             }
             public Bone SingleBind => _singleBind;

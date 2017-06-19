@@ -18,7 +18,7 @@ namespace TheraEngine.Worlds.Actors
 
         protected internal void Tick(float delta)
         {
-            //var objects = Engine.Renderer.Scene.RenderTree.FindAllJustOutside(BoundingBox).Where(x => x is Mesh);
+            //var objects = Engine.Scene.RenderTree.FindAllJustOutside(BoundingBox).Where(x => x is Mesh);
             //foreach (var obj in objects)
             //{
                 

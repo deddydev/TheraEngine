@@ -30,6 +30,25 @@ namespace TheraEditor
 
         public Editor()
         {
+            string lastOpened = Properties.Settings.Default.LastOpened;
+            if (!string.IsNullOrEmpty(lastOpened))
+                OpenProject(FileObject.FromXML<Project>(lastOpened));
+            else
+            {
+                Project = new Project()
+                {
+                    OpeningWorld = typeof(TestWorld),
+                    UserSettings = new UserSettings(),
+                    EngineSettings = new EngineSettings()
+                    {
+                        CapFPS = true,
+                        TargetFPS = 60.0f,
+                    }
+                };
+            }
+
+            Engine.Initialize(Project);
+
             InitializeComponent();
             DoubleBuffered = false;
             renderPanel1.GlobalHud = new EditorHud(renderPanel1);
@@ -41,18 +60,6 @@ namespace TheraEditor
         }
         protected override void OnLoad(EventArgs e)
         {
-            string lastOpened = Properties.Settings.Default.LastOpened;
-            if (!string.IsNullOrEmpty(lastOpened))
-                OpenProject(FileObject.FromXML<Project>(lastOpened));
-            else
-            {
-                Project = new Project();
-                Project.OpeningWorld = typeof(TestWorld);
-                Project.EngineSettings.CapFPS = true;
-                Project.EngineSettings.TargetFPS = 60.0f;
-            }
-
-            Engine.Initialize(Project);
             OnRedrawn = Application.DoEvents;
             Engine.RegisterRenderTick(RenderTick);
             actorPropertyGrid.SelectedObject = Engine.World?.Settings;

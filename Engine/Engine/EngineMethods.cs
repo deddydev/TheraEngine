@@ -83,15 +83,13 @@ namespace TheraEngine
         }
         public static void Initialize(Game game)
         {
+            _game = game;
             _computerInfo = ComputerInfo.Analyze();
 
             RenderLibrary = game.UserSettings.RenderLibrary;
             AudioLibrary = game.UserSettings.AudioLibrary;
             InputLibrary = game.UserSettings.InputLibrary;
-
-            if (Renderer == null)
-                throw new Exception("Unable to create a renderer.");
-
+            
             World = Game.OpeningWorld;
             Game.TransitionWorld.GetInstance();
 
@@ -308,7 +306,7 @@ namespace TheraEngine
             World previous = World;
             World?.EndPlay();
             _currentWorld = world;
-            Renderer.Scene.WorldChanged();
+            Scene.WorldChanged();
             World?.BeginPlay();
             if (unloadPrevious)
                 previous?.Unload();
@@ -318,13 +316,13 @@ namespace TheraEngine
             int index = (int)possessor;
             if (index < ActivePlayers.Count)
                 ActivePlayers[index].EnqueuePosession(pawn);
-            else if (_possessionQueue.ContainsKey(possessor))
-                _possessionQueue[possessor].Enqueue(pawn);
+            else if (_possessionQueues.ContainsKey(possessor))
+                _possessionQueues[possessor].Enqueue(pawn);
             else
             {
                 Queue<IPawn> queue = new Queue<IPawn>();
                 queue.Enqueue(pawn);
-                _possessionQueue.Add(possessor, queue);
+                _possessionQueues.Add(possessor, queue);
             }
         }
         internal static void AddLoadedFile<T>(string relativePath, T file) where T : FileObject
@@ -339,20 +337,44 @@ namespace TheraEngine
         }
         internal static void FoundInput(InputDevice device)
         {
-            if (device.Index >= ActivePlayers.Count)
+            if (device is CKeyboard || device is CMouse)
             {
-                LocalPlayerController controller;
-                PlayerIndex index = (PlayerIndex)ActivePlayers.Count;
-                if (_possessionQueue.ContainsKey(index))
+                if (ActivePlayers.Count == 0)
                 {
-                    controller = new LocalPlayerController(_possessionQueue[index]);
-                    _possessionQueue.Remove(controller.LocalPlayerIndex);
+                    LocalPlayerController controller;
+                    PlayerIndex index = PlayerIndex.One;
+                    if (_possessionQueues.ContainsKey(index))
+                    {
+                        //Transfer possession queue to the controller itself
+                        controller = new LocalPlayerController(_possessionQueues[index]);
+                        _possessionQueues.Remove(controller.LocalPlayerIndex);
+                    }
+                    else
+                        controller = new LocalPlayerController();
+                    World?.OnLocalPlayerAdded(controller);
                 }
                 else
-                    controller = new LocalPlayerController();
+                    ActivePlayers[0].Input.UpdateDevices();
             }
             else
-                ActivePlayers[device.Index].Input.UpdateDevices();
+            {
+                if (device.Index >= ActivePlayers.Count)
+                {
+                    LocalPlayerController controller;
+                    PlayerIndex index = (PlayerIndex)ActivePlayers.Count;
+                    if (_possessionQueues.ContainsKey(index))
+                    {
+                        //Transfer possession queue to the controller itself
+                        controller = new LocalPlayerController(_possessionQueues[index]);
+                        _possessionQueues.Remove(controller.LocalPlayerIndex);
+                    }
+                    else
+                        controller = new LocalPlayerController();
+                    World?.OnLocalPlayerAdded(controller);
+                }
+                else
+                    ActivePlayers[device.Index].Input.UpdateDevices();
+            }
         }
     }
 }

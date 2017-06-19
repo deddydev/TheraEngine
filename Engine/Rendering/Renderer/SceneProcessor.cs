@@ -2,6 +2,7 @@
 using TheraEngine.Worlds;
 using System;
 using System.Collections.Generic;
+using TheraEngine.Rendering.Models.Materials;
 
 namespace TheraEngine.Rendering
 {
@@ -51,6 +52,8 @@ namespace TheraEngine.Rendering
         private RenderPasses _passes;
         private RenderOctree _renderTree;
         private LightManager _lightManager;
+        private static List<Material> _activeMaterials = new List<Material>();
+        private static Queue<int> _removedIds = new Queue<int>();
 
         public RenderOctree RenderTree => _renderTree;
         public LightManager Lights => _lightManager;
@@ -100,10 +103,16 @@ namespace TheraEngine.Rendering
             _lightManager = new LightManager();
             _passes = new RenderPasses();
         }
-        internal void SetUniforms()
+        internal int AddActiveMaterial(Material material)
         {
-            AbstractRenderer.CurrentCamera.SetUniforms();
-            Lights.SetUniforms();
+            int id = _removedIds.Count > 0 ? _removedIds.Dequeue() : _activeMaterials.Count;
+            _activeMaterials.Add(material);
+            return id;
+        }
+        internal void RemoveActiveMaterial(Material material)
+        {
+            _removedIds.Enqueue(material.BindingId);
+            _activeMaterials.RemoveAt(material.BindingId);
         }
     }
 }

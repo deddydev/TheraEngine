@@ -15,12 +15,11 @@ namespace Editor.Controls
         {
             InitializeComponent();
             FormsHost.Child = _panel = new RenderPanel();
-            EngineSettings settings = new EngineSettings()
+            Game game = new Game()
             {
-                OpeningWorld = typeof(TestWorld)
+                OpeningWorld = typeof(TestWorld),
             };
-            Engine.Settings = settings;
-            Engine.Initialize();
+            Engine.Initialize(game);
             _panel.RegisterTick();
         }
     }

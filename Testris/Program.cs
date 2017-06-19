@@ -11,8 +11,11 @@ namespace Testris
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Engine.Settings.OpeningWorld = typeof(TetrisWorld);
-            Application.Run(new RenderForm("Thera", null));
+            Game game = new Game()
+            {
+                OpeningWorld = typeof(TetrisWorld),
+            };
+            Application.Run(new RenderForm(game));
         }
     }
 }

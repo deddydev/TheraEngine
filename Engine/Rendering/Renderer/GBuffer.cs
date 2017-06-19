@@ -170,7 +170,7 @@ namespace TheraEngine.Rendering
             Engine.Renderer.Uniform("InvProjMatrix", _parent.Camera.InverseProjectionMatrix);
 
             _parent.Camera.PostProcessSettings.SetUniforms();
-            Engine.Renderer.Scene.Lights.SetUniforms();
+            Engine.Scene.Lights.SetUniforms();
         }
 
         ~GBuffer()

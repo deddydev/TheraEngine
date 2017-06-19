@@ -91,15 +91,6 @@ namespace TheraEngine.Worlds.Actors
                 OnUnPossessed();
 
             _controller = possessor;
-
-            //Possessed by a local controller?
-            LocalPlayerController controller = LocalPlayerController;
-            if (controller != null)
-            {
-                controller.Viewport.PawnHUD = _hud;
-                if (_currentCameraComponent != null)
-                    controller.CurrentCamera = _currentCameraComponent.Camera;
-            }
         }
         public virtual void OnUnPossessed()
         {

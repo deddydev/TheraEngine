@@ -218,7 +218,7 @@
     <Compile Include="Animation\Functions\Logic\IfFunction.cs" />
     <Compile Include="Animation\Model Animations\BlendSpace1D.cs" />
     <Compile Include="Animation\Model Animations\ModelAnimation.cs" />
-    <Compile Include="Game.cs" />
+    <Compile Include="Engine\Game.cs" />
     <Compile Include="Rendering\HUD\Functions\Animations\AnimationFunction.cs" />
     <Compile Include="Rendering\HUD\Functions\Animations\AnimFuncExecInput.cs" />
     <Compile Include="Rendering\HUD\Functions\Animations\AnimFuncExecOutput.cs" />

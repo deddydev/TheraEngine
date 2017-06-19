@@ -45,7 +45,6 @@ namespace TheraEngine
             PointToClientDelegate = new DelPointConvert(PointToClient);
             PointToScreenDelegate = new DelPointConvert(PointToScreen);
             CreateContext();
-            AddViewport(new LocalPlayerController());
         }
 
         protected override void OnLoad(EventArgs e)
@@ -173,7 +172,7 @@ namespace TheraEngine
         {
             _context.BeginDraw();
             foreach (Viewport v in _viewports)
-                v.Render(Engine.Renderer.Scene);
+                v.Render(Engine.Scene);
             //_globalHud?.Render();
             _context.EndDraw();
         }

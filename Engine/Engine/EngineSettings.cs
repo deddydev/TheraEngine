@@ -34,7 +34,10 @@ namespace TheraEngine
         
         private bool _capUPS;
         private float _targetUPS;
-        
+
+        private float _doubleClickInputDelay;
+        private float _holdInputDelay;
+
         [Category("Performance")]
         [Serialize]
         public ShadingStyle ShadingStyle { get => _shadingStyle; set => _shadingStyle = value; }
@@ -63,20 +66,51 @@ namespace TheraEngine
         [Serialize]
         public bool RenderCullingVolumes { get => _renderCullingVolumes; set => _renderCullingVolumes = value; }
 
+        /// <summary>
+        /// Determines if the render rate should be capped at a specific frequency. If not, will run as fast as possible (though there is no point going any faster than the monitor can update).
+        /// </summary>
+        [Description("Determines if the render rate should be capped at a specific frequency. If not, will run as fast as possible (though there is no point going any faster than the monitor can update).")]
         [Category("Frames Per Second")]
         [Serialize("Capped", OverrideXmlCategory = "FramesPerSecond"/*, IsXmlAttribute = true*/)]
         public bool CapFPS { get => _capFPS; set => _capFPS = value; }
+        /// <summary>
+        /// How many frames are expected to be rendered per second.
+        /// </summary>
+        [Description("How many frames are expected to be rendered per second.")]
         [Category("Frames Per Second")]
         [Serialize("Target", OverrideXmlCategory = "FramesPerSecond", SerializeIf = "CapFPS")]
         public float TargetFPS { get => _targetFPS; set => _targetFPS = value; }
 
+        /// <summary>
+        /// Determines if the update rate should be capped at a specific frequency. If not, will run as fast as possible.
+        /// </summary>
+        [Description("Determines if the update rate should be capped at a specific frequency. If not, will run as fast as possible.")]
         [Category("Updates Per Second")]
         [Serialize("Capped", OverrideXmlCategory = "UpdatesPerSecond"/*, IsXmlAttribute = true*/)]
         public bool CapUPS { get => _capUPS; set => _capUPS = value; }
+        /// <summary>
+        /// How many internal engine tick update calls are expected to be made per second. This is not the same as the render frequency.
+        /// </summary>
+        [Description("How many internal engine tick update calls are made per second. This is not the same as the render frequency.")]
         [Category("Updates Per Second")]
         [Serialize("Target", OverrideXmlCategory = "UpdatesPerSecond", SerializeIf = "CapUPS")]
         public float TargetUPS { get => _targetUPS; set => _targetUPS = value; }
-        
+
+        /// <summary>
+        /// How many seconds the user has to hold a button for it to register as a hold event.
+        /// </summary>
+        [Description("How many seconds the user has to hold a button for it to register as a hold event.")]
+        [Category("Input")]
+        [Serialize]
+        public float HoldInputDelay { get => _holdInputDelay; set => _holdInputDelay = value; }
+        /// <summary>
+        /// How many seconds the user has between pressing the same button twice for it to register as a double click event.
+        /// </summary>
+        [Description("How many seconds the user has between pressing the same button twice for it to register as a double click event.")]
+        [Category("Input")]
+        [Serialize]
+        public float DoubleClickInputDelay { get => _doubleClickInputDelay; set => _doubleClickInputDelay = value; }
+
         public EngineSettings()
         {
             ShadingStyle = ShadingStyle.Deferred;

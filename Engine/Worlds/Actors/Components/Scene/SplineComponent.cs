@@ -75,13 +75,13 @@ namespace TheraEngine.Worlds.Actors
         public override void OnSpawned()
         {
             if (Engine.Settings.RenderSplines)
-                Engine.Renderer.Scene.Add(this);
+                Engine.Scene.Add(this);
             base.OnSpawned();
         }
         public override void OnDespawned()
         {
             if (Engine.Settings.RenderSplines)
-                Engine.Renderer.Scene.Remove(this);
+                Engine.Scene.Remove(this);
             base.OnDespawned();
         }
 

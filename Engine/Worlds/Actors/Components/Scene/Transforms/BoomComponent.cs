@@ -86,13 +86,13 @@ namespace TheraEngine.Worlds.Actors
         public override void OnSpawned()
         {
             RegisterTick(ETickGroup.PostPhysics, ETickOrder.Scene, Tick);
-            //Engine.Renderer.Scene.AddRenderable(this);
+            //Engine.Scene.AddRenderable(this);
             base.OnSpawned();
         }
         public override void OnDespawned()
         {
             UnregisterTick(ETickGroup.PostPhysics, ETickOrder.Scene, Tick);
-            //Engine.Renderer.Scene.RemoveRenderable(this);
+            //Engine.Scene.RemoveRenderable(this);
             base.OnDespawned();
         }
 

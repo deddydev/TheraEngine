@@ -33,17 +33,13 @@ namespace TheraEngine.Rendering
             }
         }
 
-        internal SceneProcessor Scene => _scene;
         public abstract RenderLibrary RenderLibrary { get; }
         public RenderContext CurrentContext => RenderContext.Current;
         public Viewport CurrentlyRenderingViewport => Viewport.CurrentlyRendering;
 
         protected static MeshProgram _currentMeshProgram;
         protected static IPrimitiveManager _currentPrimitiveManager;
-        protected static Dictionary<int, Material> _activeMaterials = new Dictionary<int, Material>();
-        protected static SceneProcessor _scene = new SceneProcessor();
         protected static Dictionary<string, IPrimitiveManager> _debugPrimitives = new Dictionary<string, IPrimitiveManager>();
-        protected static PrivateFontCollection _fonts;
         private Stack<BoundingRectangle> _renderAreaStack = new Stack<BoundingRectangle>();
 
         public abstract void SetActiveTexture(int unit);
@@ -269,17 +265,6 @@ namespace TheraEngine.Rendering
 
         #endregion
 
-        internal int AddActiveMaterial(Material material)
-        {
-            int id = _activeMaterials.Count;
-            _activeMaterials.Add(id, material);
-            return id;
-        }
-        internal void RemoveActiveMaterial(Material material)
-        {
-            _activeMaterials.Remove(material.BindingId);
-        }
-
         public virtual void BindPrimitiveManager(IPrimitiveManager manager)
         {
             _currentPrimitiveManager = manager;
@@ -350,7 +335,9 @@ namespace TheraEngine.Rendering
             if (_currentMeshProgram != null)
             {
                 _currentMeshProgram?.SetUniforms();
-                Scene.SetUniforms();
+                if (Engine.Game.EngineSettings.ShadingStyle == ShadingStyle.Forward)
+                    CurrentCamera?.SetUniforms();
+                Engine.Scene.Lights.SetUniforms();
                 Uniform(Models.Materials.Uniform.GetLocation(ECommonUniform.RenderDelta), Engine.RenderDelta);
             }
         }

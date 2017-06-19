@@ -14,10 +14,12 @@ namespace System
 
         public static ComputerInfo Analyze()
         {
-            ComputerInfo c = new ComputerInfo();
-            c._processorCount = Environment.ProcessorCount;
-            c._osVersion = Environment.OSVersion;
-            c._is64BitOS = Environment.Is64BitOperatingSystem;
+            ComputerInfo c = new ComputerInfo()
+            {
+                _processorCount = Environment.ProcessorCount,
+                _osVersion = Environment.OSVersion,
+                _is64BitOS = Environment.Is64BitOperatingSystem
+            };
             return c;
         }
     }

@@ -45,8 +45,8 @@ namespace TheraEngine
         //public static SingleFileRef<UserSettings> _userSettings = new SingleFileRef<UserSettings>(UserSettingsPathRel);
 
         public static Game Game => _game;
-        public static EngineSettings Settings => Game.EngineSettings;
-        public static UserSettings UserSettings => Game.UserSettings;
+        public static EngineSettings Settings => Game?.EngineSettings;
+        public static UserSettings UserSettings => Game?.UserSettings;
         
         /// <summary>
         /// The index of the currently ticking list of functions (group + order)
@@ -86,7 +86,7 @@ namespace TheraEngine
             get => _renderer;
             set => _renderer = value;
         }
-        internal static AbstractAudioManager AudioManager
+        internal static AbstractAudioManager Audio
         {
             get => _audioManager;
             set => _audioManager = value;
@@ -167,7 +167,7 @@ namespace TheraEngine
                 switch (_audioLibrary)
                 {
                     case AudioLibrary.OpenAL:
-                        AudioManager = new ALAudioManager();
+                        Audio = new ALAudioManager();
                         break;
                 }
             }

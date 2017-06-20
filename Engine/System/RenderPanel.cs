@@ -31,6 +31,8 @@ namespace TheraEngine
     /// </summary>
     public class RenderPanel : UserControl, IEnumerable<Viewport>
     {
+        public const int MaxViewports = 4;
+
         public static RenderPanel HoveredPanel;
         public static RenderPanel CapturedPanel;
         public RenderPanel()
@@ -42,9 +44,11 @@ namespace TheraEngine
                 ControlStyles.ResizeRedraw,
                 true);
 
+            _globalHud = new HudManager();
             PointToClientDelegate = new DelPointConvert(PointToClient);
             PointToScreenDelegate = new DelPointConvert(PointToScreen);
             CreateContext();
+            AddViewport();
         }
 
         protected override void OnLoad(EventArgs e)
@@ -77,7 +81,7 @@ namespace TheraEngine
         internal RenderContext _context;
         protected int _updateCounter;
         private HudManager _globalHud;
-        public List<Viewport> _viewports = new List<Viewport>();
+        public List<Viewport> _viewports = new List<Viewport>(MaxViewports);
         private ColorF4 _backColor = Color.Black;
 
         public HudManager GlobalHud
@@ -236,12 +240,19 @@ namespace TheraEngine
                 _context = null;
             }
         }
-        public void AddViewport(LocalPlayerController owner)
+        public Viewport AddViewport()
         {
-            _viewports.Add(new Viewport(owner, this, _viewports.Count));
+            if (_viewports.Count == MaxViewports)
+                return null;
+
+            Viewport newViewport = new Viewport(this, _viewports.Count);
+            _viewports.Add(newViewport);
+
             //Fix the regions of the rest of the viewports
             for (int i = 0; i < _viewports.Count - 1; ++i)
                 _viewports[i].ViewportCountChanged(i, _viewports.Count, Engine.Game.TwoPlayerPref, Engine.Game.ThreePlayerPref);
+
+            return newViewport;
         }
         public Viewport GetViewport(int index)
             => index >= 0 && index < _viewports.Count ? _viewports[index] : null;

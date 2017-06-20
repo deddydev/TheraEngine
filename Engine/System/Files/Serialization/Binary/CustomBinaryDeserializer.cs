@@ -162,7 +162,6 @@ namespace TheraEngine.Files.Serialization
                     return Decimal.Parse(value);
             }
             throw new Exception(t.ToString() + " is not parsable");
-            return null;
         }
     }
 }

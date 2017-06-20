@@ -1,20 +1,17 @@
 ﻿using TheraEngine.Input;
 using TheraEngine.Rendering.Cameras;
 using TheraEngine.Rendering.HUD;
-using TheraEngine.Rendering.Textures;
 using TheraEngine.Worlds.Actors;
-using TheraEngine.Worlds.Actors.Types;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Drawing.Text;
 
 namespace TheraEngine.Rendering
 {
     public delegate void DelOnRender(SceneProcessor scene);
     public class Viewport
     {
-        public static Viewport CurrentlyRendering { get { return _currentlyRendering; } }
+        public static Viewport CurrentlyRendering => _currentlyRendering;
         private static Viewport _currentlyRendering = null;
 
         public DelOnRender Render;
@@ -84,9 +81,11 @@ namespace TheraEngine.Rendering
 
         private void CameraTransformChanged()
         {
+            if (Owner == null)
+                return;
             Vec3 forward = _worldCamera.GetForwardVector();
             Vec3 up = _worldCamera.GetUpVector();
-            Engine.AudioManager.UpdateListener(_owner.LocalPlayerIndex, _worldCamera.WorldPoint, forward, up, Vec3.Zero, 0.5f);
+            Engine.Audio.UpdateListener(Owner.LocalPlayerIndex, _worldCamera.WorldPoint, forward, up, Vec3.Zero, 0.5f);
         }
 
         public RenderPanel OwningPanel => _owningPanel;
@@ -95,7 +94,6 @@ namespace TheraEngine.Rendering
             get => _pawnHUD;
             set => _pawnHUD = value ?? new HudManager(this);
         }
-        public LocalPlayerController OwningPlayer => _owner;
         public BoundingRectangle Region => _region;
         public float Height => _region.Height;
         public float Width => _region.Width;
@@ -104,18 +102,47 @@ namespace TheraEngine.Rendering
         public int Index => _index;
         public Vec2 Center => new Vec2(Width / 2.0f, Height / 2.0f);
 
-        public Viewport(LocalPlayerController owner, RenderPanel panel, int index)
+        public LocalPlayerController Owner
         {
-            ViewportCountChanged(index, panel._viewports.Count + 1, Engine.Game.TwoPlayerPref, Engine.Game.ThreePlayerPref);
+            get => _owner;
+            set
+            {
+                if (_owner != null)
+                    _owner.Viewport = null;
+                
+                _owner = value;
+
+                if (_owner != null)
+                {
+                    _owner.Viewport = this;
+                    CameraTransformChanged();
+                }
+            }
+        }
+
+        public Viewport(RenderPanel panel, int index)
+        {
+            if (index == 0)
+            {
+                _index = index;
+                SetFullScreen();
+            }
+            else
+                ViewportCountChanged(index, panel._viewports.Count + 1, Engine.Game.TwoPlayerPref, Engine.Game.ThreePlayerPref);
+
             _owningPanel = panel;
             _pawnHUD = new HudManager(this);
             _index = index;
-            _owner = owner;
-            _owner.Viewport = this;
             Resize(panel.Width, panel.Height);
             _text = new TextDrawer();
 
-            if (Engine.Settings == null || Engine.Settings.ShadingStyle == ShadingStyle.Forward)
+            if (Engine.Settings != null)
+                UpdateRender();
+        }
+
+        internal void UpdateRender()
+        {
+            if (Engine.Settings.ShadingStyle == ShadingStyle.Forward)
             {
                 _gBuffer = new GBuffer(this, true);
                 Render = RenderForward;

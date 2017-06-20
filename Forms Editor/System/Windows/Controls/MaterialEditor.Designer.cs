@@ -39,7 +39,6 @@
             // renderPanel1
             // 
             this.renderPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.renderPanel1.GlobalHud = null;
             this.renderPanel1.Location = new System.Drawing.Point(0, 0);
             this.renderPanel1.Name = "renderPanel1";
             this.renderPanel1.Size = new System.Drawing.Size(1340, 871);

@@ -89,7 +89,10 @@ namespace TheraEngine
             RenderLibrary = game.UserSettings.RenderLibrary;
             AudioLibrary = game.UserSettings.AudioLibrary;
             InputLibrary = game.UserSettings.InputLibrary;
-            
+
+            if (Renderer == null)
+                throw new Exception("Could not create a renderer.");
+
             World = Game.OpeningWorld;
             Game.TransitionWorld.GetInstance();
 
@@ -304,13 +307,33 @@ namespace TheraEngine
         public static void SetCurrentWorld(World world, bool unloadPrevious)
         {
             World previous = World;
-            World?.EndPlay();
+            if (World != null)
+            {
+                World.EndPlay();
+                World.LocalPlayerAdded -= World_LocalPlayerAdded;
+            }
             _currentWorld = world;
             Scene.WorldChanged();
-            World?.BeginPlay();
+            if (World != null)
+            {
+                World.LocalPlayerAdded += World_LocalPlayerAdded;
+                World.BeginPlay();
+            }
             if (unloadPrevious)
                 previous?.Unload();
         }
+
+        private static void World_LocalPlayerAdded(LocalPlayerController obj)
+        {
+            if (obj.LocalPlayerIndex == PlayerIndex.One)
+                CurrentPanel.GetViewport(0).Owner = obj;
+            else
+            {
+                Viewport v = CurrentPanel.AddViewport();
+                v.Owner = obj;
+            }
+        }
+
         internal static void QueuePossession(IPawn pawn, PlayerIndex possessor)
         {
             int index = (int)possessor;

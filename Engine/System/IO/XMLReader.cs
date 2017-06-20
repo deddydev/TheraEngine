@@ -8,9 +8,9 @@ namespace System.IO
         private const int _valueMax = 384;
 
         internal byte* _base, _ptr, _ceil;
-        private int _length, _position, _depth;
+        private int _length, _position;
         //private byte[] _buffer = new byte[512];
-        internal bool _inTag, _inString;
+        internal bool _inTag;
         //private string _nameBuffer = new string(' ', _nameMax);
         //private string _valueBuffer = new string(' ', _valueMax);
 

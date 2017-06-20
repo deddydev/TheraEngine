@@ -6,5 +6,6 @@ namespace TheraEngine.Worlds.Actors
     {
         private ICharacterPawn _driver;
         private List<ICharacterPawn> _passengers;
+        private int _maxPassengers;
     }
 }

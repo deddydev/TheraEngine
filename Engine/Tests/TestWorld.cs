@@ -241,14 +241,14 @@ namespace TheraEngine.Tests
             //_collideSound.Play(_param);
         }
 
-        SoundFile _collideSound;
-        AudioSourceParameters _param;
+        //SoundFile _collideSound;
+        //AudioSourceParameters _param;
 
-        BoxActor sphereActor;
-        PerspectiveCameraActor cam;
-        private void RootComponent_WorldTransformChanged()
-        {
-            cam.Camera.ViewTarget.Raw = sphereActor.RootComponent.GetWorldPoint();
-        }
+        //BoxActor sphereActor;
+        //PerspectiveCameraActor cam;
+        //private void RootComponent_WorldTransformChanged()
+        //{
+        //    cam.Camera.ViewTarget.Raw = sphereActor.RootComponent.GetWorldPoint();
+        //}
     }
 }

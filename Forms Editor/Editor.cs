@@ -47,12 +47,12 @@ namespace TheraEditor
                 };
             }
 
+            renderPanel1.GlobalHud = new EditorHud(renderPanel1);
+            renderPanel1.GlobalHud.QueuePossession(PlayerIndex.One);
             Engine.Initialize(Project);
 
             InitializeComponent();
             DoubleBuffered = false;
-            renderPanel1.GlobalHud = new EditorHud(renderPanel1);
-            renderPanel1.GlobalHud.QueuePossession(PlayerIndex.One);
 
             SpawnedActors_Modified();
             if (Engine.World != null)

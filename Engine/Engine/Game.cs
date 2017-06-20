@@ -93,6 +93,13 @@ namespace TheraEngine
             get => _credits;
             set => _credits = value;
         }
+        [Category("About")]
+        [Serialize]
+        public string IconPath
+        {
+            get => _iconPath;
+            set => _iconPath = value;
+        }
         [Category("Viewports")]
         [Serialize]
         public Viewport.TwoPlayerPreference TwoPlayerPref
@@ -107,6 +114,5 @@ namespace TheraEngine
             get => _3PPref;
             set => _3PPref = value;
         }
-        public string IconPath { get => _iconPath; set => _iconPath = value; }
     }
 }

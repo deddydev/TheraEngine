@@ -61,15 +61,21 @@ namespace TheraEngine.Rendering.OpenGL
             if (!IsContextDisposed())
                 _context.MakeCurrent(current ? WindowInfo : null);
         }
-        public override void Dispose()
+        protected override void Dispose(bool disposing)
         {
-            base.Dispose();
-            if (_context != null)
-                _context.Dispose();
-            _context = null;
-            if (_winInfo != null)
-                _winInfo.Dispose();
-            _winInfo = null;
+            base.Dispose(disposing);
+            if (!_disposedValue)
+            {
+                if (disposing)
+                {
+                    if (_context != null)
+                        _context.Dispose();
+                    _context = null;
+                    if (_winInfo != null)
+                        _winInfo.Dispose();
+                    _winInfo = null;
+                }
+            }
         }
 
         internal override AbstractRenderer GetRendererInstance()

@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace TheraEngine.Rendering
 {
-    public abstract class BaseRenderState : ObjectBase
+    public abstract class BaseRenderState : ObjectBase, IDisposable
     {
         public class ContextBind
         {
@@ -53,16 +53,7 @@ namespace TheraEngine.Rendering
             _currentBind._bindingId = bindingId;
             OnGenerated();
         }
-        ~BaseRenderState()
-        {
-            foreach (ContextBind b in _owners)
-                if (b._context != null && !b._context.IsContextDisposed())
-                {
-                    b._context.Capture();
-                    Delete();
-                }
-        }
-        
+
         /// <summary>
         /// Performs all checks needed and creates this render object on the current render context if need be.
         /// Call after capturing a context.
@@ -167,6 +158,47 @@ namespace TheraEngine.Rendering
         {
             return obj != null && ToString().Equals(obj.ToString());
         }
+
+        #region IDisposable Support
+        private bool _disposedValue = false; // To detect redundant calls
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!_disposedValue)
+            {
+                if (disposing)
+                {
+                    // TODO: dispose managed state (managed objects). 
+                    foreach (ContextBind b in _owners)
+                        if (b._context != null && !b._context.IsContextDisposed())
+                        {
+                            b._context.Capture();
+                            Delete();
+                        }
+                }
+
+                // TODO: free unmanaged resources (unmanaged objects) and override a finalizer below.
+                // TODO: set large fields to null.
+
+                _disposedValue = true;
+            }
+        }
+
+        // TODO: override a finalizer only if Dispose(bool disposing) above has code to free unmanaged resources.
+        // ~BaseRenderState() {
+        //   // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
+        //   Dispose(false);
+        // }
+
+        // This code added to correctly implement the disposable pattern.
+        public void Dispose()
+        {
+            // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
+            Dispose(true);
+            // TODO: uncomment the following line if the finalizer is overridden above.
+            // GC.SuppressFinalize(this);
+        }
+        #endregion
     }
     public enum EObjectType
     {

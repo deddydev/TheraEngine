@@ -364,6 +364,8 @@ namespace TheraEngine.Rendering.Cameras
         {
             Engine.Renderer.Uniform(Uniform.GetLocation(ECommonUniform.ViewMatrix),     InverseWorldMatrix);
             Engine.Renderer.Uniform(Uniform.GetLocation(ECommonUniform.ProjMatrix),     ProjectionMatrix);
+            Engine.Renderer.Uniform(Uniform.GetLocation(ECommonUniform.InvViewMatrix),  WorldMatrix);
+            Engine.Renderer.Uniform(Uniform.GetLocation(ECommonUniform.InvProjMatrix),  InverseProjectionMatrix);
             Engine.Renderer.Uniform(Uniform.GetLocation(ECommonUniform.ScreenWidth),    Width);
             Engine.Renderer.Uniform(Uniform.GetLocation(ECommonUniform.ScreenHeight),   Height);
             Engine.Renderer.Uniform(Uniform.GetLocation(ECommonUniform.ScreenOrigin),   Origin);
@@ -373,6 +375,8 @@ namespace TheraEngine.Rendering.Cameras
             Engine.Renderer.Uniform(Uniform.GetLocation(ECommonUniform.CameraForward),  GetForwardVector());
             Engine.Renderer.Uniform(Uniform.GetLocation(ECommonUniform.CameraUp),       GetUpVector());
             Engine.Renderer.Uniform(Uniform.GetLocation(ECommonUniform.CameraRight),    GetRightVector());
+            Engine.Renderer.Uniform(Uniform.GetLocation(ECommonUniform.ProjOrigin),     _projectionOrigin);
+            Engine.Renderer.Uniform(Uniform.GetLocation(ECommonUniform.ProjRange),      _projectionRange);
         }
         [PostDeserialize]
         protected virtual void CalculateProjection()

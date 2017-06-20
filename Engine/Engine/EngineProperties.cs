@@ -134,9 +134,12 @@ namespace TheraEngine
         public static bool IsPaused => _isPaused;
 
         /// <summary>
-        /// Class containing this computer's specs. Use to adjust engine settings accordingly.
+        /// Class containing this computer's specs. Use to adjust engine performance accordingly.
         /// </summary>
         public static ComputerInfo ComputerInfo => _computerInfo;
+        /// <summary>
+        /// The render panel that is currently focused and is being rendered to.
+        /// </summary>
         public static RenderPanel CurrentPanel
         {
             get
@@ -156,6 +159,13 @@ namespace TheraEngine
                 List<RenderContext> contexts = new List<RenderContext>(RenderContext.BoundContexts);
                 foreach (RenderContext c in contexts)
                     c.Control?.CreateContext();
+
+                if (Renderer == null)
+                    throw new Exception("Could not create a renderer.");
+
+                foreach (var c in RenderContext.BoundContexts)
+                    foreach (var v in c.Control)
+                        v.UpdateRender();
             }
         }
         public static AudioLibrary AudioLibrary

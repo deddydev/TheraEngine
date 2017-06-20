@@ -2,6 +2,8 @@ using System;
 using System.Xml;
 using System.Xml.Serialization;
 using System.IO;
+using System.Diagnostics;
+
 namespace grendgine_collada
 {
 	[Serializable()]
@@ -104,7 +106,7 @@ namespace grendgine_collada
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.ToString());
+                Debug.WriteLine(ex.ToString());
 				return null;
             }			
 		}			

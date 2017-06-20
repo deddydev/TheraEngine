@@ -44,21 +44,7 @@ namespace TheraEngine.Rendering
                 throw new Exception("Problem compiling G-Buffer.");
             _buffer.Unbind(EFramebufferTarget.Framebuffer);
         }
-
-        public override void SetMaterial(Material material)
-        {
-            _parameters = material.Parameters.ToArray();
-
-            _textures = new Texture2D[material.Textures.Count];
-            for (int i = 0; i < material.Textures.Count; ++i)
-                _textures[i] = material.Textures[i].GetTexture();
-
-            _fragmentShader = material._fragmentShader;
-            _geometryShader = material._geometryShader;
-            _tControlShader = material._tessellationControlShader;
-            _tEvalShader = material._tessellationEvaluationShader;
-            RemakeShaderArray();
-        }
+        
         private void TexturePostPushData(int index)
         {
             if (_attachmentsPerTexture[index].HasValue)
@@ -66,13 +52,22 @@ namespace TheraEngine.Rendering
         }
         protected internal override void BindTextures()
         {
+            //We want to bind textures to the gbuffer specifically
             _buffer.Bind(EFramebufferTarget.Framebuffer);
             base.BindTextures();
+            //Make sure the shaders know what attachments to draw to
             Engine.Renderer.SetDrawBuffers(_attachments);
+            //Unbind gbuffer
             _buffer.Unbind(EFramebufferTarget.Framebuffer);
         }
+        /// <summary>
+        /// Resizes the gbuffer's textures.
+        /// Note that they will still fully cover the screen regardless of 
+        /// if their dimensions match or not.
+        /// </summary>
         public void Resized(int width, int height)
         {
+            //Update each texture's dimensions
             foreach (Texture2D t in Textures)
                 t.Resize(width, height);
         }
@@ -153,24 +148,9 @@ namespace TheraEngine.Rendering
 
         private void _fullScreenTriangle_SettingUniforms()
         {
-            Engine.Renderer.Uniform(Uniform.GetLocation(ECommonUniform.ViewMatrix), _quadCamera.InverseWorldMatrix);
-            Engine.Renderer.Uniform(Uniform.GetLocation(ECommonUniform.ProjMatrix), _quadCamera.ProjectionMatrix);
-            Engine.Renderer.Uniform(Uniform.GetLocation(ECommonUniform.ScreenWidth), _parent.Width);
-            Engine.Renderer.Uniform(Uniform.GetLocation(ECommonUniform.ScreenHeight), _parent.Height);
-            Engine.Renderer.Uniform(Uniform.GetLocation(ECommonUniform.ScreenOrigin), _quadCamera.Origin);
-            Engine.Renderer.Uniform(Uniform.GetLocation(ECommonUniform.CameraNearZ), _parent.Camera.NearZ);
-            Engine.Renderer.Uniform(Uniform.GetLocation(ECommonUniform.CameraFarZ), _parent.Camera.FarZ);
-            Engine.Renderer.Uniform(Uniform.GetLocation(ECommonUniform.CameraPosition), _parent.Camera.WorldPoint);
-            Engine.Renderer.Uniform(Uniform.GetLocation(ECommonUniform.CameraForward), _parent.Camera.GetForwardVector());
-            Engine.Renderer.Uniform(Uniform.GetLocation(ECommonUniform.CameraUp), _parent.Camera.GetUpVector());
-            Engine.Renderer.Uniform(Uniform.GetLocation(ECommonUniform.CameraRight), _parent.Camera.GetRightVector());
-            Engine.Renderer.Uniform("ProjOrigin", _parent.Camera._projectionOrigin);
-            Engine.Renderer.Uniform("ProjRange", _parent.Camera._projectionRange);
-            Engine.Renderer.Uniform("InvViewMatrix", _parent.Camera.InverseWorldMatrix);
-            Engine.Renderer.Uniform("InvProjMatrix", _parent.Camera.InverseProjectionMatrix);
-
             _parent.Camera.PostProcessSettings.SetUniforms();
-            Engine.Scene.Lights.SetUniforms();
+            if (Engine.Settings.ShadingStyle == ShadingStyle.Deferred)
+                Engine.Scene.Lights.SetUniforms();
         }
 
         ~GBuffer()

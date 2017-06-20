@@ -64,7 +64,7 @@ namespace TheraEngine.Input
         protected InputInterface _input;
 
         public InputInterface Input => _input;
-        public PlayerIndex LocalPlayerIndex => (PlayerIndex)_viewport.Index;
+        public PlayerIndex LocalPlayerIndex => _index;
         public Viewport Viewport
         {
             get => _viewport;

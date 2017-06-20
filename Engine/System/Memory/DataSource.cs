@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics;
 using System.Runtime.InteropServices;
 
 namespace System
@@ -31,21 +32,54 @@ namespace System
             _address = Marshal.AllocHGlobal(_length);
             _external = false;
         }
-        ~DataSource() { Dispose(); }
 
         public static DataSource Allocate(int size) { return new DataSource(size); }
+ 
+        public void NotifyModified() { Modified?.Invoke(); }
+
+        #region IDisposable Support
+        private bool _disposedValue = false;
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!_disposedValue)
+            {
+                if (disposing)
+                {
+                    // TODO: dispose managed state (managed objects).
+                }
+
+                try
+                {
+                    if (!_external && _address != null)
+                    {
+                        Marshal.FreeHGlobal(_address);
+                        _address = null;
+                    }
+                }
+                catch (Exception e)
+                {
+                    Debug.WriteLine(e.ToString());
+                }
+
+                _disposedValue = true;
+            }
+        }
+
+        // TODO: override a finalizer only if Dispose(bool disposing) above has code to free unmanaged resources.
+        ~DataSource()
+        {
+            // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
+            Dispose(false);
+        }
+
+        // This code added to correctly implement the disposable pattern.
         public void Dispose()
         {
-            try
-            {
-                if (!_external && _address != null)
-                {
-                    Marshal.FreeHGlobal(_address);
-                    GC.SuppressFinalize(this);
-                }
-            }
-            catch (Exception e) { Console.WriteLine(e.ToString()); }
+            // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
+            Dispose(true);
+            // TODO: uncomment the following line if the finalizer is overridden above.
+            GC.SuppressFinalize(this);
         }
-        public void NotifyModified() { Modified?.Invoke(); }
+        #endregion
     }
 }

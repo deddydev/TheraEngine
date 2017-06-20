@@ -234,8 +234,15 @@ namespace TheraEngine.Rendering.OpenGL
         public override int GenerateShader(string source)
         {
             int handle = GL.CreateShader(_currentShaderMode);
+            if (handle == 0)
+            {
+                Debug.WriteLine("GL.CreateShader did not return a valid binding id.");
+                return 0;
+            }
+
             GL.ShaderSource(handle, source);
             GL.CompileShader(handle);
+
 #if DEBUG
             GL.GetShader(handle, ShaderParameter.CompileStatus, out int status);
             if (status == 0 || ForceShaderOutput)
@@ -243,19 +250,23 @@ namespace TheraEngine.Rendering.OpenGL
                 GL.GetShaderInfoLog(handle, out string info);
 
                 if (string.IsNullOrEmpty(info))
-                    info = source;
+                {
+                    Debug.WriteLine("Unable to compile shader, but no error was returned.");
+                }
+                else
+                {
+                    Debug.WriteLine(info + "\n\n");
 
-                Debug.WriteLine(info + "\n\n");
+                    //Split the source by new lines
+                    string[] s = source.Split(new string[] { Environment.NewLine }, StringSplitOptions.None);
 
-                //Split the source by new lines
-                string[] s = source.Split(new string[] { Environment.NewLine }, StringSplitOptions.None);
+                    //Add the line number to the source so we can go right to errors on specific lines
+                    int lineNumber = 1;
+                    foreach (string line in s)
+                        Debug.WriteLine(string.Format("{0}: {1}", (lineNumber++).ToString().PadLeft(s.Length.ToString().Length, '0'), line));
 
-                //Add the line number to the source so we can go right to errors on specific lines
-                int lineNumber = 1;
-                foreach (string line in s)
-                    Debug.WriteLine(string.Format("{0}: {1}", (lineNumber++).ToString().PadLeft(s.Length.ToString().Length, '0'), line));
-
-                Debug.WriteLine("\n\n");
+                    Debug.WriteLine("\n\n");
+                }
             }
 #endif
             return handle;

@@ -7,6 +7,7 @@ using TheraEngine.Rendering.Animation;
 using System.Linq;
 using System;
 using TheraEngine.Input.Devices;
+using System.Diagnostics;
 
 namespace TheraEngine
 {
@@ -134,7 +135,7 @@ namespace TheraEngine
                 return;
 
             string output = "Changed property " + info.Name + " in " + GetType().ToString() + " \"" + Name + "\"";
-            Console.WriteLine(output);
+            Debug.WriteLine(output);
 
             _changed = true;
             //_changedObjects.Add(this);

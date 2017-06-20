@@ -148,11 +148,17 @@ namespace TheraEngine.Rendering.DirectX
             //DeviceManager.Instance.context.OutputMerger.DepthStencilState = depthStencilStateNormal;
         }
 
-        public override void Dispose()
+        protected override void Dispose(bool disposing)
         {
-            _renderTarget.Dispose();
-            _swapChain.Dispose();
-            _device.Dispose();
+            if (!_disposedValue)
+            {
+                if (disposing)
+                {
+                    _renderTarget.Dispose();
+                    _swapChain.Dispose();
+                    _device.Dispose();
+                }
+            }
         }
         internal override void OnResized(object sender, EventArgs e)
         {

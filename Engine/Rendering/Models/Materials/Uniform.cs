@@ -36,24 +36,25 @@ namespace TheraEngine.Rendering.Models.Materials
         ViewMatrix,
         ProjMatrix,
         NormalMatrix,
-        
-//         InvModelMatrix,
-//         InvViewMatrix,
-//         InvProjMatrix,
-// 
-//         PrevModelMatrix,
-//         PrevViewMatrix,
-//         PrevProjMatrix,
-// 
-//         PrevInvModelMatrix,
-//         PrevInvViewMatrix,
-//         PrevInvProjMatrix,
+
+        InvModelMatrix,
+        InvViewMatrix,
+        InvProjMatrix,
+
+        PrevModelMatrix,
+        PrevViewMatrix,
+        PrevProjMatrix,
+
+        PrevInvModelMatrix,
+        PrevInvViewMatrix,
+        PrevInvProjMatrix,
 
         ScreenWidth,
         ScreenHeight,
         ScreenOrigin,
-        CameraFovY,
+
         CameraFovX,
+        CameraFovY,
         CameraAspect,
         CameraNearZ,
         CameraFarZ,
@@ -61,6 +62,10 @@ namespace TheraEngine.Rendering.Models.Materials
         CameraForward,
         CameraUp,
         CameraRight,
+
         RenderDelta,
+
+        ProjOrigin,
+        ProjRange,
     }
 }

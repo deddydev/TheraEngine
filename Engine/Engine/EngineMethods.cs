@@ -90,9 +90,6 @@ namespace TheraEngine
             AudioLibrary = game.UserSettings.AudioLibrary;
             InputLibrary = game.UserSettings.InputLibrary;
 
-            if (Renderer == null)
-                throw new Exception("Could not create a renderer.");
-
             World = Game.OpeningWorld;
             Game.TransitionWorld.GetInstance();
 
@@ -163,6 +160,12 @@ namespace TheraEngine
         private static void ActivePlayers_Added(LocalPlayerController item)
         {
             World?.GetGameMode()?.HandleLocalPlayerJoined(item);
+            if (CurrentPanel != null)
+            {
+                Viewport v = CurrentPanel.GetViewport((int)item.LocalPlayerIndex) ?? CurrentPanel.AddViewport();
+                if (v != null)
+                    v.Owner = item;
+            }
         }
 
         /// <summary>
@@ -310,30 +313,19 @@ namespace TheraEngine
             if (World != null)
             {
                 World.EndPlay();
-                World.LocalPlayerAdded -= World_LocalPlayerAdded;
+                //World.LocalPlayerAdded -= World_LocalPlayerAdded;
             }
             _currentWorld = world;
             Scene.WorldChanged();
             if (World != null)
             {
-                World.LocalPlayerAdded += World_LocalPlayerAdded;
+                //World.LocalPlayerAdded += World_LocalPlayerAdded;
                 World.BeginPlay();
             }
             if (unloadPrevious)
                 previous?.Unload();
         }
-
-        private static void World_LocalPlayerAdded(LocalPlayerController obj)
-        {
-            if (obj.LocalPlayerIndex == PlayerIndex.One)
-                CurrentPanel.GetViewport(0).Owner = obj;
-            else
-            {
-                Viewport v = CurrentPanel.AddViewport();
-                v.Owner = obj;
-            }
-        }
-
+        
         internal static void QueuePossession(IPawn pawn, PlayerIndex possessor)
         {
             int index = (int)possessor;
@@ -374,7 +366,6 @@ namespace TheraEngine
                     }
                     else
                         controller = new LocalPlayerController();
-                    World?.OnLocalPlayerAdded(controller);
                 }
                 else
                     ActivePlayers[0].Input.UpdateDevices();
@@ -393,7 +384,6 @@ namespace TheraEngine
                     }
                     else
                         controller = new LocalPlayerController();
-                    World?.OnLocalPlayerAdded(controller);
                 }
                 else
                     ActivePlayers[device.Index].Input.UpdateDevices();

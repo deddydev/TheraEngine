@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 
 namespace grendgine_collada
 {
@@ -17,9 +18,9 @@ namespace grendgine_collada
 			}
 			catch (Exception e)
 			{
-				Console.WriteLine(e.ToString());
-				Console.WriteLine();
-				Console.WriteLine(int_array);
+                Debug.WriteLine(e.ToString());
+                Debug.WriteLine("");
+                Debug.WriteLine(int_array);
 			}
 			return array;
 		}
@@ -37,9 +38,9 @@ namespace grendgine_collada
 			}
 			catch (Exception e)
 			{
-				Console.WriteLine(e.ToString());
-				Console.WriteLine();
-				Console.WriteLine(float_array);
+                Debug.WriteLine(e.ToString());
+                Debug.WriteLine("");
+                Debug.WriteLine(float_array);
 			}
 			return array;
 		}
@@ -57,9 +58,9 @@ namespace grendgine_collada
 			}
 			catch (Exception e)
 			{
-				Console.WriteLine(e.ToString());
-				Console.WriteLine();
-				Console.WriteLine(bool_array);
+                Debug.WriteLine(e.ToString());
+                Debug.WriteLine("");
+                Debug.WriteLine(bool_array);
 			}
 			return array;
 		}

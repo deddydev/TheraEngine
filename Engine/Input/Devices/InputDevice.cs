@@ -37,7 +37,7 @@ namespace TheraEngine.Input.Devices
         public InputDevice(int index)
         {
             _index = index;
-            //Console.WriteLine(GetType().ToString() + _index + " created.");
+            //Debug.WriteLine(GetType().ToString() + _index + " created.");
             RegisterTick(ETickGroup.PrePhysics, ETickOrder.Input, UpdateStates);
             ResetStates();
         }

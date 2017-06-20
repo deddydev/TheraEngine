@@ -25,7 +25,13 @@ namespace TheraEngine.GameModes
         {
 
         }
-        
+        protected internal override void HandleLocalPlayerJoined(LocalPlayerController item)
+        {
+            base.HandleLocalPlayerJoined(item);
+            T pawn = _pawnClass.CreateNew();
+            item.ControlledPawn = pawn;
+            pawn.QueueRespawn();
+        }
         public override void BeginGameplay()
         {
             foreach (LocalPlayerController c in Engine.ActivePlayers)

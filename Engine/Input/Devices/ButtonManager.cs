@@ -168,7 +168,7 @@ namespace TheraEngine.Input.Devices
                 for (int x = 0; x < i; ++x)
                     list[x]();
             }
-            //Console.WriteLine(_name + ": " + type.ToString());
+            //Debug.WriteLine(_name + ": " + type.ToString());
         }
     }
 }

@@ -5,6 +5,7 @@ using TheraEngine.Worlds.Actors;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using TheraEngine.Worlds.Actors.Types;
 
 namespace TheraEngine.Rendering
 {
@@ -63,6 +64,8 @@ namespace TheraEngine.Rendering
                     //TODO: what if the same camera is used by multiple viewports?
                     //Need to use a separate projection matrix per viewport instead of passing the width and height to the camera itself
                     _worldCamera.Resize(Width, Height);
+
+                    CameraTransformChanged();
                 }
             }
         }
@@ -81,7 +84,7 @@ namespace TheraEngine.Rendering
 
         private void CameraTransformChanged()
         {
-            if (Owner == null)
+            if (Owner == null || Camera == null || Engine.Audio == null)
                 return;
             Vec3 forward = _worldCamera.GetForwardVector();
             Vec3 up = _worldCamera.GetUpVector();
@@ -115,7 +118,7 @@ namespace TheraEngine.Rendering
                 if (_owner != null)
                 {
                     _owner.Viewport = this;
-                    CameraTransformChanged();
+                    Camera = _owner.CurrentCamera;
                 }
             }
         }

@@ -47,8 +47,8 @@ namespace TheraEngine
             _globalHud = new HudManager();
             PointToClientDelegate = new DelPointConvert(PointToClient);
             PointToScreenDelegate = new DelPointConvert(PointToScreen);
-            CreateContext();
             AddViewport();
+            CreateContext();
         }
 
         protected override void OnLoad(EventArgs e)
@@ -95,21 +95,21 @@ namespace TheraEngine
             set => _backColor = value;
         }
         
-        /// <summary>
-        /// Disables rendering until PopUpdate is called, unless there are other update calls on the stack.
-        /// </summary>
-        public void PushUpdate()
-        {
-            ++_updateCounter;
-        }
-        /// <summary>
-        /// Ends the last PushUpdate call. Rendering may not resume unless the update stack is empty.
-        /// </summary>
-        public void PopUpdate()
-        {
-            if ((_updateCounter = Math.Max(_updateCounter - 1, 0)) == 0)
-                Invalidate();
-        }
+        ///// <summary>
+        ///// Disables rendering until PopUpdate is called, unless there are other update calls on the stack.
+        ///// </summary>
+        //public void PushUpdate()
+        //{
+        //    ++_updateCounter;
+        //}
+        ///// <summary>
+        ///// Ends the last PushUpdate call. Rendering may not resume unless the update stack is empty.
+        ///// </summary>
+        //public void PopUpdate()
+        //{
+        //    if ((_updateCounter = Math.Max(_updateCounter - 1, 0)) == 0)
+        //        Invalidate();
+        //}
         public void CaptureContext()
         {
             if (InvokeRequired)
@@ -186,6 +186,7 @@ namespace TheraEngine
             _globalHud?.Resize(new Vec2(Width, Height));
             foreach (Viewport v in _viewports)
                 v.Resize(Width, Height);
+            _context?.Update();
             //Rectangle region = new Rectangle(0, 0, Width, Height);
             //Engine.Renderer.PopRenderArea();
             //Engine.Renderer.PushRenderArea(region);
@@ -203,6 +204,23 @@ namespace TheraEngine
 
             //_currentPanel = isNowCurrent ? this : null;
         }
+        private void UpdateContext()
+        {
+            if (_context != null)
+            {
+                _context.ContextChanged += OnContextChanged;
+                _context.ResetOccured += OnReset;
+                _context.Capture(true);
+                _context.Initialize();
+
+                //if (Renderer == null)
+                //    throw new Exception("Could not create a renderer.");
+
+                //foreach (var c in RenderContext.BoundContexts)
+                //foreach (var v in _viewports)
+                //    v.UpdateRender();
+            }
+        }
         public void CreateContext()
         {
             switch (Engine.RenderLibrary)
@@ -210,25 +228,23 @@ namespace TheraEngine
                 case RenderLibrary.OpenGL:
                     if (_context is GLWindowContext)
                         return;
-                    _context?.Dispose();
-                    _context = new GLWindowContext(this);
+                    {
+                        _context?.Dispose();
+                        _context = new GLWindowContext(this);
+                    }
                     break;
                 case RenderLibrary.Direct3D11:
                     if (_context is DXWindowContext)
                         return;
-                    _context?.Dispose();
-                    _context = new DXWindowContext(this);
+                    {
+                        _context?.Dispose();
+                        _context = new DXWindowContext(this);
+                    }
                     break;
                 default:
                     return;
             }
-            if (_context != null)
-            {
-                _context.ContextChanged += OnContextChanged;
-                _context.ResetOccured += OnReset;
-                _context.Capture(true);
-                _context.Initialize();
-            }
+            UpdateContext();
         }
         private void DisposeContext()
         {

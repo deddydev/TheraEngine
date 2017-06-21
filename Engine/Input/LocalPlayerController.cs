@@ -14,41 +14,39 @@ namespace TheraEngine.Input
     {
         public static Dictionary<int, ConcurrentQueue<Camera>> CameraPossessionQueue = new Dictionary<int, ConcurrentQueue<Camera>>();
 
-        public LocalPlayerController(Queue<IPawn> possessionQueue = null) : base()
+        public LocalPlayerController(PlayerIndex index, Queue<IPawn> possessionQueue = null) : base()
         {
-            int index = Engine.ActivePlayers.Count;
-            _index = (PlayerIndex)index;
-            Engine.ActivePlayers.Add(this);
+            _index = index;
+            int i = (int)index;
 
-            _input = new InputInterface(index);
+            _input = new InputInterface(i);
             //_input.WantsInputsRegistered += RegisterInput;
 
             _possessionQueue = possessionQueue;
-            if (_possessionQueue.Count != 0)
+            if (_possessionQueue.Count != 0 && ControlledPawn == null)
                 ControlledPawn = _possessionQueue.Dequeue();
 
-            if (CameraPossessionQueue.ContainsKey(index))
+            if (CameraPossessionQueue.ContainsKey(i))
             {
                 Camera camera;
-                while (!CameraPossessionQueue[index].TryDequeue(out camera)) ;
+                while (!CameraPossessionQueue[i].TryDequeue(out camera)) ;
                 CurrentCamera = camera;
             }
         }
-        public LocalPlayerController() : base()
+        public LocalPlayerController(PlayerIndex index) : base()
         {
-            int index = Engine.ActivePlayers.Count;
-            _index = (PlayerIndex)index;
-            Engine.ActivePlayers.Add(this);
+            _index = index;
+            int i = (int)index;
 
-            _input = new InputInterface(index);
+            _input = new InputInterface(i);
             //_input.WantsInputsRegistered += RegisterInput;
 
             _possessionQueue = new Queue<IPawn>();
 
-            if (CameraPossessionQueue.ContainsKey(index))
+            if (CameraPossessionQueue.ContainsKey(i))
             {
                 Camera camera;
-                while (!CameraPossessionQueue[index].TryDequeue(out camera)) ;
+                while (!CameraPossessionQueue[i].TryDequeue(out camera)) ;
                 CurrentCamera = camera;
             }
         }
@@ -72,13 +70,21 @@ namespace TheraEngine.Input
             {
                 _viewport = value;
                 if (_viewport != null && _controlledPawn != null)
+                {
                     _viewport.PawnHUD = _controlledPawn.Hud;
+                    if (_controlledPawn.CurrentCameraComponent != null)
+                        CurrentCamera = _controlledPawn.CurrentCameraComponent.Camera;
+                }
             }
         }
         public Camera CurrentCamera
         {
-            get => _viewport.Camera;
-            set => _viewport.Camera = value;
+            get => _viewport?.Camera;
+            set
+            {
+                if (_viewport != null)
+                    _viewport.Camera = value;
+            }
         }
 
         public override IPawn ControlledPawn
@@ -101,9 +107,11 @@ namespace TheraEngine.Input
                 if (_controlledPawn != null)
                 {
                     if (_viewport != null)
+                    {
                         _viewport.PawnHUD = _controlledPawn.Hud;
-                    if (_controlledPawn.CurrentCameraComponent != null)
-                        CurrentCamera = _controlledPawn.CurrentCameraComponent.Camera;
+                        if (_controlledPawn.CurrentCameraComponent != null)
+                            CurrentCamera = _controlledPawn.CurrentCameraComponent.Camera;
+                    }
 
                     _input.WantsInputsRegistered += _controlledPawn.RegisterInput;
                     _controlledPawn.OnPossessed(this);

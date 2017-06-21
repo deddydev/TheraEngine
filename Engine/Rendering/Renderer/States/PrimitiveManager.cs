@@ -87,7 +87,7 @@ namespace TheraEngine.Rendering.Models
             get => _data;
             set
             {
-                Destroy();
+                Destroy(false);
                 if (_indexBuffer != null)
                 {
                     _indexBuffer.Dispose();
@@ -405,7 +405,7 @@ namespace TheraEngine.Rendering.Models
         {
             _data.Dispose();
             _indexBuffer.Dispose();
-            _program.Destroy();
+            _program.Destroy(false);
         }
     }
 }

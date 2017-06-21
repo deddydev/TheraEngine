@@ -477,19 +477,34 @@ namespace TheraEngine.Rendering.Models
             if (MapData)
                 Engine.Renderer.UnmapBufferData(this);
         }
-        public void Dispose()
+
+        ~VertexBuffer() { Dispose(false); }
+        public override void Dispose()
         {
-            Destroy();
-            Debug.WriteLine("Disposing of " + BufferType + " buffer");
-            if (_data != null)
-            {
-                _data.Dispose();
-                _data = null;
-            }
-            _vaoId = 0;
+            Dispose(true);
+            GC.SuppressFinalize(this);
         }
-        ~VertexBuffer() { Dispose(); }
-        public static implicit operator VoidPtr(VertexBuffer b) { return b.Address; }
-        public override string ToString() { return _name; }
+        protected override void Dispose(bool disposing)
+        {
+            if (!_disposedValue)
+            {
+                if (disposing)
+                {
+                    Destroy(false);
+                }
+
+                //Debug.WriteLine("Disposing of " + BufferType + " buffer");
+                if (_data != null)
+                {
+                    _data.Dispose();
+                    _data = null;
+                }
+                _vaoId = 0;
+                _disposedValue = true;
+            }
+        }
+
+        public static implicit operator VoidPtr(VertexBuffer b) => b.Address;
+        public override string ToString() => _name;
     }
 }

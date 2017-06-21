@@ -137,13 +137,17 @@ namespace TheraEngine.Rendering
                 };
             }
 
-            _fullScreenTriangle.Program.Update(this, _attachmentsPerTexture, _colorAttachments, region.IntWidth, region.IntHeight);
             _fullScreenTriangle.SettingUniforms += _fullScreenTriangle_SettingUniforms;
 
             _quadCamera = new OrthographicCamera();
             _quadCamera.SetGraphStyle();
             _quadCamera.Resize(1.0f, 1.0f);
             //Resize(region);
+        }
+
+        protected override void OnGenerated()
+        {
+            _fullScreenTriangle.Program.Update(this, _attachmentsPerTexture, _colorAttachments, _parent.Region.IntWidth, _parent.Region.IntHeight);
         }
 
         private void _fullScreenTriangle_SettingUniforms()

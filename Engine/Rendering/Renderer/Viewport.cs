@@ -138,13 +138,16 @@ namespace TheraEngine.Rendering
             _index = index;
             Resize(panel.Width, panel.Height);
             _text = new TextDrawer();
-
-            if (Engine.Settings != null)
-                UpdateRender();
+            UpdateRender();
         }
 
         internal void UpdateRender()
         {
+            //if (Engine.Settings == null)
+            //{
+            //    Render = RenderNothing;
+            //    return;
+            //}
             if (Engine.Settings.ShadingStyle == ShadingStyle.Forward)
             {
                 _gBuffer = new GBuffer(this, true);
@@ -171,6 +174,10 @@ namespace TheraEngine.Rendering
         {
             _pawnHUD.DebugPrint(message);
         }
+        //public void RenderNothing(SceneProcessor scene)
+        //{
+
+        //}
         public void RenderDeferred(SceneProcessor scene)
         {
             if (Camera == null)

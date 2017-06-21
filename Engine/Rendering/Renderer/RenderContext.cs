@@ -40,11 +40,12 @@ namespace TheraEngine.Rendering
         }
 
         public RenderPanel Control => _control;
+        internal List<BaseRenderState.ContextBind> States => _states;
 
         protected RenderPanel _control;
         private bool _resetting = false;
-        
-        public Dictionary<string, BaseRenderState> _states = new Dictionary<string, BaseRenderState>();
+
+        private List<BaseRenderState.ContextBind> _states = new List<BaseRenderState.ContextBind>();
 
         public RenderContext(RenderPanel c)
         {
@@ -133,8 +134,9 @@ namespace TheraEngine.Rendering
                 if (disposing)
                 {
                     Capture();
-                    foreach (BaseRenderState state in _states.Values)
+                    foreach (BaseRenderState.ContextBind state in States)
                         state.Destroy();
+                    States.Clear();
                     if (BoundContexts.Contains(this))
                         BoundContexts.Remove(this);
                     Release();
@@ -142,8 +144,6 @@ namespace TheraEngine.Rendering
 
                 // TODO: free unmanaged resources (unmanaged objects) and override a finalizer below.
                 // TODO: set large fields to null.
-
-                _disposedValue = true;
             }
         }
 

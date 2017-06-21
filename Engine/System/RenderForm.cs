@@ -13,6 +13,7 @@ namespace TheraEngine
     {
         public RenderForm(Game game)
         {
+            Engine.Initialize(game);
             InitializeComponent();
 
             Text = game.Name;
@@ -22,13 +23,15 @@ namespace TheraEngine
             //TopMost = true;
             //FormBorderStyle = FormBorderStyle.None;
             WindowState = FormWindowState.Maximized;
-            Engine.Initialize(game);
-            renderPanel1.RegisterTick();
+
         }
-        //protected override void OnLoad(EventArgs e)
-        //{
-        //    base.OnLoad(e);
-        //}
+        protected override void OnLoad(EventArgs e)
+        {
+            base.OnLoad(e);
+
+            renderPanel1.RegisterTick();
+            Engine.Run();
+        }
         protected override void OnClosed(EventArgs e)
         {
             base.OnClosed(e);

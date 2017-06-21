@@ -9,6 +9,7 @@ using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Linq;
+using System.Threading;
 
 namespace TheraEngine.Rendering.OpenGL
 {
@@ -233,11 +234,15 @@ namespace TheraEngine.Rendering.OpenGL
         }
         public override int GenerateShader(string source)
         {
+            Top:
             int handle = GL.CreateShader(_currentShaderMode);
             if (handle == 0)
             {
                 Debug.WriteLine("GL.CreateShader did not return a valid binding id.");
-                return 0;
+                RenderContext.Current.Capture(true);
+                Thread.Sleep(10);
+                goto Top;
+                //return 0;
             }
 
             GL.ShaderSource(handle, source);

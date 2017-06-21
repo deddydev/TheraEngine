@@ -12,6 +12,7 @@ namespace TheraEngine.Rendering.OpenGL
     {
         private int _versionMin, _versionMax;
 
+        private GLRenderer _renderer;
         private IGraphicsContext _context;
         private IWindowInfo _winInfo = null;
 
@@ -58,8 +59,15 @@ namespace TheraEngine.Rendering.OpenGL
             => _context?.Update(WindowInfo);
         public override void SetCurrent(bool current)
         {
-            if (!IsContextDisposed())
-                _context.MakeCurrent(current ? WindowInfo : null);
+            try
+            {
+                if (!IsContextDisposed())
+                    _context.MakeCurrent(current ? WindowInfo : null);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("Could not make context current.");
+            }
         }
         protected override void Dispose(bool disposing)
         {
@@ -75,11 +83,12 @@ namespace TheraEngine.Rendering.OpenGL
                         _winInfo.Dispose();
                     _winInfo = null;
                 }
+                _disposedValue = true;
             }
         }
 
         internal override AbstractRenderer GetRendererInstance()
-            => new GLRenderer();
+            => _renderer ?? (_renderer = new GLRenderer());
 
         public override void ErrorCheck()
         {

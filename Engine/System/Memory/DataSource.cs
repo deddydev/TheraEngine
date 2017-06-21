@@ -7,14 +7,22 @@ namespace System
     //Stores a reference to unmanaged data
     public class DataSource : IDisposable
     {
+        public event Action Modified;
+
         private bool _external;
         private int _length;
         private VoidPtr _address;
 
-        public int Length { get { return _length; } set { _length = value; } }
-        public VoidPtr Address { get { return _address; } set { _address = value; } }
-
-        public event Action Modified;
+        public int Length
+        {
+            get => _length;
+            set => _length = value;
+        }
+        public VoidPtr Address
+        {
+            get => _address;
+            set => _address = value;
+        }
 
         public DataSource(VoidPtr address, int length)
         {

@@ -159,13 +159,6 @@ namespace TheraEngine
                 List<RenderContext> contexts = new List<RenderContext>(RenderContext.BoundContexts);
                 foreach (RenderContext c in contexts)
                     c.Control?.CreateContext();
-
-                if (Renderer == null)
-                    throw new Exception("Could not create a renderer.");
-
-                foreach (var c in RenderContext.BoundContexts)
-                    foreach (var v in c.Control)
-                        v.UpdateRender();
             }
         }
         public static AudioLibrary AudioLibrary

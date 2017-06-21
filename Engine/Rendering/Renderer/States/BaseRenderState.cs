@@ -10,48 +10,122 @@ namespace TheraEngine.Rendering
 {
     public abstract class BaseRenderState : ObjectBase, IDisposable
     {
-        public class ContextBind
+        internal const int NullBindingId = 0;
+        internal class ContextBind
         {
-            public int _bindingId = 0;
-            public RenderContext _context = null;
-            public ContextBind(RenderContext c) => _context = c;
+            //internal bool _generatedFailSafe = false;
+            internal int _bindingId = NullBindingId;
+            internal BaseRenderState _parent;
+            internal RenderContext _context = null;
+            internal int _index;
+            internal ContextBind(RenderContext c, BaseRenderState parent, int index)
+            {
+                _parent = parent;
+                _context = c;
+                _index = index;
+                c.States.Add(this);
+            }
+
+            internal int Index
+            {
+                get => _index;
+                set => _index = value;
+            }
+
+            internal bool Active => BindingId > NullBindingId/* || _generatedFailSafe*/;
+
+            internal int BindingId
+            {
+                get => _bindingId;
+                set
+                {
+                    if (_bindingId > NullBindingId)
+                        throw new Exception("Context binding already has an id!");
+                    _bindingId = value;
+                    //if (_bindingId == 0)
+                    //    _generatedFailSafe = true;
+                }
+            }
+
+            internal void Destroy()
+            {
+                _parent.DestroyContextBind(_index);
+            }
+
+            public override string ToString()
+            {
+                return _parent.ToString();
+            }
         }
 
-        public const int NullBindingId = 0;
-        public bool IsActive => _currentBind._bindingId > NullBindingId;
+        private ContextBind CurrentBind
+        {
+            get
+            {
+                //Make sure current bind is up to date
+                GetCurrentBind();
+                return _currentBind;
+            }
+        }
+        public bool IsActive => CurrentBind.Active;
         public int BindingId
         {
             get
             {
+                //Generate if not active already
                 if (!IsActive)
                     Generate();
-                return _currentBind._bindingId;
+
+                return CurrentBind.BindingId;
             }
         }
 
         public EObjectType Type => _type;
 
         private EObjectType _type;
+        /// <summary>
+        /// List of all render contexts this object has been generated on.
+        /// </summary>
         private List<ContextBind> _owners = new List<ContextBind>();
-        private ContextBind _currentBind = new ContextBind(null);
+        /// <summary>
+        /// The last context that this object has been bound to or called the binding id from.
+        /// </summary>
+        private ContextBind _currentBind = null;
         
         public BaseRenderState(EObjectType type) { _type = type; }
         public BaseRenderState(EObjectType type, int bindingId)
         {
             _type = type;
+            CurrentBind.BindingId = bindingId;
+            OnGenerated();
+        }
 
-            //Make sure current bind is up to date
-            if (_currentBind._context != RenderContext.Current)
+        private void DestroyContextBind(int index)
+        {
+            if (_currentBind._index == index)
+                _currentBind = null;
+            if (index >= 0 && index < _owners.Count)
             {
-                int index = _owners.Select(x => x._context).ToList().IndexOf(RenderContext.Current);
+                _owners.RemoveAt(index);
+                for (int i = index; i < _owners.Count; ++i)
+                    --_owners[i].Index;
+            }
+        }
+
+        private void GetCurrentBind()
+        {
+            if (RenderContext.Current == null)
+            {
+                throw new Exception("No context bound.");
+            }
+            if (_currentBind == null || _currentBind._context != RenderContext.Current)
+            {
+                int index = _owners.FindIndex(x => x._context == RenderContext.Current);
                 if (index >= 0)
                     _currentBind = _owners[index];
                 else
-                    _owners.Add(_currentBind = new ContextBind(RenderContext.Current));
+                    _owners.Add(_currentBind = new ContextBind(RenderContext.Current, this, _owners.Count));
             }
-
-            _currentBind._bindingId = bindingId;
-            OnGenerated();
         }
 
         /// <summary>
@@ -60,28 +134,19 @@ namespace TheraEngine.Rendering
         /// </summary>
         public int Generate()
         {
-            if (RenderContext.Current == null)
-                return _currentBind._bindingId;
+            //if (RenderContext.Current == null)
+            //    return _currentBind._bindingId;
 
             //Make sure current bind is up to date
-            if (_currentBind._context != RenderContext.Current)
-            {
-                int index = _owners.Select(x => x._context).ToList().IndexOf(RenderContext.Current);
-                if (index >= 0)
-                    _currentBind = _owners[index];
-                else
-                    _owners.Add(_currentBind = new ContextBind(RenderContext.Current));
-            }
+            GetCurrentBind();
 
             if (IsActive)
-                return _currentBind._bindingId;
-
-            _currentBind._bindingId = CreateObject();
+                return BindingId;
+            
+            int id = CreateObject();
+            CurrentBind.BindingId = id;
             OnGenerated();
-
-            //Debug.WriteLine(this.ToString());
-
-            return _currentBind._bindingId;
+            return id;
         }
         /// <summary>
         /// Removes this render object from the current context.
@@ -91,27 +156,23 @@ namespace TheraEngine.Rendering
         {
             if (RenderContext.Current == null)
                 return;
-
-            //Make sure current bind is up to date
+            
             //Remove current bind from owners list
-            if (_currentBind._context != RenderContext.Current)
+            if (_currentBind == null || _currentBind._context != RenderContext.Current)
             {
-                int index = _owners.Select(x => x._context).ToList().IndexOf(RenderContext.Current);
+                int index = _owners.FindIndex(x => x._context == RenderContext.Current);
                 if (index >= 0)
                 {
                     _currentBind = _owners[index];
                     _owners.RemoveAt(index);
                 }
                 else
-                {
-                    //This state was never generated on this context in the first place
-                    return;
-                }
+                    return; //This state was never generated on this context in the first place
             }
             else
             {
-                int index = _owners.IndexOf(_currentBind);
-                if (index >= 0)
+                int index = _currentBind.Index;
+                if (index >= 0 && index < _owners.Count)
                     _owners.RemoveAt(index);
             }
 
@@ -144,7 +205,20 @@ namespace TheraEngine.Rendering
         /// <summary>
         /// Called by a context when it is being destroyed.
         /// </summary>
-        internal void Destroy() { Delete(); }
+        internal void Destroy(bool currentContextOnly = true)
+        {
+            if (currentContextOnly)
+                Delete();
+            else
+            {
+                foreach (ContextBind b in _owners)
+                    if (b._context != null && !b._context.IsContextDisposed())
+                    {
+                        b._context.Capture();
+                        Delete();
+                    }
+            }
+        }
 
         public override int GetHashCode()
         {
@@ -152,7 +226,7 @@ namespace TheraEngine.Rendering
         }
         public override string ToString()
         {
-            return Type.ToString() + _currentBind._bindingId;
+            return Type.ToString() + CurrentBind._bindingId;
         }
         public override bool Equals(object obj)
         {
@@ -160,7 +234,7 @@ namespace TheraEngine.Rendering
         }
 
         #region IDisposable Support
-        private bool _disposedValue = false; // To detect redundant calls
+        protected bool _disposedValue = false; // To detect redundant calls
 
         protected virtual void Dispose(bool disposing)
         {
@@ -168,13 +242,7 @@ namespace TheraEngine.Rendering
             {
                 if (disposing)
                 {
-                    // TODO: dispose managed state (managed objects). 
-                    foreach (ContextBind b in _owners)
-                        if (b._context != null && !b._context.IsContextDisposed())
-                        {
-                            b._context.Capture();
-                            Delete();
-                        }
+                    Destroy(false);
                 }
 
                 // TODO: free unmanaged resources (unmanaged objects) and override a finalizer below.
@@ -191,7 +259,7 @@ namespace TheraEngine.Rendering
         // }
 
         // This code added to correctly implement the disposable pattern.
-        public void Dispose()
+        public virtual void Dispose()
         {
             // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
             Dispose(true);

@@ -150,6 +150,7 @@ namespace TheraEngine.Rendering.DirectX
 
         protected override void Dispose(bool disposing)
         {
+            base.Dispose(disposing);
             if (!_disposedValue)
             {
                 if (disposing)
@@ -158,6 +159,7 @@ namespace TheraEngine.Rendering.DirectX
                     _swapChain.Dispose();
                     _device.Dispose();
                 }
+                _disposedValue = true;
             }
         }
         internal override void OnResized(object sender, EventArgs e)

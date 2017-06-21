@@ -46,7 +46,9 @@ namespace TheraEngine.Rendering
             _feedbackBuffer = null;
         }
 
-        public void Bind(EFramebufferTarget type) { Engine.Renderer.BindTransformFeedback(BindingId); }
-        public void Unbind(EFramebufferTarget type) { Engine.Renderer.BindTransformFeedback(NullBindingId); }
+        public void Bind(EFramebufferTarget type)
+            => Engine.Renderer.BindTransformFeedback(BindingId);
+        public void Unbind(EFramebufferTarget type)
+            => Engine.Renderer.BindTransformFeedback(NullBindingId);
     }
 }

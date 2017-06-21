@@ -72,6 +72,7 @@ namespace TheraEngine
             //Steamworks.SteamAPI.Init();
             _timer = new EngineTimer();
             _timer.UpdateFrame += Tick;
+            
             ActivePlayers.PostAdded += ActivePlayers_Added;
             ActivePlayers.PostRemoved += ActivePlayers_Removed;
 
@@ -95,7 +96,6 @@ namespace TheraEngine
 
             TargetRenderFreq = Settings.CapFPS ? Settings.TargetFPS.ClampMin(1.0f) : 0.0f;
             TargetUpdateFreq = Settings.CapUPS ? Settings.TargetUPS.ClampMin(1.0f) : 0.0f;
-            Run();
         }
         public static void ShutDown()
         {
@@ -361,11 +361,12 @@ namespace TheraEngine
                     if (_possessionQueues.ContainsKey(index))
                     {
                         //Transfer possession queue to the controller itself
-                        controller = new LocalPlayerController(_possessionQueues[index]);
+                        controller = new LocalPlayerController(index, _possessionQueues[index]);
                         _possessionQueues.Remove(controller.LocalPlayerIndex);
                     }
                     else
-                        controller = new LocalPlayerController();
+                        controller = new LocalPlayerController(index);
+                    ActivePlayers.Add(controller);
                 }
                 else
                     ActivePlayers[0].Input.UpdateDevices();
@@ -379,11 +380,12 @@ namespace TheraEngine
                     if (_possessionQueues.ContainsKey(index))
                     {
                         //Transfer possession queue to the controller itself
-                        controller = new LocalPlayerController(_possessionQueues[index]);
+                        controller = new LocalPlayerController(index, _possessionQueues[index]);
                         _possessionQueues.Remove(controller.LocalPlayerIndex);
                     }
                     else
-                        controller = new LocalPlayerController();
+                        controller = new LocalPlayerController(index);
+                    ActivePlayers.Add(controller);
                 }
                 else
                     ActivePlayers[device.Index].Input.UpdateDevices();

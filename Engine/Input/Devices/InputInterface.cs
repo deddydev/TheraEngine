@@ -88,10 +88,16 @@ namespace TheraEngine.Input.Devices
 
             if (_playerIndex >= 0 && _playerIndex < gamepads.Length)
                 _gamepad = gamepads[_playerIndex] as CGamePad;
-            if (_playerIndex >= 0 && _playerIndex < keyboards.Length)
-                _keyboard = keyboards[_playerIndex] as CKeyboard;
-            if (_playerIndex >= 0 && _playerIndex < mice.Length)
-                _mouse = mice[_playerIndex] as CMouse;
+
+            //Keyboard and mouse are reserved for the first player only
+            //TODO: support multiple mice and keyboard? Could get difficult with laptops and trackpads and whatnot. Probably no-go.
+            //TODO: support input from ALL keyboards and mice for first player. Not just the first found keyboard and mouse.
+
+            if (keyboards.Length > 0 && _playerIndex == 0)
+                _keyboard = keyboards[0] as CKeyboard;
+
+            if (mice.Length > 0 && _playerIndex == 0)
+                _mouse = mice[0] as CMouse;
         }
 
         #region Mouse input registration

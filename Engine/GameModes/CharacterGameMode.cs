@@ -27,6 +27,8 @@ namespace TheraEngine.GameModes
         }
         protected internal override void HandleLocalPlayerJoined(LocalPlayerController item)
         {
+            //PROBLEM: this is in the game loop thread, while begin gameplay is in the main thread (with the gl context)
+            //use sharelists
             base.HandleLocalPlayerJoined(item);
             T pawn = _pawnClass.CreateNew();
             item.ControlledPawn = pawn;

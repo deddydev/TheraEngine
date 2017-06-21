@@ -234,15 +234,11 @@ namespace TheraEngine.Rendering.OpenGL
         }
         public override int GenerateShader(string source)
         {
-            Top:
             int handle = GL.CreateShader(_currentShaderMode);
             if (handle == 0)
             {
                 Debug.WriteLine("GL.CreateShader did not return a valid binding id.");
-                RenderContext.Current.Capture(true);
-                Thread.Sleep(10);
-                goto Top;
-                //return 0;
+                return 0;
             }
 
             GL.ShaderSource(handle, source);

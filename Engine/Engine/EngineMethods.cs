@@ -70,6 +70,7 @@ namespace TheraEngine
         static Engine()
         {
             //Steamworks.SteamAPI.Init();
+
             _timer = new EngineTimer();
             _timer.UpdateFrame += Tick;
             
@@ -82,21 +83,42 @@ namespace TheraEngine
 
             Thread.CurrentThread.Name = "Main Thread";
         }
-        public static void Initialize(Game game)
+        /// <summary>
+        /// Sets the game information for all code to grab preferences from.
+        /// Call this BEFORE ANYTHING ELSE!
+        /// </summary>
+        public static void SetGame(Game game)
         {
             _game = game;
+        }
+        /// <summary>
+        /// Initializes the engine to its beginning state.
+        /// Call AFTER SetGame is called and all initial render panels are created and ready.
+        /// </summary>
+        public static void Initialize()
+        {
+            //Analyze computer and determine if it can run what the game wants.
             _computerInfo = ComputerInfo.Analyze();
+            
+            RenderLibrary = _game.UserSettings.RenderLibrary;
+            AudioLibrary = _game.UserSettings.AudioLibrary;
+            InputLibrary = _game.UserSettings.InputLibrary;
 
-            RenderLibrary = game.UserSettings.RenderLibrary;
-            AudioLibrary = game.UserSettings.AudioLibrary;
-            InputLibrary = game.UserSettings.InputLibrary;
+            if (Renderer == null)
+                throw new Exception("Unable to create renderer.");
 
+            //Set initial world (this would generally be a world for opening videos or the main menu)
             World = Game.OpeningWorld;
-            Game.TransitionWorld.GetInstance();
 
+            //Preload loading world now
+            Game.TransitionWorld.GetInstance();
+            
             TargetRenderFreq = Settings.CapFPS ? Settings.TargetFPS.ClampMin(1.0f) : 0.0f;
             TargetUpdateFreq = Settings.CapUPS ? Settings.TargetUPS.ClampMin(1.0f) : 0.0f;
         }
+        /// <summary>
+        /// Call this to stop the engine and dispose of all allocated data.
+        /// </summary>
         public static void ShutDown()
         {
             //Steamworks.SteamAPI.Shutdown();
@@ -200,12 +222,33 @@ namespace TheraEngine
         }
 
         #region Tick
+        /// <summary>
+        /// Starts deployment of update and render ticks.
+        /// </summary>
         public static void Run() => _timer.Run();
+        /// <summary>
+        /// HALTS update and render ticks. Not recommended for use as this literally halts all visuals and user input.
+        /// </summary>
         public static void Stop() => _timer.Stop();
+
+        /// <summary>
+        /// Registers the given function to be called every update tick.
+        /// </summary>
         public static void RegisterRenderTick(EventHandler<FrameEventArgs> func)
             => _timer.RenderFrame += func;
+        /// <summary>
+        /// Registers the given function to be called every render tick.
+        /// </summary>
         public static void UnregisterRenderTick(EventHandler<FrameEventArgs> func)
             => _timer.RenderFrame -= func;
+
+        /// <summary>
+        /// Registers a function to execute in a specific order every update tick.
+        /// </summary>
+        /// <param name="group">The first grouping of when to tick: before, after, or during the physics tick update.</param>
+        /// <param name="order">The order to execute the function within its group.</param>
+        /// <param name="function">The function to execute per update tick.</param>
+        /// <param name="pausedBehavior">If the function should even execute at all, depending on the pause state.</param>
         internal static void RegisterTick(ETickGroup group, ETickOrder order, DelTick function, InputPauseType pausedBehavior = InputPauseType.TickAlways)
         {
             if (function != null)
@@ -273,6 +316,9 @@ namespace TheraEngine
         }
         #endregion
 
+        /// <summary>
+        /// Loads a ttf or otf font from the given path and adds it to the collection of fonts.
+        /// </summary>
         public static void LoadFont(string path)
         {
             if (!File.Exists(path))
@@ -282,7 +328,9 @@ namespace TheraEngine
                 return;
             _fontCollection.AddFontFile(path);
         }
-
+        /// <summary>
+        /// Retrieves the viewport with the same index.
+        /// </summary>
         public static Viewport GetViewport(int index)
         {
             RenderPanel panel = CurrentPanel;
@@ -290,6 +338,12 @@ namespace TheraEngine
                 return null;
             return panel.GetViewport(index);
         }
+#if DEBUG
+        /// <summary>
+        /// Prints a message to the top left of the screen, for debugging purposes.
+        /// </summary>
+        /// <param name="message"></param>
+        /// <param name="viewport"></param>
         public static void DebugPrint(string message, int viewport = -1)
         {
             Debug.WriteLine(message);
@@ -307,6 +361,7 @@ namespace TheraEngine
             }
             panel.GlobalHud.DebugPrint(message);
         }
+#endif
         public static void SetCurrentWorld(World world, bool unloadPrevious)
         {
             World previous = World;

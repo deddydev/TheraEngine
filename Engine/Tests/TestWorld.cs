@@ -1,15 +1,13 @@
 ﻿using System;
-using TheraEngine.Rendering.Models;
-using TheraEngine.Worlds.Actors;
-using TheraEngine.Worlds.Maps;
 using System.Drawing;
 using TheraEngine.Rendering;
+using TheraEngine.Rendering.Animation;
+using TheraEngine.Rendering.Models;
 using TheraEngine.Rendering.Models.Materials;
 using TheraEngine.Worlds;
+using TheraEngine.Worlds.Actors;
 using TheraEngine.Worlds.Actors.Types;
-using TheraEngine.GameModes;
-using TheraEngine.Rendering.Animation;
-using TheraEngine.Audio;
+using TheraEngine.Worlds.Maps;
 
 namespace TheraEngine.Tests
 {
@@ -211,7 +209,7 @@ namespace TheraEngine.Tests
                 //floor2Actor,
                 spawn,
                 //importedActor,
-                new FlyingCameraPawn(PlayerIndex.One) { Name = "PlayerCamera" },
+                //new FlyingCameraPawn(PlayerIndex.One) { Name = "PlayerCamera" },
                 //new CharacterPawn(PlayerIndex.One, scene._skeletalModel, scene._skeleton) { Name = "PlayerCharacter", },
             };
 

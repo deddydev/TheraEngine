@@ -13,8 +13,11 @@ namespace TheraEngine
     {
         public RenderForm(Game game)
         {
-            Engine.Initialize(game);
+            Engine.SetGame(game);
+
             InitializeComponent();
+
+            Engine.Initialize();
 
             Text = game.Name;
             if (!string.IsNullOrEmpty(game.IconPath) && File.Exists(game.IconPath))

@@ -37,6 +37,7 @@ namespace TheraEngine
         public static RenderPanel CapturedPanel;
         public RenderPanel()
         {
+            //Force custom paint
             SetStyle(
                 ControlStyles.UserPaint |
                 ControlStyles.AllPaintingInWmPaint |
@@ -47,8 +48,12 @@ namespace TheraEngine
             _globalHud = new HudManager();
             PointToClientDelegate = new DelPointConvert(PointToClient);
             PointToScreenDelegate = new DelPointConvert(PointToScreen);
-            AddViewport();
+
+            //Create context RIGHT AWAY so render objects can bind to it as they are created
             CreateContext();
+
+            //Add the main viewport - at least one viewport should always be rendering
+            AddViewport();
         }
 
         protected override void OnLoad(EventArgs e)
@@ -94,22 +99,6 @@ namespace TheraEngine
             get => _backColor;
             set => _backColor = value;
         }
-        
-        ///// <summary>
-        ///// Disables rendering until PopUpdate is called, unless there are other update calls on the stack.
-        ///// </summary>
-        //public void PushUpdate()
-        //{
-        //    ++_updateCounter;
-        //}
-        ///// <summary>
-        ///// Ends the last PushUpdate call. Rendering may not resume unless the update stack is empty.
-        ///// </summary>
-        //public void PopUpdate()
-        //{
-        //    if ((_updateCounter = Math.Max(_updateCounter - 1, 0)) == 0)
-        //        Invalidate();
-        //}
         public void CaptureContext()
         {
             if (InvokeRequired)
@@ -134,8 +123,7 @@ namespace TheraEngine
                     _context.Capture();
                     OnRender(e);
                     _context.Swap();
-                    //_context.ErrorCheck();
-                    //_context.Flush();
+                    _context.ErrorCheck();
                 }
                 finally { Monitor.Exit(_context); }
             }
@@ -177,7 +165,7 @@ namespace TheraEngine
             _context.BeginDraw();
             foreach (Viewport v in _viewports)
                 v.Render(Engine.Scene);
-            //_globalHud?.Render();
+            _globalHud?.Render();
             _context.EndDraw();
         }
         protected override void OnResize(EventArgs e)
@@ -187,10 +175,6 @@ namespace TheraEngine
             foreach (Viewport v in _viewports)
                 v.Resize(Width, Height);
             _context?.Update();
-            //Rectangle region = new Rectangle(0, 0, Width, Height);
-            //Engine.Renderer.PopRenderArea();
-            //Engine.Renderer.PushRenderArea(region);
-            //Engine.Renderer.CropRenderArea(region);
         }
         protected virtual void OnReset(object sender, EventArgs e)
         {
@@ -204,23 +188,6 @@ namespace TheraEngine
 
             //_currentPanel = isNowCurrent ? this : null;
         }
-        private void UpdateContext()
-        {
-            if (_context != null)
-            {
-                _context.ContextChanged += OnContextChanged;
-                _context.ResetOccured += OnReset;
-                _context.Capture(true);
-                _context.Initialize();
-
-                //if (Renderer == null)
-                //    throw new Exception("Could not create a renderer.");
-
-                //foreach (var c in RenderContext.BoundContexts)
-                //foreach (var v in _viewports)
-                //    v.UpdateRender();
-            }
-        }
         public void CreateContext()
         {
             switch (Engine.RenderLibrary)
@@ -228,23 +195,29 @@ namespace TheraEngine
                 case RenderLibrary.OpenGL:
                     if (_context is GLWindowContext)
                         return;
-                    {
-                        _context?.Dispose();
-                        _context = new GLWindowContext(this);
-                    }
+                    
+                    _context?.Dispose();
+                    _context = new GLWindowContext(this);
+                    
                     break;
                 case RenderLibrary.Direct3D11:
                     if (_context is DXWindowContext)
                         return;
-                    {
-                        _context?.Dispose();
-                        _context = new DXWindowContext(this);
-                    }
+                    
+                    _context?.Dispose();
+                    _context = new DXWindowContext(this);
+                    
                     break;
                 default:
                     return;
             }
-            UpdateContext();
+            if (_context != null)
+            {
+                _context.ContextChanged += OnContextChanged;
+                _context.ResetOccured += OnReset;
+                _context.Capture(true);
+                _context.Initialize();
+            }
         }
         private void DisposeContext()
         {
@@ -290,7 +263,7 @@ namespace TheraEngine
         {
             Engine.UnregisterRenderTick(RenderTick);
         }
-        public void RenderTick(object sender, FrameEventArgs e)
+        private void RenderTick(object sender, FrameEventArgs e)
         {
             Invalidate();
         }

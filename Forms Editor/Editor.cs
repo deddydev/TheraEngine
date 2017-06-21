@@ -47,12 +47,13 @@ namespace TheraEditor
                 };
             }
 
-            renderPanel1.GlobalHud = new EditorHud(renderPanel1);
-            renderPanel1.GlobalHud.QueuePossession(PlayerIndex.One);
             Engine.Initialize(Project);
 
             InitializeComponent();
             DoubleBuffered = false;
+
+            renderPanel1.GlobalHud = new EditorHud(renderPanel1);
+            renderPanel1.GlobalHud.QueuePossession(PlayerIndex.One);
 
             SpawnedActors_Modified();
             if (Engine.World != null)
@@ -60,10 +61,11 @@ namespace TheraEditor
         }
         protected override void OnLoad(EventArgs e)
         {
+            base.OnLoad(e);
             OnRedrawn = Application.DoEvents;
             Engine.RegisterRenderTick(RenderTick);
             actorPropertyGrid.SelectedObject = Engine.World?.Settings;
-            base.OnLoad(e);
+            Engine.Run();
         }
         protected override void OnClosing(CancelEventArgs e)
         {

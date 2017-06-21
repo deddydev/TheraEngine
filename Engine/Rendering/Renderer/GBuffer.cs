@@ -137,6 +137,7 @@ namespace TheraEngine.Rendering
                 };
             }
 
+            _fullScreenTriangle.Program.Update(this, _attachmentsPerTexture, _colorAttachments, _parent.Region.IntWidth, _parent.Region.IntHeight);
             _fullScreenTriangle.SettingUniforms += _fullScreenTriangle_SettingUniforms;
 
             _quadCamera = new OrthographicCamera();
@@ -147,7 +148,6 @@ namespace TheraEngine.Rendering
 
         protected override void OnGenerated()
         {
-            _fullScreenTriangle.Program.Update(this, _attachmentsPerTexture, _colorAttachments, _parent.Region.IntWidth, _parent.Region.IntHeight);
         }
 
         private void _fullScreenTriangle_SettingUniforms()

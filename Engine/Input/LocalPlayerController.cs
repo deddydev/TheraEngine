@@ -73,7 +73,7 @@ namespace TheraEngine.Input
                 {
                     _viewport.PawnHUD = _controlledPawn.Hud;
                     if (_controlledPawn.CurrentCameraComponent != null)
-                        CurrentCamera = _controlledPawn.CurrentCameraComponent.Camera;
+                        _viewport.Camera = _controlledPawn.CurrentCameraComponent.Camera;
                 }
             }
         }
@@ -110,7 +110,7 @@ namespace TheraEngine.Input
                     {
                         _viewport.PawnHUD = _controlledPawn.Hud;
                         if (_controlledPawn.CurrentCameraComponent != null)
-                            CurrentCamera = _controlledPawn.CurrentCameraComponent.Camera;
+                            _viewport.Camera = _controlledPawn.CurrentCameraComponent.Camera;
                     }
 
                     _input.WantsInputsRegistered += _controlledPawn.RegisterInput;

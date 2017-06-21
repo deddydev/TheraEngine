@@ -143,11 +143,6 @@ namespace TheraEngine.Rendering
 
         internal void UpdateRender()
         {
-            //if (Engine.Settings == null)
-            //{
-            //    Render = RenderNothing;
-            //    return;
-            //}
             if (Engine.Settings.ShadingStyle == ShadingStyle.Forward)
             {
                 _gBuffer = new GBuffer(this, true);
@@ -174,10 +169,6 @@ namespace TheraEngine.Rendering
         {
             _pawnHUD.DebugPrint(message);
         }
-        //public void RenderNothing(SceneProcessor scene)
-        //{
-
-        //}
         public void RenderDeferred(SceneProcessor scene)
         {
             if (Camera == null)

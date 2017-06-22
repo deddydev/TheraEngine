@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Windows.Controls;
 
 namespace TheraEngine.Rendering
@@ -43,9 +44,30 @@ namespace TheraEngine.Rendering
         internal List<BaseRenderState.ContextBind> States => _states;
 
         protected RenderPanel _control;
-        private bool _resetting = false;
+        protected bool _resetting = false;
+        
+        protected abstract class ThreadSubContext
+        {
+            protected Thread _thread;
+            protected IntPtr _controlHandle;
+
+            public ThreadSubContext(IntPtr controlHandle, Thread thread)
+            {
+                _controlHandle = controlHandle;
+                _thread = thread;
+            }
+            public abstract void Generate();
+            public abstract bool IsCurrent();
+            public abstract bool IsContextDisposed();
+            public abstract void OnSwapBuffers();
+            public abstract void OnUpdated();
+            public abstract void SetCurrent(bool current);
+            public abstract void Dispose();
+        }
 
         private List<BaseRenderState.ContextBind> _states = new List<BaseRenderState.ContextBind>();
+        protected Dictionary<int, ThreadSubContext> _subContexts = new Dictionary<int, ThreadSubContext>();
+        protected ThreadSubContext _currentSubContext;
 
         public RenderContext(RenderPanel c)
         {
@@ -56,7 +78,39 @@ namespace TheraEngine.Rendering
         }
 
         internal abstract void OnResized(object sender, EventArgs e);
+
+        protected void GetCurrentSubContext()
+        {
+            Thread thread = Thread.CurrentThread;
+            if (!_subContexts.ContainsKey(thread.ManagedThreadId))
+                CreateContextForThread(thread);
+            _currentSubContext = _subContexts[thread.ManagedThreadId];
+            _currentSubContext.SetCurrent(true);
+        }
+        protected abstract ThreadSubContext CreateSubContext(Thread thread);
+        internal void CreateContextForThread(Thread thread)
+        {
+            if (thread == null)
+                return;
+
+            ThreadSubContext c = CreateSubContext(thread);
+            _subContexts.Add(thread.ManagedThreadId, c);
+            c.Generate();
+        }
+        internal void DestroyContextForThread(Thread thread)
+        {
+            if (thread == null)
+                return;
+
+            if (_subContexts.ContainsKey(thread.ManagedThreadId))
+            {
+                _subContexts[thread.ManagedThreadId].Dispose();
+                _subContexts.Remove(thread.ManagedThreadId);
+            }
+        }
+
         internal abstract AbstractRenderer GetRendererInstance();
+
         public abstract void ErrorCheck();
         public abstract bool IsCurrent();
         public abstract bool IsContextDisposed();

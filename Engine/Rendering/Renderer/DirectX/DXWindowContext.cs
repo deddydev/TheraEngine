@@ -4,6 +4,7 @@ using SlimDX.Direct3D11;
 using SlimDX.DXGI;
 using SlimDX;
 using Device = SlimDX.Direct3D11.Device;
+using System.Threading;
 
 namespace TheraEngine.Rendering.DirectX
 {
@@ -178,6 +179,11 @@ namespace TheraEngine.Rendering.DirectX
         }
 
         public override void Flush()
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override ThreadSubContext CreateSubContext(Thread thread)
         {
             throw new NotImplementedException();
         }

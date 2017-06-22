@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics;
 using System.Windows.Forms;
 using System.Threading;
+using TheraEngine.Rendering;
 
 namespace System
 {
@@ -39,22 +40,17 @@ namespace System
         {
             if (_running)
                 return;
-            _running = true;
-            _watch.Start();
-            _updateThread = new Thread(RunUpdateInternal)
-            {
-                Name = "Game Loop"
-            };
+            _updateThread = new Thread(RunUpdateInternal) { Name = "Game Loop" };
             _updateThread.Start();
         }
         private void RunUpdateInternal()
         {
-            Debug.WriteLine("Started Game loop on thread " + Thread.CurrentThread.ManagedThreadId);
+            Debug.WriteLine("Started game loop on thread " + Thread.CurrentThread.ManagedThreadId);
+            RenderContext.Current.CreateContextForThread(Thread.CurrentThread);
+            _running = true;
+            _watch.Start();
             while (_running)
-            {
-                ProcessEvents();
-                DispatchUpdateAndRenderFrame(this, EventArgs.Empty);
-            }
+                DispatchUpdateAndRenderFrame();
             Debug.WriteLine("Game loop ended.");
         }
         public void Stop()
@@ -62,12 +58,7 @@ namespace System
             _running = false;
             _watch.Stop();
         }
-        void ProcessEvents()
-        {
-            Application.DoEvents();
-            Thread.Sleep(0);
-        }
-        void DispatchUpdateAndRenderFrame(object sender, EventArgs e)
+        private void DispatchUpdateAndRenderFrame()
         {
             int runningSlowlyRetries = 4;
             double timestamp = _watch.Elapsed.TotalSeconds;
@@ -107,7 +98,7 @@ namespace System
             if (elapsed > 0 && elapsed >= TargetRenderPeriod)
                 RaiseRenderFrame(elapsed, ref timestamp);
         }
-        void RaiseUpdateFrame(double elapsed, ref double timestamp)
+        private void RaiseUpdateFrame(double elapsed, ref double timestamp)
         {
             // Raise UpdateFrame event
             _updateArgs.Time = elapsed;
@@ -136,10 +127,10 @@ namespace System
             _renderTime = timestamp - _renderTimestamp;
         }
 
-        void OnRenderFrameInternal(FrameEventArgs e) { if (_running) OnRenderFrame(e); }
-        void OnUpdateFrameInternal(FrameEventArgs e) { if (_running) OnUpdateFrame(e); }
-        void OnRenderFrame(FrameEventArgs e) => RenderFrame?.Invoke(this, e);
-        void OnUpdateFrame(FrameEventArgs e) => UpdateFrame?.Invoke(this, e);
+        private void OnRenderFrameInternal(FrameEventArgs e) { if (_running) OnRenderFrame(e); }
+        private void OnUpdateFrameInternal(FrameEventArgs e) { if (_running) OnUpdateFrame(e); }
+        private void OnRenderFrame(FrameEventArgs e) => RenderFrame?.Invoke(this, e);
+        private void OnUpdateFrame(FrameEventArgs e) => UpdateFrame?.Invoke(this, e);
 
         private bool _running = false;
         public bool IsRunning => _running;

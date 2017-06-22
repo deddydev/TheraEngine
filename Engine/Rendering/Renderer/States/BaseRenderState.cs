@@ -102,7 +102,7 @@ namespace TheraEngine.Rendering
 
         private void DestroyContextBind(int index)
         {
-            if (_currentBind._index == index)
+            if (_currentBind != null && _currentBind._index == index)
                 _currentBind = null;
             if (index >= 0 && index < _owners.Count)
             {

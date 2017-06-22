@@ -255,17 +255,13 @@ namespace TheraEngine
             }
         }
 
-        public void RegisterTick()
-        {
-            Engine.RegisterRenderTick(RenderTick);
-        }
-        public void UnregisterTick()
-        {
-            Engine.UnregisterRenderTick(RenderTick);
-        }
+        public void RegisterTick() => Engine.RegisterRenderTick(RenderTick);
+        public void UnregisterTick() => Engine.UnregisterRenderTick(RenderTick);
         private void RenderTick(object sender, FrameEventArgs e)
         {
             Invalidate();
+            //Application.DoEvents();
+            //Thread.Sleep(0);
         }
 
         public IEnumerator<Viewport> GetEnumerator()

@@ -16,7 +16,7 @@ namespace TheraEngine.GameModes
     {
         public float _respawnTime = 3;
 
-        public CharacterGameMode()
+        public CharacterGameMode() : base()
         {
 
         }
@@ -27,11 +27,12 @@ namespace TheraEngine.GameModes
         }
         protected internal override void HandleLocalPlayerJoined(LocalPlayerController item)
         {
-            //PROBLEM: this is in the game loop thread, while begin gameplay is in the main thread (with the gl context)
-            //use sharelists
             base.HandleLocalPlayerJoined(item);
             T pawn = _pawnClass.CreateNew();
-            item.ControlledPawn = pawn;
+            if (item.ControlledPawn == null)
+                item.ControlledPawn = pawn;
+            else
+                item.EnqueuePosession(pawn);
             pawn.QueueRespawn();
         }
         public override void BeginGameplay()
@@ -39,7 +40,10 @@ namespace TheraEngine.GameModes
             foreach (LocalPlayerController c in Engine.ActivePlayers)
             {
                 T pawn = _pawnClass.CreateNew();
-                c.ControlledPawn = pawn;
+                if (c.ControlledPawn == null)
+                    c.ControlledPawn = pawn;
+                else
+                    c.EnqueuePosession(pawn);
                 pawn.QueueRespawn();
             }
         }
@@ -56,7 +60,7 @@ namespace TheraEngine.GameModes
         }
         public override void EndGameplay()
         {
-            throw new NotImplementedException();
+            
         }
         public virtual void OnCharacterKilled(ICharacterPawn killed, ICharacterPawn instigator, IActor killer)
         {

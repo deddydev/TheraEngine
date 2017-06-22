@@ -4,6 +4,8 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Diagnostics;
+using System.Threading;
 
 namespace TheraEngine.Rendering.Models
 {
@@ -18,6 +20,8 @@ namespace TheraEngine.Rendering.Models
         }
         public static Scene Import(string filePath, ImportOptions options, bool importAnimations = true, bool importModels = true)
         {
+            Debug.WriteLine("Imporing Collada scene on " + Thread.CurrentThread.Name + " thread.");
+
             DecoderShell shell = DecoderShell.Import(filePath);
 
             Matrix4 baseTransform = options.InitialTransform.Matrix;

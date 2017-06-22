@@ -23,16 +23,16 @@ namespace TheraEngine
             TransitionWorld = new SingleFileRef<World>("TransitionWorld.xworld");
         }
 
-        private SingleFileRef<EngineSettings> _engineSettings;
-        private SingleFileRef<UserSettings> _userSettings;
-        private SingleFileRef<World> _transitionWorld;
-        private SingleFileRef<World> _openingWorld;
-        private string _description;
-        private string _copyright;
-        private string _credits;
-        private Viewport.TwoPlayerPreference _2PPref = Viewport.TwoPlayerPreference.SplitHorizontally;
-        private Viewport.ThreePlayerPreference _3PPref = Viewport.ThreePlayerPreference.PreferFirstPlayer;
-        private string _iconPath;
+        protected SingleFileRef<EngineSettings> _engineSettings;
+        protected SingleFileRef<UserSettings> _userSettings;
+        protected SingleFileRef<World> _transitionWorld;
+        protected SingleFileRef<World> _openingWorld;
+        protected string _description;
+        protected string _copyright;
+        protected string _credits;
+        protected Viewport.TwoPlayerPreference _2PPref = Viewport.TwoPlayerPreference.SplitHorizontally;
+        protected Viewport.ThreePlayerPreference _3PPref = Viewport.ThreePlayerPreference.PreferFirstPlayer;
+        protected string _iconPath;
         
         /// <summary>
         /// The world the engine uses as a loading screen.

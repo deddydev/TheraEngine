@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Thera.GameModes
 {
-    public class BaseGameMode : GameMode<CharacterPawn>
+    public class BaseGameMode : GameMode<CharacterPawn, TheraCharacterController>
     {
         private bool _spawnVehicles;
         private bool _spawnGuns;

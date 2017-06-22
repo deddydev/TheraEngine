@@ -35,7 +35,7 @@ namespace TheraEngine
     [FileClass("USET", "User Settings")]
     public class UserSettings : FileObject
     {
-        private bool _vSync = true;
+        private VSyncMode _vSyncMode = VSyncMode.Adaptive;
         private EngineQuality _textureQuality = EngineQuality.Highest;
         private EngineQuality _modelQuality = EngineQuality.Highest;
         private EngineQuality _soundQuality = EngineQuality.Highest;
@@ -46,7 +46,7 @@ namespace TheraEngine
         private InputLibrary _inputLibrary = InputLibrary.OpenTK;
 
         [Serialize]
-        public bool VSync { get => _vSync; set => _vSync = value; }
+        public VSyncMode VSync { get => _vSyncMode; set => _vSyncMode = value; }
         [Serialize]
         public EngineQuality TextureQuality { get => _textureQuality; set => _textureQuality = value; }
         [Serialize]

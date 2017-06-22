@@ -291,7 +291,7 @@ void main()
             return new Shader(ShaderMode.Fragment, source);
         }
         public static string LightingCalcForward()
-            => LightingCalc("totalLight", "vec3(0.0)", "normal", "InData.Position", "MatColor.rgb", "MatSpecularIntensity");
+            => LightingCalc("totalLight", "GlobalAmbient", "normal", "InData.Position", "MatColor.rgb", "MatSpecularIntensity");
         public static string LightingCalc(
             string lightVarName,
             string baseLightVec3,
@@ -355,7 +355,7 @@ uniform SpotLight SpotLights[16];
 
 vec3 CalcColor(BaseLight light, vec3 lightDirection, vec3 normal, vec3 fragPos, vec3 albedo, float spec)
 {
-    vec3 AmbientColor = GlobalAmbient + vec3(light.Color * light.AmbientIntensity);
+    vec3 AmbientColor = vec3(light.Color * light.AmbientIntensity);
     vec3 DiffuseColor = vec3(0.0);
     vec3 SpecularColor = vec3(0.0);
 

@@ -335,9 +335,13 @@ namespace TheraEngine.Rendering
             if (_currentMeshProgram != null)
             {
                 _currentMeshProgram?.SetUniforms();
-                CurrentCamera?.SetUniforms();
+
+                CurrentCamera.SetUniforms();
                 if (Engine.Settings.ShadingStyle == ShadingStyle.Forward)
+                {
                     Engine.Scene.Lights.SetUniforms();
+                }
+
                 Uniform(Models.Materials.Uniform.GetLocation(ECommonUniform.RenderDelta), Engine.RenderDelta);
             }
         }

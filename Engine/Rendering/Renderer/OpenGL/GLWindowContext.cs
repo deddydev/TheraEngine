@@ -17,6 +17,10 @@ namespace TheraEngine.Rendering.OpenGL
         protected class GLThreadSubContext : ThreadSubContext
         {
             private int _versionMin, _versionMax;
+            private IGraphicsContext _context;
+            private IWindowInfo _winInfo;
+            private VSyncMode _vsyncMode = VSyncMode.Disabled;
+
             public IWindowInfo WindowInfo => _winInfo;
 
             public GLThreadSubContext(IntPtr controlHandle, Thread thread) 
@@ -28,7 +32,7 @@ namespace TheraEngine.Rendering.OpenGL
                 _context = new GraphicsContext(GraphicsMode.Default, _winInfo);
                 _context.MakeCurrent(WindowInfo);
                 _context.LoadAll();
-                _context.SwapInterval = 1;
+                VsyncChanged(_vsyncMode);
 
                 //Retrieve OpenGL information
                 string vendor = GL.GetString(StringName.Vendor);
@@ -48,8 +52,24 @@ namespace TheraEngine.Rendering.OpenGL
                 _versionMin = version[2] - 0x30;
             }
 
-            private IGraphicsContext _context;
-            private IWindowInfo _winInfo;
+            internal override void VsyncChanged(VSyncMode vsyncMode)
+            {
+                _vsyncMode = vsyncMode;
+                if (_context == null)
+                    return;
+                switch (vsyncMode)
+                {
+                    case VSyncMode.Disabled:
+                        _context.SwapInterval = 0;
+                        break;
+                    case VSyncMode.Enabled:
+                        _context.SwapInterval = 1;
+                        break;
+                    case VSyncMode.Adaptive:
+                        _context.SwapInterval = -1;
+                        break;
+                }
+            }
 
             public override void Dispose()
             {

@@ -12,7 +12,9 @@ namespace TheraEngine.GameModes
         bool FindSpawnPoint(PawnController c, out Matrix4 transform);
         void OnCharacterKilled(ICharacterPawn killed, ICharacterPawn instigator, IActor killer);
     }
-    public class CharacterGameMode<T> : GameMode<T>, ICharacterGameMode where T : class, ICharacterPawn, new()
+    public class CharacterGameMode<PawnType, ControllerType> : GameMode<PawnType, ControllerType>, ICharacterGameMode 
+        where PawnType : class, ICharacterPawn, new()
+        where ControllerType : LocalPlayerController
     {
         public float _respawnTime = 3;
 
@@ -27,10 +29,8 @@ namespace TheraEngine.GameModes
         }
         protected internal override void HandleLocalPlayerJoined(LocalPlayerController item)
         {
-            //PROBLEM: this is in the game loop thread, while begin gameplay is in the main thread (with the gl context)
-            //use sharelists
             base.HandleLocalPlayerJoined(item);
-            T pawn = _pawnClass.CreateNew();
+            PawnType pawn = _pawnClass.CreateNew();
             item.ControlledPawn = pawn;
             pawn.QueueRespawn();
         }
@@ -38,7 +38,7 @@ namespace TheraEngine.GameModes
         {
             foreach (LocalPlayerController c in Engine.ActivePlayers)
             {
-                T pawn = _pawnClass.CreateNew();
+                PawnType pawn = _pawnClass.CreateNew();
                 c.ControlledPawn = pawn;
                 pawn.QueueRespawn();
             }

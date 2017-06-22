@@ -1,9 +1,10 @@
 ﻿using System;
 using TheraEngine.GameModes;
+using TheraEngine.Input;
 
 namespace Testris
 {
-    public class TetrisGameMode : GameMode<TetrisPawn>
+    public class TetrisGameMode : GameMode<TetrisPawn, LocalPlayerController>
     {
         public override void AbortGameplay()
         {

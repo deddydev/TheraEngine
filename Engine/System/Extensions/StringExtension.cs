@@ -5,6 +5,31 @@ namespace System
 {
     public static unsafe class StringExtension
     {
+        public static string MakePathRelativeTo(this string absolutePath, string relativePath)
+        {
+            string[] relParts = relativePath.Split('\\');
+            string[] absParts = absolutePath.Split('\\');
+            
+            int absLen = absParts.Length;
+            string fileName = absParts[absParts.Length - 1];
+            if (fileName.Contains("."))
+                --absLen;
+            else
+                fileName = "";
+
+            int bias;
+            for (bias = 0; bias < Math.Min(absLen, relParts.Length); ++bias)
+                if (!absParts[bias].Equals(relParts[bias], StringComparison.InvariantCulture))
+                    break;
+
+            string newDir = "";
+            for (int i = bias; i < relParts.Length; ++i)
+                newDir += "..\\";
+            for (int i = bias; i < absLen; ++i)
+                newDir += absParts[i] + "\\";
+
+            return newDir + fileName;
+        }
         /// <summary>
         /// Parses the given string as an enum of the given type.
         /// </summary>

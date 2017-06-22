@@ -12,7 +12,8 @@ namespace TheraEngine.Rendering
         public event EventHandler ResetOccured;
 
         public static List<RenderContext> BoundContexts = new List<RenderContext>();
-        
+
+        private VSyncMode _vsyncMode;
         private static RenderContext _current;
         public static RenderContext Current
         {
@@ -42,6 +43,16 @@ namespace TheraEngine.Rendering
 
         public RenderPanel Control => _control;
         internal List<BaseRenderState.ContextBind> States => _states;
+        public VSyncMode VSyncMode
+        {
+            get => _vsyncMode;
+            set
+            {
+                _vsyncMode = value;
+                foreach (ThreadSubContext c in _subContexts.Values)
+                    c.VsyncChanged(_vsyncMode);
+            }
+        }
 
         protected RenderPanel _control;
         protected bool _resetting = false;
@@ -63,6 +74,7 @@ namespace TheraEngine.Rendering
             public abstract void OnUpdated();
             public abstract void SetCurrent(bool current);
             public abstract void Dispose();
+            internal abstract void VsyncChanged(VSyncMode vsyncMode);
         }
 
         private List<BaseRenderState.ContextBind> _states = new List<BaseRenderState.ContextBind>();

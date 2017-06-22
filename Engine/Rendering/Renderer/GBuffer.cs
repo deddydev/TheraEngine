@@ -154,7 +154,10 @@ namespace TheraEngine.Rendering
         {
             _parent.Camera.PostProcessSettings.SetUniforms();
             if (Engine.Settings.ShadingStyle == ShadingStyle.Deferred)
+            {
+                //_parent.Camera.SetUniforms();
                 Engine.Scene.Lights.SetUniforms();
+            }
         }
 
         ~GBuffer()
@@ -330,7 +333,7 @@ void main()
     vec4 Text = texture(Texture3, vec2(uv.x, 1.0 - uv.y));
     float Depth = texture(Texture4, uv).r;
 
-    " + ShaderHelpers.LightingCalc("totalLight", "vec3(0.0)", "Normal", "FragPos", "AlbedoSpec.rgb", "AlbedoSpec.a") + @"
+    " + ShaderHelpers.LightingCalc("totalLight", "GlobalAmbient", "Normal", "FragPos", "AlbedoSpec.rgb", "AlbedoSpec.a") + @"
 
     vec3 hdrSceneColor = AlbedoSpec.rgb * totalLight;
 
@@ -349,7 +352,7 @@ void main()
     vec3 textAdded = mix(ldrSceneColor, Text.rgb, Text.a);
 
     //Gamma-correct
-    vec3 gammaCorrected = pow(textAdded.rgb, vec3(1.0 / ColorGrade.Gamma));
+    vec3 gammaCorrected = pow(textAdded, vec3(1.0 / ColorGrade.Gamma));
 
     OutColor = vec4(gammaCorrected, 1.0);
 }";

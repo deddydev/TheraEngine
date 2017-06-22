@@ -3,6 +3,7 @@ using TheraEngine.Input;
 using TheraEngine.Worlds.Actors;
 using System;
 using System.Runtime.InteropServices;
+using System.Collections.Generic;
 
 namespace TheraEngine.GameModes
 {
@@ -64,16 +65,21 @@ namespace TheraEngine.GameModes
             return value._value;
         }
     }
-    public struct SubClassOf<T> where T : class, new()
+    public struct SubClassOf<T> where T : class
     {
         public SubClassOf(Type t) { }
-        public T CreateNew()
+
+        public T CreateNew(params object[] args)
         {
-            return new T();
+            return (T)Activator.CreateInstance(typeof(T), args);
         }
         public T2 CreateNew<T2>() where T2 : T, new()
         {
             return new T2();
+        }
+        public T2 CreateNew<T2>(params object[] args) where T2 : T
+        {
+            return (T2)Activator.CreateInstance(typeof(T2), args);
         }
     }
     public interface IGameMode
@@ -89,43 +95,56 @@ namespace TheraEngine.GameModes
         public abstract void AbortGameplay();
         protected internal abstract void HandleLocalPlayerLeft(LocalPlayerController item);
         protected internal abstract void HandleLocalPlayerJoined(LocalPlayerController item);
+        protected internal abstract LocalPlayerController CreateLocalController(PlayerIndex index);
+        protected internal abstract LocalPlayerController CreateLocalController(PlayerIndex index, Queue<IPawn> possessionQueue);
     }
-    public class GameMode<PawnType> : BaseGameMode
+    public class GameMode<PawnType, ControllerType> : BaseGameMode
         where PawnType : class, IPawn, new()
+        where ControllerType : LocalPlayerController
     {
         protected SubClassOf<PawnType> _pawnClass;
-
+        protected SubClassOf<ControllerType> _controllerClass;
+        
         public SubClassOf<PawnType> PawnClass
         {
             get => _pawnClass;
             set => _pawnClass = value;
         }
-        
+        public SubClassOf<ControllerType> ControllerClass
+        {
+            get => _controllerClass;
+            set => _controllerClass = value;
+        }
+
         public int _numSpectators, _numPlayers, _numComputers;
 
         public override void BeginGameplay()
         {
 
         }
-
         public override void EndGameplay()
         {
 
         }
-
         public override void AbortGameplay()
         {
 
         }
-
         protected internal override void HandleLocalPlayerLeft(LocalPlayerController item)
         {
 
         }
-
         protected internal override void HandleLocalPlayerJoined(LocalPlayerController item)
         {
 
+        }
+        protected internal override LocalPlayerController CreateLocalController(PlayerIndex index, Queue<IPawn> queue)
+        {
+            return ControllerClass.CreateNew(index, queue);
+        }
+        protected internal override LocalPlayerController CreateLocalController(PlayerIndex index)
+        {
+            return ControllerClass.CreateNew(index);
         }
     }
 }

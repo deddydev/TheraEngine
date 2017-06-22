@@ -206,7 +206,9 @@ namespace TheraEngine.Files
         }
         public static string GetFilePath(string dir, string name, FileFormat format, Type fileType)
         {
-            return dir + "\\" + name + "." + GetFileHeader(fileType).GetProperExtension(format);
+            if (!dir.EndsWith("\\"))
+                dir += "\\";
+            return dir + name + "." + GetFileHeader(fileType).GetProperExtension(format);
         }
 
         public static T FromXML<T>(string filePath) where T : FileObject

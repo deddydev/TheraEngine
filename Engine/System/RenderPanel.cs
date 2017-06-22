@@ -16,6 +16,12 @@ using TheraEngine.Players;
 
 namespace TheraEngine
 {
+    public enum VSyncMode
+    {
+        Disabled,
+        Enabled,
+        Adaptive,
+    }
     public static class ControlExtension
     {
         [ReflectionPermission(SecurityAction.Demand, MemberAccess = true)]
@@ -83,6 +89,7 @@ namespace TheraEngine
         internal DelPointConvert PointToClientDelegate;
         internal DelPointConvert PointToScreenDelegate;
         
+        private VSyncMode _vsyncMode = VSyncMode.Adaptive;
         internal RenderContext _context;
         protected int _updateCounter;
         private HudManager _globalHud;
@@ -99,6 +106,17 @@ namespace TheraEngine
             get => _backColor;
             set => _backColor = value;
         }
+
+        public VSyncMode VsyncMode
+        {
+            get => _vsyncMode;
+            set
+            {
+                _vsyncMode = value;
+                _context.VSyncMode = _vsyncMode;
+            }
+        }
+
         public void CaptureContext()
         {
             if (InvokeRequired)

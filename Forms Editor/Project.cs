@@ -20,10 +20,10 @@ namespace TheraEditor
     [FileClass("TPROJ", "Game Project", PreferredFormat = SerializeFormat.XML)]
     public class Project : Game
     {
-        public const string BinDirName = "Bin";
-        public const string ConfigDirName = "Config";
-        public const string SourceDirName = "Source";
-        public const string ContentDirName = "Content";
+        public const string BinDirName = "Bin\\";
+        public const string ConfigDirName = "Config\\";
+        public const string SourceDirName = "Source\\";
+        public const string ContentDirName = "Content\\";
 
         private SingleFileRef<ProjectState> _state;
 
@@ -33,6 +33,26 @@ namespace TheraEditor
         {
             get => _state;
             set => _state = value;
+        }
+        public void SetDirectory(string directory)
+        {
+            if (!directory.EndsWith("\\"))
+                directory += "\\";
+            FilePath = GetFilePath(directory, Name, FileFormat.XML, typeof(Project));
+            _state.RefPathAbsolute = GetFilePath(ConfigDirName, Name, FileFormat.XML, typeof(ProjectState));
+            _userSettings.RefPathAbsolute = GetFilePath(ConfigDirName, Name, FileFormat.XML, typeof(UserSettings));
+            _engineSettings.RefPathAbsolute = GetFilePath(ConfigDirName, Name, FileFormat.XML, typeof(EngineSettings));
+        }
+        public static Project Create(string name)
+        {
+            Project p = new Project()
+            {
+                Name = name,
+                State = new SingleFileRef<ProjectState>(new ProjectState()),
+                UserSettings = new SingleFileRef<UserSettings>(new UserSettings()),
+                EngineSettings = new SingleFileRef<EngineSettings>(new EngineSettings()),
+            };
+            return p;
         }
         public static Project Create(string directory, string name)
         {

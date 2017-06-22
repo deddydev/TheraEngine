@@ -416,11 +416,11 @@ namespace TheraEngine
                     if (_possessionQueues.ContainsKey(index))
                     {
                         //Transfer possession queue to the controller itself
-                        controller = new LocalPlayerController(index, _possessionQueues[index]);
+                        controller = World.Settings.GameMode.CreateLocalController(index, _possessionQueues[index]);
                         _possessionQueues.Remove(controller.LocalPlayerIndex);
                     }
                     else
-                        controller = new LocalPlayerController(index);
+                        controller = World.Settings.GameMode.CreateLocalController(index);
                     ActivePlayers.Add(controller);
                 }
                 else
@@ -435,11 +435,11 @@ namespace TheraEngine
                     if (_possessionQueues.ContainsKey(index))
                     {
                         //Transfer possession queue to the controller itself
-                        controller = new LocalPlayerController(index, _possessionQueues[index]);
+                        controller = World.Settings.GameMode.CreateLocalController(index, _possessionQueues[index]);
                         _possessionQueues.Remove(controller.LocalPlayerIndex);
                     }
                     else
-                        controller = new LocalPlayerController(index);
+                        controller = World.Settings.GameMode.CreateLocalController(index);
                     ActivePlayers.Add(controller);
                 }
                 else

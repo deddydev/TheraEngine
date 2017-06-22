@@ -7,7 +7,7 @@ namespace TheraEngine.Tests
 {
     public class TestGameMode : CharacterGameMode<TestCharacter>
     {
-        public TestGameMode()
+        public TestGameMode() : base()
         {
 
         }

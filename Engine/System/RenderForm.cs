@@ -14,9 +14,7 @@ namespace TheraEngine
         public RenderForm(Game game)
         {
             Engine.SetGame(game);
-
             InitializeComponent();
-
             Engine.Initialize();
 
             Text = game.Name;
@@ -26,7 +24,6 @@ namespace TheraEngine
             //TopMost = true;
             //FormBorderStyle = FormBorderStyle.None;
             WindowState = FormWindowState.Maximized;
-
         }
         protected override void OnLoad(EventArgs e)
         {

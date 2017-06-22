@@ -18,7 +18,7 @@ namespace TheraEngine.GameModes
     {
         public float _respawnTime = 3;
 
-        public CharacterGameMode()
+        public CharacterGameMode() : base()
         {
 
         }
@@ -31,7 +31,10 @@ namespace TheraEngine.GameModes
         {
             base.HandleLocalPlayerJoined(item);
             PawnType pawn = _pawnClass.CreateNew();
-            item.ControlledPawn = pawn;
+            if (item.ControlledPawn == null)
+                item.ControlledPawn = pawn;
+            else
+                item.EnqueuePosession(pawn);
             pawn.QueueRespawn();
         }
         public override void BeginGameplay()
@@ -39,7 +42,10 @@ namespace TheraEngine.GameModes
             foreach (LocalPlayerController c in Engine.ActivePlayers)
             {
                 PawnType pawn = _pawnClass.CreateNew();
-                c.ControlledPawn = pawn;
+                if (c.ControlledPawn == null)
+                    c.ControlledPawn = pawn;
+                else
+                    c.EnqueuePosession(pawn);
                 pawn.QueueRespawn();
             }
         }
@@ -56,7 +62,7 @@ namespace TheraEngine.GameModes
         }
         public override void EndGameplay()
         {
-            throw new NotImplementedException();
+            
         }
         public virtual void OnCharacterKilled(ICharacterPawn killed, ICharacterPawn instigator, IActor killer)
         {

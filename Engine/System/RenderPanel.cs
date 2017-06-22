@@ -189,9 +189,11 @@ namespace TheraEngine
         protected override void OnResize(EventArgs e)
         {
             base.OnResize(e);
-            _globalHud?.Resize(new Vec2(Width, Height));
+            int w = Width.ClampMin(1);
+            int h = Height.ClampMin(1);
+            _globalHud?.Resize(new Vec2(w, h));
             foreach (Viewport v in _viewports)
-                v.Resize(Width, Height);
+                v.Resize(w, h);
             _context?.Update();
         }
         protected virtual void OnReset(object sender, EventArgs e)

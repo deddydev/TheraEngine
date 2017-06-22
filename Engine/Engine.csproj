@@ -696,7 +696,7 @@
     <None Include="Rendering\Renderer\States\DisplayList.cs" />
     <Compile Include="Rendering\Renderer\Text.cs" />
     <Compile Include="Rendering\Textures\PixelTypes.cs" />
-    <Compile Include="Rendering\Textures\TextureConverter.cs" />
+    <None Include="Rendering\Textures\TextureConverter.cs" />
     <Compile Include="Rendering\Textures\TextureData.cs" />
     <Compile Include="ResourceType.cs" />
     <Compile Include="System\ComputerInfo.cs" />

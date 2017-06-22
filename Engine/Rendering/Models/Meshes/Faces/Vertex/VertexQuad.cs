@@ -46,10 +46,10 @@ namespace TheraEngine.Rendering.Models
             }
             else
                 return new VertexQuad(
-                    new Vertex(bottomLeft, new Vec2(0.0f, 0.0f)),
+                    new Vertex(bottomLeft,  new Vec2(0.0f, 0.0f)),
                     new Vertex(bottomRight, new Vec2(1.0f, 0.0f)),
-                    new Vertex(topRight, new Vec2(1.0f, 1.0f)),
-                    new Vertex(topLeft, new Vec2(0.0f, 1.0f)));
+                    new Vertex(topRight,    new Vec2(1.0f, 1.0f)),
+                    new Vertex(topLeft,     new Vec2(0.0f, 1.0f)));
         }
         public static VertexQuad MakeQuad(
             Vec3 bottomLeft, Vec3 bottomRight, Vec3 topRight, Vec3 topLeft, Vec3 normal)

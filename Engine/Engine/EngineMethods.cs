@@ -366,17 +366,11 @@ namespace TheraEngine
         {
             World previous = World;
             if (World != null)
-            {
                 World.EndPlay();
-                //World.LocalPlayerAdded -= World_LocalPlayerAdded;
-            }
             _currentWorld = world;
             Scene.WorldChanged();
             if (World != null)
-            {
-                //World.LocalPlayerAdded += World_LocalPlayerAdded;
                 World.BeginPlay();
-            }
             if (unloadPrevious)
                 previous?.Unload();
         }

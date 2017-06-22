@@ -8,7 +8,7 @@ namespace System
     {
         public static Bitmap Resized(this Bitmap i, int width, int height, InterpolationMode mode = InterpolationMode.HighQualityBicubic)
         {
-            Bitmap r = new Bitmap(width, height);
+            Bitmap r = new Bitmap(width.ClampMin(1), height.ClampMin(1));
             r.SetResolution(i.HorizontalResolution, i.VerticalResolution);
             using (Graphics graphics = Graphics.FromImage(r))
             {

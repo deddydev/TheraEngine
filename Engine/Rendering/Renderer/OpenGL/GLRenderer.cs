@@ -706,6 +706,7 @@ namespace TheraEngine.Rendering.OpenGL
                 BufferAccessMask.MapCoherentBit |
                 BufferAccessMask.MapReadBit |
                 BufferAccessMask.MapWriteBit), length);
+            //buffer._data = new DataSource(GL.MapNamedBuffer(buffer.BindingId, BufferAccess.ReadWrite), length);
         }
         public override void PushBufferData(VertexBuffer buffer)
         {

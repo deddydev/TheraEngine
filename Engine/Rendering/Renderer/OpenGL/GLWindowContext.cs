@@ -41,7 +41,7 @@ namespace TheraEngine.Rendering.OpenGL
                 string shaderVersion = GL.GetString(StringName.ShadingLanguageVersion);
                 //string extensions = GL.GetString(StringName.Extensions);
 
-                Debug.WriteLine("Generated OpenGL context on thread " + _thread.ManagedThreadId);
+                Debug.WriteLine("Generated OpenGL context on " + _thread.Name + " thread.");
                 Debug.WriteLine("OPENGL VENDOR: " + vendor);
                 Debug.WriteLine("OPENGL VERSION: " + version);
                 Debug.WriteLine("OPENGL RENDERER: " + renderer);

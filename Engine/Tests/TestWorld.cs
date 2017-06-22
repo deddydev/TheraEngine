@@ -209,8 +209,8 @@ namespace TheraEngine.Tests
                 //floor2Actor,
                 spawn,
                 //importedActor,
-                //new FlyingCameraPawn(PlayerIndex.One) { Name = "PlayerCamera" },
-                //new CharacterPawn(PlayerIndex.One, scene._skeletalModel, scene._skeleton) { Name = "PlayerCharacter", },
+                new FlyingCameraPawn(PlayerIndex.One) { Name = "PlayerCamera" },
+                //new CharacterPawn(PlayerIndex.Two, ColladaScene.SkeletalModel, ColladaScene.Skeleton) { Name = "PlayerCharacter", },
             };
 
             _settings.GameMode = new TestGameMode();// new GameMode<FlyingCameraPawn>();

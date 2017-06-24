@@ -51,11 +51,11 @@ namespace TheraEngine.Rendering.HUD
             {
                 if (value == _skeleton)
                     return;
-                if (_skeleton != null)
-                    _skeleton.OwningComponent = null;
+                //if (_skeleton != null)
+                //    _skeleton.OwningComponent = null;
                 _skeleton = value;
-                if (_skeleton != null)
-                    _skeleton.OwningComponent = this;
+                //if (_skeleton != null)
+                //    _skeleton.OwningComponent = this;
                 if (_meshes != null)
                     foreach (RenderableMesh m in _meshes)
                         m.Skeleton = _skeleton;

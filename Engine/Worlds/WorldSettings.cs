@@ -51,6 +51,7 @@ namespace TheraEngine.Worlds
                 float oldTimeSpeed = _timeSpeed;
                 _timeSpeed = value;
                 OnTimeMultiplierChanged(oldTimeSpeed);
+                Engine.TimeDilation = _timeSpeed;
             }
         }
         [Serialize("Gravity")]

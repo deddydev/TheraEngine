@@ -223,7 +223,7 @@ namespace TheraEngine
             Paused?.Invoke(_isPaused, toggler);
         }
 
-        #region Tick
+        #region Update Tick
         /// <summary>
         /// Starts deployment of update and render ticks.
         /// </summary>
@@ -279,10 +279,10 @@ namespace TheraEngine
             => _tickLists[(int)group + (int)order + (int)pausedBehavior];
         private static void Tick(object sender, FrameEventArgs e)
         {
-            float delta = (float)e.Time;
+            float delta = (float)(e.Time * TimeDilation);
             TickGroup(ETickGroup.PrePhysics, delta);
             if (!_isPaused && World != null)
-                World.StepSimulation(delta * (float)TimeDilation);
+                World.StepSimulation(delta);
             TickGroup(ETickGroup.PostPhysics, delta);
         }
         private static void TickGroup(ETickGroup group, float delta)

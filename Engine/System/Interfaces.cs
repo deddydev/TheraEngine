@@ -51,6 +51,7 @@ namespace TheraEngine
     {
         void Render();
         bool HasTransparency { get; }
+        ushort LayerIndex { get; }
     }
     public interface I2DBoundable
     {

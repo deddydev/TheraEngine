@@ -149,6 +149,8 @@ namespace TheraEngine
 
         public void AddAnimation(AnimationContainer anim, bool startNow = false)
         {
+            if (anim == null)
+                return;
             anim.AnimationEnded += RemoveAnimation;
             if (_animations == null)
                 _animations = new List<AnimationContainer>();
@@ -159,7 +161,7 @@ namespace TheraEngine
         }
         public void RemoveAnimation(AnimationContainer anim)
         {
-            if (_animations == null)
+            if (_animations == null || anim == null)
                 return;
             _animations.Remove(anim);
             if (_animations.Count == 0)

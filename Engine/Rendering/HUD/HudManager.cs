@@ -13,7 +13,7 @@ namespace TheraEngine.Rendering.HUD
     /// </summary>
     public partial class HudManager : Pawn<DockableHudComponent>
     {
-        internal LinkedList<HudComponent> _renderables = new LinkedList<HudComponent>();
+        internal LinkedList<I2DRenderable> _renderables = new LinkedList<I2DRenderable>();
         internal Quadtree _childComponentTree;
         private Viewport _owningViewport;
         private RenderPanel _owningPanel;
@@ -84,7 +84,7 @@ namespace TheraEngine.Rendering.HUD
                 return;
             AbstractRenderer.CurrentCamera = _camera;
             _childComponentTree.DebugRender();
-            foreach (HudComponent comp in _renderables)
+            foreach (I2DRenderable comp in _renderables)
                 if (comp.IsRendering)
                     comp.Render();
             AbstractRenderer.CurrentCamera = null;
@@ -94,12 +94,12 @@ namespace TheraEngine.Rendering.HUD
             child.Owner = this;
         }
 
-        internal void UncacheComponent(HudComponent component)
+        internal void UncacheComponent(I2DRenderable component)
         {
             _childComponentTree.Remove(component);
             _renderables.Remove(component);
         }
-        internal void CacheComponent(HudComponent component)
+        internal void CacheComponent(I2DRenderable component)
         {
             _childComponentTree.Add(component);
             if (_renderables.Count == 0)

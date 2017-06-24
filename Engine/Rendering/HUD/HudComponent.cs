@@ -173,9 +173,14 @@ namespace TheraEngine.Rendering.HUD
             set
             {
                 HudManager manager = Owner;
-                manager?.UncacheComponent(this);
-                manager = value;
-                manager?.CacheComponent(this);
+                if (this is I2DRenderable r)
+                {
+                    manager?.UncacheComponent(r);
+                    manager = value;
+                    manager?.CacheComponent(r);
+                }
+                else
+                    manager = value;
                 base.OwningActor = value;
             }
         }

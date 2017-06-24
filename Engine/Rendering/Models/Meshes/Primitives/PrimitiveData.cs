@@ -5,6 +5,7 @@ using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Xml;
+using System.Diagnostics;
 
 namespace TheraEngine.Rendering.Models
 {
@@ -154,6 +155,10 @@ namespace TheraEngine.Rendering.Models
                     throw new IndexOutOfRangeException();
             }
         }
+
+        public VertexBuffer[] GetAllBuffersOfType(BufferType type)
+            => _buffers.Where(x => x.BufferType == type).ToArray();
+        
         public int[] GenerateBuffers(int vaoId)
         {
             List<int> bindingIds = new List<int>();
@@ -192,6 +197,91 @@ namespace TheraEngine.Rendering.Models
             Vertex v1 = new Vertex(fp1, _buffers);
             Vertex v2 = new Vertex(fp2, _buffers);
             return new VertexTriangle(v0, v1, v2);
+        }
+        public void GenerateBinormalTangentBuffers(int positionIndex, int normalIndex, int uvIndex)
+        {
+            VertexBuffer[] pBuffs = GetAllBuffersOfType(BufferType.Position);
+            if (pBuffs.Length == 0)
+            {
+                Debug.WriteLine("No position buffers found.");
+                return;
+            }
+            if (!pBuffs.IndexInRange(positionIndex))
+            {
+                Debug.WriteLine("Position index out of range of available position buffers.");
+                return;
+            }
+            VertexBuffer[] nBuffs = GetAllBuffersOfType(BufferType.Normal);
+            if (nBuffs.Length == 0)
+            {
+                Debug.WriteLine("No normal buffers found.");
+                return;
+            }
+            if (!nBuffs.IndexInRange(normalIndex))
+            {
+                Debug.WriteLine("Normal index out of range of available normal buffers.");
+                return;
+            }
+            VertexBuffer[] tBuffs = GetAllBuffersOfType(BufferType.TexCoord);
+            if (tBuffs.Length == 0)
+            {
+                Debug.WriteLine("No texcoord buffers found.");
+                return;
+            }
+            if (!tBuffs.IndexInRange(uvIndex))
+            {
+                Debug.WriteLine("UV index out of range of available texcoord buffers.");
+                return;
+            }
+
+            Vec3 p0, p1, p2, n0, n1, n2;
+            Vec2 t0, t1, t2;
+
+            VertexBuffer pBuff = pBuffs[positionIndex];
+            VertexBuffer nBuff = pBuffs[normalIndex];
+            VertexBuffer tBuff = pBuffs[uvIndex];
+            int pointCount = _triangles.Count * 3;
+            List<Vec3> binormals = new List<Vec3>(pointCount);
+            List<Vec3> tangents = new List<Vec3>(pointCount);
+
+            int i = 0;
+            foreach (IndexTriangle t in _triangles)
+            {
+                FacePoint fp0 = _facePoints[t.Point0];
+                FacePoint fp1 = _facePoints[t.Point1];
+                FacePoint fp2 = _facePoints[t.Point2];
+
+                p0 = pBuff.Get<Vec3>(fp0.BufferIndices[pBuff.Index] * 12);
+                p1 = pBuff.Get<Vec3>(fp1.BufferIndices[pBuff.Index] * 12);
+                p2 = pBuff.Get<Vec3>(fp2.BufferIndices[pBuff.Index] * 12);
+                n0 = nBuff.Get<Vec3>(fp0.BufferIndices[nBuff.Index] * 12);
+                n1 = nBuff.Get<Vec3>(fp1.BufferIndices[nBuff.Index] * 12);
+                n2 = nBuff.Get<Vec3>(fp2.BufferIndices[nBuff.Index] * 12);
+                t0 = tBuff.Get<Vec2>(fp0.BufferIndices[tBuff.Index] * 8);
+                t1 = tBuff.Get<Vec2>(fp1.BufferIndices[tBuff.Index] * 8);
+                t2 = tBuff.Get<Vec2>(fp2.BufferIndices[tBuff.Index] * 8);
+
+                fp0.BufferIndices.Add(i);
+                fp1.BufferIndices.Add(i);
+                fp2.BufferIndices.Add(i);
+                ++i;
+
+                Vec3 deltaPos1 = p1 - p0;
+                Vec3 deltaPos2 = p2 - p0;
+                
+                Vec2 deltaUV1 = t1 - t0;
+                Vec2 deltaUV2 = t2 - t0;
+
+                float r = 1.0f / (deltaUV1.X * deltaUV2.Y - deltaUV1.Y * deltaUV2.X);
+                Vec3 tangent = (deltaPos1 * deltaUV2.Y - deltaPos2 * deltaUV1.Y) * r;
+                Vec3 bitangent = (deltaPos2 * deltaUV1.X - deltaPos1 * deltaUV2.X) * r;
+
+                binormals.Add(bitangent);
+                tangents.Add(tangent);
+            }
+
+            AddBuffer(binormals, new VertexAttribInfo(BufferType.Binormal));
+            AddBuffer(tangents, new VertexAttribInfo(BufferType.Tangent));
         }
         private void SetInfluences(params Influence[] influences)
         {
@@ -553,7 +643,6 @@ namespace TheraEngine.Rendering.Models
                 AddBuffer(data, new VertexAttribInfo(BufferType.Barycentric, 0));
             }
         }
-
         public void Dispose()
         {
             _buffers?.ForEach(x => x.Dispose());

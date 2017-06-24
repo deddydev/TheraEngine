@@ -99,18 +99,20 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="GameModes\BaseGameMode.cs" />
-    <Compile Include="GameModes\PlayerTraits.cs" />
+    <Compile Include="GameModes\BaseTheraGameMode.cs" />
+    <Compile Include="Player\PlayerTraits.cs" />
+    <Compile Include="GameModes\StoryGameMode.cs" />
     <Compile Include="GameModes\TeamTraits.cs" />
-    <Compile Include="GameModes\TheraCharacterController.cs" />
+    <Compile Include="Player\TheraCharacterController.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Worlds\Actors\Components\Scene\InteractionZoneComponent.cs" />
     <Compile Include="Worlds\Actors\Components\Logic\InventoryComponent.cs" />
-    <Compile Include="Worlds\Actors\TheraCharacter.cs" />
+    <Compile Include="Player\TheraCharacter.cs" />
     <Compile Include="Worlds\Actors\InteractableActor.cs" />
     <Compile Include="Worlds\Actors\Items\EquippableItem.cs" />
     <Compile Include="Worlds\Actors\Items\InventoryItem.cs" />
+    <Compile Include="Worlds\Actors\Items\Weapons\TestGun.cs" />
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>

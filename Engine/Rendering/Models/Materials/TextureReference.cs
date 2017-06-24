@@ -7,6 +7,9 @@ using System.Drawing;
 
 namespace TheraEngine.Rendering.Models.Materials
 {
+    /// <summary>
+    /// Used by materials to refer to either an external texture or an internal bitmap.
+    /// </summary>
     public class TextureReference
     {
         public TextureReference() : this(null, 1, 1) { }

@@ -15,7 +15,7 @@ using System.ComponentModel;
 namespace TheraEngine.Rendering.Models
 {
     [FileClass("SKEL", "Skeleton")]
-    public class Skeleton : FileObject, IEnumerable<Bone>, IRenderable
+    public class Skeleton : FileObject, IEnumerable<Bone>, I3DRenderable
     {
         public bool HasTransparency => false;
         public Skeleton() : base() { }

@@ -32,6 +32,9 @@ namespace TheraEngine.Input.Devices
     /// </summary>
     public class InputInterface : ObjectBase
     {
+        //TODO: contain reference to owning local player controller
+        //and use its player index enum instead
+        //Also update devices when the player index is changed
         public int PlayerIndex
         {
             get => _playerIndex;
@@ -42,6 +45,10 @@ namespace TheraEngine.Input.Devices
             }
         }
 
+        public CGamePad Gamepad => _gamepad;
+        public CKeyboard Keyboard => _keyboard;
+        public CMouse Mouse => _mouse;
+
         Dictionary<string, List<EKey>> _namedKeys = new Dictionary<string, List<EKey>>();
         Dictionary<string, List<GamePadButton>> _namedGamepadButtons = new Dictionary<string, List<GamePadButton>>();
         Dictionary<string, List<GamePadAxis>> _namedGamepadAxes = new Dictionary<string, List<GamePadAxis>>();
@@ -51,19 +58,20 @@ namespace TheraEngine.Input.Devices
 
         private bool _unregister = false;
         private int _playerIndex;
+
         private CGamePad _gamepad;
         private CKeyboard _keyboard;
         private CMouse _mouse;
 
         public InputInterface(int playerIndex) { PlayerIndex = playerIndex; }
 
-        public void UpdateDevices()
+        internal void UpdateDevices()
         {
             TryUnregisterInput();
             GetDevices();
             TryRegisterInput();
         }
-        public void TryRegisterInput()
+        internal void TryRegisterInput()
         {
             if (_gamepad != null || _keyboard != null || _mouse != null)
             {
@@ -71,10 +79,14 @@ namespace TheraEngine.Input.Devices
                 WantsInputsRegistered?.Invoke(this);
             }
         }
-        public void TryUnregisterInput()
+        internal void TryUnregisterInput()
         {
             if (_gamepad != null || _keyboard != null || _mouse != null)
             {
+                //Call for regular old input registration, but in the backend,
+                //unregister all calls instead of registering them.
+                //This way the user doesn't have to do any extra work
+                //other than just registering the inputs.
                 _unregister = true;
                 WantsInputsRegistered?.Invoke(this);
                 _unregister = false;

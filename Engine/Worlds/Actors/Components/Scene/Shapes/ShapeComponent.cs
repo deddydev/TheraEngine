@@ -4,7 +4,7 @@ using TheraEngine.Rendering;
 
 namespace TheraEngine.Worlds.Actors
 {
-    public abstract class ShapeComponent : TRComponent, IRenderable, IPhysicsDrivable
+    public abstract class ShapeComponent : TRComponent, I3DRenderable, IPhysicsDrivable
     {
         public bool HasTransparency => false;
         public void InitPhysics(PhysicsConstructionInfo info)

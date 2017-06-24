@@ -33,7 +33,7 @@ namespace System
         ConeComplex,
     }
     [FileClass("Shape", "Shape")]
-    public abstract class Shape : FileObject, IRenderable
+    public abstract class Shape : FileObject, I3DRenderable
     {
         public event Action AttributeChanged;
 

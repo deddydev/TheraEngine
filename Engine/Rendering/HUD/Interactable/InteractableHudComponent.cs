@@ -8,7 +8,6 @@ using TheraEngine.Input.Devices;
 
 namespace TheraEngine.Rendering.HUD
 {
-    public delegate void DelScrolling(bool up);
     /// <summary>
     /// Hud component that can be interacted with by the player.
     /// </summary>

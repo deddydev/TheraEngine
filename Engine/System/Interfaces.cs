@@ -14,7 +14,7 @@ namespace TheraEngine
     {
 
     }
-    public interface ISubMesh : IRenderable
+    public interface ISubMesh : I3DRenderable
     {
         bool Visible { get; set; }
         bool VisibleInEditorOnly { get; set; }
@@ -36,7 +36,7 @@ namespace TheraEngine
         Material Material { get; set; }
         SkeletalMesh Model { get; }
     }
-    public interface IRenderable : I3DBoundable
+    public interface I3DRenderable : I3DBoundable
     {
         void Render();
         bool HasTransparency { get; }
@@ -46,6 +46,11 @@ namespace TheraEngine
         Shape CullingVolume { get; }
         IOctreeNode RenderNode { get; set; }
         bool IsRendering { get; set; }
+    }
+    public interface I2DRenderable : I2DBoundable
+    {
+        void Render();
+        bool HasTransparency { get; }
     }
     public interface I2DBoundable
     {

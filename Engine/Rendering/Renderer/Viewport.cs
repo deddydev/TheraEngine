@@ -307,7 +307,7 @@ namespace TheraEngine.Rendering
 #endif
                 float depth = GetDepth(viewportPoint);
                 Vec3 worldPoint = ScreenToWorld(viewportPoint, depth);
-                ThreadSafeList<IRenderable> r = Engine.Scene.RenderTree.FindClosest(worldPoint);
+                ThreadSafeList<I3DRenderable> r = Engine.Scene.RenderTree.FindClosest(worldPoint);
 
             }
             return null;

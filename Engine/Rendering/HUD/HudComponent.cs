@@ -279,9 +279,7 @@ namespace TheraEngine.Rendering.HUD
             Vec2 localPoint = (Vec2)(_inverseWorldTransform * new Vec3(viewportPoint, 0.0f));
             return Region.Bounds.Contains(viewportPoint);
         }
-
-        public virtual void Render() { }
-
+        
         protected internal override void OriginRebased(Vec3 newOrigin) { }
 
         public IEnumerator<HudComponent> GetEnumerator() => ((IEnumerable<HudComponent>)_children).GetEnumerator();

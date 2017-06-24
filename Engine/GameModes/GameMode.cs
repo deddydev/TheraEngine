@@ -90,6 +90,8 @@ namespace TheraEngine.GameModes
     }
     public abstract class BaseGameMode : FileObject, IGameMode
     {
+        public bool AllowPausing { get; internal set; }
+
         public abstract void BeginGameplay();
         public abstract void EndGameplay();
         public abstract void AbortGameplay();

@@ -12,7 +12,7 @@ using System.ComponentModel;
 
 namespace System
 {
-    public class Frustum : IRenderable, IEnumerable<Plane>
+    public class Frustum : I3DRenderable, IEnumerable<Plane>
     {
         private static List<Frustum> ActiveFrustums = new List<Frustum>();
         private string _renderName;

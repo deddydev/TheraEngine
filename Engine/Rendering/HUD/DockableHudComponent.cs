@@ -7,8 +7,16 @@ using TheraEngine.Rendering.Models.Materials;
 
 namespace TheraEngine.Rendering.HUD
 {
+    public enum SizingMode
+    {
+        Percentage,
+        Pixels,
+    }
     public class DockableHudComponent : HudComponent
     {
+        private SizingMode
+            _widthMode = SizingMode.Percentage,
+            _heightMode = SizingMode.Percentage;
         private HudDockStyle _dockStyle;
         private AnchorFlags _sideAnchorFlags;
 

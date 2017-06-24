@@ -5,7 +5,7 @@ using System.Drawing;
 namespace TheraEngine.Worlds.Actors
 {
     public delegate void LengthChange(float newLength);
-    public class BoomComponent : RTComponent, IRenderable
+    public class BoomComponent : RTComponent, I3DRenderable
     {
         public event LengthChange CurrentDistanceChanged;
 

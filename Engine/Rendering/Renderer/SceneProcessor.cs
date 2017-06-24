@@ -14,30 +14,30 @@ namespace TheraEngine.Rendering
     }
     internal class RenderPasses
     {
-        private Deque<IRenderable> _opaqueDeferred = new Deque<IRenderable>();
-        private Deque<IRenderable> _opaqueForward = new Deque<IRenderable>();
-        private Deque<IRenderable> _transparentForward = new Deque<IRenderable>();
+        private Deque<I3DRenderable> _opaqueDeferred = new Deque<I3DRenderable>();
+        private Deque<I3DRenderable> _opaqueForward = new Deque<I3DRenderable>();
+        private Deque<I3DRenderable> _transparentForward = new Deque<I3DRenderable>();
 
-        public Deque<IRenderable> OpaqueDeferred => _opaqueDeferred;
-        public Deque<IRenderable> OpaqueForward => _opaqueForward;
-        public Deque<IRenderable> TransparentForward => _transparentForward;
+        public Deque<I3DRenderable> OpaqueDeferred => _opaqueDeferred;
+        public Deque<I3DRenderable> OpaqueForward => _opaqueForward;
+        public Deque<I3DRenderable> TransparentForward => _transparentForward;
 
         public void Render(RenderPass pass)
         {
             switch (pass)
             {
                 case RenderPass.OpaqueDeferred:
-                    foreach (IRenderable r in OpaqueDeferred)
+                    foreach (I3DRenderable r in OpaqueDeferred)
                         r.Render();
                     OpaqueDeferred.Clear();
                     break;
                 case RenderPass.OpaqueForward:
-                    foreach (IRenderable r in OpaqueForward)
+                    foreach (I3DRenderable r in OpaqueForward)
                         r.Render();
                     OpaqueForward.Clear();
                     break;
                 case RenderPass.TransparentForward:
-                    foreach (IRenderable r in TransparentForward)
+                    foreach (I3DRenderable r in TransparentForward)
                         r.Render();
                     TransparentForward.Clear();
                     break;
@@ -81,11 +81,11 @@ namespace TheraEngine.Rendering
             _passes.Render(pass);
             AbstractRenderer.CurrentCamera = null;
         }
-        public void Add(IRenderable obj)
+        public void Add(I3DRenderable obj)
         {
             _renderTree?.Add(obj);
         }
-        public void Remove(IRenderable obj)
+        public void Remove(I3DRenderable obj)
         {
             _renderTree?.Remove(obj);
         }

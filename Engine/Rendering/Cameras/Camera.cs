@@ -11,7 +11,7 @@ using System.Drawing;
 namespace TheraEngine.Rendering.Cameras
 {
     public delegate void OwningComponentChange(CameraComponent previous, CameraComponent current);
-    public abstract class Camera : FileObject, IRenderable
+    public abstract class Camera : FileObject, I3DRenderable
     {
         public event OwningComponentChange OwningComponentChanged;
         public delegate void TranslationChange(Vec3 oldTranslation);

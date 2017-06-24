@@ -70,11 +70,7 @@ namespace TheraEngine.Input
             {
                 _viewport = value;
                 if (_viewport != null && _controlledPawn != null)
-                {
-                    _viewport.PawnHUD = _controlledPawn.Hud;
-                    if (_controlledPawn.CurrentCameraComponent != null)
-                        _viewport.Camera = _controlledPawn.CurrentCameraComponent.Camera;
-                }
+                    UpdateViewport();
             }
         }
         public Camera CurrentCamera
@@ -96,6 +92,8 @@ namespace TheraEngine.Input
                 {
                     _controlledPawn.OnUnPossessed();
                     _input.TryUnregisterInput();
+
+                    _input.WantsInputsRegistered -= RegisterInput;
                     _input.WantsInputsRegistered -= _controlledPawn.RegisterInput;
                 }
 
@@ -107,27 +105,30 @@ namespace TheraEngine.Input
                 if (_controlledPawn != null)
                 {
                     if (_viewport != null)
-                    {
-                        _viewport.PawnHUD = _controlledPawn.Hud;
-                        if (_controlledPawn.CurrentCameraComponent != null)
-                            _viewport.Camera = _controlledPawn.CurrentCameraComponent.Camera;
-                    }
+                        UpdateViewport();
 
+                    _input.WantsInputsRegistered += RegisterInput;
                     _input.WantsInputsRegistered += _controlledPawn.RegisterInput;
+
                     _controlledPawn.OnPossessed(this);
                     _input.TryRegisterInput();
                 }
             }
         }
-
-        //protected virtual void RegisterInput(InputInterface input)
-        //{
-        //    input.RegisterButtonEvent(EKey.Escape, ButtonInputType.Pressed, OnTogglePause);
-        //    input.RegisterButtonEvent(GamePadButton.SpecialRight, ButtonInputType.Pressed, OnTogglePause);
-        //}
-        //private void OnTogglePause()
-        //{
-        //    Engine.TogglePause(LocalPlayerIndex);
-        //}
+        private void UpdateViewport()
+        {
+            _viewport.PawnHUD = _controlledPawn.Hud;
+            if (_controlledPawn.CurrentCameraComponent != null)
+                _viewport.Camera = _controlledPawn.CurrentCameraComponent.Camera;
+        }
+        protected virtual void RegisterInput(InputInterface input)
+        {
+            input.RegisterButtonEvent(EKey.Escape, ButtonInputType.Pressed, OnTogglePause);
+            input.RegisterButtonEvent(GamePadButton.SpecialRight, ButtonInputType.Pressed, OnTogglePause);
+        }
+        private void OnTogglePause()
+        {
+            Engine.TogglePause(LocalPlayerIndex);
+        }
     }
 }

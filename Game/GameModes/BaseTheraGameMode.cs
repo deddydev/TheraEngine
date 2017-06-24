@@ -5,11 +5,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Thera.Worlds.Actors;
 
 namespace Thera.GameModes
 {
-    public class BaseGameMode : GameMode<CharacterPawn, TheraCharacterController>
+    public class BaseTheraGameMode : GameMode<TheraCharacter, TheraCharacterController>
     {
+        public const int MaxPossibleTeams = 16;
+        
         private bool _spawnVehicles;
         private bool _spawnGuns;
         private bool _spawnMeleeWeapons;
@@ -75,8 +78,8 @@ namespace Thera.GameModes
         private InheritablePlayerTraits _basePlayerTraits;
         private StaticPlayerTraits _staticPlayerTraits;
         private CharacterPawn _playableCharacter;
-        private int _maxTeams = 16;
-        private int _maxPerTeam = 16;
+        private int _maxTeams = MaxPossibleTeams;
+        private int _maxPerTeam = MaxPossibleTeams;
         private TeamTraits[] _teams = null;
 
         public CharacterPawn PlayableCharacter
@@ -89,9 +92,7 @@ namespace Thera.GameModes
             get => _teams != null;
             set
             {
-                if (_teams != null && value)
-                    return;
-                if (_teams == null && !value)
+                if (UseTeams == value)
                     return;
                 _teams = value ? new TeamTraits[_maxTeams] : null;
             }
@@ -107,7 +108,7 @@ namespace Thera.GameModes
             get => _maxTeams;
             set
             {
-                _maxTeams = value.Clamp(0, 16);
+                _maxTeams = value.Clamp(0, MaxPossibleTeams);
                 _maxPerTeam = _maxPerTeam.Clamp(1, _maxTeams);
             }
         }
@@ -126,17 +127,17 @@ namespace Thera.GameModes
 
         public override void BeginGameplay()
         {
-            throw new NotImplementedException();
+            base.BeginGameplay();
         }
 
         public override void EndGameplay()
         {
-            throw new NotImplementedException();
+            base.EndGameplay();
         }
 
         public override void AbortGameplay()
         {
-            throw new NotImplementedException();
+            base.AbortGameplay();
         }
     }
 }

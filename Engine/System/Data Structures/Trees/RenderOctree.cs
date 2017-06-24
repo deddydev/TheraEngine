@@ -10,10 +10,10 @@ using TheraEngine.Rendering.Cameras;
 
 namespace System
 {
-    public class RenderOctree : Octree<IRenderable, RenderNode>
+    public class RenderOctree : Octree<I3DRenderable, RenderNode>
     {
         public RenderOctree(BoundingBox bounds) : base(bounds) { }
-        public RenderOctree(BoundingBox bounds, List<IRenderable> items) : base(bounds, items) { }
+        public RenderOctree(BoundingBox bounds, List<I3DRenderable> items) : base(bounds, items) { }
 
         /// <summary>
         /// Disables rendering of scene items not visible from the given camera.
@@ -37,7 +37,7 @@ namespace System
             _head.Cull(frustum, debugRender, passes);
         }
     }
-    public class RenderNode : OctreeNode<IRenderable>
+    public class RenderNode : OctreeNode<I3DRenderable>
     {
         public RenderNode(BoundingBox bounds) : base(bounds) { }
 
@@ -52,7 +52,7 @@ namespace System
                 try
                 {
                     //Bounds is intersecting edge of frustum
-                    foreach (IRenderable item in _items)
+                    foreach (I3DRenderable item in _items)
                     {
                         item.IsRendering = item.CullingVolume != null ? item.CullingVolume.ContainedWithin(frustum) != EContainment.Disjoint : true;
                         if (item.IsRendering)
@@ -83,7 +83,7 @@ namespace System
                 IsLoopingSubNodes = true;
                 try
                 {
-                    foreach (OctreeNode<IRenderable> n in _subNodes)
+                    foreach (OctreeNode<I3DRenderable> n in _subNodes)
                         n?.Cull(frustum, debugRender);
                 }
                 catch

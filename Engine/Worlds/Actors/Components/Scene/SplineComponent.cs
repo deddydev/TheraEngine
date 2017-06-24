@@ -7,7 +7,7 @@ using System.Drawing;
 
 namespace TheraEngine.Worlds.Actors
 {
-    public class SplineComponent : TRSComponent, IRenderable
+    public class SplineComponent : TRSComponent, I3DRenderable
     {
         public bool HasTransparency => false;
         private PropAnimVec3 _spline;

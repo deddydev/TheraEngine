@@ -107,7 +107,7 @@ namespace TheraEngine.Rendering.Models.Materials
 
         private List<TextureReference> _textures = new List<TextureReference>();
         private List<GLVar> _parameters = new List<GLVar>();
-        private List<IRenderable> _renderingReferences = new List<IRenderable>();
+        private List<I3DRenderable> _renderingReferences = new List<I3DRenderable>();
         private int _bindingId = -1;
         private bool _hasTransparency = false;
 
@@ -125,13 +125,13 @@ namespace TheraEngine.Rendering.Models.Materials
 
         public bool HasTransparency => _blend.EnableBlending || _alpha.EnableAlphaTest;
 
-        internal void AddReference(IRenderable user)
+        internal void AddReference(I3DRenderable user)
         {
             if (_renderingReferences.Count == 0)
                 _bindingId = Engine.Scene.AddActiveMaterial(this);
             _renderingReferences.Add(user);
         }
-        internal void RemoveReference(IRenderable user)
+        internal void RemoveReference(I3DRenderable user)
         {
             _renderingReferences.Add(user);
             if (_renderingReferences.Count == 0)
@@ -177,7 +177,14 @@ namespace TheraEngine.Rendering.Models.Materials
                     }
                 }
         }
-
+        public static Material GetUnlitTextureMaterial(TextureReference texture) => GetUnlitTextureMaterial(texture, Engine.Settings.ShadingStyle == ShadingStyle.Deferred);
+        public static Material GetUnlitTextureMaterial(TextureReference texture, bool deferred)
+        {
+            List<TextureReference> refs = new List<TextureReference>() { texture };
+            List<GLVar> parameters = new List<GLVar>();
+            Shader frag = deferred ? ShaderHelpers.UnlitTextureFragDeferred() : ShaderHelpers.UnlitTextureFragForward();
+            return new Material("UnlitTextureMaterial", parameters, refs, frag);
+        }
         public static Material GetUnlitTextureMaterial() => GetUnlitTextureMaterial(Engine.Settings.ShadingStyle == ShadingStyle.Deferred);
         public static Material GetUnlitTextureMaterial(bool deferred)
         {

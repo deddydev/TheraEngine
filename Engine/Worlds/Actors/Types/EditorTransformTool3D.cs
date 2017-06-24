@@ -17,7 +17,7 @@ namespace TheraEngine.Worlds.Actors.Types
         Rotate,
         Translate
     }
-    public class EditorTransformTool3D : Actor<SkeletalMeshComponent>, IRenderable
+    public class EditorTransformTool3D : Actor<SkeletalMeshComponent>, I3DRenderable
     {
         public EditorTransformTool3D(SceneComponent modified)
         {

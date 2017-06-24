@@ -14,7 +14,6 @@ namespace TheraEngine.Rendering
         DrawBuffersAttachment[] _attachments;
         EFramebufferAttachment?[] _attachmentsPerTexture;
         GBuffer _buffer;
-        //int _renderBufferId;
         int _width, _height;
         
         public GBufferMeshProgram(Material material, PrimitiveBufferInfo info) : base(material, info) { }
@@ -35,10 +34,7 @@ namespace TheraEngine.Rendering
                 t.PostPushData += TexturePostPushData;
                 t.Generate();
             }
-            //_renderBufferId = Engine.Renderer.CreateObjects(GenType.Renderbuffer, 1)[0];
-            //Engine.Renderer.BindRenderBuffer(_renderBufferId);
-            //Engine.Renderer.RenderbufferStorage(ERenderBufferStorage.DepthComponent, _width, _height);
-            //Engine.Renderer.FramebufferRenderBuffer(BindingId, EFramebufferAttachment.DepthAttachment, _renderBufferId);
+
             FramebufferErrorCode c = GL.CheckFramebufferStatus(FramebufferTarget.Framebuffer);
             if (c != FramebufferErrorCode.FramebufferComplete)
                 throw new Exception("Problem compiling G-Buffer.");

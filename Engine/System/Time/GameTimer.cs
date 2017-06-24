@@ -7,6 +7,12 @@ namespace System
     {
         public bool IsRunning => _isRunning;
 
+        public float SecondsBetweenFires
+        {
+            get => _secondsBetweenFires;
+            set => _secondsBetweenFires = value;
+        }
+
         //Set on start
         private MultiFireAction _multiMethod;
         private Action _singleMethod;
@@ -84,6 +90,7 @@ namespace System
             _multiMethod = method;
             _fireMax = maxFires;
 
+            _secondsBetweenFires = secondsBetweenFires;
             _startSeconds = startSeconds;
             _isRunning = true;
 

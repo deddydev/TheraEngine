@@ -118,19 +118,31 @@ namespace TheraEngine.Rendering.Models
         /// <summary>
         /// Z-up is facing the camera, like a wall.
         /// </summary>
-        public static VertexQuad ZUpQuad(float scale = 1.0f) => ZUpQuad(scale, scale);
+        public static VertexQuad ZUpQuad(float scale = 1.0f, bool bottomLeftOrigin = false)
+            => ZUpQuad(scale, scale, bottomLeftOrigin);
         /// <summary>
         /// Z-up is facing the camera, like a wall.
         /// </summary>
-        public static VertexQuad ZUpQuad(float xScale, float yScale)
+        public static VertexQuad ZUpQuad(float xScale, float yScale, bool bottomLeftOrigin)
         {
-            float xHalf = xScale / 2.0f;
-            float yHalf = yScale / 2.0f;
-            Vec3 v1 = new Vec3(-xHalf, -yHalf, 0.0f);
-            Vec3 v2 = new Vec3(xHalf, -yHalf, 0.0f);
-            Vec3 v3 = new Vec3(xHalf, yHalf, 0.0f);
-            Vec3 v4 = new Vec3(-xHalf, yHalf, 0.0f);
-            return MakeQuad(v1, v2, v3, v4, Vec3.UnitZ);
+            if (bottomLeftOrigin)
+            {
+                Vec3 v1 = new Vec3(0.0f, 0.0f, 0.0f);
+                Vec3 v2 = new Vec3(xScale, 0.0f, 0.0f);
+                Vec3 v3 = new Vec3(xScale, yScale, 0.0f);
+                Vec3 v4 = new Vec3(0.0f, yScale, 0.0f);
+                return MakeQuad(v1, v2, v3, v4, Vec3.UnitZ);
+            }
+            else
+            {
+                float xHalf = xScale / 2.0f;
+                float yHalf = yScale / 2.0f;
+                Vec3 v1 = new Vec3(-xHalf, -yHalf, 0.0f);
+                Vec3 v2 = new Vec3(xHalf, -yHalf, 0.0f);
+                Vec3 v3 = new Vec3(xHalf, yHalf, 0.0f);
+                Vec3 v4 = new Vec3(-xHalf, yHalf, 0.0f);
+                return MakeQuad(v1, v2, v3, v4, Vec3.UnitZ);
+            }
         }
         public static VertexQuad ZUpQuad(BoundingRectangle region)
         {

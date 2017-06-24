@@ -5,14 +5,17 @@ using System.Collections;
 using System.ComponentModel;
 using TheraEngine.Rendering.Models.Materials;
 using TheraEngine.Rendering.Models;
-using TheraEngine.Worlds;
-using TheraEngine.Rendering.Cameras;
 
 namespace TheraEngine.Rendering.HUD
 {
-    public class ModelHudComponent : RenderableHudComponent
+    public class TextHudComponent : TextureHudComponent, I2DRenderable
     {
-        SkeletalMesh _model;
-        Camera _camera;
+        public TextHudComponent() { }
+
+        public string _text;
+        public bool _wordWrap = true;
+        Font _font;
+
+        public bool HasTransparency => true;
     }
 }

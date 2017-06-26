@@ -18,10 +18,19 @@ namespace Testris
         {
             _settings = new WorldSettings("Tetris")
             {
-                //TODO: set new theme per round
-                AmbientSound = new SoundFile(Engine.StartupPath + "Content\\" + string.Format("bgm{0}.wav", (DateTime.Now.Millisecond % 5) + 1)),
+                //AmbientSound = new SoundFile(Engine.StartupPath + "..\\..\\..\\ProjectFiles\\" + string.Format("bgm{0}.wav", (DateTime.Now.Millisecond % 5) + 1)),
                 GameMode = new TetrisGameMode()
             };
+        }
+
+        public override void BeginPlay()
+        {
+            base.BeginPlay();
+        }
+
+        public override void EndPlay()
+        {
+            base.EndPlay();
         }
     }
 }

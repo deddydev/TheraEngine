@@ -23,13 +23,7 @@ namespace TheraEngine.Audio
             _waveFile = null;
         }
 
-        public WaveFile WaveFile
-        {
-            get
-            {
-                return _waveFile ?? (_waveFile = new WaveFile(_path));
-            }
-        }
+        public WaveFile WaveFile => _waveFile ?? (_waveFile = new WaveFile(_path));
 
         public int BufferId
         {
@@ -44,6 +38,21 @@ namespace TheraEngine.Audio
             {
                 _path = value;
                 _waveFile = null;//new WaveFile(_path);
+            }
+        }
+
+        public void StopAllInstances()
+        {
+            foreach (int id in _sourceIds)
+                Engine.Audio.Stop(id);
+            _sourceIds.Clear();
+        }
+        public void StopInstance(int index)
+        {
+            if (_sourceIds.IndexInRange(index))
+            {
+                Engine.Audio.Stop(_sourceIds[index]);
+                _sourceIds.RemoveAt(index);
             }
         }
 

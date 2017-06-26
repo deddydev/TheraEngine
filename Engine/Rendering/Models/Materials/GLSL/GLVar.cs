@@ -43,7 +43,7 @@ namespace TheraEngine.Rendering.Models.Materials
     }
     public abstract class GLVar : IGLVarOwner
     {
-        public static Dictionary<Type, GLTypeName> TypeAssociations = new Dictionary<Type, GLTypeName>()
+        internal static Dictionary<Type, GLTypeName> TypeAssociations = new Dictionary<Type, GLTypeName>()
         {
             { typeof(GLBool),   GLTypeName._bool   },
             { typeof(GLInt),    GLTypeName._int    },
@@ -68,7 +68,7 @@ namespace TheraEngine.Rendering.Models.Materials
             { typeof(GLBVec3),  GLTypeName._bvec3  },
             { typeof(GLBVec4),  GLTypeName._bvec4  },
         };
-        public static Dictionary<GLTypeName, Type> GLTypeAssociations = new Dictionary<GLTypeName, Type>()
+        internal static Dictionary<GLTypeName, Type> GLTypeAssociations = new Dictionary<GLTypeName, Type>()
         {
             { GLTypeName._bool,   typeof(GLBool)   },
             { GLTypeName._int,    typeof(GLInt)    },
@@ -99,12 +99,12 @@ namespace TheraEngine.Rendering.Models.Materials
         protected string _name;
         protected Dictionary<string, GLVar> _fields = new Dictionary<string, GLVar>();
 
-        public IGLVarOwner Owner { get { return _owner; } }
+        internal IGLVarOwner Owner { get { return _owner; } }
         public abstract GLTypeName TypeName { get; }
 
         public string Name
         {
-            get { return _name; }
+            get => _name;
             set
             {
                 //Thread.CurrentThread.CurrentCulture.TextInfo.ToTitleCase(value)
@@ -112,9 +112,9 @@ namespace TheraEngine.Rendering.Models.Materials
             }
         }
 
-        public void SetUniform(string name) { SetUniform(Engine.Renderer.GetUniformLocation(name)); }
-        public void SetUniform() { SetUniform(Engine.Renderer.GetUniformLocation(Name)); }
-        public abstract void SetUniform(int location);
+        internal void SetUniform(string name) { SetUniform(Engine.Renderer.GetUniformLocation(name)); }
+        internal void SetUniform() { SetUniform(Engine.Renderer.GetUniformLocation(Name)); }
+        internal abstract void SetUniform(int location);
 
         public GLVar(string userName, IGLVarOwner owner)
         {
@@ -125,23 +125,23 @@ namespace TheraEngine.Rendering.Models.Materials
         /// <summary>
         /// Ex: layout (location = 0) uniform float potato;
         /// </summary>
-        public string GetUniformDeclaration(int layoutId = -1)
+        internal string GetUniformDeclaration(int layoutId = -1)
         {
             string line = "";
             if (layoutId >= 0)
                 line = string.Format("layout (location = {0}) ", layoutId);
             return line + string.Format("uniform {0};", GetDeclaration());
         }
-        public string GetDeclaration()
+        internal string GetDeclaration()
         {
             return string.Format("{0} {1}", TypeName.ToString().Substring(1), Name);
         }
-        public abstract string GetValueString();
+        internal abstract string GetValueString();
         /// <summary>
         /// Ex: this is float '.x', parent is vec4 '[0]', parent is mat4 'tomato': tomato[0].x
         /// </summary>
         /// <returns></returns>
-        public virtual string AccessorTree()
+        internal virtual string AccessorTree()
         {
             return Name;
         }

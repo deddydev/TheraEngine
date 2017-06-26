@@ -11,8 +11,8 @@ namespace TheraEngine.Rendering.Models.Materials
     {
         public override GLTypeName TypeName => GLTypeName._mat4;
         public Matrix4 Value { get => _value; set => _value = value; }
-        public override void SetUniform(int location) => Engine.Renderer.Uniform(location, _value);
-        public override string GetValueString() => _value.ToString();
+        internal override void SetUniform(int location) => Engine.Renderer.Uniform(location, _value);
+        internal override string GetValueString() => _value.ToString();
 
         private Matrix4 _value;
 
@@ -31,8 +31,8 @@ namespace TheraEngine.Rendering.Models.Materials
     {
         public override GLTypeName TypeName => GLTypeName._mat3;
         public Matrix3 Value { get => _value; set => _value = value; }
-        public override void SetUniform(int location) => Engine.Renderer.Uniform(location, _value);
-        public override string GetValueString() => _value.ToString();
+        internal override void SetUniform(int location) => Engine.Renderer.Uniform(location, _value);
+        internal override string GetValueString() => _value.ToString();
         
         private Matrix3 _value;
         

@@ -20,7 +20,6 @@ namespace TheraEngine.Rendering.Models.Materials
         private float _constantAlphaValue;
         private bool _useAlphaToCoverage;
 
-
         public bool EnableAlphaTest { get => _enableAlphaTest; set => _enableAlphaTest = value; }
     }
     public class StencilFace
@@ -36,7 +35,9 @@ namespace TheraEngine.Rendering.Models.Materials
     public class StencilTest
     {
         private bool _enableStencilFunc;
-        private StencilFace _frontFace, _backFace;
+        private StencilFace
+            _frontFace = new StencilFace(),
+            _backFace = new StencilFace();
 
         public bool EnableStencilFunc { get => _enableStencilFunc; set => _enableStencilFunc = value; }
         public StencilFace FrontFace { get => _frontFace; set => _frontFace = value; }

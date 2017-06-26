@@ -21,6 +21,24 @@ namespace TheraEngine.Rendering.HUD
 
         public bool HasTransparency => _quad.Material.HasTransparency;
 
+        public Material Material
+        {
+            get => _quad.Material;
+            set => _quad.Material = value;
+        }
+        /// <summary>
+        /// Retrieves the linked material's uniform parameter at the given index.
+        /// Use this to set uniform values to be passed to the shader.
+        /// </summary>
+        public T2 Parameter<T2>(int index) where T2 : GLVar
+            => _quad.Parameter<T2>(index);
+        /// <summary>
+        /// Retrieves the linked material's uniform parameter with the given name.
+        /// Use this to set uniform values to be passed to the shader.
+        /// </summary>
+        public T2 Parameter<T2>(string name) where T2 : GLVar
+            => _quad.Parameter<T2>(name);
+        
         public unsafe override BoundingRectangle Resize(BoundingRectangle parentRegion)
         {
             BoundingRectangle r = base.Resize(parentRegion);

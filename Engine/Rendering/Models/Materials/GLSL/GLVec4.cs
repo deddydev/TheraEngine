@@ -11,8 +11,8 @@ namespace TheraEngine.Rendering.Models.Materials
     {
         public override GLTypeName TypeName { get { return GLTypeName._bvec4; } }
         public BoolVec4 Value { get { return _value; } set { _value = value; } }
-        public override void SetUniform(int location) { Engine.Renderer.Uniform(location, _value); }
-        public override string GetValueString() { return _value.ToString(); }
+        internal override void SetUniform(int location) { Engine.Renderer.Uniform(location, _value); }
+        internal override string GetValueString() { return _value.ToString(); }
 
         private BoolVec4 _value;
 
@@ -30,8 +30,8 @@ namespace TheraEngine.Rendering.Models.Materials
     {
         public override GLTypeName TypeName { get { return GLTypeName._vec4; } }
         public Vec4 Value { get { return _value; } set { _value = value; } }
-        public override void SetUniform(int location) { Engine.Renderer.Uniform(location, _value); }
-        public override string GetValueString() { return _value.ToString(); }
+        internal override void SetUniform(int location) { Engine.Renderer.Uniform(location, _value); }
+        internal override string GetValueString() { return _value.ToString(); }
 
         private Vec4 _value;
 
@@ -51,8 +51,8 @@ namespace TheraEngine.Rendering.Models.Materials
     {
         public override GLTypeName TypeName { get { return GLTypeName._dvec4; } }
         public DVec4 Value { get { return _value; } set { _value = value; } }
-        public override void SetUniform(int location) { Engine.Renderer.Uniform(location, _value); }
-        public override string GetValueString() { return _value.ToString(); }
+        internal override void SetUniform(int location) { Engine.Renderer.Uniform(location, _value); }
+        internal override string GetValueString() { return _value.ToString(); }
 
         private DVec4 _value;
 
@@ -70,8 +70,8 @@ namespace TheraEngine.Rendering.Models.Materials
     {
         public override GLTypeName TypeName { get { return GLTypeName._ivec4; } }
         public IVec4 Value { get { return _value; } set { _value = value; } }
-        public override void SetUniform(int location) { Engine.Renderer.Uniform(location, _value); }
-        public override string GetValueString() { return _value.ToString(); }
+        internal override void SetUniform(int location) { Engine.Renderer.Uniform(location, _value); }
+        internal override string GetValueString() { return _value.ToString(); }
 
         private IVec4 _value;
 
@@ -89,8 +89,8 @@ namespace TheraEngine.Rendering.Models.Materials
     {
         public override GLTypeName TypeName { get { return GLTypeName._uvec4; } }
         public UVec4 Value { get { return _value; } set { _value = value; } }
-        public override void SetUniform(int location) { Engine.Renderer.Uniform(location, _value); }
-        public override string GetValueString() { return _value.ToString(); }
+        internal override void SetUniform(int location) { Engine.Renderer.Uniform(location, _value); }
+        internal override string GetValueString() { return _value.ToString(); }
 
         private UVec4 _value;
 

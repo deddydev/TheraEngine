@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
 using TheraEngine;
+using TheraEngine.Audio;
 using TheraEngine.Input.Devices;
 using TheraEngine.Rendering.HUD;
 using TheraEngine.Rendering.Models.Materials;
@@ -15,7 +16,7 @@ namespace Testris
     {
         private int _columns = 10;
         private int _rows = 20;
-        private float _secondsPerBlock = 2.0f;
+        private float _secondsPerBlock;
         private int[,] _blockBoard;
         private MaterialHudComponent[,] _hudBoard;
         private TetrisPiece _currentBlock;
@@ -28,6 +29,13 @@ namespace Testris
         private Random _rng = new Random();
         private IOctreeNode _renderNode;
         private bool _isRendering;
+        private SoundFile _theme = new SoundFile();
+        private AudioSourceParameters _ambientParams = new AudioSourceParameters()
+        {
+            SourceRelative = new UsableValue<bool>(true, false, true),
+            Gain = new UsableValue<float>(0.6f, 1.0f, true),
+            Loop = new UsableValue<bool>(true, false, true),
+        };
 
         private void AddScore(int lines)
         {
@@ -61,7 +69,7 @@ namespace Testris
             input.RegisterButtonEvent(GamePadButton.SpecialRight, ButtonInputType.Pressed, Pause, InputPauseType.TickAlways);
             input.RegisterButtonEvent(EKey.Escape, ButtonInputType.Pressed, Pause, InputPauseType.TickAlways);
 
-            input.RegisterButtonEvent(EKey.Enter, ButtonInputType.Pressed, BeginGame, InputPauseType.TickOnlyWhenPaused);
+            input.RegisterButtonEvent(EKey.Enter, ButtonInputType.Pressed, BeginGame, InputPauseType.TickAlways);
             input.RegisterButtonEvent(GamePadButton.FaceDown, ButtonInputType.Pressed, BeginGame, InputPauseType.TickOnlyWhenPaused);
 
             input.RegisterButtonEvent(EKey.Up, ButtonInputType.Pressed, Rotate, InputPauseType.TickOnlyWhenUnpaused);
@@ -73,16 +81,28 @@ namespace Testris
 
         private void BeginGame()
         {
+            BlocksPerSec = 5.0f;
+            _blockBoard = new int[_rows, _columns];
+            for (int row = 0; row < _rows; ++row)
+                for (int col = 0; col < _columns; ++col)
+                {
+                    _blockBoard[row, col] = -1;
+                    _hudBoard[row, col].Parameter<GLVec4>(0).Value = (ColorF4)Color.Transparent;
+                }
             _score = 0;
             _playing = true;
-            _nextBlock = TetrisPiece.New(_rng.Next(0, 6));
+            _nextBlock = TetrisPiece.New(_rng.Next(0, 6), _columns);
             SpawnBlock();
+            _theme.SoundPath = Engine.StartupPath + "..\\..\\..\\ProjectFiles\\" + string.Format("bgm{0}.wav", (DateTime.Now.Millisecond % 5) + 1);
+            _theme.Play(_ambientParams, int.MaxValue);
             RegisterTick(ETickGroup.PostPhysics, ETickOrder.Scene, SceneUpdate);
         }
         private void GameOver()
         {
+            _playing = false;
             UnregisterTick(ETickGroup.PostPhysics, ETickOrder.Scene, SceneUpdate);
             Engine.SetPaused(true, LocalPlayerController.LocalPlayerIndex);
+            _theme.StopAllInstances();
         }
         private void Pause()
         {
@@ -93,32 +113,26 @@ namespace Testris
         
         private void EndSpeedUp()
         {
-            BlocksPerSec = 2.0f;
+            BlocksPerSec = 5.0f;
         }
 
         private void StartSpeedUp()
         {
-            BlocksPerSec = 4.0f;
+            BlocksPerSec = 14.0f;
         }
 
         private void MoveRight()
         {
-            if (_currentBlock == null)
-                return;
             MoveUpdateBoard(false);
-            ++_currentBlock.ColumnShift;
-            if (HasCollision())
-                --_currentBlock.ColumnShift;
+            if (_currentBlock != null && !HasCollision(_currentBlock.RowShift, _currentBlock.ColumnShift + 1, _currentBlock.CurrentRotation))
+                ++_currentBlock.ColumnShift;
             MoveUpdateBoard(true);
         }
         private void MoveLeft()
         {
-            if (_currentBlock == null)
-                return;
             MoveUpdateBoard(false);
-            --_currentBlock.ColumnShift;
-            if (HasCollision())
-                ++_currentBlock.ColumnShift;
+            if (_currentBlock != null && !HasCollision(_currentBlock.RowShift, _currentBlock.ColumnShift - 1, _currentBlock.CurrentRotation))
+                --_currentBlock.ColumnShift;
             MoveUpdateBoard(true);
         }
         private bool MoveDown()
@@ -126,54 +140,78 @@ namespace Testris
             if (_currentBlock == null)
                 return false;
             MoveUpdateBoard(false);
-            ++_currentBlock.RowShift;
-            if (HasCollision())
+            if (HasCollision(_currentBlock.RowShift + 1, _currentBlock.ColumnShift, _currentBlock.CurrentRotation))
             {
-                --_currentBlock.RowShift;
+                MoveUpdateBoard(true);
                 return false;
             }
-            MoveUpdateBoard(true);
-            return true;
+            else
+            {
+                ++_currentBlock.RowShift;
+                MoveUpdateBoard(true);
+                return true;
+            }
         }
         private void Rotate()
         {
+            if (_currentBlock == null)
+                return;
+            bool[,] layout = _currentBlock.GetNextRotation(true);
             MoveUpdateBoard(false);
-            _currentBlock.Rotate(true);
-            if (!RotationSuccessful(out int kickColumnShift))
-                _currentBlock.Rotate(false);
-            else
+            if (RotationSuccessful(layout, out int kickColumnShift))
+            {
+                _currentBlock.SetLayout(layout, _currentBlock.CurrentRotationIndex == 3 ? 0 : _currentBlock.CurrentRotationIndex + 1);
                 _currentBlock.ColumnShift += kickColumnShift;
+            }
             MoveUpdateBoard(true);
         }
-        private bool RotationSuccessful(out int kickColumnShift)
+        private bool RotationSuccessful(bool[,] layout, out int kickColumnShift)
         {
             kickColumnShift = 0;
-            if (_currentBlock == null)
-                return false;
-            return !HasCollision();
+            return _currentBlock != null && !HasCollision(_currentBlock.RowShift, _currentBlock.ColumnShift, layout);
         }
-        private bool HasCollision()
+        private bool HasCollision(int rowShift, int columnShift, bool[,] blockLayout)
         {
-            bool[,] blockLayout = _currentBlock.CurrentRotation;
-            int rowShift = _currentBlock.RowShift;
-            int colShift = _currentBlock.ColumnShift;
             for (int rowIndex = 0; rowIndex < blockLayout.GetLength(0); ++rowIndex)
             {
                 int boardRowIndex = rowIndex + rowShift;
-                //No need to check if the row index is less than zero
-                //The pieces do not move up, and they spawn offscreen anyway
                 if (boardRowIndex >= _rows)
-                    return true;
+                {
+                    if (CheckRowValid(rowIndex, blockLayout))
+                        return true;
+                    continue;
+                }
+                if (boardRowIndex < 0)
+                    continue;
                 for (int colIndex = 0; colIndex < blockLayout.GetLength(1); ++colIndex)
                 {
-                    int boardColIndex = colIndex + colShift;
+                    int boardColIndex = colIndex + columnShift;
                     if (boardColIndex < 0 || boardColIndex >= _columns)
-                        return true;
-                    if (blockLayout[rowIndex, colIndex] && _blockBoard[boardRowIndex, boardColIndex] > 0)
+                    {
+                        if (CheckColumnValid(colIndex, blockLayout))
+                            return true;
+                        continue;
+                    }
+                    if (blockLayout[rowIndex, colIndex] && 
+                        _blockBoard[boardRowIndex, boardColIndex] >= 0)
                         return true;
                 }
             }
-            return true;
+            return false;
+        }
+        private bool CheckRowValid(int rowIndex, bool[,] blockLayout)
+        {
+            for (int colIndex = 0; colIndex < blockLayout.GetLength(1); ++colIndex)
+                if (blockLayout[rowIndex, colIndex])
+                    return true;
+            return false;
+        }
+        private bool CheckColumnValid(int colIndex, bool[,] blockLayout)
+        {
+            for (int rowIndex = 0; rowIndex < blockLayout.GetLength(0); ++rowIndex)
+                if (blockLayout[rowIndex, colIndex])
+                    return true;
+            return false;
         }
         private void MoveUpdateBoard(bool postMove)
         {
@@ -200,12 +238,24 @@ namespace Testris
                     //If the layout has a true signifying a piece,
                     //update that piece in the board
                     if (blockLayout[rowIndex, colIndex])
-                        _blockBoard[boardRowIndex, boardColIndex] = postMove ? _currentBlock.PieceTypeID : -1;
+                    {
+                        if (postMove)
+                        {
+                            _blockBoard[boardRowIndex, boardColIndex] = _currentBlock.PieceTypeID;
+                            _hudBoard[boardRowIndex, boardColIndex].Parameter<GLVec4>(0).Value = TetrisPiece.Colors[_currentBlock.PieceTypeID];
+                        }
+                        else
+                        {
+                            _blockBoard[boardRowIndex, boardColIndex] = -1;
+                            _hudBoard[boardRowIndex, boardColIndex].Parameter<GLVec4>(0).Value = (ColorF4)Color.Transparent;
+                        }
+                    }
                 }
             }
         }
         protected override DockableHudComponent OnConstruct()
         {
+            _hudBoard = new MaterialHudComponent[_rows, _columns];
             Hud = this;
             //TextureReference r = new TextureReference(Engine.StartupPath + "Content\\test.png");
             //Material m = Material.GetUnlitTextureMaterial(r, false);
@@ -238,6 +288,7 @@ namespace Testris
                         PosXValue = col * 54,
                         PosYValue = (_rows - row - 1) * 54,
                     };
+                    _hudBoard[row, col] = square;
                     board.Add(square);
                 }
             //root.Add(board);
@@ -245,7 +296,7 @@ namespace Testris
         }
         public override void OnSpawned(World world)
         {
-            _blockBoard = new int[_rows, _columns];
+            LocalPlayerController.SetPause(true);
             base.OnSpawned(world);
         }
 
@@ -267,15 +318,22 @@ namespace Testris
 
         private void BlockPlaced()
         {
-            int rows = 0;
-            for (int rowIndex = _currentBlock.CurrentRotation.GetLength(0); rowIndex >= 0; --rowIndex)
+            int removedRows = 0;
+            for (int rowIndex = _currentBlock.CurrentRotation.GetLength(0) - 1; rowIndex >= 0; --rowIndex)
             {
-                if (rowIndex < 0)
+                int boardRowIndex = rowIndex + _currentBlock.RowShift + removedRows;
+
+                //Not all of the piece could fit on screen after spawn
+                if (boardRowIndex < 0)
                 {
                     GameOver();
                     return;
                 }
-                int boardRowIndex = rowIndex + _currentBlock.RowShift;
+
+                //Should not happen
+                if (boardRowIndex >= _rows)
+                    continue;
+
                 bool allFilled = true;
                 for (int boardColIndex = 0; boardColIndex < _columns; ++boardColIndex)
                 {
@@ -287,11 +345,11 @@ namespace Testris
                 }
                 if (allFilled)
                 {
-                    ++rows;
+                    ++removedRows;
                     RemoveRow(boardRowIndex);
                 }
             }
-            AddScore(rows);
+            AddScore(removedRows);
             SpawnBlock();
         }
         private void RemoveRow(int rowIndex)
@@ -299,20 +357,27 @@ namespace Testris
             if (rowIndex < 0 || rowIndex >= _rows)
                 return;
 
+            bool anyValid = false;
             for (int row = rowIndex - 1; row >= 0; --row)
+            {
+                anyValid = false;
                 for (int col = 0; col < _columns; ++col)
+                {
+                    anyValid = anyValid || (_blockBoard[row + 1, col] >= 0 || _blockBoard[row, col] >= 0);
+                    _hudBoard[row + 1, col].Parameter<GLVec4>(0).Value = _hudBoard[row, col].Parameter<GLVec4>(0).Value;
                     _blockBoard[row + 1, col] = _blockBoard[row, col];
-
-            for (int col = 0; col < _columns; ++col)
-                _blockBoard[0, col] = -1;
+                }
+                if (!anyValid)
+                    break;
+            }
+            if (anyValid)
+                for (int col = 0; col < _columns; ++col)
+                    _blockBoard[0, col] = -1;
         }
         private void SpawnBlock()
         {
             _currentBlock = _nextBlock;
-            if (HasCollision())
-                GameOver();
-            else
-                _nextBlock = TetrisPiece.New(_rng.Next(0, 6));
+            _nextBlock = TetrisPiece.New(_rng.Next(0, 6), _columns);
         }
     }
     public class TetrisPiece
@@ -355,6 +420,39 @@ namespace Testris
         }
         public bool[,] CurrentRotation => _currentRotation;
 
+        internal int CurrentRotationIndex { get => _currentRotationIndex; set => _currentRotationIndex = value; }
+
+        internal bool[,] GetNextRotation(bool clockwise)
+        {
+            int r = _currentRotationIndex;
+            if (clockwise)
+            {
+                if (r == 3)
+                    r = 0;
+                else
+                    ++r;
+            }
+            else
+            {
+                if (r == 0)
+                    r = 3;
+                else
+                    --r;
+            }
+            switch (r)
+            {
+                case 0: return _pos1;
+                case 1: return _pos2;
+                case 2: return _pos3;
+                case 3: return _pos4;
+            }
+            return null;
+        }
+        internal void SetLayout(bool[,] layout, int rotationIndex)
+        {
+            _currentRotation = layout;
+            _currentRotationIndex = rotationIndex;
+        }
         internal void Rotate(bool clockwise)
         {
             if (clockwise)
@@ -389,14 +487,14 @@ namespace Testris
             Color.Magenta,
             Color.Red,
         };
-        public static TetrisPiece New(int id)
+        public static TetrisPiece New(int id, int boardColumns)
         {
             int rowShift = 0, colShift = 0;
             bool[,] pos1 = null, pos2 = null, pos3 = null, pos4 = null;
             switch (id)
             {
                 case 0:
-                    colShift = 3;
+                    colShift = (int)Math.Ceiling((boardColumns - 4) / 2.0);
                     rowShift = -3;
                     pos3 = new bool[,]
                     {
@@ -428,7 +526,7 @@ namespace Testris
                     };
                     break;
                 case 1:
-                    colShift = 4;
+                    colShift = (int)Math.Ceiling((boardColumns - 3) / 2.0);
                     rowShift = -3;
                     pos3 = new bool[,]
                     {
@@ -456,7 +554,7 @@ namespace Testris
                     };
                     break;
                 case 2:
-                    colShift = 4;
+                    colShift = (int)Math.Ceiling((boardColumns - 3) / 2.0);
                     rowShift = -3;
                     pos3 = new bool[,]
                     {
@@ -484,7 +582,7 @@ namespace Testris
                     };
                     break;
                 case 3:
-                    colShift = 4;
+                    colShift = (int)Math.Ceiling((boardColumns - 2) / 2.0);
                     rowShift = -2;
                     pos1 = pos2 = pos3 = pos4 = new bool[,]
                     {
@@ -493,7 +591,7 @@ namespace Testris
                     };
                     break;
                 case 4:
-                    colShift = 4;
+                    colShift = (int)Math.Ceiling((boardColumns - 3) / 2.0);
                     rowShift = -3;
                     pos3 = new bool[,]
                     {
@@ -521,7 +619,7 @@ namespace Testris
                     };
                     break;
                 case 5:
-                    colShift = 4;
+                    colShift = (int)Math.Ceiling((boardColumns - 3) / 2.0);
                     rowShift = -3;
                     pos3 = new bool[,]
                     {
@@ -549,7 +647,7 @@ namespace Testris
                     };
                     break;
                 case 6:
-                    colShift = 4;
+                    colShift = (int)Math.Ceiling((boardColumns - 3) / 2.0);
                     rowShift = -3;
                     pos3 = new bool[,]
                     {

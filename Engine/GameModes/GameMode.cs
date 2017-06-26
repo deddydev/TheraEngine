@@ -122,7 +122,15 @@ namespace TheraEngine.GameModes
 
         public override void BeginGameplay()
         {
-
+            foreach (LocalPlayerController c in Engine.ActivePlayers)
+            {
+                PawnType pawn = _pawnClass.CreateNew();
+                if (c.ControlledPawn == null)
+                    c.ControlledPawn = pawn;
+                else
+                    c.EnqueuePosession(pawn);
+                Engine.World.SpawnActor(pawn);
+            }
         }
         public override void EndGameplay()
         {
@@ -138,7 +146,12 @@ namespace TheraEngine.GameModes
         }
         protected internal override void HandleLocalPlayerJoined(LocalPlayerController item)
         {
-
+            PawnType pawn = _pawnClass.CreateNew();
+            if (item.ControlledPawn == null)
+                item.ControlledPawn = pawn;
+            else
+                item.EnqueuePosession(pawn);
+            Engine.World.SpawnActor(pawn);
         }
         protected internal override LocalPlayerController CreateLocalController(PlayerIndex index, Queue<IPawn> queue)
         {

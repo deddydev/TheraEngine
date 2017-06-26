@@ -24,7 +24,14 @@ namespace TheraEngine
             //TopMost = true;
             //FormBorderStyle = FormBorderStyle.None;
             WindowState = FormWindowState.Maximized;
+            Application.ApplicationExit += Application_ApplicationExit;
         }
+
+        private void Application_ApplicationExit(object sender, EventArgs e)
+        {
+            Engine.ShutDown();
+        }
+
         protected override void OnLoad(EventArgs e)
         {
             base.OnLoad(e);

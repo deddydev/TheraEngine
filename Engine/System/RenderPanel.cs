@@ -183,7 +183,7 @@ namespace TheraEngine
             _context.BeginDraw();
             foreach (Viewport v in _viewports)
                 v.Render(Engine.Scene);
-            _globalHud?.Render();
+            //_globalHud?.Render();
             _context.EndDraw();
         }
         protected override void OnResize(EventArgs e)
@@ -191,7 +191,7 @@ namespace TheraEngine
             base.OnResize(e);
             int w = Width.ClampMin(1);
             int h = Height.ClampMin(1);
-            _globalHud?.Resize(new Vec2(w, h));
+            //_globalHud?.Resize(new Vec2(w, h));
             foreach (Viewport v in _viewports)
                 v.Resize(w, h);
             _context?.Update();

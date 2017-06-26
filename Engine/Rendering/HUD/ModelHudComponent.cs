@@ -1,19 +1,22 @@
 ﻿using System.ComponentModel;
 using TheraEngine.Rendering.Cameras;
 using TheraEngine.Rendering.Models;
+using TheraEngine.Rendering.Models.Materials;
 using static TheraEngine.Worlds.Actors.SkeletalMeshComponent;
 
 namespace TheraEngine.Rendering.HUD
 {
-    public class SkeletalMeshHudComponent : TextureHudComponent
+    public class SkeletalMeshHudComponent : MaterialHudComponent
     {
         public SkeletalMeshHudComponent(SkeletalMesh m, Skeleton skeleton)
+            : base(Material.GetUnlitTextureMaterial())
         {
             Skeleton = skeleton;
             Model = m;
             _camera = new PerspectiveCamera();
         }
         public SkeletalMeshHudComponent()
+            : base(Material.GetUnlitTextureMaterial())
         {
 
         }

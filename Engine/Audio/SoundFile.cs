@@ -49,13 +49,13 @@ namespace TheraEngine.Audio
 
         public int PlayingCount => _sourceIds.Count;
 
-        public int Play()
+        public int Play(int priority)
         {
             int soundId = Engine.Audio.Play(this);
             _sourceIds.Add(soundId);
             return soundId;
         }
-        public int Play(AudioSourceParameters param)
+        public int Play(AudioSourceParameters param, int priority)
         {
             int soundId = Engine.Audio.Play(this, param);
             _sourceIds.Add(soundId);

@@ -14,6 +14,7 @@ using System.Collections.Concurrent;
 using System.Threading;
 using System.IO;
 using System.Diagnostics;
+using System.Windows.Forms;
 
 namespace TheraEngine
 {
@@ -83,6 +84,16 @@ namespace TheraEngine
 
             Thread.CurrentThread.Name = "Main Thread";
         }
+
+        /// <summary>
+        /// Call this to shut down the engine, deallocate all resources, and close the application.
+        /// </summary>
+        public static void CloseApplication()
+        {
+            ShutDown();
+            Application.Exit();
+        }
+
         /// <summary>
         /// Sets the game information for all code to grab preferences from.
         /// Call this BEFORE ANYTHING ELSE!

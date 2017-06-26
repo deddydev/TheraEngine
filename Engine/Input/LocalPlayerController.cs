@@ -123,12 +123,16 @@ namespace TheraEngine.Input
         }
         protected virtual void RegisterInput(InputInterface input)
         {
-            input.RegisterButtonEvent(EKey.Escape, ButtonInputType.Pressed, OnTogglePause);
-            input.RegisterButtonEvent(GamePadButton.SpecialRight, ButtonInputType.Pressed, OnTogglePause);
+            //input.RegisterButtonEvent(EKey.Escape, ButtonInputType.Pressed, OnTogglePause);
+            //input.RegisterButtonEvent(GamePadButton.SpecialRight, ButtonInputType.Pressed, OnTogglePause);
         }
-        private void OnTogglePause()
+        public void TogglePause()
         {
             Engine.TogglePause(LocalPlayerIndex);
+        }
+        public void SetPause(bool paused)
+        {
+            Engine.SetPaused(paused, LocalPlayerIndex);
         }
     }
 }

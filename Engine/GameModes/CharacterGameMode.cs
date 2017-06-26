@@ -29,7 +29,6 @@ namespace TheraEngine.GameModes
         }
         protected internal override void HandleLocalPlayerJoined(LocalPlayerController item)
         {
-            base.HandleLocalPlayerJoined(item);
             PawnType pawn = _pawnClass.CreateNew();
             if (item.ControlledPawn == null)
                 item.ControlledPawn = pawn;

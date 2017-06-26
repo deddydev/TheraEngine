@@ -13,12 +13,17 @@ namespace Testris
 
         public override void BeginGameplay()
         {
-
+            base.BeginGameplay();
         }
 
         public override void EndGameplay()
         {
 
+        }
+
+        protected override void HandleLocalPlayerJoined(LocalPlayerController item)
+        {
+            base.HandleLocalPlayerJoined(item);
         }
     }
 }

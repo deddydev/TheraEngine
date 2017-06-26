@@ -124,7 +124,7 @@ namespace TheraEngine.Worlds
         public virtual void BeginPlay()
         {
             CreatePhysicsScene();
-            _settings.AmbientSound?.Play(_settings.AmbientParams);
+            _settings.AmbientSound?.Play(_settings.AmbientParams, int.MaxValue);
             foreach (Map m in _settings.Maps)
                 m.BeginPlay();
             _settings.GameMode?.BeginGameplay();

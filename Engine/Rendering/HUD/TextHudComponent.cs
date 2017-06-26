@@ -8,9 +8,9 @@ using TheraEngine.Rendering.Models;
 
 namespace TheraEngine.Rendering.HUD
 {
-    public class TextHudComponent : TextureHudComponent, I2DRenderable
+    public class TextHudComponent : MaterialHudComponent, I2DRenderable
     {
-        public TextHudComponent() { }
+        public TextHudComponent() : base(Material.GetUnlitTextureMaterial()) { }
 
         public string _text;
         public bool _wordWrap = true;

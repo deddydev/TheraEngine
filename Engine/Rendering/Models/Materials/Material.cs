@@ -202,15 +202,15 @@ namespace TheraEngine.Rendering.Models.Materials
             => GetUnlitColorMaterial(Engine.Settings.ShadingStyle == ShadingStyle.Deferred);
         public static Material GetUnlitColorMaterial(bool deferred)
             => GetUnlitColorMaterial(Color.DarkTurquoise, deferred);
-        public static Material GetUnlitColorMaterial(Color color)
+        public static Material GetUnlitColorMaterial(ColorF4 color)
             => GetUnlitColorMaterial(color, Engine.Settings.ShadingStyle == ShadingStyle.Deferred);
-        public static Material GetUnlitColorMaterial(Color color, bool deferred)
+        public static Material GetUnlitColorMaterial(ColorF4 color, bool deferred)
         {
             List<TextureReference> refs = new List<TextureReference>();
             Shader frag = deferred ? ShaderHelpers.UnlitColorFragDeferred() : ShaderHelpers.UnlitColorFragForward();
             List<GLVar> parameters = new List<GLVar>()
             {
-                new GLVec4((ColorF4)color, "MatColor"),
+                new GLVec4(color, "MatColor"),
             };
             return new Material("UnlitColorMaterial", parameters, refs, frag);
         }
@@ -218,15 +218,15 @@ namespace TheraEngine.Rendering.Models.Materials
             => GetLitColorMaterial(Engine.Settings.ShadingStyle == ShadingStyle.Deferred);
         public static Material GetLitColorMaterial(bool deferred)
             => GetLitColorMaterial(Color.DarkTurquoise, Engine.Settings.ShadingStyle == ShadingStyle.Deferred);
-        public static Material GetLitColorMaterial(Color color)
+        public static Material GetLitColorMaterial(ColorF4 color)
             => GetLitColorMaterial(color, Engine.Settings.ShadingStyle == ShadingStyle.Deferred);
-        public static Material GetLitColorMaterial(Color color, bool deferred)
+        public static Material GetLitColorMaterial(ColorF4 color, bool deferred)
         {
             List<TextureReference> refs = new List<TextureReference>();
             Shader frag = deferred ? ShaderHelpers.LitColorFragDeferred() : ShaderHelpers.LitColorFragForward();
             List<GLVar> parameters = new List<GLVar>()
             {
-                new GLVec4((ColorF4)color, "MatColor"),
+                new GLVec4(color, "MatColor"),
                 new GLFloat(20.0f, "MatSpecularIntensity"),
                 new GLFloat(128.0f, "MatShininess"),
             };

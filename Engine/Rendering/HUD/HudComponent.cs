@@ -167,20 +167,16 @@ namespace TheraEngine.Rendering.HUD
             get => _renderNode;
             set => _renderNode = value;
         }
-        public HudManager Owner
+        public new HudManager OwningActor
         {
             get => (HudManager)base.OwningActor;
             set
             {
-                HudManager manager = Owner;
-                if (this is I2DRenderable r)
+                if (IsSpawned && this is I2DRenderable r)
                 {
-                    manager?.UncacheComponent(r);
-                    manager = value;
-                    manager?.CacheComponent(r);
+                    OwningActor?.RemoveRenderableComponent(r);
+                    value?.AddRenderableComponent(r);
                 }
-                else
-                    manager = value;
                 base.OwningActor = value;
             }
         }
@@ -194,7 +190,19 @@ namespace TheraEngine.Rendering.HUD
         
         public bool Contains(Vec2 point)
             => _region.Contains(point);
-        
+
+        public override void OnSpawned()
+        {
+            if (this is I2DRenderable r)
+                OwningActor.AddRenderableComponent(r);
+            base.OnSpawned();
+        }
+        public override void OnDespawned()
+        {
+            if (this is I2DRenderable r)
+                OwningActor.RemoveRenderableComponent(r);
+            base.OnDespawned();
+        }
         protected override void OnRecalcLocalTransform(out Matrix4 localTransform, out Matrix4 inverseLocalTransform)
         {
             localTransform = Matrix4.TransformMatrix(
@@ -213,7 +221,7 @@ namespace TheraEngine.Rendering.HUD
         {
             Matrix4 parentTransform = GetParentMatrix();
             Matrix4 invParentTransform = GetInverseParentMatrix();
-
+            
             _worldTransform = parentTransform * _localTransform;
             _inverseWorldTransform = _inverseLocalTransform * invParentTransform;
 
@@ -224,7 +232,7 @@ namespace TheraEngine.Rendering.HUD
         }
         protected virtual void OnChildAdded(HudComponent child)
         {
-            child.Owner = Owner;
+            child.OwningActor = OwningActor;
         }
         public void Add(HudComponent child)
         {
@@ -246,7 +254,7 @@ namespace TheraEngine.Rendering.HUD
                 return;
             if (_children.Contains(child))
                 _children.Remove(child);
-            child.Owner = null;
+            child.OwningActor = null;
             child._parent = null;
             child._layerIndex = 0;
         }
@@ -289,14 +297,5 @@ namespace TheraEngine.Rendering.HUD
 
         public IEnumerator<HudComponent> GetEnumerator() => ((IEnumerable<HudComponent>)_children).GetEnumerator();
         IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable<HudComponent>)_children).GetEnumerator();
-    }
-    [Flags]
-    public enum AnchorFlags
-    {
-        None = 0,
-        Top = 1,
-        Bottom = 2,
-        Left = 4,
-        Right = 8,
     }
 }

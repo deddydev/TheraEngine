@@ -61,9 +61,16 @@ namespace System
         public BoundingRectangle(Vec2 translation, Vec2 bounds, Vec2 localOriginPercentage)
         {
             _localOriginPercentage = localOriginPercentage;
-            _translation = translation;
             _bounds = bounds;
+            _translation = translation - localOriginPercentage * bounds;
         }
+
+        public static BoundingRectangle FromMinMaxSides(
+            float minX, float maxX,
+            float minY, float maxY,
+            float localOriginPercentageX, float localOriginPercentageY)
+            => new BoundingRectangle(minX, minY, maxX - minX, maxY - minY, localOriginPercentageX, localOriginPercentageY);
+
         /// <summary>
         /// The horizontal translation of this rectangle's position. 0 is fully left, positive values are right.
         /// </summary>
@@ -106,6 +113,7 @@ namespace System
         }
         /// <summary>
         /// The X value of the right boundary line.
+        /// Only moves the right edge by resizing width.
         /// </summary>
         public float MaxX
         {
@@ -118,6 +126,7 @@ namespace System
         }
         /// <summary>
         /// The Y value of the top boundary line.
+        /// Only moves the top edge by resizing height.
         /// </summary>
         public float MaxY
         {
@@ -128,8 +137,10 @@ namespace System
                 _bounds.Y = value - _translation.Y;
             }
         }
+
         /// <summary>
         /// The X value of the left boundary line.
+        /// Only moves the left edge by resizing width.
         /// </summary>
         public float MinX
         {
@@ -144,6 +155,7 @@ namespace System
         }
         /// <summary>
         /// The Y value of the bottom boundary line.
+        /// Only moves the bottom edge by resizing height.
         /// </summary>
         public float MinY
         {
@@ -151,9 +163,9 @@ namespace System
             set
             {
                 CheckProperDimensions();
-                float origY = _bounds.Y;
+                float origY = Height;
                 _translation.Y = value;
-                _bounds.Y = origY - _translation.Y;
+                Height = origY - _translation.Y;
             }
         }
         /// <summary>

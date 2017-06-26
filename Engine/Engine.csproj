@@ -238,7 +238,7 @@
     <Compile Include="Rendering\HUD\RenderableHudComponent.cs" />
     <Compile Include="Rendering\HUD\Interactable\ButtonHudComponent.cs" />
     <Compile Include="Rendering\HUD\TextHudComponent.cs" />
-    <Compile Include="Rendering\HUD\TextureHudComponent.cs" />
+    <Compile Include="Rendering\HUD\MaterialHudComponent.cs" />
     <Compile Include="Rendering\HUD\ModelHudComponent.cs" />
     <Compile Include="3rdParty\Collada\ColladaImportOptions.cs" />
     <Compile Include="3rdParty\Collada\Parser\ColladaParserAnimation.cs" />

@@ -33,6 +33,8 @@ namespace TheraEngine.Rendering.Models.Materials
             : this(name, width, height)
         {
             TextureData = new TextureData(width, height, bitmapFormat);
+            _width = width;
+            _height = height;
         }
         public TextureReference(
             string name,
@@ -47,6 +49,8 @@ namespace TheraEngine.Rendering.Models.Materials
             _internalFormat = internalFormat;
             _pixelFormat = pixelFormat;
             _pixelType = pixelType;
+            _width = width;
+            _height = height;
         }
         public TextureReference(
             string name,
@@ -59,6 +63,8 @@ namespace TheraEngine.Rendering.Models.Materials
             : this(name, width, height, internalFormat, pixelFormat, pixelType)
         {
             TextureData = new TextureData(width, height, bitmapFormat);
+            _width = width;
+            _height = height;
         }
         public TextureReference(string path, string name = "")
         {
@@ -66,7 +72,12 @@ namespace TheraEngine.Rendering.Models.Materials
                 path = path.Substring(7);
             if (string.IsNullOrEmpty(name))
                 _name = Path.GetFileNameWithoutExtension(path);
+            else
+                _name = name;
             _reference = new SingleFileRef<TextureData>(path);
+            _internalFormat = EPixelInternalFormat.Rgba8;
+            _pixelFormat = EPixelFormat.Rgba;
+            _pixelType = EPixelType.UnsignedByte;
         }
 
         public TextureData TextureData

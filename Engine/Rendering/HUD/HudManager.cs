@@ -15,35 +15,12 @@ namespace TheraEngine.Rendering.HUD
     {
         internal LinkedList<I2DRenderable> _renderables = new LinkedList<I2DRenderable>();
         internal Quadtree _childComponentTree;
-        private Viewport _owningViewport;
-        private RenderPanel _owningPanel;
         private OrthographicCamera _camera;
-        private bool _visible;
+        private bool _visible = true;
+        private Vec2 _bounds;
 
         public OrthographicCamera Camera => _camera;
-
-        public Viewport OwningViewport
-        {
-            get => _owningViewport;
-            set
-            {
-                _owningViewport = value;
-                if (_owningViewport == null)
-                    _owningPanel = null;
-                else
-                    _owningPanel = _owningViewport.OwningPanel;
-            }
-        }
-        public RenderPanel OwningPanel
-        {
-            get => _owningPanel;
-            set
-            {
-                _owningPanel = value;
-                _owningViewport = null;
-            }
-        }
-
+        
         public virtual bool Visible
         {
             get => _visible;
@@ -52,27 +29,28 @@ namespace TheraEngine.Rendering.HUD
 
         public HudManager()
         {
-            OwningPanel = null;
             _camera = new OrthographicCamera();
-            _childComponentTree = null;
+            _childComponentTree = new Quadtree(Vec2.Zero);
         }
-        public HudManager(Viewport v)
+        public HudManager(Vec2 bounds) : this()
         {
-            OwningViewport = v;
-            _camera = new OrthographicCamera();
-            _childComponentTree = new Quadtree(_owningViewport.Region.Bounds);
-        }
-        public HudManager(RenderPanel p)
-        {
-            OwningPanel = p;
-            _camera = new OrthographicCamera();
-            _childComponentTree = new Quadtree(_owningPanel.ClientSize);
+            Resize(bounds);
         }
 
         public void Resize(Vec2 bounds)
         {
+            _bounds = bounds;
+            if (_bounds == Vec2.Zero)
+                return;
+            _childComponentTree.Resize(bounds);
             _camera.Resize(bounds.X, bounds.Y);
-            RootComponent.Resize(new BoundingRectangle(Vec2.Zero, bounds));
+            RootComponent?.Resize(new BoundingRectangle(Vec2.Zero, bounds));
+        }
+        protected override void PostConstruct()
+        {
+            base.PostConstruct();
+            if (_bounds != Vec2.Zero)
+                RootComponent?.Resize(new BoundingRectangle(Vec2.Zero, _bounds));
         }
         public void DebugPrint(string message)
         {
@@ -85,21 +63,21 @@ namespace TheraEngine.Rendering.HUD
             AbstractRenderer.CurrentCamera = _camera;
             _childComponentTree.DebugRender();
             foreach (I2DRenderable comp in _renderables)
-                if (comp.IsRendering)
+                //if (comp.IsRendering)
                     comp.Render();
             AbstractRenderer.CurrentCamera = null;
         }
         protected void OnChildAdded(HudComponent child)
         {
-            child.Owner = this;
+            child.OwningActor = this;
         }
 
-        internal void UncacheComponent(I2DRenderable component)
+        internal void RemoveRenderableComponent(I2DRenderable component)
         {
             _childComponentTree.Remove(component);
             _renderables.Remove(component);
         }
-        internal void CacheComponent(I2DRenderable component)
+        internal void AddRenderableComponent(I2DRenderable component)
         {
             _childComponentTree.Add(component);
             if (_renderables.Count == 0)

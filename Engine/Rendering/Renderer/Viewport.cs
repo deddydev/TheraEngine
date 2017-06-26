@@ -95,7 +95,11 @@ namespace TheraEngine.Rendering
         public HudManager PawnHUD
         {
             get => _pawnHUD;
-            set => _pawnHUD = value ?? new HudManager(this);
+            set
+            {
+                _pawnHUD = value ?? new HudManager();
+                _pawnHUD.Resize(Region.Bounds);
+            }
         }
         public BoundingRectangle Region => _region;
         public float Height => _region.Height;
@@ -134,7 +138,7 @@ namespace TheraEngine.Rendering
                 ViewportCountChanged(index, panel._viewports.Count + 1, Engine.Game.TwoPlayerPref, Engine.Game.ThreePlayerPref);
 
             _owningPanel = panel;
-            _pawnHUD = new HudManager(this);
+            _pawnHUD = new HudManager();
             _index = index;
             Resize(panel.Width, panel.Height);
             _text = new TextDrawer();
@@ -171,53 +175,53 @@ namespace TheraEngine.Rendering
         }
         public void RenderDeferred(SceneProcessor scene)
         {
-            if (Camera == null)
-                return;
-
             _currentlyRendering = this;
             Engine.Renderer.PushRenderArea(Region);
             Engine.Renderer.CropRenderArea(Region);
 
-            _text.Add(new TextData("Hello", new Font("Helvetica", 20), Color.Blue, new Vec2(Region.Width / 2.0f, Region.Height / 2.0f), Vec2.Half, 0.0f, Vec2.One, 0.5f));
-            if (_text.Modified)
-                _text.Draw(_gBuffer.Textures[3]);
-            _text.Clear();
-
-            //We want to render to GBuffer textures
-            _gBuffer.Bind(EFramebufferTarget.Framebuffer);
-
-            //Clear color and depth and allow writing to depth
-            Engine.Renderer.Clear(EBufferClear.Color | EBufferClear.Depth);
-            Engine.Renderer.AllowDepthWrite(true);
-
-            //Cull scene and retrieve renderables for each buffer
-            scene.Cull(Camera);
-
-            //Render opaque deferred items first
-            scene.Render(Camera, RenderPass.OpaqueDeferred);
-
-            //We want to render to back buffer now
-            _gBuffer.Unbind(EFramebufferTarget.Framebuffer);
-            
-            //Render quad
-            _gBuffer.Render();
-
-            if (scene.RenderPasses.OpaqueForward.Count > 0 ||
-                scene.RenderPasses.TransparentForward.Count > 0)
+            if (Camera != null)
             {
-                //Copy depth from GBuffer to main frame buffer
-                Engine.Renderer.BlitFrameBuffer(
-                    _gBuffer.BindingId, 0,
-                    0, 0, Region.IntWidth, Region.IntHeight,
-                    0, 0, Region.IntWidth, Region.IntHeight,
-                    EClearBufferMask.DepthBufferBit,
-                    EBlitFramebufferFilter.Nearest);
+                _text.Add(new TextData("Hello", new Font("Helvetica", 20), Color.Blue, new Vec2(Region.Width / 2.0f, Region.Height / 2.0f), Vec2.Half, 0.0f, Vec2.One, 0.5f));
+                if (_text.Modified)
+                    _text.Draw(_gBuffer.Textures[3]);
+                _text.Clear();
 
-                scene.Render(Camera, RenderPass.OpaqueForward);
+                //We want to render to GBuffer textures
+                _gBuffer.Bind(EFramebufferTarget.Framebuffer);
 
-                Engine.Renderer.AllowDepthWrite(false);
-                scene.Render(Camera, RenderPass.TransparentForward);
+                //Clear color and depth and allow writing to depth
+                Engine.Renderer.Clear(EBufferClear.Color | EBufferClear.Depth);
                 Engine.Renderer.AllowDepthWrite(true);
+
+                //Cull scene and retrieve renderables for each buffer
+                scene.Cull(Camera);
+
+                //Render opaque deferred items first
+                scene.Render(Camera, RenderPass.OpaqueDeferred);
+
+                //We want to render to back buffer now
+                _gBuffer.Unbind(EFramebufferTarget.Framebuffer);
+
+                //Render quad
+                _gBuffer.Render();
+
+                if (scene.RenderPasses.OpaqueForward.Count > 0 ||
+                    scene.RenderPasses.TransparentForward.Count > 0)
+                {
+                    //Copy depth from GBuffer to main frame buffer
+                    Engine.Renderer.BlitFrameBuffer(
+                        _gBuffer.BindingId, 0,
+                        0, 0, Region.IntWidth, Region.IntHeight,
+                        0, 0, Region.IntWidth, Region.IntHeight,
+                        EClearBufferMask.DepthBufferBit,
+                        EBlitFramebufferFilter.Nearest);
+
+                    scene.Render(Camera, RenderPass.OpaqueForward);
+
+                    Engine.Renderer.AllowDepthWrite(false);
+                    scene.Render(Camera, RenderPass.TransparentForward);
+                    Engine.Renderer.AllowDepthWrite(true);
+                }
             }
 
             //Render HUD on top: GBuffer is simply for the world scene so HUD is not included.
@@ -228,36 +232,36 @@ namespace TheraEngine.Rendering
         }
         public void RenderForward(SceneProcessor scene)
         {
-            if (Camera == null)
-                return;
-
             _currentlyRendering = this;
             Engine.Renderer.PushRenderArea(Region);
             Engine.Renderer.CropRenderArea(Region);
 
-            if (_text.Modified)
-                _text.Draw(_gBuffer.Textures[1]);
+            if (Camera != null)
+            {
+                if (_text.Modified)
+                    _text.Draw(_gBuffer.Textures[1]);
 
-            //We want to render to GBuffer textures
-            _gBuffer.Bind(EFramebufferTarget.Framebuffer);
+                //We want to render to GBuffer textures
+                _gBuffer.Bind(EFramebufferTarget.Framebuffer);
 
-            //Clear color and depth and allow writing to depth
-            Engine.Renderer.Clear(EBufferClear.Color | EBufferClear.Depth);
-            Engine.Renderer.AllowDepthWrite(true);
+                //Clear color and depth and allow writing to depth
+                Engine.Renderer.Clear(EBufferClear.Color | EBufferClear.Depth);
+                Engine.Renderer.AllowDepthWrite(true);
 
-            //Cull scene and retrieve renderables for each buffer
-            scene.Cull(Camera);
+                //Cull scene and retrieve renderables for each buffer
+                scene.Cull(Camera);
 
-            scene.Render(Camera, RenderPass.OpaqueForward);
-            Engine.Renderer.AllowDepthWrite(false);
-            scene.Render(Camera, RenderPass.TransparentForward);
-            Engine.Renderer.AllowDepthWrite(true);
-            
-            //We want to render to back buffer now
-            _gBuffer.Unbind(EFramebufferTarget.Framebuffer);
+                scene.Render(Camera, RenderPass.OpaqueForward);
+                Engine.Renderer.AllowDepthWrite(false);
+                scene.Render(Camera, RenderPass.TransparentForward);
+                Engine.Renderer.AllowDepthWrite(true);
 
-            //Render quad
-            _gBuffer.Render();
+                //We want to render to back buffer now
+                _gBuffer.Unbind(EFramebufferTarget.Framebuffer);
+
+                //Render quad
+                _gBuffer.Render();
+            }
 
             //Render HUD on top: GBuffer is simply for the world scene so HUD is not included.
             _pawnHUD.Render();

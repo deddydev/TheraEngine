@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Windows.Forms;
 using TheraEngine;
 using TheraEngine.Input.Devices;
 using TheraEngine.Rendering.HUD;
+using TheraEngine.Rendering.Models.Materials;
 using TheraEngine.Worlds;
 using TheraEngine.Worlds.Actors;
 
@@ -14,7 +16,8 @@ namespace Testris
         private int _columns = 10;
         private int _rows = 20;
         private float _secondsPerBlock = 2.0f;
-        private bool[,] _blockBoard;
+        private int[,] _blockBoard;
+        private MaterialHudComponent[,] _hudBoard;
         private TetrisPiece _currentBlock;
         private TetrisPiece _nextBlock;
         private float _delta;
@@ -51,6 +54,8 @@ namespace Testris
             set => _isRendering = value;
         }
 
+        public int[,] BlockBoard => _blockBoard;
+
         public override void RegisterInput(InputInterface input)
         {
             input.RegisterButtonEvent(GamePadButton.SpecialRight, ButtonInputType.Pressed, Pause, InputPauseType.TickAlways);
@@ -77,10 +82,13 @@ namespace Testris
         private void GameOver()
         {
             UnregisterTick(ETickGroup.PostPhysics, ETickOrder.Scene, SceneUpdate);
+            Engine.SetPaused(true, LocalPlayerController.LocalPlayerIndex);
         }
         private void Pause()
         {
-            Engine.TogglePause(LocalPlayerController.LocalPlayerIndex);
+            //Engine.TogglePause(LocalPlayerController.LocalPlayerIndex);
+            //Application.Exit();
+            Engine.CloseApplication();
         }
         
         private void EndSpeedUp()
@@ -161,7 +169,7 @@ namespace Testris
                     int boardColIndex = colIndex + colShift;
                     if (boardColIndex < 0 || boardColIndex >= _columns)
                         return true;
-                    if (blockLayout[rowIndex, colIndex] && _blockBoard[boardRowIndex, boardColIndex])
+                    if (blockLayout[rowIndex, colIndex] && _blockBoard[boardRowIndex, boardColIndex] > 0)
                         return true;
                 }
             }
@@ -192,28 +200,52 @@ namespace Testris
                     //If the layout has a true signifying a piece,
                     //update that piece in the board
                     if (blockLayout[rowIndex, colIndex])
-                        _blockBoard[boardRowIndex, boardColIndex] = postMove;
+                        _blockBoard[boardRowIndex, boardColIndex] = postMove ? _currentBlock.PieceTypeID : -1;
                 }
             }
         }
         protected override DockableHudComponent OnConstruct()
         {
             Hud = this;
-            DockableHudComponent root = new DockableHudComponent()
+            //TextureReference r = new TextureReference(Engine.StartupPath + "Content\\test.png");
+            //Material m = Material.GetUnlitTextureMaterial(r, false);
+            //MaterialHudComponent root = new MaterialHudComponent(m)
+            //{
+            //    DockStyle = HudDockStyle.Fill
+            //};
+            DockableHudComponent board = new DockableHudComponent()
             {
-                DockStyle = HudDockStyle.Fill
+                WidthValue = _columns * 54,
+                HeightValue = _rows * 54,
+                WidthMode = SizingMode.Pixels,
+                HeightMode = SizingMode.Pixels,
+                OriginXPercentage = 0.5f,
+                OriginYPercentage = 0.5f,
+                PosXValue = 0.5f,
+                PosYValue = 0.5f,
+                PositionXMode = SizingMode.Percentage,
+                PositionYMode = SizingMode.Percentage,
             };
-            TextureHudComponent boardTexture = new TextureHudComponent()
-            {
-
-            };
-            boardTexture.Parent = root;
-            return root;
+            for (int row = 0; row < _rows; ++row)
+                for (int col = 0; col < _columns; ++col)
+                {
+                    Material mat = Material.GetUnlitColorMaterial(
+                        new ColorF4(row / 20.0f, col / 10.0f, 0.0f, 1.0f), false);
+                    MaterialHudComponent square = new MaterialHudComponent(mat)
+                    {
+                        WidthValue = 54,
+                        HeightValue = 54,
+                        PosXValue = col * 54,
+                        PosYValue = (_rows - row - 1) * 54,
+                    };
+                    board.Add(square);
+                }
+            //root.Add(board);
+            return board;
         }
-
         public override void OnSpawned(World world)
         {
-            _blockBoard = new bool[_rows, _columns];
+            _blockBoard = new int[_rows, _columns];
             base.OnSpawned(world);
         }
 
@@ -247,7 +279,7 @@ namespace Testris
                 bool allFilled = true;
                 for (int boardColIndex = 0; boardColIndex < _columns; ++boardColIndex)
                 {
-                    if (!_blockBoard[boardRowIndex, boardColIndex])
+                    if (_blockBoard[boardRowIndex, boardColIndex] < 0)
                     {
                         allFilled = false;
                         break;
@@ -272,7 +304,7 @@ namespace Testris
                     _blockBoard[row + 1, col] = _blockBoard[row, col];
 
             for (int col = 0; col < _columns; ++col)
-                _blockBoard[0, col] = false;
+                _blockBoard[0, col] = -1;
         }
         private void SpawnBlock()
         {
@@ -285,7 +317,7 @@ namespace Testris
     }
     public class TetrisPiece
     {
-        private ColorF3 _color;
+        private int _pieceTypeID;
         private int _columnShift, _rowShift;
 
         private int _currentRotationIndex;
@@ -294,12 +326,12 @@ namespace Testris
         private bool[,] _pos2;
         private bool[,] _pos3;
         private bool[,] _pos4;
-
+        
         private TetrisPiece(
-            ColorF3 color, int initialRowShift, int initialColumnShift, 
+            int id, int initialRowShift, int initialColumnShift, 
             bool[,] pos1, bool[,] pos2, bool[,] pos3, bool[,] pos4)
         {
-            _color = color;
+            _pieceTypeID = id;
             _rowShift = initialRowShift;
             _columnShift = initialColumnShift;
             _pos1 = pos1;
@@ -310,7 +342,7 @@ namespace Testris
             _currentRotation = _pos1;
         }
 
-        public ColorF3 RGB => _color;
+        public int PieceTypeID => _pieceTypeID;
         public int ColumnShift
         {
             get => _columnShift;
@@ -347,18 +379,25 @@ namespace Testris
                 case 3: _currentRotation = _pos4; break;
             }
         }
-
+        public static readonly ColorF4[] Colors =
+        {
+            Color.LightSkyBlue,
+            Color.Blue,
+            Color.Orange,
+            Color.Yellow,
+            Color.Green,
+            Color.Magenta,
+            Color.Red,
+        };
         public static TetrisPiece New(int id)
         {
-            ColorF3 color = new ColorF3();
             int rowShift = 0, colShift = 0;
             bool[,] pos1 = null, pos2 = null, pos3 = null, pos4 = null;
             switch (id)
             {
                 case 0:
                     colShift = 3;
-                    rowShift = -4;
-                    color = Color.LightSkyBlue;
+                    rowShift = -3;
                     pos3 = new bool[,]
                     {
                         { false, false, false, false },
@@ -391,7 +430,6 @@ namespace Testris
                 case 1:
                     colShift = 4;
                     rowShift = -3;
-                    color = Color.Blue;
                     pos3 = new bool[,]
                     {
                         { true,  false, false },
@@ -420,7 +458,6 @@ namespace Testris
                 case 2:
                     colShift = 4;
                     rowShift = -3;
-                    color = Color.Orange;
                     pos3 = new bool[,]
                     {
                         { false, false, true  },
@@ -447,7 +484,8 @@ namespace Testris
                     };
                     break;
                 case 3:
-                    color = Color.Yellow;
+                    colShift = 4;
+                    rowShift = -2;
                     pos1 = pos2 = pos3 = pos4 = new bool[,]
                     {
                         { true, true, },
@@ -455,7 +493,8 @@ namespace Testris
                     };
                     break;
                 case 4:
-                    color = Color.Green;
+                    colShift = 4;
+                    rowShift = -3;
                     pos3 = new bool[,]
                     {
                         { false, true,  true  },
@@ -482,7 +521,8 @@ namespace Testris
                     };
                     break;
                 case 5:
-                    color = Color.Magenta;
+                    colShift = 4;
+                    rowShift = -3;
                     pos3 = new bool[,]
                     {
                         { false, true,  false },
@@ -509,7 +549,8 @@ namespace Testris
                     };
                     break;
                 case 6:
-                    color = Color.Red;
+                    colShift = 4;
+                    rowShift = -3;
                     pos3 = new bool[,]
                     {
                         { true,  true,  false },
@@ -538,7 +579,7 @@ namespace Testris
                 default:
                     return null;
             }
-            return new TetrisPiece(color, rowShift, colShift, pos1, pos2, pos3, pos4);
+            return new TetrisPiece(id, rowShift, colShift, pos1, pos2, pos3, pos4);
         }
     }
 }

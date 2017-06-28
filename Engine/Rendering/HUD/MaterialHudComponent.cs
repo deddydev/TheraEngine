@@ -26,6 +26,12 @@ namespace TheraEngine.Rendering.HUD
             get => _quad.Material;
             set => _quad.Material = value;
         }
+        public Texture2D Texture(int index)
+        {
+            if (_quad.Program.Textures.IndexInRange(index))
+                return _quad.Program.Textures[index];
+            return null;
+        }
         /// <summary>
         /// Retrieves the linked material's uniform parameter at the given index.
         /// Use this to set uniform values to be passed to the shader.

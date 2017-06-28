@@ -6,6 +6,11 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using TheraEngine.Worlds.Actors.Types;
+using TheraEngine.Rendering.Text;
+using System.Diagnostics;
+using TheraEngine.Rendering.Textures;
+using System.Drawing.Imaging;
+using BulletSharp;
 
 namespace TheraEngine.Rendering
 {
@@ -24,7 +29,7 @@ namespace TheraEngine.Rendering
         private Camera _worldCamera;
         private RenderPanel _owningPanel;
         private TextDrawer _text;
-        private GBuffer _gBuffer;
+        internal GBuffer _gBuffer;
 
         public TextDrawer Text => _text;
 
@@ -158,7 +163,7 @@ namespace TheraEngine.Rendering
                 Render = RenderDeferred;
             }
         }
-        internal void Resize(float parentWidth, float parentHeight)
+        internal void Resize(float parentWidth, float parentHeight, bool resizeGBuffer = true)
         {
             _region.X = _leftPercentage * parentWidth;
             _region.Y = _bottomPercentage * parentHeight;
@@ -167,6 +172,11 @@ namespace TheraEngine.Rendering
 
             _worldCamera?.Resize(Width, Height);
             _pawnHUD.Resize(_region.Bounds);
+            if (resizeGBuffer)
+                _gBuffer?.Resize(_region.IntWidth, _region.IntHeight);
+        }
+        internal void ResizeGBuffer()
+        {
             _gBuffer?.Resize(_region.IntWidth, _region.IntHeight);
         }
         public void DebugPrint(string message)
@@ -181,10 +191,8 @@ namespace TheraEngine.Rendering
 
             if (Camera != null)
             {
-                _text.Add(new TextData("Hello", new Font("Helvetica", 20), Color.Blue, new Vec2(Region.Width / 2.0f, Region.Height / 2.0f), Vec2.Half, 0.0f, Vec2.One, 0.5f));
                 if (_text.Modified)
                     _text.Draw(_gBuffer.Textures[3]);
-                _text.Clear();
 
                 //We want to render to GBuffer textures
                 _gBuffer.Bind(EFramebufferTarget.Framebuffer);
@@ -202,22 +210,26 @@ namespace TheraEngine.Rendering
                 //We want to render to back buffer now
                 _gBuffer.Unbind(EFramebufferTarget.Framebuffer);
 
-                //Render quad
+                //Render deferred pass
                 _gBuffer.Render();
 
-                if (scene.RenderPasses.OpaqueForward.Count > 0 ||
-                    scene.RenderPasses.TransparentForward.Count > 0)
+                Engine.Renderer.Clear(EBufferClear.Depth);
+
+                //Copy depth from GBuffer to main frame buffer
+                _gBuffer.Bind(EFramebufferTarget.ReadFramebuffer);
+                Engine.Renderer.BindFrameBuffer(EFramebufferTarget.DrawFramebuffer, 0);
+                Engine.Renderer.BlitFrameBuffer(
+                    0, 0, Region.IntWidth, Region.IntHeight,
+                    0, 0, Region.IntWidth, Region.IntHeight,
+                    EClearBufferMask.DepthBufferBit,
+                    EBlitFramebufferFilter.Nearest);
+                _gBuffer.Unbind(EFramebufferTarget.ReadFramebuffer);
+                Engine.Renderer.BindFrameBuffer(EFramebufferTarget.Framebuffer, 0);
+
+                //Render other passes
+                if (scene.RenderPasses.OpaqueForward.Count > 0 || scene.RenderPasses.TransparentForward.Count > 0)
                 {
-                    //Copy depth from GBuffer to main frame buffer
-                    Engine.Renderer.BlitFrameBuffer(
-                        _gBuffer.BindingId, 0,
-                        0, 0, Region.IntWidth, Region.IntHeight,
-                        0, 0, Region.IntWidth, Region.IntHeight,
-                        EClearBufferMask.DepthBufferBit,
-                        EBlitFramebufferFilter.Nearest);
-
                     scene.Render(Camera, RenderPass.OpaqueForward);
-
                     Engine.Renderer.AllowDepthWrite(false);
                     scene.Render(Camera, RenderPass.TransparentForward);
                     Engine.Renderer.AllowDepthWrite(true);
@@ -277,10 +289,21 @@ namespace TheraEngine.Rendering
             => _worldCamera.WorldToScreen(worldPoint);
         public Vec2 AbsoluteToRelative(Vec2 absolutePoint) => new Vec2(absolutePoint.X - _region.X, absolutePoint.Y - _region.Y);
         public Vec2 RelativeToAbsolute(Vec2 viewportPoint) => new Vec2(viewportPoint.X + _region.X, viewportPoint.Y + _region.Y);
-        public float GetDepth(Vec2 viewportPoint)
+        public unsafe float GetDepth(Vec2 viewportPoint)
         {
-            Vec2 absolutePoint = RelativeToAbsolute(viewportPoint);
-            return Engine.Renderer.GetDepth(absolutePoint.X, absolutePoint.Y);
+            Vec2 absolutePoint = viewportPoint;//RelativeToAbsolute(viewportPoint);
+            _gBuffer.Bind(EFramebufferTarget.Framebuffer);
+            Engine.Renderer.SetReadBuffer(DrawBuffersAttachment.None);
+            var depthTex = _gBuffer.Textures[4];
+            //depthTex.Bind();
+            //if (viewportPoint.Y >= depthTex.Height || viewportPoint.Y < 0 || viewportPoint.X >= depthTex.Width || viewportPoint.X < 0)
+            //    return 0;
+            //BitmapData bmd = depthTex.LockBits(new Rectangle(0, 0, depthTex.Width, depthTex.Height), ImageLockMode.ReadWrite, depthTex.PixelFormat);
+            //float depth = *(float*)((byte*)bmd.Scan0 + ((int)viewportPoint.Y * bmd.Stride + (int)viewportPoint.X * 4));
+            //depthTex.UnlockBits(bmd);
+            float depth = Engine.Renderer.GetDepth(absolutePoint.X, absolutePoint.Y);
+            _gBuffer.Unbind(EFramebufferTarget.Framebuffer);
+            return depth;
         }
         public Ray GetWorldRay(Vec2 viewportPoint)
             => _worldCamera.GetWorldRay(viewportPoint);
@@ -301,18 +324,17 @@ namespace TheraEngine.Rendering
             }
             if (testWorld)
             {
-#if EDITOR
-                Ray cursor = GetWorldRay(viewportPoint);
-                if (EditorTransformTool3D.CurrentInstance != null)
+                Segment cursor = GetWorldSegment(viewportPoint);
+                ClosestRayResultCallback c = Engine.RaycastClosest(cursor);
+                if (c.HasHit)
                 {
-                    if (EditorTransformTool3D.CurrentInstance.UpdateCursorRay(cursor, _worldCamera, false))
-                        return EditorTransformTool3D.CurrentInstance.RootComponent;
+                    Debug.WriteLine(c.HitPointWorld.ToString());
                 }
-#endif
-                float depth = GetDepth(viewportPoint);
-                Vec3 worldPoint = ScreenToWorld(viewportPoint, depth);
-                ThreadSafeList<I3DRenderable> r = Engine.Scene.RenderTree.FindClosest(worldPoint);
+                //float depth = GetDepth(viewportPoint);
 
+                //Vec3 worldPoint = ScreenToWorld(viewportPoint, depth);
+                //ThreadSafeList<I3DRenderable> r = Engine.Scene.RenderTree.FindClosest(worldPoint);
+                
             }
             return null;
         }

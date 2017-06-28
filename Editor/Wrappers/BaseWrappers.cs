@@ -132,8 +132,6 @@ namespace Editor.Wrappers
             {
                 _resource.Renamed -= OnRenamed;
                 _resource.PropertyChanged -= OnPropertyChanged;
-                _resource.UpdateProperties -= OnUpdateProperties;
-                _resource.UpdateEditor -= OnUpdateCurrentControl;
                 _resource = null;
             }
 

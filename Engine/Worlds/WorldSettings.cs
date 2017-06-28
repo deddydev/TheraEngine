@@ -23,6 +23,7 @@ namespace TheraEngine.Worlds
         public void OnGameModeChanged(BaseGameMode oldMode) => GameModeChanged?.Invoke(oldMode);
         public void OnTimeMultiplierChanged(float oldMult) => TimeMultiplierChanged?.Invoke(oldMult);
 
+        [TypeConverter(typeof(ExpandableObjectConverter))]
         public Vec3 Gravity
         {
             get => _gravity;
@@ -33,7 +34,8 @@ namespace TheraEngine.Worlds
                 OnGravityChanged(oldGravity);
             }
         }
-        public BaseGameMode GameMode
+        [TypeConverter(typeof(ExpandableObjectConverter))]
+        public SingleFileRef<BaseGameMode> GameMode
         {
             get => _gameMode;
             set
@@ -60,38 +62,50 @@ namespace TheraEngine.Worlds
         private SingleFileRef<BaseGameMode> _gameMode;
         [Serialize("TimeDilation")]
         private float _timeSpeed = 1.0f;
+
+        [TypeConverter(typeof(ExpandableObjectConverter))]
         public BoundingBox OriginRebaseBounds
-            => _originRebaseBounds;
+        {
+            get => _originRebaseBounds;
+            set => _originRebaseBounds = value;
+        }
+        [TypeConverter(typeof(ExpandableObjectConverter))]
         public BoundingBox Bounds
         {
             get => _bounds;
             set => _bounds = value;
         }
+        [TypeConverter(typeof(ExpandableObjectConverter))]
         public WorldState State
         {
             get => _state;
             set => _state = value;
         }
+        [TypeConverter(typeof(ExpandableObjectConverter))]
         public SoundFile AmbientSound
         {
             get => _ambientSound;
             set => _ambientSound = value;
         }
+        [Browsable(false)]
         public List<Map> Maps
         {
             get => _maps;
             set => _maps = value;
         }
+        [Browsable(false)]
         public AudioSourceParameters AmbientParams
         {
             get => _ambientParams;
             set => _ambientParams = value;
         }
+        [Browsable(false)]
         public HudManager DefaultHud
         {
             get => _defaultHud;
             set => _defaultHud = value;
         }
+        [TypeConverter(typeof(ExpandableObjectConverter))]
         public Vec3 GlobalAmbient
         {
             get => _globalAmbient;

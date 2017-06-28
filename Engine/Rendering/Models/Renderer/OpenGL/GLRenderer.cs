@@ -593,6 +593,36 @@ namespace TheraEngine.Rendering.OpenGL
                 dstX1, dstY1,
                 maskgl, filtergl);
         }
+        public override void BlitFrameBuffer(
+            int srcX0, int srcY0,
+            int srcX1, int srcY1,
+            int dstX0, int dstY0,
+            int dstX1, int dstY1,
+            EClearBufferMask mask,
+            EBlitFramebufferFilter filter)
+        {
+            ClearBufferMask maskgl = ClearBufferMask.None;
+            if (mask.HasFlag(EClearBufferMask.AccumBufferBit))
+                maskgl |= ClearBufferMask.AccumBufferBit;
+            if (mask.HasFlag(EClearBufferMask.ColorBufferBit))
+                maskgl |= ClearBufferMask.ColorBufferBit;
+            if (mask.HasFlag(EClearBufferMask.CoverageBufferBitNv))
+                maskgl |= ClearBufferMask.CoverageBufferBitNv;
+            if (mask.HasFlag(EClearBufferMask.DepthBufferBit))
+                maskgl |= ClearBufferMask.DepthBufferBit;
+            if (mask.HasFlag(EClearBufferMask.StencilBufferBit))
+                maskgl |= ClearBufferMask.StencilBufferBit;
+
+            BlitFramebufferFilter filtergl = filter == EBlitFramebufferFilter.Linear ?
+                BlitFramebufferFilter.Linear : BlitFramebufferFilter.Nearest;
+
+            GL.BlitFramebuffer(
+                srcX0, srcY0,
+                srcX1, srcY1,
+                dstX0, dstY0,
+                dstX1, dstY1,
+                maskgl, filtergl);
+        }
         public override void BindFrameBuffer(EFramebufferTarget type, int bindingId)
         {
             GL.BindFramebuffer((FramebufferTarget)type, bindingId);
@@ -607,13 +637,21 @@ namespace TheraEngine.Rendering.OpenGL
         }
         public override float GetDepth(float x, float y)
         {
-            //float val = 0;
-            //GL.ReadPixels((int)x, (int)(Engine.CurrentPanel.Height - y), 1, 1, OpenTK.Graphics.OpenGL.PixelFormat.DepthComponent, PixelType.Float, ref val);
-            //return val;
+            //GL.ReadBuffer(ReadBufferMode.FrontAndBack);
 
-            int val = 0;
-            GL.ReadPixels((int)x, (int)(Engine.CurrentPanel.Height - y), 1, 1, OpenTK.Graphics.OpenGL.PixelFormat.DepthStencil, PixelType.UnsignedInt248, ref val);
-            return (float)(val >> 8) / UInt24.MaxValue;
+            //Viewport v = Engine.CurrentPanel.GetViewport(0);
+            //float[] pixels = new float[(int)v.Width * (int)v.Height];
+            //v._gBuffer.Textures[4].Bind();
+            //GL.GetTexImage(TextureTarget.Texture2D, 0, OpenTK.Graphics.OpenGL.PixelFormat.DepthComponent, PixelType.Float, pixels);
+            //return pixels[(int)y * (int)v.Width + (int)x];
+
+            float val = 0;
+            GL.ReadPixels((int)x, (int)y, 1, 1, OpenTK.Graphics.OpenGL.PixelFormat.DepthComponent, PixelType.Float, ref val);
+            return val;
+
+            //int val = 0;
+            //GL.ReadPixels((int)x, (int)(Engine.CurrentPanel.Height - y), 1, 1, OpenTK.Graphics.OpenGL.PixelFormat.DepthStencil, PixelType.UnsignedInt248, ref val);
+            //return (float)(val >> 8) / UInt24.MaxValue;
         }
 
         protected override void SetRenderArea(BoundingRectangle region)

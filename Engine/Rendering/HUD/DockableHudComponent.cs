@@ -9,8 +9,8 @@ namespace TheraEngine.Rendering.HUD
 {
     public enum WidthHeightConstraint
     {
-        ConstrainWidthToHeight,
-        ConstrainHeightToWidth,
+        WidthAsRatioToHeight,
+        HeightAsRatioToWidth,
         NoConstraint,
     }
     public enum SizingMode
@@ -170,7 +170,8 @@ namespace TheraEngine.Rendering.HUD
         public float MarginRightValue { get => _marginRightValue; set => _marginRightValue = value; }
         public float OriginXPercentage { get => _originXValue; set => _originXValue = value; }
         public float OriginYPercentage { get => _originYValue; set => _originYValue = value; }
-
+        public WidthHeightConstraint WidthHeightConstraint { get => _whConstraint; set => _whConstraint = value; }
+        
         public override BoundingRectangle Resize(BoundingRectangle parentRegion)
         {
             BoundingRectangle leftOver = parentRegion;
@@ -178,6 +179,10 @@ namespace TheraEngine.Rendering.HUD
             float y = parentRegion.MinY + (_positionYMode == SizingMode.Percentage ? parentRegion.Height * _posYValue : _posYValue);
             float w = (_widthMode == SizingMode.Percentage ? parentRegion.Width * _widthValue : _widthValue);
             float h = (_heightMode == SizingMode.Percentage ? parentRegion.Height * _heightValue : _heightValue);
+            if (_whConstraint != WidthHeightConstraint.NoConstraint)
+            {
+
+            }
             _region = new BoundingRectangle(x, y, w, h, _originXValue, _originYValue);
             if (Docked || Anchored)
             {

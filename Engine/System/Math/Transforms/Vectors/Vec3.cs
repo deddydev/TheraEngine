@@ -5,6 +5,7 @@ using System.Xml.Serialization;
 using System.Drawing;
 using TheraEngine;
 using TheraEngine.Rendering.Models;
+using System.ComponentModel;
 
 namespace System
 {
@@ -15,9 +16,31 @@ namespace System
     {
         public float X, Y, Z;
 
+#if EDITOR
+        /// <summary>
+        /// For editor use.
+        /// </summary>
+        [DisplayName("X")]
+        public float XValue { get => X; set => X = value; }
+        /// <summary>
+        /// For editor use.
+        /// </summary>
+        [DisplayName("Y")]
+        public float YValue { get => Y; set => Y = value; }
+        /// <summary>
+        /// For editor use.
+        /// </summary>
+        [DisplayName("Z")]
+        public float ZValue { get => Z; set => Z = value; }
+#endif
+
+        [Browsable(false)]
         public float* Data => (float*)Address;
+        [Browsable(false)]
         public VoidPtr Address { get { fixed (void* p = &this) return p; } }
+        [Browsable(false)]
         public VertexBuffer.ComponentType ComponentType => VertexBuffer.ComponentType.Float;
+        [Browsable(false)]
         public int ComponentCount => 3;
         bool IBufferable.Normalize => false;
         public void Write(VoidPtr address) => *(Vec3*)address = this;
@@ -74,8 +97,11 @@ namespace System
         public Matrix4 GetScaleMatrix()
             => Matrix4.CreateScale(this);
 
+        [Browsable(false)]
         public float LengthSquared => Dot(this);
+        [Browsable(false)]
         public float Length => (float)Sqrt(LengthSquared);
+        [Browsable(false)]
         public float LengthFast => 1.0f / InverseSqrtFast(LengthSquared);
 
         public float DistanceTo(Vec3 point)
@@ -547,6 +573,7 @@ namespace System
             return u >= 0.0f && v >= 0.0f && u + v < 1.0f;
         }
 
+        [Browsable(false)]
         [XmlIgnore]
         public Vec2 Xy
         {
@@ -557,6 +584,7 @@ namespace System
                 Y = value.Y;
             }
         }
+        [Browsable(false)]
         [XmlIgnore]
         public Vec2 Xz
         {
@@ -567,6 +595,7 @@ namespace System
                 Z = value.Y;
             }
         }
+        [Browsable(false)]
         [XmlIgnore]
         public Vec2 Yx
         {
@@ -577,6 +606,7 @@ namespace System
                 X = value.Y;
             }
         }
+        [Browsable(false)]
         [XmlIgnore]
         public Vec2 Yz
         {
@@ -587,6 +617,7 @@ namespace System
                 Z = value.Y;
             }
         }
+        [Browsable(false)]
         [XmlIgnore]
         public Vec2 Zx
         {
@@ -597,6 +628,7 @@ namespace System
                 X = value.Y;
             }
         }
+        [Browsable(false)]
         [XmlIgnore]
         public Vec2 Zy
         {
@@ -607,6 +639,7 @@ namespace System
                 Y = value.Y;
             }
         }
+        [Browsable(false)]
         [XmlIgnore]
         public Vec3 Xzy
         {
@@ -618,6 +651,7 @@ namespace System
                 Y = value.Z;
             }
         }
+        [Browsable(false)]
         [XmlIgnore]
         public Vec3 Yxz
         {
@@ -629,6 +663,7 @@ namespace System
                 Z = value.Z;
             }
         }
+        [Browsable(false)]
         [XmlIgnore]
         public Vec3 Yzx
         {
@@ -640,6 +675,7 @@ namespace System
                 X = value.Z;
             }
         }
+        [Browsable(false)]
         [XmlIgnore]
         public Vec3 Zxy
         {
@@ -651,6 +687,7 @@ namespace System
                 Y = value.Z;
             }
         }
+        [Browsable(false)]
         [XmlIgnore]
         public Vec3 Zyx
         {
@@ -662,6 +699,7 @@ namespace System
                 X = value.Z;
             }
         }
+        [Browsable(false)]
         [XmlIgnore]
         public Vec3 Xyz
         {

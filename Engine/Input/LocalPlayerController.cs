@@ -20,7 +20,7 @@ namespace TheraEngine.Input
             int i = (int)index;
 
             _input = new InputInterface(i);
-            //_input.WantsInputsRegistered += RegisterInput;
+            _input.WantsInputsRegistered += RegisterInput;
 
             _possessionQueue = possessionQueue;
             if (_possessionQueue.Count != 0 && ControlledPawn == null)
@@ -39,7 +39,7 @@ namespace TheraEngine.Input
             int i = (int)index;
 
             _input = new InputInterface(i);
-            //_input.WantsInputsRegistered += RegisterInput;
+            _input.WantsInputsRegistered += RegisterInput;
 
             _possessionQueue = new Queue<IPawn>();
 
@@ -52,6 +52,7 @@ namespace TheraEngine.Input
         }
         ~LocalPlayerController()
         {
+            _input.WantsInputsRegistered -= RegisterInput;
             int index = (int)_index;
             if (index >= 0 && index < Engine.ActivePlayers.Count)
                 Engine.ActivePlayers.RemoveAt(index);
@@ -68,9 +69,17 @@ namespace TheraEngine.Input
             get => _viewport;
             set
             {
+                if (_viewport != null && _viewport.OwningPanel.GlobalHud != null)
+                    _input.WantsInputsRegistered -= _viewport.OwningPanel.GlobalHud.RegisterInput;
                 _viewport = value;
-                if (_viewport != null && _controlledPawn != null)
-                    UpdateViewport();
+                if (_viewport != null)
+                {
+                    if (_controlledPawn != null)
+                        UpdateViewport();
+
+                    if (_viewport.OwningPanel.GlobalHud != null)
+                        _input.WantsInputsRegistered += _viewport.OwningPanel.GlobalHud.RegisterInput;
+                }
             }
         }
         public Camera CurrentCamera
@@ -93,8 +102,9 @@ namespace TheraEngine.Input
                     _controlledPawn.OnUnPossessed();
                     _input.TryUnregisterInput();
 
-                    _input.WantsInputsRegistered -= RegisterInput;
                     _input.WantsInputsRegistered -= _controlledPawn.RegisterInput;
+                    if (_controlledPawn.Hud != null)
+                        _input.WantsInputsRegistered -= _controlledPawn.Hud.RegisterInput;
                 }
 
                 _controlledPawn = value;
@@ -107,8 +117,9 @@ namespace TheraEngine.Input
                     if (_viewport != null)
                         UpdateViewport();
 
-                    _input.WantsInputsRegistered += RegisterInput;
                     _input.WantsInputsRegistered += _controlledPawn.RegisterInput;
+                    if (_controlledPawn.Hud != null)
+                        _input.WantsInputsRegistered += _controlledPawn.Hud.RegisterInput;
 
                     _controlledPawn.OnPossessed(this);
                     _input.TryRegisterInput();

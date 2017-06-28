@@ -110,7 +110,6 @@ namespace TheraEngine.Rendering.Models.Materials
         private List<GLVar> _parameters = new List<GLVar>();
         private List<I3DRenderable> _renderingReferences = new List<I3DRenderable>();
         private int _bindingId = -1;
-        private bool _hasTransparency = false;
 
         public int BindingId => _bindingId;
         public List<GLVar> Parameters

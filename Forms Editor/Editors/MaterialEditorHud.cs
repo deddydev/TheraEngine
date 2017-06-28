@@ -5,13 +5,13 @@ using TheraEngine.Input.Devices;
 using TheraEngine.Worlds;
 using TheraEngine.Worlds.Actors;
 using TheraEngine.Rendering.Models.Materials;
+using System;
 
 namespace TheraEditor.Editors
 {
     public class MaterialEditorHud : HudManager
     {
-        public MaterialEditorHud(Viewport v) : base(v) { }
-        public MaterialEditorHud(RenderPanel p) : base(p) { }
+        public MaterialEditorHud(Vec2 bounds) : base(bounds) { }
 
         protected override DockableHudComponent OnConstruct()
         {

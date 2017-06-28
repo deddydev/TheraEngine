@@ -20,7 +20,7 @@ namespace TheraEngine.Worlds.Actors
         private SkeletalMesh _model;
         private Skeleton _skeleton;
         //For internal runtime use
-        internal RenderableMesh[] _meshes;
+        private RenderableMesh[] _meshes;
 
         [Serialize]
         public SkeletalMesh Model
@@ -59,6 +59,9 @@ namespace TheraEngine.Worlds.Actors
                         m.Skeleton = _skeleton;
             }
         }
+        
+        public RenderableMesh[] Meshes => _meshes;
+        
         public void SetAllSimulatingPhysics(bool doSimulation)
         {
             foreach (Bone b in _skeleton)

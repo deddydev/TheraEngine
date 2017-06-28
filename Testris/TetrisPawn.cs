@@ -81,7 +81,6 @@ namespace Testris
 
         private void BeginGame()
         {
-            BlocksPerSec = 5.0f;
             _blockBoard = new int[_rows, _columns];
             for (int row = 0; row < _rows; ++row)
                 for (int col = 0; col < _columns; ++col)
@@ -89,12 +88,16 @@ namespace Testris
                     _blockBoard[row, col] = -1;
                     _hudBoard[row, col].Parameter<GLVec4>(0).Value = (ColorF4)Color.Transparent;
                 }
+
             _score = 0;
             _playing = true;
             _nextBlock = TetrisPiece.New(_rng.Next(0, 6), _columns);
-            SpawnBlock();
-            _theme.SoundPath = Engine.StartupPath + "..\\..\\..\\ProjectFiles\\" + string.Format("bgm{0}.wav", (DateTime.Now.Millisecond % 5) + 1);
+
+            _theme.SoundPath = Engine.StartupPath + "..\\..\\..\\ProjectFiles\\" + string.Format("bgm{0}.wav", _rng.Next(1, 5));
             _theme.Play(_ambientParams, int.MaxValue);
+
+            BlocksPerSec = 5.0f;
+            SpawnBlock();
             RegisterTick(ETickGroup.PostPhysics, ETickOrder.Scene, SceneUpdate);
         }
         private void GameOver()
@@ -257,18 +260,19 @@ namespace Testris
         {
             _hudBoard = new MaterialHudComponent[_rows, _columns];
             Hud = this;
-            //TextureReference r = new TextureReference(Engine.StartupPath + "Content\\test.png");
-            //Material m = Material.GetUnlitTextureMaterial(r, false);
-            //MaterialHudComponent root = new MaterialHudComponent(m)
-            //{
-            //    DockStyle = HudDockStyle.Fill
-            //};
+            TextureReference r = new TextureReference(Engine.StartupPath + "..\\..\\..\\ProjectFiles\\test.jpg");
+            Material m = Material.GetUnlitTextureMaterial(r, false);
+            MaterialHudComponent root = new MaterialHudComponent(m)
+            {
+                DockStyle = HudDockStyle.Fill
+            };
             DockableHudComponent board = new DockableHudComponent()
             {
-                WidthValue = _columns * 54,
-                HeightValue = _rows * 54,
+                HeightValue = 1.0f,
+                WidthValue = _columns / _rows,
+                WidthHeightConstraint = WidthHeightConstraint.WidthAsRatioToHeight,
                 WidthMode = SizingMode.Pixels,
-                HeightMode = SizingMode.Pixels,
+                HeightMode = SizingMode.Percentage,
                 OriginXPercentage = 0.5f,
                 OriginYPercentage = 0.5f,
                 PosXValue = 0.5f,
@@ -280,7 +284,7 @@ namespace Testris
                 for (int col = 0; col < _columns; ++col)
                 {
                     Material mat = Material.GetUnlitColorMaterial(
-                        new ColorF4(row / 20.0f, col / 10.0f, 0.0f, 1.0f), false);
+                        new ColorF4(row / 20.0f, 0.0f, col / 10.0f, 1.0f), false);
                     MaterialHudComponent square = new MaterialHudComponent(mat)
                     {
                         WidthValue = 54,
@@ -291,8 +295,8 @@ namespace Testris
                     _hudBoard[row, col] = square;
                     board.Add(square);
                 }
-            //root.Add(board);
-            return board;
+            root.Add(board);
+            return root;
         }
         public override void OnSpawned(World world)
         {

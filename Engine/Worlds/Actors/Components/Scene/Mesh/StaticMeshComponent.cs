@@ -129,7 +129,7 @@ namespace TheraEngine.Worlds.Actors
 
         private StaticMesh _model;
         private PhysicsDriver _physicsDriver;
-        internal RenderableMesh[] _meshes;
+        private RenderableMesh[] _meshes;
 
         public StaticMesh Model
         {
@@ -150,7 +150,10 @@ namespace TheraEngine.Worlds.Actors
             }
         }
 
+        [TypeConverter(typeof(ExpandableObjectConverter))]
         public PhysicsDriver PhysicsDriver => _physicsDriver;
+        
+        public RenderableMesh[] Meshes => _meshes;
 
         public override void OnSpawned()
         {

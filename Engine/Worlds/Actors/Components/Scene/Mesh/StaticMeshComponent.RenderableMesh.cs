@@ -6,7 +6,7 @@ namespace TheraEngine.Worlds.Actors
 {
     public partial class StaticMeshComponent : TRSComponent, IPhysicsDrivable
     {
-        internal class RenderableMesh : ISubMesh
+        public class RenderableMesh : ISubMesh
         {
             public RenderableMesh(IStaticSubMesh mesh, SceneComponent component)
             {

@@ -402,6 +402,7 @@ namespace TheraEngine.Rendering.Cameras
 
         public Segment GetWorldSegment(Vec2 screenPoint)
         {
+            screenPoint.Clamp(Vec2.Zero, new Vec2(Width, Height));
             Vec3 start = ScreenToWorld(screenPoint, 0.0f);
             Vec3 end = ScreenToWorld(screenPoint, 1.0f);
             return new Segment(start, end);

@@ -15,7 +15,7 @@ namespace TheraEngine.Worlds.Maps
         [Serialize]
         public bool _visibleByDefault;
         [Serialize]
-        public List<IActor> _defaultActors;
+        private List<IActor> _defaultActors = new List<IActor>();
         [Serialize]
         public Vec3 _spawnPosition;
         [Serialize]
@@ -33,11 +33,6 @@ namespace TheraEngine.Worlds.Maps
             _spawnPosition = spawnOrigin;
             _defaultActors = actors.ToList();
         }
-
-        public void SetDefaultActors(params IActor[] actors)
-        {
-            _defaultActors = actors.ToList();
-        }
         
         public bool VisibleByDefault
         {
@@ -48,6 +43,11 @@ namespace TheraEngine.Worlds.Maps
         {
             get => _spawnPosition;
             set => _spawnPosition = value;
+        }
+        public List<IActor> DefaultActors
+        {
+            get => _defaultActors;
+            set => _defaultActors = value;
         }
     }
 }

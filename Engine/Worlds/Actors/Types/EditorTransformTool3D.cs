@@ -122,7 +122,14 @@ namespace TheraEngine.Worlds.Actors.Types
         private const float _scaleHalf1LDist = 0.8f;
         private const float _scaleHalf2LDist = 1.2f;
 
-        public bool UpdateCursorRay(Ray cursor, Camera camera, bool pressed)
+        /// <summary>
+        /// Returns true if intersecting one of the transform tool's various parts.
+        /// </summary>
+        /// <param name="cursor"></param>
+        /// <param name="camera"></param>
+        /// <param name="pressed"></param>
+        /// <returns></returns>
+        public bool Highlight(Ray cursor, Camera camera, bool pressed)
         {
             bool clamp = true, snapFound = false;
             Ray localRay = cursor.TransformedBy(_transform.InverseWorldMatrix);

@@ -5,7 +5,7 @@ using TheraEngine.Rendering.Textures;
 using System.Drawing.Text;
 using System.Drawing.Drawing2D;
 
-namespace TheraEngine.Rendering
+namespace TheraEngine.Rendering.Text
 {
     public class TextData
     {

@@ -5,7 +5,7 @@ namespace TheraEngine.Worlds.Actors
 {
     public partial class SkeletalMeshComponent : TRSComponent
     {
-        internal class RenderableMesh : ISubMesh
+        public class RenderableMesh : ISubMesh
         {
             public RenderableMesh(ISkeletalSubMesh mesh, Skeleton skeleton, SceneComponent component)
             {

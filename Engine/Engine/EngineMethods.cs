@@ -228,7 +228,7 @@ namespace TheraEngine
         }
         public static void SetPaused(bool paused, PlayerIndex toggler)
         {
-            if (!World.Settings.GameMode.AllowPausing)
+            if (!World.Settings.GameMode.File.AllowPausing)
                 return;
             _isPaused = paused;
             Paused?.Invoke(_isPaused, toggler);
@@ -423,11 +423,11 @@ namespace TheraEngine
                     if (_possessionQueues.ContainsKey(index))
                     {
                         //Transfer possession queue to the controller itself
-                        controller = World.Settings.GameMode.CreateLocalController(index, _possessionQueues[index]);
+                        controller = World.Settings.GameMode.File?.CreateLocalController(index, _possessionQueues[index]);
                         _possessionQueues.Remove(controller.LocalPlayerIndex);
                     }
                     else
-                        controller = World.Settings.GameMode.CreateLocalController(index);
+                        controller = World.Settings.GameMode.File?.CreateLocalController(index);
                     ActivePlayers.Add(controller);
                 }
                 else
@@ -442,11 +442,11 @@ namespace TheraEngine
                     if (_possessionQueues.ContainsKey(index))
                     {
                         //Transfer possession queue to the controller itself
-                        controller = World.Settings.GameMode.CreateLocalController(index, _possessionQueues[index]);
+                        controller = World.Settings.GameMode.File?.CreateLocalController(index, _possessionQueues[index]);
                         _possessionQueues.Remove(controller.LocalPlayerIndex);
                     }
                     else
-                        controller = World.Settings.GameMode.CreateLocalController(index);
+                        controller = World.Settings.GameMode.File?.CreateLocalController(index);
                     ActivePlayers.Add(controller);
                 }
                 else

@@ -5,6 +5,7 @@ using System.Runtime.InteropServices;
 using System.Xml.Serialization;
 using static System.CustomMath;
 using static System.Math;
+using System.ComponentModel;
 
 namespace System
 {
@@ -14,6 +15,19 @@ namespace System
         IEquatable<Vec2>, IUniformable2Float, IBufferable, IParsable
     {
         public float X, Y;
+
+#if EDITOR
+        /// <summary>
+        /// For editor use.
+        /// </summary>
+        [DisplayName("X")]
+        public float XValue { get => X; set => X = value; }
+        /// <summary>
+        /// For editor use.
+        /// </summary>
+        [DisplayName("Y")]
+        public float YValue { get => Y; set => Y = value; }
+#endif
 
         public float* Data { get { return (float*)Address; } }
         public VoidPtr Address { get { fixed (void* p = &this) return p; } }
@@ -121,11 +135,6 @@ namespace System
             => left.LengthSquared < right.LengthSquared ? left : right;
         public static Vec2 MagnitudeMax(Vec2 left, Vec2 right)
             => left.LengthSquared >= right.LengthSquared ? left : right;
-        
-        public static Vec2 Clamp(Vec2 vec, Vec2 min, Vec2 max)
-            => new Vec2(
-                vec.X < min.X ? min.X : vec.X > max.X ? max.X : vec.X,
-                vec.Y < min.Y ? min.Y : vec.Y > max.Y ? max.Y : vec.Y);
 
         public void Normalize()
         {
@@ -156,6 +165,26 @@ namespace System
         public float Dot(Vec2 right)
         {
             return X * right.X + Y * right.Y;
+        }
+
+        public static Vec2 Clamp(Vec2 value, Vec2 min, Vec2 max)
+        {
+            Vec2 v;
+            v.X = value.X < min.X ? min.X : value.X > max.X ? max.X : value.X;
+            v.Y = value.Y < min.Y ? min.Y : value.Y > max.Y ? max.Y : value.Y;
+            return v;
+        }
+        public void Clamp(Vec2 min, Vec2 max)
+        {
+            X = X < min.X ? min.X : X > max.X ? max.X : X;
+            Y = Y < min.Y ? min.Y : Y > max.Y ? max.Y : Y;
+        }
+        public Vec2 Clamped(Vec2 min, Vec2 max)
+        {
+            Vec2 v;
+            v.X = X < min.X ? min.X : X > max.X ? max.X : X;
+            v.Y = Y < min.Y ? min.Y : Y > max.Y ? max.Y : Y;
+            return v;
         }
 
         /// <summary>

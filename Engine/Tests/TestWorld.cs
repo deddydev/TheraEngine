@@ -17,36 +17,36 @@ namespace TheraEngine.Tests
         protected override void OnLoaded()
         {
             _settings = new WorldSettings("TestWorld");
-            //Random r = new Random();
-            //BoxActor[] array = new BoxActor[200];
-            //for (int i = 0; i < array.Length; ++i)
-            //{
-            //    PhysicsConstructionInfo sphereInfo = new PhysicsConstructionInfo()
-            //    {
-            //        Mass = 50.0f,
-            //        AngularDamping = 0.05f,
-            //        LinearDamping = 0.005f,
-            //        Restitution = 0.8f,
-            //        Friction = 0.08f,
-            //        RollingFriction = 0.01f,
-            //        CollisionEnabled = true,
-            //        SimulatePhysics = true,
-            //        Group = CustomCollisionGroup.DynamicWorld,
-            //        CollidesWith = CustomCollisionGroup.StaticWorld | CustomCollisionGroup.DynamicWorld,
-            //    };
-            //    float x = ((float)r.NextDouble() - 0.5f) * 2.0f * 18.0f;
-            //    float y = ((float)r.NextDouble() - 0.5f) * 2.0f * 30.0f;
-            //    float z = ((float)r.NextDouble() - 0.5f) * 2.0f * 18.0f;
-            //    BoxActor b = new BoxActor(
-            //        "Box" + i,
-            //        sphereInfo,
-            //        1.0f,
-            //        new Vec3(5.0f + x, 50.0f + y, -100.0f + z),
-            //        new Rotator(0.0f, 0.0f, 0.0f, Rotator.Order.YPR),
-            //        Material.GetDefaultMaterial());
-            //    b.RootComponent.PhysicsDriver.OnHit += PhysicsDriver_OnHit;
-            //    array[i] = b;
-            //}
+            Random r = new Random();
+            BoxActor[] array = new BoxActor[200];
+            for (int i = 0; i < array.Length; ++i)
+            {
+                PhysicsConstructionInfo sphereInfo = new PhysicsConstructionInfo()
+                {
+                    Mass = 50.0f,
+                    AngularDamping = 0.05f,
+                    LinearDamping = 0.005f,
+                    Restitution = 0.8f,
+                    Friction = 0.08f,
+                    RollingFriction = 0.01f,
+                    CollisionEnabled = true,
+                    SimulatePhysics = true,
+                    Group = CustomCollisionGroup.DynamicWorld,
+                    CollidesWith = CustomCollisionGroup.StaticWorld | CustomCollisionGroup.DynamicWorld,
+                };
+                float x = ((float)r.NextDouble() - 0.5f) * 2.0f * 18.0f;
+                float y = ((float)r.NextDouble() - 0.5f) * 2.0f * 30.0f;
+                float z = ((float)r.NextDouble() - 0.5f) * 2.0f * 18.0f;
+                BoxActor b = new BoxActor(
+                    "Box" + i,
+                    sphereInfo,
+                    1.0f,
+                    new Vec3(5.0f + x, 50.0f + y, -100.0f + z),
+                    new Rotator(0.0f, 0.0f, 0.0f, Rotator.Order.YPR),
+                    Material.GetUnlitColorMaterial());
+                b.RootComponent.PhysicsDriver.OnHit += PhysicsDriver_OnHit;
+                array[i] = b;
+            }
             //sphereActor = array[0];
             //sphereActor.RootComponent.WorldTransformChanged += RootComponent_WorldTransformChanged;
 
@@ -64,7 +64,7 @@ namespace TheraEngine.Tests
                 floorInfo,
                 new Vec3(20.0f, 0.5f, 20.0f),
                 new Vec3(5.0f, 0.0f, -100.0f),
-                new Rotator(0.0f, 0.0f, 0, Rotator.Order.YPR),
+                new Rotator(0.0f, 0.0f, 10.0f, Rotator.Order.YPR),
                 Material.GetLitColorMaterial(Color.Orange));
 
             //PhysicsConstructionInfo floor2Info = new PhysicsConstructionInfo()
@@ -84,19 +84,19 @@ namespace TheraEngine.Tests
             //    new Rotator(30.0f, 00.0f, 0.0f, Rotator.Order.YPR),
             //    Material.GetLitColorMaterial(Color.Green));
 
-            _settings.GlobalAmbient = new ColorF3(0.0f, 0.0f, 0.0f);
+            _settings.GlobalAmbient = new ColorF3(0.01f, 0.01f, 0.01f);
             DirectionalLightComponent dirLightComp = new DirectionalLightComponent(
                 new ColorF3(0.9f, 0.5f, 0.3f), 1.0f, 0.0f, new Rotator(-45.0f, 45.0f, 0.0f, Rotator.Order.YPR));
             dirLightComp.Translation.Y = 30.0f;
 
-            PropAnimFloat lightAnim = new PropAnimFloat(360, true, true);
-            FloatKeyframe first2 = new FloatKeyframe(0.0f, 0.0f, 0.0f, PlanarInterpType.Linear);
-            FloatKeyframe last2 = new FloatKeyframe(360.0f, 360.0f, 0.0f, PlanarInterpType.Linear);
-            lightAnim.Keyframes.Add(first2);
-            lightAnim.Keyframes.Add(last2);
-            AnimationContainer lightAnimContainer = new AnimationContainer("Rotation.Yaw", false, lightAnim);
-            //dirLightComp.AddAnimation(lightAnimContainer, true);
-            floorActor.RootComponent.AddAnimation(lightAnimContainer, true);
+            //PropAnimFloat lightAnim = new PropAnimFloat(360, true, true);
+            //FloatKeyframe first2 = new FloatKeyframe(0.0f, 0.0f, 0.0f, PlanarInterpType.Linear);
+            //FloatKeyframe last2 = new FloatKeyframe(360.0f, 360.0f, 0.0f, PlanarInterpType.Linear);
+            //lightAnim.Keyframes.Add(first2);
+            //lightAnim.Keyframes.Add(last2);
+            //AnimationContainer lightAnimContainer = new AnimationContainer("Rotation.Yaw", false, lightAnim);
+            ////dirLightComp.AddAnimation(lightAnimContainer, true);
+            //floorActor.RootComponent.AddAnimation(lightAnimContainer, true);
 
             Actor<DirectionalLightComponent> dirLightActor = new Actor<DirectionalLightComponent>(dirLightComp) { Name = "SunLight" };
 
@@ -209,13 +209,13 @@ namespace TheraEngine.Tests
                 //floor2Actor,
                 spawn,
                 //importedActor,
-                new FlyingCameraPawn(PlayerIndex.One) { Name = "PlayerCamera" },
+                //new FlyingCameraPawn(PlayerIndex.One) { Name = "PlayerCamera" },
                 //new CharacterPawn(PlayerIndex.Two, ColladaScene.SkeletalModel, ColladaScene.Skeleton) { Name = "PlayerCharacter", },
             };
 
             _settings.GameMode = new TestGameMode();// new GameMode<FlyingCameraPawn>();
             _settings.Maps.Add(new Map(this, new MapSettings(actors)));
-            //_settings.Maps[0].Settings._defaultActors.AddRange(array);
+            _settings.Maps[0].Settings.DefaultActors.AddRange(array);
 
             //Export(Engine.ContentFolderAbs, "TestWorld", FileFormat.XML);
 

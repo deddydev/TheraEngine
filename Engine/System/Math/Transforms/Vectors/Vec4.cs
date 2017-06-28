@@ -4,6 +4,7 @@ using static System.Math;
 using static System.CustomMath;
 using TheraEngine;
 using TheraEngine.Rendering.Models;
+using System.ComponentModel;
 
 namespace System
 {
@@ -13,6 +14,29 @@ namespace System
         IEquatable<Vec4>, IUniformable4Float, IBufferable, IParsable
     {
         public float X, Y, Z, W;
+
+#if EDITOR
+        /// <summary>
+        /// For editor use.
+        /// </summary>
+        [DisplayName("X")]
+        public float XValue { get => X; set => X = value; }
+        /// <summary>
+        /// For editor use.
+        /// </summary>
+        [DisplayName("Y")]
+        public float YValue { get => Y; set => Y = value; }
+        /// <summary>
+        /// For editor use.
+        /// </summary>
+        [DisplayName("Z")]
+        public float ZValue { get => Z; set => Z = value; }
+        /// <summary>
+        /// For editor use.
+        /// </summary>
+        [DisplayName("Z")]
+        public float WValue { get => W; set => W = value; }
+#endif
 
         public float* Data { get { return (float*)Address; } }
         public VoidPtr Address { get { fixed (void* p = &this) return p; } }

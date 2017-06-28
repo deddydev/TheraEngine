@@ -381,5 +381,10 @@ namespace TheraEngine.Rendering.DirectX
         {
             throw new NotImplementedException();
         }
+
+        public override void BlitFrameBuffer(int srcX0, int srcY0, int srcX1, int srcY1, int dstX0, int dstY0, int dstX1, int dstY1, EClearBufferMask mask, EBlitFramebufferFilter filter)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

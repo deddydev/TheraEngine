@@ -5,6 +5,7 @@ using System.Runtime.InteropServices;
 using System.Xml.Serialization;
 using static System.CustomMath;
 using static System.Math;
+using System.ComponentModel;
 
 namespace System
 {
@@ -18,6 +19,8 @@ namespace System
 
         public void SetRawNoUpdate(Vec2 raw)
             => _data = raw;
+
+        [Browsable(false)]
         public Vec2 Raw
         {
             get => _data;
@@ -49,11 +52,17 @@ namespace System
             }
         }
 
+        [Browsable(false)]
         public float* Data => _data.Data;
+        [Browsable(false)]
         public VoidPtr Address => _data.Address;
+        [Browsable(false)]
         public VertexBuffer.ComponentType ComponentType => VertexBuffer.ComponentType.Float;
+        [Browsable(false)]
         public int ComponentCount => 2;
+        [Browsable(false)]
         bool IBufferable.Normalize => false;
+
         public void Write(VoidPtr address)
             => _data.Write(address);
         public void Read(VoidPtr address)
@@ -131,22 +140,28 @@ namespace System
             }
         }
 
-        public float Length { get { return _data.Length; } }
-        public float LengthFast { get { return _data.LengthFast; } }
-        public float LengthSquared { get { return _data.LengthSquared; } }
+        [Browsable(false)]
+        public float Length => _data.Length;
+        [Browsable(false)]
+        public float LengthFast => _data.LengthFast;
+        [Browsable(false)]
+        public float LengthSquared => _data.LengthSquared;
 
-        public float DistanceToSquared(EventVec2 otherPoint) { return _data.DistanceToSquared(otherPoint._data); }
-        public float DistanceToFast(EventVec2 otherPoint) { return _data.DistanceToFast(otherPoint._data); }
-        public float DistanceTo(EventVec2 otherPoint) { return _data.DistanceTo(otherPoint._data); }
+        public float DistanceToSquared(EventVec2 otherPoint) 
+            => _data.DistanceToSquared(otherPoint._data);
+        public float DistanceToFast(EventVec2 otherPoint)
+            => _data.DistanceToFast(otherPoint._data);
+        public float DistanceTo(EventVec2 otherPoint) 
+            => _data.DistanceTo(otherPoint._data);
 
         /// <summary>
         /// Gets the perpendicular vector on the right side of this vector.
         /// </summary>
-        public Vec2 PerpendicularRight { get { return _data.PerpendicularRight; } }
+        public Vec2 PerpendicularRight => _data.PerpendicularRight;
         /// <summary>
         /// Gets the perpendicular vector on the left side of this vector.
         /// </summary>
-        public Vec2 PerpendicularLeft { get { return _data.PerpendicularLeft; } }
+        public Vec2 PerpendicularLeft => _data.PerpendicularLeft;
         
         public void Normalize()
         {
@@ -161,12 +176,11 @@ namespace System
             EndUpdate();
         }
         public float Dot(EventVec2 right)
-        {
-            return X * right.X + Y * right.Y;
-        }
-        
+            => X * right.X + Y * right.Y;
+
+        [Browsable(false)]
         [XmlIgnore]
-        public EventVec2 Yx { get { return new EventVec2(Y, X); } set { Y = value.X; X = value.Y; } }
+        public EventVec2 Yx { get => new EventVec2(Y, X); set { Y = value.X; X = value.Y; } }
 
         public static EventVec2 operator -(EventVec2 left, EventVec2 right)
         {

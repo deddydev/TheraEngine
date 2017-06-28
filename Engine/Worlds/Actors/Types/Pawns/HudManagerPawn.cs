@@ -20,36 +20,36 @@ namespace TheraEngine.Rendering.HUD
         {
             input.RegisterMouseScroll(OnScrolledInput, InputPauseType.TickOnlyWhenPaused);
             input.RegisterMouseMove(OnMouseMove, false, InputPauseType.TickOnlyWhenPaused);
-            input.RegisterButtonEvent(EMouseButton.LeftClick, ButtonInputType.Pressed, OnSelectInput, InputPauseType.TickOnlyWhenPaused);
+            input.RegisterButtonEvent(EMouseButton.LeftClick, ButtonInputType.Pressed, OnLeftClickSelect, InputPauseType.TickOnlyWhenPaused);
 
             input.RegisterAxisUpdate(GamePadAxis.LeftThumbstickX, OnLeftStickX, false, InputPauseType.TickOnlyWhenPaused);
             input.RegisterAxisUpdate(GamePadAxis.LeftThumbstickY, OnLeftStickY, false, InputPauseType.TickOnlyWhenPaused);
             input.RegisterButtonEvent(GamePadButton.DPadUp, ButtonInputType.Pressed, OnDPadUp, InputPauseType.TickOnlyWhenPaused);
-            input.RegisterButtonEvent(GamePadButton.FaceDown, ButtonInputType.Pressed, OnSelectInput, InputPauseType.TickOnlyWhenPaused);
+            input.RegisterButtonEvent(GamePadButton.FaceDown, ButtonInputType.Pressed, OnGamepadSelect, InputPauseType.TickOnlyWhenPaused);
             input.RegisterButtonEvent(GamePadButton.FaceRight, ButtonInputType.Pressed, OnBackInput, InputPauseType.TickOnlyWhenPaused);
-
-            input.RegisterButtonEvent(EKey.Escape, ButtonInputType.Pressed, OnTogglePause, InputPauseType.TickAlways);
-            input.RegisterButtonEvent(GamePadButton.SpecialRight, ButtonInputType.Pressed, OnTogglePause, InputPauseType.TickAlways);
-        }
-        private void OnTogglePause()
-        {
-            Engine.TogglePause(LocalPlayerController.LocalPlayerIndex);
-            if (!Engine.IsPaused)
-                LocalPlayerController.ControlledPawn = null;
         }
 
         protected virtual void OnLeftStickX(float value) { }
         protected virtual void OnLeftStickY(float value) { }
         
+        protected virtual void OnGamepadSelect()
+        {
+
+        }
+        protected virtual void OnLeftClickSelect()
+        {
+
+        }
+
         /// <summary>
         /// Called on either left click or A button.
         /// Default behavior will OnClick the currently focused/highlighted UI component, if anything.
         /// </summary>
-        protected virtual void OnSelectInput()
-        {
+        //protected virtual void OnSelectInput()
+        //{
             //_focusedComponent?.OnSelect();
-        }
-        private void OnScrolledInput(bool up)
+        //}
+        protected void OnScrolledInput(bool up)
         {
             //_focusedComponent?.OnScrolled(up);
         }
@@ -71,12 +71,14 @@ namespace TheraEngine.Rendering.HUD
         public List<HudComponent> FindAllComponents(Vec2 viewportPoint)
         {
             List<I2DBoundable> results = _childComponentTree.FindClosest(viewportPoint);
-            return results.Select(x => (HudComponent)x).ToList();
+            return results?.Select(x => (HudComponent)x).ToList();
             //return RootComponent.FindComponent(viewportPoint);
         }
         public HudComponent FindClosestComponent(Vec2 viewportPoint)
         {
             List<HudComponent> results = FindAllComponents(viewportPoint);
+            if (results == null)
+                return null;
             HudComponent current = null;
             //Larger z-indices means the component is closer
             foreach (HudComponent comp in results)

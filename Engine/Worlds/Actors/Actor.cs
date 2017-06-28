@@ -18,7 +18,7 @@ namespace TheraEngine.Worlds
         Static, //This actor is part of the map
         Dynamic, //This actor can be changed/manipulated
     }
-    public interface IActor
+    public interface IActor : IFileObject
     {
         bool IsConstructing { get; }
         World OwningWorld { get; }

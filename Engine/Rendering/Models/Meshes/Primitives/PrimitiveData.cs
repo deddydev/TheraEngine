@@ -50,6 +50,10 @@ namespace TheraEngine.Rendering.Models
         public bool HasTexCoords => _texcoordCount > 0;
         public bool HasColors => _colorCount > 0;
 
+        public static PrimitiveBufferInfo PosTex1()
+        {
+            return new PrimitiveBufferInfo() { _texcoordCount = 1, _hasNormals = false };
+        }
         public static PrimitiveBufferInfo PosNormTex1()
         {
             return new PrimitiveBufferInfo() { _texcoordCount = 1, _hasNormals = true };

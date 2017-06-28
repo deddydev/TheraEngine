@@ -91,16 +91,16 @@ namespace TheraEngine
         
         private VSyncMode _vsyncMode = VSyncMode.Adaptive;
         internal RenderContext _context;
-        protected int _updateCounter;
         private HudManager _globalHud;
         public List<Viewport> _viewports = new List<Viewport>(MaxViewports);
-        private ColorF4 _backColor = Color.Lavender;
+        private ColorF4 _backColor = Color.Black;
 
         public HudManager GlobalHud
         {
             get => _globalHud;
             set => _globalHud = value;
         }
+
         public new ColorF4 BackColor
         {
             get => _backColor;
@@ -129,9 +129,6 @@ namespace TheraEngine
         protected override void OnPaintBackground(PaintEventArgs e) { }
         protected override void OnPaint(PaintEventArgs e)
         {
-            if (_updateCounter > 0)
-                return;
-
             if (_context == null || _context.IsContextDisposed())
                 base.OnPaint(e);
             else if (Monitor.TryEnter(_context))
@@ -183,17 +180,31 @@ namespace TheraEngine
             _context.BeginDraw();
             foreach (Viewport v in _viewports)
                 v.Render(Engine.Scene);
-            //_globalHud?.Render();
+            _globalHud?.Render();
             _context.EndDraw();
         }
+
+        public void BeginResize()
+        {
+            _resizing = true;
+        }
+
+        public void EndResize()
+        {
+            _resizing = false;
+            foreach (Viewport v in _viewports)
+                v.ResizeGBuffer();
+        }
+
+        private bool _resizing = false;
         protected override void OnResize(EventArgs e)
         {
             base.OnResize(e);
             int w = Width.ClampMin(1);
             int h = Height.ClampMin(1);
-            //_globalHud?.Resize(new Vec2(w, h));
+            _globalHud?.Resize(new Vec2(w, h));
             foreach (Viewport v in _viewports)
-                v.Resize(w, h);
+                v.Resize(w, h, !_resizing);
             _context?.Update();
         }
         protected virtual void OnReset(object sender, EventArgs e)

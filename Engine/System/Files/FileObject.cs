@@ -17,10 +17,13 @@ namespace TheraEngine.Files
         //Programatic = 3,
     }
 
-    //TODO: this class can probably be removed, since any class can be serialized
+    public interface IFileObject : IObjectBase
+    {
+
+    }
 
     [FileClass("", "")]
-    public abstract class FileObject : ObjectBase, ICodeProgress
+    public abstract class FileObject : ObjectBase, IFileObject, INotifyPropertyChanged
     {
         [Browsable(false)]
         public FileClass FileHeader
@@ -279,11 +282,6 @@ namespace TheraEngine.Files
             }
             else
                 CustomXmlSerializer.Serialize(this, _filePath);
-        }
-
-        public void SetProgress(long inSize, long outSize)
-        {
-
         }
     }
 }

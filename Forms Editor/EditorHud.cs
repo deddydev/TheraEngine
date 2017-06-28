@@ -11,7 +11,7 @@ namespace TheraEditor
 {
     public class EditorHud : HudManager
     {
-        public EditorHud(RenderPanel panel) : base(panel)
+        public EditorHud(Vec2 bounds) : base(bounds)
         {
 
         }
@@ -22,45 +22,66 @@ namespace TheraEditor
         }
         public override void RegisterInput(InputInterface input)
         {
-            base.RegisterInput(input);
-            input.RegisterButtonEvent(GamePadButton.FaceDown, ButtonInputType.Pressed, OnGamepadSelect);
-            input.RegisterButtonPressed(EMouseButton.LeftClick, OnLeftClick);
+            //input.RegisterMouseScroll(OnScrolledInput, InputPauseType.TickOnlyWhenPaused);
+            input.RegisterMouseMove(OnMouseMove, false, InputPauseType.TickAlways);
+            input.RegisterButtonEvent(EMouseButton.LeftClick, ButtonInputType.Pressed, OnLeftClickSelect, InputPauseType.TickOnlyWhenPaused);
+            
+            input.RegisterButtonEvent(GamePadButton.FaceDown, ButtonInputType.Pressed, OnGamepadSelect, InputPauseType.TickOnlyWhenPaused);
+            input.RegisterButtonEvent(GamePadButton.FaceRight, ButtonInputType.Pressed, OnBackInput, InputPauseType.TickOnlyWhenPaused);
         }
         protected override void OnMouseMove(float x, float y)
         {
             base.OnMouseMove(x, y);
             HighlightScene(false);
         }
-        private void OnLeftClick(bool pressed)
+        protected override void OnLeftClickSelect()
         {
             PickScene(false);
         }
-        private void OnGamepadSelect()
+        protected override void OnGamepadSelect()
         {
             PickScene(true);
         }
         private void PickScene(bool gamepad)
         {
+            if (_highlightedComponent != null)
+            {
+                if (_highlightedComponent.OwningActor is EditorTransformTool3D tool)
+                {
 
+                }
+                else if (_highlightedComponent is HudComponent hudComp)
+                {
+
+                }
+                else// if (comp != null)
+                {
+
+                }
+            }
         }
+        SceneComponent _highlightedComponent;
         private void HighlightScene(bool gamepad)
         {
-            Viewport v = GetViewport();
-            if (v == null)
-                return;
-
-            SceneComponent comp = v.PickScene(gamepad ? v.Center : v.AbsoluteToRelative(_cursorPos), !gamepad);
-            if (comp.OwningActor is EditorTransformTool3D tool)
+            Viewport v = Engine.ActivePlayers[0].Viewport;
+            if (v != null)
             {
-
-            }
-            else if (comp is HudComponent hudComp)
-            {
-
-            }
-            else if (comp != null)
-            {
-
+                Vec2 viewportPoint = gamepad ? v.Center : v.AbsoluteToRelative(_cursorPos);
+                if (EditorTransformTool3D.CurrentInstance != null)
+                {
+                    Ray cursor = v.GetWorldRay(viewportPoint);
+                    if (EditorTransformTool3D.CurrentInstance.Highlight(cursor, v.Camera, false))
+                        _highlightedComponent = EditorTransformTool3D.CurrentInstance.RootComponent;
+                }
+                if (_highlightedComponent == null)
+                {
+                    _highlightedComponent = v.PickScene(viewportPoint, !gamepad);
+                    if (_highlightedComponent != null)
+                    {
+                        EditorState state = _highlightedComponent.OwningActor.EditorState;
+                        state.Highlighted = true;
+                    }
+                }
             }
         }
     }

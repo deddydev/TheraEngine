@@ -11,6 +11,19 @@ using System.Diagnostics;
 
 namespace TheraEngine
 {
+    public interface IObjectBase
+    {
+        string Name { get; set; }
+        bool IsTicking { get; }
+        object UserData { get; set; }
+#if EDITOR
+        EditorState EditorState { get; set; }
+#endif
+        void RegisterTick(ETickGroup group, ETickOrder order, DelTick tickFunc, InputPauseType pausedBehavior = InputPauseType.TickAlways);
+        void UnregisterTick(ETickGroup group, ETickOrder order, DelTick tickFunc, InputPauseType pausedBehavior = InputPauseType.TickAlways);
+        void AddAnimation(AnimationContainer anim, bool startNow = false);
+        void RemoveAnimation(AnimationContainer anim);
+    }
     public class TickInfo : Tuple<ETickGroup, ETickOrder, DelTick>
     {
         public TickInfo(ETickGroup group, ETickOrder order, DelTick function)
@@ -34,19 +47,31 @@ namespace TheraEngine
         Logic       = 9, //Gameplay calculations
         Scene       = 12, //Update scene
     }
-    public class ObjectBase
+
+    public abstract class ObjectBase
     {
+        public static event Action<ObjectBase> OnConstructed;
+
+        public ObjectBase()
+        {
+            OnConstructed?.Invoke(this);
+        }
+
         [Browsable(false)]
         public event PropertyChangedEventHandler PropertyChanged;
         [Browsable(false)]
         public event RenamedEventHandler Renamed;
-        [Browsable(false)]
-        public event ResourceEventHandler Disposing, UpdateProperties, UpdateEditor;
 
         [Serialize("Name", IsXmlAttribute = true)]
         protected string _name;
-        [Serialize("UserData")]
         private object _userData;
+#if EDITOR
+        private EditorState _editorState = new EditorState();
+#endif
+        protected bool _changed;
+        private ThreadSafeList<TickInfo> _tickFunctions = new ThreadSafeList<TickInfo>();
+        [Serialize("Animations")]
+        private List<AnimationContainer> _animations;
 
         [Browsable(false)]
         public bool IsTicking => _tickFunctions.Count > 0;
@@ -64,26 +89,28 @@ namespace TheraEngine
             Engine.UnregisterTick(group, order, tickFunc, pausedBehavior);
         }
 
-        protected bool _changed;
-        private ThreadSafeList<TickInfo> _tickFunctions = new ThreadSafeList<TickInfo>();
-        //protected bool _isTicking = false;
 
-        [Serialize("Animations")]
-        private List<AnimationContainer> _animations;
+#if EDITOR
+        [Serialize]
+        [Browsable(false)]
+        public EditorState EditorState
+        {
+            get => _editorState;
+            set => _editorState = value;
+        }
+#endif
 
+        [Serialize]
         [Browsable(false)]
         public object UserData
         {
             get => _userData;
             set => _userData = value;
         }
-
-        //public ObjectHeader ClassHeader 
-        //    => (ObjectHeader)Attribute.GetCustomAttribute(GetType(), typeof(ObjectHeader));
         
         public string Name
         {
-            get { return _name; }
+            get => string.IsNullOrEmpty(_name) ? GetType().Name : _name;
             set
             {
                 string oldName = _name;
@@ -91,45 +118,8 @@ namespace TheraEngine
                 OnRenamed(oldName);
             }
         }
-
-        //[Browsable(false)]
-        ////[Category("Tick"), PreChanged("UnregisterTick"), PostChanged("RegisterTick")]
-        //public ETickGroup? TickGroup
-        //{
-        //    get { return _tickGroup; }
-        //    set { _tickGroup = value; }
-        //}
-        //[Browsable(false)]
-        ////[Category("Tick"), PreChanged("UnregisterTick"), PostChanged("RegisterTick")]
-        //public ETickOrder? TickOrder
-        //{
-        //    get { return _tickOrder; }
-        //    set { _tickOrder = value; }
-        //}
-
-        /// <summary>
-        /// Specifies that this object wants tick calls.
-        /// </summary>
-        //public void RegisterTick(ETickGroup group, ETickOrder order)
-        //{
-        //    Engine.RegisterTick(this, group, order);
-        //}
-
-        /// <summary>
-        /// Specifies that this object will not have any tick calls.
-        /// </summary>
-        //public void UnregisterTick()
-        //{
-        //    Engine.UnregisterTick(this);
-        //}
-
-        /// <summary>
-        /// Updates logic for this class
-        /// </summary>
-        /// <param name="delta">The amount of time that has passed since the last tick update</param>
-        //protected internal virtual void Tick(float delta) { }
-
-        public void OnPropertyChanged(PropertyInfo info, object previousValue)
+        
+        protected internal void OnPropertyChanged(PropertyInfo info, object previousValue)
         {
             if (info.Name == "_changed")
                 return;
@@ -138,13 +128,15 @@ namespace TheraEngine
             Debug.WriteLine(output);
 
             _changed = true;
-            //_changedObjects.Add(this);
+
+#if EDITOR
+            if (_editorState != null)
+                _editorState.ChangedProperties.Add(info);
+#endif
 
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(info.Name));
         }
-        protected virtual void OnUpdateProperties() { UpdateProperties?.Invoke(this); }
-        protected virtual void OnUpdateEditor() { UpdateEditor?.Invoke(this); }
-        protected virtual void OnDisposing() { Disposing?.Invoke(this); }
+        
         protected virtual void OnRenamed(string oldName) { Renamed?.Invoke(this, oldName); }
 
         public void AddAnimation(AnimationContainer anim, bool startNow = false)
@@ -168,7 +160,7 @@ namespace TheraEngine
                 _animations = null;
             anim._owners.Remove(this);
         }
-        public override string ToString() => _name;
+        public override string ToString() => Name;
     }
 //    [PSerializable]
 //    public class NotifyPropertyChangedAttribute : LocationInterceptionAspect

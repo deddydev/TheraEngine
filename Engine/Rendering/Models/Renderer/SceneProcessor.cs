@@ -3,6 +3,7 @@ using TheraEngine.Worlds;
 using System;
 using System.Collections.Generic;
 using TheraEngine.Rendering.Models.Materials;
+using System.Drawing;
 
 namespace TheraEngine.Rendering
 {
@@ -50,12 +51,12 @@ namespace TheraEngine.Rendering
     public class SceneProcessor
     {
         private RenderPasses _passes;
-        private RenderOctree _renderTree;
+        private Octree _renderTree;
         private LightManager _lightManager;
         private static List<Material> _activeMaterials = new List<Material>();
         private static Queue<int> _removedIds = new Queue<int>();
 
-        public RenderOctree RenderTree => _renderTree;
+        public Octree RenderTree => _renderTree;
         public LightManager Lights => _lightManager;
         internal RenderPasses RenderPasses => _passes;
 
@@ -69,7 +70,7 @@ namespace TheraEngine.Rendering
         public void Cull(Camera camera, bool resetVisibility = true, bool cullOffscreen = true, bool renderOctree = false)
         {
             AbstractRenderer.CurrentCamera = camera;
-            _renderTree.Cull(camera, true, true, _passes, Engine.Settings.RenderOctree);
+            _renderTree.Cull(camera.GetFrustum(), resetVisibility, cullOffscreen, Engine.Settings.RenderOctree);
             AbstractRenderer.CurrentCamera = null;
         }
         public void Render(Camera camera, RenderPass pass)
@@ -99,10 +100,29 @@ namespace TheraEngine.Rendering
                 return;
             }
 
-            _renderTree = new RenderOctree(Engine.World.Settings.Bounds);
+            _renderTree = new Octree(Engine.World.Settings.Bounds);
+            _renderTree.ItemRenderChanged += RenderModified;
             _lightManager = new LightManager();
             _passes = new RenderPasses();
         }
+
+        private void RenderModified(I3DBoundable item)
+        {
+            I3DRenderable r = item as I3DRenderable;
+            if (item.IsRendering)
+            {
+                if (r.HasTransparency)
+                    _passes.TransparentForward.PushFront(r);
+                else
+                {
+                    if (Engine.Settings.ShadingStyle == ShadingStyle.Deferred)
+                        _passes.OpaqueDeferred.PushFront(r);
+                    else
+                        _passes.OpaqueForward.PushFront(r);
+                }
+            }
+        }
+
         internal int AddActiveMaterial(Material material)
         {
             int id = _removedIds.Count > 0 ? _removedIds.Dequeue() : _activeMaterials.Count;

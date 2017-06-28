@@ -20,24 +20,22 @@ namespace TheraEngine.Input.Devices
         private float _deadZoneThreshold = 0.15f;
         private float _value = 0.0f;
 
-        public float Value
-        {
-            get { return Math.Abs(_value) > _deadZoneThreshold ? _value : 0.0f; }
-        }
+        public float Value => Math.Abs(_value) > _deadZoneThreshold ? _value : 0.0f;
+
         public float PressedThreshold
         {
-            get { return _pressedThreshold; }
-            set { _pressedThreshold = value; }
+            get => _pressedThreshold;
+            set => _pressedThreshold = value;
         }
         public float DeadZoneThreshold
         {
-            get { return _deadZoneThreshold; }
-            set { _deadZoneThreshold = value; }
+            get => _deadZoneThreshold;
+            set => _deadZoneThreshold = value;
         }
         public float UpdateThreshold
         {
-            get { return _updateThreshold; }
-            set { _updateThreshold = value; }
+            get => _updateThreshold;
+            set => _updateThreshold = value;
         }
         internal void Tick(float value, float delta)
         {

@@ -26,6 +26,7 @@ namespace System
         [Serialize("Translation")]
         protected Vec3 _translation = Vec3.Zero;
 
+        [TypeConverter(typeof(ExpandableObjectConverter))]
         public Vec3 Minimum
         {
             get => _translation - _halfExtents;
@@ -35,6 +36,7 @@ namespace System
                 _halfExtents = (Maximum - value) / 2.0f;
             }
         }
+        [TypeConverter(typeof(ExpandableObjectConverter))]
         public Vec3 Maximum
         {
             get => _translation + _halfExtents;
@@ -44,16 +46,19 @@ namespace System
                 _halfExtents = (value - Minimum) / 2.0f;
             }
         }
+        [TypeConverter(typeof(ExpandableObjectConverter))]
         public Vec3 HalfExtents
         {
             get => _halfExtents;
             set => _halfExtents = value;
         }
+        [TypeConverter(typeof(ExpandableObjectConverter))]
         public Vec3 Translation
         {
             get => _translation;
             set => _translation = value;
         }
+
         public BoundingBox(float uniformHalfExtents)
             : this(new Vec3(uniformHalfExtents)) { }
         public BoundingBox(float uniformHalfExtents, Vec3 translation)

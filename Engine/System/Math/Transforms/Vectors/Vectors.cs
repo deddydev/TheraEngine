@@ -2,6 +2,7 @@
 using System.Runtime.InteropServices;
 using TheraEngine.Rendering.Models;
 using System.Drawing;
+using System.ComponentModel;
 
 namespace System
 {
@@ -14,9 +15,13 @@ namespace System
         private bool _x, _y;
         public bool* Data { get { fixed (void* ptr = &this) return (bool*)ptr; } }
 
-        public VertexBuffer.ComponentType ComponentType { get { return VertexBuffer.ComponentType.Byte; } }
-        public int ComponentCount { get { return 2; } }
-        public bool Normalize { get { return false; } }
+        [Browsable(false)]
+        public VertexBuffer.ComponentType ComponentType => VertexBuffer.ComponentType.Byte;
+        [Browsable(false)]
+        public int ComponentCount => 2;
+        [Browsable(false)]
+        public bool Normalize => false;
+
         public void Write(VoidPtr address)
         {
             byte* dPtr = (byte*)address;
@@ -45,9 +50,13 @@ namespace System
         private int _x, _y;
         public int* Data { get { fixed (void* ptr = &this) return (int*)ptr; } }
 
-        public VertexBuffer.ComponentType ComponentType { get { return VertexBuffer.ComponentType.Int; } }
-        public int ComponentCount { get { return 2; } }
-        public bool Normalize { get { return false; } }
+        [Browsable(false)]
+        public VertexBuffer.ComponentType ComponentType => VertexBuffer.ComponentType.Int;
+        [Browsable(false)]
+        public int ComponentCount => 2;
+        [Browsable(false)]
+        public bool Normalize => false;
+
         public void Write(VoidPtr address)
         {
             int* dPtr = (int*)address;
@@ -118,9 +127,13 @@ namespace System
         private uint _x, _y;
         public uint* Data { get { fixed (void* ptr = &this) return (uint*)ptr; } }
 
-        public VertexBuffer.ComponentType ComponentType { get { return VertexBuffer.ComponentType.UInt; } }
-        public int ComponentCount { get { return 2; } }
-        public bool Normalize { get { return false; } }
+        [Browsable(false)]
+        public VertexBuffer.ComponentType ComponentType => VertexBuffer.ComponentType.UInt;
+        [Browsable(false)]
+        public int ComponentCount => 2;
+        [Browsable(false)]
+        public bool Normalize => false;
+
         public void Write(VoidPtr address)
         {
             uint* dPtr = (uint*)address;
@@ -149,9 +162,13 @@ namespace System
         private double _x, _y;
         public double* Data { get { fixed (void* ptr = &this) return (double*)ptr; } }
 
-        public VertexBuffer.ComponentType ComponentType { get { return VertexBuffer.ComponentType.Double; } }
-        public int ComponentCount { get { return 2; } }
-        public bool Normalize { get { return false; } }
+        [Browsable(false)]
+        public VertexBuffer.ComponentType ComponentType => VertexBuffer.ComponentType.Double;
+        [Browsable(false)]
+        public int ComponentCount => 2;
+        [Browsable(false)]
+        public bool Normalize => false;
+
         public void Write(VoidPtr address)
         {
             double* dPtr = (double*)address;
@@ -181,9 +198,13 @@ namespace System
         private bool _x, _y, _z;
         public bool* Data { get { fixed (void* ptr = &this) return (bool*)ptr; } }
 
-        public VertexBuffer.ComponentType ComponentType { get { return VertexBuffer.ComponentType.Byte; } }
-        public int ComponentCount { get { return 4; } }
-        public bool Normalize { get { return false; } }
+        [Browsable(false)]
+        public VertexBuffer.ComponentType ComponentType => VertexBuffer.ComponentType.Byte;
+        [Browsable(false)]
+        public int ComponentCount => 3;
+        [Browsable(false)]
+        public bool Normalize => false;
+
         public void Write(VoidPtr address)
         {
             byte* dPtr = (byte*)address;
@@ -214,9 +235,13 @@ namespace System
         private int _x, _y, _z;
         public int* Data { get { fixed (void* ptr = &this) return (int*)ptr; } }
 
-        public VertexBuffer.ComponentType ComponentType { get { return VertexBuffer.ComponentType.Int; } }
-        public int ComponentCount { get { return 3; } }
-        public bool Normalize { get { return false; } }
+        [Browsable(false)]
+        public VertexBuffer.ComponentType ComponentType => VertexBuffer.ComponentType.Int;
+        [Browsable(false)]
+        public int ComponentCount => 3;
+        [Browsable(false)]
+        public bool Normalize => false;
+
         public void Write(VoidPtr address)
         {
             int* dPtr = (int*)address;
@@ -247,9 +272,13 @@ namespace System
         private uint _x, _y, _z;
         public uint* Data { get { fixed (void* ptr = &this) return (uint*)ptr; } }
 
-        public VertexBuffer.ComponentType ComponentType { get { return VertexBuffer.ComponentType.UInt; } }
-        public int ComponentCount { get { return 3; } }
-        public bool Normalize { get { return false; } }
+        [Browsable(false)]
+        public VertexBuffer.ComponentType ComponentType => VertexBuffer.ComponentType.UInt;
+        [Browsable(false)]
+        public int ComponentCount => 3;
+        [Browsable(false)]
+        public bool Normalize => false;
+
         public void Write(VoidPtr address)
         {
             uint* dPtr = (uint*)address;
@@ -280,9 +309,13 @@ namespace System
         private double _x, _y, _z;
         public double* Data { get { fixed (void* ptr = &this) return (double*)ptr; } }
 
+        [Browsable(false)]
         public VertexBuffer.ComponentType ComponentType => VertexBuffer.ComponentType.Double;
+        [Browsable(false)]
         public int ComponentCount => 3;
+        [Browsable(false)]
         public bool Normalize => false;
+
         public void Write(VoidPtr address)
         {
             double* dPtr = (double*)address;
@@ -314,9 +347,13 @@ namespace System
         private bool _x, _y, _z, _w;
         public bool* Data { get { fixed (void* ptr = &this) return (bool*)ptr; } }
 
+        [Browsable(false)]
         public VertexBuffer.ComponentType ComponentType => VertexBuffer.ComponentType.Byte;
+        [Browsable(false)]
         public int ComponentCount => 4;
+        [Browsable(false)]
         public bool Normalize => false;
+
         public void Write(VoidPtr address)
         {
             byte* dPtr = (byte*)address;
@@ -365,9 +402,13 @@ namespace System
         private int _x, _y, _z, _w;
         public int* Data { get { fixed (void* ptr = &this) return (int*)ptr; } }
 
-        public VertexBuffer.ComponentType ComponentType { get { return VertexBuffer.ComponentType.Int; } }
-        public int ComponentCount { get { return 4; } }
-        public bool Normalize { get { return false; } }
+        [Browsable(false)]
+        public VertexBuffer.ComponentType ComponentType => VertexBuffer.ComponentType.Int;
+        [Browsable(false)]
+        public int ComponentCount => 4;
+        [Browsable(false)]
+        public bool Normalize => false;
+
         public void Write(VoidPtr address)
         {
             int* dPtr = (int*)address;
@@ -421,9 +462,13 @@ namespace System
         private uint _x, _y, _z, _w;
         public uint* Data { get { fixed (void* ptr = &this) return (uint*)ptr; } }
 
-        public VertexBuffer.ComponentType ComponentType { get { return VertexBuffer.ComponentType.UInt; } }
-        public int ComponentCount { get { return 4; } }
-        public bool Normalize { get { return false; } }
+        [Browsable(false)]
+        public VertexBuffer.ComponentType ComponentType => VertexBuffer.ComponentType.UInt;
+        [Browsable(false)]
+        public int ComponentCount => 4;
+        [Browsable(false)]
+        public bool Normalize => false;
+
         public void Write(VoidPtr address)
         {
             uint* dPtr = (uint*)address;
@@ -472,9 +517,13 @@ namespace System
         private double _x, _y, _z, _w;
         public double* Data { get { fixed (void* ptr = &this) return (double*)ptr; } }
 
-        public VertexBuffer.ComponentType ComponentType { get { return VertexBuffer.ComponentType.Double; } }
-        public int ComponentCount { get { return 4; } }
-        public bool Normalize { get { return false; } }
+        [Browsable(false)]
+        public VertexBuffer.ComponentType ComponentType => VertexBuffer.ComponentType.Double;
+        [Browsable(false)]
+        public int ComponentCount => 4;
+        [Browsable(false)]
+        public bool Normalize => false;
+
         public void Write(VoidPtr address)
         {
             double* dPtr = (double*)address;

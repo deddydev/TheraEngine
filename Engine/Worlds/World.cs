@@ -86,9 +86,9 @@ namespace TheraEngine.Worlds
         //}
 
         public BaseGameMode GetGameMode()
-            => Settings?.GameMode;
+            => Settings?.GameMode.File;
         public T GetGameMode<T>() where T : class, IGameMode
-            => Settings?.GameMode as T;
+            => Settings?.GameMode.File as T;
 
         public int ActorCount => _settings.State.SpawnedActors.Count;
         public WorldState State => _settings.State;
@@ -116,17 +116,18 @@ namespace TheraEngine.Worlds
         }
         public virtual void EndPlay()
         {
-            _settings.GameMode?.EndGameplay();
+            _settings.GameMode.File?.EndGameplay();
             foreach (Map m in _settings.Maps)
                 m.EndPlay();
             Dispose();
         }
         public virtual void BeginPlay()
         {
+            Engine.TimeDilation = _settings.TimeDilation;
             CreatePhysicsScene();
             foreach (Map m in _settings.Maps)
                 m.BeginPlay();
-            _settings.GameMode?.BeginGameplay();
+            _settings.GameMode.File?.BeginGameplay();
             //foreach (PhysicsDriver d in Engine._queuedCollisions)
             //    d.AddToWorld();
             //Engine._queuedCollisions.Clear();

@@ -6,6 +6,7 @@ using System.Drawing.Design;
 using System.ComponentModel.Design;
 using TheraEngine.Rendering;
 using TheraEngine.Worlds;
+using TheraEngine.Rendering.Text;
 
 namespace TheraEngine
 {
@@ -33,6 +34,8 @@ namespace TheraEngine
         protected Viewport.TwoPlayerPreference _2PPref = Viewport.TwoPlayerPreference.SplitHorizontally;
         protected Viewport.ThreePlayerPreference _3PPref = Viewport.ThreePlayerPreference.PreferFirstPlayer;
         protected string _iconPath;
+        protected LocalizedStringTable _localizedStringTable;
+        protected VariableStringTable _variableStringTable;
         
         /// <summary>
         /// The world the engine uses as a loading screen.
@@ -113,6 +116,20 @@ namespace TheraEngine
         {
             get => _3PPref;
             set => _3PPref = value;
+        }
+        [Serialize]
+        [Category("Text")]
+        public LocalizedStringTable LocalizedStringTable
+        {
+            get => _localizedStringTable;
+            set => _localizedStringTable = value;
+        }
+        [Serialize]
+        [Category("Text")]
+        public VariableStringTable VariableStringTable
+        {
+            get => _variableStringTable;
+            set => _variableStringTable = value;
         }
     }
 }

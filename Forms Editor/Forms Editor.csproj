@@ -98,7 +98,6 @@
       <DependentUpon>Editor.cs</DependentUpon>
     </Compile>
     <Compile Include="EditorHud.cs" />
-    <Compile Include="EditorState.cs" />
     <Compile Include="System\Windows\Controls\MaterialEditor.cs">
       <SubType>UserControl</SubType>
     </Compile>

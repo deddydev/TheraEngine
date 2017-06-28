@@ -35,7 +35,7 @@ namespace System
         }
         
         public List<T> FindClosest(Vec2 point)
-            => _head.FindClosest(point);
+            => _head?.FindClosest(point);
         public void Add(T value)
         {
             if (_head == null)

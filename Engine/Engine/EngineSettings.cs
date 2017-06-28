@@ -119,7 +119,7 @@ namespace TheraEngine
             RenderOctree = true;
             RenderQuadtree = true;
             RenderSkeletons = false;
-            RenderCameraFrustums = false;
+            RenderCameraFrustums = true;
             RenderSplines = true;
             RenderCullingVolumes = false;
             CapFPS = false;

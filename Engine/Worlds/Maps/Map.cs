@@ -25,12 +25,12 @@ namespace TheraEngine.Worlds
 
         public virtual void EndPlay()
         {
-            foreach (IActor actor in Settings._defaultActors)
+            foreach (IActor actor in Settings.DefaultActors)
                 _owningWorld.DespawnActor(actor);
         }
         public virtual void BeginPlay()
         {
-            foreach (IActor actor in Settings._defaultActors)
+            foreach (IActor actor in Settings.DefaultActors)
                 _owningWorld.SpawnActor(actor);
         }
     }

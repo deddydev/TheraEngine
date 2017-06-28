@@ -58,7 +58,9 @@ namespace System
             get => _renderSolid;
             set => _renderSolid = value;
         }
+        [Browsable(false)]
         public string ShapeName => _shapeName;
+        [Browsable(false)]
         public int ShapeIndex
         {
             get => _shapeIndex;
@@ -68,11 +70,12 @@ namespace System
                 _shapeName = GetType().Name + _shapeIndex;
             }
         }
-        
+
+        [Browsable(false)]
         public bool IsRendering
         {
-            get { return _isRendering; }
-            set { _isRendering = value; }
+            get => _isRendering;
+            set => _isRendering = value;
         }
         public bool Visible
         {
@@ -94,13 +97,18 @@ namespace System
             get => _visibleToOwnerOnly;
             set => _visibleToOwnerOnly = value;
         }
-        public Shape CullingVolume { get { return this; } }
+        
+        [Browsable(false)]
+        public Shape CullingVolume => this;
+
+        [Browsable(false)]
         public IOctreeNode RenderNode
         {
             get { return _renderNode; }
             set { _renderNode = value; }
         }
 
+        [Browsable(false)]
         public bool HasTransparency => false;
 
         public abstract void Render();

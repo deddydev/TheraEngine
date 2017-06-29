@@ -155,26 +155,37 @@ namespace TheraEngine
             if (HoveredPanel == this)
                 HoveredPanel = null;
         }
-        protected override void OnMouseDown(MouseEventArgs e)
+        //protected override void OnMouseDown(MouseEventArgs e)
+        //{
+        //    base.OnMouseDown(e);
+        //    Capture = true;
+        //}
+        protected override void OnGotFocus(EventArgs e)
         {
-            base.OnMouseDown(e);
-            //Cursor.Hide();
-            Capture = true;
+            base.OnGotFocus(e);
+            if (CapturedPanel != this)
+                CapturedPanel = this;
         }
-        protected override void OnMouseCaptureChanged(EventArgs e)
+        protected override void OnLostFocus(EventArgs e)
         {
-            base.OnMouseCaptureChanged(e);
-            if (Capture)
-            {
-                if (CapturedPanel != this)
-                    CapturedPanel = this;
-            }
-            else
-            {
-                if (CapturedPanel == this)
-                    CapturedPanel = null;
-            }
+            base.OnLostFocus(e);
+            if (CapturedPanel == this)
+                CapturedPanel = null;
         }
+        //protected override void OnMouseCaptureChanged(EventArgs e)
+        //{
+        //    base.OnMouseCaptureChanged(e);
+        //    if (Capture)
+        //    {
+        //        if (CapturedPanel != this)
+        //            CapturedPanel = this;
+        //    }
+        //    else
+        //    {
+        //        if (CapturedPanel == this)
+        //            CapturedPanel = null;
+        //    }
+        //}
         protected virtual void OnRender(PaintEventArgs e)
         {
             _context.BeginDraw();

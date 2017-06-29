@@ -37,17 +37,14 @@ namespace System
             _radius = Abs(radius);
             _center = center;
         }
-        public Sphere() : base()
-        {
-            ShapeIndex = 0;
-        }
-        ~Sphere()
-        {
-        }
+        public Sphere() : base() { }
 
-        public override CollisionShape GetCollisionShape() => new SphereShape(Radius);
+        public override CollisionShape GetCollisionShape()
+            => new SphereShape(Radius);
+
         public override void Render()
-            => Engine.Renderer.RenderSphere(ShapeName, Center, Radius, _renderSolid, Color.Red);
+            => Engine.Renderer.RenderSphere(Center, Radius, _renderSolid, Color.Red);
+
         public static PrimitiveData SolidMesh(Vec3 center, float radius, float precision)
         {
             float halfPI = CustomMath.PIf * 0.5f;

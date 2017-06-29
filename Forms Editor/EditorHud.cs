@@ -20,6 +20,7 @@ namespace TheraEditor
         public EditorHud(Vec2 bounds) : base(bounds) { }
         protected override void PreConstruct()
         {
+            _highlightPoint = new HighlightPoint() { Hud = this };
             base.PreConstruct();
             //RegisterTick(ETickGroup.PrePhysics, ETickOrder.Logic, Tick);
         }
@@ -49,14 +50,16 @@ namespace TheraEditor
 
         public class HighlightPoint : I3DRenderable
         {
-            SceneComponent _highlightedComponent;
-            private PrimitiveManager _circlePrimitive = new PrimitiveManager(Circle3D.WireframeMesh(1.0f, Vec3.Forward, Vec3.Zero, 12), Material.GetUnlitColorMaterial(Color.LimeGreen, false));
+            private PrimitiveManager _circlePrimitive = new PrimitiveManager(Circle3D.WireframeMesh(1.0f, Vec3.Forward, Vec3.Zero, 30), Material.GetUnlitColorMaterial(Color.LimeGreen, false));
             private PrimitiveManager _normalPrimitive = new PrimitiveManager(Segment.Mesh(Vec3.Zero, Vec3.Forward), Material.GetUnlitColorMaterial(Color.LimeGreen, false));
 
+            private EditorHud _hud;
+            private SceneComponent _highlightedComponent;
             private bool _isRendering;
             private IOctreeNode _octreeNode;
             private Matrix4 _transform = Matrix4.Identity;
 
+            public EditorHud Hud { get => _hud; set => _hud = value; }
             public bool HasTransparency => false;
             public Shape CullingVolume => null;
 
@@ -69,9 +72,15 @@ namespace TheraEditor
                 set
                 {
                     if (value == null && _highlightedComponent != null)
+                    {
                         Engine.Scene.Remove(this);
+                        RenderPanel.CapturedPanel.Invoke(new Action(() => RenderPanel.CapturedPanel.Cursor = System.Windows.Forms.Cursors.Default));
+                    }
                     else if (value != null && _highlightedComponent == null)
+                    {
                         Engine.Scene.Add(this);
+                        RenderPanel.CapturedPanel.Invoke(new Action(() => RenderPanel.CapturedPanel.Cursor = System.Windows.Forms.Cursors.Hand));
+                    }
 
                     if (_highlightedComponent != null)
                     {
@@ -101,7 +110,7 @@ namespace TheraEditor
                 }
 
                 HighlightedComponent = v.PickScene(viewportPoint, true, true, out Vec3 hitNormal, out Vec3 hitPoint);
-                _transform = Matrix4.CreateTranslation(hitPoint) * hitNormal.LookatAngles().GetMatrix() * Matrix4.CreateScale(10.0f);
+                _transform = Matrix4.CreateTranslation(hitPoint) * hitNormal.LookatAngles().GetMatrix() * Matrix4.CreateScale(_hud.OwningPawn.LocalPlayerController.Viewport.Camera.DistanceScale(hitPoint, 2.0f));
             }
 
             public void PickScene()
@@ -139,7 +148,7 @@ namespace TheraEditor
             }
         }
 
-        private HighlightPoint _highlightPoint = new HighlightPoint();
+        private HighlightPoint _highlightPoint;
         
         private void HighlightScene(bool gamepad)
         {

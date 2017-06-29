@@ -54,11 +54,13 @@ namespace TheraEngine.Input.Devices
         /// </summary>
         protected bool UpdateConnected(bool isConnected)
         {
-            if (_isConnected == isConnected)
-                return _isConnected;
-            _isConnected = isConnected;
-            ConnectionStateChanged?.Invoke(_isConnected);
-            return _isConnected;
+            if (_isConnected != isConnected)
+            {
+                _isConnected = isConnected;
+                ConnectionStateChanged?.Invoke(_isConnected);
+            }
+
+            return _isConnected && RenderPanel.CapturedPanel != null;
         }
         public static void RegisterButtonEvent(ButtonManager m, ButtonInputType type, InputPauseType pauseType, Action func, bool unregister)
         {

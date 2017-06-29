@@ -233,7 +233,7 @@ namespace System
         }
 
         public override void Render()
-            => Engine.Renderer.RenderAABB(ShapeName, HalfExtents, Translation, _renderSolid, Color.Blue);
+            => Engine.Renderer.RenderAABB(HalfExtents, Translation, _renderSolid, Color.Blue);
 
         public static PrimitiveData WireframeMesh(Vec3 min, Vec3 max)
         {

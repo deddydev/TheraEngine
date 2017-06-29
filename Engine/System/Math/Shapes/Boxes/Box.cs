@@ -10,8 +10,6 @@ namespace System
 {
     public class Box : Shape
     {
-        public static List<Box> Active = new List<Box>();
-
         [DefaultValue("0 0 0")]
         [Serialize("HalfExtents")]
         public Vec3 _halfExtents;
@@ -65,14 +63,8 @@ namespace System
         }
         public Box()
         {
-            ShapeIndex = Active.Count;
-            Active.Add(this);
             _halfExtents = Vec3.Half;
             _transform = FrameState.Identity;
-        }
-        ~Box()
-        {
-            Active.Remove(this);
         }
 
         /// <summary>
@@ -99,7 +91,7 @@ namespace System
         }
         public override void Render()
         {
-            Engine.Renderer.RenderBox(ShapeName, _halfExtents, _transform.Matrix, _renderSolid, Color.Black);
+            Engine.Renderer.RenderBox(_halfExtents, _transform.Matrix, _renderSolid, Color.Black);
         }
         public static PrimitiveData Mesh(Vec3 halfExtents, Matrix4 transform)
         {

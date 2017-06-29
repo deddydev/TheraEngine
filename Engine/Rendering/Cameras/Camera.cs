@@ -422,7 +422,7 @@ namespace TheraEngine.Rendering.Cameras
         {
             _transformedFrustum.Render();
             if (_viewTarget != null)
-                Engine.Renderer.RenderLine(_transformedFrustum.RenderName + "_ViewTarget", WorldPoint, _viewTarget.Raw, Color.DarkGray, 10.0f);
+                Engine.Renderer.RenderLine(WorldPoint, _viewTarget.Raw, Color.DarkGray, 10.0f);
         }
     }
 }

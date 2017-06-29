@@ -14,15 +14,10 @@ namespace System
 {
     public class Frustum : I3DRenderable, IEnumerable<Plane>
     {
-        private static List<Frustum> ActiveFrustums = new List<Frustum>();
-        private string _renderName;
-
         public bool HasTransparency => false;
         public Frustum()
         {
             _boundingSphere = new Sphere() { RenderSolid = false };
-            _renderName = "frustum" + ActiveFrustums.Count;
-            ActiveFrustums.Add(this);
         }
         public Frustum(
             float fovY,
@@ -79,7 +74,7 @@ namespace System
         }
         ~Frustum()
         {
-            ActiveFrustums.Remove(this);
+
         }
 
         public static bool UseBoundingSphere = true;
@@ -196,12 +191,7 @@ namespace System
         {
             get => _planes;
         }
-
-        public string RenderName
-        {
-            get => _renderName;
-        }
-
+        
         public void UpdatePoints(
             Vec3 farBottomLeft, Vec3 farBottomRight, Vec3 farTopLeft, Vec3 farTopRight,
             Vec3 nearBottomLeft, Vec3 nearBottomRight, Vec3 nearTopLeft, Vec3 nearTopRight, 
@@ -375,20 +365,20 @@ namespace System
             Color FarColor = Color.DarkRed;
             Color SideColor = Color.LightGreen;
 
-            Engine.Renderer.RenderLine(_renderName + "TopLeft", NearTopLeft, FarTopLeft, SideColor, LineSize);
-            Engine.Renderer.RenderLine(_renderName + "TopRight", NearTopRight, FarTopRight, SideColor, LineSize);
-            Engine.Renderer.RenderLine(_renderName + "BottomLeft", NearBottomLeft, FarBottomLeft, SideColor, LineSize);
-            Engine.Renderer.RenderLine(_renderName + "BottomRight", NearBottomRight, FarBottomRight, SideColor, LineSize);
+            Engine.Renderer.RenderLine(NearTopLeft, FarTopLeft, SideColor, LineSize);
+            Engine.Renderer.RenderLine(NearTopRight, FarTopRight, SideColor, LineSize);
+            Engine.Renderer.RenderLine(NearBottomLeft, FarBottomLeft, SideColor, LineSize);
+            Engine.Renderer.RenderLine(NearBottomRight, FarBottomRight, SideColor, LineSize);
 
-            Engine.Renderer.RenderLine(_renderName + "TopNear", NearTopLeft, NearTopRight, NearColor, LineSize);
-            Engine.Renderer.RenderLine(_renderName + "BottomNear", NearBottomLeft, NearBottomRight, NearColor, LineSize);
-            Engine.Renderer.RenderLine(_renderName + "LeftNear", NearBottomLeft, NearTopLeft, NearColor, LineSize);
-            Engine.Renderer.RenderLine(_renderName + "RightNear", NearBottomRight, NearTopRight, NearColor, LineSize);
+            Engine.Renderer.RenderLine(NearTopLeft, NearTopRight, NearColor, LineSize);
+            Engine.Renderer.RenderLine(NearBottomLeft, NearBottomRight, NearColor, LineSize);
+            Engine.Renderer.RenderLine(NearBottomLeft, NearTopLeft, NearColor, LineSize);
+            Engine.Renderer.RenderLine(NearBottomRight, NearTopRight, NearColor, LineSize);
 
-            Engine.Renderer.RenderLine(_renderName + "TopFar", FarTopLeft, FarTopRight, FarColor, LineSize);
-            Engine.Renderer.RenderLine(_renderName + "BottomFar", FarBottomLeft, FarBottomRight, FarColor, LineSize);
-            Engine.Renderer.RenderLine(_renderName + "LeftFar", FarBottomLeft, FarTopLeft, FarColor, LineSize);
-            Engine.Renderer.RenderLine(_renderName + "RightFar", FarBottomRight, FarTopRight, FarColor, LineSize);
+            Engine.Renderer.RenderLine(FarTopLeft, FarTopRight, FarColor, LineSize);
+            Engine.Renderer.RenderLine(FarBottomLeft, FarBottomRight, FarColor, LineSize);
+            Engine.Renderer.RenderLine(FarBottomLeft, FarTopLeft, FarColor, LineSize);
+            Engine.Renderer.RenderLine(FarBottomRight, FarTopRight, FarColor, LineSize);
         }
 
         public Frustum HardCopy()

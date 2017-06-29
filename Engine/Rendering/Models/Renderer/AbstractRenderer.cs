@@ -41,12 +41,13 @@ namespace TheraEngine.Rendering
 
         protected static MeshProgram _currentMeshProgram;
         protected static IPrimitiveManager _currentPrimitiveManager;
-        protected static Dictionary<string, IPrimitiveManager> _debugPrimitives = new Dictionary<string, IPrimitiveManager>();
         private Stack<BoundingRectangle> _renderAreaStack = new Stack<BoundingRectangle>();
 
         public abstract void SetActiveTexture(int unit);
 
         #region Debug Primitives
+
+        protected static Dictionary<string, IPrimitiveManager> _debugPrimitives = new Dictionary<string, IPrimitiveManager>();
 
         //public class DebugPrimitive : I3DRenderable
         //{
@@ -179,7 +180,7 @@ namespace TheraEngine.Rendering
         //public abstract void RenderLine(Vec3 start, Vec3 end, ColorF4 color, float lineWidth = DefaultLineSize);
         //public abstract void RenderLineLoop(bool closedLoop, params Vec3[] points);
         //public abstract void RenderLineLoop(bool closedLoop, PropAnimVec3 points);
-        public virtual void RenderPoint(string name, Vec3 position, ColorF4 color, float pointSize = DefaultPointSize)
+        public virtual void RenderPoint(Vec3 position, ColorF4 color, float pointSize = DefaultPointSize)
         {
             IPrimitiveManager m = GetDebugPrimitive(DebugPrimitiveType.Point);
             m.Parameter<GLVec4>(0).Value = color;
@@ -192,7 +193,7 @@ namespace TheraEngine.Rendering
                 m.Render(modelMatrix);
             //}
         }
-        public virtual unsafe void RenderLine(string name, Vec3 start, Vec3 end, ColorF4 color, float lineWidth = DefaultLineSize)
+        public virtual unsafe void RenderLine(Vec3 start, Vec3 end, ColorF4 color, float lineWidth = DefaultLineSize)
         {
             IPrimitiveManager m = GetDebugPrimitive(DebugPrimitiveType.Line);
             m.Parameter<GLVec4>(0).Value = color;
@@ -206,7 +207,7 @@ namespace TheraEngine.Rendering
                 m.Render(modelMatrix, Matrix3.Identity);
             //}
         }
-        public virtual void RenderQuad(string name, Vec3 position, Vec3 normal, Vec2 halfExtents, bool solid, float lineWidth = DefaultLineSize)
+        public virtual void RenderQuad(Vec3 position, Vec3 normal, Vec2 halfExtents, bool solid, float lineWidth = DefaultLineSize)
         {
             SetLineSize(lineWidth);
             IPrimitiveManager m = GetDebugPrimitive(solid ? DebugPrimitiveType.SolidQuad : DebugPrimitiveType.WireQuad);
@@ -214,7 +215,7 @@ namespace TheraEngine.Rendering
             Matrix4 mtx = Matrix4.CreateTranslation(position) * Matrix4.CreateFromQuaternion(lookat) * Matrix4.CreateScale(halfExtents.X, 1.0f, halfExtents.Y);
             m.Render(mtx, mtx.Inverted().Transposed().GetRotationMatrix3());
         }
-        public virtual void RenderSphere(string name, Vec3 center, float radius, bool solid, ColorF4 color, float lineWidth = DefaultLineSize)
+        public virtual void RenderSphere(Vec3 center, float radius, bool solid, ColorF4 color, float lineWidth = DefaultLineSize)
         {
             SetLineSize(lineWidth);
             //radius doesn't need to be multiplied by 2.0f; the sphere is already 2.0f in diameter
@@ -224,9 +225,9 @@ namespace TheraEngine.Rendering
             m.Render(mtx, Matrix3.Identity);
         }
 
-        public virtual void RenderAABB(string name, Vec3 halfExtents, Vec3 translation, bool solid, ColorF4 color, float lineWidth = DefaultLineSize)
-            => RenderBox(name, halfExtents, Matrix4.CreateTranslation(translation), solid, color, lineWidth);
-        public virtual void RenderBox(string name, Vec3 halfExtents, Matrix4 transform, bool solid, ColorF4 color, float lineWidth = DefaultLineSize)
+        public virtual void RenderAABB(Vec3 halfExtents, Vec3 translation, bool solid, ColorF4 color, float lineWidth = DefaultLineSize)
+            => RenderBox(halfExtents, Matrix4.CreateTranslation(translation), solid, color, lineWidth);
+        public virtual void RenderBox(Vec3 halfExtents, Matrix4 transform, bool solid, ColorF4 color, float lineWidth = DefaultLineSize)
         {
             SetLineSize(lineWidth);
             IPrimitiveManager m = GetDebugPrimitive(solid ? DebugPrimitiveType.SolidBox : DebugPrimitiveType.WireBox);
@@ -235,13 +236,13 @@ namespace TheraEngine.Rendering
             transform = transform * Matrix4.CreateScale(halfExtents);
             m.Render(transform, transform.Inverted().Transposed().GetRotationMatrix3());
         }
-        public void RenderCapsule(string name, Matrix4 transform, Vec3 localUpAxis, float radius, float halfHeight, bool solid, ColorF4 color, float lineWidth = DefaultLineSize)
+        public void RenderCapsule(Matrix4 transform, Vec3 localUpAxis, float radius, float halfHeight, bool solid, ColorF4 color, float lineWidth = DefaultLineSize)
         {
             SetLineSize(lineWidth);
             IPrimitiveManager mCyl = null, mTop = null, mBot = null;
-            string cylStr = name + "_CYLINDER";
-            string topStr = name + "_TOPHALF";
-            string botStr = name + "_BOTTOMHALF";
+            string cylStr = "_CYLINDER";
+            string topStr = "_TOPHALF";
+            string botStr = "_BOTTOMHALF";
             if (_debugPrimitives.ContainsKey(cylStr))
                 mCyl = _debugPrimitives[cylStr];
             if (_debugPrimitives.ContainsKey(topStr))
@@ -272,11 +273,11 @@ namespace TheraEngine.Rendering
             mTop.Render(topTransform, Matrix3.Identity);
             mBot.Render(botTransform, Matrix3.Identity);
         }
-        public void RenderCylinder(string name, Matrix4 transform, Vec3 localUpAxis, float radius, float halfHeight, bool solid, ColorF4 color, float lineWidth = DefaultLineSize)
+        public void RenderCylinder(Matrix4 transform, Vec3 localUpAxis, float radius, float halfHeight, bool solid, ColorF4 color, float lineWidth = DefaultLineSize)
         {
             throw new NotImplementedException();
         }
-        public void RenderCone(string name, Matrix4 transform, float radius, float height, bool solid, ColorF4 color, float lineWidth = DefaultLineSize)
+        public void RenderCone(Matrix4 transform, float radius, float height, bool solid, ColorF4 color, float lineWidth = DefaultLineSize)
         {
             throw new NotImplementedException();
         }

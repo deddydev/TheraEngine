@@ -17,8 +17,7 @@ namespace System
 
         public override void Render()
         {
-            Engine.Renderer.RenderCapsule(
-                ShapeName, _state.Matrix, _localUpAxis, _radius, _halfHeight, _renderSolid, Color.Red);
+            Engine.Renderer.RenderCapsule(_state.Matrix, _localUpAxis, _radius, _halfHeight, _renderSolid, Color.Red);
         }
         public override bool Contains(Vec3 point)
             => Segment.GetClosestDistanceToPoint(GetBottomCenterPoint(), GetTopCenterPoint(), point) <= _radius;

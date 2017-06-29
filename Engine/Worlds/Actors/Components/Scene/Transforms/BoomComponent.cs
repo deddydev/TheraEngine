@@ -98,7 +98,7 @@ namespace TheraEngine.Worlds.Actors
 
         public void Render()
         {
-            Engine.Renderer.RenderLine("CameraBoom", _startPoint, _currentEndPoint, Color.LightYellow);
+            Engine.Renderer.RenderLine(_startPoint, _currentEndPoint, Color.LightYellow);
         }
     }
 }

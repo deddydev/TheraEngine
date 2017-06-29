@@ -48,25 +48,11 @@ namespace System
         protected bool _visibleToOwnerOnly = false;
         
         protected IOctreeNode _renderNode;
-        private int _shapeIndex;
-        private string _shapeName;
 
         public bool RenderSolid
         {
             get => _renderSolid;
             set => _renderSolid = value;
-        }
-        [Browsable(false)]
-        public string ShapeName => _shapeName;
-        [Browsable(false)]
-        public int ShapeIndex
-        {
-            get => _shapeIndex;
-            protected set
-            {
-                _shapeIndex = value;
-                _shapeName = GetType().Name + _shapeIndex;
-            }
         }
 
         [Browsable(false)]

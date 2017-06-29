@@ -17,6 +17,7 @@ namespace TheraEngine.Rendering.HUD
         private OrthographicCamera _camera;
         private bool _visible = true;
         private Vec2 _bounds;
+        private IPawn _owningPawn;
 
         public OrthographicCamera Camera => _camera;
         
@@ -25,6 +26,8 @@ namespace TheraEngine.Rendering.HUD
             get => _visible;
             set => _visible = value;
         }
+
+        public IPawn OwningPawn { get => _owningPawn; internal set => _owningPawn = value; }
 
         public HudManager()
         {

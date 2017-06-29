@@ -70,8 +70,7 @@ namespace System
         public float GetTotalHeight() => GetTotalHalfHeight() * 2.0f;
         public override void Render()
         {
-            Engine.Renderer.RenderCylinder(
-                ShapeName, _state.Matrix, _localUpAxis, _radius, _halfHeight, _renderSolid, Color.Black);
+            Engine.Renderer.RenderCylinder(_state.Matrix, _localUpAxis, _radius, _halfHeight, _renderSolid, Color.Black);
         }
     }
 }

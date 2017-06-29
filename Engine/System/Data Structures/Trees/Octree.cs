@@ -230,7 +230,7 @@ namespace System
             }
             public void DebugRender(bool recurse, Color color)
             {
-                Engine.Renderer.RenderAABB("OctSubDiv" + _subDivLevel + "-" + _subDivIndex, _bounds.HalfExtents, _bounds.Translation, false, color, 5.0f);
+                Engine.Renderer.RenderAABB(_bounds.HalfExtents, _bounds.Translation, false, color, 5.0f);
                 if (recurse)
                     foreach (Node n in _subNodes)
                         n?.DebugRender(true, color);

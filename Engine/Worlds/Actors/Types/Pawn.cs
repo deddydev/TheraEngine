@@ -72,7 +72,14 @@ namespace TheraEngine.Worlds.Actors
         public HudManager Hud
         {
             get => _hud;
-            set => _hud = value;
+            set
+            {
+                if (_hud != null && _hud.OwningPawn == this)
+                    _hud.OwningPawn = null;
+                _hud = value;
+                if (_hud != null)
+                    _hud.OwningPawn = this;
+            }
         }
 
         public Pawn(bool deferInitialization = false) : base(deferInitialization) { }
@@ -99,13 +106,9 @@ namespace TheraEngine.Worlds.Actors
 
             _controller = null;
         }
-        protected Viewport GetViewport()
-        {
-            LocalPlayerController player = LocalPlayerController;
-            if (player == null)
-                return null;
-            return player.Viewport;
-        }
+
+        public Viewport Viewport => LocalPlayerController?.Viewport;
+
         public virtual void RegisterInput(InputInterface input) { }
         public void TryWorldRebase()
         {

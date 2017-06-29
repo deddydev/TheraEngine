@@ -11,10 +11,6 @@ namespace System
 {
     public class Sphere : Shape
     {
-        //public const string XMLTag = "sphere";
-
-        public static List<Sphere> Active = new List<Sphere>();
-
         [DefaultValue(1.0f)]
         [Serialize("Radius")]
         private float _radius = 1.0f;
@@ -41,14 +37,12 @@ namespace System
             _radius = Abs(radius);
             _center = center;
         }
-        public Sphere()
+        public Sphere() : base()
         {
-            ShapeIndex = Active.Count;
-            Active.Add(this);
+            ShapeIndex = 0;
         }
         ~Sphere()
         {
-            Active.Remove(this);
         }
 
         public override CollisionShape GetCollisionShape() => new SphereShape(Radius);

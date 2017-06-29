@@ -11,7 +11,10 @@ namespace System
 {
     public class Circle3D : Plane
     {
-        public Circle3D() : base() { _radius = 1.0f; }
+        public Circle3D()
+            : base() { _radius = 1.0f; }
+        public Circle3D(float radius)
+            : base() { _radius = radius; }
         public Circle3D(float radius, Vec3 normal, float distance) 
             : base(normal, distance)  { _radius = radius; }
         public Circle3D(float radius, Vec3 point)
@@ -81,68 +84,5 @@ namespace System
             }
             return points;
         }
-        
-        //public new const string XMLTag = "circle";
-        //
-        //protected override int OnCalculateSize(StringTable table)
-        //    => Header.Size;
-        //public unsafe override void Write(VoidPtr address, StringTable table)
-        //    => *(Header*)address = this;
-        //public unsafe override void Read(VoidPtr address, VoidPtr strings)
-        //{
-        //    base.Read(address, strings);
-        //    Header h = *(Header*)address;
-        //    _radius = h._radius;
-        //}
-        //public override void Write(XmlWriter writer)
-        //{
-        //    writer.WriteStartElement(XMLTag);
-        //    writer.WriteAttributeString("radius", _radius.ToString());
-        //    writer.WriteElementString("normal", _normal.ToString(false, false));
-        //    writer.WriteElementString("distance", _distance.ToString());
-        //    //writer.WriteElementString("point", Point.ToString(false, false));
-        //    writer.WriteEndElement();
-        //}
-        //public override void Read(XMLReader reader)
-        //{
-        //    if (!reader.Name.Equals(XMLTag, true))
-        //        throw new Exception();
-        //    while (reader.ReadAttribute())
-        //    {
-        //        if (reader.Name.Equals("radius", true))
-        //            _radius = float.Parse((string)reader.Value);
-        //    }
-        //    while (reader.BeginElement())
-        //    {
-        //        if (reader.Name.Equals("normal", true))
-        //            Normal = Vec3.Parse(reader.ReadElementString());
-        //        else if (reader.Name.Equals("distance", true))
-        //            _distance = float.Parse(reader.ReadElementString());
-        //        //else if (reader.Name.Equals("point", true))
-        //        //    Point = Vec3.Parse(reader.ReadElementString());
-        //        reader.EndElement();
-        //    }
-        //}
-        //[StructLayout(LayoutKind.Sequential, Pack = 1)]
-        //public new struct Header
-        //{
-        //    public const int Size = Plane.Header.Size + 4;
-
-        //    public Plane.Header _plane;
-        //    public float _radius;
-
-        //    public static implicit operator Header(Circle c)
-        //    {
-        //        return new Header()
-        //        {
-        //            _plane = c,
-        //            _radius = c._radius,
-        //        };
-        //    }
-        //    public static implicit operator Circle(Header h)
-        //    {
-        //        return new Circle(h._radius, h._plane._normal, h._plane._distance);
-        //    }
-        //}
     }
 }

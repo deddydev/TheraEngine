@@ -8,6 +8,8 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Text;
 using System.Linq;
+using System.Windows.Forms;
+using System.Threading;
 
 namespace TheraEngine.Rendering
 {
@@ -46,6 +48,40 @@ namespace TheraEngine.Rendering
 
         #region Debug Primitives
 
+        //public class DebugPrimitive : I3DRenderable
+        //{
+        //    private Matrix4 _modelMatrix;
+        //    private string _name;
+        //    private float _size;
+        //    private IPrimitiveManager _manager;
+        //    private DebugPrimitiveType _type;
+        //    private IOctreeNode _renderNode;
+        //    private bool _isRendering;
+        //    private ColorF4 _color;
+
+        //    public bool HasTransparency => false;
+        //    public Shape CullingVolume => null;
+
+        //    public IOctreeNode OctreeNode { get => _renderNode; set => _renderNode = value; }
+        //    public bool IsRendering { get => _isRendering; set => _isRendering = value; }
+        //    public DebugPrimitiveType Type { get => _type; set => _type = value; }
+        //    public string Name { get => _name; set => _name = value; }
+        //    public IPrimitiveManager Manager { get => _manager; set => _manager = value; }
+        //    public float Size { get => _size; set => _size = value; }
+        //    public ColorF4 Color { get => _color; set => _color = value; }
+        //    public Matrix4 ModelMatrix { get => _modelMatrix; set => _modelMatrix = value; }
+
+        //    public void Render()
+        //    {
+        //        if (_type == DebugPrimitiveType.Point)
+        //            Engine.Renderer.SetPointSize(Size);
+        //        else if (_type == DebugPrimitiveType.Line)
+        //            Engine.Renderer.SetLineSize(Size);
+        //        _manager.Parameter<GLVec4>(0).Value = _color;
+        //        _manager.Render(ModelMatrix, Matrix3.Identity);
+        //    }
+        //}
+
         private PrimitiveManager AssignDebugPrimitive(string name, PrimitiveManager m)
         {
             if (!_debugPrimitives.ContainsKey(name))
@@ -65,55 +101,45 @@ namespace TheraEngine.Rendering
             SolidBox,
             WireQuad,
             SolidQuad,
-            //WireCapsuleMiddleCylinder,
-            //WireCapsuleHalfSphere,
-            //SolidCapsuleMiddleCylinder,
-            //SolidCapsuleHalfSphere,
             WireCylinder,
             SolidCylinder,
             WireCone,
             SolidCone,
         }
 
-        public IPrimitiveManager CacheDebugPrimitive(string name, DebugPrimitiveType type)
+        private IPrimitiveManager[] _debugPrims = new IPrimitiveManager[12];
+
+        public IPrimitiveManager GetDebugPrimitive(DebugPrimitiveType type)
         {
-            if (_debugPrimitives.ContainsKey(name))
-                return _debugPrimitives[name];
-            PrimitiveData data = null;
+            IPrimitiveManager m = _debugPrims[(int)type];
+            if (m != null)
+                return m;
+            else
+                return _debugPrims[(int)type] = new PrimitiveManager(GetPrimData(type), Material.GetUnlitColorMaterial());
+        }
+        private PrimitiveData GetPrimData(DebugPrimitiveType type)
+        {
             switch (type)
             {
                 case DebugPrimitiveType.Point:
-                    data = PrimitiveData.FromPoints(Vec3.Zero);
-                    break;
-                case DebugPrimitiveType.Line:
-                    VertexLine line = new VertexLine(new Vertex(Vec3.Zero), new Vertex(Vec3.Forward));
-                    data = PrimitiveData.FromLines(new PrimitiveBufferInfo()
-                    { _hasNormals = false, _texcoordCount = 0 }, line);
-                    break;
-                case DebugPrimitiveType.WireSphere:
-                    //Diameter is set to 2.0f on purpose
-                    data = Sphere.WireframeMesh(Vec3.Zero, 1.0f, 60);
-                    break;
-                case DebugPrimitiveType.SolidSphere:
-                    //Diameter is set to 2.0f on purpose
-                    data = Sphere.SolidMesh(Vec3.Zero, 1.0f, 30.0f);
-                    break;
+                    return PrimitiveData.FromPoints(Vec3.Zero);
+                case DebugPrimitiveType.Line: VertexLine line = new VertexLine(new Vertex(Vec3.Zero), new Vertex(Vec3.Forward));
+                    return PrimitiveData.FromLines(new PrimitiveBufferInfo() { _hasNormals = false, _texcoordCount = 0 }, line);
+                case DebugPrimitiveType.WireSphere: //Diameter is set to 2.0f on purpose
+                    return Sphere.WireframeMesh(Vec3.Zero, 1.0f, 60);
+                case DebugPrimitiveType.SolidSphere: //Diameter is set to 2.0f on purpose
+                    return Sphere.SolidMesh(Vec3.Zero, 1.0f, 30.0f);
                 case DebugPrimitiveType.WireBox:
-                    data = BoundingBox.WireframeMesh(new Vec3(-1.0f), new Vec3(1.0f));
-                    break;
+                    return BoundingBox.WireframeMesh(new Vec3(-1.0f), new Vec3(1.0f));
                 case DebugPrimitiveType.SolidBox:
-                    data = BoundingBox.SolidMesh(new Vec3(-1.0f), new Vec3(1.0f));
-                    break;
+                    return BoundingBox.SolidMesh(new Vec3(-1.0f), new Vec3(1.0f));
                 case DebugPrimitiveType.WireQuad:
-                    data = PrimitiveData.FromLineList(new PrimitiveBufferInfo(), VertexQuad.YUpQuad(2.0f).ToLines());
-                    break;
+                    return PrimitiveData.FromLineList(new PrimitiveBufferInfo(), VertexQuad.YUpQuad(2.0f).ToLines());
                 case DebugPrimitiveType.SolidQuad:
-                    data = PrimitiveData.FromQuads(Culling.None, new PrimitiveBufferInfo(), VertexQuad.YUpQuad(2.0f));
-                    break;
+                    return PrimitiveData.FromQuads(Culling.None, new PrimitiveBufferInfo(), VertexQuad.YUpQuad(2.0f));
             }
-            return AssignDebugPrimitive(name, new PrimitiveManager(data, Material.GetUnlitColorMaterial()));
+            return null;
         }
-
         //public void CacheWireframePlane()
         //{
         //    _wirePlane = new PrimitiveManager(
@@ -155,23 +181,35 @@ namespace TheraEngine.Rendering
         //public abstract void RenderLineLoop(bool closedLoop, PropAnimVec3 points);
         public virtual void RenderPoint(string name, Vec3 position, ColorF4 color, float pointSize = DefaultPointSize)
         {
-            SetPointSize(pointSize);
-            IPrimitiveManager m = CacheDebugPrimitive(name, DebugPrimitiveType.Point);
+            IPrimitiveManager m = GetDebugPrimitive(DebugPrimitiveType.Point);
             m.Parameter<GLVec4>(0).Value = color;
-            m.Render(Matrix4.CreateTranslation(position));
+            Matrix4 modelMatrix = Matrix4.CreateTranslation(position);
+            //if (Engine.MainThreadID != Thread.CurrentThread.ManagedThreadId)
+            //    Engine.Scene.AddDebugPrimitive(new DebugPrimitive() { Manager = m, ModelMatrix = modelMatrix, Color = color, Type = DebugPrimitiveType.Point });
+            //else
+            //{
+                SetPointSize(pointSize);
+                m.Render(modelMatrix);
+            //}
         }
         public virtual unsafe void RenderLine(string name, Vec3 start, Vec3 end, ColorF4 color, float lineWidth = DefaultLineSize)
         {
-            SetLineSize(lineWidth);
-            IPrimitiveManager m = CacheDebugPrimitive(name, DebugPrimitiveType.Line);
+            IPrimitiveManager m = GetDebugPrimitive(DebugPrimitiveType.Line);
             m.Parameter<GLVec4>(0).Value = color;
-            ((Vec3*)m.Data[0].Address)[1] = end - start;
-            m.Render(Matrix4.CreateTranslation(start), Matrix3.Identity);
+            //((Vec3*)m.Data[0].Address)[1] = end - start;
+            Matrix4 modelMatrix = Matrix4.CreateTranslation(start) * end.LookatAngles(start).GetMatrix() * Matrix4.CreateScale(end.DistanceToFast(start));
+            //if (Engine.MainThreadID != Thread.CurrentThread.ManagedThreadId)
+            //    Engine.Scene.AddDebugPrimitive(new DebugPrimitive() { Manager = m, ModelMatrix = modelMatrix, Color = color, Type = DebugPrimitiveType.Line });
+            //else
+            //{
+                SetLineSize(lineWidth);
+                m.Render(modelMatrix, Matrix3.Identity);
+            //}
         }
         public virtual void RenderQuad(string name, Vec3 position, Vec3 normal, Vec2 halfExtents, bool solid, float lineWidth = DefaultLineSize)
         {
             SetLineSize(lineWidth);
-            IPrimitiveManager m = CacheDebugPrimitive(name, solid ? DebugPrimitiveType.SolidQuad : DebugPrimitiveType.WireQuad);
+            IPrimitiveManager m = GetDebugPrimitive(solid ? DebugPrimitiveType.SolidQuad : DebugPrimitiveType.WireQuad);
             Quat lookat = Quat.BetweenVectors(Vec3.Up, normal);
             Matrix4 mtx = Matrix4.CreateTranslation(position) * Matrix4.CreateFromQuaternion(lookat) * Matrix4.CreateScale(halfExtents.X, 1.0f, halfExtents.Y);
             m.Render(mtx, mtx.Inverted().Transposed().GetRotationMatrix3());
@@ -181,7 +219,7 @@ namespace TheraEngine.Rendering
             SetLineSize(lineWidth);
             //radius doesn't need to be multiplied by 2.0f; the sphere is already 2.0f in diameter
             Matrix4 mtx = Matrix4.CreateTranslation(center) * Matrix4.CreateScale(radius);
-            IPrimitiveManager m = CacheDebugPrimitive(name, solid ? DebugPrimitiveType.SolidSphere : DebugPrimitiveType.WireSphere);
+            IPrimitiveManager m = GetDebugPrimitive(solid ? DebugPrimitiveType.SolidSphere : DebugPrimitiveType.WireSphere);
             m.Parameter<GLVec4>(0).Value = color;
             m.Render(mtx, Matrix3.Identity);
         }
@@ -191,7 +229,7 @@ namespace TheraEngine.Rendering
         public virtual void RenderBox(string name, Vec3 halfExtents, Matrix4 transform, bool solid, ColorF4 color, float lineWidth = DefaultLineSize)
         {
             SetLineSize(lineWidth);
-            IPrimitiveManager m = CacheDebugPrimitive(name, solid ? DebugPrimitiveType.SolidBox : DebugPrimitiveType.WireBox);
+            IPrimitiveManager m = GetDebugPrimitive(solid ? DebugPrimitiveType.SolidBox : DebugPrimitiveType.WireBox);
             m.Parameter<GLVec4>(0).Value = color;
             //halfExtents doesn't need to be multiplied by 2.0f; the box is already 1.0f in each direction of each dimension (2.0f extents)
             transform = transform * Matrix4.CreateScale(halfExtents);

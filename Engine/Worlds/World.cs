@@ -21,8 +21,9 @@ namespace TheraEngine.Worlds
         {
             PersistentManifold.ContactProcessed += PersistentManifold_ContactProcessed;
             PersistentManifold.ContactDestroyed += PersistentManifold_ContactDestroyed;
+            ManifoldPoint.ContactAdded += ManifoldPoint_ContactAdded;
         }
-        
+
         public World()
         {
             if (_settings == null)
@@ -64,6 +65,10 @@ namespace TheraEngine.Worlds
             PhysicsDriverPair drivers = (PhysicsDriverPair)userPersistantData;
             drivers._driver0.ContactEnded(drivers._driver1);
             drivers._driver1.ContactEnded(drivers._driver0);
+        }
+        private static void ManifoldPoint_ContactAdded(ManifoldPoint cp, CollisionObjectWrapper colObj0Wrap, int partId0, int index0, CollisionObjectWrapper colObj1Wrap, int partId1, int index1)
+        {
+
         }
         private void OnGravityChanged(Vec3 oldGravity)
         {
@@ -157,7 +162,12 @@ namespace TheraEngine.Worlds
             };
             _physicsScene.DebugDrawer = _physicsDebugDrawer = new WorldDebugDrawer()
             {
-                DebugMode = DebugDrawModes.DrawAabb
+                DebugMode = 
+                DebugDrawModes.DrawNormals | 
+                DebugDrawModes.DrawAabb | 
+                DebugDrawModes.DrawConstraints | 
+                DebugDrawModes.DrawConstraintLimits | 
+                DebugDrawModes.DrawContactPoints,
             };
             _physicsScene.DispatchInfo.UseContinuous = true;
             //_physicsScene.PairCache.SetOverlapFilterCallback(new CustomOvelapFilter());

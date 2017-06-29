@@ -14,20 +14,34 @@ using System.Threading.Tasks;
 
 namespace System
 {
+    /// <summary>
+    /// The interface for interacting with an internal octree subdivision.
+    /// </summary>
     public interface IOctreeNode
     {
         /// <summary>
-        /// Call this when the boundable item has moved.
+        /// Call this when the boundable item has moved,
+        /// otherwise the octree will not be updated.
         /// </summary>
         void ItemMoved(I3DBoundable item);
     }
+    /// <summary>
+    /// 
+    /// </summary>
     public class Octree : Octree<I3DBoundable>
     {
         public Octree(BoundingBox bounds) : base(bounds) { }
         public Octree(BoundingBox bounds, List<I3DBoundable> items) : base(bounds, items) { }
     }
-    public partial class Octree<T> where T : class, I3DBoundable
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <typeparam name="T">The item type to use.</typeparam>
+    public class Octree<T> where T : class, I3DBoundable
     {
+        /// <summary>
+        /// Event called when the "IsRendering" property of an item is changed.
+        /// </summary>
         public event Action<T> ItemRenderChanged;
 
         Node _head;
@@ -56,22 +70,34 @@ namespace System
             _head.Add(items, true);
         }
 
-        public ThreadSafeList<T> FindClosest(Vec3 point) { return _head?.FindClosest(point); }
+        /// <summary>
+        /// Finds all items contained within the given radius of a given point.
+        /// </summary>
+        /// <param name="radius">The distance from the point that returned items must be contained within.</param>
+        /// <param name="point">The center point of the sphere.</param>
+        /// <param name="list">The list of items that are contained within the shape.</param>
+        /// <param name="allowPartialContains">If true, adds items if they're even partially contained within the shape.</param>
+        /// <param name="testVisibleOnly">If true, only tests for containment of visible items.</param>
+        public void FindAllWithinRadius(float radius, Vec3 point, ThreadSafeList<T> list, bool allowPartialContains, bool testVisibleOnly)
+        {
+            _head.FindAllInside(new Sphere(radius, point), list, allowPartialContains, testVisibleOnly);
+        }
+        //public ThreadSafeList<T> FindClosest(Vec3 point) { return _head?.FindClosest(point); }
         public ThreadSafeList<T> FindAllInside(Shape shape, bool allowPartialContains, bool testVisibleOnly)
         {
             ThreadSafeList<T> list = new ThreadSafeList<T>();
-            _head?.FindAllInside(shape, list, allowPartialContains, testVisibleOnly);
+            _head.FindAllInside(shape, list, allowPartialContains, testVisibleOnly);
             return list;
         }
 
         public void Cull(Frustum frustum, bool resetVisibility = true, bool cullOffscreen = true, bool debugRender = false)
-            => _head?.Cull(frustum, resetVisibility, cullOffscreen, debugRender);
+            => _head.Cull(frustum, resetVisibility, cullOffscreen, debugRender);
         
         public void DebugRender(Color color)
-            => _head?.DebugRender(true, color);
+            => _head.DebugRender(true, color);
 
         public void Add(T value)
-            => _head.Add(value, true);
+            => _head.Add(value, -1, true);
         
         public void Add(List<T> value)
             => _head.Add(value, true);
@@ -176,42 +202,30 @@ namespace System
                 {
                     //Belongs in larger parent volume, remove from this node
                     bool shouldDestroy = Remove(item);
-                    if (!ParentNode.AddReversedHierarchy(item, shouldDestroy ? _subDivIndex : -1))
+                    if (!ParentNode.TryAddUp(item, shouldDestroy ? _subDivIndex : -1))
                     {
                         //Force add to root node
-                        Node m = this;
-                        while (m.ParentNode != null)
-                            m = m.ParentNode;
-                        m.QueueAdd(item);
-                        item.RenderNode = m;
-                        item.IsRendering = m._visible;
+                        Owner.Add(item);
                     }
                 }
             }
             /// <summary>
-            /// Returns true if the item was added to this node (clarification: not its subnodes)
+            /// Moves up the heirarchy instead of down to add an item.
+            /// Returns true if the item was added to this node.
             /// </summary>
-            private bool AddReversedHierarchy(T item, int childDestroyIndex)
+            private bool TryAddUp(T item, int childDestroyIndex)
             {
-                if (!Add(item))
-                {
-                    bool shouldDestroy = _items.Count == 0 && HasNoSubNodesExcept(childDestroyIndex);
-                    if (ParentNode != null)
-                    {
-                        if (ParentNode.AddReversedHierarchy(item, shouldDestroy ? _subDivIndex : -1))
-                        {
-                            ClearSubNode(childDestroyIndex);
-                            return true;
-                        }
-                    }
-                }
+                ClearSubNode(childDestroyIndex);
+
+                if (Add(item, childDestroyIndex))
+                    return true;
                 else
                 {
-                    ClearSubNode(childDestroyIndex);
-                    return true;
+                    bool shouldDestroy = _items.Count == 0 && HasNoSubNodesExcept(-1);
+                    if (ParentNode != null)
+                        return ParentNode.TryAddUp(item, shouldDestroy ? _subDivIndex : -1);
                 }
-
-                ClearSubNode(childDestroyIndex);
+                
                 return false;
             }
             public void DebugRender(bool recurse, Color color)
@@ -250,27 +264,24 @@ namespace System
                     DebugRender(c == EContainment.Contains, clr);
                 }
             }
-            internal bool Remove(T value)
+            internal bool Remove(T item)
             {
-                if (_items.Contains(value))
-                {
-                    //QueueRemove(value);
-                    _items.Remove(value);
-                }
-
-                for (int i = 0; i < 8; ++i)
-                {
-                    Node node = _subNodes[i];
-                    if (node != null)
+                if (_items.Contains(item))
+                    QueueRemove(item);
+                else
+                    for (int i = 0; i < 8; ++i)
                     {
-                        if (node.Remove(value))
-                            _subNodes[i] = null;
-                        else
-                            return false;
+                        Node node = _subNodes[i];
+                        if (node != null)
+                        {
+                            if (node.Remove(item))
+                                _subNodes[i] = null;
+                            else
+                                return false;
+                        }
                     }
-                }
                 
-                return _items.Count == 0;
+                return _items.Count == 0 && HasNoSubNodesExcept(-1);
             }
             /// <summary>
             /// Adds a list of items to this node. May subdivide.
@@ -282,7 +293,7 @@ namespace System
             {
                 bool addedAny = false;
                 foreach (T item in items)
-                    addedAny = addedAny || Add(item, force);
+                    addedAny = addedAny || Add(item, -1, force);
                 return addedAny;
             }
             /// <summary>
@@ -291,46 +302,48 @@ namespace System
             /// <param name="items">The item to add.</param>
             /// <param name="force">If true, will add the item regardless of if its culling volume fits within the node's bounds.</param>
             /// <returns>True if the node was added.</returns>
-            internal bool Add(T item, bool force = false)
+            internal bool Add(T item, int ignoreSubNode = -1, bool force = false)
             {
                 if (item == null)
                     return false;
-
-                bool notSubdivided = true;
+                
                 if (item.CullingVolume != null)
                 {
                     if (item.CullingVolume.ContainedWithin(_bounds) != EContainment.Contains)
                     {
                         if (force)
                         {
-                            QueueAdd(item);
-
-                            item.IsRendering = _visible;
-                            item.RenderNode = this;
-                            return true;
+                            if (QueueAdd(item))
+                            {
+                                item.IsRendering = _visible;
+                                item.OctreeNode = this;
+                                return true;
+                            }
                         }
                         return false;
                     }
                     for (int i = 0; i < 8; ++i)
                     {
+                        if (i == ignoreSubNode)
+                            continue;
+
                         BoundingBox bounds = GetSubdivision(i);
                         if (item.CullingVolume.ContainedWithin(bounds) == EContainment.Contains)
                         {
-                            notSubdivided = false;
                             CreateSubNode(bounds, i).Add(item);
-                            break;
+                            return true;
                         }
                     }
                 }
-                if (notSubdivided)
-                {
-                    QueueAdd(item);
 
+                if (QueueAdd(item))
+                {
                     item.IsRendering = _visible;
-                    item.RenderNode = this;
+                    item.OctreeNode = this;
+                    return true;
                 }
 
-                return true;
+                return false;
             }
 
             #region Loop Threading Backlog
@@ -351,9 +364,9 @@ namespace System
                     while (!_isLoopingItems && !_itemQueue.IsEmpty && _itemQueue.TryDequeue(out Tuple<bool, T> result))
                     {
                         if (result.Item1)
-                            _items.Add(result.Item2);
+                            Add(result.Item2, -1, true);
                         else
-                            _items.Remove(result.Item2);
+                            Remove(result.Item2);
                     }
                 }
             }
@@ -371,46 +384,31 @@ namespace System
             #endregion
 
             #region Misc Data Methods
-            public ThreadSafeList<T> FindClosest(Vec3 point)
-            {
-                if (_bounds.Contains(point))
-                {
-                    ThreadSafeList<T> list = null;
-                    //lock (_lock)
-                    //{
-                    //    IsLoopingItems = true;
-                    //    try
-                    //    {
-                            foreach (Node node in _subNodes)
-                            {
-                                list = node?.FindClosest(point);
-                                if (list != null)
-                                    return list;
-                            }
-                        //}
-                        //catch
-                        //{
-                        //    Debug.WriteLine("OCTREE: Error looping through items to find closest to point");
-                        //}
-                        //finally
-                        //{
-                        //    IsLoopingItems = false;
-                        //}
-                    //}
+            //public ThreadSafeList<T> FindClosest(Vec3 point)
+            //{
+            //    if (_bounds.Contains(point))
+            //    {
+            //        ThreadSafeList<T> list = null;
+            //        foreach (Node node in _subNodes)
+            //        {
+            //            list = node?.FindClosest(point);
+            //            if (list != null)
+            //                return list;
+            //        }
+                    
+            //        if (_items.Count == 0)
+            //            return null;
 
-                    if (_items.Count == 0)
-                        return null;
+            //        list = new ThreadSafeList<T>(_items);
+            //        for (int i = 0; i < list.Count; ++i)
+            //            if (list[i].CullingVolume != null && !list[i].CullingVolume.Contains(point))
+            //                list.RemoveAt(i--);
 
-                    list = new ThreadSafeList<T>(_items);
-                    for (int i = 0; i < list.Count; ++i)
-                        if (list[i].CullingVolume != null && !list[i].CullingVolume.Contains(point))
-                            list.RemoveAt(i--);
-
-                    return list;
-                }
-                else
-                    return null;
-            }
+            //        return list;
+            //    }
+            //    else
+            //        return null;
+            //}
 
             /// <summary>
             /// Finds all items contained within the given shape.
@@ -459,19 +457,31 @@ namespace System
             #endregion
 
             #region Private Helper Methods
-            private void QueueAdd(T item)
+            private bool QueueAdd(T item)
             {
-                //if (IsLoopingItems)
-                //    _itemQueue.Enqueue(new Tuple<bool, T>(true, item));
-                //else
+                if (IsLoopingItems)
+                {
+                    _itemQueue.Enqueue(new Tuple<bool, T>(true, item));
+                    return false;
+                }
+                else
+                {
                     _items.Add(item);
+                    return true;
+                }
             }
-            private void QueueRemove(T item)
+            private bool QueueRemove(T item)
             {
-                //if (IsLoopingItems)
-                //    _itemQueue.Enqueue(new Tuple<bool, T>(false, item));
-                //else
+                if (IsLoopingItems)
+                {
+                    _itemQueue.Enqueue(new Tuple<bool, T>(false, item));
+                    return false;
+                }
+                else
+                {
                     _items.Remove(item);
+                    return true;
+                }
             }
             private void ClearSubNode(int index)
             {

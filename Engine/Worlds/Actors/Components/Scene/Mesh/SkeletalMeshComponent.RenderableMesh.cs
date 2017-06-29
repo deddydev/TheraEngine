@@ -71,7 +71,7 @@ namespace TheraEngine.Worlds.Actors
                 get => _mesh;
                 set => _mesh = value;
             }
-            public IOctreeNode RenderNode
+            public IOctreeNode OctreeNode
             {
                 get => _renderNode;
                 set => _renderNode = value;

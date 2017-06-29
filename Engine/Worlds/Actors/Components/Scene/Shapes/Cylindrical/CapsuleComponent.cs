@@ -19,7 +19,7 @@ namespace TheraEngine.Worlds.Actors
         {
             base.RecalcGlobalTransform();
             _capsule.SetTransform(WorldMatrix);
-            RenderNode?.ItemMoved(this);
+            OctreeNode?.ItemMoved(this);
         }
 
         public override void Render()

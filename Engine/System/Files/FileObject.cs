@@ -48,16 +48,51 @@ namespace TheraEngine.Files
         [Browsable(false)]
         public List<IFileRef> References { get => _references; set => _references = value; }
 
-        public int CalculateSize(StringTable table)
+        /// <summary>
+        /// Calculates the size of this object, in bytes.
+        /// </summary>
+        /// <param name="table">The string table to populate with strings.</param>
+        /// <returns>The size of the object, in bytes.</returns>
+        internal int CalculateSize(StringTable table)
         {
             _calculatedSize = OnCalculateSize(table);
             return _calculatedSize;
         }
+        /// <summary>
+        /// Calculates the size of this object, in bytes.
+        /// Override if the FileClass attribute for this class specifies ManualBinSerialize.
+        /// </summary>
+        /// <param name="table">The string table. Add strings to this as you wish, and use their addresses when writing later.</param>
+        /// <returns>The size of the object, in bytes.</returns>
         protected virtual int OnCalculateSize(StringTable table) => throw new NotImplementedException();
-        public virtual void Write(VoidPtr address, StringTable table) => throw new NotImplementedException();
-        public virtual void Read(VoidPtr address, VoidPtr strings) => throw new NotImplementedException();
-        public virtual void Write(XmlWriter writer) => throw new NotImplementedException();
-        public virtual void Read(XMLReader reader) => throw new NotImplementedException();
+        /// <summary>
+        /// Writes this object to the given address.
+        /// The size of this object is CalculatedSize.
+        /// Override if the FileClass attribute for this class specifies ManualBinSerialize.
+        /// </summary>
+        /// <param name="address">The address to write to.</param>
+        /// <param name="table">The table of all strings added in OnCalculateSize.</param>
+        internal protected virtual void Write(VoidPtr address, StringTable table) => throw new NotImplementedException();
+        /// <summary>
+        /// Reads this object from the given address.
+        /// Override if the FileClass attribute for this class specifies ManualBinSerialize.
+        /// </summary>
+        /// <param name="address">The address to read from.</param>
+        /// <param name="strings">The string table to get strings from.</param>
+        internal protected virtual void Read(VoidPtr address, VoidPtr strings) => throw new NotImplementedException();
+        /// <summary>
+        /// Writes this object to an xml file using the given xml writer.
+        /// Override if the FileClass attribute for this class specifies ManualXmlSerialize.
+        /// </summary>
+        /// <param name="writer">The xml writer to write the file with.</param>
+        internal protected virtual void Write(XmlWriter writer) => throw new NotImplementedException();
+        /// <summary>
+        /// Reads this object from an xml file using the given xml reader.
+        /// Override if the FileClass attribute for this class specifies ManualXmlSerialize.
+        /// </summary>
+        /// <param name="reader">The xml reader to read the file with.</param>
+        internal protected virtual void Read(XMLReader reader) => throw new NotImplementedException();
+
         public void Unload()
         {
             if (!string.IsNullOrEmpty(_filePath) && Engine.LoadedFiles.ContainsKey(_filePath))

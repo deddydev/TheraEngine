@@ -71,7 +71,7 @@ namespace TheraEngine.Worlds.Actors
         public abstract Shape CullingVolume { get; }
         public bool VisibleByDefault => _visibleByDefault;
         public PhysicsDriver PhysicsDriver => _physicsDriver;
-        public IOctreeNode RenderNode
+        public IOctreeNode OctreeNode
         {
             get => _renderNode;
             set => _renderNode = value;

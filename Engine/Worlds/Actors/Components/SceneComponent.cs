@@ -27,7 +27,7 @@ namespace TheraEngine.Worlds.Actors
                 p.PhysicsDriver?.SetPhysicsTransform(_worldTransform);
 
             if (this is I3DBoundable r)
-                r.RenderNode?.ItemMoved(r);
+                r.OctreeNode?.ItemMoved(r);
 
             foreach (SceneComponent c in _children)
                 c.RecalcGlobalTransform();

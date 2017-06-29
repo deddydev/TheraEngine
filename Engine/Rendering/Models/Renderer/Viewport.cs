@@ -311,31 +311,43 @@ namespace TheraEngine.Rendering
             => _worldCamera.GetWorldSegment(viewportPoint);
         public SceneComponent PickScene(
             Vec2 viewportPoint,
-            bool mouse,
-            bool testHud = true,
-            bool testWorld = true,
-            bool highlightActors = true)
+            bool testHud,
+            bool testWorld,
+            out Vec3 hitNormal,
+            out Vec3 hitPoint)
         {
             if (testHud)
             {
                 HudComponent hudComp = _pawnHUD.FindClosestComponent(viewportPoint);
                 if (hudComp != null)
+                {
+                    hitNormal = Vec3.Backward;
+                    hitPoint = new Vec3(viewportPoint, 0.0f);
                     return hudComp;
+                }
             }
             if (testWorld)
             {
                 Segment cursor = GetWorldSegment(viewportPoint);
+                
                 ClosestRayResultCallback c = Engine.RaycastClosest(cursor);
                 if (c.HasHit)
                 {
-                    Debug.WriteLine(c.HitPointWorld.ToString());
+                    hitNormal = c.HitNormalWorld;
+                    hitPoint = c.HitPointWorld;
+                    CollisionObject coll = c.CollisionObject;
+                    PhysicsDriver d = coll.UserObject as PhysicsDriver;
+                    return d.Owner as SceneComponent;
                 }
+
                 //float depth = GetDepth(viewportPoint);
 
                 //Vec3 worldPoint = ScreenToWorld(viewportPoint, depth);
                 //ThreadSafeList<I3DRenderable> r = Engine.Scene.RenderTree.FindClosest(worldPoint);
-                
+
             }
+            hitNormal = Vec3.Zero;
+            hitPoint = Vec3.Zero;
             return null;
         }
         /// <summary>

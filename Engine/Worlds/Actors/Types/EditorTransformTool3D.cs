@@ -80,7 +80,7 @@ namespace TheraEngine.Worlds.Actors.Types
 
         public Shape CullingVolume => _cullingVolume;
 
-        public IOctreeNode RenderNode
+        public IOctreeNode OctreeNode
         {
             get => _renderNode;
             set => _renderNode = value;

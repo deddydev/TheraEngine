@@ -145,10 +145,10 @@ namespace TheraEngine.Rendering.Cameras
             get => _transformedFrustum.IsRendering;
             set => _transformedFrustum.IsRendering = value;
         }
-        public IOctreeNode RenderNode
+        public IOctreeNode OctreeNode
         {
-            get => _transformedFrustum.RenderNode;
-            set => _transformedFrustum.RenderNode = value;
+            get => _transformedFrustum.OctreeNode;
+            set => _transformedFrustum.OctreeNode = value;
         }
         public CameraComponent OwningComponent
         {
@@ -228,13 +228,13 @@ namespace TheraEngine.Rendering.Cameras
         /// Returns an X, Y coordinate relative to the camera's Origin, with Z being the normalized depth from NearDepth to FarDepth.
         /// </summary>
         public Vec3 WorldToScreen(Vec3 point)
-            => _projectionOrigin + _projectionRange * ((_projectionMatrix * (WorldMatrix * point)) + 1.0f) / 2.0f;
-        public Vec3 ScreenToWorld(Vec2 point, float depth) 
+            => _projectionRange * ((((ProjectionMatrix * InverseWorldMatrix) * point) + 1.0f) / 2.0f);
+        public Vec3 ScreenToWorld(Vec2 point, float depth)
             => ScreenToWorld(point.X, point.Y, depth);
         public Vec3 ScreenToWorld(float x, float y, float depth)
             => ScreenToWorld(new Vec3(x, y, depth));
         public Vec3 ScreenToWorld(Vec3 screenPoint)
-            => InverseWorldMatrix * (_projectionInverse * ((screenPoint - _projectionOrigin) / _projectionRange * 2.0f - 1.0f));
+            => ((screenPoint / _projectionRange) * 2.0f - 1.0f) * (WorldMatrix * InverseProjectionMatrix);
         
         protected virtual void PositionChanged()
         {
@@ -381,8 +381,8 @@ namespace TheraEngine.Rendering.Cameras
         [PostDeserialize]
         protected virtual void CalculateProjection()
         {
-            _projectionRange = new Vec3(Dimensions, FarZ - NearZ);
-            _projectionOrigin = new Vec3(Origin, NearZ);
+            _projectionRange = new Vec3(Dimensions, 1.0f);
+            _projectionOrigin = new Vec3(Origin, 0.0f);
             _untransformedFrustum = CreateUntransformedFrustum();
             UpdateTransformedFrustum();
         }

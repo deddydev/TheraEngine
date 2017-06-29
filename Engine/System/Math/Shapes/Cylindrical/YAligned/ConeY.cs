@@ -16,13 +16,13 @@ namespace System
         
         public float Radius
         {
-            get { return _radius; }
-            set { _radius = value; }
+            get => _radius;
+            set => _radius = value;
         }
         public float Height
         {
-            get { return _height; }
-            set { _height = value; }
+            get => _height;
+            set => _height = value;
         }
         
         public ConeY(Vec3 center, float radius, float height)
@@ -30,10 +30,10 @@ namespace System
             _radius = Abs(radius);
             _height = Abs(height);
         }
+
         public override CollisionShape GetCollisionShape()
-        {
-            return new ConeShape(Radius, Height);
-        }
+            => new ConeShape(Radius, Height);
+        
         public override void Render()
         {
             //Engine.Renderer.RenderCone(this, _renderSolid);

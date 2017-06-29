@@ -35,8 +35,6 @@ namespace System
     [FileClass("Shape", "Shape")]
     public abstract class Shape : FileObject, I3DRenderable
     {
-        public event Action AttributeChanged;
-
         protected bool _isRendering;
         [Serialize("IsVisible", IsXmlAttribute = true)]
         protected bool _isVisible;
@@ -102,7 +100,7 @@ namespace System
         public Shape CullingVolume => this;
 
         [Browsable(false)]
-        public IOctreeNode RenderNode
+        public IOctreeNode OctreeNode
         {
             get { return _renderNode; }
             set { _renderNode = value; }
@@ -155,7 +153,7 @@ namespace System
         /// <param name="worldMatrix"></param>
         public virtual void SetTransform(Matrix4 worldMatrix)
         {
-            RenderNode?.ItemMoved(this);
+            OctreeNode?.ItemMoved(this);
         }
         /// <summary>
         /// Returns a hard copy of this shape, transformed by the given transform.

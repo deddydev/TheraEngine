@@ -80,7 +80,14 @@ namespace TheraEngine.Rendering
 
             AbstractRenderer.CurrentCamera = camera;
             _passes.Render(pass);
+#if DEBUG
+            Engine.World.PhysicsScene.DebugDrawWorld();
+#endif
             AbstractRenderer.CurrentCamera = null;
+        }
+        internal void AddDebugPrimitive(I3DRenderable obj)
+        {
+            _passes.OpaqueForward.PushFront(obj);
         }
         public void Add(I3DRenderable obj)
         {

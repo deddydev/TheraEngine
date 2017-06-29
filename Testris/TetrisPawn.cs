@@ -14,8 +14,13 @@ namespace Testris
 {
     public class TetrisPawn : HudManager, I3DRenderable
     {
-        private int _columns = 10;
-        private int _rows = 20;
+        public const float DEFAULT_SPEED = 3.0f;
+        public const float FAST_SPEED = 14.0f;
+        public const int COLUMNS = 10;
+        public const int ROWS = 20;
+
+        private int _columns = COLUMNS;
+        private int _rows = ROWS;
         private float _secondsPerBlock;
         private int[,] _blockBoard;
         private MaterialHudComponent[,] _hudBoard;
@@ -39,6 +44,9 @@ namespace Testris
 
         private void AddScore(int lines)
         {
+            --lines;
+            if (lines < 0)
+                return;
             _score += _baseScores[lines] * (_level + 1);
         }
 
@@ -51,7 +59,7 @@ namespace Testris
         public bool HasTransparency => false;
         public Shape CullingVolume => null;
 
-        public IOctreeNode RenderNode
+        public IOctreeNode OctreeNode
         {
             get => _renderNode;
             set => _renderNode = value;
@@ -96,7 +104,7 @@ namespace Testris
             _theme.SoundPath = Engine.StartupPath + "..\\..\\..\\ProjectFiles\\" + string.Format("bgm{0}.wav", _rng.Next(1, 5));
             _theme.Play(_ambientParams, int.MaxValue);
 
-            BlocksPerSec = 5.0f;
+            BlocksPerSec = DEFAULT_SPEED;
             SpawnBlock();
             RegisterTick(ETickGroup.PostPhysics, ETickOrder.Scene, SceneUpdate);
         }
@@ -116,12 +124,12 @@ namespace Testris
         
         private void EndSpeedUp()
         {
-            BlocksPerSec = 5.0f;
+            BlocksPerSec = DEFAULT_SPEED;
         }
 
         private void StartSpeedUp()
         {
-            BlocksPerSec = 14.0f;
+            BlocksPerSec = FAST_SPEED;
         }
 
         private void MoveRight()
@@ -259,7 +267,9 @@ namespace Testris
         protected override DockableHudComponent OnConstruct()
         {
             _hudBoard = new MaterialHudComponent[_rows, _columns];
+
             Hud = this;
+
             TextureReference r = new TextureReference(Engine.StartupPath + "..\\..\\..\\ProjectFiles\\test.jpg");
             Material m = Material.GetUnlitTextureMaterial(r, false);
             MaterialHudComponent root = new MaterialHudComponent(m)
@@ -268,11 +278,11 @@ namespace Testris
             };
             DockableHudComponent board = new DockableHudComponent()
             {
-                HeightValue = 1.0f,
-                WidthValue = _columns / _rows,
-                WidthHeightConstraint = WidthHeightConstraint.WidthAsRatioToHeight,
+                HeightValue = _rows * 54,
+                WidthValue = _columns * 54,
+                //WidthHeightConstraint = WidthHeightConstraint.WidthAsRatioToHeight,
                 WidthMode = SizingMode.Pixels,
-                HeightMode = SizingMode.Percentage,
+                HeightMode = SizingMode.Pixels,
                 OriginXPercentage = 0.5f,
                 OriginYPercentage = 0.5f,
                 PosXValue = 0.5f,
@@ -368,6 +378,7 @@ namespace Testris
                 for (int col = 0; col < _columns; ++col)
                 {
                     anyValid = anyValid || (_blockBoard[row + 1, col] >= 0 || _blockBoard[row, col] >= 0);
+
                     _hudBoard[row + 1, col].Parameter<GLVec4>(0).Value = _hudBoard[row, col].Parameter<GLVec4>(0).Value;
                     _blockBoard[row + 1, col] = _blockBoard[row, col];
                 }
@@ -376,7 +387,10 @@ namespace Testris
             }
             if (anyValid)
                 for (int col = 0; col < _columns; ++col)
+                {
                     _blockBoard[0, col] = -1;
+                    _hudBoard[0, col].Parameter<GLVec4>(0).Value = new Vec4(0.0f, 0.0f, 0.0f, 1.0f);
+                }
         }
         private void SpawnBlock()
         {

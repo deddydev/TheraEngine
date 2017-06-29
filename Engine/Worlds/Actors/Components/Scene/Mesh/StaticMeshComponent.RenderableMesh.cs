@@ -24,7 +24,7 @@ namespace TheraEngine.Worlds.Actors
                 if (_cullingVolume != null)
                 {
                     _cullingVolume.SetTransform(_component.WorldMatrix);
-                    RenderNode?.ItemMoved(this);
+                    OctreeNode?.ItemMoved(this);
                 }
             }
 
@@ -91,7 +91,7 @@ namespace TheraEngine.Worlds.Actors
                 get => _mesh;
                 set => _mesh = value;
             }
-            public IOctreeNode RenderNode
+            public IOctreeNode OctreeNode
             {
                 get => _renderNode;
                 set => _renderNode = value;

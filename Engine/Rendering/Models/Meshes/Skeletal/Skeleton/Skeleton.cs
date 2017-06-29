@@ -87,7 +87,7 @@ namespace TheraEngine.Rendering.Models
             get => _rendering;
             set => _rendering = value;
         }
-        public IOctreeNode RenderNode
+        public IOctreeNode OctreeNode
         {
             get => _renderNode;
             set => _renderNode = value;

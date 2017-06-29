@@ -80,6 +80,7 @@ namespace TheraEngine
 
         //internal static List<PhysicsDriver> _queuedCollisions = new List<PhysicsDriver>();
         private static PrivateFontCollection _fontCollection = new PrivateFontCollection();
+        public static int MainThreadID;
 
         internal static AbstractRenderer Renderer
         {

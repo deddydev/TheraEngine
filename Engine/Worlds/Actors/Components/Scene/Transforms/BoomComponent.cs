@@ -20,7 +20,7 @@ namespace TheraEngine.Worlds.Actors
 
         public Shape CullingVolume => _cullingVolume;
 
-        public IOctreeNode RenderNode
+        public IOctreeNode OctreeNode
         {
             get => _renderNode;
             set => _renderNode = value;

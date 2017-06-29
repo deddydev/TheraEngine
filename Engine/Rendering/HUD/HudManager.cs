@@ -6,7 +6,6 @@ using TheraEngine.Worlds.Actors;
 
 namespace TheraEngine.Rendering.HUD
 {
-    //TODO: make base hud component that contains quadtree
     /// <summary>
     /// Each viewport has a hud manager. 
     /// The main form also has a hud manager to overlay over everything if necessary.

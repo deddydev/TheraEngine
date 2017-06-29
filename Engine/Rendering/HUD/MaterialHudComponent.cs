@@ -13,7 +13,7 @@ namespace TheraEngine.Rendering.HUD
     {
         public MaterialHudComponent(Material m)
         {
-            PrimitiveData quad = PrimitiveData.FromQuads(Culling.Back, PrimitiveBufferInfo.JustPositions(), VertexQuad.ZUpQuad(_region.Width, _region.Height, true));
+            PrimitiveData quad = PrimitiveData.FromQuads(Culling.Back, PrimitiveBufferInfo.PosNormTex1(), VertexQuad.ZUpQuad(_region.Width, _region.Height, true));
             _quad = new PrimitiveManager(quad, m);
         }
 

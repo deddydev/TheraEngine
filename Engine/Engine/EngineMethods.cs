@@ -108,6 +108,8 @@ namespace TheraEngine
         /// </summary>
         public static void Initialize()
         {
+            MainThreadID = Thread.CurrentThread.ManagedThreadId;
+
             //Analyze computer and determine if it can run what the game wants.
             _computerInfo = ComputerInfo.Analyze();
             

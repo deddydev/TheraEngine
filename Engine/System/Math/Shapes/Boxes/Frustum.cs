@@ -182,7 +182,7 @@ namespace System
             get => _isRendering;
             set => _isRendering = value;
         }
-        public IOctreeNode RenderNode
+        public IOctreeNode OctreeNode
         {
             get => _renderNode;
             set => _renderNode = value;

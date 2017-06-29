@@ -18,7 +18,7 @@ namespace TheraEngine.Tests
         {
             _settings = new WorldSettings("TestWorld");
             Random r = new Random();
-            BoxActor[] array = new BoxActor[200];
+            BoxActor[] array = new BoxActor[100];
             for (int i = 0; i < array.Length; ++i)
             {
                 PhysicsConstructionInfo sphereInfo = new PhysicsConstructionInfo()
@@ -26,9 +26,9 @@ namespace TheraEngine.Tests
                     Mass = 50.0f,
                     AngularDamping = 0.05f,
                     LinearDamping = 0.005f,
-                    Restitution = 0.8f,
+                    Restitution = 0.5f,
                     Friction = 0.08f,
-                    RollingFriction = 0.01f,
+                    RollingFriction = 0.05f,
                     CollisionEnabled = true,
                     SimulatePhysics = true,
                     Group = CustomCollisionGroup.DynamicWorld,
@@ -62,9 +62,9 @@ namespace TheraEngine.Tests
             BoxActor floorActor = new BoxActor(
                 "Floor",
                 floorInfo,
-                new Vec3(20.0f, 0.5f, 20.0f),
+                new Vec3(50.0f, 0.5f, 50.0f),
                 new Vec3(5.0f, 0.0f, -100.0f),
-                new Rotator(0.0f, 0.0f, 10.0f, Rotator.Order.YPR),
+                new Rotator(0.0f, 0.0f, 0.0f, Rotator.Order.YPR),
                 Material.GetLitColorMaterial(Color.Orange));
 
             //PhysicsConstructionInfo floor2Info = new PhysicsConstructionInfo()

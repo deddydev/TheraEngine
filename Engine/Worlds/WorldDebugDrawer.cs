@@ -16,9 +16,7 @@ namespace TheraEngine.Worlds
             get => _mode;
             set => _mode = value;
         }
-
-       
-
+        
         public override void Draw3dText(ref Vector3 location, string textString)
         {
 

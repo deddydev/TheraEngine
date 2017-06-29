@@ -740,12 +740,12 @@
     <Compile Include="System\Math\Shapes\Cylindrical\YAligned\ConeY.cs" />
     <Compile Include="System\Math\Shapes\Boxes\Box.cs" />
     <Compile Include="System\Math\Shapes\Boxes\Frustum.cs" />
-    <Compile Include="System\Math\Shapes\Lines\Plane.cs" />
-    <Compile Include="System\Math\Shapes\Circle.cs" />
-    <Compile Include="System\Math\Shapes\Lines\Segment.cs" />
-    <Compile Include="System\Math\Shapes\Lines\Ray.cs" />
+    <Compile Include="System\Math\Shapes\Planar\Plane.cs" />
+    <Compile Include="System\Math\Shapes\Planar\Circle.cs" />
+    <Compile Include="System\Math\Shapes\Planar\Segment.cs" />
+    <Compile Include="System\Math\Shapes\Planar\Ray.cs" />
     <Compile Include="System\Math\Shapes\Shape.cs" />
-    <Compile Include="System\Math\Shapes\Sphere.cs" />
+    <Compile Include="System\Math\Shapes\Cylindrical\Sphere.cs" />
     <Compile Include="System\Math\Transforms\Matrix3.cs" />
     <Compile Include="System\Math\Transforms\Matrix4.cs" />
     <Compile Include="System\Math\Transforms\Quaternion.cs" />

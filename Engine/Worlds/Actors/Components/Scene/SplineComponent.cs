@@ -20,7 +20,7 @@ namespace TheraEngine.Worlds.Actors
         private bool _renderTangents = false, _renderKeyframeTangentPoints = true, _renderKeyframePoints = true;
 
         public Shape CullingVolume => null;
-        public IOctreeNode RenderNode
+        public IOctreeNode OctreeNode
         {
             get => _renderNode;
             set => _renderNode = value;

@@ -76,6 +76,10 @@
     <Prefer32Bit>true</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="BulletSharp, Version=2.83.7.1, Culture=neutral, processorArchitecture=AMD64">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Libraries\x64\BulletSharp.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.Build" />
     <Reference Include="System" />
     <Reference Include="System.Core" />

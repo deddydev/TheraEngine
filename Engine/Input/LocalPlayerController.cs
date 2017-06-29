@@ -103,7 +103,7 @@ namespace TheraEngine.Input
                     _input.TryUnregisterInput();
 
                     _input.WantsInputsRegistered -= _controlledPawn.RegisterInput;
-                    if (_controlledPawn.Hud != null)
+                    if (_controlledPawn.Hud != null && _controlledPawn != _controlledPawn.Hud)
                         _input.WantsInputsRegistered -= _controlledPawn.Hud.RegisterInput;
                 }
 
@@ -118,7 +118,7 @@ namespace TheraEngine.Input
                         UpdateViewport();
 
                     _input.WantsInputsRegistered += _controlledPawn.RegisterInput;
-                    if (_controlledPawn.Hud != null)
+                    if (_controlledPawn.Hud != null && _controlledPawn != _controlledPawn.Hud)
                         _input.WantsInputsRegistered += _controlledPawn.Hud.RegisterInput;
 
                     _controlledPawn.OnPossessed(this);

@@ -23,8 +23,8 @@ namespace TheraEngine.Worlds
         bool IsConstructing { get; }
         World OwningWorld { get; }
         bool IsSpawned { get; }
-        void OnSpawned(World world);
-        void OnDespawned();
+        void Spawned(World world);
+        void Despawned();
         void GenerateSceneComponentCache();
         SceneComponent RootComponent { get; }
         void RebaseOrigin(Vec3 newOrigin);
@@ -157,7 +157,8 @@ namespace TheraEngine.Worlds
             if (IsSpawned && OwningWorld != null)
                 OwningWorld.DespawnActor(this);
         }
-        public virtual void OnSpawned(World world)
+
+        public void Spawned(World world)
         {
             if (IsSpawned)
                 return;
@@ -166,14 +167,20 @@ namespace TheraEngine.Worlds
             _spawnIndex = world.ActorCount - 1;
             _owningWorld = world;
 
+            OnSpawnedPreComponentSetup(world);
+
             _rootSceneComponent.OnSpawned();
             foreach (LogicComponent comp in _logicComponents)
                 comp.OnSpawned();
+
+            OnSpawnedPostComponentSetup(world);
         }
-        public virtual void OnDespawned()
+        public void Despawned()
         {
             if (!IsSpawned)
                 return;
+
+            OnDespawned();
 
             foreach (LogicComponent comp in _logicComponents)
                 comp.OnDespawned();
@@ -182,6 +189,11 @@ namespace TheraEngine.Worlds
             _spawnIndex = -1;
             _owningWorld = null;
         }
+
+        public virtual void OnSpawnedPreComponentSetup(World world) { }
+        public virtual void OnSpawnedPostComponentSetup(World world) { }
+        public virtual void OnDespawned() { }
+
         private void _logicComponents_InsertedRange(IEnumerable<LogicComponent> items, int index)
         {
             foreach (LogicComponent item in items)

@@ -12,6 +12,7 @@ using System.Windows.Forms;
 using TheraEditor.Editors;
 using System.Security;
 using System.Runtime.InteropServices;
+using TheraEngine.Worlds.Actors.Types;
 
 namespace TheraEditor
 {
@@ -107,11 +108,13 @@ namespace TheraEditor
 
             FlyingCameraPawn editorCamera = new FlyingCameraPawn(PlayerIndex.One)
             {
-                Hud = new EditorHud(renderPanel1.ClientSize)
+                Hud = new EditorHud(renderPanel1.ClientSize, this)
             };
+
             Engine.World.SpawnActor(editorCamera);
             //Engine.ActivePlayers[0].ControlledPawn = editorCamera;
         }
+        
         protected override void OnClosing(CancelEventArgs e)
         {
             Engine.UnregisterRenderTick(RenderTick);

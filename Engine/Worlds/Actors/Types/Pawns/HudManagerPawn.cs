@@ -20,26 +20,17 @@ namespace TheraEngine.Rendering.HUD
         {
             input.RegisterMouseScroll(OnScrolledInput, InputPauseType.TickOnlyWhenPaused);
             input.RegisterMouseMove(OnMouseMove, false, InputPauseType.TickOnlyWhenPaused);
-            input.RegisterButtonEvent(EMouseButton.LeftClick, ButtonInputType.Pressed, OnLeftClickSelect, InputPauseType.TickOnlyWhenPaused);
+            //input.RegisterButtonEvent(EMouseButton.LeftClick, ButtonInputType.Pressed, OnLeftClickSelect, InputPauseType.TickOnlyWhenPaused);
 
             input.RegisterAxisUpdate(GamePadAxis.LeftThumbstickX, OnLeftStickX, false, InputPauseType.TickOnlyWhenPaused);
             input.RegisterAxisUpdate(GamePadAxis.LeftThumbstickY, OnLeftStickY, false, InputPauseType.TickOnlyWhenPaused);
             input.RegisterButtonEvent(GamePadButton.DPadUp, ButtonInputType.Pressed, OnDPadUp, InputPauseType.TickOnlyWhenPaused);
-            input.RegisterButtonEvent(GamePadButton.FaceDown, ButtonInputType.Pressed, OnGamepadSelect, InputPauseType.TickOnlyWhenPaused);
+            //input.RegisterButtonEvent(GamePadButton.FaceDown, ButtonInputType.Pressed, OnGamepadSelect, InputPauseType.TickOnlyWhenPaused);
             input.RegisterButtonEvent(GamePadButton.FaceRight, ButtonInputType.Pressed, OnBackInput, InputPauseType.TickOnlyWhenPaused);
         }
 
         protected virtual void OnLeftStickX(float value) { }
         protected virtual void OnLeftStickY(float value) { }
-        
-        protected virtual void OnGamepadSelect()
-        {
-
-        }
-        protected virtual void OnLeftClickSelect()
-        {
-
-        }
 
         /// <summary>
         /// Called on either left click or A button.

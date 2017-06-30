@@ -202,10 +202,14 @@ namespace TheraEngine.Rendering
                 Engine.Renderer.AllowDepthWrite(true);
 
                 //Cull scene and retrieve renderables for each buffer
-                scene.Cull(Camera);
+                scene.PreRender(Camera);
 
                 //Render opaque deferred items first
-                scene.Render(Camera, RenderPass.OpaqueDeferred);
+                scene.Render(RenderPass.OpaqueDeferred);
+
+#if DEBUG
+                Engine.World.PhysicsScene.DebugDrawWorld();
+#endif
 
                 //We want to render to back buffer now
                 _gBuffer.Unbind(EFramebufferTarget.Framebuffer);
@@ -229,11 +233,13 @@ namespace TheraEngine.Rendering
                 //Render other passes
                 if (scene.RenderPasses.OpaqueForward.Count > 0 || scene.RenderPasses.TransparentForward.Count > 0)
                 {
-                    scene.Render(Camera, RenderPass.OpaqueForward);
+                    scene.Render(RenderPass.OpaqueForward);
                     Engine.Renderer.AllowDepthWrite(false);
-                    scene.Render(Camera, RenderPass.TransparentForward);
+                    scene.Render(RenderPass.TransparentForward);
                     Engine.Renderer.AllowDepthWrite(true);
                 }
+
+                scene.PostRender();
             }
 
             //Render HUD on top: GBuffer is simply for the world scene so HUD is not included.
@@ -261,11 +267,11 @@ namespace TheraEngine.Rendering
                 Engine.Renderer.AllowDepthWrite(true);
 
                 //Cull scene and retrieve renderables for each buffer
-                scene.Cull(Camera);
+                scene.PreRender(Camera);
 
-                scene.Render(Camera, RenderPass.OpaqueForward);
+                scene.Render(RenderPass.OpaqueForward);
                 Engine.Renderer.AllowDepthWrite(false);
-                scene.Render(Camera, RenderPass.TransparentForward);
+                scene.Render(RenderPass.TransparentForward);
                 Engine.Renderer.AllowDepthWrite(true);
 
                 //We want to render to back buffer now
@@ -273,6 +279,8 @@ namespace TheraEngine.Rendering
 
                 //Render quad
                 _gBuffer.Render();
+
+                scene.PostRender();
             }
 
             //Render HUD on top: GBuffer is simply for the world scene so HUD is not included.
@@ -314,7 +322,8 @@ namespace TheraEngine.Rendering
             bool testHud,
             bool testWorld,
             out Vec3 hitNormal,
-            out Vec3 hitPoint)
+            out Vec3 hitPoint,
+            out float distance)
         {
             if (testHud)
             {
@@ -323,6 +332,7 @@ namespace TheraEngine.Rendering
                 {
                     hitNormal = Vec3.Backward;
                     hitPoint = new Vec3(viewportPoint, 0.0f);
+                    distance = 0.0f;
                     return hudComp;
                 }
             }
@@ -335,6 +345,7 @@ namespace TheraEngine.Rendering
                 {
                     hitNormal = c.HitNormalWorld;
                     hitPoint = c.HitPointWorld;
+                    distance = hitPoint.DistanceToFast(cursor.StartPoint);
                     CollisionObject coll = c.CollisionObject;
                     PhysicsDriver d = coll.UserObject as PhysicsDriver;
                     return d.Owner as SceneComponent;
@@ -348,6 +359,7 @@ namespace TheraEngine.Rendering
             }
             hitNormal = Vec3.Zero;
             hitPoint = Vec3.Zero;
+            distance = 0.0f;
             return null;
         }
         /// <summary>

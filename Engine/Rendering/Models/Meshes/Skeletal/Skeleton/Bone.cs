@@ -8,6 +8,7 @@ using System.Runtime.InteropServices;
 using System.IO;
 using System.ComponentModel;
 using System.Threading;
+using TheraEngine.Rendering.Cameras;
 
 namespace TheraEngine.Rendering.Models
 {
@@ -100,26 +101,31 @@ namespace TheraEngine.Rendering.Models
         internal void CollectChildBones(Skeleton owner)
         {
             _skeleton = owner;
-            _skeleton.BoneNameCache.Add(Name, this);
-            _skeleton.BoneIndexCache.Add(_index = _skeleton.BoneIndexCache.Count, this);
+
+            Skeleton.BoneNameCache.Add(Name, this);
+            Skeleton.BoneIndexCache.Add(_index = _skeleton.BoneIndexCache.Count, this);
+
+            if (_billboardType != BillboardType.None || ScaleByDistance)
+                Skeleton.AddBillboardBone(this);
+
             if (_physicsDriver != null)
-                _skeleton.PhysicsDrivableBones.Add(this);
+                Skeleton.AddPhysicsBone(this);
+
             foreach (Bone b in ChildBones)
                 b.CollectChildBones(owner);
         }
-
-        public void LinkSingleBindMesh(SkeletalRigidSubMesh m)
-            => _singleBoundMeshes.Add(m);
-        public void UnlinkSingleBindMesh(SkeletalRigidSubMesh m) 
-            => _singleBoundMeshes.Remove(m);
+        
+        public void LinkSingleBindMesh(SkeletalRigidSubMesh m) => _singleBoundMeshes.Add(m);
+        public void UnlinkSingleBindMesh(SkeletalRigidSubMesh m) => _singleBoundMeshes.Remove(m);
 
         [Serialize("BillboardType", IsXmlAttribute = true)]
         private BillboardType _billboardType = BillboardType.None;
         [Serialize("ScaleByDistance", IsXmlAttribute = true)]
         private bool _scaleByDistance = false;
 
+        private float _screenSize = 1.0f;
         internal int _index;
-        internal Dictionary<int, ThreadSafeList<int>> _influencedVertices = new Dictionary<int, ThreadSafeList<int>>();
+        internal Dictionary<ulong, ThreadSafeList<int>> _influencedVertices = new Dictionary<ulong, ThreadSafeList<int>>();
         internal List<CPUSkinInfo.LiveInfluence> _influencedInfluences = new List<CPUSkinInfo.LiveInfluence>();
         internal List<SkeletalRigidSubMesh> _singleBoundMeshes = new List<SkeletalRigidSubMesh>();
         internal List<IPrimitiveManager> _linkedPrimitiveManagers = new List<IPrimitiveManager>();
@@ -176,7 +182,10 @@ namespace TheraEngine.Rendering.Models
         public Matrix4 InverseBindMatrix => _inverseBindMatrix;
         public Matrix4 VertexMatrix => _vertexMatrix;
         public Matrix4 NormalMatrix => _normalMatrix;
+
+        //Set when regenerating the child cache, which is done any time the bone heirarchy is modified
         public Skeleton Skeleton => _skeleton;
+
         public PhysicsDriver PhysicsDriver => _physicsDriver;
 
         public Matrix4 WorldToLocalMatrix(Matrix4 worldMatrix)
@@ -191,7 +200,14 @@ namespace TheraEngine.Rendering.Models
             {
                 if (_billboardType == value)
                     return;
+
+                if (_billboardType != BillboardType.None || ScaleByDistance)
+                    Skeleton?.RemoveBillboardBone(this);
+
                 _billboardType = value;
+
+                if (_billboardType != BillboardType.None || ScaleByDistance)
+                    Skeleton?.AddBillboardBone(this);
             }
         }
         public bool ScaleByDistance
@@ -201,67 +217,131 @@ namespace TheraEngine.Rendering.Models
             {
                 if (_scaleByDistance == value)
                     return;
+
+                if (_billboardType != BillboardType.None || ScaleByDistance)
+                    Skeleton?.RemoveBillboardBone(this);
+
                 _scaleByDistance = value;
+
+                if (_billboardType != BillboardType.None || ScaleByDistance)
+                    Skeleton?.AddBillboardBone(this);
             }
+        }
+        public float DistanceScaleScreenSize
+        {
+            get => _screenSize;
+            set => _screenSize = value;
         }
 
         //public List<PrimitiveManager> PrimitiveManagers => _linkedPrimitiveManagers;
 
         public void AddPrimitiveManager(IPrimitiveManager m)
         {
-            _linkedPrimitiveManagers.Add(m);
-            _influencedVertices.Add(m.BindingId, new ThreadSafeList<int>());
+            if (!_linkedPrimitiveManagers.Contains(m))
+                _linkedPrimitiveManagers.Add(m);
+            if (!_influencedVertices.ContainsKey(m.UniqueID))
+                _influencedVertices.Add(m.UniqueID, new ThreadSafeList<int>());
         }
         public void RemovePrimitiveManager(IPrimitiveManager m)
         {
-            _linkedPrimitiveManagers.Remove(m);
-            _influencedVertices.Remove(m.BindingId);
+            if (_linkedPrimitiveManagers.Contains(m))
+                _linkedPrimitiveManagers.Remove(m);
+            if (_influencedVertices.ContainsKey(m.UniqueID))
+                _influencedVertices.Remove(m.UniqueID);
         }
 
-        public void CalcFrameMatrix()
+        //internal void CalculateBillboard()
+        //{
+        //    Camera c = AbstractRenderer.CurrentCamera;
+        //    Matrix4 mtx = FrameMatrix, inv = InverseFrameMatrix;
+        //    if (BillboardType != BillboardType.None)
+        //    {
+
+        //    }
+        //    if (ScaleByDistance)
+        //    {
+        //        float scale = c.DistanceScale(WorldMatrix.GetPoint(), _screenSize);
+        //        mtx = Matrix4.CreateScale(scale) * mtx;
+        //        inv = inv * Matrix4.CreateScale(1.0f / scale);
+        //    }
+
+        //    //SetFrameMatrix(mtx, inv);
+
+        //    //switch (BillboardType)
+        //    //{
+        //    //    case BillboardType.PerspectiveXY:
+        //    //        break;
+        //    //}
+        //}
+
+        public void CalcFrameMatrix(bool force = false)
         {
-            CalcFrameMatrix(
+            if (force || Skeleton.BillboardBoneCount == 0)
+                CalcFrameMatrix(
                 _parent != null ? _parent._frameMatrix : Matrix4.Identity,
-                _parent != null ? _parent._inverseFrameMatrix : Matrix4.Identity);
+                _parent != null ? _parent._inverseFrameMatrix : Matrix4.Identity, true);
         }
-        public void CalcFrameMatrix(Matrix4 parentMatrix, Matrix4 inverseParentMatrix)
+        public void CalcFrameMatrix(Matrix4 parentMatrix, Matrix4 inverseParentMatrix, bool force = false)
         {
-            _frameMatrix = parentMatrix * _frameState.Matrix;
-            _inverseFrameMatrix = _frameState.InverseMatrix * inverseParentMatrix;
-
-            _vertexMatrix = FrameMatrix * InverseBindMatrix;
-            _normalMatrix = BindMatrix * InverseFrameMatrix;
-            _normalMatrix.Transpose();
-            _normalMatrix.OnlyRotationMatrix();
-
-            //Process skinning information dealing with this bone
-            if (Engine.Settings.SkinOnGPU)
-                foreach (IPrimitiveManager m in _linkedPrimitiveManagers)
-                {
-                    //while (m._processingSkinning)
-                    //    Thread.Sleep(1);
-
-                    m.ModifiedBoneIndices.Add(_index);
-                }
-            else
+            if (force || Skeleton == null || Skeleton.BillboardBoneCount == 0)
             {
-                for (int i = 0; i < _linkedPrimitiveManagers.Count; ++i)
+                if (force && (BillboardType != BillboardType.None || ScaleByDistance))
                 {
-                    IPrimitiveManager m = _linkedPrimitiveManagers[i];
-                    ThreadSafeList<int> influenced = _influencedVertices[m.BindingId];
-
-                    //while (m._processingSkinning)
-                    //    Thread.Sleep(1);
-
-                    m.ModifiedVertexIndices.UnionWith(influenced);
+                    Camera c = AbstractRenderer.CurrentCamera;
+                    if (BillboardType != BillboardType.None)
+                    {
+                        Matrix4 invView = c.WorldMatrix.GetRotationMatrix4();
+                        Matrix4 view = c.InverseWorldMatrix.GetRotationMatrix4();
+                        _frameMatrix = parentMatrix * _frameState.Translation.AsTranslationMatrix() * invView * _frameState.Scale.AsScaleMatrix();
+                        _inverseFrameMatrix = (1.0f / _frameState.Scale).AsScaleMatrix() * view * (1.0f / _frameState.Translation).AsTranslationMatrix() * inverseParentMatrix;
+                    }
+                    else
+                    {
+                        _frameMatrix = parentMatrix * _frameState.Matrix;
+                        _inverseFrameMatrix = _frameState.InverseMatrix * inverseParentMatrix;
+                    }
+                    if (ScaleByDistance)
+                    {
+                        float scale = c.DistanceScale(WorldMatrix.GetPoint(), _screenSize);
+                        _frameMatrix = _frameMatrix * Matrix4.CreateScale(scale);
+                        _inverseFrameMatrix = Matrix4.CreateScale(1.0f / scale) * _inverseFrameMatrix;
+                    }
                 }
-                _influencedInfluences.ForEach(x => x._hasChanged = true);
-            }
+                else
+                {
+                    _frameMatrix = parentMatrix * _frameState.Matrix;
+                    _inverseFrameMatrix = _frameState.InverseMatrix * inverseParentMatrix;
+                }
+                
+                _vertexMatrix = FrameMatrix * InverseBindMatrix;
+                _normalMatrix = BindMatrix * InverseFrameMatrix;
+                _normalMatrix.Transpose();
+                _normalMatrix.OnlyRotationMatrix();
 
-            foreach (Bone b in _childBones)
-                b.CalcFrameMatrix(_frameMatrix, _inverseFrameMatrix);
-            foreach (SceneComponent comp in _childComponents)
-                comp.RecalcGlobalTransform();
+                //Process skinning information dealing with this bone
+                if (Engine.Settings.SkinOnGPU)
+                    foreach (IPrimitiveManager m in _linkedPrimitiveManagers)
+                    {
+                        m.ModifiedBoneIndices.Add(_index);
+                    }
+                else
+                {
+                    for (int i = 0; i < _linkedPrimitiveManagers.Count; ++i)
+                    {
+                        IPrimitiveManager m = _linkedPrimitiveManagers[i];
+                        ThreadSafeList<int> influenced = _influencedVertices[m.UniqueID];
+                        
+                        m.ModifiedVertexIndices.UnionWith(influenced);
+                    }
+                    _influencedInfluences.ForEach(x => x._hasChanged = true);
+                }
+
+                foreach (Bone b in _childBones)
+                    b.CalcFrameMatrix(_frameMatrix, _inverseFrameMatrix);
+
+                foreach (SceneComponent comp in _childComponents)
+                    comp.RecalcGlobalTransform();
+            }
         }
 
         public void CalcBindMatrix(bool updateMesh)

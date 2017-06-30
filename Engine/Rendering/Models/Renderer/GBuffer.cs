@@ -192,9 +192,9 @@ namespace TheraEngine.Rendering
 
         public void Render()
         {
-            AbstractRenderer.CurrentCamera = _quadCamera;
+            AbstractRenderer.PushCurrentCamera(_quadCamera);
             _fullScreenTriangle.Render(Matrix4.Identity, Matrix3.Identity);
-            AbstractRenderer.CurrentCamera = null;
+            AbstractRenderer.PopCurrentCamera();
         }
         public enum DepthStencilUse
         {

@@ -100,6 +100,7 @@ namespace TheraEngine
         /// </summary>
         public static void SetGame(Game game)
         {
+            MainThreadID = Thread.CurrentThread.ManagedThreadId;
             _game = game;
         }
         /// <summary>
@@ -108,8 +109,6 @@ namespace TheraEngine
         /// </summary>
         public static void Initialize()
         {
-            MainThreadID = Thread.CurrentThread.ManagedThreadId;
-
             //Analyze computer and determine if it can run what the game wants.
             _computerInfo = ComputerInfo.Analyze();
             
@@ -294,8 +293,13 @@ namespace TheraEngine
         {
             float delta = (float)(e.Time * TimeDilation);
             TickGroup(ETickGroup.PrePhysics, delta);
-            if (!_isPaused && World != null)
-                World.StepSimulation(delta);
+            using (Task task = new Task(() => TickGroup(ETickGroup.DuringPhysics, delta)))
+            {
+                task.Start();
+                if (!_isPaused && World != null)
+                    World.StepSimulation(delta);
+                task.Wait();
+            }
             TickGroup(ETickGroup.PostPhysics, delta);
         }
         private static void TickGroup(ETickGroup group, float delta)

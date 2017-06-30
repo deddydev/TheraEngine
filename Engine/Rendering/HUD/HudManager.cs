@@ -62,12 +62,12 @@ namespace TheraEngine.Rendering.HUD
         {
             if (!Visible)
                 return;
-            AbstractRenderer.CurrentCamera = _camera;
+            AbstractRenderer.PushCurrentCamera(_camera);
             _childComponentTree.DebugRender();
             foreach (I2DRenderable comp in _renderables)
                 //if (comp.IsRendering)
                     comp.Render();
-            AbstractRenderer.CurrentCamera = null;
+            AbstractRenderer.PopCurrentCamera();
         }
         protected void OnChildAdded(HudComponent child)
         {

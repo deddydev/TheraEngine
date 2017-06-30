@@ -7,6 +7,10 @@ using System.Drawing;
 
 namespace TheraEngine.Rendering
 {
+    public interface IPreRenderNeeded
+    {
+        void PreRender();
+    }
     public enum RenderPass
     {
         OpaqueDeferred,
@@ -50,11 +54,13 @@ namespace TheraEngine.Rendering
     /// </summary>
     public class SceneProcessor
     {
+        private static List<Material> _activeMaterials = new List<Material>();
+        private static Queue<int> _removedIds = new Queue<int>();
+
         private RenderPasses _passes;
         private Octree _renderTree;
         private LightManager _lightManager;
-        private static List<Material> _activeMaterials = new List<Material>();
-        private static Queue<int> _removedIds = new Queue<int>();
+        private List<IPreRenderNeeded> _preRenderList = new List<IPreRenderNeeded>();
 
         public Octree RenderTree => _renderTree;
         public LightManager Lights => _lightManager;
@@ -67,23 +73,23 @@ namespace TheraEngine.Rendering
         /// <param name="resetVisibility">If true, changes all visible objects back to invisible before testing for visibility again.</param>
         /// <param name="cullOffscreen">If true, will set all offscreen items to invisible.</param>
         /// <param name="renderOctree">If true, will render the subdivisions of the octree.</param>
-        public void Cull(Camera camera, bool resetVisibility = true, bool cullOffscreen = true, bool renderOctree = false)
+        internal void PreRender(Camera camera, bool resetVisibility = true, bool cullOffscreen = true, bool renderOctree = false)
         {
-            AbstractRenderer.CurrentCamera = camera;
+            AbstractRenderer.PushCurrentCamera(camera);
             _renderTree.Cull(camera.GetFrustum(), resetVisibility, cullOffscreen, Engine.Settings.RenderOctree);
-            AbstractRenderer.CurrentCamera = null;
+            foreach (IPreRenderNeeded p in _preRenderList)
+                p.PreRender();
         }
-        public void Render(Camera camera, RenderPass pass)
+        internal void Render(RenderPass pass)
         {
-            if (_renderTree == null || camera == null)
+            if (_renderTree == null)
                 return;
-
-            AbstractRenderer.CurrentCamera = camera;
+            
             _passes.Render(pass);
-#if DEBUG
-            Engine.World.PhysicsScene.DebugDrawWorld();
-#endif
-            AbstractRenderer.CurrentCamera = null;
+        }
+        internal void PostRender()
+        {
+            AbstractRenderer.PopCurrentCamera();
         }
         internal void AddDebugPrimitive(I3DRenderable obj)
         {
@@ -140,6 +146,17 @@ namespace TheraEngine.Rendering
         {
             _removedIds.Enqueue(material.BindingId);
             _activeMaterials.RemoveAt(material.BindingId);
+        }
+
+        public void AddPreRenderedObject(IPreRenderNeeded obj)
+        {
+            if (!_preRenderList.Contains(obj))
+                _preRenderList.Add(obj);
+        }
+        public void RemovePreRenderedObject(IPreRenderNeeded obj)
+        {
+            if (_preRenderList.Contains(obj))
+                _preRenderList.Remove(obj);
         }
     }
 }

@@ -9,7 +9,6 @@ namespace TheraEditor.Editors
         {
             InitializeComponent();
             renderPanel1.GlobalHud = new MaterialEditorHud(renderPanel1.ClientSize);
-            renderPanel1.BackColor = Color.Black;
         }
     }
 }

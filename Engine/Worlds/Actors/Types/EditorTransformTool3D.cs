@@ -17,34 +17,65 @@ namespace TheraEngine.Worlds.Actors.Types
         Rotate,
         Translate
     }
-    public class EditorTransformTool3D : Actor<SkeletalMeshComponent>, I3DRenderable
+    public class EditorTransformTool3D : Actor<SkeletalMeshComponent>
     {
-        public EditorTransformTool3D(SceneComponent modified)
+        public EditorTransformTool3D(ISocket modified)
         {
-            _modified = modified;
+            ModifiedComponent = modified;
         }
         protected override SkeletalMeshComponent OnConstruct()
         {
-            Bone root = new Bone("Root")
+            string rootBoneName = "Root";
+            string screenBoneName = "Screen";
+
+            Bone root = new Bone(rootBoneName)
             {
-                ScaleByDistance = true
+                ScaleByDistance = true,
+                DistanceScaleScreenSize = 4.0f,
             };
-            Bone screen = new Bone("Screen")
+            Bone screen = new Bone(screenBoneName)
             {
                 BillboardType = BillboardType.PerspectiveXY
             };
+
             root.ChildBones.Add(screen);
             Skeleton skel = new Skeleton(root);
             SkeletalMesh mesh = new SkeletalMesh("TransformTool");
-            mesh.RigidChildren.Add(new SkeletalRigidSubMesh(Segment.Mesh(Vec3.Zero, Vec3.UnitX), Material.GetUnlitColorMaterial(Color.Red), "XAxis"));
-            mesh.RigidChildren.Add(new SkeletalRigidSubMesh(Segment.Mesh(Vec3.Zero, Vec3.UnitY), Material.GetUnlitColorMaterial(Color.Green), "YAxis"));
-            mesh.RigidChildren.Add(new SkeletalRigidSubMesh(Segment.Mesh(Vec3.Zero, Vec3.UnitZ), Material.GetUnlitColorMaterial(Color.Blue), "ZAxis"));
-            mesh.RigidChildren.Add(new SkeletalRigidSubMesh(Circle3D.WireframeMesh(1.0f, Vec3.UnitX, Vec3.Zero, 30), Material.GetUnlitColorMaterial(Color.Red), "XRotation"));
-            mesh.RigidChildren.Add(new SkeletalRigidSubMesh(Circle3D.WireframeMesh(1.0f, Vec3.UnitY, Vec3.Zero, 30), Material.GetUnlitColorMaterial(Color.Green), "YRotation"));
-            mesh.RigidChildren.Add(new SkeletalRigidSubMesh(Circle3D.WireframeMesh(1.0f, Vec3.UnitZ, Vec3.Zero, 30), Material.GetUnlitColorMaterial(Color.Blue), "ZRotation"));
-            mesh.RigidChildren.Add(new SkeletalRigidSubMesh(Circle3D.WireframeMesh(1.0f, Vec3.UnitZ, Vec3.Zero, 30), Material.GetUnlitColorMaterial(Color.Gray), "ScreenRotation"));
-            mesh.RigidChildren.Add(new SkeletalRigidSubMesh(Circle3D.WireframeMesh(1.0f, Vec3.UnitZ, Vec3.Zero, 30), Material.GetUnlitColorMaterial(Color.Gray), "ScreenTranslation"));
-            SkeletalMeshComponent meshComp = new SkeletalMeshComponent(mesh, null);
+
+            PrimitiveData d1 = Segment.Mesh(Vec3.Zero, Vec3.UnitX);
+            d1.SingleBindBone = rootBoneName;
+            PrimitiveData d2 = Segment.Mesh(Vec3.Zero, Vec3.UnitY);
+            d2.SingleBindBone = rootBoneName;
+            PrimitiveData d3 = Segment.Mesh(Vec3.Zero, Vec3.UnitZ);
+            d3.SingleBindBone = rootBoneName;
+            PrimitiveData d4 = Circle3D.WireframeMesh(1.0f, Vec3.UnitZ, Vec3.Zero, 30);
+            d4.SingleBindBone = screenBoneName;
+
+            Material m1 = Material.GetUnlitColorMaterial(Color.Red);
+            m1.EnableDepthTest = false;
+            m1.EnableDepthUpdate = false;
+
+            Material m2 = Material.GetUnlitColorMaterial(Color.Green);
+            m2.EnableDepthTest = false;
+            m2.EnableDepthUpdate = false;
+
+            Material m3 = Material.GetUnlitColorMaterial(Color.Blue);
+            m3.EnableDepthTest = false;
+            m3.EnableDepthUpdate = false;
+
+            Material m4 = Material.GetUnlitColorMaterial(Color.LightGray);
+            m4.EnableDepthTest = false;
+            m4.EnableDepthUpdate = false;
+
+            mesh.RigidChildren.Add(new SkeletalRigidSubMesh(d1, m1, "XAxis"));
+            mesh.RigidChildren.Add(new SkeletalRigidSubMesh(d2, m2, "YAxis"));
+            mesh.RigidChildren.Add(new SkeletalRigidSubMesh(d3, m3, "ZAxis"));
+            //mesh.RigidChildren.Add(new SkeletalRigidSubMesh(Circle3D.WireframeMesh(1.0f, Vec3.UnitX, Vec3.Zero, 30), Material.GetUnlitColorMaterial(Color.Red), "XRotation"));
+            //mesh.RigidChildren.Add(new SkeletalRigidSubMesh(Circle3D.WireframeMesh(1.0f, Vec3.UnitY, Vec3.Zero, 30), Material.GetUnlitColorMaterial(Color.Green), "YRotation"));
+            //mesh.RigidChildren.Add(new SkeletalRigidSubMesh(Circle3D.WireframeMesh(1.0f, Vec3.UnitZ, Vec3.Zero, 30), Material.GetUnlitColorMaterial(Color.Blue), "ZRotation"));
+            mesh.RigidChildren.Add(new SkeletalRigidSubMesh(d4, m4, "ScreenRotation"));
+            //mesh.RigidChildren.Add(new SkeletalRigidSubMesh(Circle3D.WireframeMesh(1.0f, Vec3.UnitZ, Vec3.Zero, 30), Material.GetUnlitColorMaterial(Color.Gray), "ScreenTranslation"));
+            SkeletalMeshComponent meshComp = new SkeletalMeshComponent(mesh, skel);
             meshComp.WorldTransformChanged += _transform_WorldTransformChanged;
             return meshComp;
         }
@@ -57,56 +88,55 @@ namespace TheraEngine.Worlds.Actors.Types
         private bool _transformChanged = false;
         private TransformType _mode = TransformType.Translate;
         private ISocket _modified = null;
-        private TRSComponent _transform;
 
         public TransformType Mode
         {
-            get { return _mode; }
-            set { _mode = value; }
+            get => _mode;
+            set => _mode = value; 
         }
         public ISocket ModifiedComponent
         {
-            get { return _modified; }
+            get => _modified;
             set
             {
                 _modified = value;
-
+                if (_modified != null)
+                    RootComponent.WorldMatrix = _modified.WorldMatrix;
+                else
+                    RootComponent.WorldMatrix = Matrix4.Identity;
             }
         }
-
-        private Shape _cullingVolume;
-        private IOctreeNode _renderNode;
-        private bool _isRendering;
-
-        public Shape CullingVolume => _cullingVolume;
-
-        public IOctreeNode OctreeNode
-        {
-            get => _renderNode;
-            set => _renderNode = value;
-        }
-        public bool IsRendering
-        {
-            get => _isRendering;
-            set => _isRendering = value;
-        }
-
+        
         public bool HasTransparency => false;
 
-        public override void OnSpawned(World world)
+        public static EditorTransformTool3D Instance => _currentInstance;
+
+        public static void DestroyInstance()
         {
-            base.OnSpawned(world);
-            CurrentInstance = this;
+            _currentInstance?.Despawn();
+            _currentInstance = null;
+        }
+        public static EditorTransformTool3D GetCurrentInstance(ISocket comp)
+        {
+            if (_currentInstance == null)
+                Engine.World.SpawnActor(new EditorTransformTool3D(comp));
+            else
+                _currentInstance.ModifiedComponent = comp;
+            return _currentInstance;
+        }
+        
+        public override void OnSpawnedPreComponentSetup(World world)
+        {
+            _currentInstance = this;
         }
 
         public override void OnDespawned()
         {
             base.OnDespawned();
-            CurrentInstance = null;
+            _currentInstance = null;
         }
 
-        public static EditorTransformTool3D CurrentInstance;
-
+        private static EditorTransformTool3D _currentInstance;
         private bool _hiX, _hiY, _hiZ, _hiCirc, _hiSphere;
         private const float _orbRadius = 1.0f;
         private const float _circRadius = 1.2f;
@@ -132,18 +162,21 @@ namespace TheraEngine.Worlds.Actors.Types
         public bool Highlight(Ray cursor, Camera camera, bool pressed)
         {
             bool clamp = true, snapFound = false;
-            Ray localRay = cursor.TransformedBy(_transform.InverseWorldMatrix);
-            float radius = camera.DistanceScale(_transform.Translation, 1.0f);
+
+            Vec3 worldPoint = _modified.WorldMatrix.GetPoint();
+
+            Ray localRay = cursor.TransformedBy(_modified.InverseWorldMatrix);
+            float radius = camera.DistanceScale(worldPoint, 1.0f);
             if (_mode == TransformType.Rotate)
             {
                 if (!localRay.LineSphereIntersect(Vec3.Zero, radius, out Vec3 point))
                 {
                     //If no intersect is found, project the ray through the plane perpendicular to the camera.
-                    localRay.LinePlaneIntersect(Vec3.Zero, camera.WorldPoint.Normalized(_transform.Translation), out point);
+                    localRay.LinePlaneIntersect(Vec3.Zero, camera.WorldPoint.Normalized(worldPoint), out point);
 
                     //Clamp the point to edge of the sphere
                     if (clamp)
-                        point = Ray.PointAtLineDistance(_transform.Translation, point, radius);
+                        point = Ray.PointAtLineDistance(worldPoint, point, radius);
                 }
 
                 float distance = point.LengthFast;
@@ -276,22 +309,6 @@ namespace TheraEngine.Worlds.Actors.Types
             }
 
             return false;
-        }
-
-        public void Render()
-        {
-            switch (_mode)
-            {
-                case TransformType.Translate:
-
-                    break;
-                case TransformType.Rotate:
-
-                    break;
-                case TransformType.Scale:
-
-                    break;
-            }
         }
     }
 }

@@ -497,17 +497,25 @@ namespace System
             }
             private Node CreateSubNode(BoundingBox bounds, int index)
             {
-                if (_subNodes[index] != null)
-                    return _subNodes[index];
-
-                return _subNodes[index] = new Node(bounds)
+                try
                 {
-                    Visible = Visible,
-                    SubDivIndex = index,
-                    SubDivLevel = _subDivLevel + 1,
-                    ParentNode = this,
-                    Owner = Owner
-                };
+                    IsLoopingSubNodes = true;
+                    if (_subNodes[index] != null)
+                        return _subNodes[index];
+
+                    return _subNodes[index] = new Node(bounds)
+                    {
+                        Visible = Visible,
+                        SubDivIndex = index,
+                        SubDivLevel = _subDivLevel + 1,
+                        ParentNode = this,
+                        Owner = Owner
+                    };
+                }
+                finally
+                {
+                    IsLoopingSubNodes = false;
+                }
             }
         }
         #endregion

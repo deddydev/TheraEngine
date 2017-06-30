@@ -73,7 +73,7 @@ namespace System
         public float* Data { get { return _data.Data; } }
 
         public Matrix4 GetScaleMatrix()
-            => _data.GetScaleMatrix();
+            => _data.AsScaleMatrix();
         public Matrix4 GetTranslationMatrix()
             => _data.AsTranslationMatrix();
         

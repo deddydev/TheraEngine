@@ -206,10 +206,9 @@ namespace TheraEngine.Worlds.Actors
         //        else
         //            _combos.Add(mod, func);
         //}
-        public override void OnSpawned(World world)
+        public override void OnSpawnedPostComponentSetup(World world)
         {
             RegisterTick(ETickGroup.PrePhysics, ETickOrder.Input, Tick);
-            base.OnSpawned(world);
         }
         public override void OnDespawned()
         {

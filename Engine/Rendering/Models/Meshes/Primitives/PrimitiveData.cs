@@ -72,6 +72,11 @@ namespace TheraEngine.Rendering.Models
             get => _culling;
             set => _culling = value;
         }
+        public string SingleBindBone
+        {
+            get => _singleBindBone;
+            set => _singleBindBone = value;
+        }
 
         //Faces have indices that refer to face points.
         //These may contain repeat vertex indices but each triangle is unique.
@@ -90,7 +95,7 @@ namespace TheraEngine.Rendering.Models
         [Serialize("UtilizedBones", Order = 1)]
         public string[] _utilizedBones;
         [Serialize("SingleBindBone", Order = 0)]
-        public string _singleBindBone;
+        private string _singleBindBone;
 
         //Face points have indices that refer to each buffer.
         //These may contain repeat buffer indices but each point is unique.
@@ -305,7 +310,7 @@ namespace TheraEngine.Rendering.Models
             _utilizedBones = utilized.ToArray();
             if (_utilizedBones.Length == 1)
             {
-                _singleBindBone = _utilizedBones[0];
+                SingleBindBone = _utilizedBones[0];
                 _utilizedBones = null;
             }
         }

@@ -2,10 +2,11 @@
 using TheraEngine.Rendering.Models;
 using System;
 using System.ComponentModel;
+using TheraEngine.Rendering;
 
 namespace TheraEngine.Worlds.Actors
 {
-    public partial class SkeletalMeshComponent : TRSComponent
+    public partial class SkeletalMeshComponent : TRSComponent, IPreRenderNeeded
     {
         public SkeletalMeshComponent(SkeletalMesh m, Skeleton skeleton)
         {
@@ -94,6 +95,11 @@ namespace TheraEngine.Worlds.Actors
         {
             base.RecalcGlobalTransform();
             _skeleton?.WorldMatrixChanged();
+        }
+
+        public void PreRender()
+        {
+            _skeleton?.UpdateBillboardBones(AbstractRenderer.CurrentCamera);
         }
     }
 }

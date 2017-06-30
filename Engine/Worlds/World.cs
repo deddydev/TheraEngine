@@ -102,13 +102,13 @@ namespace TheraEngine.Worlds
         {
             if (!_settings.State.SpawnedActors.Contains(actor))
                 _settings.State.SpawnedActors.Add(actor);
-            actor.OnSpawned(this);
+            actor.Spawned(this);
         }
         public void DespawnActor(IActor actor)
         {
             if (_settings.State.SpawnedActors.Contains(actor))
                 _settings.State.SpawnedActors.Remove(actor);
-            actor.OnDespawned();
+            actor.Despawned();
         }
         
         public void StepSimulation(float delta)

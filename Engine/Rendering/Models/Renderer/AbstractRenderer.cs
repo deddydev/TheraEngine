@@ -20,20 +20,8 @@ namespace TheraEngine.Rendering
     {
         public const float DefaultPointSize = 5.0f;
         public const float DefaultLineSize = 5.0f;
-
-        private static Camera _currentCamera;
-        public static Camera CurrentCamera
-        {
-            get => _currentCamera;
-            set
-            {
-                if (_currentCamera != null)
-                    _currentCamera._isActive = false;
-                _currentCamera = value;
-                if (_currentCamera != null)
-                    _currentCamera._isActive = true;
-            }
-        }
+        
+        public static Camera CurrentCamera => _cameraStack.Count == 0 ? null : _cameraStack.Peek();
 
         public abstract RenderLibrary RenderLibrary { get; }
         public RenderContext CurrentContext => RenderContext.Current;
@@ -42,12 +30,32 @@ namespace TheraEngine.Rendering
         protected static MeshProgram _currentMeshProgram;
         protected static IPrimitiveManager _currentPrimitiveManager;
         private Stack<BoundingRectangle> _renderAreaStack = new Stack<BoundingRectangle>();
+        private static Stack<Camera> _cameraStack = new Stack<Camera>();
 
         public abstract void SetActiveTexture(int unit);
 
         #region Debug Primitives
 
         protected static Dictionary<string, IPrimitiveManager> _debugPrimitives = new Dictionary<string, IPrimitiveManager>();
+
+        internal static void PushCurrentCamera(Camera camera)
+        {
+            Camera c = CurrentCamera;
+            if (c != null)
+                c.IsActiveRenderCamera = false;
+            _cameraStack.Push(camera);
+            if (camera != null)
+                camera.IsActiveRenderCamera = true;
+        }
+        internal static void PopCurrentCamera()
+        {
+            Camera c = _cameraStack.Pop();
+            if (c != null)
+                c.IsActiveRenderCamera = false;
+            c = CurrentCamera;
+            if (c != null)
+                c.IsActiveRenderCamera = true;
+        }
 
         //public class DebugPrimitive : I3DRenderable
         //{

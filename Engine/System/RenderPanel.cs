@@ -43,6 +43,8 @@ namespace TheraEngine
         public static RenderPanel CapturedPanel;
         public RenderPanel()
         {
+            BackColor = Color.Lavender;
+
             //Force custom paint
             SetStyle(
                 ControlStyles.UserPaint |
@@ -93,20 +95,13 @@ namespace TheraEngine
         internal RenderContext _context;
         private HudManager _globalHud;
         public List<Viewport> _viewports = new List<Viewport>(MaxViewports);
-        private ColorF4 _backColor = Color.Black;
 
         public HudManager GlobalHud
         {
             get => _globalHud;
             set => _globalHud = value;
         }
-
-        public new ColorF4 BackColor
-        {
-            get => _backColor;
-            set => _backColor = value;
-        }
-
+        
         public VSyncMode VsyncMode
         {
             get => _vsyncMode;

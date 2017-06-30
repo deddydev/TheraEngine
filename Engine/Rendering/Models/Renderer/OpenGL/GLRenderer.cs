@@ -347,6 +347,26 @@ namespace TheraEngine.Rendering.OpenGL
             base.UseProgram(program);
             if (_currentMeshProgram != null)
             {
+                RenderingParameters r = _currentMeshProgram.RenderParams;
+
+                if (r.EnableDepthTest)
+                {
+                    GL.Enable(EnableCap.DepthTest);
+                    DepthFunc(r.DepthFunction);
+                    GL.DepthMask(r.EnableDepthUpdate);
+                }
+                else
+                    GL.Disable(EnableCap.DepthTest);
+
+                if (r.Blend.EnableBlending)
+                {
+                    GL.Enable(EnableCap.Blend);
+                    BlendEquation(r.Blend.RgbEquation, r.Blend.AlphaEquation);
+                    BlendFuncSeparate(r.Blend.RgbSrcFactor, r.Blend.RgbDstFactor, r.Blend.AlphaSrcFactor, r.Blend.AlphaDstFactor);
+                }
+                else
+                    GL.Disable(EnableCap.Blend);
+
                 if (_currentMeshProgram.Textures.Length > 0)
                 {
                     GL.Enable(EnableCap.Texture2D);

@@ -24,19 +24,5 @@ namespace TheraEditor.Editors
             root.ChildComponents.Add(end);
             return root;
         }
-
-        public override void OnSpawned(World world)
-        {
-            base.OnSpawned(world);
-        }
-        public override void OnDespawned()
-        {
-            base.OnDespawned();
-        }
-
-        public override void RegisterInput(InputInterface input)
-        {
-            base.RegisterInput(input);
-        }
     }
 }

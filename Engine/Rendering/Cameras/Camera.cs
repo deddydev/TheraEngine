@@ -138,7 +138,7 @@ namespace TheraEngine.Rendering.Cameras
             get => _viewports;
             set => _viewports = value;
         }
-        public bool IsActiveRenderCamera => _isActive;
+        public bool IsActiveRenderCamera { get => _isActive; internal set => _isActive = value; }
         public Shape CullingVolume => _transformedFrustum.CullingVolume;
         public bool IsRendering
         {
@@ -181,7 +181,7 @@ namespace TheraEngine.Rendering.Cameras
         
         private CameraComponent _owningComponent;
         private List<Viewport> _viewports = new List<Viewport>();
-        internal bool _isActive = false;
+        private bool _isActive = false;
         internal Vec3 _projectionRange;
         internal Vec3 _projectionOrigin;
         protected Frustum _untransformedFrustum, _transformedFrustum;

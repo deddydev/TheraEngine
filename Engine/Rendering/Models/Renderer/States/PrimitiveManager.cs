@@ -20,6 +20,7 @@ namespace TheraEngine.Rendering.Models
     /// </summary>
     public interface IPrimitiveManager
     {
+        ulong UniqueID { get; }
         int BindingId { get; }
         ThreadSafeHashSet<int> ModifiedBoneIndices { get; }
         ThreadSafeHashSet<int> ModifiedVertexIndices { get; }
@@ -49,7 +50,12 @@ namespace TheraEngine.Rendering.Models
     /// </summary>
     public class PrimitiveManager<T> : BaseRenderState, IPrimitiveManager where T : MeshProgram
     {
+        public static ulong _generated = 0ul;
+
         public event Action SettingUniforms;
+
+        public ulong UniqueID => _uniqueID;
+        private ulong _uniqueID;
 
         private int[] _bindingIds;
         private IntPtr[] _offsets;
@@ -72,10 +78,11 @@ namespace TheraEngine.Rendering.Models
         private CPUSkinInfo _cpuSkinInfo;
         private bool _processingSkinning = false;
 
-        public PrimitiveManager() 
-            : base(EObjectType.VertexArray) { }
-        public PrimitiveManager(PrimitiveData data, Material material)
-            : base(EObjectType.VertexArray)
+        public PrimitiveManager() : base(EObjectType.VertexArray)
+        {
+            _uniqueID = _generated++;
+        }
+        public PrimitiveManager(PrimitiveData data, Material material) : this()
         {
             Data = data;
             _material = material;
@@ -136,8 +143,7 @@ namespace TheraEngine.Rendering.Models
         public ThreadSafeHashSet<int> ModifiedBoneIndices => _modifiedBoneIndices;
 
         public VertexBuffer IndexBuffer => _indexBuffer;
-
-        public EDrawElementType ElementType { get => _elementType; }
+        public EDrawElementType ElementType => _elementType;
 
         private void UpdateBoneInfo(bool set)
         {
@@ -175,7 +181,7 @@ namespace TheraEngine.Rendering.Models
                             //if (!b._influencedVertices.ContainsKey(BindingId))
                             //    b._influencedVertices.Add(BindingId, list = new List<int>());
                             //else
-                                list = b._influencedVertices[BindingId];
+                                list = b._influencedVertices[UniqueID];
 
                             if (!list.Contains(point.VertexIndex))
                                 list.Add(point.VertexIndex);
@@ -184,7 +190,7 @@ namespace TheraEngine.Rendering.Models
                         {
                             //if (b._influencedVertices.ContainsKey(BindingId))
                             //{
-                            ThreadSafeList<int> list = b._influencedVertices[BindingId];
+                            ThreadSafeList<int> list = b._influencedVertices[UniqueID];
                                 if (list.Contains(point.VertexIndex))
                                     list.Remove(point.VertexIndex);
                                 //if (list.Count == 0)
@@ -209,15 +215,19 @@ namespace TheraEngine.Rendering.Models
                     b.RemovePrimitiveManager(this);
 
             _boneRemap = null;
-            if (skeleton != null && _data._influences != null)
+            if (skeleton != null)
             {
                 if (_data._utilizedBones == null || _data._utilizedBones.Length == 1)
                 {
-                    _singleBind = skeleton.BoneNameCache[_data._singleBindBone];
+                    if (!string.IsNullOrEmpty(_data.SingleBindBone) && skeleton.BoneNameCache.ContainsKey(_data.SingleBindBone))
+                        _singleBind = skeleton.BoneNameCache[_data.SingleBindBone];
+                    else
+                        _singleBind = null;
+
                     _cpuSkinInfo = null;
                     _bufferInfo._boneCount = 1;
                 }
-                else
+                else if (_data._influences != null)
                 {
                     _utilizedBones = _data._utilizedBones.Select(x => skeleton.BoneNameCache[x]).ToArray();
                     _boneRemap = new Dictionary<int, int>();
@@ -376,6 +386,12 @@ namespace TheraEngine.Rendering.Models
 
             if (_program == null)
                 return;
+
+            if (_singleBind != null)
+            {
+                modelMatrix = modelMatrix * _singleBind.FrameMatrix;
+                normalMatrix = normalMatrix * _singleBind.FrameMatrix.GetRotationMatrix3();
+            }
 
             Engine.Renderer.UseProgram(_program);
             Engine.Renderer.Cull(_data.Culling);

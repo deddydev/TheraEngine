@@ -84,7 +84,12 @@ namespace TheraEngine
 
         internal static AbstractRenderer Renderer
         {
-            get => _renderer;
+            get
+            {
+                if (MainThreadID != Thread.CurrentThread.ManagedThreadId)
+                    throw new Exception();
+                return _renderer;
+            }
             set => _renderer = value;
         }
         internal static AbstractAudioManager Audio

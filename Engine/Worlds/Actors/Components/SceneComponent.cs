@@ -266,6 +266,10 @@ namespace TheraEngine.Worlds.Actors
         {
             if (this is IPhysicsDrivable p)
                 p.PhysicsDriver?.OnSpawned();
+
+            if (this is IPreRenderNeeded r)
+                Engine.Scene.AddPreRenderedObject(r);
+
             foreach (SceneComponent c in _children)
                 c.OnSpawned();
         }
@@ -273,6 +277,10 @@ namespace TheraEngine.Worlds.Actors
         {
             if (this is IPhysicsDrivable p)
                 p.PhysicsDriver?.OnDespawned();
+
+            if (this is IPreRenderNeeded r)
+                Engine.Scene.RemovePreRenderedObject(r);
+
             foreach (SceneComponent c in _children)
                 c.OnDespawned();
         }

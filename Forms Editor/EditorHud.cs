@@ -12,15 +12,24 @@ using BulletSharp;
 using TheraEngine.Rendering.Models;
 using TheraEngine.Rendering.Models.Materials;
 using System.Drawing;
+using System.Windows.Forms;
 
 namespace TheraEditor
 {
     public class EditorHud : HudManager
     {
-        public EditorHud(Vec2 bounds) : base(bounds) { }
+        private Editor _editor;
+        private HighlightPoint _highlightPoint;
+
+        public Editor Editor => _editor;
+
+        public EditorHud(Vec2 bounds, Editor owner) : base(bounds)
+        {
+            _editor = owner;
+        }
         protected override void PreConstruct()
         {
-            _highlightPoint = new HighlightPoint() { Hud = this };
+            _highlightPoint = new HighlightPoint();
             base.PreConstruct();
             //RegisterTick(ETickGroup.PrePhysics, ETickOrder.Logic, Tick);
         }
@@ -28,7 +37,8 @@ namespace TheraEditor
         {
             //input.RegisterMouseScroll(OnScrolledInput, InputPauseType.TickOnlyWhenPaused);
             input.RegisterMouseMove(OnMouseMove, false, InputPauseType.TickAlways);
-            input.RegisterButtonEvent(EMouseButton.LeftClick, ButtonInputType.Pressed, OnLeftClickSelect, InputPauseType.TickAlways);
+            input.RegisterButtonEvent(EMouseButton.LeftClick, ButtonInputType.Pressed, OnMouseDown, InputPauseType.TickAlways);
+            input.RegisterButtonEvent(EMouseButton.LeftClick, ButtonInputType.Released, OnMouseUp, InputPauseType.TickAlways);
             input.RegisterButtonEvent(GamePadButton.FaceDown, ButtonInputType.Pressed, OnGamepadSelect, InputPauseType.TickAlways);
 
             input.RegisterButtonEvent(GamePadButton.FaceDown, ButtonInputType.Pressed, OnGamepadSelect, InputPauseType.TickAlways);
@@ -39,124 +49,170 @@ namespace TheraEditor
             base.OnMouseMove(x, y);
             HighlightScene(false);
         }
-        protected override void OnLeftClickSelect()
+        protected void OnMouseDown()
         {
-            _highlightPoint.PickScene();
+            MouseDown();
         }
-        protected override void OnGamepadSelect()
+        protected void OnMouseUp()
         {
-            _highlightPoint.PickScene();
+            MouseUp();
         }
-
-        public class HighlightPoint : I3DRenderable
+        protected void OnGamepadSelect()
         {
-            private PrimitiveManager _circlePrimitive = new PrimitiveManager(Circle3D.WireframeMesh(1.0f, Vec3.Forward, Vec3.Zero, 30), Material.GetUnlitColorMaterial(Color.LimeGreen, false));
-            private PrimitiveManager _normalPrimitive = new PrimitiveManager(Segment.Mesh(Vec3.Zero, Vec3.Forward), Material.GetUnlitColorMaterial(Color.LimeGreen, false));
-
-            private EditorHud _hud;
-            private SceneComponent _highlightedComponent;
-            private bool _isRendering;
-            private IOctreeNode _octreeNode;
-            private Matrix4 _transform = Matrix4.Identity;
-
-            public EditorHud Hud { get => _hud; set => _hud = value; }
-            public bool HasTransparency => false;
-            public Shape CullingVolume => null;
-
-            public IOctreeNode OctreeNode { get => _octreeNode; set => _octreeNode = value; }
-            public bool IsRendering { get => _isRendering; set => _isRendering = value; }
-
-            public SceneComponent HighlightedComponent
-            {
-                get => _highlightedComponent;
-                set
-                {
-                    if (value == null && _highlightedComponent != null)
-                    {
-                        Engine.Scene.Remove(this);
-                        RenderPanel.CapturedPanel.Invoke(new Action(() => RenderPanel.CapturedPanel.Cursor = System.Windows.Forms.Cursors.Default));
-                    }
-                    else if (value != null && _highlightedComponent == null)
-                    {
-                        Engine.Scene.Add(this);
-                        RenderPanel.CapturedPanel.Invoke(new Action(() => RenderPanel.CapturedPanel.Cursor = System.Windows.Forms.Cursors.Hand));
-                    }
-
-                    if (_highlightedComponent != null)
-                    {
-                        EditorState state = HighlightedComponent.OwningActor.EditorState;
-                        state.Highlighted = false;
-                    }
-                    _highlightedComponent = value;
-                    if (_highlightedComponent != null)
-                    {
-                        //Debug.WriteLine(_highlightedComponent.OwningActor.Name);
-                        EditorState state = HighlightedComponent.OwningActor.EditorState;
-                        state.Highlighted = true;
-                    }
-                }
-            }
-            
-            public void Update(Viewport v, Vec2 viewportPoint)
-            {
-                if (EditorTransformTool3D.CurrentInstance != null)
-                {
-                    Ray cursor = v.GetWorldRay(viewportPoint);
-                    if (EditorTransformTool3D.CurrentInstance.Highlight(cursor, v.Camera, false))
-                    {
-                        HighlightedComponent = EditorTransformTool3D.CurrentInstance.RootComponent;
-                        return;
-                    }
-                }
-
-                HighlightedComponent = v.PickScene(viewportPoint, true, true, out Vec3 hitNormal, out Vec3 hitPoint);
-                _transform = Matrix4.CreateTranslation(hitPoint) * hitNormal.LookatAngles().GetMatrix() * Matrix4.CreateScale(_hud.OwningPawn.LocalPlayerController.Viewport.Camera.DistanceScale(hitPoint, 2.0f));
-            }
-
-            public void PickScene()
-            {
-                if (HighlightedComponent != null)
-                {
-                    if (HighlightedComponent.OwningActor is EditorTransformTool3D tool)
-                    {
-
-                    }
-                    else if (HighlightedComponent is HudComponent hudComp)
-                    {
-
-                    }
-                    else// if (comp != null)
-                    {
-                        if (HighlightedComponent is IPhysicsDrivable d && d.PhysicsDriver.SimulatingPhysics)
-                        {
-                            //hitDistance = cursor.StartPoint.DistanceToFast(hitPoint);
-                            //RigidBody body = d.PhysicsDriver.CollisionObject;
-                            //Generic6DofConstraint constraint = new Generic6DofConstraint(body, Vec3.Zero, new Vec3(0, 1, 0), true);
-                            //World.AddConstraint(hinge);
-                        }
-                    }
-                }
-            }
-
-            public void Render()
-            {
-                if (_highlightedComponent != null)
-                {
-                    _circlePrimitive.Render(_transform, Matrix3.Identity);
-                    _normalPrimitive.Render(_transform, Matrix3.Identity);
-                }
-            }
+            MouseDown();
         }
-
-        private HighlightPoint _highlightPoint;
-        
         private void HighlightScene(bool gamepad)
         {
             Viewport v = Engine.ActivePlayers[0].Viewport;
             if (v != null)
             {
                 Vec2 viewportPoint = gamepad ? v.Center : v.AbsoluteToRelative(_cursorPos);
-                _highlightPoint.Update(v, viewportPoint);
+                MouseMove(v, viewportPoint);
+            }
+        }
+
+        private float _hitDistance;
+        private Vec3 _hitPoint;
+        private float _toolSize = 2.0f;
+        private SceneComponent _selectedComponent;
+
+        public SceneComponent HighlightedComponent
+        {
+            get => _highlightPoint.HighlightedComponent;
+            set
+            {
+                if (value == null && HighlightedComponent != null)
+                {
+                    Engine.Scene.Remove(_highlightPoint);
+                    RenderPanel.CapturedPanel.Invoke(new Action(() => RenderPanel.CapturedPanel.Cursor = Cursors.Default));
+                }
+                else if (value != null && HighlightedComponent == null)
+                {
+                    Engine.Scene.Add(_highlightPoint);
+                    RenderPanel.CapturedPanel.Invoke(new Action(() => RenderPanel.CapturedPanel.Cursor = Cursors.Hand));
+                }
+
+                if (HighlightedComponent != null)
+                {
+                    EditorState state = HighlightedComponent.OwningActor.EditorState;
+                    state.Highlighted = false;
+                }
+                _highlightPoint.HighlightedComponent = value;
+                if (HighlightedComponent != null)
+                {
+                    //Debug.WriteLine(_highlightedComponent.OwningActor.Name);
+                    EditorState state = HighlightedComponent.OwningActor.EditorState;
+                    state.Highlighted = true;
+                }
+            }
+        }
+
+        public void MouseMove(Viewport v, Vec2 viewportPoint)
+        {
+            if (_selectedComponent != null)
+            {
+                Ray cursor = v.GetWorldRay(viewportPoint);
+                if (_currentConstraint != null)
+                    _currentConstraint.PivotInB = cursor.StartPoint + cursor.Direction * _hitDistance;
+            }
+            else
+            {
+                if (EditorTransformTool3D.Instance != null)
+                {
+                    Ray cursor = v.GetWorldRay(viewportPoint);
+                    if (EditorTransformTool3D.Instance.Highlight(cursor, v.Camera, false))
+                    {
+                        HighlightedComponent = EditorTransformTool3D.Instance.RootComponent;
+                        return;
+                    }
+                }
+
+                HighlightedComponent = v.PickScene(viewportPoint, true, true, out Vec3 hitNormal, out _hitPoint, out _hitDistance);
+                _highlightPoint.Transform = Matrix4.CreateTranslation(_hitPoint) * hitNormal.LookatAngles().GetMatrix() * Matrix4.CreateScale(OwningPawn.LocalPlayerController.Viewport.Camera.DistanceScale(_hitPoint, _toolSize));
+            }
+        }
+
+        Point2PointConstraint _currentConstraint;
+
+        public void MouseUp()
+        {
+            if (_currentConstraint != null)
+                Engine.World.PhysicsScene.RemoveConstraint(_currentConstraint);
+            _selectedComponent = null;
+        }
+        public void MouseDown()
+        {
+            _selectedComponent = HighlightedComponent;
+
+            if (_selectedComponent != null)
+            {
+                if (_selectedComponent.OwningActor is EditorTransformTool3D tool)
+                {
+
+                }
+                else if (_selectedComponent is HudComponent hudComp)
+                {
+
+                }
+                else// if (comp != null)
+                {
+                    if (_selectedComponent is IPhysicsDrivable d && d.PhysicsDriver.SimulatingPhysics)
+                    {
+                        RigidBody body = d.PhysicsDriver.CollisionObject;
+                        Vec3 localPivot = Vector3.TransformCoordinate(_hitPoint, Matrix.Invert(body.CenterOfMassTransform));
+                        Point2PointConstraint p2p = new Point2PointConstraint(body, localPivot);
+                        p2p.Setting.ImpulseClamp = 30;
+                        p2p.Setting.Tau = 0.001f;
+                        _currentConstraint = p2p;
+                        Engine.World.PhysicsScene.AddConstraint(_currentConstraint);
+                    }
+                    else
+                    {
+                        EditorTransformTool3D.GetCurrentInstance(_selectedComponent);
+                    }
+                    TreeNode t = _selectedComponent.OwningActor.EditorState.TreeNode;
+                    if (t != null)
+                    {
+                        if (t.TreeView.InvokeRequired)
+                            t.TreeView.Invoke(new Action(() => t.TreeView.SelectedNode = t));
+                        else
+                            t.TreeView.SelectedNode = t;
+                    }
+                }
+            }
+            else
+            {
+                EditorTransformTool3D.DestroyInstance();
+            }
+        }
+        
+        public class HighlightPoint : I3DRenderable
+        {
+            public const int CirclePrecision = 30;
+            public static readonly Color Color = Color.LimeGreen;
+
+            private PrimitiveManager _circlePrimitive = new PrimitiveManager(Circle3D.WireframeMesh(1.0f, Vec3.Forward, Vec3.Zero, CirclePrecision), Material.GetUnlitColorMaterial(Color, false));
+            private PrimitiveManager _normalPrimitive = new PrimitiveManager(Segment.Mesh(Vec3.Zero, Vec3.Forward), Material.GetUnlitColorMaterial(Color, false));
+
+            private Matrix4 _transform = Matrix4.Identity;
+            private SceneComponent _highlightedComponent;
+            private bool _isRendering;
+            private IOctreeNode _octreeNode;
+
+            public bool HasTransparency => false;
+            public Shape CullingVolume => null;
+            public IOctreeNode OctreeNode { get => _octreeNode; set => _octreeNode = value; }
+            public bool IsRendering { get => _isRendering; set => _isRendering = value; }
+            public SceneComponent HighlightedComponent { get => _highlightedComponent; set => _highlightedComponent = value; }
+            public Matrix4 Transform { get => _transform; set => _transform = value; }
+
+            public void Render()
+            {
+                if (HighlightedComponent != null)
+                {
+                    _circlePrimitive.Render(Transform, Matrix3.Identity);
+                    _normalPrimitive.Render(Transform, Matrix3.Identity);
+                }
             }
         }
     }

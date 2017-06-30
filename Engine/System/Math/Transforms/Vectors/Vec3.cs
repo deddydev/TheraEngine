@@ -94,7 +94,7 @@ namespace System
 
         public Matrix4 AsTranslationMatrix()
             => Matrix4.CreateTranslation(this);
-        public Matrix4 GetScaleMatrix()
+        public Matrix4 AsScaleMatrix()
             => Matrix4.CreateScale(this);
 
         [Browsable(false)]

@@ -40,7 +40,12 @@ namespace System
         {
             if (_running)
                 return;
-            _updateThread = new Thread(RunUpdateInternal) { Name = "Game Loop" };
+            _updateThread = new Thread(RunUpdateInternal)
+            {
+                Name = "Game Loop",
+                IsBackground = true,
+                Priority = ThreadPriority.AboveNormal
+            };
             _updateThread.Start();
         }
         private void RunUpdateInternal()

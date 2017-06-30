@@ -36,7 +36,7 @@ namespace TheraEngine
     public enum ETickGroup
     {
         PrePhysics      = 0,
-        //DuringPhysics   = 15,
+        DuringPhysics   = 15,
         PostPhysics     = 30,
     }
     public enum ETickOrder

@@ -28,13 +28,17 @@ namespace TheraEngine.Worlds.Actors
             _scale.Changed += RecalcLocalTransform;
             RecalcLocalTransform();
         }
+
         protected EventVec3 _scale;
+
+        [TypeConverter(typeof(ExpandableObjectConverter))]
         public EventVec3 Scale
         {
-            get { return _scale; }
+            get => _scale;
             set
             {
                 _scale = value;
+                _scale.Changed += RecalcLocalTransform;
                 RecalcLocalTransform();
             }
         }

@@ -3,6 +3,7 @@ using TheraEngine.Input;
 using System.Collections.Generic;
 using System;
 using System.Collections.Concurrent;
+using System.ComponentModel;
 
 namespace TheraEngine.Worlds.Actors
 {
@@ -29,6 +30,7 @@ namespace TheraEngine.Worlds.Actors
         //private bool _updatingTransform = false;
         private Camera _camera;
 
+        [TypeConverter(typeof(ExpandableObjectConverter))]
         public Camera Camera
         {
             get => _camera;

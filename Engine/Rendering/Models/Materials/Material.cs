@@ -125,6 +125,22 @@ namespace TheraEngine.Rendering.Models.Materials
         private bool _writeGreen;
         private bool _writeBlue;
 
+        [Category("Blending")]
+        [DisplayName("Enable")]
+        public bool EnableBlending { get => _blend.EnableBlending; set => _blend.EnableBlending = value; }
+        [Category("Blending")]
+        [DisplayName("RGB Equation")]
+        public EBlendEquationMode RgbEquation { get => _blend.RgbEquation; set => _blend.RgbEquation = value; }
+        [Category("Blending")]
+        [DisplayName("Alpha Equation")]
+        public EBlendEquationMode AlphaEquation { get => _blend.AlphaEquation; set => _blend.AlphaEquation = value; }
+        [Category("Blending")]
+        [DisplayName("RGB Source Factor")]
+        public EBlendingFactor RgbSrcFactor { get => _blend.RgbSrcFactor; set => _blend.RgbSrcFactor = value; }
+        [Category("Blending")]
+        [DisplayName("Alpha Source Factor")]
+        public EBlendingFactor AlphaSrcFactor { get => _blend.AlphaSrcFactor; set => _blend.AlphaSrcFactor = value; }
+
         [Category("Depth Test")]
         [DisplayName("Enable")]
         public bool EnableDepthTest { get => _depth.EnableDepthTest; set => _depth.EnableDepthTest = value; }

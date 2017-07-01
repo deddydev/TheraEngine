@@ -29,7 +29,7 @@ namespace TheraEngine.Tests
             elbowAnim.Keyframes.Add(f1);
             elbowAnim.Keyframes.Add(s1);
             elbowAnim.Keyframes.Add(l1);
-            scene.Skeleton["RElbow"]?.FrameState.AddAnimation(new AnimationContainer("Yaw", false, elbowAnim), true);
+            scene.Skeleton["LElbow"]?.FrameState.AddAnimation(new AnimationContainer("Yaw", false, elbowAnim), true);
 
             PropAnimFloat legAnim = new PropAnimFloat(360, true, true);
             FloatKeyframe f2 = new FloatKeyframe(0.0f, -180.0f, 0.0f, PlanarInterpType.CubicHermite);
@@ -47,7 +47,7 @@ namespace TheraEngine.Tests
             kneeAnim.Keyframes.Add(f3);
             kneeAnim.Keyframes.Add(s3);
             kneeAnim.Keyframes.Add(l3);
-            scene.Skeleton["LKnee"]?.FrameState.AddAnimation(new AnimationContainer("Pitch", false, kneeAnim), true);
+            scene.Skeleton["Bust"]?.FrameState.AddAnimation(new AnimationContainer("Pitch", false, kneeAnim), true);
 
             base.PreConstruct();
         }

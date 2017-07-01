@@ -29,6 +29,7 @@ namespace System
         {
             _data = raw;
         }
+        [Browsable(false)]
         public Vec3 Raw
         {
             get { return _data; }
@@ -69,18 +70,23 @@ namespace System
                 EndUpdate();
             }
         }
-
+        [Browsable(false)]
         public float* Data { get { return _data.Data; } }
 
         public Matrix4 GetScaleMatrix()
             => _data.AsScaleMatrix();
         public Matrix4 GetTranslationMatrix()
             => _data.AsTranslationMatrix();
-        
-        public VoidPtr Address { get { return _data.Address; } }
-        public VertexBuffer.ComponentType ComponentType { get { return VertexBuffer.ComponentType.Float; } }
-        public int ComponentCount { get { return 3; } }
-        bool IBufferable.Normalize { get { return false; } }
+
+        [Browsable(false)]
+        public VoidPtr Address => _data.Address;
+        [Browsable(false)]
+        public VertexBuffer.ComponentType ComponentType => VertexBuffer.ComponentType.Float;
+        [Browsable(false)]
+        public int ComponentCount => 3;
+        [Browsable(false)]
+        bool IBufferable.Normalize => false;
+
         public void Write(VoidPtr address)
         {
             _data.Write(address);
@@ -125,13 +131,16 @@ namespace System
             }
         }
 
+        [Browsable(false)]
         public float LengthSquared { get { return _data.LengthSquared; } }
+        [Browsable(false)]
         public float LengthFast { get { return _data.LengthFast; } }
+        [Browsable(false)]
         public float Length { get { return _data.Length; } }
 
-        public float DistanceTo(Vec3 point) { return _data.DistanceTo(point); }
-        public float DistanceToFast(Vec3 point) { return _data.DistanceToFast(point); }
-        public float DistanceToSquared(Vec3 point) { return _data.DistanceToSquared(point); }
+        public float DistanceTo(Vec3 point) => _data.DistanceTo(point);
+        public float DistanceToFast(Vec3 point) => _data.DistanceToFast(point);
+        public float DistanceToSquared(Vec3 point) => _data.DistanceToSquared(point);
 
         private void BeginUpdate()
         {
@@ -210,10 +219,9 @@ namespace System
             Z = Z < min.Z ? min.Z : Z > max.Z ? max.Z : Z;
             EndUpdate();
         }
+
         public float Dot(Vec3 right)
-        {
-            return X * right.X + Y * right.Y + Z * right.Z;
-        }
+            => X * right.X + Y * right.Y + Z * right.Z;
 
         /// <summary>
         ///
@@ -224,9 +232,7 @@ namespace System
         ///            left
         /// </summary>
         public Vec3 Cross(Vec3 right)
-        {
-            return _data ^ right;
-        }
+            => _data ^ right;
         
         /// <summary>
         /// Calculates the angle (in degrees) between two vectors.
@@ -236,9 +242,7 @@ namespace System
         /// <returns>Angle (in radians) between the vectors.</returns>
         /// <remarks>Note that the returned angle is never bigger than 180.</remarks>
         public float CalculateAngle(Vec3 second)
-        {
-            return RadToDeg((float)Acos((Dot(second) / (LengthFast * second.LengthFast)).Clamp(-1.0f, 1.0f)));
-        }
+            => RadToDeg((float)Acos((Dot(second) / (LengthFast * second.LengthFast)).Clamp(-1.0f, 1.0f)));
         /// <summary>
         /// Projects a vector from object space into screen space.
         /// </summary>
@@ -341,80 +345,90 @@ namespace System
             Z = z;
             EndUpdate();
         }
-
+        [Browsable(false)]
         [XmlIgnore]
         public Vec2 Xy
         {
             get { return new Vec2(X, Y); }
             set { SetXy(value.X, value.Y); }
         }
+        [Browsable(false)]
         [XmlIgnore]
         public Vec2 Xz
         {
             get { return new Vec2(X, Z); }
             set { SetXz(value.X, value.Y); }
         }
+        [Browsable(false)]
         [XmlIgnore]
         public Vec2 Yx
         {
             get { return new Vec2(Y, X); }
             set { SetXy(value.Y, value.X); }
         }
+        [Browsable(false)]
         [XmlIgnore]
         public Vec2 Yz
         {
             get { return new Vec2(Y, Z); }
             set { SetYz(value.X, value.Y); }
         }
+        [Browsable(false)]
         [XmlIgnore]
         public Vec2 Zx
         {
             get { return new Vec2(Z, X); }
             set { SetXz(value.Y, value.X); }
         }
+        [Browsable(false)]
         [XmlIgnore]
         public Vec2 Zy
         {
             get { return new Vec2(Z, Y); }
             set { SetYz(value.Y, value.X); }
         }
+        [Browsable(false)]
         [XmlIgnore]
         public EventVec3 Xzy
         {
             get { return new EventVec3(X, Z, Y); }
             set { SetXyz(X, Z, Y); }
         }
+        [Browsable(false)]
         [XmlIgnore]
         public EventVec3 Yxz
         {
             get { return new EventVec3(Y, X, Z); }
             set { SetXyz(Y, X, Z); }
         }
+        [Browsable(false)]
         [XmlIgnore]
         public EventVec3 Yzx
         {
             get { return new EventVec3(Y, Z, X); }
             set { SetXyz(Y, Z, X); }
         }
+        [Browsable(false)]
         [XmlIgnore]
         public EventVec3 Zxy
         {
             get { return new EventVec3(Z, X, Y); }
             set { SetXyz(Z, X, Y); }
         }
+        [Browsable(false)]
         [XmlIgnore]
         public EventVec3 Zyx
         {
             get { return new EventVec3(Z, Y, X); }
             set { SetXyz(Z, Y, X); }
         }
+        [Browsable(false)]
         [XmlIgnore]
         public EventVec3 Xyz
         {
             get { return new EventVec3(X, Y, Z); }
             set { SetXyz(X, Y, Z); }
         }
-
 
         public static Vec3 operator +(float left, EventVec3 right) { return left + right._data; }
         public static Vec3 operator +(EventVec3 left, float right) { return left._data + right; }

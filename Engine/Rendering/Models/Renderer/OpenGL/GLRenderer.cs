@@ -358,7 +358,7 @@ namespace TheraEngine.Rendering.OpenGL
                 else
                     GL.Disable(EnableCap.DepthTest);
 
-                if (r.Blend.EnableBlending)
+                if (r.EnableBlending)
                 {
                     GL.Enable(EnableCap.Blend);
                     BlendEquation(r.Blend.RgbEquation, r.Blend.AlphaEquation);

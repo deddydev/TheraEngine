@@ -8,6 +8,7 @@ using TheraEngine.Rendering;
 using System.Collections.Generic;
 using TheraEngine.Rendering.HUD;
 using TheraEngine.Worlds.Actors.Types;
+using System.ComponentModel;
 
 namespace TheraEngine.Worlds.Actors
 {
@@ -66,8 +67,29 @@ namespace TheraEngine.Worlds.Actors
         bool _ctrl = false, _alt = false, _shift = false, _rightClickPressed = false;
         Vec2 _cursorPos = Vec2.Zero;
 
+        [Browsable(false)]
         bool Rotating => _rightClickPressed && _ctrl;
+        [Browsable(false)]
         bool Translating => _rightClickPressed && !_ctrl;
+
+        [DisplayName("Scroll Speed")]
+        [Category("Movement Parameters")]
+        public float ScrollSpeed { get => _scrollSpeed; set => _scrollSpeed = value; }
+        [DisplayName("Mouse Rotate Speed")]
+        [Category("Movement Parameters")]
+        public float MouseRotateSpeed { get => _mouseRotateSpeed; set => _mouseRotateSpeed = value; }
+        [DisplayName("Mouse Translate Speed")]
+        [Category("Movement Parameters")]
+        public float MouseTranslateSpeed { get => _mouseTranslateSpeed; set => _mouseTranslateSpeed = value; }
+        [DisplayName("Gamepad Rotate Speed")]
+        [Category("Movement Parameters")]
+        public float GamepadRotateSpeed { get => _gamepadRotateSpeed; set => _gamepadRotateSpeed = value; }
+        [DisplayName("Gamepad Translate Speed")]
+        [Category("Movement Parameters")]
+        public float GamepadTranslateSpeed { get => _gamepadTranslateSpeed; set => _gamepadTranslateSpeed = value; }
+        [DisplayName("Keyboard Translate Speed")]
+        [Category("Movement Parameters")]
+        public float KeyboardTranslateSpeed { get => _keyboardTranslateSpeed; set => _keyboardTranslateSpeed = value; }
 
         protected override void PostConstruct()
         {
@@ -118,26 +140,26 @@ namespace TheraEngine.Worlds.Actors
         }
 
         private void MoveDown(bool pressed) 
-            => _linearUp += _keyboardTranslateSpeed * (pressed ? -1.0f : 1.0f);
+            => _linearUp += KeyboardTranslateSpeed * (pressed ? -1.0f : 1.0f);
         private void MoveUp(bool pressed) 
-            => _linearUp += _keyboardTranslateSpeed * (pressed ? 1.0f : -1.0f);
+            => _linearUp += KeyboardTranslateSpeed * (pressed ? 1.0f : -1.0f);
         private void MoveLeft(bool pressed)
-            => _linearRight += _keyboardTranslateSpeed * (pressed ? -1.0f : 1.0f);
+            => _linearRight += KeyboardTranslateSpeed * (pressed ? -1.0f : 1.0f);
         private void MoveRight(bool pressed) 
-            => _linearRight += _keyboardTranslateSpeed * (pressed ? 1.0f : -1.0f);
+            => _linearRight += KeyboardTranslateSpeed * (pressed ? 1.0f : -1.0f);
         private void MoveBackward(bool pressed) 
-            => _linearForward += _keyboardTranslateSpeed * (pressed ? -1.0f : 1.0f);
+            => _linearForward += KeyboardTranslateSpeed * (pressed ? -1.0f : 1.0f);
         private void MoveForward(bool pressed)
-            => _linearForward += _keyboardTranslateSpeed * (pressed ? 1.0f : -1.0f);
+            => _linearForward += KeyboardTranslateSpeed * (pressed ? 1.0f : -1.0f);
 
         private void OnLeftStickX(float value) 
-            => _linearRight = value * _gamepadTranslateSpeed;
+            => _linearRight = value * GamepadTranslateSpeed;
         private void OnLeftStickY(float value)
-            => _linearForward = -value * _gamepadTranslateSpeed;
+            => _linearForward = -value * GamepadTranslateSpeed;
         private void OnRightStickX(float value)
-            => _yaw = -value * _gamepadRotateSpeed;
+            => _yaw = -value * GamepadRotateSpeed;
         private void OnRightStickY(float value) 
-            => _pitch = -value * _gamepadRotateSpeed;
+            => _pitch = -value * GamepadRotateSpeed;
 
         private void OnControl(bool pressed)
             => _ctrl = pressed;
@@ -151,7 +173,7 @@ namespace TheraEngine.Worlds.Actors
             if (_ctrl)
                 Engine.TimeDilation *= up ? 0.8 : 1.2;
             else
-                RootComponent.Camera.Zoom(up ? _scrollSpeed : -_scrollSpeed);
+                RootComponent.Camera.Zoom(up ? ScrollSpeed : -ScrollSpeed);
         }
         
         private void OnRightClick(bool pressed)
@@ -167,9 +189,9 @@ namespace TheraEngine.Worlds.Actors
         public void MouseMove(float x, float y)
         {
             if (Rotating)
-                RootComponent.Camera.AddRotation(-y * _mouseRotateSpeed, -x * _mouseRotateSpeed);
+                RootComponent.Camera.AddRotation(-y * MouseRotateSpeed, -x * MouseRotateSpeed);
             else if (Translating)
-                RootComponent.Camera.TranslateRelative(new Vec3(-x * _mouseTranslateSpeed, y * _mouseTranslateSpeed, 0.0f));
+                RootComponent.Camera.TranslateRelative(new Vec3(-x * MouseTranslateSpeed, y * MouseTranslateSpeed, 0.0f));
         }
         public void ShowContextMenu()
         {

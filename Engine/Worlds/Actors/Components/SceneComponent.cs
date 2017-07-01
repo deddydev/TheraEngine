@@ -46,6 +46,7 @@ namespace TheraEngine.Worlds.Actors
         internal ISocket _parent;
         protected MonitoredList<SceneComponent> _children;
 
+        [Browsable(false)]
         public virtual Matrix4 WorldMatrix
         {
             get { return _worldTransform; }
@@ -70,6 +71,7 @@ namespace TheraEngine.Worlds.Actors
         /// and also has to follow the parent heirarchy to create the inverse transform tree.
         /// Avoid calling if possible when simulating physics.
         /// </summary>
+        [Browsable(false)]
         public virtual Matrix4 InverseWorldMatrix
         {
             get
@@ -116,6 +118,7 @@ namespace TheraEngine.Worlds.Actors
                 OnWorldTransformChanged();
             }
         }
+        [Browsable(false)]
         public Matrix4 LocalMatrix
         {
             get
@@ -125,6 +128,7 @@ namespace TheraEngine.Worlds.Actors
                 return _localTransform;
             }
         }
+        [Browsable(false)]
         public Matrix4 InverseLocalMatrix
         {
             get
@@ -134,6 +138,7 @@ namespace TheraEngine.Worlds.Actors
                 return _inverseLocalTransform;
             }
         }
+        [Browsable(false)]
         protected bool SimulatingPhysics => _simulatingPhysics;
         protected void PhysicsSimulationStarted()
         {
@@ -171,6 +176,7 @@ namespace TheraEngine.Worlds.Actors
             foreach (SceneComponent c in ChildComponents)
                 c.PhysicsSimulationEnded();
         }
+        [Browsable(false)]
         public override IActor OwningActor
         {
             get => base.OwningActor;
@@ -236,6 +242,7 @@ namespace TheraEngine.Worlds.Actors
         public Matrix4 GetInvActorTransform() =>
             InverseWorldMatrix * (OwningActor == null ? Matrix4.Identity : OwningActor.RootComponent.WorldMatrix);
 
+        [Browsable(false)]
         [Category("Rendering")]
         public bool IsSpawned
             => OwningActor == null ? false : OwningActor.IsSpawned;
@@ -258,7 +265,9 @@ namespace TheraEngine.Worlds.Actors
             }
         }
 
+        [Browsable(false)]
         public Matrix4 PreviousWorldTransform { get => _previousWorldTransform; set => _previousWorldTransform = value; }
+        [Browsable(false)]
         public Matrix4 PreviousInverseWorldTransform { get => _previousInverseWorldTransform; set => _previousInverseWorldTransform = value; }
 
         protected internal abstract void OriginRebased(Vec3 newOrigin);

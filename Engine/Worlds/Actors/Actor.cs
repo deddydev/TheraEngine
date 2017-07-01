@@ -96,12 +96,17 @@ namespace TheraEngine.Worlds
         /// <returns></returns>
         protected virtual T OnConstruct() { return Activator.CreateInstance<T>(); }
 
+        [Browsable(false)]
         public bool IsSpawned => _spawnIndex >= 0;
+        [Browsable(false)]
         public World OwningWorld => _owningWorld;
 
+        [Browsable(false)]
         public ReadOnlyCollection<SceneComponent> SceneComponentCache => _sceneComponentCache;
 
+        [Browsable(false)]
         SceneComponent IActor.RootComponent => RootComponent;
+        [TypeConverter(typeof(ExpandableObjectConverter))]
         public T RootComponent
         {
             get => _rootSceneComponent;
@@ -134,10 +139,13 @@ namespace TheraEngine.Worlds
 
         public MonitoredList<LogicComponent> LogicComponents => _logicComponents;
 
+        [Browsable(false)]
         public bool IsConstructing
             => _isConstructing;
+        [Browsable(false)]
         public List<PrimitiveComponent> RenderableComponentCache
             => _renderableComponentCache;
+        [Browsable(false)]
         public bool HasRenderableComponents
             => RenderableComponentCache.Count > 0;
         public void GenerateSceneComponentCache()

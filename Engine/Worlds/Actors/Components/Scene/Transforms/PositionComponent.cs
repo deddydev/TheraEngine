@@ -21,7 +21,10 @@ namespace TheraEngine.Worlds.Actors
         {
             Translation = translation;
         }
+
         protected EventVec3 _translation;
+
+        [TypeConverter(typeof(ExpandableObjectConverter))]
         public EventVec3 Translation
         {
             get => _translation;

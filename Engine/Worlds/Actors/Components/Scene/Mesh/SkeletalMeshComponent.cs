@@ -23,6 +23,7 @@ namespace TheraEngine.Worlds.Actors
         //For internal runtime use
         private RenderableMesh[] _meshes;
 
+        [TypeConverter(typeof(ExpandableObjectConverter))]
         [Serialize]
         public SkeletalMesh Model
         {
@@ -42,6 +43,7 @@ namespace TheraEngine.Worlds.Actors
                 }
             }
         }
+        [TypeConverter(typeof(ExpandableObjectConverter))]
         [Serialize]
         public Skeleton Skeleton
         {

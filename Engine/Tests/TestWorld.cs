@@ -65,7 +65,7 @@ namespace TheraEngine.Tests
                 new Vec3(50.0f, 0.5f, 50.0f),
                 new Vec3(5.0f, 0.0f, -100.0f),
                 new Rotator(0.0f, 0.0f, 0.0f, Rotator.Order.YPR),
-                Material.GetLitColorMaterial(Color.Orange));
+                Material.GetLitColorMaterial(Color.Red));
 
             //PhysicsConstructionInfo floor2Info = new PhysicsConstructionInfo()
             //{

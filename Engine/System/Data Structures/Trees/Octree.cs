@@ -193,7 +193,7 @@ namespace System
                         if (item.CullingVolume.ContainedWithin(bounds) == EContainment.Contains)
                         {
                             QueueRemove(item);
-                            CreateSubNode(bounds, i).Add(item);
+                            CreateSubNode(bounds, i)?.Add(item);
                             break;
                         }
                     }
@@ -330,7 +330,7 @@ namespace System
                         BoundingBox bounds = GetSubdivision(i);
                         if (item.CullingVolume.ContainedWithin(bounds) == EContainment.Contains)
                         {
-                            CreateSubNode(bounds, i).Add(item);
+                            CreateSubNode(bounds, i)?.Add(item);
                             return true;
                         }
                     }

@@ -13,20 +13,60 @@ using TheraEngine.Rendering.Models;
 using TheraEngine.Rendering.Models.Materials;
 using System.Drawing;
 using System.Windows.Forms;
+using System.ComponentModel;
 
 namespace TheraEditor
 {
     public class EditorHud : HudManager
     {
-        private Editor _editor;
-        private HighlightPoint _highlightPoint;
-
-        public Editor Editor => _editor;
-
         public EditorHud(Vec2 bounds, Editor owner) : base(bounds)
         {
             _editor = owner;
         }
+
+        private Editor _editor;
+        private HighlightPoint _highlightPoint;
+        RigidBody _pickedBody;
+        Point2PointConstraint _currentConstraint;
+        private float _hitDistance;
+        private Vec3 _hitPoint;
+        private float _toolSize = 2.0f;
+        private SceneComponent _selectedComponent;
+
+        [Browsable(false)]
+        public Editor Editor => _editor;
+        public SceneComponent HighlightedComponent
+        {
+            get => _highlightPoint.HighlightedComponent;
+            set
+            {
+                if (value == null && HighlightedComponent != null)
+                {
+                    Engine.Scene.Remove(_highlightPoint);
+                    RenderPanel.CapturedPanel.Invoke(new Action(() => RenderPanel.CapturedPanel.Cursor = Cursors.Default));
+                }
+                else if (value != null && HighlightedComponent == null)
+                {
+                    Engine.Scene.Add(_highlightPoint);
+                    RenderPanel.CapturedPanel.Invoke(new Action(() => RenderPanel.CapturedPanel.Cursor = Cursors.Hand));
+                }
+
+                if (HighlightedComponent != null)
+                {
+                    EditorState state = HighlightedComponent.OwningActor.EditorState;
+                    state.Highlighted = false;
+                }
+                _highlightPoint.HighlightedComponent = value;
+                if (HighlightedComponent != null)
+                {
+                    //Debug.WriteLine(_highlightedComponent.OwningActor.Name);
+                    EditorState state = HighlightedComponent.OwningActor.EditorState;
+                    state.Highlighted = true;
+                }
+            }
+        }
+
+
         protected override void PreConstruct()
         {
             _highlightPoint = new HighlightPoint();
@@ -70,43 +110,6 @@ namespace TheraEditor
                 MouseMove(v, viewportPoint);
             }
         }
-
-        private float _hitDistance;
-        private Vec3 _hitPoint;
-        private float _toolSize = 2.0f;
-        private SceneComponent _selectedComponent;
-
-        public SceneComponent HighlightedComponent
-        {
-            get => _highlightPoint.HighlightedComponent;
-            set
-            {
-                if (value == null && HighlightedComponent != null)
-                {
-                    Engine.Scene.Remove(_highlightPoint);
-                    RenderPanel.CapturedPanel.Invoke(new Action(() => RenderPanel.CapturedPanel.Cursor = Cursors.Default));
-                }
-                else if (value != null && HighlightedComponent == null)
-                {
-                    Engine.Scene.Add(_highlightPoint);
-                    RenderPanel.CapturedPanel.Invoke(new Action(() => RenderPanel.CapturedPanel.Cursor = Cursors.Hand));
-                }
-
-                if (HighlightedComponent != null)
-                {
-                    EditorState state = HighlightedComponent.OwningActor.EditorState;
-                    state.Highlighted = false;
-                }
-                _highlightPoint.HighlightedComponent = value;
-                if (HighlightedComponent != null)
-                {
-                    //Debug.WriteLine(_highlightedComponent.OwningActor.Name);
-                    EditorState state = HighlightedComponent.OwningActor.EditorState;
-                    state.Highlighted = true;
-                }
-            }
-        }
-
         public void MouseMove(Viewport v, Vec2 viewportPoint)
         {
             if (_selectedComponent != null)
@@ -127,18 +130,26 @@ namespace TheraEditor
                     }
                 }
 
-                HighlightedComponent = v.PickScene(viewportPoint, true, true, out Vec3 hitNormal, out _hitPoint, out _hitDistance);
+                SceneComponent comp = v.PickScene(viewportPoint, true, true, out Vec3 hitNormal, out _hitPoint, out _hitDistance);
                 _highlightPoint.Transform = Matrix4.CreateTranslation(_hitPoint) * hitNormal.LookatAngles().GetMatrix() * Matrix4.CreateScale(OwningPawn.LocalPlayerController.Viewport.Camera.DistanceScale(_hitPoint, _toolSize));
+                HighlightedComponent = comp;
             }
         }
-
-        Point2PointConstraint _currentConstraint;
-
         public void MouseUp()
         {
             if (_currentConstraint != null)
+            {
                 Engine.World.PhysicsScene.RemoveConstraint(_currentConstraint);
+                _currentConstraint.Dispose();
+                _currentConstraint = null;
+                _pickedBody.ForceActivationState(ActivationState.ActiveTag);
+                _pickedBody = null;
+            }
             _selectedComponent = null;
+            if (HighlightedComponent != null)
+            {
+                Engine.Scene.Add(_highlightPoint);
+            }
         }
         public void MouseDown()
         {
@@ -146,6 +157,7 @@ namespace TheraEditor
 
             if (_selectedComponent != null)
             {
+                Engine.Scene.Remove(_highlightPoint);
                 if (_selectedComponent.OwningActor is EditorTransformTool3D tool)
                 {
 
@@ -158,12 +170,14 @@ namespace TheraEditor
                 {
                     if (_selectedComponent is IPhysicsDrivable d && d.PhysicsDriver.SimulatingPhysics)
                     {
-                        RigidBody body = d.PhysicsDriver.CollisionObject;
-                        body.ActivationState = ActivationState.ActiveTag;
-                        Vec3 localPivot = Vector3.TransformCoordinate(_hitPoint, Matrix.Invert(body.CenterOfMassTransform));
-                        Point2PointConstraint p2p = new Point2PointConstraint(body, localPivot);
-                        p2p.Setting.ImpulseClamp = 30;
-                        p2p.Setting.Tau = 0.001f;
+                        _pickedBody = d.PhysicsDriver.CollisionObject;
+                        _pickedBody.ForceActivationState(ActivationState.ActiveTag);
+
+                        Vec3 localPivot = Vector3.TransformCoordinate(_hitPoint, Matrix.Invert(_pickedBody.CenterOfMassTransform));
+                        Point2PointConstraint p2p = new Point2PointConstraint(_pickedBody, localPivot);
+                        p2p.Setting.ImpulseClamp = 60;
+                        p2p.Setting.Tau = 0.1f;
+
                         _currentConstraint = p2p;
                         Engine.World.PhysicsScene.AddConstraint(_currentConstraint);
                     }
@@ -186,7 +200,6 @@ namespace TheraEditor
                 EditorTransformTool3D.DestroyInstance();
             }
         }
-        
         public class HighlightPoint : I3DRenderable
         {
             public const int CirclePrecision = 30;

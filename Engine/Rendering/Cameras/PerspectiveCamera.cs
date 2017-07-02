@@ -38,6 +38,8 @@ namespace TheraEngine.Rendering.Cameras
         private float _fovX = 90.0f;
         private float _fovY = 78.0f;
 
+        [Category("Perspective Camera")]
+        [DisplayName("Override Aspect")]
         [Serialize("OverrideAspect", Order = 3)]
         public bool OverrideAspect
         {
@@ -47,21 +49,27 @@ namespace TheraEngine.Rendering.Cameras
                 _overrideAspect = value;
                 if (!_overrideAspect)
                     _aspect = Width / Height;
+                CalculateProjection();
             }
         }
 
         public override Vec2 Origin => new Vec2(Width / 2.0f, Height / 2.0f);
         public override float Width => _width;
         public override float Height => _height;
+
+        [Category("Perspective Camera")]
         public float Aspect
         {
             get => _aspect;
             set
             {
                 _aspect = value;
+                _overrideAspect = true;
                 CalculateProjection();
             }
         }
+        [Category("Perspective Camera")]
+        [DisplayName("Vertical Field Of View")]
         //[Serialize("FovY", IsXmlAttribute = true, Order = 2)]
         public float VerticalFieldOfView
         {
@@ -73,6 +81,8 @@ namespace TheraEngine.Rendering.Cameras
                 CalculateProjection();
             }
         }
+        [Category("Perspective Camera")]
+        [DisplayName("Horizontal Field Of View")]
         [Serialize("FovX", IsXmlAttribute = true, Order = 2)]
         public float HorizontalFieldOfView
         {

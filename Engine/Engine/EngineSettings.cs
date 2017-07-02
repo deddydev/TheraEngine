@@ -116,13 +116,22 @@ namespace TheraEngine
             ShadingStyle = ShadingStyle.Deferred;
             SkinOnGPU = false;
             UseIntegerWeightingIds = false;
+#if DEBUG
             RenderOctree = true;
             RenderQuadtree = true;
-            RenderSkeletons = false;
+            RenderSkeletons = true;
             RenderCameraFrustums = true;
             RenderSplines = true;
+            RenderCullingVolumes = true;
+#else
+            RenderOctree = false;
+            RenderQuadtree = false;
+            RenderSkeletons = false;
+            RenderCameraFrustums = false;
+            RenderSplines = false;
             RenderCullingVolumes = false;
-            CapFPS = false;
+#endif
+            CapFPS = true;
             TargetFPS = 60.0f;
             CapUPS = false;
             TargetUPS = 30.0f;

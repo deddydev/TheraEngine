@@ -65,10 +65,16 @@ namespace TheraEngine.Rendering
         {
 
         }
-        public void SetUniforms()
+        public virtual void SetUniforms()
         {
             foreach (GLVar v in _parameters)
                 v.SetUniform();
+
+            AbstractRenderer.CurrentCamera.SetUniforms();
+            if (Engine.Settings.ShadingStyle == ShadingStyle.Forward)
+                Engine.Scene.Lights.SetUniforms();
+
+            Engine.Renderer.Uniform(Uniform.GetLocation(ECommonUniform.RenderDelta), Engine.RenderDelta);
         }
 
         public virtual void SetMaterial(Material material)

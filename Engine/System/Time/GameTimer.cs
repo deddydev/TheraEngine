@@ -1,6 +1,7 @@
-﻿using TheraEngine;
+﻿using System;
+using TheraEngine;
 
-namespace System
+namespace TheraEngine.Timers
 {
     public delegate void MultiFireAction(float totalElapsed, int fireNumber);
     public class GameTimer : ObjectBase

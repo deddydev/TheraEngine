@@ -15,6 +15,7 @@ using System.Threading;
 using System.IO;
 using System.Diagnostics;
 using System.Windows.Forms;
+using TheraEngine.Timers;
 
 namespace TheraEngine
 {
@@ -357,7 +358,7 @@ namespace TheraEngine
                 return null;
             return panel.GetViewport(index);
         }
-#if DEBUG
+
         /// <summary>
         /// Prints a message to the top left of the screen, for debugging purposes.
         /// </summary>
@@ -365,6 +366,7 @@ namespace TheraEngine
         /// <param name="viewport"></param>
         public static void DebugPrint(string message, int viewport = -1)
         {
+#if DEBUG
             Debug.WriteLine(message);
             RenderPanel panel = CurrentPanel;
             if (panel == null)
@@ -379,8 +381,9 @@ namespace TheraEngine
                 }
             }
             panel.GlobalHud.DebugPrint(message);
-        }
 #endif
+        }
+
         public static void SetCurrentWorld(World world, bool unloadPrevious)
         {
             World previous = World;

@@ -13,6 +13,7 @@ using TheraEditor.Editors;
 using System.Security;
 using System.Runtime.InteropServices;
 using TheraEngine.Worlds.Actors.Types;
+using TheraEngine.Timers;
 
 namespace TheraEditor
 {

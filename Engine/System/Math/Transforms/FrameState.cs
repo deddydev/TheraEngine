@@ -23,18 +23,18 @@ namespace System
         public delegate void RotationChange(float oldRotation);
         public delegate void ScaleChange(Vec3 oldScale);
         public delegate void MatrixChange(Matrix4 oldMatrix, Matrix4 oldInvMatrix);
-        public static FrameState GetIdentity(TransformOrder transformationOrder, Rotator.Order rotationOrder)
+        public static FrameState GetIdentity(TransformOrder transformationOrder, RotationOrder rotationOrder)
         {
             FrameState identity = Identity;
             identity._transformOrder = transformationOrder;
             identity.RotationOrder = rotationOrder;
             return identity;
         }
-        public static readonly FrameState Identity = new FrameState(Vec3.Zero, Rotator.GetZero(Rotator.Order.YPR), Vec3.One);
+        public static readonly FrameState Identity = new FrameState(Vec3.Zero, Rotator.GetZero(RotationOrder.YPR), Vec3.One);
         public FrameState()
         {
             _translation = Vec3.Zero;
-            _rotation = new Rotator(Rotator.Order.YPR);
+            _rotation = new Rotator(RotationOrder.YPR);
             _scale = Vec3.One;
             _transformOrder = TransformOrder.TRS;
             _transform = Matrix4.Identity;
@@ -184,10 +184,10 @@ namespace System
             get => _transformOrder;
             set { _transformOrder = value; CreateTransform(); }
         }
-        public Rotator.Order RotationOrder
+        public RotationOrder RotationOrder
         {
-            get => _rotation._rotationOrder;
-            set { _rotation._rotationOrder = value; CreateTransform(); }
+            get => _rotation.Order;
+            set { _rotation.Order = value; CreateTransform(); }
         }
         public Rotator Rotation
         {

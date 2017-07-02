@@ -1,5 +1,6 @@
 ﻿using TheraEngine.Rendering.Models;
 using System;
+using System.ComponentModel;
 
 namespace TheraEngine.Worlds.Actors
 {
@@ -28,7 +29,7 @@ namespace TheraEngine.Worlds.Actors
             private SceneComponent _component;
             private ISkeletalSubMesh _mesh;
             private IOctreeNode _renderNode;
-            private Bone _singleBind;
+            //private Bone _singleBind;
             private Skeleton _skeleton;
             private Shape _cullingVolume;
             public bool HasTransparency => _mesh.Material.HasTransparency;
@@ -45,7 +46,7 @@ namespace TheraEngine.Worlds.Actors
                         Engine.Scene.Remove(this);
                 }
             }
-            public Bone SingleBind => _singleBind;
+            //public Bone SingleBind => _singleBind;
             public bool IsRendering
             {
                 get => _isRendering;
@@ -66,16 +67,19 @@ namespace TheraEngine.Worlds.Actors
                 get => _visibleToOwnerOnly;
                 set => _visibleToOwnerOnly = value;
             }
+            [TypeConverter(typeof(ExpandableObjectConverter))]
             public ISkeletalSubMesh Mesh
             {
                 get => _mesh;
                 set => _mesh = value;
             }
+            [Browsable(false)]
             public IOctreeNode OctreeNode
             {
                 get => _renderNode;
                 set => _renderNode = value;
             }
+            [TypeConverter(typeof(ExpandableObjectConverter))]
             public Skeleton Skeleton
             {
                 get => _skeleton;
@@ -89,6 +93,7 @@ namespace TheraEngine.Worlds.Actors
                     _manager.SkeletonChanged(_skeleton);
                 }
             }
+            [Browsable(false)]
             public Shape CullingVolume => _cullingVolume;
 
             //IsRendering is checked by the octree before calling
@@ -96,19 +101,7 @@ namespace TheraEngine.Worlds.Actors
             {
                 if (Visible)
                 {
-                    Matrix4 world, invWorld;
-                    if (_singleBind != null)
-                    {
-                        world = _singleBind.WorldMatrix;
-                        invWorld = _singleBind.InverseWorldMatrix;
-                    }
-                    else
-                    {
-                        world = _component.WorldMatrix;
-                        invWorld = _component.InverseWorldMatrix;
-                    }
-
-                    _manager.Render(world, invWorld.Transposed().GetRotationMatrix3());
+                    _manager.Render(_component.WorldMatrix, _component.InverseWorldMatrix.Transposed().GetRotationMatrix3());
                     //_manager.Render(world, world.GetRotationMatrix3());
                 }
             }

@@ -2,8 +2,9 @@
 using System.Windows.Forms;
 using System.Threading;
 using TheraEngine.Rendering;
+using System;
 
-namespace System
+namespace TheraEngine.Timers
 {
     public class EngineTimer
     {
@@ -51,7 +52,7 @@ namespace System
         private void RunUpdateInternal()
         {
             Debug.WriteLine("Started game loop on thread " + Thread.CurrentThread.ManagedThreadId);
-            RenderContext.Current.CreateContextForThread(Thread.CurrentThread);
+            //RenderContext.Current.CreateContextForThread(Thread.CurrentThread);
             _running = true;
             _watch.Start();
             while (_running)

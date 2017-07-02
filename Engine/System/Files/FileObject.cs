@@ -38,6 +38,7 @@ namespace TheraEngine.Files
         public FileObject() { OnLoaded(); }
         protected virtual void OnLoaded() { }
 
+        [Category("File Object")]
         public string FilePath
         {
             get => _filePath;

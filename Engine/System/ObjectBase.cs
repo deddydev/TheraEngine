@@ -107,7 +107,8 @@ namespace TheraEngine
             get => _userData;
             set => _userData = value;
         }
-        
+
+        [Category("Object")]
         public string Name
         {
             get => string.IsNullOrEmpty(_name) ? GetType().Name : _name;

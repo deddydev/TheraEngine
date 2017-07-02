@@ -47,7 +47,7 @@ namespace TheraEngine.Tests
             kneeAnim.Keyframes.Add(f3);
             kneeAnim.Keyframes.Add(s3);
             kneeAnim.Keyframes.Add(l3);
-            scene.Skeleton["Bust"]?.FrameState.AddAnimation(new AnimationContainer("Pitch", false, kneeAnim), true);
+            scene.Skeleton["LKnee"]?.FrameState.AddAnimation(new AnimationContainer("Pitch", false, kneeAnim), true);
 
             base.PreConstruct();
         }

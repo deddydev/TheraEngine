@@ -143,9 +143,9 @@ namespace TheraEngine.Rendering
                 case DebugPrimitiveType.SolidBox:
                     return BoundingBox.SolidMesh(new Vec3(-1.0f), new Vec3(1.0f));
                 case DebugPrimitiveType.WireQuad:
-                    return PrimitiveData.FromLineList(new PrimitiveBufferInfo(), VertexQuad.YUpQuad(2.0f).ToLines());
+                    return PrimitiveData.FromLineList(new PrimitiveBufferInfo(), VertexQuad.PosYQuad(2.0f).ToLines());
                 case DebugPrimitiveType.SolidQuad:
-                    return PrimitiveData.FromQuads(Culling.None, new PrimitiveBufferInfo(), VertexQuad.YUpQuad(2.0f));
+                    return PrimitiveData.FromQuads(Culling.None, new PrimitiveBufferInfo(), VertexQuad.PosYQuad(2.0f));
             }
             return null;
         }
@@ -379,18 +379,7 @@ namespace TheraEngine.Rendering
         public virtual void UseProgram(MeshProgram program)
         {
             _currentMeshProgram = program;
-            if (_currentMeshProgram != null)
-            {
-                _currentMeshProgram?.SetUniforms();
-
-                CurrentCamera.SetUniforms();
-                if (Engine.Settings.ShadingStyle == ShadingStyle.Forward)
-                {
-                    Engine.Scene.Lights.SetUniforms();
-                }
-
-                Uniform(Models.Materials.Uniform.GetLocation(ECommonUniform.RenderDelta), Engine.RenderDelta);
-            }
+            _currentMeshProgram?.SetUniforms();
         }
 
         public abstract int GetAttribLocation(string name);

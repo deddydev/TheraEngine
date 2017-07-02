@@ -20,7 +20,6 @@ namespace TheraEngine.Rendering.Models
     /// </summary>
     public interface IPrimitiveManager
     {
-        ulong UniqueID { get; }
         int BindingId { get; }
         ThreadSafeHashSet<int> ModifiedBoneIndices { get; }
         ThreadSafeHashSet<int> ModifiedVertexIndices { get; }
@@ -50,12 +49,7 @@ namespace TheraEngine.Rendering.Models
     /// </summary>
     public class PrimitiveManager<T> : BaseRenderState, IPrimitiveManager where T : MeshProgram
     {
-        public static ulong _generated = 0ul;
-
         public event Action SettingUniforms;
-
-        public ulong UniqueID => _uniqueID;
-        private ulong _uniqueID;
 
         private int[] _bindingIds;
         private IntPtr[] _offsets;
@@ -78,10 +72,7 @@ namespace TheraEngine.Rendering.Models
         private CPUSkinInfo _cpuSkinInfo;
         private bool _processingSkinning = false;
 
-        public PrimitiveManager() : base(EObjectType.VertexArray)
-        {
-            _uniqueID = _generated++;
-        }
+        public PrimitiveManager() : base(EObjectType.VertexArray) { }
         public PrimitiveManager(PrimitiveData data, Material material) : this()
         {
             Data = data;
@@ -181,7 +172,7 @@ namespace TheraEngine.Rendering.Models
                             //if (!b._influencedVertices.ContainsKey(BindingId))
                             //    b._influencedVertices.Add(BindingId, list = new List<int>());
                             //else
-                                list = b._influencedVertices[UniqueID];
+                                list = b._influencedVertices[BindingId];
 
                             if (!list.Contains(point.VertexIndex))
                                 list.Add(point.VertexIndex);
@@ -190,7 +181,7 @@ namespace TheraEngine.Rendering.Models
                         {
                             //if (b._influencedVertices.ContainsKey(BindingId))
                             //{
-                            ThreadSafeList<int> list = b._influencedVertices[UniqueID];
+                            ThreadSafeList<int> list = b._influencedVertices[BindingId];
                                 if (list.Contains(point.VertexIndex))
                                     list.Remove(point.VertexIndex);
                                 //if (list.Count == 0)
@@ -394,12 +385,12 @@ namespace TheraEngine.Rendering.Models
             }
 
             Engine.Renderer.UseProgram(_program);
+            OnSettingUniforms();
             Engine.Renderer.Cull(_data.Culling);
             
             SetSkinningUniforms();
             Engine.Renderer.Uniform(Uniform.GetLocation(ECommonUniform.ModelMatrix), modelMatrix);
             Engine.Renderer.Uniform(Uniform.GetLocation(ECommonUniform.NormalMatrix), normalMatrix);
-            OnSettingUniforms();
 
             Engine.Renderer.RenderPrimitiveManager(this, false);
             Engine.Renderer.UseProgram(null);

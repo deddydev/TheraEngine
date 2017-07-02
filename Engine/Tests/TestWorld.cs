@@ -18,17 +18,17 @@ namespace TheraEngine.Tests
         {
             _settings = new WorldSettings("TestWorld");
             Random r = new Random();
-            BoxActor[] array = new BoxActor[100];
+            BoxActor[] array = new BoxActor[200];
             for (int i = 0; i < array.Length; ++i)
             {
                 PhysicsConstructionInfo sphereInfo = new PhysicsConstructionInfo()
                 {
-                    Mass = 50.0f,
-                    AngularDamping = 0.05f,
-                    LinearDamping = 0.005f,
-                    Restitution = 0.5f,
-                    Friction = 0.08f,
-                    RollingFriction = 0.05f,
+                    Mass = 30.0f,
+                    AngularDamping = 0.1f,
+                    LinearDamping = 0.1f,
+                    Restitution = 0.8f,
+                    Friction = 0.2f,
+                    RollingFriction = 0.2f,
                     CollisionEnabled = true,
                     SimulatePhysics = true,
                     Group = CustomCollisionGroup.DynamicWorld,
@@ -42,7 +42,7 @@ namespace TheraEngine.Tests
                     sphereInfo,
                     1.0f,
                     new Vec3(5.0f + x, 50.0f + y, -100.0f + z),
-                    new Rotator(0.0f, 0.0f, 0.0f, Rotator.Order.YPR),
+                    new Rotator(0.0f, 0.0f, 0.0f, RotationOrder.YPR),
                     Material.GetUnlitColorMaterial());
                 b.RootComponent.PhysicsDriver.OnHit += PhysicsDriver_OnHit;
                 array[i] = b;
@@ -64,8 +64,8 @@ namespace TheraEngine.Tests
                 floorInfo,
                 new Vec3(50.0f, 0.5f, 50.0f),
                 new Vec3(5.0f, 0.0f, -100.0f),
-                new Rotator(0.0f, 0.0f, 0.0f, Rotator.Order.YPR),
-                Material.GetLitColorMaterial(Color.Red));
+                new Rotator(0.0f, 0.0f, 0.0f, RotationOrder.YPR),
+                Material.GetLitColorMaterial(Color.Orange));
 
             //PhysicsConstructionInfo floor2Info = new PhysicsConstructionInfo()
             //{
@@ -86,7 +86,7 @@ namespace TheraEngine.Tests
 
             _settings.GlobalAmbient = new ColorF3(0.01f, 0.01f, 0.01f);
             DirectionalLightComponent dirLightComp = new DirectionalLightComponent(
-                new ColorF3(0.9f, 0.5f, 0.3f), 1.0f, 0.0f, new Rotator(-45.0f, 45.0f, 0.0f, Rotator.Order.YPR));
+                new ColorF3(0.9f, 0.5f, 0.3f), 1.0f, 0.0f, new Rotator(-45.0f, 45.0f, 0.0f, RotationOrder.YPR));
             dirLightComp.Translation.Y = 30.0f;
 
             //PropAnimFloat lightAnim = new PropAnimFloat(360, true, true);

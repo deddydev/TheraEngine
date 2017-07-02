@@ -49,7 +49,7 @@ namespace TheraEngine.Rendering.Models
             //[Category("Tristripper")]
             //public bool BackwardSearch { get { return _backwardSearch; } set { _backwardSearch = value; } }
 
-            private FrameState _initialTransform = FrameState.GetIdentity(TransformOrder.TRS, Rotator.Order.YPR);
+            private FrameState _initialTransform = FrameState.GetIdentity(TransformOrder.TRS, RotationOrder.YPR);
 
             public bool _allowVertexCompression = true;
             public bool _allowNormalCompression = true;

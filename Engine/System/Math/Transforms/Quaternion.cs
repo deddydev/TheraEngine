@@ -114,7 +114,7 @@ namespace System
                 //pitch = (float)Asin(2.0f * test / unit);
                 //roll = (float)Atan2(2.0f * X * W - 2.0f * Y * Z, -sqx + sqy - sqz + sqw);
             }
-            return new Rotator(RadToDeg(pitch), RadToDeg(yaw), RadToDeg(roll), Rotator.Order.YPR);
+            return new Rotator(RadToDeg(pitch), RadToDeg(yaw), RadToDeg(roll), RotationOrder.YPR);
         }
         public Quat Normalized()
         {
@@ -202,7 +202,7 @@ namespace System
         }
 
         public static Quat FromRotator(Rotator rotator)
-            => FromEulerAngles(rotator.Yaw, rotator.Pitch, rotator.Roll, rotator._rotationOrder);
+            => FromEulerAngles(rotator.Yaw, rotator.Pitch, rotator.Roll, rotator.Order);
         
         /// <summary>
         /// Builds a Quaternion from the given euler angles
@@ -210,19 +210,19 @@ namespace System
         /// <param name="yaw">The yaw (heading), rotation around Y axis</param>
         /// <param name="pitch">The pitch (attitude), rotation around X axis</param>
         /// <param name="roll">The roll (bank), rotation around Z axis</param>
-        public static Quat FromEulerAngles(float pitch, float yaw, float roll, Rotator.Order order = Rotator.Order.YPR)
+        public static Quat FromEulerAngles(float pitch, float yaw, float roll, RotationOrder order = RotationOrder.YPR)
         {
             Quat p = FromAxisAngle(Vec3.Right, pitch);
             Quat y = FromAxisAngle(Vec3.Up, yaw);
             Quat r = FromAxisAngle(-Vec3.Forward, roll);
             switch (order)
             {
-                case Rotator.Order.RYP: return r * y * p;
-                case Rotator.Order.YRP: return y * r * p;
-                case Rotator.Order.PRY: return p * r * y;
-                case Rotator.Order.RPY: return r * p * y;
-                case Rotator.Order.YPR: return y * p * r;
-                case Rotator.Order.PYR: return p * y * r;
+                case RotationOrder.RYP: return r * y * p;
+                case RotationOrder.YRP: return y * r * p;
+                case RotationOrder.PRY: return p * r * y;
+                case RotationOrder.RPY: return r * p * y;
+                case RotationOrder.YPR: return y * p * r;
+                case RotationOrder.PYR: return p * y * r;
             }
             return Identity;
         }

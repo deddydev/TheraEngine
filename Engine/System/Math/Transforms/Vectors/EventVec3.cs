@@ -20,7 +20,7 @@ namespace System
         public event ValueChange ZValueChanged;
         public event Action Changed;
 
-        private int _updating = 0;
+        //private int _updating = 0;
         private float _oldX, _oldY, _oldZ;
         [Serialize("XYZ", IsXmlAttribute = true)]
         private Vec3 _data;

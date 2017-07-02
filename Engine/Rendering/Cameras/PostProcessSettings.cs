@@ -43,12 +43,30 @@ namespace TheraEngine.Rendering.Cameras
         LensFlareSettings _lensFlareSettings;
         [Serialize("Anti-Alias")]
         AntiAliasSettings _antiAliasSettings;
-        
+
+        [DisplayName("Anti-Alias Settings")]
+        [Category("Post-Process Settings")]
+        [TypeConverter(typeof(ExpandableObjectConverter))]
         public AntiAliasSettings AntiAliasSettings { get => _antiAliasSettings; set => _antiAliasSettings = value; }
+        [DisplayName("Lens Flare Settings")]
+        [Category("Post-Process Settings")]
+        [TypeConverter(typeof(ExpandableObjectConverter))]
         public LensFlareSettings LensFlareSettings { get => _lensFlareSettings; set => _lensFlareSettings = value; }
+        [DisplayName("Bloom Settings")]
+        [Category("Post-Process Settings")]
+        [TypeConverter(typeof(ExpandableObjectConverter))]
         public BloomSettings BloomSettings { get => _bloomSettings; set => _bloomSettings = value; }
+        [DisplayName("Color Grade Settings")]
+        [Category("Post-Process Settings")]
+        [TypeConverter(typeof(ExpandableObjectConverter))]
         public ColorGradeSettings ColorGradeSettings { get => _colorGradeSettings; set => _colorGradeSettings = value; }
+        [DisplayName("Depth Of Field Settings")]
+        [Category("Post-Process Settings")]
+        [TypeConverter(typeof(ExpandableObjectConverter))]
         public DepthOfFieldSettings DepthOfFieldSettings { get => _depthOfFieldSettings; set => _depthOfFieldSettings = value; }
+        [DisplayName("Vignette Settings")]
+        [Category("Post-Process Settings")]
+        [TypeConverter(typeof(ExpandableObjectConverter))]
         public VignetteSettings VignetteSettings { get => _vignetteSettings; set => _vignetteSettings = value; }
 
         internal void SetUniforms()
@@ -116,19 +134,31 @@ uniform VignetteStruct Vignette;";
     }
     public class ColorGradeSettings : PostSettings
     {
-        private ColorF3 _tint = new ColorF3(1.0f, 1.0f, 1.0f);
+        private EventColorF3 _tint = new ColorF3(1.0f, 1.0f, 1.0f);
         private float _exposure = 1.0f;
         private float _saturation = 1.0f;
         private float _contrast = 1.0f;
         private float _gamma = 2.2f;
 
+        [Category("Color Grade Settings")]
+        [TypeConverter(typeof(ExpandableObjectConverter))]
+        public EventColorF3 Tint { get => _tint; set => _tint = value; }
+        [Category("Color Grade Settings")]
+        public float Exposure { get => _exposure; set => _exposure = value; }
+        [Category("Color Grade Settings")]
+        public float Saturation { get => _saturation; set => _saturation = value; }
+        [Category("Color Grade Settings")]
+        public float Contrast { get => _contrast; set => _contrast = value; }
+        [Category("Color Grade Settings")]
+        public float Gamma { get => _gamma; set => _gamma = value; }
+
         internal void SetUniforms()
         {
-            Engine.Renderer.Uniform("ColorGrade.Tint", _tint);
-            Engine.Renderer.Uniform("ColorGrade.Exposure", _exposure);
-            Engine.Renderer.Uniform("ColorGrade.Saturation", _saturation);
-            Engine.Renderer.Uniform("ColorGrade.Contrast", _contrast);
-            Engine.Renderer.Uniform("ColorGrade.Gamma", _gamma);
+            Engine.Renderer.Uniform("ColorGrade.Tint", Tint.Raw);
+            Engine.Renderer.Uniform("ColorGrade.Exposure", Exposure);
+            Engine.Renderer.Uniform("ColorGrade.Saturation", Saturation);
+            Engine.Renderer.Uniform("ColorGrade.Contrast", Contrast);
+            Engine.Renderer.Uniform("ColorGrade.Gamma", Gamma);
         }
 
         internal static string WriteShaderSetup()

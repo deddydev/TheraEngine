@@ -125,7 +125,7 @@ namespace TheraEngine.Rendering.Models
 
         private float _screenSize = 1.0f;
         internal int _index;
-        internal Dictionary<ulong, ThreadSafeList<int>> _influencedVertices = new Dictionary<ulong, ThreadSafeList<int>>();
+        internal Dictionary<int, ThreadSafeList<int>> _influencedVertices = new Dictionary<int, ThreadSafeList<int>>();
         internal List<CPUSkinInfo.LiveInfluence> _influencedInfluences = new List<CPUSkinInfo.LiveInfluence>();
         internal List<SkeletalRigidSubMesh> _singleBoundMeshes = new List<SkeletalRigidSubMesh>();
         internal List<IPrimitiveManager> _linkedPrimitiveManagers = new List<IPrimitiveManager>();
@@ -239,15 +239,15 @@ namespace TheraEngine.Rendering.Models
         {
             if (!_linkedPrimitiveManagers.Contains(m))
                 _linkedPrimitiveManagers.Add(m);
-            if (!_influencedVertices.ContainsKey(m.UniqueID))
-                _influencedVertices.Add(m.UniqueID, new ThreadSafeList<int>());
+            if (!_influencedVertices.ContainsKey(m.BindingId))
+                _influencedVertices.Add(m.BindingId, new ThreadSafeList<int>());
         }
         public void RemovePrimitiveManager(IPrimitiveManager m)
         {
             if (_linkedPrimitiveManagers.Contains(m))
                 _linkedPrimitiveManagers.Remove(m);
-            if (_influencedVertices.ContainsKey(m.UniqueID))
-                _influencedVertices.Remove(m.UniqueID);
+            if (_influencedVertices.ContainsKey(m.BindingId))
+                _influencedVertices.Remove(m.BindingId);
         }
 
         //internal void CalculateBillboard()
@@ -329,7 +329,7 @@ namespace TheraEngine.Rendering.Models
                     for (int i = 0; i < _linkedPrimitiveManagers.Count; ++i)
                     {
                         IPrimitiveManager m = _linkedPrimitiveManagers[i];
-                        ThreadSafeList<int> influenced = _influencedVertices[m.UniqueID];
+                        ThreadSafeList<int> influenced = _influencedVertices[m.BindingId];
                         
                         m.ModifiedVertexIndices.UnionWith(influenced);
                     }

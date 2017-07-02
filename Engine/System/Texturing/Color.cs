@@ -2,6 +2,8 @@
 using TheraEngine.Rendering.Models;
 using System.Drawing;
 using System.Runtime.InteropServices;
+using System.ComponentModel;
+using System.Globalization;
 
 namespace System
 {
@@ -10,7 +12,68 @@ namespace System
     public unsafe struct ColorF4 : IUniformable4Float, IBufferable
     {
         public float R, G, B, A;
-        
+
+#if EDITOR
+        /// <summary>
+        /// For editor use.
+        /// </summary>
+        public float Red { get => R; set => R = value; }
+        /// <summary>
+        /// For editor use.
+        /// </summary>
+        public float Green { get => G; set => G = value; }
+        /// <summary>
+        /// For editor use.
+        /// </summary>
+        public float Blue { get => B; set => B = value; }
+        /// <summary>
+        /// For editor use.
+        /// </summary>
+        public float Alpha { get => A; set => A = value; }
+#endif
+
+        public string HexCode
+        {
+            get => R.ToByte().ToString("X") + G.ToByte().ToString("X") + B.ToByte().ToString("X") + A.ToByte().ToString("X");
+            set
+            {
+                R = 0.0f;
+                G = 0.0f;
+                B = 0.0f;
+
+                if (value.StartsWith("#"))
+                    value = value.Substring(1);
+                if (value.StartsWith("0x"))
+                    value = value.Substring(2);
+
+                if (value.Length >= 2)
+                {
+                    string r = value.Substring(0, 2);
+                    byte.TryParse(r, NumberStyles.HexNumber, CultureInfo.InvariantCulture, out byte rb);
+                    R = rb / 255.0f;
+                    if (value.Length >= 4)
+                    {
+                        string g = value.Substring(2, 2);
+                        byte.TryParse(g, NumberStyles.HexNumber, CultureInfo.InvariantCulture, out byte gb);
+                        G = gb / 255.0f;
+                        if (value.Length >= 6)
+                        {
+                            string b = value.Substring(4, 2);
+                            byte.TryParse(b, NumberStyles.HexNumber, CultureInfo.InvariantCulture, out byte bb);
+                            B = bb / 255.0f;
+                            if (value.Length >= 8)
+                            {
+                                string a = value.Substring(6, 2);
+                                byte.TryParse(a, NumberStyles.HexNumber, CultureInfo.InvariantCulture, out byte ab);
+                                A = ab / 255.0f;
+                            }
+                        }
+
+                    }
+                }
+            }
+        }
+
         public ColorF4(float r, float g, float b, float a) { R = r; G = g; B = b; A = a; }
 
         public float* Data { get { return (float*)Address; } }
@@ -54,19 +117,167 @@ namespace System
             return String.Format("[R:{0},G:{1},B:{2},A:{3}]", R, G, B, A);
         }
     }
+
+    public class EventColorF3
+    {
+        public event Action RedChanged;
+        public event Action GreenChanged;
+        public event Action BlueChanged;
+        public event FloatChange RedValueChanged;
+        public event FloatChange GreenValueChanged;
+        public event FloatChange BlueValueChanged;
+        public event Action Changed;
+        
+        ColorF3 _raw;
+        private float _oldR, _oldG, _oldB;
+
+        public EventColorF3(ColorF3 rgb)
+        {
+            _raw = rgb;
+        }
+
+        public void SetRawNoUpdate(ColorF3 raw)
+        {
+            _raw = raw;
+        }
+
+        public ColorF3 Raw
+        {
+            get => _raw;
+            set => _raw = value;
+        }
+
+        private void BeginUpdate()
+        {
+            _oldR = R;
+            _oldG = G;
+            _oldB = B;
+        }
+        private void EndUpdate()
+        {
+            bool changed = false;
+            if (R != _oldR)
+            {
+                changed = true;
+                RedChanged?.Invoke();
+                RedValueChanged?.Invoke(R, _oldR);
+            }
+            if (G != _oldG)
+            {
+                changed = true;
+                GreenChanged?.Invoke();
+                GreenValueChanged?.Invoke(G, _oldG);
+            }
+            if (B != _oldB)
+            {
+                changed = true;
+                BlueChanged?.Invoke();
+                BlueValueChanged?.Invoke(B, _oldB);
+            }
+            if (changed)
+                Changed?.Invoke();
+        }
+
+        public float R
+        {
+            get => _raw.R;
+            set
+            {
+                BeginUpdate();
+                _raw.R = value;
+                EndUpdate();
+            }
+        }
+        public float G
+        {
+            get => _raw.G;
+            set
+            {
+                BeginUpdate();
+                _raw.G = value;
+                EndUpdate();
+            }
+        }
+        public float B
+        {
+            get => _raw.B;
+            set
+            {
+                BeginUpdate();
+                _raw.B = value;
+                EndUpdate();
+            }
+        }
+        public string HexCode
+        {
+            get => _raw.HexCode;
+            set
+            {
+                BeginUpdate();
+                _raw.HexCode = value;
+                EndUpdate();
+            }
+        }
+        
+        public static implicit operator ColorF3(EventColorF3 v) { return v._raw; }
+        public static implicit operator EventColorF3(ColorF3 v) { return new EventColorF3(v); }
+    }
+
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     //[Editor(typeof(PropertyGridColorEditor), typeof(UITypeEditor))]
     public unsafe struct ColorF3 : IUniformable3Float, IBufferable
     {
         public float R, G, B;
         
+        [Browsable(false)]
+        public string HexCode
+        {
+            get => R.ToByte().ToString("X") + G.ToByte().ToString("X") + B.ToByte().ToString("X");
+            set
+            {
+                R = 0.0f;
+                G = 0.0f;
+                B = 0.0f;
+
+                if (value.StartsWith("#"))
+                    value = value.Substring(1);
+                if (value.StartsWith("0x"))
+                    value = value.Substring(2);
+
+                if (value.Length >= 2)
+                {
+                    string r = value.Substring(0, 2);
+                    byte.TryParse(r, NumberStyles.HexNumber, CultureInfo.InvariantCulture, out byte rb);
+                    R = rb / 255.0f;
+                    if (value.Length >= 4)
+                    {
+                        string g = value.Substring(2, 2);
+                        byte.TryParse(g, NumberStyles.HexNumber, CultureInfo.InvariantCulture, out byte gb);
+                        G = gb / 255.0f;
+                        if (value.Length >= 6)
+                        {
+                            string b = value.Substring(4, 2);
+                            byte.TryParse(b, NumberStyles.HexNumber, CultureInfo.InvariantCulture, out byte bb);
+                            B = bb / 255.0f;
+                        }
+                    }
+                }
+            }
+        }
+
         public ColorF3(float r, float g, float b) { R = r; G = g; B = b; }
 
-        public float* Data { get { return (float*)Address; } }
+        [Browsable(false)]
+        public float* Data => (float*)Address;
+        [Browsable(false)]
         public VoidPtr Address { get { fixed (void* p = &this) return p; } }
-        public VertexBuffer.ComponentType ComponentType { get { return VertexBuffer.ComponentType.Float; } }
-        public int ComponentCount { get { return 3; } }
-        bool IBufferable.Normalize { get { return false; } }
+        [Browsable(false)]
+        public VertexBuffer.ComponentType ComponentType => VertexBuffer.ComponentType.Float;
+        [Browsable(false)]
+        public int ComponentCount => 3;
+        [Browsable(false)]
+        bool IBufferable.Normalize => false;
+
         public void Write(VoidPtr address) { this = *(ColorF3*)address; }
         public void Read(VoidPtr address) { *(ColorF3*)address = this; }
 

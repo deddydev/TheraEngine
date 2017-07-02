@@ -169,7 +169,8 @@ namespace TheraEngine.Worlds
                 DebugDrawModes.DrawConstraintLimits | 
                 DebugDrawModes.DrawContactPoints,
             };
-            _physicsScene.DispatchInfo.UseContinuous = true;
+            //_physicsScene.DispatchInfo.UseContinuous = true;
+            //_physicsScene.DispatchInfo.AllowedCcdPenetration = 0.1f;
             //_physicsScene.PairCache.SetOverlapFilterCallback(new CustomOvelapFilter());
             _settings.GravityChanged += OnGravityChanged;
 
@@ -225,4 +226,14 @@ namespace TheraEngine.Worlds
         //    LocalPlayerAdded?.Invoke(controller);
         //}
     }
+
+    //internal class CustomOvelapFilter : OverlapFilterCallback
+    //{
+    //    public override bool NeedBroadphaseCollision(BroadphaseProxy proxy0, BroadphaseProxy proxy1)
+    //    {
+    //        return 
+    //            ((short)proxy0.CollisionFilterGroup & (short)proxy1.CollisionFilterMask) != 0 &&
+    //            ((short)proxy1.CollisionFilterGroup & (short)proxy0.CollisionFilterMask) != 0;
+    //    }
+    //}
 }

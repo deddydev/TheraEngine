@@ -88,24 +88,64 @@ namespace TheraEngine.Rendering.Models
                 new Vertex(topRight,    topRightInf,    topRightNormal,     new Vec2(1.0f, 1.0f)),
                 new Vertex(topLeft,     topLeftInf,     topLeftNormal,      new Vec2(0.0f, 1.0f)));
         }
-        /// <summary>
-        /// Y-up is facing the sky, like a floor.
-        /// </summary>
-        public static VertexQuad YUpQuad(float scale = 1.0f) => YUpQuad(scale, scale);
-        /// <summary>
-        /// Y-up is facing the sky, like a floor.
-        /// </summary>
-        public static VertexQuad YUpQuad(float xScale, float zScale)
+
+        public static VertexQuad MakeQuad(
+           Vec3 bottomLeft, Influence bottomLeftInf,
+           Vec3 bottomRight, Influence bottomRightInf,
+           Vec3 topRight, Influence topRightInf,
+           Vec3 topLeft, Influence topLeftInf,
+           bool addAutoNormal = false)
         {
-            float xHalf = xScale / 2.0f;
-            float zHalf = zScale / 2.0f;
-            Vec3 v1 = new Vec3(-xHalf, 0.0f, zHalf);
-            Vec3 v2 = new Vec3(xHalf, 0.0f, zHalf);
-            Vec3 v3 = new Vec3(xHalf, 0.0f, -zHalf);
-            Vec3 v4 = new Vec3(-xHalf, 0.0f, -zHalf);
-            return MakeQuad(v1, v2, v3, v4, Vec3.UnitY);
+            if (addAutoNormal)
+            {
+                Vec3 normal = Vec3.CalculateNormal(bottomLeft, bottomRight, topLeft);
+                return new VertexQuad(
+                    new Vertex(bottomLeft, bottomLeftInf, normal, new Vec2(0.0f, 0.0f)),
+                    new Vertex(bottomRight, bottomRightInf, normal, new Vec2(1.0f, 0.0f)),
+                    new Vertex(topRight, topRightInf, normal, new Vec2(1.0f, 1.0f)),
+                    new Vertex(topLeft, topLeftInf, normal, new Vec2(0.0f, 1.0f)));
+            }
+            else
+                return new VertexQuad(
+                    new Vertex(bottomLeft, bottomLeftInf, new Vec2(0.0f, 0.0f)),
+                    new Vertex(bottomRight, bottomRightInf, new Vec2(1.0f, 0.0f)),
+                    new Vertex(topRight, topRightInf, new Vec2(1.0f, 1.0f)),
+                    new Vertex(topLeft, topLeftInf, new Vec2(0.0f, 1.0f)));
         }
-        public static VertexQuad YUpQuad(BoundingRectangle region)
+
+        /// <summary>
+        /// Positive Y is facing the sky, like a floor.
+        /// </summary>
+        public static VertexQuad PosYQuad(float uniformScale = 1.0f, bool bottomLeftOrigin = false) 
+            => PosYQuad(uniformScale, uniformScale, bottomLeftOrigin);
+        /// <summary>
+        /// Positive Y is facing the sky, like a floor.
+        /// </summary>
+        public static VertexQuad PosYQuad(float xScale, float zScale, bool bottomLeftOrigin)
+        {
+            if (bottomLeftOrigin)
+            {
+                Vec3 v1 = new Vec3(0.0f, 0.0f, 0.0f);
+                Vec3 v2 = new Vec3(xScale, 0.0f, 0.0f);
+                Vec3 v3 = new Vec3(xScale, 0.0f, -zScale);
+                Vec3 v4 = new Vec3(0.0f, 0.0f, -zScale);
+                return MakeQuad(v1, v2, v3, v4, Vec3.UnitY);
+            }
+            else
+            {
+                float xHalf = xScale / 2.0f;
+                float zHalf = zScale / 2.0f;
+                Vec3 v1 = new Vec3(-xHalf, 0.0f, zHalf);
+                Vec3 v2 = new Vec3(xHalf, 0.0f, zHalf);
+                Vec3 v3 = new Vec3(xHalf, 0.0f, -zHalf);
+                Vec3 v4 = new Vec3(-xHalf, 0.0f, -zHalf);
+                return MakeQuad(v1, v2, v3, v4, Vec3.UnitY);
+            }
+        }
+        /// <summary>
+        /// Positive Y is facing the camera, like a wall.
+        /// </summary>
+        public static VertexQuad PosYQuad(BoundingRectangle region)
         {
             return MakeQuad(
                 ((Vec3)region.BottomLeft).Xzy,
@@ -116,14 +156,14 @@ namespace TheraEngine.Rendering.Models
         }
 
         /// <summary>
-        /// Z-up is facing the camera, like a wall.
+        /// Positive Z is facing the camera, like a wall.
         /// </summary>
-        public static VertexQuad ZUpQuad(float scale = 1.0f, bool bottomLeftOrigin = false)
-            => ZUpQuad(scale, scale, bottomLeftOrigin);
+        public static VertexQuad PosZQuad(float uniformScale = 1.0f, bool bottomLeftOrigin = false)
+            => PosZQuad(uniformScale, uniformScale, bottomLeftOrigin);
         /// <summary>
-        /// Z-up is facing the camera, like a wall.
+        /// Positive Z is facing the camera, like a wall.
         /// </summary>
-        public static VertexQuad ZUpQuad(float xScale, float yScale, bool bottomLeftOrigin)
+        public static VertexQuad PosZQuad(float xScale, float yScale, bool bottomLeftOrigin)
         {
             if (bottomLeftOrigin)
             {
@@ -144,7 +184,10 @@ namespace TheraEngine.Rendering.Models
                 return MakeQuad(v1, v2, v3, v4, Vec3.UnitZ);
             }
         }
-        public static VertexQuad ZUpQuad(BoundingRectangle region)
+        /// <summary>
+        /// Positive Z is facing the camera, like a wall.
+        /// </summary>
+        public static VertexQuad PosZQuad(BoundingRectangle region)
         {
             return MakeQuad(
                 region.BottomLeft,
@@ -154,28 +197,34 @@ namespace TheraEngine.Rendering.Models
                 Vec3.UnitZ);
         }
 
-        public static VertexQuad MakeQuad(
-           Vec3 bottomLeft,     Influence bottomLeftInf,
-           Vec3 bottomRight,    Influence bottomRightInf,
-           Vec3 topRight,       Influence topRightInf,
-           Vec3 topLeft,        Influence topLeftInf,
-           bool addAutoNormal = false)
+        /// <summary>
+        /// Negative Z is away from the camera.
+        /// </summary>
+        public static VertexQuad NegZQuad(float uniformScale = 1.0f, bool bottomLeftOrigin = false)
+            => NegZQuad(uniformScale, uniformScale, bottomLeftOrigin);
+        /// <summary>
+        /// Negative Z is away from the camera.
+        /// </summary>
+        public static VertexQuad NegZQuad(float xScale, float yScale, bool bottomLeftOrigin)
         {
-            if (addAutoNormal)
+            if (bottomLeftOrigin)
             {
-                Vec3 normal = Vec3.CalculateNormal(bottomLeft, bottomRight, topLeft);
-                return new VertexQuad(
-                    new Vertex(bottomLeft,  bottomLeftInf,  normal, new Vec2(0.0f, 0.0f)),
-                    new Vertex(bottomRight, bottomRightInf, normal, new Vec2(1.0f, 0.0f)),
-                    new Vertex(topRight,    topRightInf,    normal, new Vec2(1.0f, 1.0f)),
-                    new Vertex(topLeft,     topLeftInf,     normal, new Vec2(0.0f, 1.0f)));
+                Vec3 v1 = new Vec3(0.0f, 0.0f, 0.0f);
+                Vec3 v2 = new Vec3(-xScale, 0.0f, 0.0f);
+                Vec3 v3 = new Vec3(-xScale, yScale, 0.0f);
+                Vec3 v4 = new Vec3(0.0f, yScale, 0.0f);
+                return MakeQuad(v1, v2, v3, v4, -Vec3.UnitZ);
             }
             else
-                return new VertexQuad(
-                    new Vertex(bottomLeft,  bottomLeftInf,  new Vec2(0.0f, 0.0f)),
-                    new Vertex(bottomRight, bottomRightInf, new Vec2(1.0f, 0.0f)),
-                    new Vertex(topRight,    topRightInf,    new Vec2(1.0f, 1.0f)),
-                    new Vertex(topLeft,     topLeftInf,     new Vec2(0.0f, 1.0f)));
+            {
+                float xHalf = xScale / 2.0f;
+                float yHalf = yScale / 2.0f;
+                Vec3 v1 = new Vec3(xHalf, -yHalf, 0.0f);
+                Vec3 v2 = new Vec3(-xHalf, -yHalf, 0.0f);
+                Vec3 v3 = new Vec3(-xHalf, yHalf, 0.0f);
+                Vec3 v4 = new Vec3(xHalf, yHalf, 0.0f);
+                return MakeQuad(v1, v2, v3, v4, -Vec3.UnitZ);
+            }
         }
     }
 }

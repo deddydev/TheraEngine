@@ -32,6 +32,18 @@ namespace TheraEngine.Rendering.Cameras
 
         public override Vec2 Origin => _origin;
 
+        [Category("Orthographic Camera")]
+        public EventVec3 Scale
+        {
+            get => _scale;
+            set
+            {
+                _scale = value;
+                _scale.Changed += CreateTransform;
+                CreateTransform();
+            }
+        }
+
         [Serialize("Scale")]
         private EventVec3 _scale = Vec3.One;
 

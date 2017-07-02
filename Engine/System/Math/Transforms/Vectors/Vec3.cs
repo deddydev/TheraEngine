@@ -9,30 +9,16 @@ using System.ComponentModel;
 
 namespace System
 {
+    /// <summary>
+    /// A struct containing 3 float values.
+    /// For a class version, use EventVec3.
+    /// Also see DVec3, IVec3, UVec3, BoolVec3, BVec3
+    /// </summary>
     [Serializable]
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    public unsafe struct Vec3 : 
-        IEquatable<Vec3>, IUniformable3Float, IBufferable, IParsable
+    public unsafe struct Vec3 : IEquatable<Vec3>, IUniformable3Float, IBufferable, IParsable
     {
         public float X, Y, Z;
-
-#if EDITOR
-        /// <summary>
-        /// For editor use.
-        /// </summary>
-        [DisplayName("X")]
-        public float XValue { get => X; set => X = value; }
-        /// <summary>
-        /// For editor use.
-        /// </summary>
-        [DisplayName("Y")]
-        public float YValue { get => Y; set => Y = value; }
-        /// <summary>
-        /// For editor use.
-        /// </summary>
-        [DisplayName("Z")]
-        public float ZValue { get => Z; set => Z = value; }
-#endif
 
         [Browsable(false)]
         public float* Data => (float*)Address;
@@ -111,28 +97,38 @@ namespace System
         public float DistanceToSquared(Vec3 point)
             => (point - this).LengthSquared;
 
+        /// <summary>
+        /// Safely normalizes this vector to unit length.
+        /// For a faster but less precise method, use NormalizeFast.
+        /// </summary>
         public void Normalize()
         {
             float length = Length;
             if (!length.IsZero())
                 this *= (1.0f / length);
         }
-        public Vec3 Normalized(Vec3 origin)
-            => (this - origin).Normalized();
+        /// <summary>
+        /// Returns a copy of this vector safely normalized to unit length.
+        /// For a faster but less precise method, use NormalizedFast.
+        /// </summary>
         public Vec3 Normalized()
         {
             Vec3 v = this;
             v.Normalize();
             return v;
         }
+        /// <summary>
+        /// Safely normalizes this vector to unit length using an approximation that does not use square root for a minor speed boost at the cost of precision.
+        /// </summary>
         public void NormalizeFast()
         {
             float lengthSq = LengthSquared;
             if (!lengthSq.IsZero())
                 this *= InverseSqrtFast(lengthSq);
         }
-        public Vec3 NormalizedFast(Vec3 origin) 
-            => (this - origin).NormalizedFast();
+        /// <summary>
+        /// Returns a copy of this vector safely normalized to unit length using an approximation that does not use square root for a minor speed boost at the cost of precision.
+        /// </summary>
         public Vec3 NormalizedFast()
         {
             Vec3 v = this;
@@ -460,7 +456,7 @@ namespace System
         //    return Quat.BetweenVectors(startNormal, this).ToYawPitchRoll();
         //}
 
-        public Rotator LookatAngles() { return new Rotator((float)RadToDeg(Atan2(Y, Sqrt(X * X + Z * Z))), (float)RadToDeg(Atan2(-X, -Z)), 0.0f, Rotator.Order.YPR); }
+        public Rotator LookatAngles() { return new Rotator((float)RadToDeg(Atan2(Y, Sqrt(X * X + Z * Z))), (float)RadToDeg(Atan2(-X, -Z)), 0.0f, RotationOrder.YPR); }
         public Rotator LookatAngles(Vec3 origin) { return (this - origin).LookatAngles(); }
 
         //public void LookatAngles(Vec3 startNormal, out float yaw, out float pitch)

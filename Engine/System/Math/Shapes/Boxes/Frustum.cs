@@ -227,7 +227,7 @@ namespace System
             Ray r = new Ray(startPoint, direction);
             points = new List<Vec3>();
             foreach (Plane p in this)
-                if (Collision.RayIntersectsPlane(r.StartPoint, r.Direction, p.Point, p.Normal, out Vec3 point))
+                if (Collision.RayIntersectsPlane(r.StartPoint, r.Direction, p.IntersectionPoint, p.Normal, out Vec3 point))
                     points.Add(point);
             return points.Count > 0;
         }
@@ -296,7 +296,7 @@ namespace System
                 Plane p = Planes[i];
                 GetCornerPoints(i, out Vec3 bottomLeft, out Vec3 bottomRight, out Vec3 topRight, out Vec3 topLeft);
                 //Intersect the capsule's inner segment with the plane as a ray
-                if (Collision.RayIntersectsPlane(bot.Center, top.Center, p.Point, p.Normal, out Vec3 point))
+                if (Collision.RayIntersectsPlane(bot.Center, top.Center, p.IntersectionPoint, p.Normal, out Vec3 point))
                 {
                     //Make sure the resulting point is even within the range of the capsule
                     Segment.Part part = Segment.GetDistancePointToSegmentPart(bot.Center, top.Center, point, out float closestPartDist);

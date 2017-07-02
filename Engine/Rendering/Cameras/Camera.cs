@@ -17,6 +17,7 @@ namespace TheraEngine.Rendering.Cameras
         public delegate void TranslationChange(Vec3 oldTranslation);
         public delegate void RotationChange(Rotator oldRotation);
 
+        [Browsable(false)]
         public bool HasTransparency => false;
 
         public Camera() 
@@ -39,9 +40,12 @@ namespace TheraEngine.Rendering.Cameras
             _localPoint.Changed += PositionChanged;
             PositionChanged();
         }
-        
+
+        [Browsable(false)]
         public Matrix4 ProjectionMatrix => _projectionMatrix;
+        [Browsable(false)]
         public Matrix4 InverseProjectionMatrix => _projectionInverse;
+        [Browsable(false)]
         public Matrix4 WorldMatrix
         {
             get => _owningComponent != null ? _owningComponent.WorldMatrix : _transform;
@@ -60,6 +64,7 @@ namespace TheraEngine.Rendering.Cameras
             //    }
             //}
         }
+        [Browsable(false)]
         public Matrix4 InverseWorldMatrix
         {
             get => _owningComponent != null ? _owningComponent.InverseWorldMatrix : _invTransform;
@@ -78,7 +83,9 @@ namespace TheraEngine.Rendering.Cameras
             //    }
             //}
         }
+        [Browsable(false)]
         public Matrix4 InverseLocalMatrix => _invTransform;
+        [Browsable(false)]
         public Matrix4 LocalMatrix
         {
             get => _transform;
@@ -92,6 +99,7 @@ namespace TheraEngine.Rendering.Cameras
                 OnTransformChanged();
             }
         }
+        [Category("Camera")]
         public float NearZ
         {
             get => _nearZ;
@@ -101,6 +109,7 @@ namespace TheraEngine.Rendering.Cameras
                 CalculateProjection();
             }
         }
+        [Category("Camera")]
         public float FarZ
         {
             get => _farZ;
@@ -110,46 +119,62 @@ namespace TheraEngine.Rendering.Cameras
                 CalculateProjection();
             }
         }
+        [Category("Camera")]
+        [TypeConverter(typeof(ExpandableObjectConverter))]
         public Vec3 WorldPoint
         {
             get => _owningComponent != null ? _owningComponent.WorldMatrix.GetPoint() : _localPoint.Raw;
         }
+        [Category("Camera")]
+        [TypeConverter(typeof(ExpandableObjectConverter))]
         public Vec3 LocalPoint
         {
             get => _localPoint.Raw;
             set => _localPoint.Raw = value;
         }
+        [Category("Camera")]
+        [TypeConverter(typeof(ExpandableObjectConverter))]
         public Rotator LocalRotation
         {
             get => _localRotation;
             set => _localRotation.SetRotations(value);
         }
+        [DisplayName("Post-Processing")]
+        [Category("Camera")]
+        [TypeConverter(typeof(ExpandableObjectConverter))]
         public PostProcessSettings PostProcessSettings
         {
             get => _postProcessSettings;
             set => _postProcessSettings = value ?? new PostProcessSettings();
         }
+
         public abstract float Width { get; }
         public abstract float Height { get; }
         public abstract Vec2 Origin { get; }
         public Vec2 Dimensions => new Vec2(Width, Height);
+
+        [Browsable(false)]
         public List<Viewport> Viewports
         {
             get => _viewports;
-            set => _viewports = value;
+            internal set => _viewports = value;
         }
+        [Browsable(false)]
         public bool IsActiveRenderCamera { get => _isActive; internal set => _isActive = value; }
         public Shape CullingVolume => _transformedFrustum.CullingVolume;
+        [Browsable(false)]
         public bool IsRendering
         {
             get => _transformedFrustum.IsRendering;
             set => _transformedFrustum.IsRendering = value;
         }
+        [Browsable(false)]
         public IOctreeNode OctreeNode
         {
             get => _transformedFrustum.OctreeNode;
             set => _transformedFrustum.OctreeNode = value;
         }
+        [Browsable(false)]
         public CameraComponent OwningComponent
         {
             get => _owningComponent;
@@ -165,6 +190,9 @@ namespace TheraEngine.Rendering.Cameras
                 UpdateTransformedFrustum();
             }
         }
+        [Category("Camera")]
+        [DisplayName("View Target")]
+        [TypeConverter(typeof(ExpandableObjectConverter))]
         public EventVec3 ViewTarget
         {
             get => _viewTarget;

@@ -28,7 +28,7 @@ namespace System
             set => _state = value;
         }
 
-        protected FrameState _state = FrameState.GetIdentity(TransformOrder.TRS, Rotator.Order.YPR);
+        protected FrameState _state = FrameState.GetIdentity(TransformOrder.TRS, RotationOrder.YPR);
         
         protected Vec3 _localUpAxis = Vec3.Up;
         protected float _radius = 0.5f, _halfHeight = 1.0f;

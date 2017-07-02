@@ -11,6 +11,7 @@ using System.Diagnostics;
 using TheraEngine.Input;
 using TheraEngine.Rendering.Animation;
 using TheraEngine.Tests;
+using TheraEngine.Timers;
 
 namespace TheraEngine.Worlds.Actors
 {
@@ -62,7 +63,7 @@ namespace TheraEngine.Worlds.Actors
         protected BoomComponent _tpCameraBoom;
         protected CameraComponent _fpCameraComponent, _tpCameraComponent;
         private bool _firstPerson = false;
-        private Rotator _viewRotation = Rotator.GetZero(Rotator.Order.YPR);
+        private Rotator _viewRotation = Rotator.GetZero(RotationOrder.YPR);
         float _gamePadMovementInputMultiplier = 90.0f;
         float _gamePadLookInputMultiplier = 5.0f;
         protected Vec2 _keyboardMovementInput = Vec2.Zero;

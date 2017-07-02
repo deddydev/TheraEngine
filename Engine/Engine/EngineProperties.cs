@@ -14,6 +14,7 @@ using System.Drawing.Text;
 using System.Diagnostics;
 using System.Threading;
 using System.Collections.Concurrent;
+using TheraEngine.Timers;
 
 namespace TheraEngine
 {
@@ -82,15 +83,15 @@ namespace TheraEngine
         private static PrivateFontCollection _fontCollection = new PrivateFontCollection();
         public static int MainThreadID;
 
-        internal static AbstractRenderer Renderer
+        public static AbstractRenderer Renderer
         {
             get
             {
                 if (MainThreadID != Thread.CurrentThread.ManagedThreadId)
-                    throw new Exception();
+                    throw new Exception("Cannot make render calls off the main thread. Invoke the method containing the calls with RenderPanel.CapturedPanel beforehand.");
                 return _renderer;
             }
-            set => _renderer = value;
+            internal set => _renderer = value;
         }
         internal static AbstractAudioManager Audio
         {

@@ -60,7 +60,7 @@ namespace TheraEngine.Worlds.Actors.Types
                 if (!localRay.LineSphereIntersect(Vec3.Zero, radius, out Vec3 point))
                 {
                     //If no intersect is found, project the ray through the plane perpendicular to the camera.
-                    localRay.LinePlaneIntersect(Vec3.Zero, camera.WorldPoint.Normalized(_transform.Translation), out point);
+                    localRay.LinePlaneIntersect(Vec3.Zero, (camera.WorldPoint - _transform.Translation).Normalized(), out point);
 
                     //Clamp the point to edge of the sphere
                     if (clamp)

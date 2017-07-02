@@ -7,23 +7,31 @@ using System.ComponentModel;
 
 namespace System
 {
-    public delegate void FloatChange(float newValue, float oldValue);
+    public enum RotationOrder
+    {
+        YPR = 0,
+        YRP,
+        PRY,
+        PYR,
+        RPY,
+        RYP,
+    }
     public delegate void RotatorChange(Rotator rotation);
     [Serializable]
     [StructLayout(LayoutKind.Sequential)]
     public unsafe class Rotator : IEquatable<Rotator>
     {
-        public Rotator() : this(Order.YPR) { }
+        public Rotator() : this(RotationOrder.YPR) { }
 
-        public Rotator(Order order) : this(0.0f, 0.0f, 0.0f, order) { }
-        public Rotator(float pitch, float yaw, float roll, Order rotationOrder)
+        public Rotator(RotationOrder order) : this(0.0f, 0.0f, 0.0f, order) { }
+        public Rotator(float pitch, float yaw, float roll, RotationOrder rotationOrder)
         {
             Yaw = yaw;
             Pitch = pitch;
             Roll = roll;
             _rotationOrder = rotationOrder;
         }
-        public Rotator(Vec3 pyr, Order rotationOrder)
+        public Rotator(Vec3 pyr, RotationOrder rotationOrder)
         {
             _pyr = pyr;
             _rotationOrder = rotationOrder;
@@ -37,19 +45,32 @@ namespace System
         private int _updateIndex = 0;
         private Vec3 _prevPyr;
         private Rotator _syncPitch, _syncYaw, _syncRoll, _syncAll;
-        private readonly object _lock = new object();
+        //private readonly object _lock = new object();
 
         [Serialize("PitchYawRoll", IsXmlAttribute = true)]
         public Vec3 _pyr;
         [Serialize("Order", IsXmlAttribute = true)]
-        public Order _rotationOrder = Order.YPR;
+        private RotationOrder _rotationOrder = RotationOrder.YPR;
         [Serialize("LockYaw", IsXmlAttribute = true)]
         private bool _lockYaw = false;
         [Serialize("LockPitch", IsXmlAttribute = true)]
         private bool _lockPitch = false;
         [Serialize("LockRoll", IsXmlAttribute = true)]
         private bool _lockRoll = false;
-        
+
+        [Category("Rotator")]
+        [DisplayName("Order")]
+        public RotationOrder Order
+        {
+            get => _rotationOrder;
+            set
+            {
+                BeginUpdate();
+                _rotationOrder = value;
+                EndUpdate();
+            }
+        }
+
         private void BeginUpdate()
         {
             //if (_updateIndex++ == 0)
@@ -267,16 +288,16 @@ namespace System
         {
             return new Rotator(-Pitch, -Yaw, -Roll, OppositeOf(_rotationOrder));
         }
-        public static Order OppositeOf(Order order)
+        public static RotationOrder OppositeOf(RotationOrder order)
         {
             switch (order)
             {
-                case Order.PRY: return Order.YRP;
-                case Order.PYR: return Order.RYP;
-                case Order.RPY: return Order.YPR;
-                case Order.RYP: return Order.PYR;
-                case Order.YRP: return Order.PRY;
-                case Order.YPR: return Order.RPY;
+                case RotationOrder.PRY: return RotationOrder.YRP;
+                case RotationOrder.PYR: return RotationOrder.RYP;
+                case RotationOrder.RPY: return RotationOrder.YPR;
+                case RotationOrder.RYP: return RotationOrder.PYR;
+                case RotationOrder.YRP: return RotationOrder.PRY;
+                case RotationOrder.YPR: return RotationOrder.RPY;
                 default: throw new Exception();
             }
         }
@@ -341,7 +362,7 @@ namespace System
             _rotationOrder = other._rotationOrder;
             EndUpdate();
         }
-        public void SetRotations(float pitch, float yaw, float roll, Order order)
+        public void SetRotations(float pitch, float yaw, float roll, RotationOrder order)
         {
             BeginUpdate();
             Pitch = pitch;
@@ -370,7 +391,7 @@ namespace System
                 _pyr.Z = other.Roll;
             _rotationOrder = other._rotationOrder;
         }
-        public void SetRotationsNoUpdate(float pitch, float yaw, float roll, Order order)
+        public void SetRotationsNoUpdate(float pitch, float yaw, float roll, RotationOrder order)
         {
             if (!_lockPitch)
                 _pyr.X = pitch;
@@ -381,6 +402,7 @@ namespace System
             _rotationOrder = order;
         }
 
+        [Browsable(false)]
         [XmlIgnore]
         public Vec2 YawPitch
         {
@@ -393,6 +415,7 @@ namespace System
                 EndUpdate();
             }
         }
+        [Category("Rotator")]
         [XmlIgnore]
         public float Yaw
         {
@@ -406,6 +429,7 @@ namespace System
                 EndUpdate();
             }
         }
+        [Category("Rotator")]
         [XmlIgnore]
         public float Pitch
         {
@@ -419,6 +443,7 @@ namespace System
                 EndUpdate();
             }
         }
+        [Category("Rotator")]
         [XmlIgnore]
         public float Roll
         {
@@ -432,6 +457,7 @@ namespace System
                 EndUpdate();
             }
         }
+        [Browsable(false)]
         [XmlIgnore]
         public Vec2 YawRoll
         {
@@ -444,10 +470,11 @@ namespace System
                 EndUpdate();
             }
         }
+        [Browsable(false)]
         [XmlIgnore]
         public Vec2 PitchYaw
         {
-            get { return new Vec2(Pitch, Yaw); }
+            get => new Vec2(Pitch, Yaw);
             set
             {
                 BeginUpdate();
@@ -456,10 +483,11 @@ namespace System
                 EndUpdate();
             }
         }
+        [Browsable(false)]
         [XmlIgnore]
         public Vec2 PitchRoll
         {
-            get { return new Vec2(Pitch, Roll); }
+            get => new Vec2(Pitch, Roll);
             set
             {
                 BeginUpdate();
@@ -468,10 +496,11 @@ namespace System
                 EndUpdate();
             }
         }
+        [Browsable(false)]
         [XmlIgnore]
         public Vec2 RollYaw
         {
-            get { return new Vec2(Roll, Yaw); }
+            get => new Vec2(Roll, Yaw);
             set
             {
                 BeginUpdate();
@@ -480,10 +509,11 @@ namespace System
                 EndUpdate();
             }
         }
+        [Browsable(false)]
         [XmlIgnore]
         public Vec2 RollPitch
         {
-            get { return new Vec2(Roll, Pitch); }
+            get => new Vec2(Roll, Pitch);
             set
             {
                 BeginUpdate();
@@ -492,10 +522,11 @@ namespace System
                 EndUpdate();
             }
         }
+        [Browsable(false)]
         [XmlIgnore]
         public Vec3 YawPitchRoll
         {
-            get { return new Vec3(Yaw, Pitch, Roll); }
+            get => new Vec3(Yaw, Pitch, Roll);
             set
             {
                 BeginUpdate();
@@ -514,10 +545,11 @@ namespace System
             _pyr.Z = temp;
         }
 
+        [Browsable(false)]
         [XmlIgnore]
         public Vec3 YawRollPitch
         {
-            get { return new Vec3(Yaw, Roll, Pitch); }
+            get => new Vec3(Yaw, Roll, Pitch);
             set
             {
                 BeginUpdate();
@@ -527,10 +559,11 @@ namespace System
                 EndUpdate();
             }
         }
+        [Browsable(false)]
         [XmlIgnore]
         public Vec3 PitchYawRoll
         {
-            get { return new Vec3(Pitch, Yaw, Roll); }
+            get => new Vec3(Pitch, Yaw, Roll);
             set
             {
                 BeginUpdate();
@@ -540,10 +573,11 @@ namespace System
                 EndUpdate();
             }
         }
+        [Browsable(false)]
         [XmlIgnore]
         public Vec3 PitchRollYaw
         {
-            get { return new Vec3(Pitch, Roll, Yaw); }
+            get => new Vec3(Pitch, Roll, Yaw);
             set
             {
                 BeginUpdate();
@@ -553,10 +587,11 @@ namespace System
                 EndUpdate();
             }
         }
+        [Browsable(false)]
         [XmlIgnore]
         public Vec3 RollYawPitch
         {
-            get { return new Vec3(Roll, Yaw, Pitch); }
+            get => new Vec3(Roll, Yaw, Pitch);
             set
             {
                 BeginUpdate();
@@ -566,10 +601,11 @@ namespace System
                 EndUpdate();
             }
         }
+        [Browsable(false)]
         [XmlIgnore]
         public Vec3 RollPitchYaw
         {
-            get { return new Vec3(Roll, Pitch, Yaw); }
+            get => new Vec3(Roll, Pitch, Yaw);
             set
             {
                 BeginUpdate();
@@ -579,7 +615,7 @@ namespace System
                 EndUpdate();
             }
         }
-
+        
         public void Round(int decimalPlaces)
         {
             BeginUpdate();
@@ -605,11 +641,11 @@ namespace System
         public static explicit operator Vec3(Rotator v)
             => new Vec3(v.Yaw, v.Pitch, v.Roll);
         public static explicit operator Rotator(Vec3 v)
-            => new Rotator(v.X, v.Y, v.Z, Order.PYR);
+            => new Rotator(v.X, v.Y, v.Z, RotationOrder.PYR);
 
         private static string listSeparator = Globalization.CultureInfo.CurrentCulture.TextInfo.ListSeparator;
 
-        public static Rotator GetZero(Order order = Order.YPR)
+        public static Rotator GetZero(RotationOrder order = RotationOrder.YPR)
         {
            return new Rotator(0.0f, 0.0f, 0.0f, order);
         }
@@ -620,7 +656,7 @@ namespace System
             float.Parse(parts[0].Substring(1, parts[0].Length - 2)),
             float.Parse(parts[1].Substring(0, parts[1].Length - 1)),
             float.Parse(parts[2].Substring(0, parts[2].Length - 1)),
-            (Order)Enum.Parse(typeof(Order), parts[3].Substring(0, parts[3].Length - 1)));
+            (RotationOrder)Enum.Parse(typeof(RotationOrder), parts[3].Substring(0, parts[3].Length - 1)));
         }
         public override string ToString()
         {
@@ -667,15 +703,6 @@ namespace System
                 Pitch.IsZero() && 
                 Yaw.IsZero() && 
                 Roll.IsZero();
-        }
-        public enum Order
-        {
-            YPR = 0,
-            YRP,
-            PRY,
-            PYR,
-            RPY,
-            RYP,
         }
     }
 }

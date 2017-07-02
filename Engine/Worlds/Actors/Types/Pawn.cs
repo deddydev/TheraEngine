@@ -3,6 +3,7 @@ using TheraEngine.Input.Devices;
 using System;
 using TheraEngine.Rendering;
 using TheraEngine.Rendering.HUD;
+using System.ComponentModel;
 
 namespace TheraEngine.Worlds.Actors
 {
@@ -49,14 +50,23 @@ namespace TheraEngine.Worlds.Actors
         private CameraComponent _currentCameraComponent;
         private HudManager _hud = null;
         
+        [Category("Pawn")]
+        [TypeConverter(typeof(ExpandableObjectConverter))]
         public PawnController Controller => _controller;
+        [Browsable(false)]
         public PlayerController ServerPlayerController => Controller as PlayerController;
+        [Browsable(false)]
         public AIController AIController => Controller as AIController;
+        [Browsable(false)]
         public LocalPlayerController LocalPlayerController => Controller as LocalPlayerController;
+
+        [Browsable(false)]
+        public Viewport Viewport => LocalPlayerController?.Viewport;
 
         /// <summary>
         /// Dictates the component controlling the view of this pawn's controller.
         /// </summary>
+        [Browsable(false)]
         public CameraComponent CurrentCameraComponent
         {
             get => _currentCameraComponent;
@@ -69,6 +79,8 @@ namespace TheraEngine.Worlds.Actors
             }
         }
 
+        [Category("Pawn")]
+        [TypeConverter(typeof(ExpandableObjectConverter))]
         public HudManager Hud
         {
             get => _hud;
@@ -106,8 +118,6 @@ namespace TheraEngine.Worlds.Actors
 
             _controller = null;
         }
-
-        public Viewport Viewport => LocalPlayerController?.Viewport;
 
         public virtual void RegisterInput(InputInterface input) { }
         public void TryWorldRebase()

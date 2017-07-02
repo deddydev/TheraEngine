@@ -106,6 +106,8 @@ namespace TheraEngine.Worlds
 
         [Browsable(false)]
         SceneComponent IActor.RootComponent => RootComponent;
+        [DisplayName("Root Component")]
+        [Category("Actor")]
         [TypeConverter(typeof(ExpandableObjectConverter))]
         public T RootComponent
         {
@@ -137,6 +139,8 @@ namespace TheraEngine.Worlds
         [Serialize("LogicComponents")]
         private MonitoredList<LogicComponent> _logicComponents;
 
+        [DisplayName("Logic Components")]
+        [Category("Actor")]
         public MonitoredList<LogicComponent> LogicComponents => _logicComponents;
 
         [Browsable(false)]

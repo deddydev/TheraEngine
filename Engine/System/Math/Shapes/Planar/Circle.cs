@@ -9,6 +9,9 @@ using System.ComponentModel;
 
 namespace System
 {
+    /// <summary>
+    /// Represents a circle in 3D space.
+    /// </summary>
     public class Circle3D : Plane
     {
         public Circle3D()
@@ -33,11 +36,11 @@ namespace System
             set => _radius = value;
         }
         public PrimitiveData GetSolidMesh(int sides)
-            => SolidMesh(Radius, Normal, Point, sides);
+            => SolidMesh(Radius, Normal, IntersectionPoint, sides);
         public PrimitiveData GetWireframeMesh(int sides)
-            => WireframeMesh(Radius, Normal, Point, sides);
+            => WireframeMesh(Radius, Normal, IntersectionPoint, sides);
         public VertexLineStrip GetLineStrip(int sides)
-            => LineStrip(Radius, Normal, Point, sides);
+            => LineStrip(Radius, Normal, IntersectionPoint, sides);
         
         public static PrimitiveData SolidMesh(float radius, Vec3 normal, Vec3 center, int sides)
         {

@@ -134,15 +134,15 @@ namespace TheraEngine.Rendering
         /// </summary>
         public int Generate()
         {
-            //if (RenderContext.Current == null)
-            //    return _currentBind._bindingId;
-
+            if (RenderPanel.CapturedPanel != null && RenderPanel.CapturedPanel.InvokeRequired)
+                return (int)RenderPanel.CapturedPanel.Invoke(new Func<int>(Generate));
+            
             //Make sure current bind is up to date
             GetCurrentBind();
 
             if (IsActive)
                 return BindingId;
-            
+
             int id = CreateObject();
             CurrentBind.BindingId = id;
             OnGenerated();
@@ -156,7 +156,13 @@ namespace TheraEngine.Rendering
         {
             if (RenderContext.Current == null)
                 return;
-            
+
+            if (RenderPanel.CapturedPanel != null && RenderPanel.CapturedPanel.InvokeRequired)
+            {
+                RenderPanel.CapturedPanel.Invoke(new Action(Delete));
+                return;
+            }
+
             //Remove current bind from owners list
             if (_currentBind == null || _currentBind._context != RenderContext.Current)
             {
@@ -180,7 +186,9 @@ namespace TheraEngine.Rendering
                 return;
 
             PreDeleted();
+
             Engine.Renderer.DeleteObject(_type, _currentBind._bindingId);
+
             _currentBind._bindingId = 0;
             _currentBind._context = null;
             PostDeleted();

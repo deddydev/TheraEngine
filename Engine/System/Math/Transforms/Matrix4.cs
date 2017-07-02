@@ -40,14 +40,14 @@ namespace System
             Matrix4 y = rotator.GetYawMatrix();
             Matrix4 p = rotator.GetPitchMatrix();
             Matrix4 r = rotator.GetRollMatrix();
-            switch (rotator._rotationOrder)
+            switch (rotator.Order)
             {
-                case Rotator.Order.YPR: return y * p * r;
-                case Rotator.Order.YRP: return y * r * p;
-                case Rotator.Order.PYR: return p * y * r;
-                case Rotator.Order.PRY: return p * r * y;
-                case Rotator.Order.RPY: return r * p * y;
-                case Rotator.Order.RYP: return r * y * p;
+                case RotationOrder.YPR: return y * p * r;
+                case RotationOrder.YRP: return y * r * p;
+                case RotationOrder.PYR: return p * y * r;
+                case RotationOrder.PRY: return p * r * y;
+                case RotationOrder.RPY: return r * p * y;
+                case RotationOrder.RYP: return r * y * p;
             }
             return Identity;
         }
@@ -642,7 +642,7 @@ namespace System
         /// <returns>A Matrix4 that transforms world space to camera space</returns>
         public static Matrix4 LookAt(Vec3 eye, Vec3 target, Vec3 up)
         {
-            Vec3 z = eye.NormalizedFast(target);
+            Vec3 z = (eye - target).NormalizedFast();
             Vec3 x = (up ^ z).NormalizedFast();
             Vec3 y = (z ^ x).NormalizedFast();
 

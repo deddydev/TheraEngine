@@ -308,10 +308,9 @@ namespace Testris
             root.Add(board);
             return root;
         }
-        public override void OnSpawned(World world)
+        public override void OnSpawnedPostComponentSetup(World world)
         {
             LocalPlayerController.SetPause(true);
-            base.OnSpawned(world);
         }
 
         public override void OnDespawned()

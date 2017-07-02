@@ -67,6 +67,21 @@ namespace TheraEngine.Rendering
             foreach (Texture2D t in Textures)
                 t.Resize(width, height);
         }
+
+        public event Action SettingUniforms;
+
+        public override void SetUniforms()
+        {
+            foreach (GLVar v in _parameters)
+                v.SetUniform();
+
+            SettingUniforms?.Invoke();
+
+            if (Engine.Settings.ShadingStyle == ShadingStyle.Deferred)
+                Engine.Scene.Lights.SetUniforms();
+
+            Engine.Renderer.Uniform(Uniform.GetLocation(ECommonUniform.RenderDelta), Engine.RenderDelta);
+        }
     }
     public class GBuffer : FrameBuffer
     {
@@ -85,12 +100,12 @@ namespace TheraEngine.Rendering
             _parent = viewport;
             _forward = forward;
 
-            Vertex point0 = new Vec3(0.0f, 0.0f, -2.0f);
-            Vertex point1 = new Vec3(2.0f, 0.0f, -2.0f);
-            Vertex point2 = new Vec3(0.0f, 2.0f, -2.0f);
-            //Vertex point3 = new Vec3(0.0f, 1.0f, -2.0f);
-            //Vertex point4 = new Vec3(1.0f, 0.0f, -2.0f);
-            //Vertex point5 = new Vec3(1.0f, 1.0f, -2.0f);
+            Vertex point0 = new Vec3(0.0f, 0.0f, 0.0f);
+            Vertex point1 = new Vec3(2.0f, 0.0f, 0.0f);
+            Vertex point2 = new Vec3(0.0f, 2.0f, 0.0f);
+            //Vertex point3 = new Vec3(0.0f, 1.0f, 0.0f);
+            //Vertex point4 = new Vec3(1.0f, 0.0f, 0.0f);
+            //Vertex point5 = new Vec3(1.0f, 1.0f, 0.0ff);
 
             VertexTriangle triangle1 = new VertexTriangle(point0, point1, point2);
             //VertexTriangle triangle2 = new VertexTriangle(point3, point4, point5);
@@ -134,32 +149,22 @@ namespace TheraEngine.Rendering
             }
 
             _fullScreenTriangle.Program.Update(this, _attachmentsPerTexture, _colorAttachments, _parent.Region.IntWidth, _parent.Region.IntHeight);
-            _fullScreenTriangle.SettingUniforms += _fullScreenTriangle_SettingUniforms;
+            _fullScreenTriangle.Program.SettingUniforms += Program_SettingUniforms;
+            //_fullScreenTriangle.SettingUniforms += _fullScreenTriangle_SettingUniforms;
 
-            _quadCamera = new OrthographicCamera();
+            _quadCamera = new OrthographicCamera() { NearZ = -0.5f, FarZ = 0.5f };
             _quadCamera.SetGraphStyle();
             _quadCamera.Resize(1.0f, 1.0f);
             //Resize(region);
         }
 
-        protected override void OnGenerated()
-        {
-        }
-
-        private void _fullScreenTriangle_SettingUniforms()
+        private void Program_SettingUniforms()
         {
             _parent.Camera.PostProcessSettings.SetUniforms();
-            if (Engine.Settings.ShadingStyle == ShadingStyle.Deferred)
-            {
-                //_parent.Camera.SetUniforms();
-                Engine.Scene.Lights.SetUniforms();
-            }
+            AbstractRenderer.CurrentCamera.SetUniforms();
+            Engine.Renderer.Uniform(Uniform.GetLocation(ECommonUniform.CameraPosition), _parent.Camera.WorldPoint);
         }
 
-        ~GBuffer()
-        {
-            _fullScreenTriangle.SettingUniforms -= _fullScreenTriangle_SettingUniforms;
-        }
         public unsafe void Resize(int width, int height)
         {
             _fullScreenTriangle.Program.Resized(width, height);
@@ -337,8 +342,8 @@ void main()
     hdrSceneColor *= ColorGrade.Tint;
 
     //Tone mapping
-    vec3 ldrSceneColor = hdrSceneColor / (hdrSceneColor + 0.187) * 1.035;
-
+    vec3 ldrSceneColor = vec3(1.0) - exp(-hdrSceneColor * ColorGrade.Exposure);
+    
     //Vignette
     //float alpha = clamp(pow(distance(uv, vec2(0.5)), Vignette.Intensity), 0.0, 1.0);
     //vec4 smoothed = smoothstep(vec4(1.0), Vignette.Color, Vignette.Color * vec4(alpha));

@@ -85,7 +85,7 @@ namespace System
             return false;
         }
         public bool LinePlaneIntersect(Plane p, out Vec3 result)
-            => LinePlaneIntersect(p.Point, p.Normal, out result);
+            => LinePlaneIntersect(p.IntersectionPoint, p.Normal, out result);
 
         public bool LinePlaneIntersect(Vec3 point, Vec3 normal, out Vec3 result)
         {

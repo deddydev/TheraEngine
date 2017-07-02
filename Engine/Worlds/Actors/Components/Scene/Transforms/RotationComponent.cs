@@ -16,7 +16,7 @@ namespace TheraEngine.Worlds.Actors
         {
             Rotation = Rotator.GetZero();
         }
-        public RotationComponent(Rotator.Order order) : base()
+        public RotationComponent(RotationOrder order) : base()
         {
             Rotation = Rotator.GetZero(order);
         }
@@ -24,11 +24,11 @@ namespace TheraEngine.Worlds.Actors
         {
             Rotation = rotation;
         }
-        public RotationComponent(float pitch, float yaw, float roll, Rotator.Order order = Rotator.Order.YPR) : base()
+        public RotationComponent(float pitch, float yaw, float roll, RotationOrder order = RotationOrder.YPR) : base()
         {
             Rotation = new Rotator(pitch, yaw, roll, order);
         }
-        public RotationComponent(Vec3 pitchYawRoll, Rotator.Order order = Rotator.Order.YPR) : base()
+        public RotationComponent(Vec3 pitchYawRoll, RotationOrder order = RotationOrder.YPR) : base()
         {
             Rotation = new Rotator(pitchYawRoll, order);
         }

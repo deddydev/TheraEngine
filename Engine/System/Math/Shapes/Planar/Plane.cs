@@ -8,6 +8,9 @@ using System.ComponentModel;
 
 namespace System
 {
+    /// <summary>
+    /// Represents a plane in 3D space using a normal and distance to the origin (0,0,0).
+    /// </summary>
     public class Plane : FileObject
     {
         /*
@@ -23,7 +26,7 @@ namespace System
         */
         
         [Serialize("Normal")]
-        protected Vec3 _normal;
+        protected EventVec3 _normal;
         [Serialize("Distance")]
         protected float _distance;
 
@@ -93,28 +96,38 @@ namespace System
             //Solve for distance
             _distance = -point0.Dot(_normal);
         }
+        [Category("Plane")]
         public float Distance
         {
             get => _distance;
             set => _distance = value;
         }
-        public Vec3 Point
+        /// <summary>
+        /// The intersection point of a line, which is perpendicular to the plane and passes through the origin, and the plane.
+        /// Note that while you can set this point to anything, the original world position will be lost and the distance value will be updated
+        /// so that the plane is coplanar with the point, using same normal.
+        /// </summary>
+        [Category("Plane")]
+        [Description(@"The intersection point of a line, which is perpendicular to the plane and passes through the origin, and the plane.
+Note that while you can set this point to anything, the original world position will be lost and the distance value will be updated so that the plane is coplanar with the point, using same normal.")]
+        public Vec3 IntersectionPoint
         {
             //Ax + By + Cz + D = 0
             //Ax + By + Cz = -D
             //(x, y, z) = -D * (A, B, C)
-            get { return _normal * -_distance; }
-            set { _distance = -value.Dot(_normal); }
+            get => _normal * -_distance;
+            set => _distance = -value.Dot(_normal);
         }
-        public Vec3 Normal
+        [Category("Plane")]
+        public EventVec3 Normal
         {
             get => _normal;
             set
             {
-                Vec3 point = Point;
+                Vec3 point = IntersectionPoint;
                 _normal = value;
                 _normal.NormalizeFast();
-                Point = point;
+                IntersectionPoint = point;
             }
         }
         public void NormalizeFast()
@@ -168,91 +181,33 @@ namespace System
             => Collision.DistancePlanePoint(this, point);
         public Plane TransformedBy(Matrix4 transform)
         {
-            Vec3 point = Point;
+            Vec3 point = IntersectionPoint;
             Vec3 normal = Normal;
             return new Plane(Vec3.TransformPosition(point, transform), Vec3.TransformNormal(normal, transform));
         }
+
         public PrimitiveData GetWireframeMesh(float xExtent, float yExtent)
-            => WireframeMesh(Point, Normal.LookatAngles(), xExtent, yExtent);
+            => WireframeMesh(IntersectionPoint, Normal, xExtent, yExtent);
         public PrimitiveData GetSolidMesh(float xExtent, float yExtent, Culling culling)
-            => SolidMesh(Point, Normal.LookatAngles(), xExtent, yExtent, culling);
-        public static PrimitiveData WireframeMesh(Vec3 position, Rotator rotation, float xExtent, float yExtent)
+            => SolidMesh(IntersectionPoint, Normal, xExtent, yExtent, culling);
+        public static PrimitiveData WireframeMesh(Vec3 position, Vec3 normal, float xExtent, float yExtent)
         {
-            Vertex v0 = new Vertex();
-            Vertex v1 = new Vertex();
-            Vertex v2 = new Vertex();
-            Vertex v3 = new Vertex();
-            return PrimitiveData.FromLineStrips(new PrimitiveBufferInfo() { _hasNormals = false, _texcoordCount = 0 }, new VertexLineStrip(true, v0, v1, v2, v3));
+            Quat r = normal.LookatAngles().ToQuaternion();
+            Vec3 bottomLeft = position + new Vec3(-0.5f * xExtent, -0.5f * yExtent, 0.0f) * r;
+            Vec3 bottomRight = position + new Vec3(0.5f * xExtent, -0.5f * yExtent, 0.0f) * r;
+            Vec3 topLeft = position + new Vec3(-0.5f * xExtent, 0.5f * yExtent, 0.0f) * r;
+            Vec3 topRight = position + new Vec3(0.5f * xExtent, 0.5f * yExtent, 0.0f) * r;
+            return PrimitiveData.FromLineStrips(PrimitiveBufferInfo.JustPositions(), new VertexLineStrip(true, bottomLeft, bottomRight, topRight, topLeft));
         }
-        public static PrimitiveData SolidMesh(Vec3 position, Rotator rotation, float xExtent, float yExtent, Culling culling)
+        public static PrimitiveData SolidMesh(Vec3 position, Vec3 normal, float xExtent, float yExtent, Culling culling)
         {
-            float xHalf = xExtent / 2.0f;
-            float yHalf = yExtent / 2.0f;
-            Vec3 topFront = new Vec3(0.0f, yHalf, xHalf);
-            Vec3 topBack = new Vec3(0.0f, yHalf, -xHalf);
-            Vec3 bottomFront = new Vec3(0.0f, -yHalf, xHalf);
-            Vec3 bottomBack = new Vec3(0.0f, -yHalf, -xHalf);
-            Vec3 normal = Vec3.Up;
-            Vertex v0 = new Vertex(bottomFront, normal, new Vec2(0.0f, 0.0f));
-            Vertex v1 = new Vertex(bottomBack, normal, new Vec2(1.0f, 0.0f));
-            Vertex v2 = new Vertex(topBack, normal, new Vec2(1.0f, 1.0f));
-            Vertex v3 = new Vertex(topFront, normal, new Vec2(0.0f, 1.0f));
-            return PrimitiveData.FromQuads(culling, new PrimitiveBufferInfo(), new VertexQuad(v0, v1, v2, v3));
+            Quat r = normal.LookatAngles().ToQuaternion();
+            Vec3 bottomLeft = position + new Vec3(-0.5f * xExtent, -0.5f * yExtent, 0.0f) * r;
+            Vec3 bottomRight = position + new Vec3(0.5f * xExtent, -0.5f * yExtent, 0.0f) * r;
+            Vec3 topLeft = position + new Vec3(-0.5f * xExtent, 0.5f * yExtent, 0.0f) * r;
+            Vec3 topRight = position + new Vec3(0.5f * xExtent, 0.5f * yExtent, 0.0f) * r;
+            VertexQuad q = VertexQuad.MakeQuad(bottomLeft, bottomRight, topRight, topLeft, normal);
+            return PrimitiveData.FromQuads(culling, PrimitiveBufferInfo.PosNormTex1(), q);
         }
-
-        //public const string XMLTag = "plane";
-        //protected override int OnCalculateSize(StringTable table)
-        //    => Header.Size;
-        //public unsafe override void Write(VoidPtr address, StringTable table)
-        //    => *(Header*)address = this;
-        //public unsafe override void Read(VoidPtr address, VoidPtr strings)
-        //{
-        //    Header h = *(Header*)address;
-        //    _normal = h._normal;
-        //    _distance = h._distance;
-        //}
-        //public override void Write(XmlWriter writer)
-        //{
-        //    writer.WriteStartElement(XMLTag);
-        //    writer.WriteElementString("normal", _normal.ToString(false, false));
-        //    writer.WriteElementString("distance", _distance.ToString());
-        //    //writer.WriteElementString("point", Point.ToString(false, false));
-        //    writer.WriteEndElement();
-        //}
-        //public override void Read(XMLReader reader)
-        //{
-        //    if (!reader.Name.Equals(XMLTag, true))
-        //        throw new Exception();
-        //    while (reader.BeginElement())
-        //    {
-        //        if (reader.Name.Equals("normal", true))
-        //            Normal = Vec3.Parse(reader.ReadElementString());
-        //        else if (reader.Name.Equals("distance", true))
-        //            _distance = float.Parse(reader.ReadElementString());
-        //        //else if (reader.Name.Equals("point", true))
-        //        //    Point = Vec3.Parse(reader.ReadElementString());
-        //        reader.EndElement();
-        //    }
-        //}
-
-        //[StructLayout(LayoutKind.Sequential, Pack = 1)]
-        //public struct Header
-        //{
-        //    public const int Size = 0x10;
-
-        //    public float _distance;
-        //    public BVec3 _normal;
-
-        //    public static implicit operator Header(Plane p)
-        //    {
-        //        return new Header()
-        //        {
-        //            _distance = p._distance,
-        //            _normal = p._normal,
-        //        };
-        //    }
-        //    public static implicit operator Plane(Header h)
-        //        => new Plane(h._normal, h._distance);
-        //}
     }
 }

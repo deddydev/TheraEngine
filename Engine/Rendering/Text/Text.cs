@@ -24,7 +24,7 @@ namespace TheraEngine.Rendering.Text
         {
             _text = text;
             _font = font;
-            _brush = new SolidBrush(color);
+            _brush = new SolidBrush((Color)color);
             _position = position;
             _originPercentages = originPercentages;
             _scale = scale;
@@ -69,7 +69,7 @@ namespace TheraEngine.Rendering.Text
             set
             {
                 _color = value;
-                _brush = new SolidBrush(_color);
+                _brush = new SolidBrush((Color)_color);
                 _parent?.TextChanged(this);
             }
         }

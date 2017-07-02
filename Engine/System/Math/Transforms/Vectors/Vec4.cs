@@ -5,44 +5,33 @@ using static System.CustomMath;
 using TheraEngine;
 using TheraEngine.Rendering.Models;
 using System.ComponentModel;
+using System.Globalization;
 
 namespace System
 {
+    /// <summary>
+    /// A struct containing 4 float values.
+    /// For a class version, use EventVec4.
+    /// Also see DVec4, IVec4, UVec4, BoolVec4, BVec4
+    /// </summary>
     [Serializable]
+    [TypeConverter(typeof(Vec4StringConverter))]
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    public unsafe struct Vec4 : 
-        IEquatable<Vec4>, IUniformable4Float, IBufferable, IParsable
+    public unsafe struct Vec4 : IEquatable<Vec4>, IUniformable4Float, IBufferable, IParsable
     {
         public float X, Y, Z, W;
 
-#if EDITOR
-        /// <summary>
-        /// For editor use.
-        /// </summary>
-        [DisplayName("X")]
-        public float XValue { get => X; set => X = value; }
-        /// <summary>
-        /// For editor use.
-        /// </summary>
-        [DisplayName("Y")]
-        public float YValue { get => Y; set => Y = value; }
-        /// <summary>
-        /// For editor use.
-        /// </summary>
-        [DisplayName("Z")]
-        public float ZValue { get => Z; set => Z = value; }
-        /// <summary>
-        /// For editor use.
-        /// </summary>
-        [DisplayName("Z")]
-        public float WValue { get => W; set => W = value; }
-#endif
-
-        public float* Data { get { return (float*)Address; } }
+        [Browsable(false)]
+        public float* Data => (float*)Address;
+        [Browsable(false)]
         public VoidPtr Address { get { fixed (void* p = &this) return p; } }
-        public VertexBuffer.ComponentType ComponentType { get { return VertexBuffer.ComponentType.Float; } }
-        public int ComponentCount { get { return 4; } }
-        bool IBufferable.Normalize { get { return false; } }
+        [Browsable(false)]
+        public VertexBuffer.ComponentType ComponentType => VertexBuffer.ComponentType.Float;
+        [Browsable(false)]
+        public int ComponentCount => 4;
+        [Browsable(false)]
+        bool IBufferable.Normalize => false;
+
         public void Write(VoidPtr address) { *(Vec4*)address = this; }
         public void Read(VoidPtr address) { this = *(Vec4*)address; }
 
@@ -97,6 +86,22 @@ namespace System
             Z = v.Z;
             W = v.W;
         }
+        public Vec4(string s)
+        {
+            X = Y = Z = W = 0.0f;
+
+            char[] delims = new char[] { ',', '(', ')', ' ' };
+            string[] arr = s.Split(delims, StringSplitOptions.RemoveEmptyEntries);
+
+            if (arr.Length >= 4)
+            {
+                float.TryParse(arr[0], NumberStyles.Any, CultureInfo.InvariantCulture, out X);
+                float.TryParse(arr[1], NumberStyles.Any, CultureInfo.InvariantCulture, out Y);
+                float.TryParse(arr[2], NumberStyles.Any, CultureInfo.InvariantCulture, out Z);
+                float.TryParse(arr[3], NumberStyles.Any, CultureInfo.InvariantCulture, out W);
+            }
+        }
+
         public float this[int index]
         {
             get
@@ -113,9 +118,12 @@ namespace System
             }
         }
 
-        public float LengthSquared { get { return X * X + Y * Y + Z * Z + W * W; } }
-        public float Length { get { return (float)Sqrt(LengthSquared); } }
-        public float LengthFast { get { return 1.0f / InverseSqrtFast(LengthSquared); } }
+        [Browsable(false)]
+        public float LengthSquared => X * X + Y * Y + Z * Z + W * W;
+        [Browsable(false)]
+        public float Length => (float)Sqrt(LengthSquared);
+        [Browsable(false)]
+        public float LengthFast => 1.0f / InverseSqrtFast(LengthSquared);
 
         public void Normalize() { this *= (1.0f / Length); }
         public Vec4 Normalized()
@@ -825,7 +833,7 @@ namespace System
         {
             return new Vec4(v.X, v.Y, v.Z, v.W);
         }
-        private static string listSeparator = Globalization.CultureInfo.CurrentCulture.TextInfo.ListSeparator;
+        private static string listSeparator = CultureInfo.CurrentCulture.TextInfo.ListSeparator;
         public override string ToString()
         {
             return String.Format("({0}{4} {1}{4} {2}{4} {3})", X, Y, Z, W, listSeparator);
@@ -833,25 +841,7 @@ namespace System
         public string ToString(bool includeParentheses, bool includeSeparator)
            => String.Format("{5}{0}{4} {1}{4} {2}{4} {3}{6}", X, Y, Z, W,
                includeSeparator ? listSeparator : "", includeParentheses ? "(" : "", includeParentheses ? ")" : "");
-        public static Vec4 Parse(string value)
-        {
-            value = value.Trim();
 
-            if (value.StartsWith("("))
-                value = value.Substring(1);
-            if (value.EndsWith(")"))
-                value = value.Substring(0, value.Length - 1);
-
-            string[] parts = value.Split(' ');
-            if (parts[0].EndsWith(listSeparator))
-                parts[0].Substring(0, parts[0].Length - 1);
-            if (parts[1].EndsWith(listSeparator))
-                parts[1].Substring(0, parts[1].Length - 1);
-            if (parts[2].EndsWith(listSeparator))
-                parts[2].Substring(0, parts[1].Length - 1);
-
-            return new Vec4(float.Parse(parts[0]), float.Parse(parts[1]), float.Parse(parts[2]), float.Parse(parts[3]));
-        }
         public override int GetHashCode()
         {
             unchecked
@@ -889,6 +879,6 @@ namespace System
         public string WriteToString()
             => ToString(false, false);
         public void ReadFromString(string str)
-            => this = Parse(str);
+            => this = new Vec4(str);
     }
 }

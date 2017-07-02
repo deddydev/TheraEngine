@@ -23,7 +23,7 @@ namespace TheraEngine.Worlds
         public void OnGameModeChanged(BaseGameMode oldMode) => GameModeChanged?.Invoke(oldMode);
         public void OnTimeMultiplierChanged(float oldMult) => TimeMultiplierChanged?.Invoke(oldMult);
 
-        [TypeConverter(typeof(ExpandableObjectConverter))]
+        [TypeConverter(typeof(Vec3StringConverter))]
         public Vec3 Gravity
         {
             get => _gravity;
@@ -62,14 +62,12 @@ namespace TheraEngine.Worlds
         private SingleFileRef<BaseGameMode> _gameMode;
         [Serialize("TimeDilation")]
         private float _timeSpeed = 1.0f;
-
-        [TypeConverter(typeof(ExpandableObjectConverter))]
+        
         public BoundingBox OriginRebaseBounds
         {
             get => _originRebaseBounds;
             set => _originRebaseBounds = value;
         }
-        [TypeConverter(typeof(ExpandableObjectConverter))]
         public BoundingBox Bounds
         {
             get => _bounds;
@@ -105,8 +103,7 @@ namespace TheraEngine.Worlds
             get => _defaultHud;
             set => _defaultHud = value;
         }
-        [TypeConverter(typeof(ExpandableObjectConverter))]
-        public Vec3 GlobalAmbient
+        public ColorF3 GlobalAmbient
         {
             get => _globalAmbient;
             set => _globalAmbient = value;

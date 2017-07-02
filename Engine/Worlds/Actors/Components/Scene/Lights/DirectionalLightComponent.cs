@@ -77,7 +77,7 @@ namespace TheraEngine.Worlds.Actors
         public override void SetUniforms()
         {
             string indexer = Uniform.DirectionalLightsName + "[" + _lightIndex + "].";
-            Engine.Renderer.Uniform(indexer + "Base.Color", _color);
+            Engine.Renderer.Uniform(indexer + "Base.Color", _color.Raw);
             Engine.Renderer.Uniform(indexer + "Base.AmbientIntensity", _ambientIntensity);
             Engine.Renderer.Uniform(indexer + "Base.DiffuseIntensity", _diffuseIntensity);
             Engine.Renderer.Uniform(indexer + "Direction", _direction);

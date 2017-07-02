@@ -1,11 +1,13 @@
 ﻿using System;
 using TheraEngine.Rendering.Textures;
 using TheraEngine.Rendering.Models.Materials;
+using System.ComponentModel;
 
 namespace TheraEngine.Worlds.Actors
 {
     public class PointLightComponent : LightComponent
     {
+        [Category("Point Light Component")]
         public float Radius
         {
             get => _radius;
@@ -36,7 +38,7 @@ namespace TheraEngine.Worlds.Actors
             Vec3 point = WorldMatrix.GetPoint();
 
             string indexer = Uniform.PointLightsName + "[" + _lightIndex + "].";
-            Engine.Renderer.Uniform(indexer + "Base.Color", _color);
+            Engine.Renderer.Uniform(indexer + "Base.Color", _color.Raw);
             Engine.Renderer.Uniform(indexer + "Base.AmbientIntensity", _ambientIntensity);
             Engine.Renderer.Uniform(indexer + "Base.DiffuseIntensity", _diffuseIntensity);
             Engine.Renderer.Uniform(indexer + "Position", point);

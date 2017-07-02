@@ -9,8 +9,9 @@ using System.ComponentModel;
 namespace System
 {
     public delegate void ValueChange(float oldValue, float newValue);
-    public unsafe class EventVec3 : 
-        IEquatable<EventVec3>, IUniformable3Float, IBufferable, IParsable
+
+    [TypeConverter(typeof(ExpandableObjectConverter))]
+    public unsafe class EventVec3 : IEquatable<EventVec3>, IUniformable3Float, IBufferable, IParsable
     {
         public event Action XChanged;
         public event Action YChanged;

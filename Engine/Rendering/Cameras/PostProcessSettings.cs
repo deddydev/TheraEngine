@@ -98,7 +98,7 @@ namespace TheraEngine.Rendering.Cameras
         private ColorF4 _color = System.Drawing.Color.Black;
         private float _intensity = 1.0f;
 
-        public ColorF3 Color { get => _color; set => _color = value; }
+        public ColorF4 Color { get => _color; set => _color = value; }
         public float Intensity { get => _intensity; set => _intensity = value; }
 
         internal void SetUniforms()
@@ -141,7 +141,6 @@ uniform VignetteStruct Vignette;";
         private float _gamma = 2.2f;
 
         [Category("Color Grade Settings")]
-        [TypeConverter(typeof(ExpandableObjectConverter))]
         public EventColorF3 Tint { get => _tint; set => _tint = value; }
         [Category("Color Grade Settings")]
         public float Exposure { get => _exposure; set => _exposure = value; }

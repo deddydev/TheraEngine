@@ -27,7 +27,6 @@ namespace Testris
         private TetrisPiece _currentBlock;
         private TetrisPiece _nextBlock;
         private float _delta;
-        private bool _playing = false;
         private int _score;
         private int[] _baseScores = { 40, 100, 300, 1200 };
         private int _level = 0;
@@ -74,11 +73,17 @@ namespace Testris
 
         public override void RegisterInput(InputInterface input)
         {
-            input.RegisterButtonEvent(GamePadButton.SpecialRight, ButtonInputType.Pressed, Pause, InputPauseType.TickAlways);
-            input.RegisterButtonEvent(EKey.Escape, ButtonInputType.Pressed, Pause, InputPauseType.TickAlways);
+            input.RegisterButtonEvent(GamePadButton.SpecialRight, ButtonInputType.Pressed, Exit, InputPauseType.TickAlways);
+            input.RegisterButtonEvent(EKey.Escape, ButtonInputType.Pressed, Exit, InputPauseType.TickAlways);
 
-            input.RegisterButtonEvent(EKey.Enter, ButtonInputType.Pressed, BeginGame, InputPauseType.TickAlways);
+            input.RegisterButtonEvent(EKey.Enter, ButtonInputType.Pressed, BeginGame, InputPauseType.TickOnlyWhenPaused);
             input.RegisterButtonEvent(GamePadButton.FaceDown, ButtonInputType.Pressed, BeginGame, InputPauseType.TickOnlyWhenPaused);
+
+            input.RegisterButtonEvent(GamePadButton.DPadUp, ButtonInputType.Pressed, Rotate, InputPauseType.TickOnlyWhenUnpaused);
+            input.RegisterButtonEvent(GamePadButton.DPadLeft, ButtonInputType.Pressed, MoveLeft, InputPauseType.TickOnlyWhenUnpaused);
+            input.RegisterButtonEvent(GamePadButton.DPadRight, ButtonInputType.Pressed, MoveRight, InputPauseType.TickOnlyWhenUnpaused);
+            input.RegisterButtonEvent(GamePadButton.DPadDown, ButtonInputType.Pressed, StartSpeedUp, InputPauseType.TickOnlyWhenUnpaused);
+            input.RegisterButtonEvent(GamePadButton.DPadDown, ButtonInputType.Released, EndSpeedUp, InputPauseType.TickOnlyWhenUnpaused);
 
             input.RegisterButtonEvent(EKey.Up, ButtonInputType.Pressed, Rotate, InputPauseType.TickOnlyWhenUnpaused);
             input.RegisterButtonEvent(EKey.Left, ButtonInputType.Pressed, MoveLeft, InputPauseType.TickOnlyWhenUnpaused);
@@ -89,6 +94,8 @@ namespace Testris
 
         private void BeginGame()
         {
+            _delta = 0;
+            _score = 0;
             _blockBoard = new int[_rows, _columns];
             for (int row = 0; row < _rows; ++row)
                 for (int col = 0; col < _columns; ++col)
@@ -97,28 +104,22 @@ namespace Testris
                     _hudBoard[row, col].Parameter<GLVec4>(0).Value = (ColorF4)Color.Transparent;
                 }
 
-            _score = 0;
-            _playing = true;
             _nextBlock = TetrisPiece.New(_rng.Next(0, 6), _columns);
 
-            _theme.SoundPath = Engine.StartupPath + "..\\..\\..\\ProjectFiles\\" + string.Format("bgm{0}.wav", _rng.Next(1, 5));
+            _theme.SoundPath = Engine.StartupPath + "Content\\" + string.Format("bgm{0}.wav", _rng.Next(1, 5));
             _theme.Play(_ambientParams, int.MaxValue);
 
             BlocksPerSec = DEFAULT_SPEED;
             SpawnBlock();
-            RegisterTick(ETickGroup.PostPhysics, ETickOrder.Scene, SceneUpdate);
+            LocalPlayerController.SetPause(false);
         }
         private void GameOver()
         {
-            _playing = false;
-            UnregisterTick(ETickGroup.PostPhysics, ETickOrder.Scene, SceneUpdate);
-            Engine.SetPaused(true, LocalPlayerController.LocalPlayerIndex);
+            LocalPlayerController.SetPause(true);
             _theme.StopAllInstances();
         }
-        private void Pause()
+        private void Exit()
         {
-            //Engine.TogglePause(LocalPlayerController.LocalPlayerIndex);
-            //Application.Exit();
             Engine.CloseApplication();
         }
         
@@ -270,7 +271,7 @@ namespace Testris
 
             Hud = this;
 
-            TextureReference r = new TextureReference(Engine.StartupPath + "..\\..\\..\\ProjectFiles\\test.jpg");
+            TextureReference r = new TextureReference(Engine.StartupPath + "Content\\bg.png");
             Material m = Material.GetUnlitTextureMaterial(r, false);
             MaterialHudComponent root = new MaterialHudComponent(m)
             {
@@ -278,6 +279,7 @@ namespace Testris
             };
             DockableHudComponent board = new DockableHudComponent()
             {
+                //TODO: make scalable
                 HeightValue = _rows * 54,
                 WidthValue = _columns * 54,
                 //WidthHeightConstraint = WidthHeightConstraint.WidthAsRatioToHeight,
@@ -308,14 +310,11 @@ namespace Testris
             root.Add(board);
             return root;
         }
+
         public override void OnSpawnedPostComponentSetup(World world)
         {
             LocalPlayerController.SetPause(true);
-        }
-
-        public override void OnDespawned()
-        {
-            base.OnDespawned();
+            RegisterTick(ETickGroup.PostPhysics, ETickOrder.Scene, SceneUpdate, InputPauseType.TickOnlyWhenUnpaused);
         }
         
         private void SceneUpdate(float delta)
@@ -513,20 +512,6 @@ namespace Testris
                 case 0:
                     colShift = (int)Math.Ceiling((boardColumns - 4) / 2.0);
                     rowShift = -3;
-                    pos3 = new bool[,]
-                    {
-                        { false, false, false, false },
-                        { true,  true,  true,  true  },
-                        { false, false, false, false },
-                        { false, false, false, false },
-                    };
-                    pos4 = new bool[,]
-                    {
-                        { false, false, true, false },
-                        { false, false, true, false },
-                        { false, false, true, false },
-                        { false, false, true, false },
-                    };
                     pos1 = new bool[,]
                     {
                         { false, false, false, false },
@@ -540,23 +525,25 @@ namespace Testris
                         { false, true, false, false },
                         { false, true, false, false },
                         { false, true, false, false },
+                    };
+                    pos3 = new bool[,]
+                    {
+                        { false, false, false, false },
+                        { true,  true,  true,  true  },
+                        { false, false, false, false },
+                        { false, false, false, false },
+                    };
+                    pos4 = new bool[,]
+                    {
+                        { false, false, true, false },
+                        { false, false, true, false },
+                        { false, false, true, false },
+                        { false, false, true, false },
                     };
                     break;
                 case 1:
                     colShift = (int)Math.Ceiling((boardColumns - 3) / 2.0);
                     rowShift = -3;
-                    pos3 = new bool[,]
-                    {
-                        { true,  false, false },
-                        { true,  true,  true  },
-                        { false, false, false },
-                    };
-                    pos4 = new bool[,]
-                    {
-                        { false, true, true  },
-                        { false, true, false },
-                        { false, true, false },
-                    };
                     pos1 = new bool[,]
                     {
                         { false, false, false },
@@ -568,23 +555,23 @@ namespace Testris
                         { false, true, false },
                         { false, true, false },
                         { true,  true, false },
+                    };
+                    pos3 = new bool[,]
+                    {
+                        { true,  false, false },
+                        { true,  true,  true  },
+                        { false, false, false },
+                    };
+                    pos4 = new bool[,]
+                    {
+                        { false, true, true  },
+                        { false, true, false },
+                        { false, true, false },
                     };
                     break;
                 case 2:
                     colShift = (int)Math.Ceiling((boardColumns - 3) / 2.0);
                     rowShift = -3;
-                    pos3 = new bool[,]
-                    {
-                        { false, false, true  },
-                        { true,  true,  true  },
-                        { false, false, false },
-                    };
-                    pos4 = new bool[,]
-                    {
-                        { false, true, false },
-                        { false, true, false },
-                        { false, true, true  },
-                    };
                     pos1 = new bool[,]
                     {
                         { false, false, false },
@@ -596,6 +583,18 @@ namespace Testris
                         { true,  true, false },
                         { false, true, false },
                         { false, true, false },
+                    };
+                    pos3 = new bool[,]
+                    {
+                        { false, false, true  },
+                        { true,  true,  true  },
+                        { false, false, false },
+                    };
+                    pos4 = new bool[,]
+                    {
+                        { false, true, false },
+                        { false, true, false },
+                        { false, true, true  },
                     };
                     break;
                 case 3:
@@ -610,18 +609,6 @@ namespace Testris
                 case 4:
                     colShift = (int)Math.Ceiling((boardColumns - 3) / 2.0);
                     rowShift = -3;
-                    pos3 = new bool[,]
-                    {
-                        { false, true,  true  },
-                        { true,  true,  false },
-                        { false, false, false },
-                    };
-                    pos4 = new bool[,]
-                    {
-                        { false, true,  false },
-                        { false, true,  true  },
-                        { false, false, true  },
-                    };
                     pos1 = new bool[,]
                     {
                         { false, false, false },
@@ -634,22 +621,22 @@ namespace Testris
                         { true,  true,  false },
                         { false, true,  false },
                     };
-                    break;
-                case 5:
-                    colShift = (int)Math.Ceiling((boardColumns - 3) / 2.0);
-                    rowShift = -3;
                     pos3 = new bool[,]
                     {
-                        { false, true,  false },
-                        { true,  true,  true  },
+                        { false, true,  true  },
+                        { true,  true,  false },
                         { false, false, false },
                     };
                     pos4 = new bool[,]
                     {
-                        { false, true, false },
-                        { false, true, true  },
-                        { false, true, false },
+                        { false, true,  false },
+                        { false, true,  true  },
+                        { false, false, true  },
                     };
+                    break;
+                case 5:
+                    colShift = (int)Math.Ceiling((boardColumns - 3) / 2.0);
+                    rowShift = -3;
                     pos1 = new bool[,]
                     {
                         { false, false, false },
@@ -662,22 +649,22 @@ namespace Testris
                         { true,  true, false },
                         { false, true, false },
                     };
-                    break;
-                case 6:
-                    colShift = (int)Math.Ceiling((boardColumns - 3) / 2.0);
-                    rowShift = -3;
                     pos3 = new bool[,]
                     {
-                        { true,  true,  false },
-                        { false, true,  true  },
+                        { false, true,  false },
+                        { true,  true,  true  },
                         { false, false, false },
                     };
                     pos4 = new bool[,]
                     {
-                        { false, false, true  },
-                        { false, true,  true  },
-                        { false, true,  false },
+                        { false, true, false },
+                        { false, true, true  },
+                        { false, true, false },
                     };
+                    break;
+                case 6:
+                    colShift = (int)Math.Ceiling((boardColumns - 3) / 2.0);
+                    rowShift = -3;
                     pos1 = new bool[,]
                     {
                         { false, false, false },
@@ -689,6 +676,18 @@ namespace Testris
                         { false, true,  false },
                         { true,  true,  false },
                         { true,  false, false },
+                    };
+                    pos3 = new bool[,]
+                    {
+                        { true,  true,  false },
+                        { false, true,  true  },
+                        { false, false, false },
+                    };
+                    pos4 = new bool[,]
+                    {
+                        { false, false, true  },
+                        { false, true,  true  },
+                        { false, true,  false },
                     };
                     break;
                 default:

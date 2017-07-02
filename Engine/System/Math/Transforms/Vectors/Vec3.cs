@@ -6,6 +6,7 @@ using System.Drawing;
 using TheraEngine;
 using TheraEngine.Rendering.Models;
 using System.ComponentModel;
+using System.Globalization;
 
 namespace System
 {
@@ -15,6 +16,7 @@ namespace System
     /// Also see DVec3, IVec3, UVec3, BoolVec3, BVec3
     /// </summary>
     [Serializable]
+    [TypeConverter(typeof(Vec3StringConverter))]
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public unsafe struct Vec3 : IEquatable<Vec3>, IUniformable3Float, IBufferable, IParsable
     {
@@ -59,6 +61,20 @@ namespace System
                 X = v.X;
                 Y = v.Y;
                 Z = v.Z;
+            }
+        }
+        public Vec3(string s)
+        {
+            X = Y = Z = 0.0f;
+
+            char[] delims = new char[] { ',', '(', ')', ' ' };
+            string[] arr = s.Split(delims, StringSplitOptions.RemoveEmptyEntries);
+
+            if (arr.Length >= 3)
+            {
+                float.TryParse(arr[0], NumberStyles.Any, CultureInfo.InvariantCulture, out X);
+                float.TryParse(arr[1], NumberStyles.Any, CultureInfo.InvariantCulture, out Y);
+                float.TryParse(arr[2], NumberStyles.Any, CultureInfo.InvariantCulture, out Z);
             }
         }
 
@@ -842,29 +858,11 @@ namespace System
         public static implicit operator Vec3(float v)                   => new Vec3(v);
         public static explicit operator IVec3(Vec3 v)                   => new IVec3((int)Math.Round(v.X), (int)Math.Round(v.Y), (int)Math.Round(v.Z));
         
-        private static string listSeparator = 
-            Globalization.CultureInfo.CurrentCulture.TextInfo.ListSeparator;
+        private static string listSeparator = CultureInfo.CurrentCulture.TextInfo.ListSeparator;
         public override string ToString()
             => ToString(true, true);
         public string ToString(bool includeParentheses, bool includeSeparator)
             => String.Format("{4}{0}{3} {1}{3} {2}{5}", X, Y, Z, includeSeparator ? listSeparator : "", includeParentheses ? "(" : "", includeParentheses ? ")" : "");
-        public static Vec3 Parse(string value)
-        {
-            value = value.Trim();
-
-            if (value.StartsWith("("))
-                value = value.Substring(1);
-            if (value.EndsWith(")"))
-                value = value.Substring(0, value.Length - 1);
-
-            string[] parts = value.Split(' ');
-            if (parts[0].EndsWith(listSeparator))
-                parts[0].Substring(0, parts[0].Length - 1);
-            if (parts[1].EndsWith(listSeparator))
-                parts[1].Substring(0, parts[1].Length - 1);
-
-            return new Vec3(float.Parse(parts[0]), float.Parse(parts[1]), float.Parse(parts[2]));
-        }
 
         public override int GetHashCode()
         {
@@ -898,6 +896,6 @@ namespace System
         public string WriteToString()
             => ToString(false, false);
         public void ReadFromString(string str)
-            => this = Parse(str);
+            => this = new Vec3(str);
     }
 }

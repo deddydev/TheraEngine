@@ -3,12 +3,13 @@ using static System.Math;
 using static System.CustomMath;
 using TheraEngine;
 using TheraEngine.Rendering.Models;
+using System.ComponentModel;
 
 namespace System
 {
     [Serializable]
-    public unsafe class EventVec4 : 
-        IEquatable<EventVec4>, IUniformable4Float, IBufferable, IParsable
+    [TypeConverter(typeof(ExpandableObjectConverter))]
+    public unsafe class EventVec4 : IEquatable<EventVec4>, IUniformable4Float, IBufferable, IParsable
     {
         public event Action XChanged;
         public event Action YChanged;

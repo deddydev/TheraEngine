@@ -120,20 +120,22 @@ namespace TheraEngine.Rendering.Cameras
             }
         }
         [Category("Camera")]
-        [TypeConverter(typeof(ExpandableObjectConverter))]
         public Vec3 WorldPoint
         {
             get => _owningComponent != null ? _owningComponent.WorldMatrix.GetPoint() : _localPoint.Raw;
         }
         [Category("Camera")]
-        [TypeConverter(typeof(ExpandableObjectConverter))]
-        public Vec3 LocalPoint
+        public EventVec3 LocalPoint
         {
-            get => _localPoint.Raw;
-            set => _localPoint.Raw = value;
+            get => _localPoint;
+            set
+            {
+                _localPoint = value;
+                _localPoint.Changed += PositionChanged;
+                PositionChanged();
+            }
         }
         [Category("Camera")]
-        [TypeConverter(typeof(ExpandableObjectConverter))]
         public Rotator LocalRotation
         {
             get => _localRotation;

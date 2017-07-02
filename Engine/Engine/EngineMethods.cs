@@ -230,7 +230,7 @@ namespace TheraEngine
         }
         public static void SetPaused(bool paused, PlayerIndex toggler)
         {
-            if (!World.Settings.GameMode.File.AllowPausing)
+            if (World.Settings.GameMode.File.DisallowPausing)
                 return;
             _isPaused = paused;
             Paused?.Invoke(_isPaused, toggler);

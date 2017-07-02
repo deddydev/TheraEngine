@@ -15,18 +15,19 @@ namespace System
     /// <summary>
     /// Axis Aligned Bounding Box (AABB)
     /// </summary>
+    [TypeConverter(typeof(ExpandableObjectConverter))]
     public class BoundingBox : Shape
     {
         //public static List<BoundingBox> Active = new List<BoundingBox>();
 
         [DefaultValue("0 0 0")]
         [Serialize("HalfExtents")]
-        protected Vec3 _halfExtents = Vec3.Half;
+        protected EventVec3 _halfExtents = Vec3.Half;
         [DefaultValue("0 0 0")]
         [Serialize("Translation")]
-        protected Vec3 _translation = Vec3.Zero;
+        protected EventVec3 _translation = Vec3.Zero;
 
-        [TypeConverter(typeof(ExpandableObjectConverter))]
+        [TypeConverter(typeof(Vec3StringConverter))]
         public Vec3 Minimum
         {
             get => _translation - _halfExtents;
@@ -36,7 +37,7 @@ namespace System
                 _halfExtents = (Maximum - value) / 2.0f;
             }
         }
-        [TypeConverter(typeof(ExpandableObjectConverter))]
+        [TypeConverter(typeof(Vec3StringConverter))]
         public Vec3 Maximum
         {
             get => _translation + _halfExtents;
@@ -47,13 +48,13 @@ namespace System
             }
         }
         [TypeConverter(typeof(ExpandableObjectConverter))]
-        public Vec3 HalfExtents
+        public EventVec3 HalfExtents
         {
             get => _halfExtents;
             set => _halfExtents = value;
         }
         [TypeConverter(typeof(ExpandableObjectConverter))]
-        public Vec3 Translation
+        public EventVec3 Translation
         {
             get => _translation;
             set => _translation = value;

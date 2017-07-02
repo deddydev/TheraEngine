@@ -2,6 +2,7 @@
 using TheraEngine.Rendering.Textures;
 using TheraEngine.Rendering.Models.Materials;
 using System.Drawing;
+using System.ComponentModel;
 
 namespace TheraEngine.Worlds.Actors
 {
@@ -16,27 +17,30 @@ namespace TheraEngine.Worlds.Actors
     }
     public abstract class LightComponent : TRComponent
     {
-        protected ColorF3 _color = Color.Blue/*, _specular = Color.Yellow*/;
+        protected EventColorF3 _color = (ColorF3)Color.Blue/*, _specular = Color.Yellow*/;
         protected float _diffuseIntensity = 1.0f, _ambientIntensity = 0.2f;
         protected int _lightIndex = -1;
         protected LightType _type;
 
-        public ColorF3 LightColor
+        [Category("Light Component")]
+        public EventColorF3 LightColor
         {
             get => _color;
             set => _color = value;
         }
+        [Category("Light Component")]
         public float DiffuseIntensity
         {
             get => _diffuseIntensity;
             set => _diffuseIntensity = value;
         }
+        [Category("Light Component")]
         public float AmbientIntensity
         {
             get => _ambientIntensity;
             set => _ambientIntensity = value;
         }
-
+        [Browsable(false)]
         public int LightIndex
         {
             get => _lightIndex;

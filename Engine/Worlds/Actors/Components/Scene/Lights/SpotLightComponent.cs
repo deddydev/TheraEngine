@@ -70,7 +70,7 @@ namespace TheraEngine.Worlds.Actors
             Vec3 point = WorldMatrix.GetPoint();
 
             string indexer = Uniform.SpotLightsName + "[" + _lightIndex + "].";
-            Engine.Renderer.Uniform(indexer + "Base.Base.Color", _color);
+            Engine.Renderer.Uniform(indexer + "Base.Base.Color", _color.Raw);
             Engine.Renderer.Uniform(indexer + "Base.Base.AmbientIntensity", _ambientIntensity);
             Engine.Renderer.Uniform(indexer + "Base.Base.DiffuseIntensity", _diffuseIntensity);
             Engine.Renderer.Uniform(indexer + "Base.Position", point);

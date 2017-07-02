@@ -31,8 +31,6 @@ namespace TheraEngine.Worlds.Actors
         }
 
         protected Rotator _rotation;
-
-        [TypeConverter(typeof(ExpandableObjectConverter))]
         public Rotator Rotation
         {
             get { return _rotation; }

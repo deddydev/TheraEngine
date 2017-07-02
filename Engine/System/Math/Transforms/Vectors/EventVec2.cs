@@ -10,8 +10,8 @@ using System.ComponentModel;
 namespace System
 {
     [Serializable]
-    public unsafe class EventVec2 : 
-        IEquatable<EventVec2>, IUniformable2Float, IBufferable, IParsable
+    [TypeConverter(typeof(ExpandableObjectConverter))]
+    public unsafe class EventVec2 : IEquatable<EventVec2>, IUniformable2Float, IBufferable, IParsable
     {
         private int _updating = 0;
         private float _oldX, _oldY;

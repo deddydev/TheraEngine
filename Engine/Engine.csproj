@@ -117,6 +117,8 @@
     <PlatformTarget>x86</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <DocumentationFile>bin\x86\ReleaseGame\TheraEngine.xml</DocumentationFile>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'DebugEditor|x86'">
     <DebugSymbols>true</DebugSymbols>
@@ -136,6 +138,8 @@
     <PlatformTarget>x86</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <DocumentationFile>bin\x86\ReleaseEditor\TheraEngine.xml</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup>
     <SignAssembly>false</SignAssembly>
@@ -773,6 +777,27 @@
     <Compile Include="System\Platform\Linux.cs" />
     <Compile Include="System\Platform\OSX.cs" />
     <Compile Include="System\Platform\Win32.cs" />
+    <Compile Include="System\PropertyGrid\BufferedPanel.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="System\PropertyGrid\ColorControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="System\PropertyGrid\ColorControl.Designer.cs">
+      <DependentUpon>ColorControl.cs</DependentUpon>
+    </Compile>
+    <Compile Include="System\PropertyGrid\ColorDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="System\PropertyGrid\ColorDialog.Designer.cs">
+      <DependentUpon>ColorDialog.cs</DependentUpon>
+    </Compile>
+    <Compile Include="System\PropertyGrid\ColorPicker.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="System\PropertyGrid\ColorPicker.Designer.cs">
+      <DependentUpon>ColorPicker.cs</DependentUpon>
+    </Compile>
     <Compile Include="System\Reflection\Attributes\Serialization\CustomSerializeMethodAttribute.cs" />
     <Compile Include="System\Reflection\Attributes\Serialization\FileClassAttribute.cs" />
     <Compile Include="System\Reflection\Attributes\Serialization\PrePostDeserializeAttributes.cs" />
@@ -780,6 +805,7 @@
     <Compile Include="System\Reflection\Attributes\Serialization\SerializeAttribute.cs" />
     <Compile Include="System\Reflection\CustomPropertyCollection.cs" />
     <Compile Include="System\Files\FileObject.cs" />
+    <Compile Include="System\PropertyGrid\StringConverters.cs" />
     <Compile Include="System\Time\EngineTimer.cs" />
     <Compile Include="System\RenderPanel.cs" />
     <Compile Include="System\RenderForm.cs">

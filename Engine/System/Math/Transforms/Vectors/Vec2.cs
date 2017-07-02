@@ -6,34 +6,33 @@ using System.Xml.Serialization;
 using static System.CustomMath;
 using static System.Math;
 using System.ComponentModel;
+using System.Globalization;
 
 namespace System
 {
+    /// <summary>
+    /// A struct containing 2 float values.
+    /// For a class version, use EventVec2.
+    /// Also see DVec2, IVec2, UVec2, BoolVec2, BVec2
+    /// </summary>
     [Serializable]
+    [TypeConverter(typeof(Vec2StringConverter))]
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    public unsafe struct Vec2 : 
-        IEquatable<Vec2>, IUniformable2Float, IBufferable, IParsable
+    public unsafe struct Vec2 : IEquatable<Vec2>, IUniformable2Float, IBufferable, IParsable
     {
         public float X, Y;
 
-#if EDITOR
-        /// <summary>
-        /// For editor use.
-        /// </summary>
-        [DisplayName("X")]
-        public float XValue { get => X; set => X = value; }
-        /// <summary>
-        /// For editor use.
-        /// </summary>
-        [DisplayName("Y")]
-        public float YValue { get => Y; set => Y = value; }
-#endif
-
-        public float* Data { get { return (float*)Address; } }
+        [Browsable(false)]
+        public float* Data => (float*)Address;
+        [Browsable(false)]
         public VoidPtr Address { get { fixed (void* p = &this) return p; } }
-        public VertexBuffer.ComponentType ComponentType { get { return VertexBuffer.ComponentType.Float; } }
-        public int ComponentCount { get { return 2; } }
-        bool IBufferable.Normalize { get { return false; } }
+        [Browsable(false)]
+        public VertexBuffer.ComponentType ComponentType => VertexBuffer.ComponentType.Float;
+        [Browsable(false)]
+        public int ComponentCount => 2;
+        [Browsable(false)]
+        bool IBufferable.Normalize => false;
+
         public void Write(VoidPtr address)
         {
             *(Vec2*)address = this;
@@ -64,6 +63,19 @@ namespace System
             {
                 X = v.X;
                 Y = v.Y;
+            }
+        }
+        public Vec2(string s)
+        {
+            X = Y = 0.0f;
+
+            char[] delims = new char[] { ',', '(', ')', ' ' };
+            string[] arr = s.Split(delims, StringSplitOptions.RemoveEmptyEntries);
+
+            if (arr.Length >= 2)
+            {
+                float.TryParse(arr[0], NumberStyles.Any, CultureInfo.InvariantCulture, out X);
+                float.TryParse(arr[1], NumberStyles.Any, CultureInfo.InvariantCulture, out Y);
             }
         }
 
@@ -322,21 +334,7 @@ namespace System
             => ToString(true, true);
         public string ToString(bool includeParentheses, bool includeSeparator)
             => String.Format("{3}{0}{2} {1}{4}", X, Y, includeSeparator ? listSeparator : "", includeParentheses ? "(" : "", includeParentheses ? ")" : "");
-        public static Vec2 Parse(string value)
-        {
-            value = value.Trim();
 
-            if (value.StartsWith("("))
-                value = value.Substring(1);
-            if (value.EndsWith(")"))
-                value = value.Substring(0, value.Length - 1);
-
-            string[] parts = value.Split(' ');
-            if (parts[0].EndsWith(listSeparator))
-                parts[0].Substring(0, parts[0].Length - 1);
-
-            return new Vec2(float.Parse(parts[0]), float.Parse(parts[1]));
-        }
         public override int GetHashCode()
         {
             unchecked
@@ -363,6 +361,6 @@ namespace System
         public string WriteToString()
             => ToString(false, false);
         public void ReadFromString(string str)
-            => this = Parse(str);
+            => this = new Vec2(str);
     }
 }

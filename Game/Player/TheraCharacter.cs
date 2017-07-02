@@ -14,14 +14,5 @@ namespace Thera.Worlds.Actors
     {
         StaticPlayerTraits _staticPlayerTraits;
         InheritablePlayerTraits _inheritablePlayerTraits;
-
-        public override void OnSpawned(World world)
-        {
-            base.OnSpawned(world);
-        }
-        public override void OnDespawned()
-        {
-            base.OnDespawned();
-        }
     }
 }

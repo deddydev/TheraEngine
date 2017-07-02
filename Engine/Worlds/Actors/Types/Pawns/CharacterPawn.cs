@@ -272,7 +272,7 @@ namespace TheraEngine.Worlds.Actors
             _tpCameraComponent = new CameraComponent(TPCam);
             _tpCameraBoom.ChildComponents.Add(_tpCameraComponent);
             
-            rootCapsule.PhysicsDriver.SimulatingPhysics = false;
+            rootCapsule.PhysicsDriver.SimulatingPhysics = true;
             CurrentCameraComponent = _tpCameraComponent;
 
             _viewRotation.Yaw = 180.0f;

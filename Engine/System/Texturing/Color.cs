@@ -4,37 +4,27 @@ using System.Drawing;
 using System.Runtime.InteropServices;
 using System.ComponentModel;
 using System.Globalization;
+using System.Windows.Forms;
+using System.Drawing.Design;
 
 namespace System
 {
+    public interface IColor
+    {
+        //TODO: use ColorF4 for maximum quality
+        Color Color { get; set; }
+    }
+    [TypeConverter(typeof(ColorF4StringConverter))]
+    [Editor(typeof(PropertyGridColorEditor), typeof(UITypeEditor))]
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    //[Editor(typeof(PropertyGridColorEditor), typeof(UITypeEditor))]
-    public unsafe struct ColorF4 : IUniformable4Float, IBufferable
+    public unsafe struct ColorF4 : IUniformable4Float, IBufferable, IColor
     {
         public float R, G, B, A;
-
-#if EDITOR
-        /// <summary>
-        /// For editor use.
-        /// </summary>
-        public float Red { get => R; set => R = value; }
-        /// <summary>
-        /// For editor use.
-        /// </summary>
-        public float Green { get => G; set => G = value; }
-        /// <summary>
-        /// For editor use.
-        /// </summary>
-        public float Blue { get => B; set => B = value; }
-        /// <summary>
-        /// For editor use.
-        /// </summary>
-        public float Alpha { get => A; set => A = value; }
-#endif
-
+        
+        [Browsable(false)]
         public string HexCode
         {
-            get => R.ToByte().ToString("X") + G.ToByte().ToString("X") + B.ToByte().ToString("X") + A.ToByte().ToString("X");
+            get => R.ToByte().ToString("X2") + G.ToByte().ToString("X2") + B.ToByte().ToString("X2") + A.ToByte().ToString("X2");
             set
             {
                 R = 0.0f;
@@ -76,11 +66,20 @@ namespace System
 
         public ColorF4(float r, float g, float b, float a) { R = r; G = g; B = b; A = a; }
 
+        [Browsable(false)]
         public float* Data { get { return (float*)Address; } }
+        [Browsable(false)]
         public VoidPtr Address { get { fixed (void* p = &this) return p; } }
+        [Browsable(false)]
         public VertexBuffer.ComponentType ComponentType { get { return VertexBuffer.ComponentType.Float; } }
+        [Browsable(false)]
         public int ComponentCount { get { return 4; } }
+        [Browsable(false)]
         bool IBufferable.Normalize { get { return false; } }
+
+        [Browsable(false)]
+        public Color Color { get => (Color)this; set => this = value; }
+
         public void Write(VoidPtr address) { this = *(ColorF4*)address; }
         public void Read(VoidPtr address) { *(ColorF4*)address = this; }
 
@@ -92,7 +91,7 @@ namespace System
             => new ColorF4(p.R * ByteToFloat, p.G * ByteToFloat, p.B * ByteToFloat, p.A * ByteToFloat);
         public static implicit operator ColorF4(Color p)
             => new ColorF4(p.R * ByteToFloat, p.G * ByteToFloat, p.B * ByteToFloat, p.A * ByteToFloat);
-        public static implicit operator Color(ColorF4 p)
+        public static explicit operator Color(ColorF4 p)
             => Color.FromArgb(p.A.ToByte(), p.R.ToByte(), p.G.ToByte(), p.B.ToByte());
         public static implicit operator ColorF4(Vec3 v)
             => new ColorF4(v.X, v.Y, v.Z, 1.0f);
@@ -118,7 +117,9 @@ namespace System
         }
     }
 
-    public class EventColorF3
+    [TypeConverter(typeof(ExpandableObjectConverter))]
+    [Editor(typeof(PropertyGridColorEditor), typeof(UITypeEditor))]
+    public class EventColorF3 : IColor
     {
         public event Action RedChanged;
         public event Action GreenChanged;
@@ -141,6 +142,7 @@ namespace System
             _raw = raw;
         }
 
+        [Browsable(false)]
         public ColorF3 Raw
         {
             get => _raw;
@@ -218,21 +220,30 @@ namespace System
                 EndUpdate();
             }
         }
-        
+
+        public override string ToString()
+        {
+            return _raw.ToString();
+        }
+
+        [Browsable(false)]
+        public Color Color { get => _raw.Color; set => _raw.Color = value; }
+
         public static implicit operator ColorF3(EventColorF3 v) { return v._raw; }
         public static implicit operator EventColorF3(ColorF3 v) { return new EventColorF3(v); }
     }
 
+    [TypeConverter(typeof(ColorF3StringConverter))]
+    [Editor(typeof(PropertyGridColorEditor), typeof(UITypeEditor))]
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    //[Editor(typeof(PropertyGridColorEditor), typeof(UITypeEditor))]
-    public unsafe struct ColorF3 : IUniformable3Float, IBufferable
+    public unsafe struct ColorF3 : IUniformable3Float, IBufferable, IColor, IParsable
     {
         public float R, G, B;
         
         [Browsable(false)]
         public string HexCode
         {
-            get => R.ToByte().ToString("X") + G.ToByte().ToString("X") + B.ToByte().ToString("X");
+            get => R.ToByte().ToString("X2") + G.ToByte().ToString("X2") + B.ToByte().ToString("X2");
             set
             {
                 R = 0.0f;
@@ -266,6 +277,20 @@ namespace System
         }
 
         public ColorF3(float r, float g, float b) { R = r; G = g; B = b; }
+        public ColorF3(string s)
+        {
+            R = G = B = 0.0f;
+
+            char[] delims = new char[] { ',', 'R', 'G', 'B', ':', ' ', '[', ']' };
+            string[] arr = s.Split(delims, StringSplitOptions.RemoveEmptyEntries);
+
+            if (arr.Length >= 3)
+            {
+                float.TryParse(arr[0], NumberStyles.Any, CultureInfo.InvariantCulture, out R);
+                float.TryParse(arr[1], NumberStyles.Any, CultureInfo.InvariantCulture, out G);
+                float.TryParse(arr[2], NumberStyles.Any, CultureInfo.InvariantCulture, out B);
+            }
+        }
 
         [Browsable(false)]
         public float* Data => (float*)Address;
@@ -281,21 +306,40 @@ namespace System
         public void Write(VoidPtr address) { this = *(ColorF3*)address; }
         public void Read(VoidPtr address) { *(ColorF3*)address = this; }
 
-        public static implicit operator ColorF3(RGBAPixel p) { return new ColorF3() { B = p.B / 255.0f, G = p.G / 255.0f, R = p.R / 255.0f }; }
-        public static implicit operator ColorF3(ARGBPixel p) { return new ColorF3() { B = p.B / 255.0f, G = p.G / 255.0f, R = p.R / 255.0f }; }
-        public static implicit operator ColorF3(Color p) { return new ColorF3() { B = p.B / 255.0f, G = p.G / 255.0f, R = p.R / 255.0f }; }
-        public static implicit operator ColorF3(Vec3 v) { return new ColorF3(v.X, v.Y, v.Z); }
-        public static implicit operator Vec3(ColorF3 v) { return new Vec3(v.R, v.G, v.B); }
-        public static implicit operator ColorF3(Vec4 v) { return new ColorF3(v.X, v.Y, v.Z); }
-        public static implicit operator ColorF3(ColorF4 p) { return new ColorF3(p.R, p.G, p.B); }
+        private const float ByteToFloat = 1.0f / 255.0f;
+
+        public static implicit operator ColorF3(RGBAPixel p) => new ColorF3(p.R * ByteToFloat, p.G * ByteToFloat, p.B * ByteToFloat);
+        public static implicit operator ColorF3(ARGBPixel p) => new ColorF3(p.R * ByteToFloat, p.G * ByteToFloat, p.B * ByteToFloat);
+        public static explicit operator ColorF3(Vec4 v) => new ColorF3(v.X, v.Y, v.Z);
+        public static explicit operator ColorF3(ColorF4 p) => new ColorF3(p.R, p.G, p.B);
+
+        public static implicit operator ColorF3(Vec3 v) => new ColorF3(v.X, v.Y, v.Z);
+        public static implicit operator Vec3(ColorF3 v) => new Vec3(v.R, v.G, v.B);
+        public static explicit operator ColorF3(Color p) => new ColorF3(p.R * ByteToFloat, p.G * ByteToFloat, p.B * ByteToFloat);
+        public static explicit operator Color(ColorF3 p) => Color.FromArgb(255, p.R.ToByte(), p.G.ToByte(), p.B.ToByte());
 
         public override string ToString()
         {
             return String.Format("[R:{0},G:{1},B:{2}]", R, G, B);
         }
+
+        public string WriteToString()
+        {
+            return ToString();
+        }
+
+        public void ReadFromString(string str)
+        {
+            this = new ColorF3(str);
+        }
+
+        [Browsable(false)]
+        public Color Color { get => (Color)this; set => this = (ColorF3)value; }
     }
+    
+    [Editor(typeof(PropertyGridColorEditor), typeof(UITypeEditor))]
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    public unsafe struct RGBAPixel : IBufferable
+    public unsafe struct RGBAPixel : IBufferable, IColor
     {
         public byte R, G, B, A;
         
@@ -309,12 +353,17 @@ namespace System
         public void Write(VoidPtr address) { this = *(RGBAPixel*)address; }
         public void Read(VoidPtr address) { *(RGBAPixel*)address = this; }
 
-        public static implicit operator RGBAPixel(ColorF4 p) { return new RGBAPixel() { A = (byte)(p.A * 255.0f), B = (byte)(p.B * 255.0f), G = (byte)(p.G * 255.0f), R = (byte)(p.R * 255.0f) }; }
-        public static implicit operator RGBAPixel(ARGBPixel p) { return new RGBAPixel() { A = p.A, B = p.B, G = p.G, R = p.R }; }
-        public static implicit operator RGBAPixel(Color p) { return new RGBAPixel() { A = p.A, B = p.B, G = p.G, R = p.R }; }
+        public static explicit operator RGBAPixel(ColorF4 p) => new RGBAPixel(p.R.ToByte(), p.G.ToByte(), p.B.ToByte(), p.A.ToByte());
+        public static implicit operator RGBAPixel(ARGBPixel p) => new RGBAPixel(p.R, p.G, p.B, p.A);
+        public static implicit operator RGBAPixel(Color p) => new RGBAPixel(p.R, p.G, p.B, p.A);
+        public static implicit operator Color(RGBAPixel p) => Color.FromArgb(p.A, p.R, p.G, p.B);
+
+        [Browsable(false)]
+        public Color Color { get => this; set => this = value; }
     }
+    [Editor(typeof(PropertyGridColorEditor), typeof(UITypeEditor))]
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    public unsafe struct RGBPixel : IBufferable
+    public unsafe struct RGBPixel : IBufferable, IColor
     {
         public byte R, G, B;
 
@@ -328,21 +377,109 @@ namespace System
         public void Write(VoidPtr address) { this = *(RGBPixel*)address; }
         public void Read(VoidPtr address) { *(RGBPixel*)address = this; }
 
-        public static implicit operator RGBPixel(ColorF4 p) { return new RGBPixel() { B = (byte)(p.B * 255.0f), G = (byte)(p.G * 255.0f), R = (byte)(p.R * 255.0f) }; }
-        public static implicit operator RGBPixel(ARGBPixel p) { return new RGBPixel() { B = p.B, G = p.G, R = p.R }; }
-        public static implicit operator RGBPixel(Color p) { return new RGBPixel() { B = p.B, G = p.G, R = p.R }; }
+        public static explicit operator RGBPixel(ColorF3 p) => new RGBPixel(p.R.ToByte(), p.G.ToByte(), p.B.ToByte());
+        public static explicit operator RGBPixel(ColorF4 p) => new RGBPixel(p.R.ToByte(), p.G.ToByte(), p.B.ToByte());
+        public static explicit operator RGBPixel(ARGBPixel p) => new RGBPixel(p.R, p.G, p.B);
+        public static explicit operator RGBPixel(Color p) => new RGBPixel(p.R, p.G, p.B);
+        public static implicit operator Color(RGBPixel p) => Color.FromArgb(255, p.R, p.G, p.B);
+        
+        [Browsable(false)]
+        public Color Color { get => this; set => this = (RGBPixel)value; }
     }
+
+    [Editor(typeof(PropertyGridColorEditor), typeof(UITypeEditor))]
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    public struct ARGBPixel
+    public unsafe struct ARGBPixel
     {
+        private const float ColorFactor = 1.0f / 255.0f;
+
+        [Browsable(false)]
+        public Color Color { get => this; set => this = value; }
+
         public byte A, R, G, B;
         
         public ARGBPixel(byte a, byte r, byte g, byte b) { A = a; R = r; G = g; B = b; }
 
-        public static implicit operator ARGBPixel(ColorF4 p) { return new ARGBPixel() { A = (byte)(p.A * 255.0f), B = (byte)(p.B * 255.0f), G = (byte)(p.G * 255.0f), R = (byte)(p.R * 255.0f) }; }
-        public static implicit operator ARGBPixel(RGBAPixel p) { return new ARGBPixel() { A = p.A, B = p.B, G = p.G, R = p.R }; }
-        public static implicit operator ARGBPixel(Color p) { return new ARGBPixel() { A = p.A, B = p.B, G = p.G, R = p.R }; }
+        public int DistanceTo(ARGBPixel p)
+        {
+            int val = A - p.A;
+            int dist = val * val;
+            val = R - p.R;
+            dist += val * val;
+            val = G - p.G;
+            dist += val * val;
+            val = B - p.B;
+            return dist + val;
+        }
+        public float Luminance()
+        {
+            return (0.299f * R) + (0.587f * G) + (0.114f * B);
+        }
+        public bool IsGreyscale()
+        {
+            return (R == G) && (G == B);
+        }
+        public int Greyscale() { return (R + G + B) / 3; }
+
+        public static implicit operator ARGBPixel(int val) => *((ARGBPixel*)&val);
+        public static implicit operator int(ARGBPixel p) => *((int*)&p);
+        public static implicit operator ARGBPixel(uint val) => *((ARGBPixel*)&val);
+        public static implicit operator uint(ARGBPixel p) => *((uint*)&p);
+        public static implicit operator ARGBPixel(Color val) => val.ToArgb();
+        public static implicit operator Color(ARGBPixel p) => Color.FromArgb(p);
+        public static explicit operator Vec3(ARGBPixel p) => new Vec3(p.R * ColorFactor, p.G * ColorFactor, p.B * ColorFactor);
+        public static implicit operator Vec4(ARGBPixel p) => new Vec4(p.R * ColorFactor, p.G * ColorFactor, p.B * ColorFactor, p.A * ColorFactor);
+        public static explicit operator ARGBPixel(ColorF4 p) => new ARGBPixel(p.A.ToByte(), p.R.ToByte(), p.G.ToByte(), p.B.ToByte());
+        public static implicit operator ARGBPixel(RGBAPixel p) => new ARGBPixel(p.A, p.R, p.G, p.B);
+
+        public ARGBPixel Min(ARGBPixel p) { return new ARGBPixel(Math.Min(A, p.A), Math.Min(R, p.R), Math.Min(G, p.G), Math.Min(B, p.B)); }
+        public ARGBPixel Max(ARGBPixel p) { return new ARGBPixel(Math.Max(A, p.A), Math.Max(R, p.R), Math.Max(G, p.G), Math.Max(B, p.B)); }
+
+        public static bool operator ==(ARGBPixel p1, ARGBPixel p2) { return *((uint*)(&p1)) == *((uint*)(&p2)); }
+        public static bool operator !=(ARGBPixel p1, ARGBPixel p2) { return *((uint*)(&p1)) != *((uint*)(&p2)); }
+
+        public override string ToString()
+        {
+            return String.Format("A:{0} R:{1} G:{2} B:{3}", A, R, G, B);
+        }
+        public string ToHexString()
+        {
+            return String.Format("A:{0:X2} R:{1:X2} G:{2:X2} B:{3:X2}", A, R, G, B);
+        }
+        public string ToPaddedString()
+        {
+            return String.Format("A:{0,3} R:{1,3} G:{2,3} B:{3,3}", A, R, G, B);
+        }
+        public string ToARGBColorCode()
+        {
+            return String.Format("{0:X2}{1:X2}{2:X2}{3:X2}", A, R, G, B);
+        }
+        public string ToRGBAColorCode()
+        {
+            return String.Format("{0:X2}{1:X2}{2:X2}{3:X2}", R, G, B, A);
+        }
+        public override int GetHashCode() { return (int)this; }
+        public override bool Equals(object obj)
+        {
+            if (obj is ARGBPixel) return (ARGBPixel)obj == this;
+            return false;
+        }
+
+        internal unsafe ARGBPixel Inverse()
+        {
+            return new ARGBPixel(A, (byte)(255 - R), (byte)(255 - G), (byte)(255 - B));
+        }
+        internal unsafe ARGBPixel Lighten(int amount)
+        {
+            return new ARGBPixel(A, (byte)Math.Min(R + amount, 255), (byte)Math.Min(G + amount, 255), (byte)Math.Min(B + amount, 255));
+        }
+        internal unsafe ARGBPixel Darken(int amount)
+        {
+            return new ARGBPixel(A, (byte)Math.Max(R - amount, 0), (byte)Math.Max(G - amount, 0), (byte)Math.Max(B - amount, 0));
+        }
     }
+
+    [Editor(typeof(PropertyGridColorEditor), typeof(UITypeEditor))]
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public unsafe struct HSVPixel
     {

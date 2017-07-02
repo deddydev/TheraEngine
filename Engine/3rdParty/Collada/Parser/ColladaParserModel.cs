@@ -848,7 +848,7 @@ namespace TheraEngine.Rendering.Models
         private class LightEffectEntry : ColladaEntry
         {
             internal LightEffectType _type;
-            internal RGBAPixel _color;
+            internal ColorF4 _color;
 
             internal string _texture;
             internal string _texCoord;

@@ -18,6 +18,7 @@ namespace System
     }
     public delegate void RotatorChange(Rotator rotation);
     [Serializable]
+    [TypeConverter(typeof(ExpandableObjectConverter))]
     [StructLayout(LayoutKind.Sequential)]
     public unsafe class Rotator : IEquatable<Rotator>
     {

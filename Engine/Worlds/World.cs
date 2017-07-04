@@ -17,13 +17,6 @@ namespace TheraEngine.Worlds
     [FileClass("WORLD", "World")]
     public unsafe class World : FileObject, IEnumerable<IActor>, IDisposable
     {
-        static World()
-        {
-            PersistentManifold.ContactProcessed += PersistentManifold_ContactProcessed;
-            PersistentManifold.ContactDestroyed += PersistentManifold_ContactDestroyed;
-            ManifoldPoint.ContactAdded += ManifoldPoint_ContactAdded;
-        }
-
         public World()
         {
             if (_settings == null)
@@ -44,32 +37,7 @@ namespace TheraEngine.Worlds
             get => _settings;
             set => _settings = value;
         }
-        private class PhysicsDriverPair
-        {
-            public PhysicsDriverPair(PhysicsDriver driver0, PhysicsDriver driver1)
-            {
-                _driver0 = driver0;
-                _driver1 = driver1;
-            }
-            public PhysicsDriver _driver0, _driver1;
-        }
-        private static void PersistentManifold_ContactProcessed(ManifoldPoint cp, CollisionObject body0, CollisionObject body1)
-        {
-            PhysicsDriver driver0 = (PhysicsDriver)body0.UserObject;
-            PhysicsDriver driver1 = (PhysicsDriver)body1.UserObject;
-            cp.UserPersistentData = new PhysicsDriverPair(driver0, driver1);
-            driver0.ContactStarted(driver1, cp);
-        }
-        private static void PersistentManifold_ContactDestroyed(object userPersistantData)
-        {
-            PhysicsDriverPair drivers = (PhysicsDriverPair)userPersistantData;
-            drivers._driver0.ContactEnded(drivers._driver1);
-            drivers._driver1.ContactEnded(drivers._driver0);
-        }
-        private static void ManifoldPoint_ContactAdded(ManifoldPoint cp, CollisionObjectWrapper colObj0Wrap, int partId0, int index0, CollisionObjectWrapper colObj1Wrap, int partId1, int index1)
-        {
-
-        }
+        
         private void OnGravityChanged(Vec3 oldGravity)
         {
             _physicsScene.Gravity = _settings.Gravity;
@@ -95,15 +63,22 @@ namespace TheraEngine.Worlds
         public T GetGameMode<T>() where T : class, IGameMode
             => Settings?.GameMode.File as T;
 
-        public int ActorCount => _settings.State.SpawnedActors.Count;
+        public int SpawnedActorCount => _settings.State.SpawnedActors.Count;
         public WorldState State => _settings.State;
         
+        /// <summary>
+        /// Adds an actor to the scene.
+        /// </summary>
         public void SpawnActor(IActor actor)
         {
             if (!_settings.State.SpawnedActors.Contains(actor))
                 _settings.State.SpawnedActors.Add(actor);
             actor.Spawned(this);
         }
+        /// <summary>
+        /// Removes an actor from the scene.
+        /// </summary>
+        /// <param name="actor"></param>
         public void DespawnActor(IActor actor)
         {
             if (_settings.State.SpawnedActors.Contains(actor))
@@ -111,8 +86,8 @@ namespace TheraEngine.Worlds
             actor.Despawned();
         }
         
-        public void StepSimulation(float delta)
-            => _physicsScene?.StepSimulation(delta, 7, (float)(Engine.TargetRenderPeriod * Engine.TimeDilation));
+        internal void StepSimulation(float delta)
+            => _physicsScene?.StepSimulation(delta, 7, (float)(Engine.RenderPeriod * Engine.TimeDilation));
         
         public IActor this[int index]
         {

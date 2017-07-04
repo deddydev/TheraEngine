@@ -52,7 +52,7 @@ namespace TheraEditor
             Engine.SetGame(Project);
             InitializeComponent();
             DoubleBuffered = false;
-            Engine.Initialize();
+            Engine.Initialize(renderPanel1);
 
             GenerateInitialActorList();
             if (Engine.World != null)

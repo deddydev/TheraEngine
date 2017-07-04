@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Testris
+namespace Tetris
 {
     public class TetrisWorld : World
     {

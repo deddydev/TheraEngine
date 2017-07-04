@@ -22,18 +22,44 @@ namespace TheraEngine.Rendering.Textures
             _data = data;
             _width = _data != null && _data.Bitmap != null ? _data.Bitmap.Width : 1;
             _height = _data != null && _data.Bitmap != null ? _data.Bitmap.Height : 1;
-            _internalFormat = EPixelInternalFormat.Four;
-            _pixelFormat = EPixelFormat.Bgra;
-            _pixelType = EPixelType.UnsignedByte;
+            PixelFormat p = (data == null || data.Bitmap == null) ? PixelFormat.Format32bppArgb : data.Bitmap.PixelFormat;
+            switch (p)
+            {
+                case PixelFormat.Format32bppArgb:
+                    _internalFormat = EPixelInternalFormat.Rgba8;
+                    _pixelFormat = EPixelFormat.Bgra;
+                    _pixelType = EPixelType.UnsignedByte;
+                    break;
+                case PixelFormat.Format24bppRgb:
+                    _internalFormat = EPixelInternalFormat.Rgb8;
+                    _pixelFormat = EPixelFormat.Bgr;
+                    _pixelType = EPixelType.UnsignedByte;
+                    break;
+                default:
+                    throw new Exception();
+            }
         }
         public Texture2D(TextureData data) : base(EObjectType.Texture)
         {
             _data = data;
             _width = _data != null && _data.Bitmap != null ? _data.Bitmap.Width : 1;
             _height = _data != null && _data.Bitmap != null ? _data.Bitmap.Height : 1;
-            _internalFormat = EPixelInternalFormat.Four;
-            _pixelFormat = EPixelFormat.Bgra;
-            _pixelType = EPixelType.UnsignedByte;
+            PixelFormat p = (data == null || data.Bitmap == null) ? PixelFormat.Format32bppArgb : data.Bitmap.PixelFormat;
+            switch (p)
+            {
+                case PixelFormat.Format32bppArgb:
+                    _internalFormat = EPixelInternalFormat.Rgba8;
+                    _pixelFormat = EPixelFormat.Bgra;
+                    _pixelType = EPixelType.UnsignedByte;
+                    break;
+                case PixelFormat.Format24bppRgb:
+                    _internalFormat = EPixelInternalFormat.Rgb8;
+                    _pixelFormat = EPixelFormat.Bgr;
+                    _pixelType = EPixelType.UnsignedByte;
+                    break;
+                default:
+                    throw new Exception();
+            }
         }
         public Texture2D(
             TextureData data,
@@ -49,9 +75,6 @@ namespace TheraEngine.Rendering.Textures
             _uWrapMode = uWrap;
             _vWrapMode = vWrap;
             _lodBias = lodBias;
-            _internalFormat = EPixelInternalFormat.Four;
-            _pixelFormat = EPixelFormat.Bgra;
-            _pixelType = EPixelType.UnsignedByte;
         }
 
         public Texture2D(
@@ -165,7 +188,7 @@ namespace TheraEngine.Rendering.Textures
             Bitmap bmp = _data?.Bitmap;
             if (bmp != null)
             {
-                BitmapData data = bmp.LockBits(new Rectangle(0, 0, _width, _height), ImageLockMode.ReadOnly, PixelFormat.Format32bppArgb);
+                BitmapData data = bmp.LockBits(new Rectangle(0, 0, _width, _height), ImageLockMode.ReadOnly, bmp.PixelFormat);
                 Engine.Renderer.PushTextureData(_textureTarget, 0, _internalFormat, _width, _height, _pixelFormat, _pixelType, data.Scan0);
                 bmp.UnlockBits(data);
             }

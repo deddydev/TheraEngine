@@ -192,19 +192,7 @@ namespace TheraEngine.Rendering.OpenGL
             //GL.Hint(HintTarget.PointSmoothHint, HintMode.Nicest);
             //GL.Hint(HintTarget.PolygonSmoothHint, HintMode.Nicest);
             //GL.Hint(HintTarget.GenerateMipmapHint, HintMode.Nicest);
-
-            //GL.MatrixMode(MatrixMode.Modelview);
-            //GL.LoadMatrix(Matrix4.Identity.Data);
-
-            //GL.Enable(OpenTK.Graphics.OpenGL.EnableCap.DepthTest);
-            //GL.Disable(OpenTK.Graphics.OpenGL.EnableCap.Blend);
-            //GL.Disable(OpenTK.Graphics.OpenGL.EnableCap.AlphaTest);
-            //GL.Enable(OpenTK.Graphics.OpenGL.EnableCap.ScissorTest);
-            //GL.Disable(OpenTK.Graphics.OpenGL.EnableCap.Lighting);
-            //GL.Disable(OpenTK.Graphics.OpenGL.EnableCap.PointSmooth);
-            //GL.Disable(OpenTK.Graphics.OpenGL.EnableCap.PolygonSmooth);
-            //GL.Disable(OpenTK.Graphics.OpenGL.EnableCap.LineSmooth);
-
+            
             //GL.DepthFunc(DepthFunction.Less);
             //GL.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
             //GL.AlphaFunc(AlphaFunction.Gequal, 0.1f);
@@ -214,7 +202,7 @@ namespace TheraEngine.Rendering.OpenGL
             GetCurrentSubContext();
 
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
-            GL.ClearColor(Control.BackColor.R, Control.BackColor.G, Control.BackColor.B, 0.0f);
+            //GL.ClearColor(Control.BackColor.R, Control.BackColor.G, Control.BackColor.B, 0.0f);
         }
         public override void EndDraw()
         {

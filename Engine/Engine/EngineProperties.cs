@@ -93,7 +93,7 @@ namespace TheraEngine
             }
             internal set => _renderer = value;
         }
-        internal static AbstractAudioManager Audio
+        public static AbstractAudioManager Audio
         {
             get => _audioManager;
             set => _audioManager = value;
@@ -101,6 +101,8 @@ namespace TheraEngine
 
         public static float RenderDelta => (float)_timer.RenderTime;
         public static float UpdateDelta => (float)_timer.UpdateTime;
+        public static double RenderPeriod => _timer.RenderPeriod;
+        public static double UpdatePeriod => _timer.UpdatePeriod;
 
         /// <summary>
         /// Frames per second that the game will try to render at.
@@ -110,7 +112,6 @@ namespace TheraEngine
             get => _timer.TargetRenderFrequency;
             set => _timer.TargetRenderFrequency = value;
         }
-
         /// <summary>
         /// Frames per second that the game will try to update at.
         /// </summary>
@@ -120,11 +121,9 @@ namespace TheraEngine
             set => _timer.TargetUpdateFrequency = value;
         }
 
-        public static double TargetRenderPeriod => _timer.RenderPeriod;
-        public static double TargetUpdatePeriod => _timer.UpdatePeriod;
-
         /// <summary>
-        /// How fast/slow the game time looks
+        /// How fast/slow the game moves.
+        /// Greater than 1.0 for speed up, less than 1.0 for slow down.
         /// </summary>
         public static double TimeDilation
         {
@@ -132,6 +131,9 @@ namespace TheraEngine
             set => _timer.TimeDilation = value;
         }
         
+        /// <summary>
+        /// The world that is currently being rendered and played in.
+        /// </summary>
         public static World World
         {
             get => _currentWorld;
@@ -145,18 +147,8 @@ namespace TheraEngine
         /// </summary>
         public static ComputerInfo ComputerInfo => _computerInfo;
         /// <summary>
-        /// The render panel that is currently focused and is being rendered to.
+        /// The library to render with.
         /// </summary>
-        public static RenderPanel CurrentPanel
-        {
-            get
-            {
-                RenderContext ctx = RenderContext.Current;
-                if (ctx != null)
-                    return ctx.Control;
-                return null;
-            }
-        }
         public static RenderLibrary RenderLibrary
         {
             get => _renderLibrary;
@@ -168,6 +160,9 @@ namespace TheraEngine
                     c.Control?.CreateContext();
             }
         }
+        /// <summary>
+        /// The library to play audio with.
+        /// </summary>
         public static AudioLibrary AudioLibrary
         {
             get => _audioLibrary;
@@ -182,6 +177,9 @@ namespace TheraEngine
                 }
             }
         }
+        /// <summary>
+        /// The library to read input with.
+        /// </summary>
         public static InputLibrary InputLibrary
         {
             get => _inputLibrary;

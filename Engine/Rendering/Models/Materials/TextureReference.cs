@@ -4,6 +4,7 @@ using System.IO;
 using System.Drawing.Imaging;
 using FreeImageAPI;
 using System.Drawing;
+using System;
 
 namespace TheraEngine.Rendering.Models.Materials
 {
@@ -75,9 +76,22 @@ namespace TheraEngine.Rendering.Models.Materials
             else
                 _name = name;
             _reference = new SingleFileRef<TextureData>(path);
-            _internalFormat = EPixelInternalFormat.Rgba8;
-            _pixelFormat = EPixelFormat.Rgba;
-            _pixelType = EPixelType.UnsignedByte;
+            PixelFormat p = (TextureData == null || TextureData.Bitmap == null) ? PixelFormat.Format32bppArgb : TextureData.Bitmap.PixelFormat;
+            switch (p)
+            {
+                case PixelFormat.Format32bppArgb:
+                    _internalFormat = EPixelInternalFormat.Rgba8;
+                    _pixelFormat = EPixelFormat.Bgra;
+                    _pixelType = EPixelType.UnsignedByte;
+                    break;
+                case PixelFormat.Format24bppRgb:
+                    _internalFormat = EPixelInternalFormat.Rgb8;
+                    _pixelFormat = EPixelFormat.Bgr;
+                    _pixelType = EPixelType.UnsignedByte;
+                    break;
+                default:
+                    throw new Exception();
+            }
         }
 
         public TextureData TextureData

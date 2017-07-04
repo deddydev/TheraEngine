@@ -9,7 +9,7 @@ using System.Linq;
 
 namespace TheraEngine.Rendering
 {
-    public class GBufferMeshProgram : MeshProgram
+    internal class GBufferMeshProgram : MeshProgram
     {
         DrawBuffersAttachment[] _attachments;
         EFramebufferAttachment?[] _attachmentsPerTexture;
@@ -83,7 +83,7 @@ namespace TheraEngine.Rendering
             Engine.Renderer.Uniform(Uniform.GetLocation(ECommonUniform.RenderDelta), Engine.RenderDelta);
         }
     }
-    public class GBuffer : FrameBuffer
+    internal class GBuffer : FrameBuffer
     {
         OrthographicCamera _quadCamera;
         PrimitiveManager<GBufferMeshProgram> _fullScreenTriangle;
@@ -289,7 +289,7 @@ namespace TheraEngine.Rendering
 
             return new Material("GBufferMaterial", new List<GLVar>(), refs, forward ? GBufferShaderForward() : GBufferShaderDeferred());
         }
-        public static Shader GBufferShaderDeferred()
+        internal static Shader GBufferShaderDeferred()
         {
             string source = @"
 
@@ -359,8 +359,7 @@ void main()
 }";
             return new Shader(ShaderMode.Fragment, source);
         }
-
-        public static Shader GBufferShaderForward()
+        internal static Shader GBufferShaderForward()
         {
             string source = @"
 

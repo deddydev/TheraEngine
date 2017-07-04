@@ -15,35 +15,43 @@ namespace TheraEngine
         {
             Engine.SetGame(game);
             InitializeComponent();
-            Engine.Initialize();
+            Engine.Initialize(renderPanel1);
 
             Text = game.Name;
             if (!string.IsNullOrEmpty(game.IconPath) && File.Exists(game.IconPath))
                 Icon = new Icon(game.IconPath);
+            
+            switch (game.UserSettings.WindowBorderStyle)
+            {
+                case WindowBorderStyle.None:
+                    FormBorderStyle = FormBorderStyle.None;
+                    break;
+                case WindowBorderStyle.Fixed:
+                    FormBorderStyle = FormBorderStyle.FixedSingle;
+                    break;
+                case WindowBorderStyle.Sizable:
+                    FormBorderStyle = FormBorderStyle.Sizable;
+                    break;
+            }
 
-            //TopMost = true;
-            //FormBorderStyle = FormBorderStyle.None;
-            WindowState = FormWindowState.Maximized;
+            if (game.UserSettings.FullScreen)
+                WindowState = FormWindowState.Maximized;
+            
             Application.ApplicationExit += Application_ApplicationExit;
         }
-
         private void Application_ApplicationExit(object sender, EventArgs e)
         {
             Engine.ShutDown();
         }
-
         protected override void OnLoad(EventArgs e)
         {
             base.OnLoad(e);
-
-            renderPanel1.RegisterTick();
             Engine.Run();
         }
         protected override void OnClosed(EventArgs e)
         {
             base.OnClosed(e);
             renderPanel1.UnregisterTick();
-            Engine.ShutDown();
         }
     }
 }

@@ -386,5 +386,10 @@ namespace TheraEngine.Rendering.DirectX
         {
             throw new NotImplementedException();
         }
+
+        public override void ClearColor(ColorF4 color)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

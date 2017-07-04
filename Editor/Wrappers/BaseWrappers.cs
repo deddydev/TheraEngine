@@ -157,7 +157,7 @@ namespace Editor.Wrappers
         }
         internal protected virtual void OnUpdateCurrentControl(ObjectBase obj)
         {
-            MainWindow form = MainWindow.Instance;
+            //MainWindow form = MainWindow.Instance;
             //var g = form.propertyGrid1.SelectedGridItem;
             //form._currentControl = null;
             //form.resourceTree_SelectionChanged(this, null);

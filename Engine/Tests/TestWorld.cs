@@ -100,23 +100,23 @@ namespace TheraEngine.Tests
 
             Actor<DirectionalLightComponent> dirLightActor = new Actor<DirectionalLightComponent>(dirLightComp) { Name = "SunLight" };
 
-            //string desktop = Environment.MachineName == "DAVID-DESKTOP" ?
-            //    "X:\\Desktop\\" :
-            //    "C:\\Users\\David\\Desktop\\";
-            //string googleDrive = Environment.MachineName == "DAVID-DESKTOP" ?
-            //    "X:\\Cloud Storage\\Google Drive\\Game\\" :
-            //    "C:\\Users\\David\\Google Drive\\Game\\";
+            string desktop = Environment.MachineName == "DAVID-DESKTOP" ?
+                "X:\\Desktop\\" :
+                "C:\\Users\\David\\Desktop\\";
+            string googleDrive = Environment.MachineName == "DAVID-DESKTOP" ?
+                "X:\\Cloud Storage\\Google Drive\\Game\\" :
+                "C:\\Users\\David\\Google Drive\\Game\\";
 
-            //Collada.ImportOptions options = new Collada.ImportOptions();
-            //options.InitialTransform.Scale = new Vec3(1.0f.InchesToMeters());
+            Collada.ImportOptions options = new Collada.ImportOptions();
+            options.InitialTransform.Scale = new Vec3(1.0f.InchesToMeters());
 
             //ColladaScene = Collada.Import(desktop + "carly\\carly.dae", options, false, true);
 
             //ColladaScene = Collada.Import(desktop + "TEST.DAE", options, false, true);
 
-            //ColladaScene = Collada.Import(desktop + "skybox.dae", options, false, true);
-            //StaticMeshComponent c = new StaticMeshComponent(ColladaScene.StaticModel, null);
-            //Actor<StaticMeshComponent> skybox = new Actor<StaticMeshComponent>(c);
+            ColladaScene = Collada.Import(desktop + "skybox.dae", options, false, true);
+            StaticMeshComponent c = new StaticMeshComponent(ColladaScene.StaticModel, null);
+            Actor<StaticMeshComponent> skybox = new Actor<StaticMeshComponent>(c);
 
             //Engine.Settings.Export(desktop, "EngineSettings", Files.FileFormat.Binary);
 
@@ -203,7 +203,7 @@ namespace TheraEngine.Tests
             {
                 floorActor,
                 dirLightActor,
-                //skybox,
+                skybox,
                 //splineActor,
                 //cam,
                 //floor2Actor,

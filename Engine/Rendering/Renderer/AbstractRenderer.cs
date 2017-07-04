@@ -329,7 +329,8 @@ namespace TheraEngine.Rendering
         public abstract void PushBufferData(VertexBuffer buffer);
         public abstract void MapBufferData(VertexBuffer buffer);
         public abstract void UnmapBufferData(VertexBuffer buffer);
-
+        
+        public abstract void ClearColor(ColorF4 color);
         public abstract void Clear(EBufferClear mask);
         public abstract void Cull(Culling culling);
         public abstract void SetPointSize(float size);

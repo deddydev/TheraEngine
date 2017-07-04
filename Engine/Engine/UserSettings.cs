@@ -5,6 +5,7 @@ using System.Xml.Serialization;
 using System.Xml;
 using System.Runtime.InteropServices;
 using System.ComponentModel;
+using System.Windows.Forms;
 
 namespace TheraEngine
 {
@@ -32,9 +33,23 @@ namespace TheraEngine
         XInput,
         Raw,
     }
+    public enum WindowState
+    {
+        Unchanged = 0,
+        Minimized = 1,
+        Maximized = 2
+    }
+    public enum WindowBorderStyle
+    {
+        None,
+        Fixed,
+        Sizable,
+    }
     [FileClass("USET", "User Settings")]
     public class UserSettings : FileObject
     {
+        private WindowBorderStyle _windowBorderStyle = WindowBorderStyle.Sizable;
+        private bool _fullscreen = false;
         private VSyncMode _vSyncMode = VSyncMode.Adaptive;
         private EngineQuality _textureQuality = EngineQuality.Highest;
         private EngineQuality _modelQuality = EngineQuality.Highest;
@@ -59,7 +74,11 @@ namespace TheraEngine
         public AudioLibrary AudioLibrary { get => _audioLibrary; set => _audioLibrary = value; }
         [Serialize]
         public InputLibrary InputLibrary { get => _inputLibrary; set => _inputLibrary = value; }
-
+        [Serialize]
+        public WindowBorderStyle WindowBorderStyle { get => _windowBorderStyle; set => _windowBorderStyle = value; }
+        [Serialize]
+        public bool FullScreen { get => _fullscreen; set => _fullscreen = value; }
+        
         public static UserSettings FromXML(string filePath)
         {
             return FromXML<UserSettings>(filePath);

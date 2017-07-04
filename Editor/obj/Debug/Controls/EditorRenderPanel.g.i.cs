@@ -61,7 +61,7 @@ namespace Editor.Controls {
                 return;
             }
             _contentLoaded = true;
-            System.Uri resourceLocater = new System.Uri("/WPFEditor;component/controls/editorrenderpanel.xaml", System.UriKind.Relative);
+            System.Uri resourceLocater = new System.Uri("/TheraEditor;component/controls/editorrenderpanel.xaml", System.UriKind.Relative);
             
             #line 1 "..\..\..\Controls\EditorRenderPanel.xaml"
             System.Windows.Application.LoadComponent(this, resourceLocater);

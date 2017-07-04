@@ -134,8 +134,8 @@ namespace TheraEngine.Rendering
         /// </summary>
         public int Generate()
         {
-            if (RenderPanel.CapturedPanel != null && RenderPanel.CapturedPanel.InvokeRequired)
-                return (int)RenderPanel.CapturedPanel.Invoke(new Func<int>(Generate));
+            if (RenderPanel.RenderingPanel != null && RenderPanel.RenderingPanel.InvokeRequired)
+                return (int)RenderPanel.RenderingPanel.Invoke(new Func<int>(Generate));
             
             //Make sure current bind is up to date
             GetCurrentBind();
@@ -157,9 +157,9 @@ namespace TheraEngine.Rendering
             if (RenderContext.Current == null)
                 return;
 
-            if (RenderPanel.CapturedPanel != null && RenderPanel.CapturedPanel.InvokeRequired)
+            if (RenderPanel.RenderingPanel != null && RenderPanel.RenderingPanel.InvokeRequired)
             {
-                RenderPanel.CapturedPanel.Invoke(new Action(Delete));
+                RenderPanel.RenderingPanel.Invoke(new Action(Delete));
                 return;
             }
 
@@ -276,6 +276,9 @@ namespace TheraEngine.Rendering
         }
         #endregion
     }
+    /// <summary>
+    /// The type of render object that is handled by the renderer and needs to be generated/destroyed.
+    /// </summary>
     public enum EObjectType
     {
         Buffer,

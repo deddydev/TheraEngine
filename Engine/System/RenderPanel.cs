@@ -40,12 +40,25 @@ namespace TheraEngine
     {
         public const int MaxViewports = 4;
 
+        /// <summary>
+        /// The render panel that houses the actual game and viewports.
+        /// </summary>
+        public static RenderPanel GamePanel;
+        /// <summary>
+        /// The render panel that the mouse is currently on top of.
+        /// </summary>
         public static RenderPanel HoveredPanel;
+        /// <summary>
+        /// The render panel that the mouse has last clicked in and not clicked out of.
+        /// </summary>
         public static RenderPanel CapturedPanel;
+        /// <summary>
+        /// The render panel that is currently being rendered to.
+        /// </summary>
+        public static RenderPanel RenderingPanel => RenderContext.Current?.Control;
+
         public RenderPanel()
         {
-            BackColor = Color.Lavender;
-
             //Force custom paint
             SetStyle(
                 ControlStyles.UserPaint |
@@ -64,34 +77,12 @@ namespace TheraEngine
             //Add the main viewport - at least one viewport should always be rendering
             AddViewport();
         }
-
-        protected override void OnLoad(EventArgs e)
-        {
-            base.OnLoad(e);
-        }
-
-        protected override void Dispose(bool disposing)
-        {
-            DisposeContext();
-            base.Dispose(disposing);
-        }
-
-        public new Point PointToClient(Point p)
-        {
-            p = base.PointToClient(p);
-            p.Y = Height - p.Y;
-            return p;
-        }
-        public new Point PointToScreen(Point p)
-        {
-            p.Y = Height - p.Y;
-            return base.PointToScreen(p);
-        }
         
         internal delegate Point DelPointConvert(Point p);
         internal DelPointConvert PointToClientDelegate;
         internal DelPointConvert PointToScreenDelegate;
-        
+
+        private bool _resizing = false;
         private VSyncMode _vsyncMode = VSyncMode.Adaptive;
         internal RenderContext _context;
         private HudManager _globalHud;
@@ -113,14 +104,14 @@ namespace TheraEngine
             }
         }
 
-        public void CaptureContext()
+        #region Rendering
+        public void RegisterTick() => Engine.RegisterRenderTick(RenderTick);
+        public void UnregisterTick() => Engine.UnregisterRenderTick(RenderTick);
+        private void RenderTick(object sender, FrameEventArgs e)
         {
-            if (InvokeRequired)
-            {
-                Invoke(new Action(CaptureContext));
-                return;
-            }
-            _context?.Capture();
+            Invalidate();
+            //Application.DoEvents();
+            //Thread.Sleep(0);
         }
         protected override void OnPaintBackground(PaintEventArgs e) { }
         protected override void OnPaint(PaintEventArgs e)
@@ -139,6 +130,40 @@ namespace TheraEngine
                 finally { Monitor.Exit(_context); }
             }
         }
+        protected virtual void OnRender(PaintEventArgs e)
+        {
+            _context.BeginDraw();
+            foreach (Viewport v in _viewports)
+                v.Render(Engine.Scene);
+            _globalHud?.Render();
+            _context.EndDraw();
+        }
+        #endregion
+
+        #region Resizing
+        public void BeginResize()
+        {
+            _resizing = true;
+        }
+        public void EndResize()
+        {
+            _resizing = false;
+            foreach (Viewport v in _viewports)
+                v.ResizeGBuffer();
+        }
+        protected override void OnResize(EventArgs e)
+        {
+            base.OnResize(e);
+            int w = Width.ClampMin(1);
+            int h = Height.ClampMin(1);
+            _globalHud?.Resize(new Vec2(w, h));
+            foreach (Viewport v in _viewports)
+                v.Resize(w, h, !_resizing);
+            _context?.Update();
+        }
+        #endregion
+
+        #region Mouse
         protected override void OnMouseEnter(EventArgs e)
         {
             base.OnMouseEnter(e);
@@ -182,41 +207,28 @@ namespace TheraEngine
         //            CapturedPanel = null;
         //    }
         //}
-        protected virtual void OnRender(PaintEventArgs e)
+        public new Point PointToClient(Point p)
         {
-            _context.BeginDraw();
-            foreach (Viewport v in _viewports)
-                v.Render(Engine.Scene);
-            _globalHud?.Render();
-            _context.EndDraw();
+            p = base.PointToClient(p);
+            p.Y = Height - p.Y;
+            return p;
         }
+        public new Point PointToScreen(Point p)
+        {
+            p.Y = Height - p.Y;
+            return base.PointToScreen(p);
+        }
+        #endregion
 
-        public void BeginResize()
+        #region Context
+        public void CaptureContext()
         {
-            _resizing = true;
-        }
-
-        public void EndResize()
-        {
-            _resizing = false;
-            foreach (Viewport v in _viewports)
-                v.ResizeGBuffer();
-        }
-
-        private bool _resizing = false;
-        protected override void OnResize(EventArgs e)
-        {
-            base.OnResize(e);
-            int w = Width.ClampMin(1);
-            int h = Height.ClampMin(1);
-            _globalHud?.Resize(new Vec2(w, h));
-            foreach (Viewport v in _viewports)
-                v.Resize(w, h, !_resizing);
-            _context?.Update();
-        }
-        protected virtual void OnReset(object sender, EventArgs e)
-        {
-            _context?.Initialize();
+            if (InvokeRequired)
+            {
+                Invoke(new Action(CaptureContext));
+                return;
+            }
+            _context?.Capture();
         }
         protected virtual void OnContextChanged(bool isNowCurrent)
         {
@@ -267,6 +279,10 @@ namespace TheraEngine
                 _context = null;
             }
         }
+        #endregion
+
+        #region Viewports
+        public Viewport GetViewport(int index) => index >= 0 && index < _viewports.Count ? _viewports[index] : null;
         public Viewport AddViewport()
         {
             if (_viewports.Count == MaxViewports)
@@ -281,30 +297,29 @@ namespace TheraEngine
 
             return newViewport;
         }
-        public Viewport GetViewport(int index)
-            => index >= 0 && index < _viewports.Count ? _viewports[index] : null;
         public void RemoveViewport(LocalPlayerController owner)
         {
-            if (_viewports.Contains(owner.Viewport))
+            if (owner.Viewport != null && _viewports.Contains(owner.Viewport))
             {
+                owner.Viewport.Owner = null;
                 _viewports.Remove(owner.Viewport);
                 for (int i = 0; i < _viewports.Count; ++i)
                     _viewports[i].ViewportCountChanged(i, _viewports.Count, Engine.Game.TwoPlayerPref, Engine.Game.ThreePlayerPref);
             }
         }
+        #endregion
 
-        public void RegisterTick() => Engine.RegisterRenderTick(RenderTick);
-        public void UnregisterTick() => Engine.UnregisterRenderTick(RenderTick);
-        private void RenderTick(object sender, FrameEventArgs e)
+        protected virtual void OnReset(object sender, EventArgs e)
         {
-            Invalidate();
-            //Application.DoEvents();
-            //Thread.Sleep(0);
+            _context?.Initialize();
+        }
+        protected override void Dispose(bool disposing)
+        {
+            DisposeContext();
+            base.Dispose(disposing);
         }
 
-        public IEnumerator<Viewport> GetEnumerator()
-            => ((IEnumerable<Viewport>)_viewports).GetEnumerator();
-        IEnumerator IEnumerable.GetEnumerator()
-            => ((IEnumerable<Viewport>)_viewports).GetEnumerator();
+        public IEnumerator<Viewport> GetEnumerator() => ((IEnumerable<Viewport>)_viewports).GetEnumerator();
+        IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable<Viewport>)_viewports).GetEnumerator();
     }
 }

@@ -67,7 +67,7 @@ namespace Editor.Controls {
                 return;
             }
             _contentLoaded = true;
-            System.Uri resourceLocater = new System.Uri("/WPFEditor;component/controls/colorpanel.xaml", System.UriKind.Relative);
+            System.Uri resourceLocater = new System.Uri("/TheraEditor;component/controls/colorpanel.xaml", System.UriKind.Relative);
             
             #line 1 "..\..\..\Controls\ColorPanel.xaml"
             System.Windows.Application.LoadComponent(this, resourceLocater);

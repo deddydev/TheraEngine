@@ -4,24 +4,23 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TheraEngine.Rendering;
+using TheraEngine.Files;
 
 namespace TheraEngine.Worlds.Actors
 {
-    public class SoundComponent : SceneComponent
+    public class SoundComponent : SphereComponent
     {
-        SoundFile _file;
-        protected override void OnRecalcLocalTransform(out Matrix4 localTransform, out Matrix4 inverseLocalTransform)
+        public SingleFileRef<SoundFile> File
         {
-            throw new NotImplementedException();
+            get => _file;
+            set => _file = value;
         }
-        internal override void RecalcGlobalTransform()
-        {
-            base.RecalcGlobalTransform();
 
-        }
-        protected internal override void OriginRebased(Vec3 newOrigin)
-        {
-            throw new NotImplementedException();
-        }
+        private SingleFileRef<SoundFile> _file;
+
+        public SoundComponent() : base(1.0f) { }
+        public SoundComponent(float radius) : base(radius) { }
+        public SoundComponent(float radius, PhysicsConstructionInfo info) : base(radius, info) { }
     }
 }

@@ -3,7 +3,7 @@ using TheraEngine;
 using TheraEngine.Tests;
 using TheraEngine.Worlds;
 
-namespace Editor.Controls
+namespace TheraEditor.Controls
 {
     /// <summary>
     /// Interaction logic for RenderPanel.xaml
@@ -13,14 +13,15 @@ namespace Editor.Controls
         RenderPanel _panel;
         public EditorRenderPanel()
         {
-            InitializeComponent();
-            FormsHost.Child = _panel = new RenderPanel();
             Game game = new Game()
             {
                 OpeningWorld = typeof(TestWorld),
             };
-            Engine.Initialize(game);
-            _panel.RegisterTick();
+            Engine.SetGame(game);
+            InitializeComponent();
+            FormsHost.Child = _panel = new RenderPanel();
+            Engine.Initialize(_panel);
+            Engine.Run();
         }
     }
 }

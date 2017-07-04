@@ -2,20 +2,19 @@
 using System;
 using System.Windows.Forms;
 
-namespace Testris
+namespace Tetris
 {
     static class Program
     {
         [STAThread]
         static void Main()
         {
-            Application.EnableVisualStyles();
-            Application.SetCompatibleTextRenderingDefault(false);
-            Game game = new Game()
+            Engine.Run(new Game()
             {
-                OpeningWorld = typeof(TetrisWorld),
-            };
-            Application.Run(new RenderForm(game));
+                Name = "TETRIS - Thera Engine",
+                IconPath = Engine.StartupPath + "Content\\favicon.ico",
+                OpeningWorld = typeof(TetrisWorld)
+            });
         }
     }
 }

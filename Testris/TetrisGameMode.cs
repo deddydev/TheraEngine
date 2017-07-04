@@ -2,7 +2,7 @@
 using TheraEngine.GameModes;
 using TheraEngine.Input;
 
-namespace Testris
+namespace Tetris
 {
     public class TetrisGameMode : GameMode<TetrisPawn, LocalPlayerController>
     {

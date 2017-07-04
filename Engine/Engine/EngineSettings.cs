@@ -134,7 +134,7 @@ namespace TheraEngine
             CapFPS = true;
             TargetFPS = 60.0f;
             CapUPS = false;
-            TargetUPS = 30.0f;
+            TargetUPS = 90.0f;
         }
     }
 }

@@ -270,6 +270,11 @@ namespace TheraEngine.Rendering
                 scene.PreRender(Camera);
 
                 scene.Render(RenderPass.OpaqueForward);
+
+#if DEBUG
+                Engine.World.PhysicsScene.DebugDrawWorld();
+#endif
+
                 Engine.Renderer.AllowDepthWrite(false);
                 scene.Render(RenderPass.TransparentForward);
                 Engine.Renderer.AllowDepthWrite(true);

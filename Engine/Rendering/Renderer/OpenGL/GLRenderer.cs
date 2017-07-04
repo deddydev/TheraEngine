@@ -67,6 +67,11 @@ namespace TheraEngine.Rendering.OpenGL
 
         //}
 
+        public override void ClearColor(ColorF4 color)
+        {
+            GL.ClearColor(color.R, color.G, color.B, color.A);
+        }
+
         #region Objects
         public override void DeleteObject(EObjectType type, int bindingId)
         {
@@ -301,13 +306,14 @@ namespace TheraEngine.Rendering.OpenGL
                 for (int i = 0; i < info._morphCount + 1; ++i, ++j)
                     GL.BindAttribLocation(handle, j, BufferType.Tangent.ToString() + i);
             }
+
             j = (int)BufferType.Color * VertexBuffer.MaxBufferCountPerType;
             for (int i = 0; i < info._colorCount; ++i, ++j)
                 GL.BindAttribLocation(handle, j, BufferType.Color.ToString() + i);
 
             j = (int)BufferType.TexCoord * VertexBuffer.MaxBufferCountPerType;
             for (int i = 0; i < info._texcoordCount; ++i, ++j)
-                GL.BindAttribLocation(handle, j, BufferType.TexCoord.ToString() + i);
+                GL.BindAttribLocation(handle, j, "MultiTexCoord" + i.ToString());
 
             if (info.IsWeighted)
             {
@@ -652,7 +658,7 @@ namespace TheraEngine.Rendering.OpenGL
         public override int GetStencilIndex(float x, float y)
         {
             int val = 0;
-            GL.ReadPixels((int)x, (int)(Engine.CurrentPanel.Height - y), 1, 1, OpenTK.Graphics.OpenGL.PixelFormat.DepthStencil, PixelType.UnsignedInt248, ref val);
+            GL.ReadPixels((int)x, (int)(RenderPanel.RenderingPanel.Height - y), 1, 1, OpenTK.Graphics.OpenGL.PixelFormat.DepthStencil, PixelType.UnsignedInt248, ref val);
             return val & 0xFF;
         }
         public override float GetDepth(float x, float y)

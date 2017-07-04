@@ -10,7 +10,7 @@ using TheraEngine.Rendering.Models.Materials;
 using TheraEngine.Worlds;
 using TheraEngine.Worlds.Actors;
 
-namespace Testris
+namespace Tetris
 {
     public class TetrisPawn : HudManager, I3DRenderable
     {
@@ -279,12 +279,10 @@ namespace Testris
             };
             DockableHudComponent board = new DockableHudComponent()
             {
-                //TODO: make scalable
-                HeightValue = _rows * 54,
-                WidthValue = _columns * 54,
-                //WidthHeightConstraint = WidthHeightConstraint.WidthAsRatioToHeight,
-                WidthMode = SizingMode.Pixels,
-                HeightMode = SizingMode.Pixels,
+                HeightValue = 1.0f,
+                WidthValue = (float)_columns / _rows,
+                HeightMode = SizingMode.Percentage,
+                WidthHeightConstraint = WidthHeightConstraint.WidthAsRatioToHeight,
                 OriginXPercentage = 0.5f,
                 OriginYPercentage = 0.5f,
                 PosXValue = 0.5f,
@@ -292,17 +290,23 @@ namespace Testris
                 PositionXMode = SizingMode.Percentage,
                 PositionYMode = SizingMode.Percentage,
             };
+            //TODO: write shader to render blocks on GPU using only one big quad
+            float invCol = 1.0f / _columns;
+            float invRow = 1.0f / _rows;
             for (int row = 0; row < _rows; ++row)
                 for (int col = 0; col < _columns; ++col)
                 {
-                    Material mat = Material.GetUnlitColorMaterial(
-                        new ColorF4(row / 20.0f, 0.0f, col / 10.0f, 1.0f), false);
+                    Material mat = Material.GetUnlitColorMaterial(new ColorF4(row / 20.0f, 0.0f, col / 10.0f, 1.0f), false);
                     MaterialHudComponent square = new MaterialHudComponent(mat)
                     {
-                        WidthValue = 54,
-                        HeightValue = 54,
-                        PosXValue = col * 54,
-                        PosYValue = (_rows - row - 1) * 54,
+                        WidthValue = invCol,
+                        HeightValue = invRow,
+                        PosXValue = invCol * col,
+                        PosYValue = invRow * (_rows - row - 1),
+                        WidthMode = SizingMode.Percentage,
+                        HeightMode = SizingMode.Percentage,
+                        PositionXMode = SizingMode.Percentage,
+                        PositionYMode = SizingMode.Percentage,
                     };
                     _hudBoard[row, col] = square;
                     board.Add(square);

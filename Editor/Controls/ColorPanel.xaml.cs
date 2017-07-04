@@ -14,7 +14,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using Xceed.Wpf.Toolkit;
 
-namespace Editor.Controls
+namespace TheraEditor.Controls
 {
     /// <summary>
     /// Interaction logic for ColorPanel.xaml

@@ -13,6 +13,7 @@ namespace TheraEngine.Rendering.HUD
         HeightAsRatioToWidth,
         NoConstraint,
     }
+    //TODO: move constraints into sizing mode
     public enum SizingMode
     {
         Percentage,
@@ -181,7 +182,15 @@ namespace TheraEngine.Rendering.HUD
             float h = (_heightMode == SizingMode.Percentage ? parentRegion.Height * _heightValue : _heightValue);
             if (_whConstraint != WidthHeightConstraint.NoConstraint)
             {
-
+                switch (_whConstraint)
+                {
+                    case WidthHeightConstraint.HeightAsRatioToWidth:
+                        h = w * _heightValue;
+                        break;
+                    case WidthHeightConstraint.WidthAsRatioToHeight:
+                        w = h * _widthValue;
+                        break;
+                }
             }
             _region = new BoundingRectangle(x, y, w, h, _originXValue, _originYValue);
             if (Docked || Anchored)

@@ -176,7 +176,7 @@ namespace TheraEngine.Worlds
                 return;
 
             //OnSpawned is called just after the actor is added to the actor list
-            _spawnIndex = world.ActorCount - 1;
+            _spawnIndex = world.SpawnedActorCount - 1;
             _owningWorld = world;
 
             OnSpawnedPreComponentSetup(world);

@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace Testris.Properties {
+namespace Tetris.Properties {
     
     
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]

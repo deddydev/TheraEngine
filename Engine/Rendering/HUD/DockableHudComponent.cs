@@ -9,8 +9,17 @@ namespace TheraEngine.Rendering.HUD
 {
     public enum WidthHeightConstraint
     {
+        /// <summary>
+        /// WidthValue = ratio of Width/Height
+        /// </summary>
         WidthAsRatioToHeight,
+        /// <summary>
+        /// HeightValue = ratio of Height/Width
+        /// </summary>
         HeightAsRatioToWidth,
+        /// <summary>
+        /// Neither dimension depends on the other
+        /// </summary>
         NoConstraint,
     }
     //TODO: move constraints into sizing mode
@@ -36,6 +45,13 @@ namespace TheraEngine.Rendering.HUD
         Right,
         Top,
         Bottom,
+    }
+    public enum BackgroundImageDisplay
+    {
+        Stretch,
+        CenterFit,
+        ResizeWithBars,
+        Tile,
     }
     public class DockableHudComponent : HudComponent
     {
@@ -173,9 +189,66 @@ namespace TheraEngine.Rendering.HUD
         public float OriginYPercentage { get => _originYValue; set => _originYValue = value; }
         public WidthHeightConstraint WidthHeightConstraint { get => _whConstraint; set => _whConstraint = value; }
         
-        public override BoundingRectangle Resize(BoundingRectangle parentRegion)
+        public override unsafe BoundingRectangle Resize(BoundingRectangle parentRegion)
         {
             BoundingRectangle leftOver = parentRegion;
+
+            //float* points = stackalloc float[8];
+            //float tAspect = (float)_bgImage.Width / (float)_bgImage.Height;
+            //float wAspect = (float)Width / (float)Height;
+
+            //switch (_bgType)
+            //{
+            //    case BGImageType.Stretch:
+
+            //        points[0] = points[1] = points[3] = points[6] = 0.0f;
+            //        points[2] = points[4] = Width;
+            //        points[5] = points[7] = Height;
+
+            //        break;
+
+            //    case BGImageType.Center:
+
+            //        if (tAspect > wAspect)
+            //        {
+            //            points[1] = points[3] = 0.0f;
+            //            points[5] = points[7] = Height;
+
+            //            points[0] = points[6] = Width * ((Width - ((float)Height / _bgImage.Height * _bgImage.Width)) / Width / 2.0f);
+            //            points[2] = points[4] = Width - points[0];
+            //        }
+            //        else
+            //        {
+            //            points[0] = points[6] = 0.0f;
+            //            points[2] = points[4] = Width;
+
+            //            points[1] = points[3] = Height * (((Height - ((float)Width / _bgImage.Width * _bgImage.Height))) / Height / 2.0f);
+            //            points[5] = points[7] = Height - points[1];
+            //        }
+            //        break;
+
+            //    case BGImageType.ResizeWithBars:
+
+            //        if (tAspect > wAspect)
+            //        {
+            //            points[0] = points[6] = 0.0f;
+            //            points[2] = points[4] = Width;
+
+            //            points[1] = points[3] = Height * (((Height - ((float)Width / _bgImage.Width * _bgImage.Height))) / Height / 2.0f);
+            //            points[5] = points[7] = Height - points[1];
+            //        }
+            //        else
+            //        {
+            //            points[1] = points[3] = 0.0f;
+            //            points[5] = points[7] = Height;
+
+            //            points[0] = points[6] = Width * ((Width - ((float)Height / _bgImage.Height * _bgImage.Width)) / Width / 2.0f);
+            //            points[2] = points[4] = Width - points[0];
+            //        }
+
+            //        break;
+            //}
+
             float x = parentRegion.MinX + (_positionXMode == SizingMode.Percentage ? parentRegion.Width * _posXValue : _posXValue);
             float y = parentRegion.MinY + (_positionYMode == SizingMode.Percentage ? parentRegion.Height * _posYValue : _posYValue);
             float w = (_widthMode == SizingMode.Percentage ? parentRegion.Width * _widthValue : _widthValue);

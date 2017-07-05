@@ -1,5 +1,4 @@
 ﻿using SlimDX.XInput;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -19,9 +18,11 @@ namespace TheraEngine.Input.Devices.DirectX
 
         public override void Vibrate(float lowFreq, float highFreq)
         {
-            Vibration v = new Vibration();
-            v.LeftMotorSpeed = (ushort)(lowFreq * ushort.MaxValue);
-            v.RightMotorSpeed = (ushort)(highFreq * ushort.MaxValue);
+            Vibration v = new Vibration()
+            {
+                LeftMotorSpeed = (ushort)(lowFreq * ushort.MaxValue),
+                RightMotorSpeed = (ushort)(highFreq * ushort.MaxValue)
+            };
             _controller.SetVibration(v);
         }
         private bool AxistExists(GamePadAxis axis, Capabilities c)
@@ -81,7 +82,7 @@ namespace TheraEngine.Input.Devices.DirectX
             if (!UpdateConnected(_controller.IsConnected))
                 return;
 
-            SlimDX.XInput.State state = _controller.GetState();
+            State state = _controller.GetState();
 
             FaceDown?.Tick(state.Gamepad.Buttons.HasFlag(GamepadButtonFlags.A), delta);
             FaceRight?.Tick(state.Gamepad.Buttons.HasFlag(GamepadButtonFlags.B), delta);

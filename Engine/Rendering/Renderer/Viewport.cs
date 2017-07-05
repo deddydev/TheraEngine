@@ -304,6 +304,7 @@ namespace TheraEngine.Rendering
         public Vec2 RelativeToAbsolute(Vec2 viewportPoint) => new Vec2(viewportPoint.X + _region.X, viewportPoint.Y + _region.Y);
         public unsafe float GetDepth(Vec2 viewportPoint)
         {
+            throw new NotImplementedException();
             Vec2 absolutePoint = viewportPoint;//RelativeToAbsolute(viewportPoint);
             _gBuffer.Bind(EFramebufferTarget.Framebuffer);
             Engine.Renderer.SetReadBuffer(DrawBuffersAttachment.None);

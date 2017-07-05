@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TheraEngine.Input.Devices.OpenTK
+namespace TheraEngine.Input.Devices.DirectX
 {
     public class DXKeyboard : CKeyboard
     {

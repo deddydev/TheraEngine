@@ -1,9 +1,5 @@
 ﻿using System;
 using TheraEngine.Rendering.Textures;
-using TheraEngine.Rendering.Models.Materials;
-using TheraEngine.Rendering;
-using System.Collections.Generic;
-using System.Linq;
 using TheraEngine.Rendering.Models;
 
 namespace TheraEngine.Worlds.Actors

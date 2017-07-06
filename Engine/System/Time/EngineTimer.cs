@@ -1,7 +1,5 @@
 ﻿using System.Diagnostics;
-using System.Windows.Forms;
 using System.Threading;
-using TheraEngine.Rendering;
 using System;
 
 namespace TheraEngine.Timers

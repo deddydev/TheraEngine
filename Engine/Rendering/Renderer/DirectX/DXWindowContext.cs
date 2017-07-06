@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Windows.Controls;
 //using SlimDX.Direct3D11;
 //using SlimDX.DXGI;
 //using SlimDX;

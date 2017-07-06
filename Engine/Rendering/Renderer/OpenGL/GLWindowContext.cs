@@ -1,12 +1,9 @@
 ﻿using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;
 using OpenTK.Platform;
-using System.Windows.Controls;
 using System;
-using System.Drawing;
 using System.Diagnostics;
 using System.Threading;
-using System.Windows.Forms;
 
 namespace TheraEngine.Rendering.OpenGL
 {

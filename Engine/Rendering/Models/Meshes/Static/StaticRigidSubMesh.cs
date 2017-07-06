@@ -1,8 +1,6 @@
 ﻿using System;
 using TheraEngine.Rendering.Models.Materials;
 using TheraEngine.Files;
-using System.IO;
-using System.Xml;
 
 namespace TheraEngine.Rendering.Models
 {

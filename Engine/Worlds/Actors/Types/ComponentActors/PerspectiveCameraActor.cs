@@ -1,7 +1,4 @@
-﻿using TheraEngine.Worlds.Actors;
-using TheraEngine.Worlds;
-using TheraEngine.Rendering.Cameras;
-using System;
+﻿using TheraEngine.Rendering.Cameras;
 
 namespace TheraEngine.Worlds.Actors.Types
 {

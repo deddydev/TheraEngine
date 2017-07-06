@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Drawing;
 using TheraEngine.Rendering;
-using TheraEngine.Rendering.Animation;
 using TheraEngine.Rendering.Models;
 using TheraEngine.Rendering.Models.Materials;
 using TheraEngine.Worlds;

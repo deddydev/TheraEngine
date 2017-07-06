@@ -1,15 +1,8 @@
 ﻿using TheraEngine.Files;
-using TheraEngine.Rendering.Models.Materials;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.IO;
-using System.Xml;
-using TheraEngine.Rendering.Cameras;
 
 namespace TheraEngine.Rendering.Models.Materials
 {

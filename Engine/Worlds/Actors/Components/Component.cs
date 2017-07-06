@@ -1,5 +1,4 @@
-﻿using System;
-using TheraEngine.Files;
+﻿using TheraEngine.Files;
 
 namespace TheraEngine.Worlds.Actors
 {

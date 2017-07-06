@@ -1,9 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using TheraEngine.Rendering.Models;
 using TheraEngine.Files.Serialization;
 
 namespace TheraEngine.Files

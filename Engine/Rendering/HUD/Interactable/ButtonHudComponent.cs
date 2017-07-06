@@ -1,7 +1,4 @@
-﻿using System;
-using System.ComponentModel;
-
-namespace TheraEngine.Rendering.HUD
+﻿namespace TheraEngine.Rendering.HUD
 {
     public class ButtonHudComponent : InteractableHudComponent
     {

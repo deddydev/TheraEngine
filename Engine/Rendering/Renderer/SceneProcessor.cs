@@ -1,9 +1,7 @@
 ﻿using TheraEngine.Rendering.Cameras;
-using TheraEngine.Worlds;
 using System;
 using System.Collections.Generic;
 using TheraEngine.Rendering.Models.Materials;
-using System.Drawing;
 
 namespace TheraEngine.Rendering
 {

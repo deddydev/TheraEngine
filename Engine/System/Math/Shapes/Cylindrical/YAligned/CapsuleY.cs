@@ -1,6 +1,4 @@
-﻿using static System.Math;
-using BulletSharp;
-using System.Collections.Generic;
+﻿using BulletSharp;
 
 namespace System
 {

@@ -1,12 +1,5 @@
 ﻿using static System.Math;
-using TheraEngine;
-using TheraEngine.Rendering.Models;
-using System.Collections.Generic;
 using BulletSharp;
-using TheraEngine.Worlds.Actors;
-using TheraEngine.Files;
-using System.IO;
-using System.Xml;
 
 namespace System
 {

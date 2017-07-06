@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using OpenTK.Graphics.OpenGL;
-
-namespace TheraEngine.Rendering
+﻿namespace TheraEngine.Rendering
 {
     public class FrameBuffer : BaseRenderState
     {

@@ -1,9 +1,4 @@
-﻿using TheraEngine;
-using TheraEngine.Rendering;
-using TheraEngine.Rendering.HUD;
-using TheraEngine.Input.Devices;
-using TheraEngine.Worlds;
-using TheraEngine.Worlds.Actors;
+﻿using TheraEngine.Rendering.HUD;
 using TheraEngine.Rendering.Models.Materials;
 using System;
 

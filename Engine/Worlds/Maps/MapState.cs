@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace TheraEngine.Worlds.Maps
+﻿namespace TheraEngine.Worlds.Maps
 {
     public class MapState
     {

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using TheraEngine.Input.Devices.OpenTK;
 using TheraEngine.Input.Devices.DirectX;
 

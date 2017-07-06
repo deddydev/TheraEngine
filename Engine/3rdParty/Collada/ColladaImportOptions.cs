@@ -1,11 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.IO;
 using System.ComponentModel;
 using TheraEngine.Rendering.Models.Materials;
-using TheraEngine.Rendering.Textures;
-using System.Linq;
-using TheraEngine.Rendering.Animation;
 
 namespace TheraEngine.Rendering.Models
 {

@@ -1,7 +1,5 @@
 ﻿using TheraEngine.Rendering.HUD;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace TheraEngine.Rendering
 {

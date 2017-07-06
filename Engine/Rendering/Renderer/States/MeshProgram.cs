@@ -2,7 +2,6 @@
 using TheraEngine.Rendering.Models.Materials;
 using TheraEngine.Rendering.Textures;
 using System.Linq;
-using System;
 
 namespace TheraEngine.Rendering
 {

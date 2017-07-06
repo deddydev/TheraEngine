@@ -1,9 +1,4 @@
-﻿using TheraEngine.Rendering.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-
-namespace Editor.TriangleConverter
+﻿namespace Editor.TriangleConverter
 {
     public class TriangleConverter
     {

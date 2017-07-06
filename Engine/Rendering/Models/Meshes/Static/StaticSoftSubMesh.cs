@@ -1,11 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using BulletSharp;
 using TheraEngine.Rendering.Models.Materials;
 using TheraEngine.Files;
-using TheraEngine.Worlds.Actors;
-using System.IO;
-using System.Xml;
 
 namespace TheraEngine.Rendering.Models
 {

@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace TheraEngine.Rendering.Models.Materials
+﻿namespace TheraEngine.Rendering.Models.Materials
 {
     public class MatFuncExecInput : FuncExecInput<MatFuncExecOutput, MaterialFunction>
     {

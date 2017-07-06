@@ -7,9 +7,7 @@ using TheraEngine.Files;
 using TheraEditor.Properties;
 using TheraEditor.Wrappers;
 using System.IO;
-using TheraEngine;
 using System.Collections.Generic;
-using Microsoft.Build.Construction;
 
 namespace TheraEditor
 {

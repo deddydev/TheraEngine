@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using TheraEngine.Input.Devices;
 using TheraEngine.Rendering;
 using TheraEngine.Rendering.Cameras;
 using TheraEngine.Worlds.Actors;
-using TheraEngine.GameModes;
-using TheraEngine.Players;
 using System.Collections.Concurrent;
 
 namespace TheraEngine.Input

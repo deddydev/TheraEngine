@@ -1,11 +1,5 @@
 ﻿using TheraEngine.Files;
-using System;
-using System.IO;
-using System.Xml.Serialization;
-using System.Xml;
-using System.Runtime.InteropServices;
 using System.ComponentModel;
-using System.Windows.Forms;
 
 namespace TheraEngine
 {

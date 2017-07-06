@@ -1,12 +1,4 @@
-﻿using TheraEngine.Players;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using TheraEngine.Worlds.Actors;
-
-namespace TheraEngine.Input.Devices
+﻿namespace TheraEngine.Input.Devices
 {
     public delegate void DelFoundInput(InputDevice device);
     public abstract class InputAwaiter : ObjectBase

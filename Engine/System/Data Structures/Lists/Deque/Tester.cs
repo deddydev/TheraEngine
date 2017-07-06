@@ -1,11 +1,10 @@
 using System;
 using System.Collections;
 using System.Diagnostics;
-using System.Collections.Generic;
 
 namespace DequeTest
-{	
-	class Tester
+{
+    class Tester
 	{
         private const int ElementCount = 100;
 

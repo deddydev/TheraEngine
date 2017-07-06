@@ -2,7 +2,6 @@
 using TheraEngine.Rendering.Models;
 using TheraEngine.Rendering.Models.Materials;
 using System;
-using System.Collections.Generic;
 using System.Drawing;
 
 namespace TheraEngine.Worlds.Actors

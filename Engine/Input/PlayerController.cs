@@ -1,7 +1,4 @@
-﻿using TheraEngine.Input.Devices;
-using TheraEngine.Players;
-using TheraEngine.Rendering;
-using TheraEngine.Rendering.Cameras;
+﻿using TheraEngine.Players;
 using TheraEngine.Worlds.Actors;
 using System.Collections.Generic;
 

@@ -1,5 +1,4 @@
 ﻿using TheraEngine.Rendering.Cameras;
-using System.Drawing;
 using System;
 using System.Collections.Generic;
 using TheraEngine.Worlds.Actors;

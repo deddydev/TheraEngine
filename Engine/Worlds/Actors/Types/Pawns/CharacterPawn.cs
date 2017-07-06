@@ -7,10 +7,7 @@ using TheraEngine.Rendering.Models;
 using System.ComponentModel;
 using TheraEngine.Input.Devices;
 using TheraEngine.Rendering.Cameras;
-using System.Diagnostics;
-using TheraEngine.Input;
 using TheraEngine.Rendering.Animation;
-using TheraEngine.Tests;
 using TheraEngine.Timers;
 
 namespace TheraEngine.Worlds.Actors

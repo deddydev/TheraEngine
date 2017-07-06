@@ -1,26 +1,19 @@
 Engine/obj/
 Engine/bin/
-*.manifest
 ipch/
-Libraries/fbx_d99936f11250/Backup/
+Libraries/fbx_d99936f11250/
 *.opendb
 *.sdf
 *.lref
 *.cache
 *.pch
 *.db
-AutoWrapper/obj/
-AutoWrapper/bin/
 *.stackdump
-Game/bin/
-Game/obj/
 *.suo
 *.force
-Testris/bin/
-Testris/obj/
-Forms Editor/bin/
-Forms Editor/obj/
-Editor/obj/
-hacd/Debug/
-Editor/bin/
 .vs/
+Thera/obj/
+Testris/obj/
+Forms Editor/obj/
+WPF Editor/obj/
+Releases/

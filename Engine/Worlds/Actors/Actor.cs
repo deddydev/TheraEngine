@@ -1,14 +1,9 @@
 ﻿using System.Collections.Generic;
-using System.Collections;
-using TheraEngine.Rendering.Models;
 using System;
 using TheraEngine.Worlds.Actors;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Runtime.InteropServices;
 using TheraEngine.Files;
-using System.IO;
-using System.Xml;
 using System.ComponentModel;
 
 namespace TheraEngine.Worlds

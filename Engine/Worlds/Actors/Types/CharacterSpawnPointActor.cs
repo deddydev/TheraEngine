@@ -1,10 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using TheraEngine.Input;
-using BulletSharp;
 using TheraEngine.Rendering;
 
 namespace TheraEngine.Worlds.Actors.Types

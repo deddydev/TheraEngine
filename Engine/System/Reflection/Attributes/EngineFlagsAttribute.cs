@@ -1,7 +1,4 @@
-﻿using TheraEngine;
-using TheraEngine.Files;
-
-namespace System
+﻿namespace System
 {
     /// <summary>
     /// This property is only used by the editor, NOT the game.

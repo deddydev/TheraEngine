@@ -1,6 +1,5 @@
 ﻿using TheraEngine;
 using TheraEngine.Rendering.Models;
-using System.Collections.Generic;
 using System.Globalization;
 using BulletSharp;
 using System.Drawing;

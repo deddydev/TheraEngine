@@ -1,6 +1,4 @@
-﻿using TheraEngine.Input;
-
-namespace TheraEngine.Players
+﻿namespace TheraEngine.Players
 {
     public class PlayerInfo
     {

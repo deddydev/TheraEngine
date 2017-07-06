@@ -1,15 +1,6 @@
 ﻿using TheraEngine.Files;
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml;
-using TheraEngine.Rendering.Models.Materials;
-using System.Drawing;
 
 namespace TheraEngine.Rendering.Cameras
 {

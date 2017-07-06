@@ -1,13 +1,4 @@
-﻿using TheraEngine.Players;
-using SlimDX.XInput;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using TheraEngine.Worlds.Actors;
-
-namespace TheraEngine.Input.Devices.DirectX
+﻿namespace TheraEngine.Input.Devices.DirectX
 {
     public class DXInputAwaiter : InputAwaiter
     {

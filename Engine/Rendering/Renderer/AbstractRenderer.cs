@@ -1,15 +1,10 @@
-﻿using TheraEngine.Rendering.Animation;
-using TheraEngine.Rendering.Cameras;
+﻿using TheraEngine.Rendering.Cameras;
 using TheraEngine.Rendering.Models;
 using TheraEngine.Rendering.Models.Materials;
-using TheraEngine.Worlds.Actors.Types;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Drawing.Text;
 using System.Linq;
-using System.Windows.Forms;
-using System.Threading;
 
 namespace TheraEngine.Rendering
 {

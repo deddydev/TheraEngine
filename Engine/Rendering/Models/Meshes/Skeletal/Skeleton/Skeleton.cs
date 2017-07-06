@@ -1,14 +1,9 @@
-﻿using BulletSharp;
-using TheraEngine.Files;
+﻿using TheraEngine.Files;
 using TheraEngine.Worlds.Actors;
 using System;
 using System.Collections.Generic;
 using System.Collections;
 using System.Drawing;
-using OpenTK.Graphics.OpenGL;
-using System.Xml;
-using System.Runtime.InteropServices;
-using System.IO;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using TheraEngine.Rendering.Cameras;

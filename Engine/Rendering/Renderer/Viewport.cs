@@ -3,13 +3,7 @@ using TheraEngine.Rendering.Cameras;
 using TheraEngine.Rendering.HUD;
 using TheraEngine.Worlds.Actors;
 using System;
-using System.Collections.Generic;
-using System.Drawing;
-using TheraEngine.Worlds.Actors.Types;
 using TheraEngine.Rendering.Text;
-using System.Diagnostics;
-using TheraEngine.Rendering.Textures;
-using System.Drawing.Imaging;
 using BulletSharp;
 
 namespace TheraEngine.Rendering

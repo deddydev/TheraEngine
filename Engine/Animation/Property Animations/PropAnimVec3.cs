@@ -1,10 +1,7 @@
-﻿using TheraEngine.Rendering.Models;
-using TheraEngine.Rendering.Models.Materials;
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Drawing;
 
 namespace TheraEngine.Rendering.Animation
 {

@@ -1,13 +1,5 @@
-﻿using TheraEngine.Worlds.Actors.Components;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 using System.Collections;
-using TheraEngine.Files;
-using System.IO;
-using System.Xml;
 using TheraEngine.Worlds.Actors;
 using Thera.Worlds.Actors.Items;
 

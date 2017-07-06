@@ -11,7 +11,6 @@ using TheraEngine.Input.Devices.DirectX;
 using TheraEngine.Files;
 using TheraEngine.Worlds.Actors;
 using System.Drawing.Text;
-using System.Diagnostics;
 using System.Threading;
 using System.Collections.Concurrent;
 using TheraEngine.Timers;

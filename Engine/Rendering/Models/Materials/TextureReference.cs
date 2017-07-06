@@ -2,7 +2,6 @@
 using TheraEngine.Rendering.Textures;
 using System.IO;
 using System.Drawing.Imaging;
-using FreeImageAPI;
 using System.Drawing;
 using System;
 

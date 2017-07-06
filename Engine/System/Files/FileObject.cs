@@ -1,11 +1,9 @@
 ﻿using TheraEngine.Files.Serialization;
-using System.Runtime.InteropServices;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Xml;
 using System.IO;
 using System;
-using SevenZip;
 
 namespace TheraEngine.Files
 {

@@ -1,12 +1,7 @@
 ﻿using TheraEngine;
 using TheraEngine.Worlds.Actors;
-using TheraEngine.Worlds.Actors.Components;
-using Thera.Worlds.Actors;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Thera.Worlds.Actors.Components.Scene
 {

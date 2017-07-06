@@ -1,10 +1,6 @@
-﻿using System;
-using System.Windows.Forms;
-using System.IO;
+﻿using System.Windows.Forms;
 using System.ComponentModel;
-using TheraEngine;
 using TheraEngine.Worlds;
-using TheraEditor.Properties;
 
 namespace TheraEditor.Wrappers
 {

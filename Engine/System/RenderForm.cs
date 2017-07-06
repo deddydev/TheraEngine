@@ -1,11 +1,7 @@
-﻿using TheraEngine;
-using System.Threading;
-using System.Windows.Forms;
+﻿using System.Windows.Forms;
 using System;
 using System.Drawing;
 using System.IO;
-using TheraEngine.Worlds;
-using TheraEngine.Input;
 
 namespace TheraEngine
 {

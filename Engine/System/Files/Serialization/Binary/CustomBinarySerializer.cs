@@ -1,12 +1,7 @@
-﻿using TheraEngine.Tools;
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.ComponentModel;
+﻿using System;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Xml;
 using SevenZip.Compression.LZMA;
 using SevenZip;
 using System.Runtime.InteropServices;

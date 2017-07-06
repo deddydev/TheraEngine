@@ -1,7 +1,6 @@
 ﻿using BulletSharp;
 using TheraEngine.Rendering;
 using System;
-using System.Diagnostics;
 
 namespace TheraEngine.Worlds.Actors
 {

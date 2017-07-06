@@ -1,6 +1,4 @@
-﻿using TheraEngine;
-using TheraEngine.Files;
-using System.IO;
+﻿using TheraEngine.Files;
 using System.ComponentModel;
 using System.Drawing.Design;
 using System.ComponentModel.Design;

@@ -11,8 +11,6 @@ using TheraEngine.Rendering;
 using TheraEngine.Rendering.HUD;
 using TheraEngine.Rendering.DirectX;
 using TheraEngine.Rendering.OpenGL;
-using System.Drawing.Imaging;
-using TheraEngine.Players;
 using TheraEngine.Timers;
 
 namespace TheraEngine

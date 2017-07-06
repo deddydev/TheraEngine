@@ -1,8 +1,4 @@
-﻿using TheraEngine.Files;
-using TheraEngine.Rendering.Animation;
-using TheraEngine.Rendering.Models;
-using TheraEngine.Worlds.Actors;
-using System;
+﻿using TheraEngine.Worlds.Actors;
 
 namespace TheraEngine.Tests
 {

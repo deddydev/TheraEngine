@@ -2,12 +2,9 @@
 using TheraEngine.Input.Devices;
 using TheraEngine.Rendering;
 using TheraEngine.Rendering.HUD;
-using TheraEngine.Worlds;
 using TheraEngine.Worlds.Actors;
 using TheraEngine.Worlds.Actors.Types;
 using System;
-using System.Diagnostics;
-using TheraEngine.Files;
 using BulletSharp;
 using TheraEngine.Rendering.Models;
 using TheraEngine.Rendering.Models.Materials;

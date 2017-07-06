@@ -1,5 +1,4 @@
-﻿using TheraEngine.Input;
-using TheraEngine.Input.Devices;
+﻿using TheraEngine.Input.Devices;
 using TheraEngine.Worlds.Actors;
 using System;
 using System.Collections.Generic;

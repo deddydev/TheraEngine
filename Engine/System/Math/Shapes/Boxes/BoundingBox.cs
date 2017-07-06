@@ -1,12 +1,7 @@
 ﻿using TheraEngine;
 using TheraEngine.Rendering.Models;
-using System.Collections.Generic;
-using TheraEngine.Files;
 using System.Globalization;
 using BulletSharp;
-using System.IO;
-using System.Xml;
-using System.Runtime.InteropServices;
 using System.Drawing;
 using System.ComponentModel;
 

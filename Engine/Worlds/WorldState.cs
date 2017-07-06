@@ -1,6 +1,4 @@
 ﻿using TheraEngine.Files;
-using TheraEngine.GameModes;
-using TheraEngine.Rendering.Models.Materials;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;

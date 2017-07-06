@@ -1,8 +1,5 @@
 ﻿using TheraEngine.Files;
-using System;
-using System.IO;
 using System.Windows;
-using Xceed.Wpf.AvalonDock.Layout;
 
 namespace TheraEditor
 {

@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-
-namespace TheraEngine.Rendering.Models
+﻿namespace TheraEngine.Rendering.Models
 {
     public class IndexLineStrip : IndexPrimitive
     {

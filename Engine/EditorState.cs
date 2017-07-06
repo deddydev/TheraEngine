@@ -1,13 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace TheraEngine
 {
+#if EDITOR
     public class EditorState
     {
         private TreeNode _treeNode;
@@ -22,4 +19,5 @@ namespace TheraEngine
         public List<PropertyInfo> ChangedProperties { get => _changedProperties; set => _changedProperties = value; }
         public TreeNode TreeNode { get => _treeNode; set => _treeNode = value; }
     }
+#endif
 }

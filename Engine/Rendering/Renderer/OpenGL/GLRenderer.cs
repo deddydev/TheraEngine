@@ -1,15 +1,11 @@
-﻿using TheraEngine.Rendering.Animation;
-using TheraEngine.Rendering.Models;
+﻿using TheraEngine.Rendering.Models;
 using TheraEngine.Rendering.Models.Materials;
-using TheraEngine.Rendering.Textures;
 using OpenTK.Graphics.OpenGL;
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Linq;
-using System.Threading;
 
 namespace TheraEngine.Rendering.OpenGL
 {

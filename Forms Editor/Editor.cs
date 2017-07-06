@@ -6,13 +6,9 @@ using TheraEngine.Worlds.Actors;
 using System;
 using System.ComponentModel;
 using System.Data;
-using System.IO;
 using System.Linq;
 using System.Windows.Forms;
 using TheraEditor.Editors;
-using System.Security;
-using System.Runtime.InteropServices;
-using TheraEngine.Worlds.Actors.Types;
 using TheraEngine.Timers;
 
 namespace TheraEditor

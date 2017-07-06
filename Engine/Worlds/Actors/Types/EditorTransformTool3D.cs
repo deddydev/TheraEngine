@@ -1,13 +1,9 @@
 ﻿using TheraEngine.Rendering.Cameras;
 using TheraEngine.Rendering.Models;
 using TheraEngine.Rendering.Models.Materials;
-using TheraEngine.Worlds.Actors;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace TheraEngine.Worlds.Actors.Types
 {

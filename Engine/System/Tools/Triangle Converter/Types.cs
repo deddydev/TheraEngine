@@ -3,7 +3,6 @@
 //http://users.telenet.be/tfautre/softdev/tristripper/
 
 using System;
-using System.Collections.Generic;
 
 namespace Editor.TriangleConverter
 {

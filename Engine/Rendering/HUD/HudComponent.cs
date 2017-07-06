@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Collections;
 using System.ComponentModel;
 using TheraEngine.Worlds.Actors;
-using TheraEngine.Worlds;
 
 namespace TheraEngine.Rendering.HUD
 {

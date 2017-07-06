@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Collections;
 using System.ComponentModel;
-using TheraEngine.Rendering.Models.Materials;
 
 namespace TheraEngine.Rendering.HUD
 {

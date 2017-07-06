@@ -1,11 +1,4 @@
-﻿using TheraEngine.Players;
-using OpenTK.Input;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using TheraEngine.Worlds.Actors;
+﻿using OpenTK.Input;
 
 namespace TheraEngine.Input.Devices.OpenTK
 {

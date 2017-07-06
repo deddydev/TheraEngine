@@ -2,10 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.IO;
-using System.Xml;
 using TheraEngine.GameModes;
-using TheraEngine.Audio;
 using System.ComponentModel;
 
 namespace TheraEngine.Worlds.Maps

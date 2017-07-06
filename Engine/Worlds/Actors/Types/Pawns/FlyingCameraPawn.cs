@@ -1,13 +1,6 @@
 ﻿using TheraEngine.Input;
 using TheraEngine.Input.Devices;
-using TheraEngine.Worlds.Actors;
 using System;
-using TheraEngine.Rendering.Cameras;
-using System.Linq;
-using TheraEngine.Rendering;
-using System.Collections.Generic;
-using TheraEngine.Rendering.HUD;
-using TheraEngine.Worlds.Actors.Types;
 using System.ComponentModel;
 
 namespace TheraEngine.Worlds.Actors

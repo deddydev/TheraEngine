@@ -1,5 +1,4 @@
 ﻿using System;
-using TheraEngine.Rendering.Textures;
 using TheraEngine.Rendering.Models.Materials;
 
 namespace TheraEngine.Worlds.Actors

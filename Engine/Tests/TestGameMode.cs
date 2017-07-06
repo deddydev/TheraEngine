@@ -1,6 +1,4 @@
-﻿using System;
-using TheraEngine.GameModes;
-using TheraEngine.Worlds.Actors;
+﻿using TheraEngine.GameModes;
 using TheraEngine.Input;
 
 namespace TheraEngine.Tests

@@ -671,7 +671,6 @@
     <Compile Include="Rendering\Textures\PixelTypes.cs" />
     <None Include="Rendering\Textures\TextureConverter.cs" />
     <Compile Include="Rendering\Textures\TextureData.cs" />
-    <Compile Include="ResourceType.cs" />
     <Compile Include="System\CommonDelegates.cs" />
     <Compile Include="System\ComputerInfo.cs" />
     <Compile Include="System\Data Structures\Lists\HashedStack.cs" />
@@ -966,10 +965,8 @@
     <PostBuildEvent>xcopy /Y "$(SolutionDir)Build\obf_config.xml" "$(TargetDir)"</PostBuildEvent>
   </PropertyGroup>
   <Target Name="BeforeBuild">
-    
   </Target>
   <Target Name="AfterBuild">
-    <Exec Command="&quot;C:\Program Files (x86)\PreEmptive Solutions\Dotfuscator Professional Edition Evaluation 4.9\dotfuscator.exe&quot; &quot;$(TargetDir)obf_config.xml&quot;"/>
+    <Exec Command="&quot;C:\Program Files (x86)\PreEmptive Solutions\Dotfuscator Professional Edition Evaluation 4.9\dotfuscator.exe&quot; &quot;$(TargetDir)obf_config.xml&quot;" />
   </Target>
- 
 </Project>

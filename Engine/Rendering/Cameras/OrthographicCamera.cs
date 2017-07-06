@@ -1,8 +1,4 @@
 ﻿using System;
-using System.IO;
-using System.Xml;
-using TheraEngine.Files;
-using System.Runtime.InteropServices;
 using System.ComponentModel;
 
 namespace TheraEngine.Rendering.Cameras

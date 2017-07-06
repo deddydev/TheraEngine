@@ -1,10 +1,6 @@
 ﻿using BulletSharp;
-using TheraEngine.Rendering;
 using TheraEngine;
-using TheraEngine.Rendering.Models;
-using TheraEngine.Worlds.Actors;
 using TheraEngine.Files;
-using System.Collections.Generic;
 using System.ComponentModel;
 
 namespace System

@@ -3,8 +3,6 @@ using System.Collections;
 using BulletSharp;
 using System;
 using TheraEngine.Files;
-using TheraEngine.Rendering;
-using TheraEngine.Input;
 using System.ComponentModel;
 using TheraEngine.GameModes;
 

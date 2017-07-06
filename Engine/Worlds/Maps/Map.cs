@@ -1,8 +1,5 @@
 ﻿using TheraEngine.Worlds.Maps;
 using TheraEngine.Files;
-using System;
-using System.IO;
-using System.Xml;
 
 namespace TheraEngine.Worlds
 {

@@ -1,10 +1,7 @@
 ﻿using System;
-using TheraEngine.Rendering.DirectX;
-using System.Collections.Generic;
 using TheraEngine.Rendering.Models;
 using TheraEngine.Rendering.Models.Materials;
 using System.Drawing;
-using TheraEngine.Rendering.Animation;
 
 namespace TheraEngine.Rendering.DirectX
 {

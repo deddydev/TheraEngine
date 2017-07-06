@@ -1,7 +1,6 @@
 ﻿using System.Windows.Controls;
 using TheraEngine;
 using TheraEngine.Tests;
-using TheraEngine.Worlds;
 
 namespace TheraEditor.Controls
 {

@@ -25,7 +25,7 @@ namespace TheraEngine.Rendering.HUD
         protected Vec2 _scale = Vec2.One;
         protected BoundingRectangle _axisAlignedBounds;
         protected bool _isRendering;
-        
+
         [Category("Transform")]
         public BoundingRectangle Region
         {
@@ -81,7 +81,7 @@ namespace TheraEngine.Rendering.HUD
         /// 0,0 is bottom left, 0.5,0.5 is center, 1.0,1.0 is top right.
         /// </summary>
         [Category("Transform")]
-        public Vec2 TranslationLocalOrigin
+        public virtual Vec2 TranslationLocalOrigin
         {
             get => _translationLocalOrigin;
             set

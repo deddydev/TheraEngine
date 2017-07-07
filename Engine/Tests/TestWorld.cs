@@ -20,26 +20,24 @@ namespace TheraEngine.Tests
             BoxActor[] array = new BoxActor[200];
             for (int i = 0; i < array.Length; ++i)
             {
-                PhysicsConstructionInfo sphereInfo = new PhysicsConstructionInfo()
+                PhysicsConstructionInfo boxInfo = new PhysicsConstructionInfo()
                 {
-                    Mass = 30.0f,
+                    Mass = 10.0f,
                     AngularDamping = 0.1f,
                     LinearDamping = 0.1f,
-                    Restitution = 0.8f,
-                    Friction = 0.2f,
+                    Restitution = 0.3f,
+                    Friction = 0.5f,
                     RollingFriction = 0.2f,
                     CollisionEnabled = true,
                     SimulatePhysics = true,
                     Group = CustomCollisionGroup.DynamicWorld,
-                    CollidesWith = CustomCollisionGroup.StaticWorld | CustomCollisionGroup.DynamicWorld,
+                    CollidesWith = CustomCollisionGroup.StaticWorld | CustomCollisionGroup.DynamicWorld | CustomCollisionGroup.Characters,
                 };
                 float x = ((float)r.NextDouble() - 0.5f) * 2.0f * 18.0f;
                 float y = ((float)r.NextDouble() - 0.5f) * 2.0f * 30.0f;
                 float z = ((float)r.NextDouble() - 0.5f) * 2.0f * 18.0f;
                 BoxActor b = new BoxActor(
-                    "Box" + i,
-                    sphereInfo,
-                    1.0f,
+                    "Box" + i, boxInfo, 0.4f,
                     new Vec3(5.0f + x, 50.0f + y, -100.0f + z),
                     new Rotator(0.0f, 0.0f, 0.0f, RotationOrder.YPR),
                     Material.GetUnlitColorMaterial());
@@ -58,13 +56,34 @@ namespace TheraEngine.Tests
                 Group = CustomCollisionGroup.StaticWorld,
                 CollidesWith = CustomCollisionGroup.Characters | CustomCollisionGroup.DynamicWorld,
             };
-            BoxActor floorActor = new BoxActor(
-                "Floor",
+            BoxActor floorActor1 = new BoxActor(
+                "Floor1",
                 floorInfo,
                 new Vec3(50.0f, 0.5f, 50.0f),
                 new Vec3(5.0f, 0.0f, -100.0f),
                 new Rotator(0.0f, 0.0f, 0.0f, RotationOrder.YPR),
                 Material.GetLitColorMaterial(Color.Orange));
+            BoxActor floorActor2 = new BoxActor(
+                "Floor2",
+                floorInfo,
+                new Vec3(100.0f, 0.5f, 100.0f),
+                new Vec3(5.0f, -10.0f, -100.0f),
+                new Rotator(0.0f, 0.0f, 0.0f, RotationOrder.YPR),
+                Material.GetLitColorMaterial(Color.Blue));
+            BoxActor floorActor3 = new BoxActor(
+                "Floor3",
+                floorInfo,
+                new Vec3(20.0f, 0.5f, 20.0f),
+                new Vec3(-35.0f, 0.0f, -100.0f),
+                new Rotator(20.0f, 0.0f, 0.0f, RotationOrder.YPR),
+                Material.GetLitColorMaterial(Color.Gray));
+            BoxActor floorActor4 = new BoxActor(
+                "Floor4",
+                floorInfo,
+                new Vec3(50.0f, 0.5f, 50.0f),
+                new Vec3(25.0f, 0.0f, -100.0f),
+                new Rotator(0.0f, 0.0f, 20.0f, RotationOrder.YPR),
+                Material.GetLitColorMaterial(Color.Green));
 
             //PhysicsConstructionInfo floor2Info = new PhysicsConstructionInfo()
             //{
@@ -84,9 +103,10 @@ namespace TheraEngine.Tests
             //    Material.GetLitColorMaterial(Color.Green));
 
             _settings.GlobalAmbient = new ColorF3(0.01f, 0.01f, 0.01f);
+
             DirectionalLightComponent dirLightComp = new DirectionalLightComponent(
-                new ColorF3(0.9f, 0.5f, 0.3f), 1.0f, 0.0f, new Rotator(-45.0f, 45.0f, 0.0f, RotationOrder.YPR));
-            dirLightComp.Translation.Y = 30.0f;
+                (ColorF3)Color.Beige, 1.0f, 0.1f, new Rotator(-45.0f, 30.0f, 0.0f, RotationOrder.YPR));
+            //dirLightComp.Translation.Y = 30.0f;
 
             //PropAnimFloat lightAnim = new PropAnimFloat(360, true, true);
             //FloatKeyframe first2 = new FloatKeyframe(0.0f, 0.0f, 0.0f, PlanarInterpType.Linear);
@@ -99,23 +119,23 @@ namespace TheraEngine.Tests
 
             Actor<DirectionalLightComponent> dirLightActor = new Actor<DirectionalLightComponent>(dirLightComp) { Name = "SunLight" };
 
-            //string desktop = Environment.MachineName == "DAVID-DESKTOP" ?
-            //    "X:\\Desktop\\" :
-            //    "C:\\Users\\David\\Desktop\\";
-            //string googleDrive = Environment.MachineName == "DAVID-DESKTOP" ?
-            //    "X:\\Cloud Storage\\Google Drive\\Game\\" :
-            //    "C:\\Users\\David\\Google Drive\\Game\\";
+            string desktop = Environment.MachineName == "DAVID-DESKTOP" ?
+                "X:\\Desktop\\" :
+                "C:\\Users\\David\\Desktop\\";
+            string googleDrive = Environment.MachineName == "DAVID-DESKTOP" ?
+                "X:\\Cloud Storage\\Google Drive\\Game\\" :
+                "C:\\Users\\David\\Google Drive\\Game\\";
 
-            //Collada.ImportOptions options = new Collada.ImportOptions();
-            //options.InitialTransform.Scale = new Vec3(1.0f.InchesToMeters());
+            Collada.ImportOptions options = new Collada.ImportOptions();
+            options.InitialTransform.Scale = new Vec3(1.0f.InchesToMeters());
 
             //ColladaScene = Collada.Import(desktop + "carly\\carly.dae", options, false, true);
 
             //ColladaScene = Collada.Import(desktop + "TEST.DAE", options, false, true);
 
-            //ColladaScene = Collada.Import(desktop + "skybox.dae", options, false, true);
-            //StaticMeshComponent c = new StaticMeshComponent(ColladaScene.StaticModel, null);
-            //Actor<StaticMeshComponent> skybox = new Actor<StaticMeshComponent>(c);
+            ColladaScene = Collada.Import(desktop + "skybox.dae", options, false, true);
+            StaticMeshComponent c = new StaticMeshComponent(ColladaScene.StaticModel, null);
+            Actor<StaticMeshComponent> skybox = new Actor<StaticMeshComponent>(c) { Name = "Skybox" };
 
             //Engine.Settings.Export(desktop, "EngineSettings", Files.FileFormat.Binary);
 
@@ -200,9 +220,12 @@ namespace TheraEngine.Tests
 
             IActor[] actors = new IActor[]
             {
-                floorActor,
+                floorActor1,
+                floorActor2,
+                floorActor3,
+                floorActor4,
                 dirLightActor,
-                //skybox,
+                skybox,
                 //splineActor,
                 //cam,
                 //floor2Actor,

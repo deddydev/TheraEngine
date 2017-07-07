@@ -17,15 +17,19 @@ namespace TheraEngine.Worlds.Actors
         private bool _isCrouched = false;
         private float _maxWalkAngle = 50.0f;
         private float _walkingMovementSpeed = 0.2f;
-        private float _fallingMovementSpeed = 1.0f;
-        
-        private float _jumpSpeed = 6.0f;
+        private float _fallingMovementSpeed = 50.0f;
+        private float _jumpSpeed = 8.0f;
+        private Vec3 _worldGroundContactPoint;
 
         private PhysicsDriver _currentWalkingSurface;
         private Vec3 _groundNormal;
         private Quat _upToGroundNormalRotation = Quat.Identity;
-        private float _verticalStepUpHeight = 1.0f;
-        private DelTick _subUpdateTick;
+        private float _verticalStepUpHeight = 0.5f;
+        private Action<float, Vec3> _subUpdateTick;
+        Vec3 _position, _prevPosition, _velocity, _prevVelocity, _acceleration;
+        private bool _postWalkAllowJump = false, _justJumped = false;
+        float _allowJumpExtraTime = 1.0f;
+        float _allowJumpTimeDelta;
 
         public Vec3 GroundNormal
         {
@@ -43,13 +47,13 @@ namespace TheraEngine.Worlds.Actors
             {
                 if (_currentMovementMode == value)
                     return;
-                _currentMovementMode = value;
                 if (OwningActor.RootComponent is CapsuleComponent root)
                 {
-                    switch (_currentMovementMode)
+                    switch (value)
                     {
                         case MovementMode.Walking:
 
+                            _justJumped = false;
                             root.PhysicsDriver.SimulatingPhysics = false;
                             //root.PhysicsDriver.Kinematic = true;
                             //Physics simulation updates the world matrix, but not its components (translation, for example)
@@ -60,13 +64,22 @@ namespace TheraEngine.Worlds.Actors
                             break;
                         case MovementMode.Falling:
 
+                            if (_postWalkAllowJump = _currentMovementMode == MovementMode.Walking && !_justJumped)
+                            {
+                                _allowJumpTimeDelta = 0.0f;
+                                _velocity.Y = 0.0f;
+                            }
+
                             //root.PhysicsDriver.Kinematic = false;
                             root.PhysicsDriver.SimulatingPhysics = true;
-                            
+                            root.PhysicsDriver.CollisionObject.LinearVelocity = _velocity;
+                            CurrentWalkingSurface = null;
+
                             _subUpdateTick = TickFalling;
                             break;
                     }
                 }
+                _currentMovementMode = value;
             }
         }
         public PhysicsDriver CurrentWalkingSurface
@@ -84,14 +97,14 @@ namespace TheraEngine.Worlds.Actors
 
         private void FloorTransformChanged()
         {
-            SceneComponent comp = (SceneComponent)_currentWalkingSurface.Owner;
-            Matrix4 transformDelta = comp.PreviousInverseWorldTransform * comp.WorldMatrix;
-            CapsuleComponent root = OwningActor.RootComponent as CapsuleComponent;
+            //SceneComponent comp = (SceneComponent)_currentWalkingSurface.Owner;
+            //Matrix4 transformDelta = comp.PreviousInverseWorldTransform * comp.WorldMatrix;
+            //CapsuleComponent root = OwningActor.RootComponent as CapsuleComponent;
             //Matrix4 moved = root.WorldMatrix * comp.PreviousInverseWorldTransform * comp.WorldMatrix;
             //Vec3 point = moved.GetPoint();
 
             //root.Translation = point;
-            root.Rotation.Yaw += transformDelta.ExtractRotation(true).ToYawPitchRoll().Yaw;
+            //root.Rotation.Yaw += transformDelta.ExtractRotation(true).ToYawPitchRoll().Yaw;
         }
 
         public float VerticalStepUpHeight
@@ -100,41 +113,48 @@ namespace TheraEngine.Worlds.Actors
             set => _verticalStepUpHeight = value;
         }
 
-        Vec3 _position, _prevPosition, _velocity, _prevVelocity, _acceleration;
-
-        private void MainUpdateTick(float delta) => _subUpdateTick(delta);
-        protected virtual void TickWalking(float delta)
+        private void MainUpdateTick(float delta)
         {
-            ClosestConvexResultCallback callback;
+            if (_postWalkAllowJump)
+            {
+                _allowJumpTimeDelta += delta;
+                if (_allowJumpTimeDelta > _allowJumpExtraTime)
+                    _postWalkAllowJump = false;
+            }
+            _subUpdateTick(delta, ConsumeInput());
+        }
+        protected virtual void TickWalking(float delta, Vec3 movementInput)
+        {
+            ClosestNotMeConvexResultCallback callback;
             Matrix4 inputTransform;
             CapsuleComponent root = OwningActor.RootComponent as CapsuleComponent;
             BaseCapsule c = (BaseCapsule)root.CullingVolume;
             ConvexShape shape = (ConvexShape)c.GetCollisionShape();
-
+            RigidBody body = root.PhysicsDriver.CollisionObject;
+            
             _prevPosition = root.Translation.Raw;
 
-            //Use gravity currently affecting this body, not global gravity
-            Vec3 gravity = root.PhysicsDriver.CollisionObject.Gravity; //Engine.World.Settings.State.Gravity
+            //Use gravity currently affecting this body
+            Vec3 gravity = body.Gravity;
 
             Vec3 down = gravity.NormalizedFast();
             Vec3 stepUpVector = -_verticalStepUpHeight * down;
-            Matrix4 stepUpMatrix = Matrix4.CreateTranslation(stepUpVector);
-
-            //Now add input
-            Vec3 movementInput = ConsumeInput();
+            Matrix4 stepUpMatrix = stepUpVector.AsTranslationMatrix();
+            
+            //Add input
             Top:
             if (movementInput != Vec3.Zero)
             {
                 Vec3 finalInput = _upToGroundNormalRotation * (movementInput * _walkingMovementSpeed);
-                inputTransform = Matrix4.CreateTranslation(finalInput);
+                inputTransform = finalInput.AsTranslationMatrix();
                 
-                callback = new ClosestConvexResultCallback()
+                callback = new ClosestNotMeConvexResultCallback(body)
                 {
-                    CollisionFilterMask = (CollisionFilterGroups)(short)CustomCollisionGroup.StaticWorld,
+                    CollisionFilterMask = (CollisionFilterGroups)(short)(CustomCollisionGroup.StaticWorld | CustomCollisionGroup.DynamicWorld),
                     CollisionFilterGroup = (CollisionFilterGroups)(short)CustomCollisionGroup.Characters,
                 };
 
-                Engine.World.PhysicsScene.ConvexSweepTest(shape, stepUpMatrix * root.WorldMatrix, inputTransform * stepUpMatrix * root.WorldMatrix, callback);
+                Engine.ShapeCastClosest(shape, stepUpMatrix * root.WorldMatrix, inputTransform * stepUpMatrix * root.WorldMatrix, callback);
 
                 if (callback.HasHit)
                 {
@@ -144,10 +164,10 @@ namespace TheraEngine.Worlds.Actors
                     Vec3 normal = callback.HitNormalWorld;
                     if (IsSurfaceNormalWalkable(normal))
                     {
-                        GroundNormal = callback.HitNormalWorld;
+                        GroundNormal = normal;
                         CurrentWalkingSurface = (PhysicsDriver)callback.HitCollisionObject.UserObject;
 
-                        if (callback.ClosestHitFraction < 0.95f)
+                        if (callback.ClosestHitFraction < 1.0f)
                         {
                             movementInput = finalInput * (1.0f - callback.ClosestHitFraction);
                             goto Top;
@@ -156,79 +176,96 @@ namespace TheraEngine.Worlds.Actors
                 }
                 else
                     root.Translation.Raw += finalInput;
-
-                //Test for walkable ground
-                inputTransform = Matrix4.CreateTranslation(down);
-                callback = new ClosestConvexResultCallback()
-                {
-                    CollisionFilterMask = (CollisionFilterGroups)(short)CustomCollisionGroup.StaticWorld,
-                    CollisionFilterGroup = (CollisionFilterGroups)(short)CustomCollisionGroup.Characters,
-                };
-
-                Engine.World.PhysicsScene.ConvexSweepTest(shape, stepUpMatrix * root.WorldMatrix, inputTransform * root.WorldMatrix, callback);
-
-                if (!callback.HasHit || !IsSurfaceNormalWalkable(callback.HitNormalWorld))
-                {
-                    CurrentMovementMode = MovementMode.Falling;
-                    root.PhysicsDriver.CollisionObject.LinearVelocity = _velocity;
-                    CurrentWalkingSurface = null;
-                    return;
-                }
-                else
-                {
-                    CurrentWalkingSurface = callback.HitCollisionObject.UserObject as PhysicsDriver;
-                    root.Translation.Raw += Vec3.Lerp(stepUpVector, down, callback.ClosestHitFraction);
-                }
-
-
-                root.PhysicsDriver.SetPhysicsTransform(root.WorldMatrix);
-
-                //Debug.WriteLine(_velocity);
             }
+
+            //Test for walkable ground
+            inputTransform = down.AsTranslationMatrix();
+            callback = new ClosestNotMeConvexResultCallback(body)
+            {
+                CollisionFilterMask = (CollisionFilterGroups)(short)(CustomCollisionGroup.StaticWorld | CustomCollisionGroup.DynamicWorld),
+                CollisionFilterGroup = (CollisionFilterGroups)(short)CustomCollisionGroup.Characters,
+            };
+
+            Engine.ShapeCastClosest(shape, stepUpMatrix * root.WorldMatrix, inputTransform * root.WorldMatrix, callback);
+
+            if (!callback.HasHit || !IsSurfaceNormalWalkable(callback.HitNormalWorld))
+            {
+                CurrentMovementMode = MovementMode.Falling;
+                return;
+            }
+
+            _worldGroundContactPoint = callback.HitPointWorld;
+            CurrentWalkingSurface = callback.HitCollisionObject.UserObject as PhysicsDriver;
+            root.Translation.Raw += Vec3.Lerp(stepUpVector, down, callback.ClosestHitFraction);
+
+            root.PhysicsDriver.SetPhysicsTransform(root.WorldMatrix);
 
             _prevVelocity = _velocity;
             _position = root.Translation;
             _velocity = (_position - _prevPosition) / delta;
             _acceleration = (_velocity - _prevVelocity) / delta;
+
+            body.LinearVelocity = _velocity;
         }
-        protected virtual void TickFalling(float delta)
+        protected virtual void TickFalling(float delta, Vec3 movementInput)
         {
-            //CapsuleComponent root = Owner.RootComponent as CapsuleComponent;
-            //root.PhysicsDriver.SetPhysicsTransform(ConsumeInput().AsTranslationMatrix() * root.WorldMatrix);
-            //root.Translation.Raw += ConsumeInput() * _fallingMovementSpeed;
+            CapsuleComponent root = OwningActor.RootComponent as CapsuleComponent;
+            Vec3 v = root.PhysicsDriver.CollisionObject.LinearVelocity;
+            if (v.Xy.LengthFast < 10.0f)
+                root.PhysicsDriver.CollisionObject.ApplyCentralForce(((1.0f / root.PhysicsDriver.CollisionObject.InvMass) * _fallingMovementSpeed) * movementInput);
         }
         
         public void Jump()
         {
             //Nothing to jump OFF of?
-            if (_currentMovementMode != MovementMode.Walking)
+            if (_currentMovementMode != MovementMode.Walking && !_postWalkAllowJump)
                 return;
+
             //Get root component of the character
             IPhysicsDrivable root = OwningActor.RootComponent as IPhysicsDrivable;
+
             //If the root isn't physics drivable, the player can't jump
             if (root == null)
                 return;
+
+            _postWalkAllowJump = false;
+            _justJumped = true;
+
             //Start physics simulation of the root
             PhysicsDriver driver = root.PhysicsDriver;
             RigidBody character = driver.CollisionObject;
-            if (_currentWalkingSurface.SimulatingPhysics && _currentWalkingSurface.LinearFactor != Vec3.Zero)
+
+            Vec3 up = driver.CollisionObject.Gravity;
+            up.NormalizeFast();
+            up = -up;
+
+            CurrentMovementMode = MovementMode.Falling;
+            character.Translate(up * 0.1f);
+
+            if (_currentWalkingSurface != null && 
+                _currentWalkingSurface.SimulatingPhysics && 
+                _currentWalkingSurface.LinearFactor != Vec3.Zero)
             {
                 //TODO: calculate push off force using ground's mass.
                 //For example, you can't jump off a piece of debris.
                 RigidBody surface = _currentWalkingSurface.CollisionObject;
+
                 float surfaceMass = 1.0f / surface.InvMass;
                 float characterMass = 1.0f / character.InvMass;
+                Vec3 surfaceVelInitial = surface.LinearVelocity;
+                Vec3 charaVelInitial = character.LinearVelocity;
 
+                Vec3 charaVelFinal = up * _jumpSpeed;
+                Vec3 surfaceVelFinal = (surfaceMass * surfaceVelInitial + characterMass * charaVelInitial - characterMass * charaVelFinal) / surfaceMass;
+
+                Vec3 surfaceImpulse = (surfaceVelFinal - surfaceVelInitial) * surfaceMass;
+                surface.ApplyImpulse(surfaceImpulse, Vector3.TransformCoordinate(_worldGroundContactPoint, Matrix.Invert(surface.WorldTransform)));
+                character.ApplyCentralImpulse(charaVelFinal * (1.0f / driver.CollisionObject.InvMass));
             }
             else
             {
                 //The ground isn't movable, so just apply the jump force directly.
-                //character.ApplyImpulse(Vec3.Up * _jumpSpeed, Vec3.Zero);
-                CurrentMovementMode = MovementMode.Falling;
-                Vec3 up = -(Vec3)driver.CollisionObject.Gravity;
-                up.NormalizeFast();
-                character.Translate(up * 0.1f);
-                character.LinearVelocity = (_velocity += up * _jumpSpeed);
+                character.ApplyCentralImpulse(up * (_jumpSpeed * (1.0f / driver.CollisionObject.InvMass)));
             }
         }
 
@@ -251,14 +288,18 @@ namespace TheraEngine.Worlds.Actors
         }
         public void OnHit(IPhysicsDrivable other, ManifoldPoint point)
         {
+            //A is the ground, B is the character
+            _worldGroundContactPoint = point.PositionWorldOnA;
             Vec3 normal = -point.NormalWorldOnB;
             normal.NormalizeFast();
-            if (CurrentMovementMode == MovementMode.Falling && 
-                IsSurfaceNormalWalkable(normal))
+            if (CurrentMovementMode == MovementMode.Falling)
             {
-                CurrentWalkingSurface = other.PhysicsDriver;
-                CurrentMovementMode = MovementMode.Walking;
-                ((CapsuleComponent)OwningActor.RootComponent).Translation.Raw += normal * -point.Distance;
+                if (IsSurfaceNormalWalkable(normal))
+                {
+                    CurrentWalkingSurface = other.PhysicsDriver;
+                    CurrentMovementMode = MovementMode.Walking;
+                    ((CapsuleComponent)OwningActor.RootComponent).Translation.Raw += normal * -point.Distance;
+                }
             }
         }
         public void OnContactEnded(IPhysicsDrivable other)

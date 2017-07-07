@@ -1,6 +1,7 @@
 ﻿using BulletSharp;
 using System;
 using System.Drawing;
+using TheraEngine.Rendering;
 
 namespace TheraEngine.Worlds.Actors
 {
@@ -9,39 +10,27 @@ namespace TheraEngine.Worlds.Actors
     {
         public event LengthChange CurrentDistanceChanged;
 
-        private SphereShape _traceShape = new SphereShape(0.2f);
+        private SphereShape _traceShape = new SphereShape(0.3f);
         private float _maxLength = 300.0f;
         private float _currentLength = 0.0f;
         private Vec3 _currentEndPoint = Vec3.Zero;
-        private bool _isRendering = false;
-        private IOctreeNode _renderNode;
-        private Shape _cullingVolume = new Sphere(1.0f);
         private Vec3 _startPoint = Vec3.Zero;
 
-        public Shape CullingVolume => _cullingVolume;
+        public Shape CullingVolume => null;
+        public IOctreeNode OctreeNode { get; set; }
+        public bool IsRendering { get; set; }
+        public bool HasTransparency => false;
 
-        public IOctreeNode OctreeNode
-        {
-            get => _renderNode;
-            set => _renderNode = value;
-        }
-        public bool IsRendering
-        {
-            get => _isRendering;
-            set => _isRendering = value;
-        }
+        private CollisionObject _ignoreCast = null;
+
         public float MaxLength
         {
             get => _maxLength;
             set => _maxLength = value;
         }
+        public CollisionObject IgnoreCast { get => _ignoreCast; set => _ignoreCast = value; }
 
-        public bool HasTransparency => false;
-
-        public BoomComponent() : base()
-        {
-
-        }
+        public BoomComponent() : base() { }
         
         protected override void OnRecalcLocalTransform(out Matrix4 localTransform, out Matrix4 inverseLocalTransform)
         {
@@ -66,11 +55,16 @@ namespace TheraEngine.Worlds.Actors
             Matrix4 endMatrix = startMatrix * Matrix4.CreateTranslation(new Vec3(0.0f, 0.0f, _maxLength));
             Vec3 testEnd = endMatrix.GetPoint();
 
-            //TODO: use a sphere, not a point
-            ClosestConvexResultCallback result = Engine.ShapeCastClosest(_traceShape, startMatrix, endMatrix);
+            ClosestNotMeConvexResultCallback result = new ClosestNotMeConvexResultCallback(IgnoreCast)
+            {
+                CollisionFilterGroup = (CollisionFilterGroups)(short)CustomCollisionGroup.All,
+                CollisionFilterMask = (CollisionFilterGroups)(short)CustomCollisionGroup.All,
+            };
+
+            Engine.ShapeCastClosest(_traceShape, startMatrix, endMatrix, result);
             Vec3 newEndPoint;
             if (result.HasHit)
-                newEndPoint = result.HitPointWorld/* + result.HitNormalWorld * 5.0f*/;
+                newEndPoint = result.HitPointWorld;
             else
                 newEndPoint = testEnd;
             float length = (newEndPoint - _startPoint).LengthFast;

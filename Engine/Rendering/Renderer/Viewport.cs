@@ -202,7 +202,7 @@ namespace TheraEngine.Rendering
                 scene.Render(RenderPass.OpaqueDeferred);
 
 #if DEBUG
-                Engine.World.PhysicsScene.DebugDrawWorld();
+                //Engine.World.PhysicsScene.DebugDrawWorld();
 #endif
 
                 //We want to render to back buffer now
@@ -266,7 +266,7 @@ namespace TheraEngine.Rendering
                 scene.Render(RenderPass.OpaqueForward);
 
 #if DEBUG
-                Engine.World.PhysicsScene.DebugDrawWorld();
+                //Engine.World.PhysicsScene.DebugDrawWorld();
 #endif
 
                 Engine.Renderer.AllowDepthWrite(false);

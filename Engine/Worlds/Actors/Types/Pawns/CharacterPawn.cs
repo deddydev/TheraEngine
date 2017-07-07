@@ -62,10 +62,14 @@ namespace TheraEngine.Worlds.Actors
         private bool _firstPerson = false;
         private Rotator _viewRotation = Rotator.GetZero(RotationOrder.YPR);
         float _gamePadMovementInputMultiplier = 90.0f;
-        float _gamePadLookInputMultiplier = 5.0f;
+        float _keyboardMovementInputMultiplier = 51.0f;
+        float _mouseXLookInputMultiplier = 0.5f;
+        float _mouseYLookInputMultiplier = 0.5f;
+        float _gamePadXLookInputMultiplier = 0.7f;
+        float _gamePadYLookInputMultiplier = 0.5f;
         protected Vec2 _keyboardMovementInput = Vec2.Zero;
         protected Vec2 _gamepadMovementInput = Vec2.Zero;
-        
+
         [Category("Reference Files")]
         public SingleFileRef<SkeletalMesh> Mesh
         {
@@ -98,7 +102,7 @@ namespace TheraEngine.Worlds.Actors
         }
         protected virtual void WantsRespawn()
         {
-            _respawnTimer.StartMultiFire(AttemptSpawn, 0.1f);
+            _respawnTimer.StartMultiFire(AttemptSpawn, 0.0f);
         }
         private void AttemptSpawn(float totalElapsed, int fireNumber)
         {
@@ -131,6 +135,7 @@ namespace TheraEngine.Worlds.Actors
             {
                 Vec3 finalInput = forward * _keyboardMovementInput.Y + right * _keyboardMovementInput.X;
                 finalInput.Y = 0.0f;
+                finalInput *= delta * _keyboardMovementInputMultiplier;
                 _movement.AddMovementInput(finalInput);
             }
             if (_gamepadMovementInput.X != 0.0f || _gamepadMovementInput.Y != 0.0f)
@@ -175,34 +180,34 @@ namespace TheraEngine.Worlds.Actors
 
         private void Look(float x, float y)
         {
-            _viewRotation.Pitch -= y;
-            _viewRotation.Yaw -= x;
-            //float yaw = _viewRotation.Yaw.RemapToRange(0.0f, 360.0f);
-            //if (yaw < 45.0f || yaw >= 315.0f)
-            //{
-            //    _meshComp.Rotation.Yaw = 180.0f;
-            //}
-            //else if (yaw < 135.0f)
-            //{
-            //    _meshComp.Rotation.Yaw = 270.0f;
-            //}
-            //else if (yaw < 225.0f)
-            //{
-            //    _meshComp.Rotation.Yaw = 0.0f;
-            //}
-            //else if (yaw < 315.0f)
-            //{
-            //    _meshComp.Rotation.Yaw = 90.0f;
-            //}
+            _viewRotation.Pitch -= y * _mouseYLookInputMultiplier;
+            _viewRotation.Yaw -= x * _mouseXLookInputMultiplier;
+            float yaw = _viewRotation.Yaw.RemapToRange(0.0f, 360.0f);
+            if (yaw < 45.0f || yaw >= 315.0f)
+            {
+                _meshComp.Rotation.Yaw = 180.0f;
+            }
+            else if (yaw < 135.0f)
+            {
+                _meshComp.Rotation.Yaw = 270.0f;
+            }
+            else if (yaw < 225.0f)
+            {
+                _meshComp.Rotation.Yaw = 0.0f;
+            }
+            else if (yaw < 315.0f)
+            {
+                _meshComp.Rotation.Yaw = 90.0f;
+            }
             //_fpCameraComponent.Camera.AddRotation(y, 0.0f);
         }
         private void LookRight(float value)
         {
-            _viewRotation.Yaw -= value * _gamePadLookInputMultiplier;
+            _viewRotation.Yaw -= value * _gamePadXLookInputMultiplier;
         }
         private void LookUp(float value)
         {
-            _viewRotation.Pitch += value * _gamePadLookInputMultiplier;
+            _viewRotation.Pitch += value * _gamePadYLookInputMultiplier;
         }
         protected void OnHit(IPhysicsDrivable me, IPhysicsDrivable other, ManifoldPoint point)
         {
@@ -224,7 +229,7 @@ namespace TheraEngine.Worlds.Actors
 
             PhysicsConstructionInfo info = new PhysicsConstructionInfo()
             {
-                Mass = 10.0f,
+                Mass = 59.0f,
                 AngularDamping = 0.05f,
                 LinearDamping = 0.005f,
                 Restitution = 0.0f,
@@ -233,7 +238,7 @@ namespace TheraEngine.Worlds.Actors
                 CollisionEnabled = true,
                 SimulatePhysics = false,
                 Group = CustomCollisionGroup.Characters,
-                CollidesWith = CustomCollisionGroup.StaticWorld,
+                CollidesWith = CustomCollisionGroup.StaticWorld | CustomCollisionGroup.DynamicWorld,
             };
 
             CapsuleComponent rootCapsule = new CapsuleComponent(radius, halfHeight, info);
@@ -254,15 +259,19 @@ namespace TheraEngine.Worlds.Actors
             //_fpCameraComponent = new CameraComponent(FPCam);
             //_fpCameraComponent.AttachTo(_meshComp, "Head");
 
-            _tpCameraBoom = new BoomComponent();
-            _tpCameraBoom.Translation.Raw = new Vec3(0.4f, 0.2f, 0.0f);
+            PositionLagComponent lagComp = new PositionLagComponent();
+            rootCapsule.ChildComponents.Add(lagComp);
+
+            _tpCameraBoom = new BoomComponent() { IgnoreCast = rootCapsule.PhysicsDriver.CollisionObject };
+            _tpCameraBoom.Translation.Raw = new Vec3(0.0f, 0.3f, 0.0f);
             _tpCameraBoom.Rotation.SyncFrom(_viewRotation);
-            _tpCameraBoom.MaxLength = 3.0f;
-            rootCapsule.ChildComponents.Add(_tpCameraBoom);
+            _tpCameraBoom.MaxLength = 5.0f;
+            lagComp.ChildComponents.Add(_tpCameraBoom);
 
             PerspectiveCamera TPCam = new PerspectiveCamera()
             {
-                //VerticalFieldOfView = 70.0f,
+                NearZ = 0.1f,
+                HorizontalFieldOfView = 90.0f,
                 //FarZ = 100.0f
             };
 

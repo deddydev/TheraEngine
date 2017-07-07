@@ -13,6 +13,7 @@ using System.Threading;
 using System.IO;
 using System.Windows.Forms;
 using TheraEngine.Timers;
+using System.Diagnostics;
 
 namespace TheraEngine
 {
@@ -476,17 +477,22 @@ namespace TheraEngine
             return callback;
         }
 
-        public static ClosestConvexResultCallback ShapeCastClosest(ConvexShape s, Matrix4 start, Matrix4 end)
+        public static void ShapeCastClosest(ConvexShape s, Matrix4 start, Matrix4 end, ClosestConvexResultCallback result)
         {
-            ClosestConvexResultCallback callback = new ClosestConvexResultCallback()
-            {
-                CollisionFilterMask = (CollisionFilterGroups)(short)CustomCollisionGroup.All,
-                CollisionFilterGroup = (CollisionFilterGroups)(short)CustomCollisionGroup.All,
-            };
-            World.PhysicsScene.ConvexSweepTest(s, start, end, callback);
-            return callback;
+            World.PhysicsScene.ConvexSweepTest(s, start, end, result);
         }
         #endregion
+    }
+    public class ClosestNotMeConvexResultCallback : ClosestConvexResultCallback
+    {
+        CollisionObject _me;
+        public ClosestNotMeConvexResultCallback(CollisionObject me) : base() => _me = me;
+        public override float AddSingleResult(LocalConvexResult convexResult, bool normalInWorldSpace)
+        {
+            if (convexResult.HitCollisionObject == _me)
+                return 1.0f;
+            return base.AddSingleResult(convexResult, normalInWorldSpace);
+        }
     }
     public class CustomClosestRayResultCallback : RayResultCallback
     {

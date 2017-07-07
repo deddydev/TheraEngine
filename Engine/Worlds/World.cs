@@ -40,22 +40,21 @@ namespace TheraEngine.Worlds
         {
             _physicsScene.Gravity = _settings.Gravity;
         }
-        //private class CustomOvelapFilter : OverlapFilterCallback
-        //{
-        //    public override bool NeedBroadphaseCollision(BroadphaseProxy proxy0, BroadphaseProxy proxy1)
-        //    {
-        //        if (proxy0 == null || 
-        //            proxy1 == null)
-        //            return false;
+        private class CustomOvelapFilter : OverlapFilterCallback
+        {
+            public override bool NeedBroadphaseCollision(BroadphaseProxy proxy0, BroadphaseProxy proxy1)
+            {
+                if (proxy0 == null ||
+                    proxy1 == null)
+                    return false;
 
-        //        bool collides = 
-        //            (proxy0.CollisionFilterGroup & proxy1.CollisionFilterMask) != 0 &&
-        //            (proxy1.CollisionFilterGroup & proxy0.CollisionFilterMask) != 0;
+                bool collides =
+                    (proxy0.CollisionFilterGroup & proxy1.CollisionFilterMask) != 0 &&
+                    (proxy1.CollisionFilterGroup & proxy0.CollisionFilterMask) != 0;
 
-        //        return collides;
-        //    }
-        //}
-
+                return collides;
+            }
+        }
         public BaseGameMode GetGameMode()
             => Settings?.GameMode.File;
         public T GetGameMode<T>() where T : class, IGameMode
@@ -112,6 +111,7 @@ namespace TheraEngine.Worlds
         }
         /// <summary>
         /// Moves the origin to preserve float precision when traveling large distances from the origin.
+        /// Provide any world point and that point will become the new (0,0,0).
         /// </summary>
         public void RebaseOrigin(Vec3 newOrigin)
         {
@@ -144,7 +144,7 @@ namespace TheraEngine.Worlds
             };
             //_physicsScene.DispatchInfo.UseContinuous = true;
             //_physicsScene.DispatchInfo.AllowedCcdPenetration = 0.1f;
-            //_physicsScene.PairCache.SetOverlapFilterCallback(new CustomOvelapFilter());
+            _physicsScene.PairCache.SetOverlapFilterCallback(new CustomOvelapFilter());
             _settings.GravityChanged += OnGravityChanged;
 
         }

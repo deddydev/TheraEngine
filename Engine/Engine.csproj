@@ -119,19 +119,21 @@
       <HintPath Condition="'$(Platform)'=='x64'">..\Libraries\x64\FreeImageNET.dll</HintPath>
       <HintPath Condition="'$(Platform)'=='AnyCPU'">..\Libraries\AnyCPU\FreeImageNET.dll</HintPath>
     </Reference>
+    <Reference Include="Steamworks.NET">
+      <HintPath Condition="'$(Platform)'=='x86'">..\Libraries\x86\Steamworks\Steamworks.NET.dll</HintPath>
+      <HintPath Condition="'$(Platform)'=='x64'">..\Libraries\x64\Steamworks\Steamworks.NET.dll</HintPath>
+      <HintPath Condition="'$(Platform)'=='AnyCPU'">..\Libraries\AnyCPU\Steamworks\Steamworks.NET.dll</HintPath>
+    </Reference>
+    <Reference Include="SlimDX, Version=4.0.13.43, Culture=neutral, PublicKeyToken=b1b0c32fd1ffe4f9, processorArchitecture=AMD64">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Libraries\SlimDX.dll</HintPath>
+    </Reference>
     <Reference Include="OpenTK, Version=2.0.0.0, Culture=neutral, PublicKeyToken=bad199fe84eb3df4, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\OpenTK\bin\OpenTK\OpenTK.dll</HintPath>
     </Reference>
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
-    <Reference Include="SlimDX, Version=4.0.13.43, Culture=neutral, PublicKeyToken=b1b0c32fd1ffe4f9, processorArchitecture=AMD64">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\Libraries\SlimDX.dll</HintPath>
-    </Reference>
-    <Reference Include="Steamworks.NET">
-      <HintPath>..\Libraries\x64\Steamworks\Steamworks.NET.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Activities" />
     <Reference Include="System.Core" />
@@ -177,23 +179,23 @@
     <Compile Include="Input\Devices\AxisManager.cs" />
     <Compile Include="Input\Devices\ButtonManager.cs" />
     <Compile Include="Input\Devices\Windows\WinMouse.cs" />
-    <Compile Include="Animation\Model Animations\ModelAnimationFrame.cs" />
-    <Compile Include="Animation\Property Animations\PropAnimQuat.cs" />
-    <Compile Include="Animation\Property Animations\PropAnimVec2.cs" />
-    <Compile Include="Animation\Property Animations\PropAnimVec3.cs" />
-    <Compile Include="Animation\Property Animations\PropAnimVec4.cs" />
-    <Compile Include="Animation\Model Animations\AnimStateMachine.cs" />
-    <Compile Include="Animation\BaseAnimation.cs" />
-    <Compile Include="Animation\Functions\Logic\IfFunction.cs" />
-    <Compile Include="Animation\Model Animations\BlendSpace1D.cs" />
-    <Compile Include="Animation\Model Animations\ModelAnimation.cs" />
+    <Compile Include="Rendering\Animation\Model Animations\ModelAnimationFrame.cs" />
+    <Compile Include="Rendering\Animation\Property Animations\PropAnimQuat.cs" />
+    <Compile Include="Rendering\Animation\Property Animations\PropAnimVec2.cs" />
+    <Compile Include="Rendering\Animation\Property Animations\PropAnimVec3.cs" />
+    <Compile Include="Rendering\Animation\Property Animations\PropAnimVec4.cs" />
+    <Compile Include="Rendering\Animation\Model Animations\AnimStateMachine.cs" />
+    <Compile Include="Rendering\Animation\BaseAnimation.cs" />
+    <Compile Include="Rendering\Animation\Functions\Logic\IfFunction.cs" />
+    <Compile Include="Rendering\Animation\Model Animations\BlendSpace1D.cs" />
+    <Compile Include="Rendering\Animation\Model Animations\ModelAnimation.cs" />
     <Compile Include="Engine\Game.cs" />
     <Compile Include="Rendering\HUD\Functions\Animations\AnimationFunction.cs" />
     <Compile Include="Rendering\HUD\Functions\Animations\AnimFuncExecInput.cs" />
     <Compile Include="Rendering\HUD\Functions\Animations\AnimFuncExecOutput.cs" />
     <Compile Include="Rendering\HUD\Functions\Animations\AnimFuncValueInput.cs" />
     <Compile Include="Rendering\HUD\Functions\Animations\AnimFuncValueOutput.cs" />
-    <Compile Include="Animation\Functions\LookatFunction.cs" />
+    <Compile Include="Rendering\Animation\Functions\LookatFunction.cs" />
     <Compile Include="Rendering\HUD\Interactable\ListHudComponent.cs" />
     <Compile Include="Rendering\HUD\Interactable\DropDownListHudComponent.cs" />
     <Compile Include="Rendering\HUD\Functions\Generic Base\BaseFuncArg.cs" />
@@ -626,10 +628,10 @@
     <Compile Include="Input\Devices\DirectX\DXMouse.cs" />
     <Compile Include="Input\Devices\DirectX\DXKeyboard.cs" />
     <Compile Include="Input\LocalPlayerController.cs" />
-    <Compile Include="Particles\Emitter.cs" />
-    <Compile Include="Particles\ParticleState.cs" />
-    <Compile Include="Particles\Particle.cs" />
-    <Compile Include="Particles\ParticleManager.cs" />
+    <Compile Include="Rendering\Particles\Emitter.cs" />
+    <Compile Include="Rendering\Particles\ParticleState.cs" />
+    <Compile Include="Rendering\Particles\Particle.cs" />
+    <Compile Include="Rendering\Particles\ParticleManager.cs" />
     <Compile Include="Rendering\Cameras\Camera.cs" />
     <Compile Include="Rendering\Cameras\OrthographicCamera.cs" />
     <Compile Include="Rendering\Cameras\PerspectiveCamera.cs" />
@@ -671,6 +673,7 @@
     <Compile Include="Rendering\Textures\PixelTypes.cs" />
     <None Include="Rendering\Textures\TextureConverter.cs" />
     <Compile Include="Rendering\Textures\TextureData.cs" />
+    <Compile Include="Settings.cs" />
     <Compile Include="System\CommonDelegates.cs" />
     <Compile Include="System\ComputerInfo.cs" />
     <Compile Include="System\Data Structures\Lists\HashedStack.cs" />
@@ -798,7 +801,7 @@
     <None Include="System\Tools\V-HACD\VHACD.cs" />
     <None Include="System\Tools\V-HACD\Volume.cs" />
     <Compile Include="Tests\TestCharacter.cs" />
-    <Compile Include="GameModes\CharacterGameMode.cs" />
+    <Compile Include="Worlds\GameModes\CharacterGameMode.cs" />
     <Compile Include="Worlds\Actors\ActorState.cs" />
     <Compile Include="Worlds\Actors\Components\ComponentState.cs" />
     <Compile Include="Worlds\Actors\Components\Scene\Lights\LightComponent.cs" />
@@ -807,7 +810,7 @@
     <Compile Include="Worlds\Actors\Components\Scene\Lights\DirectionalLightComponent.cs" />
     <Compile Include="Worlds\Actors\Components\Scene\Mesh\SkeletalMeshComponent.RenderableMesh.cs" />
     <Compile Include="Worlds\Actors\Components\Scene\Mesh\StaticMeshComponent.RenderableMesh.cs" />
-    <Compile Include="Worlds\Actors\Components\Scene\MovementLagComponent.cs" />
+    <Compile Include="Worlds\Actors\Components\Scene\Transforms\PositionLagComponent.cs" />
     <Compile Include="Worlds\Actors\Components\Scene\SplineComponent.cs" />
     <Compile Include="Worlds\Actors\Components\Scene\SoundComponent.cs" />
     <Compile Include="Worlds\Actors\Components\Scene\Transforms\NoisePositionComponent.cs" />
@@ -835,12 +838,12 @@
     <Compile Include="Worlds\Actors\Components\Scene\PrimitiveComponent.cs" />
     <Compile Include="Worlds\Actors\Components\Scene\Shapes\Cylindrical\CapsuleComponent.cs" />
     <Compile Include="Engine\EngineProperties.cs" />
-    <Compile Include="GameModes\GameMode.cs" />
-    <Compile Include="Animation\Property Animations\AnimationContainer.cs" />
-    <Compile Include="Animation\KeyframeTrack.cs" />
+    <Compile Include="Worlds\GameModes\GameMode.cs" />
+    <Compile Include="Rendering\Animation\Property Animations\AnimationContainer.cs" />
+    <Compile Include="Rendering\Animation\KeyframeTrack.cs" />
     <Compile Include="Rendering\HUD\HudComponent.cs" />
     <Compile Include="System\Interfaces.cs" />
-    <Compile Include="Players\PlayerInfo.cs" />
+    <Compile Include="Engine\PlayerInfo.cs" />
     <Compile Include="Rendering\Renderer\DirectX\DXRenderer.cs" />
     <Compile Include="Rendering\Renderer\DirectX\DXWindowContext.cs" />
     <Compile Include="Rendering\Renderer\OpenGL\GLRenderer.cs" />
@@ -851,9 +854,9 @@
     <Compile Include="Worlds\Actors\Types\ComponentActors\Shapes\BoxActor.cs" />
     <Compile Include="Worlds\Actors\Types\ComponentActors\PerspectiveCameraActor.cs" />
     <Compile Include="Worlds\Actors\Types\ComponentActors\DecalActor.cs" />
-    <Compile Include="Animation\Property Animations\PropAnimString.cs" />
-    <Compile Include="Animation\Property Animations\PropAnimBool.cs" />
-    <Compile Include="Animation\Property Animations\PropAnimFloat.cs" />
+    <Compile Include="Rendering\Animation\Property Animations\PropAnimString.cs" />
+    <Compile Include="Rendering\Animation\Property Animations\PropAnimBool.cs" />
+    <Compile Include="Rendering\Animation\Property Animations\PropAnimFloat.cs" />
     <Compile Include="Rendering\Models\Meshes\Skeletal\Skeleton\BoneWeight.cs" />
     <Compile Include="Rendering\Models\Meshes\Skeletal\Skeleton\Influence.cs" />
     <Compile Include="System\Extensions\BitmapExtension.cs" />
@@ -907,7 +910,7 @@
     <Compile Include="Tests\TestGameMode.cs" />
     <Compile Include="Tests\TestWorld.cs" />
     <Compile Include="Worlds\World.cs" />
-    <Compile Include="Animation\Property Animations\PropertyAnimation.cs" />
+    <Compile Include="Rendering\Animation\Property Animations\PropertyAnimation.cs" />
     <Compile Include="System\Math\Transforms\FrameState.cs" />
     <Compile Include="Rendering\Models\Meshes\Faces\Index\IndexTriangle.cs" />
     <Compile Include="Rendering\Models\Meshes\Primitives\FacePoint.cs" />
@@ -961,12 +964,12 @@
     <Error Condition="Exists('..\packages\PostSharp.4.3.21\tools\PostSharp.targets')" Text="The build restored NuGet packages. Build the project again to include these packages in the build. For more information, see http://www.postsharp.net/links/nuget-restore." />
   </Target>
   <PropertyGroup>
-    <PostBuildEvent>xcopy /Y "$(SolutionDir)Libraries\FreeImage.dll" "$(TargetDir)"</PostBuildEvent>
-    <PostBuildEvent>xcopy /Y "$(SolutionDir)Build\obf_config.xml" "$(TargetDir)"</PostBuildEvent>
+    <PostBuildEvent>xcopy /Y "$(SolutionDir)Build\obf_config.xml" "$(TargetDir)" 
+xcopy /Y "$(SolutionDir)Libraries\FreeImage.dll" "$(TargetDir)"</PostBuildEvent>
   </PropertyGroup>
   <Target Name="BeforeBuild">
   </Target>
   <Target Name="AfterBuild">
-    <Exec Command="&quot;C:\Program Files (x86)\PreEmptive Solutions\Dotfuscator Professional Edition Evaluation 4.9\dotfuscator.exe&quot; &quot;$(TargetDir)obf_config.xml&quot;" />
+    <Exec Condition="'$(Configuration)'=='ReleaseEditorObfuscated' Or '$(Configuration)'=='ReleaseGameObfuscated' Or '$(Configuration)'=='DebugEditorObfuscated' Or '$(Configuration)'=='DebugGameObfuscated'" Command="&quot;C:\Program Files (x86)\PreEmptive Solutions\Dotfuscator Professional Edition Evaluation 4.9\dotfuscator.exe&quot; &quot;$(TargetDir)obf_config.xml&quot;" />
   </Target>
 </Project>

@@ -97,6 +97,7 @@ namespace TheraEngine.Rendering.Cameras
                 OnTransformChanged();
             }
         }
+        [DisplayName("Near Distance")]
         [Category("Camera")]
         public float NearZ
         {
@@ -107,6 +108,7 @@ namespace TheraEngine.Rendering.Cameras
                 CalculateProjection();
             }
         }
+        [DisplayName("Far Distance")]
         [Category("Camera")]
         public float FarZ
         {
@@ -117,11 +119,13 @@ namespace TheraEngine.Rendering.Cameras
                 CalculateProjection();
             }
         }
+        [DisplayName("World Point")]
         [Category("Camera")]
         public Vec3 WorldPoint
         {
             get => _owningComponent != null ? _owningComponent.WorldMatrix.GetPoint() : _localPoint.Raw;
         }
+        [DisplayName("Local Point")]
         [Category("Camera")]
         public EventVec3 LocalPoint
         {
@@ -133,6 +137,7 @@ namespace TheraEngine.Rendering.Cameras
                 PositionChanged();
             }
         }
+        [DisplayName("Local Rotation")]
         [Category("Camera")]
         public Rotator LocalRotation
         {

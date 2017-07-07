@@ -519,11 +519,6 @@ namespace System
         //{
         //    (this - origin).LookatAngles(startNormal, out yaw, out pitch);
         //}
-        public static Vec3 ReflectionVector(Vec3 normal, Vec3 vector)
-        {
-            normal.NormalizeFast();
-            return vector - 2.0f * vector.Dot(normal) * normal;
-        }
         public Vec3 GetSafeNormal(float Tolerance = 1.0e-8f)
         {
             float SquareSum = LengthSquared;
@@ -584,7 +579,36 @@ namespace System
 
             return u >= 0.0f && v >= 0.0f && u + v < 1.0f;
         }
-
+        /// <summary>
+        /// Returns a vector pointing out of a plane, given the plane's normal and a vector to be reflected which is pointing at the plane.
+        /// </summary>
+        public static Vec3 ReflectionVector(Vec3 normal, Vec3 vector)
+        {
+            normal.NormalizeFast();
+            return vector - 2.0f * (vector | normal) * normal;
+        }
+        /// <summary>
+        /// Returns a vector pointing out of a plane, given the plane's normal and this vector to be reflected which is pointing at the plane.
+        /// </summary>
+        public Vec3 ReflectionVector(Vec3 normal)
+        {
+            normal.NormalizeFast();
+            return this - 2.0f * (this | normal) * normal;
+        }
+        /// <summary>
+        /// Returns the portion of this Vec3 that is parallel to the given normal.
+        /// </summary>
+        public Vec3 ParallelComponent(Vec3 normal)
+        {
+            normal.NormalizeFast();
+            return normal * (this | normal);
+        }
+        
+        /// <summary>
+        /// Returns the portion of this Vec3 that is perpendicular to the given normal.
+        /// </summary>
+        public Vec3 PerpendicularComponent(Vec3 normal) => this - ParallelComponent(normal);
+        
         [Browsable(false)]
         [XmlIgnore]
         public Vec2 Xy
@@ -817,21 +841,22 @@ namespace System
                 left.X / right.X, 
                 left.Y / right.Y,
                 left.Z / right.Z);
+        
+        //Cross Product:
+        //        |
+        // normal |  /
+        // l x r, | / right
+        // -r x l |/_______ 
+        //            left
 
         /// <summary>
-        /// Cross
-        /// 
-        ///        |
-        /// normal |  /
-        /// l x r, | / right
-        /// -r x l |/_______ 
-        ///            left
+        /// Cross Product
         /// </summary>
         public static Vec3 operator ^(Vec3 vec1, Vec3 vec2)
             => vec1.Cross(vec2);
 
         /// <summary>
-        /// Dot
+        /// Dot Product
         /// </summary>
         /// <param name="vec1"></param>
         /// <param name="vec2"></param>

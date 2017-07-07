@@ -306,6 +306,21 @@ namespace System
             return _data.GetSafeNormal(tolerance);
         }
 
+        /// <summary>
+        /// Returns the portion of this Vec3 that is parallel to the given normal.
+        /// </summary>
+        public Vec3 ParallelComponent(Vec3 normal)
+        {
+            return _data.ParallelComponent(normal);
+        }
+        /// <summary>
+        /// Returns the portion of this Vec3 that is perpendicular to the given normal.
+        /// </summary>
+        public Vec3 PerpendicularComponent(Vec3 normal)
+        {
+            return _data.PerpendicularComponent(normal);
+        }
+
         //public EventVec3 GetAngles() { return new EventVec3(AngleX(), AngleY(), AngleZ()); }
         //public EventVec3 GetAngles(EventVec3 origin) { return (this - origin).GetAngles(); }
         //public float AngleX() { return (float)Atan2(Y, -Z); }

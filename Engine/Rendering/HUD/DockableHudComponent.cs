@@ -20,8 +20,8 @@ namespace TheraEngine.Rendering.HUD
     //TODO: move constraints into sizing mode
     public enum SizingMode
     {
-        Percentage,
         Pixels,
+        ParentPercentage,
     }
     public enum HudDockStyle
     {
@@ -53,39 +53,57 @@ namespace TheraEngine.Rendering.HUD
         //A variety of positioning parameters are used
         //to calculate the region's position and dimensions upon resize.
 
-        private SizingMode
-            _widthMode = SizingMode.Pixels,
-            _heightMode = SizingMode.Pixels,
-            _positionXMode = SizingMode.Pixels,
-            _positionYMode = SizingMode.Pixels,
-            _marginLeftMode = SizingMode.Pixels,
-            _marginRightMode = SizingMode.Pixels,
-            _marginTopMode = SizingMode.Pixels,
-            _marginBottomMode = SizingMode.Pixels,
-            _paddingLeftMode = SizingMode.Pixels,
-            _paddingRightMode = SizingMode.Pixels,
-            _paddingTopMode = SizingMode.Pixels,
-            _paddingBottomMode = SizingMode.Pixels,
-            _anchorLeftMode = SizingMode.Pixels,
-            _anchorRightMode = SizingMode.Pixels,
-            _anchorTopMode = SizingMode.Pixels,
-            _anchorBottomMode = SizingMode.Pixels;
+        public class SizeableElement
+        {
+            private float _value;
+            private SizingMode _sizingMode;
 
+            public SizeableElement()
+            {
+                _value = 0;
+                _sizingMode = SizingMode.Pixels;
+            }
+            public SizeableElement(float value, SizingMode sizingMode)
+            {
+                _value = value;
+                _sizingMode = sizingMode;
+            }
+
+            public float Value { get => _value; set => _value = value; }
+            public SizingMode SizingMode { get => _sizingMode; set => _sizingMode = value; }
+
+            public float GetValue(float parentValue)
+                => _sizingMode == SizingMode.ParentPercentage ? parentValue * _value : _value;
+        }
+        public class SizeableElementQuad
+        {
+            private SizeableElement _left, _right, _top, _bottom;
+
+            public SizeableElement Left { get => _left; set => _left = value; }
+            public SizeableElement Right { get => _right; set => _right = value; }
+            public SizeableElement Top { get => _top; set => _top = value; }
+            public SizeableElement Bottom { get => _bottom; set => _bottom = value; }
+        }
+
+        private SizeableElement
+            _width = new SizeableElement(),
+            _height = new SizeableElement(),
+            _posX = new SizeableElement(),
+            _posY = new SizeableElement();
+        private SizeableElementQuad _margin, _padding, _anchor;
+        
         private WidthHeightConstraint _whConstraint = WidthHeightConstraint.NoConstraint;
         private HudDockStyle _dockStyle = HudDockStyle.None;
         private AnchorFlags _anchorFlags = AnchorFlags.None;
         
-        private float _widthValue, _heightValue, _posXValue, _posYValue, _originXValue, _originYValue;
-        private float _anchorBottomValue, _anchorTopValue, _anchorLeftValue, _anchorRightValue;
-        private float _marginBottomValue, _marginTopValue, _marginLeftValue, _marginRightValue;
-        private float _paddingBottomValue, _paddingTopValue, _paddingLeftValue, _paddingRightValue;
-
         public HudDockStyle DockStyle
         {
             get => _dockStyle;
             set
             {
                 _dockStyle = value;
+                if (Parent is HudComponent h)
+                    Resize(h.Region);
             }
         }
         public AnchorFlags SideAnchorFlags
@@ -94,27 +112,10 @@ namespace TheraEngine.Rendering.HUD
             set
             {
                 _anchorFlags = value;
+                if (Parent is HudComponent h)
+                    Resize(h.Region);
             }
         }
-        public SizingMode WidthMode { get => _widthMode; set => _widthMode = value; }
-        public SizingMode HeightMode { get => _heightMode; set => _heightMode = value; }
-        public SizingMode PositionXMode { get => _positionXMode; set => _positionXMode = value; }
-        public SizingMode PositionYMode { get => _positionYMode; set => _positionYMode = value; }
-
-        public SizingMode MarginLeftMode { get => _marginLeftMode; set => _marginLeftMode = value; }
-        public SizingMode MarginRightMode { get => _marginRightMode; set => _marginRightMode = value; }
-        public SizingMode MarginTopMode { get => _marginTopMode; set => _marginTopMode = value; }
-        public SizingMode MarginBottomMode { get => _marginBottomMode; set => _marginBottomMode = value; }
-
-        public SizingMode PaddingLeftMode { get => _paddingLeftMode; set => _paddingLeftMode = value; }
-        public SizingMode PaddingRightMode { get => _paddingRightMode; set => _paddingRightMode = value; }
-        public SizingMode PaddingTopMode { get => _paddingTopMode; set => _paddingTopMode = value; }
-        public SizingMode PaddingBottomMode { get => _paddingBottomMode; set => _paddingBottomMode = value; }
-
-        public SizingMode AnchorLeftMode { get => _anchorLeftMode; set => _anchorLeftMode = value; }
-        public SizingMode AnchorRightMode { get => _anchorRightMode; set => _anchorRightMode = value; }
-        public SizingMode AnchorTopMode { get => _anchorTopMode; set => _anchorTopMode = value; }
-        public SizingMode AnchorBottomMode { get => _anchorBottomMode; set => _anchorBottomMode = value; }
 
         public bool Docked => _dockStyle != HudDockStyle.None;
         public bool Anchored => _anchorFlags != AnchorFlags.None;
@@ -124,10 +125,14 @@ namespace TheraEngine.Rendering.HUD
             get => (_anchorFlags & AnchorFlags.Bottom) != 0;
             set
             {
+                if (value == AnchoredBottom)
+                    return;
                 if (value)
                     _anchorFlags |= AnchorFlags.Bottom;
                 else
                     _anchorFlags &= ~AnchorFlags.Bottom;
+                if (Parent is HudComponent h)
+                    Resize(h.Region);
             }
         }
         public bool AnchoredTop
@@ -135,10 +140,14 @@ namespace TheraEngine.Rendering.HUD
             get => (_anchorFlags & AnchorFlags.Top) != 0;
             set
             {
+                if (value == AnchoredTop)
+                    return;
                 if (value)
                     _anchorFlags |= AnchorFlags.Top;
                 else
                     _anchorFlags &= ~AnchorFlags.Top;
+                if (Parent is HudComponent h)
+                    Resize(h.Region);
             }
         }
         public bool AnchoredLeft
@@ -146,10 +155,14 @@ namespace TheraEngine.Rendering.HUD
             get => (_anchorFlags & AnchorFlags.Left) != 0;
             set
             {
+                if (value == AnchoredLeft)
+                    return;
                 if (value)
                     _anchorFlags |= AnchorFlags.Left;
                 else
                     _anchorFlags &= ~AnchorFlags.Left;
+                if (Parent is HudComponent h)
+                    Resize(h.Region);
             }
         }
         public bool AnchoredRight
@@ -157,31 +170,17 @@ namespace TheraEngine.Rendering.HUD
             get => (_anchorFlags & AnchorFlags.Right) != 0;
             set
             {
+                if (value == AnchoredRight)
+                    return;
                 if (value)
                     _anchorFlags |= AnchorFlags.Right;
                 else
                     _anchorFlags &= ~AnchorFlags.Right;
+                if (Parent is HudComponent h)
+                    Resize(h.Region);
             }
         }
-
-        public float WidthValue { get => _widthValue; set => _widthValue = value; }
-        public float HeightValue { get => _heightValue; set => _heightValue = value; }
-        public float PosXValue { get => _posXValue; set => _posXValue = value; }
-        public float PosYValue { get => _posYValue; set => _posYValue = value; }
-        public float AnchorBottomValue { get => _anchorBottomValue; set => _anchorBottomValue = value; }
-        public float AnchorTopValue { get => _anchorTopValue; set => _anchorTopValue = value; }
-        public float AnchorLeftValue { get => _anchorLeftValue; set => _anchorLeftValue = value; }
-        public float AnchorRightValue { get => _anchorRightValue; set => _anchorRightValue = value; }
-        public float PaddingBottomValue { get => _paddingBottomValue; set => _paddingBottomValue = value; }
-        public float PaddingTopValue { get => _paddingTopValue; set => _paddingTopValue = value; }
-        public float PaddingLeftValue { get => _paddingLeftValue; set => _paddingLeftValue = value; }
-        public float PaddingRightValue { get => _paddingRightValue; set => _paddingRightValue = value; }
-        public float MarginBottomValue { get => _marginBottomValue; set => _marginBottomValue = value; }
-        public float MarginTopValue { get => _marginTopValue; set => _marginTopValue = value; }
-        public float MarginLeftValue { get => _marginLeftValue; set => _marginLeftValue = value; }
-        public float MarginRightValue { get => _marginRightValue; set => _marginRightValue = value; }
-        public float OriginXPercentage { get => _originXValue; set => _originXValue = value; }
-        public float OriginYPercentage { get => _originYValue; set => _originYValue = value; }
+        
         public WidthHeightConstraint WidthHeightConstraint { get => _whConstraint; set => _whConstraint = value; }
         
         public override unsafe BoundingRectangle Resize(BoundingRectangle parentRegion)
@@ -244,23 +243,23 @@ namespace TheraEngine.Rendering.HUD
             //        break;
             //}
 
-            float x = parentRegion.MinX + (_positionXMode == SizingMode.Percentage ? parentRegion.Width * _posXValue : _posXValue);
-            float y = parentRegion.MinY + (_positionYMode == SizingMode.Percentage ? parentRegion.Height * _posYValue : _posYValue);
-            float w = (_widthMode == SizingMode.Percentage ? parentRegion.Width * _widthValue : _widthValue);
-            float h = (_heightMode == SizingMode.Percentage ? parentRegion.Height * _heightValue : _heightValue);
+            float x = parentRegion.MinX + _posX.GetValue(parentRegion.Width);
+            float y = parentRegion.MinY + _posY.GetValue(parentRegion.Height);
+            float w = _width.GetValue(parentRegion.Width);
+            float h = _height.GetValue(parentRegion.Height);
             if (_whConstraint != WidthHeightConstraint.NoConstraint)
             {
                 switch (_whConstraint)
                 {
                     case WidthHeightConstraint.HeightAsRatioToWidth:
-                        h = w * _heightValue;
+                        h = w * _height.Value;
                         break;
                     case WidthHeightConstraint.WidthAsRatioToHeight:
-                        w = h * _widthValue;
+                        w = h * _width.Value;
                         break;
                 }
             }
-            _region = new BoundingRectangle(x, y, w, h, _originXValue, _originYValue);
+            _region = new BoundingRectangle(x, y, w, h, _translationLocalOrigin.X, _translationLocalOrigin.Y);
             if (Docked || Anchored)
             {
                 bool 
@@ -308,33 +307,13 @@ namespace TheraEngine.Rendering.HUD
                 if (Anchored)
                 {
                     if (allowBottom && AnchoredBottom)
-                    {
-                        if (_anchorBottomMode == SizingMode.Percentage)
-                            _region.MinY = parentRegion.Height * _anchorBottomValue;
-                        else
-                            _region.MinY = _anchorBottomValue;
-                    }
+                        _region.MinY = _anchor.Bottom.GetValue(parentRegion.Height);
                     if (allowTop && AnchoredTop)
-                    {
-                        if (_anchorTopMode == SizingMode.Percentage)
-                            _region.MaxY = parentRegion.Height * _anchorTopValue;
-                        else
-                            _region.MaxY = _anchorTopValue;
-                    }
+                        _region.MaxY = _anchor.Top.GetValue(parentRegion.Height);
                     if (allowLeft && AnchoredLeft)
-                    {
-                        if (_anchorLeftMode == SizingMode.Percentage)
-                            _region.MinX = parentRegion.Width * _anchorLeftValue;
-                        else
-                            _region.MinX = _anchorLeftValue;
-                    }
+                        _region.MinX = _anchor.Left.GetValue(parentRegion.Width);
                     if (allowRight && AnchoredRight)
-                    {
-                        if (_anchorRightMode == SizingMode.Percentage)
-                            _region.MaxX = parentRegion.Width * _anchorRightValue;
-                        else
-                            _region.MaxX = _anchorRightValue;
-                    }
+                        _region.MaxX = _anchor.Right.GetValue(parentRegion.Width);
                 }
                 if (_dockStyle != HudDockStyle.None)
                     leftOver = RegionDockComplement(parentRegion, Region);

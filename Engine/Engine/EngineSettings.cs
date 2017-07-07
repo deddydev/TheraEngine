@@ -111,12 +111,12 @@ namespace TheraEngine
             SkinOnGPU = false;
             UseIntegerWeightingIds = false;
 #if DEBUG
-            RenderOctree = true;
+            RenderOctree = false;
             RenderQuadtree = true;
-            RenderSkeletons = true;
-            RenderCameraFrustums = true;
+            RenderSkeletons = false;
+            RenderCameraFrustums = false;
             RenderSplines = true;
-            RenderCullingVolumes = true;
+            RenderCullingVolumes = false;
 #else
             RenderOctree = false;
             RenderQuadtree = false;

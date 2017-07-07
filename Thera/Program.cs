@@ -7,19 +7,16 @@ namespace Thera
 {
     static class Program
     {
-        /// <summary>
-        /// The main entry point for the application.
-        /// </summary>
         [STAThread]
         static void Main()
         {
-            Application.EnableVisualStyles();
-            Application.SetCompatibleTextRenderingDefault(false);
-            Game game = new Game()
+            Game g = new Game()
             {
                 OpeningWorld = typeof(TestWorld),
             };
-            Application.Run(new RenderForm(game));
+            g.UserSettings.FullScreen = true;
+            g.UserSettings.WindowBorderStyle = WindowBorderStyle.None;
+            Engine.Run(g);
         }
     }
 }

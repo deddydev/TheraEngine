@@ -246,7 +246,7 @@ namespace TheraEngine.Worlds.Actors
         public bool IsSpawned
             => OwningActor == null ? false : OwningActor.IsSpawned;
         [Category("Rendering")]
-        public ISocket Parent
+        public virtual ISocket Parent
         {
             get => _parent;
             set

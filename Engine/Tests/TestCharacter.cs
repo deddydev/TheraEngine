@@ -1,4 +1,7 @@
-﻿using TheraEngine.Worlds.Actors;
+﻿using System;
+using TheraEngine.Files;
+using TheraEngine.Rendering.Models;
+using TheraEngine.Worlds.Actors;
 
 namespace TheraEngine.Tests
 {
@@ -8,14 +11,14 @@ namespace TheraEngine.Tests
         public const string SkelName = "TESTSKEL";
         protected override void PreConstruct()
         {
-            //string desktop = Environment.MachineName == "DAVID-DESKTOP" ? "X:\\Desktop\\" : "C:\\Users\\David\\Desktop\\";
-            //Collada.ImportOptions options = new Collada.ImportOptions();
-            //options.InitialTransform.Scale = new Vec3(1.0f.InchesToMeters());
-            //Collada.Scene scene = Collada.Import(desktop + "TEST.DAE", options, false, true); //TestWorld.ColladaScene;
+            string desktop = Environment.MachineName == "DAVID-DESKTOP" ? "X:\\Desktop\\" : "C:\\Users\\David\\Desktop\\";
+            Collada.ImportOptions options = new Collada.ImportOptions();
+            options.InitialTransform.Scale = new Vec3(1.0f.InchesToMeters());
+            Collada.Scene scene = Collada.Import(desktop + "TEST.DAE", options, false, true); //TestWorld.ColladaScene;
 
-            //Mesh = scene.SkeletalModel;
+            Mesh = scene.SkeletalModel;
             //Mesh = new SingleFileRef<SkeletalMesh>(Engine.ContentFolderAbs + MeshName + "." + GetFileHeader(typeof(SkeletalMesh)).GetProperExtension(FileFormat.XML));
-            //Skeleton = scene.Skeleton;
+            Skeleton = scene.Skeleton;
             //Skeleton = new SingleFileRef<Skeleton>(Engine.ContentFolderAbs + SkelName + "." + GetFileHeader(typeof(Skeleton)).GetProperExtension(FileFormat.XML));
 
             //PropAnimFloat elbowAnim = new PropAnimFloat(360, true, true);

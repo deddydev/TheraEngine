@@ -44,9 +44,9 @@ namespace TheraEngine.Rendering.Cameras
         [Browsable(false)]
         public Matrix4 InverseProjectionMatrix => _projectionInverse;
         [Browsable(false)]
-        public Matrix4 WorldMatrix
+        public Matrix4 WorldToCameraMatrix
         {
-            get => _owningComponent != null ? _owningComponent.WorldMatrix : _transform;
+            get => _owningComponent != null ? _owningComponent.WorldMatrix : _componentToCameraMatrix;
             //set
             //{
             //    if (_owningComponent != null)
@@ -63,9 +63,9 @@ namespace TheraEngine.Rendering.Cameras
             //}
         }
         [Browsable(false)]
-        public Matrix4 InverseWorldMatrix
+        public Matrix4 CameraToWorldMatrix
         {
-            get => _owningComponent != null ? _owningComponent.InverseWorldMatrix : _invTransform;
+            get => _owningComponent != null ? _owningComponent.InverseWorldMatrix : _cameraToComponentMatrix;
             //set
             //{
             //    if (_owningComponent != null)
@@ -82,17 +82,17 @@ namespace TheraEngine.Rendering.Cameras
             //}
         }
         [Browsable(false)]
-        public Matrix4 InverseLocalMatrix => _invTransform;
+        public Matrix4 CameraToComponentMatrix => _cameraToComponentMatrix;
         [Browsable(false)]
-        public Matrix4 LocalMatrix
+        public Matrix4 ComponentToCameraMatrix
         {
-            get => _transform;
+            get => _componentToCameraMatrix;
             internal set
             {
-                _localPoint.Raw = _transform.GetPoint();
-                _localRotation.SetRotations(_transform.GetRotationMatrix4().ExtractRotation().ToYawPitchRoll());
-                _transform = value;
-                _invTransform = _transform.Inverted();
+                _localPoint.Raw = _componentToCameraMatrix.GetPoint();
+                _localRotation.SetRotations(_componentToCameraMatrix.GetRotationMatrix4().ExtractRotation().ToYawPitchRoll());
+                _componentToCameraMatrix = value;
+                _cameraToComponentMatrix = _componentToCameraMatrix.Inverted();
                 UpdateTransformedFrustum();
                 OnTransformChanged();
             }
@@ -223,8 +223,8 @@ namespace TheraEngine.Rendering.Cameras
         protected Matrix4
             _projectionMatrix = Matrix4.Identity,
             _projectionInverse = Matrix4.Identity,
-            _transform = Matrix4.Identity,
-            _invTransform = Matrix4.Identity;
+            _componentToCameraMatrix = Matrix4.Identity,
+            _cameraToComponentMatrix = Matrix4.Identity;
         private Vec3
             _forwardDirection = Vec3.Forward,
             _upDirection = Vec3.Up,
@@ -261,13 +261,13 @@ namespace TheraEngine.Rendering.Cameras
         /// Returns an X, Y coordinate relative to the camera's Origin, with Z being the normalized depth from NearDepth to FarDepth.
         /// </summary>
         public Vec3 WorldToScreen(Vec3 point)
-            => _projectionRange * ((((ProjectionMatrix * InverseWorldMatrix) * point) + 1.0f) / 2.0f);
+            => _projectionRange * ((((ProjectionMatrix * CameraToWorldMatrix) * point) + 1.0f) / 2.0f);
         public Vec3 ScreenToWorld(Vec2 point, float depth)
             => ScreenToWorld(point.X, point.Y, depth);
         public Vec3 ScreenToWorld(float x, float y, float depth)
             => ScreenToWorld(new Vec3(x, y, depth));
         public Vec3 ScreenToWorld(Vec3 screenPoint)
-            => ((screenPoint / _projectionRange) * 2.0f - 1.0f) * (WorldMatrix * InverseProjectionMatrix);
+            => ((screenPoint / _projectionRange) * 2.0f - 1.0f) * (WorldToCameraMatrix * InverseProjectionMatrix);
         
         protected virtual void PositionChanged()
         {
@@ -278,13 +278,13 @@ namespace TheraEngine.Rendering.Cameras
         protected virtual void CreateTransform()
         {
             Matrix4 rotMatrix = _localRotation.GetMatrix();
-            _transform = Matrix4.CreateTranslation(_localPoint.Raw) * rotMatrix;
-            _invTransform = _localRotation.GetInverseMatrix() * Matrix4.CreateTranslation(-_localPoint.Raw);
+            _componentToCameraMatrix = Matrix4.CreateTranslation(_localPoint.Raw) * rotMatrix;
+            _cameraToComponentMatrix = _localRotation.GetInverseMatrix() * Matrix4.CreateTranslation(-_localPoint.Raw);
             UpdateTransformedFrustum();
             OnTransformChanged();
         }
         protected void UpdateTransformedFrustum()
-            => _transformedFrustum.TransformedVersionOf(_untransformedFrustum, WorldMatrix);
+            => _transformedFrustum.TransformedVersionOf(_untransformedFrustum, WorldToCameraMatrix);
 
         public abstract float DistanceScale(Vec3 point, float radius);
         public abstract void Zoom(float amount);
@@ -293,9 +293,9 @@ namespace TheraEngine.Rendering.Cameras
             => TranslateRelative(new Vec3(x, y, z));
         public void TranslateRelative(Vec3 translation)
         {
-            _transform = _transform * Matrix4.CreateTranslation(translation);
-            _invTransform = Matrix4.CreateTranslation(-translation) * _invTransform;
-            _localPoint.SetRawNoUpdate(_transform.GetPoint());
+            _componentToCameraMatrix = _componentToCameraMatrix * Matrix4.CreateTranslation(translation);
+            _cameraToComponentMatrix = Matrix4.CreateTranslation(-translation) * _cameraToComponentMatrix;
+            _localPoint.SetRawNoUpdate(_componentToCameraMatrix.GetPoint());
             if (_viewTarget != null)
                 SetRotationWithTarget(_viewTarget.Raw);
             else
@@ -311,7 +311,7 @@ namespace TheraEngine.Rendering.Cameras
             => _localPoint.Raw += translation;
         
         public Vec3 RotateVector(Vec3 dir)
-            => Vec3.TransformVector(dir, WorldMatrix).NormalizedFast();
+            => Vec3.TransformVector(dir, WorldToCameraMatrix).NormalizedFast();
         public Vec3 GetUpVector()
         {
             if (_upInvalidated)
@@ -395,9 +395,9 @@ namespace TheraEngine.Rendering.Cameras
         
         public virtual void SetUniforms()
         {
-            Engine.Renderer.Uniform(Uniform.GetLocation(ECommonUniform.ViewMatrix),     InverseWorldMatrix);
+            Engine.Renderer.Uniform(Uniform.GetLocation(ECommonUniform.ViewMatrix),     CameraToWorldMatrix);
             Engine.Renderer.Uniform(Uniform.GetLocation(ECommonUniform.ProjMatrix),     ProjectionMatrix);
-            Engine.Renderer.Uniform(Uniform.GetLocation(ECommonUniform.InvViewMatrix),  WorldMatrix);
+            Engine.Renderer.Uniform(Uniform.GetLocation(ECommonUniform.InvViewMatrix),  WorldToCameraMatrix);
             Engine.Renderer.Uniform(Uniform.GetLocation(ECommonUniform.InvProjMatrix),  InverseProjectionMatrix);
             Engine.Renderer.Uniform(Uniform.GetLocation(ECommonUniform.ScreenWidth),    Width);
             Engine.Renderer.Uniform(Uniform.GetLocation(ECommonUniform.ScreenHeight),   Height);

@@ -323,6 +323,7 @@ uniform float InvProjMatrix;
 
 " + PostProcessSettings.ShaderSetup() + @"
 " + ShaderHelpers.LightingSetupBasic() + @"
+" + ShaderHelpers.Func_GetDistanceFromDepth + @"
 
 void main()
 {

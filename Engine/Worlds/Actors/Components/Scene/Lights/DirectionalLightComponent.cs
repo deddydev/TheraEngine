@@ -12,18 +12,21 @@ namespace TheraEngine.Worlds.Actors
             : base(color, diffuseIntensity, ambientIntensity)
         {
             _shadowCamera = new OrthographicCamera();
+            _shadowCamera.LocalRotation.SyncFrom(_rotation);
             _rotation.Pitch = -90.0f;
         }
         public DirectionalLightComponent(ColorF3 color, float diffuseIntensity, float ambientIntensity, Rotator rotation)
             : base(color, diffuseIntensity, ambientIntensity)
         {
             _shadowCamera = new OrthographicCamera();
+            _shadowCamera.LocalRotation.SyncFrom(_rotation);
             _rotation.SetRotations(rotation);
         }
         public DirectionalLightComponent(ColorF3 color, float diffuseIntensity, float ambientIntensity, Vec3 direction) 
             : base(color, diffuseIntensity, ambientIntensity)
         {
             _shadowCamera = new OrthographicCamera();
+            _shadowCamera.LocalRotation.SyncFrom(_rotation);
             Direction = direction;
         }
 
@@ -31,11 +34,15 @@ namespace TheraEngine.Worlds.Actors
         {
             _direction = _rotation.GetDirection();
 
-            _shadowCamera.LocalPoint = Vec3.Zero;
-            _shadowCamera.SetRotation(_rotation);
             _shadowCamera.TranslateRelative(0.0f, 0.0f, _worldRadius);
 
             base.OnRecalcLocalTransform(out localTransform, out inverseLocalTransform);
+        }
+
+        internal override void RecalcGlobalTransform()
+        {
+            base.RecalcGlobalTransform();
+            _shadowCamera.LocalPoint = GetWorldPoint();
         }
 
         public void SetShadowMapResolution(int width, int height)
@@ -46,6 +53,7 @@ namespace TheraEngine.Worlds.Actors
         private FrameBuffer _shadowMap;
         private float _worldRadius;
         private OrthographicCamera _shadowCamera;
+
         private Vec3 _direction;
         public Vec3 Direction
         {

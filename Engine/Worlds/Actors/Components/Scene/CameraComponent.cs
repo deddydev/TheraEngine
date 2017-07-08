@@ -128,8 +128,8 @@ namespace TheraEngine.Worlds.Actors
         }
         protected override void OnRecalcLocalTransform(out Matrix4 localTransform, out Matrix4 inverseLocalTransform)
         {
-            localTransform = Camera.LocalMatrix;
-            inverseLocalTransform = Camera.InverseLocalMatrix;
+            localTransform = Camera.ComponentToCameraMatrix;
+            inverseLocalTransform = Camera.CameraToComponentMatrix;
         }
         internal override void RecalcGlobalTransform()
         {

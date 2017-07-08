@@ -6,21 +6,11 @@ namespace TheraEngine.Rendering.Cameras
 {
     public class PerspectiveCamera : Camera
     {
-        public PerspectiveCamera() : base()
-        {
-            HorizontalFieldOfView = 90.0f;
-        }
+        public PerspectiveCamera() : this(0.1f, 10000.0f, 78.0f, 16.0f / 9.0f) { }
         public PerspectiveCamera(Vec3 point, Rotator rotation, float nearZ, float farZ, float fovY, float aspect)
-            : base(aspect, 1.0f, nearZ, farZ, point, rotation)
-        {
-            VerticalFieldOfView = fovY;
-        }
-
+            : base(aspect, 1.0f, nearZ, farZ, point, rotation) { VerticalFieldOfView = fovY; }
         public PerspectiveCamera(float nearZ, float farZ, float fovY, float aspect)
-            : base(aspect, 1.0f, nearZ, farZ)
-        {
-            VerticalFieldOfView = fovY;
-        }
+            : base(aspect, 1.0f, nearZ, farZ) { VerticalFieldOfView = fovY; }
 
         [Serialize("Width", IsXmlAttribute = true, Order = 0)]
         private float _width;

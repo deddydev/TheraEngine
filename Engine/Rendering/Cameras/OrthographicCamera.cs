@@ -81,8 +81,8 @@ namespace TheraEngine.Rendering.Cameras
         {
             float scale = amount >= 0 ? amount : 1.0f / -amount;
 
-            _transform = _transform * Matrix4.CreateScale(scale);
-            _invTransform = Matrix4.CreateScale(-scale) * _invTransform;
+            _componentToCameraMatrix = _componentToCameraMatrix * Matrix4.CreateScale(scale);
+            _cameraToComponentMatrix = Matrix4.CreateScale(-scale) * _cameraToComponentMatrix;
             UpdateTransformedFrustum();
             OnTransformChanged();
         }
@@ -123,8 +123,8 @@ namespace TheraEngine.Rendering.Cameras
         protected override void CreateTransform()
         {
             Matrix4 rotMatrix = _localRotation.GetMatrix();
-            _transform = Matrix4.CreateTranslation(_localPoint.Raw) * rotMatrix * Matrix4.CreateScale(_scale);
-            _invTransform = Matrix4.CreateScale(1.0f / _scale) * _localRotation.GetInverseMatrix() * Matrix4.CreateTranslation(-_localPoint.Raw);
+            _componentToCameraMatrix = Matrix4.CreateTranslation(_localPoint.Raw) * rotMatrix * Matrix4.CreateScale(_scale);
+            _cameraToComponentMatrix = Matrix4.CreateScale(1.0f / _scale) * _localRotation.GetInverseMatrix() * Matrix4.CreateTranslation(-_localPoint.Raw);
             OnTransformChanged();
         }
         public override float DistanceScale(Vec3 point, float radius)

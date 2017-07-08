@@ -609,7 +609,7 @@
     <Compile Include="Rendering\Models\Meshes\Static\StaticSoftSubMesh.cs" />
     <Compile Include="Rendering\Models\Meshes\Static\StaticMesh.cs" />
     <Compile Include="Rendering\PhysicsDriver.cs" />
-    <Compile Include="Rendering\Renderer\GBuffer.cs" />
+    <Compile Include="Rendering\GBuffer.cs" />
     <Compile Include="Rendering\Renderer\RenderEnums.cs" />
     <Compile Include="Engine\UserSettings.cs" />
     <Compile Include="Engine\EngineSettings.cs" />
@@ -656,11 +656,11 @@
     <Compile Include="Rendering\Models\Meshes\Faces\Index\IndexLine.cs" />
     <Compile Include="Rendering\Models\Meshes\Faces\Index\IndexTriangleFan.cs" />
     <Compile Include="Rendering\Models\Meshes\Faces\Index\IndexTriangleStrip.cs" />
-    <Compile Include="Rendering\Renderer\LightManager.cs" />
+    <Compile Include="Rendering\LightManager.cs" />
     <Compile Include="Rendering\Models\CPUSkinInfo.cs" />
     <Compile Include="Rendering\Renderer\States\MeshProgram.cs" />
     <Compile Include="Rendering\Renderer\States\TransformFeedback.cs" />
-    <Compile Include="Rendering\Renderer\SceneProcessor.cs" />
+    <Compile Include="Rendering\SceneProcessor.cs" />
     <Compile Include="Rendering\Renderer\States\BaseRenderState.cs" />
     <Compile Include="Rendering\Renderer\States\FrameBuffer.cs" />
     <Compile Include="Rendering\Renderer\States\PrimitiveManager.cs" />
@@ -880,7 +880,7 @@
     <Compile Include="System\Memory\DataSource.cs" />
     <Compile Include="System\IO\FileMap.cs" />
     <Compile Include="System\Time\GameTimer.cs" />
-    <Compile Include="Rendering\Renderer\Viewport.cs" />
+    <Compile Include="Rendering\Viewport.cs" />
     <Compile Include="System\Memory\VoidPtr.cs" />
     <Compile Include="Worlds\Actors\Actor.cs" />
     <Compile Include="Worlds\Actors\Types\ComponentActors\SplineActor.cs" />

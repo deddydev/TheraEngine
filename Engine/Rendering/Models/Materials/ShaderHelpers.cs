@@ -8,6 +8,14 @@
         public static string GetLightFalloff(string radiusName, string distanceName)
             => string.Format(LightFalloff, radiusName, distanceName);
 
+        public static readonly string Frag_DepthOutput = @"
+#version 450
+layout(location = 0) out float Depth;
+void main()
+{
+    Depth = gl_FragCoord.z;
+}";
+
         public static readonly string Func_GetDistanceFromDepth = @"
 float GetDistanceFromDepth(float depth)
 {

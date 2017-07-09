@@ -12,7 +12,10 @@ namespace TheraEngine.Rendering.Text
         {
             return Engine.Game.LocalizedStringTable[_id];
         }
-
+        public override string ToString()
+        {
+            return GetLocalizedString();
+        }
         public static implicit operator String(LString str) => str.GetLocalizedString();
     }
 }

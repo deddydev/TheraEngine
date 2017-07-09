@@ -79,6 +79,7 @@ namespace TheraEngine
         private static Dictionary<PlayerIndex, Queue<IPawn>> _possessionQueues = new Dictionary<PlayerIndex, Queue<IPawn>>();
 
         //internal static List<PhysicsDriver> _queuedCollisions = new List<PhysicsDriver>();
+        private static Dictionary<string, int> _fontIndexMatching = new Dictionary<string, int>();
         private static PrivateFontCollection _fontCollection = new PrivateFontCollection();
         public static int MainThreadID;
 

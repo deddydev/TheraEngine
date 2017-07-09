@@ -190,6 +190,7 @@
     <Compile Include="Rendering\Animation\Model Animations\BlendSpace1D.cs" />
     <Compile Include="Rendering\Animation\Model Animations\ModelAnimation.cs" />
     <Compile Include="Engine\Game.cs" />
+    <Compile Include="Rendering\HUD\Text\DebugPrintHudComponent.cs" />
     <Compile Include="Rendering\HUD\Functions\Animations\AnimationFunction.cs" />
     <Compile Include="Rendering\HUD\Functions\Animations\AnimFuncExecInput.cs" />
     <Compile Include="Rendering\HUD\Functions\Animations\AnimFuncExecOutput.cs" />
@@ -208,7 +209,8 @@
     <Compile Include="Rendering\HUD\Interactable\InteractableHudComponent.cs" />
     <Compile Include="Rendering\HUD\RenderableHudComponent.cs" />
     <Compile Include="Rendering\HUD\Interactable\ButtonHudComponent.cs" />
-    <Compile Include="Rendering\HUD\TextHudComponent.cs" />
+    <Compile Include="Rendering\HUD\Text\RichTextBoxHudComponent.cs" />
+    <Compile Include="Rendering\HUD\Text\TextHudComponent.cs" />
     <Compile Include="Rendering\HUD\MaterialHudComponent.cs" />
     <Compile Include="Rendering\HUD\ModelHudComponent.cs" />
     <Compile Include="3rdParty\Collada\ColladaImportOptions.cs" />
@@ -658,6 +660,7 @@
     <Compile Include="Rendering\Models\Meshes\Faces\Index\IndexTriangleStrip.cs" />
     <Compile Include="Rendering\LightManager.cs" />
     <Compile Include="Rendering\Models\CPUSkinInfo.cs" />
+    <Compile Include="Rendering\Renderer\States\RenderBuffer.cs" />
     <Compile Include="Rendering\Renderer\States\MeshProgram.cs" />
     <Compile Include="Rendering\Renderer\States\TransformFeedback.cs" />
     <Compile Include="Rendering\SceneProcessor.cs" />

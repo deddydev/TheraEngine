@@ -14,6 +14,9 @@ using System.IO;
 using System.Windows.Forms;
 using TheraEngine.Timers;
 using System.Diagnostics;
+using System.Drawing.Text;
+using System.Drawing;
+using System.Text;
 
 namespace TheraEngine
 {
@@ -318,15 +321,32 @@ namespace TheraEngine
         /// <summary>
         /// Loads a ttf or otf font from the given path and adds it to the collection of fonts.
         /// </summary>
-        public static void LoadFont(string path)
+        public static void LoadCustomFont(string path) => LoadCustomFont(path, Path.GetFileNameWithoutExtension(path));
+        /// <summary>
+        /// Loads a ttf or otf font from the given path and adds it to the collection of fonts.
+        /// </summary>
+        public static void LoadCustomFont(string path, string fontFamilyName)
         {
             if (!File.Exists(path))
                 return;
             string ext = Path.GetExtension(path).ToLower().Substring(1);
             if (!(ext.Equals("ttf") || ext.Equals("otf")))
                 return;
+            _fontIndexMatching[fontFamilyName] = _fontCollection.Families.Length;
             _fontCollection.AddFontFile(path);
         }
+        /// <summary>
+        /// Gets a custom font family using its name.
+        /// </summary>
+        /// <param name="fontFamilyName">The name of the font family.</param>
+        public static FontFamily GetCustomFontFamily(string fontFamilyName)
+            => _fontIndexMatching.ContainsKey(fontFamilyName) ? GetCustomFontFamily(_fontIndexMatching[fontFamilyName]) : null;
+        /// <summary>
+        /// Gets a custom font family using its load index.
+        /// </summary>
+        /// <param name="fontFamilyIndex">The index of the font, in the order it was loaded in.</param>
+        public static FontFamily GetCustomFontFamily(int fontFamilyIndex)
+            => _fontCollection.Families.IndexInRange(fontFamilyIndex) ? _fontCollection.Families[fontFamilyIndex] : null;
         /// <summary>
         /// Retrieves the viewport with the same index.
         /// </summary>

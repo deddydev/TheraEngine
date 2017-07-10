@@ -125,10 +125,10 @@ namespace TheraEngine.Worlds.Actors
 
                 VertexLineStrip strip = new VertexLineStrip(false, splinePoints);
 
-                PrimitiveData splineData = PrimitiveData.FromLineStrips(PrimitiveBufferInfo.JustPositions(), strip);
+                PrimitiveData splineData = PrimitiveData.FromLineStrips(VertexShaderDesc.JustPositions(), strip);
                 _splinePrimitive = new PrimitiveManager(splineData, Material.GetUnlitColorMaterial(Color.Red));
 
-                PrimitiveData velocityData = PrimitiveData.FromLines(PrimitiveBufferInfo.JustPositions(), velocity);
+                PrimitiveData velocityData = PrimitiveData.FromLines(VertexShaderDesc.JustPositions(), velocity);
                 _velocityPrimitive = new PrimitiveManager(velocityData, Material.GetUnlitColorMaterial(Color.Blue));
                 
                 PrimitiveData pointData = PrimitiveData.FromPoints(keyframePositions);

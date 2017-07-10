@@ -73,7 +73,7 @@ namespace System
 
         public static PrimitiveData Mesh(Vec3 start, Vec3 end)
         {
-            return PrimitiveData.FromLines(new PrimitiveBufferInfo() { _texcoordCount = 0, _hasNormals = false }, new VertexLine(new Vertex(start), new Vertex(end)));
+            return PrimitiveData.FromLines(VertexShaderDesc.JustPositions(), new VertexLine(new Vertex(start), new Vertex(end)));
         }
 
         public static float GetClosestDistanceToPoint(Vec3 segmentStartPoint, Vec3 segmentEndPoint, Vec3 point)

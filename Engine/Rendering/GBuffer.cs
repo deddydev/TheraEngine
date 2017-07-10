@@ -15,7 +15,7 @@ namespace TheraEngine.Rendering
         GBuffer _buffer;
         int _width, _height;
         
-        public GBufferMeshProgram(Material material, PrimitiveBufferInfo info) : base(material, info) { }
+        public GBufferMeshProgram(Material material, VertexShaderDesc info) : base(material, info) { }
 
         public void Update(GBuffer buffer, EFramebufferAttachment?[] attachmentsPerTexture, EDrawBuffersAttachment[] attachments, int width, int height)
         {
@@ -107,7 +107,7 @@ namespace TheraEngine.Rendering
             BoundingRectangle region = _parent.Region;
 
             _fullScreenTriangle = new PrimitiveManager<GBufferMeshProgram>(
-                PrimitiveData.FromTriangles(Culling.None, PrimitiveBufferInfo.JustPositions(), triangle1),
+                PrimitiveData.FromTriangles(Culling.None, VertexShaderDesc.JustPositions(), triangle1),
                 GetGBufferMaterial(region.IntWidth, region.IntHeight, forward, this, DepthStencilUse.Depth32f));
 
             if (forward)
@@ -266,12 +266,7 @@ uniform sampler2D Texture1;
 uniform sampler2D Texture2;
 uniform sampler2D Texture3;
 
-in Data
-{
-    vec3 Position;
-    vec3 Normal;
-    vec2 MultiTexCoord0;
-} InData;
+in vec3 FragPos;
 
 out vec4 OutColor;
 
@@ -292,7 +287,7 @@ uniform float InvProjMatrix;
 
 void main()
 {
-    vec2 uv = InData.Position.xy;
+    vec2 uv = FragPos.xy;
     vec4 AlbedoSpec = texture(Texture0, uv);
     vec3 FragPos = texture(Texture1, uv).rgb;
     vec3 Normal = texture(Texture2, uv).rgb;
@@ -334,12 +329,7 @@ void main()
 uniform sampler2D Texture0;
 uniform sampler2D Texture1;
 
-in Data
-{
-    vec3 Position;
-    vec3 Normal;
-    vec2 MultiTexCoord0;
-} InData;
+in vec3 FragPos;
 
 out vec4 OutColor;
 
@@ -353,7 +343,7 @@ uniform float ScreenOrigin;
 
 void main()
 {
-    vec2 uv = InData.Position.xy;
+    vec2 uv = FragPos.xy;
     vec3 hdrSceneColor = texture(Texture0, uv).rgb;
     float Depth = texture(Texture1, uv).r;
 

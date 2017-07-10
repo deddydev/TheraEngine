@@ -54,7 +54,7 @@ namespace TheraEngine.Rendering.Models
         private T _program;
         private PrimitiveData _data;
         private Material _material;
-        private PrimitiveBufferInfo _bufferInfo = new PrimitiveBufferInfo();
+        private VertexShaderDesc _bufferInfo;
 
         private VertexBuffer _indexBuffer;
         private EDrawElementType _elementType;
@@ -90,6 +90,7 @@ namespace TheraEngine.Rendering.Models
                 _data = value;
                 if (_data != null)
                 {
+                    _bufferInfo = _data.BufferInfo;
                     _indexBuffer = new VertexBuffer("FaceIndices", EBufferTarget.DrawIndices, true);
                     //TODO: primitive restart will use MaxValue for restart id
                     if (_data._facePoints.Count < byte.MaxValue)
@@ -108,6 +109,8 @@ namespace TheraEngine.Rendering.Models
                         _indexBuffer.SetDataNumeric(_data.GetIndices());
                     }
                 }
+                else
+                    _bufferInfo = null;
             }
         }
         public Material Material

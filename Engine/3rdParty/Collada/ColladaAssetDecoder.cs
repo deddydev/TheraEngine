@@ -163,15 +163,8 @@ namespace TheraEngine.Rendering.Models
                         bones.Add(inf.Weights[i].Bone);
                 boneCount = bones.Count;
             }
-            PrimitiveBufferInfo info = new PrimitiveBufferInfo()
-            {
-                _morphCount = 0,
-                _texcoordCount = 0,
-                _hasNormals = false,
-                _hasBinormals = false,
-                _hasTangents = false,
-                _boneCount = boneCount,
-            };
+            VertexShaderDesc info = VertexShaderDesc.JustPositions();
+            info._boneCount = boneCount;
 
             foreach (PrimitiveEntry prim in geo._primitives)
             {

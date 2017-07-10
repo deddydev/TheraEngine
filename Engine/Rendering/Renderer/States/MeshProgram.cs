@@ -18,7 +18,7 @@ namespace TheraEngine.Rendering
         protected GLVar[] _parameters;
         protected Texture2D[] _textures;
         protected Shader[] _shaders;
-        protected PrimitiveBufferInfo _info;
+        protected VertexShaderDesc _info;
 
         public GLVar[] Parameters => _parameters;
         public Texture2D[] Textures => _textures;
@@ -29,7 +29,7 @@ namespace TheraEngine.Rendering
             set => _renderParams = value;
         }
 
-        public MeshProgram(Material material, PrimitiveBufferInfo info) : base(EObjectType.Program)
+        public MeshProgram(Material material, VertexShaderDesc info) : base(EObjectType.Program)
         {
             if (material == null)
                 return;
@@ -39,7 +39,7 @@ namespace TheraEngine.Rendering
             SetMaterial(material);
         }
 
-        public void MakeVertexShader(PrimitiveBufferInfo info)
+        public void MakeVertexShader(VertexShaderDesc info)
         {
             _info = info;
             _vertexShader = VertexShaderGenerator.Generate(_info, false, false, false);

@@ -251,7 +251,7 @@ namespace TheraEngine.Rendering.OpenGL
             {
                 GL.GetShaderInfoLog(handle, out string info);
 
-                if (string.IsNullOrEmpty(info))
+                if (string.IsNullOrEmpty(info) && status == 0)
                 {
                     Debug.WriteLine("Unable to compile shader, but no error was returned.");
                 }
@@ -273,7 +273,7 @@ namespace TheraEngine.Rendering.OpenGL
 #endif
             return handle;
         }
-        public override int GenerateProgram(int[] shaderHandles, PrimitiveBufferInfo info)
+        public override int GenerateProgram(int[] shaderHandles, VertexShaderDesc info)
         {
             int handle = GL.CreateProgram();
             foreach (int i in shaderHandles)

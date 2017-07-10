@@ -255,7 +255,7 @@ namespace System
             backLeft = new VertexLine(new Vertex(TBL), new Vertex(BBL));
             backRight = new VertexLine(new Vertex(TBR), new Vertex(BBR));
 
-            return PrimitiveData.FromLines(new PrimitiveBufferInfo(), 
+            return PrimitiveData.FromLines(VertexShaderDesc.JustPositions(), 
                 topFront, topRight, topBack, topLeft,
                 frontLeft, frontRight, backLeft, backRight,
                 bottomFront, bottomRight, bottomBack, bottomLeft);
@@ -280,7 +280,7 @@ namespace System
             front = VertexQuad.MakeQuad(BFL, BFR, TFR, TFL, frontNormal);
             back = VertexQuad.MakeQuad(BBR, BBL, TBL, TBR, backNormal);
 
-            return PrimitiveData.FromQuads(Culling.Back, new PrimitiveBufferInfo(), left, right, top, bottom, front, back);
+            return PrimitiveData.FromQuads(Culling.Back, VertexShaderDesc.PosNormTex(), left, right, top, bottom, front, back);
         }
         public PrimitiveData GetMesh(bool includeTranslation)
         {

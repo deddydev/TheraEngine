@@ -5,7 +5,7 @@ namespace TheraEngine.Rendering.Models.Materials
     public static class VertexShaderGenerator
     {
         private static ShaderGenerator _generator = new ShaderGenerator();
-        private static PrimitiveBufferInfo _info;
+        private static VertexShaderDesc _info;
 
         private static void WriteLine(string str = "", params object[] args)
             => _generator.wl(str, args);
@@ -22,7 +22,7 @@ namespace TheraEngine.Rendering.Models.Materials
         {
             throw new NotImplementedException();
         }
-        public static Shader Generate(PrimitiveBufferInfo info, bool allowMeshMorphing, bool singleMorphRig, bool allowColorMorphing)
+        public static Shader Generate(VertexShaderDesc info, bool allowMeshMorphing, bool singleMorphRig, bool allowColorMorphing)
         {
             _info = info;
 
@@ -53,7 +53,7 @@ namespace TheraEngine.Rendering.Models.Materials
                 WriteStaticPNTB(allowMeshMorphing);
 
             for (int i = 0; i < _info._texcoordCount; ++i)
-                WriteLine("OutData.MultiTexCoord{0} = TexCoord{0};", i);
+                WriteLine("FragUV{0} = TexCoord{0};", i);
 
             return new Shader(ShaderMode.Vertex, _generator.Finish());
         }
@@ -112,17 +112,19 @@ namespace TheraEngine.Rendering.Models.Materials
         /// </summary>
         private static void WriteOutData()
         {
-            WriteLine("out Data {");
-            WriteLine("vec3 Position;");
+            //WriteLine("out Data {");
+            WriteLine("out vec3 FragPos;");
             if (_info.HasNormals)
-                WriteLine("vec3 Normal;");
+                WriteLine("out vec3 FragNorm;");
             if (_info.HasTangents)
-                WriteLine("vec3 Tangent;");
+                WriteLine("out vec3 FragTan;");
             if (_info.HasBinormals)
-                WriteLine("vec3 Binormal;");
+                WriteLine("out vec3 FragBinorm;");
             for (int i = 0; i < _info._texcoordCount; ++i)
-                WriteLine("vec2 MultiTexCoord{0};", i);
-            WriteLine("} OutData;");
+                WriteLine("out vec2 FragUV{0};", i);
+            for (int i = 0; i < _info._colorCount; ++i)
+                WriteLine("out vec4 FragColor{0};", i);
+            //WriteLine("} OutData;");
         }
         private static void WriteRiggedPNTB(bool morphed, bool singleRig)
         {
@@ -137,12 +139,12 @@ namespace TheraEngine.Rendering.Models.Materials
                 }
                 if (_info.HasBinormals)
                 {
-                    WriteLine("OutData.Binormal = vec3(0.0);");
+                    WriteLine("FragBinorm = vec3(0.0);");
                     WriteLine("vec3 baseBinormal = Binormal0;");
                 }
                 if (_info.HasTangents)
                 {
-                    WriteLine("OutData.Tangent = vec3(0.0);");
+                    WriteLine("FragTan = vec3(0.0);");
                     WriteLine("vec3 baseTangent = Tangent0;");
                 }
             }
@@ -167,18 +169,18 @@ namespace TheraEngine.Rendering.Models.Materials
                     if (_info.HasNormals)
                         WriteLine("finalNormal += ({0}[index] * baseNormal) * weight;", Uniform.BoneMatricesITName);
                     if (_info.HasBinormals)
-                        WriteLine("OutData.Binormal += ({0}[index] * baseBinormal) * weight;", Uniform.BoneMatricesITName);
+                        WriteLine("FragBinorm += ({0}[index] * baseBinormal) * weight;", Uniform.BoneMatricesITName);
                     if (_info.HasTangents)
-                        WriteLine("OutData.Tangent += ({0}[index] * baseTangent) * weight;", Uniform.BoneMatricesITName);
+                        WriteLine("FragTan += ({0}[index] * baseTangent) * weight;", Uniform.BoneMatricesITName);
                 }
                 //wl("}");
                 WriteLine();
                 if (_info.HasNormals)
-                    WriteLine("OutData.Normal = normalize(finalNormal.xyz);");
+                    WriteLine("FragNorm = normalize(finalNormal.xyz);");
                 if (_info.HasBinormals)
-                    WriteLine("OutData.Binormal = normalize(OutData.Binormal);");
+                    WriteLine("FragBinorm = normalize(FragBinorm);");
                 if (_info.HasTangents)
-                    WriteLine("OutData.Tangent = normalize(OutData.Tangent);");
+                    WriteLine("FragTan = normalize(FragTan);");
             }
             else
             {
@@ -203,24 +205,24 @@ namespace TheraEngine.Rendering.Models.Materials
                 {
                     WriteLine("finalPosition += {0}[{1}{3}[i]] * vec4(Position{5}, 1.0) * {2}{3}[i] * {4}[i];", Uniform.BoneMatricesName, BufferType.MatrixIds, BufferType.MatrixWeights, i, Uniform.MorphWeightsName, i + 1);
                     if (_info.HasNormals)
-                        WriteLine("OutData.Normal += ({0}[{1}{3}[i]] * Normal{5}) * {2}{3}[i] * {4}[i];", Uniform.BoneMatricesITName, BufferType.MatrixIds, BufferType.MatrixWeights, i, Uniform.MorphWeightsName, i + 1);
+                        WriteLine("FragNorm += ({0}[{1}{3}[i]] * Normal{5}) * {2}{3}[i] * {4}[i];", Uniform.BoneMatricesITName, BufferType.MatrixIds, BufferType.MatrixWeights, i, Uniform.MorphWeightsName, i + 1);
                     if (_info.HasBinormals)
-                        WriteLine("OutData.Binormal += ({0}[{1}{3}[i]] * Binormal{5}) * {2}{3}[i] * {4}[i];", Uniform.BoneMatricesITName, BufferType.MatrixIds, BufferType.MatrixWeights, i, Uniform.MorphWeightsName, i + 1);
+                        WriteLine("FragBinorm += ({0}[{1}{3}[i]] * Binormal{5}) * {2}{3}[i] * {4}[i];", Uniform.BoneMatricesITName, BufferType.MatrixIds, BufferType.MatrixWeights, i, Uniform.MorphWeightsName, i + 1);
                     if (_info.HasTangents)
-                        WriteLine("OutData.Tangent += ({0}[{1}{3}[i]] * Tangent{5}) * {2}{3}[i] * {4}[i];", Uniform.BoneMatricesITName, BufferType.MatrixIds, BufferType.MatrixWeights, i, Uniform.MorphWeightsName, i + 1);
+                        WriteLine("FragTan += ({0}[{1}{3}[i]] * Tangent{5}) * {2}{3}[i] * {4}[i];", Uniform.BoneMatricesITName, BufferType.MatrixIds, BufferType.MatrixWeights, i, Uniform.MorphWeightsName, i + 1);
                     if (i + 1 != _info._morphCount)
                         WriteLine();
                 }
                 WriteLine("}");
                 WriteLine("finalPosition /= total;");
                 if (_info.HasNormals)
-                    WriteLine("OutData.Normal = normalize(OutData.Normal / total);");
+                    WriteLine("FragNorm = normalize(FragNorm / total);");
                 if (_info.HasBinormals)
-                    WriteLine("OutData.Binormal normalize(OutData.Binormal / total);");
+                    WriteLine("FragBinorm normalize(FragBinorm / total);");
                 if (_info.HasTangents)
-                    WriteLine("OutData.Tangent normalize(OutData.Tangent / total);");
+                    WriteLine("FragTan normalize(FragTan / total);");
             }
-            WriteLine("OutData.Position = finalPosition.xyz;");
+            WriteLine("FragPos = finalPosition.xyz;");
             WriteLine("gl_Position = ProjMatrix * ViewMatrix * finalPosition;");
         }
         private static void WriteStaticPNTB(bool morphed)
@@ -270,14 +272,14 @@ namespace TheraEngine.Rendering.Models.Materials
                 WriteLine();
             }
             WriteLine("position = ModelMatrix * position;");
-            WriteLine("OutData.Position = position.xyz;");
+            WriteLine("FragPos = position.xyz;");
             WriteLine("gl_Position = ProjMatrix * ViewMatrix * position;");
             if (_info.HasNormals)
-                WriteLine("OutData.Normal = normalize(NormalMatrix * normal);");
+                WriteLine("FragNorm = normalize(NormalMatrix * normal);");
             if (_info.HasBinormals)
-                WriteLine("OutData.Binormal = normalize(NormalMatrix * binormal);");
+                WriteLine("FragBinorm = normalize(NormalMatrix * binormal);");
             if (_info.HasTangents)
-                WriteLine("OutData.Tangent = normalize(NormalMatrix * tangent);");
+                WriteLine("FragTan = normalize(NormalMatrix * tangent);");
         }
     }
 }

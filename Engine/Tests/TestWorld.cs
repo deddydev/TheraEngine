@@ -40,7 +40,7 @@ namespace TheraEngine.Tests
                     "Box" + i, boxInfo, 0.4f,
                     new Vec3(5.0f + x, 50.0f + y, -100.0f + z),
                     new Rotator(0.0f, 0.0f, 0.0f, RotationOrder.YPR),
-                    Material.GetUnlitColorMaterial());
+                    Material.GetLitColorMaterial());
                 b.RootComponent.PhysicsDriver.OnHit += PhysicsDriver_OnHit;
                 array[i] = b;
             }

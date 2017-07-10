@@ -79,7 +79,7 @@ namespace TheraEngine.Rendering.DirectX
             throw new NotImplementedException();
         }
 
-        public override int GenerateProgram(int[] shaderHandles, PrimitiveBufferInfo info)
+        public override int GenerateProgram(int[] shaderHandles, VertexShaderDesc info)
         {
             throw new NotImplementedException();
         }

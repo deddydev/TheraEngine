@@ -88,7 +88,7 @@ namespace System
                 strips.Add(new VertexTriangleStrip(stripVertices));
             }
 
-            return PrimitiveData.FromTriangleList(Culling.Back, new PrimitiveBufferInfo(), strips.SelectMany(x => x.ToTriangles()));
+            return PrimitiveData.FromTriangleList(Culling.Back, VertexShaderDesc.PosNormTex(), strips.SelectMany(x => x.ToTriangles()));
         }
 
         public static PrimitiveData WireframeMesh(Vec3 center, float radius, int pointCount)
@@ -96,7 +96,7 @@ namespace System
             VertexLineStrip d1 = Circle3D.LineStrip(radius, Vec3.Forward, center, pointCount);
             VertexLineStrip d2 = Circle3D.LineStrip(radius, Vec3.Up, center, pointCount);
             VertexLineStrip d3 = Circle3D.LineStrip(radius, Vec3.Right, center, pointCount);
-            return PrimitiveData.FromLineStrips(new PrimitiveBufferInfo() { _texcoordCount = 0, _hasNormals = false }, d1, d2, d3);
+            return PrimitiveData.FromLineStrips(VertexShaderDesc.JustPositions(), d1, d2, d3);
         }
 
         public static PrimitiveData SolidMesh(Vec3 center, float radius, int slices, int stacks)
@@ -129,7 +129,7 @@ namespace System
                 triangles.Add(new VertexTriangle(v[i], v[i + slices + 1], v[i + slices]));
                 triangles.Add(new VertexTriangle(v[i + slices + 1], v[i], v[i + 1]));
             }
-            return PrimitiveData.FromTriangleList(Culling.Back, new PrimitiveBufferInfo(), triangles);
+            return PrimitiveData.FromTriangleList(Culling.Back, VertexShaderDesc.PosNormTex(), triangles);
         }
 
         public PrimitiveData GetMesh(int slices, int stacks, bool includeCenter)

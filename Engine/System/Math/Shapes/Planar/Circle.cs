@@ -1,6 +1,7 @@
 ﻿using TheraEngine.Rendering.Models;
 using System.Linq;
 using System.ComponentModel;
+using System.Collections.Generic;
 
 namespace System
 {
@@ -44,41 +45,35 @@ namespace System
 
             normal.Normalize();
             Quat offset = Quat.BetweenVectors(Vec3.Up, normal);
-            Vertex[] points = new Vertex[sides + 1];
-            points[0] = new Vertex(center, normal);
-            float angleInc = CustomMath.PIf * 2.0f / sides, angle = 0.0f;
-            for (int i = 1; i < sides; ++i, angle += angleInc)
-            {
-                Vec3 v = new Vec3((float)Math.Cos(angle), 0.0f, (float)Math.Sin(angle));
-                points[i] = new Vertex(center + offset * (radius * v), normal);
-            }
-            Vec3[] positions = Points(radius, normal, center, sides);
-            VertexTriangleFan fan = new VertexTriangleFan();
-            return PrimitiveData.FromTriangleFans(Culling.None, new PrimitiveBufferInfo(), fan);
+            List<Vertex> points = new List<Vertex>(Points(radius, normal, center, sides));
+            points.Insert(0, new Vertex(center, normal, Vec2.Half));
+            VertexTriangleFan fan = new VertexTriangleFan(points.ToArray());
+            return PrimitiveData.FromTriangleFans(Culling.None, VertexShaderDesc.PosNormTex(), fan);
         }
         public static PrimitiveData WireframeMesh(float radius, Vec3 normal, Vec3 center, int sides)
         {
-            return PrimitiveData.FromLineStrips(new PrimitiveBufferInfo(), LineStrip(radius, normal, center, sides));
+            return PrimitiveData.FromLineStrips(VertexShaderDesc.JustPositions(), LineStrip(radius, normal, center, sides));
         }
         public static VertexLineStrip LineStrip(float radius, Vec3 normal, Vec3 center, int sides)
         {
-            Vec3[] points = Points(radius, normal, center, sides);
-            return new VertexLineStrip(true, points.Select(x => new Vertex(x)).ToArray());
+            Vertex[] points = Points(radius, normal, center, sides);
+            return new VertexLineStrip(true, points);
         }
-        public static Vec3[] Points(float radius, Vec3 normal, Vec3 center, int sides)
+        public static Vertex[] Points(float radius, Vec3 normal, Vec3 center, int sides)
         {
             if (sides < 3)
                 throw new Exception("A (very low res) circle needs at least 3 sides.");
 
             normal.NormalizeFast();
             Quat offset = Quat.BetweenVectors(Vec3.Up, normal);
-            Vec3[] points = new Vec3[sides];
+            Vertex[] points = new Vertex[sides];
             float angleInc = CustomMath.PIf * 2.0f / sides;
             float angle = 0.0f;
             for (int i = 0; i < sides; ++i, angle += angleInc)
             {
-                Vec3 v = new Vec3((float)Math.Cos(angle), 0.0f, (float)Math.Sin(angle));
-                points[i] = center + offset * (radius * v);
+                Vec2 coord = new Vec2((float)Math.Cos(angle), (float)Math.Sin(angle));
+                Vec3 v = new Vec3(coord.X, 0.0f, coord.Y);
+                points[i] = new Vertex(center + offset * (radius * v), normal, coord * 0.5f + 0.5f);
             }
             return points;
         }

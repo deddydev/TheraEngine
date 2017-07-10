@@ -14,8 +14,8 @@ namespace Thera
             {
                 OpeningWorld = typeof(TestWorld),
             };
-            g.UserSettings.FullScreen = true;
-            g.UserSettings.WindowBorderStyle = WindowBorderStyle.None;
+            //g.UserSettings.FullScreen = true;
+            //g.UserSettings.WindowBorderStyle = WindowBorderStyle.None;
             Engine.Run(g);
         }
     }

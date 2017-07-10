@@ -183,7 +183,7 @@ namespace System
                 new Vertex(bottomPoint - forwardNormal * radius),
                 new Vertex(topPoint - forwardNormal * radius));
 
-            return PrimitiveData.FromLineStrips(new PrimitiveBufferInfo() { _texcoordCount = 0, _hasNormals = false },
+            return PrimitiveData.FromLineStrips(VertexShaderDesc.JustPositions(),
                 topCircleUp, topHalfCircleToward, topHalfCircleRight,
                 bottomCircleDown, bottomHalfCircleAway, bottomHalfCircleRight,
                 right, left, front, back);
@@ -264,11 +264,11 @@ namespace System
                 new Vertex(bottomPoint - forwardNormal * radius),
                 new Vertex(topPoint - forwardNormal * radius));
 
-            cylinder = PrimitiveData.FromLineStrips(new PrimitiveBufferInfo() { _texcoordCount = 0, _hasNormals = false },
+            cylinder = PrimitiveData.FromLineStrips(VertexShaderDesc.JustPositions(),
                 topCircleUp, bottomCircleDown, right, left, front, back);
-            topSphereHalf = PrimitiveData.FromLineStrips(new PrimitiveBufferInfo() { _texcoordCount = 0, _hasNormals = false },
+            topSphereHalf = PrimitiveData.FromLineStrips(VertexShaderDesc.JustPositions(),
                 topHalfCircleToward, topHalfCircleRight);
-            bottomSphereHalf = PrimitiveData.FromLineStrips(new PrimitiveBufferInfo() { _texcoordCount = 0, _hasNormals = false },
+            bottomSphereHalf = PrimitiveData.FromLineStrips(VertexShaderDesc.JustPositions(),
                 bottomHalfCircleAway, bottomHalfCircleRight);
         }
     }

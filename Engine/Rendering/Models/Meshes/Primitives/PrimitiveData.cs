@@ -34,14 +34,14 @@ namespace TheraEngine.Rendering.Models
         TriangleStripAdjacency  = 13,
         Patches                 = 14,
     }
-    public class PrimitiveBufferInfo
+    public class VertexShaderDesc
     {
         public int _morphCount = 0;
-        public int _texcoordCount = 1;
+        public int _texcoordCount = 0;
         public int _colorCount = 0;
         public int _boneCount = 0;
         public bool _hasBarycentricCoord = false;
-        public bool _hasNormals = true, _hasBinormals = false, _hasTangents = false;
+        public bool _hasNormals = false, _hasBinormals = false, _hasTangents = false;
 
         public bool IsWeighted => _boneCount > 1;
         public bool HasNormals => _hasNormals;
@@ -50,17 +50,19 @@ namespace TheraEngine.Rendering.Models
         public bool HasTexCoords => _texcoordCount > 0;
         public bool HasColors => _colorCount > 0;
 
-        public static PrimitiveBufferInfo PosTex1()
+        private VertexShaderDesc() { }
+        
+        public static VertexShaderDesc PosTex(int texCoordCount = 1)
         {
-            return new PrimitiveBufferInfo() { _texcoordCount = 1, _hasNormals = false };
+            return new VertexShaderDesc() { _texcoordCount = texCoordCount };
         }
-        public static PrimitiveBufferInfo PosNormTex1()
+        public static VertexShaderDesc PosNormTex(int texCoordCount = 1)
         {
-            return new PrimitiveBufferInfo() { _texcoordCount = 1, _hasNormals = true };
+            return new VertexShaderDesc() { _texcoordCount = texCoordCount, _hasNormals = true };
         }
-        public static PrimitiveBufferInfo JustPositions()
+        public static VertexShaderDesc JustPositions()
         {
-            return new PrimitiveBufferInfo() { _texcoordCount = 0, _hasNormals = false };
+            return new VertexShaderDesc();
         }
     }
     [FileClass("PRIM", "Mesh Data")]
@@ -77,6 +79,9 @@ namespace TheraEngine.Rendering.Models
             get => _singleBindBone;
             set => _singleBindBone = value;
         }
+
+        [Browsable(false)]
+        public VertexShaderDesc BufferInfo => _bufferInfo;
 
         //Faces have indices that refer to face points.
         //These may contain repeat vertex indices but each triangle is unique.
@@ -109,6 +114,8 @@ namespace TheraEngine.Rendering.Models
 
         [Serialize("Culling", IsXmlAttribute = true)]
         private Culling _culling = Culling.Back;
+
+        private VertexShaderDesc _bufferInfo;
 
         public VertexBuffer this[BufferType type]
         {
@@ -518,52 +525,52 @@ namespace TheraEngine.Rendering.Models
             }
         }
 
-        public static PrimitiveData FromQuads(Culling culling, PrimitiveBufferInfo info, params VertexQuad[] quads)
+        public static PrimitiveData FromQuads(Culling culling, VertexShaderDesc info, params VertexQuad[] quads)
         {
             return FromQuadList(culling, info, quads);
         }
-        public static PrimitiveData FromQuadList(Culling culling, PrimitiveBufferInfo info, IEnumerable<VertexQuad> quads)
+        public static PrimitiveData FromQuadList(Culling culling, VertexShaderDesc info, IEnumerable<VertexQuad> quads)
         {
             return FromTriangleList(culling, info, quads.SelectMany(x => x.ToTriangles()));
         }
-        public static PrimitiveData FromTriangleStrips(Culling culling, PrimitiveBufferInfo info, params VertexTriangleStrip[] strips)
+        public static PrimitiveData FromTriangleStrips(Culling culling, VertexShaderDesc info, params VertexTriangleStrip[] strips)
         {
             return FromTriangleStripList(culling, info, strips);
         }
-        public static PrimitiveData FromTriangleStripList(Culling culling, PrimitiveBufferInfo info, IEnumerable<VertexTriangleStrip> strips)
+        public static PrimitiveData FromTriangleStripList(Culling culling, VertexShaderDesc info, IEnumerable<VertexTriangleStrip> strips)
         {
             return FromTriangleList(culling, info, strips.SelectMany(x => x.ToTriangles()));
         }
-        public static PrimitiveData FromTriangleFans(Culling culling, PrimitiveBufferInfo info, params VertexTriangleFan[] fans)
+        public static PrimitiveData FromTriangleFans(Culling culling, VertexShaderDesc info, params VertexTriangleFan[] fans)
         {
             return FromTriangleFanList(culling, info, fans);
         }
-        public static PrimitiveData FromTriangleFanList(Culling culling, PrimitiveBufferInfo info, IEnumerable<VertexTriangleFan> fans)
+        public static PrimitiveData FromTriangleFanList(Culling culling, VertexShaderDesc info, IEnumerable<VertexTriangleFan> fans)
         {
             return FromTriangleList(culling, info, fans.SelectMany(x => x.ToTriangles()));
         }
-        public static PrimitiveData FromTriangles(Culling culling, PrimitiveBufferInfo info, params VertexTriangle[] triangles)
+        public static PrimitiveData FromTriangles(Culling culling, VertexShaderDesc info, params VertexTriangle[] triangles)
         {
             return FromTriangleList(culling, info, triangles);
         }
-        public static PrimitiveData FromTriangleList(Culling culling, PrimitiveBufferInfo info, IEnumerable<VertexTriangle> triangles)
+        public static PrimitiveData FromTriangleList(Culling culling, VertexShaderDesc info, IEnumerable<VertexTriangle> triangles)
         {
             //TODO: convert triangles to tristrips and use primitive restart to render them all in one call
             return new PrimitiveData(culling, info, triangles.SelectMany(x => x.Vertices), EPrimitiveType.Triangles);
         }
-        public static PrimitiveData FromLineStrips(PrimitiveBufferInfo info, params VertexLineStrip[] lines)
+        public static PrimitiveData FromLineStrips(VertexShaderDesc info, params VertexLineStrip[] lines)
         {
             return FromLineStripList(info, lines);
         }
-        public static PrimitiveData FromLineStripList(PrimitiveBufferInfo info, IEnumerable<VertexLineStrip> lines)
+        public static PrimitiveData FromLineStripList(VertexShaderDesc info, IEnumerable<VertexLineStrip> lines)
         {
             return FromLineList(info, lines.SelectMany(x => x.ToLines()));
         }
-        public static PrimitiveData FromLines(PrimitiveBufferInfo info, params VertexLine[] lines)
+        public static PrimitiveData FromLines(VertexShaderDesc info, params VertexLine[] lines)
         {
             return FromLineList(info, lines);
         }
-        public static PrimitiveData FromLineList(PrimitiveBufferInfo info, IEnumerable<VertexLine> lines)
+        public static PrimitiveData FromLineList(VertexShaderDesc info, IEnumerable<VertexLine> lines)
         {
             return new PrimitiveData(Culling.None, info, lines.SelectMany(x => x.Vertices), EPrimitiveType.Lines);
         }
@@ -573,11 +580,12 @@ namespace TheraEngine.Rendering.Models
         }
         public static PrimitiveData FromPointList(IEnumerable<Vec3> points)
         {
-            return new PrimitiveData(Culling.None, PrimitiveBufferInfo.JustPositions(), points.Select(x => new Vertex(x)), EPrimitiveType.Points);
+            return new PrimitiveData(Culling.None, VertexShaderDesc.JustPositions(), points.Select(x => new Vertex(x)), EPrimitiveType.Points);
         }
 
-        public PrimitiveData(Culling culling, PrimitiveBufferInfo info, IEnumerable<Vertex> points, EPrimitiveType type)
+        public PrimitiveData(Culling culling, VertexShaderDesc info, IEnumerable<Vertex> points, EPrimitiveType type)
         {
+            _bufferInfo = info;
             _type = type;
             _influences = null;
             _culling = culling;

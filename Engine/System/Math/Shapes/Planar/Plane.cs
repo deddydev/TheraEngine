@@ -193,7 +193,7 @@ Note that while you can set this point to anything, the original world position 
             Vec3 bottomRight = position + new Vec3(0.5f * xExtent, -0.5f * yExtent, 0.0f) * r;
             Vec3 topLeft = position + new Vec3(-0.5f * xExtent, 0.5f * yExtent, 0.0f) * r;
             Vec3 topRight = position + new Vec3(0.5f * xExtent, 0.5f * yExtent, 0.0f) * r;
-            return PrimitiveData.FromLineStrips(PrimitiveBufferInfo.JustPositions(), new VertexLineStrip(true, bottomLeft, bottomRight, topRight, topLeft));
+            return PrimitiveData.FromLineStrips(VertexShaderDesc.JustPositions(), new VertexLineStrip(true, bottomLeft, bottomRight, topRight, topLeft));
         }
         public static PrimitiveData SolidMesh(Vec3 position, Vec3 normal, float xExtent, float yExtent, Culling culling)
         {
@@ -203,7 +203,7 @@ Note that while you can set this point to anything, the original world position 
             Vec3 topLeft = position + new Vec3(-0.5f * xExtent, 0.5f * yExtent, 0.0f) * r;
             Vec3 topRight = position + new Vec3(0.5f * xExtent, 0.5f * yExtent, 0.0f) * r;
             VertexQuad q = VertexQuad.MakeQuad(bottomLeft, bottomRight, topRight, topLeft, normal);
-            return PrimitiveData.FromQuads(culling, PrimitiveBufferInfo.PosNormTex1(), q);
+            return PrimitiveData.FromQuads(culling, VertexShaderDesc.PosNormTex(), q);
         }
     }
 }

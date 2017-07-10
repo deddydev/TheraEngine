@@ -128,7 +128,7 @@ namespace TheraEngine.Rendering
                 case DebugPrimitiveType.Point:
                     return PrimitiveData.FromPoints(Vec3.Zero);
                 case DebugPrimitiveType.Line: VertexLine line = new VertexLine(new Vertex(Vec3.Zero), new Vertex(Vec3.Forward));
-                    return PrimitiveData.FromLines(new PrimitiveBufferInfo() { _hasNormals = false, _texcoordCount = 0 }, line);
+                    return PrimitiveData.FromLines(VertexShaderDesc.JustPositions(), line);
                 case DebugPrimitiveType.WireSphere: //Diameter is set to 2.0f on purpose
                     return Sphere.WireframeMesh(Vec3.Zero, 1.0f, 60);
                 case DebugPrimitiveType.SolidSphere: //Diameter is set to 2.0f on purpose
@@ -138,9 +138,9 @@ namespace TheraEngine.Rendering
                 case DebugPrimitiveType.SolidBox:
                     return BoundingBox.SolidMesh(new Vec3(-1.0f), new Vec3(1.0f));
                 case DebugPrimitiveType.WireQuad:
-                    return PrimitiveData.FromLineList(new PrimitiveBufferInfo(), VertexQuad.PosYQuad(2.0f).ToLines());
+                    return PrimitiveData.FromLineList(VertexShaderDesc.JustPositions(), VertexQuad.PosYQuad(2.0f).ToLines());
                 case DebugPrimitiveType.SolidQuad:
-                    return PrimitiveData.FromQuads(Culling.None, new PrimitiveBufferInfo(), VertexQuad.PosYQuad(2.0f));
+                    return PrimitiveData.FromQuads(Culling.None, VertexShaderDesc.PosNormTex(), VertexQuad.PosYQuad(2.0f));
             }
             return null;
         }
@@ -371,7 +371,7 @@ namespace TheraEngine.Rendering
         /// </summary>
         /// <param name="shaderHandles">The handles of the shaders for this program to use.</param>
         /// <returns></returns>
-        public abstract int GenerateProgram(int[] shaderHandles, PrimitiveBufferInfo info);
+        public abstract int GenerateProgram(int[] shaderHandles, VertexShaderDesc info);
         public virtual void UseProgram(MeshProgram program)
         {
             _currentMeshProgram = program;

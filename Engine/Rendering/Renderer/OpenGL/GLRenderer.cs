@@ -543,27 +543,27 @@ namespace TheraEngine.Rendering.OpenGL
         {
             GL.FramebufferTexture2D((FramebufferTarget)(int)target, (FramebufferAttachment)(int)attachment, (TextureTarget)(int)texTarget, textureBindingId, mipLevel);
         }
-        public override void SetDrawBuffer(DrawBuffersAttachment attachment)
+        public override void SetDrawBuffer(EDrawBuffersAttachment attachment)
         {
             GL.DrawBuffer((DrawBufferMode)(int)attachment);
         }
-        public override void SetDrawBuffer(int bindingId, DrawBuffersAttachment attachment)
+        public override void SetDrawBuffer(int bindingId, EDrawBuffersAttachment attachment)
         {
             GL.NamedFramebufferDrawBuffer(bindingId, (DrawBufferMode)(int)attachment);
         }
-        public override void SetReadBuffer(DrawBuffersAttachment attachment)
+        public override void SetReadBuffer(EDrawBuffersAttachment attachment)
         {
             GL.ReadBuffer((ReadBufferMode)(int)attachment);
         }
-        public override void SetReadBuffer(int bindingId, DrawBuffersAttachment attachment)
+        public override void SetReadBuffer(int bindingId, EDrawBuffersAttachment attachment)
         {
             GL.NamedFramebufferReadBuffer(bindingId, (ReadBufferMode)(int)attachment);
         }
-        public override void SetDrawBuffers(DrawBuffersAttachment[] attachments)
+        public override void SetDrawBuffers(EDrawBuffersAttachment[] attachments)
         {
             GL.DrawBuffers(attachments.Length, attachments.Select(x => (DrawBuffersEnum)(int)x).ToArray());
         }
-        public override void SetDrawBuffers(int bindingId, DrawBuffersAttachment[] attachments)
+        public override void SetDrawBuffers(int bindingId, EDrawBuffersAttachment[] attachments)
         {
             GL.NamedFramebufferDrawBuffers(bindingId, attachments.Length, attachments.Select(x => (DrawBuffersEnum)(int)x).ToArray());
         }

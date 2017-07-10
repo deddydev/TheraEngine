@@ -103,31 +103,31 @@ namespace TheraEngine.Rendering.Models.Materials
 
         private int _width, _height;
         private string _name;
-        private MinFilter _minFilter = MinFilter.Linear_Mipmap_Linear;
-        private MagFilter _magFilter = MagFilter.Linear;
-        private TexCoordWrap _uWrap = TexCoordWrap.Repeat, _vWrap = TexCoordWrap.Repeat;
+        private EMinFilter _minFilter = EMinFilter.LinearMipmapLinear;
+        private EMagFilter _magFilter = EMagFilter.Linear;
+        private ETexCoordWrap _uWrap = ETexCoordWrap.Repeat, _vWrap = ETexCoordWrap.Repeat;
         private float _lodBias = 0.0f;
         private EPixelInternalFormat _internalFormat;
         private EPixelFormat _pixelFormat;
         private EPixelType _pixelType;
 
         public string FilePath => _reference.FilePath;
-        public MagFilter MagFilter
+        public EMagFilter MagFilter
         {
             get => _magFilter;
             set => _magFilter = value;
         }
-        public MinFilter MinFilter
+        public EMinFilter MinFilter
         {
             get => _minFilter;
             set => _minFilter = value;
         }
-        public TexCoordWrap UWrap
+        public ETexCoordWrap UWrap
         {
             get => _uWrap;
             set => _uWrap = value;
         }
-        public TexCoordWrap VWrap
+        public ETexCoordWrap VWrap
         {
             get => _vWrap;
             set => _vWrap = value;
@@ -157,25 +157,5 @@ namespace TheraEngine.Rendering.Models.Materials
             else
                 return new Texture2D(_width, _height, _minFilter, _magFilter, _uWrap, _vWrap, _lodBias, _internalFormat, _pixelFormat, _pixelType);
         }
-    }
-    public enum TexCoordWrap
-    {
-        Clamp,
-        Repeat,
-        Mirror
-    }
-    public enum MinFilter : uint
-    {
-        Nearest,
-        Linear,
-        Nearest_Mipmap_Nearest,
-        Linear_Mipmap_Nearest,
-        Nearest_Mipmap_Linear,
-        Linear_Mipmap_Linear
-    }
-    public enum MagFilter : uint
-    {
-        Nearest,
-        Linear,
     }
 }

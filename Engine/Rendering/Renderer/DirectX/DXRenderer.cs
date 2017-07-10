@@ -34,7 +34,7 @@ namespace TheraEngine.Rendering.DirectX
         {
             throw new NotImplementedException();
         }
-        public override void SetDrawBuffers(DrawBuffersAttachment[] attachments)
+        public override void SetDrawBuffers(EDrawBuffersAttachment[] attachments)
         {
             throw new NotImplementedException();
         }
@@ -244,27 +244,27 @@ namespace TheraEngine.Rendering.DirectX
         }
         
 
-        public override void SetDrawBuffer(DrawBuffersAttachment attachment)
+        public override void SetDrawBuffer(EDrawBuffersAttachment attachment)
         {
             throw new NotImplementedException();
         }
 
-        public override void SetDrawBuffer(int bindingId, DrawBuffersAttachment attachment)
+        public override void SetDrawBuffer(int bindingId, EDrawBuffersAttachment attachment)
         {
             throw new NotImplementedException();
         }
 
-        public override void SetDrawBuffers(int bindingId, DrawBuffersAttachment[] attachments)
+        public override void SetDrawBuffers(int bindingId, EDrawBuffersAttachment[] attachments)
         {
             throw new NotImplementedException();
         }
 
-        public override void SetReadBuffer(DrawBuffersAttachment attachment)
+        public override void SetReadBuffer(EDrawBuffersAttachment attachment)
         {
             throw new NotImplementedException();
         }
 
-        public override void SetReadBuffer(int bindingId, DrawBuffersAttachment attachment)
+        public override void SetReadBuffer(int bindingId, EDrawBuffersAttachment attachment)
         {
             throw new NotImplementedException();
         }

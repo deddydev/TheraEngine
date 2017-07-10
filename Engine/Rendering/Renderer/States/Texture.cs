@@ -60,10 +60,10 @@ namespace TheraEngine.Rendering.Textures
         }
         public Texture2D(
             TextureData data,
-            MinFilter minFilter,
-            MagFilter magFilter,
-            TexCoordWrap uWrap,
-            TexCoordWrap vWrap,
+            EMinFilter minFilter,
+            EMagFilter magFilter,
+            ETexCoordWrap uWrap,
+            ETexCoordWrap vWrap,
             float lodBias)
             : this(data)
         {
@@ -77,10 +77,10 @@ namespace TheraEngine.Rendering.Textures
         public Texture2D(
             int width,
             int height,
-            MinFilter minFilter,
-            MagFilter magFilter,
-            TexCoordWrap uWrap,
-            TexCoordWrap vWrap,
+            EMinFilter minFilter,
+            EMagFilter magFilter,
+            ETexCoordWrap uWrap,
+            ETexCoordWrap vWrap,
             float lodBias,
             EPixelInternalFormat internalFormat,
             EPixelFormat pixelFormat,
@@ -96,10 +96,10 @@ namespace TheraEngine.Rendering.Textures
 
         public Texture2D(
             TextureData data,
-            MinFilter minFilter,
-            MagFilter magFilter,
-            TexCoordWrap uWrap,
-            TexCoordWrap vWrap,
+            EMinFilter minFilter,
+            EMagFilter magFilter,
+            ETexCoordWrap uWrap,
+            ETexCoordWrap vWrap,
             float lodBias,
             EPixelInternalFormat internalFormat,
             EPixelFormat pixelFormat,
@@ -134,10 +134,10 @@ namespace TheraEngine.Rendering.Textures
 
         private int _index;
         private int _width, _height;
-        private TexCoordWrap _uWrapMode;
-        private TexCoordWrap _vWrapMode;
-        private MinFilter _minFilter;
-        private MagFilter _magFilter;
+        private ETexCoordWrap _uWrapMode;
+        private ETexCoordWrap _vWrapMode;
+        private EMinFilter _minFilter;
+        private EMagFilter _magFilter;
         private float _lodBias;
         private TextureData _data;
         private EPixelInternalFormat _internalFormat;

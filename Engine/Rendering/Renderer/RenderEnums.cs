@@ -2,6 +2,26 @@
 
 namespace TheraEngine.Rendering
 {
+    public enum ETexCoordWrap
+    {
+        Clamp,
+        Repeat,
+        Mirror
+    }
+    public enum EMinFilter : uint
+    {
+        Nearest,
+        Linear,
+        NearestMipmapNearest,
+        LinearMipmapNearest,
+        NearestMipmapLinear,
+        LinearMipmapLinear
+    }
+    public enum EMagFilter : uint
+    {
+        Nearest,
+        Linear,
+    }
     public enum EBlendingFactor
     {
         Zero = 0,
@@ -563,7 +583,7 @@ namespace TheraEngine.Rendering
         DrawFramebuffer = 36009,
         Framebuffer     = 36160,
     }
-    public enum DrawBuffersAttachment : ushort
+    public enum EDrawBuffersAttachment : ushort
     {
         None = 0,
         FrontLeft = 1024,

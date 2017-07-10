@@ -549,12 +549,12 @@ namespace TheraEngine.Rendering
         #region Frame Buffers
         public abstract void AttachTextureToFrameBuffer(int frameBufferBindingId, EFramebufferAttachment attachment, int textureBindingId, int mipLevel);
         public abstract void AttachTextureToFrameBuffer(EFramebufferTarget target, EFramebufferAttachment attachment, ETexTarget texTarget, int textureBindingId, int mipLevel);
-        public abstract void SetDrawBuffer(DrawBuffersAttachment attachment);
-        public abstract void SetDrawBuffer(int bindingId, DrawBuffersAttachment attachment);
-        public abstract void SetDrawBuffers(DrawBuffersAttachment[] attachments);
-        public abstract void SetDrawBuffers(int bindingId, DrawBuffersAttachment[] attachments);
-        public abstract void SetReadBuffer(DrawBuffersAttachment attachment);
-        public abstract void SetReadBuffer(int bindingId, DrawBuffersAttachment attachment);
+        public abstract void SetDrawBuffer(EDrawBuffersAttachment attachment);
+        public abstract void SetDrawBuffer(int bindingId, EDrawBuffersAttachment attachment);
+        public abstract void SetDrawBuffers(EDrawBuffersAttachment[] attachments);
+        public abstract void SetDrawBuffers(int bindingId, EDrawBuffersAttachment[] attachments);
+        public abstract void SetReadBuffer(EDrawBuffersAttachment attachment);
+        public abstract void SetReadBuffer(int bindingId, EDrawBuffersAttachment attachment);
         public abstract void BindFrameBuffer(EFramebufferTarget type, int bindingId);
         public abstract void BindRenderBuffer(int bindingId);
         public abstract void RenderbufferStorage(ERenderBufferStorage storage, int width, int height);

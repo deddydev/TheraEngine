@@ -10,14 +10,14 @@ namespace TheraEngine.Rendering
 {
     internal class GBufferMeshProgram : MeshProgram
     {
-        DrawBuffersAttachment[] _attachments;
+        EDrawBuffersAttachment[] _attachments;
         EFramebufferAttachment?[] _attachmentsPerTexture;
         GBuffer _buffer;
         int _width, _height;
         
         public GBufferMeshProgram(Material material, PrimitiveBufferInfo info) : base(material, info) { }
 
-        public void Update(GBuffer buffer, EFramebufferAttachment?[] attachmentsPerTexture, DrawBuffersAttachment[] attachments, int width, int height)
+        public void Update(GBuffer buffer, EFramebufferAttachment?[] attachmentsPerTexture, EDrawBuffersAttachment[] attachments, int width, int height)
         {
             _width = width;
             _height = height;
@@ -92,7 +92,7 @@ namespace TheraEngine.Rendering
         public Texture2D[] Textures => _fullScreenTriangle?.Program.Textures;
 
         EFramebufferAttachment?[] _attachmentsPerTexture;
-        DrawBuffersAttachment[] _colorAttachments;
+        EDrawBuffersAttachment[] _colorAttachments;
 
         public GBuffer(Viewport viewport, bool forward)
         {
@@ -117,9 +117,9 @@ namespace TheraEngine.Rendering
                     EFramebufferAttachment.ColorAttachment0, //OutputColor
                     EFramebufferAttachment.DepthAttachment, //Depth
                 };
-                _colorAttachments = new DrawBuffersAttachment[]
+                _colorAttachments = new EDrawBuffersAttachment[]
                 {
-                    DrawBuffersAttachment.ColorAttachment0, //OutputColor
+                    EDrawBuffersAttachment.ColorAttachment0, //OutputColor
                 };
             }
             else
@@ -131,11 +131,11 @@ namespace TheraEngine.Rendering
                     EFramebufferAttachment.ColorAttachment2, //Normal
                     EFramebufferAttachment.DepthAttachment, //Depth
                 };
-                _colorAttachments = new DrawBuffersAttachment[]
+                _colorAttachments = new EDrawBuffersAttachment[]
                 {
-                    DrawBuffersAttachment.ColorAttachment0, //AlbedoSpec
-                    DrawBuffersAttachment.ColorAttachment1, //Position
-                    DrawBuffersAttachment.ColorAttachment2, //Normal
+                    EDrawBuffersAttachment.ColorAttachment0, //AlbedoSpec
+                    EDrawBuffersAttachment.ColorAttachment1, //Position
+                    EDrawBuffersAttachment.ColorAttachment2, //Normal
                 };
             }
 
@@ -186,10 +186,10 @@ namespace TheraEngine.Rendering
                     new TextureReference("OutputColor", width, height,
                         EPixelInternalFormat.Rgba8, EPixelFormat.Bgra, EPixelType.UnsignedByte)
                     {
-                        MinFilter = MinFilter.Nearest,
-                        MagFilter = MagFilter.Nearest,
-                        UWrap = TexCoordWrap.Clamp,
-                        VWrap = TexCoordWrap.Clamp,
+                        MinFilter = EMinFilter.Nearest,
+                        MagFilter = EMagFilter.Nearest,
+                        UWrap = ETexCoordWrap.Clamp,
+                        VWrap = ETexCoordWrap.Clamp,
                     },
                     //new TextureReference("Text", width, height,
                     //    EPixelInternalFormat.Rgba8, EPixelFormat.Bgra, EPixelType.UnsignedByte, System.Drawing.Imaging.PixelFormat.Format32bppArgb)
@@ -202,10 +202,10 @@ namespace TheraEngine.Rendering
                     new TextureReference("Depth", width, height,
                         EPixelInternalFormat.DepthComponent32f, EPixelFormat.DepthComponent, EPixelType.Float)
                     {
-                        MinFilter = MinFilter.Nearest,
-                        MagFilter = MagFilter.Nearest,
-                        UWrap = TexCoordWrap.Clamp,
-                        VWrap = TexCoordWrap.Clamp,
+                        MinFilter = EMinFilter.Nearest,
+                        MagFilter = EMagFilter.Nearest,
+                        UWrap = ETexCoordWrap.Clamp,
+                        VWrap = ETexCoordWrap.Clamp,
                     },
                 }
                 :
@@ -214,26 +214,26 @@ namespace TheraEngine.Rendering
                     new TextureReference("AlbedoSpec", width, height,
                         EPixelInternalFormat.Rgba8, EPixelFormat.Bgra, EPixelType.UnsignedByte)
                     {
-                        MinFilter = MinFilter.Nearest,
-                        MagFilter = MagFilter.Nearest,
-                        UWrap = TexCoordWrap.Clamp,
-                        VWrap = TexCoordWrap.Clamp,
+                        MinFilter = EMinFilter.Nearest,
+                        MagFilter = EMagFilter.Nearest,
+                        UWrap = ETexCoordWrap.Clamp,
+                        VWrap = ETexCoordWrap.Clamp,
                     },
                     new TextureReference("Position", width, height,
                         EPixelInternalFormat.Rgb32f, EPixelFormat.Rgb, EPixelType.Float)
                     {
-                        MinFilter = MinFilter.Nearest,
-                        MagFilter = MagFilter.Nearest,
-                        UWrap = TexCoordWrap.Clamp,
-                        VWrap = TexCoordWrap.Clamp,
+                        MinFilter = EMinFilter.Nearest,
+                        MagFilter = EMagFilter.Nearest,
+                        UWrap = ETexCoordWrap.Clamp,
+                        VWrap = ETexCoordWrap.Clamp,
                     },
                     new TextureReference("Normal", width, height,
                         EPixelInternalFormat.Rgb32f, EPixelFormat.Rgb, EPixelType.Float)
                     {
-                        MinFilter = MinFilter.Nearest,
-                        MagFilter = MagFilter.Nearest,
-                        UWrap = TexCoordWrap.Clamp,
-                        VWrap = TexCoordWrap.Clamp,
+                        MinFilter = EMinFilter.Nearest,
+                        MagFilter = EMagFilter.Nearest,
+                        UWrap = ETexCoordWrap.Clamp,
+                        VWrap = ETexCoordWrap.Clamp,
                     },
                     //new TextureReference("Text", width, height,
                     //    EPixelInternalFormat.Rgba8, EPixelFormat.Bgra, EPixelType.UnsignedByte, System.Drawing.Imaging.PixelFormat.Format32bppArgb)
@@ -246,10 +246,10 @@ namespace TheraEngine.Rendering
                     new TextureReference("Depth", width, height,
                         EPixelInternalFormat.DepthComponent32f, EPixelFormat.DepthComponent, EPixelType.Float)
                     {
-                        MinFilter = MinFilter.Nearest,
-                        MagFilter = MagFilter.Nearest,
-                        UWrap = TexCoordWrap.Clamp,
-                        VWrap = TexCoordWrap.Clamp,
+                        MinFilter = EMinFilter.Nearest,
+                        MagFilter = EMagFilter.Nearest,
+                        UWrap = ETexCoordWrap.Clamp,
+                        VWrap = ETexCoordWrap.Clamp,
                     },
                 };
 

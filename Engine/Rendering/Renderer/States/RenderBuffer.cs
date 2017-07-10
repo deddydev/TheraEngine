@@ -22,15 +22,15 @@ namespace TheraEngine.Rendering
         }
         public void AttachToFrameBuffer(EFramebufferTarget fboType, EFramebufferAttachment attachment)
         {
-            Engine.Renderer.AttachRenderBufferToFrameBuffer(fboType, attachment, BindingId);
+            //Engine.Renderer.AttachRenderBufferToFrameBuffer(fboType, attachment, BindingId);
         }
         public void AttachToFrameBuffer(int fboBindingId, EFramebufferAttachment attachment)
         {
-            Engine.Renderer.AttachRenderBufferToFrameBuffer(fboBindingId, attachment, BindingId);
+            //Engine.Renderer.AttachRenderBufferToFrameBuffer(fboBindingId, attachment, BindingId);
         }
         public void AttachToFrameBuffer(FrameBuffer fbo, EFramebufferAttachment attachment)
         {
-            Engine.Renderer.AttachRenderBufferToFrameBuffer(fbo.BindingId, attachment, BindingId);
+            //Engine.Renderer.AttachRenderBufferToFrameBuffer(fbo.BindingId, attachment, BindingId);
         }
     }
 }

@@ -22,10 +22,7 @@ namespace TheraEngine.Rendering
         private BoundingRectangle _region;
         private Camera _worldCamera;
         private RenderPanel _owningPanel;
-        private TextDrawer _text;
         internal GBuffer _gBuffer;
-
-        public TextDrawer Text => _text;
 
         private float _leftPercentage = 0.0f;
         private float _rightPercentage = 1.0f;
@@ -140,7 +137,6 @@ namespace TheraEngine.Rendering
             _pawnHUD = new HudManager();
             _index = index;
             Resize(panel.Width, panel.Height);
-            _text = new TextDrawer();
             UpdateRender();
         }
 
@@ -185,9 +181,6 @@ namespace TheraEngine.Rendering
 
             if (Camera != null)
             {
-                if (_text.Modified)
-                    _text.Draw(_gBuffer.Textures[3]);
-
                 //We want to render to GBuffer textures
                 _gBuffer.Bind(EFramebufferTarget.Framebuffer);
 
@@ -250,9 +243,6 @@ namespace TheraEngine.Rendering
 
             if (Camera != null)
             {
-                if (_text.Modified)
-                    _text.Draw(_gBuffer.Textures[1]);
-
                 //We want to render to GBuffer textures
                 _gBuffer.Bind(EFramebufferTarget.Framebuffer);
 

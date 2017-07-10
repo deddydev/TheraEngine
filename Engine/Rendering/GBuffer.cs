@@ -102,18 +102,12 @@ namespace TheraEngine.Rendering
             Vertex point0 = new Vec3(0.0f, 0.0f, 0.0f);
             Vertex point1 = new Vec3(2.0f, 0.0f, 0.0f);
             Vertex point2 = new Vec3(0.0f, 2.0f, 0.0f);
-            //Vertex point3 = new Vec3(0.0f, 1.0f, 0.0f);
-            //Vertex point4 = new Vec3(1.0f, 0.0f, 0.0f);
-            //Vertex point5 = new Vec3(1.0f, 1.0f, 0.0ff);
-
             VertexTriangle triangle1 = new VertexTriangle(point0, point1, point2);
-            //VertexTriangle triangle2 = new VertexTriangle(point3, point4, point5);
 
             BoundingRectangle region = _parent.Region;
 
             _fullScreenTriangle = new PrimitiveManager<GBufferMeshProgram>(
-                PrimitiveData.FromTriangles(Culling.None, PrimitiveBufferInfo.JustPositions(), triangle1/*, triangle2*/),
-                //PrimitiveData.FromQuads(Culling.Back, new PrimitiveBufferInfo(), VertexQuad.ZUpQuad(region)),
+                PrimitiveData.FromTriangles(Culling.None, PrimitiveBufferInfo.JustPositions(), triangle1),
                 GetGBufferMaterial(region.IntWidth, region.IntHeight, forward, this, DepthStencilUse.Depth32f));
 
             if (forward)
@@ -121,7 +115,6 @@ namespace TheraEngine.Rendering
                 _attachmentsPerTexture = new EFramebufferAttachment?[]
                 {
                     EFramebufferAttachment.ColorAttachment0, //OutputColor
-                    null,
                     EFramebufferAttachment.DepthAttachment, //Depth
                 };
                 _colorAttachments = new DrawBuffersAttachment[]
@@ -136,7 +129,6 @@ namespace TheraEngine.Rendering
                     EFramebufferAttachment.ColorAttachment0, //AlbedoSpec
                     EFramebufferAttachment.ColorAttachment1, //Position
                     EFramebufferAttachment.ColorAttachment2, //Normal
-                    null,
                     EFramebufferAttachment.DepthAttachment, //Depth
                 };
                 _colorAttachments = new DrawBuffersAttachment[]
@@ -167,31 +159,6 @@ namespace TheraEngine.Rendering
         public unsafe void Resize(int width, int height)
         {
             _fullScreenTriangle.Program.Resized(width, height);
-
-            //VertexBuffer buffer = _fullScreenTriangle.Data[0];
-            //Vec3* data = (Vec3*)buffer.Address;
-
-            //data[0] = new Vec3(0.0f, 0.0f, -2.0f);
-            //data[1] = new Vec3(region.Width, 0.0f, -2.0f);
-            //data[2] = new Vec3(0.0f, region.Height, -2.0f);
-
-            //Old method: full screen quad.
-            //Not using this method because of the possible tear line between the two triangles without vsync
-            //while waiting for BOTH triangles to finish rasterizing the given frame before displaying.
-            // 3--2
-            // |\ |
-            // | \|
-            // 0--1
-            //0 1 3 3 1 2
-            //remapped ->
-            //0 1 3 2
-
-            //data[0] = new Vec3(region.BottomLeft, 0.0f);
-            //data[1] = new Vec3(region.BottomRight, 0.0f);
-            //data[2] = new Vec3(region.TopLeft, 0.0f);
-            //data[3] = new Vec3(region.TopRight, 0.0f);
-
-            //_camera.Resize(region.Width, region.Height);
         }
 
         public void Render()
@@ -217,21 +184,21 @@ namespace TheraEngine.Rendering
                 new List<TextureReference>()
                 {
                     new TextureReference("OutputColor", width, height,
-                        EPixelInternalFormat.Rgba8, EPixelFormat.Bgra, EPixelType.UnsignedByte, System.Drawing.Imaging.PixelFormat.Format32bppArgb)
+                        EPixelInternalFormat.Rgba8, EPixelFormat.Bgra, EPixelType.UnsignedByte)
                     {
                         MinFilter = MinFilter.Nearest,
                         MagFilter = MagFilter.Nearest,
                         UWrap = TexCoordWrap.Clamp,
                         VWrap = TexCoordWrap.Clamp,
                     },
-                    new TextureReference("Text", width, height,
-                        EPixelInternalFormat.Rgba8, EPixelFormat.Bgra, EPixelType.UnsignedByte, System.Drawing.Imaging.PixelFormat.Format32bppArgb)
-                    {
-                        MinFilter = MinFilter.Nearest,
-                        MagFilter = MagFilter.Nearest,
-                        UWrap = TexCoordWrap.Clamp,
-                        VWrap = TexCoordWrap.Clamp,
-                    },
+                    //new TextureReference("Text", width, height,
+                    //    EPixelInternalFormat.Rgba8, EPixelFormat.Bgra, EPixelType.UnsignedByte, System.Drawing.Imaging.PixelFormat.Format32bppArgb)
+                    //{
+                    //    MinFilter = MinFilter.Nearest,
+                    //    MagFilter = MagFilter.Nearest,
+                    //    UWrap = TexCoordWrap.Clamp,
+                    //    VWrap = TexCoordWrap.Clamp,
+                    //},
                     new TextureReference("Depth", width, height,
                         EPixelInternalFormat.DepthComponent32f, EPixelFormat.DepthComponent, EPixelType.Float)
                     {
@@ -245,7 +212,7 @@ namespace TheraEngine.Rendering
                 new List<TextureReference>()
                 {
                     new TextureReference("AlbedoSpec", width, height,
-                        EPixelInternalFormat.Rgba8, EPixelFormat.Bgra, EPixelType.UnsignedByte, System.Drawing.Imaging.PixelFormat.Format32bppArgb)
+                        EPixelInternalFormat.Rgba8, EPixelFormat.Bgra, EPixelType.UnsignedByte)
                     {
                         MinFilter = MinFilter.Nearest,
                         MagFilter = MagFilter.Nearest,
@@ -268,14 +235,14 @@ namespace TheraEngine.Rendering
                         UWrap = TexCoordWrap.Clamp,
                         VWrap = TexCoordWrap.Clamp,
                     },
-                    new TextureReference("Text", width, height,
-                        EPixelInternalFormat.Rgba8, EPixelFormat.Bgra, EPixelType.UnsignedByte, System.Drawing.Imaging.PixelFormat.Format32bppArgb)
-                    {
-                        MinFilter = MinFilter.Nearest,
-                        MagFilter = MagFilter.Nearest,
-                        UWrap = TexCoordWrap.Clamp,
-                        VWrap = TexCoordWrap.Clamp,
-                    },
+                    //new TextureReference("Text", width, height,
+                    //    EPixelInternalFormat.Rgba8, EPixelFormat.Bgra, EPixelType.UnsignedByte, System.Drawing.Imaging.PixelFormat.Format32bppArgb)
+                    //{
+                    //    MinFilter = MinFilter.Nearest,
+                    //    MagFilter = MagFilter.Nearest,
+                    //    UWrap = TexCoordWrap.Clamp,
+                    //    VWrap = TexCoordWrap.Clamp,
+                    //},
                     new TextureReference("Depth", width, height,
                         EPixelInternalFormat.DepthComponent32f, EPixelFormat.DepthComponent, EPixelType.Float)
                     {
@@ -298,7 +265,6 @@ uniform sampler2D Texture0;
 uniform sampler2D Texture1;
 uniform sampler2D Texture2;
 uniform sampler2D Texture3;
-uniform sampler2D Texture4;
 
 in Data
 {
@@ -323,7 +289,6 @@ uniform float InvProjMatrix;
 
 " + PostProcessSettings.ShaderSetup() + @"
 " + ShaderHelpers.LightingSetupBasic() + @"
-" + ShaderHelpers.Func_GetDistanceFromDepth + @"
 
 void main()
 {
@@ -331,13 +296,19 @@ void main()
     vec4 AlbedoSpec = texture(Texture0, uv);
     vec3 FragPos = texture(Texture1, uv).rgb;
     vec3 Normal = texture(Texture2, uv).rgb;
-    vec4 Text = texture(Texture3, vec2(uv.x, 1.0 - uv.y));
-    float Depth = texture(Texture4, uv).r;
+    float Depth = texture(Texture3, uv).r;
 
     " + ShaderHelpers.LightingCalc("totalLight", "GlobalAmbient", "Normal", "FragPos", "AlbedoSpec.rgb", "AlbedoSpec.a") + @"
 
     vec3 hdrSceneColor = AlbedoSpec.rgb * totalLight;
 
+    " + PostProcessPart() + @"
+}";
+            return new Shader(ShaderMode.Fragment, source);
+        }
+        private static string PostProcessPart()
+        {
+            return @"
     //Color grading
     hdrSceneColor *= ColorGrade.Tint;
 
@@ -349,15 +320,10 @@ void main()
     //vec4 smoothed = smoothstep(vec4(1.0), Vignette.Color, Vignette.Color * vec4(alpha));
     //ldrSceneColor = mix(ldrSceneColor, smoothed.rgb, alpha * smoothed.a);
 
-    //Add text overlay
-    vec3 textAdded = mix(ldrSceneColor, Text.rgb, Text.a);
-
     //Gamma-correct
-    vec3 gammaCorrected = pow(textAdded, vec3(1.0 / ColorGrade.Gamma));
+    vec3 gammaCorrected = pow(ldrSceneColor, vec3(1.0 / ColorGrade.Gamma));
 
-    OutColor = vec4(gammaCorrected, 1.0);
-}";
-            return new Shader(ShaderMode.Fragment, source);
+    OutColor = vec4(gammaCorrected, 1.0);";
         }
         internal static Shader GBufferShaderForward()
         {
@@ -367,7 +333,6 @@ void main()
 
 uniform sampler2D Texture0;
 uniform sampler2D Texture1;
-uniform sampler2D Texture2;
 
 in Data
 {
@@ -389,11 +354,10 @@ uniform float ScreenOrigin;
 void main()
 {
     vec2 uv = InData.Position.xy;
-    vec3 SceneColor = texture(Texture0, uv).rgb;
-    vec4 Text = texture(Texture1, vec2(uv.x, 1.0 - uv.y));
-    float Depth = texture(Texture2, uv).r;
+    vec3 hdrSceneColor = texture(Texture0, uv).rgb;
+    float Depth = texture(Texture1, uv).r;
 
-    OutColor = vec4(mix(SceneColor, Text.rgb, Text.a), 1.0);
+    " + PostProcessPart() + @"
 }";
             return new Shader(ShaderMode.Fragment, source);
         }

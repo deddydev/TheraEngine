@@ -70,7 +70,7 @@ namespace TheraEngine.Rendering
     /// <typeparam name="TVOut">The output value class to use.</typeparam>
     /// <typeparam name="TEIn">The input execution argument class to use.</typeparam>
     /// <typeparam name="TEOut">The output execution class to use.</typeparam>
-    public abstract class Function<TVIn, TVOut, TEIn, TEOut> : HudComponent, IGLVarOwner, IFunction
+    public abstract class Function<TVIn, TVOut, TEIn, TEOut> : HudComponent, IShaderVarOwner, IFunction
         where TVIn : HudComponent, IFuncValueInput where TVOut : HudComponent, IFuncValueOutput
         where TEIn : HudComponent, IFuncExecInput where TEOut : HudComponent, IFuncExecOutput
     {

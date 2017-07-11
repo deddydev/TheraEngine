@@ -9,13 +9,13 @@ namespace TheraEngine.Rendering.Models.Materials
 
         private static void WriteLine(string str = "", params object[] args)
             => _generator.wl(str, args);
-        private static void WriteUniform(int layoutLocation, GLTypeName type, string name) 
+        private static void WriteUniform(int layoutLocation, ShaderType type, string name) 
             => _generator.WriteUniform(layoutLocation, type, name);
-        private static void WriteUniform(GLTypeName type, string name)
+        private static void WriteUniform(ShaderType type, string name)
             => _generator.WriteUniform(type, name);
-        private static void WriteInVar(int layoutLocation, GLTypeName type, string name)
+        private static void WriteInVar(int layoutLocation, ShaderType type, string name)
             => _generator.WriteInVar(layoutLocation, type, name);
-        private static void WriteInVar(GLTypeName type, string name)
+        private static void WriteInVar(ShaderType type, string name)
             => _generator.WriteInVar(type, name);
 
         public static Shader Generate(ResultBasicFunc end)
@@ -62,49 +62,49 @@ namespace TheraEngine.Rendering.Models.Materials
             //Write mesh buffers first
             for (int i = 0; i < (morphed ? _info._morphCount + 1 : 1); ++i)
             {
-                WriteInVar(GLTypeName._vec3, BufferType.Position.ToString() + i);
+                WriteInVar(ShaderType._vec3, BufferType.Position.ToString() + i);
                 if (_info.HasNormals)
-                    WriteInVar(GLTypeName._vec3, BufferType.Normal.ToString() + i);
+                    WriteInVar(ShaderType._vec3, BufferType.Normal.ToString() + i);
                 if (_info.HasBinormals)
-                    WriteInVar(GLTypeName._vec3, BufferType.Binormal.ToString() + i);
+                    WriteInVar(ShaderType._vec3, BufferType.Binormal.ToString() + i);
                 if (_info.HasTangents)
-                    WriteInVar(GLTypeName._vec3, BufferType.Tangent.ToString() + i);
+                    WriteInVar(ShaderType._vec3, BufferType.Tangent.ToString() + i);
             }
 
             //Then colors and texcoords
             for (int i = 0; i < _info._colorCount; ++i)
-                WriteInVar(GLTypeName._vec4, BufferType.Color.ToString() + i);
+                WriteInVar(ShaderType._vec4, BufferType.Color.ToString() + i);
 
             for (int i = 0; i < _info._texcoordCount; ++i)
-                WriteInVar(GLTypeName._vec2, BufferType.TexCoord.ToString() + i);
+                WriteInVar(ShaderType._vec2, BufferType.TexCoord.ToString() + i);
 
             //Barycentric coord, for wireframe rendering
             if (_info._hasBarycentricCoord)
-                WriteInVar(GLTypeName._vec3, BufferType.Barycentric.ToString());
+                WriteInVar(ShaderType._vec3, BufferType.Barycentric.ToString());
 
             //And finally influence buffers
             if (Engine.Settings.SkinOnGPU && _info.IsWeighted)
                 for (int i = 0; i < (morphed ? _info._morphCount + 1 : 1); ++i)
                 {
-                    WriteInVar(Engine.Settings.UseIntegerWeightingIds ? GLTypeName._ivec4 : GLTypeName._vec4, BufferType.MatrixIds.ToString() + i);
-                    WriteInVar(GLTypeName._vec4, BufferType.MatrixWeights.ToString() + i);
+                    WriteInVar(Engine.Settings.UseIntegerWeightingIds ? ShaderType._ivec4 : ShaderType._vec4, BufferType.MatrixIds.ToString() + i);
+                    WriteInVar(ShaderType._vec4, BufferType.MatrixWeights.ToString() + i);
                 }
         }
         private static void WriteMatrixUniforms(bool morphed)
         {
-            WriteUniform(GLTypeName._mat4, "ModelMatrix");
-            WriteUniform(GLTypeName._mat3, "NormalMatrix");
-            WriteUniform(GLTypeName._mat4, "ViewMatrix");
-            WriteUniform(GLTypeName._mat4, "ProjMatrix");
+            WriteUniform(ShaderType._mat4, "ModelMatrix");
+            WriteUniform(ShaderType._mat3, "NormalMatrix");
+            WriteUniform(ShaderType._mat4, "ViewMatrix");
+            WriteUniform(ShaderType._mat4, "ProjMatrix");
             if (_info.IsWeighted)
             {
                 if (Engine.Settings.SkinOnGPU)
                 {
-                    WriteUniform(GLTypeName._mat4, Uniform.BoneMatricesName + "[" + (_info._boneCount + 1) + "]");
-                    WriteUniform(GLTypeName._mat4, Uniform.BoneMatricesITName + "[" + (_info._boneCount + 1) + "]");
+                    WriteUniform(ShaderType._mat4, Uniform.BoneMatricesName + "[" + (_info._boneCount + 1) + "]");
+                    WriteUniform(ShaderType._mat4, Uniform.BoneMatricesITName + "[" + (_info._boneCount + 1) + "]");
                 }
                 if (morphed)
-                    WriteUniform(GLTypeName._mat4, Uniform.MorphWeightsName + "[" + _info._morphCount + "]");
+                    WriteUniform(ShaderType._mat4, Uniform.MorphWeightsName + "[" + _info._morphCount + "]");
             }
         }
         /// <summary>

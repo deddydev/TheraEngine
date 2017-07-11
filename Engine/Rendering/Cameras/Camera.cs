@@ -393,23 +393,23 @@ namespace TheraEngine.Rendering.Cameras
         protected void OnRotationChanged(Rotator oldRotation)
             => RotationChanged?.Invoke(oldRotation);
         
-        public virtual void SetUniforms()
+        public virtual void SetUniforms(int programBindingId)
         {
-            Engine.Renderer.Uniform(Uniform.GetLocation(ECommonUniform.ViewMatrix),     CameraToWorldMatrix);
-            Engine.Renderer.Uniform(Uniform.GetLocation(ECommonUniform.ProjMatrix),     ProjectionMatrix);
-            Engine.Renderer.Uniform(Uniform.GetLocation(ECommonUniform.InvViewMatrix),  WorldToCameraMatrix);
-            Engine.Renderer.Uniform(Uniform.GetLocation(ECommonUniform.InvProjMatrix),  InverseProjectionMatrix);
-            Engine.Renderer.Uniform(Uniform.GetLocation(ECommonUniform.ScreenWidth),    Width);
-            Engine.Renderer.Uniform(Uniform.GetLocation(ECommonUniform.ScreenHeight),   Height);
-            Engine.Renderer.Uniform(Uniform.GetLocation(ECommonUniform.ScreenOrigin),   Origin);
-            Engine.Renderer.Uniform(Uniform.GetLocation(ECommonUniform.CameraNearZ),    NearZ);
-            Engine.Renderer.Uniform(Uniform.GetLocation(ECommonUniform.CameraFarZ),     FarZ);
-            Engine.Renderer.Uniform(Uniform.GetLocation(ECommonUniform.CameraPosition), WorldPoint);
-            Engine.Renderer.Uniform(Uniform.GetLocation(ECommonUniform.CameraForward),  GetForwardVector());
-            Engine.Renderer.Uniform(Uniform.GetLocation(ECommonUniform.CameraUp),       GetUpVector());
-            Engine.Renderer.Uniform(Uniform.GetLocation(ECommonUniform.CameraRight),    GetRightVector());
-            Engine.Renderer.Uniform(Uniform.GetLocation(ECommonUniform.ProjOrigin),     _projectionOrigin);
-            Engine.Renderer.Uniform(Uniform.GetLocation(ECommonUniform.ProjRange),      _projectionRange);
+            Engine.Renderer.ProgramUniform(programBindingId, Uniform.GetLocation(programBindingId, ECommonUniform.ViewMatrix),     CameraToWorldMatrix);
+            Engine.Renderer.ProgramUniform(programBindingId, Uniform.GetLocation(programBindingId, ECommonUniform.ProjMatrix),     ProjectionMatrix);
+            Engine.Renderer.ProgramUniform(programBindingId, Uniform.GetLocation(programBindingId, ECommonUniform.InvViewMatrix),  WorldToCameraMatrix);
+            Engine.Renderer.ProgramUniform(programBindingId, Uniform.GetLocation(programBindingId, ECommonUniform.InvProjMatrix),  InverseProjectionMatrix);
+            Engine.Renderer.ProgramUniform(programBindingId, Uniform.GetLocation(programBindingId, ECommonUniform.ScreenWidth),    Width);
+            Engine.Renderer.ProgramUniform(programBindingId, Uniform.GetLocation(programBindingId, ECommonUniform.ScreenHeight),   Height);
+            Engine.Renderer.ProgramUniform(programBindingId, Uniform.GetLocation(programBindingId, ECommonUniform.ScreenOrigin),   Origin);
+            Engine.Renderer.ProgramUniform(programBindingId, Uniform.GetLocation(programBindingId, ECommonUniform.CameraNearZ),    NearZ);
+            Engine.Renderer.ProgramUniform(programBindingId, Uniform.GetLocation(programBindingId, ECommonUniform.CameraFarZ),     FarZ);
+            Engine.Renderer.ProgramUniform(programBindingId, Uniform.GetLocation(programBindingId, ECommonUniform.CameraPosition), WorldPoint);
+            Engine.Renderer.ProgramUniform(programBindingId, Uniform.GetLocation(programBindingId, ECommonUniform.CameraForward),  GetForwardVector());
+            Engine.Renderer.ProgramUniform(programBindingId, Uniform.GetLocation(programBindingId, ECommonUniform.CameraUp),       GetUpVector());
+            Engine.Renderer.ProgramUniform(programBindingId, Uniform.GetLocation(programBindingId, ECommonUniform.CameraRight),    GetRightVector());
+            Engine.Renderer.ProgramUniform(programBindingId, Uniform.GetLocation(programBindingId, ECommonUniform.ProjOrigin),     _projectionOrigin);
+            Engine.Renderer.ProgramUniform(programBindingId, Uniform.GetLocation(programBindingId, ECommonUniform.ProjRange),      _projectionRange);
         }
         [PostDeserialize]
         protected virtual void CalculateProjection()

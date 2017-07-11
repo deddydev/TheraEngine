@@ -82,13 +82,13 @@ namespace TheraEngine.Worlds.Actors
             }
         }
 
-        public override void SetUniforms()
+        public override void SetUniforms(int programBindingId)
         {
             string indexer = Uniform.DirectionalLightsName + "[" + _lightIndex + "].";
-            Engine.Renderer.Uniform(indexer + "Base.Color", _color.Raw);
-            Engine.Renderer.Uniform(indexer + "Base.AmbientIntensity", _ambientIntensity);
-            Engine.Renderer.Uniform(indexer + "Base.DiffuseIntensity", _diffuseIntensity);
-            Engine.Renderer.Uniform(indexer + "Direction", _direction);
+            Engine.Renderer.ProgramUniform(programBindingId, indexer + "Base.Color", _color.Raw);
+            Engine.Renderer.ProgramUniform(programBindingId, indexer + "Base.AmbientIntensity", _ambientIntensity);
+            Engine.Renderer.ProgramUniform(programBindingId, indexer + "Base.DiffuseIntensity", _diffuseIntensity);
+            Engine.Renderer.ProgramUniform(programBindingId, indexer + "Direction", _direction);
         }
     }
 }

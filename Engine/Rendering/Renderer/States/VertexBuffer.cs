@@ -486,7 +486,7 @@ namespace TheraEngine.Rendering.Models
             {
                 if (disposing)
                 {
-                    Destroy(false);
+                    Destroy();
                 }
 
                 //Debug.WriteLine("Disposing of " + BufferType + " buffer");

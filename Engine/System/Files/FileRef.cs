@@ -81,6 +81,9 @@ namespace TheraEngine.Files
             if (setPath)
                 RefPathAbsolute = _file.FilePath;
         }
+        /// <summary>
+        /// Loads or retrieves the previously loaded instance of this file.
+        /// </summary>
         public override T GetInstance()
         {
             if (_file != null)

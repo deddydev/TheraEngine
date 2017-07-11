@@ -8,92 +8,15 @@ using System.Collections.Generic;
 
 namespace TheraEngine.Rendering
 {
-    internal class GBufferMeshProgram : MeshProgram
-    {
-        EDrawBuffersAttachment[] _attachments;
-        EFramebufferAttachment?[] _attachmentsPerTexture;
-        GBuffer _buffer;
-        int _width, _height;
-        
-        public GBufferMeshProgram(Material material, VertexShaderDesc info) : base(material, info) { }
-
-        public void Update(GBuffer buffer, EFramebufferAttachment?[] attachmentsPerTexture, EDrawBuffersAttachment[] attachments, int width, int height)
-        {
-            _width = width;
-            _height = height;
-            _buffer = buffer;
-            _attachments = attachments;
-            _attachmentsPerTexture = attachmentsPerTexture;
-            
-            _buffer.Bind(EFramebufferTarget.Framebuffer);
-            for (int i = 0; i < Textures.Length; ++i)
-            {
-                Texture2D t = _textures[i];
-                t.Index = i;
-                t.PostPushData += TexturePostPushData;
-                t.Generate();
-            }
-
-            FramebufferErrorCode c = GL.CheckFramebufferStatus(FramebufferTarget.Framebuffer);
-            if (c != FramebufferErrorCode.FramebufferComplete)
-                throw new Exception("Problem compiling G-Buffer.");
-            _buffer.Unbind(EFramebufferTarget.Framebuffer);
-        }
-        
-        private void TexturePostPushData(int index)
-        {
-            if (_attachmentsPerTexture[index].HasValue)
-                Engine.Renderer.AttachTextureToFrameBuffer(EFramebufferTarget.Framebuffer, _attachmentsPerTexture[index].Value, ETexTarget.Texture2D, Textures[index].BindingId, 0);
-        }
-        protected internal override void BindTextures()
-        {
-            //We want to bind textures to the gbuffer specifically
-            _buffer.Bind(EFramebufferTarget.Framebuffer);
-            base.BindTextures();
-            //Make sure the shaders know what attachments to draw to
-            Engine.Renderer.SetDrawBuffers(_attachments);
-            //Unbind gbuffer
-            _buffer.Unbind(EFramebufferTarget.Framebuffer);
-        }
-        /// <summary>
-        /// Resizes the gbuffer's textures.
-        /// Note that they will still fully cover the screen regardless of 
-        /// if their dimensions match or not.
-        /// </summary>
-        public void Resized(int width, int height)
-        {
-            //Update each texture's dimensions
-            foreach (Texture2D t in Textures)
-                t.Resize(width, height);
-        }
-
-        public event Action SettingUniforms;
-
-        public override void SetUniforms()
-        {
-            foreach (GLVar v in _parameters)
-                v.SetUniform();
-
-            SettingUniforms?.Invoke();
-
-            if (Engine.Settings.ShadingStyle == ShadingStyle.Deferred)
-                Engine.Scene.Lights.SetUniforms();
-
-            Engine.Renderer.Uniform(Uniform.GetLocation(ECommonUniform.RenderDelta), Engine.RenderDelta);
-        }
-    }
     internal class GBuffer : FrameBuffer
     {
         OrthographicCamera _quadCamera;
-        PrimitiveManager<GBufferMeshProgram> _fullScreenTriangle;
+        PrimitiveManager _fullScreenTriangle;
         bool _forward;
         Viewport _parent;
 
-        public Texture2D[] Textures => _fullScreenTriangle?.Program.Textures;
-
-        EFramebufferAttachment?[] _attachmentsPerTexture;
-        EDrawBuffersAttachment[] _colorAttachments;
-
+        public TextureReference[] Textures => _fullScreenTriangle?.Material.TexRefs;
+        
         public GBuffer(Viewport viewport, bool forward)
         {
             _parent = viewport;
@@ -106,59 +29,40 @@ namespace TheraEngine.Rendering
 
             BoundingRectangle region = _parent.Region;
 
-            _fullScreenTriangle = new PrimitiveManager<GBufferMeshProgram>(
-                PrimitiveData.FromTriangles(Culling.None, VertexShaderDesc.JustPositions(), triangle1),
-                GetGBufferMaterial(region.IntWidth, region.IntHeight, forward, this, DepthStencilUse.Depth32f));
+            Material m = GetGBufferMaterial(region.IntWidth, region.IntHeight, forward, this, DepthStencilUse.Depth32f);
+            m.FrameBuffer = this;
 
-            if (forward)
-            {
-                _attachmentsPerTexture = new EFramebufferAttachment?[]
-                {
-                    EFramebufferAttachment.ColorAttachment0, //OutputColor
-                    EFramebufferAttachment.DepthAttachment, //Depth
-                };
-                _colorAttachments = new EDrawBuffersAttachment[]
-                {
-                    EDrawBuffersAttachment.ColorAttachment0, //OutputColor
-                };
-            }
-            else
-            {
-                _attachmentsPerTexture = new EFramebufferAttachment?[]
-                {
-                    EFramebufferAttachment.ColorAttachment0, //AlbedoSpec
-                    EFramebufferAttachment.ColorAttachment1, //Position
-                    EFramebufferAttachment.ColorAttachment2, //Normal
-                    EFramebufferAttachment.DepthAttachment, //Depth
-                };
-                _colorAttachments = new EDrawBuffersAttachment[]
-                {
-                    EDrawBuffersAttachment.ColorAttachment0, //AlbedoSpec
-                    EDrawBuffersAttachment.ColorAttachment1, //Position
-                    EDrawBuffersAttachment.ColorAttachment2, //Normal
-                };
-            }
+            _fullScreenTriangle = new PrimitiveManager(PrimitiveData.FromTriangles(Culling.None, VertexShaderDesc.JustPositions(), triangle1), m);
+            
+            Bind(EFramebufferTarget.Framebuffer);
+            _fullScreenTriangle.Material.GenerateTextures();
+            FramebufferErrorCode c = GL.CheckFramebufferStatus(FramebufferTarget.Framebuffer);
+            if (c != FramebufferErrorCode.FramebufferComplete)
+                throw new Exception("Problem compiling G-Buffer.");
+            Unbind(EFramebufferTarget.Framebuffer);
 
-            _fullScreenTriangle.Program.Update(this, _attachmentsPerTexture, _colorAttachments, _parent.Region.IntWidth, _parent.Region.IntHeight);
-            _fullScreenTriangle.Program.SettingUniforms += Program_SettingUniforms;
-            //_fullScreenTriangle.SettingUniforms += _fullScreenTriangle_SettingUniforms;
+            _fullScreenTriangle.SettingUniforms += SetUniforms;
 
             _quadCamera = new OrthographicCamera() { NearZ = -0.5f, FarZ = 0.5f };
             _quadCamera.SetGraphStyle();
             _quadCamera.Resize(1.0f, 1.0f);
-            //Resize(region);
         }
 
-        private void Program_SettingUniforms()
+        private void SetUniforms()
         {
-            _parent.Camera.PostProcessSettings.SetUniforms();
-            AbstractRenderer.CurrentCamera.SetUniforms();
-            Engine.Renderer.Uniform(Uniform.GetLocation(ECommonUniform.CameraPosition), _parent.Camera.WorldPoint);
+            int matId = _fullScreenTriangle.Material.Program.BindingId;
+
+            _parent.Camera.PostProcessSettings.SetUniforms(matId);
+            
+            Engine.Renderer.ProgramUniform(matId, Uniform.GetLocation(matId, ECommonUniform.CameraPosition), _parent.Camera.WorldPoint);
+
+            if (Engine.Settings.ShadingStyle == ShadingStyle.Deferred)
+                Engine.Scene.Lights.SetUniforms(matId);
         }
 
         public unsafe void Resize(int width, int height)
         {
-            _fullScreenTriangle.Program.Resized(width, height);
+            _fullScreenTriangle.Material.ResizeTextures(width, height);
         }
 
         public void Render()
@@ -180,85 +84,73 @@ namespace TheraEngine.Rendering
         internal static Material GetGBufferMaterial(int width, int height, bool forward, GBuffer buffer, DepthStencilUse depthStencilUse)
         {
             //These are listed in order of appearance in the shader
-            List<TextureReference> refs = forward ?
-                new List<TextureReference>()
+            TextureReference[] refs = forward ?
+                new TextureReference[]
                 {
                     new TextureReference("OutputColor", width, height,
                         EPixelInternalFormat.Rgba8, EPixelFormat.Bgra, EPixelType.UnsignedByte)
                     {
-                        MinFilter = EMinFilter.Nearest,
-                        MagFilter = EMagFilter.Nearest,
-                        UWrap = ETexCoordWrap.Clamp,
-                        VWrap = ETexCoordWrap.Clamp,
+                        MinFilter = ETexMinFilter.Nearest,
+                        MagFilter = ETexMagFilter.Nearest,
+                        UWrap = ETexWrapMode.Clamp,
+                        VWrap = ETexWrapMode.Clamp,
+                        FrameBufferAttachment = EFramebufferAttachment.ColorAttachment0,
                     },
-                    //new TextureReference("Text", width, height,
-                    //    EPixelInternalFormat.Rgba8, EPixelFormat.Bgra, EPixelType.UnsignedByte, System.Drawing.Imaging.PixelFormat.Format32bppArgb)
-                    //{
-                    //    MinFilter = MinFilter.Nearest,
-                    //    MagFilter = MagFilter.Nearest,
-                    //    UWrap = TexCoordWrap.Clamp,
-                    //    VWrap = TexCoordWrap.Clamp,
-                    //},
                     new TextureReference("Depth", width, height,
                         EPixelInternalFormat.DepthComponent32f, EPixelFormat.DepthComponent, EPixelType.Float)
                     {
-                        MinFilter = EMinFilter.Nearest,
-                        MagFilter = EMagFilter.Nearest,
-                        UWrap = ETexCoordWrap.Clamp,
-                        VWrap = ETexCoordWrap.Clamp,
+                        MinFilter = ETexMinFilter.Nearest,
+                        MagFilter = ETexMagFilter.Nearest,
+                        UWrap = ETexWrapMode.Clamp,
+                        VWrap = ETexWrapMode.Clamp,
+                        FrameBufferAttachment = EFramebufferAttachment.DepthAttachment,
                     },
-                }
-                :
-                new List<TextureReference>()
+                } : 
+                new TextureReference[]
                 {
                     new TextureReference("AlbedoSpec", width, height,
                         EPixelInternalFormat.Rgba8, EPixelFormat.Bgra, EPixelType.UnsignedByte)
                     {
-                        MinFilter = EMinFilter.Nearest,
-                        MagFilter = EMagFilter.Nearest,
-                        UWrap = ETexCoordWrap.Clamp,
-                        VWrap = ETexCoordWrap.Clamp,
+                        MinFilter = ETexMinFilter.Nearest,
+                        MagFilter = ETexMagFilter.Nearest,
+                        UWrap = ETexWrapMode.Clamp,
+                        VWrap = ETexWrapMode.Clamp,
+                        FrameBufferAttachment = EFramebufferAttachment.ColorAttachment0,
                     },
                     new TextureReference("Position", width, height,
                         EPixelInternalFormat.Rgb32f, EPixelFormat.Rgb, EPixelType.Float)
                     {
-                        MinFilter = EMinFilter.Nearest,
-                        MagFilter = EMagFilter.Nearest,
-                        UWrap = ETexCoordWrap.Clamp,
-                        VWrap = ETexCoordWrap.Clamp,
+                        MinFilter = ETexMinFilter.Nearest,
+                        MagFilter = ETexMagFilter.Nearest,
+                        UWrap = ETexWrapMode.Clamp,
+                        VWrap = ETexWrapMode.Clamp,
+                        FrameBufferAttachment = EFramebufferAttachment.ColorAttachment1,
                     },
                     new TextureReference("Normal", width, height,
                         EPixelInternalFormat.Rgb32f, EPixelFormat.Rgb, EPixelType.Float)
                     {
-                        MinFilter = EMinFilter.Nearest,
-                        MagFilter = EMagFilter.Nearest,
-                        UWrap = ETexCoordWrap.Clamp,
-                        VWrap = ETexCoordWrap.Clamp,
+                        MinFilter = ETexMinFilter.Nearest,
+                        MagFilter = ETexMagFilter.Nearest,
+                        UWrap = ETexWrapMode.Clamp,
+                        VWrap = ETexWrapMode.Clamp,
+                        FrameBufferAttachment = EFramebufferAttachment.ColorAttachment2,
                     },
-                    //new TextureReference("Text", width, height,
-                    //    EPixelInternalFormat.Rgba8, EPixelFormat.Bgra, EPixelType.UnsignedByte, System.Drawing.Imaging.PixelFormat.Format32bppArgb)
-                    //{
-                    //    MinFilter = MinFilter.Nearest,
-                    //    MagFilter = MagFilter.Nearest,
-                    //    UWrap = TexCoordWrap.Clamp,
-                    //    VWrap = TexCoordWrap.Clamp,
-                    //},
                     new TextureReference("Depth", width, height,
                         EPixelInternalFormat.DepthComponent32f, EPixelFormat.DepthComponent, EPixelType.Float)
                     {
-                        MinFilter = EMinFilter.Nearest,
-                        MagFilter = EMagFilter.Nearest,
-                        UWrap = ETexCoordWrap.Clamp,
-                        VWrap = ETexCoordWrap.Clamp,
+                        MinFilter = ETexMinFilter.Nearest,
+                        MagFilter = ETexMagFilter.Nearest,
+                        UWrap = ETexWrapMode.Clamp,
+                        VWrap = ETexWrapMode.Clamp,
+                        FrameBufferAttachment = EFramebufferAttachment.DepthAttachment,
                     },
                 };
 
-            return new Material("GBufferMaterial", new List<GLVar>(), refs, forward ? GBufferShaderForward() : GBufferShaderDeferred());
+            return new Material("GBufferMaterial", new ShaderVar[0], refs, forward ? GBufferShaderForward() : GBufferShaderDeferred());
         }
         internal static Shader GBufferShaderDeferred()
         {
             string source = @"
-
 #version 450
 
 uniform sampler2D Texture0;
@@ -301,29 +193,9 @@ void main()
 }";
             return new Shader(ShaderMode.Fragment, source);
         }
-        private static string PostProcessPart()
-        {
-            return @"
-    //Color grading
-    hdrSceneColor *= ColorGrade.Tint;
-
-    //Tone mapping
-    vec3 ldrSceneColor = vec3(1.0) - exp(-hdrSceneColor * ColorGrade.Exposure);
-    
-    //Vignette
-    //float alpha = clamp(pow(distance(uv, vec2(0.5)), Vignette.Intensity), 0.0, 1.0);
-    //vec4 smoothed = smoothstep(vec4(1.0), Vignette.Color, Vignette.Color * vec4(alpha));
-    //ldrSceneColor = mix(ldrSceneColor, smoothed.rgb, alpha * smoothed.a);
-
-    //Gamma-correct
-    vec3 gammaCorrected = pow(ldrSceneColor, vec3(1.0 / ColorGrade.Gamma));
-
-    OutColor = vec4(gammaCorrected, 1.0);";
-        }
         internal static Shader GBufferShaderForward()
         {
             string source = @"
-
 #version 450
 
 uniform sampler2D Texture0;
@@ -350,6 +222,28 @@ void main()
     " + PostProcessPart() + @"
 }";
             return new Shader(ShaderMode.Fragment, source);
+        }
+        /// <summary>
+        /// Takes the HDR scene color, tone maps to LDR and performs post processing.
+        /// </summary>
+        private static string PostProcessPart()
+        {
+            return @"
+    //Color grading
+    hdrSceneColor *= ColorGrade.Tint;
+
+    //Tone mapping
+    vec3 ldrSceneColor = vec3(1.0) - exp(-hdrSceneColor * ColorGrade.Exposure);
+    
+    //Vignette
+    //float alpha = clamp(pow(distance(uv, vec2(0.5)), Vignette.Intensity), 0.0, 1.0);
+    //vec4 smoothed = smoothstep(vec4(1.0), Vignette.Color, Vignette.Color * vec4(alpha));
+    //ldrSceneColor = mix(ldrSceneColor, smoothed.rgb, alpha * smoothed.a);
+
+    //Gamma-correct
+    vec3 gammaCorrected = pow(ldrSceneColor, vec3(1.0 / ColorGrade.Gamma));
+
+    OutColor = vec4(gammaCorrected, 1.0);";
         }
     }
 }

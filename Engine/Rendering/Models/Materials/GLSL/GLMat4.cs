@@ -2,16 +2,16 @@
 
 namespace TheraEngine.Rendering.Models.Materials
 {
-    public class GLMat4 : GLVar
+    public class GLMat4 : ShaderVar
     {
-        public override GLTypeName TypeName => GLTypeName._mat4;
+        public override ShaderType TypeName => ShaderType._mat4;
         public Matrix4 Value { get => _value; set => _value = value; }
-        internal override void SetUniform(int location) => Engine.Renderer.Uniform(location, _value);
+        internal override void SetProgramUniform(int programBindingId, int location) => Engine.Renderer.ProgramUniform(programBindingId, location, _value);
         internal override string GetValueString() => _value.ToString();
 
         private Matrix4 _value;
 
-        public GLMat4(Matrix4 defaultValue, string name, IGLVarOwner owner) 
+        public GLMat4(Matrix4 defaultValue, string name, IShaderVarOwner owner) 
             : base(name, owner)
         {
             _canSwizzle = false;
@@ -22,16 +22,16 @@ namespace TheraEngine.Rendering.Models.Materials
             _fields.Add("[3]", new GLVec4(defaultValue.Row3, "Row3", this));
         }
     }
-    public class GLMat3 : GLVar
+    public class GLMat3 : ShaderVar
     {
-        public override GLTypeName TypeName => GLTypeName._mat3;
+        public override ShaderType TypeName => ShaderType._mat3;
         public Matrix3 Value { get => _value; set => _value = value; }
-        internal override void SetUniform(int location) => Engine.Renderer.Uniform(location, _value);
+        internal override void SetProgramUniform(int programBindingId, int location) => Engine.Renderer.ProgramUniform(programBindingId, location, _value);
         internal override string GetValueString() => _value.ToString();
         
         private Matrix3 _value;
         
-        public GLMat3(Matrix3 defaultValue, string name, IGLVarOwner owner)
+        public GLMat3(Matrix3 defaultValue, string name, IShaderVarOwner owner)
             : base(name, owner)
         {
             _canSwizzle = false;

@@ -19,22 +19,22 @@ namespace TheraEngine.Rendering.Models.Materials
         public InverseFunc() : base(true) { }
         protected override string GetOperation()
         {
-            switch ((GLTypeName)InputValue.CurrentArgumentType)
+            switch ((ShaderType)InputValue.CurrentArgumentType)
             {
-                case GLTypeName._float:
-                case GLTypeName._double:
+                case ShaderType._float:
+                case ShaderType._double:
                     return "1.0 / {0}";
-                case GLTypeName._vec2:
+                case ShaderType._vec2:
                     return "vec2(1.0) / {0}";
-                case GLTypeName._dvec2:
+                case ShaderType._dvec2:
                     return "dvec2(1.0) / {0}";
-                case GLTypeName._vec3:
+                case ShaderType._vec3:
                     return "vec3(1.0) / {0}";
-                case GLTypeName._dvec3:
+                case ShaderType._dvec3:
                     return "dvec3(1.0) / {0}";
-                case GLTypeName._vec4:
+                case ShaderType._vec4:
                     return "vec4(1.0) / {0}";
-                case GLTypeName._dvec4:
+                case ShaderType._dvec4:
                     return "dvec4(1.0) / {0}";
             }
             throw new InvalidOperationException();

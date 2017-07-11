@@ -25,21 +25,21 @@ namespace TheraEngine.Rendering.HUD
         }
         public Texture2D Texture(int index)
         {
-            if (_quad.Program.Textures.IndexInRange(index))
-                return _quad.Program.Textures[index];
+            if (_quad.Material.TexRefs.IndexInRange(index))
+                return _quad.Material.TexRefs[index].Texture;
             return null;
         }
         /// <summary>
         /// Retrieves the linked material's uniform parameter at the given index.
         /// Use this to set uniform values to be passed to the shader.
         /// </summary>
-        public T2 Parameter<T2>(int index) where T2 : GLVar
+        public T2 Parameter<T2>(int index) where T2 : ShaderVar
             => _quad.Parameter<T2>(index);
         /// <summary>
         /// Retrieves the linked material's uniform parameter with the given name.
         /// Use this to set uniform values to be passed to the shader.
         /// </summary>
-        public T2 Parameter<T2>(string name) where T2 : GLVar
+        public T2 Parameter<T2>(string name) where T2 : ShaderVar
             => _quad.Parameter<T2>(name);
         
         public unsafe override BoundingRectangle Resize(BoundingRectangle parentRegion)

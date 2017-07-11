@@ -2,14 +2,14 @@
 {
     public interface IParameterFunc
     {
-        void SetUniform();
+        void SetUniform(int programBindingId);
     }
     [FunctionDefinition(
                 "Constants",
                 "Parameter Value",
                 "Provides an animatable value to the shader.",
                 "constant scalar vector parameter value uniform animatable animate animation")]
-    public class ParameterFunc<T> : MaterialFunction, IParameterFunc where T : GLVar
+    public class ParameterFunc<T> : MaterialFunction, IParameterFunc where T : ShaderVar
     {
         public ParameterFunc() : base(true) { }
         public ParameterFunc(T value) : base(true) { _value = value; }
@@ -33,7 +33,7 @@
                 return "";
             return _value.GetUniformDeclaration(layoutId);
         }
-        public void SetUniform() 
-            => _value?.SetUniform();
+        public void SetUniform(int programBindingId)
+            => _value?.SetProgramUniform(programBindingId);
     }
 }

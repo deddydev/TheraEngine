@@ -142,7 +142,7 @@ namespace TheraEngine.Rendering.Text
 
         public unsafe void Draw(Texture2D texture)
         {
-            Bitmap b = texture.Data.Bitmap;
+            Bitmap b = texture.Mipmaps[0];
             b.MakeTransparent();
 
             //TODO: instead of redrawing the whole image, keep track of overlapping text

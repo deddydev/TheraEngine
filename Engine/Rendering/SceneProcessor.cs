@@ -146,8 +146,8 @@ namespace TheraEngine.Rendering
         }
         internal void RemoveActiveMaterial(Material material)
         {
-            _removedIds.Enqueue(material.BindingId);
-            _activeMaterials.RemoveAt(material.BindingId);
+            _removedIds.Enqueue(material.UniqueID);
+            _activeMaterials.RemoveAt(material.UniqueID);
         }
 
         public void AddPreRenderedObject(IPreRenderNeeded obj)

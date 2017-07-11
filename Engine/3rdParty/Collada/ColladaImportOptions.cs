@@ -15,7 +15,7 @@ namespace TheraEngine.Rendering.Models
             [Category("Primitives")]
             public float WeightPrecision { get { return _weightPrecision; } set { _weightPrecision = value.Clamp(0.0000001f, 0.999999f); } }
             [Category("Primitives")]
-            public ETexCoordWrap TexCoordWrap { get { return _wrap; } set { _wrap = value; } }
+            public ETexWrapMode TexCoordWrap { get { return _wrap; } set { _wrap = value; } }
 
             [Category("Compression")]
             public bool AllowVertexCompression { get { return _allowVertexCompression; } set { _allowVertexCompression = value; } }
@@ -59,7 +59,7 @@ namespace TheraEngine.Rendering.Models
             public bool _useTristrips = true;
             public bool _reverseWinding = false;
             public float _weightPrecision = 0.0001f;
-            public ETexCoordWrap _wrap = ETexCoordWrap.Repeat;
+            public ETexWrapMode _wrap = ETexWrapMode.Repeat;
             public Culling _culling = Culling.None;
             public bool _backwardSearch = false; //Doesn't work
         }

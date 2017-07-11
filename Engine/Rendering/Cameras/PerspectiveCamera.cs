@@ -97,12 +97,12 @@ namespace TheraEngine.Rendering.Cameras
 
             CalculateProjection();
         }
-        public override void SetUniforms()
+        public override void SetUniforms(int programBindingId)
         {
-            base.SetUniforms();
-            Engine.Renderer.Uniform(Uniform.GetLocation(ECommonUniform.CameraFovX), _fovX);
-            Engine.Renderer.Uniform(Uniform.GetLocation(ECommonUniform.CameraFovY), _fovY);
-            Engine.Renderer.Uniform(Uniform.GetLocation(ECommonUniform.CameraAspect), _aspect);
+            base.SetUniforms(programBindingId);
+            Engine.Renderer.ProgramUniform(programBindingId, Uniform.GetLocation(programBindingId, ECommonUniform.CameraFovX), _fovX);
+            Engine.Renderer.ProgramUniform(programBindingId, Uniform.GetLocation(programBindingId, ECommonUniform.CameraFovY), _fovY);
+            Engine.Renderer.ProgramUniform(programBindingId, Uniform.GetLocation(programBindingId, ECommonUniform.CameraAspect), _aspect);
         }
         public override void Resize(float width, float height)
         {

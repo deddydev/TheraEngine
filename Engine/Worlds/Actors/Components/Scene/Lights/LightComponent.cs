@@ -62,6 +62,6 @@ namespace TheraEngine.Worlds.Actors
 
         }
 
-        public abstract void SetUniforms();
+        public abstract void SetUniforms(int programBindingId);
     }
 }

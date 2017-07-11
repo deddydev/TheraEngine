@@ -5,7 +5,7 @@
                 "Constant Value",
                 "Hardcodes a constant value in the shader.",
                 "constant scalar vector parameter value")]
-    public class ConstantFunc<T> : MaterialFunction where T : GLVar
+    public class ConstantFunc<T> : MaterialFunction where T : ShaderVar
     {
         public ConstantFunc() : base(true) { }
         public ConstantFunc(T value) : base(true) { _value = value; }

@@ -19,37 +19,37 @@ namespace TheraEngine.Rendering.Models.Materials
         public OneMinusFunc() : base(true) { }
         protected override string GetOperation()
         {
-            switch ((GLTypeName)InputValue.CurrentArgumentType)
+            switch ((ShaderType)InputValue.CurrentArgumentType)
             {
-                case GLTypeName._float:
-                case GLTypeName._double:
+                case ShaderType._float:
+                case ShaderType._double:
                     return "1.0 - {0}";
-                case GLTypeName._int:
-                case GLTypeName._uint:
+                case ShaderType._int:
+                case ShaderType._uint:
                     return "1 - {0}";
-                case GLTypeName._vec2:
+                case ShaderType._vec2:
                     return "vec2(1.0) - {0}";
-                case GLTypeName._dvec2:
+                case ShaderType._dvec2:
                     return "dvec2(1.0) - {0}";
-                case GLTypeName._ivec2:
+                case ShaderType._ivec2:
                     return "ivec2(1) - {0}";
-                case GLTypeName._uvec2:
+                case ShaderType._uvec2:
                     return "uvec2(1) - {0}";
-                case GLTypeName._vec3:
+                case ShaderType._vec3:
                     return "vec3(1.0) - {0}";
-                case GLTypeName._dvec3:
+                case ShaderType._dvec3:
                     return "dvec3(1.0) - {0}";
-                case GLTypeName._ivec3:
+                case ShaderType._ivec3:
                     return "ivec3(1) - {0}";
-                case GLTypeName._uvec3:
+                case ShaderType._uvec3:
                     return "uvec3(1) - {0}";
-                case GLTypeName._vec4:
+                case ShaderType._vec4:
                     return "vec4(1.0) - {0}";
-                case GLTypeName._dvec4:
+                case ShaderType._dvec4:
                     return "dvec4(1.0) - {0}";
-                case GLTypeName._ivec4:
+                case ShaderType._ivec4:
                     return "ivec4(1) - {0}";
-                case GLTypeName._uvec4:
+                case ShaderType._uvec4:
                     return "uvec4(1) - {0}";
             }
             throw new InvalidOperationException();

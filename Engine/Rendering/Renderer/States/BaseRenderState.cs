@@ -208,19 +208,19 @@ namespace TheraEngine.Rendering
         /// <summary>
         /// Called by a context when it is being destroyed.
         /// </summary>
-        internal void Destroy(bool currentContextOnly = true)
+        internal void Destroy()
         {
-            if (currentContextOnly)
-                Delete();
-            else
-            {
+            //if (currentContextOnly)
+            //    Delete();
+            //else
+            //{
                 foreach (ContextBind b in _owners)
                     if (b._context != null && !b._context.IsContextDisposed())
                     {
                         b._context.Capture();
                         Delete();
                     }
-            }
+            //}
         }
 
         public override int GetHashCode()
@@ -245,7 +245,7 @@ namespace TheraEngine.Rendering
             {
                 if (disposing)
                 {
-                    Destroy(false);
+                    Destroy();
                 }
 
                 // TODO: free unmanaged resources (unmanaged objects) and override a finalizer below.

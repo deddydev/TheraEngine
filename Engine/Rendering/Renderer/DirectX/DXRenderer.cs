@@ -79,90 +79,90 @@ namespace TheraEngine.Rendering.DirectX
             throw new NotImplementedException();
         }
 
-        public override int GenerateProgram(int[] shaderHandles, VertexShaderDesc info)
-        {
-            throw new NotImplementedException();
-        }
+        //public override int GenerateProgram(int[] shaderHandles, VertexShaderDesc info)
+        //{
+        //    throw new NotImplementedException();
+        //}
 
-        public override int GetAttribLocation(string name)
-        {
-            throw new NotImplementedException();
-        }
+        //public override int GetAttribLocation(string name)
+        //{
+        //    throw new NotImplementedException();
+        //}
 
-        public override int GetUniformLocation(string name)
-        {
-            throw new NotImplementedException();
-        }
+        //public override int GetUniformLocation(string name)
+        //{
+        //    throw new NotImplementedException();
+        //}
 
-        public override void Uniform(int location, params IUniformable4Int[] p)
-        {
-            throw new NotImplementedException();
-        }
+        //public override void Uniform(int location, params IUniformable4Int[] p)
+        //{
+        //    throw new NotImplementedException();
+        //}
 
-        public override void Uniform(int location, params IUniformable4Float[] p)
-        {
-            throw new NotImplementedException();
-        }
+        //public override void Uniform(int location, params IUniformable4Float[] p)
+        //{
+        //    throw new NotImplementedException();
+        //}
 
-        public override void Uniform(int location, params IUniformable3Int[] p)
-        {
-            throw new NotImplementedException();
-        }
+        //public override void Uniform(int location, params IUniformable3Int[] p)
+        //{
+        //    throw new NotImplementedException();
+        //}
 
-        public override void Uniform(int location, params IUniformable3Float[] p)
-        {
-            throw new NotImplementedException();
-        }
+        //public override void Uniform(int location, params IUniformable3Float[] p)
+        //{
+        //    throw new NotImplementedException();
+        //}
 
-        public override void Uniform(int location, params IUniformable2Int[] p)
-        {
-            throw new NotImplementedException();
-        }
+        //public override void Uniform(int location, params IUniformable2Int[] p)
+        //{
+        //    throw new NotImplementedException();
+        //}
 
-        public override void Uniform(int location, params IUniformable2Float[] p)
-        {
-            throw new NotImplementedException();
-        }
+        //public override void Uniform(int location, params IUniformable2Float[] p)
+        //{
+        //    throw new NotImplementedException();
+        //}
 
-        public override void Uniform(int location, params IUniformable1Int[] p)
-        {
-            throw new NotImplementedException();
-        }
+        //public override void Uniform(int location, params IUniformable1Int[] p)
+        //{
+        //    throw new NotImplementedException();
+        //}
 
-        public override void Uniform(int location, params IUniformable1Float[] p)
-        {
-            throw new NotImplementedException();
-        }
+        //public override void Uniform(int location, params IUniformable1Float[] p)
+        //{
+        //    throw new NotImplementedException();
+        //}
 
-        public override void Uniform(int location, params int[] p)
-        {
-            throw new NotImplementedException();
-        }
+        //public override void Uniform(int location, params int[] p)
+        //{
+        //    throw new NotImplementedException();
+        //}
 
-        public override void Uniform(int location, params float[] p)
-        {
-            throw new NotImplementedException();
-        }
+        //public override void Uniform(int location, params float[] p)
+        //{
+        //    throw new NotImplementedException();
+        //}
 
-        public override void Uniform(int location, Matrix4 p)
-        {
-            throw new NotImplementedException();
-        }
+        //public override void Uniform(int location, Matrix4 p)
+        //{
+        //    throw new NotImplementedException();
+        //}
 
-        public override void Uniform(int location, params Matrix4[] p)
-        {
-            throw new NotImplementedException();
-        }
+        //public override void Uniform(int location, params Matrix4[] p)
+        //{
+        //    throw new NotImplementedException();
+        //}
 
-        public override void Uniform(int location, Matrix3 p)
-        {
-            throw new NotImplementedException();
-        }
+        //public override void Uniform(int location, Matrix3 p)
+        //{
+        //    throw new NotImplementedException();
+        //}
 
-        public override void Uniform(int location, params Matrix3[] p)
-        {
-            throw new NotImplementedException();
-        }
+        //public override void Uniform(int location, params Matrix3[] p)
+        //{
+        //    throw new NotImplementedException();
+        //}
         public override void BindTransformFeedback(int bindingId)
         {
             throw new NotImplementedException();
@@ -385,6 +385,116 @@ namespace TheraEngine.Rendering.DirectX
         }
 
         public override void ClearColor(ColorF4 color)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override int GenerateProgram(int[] shaderHandles, VertexShaderDesc info, bool separable)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void SetProgramParameter(int programBindingId, EProgParam parameter, int value)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void UseProgram(int programBindingId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void BindPipeline(int pipelineBindingId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void UsePipeline(int pipelineBindingId, EProgramStageMask mask, int programBindingId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void ApplyRenderParams(RenderingParameters r)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override int GetAttribLocation(int programBindingId, string name)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override int GetUniformLocation(int programBindingId, string name)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void ProgramUniform(int programBindingId, int location, params IUniformable4Int[] p)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void ProgramUniform(int programBindingId, int location, params IUniformable4Float[] p)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void ProgramUniform(int programBindingId, int location, params IUniformable3Int[] p)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void ProgramUniform(int programBindingId, int location, params IUniformable3Float[] p)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void ProgramUniform(int programBindingId, int location, params IUniformable2Int[] p)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void ProgramUniform(int programBindingId, int location, params IUniformable2Float[] p)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void ProgramUniform(int programBindingId, int location, params IUniformable1Int[] p)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void ProgramUniform(int programBindingId, int location, params IUniformable1Float[] p)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void ProgramUniform(int programBindingId, int location, params int[] p)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void ProgramUniform(int programBindingId, int location, params float[] p)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void ProgramUniform(int programBindingId, int location, Matrix4 p)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void ProgramUniform(int programBindingId, int location, params Matrix4[] p)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void ProgramUniform(int programBindingId, int location, Matrix3 p)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void ProgramUniform(int programBindingId, int location, params Matrix3[] p)
         {
             throw new NotImplementedException();
         }

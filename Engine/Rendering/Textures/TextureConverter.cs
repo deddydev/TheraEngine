@@ -1,15 +1,29 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using FreeImageAPI;
 using System.Drawing;
-using System.Drawing.Imaging;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.IO;
 
 namespace TheraEngine.Rendering.Textures
 {
+    public enum TextureFormat
+    {
+        PNG,
+        JPG,
+        TGA,
+        GIF,
+        TIF,
+        DDS,
+        PSD,
+    }
     public unsafe abstract class TextureConverter
     {
+        public static Bitmap[] Decode(string path)
+        {
+            if (!File.Exists(path))
+                return new Bitmap[0];
+
+            return new Bitmap[] { new FreeImageBitmap(path).ToBitmap() };
+        }
+
         //public static readonly TextureConverter I4 = new I4();
         //public static readonly TextureConverter IA4 = new IA4();
         //public static readonly TextureConverter I8 = new I8();
@@ -20,7 +34,7 @@ namespace TheraEngine.Rendering.Textures
         //public static readonly TextureConverter CI8 = new CI8();
         //public static readonly TextureConverter CMPR = new CMPR();
         //public static readonly TextureConverter RGBA8 = new RGBA8();
-        
+
         //public abstract CPixelFormat RawFormat { get; }
         //public abstract int BitsPerPixel { get; }
         //public abstract int BlockWidth { get; }

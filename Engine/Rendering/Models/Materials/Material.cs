@@ -1,8 +1,9 @@
-﻿using TheraEngine.Files;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
+using TheraEngine.Files;
+using TheraEngine.Rendering.Textures;
 
 namespace TheraEngine.Rendering.Models.Materials
 {
@@ -108,6 +109,8 @@ namespace TheraEngine.Rendering.Models.Materials
     }
     public struct RenderingParameters
     {
+        public static readonly RenderingParameters Default = new RenderingParameters() { };
+
         private MaterialRenderType renderType;
         private AlphaTest _alpha;
         private DepthTest _depth;
@@ -180,7 +183,6 @@ namespace TheraEngine.Rendering.Models.Materials
     {
         internal RenderingParameters _renderParams = new RenderingParameters()
         {
-            
             EnableDepthTest = true,
             EnableDepthUpdate = true,
             DepthFunction = EComparison.Lequal,
@@ -217,90 +219,199 @@ namespace TheraEngine.Rendering.Models.Materials
         [Category("Stencil Test")]
         [DisplayName("Back Face Mask")]
         public int BackFaceStencilMask { get => _renderParams.BackFaceStencilMask; set => _renderParams.BackFaceStencilMask = value; }
-
-        internal Shader
-            _vertexShader,
-            _fragmentShader, 
-            _geometryShader,
-            _tessellationControlShader, 
-            _tessellationEvaluationShader;
-
-        private List<TextureReference> _textures = new List<TextureReference>();
-        private List<GLVar> _parameters = new List<GLVar>();
-        private List<I3DRenderable> _renderingReferences = new List<I3DRenderable>();
-        private int _bindingId = -1;
-
-        public int BindingId => _bindingId;
-        public List<GLVar> Parameters
-        {
-            get => _parameters;
-            set => _parameters = value;
-        }
-        public List<TextureReference> Textures
+        
+        public ShaderVar[] Parameters => _parameters;
+        public TextureReference[] TexRefs
         {
             get => _textures;
-            set => _textures = value;
+            set
+            {
+                _textures = value;
+                CollectFBOAttachments();
+            }
         }
+        
+        internal void CollectFBOAttachments()
+        {
+            if (_frameBuffer != null && _textures != null && _textures.Length > 0)
+            {
+                List<EDrawBuffersAttachment> fboAttachments = new List<EDrawBuffersAttachment>();
+                foreach (TextureReference tref in _textures)
+                {
+                    if (!tref.FrameBufferAttachment.HasValue)
+                        continue;
+                    switch (tref.FrameBufferAttachment.Value)
+                    {
+                        case EFramebufferAttachment.Color:
+                        case EFramebufferAttachment.Depth:
+                        case EFramebufferAttachment.DepthAttachment:
+                        case EFramebufferAttachment.DepthStencilAttachment:
+                        case EFramebufferAttachment.Stencil:
+                        case EFramebufferAttachment.StencilAttachment:
+                            continue;
+                    }
+                    fboAttachments.Add((EDrawBuffersAttachment)(int)tref.FrameBufferAttachment.Value);
+                }
+                _fboAttachments = fboAttachments.ToArray();
+            }
+            else
+                _fboAttachments = null;
+        }
+
+        public event Action SettingUniforms;
+
+        private List<Shader> _geometryShaders;
+        private List<Shader> _tessEvalShaders;
+        private List<Shader> _tessCtrlShaders;
+        private List<Shader> _fragmentShaders;
+        private Shader[] _shaders;
+        private EDrawBuffersAttachment[] _fboAttachments;
+
+        private RenderProgram _program;
+        private FrameBuffer _frameBuffer;
+
+        protected ShaderVar[] _parameters;
+        protected TextureReference[] _textures;
+
+        private List<PrimitiveManager> _references = new List<PrimitiveManager>();
+        private int _uniqueID = -1;
+
+        public int UniqueID => _uniqueID;
 
         public bool HasTransparency => _renderParams.Blend.EnableBlending || _renderParams.Alpha.EnableAlphaTest;
 
-        internal void AddReference(I3DRenderable user)
+        public RenderProgram Program
         {
-            if (_renderingReferences.Count == 0)
-                _bindingId = Engine.Scene.AddActiveMaterial(this);
-            _renderingReferences.Add(user);
+            get
+            {
+                if (_program != null && !_program.IsActive)
+                    _program.Generate();
+                return _program;
+            }
         }
-        internal void RemoveReference(I3DRenderable user)
+
+        public FrameBuffer FrameBuffer
         {
-            _renderingReferences.Add(user);
-            if (_renderingReferences.Count == 0)
+            get => _frameBuffer;
+            set
+            {
+                _frameBuffer = value;
+                BindTextures = _frameBuffer != null ? (Action)BindTexturesFBO : BindTexturesNonFBO;
+                CollectFBOAttachments();
+            }
+        }
+
+        public void GenerateTextures()
+        {
+            if (_textures != null)
+                foreach (TextureReference t in _textures)
+                    t.Texture.Generate();
+        }
+        internal void AddReference(PrimitiveManager user)
+        {
+            if (_references.Count == 0)
+                _uniqueID = Engine.Scene.AddActiveMaterial(this);
+            _references.Add(user);
+        }
+        internal void RemoveReference(PrimitiveManager user)
+        {
+            _references.Add(user);
+            if (_references.Count == 0)
             {
                 Engine.Scene.RemoveActiveMaterial(this);
-                _bindingId = -1;
+                _uniqueID = -1;
+            }
+        }
+        public void SetUniforms()
+        {
+            foreach (ShaderVar v in _parameters)
+                v.SetProgramUniform(Program.BindingId);
+
+            Engine.Renderer.ApplyRenderParams(_renderParams);
+            BindTextures();
+
+            SettingUniforms?.Invoke();
+        }
+        /// <summary>
+        /// Resizes the gbuffer's textures.
+        /// Note that they will still fully cover the screen regardless of 
+        /// if their dimensions match or not.
+        /// </summary>
+        public void ResizeTextures(int width, int height)
+        {
+            //Update each texture's dimensions
+            foreach (TextureReference t in TexRefs)
+                t.Resize(width, height);
+        }
+        public Action BindTextures;
+        private void BindTexturesFBO()
+        {
+            Engine.Renderer.BindFrameBuffer(EFramebufferTarget.Framebuffer, FrameBuffer.BindingId);
+            BindTexturesNonFBO();
+            Engine.Renderer.SetDrawBuffers(_fboAttachments);
+            Engine.Renderer.BindFrameBuffer(EFramebufferTarget.Framebuffer, 0);
+        }
+        internal void BindTexturesNonFBO()
+        {
+            for (int i = 0; i < TexRefs.Length; ++i)
+            {
+                Engine.Renderer.SetActiveTexture(i);
+                Engine.Renderer.ProgramUniform(_program.BindingId, "Texture" + i, i);
+                TexRefs[i].Texture.Bind();
             }
         }
 
         public Material()
-            : this("NewMaterial", new List<GLVar>(), new List<TextureReference>()) { }
+            : this("NewMaterial", new ShaderVar[0], new TextureReference[0]) { }
         public Material(string name, params Shader[] shaders) 
-            : this(name, new List<GLVar>(), new List<TextureReference>(), shaders) { }
-        public Material(string name, List<GLVar> parameters, params Shader[] shaders)
-            : this(name, parameters, new List<TextureReference>(), shaders) { }
-        public Material(string name, List<TextureReference> textures, params Shader[] shaders)
-            : this(name, new List<GLVar>(), textures, shaders) { }
-        public Material(string name, List<GLVar> parameters, List<TextureReference> textures, params Shader[] shaders)
+            : this(name, new ShaderVar[0], new TextureReference[0], shaders) { }
+        public Material(string name, ShaderVar[] parameters, params Shader[] shaders)
+            : this(name, parameters, new TextureReference[0], shaders) { }
+        public Material(string name, TextureReference[] textures, params Shader[] shaders)
+            : this(name, new ShaderVar[0], textures, shaders) { }
+        public Material(string name, ShaderVar[] parameters, TextureReference[] textures, params Shader[] shaders)
         {
+            BindTextures = BindTexturesNonFBO;
+
             _name = name;
-            _parameters = parameters ?? new List<GLVar>();
-            _textures = textures ?? new List<TextureReference>();
+            _parameters = parameters ?? new ShaderVar[0];
+            TexRefs = textures ?? new TextureReference[0];
+
+            _shaders = shaders;
+            _fragmentShaders = new List<Shader>();
+            _geometryShaders = new List<Shader>();
+            _tessCtrlShaders = new List<Shader>();
+            _tessEvalShaders = new List<Shader>();
+
             if (shaders != null)
                 foreach (Shader s in shaders)
                 {
                     switch (s.ShaderType)
                     {
                         case ShaderMode.Vertex:
-                            _vertexShader = s;
-                            break;
+                            throw new Exception();
                         case ShaderMode.Fragment:
-                            _fragmentShader = s;
+                            _fragmentShaders.Add(s);
                             break;
                         case ShaderMode.Geometry:
-                            _geometryShader = s;
+                            _geometryShaders.Add(s);
                             break;
                         case ShaderMode.TessControl:
-                            _tessellationControlShader = s;
+                            _tessCtrlShaders.Add(s);
                             break;
                         case ShaderMode.TessEvaluation:
-                            _tessellationEvaluationShader = s;
+                            _tessEvalShaders.Add(s);
                             break;
                     }
                 }
+
+            _program = new RenderProgram(null, _shaders);
         }
         public static Material GetUnlitTextureMaterial(TextureReference texture) => GetUnlitTextureMaterial(texture, Engine.Settings.ShadingStyle == ShadingStyle.Deferred);
         public static Material GetUnlitTextureMaterial(TextureReference texture, bool deferred)
         {
-            List<TextureReference> refs = new List<TextureReference>() { texture };
-            List<GLVar> parameters = new List<GLVar>();
+            TextureReference[] refs = new TextureReference[] { texture };
+            ShaderVar[] parameters = new ShaderVar[0];
             Shader frag = deferred ? ShaderHelpers.UnlitTextureFragDeferred() : ShaderHelpers.UnlitTextureFragForward();
             return new Material("UnlitTextureMaterial", parameters, refs, frag);
         }
@@ -325,12 +436,12 @@ namespace TheraEngine.Rendering.Models.Materials
             => GetUnlitColorMaterial(color, Engine.Settings.ShadingStyle == ShadingStyle.Deferred);
         public static Material GetUnlitColorMaterial(ColorF4 color, bool deferred)
         {
-            List<TextureReference> refs = new List<TextureReference>();
-            Shader frag = deferred ? ShaderHelpers.UnlitColorFragDeferred() : ShaderHelpers.UnlitColorFragForward();
-            List<GLVar> parameters = new List<GLVar>()
+            TextureReference[] refs = new TextureReference[0];
+            ShaderVar[] parameters = new ShaderVar[]
             {
                 new GLVec4(color, "MatColor"),
             };
+            Shader frag = deferred ? ShaderHelpers.UnlitColorFragDeferred() : ShaderHelpers.UnlitColorFragForward();
             return new Material("UnlitColorMaterial", parameters, refs, frag);
         }
         public static Material GetLitColorMaterial()
@@ -341,14 +452,14 @@ namespace TheraEngine.Rendering.Models.Materials
             => GetLitColorMaterial(color, Engine.Settings.ShadingStyle == ShadingStyle.Deferred);
         public static Material GetLitColorMaterial(ColorF4 color, bool deferred)
         {
-            List<TextureReference> refs = new List<TextureReference>();
-            Shader frag = deferred ? ShaderHelpers.LitColorFragDeferred() : ShaderHelpers.LitColorFragForward();
-            List<GLVar> parameters = new List<GLVar>()
+            TextureReference[] refs = new TextureReference[0];
+            ShaderVar[] parameters = new ShaderVar[]
             {
                 new GLVec4(color, "MatColor"),
                 new GLFloat(20.0f, "MatSpecularIntensity"),
                 new GLFloat(128.0f, "MatShininess"),
             };
+            Shader frag = deferred ? ShaderHelpers.LitColorFragDeferred() : ShaderHelpers.LitColorFragForward();
             return new Material("TestMaterial", parameters, refs, frag);
         }
     }

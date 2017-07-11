@@ -64,19 +64,19 @@ namespace TheraEngine.Worlds.Actors
                 Engine.Scene.Lights.Remove(this);
         }
 
-        public override void SetUniforms()
+        public override void SetUniforms(int programBindingId)
         {
             Vec3 point = WorldMatrix.GetPoint();
 
             string indexer = Uniform.SpotLightsName + "[" + _lightIndex + "].";
-            Engine.Renderer.Uniform(indexer + "Base.Base.Color", _color.Raw);
-            Engine.Renderer.Uniform(indexer + "Base.Base.AmbientIntensity", _ambientIntensity);
-            Engine.Renderer.Uniform(indexer + "Base.Base.DiffuseIntensity", _diffuseIntensity);
-            Engine.Renderer.Uniform(indexer + "Base.Position", point);
-            Engine.Renderer.Uniform(indexer + "Base.Radius", _radius);
-            Engine.Renderer.Uniform(indexer + "Direction", _direction);
-            Engine.Renderer.Uniform(indexer + "Cutoff", _cutoff);
-            Engine.Renderer.Uniform(indexer + "Exponent", _exponent);
+            Engine.Renderer.ProgramUniform(programBindingId, indexer + "Base.Base.Color", _color.Raw);
+            Engine.Renderer.ProgramUniform(programBindingId, indexer + "Base.Base.AmbientIntensity", _ambientIntensity);
+            Engine.Renderer.ProgramUniform(programBindingId, indexer + "Base.Base.DiffuseIntensity", _diffuseIntensity);
+            Engine.Renderer.ProgramUniform(programBindingId, indexer + "Base.Position", point);
+            Engine.Renderer.ProgramUniform(programBindingId, indexer + "Base.Radius", _radius);
+            Engine.Renderer.ProgramUniform(programBindingId, indexer + "Direction", _direction);
+            Engine.Renderer.ProgramUniform(programBindingId, indexer + "Cutoff", _cutoff);
+            Engine.Renderer.ProgramUniform(programBindingId, indexer + "Exponent", _exponent);
         }
     }
 }

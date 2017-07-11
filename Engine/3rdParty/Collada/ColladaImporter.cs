@@ -20,7 +20,7 @@ namespace TheraEngine.Rendering.Models
         }
         public static Scene Import(string filePath, ImportOptions options, bool importAnimations = true, bool importModels = true)
         {
-            Debug.WriteLine("Imporing Collada scene on " + Thread.CurrentThread.Name + " thread.");
+            Debug.WriteLine("Importing Collada scene on " + Thread.CurrentThread.Name + " thread.");
 
             DecoderShell shell = DecoderShell.Import(filePath);
 
@@ -66,16 +66,21 @@ namespace TheraEngine.Rendering.Models
                                                 break;
                                             }
                                     }
-                    
+
                 Material m = imgEntries.Count > 0 ? Material.GetLitTextureMaterial() : Material.GetLitColorMaterial();//new Material(mat._name != null ? mat._name : mat._id, s);
                 mat._node = m;
 
-                foreach (ImageEntry img in imgEntries)
+                TextureReference[] t = new TextureReference[imgEntries.Count];
+                for (int i = 0; i < imgEntries.Count; ++i)
                 {
-                    TextureReference tr = new TextureReference(img._path);
-                    tr.UWrap = tr.VWrap = options._wrap;
-                    m.Textures.Add(tr);
+                    ImageEntry img = imgEntries[i];
+                    t[i] = new TextureReference(Path.GetFileNameWithoutExtension(img._path), img._path)
+                    {
+                        UWrap = options._wrap,
+                        VWrap = options._wrap,
+                    };
                 }
+                m.TexRefs = t;
             }
 
             List<ObjectInfo> objects = new List<ObjectInfo>();

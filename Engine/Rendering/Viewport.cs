@@ -292,7 +292,7 @@ namespace TheraEngine.Rendering
             Vec2 absolutePoint = viewportPoint;//RelativeToAbsolute(viewportPoint);
             _gBuffer.Bind(EFramebufferTarget.Framebuffer);
             Engine.Renderer.SetReadBuffer(EDrawBuffersAttachment.None);
-            var depthTex = _gBuffer.Textures[4];
+            //var depthTex = _gBuffer.Textures[4];
             //depthTex.Bind();
             //if (viewportPoint.Y >= depthTex.Height || viewportPoint.Y < 0 || viewportPoint.X >= depthTex.Width || viewportPoint.X < 0)
             //    return 0;

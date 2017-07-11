@@ -3,28 +3,26 @@ using FreeImageAPI;
 using System.ComponentModel;
 using System.Drawing;
 using System.IO;
+using System.Drawing.Imaging;
 
 namespace TheraEngine.Rendering.Textures
 {
+    /// <summary>
+    /// Wrapper class for a set of bitmaps, optionally (usually) stored in an external texture file such as a PNG or DDS.
+    /// </summary>
     [FileClass("", "", true)]
     public class TextureData : FileObject
     {
-        public Bitmap Bitmap
+        private Bitmap[] _bitmaps;
+        public Bitmap[] Bitmaps
         {
-            get => _bitmap;
-            set => _bitmap = value;
+            get => _bitmaps;
+            set => _bitmaps = value;
         }
-
-        Bitmap _bitmap;
-
         public TextureData() : this(1, 1) { }
-        public TextureData(int width, int height, System.Drawing.Imaging.PixelFormat format = System.Drawing.Imaging.PixelFormat.Format32bppArgb)
-        {
-            _bitmap = new Bitmap(width, height, format);
-        }
+        public TextureData(int width, int height, PixelFormat format = PixelFormat.Format32bppArgb)
+            => _bitmaps = new Bitmap[] { new Bitmap(width, height, format) };
         public TextureData(string path)
-        {
-            _bitmap = File.Exists(path) ? new FreeImageBitmap(path).ToBitmap() : null;
-        }
+            => _bitmaps = TextureConverter.Decode(path);
     }
 }

@@ -21,12 +21,12 @@ namespace TheraEngine.Rendering.Models.Materials
         {
             return new List<MatFuncValueInput>()
             {
-                new MatFuncValueInput("Diffuse", GLTypeName._vec4),
-                new MatFuncValueInput("Roughness", GLTypeName._float),
-                new MatFuncValueInput("Shininess", GLTypeName._float),
-                new MatFuncValueInput("Specularity", GLTypeName._float),
-                new MatFuncValueInput("Metallic", GLTypeName._float),
-                new MatFuncValueInput("Refraction", GLTypeName._float),
+                new MatFuncValueInput("Diffuse", ShaderType._vec4),
+                new MatFuncValueInput("Roughness", ShaderType._float),
+                new MatFuncValueInput("Shininess", ShaderType._float),
+                new MatFuncValueInput("Specularity", ShaderType._float),
+                new MatFuncValueInput("Metallic", ShaderType._float),
+                new MatFuncValueInput("Refraction", ShaderType._float),
             };
         }
     }

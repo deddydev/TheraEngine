@@ -32,16 +32,16 @@ namespace TheraEngine.Worlds.Actors
                 Engine.Scene.Lights.Remove(this);
         }
 
-        public override void SetUniforms()
+        public override void SetUniforms(int programBindingId)
         {
             Vec3 point = WorldMatrix.GetPoint();
 
             string indexer = Uniform.PointLightsName + "[" + _lightIndex + "].";
-            Engine.Renderer.Uniform(indexer + "Base.Color", _color.Raw);
-            Engine.Renderer.Uniform(indexer + "Base.AmbientIntensity", _ambientIntensity);
-            Engine.Renderer.Uniform(indexer + "Base.DiffuseIntensity", _diffuseIntensity);
-            Engine.Renderer.Uniform(indexer + "Position", point);
-            Engine.Renderer.Uniform(indexer + "Radius", _radius);
+            Engine.Renderer.ProgramUniform(programBindingId, indexer + "Base.Color", _color.Raw);
+            Engine.Renderer.ProgramUniform(programBindingId, indexer + "Base.AmbientIntensity", _ambientIntensity);
+            Engine.Renderer.ProgramUniform(programBindingId, indexer + "Base.DiffuseIntensity", _diffuseIntensity);
+            Engine.Renderer.ProgramUniform(programBindingId, indexer + "Position", point);
+            Engine.Renderer.ProgramUniform(programBindingId, indexer + "Radius", _radius);
         }
     }
 }

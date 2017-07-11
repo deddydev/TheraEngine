@@ -601,7 +601,7 @@
     <Compile Include="Rendering\Models\Materials\Shader Generator\ShaderGenerator.cs" />
     <Compile Include="Rendering\Models\Materials\Shader Generator\VertexShaderGenerator.cs" />
     <Compile Include="Rendering\Models\Materials\ShaderHelpers.cs" />
-    <Compile Include="Rendering\Models\Materials\TextureReference.cs" />
+    <Compile Include="Rendering\Models\Materials\TexRef.cs" />
     <Compile Include="Rendering\Models\Materials\Uniform.cs" />
     <Compile Include="Rendering\Models\Meshes\Faces\Vertex\VertexLineStrip.cs" />
     <Compile Include="Rendering\Models\Meshes\Faces\Vertex\VertexLine.cs" />
@@ -660,8 +660,9 @@
     <Compile Include="Rendering\Models\Meshes\Faces\Index\IndexTriangleStrip.cs" />
     <Compile Include="Rendering\LightManager.cs" />
     <Compile Include="Rendering\Models\CPUSkinInfo.cs" />
+    <Compile Include="Rendering\Renderer\States\ProgramPipeline.cs" />
     <Compile Include="Rendering\Renderer\States\RenderBuffer.cs" />
-    <Compile Include="Rendering\Renderer\States\MeshProgram.cs" />
+    <Compile Include="Rendering\Renderer\States\RenderProgram.cs" />
     <Compile Include="Rendering\Renderer\States\TransformFeedback.cs" />
     <Compile Include="Rendering\SceneProcessor.cs" />
     <Compile Include="Rendering\Renderer\States\BaseRenderState.cs" />
@@ -674,7 +675,7 @@
     <Compile Include="Rendering\Text\LocalizedStringTable.cs" />
     <Compile Include="Rendering\Text\Text.cs" />
     <Compile Include="Rendering\Textures\PixelTypes.cs" />
-    <None Include="Rendering\Textures\TextureConverter.cs" />
+    <Compile Include="Rendering\Textures\TextureConverter.cs" />
     <Compile Include="Rendering\Textures\TextureData.cs" />
     <Compile Include="Settings.cs" />
     <Compile Include="System\CommonDelegates.cs" />

@@ -14,165 +14,59 @@ namespace TheraEngine.Rendering.Textures
     public class Texture2D : BaseRenderState
     {
         public Texture2D() : this(null) { }
-        public Texture2D(TextureData data, int bindingId) : base(EObjectType.Texture, bindingId)
-        {
-            _data = data;
-            _width = _data != null && _data.Bitmap != null ? _data.Bitmap.Width : 1;
-            _height = _data != null && _data.Bitmap != null ? _data.Bitmap.Height : 1;
-            PixelFormat p = (data == null || data.Bitmap == null) ? PixelFormat.Format32bppArgb : data.Bitmap.PixelFormat;
-            switch (p)
-            {
-                case PixelFormat.Format32bppArgb:
-                    _internalFormat = EPixelInternalFormat.Rgba8;
-                    _pixelFormat = EPixelFormat.Bgra;
-                    _pixelType = EPixelType.UnsignedByte;
-                    break;
-                case PixelFormat.Format24bppRgb:
-                    _internalFormat = EPixelInternalFormat.Rgb8;
-                    _pixelFormat = EPixelFormat.Bgr;
-                    _pixelType = EPixelType.UnsignedByte;
-                    break;
-                default:
-                    throw new Exception();
-            }
-        }
-        public Texture2D(TextureData data) : base(EObjectType.Texture)
-        {
-            _data = data;
-            _width = _data != null && _data.Bitmap != null ? _data.Bitmap.Width : 1;
-            _height = _data != null && _data.Bitmap != null ? _data.Bitmap.Height : 1;
-            PixelFormat p = (data == null || data.Bitmap == null) ? PixelFormat.Format32bppArgb : data.Bitmap.PixelFormat;
-            switch (p)
-            {
-                case PixelFormat.Format32bppArgb:
-                    _internalFormat = EPixelInternalFormat.Rgba8;
-                    _pixelFormat = EPixelFormat.Bgra;
-                    _pixelType = EPixelType.UnsignedByte;
-                    break;
-                case PixelFormat.Format24bppRgb:
-                    _internalFormat = EPixelInternalFormat.Rgb8;
-                    _pixelFormat = EPixelFormat.Bgr;
-                    _pixelType = EPixelType.UnsignedByte;
-                    break;
-                default:
-                    throw new Exception();
-            }
-        }
-        public Texture2D(
-            TextureData data,
-            EMinFilter minFilter,
-            EMagFilter magFilter,
-            ETexCoordWrap uWrap,
-            ETexCoordWrap vWrap,
-            float lodBias)
-            : this(data)
-        {
-            _minFilter = minFilter;
-            _magFilter = magFilter;
-            _uWrapMode = uWrap;
-            _vWrapMode = vWrap;
-            _lodBias = lodBias;
-        }
-
-        public Texture2D(
-            int width,
-            int height,
-            EMinFilter minFilter,
-            EMagFilter magFilter,
-            ETexCoordWrap uWrap,
-            ETexCoordWrap vWrap,
-            float lodBias,
-            EPixelInternalFormat internalFormat,
-            EPixelFormat pixelFormat,
-            EPixelType pixelType)
-            : this(null, minFilter, magFilter, uWrap, vWrap, lodBias)
+        public Texture2D(int bindingId) : base(EObjectType.Texture, bindingId) => Init(null);
+        public Texture2D(params Bitmap[] mipmaps) : base(EObjectType.Texture) => Init(mipmaps);
+        public Texture2D(int bindingId, params Bitmap[] mipmaps) : base(EObjectType.Texture, bindingId) => Init(mipmaps);
+        /// <summary>
+        /// Initializes the texture as an unallocated texture to be filled by a framebuffer.
+        /// </summary>
+        public Texture2D(int width, int height, EPixelInternalFormat internalFormat, EPixelFormat pixelFormat, EPixelType pixelType) : this(null)
         {
             _width = width;
             _height = height;
-            _internalFormat = internalFormat;
-            _pixelFormat = pixelFormat;
-            _pixelType = pixelType;
+            InternalFormat = internalFormat;
+            PixelFormat = pixelFormat;
+            PixelType = pixelType;
+            _mipmaps = null;
         }
-
-        public Texture2D(
-            TextureData data,
-            EMinFilter minFilter,
-            EMagFilter magFilter,
-            ETexCoordWrap uWrap,
-            ETexCoordWrap vWrap,
-            float lodBias,
-            EPixelInternalFormat internalFormat,
-            EPixelFormat pixelFormat,
-            EPixelType pixelType)
-            : this(data, minFilter, magFilter, uWrap, vWrap, lodBias)
+        private void Init(params Bitmap[] mipmaps)
         {
-            _internalFormat = internalFormat;
-            _pixelFormat = pixelFormat;
-            _pixelType = pixelType;
+            _mipmaps = mipmaps;
+            _width = mipmaps != null && mipmaps.Length > 0 ? mipmaps[0].Width : 1;
+            _height = mipmaps != null && mipmaps.Length > 0 ? mipmaps[0].Height : 1;
         }
-
-        public static readonly ETexMagFilter[] _magFilters = 
-        {
-            ETexMagFilter.Nearest,
-            ETexMagFilter.Linear
-        };
-        public static readonly ETexMinFilter[] _minFilters = 
-        {
-            ETexMinFilter.Nearest,
-            ETexMinFilter.Linear,
-            ETexMinFilter.NearestMipmapNearest,
-            ETexMinFilter.NearestMipmapLinear,
-            ETexMinFilter.LinearMipmapNearest,
-            ETexMinFilter.LinearMipmapLinear,
-        };
-        public static readonly ETexWrapMode[] _wraps =
-        {
-            ETexWrapMode.ClampToEdge,
-            ETexWrapMode.Repeat,
-            ETexWrapMode.MirroredRepeat
-        };
-
-        private int _index;
+        
         private int _width, _height;
-        private ETexCoordWrap _uWrapMode;
-        private ETexCoordWrap _vWrapMode;
-        private EMinFilter _minFilter;
-        private EMagFilter _magFilter;
-        private float _lodBias;
-        private TextureData _data;
         private EPixelInternalFormat _internalFormat;
         private EPixelFormat _pixelFormat;
         private EPixelType _pixelType;
         private ETexTarget _textureTarget = ETexTarget.Texture2D;
+        private Bitmap[] _mipmaps;
 
-        public event Action<int> PostPushData;
-
-        public TextureData Data
+        public EPixelInternalFormat InternalFormat { get => _internalFormat; set => _internalFormat = value; }
+        public EPixelFormat PixelFormat { get => _pixelFormat; set => _pixelFormat = value; }
+        public EPixelType PixelType { get => _pixelType; set => _pixelType = value; }
+        public Bitmap[] Mipmaps
         {
-            get => _data;
+            get => _mipmaps;
             set
             {
-                Delete();
-                _data = value;
-                _width = _data != null && _data.Bitmap != null ? _data.Bitmap.Width : 1;
-                _height = _data != null && _data.Bitmap != null ? _data.Bitmap.Height : 1;
+                _mipmaps = value;
+                _width = _mipmaps != null && _mipmaps.Length > 0 ? _mipmaps[0].Width : 1;
+                _height = _mipmaps != null && _mipmaps.Length > 0 ? _mipmaps[0].Height : 1;
             }
         }
 
-        public int Index
-        {
-            get => _index;
-            set => _index = value;
-        }
-
+        public event Action PrePushData;
+        public event Action PostPushData;
+        
         public static Texture2D[] GenTextures(int count)
             => Engine.Renderer.CreateObjects<Texture2D>(EObjectType.Texture, count);
 
-        //public void AttachToFrameBuffer(int frameBufferBindingId, EFramebufferAttachment attachment)
-        //{
-        //    Engine.Renderer.BindTexture(ETexTarget.Texture2D, BindingId);
-        //    Engine.Renderer.AttachTextureToFrameBuffer(frameBufferBindingId, attachment, BindingId, 0);
-        //}
+        public void AttachToFrameBuffer(int frameBufferBindingId, EFramebufferAttachment attachment, int mipLevel = 0)
+        {
+            Engine.Renderer.AttachTextureToFrameBuffer(frameBufferBindingId, attachment, BindingId, mipLevel);
+        }
 
         public void Bind()
         {
@@ -182,34 +76,66 @@ namespace TheraEngine.Rendering.Textures
         {
             Bind();
 
-            Bitmap bmp = _data?.Bitmap;
-            if (bmp != null)
-            {
-                BitmapData data = bmp.LockBits(new Rectangle(0, 0, _width, _height), ImageLockMode.ReadOnly, bmp.PixelFormat);
-                Engine.Renderer.PushTextureData(_textureTarget, 0, _internalFormat, _width, _height, _pixelFormat, _pixelType, data.Scan0);
-                bmp.UnlockBits(data);
-            }
+            PrePushData?.Invoke();
+
+            if (_mipmaps == null || _mipmaps.Length == 0)
+                Engine.Renderer.PushTextureData(_textureTarget, 0, InternalFormat, _width, _height, PixelFormat, PixelType, IntPtr.Zero);
             else
-                Engine.Renderer.PushTextureData(_textureTarget, 0, _internalFormat, _width, _height, _pixelFormat, _pixelType, IntPtr.Zero);
+                for (int i = 0; i < _mipmaps.Length; ++i)
+                {
+                    Bitmap bmp = _mipmaps[i];
+                    if (bmp != null)
+                    {
+                        BitmapData data = bmp.LockBits(new Rectangle(0, 0, _width, _height), ImageLockMode.ReadOnly, bmp.PixelFormat);
+                        EPixelInternalFormat internalFormat;
+                        EPixelFormat pixelFormat;
+                        EPixelType pixelType = EPixelType.UnsignedByte;
+                        switch (bmp.PixelFormat)
+                        {
+                            case System.Drawing.Imaging.PixelFormat.Format32bppArgb:
+                                internalFormat = EPixelInternalFormat.Rgba8;
+                                pixelFormat = EPixelFormat.Bgra;
+                                break;
+                            case System.Drawing.Imaging.PixelFormat.Format24bppRgb:
+                                internalFormat = EPixelInternalFormat.Rgb8;
+                                pixelFormat = EPixelFormat.Bgr;
+                                break;
+                            default:
+                                throw new Exception("Unsupported bitmap format: " + bmp.PixelFormat.ToString());
+                        }
+                        Engine.Renderer.PushTextureData(_textureTarget, i, internalFormat, _width, _height, pixelFormat, pixelType, data.Scan0);
+                        bmp.UnlockBits(data);
+                    }
+                    else
+                        Engine.Renderer.PushTextureData(_textureTarget, i, InternalFormat, _width, _height, PixelFormat, PixelType, IntPtr.Zero);
+                }
 
             Engine.Renderer.TexParameter(_textureTarget, ETexParamName.TextureBaseLevel, 0);
-            Engine.Renderer.TexParameter(_textureTarget, ETexParamName.TextureMaxLevel, 0);
+            Engine.Renderer.TexParameter(_textureTarget, ETexParamName.TextureMaxLevel, _mipmaps == null ? 0 : _mipmaps.Length - 1);
             Engine.Renderer.TexParameter(_textureTarget, ETexParamName.TextureMinLod, 0);
-            Engine.Renderer.TexParameter(_textureTarget, ETexParamName.TextureMaxLod, 0);
-            Engine.Renderer.TexParameter(_textureTarget, ETexParamName.TextureLodBias, _lodBias);
-            Engine.Renderer.TexParameter(_textureTarget, ETexParamName.TextureMagFilter, (int)_magFilters[(int)_magFilter]);
-            Engine.Renderer.TexParameter(_textureTarget, ETexParamName.TextureMinFilter, (int)_minFilters[(int)_minFilter]);
-            Engine.Renderer.TexParameter(_textureTarget, ETexParamName.TextureWrapS, (int)_wraps[(int)_uWrapMode]);
-            Engine.Renderer.TexParameter(_textureTarget, ETexParamName.TextureWrapT, (int)_wraps[(int)_vWrapMode]);
+            Engine.Renderer.TexParameter(_textureTarget, ETexParamName.TextureMaxLod, _mipmaps == null ? 0 : _mipmaps.Length - 1);
 
-            PostPushData?.Invoke(Index);
+            PostPushData?.Invoke();
         }
         public void Resize(int width, int height)
         {
             _width = width;
             _height = height;
-            if (_data != null && _data.Bitmap != null)
-                _data.Bitmap = _data.Bitmap.Resized(width, height);
+
+            if (_mipmaps != null && _mipmaps.Length > 0)
+            {
+                _mipmaps[0] = _mipmaps[0].Resized(_width, _height);
+
+                double wratio = (double)width / _width;
+                double hratio = (double)height / _height;
+
+                for (int i = 1; i < _mipmaps.Length; ++i)
+                {
+                    Bitmap bmp = _mipmaps[i];
+                    _mipmaps[i] = bmp.Resized((int)(bmp.Width * wratio), (int)(bmp.Height * wratio));
+                }
+            }
+
             PushData();
         }
         protected override int CreateObject()

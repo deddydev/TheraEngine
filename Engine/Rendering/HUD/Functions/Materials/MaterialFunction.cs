@@ -41,7 +41,7 @@ namespace TheraEngine.Rendering.Models.Materials
                 for (int i = 0; i < _outputs.Count; ++i)
                 {
                     string name = outputNames[i];
-                    GLTypeName type = (GLTypeName)_outputs[i].CurrentArgumentType;
+                    ShaderType type = (ShaderType)_outputs[i].CurrentArgumentType;
                     s += type + " " + name + ";\n";
                 }
 
@@ -88,82 +88,82 @@ namespace TheraEngine.Rendering.Models.Materials
             return s;
         }
         
-        public static readonly GLTypeName[] SignedIntTypes = new GLTypeName[]
+        public static readonly ShaderType[] SignedIntTypes = new ShaderType[]
         {
-            GLTypeName._int,
-            GLTypeName._ivec2,
-            GLTypeName._ivec3,
-            GLTypeName._ivec4,
+            ShaderType._int,
+            ShaderType._ivec2,
+            ShaderType._ivec3,
+            ShaderType._ivec4,
         };
-        public static readonly GLTypeName[] UnsignedIntTypes = new GLTypeName[]
+        public static readonly ShaderType[] UnsignedIntTypes = new ShaderType[]
         {
-            GLTypeName._uint,
-            GLTypeName._uvec2,
-            GLTypeName._uvec3,
-            GLTypeName._uvec4,
+            ShaderType._uint,
+            ShaderType._uvec2,
+            ShaderType._uvec3,
+            ShaderType._uvec4,
         };
-        public static readonly GLTypeName[] IntegerTypes = new GLTypeName[]
+        public static readonly ShaderType[] IntegerTypes = new ShaderType[]
         {
-            GLTypeName._int,
-            GLTypeName._uint,
-            GLTypeName._ivec2,
-            GLTypeName._uvec2,
-            GLTypeName._ivec3,
-            GLTypeName._uvec3,
-            GLTypeName._ivec4,
-            GLTypeName._uvec4,
+            ShaderType._int,
+            ShaderType._uint,
+            ShaderType._ivec2,
+            ShaderType._uvec2,
+            ShaderType._ivec3,
+            ShaderType._uvec3,
+            ShaderType._ivec4,
+            ShaderType._uvec4,
         };
-        public static readonly GLTypeName[] FloatingPointTypes = new GLTypeName[]
+        public static readonly ShaderType[] FloatingPointTypes = new ShaderType[]
         {
-            GLTypeName._float,
-            GLTypeName._double,
-            GLTypeName._vec2,
-            GLTypeName._dvec2,
-            GLTypeName._vec3,
-            GLTypeName._dvec3,
-            GLTypeName._vec4,
-            GLTypeName._dvec4,
+            ShaderType._float,
+            ShaderType._double,
+            ShaderType._vec2,
+            ShaderType._dvec2,
+            ShaderType._vec3,
+            ShaderType._dvec3,
+            ShaderType._vec4,
+            ShaderType._dvec4,
         };
-        public static readonly GLTypeName[] NumericTypes = new GLTypeName[]
+        public static readonly ShaderType[] NumericTypes = new ShaderType[]
         {
-            GLTypeName._float,
-            GLTypeName._double,
-            GLTypeName._int,
-            GLTypeName._uint,
-            GLTypeName._vec2,
-            GLTypeName._ivec2,
-            GLTypeName._uvec2,
-            GLTypeName._dvec2,
-            GLTypeName._vec3,
-            GLTypeName._ivec3,
-            GLTypeName._uvec3,
-            GLTypeName._dvec3,
-            GLTypeName._vec4,
-            GLTypeName._ivec4,
-            GLTypeName._uvec4,
-            GLTypeName._dvec4,
+            ShaderType._float,
+            ShaderType._double,
+            ShaderType._int,
+            ShaderType._uint,
+            ShaderType._vec2,
+            ShaderType._ivec2,
+            ShaderType._uvec2,
+            ShaderType._dvec2,
+            ShaderType._vec3,
+            ShaderType._ivec3,
+            ShaderType._uvec3,
+            ShaderType._dvec3,
+            ShaderType._vec4,
+            ShaderType._ivec4,
+            ShaderType._uvec4,
+            ShaderType._dvec4,
         };
-        public static readonly GLTypeName[] SignedTypes = new GLTypeName[]
+        public static readonly ShaderType[] SignedTypes = new ShaderType[]
         {
-            GLTypeName._float,
-            GLTypeName._double,
-            GLTypeName._int,
-            GLTypeName._vec2,
-            GLTypeName._ivec2,
-            GLTypeName._dvec2,
-            GLTypeName._vec3,
-            GLTypeName._ivec3,
-            GLTypeName._dvec3,
-            GLTypeName._vec4,
-            GLTypeName._ivec4,
-            GLTypeName._dvec4,
+            ShaderType._float,
+            ShaderType._double,
+            ShaderType._int,
+            ShaderType._vec2,
+            ShaderType._ivec2,
+            ShaderType._dvec2,
+            ShaderType._vec3,
+            ShaderType._ivec3,
+            ShaderType._dvec3,
+            ShaderType._vec4,
+            ShaderType._ivec4,
+            ShaderType._dvec4,
         };
-        public static readonly GLTypeName[] BooleanTypes = new GLTypeName[]
+        public static readonly ShaderType[] BooleanTypes = new ShaderType[]
         {
-            GLTypeName._bool,
-            GLTypeName._bvec2,
-            GLTypeName._bvec3,
-            GLTypeName._bvec4,
+            ShaderType._bool,
+            ShaderType._bvec2,
+            ShaderType._bvec3,
+            ShaderType._bvec4,
         };
     }
 }

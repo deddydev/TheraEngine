@@ -107,7 +107,7 @@ namespace TheraEngine
         void Read(VoidPtr address);
     }
     
-    public interface IGLVarOwner { }
+    public interface IShaderVarOwner { }
     public interface IUniformable { }
     
     public unsafe interface IUniformable1Bool : IUniformable { bool* Data { get; } }

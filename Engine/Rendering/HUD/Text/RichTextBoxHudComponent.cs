@@ -15,11 +15,11 @@ namespace TheraEngine.Rendering.HUD.Text
 
         public void WrapText()
         {
-            Bitmap b = TextTexture.Data.Bitmap;
-            using (Graphics g = Graphics.FromImage(b))
-            {
-                //_text.Split()
-            }
+            //Bitmap b = TextTexture.Data.Bitmap;
+            //using (Graphics g = Graphics.FromImage(b))
+            //{
+            //    //_text.Split()
+            //}
         }
     }
 }

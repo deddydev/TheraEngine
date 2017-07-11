@@ -15,8 +15,8 @@ namespace TheraEngine.Rendering.Models.Materials
     {
         public event EventHandler Compiled;
 
-        public bool NeedsCompile { get { return _sourceChanged; } }
-        public ShaderMode ShaderType { get { return _type; } }
+        public bool NeedsCompile => _sourceChanged;
+        public ShaderMode ShaderType => _type;
 
         private bool _sourceChanged = false;
         private ShaderMode _type;
@@ -37,7 +37,7 @@ namespace TheraEngine.Rendering.Models.Materials
             _source = source;
             _sourceChanged = true;
         }
-        public int Compile()
+        internal int Compile()
         {
             _sourceChanged = false;
 

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace TheraEngine.Rendering.Models.Materials
 {
-    public enum GLTypeName : int
+    public enum ShaderType : int
     {
         Invalid = -1,
 
@@ -36,66 +36,66 @@ namespace TheraEngine.Rendering.Models.Materials
         _mat3,
         _mat4,
     }
-    public abstract class GLVar : IGLVarOwner
+    public abstract class ShaderVar : IShaderVarOwner
     {
-        internal static Dictionary<Type, GLTypeName> TypeAssociations = new Dictionary<Type, GLTypeName>()
+        internal static Dictionary<Type, ShaderType> TypeAssociations = new Dictionary<Type, ShaderType>()
         {
-            { typeof(GLBool),   GLTypeName._bool   },
-            { typeof(GLInt),    GLTypeName._int    },
-            { typeof(GLUInt),   GLTypeName._uint   },
-            { typeof(GLFloat),  GLTypeName._float  },
-            { typeof(GLDouble), GLTypeName._double },
-            { typeof(GLVec2),   GLTypeName._vec2   },
-            { typeof(GLVec3),   GLTypeName._vec3   },
-            { typeof(GLVec4),   GLTypeName._vec4   },
-            { typeof(GLMat3),   GLTypeName._mat3   },
-            { typeof(GLMat4),   GLTypeName._mat4   },
-            { typeof(GLIVec2),  GLTypeName._ivec2  },
-            { typeof(GLIVec3),  GLTypeName._ivec3  },
-            { typeof(GLIVec4),  GLTypeName._ivec4  },
-            { typeof(GLUVec2),  GLTypeName._uvec2  },
-            { typeof(GLUVec3),  GLTypeName._uvec3  },
-            { typeof(GLUVec4),  GLTypeName._uvec4  },
-            { typeof(GLDVec2),  GLTypeName._dvec2  },
-            { typeof(GLDVec3),  GLTypeName._dvec3  },
-            { typeof(GLDVec4),  GLTypeName._dvec4  },
-            { typeof(GLBVec2),  GLTypeName._bvec2  },
-            { typeof(GLBVec3),  GLTypeName._bvec3  },
-            { typeof(GLBVec4),  GLTypeName._bvec4  },
+            { typeof(GLBool),   ShaderType._bool   },
+            { typeof(GLInt),    ShaderType._int    },
+            { typeof(GLUInt),   ShaderType._uint   },
+            { typeof(GLFloat),  ShaderType._float  },
+            { typeof(GLDouble), ShaderType._double },
+            { typeof(GLVec2),   ShaderType._vec2   },
+            { typeof(GLVec3),   ShaderType._vec3   },
+            { typeof(GLVec4),   ShaderType._vec4   },
+            { typeof(GLMat3),   ShaderType._mat3   },
+            { typeof(GLMat4),   ShaderType._mat4   },
+            { typeof(GLIVec2),  ShaderType._ivec2  },
+            { typeof(GLIVec3),  ShaderType._ivec3  },
+            { typeof(GLIVec4),  ShaderType._ivec4  },
+            { typeof(GLUVec2),  ShaderType._uvec2  },
+            { typeof(GLUVec3),  ShaderType._uvec3  },
+            { typeof(GLUVec4),  ShaderType._uvec4  },
+            { typeof(GLDVec2),  ShaderType._dvec2  },
+            { typeof(GLDVec3),  ShaderType._dvec3  },
+            { typeof(GLDVec4),  ShaderType._dvec4  },
+            { typeof(GLBVec2),  ShaderType._bvec2  },
+            { typeof(GLBVec3),  ShaderType._bvec3  },
+            { typeof(GLBVec4),  ShaderType._bvec4  },
         };
-        internal static Dictionary<GLTypeName, Type> GLTypeAssociations = new Dictionary<GLTypeName, Type>()
+        internal static Dictionary<ShaderType, Type> GLTypeAssociations = new Dictionary<ShaderType, Type>()
         {
-            { GLTypeName._bool,   typeof(GLBool)   },
-            { GLTypeName._int,    typeof(GLInt)    },
-            { GLTypeName._uint,   typeof(GLUInt)   },
-            { GLTypeName._float,  typeof(GLFloat)  },
-            { GLTypeName._double, typeof(GLDouble) },
-            { GLTypeName._vec2,   typeof(GLVec2)   },
-            { GLTypeName._vec3,   typeof(GLVec3)   },
-            { GLTypeName._vec4,   typeof(GLVec4)   },
-            { GLTypeName._mat3,   typeof(GLMat3)   },
-            { GLTypeName._mat4,   typeof(GLMat4)   },
-            { GLTypeName._ivec2,  typeof(GLIVec2)  },
-            { GLTypeName._ivec3,  typeof(GLIVec3)  },
-            { GLTypeName._ivec4,  typeof(GLIVec4)  },
-            { GLTypeName._uvec2,  typeof(GLUVec2)  },
-            { GLTypeName._uvec3,  typeof(GLUVec3)  },
-            { GLTypeName._uvec4,  typeof(GLUVec4)  },
-            { GLTypeName._dvec2,  typeof(GLDVec2)  },
-            { GLTypeName._dvec3,  typeof(GLDVec3)  },
-            { GLTypeName._dvec4,  typeof(GLDVec4)  },
-            { GLTypeName._bvec2,  typeof(GLBVec2)  },
-            { GLTypeName._bvec3,  typeof(GLBVec3)  },
-            { GLTypeName._bvec4,  typeof(GLBVec4)  },
+            { ShaderType._bool,   typeof(GLBool)   },
+            { ShaderType._int,    typeof(GLInt)    },
+            { ShaderType._uint,   typeof(GLUInt)   },
+            { ShaderType._float,  typeof(GLFloat)  },
+            { ShaderType._double, typeof(GLDouble) },
+            { ShaderType._vec2,   typeof(GLVec2)   },
+            { ShaderType._vec3,   typeof(GLVec3)   },
+            { ShaderType._vec4,   typeof(GLVec4)   },
+            { ShaderType._mat3,   typeof(GLMat3)   },
+            { ShaderType._mat4,   typeof(GLMat4)   },
+            { ShaderType._ivec2,  typeof(GLIVec2)  },
+            { ShaderType._ivec3,  typeof(GLIVec3)  },
+            { ShaderType._ivec4,  typeof(GLIVec4)  },
+            { ShaderType._uvec2,  typeof(GLUVec2)  },
+            { ShaderType._uvec3,  typeof(GLUVec3)  },
+            { ShaderType._uvec4,  typeof(GLUVec4)  },
+            { ShaderType._dvec2,  typeof(GLDVec2)  },
+            { ShaderType._dvec3,  typeof(GLDVec3)  },
+            { ShaderType._dvec4,  typeof(GLDVec4)  },
+            { ShaderType._bvec2,  typeof(GLBVec2)  },
+            { ShaderType._bvec3,  typeof(GLBVec3)  },
+            { ShaderType._bvec4,  typeof(GLBVec4)  },
         };
 
         protected bool _canSwizzle = true;
-        protected IGLVarOwner _owner;
+        protected IShaderVarOwner _owner;
         protected string _name;
-        protected Dictionary<string, GLVar> _fields = new Dictionary<string, GLVar>();
+        protected Dictionary<string, ShaderVar> _fields = new Dictionary<string, ShaderVar>();
 
-        internal IGLVarOwner Owner { get { return _owner; } }
-        public abstract GLTypeName TypeName { get; }
+        internal IShaderVarOwner Owner => _owner;
+        public abstract ShaderType TypeName { get; }
 
         public string Name
         {
@@ -107,11 +107,18 @@ namespace TheraEngine.Rendering.Models.Materials
             }
         }
 
-        internal void SetUniform(string name) { SetUniform(Engine.Renderer.GetUniformLocation(name)); }
-        internal void SetUniform() { SetUniform(Engine.Renderer.GetUniformLocation(Name)); }
-        internal abstract void SetUniform(int location);
+        internal void SetProgramUniform(int programBindingId, string name) 
+            => SetProgramUniform(programBindingId, Engine.Renderer.GetUniformLocation(programBindingId, name));
 
-        public GLVar(string userName, IGLVarOwner owner)
+        internal void SetProgramUniform(int programBindingId) 
+            => SetProgramUniform(programBindingId, Name);
+
+        //internal void SetUniform(string name) { SetUniform(Engine.Renderer.GetUniformLocation(programBindingId, name)); }
+        //internal void SetUniform() { SetUniform(Engine.Renderer.GetUniformLocation(programBindingId, Name)); }
+
+        internal abstract void SetProgramUniform(int programBindingId, int location);
+
+        public ShaderVar(string userName, IShaderVarOwner owner)
         {
             _owner = owner;
             Name = userName;

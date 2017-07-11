@@ -19,7 +19,7 @@ namespace TheraEngine.Rendering.OpenGL
 
         public GLRenderer() { }
 
-        private ShaderType _currentShaderMode;
+        private OpenTK.Graphics.OpenGL.ShaderType _currentShaderMode;
         
         public override void Clear(EBufferClear mask)
         {
@@ -210,22 +210,22 @@ namespace TheraEngine.Rendering.OpenGL
             switch (type)
             {
                 case ShaderMode.Fragment:
-                    _currentShaderMode = ShaderType.FragmentShader;
+                    _currentShaderMode = OpenTK.Graphics.OpenGL.ShaderType.FragmentShader;
                     break;
                 case ShaderMode.Vertex:
-                    _currentShaderMode = ShaderType.VertexShader;
+                    _currentShaderMode = OpenTK.Graphics.OpenGL.ShaderType.VertexShader;
                     break;
                 case ShaderMode.Geometry:
-                    _currentShaderMode = ShaderType.GeometryShader;
+                    _currentShaderMode = OpenTK.Graphics.OpenGL.ShaderType.GeometryShader;
                     break;
                 case ShaderMode.TessControl:
-                    _currentShaderMode = ShaderType.TessControlShader;
+                    _currentShaderMode = OpenTK.Graphics.OpenGL.ShaderType.TessControlShader;
                     break;
                 case ShaderMode.TessEvaluation:
-                    _currentShaderMode = ShaderType.TessEvaluationShader;
+                    _currentShaderMode = OpenTK.Graphics.OpenGL.ShaderType.TessEvaluationShader;
                     break;
                 case ShaderMode.Compute:
-                    _currentShaderMode = ShaderType.ComputeShader;
+                    _currentShaderMode = OpenTK.Graphics.OpenGL.ShaderType.ComputeShader;
                     break;
             }
         }
@@ -252,9 +252,7 @@ namespace TheraEngine.Rendering.OpenGL
                 GL.GetShaderInfoLog(handle, out string info);
 
                 if (string.IsNullOrEmpty(info) && status == 0)
-                {
                     Debug.WriteLine("Unable to compile shader, but no error was returned.");
-                }
                 else
                 {
                     Debug.WriteLine(info + "\n\n");
@@ -273,59 +271,74 @@ namespace TheraEngine.Rendering.OpenGL
 #endif
             return handle;
         }
-        public override int GenerateProgram(int[] shaderHandles, VertexShaderDesc info)
+        public override void SetProgramParameter(int programBindingId, EProgParam parameter, int value)
+            => GL.ProgramParameter(programBindingId, (ProgramParameterName)(int)parameter, value);
+        public override void BindPipeline(int pipelineBindingId)
+        {
+            GL.BindProgramPipeline(pipelineBindingId);
+        }
+        public override void UsePipeline(int pipelineBindingId, EProgramStageMask mask, int programBindingId)
+        {
+            GL.UseProgramStages(pipelineBindingId, (ProgramStageMask)(int)mask, programBindingId);
+        }
+        public override int GenerateProgram(int[] shaderHandles, VertexShaderDesc attribDesc, bool separable)
         {
             int handle = GL.CreateProgram();
             foreach (int i in shaderHandles)
                 GL.AttachShader(handle, i);
+            
+            GL.ProgramParameter(handle, ProgramParameterName.ProgramSeparable, separable ? 1 : 0);
 
-            //Have to bind 'in' attributes before linking
-            int j = (int)BufferType.Position * VertexBuffer.MaxBufferCountPerType;
-            for (int i = 0; i < info._morphCount + 1; ++i, ++j)
-                GL.BindAttribLocation(handle, j, BufferType.Position.ToString() + i);
-
-            if (info.HasNormals)
+            if (attribDesc != null)
             {
-                j = (int)BufferType.Normal * VertexBuffer.MaxBufferCountPerType;
-                for (int i = 0; i < info._morphCount + 1; ++i, ++j)
-                    GL.BindAttribLocation(handle, j, BufferType.Normal.ToString() + i);
-            }
-            if (info.HasBinormals)
-            {
-                j = (int)BufferType.Binormal * VertexBuffer.MaxBufferCountPerType;
-                for (int i = 0; i < info._morphCount + 1; ++i, ++j)
-                    GL.BindAttribLocation(handle, j, BufferType.Binormal.ToString() + i);
-            }
-            if (info.HasTangents)
-            {
-                j = (int)BufferType.Tangent * VertexBuffer.MaxBufferCountPerType;
-                for (int i = 0; i < info._morphCount + 1; ++i, ++j)
-                    GL.BindAttribLocation(handle, j, BufferType.Tangent.ToString() + i);
-            }
+                //Have to bind 'in' attributes before linking
+                int j = (int)BufferType.Position * VertexBuffer.MaxBufferCountPerType;
+                for (int i = 0; i < attribDesc._morphCount + 1; ++i, ++j)
+                    GL.BindAttribLocation(handle, j, BufferType.Position.ToString() + i);
 
-            j = (int)BufferType.Color * VertexBuffer.MaxBufferCountPerType;
-            for (int i = 0; i < info._colorCount; ++i, ++j)
-                GL.BindAttribLocation(handle, j, BufferType.Color.ToString() + i);
+                if (attribDesc.HasNormals)
+                {
+                    j = (int)BufferType.Normal * VertexBuffer.MaxBufferCountPerType;
+                    for (int i = 0; i < attribDesc._morphCount + 1; ++i, ++j)
+                        GL.BindAttribLocation(handle, j, BufferType.Normal.ToString() + i);
+                }
+                if (attribDesc.HasBinormals)
+                {
+                    j = (int)BufferType.Binormal * VertexBuffer.MaxBufferCountPerType;
+                    for (int i = 0; i < attribDesc._morphCount + 1; ++i, ++j)
+                        GL.BindAttribLocation(handle, j, BufferType.Binormal.ToString() + i);
+                }
+                if (attribDesc.HasTangents)
+                {
+                    j = (int)BufferType.Tangent * VertexBuffer.MaxBufferCountPerType;
+                    for (int i = 0; i < attribDesc._morphCount + 1; ++i, ++j)
+                        GL.BindAttribLocation(handle, j, BufferType.Tangent.ToString() + i);
+                }
 
-            j = (int)BufferType.TexCoord * VertexBuffer.MaxBufferCountPerType;
-            for (int i = 0; i < info._texcoordCount; ++i, ++j)
-                GL.BindAttribLocation(handle, j, "MultiTexCoord" + i.ToString());
+                j = (int)BufferType.Color * VertexBuffer.MaxBufferCountPerType;
+                for (int i = 0; i < attribDesc._colorCount; ++i, ++j)
+                    GL.BindAttribLocation(handle, j, BufferType.Color.ToString() + i);
 
-            if (info.IsWeighted)
-            {
-                j = (int)BufferType.MatrixIds * VertexBuffer.MaxBufferCountPerType;
-                for (int i = 0; i < info._morphCount + 1; ++i, ++j)
-                    GL.BindAttribLocation(handle, j, BufferType.MatrixIds.ToString() + i);
+                j = (int)BufferType.TexCoord * VertexBuffer.MaxBufferCountPerType;
+                for (int i = 0; i < attribDesc._texcoordCount; ++i, ++j)
+                    GL.BindAttribLocation(handle, j, "MultiTexCoord" + i.ToString());
 
-                j = (int)BufferType.MatrixWeights * VertexBuffer.MaxBufferCountPerType;
-                for (int i = 0; i < info._morphCount + 1; ++i, ++j)
-                    GL.BindAttribLocation(handle, j, BufferType.MatrixWeights.ToString() + i);
-            }
+                if (attribDesc.IsWeighted)
+                {
+                    j = (int)BufferType.MatrixIds * VertexBuffer.MaxBufferCountPerType;
+                    for (int i = 0; i < attribDesc._morphCount + 1; ++i, ++j)
+                        GL.BindAttribLocation(handle, j, BufferType.MatrixIds.ToString() + i);
 
-            if (info._hasBarycentricCoord)
-            {
-                j = (int)BufferType.Barycentric * VertexBuffer.MaxBufferCountPerType;
-                GL.BindAttribLocation(handle, j++, BufferType.Barycentric.ToString());
+                    j = (int)BufferType.MatrixWeights * VertexBuffer.MaxBufferCountPerType;
+                    for (int i = 0; i < attribDesc._morphCount + 1; ++i, ++j)
+                        GL.BindAttribLocation(handle, j, BufferType.MatrixWeights.ToString() + i);
+                }
+
+                if (attribDesc._hasBarycentricCoord)
+                {
+                    j = (int)BufferType.Barycentric * VertexBuffer.MaxBufferCountPerType;
+                    GL.BindAttribLocation(handle, j++, BufferType.Barycentric.ToString());
+                }
             }
 
             GL.LinkProgram(handle);
@@ -343,167 +356,262 @@ namespace TheraEngine.Rendering.OpenGL
         {
             GL.ActiveTexture(TextureUnit.Texture0 + unit.Clamp(0, 31));
         }
-        public override void UseProgram(MeshProgram program)
+        public override void UseProgram(int programBindingId)
         {
-            GL.UseProgram(program != null ? program.BindingId : BaseRenderState.NullBindingId);
-            base.UseProgram(program);
-            if (_currentMeshProgram != null)
+            GL.UseProgram(programBindingId);
+        }
+        public override void ApplyRenderParams(RenderingParameters r)
+        {
+            if (r.EnableDepthTest)
             {
-                RenderingParameters r = _currentMeshProgram.RenderParams;
-
-                if (r.EnableDepthTest)
-                {
-                    GL.Enable(EnableCap.DepthTest);
-                    DepthFunc(r.DepthFunction);
-                    GL.DepthMask(r.EnableDepthUpdate);
-                }
-                else
-                    GL.Disable(EnableCap.DepthTest);
-
-                if (r.EnableBlending)
-                {
-                    GL.Enable(EnableCap.Blend);
-                    BlendEquation(r.Blend.RgbEquation, r.Blend.AlphaEquation);
-                    BlendFuncSeparate(r.Blend.RgbSrcFactor, r.Blend.RgbDstFactor, r.Blend.AlphaSrcFactor, r.Blend.AlphaDstFactor);
-                }
-                else
-                    GL.Disable(EnableCap.Blend);
-
-                if (_currentMeshProgram.Textures.Length > 0)
-                {
-                    GL.Enable(EnableCap.Texture2D);
-                    program.BindTextures();
-                }
-                else
-                    GL.Disable(EnableCap.Texture2D);
+                GL.Enable(EnableCap.DepthTest);
+                DepthFunc(r.DepthFunction);
+                GL.DepthMask(r.EnableDepthUpdate);
             }
+            else
+                GL.Disable(EnableCap.DepthTest);
+
+            if (r.EnableBlending)
+            {
+                GL.Enable(EnableCap.Blend);
+                BlendEquation(r.Blend.RgbEquation, r.Blend.AlphaEquation);
+                BlendFuncSeparate(r.Blend.RgbSrcFactor, r.Blend.RgbDstFactor, r.Blend.AlphaSrcFactor, r.Blend.AlphaDstFactor);
+            }
+            else
+                GL.Disable(EnableCap.Blend);
         }
 
-        #region Uniforms
-        public override int GetAttribLocation(string name)
+        public override int GetAttribLocation(int programBindingId, string name)
         {
-            return GL.GetAttribLocation(_currentMeshProgram.BindingId, name);
+            return GL.GetAttribLocation(programBindingId, name);
         }
-        public override int GetUniformLocation(string name)
+        public override int GetUniformLocation(int programBindingId, string name)
         {
-            return GL.GetUniformLocation(_currentMeshProgram.BindingId, name);
+            return GL.GetUniformLocation(programBindingId, name);
         }
-        public override void Uniform(int location, params IUniformable4Int[] p)
+
+        #region Uniform
+        //public override void Uniform(int location, params IUniformable4Int[] p)
+        //{
+        //    const int count = 4;
+
+        //    if (location < 0)
+        //        return;
+
+        //    int[] values = new int[p.Length << 2];
+
+        //    for (int i = 0; i < p.Length; ++i)
+        //        for (int x = 0; x < count; ++x)
+        //            values[(i << 2) + x] = p[i].Data[x];
+
+        //    GL.Uniform4(location, p.Length, values);
+        //}
+        //public override void Uniform(int location, params IUniformable4Float[] p)
+        //{
+        //    const int count = 4;
+
+        //    if (location < 0)
+        //        return;
+
+        //    float[] values = new float[p.Length << 2];
+
+        //    for (int i = 0; i < p.Length; ++i)
+        //        for (int x = 0; x < count; ++x)
+        //            values[(i << 2) + x] = p[i].Data[x];
+
+        //    GL.Uniform4(location, p.Length, values);
+        //}
+        //public override void Uniform(int location, params IUniformable3Int[] p)
+        //{
+        //    const int count = 3;
+
+        //    if (location < 0)
+        //        return;
+
+        //    int[] values = new int[p.Length * 3];
+
+        //    for (int i = 0; i < p.Length; ++i)
+        //        for (int x = 0; x < count; ++x)
+        //            values[i * 3 + x] = p[i].Data[x];
+
+        //    GL.Uniform3(location, p.Length, values);
+        //}
+        //public override void Uniform(int location, params IUniformable3Float[] p)
+        //{
+        //    const int count = 3;
+
+        //    if (location < 0)
+        //        return;
+
+        //    float[] values = new float[p.Length * 3];
+
+        //    for (int i = 0; i < p.Length; ++i)
+        //        for (int x = 0; x < count; ++x)
+        //            values[i * 3 + x] = p[i].Data[x];
+
+        //    GL.Uniform3(location, p.Length, values);
+        //}
+        //public override void Uniform(int location, params IUniformable2Int[] p)
+        //{
+        //    const int count = 2;
+
+        //    if (location < 0)
+        //        return;
+
+        //    int[] values = new int[p.Length << 1];
+
+        //    for (int i = 0; i < p.Length; ++i)
+        //        for (int x = 0; x < count; ++x)
+        //            values[(i << 1) + x] = p[i].Data[x];
+
+        //    GL.Uniform2(location, p.Length, values);
+        //}
+        //public override void Uniform(int location, params IUniformable2Float[] p)
+        //{
+        //    const int count = 2;
+
+        //    if (location < 0)
+        //        return;
+
+        //    float[] values = new float[p.Length << 1];
+
+        //    for (int i = 0; i < p.Length; ++i)
+        //        for (int x = 0; x < count; ++x)
+        //            values[(i << 1) + x] = p[i].Data[x];
+
+        //    GL.Uniform2(location, p.Length, values);
+        //}
+        //public override void Uniform(int location, params IUniformable1Int[] p)
+        //{
+        //    if (location > -1)
+        //        GL.Uniform1(location, p.Length, p.Select(x => *x.Data).ToArray());
+        //}
+        //public override void Uniform(int location, params IUniformable1Float[] p)
+        //{
+        //    if (location > -1)
+        //        GL.Uniform1(location, p.Length, p.Select(x => *x.Data).ToArray());
+        //}
+        //public override void Uniform(int location, params int[] p)
+        //{
+        //    if (location > -1)
+        //        GL.Uniform1(location, p.Length, p);
+        //}
+        //public override void Uniform(int location, params float[] p)
+        //{
+        //    if (location > -1)
+        //        GL.Uniform1(location, p.Length, p);
+        //}
+        //public override void Uniform(int location, Matrix4 p)
+        //{
+        //    if (location > -1)
+        //        GL.UniformMatrix4(location, 1, false, p.Data);
+        //}
+        //public override void Uniform(int location, params Matrix4[] p)
+        //{
+        //    if (location > -1)
+        //    {
+        //        float[] values = new float[p.Length << 4];
+        //        for (int i = 0; i < p.Length; ++i)
+        //            for (int x = 0; x < 16; ++x)
+        //                values[(i << 4) + x] = p[i].Data[x];
+        //        GL.UniformMatrix4(location, p.Length, false, values);
+        //    }
+        //}
+        //public override void Uniform(int location, Matrix3 p)
+        //{
+        //    if (location > -1)
+        //        GL.UniformMatrix3(location, 1, false, p.Data);
+        //}
+        //public override void Uniform(int location, params Matrix3[] p)
+        //{
+        //    if (location > -1)
+        //    {
+        //        float[] values = new float[p.Length * 9];
+        //        for (int i = 0; i < p.Length; ++i)
+        //            for (int x = 0; x < 9; ++x)
+        //                values[i * 9 + x] = p[i].Data[x];
+        //        GL.UniformMatrix3(location, p.Length, false, values);
+        //    }
+        //}
+        #endregion
+
+        #region Program Uniform
+        public override void ProgramUniform(int programBindingId, int location, params IUniformable4Int[] p)
         {
-            const int count = 4;
-            
             if (location < 0)
                 return;
-
-            int[] values = new int[p.Length << 2];
-
-            for (int i = 0; i < p.Length; ++i)
-                for (int x = 0; x < count; ++x)
-                    values[(i << 2) + x] = p[i].Data[x];
-
-            GL.Uniform4(location, p.Length, values);
+            int[] values = p.SelectMany(x => new[] { x.Data[0], x.Data[1], x.Data[2], x.Data[3] }).ToArray();
+            GL.ProgramUniform4(programBindingId, location, p.Length, values);
         }
-        public override void Uniform(int location, params IUniformable4Float[] p)
+        public override void ProgramUniform(int programBindingId, int location, params IUniformable4Float[] p)
         {
-            const int count = 4;
-            
             if (location < 0)
                 return;
-
-            float[] values = new float[p.Length << 2];
-
-            for (int i = 0; i < p.Length; ++i)
-                for (int x = 0; x < count; ++x)
-                    values[(i << 2) + x] = p[i].Data[x];
-
-            GL.Uniform4(location, p.Length, values);
+            float[] values = p.SelectMany(x => new[] { x.Data[0], x.Data[1], x.Data[2], x.Data[3] }).ToArray();
+            GL.ProgramUniform4(programBindingId, location, p.Length, values);
         }
-        public override void Uniform(int location, params IUniformable3Int[] p)
+        public override void ProgramUniform(int programBindingId, int location, params IUniformable3Int[] p)
         {
-            const int count = 3;
-            
             if (location < 0)
                 return;
-
-            int[] values = new int[p.Length * 3];
-
-            for (int i = 0; i < p.Length; ++i)
-                for (int x = 0; x < count; ++x)
-                    values[i * 3 + x] = p[i].Data[x];
-
-            GL.Uniform3(location, p.Length, values);
+            int[] values = p.SelectMany(x => new[] { x.Data[0], x.Data[1], x.Data[2] }).ToArray();
+            GL.ProgramUniform3(programBindingId, location, p.Length, values);
         }
-        public override void Uniform(int location, params IUniformable3Float[] p)
+        public override void ProgramUniform(int programBindingId, int location, params IUniformable3Float[] p)
         {
-            const int count = 3;
-            
             if (location < 0)
                 return;
-
-            float[] values = new float[p.Length * 3];
-
-            for (int i = 0; i < p.Length; ++i)
-                for (int x = 0; x < count; ++x)
-                    values[i * 3 + x] = p[i].Data[x];
-
-            GL.Uniform3(location, p.Length, values);
+            float[] values = p.SelectMany(x => new[] { x.Data[0], x.Data[1], x.Data[2] }).ToArray();
+            GL.ProgramUniform3(programBindingId, location, p.Length, values);
         }
-        public override void Uniform(int location, params IUniformable2Int[] p)
+        public override void ProgramUniform(int programBindingId, int location, params IUniformable2Int[] p)
         {
-            const int count = 2;
-            
             if (location < 0)
                 return;
-
-            int[] values = new int[p.Length << 1];
-
-            for (int i = 0; i < p.Length; ++i)
-                for (int x = 0; x < count; ++x)
-                    values[(i << 1) + x] = p[i].Data[x];
-
-            GL.Uniform2(location, p.Length, values);
+            int[] values = p.SelectMany(x => new[] { x.Data[0], x.Data[1] }).ToArray();
+            GL.ProgramUniform2(programBindingId, location, p.Length, values);
         }
-        public override void Uniform(int location, params IUniformable2Float[] p)
+        public override void ProgramUniform(int programBindingId, int location, params IUniformable2Float[] p)
         {
-            const int count = 2;
-            
             if (location < 0)
                 return;
-
-            float[] values = new float[p.Length << 1];
-
-            for (int i = 0; i < p.Length; ++i)
-                for (int x = 0; x < count; ++x)
-                    values[(i << 1) + x] = p[i].Data[x];
-
-            GL.Uniform2(location, p.Length, values);
+            float[] values = p.SelectMany(x => new[] { x.Data[0], x.Data[1] }).ToArray();
+            GL.ProgramUniform2(programBindingId, location, p.Length, values);
         }
-        public override void Uniform(int location, params IUniformable1Int[] p)
+        public override void ProgramUniform(int programBindingId, int location, params IUniformable1Int[] p)
+        {
+            if (location < 0)
+                return;
+            int[] r = p.Select(x => *x.Data).ToArray();
+            fixed (int* first = &r[0])
+                GL.ProgramUniform1(programBindingId, location, p.Length, first);
+        }
+        public override void ProgramUniform(int programBindingId, int location, params IUniformable1Float[] p)
+        {
+            if (location < 0)
+                return;
+            float[] r = p.Select(x => *x.Data).ToArray();
+            fixed (float* first = &r[0])
+                GL.ProgramUniform1(programBindingId, location, p.Length, first);
+        }
+        public override void ProgramUniform(int programBindingId, int location, params int[] p)
         {
             if (location > -1)
-                GL.Uniform1(location, p.Length, p.Select(x => *x.Data).ToArray());
+                fixed (int* first = &p[0])
+                    GL.ProgramUniform1(programBindingId, location, p.Length, first);
         }
-        public override void Uniform(int location, params IUniformable1Float[] p)
+        public override void ProgramUniform(int programBindingId, int location, params float[] p)
         {
             if (location > -1)
-                GL.Uniform1(location, p.Length, p.Select(x => *x.Data).ToArray());
+                fixed (float* first = &p[0])
+                    GL.ProgramUniform1(programBindingId, location, p.Length, first);
         }
-        public override void Uniform(int location, params int[] p)
+        public override void ProgramUniform(int programBindingId, int location, Matrix4 p)
         {
             if (location > -1)
-                GL.Uniform1(location, p.Length, p);
+                GL.ProgramUniformMatrix4(programBindingId, location, 1, false, p.Data);
         }
-        public override void Uniform(int location, params float[] p)
-        {
-            if (location > -1)
-                GL.Uniform1(location, p.Length, p);
-        }
-        public override void Uniform(int location, Matrix4 p)
-        {
-            if (location > -1)
-                GL.UniformMatrix4(location, 1, false, p.Data);
-        }
-        public override void Uniform(int location, params Matrix4[] p)
+        public override void ProgramUniform(int programBindingId, int location, params Matrix4[] p)
         {
             if (location > -1)
             {
@@ -511,15 +619,15 @@ namespace TheraEngine.Rendering.OpenGL
                 for (int i = 0; i < p.Length; ++i)
                     for (int x = 0; x < 16; ++x)
                         values[(i << 4) + x] = p[i].Data[x];
-                GL.UniformMatrix4(location, p.Length, false, values);
+                GL.ProgramUniformMatrix4(programBindingId, location, p.Length, false, values);
             }
         }
-        public override void Uniform(int location, Matrix3 p)
+        public override void ProgramUniform(int programBindingId, int location, Matrix3 p)
         {
             if (location > -1)
-                GL.UniformMatrix3(location, 1, false, p.Data);
+                GL.ProgramUniformMatrix3(programBindingId, location, 1, false, p.Data);
         }
-        public override void Uniform(int location, params Matrix3[] p)
+        public override void ProgramUniform(int programBindingId, int location, params Matrix3[] p)
         {
             if (location > -1)
             {
@@ -527,7 +635,7 @@ namespace TheraEngine.Rendering.OpenGL
                 for (int i = 0; i < p.Length; ++i)
                     for (int x = 0; x < 9; ++x)
                         values[i * 9 + x] = p[i].Data[x];
-                GL.UniformMatrix3(location, p.Length, false, values);
+                GL.ProgramUniformMatrix3(programBindingId, location, p.Length, false, values);
             }
         }
         #endregion

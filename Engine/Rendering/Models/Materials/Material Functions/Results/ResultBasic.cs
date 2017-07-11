@@ -18,8 +18,8 @@ namespace TheraEngine.Rendering.Models.Materials
         public ResultBasicFunc() : base(true) { }
         protected override List<MatFuncValueInput> GetValueInputs()
         {
-            FinalColor = new MatFuncValueInput("FinalColor", GLTypeName._vec4);
-            WorldPositionOffset = new MatFuncValueInput("WorldPositionOffset", GLTypeName._vec3);
+            FinalColor = new MatFuncValueInput("FinalColor", ShaderType._vec4);
+            WorldPositionOffset = new MatFuncValueInput("WorldPositionOffset", ShaderType._vec3);
             return new List<MatFuncValueInput>() { FinalColor };
         }
         protected override string GetOperation()

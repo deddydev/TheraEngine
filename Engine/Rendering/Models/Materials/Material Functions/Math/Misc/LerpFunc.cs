@@ -21,7 +21,7 @@ namespace TheraEngine.Rendering.Models.Materials
         {
             A = new MatFuncValueInput("A", FloatingPointTypes);
             B = new MatFuncValueInput("B", A);
-            Time = new MatFuncValueInput("Time", GLTypeName._float);
+            Time = new MatFuncValueInput("Time", ShaderType._float);
 
             return new List<MatFuncValueInput>() { A, B, Time };
         }

@@ -4,9 +4,9 @@ namespace TheraEngine.Rendering.Models.Materials
 {
     public class MatFuncValueOutput : FuncValueOutput<MatFuncValueInput, MaterialFunction>
     {
-        public MatFuncValueOutput(string name, params GLTypeName[] types)
+        public MatFuncValueOutput(string name, params ShaderType[] types)
             : base(name, types.Select(x => (int)x).ToArray()) { }
-        public MatFuncValueOutput(string name, MaterialFunction parent, params GLTypeName[] types)
+        public MatFuncValueOutput(string name, MaterialFunction parent, params ShaderType[] types)
             : base(name, parent, types.Select(x => (int)x).ToArray()) { }
         public MatFuncValueOutput(string name, MatFuncValueInput linkedMultiArg)
             : base(name, linkedMultiArg) { }

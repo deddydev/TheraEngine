@@ -33,19 +33,19 @@ namespace TheraEngine.Rendering.Models.Materials
             wl("#version {0}", GLSLVersion);
             wl();
         }
-        public void WriteInVar(int layoutLocation, GLTypeName type, string name)
+        public void WriteInVar(int layoutLocation, ShaderType type, string name)
         {
             wl("layout(location = {0}) in {1} {2};", layoutLocation, type.ToString().Substring(1), name);
         }
-        public void WriteInVar(GLTypeName type, string name)
+        public void WriteInVar(ShaderType type, string name)
         {
             wl("in {0} {1};", type.ToString().Substring(1), name);
         }
-        public void WriteUniform(int layoutLocation, GLTypeName type, string name)
+        public void WriteUniform(int layoutLocation, ShaderType type, string name)
         {
             wl("layout(location = {0}) uniform {1} {2};", layoutLocation, type.ToString().Substring(1), name);
         }
-        public void WriteUniform(GLTypeName type, string name)
+        public void WriteUniform(ShaderType type, string name)
         {
             wl("uniform {0} {1};", type.ToString().Substring(1), name);
         }
@@ -109,7 +109,7 @@ namespace TheraEngine.Rendering.Models.Materials
             if (resultFunction == null)
                 return null;
 
-            Material m = new Material(name, new List<GLVar>(), new List<TextureReference>());
+            Material m = new Material(name, new ShaderVar[0], new TextureReference[0]);
 
             //TODO: determine shader types needed
             foreach (MatFuncValueInput arg in resultFunction.InputArguments)

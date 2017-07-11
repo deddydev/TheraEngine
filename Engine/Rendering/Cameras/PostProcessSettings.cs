@@ -60,13 +60,13 @@ namespace TheraEngine.Rendering.Cameras
         [TypeConverter(typeof(ExpandableObjectConverter))]
         public VignetteSettings VignetteSettings { get => _vignetteSettings; set => _vignetteSettings = value; }
 
-        internal void SetUniforms()
+        internal void SetUniforms(int programBindingId)
         {
-            _vignetteSettings.SetUniforms();
-            _depthOfFieldSettings.SetUniforms();
-            _colorGradeSettings.SetUniforms();
-            _bloomSettings.SetUniforms();
-            _lensFlareSettings.SetUniforms();
+            _vignetteSettings.SetUniforms(programBindingId);
+            _depthOfFieldSettings.SetUniforms(programBindingId);
+            _colorGradeSettings.SetUniforms(programBindingId);
+            _bloomSettings.SetUniforms(programBindingId);
+            _lensFlareSettings.SetUniforms(programBindingId);
         }
 
         internal static string ShaderSetup()
@@ -92,10 +92,10 @@ namespace TheraEngine.Rendering.Cameras
         public ColorF4 Color { get => _color; set => _color = value; }
         public float Intensity { get => _intensity; set => _intensity = value; }
 
-        internal void SetUniforms()
+        internal void SetUniforms(int programBindingId)
         {
-            Engine.Renderer.Uniform("Vignette.Color", Color);
-            Engine.Renderer.Uniform("Vignette.Intensity", Intensity);
+            Engine.Renderer.ProgramUniform(programBindingId, "Vignette.Color", Color);
+            Engine.Renderer.ProgramUniform(programBindingId, "Vignette.Intensity", Intensity);
         }
 
         internal static string WriteShaderSetup()
@@ -113,7 +113,7 @@ uniform VignetteStruct Vignette;";
     {
         public float _nearDist, _farDist;
 
-        internal void SetUniforms()
+        internal void SetUniforms(int programBindingId)
         {
 
         }
@@ -142,13 +142,13 @@ uniform VignetteStruct Vignette;";
         [Category("Color Grade Settings")]
         public float Gamma { get => _gamma; set => _gamma = value; }
 
-        internal void SetUniforms()
+        internal void SetUniforms(int programBindingId)
         {
-            Engine.Renderer.Uniform("ColorGrade.Tint", Tint.Raw);
-            Engine.Renderer.Uniform("ColorGrade.Exposure", Exposure);
-            Engine.Renderer.Uniform("ColorGrade.Saturation", Saturation);
-            Engine.Renderer.Uniform("ColorGrade.Contrast", Contrast);
-            Engine.Renderer.Uniform("ColorGrade.Gamma", Gamma);
+            Engine.Renderer.ProgramUniform(programBindingId, "ColorGrade.Tint", Tint.Raw);
+            Engine.Renderer.ProgramUniform(programBindingId, "ColorGrade.Exposure", Exposure);
+            Engine.Renderer.ProgramUniform(programBindingId, "ColorGrade.Saturation", Saturation);
+            Engine.Renderer.ProgramUniform(programBindingId, "ColorGrade.Contrast", Contrast);
+            Engine.Renderer.ProgramUniform(programBindingId, "ColorGrade.Gamma", Gamma);
         }
 
         internal static string WriteShaderSetup()
@@ -169,7 +169,7 @@ uniform ColorGradeStruct ColorGrade;";
     {
         public float _intensity;
 
-        internal void SetUniforms()
+        internal void SetUniforms(int programBindingId)
         {
 
         }
@@ -183,7 +183,7 @@ uniform ColorGradeStruct ColorGrade;";
     {
         public float _intensity;
 
-        internal void SetUniforms()
+        internal void SetUniforms(int programBindingId)
         {
 
         }

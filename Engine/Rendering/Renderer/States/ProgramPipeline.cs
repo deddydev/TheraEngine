@@ -10,27 +10,22 @@ namespace TheraEngine.Rendering
 
     public class ProgramPipeline : BaseRenderState
     {
-        //private List<RenderProgram> _includedStages = new List<RenderProgram>();
-
-        public ProgramPipeline() : base(EObjectType.ProgramPipeline)
-        {
-
-        }
-        
+        public ProgramPipeline() : base(EObjectType.ProgramPipeline) { }
         public void Bind()
         {
             Engine.Renderer.BindPipeline(BindingId);
         }
-
-        public void Add(EProgramStageMask mask, RenderProgram program)
+        public void Set(EProgramStageMask mask, int programBindingId)
         {
-            //if (!_includedStages.Contains(program))
-            //    _includedStages.Add(program);
-            Engine.Renderer.UsePipeline(BindingId, mask, program.BindingId); 
+            Engine.Renderer.SetPipelineStage(BindingId, mask, programBindingId); 
         }
         public void Clear(EProgramStageMask mask)
         {
-            Engine.Renderer.UsePipeline(BindingId, mask, 0);
+            Engine.Renderer.SetPipelineStage(BindingId, mask, 0);
+        }
+        public void SetActive(int programBindingId)
+        {
+            Engine.Renderer.ActiveShaderProgram(BindingId, programBindingId);
         }
     }
 }

@@ -41,7 +41,7 @@ namespace TheraEngine.Rendering.Models.Materials
                 for (int i = 0; i < _outputs.Count; ++i)
                 {
                     string name = outputNames[i];
-                    ShaderType type = (ShaderType)_outputs[i].CurrentArgumentType;
+                    ShaderVarType type = (ShaderVarType)_outputs[i].CurrentArgumentType;
                     s += type + " " + name + ";\n";
                 }
 
@@ -88,82 +88,82 @@ namespace TheraEngine.Rendering.Models.Materials
             return s;
         }
         
-        public static readonly ShaderType[] SignedIntTypes = new ShaderType[]
+        public static readonly ShaderVarType[] SignedIntTypes = new ShaderVarType[]
         {
-            ShaderType._int,
-            ShaderType._ivec2,
-            ShaderType._ivec3,
-            ShaderType._ivec4,
+            ShaderVarType._int,
+            ShaderVarType._ivec2,
+            ShaderVarType._ivec3,
+            ShaderVarType._ivec4,
         };
-        public static readonly ShaderType[] UnsignedIntTypes = new ShaderType[]
+        public static readonly ShaderVarType[] UnsignedIntTypes = new ShaderVarType[]
         {
-            ShaderType._uint,
-            ShaderType._uvec2,
-            ShaderType._uvec3,
-            ShaderType._uvec4,
+            ShaderVarType._uint,
+            ShaderVarType._uvec2,
+            ShaderVarType._uvec3,
+            ShaderVarType._uvec4,
         };
-        public static readonly ShaderType[] IntegerTypes = new ShaderType[]
+        public static readonly ShaderVarType[] IntegerTypes = new ShaderVarType[]
         {
-            ShaderType._int,
-            ShaderType._uint,
-            ShaderType._ivec2,
-            ShaderType._uvec2,
-            ShaderType._ivec3,
-            ShaderType._uvec3,
-            ShaderType._ivec4,
-            ShaderType._uvec4,
+            ShaderVarType._int,
+            ShaderVarType._uint,
+            ShaderVarType._ivec2,
+            ShaderVarType._uvec2,
+            ShaderVarType._ivec3,
+            ShaderVarType._uvec3,
+            ShaderVarType._ivec4,
+            ShaderVarType._uvec4,
         };
-        public static readonly ShaderType[] FloatingPointTypes = new ShaderType[]
+        public static readonly ShaderVarType[] FloatingPointTypes = new ShaderVarType[]
         {
-            ShaderType._float,
-            ShaderType._double,
-            ShaderType._vec2,
-            ShaderType._dvec2,
-            ShaderType._vec3,
-            ShaderType._dvec3,
-            ShaderType._vec4,
-            ShaderType._dvec4,
+            ShaderVarType._float,
+            ShaderVarType._double,
+            ShaderVarType._vec2,
+            ShaderVarType._dvec2,
+            ShaderVarType._vec3,
+            ShaderVarType._dvec3,
+            ShaderVarType._vec4,
+            ShaderVarType._dvec4,
         };
-        public static readonly ShaderType[] NumericTypes = new ShaderType[]
+        public static readonly ShaderVarType[] NumericTypes = new ShaderVarType[]
         {
-            ShaderType._float,
-            ShaderType._double,
-            ShaderType._int,
-            ShaderType._uint,
-            ShaderType._vec2,
-            ShaderType._ivec2,
-            ShaderType._uvec2,
-            ShaderType._dvec2,
-            ShaderType._vec3,
-            ShaderType._ivec3,
-            ShaderType._uvec3,
-            ShaderType._dvec3,
-            ShaderType._vec4,
-            ShaderType._ivec4,
-            ShaderType._uvec4,
-            ShaderType._dvec4,
+            ShaderVarType._float,
+            ShaderVarType._double,
+            ShaderVarType._int,
+            ShaderVarType._uint,
+            ShaderVarType._vec2,
+            ShaderVarType._ivec2,
+            ShaderVarType._uvec2,
+            ShaderVarType._dvec2,
+            ShaderVarType._vec3,
+            ShaderVarType._ivec3,
+            ShaderVarType._uvec3,
+            ShaderVarType._dvec3,
+            ShaderVarType._vec4,
+            ShaderVarType._ivec4,
+            ShaderVarType._uvec4,
+            ShaderVarType._dvec4,
         };
-        public static readonly ShaderType[] SignedTypes = new ShaderType[]
+        public static readonly ShaderVarType[] SignedTypes = new ShaderVarType[]
         {
-            ShaderType._float,
-            ShaderType._double,
-            ShaderType._int,
-            ShaderType._vec2,
-            ShaderType._ivec2,
-            ShaderType._dvec2,
-            ShaderType._vec3,
-            ShaderType._ivec3,
-            ShaderType._dvec3,
-            ShaderType._vec4,
-            ShaderType._ivec4,
-            ShaderType._dvec4,
+            ShaderVarType._float,
+            ShaderVarType._double,
+            ShaderVarType._int,
+            ShaderVarType._vec2,
+            ShaderVarType._ivec2,
+            ShaderVarType._dvec2,
+            ShaderVarType._vec3,
+            ShaderVarType._ivec3,
+            ShaderVarType._dvec3,
+            ShaderVarType._vec4,
+            ShaderVarType._ivec4,
+            ShaderVarType._dvec4,
         };
-        public static readonly ShaderType[] BooleanTypes = new ShaderType[]
+        public static readonly ShaderVarType[] BooleanTypes = new ShaderVarType[]
         {
-            ShaderType._bool,
-            ShaderType._bvec2,
-            ShaderType._bvec3,
-            ShaderType._bvec4,
+            ShaderVarType._bool,
+            ShaderVarType._bvec2,
+            ShaderVarType._bvec3,
+            ShaderVarType._bvec4,
         };
     }
 }

@@ -14,38 +14,51 @@ namespace TheraEngine.Rendering.Models
     }
     public enum BufferType
     {
-        Position        = 0,
-        Normal          = 1,
-        Binormal        = 2,
-        Tangent         = 3,
-        Color           = 4,
-        TexCoord        = 5,
-        MatrixIds       = 6,
-        MatrixWeights   = 7,
-        Barycentric     = 8,
-        Other           = 9,
+        Position        = 0, //VertexBuffer.MaxMorphs + 1
+        Normal          = 1, //VertexBuffer.MaxMorphs + 1
+        Binormal        = 2, //VertexBuffer.MaxMorphs + 1
+        Tangent         = 3, //VertexBuffer.MaxMorphs + 1
+        MatrixIds       = 4, //VertexBuffer.MaxMorphs + 1
+        MatrixWeights   = 5, //VertexBuffer.MaxMorphs + 1
+        Color           = 6, //VertexBuffer.MaxColors
+        TexCoord        = 7, //VertexBuffer.MaxTexCoords
+        Other           = 8, //VertexBuffer.MaxOtherBuffers
     }
     public class VertexAttribInfo
     {
         public VertexAttribInfo(BufferType type, int index = 0)
         {
             _type = type;
-            _index = index.Clamp(0, VertexBuffer.MaxBufferCountPerType);
+            _index = index.Clamp(0, GetMaxBuffersForType(type) - 1);
         }
 
         public BufferType _type;
         public int _index;
 
-        public string GetAttribName() => _type.ToString() + _index;
-        public int GetLocation()
+        public static int GetMaxBuffersForType(BufferType type)
         {
-            if (_type < BufferType.Barycentric)
-                return (int)_type * VertexBuffer.MaxBufferCountPerType + _index;
-            else if (_type == BufferType.Barycentric)
-                return (int)BufferType.Barycentric * VertexBuffer.MaxBufferCountPerType;
-            else
-                return (int)BufferType.Other * VertexBuffer.MaxBufferCountPerType + _index;
+            switch (type)
+            {
+                case BufferType.Color:
+                    return VertexShaderDesc.MaxColors;
+                case BufferType.TexCoord:
+                    return VertexShaderDesc.MaxTexCoords;
+                case BufferType.Other:
+                    return VertexShaderDesc.MaxOtherBuffers;
+                default:
+                    return VertexShaderDesc.MaxMorphs + 1;
+            }
         }
+        public static string GetAttribName(BufferType type, int index) => type.ToString() + index.ToString();
+        public static int GetLocation(BufferType type, int index)
+        {
+            int location = 0;
+            for (BufferType i = 0; i < type; ++i)
+                location += GetMaxBuffersForType(i);
+            return location + index;
+        }
+        public string GetAttribName() => GetAttribName(_type, _index);
+        public int GetLocation() => GetLocation(_type, _index);
     }
     public enum BufferUsage
     {
@@ -61,13 +74,6 @@ namespace TheraEngine.Rendering.Models
     }
     public class VertexBuffer : BaseRenderState, IDisposable
     {
-        public static readonly int MaxBufferCountPerType = 1;
-        public static readonly int BufferTypeCount = 8;
-        
-        //TransformedPosition, TransformedNormal, TransformedBinormal, TransformedTangent
-        //TransformedTexCoord, TransformedColor
-        public static readonly int SkinningBufferCount = 6; 
-        public static readonly int MaxBufferCount = MaxBufferCountPerType * BufferTypeCount + SkinningBufferCount;
         public enum ComponentType
         {
             SByte   = 0,

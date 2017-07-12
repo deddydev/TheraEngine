@@ -11,7 +11,7 @@
         public CommonParameterFunc(ECommonUniform value) : base(true) { _value = value; }
 
         ECommonUniform _value;
-        ShaderType _type;
+        ShaderVarType _type;
 
         public ECommonUniform Value
         {
@@ -28,18 +28,18 @@
                     case ECommonUniform.CameraNearZ:
                     case ECommonUniform.CameraAspect:
                     case ECommonUniform.RenderDelta:
-                        _type = ShaderType._float;
+                        _type = ShaderVarType._float;
                         break;
 
                     case ECommonUniform.ScreenOrigin:
-                        _type = ShaderType._vec2;
+                        _type = ShaderVarType._vec2;
                         break;
 
                     case ECommonUniform.CameraPosition:
                     case ECommonUniform.CameraForward:
                     case ECommonUniform.CameraUp:
                     case ECommonUniform.CameraRight:
-                        _type = ShaderType._vec3;
+                        _type = ShaderVarType._vec3;
                         break;
                 }
             }

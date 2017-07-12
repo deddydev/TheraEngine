@@ -5,6 +5,7 @@ using TheraEngine.Rendering.Textures;
 using OpenTK.Graphics.OpenGL;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace TheraEngine.Rendering
 {
@@ -50,14 +51,14 @@ namespace TheraEngine.Rendering
 
         private void SetUniforms()
         {
-            int matId = _fullScreenTriangle.Material.Program.BindingId;
+            int fragId = Engine.Settings.AllowShaderPipelines ? _fullScreenTriangle.Material.Program.BindingId : _fullScreenTriangle._vsFragProgram.BindingId;
 
-            _parent.Camera.PostProcessSettings.SetUniforms(matId);
+            _parent.Camera.PostProcessSettings.SetUniforms(fragId);
             
-            Engine.Renderer.ProgramUniform(matId, Uniform.GetLocation(matId, ECommonUniform.CameraPosition), _parent.Camera.WorldPoint);
+            Engine.Renderer.ProgramUniform(fragId, Uniform.GetLocation(fragId, ECommonUniform.CameraPosition), _parent.Camera.WorldPoint);
 
             if (Engine.Settings.ShadingStyle == ShadingStyle.Deferred)
-                Engine.Scene.Lights.SetUniforms(matId);
+                Engine.Scene.Lights.SetUniforms(fragId);
         }
 
         public unsafe void Resize(int width, int height)
@@ -146,21 +147,24 @@ namespace TheraEngine.Rendering
                     },
                 };
 
-            return new Material("GBufferMaterial", new ShaderVar[0], refs, forward ? GBufferShaderForward() : GBufferShaderDeferred());
+            Shader shader = forward ? GBufferShaderForward() : GBufferShaderDeferred();
+            //Debug.WriteLine(shader._source);
+            return new Material("GBufferMaterial", new ShaderVar[0], refs, shader);
         }
         internal static Shader GBufferShaderDeferred()
         {
             string source = @"
 #version 450
+//GBUFFER FRAG SHADER
+
+out vec4 OutColor;
+
+in vec3 FragPos;
 
 uniform sampler2D Texture0;
 uniform sampler2D Texture1;
 uniform sampler2D Texture2;
 uniform sampler2D Texture3;
-
-in vec3 FragPos;
-
-out vec4 OutColor;
 
 uniform vec3 CameraPosition;
 uniform vec3 CameraForward;
@@ -184,26 +188,28 @@ void main()
     vec3 FragPos = texture(Texture1, uv).rgb;
     vec3 Normal = texture(Texture2, uv).rgb;
     float Depth = texture(Texture3, uv).r;
-
+            
     " + ShaderHelpers.LightingCalc("totalLight", "GlobalAmbient", "Normal", "FragPos", "AlbedoSpec.rgb", "AlbedoSpec.a") + @"
 
     vec3 hdrSceneColor = AlbedoSpec.rgb * totalLight;
 
     " + PostProcessPart() + @"
 }";
+
             return new Shader(ShaderMode.Fragment, source);
         }
         internal static Shader GBufferShaderForward()
         {
             string source = @"
 #version 450
+//GBUFFER FRAG SHADER
 
-uniform sampler2D Texture0;
-uniform sampler2D Texture1;
+out vec4 OutColor;
 
 in vec3 FragPos;
 
-out vec4 OutColor;
+uniform sampler2D Texture0;
+uniform sampler2D Texture1;
 
 uniform vec3 CameraPosition;
 uniform vec3 CameraForward;

@@ -15,6 +15,7 @@ namespace TheraEngine
         private ShadingStyle _shadingStyle;
         private bool _skinOnGPU;
         private bool _useIntegerWeightingIds;
+        private bool _allowShaderPipelines;
         
         private bool _renderCameraFrustums;
         private bool _renderSkeletons;
@@ -41,6 +42,9 @@ namespace TheraEngine
         [Category("Performance")]
         [Serialize]
         public bool UseIntegerWeightingIds { get => _useIntegerWeightingIds; set => _useIntegerWeightingIds = value; }
+        [Category("Performance")]
+        [Serialize]
+        public bool AllowShaderPipelines { get => _allowShaderPipelines; set => _allowShaderPipelines = value; }
         [Category("Debug")]
         [Serialize]
         public bool RenderCameraFrustums { get => _renderCameraFrustums; set => _renderCameraFrustums = value; }
@@ -110,6 +114,7 @@ namespace TheraEngine
             ShadingStyle = ShadingStyle.Deferred;
             SkinOnGPU = false;
             UseIntegerWeightingIds = false;
+            AllowShaderPipelines = true;
 #if DEBUG
             RenderOctree = false;
             RenderQuadtree = true;

@@ -296,10 +296,12 @@ namespace TheraEngine.Rendering.Models.Materials
             set
             {
                 _frameBuffer = value;
-                BindTextures = _frameBuffer != null ? (Action)BindTexturesFBO : BindTexturesNonFBO;
+                BindTextures = _frameBuffer != null ? (Action<int>)BindTexturesFBO : BindTexturesNonFBO;
                 CollectFBOAttachments();
             }
         }
+
+        public List<Shader> FragmentShaders => _fragmentShaders;
 
         public void GenerateTextures()
         {
@@ -322,13 +324,16 @@ namespace TheraEngine.Rendering.Models.Materials
                 _uniqueID = -1;
             }
         }
-        public void SetUniforms()
+        public void SetUniforms(int programBindingId)
         {
+            if (programBindingId <= 0)
+                programBindingId = Program.BindingId;
+
             foreach (ShaderVar v in _parameters)
-                v.SetProgramUniform(Program.BindingId);
+                v.SetProgramUniform(programBindingId);
 
             Engine.Renderer.ApplyRenderParams(_renderParams);
-            BindTextures();
+            BindTextures(programBindingId);
 
             SettingUniforms?.Invoke();
         }
@@ -343,20 +348,20 @@ namespace TheraEngine.Rendering.Models.Materials
             foreach (TextureReference t in TexRefs)
                 t.Resize(width, height);
         }
-        public Action BindTextures;
-        private void BindTexturesFBO()
+        public Action<int> BindTextures;
+        private void BindTexturesFBO(int programBindingId)
         {
             Engine.Renderer.BindFrameBuffer(EFramebufferTarget.Framebuffer, FrameBuffer.BindingId);
-            BindTexturesNonFBO();
+            BindTexturesNonFBO(programBindingId);
             Engine.Renderer.SetDrawBuffers(_fboAttachments);
             Engine.Renderer.BindFrameBuffer(EFramebufferTarget.Framebuffer, 0);
         }
-        internal void BindTexturesNonFBO()
+        internal void BindTexturesNonFBO(int programBindingId)
         {
             for (int i = 0; i < TexRefs.Length; ++i)
             {
                 Engine.Renderer.SetActiveTexture(i);
-                Engine.Renderer.ProgramUniform(_program.BindingId, "Texture" + i, i);
+                Engine.Renderer.ProgramUniform(programBindingId, "Texture" + i, i);
                 TexRefs[i].Texture.Bind();
             }
         }
@@ -405,7 +410,8 @@ namespace TheraEngine.Rendering.Models.Materials
                     }
                 }
 
-            _program = new RenderProgram(null, _shaders);
+            if (Engine.Settings.AllowShaderPipelines)
+                _program = new RenderProgram(null, _shaders);
         }
         public static Material GetUnlitTextureMaterial(TextureReference texture) => GetUnlitTextureMaterial(texture, Engine.Settings.ShadingStyle == ShadingStyle.Deferred);
         public static Material GetUnlitTextureMaterial(TextureReference texture, bool deferred)
@@ -439,7 +445,7 @@ namespace TheraEngine.Rendering.Models.Materials
             TextureReference[] refs = new TextureReference[0];
             ShaderVar[] parameters = new ShaderVar[]
             {
-                new GLVec4(color, "MatColor"),
+                new ShaderVec4(color, "MatColor"),
             };
             Shader frag = deferred ? ShaderHelpers.UnlitColorFragDeferred() : ShaderHelpers.UnlitColorFragForward();
             return new Material("UnlitColorMaterial", parameters, refs, frag);
@@ -455,9 +461,9 @@ namespace TheraEngine.Rendering.Models.Materials
             TextureReference[] refs = new TextureReference[0];
             ShaderVar[] parameters = new ShaderVar[]
             {
-                new GLVec4(color, "MatColor"),
-                new GLFloat(20.0f, "MatSpecularIntensity"),
-                new GLFloat(128.0f, "MatShininess"),
+                new ShaderVec4(color, "MatColor"),
+                new ShaderFloat(20.0f, "MatSpecularIntensity"),
+                new ShaderFloat(128.0f, "MatShininess"),
             };
             Shader frag = deferred ? ShaderHelpers.LitColorFragDeferred() : ShaderHelpers.LitColorFragForward();
             return new Material("TestMaterial", parameters, refs, frag);

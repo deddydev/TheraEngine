@@ -255,7 +255,7 @@ namespace TheraEngine.Tests
 
         private void PhysicsDriver_OnHit(IPhysicsDrivable me, IPhysicsDrivable other, BulletSharp.ManifoldPoint point)
         {
-            GLVec4 color = (GLVec4)((StaticMeshComponent)me).Model.RigidChildren[0].Material.Parameters[0];
+            ShaderVec4 color = (ShaderVec4)((StaticMeshComponent)me).Model.RigidChildren[0].Material.Parameters[0];
             color.Value = (ColorF4)Color.Red;
 
             //_collideSound.Play(_param);

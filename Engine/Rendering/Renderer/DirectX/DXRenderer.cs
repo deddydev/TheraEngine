@@ -388,12 +388,7 @@ namespace TheraEngine.Rendering.DirectX
         {
             throw new NotImplementedException();
         }
-
-        public override int GenerateProgram(int[] shaderHandles, VertexShaderDesc info, bool separable)
-        {
-            throw new NotImplementedException();
-        }
-
+        
         public override void SetProgramParameter(int programBindingId, EProgParam parameter, int value)
         {
             throw new NotImplementedException();
@@ -409,7 +404,7 @@ namespace TheraEngine.Rendering.DirectX
             throw new NotImplementedException();
         }
 
-        public override void UsePipeline(int pipelineBindingId, EProgramStageMask mask, int programBindingId)
+        public override void SetPipelineStage(int pipelineBindingId, EProgramStageMask mask, int programBindingId)
         {
             throw new NotImplementedException();
         }
@@ -495,6 +490,16 @@ namespace TheraEngine.Rendering.DirectX
         }
 
         public override void ProgramUniform(int programBindingId, int location, params Matrix3[] p)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override int GenerateProgram(int[] shaderHandles, VertexShaderDesc desc, bool separable)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void ActiveShaderProgram(int pipelineBindingId, int programBindingId)
         {
             throw new NotImplementedException();
         }

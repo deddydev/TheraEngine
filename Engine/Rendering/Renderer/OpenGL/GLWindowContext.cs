@@ -189,10 +189,12 @@ namespace TheraEngine.Rendering.OpenGL
             //GL.Hint(HintTarget.PointSmoothHint, HintMode.Nicest);
             //GL.Hint(HintTarget.PolygonSmoothHint, HintMode.Nicest);
             //GL.Hint(HintTarget.GenerateMipmapHint, HintMode.Nicest);
-            
+
             //GL.DepthFunc(DepthFunction.Less);
             //GL.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
             //GL.AlphaFunc(AlphaFunction.Gequal, 0.1f);
+
+            GL.UseProgram(0);
         }
         public unsafe override void BeginDraw()
         {

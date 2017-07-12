@@ -18,8 +18,8 @@ namespace TheraEngine.Rendering.Models.Materials
         {
             return new List<MatFuncValueInput>()
             {
-                new MatFuncValueInput("Start Index", ShaderType._int),
-                new MatFuncValueInput("Loop Operation", ShaderType._bool),
+                new MatFuncValueInput("Start Index", ShaderVarType._int),
+                new MatFuncValueInput("Loop Operation", ShaderVarType._bool),
                 //TODO: material function argument for each loop?
             };
         }
@@ -27,8 +27,8 @@ namespace TheraEngine.Rendering.Models.Materials
         {
             return new List<MatFuncValueOutput>()
             {
-                new MatFuncValueOutput("Loop Index", ShaderType._int),
-                new MatFuncValueOutput("Loop Count", ShaderType._bool),
+                new MatFuncValueOutput("Loop Index", ShaderVarType._int),
+                new MatFuncValueOutput("Loop Count", ShaderVarType._bool),
                 //TODO: material function argument for each loop?
             };
         }

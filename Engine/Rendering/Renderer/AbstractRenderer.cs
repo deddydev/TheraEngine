@@ -185,7 +185,7 @@ namespace TheraEngine.Rendering
         public virtual void RenderPoint(Vec3 position, ColorF4 color, float pointSize = DefaultPointSize)
         {
             IPrimitiveManager m = GetDebugPrimitive(DebugPrimitiveType.Point);
-            m.Parameter<GLVec4>(0).Value = color;
+            m.Parameter<ShaderVec4>(0).Value = color;
             Matrix4 modelMatrix = Matrix4.CreateTranslation(position);
             //if (Engine.MainThreadID != Thread.CurrentThread.ManagedThreadId)
             //    Engine.Scene.AddDebugPrimitive(new DebugPrimitive() { Manager = m, ModelMatrix = modelMatrix, Color = color, Type = DebugPrimitiveType.Point });
@@ -198,7 +198,7 @@ namespace TheraEngine.Rendering
         public virtual unsafe void RenderLine(Vec3 start, Vec3 end, ColorF4 color, float lineWidth = DefaultLineSize)
         {
             IPrimitiveManager m = GetDebugPrimitive(DebugPrimitiveType.Line);
-            m.Parameter<GLVec4>(0).Value = color;
+            m.Parameter<ShaderVec4>(0).Value = color;
             //((Vec3*)m.Data[0].Address)[1] = end - start;
             Matrix4 modelMatrix = Matrix4.CreateTranslation(start) * end.LookatAngles(start).GetMatrix() * Matrix4.CreateScale(end.DistanceToFast(start));
             //if (Engine.MainThreadID != Thread.CurrentThread.ManagedThreadId)
@@ -223,7 +223,7 @@ namespace TheraEngine.Rendering
             //radius doesn't need to be multiplied by 2.0f; the sphere is already 2.0f in diameter
             Matrix4 mtx = Matrix4.CreateTranslation(center) * Matrix4.CreateScale(radius);
             IPrimitiveManager m = GetDebugPrimitive(solid ? DebugPrimitiveType.SolidSphere : DebugPrimitiveType.WireSphere);
-            m.Parameter<GLVec4>(0).Value = color;
+            m.Parameter<ShaderVec4>(0).Value = color;
             m.Render(mtx, Matrix3.Identity);
         }
 
@@ -233,7 +233,7 @@ namespace TheraEngine.Rendering
         {
             SetLineSize(lineWidth);
             IPrimitiveManager m = GetDebugPrimitive(solid ? DebugPrimitiveType.SolidBox : DebugPrimitiveType.WireBox);
-            m.Parameter<GLVec4>(0).Value = color;
+            m.Parameter<ShaderVec4>(0).Value = color;
             //halfExtents doesn't need to be multiplied by 2.0f; the box is already 1.0f in each direction of each dimension (2.0f extents)
             transform = transform * Matrix4.CreateScale(halfExtents);
             m.Render(transform, transform.Inverted().Transposed().GetRotationMatrix3());
@@ -265,9 +265,9 @@ namespace TheraEngine.Rendering
             }
             Matrix4 axisRotation = Matrix4.CreateFromQuaternion(Quat.BetweenVectors(Vec3.Up, localUpAxis));
             Matrix4 radiusMtx = Matrix4.CreateScale(radius);
-            mCyl.Parameter<GLVec4>(0).Value = color;
-            mTop.Parameter<GLVec4>(0).Value = color;
-            mBot.Parameter<GLVec4>(0).Value = color;
+            mCyl.Parameter<ShaderVec4>(0).Value = color;
+            mTop.Parameter<ShaderVec4>(0).Value = color;
+            mBot.Parameter<ShaderVec4>(0).Value = color;
             Matrix4 cylTransform = transform * axisRotation * Matrix4.CreateScale(radius, halfHeight, radius);
             Matrix4 topTransform = transform * axisRotation * Matrix4.CreateTranslation(0.0f, halfHeight, 0.0f) * radiusMtx;
             Matrix4 botTransform = transform * axisRotation * Matrix4.CreateTranslation(0.0f, -halfHeight, 0.0f) * radiusMtx;
@@ -373,12 +373,13 @@ namespace TheraEngine.Rendering
         /// </summary>
         /// <param name="shaderHandles">The handles of the shaders for this program to use.</param>
         /// <returns></returns>
-        public abstract int GenerateProgram(int[] shaderHandles, VertexShaderDesc info, bool separable);
-        public virtual void UseMaterial(Material material)
-        {
-            _currentMaterial = material;
-            _currentMaterial?.SetUniforms();
-        }
+        public abstract int GenerateProgram(int[] shaderHandles, VertexShaderDesc desc, bool separable);
+        //public virtual void UseMaterial(Material material)
+        //{
+        //    _currentMaterial = material;
+        //    _currentMaterial?.SetUniforms(0);
+        //}
+        public abstract void ActiveShaderProgram(int pipelineBindingId, int programBindingId);
         public abstract void SetProgramParameter(int programBindingId, EProgParam parameter, int value);
         public abstract void UseProgram(int programBindingId);
         //{
@@ -386,7 +387,7 @@ namespace TheraEngine.Rendering
         //    _currentRenderProgram?.SetUniforms();
         //}
         public abstract void BindPipeline(int pipelineBindingId);
-        public abstract void UsePipeline(int pipelineBindingId, EProgramStageMask mask, int programBindingId);
+        public abstract void SetPipelineStage(int pipelineBindingId, EProgramStageMask mask, int programBindingId);
 
         public abstract void ApplyRenderParams(RenderingParameters r);
 

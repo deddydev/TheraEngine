@@ -2,9 +2,9 @@
 
 namespace TheraEngine.Rendering.Models.Materials
 {
-    public class GLArray<T> : ShaderVar where T : ShaderVar
+    public class ShaderArray<T> : ShaderVar where T : ShaderVar
     {
-        public override ShaderType TypeName { get { return _elementTypeName; } }
+        public override ShaderVarType TypeName { get { return _elementTypeName; } }
         public ArrayHandler<T> Value { get { return _value; } set { _value = value; } }
         public int Length { get { return _value.Length; } }
         internal override void SetProgramUniform(int programBindingId, int location)
@@ -14,10 +14,10 @@ namespace TheraEngine.Rendering.Models.Materials
         }
         internal override string GetValueString() { return _value.ToString(); }
 
-        public ShaderType _elementTypeName;
+        public ShaderVarType _elementTypeName;
         private ArrayHandler<T> _value;
 
-        public GLArray(ArrayHandler<T> defaultValue, ShaderType elementType, string name, IShaderVarOwner owner) 
+        public ShaderArray(ArrayHandler<T> defaultValue, ShaderVarType elementType, string name, IShaderVarOwner owner) 
             : base(name, owner) { _value = defaultValue; _elementTypeName = elementType; }
     }
     public class ArrayHandler<T> : IUniformableArray where T : ShaderVar

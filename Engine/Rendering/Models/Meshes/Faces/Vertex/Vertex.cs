@@ -12,7 +12,7 @@ namespace TheraEngine.Rendering.Models
 
         public int _index = -1;
         public Influence _influence;
-        public Vec3 _position, _normal, _tangent, _binormal, _barycentric;
+        public Vec3 _position, _normal, _tangent, _binormal;
         public Vec2 _texCoord;
         public ColorF4 _color;
         public List<VertexLine> _connectedEdges = new List<VertexLine>();
@@ -76,9 +76,6 @@ namespace TheraEngine.Rendering.Models
                     case BufferType.TexCoord:
                         b.Set(index << 3, _texCoord);
                         break;
-                    case BufferType.Barycentric:
-                        b.Set(index * 12, _barycentric);
-                        break;
                 }
             }
         }
@@ -111,9 +108,6 @@ namespace TheraEngine.Rendering.Models
                         break;
                     case BufferType.TexCoord:
                         _texCoord = b.Get<Vec2>(index << 3);
-                        break;
-                    case BufferType.Barycentric:
-                        _barycentric = b.Get<Vec3>(index * 12);
                         break;
                 }
             }

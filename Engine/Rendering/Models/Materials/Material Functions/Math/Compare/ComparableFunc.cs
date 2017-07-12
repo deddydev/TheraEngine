@@ -16,7 +16,7 @@ namespace TheraEngine.Rendering.Models.Materials
         }
         protected override List<MatFuncValueOutput> GetValueOutputs()
         {
-            Result = new MatFuncValueOutput("Result", ShaderType._bool);
+            Result = new MatFuncValueOutput("Result", ShaderVarType._bool);
             return new List<MatFuncValueOutput>() { Result };
         }
         protected override string GetOperation()

@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Linq;
+using System.Text;
 
 namespace TheraEngine.Rendering.OpenGL
 {
@@ -19,7 +20,7 @@ namespace TheraEngine.Rendering.OpenGL
 
         public GLRenderer() { }
 
-        private OpenTK.Graphics.OpenGL.ShaderType _currentShaderMode;
+        private ShaderType _currentShaderMode;
         
         public override void Clear(EBufferClear mask)
         {
@@ -210,22 +211,22 @@ namespace TheraEngine.Rendering.OpenGL
             switch (type)
             {
                 case ShaderMode.Fragment:
-                    _currentShaderMode = OpenTK.Graphics.OpenGL.ShaderType.FragmentShader;
+                    _currentShaderMode = ShaderType.FragmentShader;
                     break;
                 case ShaderMode.Vertex:
-                    _currentShaderMode = OpenTK.Graphics.OpenGL.ShaderType.VertexShader;
+                    _currentShaderMode = ShaderType.VertexShader;
                     break;
                 case ShaderMode.Geometry:
-                    _currentShaderMode = OpenTK.Graphics.OpenGL.ShaderType.GeometryShader;
+                    _currentShaderMode = ShaderType.GeometryShader;
                     break;
                 case ShaderMode.TessControl:
-                    _currentShaderMode = OpenTK.Graphics.OpenGL.ShaderType.TessControlShader;
+                    _currentShaderMode = ShaderType.TessControlShader;
                     break;
                 case ShaderMode.TessEvaluation:
-                    _currentShaderMode = OpenTK.Graphics.OpenGL.ShaderType.TessEvaluationShader;
+                    _currentShaderMode = ShaderType.TessEvaluationShader;
                     break;
                 case ShaderMode.Compute:
-                    _currentShaderMode = OpenTK.Graphics.OpenGL.ShaderType.ComputeShader;
+                    _currentShaderMode = ShaderType.ComputeShader;
                     break;
             }
         }
@@ -277,71 +278,88 @@ namespace TheraEngine.Rendering.OpenGL
         {
             GL.BindProgramPipeline(pipelineBindingId);
         }
-        public override void UsePipeline(int pipelineBindingId, EProgramStageMask mask, int programBindingId)
+        public override void SetPipelineStage(int pipelineBindingId, EProgramStageMask mask, int programBindingId)
         {
             GL.UseProgramStages(pipelineBindingId, (ProgramStageMask)(int)mask, programBindingId);
         }
-        public override int GenerateProgram(int[] shaderHandles, VertexShaderDesc attribDesc, bool separable)
+        public override void ActiveShaderProgram(int pipelineBindingId, int programBindingId)
+        {
+            GL.ActiveShaderProgram(pipelineBindingId, programBindingId);
+        }
+        public override int GenerateProgram(int[] shaderHandles, VertexShaderDesc desc, bool separable)
         {
             int handle = GL.CreateProgram();
-            foreach (int i in shaderHandles)
-                GL.AttachShader(handle, i);
-            
             GL.ProgramParameter(handle, ProgramParameterName.ProgramSeparable, separable ? 1 : 0);
 
-            if (attribDesc != null)
+            foreach (int i in shaderHandles)
+                GL.AttachShader(handle, i);
+
+            //SetBindFragDataLocation(handle, GetUniformLocation(handle, "OutColor"), "OutColor");
+
+            if (desc != null)
             {
+                int meshCount = desc._morphCount + 1;
+                bool weighted = Engine.Settings.SkinOnGPU && desc.IsWeighted;
+                int location = 0;
+
                 //Have to bind 'in' attributes before linking
-                int j = (int)BufferType.Position * VertexBuffer.MaxBufferCountPerType;
-                for (int i = 0; i < attribDesc._morphCount + 1; ++i, ++j)
-                    GL.BindAttribLocation(handle, j, BufferType.Position.ToString() + i);
 
-                if (attribDesc.HasNormals)
-                {
-                    j = (int)BufferType.Normal * VertexBuffer.MaxBufferCountPerType;
-                    for (int i = 0; i < attribDesc._morphCount + 1; ++i, ++j)
-                        GL.BindAttribLocation(handle, j, BufferType.Normal.ToString() + i);
-                }
-                if (attribDesc.HasBinormals)
-                {
-                    j = (int)BufferType.Binormal * VertexBuffer.MaxBufferCountPerType;
-                    for (int i = 0; i < attribDesc._morphCount + 1; ++i, ++j)
-                        GL.BindAttribLocation(handle, j, BufferType.Binormal.ToString() + i);
-                }
-                if (attribDesc.HasTangents)
-                {
-                    j = (int)BufferType.Tangent * VertexBuffer.MaxBufferCountPerType;
-                    for (int i = 0; i < attribDesc._morphCount + 1; ++i, ++j)
-                        GL.BindAttribLocation(handle, j, BufferType.Tangent.ToString() + i);
-                }
+                BufferType type = BufferType.Position;
+                for (int i = 0; i < meshCount; ++i)
+                    GL.BindAttribLocation(handle, location + i, VertexAttribInfo.GetAttribName(type, i));
+                location += VertexAttribInfo.GetMaxBuffersForType(type);
 
-                j = (int)BufferType.Color * VertexBuffer.MaxBufferCountPerType;
-                for (int i = 0; i < attribDesc._colorCount; ++i, ++j)
-                    GL.BindAttribLocation(handle, j, BufferType.Color.ToString() + i);
+                type = BufferType.Normal;
+                if (desc.HasNormals)
+                    for (int i = 0; i < meshCount; ++i)
+                        GL.BindAttribLocation(handle, location + i, VertexAttribInfo.GetAttribName(type, i));
+                location += VertexAttribInfo.GetMaxBuffersForType(type);
 
-                j = (int)BufferType.TexCoord * VertexBuffer.MaxBufferCountPerType;
-                for (int i = 0; i < attribDesc._texcoordCount; ++i, ++j)
-                    GL.BindAttribLocation(handle, j, "MultiTexCoord" + i.ToString());
+                type = BufferType.Binormal;
+                if (desc.HasBinormals)
+                    for (int i = 0; i < meshCount; ++i)
+                        GL.BindAttribLocation(handle, location + i, VertexAttribInfo.GetAttribName(type, i));
+                location += VertexAttribInfo.GetMaxBuffersForType(type);
 
-                if (attribDesc.IsWeighted)
-                {
-                    j = (int)BufferType.MatrixIds * VertexBuffer.MaxBufferCountPerType;
-                    for (int i = 0; i < attribDesc._morphCount + 1; ++i, ++j)
-                        GL.BindAttribLocation(handle, j, BufferType.MatrixIds.ToString() + i);
+                type = BufferType.Tangent;
+                if (desc.HasTangents)
+                    for (int i = 0; i < meshCount; ++i)
+                        GL.BindAttribLocation(handle, location + i, VertexAttribInfo.GetAttribName(type, i));
+                location += VertexAttribInfo.GetMaxBuffersForType(type);
 
-                    j = (int)BufferType.MatrixWeights * VertexBuffer.MaxBufferCountPerType;
-                    for (int i = 0; i < attribDesc._morphCount + 1; ++i, ++j)
-                        GL.BindAttribLocation(handle, j, BufferType.MatrixWeights.ToString() + i);
-                }
+                type = BufferType.MatrixIds;
+                if (desc.IsWeighted)
+                    for (int i = 0; i < meshCount; ++i)
+                        GL.BindAttribLocation(handle, location + i, VertexAttribInfo.GetAttribName(type, i));
+                location += VertexAttribInfo.GetMaxBuffersForType(type);
 
-                if (attribDesc._hasBarycentricCoord)
-                {
-                    j = (int)BufferType.Barycentric * VertexBuffer.MaxBufferCountPerType;
-                    GL.BindAttribLocation(handle, j++, BufferType.Barycentric.ToString());
-                }
+                type = BufferType.MatrixWeights;
+                if (desc.IsWeighted)
+                    for (int i = 0; i < meshCount; ++i)
+                        GL.BindAttribLocation(handle, location + i, VertexAttribInfo.GetAttribName(type, i));
+                location += VertexAttribInfo.GetMaxBuffersForType(type);
+
+                type = BufferType.Color;
+                for (int i = 0; i < desc._colorCount; ++i)
+                    GL.BindAttribLocation(handle, location + i, VertexAttribInfo.GetAttribName(type, i));
+                location += VertexAttribInfo.GetMaxBuffersForType(type);
+
+                type = BufferType.TexCoord;
+                for (int i = 0; i < desc._texcoordCount; ++i)
+                    GL.BindAttribLocation(handle, location + i, VertexAttribInfo.GetAttribName(type, i));
+                location += VertexAttribInfo.GetMaxBuffersForType(type);
             }
-
+            
             GL.LinkProgram(handle);
+            GL.GetProgram(handle, GetProgramParameterName.LinkStatus, out int status);
+            if (status == 0)
+            {
+                GL.GetProgramInfoLog(handle, out string info);
+                if (string.IsNullOrEmpty(info))
+                    Debug.WriteLine("Unable to link program, but no error was returned.");
+                else
+                    Debug.WriteLine(info);
+            }
 
             //We don't need these anymore now that they're part of the program
             foreach (int i in shaderHandles)
@@ -349,7 +367,7 @@ namespace TheraEngine.Rendering.OpenGL
                 GL.DetachShader(handle, i);
                 GL.DeleteShader(i);
             }
-
+            
             return handle;
         }
         public override void SetActiveTexture(int unit)
@@ -596,24 +614,24 @@ namespace TheraEngine.Rendering.OpenGL
         }
         public override void ProgramUniform(int programBindingId, int location, params int[] p)
         {
-            if (location > -1)
+            if (location >= 0)
                 fixed (int* first = &p[0])
                     GL.ProgramUniform1(programBindingId, location, p.Length, first);
         }
         public override void ProgramUniform(int programBindingId, int location, params float[] p)
         {
-            if (location > -1)
+            if (location >= 0)
                 fixed (float* first = &p[0])
                     GL.ProgramUniform1(programBindingId, location, p.Length, first);
         }
         public override void ProgramUniform(int programBindingId, int location, Matrix4 p)
         {
-            if (location > -1)
+            if (location >= 0)
                 GL.ProgramUniformMatrix4(programBindingId, location, 1, false, p.Data);
         }
         public override void ProgramUniform(int programBindingId, int location, params Matrix4[] p)
         {
-            if (location > -1)
+            if (location >= 0)
             {
                 float[] values = new float[p.Length << 4];
                 for (int i = 0; i < p.Length; ++i)
@@ -624,12 +642,12 @@ namespace TheraEngine.Rendering.OpenGL
         }
         public override void ProgramUniform(int programBindingId, int location, Matrix3 p)
         {
-            if (location > -1)
+            if (location >= 0)
                 GL.ProgramUniformMatrix3(programBindingId, location, 1, false, p.Data);
         }
         public override void ProgramUniform(int programBindingId, int location, params Matrix3[] p)
         {
-            if (location > -1)
+            if (location >= 0)
             {
                 float[] values = new float[p.Length * 9];
                 for (int i = 0; i < p.Length; ++i)
@@ -945,18 +963,24 @@ namespace TheraEngine.Rendering.OpenGL
                     break;
             }
         }
+        /// <summary>
+        /// Requires 4.5 or ARB_direct_state_access
+        /// </summary>
         public override void UnmapBufferData(VertexBuffer buffer)
         {
             //GL.UnmapBuffer(buffer._target);
             GL.UnmapNamedBuffer(buffer.BindingId);
         }
+        /// <summary>
+        /// Requires 3.0 or ARB_vertex_array_object
+        /// </summary>
         public override void BindPrimitiveManager(IPrimitiveManager manager)
         {
             GL.BindVertexArray(manager == null ? 0 : manager.BindingId);
             base.BindPrimitiveManager(manager);
         }
         /// <summary>
-        /// REQUIRES OPENGL V4.5
+        /// Requires 4.5 or ARB_direct_state_access
         /// </summary>
         public override void LinkRenderIndices(IPrimitiveManager manager, VertexBuffer indexBuffer)
         {
@@ -964,6 +988,9 @@ namespace TheraEngine.Rendering.OpenGL
                 throw new Exception("IndexBuffer needs target type of " + EBufferTarget.DrawIndices.ToString() + ".");
             GL.VertexArrayElementBuffer(manager.BindingId, indexBuffer.BindingId);
         }
+        /// <summary>
+        /// Requires 1.1
+        /// </summary>
         public override void RenderCurrentPrimitiveManager()
         {
             if (_currentPrimitiveManager != null)

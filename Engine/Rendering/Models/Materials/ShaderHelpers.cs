@@ -279,6 +279,8 @@ struct BaseLight
     vec3 Color;
     float DiffuseIntensity;
     float AmbientIntensity;
+    sampler2D ShadowMap;
+    mat4 WorldToLightMatrix;
 };
 struct DirLight
 {

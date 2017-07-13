@@ -12,6 +12,7 @@ using TheraEngine.Rendering.HUD;
 using TheraEngine.Rendering.DirectX;
 using TheraEngine.Rendering.OpenGL;
 using TheraEngine.Timers;
+using System.Diagnostics;
 
 namespace TheraEngine
 {
@@ -37,6 +38,30 @@ namespace TheraEngine
     public class RenderPanel : UserControl, IEnumerable<Viewport>
     {
         public const int MaxViewports = 4;
+
+        public enum PanelType
+        {
+            Game,
+            Hovered,
+            Captured,
+            Rendering,
+        }
+
+        public static RenderPanel GetPanel(PanelType type)
+        {
+            switch (type)
+            {
+                case PanelType.Game:
+                    return GamePanel;
+                case PanelType.Hovered:
+                    return HoveredPanel;
+                case PanelType.Captured:
+                    return CapturedPanel;
+                case PanelType.Rendering:
+                    return RenderingPanel;
+            }
+            return null;
+        }
 
         /// <summary>
         /// The render panel that houses the actual game and viewports.
@@ -91,7 +116,54 @@ namespace TheraEngine
             get => _globalHud;
             set => _globalHud = value;
         }
-        
+
+        /// <summary>
+        /// Calls the method. Invokes the render panel if necessary.
+        /// </summary>
+        public static void CheckedInvoke(Action method, PanelType type)
+        {
+            if (!NeedsInvoke(method, type))
+                method();
+        }
+        /// <summary>
+        /// Returns true if the render panel needs to be invoked from the calling thread.
+        /// If it does, then it calls the method.
+        /// </summary>
+        public static bool NeedsInvoke(Action method, PanelType type)
+        {
+            RenderPanel panel = GetPanel(type);
+            if (panel != null && panel.InvokeRequired)
+            {
+                panel.Invoke(method);
+                return true;
+            }
+            return false;
+        }
+        /// <summary>
+        /// Calls the method. Invokes render panel if necessary.
+        /// </summary>
+        public static T CheckedInvoke<T>(Func<T> method, PanelType type)
+        {
+            if (!NeedsInvoke(method, out T returnValue, type))
+                return (T)method.DynamicInvoke();
+            return returnValue;
+        }
+        /// <summary>
+        /// Returns true if the render panel needs to be invoked from the calling thread.
+        /// If it does, then it calls the method.
+        /// </summary>
+        public static bool NeedsInvoke<T>(Func<T> method, out T returnValue, PanelType type)
+        {
+            RenderPanel panel = GetPanel(type);
+            if (panel != null && panel.InvokeRequired)
+            {
+                returnValue = (T)panel.Invoke(method);
+                return true;
+            }
+            returnValue = default(T);
+            return false;
+        }
+
         public VSyncMode VsyncMode
         {
             get => _vsyncMode;
@@ -131,6 +203,7 @@ namespace TheraEngine
         protected virtual void OnRender(PaintEventArgs e)
         {
             _context.BeginDraw();
+            Engine.Scene.RenderShadowMaps();
             foreach (Viewport v in _viewports)
                 v.Render(Engine.Scene);
             _globalHud?.Render();
@@ -291,18 +364,29 @@ namespace TheraEngine
 
             //Fix the regions of the rest of the viewports
             for (int i = 0; i < _viewports.Count - 1; ++i)
-                _viewports[i].ViewportCountChanged(i, _viewports.Count, Engine.Game.TwoPlayerPref, Engine.Game.ThreePlayerPref);
+            {
+                Viewport p = _viewports[i];
+                p.ViewportCountChanged(i, _viewports.Count, Engine.Game.TwoPlayerPref, Engine.Game.ThreePlayerPref);
+                p.Resize(Width, Height);
+            }
 
             return newViewport;
         }
         public void RemoveViewport(LocalPlayerController owner)
         {
+            if (IsDisposed)
+                return;
+
             if (owner.Viewport != null && _viewports.Contains(owner.Viewport))
             {
                 owner.Viewport.Owner = null;
                 _viewports.Remove(owner.Viewport);
                 for (int i = 0; i < _viewports.Count; ++i)
-                    _viewports[i].ViewportCountChanged(i, _viewports.Count, Engine.Game.TwoPlayerPref, Engine.Game.ThreePlayerPref);
+                {
+                    Viewport p = _viewports[i];
+                    p.ViewportCountChanged(i, _viewports.Count, Engine.Game.TwoPlayerPref, Engine.Game.ThreePlayerPref);
+                    p.Resize(Width, Height);
+                }
             }
         }
         #endregion

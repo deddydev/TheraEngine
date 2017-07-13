@@ -4,9 +4,11 @@ namespace TheraEngine.Worlds.Actors
 {
     public class MovementComponent : LogicComponent
     {
-        protected Vec3 _frameInputDirection;
+        private Vec3 _frameInputDirection;
         public Vec3 ConstantInputDirection;
-        
+
+        public Vec3 FrameInputDirection => _frameInputDirection;
+
         public void AddMovementInput(Vec3 offset)
             => _frameInputDirection += offset;
         public void AddMovementInput(float x, float y, float z)

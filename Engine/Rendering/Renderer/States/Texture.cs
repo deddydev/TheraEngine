@@ -57,6 +57,9 @@ namespace TheraEngine.Rendering.Textures
             }
         }
 
+        public int Width => _width;
+        public int Height => _height;
+
         public event Action PrePushData;
         public event Action PostPushData;
         
@@ -74,6 +77,9 @@ namespace TheraEngine.Rendering.Textures
         }
         public void PushData()
         {
+            if (RenderPanel.NeedsInvoke(PushData, RenderPanel.PanelType.Rendering))
+                return;
+
             Bind();
 
             PrePushData?.Invoke();

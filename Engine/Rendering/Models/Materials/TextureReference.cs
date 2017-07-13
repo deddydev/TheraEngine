@@ -29,8 +29,7 @@ namespace TheraEngine.Rendering.Models.Materials
             : this(name, width, height)
         {
             _mipmaps = new SingleFileRef<TextureData>[mipCount];
-            int scale = 1;
-            for (int i = 0; i < mipCount; scale = 1 << ++i)
+            for (int i = 0, scale = 1; i < mipCount; scale = 1 << ++i)
                 _mipmaps[i] = new TextureData(width / scale, height / scale, bitmapFormat);
         }
         public TextureReference(string name, int width, int height,

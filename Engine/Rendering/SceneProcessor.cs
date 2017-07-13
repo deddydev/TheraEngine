@@ -68,6 +68,9 @@ namespace TheraEngine.Rendering
         public LightManager Lights => _lightManager;
         internal RenderPasses RenderPasses => _passes;
 
+        public void RenderShadowMaps()
+            => Lights.RenderShadowMaps(this);
+        
         /// <summary>
         /// Call this to only enable visibility for items visible from the given camera.
         /// </summary>
@@ -152,11 +155,15 @@ namespace TheraEngine.Rendering
 
         public void AddPreRenderedObject(IPreRenderNeeded obj)
         {
+            if (obj == null)
+                return;
             if (!_preRenderList.Contains(obj))
                 _preRenderList.Add(obj);
         }
         public void RemovePreRenderedObject(IPreRenderNeeded obj)
         {
+            if (obj == null)
+                return;
             if (_preRenderList.Contains(obj))
                 _preRenderList.Remove(obj);
         }

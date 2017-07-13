@@ -40,12 +40,12 @@ namespace TheraEditor
                 if (value == null && HighlightedComponent != null)
                 {
                     Engine.Scene.Remove(_highlightPoint);
-                    RenderPanel.CapturedPanel.Invoke(new Action(() => RenderPanel.CapturedPanel.Cursor = Cursors.Default));
+                    RenderPanel.CheckedInvoke(new Action(() => RenderPanel.CapturedPanel.Cursor = Cursors.Default), RenderPanel.PanelType.Captured);
                 }
                 else if (value != null && HighlightedComponent == null)
                 {
                     Engine.Scene.Add(_highlightPoint);
-                    RenderPanel.CapturedPanel.Invoke(new Action(() => RenderPanel.CapturedPanel.Cursor = Cursors.Hand));
+                    RenderPanel.CheckedInvoke(new Action(() => RenderPanel.CapturedPanel.Cursor = Cursors.Hand), RenderPanel.PanelType.Captured);
                 }
 
                 if (HighlightedComponent != null)

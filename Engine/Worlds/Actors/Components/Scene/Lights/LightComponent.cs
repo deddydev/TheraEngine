@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Drawing;
 using System.ComponentModel;
+using TheraEngine.Rendering;
 
 namespace TheraEngine.Worlds.Actors
 {
@@ -53,15 +54,10 @@ namespace TheraEngine.Worlds.Actors
         }
 
         public override int GetHashCode()
-        {
-            return LightIndex;
-        }
-
-        public void BakeShadowMaps()
-        {
-
-        }
-
+            => LightIndex;
+        
+        public abstract void RenderShadowMap(SceneProcessor scene);
+        public abstract void BakeShadowMaps();
         public abstract void SetUniforms(int programBindingId);
     }
 }

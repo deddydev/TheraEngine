@@ -372,7 +372,11 @@ namespace TheraEngine.Rendering.OpenGL
         }
         public override void SetActiveTexture(int unit)
         {
-            GL.ActiveTexture(TextureUnit.Texture0 + unit.Clamp(0, 31));
+            if (unit < 0)
+                throw new InvalidOperationException("Unit needs to be >= 0.");
+            if (unit >= Engine.MaxTextureUnits)
+                throw new InvalidOperationException("Unit needs to be less than " + Engine.MaxTextureUnits.ToString());
+            GL.ActiveTexture(TextureUnit.Texture0 + unit);
         }
         public override void UseProgram(int programBindingId)
         {
@@ -1117,6 +1121,14 @@ namespace TheraEngine.Rendering.OpenGL
                     return DepthFunction.Always;
             }
         }
+
+        public override void CheckFrameBufferErrors()
+        {
+            FramebufferErrorCode c = GL.CheckFramebufferStatus(FramebufferTarget.Framebuffer);
+            if (c != FramebufferErrorCode.FramebufferComplete)
+                throw new Exception("Problem compiling framebuffer: " + c.ToString());
+        }
+
         #endregion
     }
 }

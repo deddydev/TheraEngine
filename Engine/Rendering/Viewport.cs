@@ -163,11 +163,11 @@ namespace TheraEngine.Rendering
             _worldCamera?.Resize(Width, Height);
             _pawnHUD.Resize(_region.Bounds);
             if (resizeGBuffer)
-                _gBuffer?.Resize(_region.IntWidth, _region.IntHeight);
+                _gBuffer?.ResizeTextures(_region.IntWidth, _region.IntHeight);
         }
         internal void ResizeGBuffer()
         {
-            _gBuffer?.Resize(_region.IntWidth, _region.IntHeight);
+            _gBuffer?.ResizeTextures(_region.IntWidth, _region.IntHeight);
         }
         public void DebugPrint(string message)
         {
@@ -201,7 +201,7 @@ namespace TheraEngine.Rendering
                 //We want to render to back buffer now
                 _gBuffer.Unbind(EFramebufferTarget.Framebuffer);
 
-                //Render deferred pass
+                //Render deferred pass to quad
                 _gBuffer.Render();
 
                 Engine.Renderer.Clear(EBufferClear.Depth);
@@ -218,13 +218,8 @@ namespace TheraEngine.Rendering
                 Engine.Renderer.BindFrameBuffer(EFramebufferTarget.Framebuffer, 0);
 
                 //Render other passes
-                if (scene.RenderPasses.OpaqueForward.Count > 0 || scene.RenderPasses.TransparentForward.Count > 0)
-                {
-                    scene.Render(RenderPass.OpaqueForward);
-                    Engine.Renderer.AllowDepthWrite(false);
-                    scene.Render(RenderPass.TransparentForward);
-                    Engine.Renderer.AllowDepthWrite(true);
-                }
+                scene.Render(RenderPass.OpaqueForward);
+                scene.Render(RenderPass.TransparentForward);
 
                 scene.PostRender();
             }

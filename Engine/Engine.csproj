@@ -601,7 +601,7 @@
     <Compile Include="Rendering\Models\Materials\Shader Generator\ShaderGenerator.cs" />
     <Compile Include="Rendering\Models\Materials\Shader Generator\VertexShaderGenerator.cs" />
     <Compile Include="Rendering\Models\Materials\ShaderHelpers.cs" />
-    <Compile Include="Rendering\Models\Materials\TexRef.cs" />
+    <Compile Include="Rendering\Models\Materials\TextureReference.cs" />
     <Compile Include="Rendering\Models\Materials\Uniform.cs" />
     <Compile Include="Rendering\Models\Meshes\Faces\Vertex\VertexLineStrip.cs" />
     <Compile Include="Rendering\Models\Meshes\Faces\Vertex\VertexLine.cs" />

@@ -141,9 +141,11 @@ namespace TheraEngine.Rendering.Models
             //Animated transformation matrix relative to the skeleton's root bone, aka model space
             _frameMatrix = Matrix4.Identity, _inverseFrameMatrix = Matrix4.Identity,
             //Non-animated default bone position transforms, in model space
-            _bindMatrix = Matrix4.Identity, _inverseBindMatrix = Matrix4.Identity,
-            //Used for calculating vertex influences matrices quickly
-            _vertexMatrix = Matrix4.Identity, _normalMatrix = Matrix4.Identity;
+            _bindMatrix = Matrix4.Identity, _inverseBindMatrix = Matrix4.Identity;
+
+        //Used for calculating vertex influences matrices quickly
+        private Matrix4 _vtxPosMtx = Matrix4.Identity;
+        private Matrix4 _vtxNrmMtx = Matrix4.Identity;
 
         public Bone Parent
         {
@@ -175,8 +177,8 @@ namespace TheraEngine.Rendering.Models
         public Matrix4 BindMatrix => _bindMatrix;
         public Matrix4 InverseFrameMatrix => _inverseFrameMatrix;
         public Matrix4 InverseBindMatrix => _inverseBindMatrix;
-        public Matrix4 VertexMatrix => _vertexMatrix;
-        public Matrix4 NormalMatrix => _normalMatrix;
+        public Matrix4 VertexMatrix => _vtxPosMtx;
+        public Matrix4 NormalMatrix => _vtxNrmMtx;
 
         //Set when regenerating the child cache, which is done any time the bone heirarchy is modified
         public Skeleton Skeleton => _skeleton;
@@ -308,10 +310,9 @@ namespace TheraEngine.Rendering.Models
                     _inverseFrameMatrix = _frameState.InverseMatrix * inverseParentMatrix;
                 }
                 
-                _vertexMatrix = FrameMatrix * InverseBindMatrix;
-                _normalMatrix = BindMatrix * InverseFrameMatrix;
-                _normalMatrix.Transpose();
-                _normalMatrix.OnlyRotationMatrix();
+                _vtxPosMtx = FrameMatrix * InverseBindMatrix;
+                _vtxNrmMtx = (BindMatrix * InverseFrameMatrix).GetRotationMatrix4();
+                _vtxNrmMtx.Transpose();
 
                 //Process skinning information dealing with this bone
                 if (Engine.Settings.SkinOnGPU)
@@ -351,8 +352,9 @@ namespace TheraEngine.Rendering.Models
             _bindMatrix = parentMatrix * _bindState.Matrix;
             _inverseBindMatrix = _bindState.InverseMatrix * inverseParentMatrix;
 
-            _vertexMatrix = FrameMatrix * InverseBindMatrix;
-            _normalMatrix = (InverseFrameMatrix * BindMatrix).Transposed();
+            _vtxPosMtx = FrameMatrix * InverseBindMatrix;
+            _vtxNrmMtx = (InverseFrameMatrix * BindMatrix).GetRotationMatrix4();
+            _vtxNrmMtx.Transpose();
 
             if (!updateMesh)
                 InfluenceAssets(true);

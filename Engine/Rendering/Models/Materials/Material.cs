@@ -45,7 +45,7 @@ namespace TheraEngine.Rendering.Models.Materials
             _comp1 = comp1;
         }
         
-        public bool EnableAlphaTest { get => _enableAlphaTest; set => _enableAlphaTest = value; }
+        public bool Enabled { get => _enableAlphaTest; set => _enableAlphaTest = value; }
         public bool UseConstantAlpha { get => _useConstantAlpha; set => _useConstantAlpha = value; }
         public float ConstantAlphaValue { get => _constantAlphaValue; set => _constantAlphaValue = value; }
         public bool UseAlphaToCoverage { get => _useAlphaToCoverage; set => _useAlphaToCoverage = value; }
@@ -93,7 +93,7 @@ namespace TheraEngine.Rendering.Models.Materials
         private EBlendEquationMode _rgbEquation, _alphaEquation;
         private EBlendingFactor _rgbSrcFactor, _alphaSrcFactor, _rgbDstFactor, _alphaDstFactor;
         
-        public bool EnableBlending { get => _enableBlending; set => _enableBlending = value; }
+        public bool Enabled { get => _enableBlending; set => _enableBlending = value; }
         public EBlendEquationMode RgbEquation { get => _rgbEquation; set => _rgbEquation = value; }
         public EBlendEquationMode AlphaEquation { get => _alphaEquation; set => _alphaEquation = value; }
         public EBlendingFactor RgbSrcFactor { get => _rgbSrcFactor; set => _rgbSrcFactor = value; }
@@ -123,7 +123,7 @@ namespace TheraEngine.Rendering.Models.Materials
 
         [Category("Blending")]
         [DisplayName("Enable")]
-        public bool EnableBlending { get => _blend.EnableBlending; set => _blend.EnableBlending = value; }
+        public bool EnableBlending { get => _blend.Enabled; set => _blend.Enabled = value; }
         [Category("Blending")]
         [DisplayName("RGB Equation")]
         public EBlendEquationMode RgbEquation { get => _blend.RgbEquation; set => _blend.RgbEquation = value; }
@@ -170,9 +170,9 @@ namespace TheraEngine.Rendering.Models.Materials
         public int BackFaceStencilMask { get => _stencil.BackFaceMask; set => _stencil.BackFaceMask = value; }
 
         public MaterialRenderType RenderType { get => renderType; set => renderType = value; }
-        public AlphaTest Alpha { get => _alpha; set => _alpha = value; }
-        public DepthTest Depth { get => _depth; set => _depth = value; }
-        public StencilTest Stencil { get => _stencil; set => _stencil = value; }
+        public AlphaTest AlphaTest { get => _alpha; set => _alpha = value; }
+        public DepthTest DepthTest { get => _depth; set => _depth = value; }
+        public StencilTest StencilTest { get => _stencil; set => _stencil = value; }
         public Blend Blend { get => _blend; set => _blend = value; }
         public bool WriteRed { get => _writeRed; set => _writeRed = value; }
         public bool WriteGreen { get => _writeGreen; set => _writeGreen = value; }
@@ -269,6 +269,7 @@ namespace TheraEngine.Rendering.Models.Materials
 
         private RenderProgram _program;
         private FrameBuffer _frameBuffer;
+        private UniformRequirements _requirements = UniformRequirements.None;
 
         protected ShaderVar[] _parameters;
         protected TextureReference[] _textures;
@@ -278,7 +279,7 @@ namespace TheraEngine.Rendering.Models.Materials
 
         public int UniqueID => _uniqueID;
 
-        public bool HasTransparency => _renderParams.Blend.EnableBlending || _renderParams.Alpha.EnableAlphaTest;
+        public bool HasTransparency => _renderParams.Blend.Enabled || _renderParams.AlphaTest.Enabled;
 
         public RenderProgram Program
         {
@@ -303,11 +304,27 @@ namespace TheraEngine.Rendering.Models.Materials
 
         public List<Shader> FragmentShaders => _fragmentShaders;
 
+        public enum UniformRequirements
+        {
+            None,
+            NeedsCamera,
+            NeedsLightsAndCamera,
+        }
+        
+        public UniformRequirements Requirements
+        {
+            get => _requirements;
+            set => _requirements = value;
+        }
+
         public void GenerateTextures()
         {
             if (_textures != null)
                 foreach (TextureReference t in _textures)
-                    t.Texture.Generate();
+                    if (t.Texture.IsActive)
+                        t.Texture.PushData();
+                    else
+                        t.Texture.Generate();
         }
         internal void AddReference(PrimitiveManager user)
         {
@@ -324,11 +341,19 @@ namespace TheraEngine.Rendering.Models.Materials
                 _uniqueID = -1;
             }
         }
-        public void SetUniforms(int programBindingId)
+        public void SetUniforms(int programBindingId = 0)
         {
             if (programBindingId <= 0)
                 programBindingId = Program.BindingId;
 
+            if (Requirements == UniformRequirements.NeedsLightsAndCamera)
+            {
+                AbstractRenderer.CurrentCamera.SetUniforms(programBindingId);
+                Engine.Scene.Lights.SetUniforms(programBindingId);
+            }
+            else if (Requirements == UniformRequirements.NeedsCamera)
+                AbstractRenderer.CurrentCamera.SetUniforms(programBindingId);
+            
             foreach (ShaderVar v in _parameters)
                 v.SetProgramUniform(programBindingId);
 
@@ -356,14 +381,16 @@ namespace TheraEngine.Rendering.Models.Materials
             Engine.Renderer.SetDrawBuffers(_fboAttachments);
             Engine.Renderer.BindFrameBuffer(EFramebufferTarget.Framebuffer, 0);
         }
-        internal void BindTexturesNonFBO(int programBindingId)
+        private void BindTexturesNonFBO(int programBindingId)
         {
             for (int i = 0; i < TexRefs.Length; ++i)
-            {
-                Engine.Renderer.SetActiveTexture(i);
-                Engine.Renderer.ProgramUniform(programBindingId, "Texture" + i, i);
-                TexRefs[i].Texture.Bind();
-            }
+                BindTexture(i, i, "Texture" + i, programBindingId);
+        }
+        public void BindTexture(int textureIndex, int textureUnit, string varName, int programBindingId)
+        {
+            Engine.Renderer.SetActiveTexture(textureUnit);
+            Engine.Renderer.ProgramUniform(programBindingId, varName, textureUnit);
+            TexRefs[textureIndex].Texture.Bind();
         }
 
         public Material()
@@ -419,19 +446,28 @@ namespace TheraEngine.Rendering.Models.Materials
             TextureReference[] refs = new TextureReference[] { texture };
             ShaderVar[] parameters = new ShaderVar[0];
             Shader frag = deferred ? ShaderHelpers.UnlitTextureFragDeferred() : ShaderHelpers.UnlitTextureFragForward();
-            return new Material("UnlitTextureMaterial", parameters, refs, frag);
+            return new Material("UnlitTextureMaterial", parameters, refs, frag)
+            {
+                Requirements = deferred ? UniformRequirements.None : UniformRequirements.NeedsLightsAndCamera
+            };
         }
         public static Material GetUnlitTextureMaterial() => GetUnlitTextureMaterial(Engine.Settings.ShadingStyle == ShadingStyle.Deferred);
         public static Material GetUnlitTextureMaterial(bool deferred)
         {
             Shader frag = deferred ? ShaderHelpers.UnlitTextureFragDeferred() : ShaderHelpers.UnlitTextureFragForward();
-            return new Material("UnlitTextureMaterial", frag);
+            return new Material("UnlitTextureMaterial", frag)
+            {
+                Requirements = deferred ? UniformRequirements.None : UniformRequirements.NeedsLightsAndCamera
+            };
         }
         public static Material GetLitTextureMaterial() => GetLitTextureMaterial(Engine.Settings.ShadingStyle == ShadingStyle.Deferred);
         public static Material GetLitTextureMaterial(bool deferred)
         {
             Shader frag = deferred ? ShaderHelpers.LitTextureFragDeferred() : ShaderHelpers.LitTextureFragForward();
-            return new Material("LitTextureMaterial", frag);
+            return new Material("LitTextureMaterial", frag)
+            {
+                Requirements = deferred ? UniformRequirements.None : UniformRequirements.NeedsLightsAndCamera
+            };
         }
 
         public static Material GetUnlitColorMaterial()
@@ -448,7 +484,10 @@ namespace TheraEngine.Rendering.Models.Materials
                 new ShaderVec4(color, "MatColor"),
             };
             Shader frag = deferred ? ShaderHelpers.UnlitColorFragDeferred() : ShaderHelpers.UnlitColorFragForward();
-            return new Material("UnlitColorMaterial", parameters, refs, frag);
+            return new Material("UnlitColorMaterial", parameters, refs, frag)
+            {
+                Requirements = deferred ? UniformRequirements.None : UniformRequirements.NeedsLightsAndCamera
+            };
         }
         public static Material GetLitColorMaterial()
             => GetLitColorMaterial(Engine.Settings.ShadingStyle == ShadingStyle.Deferred);
@@ -466,7 +505,10 @@ namespace TheraEngine.Rendering.Models.Materials
                 new ShaderFloat(128.0f, "MatShininess"),
             };
             Shader frag = deferred ? ShaderHelpers.LitColorFragDeferred() : ShaderHelpers.LitColorFragForward();
-            return new Material("TestMaterial", parameters, refs, frag);
+            return new Material("TestMaterial", parameters, refs, frag)
+            {
+                Requirements = deferred ? UniformRequirements.None : UniformRequirements.NeedsLightsAndCamera
+            };
         }
     }
 }

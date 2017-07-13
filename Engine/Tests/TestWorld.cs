@@ -147,7 +147,7 @@ namespace TheraEngine.Tests
             //Collada.Scene anims = Collada.Import(googleDrive + "Thera Assets\\Characters\\Temp\\Carly_Idle.dae", options, true, false);
             //anims.CleanAnimations(scene._skeletalModel, scene._skeleton);
 
-            Vec3 center = new Vec3(5.0f, -40.0f, -100.0f);
+            Vec3 center = new Vec3(5.0f, 0.0f, -100.0f);
 
             //IActor importedActor;
             //if (ColladaScene.SkeletalModel != null)

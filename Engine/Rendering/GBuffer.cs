@@ -2,26 +2,21 @@
 using TheraEngine.Rendering.Models;
 using TheraEngine.Rendering.Models.Materials;
 using TheraEngine.Rendering.Textures;
-using OpenTK.Graphics.OpenGL;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 
 namespace TheraEngine.Rendering
 {
-    internal class GBuffer : FrameBuffer
+    internal class GBuffer : MaterialFrameBuffer
     {
         OrthographicCamera _quadCamera;
         PrimitiveManager _fullScreenTriangle;
-        bool _forward;
         Viewport _parent;
 
-        public TextureReference[] Textures => _fullScreenTriangle?.Material.TexRefs;
-        
         public GBuffer(Viewport viewport, bool forward)
         {
             _parent = viewport;
-            _forward = forward;
 
             Vertex point0 = new Vec3(0.0f, 0.0f, 0.0f);
             Vertex point1 = new Vec3(2.0f, 0.0f, 0.0f);
@@ -30,18 +25,9 @@ namespace TheraEngine.Rendering
 
             BoundingRectangle region = _parent.Region;
 
-            Material m = GetGBufferMaterial(region.IntWidth, region.IntHeight, forward, this, DepthStencilUse.Depth32f);
-            m.FrameBuffer = this;
+            Material = GetGBufferMaterial(region.IntWidth, region.IntHeight, forward, this, DepthStencilUse.Depth32f);
 
-            _fullScreenTriangle = new PrimitiveManager(PrimitiveData.FromTriangles(Culling.None, VertexShaderDesc.JustPositions(), triangle1), m);
-            
-            Bind(EFramebufferTarget.Framebuffer);
-            _fullScreenTriangle.Material.GenerateTextures();
-            FramebufferErrorCode c = GL.CheckFramebufferStatus(FramebufferTarget.Framebuffer);
-            if (c != FramebufferErrorCode.FramebufferComplete)
-                throw new Exception("Problem compiling G-Buffer.");
-            Unbind(EFramebufferTarget.Framebuffer);
-
+            _fullScreenTriangle = new PrimitiveManager(PrimitiveData.FromTriangles(Culling.None, VertexShaderDesc.JustPositions(), triangle1), Material);
             _fullScreenTriangle.SettingUniforms += SetUniforms;
 
             _quadCamera = new OrthographicCamera() { NearZ = -0.5f, FarZ = 0.5f };
@@ -51,7 +37,9 @@ namespace TheraEngine.Rendering
 
         private void SetUniforms()
         {
-            int fragId = Engine.Settings.AllowShaderPipelines ? _fullScreenTriangle.Material.Program.BindingId : _fullScreenTriangle._vsFragProgram.BindingId;
+            int fragId = Engine.Settings.AllowShaderPipelines ?
+                _fullScreenTriangle.Material.Program.BindingId : 
+                _fullScreenTriangle.VertexFragProgram.BindingId;
 
             _parent.Camera.PostProcessSettings.SetUniforms(fragId);
             
@@ -59,11 +47,6 @@ namespace TheraEngine.Rendering
 
             if (Engine.Settings.ShadingStyle == ShadingStyle.Deferred)
                 Engine.Scene.Lights.SetUniforms(fragId);
-        }
-
-        public unsafe void Resize(int width, int height)
-        {
-            _fullScreenTriangle.Material.ResizeTextures(width, height);
         }
 
         public void Render()
@@ -149,7 +132,10 @@ namespace TheraEngine.Rendering
 
             Shader shader = forward ? GBufferShaderForward() : GBufferShaderDeferred();
             //Debug.WriteLine(shader._source);
-            return new Material("GBufferMaterial", new ShaderVar[0], refs, shader);
+            return new Material("GBufferMaterial", new ShaderVar[0], refs, shader)
+            {
+                Requirements = Material.UniformRequirements.NeedsLightsAndCamera
+            };
         }
         internal static Shader GBufferShaderDeferred()
         {
@@ -158,7 +144,6 @@ namespace TheraEngine.Rendering
 //GBUFFER FRAG SHADER
 
 out vec4 OutColor;
-
 in vec3 FragPos;
 
 uniform sampler2D Texture0;

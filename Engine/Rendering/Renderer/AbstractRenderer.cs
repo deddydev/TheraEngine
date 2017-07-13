@@ -22,6 +22,8 @@ namespace TheraEngine.Rendering
         public RenderContext CurrentContext => RenderContext.Current;
         public Viewport CurrentlyRenderingViewport => Viewport.CurrentlyRendering;
 
+        public Material MaterialOverride { get => _fragmentShaderOverride; set => _fragmentShaderOverride = value; }
+
         protected static IPrimitiveManager _currentPrimitiveManager;
         private Stack<BoundingRectangle> _renderAreaStack = new Stack<BoundingRectangle>();
         private static Stack<Camera> _cameraStack = new Stack<Camera>();
@@ -355,9 +357,10 @@ namespace TheraEngine.Rendering
          * GL.Uniform
          * 
          */
-
+        
         //protected static RenderProgram _currentRenderProgram;
-        protected static Material _currentMaterial;
+        //protected static Material _currentMaterial;
+        private Material _fragmentShaderOverride;
 
         public abstract void SetBindFragDataLocation(int bindingId, int location, string name);
         public abstract void SetShaderMode(ShaderMode type);
@@ -550,10 +553,11 @@ namespace TheraEngine.Rendering
             EPixelType type,
             byte[] data);
         public abstract void BindTexture(ETexTarget texTarget, int bindingId);
-        
+
         //GL.TexImage2D((TextureTarget)textureTargetEnum, mipLevel, (OpenTK.Graphics.OpenGL.PixelInternalFormat)pixelInternalFormatEnum, width, height, 0, (OpenTK.Graphics.OpenGL.PixelFormat)pixelFormatEnum, (PixelType)pixelTypeEnum, data);
 
         #region Frame Buffers
+        public abstract void CheckFrameBufferErrors();
         public abstract void AttachTextureToFrameBuffer(int frameBufferBindingId, EFramebufferAttachment attachment, int textureBindingId, int mipLevel);
         public abstract void AttachTextureToFrameBuffer(EFramebufferTarget target, EFramebufferAttachment attachment, ETexTarget texTarget, int textureBindingId, int mipLevel);
         public abstract void SetDrawBuffer(EDrawBuffersAttachment attachment);

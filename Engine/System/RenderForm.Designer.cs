@@ -17,6 +17,7 @@
             {
                 components.Dispose();
             }
+            Engine.Stop();
             base.Dispose(disposing);
         }
 

@@ -13,7 +13,7 @@ namespace TheraEngine.Rendering.Models
             public Bone[] _bones = new Bone[4];
             public float[] _weights = new float[4];
             public Matrix4 _positionMatrix;
-            public Matrix4 _normalMatrix;
+            public Matrix3 _normalMatrix;
             internal bool _hasChanged;
 
             public static LiveInfluence FromInfluence(Influence inf, Skeleton skel)
@@ -34,13 +34,13 @@ namespace TheraEngine.Rendering.Models
             public void CalcMatrix()
             {
                 _positionMatrix = new Matrix4();
-                _normalMatrix = new Matrix4();
+                _normalMatrix = new Matrix3();
                 for (int i = 0; i < _weightCount; ++i)
                 {
                     Bone b = _bones[i];
                     float w = _weights[i];
                     _positionMatrix += b.VertexMatrix * w;
-                    _normalMatrix += b.NormalMatrix * w;
+                    _normalMatrix += (b.NormalMatrix * w).GetRotationMatrix3();
                 }
             }
         }

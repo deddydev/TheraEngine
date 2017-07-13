@@ -1,4 +1,5 @@
 ﻿using System;
+using TheraEngine.Rendering;
 using TheraEngine.Rendering.Models.Materials;
 
 namespace TheraEngine.Worlds.Actors
@@ -77,6 +78,16 @@ namespace TheraEngine.Worlds.Actors
             Engine.Renderer.ProgramUniform(programBindingId, indexer + "Direction", _direction);
             Engine.Renderer.ProgramUniform(programBindingId, indexer + "Cutoff", _cutoff);
             Engine.Renderer.ProgramUniform(programBindingId, indexer + "Exponent", _exponent);
+        }
+
+        public override void RenderShadowMap(SceneProcessor scene)
+        {
+
+        }
+
+        public override void BakeShadowMaps()
+        {
+
         }
     }
 }

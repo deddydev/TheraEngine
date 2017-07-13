@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using TheraEngine.Rendering.Models.Materials;
 using TheraEngine.Worlds.Actors;
 
 namespace TheraEngine.Rendering
@@ -63,6 +64,17 @@ namespace TheraEngine.Rendering
         {
             _pointLights.Remove(light);
             light.LightIndex = -1;
+        }
+        internal void RenderShadowMaps(SceneProcessor scene)
+        {
+            foreach (DirectionalLightComponent l in _directionalLights)
+                l.RenderShadowMap(scene);
+            
+            foreach (SpotLightComponent l in _spotLights)
+                l.RenderShadowMap(scene);
+            
+            foreach (PointLightComponent l in _pointLights)
+                l.RenderShadowMap(scene);
         }
     }
 }

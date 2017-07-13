@@ -1,6 +1,7 @@
 ﻿using System;
 using TheraEngine.Rendering.Models.Materials;
 using System.ComponentModel;
+using TheraEngine.Rendering;
 
 namespace TheraEngine.Worlds.Actors
 {
@@ -42,6 +43,16 @@ namespace TheraEngine.Worlds.Actors
             Engine.Renderer.ProgramUniform(programBindingId, indexer + "Base.DiffuseIntensity", _diffuseIntensity);
             Engine.Renderer.ProgramUniform(programBindingId, indexer + "Position", point);
             Engine.Renderer.ProgramUniform(programBindingId, indexer + "Radius", _radius);
+        }
+
+        public override void RenderShadowMap(SceneProcessor scene)
+        {
+
+        }
+
+        public override void BakeShadowMaps()
+        {
+
         }
     }
 }

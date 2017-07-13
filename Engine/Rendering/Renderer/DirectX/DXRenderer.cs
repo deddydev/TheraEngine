@@ -503,5 +503,10 @@ namespace TheraEngine.Rendering.DirectX
         {
             throw new NotImplementedException();
         }
+
+        public override void CheckFrameBufferErrors()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

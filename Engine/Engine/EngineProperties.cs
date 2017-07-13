@@ -82,6 +82,7 @@ namespace TheraEngine
         private static Dictionary<string, int> _fontIndexMatching = new Dictionary<string, int>();
         private static PrivateFontCollection _fontCollection = new PrivateFontCollection();
         public static int MainThreadID;
+        internal static int MaxTextureUnits;
 
         public static AbstractRenderer Renderer
         {

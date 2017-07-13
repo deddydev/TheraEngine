@@ -121,6 +121,7 @@ namespace TheraEngine.Worlds.Actors
         public override void OnSpawnedPostComponentSetup(World world)
         {
             RegisterTick(ETickGroup.PrePhysics, ETickOrder.Logic, TickMovementInput);
+            RootComponent.PhysicsDriver.SimulatingPhysics = true;
         }
         public override void OnDespawned()
         {
@@ -131,19 +132,25 @@ namespace TheraEngine.Worlds.Actors
         {
             Vec3 forward = Vec3.TransformVector(Vec3.Forward, _tpCameraBoom.Rotation.GetYawMatrix());
             Vec3 right = forward ^ Vec3.Up;
-            if (_keyboardMovementInput.X != 0.0f || _keyboardMovementInput.Y != 0.0f)
+            bool keyboardMovement = _keyboardMovementInput.X != 0.0f || _keyboardMovementInput.Y != 0.0f;
+            bool gamepadMovement = _gamepadMovementInput.X != 0.0f || _gamepadMovementInput.Y != 0.0f;
+            if (keyboardMovement)
             {
                 Vec3 finalInput = forward * _keyboardMovementInput.Y + right * _keyboardMovementInput.X;
                 finalInput.Y = 0.0f;
                 finalInput *= delta * _keyboardMovementInputMultiplier;
                 _movement.AddMovementInput(finalInput);
             }
-            if (_gamepadMovementInput.X != 0.0f || _gamepadMovementInput.Y != 0.0f)
+            if (gamepadMovement)
             {
                 Vec3 finalInput = forward * _gamepadMovementInput.Y + right * _gamepadMovementInput.X;
                 finalInput.Y = 0.0f;
                 finalInput *= delta * _gamePadMovementInputMultiplier;
                 _movement.AddMovementInput(finalInput);
+            }
+            if (gamepadMovement || keyboardMovement)
+            {
+                _meshComp.Rotation.Yaw = _movement.FrameInputDirection.LookatAngles().Yaw + 180.0f;
             }
         }
         public override void RegisterInput(InputInterface input)
@@ -182,23 +189,25 @@ namespace TheraEngine.Worlds.Actors
         {
             _viewRotation.Pitch -= y * _mouseYLookInputMultiplier;
             _viewRotation.Yaw -= x * _mouseXLookInputMultiplier;
-            float yaw = _viewRotation.Yaw.RemapToRange(0.0f, 360.0f);
-            if (yaw < 45.0f || yaw >= 315.0f)
-            {
-                _meshComp.Rotation.Yaw = 180.0f;
-            }
-            else if (yaw < 135.0f)
-            {
-                _meshComp.Rotation.Yaw = 270.0f;
-            }
-            else if (yaw < 225.0f)
-            {
-                _meshComp.Rotation.Yaw = 0.0f;
-            }
-            else if (yaw < 315.0f)
-            {
-                _meshComp.Rotation.Yaw = 90.0f;
-            }
+
+            //float yaw = _viewRotation.Yaw.RemapToRange(0.0f, 360.0f);
+            //if (yaw < 45.0f || yaw >= 315.0f)
+            //{
+            //    _meshComp.Rotation.Yaw = 180.0f;
+            //}
+            //else if (yaw < 135.0f)
+            //{
+            //    _meshComp.Rotation.Yaw = 270.0f;
+            //}
+            //else if (yaw < 225.0f)
+            //{
+            //    _meshComp.Rotation.Yaw = 0.0f;
+            //}
+            //else if (yaw < 315.0f)
+            //{
+            //    _meshComp.Rotation.Yaw = 90.0f;
+            //}
+
             //_fpCameraComponent.Camera.AddRotation(y, 0.0f);
         }
         private void LookRight(float value)
@@ -229,7 +238,7 @@ namespace TheraEngine.Worlds.Actors
 
             PhysicsConstructionInfo info = new PhysicsConstructionInfo()
             {
-                Mass = 59.0f,
+                Mass = 5.0f,
                 AngularDamping = 0.05f,
                 LinearDamping = 0.005f,
                 Restitution = 0.0f,
@@ -278,7 +287,6 @@ namespace TheraEngine.Worlds.Actors
             _tpCameraComponent = new CameraComponent(TPCam);
             _tpCameraBoom.ChildComponents.Add(_tpCameraComponent);
             
-            rootCapsule.PhysicsDriver.SimulatingPhysics = true;
             CurrentCameraComponent = _tpCameraComponent;
 
             _viewRotation.Yaw = 180.0f;

@@ -64,6 +64,8 @@ namespace TheraEngine.Timers
         }
         private void DispatchUpdateAndRenderFrame()
         {
+            //int timerHandle = Engine.StartTimer();
+
             int runningSlowlyRetries = 4;
             double timestamp = _watch.Elapsed.TotalSeconds;
             double elapsed = (timestamp - _updateTimestamp).Clamp(0.0f, 1.0f);
@@ -101,6 +103,9 @@ namespace TheraEngine.Timers
             elapsed = (timestamp - _renderTimestamp).Clamp(0.0f, 1.0f);
             if (elapsed > 0 && elapsed >= TargetRenderPeriod)
                 RaiseRenderFrame(elapsed, ref timestamp);
+
+            //float seconds = Engine.EndTimer(timerHandle);
+            //Debug.WriteLine("Took " + (seconds * 1000.0f) + " milliseconds to update and render.");
         }
         private void RaiseUpdateFrame(double elapsed, ref double timestamp)
         {
@@ -118,6 +123,8 @@ namespace TheraEngine.Timers
         }
         void RaiseRenderFrame(double elapsed, ref double timestamp)
         {
+            //int timerHandle = Engine.StartTimer();
+
             // Raise RenderFrame event
             _renderArgs.Time = elapsed;
             OnRenderFrameInternal(_renderArgs);
@@ -129,6 +136,9 @@ namespace TheraEngine.Timers
             _renderTimestamp = timestamp;
             timestamp = _watch.Elapsed.TotalSeconds;
             _renderTime = timestamp - _renderTimestamp;
+
+            //float seconds = Engine.EndTimer(timerHandle);
+            //Debug.WriteLine("Took " + (seconds * 1000.0f) + " milliseconds to render.");
         }
 
         private void OnRenderFrameInternal(FrameEventArgs e) { if (_running) OnRenderFrame(e); }

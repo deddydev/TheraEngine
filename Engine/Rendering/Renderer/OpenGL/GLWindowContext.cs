@@ -37,12 +37,15 @@ namespace TheraEngine.Rendering.OpenGL
                 string renderer = GL.GetString(StringName.Renderer);
                 string shaderVersion = GL.GetString(StringName.ShadingLanguageVersion);
                 //string extensions = GL.GetString(StringName.Extensions);
+                GL.GetInteger(GetPName.MaxCombinedTextureImageUnits, out int units);
+                Engine.MaxTextureUnits = units;
 
                 Debug.WriteLine("Generated OpenGL context on " + _thread.Name + " thread.");
                 Debug.WriteLine("OPENGL VENDOR: " + vendor);
                 Debug.WriteLine("OPENGL VERSION: " + version);
                 Debug.WriteLine("OPENGL RENDERER: " + renderer);
                 Debug.WriteLine("OPENGL SHADER LANGUAGE VERSION: " + shaderVersion);
+                Debug.WriteLine("MAX TEXTURE UNITS: " + units);
                 //Debug.WriteLine("OPENGL EXTENSIONS:\n" + string.Join("\n", extensions.Split(' ')));
 
                 _versionMax = version[0] - 0x30;

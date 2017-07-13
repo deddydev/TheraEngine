@@ -148,8 +148,8 @@ namespace TheraEngine.Rendering.Models.Materials
             {
                 if (Engine.Settings.SkinOnGPU)
                 {
-                    WriteUniform(ShaderVarType._mat4, Uniform.BoneMatricesName + "[" + (_info._boneCount + 1) + "]");
-                    WriteUniform(ShaderVarType._mat4, Uniform.BoneMatricesITName + "[" + (_info._boneCount + 1) + "]");
+                    WriteUniform(ShaderVarType._mat4, Uniform.BonePosMtxName + "[" + (_info._boneCount + 1) + "]");
+                    WriteUniform(ShaderVarType._mat3, Uniform.BoneNrmMtxName + "[" + (_info._boneCount + 1) + "]");
                 }
                 if (morphed)
                     WriteUniform(ShaderVarType._mat4, Uniform.MorphWeightsName + "[" + _info._morphCount + "]");
@@ -160,7 +160,6 @@ namespace TheraEngine.Rendering.Models.Materials
         /// </summary>
         private static void WriteOutData()
         {
-            //WriteLine("out Data {");
             WriteLine("out vec3 FragPos;");
             if (_info.HasNormals)
                 WriteLine("out vec3 FragNorm;");
@@ -172,41 +171,26 @@ namespace TheraEngine.Rendering.Models.Materials
                 WriteLine("out vec4 FragColor{0};", i);
             for (int i = 0; i < _info._texcoordCount; ++i)
                 WriteLine("out vec2 FragUV{0};", i);
-            //WriteLine("} OutData;");
-
-            //WriteLine("out Data {");
-            //WriteLine("layout (location = 0) out vec3 FragPos;");
-            //if (_info.HasNormals)
-            //    WriteLine("layout (location = 1) out vec3 FragNorm;");
-            //if (_info.HasTangents)
-            //    WriteLine("layout (location = 2) out vec3 FragTan;");
-            //if (_info.HasBinormals)
-            //    WriteLine("layout (location = 3) out vec3 FragBinorm;");
-            //for (int i = 0; i < _info._colorCount; ++i)
-            //    WriteLine("layout (location = {1}) out vec4 FragColor{0};", i, i + 4);
-            //for (int i = 0; i < _info._texcoordCount; ++i)
-            //    WriteLine("layout (location = {1}) out vec2 FragUV{0};", i, i + 4 + VertexShaderDesc.MaxColors);
-            //WriteLine("} OutData;");
         }
         private static void WriteRiggedPNTB(bool morphed, bool singleRig)
         {
-            WriteLine("vec4 finalPosition = vec4(0.0);");
+            WriteLine("vec4 finalPosition = vec4(0.0, 0.0, 0.0, 1.0);");
             WriteLine("vec4 basePosition = vec4(Position0, 1.0);");
             if (_info.HasNormals || _info.HasTangents || _info.HasBinormals)
             {
                 if (_info.HasNormals)
                 {
-                    WriteLine("vec4 finalNormal = vec4(0.0);");
-                    WriteLine("vec4 baseNormal = vec4(Normal0, 1.0);");
+                    WriteLine("vec3 finalNormal = vec3(0.0);");
+                    WriteLine("vec3 baseNormal = Normal0;");
                 }
                 if (_info.HasBinormals)
                 {
-                    WriteLine("FragBinorm = vec3(0.0);");
+                    WriteLine("vec3 finalBinormal = vec3(0.0);");
                     WriteLine("vec3 baseBinormal = Binormal0;");
                 }
                 if (_info.HasTangents)
                 {
-                    WriteLine("FragTan = vec3(0.0);");
+                    WriteLine("vec3 finalTangent = vec3(0.0);");
                     WriteLine("vec3 baseTangent = Tangent0;");
                 }
             }
@@ -222,27 +206,28 @@ namespace TheraEngine.Rendering.Models.Materials
                     string part = i == 0 ? "x" : i == 1 ? "y" : i == 2 ? "z" : "w";
 
                     if (Engine.Settings.UseIntegerWeightingIds)
-                        WriteLine("index = {0}0.{1};", "MatrixIds"/*BufferType.MatrixIds.ToString()*/, part);
+                        WriteLine("index = {0}0.{1};", BufferType.MatrixIds.ToString(), part);
                     else
-                        WriteLine("index = int({0}0.{1});", "MatrixIds"/*BufferType.MatrixIds.ToString()*/, part);
+                        WriteLine("index = int({0}0.{1});", BufferType.MatrixIds.ToString(), part);
 
-                    WriteLine("weight = {0}0.{1};", "MatrixWeights"/*BufferType.MatrixWeights.ToString()*/, part);
-                    WriteLine("finalPosition += ({0}[index] * basePosition) * weight;", Uniform.BoneMatricesName);
+                    WriteLine("weight = {0}0.{1};", BufferType.MatrixWeights.ToString(), part);
+                    WriteLine("finalPosition += ({0}[index] * basePosition) * weight;", Uniform.BonePosMtxName);
                     if (_info.HasNormals)
-                        WriteLine("finalNormal += ({0}[index] * baseNormal) * weight;", Uniform.BoneMatricesITName);
+                        WriteLine("finalNormal += ({0}[index] * baseNormal) * weight;", Uniform.BoneNrmMtxName);
                     if (_info.HasBinormals)
-                        WriteLine("FragBinorm += ({0}[index] * baseBinormal) * weight;", Uniform.BoneMatricesITName);
+                        WriteLine("finalBinormal += ({0}[index] * baseBinormal) * weight;", Uniform.BoneNrmMtxName);
                     if (_info.HasTangents)
-                        WriteLine("FragTan += ({0}[index] * baseTangent) * weight;", Uniform.BoneMatricesITName);
+                        WriteLine("finalTangent += ({0}[index] * baseTangent) * weight;", Uniform.BoneNrmMtxName);
                 }
                 //wl("}");
                 WriteLine();
+                WriteLine("finalPosition = ModelMatrix * finalPosition;");
                 if (_info.HasNormals)
-                    WriteLine("FragNorm = normalize(finalNormal.xyz);");
+                    WriteLine("FragNorm = normalize(NormalMatrix * finalNormal);");
                 if (_info.HasBinormals)
-                    WriteLine("FragBinorm = normalize(FragBinorm);");
+                    WriteLine("FragBinorm = normalize(NormalMatrix * finalBinormal);");
                 if (_info.HasTangents)
-                    WriteLine("FragTan = normalize(FragTan);");
+                    WriteLine("FragTan = normalize(NormalMatrix * finalTangent);");
             }
             else
             {
@@ -265,24 +250,24 @@ namespace TheraEngine.Rendering.Models.Materials
                 WriteLine("{");
                 for (int i = 0; i < _info._morphCount; ++i)
                 {
-                    WriteLine("finalPosition += {0}[{1}{3}[i]] * vec4(Position{5}, 1.0) * {2}{3}[i] * {4}[i];", Uniform.BoneMatricesName, BufferType.MatrixIds, BufferType.MatrixWeights, i, Uniform.MorphWeightsName, i + 1);
+                    WriteLine("finalPosition += {0}[{1}{3}[i]] * vec4(Position{5}, 1.0) * {2}{3}[i] * {4}[i];", Uniform.BonePosMtxName, BufferType.MatrixIds, BufferType.MatrixWeights, i, Uniform.MorphWeightsName, i + 1);
                     if (_info.HasNormals)
-                        WriteLine("FragNorm += ({0}[{1}{3}[i]] * Normal{5}) * {2}{3}[i] * {4}[i];", Uniform.BoneMatricesITName, BufferType.MatrixIds, BufferType.MatrixWeights, i, Uniform.MorphWeightsName, i + 1);
+                        WriteLine("finalNormal += ({0}[{1}{3}[i]] * Normal{5}) * {2}{3}[i] * {4}[i];", Uniform.BoneNrmMtxName, BufferType.MatrixIds, BufferType.MatrixWeights, i, Uniform.MorphWeightsName, i + 1);
                     if (_info.HasBinormals)
-                        WriteLine("FragBinorm += ({0}[{1}{3}[i]] * Binormal{5}) * {2}{3}[i] * {4}[i];", Uniform.BoneMatricesITName, BufferType.MatrixIds, BufferType.MatrixWeights, i, Uniform.MorphWeightsName, i + 1);
+                        WriteLine("finalBinorm += ({0}[{1}{3}[i]] * Binormal{5}) * {2}{3}[i] * {4}[i];", Uniform.BoneNrmMtxName, BufferType.MatrixIds, BufferType.MatrixWeights, i, Uniform.MorphWeightsName, i + 1);
                     if (_info.HasTangents)
-                        WriteLine("FragTan += ({0}[{1}{3}[i]] * Tangent{5}) * {2}{3}[i] * {4}[i];", Uniform.BoneMatricesITName, BufferType.MatrixIds, BufferType.MatrixWeights, i, Uniform.MorphWeightsName, i + 1);
+                        WriteLine("finalTangent += ({0}[{1}{3}[i]] * Tangent{5}) * {2}{3}[i] * {4}[i];", Uniform.BoneNrmMtxName, BufferType.MatrixIds, BufferType.MatrixWeights, i, Uniform.MorphWeightsName, i + 1);
                     if (i + 1 != _info._morphCount)
                         WriteLine();
                 }
                 WriteLine("}");
-                WriteLine("finalPosition /= total;");
+                WriteLine("finalPosition = ModelMatrix * (finalPosition / vec4(total, total, total, 1.0));");
                 if (_info.HasNormals)
-                    WriteLine("FragNorm = normalize(FragNorm / total);");
+                    WriteLine("FragNorm = normalize(NormalMatrix * (finalNormal / total));");
                 if (_info.HasBinormals)
-                    WriteLine("FragBinorm normalize(FragBinorm / total);");
+                    WriteLine("FragBinorm = normalize(NormalMatrix * (finalBinormal / total));");
                 if (_info.HasTangents)
-                    WriteLine("FragTan normalize(FragTan / total);");
+                    WriteLine("FragTan = normalize(NormalMatrix * (finalTangent / total));");
             }
             WriteLine("FragPos = finalPosition.xyz;");
             WriteLine("gl_Position = ProjMatrix * ViewMatrix * finalPosition;");

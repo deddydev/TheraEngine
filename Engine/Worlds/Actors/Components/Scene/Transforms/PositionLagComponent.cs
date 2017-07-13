@@ -72,7 +72,7 @@ namespace TheraEngine.Worlds.Actors
                 _interpPoint = CustomMath.InterpLinearTo(_currentPoint, _destPoint, _delta, _interpSpeed);
 
             //Debug.WriteLine(_currentPoint.DistanceTo(_destPoint));
-            //RecalcLocalTransform();
+            RecalcGlobalTransform();
         }
         public override void OnSpawned()
         {

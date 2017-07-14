@@ -202,8 +202,9 @@ namespace TheraEngine
         }
         protected virtual void OnRender(PaintEventArgs e)
         {
-            _context.BeginDraw();
             Engine.Scene.RenderShadowMaps();
+
+            _context.BeginDraw();
             foreach (Viewport v in _viewports)
                 v.Render(Engine.Scene);
             _globalHud?.Render();
@@ -219,8 +220,8 @@ namespace TheraEngine
         public void EndResize()
         {
             _resizing = false;
-            foreach (Viewport v in _viewports)
-                v.ResizeGBuffer();
+            //foreach (Viewport v in _viewports)
+            //    v.ResizeGBuffer();
         }
         protected override void OnResize(EventArgs e)
         {
@@ -229,7 +230,7 @@ namespace TheraEngine
             int h = Height.ClampMin(1);
             _globalHud?.Resize(new Vec2(w, h));
             foreach (Viewport v in _viewports)
-                v.Resize(w, h, !_resizing);
+                v.Resize(w, h/*, !_resizing*/);
             _context?.Update();
         }
         #endregion

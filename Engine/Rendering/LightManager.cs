@@ -14,7 +14,9 @@ namespace TheraEngine.Rendering
         private HashSet<DirectionalLightComponent> _directionalLights = new HashSet<DirectionalLightComponent>();
         private HashSet<SpotLightComponent> _spotLights = new HashSet<SpotLightComponent>();
         private HashSet<PointLightComponent> _pointLights = new HashSet<PointLightComponent>();
-        
+
+        public HashSet<DirectionalLightComponent> DirectionalLights => _directionalLights;
+
         internal void SetUniforms(int programBindingId)
         {
             Engine.Renderer.ProgramUniform(programBindingId, "GlobalAmbient", Engine.World.Settings.GlobalAmbient);

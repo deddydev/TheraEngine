@@ -35,6 +35,7 @@ namespace TheraEngine.Rendering
                 return;
             Bind(EFramebufferTarget.Framebuffer);
             Material.GenerateTextures();
+            Engine.Renderer.SetDrawBuffers(Material.FboAttachments);
             CheckErrors();
             Unbind(EFramebufferTarget.Framebuffer);
         }

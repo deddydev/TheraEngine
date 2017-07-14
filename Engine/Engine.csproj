@@ -954,6 +954,7 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="3rdParty\OBJ\" />
     <Folder Include="AI\" />
     <Folder Include="System\Files\Serialization\JSON\" />
     <Folder Include="System\Math\Shapes\Cylindrical\XAligned\" />

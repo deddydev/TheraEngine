@@ -49,6 +49,11 @@ namespace TheraEngine.Rendering.Models.Materials
         public bool UseConstantAlpha { get => _useConstantAlpha; set => _useConstantAlpha = value; }
         public float ConstantAlphaValue { get => _constantAlphaValue; set => _constantAlphaValue = value; }
         public bool UseAlphaToCoverage { get => _useAlphaToCoverage; set => _useAlphaToCoverage = value; }
+        public float Ref0 { get => _ref0; set => _ref0 = value; }
+        public float Ref1 { get => _ref1; set => _ref1 = value; }
+        public EComparison Comp0 { get => _comp0; set => _comp0 = value; }
+        public EComparison Comp1 { get => _comp1; set => _comp1 = value; }
+        public LogicGate LogicGate { get => _logicGate; set => _logicGate = value; }
     }
     public struct StencilFace
     {
@@ -120,6 +125,33 @@ namespace TheraEngine.Rendering.Models.Materials
         private bool _writeRed;
         private bool _writeGreen;
         private bool _writeBlue;
+        private Culling _cullMode;
+
+        [Category("Blending")]
+        public bool AlphaTestEnabled { get => _alpha.Enabled; set => _alpha.Enabled = value; }
+        [Category("Blending")]
+        public bool UseConstantAlpha { get => _alpha.UseConstantAlpha; set => _alpha.UseConstantAlpha = value; }
+        [Category("Blending")]
+        public float ConstantAlphaValue { get => _alpha.ConstantAlphaValue; set => _alpha.ConstantAlphaValue = value; }
+        [Category("Blending")]
+        public bool UseAlphaToCoverage { get => _alpha.UseAlphaToCoverage; set => _alpha.UseAlphaToCoverage = value; }
+        [Category("Blending")]
+        public float Ref0 { get => _alpha.Ref0; set => _alpha.Ref0 = value; }
+        [Category("Blending")]
+        public float Ref1 { get => _alpha.Ref1; set => _alpha.Ref1 = value; }
+        [Category("Blending")]
+        public EComparison Comp0 { get => _alpha.Comp0; set => _alpha.Comp0 = value; }
+        [Category("Blending")]
+        public EComparison Comp1 { get => _alpha.Comp1; set => _alpha.Comp1 = value; }
+        [Category("Blending")]
+        public LogicGate LogicGate { get => _alpha.LogicGate; set => _alpha.LogicGate = value; }
+
+        public bool WriteRed { get => _writeRed; set => _writeRed = value; }
+        public bool WriteGreen { get => _writeGreen; set => _writeGreen = value; }
+        public bool WriteBlue { get => _writeBlue; set => _writeBlue = value; }
+        public bool WriteAlpha { get => _writeAlpha; set => _writeAlpha = value; }
+
+        public Culling CullMode { get => _cullMode; set => _cullMode = value; }
 
         [Category("Blending")]
         [DisplayName("Enable")]
@@ -174,10 +206,6 @@ namespace TheraEngine.Rendering.Models.Materials
         public DepthTest DepthTest { get => _depth; set => _depth = value; }
         public StencilTest StencilTest { get => _stencil; set => _stencil = value; }
         public Blend Blend { get => _blend; set => _blend = value; }
-        public bool WriteRed { get => _writeRed; set => _writeRed = value; }
-        public bool WriteGreen { get => _writeGreen; set => _writeGreen = value; }
-        public bool WriteBlue { get => _writeBlue; set => _writeBlue = value; }
-        public bool WriteAlpha { get => _writeAlpha; set => _writeAlpha = value; }
     }
     public class Material : FileObject
     {
@@ -186,6 +214,7 @@ namespace TheraEngine.Rendering.Models.Materials
             EnableDepthTest = true,
             EnableDepthUpdate = true,
             DepthFunction = EComparison.Lequal,
+            CullMode = Culling.Back,
         };
 
         [Category("Depth Test")]
@@ -219,7 +248,11 @@ namespace TheraEngine.Rendering.Models.Materials
         [Category("Stencil Test")]
         [DisplayName("Back Face Mask")]
         public int BackFaceStencilMask { get => _renderParams.BackFaceStencilMask; set => _renderParams.BackFaceStencilMask = value; }
-        
+
+        [Category("Misc")]
+        [DisplayName("Cull Mode")]
+        public Culling CullMode { get => _renderParams.CullMode; set => _renderParams.CullMode = value; }
+
         public ShaderVar[] Parameters => _parameters;
         public TextureReference[] TexRefs
         {
@@ -297,7 +330,6 @@ namespace TheraEngine.Rendering.Models.Materials
             set
             {
                 _frameBuffer = value;
-                BindTextures = _frameBuffer != null ? (Action<int>)BindTexturesFBO : BindTexturesNonFBO;
                 CollectFBOAttachments();
             }
         }
@@ -316,6 +348,8 @@ namespace TheraEngine.Rendering.Models.Materials
             get => _requirements;
             set => _requirements = value;
         }
+
+        public EDrawBuffersAttachment[] FboAttachments => _fboAttachments;
 
         public void GenerateTextures()
         {
@@ -373,15 +407,7 @@ namespace TheraEngine.Rendering.Models.Materials
             foreach (TextureReference t in TexRefs)
                 t.Resize(width, height);
         }
-        public Action<int> BindTextures;
-        private void BindTexturesFBO(int programBindingId)
-        {
-            Engine.Renderer.BindFrameBuffer(EFramebufferTarget.Framebuffer, FrameBuffer.BindingId);
-            BindTexturesNonFBO(programBindingId);
-            Engine.Renderer.SetDrawBuffers(_fboAttachments);
-            Engine.Renderer.BindFrameBuffer(EFramebufferTarget.Framebuffer, 0);
-        }
-        private void BindTexturesNonFBO(int programBindingId)
+        private void BindTextures(int programBindingId)
         {
             for (int i = 0; i < TexRefs.Length; ++i)
                 BindTexture(i, i, "Texture" + i, programBindingId);
@@ -403,8 +429,6 @@ namespace TheraEngine.Rendering.Models.Materials
             : this(name, new ShaderVar[0], textures, shaders) { }
         public Material(string name, ShaderVar[] parameters, TextureReference[] textures, params Shader[] shaders)
         {
-            BindTextures = BindTexturesNonFBO;
-
             _name = name;
             _parameters = parameters ?? new ShaderVar[0];
             TexRefs = textures ?? new TextureReference[0];

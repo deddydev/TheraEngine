@@ -18,6 +18,7 @@ namespace TheraEngine.Tests
             _settings = new WorldSettings("TestWorld");
             Random r = new Random();
             BoxActor[] array = new BoxActor[200];
+            BoundingBox spawnBounds = new BoundingBox(18.0f, 30.0f, 18.0f, 0.0f, 50.0f, 0.0f);
             for (int i = 0; i < array.Length; ++i)
             {
                 PhysicsConstructionInfo boxInfo = new PhysicsConstructionInfo()
@@ -33,12 +34,12 @@ namespace TheraEngine.Tests
                     Group = CustomCollisionGroup.DynamicWorld,
                     CollidesWith = CustomCollisionGroup.StaticWorld | CustomCollisionGroup.DynamicWorld | CustomCollisionGroup.Characters,
                 };
-                float x = ((float)r.NextDouble() - 0.5f) * 2.0f * 18.0f;
-                float y = ((float)r.NextDouble() - 0.5f) * 2.0f * 30.0f;
-                float z = ((float)r.NextDouble() - 0.5f) * 2.0f * 18.0f;
+                float x = ((float)r.NextDouble() - 0.5f) * 2.0f * spawnBounds.HalfExtents.X;
+                float y = ((float)r.NextDouble() - 0.5f) * 2.0f * spawnBounds.HalfExtents.Y;
+                float z = ((float)r.NextDouble() - 0.5f) * 2.0f * spawnBounds.HalfExtents.Z;
                 BoxActor b = new BoxActor(
                     "Box" + i, boxInfo, 0.4f,
-                    new Vec3(5.0f + x, 50.0f + y, -100.0f + z),
+                    new Vec3(x, y + spawnBounds.Translation.Y, z),
                     new Rotator(0.0f, 0.0f, 0.0f, RotationOrder.YPR),
                     Material.GetLitColorMaterial());
                 b.RootComponent.PhysicsDriver.OnHit += PhysicsDriver_OnHit;
@@ -60,28 +61,28 @@ namespace TheraEngine.Tests
                 "Floor1",
                 floorInfo,
                 new Vec3(50.0f, 0.5f, 50.0f),
-                new Vec3(5.0f, 0.0f, -100.0f),
+                new Vec3(0.0f, 0.0f, 0.0f),
                 new Rotator(0.0f, 0.0f, 0.0f, RotationOrder.YPR),
                 Material.GetLitColorMaterial(Color.Orange));
             BoxActor floorActor2 = new BoxActor(
                 "Floor2",
                 floorInfo,
                 new Vec3(100.0f, 0.5f, 100.0f),
-                new Vec3(5.0f, -10.0f, -100.0f),
+                new Vec3(0.0f, -10.0f, 0.0f),
                 new Rotator(0.0f, 0.0f, 0.0f, RotationOrder.YPR),
                 Material.GetLitColorMaterial(Color.Blue));
             BoxActor floorActor3 = new BoxActor(
                 "Floor3",
                 floorInfo,
                 new Vec3(20.0f, 0.5f, 20.0f),
-                new Vec3(-35.0f, 0.0f, -100.0f),
+                new Vec3(-30.0f, 0.0f, 0.0f),
                 new Rotator(20.0f, 0.0f, 0.0f, RotationOrder.YPR),
                 Material.GetLitColorMaterial(Color.Gray));
             BoxActor floorActor4 = new BoxActor(
                 "Floor4",
                 floorInfo,
                 new Vec3(50.0f, 0.5f, 50.0f),
-                new Vec3(25.0f, 0.0f, -100.0f),
+                new Vec3(20.0f, 0.0f, 0.0f),
                 new Rotator(0.0f, 0.0f, 20.0f, RotationOrder.YPR),
                 Material.GetLitColorMaterial(Color.Green));
 
@@ -146,9 +147,7 @@ namespace TheraEngine.Tests
 
             //Collada.Scene anims = Collada.Import(googleDrive + "Thera Assets\\Characters\\Temp\\Carly_Idle.dae", options, true, false);
             //anims.CleanAnimations(scene._skeletalModel, scene._skeleton);
-
-            Vec3 center = new Vec3(5.0f, 0.0f, -100.0f);
-
+            
             //IActor importedActor;
             //if (ColladaScene.SkeletalModel != null)
             //{
@@ -216,7 +215,7 @@ namespace TheraEngine.Tests
             //cam.RootComponent.SetCurrentForPlayer(PlayerIndex.One);
 
             CharacterSpawnPointActor spawn = new CharacterSpawnPointActor();
-            spawn.RootComponent.Translation.Raw = center + Vec3.Up * 100.0f;
+            spawn.RootComponent.Translation.Raw = Vec3.Up * 100.0f;
 
             IActor[] actors = new IActor[]
             {

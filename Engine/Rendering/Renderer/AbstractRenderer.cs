@@ -22,7 +22,11 @@ namespace TheraEngine.Rendering
         public RenderContext CurrentContext => RenderContext.Current;
         public Viewport CurrentlyRenderingViewport => Viewport.CurrentlyRendering;
 
-        public Material MaterialOverride { get => _fragmentShaderOverride; set => _fragmentShaderOverride = value; }
+        public Material MaterialOverride
+        {
+            get => _fragmentShaderOverride;
+            set => _fragmentShaderOverride = value;
+        }
 
         protected static IPrimitiveManager _currentPrimitiveManager;
         private Stack<BoundingRectangle> _renderAreaStack = new Stack<BoundingRectangle>();
@@ -333,7 +337,7 @@ namespace TheraEngine.Rendering
         public abstract void SetLineSize(float size);
         public abstract int GetStencilIndex(float x, float y);
         public abstract float GetDepth(float x, float y);
-
+        
         #region Shaders
         /*
          * ---Shader initialization routine---
@@ -357,7 +361,7 @@ namespace TheraEngine.Rendering
          * GL.Uniform
          * 
          */
-        
+
         //protected static RenderProgram _currentRenderProgram;
         //protected static Material _currentMaterial;
         private Material _fragmentShaderOverride;

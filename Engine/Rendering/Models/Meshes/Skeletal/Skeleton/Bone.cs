@@ -287,8 +287,8 @@ namespace TheraEngine.Rendering.Models
                     Camera c = AbstractRenderer.CurrentCamera;
                     if (BillboardType != BillboardType.None)
                     {
-                        Matrix4 invView = c.WorldToCameraMatrix.GetRotationMatrix4();
-                        Matrix4 view = c.CameraToWorldMatrix.GetRotationMatrix4();
+                        Matrix4 invView = c.CameraToWorldSpaceMatrix.GetRotationMatrix4();
+                        Matrix4 view = c.WorldToCameraSpaceMatrix.GetRotationMatrix4();
                         _frameMatrix = parentMatrix * _frameState.Translation.AsTranslationMatrix() * invView * _frameState.Scale.AsScaleMatrix();
                         _inverseFrameMatrix = (1.0f / _frameState.Scale).AsScaleMatrix() * view * (1.0f / _frameState.Translation).AsTranslationMatrix() * inverseParentMatrix;
                     }

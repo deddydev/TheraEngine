@@ -3,6 +3,8 @@ using TheraEngine.Rendering.Textures;
 using TheraEngine.Rendering.Models.Materials;
 using TheraEngine.Rendering.Cameras;
 using TheraEngine.Rendering;
+using System.ComponentModel;
+using TheraEngine.Rendering.Models;
 
 namespace TheraEngine.Worlds.Actors
 {
@@ -43,10 +45,8 @@ namespace TheraEngine.Worlds.Actors
         private MaterialFrameBuffer _shadowMap;
         private float _worldRadius;
         private OrthographicCamera _shadowCamera;
-
-        public Matrix4 LightToWorldMatrix => _shadowCamera.CameraToWorldMatrix;
-        public Matrix4 WorldToLightMatrix => _shadowCamera.WorldToCameraMatrix;
-
+        private int _shadowWidth, _shadowHeight;
+        
         private Vec3 _direction;
         public Vec3 Direction
         {
@@ -58,14 +58,20 @@ namespace TheraEngine.Worlds.Actors
             }
         }
 
+        [TypeConverter(typeof(ExpandableObjectConverter))]
+        public OrthographicCamera ShadowCamera => _shadowCamera;
+
         public override void OnSpawned()
         {
             if (_type == LightType.Dynamic)
             {
                 _worldRadius = Engine.World.Settings.Bounds.HalfExtents.LengthFast;
-                SetShadowMapResolution(1024, 1024);
+                SetShadowMapResolution(4096, 4096);
                 Engine.Scene.Lights.Add(this);
+                _shadowCamera.LocalPoint.Raw = GetWorldPoint();
                 _shadowCamera.TranslateRelative(0.0f, 0.0f, _worldRadius + 1.0f);
+                if (Engine.Settings.RenderCameraFrustums)
+                    Engine.Scene.Add(_shadowCamera);
             }
         }
         public override void OnDespawned()
@@ -73,6 +79,8 @@ namespace TheraEngine.Worlds.Actors
             if (_type == LightType.Dynamic)
             {
                 Engine.Scene.Lights.Remove(this);
+                if (Engine.Settings.RenderCameraFrustums)
+                    Engine.Scene.Remove(_shadowCamera);
             }
         }
 
@@ -82,12 +90,15 @@ namespace TheraEngine.Worlds.Actors
             Engine.Renderer.ProgramUniform(programBindingId, indexer + "Base.Color", _color.Raw);
             Engine.Renderer.ProgramUniform(programBindingId, indexer + "Base.AmbientIntensity", _ambientIntensity);
             Engine.Renderer.ProgramUniform(programBindingId, indexer + "Base.DiffuseIntensity", _diffuseIntensity);
-            Engine.Renderer.ProgramUniform(programBindingId, indexer + "Base.WorldToLightMatrix", WorldToLightMatrix);
+            Engine.Renderer.ProgramUniform(programBindingId, indexer + "Base.WorldToLightSpaceMatrix", _shadowCamera.WorldToCameraSpaceMatrix);
+            Engine.Renderer.ProgramUniform(programBindingId, indexer + "Base.ProjectionMatrix", _shadowCamera.ProjectionMatrix);
             Engine.Renderer.ProgramUniform(programBindingId, indexer + "Direction", _direction);
-            //_shadowMap.Material.BindTexture(0, 4 + LightIndex, indexer + "Base.ShadowMap", programBindingId);
+            _shadowMap.Material.BindTexture(0, 4 + LightIndex, "ShadowMap", programBindingId);
         }
         public void SetShadowMapResolution(int width, int height)
         {
+            _shadowWidth = width;
+            _shadowHeight = height;
             if (_shadowMap == null)
                 _shadowMap = new MaterialFrameBuffer(GetShadowMapMaterial(width, height));
             else
@@ -100,6 +111,8 @@ namespace TheraEngine.Worlds.Actors
                     NearZ = 1.0f,
                     FarZ = _worldRadius * 2.0f + 1.0f,
                 };
+                _shadowCamera.SetCenteredStyle();
+                _shadowCamera.Resize(_worldRadius, _worldRadius);
                 _shadowCamera.LocalRotation.SyncFrom(_rotation);
             }
             else
@@ -121,17 +134,20 @@ namespace TheraEngine.Worlds.Actors
                 },
             };
             Shader shader = new Shader(ShaderMode.Fragment, ShaderHelpers.Frag_DepthOutput);
-            return new Material("DirLightShadowMat", new ShaderVar[0], refs, shader)
+            Material m = new Material("DirLightShadowMat", new ShaderVar[0], refs, shader)
             {
-                Requirements = Material.UniformRequirements.None
+                Requirements = Material.UniformRequirements.None,
+                //CullMode = Culling.Front,
             };
+            return m;
         }
         public override void RenderShadowMap(SceneProcessor scene)
         {
             Engine.Renderer.MaterialOverride = _shadowMap.Material;
             
             _shadowMap.Bind(EFramebufferTarget.Framebuffer);
-            
+            Engine.Renderer.PushRenderArea(new BoundingRectangle(0.0f, 0.0f, _shadowWidth, _shadowHeight, 0.0f, 0.0f));
+
             Engine.Renderer.Clear(EBufferClear.Color | EBufferClear.Depth);
             Engine.Renderer.AllowDepthWrite(true);
             
@@ -140,7 +156,8 @@ namespace TheraEngine.Worlds.Actors
             scene.Render(RenderPass.OpaqueForward);
             scene.Render(RenderPass.TransparentForward);
             scene.PostRender();
-            
+
+            Engine.Renderer.PopRenderArea();
             _shadowMap.Unbind(EFramebufferTarget.Framebuffer);
 
             Engine.Renderer.MaterialOverride = null;

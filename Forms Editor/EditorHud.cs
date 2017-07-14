@@ -29,6 +29,7 @@ namespace TheraEditor
         private Vec3 _hitPoint;
         private float _toolSize = 2.0f;
         private SceneComponent _selectedComponent;
+        private bool _mouseDown;
 
         [Browsable(false)]
         public Editor Editor => _editor;
@@ -72,11 +73,9 @@ namespace TheraEditor
         }
         public override void RegisterInput(InputInterface input)
         {
-            //input.RegisterMouseScroll(OnScrolledInput, InputPauseType.TickOnlyWhenPaused);
             input.RegisterMouseMove(OnMouseMove, false, InputPauseType.TickAlways);
             input.RegisterButtonEvent(EMouseButton.LeftClick, ButtonInputType.Pressed, OnMouseDown, InputPauseType.TickAlways);
             input.RegisterButtonEvent(EMouseButton.LeftClick, ButtonInputType.Released, OnMouseUp, InputPauseType.TickAlways);
-            input.RegisterButtonEvent(GamePadButton.FaceDown, ButtonInputType.Pressed, OnGamepadSelect, InputPauseType.TickAlways);
 
             input.RegisterButtonEvent(GamePadButton.FaceDown, ButtonInputType.Pressed, OnGamepadSelect, InputPauseType.TickAlways);
             input.RegisterButtonEvent(GamePadButton.FaceRight, ButtonInputType.Pressed, OnBackInput, InputPauseType.TickAlways);
@@ -88,26 +87,31 @@ namespace TheraEditor
         }
         protected void OnMouseDown()
         {
-            MouseDown();
+            if (!_mouseDown)
+                MouseDown();
         }
         protected void OnMouseUp()
         {
-            MouseUp();
+            if (_mouseDown)
+                MouseUp();
         }
         protected void OnGamepadSelect()
         {
-            MouseDown();
+            if (_mouseDown)
+                MouseUp();
+            else
+                MouseDown();
         }
         private void HighlightScene(bool gamepad)
         {
-            Viewport v = Engine.ActivePlayers[0].Viewport;
+            Viewport v = OwningPawn?.LocalPlayerController?.Viewport;
             if (v != null)
             {
-                Vec2 viewportPoint = gamepad ? v.Center : v.AbsoluteToRelative(_cursorPos);
-                MouseMove(v, viewportPoint);
+                Vec2 viewportPoint = /*gamepad ? v.Center : */v.AbsoluteToRelative(_cursorPos);
+                HighlightScene(v, viewportPoint);
             }
         }
-        public void MouseMove(Viewport v, Vec2 viewportPoint)
+        public void HighlightScene(Viewport v, Vec2 viewportPoint)
         {
             if (_selectedComponent != null)
             {
@@ -134,6 +138,7 @@ namespace TheraEditor
         }
         public void MouseUp()
         {
+            _mouseDown = false;
             if (_currentConstraint != null)
             {
                 Engine.World.PhysicsScene.RemoveConstraint(_currentConstraint);
@@ -150,6 +155,7 @@ namespace TheraEditor
         }
         public void MouseDown()
         {
+            _mouseDown = true;
             _selectedComponent = HighlightedComponent;
 
             if (_selectedComponent != null)

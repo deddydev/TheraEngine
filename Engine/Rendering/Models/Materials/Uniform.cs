@@ -27,12 +27,12 @@
     public enum ECommonUniform
     {
         ModelMatrix,
-        ViewMatrix,
+        WorldToCameraSpaceMatrix,
         ProjMatrix,
         NormalMatrix,
 
         InvModelMatrix,
-        InvViewMatrix,
+        CameraToWorldSpaceMatrix,
         InvProjMatrix,
 
         PrevModelMatrix,

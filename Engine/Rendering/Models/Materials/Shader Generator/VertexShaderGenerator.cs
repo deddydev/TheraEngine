@@ -142,7 +142,7 @@ namespace TheraEngine.Rendering.Models.Materials
         {
             WriteUniform(ShaderVarType._mat4, ECommonUniform.ModelMatrix.ToString());
             WriteUniform(ShaderVarType._mat3, ECommonUniform.NormalMatrix.ToString());
-            WriteUniform(ShaderVarType._mat4, ECommonUniform.ViewMatrix.ToString());
+            WriteUniform(ShaderVarType._mat4, ECommonUniform.WorldToCameraSpaceMatrix.ToString());
             WriteUniform(ShaderVarType._mat4, ECommonUniform.ProjMatrix.ToString());
             if (_info.IsWeighted)
             {
@@ -270,7 +270,7 @@ namespace TheraEngine.Rendering.Models.Materials
                     WriteLine("FragTan = normalize(NormalMatrix * (finalTangent / total));");
             }
             WriteLine("FragPos = finalPosition.xyz;");
-            WriteLine("gl_Position = ProjMatrix * ViewMatrix * finalPosition;");
+            WriteLine("gl_Position = ProjMatrix * WorldToCameraSpaceMatrix * finalPosition;");
         }
         private static void WriteStaticPNTB(bool morphed)
         {
@@ -320,7 +320,7 @@ namespace TheraEngine.Rendering.Models.Materials
             }
             WriteLine("position = ModelMatrix * position;");
             WriteLine("FragPos = position.xyz;");
-            WriteLine("gl_Position = ProjMatrix * ViewMatrix * position;");
+            WriteLine("gl_Position = ProjMatrix * WorldToCameraSpaceMatrix * position;");
             if (_info.HasNormals)
                 WriteLine("FragNorm = normalize(NormalMatrix * normal);");
             if (_info.HasBinormals)

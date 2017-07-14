@@ -40,8 +40,16 @@ namespace TheraEngine.Rendering.Cameras
         }
 
         public override Vec2 Origin => new Vec2(Width / 2.0f, Height / 2.0f);
-        public override float Width => _width;
-        public override float Height => _height;
+        public override float Width
+        {
+            get => _width;
+            set => Resize(value, Height);
+        }
+        public override float Height
+        {
+            get => _height;
+            set => Resize(Width, value);
+        }
 
         [Category("Perspective Camera")]
         public float Aspect

@@ -410,7 +410,6 @@ namespace TheraEngine.Rendering.Models
                 _pipeline.Bind();
                 _pipeline.Set(EProgramStageMask.VertexShaderBit, vtxId = _vertexProgram.BindingId);
                 _pipeline.Set(EProgramStageMask.FragmentShaderBit, fragId = m.Program.BindingId);
-                //_pipeline.SetActive(_vertexProgram.BindingId);
 
             }
             else
@@ -423,12 +422,11 @@ namespace TheraEngine.Rendering.Models
             SetSkinningUniforms(vtxId);
             Engine.Renderer.ProgramUniform(vtxId, Uniform.GetLocation(vtxId, ECommonUniform.ModelMatrix), modelMatrix);
             Engine.Renderer.ProgramUniform(vtxId, Uniform.GetLocation(vtxId, ECommonUniform.NormalMatrix), normalMatrix);
-            Engine.Renderer.ProgramUniform(vtxId, Uniform.GetLocation(vtxId, ECommonUniform.ViewMatrix), AbstractRenderer.CurrentCamera.CameraToWorldMatrix);
+            Engine.Renderer.ProgramUniform(vtxId, Uniform.GetLocation(vtxId, ECommonUniform.WorldToCameraSpaceMatrix), AbstractRenderer.CurrentCamera.WorldToCameraSpaceMatrix);
             Engine.Renderer.ProgramUniform(vtxId, Uniform.GetLocation(vtxId, ECommonUniform.ProjMatrix), AbstractRenderer.CurrentCamera.ProjectionMatrix);
             
             m.SetUniforms(fragId);
 
-            Engine.Renderer.Cull(_data.Culling);
             OnSettingUniforms();
            
             Engine.Renderer.RenderPrimitiveManager(this, false);

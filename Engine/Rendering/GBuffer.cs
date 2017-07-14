@@ -42,11 +42,7 @@ namespace TheraEngine.Rendering
                 _fullScreenTriangle.VertexFragProgram.BindingId;
 
             _parent.Camera.PostProcessSettings.SetUniforms(fragId);
-            
-            Engine.Renderer.ProgramUniform(fragId, Uniform.GetLocation(fragId, ECommonUniform.CameraPosition), _parent.Camera.WorldPoint);
-
-            if (Engine.Settings.ShadingStyle == ShadingStyle.Deferred)
-                Engine.Scene.Lights.SetUniforms(fragId);
+            _parent.Camera.SetUniforms(fragId);
         }
 
         public void Render()
@@ -151,18 +147,7 @@ uniform sampler2D Texture1;
 uniform sampler2D Texture2;
 uniform sampler2D Texture3;
 
-uniform vec3 CameraPosition;
-uniform vec3 CameraForward;
-uniform float CameraNearZ;
-uniform float CameraFarZ;
-uniform float ScreenWidth;
-uniform float ScreenHeight;
-uniform float ScreenOrigin;
-uniform float ProjOrigin;
-uniform float ProjRange;
-uniform float InvViewMatrix;
-uniform float InvProjMatrix;
-
+" + Camera.ShaderSetup() + @"
 " + PostProcessSettings.ShaderSetup() + @"
 " + ShaderHelpers.LightingSetupBasic() + @"
 
@@ -176,7 +161,8 @@ void main()
             
     " + ShaderHelpers.LightingCalc("totalLight", "GlobalAmbient", "Normal", "FragPos", "AlbedoSpec.rgb", "AlbedoSpec.a") + @"
 
-    vec3 hdrSceneColor = AlbedoSpec.rgb * totalLight;
+    //float shadow = texture(ShadowMap, uv).r;
+    vec3 hdrSceneColor = AlbedoSpec.rgb * totalLight; 
 
     " + PostProcessPart() + @"
 }";
@@ -190,19 +176,13 @@ void main()
 //GBUFFER FRAG SHADER
 
 out vec4 OutColor;
-
 in vec3 FragPos;
 
 uniform sampler2D Texture0;
 uniform sampler2D Texture1;
 
-uniform vec3 CameraPosition;
-uniform vec3 CameraForward;
-uniform float CameraNearZ;
-uniform float CameraFarZ;
-uniform float ScreenWidth;
-uniform float ScreenHeight;
-uniform float ScreenOrigin;
+" + Camera.ShaderSetup() + @"
+" + PostProcessSettings.ShaderSetup() + @"
 
 void main()
 {

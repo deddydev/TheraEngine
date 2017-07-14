@@ -148,11 +148,11 @@ namespace TheraEngine.Worlds.Actors
         private void OnLeftStickX(float value) 
             => _linearRight = value * GamepadTranslateSpeed;
         private void OnLeftStickY(float value)
-            => _linearForward = -value * GamepadTranslateSpeed;
+            => _linearForward = value * GamepadTranslateSpeed;
         private void OnRightStickX(float value)
             => _yaw = -value * GamepadRotateSpeed;
         private void OnRightStickY(float value) 
-            => _pitch = -value * GamepadRotateSpeed;
+            => _pitch = value * GamepadRotateSpeed;
 
         private void OnControl(bool pressed)
             => _ctrl = pressed;

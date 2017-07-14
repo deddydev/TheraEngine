@@ -129,12 +129,18 @@ namespace System
                     _visible = value;
 
                     IsLoopingItems = true;
-                    foreach (T item in _items)
+                    try
                     {
-                        item.IsRendering = _visible;
-                        Owner.ItemRenderChanged?.Invoke(item);
+                        foreach (T item in _items)
+                        {
+                            item.IsRendering = _visible;
+                            Owner.ItemRenderChanged?.Invoke(item);
+                        }
                     }
-                    IsLoopingItems = false;
+                    finally
+                    {
+                        IsLoopingItems = false;
+                    }
 
                     IsLoopingSubNodes = true;
                     foreach (Node node in _subNodes)

@@ -9,7 +9,7 @@ namespace TheraEngine.Rendering.Cameras
         {
             _scale.Changed += CreateTransform;
         }
-        public OrthographicCamera(Vec3 scale, Vec3 point, Rotator rotation, Vec2 originPercentages, float nearZ, float farZ) 
+        public OrthographicCamera(Vec3 scale, Vec3 point, Rotator rotation, Vec2 originPercentages, float nearZ, float farZ)
             : base(16.0f, 9.0f, nearZ, farZ, point, rotation)
         {
             _scale.SetRawNoUpdate(scale);
@@ -23,8 +23,17 @@ namespace TheraEngine.Rendering.Cameras
 
         }
 
-        public override float Width => Math.Abs(_orthoRight - _orthoLeft);
-        public override float Height => Math.Abs(_orthoTop - _orthoBottom);
+        public override float Width
+        {
+            get => Math.Abs(_orthoRight - _orthoLeft);
+            set => Resize(value, Height);
+        }
+
+        public override float Height
+        {
+            get => Math.Abs(_orthoTop - _orthoBottom);
+            set => Resize(Width, value);
+        }
 
         public override Vec2 Origin => _origin;
 
@@ -81,8 +90,8 @@ namespace TheraEngine.Rendering.Cameras
         {
             float scale = amount >= 0 ? amount : 1.0f / -amount;
 
-            _componentToCameraMatrix = _componentToCameraMatrix * Matrix4.CreateScale(scale);
-            _cameraToComponentMatrix = Matrix4.CreateScale(-scale) * _cameraToComponentMatrix;
+            _cameraToWorldSpaceMatrix = _cameraToWorldSpaceMatrix * Matrix4.CreateScale(scale);
+            _worldToCameraSpaceMatrix = Matrix4.CreateScale(-scale) * _worldToCameraSpaceMatrix;
             UpdateTransformedFrustum();
             OnTransformChanged();
         }
@@ -123,8 +132,8 @@ namespace TheraEngine.Rendering.Cameras
         protected override void CreateTransform()
         {
             Matrix4 rotMatrix = _localRotation.GetMatrix();
-            _componentToCameraMatrix = Matrix4.CreateTranslation(_localPoint.Raw) * rotMatrix * Matrix4.CreateScale(_scale);
-            _cameraToComponentMatrix = Matrix4.CreateScale(1.0f / _scale) * _localRotation.GetInverseMatrix() * Matrix4.CreateTranslation(-_localPoint.Raw);
+            _cameraToWorldSpaceMatrix = Matrix4.CreateTranslation(_localPoint.Raw) * rotMatrix * Matrix4.CreateScale(_scale);
+            _worldToCameraSpaceMatrix = Matrix4.CreateScale(1.0f / _scale) * _localRotation.GetInverseMatrix() * Matrix4.CreateTranslation(-_localPoint.Raw);
             OnTransformChanged();
         }
         public override float DistanceScale(Vec3 point, float radius)

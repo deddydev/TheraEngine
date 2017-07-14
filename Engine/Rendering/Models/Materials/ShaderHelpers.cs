@@ -10,10 +10,10 @@
 
         public static readonly string Frag_DepthOutput = @"
 #version 450
-layout(location = 0) out float Depth;
+//layout(location = 0) out float Depth;
 void main()
 {
-    Depth = gl_FragCoord.z;
+    //Depth = gl_FragCoord.z;
 }";
 
         public static readonly string Func_GetDistanceFromDepth = @"
@@ -274,13 +274,14 @@ void main()
         {
             return @"
 
+uniform sampler2D ShadowMap;
 struct BaseLight
 {
     vec3 Color;
     float DiffuseIntensity;
     float AmbientIntensity;
-    sampler2D ShadowMap;
-    mat4 WorldToLightMatrix;
+    mat4 WorldToLightSpaceMatrix;
+    mat4 ProjectionMatrix;
 };
 struct DirLight
 {
@@ -312,6 +313,16 @@ uniform DirLight DirectionalLights[2];
 uniform int SpotLightCount;
 uniform SpotLight SpotLights[16];
 
+float ReadShadowMap(vec3 fragPos, vec3 normal, float diffuseFactor, BaseLight light)
+{
+    vec4 fragPosLightSpace = light.ProjectionMatrix * light.WorldToLightSpaceMatrix * vec4(fragPos, 1.0);
+    vec3 coord = fragPosLightSpace.xyz / fragPosLightSpace.w;
+    coord = coord * vec3(0.5) + vec3(0.5);
+    float depthValue = texture(ShadowMap, coord.xy).r;
+    float bias = max(0.001 * (1.0 - diffuseFactor), 0.001);
+    return coord.z - bias > depthValue ? 0.0 : 1.0;
+}
+
 vec3 CalcColor(BaseLight light, vec3 lightDirection, vec3 normal, vec3 fragPos, vec3 albedo, float spec)
 {
     vec3 AmbientColor = vec3(light.Color * light.AmbientIntensity);
@@ -332,7 +343,8 @@ vec3 CalcColor(BaseLight light, vec3 lightDirection, vec3 normal, vec3 fragPos, 
         }
     }
 
-    return AmbientColor + DiffuseColor + SpecularColor;
+    float shadow = ReadShadowMap(fragPos, normal, DiffuseFactor, light);
+    return AmbientColor + (DiffuseColor + SpecularColor) * shadow;
 }
 
 vec3 CalcDirLight(DirLight light, vec3 normal, vec3 fragPos, vec3 albedo, float spec)

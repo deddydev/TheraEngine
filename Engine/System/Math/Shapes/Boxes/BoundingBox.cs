@@ -63,6 +63,8 @@ namespace System
             : this(new Vec3(halfExtentX, halfExtentY, halfExtentZ)) { }
         public BoundingBox(float halfExtentX, float halfExtentY, float halfExtentZ, Vec3 translation)
             : this(new Vec3(halfExtentX, halfExtentY, halfExtentZ), translation) { }
+        public BoundingBox(float halfExtentX, float halfExtentY, float halfExtentZ, float x, float y, float z)
+            : this(new Vec3(halfExtentX, halfExtentY, halfExtentZ), new Vec3(x, y, z)) { }
         public BoundingBox(Vec3 halfExtents)
             : this(halfExtents, Vec3.Zero) { }
         public BoundingBox(Vec3 halfExtents, Vec3 translation) 

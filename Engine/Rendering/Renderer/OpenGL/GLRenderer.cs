@@ -384,6 +384,8 @@ namespace TheraEngine.Rendering.OpenGL
         }
         public override void ApplyRenderParams(RenderingParameters r)
         {
+            Engine.Renderer.Cull(r.CullMode);
+
             if (r.EnableDepthTest)
             {
                 GL.Enable(EnableCap.DepthTest);

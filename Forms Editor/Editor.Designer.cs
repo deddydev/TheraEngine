@@ -29,11 +29,11 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            TheraEngine.Rendering.HUD.HudManager hudManager1 = new TheraEngine.Rendering.HUD.HudManager();
-            TheraEngine.EditorState editorState1 = new TheraEngine.EditorState();
+            TheraEngine.Rendering.HUD.HudManager hudManager2 = new TheraEngine.Rendering.HUD.HudManager();
+            TheraEngine.EditorState editorState3 = new TheraEngine.EditorState();
+            TheraEngine.Rendering.HUD.DockableHudComponent dockableHudComponent2 = new TheraEngine.Rendering.HUD.DockableHudComponent();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Editor));
-            TheraEngine.Rendering.HUD.DockableHudComponent dockableHudComponent1 = new TheraEngine.Rendering.HUD.DockableHudComponent();
-            TheraEngine.EditorState editorState2 = new TheraEngine.EditorState();
+            TheraEngine.EditorState editorState4 = new TheraEngine.EditorState();
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.btnNewProject = new System.Windows.Forms.ToolStripMenuItem();
@@ -47,6 +47,9 @@
             this.btnUserSettings = new System.Windows.Forms.ToolStripMenuItem();
             this.btnWorldSettings = new System.Windows.Forms.ToolStripMenuItem();
             this.viewToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.gameToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.btPlay = new System.Windows.Forms.ToolStripMenuItem();
+            this.btnCompile = new System.Windows.Forms.ToolStripMenuItem();
             this.leftPanel = new System.Windows.Forms.Panel();
             this.contentTree = new TheraEditor.ResourceTree();
             this.splitter1 = new System.Windows.Forms.Splitter();
@@ -70,9 +73,6 @@
             this.btnNewSceneComponent = new System.Windows.Forms.ToolStripMenuItem();
             this.btnNewLogicComponent = new System.Windows.Forms.ToolStripMenuItem();
             this.btnNewMaterial = new System.Windows.Forms.ToolStripMenuItem();
-            this.gameToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.btPlay = new System.Windows.Forms.ToolStripMenuItem();
-            this.btnCompile = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             this.leftPanel.SuspendLayout();
             this.rightPanel.SuspendLayout();
@@ -92,7 +92,8 @@
             this.gameToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Size = new System.Drawing.Size(1817, 33);
+            this.menuStrip1.Padding = new System.Windows.Forms.Padding(5, 2, 0, 2);
+            this.menuStrip1.Size = new System.Drawing.Size(1117, 28);
             this.menuStrip1.TabIndex = 0;
             this.menuStrip1.Text = "menuStrip1";
             // 
@@ -104,34 +105,34 @@
             this.btnSaveProject,
             this.btnSaveProjectAs});
             this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
-            this.fileToolStripMenuItem.Size = new System.Drawing.Size(50, 29);
+            this.fileToolStripMenuItem.Size = new System.Drawing.Size(44, 24);
             this.fileToolStripMenuItem.Text = "File";
             // 
             // btnNewProject
             // 
             this.btnNewProject.Name = "btnNewProject";
-            this.btnNewProject.Size = new System.Drawing.Size(217, 30);
+            this.btnNewProject.Size = new System.Drawing.Size(185, 26);
             this.btnNewProject.Text = "New Project";
             this.btnNewProject.Click += new System.EventHandler(this.btnNewProject_Click);
             // 
             // btnOpenProject
             // 
             this.btnOpenProject.Name = "btnOpenProject";
-            this.btnOpenProject.Size = new System.Drawing.Size(217, 30);
+            this.btnOpenProject.Size = new System.Drawing.Size(185, 26);
             this.btnOpenProject.Text = "Open Project";
             this.btnOpenProject.Click += new System.EventHandler(this.btnOpenProject_Click);
             // 
             // btnSaveProject
             // 
             this.btnSaveProject.Name = "btnSaveProject";
-            this.btnSaveProject.Size = new System.Drawing.Size(217, 30);
+            this.btnSaveProject.Size = new System.Drawing.Size(185, 26);
             this.btnSaveProject.Text = "Save Project";
             this.btnSaveProject.Click += new System.EventHandler(this.btnSaveProject_Click);
             // 
             // btnSaveProjectAs
             // 
             this.btnSaveProjectAs.Name = "btnSaveProjectAs";
-            this.btnSaveProjectAs.Size = new System.Drawing.Size(217, 30);
+            this.btnSaveProjectAs.Size = new System.Drawing.Size(185, 26);
             this.btnSaveProjectAs.Text = "Save Project As";
             this.btnSaveProjectAs.Click += new System.EventHandler(this.btnSaveProjectAs_Click);
             // 
@@ -144,13 +145,13 @@
             this.btnUserSettings,
             this.btnWorldSettings});
             this.editToolStripMenuItem.Name = "editToolStripMenuItem";
-            this.editToolStripMenuItem.Size = new System.Drawing.Size(54, 29);
+            this.editToolStripMenuItem.Size = new System.Drawing.Size(47, 24);
             this.editToolStripMenuItem.Text = "Edit";
             // 
             // btnEditorSettings
             // 
             this.btnEditorSettings.Name = "btnEditorSettings";
-            this.btnEditorSettings.Size = new System.Drawing.Size(219, 30);
+            this.btnEditorSettings.Size = new System.Drawing.Size(187, 26);
             this.btnEditorSettings.Text = "Editor Settings";
             this.btnEditorSettings.Click += new System.EventHandler(this.btnEditorSettings_Click);
             // 
@@ -158,7 +159,7 @@
             // 
             this.btnProjectSettings.Enabled = false;
             this.btnProjectSettings.Name = "btnProjectSettings";
-            this.btnProjectSettings.Size = new System.Drawing.Size(219, 30);
+            this.btnProjectSettings.Size = new System.Drawing.Size(187, 26);
             this.btnProjectSettings.Text = "Project Settings";
             this.btnProjectSettings.Click += new System.EventHandler(this.btnProjectSettings_Click);
             // 
@@ -166,7 +167,7 @@
             // 
             this.btnEngineSettings.Enabled = false;
             this.btnEngineSettings.Name = "btnEngineSettings";
-            this.btnEngineSettings.Size = new System.Drawing.Size(219, 30);
+            this.btnEngineSettings.Size = new System.Drawing.Size(187, 26);
             this.btnEngineSettings.Text = "Engine Settings";
             this.btnEngineSettings.Click += new System.EventHandler(this.btnEngineSettings_Click);
             // 
@@ -174,31 +175,53 @@
             // 
             this.btnUserSettings.Enabled = false;
             this.btnUserSettings.Name = "btnUserSettings";
-            this.btnUserSettings.Size = new System.Drawing.Size(219, 30);
+            this.btnUserSettings.Size = new System.Drawing.Size(187, 26);
             this.btnUserSettings.Text = "User Settings";
             this.btnUserSettings.Click += new System.EventHandler(this.btnUserSettings_Click);
             // 
             // btnWorldSettings
             // 
             this.btnWorldSettings.Name = "btnWorldSettings";
-            this.btnWorldSettings.Size = new System.Drawing.Size(219, 30);
+            this.btnWorldSettings.Size = new System.Drawing.Size(187, 26);
             this.btnWorldSettings.Text = "World Settings";
             this.btnWorldSettings.Click += new System.EventHandler(this.btnWorldSettings_Click);
             // 
             // viewToolStripMenuItem
             // 
             this.viewToolStripMenuItem.Name = "viewToolStripMenuItem";
-            this.viewToolStripMenuItem.Size = new System.Drawing.Size(61, 29);
+            this.viewToolStripMenuItem.Size = new System.Drawing.Size(53, 24);
             this.viewToolStripMenuItem.Text = "View";
+            // 
+            // gameToolStripMenuItem
+            // 
+            this.gameToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.btPlay,
+            this.btnCompile});
+            this.gameToolStripMenuItem.Name = "gameToolStripMenuItem";
+            this.gameToolStripMenuItem.Size = new System.Drawing.Size(60, 24);
+            this.gameToolStripMenuItem.Text = "Game";
+            // 
+            // btPlay
+            // 
+            this.btPlay.Name = "btPlay";
+            this.btPlay.Size = new System.Drawing.Size(181, 26);
+            this.btPlay.Text = "Play";
+            this.btPlay.Click += new System.EventHandler(this.btPlay_Click);
+            // 
+            // btnCompile
+            // 
+            this.btnCompile.Name = "btnCompile";
+            this.btnCompile.Size = new System.Drawing.Size(140, 26);
+            this.btnCompile.Text = "Compile";
             // 
             // leftPanel
             // 
             this.leftPanel.Controls.Add(this.contentTree);
             this.leftPanel.Dock = System.Windows.Forms.DockStyle.Left;
-            this.leftPanel.Location = new System.Drawing.Point(0, 33);
+            this.leftPanel.Location = new System.Drawing.Point(0, 28);
             this.leftPanel.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.leftPanel.Name = "leftPanel";
-            this.leftPanel.Size = new System.Drawing.Size(306, 952);
+            this.leftPanel.Size = new System.Drawing.Size(279, 377);
             this.leftPanel.TabIndex = 2;
             // 
             // contentTree
@@ -208,93 +231,92 @@
             this.contentTree.Location = new System.Drawing.Point(0, 0);
             this.contentTree.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.contentTree.Name = "contentTree";
-            this.contentTree.Size = new System.Drawing.Size(306, 952);
+            this.contentTree.Size = new System.Drawing.Size(279, 377);
             this.contentTree.TabIndex = 3;
             // 
             // splitter1
             // 
             this.splitter1.Dock = System.Windows.Forms.DockStyle.Right;
-            this.splitter1.Location = new System.Drawing.Point(1379, 33);
+            this.splitter1.Location = new System.Drawing.Point(728, 28);
             this.splitter1.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.splitter1.Name = "splitter1";
-            this.splitter1.Size = new System.Drawing.Size(8, 952);
+            this.splitter1.Size = new System.Drawing.Size(7, 377);
             this.splitter1.TabIndex = 3;
             this.splitter1.TabStop = false;
             // 
             // renderPanel1
             // 
             this.renderPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
-            hudManager1.CurrentCameraComponent = null;
-            editorState1.ChangedFields = ((System.Collections.Generic.List<System.Reflection.FieldInfo>)(resources.GetObject("editorState1.ChangedFields")));
-            editorState1.ChangedProperties = ((System.Collections.Generic.List<System.Reflection.PropertyInfo>)(resources.GetObject("editorState1.ChangedProperties")));
-            editorState1.Highlighted = false;
-            editorState1.TreeNode = null;
-            hudManager1.EditorState = editorState1;
-            hudManager1.FilePath = null;
-            hudManager1.Hud = null;
-            hudManager1.Name = "HudManager";
-            hudManager1.References = ((System.Collections.Generic.List<TheraEngine.Files.IFileRef>)(resources.GetObject("hudManager1.References")));
-            dockableHudComponent1.AnchoredBottom = false;
-            dockableHudComponent1.AnchoredLeft = false;
-            dockableHudComponent1.AnchoredRight = false;
-            dockableHudComponent1.AnchoredTop = false;
-            dockableHudComponent1.BottomLeftTranslation = ((System.Vec2)(resources.GetObject("dockableHudComponent1.BottomLeftTranslation")));
-            dockableHudComponent1.DockStyle = TheraEngine.Rendering.HUD.HudDockStyle.None;
-            editorState2.ChangedFields = ((System.Collections.Generic.List<System.Reflection.FieldInfo>)(resources.GetObject("editorState2.ChangedFields")));
-            editorState2.ChangedProperties = ((System.Collections.Generic.List<System.Reflection.PropertyInfo>)(resources.GetObject("editorState2.ChangedProperties")));
-            editorState2.Highlighted = false;
-            editorState2.TreeNode = null;
-            dockableHudComponent1.EditorState = editorState2;
-            dockableHudComponent1.FilePath = null;
-            dockableHudComponent1.Height = 0F;
-            dockableHudComponent1.InverseWorldMatrix = ((System.Matrix4)(resources.GetObject("dockableHudComponent1.InverseWorldMatrix")));
-            dockableHudComponent1.IsRendering = false;
-            dockableHudComponent1.Name = "DockableHudComponent";
-            dockableHudComponent1.OwningActor = hudManager1;
-            dockableHudComponent1.Parent = null;
-            dockableHudComponent1.PreviousInverseWorldTransform = ((System.Matrix4)(resources.GetObject("dockableHudComponent1.PreviousInverseWorldTransform")));
-            dockableHudComponent1.PreviousWorldTransform = ((System.Matrix4)(resources.GetObject("dockableHudComponent1.PreviousWorldTransform")));
-            dockableHudComponent1.References = ((System.Collections.Generic.List<TheraEngine.Files.IFileRef>)(resources.GetObject("dockableHudComponent1.References")));
-            dockableHudComponent1.RenderNode = null;
-            dockableHudComponent1.Scale = ((System.Vec2)(resources.GetObject("dockableHudComponent1.Scale")));
-            dockableHudComponent1.ScaleX = 1F;
-            dockableHudComponent1.ScaleY = 1F;
-            dockableHudComponent1.SideAnchorFlags = TheraEngine.Rendering.HUD.AnchorFlags.None;
-            dockableHudComponent1.Size = ((System.Vec2)(resources.GetObject("dockableHudComponent1.Size")));
-            dockableHudComponent1.Translation = ((System.Vec2)(resources.GetObject("dockableHudComponent1.Translation")));
-            dockableHudComponent1.TranslationLocalOrigin = ((System.Vec2)(resources.GetObject("dockableHudComponent1.TranslationLocalOrigin")));
-            dockableHudComponent1.TranslationX = 0F;
-            dockableHudComponent1.TranslationY = 0F;
-            dockableHudComponent1.UserData = null;
-            dockableHudComponent1.Width = 0F;
-            dockableHudComponent1.WidthHeightConstraint = TheraEngine.Rendering.HUD.WidthHeightConstraint.NoConstraint;
-            hudManager1.RootComponent = dockableHudComponent1;
-            hudManager1.UserData = null;
-            hudManager1.Visible = true;
-            this.renderPanel1.GlobalHud = hudManager1;
-            this.renderPanel1.Location = new System.Drawing.Point(314, 33);
-            this.renderPanel1.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
+            hudManager2.CurrentCameraComponent = null;
+            editorState3.ChangedFields = null;
+            editorState3.ChangedProperties = null;
+            editorState3.Highlighted = false;
+            editorState3.TreeNode = null;
+            hudManager2.EditorState = editorState3;
+            hudManager2.FilePath = null;
+            hudManager2.Hud = null;
+            hudManager2.Name = "HudManager";
+            hudManager2.References = null;
+            dockableHudComponent2.AnchoredBottom = false;
+            dockableHudComponent2.AnchoredLeft = false;
+            dockableHudComponent2.AnchoredRight = false;
+            dockableHudComponent2.AnchoredTop = false;
+            dockableHudComponent2.BottomLeftTranslation = ((System.Vec2)(resources.GetObject("dockableHudComponent2.BottomLeftTranslation")));
+            dockableHudComponent2.DockStyle = TheraEngine.Rendering.HUD.HudDockStyle.None;
+            editorState4.ChangedFields = null;
+            editorState4.ChangedProperties = null;
+            editorState4.Highlighted = false;
+            editorState4.TreeNode = null;
+            dockableHudComponent2.EditorState = editorState4;
+            dockableHudComponent2.FilePath = null;
+            dockableHudComponent2.Height = 0F;
+            dockableHudComponent2.InverseWorldMatrix = ((System.Matrix4)(resources.GetObject("dockableHudComponent2.InverseWorldMatrix")));
+            dockableHudComponent2.IsRendering = false;
+            dockableHudComponent2.Name = "DockableHudComponent";
+            dockableHudComponent2.OwningActor = hudManager2;
+            dockableHudComponent2.Parent = null;
+            dockableHudComponent2.PreviousInverseWorldTransform = ((System.Matrix4)(resources.GetObject("dockableHudComponent2.PreviousInverseWorldTransform")));
+            dockableHudComponent2.PreviousWorldTransform = ((System.Matrix4)(resources.GetObject("dockableHudComponent2.PreviousWorldTransform")));
+            dockableHudComponent2.QuadtreeNode = null;
+            dockableHudComponent2.References = null;
+            dockableHudComponent2.Scale = ((System.Vec2)(resources.GetObject("dockableHudComponent2.Scale")));
+            dockableHudComponent2.ScaleX = 1F;
+            dockableHudComponent2.ScaleY = 1F;
+            dockableHudComponent2.SideAnchorFlags = TheraEngine.Rendering.HUD.AnchorFlags.None;
+            dockableHudComponent2.Size = ((System.Vec2)(resources.GetObject("dockableHudComponent2.Size")));
+            dockableHudComponent2.Translation = ((System.Vec2)(resources.GetObject("dockableHudComponent2.Translation")));
+            dockableHudComponent2.TranslationLocalOrigin = ((System.Vec2)(resources.GetObject("dockableHudComponent2.TranslationLocalOrigin")));
+            dockableHudComponent2.TranslationX = 0F;
+            dockableHudComponent2.TranslationY = 0F;
+            dockableHudComponent2.UserData = null;
+            dockableHudComponent2.Width = 0F;
+            dockableHudComponent2.WidthHeightConstraint = TheraEngine.Rendering.HUD.WidthHeightConstraint.NoConstraint;
+            hudManager2.RootComponent = dockableHudComponent2;
+            hudManager2.UserData = null;
+            hudManager2.Visible = true;
+            this.renderPanel1.GlobalHud = hudManager2;
+            this.renderPanel1.Location = new System.Drawing.Point(286, 28);
             this.renderPanel1.Name = "renderPanel1";
-            this.renderPanel1.Size = new System.Drawing.Size(1065, 952);
+            this.renderPanel1.Size = new System.Drawing.Size(442, 377);
             this.renderPanel1.TabIndex = 0;
             this.renderPanel1.VsyncMode = TheraEngine.VSyncMode.Adaptive;
             // 
             // actorTree
             // 
             this.actorTree.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.actorTree.Location = new System.Drawing.Point(0, 46);
+            this.actorTree.Location = new System.Drawing.Point(0, 37);
             this.actorTree.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.actorTree.Name = "actorTree";
-            this.actorTree.Size = new System.Drawing.Size(430, 322);
+            this.actorTree.Size = new System.Drawing.Size(382, 0);
             this.actorTree.TabIndex = 1;
             this.actorTree.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.ActorTree_AfterSelect);
             // 
             // splitter2
             // 
-            this.splitter2.Location = new System.Drawing.Point(306, 33);
+            this.splitter2.Location = new System.Drawing.Point(279, 28);
             this.splitter2.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.splitter2.Name = "splitter2";
-            this.splitter2.Size = new System.Drawing.Size(8, 952);
+            this.splitter2.Size = new System.Drawing.Size(7, 377);
             this.splitter2.TabIndex = 5;
             this.splitter2.TabStop = false;
             // 
@@ -304,10 +326,10 @@
             this.rightPanel.Controls.Add(this.splitter3);
             this.rightPanel.Controls.Add(this.panel1);
             this.rightPanel.Dock = System.Windows.Forms.DockStyle.Right;
-            this.rightPanel.Location = new System.Drawing.Point(1387, 33);
+            this.rightPanel.Location = new System.Drawing.Point(735, 28);
             this.rightPanel.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.rightPanel.Name = "rightPanel";
-            this.rightPanel.Size = new System.Drawing.Size(430, 952);
+            this.rightPanel.Size = new System.Drawing.Size(382, 377);
             this.rightPanel.TabIndex = 6;
             // 
             // panel3
@@ -318,7 +340,7 @@
             this.panel3.Location = new System.Drawing.Point(0, 0);
             this.panel3.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.panel3.Name = "panel3";
-            this.panel3.Size = new System.Drawing.Size(430, 368);
+            this.panel3.Size = new System.Drawing.Size(382, 0);
             this.panel3.TabIndex = 7;
             // 
             // label2
@@ -326,7 +348,7 @@
             this.label2.Dock = System.Windows.Forms.DockStyle.Top;
             this.label2.Location = new System.Drawing.Point(0, 0);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(430, 46);
+            this.label2.Size = new System.Drawing.Size(382, 37);
             this.label2.TabIndex = 4;
             this.label2.Text = "Actors";
             this.label2.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -334,10 +356,10 @@
             // splitter3
             // 
             this.splitter3.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.splitter3.Location = new System.Drawing.Point(0, 368);
+            this.splitter3.Location = new System.Drawing.Point(0, -90);
             this.splitter3.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.splitter3.Name = "splitter3";
-            this.splitter3.Size = new System.Drawing.Size(430, 10);
+            this.splitter3.Size = new System.Drawing.Size(382, 8);
             this.splitter3.TabIndex = 6;
             this.splitter3.TabStop = false;
             // 
@@ -345,10 +367,10 @@
             // 
             this.panel1.Controls.Add(this.actorPropertyGrid);
             this.panel1.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.panel1.Location = new System.Drawing.Point(0, 378);
+            this.panel1.Location = new System.Drawing.Point(0, -82);
             this.panel1.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(430, 574);
+            this.panel1.Size = new System.Drawing.Size(382, 459);
             this.panel1.TabIndex = 5;
             // 
             // actorPropertyGrid
@@ -358,7 +380,7 @@
             this.actorPropertyGrid.Location = new System.Drawing.Point(0, 0);
             this.actorPropertyGrid.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.actorPropertyGrid.Name = "actorPropertyGrid";
-            this.actorPropertyGrid.Size = new System.Drawing.Size(430, 574);
+            this.actorPropertyGrid.Size = new System.Drawing.Size(382, 459);
             this.actorPropertyGrid.TabIndex = 0;
             // 
             // ctxContentTree
@@ -368,7 +390,7 @@
             this.importToolStripMenuItem,
             this.newToolStripMenuItem1});
             this.ctxContentTree.Name = "ctxContentTree";
-            this.ctxContentTree.Size = new System.Drawing.Size(140, 64);
+            this.ctxContentTree.Size = new System.Drawing.Size(124, 52);
             // 
             // importToolStripMenuItem
             // 
@@ -376,19 +398,19 @@
             this.btnImportModel,
             this.btnImportTexture});
             this.importToolStripMenuItem.Name = "importToolStripMenuItem";
-            this.importToolStripMenuItem.Size = new System.Drawing.Size(139, 30);
+            this.importToolStripMenuItem.Size = new System.Drawing.Size(123, 24);
             this.importToolStripMenuItem.Text = "Import";
             // 
             // btnImportModel
             // 
             this.btnImportModel.Name = "btnImportModel";
-            this.btnImportModel.Size = new System.Drawing.Size(151, 30);
+            this.btnImportModel.Size = new System.Drawing.Size(132, 26);
             this.btnImportModel.Text = "Model";
             // 
             // btnImportTexture
             // 
             this.btnImportTexture.Name = "btnImportTexture";
-            this.btnImportTexture.Size = new System.Drawing.Size(151, 30);
+            this.btnImportTexture.Size = new System.Drawing.Size(132, 26);
             this.btnImportTexture.Text = "Texture";
             // 
             // newToolStripMenuItem1
@@ -401,72 +423,51 @@
             this.btnNewLogicComponent,
             this.btnNewMaterial});
             this.newToolStripMenuItem1.Name = "newToolStripMenuItem1";
-            this.newToolStripMenuItem1.Size = new System.Drawing.Size(139, 30);
+            this.newToolStripMenuItem1.Size = new System.Drawing.Size(123, 24);
             this.newToolStripMenuItem1.Text = "New";
             // 
             // btnNewWorld
             // 
             this.btnNewWorld.Name = "btnNewWorld";
-            this.btnNewWorld.Size = new System.Drawing.Size(242, 30);
+            this.btnNewWorld.Size = new System.Drawing.Size(205, 26);
             this.btnNewWorld.Text = "World";
             // 
             // btnNewMap
             // 
             this.btnNewMap.Name = "btnNewMap";
-            this.btnNewMap.Size = new System.Drawing.Size(242, 30);
+            this.btnNewMap.Size = new System.Drawing.Size(205, 26);
             this.btnNewMap.Text = "Map";
             // 
             // btnNewActor
             // 
             this.btnNewActor.Name = "btnNewActor";
-            this.btnNewActor.Size = new System.Drawing.Size(242, 30);
+            this.btnNewActor.Size = new System.Drawing.Size(205, 26);
             this.btnNewActor.Text = "Actor";
             // 
             // btnNewSceneComponent
             // 
             this.btnNewSceneComponent.Name = "btnNewSceneComponent";
-            this.btnNewSceneComponent.Size = new System.Drawing.Size(242, 30);
+            this.btnNewSceneComponent.Size = new System.Drawing.Size(205, 26);
             this.btnNewSceneComponent.Text = "Scene Component";
             // 
             // btnNewLogicComponent
             // 
             this.btnNewLogicComponent.Name = "btnNewLogicComponent";
-            this.btnNewLogicComponent.Size = new System.Drawing.Size(242, 30);
+            this.btnNewLogicComponent.Size = new System.Drawing.Size(205, 26);
             this.btnNewLogicComponent.Text = "Logic Component";
             // 
             // btnNewMaterial
             // 
             this.btnNewMaterial.Name = "btnNewMaterial";
-            this.btnNewMaterial.Size = new System.Drawing.Size(242, 30);
+            this.btnNewMaterial.Size = new System.Drawing.Size(205, 26);
             this.btnNewMaterial.Text = "Material";
-            // 
-            // gameToolStripMenuItem
-            // 
-            this.gameToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.btPlay,
-            this.btnCompile});
-            this.gameToolStripMenuItem.Name = "gameToolStripMenuItem";
-            this.gameToolStripMenuItem.Size = new System.Drawing.Size(70, 29);
-            this.gameToolStripMenuItem.Text = "Game";
-            // 
-            // btPlay
-            // 
-            this.btPlay.Name = "btPlay";
-            this.btPlay.Size = new System.Drawing.Size(210, 30);
-            this.btPlay.Text = "Play";
-            // 
-            // btnCompile
-            // 
-            this.btnCompile.Name = "btnCompile";
-            this.btnCompile.Size = new System.Drawing.Size(210, 30);
-            this.btnCompile.Text = "Compile";
             // 
             // Editor
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.Control;
-            this.ClientSize = new System.Drawing.Size(1817, 985);
+            this.ClientSize = new System.Drawing.Size(1117, 405);
             this.Controls.Add(this.renderPanel1);
             this.Controls.Add(this.splitter1);
             this.Controls.Add(this.rightPanel);

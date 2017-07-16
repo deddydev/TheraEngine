@@ -12,11 +12,13 @@ namespace TheraEngine.Rendering.HUD
         {
 
         }
-        
+
+        public IQuadtreeNode QuadtreeNode { get; set; }
+
         //Used to select a new component when the user moves the gamepad stick.
         protected HudComponent _left, _right, _down, _up;
 
-        protected Quadtree.Node _renderNode;
+        protected IQuadtreeNode _renderNode;
         protected bool _highlightable, _selectable, _scrollable;
         protected ushort _layerIndex, _sameLayerIndex;
         protected AnchorFlags _positionAnchorFlags;
@@ -160,11 +162,6 @@ namespace TheraEngine.Rendering.HUD
         public BoundingRectangle AxisAlignedBounds
             => _axisAlignedBounds;
 
-        public Quadtree.Node RenderNode
-        {
-            get => _renderNode;
-            set => _renderNode = value;
-        }
         public new HudManager OwningActor
         {
             get => (HudManager)base.OwningActor;

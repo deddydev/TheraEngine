@@ -89,7 +89,7 @@ namespace TheraEngine
     public interface I2DBoundable
     {
         BoundingRectangle AxisAlignedBounds { get; }
-        Quadtree.Node RenderNode { get; set; }
+        IQuadtreeNode QuadtreeNode { get; set; }
         bool IsRendering { get; set; }
         bool Contains(Vec2 point);
     }

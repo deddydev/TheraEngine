@@ -97,7 +97,7 @@ namespace TheraEngine
             //Create context RIGHT AWAY so render objects can bind to it as they are created
             CreateContext();
             //Add the main viewport - at least one viewport should always be rendering
-            AddViewport();
+            //AddViewport();
         }
 
         protected override void OnLoad(EventArgs e)

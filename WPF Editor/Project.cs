@@ -30,9 +30,9 @@ namespace TheraEditor
             if (!directory.EndsWith("\\"))
                 directory += "\\";
             FilePath = GetFilePath(directory, Name, FileFormat.XML, typeof(Project));
-            _state.RefPathAbsolute = GetFilePath(ConfigDirName, Name, FileFormat.XML, typeof(ProjectState));
-            _userSettings.RefPathAbsolute = GetFilePath(ConfigDirName, Name, FileFormat.XML, typeof(UserSettings));
-            _engineSettings.RefPathAbsolute = GetFilePath(ConfigDirName, Name, FileFormat.XML, typeof(EngineSettings));
+            _state.ReferencePath = GetFilePath(ConfigDirName, Name, FileFormat.XML, typeof(ProjectState));
+            _userSettings.ReferencePath = GetFilePath(ConfigDirName, Name, FileFormat.XML, typeof(UserSettings));
+            _engineSettings.ReferencePath = GetFilePath(ConfigDirName, Name, FileFormat.XML, typeof(EngineSettings));
         }
         public static Project Create(string name)
         {

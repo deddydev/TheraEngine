@@ -6,7 +6,7 @@ using System;
 
 namespace TheraEngine.Rendering.HUD
 {
-    public class TextHudComponent : MaterialHudComponent, I2DRenderable
+    public class TextHudComponent : MaterialHudComponent
     {
         public TextHudComponent() : base(Material.GetUnlitTextureMaterial(new TextureReference(), false))
         {

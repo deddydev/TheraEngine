@@ -54,6 +54,7 @@ namespace TheraEngine.Input.Devices
         Dictionary<string, List<EMouseButton>> _namedMouseButtons = new Dictionary<string, List<EMouseButton>>();
 
         public event DelWantsInputsRegistered WantsInputsRegistered;
+        public static List<DelWantsInputsRegistered> GlobalRegisters = new List<DelWantsInputsRegistered>();
 
         private bool _unregister = false;
         private int _playerIndex;
@@ -75,7 +76,10 @@ namespace TheraEngine.Input.Devices
             if (_gamepad != null || _keyboard != null || _mouse != null)
             {
                 _unregister = false;
+                //Interface gets input from pawn, hud, local controller, and global list
                 WantsInputsRegistered?.Invoke(this);
+                foreach (DelWantsInputsRegistered register in GlobalRegisters)
+                    register(this);
             }
         }
         internal void TryUnregisterInput()
@@ -88,6 +92,8 @@ namespace TheraEngine.Input.Devices
                 //other than just registering the inputs.
                 _unregister = true;
                 WantsInputsRegistered?.Invoke(this);
+                foreach (DelWantsInputsRegistered register in GlobalRegisters)
+                    register(this);
                 _unregister = false;
             }
         }

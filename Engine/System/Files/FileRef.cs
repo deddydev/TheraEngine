@@ -35,11 +35,13 @@ namespace TheraEngine.Files
                 file.FilePath = filePath;
             File = file;
         }
-        public SingleFileRef(T file, string dir, string name, FileFormat format) : base(GetFilePath(dir, name, format, typeof(T)))
+        public SingleFileRef(T file, string dir, string name, FileFormat format, bool exportNow) : base(GetFilePath(dir, name, format, typeof(T)))
         {
             if (file != null)
-                file.FilePath = RefPathAbsolute;
+                file.FilePath = ReferencePath;
             File = file;
+            if (exportNow && File != null)
+                ExportReference();
         }
         public SingleFileRef(T file) : base(file.FilePath)
         {
@@ -60,7 +62,7 @@ namespace TheraEngine.Files
                 if (_file != null)
                 {
                     if (!string.IsNullOrEmpty(_file.FilePath))
-                        RefPathAbsolute = _file.FilePath;
+                        ReferencePath = _file.FilePath;
 
                     Engine.AddLoadedFile(_refPath, _file);
                     _file.References.Add(this);
@@ -79,7 +81,7 @@ namespace TheraEngine.Files
             //string name = Path.GetFileNameWithoutExtension(RefPathAbsolute);
             _file.Export(dir, name, format);
             if (setPath)
-                RefPathAbsolute = _file.FilePath;
+                ReferencePath = _file.FilePath;
         }
         /// <summary>
         /// Loads or retrieves the previously loaded instance of this file.
@@ -107,7 +109,7 @@ namespace TheraEngine.Files
 
             if (_file != null)
             {
-                _file.FilePath = RefPathAbsolute;
+                _file.FilePath = ReferencePath;
                 _file.References.Add(this);
             }
 
@@ -115,7 +117,7 @@ namespace TheraEngine.Files
         }
         private void GetFile()
         {
-            string absolutePath = RefPathAbsolute;
+            string absolutePath = ReferencePath;
             bool fileExists = System.IO.File.Exists(absolutePath);
             if (!fileExists)
             {
@@ -186,7 +188,7 @@ namespace TheraEngine.Files
             if (string.IsNullOrEmpty(_refPath))
                 return Activator.CreateInstance(_subType) as T;
 
-            string absolutePath = RefPathAbsolute;
+            string absolutePath = ReferencePath;
             if (!File.Exists(absolutePath))
                 throw new FileNotFoundException();
 
@@ -229,7 +231,7 @@ namespace TheraEngine.Files
             _subType = typeof(T);
             //if (Path.HasExtension(filePath) && FileManager.GetTypeWithExtension(Path.GetExtension(filePath)) != _subType)
             //    throw new InvalidOperationException("Extension does not match type");
-            RefPathAbsolute = filePath;
+            ReferencePath = filePath;
         }
         public FileRef(string filePath, Type type)
         {
@@ -239,7 +241,7 @@ namespace TheraEngine.Files
                 throw new Exception(type.ToString() + " does not inherit " + typeof(T).ToString());
             //if (Path.HasExtension(filePath) && FileManager.GetTypeWithExtension(Path.GetExtension(filePath)) != _subType)
             //    throw new InvalidOperationException("Extension does not match type");
-            RefPathAbsolute = filePath;
+            ReferencePath = filePath;
         }
 
         [Serialize("Path", IsXmlAttribute = true)]
@@ -253,7 +255,7 @@ namespace TheraEngine.Files
             get => _storeInternally;
             set => _storeInternally = value;
         }
-        public string RefPathAbsolute
+        public string ReferencePath
         {
             get
             {

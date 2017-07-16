@@ -10,7 +10,8 @@ namespace ObjLoader.Loader.Loaders
         protected void StartLoad(string path)
         {
             _path = path;
-
+            if (!File.Exists(path))
+                return;
             using (_lineStreamReader = new StreamReader(File.Open(_path, FileMode.Open, FileAccess.Read)))
             {
                 while (!_lineStreamReader.EndOfStream)

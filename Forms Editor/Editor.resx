@@ -120,133 +120,65 @@
   <metadata name="menuStrip1.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>17, 17</value>
   </metadata>
-  <data name="editorState1.ChangedFields" mimetype="application/x-microsoft.net.object.binary.base64">
-    <value>
-        AAEAAAD/////AQAAAAAAAAAMAgAAAJoBbXNjb3JsaWIsIFZlcnNpb249NC4wLjAuMCwgQ3VsdHVyZT1u
-        ZXV0cmFsLCBQdWJsaWNLZXlUb2tlbj1iNzdhNWM1NjE5MzRlMDg5XV0sIG1zY29ybGliLCBWZXJzaW9u
-        PTQuMC4wLjAsIEN1bHR1cmU9bmV1dHJhbCwgUHVibGljS2V5VG9rZW49Yjc3YTVjNTYxOTM0ZTA4OQUB
-        AAAAPlN5c3RlbS5Db2xsZWN0aW9ucy5HZW5lcmljLkxpc3RgMVtbU3lzdGVtLlJlZmxlY3Rpb24uRmll
-        bGRJbmZvAwAAAAZfaXRlbXMFX3NpemUIX3ZlcnNpb24DAAAdU3lzdGVtLlJlZmxlY3Rpb24uRmllbGRJ
-        bmZvW10ICAIAAAAJAwAAAAAAAAAAAAAABwMAAAAAAQAAAAAAAAADG1N5c3RlbS5SZWZsZWN0aW9uLkZp
-        ZWxkSW5mbws=
-</value>
-  </data>
-  <data name="editorState1.ChangedProperties" mimetype="application/x-microsoft.net.object.binary.base64">
-    <value>
-        AAEAAAD/////AQAAAAAAAAAMAgAAAJoBbXNjb3JsaWIsIFZlcnNpb249NC4wLjAuMCwgQ3VsdHVyZT1u
-        ZXV0cmFsLCBQdWJsaWNLZXlUb2tlbj1iNzdhNWM1NjE5MzRlMDg5XV0sIG1zY29ybGliLCBWZXJzaW9u
-        PTQuMC4wLjAsIEN1bHR1cmU9bmV1dHJhbCwgUHVibGljS2V5VG9rZW49Yjc3YTVjNTYxOTM0ZTA4OQUB
-        AAAAQVN5c3RlbS5Db2xsZWN0aW9ucy5HZW5lcmljLkxpc3RgMVtbU3lzdGVtLlJlZmxlY3Rpb24uUHJv
-        cGVydHlJbmZvAwAAAAZfaXRlbXMFX3NpemUIX3ZlcnNpb24DAAAgU3lzdGVtLlJlZmxlY3Rpb24uUHJv
-        cGVydHlJbmZvW10ICAIAAAAJAwAAAAAAAAAAAAAABwMAAAAAAQAAAAAAAAADHlN5c3RlbS5SZWZsZWN0
-        aW9uLlByb3BlcnR5SW5mbws=
-</value>
-  </data>
-  <data name="hudManager1.References" mimetype="application/x-microsoft.net.object.binary.base64">
-    <value>
-        AAEAAAD/////AQAAAAAAAAAMAgAAAJEBVGhlcmFFbmdpbmUsIFZlcnNpb249MS4wLjAuMCwgQ3VsdHVy
-        ZT1uZXV0cmFsLCBQdWJsaWNLZXlUb2tlbj1udWxsXV0sIG1zY29ybGliLCBWZXJzaW9uPTQuMC4wLjAs
-        IEN1bHR1cmU9bmV1dHJhbCwgUHVibGljS2V5VG9rZW49Yjc3YTVjNTYxOTM0ZTA4OQwDAAAAQlRoZXJh
-        RW5naW5lLCBWZXJzaW9uPTEuMC4wLjAsIEN1bHR1cmU9bmV1dHJhbCwgUHVibGljS2V5VG9rZW49bnVs
-        bAUBAAAAPVN5c3RlbS5Db2xsZWN0aW9ucy5HZW5lcmljLkxpc3RgMVtbVGhlcmFFbmdpbmUuRmlsZXMu
-        SUZpbGVSZWYDAAAABl9pdGVtcwVfc2l6ZQhfdmVyc2lvbgQAABxUaGVyYUVuZ2luZS5GaWxlcy5JRmls
-        ZVJlZltdAwAAAAgIAgAAAAkEAAAAAAAAAAAAAAAHBAAAAAABAAAAAAAAAAQaVGhlcmFFbmdpbmUuRmls
-        ZXMuSUZpbGVSZWYDAAAACw==
-</value>
-  </data>
-  <data name="dockableHudComponent1.BottomLeftTranslation" mimetype="application/x-microsoft.net.object.binary.base64">
+  <data name="dockableHudComponent2.BottomLeftTranslation" mimetype="application/x-microsoft.net.object.binary.base64">
     <value>
         AAEAAAD/////AQAAAAAAAAAMAgAAAEJUaGVyYUVuZ2luZSwgVmVyc2lvbj0xLjAuMC4wLCBDdWx0dXJl
         PW5ldXRyYWwsIFB1YmxpY0tleVRva2VuPW51bGwFAQAAAAtTeXN0ZW0uVmVjMgIAAAABWAFZAAALCwIA
         AAAAAAAAAAAAAAs=
 </value>
   </data>
-  <data name="editorState2.ChangedFields" mimetype="application/x-microsoft.net.object.binary.base64">
-    <value>
-        AAEAAAD/////AQAAAAAAAAAMAgAAAJoBbXNjb3JsaWIsIFZlcnNpb249NC4wLjAuMCwgQ3VsdHVyZT1u
-        ZXV0cmFsLCBQdWJsaWNLZXlUb2tlbj1iNzdhNWM1NjE5MzRlMDg5XV0sIG1zY29ybGliLCBWZXJzaW9u
-        PTQuMC4wLjAsIEN1bHR1cmU9bmV1dHJhbCwgUHVibGljS2V5VG9rZW49Yjc3YTVjNTYxOTM0ZTA4OQUB
-        AAAAPlN5c3RlbS5Db2xsZWN0aW9ucy5HZW5lcmljLkxpc3RgMVtbU3lzdGVtLlJlZmxlY3Rpb24uRmll
-        bGRJbmZvAwAAAAZfaXRlbXMFX3NpemUIX3ZlcnNpb24DAAAdU3lzdGVtLlJlZmxlY3Rpb24uRmllbGRJ
-        bmZvW10ICAIAAAAJAwAAAAAAAAAAAAAABwMAAAAAAQAAAAAAAAADG1N5c3RlbS5SZWZsZWN0aW9uLkZp
-        ZWxkSW5mbws=
-</value>
-  </data>
-  <data name="editorState2.ChangedProperties" mimetype="application/x-microsoft.net.object.binary.base64">
-    <value>
-        AAEAAAD/////AQAAAAAAAAAMAgAAAJoBbXNjb3JsaWIsIFZlcnNpb249NC4wLjAuMCwgQ3VsdHVyZT1u
-        ZXV0cmFsLCBQdWJsaWNLZXlUb2tlbj1iNzdhNWM1NjE5MzRlMDg5XV0sIG1zY29ybGliLCBWZXJzaW9u
-        PTQuMC4wLjAsIEN1bHR1cmU9bmV1dHJhbCwgUHVibGljS2V5VG9rZW49Yjc3YTVjNTYxOTM0ZTA4OQUB
-        AAAAQVN5c3RlbS5Db2xsZWN0aW9ucy5HZW5lcmljLkxpc3RgMVtbU3lzdGVtLlJlZmxlY3Rpb24uUHJv
-        cGVydHlJbmZvAwAAAAZfaXRlbXMFX3NpemUIX3ZlcnNpb24DAAAgU3lzdGVtLlJlZmxlY3Rpb24uUHJv
-        cGVydHlJbmZvW10ICAIAAAAJAwAAAAAAAAAAAAAABwMAAAAAAQAAAAAAAAADHlN5c3RlbS5SZWZsZWN0
-        aW9uLlByb3BlcnR5SW5mbws=
-</value>
-  </data>
-  <data name="dockableHudComponent1.InverseWorldMatrix" mimetype="application/x-microsoft.net.object.binary.base64">
+  <data name="dockableHudComponent2.InverseWorldMatrix" mimetype="application/x-microsoft.net.object.binary.base64">
     <value>
         AAEAAAD/////AQAAAAAAAAAMAgAAAEJUaGVyYUVuZ2luZSwgVmVyc2lvbj0xLjAuMC4wLCBDdWx0dXJl
         PW5ldXRyYWwsIFB1YmxpY0tleVRva2VuPW51bGwFAQAAAA5TeXN0ZW0uTWF0cml4NAQAAAAEUm93MARS
         b3cxBFJvdzIEUm93MwQEBAQLU3lzdGVtLlZlYzQCAAAAC1N5c3RlbS5WZWM0AgAAAAtTeXN0ZW0uVmVj
         NAIAAAALU3lzdGVtLlZlYzQCAAAAAgAAAAX9////C1N5c3RlbS5WZWM0BAAAAAFYAVkBWgFXAAAAAAsL
-        CwsCAAAAAACAPwAAAAAAAAAAAAAAAAH8/////f///wAAAAAAAIA/AAAAAAAAAAAB+/////3///8AAAAA
-        AAAAAAAAgD8AAAAAAfr////9////AAAAAAAAAAAAAAAAAACAPws=
+        CwsCAAAA3ER+PwAAAAAAAAAAAAAAAAH8/////f///wAAAADcRH4/AAAAAAAAAAAB+/////3///8AAAAA
+        AAAAANxEfj8AAAAAAfr////9////AAAAAAAAAAAAAAAAAACAPws=
 </value>
   </data>
-  <data name="dockableHudComponent1.PreviousInverseWorldTransform" mimetype="application/x-microsoft.net.object.binary.base64">
+  <data name="dockableHudComponent2.PreviousInverseWorldTransform" mimetype="application/x-microsoft.net.object.binary.base64">
     <value>
         AAEAAAD/////AQAAAAAAAAAMAgAAAEJUaGVyYUVuZ2luZSwgVmVyc2lvbj0xLjAuMC4wLCBDdWx0dXJl
         PW5ldXRyYWwsIFB1YmxpY0tleVRva2VuPW51bGwFAQAAAA5TeXN0ZW0uTWF0cml4NAQAAAAEUm93MARS
         b3cxBFJvdzIEUm93MwQEBAQLU3lzdGVtLlZlYzQCAAAAC1N5c3RlbS5WZWM0AgAAAAtTeXN0ZW0uVmVj
         NAIAAAALU3lzdGVtLlZlYzQCAAAAAgAAAAX9////C1N5c3RlbS5WZWM0BAAAAAFYAVkBWgFXAAAAAAsL
-        CwsCAAAAAACAPwAAAAAAAAAAAAAAAAH8/////f///wAAAAAAAIA/AAAAAAAAAAAB+/////3///8AAAAA
-        AAAAAAAAgD8AAAAAAfr////9////AAAAAAAAAAAAAAAAAACAPws=
+        CwsCAAAAAAAAAAAAAAAAAAAAAAAAAAH8/////f///wAAAAAAAAAAAAAAAAAAAAAB+/////3///8AAAAA
+        AAAAAAAAAAAAAAAAAfr////9////AAAAAAAAAAAAAAAAAAAAAAs=
 </value>
   </data>
-  <data name="dockableHudComponent1.PreviousWorldTransform" mimetype="application/x-microsoft.net.object.binary.base64">
+  <data name="dockableHudComponent2.PreviousWorldTransform" mimetype="application/x-microsoft.net.object.binary.base64">
     <value>
         AAEAAAD/////AQAAAAAAAAAMAgAAAEJUaGVyYUVuZ2luZSwgVmVyc2lvbj0xLjAuMC4wLCBDdWx0dXJl
         PW5ldXRyYWwsIFB1YmxpY0tleVRva2VuPW51bGwFAQAAAA5TeXN0ZW0uTWF0cml4NAQAAAAEUm93MARS
         b3cxBFJvdzIEUm93MwQEBAQLU3lzdGVtLlZlYzQCAAAAC1N5c3RlbS5WZWM0AgAAAAtTeXN0ZW0uVmVj
         NAIAAAALU3lzdGVtLlZlYzQCAAAAAgAAAAX9////C1N5c3RlbS5WZWM0BAAAAAFYAVkBWgFXAAAAAAsL
-        CwsCAAAAAACAPwAAAAAAAAAAAAAAAAH8/////f///wAAAAAAAIA/AAAAAAAAAAAB+/////3///8AAAAA
-        AAAAAAAAgD8AAAAAAfr////9////AAAAAAAAAAAAAAAAAACAPws=
+        CwsCAAAAAAAAAAAAAAAAAAAAAAAAAAH8/////f///wAAAAAAAAAAAAAAAAAAAAAB+/////3///8AAAAA
+        AAAAAAAAAAAAAAAAAfr////9////AAAAAAAAAAAAAAAAAAAAAAs=
 </value>
   </data>
-  <data name="dockableHudComponent1.References" mimetype="application/x-microsoft.net.object.binary.base64">
-    <value>
-        AAEAAAD/////AQAAAAAAAAAMAgAAAJEBVGhlcmFFbmdpbmUsIFZlcnNpb249MS4wLjAuMCwgQ3VsdHVy
-        ZT1uZXV0cmFsLCBQdWJsaWNLZXlUb2tlbj1udWxsXV0sIG1zY29ybGliLCBWZXJzaW9uPTQuMC4wLjAs
-        IEN1bHR1cmU9bmV1dHJhbCwgUHVibGljS2V5VG9rZW49Yjc3YTVjNTYxOTM0ZTA4OQwDAAAAQlRoZXJh
-        RW5naW5lLCBWZXJzaW9uPTEuMC4wLjAsIEN1bHR1cmU9bmV1dHJhbCwgUHVibGljS2V5VG9rZW49bnVs
-        bAUBAAAAPVN5c3RlbS5Db2xsZWN0aW9ucy5HZW5lcmljLkxpc3RgMVtbVGhlcmFFbmdpbmUuRmlsZXMu
-        SUZpbGVSZWYDAAAABl9pdGVtcwVfc2l6ZQhfdmVyc2lvbgQAABxUaGVyYUVuZ2luZS5GaWxlcy5JRmls
-        ZVJlZltdAwAAAAgIAgAAAAkEAAAAAAAAAAAAAAAHBAAAAAABAAAAAAAAAAQaVGhlcmFFbmdpbmUuRmls
-        ZXMuSUZpbGVSZWYDAAAACw==
-</value>
-  </data>
-  <data name="dockableHudComponent1.Scale" mimetype="application/x-microsoft.net.object.binary.base64">
+  <data name="dockableHudComponent2.Scale" mimetype="application/x-microsoft.net.object.binary.base64">
     <value>
         AAEAAAD/////AQAAAAAAAAAMAgAAAEJUaGVyYUVuZ2luZSwgVmVyc2lvbj0xLjAuMC4wLCBDdWx0dXJl
         PW5ldXRyYWwsIFB1YmxpY0tleVRva2VuPW51bGwFAQAAAAtTeXN0ZW0uVmVjMgIAAAABWAFZAAALCwIA
         AAAAAIA/AACAPws=
 </value>
   </data>
-  <data name="dockableHudComponent1.Size" mimetype="application/x-microsoft.net.object.binary.base64">
+  <data name="dockableHudComponent2.Size" mimetype="application/x-microsoft.net.object.binary.base64">
     <value>
         AAEAAAD/////AQAAAAAAAAAMAgAAAEJUaGVyYUVuZ2luZSwgVmVyc2lvbj0xLjAuMC4wLCBDdWx0dXJl
         PW5ldXRyYWwsIFB1YmxpY0tleVRva2VuPW51bGwFAQAAAAtTeXN0ZW0uVmVjMgIAAAABWAFZAAALCwIA
         AAAAAAAAAAAAAAs=
 </value>
   </data>
-  <data name="dockableHudComponent1.Translation" mimetype="application/x-microsoft.net.object.binary.base64">
+  <data name="dockableHudComponent2.Translation" mimetype="application/x-microsoft.net.object.binary.base64">
     <value>
         AAEAAAD/////AQAAAAAAAAAMAgAAAEJUaGVyYUVuZ2luZSwgVmVyc2lvbj0xLjAuMC4wLCBDdWx0dXJl
         PW5ldXRyYWwsIFB1YmxpY0tleVRva2VuPW51bGwFAQAAAAtTeXN0ZW0uVmVjMgIAAAABWAFZAAALCwIA
         AAAAAAAAAAAAAAs=
 </value>
   </data>
-  <data name="dockableHudComponent1.TranslationLocalOrigin" mimetype="application/x-microsoft.net.object.binary.base64">
+  <data name="dockableHudComponent2.TranslationLocalOrigin" mimetype="application/x-microsoft.net.object.binary.base64">
     <value>
         AAEAAAD/////AQAAAAAAAAAMAgAAAEJUaGVyYUVuZ2luZSwgVmVyc2lvbj0xLjAuMC4wLCBDdWx0dXJl
         PW5ldXRyYWwsIFB1YmxpY0tleVRva2VuPW51bGwFAQAAAAtTeXN0ZW0uVmVjMgIAAAABWAFZAAALCwIA
@@ -254,6 +186,6 @@
 </value>
   </data>
   <metadata name="ctxContentTree.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>173, 17</value>
+    <value>152, 17</value>
   </metadata>
 </root>

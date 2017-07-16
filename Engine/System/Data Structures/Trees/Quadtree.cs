@@ -4,13 +4,15 @@ using TheraEngine;
 
 namespace System
 {
+    /// <summary>
+    /// The interface for interacting with an internal quadtree subdivision.
+    /// </summary>
     public interface IQuadtreeNode
     {
-        BoundingRectangle Region { get; }
-        Vec2 Center { get; }
-        Vec2 Min { get; }
-        Vec2 Max { get; }
-        Vec2 Extents { get; }
+        /// <summary>
+        /// Call this when the boundable item has moved,
+        /// otherwise the quadtree will not be updated.
+        /// </summary>
         void ItemMoved(I2DBoundable item);
     }
     public class Quadtree : Quadtree<I2DBoundable>
@@ -66,7 +68,7 @@ namespace System
         public void DebugRender()
             => _head?.DebugRender();
         
-        public class Node : IQuadtreeNode
+        private class Node : IQuadtreeNode
         {
             private Node _parent;
             private BoundingRectangle _region;

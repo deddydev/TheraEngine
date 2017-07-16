@@ -10,6 +10,8 @@ using System.Linq;
 using System.Windows.Forms;
 using TheraEditor.Editors;
 using TheraEngine.Timers;
+using System.Reflection;
+using TheraEngine.Input.Devices;
 
 namespace TheraEditor
 {
@@ -19,6 +21,7 @@ namespace TheraEditor
         public static Editor Instance => _instance ?? (_instance = new Editor());
 
         private SingleFileRef<Project> _project;
+        private Assembly _gameProgram;
 
         public Project Project
         {
@@ -100,20 +103,23 @@ namespace TheraEditor
         {
             base.OnLoad(e);
 
+            if (DesignMode)
+                return;
+
             OnRedrawn = Redraw;
             Engine.RegisterRenderTick(RenderTick);
             actorPropertyGrid.SelectedObject = Engine.World?.Settings;
             Engine.Run();
 
-            FlyingCameraPawn editorCamera = new FlyingCameraPawn(PlayerIndex.One)
+            _editorCameraPawn = new FlyingCameraPawn(PlayerIndex.One)
             {
                 Hud = new EditorHud(renderPanel1.ClientSize, this)
             };
-
-            Engine.World.SpawnActor(editorCamera);
-            //Engine.ActivePlayers[0].ControlledPawn = editorCamera;
+            Engine.World.SpawnActor(_editorCameraPawn);
         }
-        
+
+        FlyingCameraPawn _editorCameraPawn;
+
         protected override void OnClosing(CancelEventArgs e)
         {
             Engine.UnregisterRenderTick(RenderTick);
@@ -255,7 +261,7 @@ namespace TheraEditor
 
         private void btnSaveProject_Click(object sender, EventArgs e)
         {
-            if (string.IsNullOrEmpty(_project.RefPathAbsolute))
+            if (string.IsNullOrEmpty(_project.ReferencePath))
             {
                 btnSaveProjectAs_Click(sender, e);
                 return;
@@ -304,6 +310,31 @@ namespace TheraEditor
         private void cboContentViewTypes_SelectedIndexChanged(object sender, EventArgs e)
         {
 
+        }
+
+        private void btPlay_Click(object sender, EventArgs e)
+        {
+            renderPanel1.Focus();
+            renderPanel1.Capture = true;
+            Cursor.Clip = renderPanel1.RectangleToScreen(renderPanel1.ClientRectangle);
+            Cursor.Hide();
+            InputInterface.GlobalRegisters.Add(RegisterInput);
+            Engine.World.DespawnActor(_editorCameraPawn);
+            Engine.World.BeginPlay();
+        }
+
+        private void RegisterInput(InputInterface input)
+        {
+            input.RegisterButtonEvent(EKey.Escape, ButtonInputType.Pressed, EndGameplay, InputPauseType.TickAlways);
+        }
+
+        private void EndGameplay()
+        {
+            Cursor.Show();
+            Cursor.Clip = new System.Drawing.Rectangle();
+            InputInterface.GlobalRegisters.Remove(RegisterInput);
+            Engine.World.SpawnActor(_editorCameraPawn);
+            Engine.World.EndPlay();
         }
     }
 }

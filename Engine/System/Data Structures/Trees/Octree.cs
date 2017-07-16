@@ -100,7 +100,7 @@ namespace System
         public void Remove(T value)
             => _head.Remove(value);
         
-        public class Node : IOctreeNode
+        private class Node : IOctreeNode
         {
             public Node(BoundingBox bounds) { _bounds = bounds; }
 

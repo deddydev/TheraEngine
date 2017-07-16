@@ -136,8 +136,8 @@ namespace TheraEngine.Tests
                 InitialTransform = new FrameState(Vec3.Zero, Quat.Identity, 0.1f, TransformOrder.TRS),
                 //InitialTransform = new FrameState(new Vec3(-100.0f, -100.0f, -1700.0f), Quat.Identity, Vec3.One, TransformOrder.TRS),
             };
-            StaticMesh testModel = OBJ.Import(/*"E:\\Documents\\StationSquare\\main\\landtable.obj"*/desktop + "test.obj", objOptions);
-            Actor<StaticMeshComponent> testActor = new Actor<StaticMeshComponent>(new StaticMeshComponent(testModel, null)) { Name = "MapActor" };
+            //StaticMesh testModel = OBJ.Import(/*"E:\\Documents\\StationSquare\\main\\landtable.obj"*/desktop + "test.obj", objOptions);
+            //Actor<StaticMeshComponent> testActor = new Actor<StaticMeshComponent>(new StaticMeshComponent(testModel, null)) { Name = "MapActor" };
 
             ModelImportOptions options = new ModelImportOptions()
             {
@@ -148,9 +148,9 @@ namespace TheraEngine.Tests
             //ColladaScene = Collada.Import(desktop + "carly\\carly.dae", options, false, true);
             //ColladaScene = Collada.Import(desktop + "TEST.DAE", options, false, true);
 
-            ModelScene scene = Collada.Import(desktop + "skybox.dae", options);
-            StaticMeshComponent c = new StaticMeshComponent(scene.StaticModel, null);
-            Actor<StaticMeshComponent> skybox = new Actor<StaticMeshComponent>(c) { Name = "Skybox" };
+            //ModelScene scene = Collada.Import(desktop + "skybox.dae", options);
+            //StaticMeshComponent c = new StaticMeshComponent(scene.StaticModel, null);
+            //Actor<StaticMeshComponent> skybox = new Actor<StaticMeshComponent>(c) { Name = "Skybox" };
 
             //Engine.Settings.Export(desktop, "EngineSettings", Files.FileFormat.Binary);
 
@@ -241,7 +241,7 @@ namespace TheraEngine.Tests
             IActor[] actors = new IActor[]
             {
                 block,
-                testActor,
+                //testActor,
                 //floorActor1,
                 //floorActor2,
                 //floorActor3,

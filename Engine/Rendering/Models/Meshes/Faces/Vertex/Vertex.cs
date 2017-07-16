@@ -27,6 +27,23 @@ namespace TheraEngine.Rendering.Models
 
         public Vertex(Vec3 position, Influence inf, Vec3 normal) 
             : this(position, inf) { _normal = normal; }
+
+        public Vertex HardCopy()
+        {
+            return new Vertex()
+            {
+                _index = _index,
+                _influence = _influence,
+                _position = _position,
+                _normal = _normal,
+                _tangent = _tangent,
+                _binormal = _binormal,
+                _texCoord = _texCoord,
+                _color = _color,
+                _connectedEdges = new List<VertexLine>(_connectedEdges),
+            };
+        }
+
         public Vertex(Vec3 position, Influence inf, Vec3 normal, Vec2 texCoord) 
             : this(position, inf, normal) { _texCoord = texCoord; }
         public Vertex(Vec3 position, Influence inf, Vec3 normal, Vec2 texCoord, ColorF4 color) 

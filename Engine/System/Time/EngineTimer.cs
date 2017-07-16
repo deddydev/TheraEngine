@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics;
 using System.Threading;
 using System;
+using System.Threading.Tasks;
 
 namespace TheraEngine.Timers
 {
@@ -27,7 +28,7 @@ namespace TheraEngine.Timers
 
         readonly Stopwatch _watch = new Stopwatch();
 
-        Thread _updateThread;
+        Task _runningTask;
 
         public event EventHandler<FrameEventArgs> RenderFrame = delegate { };
         public event EventHandler<FrameEventArgs> UpdateFrame = delegate { };
@@ -37,24 +38,37 @@ namespace TheraEngine.Timers
         /// </summary>
         public void Run()
         {
-            if (_running)
-                return;
-            _updateThread = new Thread(RunUpdateInternal)
-            {
-                Name = "Game Loop",
-                IsBackground = true,
-                Priority = ThreadPriority.AboveNormal
-            };
-            _updateThread.Start();
+            if (_running) return;
+            _runningTask = Task.Run(() => RunUpdateInternal());
         }
-        private void RunUpdateInternal()
+        private async void RunUpdateInternal()
         {
             Debug.WriteLine("Started game loop on thread " + Thread.CurrentThread.ManagedThreadId);
             //RenderContext.Current.CreateContextForThread(Thread.CurrentThread);
             _running = true;
             _watch.Start();
+
+            //Initial update before first render
+            Task updateFrameTask = Task.Run(() => DispatchUpdate());
+
             while (_running)
-                DispatchUpdateAndRenderFrame();
+            {
+                //Wait for update to finish.
+                await updateFrameTask;
+                //Render.
+                Task renderFrameTask = Task.Run(() => DispatchRender());
+                //Update.
+                updateFrameTask = Task.Run(() => DispatchUpdate());
+                //Wait for render to finish.
+                await renderFrameTask;
+            }
+
+            //while (_running)
+            //{
+            //    DispatchUpdate();
+            //    DispatchRender();
+            //}
+
             Debug.WriteLine("Game loop ended.");
         }
         public void Stop()
@@ -62,10 +76,15 @@ namespace TheraEngine.Timers
             _running = false;
             _watch.Stop();
         }
-        private void DispatchUpdateAndRenderFrame()
+        private void DispatchRender()
         {
-            //int timerHandle = Engine.StartTimer();
-
+            double timestamp = _watch.Elapsed.TotalSeconds;
+            double elapsed = (timestamp - _renderTimestamp).Clamp(0.0, 1.0);
+            if (elapsed > 0 && elapsed >= TargetRenderPeriod)
+                RaiseRenderFrame(elapsed, ref timestamp);
+        }
+        private void DispatchUpdate()
+        {
             int runningSlowlyRetries = 4;
             double timestamp = _watch.Elapsed.TotalSeconds;
             double elapsed = (timestamp - _updateTimestamp).Clamp(0.0f, 1.0f);
@@ -98,14 +117,6 @@ namespace TheraEngine.Timers
                     break;
                 }
             }
-
-            timestamp = _watch.Elapsed.TotalSeconds;
-            elapsed = (timestamp - _renderTimestamp).Clamp(0.0f, 1.0f);
-            if (elapsed > 0 && elapsed >= TargetRenderPeriod)
-                RaiseRenderFrame(elapsed, ref timestamp);
-
-            //float seconds = Engine.EndTimer(timerHandle);
-            //Debug.WriteLine("Took " + (seconds * 1000.0f) + " milliseconds to update and render.");
         }
         private void RaiseUpdateFrame(double elapsed, ref double timestamp)
         {

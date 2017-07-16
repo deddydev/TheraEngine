@@ -4,6 +4,7 @@ using TheraEngine.Rendering;
 using TheraEngine.Rendering.Cameras;
 using TheraEngine.Worlds.Actors;
 using System.Collections.Concurrent;
+using System;
 
 namespace TheraEngine.Input
 {
@@ -141,6 +142,13 @@ namespace TheraEngine.Input
         public void SetPause(bool paused)
         {
             Engine.SetPaused(paused, LocalPlayerIndex);
+        }
+        internal void Destroy()
+        {
+            _possessionQueue.Clear();
+            ControlledPawn = null;
+            Viewport = null;
+            _input.WantsInputsRegistered -= RegisterInput;
         }
     }
 }

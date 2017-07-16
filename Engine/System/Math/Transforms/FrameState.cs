@@ -18,6 +18,7 @@ namespace System
         public delegate void RotationChange(float oldRotation);
         public delegate void ScaleChange(Vec3 oldScale);
         public delegate void MatrixChange(Matrix4 oldMatrix, Matrix4 oldInvMatrix);
+
         public static FrameState GetIdentity(TransformOrder transformationOrder, RotationOrder rotationOrder)
         {
             FrameState identity = Identity;
@@ -31,6 +32,7 @@ namespace System
             _translation = Vec3.Zero;
             _rotation = new Rotator(RotationOrder.YPR);
             _scale = Vec3.One;
+
             _transformOrder = TransformOrder.TRS;
             _transform = Matrix4.Identity;
             _inverseTransform = Matrix4.Identity;
@@ -43,12 +45,10 @@ namespace System
             TransformOrder transformOrder = TransformOrder.TRS)
         {
             _translation = translate;
-            _translation.Changed += _translation_Changed;
             _scale = scale;
-            _scale.Changed += _scale_Changed;
             _rotation = rotate;
             _quaternion = _rotation.ToQuaternion();
-            _rotation.Changed += _rotation_Changed;
+
             _transformOrder = transformOrder;
             CreateTransform();
         }
@@ -59,37 +59,20 @@ namespace System
             TransformOrder transformOrder = TransformOrder.TRS)
         {
             _translation = translate;
-            _translation.Changed += _translation_Changed;
             _scale = scale;
-            _scale.Changed += _scale_Changed;
             _quaternion = rotate;
             _rotation = _quaternion.ToYawPitchRoll();
-            _rotation.Changed += _rotation_Changed;
-            _quaternion = _rotation.ToQuaternion();
+
             _transformOrder = transformOrder;
             CreateTransform();
         }
-
-        private void _rotation_Changed()
-        {
-            _quaternion = _rotation.ToQuaternion();
-        }
-
-        private void _scale_Changed()
-        {
-            throw new NotImplementedException();
-        }
-
-        private void _translation_Changed()
-        {
-            throw new NotImplementedException();
-        }
-
+        
         public void SetAll(Vec3 translate, Rotator rotation, Vec3 scale)
         {
             _translation.SetRawNoUpdate(translate);
             _scale.SetRawNoUpdate(scale);
             _rotation.SetRotationsNoUpdate(rotation);
+
             _quaternion = _rotation.ToQuaternion();
             CreateTransform();
         }
@@ -149,31 +132,54 @@ namespace System
         }
         public Matrix4 InverseMatrix => _inverseTransform;
 
-        public Vec3 Translation
+        public EventVec3 Translation
         {
             get => _translation;
-            set => SetTranslate(value);
+            set
+            {
+                _translation = value;
+            }
         }
         public float Yaw
         {
             get => _rotation.Yaw;
-            set => SetYaw(value);
+            set => _rotation.Yaw = value;
         }
         public float Pitch
         {
             get => _rotation.Pitch;
-            set => SetPitch(value);
+            set => _rotation.Pitch = value;
         }
         public float Roll
         {
             get => _rotation.Roll;
-            set => SetRoll(value);
+            set => _rotation.Roll = value;
         }
-        public Vec3 Scale
+        public EventVec3 Scale
         {
             get => _scale;
-            set => SetScale(value);
+            set
+            {
+                _scale = value;
+                _scale.XChanged += _scale_XChanged;
+                _scale.YChanged += _scale_YChanged;
+                _scale.ZChanged += _scale_ZChanged;
+            }
         }
+
+        private void _scale_XChanged()
+        {
+            throw new NotImplementedException();
+        }
+        private void _scale_YChanged()
+        {
+            throw new NotImplementedException();
+        }
+        private void _scale_ZChanged()
+        {
+            throw new NotImplementedException();
+        }
+
         public TransformOrder TransformationOrder
         {
             get => _transformOrder;
@@ -202,7 +208,7 @@ namespace System
         private void SetTranslate(Vec3 value)
         {
             Vec3 oldTranslation = _translation;
-            _translation = value;
+            _translation.Raw = value;
             CreateTransform();
             TranslationChanged?.Invoke(oldTranslation);
         }
@@ -230,7 +236,7 @@ namespace System
         private void SetScale(Vec3 value)
         {
             Vec3 oldScale = _scale;
-            _scale = value;
+            _scale.Raw = value;
             CreateTransform();
             ScaleChanged?.Invoke(oldScale);
         }

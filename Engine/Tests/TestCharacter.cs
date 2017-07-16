@@ -1,6 +1,6 @@
 ﻿using System;
 using TheraEngine.Files;
-using TheraEngine.Rendering.Animation;
+using TheraEngine.Animation;
 using TheraEngine.Rendering.Models;
 using TheraEngine.Worlds.Actors;
 
@@ -13,9 +13,12 @@ namespace TheraEngine.Tests
         protected override void PreConstruct()
         {
             string desktop = Environment.MachineName == "DAVID-DESKTOP" ? "X:\\Desktop\\" : "C:\\Users\\David\\Desktop\\";
-            Collada.ImportOptions options = new Collada.ImportOptions();
-            options.InitialTransform.Scale = new Vec3(1.0f.InchesToMeters());
-            Collada.Scene scene = Collada.Import(desktop + "TEST.DAE", options, false, true); //TestWorld.ColladaScene;
+            ModelImportOptions options = new ModelImportOptions()
+            {
+                ImportAnimations = false,
+                InitialTransform = new FrameState(Vec3.Zero, Quat.Identity, new Vec3(1.0f.InchesToMeters()), TransformOrder.TRS),
+            };
+            ModelScene scene = Collada.Import(desktop + "TEST.DAE", options);
 
             PropAnimFloat elbowAnim = new PropAnimFloat(360, true, true);
             FloatKeyframe f1 = new FloatKeyframe(0.0f, 0.0f, 0.0f, PlanarInterpType.CubicHermite);

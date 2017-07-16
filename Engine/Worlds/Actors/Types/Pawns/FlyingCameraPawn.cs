@@ -88,8 +88,15 @@ namespace TheraEngine.Worlds.Actors
         {
             RootComponent.Camera.TranslateAbsolute(new Vec3(0.0f, 20.0f, -40.0f));
             RootComponent.Camera.LocalRotation.Pitch = -10.0f;
+            Camera_TransformChanged();
             base.PostConstruct();
         }
+
+        private void Camera_TransformChanged()
+        {
+
+        }
+
         public override void RegisterInput(InputInterface input)
         {
             input.RegisterMouseScroll(OnScrolled, InputPauseType.TickAlways);
@@ -166,7 +173,10 @@ namespace TheraEngine.Worlds.Actors
             if (_ctrl)
                 Engine.TimeDilation *= up ? 0.8 : 1.2;
             else
+            {
                 RootComponent.Camera.Zoom(up ? ScrollSpeed : -ScrollSpeed);
+                Camera_TransformChanged();
+            }
         }
         
         private void OnRightClick(bool pressed)
@@ -182,9 +192,15 @@ namespace TheraEngine.Worlds.Actors
         public void MouseMove(float x, float y)
         {
             if (Rotating)
+            {
                 RootComponent.Camera.AddRotation(-y * MouseRotateSpeed, -x * MouseRotateSpeed);
+                Camera_TransformChanged();
+            }
             else if (Translating)
+            {
                 RootComponent.Camera.TranslateRelative(new Vec3(-x * MouseTranslateSpeed, y * MouseTranslateSpeed, 0.0f));
+                Camera_TransformChanged();
+            }
         }
         public void ShowContextMenu()
         {
@@ -232,8 +248,14 @@ namespace TheraEngine.Worlds.Actors
         }
         private void Tick(float delta)
         {
-            RootComponent.Camera.TranslateRelative(new Vec3(_linearRight, _linearUp, -_linearForward) * delta);
-            RootComponent.Camera.AddRotation(_pitch * delta, _yaw * delta);
+            bool translate = !(_linearRight.IsZero() && _linearUp.IsZero() && _linearForward.IsZero());
+            bool rotate = !(_pitch.IsZero() && _yaw.IsZero());
+            if (translate)
+                RootComponent.Camera.TranslateRelative(new Vec3(_linearRight, _linearUp, -_linearForward) * delta);
+            if (rotate)
+                RootComponent.Camera.AddRotation(_pitch * delta, _yaw * delta);
+            if (translate || rotate)
+                Camera_TransformChanged();
         }
     }
 }

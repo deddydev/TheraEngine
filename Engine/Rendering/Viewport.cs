@@ -22,7 +22,8 @@ namespace TheraEngine.Rendering
         private BoundingRectangle _region;
         private Camera _worldCamera;
         private RenderPanel _owningPanel;
-        internal GBuffer _gBuffer;
+        private GBuffer _gBuffer;
+        private BoundingRectangle _internalResolution = new BoundingRectangle();
 
         private float _leftPercentage = 0.0f;
         private float _rightPercentage = 1.0f;
@@ -59,7 +60,7 @@ namespace TheraEngine.Rendering
 
                     //TODO: what if the same camera is used by multiple viewports?
                     //Need to use a separate projection matrix per viewport instead of passing the width and height to the camera itself
-                    _worldCamera.Resize(Width, Height);
+                    _worldCamera.Resize(_internalResolution.Width, _internalResolution.Height);
 
                     CameraTransformChanged();
                 }
@@ -123,6 +124,8 @@ namespace TheraEngine.Rendering
             }
         }
 
+        public BoundingRectangle InternalResolution => _internalResolution;
+
         public Viewport(RenderPanel panel, int index)
         {
             if (index == 0)
@@ -142,32 +145,33 @@ namespace TheraEngine.Rendering
 
         internal void UpdateRender()
         {
-            if (Engine.Settings.ShadingStyle == ShadingStyle.Forward)
-            {
-                _gBuffer = new GBuffer(this, true);
-                Render = RenderForward;
-            }
-            else
+            if (Engine.Settings.ShadingStyle == ShadingStyle.Deferred)
             {
                 _gBuffer = new GBuffer(this, false);
                 Render = RenderDeferred;
             }
+            else
+            {
+                _gBuffer = new GBuffer(this, true);
+                Render = RenderForward;
+            }
         }
-        internal void Resize(float parentWidth, float parentHeight, bool resizeGBuffer = true)
+
+        public void SetInternalResolution(float width, float height)
+        {
+            _internalResolution.Width = width;
+            _internalResolution.Height = height;
+            _worldCamera?.Resize(_internalResolution.Width, _internalResolution.Height);
+            _gBuffer?.ResizeTextures(_internalResolution.IntWidth, _internalResolution.IntHeight);
+        }
+        internal void Resize(float parentWidth, float parentHeight)
         {
             _region.X = _leftPercentage * parentWidth;
             _region.Y = _bottomPercentage * parentHeight;
             _region.Width = _rightPercentage * parentWidth - _region.X;
-            _region.Height = _topPercentage * parentHeight - _region.Y;
-
-            _worldCamera?.Resize(Width, Height);
+            _region.Height =  _topPercentage * parentHeight - _region.Y;
             _pawnHUD.Resize(_region.Bounds);
-            if (resizeGBuffer)
-                _gBuffer?.ResizeTextures(_region.IntWidth, _region.IntHeight);
-        }
-        internal void ResizeGBuffer()
-        {
-            _gBuffer?.ResizeTextures(_region.IntWidth, _region.IntHeight);
+            SetInternalResolution(parentWidth, parentHeight);
         }
         public void DebugPrint(string message)
         {
@@ -183,6 +187,7 @@ namespace TheraEngine.Rendering
             {
                 //We want to render to GBuffer textures
                 _gBuffer.Bind(EFramebufferTarget.Framebuffer);
+                Engine.Renderer.PushRenderArea(_internalResolution);
 
                 //Clear color and depth and allow writing to depth
                 Engine.Renderer.Clear(EBufferClear.Color | EBufferClear.Depth);
@@ -199,6 +204,7 @@ namespace TheraEngine.Rendering
 #endif
 
                 //We want to render to back buffer now
+                Engine.Renderer.PopRenderArea();
                 _gBuffer.Unbind(EFramebufferTarget.Framebuffer);
 
                 //Render deferred pass to quad
@@ -240,6 +246,7 @@ namespace TheraEngine.Rendering
             {
                 //We want to render to GBuffer textures
                 _gBuffer.Bind(EFramebufferTarget.Framebuffer);
+                Engine.Renderer.PushRenderArea(_internalResolution);
 
                 //Clear color and depth and allow writing to depth
                 Engine.Renderer.Clear(EBufferClear.Color | EBufferClear.Depth);
@@ -259,6 +266,7 @@ namespace TheraEngine.Rendering
                 Engine.Renderer.AllowDepthWrite(true);
 
                 //We want to render to back buffer now
+                Engine.Renderer.PopRenderArea();
                 _gBuffer.Unbind(EFramebufferTarget.Framebuffer);
 
                 //Render quad
@@ -340,7 +348,6 @@ namespace TheraEngine.Rendering
 
                 //Vec3 worldPoint = ScreenToWorld(viewportPoint, depth);
                 //ThreadSafeList<I3DRenderable> r = Engine.Scene.RenderTree.FindClosest(worldPoint);
-
             }
             hitNormal = Vec3.Zero;
             hitPoint = Vec3.Zero;

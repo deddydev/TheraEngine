@@ -61,19 +61,7 @@
     <SignAssembly>false</SignAssembly>
   </PropertyGroup>
   <PropertyGroup>
-    <AssemblyOriginatorKeyFile>theradevkey.pfx</AssemblyOriginatorKeyFile>
-  </PropertyGroup>
-  <PropertyGroup>
     <SignManifests>false</SignManifests>
-  </PropertyGroup>
-  <PropertyGroup>
-    <ManifestCertificateThumbprint>2498E831A57526EB8CA1E1DF59CE19648B0CA768</ManifestCertificateThumbprint>
-  </PropertyGroup>
-  <PropertyGroup>
-    <ManifestKeyFile>theradevkey.pfx</ManifestKeyFile>
-  </PropertyGroup>
-  <PropertyGroup>
-    <TargetZone>Internet</TargetZone>
   </PropertyGroup>
   <PropertyGroup>
     <GenerateManifests>false</GenerateManifests>
@@ -83,9 +71,9 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="BulletSharp">
-      <HintPath Condition="'$(Platform)'=='x86'">..\Libraries\x86\BulletSharp.dll</HintPath>
-      <HintPath Condition="'$(Platform)'=='x64'">..\Libraries\x64\BulletSharp.dll</HintPath>
-      <HintPath Condition="'$(Platform)'=='AnyCPU'">..\Libraries\AnyCPU\BulletSharp.dll</HintPath>
+      <HintPath Condition="'$(Platform)'=='x86'">$(SolutionDir)\Libraries\x86\BulletSharp.dll</HintPath>
+      <HintPath Condition="'$(Platform)'=='x64'">$(SolutionDir)\Libraries\x64\BulletSharp.dll</HintPath>
+      <HintPath Condition="'$(Platform)'=='AnyCPU'">$(SolutionDir)\Libraries\AnyCPU\BulletSharp.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Build" />
     <Reference Include="System" />

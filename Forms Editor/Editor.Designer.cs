@@ -29,6 +29,11 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
+            TheraEngine.Rendering.HUD.HudManager hudManager1 = new TheraEngine.Rendering.HUD.HudManager();
+            TheraEngine.EditorState editorState1 = new TheraEngine.EditorState();
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Editor));
+            TheraEngine.Rendering.HUD.DockableHudComponent dockableHudComponent1 = new TheraEngine.Rendering.HUD.DockableHudComponent();
+            TheraEngine.EditorState editorState2 = new TheraEngine.EditorState();
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.btnNewProject = new System.Windows.Forms.ToolStripMenuItem();
@@ -65,7 +70,9 @@
             this.btnNewSceneComponent = new System.Windows.Forms.ToolStripMenuItem();
             this.btnNewLogicComponent = new System.Windows.Forms.ToolStripMenuItem();
             this.btnNewMaterial = new System.Windows.Forms.ToolStripMenuItem();
-            this.cboContentViewTypes = new System.Windows.Forms.ComboBox();
+            this.gameToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.btPlay = new System.Windows.Forms.ToolStripMenuItem();
+            this.btnCompile = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             this.leftPanel.SuspendLayout();
             this.rightPanel.SuspendLayout();
@@ -76,11 +83,13 @@
             // 
             // menuStrip1
             // 
+            this.menuStrip1.BackColor = System.Drawing.Color.Transparent;
             this.menuStrip1.ImageScalingSize = new System.Drawing.Size(24, 24);
             this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.fileToolStripMenuItem,
             this.editToolStripMenuItem,
-            this.viewToolStripMenuItem});
+            this.viewToolStripMenuItem,
+            this.gameToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
             this.menuStrip1.Size = new System.Drawing.Size(1817, 33);
@@ -185,7 +194,6 @@
             // leftPanel
             // 
             this.leftPanel.Controls.Add(this.contentTree);
-            this.leftPanel.Controls.Add(this.cboContentViewTypes);
             this.leftPanel.Dock = System.Windows.Forms.DockStyle.Left;
             this.leftPanel.Location = new System.Drawing.Point(0, 33);
             this.leftPanel.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
@@ -197,16 +205,16 @@
             // 
             this.contentTree.AllowDrop = true;
             this.contentTree.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.contentTree.Location = new System.Drawing.Point(0, 28);
+            this.contentTree.Location = new System.Drawing.Point(0, 0);
             this.contentTree.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.contentTree.Name = "contentTree";
-            this.contentTree.Size = new System.Drawing.Size(306, 924);
+            this.contentTree.Size = new System.Drawing.Size(306, 952);
             this.contentTree.TabIndex = 3;
             // 
             // splitter1
             // 
             this.splitter1.Dock = System.Windows.Forms.DockStyle.Right;
-            this.splitter1.Location = new System.Drawing.Point(1502, 33);
+            this.splitter1.Location = new System.Drawing.Point(1379, 33);
             this.splitter1.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.splitter1.Name = "splitter1";
             this.splitter1.Size = new System.Drawing.Size(8, 952);
@@ -216,11 +224,60 @@
             // renderPanel1
             // 
             this.renderPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
+            hudManager1.CurrentCameraComponent = null;
+            editorState1.ChangedFields = ((System.Collections.Generic.List<System.Reflection.FieldInfo>)(resources.GetObject("editorState1.ChangedFields")));
+            editorState1.ChangedProperties = ((System.Collections.Generic.List<System.Reflection.PropertyInfo>)(resources.GetObject("editorState1.ChangedProperties")));
+            editorState1.Highlighted = false;
+            editorState1.TreeNode = null;
+            hudManager1.EditorState = editorState1;
+            hudManager1.FilePath = null;
+            hudManager1.Hud = null;
+            hudManager1.Name = "HudManager";
+            hudManager1.References = ((System.Collections.Generic.List<TheraEngine.Files.IFileRef>)(resources.GetObject("hudManager1.References")));
+            dockableHudComponent1.AnchoredBottom = false;
+            dockableHudComponent1.AnchoredLeft = false;
+            dockableHudComponent1.AnchoredRight = false;
+            dockableHudComponent1.AnchoredTop = false;
+            dockableHudComponent1.BottomLeftTranslation = ((System.Vec2)(resources.GetObject("dockableHudComponent1.BottomLeftTranslation")));
+            dockableHudComponent1.DockStyle = TheraEngine.Rendering.HUD.HudDockStyle.None;
+            editorState2.ChangedFields = ((System.Collections.Generic.List<System.Reflection.FieldInfo>)(resources.GetObject("editorState2.ChangedFields")));
+            editorState2.ChangedProperties = ((System.Collections.Generic.List<System.Reflection.PropertyInfo>)(resources.GetObject("editorState2.ChangedProperties")));
+            editorState2.Highlighted = false;
+            editorState2.TreeNode = null;
+            dockableHudComponent1.EditorState = editorState2;
+            dockableHudComponent1.FilePath = null;
+            dockableHudComponent1.Height = 0F;
+            dockableHudComponent1.InverseWorldMatrix = ((System.Matrix4)(resources.GetObject("dockableHudComponent1.InverseWorldMatrix")));
+            dockableHudComponent1.IsRendering = false;
+            dockableHudComponent1.Name = "DockableHudComponent";
+            dockableHudComponent1.OwningActor = hudManager1;
+            dockableHudComponent1.Parent = null;
+            dockableHudComponent1.PreviousInverseWorldTransform = ((System.Matrix4)(resources.GetObject("dockableHudComponent1.PreviousInverseWorldTransform")));
+            dockableHudComponent1.PreviousWorldTransform = ((System.Matrix4)(resources.GetObject("dockableHudComponent1.PreviousWorldTransform")));
+            dockableHudComponent1.References = ((System.Collections.Generic.List<TheraEngine.Files.IFileRef>)(resources.GetObject("dockableHudComponent1.References")));
+            dockableHudComponent1.RenderNode = null;
+            dockableHudComponent1.Scale = ((System.Vec2)(resources.GetObject("dockableHudComponent1.Scale")));
+            dockableHudComponent1.ScaleX = 1F;
+            dockableHudComponent1.ScaleY = 1F;
+            dockableHudComponent1.SideAnchorFlags = TheraEngine.Rendering.HUD.AnchorFlags.None;
+            dockableHudComponent1.Size = ((System.Vec2)(resources.GetObject("dockableHudComponent1.Size")));
+            dockableHudComponent1.Translation = ((System.Vec2)(resources.GetObject("dockableHudComponent1.Translation")));
+            dockableHudComponent1.TranslationLocalOrigin = ((System.Vec2)(resources.GetObject("dockableHudComponent1.TranslationLocalOrigin")));
+            dockableHudComponent1.TranslationX = 0F;
+            dockableHudComponent1.TranslationY = 0F;
+            dockableHudComponent1.UserData = null;
+            dockableHudComponent1.Width = 0F;
+            dockableHudComponent1.WidthHeightConstraint = TheraEngine.Rendering.HUD.WidthHeightConstraint.NoConstraint;
+            hudManager1.RootComponent = dockableHudComponent1;
+            hudManager1.UserData = null;
+            hudManager1.Visible = true;
+            this.renderPanel1.GlobalHud = hudManager1;
             this.renderPanel1.Location = new System.Drawing.Point(314, 33);
             this.renderPanel1.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.renderPanel1.Name = "renderPanel1";
-            this.renderPanel1.Size = new System.Drawing.Size(1188, 952);
+            this.renderPanel1.Size = new System.Drawing.Size(1065, 952);
             this.renderPanel1.TabIndex = 0;
+            this.renderPanel1.VsyncMode = TheraEngine.VSyncMode.Adaptive;
             // 
             // actorTree
             // 
@@ -228,7 +285,7 @@
             this.actorTree.Location = new System.Drawing.Point(0, 46);
             this.actorTree.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.actorTree.Name = "actorTree";
-            this.actorTree.Size = new System.Drawing.Size(307, 442);
+            this.actorTree.Size = new System.Drawing.Size(430, 322);
             this.actorTree.TabIndex = 1;
             this.actorTree.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.ActorTree_AfterSelect);
             // 
@@ -247,10 +304,10 @@
             this.rightPanel.Controls.Add(this.splitter3);
             this.rightPanel.Controls.Add(this.panel1);
             this.rightPanel.Dock = System.Windows.Forms.DockStyle.Right;
-            this.rightPanel.Location = new System.Drawing.Point(1510, 33);
+            this.rightPanel.Location = new System.Drawing.Point(1387, 33);
             this.rightPanel.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.rightPanel.Name = "rightPanel";
-            this.rightPanel.Size = new System.Drawing.Size(307, 952);
+            this.rightPanel.Size = new System.Drawing.Size(430, 952);
             this.rightPanel.TabIndex = 6;
             // 
             // panel3
@@ -261,7 +318,7 @@
             this.panel3.Location = new System.Drawing.Point(0, 0);
             this.panel3.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.panel3.Name = "panel3";
-            this.panel3.Size = new System.Drawing.Size(307, 488);
+            this.panel3.Size = new System.Drawing.Size(430, 368);
             this.panel3.TabIndex = 7;
             // 
             // label2
@@ -269,7 +326,7 @@
             this.label2.Dock = System.Windows.Forms.DockStyle.Top;
             this.label2.Location = new System.Drawing.Point(0, 0);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(307, 46);
+            this.label2.Size = new System.Drawing.Size(430, 46);
             this.label2.TabIndex = 4;
             this.label2.Text = "Actors";
             this.label2.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -277,10 +334,10 @@
             // splitter3
             // 
             this.splitter3.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.splitter3.Location = new System.Drawing.Point(0, 488);
+            this.splitter3.Location = new System.Drawing.Point(0, 368);
             this.splitter3.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.splitter3.Name = "splitter3";
-            this.splitter3.Size = new System.Drawing.Size(307, 2);
+            this.splitter3.Size = new System.Drawing.Size(430, 10);
             this.splitter3.TabIndex = 6;
             this.splitter3.TabStop = false;
             // 
@@ -288,10 +345,10 @@
             // 
             this.panel1.Controls.Add(this.actorPropertyGrid);
             this.panel1.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.panel1.Location = new System.Drawing.Point(0, 490);
+            this.panel1.Location = new System.Drawing.Point(0, 378);
             this.panel1.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(307, 462);
+            this.panel1.Size = new System.Drawing.Size(430, 574);
             this.panel1.TabIndex = 5;
             // 
             // actorPropertyGrid
@@ -301,7 +358,7 @@
             this.actorPropertyGrid.Location = new System.Drawing.Point(0, 0);
             this.actorPropertyGrid.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.actorPropertyGrid.Name = "actorPropertyGrid";
-            this.actorPropertyGrid.Size = new System.Drawing.Size(307, 462);
+            this.actorPropertyGrid.Size = new System.Drawing.Size(430, 574);
             this.actorPropertyGrid.TabIndex = 0;
             // 
             // ctxContentTree
@@ -383,16 +440,26 @@
             this.btnNewMaterial.Size = new System.Drawing.Size(242, 30);
             this.btnNewMaterial.Text = "Material";
             // 
-            // cboContentViewTypes
+            // gameToolStripMenuItem
             // 
-            this.cboContentViewTypes.Dock = System.Windows.Forms.DockStyle.Top;
-            this.cboContentViewTypes.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cboContentViewTypes.FormattingEnabled = true;
-            this.cboContentViewTypes.IntegralHeight = false;
-            this.cboContentViewTypes.Location = new System.Drawing.Point(0, 0);
-            this.cboContentViewTypes.Name = "cboContentViewTypes";
-            this.cboContentViewTypes.Size = new System.Drawing.Size(306, 28);
-            this.cboContentViewTypes.TabIndex = 0;
+            this.gameToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.btPlay,
+            this.btnCompile});
+            this.gameToolStripMenuItem.Name = "gameToolStripMenuItem";
+            this.gameToolStripMenuItem.Size = new System.Drawing.Size(70, 29);
+            this.gameToolStripMenuItem.Text = "Game";
+            // 
+            // btPlay
+            // 
+            this.btPlay.Name = "btPlay";
+            this.btPlay.Size = new System.Drawing.Size(210, 30);
+            this.btPlay.Text = "Play";
+            // 
+            // btnCompile
+            // 
+            this.btnCompile.Name = "btnCompile";
+            this.btnCompile.Size = new System.Drawing.Size(210, 30);
+            this.btnCompile.Text = "Compile";
             // 
             // Editor
             // 
@@ -460,7 +527,9 @@
         private System.Windows.Forms.ToolStripMenuItem btnSaveProjectAs;
         private System.Windows.Forms.ToolStripMenuItem btnUserSettings;
         private System.Windows.Forms.ToolStripMenuItem btnWorldSettings;
-        private System.Windows.Forms.ComboBox cboContentViewTypes;
+        private System.Windows.Forms.ToolStripMenuItem gameToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem btPlay;
+        private System.Windows.Forms.ToolStripMenuItem btnCompile;
         //private TheraEngine.RenderPanel renderPanel1;
         //private ResourceTree resourceTree1;
     }

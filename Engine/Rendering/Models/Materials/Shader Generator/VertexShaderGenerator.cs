@@ -77,7 +77,7 @@ namespace TheraEngine.Rendering.Models.Materials
             #region Positions
             BufferType type = BufferType.Position;
             for (int i = 0; i < meshCount; ++i)
-                WriteInVar(/*location + i, */ShaderVarType._vec3, VertexAttribInfo.GetAttribName(type, i));
+                WriteInVar(location + i, ShaderVarType._vec3, VertexAttribInfo.GetAttribName(type, i));
             location += VertexAttribInfo.GetMaxBuffersForType(type);
             #endregion
 
@@ -85,7 +85,7 @@ namespace TheraEngine.Rendering.Models.Materials
             type = BufferType.Normal;
             if (_info.HasNormals)
                 for (int i = 0; i < meshCount; ++i)
-                    WriteInVar(/*location + i, */ShaderVarType._vec3, VertexAttribInfo.GetAttribName(type, i));
+                    WriteInVar(location + i, ShaderVarType._vec3, VertexAttribInfo.GetAttribName(type, i));
             location += VertexAttribInfo.GetMaxBuffersForType(type);
             #endregion
 
@@ -93,7 +93,7 @@ namespace TheraEngine.Rendering.Models.Materials
             type = BufferType.Binormal;
             if (_info.HasBinormals)
                 for (int i = 0; i < meshCount; ++i)
-                    WriteInVar(/*location + i, */ShaderVarType._vec3, VertexAttribInfo.GetAttribName(type, i));
+                    WriteInVar(location + i, ShaderVarType._vec3, VertexAttribInfo.GetAttribName(type, i));
             location += VertexAttribInfo.GetMaxBuffersForType(type);
             #endregion
 
@@ -101,7 +101,7 @@ namespace TheraEngine.Rendering.Models.Materials
             type = BufferType.Tangent;
             if (_info.HasTangents)
                 for (int i = 0; i < meshCount; ++i)
-                    WriteInVar(/*location + i, */ShaderVarType._vec3, VertexAttribInfo.GetAttribName(type, i));
+                    WriteInVar(location + i, ShaderVarType._vec3, VertexAttribInfo.GetAttribName(type, i));
             location += VertexAttribInfo.GetMaxBuffersForType(type);
             #endregion
 
@@ -111,7 +111,7 @@ namespace TheraEngine.Rendering.Models.Materials
             {
                 ShaderVarType varType = Engine.Settings.UseIntegerWeightingIds ? ShaderVarType._ivec4 : ShaderVarType._vec4;
                 for (int i = 0; i < meshCount; ++i)
-                    WriteInVar(/*location + i, */varType, VertexAttribInfo.GetAttribName(type, i));
+                    WriteInVar(location + i, varType, VertexAttribInfo.GetAttribName(type, i));
             }
             location += VertexAttribInfo.GetMaxBuffersForType(type);
             #endregion
@@ -120,14 +120,14 @@ namespace TheraEngine.Rendering.Models.Materials
             type = BufferType.MatrixWeights;
             if (weighted)
                 for (int i = 0; i < meshCount; ++i)
-                    WriteInVar(/*location + i, */ShaderVarType._vec4, VertexAttribInfo.GetAttribName(BufferType.MatrixWeights, i));
+                    WriteInVar(location + i, ShaderVarType._vec4, VertexAttribInfo.GetAttribName(BufferType.MatrixWeights, i));
             location += VertexAttribInfo.GetMaxBuffersForType(type);
             #endregion
 
             #region Colors
             type = BufferType.Color;
             for (int i = 0; i < _info._colorCount; ++i)
-                WriteInVar(/*location + i, */ShaderVarType._vec4, VertexAttribInfo.GetAttribName(BufferType.Color, i));
+                WriteInVar(location + i, ShaderVarType._vec4, VertexAttribInfo.GetAttribName(BufferType.Color, i));
             location += VertexAttribInfo.GetMaxBuffersForType(type);
             #endregion
 

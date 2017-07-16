@@ -32,7 +32,7 @@ namespace TheraEngine.Rendering
     {
         public bool CollisionEnabled = true;
         public bool SimulatePhysics = true;
-        public CustomCollisionGroup Group = CustomCollisionGroup.Default;
+        public CustomCollisionGroup CollisionGroup = CustomCollisionGroup.Default;
         public CustomCollisionGroup CollidesWith = CustomCollisionGroup.All;
 
         private float _mass = 1.0f;
@@ -109,7 +109,7 @@ namespace TheraEngine.Rendering
             _owner = owner;
             _collisionEnabled = info.CollisionEnabled;
             _simulatingPhysics = info.SimulatePhysics;
-            _group = info.Group;
+            _group = info.CollisionGroup;
             _collidesWith = info.CollidesWith;
             using (var bulletInfo = info.ForBullet())
                 CollisionObject = new RigidBody(bulletInfo);
@@ -200,7 +200,7 @@ namespace TheraEngine.Rendering
                     {
                         _collision.LinearFactor = new Vector3(0.0f);
                         _collision.AngularFactor = new Vector3(0.0f);
-                        //_collision.CollisionFlags |= CollisionFlags.StaticObject;
+                        _collision.CollisionFlags |= CollisionFlags.StaticObject;
                         _collision.ForceActivationState(ActivationState.DisableSimulation);
                         if (_isSpawned)
                             UnregisterTick(ETickGroup.PostPhysics, ETickOrder.Scene, Tick);
@@ -209,9 +209,9 @@ namespace TheraEngine.Rendering
                     {
                         _collision.LinearFactor = _previousLinearFactor;
                         _collision.AngularFactor = _previousAngularFactor;
-                        //_collision.CollisionFlags &= ~CollisionFlags.StaticObject;
+                        _collision.CollisionFlags &= ~CollisionFlags.StaticObject;
                         SetPhysicsTransform(_owner.WorldMatrix);
-                        _collision.ForceActivationState(ActivationState.ActiveTag);
+                        _collision.ForceActivationState(ActivationState.DisableDeactivation);
                         if (_isSpawned)
                             RegisterTick(ETickGroup.PostPhysics, ETickOrder.Scene, Tick);
                     }
@@ -321,6 +321,7 @@ namespace TheraEngine.Rendering
         internal virtual void SetPhysicsTransform(Matrix4 newTransform)
         {
             _collision.WorldTransform = newTransform;
+            //_collision.CenterOfMassTransform = newTransform;
             //Engine.World?.PhysicsScene.UpdateAabbs();
         }
         protected internal void Tick(float delta)

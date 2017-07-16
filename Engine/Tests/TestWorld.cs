@@ -1,5 +1,8 @@
-﻿using System;
+﻿using ObjLoader.Loader.Loaders;
+using System;
 using System.Drawing;
+using System.IO;
+using TheraEngine.Animation;
 using TheraEngine.Rendering;
 using TheraEngine.Rendering.Models;
 using TheraEngine.Rendering.Models.Materials;
@@ -12,38 +15,37 @@ namespace TheraEngine.Tests
 {
     public unsafe class TestWorld : World
     {
-        public static Collada.Scene ColladaScene;
         protected override void OnLoaded()
         {
             _settings = new WorldSettings("TestWorld");
             Random r = new Random();
-            BoxActor[] array = new BoxActor[200];
+            IActor[] array = new IActor[50];
             BoundingBox spawnBounds = new BoundingBox(18.0f, 30.0f, 18.0f, 0.0f, 50.0f, 0.0f);
             for (int i = 0; i < array.Length; ++i)
             {
-                PhysicsConstructionInfo boxInfo = new PhysicsConstructionInfo()
+                PhysicsConstructionInfo physicsInfo = new PhysicsConstructionInfo()
                 {
                     Mass = 10.0f,
                     AngularDamping = 0.1f,
                     LinearDamping = 0.1f,
-                    Restitution = 0.3f,
+                    Restitution = 0.8f,
                     Friction = 0.5f,
                     RollingFriction = 0.2f,
                     CollisionEnabled = true,
                     SimulatePhysics = true,
-                    Group = CustomCollisionGroup.DynamicWorld,
+                    CollisionGroup = CustomCollisionGroup.DynamicWorld,
                     CollidesWith = CustomCollisionGroup.StaticWorld | CustomCollisionGroup.DynamicWorld | CustomCollisionGroup.Characters,
                 };
                 float x = ((float)r.NextDouble() - 0.5f) * 2.0f * spawnBounds.HalfExtents.X;
                 float y = ((float)r.NextDouble() - 0.5f) * 2.0f * spawnBounds.HalfExtents.Y;
                 float z = ((float)r.NextDouble() - 0.5f) * 2.0f * spawnBounds.HalfExtents.Z;
-                BoxActor b = new BoxActor(
-                    "Box" + i, boxInfo, 0.4f,
+                SphereActor actor = new SphereActor(
+                    "Box" + i, physicsInfo, 0.4f,
                     new Vec3(x, y + spawnBounds.Translation.Y, z),
                     new Rotator(0.0f, 0.0f, 0.0f, RotationOrder.YPR),
-                    Material.GetLitColorMaterial());
-                b.RootComponent.PhysicsDriver.OnHit += PhysicsDriver_OnHit;
-                array[i] = b;
+                    Material.GetLitColorMaterial(Color.Purple));
+                actor.RootComponent.PhysicsDriver.OnHit += PhysicsDriver_OnHit;
+                array[i] = actor;
             }
             //sphereActor = array[0];
             //sphereActor.RootComponent.WorldTransformChanged += RootComponent_WorldTransformChanged;
@@ -54,7 +56,7 @@ namespace TheraEngine.Tests
                 Restitution = 0.5f,
                 CollisionEnabled = true,
                 SimulatePhysics = false,
-                Group = CustomCollisionGroup.StaticWorld,
+                CollisionGroup = CustomCollisionGroup.StaticWorld,
                 CollidesWith = CustomCollisionGroup.Characters | CustomCollisionGroup.DynamicWorld,
             };
             BoxActor floorActor1 = new BoxActor(
@@ -106,16 +108,17 @@ namespace TheraEngine.Tests
             _settings.GlobalAmbient = new ColorF3(0.01f, 0.01f, 0.01f);
 
             DirectionalLightComponent dirLightComp = new DirectionalLightComponent(
-                (ColorF3)Color.Beige, 1.0f, 0.1f, new Rotator(-45.0f, 30.0f, 0.0f, RotationOrder.YPR));
+                (ColorF3)Color.Beige, 1.0f, 0.1f, new Rotator(-35.0f, 30.0f, 0.0f, RotationOrder.YPR));
             //dirLightComp.Translation.Y = 30.0f;
 
-            //PropAnimFloat lightAnim = new PropAnimFloat(360, true, true);
+            //PropAnimFloat lightAnim = new PropAnimFloat(3600, true, true);
             //FloatKeyframe first2 = new FloatKeyframe(0.0f, 0.0f, 0.0f, PlanarInterpType.Linear);
             //FloatKeyframe last2 = new FloatKeyframe(360.0f, 360.0f, 0.0f, PlanarInterpType.Linear);
             //lightAnim.Keyframes.Add(first2);
             //lightAnim.Keyframes.Add(last2);
             //AnimationContainer lightAnimContainer = new AnimationContainer("Rotation.Yaw", false, lightAnim);
-            ////dirLightComp.AddAnimation(lightAnimContainer, true);
+            //dirLightComp.AddAnimation(lightAnimContainer, true);
+
             //floorActor.RootComponent.AddAnimation(lightAnimContainer, true);
 
             Actor<DirectionalLightComponent> dirLightActor = new Actor<DirectionalLightComponent>(dirLightComp) { Name = "SunLight" };
@@ -127,15 +130,26 @@ namespace TheraEngine.Tests
                 "X:\\Cloud Storage\\Google Drive\\Game\\" :
                 "C:\\Users\\David\\Google Drive\\Game\\";
 
-            Collada.ImportOptions options = new Collada.ImportOptions();
-            options.InitialTransform.Scale = new Vec3(1.0f.InchesToMeters());
+            ModelImportOptions objOptions = new ModelImportOptions()
+            {
+                UseForwardShaders = Engine.Settings.ShadingStyle == ShadingStyle.Forward,
+                InitialTransform = new FrameState(Vec3.Zero, Quat.Identity, 0.1f, TransformOrder.TRS),
+                //InitialTransform = new FrameState(new Vec3(-100.0f, -100.0f, -1700.0f), Quat.Identity, Vec3.One, TransformOrder.TRS),
+            };
+            StaticMesh testModel = OBJ.Import(/*"E:\\Documents\\StationSquare\\main\\landtable.obj"*/desktop + "test.obj", objOptions);
+            Actor<StaticMeshComponent> testActor = new Actor<StaticMeshComponent>(new StaticMeshComponent(testModel, null)) { Name = "MapActor" };
+
+            ModelImportOptions options = new ModelImportOptions()
+            {
+                ImportAnimations = false,
+                InitialTransform = new FrameState(Vec3.Zero, Quat.Identity, new Vec3(1.0f.InchesToMeters()), TransformOrder.TRS),
+            };
 
             //ColladaScene = Collada.Import(desktop + "carly\\carly.dae", options, false, true);
-
             //ColladaScene = Collada.Import(desktop + "TEST.DAE", options, false, true);
 
-            ColladaScene = Collada.Import(desktop + "skybox.dae", options, false, true);
-            StaticMeshComponent c = new StaticMeshComponent(ColladaScene.StaticModel, null);
+            ModelScene scene = Collada.Import(desktop + "skybox.dae", options);
+            StaticMeshComponent c = new StaticMeshComponent(scene.StaticModel, null);
             Actor<StaticMeshComponent> skybox = new Actor<StaticMeshComponent>(c) { Name = "Skybox" };
 
             //Engine.Settings.Export(desktop, "EngineSettings", Files.FileFormat.Binary);
@@ -217,14 +231,23 @@ namespace TheraEngine.Tests
             CharacterSpawnPointActor spawn = new CharacterSpawnPointActor();
             spawn.RootComponent.Translation.Raw = Vec3.Up * 100.0f;
 
+            Actor<BlockingVolumeComponent> block = new Actor<BlockingVolumeComponent>(new BlockingVolumeComponent(
+                    new Vec3(500.0f, 10.0f, 500.0f),
+                    new Vec3(0.0f, -10.22f, 0.0f), 
+                    Rotator.GetZero(),
+                    CustomCollisionGroup.StaticWorld,
+                    CustomCollisionGroup.Characters | CustomCollisionGroup.DynamicWorld));
+
             IActor[] actors = new IActor[]
             {
-                floorActor1,
-                floorActor2,
-                floorActor3,
-                floorActor4,
+                block,
+                testActor,
+                //floorActor1,
+                //floorActor2,
+                //floorActor3,
+                //floorActor4,
                 dirLightActor,
-                skybox,
+                //skybox,
                 //splineActor,
                 //cam,
                 //floor2Actor,
@@ -255,7 +278,7 @@ namespace TheraEngine.Tests
         private void PhysicsDriver_OnHit(IPhysicsDrivable me, IPhysicsDrivable other, BulletSharp.ManifoldPoint point)
         {
             ShaderVec4 color = (ShaderVec4)((StaticMeshComponent)me).Model.RigidChildren[0].Material.Parameters[0];
-            color.Value = (ColorF4)Color.Red;
+            color.Value = (ColorF4)Color.Green;
 
             //_collideSound.Play(_param);
         }

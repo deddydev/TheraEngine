@@ -11,6 +11,8 @@ namespace TheraEngine.Rendering.Models.Materials
 
         private BoolVec3 _value;
 
+        public ShaderBVec3(BoolVec3 defaultValue, string name)
+            : this(defaultValue, name, null) { }
         public ShaderBVec3(BoolVec3 defaultValue, string name, IShaderVarOwner owner) 
             : base(name, owner)
         {
@@ -29,6 +31,8 @@ namespace TheraEngine.Rendering.Models.Materials
 
         private Vec3 _value;
 
+        public ShaderVec3(Vec3 defaultValue, string name)
+            : this(defaultValue, name, null) { }
         public ShaderVec3(Vec3 defaultValue, string name, IShaderVarOwner owner)
             : base(name, owner)
         {
@@ -47,6 +51,8 @@ namespace TheraEngine.Rendering.Models.Materials
 
         private DVec3 _value;
 
+        public ShaderDVec3(DVec3 defaultValue, string name)
+            : this(defaultValue, name, null) { }
         public ShaderDVec3(DVec3 defaultValue, string name, IShaderVarOwner owner)
             : base(name, owner)
         {
@@ -65,6 +71,8 @@ namespace TheraEngine.Rendering.Models.Materials
 
         private IVec3 _value;
 
+        public ShaderIVec3(IVec3 defaultValue, string name)
+            : this(defaultValue, name, null) { }
         public ShaderIVec3(IVec3 defaultValue, string name, IShaderVarOwner owner)
             : base(name, owner)
         {
@@ -83,6 +91,8 @@ namespace TheraEngine.Rendering.Models.Materials
 
         private UVec3 _value;
 
+        public ShaderUVec3(UVec3 defaultValue, string name)
+            : this(defaultValue, name, null) { }
         public ShaderUVec3(UVec3 defaultValue, string name, IShaderVarOwner owner)
             : base(name, owner)
         {

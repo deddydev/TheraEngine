@@ -1,6 +1,7 @@
 ﻿using BulletSharp;
 using TheraEngine.Rendering;
 using System;
+using System.Diagnostics;
 
 namespace TheraEngine.Worlds.Actors
 {
@@ -17,7 +18,7 @@ namespace TheraEngine.Worlds.Actors
         private bool _isCrouched = false;
         private float _maxWalkAngle = 50.0f;
         private float _walkingMovementSpeed = 0.2f;
-        private float _fallingMovementSpeed = 50.0f;
+        private float _fallingMovementSpeed = 10.0f;
         private float _jumpSpeed = 8.0f;
         private Vec3 _worldGroundContactPoint;
 
@@ -203,6 +204,7 @@ namespace TheraEngine.Worlds.Actors
             _prevVelocity = _velocity;
             _position = root.Translation;
             _velocity = (_position - _prevPosition) / delta;
+            //Debug.WriteLine(_velocity.LengthFast);
             _acceleration = (_velocity - _prevVelocity) / delta;
 
             body.LinearVelocity = _velocity;
@@ -211,7 +213,7 @@ namespace TheraEngine.Worlds.Actors
         {
             CapsuleComponent root = OwningActor.RootComponent as CapsuleComponent;
             Vec3 v = root.PhysicsDriver.CollisionObject.LinearVelocity;
-            if (v.Xy.LengthFast < 10.0f)
+            if (v.Xz.LengthFast < 7.0f)
                 root.PhysicsDriver.CollisionObject.ApplyCentralForce(((1.0f / root.PhysicsDriver.CollisionObject.InvMass) * _fallingMovementSpeed) * movementInput);
         }
         
@@ -227,7 +229,7 @@ namespace TheraEngine.Worlds.Actors
             //If the root isn't physics drivable, the player can't jump
             if (root == null)
                 return;
-
+            
             _postWalkAllowJump = false;
             _justJumped = true;
 
@@ -301,6 +303,10 @@ namespace TheraEngine.Worlds.Actors
                     ((CapsuleComponent)OwningActor.RootComponent).Translation.Raw += normal * -point.Distance;
                 }
             }
+            else if (CurrentMovementMode == MovementMode.Walking)
+            {
+                other.PhysicsDriver.CollisionObject.Activate();
+            }
         }
         public void OnContactEnded(IPhysicsDrivable other)
         {
@@ -308,14 +314,21 @@ namespace TheraEngine.Worlds.Actors
         }
         public override void OnSpawned()
         {
+            if (OwningActor.RootComponent is IPhysicsDrivable root)
+            {
+                //root.PhysicsDriver.Kinematic = false;
+                root.PhysicsDriver.SimulatingPhysics = true;
+                root.PhysicsDriver.CollisionObject.LinearVelocity = Vec3.Zero;
+            }
+            CurrentWalkingSurface = null;
             _subUpdateTick = TickFalling;
-            RegisterTick(ETickGroup.PostPhysics, ETickOrder.Scene, MainUpdateTick);
+            RegisterTick(ETickGroup.PrePhysics, ETickOrder.Scene, MainUpdateTick);
             base.OnSpawned();
         }
         public override void OnDespawned()
         {
             _subUpdateTick = null;
-            UnregisterTick(ETickGroup.PostPhysics, ETickOrder.Scene, MainUpdateTick);
+            UnregisterTick(ETickGroup.PrePhysics, ETickOrder.Scene, MainUpdateTick);
             base.OnDespawned();
         }
     }

@@ -7,7 +7,7 @@ using TheraEngine.Rendering.Models;
 using System.ComponentModel;
 using TheraEngine.Input.Devices;
 using TheraEngine.Rendering.Cameras;
-using TheraEngine.Rendering.Animation;
+using TheraEngine.Animation;
 using TheraEngine.Timers;
 
 namespace TheraEngine.Worlds.Actors
@@ -61,7 +61,7 @@ namespace TheraEngine.Worlds.Actors
         protected CameraComponent _fpCameraComponent, _tpCameraComponent;
         private bool _firstPerson = false;
         private Rotator _viewRotation = Rotator.GetZero(RotationOrder.YPR);
-        float _gamePadMovementInputMultiplier = 90.0f;
+        float _gamePadMovementInputMultiplier = 51.0f;
         float _keyboardMovementInputMultiplier = 51.0f;
         float _mouseXLookInputMultiplier = 0.5f;
         float _mouseYLookInputMultiplier = 0.5f;
@@ -121,7 +121,7 @@ namespace TheraEngine.Worlds.Actors
         public override void OnSpawnedPostComponentSetup(World world)
         {
             RegisterTick(ETickGroup.PrePhysics, ETickOrder.Logic, TickMovementInput);
-            RootComponent.PhysicsDriver.SimulatingPhysics = true;
+            //RootComponent.PhysicsDriver.SimulatingPhysics = true;
         }
         public override void OnDespawned()
         {
@@ -231,22 +231,22 @@ namespace TheraEngine.Worlds.Actors
         }
         protected override CapsuleComponent OnConstruct()
         {
-            float characterHeight = 1.72f; //5'8" in m = 1.72f
+            float characterHeight = new FeetInches(5.0f, 8.0f).ToMeters();// 1.72f; //5'8" in m = 1.72f
             float radius = 0.172f;
             float capsuleTotalHalfHeight = characterHeight / 2.0f;
             float halfHeight = capsuleTotalHalfHeight - radius;
 
             PhysicsConstructionInfo info = new PhysicsConstructionInfo()
             {
-                Mass = 5.0f,
+                Mass = 59.0f,
                 AngularDamping = 0.05f,
-                LinearDamping = 0.005f,
+                LinearDamping = 0.05f,
                 Restitution = 0.0f,
                 Friction = 0.01f,
                 RollingFriction = 0.01f,
                 CollisionEnabled = true,
                 SimulatePhysics = false,
-                Group = CustomCollisionGroup.Characters,
+                CollisionGroup = CustomCollisionGroup.Characters,
                 CollidesWith = CustomCollisionGroup.StaticWorld | CustomCollisionGroup.DynamicWorld,
             };
 

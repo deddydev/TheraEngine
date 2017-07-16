@@ -4,22 +4,19 @@ namespace TheraEngine.Rendering.Models
 {
     public class VertexTriangleStrip : VertexPolygon
     {
-        public VertexTriangleStrip(params Vertex[] vertices) : base(vertices)
+        public VertexTriangleStrip(params Vertex[] vertices) : base(vertices) { }
+
+        public int FaceCount => _vertices.Count - 2;
+        public override FaceType Type => FaceType.TriangleStrip;
+
+        public override VertexTriangle[] ToTriangles()
         {
-
-        }
-
-        public int FaceCount { get { return _vertices.Count - 2; } }
-        public override FaceType Type { get { return FaceType.TriangleStrip; } }
-
-        public override List<VertexTriangle> ToTriangles()
-        {
-            List<VertexTriangle> triangles = new List<VertexTriangle>();
+            VertexTriangle[] triangles = new VertexTriangle[FaceCount];
             for (int i = 2, count = _vertices.Count, bit = 0; i < count; bit = ++i & 1)
-                triangles.Add(new VertexTriangle(
+                triangles[i - 2] = new VertexTriangle(
                     _vertices[i - 2],
                     _vertices[i - 1 + bit],
-                    _vertices[i - bit]));
+                    _vertices[i - bit]);
             return triangles;
         }
     }

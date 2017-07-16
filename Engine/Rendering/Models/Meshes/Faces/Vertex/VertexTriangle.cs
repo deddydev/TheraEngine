@@ -29,9 +29,9 @@ namespace TheraEngine.Rendering.Models
             _e20.AddFace(this);
         }
 
-        public override List<VertexTriangle> ToTriangles()
-            => new List<VertexTriangle>() { this };
-        public override List<VertexLine> ToLines() 
-            => new List<VertexLine>() { _e01, _e12, _e20 };
+        public override VertexTriangle[] ToTriangles()
+            => new VertexTriangle[] { this };
+        public override VertexLine[] ToLines() 
+            => new VertexLine[] { _e01, _e12, _e20 };
     }
 }

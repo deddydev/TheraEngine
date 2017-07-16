@@ -1,6 +1,6 @@
 ﻿using TheraEngine.Rendering.HUD;
 
-namespace TheraEngine
+namespace TheraEngine.Rendering.HUD.Functions
 {
     public class EditorFunctionGrid : DockableHudComponent
     {

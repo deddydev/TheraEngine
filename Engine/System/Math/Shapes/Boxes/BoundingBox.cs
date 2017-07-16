@@ -14,6 +14,7 @@ namespace System
     public class BoundingBox : Shape
     {
         //public static List<BoundingBox> Active = new List<BoundingBox>();
+        public static BoundingBox ExpandableBox() => FromMinMax(float.MaxValue, float.MinValue);
 
         [DefaultValue("0 0 0")]
         [Serialize("HalfExtents")]
@@ -28,18 +29,19 @@ namespace System
             get => _translation - _halfExtents;
             set
             {
-                _translation = (Maximum + value) / 2.0f;
-                _halfExtents = (Maximum - value) / 2.0f;
+                _translation.Raw = (Maximum + value) / 2.0f;
+                _halfExtents.Raw = (Maximum - value) / 2.0f;
             }
         }
+
         [TypeConverter(typeof(Vec3StringConverter))]
         public Vec3 Maximum
         {
             get => _translation + _halfExtents;
             set
             {
-                _translation = (value + Minimum) / 2.0f;
-                _halfExtents = (value - Minimum) / 2.0f;
+                _translation.Raw = (value + Minimum) / 2.0f;
+                _halfExtents.Raw = (value - Minimum) / 2.0f;
             }
         }
         [TypeConverter(typeof(ExpandableObjectConverter))]
@@ -84,18 +86,10 @@ namespace System
         //}
 
         public static BoundingBox FromMinMax(Vec3 min, Vec3 max)
-            => new BoundingBox()
-            {
-                _translation = (max + min) / 2.0f,
-                _halfExtents = (max - min) / 2.0f,
-            };
+            => new BoundingBox((max - min) / 2.0f, (max + min) / 2.0f);
         public static BoundingBox FromHalfExtentsTranslation(Vec3 halfExtents, Vec3 translation)
-            => new BoundingBox()
-            {
-                _translation = translation,
-                _halfExtents = halfExtents,
-            };
-        
+            => new BoundingBox(halfExtents, translation);
+
         public override CollisionShape GetCollisionShape()
             => new BoxShape(HalfExtents);
         
@@ -224,11 +218,6 @@ namespace System
             GetCorners(boxMin, boxMax, out Vec3 TBL, out Vec3 TBR, out Vec3 TFL, out Vec3 TFR, out Vec3 BBL, out Vec3 BBR, out Vec3 BFL, out Vec3 BFR);
             return new Vec3[] { TBL, TBR, TFL, TFR, BBL, BBR, BFL, BFR };
         }
-        public void ExpandBounds(Vec3 point)
-        {
-            Minimum.SetLequalTo(point);
-            Maximum.SetGequalTo(point);
-        }
 
         public override void Render()
             => Engine.Renderer.RenderAABB(HalfExtents, Translation, _renderSolid, Color.Blue);
@@ -325,6 +314,14 @@ namespace System
         {
             return FromMinMax(Vec3.ComponentMin(box1.Minimum, box2.Maximum), Vec3.ComponentMax(box1.Maximum, box2.Maximum));
         }
+        public void Expand(Vec3 point)
+        {
+            Vec3 min = Vec3.ComponentMin(point, Minimum);
+            Vec3 max = Vec3.ComponentMax(point, Maximum);
+            _translation.Raw = (max + min) / 2.0f;
+            _halfExtents.Raw = (max - min) / 2.0f;
+        }
+
         public static bool operator ==(BoundingBox left, BoundingBox right) { return left.Equals(ref right); }
         public static bool operator !=(BoundingBox left, BoundingBox right) { return !left.Equals(ref right); }
         public override string ToString()
@@ -380,10 +377,10 @@ namespace System
         {
             return frustum.Contains(this);
         }
-        public override void SetTransform(Matrix4 worldMatrix)
+        public override void SetRenderTransform(Matrix4 worldMatrix)
         {
             _translation = worldMatrix.GetPoint();
-            base.SetTransform(worldMatrix);
+            base.SetRenderTransform(worldMatrix);
         }
         public override Shape HardCopy()
         {
@@ -392,8 +389,13 @@ namespace System
         public override Shape TransformedBy(Matrix4 worldMatrix)
         {
             BoundingBox newBox = FromHalfExtentsTranslation(_halfExtents, _translation);
-            newBox.SetTransform(worldMatrix);
+            newBox.SetRenderTransform(worldMatrix);
             return newBox;
+        }
+
+        public override Matrix4 GetTransformMatrix()
+        {
+            return _translation.Raw.AsTranslationMatrix();
         }
     }
 }

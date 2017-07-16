@@ -88,87 +88,90 @@ namespace TheraEditor
             _nodes = new Dictionary<string, TreeNode>();
             string path = Path.GetDirectoryName(p.FilePath);
 
-            Nodes.Clear();
-            var stack = new Stack<TreeNode>();
-            var rootDirectory = new DirectoryInfo(p.FilePath);
-            var node = new TreeNode(p.Name) { Tag = p };
-            stack.Push(node);
-
-            while (stack.Count > 0)
+            TreeNode node = new TreeNode(p.Name, 0, 0)
             {
-                var currentNode = stack.Pop();
-                var directoryInfo = (DirectoryInfo)currentNode.Tag;
-                foreach (var dirInfo in directoryInfo.GetDirectories())
-                {
-                    var childDirectoryNode = new TreeNode(dirInfo.Name) { Tag = dirInfo };
-                    _nodes[dirInfo.FullName] = childDirectoryNode;
-                    currentNode.Nodes.Add(childDirectoryNode);
-                    stack.Push(childDirectoryNode);
-                }
-                foreach (var fileInfo in directoryInfo.GetFiles())
-                {
-                    var treeNode = new TreeNode(fileInfo.Name) { Tag = fileInfo };
-                    _nodes[fileInfo.FullName] = treeNode;
-                    currentNode.Nodes.Add(treeNode);
-                }
-            }
+                Tag = Path.GetDirectoryName(p.FilePath)
+            };
+            node.Nodes.Add("...");
 
             Nodes.Add(node);
 
-            if (!string.IsNullOrEmpty(path) && Directory.Exists(path))
-            {
-                _contentWatcher = new FileSystemWatcher(path, "*.*")
-                {
-                    EnableRaisingEvents = true,
-                    IncludeSubdirectories = true,
-                    NotifyFilter = NotifyFilters.LastWrite,
-                };
-                _contentWatcher.Changed += _contentWatcher_Changed;
-                _contentWatcher.Created += _contentWatcher_Created;
-                _contentWatcher.Deleted += _contentWatcher_Deleted;
-                _contentWatcher.Renamed += _contentWatcher_Renamed;
-            }
+            //Nodes.Clear();
+            //var stack = new Stack<TreeNode>();
+            //var rootDirectory = new DirectoryInfo(p.FilePath);
+            //var node = new TreeNode(p.Name) { Tag = p };
+            //stack.Push(node);
+
+            //while (stack.Count > 0)
+            //{
+            //    var currentNode = stack.Pop();
+            //    var directoryInfo = (DirectoryInfo)currentNode.Tag;
+            //    foreach (var dirInfo in directoryInfo.GetDirectories())
+            //    {
+            //        var childDirectoryNode = new TreeNode(dirInfo.Name) { Tag = dirInfo };
+            //        _nodes[dirInfo.FullName] = childDirectoryNode;
+            //        currentNode.Nodes.Add(childDirectoryNode);
+            //        stack.Push(childDirectoryNode);
+            //    }
+            //    foreach (var fileInfo in directoryInfo.GetFiles())
+            //    {
+            //        var treeNode = new TreeNode(fileInfo.Name) { Tag = fileInfo };
+            //        _nodes[fileInfo.FullName] = treeNode;
+            //        currentNode.Nodes.Add(treeNode);
+            //    }
+            //}
+
+            //Nodes.Add(node);
+
+            //if (!string.IsNullOrEmpty(path) && Directory.Exists(path))
+            //{
+            //    _contentWatcher = new FileSystemWatcher(path, "*.*")
+            //    {
+            //        EnableRaisingEvents = true,
+            //        IncludeSubdirectories = true,
+            //        NotifyFilter = NotifyFilters.LastWrite,
+            //    };
+            //    _contentWatcher.Changed += _contentWatcher_Changed;
+            //    _contentWatcher.Created += _contentWatcher_Created;
+            //    _contentWatcher.Deleted += _contentWatcher_Deleted;
+            //    _contentWatcher.Renamed += _contentWatcher_Renamed;
+            //}
         }
         protected override void OnBeforeExpand(TreeViewCancelEventArgs e)
         {
-            base.OnBeforeExpand(e);
-            if (e.Node.Nodes.Count > 0)
+            if (e.Node.Nodes.Count > 0 && 
+                e.Node.Nodes[0].Text == "..." && 
+                e.Node.Nodes[0].Tag == null)
             {
-                if (e.Node.Nodes[0].Text == "..." && e.Node.Nodes[0].Tag == null)
+                e.Node.Nodes.Clear();
+
+                string[] dirs = Directory.GetDirectories(e.Node.Tag.ToString());
+                foreach (string dir in dirs)
                 {
-                    e.Node.Nodes.Clear();
-
-                    //get the list of sub direcotires
-                    string[] dirs = Directory.GetDirectories(e.Node.Tag.ToString());
-
-                    foreach (string dir in dirs)
+                    DirectoryInfo di = new DirectoryInfo(dir);
+                    TreeNode node = new TreeNode(di.Name, 0, 1);
+                    try
                     {
-                        DirectoryInfo di = new DirectoryInfo(dir);
-                        TreeNode node = new TreeNode(di.Name, 0, 1);
-                        try
-                        {
-                            //keep the directory's full path in the tag for use later
-                            node.Tag = dir;
+                        //Keep the directory's full path in the tag for use later
+                        node.Tag = dir;
 
-                            //if the directory has sub directories add the place holder
-                            if (di.GetDirectories().Length > 0)
-                                node.Nodes.Add(null, "...", 0, 0);
-                        }
-                        catch (UnauthorizedAccessException)
-                        {
-                            //display a locked folder icon
-                            node.ImageIndex = 12;
-                            node.SelectedImageIndex = 12;
-                        }
-                        catch (Exception ex)
-                        {
-                            MessageBox.Show(ex.Message, "DirectoryLister",
-                                MessageBoxButtons.OK, MessageBoxIcon.Error);
-                        }
-                        finally
-                        {
-                            e.Node.Nodes.Add(node);
-                        }
+                        //If the directory has sub directories, add the placeholder
+                        if (di.GetDirectories().Length > 0)
+                            node.Nodes.Add(null, "...", 0, 0);
+                    }
+                    catch (UnauthorizedAccessException)
+                    {
+                        //display a locked folder icon
+                        node.ImageIndex = 2;
+                        node.SelectedImageIndex = 2;
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show(ex.Message, "DirectoryReader", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                    finally
+                    {
+                        e.Node.Nodes.Add(node);
                     }
                 }
             }
@@ -350,11 +353,11 @@ namespace TheraEditor
 
         public void Clear()
         {
-            BeginUpdate();
-            foreach (BaseWrapper n in Nodes)
-                n.Unlink();
-            Nodes.Clear();
-            EndUpdate();
+            //BeginUpdate();
+            //foreach (BaseWrapper n in Nodes)
+            //    n.Unlink();
+            //Nodes.Clear();
+            //EndUpdate();
         }
 
         protected override void OnAfterSelect(TreeViewEventArgs e)

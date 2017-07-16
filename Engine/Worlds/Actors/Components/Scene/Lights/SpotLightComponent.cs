@@ -74,7 +74,7 @@ namespace TheraEngine.Worlds.Actors
             Engine.Renderer.ProgramUniform(programBindingId, indexer + "Base.Base.AmbientIntensity", _ambientIntensity);
             Engine.Renderer.ProgramUniform(programBindingId, indexer + "Base.Base.DiffuseIntensity", _diffuseIntensity);
             Engine.Renderer.ProgramUniform(programBindingId, indexer + "Base.Position", point);
-            Engine.Renderer.ProgramUniform(programBindingId, indexer + "Base.Radius", _radius);
+            Engine.Renderer.ProgramUniform(programBindingId, indexer + "Base.Radius", _cullingVolume.Radius);
             Engine.Renderer.ProgramUniform(programBindingId, indexer + "Direction", _direction);
             Engine.Renderer.ProgramUniform(programBindingId, indexer + "Cutoff", _cutoff);
             Engine.Renderer.ProgramUniform(programBindingId, indexer + "Exponent", _exponent);

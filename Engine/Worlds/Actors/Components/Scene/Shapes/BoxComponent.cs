@@ -7,7 +7,7 @@ namespace TheraEngine.Worlds.Actors
 {
     public class BoxComponent : ShapeComponent
     {
-        private Box _box;
+        protected Box _box;
 
         public BoxComponent()
         {
@@ -36,30 +36,31 @@ namespace TheraEngine.Worlds.Actors
 
         public Box Box
         {
-            get { return _box; }
-            set { _box = value; }
+            get => _box;
+            set => _box = value;
         }
-        public override Shape CullingVolume { get { return _box; } }
+        public override Shape CullingVolume => _box;
         public Vec3 HalfExtents
         {
-            get { return _box.HalfExtents; }
-            set { _box.HalfExtents = value; }
+            get => _box.HalfExtents;
+            set => _box.HalfExtents = value;
         }
-        public override void Render()
-        {
-            Engine.Renderer.RenderBox(HalfExtents, WorldMatrix, false, Color.Black);
-        }
-        protected override CollisionShape GetCollisionShape() { return _box.GetCollisionShape(); }
-        public bool Contains(Vec3 point) { return _box.Contains(point); }
-        public EContainment Contains(BoundingBox box) { return _box.Contains(box); }
-        public EContainment Contains(Box box) { return _box.Contains(box); }
-        public EContainment Contains(Sphere sphere) { return _box.Contains(sphere); }
-        public EContainment ContainedWithin(BoundingBox box) { return box.Contains(_box); }
-        public EContainment ContainedWithin(Box box) { return box.Contains(_box); }
-        public EContainment ContainedWithin(Sphere sphere) { return sphere.Contains(_box); }
-        public EContainment ContainedWithin(Frustum frustum) { return frustum.Contains(_box); }
-        public Vec3[] GetTransformedCorners() { return _box.GetCorners(); }
-        public Vec3[] GetUntransformedCorners() { return BoundingBox.GetCorners(_box.HalfExtents, Matrix4.Identity); }
+
+        public override void Render() => Engine.Renderer.RenderBox(HalfExtents, WorldMatrix, false, Color.Black);
+        protected override CollisionShape GetCollisionShape() => _box.GetCollisionShape();
+
+        public bool Contains(Vec3 point) => _box.Contains(point);
+        public EContainment Contains(BoundingBox box) => _box.Contains(box);
+        public EContainment Contains(Box box) => _box.Contains(box);
+        public EContainment Contains(Sphere sphere) => _box.Contains(sphere);
+        public EContainment ContainedWithin(BoundingBox box) => box.Contains(_box);
+        public EContainment ContainedWithin(Box box) => box.Contains(_box);
+        public EContainment ContainedWithin(Sphere sphere) => sphere.Contains(_box);
+        public EContainment ContainedWithin(Frustum frustum) => frustum.Contains(_box);
+
+        public Vec3[] GetTransformedCorners() => _box.GetCorners();
+        public Vec3[] GetUntransformedCorners() => BoundingBox.GetCorners(_box.HalfExtents, Matrix4.Identity);
+
         internal override void RecalcGlobalTransform()
         {
             base.RecalcGlobalTransform();

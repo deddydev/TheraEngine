@@ -105,28 +105,19 @@
   <PropertyGroup>
     <SignAssembly>false</SignAssembly>
   </PropertyGroup>
-  <PropertyGroup>
-    <AssemblyOriginatorKeyFile>theradevkey.pfx</AssemblyOriginatorKeyFile>
-  </PropertyGroup>
   <ItemGroup>
     <Reference Include="BulletSharp">
-      <HintPath Condition="'$(Platform)'=='x86'">..\Libraries\x86\BulletSharp.dll</HintPath>
-      <HintPath Condition="'$(Platform)'=='x64'">..\Libraries\x64\BulletSharp.dll</HintPath>
-      <HintPath Condition="'$(Platform)'=='AnyCPU'">..\Libraries\AnyCPU\BulletSharp.dll</HintPath>
+      <HintPath>$(SolutionDir)\Libraries\$(Platform)\BulletSharp.dll</HintPath>
     </Reference>
     <Reference Include="FreeImageNET">
-      <HintPath Condition="'$(Platform)'=='x86'">..\Libraries\x86\FreeImageNET.dll</HintPath>
-      <HintPath Condition="'$(Platform)'=='x64'">..\Libraries\x64\FreeImageNET.dll</HintPath>
-      <HintPath Condition="'$(Platform)'=='AnyCPU'">..\Libraries\AnyCPU\FreeImageNET.dll</HintPath>
+      <HintPath>$(SolutionDir)\Libraries\$(Platform)\FreeImageNET.dll</HintPath>
     </Reference>
     <Reference Include="Steamworks.NET">
-      <HintPath Condition="'$(Platform)'=='x86'">..\Libraries\x86\Steamworks\Steamworks.NET.dll</HintPath>
-      <HintPath Condition="'$(Platform)'=='x64'">..\Libraries\x64\Steamworks\Steamworks.NET.dll</HintPath>
-      <HintPath Condition="'$(Platform)'=='AnyCPU'">..\Libraries\AnyCPU\Steamworks\Steamworks.NET.dll</HintPath>
+      <HintPath>$(SolutionDir)\Libraries\$(Platform)\Steamworks\Steamworks.NET.dll</HintPath>
     </Reference>
     <Reference Include="SlimDX, Version=4.0.13.43, Culture=neutral, PublicKeyToken=b1b0c32fd1ffe4f9, processorArchitecture=AMD64">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\Libraries\SlimDX.dll</HintPath>
+      <HintPath>$(SolutionDir)\Libraries\SlimDX.dll</HintPath>
     </Reference>
     <Reference Include="OpenTK, Version=2.0.0.0, Culture=neutral, PublicKeyToken=bad199fe84eb3df4, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -168,6 +159,47 @@
     <Compile Include="3rdParty\7zip\Compress\RangeCoder\RangeCoderBit.cs" />
     <Compile Include="3rdParty\7zip\Compress\RangeCoder\RangeCoderBitTree.cs" />
     <Compile Include="3rdParty\7zip\ICoder.cs" />
+    <Compile Include="3rdParty\OBJ\Common\StringExtensions.cs" />
+    <Compile Include="3rdParty\OBJ\Data\DataStore\DataStore.cs" />
+    <Compile Include="3rdParty\OBJ\Data\DataStore\IDataStore.cs" />
+    <Compile Include="3rdParty\OBJ\Data\DataStore\IElementGroup.cs" />
+    <Compile Include="3rdParty\OBJ\Data\DataStore\IFaceGroup.cs" />
+    <Compile Include="3rdParty\OBJ\Data\DataStore\IGroupDataStore.cs" />
+    <Compile Include="3rdParty\OBJ\Data\DataStore\IMaterialLibrary.cs" />
+    <Compile Include="3rdParty\OBJ\Data\DataStore\INormalDataStore.cs" />
+    <Compile Include="3rdParty\OBJ\Data\DataStore\ITextureDataStore.cs" />
+    <Compile Include="3rdParty\OBJ\Data\DataStore\IVertexDataStore.cs" />
+    <Compile Include="3rdParty\OBJ\Data\Elements\Face.cs" />
+    <Compile Include="3rdParty\OBJ\Data\Elements\Group.cs" />
+    <Compile Include="3rdParty\OBJ\Data\Material.cs" />
+    <Compile Include="3rdParty\OBJ\Loaders\IMaterialLibraryLoader.cs" />
+    <Compile Include="3rdParty\OBJ\Loaders\IMaterialLibraryLoaderFacade.cs" />
+    <Compile Include="3rdParty\OBJ\Loaders\IObjLoader.cs" />
+    <Compile Include="3rdParty\OBJ\Loaders\IObjLoaderFactory.cs" />
+    <Compile Include="3rdParty\OBJ\Loaders\LoaderBase.cs" />
+    <Compile Include="3rdParty\OBJ\Loaders\LoadResult.cs" />
+    <Compile Include="3rdParty\OBJ\Loaders\MaterialLibraryLoader.cs" />
+    <Compile Include="3rdParty\OBJ\Loaders\MaterialLibraryLoaderFacade.cs" />
+    <Compile Include="3rdParty\OBJ\Loaders\MaterialStreamProvider.cs" />
+    <Compile Include="3rdParty\OBJ\Loaders\ObjLoader.cs" />
+    <Compile Include="3rdParty\OBJ\Loaders\ObjLoaderFactory.cs" />
+    <Compile Include="3rdParty\OBJ\OBJ.cs" />
+    <Compile Include="3rdParty\OBJ\TypeParsers\FaceParser.cs" />
+    <Compile Include="3rdParty\OBJ\TypeParsers\GroupParser.cs" />
+    <Compile Include="3rdParty\OBJ\TypeParsers\Interfaces\IFaceParser.cs" />
+    <Compile Include="3rdParty\OBJ\TypeParsers\Interfaces\IGroupParser.cs" />
+    <Compile Include="3rdParty\OBJ\TypeParsers\Interfaces\IMaterialLibraryParser.cs" />
+    <Compile Include="3rdParty\OBJ\TypeParsers\Interfaces\INormalParser.cs" />
+    <Compile Include="3rdParty\OBJ\TypeParsers\Interfaces\ITextureParser.cs" />
+    <Compile Include="3rdParty\OBJ\TypeParsers\Interfaces\ITypeParser.cs" />
+    <Compile Include="3rdParty\OBJ\TypeParsers\Interfaces\IUseMaterialParser.cs" />
+    <Compile Include="3rdParty\OBJ\TypeParsers\Interfaces\IVertexParser.cs" />
+    <Compile Include="3rdParty\OBJ\TypeParsers\MaterialLibraryParser.cs" />
+    <Compile Include="3rdParty\OBJ\TypeParsers\NormalParser.cs" />
+    <Compile Include="3rdParty\OBJ\TypeParsers\TextureParser.cs" />
+    <Compile Include="3rdParty\OBJ\TypeParsers\TypeParserBase.cs" />
+    <Compile Include="3rdParty\OBJ\TypeParsers\UseMaterialParser.cs" />
+    <Compile Include="3rdParty\OBJ\TypeParsers\VertexParser.cs" />
     <Compile Include="Audio\AbstractAudioManager.cs" />
     <Compile Include="Audio\ALAudioManager.cs" />
     <Compile Include="Audio\AudioParameters.cs" />
@@ -179,33 +211,33 @@
     <Compile Include="Input\Devices\AxisManager.cs" />
     <Compile Include="Input\Devices\ButtonManager.cs" />
     <Compile Include="Input\Devices\Windows\WinMouse.cs" />
-    <Compile Include="Rendering\Animation\Model Animations\ModelAnimationFrame.cs" />
-    <Compile Include="Rendering\Animation\Property Animations\PropAnimQuat.cs" />
-    <Compile Include="Rendering\Animation\Property Animations\PropAnimVec2.cs" />
-    <Compile Include="Rendering\Animation\Property Animations\PropAnimVec3.cs" />
-    <Compile Include="Rendering\Animation\Property Animations\PropAnimVec4.cs" />
-    <Compile Include="Rendering\Animation\Model Animations\AnimStateMachine.cs" />
-    <Compile Include="Rendering\Animation\BaseAnimation.cs" />
-    <Compile Include="Rendering\Animation\Functions\Logic\IfFunction.cs" />
-    <Compile Include="Rendering\Animation\Model Animations\BlendSpace1D.cs" />
-    <Compile Include="Rendering\Animation\Model Animations\ModelAnimation.cs" />
+    <Compile Include="Animation\Model\ModelAnimationFrame.cs" />
+    <Compile Include="Animation\Property\PropAnimQuat.cs" />
+    <Compile Include="Animation\Property\PropAnimVec2.cs" />
+    <Compile Include="Animation\Property\PropAnimVec3.cs" />
+    <Compile Include="Animation\Property\PropAnimVec4.cs" />
+    <Compile Include="Animation\Model\AnimStateMachine.cs" />
+    <Compile Include="Animation\BaseAnimation.cs" />
+    <Compile Include="Animation\Functions\Logic\IfFunction.cs" />
+    <Compile Include="Animation\Model\BlendSpace1D.cs" />
+    <Compile Include="Animation\Model\ModelAnimation.cs" />
     <Compile Include="Engine\Game.cs" />
     <Compile Include="Rendering\HUD\Text\DebugPrintHudComponent.cs" />
-    <Compile Include="Rendering\HUD\Functions\Animations\AnimationFunction.cs" />
-    <Compile Include="Rendering\HUD\Functions\Animations\AnimFuncExecInput.cs" />
-    <Compile Include="Rendering\HUD\Functions\Animations\AnimFuncExecOutput.cs" />
-    <Compile Include="Rendering\HUD\Functions\Animations\AnimFuncValueInput.cs" />
-    <Compile Include="Rendering\HUD\Functions\Animations\AnimFuncValueOutput.cs" />
-    <Compile Include="Rendering\Animation\Functions\LookatFunction.cs" />
+    <Compile Include="Animation\Functions\AnimationFunction.cs" />
+    <Compile Include="Animation\Functions\AnimFuncExecInput.cs" />
+    <Compile Include="Animation\Functions\AnimFuncExecOutput.cs" />
+    <Compile Include="Animation\Functions\AnimFuncValueInput.cs" />
+    <Compile Include="Animation\Functions\AnimFuncValueOutput.cs" />
+    <Compile Include="Animation\Functions\Skeleton\LookatFunction.cs" />
     <Compile Include="Rendering\HUD\Interactable\ListHudComponent.cs" />
     <Compile Include="Rendering\HUD\Interactable\DropDownListHudComponent.cs" />
-    <Compile Include="Rendering\HUD\Functions\Generic Base\BaseFuncArg.cs" />
-    <Compile Include="Rendering\HUD\Functions\Generic Base\BaseFuncExec.cs" />
-    <Compile Include="Rendering\HUD\Functions\Generic Base\FuncExecInput.cs" />
-    <Compile Include="Rendering\HUD\Functions\Generic Base\FuncExecOutput.cs" />
-    <Compile Include="Rendering\HUD\Functions\Materials\MaterialFunction.cs" />
-    <Compile Include="Rendering\HUD\Functions\Materials\MatFuncExecInput.cs" />
-    <Compile Include="Rendering\HUD\Functions\Materials\MatFuncExecOutput.cs" />
+    <Compile Include="Rendering\HUD\Functions\BaseFuncArg.cs" />
+    <Compile Include="Rendering\HUD\Functions\BaseFuncExec.cs" />
+    <Compile Include="Rendering\HUD\Functions\FuncExecInput.cs" />
+    <Compile Include="Rendering\HUD\Functions\FuncExecOutput.cs" />
+    <Compile Include="Rendering\Models\Materials\Material Functions\MaterialFunction.cs" />
+    <Compile Include="Rendering\Models\Materials\Material Functions\MatFuncExecInput.cs" />
+    <Compile Include="Rendering\Models\Materials\Material Functions\MatFuncExecOutput.cs" />
     <Compile Include="Rendering\HUD\Interactable\InteractableHudComponent.cs" />
     <Compile Include="Rendering\HUD\RenderableHudComponent.cs" />
     <Compile Include="Rendering\HUD\Interactable\ButtonHudComponent.cs" />
@@ -557,11 +589,11 @@
     <Compile Include="3rdParty\Collada\Schema\Types\Grendgine_Collada_SID_Name_Float.cs" />
     <Compile Include="3rdParty\Collada\Schema\Types\Grendgine_Collada_SID_Name_String.cs" />
     <Compile Include="3rdParty\Collada\Schema\Types\Grendgine_Collada_String_Array_String.cs" />
-    <Compile Include="Rendering\HUD\Functions\Generic Base\BaseFuncValue.cs" />
-    <Compile Include="Rendering\HUD\Functions\Materials\MatFuncValueOutput.cs" />
-    <Compile Include="Rendering\HUD\Functions\Materials\MatFuncValueInput.cs" />
-    <Compile Include="Rendering\HUD\Functions\Generic Base\FuncValueInput.cs" />
-    <Compile Include="Rendering\HUD\Functions\Generic Base\FuncValueOutput.cs" />
+    <Compile Include="Rendering\HUD\Functions\BaseFuncValue.cs" />
+    <Compile Include="Rendering\Models\Materials\Material Functions\MatFuncValueOutput.cs" />
+    <Compile Include="Rendering\Models\Materials\Material Functions\MatFuncValueInput.cs" />
+    <Compile Include="Rendering\HUD\Functions\FuncValueInput.cs" />
+    <Compile Include="Rendering\HUD\Functions\FuncValueOutput.cs" />
     <Compile Include="Rendering\Models\Materials\GLSL\ShaderVar.cs" />
     <Compile Include="Rendering\HUD\Functions\EditorFunctionGrid.cs" />
     <Compile Include="Rendering\Models\Materials\GLSL\ShaderArray.cs" />
@@ -575,7 +607,7 @@
     <Compile Include="Rendering\Models\Materials\Material Functions\Constants\ParameterFunc.cs" />
     <Compile Include="Rendering\Models\Materials\Material Functions\Logic\ForLoopFunc.cs" />
     <Compile Include="Rendering\Models\Materials\Material Functions\Logic\IfFunc.cs" />
-    <Compile Include="Rendering\HUD\Functions\Generic Base\Function.cs" />
+    <Compile Include="Rendering\HUD\Functions\Function.cs" />
     <Compile Include="Rendering\Models\Materials\Material Functions\Math\Compare\ComparableFunc.cs" />
     <Compile Include="Rendering\Models\Materials\Material Functions\Math\Misc\InverseFunc.cs" />
     <Compile Include="Rendering\Models\Materials\Material Functions\Math\Misc\NegateFunc.cs" />
@@ -610,6 +642,7 @@
     <Compile Include="Rendering\Models\Meshes\Static\StaticRigidSubMesh.cs" />
     <Compile Include="Rendering\Models\Meshes\Static\StaticSoftSubMesh.cs" />
     <Compile Include="Rendering\Models\Meshes\Static\StaticMesh.cs" />
+    <Compile Include="Rendering\Models\ModelScene.cs" />
     <Compile Include="Rendering\PhysicsDriver.cs" />
     <Compile Include="Rendering\GBuffer.cs" />
     <Compile Include="Rendering\Renderer\RenderEnums.cs" />
@@ -731,6 +764,7 @@
     <Compile Include="System\Math\Transforms\Vectors\Vec3.cs" />
     <Compile Include="System\Math\Transforms\Vectors\EventVec4.cs" />
     <Compile Include="System\Math\Transforms\Vectors\Vec4.cs" />
+    <Compile Include="System\Measurement.cs" />
     <Compile Include="System\Memory\Bin64.cs" />
     <Compile Include="System\Memory\Bin8.cs" />
     <Compile Include="System\Memory\Bin16.cs" />
@@ -805,6 +839,7 @@
     <None Include="System\Tools\V-HACD\VHACD.cs" />
     <None Include="System\Tools\V-HACD\Volume.cs" />
     <Compile Include="Tests\TestCharacter.cs" />
+    <Compile Include="Worlds\Actors\Components\Scene\Volumes\BlockingVolume.cs" />
     <Compile Include="Worlds\GameModes\CharacterGameMode.cs" />
     <Compile Include="Worlds\Actors\ActorState.cs" />
     <Compile Include="Worlds\Actors\Components\ComponentState.cs" />
@@ -843,8 +878,8 @@
     <Compile Include="Worlds\Actors\Components\Scene\Shapes\Cylindrical\CapsuleComponent.cs" />
     <Compile Include="Engine\EngineProperties.cs" />
     <Compile Include="Worlds\GameModes\GameMode.cs" />
-    <Compile Include="Rendering\Animation\Property Animations\AnimationContainer.cs" />
-    <Compile Include="Rendering\Animation\KeyframeTrack.cs" />
+    <Compile Include="Animation\Property\AnimationContainer.cs" />
+    <Compile Include="Animation\KeyframeTrack.cs" />
     <Compile Include="Rendering\HUD\HudComponent.cs" />
     <Compile Include="System\Interfaces.cs" />
     <Compile Include="Engine\PlayerInfo.cs" />
@@ -858,9 +893,9 @@
     <Compile Include="Worlds\Actors\Types\ComponentActors\Shapes\BoxActor.cs" />
     <Compile Include="Worlds\Actors\Types\ComponentActors\PerspectiveCameraActor.cs" />
     <Compile Include="Worlds\Actors\Types\ComponentActors\DecalActor.cs" />
-    <Compile Include="Rendering\Animation\Property Animations\PropAnimString.cs" />
-    <Compile Include="Rendering\Animation\Property Animations\PropAnimBool.cs" />
-    <Compile Include="Rendering\Animation\Property Animations\PropAnimFloat.cs" />
+    <Compile Include="Animation\Property\PropAnimString.cs" />
+    <Compile Include="Animation\Property\PropAnimBool.cs" />
+    <Compile Include="Animation\Property\PropAnimFloat.cs" />
     <Compile Include="Rendering\Models\Meshes\Skeletal\Skeleton\BoneWeight.cs" />
     <Compile Include="Rendering\Models\Meshes\Skeletal\Skeleton\Influence.cs" />
     <Compile Include="System\Extensions\BitmapExtension.cs" />
@@ -914,7 +949,7 @@
     <Compile Include="Tests\TestGameMode.cs" />
     <Compile Include="Tests\TestWorld.cs" />
     <Compile Include="Worlds\World.cs" />
-    <Compile Include="Rendering\Animation\Property Animations\PropertyAnimation.cs" />
+    <Compile Include="Animation\Property\PropertyAnimation.cs" />
     <Compile Include="System\Math\Transforms\FrameState.cs" />
     <Compile Include="Rendering\Models\Meshes\Faces\Index\IndexTriangle.cs" />
     <Compile Include="Rendering\Models\Meshes\Primitives\FacePoint.cs" />
@@ -954,7 +989,6 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="3rdParty\OBJ\" />
     <Folder Include="AI\" />
     <Folder Include="System\Files\Serialization\JSON\" />
     <Folder Include="System\Math\Shapes\Cylindrical\XAligned\" />
@@ -969,8 +1003,9 @@
     <Error Condition="Exists('..\packages\PostSharp.4.3.21\tools\PostSharp.targets')" Text="The build restored NuGet packages. Build the project again to include these packages in the build. For more information, see http://www.postsharp.net/links/nuget-restore." />
   </Target>
   <PropertyGroup>
-    <PostBuildEvent>xcopy /Y "$(SolutionDir)Build\obf_config.xml" "$(TargetDir)" 
-xcopy /Y "$(SolutionDir)Libraries\FreeImage.dll" "$(TargetDir)"</PostBuildEvent>
+    <PostBuildEvent>
+      xcopy /Y "$(SolutionDir)Build\obf_config.xml" "$(TargetDir)"
+      xcopy /Y "$(SolutionDir)Libraries\$(Platform)\FreeImage.dll" "$(TargetDir)"</PostBuildEvent>
   </PropertyGroup>
   <Target Name="BeforeBuild">
   </Target>

@@ -7,6 +7,8 @@ namespace TheraEngine.Rendering
         public MaterialFrameBuffer() { }
         public MaterialFrameBuffer(Material m) { Material = m; }
 
+        private bool _compiled = false;
+
         private Material _material;
         public Material Material
         {
@@ -21,7 +23,7 @@ namespace TheraEngine.Rendering
                 if (_material != null)
                 {
                     _material.FrameBuffer = this;
-                    Compile();
+                    _compiled = false;
                 }
             }
         }
@@ -33,19 +35,26 @@ namespace TheraEngine.Rendering
                 return;
             if (RenderPanel.NeedsInvoke(Compile, RenderPanel.PanelType.Game))
                 return;
-            Bind(EFramebufferTarget.Framebuffer);
+            Engine.Renderer.BindFrameBuffer(EFramebufferTarget.Framebuffer, BindingId);
             Material.GenerateTextures();
             Engine.Renderer.SetDrawBuffers(Material.FboAttachments);
             CheckErrors();
-            Unbind(EFramebufferTarget.Framebuffer);
+            Engine.Renderer.BindFrameBuffer(EFramebufferTarget.Framebuffer, 0);
+            _compiled = true;
+        }
+        public override void Bind(EFramebufferTarget type)
+        {
+            if (!_compiled)
+                Compile();
+            base.Bind(type);
         }
     }
     public class FrameBuffer : BaseRenderState
     {
         public FrameBuffer() : base(EObjectType.Framebuffer) { }
-        public void Bind(EFramebufferTarget type)
+        public virtual void Bind(EFramebufferTarget type)
             => Engine.Renderer.BindFrameBuffer(type, BindingId);
-        public void Unbind(EFramebufferTarget type)
+        public virtual void Unbind(EFramebufferTarget type)
             => Engine.Renderer.BindFrameBuffer(type, 0);
         public void CheckErrors()
             => Engine.Renderer.CheckFrameBufferErrors();

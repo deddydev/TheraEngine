@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Reflection;
 using System.ComponentModel;
-using TheraEngine.Rendering.Animation;
+using TheraEngine.Animation;
 using System;
 using TheraEngine.Input.Devices;
 using System.Diagnostics;

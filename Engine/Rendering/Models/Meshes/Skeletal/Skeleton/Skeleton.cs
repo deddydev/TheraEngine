@@ -160,7 +160,7 @@ namespace TheraEngine.Rendering.Models
         }
         internal void WorldMatrixChanged()
         {
-            _cullingVolume.SetTransform(_owningComponent == null ? Matrix4.Identity : _owningComponent.WorldMatrix);
+            _cullingVolume.SetRenderTransform(_owningComponent == null ? Matrix4.Identity : _owningComponent.WorldMatrix);
         }
         public void Render()
         {

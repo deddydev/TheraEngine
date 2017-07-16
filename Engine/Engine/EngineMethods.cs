@@ -24,8 +24,6 @@ namespace TheraEngine
     {
         static Engine()
         {
-            Thread.CurrentThread.Name = "Main Thread";
-
             //Steamworks.SteamAPI.Init();
 
             _timer = new EngineTimer();
@@ -117,8 +115,8 @@ namespace TheraEngine
             AudioLibrary = _game.UserSettings.AudioLibrary;
             InputLibrary = _game.UserSettings.InputLibrary;
 
-            if (Renderer == null)
-                throw new Exception("Unable to create renderer.");
+            //if (Renderer == null)
+            //    throw new Exception("Unable to create renderer.");
 
             //Set initial world (this would generally be a world for opening videos or the main menu)
             World = Game.OpeningWorld;
@@ -384,15 +382,50 @@ namespace TheraEngine
         /// <param name="unloadPrevious">Whether or not the engine should deallocate all resources utilized by the current world before loading the new one.</param>
         public static void SetCurrentWorld(World world, bool unloadPrevious)
         {
+            bool wasRunning = _timer.IsRunning;
             World previous = World;
             if (World != null)
+            {
                 World.EndPlay();
+                DestroyLocalPlayerControllers();
+            }
+            Stop();
             _currentWorld = world;
             Scene.WorldChanged();
             if (World != null)
+            {
+                CreateLocalPlayerControllers();
                 World.BeginPlay();
+            }
+            if (wasRunning)
+                Run();
             if (unloadPrevious)
                 previous?.Unload();
+        }
+        private static void DestroyLocalPlayerControllers()
+        {
+            foreach (LocalPlayerController controller in ActivePlayers)
+                controller.Destroy();
+            ActivePlayers.Clear();
+        }
+        private static void CreateLocalPlayerControllers()
+        {
+            InputDevice[] gamepads = InputDevice.CurrentDevices[InputDeviceType.Gamepad];
+            InputDevice[] keyboards = InputDevice.CurrentDevices[InputDeviceType.Keyboard];
+            InputDevice[] mice = InputDevice.CurrentDevices[InputDeviceType.Mouse];
+
+            if (keyboards.Any(x => x != null) || 
+                mice.Any(x => x != null) || 
+                gamepads.Any(x => x != null && x.Index == 0))
+            {
+                ActivePlayers.Add(World.Settings.GameMode.File?.CreateLocalController(PlayerIndex.One));
+            }
+            for (int i = 0; i < 4; ++i)
+            {
+                InputDevice gp = gamepads[i];
+                if (gp != null && gp.Index > 0)
+                    ActivePlayers.Add(World.Settings.GameMode.File?.CreateLocalController(PlayerIndex.One + gp.Index));
+            }
         }
         /// <summary>
         /// Enqueues a pawn to be possessed by the given local player as soon as its current controlled pawn is set to null.

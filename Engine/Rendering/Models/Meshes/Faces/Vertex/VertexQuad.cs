@@ -21,12 +21,12 @@ namespace TheraEngine.Rendering.Models
         public VertexQuad(Vertex v0, Vertex v1, Vertex v2, Vertex v3) 
             : base(v0, v1, v2, v3) { }
 
-        public override List<VertexTriangle> ToTriangles()
+        public override VertexTriangle[] ToTriangles()
         {
-            return new List<VertexTriangle>()
+            return new VertexTriangle[]
             {
                 new VertexTriangle(Vertex0, Vertex1, Vertex3),
-                new VertexTriangle(Vertex3, Vertex1, Vertex2),
+                new VertexTriangle(Vertex3.HardCopy(), Vertex1.HardCopy(), Vertex2),
             };
         }
         public static VertexQuad MakeQuad(

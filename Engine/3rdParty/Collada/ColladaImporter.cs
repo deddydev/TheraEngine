@@ -1,4 +1,4 @@
-﻿using TheraEngine.Rendering.Animation;
+﻿using TheraEngine.Animation;
 using TheraEngine.Rendering.Models.Materials;
 using System;
 using System.Collections.Generic;
@@ -11,18 +11,12 @@ namespace TheraEngine.Rendering.Models
 {
     public unsafe partial class Collada
     {
-        public class Scene
-        {
-            public SkeletalMesh SkeletalModel;
-            public StaticMesh StaticModel;
-            public Skeleton Skeleton;
-            public ModelAnimation Animation;
-        }
-        public static Scene Import(string filePath, ImportOptions options, bool importAnimations = true, bool importModels = true)
+        public static ModelScene Import(string filePath, ModelImportOptions options)
         {
             Debug.WriteLine("Importing Collada scene on " + Thread.CurrentThread.Name + " thread.");
 
             DecoderShell shell = DecoderShell.Import(filePath);
+            ModelScene scene = new ModelScene();
 
             Matrix4 baseTransform = options.InitialTransform.Matrix;
             bool isZup = false;
@@ -35,97 +29,105 @@ namespace TheraEngine.Rendering.Models
                     baseTransform = Matrix4.ZupToYup * baseTransform;
             }
 
-            //Extract materials
-            foreach (MaterialEntry mat in shell._materials)
+            if (options.ImportModels)
             {
-                List<ImageEntry> imgEntries = new List<ImageEntry>();
-
-                //Find effect
-                if (mat._effect != null)
-                    foreach (EffectEntry eff in shell._effects)
-                        if (eff._id == mat._effect) //Attach textures and effects to material
-                            if (eff._shader != null)
-                                foreach (LightEffectEntry l in eff._shader._effects)
-                                    if (l._type == LightEffectType.diffuse && l._texture != null)
-                                    {
-                                        string path = l._texture;
-                                        foreach (EffectNewParam p in eff._newParams)
-                                            if (p._sid == l._texture)
-                                            {
-                                                path = p._sampler2D._url;
-                                                if (!string.IsNullOrEmpty(p._sampler2D._source))
-                                                    foreach (EffectNewParam p2 in eff._newParams)
-                                                        if (p2._sid == p._sampler2D._source)
-                                                            path = p2._path;
-                                            }
-
-                                        foreach (ImageEntry img in shell._images)
-                                            if (img._id == path)
-                                            {
-                                                imgEntries.Add(img);
-                                                break;
-                                            }
-                                    }
-
-                Material m = imgEntries.Count > 0 ? Material.GetLitTextureMaterial() : Material.GetLitColorMaterial();//new Material(mat._name != null ? mat._name : mat._id, s);
-                mat._node = m;
-
-                TextureReference[] t = new TextureReference[imgEntries.Count];
-                for (int i = 0; i < imgEntries.Count; ++i)
+                #region Material Extraction
+                foreach (MaterialEntry mat in shell._materials)
                 {
-                    ImageEntry img = imgEntries[i];
-                    t[i] = new TextureReference(Path.GetFileNameWithoutExtension(img._path), img._path)
+                    List<ImageEntry> imgEntries = new List<ImageEntry>();
+
+                    //Find effect
+                    if (mat._effect != null)
+                        foreach (EffectEntry eff in shell._effects)
+                            if (eff._id == mat._effect) //Attach textures and effects to material
+                                if (eff._shader != null)
+                                    foreach (LightEffectEntry l in eff._shader._effects)
+                                        if (l._type == LightEffectType.diffuse && l._texture != null)
+                                        {
+                                            string path = l._texture;
+                                            foreach (EffectNewParam p in eff._newParams)
+                                                if (p._sid == l._texture)
+                                                {
+                                                    path = p._sampler2D._url;
+                                                    if (!string.IsNullOrEmpty(p._sampler2D._source))
+                                                        foreach (EffectNewParam p2 in eff._newParams)
+                                                            if (p2._sid == p._sampler2D._source)
+                                                                path = p2._path;
+                                                }
+
+                                            foreach (ImageEntry img in shell._images)
+                                                if (img._id == path)
+                                                {
+                                                    imgEntries.Add(img);
+                                                    break;
+                                                }
+                                        }
+
+                    Material m = imgEntries.Count > 0 ? Material.GetLitTextureMaterial() : Material.GetLitColorMaterial();//new Material(mat._name != null ? mat._name : mat._id, s);
+                    mat._node = m;
+
+                    TextureReference[] t = new TextureReference[imgEntries.Count];
+                    for (int i = 0; i < imgEntries.Count; ++i)
                     {
-                        UWrap = options._wrap,
-                        VWrap = options._wrap,
+                        ImageEntry img = imgEntries[i];
+                        t[i] = new TextureReference(Path.GetFileNameWithoutExtension(img._path), img._path)
+                        {
+                            UWrap = options.TexCoordWrap,
+                            VWrap = options.TexCoordWrap,
+                        };
+                    }
+                    m.TexRefs = t;
+                }
+                #endregion
+
+                List<ObjectInfo> objects = new List<ObjectInfo>();
+                List<Bone> rootBones = new List<Bone>();
+
+                //Extract bones and objects and create bone tree
+                foreach (VisualSceneEntry s in shell._visualScenes)
+                    foreach (NodeEntry node in s._nodes)
+                    {
+                        Bone b = EnumNode(null, node, s, shell, objects, baseTransform, Matrix4.Identity, isZup);
+                        if (b != null)
+                            rootBones.Add(b);
+                    }
+
+                //Create meshes after all bones have been created
+                if (rootBones.Count == 0)
+                {
+                    scene.StaticModel = new StaticMesh()
+                    {
+                        Name = Path.GetFileNameWithoutExtension(filePath)
                     };
+                    scene.SkeletalModel = null;
+                    scene.Skeleton = null;
+                    foreach (ObjectInfo obj in objects)
+                        obj.Initialize(scene.StaticModel, shell);
                 }
-                m.TexRefs = t;
-            }
-
-            List<ObjectInfo> objects = new List<ObjectInfo>();
-            List<Bone> rootBones = new List<Bone>();
-
-            //Extract bones and objects and create bone tree
-            foreach (VisualSceneEntry s in shell._visualScenes)
-                foreach (NodeEntry node in s._nodes)
+                else
                 {
-                    Bone b = EnumNode(null, node, s, shell, objects, baseTransform, Matrix4.Identity, isZup);
-                    if (b != null)
-                        rootBones.Add(b);
+                    scene.SkeletalModel = new SkeletalMesh()
+                    {
+                        Name = Path.GetFileNameWithoutExtension(filePath)
+                    };
+                    scene.StaticModel = null;
+                    scene.Skeleton = new Skeleton(rootBones.ToArray());
+                    foreach (ObjectInfo obj in objects)
+                        obj.Initialize(scene.SkeletalModel, shell);
                 }
+            }
 
-            Scene scene = new Scene();
-            //Create meshes after all bones have been created
-            if (rootBones.Count == 0)
+            if (options.ImportAnimations)
             {
-                scene.StaticModel = new StaticMesh()
+                scene.Animation = new ModelAnimation()
                 {
-                    Name = Path.GetFileNameWithoutExtension(filePath)
+                    Name = Path.GetFileNameWithoutExtension(filePath),
+                    //RootFolder = new AnimFolder("Skeleton"),
                 };
-                scene.SkeletalModel = null;
-                scene.Skeleton = null;
-                foreach (ObjectInfo obj in objects)
-                    obj.Initialize(scene.StaticModel, shell);
+                foreach (AnimationEntry e in shell._animations)
+                    ParseAnimation(e, scene.Animation);
             }
-            else
-            {
-                scene.SkeletalModel = new SkeletalMesh()
-                {
-                    Name = Path.GetFileNameWithoutExtension(filePath)
-                };
-                scene.StaticModel = null;
-                scene.Skeleton = new Skeleton(rootBones.ToArray());
-                foreach (ObjectInfo obj in objects)
-                    obj.Initialize(scene.SkeletalModel, shell);
-            }
-            scene.Animation = new ModelAnimation()
-            {
-                Name = Path.GetFileNameWithoutExtension(filePath),
-                //RootFolder = new AnimFolder("Skeleton"),
-            };
-            foreach (AnimationEntry e in shell._animations)
-                ParseAnimation(e, scene.Animation);
+
             return scene;
         }
 

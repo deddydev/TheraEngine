@@ -154,10 +154,10 @@ namespace System
         public override EContainment ContainedWithin(Frustum frustum)
             => frustum.Contains(this);
 
-        public override void SetTransform(Matrix4 worldMatrix)
+        public override void SetRenderTransform(Matrix4 worldMatrix)
         {
             _center = worldMatrix.GetPoint();
-            base.SetTransform(worldMatrix);
+            base.SetRenderTransform(worldMatrix);
         }
         
         public override Shape HardCopy()
@@ -166,10 +166,13 @@ namespace System
         public override Shape TransformedBy(Matrix4 worldMatrix)
         {
             Sphere s = new Sphere(Radius, Center);
-            s.SetTransform(worldMatrix);
+            s.SetRenderTransform(worldMatrix);
             return s;
         }
 
+        public override Matrix4 GetTransformMatrix()
+            => _center.AsTranslationMatrix();
+        
         //protected override int OnCalculateSize(StringTable table)
         //    => Header.Size;
         //public unsafe override void Write(VoidPtr address, StringTable table)

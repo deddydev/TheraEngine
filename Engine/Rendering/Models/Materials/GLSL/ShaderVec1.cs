@@ -10,8 +10,10 @@
 
         private bool _value;
 
-        public ShaderBool(bool defaultValue, string name) : this(defaultValue, name, null) { }
-        public ShaderBool(bool defaultValue, string name, IShaderVarOwner owner) : base(name, owner)
+        public ShaderBool(bool defaultValue, string name)
+            : this(defaultValue, name, null) { }
+        public ShaderBool(bool defaultValue, string name, IShaderVarOwner owner)
+            : base(name, owner)
         {
             _value = defaultValue;
         }
@@ -26,8 +28,10 @@
 
         private float _value;
 
-        public ShaderFloat(float defaultValue, string name) : this(defaultValue, name, null) { }
-        public ShaderFloat(float defaultValue, string name, IShaderVarOwner owner) : base(name, owner)
+        public ShaderFloat(float defaultValue, string name) 
+            : this(defaultValue, name, null) { }
+        public ShaderFloat(float defaultValue, string name, IShaderVarOwner owner)
+            : base(name, owner)
         {
             _value = defaultValue;
         }
@@ -42,8 +46,10 @@
 
         private double _value;
 
-        public ShaderDouble(double defaultValue, string name) : this(defaultValue, name, null) { }
-        public ShaderDouble(double defaultValue, string name, IShaderVarOwner owner) : base(name, owner)
+        public ShaderDouble(double defaultValue, string name)
+            : this(defaultValue, name, null) { }
+        public ShaderDouble(double defaultValue, string name, IShaderVarOwner owner)
+            : base(name, owner)
         {
             _value = defaultValue;
         }
@@ -58,8 +64,10 @@
 
         private int _value;
 
-        public ShaderInt(int defaultValue, string name) : this(defaultValue, name, null) { }
-        public ShaderInt(int defaultValue, string name, IShaderVarOwner owner) : base(name, owner)
+        public ShaderInt(int defaultValue, string name)
+            : this(defaultValue, name, null) { }
+        public ShaderInt(int defaultValue, string name, IShaderVarOwner owner)
+            : base(name, owner)
         {
             _value = defaultValue;
         }
@@ -74,8 +82,10 @@
 
         private uint _value;
 
-        public ShaderUInt(uint defaultValue, string name) : this(defaultValue, name, null) { }
-        public ShaderUInt(uint defaultValue, string name, IShaderVarOwner owner) : base(name, owner)
+        public ShaderUInt(uint defaultValue, string name) 
+            : this(defaultValue, name, null) { }
+        public ShaderUInt(uint defaultValue, string name, IShaderVarOwner owner) 
+            : base(name, owner)
         {
             _value = defaultValue;
         }

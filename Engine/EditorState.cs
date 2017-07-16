@@ -19,5 +19,11 @@ namespace TheraEngine
         public List<PropertyInfo> ChangedProperties { get => _changedProperties; set => _changedProperties = value; }
         public TreeNode TreeNode { get => _treeNode; set => _treeNode = value; }
     }
+    public class EngineEditorState
+    {
+        private bool _inGameMode = true;
+
+        public bool InGameMode { get => _inGameMode; set => _inGameMode = value; }
+    }
 #endif
 }

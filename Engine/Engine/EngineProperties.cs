@@ -36,14 +36,10 @@ namespace TheraEngine
         public static List<AIController> ActiveAI = new List<AIController>();
         public static List<World> LoadedWorlds = new List<World>();
 
-        public static SceneProcessor Scene => _scene;
-        private static SceneProcessor _scene = new SceneProcessor();
+        public static SceneProcessor Scene { get; } = new SceneProcessor();
 
         private static World _currentWorld = null;
-
-        //public static SingleFileRef<EngineSettings> _engineSettings = new SingleFileRef<EngineSettings>(EngineSettingsPathRel);
-        //public static SingleFileRef<UserSettings> _userSettings = new SingleFileRef<UserSettings>(UserSettingsPathRel);
-
+        
         public static Game Game => _game;
         public static EngineSettings Settings => Game?.EngineSettings;
         public static UserSettings UserSettings => Game?.UserSettings;
@@ -84,12 +80,16 @@ namespace TheraEngine
         public static int MainThreadID;
         internal static int MaxTextureUnits;
 
+#if EDITOR
+        public static EngineEditorState EditorState = new EngineEditorState();
+#endif
+
         public static AbstractRenderer Renderer
         {
             get
             {
-                if (MainThreadID != Thread.CurrentThread.ManagedThreadId)
-                    throw new Exception("Cannot make render calls off the main thread. Invoke the method containing the calls with RenderPanel.CapturedPanel beforehand.");
+                //if (MainThreadID != Thread.CurrentThread.ManagedThreadId)
+                //    throw new Exception("Cannot make render calls off the main thread. Invoke the method containing the calls with RenderPanel.CapturedPanel beforehand.");
                 return _renderer;
             }
             internal set => _renderer = value;

@@ -3,9 +3,9 @@
     public static class SingleExtension
     {
         public const Single ZeroTolerance = 1e-6f;
-        public static bool IsZero(this Single value)
+        public static bool IsZero(this Single value, Single errorMargin = ZeroTolerance)
         {
-            return Math.Abs(value) < ZeroTolerance;
+            return Math.Abs(value) < errorMargin;
         }
         public static bool EqualTo(this Single value, Single other)
         {

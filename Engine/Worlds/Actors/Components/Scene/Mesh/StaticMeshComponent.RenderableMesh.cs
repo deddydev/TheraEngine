@@ -13,6 +13,7 @@ namespace TheraEngine.Worlds.Actors
                 _mesh = mesh;
                 _component = component;
                 _cullingVolume = _mesh.CullingVolume?.HardCopy();
+                _initialCullingVolumeMatrix = _cullingVolume == null ? Matrix4.Identity : _cullingVolume.GetTransformMatrix();
                 _manager = new PrimitiveManager(_mesh.Data, _mesh.Material);
                 Visible = false;
                 IsRendering = true;
@@ -23,7 +24,7 @@ namespace TheraEngine.Worlds.Actors
             {
                 if (_cullingVolume != null)
                 {
-                    _cullingVolume.SetTransform(_component.WorldMatrix);
+                    _cullingVolume.SetRenderTransform(_component.WorldMatrix * _initialCullingVolumeMatrix);
                     OctreeNode?.ItemMoved(this);
                 }
             }
@@ -35,6 +36,7 @@ namespace TheraEngine.Worlds.Actors
                 _isVisible = true, 
                 _isRendering = false;
 
+            private Matrix4 _initialCullingVolumeMatrix;
             private PrimitiveManager _manager;
             private SceneComponent _component;
             private IStaticSubMesh _mesh;

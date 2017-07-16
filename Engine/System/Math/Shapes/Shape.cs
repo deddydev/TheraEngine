@@ -132,8 +132,7 @@ namespace System
         /// <summary>
         /// Applies the transform to this shape.
         /// </summary>
-        /// <param name="worldMatrix"></param>
-        public virtual void SetTransform(Matrix4 worldMatrix)
+        public virtual void SetRenderTransform(Matrix4 worldMatrix)
         {
             OctreeNode?.ItemMoved(this);
         }
@@ -147,5 +146,6 @@ namespace System
         /// Returns a completely unique copy of this shape (nothing shares the same memory location).
         /// </summary>
         public abstract Shape HardCopy();
+        public abstract Matrix4 GetTransformMatrix();
     }
 }

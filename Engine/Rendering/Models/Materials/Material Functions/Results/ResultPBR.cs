@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using TheraEngine.Rendering.HUD.Functions;
 
 namespace TheraEngine.Rendering.Models.Materials
 {
@@ -21,7 +22,7 @@ namespace TheraEngine.Rendering.Models.Materials
         {
             return new List<MatFuncValueInput>()
             {
-                new MatFuncValueInput("Diffuse", ShaderVarType._vec4),
+                new MatFuncValueInput("Albedo", ShaderVarType._vec4),
                 new MatFuncValueInput("Roughness", ShaderVarType._float),
                 new MatFuncValueInput("Shininess", ShaderVarType._float),
                 new MatFuncValueInput("Specularity", ShaderVarType._float),

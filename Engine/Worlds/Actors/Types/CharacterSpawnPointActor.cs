@@ -11,7 +11,7 @@ namespace TheraEngine.Worlds.Actors.Types
             PhysicsConstructionInfo info = new PhysicsConstructionInfo()
             {
                 CollidesWith = CustomCollisionGroup.All,
-                Group = CustomCollisionGroup.StaticWorld,
+                CollisionGroup = CustomCollisionGroup.StaticWorld,
                 CollisionEnabled = false,
                 SimulatePhysics = false
             };

@@ -1,4 +1,4 @@
-﻿using TheraEngine.Rendering.Animation;
+﻿using TheraEngine.Animation;
 using TheraEngine.Rendering.Models;
 using TheraEngine.Rendering.Models.Materials;
 using System;

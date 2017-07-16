@@ -55,10 +55,10 @@ namespace System
         public Vec3 LocalUpAxis => _localUpAxis;
         public Vec3 WorldUpAxis => Vec3.TransformNormalInverse(_localUpAxis, _state.InverseMatrix);
 
-        public override void SetTransform(Matrix4 worldMatrix)
+        public override void SetRenderTransform(Matrix4 worldMatrix)
         {
             _state.Matrix = worldMatrix;
-            base.SetTransform(worldMatrix);
+            base.SetRenderTransform(worldMatrix);
         }
         public float GetTotalHalfHeight() => _halfHeight + _radius;
         public float GetTotalHeight() => GetTotalHalfHeight() * 2.0f;

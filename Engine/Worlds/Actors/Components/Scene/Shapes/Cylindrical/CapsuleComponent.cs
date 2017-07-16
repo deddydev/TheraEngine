@@ -18,7 +18,7 @@ namespace TheraEngine.Worlds.Actors
         internal override void RecalcGlobalTransform()
         {
             base.RecalcGlobalTransform();
-            _capsule.SetTransform(WorldMatrix);
+            _capsule.SetRenderTransform(WorldMatrix);
             OctreeNode?.ItemMoved(this);
         }
 

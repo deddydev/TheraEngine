@@ -174,7 +174,8 @@ namespace TheraEditor
                     if (_selectedComponent is IPhysicsDrivable d && d.PhysicsDriver.SimulatingPhysics)
                     {
                         _pickedBody = d.PhysicsDriver.CollisionObject;
-                        _pickedBody.ForceActivationState(ActivationState.ActiveTag);
+                        _pickedBody.ForceActivationState(ActivationState.DisableDeactivation);
+                        _pickedBody.Activate();
 
                         Vec3 localPivot = Vector3.TransformCoordinate(_hitPoint, Matrix.Invert(_pickedBody.CenterOfMassTransform));
                         Point2PointConstraint p2p = new Point2PointConstraint(_pickedBody, localPivot);

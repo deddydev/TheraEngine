@@ -1,0 +1,13 @@
+﻿using TheraEngine.Rendering;
+using TheraEngine.Rendering.HUD.Functions;
+
+namespace TheraEngine.Animation
+{
+    public class AnimFuncExecOutput : FuncExecOutput<AnimFuncExecInput, AnimationFunction>
+    {
+        public AnimFuncExecOutput(string name)
+            : base(name) { }
+        public AnimFuncExecOutput(string name, AnimationFunction parent)
+            : base(name, parent) { }
+    }
+}

@@ -23,7 +23,7 @@ namespace TheraEngine.Rendering
             Vertex point2 = new Vec3(0.0f, 2.0f, 0.0f);
             VertexTriangle triangle1 = new VertexTriangle(point0, point1, point2);
 
-            BoundingRectangle region = _parent.Region;
+            BoundingRectangle region = _parent.InternalResolution;
 
             Material = GetGBufferMaterial(region.IntWidth, region.IntHeight, forward, this, DepthStencilUse.Depth32f);
 
@@ -158,10 +158,9 @@ void main()
     vec3 FragPos = texture(Texture1, uv).rgb;
     vec3 Normal = texture(Texture2, uv).rgb;
     float Depth = texture(Texture3, uv).r;
-            
+
     " + ShaderHelpers.LightingCalc("totalLight", "GlobalAmbient", "Normal", "FragPos", "AlbedoSpec.rgb", "AlbedoSpec.a") + @"
 
-    //float shadow = texture(ShadowMap, uv).r;
     vec3 hdrSceneColor = AlbedoSpec.rgb * totalLight; 
 
     " + PostProcessPart() + @"

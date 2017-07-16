@@ -46,7 +46,8 @@ namespace TheraEngine.Worlds.Actors
         private float _worldRadius;
         private OrthographicCamera _shadowCamera;
         private int _shadowWidth, _shadowHeight;
-        
+        private Matrix4 _worldToLightSpaceProjMatrix;
+
         private Vec3 _direction;
         public Vec3 Direction
         {
@@ -68,8 +69,10 @@ namespace TheraEngine.Worlds.Actors
                 _worldRadius = Engine.World.Settings.Bounds.HalfExtents.LengthFast;
                 SetShadowMapResolution(4096, 4096);
                 Engine.Scene.Lights.Add(this);
+
                 _shadowCamera.LocalPoint.Raw = GetWorldPoint();
                 _shadowCamera.TranslateRelative(0.0f, 0.0f, _worldRadius + 1.0f);
+
                 if (Engine.Settings.RenderCameraFrustums)
                     Engine.Scene.Add(_shadowCamera);
             }
@@ -90,10 +93,9 @@ namespace TheraEngine.Worlds.Actors
             Engine.Renderer.ProgramUniform(programBindingId, indexer + "Base.Color", _color.Raw);
             Engine.Renderer.ProgramUniform(programBindingId, indexer + "Base.AmbientIntensity", _ambientIntensity);
             Engine.Renderer.ProgramUniform(programBindingId, indexer + "Base.DiffuseIntensity", _diffuseIntensity);
-            Engine.Renderer.ProgramUniform(programBindingId, indexer + "Base.WorldToLightSpaceMatrix", _shadowCamera.WorldToCameraSpaceMatrix);
-            Engine.Renderer.ProgramUniform(programBindingId, indexer + "Base.ProjectionMatrix", _shadowCamera.ProjectionMatrix);
+            Engine.Renderer.ProgramUniform(programBindingId, indexer + "Base.WorldToLightSpaceProjMatrix", _worldToLightSpaceProjMatrix);
             Engine.Renderer.ProgramUniform(programBindingId, indexer + "Direction", _direction);
-            _shadowMap.Material.BindTexture(0, 4 + LightIndex, "ShadowMap", programBindingId);
+            _shadowMap.Material.BindTexture(0, 4 + LightIndex, indexer + "Base.ShadowMap", programBindingId);
         }
         public void SetShadowMapResolution(int width, int height)
         {
@@ -114,10 +116,17 @@ namespace TheraEngine.Worlds.Actors
                 _shadowCamera.SetCenteredStyle();
                 _shadowCamera.Resize(_worldRadius, _worldRadius);
                 _shadowCamera.LocalRotation.SyncFrom(_rotation);
+                _shadowCamera.ProjectionChanged += UpdateMatrix;
+                _shadowCamera.TransformChanged += UpdateMatrix;
+                UpdateMatrix();
             }
             else
                 _shadowCamera.Resize(width, height);
         }
+
+        private void UpdateMatrix()
+            => _worldToLightSpaceProjMatrix = _shadowCamera.ProjectionMatrix * _shadowCamera.WorldToCameraSpaceMatrix;
+        
         private static Material GetShadowMapMaterial(int width, int height)
         {
             //These are listed in order of appearance in the shader

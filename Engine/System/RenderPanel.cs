@@ -96,11 +96,16 @@ namespace TheraEngine
 
             //Create context RIGHT AWAY so render objects can bind to it as they are created
             CreateContext();
-
             //Add the main viewport - at least one viewport should always be rendering
             AddViewport();
         }
-        
+
+        protected override void OnLoad(EventArgs e)
+        {
+            base.OnLoad(e);
+
+        }
+
         internal delegate Point DelPointConvert(Point p);
         internal DelPointConvert PointToClientDelegate;
         internal DelPointConvert PointToScreenDelegate;
@@ -202,7 +207,7 @@ namespace TheraEngine
         }
         protected virtual void OnRender(PaintEventArgs e)
         {
-            Engine.Scene.RenderShadowMaps();
+            Engine.Scene?.RenderShadowMaps();
 
             _context.BeginDraw();
             foreach (Viewport v in _viewports)

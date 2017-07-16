@@ -3,10 +3,18 @@
     public static class ListExtension
     {
         /// <summary>
-        /// Returns true if index >= 0 && index < length.
+        /// Returns true if index >= 0 && index < count
         /// Use this so you don't have to write that every time.
         /// </summary>
-        public static bool IndexInRange(this IList a, int value)
+        //public static bool IndexInRange(this IList a, int value)
+        //{
+        //    return value >= 0 && value < a.Count;
+        //}
+        /// <summary>
+        /// Returns true if index >= 0 && index < count
+        /// Use this so you don't have to write that every time.
+        /// </summary>
+        public static bool IndexInRange<T>(this IList<T> a, int value)
         {
             return value >= 0 && value < a.Count;
         }

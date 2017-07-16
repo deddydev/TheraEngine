@@ -1,4 +1,4 @@
-﻿using TheraEngine.Rendering.Animation;
+﻿using TheraEngine.Animation;
 using grendgine_collada;
 using System;
 using System.Collections.Generic;
@@ -7,7 +7,7 @@ namespace TheraEngine.Rendering.Models
 {
     public static class ColladaConverter
     {
-        public static Collada.Scene Convert(Grendgine_Collada colladaFile)
+        public static ModelScene Convert(Grendgine_Collada colladaFile)
         {
             SkeletalMesh m = new SkeletalMesh();
             List<AnimationContainer> a = new List<AnimationContainer>();
@@ -16,7 +16,7 @@ namespace TheraEngine.Rendering.Models
             GetMeshes(m, colladaFile);
             GetAnimations(a, colladaFile);
 
-            return new Collada.Scene();
+            return new ModelScene();
         }
         private static void GetSkeleton(SkeletalMesh m, Grendgine_Collada colladaFile)
         {

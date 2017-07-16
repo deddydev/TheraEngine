@@ -1,4 +1,6 @@
-﻿namespace TheraEngine.Rendering.Models.Materials
+﻿using TheraEngine.Rendering.HUD.Functions;
+
+namespace TheraEngine.Rendering.Models.Materials
 {
     [FunctionDefinition(
                 "Constants",

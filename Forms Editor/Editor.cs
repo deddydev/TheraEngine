@@ -39,12 +39,13 @@ namespace TheraEditor
                     UserSettings = new UserSettings(),
                     EngineSettings = new EngineSettings()
                     {
-                        CapFPS = true,
+                        CapFPS = false,
                         TargetFPS = 60.0f,
                     }
                 };
             }
 
+            Engine.EditorState.InGameMode = false;
             Engine.SetGame(Project);
             InitializeComponent();
             DoubleBuffered = false;
@@ -98,6 +99,7 @@ namespace TheraEditor
         protected override void OnLoad(EventArgs e)
         {
             base.OnLoad(e);
+
             OnRedrawn = Redraw;
             Engine.RegisterRenderTick(RenderTick);
             actorPropertyGrid.SelectedObject = Engine.World?.Settings;
@@ -241,6 +243,7 @@ namespace TheraEditor
             {
                 Filter = FileObject.GetFileHeader(typeof(Project)).GetFilter(),
             };
+
             if (ofd.ShowDialog() == DialogResult.OK && CloseProject())
                 OpenProject(FileObject.Import<Project>(ofd.FileName));
 
@@ -296,6 +299,11 @@ namespace TheraEditor
         private void btnWorldSettings_Click(object sender, EventArgs e)
         {
             actorPropertyGrid.SelectedObject = Engine.World?.Settings;
+        }
+
+        private void cboContentViewTypes_SelectedIndexChanged(object sender, EventArgs e)
+        {
+
         }
     }
 }

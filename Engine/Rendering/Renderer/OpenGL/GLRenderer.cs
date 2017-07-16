@@ -296,59 +296,59 @@ namespace TheraEngine.Rendering.OpenGL
 
             //SetBindFragDataLocation(handle, GetUniformLocation(handle, "OutColor"), "OutColor");
 
-            if (desc != null)
-            {
-                int meshCount = desc._morphCount + 1;
-                bool weighted = Engine.Settings.SkinOnGPU && desc.IsWeighted;
-                int location = 0;
+            //if (desc != null)
+            //{
+            //    int meshCount = desc._morphCount + 1;
+            //    bool weighted = Engine.Settings.SkinOnGPU && desc.IsWeighted;
+            //    int location = 0;
 
-                //Have to bind 'in' attributes before linking
+            //    //Have to bind 'in' attributes before linking
 
-                BufferType type = BufferType.Position;
-                for (int i = 0; i < meshCount; ++i)
-                    GL.BindAttribLocation(handle, location + i, VertexAttribInfo.GetAttribName(type, i));
-                location += VertexAttribInfo.GetMaxBuffersForType(type);
+            //    BufferType type = BufferType.Position;
+            //    for (int i = 0; i < meshCount; ++i)
+            //        GL.BindAttribLocation(handle, location + i, VertexAttribInfo.GetAttribName(type, i));
+            //    location += VertexAttribInfo.GetMaxBuffersForType(type);
 
-                type = BufferType.Normal;
-                if (desc.HasNormals)
-                    for (int i = 0; i < meshCount; ++i)
-                        GL.BindAttribLocation(handle, location + i, VertexAttribInfo.GetAttribName(type, i));
-                location += VertexAttribInfo.GetMaxBuffersForType(type);
+            //    type = BufferType.Normal;
+            //    if (desc.HasNormals)
+            //        for (int i = 0; i < meshCount; ++i)
+            //            GL.BindAttribLocation(handle, location + i, VertexAttribInfo.GetAttribName(type, i));
+            //    location += VertexAttribInfo.GetMaxBuffersForType(type);
 
-                type = BufferType.Binormal;
-                if (desc.HasBinormals)
-                    for (int i = 0; i < meshCount; ++i)
-                        GL.BindAttribLocation(handle, location + i, VertexAttribInfo.GetAttribName(type, i));
-                location += VertexAttribInfo.GetMaxBuffersForType(type);
+            //    type = BufferType.Binormal;
+            //    if (desc.HasBinormals)
+            //        for (int i = 0; i < meshCount; ++i)
+            //            GL.BindAttribLocation(handle, location + i, VertexAttribInfo.GetAttribName(type, i));
+            //    location += VertexAttribInfo.GetMaxBuffersForType(type);
 
-                type = BufferType.Tangent;
-                if (desc.HasTangents)
-                    for (int i = 0; i < meshCount; ++i)
-                        GL.BindAttribLocation(handle, location + i, VertexAttribInfo.GetAttribName(type, i));
-                location += VertexAttribInfo.GetMaxBuffersForType(type);
+            //    type = BufferType.Tangent;
+            //    if (desc.HasTangents)
+            //        for (int i = 0; i < meshCount; ++i)
+            //            GL.BindAttribLocation(handle, location + i, VertexAttribInfo.GetAttribName(type, i));
+            //    location += VertexAttribInfo.GetMaxBuffersForType(type);
 
-                type = BufferType.MatrixIds;
-                if (desc.IsWeighted)
-                    for (int i = 0; i < meshCount; ++i)
-                        GL.BindAttribLocation(handle, location + i, VertexAttribInfo.GetAttribName(type, i));
-                location += VertexAttribInfo.GetMaxBuffersForType(type);
+            //    type = BufferType.MatrixIds;
+            //    if (desc.IsWeighted)
+            //        for (int i = 0; i < meshCount; ++i)
+            //            GL.BindAttribLocation(handle, location + i, VertexAttribInfo.GetAttribName(type, i));
+            //    location += VertexAttribInfo.GetMaxBuffersForType(type);
 
-                type = BufferType.MatrixWeights;
-                if (desc.IsWeighted)
-                    for (int i = 0; i < meshCount; ++i)
-                        GL.BindAttribLocation(handle, location + i, VertexAttribInfo.GetAttribName(type, i));
-                location += VertexAttribInfo.GetMaxBuffersForType(type);
+            //    type = BufferType.MatrixWeights;
+            //    if (desc.IsWeighted)
+            //        for (int i = 0; i < meshCount; ++i)
+            //            GL.BindAttribLocation(handle, location + i, VertexAttribInfo.GetAttribName(type, i));
+            //    location += VertexAttribInfo.GetMaxBuffersForType(type);
 
-                type = BufferType.Color;
-                for (int i = 0; i < desc._colorCount; ++i)
-                    GL.BindAttribLocation(handle, location + i, VertexAttribInfo.GetAttribName(type, i));
-                location += VertexAttribInfo.GetMaxBuffersForType(type);
+            //    type = BufferType.Color;
+            //    for (int i = 0; i < desc._colorCount; ++i)
+            //        GL.BindAttribLocation(handle, location + i, VertexAttribInfo.GetAttribName(type, i));
+            //    location += VertexAttribInfo.GetMaxBuffersForType(type);
 
-                type = BufferType.TexCoord;
-                for (int i = 0; i < desc._texcoordCount; ++i)
-                    GL.BindAttribLocation(handle, location + i, VertexAttribInfo.GetAttribName(type, i));
-                location += VertexAttribInfo.GetMaxBuffersForType(type);
-            }
+            //    type = BufferType.TexCoord;
+            //    for (int i = 0; i < desc._texcoordCount; ++i)
+            //        GL.BindAttribLocation(handle, location + i, VertexAttribInfo.GetAttribName(type, i));
+            //    location += VertexAttribInfo.GetMaxBuffersForType(type);
+            //}
             
             GL.LinkProgram(handle);
             GL.GetProgram(handle, GetProgramParameterName.LinkStatus, out int status);

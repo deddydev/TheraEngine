@@ -14,10 +14,10 @@ namespace System
         {
 
         }
-        public override void SetTransform(Matrix4 worldMatrix)
+        public override void SetRenderTransform(Matrix4 worldMatrix)
         {
             _state.Matrix = worldMatrix;
-            base.SetTransform(worldMatrix);
+            base.SetRenderTransform(worldMatrix);
         }
         public override CollisionShape GetCollisionShape()
             => new CapsuleShape(Radius, HalfHeight * 2.0f);
@@ -25,5 +25,7 @@ namespace System
             => new CapsuleY(_state.Translation, _state.Rotation, _state.Scale, Radius, HalfHeight);
         public override Shape TransformedBy(Matrix4 worldMatrix)
             => new CapsuleY(worldMatrix.GetPoint(), Rotator.GetZero(), Vec3.One, Radius, HalfHeight);
+        public override Matrix4 GetTransformMatrix()
+            => _state.Matrix;
     }
 }

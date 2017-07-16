@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Drawing;
+using TheraEngine.Rendering;
 
 namespace System
 {
@@ -80,6 +81,9 @@ namespace System
             _head.FindAllInside(shape, list, allowPartialContains, testVisibleOnly);
             return list;
         }
+
+        public void CollectVisible(Frustum frustum, RenderPasses passes)
+            => _head.CollectVisible(frustum, passes);
 
         public void Cull(Frustum frustum, bool resetVisibility = true, bool cullOffscreen = true, bool debugRender = false)
             => _head.Cull(frustum, resetVisibility, cullOffscreen, debugRender);
@@ -231,6 +235,57 @@ namespace System
                 if (recurse)
                     foreach (Node n in _subNodes)
                         n?.DebugRender(true, color);
+            }
+            public void CollectVisible(Frustum frustum, RenderPasses passes)
+            {
+                EContainment c = frustum.Contains(_bounds);
+                if (c != EContainment.Disjoint)
+                {
+                    if (c == EContainment.Contains)
+                        CollectAll(passes);
+                    else
+                    {
+                        IsLoopingItems = true;
+                        foreach (I3DRenderable r in _items)
+                        {
+                            if (r.HasTransparency)
+                                passes.TransparentForward.PushFront(r);
+                            else
+                            {
+                                if (Engine.Settings.ShadingStyle == ShadingStyle.Deferred)
+                                    passes.OpaqueDeferred.PushFront(r);
+                                else
+                                    passes.OpaqueForward.PushFront(r);
+                            }
+                        }
+                        IsLoopingItems = false;
+                        IsLoopingSubNodes = true;
+                        foreach (var s in _subNodes)
+                            s?.CollectVisible(frustum, passes);
+                        IsLoopingSubNodes = false;
+                    }
+                }
+            }
+            private void CollectAll(RenderPasses passes)
+            {
+                IsLoopingItems = true;
+                foreach (I3DRenderable r in _items)
+                {
+                    if (r.HasTransparency)
+                        passes.TransparentForward.PushFront(r);
+                    else
+                    {
+                        if (Engine.Settings.ShadingStyle == ShadingStyle.Deferred)
+                            passes.OpaqueDeferred.PushFront(r);
+                        else
+                            passes.OpaqueForward.PushFront(r);
+                    }
+                }
+                IsLoopingItems = false;
+                IsLoopingSubNodes = true;
+                foreach (var s in _subNodes)
+                    s?.CollectAll(passes);
+                IsLoopingSubNodes = false;
             }
             public void Cull(Frustum frustum, bool resetVisibility, bool cullOffscreen, bool debugRender)
             {

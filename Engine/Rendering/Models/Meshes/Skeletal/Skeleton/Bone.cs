@@ -289,7 +289,7 @@ namespace TheraEngine.Rendering.Models
                     {
                         Matrix4 invView = c.CameraToWorldSpaceMatrix.GetRotationMatrix4();
                         Matrix4 view = c.WorldToCameraSpaceMatrix.GetRotationMatrix4();
-                        _frameMatrix = parentMatrix * _frameState.Translation.AsTranslationMatrix() * invView * _frameState.Scale.AsScaleMatrix();
+                        _frameMatrix = parentMatrix * _frameState.Translation.Raw.AsTranslationMatrix() * invView * _frameState.Scale.Raw.AsScaleMatrix();
                         _inverseFrameMatrix = (1.0f / _frameState.Scale).AsScaleMatrix() * view * (1.0f / _frameState.Translation).AsTranslationMatrix() * inverseParentMatrix;
                     }
                     else

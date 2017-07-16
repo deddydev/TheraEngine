@@ -18,7 +18,7 @@ namespace TheraEngine.Rendering
                 _parent = parent;
                 _context = c;
                 _index = index;
-                c.States.Add(this);
+                c?.States.Add(this);
             }
 
             internal int Index
@@ -111,7 +111,8 @@ namespace TheraEngine.Rendering
         {
             if (RenderContext.Current == null)
             {
-                throw new Exception("No context bound.");
+                //throw new Exception("No context bound.");
+                _currentBind = new ContextBind(null, this, -1);
             }
             if (_currentBind == null || _currentBind._context != RenderContext.Current)
             {

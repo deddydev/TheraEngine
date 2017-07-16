@@ -31,10 +31,10 @@ namespace TheraEngine.Rendering.Models
             if (vertices.Length < 3)
                 throw new InvalidOperationException("Not enough vertices for a polygon.");
         }
-        public abstract List<VertexTriangle> ToTriangles();
-        public virtual List<VertexLine> ToLines()
+        public abstract VertexTriangle[] ToTriangles();
+        public virtual VertexLine[] ToLines()
         {
-            return ToTriangles().SelectMany(x => x.ToLines()).ToList();
+            return ToTriangles().SelectMany(x => x.ToLines()).ToArray();
         }
     }
 }

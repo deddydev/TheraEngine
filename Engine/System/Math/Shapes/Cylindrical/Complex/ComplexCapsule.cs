@@ -101,7 +101,7 @@ namespace System
         {
             throw new NotImplementedException();
         }
-        public override void SetTransform(Matrix4 worldMatrix)
+        public override void SetRenderTransform(Matrix4 worldMatrix)
         {
             throw new NotImplementedException();
         }
@@ -110,6 +110,11 @@ namespace System
             => new ComplexCapsule(Center, UpAxis, TopRadius, BottomRadius, TopHeight, BottomHeight);
 
         public override Shape TransformedBy(Matrix4 worldMatrix)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override Matrix4 GetTransformMatrix()
         {
             throw new NotImplementedException();
         }

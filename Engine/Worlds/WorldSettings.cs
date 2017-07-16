@@ -114,7 +114,7 @@ namespace TheraEngine.Worlds
         [Serialize("DefaultHud")]
         private HudManager _defaultHud;
         [Serialize("Bounds")]
-        private BoundingBox _bounds = BoundingBox.FromMinMax(-100.0f, 100.0f);
+        private BoundingBox _bounds = BoundingBox.FromMinMax(-70.0f, 70.0f);
         [Serialize("OriginRebaseBounds")]
         private BoundingBox _originRebaseBounds = BoundingBox.FromMinMax(float.MinValue, float.MaxValue);
         [Serialize("Maps")]

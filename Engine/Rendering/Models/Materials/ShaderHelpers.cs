@@ -60,7 +60,6 @@ uniform float MatSpecularIntensity;
 uniform float MatShininess;
 
 uniform vec3 CameraPosition;
-uniform vec3 CameraForward;
 
 uniform sampler2D Texture0;
 
@@ -274,14 +273,13 @@ void main()
         {
             return @"
 
-uniform sampler2D ShadowMap;
 struct BaseLight
 {
     vec3 Color;
     float DiffuseIntensity;
     float AmbientIntensity;
-    mat4 WorldToLightSpaceMatrix;
-    mat4 ProjectionMatrix;
+    mat4 WorldToLightSpaceProjMatrix;
+    sampler2D ShadowMap;
 };
 struct DirLight
 {
@@ -313,14 +311,20 @@ uniform DirLight DirectionalLights[2];
 uniform int SpotLightCount;
 uniform SpotLight SpotLights[16];
 
-float ReadShadowMap(vec3 fragPos, vec3 normal, float diffuseFactor, BaseLight light)
+//0 is fully in shadow, 1 is fully lit
+float ReadShadowMap(in vec3 fragPos, in vec3 normal, in float diffuseFactor, in BaseLight light)
 {
-    vec4 fragPosLightSpace = light.ProjectionMatrix * light.WorldToLightSpaceMatrix * vec4(fragPos, 1.0);
+    vec4 fragPosLightSpace = light.WorldToLightSpaceProjMatrix * vec4(fragPos, 1.0);
     vec3 coord = fragPosLightSpace.xyz / fragPosLightSpace.w;
     coord = coord * vec3(0.5) + vec3(0.5);
-    float depthValue = texture(ShadowMap, coord.xy).r;
-    float bias = max(0.001 * (1.0 - diffuseFactor), 0.001);
+    float depthValue = texture(light.ShadowMap, coord.xy).r;
+    float bias = 0.001;
     return coord.z - bias > depthValue ? 0.0 : 1.0;
+}
+
+float Attenuate(in float dist, in float radius)
+{
+    return " + GetLightFalloff("radius", "dist") + @"
 }
 
 vec3 CalcColor(BaseLight light, vec3 lightDirection, vec3 normal, vec3 fragPos, vec3 albedo, float spec)
@@ -355,29 +359,22 @@ vec3 CalcDirLight(DirLight light, vec3 normal, vec3 fragPos, vec3 albedo, float 
 vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 albedo, float spec)
 {
     vec3 lightToPos = fragPos - light.Position;
-    float dist = length(lightToPos);
-
-    float attn = " + GetLightFalloff("light.Radius", "dist") + @"
-
-    return attn * CalcColor(light.Base, normalize(lightToPos), normal, fragPos, albedo, spec);
+    return Attenuate(length(lightToPos), light.Radius) * CalcColor(light.Base, normalize(lightToPos), normal, fragPos, albedo, spec);
 } 
 
 vec3 CalcSpotLight(SpotLight light, vec3 normal, vec3 fragPos, vec3 albedo, float spec)
 {
     if (light.Cutoff <= 1.5707) //~90 degrees in radians
     {
-        vec3 lightToPos = fragPos - light.Base.Position;
-        lightToPos = normalize(lightToPos);
+        vec3 lightToPos = normalize(fragPos - light.Base.Position);
         float clampedCosine = max(0.0, dot(lightToPos, normalize(light.Direction)));
 	    if (clampedCosine >= cos(light.Cutoff))
         {
             vec3 lightToPos = fragPos - light.Base.Position;
-            float dist = length(lightToPos);
-
             float spotAttn = pow(clampedCosine, light.Exponent);
-            float attn = " + GetLightFalloff("light.Base.Radius", "dist") + @"
-
-            return spotAttn * attn * CalcColor(light.Base.Base, normalize(lightToPos), normal, fragPos, albedo, spec);
+            float distAttn = Attenuate(length(lightToPos), light.Base.Radius);
+            vec3 color = CalcColor(light.Base.Base, normalize(lightToPos), normal, fragPos, albedo, spec);
+            return spotAttn * distAttn * color;
         }
     }
     return vec3(0.0);

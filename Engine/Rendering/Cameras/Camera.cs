@@ -380,6 +380,7 @@ namespace TheraEngine.Rendering.Cameras
         public event RotationChange RotationChanged;
         //public event Action Resized;
         public event Action TransformChanged;
+        public event Action ProjectionChanged;
 
         protected void OnTransformChanged()
         {
@@ -437,6 +438,7 @@ uniform mat4 InvProjMatrix;";
             _projectionOrigin = new Vec3(Origin, 0.0f);
             _untransformedFrustum = CreateUntransformedFrustum();
             UpdateTransformedFrustum();
+            ProjectionChanged?.Invoke();
         }
         //Child camera types must override this
         public virtual void Resize(float width, float height)

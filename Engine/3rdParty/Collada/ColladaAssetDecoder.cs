@@ -14,7 +14,7 @@ namespace TheraEngine.Rendering.Models
             VisualSceneEntry scene,
             bool isZup)
         {
-            Debug.WriteLine("Weighted: " + geo._id);
+            //Debug.WriteLine("Weighted: " + geo._id);
 
             Bone[] boneList;
             Bone bone = null;
@@ -146,7 +146,7 @@ namespace TheraEngine.Rendering.Models
 
         static PrimitiveData DecodePrimitivesUnweighted(Matrix4 bindMatrix, GeometryEntry geo, bool isZup)
         {
-            Debug.WriteLine("Unweighted: " + geo._id);
+            //Debug.WriteLine("Unweighted: " + geo._id);
             return DecodePrimitives(geo, bindMatrix, null);
         }
         static PrimitiveData DecodePrimitives(GeometryEntry geo, Matrix4 bindMatrix, Influence[] infList)

@@ -1,5 +1,5 @@
 ﻿using TheraEngine.Cutscenes;
-using TheraEngine.Rendering.Animation;
+using TheraEngine.Animation;
 using TheraEngine.Rendering.Cameras;
 using TheraEngine.Rendering.Models;
 using TheraEngine.Rendering.Textures;

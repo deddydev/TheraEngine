@@ -108,6 +108,7 @@ namespace TheraEngine
         [Category("Input")]
         [Serialize]
         public float DoubleClickInputDelay { get => _doubleClickInputDelay; set => _doubleClickInputDelay = value; }
+        public bool RenderLights { get; internal set; }
 
         public EngineSettings()
         {
@@ -130,7 +131,7 @@ namespace TheraEngine
             RenderSplines = false;
             RenderCullingVolumes = false;
 #endif
-            CapFPS = true;
+            CapFPS = false;
             TargetFPS = 60.0f;
             CapUPS = false;
             TargetUPS = 90.0f;

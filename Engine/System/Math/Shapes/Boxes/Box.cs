@@ -11,7 +11,7 @@ namespace System
     {
         [DefaultValue("0 0 0")]
         [Serialize("HalfExtents")]
-        public Vec3 _halfExtents;
+        public EventVec3 _halfExtents;
         [Serialize("Transform")]
         public FrameState _transform;
 
@@ -27,7 +27,7 @@ namespace System
             get => _transform;
             set => _transform = value;
         }
-        public Vec3 HalfExtents
+        public EventVec3 HalfExtents
         {
             get { return _halfExtents; }
             set { _halfExtents = value; }
@@ -193,11 +193,11 @@ namespace System
         {
             return frustum.Contains(this);
         }
-        public override void SetTransform(Matrix4 worldMatrix)
+        public override void SetRenderTransform(Matrix4 worldMatrix)
         {
             _transform.Matrix = worldMatrix;
             //_transform = worldMatrix;
-            base.SetTransform(worldMatrix);
+            base.SetRenderTransform(worldMatrix);
         }
         public override CollisionShape GetCollisionShape()
         {
@@ -210,6 +210,11 @@ namespace System
         public override Shape TransformedBy(Matrix4 worldMatrix)
         {
             return new Box(_halfExtents, _transform);
+        }
+
+        public override Matrix4 GetTransformMatrix()
+        {
+            return _transform.Matrix;
         }
     }
 }

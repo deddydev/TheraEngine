@@ -19,7 +19,7 @@ namespace TheraEngine.Rendering
         OpaqueForward,
         TransparentForward
     }
-    internal class RenderPasses
+    public class RenderPasses
     {
         private Deque<I3DRenderable> _opaqueDeferred = new Deque<I3DRenderable>();
         private Deque<I3DRenderable> _opaqueForward = new Deque<I3DRenderable>();
@@ -69,7 +69,7 @@ namespace TheraEngine.Rendering
         internal RenderPasses RenderPasses => _passes;
 
         public void RenderShadowMaps()
-            => Lights.RenderShadowMaps(this);
+            => Lights?.RenderShadowMaps(this);
         
         /// <summary>
         /// Call this to only enable visibility for items visible from the given camera.
@@ -81,7 +81,8 @@ namespace TheraEngine.Rendering
         internal void PreRender(Camera camera, bool resetVisibility = true, bool cullOffscreen = true, bool renderOctree = false)
         {
             AbstractRenderer.PushCurrentCamera(camera);
-            _renderTree.Cull(camera.GetFrustum(), resetVisibility, cullOffscreen, Engine.Settings.RenderOctree);
+            //_renderTree.Cull(camera.GetFrustum(), resetVisibility, cullOffscreen, Engine.Settings.RenderOctree);
+            _renderTree.CollectVisible(camera.GetFrustum(), _passes);
             foreach (IPreRenderNeeded p in _preRenderList)
                 p.PreRender();
         }
@@ -119,27 +120,27 @@ namespace TheraEngine.Rendering
             }
 
             _renderTree = new Octree(Engine.World.Settings.Bounds);
-            _renderTree.ItemRenderChanged += RenderModified;
+            //_renderTree.ItemRenderChanged += RenderModified;
             _lightManager = new LightManager();
             _passes = new RenderPasses();
         }
 
-        private void RenderModified(I3DBoundable item)
-        {
-            I3DRenderable r = item as I3DRenderable;
-            if (item.IsRendering)
-            {
-                if (r.HasTransparency)
-                    _passes.TransparentForward.PushFront(r);
-                else
-                {
-                    if (Engine.Settings.ShadingStyle == ShadingStyle.Deferred)
-                        _passes.OpaqueDeferred.PushFront(r);
-                    else
-                        _passes.OpaqueForward.PushFront(r);
-                }
-            }
-        }
+        //private void RenderModified(I3DBoundable item)
+        //{
+        //    I3DRenderable r = item as I3DRenderable;
+        //    if (item.IsRendering)
+        //    {
+        //        if (r.HasTransparency)
+        //            _passes.TransparentForward.PushFront(r);
+        //        else
+        //        {
+        //            if (Engine.Settings.ShadingStyle == ShadingStyle.Deferred)
+        //                _passes.OpaqueDeferred.PushFront(r);
+        //            else
+        //                _passes.OpaqueForward.PushFront(r);
+        //        }
+        //    }
+        //}
 
         internal int AddActiveMaterial(Material material)
         {

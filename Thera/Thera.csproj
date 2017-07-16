@@ -76,9 +76,9 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="BulletSharp">
-      <HintPath Condition="'$(Platform)'=='x86'">..\Libraries\x86\BulletSharp.dll</HintPath>
-      <HintPath Condition="'$(Platform)'=='x64'">..\Libraries\x64\BulletSharp.dll</HintPath>
-      <HintPath Condition="'$(Platform)'=='AnyCPU'">..\Libraries\AnyCPU\BulletSharp.dll</HintPath>
+      <HintPath Condition="'$(Platform)'=='x86'">$(SolutionDir)\Libraries\x86\BulletSharp.dll</HintPath>
+      <HintPath Condition="'$(Platform)'=='x64'">$(SolutionDir)\Libraries\x64\BulletSharp.dll</HintPath>
+      <HintPath Condition="'$(Platform)'=='AnyCPU'">$(SolutionDir)\Libraries\AnyCPU\BulletSharp.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />

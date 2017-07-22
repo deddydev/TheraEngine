@@ -1,17 +1,20 @@
-﻿using TheraEngine;
-using TheraEngine.Files;
-using TheraEngine.Tests;
-using TheraEngine.Worlds;
-using TheraEngine.Worlds.Actors;
-using System;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.Diagnostics;
+using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Windows.Forms;
 using TheraEditor.Editors;
-using TheraEngine.Timers;
-using System.Reflection;
+using TheraEngine;
+using TheraEngine.Files;
 using TheraEngine.Input.Devices;
+using TheraEngine.Tests;
+using TheraEngine.Timers;
+using TheraEngine.Worlds;
+using TheraEngine.Worlds.Actors;
 
 namespace TheraEditor
 {
@@ -23,6 +26,8 @@ namespace TheraEditor
         private SingleFileRef<Project> _project;
         private Assembly _gameProgram;
 
+        public ResourceTree ContentTree => contentTree;
+
         public Project Project
         {
             get => _project;
@@ -31,6 +36,7 @@ namespace TheraEditor
 
         public Editor()
         {
+            _instance = this;
             string lastOpened = Properties.Settings.Default.LastOpened;
             if (!string.IsNullOrEmpty(lastOpened))
                 OpenProject(FileObject.FromXML<Project>(lastOpened));
@@ -52,13 +58,92 @@ namespace TheraEditor
             Engine.SetGame(Project);
             InitializeComponent();
             DoubleBuffered = false;
-            Engine.Initialize(renderPanel1);
+            Engine.Initialize(renderPanel1, true);
 
             GenerateInitialActorList();
             if (Engine.World != null)
             {
                 Engine.World.State.SpawnedActors.PostAdded += SpawnedActors_PostAdded;
                 Engine.World.State.SpawnedActors.PostRemoved += SpawnedActors_PostRemoved;
+            }
+
+            var fileObjectTypes = 
+                from domainAssembly in AppDomain.CurrentDomain.GetAssemblies()
+                from assemblyType in domainAssembly.GetExportedTypes()
+                where assemblyType.IsSubclassOf(typeof(FileObject)) && !assemblyType.IsAbstract
+                select assemblyType;
+            Dictionary<string, NamespaceNode> nodes = new Dictionary<string, NamespaceNode>();
+            foreach (Type t in fileObjectTypes)
+            {
+                string path = t.Namespace;
+                int dotIndex = path.IndexOf(".");
+                string name = dotIndex > 0 ? path.Substring(0, dotIndex) : path;
+                if (nodes.ContainsKey(name))
+                    nodes[name].Add(dotIndex > 0 ? path.Substring(dotIndex + 1) : null, t);
+                else
+                {
+                    NamespaceNode node = new NamespaceNode(name, this);
+                    nodes.Add(name, node);
+                    testToolStripMenuItem.DropDownItems.Add(node.Button);
+                }
+            }
+        }
+
+        private class NamespaceNode
+        {
+            public NamespaceNode(string name, Editor editor)
+            {
+                _editor = editor;
+                _name = name;
+                _children = new Dictionary<string, NamespaceNode>();
+                Button = new ToolStripDropDownButton(_name) { ShowDropDownArrow = true };
+            }
+
+            Editor _editor;
+            string _name;
+            Dictionary<string, NamespaceNode> _children;
+            ToolStripDropDownButton _button;
+
+            public string Name { get => _name; set => _name = value; }
+            private Dictionary<string, NamespaceNode> Children { get => _children; set => _children = value; }
+            public ToolStripDropDownButton Button { get => _button; set => _button = value; }
+
+            public void Add(string path, Type t)
+            {
+                if (string.IsNullOrEmpty(path))
+                {
+                    ToolStripDropDownButton btn = new ToolStripDropDownButton(t.Name)
+                    {
+                        ShowDropDownArrow = false,
+                        Tag = t,
+                    };
+                    btn.Click += _editor.OnNewClick;
+                    _button.DropDownItems.Add(btn);
+                    return;
+                }
+                int dotIndex = path.IndexOf(".");
+                string name = dotIndex > 0 ? path.Substring(0, dotIndex) : path;
+                if (_children.ContainsKey(name))
+                    _children[name].Add(dotIndex > 0 ? path.Substring(dotIndex + 1) : null, t);
+                else
+                {
+                    NamespaceNode node = new NamespaceNode(name, _editor);
+                    _children.Add(name, node);
+                    Button.DropDownItems.Add(node.Button);
+                }
+            }
+        }
+
+        private void OnNewClick(object sender, EventArgs e)
+        {
+            if (sender is ToolStripDropDownButton button)
+            {
+                Type fileType = button.Tag as Type;
+                FileObject file = (FileObject)Activator.CreateInstance(fileType);
+                string dir = contentTree.SelectedNode.Tag as string;
+                if (dir.Contains("."))
+                    dir = Path.GetDirectoryName(dir);
+                file.Export(dir, file.Name, FileFormat.XML);
             }
         }
 
@@ -154,7 +239,7 @@ namespace TheraEditor
         {
             OpenFileDialog ofd = new OpenFileDialog()
             {
-                Filter = FileManager.GetCompleteFilter(typeof(World)),
+                Filter = FileObject.GetFileHeader(typeof(World)).GetFilter(),
                 Multiselect = false
             };
             if (ofd.ShowDialog() == DialogResult.OK)

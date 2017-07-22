@@ -8,14 +8,34 @@
         public static string GetLightFalloff(string radiusName, string distanceName)
             => string.Format(LightFalloff, radiusName, distanceName);
 
+        public static readonly string Frag_Nothing = @"
+#version 450
+void main() { }";
         public static readonly string Frag_DepthOutput = @"
 #version 450
-//layout(location = 0) out float Depth;
+layout(location = 0) out float Depth;
 void main()
 {
-    //Depth = gl_FragCoord.z;
+    Depth = gl_FragCoord.z;
 }";
-
+        public static readonly string Func_WorldPosFromDepth = @"
+vec3 WorldPosFromDepth(float depth, vec2 uv)
+{
+    float z = depth * 2.0 - 1.0;
+    vec4 clipSpacePosition = vec4(uv * 2.0 - 1.0, z, 1.0);
+    vec4 viewSpacePosition = InvProjMatrix * clipSpacePosition;
+    viewSpacePosition /= viewSpacePosition.w;
+    vec4 worldSpacePosition = CameraToWorldSpaceMatrix * viewSpacePosition;
+    return worldSpacePosition.xyz;
+}";
+        public static readonly string Func_ViewPosFromDepth = @"
+vec3 WorldPosFromDepth(float depth, vec2 uv)
+{
+    float z = depth * 2.0 - 1.0;
+    vec4 clipSpacePosition = vec4(uv * 2.0 - 1.0, z, 1.0);
+    vec4 viewSpacePosition = InvProjMatrix * clipSpacePosition;
+    return viewSpacePosition.xyz / viewSpacePosition.w;
+}";
         public static readonly string Func_GetDistanceFromDepth = @"
 float GetDistanceFromDepth(float depth)
 {
@@ -30,8 +50,8 @@ float GetDepthFromDistance(float z)
     nonLinearDepth = (nonLinearDepth + 1.0) / 2.0;
     return nonLinearDepth;
 }";
-        public static readonly string Func_RGB2HSV = @"
-vec3 RGB2HSV(vec3 c)
+        public static readonly string Func_RGBtoHSV = @"
+vec3 RGBtoHSV(vec3 c)
 {
     vec4 K = vec4(0.0, -1.0 / 3.0, 2.0 / 3.0, -1.0);
     vec4 p = mix(vec4(c.bg, K.wz), vec4(c.gb, K.xy), step(c.b, c.g));
@@ -41,8 +61,8 @@ vec3 RGB2HSV(vec3 c)
     float e = 1.0e-10;
     return vec3(abs(q.z + (q.w - q.y) / (6.0 * d + e)), d / (q.x + e), q.x);
 }";
-        public static readonly string Func_HSV2RGB = @"
-vec3 HSV2RGB(vec3 c)
+        public static readonly string Func_HSVtoRGB = @"
+vec3 HSVtoRGB(vec3 c)
 {
     vec4 K = vec4(1.0, 2.0 / 3.0, 1.0 / 3.0, 3.0);
     vec3 p = abs(fract(c.xxx + K.xyz) * 6.0 - K.www);
@@ -87,8 +107,7 @@ void main()
 #version 450
 
 layout (location = 0) out vec4 AlbedoSpec;
-layout (location = 1) out vec3 Position;
-layout (location = 2) out vec3 Normal;
+layout (location = 1) out vec3 Normal;
 
 uniform float MatSpecularIntensity;
 uniform sampler2D Texture0;
@@ -99,7 +118,6 @@ in vec2 FragUV0;
 
 void main()
 {
-    Position = FragPos;
     Normal = normalize(FragNorm);
     AlbedoSpec.rgb = texture(Texture0, FragUV0).rgb;
     AlbedoSpec.a = MatSpecularIntensity;
@@ -113,20 +131,17 @@ void main()
 #version 450
 
 layout (location = 0) out vec4 AlbedoSpec;
-layout (location = 1) out vec3 Position;
-layout (location = 2) out vec3 Normal;
+layout (location = 1) out vec3 Normal;
 
 uniform float MatSpecularIntensity;
 uniform sampler2D Texture0;
 
-in vec3 FragPos;
 in vec3 FragNorm;
 in vec2 FragUV0;
 
 void main()
 {
     AlbedoSpec = vec4(texture(Texture0, FragUV0).rgb, MatSpecularIntensity);
-    Position = FragPos;
     Normal = normalize(FragNorm);
 }
 ";
@@ -161,8 +176,7 @@ void main()
 #version 450
 
 layout (location = 0) out vec4 AlbedoSpec;
-layout (location = 1) out vec3 Position;
-layout (location = 2) out vec3 Normal;
+layout (location = 1) out vec3 Normal;
 
 uniform float MatSpecularIntensity;
 uniform vec4 MatColor;
@@ -172,7 +186,6 @@ in vec3 FragPos;
 void main()
 {
     AlbedoSpec = vec4(MatColor.rgb, MatSpecularIntensity);
-    Position = FragPos;
     Normal = vec3(0.0);
 }
 ";
@@ -198,8 +211,7 @@ void main() { OutColor = MatColor; }
 #version 450
 
 layout (location = 0) out vec4 AlbedoSpec;
-layout (location = 1) out vec3 Position;
-layout (location = 2) out vec3 Normal;
+layout (location = 1) out vec3 Normal;
 
 uniform vec4 MatColor;
 uniform float MatSpecularIntensity;
@@ -209,9 +221,8 @@ in vec3 FragNorm;
 
 void main()
 {
-    AlbedoSpec = vec4(MatColor.rgb, MatSpecularIntensity);
-    Position = FragPos;
     Normal = normalize(FragNorm);
+    AlbedoSpec = vec4(MatColor.rgb, MatSpecularIntensity);
 }
 ";
             return new Shader(ShaderMode.Fragment, source);
@@ -315,11 +326,22 @@ uniform SpotLight SpotLights[16];
 float ReadShadowMap(in vec3 fragPos, in vec3 normal, in float diffuseFactor, in BaseLight light)
 {
     vec4 fragPosLightSpace = light.WorldToLightSpaceProjMatrix * vec4(fragPos, 1.0);
-    vec3 coord = fragPosLightSpace.xyz / fragPosLightSpace.w;
-    coord = coord * vec3(0.5) + vec3(0.5);
-    float depthValue = texture(light.ShadowMap, coord.xy).r;
-    float bias = 0.001;
-    return coord.z - bias > depthValue ? 0.0 : 1.0;
+    vec3 fragCoord = fragPosLightSpace.xyz / fragPosLightSpace.w;
+    fragCoord = fragCoord * vec3(0.5) + vec3(0.5);
+    float bias = max(0.08 * -diffuseFactor, 0.0004);
+
+    float shadow = 0.0;
+    vec2 texelSize = 1.0 / textureSize(light.ShadowMap, 0);
+    for (int x = -1; x <= 1; ++x)
+    {
+        for (int y = -1; y <= 1; ++y)
+        {
+            float pcfDepth = texture(light.ShadowMap, fragCoord.xy + vec2(x, y) * texelSize).r;
+            shadow += fragCoord.z - bias > pcfDepth ? 0.0 : 1.0;        
+        }    
+    }
+    shadow /= 9.0;
+    return shadow;
 }
 
 float Attenuate(in float dist, in float radius)
@@ -334,14 +356,14 @@ vec3 CalcColor(BaseLight light, vec3 lightDirection, vec3 normal, vec3 fragPos, 
     vec3 SpecularColor = vec3(0.0);
 
     float DiffuseFactor = dot(normal, -lightDirection);
-    if (DiffuseFactor >= 0.0)
+    if (DiffuseFactor > 0.0)
     {
         DiffuseColor = light.Color * light.DiffuseIntensity * albedo * DiffuseFactor;
 
         vec3 posToEye = normalize(CameraPosition - fragPos);
         vec3 reflectDir = reflect(lightDirection, normal);
         float SpecularFactor = dot(posToEye, reflectDir);
-        if (SpecularFactor >= 0.0)
+        if (SpecularFactor > 0.0)
         {
             SpecularColor = light.Color * spec * pow(SpecularFactor, 64.0);
         }

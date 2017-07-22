@@ -22,7 +22,7 @@ namespace TheraEngine.Files.Serialization
                 writer.Flush();
                 stream.Position = 0;
                 writer.WriteStartDocument();
-                WriteObjectElement(obj, null, writer);
+                WriteObjectElement(obj, null, writer, true);
                 writer.WriteEndDocument();
             }
         }
@@ -33,16 +33,16 @@ namespace TheraEngine.Files.Serialization
             NewLineChars = "\r\n",
             NewLineHandling = NewLineHandling.Replace
         };
-        private static void WriteObjectElement(object obj, string name, XmlWriter writer)
+        private static void WriteObjectElement(object obj, string name, XmlWriter writer, bool rootElement)
         {
             if (obj == null)
                 return;
 
             Type t = obj.GetType();
             List<VarInfo> fields = SerializationCommon.CollectSerializedMembers(t);
-            WriteObjectElement(obj, fields, name, writer);
+            WriteObjectElement(obj, fields, name, writer, rootElement);
         }
-        private static void WriteObjectElement(object obj, List<VarInfo> members, string name, XmlWriter writer)
+        private static void WriteObjectElement(object obj, List<VarInfo> members, string name, XmlWriter writer, bool rootElement)
         {
             if (obj == null)
                 return;
@@ -66,6 +66,9 @@ namespace TheraEngine.Files.Serialization
 
             writer.WriteStartElement(name);
             {
+                if (rootElement)
+                    writer.WriteAttributeString("Type", t.AssemblyQualifiedName);
+
                 //Write attributes and then elements
                 foreach (VarInfo p in members)
                 {
@@ -135,7 +138,7 @@ namespace TheraEngine.Files.Serialization
                             WriteStructArray(array, writer);
                         else
                             foreach (object o in array)
-                                WriteObjectElement(o, "Item", writer);
+                                WriteObjectElement(o, "Item", writer, false);
                     }
                     writer.WriteEndElement();
                     return;
@@ -149,13 +152,13 @@ namespace TheraEngine.Files.Serialization
                 {
                     List<VarInfo> structFields = SerializationCommon.CollectSerializedMembers(info.VariableType);
                     if (structFields.Count > 0)
-                        WriteObjectElement(value, structFields, info.Name, writer);
+                        WriteObjectElement(value, structFields, info.Name, writer, false);
                     else
                         writer.WriteElementString(info.Name, value.ToString());
                     return;
                 }
                 else
-                    WriteObjectElement(value, info.Name, writer);
+                    WriteObjectElement(value, info.Name, writer, false);
             }
         }
 
@@ -166,7 +169,7 @@ namespace TheraEngine.Files.Serialization
             //Needs a full element
             if (structFields.Count > 0)
                 foreach (object o in array)
-                    WriteObjectElement(o, structFields, "Item", writer);
+                    WriteObjectElement(o, structFields, "Item", writer, false);
             else
             {
                 //Write each struct as a string

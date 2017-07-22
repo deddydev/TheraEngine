@@ -17,7 +17,7 @@ namespace TheraEngine.Worlds.Actors
         private MovementMode _currentMovementMode = MovementMode.Falling;
         private bool _isCrouched = false;
         private float _maxWalkAngle = 50.0f;
-        private float _walkingMovementSpeed = 0.2f;
+        private float _walkingMovementSpeed = 0.17f;
         private float _fallingMovementSpeed = 10.0f;
         private float _jumpSpeed = 8.0f;
         private Vec3 _worldGroundContactPoint;
@@ -55,6 +55,7 @@ namespace TheraEngine.Worlds.Actors
                         case MovementMode.Walking:
 
                             _justJumped = false;
+                            //_velocity = root.PhysicsDriver.CollisionObject.LinearVelocity;
                             root.PhysicsDriver.SimulatingPhysics = false;
                             //root.PhysicsDriver.Kinematic = true;
                             //Physics simulation updates the world matrix, but not its components (translation, for example)
@@ -197,15 +198,16 @@ namespace TheraEngine.Worlds.Actors
 
             _worldGroundContactPoint = callback.HitPointWorld;
             CurrentWalkingSurface = callback.HitCollisionObject.UserObject as PhysicsDriver;
-            root.Translation.Raw += Vec3.Lerp(stepUpVector, down, callback.ClosestHitFraction);
+            //root.Translation.Raw += Vec3.Lerp(stepUpVector, down, callback.ClosestHitFraction);
 
             root.PhysicsDriver.SetPhysicsTransform(root.WorldMatrix);
 
             _prevVelocity = _velocity;
             _position = root.Translation;
             _velocity = (_position - _prevPosition) / delta;
-            //Debug.WriteLine(_velocity.LengthFast);
             _acceleration = (_velocity - _prevVelocity) / delta;
+
+            //Debug.WriteLine(_velocity.Xz.LengthFast);
 
             body.LinearVelocity = _velocity;
         }
@@ -213,7 +215,8 @@ namespace TheraEngine.Worlds.Actors
         {
             CapsuleComponent root = OwningActor.RootComponent as CapsuleComponent;
             Vec3 v = root.PhysicsDriver.CollisionObject.LinearVelocity;
-            if (v.Xz.LengthFast < 7.0f)
+            //Debug.WriteLine(v.Xz.LengthFast);
+            if (v.Xz.LengthFast < 8.667842f)
                 root.PhysicsDriver.CollisionObject.ApplyCentralForce(((1.0f / root.PhysicsDriver.CollisionObject.InvMass) * _fallingMovementSpeed) * movementInput);
         }
         
@@ -241,8 +244,17 @@ namespace TheraEngine.Worlds.Actors
             up.NormalizeFast();
             up = -up;
 
-            CurrentMovementMode = MovementMode.Falling;
+            if (_postWalkAllowJump = _currentMovementMode == MovementMode.Walking && !_justJumped)
+            {
+                _allowJumpTimeDelta = 0.0f;
+                _velocity.Y = 0.0f;
+            }
+            //root.PhysicsDriver.Kinematic = false;
+            root.PhysicsDriver.SimulatingPhysics = true;
+            _subUpdateTick = TickFalling;
+
             character.Translate(up * 0.1f);
+            character.LinearVelocity = _velocity;
 
             if (_currentWalkingSurface != null && 
                 _currentWalkingSurface.SimulatingPhysics && 
@@ -269,8 +281,10 @@ namespace TheraEngine.Worlds.Actors
                 //The ground isn't movable, so just apply the jump force directly.
                 character.ApplyCentralImpulse(up * (_jumpSpeed * (1.0f / driver.CollisionObject.InvMass)));
             }
-        }
 
+            _currentMovementMode = MovementMode.Falling;
+            CurrentWalkingSurface = null;
+        }
         public void EndJump()
         {
 

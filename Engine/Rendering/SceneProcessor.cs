@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using TheraEngine.Rendering.Models.Materials;
+using TheraEngine.Worlds.Actors;
 
 namespace TheraEngine.Rendering
 {
@@ -24,6 +25,7 @@ namespace TheraEngine.Rendering
         private Deque<I3DRenderable> _opaqueDeferred = new Deque<I3DRenderable>();
         private Deque<I3DRenderable> _opaqueForward = new Deque<I3DRenderable>();
         private Deque<I3DRenderable> _transparentForward = new Deque<I3DRenderable>();
+        private Deque<LightComponent> _lights = new Deque<LightComponent>();
 
         public Deque<I3DRenderable> OpaqueDeferred => _opaqueDeferred;
         public Deque<I3DRenderable> OpaqueForward => _opaqueForward;
@@ -101,11 +103,11 @@ namespace TheraEngine.Rendering
         {
             _passes.OpaqueForward.PushFront(obj);
         }
-        public void Add(I3DRenderable obj)
+        public void Add(I3DBoundable obj)
         {
             _renderTree?.Add(obj);
         }
-        public void Remove(I3DRenderable obj)
+        public void Remove(I3DBoundable obj)
         {
             _renderTree?.Remove(obj);
         }

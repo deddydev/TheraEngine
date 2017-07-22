@@ -1,5 +1,6 @@
 ﻿using TheraEngine.Worlds.Maps;
 using TheraEngine.Files;
+using System;
 
 namespace TheraEngine.Worlds
 {
@@ -22,13 +23,18 @@ namespace TheraEngine.Worlds
 
         public virtual void EndPlay()
         {
-            foreach (IActor actor in Settings.DefaultActors)
-                _owningWorld.DespawnActor(actor);
+            //TODO: Destroy all static actors, but keep all dynamic actors in play
+            //foreach (IActor actor in Settings.DefaultActors)
+            //    _owningWorld.DespawnActor(actor);
         }
         public virtual void BeginPlay()
         {
+
+        }
+        internal protected virtual void Initialize()
+        {
             foreach (IActor actor in Settings.DefaultActors)
-                _owningWorld.SpawnActor(actor);
+                _owningWorld.SpawnActor(actor, Settings.SpawnPosition);
         }
     }
 }

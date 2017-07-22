@@ -1,5 +1,4 @@
-﻿using TheraEngine.Rendering.Models.Materials;
-using System;
+﻿using System;
 using System.Drawing;
 using System.Drawing.Imaging;
 
@@ -11,7 +10,7 @@ namespace TheraEngine.Rendering.Textures
         Texture3D,
         TextureCubeMap
     }
-    public class Texture2D : BaseRenderState
+    public class Texture2D : BaseRenderState, IDisposable
     {
         public Texture2D() : this(null) { }
         public Texture2D(int bindingId) : base(EObjectType.Texture, bindingId) => Init(null);
@@ -148,5 +147,23 @@ namespace TheraEngine.Rendering.Textures
             => Engine.Renderer.CreateTextures(ETexTarget.Texture2D, 1)[0];
         protected override void OnGenerated()
             => PushData();
+
+        protected override void Dispose(bool disposing)
+        {
+            if (!_disposedValue)
+            {
+                if (disposing)
+                {
+                    Destroy();
+                    if (_mipmaps != null)
+                        Array.ForEach(_mipmaps, x => x?.Dispose());
+                }
+
+                // TODO: free unmanaged resources (unmanaged objects) and override a finalizer below.
+                // TODO: set large fields to null.
+
+                _disposedValue = true;
+            }
+        }
     }
 }

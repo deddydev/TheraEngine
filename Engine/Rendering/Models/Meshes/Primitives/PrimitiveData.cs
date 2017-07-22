@@ -40,7 +40,7 @@ namespace TheraEngine.Rendering.Models
         public static readonly int MaxColors = 2;
         public static readonly int MaxTexCoords = 8;
         public static readonly int MaxOtherBuffers = 10;
-        public static readonly int TotalBufferCount = (MaxMorphs + 1) + MaxColors + MaxTexCoords + MaxOtherBuffers;
+        public static readonly int TotalBufferCount = (MaxMorphs + 1) * 6 + MaxColors + MaxTexCoords + MaxOtherBuffers;
 
         public int _morphCount = 0;
         public int _texcoordCount = 0;
@@ -72,6 +72,7 @@ namespace TheraEngine.Rendering.Models
         }
     }
     [FileClass("PRIM", "Mesh Data")]
+    [TypeConverter(typeof(ExpandableObjectConverter))]
     public class PrimitiveData : FileObject, IDisposable
     {
         public bool HasSkinning => _utilizedBones == null ? false : _utilizedBones.Length > 0;
@@ -396,7 +397,7 @@ namespace TheraEngine.Rendering.Models
             }
             _buffers[bufferIndex] = buffer;
         }
-        public void AddBuffer<T>(
+        public VertexBuffer AddBuffer<T>(
             IList<T> bufferData,
             VertexAttribInfo info,
             bool remap = false,
@@ -421,8 +422,9 @@ namespace TheraEngine.Rendering.Models
                     _facePoints[i].BufferIndices.Add(i);
             }
             _buffers.Add(buffer);
+            return buffer;
         }
-        public void ReplaceBuffer<T>(
+        public VertexBuffer ReplaceBuffer<T>(
             IList<T> bufferData,
             int bufferIndex,
             VertexAttribInfo info,
@@ -449,6 +451,7 @@ namespace TheraEngine.Rendering.Models
                     _facePoints[i].BufferIndices[bufferIndex] = i;
             }
             _buffers[bufferIndex] = buffer;
+            return buffer;
         }
 
         public Remapper GetBuffer<T>(int bufferIndex, out T[] array, bool remap = false) where T : IBufferable

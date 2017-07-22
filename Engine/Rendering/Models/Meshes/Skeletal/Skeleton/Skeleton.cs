@@ -11,6 +11,7 @@ using TheraEngine.Rendering.Cameras;
 namespace TheraEngine.Rendering.Models
 {
     [FileClass("SKEL", "Skeleton")]
+    [TypeConverter(typeof(ExpandableObjectConverter))]
     public class Skeleton : FileObject, IEnumerable<Bone>, I3DRenderable
     {
         public bool HasTransparency => false;
@@ -21,7 +22,7 @@ namespace TheraEngine.Rendering.Models
             foreach (Bone b in RootBones)
             {
                 b.CalcBindMatrix(true);
-                b.CalcFrameMatrix();
+                b.TriggerFrameMatrixUpdate();
             }
             RegenerateBoneCache();
         }
@@ -29,7 +30,7 @@ namespace TheraEngine.Rendering.Models
         {
             RootBones = new Bone[1] { rootBone };
             rootBone.CalcBindMatrix(true);
-            rootBone.CalcFrameMatrix();
+            rootBone.TriggerFrameMatrixUpdate();
             RegenerateBoneCache();
         }
 
@@ -48,10 +49,11 @@ namespace TheraEngine.Rendering.Models
         Shape _cullingVolume = new Sphere(1.0f);
         IOctreeNode _renderNode;
         private List<Bone> _physicsDrivableBones = new List<Bone>();
-        private List<Bone> _billboardBones = new List<Bone>();
+        private List<Bone> _cameraBones = new List<Bone>();
         private Dictionary<string, Bone> _boneNameCache = new Dictionary<string, Bone>();
         private Dictionary<int, Bone> _boneIndexCache = new Dictionary<int, Bone>();
         private SkeletalMeshComponent _owningComponent;
+        private bool _childMatrixModified = false;
 
         [Serialize("RootBones")]
         private Bone[] _rootBones;
@@ -95,13 +97,17 @@ namespace TheraEngine.Rendering.Models
             set => _visible = value;
         }
 
-        internal void UpdateBillboardBones(Camera c)
+        public void UpdateBones(Camera c)
         {
-            if (_billboardBones.Count > 0)
+            //Looping recursively is more efficient than looping through the whole bone cache
+            //because bone subtrees that do not need updating will be skipped entirely
+            //instead of being iterated through
+            if (_childMatrixModified || _cameraBones.Count > 0)
+            {
+                _childMatrixModified = false;
                 foreach (Bone b in RootBones)
-                    b.CalcFrameMatrix(true);
-            //foreach (Bone b in _billboardBones)
-            //    b.CalculateBillboard();
+                    b.CalcFrameMatrix(c, Matrix4.Identity, Matrix4.Identity);
+            }
         }
 
         public bool VisibleInEditorOnly
@@ -125,7 +131,7 @@ namespace TheraEngine.Rendering.Models
             set => _visibleByDefault = value;
         }
 
-        public ReadOnlyCollection<Bone> GetBillboardBones() => _billboardBones.AsReadOnly();
+        public ReadOnlyCollection<Bone> GetCameraRelativeBones() => _cameraBones.AsReadOnly();
         public ReadOnlyCollection<Bone> GetPhysicsDrivableBones() => _physicsDrivableBones.AsReadOnly();
         
         public Bone GetBone(string boneName)
@@ -139,24 +145,9 @@ namespace TheraEngine.Rendering.Models
             _boneNameCache.Clear();
             _boneIndexCache.Clear();
             _physicsDrivableBones.Clear();
-            _billboardBones.Clear();
+            _cameraBones.Clear();
             foreach (Bone b in RootBones)
                 b.CollectChildBones(this);
-        }
-        public void CalcFrameMatrices()
-        {
-            if (Engine.Settings.SkinOnGPU)
-            {
-                foreach (Bone b in RootBones)
-                    b.CalcFrameMatrix();
-            }
-            else
-            {
-                foreach (Bone b in RootBones)
-                    b.CalcFrameMatrix();
-                //foreach (FacePoint point in modified)
-                //    point.UpdatePNTB();
-            }
         }
         internal void WorldMatrixChanged()
         {
@@ -177,14 +168,14 @@ namespace TheraEngine.Rendering.Models
                 Engine.Renderer.RenderLine(point, Vec3.TransformPosition(Vec3.Forward * scale, b.WorldMatrix), Color.Blue, 5.0f);
             }
         }
-        internal int BillboardBoneCount => _billboardBones.Count;
-        internal void AddBillboardBone(Bone bone)
+        internal int BillboardBoneCount => _cameraBones.Count;
+        internal void AddCameraBone(Bone bone)
         {
-            _billboardBones.Add(bone);
+            _cameraBones.Add(bone);
         }
-        internal void RemoveBillboardBone(Bone bone)
+        internal void RemoveCameraBone(Bone bone)
         {
-            _billboardBones.Remove(bone);
+            _cameraBones.Remove(bone);
         }
         internal void AddPhysicsBone(Bone bone)
         {
@@ -193,6 +184,10 @@ namespace TheraEngine.Rendering.Models
         internal void RemovePhysicsBone(Bone bone)
         {
             _physicsDrivableBones.Remove(bone);
+        }
+        public void TriggerChildFrameMatrixUpdate()
+        {
+            _childMatrixModified = true;
         }
         //public override void Read(XMLReader reader)
         //{

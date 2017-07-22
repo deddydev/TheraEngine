@@ -495,37 +495,37 @@ namespace System.Collections.Generic
         [Conditional("DEBUG")]
         private void AssertValid()
         {
-            int n = 0;
-            Node current = front;
+            //int n = 0;
+            //Node current = front;
 
-            while(current != null)
-            {
-                n++;
-                current = current.Next;
-            }
+            //while(current != null)
+            //{
+            //    n++;
+            //    current = current.Next;
+            //}
 
-            Debug.Assert(n == Count);
+            //Debug.Assert(n == Count);
 
-            if(Count > 0)
-            {
-                Debug.Assert(front != null && back != null, "Front/Back Null Test - Count > 0");
+            //if(Count > 0)
+            //{
+            //    Debug.Assert(front != null && back != null, "Front/Back Null Test - Count > 0");
 
-                Node f = front;
-                Node b = back;
+            //    Node f = front;
+            //    Node b = back;
 
-                while(f.Next != null && b.Previous != null)
-                {
-                    f = f.Next;
-                    b = b.Previous;
-                }
+            //    while(f.Next != null && b.Previous != null)
+            //    {
+            //        f = f.Next;
+            //        b = b.Previous;
+            //    }
 
-                Debug.Assert(f.Next == null && b.Previous == null, "Front/Back Termination Test");
-                Debug.Assert(f == back && b == front, "Front/Back Equality Test");
-            }
-            else
-            {
-                Debug.Assert(front == null && back == null, "Front/Back Null Test - Count == 0");
-            }
+            //    Debug.Assert(f.Next == null && b.Previous == null, "Front/Back Termination Test");
+            //    Debug.Assert(f == back && b == front, "Front/Back Equality Test");
+            //}
+            //else
+            //{
+            //    Debug.Assert(front == null && back == null, "Front/Back Null Test - Count == 0");
+            //}
         }
 
         #endregion       

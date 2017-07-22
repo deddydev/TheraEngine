@@ -28,9 +28,9 @@ namespace TheraEngine.Rendering.Models.Materials
             PixelFormat bitmapFormat = PixelFormat.Format32bppArgb, int mipCount = 1)
             : this(name, width, height)
         {
-            _mipmaps = new SingleFileRef<TextureData>[mipCount];
+            _mipmaps = new SingleFileRef<TextureFile>[mipCount];
             for (int i = 0, scale = 1; i < mipCount; scale = 1 << ++i)
-                _mipmaps[i] = new TextureData(width / scale, height / scale, bitmapFormat);
+                _mipmaps[i] = new TextureFile(width / scale, height / scale, bitmapFormat);
         }
         public TextureReference(string name, int width, int height,
             EPixelInternalFormat internalFormat, EPixelFormat pixelFormat, EPixelType pixelType)
@@ -47,28 +47,28 @@ namespace TheraEngine.Rendering.Models.Materials
             EPixelInternalFormat internalFormat, EPixelFormat pixelFormat, EPixelType pixelType, PixelFormat bitmapFormat)
             : this(name, width, height, internalFormat, pixelFormat, pixelType)
         {
-            _mipmaps = new SingleFileRef<TextureData>[] { new TextureData(width, height, bitmapFormat) };
+            _mipmaps = new SingleFileRef<TextureFile>[] { new TextureFile(width, height, bitmapFormat) };
         }
         public TextureReference(string name, params string[] mipMapPaths)
         {
             _name = name;
-            _mipmaps = new SingleFileRef<TextureData>[mipMapPaths.Length];
+            _mipmaps = new SingleFileRef<TextureFile>[mipMapPaths.Length];
             for (int i = 0; i < mipMapPaths.Length; ++i)
             {
                 string path = mipMapPaths[i];
                 if (path.StartsWith("file://"))
                     path = path.Substring(7);
-                _mipmaps = new SingleFileRef<TextureData>[]
+                _mipmaps = new SingleFileRef<TextureFile>[]
                 {
-                    new SingleFileRef<TextureData>(path)
+                    new SingleFileRef<TextureFile>(path)
                 };
             }
         }
         #endregion
 
         //Note: one TextureData object may contain all the mips
-        public SingleFileRef<TextureData>[] _mipmaps;
-        public SingleFileRef<TextureData>[] Mipmaps
+        public SingleFileRef<TextureFile>[] _mipmaps;
+        public SingleFileRef<TextureFile>[] Mipmaps
         {
             get => _mipmaps;
             set => _mipmaps = value;

@@ -11,17 +11,14 @@ namespace TheraEngine.Worlds.Actors
             Skeleton = skeleton;
             Model = m;
         }
-        public SkeletalMeshComponent()
-        {
-
-        }
+        public SkeletalMeshComponent() { }
 
         private SkeletalMesh _model;
         private Skeleton _skeleton;
+
         //For internal runtime use
         private RenderableMesh[] _meshes;
 
-        [TypeConverter(typeof(ExpandableObjectConverter))]
         [Serialize]
         public SkeletalMesh Model
         {
@@ -41,7 +38,6 @@ namespace TheraEngine.Worlds.Actors
                 }
             }
         }
-        [TypeConverter(typeof(ExpandableObjectConverter))]
         [Serialize]
         public Skeleton Skeleton
         {
@@ -78,6 +74,8 @@ namespace TheraEngine.Worlds.Actors
             if (Engine.Settings.RenderSkeletons && _skeleton != null)
                 Engine.Scene.Add(_skeleton);
 
+            //RegisterTick(ETickGroup.PostPhysics, ETickOrder.Scene, Tick);
+
             base.OnSpawned();
         }
         public override void OnDespawned()
@@ -90,6 +88,8 @@ namespace TheraEngine.Worlds.Actors
 
             if (Engine.Settings.RenderSkeletons && _skeleton != null)
                 Engine.Scene.Remove(_skeleton);
+
+            //UnregisterTick(ETickGroup.PostPhysics, ETickOrder.Scene, Tick);
         }
         internal override void RecalcGlobalTransform()
         {
@@ -97,9 +97,11 @@ namespace TheraEngine.Worlds.Actors
             _skeleton?.WorldMatrixChanged();
         }
 
+        //private void Tick(float delta) => PreRender();
+
         public void PreRender()
         {
-            _skeleton?.UpdateBillboardBones(AbstractRenderer.CurrentCamera);
+            _skeleton?.UpdateBones(AbstractRenderer.CurrentCamera);
         }
     }
 }

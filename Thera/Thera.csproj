@@ -76,9 +76,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="BulletSharp">
-      <HintPath Condition="'$(Platform)'=='x86'">$(SolutionDir)\Libraries\x86\BulletSharp.dll</HintPath>
-      <HintPath Condition="'$(Platform)'=='x64'">$(SolutionDir)\Libraries\x64\BulletSharp.dll</HintPath>
-      <HintPath Condition="'$(Platform)'=='AnyCPU'">$(SolutionDir)\Libraries\AnyCPU\BulletSharp.dll</HintPath>
+      <HintPath>$(SolutionDir)\Libraries\$(Platform)\BulletSharp.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -151,8 +149,10 @@
     <Error Condition="Exists('..\packages\PostSharp.4.3.21\tools\PostSharp.targets')" Text="The build restored NuGet packages. Build the project again to include these packages in the build. For more information, see http://www.postsharp.net/links/nuget-restore." />
   </Target>
   <PropertyGroup>
-    <PostBuildEvent>xcopy /Y "$(SolutionDir)Build\obf_config.xml" "$(TargetDir)" 
-xcopy /Y "$(SolutionDir)Libraries\FreeImage.dll" "$(TargetDir)"</PostBuildEvent>
+    <PostBuildEvent>
+      xcopy /Y "$(SolutionDir)Build\obf_config.xml" "$(TargetDir)"
+      xcopy /Y "$(SolutionDir)Libraries\$(Platform)\FreeImage.dll" "$(TargetDir)"
+    </PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

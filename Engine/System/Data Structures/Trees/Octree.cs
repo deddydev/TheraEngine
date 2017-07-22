@@ -3,6 +3,8 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Drawing;
 using TheraEngine.Rendering;
+using System.Threading.Tasks;
+using System.Threading;
 
 namespace System
 {
@@ -31,18 +33,12 @@ namespace System
     /// <typeparam name="T">The item type to use.</typeparam>
     public class Octree<T> where T : class, I3DBoundable
     {
-        /// <summary>
-        /// Event called when the "IsRendering" property of an item is changed.
-        /// </summary>
-        public event Action<T> ItemRenderChanged;
-
         Node _head;
 
         public Octree(BoundingBox bounds)
         {
             _head = new Node(bounds)
             {
-                Visible = true,
                 SubDivIndex = 0,
                 SubDivLevel = 0,
                 ParentNode = null,
@@ -53,7 +49,6 @@ namespace System
         {
             _head = new Node(bounds)
             {
-                Visible = true,
                 SubDivIndex = 0,
                 SubDivLevel = 0,
                 ParentNode = null,
@@ -70,26 +65,22 @@ namespace System
         /// <param name="list">The list of items that are contained within the shape.</param>
         /// <param name="allowPartialContains">If true, adds items if they're even partially contained within the shape.</param>
         /// <param name="testVisibleOnly">If true, only tests for containment of visible items.</param>
-        public void FindAllWithinRadius(float radius, Vec3 point, ThreadSafeList<T> list, bool allowPartialContains, bool testVisibleOnly)
-        {
-            _head.FindAllInside(new Sphere(radius, point), list, allowPartialContains, testVisibleOnly);
-        }
+        public ThreadSafeList<T> FindAll(float radius, Vec3 point, EContainment containment)
+            => FindAll(new Sphere(radius, point), containment);
+        
         //public ThreadSafeList<T> FindClosest(Vec3 point) { return _head?.FindClosest(point); }
-        public ThreadSafeList<T> FindAllInside(Shape shape, bool allowPartialContains, bool testVisibleOnly)
+        public ThreadSafeList<T> FindAll(Shape shape, EContainment containment)
         {
             ThreadSafeList<T> list = new ThreadSafeList<T>();
-            _head.FindAllInside(shape, list, allowPartialContains, testVisibleOnly);
+            _head.FindAll(shape, list, containment);
             return list;
         }
 
         public void CollectVisible(Frustum frustum, RenderPasses passes)
             => _head.CollectVisible(frustum, passes);
-
-        public void Cull(Frustum frustum, bool resetVisibility = true, bool cullOffscreen = true, bool debugRender = false)
-            => _head.Cull(frustum, resetVisibility, cullOffscreen, debugRender);
         
-        public void DebugRender(Color color)
-            => _head.DebugRender(true, color);
+        public void DebugRender(Frustum f)
+            => _head.DebugRender(true, f);
 
         public void Add(T value)
             => _head.Add(value, -1, true);
@@ -102,16 +93,23 @@ namespace System
         
         private class Node : IOctreeNode
         {
-            public Node(BoundingBox bounds) { _bounds = bounds; }
+            public Node(BoundingBox bounds)
+            {
+                _bounds = bounds;
+                _lock = new ReaderWriterLockSlim(LockRecursionPolicy.NoRecursion);
+                _items = new ThreadSafeList<T>(_lock);
+                _subNodes = new Node[8];
+                _subDivIndex = 0;
+                _subDivLevel = 0;
+            }
 
-            protected int _subDivIndex = 0, _subDivLevel = 0;
-            protected bool _visible = false;
+            protected int _subDivIndex, _subDivLevel;
             protected BoundingBox _bounds;
-            protected ThreadSafeList<T> _items = new ThreadSafeList<T>();
-            protected Node[] _subNodes = new Node[8];
+            protected ThreadSafeList<T> _items;
+            protected Node[] _subNodes;
             protected Node parentNode;
-            protected object _lock = new object();
             private Octree<T> _owner;
+            private ReaderWriterLockSlim _lock;
 
             public Octree<T> Owner { get => _owner; set => _owner = value; }
             public Node ParentNode { get => parentNode; set => parentNode = value; }
@@ -122,37 +120,7 @@ namespace System
             public Vec3 Center => _bounds.Translation;
             public Vec3 Min => _bounds.Minimum;
             public Vec3 Max => _bounds.Maximum;
-            public bool Visible
-            {
-                get => _visible;
-                set
-                {
-                    //if (_visible == value)
-                    //    return;
-
-                    _visible = value;
-
-                    IsLoopingItems = true;
-                    try
-                    {
-                        foreach (T item in _items)
-                        {
-                            item.IsRendering = _visible;
-                            Owner.ItemRenderChanged?.Invoke(item);
-                        }
-                    }
-                    finally
-                    {
-                        IsLoopingItems = false;
-                    }
-
-                    IsLoopingSubNodes = true;
-                    foreach (Node node in _subNodes)
-                        if (node != null)
-                            node.Visible = _visible;
-                    IsLoopingSubNodes = false;
-                }
-            }
+            
             public BoundingBox GetSubdivision(int index)
             {
                 Node node = _subNodes[index];
@@ -175,7 +143,11 @@ namespace System
             }
 
             public void ItemMoved(I3DBoundable item) => ItemMoved(item as T);
-            public void ItemMoved(T item)
+            public async void ItemMoved(T item)
+            {
+                await Task.Run(() => Test(item));
+            }
+            private void Test(T item)
             {
                 //TODO: if the item is the only item within its volume, no need to subdivide more!!!
                 //However, if the item is inserted into a volume with at least one other item in it, 
@@ -229,12 +201,19 @@ namespace System
                 
                 return false;
             }
-            public void DebugRender(bool recurse, Color color)
+            public void DebugRender(bool recurse, Frustum f)
             {
-                Engine.Renderer.RenderAABB(_bounds.HalfExtents, _bounds.Translation, false, color, 5.0f);
+                Color clr = Color.Red;
                 if (recurse)
-                    foreach (Node n in _subNodes)
-                        n?.DebugRender(true, color);
+                {
+                    EContainment c = f.Contains(_bounds);
+                    clr = c == EContainment.Intersects ? Color.Green : c == EContainment.Contains ? Color.White : Color.Red;
+                    if (c == EContainment.Contains)
+                        foreach (Node n in _subNodes)
+                            n?.DebugRender(true, f);
+                }
+                Engine.Renderer.RenderAABB(_bounds.HalfExtents, _bounds.Translation, false, clr, 5.0f);
+
             }
             public void CollectVisible(Frustum frustum, RenderPasses passes)
             {
@@ -287,35 +266,6 @@ namespace System
                     s?.CollectAll(passes);
                 IsLoopingSubNodes = false;
             }
-            public void Cull(Frustum frustum, bool resetVisibility, bool cullOffscreen, bool debugRender)
-            {
-                EContainment c = frustum.Contains(_bounds);
-                if (c != EContainment.Intersects)
-                    Visible = c == EContainment.Contains;
-                else
-                {
-                    //Bounds is intersecting edge of frustum
-                    _visible = true;
-
-                    IsLoopingItems = true;
-                    foreach (T item in _items)
-                    {
-                        item.IsRendering = item.CullingVolume != null ? item.CullingVolume.ContainedWithin(frustum) != EContainment.Disjoint : true;
-                        Owner.ItemRenderChanged?.Invoke(item);
-                    }
-                    IsLoopingItems = false;
-
-                    IsLoopingSubNodes = true;
-                    foreach (Node n in _subNodes)
-                        n?.Cull(frustum, resetVisibility, cullOffscreen, debugRender);
-                    IsLoopingSubNodes = false;
-                }
-                if (debugRender)
-                {
-                    Color clr = c == EContainment.Intersects ? Color.Green : c == EContainment.Contains ? Color.White : Color.Red;
-                    DebugRender(c == EContainment.Contains, clr);
-                }
-            }
             internal bool Remove(T item)
             {
                 if (_items.Contains(item))
@@ -367,7 +317,6 @@ namespace System
                         {
                             if (QueueAdd(item))
                             {
-                                item.IsRendering = _visible;
                                 item.OctreeNode = this;
                                 return true;
                             }
@@ -390,7 +339,6 @@ namespace System
 
                 if (QueueAdd(item))
                 {
-                    item.IsRendering = _visible;
                     item.OctreeNode = this;
                     return true;
                 }
@@ -436,63 +384,70 @@ namespace System
             #endregion
 
             #region Misc Data Methods
-            //public ThreadSafeList<T> FindClosest(Vec3 point)
-            //{
-            //    if (_bounds.Contains(point))
-            //    {
-            //        ThreadSafeList<T> list = null;
-            //        foreach (Node node in _subNodes)
-            //        {
-            //            list = node?.FindClosest(point);
-            //            if (list != null)
-            //                return list;
-            //        }
-                    
-            //        if (_items.Count == 0)
-            //            return null;
-
-            //        list = new ThreadSafeList<T>(_items);
-            //        for (int i = 0; i < list.Count; ++i)
-            //            if (list[i].CullingVolume != null && !list[i].CullingVolume.Contains(point))
-            //                list.RemoveAt(i--);
-
-            //        return list;
-            //    }
-            //    else
-            //        return null;
-            //}
-
-            /// <summary>
-            /// Finds all items contained within the given shape.
-            /// </summary>
-            /// <param name="shape">The shape to use for containment.</param>
-            /// <param name="list">The list of items that are contained within the shape.</param>
-            /// <param name="allowPartialContains">If true, adds items if they're even partially contained within the shape.</param>
-            /// <param name="testVisibleOnly">If true, only tests for containment of visible items.</param>
-            public void FindAllInside(Shape shape, ThreadSafeList<T> list, bool allowPartialContains, bool testVisibleOnly)
+            public T FindClosest(Vec3 point, ref float closestDistance)
             {
-                if ((testVisibleOnly ? Visible : true) && shape.ContainedWithin(Bounds) != EContainment.Disjoint)
+                if (!_bounds.Contains(point))
+                    return null;
+                
+                IsLoopingSubNodes = true;
+                foreach (Node n in _subNodes)
                 {
-                    foreach (T item in _items)
-                        if (item.CullingVolume != null && (testVisibleOnly ? item.IsRendering : true))
+                    T t = n?.FindClosest(point, ref closestDistance);
+                    if (t != null)
+                        return t;
+                }
+                IsLoopingSubNodes = false;
+                
+                if (_items.Count == 0)
+                    return null;
+
+                T closest = null;
+
+                IsLoopingItems = true;
+                foreach (T item in _items)
+                    if (item.CullingVolume != null)
+                    {
+                        float dist = item.CullingVolume.ClosestPoint(point).DistanceToFast(point);
+                        if (dist < closestDistance)
                         {
-                            EContainment c = shape.Contains(item.CullingVolume);
-                            if (c == EContainment.Contains || (allowPartialContains && c == EContainment.Intersects))
+                            closestDistance = dist;
+                            closest = item;
+                        }
+                    }
+                IsLoopingItems = false;
+
+                return closest;
+            }
+            public void FindAll(Shape shape, ThreadSafeList<T> list, EContainment containment)
+            {
+                EContainment c = shape.ContainedWithin(Bounds);
+                if (c == EContainment.Intersects)
+                {
+                    //Compare each item separately
+                    IsLoopingItems = true;
+                    foreach (T item in _items)
+                        if (item.CullingVolume != null)
+                        {
+                            c = shape.Contains(item.CullingVolume);
+                            if (c == containment)
                                 list.Add(item);
                         }
+                    IsLoopingItems = false;
                 }
-            }
-            /// <summary>
-            /// Finds all items contained within the given radius of a given point.
-            /// </summary>
-            /// <param name="radius">The distance from the point that returned items must be contained within.</param>
-            /// <param name="point">The center point of the sphere.</param>
-            /// <param name="list">The list of items that are contained within the shape.</param>
-            /// <param name="allowPartialContains">If true, adds items if they're even partially contained within the shape.</param>
-            /// <param name="testVisibleOnly">If true, only tests for containment of visible items.</param>
-            public void FindAllWithinRadius(float radius, Vec3 point, ThreadSafeList<T> list, bool allowPartialContains, bool testVisibleOnly)
-            {
-                FindAllInside(new Sphere(radius, point), list, allowPartialContains, testVisibleOnly);
+                else if (c == containment)
+                {
+                    //All items already have this containment
+                    IsLoopingItems = true;
+                    list.AddRange(_items);
+                    IsLoopingItems = false;
+                }
+                else //Not what we want
+                    return;
+
+                IsLoopingSubNodes = true;
+                foreach (Node n in _subNodes)
+                    n?.FindAll(shape, list, containment);
+                IsLoopingSubNodes = false;
             }
             /// <summary>
             /// Simply collects all the items contained in this node and all of its sub nodes.
@@ -557,7 +512,6 @@ namespace System
 
                     return _subNodes[index] = new Node(bounds)
                     {
-                        Visible = Visible,
                         SubDivIndex = index,
                         SubDivLevel = _subDivLevel + 1,
                         ParentNode = this,

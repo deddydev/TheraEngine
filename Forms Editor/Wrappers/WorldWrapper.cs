@@ -5,7 +5,7 @@ using TheraEngine.Worlds;
 namespace TheraEditor.Wrappers
 {
     [NodeWrapper(typeof(World), SystemImages.GenericFile)]
-    public class WorldWrapper : GenericWrapper
+    public class WorldWrapper : FileWrapper
     {
         static WorldWrapper()
         {
@@ -22,6 +22,6 @@ namespace TheraEditor.Wrappers
             WorldWrapper w = GetInstance<WorldWrapper>();
         }
         
-        public WorldWrapper(string path) : base(path) { }
+        public WorldWrapper() : base() { }
     }
 }

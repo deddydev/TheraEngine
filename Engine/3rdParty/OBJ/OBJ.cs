@@ -20,10 +20,13 @@ namespace TheraEngine.Rendering.Models
             string dirPath = Path.GetDirectoryName(path);
             foreach (var group in result.Groups)
             {
-                BoundingBox b = BoundingBox.ExpandableBox();
-                PrimitiveData data = PrimitiveData.FromTriangleList(Culling.Back, VertexShaderDesc.PosNormTex(), group.Faces.SelectMany(x => CreateTriangles(x, result, false, modelMatrix, normalMatrix, b)));
-                var objMat = result.Materials.FirstOrDefault(x => x.Name == group.Material?.Name);
-                m.RigidChildren.Add(new StaticRigidSubMesh(data, b, CreateMaterial(objMat, dirPath, options.UseForwardShaders), group.Name));
+                foreach (var subgroup in group.SubGroups)
+                {
+                    BoundingBox b = BoundingBox.ExpandableBox();
+                    PrimitiveData data = PrimitiveData.FromTriangleList(Culling.Back, VertexShaderDesc.PosNormTex(), subgroup.Faces.SelectMany(x => CreateTriangles(x, result, false, modelMatrix, normalMatrix, b)));
+                    var objMat = result.Materials.FirstOrDefault(x => x.Name == subgroup.Material?.Name);
+                    m.RigidChildren.Add(new StaticRigidSubMesh(data, b, CreateMaterial(objMat, dirPath, options.UseForwardShaders), group.Name + "_" + subgroup.Material.Name));
+                }
             }
             return m;
         }
@@ -73,6 +76,7 @@ namespace TheraEngine.Rendering.Models
 
         private static Material CreateMaterial(ObjLoader.Loader.Data.Material objMat, string dirPath, bool forward)
         {
+            Shader shader = GetOBJFragmentShader(forward);
             if (objMat == null)
             {
                 ShaderVar[] parameters = new ShaderVar[]
@@ -83,11 +87,7 @@ namespace TheraEngine.Rendering.Models
                     new ShaderFloat(0.0f, "SpecularCoef"),
                     new ShaderFloat(0.0f, "Transparency"),
                 };
-                TextureReference[] textures = new TextureReference[]
-                {
-
-                };
-                return new Material("UnnamedMaterial", parameters, textures, GetOBJFragmentShader(null, forward))
+                return new Material("UnnamedMaterial", parameters, new TextureReference[0], shader)
                 {
                     Requirements = forward ? Material.UniformRequirements.NeedsLightsAndCamera : Material.UniformRequirements.None
                 };
@@ -107,14 +107,14 @@ namespace TheraEngine.Rendering.Models
                 {
                     new TextureReference(Path.GetFileNameWithoutExtension(mapPath), mapPath.Contains(":") ? mapPath : dirPath + "\\" + mapPath ),
                 };
-                return new Material(objMat.Name, parameters, textures, GetOBJFragmentShader(objMat, forward))
+                return new Material(objMat.Name, parameters, textures, shader)
                 {
                     Requirements = forward ? Material.UniformRequirements.NeedsLightsAndCamera : Material.UniformRequirements.None
                 };
             }
         }
 
-        private static Shader GetOBJFragmentShader(ObjLoader.Loader.Data.Material objMat, bool forward)
+        private static Shader GetOBJFragmentShader(bool forward)
         {
             if (forward)
                 return new Shader(ShaderMode.Fragment, @"
@@ -150,8 +150,7 @@ void main()
 #version 450
 
 layout (location = 0) out vec4 AlbedoSpec;
-layout (location = 1) out vec3 Position;
-layout (location = 2) out vec3 Normal;
+layout (location = 1) out vec3 Normal;
 
 in vec3 FragPos;
 in vec3 FragNorm;
@@ -168,7 +167,6 @@ uniform sampler2D Texture0;
 void main()
 {
     AlbedoSpec = vec4(texture(Texture0, FragUV0).rgb * Diffuse, 0.0);
-    Position = FragPos;
     Normal = normalize(FragNorm);
 }");
         }

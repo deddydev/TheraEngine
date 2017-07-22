@@ -132,21 +132,21 @@ namespace TheraEngine.Worlds.Actors
         {
             Vec3 forward = Vec3.TransformVector(Vec3.Forward, _tpCameraBoom.Rotation.GetYawMatrix());
             Vec3 right = forward ^ Vec3.Up;
+
             bool keyboardMovement = _keyboardMovementInput.X != 0.0f || _keyboardMovementInput.Y != 0.0f;
             bool gamepadMovement = _gamepadMovementInput.X != 0.0f || _gamepadMovementInput.Y != 0.0f;
+
+            Vec3 input;
             if (keyboardMovement)
             {
-                Vec3 finalInput = forward * _keyboardMovementInput.Y + right * _keyboardMovementInput.X;
-                finalInput.Y = 0.0f;
-                finalInput *= delta * _keyboardMovementInputMultiplier;
-                _movement.AddMovementInput(finalInput);
+                input = forward * _keyboardMovementInput.Y + right * _keyboardMovementInput.X;
+                input.NormalizeFast();
+                _movement.AddMovementInput(input * delta * _keyboardMovementInputMultiplier);
             }
             if (gamepadMovement)
             {
-                Vec3 finalInput = forward * _gamepadMovementInput.Y + right * _gamepadMovementInput.X;
-                finalInput.Y = 0.0f;
-                finalInput *= delta * _gamePadMovementInputMultiplier;
-                _movement.AddMovementInput(finalInput);
+                input = forward * _gamepadMovementInput.Y + right * _gamepadMovementInput.X;
+                _movement.AddMovementInput(input * delta * _gamePadMovementInputMultiplier);
             }
             if (gamepadMovement || keyboardMovement)
             {
@@ -239,10 +239,11 @@ namespace TheraEngine.Worlds.Actors
             PhysicsConstructionInfo info = new PhysicsConstructionInfo()
             {
                 Mass = 59.0f,
-                AngularDamping = 0.05f,
-                LinearDamping = 0.05f,
+                AdditionalDamping = false,
+                AngularDamping = 0.0f,
+                LinearDamping = 0.0f,
                 Restitution = 0.0f,
-                Friction = 0.01f,
+                Friction = 0.0f,
                 RollingFriction = 0.01f,
                 CollisionEnabled = true,
                 SimulatePhysics = false,
@@ -268,7 +269,7 @@ namespace TheraEngine.Worlds.Actors
             //_fpCameraComponent = new CameraComponent(FPCam);
             //_fpCameraComponent.AttachTo(_meshComp, "Head");
 
-            PositionLagComponent lagComp = new PositionLagComponent();
+            PositionLagComponent lagComp = new PositionLagComponent(7.0f, 7.0f);
             rootCapsule.ChildComponents.Add(lagComp);
 
             _tpCameraBoom = new BoomComponent() { IgnoreCast = rootCapsule.PhysicsDriver.CollisionObject };

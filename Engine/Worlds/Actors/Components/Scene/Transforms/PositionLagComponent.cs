@@ -7,13 +7,16 @@ namespace TheraEngine.Worlds.Actors
 {
     public class PositionLagComponent : SceneComponent, I3DRenderable
     {
-        public PositionLagComponent() : base() { }
-        public PositionLagComponent(float interpSpeed) : base() { _interpSpeed = interpSpeed; }
+        public PositionLagComponent() : this(20.0f, 2.0f) { }
+        public PositionLagComponent(float interpSpeed) : this(interpSpeed, 2.0f) { }
+        public PositionLagComponent(float interpSpeed, float maxLagDistance) : base()
+        {
+            _interpSpeed = interpSpeed;
+            _maxLagDistance = maxLagDistance;
+        }
 
-        [Serialize("InterpSpeed")]
-        private float _interpSpeed = 20.0f;
-        [Serialize("MaxLagDistance")]
-        private float _maxLagDistance = 2.0f;
+        private float _interpSpeed;
+        private float _maxLagDistance;
 
         private float _delta;
         private Vec3 _currentPoint;
@@ -27,19 +30,21 @@ namespace TheraEngine.Worlds.Actors
         public Shape CullingVolume => null;
         [Browsable(false)]
         public IOctreeNode OctreeNode { get; set; }
-        [Browsable(false)]
-        public bool IsRendering { get; set; }
 
+        [Serialize]
         [Category("Position Lag Component")]
         public float InterpSpeed { get => _interpSpeed; set => _interpSpeed = value; }
+        [Serialize]
         [Category("Position Lag Component")]
         public float MaxLagDistance { get => _maxLagDistance; set => _maxLagDistance = value; }
-
+        [Browsable(false)]
         public float LaggingDistance => _laggingDistance;
 
         protected internal override void OriginRebased(Vec3 newOrigin)
         {
-            
+            _currentPoint -= newOrigin;
+            _destPoint -= newOrigin;
+            _interpPoint -= newOrigin;
         }
         protected override void OnRecalcLocalTransform(out Matrix4 localTransform, out Matrix4 inverseLocalTransform)
         {
@@ -78,13 +83,13 @@ namespace TheraEngine.Worlds.Actors
         {
             _currentPoint = _worldTransform.GetPoint();
             //Engine.Scene.Add(this);
-            RegisterTick(ETickGroup.PostPhysics, ETickOrder.Logic, Tick);
+            RegisterTick(ETickGroup.PrePhysics, ETickOrder.Scene, Tick);
             base.OnSpawned();
         }
         public override void OnDespawned()
         {
             //Engine.Scene.Remove(this);
-            UnregisterTick(ETickGroup.PostPhysics, ETickOrder.Logic, Tick);
+            UnregisterTick(ETickGroup.PrePhysics, ETickOrder.Scene, Tick);
             base.OnDespawned();
         }
 

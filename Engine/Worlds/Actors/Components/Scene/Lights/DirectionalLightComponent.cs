@@ -66,10 +66,10 @@ namespace TheraEngine.Worlds.Actors
         {
             if (_type == LightType.Dynamic)
             {
-                _worldRadius = Engine.World.Settings.Bounds.HalfExtents.LengthFast;
-                SetShadowMapResolution(4096, 4096);
                 Engine.Scene.Lights.Add(this);
 
+                _worldRadius = Engine.World.Settings.Bounds.HalfExtents.LengthFast;
+                SetShadowMapResolution(4096, 4096);
                 _shadowCamera.LocalPoint.Raw = GetWorldPoint();
                 _shadowCamera.TranslateRelative(0.0f, 0.0f, _worldRadius + 1.0f);
 
@@ -95,7 +95,7 @@ namespace TheraEngine.Worlds.Actors
             Engine.Renderer.ProgramUniform(programBindingId, indexer + "Base.DiffuseIntensity", _diffuseIntensity);
             Engine.Renderer.ProgramUniform(programBindingId, indexer + "Base.WorldToLightSpaceProjMatrix", _worldToLightSpaceProjMatrix);
             Engine.Renderer.ProgramUniform(programBindingId, indexer + "Direction", _direction);
-            _shadowMap.Material.BindTexture(0, 4 + LightIndex, indexer + "Base.ShadowMap", programBindingId);
+            _shadowMap.Material.SetTextureUniform(0, 4 + LightIndex, indexer + "Base.ShadowMap", programBindingId);
         }
         public void SetShadowMapResolution(int width, int height)
         {
@@ -127,13 +127,23 @@ namespace TheraEngine.Worlds.Actors
         private void UpdateMatrix()
             => _worldToLightSpaceProjMatrix = _shadowCamera.ProjectionMatrix * _shadowCamera.WorldToCameraSpaceMatrix;
         
-        private static Material GetShadowMapMaterial(int width, int height)
+        private static EPixelInternalFormat GetFormat(EDepthPrecision precision)
+        {
+            switch (precision)
+            {
+                case EDepthPrecision.Int16: return EPixelInternalFormat.DepthComponent16;
+                case EDepthPrecision.Int24: return EPixelInternalFormat.DepthComponent24;
+                case EDepthPrecision.Int32: return EPixelInternalFormat.DepthComponent32;
+            }
+            return EPixelInternalFormat.DepthComponent32f;
+        }
+        private static Material GetShadowMapMaterial(int width, int height, EDepthPrecision precision = EDepthPrecision.Int24)
         {
             //These are listed in order of appearance in the shader
             TextureReference[] refs = new TextureReference[]
             {
                 new TextureReference("Depth", width, height,
-                    EPixelInternalFormat.DepthComponent32f, EPixelFormat.DepthComponent, EPixelType.Float)
+                    GetFormat(precision), EPixelFormat.DepthComponent, EPixelType.Float)
                 {
                     MinFilter = ETexMinFilter.Nearest,
                     MagFilter = ETexMagFilter.Nearest,

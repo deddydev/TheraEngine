@@ -120,7 +120,7 @@
     <Compile Include="Wrappers\BaseWrappers.cs" />
     <Compile Include="Wrappers\WorldWrapper.cs" />
     <Compile Include="Wrappers\FolderWrapper.cs" />
-    <Compile Include="Wrappers\GenericWrapper.cs" />
+    <Compile Include="Wrappers\FileWrapper.cs" />
     <EmbeddedResource Include="Editor.resx">
       <DependentUpon>Editor.cs</DependentUpon>
     </EmbeddedResource>
@@ -169,6 +169,12 @@
       <Project>{3ba74071-a8fb-473a-9388-0c8f75872f41}</Project>
       <Name>Engine</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\ClosedFolder2.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\ClosedFolder21.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

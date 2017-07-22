@@ -73,9 +73,18 @@ namespace TheraEngine.Worlds
             actor.Spawned(this);
         }
         /// <summary>
+        /// Adds an actor to the scene.
+        /// </summary>
+        public void SpawnActor(IActor actor, Vec3 position)
+        {
+            if (!_settings.State.SpawnedActors.Contains(actor))
+                _settings.State.SpawnedActors.Add(actor);
+            actor.Spawned(this);
+            actor.RebaseOrigin(-position);
+        }
+        /// <summary>
         /// Removes an actor from the scene.
         /// </summary>
-        /// <param name="actor"></param>
         public void DespawnActor(IActor actor)
         {
             if (_settings.State.SpawnedActors.Contains(actor))
@@ -90,24 +99,6 @@ namespace TheraEngine.Worlds
         {
             get => _settings.State.SpawnedActors[index];
             set => _settings.State.SpawnedActors[index] = value;
-        }
-        public virtual void EndPlay()
-        {
-            _settings.GameMode.File?.EndGameplay();
-            foreach (Map m in _settings.Maps)
-                m.EndPlay();
-            Dispose();
-        }
-        public virtual void BeginPlay()
-        {
-            Engine.TimeDilation = _settings.TimeDilation;
-            CreatePhysicsScene();
-            foreach (Map m in _settings.Maps)
-                m.BeginPlay();
-            _settings.GameMode.File?.BeginGameplay();
-            //foreach (PhysicsDriver d in Engine._queuedCollisions)
-            //    d.AddToWorld();
-            //Engine._queuedCollisions.Clear();
         }
         /// <summary>
         /// Moves the origin to preserve float precision when traveling large distances from the origin.
@@ -174,24 +165,50 @@ namespace TheraEngine.Worlds
                 _physicsScene.Dispose();
                 _physicsScene = null;
 
-                _constraintSolver.Dispose();
+                _constraintSolver?.Dispose();
                 _constraintSolver = null;
 
-                _physicsBroadphase.Dispose();
+                _physicsBroadphase?.Dispose();
                 _physicsBroadphase = null;
 
-                _collisionDispatcher.Dispose();
+                _collisionDispatcher?.Dispose();
                 _collisionDispatcher = null;
 
-                _collisionConfig.Dispose();
+                _collisionConfig?.Dispose();
                 _collisionConfig = null;
 
-                _physicsDebugDrawer.Dispose();
+                _physicsDebugDrawer?.Dispose();
                 _physicsDebugDrawer = null;
             }
         }
         public IEnumerator<IActor> GetEnumerator() => State.SpawnedActors.GetEnumerator();
         IEnumerator IEnumerable.GetEnumerator() => State.SpawnedActors.GetEnumerator();
+
+        protected override void OnUnload() => Dispose();
+        public virtual void EndPlay()
+        {
+            _settings.GameMode.File?.EndGameplay();
+            foreach (Map m in _settings.Maps)
+                m.EndPlay();
+        }
+        public virtual void BeginPlay()
+        {
+            foreach (Map m in _settings.Maps)
+                m.BeginPlay();
+            _settings.GameMode.File?.BeginGameplay();
+        }
+        internal protected virtual void Initialize()
+        {
+            Engine.TimeDilation = _settings.TimeDilation;
+            CreatePhysicsScene();
+            foreach (Map m in _settings.Maps)
+            {
+                if (m.Settings.VisibleByDefault)
+                {
+                    m.Initialize();
+                }
+            }
+        }
 
         //public event Action<LocalPlayerController> LocalPlayerAdded;
         //internal protected virtual void OnLocalPlayerAdded(LocalPlayerController controller)

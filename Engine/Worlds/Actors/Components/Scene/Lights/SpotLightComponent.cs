@@ -1,28 +1,62 @@
 ﻿using System;
+using System.ComponentModel;
 using TheraEngine.Rendering;
+using TheraEngine.Rendering.Cameras;
 using TheraEngine.Rendering.Models.Materials;
 
 namespace TheraEngine.Worlds.Actors
 {
-    public class SpotLightComponent : PointLightComponent
+    public class SpotLightComponent : LightComponent, I3DRenderable
     {
-        float _cutoff, _exponent;
+        private float _cutoff, _exponent, _distance;
         private Vec3 _direction;
-        
+
+        [Category("Spot Light Component")]
+        public float Distance
+        {
+            get => _distance;
+            set => _distance = value;
+        }
+        [Category("Spot Light Component")]
+        public Vec3 Direction
+        {
+            get => _direction;
+            set
+            {
+                _direction = value.NormalizedFast();
+                _rotation.SetDirection(_direction);
+            }
+        }
+        [Category("Spot Light Component")]
+        public float Exponent
+        {
+            get => _exponent;
+            set => _exponent = value;
+        }
+        [Category("Spot Light Component")]
+        public float CutoffAngleDegrees
+        {
+            get => CustomMath.RadToDeg(_cutoff);
+            set => _cutoff = CustomMath.DegToRad(value);
+        }
+
         public SpotLightComponent(
-            float radius, ColorF3 color, float diffuseIntensity, float ambientIntensity,
+            float distance, ColorF3 color, float diffuseIntensity, float ambientIntensity,
             Vec3 direction, float cutoffAngleDegrees, float exponent) 
-            : base(radius, color, diffuseIntensity, ambientIntensity)
+            : base(color, diffuseIntensity, ambientIntensity)
         {
             Direction = direction;
+            _distance = distance;
             _cutoff = CustomMath.DegToRad(cutoffAngleDegrees);
             _exponent = exponent;
+            _cullingVolume = new ConeY(0.0f, 0.0f);
         }
         public SpotLightComponent(
-            float radius, ColorF3 color, float diffuseIntensity, float ambientIntensity,
+            float distance, ColorF3 color, float diffuseIntensity, float ambientIntensity,
             Rotator rotation, float cutoffAngleDegrees, float exponent)
-            : base(radius, color, diffuseIntensity, ambientIntensity)
+            : base(color, diffuseIntensity, ambientIntensity)
         {
+            _distance = distance;
             _rotation.SetRotations(rotation);
             _cutoff = CustomMath.DegToRad(cutoffAngleDegrees);
             _exponent = exponent;
@@ -34,35 +68,35 @@ namespace TheraEngine.Worlds.Actors
             base.OnRecalcLocalTransform(out localTransform, out inverseLocalTransform);
         }
 
-        public Vec3 Direction
-        {
-            get => _direction;
-            set
-            {
-                _direction = value.NormalizedFast();
-                _rotation.SetDirection(_direction);
-            }
-        }
-        public float CutoffAngleDegrees
-        {
-            get => CustomMath.RadToDeg(_cutoff);
-            set => _cutoff = CustomMath.DegToRad(value);
-        }
-        public float Exponent
-        {
-            get => _exponent;
-            set => _exponent = value;
-        }
+        private MaterialFrameBuffer _shadowMap;
+        private PerspectiveCamera _shadowCamera;
+        private int _shadowWidth, _shadowHeight;
+        private Matrix4 _worldToLightSpaceProjMatrix;
+        ConeY _cullingVolume;
+
+        public bool HasTransparency => false;
+        public Shape CullingVolume => _cullingVolume;
+
+        public IOctreeNode OctreeNode { get; set; }
+        public bool IsRendering { get; set; }
 
         public override void OnSpawned()
         {
             if (_type == LightType.Dynamic)
+            {
                 Engine.Scene.Lights.Add(this);
+                if (Engine.Settings.RenderCameraFrustums)
+                    Engine.Scene.Add(_shadowCamera);
+            }
         }
         public override void OnDespawned()
         {
             if (_type == LightType.Dynamic)
+            {
                 Engine.Scene.Lights.Remove(this);
+                if (Engine.Settings.RenderCameraFrustums)
+                    Engine.Scene.Remove(_shadowCamera);
+            }
         }
 
         public override void SetUniforms(int programBindingId)
@@ -79,15 +113,97 @@ namespace TheraEngine.Worlds.Actors
             Engine.Renderer.ProgramUniform(programBindingId, indexer + "Cutoff", _cutoff);
             Engine.Renderer.ProgramUniform(programBindingId, indexer + "Exponent", _exponent);
         }
+        public void SetShadowMapResolution(int width, int height)
+        {
+            _shadowWidth = width;
+            _shadowHeight = height;
+            if (_shadowMap == null)
+                _shadowMap = new MaterialFrameBuffer(GetShadowMapMaterial(width, height));
+            else
+                _shadowMap.ResizeTextures(width, height);
 
+            if (_shadowCamera == null)
+            {
+                _shadowCamera = new PerspectiveCamera()
+                {
+                    NearZ = 0.0f,
+                    FarZ = _distance,
+                };
+                _shadowCamera.Resize(1.0f, 1.0f);
+                _shadowCamera.LocalRotation.SyncFrom(_rotation);
+                _shadowCamera.ProjectionChanged += UpdateMatrix;
+                _shadowCamera.TransformChanged += UpdateMatrix;
+                UpdateMatrix();
+            }
+            else
+                _shadowCamera.Resize(width, height);
+        }
+        private void UpdateMatrix()
+            => _worldToLightSpaceProjMatrix = _shadowCamera.ProjectionMatrix * _shadowCamera.WorldToCameraSpaceMatrix;
+
+        private static EPixelInternalFormat GetFormat(EDepthPrecision precision)
+        {
+            switch (precision)
+            {
+                case EDepthPrecision.Int16: return EPixelInternalFormat.DepthComponent16;
+                case EDepthPrecision.Int24: return EPixelInternalFormat.DepthComponent24;
+                case EDepthPrecision.Int32: return EPixelInternalFormat.DepthComponent32;
+            }
+            return EPixelInternalFormat.DepthComponent32f;
+        }
+        private static Material GetShadowMapMaterial(int width, int height, EDepthPrecision precision = EDepthPrecision.Int24)
+        {
+            //These are listed in order of appearance in the shader
+            TextureReference[] refs = new TextureReference[]
+            {
+                new TextureReference("Depth", width, height,
+                    GetFormat(precision), EPixelFormat.DepthComponent, EPixelType.Float)
+                {
+                    MinFilter = ETexMinFilter.Nearest,
+                    MagFilter = ETexMagFilter.Nearest,
+                    UWrap = ETexWrapMode.Clamp,
+                    VWrap = ETexWrapMode.Clamp,
+                    FrameBufferAttachment = EFramebufferAttachment.DepthAttachment,
+                },
+            };
+            Shader shader = new Shader(ShaderMode.Fragment, ShaderHelpers.Frag_DepthOutput);
+            Material m = new Material("SpotLightShadowMat", new ShaderVar[0], refs, shader)
+            {
+                Requirements = Material.UniformRequirements.None,
+                //CullMode = Culling.Front,
+            };
+            return m;
+        }
         public override void RenderShadowMap(SceneProcessor scene)
         {
+            Engine.Renderer.MaterialOverride = _shadowMap.Material;
 
+            _shadowMap.Bind(EFramebufferTarget.Framebuffer);
+            Engine.Renderer.PushRenderArea(new BoundingRectangle(0.0f, 0.0f, _shadowWidth, _shadowHeight, 0.0f, 0.0f));
+
+            Engine.Renderer.Clear(EBufferClear.Color | EBufferClear.Depth);
+            Engine.Renderer.AllowDepthWrite(true);
+
+            scene.PreRender(_shadowCamera);
+            scene.Render(RenderPass.OpaqueDeferred);
+            scene.Render(RenderPass.OpaqueForward);
+            scene.Render(RenderPass.TransparentForward);
+            scene.PostRender();
+
+            Engine.Renderer.PopRenderArea();
+            _shadowMap.Unbind(EFramebufferTarget.Framebuffer);
+
+            Engine.Renderer.MaterialOverride = null;
         }
 
         public override void BakeShadowMaps()
         {
 
+        }
+
+        public void Render()
+        {
+            throw new NotImplementedException();
         }
     }
 }

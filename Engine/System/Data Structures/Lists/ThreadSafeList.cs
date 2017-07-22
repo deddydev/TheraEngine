@@ -5,7 +5,7 @@ namespace System.Collections.Generic
 {
     public class ThreadSafeList<T> : IList<T>, ICollection<T>, IEnumerable<T>, IEnumerable, IList, ICollection, IReadOnlyList<T>, IReadOnlyCollection<T>
     {
-        protected readonly ReaderWriterLockSlim _lock = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
+        protected ReaderWriterLockSlim _lock = new ReaderWriterLockSlim(LockRecursionPolicy.NoRecursion);
         protected List<T> _inner;
         
         public int Count => ((IList<T>)_inner).Count;
@@ -51,6 +51,11 @@ namespace System.Collections.Generic
         public ThreadSafeList(IEnumerable<T> list)
         {
             _inner = new List<T>(list);
+        }
+        public ThreadSafeList(ReaderWriterLockSlim threadLock)
+        {
+            _inner = new List<T>();
+            _lock = threadLock;
         }
 
         public void Add(T item)

@@ -53,20 +53,22 @@ namespace TheraEngine
         }
         private static void PersistentManifold_ContactProcessed(ManifoldPoint cp, CollisionObject body0, CollisionObject body1)
         {
-            PhysicsDriver driver0 = (PhysicsDriver)body0.UserObject;
-            PhysicsDriver driver1 = (PhysicsDriver)body1.UserObject;
-            cp.UserPersistentData = new PhysicsDriverPair(driver0, driver1);
-            driver0.ContactStarted(driver1, cp);
+            //PhysicsDriver driver0 = (PhysicsDriver)body0.UserObject;
+            //PhysicsDriver driver1 = (PhysicsDriver)body1.UserObject;
+            //cp.UserPersistentData = new PhysicsDriverPair(driver0, driver1);
+            //driver0.ContactStarted(driver1, cp);
         }
         private static void PersistentManifold_ContactDestroyed(object userPersistantData)
         {
-            PhysicsDriverPair drivers = (PhysicsDriverPair)userPersistantData;
-            drivers._driver0.ContactEnded(drivers._driver1);
-            drivers._driver1.ContactEnded(drivers._driver0);
+            //PhysicsDriverPair drivers = (PhysicsDriverPair)userPersistantData;
+            //drivers._driver0.ContactEnded(drivers._driver1);
+            //drivers._driver1.ContactEnded(drivers._driver0);
         }
         private static void ManifoldPoint_ContactAdded(ManifoldPoint cp, CollisionObjectWrapper colObj0Wrap, int partId0, int index0, CollisionObjectWrapper colObj1Wrap, int partId1, int index1)
         {
-
+            PhysicsDriver driver0 = (PhysicsDriver)colObj0Wrap.CollisionObject.UserObject;
+            PhysicsDriver driver1 = (PhysicsDriver)colObj1Wrap.CollisionObject.UserObject;
+            driver0.ContactStarted(driver1, cp);
         }
         #endregion
 
@@ -103,7 +105,7 @@ namespace TheraEngine
         /// Initializes the engine to its beginning state.
         /// Call AFTER SetGame is called and all initial render panels are created and ready.
         /// </summary>
-        public static void Initialize(RenderPanel gamePanel)
+        public static void Initialize(RenderPanel gamePanel, bool deferOpeningWorldPlay = false)
         {
             RenderPanel.GamePanel = gamePanel;
             gamePanel?.RegisterTick();
@@ -119,10 +121,10 @@ namespace TheraEngine
             //    throw new Exception("Unable to create renderer.");
 
             //Set initial world (this would generally be a world for opening videos or the main menu)
-            World = Game.OpeningWorld;
+            SetCurrentWorld(Game.OpeningWorld, true, deferOpeningWorldPlay);
 
-            //Preload loading world now
-            Game.TransitionWorld.GetInstance();
+            //Preload transition world now
+            Game.TransitionWorld.GetInstanceAsync();
             
             TargetRenderFreq = Settings.CapFPS ? Settings.TargetFPS.ClampMin(1.0f) : 0.0f;
             TargetUpdateFreq = Settings.CapUPS ? Settings.TargetUPS.ClampMin(1.0f) : 0.0f;
@@ -380,22 +382,20 @@ namespace TheraEngine
         /// </summary>
         /// <param name="world">The world to play in.</param>
         /// <param name="unloadPrevious">Whether or not the engine should deallocate all resources utilized by the current world before loading the new one.</param>
-        public static void SetCurrentWorld(World world, bool unloadPrevious)
+        public static void SetCurrentWorld(World world, bool unloadPrevious = true, bool deferBeginPlay = false)
         {
             bool wasRunning = _timer.IsRunning;
             World previous = World;
-            if (World != null)
-            {
-                World.EndPlay();
-                DestroyLocalPlayerControllers();
-            }
+            DestroyLocalPlayerControllers();
+            World?.EndPlay();
             Stop();
             _currentWorld = world;
             Scene.WorldChanged();
             if (World != null)
             {
-                CreateLocalPlayerControllers();
-                World.BeginPlay();
+                World.Initialize();
+                if (!deferBeginPlay)
+                    World.BeginPlay();
             }
             if (wasRunning)
                 Run();
@@ -407,25 +407,6 @@ namespace TheraEngine
             foreach (LocalPlayerController controller in ActivePlayers)
                 controller.Destroy();
             ActivePlayers.Clear();
-        }
-        private static void CreateLocalPlayerControllers()
-        {
-            InputDevice[] gamepads = InputDevice.CurrentDevices[InputDeviceType.Gamepad];
-            InputDevice[] keyboards = InputDevice.CurrentDevices[InputDeviceType.Keyboard];
-            InputDevice[] mice = InputDevice.CurrentDevices[InputDeviceType.Mouse];
-
-            if (keyboards.Any(x => x != null) || 
-                mice.Any(x => x != null) || 
-                gamepads.Any(x => x != null && x.Index == 0))
-            {
-                ActivePlayers.Add(World.Settings.GameMode.File?.CreateLocalController(PlayerIndex.One));
-            }
-            for (int i = 0; i < 4; ++i)
-            {
-                InputDevice gp = gamepads[i];
-                if (gp != null && gp.Index > 0)
-                    ActivePlayers.Add(World.Settings.GameMode.File?.CreateLocalController(PlayerIndex.One + gp.Index));
-            }
         }
         /// <summary>
         /// Enqueues a pawn to be possessed by the given local player as soon as its current controlled pawn is set to null.

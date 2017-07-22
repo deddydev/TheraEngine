@@ -6,6 +6,7 @@ using System.ComponentModel;
 namespace TheraEngine.Rendering.Models
 {
     [FileClass("STM", "Static Mesh")]
+    [TypeConverter(typeof(ExpandableObjectConverter))]
     public class StaticMesh : FileObject, IModelFile
     {
         public StaticMesh() : base()

@@ -273,7 +273,7 @@ namespace TheraEngine.Files
                 }
             }
             else
-                obj = (FileObject)CustomXmlSerializer.Deserialize(filePath, t);
+                obj = CustomXmlSerializer.Deserialize(filePath) as FileObject;
             if (obj != null)
             {
                 obj._filePath = filePath;
@@ -281,6 +281,13 @@ namespace TheraEngine.Files
             }
             return obj;
         }
+
+        public static Type DetermineType(string path)
+        {
+            string typeName = "";
+            return Type.GetType(typeName, false, false);
+        }
+
         private static XmlWriterSettings _writerSettings = new XmlWriterSettings()
         {
             Indent = true,

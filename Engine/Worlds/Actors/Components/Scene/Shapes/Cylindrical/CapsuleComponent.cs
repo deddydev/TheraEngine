@@ -29,12 +29,12 @@ namespace TheraEngine.Worlds.Actors
             => _capsule.GetCollisionShape();
         public override void OnSpawned()
         {
-            Engine.Scene.Add(this);
+            //Engine.Scene.Add(this);
             base.OnSpawned();
         }
         public override void OnDespawned()
         {
-            Engine.Scene.Remove(this);
+            //Engine.Scene.Remove(this);
             base.OnDespawned();
         }
     }

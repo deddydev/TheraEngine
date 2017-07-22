@@ -19,7 +19,7 @@ namespace TheraEngine.Tests
         {
             _settings = new WorldSettings("TestWorld");
             Random r = new Random();
-            IActor[] array = new IActor[50];
+            IActor[] array = new IActor[2];
             BoundingBox spawnBounds = new BoundingBox(18.0f, 30.0f, 18.0f, 0.0f, 50.0f, 0.0f);
             for (int i = 0; i < array.Length; ++i)
             {
@@ -136,8 +136,8 @@ namespace TheraEngine.Tests
                 InitialTransform = new FrameState(Vec3.Zero, Quat.Identity, 0.1f, TransformOrder.TRS),
                 //InitialTransform = new FrameState(new Vec3(-100.0f, -100.0f, -1700.0f), Quat.Identity, Vec3.One, TransformOrder.TRS),
             };
-            //StaticMesh testModel = OBJ.Import(/*"E:\\Documents\\StationSquare\\main\\landtable.obj"*/desktop + "test.obj", objOptions);
-            //Actor<StaticMeshComponent> testActor = new Actor<StaticMeshComponent>(new StaticMeshComponent(testModel, null)) { Name = "MapActor" };
+            StaticMesh testModel = OBJ.Import(/*"E:\\Documents\\StationSquare\\main\\landtable.obj"*/desktop + "test.obj", objOptions);
+            Actor<StaticMeshComponent> testActor = new Actor<StaticMeshComponent>(new StaticMeshComponent(testModel, null)) { Name = "MapActor" };
 
             ModelImportOptions options = new ModelImportOptions()
             {
@@ -233,15 +233,15 @@ namespace TheraEngine.Tests
 
             Actor<BlockingVolumeComponent> block = new Actor<BlockingVolumeComponent>(new BlockingVolumeComponent(
                     new Vec3(500.0f, 10.0f, 500.0f),
-                    new Vec3(0.0f, -10.22f, 0.0f), 
+                    new Vec3(0.0f, -10.22f, 0.0f),
                     Rotator.GetZero(),
                     CustomCollisionGroup.StaticWorld,
-                    CustomCollisionGroup.Characters | CustomCollisionGroup.DynamicWorld));
+                    CustomCollisionGroup.Characters | CustomCollisionGroup.DynamicWorld)) { Name = "Floor" };
 
             IActor[] actors = new IActor[]
             {
                 block,
-                //testActor,
+                testActor,
                 //floorActor1,
                 //floorActor2,
                 //floorActor3,

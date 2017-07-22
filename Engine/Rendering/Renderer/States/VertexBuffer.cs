@@ -86,16 +86,17 @@ namespace TheraEngine.Rendering.Models
             Double  = 10
         }
 
-        [Serialize("ComponentType", IsXmlAttribute = true)]
-        internal ComponentType _componentType;
-        [Serialize("Normalize", IsXmlAttribute = true)]
-        internal bool _normalize;
         internal BufferUsage _usage = BufferUsage.StaticDraw;
-        [Serialize("Data")]
-        internal DataSource _data;
-        [Serialize("Integral", IsXmlAttribute = true)]
+
+        [Serialize("ComponentType", Order = 0, IsXmlAttribute = true)]
+        internal ComponentType _componentType;
+        [Serialize("Normalize", Order = 1, IsXmlAttribute = true)]
+        internal bool _normalize;
+        [Serialize("Integral", Order = 2, IsXmlAttribute = true)]
         internal bool _integral = false;
-        internal int _index;
+        [Serialize("Data", Order = 2)]
+        internal DataSource _data;
+        internal int _bufferIndex;
         internal int _location, _vaoId = 0;
         [Serialize("ComponentCount", IsXmlAttribute = true)]
         internal int _componentCount;
@@ -228,8 +229,8 @@ namespace TheraEngine.Rendering.Models
         }
         public int Index
         {
-            get => _index;
-            set => _index = value;
+            get => _bufferIndex;
+            set => _bufferIndex = value;
         }
         public BufferType BufferType
         {
@@ -247,7 +248,7 @@ namespace TheraEngine.Rendering.Models
             bool normalize,
             bool integral) : base(EObjectType.Buffer)
         {
-            _index = index;
+            _bufferIndex = index;
             _target = target;
             _location = info.GetLocation();
             _name = info.GetAttribName();
@@ -267,7 +268,7 @@ namespace TheraEngine.Rendering.Models
             EBufferTarget target,
             bool integral) : base(EObjectType.Buffer)
         {
-            _index = -1;
+            _bufferIndex = -1;
             _location = location;
             _target = target;
             _name = name;
@@ -278,7 +279,7 @@ namespace TheraEngine.Rendering.Models
             EBufferTarget target,
             bool integral) : base(EObjectType.Buffer)
         {
-            _index = -1;
+            _bufferIndex = -1;
             _location = -1;
             _target = target;
             _name = name;
@@ -301,7 +302,7 @@ namespace TheraEngine.Rendering.Models
            EBufferTarget target,
            bool integral) : base(EObjectType.Buffer)
         {
-            _index = index;
+            _bufferIndex = index;
             _target = target;
             _location = info.GetLocation();
             _name = info.GetAttribName();

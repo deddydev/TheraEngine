@@ -3,6 +3,8 @@ using TheraEngine.Input;
 using TheraEngine.Worlds.Actors;
 using System;
 using System.Collections.Generic;
+using TheraEngine.Input.Devices;
+using System.Linq;
 
 namespace TheraEngine.GameModes
 {
@@ -125,17 +127,37 @@ namespace TheraEngine.GameModes
 
         public int _numSpectators, _numPlayers, _numComputers;
 
+        private void CreateLocalPlayerControllers()
+        {
+            InputDevice[] gamepads = InputDevice.CurrentDevices[InputDeviceType.Gamepad];
+            InputDevice[] keyboards = InputDevice.CurrentDevices[InputDeviceType.Keyboard];
+            InputDevice[] mice = InputDevice.CurrentDevices[InputDeviceType.Mouse];
+
+            if (keyboards.Any(x => x != null) ||
+                mice.Any(x => x != null) ||
+                gamepads.Any(x => x != null && x.Index == 0))
+            {
+                Engine.ActivePlayers.Add(CreateLocalController(PlayerIndex.One));
+            }
+            for (int i = 0; i < 4; ++i)
+            {
+                InputDevice gp = gamepads[i];
+                if (gp != null && gp.Index > 0)
+                    Engine.ActivePlayers.Add(CreateLocalController(PlayerIndex.One + gp.Index));
+            }
+        }
         public override void BeginGameplay()
         {
-            foreach (LocalPlayerController c in Engine.ActivePlayers)
-            {
-                PawnType pawn = _pawnClass.CreateNew();
-                if (c.ControlledPawn == null)
-                    c.ControlledPawn = pawn;
-                else
-                    c.EnqueuePosession(pawn);
-                Engine.World.SpawnActor(pawn);
-            }
+            CreateLocalPlayerControllers();
+            //foreach (LocalPlayerController c in Engine.ActivePlayers)
+            //{
+            //    PawnType pawn = _pawnClass.CreateNew();
+            //    if (c.ControlledPawn == null)
+            //        c.ControlledPawn = pawn;
+            //    else
+            //        c.EnqueuePosession(pawn);
+            //    Engine.World.SpawnActor(pawn);
+            //}
         }
         public override void EndGameplay()
         {

@@ -8,7 +8,7 @@ namespace TheraEditor
     /// <summary>
     /// Extension of the game class for use with the editor.
     /// </summary>
-    [FileClass("TPROJ", "Game Project", PreferredFormat = SerializeFormat.XML)]
+    [FileClass("TPROJ", "Thera Engine Project", PreferredFormat = SerializeFormat.XML)]
     public class Project : Game
     {
         public const string BinDirName = "Bin\\";

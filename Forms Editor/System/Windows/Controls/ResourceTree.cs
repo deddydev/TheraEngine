@@ -16,6 +16,14 @@ namespace TheraEditor
         GenericFile,
         ClosedFolder,
         OpenFolder,
+        LockedFolder,
+        Project,
+        World,
+        Map,
+        Actor,
+        SceneComponent,
+        LogicComponent,
+        Settings,
     }
     public class ResourceTree : TreeView
     {
@@ -24,19 +32,6 @@ namespace TheraEditor
         private Dictionary<string, TreeNode> _nodes;
         private FileSystemWatcher _contentWatcher;
         
-        public const string ConfigFolder = "Config";
-        public const string SourceFolder = "Source";
-        public const string AssetsFolder = "Assets";
-        public const string IntermediateFolder = "Intermediate";
-
-        public static readonly string[] ReservedRootFolders =
-        {
-            ConfigFolder,
-            SourceFolder,
-            AssetsFolder,
-            IntermediateFolder,
-        };
-
         private static ImageList _imgList;
         public static ImageList Images
         {
@@ -51,130 +46,69 @@ namespace TheraEditor
                     };
                     _imgList.Images.AddRange(new Image[]
                     {
-                        Resources.GenericFile,
-                        Resources.ClosedFolder,
-                        Resources.OpenFolder,
+                        Resources.GenericFile,      //0
+                        Resources.ClosedFolder,     //1
+                        Resources.OpenFolder,       //2
+                        Resources.LockedFolder,     //3
+                        Resources.ProjectFile,      //4
                     });
                 }
                 return _imgList;
             }
         }
-
-        public void AddNode(TreeNode node)
+        public BaseWrapper CreateNode(string path)
         {
-            Nodes.Add(node);
+            BaseWrapper b = BaseWrapper.Wrap(path);
+            _nodes.Add(path, b);
+            return b;
         }
-        public void RemoveNode(TreeNode node)
-        {
-            Nodes.Remove(node);
-        }
-        public void RemoveNodeAt(int index)
-        {
-            Nodes.RemoveAt(index);
-        }
-        public void AddNode(TreeNode node, TreeNode parent)
-        {
-
-        }
-        public void RemoveNode(TreeNode node, TreeNode parent)
-        {
-
-        }
-
         public void DisplayProject(Project p)
         {
-            _contentWatcher = null;
-
             _nodes = new Dictionary<string, TreeNode>();
-            string path = Path.GetDirectoryName(p.FilePath);
 
-            TreeNode node = new TreeNode(p.Name, 0, 0)
+            Nodes.Add(CreateNode(p.FilePath));
+            
+            _contentWatcher = new FileSystemWatcher(Path.GetDirectoryName(p.FilePath), "*.*")
             {
-                Tag = Path.GetDirectoryName(p.FilePath)
+                EnableRaisingEvents = true,
+                IncludeSubdirectories = true,
+                NotifyFilter = NotifyFilters.LastWrite,
             };
-            node.Nodes.Add("...");
-
-            Nodes.Add(node);
-
-            //Nodes.Clear();
-            //var stack = new Stack<TreeNode>();
-            //var rootDirectory = new DirectoryInfo(p.FilePath);
-            //var node = new TreeNode(p.Name) { Tag = p };
-            //stack.Push(node);
-
-            //while (stack.Count > 0)
-            //{
-            //    var currentNode = stack.Pop();
-            //    var directoryInfo = (DirectoryInfo)currentNode.Tag;
-            //    foreach (var dirInfo in directoryInfo.GetDirectories())
-            //    {
-            //        var childDirectoryNode = new TreeNode(dirInfo.Name) { Tag = dirInfo };
-            //        _nodes[dirInfo.FullName] = childDirectoryNode;
-            //        currentNode.Nodes.Add(childDirectoryNode);
-            //        stack.Push(childDirectoryNode);
-            //    }
-            //    foreach (var fileInfo in directoryInfo.GetFiles())
-            //    {
-            //        var treeNode = new TreeNode(fileInfo.Name) { Tag = fileInfo };
-            //        _nodes[fileInfo.FullName] = treeNode;
-            //        currentNode.Nodes.Add(treeNode);
-            //    }
-            //}
-
-            //Nodes.Add(node);
-
-            //if (!string.IsNullOrEmpty(path) && Directory.Exists(path))
-            //{
-            //    _contentWatcher = new FileSystemWatcher(path, "*.*")
-            //    {
-            //        EnableRaisingEvents = true,
-            //        IncludeSubdirectories = true,
-            //        NotifyFilter = NotifyFilters.LastWrite,
-            //    };
-            //    _contentWatcher.Changed += _contentWatcher_Changed;
-            //    _contentWatcher.Created += _contentWatcher_Created;
-            //    _contentWatcher.Deleted += _contentWatcher_Deleted;
-            //    _contentWatcher.Renamed += _contentWatcher_Renamed;
-            //}
+            _contentWatcher.Changed += _contentWatcher_Changed;
+            _contentWatcher.Created += _contentWatcher_Created;
+            _contentWatcher.Deleted += _contentWatcher_Deleted;
+            _contentWatcher.Renamed += _contentWatcher_Renamed;
+        }
+        private void _contentWatcher_Renamed(object sender, RenamedEventArgs e)
+        {
+            if (!_nodes.ContainsKey(e.OldFullPath))
+                return;
+            TreeNode node = _nodes[e.OldFullPath];
+            node.Name = e.Name;
+            _nodes.Remove(e.OldFullPath);
+            _nodes.Add(e.FullPath, node);
+        }
+        private void _contentWatcher_Deleted(object sender, FileSystemEventArgs e)
+        {
+            if (!_nodes.ContainsKey(e.FullPath))
+                return;
+            _nodes[e.FullPath].Remove();
+            _nodes.Remove(e.FullPath);
+        }
+        private void _contentWatcher_Created(object sender, FileSystemEventArgs e)
+        {
+            _nodes.Add(e.FullPath, CreateNode(e.FullPath));
+        }
+        private void _contentWatcher_Changed(object sender, FileSystemEventArgs e)
+        {
+            if (!_nodes.ContainsKey(e.FullPath))
+            {
+                return;
+            }
         }
         protected override void OnBeforeExpand(TreeViewCancelEventArgs e)
         {
-            if (e.Node.Nodes.Count > 0 && 
-                e.Node.Nodes[0].Text == "..." && 
-                e.Node.Nodes[0].Tag == null)
-            {
-                e.Node.Nodes.Clear();
-
-                string[] dirs = Directory.GetDirectories(e.Node.Tag.ToString());
-                foreach (string dir in dirs)
-                {
-                    DirectoryInfo di = new DirectoryInfo(dir);
-                    TreeNode node = new TreeNode(di.Name, 0, 1);
-                    try
-                    {
-                        //Keep the directory's full path in the tag for use later
-                        node.Tag = dir;
-
-                        //If the directory has sub directories, add the placeholder
-                        if (di.GetDirectories().Length > 0)
-                            node.Nodes.Add(null, "...", 0, 0);
-                    }
-                    catch (UnauthorizedAccessException)
-                    {
-                        //display a locked folder icon
-                        node.ImageIndex = 2;
-                        node.SelectedImageIndex = 2;
-                    }
-                    catch (Exception ex)
-                    {
-                        MessageBox.Show(ex.Message, "DirectoryReader", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    }
-                    finally
-                    {
-                        e.Node.Nodes.Add(node);
-                    }
-                }
-            }
+            ((BaseWrapper)e.Node).OnExpand();
         }
 
         public event EventHandler SelectionChanged;
@@ -187,8 +121,8 @@ namespace TheraEditor
             set => _allowContextMenus = value;
         }
 
-        private bool _allowIcons = false;
-        [DefaultValue(false)]
+        private bool _allowIcons = true;
+        [DefaultValue(true)]
         public bool ShowIcons
         {
             get => _allowIcons;
@@ -226,47 +160,7 @@ namespace TheraEditor
 
             _openFileDelegate = new DelegateOpenFile(ImportFile);
         }
-        private void _contentWatcher_Renamed(object sender, RenamedEventArgs e)
-        {
-            if (!_nodes.ContainsKey(e.OldFullPath))
-                return;
-            TreeNode node = _nodes[e.OldFullPath];
-            node.Name = e.Name;
-            _nodes.Remove(e.OldFullPath);
-            _nodes.Add(e.FullPath, node);
-        }
-        private void _contentWatcher_Deleted(object sender, FileSystemEventArgs e)
-        {
-            if (!_nodes.ContainsKey(e.FullPath))
-                return;
-            _nodes[e.FullPath].Remove();
-            _nodes.Remove(e.FullPath);
-        }
-        private void _contentWatcher_Created(object sender, FileSystemEventArgs e)
-        {
-            TreeNode node = new TreeNode();
-            _nodes.Add(e.FullPath, node);
-
-            string dir, name;
-            FileAttributes attr = File.GetAttributes(e.FullPath);
-            if (attr.HasFlag(FileAttributes.Directory))
-            {
-                dir = e.FullPath;
-            }
-            else
-            {
-                dir = Path.GetDirectoryName(e.FullPath);
-            }
-            name = Path.GetFileNameWithoutExtension(e.FullPath);
-            
-            //TreeNode folder;
-            //if (!_nodes.ContainsKey(dir))
-            //    folder = CreateFolder(dir);
-            //else
-            //    folder = _nodes[dir];
-
-            //folder.Nodes.Add(new TreeNode());
-        }
+        
         //private TreeNode CreateFolder(string path)
         //{
         //    TreeNode t = new TreeNode(Path.GetFileNameWithoutExtension(path));
@@ -277,13 +171,7 @@ namespace TheraEditor
         //{
         //    TreeNode t = new TreeNode(Path.GetFileNameWithoutExtension(path));
         //}
-        private void _contentWatcher_Changed(object sender, FileSystemEventArgs e)
-        {
-            if (!_nodes.ContainsKey(e.FullPath))
-            {
-                return;
-            }
-        }
+
         private void Populate()
         {
             //TreeNode rootNode;

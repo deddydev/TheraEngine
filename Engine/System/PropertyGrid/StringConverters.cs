@@ -1,6 +1,5 @@
 ﻿using System.ComponentModel;
 using System.Globalization;
-
 namespace System
 {
     public class Vec4StringConverter : TypeConverter

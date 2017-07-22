@@ -1,0 +1,94 @@
+﻿using static System.Math;
+using BulletSharp;
+using System.ComponentModel;
+
+namespace System
+{
+    [FileClass("SHAPE", "Y-Aligned Cylinder")]
+    [TypeConverter(typeof(ExpandableObjectConverter))]
+    public class CylinderY : Shape
+    {
+        public float _radius, _height;
+        
+        public float Radius
+        {
+            get { return _radius; }
+            set { _radius = value; }
+        }
+        public float Height
+        {
+            get { return _height; }
+            set { _height = value; }
+        }
+        
+        public CylinderY(Vec3 center, float radius, float height)
+        {
+            _radius = Abs(radius);
+            _height = Abs(height);
+        }
+        public override CollisionShape GetCollisionShape()
+        {
+            return new CylinderShape(Radius, Height, Radius);
+        }
+        public override void Render()
+        {
+            //Engine.Renderer.RenderCylinder(this, _renderSolid);
+        }
+        public override bool Contains(Vec3 point)
+        {
+            throw new NotImplementedException();
+        }
+        public override EContainment Contains(BoundingBox box)
+        {
+            throw new NotImplementedException();
+        }
+        public override EContainment Contains(Box box)
+        {
+            throw new NotImplementedException();
+        }
+        public override EContainment Contains(Sphere sphere)
+        {
+            throw new NotImplementedException();
+        }
+        public override EContainment ContainedWithin(BoundingBox box)
+        {
+            throw new NotImplementedException();
+        }
+        public override EContainment ContainedWithin(Box box)
+        {
+            throw new NotImplementedException();
+        }
+        public override EContainment ContainedWithin(Sphere sphere)
+        {
+            throw new NotImplementedException();
+        }
+        public override EContainment ContainedWithin(Frustum frustum)
+        {
+            throw new NotImplementedException();
+        }
+        public override void SetRenderTransform(Matrix4 worldMatrix)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override Shape HardCopy()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override Shape TransformedBy(Matrix4 worldMatrix)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override Matrix4 GetTransformMatrix()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override Vec3 ClosestPoint(Vec3 point)
+        {
+            throw new NotImplementedException();
+        }
+    }
+}

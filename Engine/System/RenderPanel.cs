@@ -13,6 +13,7 @@ using TheraEngine.Rendering.DirectX;
 using TheraEngine.Rendering.OpenGL;
 using TheraEngine.Timers;
 using System.Diagnostics;
+using System.ComponentModel;
 
 namespace TheraEngine
 {
@@ -116,6 +117,7 @@ namespace TheraEngine
         private HudManager _globalHud;
         public List<Viewport> _viewports = new List<Viewport>(MaxViewports);
 
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public HudManager GlobalHud
         {
             get => _globalHud;

@@ -5,6 +5,7 @@ using TheraEngine.Worlds.Actors;
 using System;
 using TheraEngine.Rendering.Text;
 using BulletSharp;
+using TheraEngine.Rendering.Models.Materials;
 
 namespace TheraEngine.Rendering
 {
@@ -16,6 +17,7 @@ namespace TheraEngine.Rendering
 
         public DelOnRender Render;
 
+        private SSAOInfo _ssaoInfo = new SSAOInfo();
         private LocalPlayerController _owner;
         private HudManager _pawnHUD;
         private int _index;
@@ -61,6 +63,8 @@ namespace TheraEngine.Rendering
                     //TODO: what if the same camera is used by multiple viewports?
                     //Need to use a separate projection matrix per viewport instead of passing the width and height to the camera itself
                     _worldCamera.Resize(_internalResolution.Width, _internalResolution.Height);
+                    if (_worldCamera is PerspectiveCamera p)
+                        p.Aspect = Width / Height;
 
                     CameraTransformChanged();
                 }
@@ -143,6 +147,63 @@ namespace TheraEngine.Rendering
             UpdateRender();
         }
 
+        private class SSAOInfo
+        {
+            Vec3[] _noise, _kernel;
+            public const int Samples = 64;
+            const int NoiseWidth = 4, NoiseHeight = 4;
+            const float MinSampleDist = 0.1f, MaxSampleDist = 1.0f;
+            
+            public Vec3[] Noise => _noise;
+            public Vec3[] Kernel => _kernel;
+            
+            public void Generate(
+                int samples = Samples,
+                int noiseWidth = NoiseWidth,
+                int noiseHeight = NoiseHeight,
+                float minSampleDist = MinSampleDist,
+                float maxSampleDist = MaxSampleDist)
+            {
+                Random r = new Random();
+
+                _kernel = new Vec3[samples];
+                _noise = new Vec3[noiseWidth * noiseHeight];
+
+                float scale;
+                Vec3 sample, noise;
+
+                for (int i = 0; i < _kernel.Length; ++i)
+                {
+                    sample = new Vec3(
+                        (float)r.NextDouble() * 2.0f - 1.0f,
+                        (float)r.NextDouble() * 2.0f - 1.0f,
+                        (float)r.NextDouble());
+                    sample.NormalizeFast();
+                    scale = i / (float)samples;
+                    scale = CustomMath.Lerp(minSampleDist, maxSampleDist, scale * scale);
+                    _kernel[i] = sample * scale;
+                }
+
+                for (int i = 0; i < _noise.Length; ++i)
+                {
+                    noise = new Vec3(
+                        (float)r.NextDouble() * 2.0f - 1.0f,
+                        (float)r.NextDouble() * 2.0f - 1.0f,
+                        0.0f);
+                    noise.Normalize();
+                    _noise[i] = noise;
+                }
+
+                TextureReference noiseRef = new TextureReference("SSAONoise", noiseWidth, noiseHeight, EPixelInternalFormat.Rgb16f, EPixelFormat.Rgb, EPixelType.Float)
+                {
+                    MinFilter = ETexMinFilter.Nearest,
+                    MagFilter = ETexMagFilter.Nearest,
+                    UWrap = ETexWrapMode.Repeat,
+                    VWrap = ETexWrapMode.Repeat,
+                };
+            }
+        }
+
         internal void UpdateRender()
         {
             if (Engine.Settings.ShadingStyle == ShadingStyle.Deferred)
@@ -155,23 +216,32 @@ namespace TheraEngine.Rendering
                 _gBuffer = new GBuffer(this, true);
                 Render = RenderForward;
             }
+            _ssaoInfo.Generate();
         }
 
         public void SetInternalResolution(float width, float height)
         {
             _internalResolution.Width = width;
             _internalResolution.Height = height;
+
             _worldCamera?.Resize(_internalResolution.Width, _internalResolution.Height);
+            if (_worldCamera is PerspectiveCamera p)
+                p.Aspect = Width / Height;
+
             _gBuffer?.ResizeTextures(_internalResolution.IntWidth, _internalResolution.IntHeight);
         }
-        internal void Resize(float parentWidth, float parentHeight)
+        internal void Resize(float parentWidth, float parentHeight, bool setInternalResolution = true)
         {
             _region.X = _leftPercentage * parentWidth;
             _region.Y = _bottomPercentage * parentHeight;
             _region.Width = _rightPercentage * parentWidth - _region.X;
             _region.Height =  _topPercentage * parentHeight - _region.Y;
+
+            //TODO: hud needs to use the internal resolution!
             _pawnHUD.Resize(_region.Bounds);
-            SetInternalResolution(parentWidth, parentHeight);
+
+            if (setInternalResolution)
+                SetInternalResolution(parentWidth, parentHeight);
         }
         public void DebugPrint(string message)
         {
@@ -289,6 +359,18 @@ namespace TheraEngine.Rendering
             => _worldCamera.WorldToScreen(worldPoint);
         public Vec2 AbsoluteToRelative(Vec2 absolutePoint) => new Vec2(absolutePoint.X - _region.X, absolutePoint.Y - _region.Y);
         public Vec2 RelativeToAbsolute(Vec2 viewportPoint) => new Vec2(viewportPoint.X + _region.X, viewportPoint.Y + _region.Y);
+
+        /// <summary>
+        /// Converts a viewport point relative to actual screen resolution
+        /// to a point relative to the internal resolution.
+        /// </summary>
+        public Vec2 ToInternalResCoords(Vec2 viewportPoint) => viewportPoint * (InternalResolution.Bounds / _region.Bounds);
+        /// <summary>
+        /// Converts a viewport point relative to the internal resolution
+        /// to a point relative to the actual screen resolution.
+        /// </summary>
+        public Vec2 FromInternalResCoords(Vec2 viewportPoint) => viewportPoint * (InternalResolution.Bounds / _region.Bounds);
+
         public unsafe float GetDepth(Vec2 viewportPoint)
         {
             throw new NotImplementedException();
@@ -306,10 +388,19 @@ namespace TheraEngine.Rendering
             _gBuffer.Unbind(EFramebufferTarget.Framebuffer);
             return depth;
         }
+
+        /// <summary>
+        /// Returns a ray projected from the given screen location.
+        /// </summary>
         public Ray GetWorldRay(Vec2 viewportPoint)
-            => _worldCamera.GetWorldRay(viewportPoint);
+            => _worldCamera.GetWorldRay(ToInternalResCoords(viewportPoint));
+        /// <summary>
+        /// Returns a segment projected from the given screen location.
+        /// Endpoints are located on the NearZ and FarZ planes.
+        /// </summary>
         public Segment GetWorldSegment(Vec2 viewportPoint)
-            => _worldCamera.GetWorldSegment(viewportPoint);
+            => _worldCamera.GetWorldSegment(ToInternalResCoords(viewportPoint));
+
         public SceneComponent PickScene(
             Vec2 viewportPoint,
             bool testHud,

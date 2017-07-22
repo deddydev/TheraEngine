@@ -55,9 +55,5 @@ namespace TheraEngine.Worlds.Actors
             _inverseLocalTransform = Matrix4.CreateTranslation(-translation) * InverseLocalMatrix;
             _translation = LocalMatrix.GetPoint();
         }
-        protected internal override void OriginRebased(Vec3 newOrigin)
-        {
-            Translation -= newOrigin;
-        }
     }
 }

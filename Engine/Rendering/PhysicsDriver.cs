@@ -3,6 +3,7 @@ using TheraEngine.Files;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Threading.Tasks;
 
 namespace TheraEngine.Rendering
 {
@@ -324,10 +325,10 @@ namespace TheraEngine.Rendering
             //_collision.CenterOfMassTransform = newTransform;
             //Engine.World?.PhysicsScene.UpdateAabbs();
         }
-        protected internal void Tick(float delta)
+        protected internal async void Tick(float delta)
         {
             _collision.GetWorldTransform(out Matrix transform);
-            TransformChanged?.Invoke(transform);
+            await Task.Run(() => TransformChanged?.Invoke(transform));
         }
 
         internal void InvokeHit(IPhysicsDrivable other, ManifoldPoint cp)

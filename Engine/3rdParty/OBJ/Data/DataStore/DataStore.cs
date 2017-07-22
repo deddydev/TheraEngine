@@ -88,7 +88,7 @@ namespace ObjLoader.Loader.Data.DataStore
         {
             var material = _materials.SingleOrDefault(x => x.Name.EqualsOrdinalIgnoreCase(materialName));
             PushGroupIfNeeded();
-            _currentGroup.Material = material;
+            _currentGroup.AddSubGroup(material);
         }
     }
 }

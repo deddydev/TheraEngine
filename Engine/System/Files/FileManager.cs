@@ -28,7 +28,6 @@ namespace TheraEngine.Files
         {
             return Filters[type]._extensions[0];
         }
-
         public static Type GetTypeWithExtension(string ext)
         {
             if (ext.StartsWith("."))

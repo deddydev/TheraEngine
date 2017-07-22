@@ -295,7 +295,6 @@ namespace TheraEngine.Rendering.OpenGL
                 GL.AttachShader(handle, i);
 
             //SetBindFragDataLocation(handle, GetUniformLocation(handle, "OutColor"), "OutColor");
-
             //if (desc != null)
             //{
             //    int meshCount = desc._morphCount + 1;
@@ -343,13 +342,13 @@ namespace TheraEngine.Rendering.OpenGL
             //    for (int i = 0; i < desc._colorCount; ++i)
             //        GL.BindAttribLocation(handle, location + i, VertexAttribInfo.GetAttribName(type, i));
             //    location += VertexAttribInfo.GetMaxBuffersForType(type);
-
+                
             //    type = BufferType.TexCoord;
             //    for (int i = 0; i < desc._texcoordCount; ++i)
             //        GL.BindAttribLocation(handle, location + i, VertexAttribInfo.GetAttribName(type, i));
-            //    location += VertexAttribInfo.GetMaxBuffersForType(type);
+            //    //location += VertexAttribInfo.GetMaxBuffersForType(type);
             //}
-            
+
             GL.LinkProgram(handle);
             GL.GetProgram(handle, GetProgramParameterName.LinkStatus, out int status);
             if (status == 0)
@@ -909,7 +908,7 @@ namespace TheraEngine.Rendering.OpenGL
         {
             int glVer = 2;
 
-            int index = buffer._index;
+            int index = buffer._location;
             int vaoId = buffer._vaoId;
             int componentType = (int)buffer._componentType;
             int componentCount = buffer._componentCount;

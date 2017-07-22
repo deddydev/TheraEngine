@@ -3,7 +3,7 @@ using System.ComponentModel;
 
 namespace TheraEditor.Wrappers
 {
-    public class FolderWrapper : GenericWrapper
+    public class FolderWrapper : FileWrapper
     {
         #region Menu
         
@@ -31,6 +31,6 @@ namespace TheraEditor.Wrappers
 
         #endregion
 
-        public FolderWrapper(string path) : base(path) { }
+        public FolderWrapper() : base() { }
     }
 }

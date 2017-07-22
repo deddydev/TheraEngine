@@ -3,7 +3,7 @@
 namespace TheraEngine.Worlds.Actors
 {
     /// <summary>
-    /// rotates first, then translates.
+    /// Rotates first, then translates.
     /// </summary>
     public class RTComponent : PositionComponent
     {

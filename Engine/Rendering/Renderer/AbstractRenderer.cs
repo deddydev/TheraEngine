@@ -285,7 +285,7 @@ namespace TheraEngine.Rendering
         {
             throw new NotImplementedException();
         }
-        public void RenderCone(Matrix4 transform, float radius, float height, bool solid, ColorF4 color, float lineWidth = DefaultLineSize)
+        public void RenderCone(Matrix4 transform, Vec3 localUpAxis, float radius, float height, bool solid, ColorF4 color, float lineWidth = DefaultLineSize)
         {
             throw new NotImplementedException();
         }

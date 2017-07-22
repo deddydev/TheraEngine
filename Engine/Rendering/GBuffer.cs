@@ -14,6 +14,8 @@ namespace TheraEngine.Rendering
         PrimitiveManager _fullScreenTriangle;
         Viewport _parent;
 
+        const bool CalculateFragPos = true;
+
         public GBuffer(Viewport viewport, bool forward)
         {
             _parent = viewport;
@@ -64,8 +66,10 @@ namespace TheraEngine.Rendering
         internal static Material GetGBufferMaterial(int width, int height, bool forward, GBuffer buffer, DepthStencilUse depthStencilUse)
         {
             //These are listed in order of appearance in the shader
-            TextureReference[] refs = forward ?
-                new TextureReference[]
+            TextureReference[] refs;
+            if (forward)
+            {
+                refs = new TextureReference[]
                 {
                     new TextureReference("OutputColor", width, height,
                         EPixelInternalFormat.Rgba8, EPixelFormat.Bgra, EPixelType.UnsignedByte)
@@ -85,8 +89,11 @@ namespace TheraEngine.Rendering
                         VWrap = ETexWrapMode.Clamp,
                         FrameBufferAttachment = EFramebufferAttachment.DepthAttachment,
                     },
-                } : 
-                new TextureReference[]
+                };
+            }
+            else
+            {
+                refs = new TextureReference[]
                 {
                     new TextureReference("AlbedoSpec", width, height,
                         EPixelInternalFormat.Rgba8, EPixelFormat.Bgra, EPixelType.UnsignedByte)
@@ -97,15 +104,15 @@ namespace TheraEngine.Rendering
                         VWrap = ETexWrapMode.Clamp,
                         FrameBufferAttachment = EFramebufferAttachment.ColorAttachment0,
                     },
-                    new TextureReference("Position", width, height,
-                        EPixelInternalFormat.Rgb32f, EPixelFormat.Rgb, EPixelType.Float)
-                    {
-                        MinFilter = ETexMinFilter.Nearest,
-                        MagFilter = ETexMagFilter.Nearest,
-                        UWrap = ETexWrapMode.Clamp,
-                        VWrap = ETexWrapMode.Clamp,
-                        FrameBufferAttachment = EFramebufferAttachment.ColorAttachment1,
-                    },
+                    //new TextureReference("Position", width, height,
+                    //    EPixelInternalFormat.Rgb32f, EPixelFormat.Rgb, EPixelType.Float)
+                    //{
+                    //    MinFilter = ETexMinFilter.Nearest,
+                    //    MagFilter = ETexMagFilter.Nearest,
+                    //    UWrap = ETexWrapMode.Clamp,
+                    //    VWrap = ETexWrapMode.Clamp,
+                    //    FrameBufferAttachment = EFramebufferAttachment.ColorAttachment1,
+                    //},
                     new TextureReference("Normal", width, height,
                         EPixelInternalFormat.Rgb32f, EPixelFormat.Rgb, EPixelType.Float)
                     {
@@ -113,7 +120,7 @@ namespace TheraEngine.Rendering
                         MagFilter = ETexMagFilter.Nearest,
                         UWrap = ETexWrapMode.Clamp,
                         VWrap = ETexWrapMode.Clamp,
-                        FrameBufferAttachment = EFramebufferAttachment.ColorAttachment2,
+                        FrameBufferAttachment = EFramebufferAttachment.ColorAttachment1,
                     },
                     new TextureReference("Depth", width, height,
                         EPixelInternalFormat.DepthComponent32f, EPixelFormat.DepthComponent, EPixelType.Float)
@@ -125,6 +132,7 @@ namespace TheraEngine.Rendering
                         FrameBufferAttachment = EFramebufferAttachment.DepthAttachment,
                     },
                 };
+            }
 
             Shader shader = forward ? GBufferShaderForward() : GBufferShaderDeferred();
             //Debug.WriteLine(shader._source);
@@ -145,21 +153,24 @@ in vec3 FragPos;
 uniform sampler2D Texture0;
 uniform sampler2D Texture1;
 uniform sampler2D Texture2;
-uniform sampler2D Texture3;
 
 " + Camera.ShaderSetup() + @"
 " + PostProcessSettings.ShaderSetup() + @"
 " + ShaderHelpers.LightingSetupBasic() + @"
+" + ShaderHelpers.Func_WorldPosFromDepth + @"
 
 void main()
 {
     vec2 uv = FragPos.xy;
-    vec4 AlbedoSpec = texture(Texture0, uv);
-    vec3 FragPos = texture(Texture1, uv).rgb;
-    vec3 Normal = texture(Texture2, uv).rgb;
-    float Depth = texture(Texture3, uv).r;
+    if (uv.x > 1.0 || uv.y > 1.0)
+        discard;
 
-    " + ShaderHelpers.LightingCalc("totalLight", "GlobalAmbient", "Normal", "FragPos", "AlbedoSpec.rgb", "AlbedoSpec.a") + @"
+    vec4 AlbedoSpec = texture(Texture0, uv);
+    vec3 Normal = texture(Texture1, uv).rgb;
+    float Depth = texture(Texture2, uv).r;
+    vec3 FragPosWS = WorldPosFromDepth(Depth, uv);
+
+    " + ShaderHelpers.LightingCalc("totalLight", "GlobalAmbient", "Normal", "FragPosWS", "AlbedoSpec.rgb", "AlbedoSpec.a") + @"
 
     vec3 hdrSceneColor = AlbedoSpec.rgb * totalLight; 
 

@@ -63,10 +63,6 @@ namespace TheraEngine
         /// The octree bounding box this object is currently located in.
         /// </summary>
         IOctreeNode OctreeNode { get; set; }
-        /// <summary>
-        /// True if the object is not occluded and within the camera view.
-        /// </summary>
-        bool IsRendering { get; set; }
     }
     /// <summary>
     /// Use this interface for objects you want to be able to render in 2D HUD space with the engine.

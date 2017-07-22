@@ -392,7 +392,7 @@ namespace TheraEngine.Rendering.Models.Materials
                 v.SetProgramUniform(programBindingId);
 
             Engine.Renderer.ApplyRenderParams(_renderParams);
-            BindTextures(programBindingId);
+            SetTextureUniforms(programBindingId);
 
             SettingUniforms?.Invoke();
         }
@@ -407,12 +407,12 @@ namespace TheraEngine.Rendering.Models.Materials
             foreach (TextureReference t in TexRefs)
                 t.Resize(width, height);
         }
-        private void BindTextures(int programBindingId)
+        private void SetTextureUniforms(int programBindingId)
         {
             for (int i = 0; i < TexRefs.Length; ++i)
-                BindTexture(i, i, "Texture" + i, programBindingId);
+                SetTextureUniform(i, i, "Texture" + i, programBindingId);
         }
-        public void BindTexture(int textureIndex, int textureUnit, string varName, int programBindingId)
+        public void SetTextureUniform(int textureIndex, int textureUnit, string varName, int programBindingId)
         {
             Engine.Renderer.SetActiveTexture(textureUnit);
             Engine.Renderer.ProgramUniform(programBindingId, varName, textureUnit);

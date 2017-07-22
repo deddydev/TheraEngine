@@ -5,6 +5,7 @@ using System.ComponentModel;
 namespace TheraEngine.Rendering.Models
 {
     [FileClass("SKM", "Skeletal Mesh")]
+    [TypeConverter(typeof(ExpandableObjectConverter))]
     public class SkeletalMesh : FileObject, IModelFile
     {
         public SkeletalMesh() : base()

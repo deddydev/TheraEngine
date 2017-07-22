@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
+using System.Threading.Tasks;
 
 namespace TheraEngine.Files
 {
@@ -244,7 +245,6 @@ namespace TheraEngine.Files
             ReferencePath = filePath;
         }
 
-        [Serialize("Path", IsXmlAttribute = true)]
         protected string _refPath = null;
         private string _absolutePath = null;
         protected Type _subType = null;
@@ -255,6 +255,7 @@ namespace TheraEngine.Files
             get => _storeInternally;
             set => _storeInternally = value;
         }
+        [Serialize(IsXmlAttribute = true)]
         public string ReferencePath
         {
             get
@@ -297,6 +298,7 @@ namespace TheraEngine.Files
         //    string ext = Extension();
         //    return FileManager.IsSpecial(ext);
         //}
+        public Task GetInstanceAsync() => Task.Run(() => GetInstance());
         public abstract T GetInstance();
     }
 }

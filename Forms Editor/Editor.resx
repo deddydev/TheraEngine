@@ -120,72 +120,7 @@
   <metadata name="menuStrip1.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>17, 17</value>
   </metadata>
-  <data name="dockableHudComponent2.BottomLeftTranslation" mimetype="application/x-microsoft.net.object.binary.base64">
-    <value>
-        AAEAAAD/////AQAAAAAAAAAMAgAAAEJUaGVyYUVuZ2luZSwgVmVyc2lvbj0xLjAuMC4wLCBDdWx0dXJl
-        PW5ldXRyYWwsIFB1YmxpY0tleVRva2VuPW51bGwFAQAAAAtTeXN0ZW0uVmVjMgIAAAABWAFZAAALCwIA
-        AAAAAAAAAAAAAAs=
-</value>
-  </data>
-  <data name="dockableHudComponent2.InverseWorldMatrix" mimetype="application/x-microsoft.net.object.binary.base64">
-    <value>
-        AAEAAAD/////AQAAAAAAAAAMAgAAAEJUaGVyYUVuZ2luZSwgVmVyc2lvbj0xLjAuMC4wLCBDdWx0dXJl
-        PW5ldXRyYWwsIFB1YmxpY0tleVRva2VuPW51bGwFAQAAAA5TeXN0ZW0uTWF0cml4NAQAAAAEUm93MARS
-        b3cxBFJvdzIEUm93MwQEBAQLU3lzdGVtLlZlYzQCAAAAC1N5c3RlbS5WZWM0AgAAAAtTeXN0ZW0uVmVj
-        NAIAAAALU3lzdGVtLlZlYzQCAAAAAgAAAAX9////C1N5c3RlbS5WZWM0BAAAAAFYAVkBWgFXAAAAAAsL
-        CwsCAAAA3ER+PwAAAAAAAAAAAAAAAAH8/////f///wAAAADcRH4/AAAAAAAAAAAB+/////3///8AAAAA
-        AAAAANxEfj8AAAAAAfr////9////AAAAAAAAAAAAAAAAAACAPws=
-</value>
-  </data>
-  <data name="dockableHudComponent2.PreviousInverseWorldTransform" mimetype="application/x-microsoft.net.object.binary.base64">
-    <value>
-        AAEAAAD/////AQAAAAAAAAAMAgAAAEJUaGVyYUVuZ2luZSwgVmVyc2lvbj0xLjAuMC4wLCBDdWx0dXJl
-        PW5ldXRyYWwsIFB1YmxpY0tleVRva2VuPW51bGwFAQAAAA5TeXN0ZW0uTWF0cml4NAQAAAAEUm93MARS
-        b3cxBFJvdzIEUm93MwQEBAQLU3lzdGVtLlZlYzQCAAAAC1N5c3RlbS5WZWM0AgAAAAtTeXN0ZW0uVmVj
-        NAIAAAALU3lzdGVtLlZlYzQCAAAAAgAAAAX9////C1N5c3RlbS5WZWM0BAAAAAFYAVkBWgFXAAAAAAsL
-        CwsCAAAAAAAAAAAAAAAAAAAAAAAAAAH8/////f///wAAAAAAAAAAAAAAAAAAAAAB+/////3///8AAAAA
-        AAAAAAAAAAAAAAAAAfr////9////AAAAAAAAAAAAAAAAAAAAAAs=
-</value>
-  </data>
-  <data name="dockableHudComponent2.PreviousWorldTransform" mimetype="application/x-microsoft.net.object.binary.base64">
-    <value>
-        AAEAAAD/////AQAAAAAAAAAMAgAAAEJUaGVyYUVuZ2luZSwgVmVyc2lvbj0xLjAuMC4wLCBDdWx0dXJl
-        PW5ldXRyYWwsIFB1YmxpY0tleVRva2VuPW51bGwFAQAAAA5TeXN0ZW0uTWF0cml4NAQAAAAEUm93MARS
-        b3cxBFJvdzIEUm93MwQEBAQLU3lzdGVtLlZlYzQCAAAAC1N5c3RlbS5WZWM0AgAAAAtTeXN0ZW0uVmVj
-        NAIAAAALU3lzdGVtLlZlYzQCAAAAAgAAAAX9////C1N5c3RlbS5WZWM0BAAAAAFYAVkBWgFXAAAAAAsL
-        CwsCAAAAAAAAAAAAAAAAAAAAAAAAAAH8/////f///wAAAAAAAAAAAAAAAAAAAAAB+/////3///8AAAAA
-        AAAAAAAAAAAAAAAAAfr////9////AAAAAAAAAAAAAAAAAAAAAAs=
-</value>
-  </data>
-  <data name="dockableHudComponent2.Scale" mimetype="application/x-microsoft.net.object.binary.base64">
-    <value>
-        AAEAAAD/////AQAAAAAAAAAMAgAAAEJUaGVyYUVuZ2luZSwgVmVyc2lvbj0xLjAuMC4wLCBDdWx0dXJl
-        PW5ldXRyYWwsIFB1YmxpY0tleVRva2VuPW51bGwFAQAAAAtTeXN0ZW0uVmVjMgIAAAABWAFZAAALCwIA
-        AAAAAIA/AACAPws=
-</value>
-  </data>
-  <data name="dockableHudComponent2.Size" mimetype="application/x-microsoft.net.object.binary.base64">
-    <value>
-        AAEAAAD/////AQAAAAAAAAAMAgAAAEJUaGVyYUVuZ2luZSwgVmVyc2lvbj0xLjAuMC4wLCBDdWx0dXJl
-        PW5ldXRyYWwsIFB1YmxpY0tleVRva2VuPW51bGwFAQAAAAtTeXN0ZW0uVmVjMgIAAAABWAFZAAALCwIA
-        AAAAAAAAAAAAAAs=
-</value>
-  </data>
-  <data name="dockableHudComponent2.Translation" mimetype="application/x-microsoft.net.object.binary.base64">
-    <value>
-        AAEAAAD/////AQAAAAAAAAAMAgAAAEJUaGVyYUVuZ2luZSwgVmVyc2lvbj0xLjAuMC4wLCBDdWx0dXJl
-        PW5ldXRyYWwsIFB1YmxpY0tleVRva2VuPW51bGwFAQAAAAtTeXN0ZW0uVmVjMgIAAAABWAFZAAALCwIA
-        AAAAAAAAAAAAAAs=
-</value>
-  </data>
-  <data name="dockableHudComponent2.TranslationLocalOrigin" mimetype="application/x-microsoft.net.object.binary.base64">
-    <value>
-        AAEAAAD/////AQAAAAAAAAAMAgAAAEJUaGVyYUVuZ2luZSwgVmVyc2lvbj0xLjAuMC4wLCBDdWx0dXJl
-        PW5ldXRyYWwsIFB1YmxpY0tleVRva2VuPW51bGwFAQAAAAtTeXN0ZW0uVmVjMgIAAAABWAFZAAALCwIA
-        AAAAAAAAAAAAAAs=
-</value>
-  </data>
   <metadata name="ctxContentTree.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>152, 17</value>
+    <value>173, 17</value>
   </metadata>
 </root>

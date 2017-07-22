@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -9,24 +10,35 @@ namespace TheraEngine.Files.Serialization
 {
     public static partial class CustomXmlSerializer
     {
+        public static unsafe Type DetermineType(string filePath)
+        {
+            Type t = null;
+            using (FileMap map = FileMap.FromFile(filePath, FileMapProtect.Read, 0, 0x100))
+            using (XMLReader reader = new XMLReader(map.Address, map.Length))
+            {
+                if (reader.BeginElement() && reader.ReadAttribute() && reader.Name.Equals("Type", true))
+                    t = Type.GetType(reader.Value, false, false);
+            }
+            return t;
+        }
         /// <summary>
         /// Reads a file from the stream as xml.
         /// </summary>
-        public static unsafe object Deserialize(string filePath, Type t)
+        public static unsafe object Deserialize(string filePath)
         {
-            object obj;
+            object obj = null;
             using (FileMap map = FileMap.FromFile(filePath))
             using (XMLReader reader = new XMLReader(map.Address, map.Length))
             {
-                if (reader.BeginElement())
+                if (reader.BeginElement() && reader.ReadAttribute() && reader.Name.Equals("Type", true))
                 {
-                    obj = (FileObject)ReadObjectElement(t, reader);
+                    Type t = Type.GetType(reader.Value, false, false);
+                    obj = ReadObjectElement(t, reader);
                     reader.EndElement();
+
+                    if (obj is FileObject o)
+                        o.FilePath = filePath;
                 }
-                else
-                    obj = SerializationCommon.CreateObject(t);
-                if (obj is FileObject o)
-                    o.FilePath = filePath;
             }
             return obj;
         }
@@ -72,12 +84,17 @@ namespace TheraEngine.Files.Serialization
             //Read attributes first
             while (reader.ReadAttribute())
             {
+                string attribName = reader.Name;
+                string attribValue = reader.Value;
+
+                Debug.WriteLine("Attribute \"{0}\" = \"{1}\"", attribName, attribValue);
+
                 //Look for matching attribute member with the same name
-                VarInfo attrib = attribs.FirstOrDefault(x => reader.Name.Equals(x.Name, true));
+                VarInfo attrib = attribs.FirstOrDefault(x => string.Equals(attribName, x.Name, StringComparison.InvariantCultureIgnoreCase));
                 if (attrib != null)
                 {
                     Type fieldType = attrib.VariableType;
-                    object value = ParseString(reader.Value, fieldType);
+                    object value = ParseString(attribValue, fieldType);
                     attrib.SetValue(obj, value);
                     attribs.Remove(attrib);
                 }
@@ -85,16 +102,21 @@ namespace TheraEngine.Files.Serialization
             //Now read elements
             while (reader.BeginElement())
             {
-                var category = categorized.Where(x => reader.Name.Equals(x.Key, true)).ToArray();
+                string elemName = reader.Name;
+
+                var category = categorized.Where(x => string.Equals(elemName, x.Key, StringComparison.InvariantCultureIgnoreCase)).ToArray();
                 if (category != null)
                 {
                     while (reader.ReadAttribute())
                     {
-                        VarInfo attrib = attribs.FirstOrDefault(x => reader.Name.Equals(x.Name, true));
+                        string attribName = reader.Name;
+                        string attribValue = reader.Value;
+
+                        VarInfo attrib = attribs.FirstOrDefault(x => string.Equals(attribName, x.Name, StringComparison.InvariantCultureIgnoreCase));
                         if (attrib != null)
                         {
                             Type fieldType = attrib.VariableType;
-                            object value = ParseString(reader.Value, fieldType);
+                            object value = ParseString(attribValue, fieldType);
                             attrib.SetValue(obj, value);
                             attribs.Remove(attrib);
                         }

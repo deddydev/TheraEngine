@@ -2,6 +2,7 @@
 using TheraEngine.Rendering.Models;
 using TheraEngine.Rendering.Models.Materials;
 using System;
+using TheraEngine.Rendering;
 
 namespace TheraEngine
 {
@@ -23,18 +24,62 @@ namespace TheraEngine
     }
     public interface IStaticSubMesh
     {
-        bool Visible { get; }
+        bool VisibleByDefault { get; }
         Shape CullingVolume { get; }
         PrimitiveData Data { get; }
         Material Material { get; set; }
-        StaticMesh Model { get; }
+        RenderInfo3D RenderInfo { get; }
     }
     public interface ISkeletalSubMesh
     {
-        bool Visible { get; }
+        bool VisibleByDefault { get; }
         SingleFileRef<PrimitiveData> Data { get; }
         Material Material { get; set; }
-        SkeletalMesh Model { get; }
+        RenderInfo3D RenderInfo { get; }
+    }
+    public class RenderInfo2D
+    {
+        /// <summary>
+        /// Used by the engine for proper order of rendering.
+        /// </summary> 
+        public RenderPassType2D RenderPass;
+        /// <summary>
+        /// Used to render objects in the same pass in a certain order.
+        /// Smaller value means rendered sooner, zero (exactly) means it doesn't matter.
+        /// </summary>
+        public int LayerIndex;
+        public int OrderInLayer;
+        
+        public RenderInfo2D(RenderPassType2D pass, int layerIndex, int orderInLayer)
+        {
+            RenderPass = pass;
+            LayerIndex = layerIndex;
+            OrderInLayer = orderInLayer;
+        }
+    }
+    public class RenderInfo3D
+    {
+        public bool ReceivesShadows;
+        public bool CastsShadows;
+        /// <summary>
+        /// Used by the engine for proper order of rendering.
+        /// </summary> 
+        public RenderPassType3D RenderPass;
+        /// <summary>
+        /// Used to render objects in the same pass in a certain order.
+        /// Smaller value means rendered sooner, zero (exactly) means it doesn't matter.
+        /// </summary>
+        public float RenderOrder => RenderOrderFunc == null ? 0.0f : RenderOrderFunc();
+
+        public Func<float> RenderOrderFunc;
+
+        public RenderInfo3D(RenderPassType3D pass, Func<float> renderOrderFunc, bool castsShadows = true, bool receivesShadows = true)
+        {
+            RenderPass = pass;
+            RenderOrderFunc = renderOrderFunc;
+            CastsShadows = castsShadows;
+            ReceivesShadows = receivesShadows;
+        }
     }
     /// <summary>
     /// Use this interface for objects you want to be able to render in 3D world space with the engine.
@@ -42,13 +87,13 @@ namespace TheraEngine
     public interface I3DRenderable : I3DBoundable
     {
         /// <summary>
-        /// /// Called when the engine wants to render this object.
-        /// /// </summary>
+        /// Called when the engine wants to render this object.
+        /// </summary>
         void Render();
         /// <summary>
-        /// Used by the engine for proper order of rendering opaque and transparent objects.
+        /// Used to determine when to render this object.
         /// </summary>
-        bool HasTransparency { get; }
+        RenderInfo3D RenderInfo { get; }
     }
     /// <summary>
     /// Used by octrees to set the visibility of this object on camera. Does not need to be renderable necessarily (use I3DRenderable for that).
@@ -64,6 +109,21 @@ namespace TheraEngine
         /// </summary>
         IOctreeNode OctreeNode { get; set; }
     }
+    public enum RenderPassType2D
+    {
+        /// <summary>
+        /// Use for any fully opaque objects.
+        /// </summary>
+        Opaque,
+        /// <summary>
+        /// Use for all objects that use alpha translucency! Material.HasTransparency will help you determine this.
+        /// </summary>
+        Transparent,
+        /// <summary>
+        /// Renders on top of everything that has been previously rendered.
+        /// </summary>
+        OnTop,
+    }
     /// <summary>
     /// Use this interface for objects you want to be able to render in 2D HUD space with the engine.
     /// </summary>
@@ -74,13 +134,9 @@ namespace TheraEngine
         /// </summary>
         void Render();
         /// <summary>
-        /// Used by the engine for proper order of rendering opaque and transparent objects.
+        /// Used to determine when to render this object.
         /// </summary>
-        bool HasTransparency { get; }
-        /// <summary>
-        /// The depth of this object on screen, where 0 is beneath everything else.
-        /// </summary>
-        ushort LayerIndex { get; }
+        RenderInfo2D RenderInfo { get; }
     }
     public interface I2DBoundable
     {

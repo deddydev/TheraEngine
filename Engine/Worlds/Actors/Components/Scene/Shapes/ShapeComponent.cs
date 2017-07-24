@@ -1,12 +1,19 @@
 ﻿using BulletSharp;
 using System;
+using System.ComponentModel;
 using TheraEngine.Rendering;
 
 namespace TheraEngine.Worlds.Actors
 {
     public abstract class ShapeComponent : TRComponent, I3DRenderable, IPhysicsDrivable
     {
-        public bool HasTransparency => false;
+        private RenderInfo3D _renderInfo = new RenderInfo3D(RenderPassType3D.OpaqueForward, null, false);
+        public RenderInfo3D RenderInfo => _renderInfo;
+        [Browsable(false)]
+        public abstract Shape CullingVolume { get; }
+        [Browsable(false)]
+        public IOctreeNode OctreeNode { get; set; }
+
         public void InitPhysics(PhysicsConstructionInfo info)
         {
             if (info != null)
@@ -37,11 +44,9 @@ namespace TheraEngine.Worlds.Actors
             _physicsDriver?.OnDespawned();
             base.OnDespawned();
         }
-
-        protected IOctreeNode _renderNode;
+        
         protected PhysicsDriver _physicsDriver;
         protected bool
-            _isRendering,
             _isVisible,
             _visibleByDefault,
             _visibleInEditorOnly,
@@ -58,24 +63,13 @@ namespace TheraEngine.Worlds.Actors
             get => _physicsDriver.CollidesWith;
             set => _physicsDriver.CollidesWith = value;
         }
-        public bool IsRendering
-        {
-            get => _isRendering;
-            set => _isRendering = value;
-        }
         public bool Visible
         {
             get => _isVisible;
             set => _isVisible = value;
         }
-        public abstract Shape CullingVolume { get; }
         public bool VisibleByDefault => _visibleByDefault;
         public PhysicsDriver PhysicsDriver => _physicsDriver;
-        public IOctreeNode OctreeNode
-        {
-            get => _renderNode;
-            set => _renderNode = value;
-        }
 
         public bool VisibleInEditorOnly
         {

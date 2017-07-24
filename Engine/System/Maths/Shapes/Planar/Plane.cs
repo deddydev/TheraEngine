@@ -177,11 +177,15 @@ Note that while you can set this point to anything, the original world position 
             => Collision.ClosestPointPlanePoint(this, point);
         public float DistanceTo(Vec3 point)
             => Collision.DistancePlanePoint(this, point);
+
         public Plane TransformedBy(Matrix4 transform)
         {
-            Vec3 point = IntersectionPoint;
-            Vec3 normal = Normal;
-            return new Plane(Vec3.TransformPosition(point, transform), Vec3.TransformNormal(normal, transform));
+            return new Plane(Vec3.TransformPosition(IntersectionPoint, transform), _normal.Raw * transform.GetRotationMatrix4());
+        }
+        public void TransformBy(Matrix4 transform)
+        {
+            _normal.Raw = _normal.Raw * transform.GetRotationMatrix4();
+            IntersectionPoint = IntersectionPoint * transform;
         }
 
         public PrimitiveData GetWireframeMesh(float xExtent, float yExtent)

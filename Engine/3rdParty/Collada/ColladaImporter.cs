@@ -125,41 +125,33 @@ namespace TheraEngine.Rendering.Models
                     //RootFolder = new AnimFolder("Skeleton"),
                 };
                 foreach (AnimationEntry e in shell._animations)
-                    ParseAnimation(e, scene.Animation);
+                    ParseAnimation(e, scene.Animation, scene.Skeleton);
             }
 
             return scene;
         }
 
-        private static void ParseAnimation(AnimationEntry e, ModelAnimation c)
+        private static void ParseAnimation(AnimationEntry e, ModelAnimation c, Skeleton skel)
         {
             foreach (AnimationEntry e2 in e._animations)
-                ParseAnimation(e2, c);
+                ParseAnimation(e2, c, skel);
+
             foreach (ChannelEntry channel in e._channels)
             {
-                SamplerEntry sampler = null;
-                foreach (SamplerEntry s in e._samplers)
-                    if (channel._source.Equals(s._id))
-                    {
-                        sampler = s;
-                        break;
-                    }
+                SamplerEntry sampler = e._samplers.FirstOrDefault(x => x._id == channel._source);
 
-                string[] target = channel._target.Split('/');
-                string nodeName = target[0];
-                TargetType targetName = target[1].AsEnum<TargetType>();
+                string[] sidRef = channel._target.Split('/');
+                string targetId = sidRef[0];
+                if (skel[targetId] == null)
+                    continue;
+
+                string targetSID = sidRef[1];
                 
                 float[] timeData = null, outputData = null;
                 string[] interpData = null;
                 foreach (InputEntry input in sampler._inputs)
                 {
-                    SourceEntry source = null;
-                    foreach (SourceEntry s in e._sources)
-                        if (s._id.Equals(input._source))
-                        {
-                            source = s;
-                            break;
-                        }
+                    SourceEntry source = e._sources.FirstOrDefault(x => x._id == input._source);
 
                     switch (input._semantic)
                     {
@@ -217,12 +209,6 @@ namespace TheraEngine.Rendering.Models
                     }
                 }
             }
-        }
-
-        private enum TargetType
-        {
-            matrix,
-            visibility,
         }
         private enum InterpType
         {
@@ -347,7 +333,7 @@ namespace TheraEngine.Rendering.Models
                 else
                     m = Material.GetLitColorMaterial();
 
-                model.RigidChildren.Add(new SkeletalRigidSubMesh(data, m, _node._name ?? _node._id));
+                model.RigidChildren.Add(new SkeletalRigidSubMesh(_node._name ?? _node._id, data, m, true));
             }
             public void Initialize(StaticMesh model, DecoderShell shell)
             {
@@ -367,7 +353,7 @@ namespace TheraEngine.Rendering.Models
                 else
                     m = Material.GetLitColorMaterial();
                 
-                model.RigidChildren.Add(new StaticRigidSubMesh(data, null, m, _node._name ?? _node._id));
+                model.RigidChildren.Add(new StaticRigidSubMesh(_node._name ?? _node._id, data, null, m));
             }
         }
         private enum SemanticType

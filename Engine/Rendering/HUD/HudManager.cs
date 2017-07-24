@@ -87,14 +87,14 @@ namespace TheraEngine.Rendering.HUD
                 return;
             }
 
-            int frontDist = _renderables.First.Value.LayerIndex - component.LayerIndex;
+            int frontDist = _renderables.First.Value.RenderInfo.LayerIndex - component.RenderInfo.LayerIndex;
             if (frontDist > 0)
             {
                 _renderables.AddFirst(component);
                 return;
             }
             
-            int backDist = component.LayerIndex - _renderables.Last.Value.LayerIndex;
+            int backDist = component.RenderInfo.LayerIndex - _renderables.Last.Value.RenderInfo.LayerIndex;
             if (backDist > 0)
             {
                 _renderables.AddLast(component);
@@ -106,7 +106,7 @@ namespace TheraEngine.Rendering.HUD
             {
                 //loop from back
                 var last = _renderables.Last;
-                while (last.Value.LayerIndex > component.LayerIndex)
+                while (last.Value.RenderInfo.LayerIndex > component.RenderInfo.LayerIndex)
                     last = last.Previous;
                 _renderables.AddBefore(last, component);
             }
@@ -114,7 +114,7 @@ namespace TheraEngine.Rendering.HUD
             {
                 //loop from front
                 var first = _renderables.First;
-                while (first.Value.LayerIndex < component.LayerIndex)
+                while (first.Value.RenderInfo.LayerIndex < component.RenderInfo.LayerIndex)
                     first = first.Next;
                 _renderables.AddAfter(first, component);
             }

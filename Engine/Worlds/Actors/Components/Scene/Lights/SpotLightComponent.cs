@@ -8,6 +8,13 @@ namespace TheraEngine.Worlds.Actors
 {
     public class SpotLightComponent : LightComponent, I3DRenderable
     {
+        private RenderInfo3D _renderInfo = new RenderInfo3D(RenderPassType3D.OpaqueForward, null, false);
+        public RenderInfo3D RenderInfo => _renderInfo;
+        [Browsable(false)]
+        public Shape CullingVolume => _cullingVolume;
+        [Browsable(false)]
+        public IOctreeNode OctreeNode { get; set; }
+
         private float _cutoff, _exponent, _distance;
         private Vec3 _direction;
 
@@ -72,31 +79,17 @@ namespace TheraEngine.Worlds.Actors
         private PerspectiveCamera _shadowCamera;
         private int _shadowWidth, _shadowHeight;
         private Matrix4 _worldToLightSpaceProjMatrix;
-        ConeY _cullingVolume;
-
-        public bool HasTransparency => false;
-        public Shape CullingVolume => _cullingVolume;
-
-        public IOctreeNode OctreeNode { get; set; }
-        public bool IsRendering { get; set; }
+        internal protected ConeY _cullingVolume;
 
         public override void OnSpawned()
         {
             if (_type == LightType.Dynamic)
-            {
                 Engine.Scene.Lights.Add(this);
-                if (Engine.Settings.RenderCameraFrustums)
-                    Engine.Scene.Add(_shadowCamera);
-            }
         }
         public override void OnDespawned()
         {
             if (_type == LightType.Dynamic)
-            {
                 Engine.Scene.Lights.Remove(this);
-                if (Engine.Settings.RenderCameraFrustums)
-                    Engine.Scene.Remove(_shadowCamera);
-            }
         }
 
         public override void SetUniforms(int programBindingId)
@@ -185,9 +178,10 @@ namespace TheraEngine.Worlds.Actors
             Engine.Renderer.AllowDepthWrite(true);
 
             scene.PreRender(_shadowCamera);
-            scene.Render(RenderPass.OpaqueDeferred);
-            scene.Render(RenderPass.OpaqueForward);
-            scene.Render(RenderPass.TransparentForward);
+            scene.Render(RenderPassType3D.OpaqueDeferredLit);
+            scene.Render(RenderPassType3D.OpaqueForward);
+            scene.Render(RenderPassType3D.TransparentForward);
+            scene.Render(RenderPassType3D.OnTopForward);
             scene.PostRender();
 
             Engine.Renderer.PopRenderArea();

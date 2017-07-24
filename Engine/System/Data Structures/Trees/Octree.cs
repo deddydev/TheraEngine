@@ -14,7 +14,7 @@ namespace System
     public interface IOctreeNode
     {
         /// <summary>
-        /// Call this when the boundable item has moved,
+        /// Call this when an item that this node contains has moved,
         /// otherwise the octree will not be updated.
         /// </summary>
         void ItemMoved(I3DBoundable item);
@@ -213,7 +213,6 @@ namespace System
                             n?.DebugRender(true, f);
                 }
                 Engine.Renderer.RenderAABB(_bounds.HalfExtents, _bounds.Translation, false, clr, 5.0f);
-
             }
             public void CollectVisible(Frustum frustum, RenderPasses passes)
             {
@@ -226,18 +225,10 @@ namespace System
                     {
                         IsLoopingItems = true;
                         foreach (I3DRenderable r in _items)
-                        {
-                            if (r.HasTransparency)
-                                passes.TransparentForward.PushFront(r);
-                            else
-                            {
-                                if (Engine.Settings.ShadingStyle == ShadingStyle.Deferred)
-                                    passes.OpaqueDeferred.PushFront(r);
-                                else
-                                    passes.OpaqueForward.PushFront(r);
-                            }
-                        }
+                            if (r.CullingVolume == null || (c = r.CullingVolume.ContainedWithin(frustum)) != EContainment.Disjoint)
+                                passes.Add(r);
                         IsLoopingItems = false;
+
                         IsLoopingSubNodes = true;
                         foreach (var s in _subNodes)
                             s?.CollectVisible(frustum, passes);
@@ -249,18 +240,9 @@ namespace System
             {
                 IsLoopingItems = true;
                 foreach (I3DRenderable r in _items)
-                {
-                    if (r.HasTransparency)
-                        passes.TransparentForward.PushFront(r);
-                    else
-                    {
-                        if (Engine.Settings.ShadingStyle == ShadingStyle.Deferred)
-                            passes.OpaqueDeferred.PushFront(r);
-                        else
-                            passes.OpaqueForward.PushFront(r);
-                    }
-                }
+                    passes.Add(r);
                 IsLoopingItems = false;
+
                 IsLoopingSubNodes = true;
                 foreach (var s in _subNodes)
                     s?.CollectAll(passes);

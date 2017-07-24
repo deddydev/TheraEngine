@@ -30,6 +30,7 @@ namespace TheraEngine.Worlds
         public Actor(SceneComponent root, params LogicComponent[] logicComponents)
             : base(root, logicComponents) { }
     }
+    [FileClass("ACTOR", "Actor")]
     public class Actor<T> : FileObject, IActor where T : SceneComponent
     {
         public Actor(bool deferInitialization = false)

@@ -21,7 +21,7 @@ namespace TheraEngine.Rendering
         public abstract RenderLibrary RenderLibrary { get; }
         public RenderContext CurrentContext => RenderContext.Current;
         public Viewport CurrentlyRenderingViewport => Viewport.CurrentlyRendering;
-
+        
         public Material MaterialOverride
         {
             get => _fragmentShaderOverride;
@@ -124,7 +124,7 @@ namespace TheraEngine.Rendering
             if (m != null)
                 return m;
             else
-                return _debugPrims[(int)type] = new PrimitiveManager(GetPrimData(type), Material.GetUnlitColorMaterial());
+                return _debugPrims[(int)type] = new PrimitiveManager(GetPrimData(type), Material.GetUnlitColorMaterialForward());
         }
         private PrimitiveData GetPrimData(DebugPrimitiveType type)
         {
@@ -263,11 +263,11 @@ namespace TheraEngine.Rendering
                     Vec3.Zero, Vec3.Up, 1.0f, 1.0f, 30, 
                     out PrimitiveData cylData, out PrimitiveData topData, out PrimitiveData botData);
                 if (mCyl == null)
-                    mCyl = AssignDebugPrimitive(cylStr, new PrimitiveManager(cylData, Material.GetUnlitColorMaterial()));
+                    mCyl = AssignDebugPrimitive(cylStr, new PrimitiveManager(cylData, Material.GetUnlitColorMaterialForward()));
                 if (mTop == null)
-                    mTop = AssignDebugPrimitive(topStr, new PrimitiveManager(topData, Material.GetUnlitColorMaterial()));
+                    mTop = AssignDebugPrimitive(topStr, new PrimitiveManager(topData, Material.GetUnlitColorMaterialForward()));
                 if (mBot == null)
-                    mBot = AssignDebugPrimitive(botStr, new PrimitiveManager(botData, Material.GetUnlitColorMaterial()));
+                    mBot = AssignDebugPrimitive(botStr, new PrimitiveManager(botData, Material.GetUnlitColorMaterialForward()));
             }
             Matrix4 axisRotation = Matrix4.CreateFromQuaternion(Quat.BetweenVectors(Vec3.Up, localUpAxis));
             Matrix4 radiusMtx = Matrix4.CreateScale(radius);
@@ -380,7 +380,7 @@ namespace TheraEngine.Rendering
         /// </summary>
         /// <param name="shaderHandles">The handles of the shaders for this program to use.</param>
         /// <returns></returns>
-        public abstract int GenerateProgram(int[] shaderHandles, VertexShaderDesc desc, bool separable);
+        public abstract int GenerateProgram(int[] shaderHandles, bool separable);
         //public virtual void UseMaterial(Material material)
         //{
         //    _currentMaterial = material;

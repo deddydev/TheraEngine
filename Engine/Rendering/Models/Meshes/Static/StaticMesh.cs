@@ -5,16 +5,13 @@ using System.ComponentModel;
 
 namespace TheraEngine.Rendering.Models
 {
-    [FileClass("STM", "Static Mesh")]
+    [FileClass("STMDL", "Static Mesh")]
     [TypeConverter(typeof(ExpandableObjectConverter))]
     public class StaticMesh : FileObject, IModelFile
     {
         public StaticMesh() : base()
         {
-            _rigidChildren.PostRemoved += RigidChildRemoved;
-            _rigidChildren.PostAdded += RigidChildAdded;
-            _softChildren.PostRemoved += SoftChildRemoved;
-            _softChildren.PostAdded += SoftChildAdded;
+
         }
         public StaticMesh(string name)
         {
@@ -23,33 +20,14 @@ namespace TheraEngine.Rendering.Models
 
         ConvexShape _collision;
 
-        public MonitoredList<StaticRigidSubMesh> RigidChildren => _rigidChildren;
-        public MonitoredList<StaticSoftSubMesh> SoftChildren => _softChildren;
+        public List<StaticRigidSubMesh> RigidChildren => _rigidChildren;
+        public List<StaticSoftSubMesh> SoftChildren => _softChildren;
 
         public ConvexShape Collision { get => _collision; set => _collision = value; }
-
+        
         [Serialize("RigidChildren")]
-        protected MonitoredList<StaticRigidSubMesh> _rigidChildren = new MonitoredList<StaticRigidSubMesh>();
+        protected List<StaticRigidSubMesh> _rigidChildren = new List<StaticRigidSubMesh>();
         [Serialize("SoftChildren")]
-        protected MonitoredList<StaticSoftSubMesh> _softChildren = new MonitoredList<StaticSoftSubMesh>();
-
-        protected virtual void RigidChildAdded(StaticRigidSubMesh item)
-        {
-            item.Model = this;
-        }
-        protected virtual void RigidChildRemoved(StaticRigidSubMesh item)
-        {
-            if (item.Model == this)
-                item.Model = null;
-        }
-        protected virtual void SoftChildAdded(StaticSoftSubMesh item)
-        {
-            item.Model = this;
-        }
-        protected virtual void SoftChildRemoved(StaticSoftSubMesh item)
-        {
-            if (item.Model == this)
-                item.Model = null;
-        }
+        protected List<StaticSoftSubMesh> _softChildren = new List<StaticSoftSubMesh>();
     }
 }

@@ -43,6 +43,7 @@ namespace TheraEngine.Worlds.Actors
     /// <summary>
     /// A pawn is an actor that can be controlled by either a player or AI.
     /// </summary>
+    [FileClass("PAWN", "Pawn Actor")]
     public class Pawn<T> : Actor<T>, IPawn where T : SceneComponent
     {
         private PawnController _controller;

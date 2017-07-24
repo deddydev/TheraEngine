@@ -3,54 +3,87 @@ using System;
 using System.Collections.Generic;
 using TheraEngine.Rendering.Models.Materials;
 using TheraEngine.Worlds.Actors;
+using System.Collections.Concurrent;
+using System.Collections;
+using System.Linq;
 
 namespace TheraEngine.Rendering
 {
     /// <summary>
     /// Use for calculating something right before anything in the scene is rendered.
-    /// Generally used for setting up data for a collection of sub-renderables just before they are rendered separately,
+    /// Generally used for setting up data for a collection of sub-renderables just before they are rendered separately.
     /// </summary>
     public interface IPreRenderNeeded
     {
         void PreRender();
     }
-    public enum RenderPass
+    public enum RenderPassType3D
     {
-        OpaqueDeferred,
+        /// <summary>
+        /// Use for any fully opaque objects that are always lit.
+        /// </summary>
+        OpaqueDeferredLit,
+        /// <summary>
+        /// Use for any opaque objects that you need special lighting for (or not lighting at all).
+        /// </summary>
         OpaqueForward,
-        TransparentForward
+        /// <summary>
+        /// Use for all objects that use alpha translucency! Material.HasTransparency will help you determine this.
+        /// </summary>
+        TransparentForward,
+        /// <summary>
+        /// Renders on top of everything that has been previously rendered.
+        /// </summary>
+        OnTopForward,
     }
     public class RenderPasses
     {
-        private Deque<I3DRenderable> _opaqueDeferred = new Deque<I3DRenderable>();
-        private Deque<I3DRenderable> _opaqueForward = new Deque<I3DRenderable>();
-        private Deque<I3DRenderable> _transparentForward = new Deque<I3DRenderable>();
-        private Deque<LightComponent> _lights = new Deque<LightComponent>();
-
-        public Deque<I3DRenderable> OpaqueDeferred => _opaqueDeferred;
-        public Deque<I3DRenderable> OpaqueForward => _opaqueForward;
-        public Deque<I3DRenderable> TransparentForward => _transparentForward;
-
-        public void Render(RenderPass pass)
+        public RenderPasses()
         {
-            switch (pass)
+            _sorter = new RenderSort();
+            _passes = new List<I3DRenderable>[]
             {
-                case RenderPass.OpaqueDeferred:
-                    foreach (I3DRenderable r in OpaqueDeferred)
-                        r.Render();
-                    OpaqueDeferred.Clear();
-                    break;
-                case RenderPass.OpaqueForward:
-                    foreach (I3DRenderable r in OpaqueForward)
-                        r.Render();
-                    OpaqueForward.Clear();
-                    break;
-                case RenderPass.TransparentForward:
-                    foreach (I3DRenderable r in TransparentForward)
-                        r.Render();
-                    TransparentForward.Clear();
-                    break;
+                new List<I3DRenderable>(),
+                new List<I3DRenderable>(),
+                new List<I3DRenderable>(),
+                new List<I3DRenderable>(),
+            };
+        }
+
+        private RenderSort _sorter;
+        private List<I3DRenderable>[] _passes;
+        private List<LightComponent> _lights = new List<LightComponent>();
+
+        public List<I3DRenderable> OpaqueDeferredLit => _passes[0];
+        public List<I3DRenderable> OpaqueForward => _passes[1];
+        public List<I3DRenderable> TransparentForward => _passes[2];
+        public List<I3DRenderable> OnTopForward => _passes[3];
+        public List<LightComponent> Lights => _lights;
+
+        private class RenderSort : IComparer<I3DRenderable>
+        {
+            int IComparer<I3DRenderable>.Compare(I3DRenderable x, I3DRenderable y)
+            {
+                if (x.RenderInfo.RenderOrder < y.RenderInfo.RenderOrder)
+                    return -1;
+                if (x.RenderInfo.RenderOrder > y.RenderInfo.RenderOrder)
+                    return 1;
+                return 0;
             }
+        }
+
+        public void Render(RenderPassType3D pass)
+        {
+            var list = _passes[(int)pass];
+            foreach (I3DRenderable r in list/*.OrderBy(x => x, _sorter)*/)
+                r.Render();
+            list.Clear();
+        }
+
+        public void Add(I3DRenderable item)
+        {
+            List<I3DRenderable> r = _passes[(int)item.RenderInfo.RenderPass];
+            r.Add(item);
         }
     }
     /// <summary>
@@ -88,7 +121,7 @@ namespace TheraEngine.Rendering
             foreach (IPreRenderNeeded p in _preRenderList)
                 p.PreRender();
         }
-        internal void Render(RenderPass pass)
+        internal void Render(RenderPassType3D pass)
         {
             if (_renderTree == null)
                 return;
@@ -98,10 +131,6 @@ namespace TheraEngine.Rendering
         internal void PostRender()
         {
             AbstractRenderer.PopCurrentCamera();
-        }
-        internal void AddDebugPrimitive(I3DRenderable obj)
-        {
-            _passes.OpaqueForward.PushFront(obj);
         }
         public void Add(I3DBoundable obj)
         {

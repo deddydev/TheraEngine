@@ -11,12 +11,20 @@ namespace TheraEngine.Rendering.Cameras
     public delegate void OwningComponentChange(CameraComponent previous, CameraComponent current);
     public abstract class Camera : FileObject, I3DRenderable
     {
+        private RenderInfo3D _renderInfo = new RenderInfo3D(RenderPassType3D.OpaqueForward, null, false);
+        public RenderInfo3D RenderInfo => _renderInfo;
+        [Browsable(false)]
+        public Shape CullingVolume => _transformedFrustum.CullingVolume;
+        [Browsable(false)]
+        public IOctreeNode OctreeNode
+        {
+            get => _transformedFrustum.OctreeNode;
+            set => _transformedFrustum.OctreeNode = value;
+        }
+
         public event OwningComponentChange OwningComponentChanged;
         public delegate void TranslationChange(Vec3 oldTranslation);
         public delegate void RotationChange(Rotator oldRotation);
-
-        [Browsable(false)]
-        public bool HasTransparency => false;
 
         public Camera() 
             : this(16.0f, 9.0f) { }
@@ -146,7 +154,6 @@ namespace TheraEngine.Rendering.Cameras
         }
         [DisplayName("Post-Processing")]
         [Category("Camera")]
-        [TypeConverter(typeof(ExpandableObjectConverter))]
         public PostProcessSettings PostProcessSettings
         {
             get => _postProcessSettings;
@@ -166,19 +173,7 @@ namespace TheraEngine.Rendering.Cameras
         }
         [Browsable(false)]
         public bool IsActiveRenderCamera { get => _isActive; internal set => _isActive = value; }
-        public Shape CullingVolume => _transformedFrustum.CullingVolume;
-        [Browsable(false)]
-        public bool IsRendering
-        {
-            get => _transformedFrustum.IsRendering;
-            set => _transformedFrustum.IsRendering = value;
-        }
-        [Browsable(false)]
-        public IOctreeNode OctreeNode
-        {
-            get => _transformedFrustum.OctreeNode;
-            set => _transformedFrustum.OctreeNode = value;
-        }
+
         [Browsable(false)]
         public CameraComponent OwningComponent
         {
@@ -211,7 +206,12 @@ namespace TheraEngine.Rendering.Cameras
                 _viewTarget_Changed();
             }
         }
-        
+
+        [Browsable(false)]
+        public RenderPassType3D RenderPass => throw new NotImplementedException();
+        [Browsable(false)]
+        public float RenderOrder => throw new NotImplementedException();
+
         private CameraComponent _owningComponent;
         private List<Viewport> _viewports = new List<Viewport>();
         private bool _isActive = false;

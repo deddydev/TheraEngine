@@ -1,6 +1,8 @@
 ﻿using TheraEngine.Rendering.Models;
 using System;
 using TheraEngine.Rendering;
+using TheraEngine.Rendering.Models.Materials;
+using System.ComponentModel;
 
 namespace TheraEngine.Worlds.Actors
 {
@@ -8,6 +10,13 @@ namespace TheraEngine.Worlds.Actors
     {
         public class RenderableMesh : ISubMesh
         {
+            private RenderInfo3D _renderInfo;
+            public RenderInfo3D RenderInfo => _renderInfo;
+            [Browsable(false)]
+            public Shape CullingVolume => _cullingVolume;
+            [Browsable(false)]
+            public IOctreeNode OctreeNode { get; set; }
+
             public RenderableMesh(IStaticSubMesh mesh, SceneComponent component)
             {
                 _mesh = mesh;
@@ -15,9 +24,80 @@ namespace TheraEngine.Worlds.Actors
                 _cullingVolume = _mesh.CullingVolume?.HardCopy();
                 _initialCullingVolumeMatrix = _cullingVolume == null ? Matrix4.Identity : _cullingVolume.GetTransformMatrix();
                 _manager = new PrimitiveManager(_mesh.Data, _mesh.Material);
-                Visible = false;
-                IsRendering = true;
+//                if (_mesh.Data.BufferInfo.HasNormals && _mesh.Data.BufferInfo.HasTexCoords)
+//                    _manager._geometryShader = new Shader(ShaderMode.Geometry, @"
+//#version 450
+//layout(triangles) in;
+//layout(line_strip, max_vertices=6) out;
+
+//in vec3 FragPos_geom[];
+//in vec3 FragNorm_geom[];
+//in vec2 FragUV0_geom[];
+
+//uniform mat4 WorldToCameraSpaceMatrix;
+//uniform mat4 ProjMatrix;
+
+//out vec3 FragPos;
+//out vec3 FragNorm;
+//out vec2 FragUV0;
+
+//in gl_PerVertex
+//{
+//    vec4  gl_Position;
+//    float gl_PointSize;
+//    float gl_ClipDistance[];
+//} gl_in[];
+
+//in int gl_PrimitiveIDIn;
+//in int gl_InvocationID;
+
+//out gl_PerVertex
+//{
+//    vec4  gl_Position;
+//    float gl_PointSize;
+//    float gl_ClipDistance[];
+//};
+
+//out int gl_PrimitiveID;
+//out int gl_Layer;
+//out int gl_ViewportIndex; 
+
+//void main()
+//{
+//    int i;
+//    for (i = 0; i < gl_in.length(); i++)
+//    {
+//        vec3 P = FragPos_geom[i].xyz;
+//        vec3 N = FragNorm_geom[i];
+
+//        gl_Position = ProjMatrix * WorldToCameraSpaceMatrix * vec4(P, 1.0f);
+//        FragPos = FragPos_geom[i];
+//        FragNorm = FragNorm_geom[i];
+//        EmitVertex();
+
+//        gl_Position = ProjMatrix * WorldToCameraSpaceMatrix * vec4(P + N * 10.0f, 1.0f);
+//        FragPos = FragPos_geom[i];
+//        FragNorm = FragNorm_geom[i];
+//        EmitVertex();
+    
+//        EndPrimitive();
+//    }
+//}
+//");
                 _component.WorldTransformChanged += _component_WorldTransformChanged;
+                Visible = false;
+
+                _renderInfo = mesh.RenderInfo;
+                _renderInfo.RenderOrderFunc = GetRenderOrderOpaque;
+            }
+
+            private float GetRenderOrderOpaque()
+            {
+                return _component.WorldMatrix.GetPoint().DistanceToFast(AbstractRenderer.CurrentCamera.WorldPoint);
+            }
+            private float GetRenderOrderTransparent()
+            {
+                return _component.WorldMatrix.GetPoint().DistanceToFast(AbstractRenderer.CurrentCamera.WorldPoint);
             }
 
             private void _component_WorldTransformChanged()
@@ -31,20 +111,16 @@ namespace TheraEngine.Worlds.Actors
 
             private bool
                 _ownerNoSee = false,
-                _onlyOwnerSee = false, 
+                _onlyOwnerSee = false,
                 _visibleInEditorOnly = false,
-                _isVisible = true, 
-                _isRendering = false;
+                _isVisible = true;
 
             private Matrix4 _initialCullingVolumeMatrix;
             private PrimitiveManager _manager;
             private SceneComponent _component;
             private IStaticSubMesh _mesh;
-            private IOctreeNode _renderNode;
             private Shape _cullingVolume;
-
-            public bool HasTransparency => _mesh.Material.HasTransparency;
-            public Shape CullingVolume => _cullingVolume;
+            
             public bool Visible
             {
                 get => _isVisible;
@@ -83,21 +159,12 @@ namespace TheraEngine.Worlds.Actors
                 get => _onlyOwnerSee;
                 set => _onlyOwnerSee = value;
             }
-            public bool IsRendering
-            {
-                get => _isRendering;
-                set => _isRendering = value;
-            }
             public IStaticSubMesh Mesh
             {
                 get => _mesh;
                 set => _mesh = value;
             }
-            public IOctreeNode OctreeNode
-            {
-                get => _renderNode;
-                set => _renderNode = value;
-            }
+            
             public void Render()
             {
                 //_manager.Render(_component.WorldMatrix, _component.WorldMatrix.GetRotationMatrix3());

@@ -2,6 +2,7 @@
 using TheraEngine;
 using TheraEngine.Files;
 using System.ComponentModel;
+using TheraEngine.Rendering;
 
 namespace System
 {
@@ -31,7 +32,13 @@ namespace System
     [FileClass("SHAPE", "Shape")]
     public abstract class Shape : FileObject, I3DRenderable
     {
-        protected bool _isRendering;
+        private RenderInfo3D _renderInfo = new RenderInfo3D(RenderPassType3D.OpaqueForward, null, false);
+        public RenderInfo3D RenderInfo => _renderInfo;
+        [Browsable(false)]
+        public Shape CullingVolume => this;
+        [Browsable(false)]
+        public IOctreeNode OctreeNode { get; set; }
+
         [Serialize("IsVisible", IsXmlAttribute = true)]
         protected bool _isVisible;
         [Serialize("RenderSolid", IsXmlAttribute = true)]
@@ -43,20 +50,12 @@ namespace System
         [Serialize("VisibleToOwnerOnly", IsXmlAttribute = true)]
         protected bool _visibleToOwnerOnly = false;
         
-        protected IOctreeNode _renderNode;
-
         public bool RenderSolid
         {
             get => _renderSolid;
             set => _renderSolid = value;
         }
 
-        [Browsable(false)]
-        public bool IsRendering
-        {
-            get => _isRendering;
-            set => _isRendering = value;
-        }
         public bool Visible
         {
             get { return _isVisible; }
@@ -78,19 +77,6 @@ namespace System
             set => _visibleToOwnerOnly = value;
         }
         
-        [Browsable(false)]
-        public Shape CullingVolume => this;
-
-        [Browsable(false)]
-        public IOctreeNode OctreeNode
-        {
-            get { return _renderNode; }
-            set { _renderNode = value; }
-        }
-
-        [Browsable(false)]
-        public bool HasTransparency => false;
-
         public abstract void Render();
         public abstract CollisionShape GetCollisionShape();
 

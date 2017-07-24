@@ -2,295 +2,16 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
+using System.Linq;
 using TheraEngine.Files;
 using TheraEngine.Rendering.Textures;
 
 namespace TheraEngine.Rendering.Models.Materials
 {
-    public enum LogicGate
-    {
-        And,
-        Nand,
-        Or,
-        Nor,
-        Xor,
-        Xnor,
-    }
-    public struct AlphaTest
-    {
-        private bool _enableAlphaTest;
-        private bool _useConstantAlpha;
-        private float _constantAlphaValue;
-        private bool _useAlphaToCoverage;
-        private float _ref0, _ref1;
-        private EComparison _comp0, _comp1;
-        private LogicGate _logicGate;
-
-        public AlphaTest(
-            bool enabled,
-            float ref0, float ref1,
-            EComparison comp0, EComparison comp1,
-            LogicGate logicGate,
-            bool constantAlpha, float constantAlphaValue, 
-            bool useAlphaToCoverage)
-        {
-            _enableAlphaTest = enabled;
-            _useConstantAlpha = constantAlpha;
-            _constantAlphaValue = constantAlphaValue;
-            _useAlphaToCoverage = useAlphaToCoverage;
-            _ref0 = ref0;
-            _ref1 = ref1;
-            _logicGate = logicGate;
-            _comp0 = comp0;
-            _comp1 = comp1;
-        }
-        
-        public bool Enabled { get => _enableAlphaTest; set => _enableAlphaTest = value; }
-        public bool UseConstantAlpha { get => _useConstantAlpha; set => _useConstantAlpha = value; }
-        public float ConstantAlphaValue { get => _constantAlphaValue; set => _constantAlphaValue = value; }
-        public bool UseAlphaToCoverage { get => _useAlphaToCoverage; set => _useAlphaToCoverage = value; }
-        public float Ref0 { get => _ref0; set => _ref0 = value; }
-        public float Ref1 { get => _ref1; set => _ref1 = value; }
-        public EComparison Comp0 { get => _comp0; set => _comp0 = value; }
-        public EComparison Comp1 { get => _comp1; set => _comp1 = value; }
-        public LogicGate LogicGate { get => _logicGate; set => _logicGate = value; }
-    }
-    public struct StencilFace
-    {
-        private EComparison _func;
-        private int _ref;
-        private int _mask;
-
-        public EComparison Func { get => _func; set => _func = value; }
-        public int Ref { get => _ref; set => _ref = value; }
-        public int Mask { get => _mask; set => _mask = value; }
-    }
-    public struct StencilTest
-    {
-        private bool _enableStencilFunc;
-        private StencilFace _frontFace, _backFace;
-
-        public bool EnableStencilFunc { get => _enableStencilFunc; set => _enableStencilFunc = value; }
-
-        public EComparison FrontFaceFunc { get => _frontFace.Func; set => _frontFace.Func = value; }
-        public EComparison BackFaceFunc { get => _backFace.Func; set => _backFace.Func = value; }
-        public int FrontFaceRef { get => _frontFace.Ref; set => _frontFace.Ref = value; }
-        public int BackFaceRef { get => _backFace.Ref; set => _backFace.Ref = value; }
-        public int FrontFaceMask { get => _frontFace.Mask; set => _frontFace.Mask = value; }
-        public int BackFaceMask { get => _backFace.Mask; set => _backFace.Mask = value; }
-
-        public StencilFace FrontFace { get => _frontFace; set => _frontFace = value; }
-        public StencilFace BackFace { get => _backFace; set => _backFace = value; }
-    }
-    public struct DepthTest
-    {
-        private bool _enableDepthTest;
-        private bool _enableDepthUpdate;
-        private EComparison _depthFunction;
-
-        public bool EnableDepthTest { get => _enableDepthTest; set => _enableDepthTest = value; }
-        public bool EnableDepthUpdate { get => _enableDepthUpdate; set => _enableDepthUpdate = value; }
-        public EComparison DepthFunction { get => _depthFunction; set => _depthFunction = value; }
-    }
-    public struct Blend
-    {
-        private bool _enableBlending;
-        private EBlendEquationMode _rgbEquation, _alphaEquation;
-        private EBlendingFactor _rgbSrcFactor, _alphaSrcFactor, _rgbDstFactor, _alphaDstFactor;
-        
-        public bool Enabled { get => _enableBlending; set => _enableBlending = value; }
-        public EBlendEquationMode RgbEquation { get => _rgbEquation; set => _rgbEquation = value; }
-        public EBlendEquationMode AlphaEquation { get => _alphaEquation; set => _alphaEquation = value; }
-        public EBlendingFactor RgbSrcFactor { get => _rgbSrcFactor; set => _rgbSrcFactor = value; }
-        public EBlendingFactor AlphaSrcFactor { get => _alphaSrcFactor; set => _alphaSrcFactor = value; }
-        public EBlendingFactor RgbDstFactor { get => _rgbDstFactor; set => _rgbDstFactor = value; }
-        public EBlendingFactor AlphaDstFactor { get => _alphaDstFactor; set => _alphaDstFactor = value; }
-    }
-    public enum MaterialRenderType
-    {
-        Deferred,
-        Forward,
-        ForwardOnTop,
-    }
-    public struct RenderingParameters
-    {
-        public static readonly RenderingParameters Default = new RenderingParameters() { };
-
-        private MaterialRenderType renderType;
-        private AlphaTest _alpha;
-        private DepthTest _depth;
-        private StencilTest _stencil;
-        private Blend _blend;
-        private bool _writeAlpha;
-        private bool _writeRed;
-        private bool _writeGreen;
-        private bool _writeBlue;
-        private Culling _cullMode;
-
-        [Category("Blending")]
-        public bool AlphaTestEnabled { get => _alpha.Enabled; set => _alpha.Enabled = value; }
-        [Category("Blending")]
-        public bool UseConstantAlpha { get => _alpha.UseConstantAlpha; set => _alpha.UseConstantAlpha = value; }
-        [Category("Blending")]
-        public float ConstantAlphaValue { get => _alpha.ConstantAlphaValue; set => _alpha.ConstantAlphaValue = value; }
-        [Category("Blending")]
-        public bool UseAlphaToCoverage { get => _alpha.UseAlphaToCoverage; set => _alpha.UseAlphaToCoverage = value; }
-        [Category("Blending")]
-        public float Ref0 { get => _alpha.Ref0; set => _alpha.Ref0 = value; }
-        [Category("Blending")]
-        public float Ref1 { get => _alpha.Ref1; set => _alpha.Ref1 = value; }
-        [Category("Blending")]
-        public EComparison Comp0 { get => _alpha.Comp0; set => _alpha.Comp0 = value; }
-        [Category("Blending")]
-        public EComparison Comp1 { get => _alpha.Comp1; set => _alpha.Comp1 = value; }
-        [Category("Blending")]
-        public LogicGate LogicGate { get => _alpha.LogicGate; set => _alpha.LogicGate = value; }
-
-        public bool WriteRed { get => _writeRed; set => _writeRed = value; }
-        public bool WriteGreen { get => _writeGreen; set => _writeGreen = value; }
-        public bool WriteBlue { get => _writeBlue; set => _writeBlue = value; }
-        public bool WriteAlpha { get => _writeAlpha; set => _writeAlpha = value; }
-
-        public Culling CullMode { get => _cullMode; set => _cullMode = value; }
-
-        [Category("Blending")]
-        [DisplayName("Enable")]
-        public bool EnableBlending { get => _blend.Enabled; set => _blend.Enabled = value; }
-        [Category("Blending")]
-        [DisplayName("RGB Equation")]
-        public EBlendEquationMode RgbEquation { get => _blend.RgbEquation; set => _blend.RgbEquation = value; }
-        [Category("Blending")]
-        [DisplayName("Alpha Equation")]
-        public EBlendEquationMode AlphaEquation { get => _blend.AlphaEquation; set => _blend.AlphaEquation = value; }
-        [Category("Blending")]
-        [DisplayName("RGB Source Factor")]
-        public EBlendingFactor RgbSrcFactor { get => _blend.RgbSrcFactor; set => _blend.RgbSrcFactor = value; }
-        [Category("Blending")]
-        [DisplayName("Alpha Source Factor")]
-        public EBlendingFactor AlphaSrcFactor { get => _blend.AlphaSrcFactor; set => _blend.AlphaSrcFactor = value; }
-
-        [Category("Depth Test")]
-        [DisplayName("Enable")]
-        public bool EnableDepthTest { get => _depth.EnableDepthTest; set => _depth.EnableDepthTest = value; }
-        [Category("Depth Test")]
-        [DisplayName("Enable Depth Write")]
-        public bool EnableDepthUpdate { get => _depth.EnableDepthUpdate; set => _depth.EnableDepthUpdate = value; }
-        [Category("Depth Test")]
-        [DisplayName("Depth Function")]
-        public EComparison DepthFunction { get => _depth.DepthFunction; set => _depth.DepthFunction = value; }
-
-        [Category("Stencil Test")]
-        [DisplayName("Enable")]
-        public bool EnableStencilFunc { get => _stencil.EnableStencilFunc; set => _stencil.EnableStencilFunc = value; }
-        [Category("Stencil Test")]
-        [DisplayName("Front Face Func")]
-        public EComparison FrontFaceStencilFunc { get => _stencil.FrontFaceFunc; set => _stencil.FrontFaceFunc = value; }
-        [Category("Stencil Test")]
-        [DisplayName("Front Face Ref")]
-        public int FrontFaceStencilRef { get => _stencil.FrontFaceRef; set => _stencil.FrontFaceRef = value; }
-        [Category("Stencil Test")]
-        [DisplayName("Front Face Mask")]
-        public int FrontFaceStencilMask { get => _stencil.FrontFaceMask; set => _stencil.FrontFaceMask = value; }
-        [Category("Stencil Test")]
-        [DisplayName("Back Face Func")]
-        public EComparison BackFaceStencilFunc { get => _stencil.BackFaceFunc; set => _stencil.BackFaceFunc = value; }
-        [Category("Stencil Test")]
-        [DisplayName("Back Face Ref")]
-        public int BackFaceStencilRef { get => _stencil.BackFaceRef; set => _stencil.BackFaceRef = value; }
-        [Category("Stencil Test")]
-        [DisplayName("Back Face Mask")]
-        public int BackFaceStencilMask { get => _stencil.BackFaceMask; set => _stencil.BackFaceMask = value; }
-
-        public MaterialRenderType RenderType { get => renderType; set => renderType = value; }
-        public AlphaTest AlphaTest { get => _alpha; set => _alpha = value; }
-        public DepthTest DepthTest { get => _depth; set => _depth = value; }
-        public StencilTest StencilTest { get => _stencil; set => _stencil = value; }
-        public Blend Blend { get => _blend; set => _blend = value; }
-    }
+    [FileClass("TMAT", "")]
+    [TypeConverter(typeof(ExpandableObjectConverter))]
     public class Material : FileObject
     {
-        internal RenderingParameters _renderParams = new RenderingParameters()
-        {
-            EnableDepthTest = true,
-            EnableDepthUpdate = true,
-            DepthFunction = EComparison.Lequal,
-            CullMode = Culling.Back,
-        };
-
-        [Category("Depth Test")]
-        [DisplayName("Enable")]
-        public bool EnableDepthTest { get => _renderParams.EnableDepthTest; set => _renderParams.EnableDepthTest = value; }
-        [Category("Depth Test")]
-        [DisplayName("Enable Depth Write")]
-        public bool EnableDepthUpdate { get => _renderParams.EnableDepthUpdate; set => _renderParams.EnableDepthUpdate = value; }
-        [Category("Depth Test")]
-        [DisplayName("Depth Function")]
-        public EComparison DepthFunction { get => _renderParams.DepthFunction; set => _renderParams.DepthFunction = value; }
-
-        [Category("Stencil Test")]
-        [DisplayName("Enable")]
-        public bool EnableStencilFunc { get => _renderParams.EnableStencilFunc; set => _renderParams.EnableStencilFunc = value; }
-        [Category("Stencil Test")]
-        [DisplayName("Front Face Func")]
-        public EComparison FrontFaceStencilFunc { get => _renderParams.FrontFaceStencilFunc; set => _renderParams.FrontFaceStencilFunc = value; }
-        [Category("Stencil Test")]
-        [DisplayName("Front Face Ref")]
-        public int FrontFaceStencilRef { get => _renderParams.FrontFaceStencilRef; set => _renderParams.FrontFaceStencilRef = value; }
-        [Category("Stencil Test")]
-        [DisplayName("Front Face Mask")]
-        public int FrontFaceStencilMask { get => _renderParams.FrontFaceStencilMask; set => _renderParams.FrontFaceStencilMask = value; }
-        [Category("Stencil Test")]
-        [DisplayName("Back Face Func")]
-        public EComparison BackFaceStencilFunc { get => _renderParams.BackFaceStencilFunc; set => _renderParams.BackFaceStencilFunc = value; }
-        [Category("Stencil Test")]
-        [DisplayName("Back Face Ref")]
-        public int BackFaceStencilRef { get => _renderParams.BackFaceStencilRef; set => _renderParams.BackFaceStencilRef = value; }
-        [Category("Stencil Test")]
-        [DisplayName("Back Face Mask")]
-        public int BackFaceStencilMask { get => _renderParams.BackFaceStencilMask; set => _renderParams.BackFaceStencilMask = value; }
-
-        [Category("Misc")]
-        [DisplayName("Cull Mode")]
-        public Culling CullMode { get => _renderParams.CullMode; set => _renderParams.CullMode = value; }
-
-        public ShaderVar[] Parameters => _parameters;
-        public TextureReference[] TexRefs
-        {
-            get => _textures;
-            set
-            {
-                _textures = value;
-                CollectFBOAttachments();
-            }
-        }
-        
-        internal void CollectFBOAttachments()
-        {
-            if (_frameBuffer != null && _textures != null && _textures.Length > 0)
-            {
-                List<EDrawBuffersAttachment> fboAttachments = new List<EDrawBuffersAttachment>();
-                foreach (TextureReference tref in _textures)
-                {
-                    if (!tref.FrameBufferAttachment.HasValue)
-                        continue;
-                    switch (tref.FrameBufferAttachment.Value)
-                    {
-                        case EFramebufferAttachment.Color:
-                        case EFramebufferAttachment.Depth:
-                        case EFramebufferAttachment.DepthAttachment:
-                        case EFramebufferAttachment.DepthStencilAttachment:
-                        case EFramebufferAttachment.Stencil:
-                        case EFramebufferAttachment.StencilAttachment:
-                            continue;
-                    }
-                    fboAttachments.Add((EDrawBuffersAttachment)(int)tref.FrameBufferAttachment.Value);
-                }
-                _fboAttachments = fboAttachments.ToArray();
-            }
-            else
-                _fboAttachments = null;
-        }
-
         public event Action SettingUniforms;
 
         private List<Shader> _geometryShaders;
@@ -310,10 +31,45 @@ namespace TheraEngine.Rendering.Models.Materials
         private List<PrimitiveManager> _references = new List<PrimitiveManager>();
         private int _uniqueID = -1;
 
+        private RenderingParameters _renderParams = new RenderingParameters();
+
+        public RenderingParameters RenderParams
+        {
+            get => _renderParams;
+            set
+            {
+                if (value != null)
+                    _renderParams = value;
+            }
+        }
+        /// <summary>
+        /// Retrieves the material's uniform parameter at the given index.
+        /// Use this to set uniform values to be passed to the fragment shader.
+        /// </summary>
+        public T2 Parameter<T2>(int index) where T2 : ShaderVar
+        {
+            if (index >= 0 && index < Parameters.Length)
+                return Parameters[index] as T2;
+            throw new IndexOutOfRangeException();
+        }
+        /// <summary>
+        /// Retrieves the material's uniform parameter with the given name.
+        /// Use this to set uniform values to be passed to the fragment shader.
+        /// </summary>
+        public T2 Parameter<T2>(string name) where T2 : ShaderVar
+            => Parameters.FirstOrDefault(x => x.Name == name) as T2;
+        
+        public ShaderVar[] Parameters => _parameters;
+        public TextureReference[] TexRefs
+        {
+            get => _textures;
+            set
+            {
+                _textures = value;
+                CollectFBOAttachments();
+            }
+        }
         public int UniqueID => _uniqueID;
-
-        public bool HasTransparency => _renderParams.Blend.Enabled || _renderParams.AlphaTest.Enabled;
-
         public RenderProgram Program
         {
             get
@@ -351,6 +107,32 @@ namespace TheraEngine.Rendering.Models.Materials
 
         public EDrawBuffersAttachment[] FboAttachments => _fboAttachments;
 
+        internal void CollectFBOAttachments()
+        {
+            if (_frameBuffer != null && _textures != null && _textures.Length > 0)
+            {
+                List<EDrawBuffersAttachment> fboAttachments = new List<EDrawBuffersAttachment>();
+                foreach (TextureReference tref in _textures)
+                {
+                    if (!tref.FrameBufferAttachment.HasValue)
+                        continue;
+                    switch (tref.FrameBufferAttachment.Value)
+                    {
+                        case EFramebufferAttachment.Color:
+                        case EFramebufferAttachment.Depth:
+                        case EFramebufferAttachment.DepthAttachment:
+                        case EFramebufferAttachment.DepthStencilAttachment:
+                        case EFramebufferAttachment.Stencil:
+                        case EFramebufferAttachment.StencilAttachment:
+                            continue;
+                    }
+                    fboAttachments.Add((EDrawBuffersAttachment)(int)tref.FrameBufferAttachment.Value);
+                }
+                _fboAttachments = fboAttachments.ToArray();
+            }
+            else
+                _fboAttachments = null;
+        }
         public void GenerateTextures()
         {
             if (_textures != null)
@@ -391,7 +173,7 @@ namespace TheraEngine.Rendering.Models.Materials
             foreach (ShaderVar v in _parameters)
                 v.SetProgramUniform(programBindingId);
 
-            Engine.Renderer.ApplyRenderParams(_renderParams);
+            Engine.Renderer.ApplyRenderParams(RenderParams);
             SetTextureUniforms(programBindingId);
 
             SettingUniforms?.Invoke();
@@ -462,74 +244,69 @@ namespace TheraEngine.Rendering.Models.Materials
                 }
 
             if (Engine.Settings.AllowShaderPipelines)
-                _program = new RenderProgram(null, _shaders);
+                _program = new RenderProgram(_shaders);
         }
-        public static Material GetUnlitTextureMaterial(TextureReference texture) => GetUnlitTextureMaterial(texture, Engine.Settings.ShadingStyle == ShadingStyle.Deferred);
-        public static Material GetUnlitTextureMaterial(TextureReference texture, bool deferred)
+
+        public static Material GetUnlitTextureMaterialForward(TextureReference texture)
         {
-            TextureReference[] refs = new TextureReference[] { texture };
-            ShaderVar[] parameters = new ShaderVar[0];
-            Shader frag = deferred ? ShaderHelpers.UnlitTextureFragDeferred() : ShaderHelpers.UnlitTextureFragForward();
-            return new Material("UnlitTextureMaterial", parameters, refs, frag)
+            return new Material("UnlitTextureMaterial",
+                new TextureReference[] { texture },
+                ShaderHelpers.UnlitTextureFragForward())
             {
-                Requirements = deferred ? UniformRequirements.None : UniformRequirements.NeedsLightsAndCamera
+                Requirements = UniformRequirements.None,
             };
         }
-        public static Material GetUnlitTextureMaterial() => GetUnlitTextureMaterial(Engine.Settings.ShadingStyle == ShadingStyle.Deferred);
-        public static Material GetUnlitTextureMaterial(bool deferred)
+        public static Material GetUnlitTextureMaterialForward()
         {
-            Shader frag = deferred ? ShaderHelpers.UnlitTextureFragDeferred() : ShaderHelpers.UnlitTextureFragForward();
-            return new Material("UnlitTextureMaterial", frag)
+            return new Material("UnlitTextureMaterial", ShaderHelpers.UnlitTextureFragForward())
             {
-                Requirements = deferred ? UniformRequirements.None : UniformRequirements.NeedsLightsAndCamera
+                Requirements = UniformRequirements.None,
             };
         }
         public static Material GetLitTextureMaterial() => GetLitTextureMaterial(Engine.Settings.ShadingStyle == ShadingStyle.Deferred);
         public static Material GetLitTextureMaterial(bool deferred)
         {
-            Shader frag = deferred ? ShaderHelpers.LitTextureFragDeferred() : ShaderHelpers.LitTextureFragForward();
+            Shader frag = deferred ? ShaderHelpers.TextureFragDeferred() : ShaderHelpers.LitTextureFragForward();
             return new Material("LitTextureMaterial", frag)
             {
                 Requirements = deferred ? UniformRequirements.None : UniformRequirements.NeedsLightsAndCamera
             };
         }
-
-        public static Material GetUnlitColorMaterial()
-            => GetUnlitColorMaterial(Engine.Settings.ShadingStyle == ShadingStyle.Deferred);
-        public static Material GetUnlitColorMaterial(bool deferred)
-            => GetUnlitColorMaterial(Color.DarkTurquoise, deferred);
-        public static Material GetUnlitColorMaterial(ColorF4 color)
-            => GetUnlitColorMaterial(color, Engine.Settings.ShadingStyle == ShadingStyle.Deferred);
-        public static Material GetUnlitColorMaterial(ColorF4 color, bool deferred)
+        public static Material GetLitTextureMaterial(TextureReference texture) => GetLitTextureMaterial(texture, Engine.Settings.ShadingStyle == ShadingStyle.Deferred);
+        public static Material GetLitTextureMaterial(TextureReference texture, bool deferred)
         {
-            TextureReference[] refs = new TextureReference[0];
-            ShaderVar[] parameters = new ShaderVar[]
-            {
-                new ShaderVec4(color, "MatColor"),
-            };
-            Shader frag = deferred ? ShaderHelpers.UnlitColorFragDeferred() : ShaderHelpers.UnlitColorFragForward();
-            return new Material("UnlitColorMaterial", parameters, refs, frag)
+            Shader frag = deferred ? ShaderHelpers.TextureFragDeferred() : ShaderHelpers.LitTextureFragForward();
+            return new Material("LitTextureMaterial", new TextureReference[] { texture }, frag)
             {
                 Requirements = deferred ? UniformRequirements.None : UniformRequirements.NeedsLightsAndCamera
             };
         }
-        public static Material GetLitColorMaterial()
-            => GetLitColorMaterial(Engine.Settings.ShadingStyle == ShadingStyle.Deferred);
-        public static Material GetLitColorMaterial(bool deferred)
-            => GetLitColorMaterial(Color.DarkTurquoise, Engine.Settings.ShadingStyle == ShadingStyle.Deferred);
-        public static Material GetLitColorMaterial(ColorF4 color)
-            => GetLitColorMaterial(color, Engine.Settings.ShadingStyle == ShadingStyle.Deferred);
+        public static Material GetUnlitColorMaterialForward()
+            => GetUnlitColorMaterialForward(Color.DarkTurquoise);
+        public static Material GetUnlitColorMaterialForward(ColorF4 color)
+        {
+            ShaderVar[] parameters = new ShaderVar[]
+            {
+                new ShaderVec4(color, "MatColor"),
+            };
+            return new Material("UnlitColorMaterial", parameters, ShaderHelpers.UnlitColorFragForward())
+            {
+                Requirements = UniformRequirements.None
+            };
+        }
+        public static Material GetLitColorMaterial() => GetLitColorMaterial(Engine.Settings.ShadingStyle == ShadingStyle.Deferred);
+        public static Material GetLitColorMaterial(bool deferred) => GetLitColorMaterial(Color.DarkTurquoise, deferred);
+        public static Material GetLitColorMaterial(ColorF4 color) => GetLitColorMaterial(color, Engine.Settings.ShadingStyle == ShadingStyle.Deferred);
         public static Material GetLitColorMaterial(ColorF4 color, bool deferred)
         {
-            TextureReference[] refs = new TextureReference[0];
             ShaderVar[] parameters = new ShaderVar[]
             {
                 new ShaderVec4(color, "MatColor"),
                 new ShaderFloat(20.0f, "MatSpecularIntensity"),
                 new ShaderFloat(128.0f, "MatShininess"),
             };
-            Shader frag = deferred ? ShaderHelpers.LitColorFragDeferred() : ShaderHelpers.LitColorFragForward();
-            return new Material("TestMaterial", parameters, refs, frag)
+            return new Material("TestMaterial", parameters, 
+                deferred ? ShaderHelpers.LitColorFragDeferred() : ShaderHelpers.LitColorFragForward())
             {
                 Requirements = deferred ? UniformRequirements.None : UniformRequirements.NeedsLightsAndCamera
             };

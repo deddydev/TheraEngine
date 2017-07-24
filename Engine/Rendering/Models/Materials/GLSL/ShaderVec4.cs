@@ -4,10 +4,11 @@ namespace TheraEngine.Rendering.Models.Materials
 {
     public class ShaderBVec4 : ShaderVar
     {
-        public override ShaderVarType TypeName { get { return ShaderVarType._bvec4; } }
-        public BoolVec4 Value { get { return _value; } set { _value = value; } }
-        internal override void SetProgramUniform(int programBindingId, int location) => Engine.Renderer.ProgramUniform(programBindingId, location, _value);
-        internal override string GetValueString() { return _value.ToString(); }
+        public override ShaderVarType TypeName => ShaderVarType._bvec4;
+        public BoolVec4 Value { get => _value; set =>_value = value; }
+        internal override void SetProgramUniform(int programBindingId, int location)
+            => Engine.Renderer.ProgramUniform(programBindingId, location, _value);
+        internal override string GetValueString() => _value.ToString();
 
         private BoolVec4 _value;
 
@@ -23,10 +24,11 @@ namespace TheraEngine.Rendering.Models.Materials
     }
     public class ShaderVec4 : ShaderVar
     {
-        public override ShaderVarType TypeName { get { return ShaderVarType._vec4; } }
-        public Vec4 Value { get { return _value; } set { _value = value; } }
-        internal override void SetProgramUniform(int programBindingId, int location) => Engine.Renderer.ProgramUniform(programBindingId, location, _value);
-        internal override string GetValueString() { return _value.ToString(); }
+        public override ShaderVarType TypeName => ShaderVarType._vec4;
+        public Vec4 Value { get => _value; set => _value = value; }
+        internal override void SetProgramUniform(int programBindingId, int location) 
+            => Engine.Renderer.ProgramUniform(programBindingId, location, _value);
+        internal override string GetValueString() => _value.ToString();
 
         private Vec4 _value;
 
@@ -44,10 +46,11 @@ namespace TheraEngine.Rendering.Models.Materials
     }
     public class ShaderDVec4 : ShaderVar
     {
-        public override ShaderVarType TypeName { get { return ShaderVarType._dvec4; } }
-        public DVec4 Value { get { return _value; } set { _value = value; } }
-        internal override void SetProgramUniform(int programBindingId, int location) => Engine.Renderer.ProgramUniform(programBindingId, location, _value);
-        internal override string GetValueString() { return _value.ToString(); }
+        public override ShaderVarType TypeName => ShaderVarType._dvec4;
+        public DVec4 Value { get => _value; set => _value = value; }
+        internal override void SetProgramUniform(int programBindingId, int location)
+            => Engine.Renderer.ProgramUniform(programBindingId, location, _value);
+        internal override string GetValueString() => _value.ToString();
 
         private DVec4 _value;
 
@@ -63,10 +66,11 @@ namespace TheraEngine.Rendering.Models.Materials
     }
     public class ShaderIVec4 : ShaderVar
     {
-        public override ShaderVarType TypeName { get { return ShaderVarType._ivec4; } }
-        public IVec4 Value { get { return _value; } set { _value = value; } }
-        internal override void SetProgramUniform(int programBindingId, int location) => Engine.Renderer.ProgramUniform(programBindingId, location, _value);
-        internal override string GetValueString() { return _value.ToString(); }
+        public override ShaderVarType TypeName => ShaderVarType._ivec4;
+        public IVec4 Value { get => _value; set => _value = value; }
+        internal override void SetProgramUniform(int programBindingId, int location) 
+            => Engine.Renderer.ProgramUniform(programBindingId, location, _value);
+        internal override string GetValueString() => _value.ToString();
 
         private IVec4 _value;
 
@@ -82,10 +86,11 @@ namespace TheraEngine.Rendering.Models.Materials
     }
     public class ShaderUVec4 : ShaderVar
     {
-        public override ShaderVarType TypeName { get { return ShaderVarType._uvec4; } }
-        public UVec4 Value { get { return _value; } set { _value = value; } }
-        internal override void SetProgramUniform(int programBindingId, int location) => Engine.Renderer.ProgramUniform(programBindingId, location, _value);
-        internal override string GetValueString() { return _value.ToString(); }
+        public override ShaderVarType TypeName => ShaderVarType._uvec4;
+        public UVec4 Value { get => _value; set => _value = value; }
+        internal override void SetProgramUniform(int programBindingId, int location) 
+            => Engine.Renderer.ProgramUniform(programBindingId, location, _value);
+        internal override string GetValueString() => _value.ToString();
 
         private UVec4 _value;
 

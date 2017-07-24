@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Drawing;
 using System.ComponentModel;
+using TheraEngine.Maths;
 
 namespace System
 {
@@ -13,10 +14,8 @@ namespace System
     [TypeConverter(typeof(ExpandableObjectConverter))]
     public class Sphere : Shape
     {
-        [DefaultValue(1.0f)]
         [Serialize("Radius")]
         private float _radius = 1.0f;
-        [DefaultValue("0 0 0")]
         [Serialize("Center")]
         private Vec3 _center = Vec3.Zero;
 
@@ -31,15 +30,27 @@ namespace System
             set => _center = value;
         }
 
+        public Sphere() : this(0.0f, Vec3.Zero) { }
+        public Sphere(Vec3 center)
+            : this(0.0f, center) { }
         public Sphere(float radius)
             : this(radius, Vec3.Zero) { }
         public Sphere(float radius, Vec3 center) 
-            : this()
         {
             _radius = Abs(radius);
             _center = center;
         }
-        public Sphere() : base() { }
+        public Sphere(Vec3 point1, Vec3 point2)
+        {
+            _center = (point1 + point2) / 2.0f;
+            _radius = _center.DistanceToFast(point2);
+        }
+        public Sphere(params Vec3[] points)
+        {
+            Miniball ball = new Miniball(PointSetArray.FromVectors(points));
+            _center = new Vec3(ball.Center[0], ball.Center[1], ball.Center[2]);
+            _radius = ball.Radius;
+        }
 
         public override CollisionShape GetCollisionShape()
             => new SphereShape(Radius);

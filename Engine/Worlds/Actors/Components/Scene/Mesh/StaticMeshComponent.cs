@@ -156,7 +156,7 @@ namespace TheraEngine.Worlds.Actors
         public override void OnSpawned()
         {
             foreach (RenderableMesh m in _meshes)
-                m.Visible = m.Mesh.Visible;
+                m.Visible = m.Mesh.VisibleByDefault;
             base.OnSpawned();
         }
         public override void OnDespawned()

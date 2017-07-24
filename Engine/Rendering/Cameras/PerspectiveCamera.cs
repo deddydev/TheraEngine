@@ -133,7 +133,7 @@ namespace TheraEngine.Rendering.Cameras
         }
         public override float DistanceScale(Vec3 point, float radius)
         {
-            return WorldPoint.DistanceToFast(point) * radius / (_fovY / 45.0f) * 0.1f;
+            return WorldPoint.DistanceToFast(point) * radius / (_fovX / 90.0f) * 0.1f;
         }
         public float FrustumHeightAtDistance(float distance)
         {

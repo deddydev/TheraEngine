@@ -8,7 +8,7 @@ namespace TheraEngine.Rendering.HUD
 {
     public class TextHudComponent : MaterialHudComponent
     {
-        public TextHudComponent() : base(Material.GetUnlitTextureMaterial(new TextureReference(), false))
+        public TextHudComponent() : base(Material.GetUnlitTextureMaterialForward(new TextureReference()))
         {
             _textDrawer = new TextDrawer();
             _textDrawer.NeedsRedraw += Redraw;

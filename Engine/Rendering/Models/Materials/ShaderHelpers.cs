@@ -101,31 +101,7 @@ void main()
 ";
             return new Shader(ShaderMode.Fragment, source);
         }
-        public static Shader LitTextureFragDeferred()
-        {
-            string source = @"
-#version 450
-
-layout (location = 0) out vec4 AlbedoSpec;
-layout (location = 1) out vec3 Normal;
-
-uniform float MatSpecularIntensity;
-uniform sampler2D Texture0;
-
-in vec3 FragPos;
-in vec3 FragNorm;
-in vec2 FragUV0;
-
-void main()
-{
-    Normal = normalize(FragNorm);
-    AlbedoSpec.rgb = texture(Texture0, FragUV0).rgb;
-    AlbedoSpec.a = MatSpecularIntensity;
-}
-";
-            return new Shader(ShaderMode.Fragment, source);
-        }
-        public static Shader UnlitTextureFragDeferred()
+        public static Shader TextureFragDeferred()
         {
             string source = @"
 #version 450
@@ -170,27 +146,6 @@ void main()
 ";
             return new Shader(ShaderMode.Fragment, source);
         }
-        public static Shader UnlitColorFragDeferred()
-        {
-            string source = @"
-#version 450
-
-layout (location = 0) out vec4 AlbedoSpec;
-layout (location = 1) out vec3 Normal;
-
-uniform float MatSpecularIntensity;
-uniform vec4 MatColor;
-
-in vec3 FragPos;
-
-void main()
-{
-    AlbedoSpec = vec4(MatColor.rgb, MatSpecularIntensity);
-    Normal = vec3(0.0);
-}
-";
-            return new Shader(ShaderMode.Fragment, source);
-        }
         /// <summary>
         /// Provides a fragment shader that outputs a single color
         /// with no shading for a forward shading setup.
@@ -216,7 +171,6 @@ layout (location = 1) out vec3 Normal;
 uniform vec4 MatColor;
 uniform float MatSpecularIntensity;
 
-in vec3 FragPos;
 in vec3 FragNorm;
 
 void main()

@@ -5,7 +5,7 @@ using TheraEngine.Rendering;
 
 namespace TheraEngine.Worlds.Actors
 {
-    public class PointLightComponent : LightComponent, I3DRenderable
+    public class PointLightComponent : LightComponent
     {
         [Category("Point Light Component")]
         public float Radius
@@ -14,12 +14,7 @@ namespace TheraEngine.Worlds.Actors
             set => _cullingVolume.Radius = value;
         }
 
-        protected Sphere _cullingVolume;
-
-        public bool HasTransparency => false;
-        public Shape CullingVolume => _cullingVolume;
-        public IOctreeNode OctreeNode { get; set; }
-        public bool IsRendering { get; set; }
+        internal protected Sphere _cullingVolume;
         
         public PointLightComponent(float radius, ColorF3 color, float diffuseIntensity, float ambientIntensity) 
             : base(color, diffuseIntensity, ambientIntensity)
@@ -37,15 +32,11 @@ namespace TheraEngine.Worlds.Actors
         {
             if (_type == LightType.Dynamic)
                 Engine.Scene.Lights.Add(this);
-            if (Engine.Settings.RenderLights)
-                Engine.Scene.Add(_cullingVolume);
         }
         public override void OnDespawned()
         {
             if (_type == LightType.Dynamic)
                 Engine.Scene.Lights.Remove(this);
-            if (Engine.Settings.RenderLights)
-                Engine.Scene.Remove(_cullingVolume);
         }
 
         public override void SetUniforms(int programBindingId)

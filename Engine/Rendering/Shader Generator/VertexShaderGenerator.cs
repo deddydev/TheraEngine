@@ -7,6 +7,13 @@ namespace TheraEngine.Rendering
 {
     public static class VertexShaderGenerator
     {
+        public const string FragPosName = "FragPos_geom";
+        public const string FragNormName = "FragNorm_geom";
+        public const string FragBinormName = "FragBinorm_geom";
+        public const string FragTanName = "FragTan_geom";
+        public const string FragColorName = "FragColor{0}_geom";
+        public const string FragUVName = "FragUV{0}_geom";
+
         private static ShaderGenerator _generator = new ShaderGenerator();
         private static VertexShaderDesc _info;
 
@@ -66,8 +73,10 @@ namespace TheraEngine.Rendering
             else
                 WriteStaticPNTB(allowMeshMorphing);
 
+            for (int i = 0; i < _info._colorCount; ++i)
+                WriteLine("{0} = {2}{1};", string.Format(FragColorName, i), i, BufferType.Color.ToString());
             for (int i = 0; i < _info._texcoordCount; ++i)
-                WriteLine("FragUV{0} = TexCoord{0};", i);
+                WriteLine("{0} = {2}{1};", string.Format(FragUVName, i), i, BufferType.TexCoord.ToString());
 
             string source = _generator.Finish();
             //Debug.WriteLine(source);
@@ -142,70 +151,6 @@ namespace TheraEngine.Rendering
                 WriteInVar(location + i, ShaderVarType._vec2, VertexAttribInfo.GetAttribName(BufferType.TexCoord, i));
             //location += VertexAttribInfo.GetMaxBuffersForType(type);
             #endregion
-
-            //#region Positions
-            //BufferType type = BufferType.Position;
-            //for (int i = 0; i < meshCount; ++i)
-            //    WriteInVar(ShaderVarType._vec3, VertexAttribInfo.GetAttribName(type, i));
-            //location += VertexAttribInfo.GetMaxBuffersForType(type);
-            //#endregion
-
-            //#region Normals
-            //type = BufferType.Normal;
-            //if (_info.HasNormals)
-            //    for (int i = 0; i < meshCount; ++i)
-            //        WriteInVar(ShaderVarType._vec3, VertexAttribInfo.GetAttribName(type, i));
-            //location += VertexAttribInfo.GetMaxBuffersForType(type);
-            //#endregion
-
-            //#region Binormals
-            //type = BufferType.Binormal;
-            //if (_info.HasBinormals)
-            //    for (int i = 0; i < meshCount; ++i)
-            //        WriteInVar(ShaderVarType._vec3, VertexAttribInfo.GetAttribName(type, i));
-            //location += VertexAttribInfo.GetMaxBuffersForType(type);
-            //#endregion
-
-            //#region Tangents
-            //type = BufferType.Tangent;
-            //if (_info.HasTangents)
-            //    for (int i = 0; i < meshCount; ++i)
-            //        WriteInVar(ShaderVarType._vec3, VertexAttribInfo.GetAttribName(type, i));
-            //location += VertexAttribInfo.GetMaxBuffersForType(type);
-            //#endregion
-
-            //#region MatrixIds
-            //type = BufferType.MatrixIds;
-            //if (weighted)
-            //{
-            //    ShaderVarType varType = Engine.Settings.UseIntegerWeightingIds ? ShaderVarType._ivec4 : ShaderVarType._vec4;
-            //    for (int i = 0; i < meshCount; ++i)
-            //        WriteInVar(varType, VertexAttribInfo.GetAttribName(type, i));
-            //}
-            //location += VertexAttribInfo.GetMaxBuffersForType(type);
-            //#endregion
-
-            //#region MatrixWeights
-            //type = BufferType.MatrixWeights;
-            //if (weighted)
-            //    for (int i = 0; i < meshCount; ++i)
-            //        WriteInVar(ShaderVarType._vec4, VertexAttribInfo.GetAttribName(BufferType.MatrixWeights, i));
-            //location += VertexAttribInfo.GetMaxBuffersForType(type);
-            //#endregion
-
-            //#region Colors
-            //type = BufferType.Color;
-            //for (int i = 0; i < _info._colorCount; ++i)
-            //    WriteInVar(ShaderVarType._vec4, VertexAttribInfo.GetAttribName(BufferType.Color, i));
-            //location += VertexAttribInfo.GetMaxBuffersForType(type);
-            //#endregion
-
-            //#region TexCoords
-            //type = BufferType.TexCoord;
-            //for (int i = 0; i < _info._texcoordCount; ++i)
-            //    WriteInVar(ShaderVarType._vec2, VertexAttribInfo.GetAttribName(BufferType.TexCoord, i));
-            //location += VertexAttribInfo.GetMaxBuffersForType(type);
-            //#endregion
         }
         private static void WriteMatrixUniforms(bool morphed)
         {
@@ -229,17 +174,17 @@ namespace TheraEngine.Rendering
         /// </summary>
         private static void WriteOutData()
         {
-            WriteLine("out vec3 FragPos;");
+            WriteLine("out vec3 {0};", FragPosName);
             if (_info.HasNormals)
-                WriteLine("out vec3 FragNorm;");
+                WriteLine("out vec3 {0};", FragNormName);
             if (_info.HasTangents)
-                WriteLine("out vec3 FragTan;");
+                WriteLine("out vec3 {0};", FragTanName);
             if (_info.HasBinormals)
-                WriteLine("out vec3 FragBinorm;");
+                WriteLine("out vec3 {0};", FragBinormName);
             for (int i = 0; i < _info._colorCount; ++i)
-                WriteLine("out vec4 FragColor{0};", i);
+                WriteLine("out vec4 {0};", string.Format(FragColorName, i));
             for (int i = 0; i < _info._texcoordCount; ++i)
-                WriteLine("out vec2 FragUV{0};", i);
+                WriteLine("out vec2 {0};", string.Format(FragUVName, i));
         }
         private static void WriteRiggedPNTB(bool morphed, bool singleRig)
         {
@@ -292,11 +237,11 @@ namespace TheraEngine.Rendering
                 WriteLine();
                 WriteLine("finalPosition = ModelMatrix * vec4(finalPosition.xyz, 1.0);");
                 if (_info.HasNormals)
-                    WriteLine("FragNorm = normalize(NormalMatrix * finalNormal.xyz);");
+                    WriteLine("{0} = normalize(NormalMatrix * finalNormal.xyz);", FragNormName);
                 if (_info.HasBinormals)
-                    WriteLine("FragBinorm = normalize(NormalMatrix * finalBinormal.xyz);");
+                    WriteLine("{0} = normalize(NormalMatrix * finalBinormal.xyz);", FragBinormName);
                 if (_info.HasTangents)
-                    WriteLine("FragTan = normalize(NormalMatrix * finalTangent.xyz);");
+                    WriteLine("{0} = normalize(NormalMatrix * finalTangent.xyz);", FragTanName);
             }
             else
             {
@@ -332,13 +277,13 @@ namespace TheraEngine.Rendering
                 WriteLine("}");
                 WriteLine("finalPosition = ModelMatrix * (finalPosition / vec4(total, total, total, 1.0));");
                 if (_info.HasNormals)
-                    WriteLine("FragNorm = normalize(NormalMatrix * (finalNormal / total));");
+                    WriteLine("{0} = normalize(NormalMatrix * (finalNormal / total));", FragNormName);
                 if (_info.HasBinormals)
-                    WriteLine("FragBinorm = normalize(NormalMatrix * (finalBinormal / total));");
+                    WriteLine("{0} = normalize(NormalMatrix * (finalBinormal / total));", FragBinormName);
                 if (_info.HasTangents)
-                    WriteLine("FragTan = normalize(NormalMatrix * (finalTangent / total));");
+                    WriteLine("{0} = normalize(NormalMatrix * (finalTangent / total));", FragTanName);
             }
-            WriteLine("FragPos = finalPosition.xyz;");
+            WriteLine("{0} = finalPosition.xyz;", FragPosName);
             WriteLine("gl_Position = ProjMatrix * WorldToCameraSpaceMatrix * finalPosition;");
         }
         private static void WriteStaticPNTB(bool morphed)
@@ -388,14 +333,14 @@ namespace TheraEngine.Rendering
                 WriteLine();
             }
             WriteLine("position = ModelMatrix * position;");
-            WriteLine("FragPos = position.xyz;");
+            WriteLine("{0} = position.xyz;", FragPosName);
             WriteLine("gl_Position = ProjMatrix * WorldToCameraSpaceMatrix * position;");
             if (_info.HasNormals)
-                WriteLine("FragNorm = normalize(NormalMatrix * normal);");
+                WriteLine("{0} = normalize(NormalMatrix * normal);", FragNormName);
             if (_info.HasBinormals)
-                WriteLine("FragBinorm = normalize(NormalMatrix * binormal);");
+                WriteLine("{0} = normalize(NormalMatrix * binormal);", FragBinormName);
             if (_info.HasTangents)
-                WriteLine("FragTan = normalize(NormalMatrix * tangent);");
+                WriteLine("{0} = normalize(NormalMatrix * tangent);", FragTanName);
         }
     }
 }

@@ -8,17 +8,13 @@ namespace TheraEngine.Rendering.HUD
 {
     public class SkeletalMeshHudComponent : MaterialHudComponent
     {
+        public SkeletalMeshHudComponent() : base(Material.GetUnlitTextureMaterialForward()) { }
         public SkeletalMeshHudComponent(SkeletalMesh m, Skeleton skeleton)
-            : base(Material.GetUnlitTextureMaterial())
+            : base(Material.GetUnlitTextureMaterialForward())
         {
             Skeleton = skeleton;
             Model = m;
             _camera = new PerspectiveCamera();
-        }
-        public SkeletalMeshHudComponent()
-            : base(Material.GetUnlitTextureMaterial())
-        {
-
         }
 
         private Camera _camera;
@@ -74,7 +70,7 @@ namespace TheraEngine.Rendering.HUD
         {
             if (_meshes != null)
                 foreach (RenderableMesh m in _meshes)
-                    m.Visible = m.Mesh.Visible;
+                    m.Visible = m.Mesh.VisibleByDefault;
 
             if (Engine.Settings.RenderSkeletons && _skeleton != null)
                 Engine.Scene.Add(_skeleton);

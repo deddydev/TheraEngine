@@ -1,49 +1,47 @@
 ﻿using TheraEngine.Rendering.Models.Materials;
 using TheraEngine.Files;
 using System.ComponentModel;
+using System;
 
 namespace TheraEngine.Rendering.Models
 {
+    [FileClass("OBJ", "Skeletal Rigid Sub Mesh")]
     public class SkeletalRigidSubMesh : FileObject, ISkeletalSubMesh
     {
+        public RenderInfo3D RenderInfo { get; set; } = new RenderInfo3D(RenderPassType3D.OpaqueDeferredLit, null);
+
         public SkeletalRigidSubMesh()
         {
+            _name = "RigidSubMesh";
             _material = null;
             _data = null;
-            _name = "Unnamed Mesh";
-            _visible = true;
         }
-        public SkeletalRigidSubMesh(PrimitiveData data, Material material, string name, bool visible = true)
+        public SkeletalRigidSubMesh(string name, PrimitiveData data, Material material, bool visibleByDefault = true)
         {
             _data = data;
             _material = material;
             _name = name;
-            _visible = visible;
+            _visibleByDefault = visibleByDefault;
         }
-
-        protected SkeletalMesh _parent;
-
+        
         [Serialize("Primitives")]
         protected SingleFileRef<PrimitiveData> _data;
-        protected Material _material;
-        [Serialize("Visible", IsXmlAttribute = true)]
-        protected bool _visible;
+        protected SingleFileRef<Material> _material;
+     
+        protected bool _visibleByDefault;
 
-        public bool Visible
+        [Serialize(IsXmlAttribute = true)]
+        public bool VisibleByDefault
         {
-            get => _visible;
-            set => _visible = value;
+            get => _visibleByDefault;
+            set => _visibleByDefault = value;
         }
+        [Serialize]
         public Material Material
         {
             get => _material;
             set => _material = value;
         }
         public SingleFileRef<PrimitiveData> Data => _data;
-        public SkeletalMesh Model
-        {
-            get => _parent;
-            internal set => _parent = value;
-        }
     }
 }

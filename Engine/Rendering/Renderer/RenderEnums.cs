@@ -113,6 +113,15 @@ namespace TheraEngine.Rendering
         FuncSubtract = 32778,
         FuncReverseSubtract = 32779
     }
+    public enum ELogicGate
+    {
+        And,
+        Nand,
+        Or,
+        Nor,
+        Xor,
+        Xnor,
+    }
     public enum EComparison
     {
         Never,

@@ -206,24 +206,25 @@ namespace TheraEditor
         }
         public class HighlightPoint : I3DRenderable
         {
-            public const int CirclePrecision = 30;
+            private RenderInfo3D _renderInfo = new RenderInfo3D(RenderPassType3D.OnTopForward, null, false, false);
+            public RenderInfo3D RenderInfo => _renderInfo;
+            public Shape CullingVolume => null;
+            public IOctreeNode OctreeNode { get; set; }
+
+            public const int CirclePrecision = 10;
             public static readonly Color Color = Color.LimeGreen;
 
-            private PrimitiveManager _circlePrimitive = new PrimitiveManager(Circle3D.WireframeMesh(1.0f, Vec3.Forward, Vec3.Zero, CirclePrecision), Material.GetUnlitColorMaterial(Color, false));
-            private PrimitiveManager _normalPrimitive = new PrimitiveManager(Segment.Mesh(Vec3.Zero, Vec3.Forward), Material.GetUnlitColorMaterial(Color, false));
+            private PrimitiveManager _circlePrimitive = new PrimitiveManager(
+                Circle3D.WireframeMesh(1.0f, Vec3.Forward, Vec3.Zero, CirclePrecision), 
+                Material.GetUnlitColorMaterialForward(Color));
 
-            private Matrix4 _transform = Matrix4.Identity;
-            private SceneComponent _highlightedComponent;
-            private bool _isRendering;
-            private IOctreeNode _octreeNode;
-
-            public bool HasTransparency => false;
-            public Shape CullingVolume => null;
-            public IOctreeNode OctreeNode { get => _octreeNode; set => _octreeNode = value; }
-            public bool IsRendering { get => _isRendering; set => _isRendering = value; }
-            public SceneComponent HighlightedComponent { get => _highlightedComponent; set => _highlightedComponent = value; }
-            public Matrix4 Transform { get => _transform; set => _transform = value; }
-
+            private PrimitiveManager _normalPrimitive = new PrimitiveManager(
+                Segment.Mesh(Vec3.Zero, Vec3.Forward), 
+                Material.GetUnlitColorMaterialForward(Color));
+            
+            public SceneComponent HighlightedComponent { get; set; }
+            public Matrix4 Transform { get; set; } = Matrix4.Identity;
+            
             public void Render()
             {
                 if (HighlightedComponent != null)

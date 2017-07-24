@@ -241,7 +241,7 @@ namespace TheraEngine.Rendering
             _pawnHUD.Resize(_region.Bounds);
 
             if (setInternalResolution)
-                SetInternalResolution(parentWidth, parentHeight);
+                SetInternalResolution(parentWidth / 2.0f, parentHeight / 2.0f);
         }
         public void DebugPrint(string message)
         {
@@ -267,11 +267,7 @@ namespace TheraEngine.Rendering
                 scene.PreRender(Camera);
 
                 //Render opaque deferred items first
-                scene.Render(RenderPass.OpaqueDeferred);
-
-#if DEBUG
-                //Engine.World.PhysicsScene.DebugDrawWorld();
-#endif
+                scene.Render(RenderPassType3D.OpaqueDeferredLit);
 
                 //We want to render to back buffer now
                 Engine.Renderer.PopRenderArea();
@@ -294,8 +290,9 @@ namespace TheraEngine.Rendering
                 Engine.Renderer.BindFrameBuffer(EFramebufferTarget.Framebuffer, 0);
 
                 //Render other passes
-                scene.Render(RenderPass.OpaqueForward);
-                scene.Render(RenderPass.TransparentForward);
+                scene.Render(RenderPassType3D.OpaqueForward);
+                scene.Render(RenderPassType3D.TransparentForward);
+                scene.Render(RenderPassType3D.OnTopForward);
 
                 scene.PostRender();
             }
@@ -325,15 +322,9 @@ namespace TheraEngine.Rendering
                 //Cull scene and retrieve renderables for each buffer
                 scene.PreRender(Camera);
 
-                scene.Render(RenderPass.OpaqueForward);
-
-#if DEBUG
-                //Engine.World.PhysicsScene.DebugDrawWorld();
-#endif
-
-                Engine.Renderer.AllowDepthWrite(false);
-                scene.Render(RenderPass.TransparentForward);
-                Engine.Renderer.AllowDepthWrite(true);
+                scene.Render(RenderPassType3D.OpaqueForward);
+                scene.Render(RenderPassType3D.TransparentForward);
+                scene.Render(RenderPassType3D.OnTopForward);
 
                 //We want to render to back buffer now
                 Engine.Renderer.PopRenderArea();

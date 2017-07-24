@@ -286,69 +286,14 @@ namespace TheraEngine.Rendering.OpenGL
         {
             GL.ActiveShaderProgram(pipelineBindingId, programBindingId);
         }
-        public override int GenerateProgram(int[] shaderHandles, VertexShaderDesc desc, bool separable)
+        public override int GenerateProgram(int[] shaderHandles, bool separable)
         {
             int handle = GL.CreateProgram();
             GL.ProgramParameter(handle, ProgramParameterName.ProgramSeparable, separable ? 1 : 0);
 
             foreach (int i in shaderHandles)
                 GL.AttachShader(handle, i);
-
-            //SetBindFragDataLocation(handle, GetUniformLocation(handle, "OutColor"), "OutColor");
-            //if (desc != null)
-            //{
-            //    int meshCount = desc._morphCount + 1;
-            //    bool weighted = Engine.Settings.SkinOnGPU && desc.IsWeighted;
-            //    int location = 0;
-
-            //    //Have to bind 'in' attributes before linking
-
-            //    BufferType type = BufferType.Position;
-            //    for (int i = 0; i < meshCount; ++i)
-            //        GL.BindAttribLocation(handle, location + i, VertexAttribInfo.GetAttribName(type, i));
-            //    location += VertexAttribInfo.GetMaxBuffersForType(type);
-
-            //    type = BufferType.Normal;
-            //    if (desc.HasNormals)
-            //        for (int i = 0; i < meshCount; ++i)
-            //            GL.BindAttribLocation(handle, location + i, VertexAttribInfo.GetAttribName(type, i));
-            //    location += VertexAttribInfo.GetMaxBuffersForType(type);
-
-            //    type = BufferType.Binormal;
-            //    if (desc.HasBinormals)
-            //        for (int i = 0; i < meshCount; ++i)
-            //            GL.BindAttribLocation(handle, location + i, VertexAttribInfo.GetAttribName(type, i));
-            //    location += VertexAttribInfo.GetMaxBuffersForType(type);
-
-            //    type = BufferType.Tangent;
-            //    if (desc.HasTangents)
-            //        for (int i = 0; i < meshCount; ++i)
-            //            GL.BindAttribLocation(handle, location + i, VertexAttribInfo.GetAttribName(type, i));
-            //    location += VertexAttribInfo.GetMaxBuffersForType(type);
-
-            //    type = BufferType.MatrixIds;
-            //    if (desc.IsWeighted)
-            //        for (int i = 0; i < meshCount; ++i)
-            //            GL.BindAttribLocation(handle, location + i, VertexAttribInfo.GetAttribName(type, i));
-            //    location += VertexAttribInfo.GetMaxBuffersForType(type);
-
-            //    type = BufferType.MatrixWeights;
-            //    if (desc.IsWeighted)
-            //        for (int i = 0; i < meshCount; ++i)
-            //            GL.BindAttribLocation(handle, location + i, VertexAttribInfo.GetAttribName(type, i));
-            //    location += VertexAttribInfo.GetMaxBuffersForType(type);
-
-            //    type = BufferType.Color;
-            //    for (int i = 0; i < desc._colorCount; ++i)
-            //        GL.BindAttribLocation(handle, location + i, VertexAttribInfo.GetAttribName(type, i));
-            //    location += VertexAttribInfo.GetMaxBuffersForType(type);
-                
-            //    type = BufferType.TexCoord;
-            //    for (int i = 0; i < desc._texcoordCount; ++i)
-            //        GL.BindAttribLocation(handle, location + i, VertexAttribInfo.GetAttribName(type, i));
-            //    //location += VertexAttribInfo.GetMaxBuffersForType(type);
-            //}
-
+            
             GL.LinkProgram(handle);
             GL.GetProgram(handle, GetProgramParameterName.LinkStatus, out int status);
             if (status == 0)
@@ -385,16 +330,16 @@ namespace TheraEngine.Rendering.OpenGL
         {
             Engine.Renderer.Cull(r.CullMode);
 
-            if (r.EnableDepthTest)
+            if (r.DepthTest.Enabled)
             {
                 GL.Enable(EnableCap.DepthTest);
-                DepthFunc(r.DepthFunction);
-                GL.DepthMask(r.EnableDepthUpdate);
+                DepthFunc(r.DepthTest.Function);
+                GL.DepthMask(r.DepthTest.UpdateDepth);
             }
             else
                 GL.Disable(EnableCap.DepthTest);
 
-            if (r.EnableBlending)
+            if (r.Blend.Enabled)
             {
                 GL.Enable(EnableCap.Blend);
                 BlendEquation(r.Blend.RgbEquation, r.Blend.AlphaEquation);

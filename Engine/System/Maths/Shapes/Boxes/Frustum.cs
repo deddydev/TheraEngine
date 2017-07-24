@@ -3,14 +3,42 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Drawing;
 using System.ComponentModel;
+using TheraEngine.Rendering;
+using TheraEngine.Maths;
+using System.Xml;
+using System.IO;
 
 namespace System
 {
-    [FileClass("SHAPE", "Camera Frustum")]
+    [FileClass("SHAPE", "Camera View Frustum")]
     [TypeConverter(typeof(ExpandableObjectConverter))]
     public class Frustum : I3DRenderable, IEnumerable<Plane>
     {
-        public bool HasTransparency => false;
+        private RenderInfo3D _renderInfo = new RenderInfo3D(RenderPassType3D.OpaqueForward, null, false);
+        public RenderInfo3D RenderInfo => _renderInfo;
+
+        [Serialize("Points")]
+        private Vec3[] _points = new Vec3[8];
+        private Plane[] _planes = new Plane[6];
+
+        //For quickly testing if objects in large scenes should even be tested against the frustum at all
+        [Serialize("UseBoundingSphere", IsXmlAttribute = true)]
+        private Sphere _boundingSphere;
+
+        [CustomXMLSerializeMethod("UseBoundingSphere")]
+        private void SerializeBoundingSphere(XmlWriter writer)
+        {
+            writer.WriteAttributeString("UseBoundingSphere", UseBoundingSphere.ToString());
+        }
+        [CustomXMLDeserializeMethod("BoundingSphere")]
+        private void DeserializeBoundingSphere(XMLReader reader)
+        {
+            if (bool.TryParse(reader.Value, out bool result))
+                _boundingSphere = result ? new Sphere() : null;
+            else
+                _boundingSphere = null;
+        }
+
         public Frustum()
         {
             _boundingSphere = new Sphere() { RenderSolid = false };
@@ -48,39 +76,26 @@ namespace System
                 ftr = farPos + fY + fX,
                 fbl = farPos - fY - fX,
                 fbr = farPos - fY + fX;
-
-            //TODO: calculation is incorrect; sphere does not intersect with near points
-            float h = farZ - nearZ;
-            float a = 2.0f * nearXDist;
-            float b = 2.0f * farXDist;
-            float centerDist = h - (h + (a - b) * (a + b) / (4.0f * h)) / 2.0f;
-            Vec3 center = Ray.PointAtLineDistance(nearPos, farPos, centerDist);
-
-            UpdatePoints(fbl, fbr, ftl, ftr, nbl, nbr, ntl, ntr, center);
+            
+            UpdatePoints(fbl, fbr, ftl, ftr, nbl, nbr, ntl, ntr);
         }
         public Frustum(
            Vec3 farBottomLeft, Vec3 farBottomRight, Vec3 farTopLeft, Vec3 farTopRight,
-           Vec3 nearBottomLeft, Vec3 nearBottomRight, Vec3 nearTopLeft, Vec3 nearTopRight,
-           Vec3 sphereCenter) : this()
+           Vec3 nearBottomLeft, Vec3 nearBottomRight, Vec3 nearTopLeft, Vec3 nearTopRight) : this()
         {
             UpdatePoints(
                 farBottomLeft, farBottomRight, farTopLeft, farTopRight,
-                nearBottomLeft, nearBottomRight, nearTopLeft, nearTopRight,
-                sphereCenter);
+                nearBottomLeft, nearBottomRight, nearTopLeft, nearTopRight);
         }
-        ~Frustum()
+        private Frustum(
+           Vec3 farBottomLeft, Vec3 farBottomRight, Vec3 farTopLeft, Vec3 farTopRight,
+           Vec3 nearBottomLeft, Vec3 nearBottomRight, Vec3 nearTopLeft, Vec3 nearTopRight,
+           Vec3 sphereCenter, float sphereRadius) : this()
         {
-
+            UpdatePoints(
+                farBottomLeft, farBottomRight, farTopLeft, farTopRight,
+                nearBottomLeft, nearBottomRight, nearTopLeft, nearTopRight, sphereCenter, sphereRadius);
         }
-
-        public static bool UseBoundingSphere = true;
-
-        private bool _isRendering = false;
-
-        private IOctreeNode _renderNode;
-
-        //For quickly testing if objects in large scenes should even be tested against the frustum at all
-        private Sphere _boundingSphere;
 
         public void GetCornerPoints(int planeIndex, out Vec3 bottomLeft, out Vec3 bottomRight, out Vec3 topRight, out Vec3 topLeft)
         {
@@ -133,65 +148,107 @@ namespace System
             }
         }
 
-        [Serialize("Points")]
-        private Vec3[] _points = new Vec3[8];
-
         [PostDeserialize]
         public void PostDeserialize()
         {
-
+            UpdatePoints(FarBottomLeft, FarBottomRight, FarTopLeft, FarTopRight, NearBottomLeft, NearBottomRight, NearTopLeft, NearTopRight);
         }
 
-        private Plane[] _planes = new Plane[6];
-
+        [Browsable(false)]
         public Vec3 FarBottomLeft => _points[0];
+        [Browsable(false)]
         public Vec3 FarBottomRight => _points[1];
 
+        [Browsable(false)]
         public Vec3 FarTopLeft => _points[2];
+        [Browsable(false)]
         public Vec3 FarTopRight => _points[3];
 
+        [Browsable(false)]
         public Vec3 NearBottomLeft => _points[4];
+        [Browsable(false)]
         public Vec3 NearBottomRight => _points[5];
 
+        [Browsable(false)]
         public Vec3 NearTopLeft => _points[6];
+        [Browsable(false)]
         public Vec3 NearTopRight => _points[7];
 
+        [Browsable(false)]
         public Plane Near => _planes[0];
+        [Browsable(false)]
         public Plane Far => _planes[1];
 
+        [Browsable(false)]
         public Plane Left => _planes[2];
+        [Browsable(false)]
         public Plane Right => _planes[3];
 
+        [Browsable(false)]
         public Plane Top => _planes[4];
+        [Browsable(false)]
         public Plane Bottom => _planes[5];
 
+        [Browsable(false)]
         public IEnumerable<Vec3> Points => _points;
+        [Browsable(false)]
         public Shape CullingVolume => _boundingSphere;
 
-        public bool IsRendering
-        {
-            get => _isRendering;
-            set => _isRendering = value;
-        }
-        public IOctreeNode OctreeNode
-        {
-            get => _renderNode;
-            set => _renderNode = value;
-        }
+        [Browsable(false)]
+        public IOctreeNode OctreeNode { get; set; }
+        [Browsable(false)]
         public Sphere BoundingSphere
         {
             get => _boundingSphere;
             private set => _boundingSphere = value;
         }
-        public Plane[] Planes
+        [Browsable(false)]
+        public Plane[] Planes => _planes;
+
+        [Browsable(false)]
+        public RenderPassType3D RenderPass => RenderPassType3D.OpaqueForward;
+        [Browsable(false)]
+        public float RenderOrder => 0.0f;
+
+        public bool UseBoundingSphere
         {
-            get => _planes;
+            get => _boundingSphere != null;
+            set
+            {
+                if (value == UseBoundingSphere)
+                    return;
+
+                if (value)
+                {
+                    _boundingSphere = new Sphere();
+                    CalculateBoundingSphere();
+                }
+                else
+                    _boundingSphere = null;
+            }
         }
-        
-        public void UpdatePoints(
+
+        private void CalculateBoundingSphere()
+        {
+            if (UseBoundingSphere)
+            {
+                Miniball miniball = new Miniball(PointSetArray.FromVectors(_points));
+                _boundingSphere.Center = new Vec3(miniball.Center[0], miniball.Center[1], miniball.Center[2]);
+                _boundingSphere.Radius = miniball.Radius;
+            }
+        }
+        private void UpdateBoundingSphere(Vec3 center, float radius)
+        {
+            if (UseBoundingSphere)
+            {
+                _boundingSphere.Center = center;
+                _boundingSphere.Radius = radius;
+            }
+        }
+
+        private void UpdatePoints(
             Vec3 farBottomLeft, Vec3 farBottomRight, Vec3 farTopLeft, Vec3 farTopRight,
-            Vec3 nearBottomLeft, Vec3 nearBottomRight, Vec3 nearTopLeft, Vec3 nearTopRight, 
-            Vec3 sphereCenter)
+            Vec3 nearBottomLeft, Vec3 nearBottomRight, Vec3 nearTopLeft, Vec3 nearTopRight)
         {
             _points[0] = farBottomLeft;
             _points[1] = farBottomRight;
@@ -201,9 +258,6 @@ namespace System
             _points[5] = nearBottomRight;
             _points[6] = nearTopLeft;
             _points[7] = nearTopRight;
-
-            _boundingSphere.Center = sphereCenter;
-            _boundingSphere.Radius = sphereCenter.DistanceToFast(farTopRight);
 
             //near, far
             _planes[0] = new Plane(nearBottomRight, nearBottomLeft, nearTopRight);
@@ -216,6 +270,36 @@ namespace System
             //top, bottom
             _planes[4] = new Plane(farTopLeft, farTopRight, nearTopLeft);
             _planes[5] = new Plane(nearBottomLeft, nearBottomRight, farBottomLeft);
+
+            CalculateBoundingSphere();
+        }
+        private void UpdatePoints(
+            Vec3 farBottomLeft, Vec3 farBottomRight, Vec3 farTopLeft, Vec3 farTopRight,
+            Vec3 nearBottomLeft, Vec3 nearBottomRight, Vec3 nearTopLeft, Vec3 nearTopRight,
+            Vec3 sphereCenter, float sphereRadius)
+        {
+            _points[0] = farBottomLeft;
+            _points[1] = farBottomRight;
+            _points[2] = farTopLeft;
+            _points[3] = farTopRight;
+            _points[4] = nearBottomLeft;
+            _points[5] = nearBottomRight;
+            _points[6] = nearTopLeft;
+            _points[7] = nearTopRight;
+
+            //near, far
+            _planes[0] = new Plane(nearBottomRight, nearBottomLeft, nearTopRight);
+            _planes[1] = new Plane(farBottomLeft, farBottomRight, farTopLeft);
+
+            //left, right
+            _planes[2] = new Plane(nearBottomLeft, farBottomLeft, nearTopLeft);
+            _planes[3] = new Plane(farBottomRight, nearBottomRight, farTopRight);
+
+            //top, bottom
+            _planes[4] = new Plane(farTopLeft, farTopRight, nearTopLeft);
+            _planes[5] = new Plane(nearBottomLeft, nearBottomRight, farBottomLeft);
+
+            UpdateBoundingSphere(sphereCenter, sphereRadius);
         }
 
         public bool IntersectsRay(Vec3 startPoint, Vec3 direction, out List<Vec3> points)
@@ -227,6 +311,7 @@ namespace System
                     points.Add(point);
             return points.Count > 0;
         }
+
         public void TransformedVersionOf(Frustum other, Matrix4 transform)
             => UpdatePoints(
                 other.FarBottomLeft * transform,
@@ -236,20 +321,17 @@ namespace System
                 other.NearBottomLeft * transform,
                 other.NearBottomRight * transform,
                 other.NearTopLeft * transform,
-                other.NearTopRight * transform,
-                other._boundingSphere.Center * transform);
+                other.NearTopRight * transform);
 
         public void TransformBy(Matrix4 transform)
-            => UpdatePoints(
-                FarBottomLeft * transform,
-                FarBottomRight * transform,
-                FarTopLeft * transform,
-                FarTopRight * transform,
-                NearBottomLeft * transform,
-                NearBottomRight * transform,
-                NearTopLeft * transform,
-                NearTopRight * transform,
-                _boundingSphere.Center * transform);
+        {
+            if (_boundingSphere != null)
+                _boundingSphere.Center = _boundingSphere.Center * transform;
+            for (int i = 0; i < 8; ++i)
+                _points[i] = _points[i] * transform;
+            for (int i = 0; i < 6; ++i)
+                _planes[i].TransformBy(transform);
+        }
 
         public Frustum TransformedBy(Matrix4 transform)
             => new Frustum(
@@ -260,8 +342,7 @@ namespace System
                 NearBottomLeft * transform,
                 NearBottomRight * transform,
                 NearTopLeft * transform,
-                NearTopRight * transform,
-                _boundingSphere.Center * transform);
+                NearTopRight * transform);
         
         public EContainment Contains(Box box) 
             => Collision.FrustumContainsBox1(this, box.HalfExtents, box.WorldMatrix);
@@ -380,7 +461,6 @@ namespace System
         public Frustum HardCopy()
             => new Frustum(
                 FarBottomLeft, FarBottomRight, FarTopLeft, FarTopRight,
-                NearBottomLeft, NearBottomRight, NearTopLeft, NearTopRight,
-                _boundingSphere.Center);
+                NearBottomLeft, NearBottomRight, NearTopLeft, NearTopRight);
     }
 }

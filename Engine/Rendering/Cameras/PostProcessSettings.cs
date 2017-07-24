@@ -10,6 +10,8 @@ namespace TheraEngine.Rendering.Cameras
 
         public bool Enabled { get => _enabled; set => _enabled = value; }
     }
+    [FileClass("POSTP", "Camera Post-Processing Settings")]
+    [TypeConverter(typeof(ExpandableObjectConverter))]
     public class PostProcessSettings : FileObject
     {
         public PostProcessSettings()

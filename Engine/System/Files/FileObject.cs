@@ -14,20 +14,21 @@ namespace TheraEngine.Files
         //ThirdParty  = 2,
         //Programatic = 3,
     }
-
     public interface IFileObject : IObjectBase
     {
 
     }
-
-    [FileClass("", "")]
     public abstract class FileObject : ObjectBase, IFileObject, INotifyPropertyChanged
     {
         [Browsable(false)]
         public FileClass FileHeader
             => GetFileHeader(GetType());
         public static FileClass GetFileHeader(Type t)
-            => (FileClass)Attribute.GetCustomAttribute(t, typeof(FileClass));
+        {
+            if (Attribute.GetCustomAttribute(t, typeof(FileClass)) is FileClass f && f != null)
+                return f;
+            throw new Exception("No FileClass attribute specified for " + t.ToString());
+        }
 
         private List<IFileRef> _references = new List<IFileRef>();
         private string _filePath;

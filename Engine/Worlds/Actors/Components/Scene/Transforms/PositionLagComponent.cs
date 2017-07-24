@@ -2,11 +2,15 @@
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Drawing;
+using TheraEngine.Rendering;
 
 namespace TheraEngine.Worlds.Actors
 {
     public class PositionLagComponent : SceneComponent, I3DRenderable
     {
+        private RenderInfo3D _renderInfo = new RenderInfo3D(RenderPassType3D.OpaqueForward, null, false);
+        public RenderInfo3D RenderInfo => _renderInfo;
+
         public PositionLagComponent() : this(20.0f, 2.0f) { }
         public PositionLagComponent(float interpSpeed) : this(interpSpeed, 2.0f) { }
         public PositionLagComponent(float interpSpeed, float maxLagDistance) : base()
@@ -23,13 +27,15 @@ namespace TheraEngine.Worlds.Actors
         private Vec3 _destPoint;
         private Vec3 _interpPoint;
         private float _laggingDistance;
-
-        [Browsable(false)]
-        public bool HasTransparency => false;
+        
         [Browsable(false)]
         public Shape CullingVolume => null;
         [Browsable(false)]
         public IOctreeNode OctreeNode { get; set; }
+        [Browsable(false)]
+        public RenderPassType3D RenderPass => RenderPassType3D.OpaqueForward;
+        [Browsable(false)]
+        public float RenderOrder => 0.0f;
 
         [Serialize]
         [Category("Position Lag Component")]
@@ -39,6 +45,7 @@ namespace TheraEngine.Worlds.Actors
         public float MaxLagDistance { get => _maxLagDistance; set => _maxLagDistance = value; }
         [Browsable(false)]
         public float LaggingDistance => _laggingDistance;
+
 
         protected internal override void OriginRebased(Vec3 newOrigin)
         {

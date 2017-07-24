@@ -53,7 +53,7 @@ namespace TheraEngine.Rendering.Models
 
         private VertexBuffer _indexBuffer;
         private EDrawElementType _elementType;
-        private Shader _vertexShader;
+        internal Shader _vertexShader, _geometryShader;
 
         //Skeleton information
         private Bone _singleBind;
@@ -100,7 +100,7 @@ namespace TheraEngine.Rendering.Models
                             if (_vertexProgram.IsActive)
                             {
                                 _vertexProgram.Destroy();
-                                _vertexProgram = new RenderProgram(_bufferInfo, _vertexShader);
+                                _vertexProgram = new RenderProgram(_vertexShader, _geometryShader);
                                 _vertexProgram.Generate();
                             }
                             else
@@ -374,7 +374,6 @@ namespace TheraEngine.Rendering.Models
             }
             _processingSkinning = false;
         }
-
         /// <summary>
         /// Retrieves the linked material's uniform parameter at the given index.
         /// Use this to set uniform values to be passed to the shader.
@@ -425,7 +424,6 @@ namespace TheraEngine.Rendering.Models
                 _pipeline.Bind();
                 _pipeline.Set(EProgramStageMask.VertexShaderBit, vtxId = _vertexProgram.BindingId);
                 _pipeline.Set(EProgramStageMask.FragmentShaderBit, fragId = m.Program.BindingId);
-
             }
             else
             {
@@ -439,7 +437,7 @@ namespace TheraEngine.Rendering.Models
             Engine.Renderer.ProgramUniform(vtxId, Uniform.GetLocation(vtxId, ECommonUniform.NormalMatrix), normalMatrix);
             Engine.Renderer.ProgramUniform(vtxId, Uniform.GetLocation(vtxId, ECommonUniform.WorldToCameraSpaceMatrix), AbstractRenderer.CurrentCamera.WorldToCameraSpaceMatrix);
             Engine.Renderer.ProgramUniform(vtxId, Uniform.GetLocation(vtxId, ECommonUniform.ProjMatrix), AbstractRenderer.CurrentCamera.ProjectionMatrix);
-            
+
             m.SetUniforms(fragId);
 
             OnSettingUniforms();
@@ -452,18 +450,18 @@ namespace TheraEngine.Rendering.Models
             //Create vertex shader program here
             if (Engine.Settings.AllowShaderPipelines)
             {
-                _vertexProgram = new RenderProgram(_bufferInfo, _vertexShader);
+                _vertexProgram = new RenderProgram(_vertexShader, _geometryShader);
                 _vertexProgram.Generate();
             }
             else
             {
                 if (_vertexFragProgram == null)
                 {
-                    _vertexFragProgram = new RenderProgram(_bufferInfo, Material.FragmentShaders[0], _vertexShader);
+                    _vertexFragProgram = new RenderProgram(Material.FragmentShaders[0], _vertexShader);
                     _vertexFragProgram.Generate();
                 }
             }
-
+            
             Engine.Renderer.BindPrimitiveManager(this);
             _bindingIds = _data.GenerateBuffers(BindingId);
             _indexBuffer._vaoId = BindingId;

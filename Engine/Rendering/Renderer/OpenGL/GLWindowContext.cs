@@ -26,7 +26,8 @@ namespace TheraEngine.Rendering.OpenGL
             public override void Generate()
             {
                 _winInfo = Utilities.CreateWindowsWindowInfo(_controlHandle);
-                _context = new GraphicsContext(GraphicsMode.Default, _winInfo);
+                GraphicsMode mode = new GraphicsMode(new ColorFormat(32), 32, 0, 4, new ColorFormat(0), 2, false);
+                _context = new GraphicsContext(mode, _winInfo);
                 _context.MakeCurrent(WindowInfo);
                 _context.LoadAll();
                 VsyncChanged(_vsyncMode);
@@ -185,6 +186,7 @@ namespace TheraEngine.Rendering.OpenGL
             GL.DepthFunc(DepthFunction.Less);
             GL.DepthMask(true);
             GL.ClearDepth(1.0f);
+            GL.Enable(EnableCap.Multisample);
             //GL.Enable(EnableCap.FramebufferSrgb);
 
             //GL.Hint(HintTarget.PerspectiveCorrectionHint, HintMode.Nicest);

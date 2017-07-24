@@ -69,7 +69,7 @@ namespace TheraEngine.Worlds.Actors
         {
             if (_meshes != null)
                 foreach (RenderableMesh m in _meshes)
-                    m.Visible = m.Mesh.Visible;
+                    m.Visible = m.Mesh.VisibleByDefault;
 
             if (Engine.Settings.RenderSkeletons && _skeleton != null)
                 Engine.Scene.Add(_skeleton);

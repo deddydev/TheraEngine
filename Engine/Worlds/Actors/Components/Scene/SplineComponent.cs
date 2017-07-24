@@ -3,32 +3,31 @@ using TheraEngine.Rendering.Models;
 using TheraEngine.Rendering.Models.Materials;
 using System;
 using System.Drawing;
+using System.ComponentModel;
+using TheraEngine.Rendering;
 
 namespace TheraEngine.Worlds.Actors
 {
     public class SplineComponent : TRSComponent, I3DRenderable
     {
-        public bool HasTransparency => false;
+        private RenderInfo3D _renderInfo = new RenderInfo3D(RenderPassType3D.OpaqueForward, null, false);
+        public RenderInfo3D RenderInfo => _renderInfo;
+        [Browsable(false)]
+        public Shape CullingVolume => null;
+        [Browsable(false)]
+        public IOctreeNode OctreeNode { get; set; }
+
         private PropAnimVec3 _spline;
+
         private PrimitiveManager _splinePrimitive;
         private PrimitiveManager _velocityPrimitive;
         private PrimitiveManager _pointPrimitive;
         private PrimitiveManager _tangentPrimitive;
-        private IOctreeNode _renderNode;
-        private bool _isRendering;
-        private bool _renderTangents = false, _renderKeyframeTangentPoints = true, _renderKeyframePoints = true;
+        private bool
+            _renderTangents = false, 
+            _renderKeyframeTangentPoints = true, 
+            _renderKeyframePoints = true;
 
-        public Shape CullingVolume => null;
-        public IOctreeNode OctreeNode
-        {
-            get => _renderNode;
-            set => _renderNode = value;
-        }
-        public bool IsRendering
-        {
-            get => _isRendering;
-            set => _isRendering = value;
-        }
         public PropAnimVec3 Spline
         {
             get => _spline;
@@ -126,16 +125,16 @@ namespace TheraEngine.Worlds.Actors
                 VertexLineStrip strip = new VertexLineStrip(false, splinePoints);
 
                 PrimitiveData splineData = PrimitiveData.FromLineStrips(VertexShaderDesc.JustPositions(), strip);
-                _splinePrimitive = new PrimitiveManager(splineData, Material.GetUnlitColorMaterial(Color.Red));
+                _splinePrimitive = new PrimitiveManager(splineData, Material.GetUnlitColorMaterialForward(Color.Red));
 
                 PrimitiveData velocityData = PrimitiveData.FromLines(VertexShaderDesc.JustPositions(), velocity);
-                _velocityPrimitive = new PrimitiveManager(velocityData, Material.GetUnlitColorMaterial(Color.Blue));
+                _velocityPrimitive = new PrimitiveManager(velocityData, Material.GetUnlitColorMaterialForward(Color.Blue));
                 
                 PrimitiveData pointData = PrimitiveData.FromPoints(keyframePositions);
-                _pointPrimitive = new PrimitiveManager(pointData, Material.GetUnlitColorMaterial(Color.Green));
+                _pointPrimitive = new PrimitiveManager(pointData, Material.GetUnlitColorMaterialForward(Color.Green));
 
                 PrimitiveData tangentData = PrimitiveData.FromPoints(tangentPositions);
-                _tangentPrimitive = new PrimitiveManager(tangentData, Material.GetUnlitColorMaterial(Color.Purple));
+                _tangentPrimitive = new PrimitiveManager(tangentData, Material.GetUnlitColorMaterialForward(Color.Purple));
             }
         }
         public void Render()

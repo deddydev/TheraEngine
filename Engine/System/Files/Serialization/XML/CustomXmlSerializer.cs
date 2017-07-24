@@ -22,7 +22,7 @@ namespace TheraEngine.Files.Serialization
                 writer.Flush();
                 stream.Position = 0;
                 writer.WriteStartDocument();
-                WriteObjectElement(obj, null, writer, true);
+                WriteObject(obj, null, writer, true);
                 writer.WriteEndDocument();
             }
         }
@@ -33,21 +33,21 @@ namespace TheraEngine.Files.Serialization
             NewLineChars = "\r\n",
             NewLineHandling = NewLineHandling.Replace
         };
-        private static void WriteObjectElement(object obj, string name, XmlWriter writer, bool rootElement)
+        private static void WriteObject(object obj, string name, XmlWriter writer, bool rootElement)
         {
             if (obj == null)
                 return;
 
             Type t = obj.GetType();
             List<VarInfo> fields = SerializationCommon.CollectSerializedMembers(t);
-            WriteObjectElement(obj, fields, name, writer, rootElement);
+            WriteObject(obj, fields, name, writer, rootElement);
         }
-        private static void WriteObjectElement(object obj, List<VarInfo> members, string name, XmlWriter writer, bool rootElement)
+        private static void WriteObject(object obj, List<VarInfo> members, string name, XmlWriter writer, bool rootElement)
         {
             if (obj == null)
                 return;
 
-            Type t = obj.GetType();
+            Type objType = obj.GetType();
 
             var categorized = members.
                 Where(x => x.Category != null).
@@ -59,15 +59,15 @@ namespace TheraEngine.Files.Serialization
 
             //Write start tag for this object
             if (string.IsNullOrEmpty(name))
-                name = SerializationCommon.GetTypeName(t);
+                name = SerializationCommon.GetTypeName(objType);
 
-            MethodInfo[] customMethods = t.GetMethods(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public).
-                Where(x => x.GetCustomAttribute<CustomXMLSerializeMethod>() != null).ToArray();
+            var customMethods = objType.GetMethods(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public).
+                Where(x => x.GetCustomAttribute<CustomXMLSerializeMethod>() != null);
 
             writer.WriteStartElement(name);
             {
                 if (rootElement)
-                    writer.WriteAttributeString("Type", t.AssemblyQualifiedName);
+                    writer.WriteAttributeString("Type", objType.AssemblyQualifiedName);
 
                 //Write attributes and then elements
                 foreach (VarInfo p in members)
@@ -138,7 +138,7 @@ namespace TheraEngine.Files.Serialization
                             WriteStructArray(array, writer);
                         else
                             foreach (object o in array)
-                                WriteObjectElement(o, "Item", writer, false);
+                                WriteObject(o, "Item", writer, false);
                     }
                     writer.WriteEndElement();
                     return;
@@ -152,13 +152,13 @@ namespace TheraEngine.Files.Serialization
                 {
                     List<VarInfo> structFields = SerializationCommon.CollectSerializedMembers(info.VariableType);
                     if (structFields.Count > 0)
-                        WriteObjectElement(value, structFields, info.Name, writer, false);
+                        WriteObject(value, structFields, info.Name, writer, false);
                     else
                         writer.WriteElementString(info.Name, value.ToString());
                     return;
                 }
                 else
-                    WriteObjectElement(value, info.Name, writer, false);
+                    WriteObject(value, info.Name, writer, false);
             }
         }
 
@@ -169,7 +169,7 @@ namespace TheraEngine.Files.Serialization
             //Needs a full element
             if (structFields.Count > 0)
                 foreach (object o in array)
-                    WriteObjectElement(o, structFields, "Item", writer, false);
+                    WriteObject(o, structFields, "Item", writer, false);
             else
             {
                 //Write each struct as a string

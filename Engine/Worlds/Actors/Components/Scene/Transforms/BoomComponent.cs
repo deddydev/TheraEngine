@@ -1,13 +1,18 @@
 ﻿using BulletSharp;
 using System;
+using System.ComponentModel;
 using System.Drawing;
 using TheraEngine.Rendering;
+using TheraEngine.Rendering.Models;
 
 namespace TheraEngine.Worlds.Actors
 {
     public delegate void LengthChange(float newLength);
     public class BoomComponent : RTComponent, I3DRenderable
     {
+        private RenderInfo3D _renderInfo = new RenderInfo3D(RenderPassType3D.OpaqueForward, null, false);
+        public RenderInfo3D RenderInfo => _renderInfo;
+
         public event LengthChange CurrentDistanceChanged;
 
         private SphereShape _traceShape = new SphereShape(0.3f);
@@ -16,10 +21,10 @@ namespace TheraEngine.Worlds.Actors
         private Vec3 _currentEndPoint = Vec3.Zero;
         private Vec3 _startPoint = Vec3.Zero;
 
+        [Browsable(false)]
         public Shape CullingVolume => null;
+        [Browsable(false)]
         public IOctreeNode OctreeNode { get; set; }
-        public bool IsRendering { get; set; }
-        public bool HasTransparency => false;
 
         private CollisionObject _ignoreCast = null;
 

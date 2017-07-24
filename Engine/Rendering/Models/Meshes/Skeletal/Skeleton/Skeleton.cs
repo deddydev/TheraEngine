@@ -10,11 +10,17 @@ using TheraEngine.Rendering.Cameras;
 
 namespace TheraEngine.Rendering.Models
 {
-    [FileClass("SKEL", "Skeleton")]
+    [FileClass("SKEL", "Model Skeleton")]
     [TypeConverter(typeof(ExpandableObjectConverter))]
     public class Skeleton : FileObject, IEnumerable<Bone>, I3DRenderable
     {
-        public bool HasTransparency => false;
+        private RenderInfo3D _renderInfo = new RenderInfo3D(RenderPassType3D.OpaqueForward, null, false);
+        public RenderInfo3D RenderInfo => _renderInfo;
+        [Browsable(false)]
+        public Shape CullingVolume => null;
+        [Browsable(false)]
+        public IOctreeNode OctreeNode { get; set; }
+
         public Skeleton() : base() { }
         public Skeleton(params Bone[] rootBones) : base()
         {
@@ -40,14 +46,11 @@ namespace TheraEngine.Rendering.Models
             => BoneIndexCache.ContainsKey(index) ? BoneIndexCache[index] : null;
 
         bool _visible,
-            _rendering,
             _visibleInEditorOnly = true,
             _hiddenFromOwner = false,
             _visibleToOwnerOnly = false,
             _visibleByDefault = false;
-
-        Shape _cullingVolume = new Sphere(1.0f);
-        IOctreeNode _renderNode;
+        
         private List<Bone> _physicsDrivableBones = new List<Bone>();
         private List<Bone> _cameraBones = new List<Bone>();
         private Dictionary<string, Bone> _boneNameCache = new Dictionary<string, Bone>();
@@ -80,17 +83,6 @@ namespace TheraEngine.Rendering.Models
         IEnumerator IEnumerable.GetEnumerator() 
             => ((IEnumerable<Bone>)_boneNameCache.Values).GetEnumerator();
 
-        public Shape CullingVolume => _cullingVolume;
-        public bool IsRendering
-        {
-            get => _rendering;
-            set => _rendering = value;
-        }
-        public IOctreeNode OctreeNode
-        {
-            get => _renderNode;
-            set => _renderNode = value;
-        }
         public bool Visible
         {
             get => _visible;
@@ -151,11 +143,11 @@ namespace TheraEngine.Rendering.Models
         }
         internal void WorldMatrixChanged()
         {
-            _cullingVolume.SetRenderTransform(_owningComponent == null ? Matrix4.Identity : _owningComponent.WorldMatrix);
+            //_cullingVolume.SetRenderTransform(_owningComponent == null ? Matrix4.Identity : _owningComponent.WorldMatrix);
         }
         public void Render()
         {
-            _cullingVolume.Render();
+            //_cullingVolume.Render();
             foreach (Bone b in BoneNameCache.Values)
             {
                 Vec3 point = b.WorldMatrix.GetPoint();

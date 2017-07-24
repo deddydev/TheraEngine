@@ -237,14 +237,37 @@ namespace TheraEngine.Rendering.Models
         public void CalcFrameMatrix(Camera c, Matrix4 parentMatrix, Matrix4 inverseParentMatrix, bool force = false)
         {
             bool usesCamera = UsesCamera;
-            if (_frameMatrixChanged || force || usesCamera)
+            //if (_frameMatrixChanged || force || usesCamera)
             {
                 if (usesCamera)
                 {
                     if (BillboardType != BillboardType.None)
                     {
-                        Matrix4 invView = c.CameraToWorldSpaceMatrix.GetRotationMatrix4();
-                        Matrix4 view = c.WorldToCameraSpaceMatrix.GetRotationMatrix4();
+                        Matrix4 invView = Matrix4.Identity;
+                        Matrix4 view = Matrix4.Identity;
+                        switch (BillboardType)
+                        {
+                            case BillboardType.PerspectiveXYZ:
+                                invView = c.CameraToWorldSpaceMatrix.GetRotationMatrix4();
+                                view = c.WorldToCameraSpaceMatrix.GetRotationMatrix4();
+                                break;
+                            case BillboardType.PerspectiveXY:
+
+                                break;
+                            case BillboardType.PerspectiveY:
+
+                                break;
+                            case BillboardType.RotationXYZ:
+                                invView = c.CameraToWorldSpaceMatrix.GetRotationMatrix4();
+                                view = c.WorldToCameraSpaceMatrix.GetRotationMatrix4();
+                                break;
+                            case BillboardType.RotationXY:
+
+                                break;
+                            case BillboardType.RotationY:
+
+                                break;
+                        }
                         _frameMatrix = parentMatrix * _frameState.Translation.Raw.AsTranslationMatrix() * invView * _frameState.Scale.Raw.AsScaleMatrix();
                         _inverseFrameMatrix = (1.0f / _frameState.Scale).AsScaleMatrix() * view * (1.0f / _frameState.Translation).AsTranslationMatrix() * inverseParentMatrix;
                     }
@@ -286,7 +309,7 @@ namespace TheraEngine.Rendering.Models
                     comp.RecalcGlobalTransform();
             }
 
-            if (_childFrameMatrixChanged || _frameMatrixChanged)
+            //if (_childFrameMatrixChanged || _frameMatrixChanged)
             {
                 foreach (Bone b in _childBones)
                     b.CalcFrameMatrix(c, _frameMatrix, _inverseFrameMatrix, force || _frameMatrixChanged);

@@ -284,12 +284,12 @@ namespace System
         public static Frustum GetFrustum(Vec3 min, Vec3 max)
         {
             GetCorners(min, max, out Vec3 ftl, out Vec3 ftr, out Vec3 ntl, out Vec3 ntr, out Vec3 fbl, out Vec3 fbr, out Vec3 nbl, out Vec3 nbr);
-            return new Frustum(fbl, fbr, ftl, ftr, nbl, nbr, ntl, ntr, (min + max) / 2.0f);
+            return new Frustum(fbl, fbr, ftl, ftr, nbl, nbr, ntl, ntr);
         }
         public static Frustum GetFrustum(Vec3 halfExtents, Matrix4 transform)
         {
             GetCorners(halfExtents, transform, out Vec3 ftl, out Vec3 ftr, out Vec3 ntl, out Vec3 ntr, out Vec3 fbl, out Vec3 fbr, out Vec3 nbl, out Vec3 nbr);
-            return new Frustum(fbl, fbr, ftl, ftr, nbl, nbr, ntl, ntr, transform.GetPoint());
+            return new Frustum(fbl, fbr, ftl, ftr, nbl, nbr, ntl, ntr);
         }
         public Frustum AsFrustum() => GetFrustum(Minimum, Maximum);
         public Frustum AsFrustum(Matrix4 transform) => GetFrustum(_halfExtents, transform);

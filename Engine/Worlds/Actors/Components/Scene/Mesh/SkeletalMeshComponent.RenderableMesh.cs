@@ -1,6 +1,7 @@
 ﻿using TheraEngine.Rendering.Models;
 using System;
 using System.ComponentModel;
+using TheraEngine.Rendering;
 
 namespace TheraEngine.Worlds.Actors
 {
@@ -8,6 +9,9 @@ namespace TheraEngine.Worlds.Actors
     {
         public class RenderableMesh : ISubMesh
         {
+            private RenderInfo3D _renderInfo;
+            public RenderInfo3D RenderInfo => _renderInfo;
+
             public RenderableMesh(ISkeletalSubMesh mesh, Skeleton skeleton, SceneComponent component)
             {
                 _mesh = mesh;
@@ -15,24 +19,32 @@ namespace TheraEngine.Worlds.Actors
                 _component = component;
                 Skeleton = skeleton;
                 Visible = false;
-                IsRendering = true;
+
+                _renderInfo = mesh.RenderInfo;
+                _renderInfo.RenderOrderFunc = GetRenderOrderOpaque;
+            }
+
+            private float GetRenderOrderOpaque()
+            {
+                return _component.WorldMatrix.GetPoint().DistanceToFast(AbstractRenderer.CurrentCamera.WorldPoint);
+            }
+            private float GetRenderOrderTransparent()
+            {
+                return _component.WorldMatrix.GetPoint().DistanceToFast(AbstractRenderer.CurrentCamera.WorldPoint);
             }
 
             private PrimitiveManager _manager;
             private bool 
                 _isVisible, 
-                _isRendering,
                 _visibleInEditorOnly = false,
                 _hiddenFromOwner = false,
                 _visibleToOwnerOnly = false;
 
             private SceneComponent _component;
             private ISkeletalSubMesh _mesh;
-            private IOctreeNode _renderNode;
             //private Bone _singleBind;
             private Skeleton _skeleton;
             private Shape _cullingVolume;
-            public bool HasTransparency => _mesh.Material.HasTransparency;
 
             public bool Visible
             {
@@ -47,11 +59,6 @@ namespace TheraEngine.Worlds.Actors
                 }
             }
             //public Bone SingleBind => _singleBind;
-            public bool IsRendering
-            {
-                get => _isRendering;
-                set => _isRendering = value;
-            }
             public bool VisibleInEditorOnly
             {
                 get => _visibleInEditorOnly;
@@ -73,12 +80,12 @@ namespace TheraEngine.Worlds.Actors
                 get => _mesh;
                 set => _mesh = value;
             }
+
             [Browsable(false)]
-            public IOctreeNode OctreeNode
-            {
-                get => _renderNode;
-                set => _renderNode = value;
-            }
+            public Shape CullingVolume => _cullingVolume;
+            [Browsable(false)]
+            public IOctreeNode OctreeNode { get; set; }
+
             [TypeConverter(typeof(ExpandableObjectConverter))]
             public Skeleton Skeleton
             {
@@ -86,15 +93,9 @@ namespace TheraEngine.Worlds.Actors
                 set
                 {
                     _skeleton = value;
-
-                    //TODO: support multi-bone influence as single bind as well
-                    //_singleBind = _mesh.SingleBindName != null && _skeleton != null ? _skeleton.GetBone(_mesh.SingleBindName) : null;
-                    
                     _manager.SkeletonChanged(_skeleton);
                 }
             }
-            [Browsable(false)]
-            public Shape CullingVolume => _cullingVolume;
 
             //IsRendering is checked by the octree before calling
             public void Render()

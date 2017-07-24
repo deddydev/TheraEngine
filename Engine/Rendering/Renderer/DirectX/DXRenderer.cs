@@ -494,7 +494,7 @@ namespace TheraEngine.Rendering.DirectX
             throw new NotImplementedException();
         }
 
-        public override int GenerateProgram(int[] shaderHandles, VertexShaderDesc desc, bool separable)
+        public override int GenerateProgram(int[] shaderHandles, bool separable)
         {
             throw new NotImplementedException();
         }

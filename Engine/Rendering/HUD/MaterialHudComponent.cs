@@ -8,6 +8,8 @@ namespace TheraEngine.Rendering.HUD
 {
     public class MaterialHudComponent : DockableHudComponent, I2DRenderable
     {
+        public RenderInfo2D RenderInfo { get; } = new RenderInfo2D(RenderPassType2D.OnTop, 0, 0);
+
         public MaterialHudComponent(Material m)
         {
             PrimitiveData quad = PrimitiveData.FromQuads(Culling.Back, VertexShaderDesc.PosNormTex(), VertexQuad.PosZQuad(_region.Width, _region.Height, true));
@@ -15,14 +17,13 @@ namespace TheraEngine.Rendering.HUD
         }
 
         private PrimitiveManager _quad;
-
-        public bool HasTransparency => _quad.Material.HasTransparency;
-
+        
         public Material Material
         {
             get => _quad.Material;
             set => _quad.Material = value;
         }
+        
         public Texture2D Texture(int index)
         {
             if (_quad.Material.TexRefs.IndexInRange(index))

@@ -1,48 +1,59 @@
 ﻿using System;
 using TheraEngine.Rendering.Models.Materials;
 using TheraEngine.Files;
+using System.ComponentModel;
 
 namespace TheraEngine.Rendering.Models
 {
+    [FileClass("OBJ", "Static Rigid Sub Mesh")]
     public class StaticRigidSubMesh : FileObject, IStaticSubMesh
     {
+        public RenderInfo3D RenderInfo { get; set; } = new RenderInfo3D(RenderPassType3D.OpaqueDeferredLit, null);
+
         public StaticRigidSubMesh()
         {
+            _name = "RigidSubMesh";
+            _cullingVolume = null;
             _material = null;
             _data = null;
-            _cullingVolume = new Sphere(1.0f);
-            _name = "Mesh";
         }
-        public StaticRigidSubMesh(PrimitiveData data, Shape cullingVolume, Material material, string name)
+        public StaticRigidSubMesh(string name, PrimitiveData data, Shape cullingVolume, Material material, bool visibleByDefault = true)
         {
-            _data = data;
-            _material = material;
             _cullingVolume = cullingVolume;
+            _material = material;
+            _data = data;
             _name = name;
+            _visibleByDefault = visibleByDefault;
         }
-
-        protected StaticMesh _parent;
+        
         protected PrimitiveData _data;
         protected Material _material;
         protected Shape _cullingVolume;
-        protected bool _visibleByDefault = true, _renderSolid;
+        protected bool _visibleByDefault = true;
 
+        [Serialize]
+        public PrimitiveData Data
+        {
+            get => _data;
+            set => _data = value;
+        }
+        [Serialize]
         public Shape CullingVolume
         {
             get => _cullingVolume;
             set => _cullingVolume = value;
         }
-        public bool Visible => _visibleByDefault;
+        [Serialize]
         public Material Material
         {
             get => _material;
             set => _material = value;
         }
-        public PrimitiveData Data => _data;
-        public StaticMesh Model
+        [Serialize(IsXmlAttribute = true)]
+        public bool VisibleByDefault
         {
-            get => _parent;
-            internal set => _parent = value;
+            get => _visibleByDefault;
+            set => _visibleByDefault = value;
         }
     }
 }

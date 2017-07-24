@@ -33,7 +33,7 @@ namespace TheraEngine.Files.Serialization
                 if (reader.BeginElement() && reader.ReadAttribute() && reader.Name.Equals("Type", true))
                 {
                     Type t = Type.GetType(reader.Value, false, false);
-                    obj = ReadObjectElement(t, reader);
+                    obj = ReadObject(t, reader);
                     reader.EndElement();
 
                     if (obj is FileObject o)
@@ -42,16 +42,16 @@ namespace TheraEngine.Files.Serialization
             }
             return obj;
         }
-        private static object ReadObjectElement(Type t, XMLReader reader)
+        private static object ReadObject(Type objType, XMLReader reader)
         {
             //Collect the members of this object's type that are serialized
-            List<VarInfo> members = SerializationCommon.CollectSerializedMembers(t);
+            List<VarInfo> members = SerializationCommon.CollectSerializedMembers(objType);
 
             //Create the object
-            object obj = SerializationCommon.CreateObject(t);
+            object obj = SerializationCommon.CreateObject(objType);
 
             //Get pre and post deserialize methods
-            MethodInfo[] methods = t.GetMethods(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
+            MethodInfo[] methods = objType.GetMethods(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
             List<MethodInfo> preMethods = new List<MethodInfo>();
             List<MethodInfo> postMethods = new List<MethodInfo>();
             foreach (MethodInfo m in methods)
@@ -59,6 +59,7 @@ namespace TheraEngine.Files.Serialization
                 PreDeserialize pre = m.GetCustomAttribute<PreDeserialize>();
                 if (pre != null && pre.RunForFormats.HasFlag(SerializeFormatFlag.XML))
                     preMethods.Add(m);
+
                 PostDeserialize post = m.GetCustomAttribute<PostDeserialize>();
                 if (post != null && post.RunForFormats.HasFlag(SerializeFormatFlag.XML))
                     postMethods.Add(m);
@@ -69,15 +70,32 @@ namespace TheraEngine.Files.Serialization
                 m.Invoke(obj, m.GetCustomAttribute<PreDeserialize>().Arguments);
 
             //Get members categorized together
-            List<IGrouping<string, VarInfo>> categorized = members.
+            IEnumerable<IGrouping<string, VarInfo>> categorized = members.
                 Where(x => x.Category != null).
-                GroupBy(x => x.Category).ToList();
+                GroupBy(x => x.Category);
 
             //Remove categorized members from original list
             foreach (var grouping in categorized)
                 foreach (VarInfo p in grouping)
                     members.Remove(p);
 
+            var customMethods = objType.GetMethods(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public).
+                Where(x => x.GetCustomAttribute<CustomXMLDeserializeMethod>() != null);
+
+            ReadElement(obj, reader, members, categorized, customMethods);
+
+            foreach (MethodInfo m in postMethods.OrderBy(x => x.GetCustomAttribute<PostDeserialize>().Order))
+                m.Invoke(obj, m.GetCustomAttribute<PostDeserialize>().Arguments);
+
+            return obj;
+        }
+        private static void ReadElement(
+            object obj,
+            XMLReader reader, 
+            List<VarInfo> members,
+            IEnumerable<IGrouping<string, VarInfo>> categorized,
+            IEnumerable<MethodInfo> customMethods)
+        {
             List<VarInfo> attribs = members.Where(x => x.Attrib.IsXmlAttribute).ToList();
             List<VarInfo> elements = members.Where(x => !x.Attrib.IsXmlAttribute).ToList();
 
@@ -93,10 +111,8 @@ namespace TheraEngine.Files.Serialization
                 VarInfo attrib = attribs.FirstOrDefault(x => string.Equals(attribName, x.Name, StringComparison.InvariantCultureIgnoreCase));
                 if (attrib != null)
                 {
-                    Type fieldType = attrib.VariableType;
-                    object value = ParseString(attribValue, fieldType);
-                    attrib.SetValue(obj, value);
                     attribs.Remove(attrib);
+                    attrib.SetValue(obj, ParseString(attrib.VariableType, attribValue));
                 }
             }
             //Now read elements
@@ -104,50 +120,24 @@ namespace TheraEngine.Files.Serialization
             {
                 string elemName = reader.Name;
 
-                var category = categorized.Where(x => string.Equals(elemName, x.Key, StringComparison.InvariantCultureIgnoreCase)).ToArray();
-                if (category != null)
-                {
-                    while (reader.ReadAttribute())
-                    {
-                        string attribName = reader.Name;
-                        string attribValue = reader.Value;
+                Debug.WriteLine("Reading element \"{0}\"", elemName);
 
-                        VarInfo attrib = attribs.FirstOrDefault(x => string.Equals(attribName, x.Name, StringComparison.InvariantCultureIgnoreCase));
-                        if (attrib != null)
-                        {
-                            Type fieldType = attrib.VariableType;
-                            object value = ParseString(attribValue, fieldType);
-                            attrib.SetValue(obj, value);
-                            attribs.Remove(attrib);
-                        }
-                    }
-                    while (reader.BeginElement())
-                    {
-                        reader.EndElement();
-                    }
-                }
+                var category = categorized?.Where(x => string.Equals(elemName, x.Key, StringComparison.InvariantCultureIgnoreCase)).SelectMany(x => x);
+                if (category != null)
+                    ReadElement(obj, reader, category.ToList(), null, customMethods);
                 else
                 {
-                    VarInfo element = elements.FirstOrDefault(x => reader.Name.Equals(x.Name, true));
+                    VarInfo element = elements.FirstOrDefault(x => string.Equals(elemName, x.Name, StringComparison.InvariantCultureIgnoreCase));
                     if (element != null)
                     {
-                        Type fieldType = element.VariableType;
-
+                        elements.Remove(element);
+                        element.SetValue(obj, ReadObject(element.VariableType, reader));
                     }
                 }
                 reader.EndElement();
             }
-
-            foreach (MethodInfo m in postMethods.OrderBy(x => x.GetCustomAttribute<PostDeserialize>().Order))
-                m.Invoke(obj, m.GetCustomAttribute<PostDeserialize>().Arguments);
-
-            return obj;
         }
-        private static void ReadAttribute(XMLReader reader)
-        {
-
-        }
-        private static object ParseString(string value, Type t)
+        private static object ParseString(Type t, string value)
         {
             if (t.GetInterface("IParsable") != null)
             {
@@ -157,34 +147,20 @@ namespace TheraEngine.Files.Serialization
             }
             switch (t.Name)
             {
-                case "Boolean":
-                    return Boolean.Parse(value);
-                case "SByte":
-                    return SByte.Parse(value);
-                case "Byte":
-                    return Byte.Parse(value);
-                case "Char":
-                    return Char.Parse(value);
-                case "Int16":
-                    return Int16.Parse(value);
-                case "UInt16":
-                    return UInt16.Parse(value);
-                case "Int32":
-                    return Int32.Parse(value);
-                case "UInt32":
-                    return UInt32.Parse(value);
-                case "Int64":
-                    return Int64.Parse(value);
-                case "UInt64":
-                    return UInt64.Parse(value);
-                case "Single":
-                    return Single.Parse(value);
-                case "Double":
-                    return Double.Parse(value);
-                case "Decimal":
-                    return Decimal.Parse(value);
-                case "String":
-                    return value;
+                case "Boolean": return Boolean.Parse(value);
+                case "SByte": return SByte.Parse(value);
+                case "Byte": return Byte.Parse(value);
+                case "Char": return Char.Parse(value);
+                case "Int16": return Int16.Parse(value);
+                case "UInt16": return UInt16.Parse(value);
+                case "Int32": return Int32.Parse(value);
+                case "UInt32": return UInt32.Parse(value);
+                case "Int64": return Int64.Parse(value);
+                case "UInt64": return UInt64.Parse(value);
+                case "Single": return Single.Parse(value);
+                case "Double": return Double.Parse(value);
+                case "Decimal": return Decimal.Parse(value);
+                case "String": return value;
             }
             throw new Exception(t.ToString() + " is not parsable");
         }

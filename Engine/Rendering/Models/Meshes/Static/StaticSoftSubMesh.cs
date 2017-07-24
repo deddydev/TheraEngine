@@ -1,49 +1,58 @@
 ﻿using System;
 using TheraEngine.Rendering.Models.Materials;
 using TheraEngine.Files;
+using System.ComponentModel;
 
 namespace TheraEngine.Rendering.Models
 {
+    [FileClass("OBJ", "Static Soft Sub Mesh")]
     public class StaticSoftSubMesh : FileObject, IStaticSubMesh
     {
-        public StaticSoftSubMesh() { }
-        public StaticSoftSubMesh(PrimitiveData data, string name)
+        public RenderInfo3D RenderInfo { get; set; } = new RenderInfo3D(RenderPassType3D.OpaqueDeferredLit, null);
+
+        public StaticSoftSubMesh()
         {
+            _name = "SoftSubMesh";
+            _cullingVolume = null;
             _material = null;
             _data = null;
+        }
+        public StaticSoftSubMesh(string name, PrimitiveData data, Material material, Shape cullingVolume)
+        {
+            _cullingVolume = cullingVolume;
+            _material = material;
+            _data = data;
             _name = name;
         }
 
-        protected StaticMesh _parent;
         protected PrimitiveData _data;
         protected Material _material;
         protected Shape _cullingVolume;
-        protected bool _isRendering, _visible, _renderSolid;
+        protected bool _visibleByDefault = true;
 
-        public Shape CullingVolume { get { return _cullingVolume; } }
-        public bool IsRendering
-        {
-            get { return _isRendering; }
-            set { _isRendering = value; }
-        }
-        public bool Visible
-        {
-            get { return _visible; }
-            set { _visible = value; }
-        }
-        public Material Material
-        {
-            get { return _material; }
-            set { _material = value; }
-        }
+        [Serialize]
         public PrimitiveData Data
         {
-            get { return _data; }
+            get => _data;
+            set => _data = value;
         }
-        public StaticMesh Model
+        [Serialize]
+        public Shape CullingVolume
         {
-            get { return _parent; }
-            internal set { _parent = value; }
+            get => _cullingVolume;
+            set => _cullingVolume = value;
+        }
+        [Serialize]
+        public Material Material
+        {
+            get => _material;
+            set => _material = value;
+        }
+        [Serialize(IsXmlAttribute = true)]
+        public bool VisibleByDefault
+        {
+            get => _visibleByDefault;
+            set => _visibleByDefault = value;
         }
     }
 }

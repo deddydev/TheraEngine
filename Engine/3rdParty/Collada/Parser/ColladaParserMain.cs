@@ -132,7 +132,7 @@ namespace TheraEngine.Rendering.Models
                     {
                         while (_reader.ReadAttribute())
                             if (_reader.Name.Equals("meter", true))
-                                float.TryParse((string)_reader.Value, NumberStyles.Any, CultureInfo.InvariantCulture.NumberFormat, out entry._scale);
+                                float.TryParse(_reader.Value, NumberStyles.Any, CultureInfo.InvariantCulture.NumberFormat, out entry._scale);
                     }
                     else if (_reader.Name.Equals("up_axis", true))
                     {
@@ -153,7 +153,7 @@ namespace TheraEngine.Rendering.Models
                     else if (_reader.Name.Equals("name", true))
                         inp._name = _reader.Value;
                     else if (_reader.Name.Equals("semantic", true))
-                        inp._semantic = (SemanticType)Enum.Parse(typeof(SemanticType), _reader.Value, true);
+                        inp._semantic = ((string)_reader.Value).AsEnum<SemanticType>();
                     else if (_reader.Name.Equals("set", true))
                         inp._set = int.Parse(_reader.Value);
                     else if (_reader.Name.Equals("offset", true))

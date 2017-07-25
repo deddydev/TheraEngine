@@ -127,8 +127,8 @@ namespace TheraEngine.Tests
                 "X:\\Desktop\\" :
                 "C:\\Users\\David\\Desktop\\";
             string googleDrive = Environment.MachineName == "DAVID-DESKTOP" ?
-                "X:\\Cloud Storage\\Google Drive\\Game\\" :
-                "C:\\Users\\David\\Google Drive\\Game\\";
+                "X:\\Cloud Storage\\Google Drive\\THERA\\" :
+                "C:\\Users\\David\\Google Drive\\THERA\\";
 
             ModelImportOptions objOptions = new ModelImportOptions()
             {
@@ -141,9 +141,12 @@ namespace TheraEngine.Tests
 
             ModelImportOptions options = new ModelImportOptions()
             {
-                ImportAnimations = false,
+                ImportAnimations = true,
+                ImportModels = true,
                 InitialTransform = new FrameState(Vec3.Zero, Quat.Identity, new Vec3(1.0f.InchesToMeters()), TransformOrder.TRS),
             };
+
+            ModelScene m = Collada.Import(googleDrive + "Assets\\Characters\\Carly\\Animations\\Carly_Idle.dae", options);
 
             //ColladaScene = Collada.Import(desktop + "carly\\carly.dae", options, false, true);
             //ColladaScene = Collada.Import(desktop + "TEST.DAE", options, false, true);

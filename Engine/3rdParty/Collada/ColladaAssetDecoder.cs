@@ -11,8 +11,7 @@ namespace TheraEngine.Rendering.Models
             Matrix4 bindMatrix,
             GeometryEntry geo,
             SkinEntry skin,
-            VisualSceneEntry scene,
-            bool isZup)
+            List<NodeEntry> nodes)
         {
             //Debug.WriteLine("Weighted: " + geo._id);
 
@@ -50,13 +49,19 @@ namespace TheraEngine.Rendering.Models
             boneList = new Bone[boneCount];
             for (int i = 0; i < boneCount; i++)
             {
-                NodeEntry entry = scene.FindNode(jointStringArray[i]);
+                string name = jointStringArray[i];
+
+                NodeEntry entry = null;
+                foreach (NodeEntry node in nodes)
+                    if ((entry = DecoderShell.FindNodeInternal(name, node)) != null)
+                        break;
+
                 if (entry != null && entry._node != null)
                     boneList[i] = entry._node as Bone;
                 else
                 {
                     //Search in reverse!
-                    foreach (NodeEntry node in scene._nodes)
+                    foreach (NodeEntry node in nodes)
                     {
                         if ((entry = RecursiveTestNode(jointString, node)) != null)
                         {
@@ -68,7 +73,10 @@ namespace TheraEngine.Rendering.Models
 
                     //Couldn't find the bone
                     if (boneList[i] == null)
-                        boneList[i] = new Bone();
+                    {
+                        Debug.WriteLine("Could not find bone \"" + name + "\"");
+                        boneList[i] = new Bone(name, FrameState.Identity);
+                    }
                 }
             }
 
@@ -144,7 +152,7 @@ namespace TheraEngine.Rendering.Models
             return null;
         }
 
-        static PrimitiveData DecodePrimitivesUnweighted(Matrix4 bindMatrix, GeometryEntry geo, bool isZup)
+        static PrimitiveData DecodePrimitivesUnweighted(Matrix4 bindMatrix, GeometryEntry geo)
         {
             //Debug.WriteLine("Unweighted: " + geo._id);
             return DecodePrimitives(geo, bindMatrix, null);

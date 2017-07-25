@@ -19,13 +19,11 @@ namespace TheraEngine.Rendering.Models
             ModelScene scene = new ModelScene();
 
             Matrix4 baseTransform = options.InitialTransform.Matrix;
-            bool isZup = false;
             if (shell._assets.Count > 0)
             {
                 AssetEntry e = shell._assets[0];
-                isZup = e._upAxis == UpAxis.Z;
                 //baseTransform = Matrix4.CreateScale(e._scale);
-                if (isZup)
+                if (e._upAxis == UpAxis.Z)
                     baseTransform = Matrix4.ZupToYup * baseTransform;
             }
 
@@ -87,10 +85,17 @@ namespace TheraEngine.Rendering.Models
                 foreach (VisualSceneEntry s in shell._visualScenes)
                     foreach (NodeEntry node in s._nodes)
                     {
-                        Bone b = EnumNode(null, node, s, shell, objects, baseTransform, Matrix4.Identity, isZup);
+                        Bone b = EnumNode(null, node, s._nodes, shell, objects, baseTransform, Matrix4.Identity);
                         if (b != null)
                             rootBones.Add(b);
                     }
+
+                foreach (NodeEntry node in shell._nodes)
+                {
+                    Bone b = EnumNode(null, node, shell._nodes, shell, objects, baseTransform, Matrix4.Identity);
+                    if (b != null)
+                        rootBones.Add(b);
+                }
 
                 //Create meshes after all bones have been created
                 if (rootBones.Count == 0)
@@ -172,42 +177,42 @@ namespace TheraEngine.Rendering.Models
                             break;
                     }
                 }
-                if (targetName == TargetType.matrix)
-                {
-                    int x = 0;
-                    for (int i = 0; i < timeData.Length; ++i, x += 16)
-                    {
-                        float second = timeData[i];
-                        InterpType type = interpData[i].AsEnum<InterpType>();
-                        Matrix4 matrix = new Matrix4(
-                                outputData[x + 0],
-                                outputData[x + 1],
-                                outputData[x + 2],
-                                outputData[x + 3],
-                                outputData[x + 4],
-                                outputData[x + 5],
-                                outputData[x + 6],
-                                outputData[x + 7],
-                                outputData[x + 8],
-                                outputData[x + 9],
-                                outputData[x + 10],
-                                outputData[x + 11],
-                                outputData[x + 12],
-                                outputData[x + 13],
-                                outputData[x + 14],
-                                outputData[x + 15]);
-                        FrameState transform = FrameState.DeriveTRS(matrix);
-                    }
-                }
-                else if (targetName == TargetType.visibility)
-                {
-                    for (int i = 0; i < timeData.Length; ++i)
-                    {
-                        float second = timeData[i];
-                        float vis = outputData[i];
-                        InterpType type = interpData[i].AsEnum<InterpType>();
-                    }
-                }
+                //if (targetName == TargetType.matrix)
+                //{
+                //    int x = 0;
+                //    for (int i = 0; i < timeData.Length; ++i, x += 16)
+                //    {
+                //        float second = timeData[i];
+                //        InterpType type = interpData[i].AsEnum<InterpType>();
+                //        Matrix4 matrix = new Matrix4(
+                //                outputData[x + 0],
+                //                outputData[x + 1],
+                //                outputData[x + 2],
+                //                outputData[x + 3],
+                //                outputData[x + 4],
+                //                outputData[x + 5],
+                //                outputData[x + 6],
+                //                outputData[x + 7],
+                //                outputData[x + 8],
+                //                outputData[x + 9],
+                //                outputData[x + 10],
+                //                outputData[x + 11],
+                //                outputData[x + 12],
+                //                outputData[x + 13],
+                //                outputData[x + 14],
+                //                outputData[x + 15]);
+                //        FrameState transform = FrameState.DeriveTRS(matrix);
+                //    }
+                //}
+                //else if (targetName == TargetType.visibility)
+                //{
+                //    for (int i = 0; i < timeData.Length; ++i)
+                //    {
+                //        float second = timeData[i];
+                //        float vis = outputData[i];
+                //        InterpType type = interpData[i].AsEnum<InterpType>();
+                //    }
+                //}
             }
         }
         private enum InterpType
@@ -221,12 +226,11 @@ namespace TheraEngine.Rendering.Models
         private static Bone EnumNode(
             Bone parent,
             NodeEntry node,
-            VisualSceneEntry scene,
+            List<NodeEntry> nodes,
             DecoderShell shell,
             List<ObjectInfo> objects,
             Matrix4 bindMatrix,
-            Matrix4 invParent,
-            bool isZup)
+            Matrix4 invParent)
         {
             Bone rootBone = null;
             bindMatrix = bindMatrix * node._matrix;
@@ -246,7 +250,7 @@ namespace TheraEngine.Rendering.Models
 
             Matrix4 inv = bindMatrix.Inverted();
             foreach (NodeEntry e in node._children)
-                EnumNode(parent, e, scene, shell, objects, bindMatrix, inv, isZup);
+                EnumNode(parent, e, nodes, shell, objects, bindMatrix, inv);
 
             foreach (InstanceEntry inst in node._instances)
             {
@@ -258,7 +262,7 @@ namespace TheraEngine.Rendering.Models
                             foreach (GeometryEntry g in shell._geometry)
                                 if (g._id == skin._skinSource)
                                 {
-                                    objects.Add(new ObjectInfo(true, g, bindMatrix, skin, scene, inst, parent, node, isZup));
+                                    objects.Add(new ObjectInfo(true, g, bindMatrix, skin, nodes, inst, parent, node));
                                     break;
                                 }
                             break;
@@ -269,14 +273,14 @@ namespace TheraEngine.Rendering.Models
                     foreach (GeometryEntry g in shell._geometry)
                         if (g._id == inst._url)
                         {
-                            objects.Add(new ObjectInfo(false, g, bindMatrix, null, null, inst, parent, node, isZup));
+                            objects.Add(new ObjectInfo(false, g, bindMatrix, null, null, inst, parent, node));
                             break;
                         }
                 }
                 else
                     foreach (NodeEntry e in shell._nodes)
                         if (e._id == inst._url)
-                            EnumNode(parent, e, scene, shell, objects, bindMatrix, inv, isZup);
+                            EnumNode(parent, e, nodes, shell, objects, bindMatrix, inv);
             }
             return rootBone;
         }
@@ -288,40 +292,37 @@ namespace TheraEngine.Rendering.Models
             public Matrix4 _bindMatrix;
             public SkinEntry _skin;
             public InstanceEntry _inst;
-            public VisualSceneEntry _scene;
+            public List<NodeEntry> _nodes;
             public NodeEntry _node;
             public Bone _parent;
-            public bool _isZup;
 
             public ObjectInfo(
                 bool weighted,
                 GeometryEntry geoEntry,
                 Matrix4 bindMatrix,
                 SkinEntry skin,
-                VisualSceneEntry scene,
+                List<NodeEntry> nodes,
                 InstanceEntry inst,
                 Bone parent,
-                NodeEntry node,
-                bool isZup)
+                NodeEntry node)
             {
                 _weighted = weighted;
                 _geoEntry = geoEntry;
                 _bindMatrix = bindMatrix;
                 _skin = skin;
-                _scene = scene;
+                _nodes = nodes;
                 _node = node;
                 _inst = inst;
                 _parent = parent;
-                _isZup = isZup;
             }
 
             public void Initialize(SkeletalMesh model, DecoderShell shell)
             {
                 PrimitiveData data;
                 if (_weighted)
-                    data = DecodePrimitivesWeighted(_bindMatrix, _geoEntry, _skin, _scene, _isZup);
+                    data = DecodePrimitivesWeighted(_bindMatrix, _geoEntry, _skin, _nodes);
                 else
-                    data = DecodePrimitivesUnweighted(_bindMatrix, _geoEntry, _isZup);
+                    data = DecodePrimitivesUnweighted(_bindMatrix, _geoEntry);
 
                 Material m = null;
                 if (_inst._material != null)
@@ -339,9 +340,9 @@ namespace TheraEngine.Rendering.Models
             {
                 PrimitiveData data;
                 if (_weighted)
-                    data = DecodePrimitivesWeighted(_bindMatrix, _geoEntry, _skin, _scene, _isZup);
+                    data = DecodePrimitivesWeighted(_bindMatrix, _geoEntry, _skin, _nodes);
                 else
-                    data = DecodePrimitivesUnweighted(_bindMatrix, _geoEntry, _isZup);
+                    data = DecodePrimitivesUnweighted(_bindMatrix, _geoEntry);
 
                 Material m = null;
                 if (_inst._material != null)

@@ -246,7 +246,6 @@
     <Compile Include="Rendering\HUD\Text\TextHudComponent.cs" />
     <Compile Include="Rendering\HUD\MaterialHudComponent.cs" />
     <Compile Include="Rendering\HUD\ModelHudComponent.cs" />
-    <Compile Include="3rdParty\Collada\ColladaImportOptions.cs" />
     <Compile Include="3rdParty\Collada\Parser\ColladaParserAnimation.cs" />
     <Compile Include="3rdParty\Collada\ColladaAssetDecoder.cs" />
     <Compile Include="3rdParty\Collada\Schema\SchemaImporter.cs" />

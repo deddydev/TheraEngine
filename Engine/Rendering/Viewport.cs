@@ -241,7 +241,7 @@ namespace TheraEngine.Rendering
             _pawnHUD.Resize(_region.Bounds);
 
             if (setInternalResolution)
-                SetInternalResolution(parentWidth / 2.0f, parentHeight / 2.0f);
+                SetInternalResolution(parentWidth, parentHeight);
         }
         public void DebugPrint(string message)
         {

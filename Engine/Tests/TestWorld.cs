@@ -19,7 +19,7 @@ namespace TheraEngine.Tests
         {
             _settings = new WorldSettings("TestWorld");
             Random r = new Random();
-            IActor[] array = new IActor[2];
+            IActor[] array = new IActor[20];
             BoundingBox spawnBounds = new BoundingBox(18.0f, 30.0f, 18.0f, 0.0f, 50.0f, 0.0f);
             for (int i = 0; i < array.Length; ++i)
             {
@@ -62,31 +62,32 @@ namespace TheraEngine.Tests
             BoxActor floorActor1 = new BoxActor(
                 "Floor1",
                 floorInfo,
-                new Vec3(50.0f, 0.5f, 50.0f),
-                new Vec3(0.0f, 0.0f, 0.0f),
+                new Vec3(5.0f, 0.2f, 5.0f),
+                new Vec3(-5.0f, 0.0f, 0.0f),
                 new Rotator(0.0f, 0.0f, 0.0f, RotationOrder.YPR),
                 Material.GetLitColorMaterial(Color.Orange));
+            floorActor1.RootComponent.PhysicsDriver.Kinematic = true;
             BoxActor floorActor2 = new BoxActor(
                 "Floor2",
                 floorInfo,
-                new Vec3(100.0f, 0.5f, 100.0f),
-                new Vec3(0.0f, -10.0f, 0.0f),
+                new Vec3(2.0f, 0.3f, 2.0f),
+                new Vec3(0.0f, 0.0f, 0.0f),
                 new Rotator(0.0f, 0.0f, 0.0f, RotationOrder.YPR),
                 Material.GetLitColorMaterial(Color.Blue));
             BoxActor floorActor3 = new BoxActor(
                 "Floor3",
                 floorInfo,
-                new Vec3(20.0f, 0.5f, 20.0f),
-                new Vec3(-30.0f, 0.0f, 0.0f),
-                new Rotator(20.0f, 0.0f, 0.0f, RotationOrder.YPR),
+                new Vec3(3.0f, 5.0f, 2.0f),
+                new Vec3(2.0f, 0.0f, 0.0f),
+                new Rotator(0.0f, 40.0f, 0.0f, RotationOrder.YPR),
                 Material.GetLitColorMaterial(Color.Gray));
-            BoxActor floorActor4 = new BoxActor(
-                "Floor4",
-                floorInfo,
-                new Vec3(50.0f, 0.5f, 50.0f),
-                new Vec3(20.0f, 0.0f, 0.0f),
-                new Rotator(0.0f, 0.0f, 20.0f, RotationOrder.YPR),
-                Material.GetLitColorMaterial(Color.Green));
+            //BoxActor floorActor4 = new BoxActor(
+            //    "Floor4",
+            //    floorInfo,
+            //    new Vec3(50.0f, 0.5f, 50.0f),
+            //    new Vec3(20.0f, 0.0f, 0.0f),
+            //    new Rotator(0.0f, 0.0f, 20.0f, RotationOrder.YPR),
+            //    Material.GetLitColorMaterial(Color.Green));
 
             //PhysicsConstructionInfo floor2Info = new PhysicsConstructionInfo()
             //{
@@ -111,15 +112,16 @@ namespace TheraEngine.Tests
                 (ColorF3)Color.Beige, 1.0f, 0.1f, new Rotator(-35.0f, 30.0f, 0.0f, RotationOrder.YPR));
             //dirLightComp.Translation.Y = 30.0f;
 
-            //PropAnimFloat lightAnim = new PropAnimFloat(3600, true, true);
-            //FloatKeyframe first2 = new FloatKeyframe(0.0f, 0.0f, 0.0f, PlanarInterpType.Linear);
-            //FloatKeyframe last2 = new FloatKeyframe(360.0f, 360.0f, 0.0f, PlanarInterpType.Linear);
-            //lightAnim.Keyframes.Add(first2);
-            //lightAnim.Keyframes.Add(last2);
-            //AnimationContainer lightAnimContainer = new AnimationContainer("Rotation.Yaw", false, lightAnim);
+            PropAnimFloat lightAnim = new PropAnimFloat(1000, true, true);
+            FloatKeyframe first2 = new FloatKeyframe(0.0f, 0.0f, 0.0f, PlanarInterpType.CubicHermite);
+            FloatKeyframe x2 = new FloatKeyframe(500.0f, 20.0f, 0.0f, PlanarInterpType.CubicHermite);
+            FloatKeyframe last2 = new FloatKeyframe(1000.0f, 0.0f, 0.0f, PlanarInterpType.CubicHermite);
+            lightAnim.Keyframes.Add(first2);
+            lightAnim.Keyframes.Add(x2);
+            lightAnim.Keyframes.Add(last2);
+            AnimationContainer lightAnimContainer = new AnimationContainer("Translation.Y", false, lightAnim);
             //dirLightComp.AddAnimation(lightAnimContainer, true);
-
-            //floorActor.RootComponent.AddAnimation(lightAnimContainer, true);
+            floorActor1.RootComponent.AddAnimation(lightAnimContainer, true);
 
             Actor<DirectionalLightComponent> dirLightActor = new Actor<DirectionalLightComponent>(dirLightComp) { Name = "SunLight" };
 
@@ -235,7 +237,7 @@ namespace TheraEngine.Tests
             spawn.RootComponent.Translation.Raw = Vec3.Up * 100.0f;
 
             Actor<BlockingVolumeComponent> block = new Actor<BlockingVolumeComponent>(new BlockingVolumeComponent(
-                    new Vec3(500.0f, 10.0f, 500.0f),
+                    new Vec3(50.0f, 10.0f, 50.0f),
                     new Vec3(0.0f, -10.22f, 0.0f),
                     Rotator.GetZero(),
                     CustomCollisionGroup.StaticWorld,
@@ -245,9 +247,9 @@ namespace TheraEngine.Tests
             {
                 block,
                 testActor,
-                //floorActor1,
-                //floorActor2,
-                //floorActor3,
+                floorActor1,
+                floorActor2,
+                floorActor3,
                 //floorActor4,
                 dirLightActor,
                 //skybox,

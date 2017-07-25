@@ -313,15 +313,14 @@ namespace System
         }
 
         public void TransformedVersionOf(Frustum other, Matrix4 transform)
-            => UpdatePoints(
-                other.FarBottomLeft * transform,
-                other.FarBottomRight * transform,
-                other.FarTopLeft * transform,
-                other.FarTopRight * transform,
-                other.NearBottomLeft * transform,
-                other.NearBottomRight * transform,
-                other.NearTopLeft * transform,
-                other.NearTopRight * transform);
+        {
+            if (_boundingSphere != null)
+                _boundingSphere.Center = _boundingSphere.Center * transform;
+            for (int i = 0; i < 8; ++i)
+                _points[i] = other._points[i] * transform;
+            for (int i = 0; i < 6; ++i)
+                _planes[i] = other._planes[i].TransformedBy(transform);
+        }
 
         public void TransformBy(Matrix4 transform)
         {

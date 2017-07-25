@@ -17,8 +17,8 @@ namespace System.IO
         private DataSource _stringBuffer;// = new UnsafeBuffer(_nameMax + _valueMax);
         private byte* _namePtr, _valPtr;
 
-        public PString Name { get { return _namePtr; } }
-        public PString Value { get { return _valPtr; } }
+        public PString Name => _namePtr; 
+        public PString Value => _valPtr;
 
         public XMLReader(void* pSource, int length)
         {

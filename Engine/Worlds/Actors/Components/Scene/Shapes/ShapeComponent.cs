@@ -21,9 +21,18 @@ namespace TheraEngine.Worlds.Actors
                 info.CollisionShape = GetCollisionShape();
                 info.MotionState = new DefaultMotionState(WorldMatrix);
                 _physicsDriver = new PhysicsDriver(this, info, PhysicsTransformChanged, PhysicsSimulationStateChanged);
+                WorldTransformChanged += ShapeComponent_WorldTransformChanged;
             }
             else
                 _physicsDriver = null;
+        }
+        protected virtual void PhysicsTransformChanged(Matrix4 worldMatrix)
+        {
+            WorldMatrix = worldMatrix;
+        }
+        private void ShapeComponent_WorldTransformChanged()
+        {
+            _physicsDriver.SetPhysicsTransform(WorldMatrix);
         }
 
         private void PhysicsSimulationStateChanged(bool isSimulating)
@@ -89,10 +98,5 @@ namespace TheraEngine.Worlds.Actors
 
         public abstract void Render();
         protected abstract CollisionShape GetCollisionShape();
-
-        protected virtual void PhysicsTransformChanged(Matrix4 worldMatrix)
-        {
-            WorldMatrix = worldMatrix;
-        }
     }
 }

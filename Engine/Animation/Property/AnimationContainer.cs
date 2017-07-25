@@ -197,9 +197,9 @@ namespace TheraEngine.Animation
         private void OwnersModified()
         {
             if (_owners.Count == 0 && IsTicking)
-                UnregisterTick(ETickGroup.PrePhysics, ETickOrder.Animation, Tick);
+                UnregisterTick(ETickGroup.PostPhysics, ETickOrder.Animation, Tick);
             else if (_owners.Count != 0 && !IsTicking)
-                RegisterTick(ETickGroup.PrePhysics, ETickOrder.Animation, Tick);
+                RegisterTick(ETickGroup.PostPhysics, ETickOrder.Animation, Tick);
         }
 
         public AnimFolder RootFolder

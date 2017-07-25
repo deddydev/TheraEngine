@@ -99,14 +99,15 @@ namespace TheraEngine.Worlds.Actors
 
         private void FloorTransformChanged()
         {
-            //SceneComponent comp = (SceneComponent)_currentWalkingSurface.Owner;
-            //Matrix4 transformDelta = comp.PreviousInverseWorldTransform * comp.WorldMatrix;
-            //CapsuleComponent root = OwningActor.RootComponent as CapsuleComponent;
-            //Matrix4 moved = root.WorldMatrix * comp.PreviousInverseWorldTransform * comp.WorldMatrix;
-            //Vec3 point = moved.GetPoint();
+            //TODO: change to falling if ground accelerates down with gravity faster than the character
+            SceneComponent comp = (SceneComponent)_currentWalkingSurface.Owner;
+            Matrix4 transformDelta = comp.PreviousInverseWorldTransform * comp.WorldMatrix;
+            CapsuleComponent root = OwningActor.RootComponent as CapsuleComponent;
+            Matrix4 moved = root.WorldMatrix * comp.PreviousInverseWorldTransform * comp.WorldMatrix;
+            Vec3 point = moved.GetPoint();
 
-            //root.Translation = point;
-            //root.Rotation.Yaw += transformDelta.ExtractRotation(true).ToYawPitchRoll().Yaw;
+            root.Translation = point;
+            root.Rotation.Yaw += transformDelta.ExtractRotation(true).ToYawPitchRoll().Yaw;
         }
 
         public float VerticalStepUpHeight
@@ -114,7 +115,25 @@ namespace TheraEngine.Worlds.Actors
             get => _verticalStepUpHeight;
             set => _verticalStepUpHeight = value;
         }
-
+        public override void OnSpawned()
+        {
+            if (OwningActor.RootComponent is IPhysicsDrivable root)
+            {
+                //root.PhysicsDriver.Kinematic = false;
+                root.PhysicsDriver.SimulatingPhysics = true;
+                root.PhysicsDriver.CollisionObject.LinearVelocity = Vec3.Zero;
+            }
+            CurrentWalkingSurface = null;
+            _subUpdateTick = TickFalling;
+            RegisterTick(ETickGroup.PrePhysics, ETickOrder.Scene, MainUpdateTick);
+            base.OnSpawned();
+        }
+        public override void OnDespawned()
+        {
+            _subUpdateTick = null;
+            UnregisterTick(ETickGroup.PrePhysics, ETickOrder.Scene, MainUpdateTick);
+            base.OnDespawned();
+        }
         private void MainUpdateTick(float delta)
         {
             if (_postWalkAllowJump)
@@ -130,8 +149,7 @@ namespace TheraEngine.Worlds.Actors
             ClosestNotMeConvexResultCallback callback;
             Matrix4 inputTransform;
             CapsuleComponent root = OwningActor.RootComponent as CapsuleComponent;
-            BaseCapsule c = (BaseCapsule)root.CullingVolume;
-            ConvexShape shape = (ConvexShape)c.GetCollisionShape();
+            ConvexShape shape = (ConvexShape)root.CullingVolume.GetCollisionShape();
             RigidBody body = root.PhysicsDriver.CollisionObject;
             
             _prevPosition = root.Translation.Raw;
@@ -139,48 +157,74 @@ namespace TheraEngine.Worlds.Actors
             //Use gravity currently affecting this body
             Vec3 gravity = body.Gravity;
 
-            Vec3 down = gravity.NormalizedFast();
+            Vec3 down = gravity;
+            down.NormalizeFast();
             Vec3 stepUpVector = -_verticalStepUpHeight * down;
             Matrix4 stepUpMatrix = stepUpVector.AsTranslationMatrix();
-            
+
             //Add input
-            Top:
-            if (movementInput != Vec3.Zero)
+
+            Quat groundRot = _upToGroundNormalRotation;
+
+            #region Movement input
+            while (true)
             {
-                Vec3 finalInput = _upToGroundNormalRotation * (movementInput * _walkingMovementSpeed);
-                inputTransform = finalInput.AsTranslationMatrix();
-                
-                callback = new ClosestNotMeConvexResultCallback(body)
+                if (movementInput != Vec3.Zero)
                 {
-                    CollisionFilterMask = (CollisionFilterGroups)(short)(CustomCollisionGroup.StaticWorld | CustomCollisionGroup.DynamicWorld),
-                    CollisionFilterGroup = (CollisionFilterGroups)(short)CustomCollisionGroup.Characters,
-                };
+                    Vec3 finalInput = groundRot * (movementInput * _walkingMovementSpeed);
+                    groundRot = Quat.Identity;
+                    inputTransform = finalInput.AsTranslationMatrix();
 
-                Engine.ShapeCastClosest(shape, stepUpMatrix * root.WorldMatrix, inputTransform * stepUpMatrix * root.WorldMatrix, callback);
-
-                if (callback.HasHit)
-                {
-                    //Something is in the way
-                    root.Translation.Raw += finalInput * callback.ClosestHitFraction;
-
-                    Vec3 normal = callback.HitNormalWorld;
-                    if (IsSurfaceNormalWalkable(normal))
+                    callback = new ClosestNotMeConvexResultCallback(body)
                     {
-                        GroundNormal = normal;
-                        CurrentWalkingSurface = (PhysicsDriver)callback.HitCollisionObject.UserObject;
+                        CollisionFilterMask = (CollisionFilterGroups)(short)(CustomCollisionGroup.StaticWorld | CustomCollisionGroup.DynamicWorld),
+                        CollisionFilterGroup = (CollisionFilterGroups)(short)CustomCollisionGroup.Characters,
+                    };
 
-                        if (callback.ClosestHitFraction < 1.0f)
+                    Engine.ShapeCastClosest(shape, stepUpMatrix * root.WorldMatrix, stepUpMatrix * inputTransform * root.WorldMatrix, callback);
+
+                    if (callback.HasHit)
+                    {
+                        //Something is in the way
+                        root.Translation.Raw += finalInput * callback.ClosestHitFraction;
+
+                        Vec3 normal = callback.HitNormalWorld;
+                        if (IsSurfaceNormalWalkable(normal))
                         {
-                            movementInput = finalInput * (1.0f - callback.ClosestHitFraction);
-                            goto Top;
+                            GroundNormal = normal;
+                            CurrentWalkingSurface = (PhysicsDriver)callback.HitCollisionObject.UserObject;
+
+                            if (callback.ClosestHitFraction < 1.0f)
+                            {
+                                movementInput = finalInput * (1.0f - callback.ClosestHitFraction);
+                                continue;
+                            }
+                        }
+                        else
+                        {
+                            finalInput.Normalize();
+                            float dot = normal | finalInput;
+                            if (dot < 0.0f)
+                            {
+                                //running left is up, right is down
+                                Vec3 up = finalInput ^ normal;
+                                movementInput = normal ^ up;
+                                continue;
+                            }
                         }
                     }
+                    else
+                        root.Translation.Raw += finalInput;
                 }
-                else
-                    root.Translation.Raw += finalInput;
+                break;
             }
+            #endregion
 
             //Test for walkable ground
+
+            #region Ground Test
+            float groundTestDist = CurrentWalkingSurface.CollisionObject.CollisionShape.Margin + body.CollisionShape.Margin + 0.01f;
+            down *= groundTestDist;
             inputTransform = down.AsTranslationMatrix();
             callback = new ClosestNotMeConvexResultCallback(body)
             {
@@ -197,8 +241,15 @@ namespace TheraEngine.Worlds.Actors
             }
 
             _worldGroundContactPoint = callback.HitPointWorld;
+            Vec3 diff = Vec3.Lerp(stepUpVector, down, callback.ClosestHitFraction);
+            //if (diff.Length > 1.232488E-06f)
+            //    return;
+            root.Translation.Raw += diff;
+
+            GroundNormal = callback.HitNormalWorld;
             CurrentWalkingSurface = callback.HitCollisionObject.UserObject as PhysicsDriver;
-            //root.Translation.Raw += Vec3.Lerp(stepUpVector, down, callback.ClosestHitFraction);
+
+            #endregion
 
             root.PhysicsDriver.SetPhysicsTransform(root.WorldMatrix);
 
@@ -253,7 +304,8 @@ namespace TheraEngine.Worlds.Actors
             root.PhysicsDriver.SimulatingPhysics = true;
             _subUpdateTick = TickFalling;
 
-            character.Translate(up * 0.1f);
+            if (_currentWalkingSurface != null)
+                character.Translate(up * _currentWalkingSurface.CollisionObject.CollisionShape.Margin);
             character.LinearVelocity = _velocity;
 
             if (_currentWalkingSurface != null && 
@@ -325,25 +377,6 @@ namespace TheraEngine.Worlds.Actors
         public void OnContactEnded(IPhysicsDrivable other)
         {
 
-        }
-        public override void OnSpawned()
-        {
-            if (OwningActor.RootComponent is IPhysicsDrivable root)
-            {
-                //root.PhysicsDriver.Kinematic = false;
-                root.PhysicsDriver.SimulatingPhysics = true;
-                root.PhysicsDriver.CollisionObject.LinearVelocity = Vec3.Zero;
-            }
-            CurrentWalkingSurface = null;
-            _subUpdateTick = TickFalling;
-            RegisterTick(ETickGroup.PrePhysics, ETickOrder.Scene, MainUpdateTick);
-            base.OnSpawned();
-        }
-        public override void OnDespawned()
-        {
-            _subUpdateTick = null;
-            UnregisterTick(ETickGroup.PrePhysics, ETickOrder.Scene, MainUpdateTick);
-            base.OnDespawned();
         }
     }
 }

@@ -125,7 +125,7 @@ namespace TheraEngine.Animation
             if (_isPlaying)
             {
                 AnimationStarted?.Invoke();
-                RegisterTick(ETickGroup.PrePhysics, ETickOrder.Animation, Progress);
+                RegisterTick(ETickGroup.PostPhysics, ETickOrder.Animation, Progress);
             }
         }
         public void Start()
@@ -135,7 +135,7 @@ namespace TheraEngine.Animation
             _isPlaying = true;
             AnimationStarted?.Invoke();
             CurrentFrame = 0.0f;
-            RegisterTick(ETickGroup.PrePhysics, ETickOrder.Animation, Progress);
+            RegisterTick(ETickGroup.PostPhysics, ETickOrder.Animation, Progress);
         }
         public void Stop()
         {
@@ -143,7 +143,7 @@ namespace TheraEngine.Animation
                 return;
             _isPlaying = false;
             AnimationEnded?.Invoke();
-            UnregisterTick(ETickGroup.PrePhysics, ETickOrder.Animation, Progress);
+            UnregisterTick(ETickGroup.PostPhysics, ETickOrder.Animation, Progress);
         }
         public void Progress(float delta) => CurrentFrame += delta * _fps * _speed;
         protected virtual void OnCurrentFrameChanged() => CurrentFrameChanged?.Invoke();

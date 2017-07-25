@@ -237,7 +237,7 @@ namespace TheraEngine.Rendering.Models
         public void CalcFrameMatrix(Camera c, Matrix4 parentMatrix, Matrix4 inverseParentMatrix, bool force = false)
         {
             bool usesCamera = UsesCamera;
-            //if (_frameMatrixChanged || force || usesCamera)
+            if (_frameMatrixChanged || force || usesCamera)
             {
                 if (usesCamera)
                 {
@@ -309,7 +309,7 @@ namespace TheraEngine.Rendering.Models
                     comp.RecalcGlobalTransform();
             }
 
-            //if (_childFrameMatrixChanged || _frameMatrixChanged)
+            if (_childFrameMatrixChanged || _frameMatrixChanged)
             {
                 foreach (Bone b in _childBones)
                     b.CalcFrameMatrix(c, _frameMatrix, _inverseFrameMatrix, force || _frameMatrixChanged);
@@ -356,8 +356,8 @@ namespace TheraEngine.Rendering.Models
         /// </summary>
         private void TriggerChildFrameMatrixUpdate()
         {
-            //if (_childFrameMatrixChanged)
-            //    return;
+            if (_childFrameMatrixChanged)
+                return;
             _childFrameMatrixChanged = true;
             if (_parent != null)
                 _parent.TriggerChildFrameMatrixUpdate();
@@ -369,8 +369,8 @@ namespace TheraEngine.Rendering.Models
         /// </summary>
         public void TriggerFrameMatrixUpdate()
         {
-            //if (_frameMatrixChanged)
-            //    return;
+            if (_frameMatrixChanged)
+                return;
             _frameMatrixChanged = true;
             if (_parent != null)
                 _parent.TriggerChildFrameMatrixUpdate();

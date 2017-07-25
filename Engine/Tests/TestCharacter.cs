@@ -16,7 +16,7 @@ namespace TheraEngine.Tests
             ModelImportOptions options = new ModelImportOptions()
             {
                 ImportAnimations = false,
-                InitialTransform = new FrameState(Vec3.Zero, Quat.Identity, new Vec3(1.0f.InchesToMeters()), TransformOrder.TRS),
+                InitialTransform = new FrameState(Vec3.Zero, Quat.Identity, new Vec3(1.0f), TransformOrder.TRS),
             };
             ModelScene scene = Collada.Import(desktop + "TEST.DAE", options);
 

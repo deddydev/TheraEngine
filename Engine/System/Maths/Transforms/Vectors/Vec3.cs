@@ -233,8 +233,15 @@ namespace System
             v.Z = Z < min.Z ? min.Z : Z > max.Z ? max.Z : Z;
             return v;
         }
+
+        /// <summary>
+        /// Dot product; 1 is same direction, -1 is opposite direction, 0 is a 90 degree angle
+        /// </summary>
         public static float Dot(Vec3 left, Vec3 right)
             => left.Dot(right);
+        /// <summary>
+        /// Dot product; 1 is same direction, -1 is opposite direction, 0 is a 90 degree angle
+        /// </summary>
         public float Dot(Vec3 right)
             => X * right.X + Y * right.Y + Z * right.Z;
 
@@ -856,11 +863,8 @@ namespace System
             => vec1.Cross(vec2);
 
         /// <summary>
-        /// Dot Product
+        /// Dot product; 1 is same direction, -1 is opposite direction, 0 is a 90 degree angle
         /// </summary>
-        /// <param name="vec1"></param>
-        /// <param name="vec2"></param>
-        /// <returns></returns>
         public static float operator |(Vec3 vec1, Vec3 vec2)
             => vec1.Dot(vec2);
 

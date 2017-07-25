@@ -47,9 +47,12 @@ namespace TheraEngine.Rendering.Models
                         while (_reader.ReadAttribute())
                         {
                             if (_reader.Name.Equals("id", true))
-                                img._id = (string)_reader.Value;
+                            {
+                                img._id = _reader.Value;
+                                _idEntries.Add(img._id, img);
+                            }
                             else if (_reader.Name.Equals("name", true))
-                                img._name = (string)_reader.Value;
+                                img._name = _reader.Value;
                         }
 
                         while (_reader.BeginElement())
@@ -87,24 +90,24 @@ namespace TheraEngine.Rendering.Models
                         while (_reader.ReadAttribute())
                         {
                             if (_reader.Name.Equals("id", true))
-                                mat._id = (string)_reader.Value;
+                            {
+                                mat._id = _reader.Value;
+                                _idEntries.Add(mat._id, mat);
+                            }
                             else if (_reader.Name.Equals("name", true))
-                                mat._name = (string)_reader.Value;
+                                mat._name = _reader.Value;
                         }
-
                         while (_reader.BeginElement())
                         {
                             if (_reader.Name.Equals("instance_effect", true))
                                 while (_reader.ReadAttribute())
                                     if (_reader.Name.Equals("url", true))
-                                        mat._effect = _reader.Value[0] == '#' ? (string)(_reader.Value + 1) : (string)_reader.Value;
+                                        mat._effect = _reader.Value[0] == '#' ? (_reader.Value + 1) : _reader.Value;
 
                             _reader.EndElement();
                         }
-
                         _materials.Add(mat);
                     }
-
                     _reader.EndElement();
                 }
             }
@@ -124,9 +127,12 @@ namespace TheraEngine.Rendering.Models
                 while (_reader.ReadAttribute())
                 {
                     if (_reader.Name.Equals("id", true))
-                        eff._id = (string)_reader.Value;
+                    {
+                        eff._id = _reader.Value;
+                        _idEntries.Add(eff._id, eff);
+                    }
                     else if (_reader.Name.Equals("name", true))
-                        eff._name = (string)_reader.Value;
+                        eff._name = _reader.Value;
                 }
 
                 while (_reader.BeginElement())
@@ -139,6 +145,16 @@ namespace TheraEngine.Rendering.Models
                                 eff._newParams.Add(ParseNewParam());
                             else if (_reader.Name.Equals("technique", true))
                             {
+                                while (_reader.ReadAttribute())
+                                {
+                                    if (_reader.Name.Equals("sid", true))
+                                    {
+                                        eff._techniqueSid = _reader.Value;
+                                        AddSidEntry(eff._techniqueSid, eff);
+                                    }
+                                    else if (_reader.Name.Equals("name", true))
+                                        eff._name = _reader.Value;
+                                }
                                 while (_reader.BeginElement())
                                 {
                                     if (_reader.Name.Equals("phong", true))
@@ -165,9 +181,12 @@ namespace TheraEngine.Rendering.Models
                 while (_reader.ReadAttribute())
                 {
                     if (_reader.Name.Equals("sid", true))
-                        p._sid = (string)_reader.Value;
+                    {
+                        p._sid = _reader.Value;
+                        AddSidEntry(p._sid, p);
+                    }
                     else if (_reader.Name.Equals("id", true))
-                        p._id = (string)_reader.Value;
+                        p._id = _reader.Value;
                 }
                 while (_reader.BeginElement())
                 {
@@ -210,10 +229,8 @@ namespace TheraEngine.Rendering.Models
                     else if (_reader.Name.Equals("instance_image", true))
                     {
                         while (_reader.ReadAttribute())
-                        {
                             if (_reader.Name.Equals("url", true))
-                                s._url = _reader.Value[0] == '#' ? (string)(_reader.Value + 1) : (string)_reader.Value;
-                        }
+                                s._url = _reader.Value[0] == '#' ? (_reader.Value + 1) : _reader.Value;
                     }
                     else if (_reader.Name.Equals("wrap_s", true))
                         s._wrapS = _reader.ReadElementString();
@@ -301,9 +318,9 @@ namespace TheraEngine.Rendering.Models
                     {
                         while (_reader.ReadAttribute())
                             if (_reader.Name.Equals("texture", true))
-                                eff._texture = (string)_reader.Value;
+                                eff._texture = _reader.Value;
                             else if (_reader.Name.Equals("texcoord", true))
-                                eff._texCoord = (string)_reader.Value;
+                                eff._texCoord = _reader.Value;
                     }
 
                     _reader.EndElement();
@@ -469,7 +486,7 @@ namespace TheraEngine.Rendering.Models
                         string id = null;
                         while (_reader.ReadAttribute())
                             if (_reader.Name.Equals("id", false))
-                                id = (string)_reader.Value;
+                                id = _reader.Value;
 
                         while (_reader.BeginElement())
                         {
@@ -578,11 +595,11 @@ namespace TheraEngine.Rendering.Models
 
                 while (_reader.ReadAttribute())
                     if (_reader.Name.Equals("id", true))
-                        sc._id = (string)_reader.Value;
+                        sc._id = _reader.Value;
 
                 while (_reader.ReadAttribute())
                     if (_reader.Name.Equals("name", true))
-                        sc._name = (string)_reader.Value;
+                        sc._name = _reader.Value;
 
                 while (_reader.BeginElement())
                 {
@@ -600,71 +617,83 @@ namespace TheraEngine.Rendering.Models
                 NodeEntry node = new NodeEntry();
 
                 while (_reader.ReadAttribute())
-                    if (_reader.Name.Equals("id", true))
-                        node._id = (string)_reader.Value;
-                    else if (_reader.Name.Equals("name", true))
-                        node._name = (string)_reader.Value;
-                    else if (_reader.Name.Equals("sid", true))
-                        node._sid = (string)_reader.Value;
-                    else if (_reader.Name.Equals("type", true))
-                        node._type = (NodeType)Enum.Parse(typeof(NodeType), (string)_reader.Value, true);
+                {
+                    switch (_reader.Name.ToString().ToLower())
+                    {
+                        case "id":
+                            node._id = _reader.Value;
+                            _idEntries.Add(node._id, node);
+                            break;
+                        case "sid":
+                            node._sid = _reader.Value;
+                            AddSidEntry(node._sid, node);
+                            break;
+                        case "name":
+                            node._name = _reader.Value;
+                            break;
+                        case "type":
+                            node._type = _reader.Value.ToString().AsEnum<NodeType>();
+                            break;
+                    }
+                }
 
                 Matrix4 m = Matrix4.Identity;
                 Matrix4 mInv = Matrix4.Identity;
                 while (_reader.BeginElement())
                 {
-                    if (_reader.Name.Equals("matrix", true))
+                    switch (_reader.Name.ToString().ToLower())
                     {
-                        Matrix4 matrix = ParseMatrix();
-                        m = m * matrix;
-                        matrix.Invert();
-                        mInv = matrix * mInv;
-                    }
-                    else if (_reader.Name.Equals("rotate", true))
-                    {
-                        Vec4 v = ParseVec4();
-                        m = m * Matrix4.CreateFromAxisAngle(v.Xyz, v.W);
-                        mInv = Matrix4.CreateFromAxisAngle(v.Xyz, -v.W) * mInv;
-                    }
-                    else if (_reader.Name.Equals("scale", true))
-                    {
-                        Vec3 scale = ParseVec3();
-                        m = m * Matrix4.CreateScale(scale);
-                        mInv = Matrix4.CreateScale(1.0f / scale) * mInv;
-                    }
-                    else if (_reader.Name.Equals("translate", true))
-                    {
-                        Vec3 translate = ParseVec3();
-                        m = m * Matrix4.CreateTranslation(translate);
-                        mInv = Matrix4.CreateTranslation(-translate) * mInv;
-                    }
-                    else if (_reader.Name.Equals("node", true))
-                        node._children.Add(ParseNode());
-                    else if (_reader.Name.Equals("instance_controller", true))
-                        node._instances.Add(ParseInstance(InstanceType.Controller));
-                    else if (_reader.Name.Equals("instance_geometry", true))
-                        node._instances.Add(ParseInstance(InstanceType.Geometry));
-                    else if (_reader.Name.Equals("instance_node", true))
-                        node._instances.Add(ParseInstance(InstanceType.Node));
-                    //else if (_reader.Name.Equals("extra", true))
-                    //{
-                    //    while (_reader.BeginElement())
-                    //    {
-                    //        if (_reader.Name.Equals("technique", true))
-                    //        {
-                    //            while (_reader.BeginElement())
-                    //            {
-                    //                if (_reader.Name.Equals("visibility", true))
-                    //                {
+                        case "matrix":
+                            Matrix4 matrix = ParseMatrix();
+                            m = m * matrix;
+                            matrix.Invert();
+                            mInv = matrix * mInv;
+                            break;
+                        case "rotate":
+                            Vec4 v = ParseVec4();
+                            m = m * Matrix4.CreateFromAxisAngle(v.Xyz, v.W);
+                            mInv = Matrix4.CreateFromAxisAngle(v.Xyz, -v.W) * mInv;
+                            break;
+                        case "scale":
+                            Vec3 scale = ParseVec3();
+                            m = m * Matrix4.CreateScale(scale);
+                            mInv = Matrix4.CreateScale(1.0f / scale) * mInv;
+                            break;
+                        case "translate":
+                            Vec3 translate = ParseVec3();
+                            m = m * Matrix4.CreateTranslation(translate);
+                            mInv = Matrix4.CreateTranslation(-translate) * mInv;
+                            break;
+                        case "node":
+                            node._children.Add(ParseNode());
+                            break;
+                        case "instance_controller":
+                            node._instances.Add(ParseInstance(InstanceType.Controller));
+                            break;
+                        case "instance_geometry":
+                            node._instances.Add(ParseInstance(InstanceType.Geometry));
+                            break;
+                        case "instance_node":
+                            node._instances.Add(ParseInstance(InstanceType.Node));
+                            break;
+                        case "extra":
+                            //    while (_reader.BeginElement())
+                            //    {
+                            //        if (_reader.Name.Equals("technique", true))
+                            //        {
+                            //            while (_reader.BeginElement())
+                            //            {
+                            //                if (_reader.Name.Equals("visibility", true))
+                            //                {
 
-                    //                }
-                    //                _reader.EndElement();
-                    //            }
-                    //        }
-                    //        _reader.EndElement();
-                    //    }
-                    //}
-
+                            //                }
+                            //                _reader.EndElement();
+                            //            }
+                            //        }
+                            //        _reader.EndElement();
+                            //    }
+                            break;
+                    }
                     _reader.EndElement();
                 }
                 node._matrix = m;
@@ -680,12 +709,12 @@ namespace TheraEngine.Rendering.Models
                 };
                 while (_reader.ReadAttribute())
                     if (_reader.Name.Equals("url", true))
-                        c._url = _reader.Value[0] == '#' ? (string)(_reader.Value + 1) : (string)_reader.Value;
+                        c._url = _reader.Value[0] == '#' ? (_reader.Value + 1) : _reader.Value;
 
                 while (_reader.BeginElement())
                 {
                     if (_reader.Name.Equals("skeleton", true))
-                        c._skeletons.Add(_reader.Value[0] == '#' ? (string)(_reader.Value + 1) : (string)_reader.Value);
+                        c._skeletons.Add(_reader.Value[0] == '#' ? (_reader.Value + 1) : _reader.Value);
 
                     if (_reader.Name.Equals("bind_material", true))
                         while (_reader.BeginElement())
@@ -712,9 +741,9 @@ namespace TheraEngine.Rendering.Models
 
                 while (_reader.ReadAttribute())
                     if (_reader.Name.Equals("symbol", true))
-                        mat._symbol = (string)_reader.Value;
+                        mat._symbol = _reader.Value;
                     else if (_reader.Name.Equals("target", true))
-                        mat._target = _reader.Value[0] == '#' ? (string)(_reader.Value + 1) : (string)_reader.Value;
+                        mat._target = _reader.Value[0] == '#' ? (_reader.Value + 1) : _reader.Value;
 
                 while (_reader.BeginElement())
                 {
@@ -730,11 +759,11 @@ namespace TheraEngine.Rendering.Models
 
                 while (_reader.ReadAttribute())
                     if (_reader.Name.Equals("semantic", true))
-                        v._semantic = (string)_reader.Value;
+                        v._semantic = _reader.Value;
                     else if (_reader.Name.Equals("input_semantic", true))
-                        v._inputSemantic = (string)_reader.Value;
+                        v._inputSemantic = _reader.Value;
                     else if (_reader.Name.Equals("input_set", true))
-                        v._inputSet = int.Parse((string)_reader.Value);
+                        v._inputSet = int.Parse(_reader.Value);
 
                 return v;
             }
@@ -749,6 +778,7 @@ namespace TheraEngine.Rendering.Models
         }
         private class EffectEntry : ColladaEntry
         {
+            internal string _techniqueSid;
             internal EffectShaderEntry _shader;
             internal List<EffectNewParam> _newParams = new List<EffectNewParam>();
         }

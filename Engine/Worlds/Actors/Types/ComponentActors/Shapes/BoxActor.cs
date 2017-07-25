@@ -14,7 +14,7 @@ namespace TheraEngine.Worlds.Actors
             BoundingBox box = new BoundingBox(halfExtents, Vec3.Zero);
             StaticMesh model = new StaticMesh(_name + "_Model")
             {
-                Collision = new BoxShape(halfExtents.X, halfExtents.Y, halfExtents.Z)
+                Collision = new BoxShape(halfExtents)
             };
             model.RigidChildren.Add(new StaticRigidSubMesh(_name + "_Mesh", box.GetMesh(false), new Box(box), m));
             RootComponent = new StaticMeshComponent(model, translation, rotation, Vec3.One, info);

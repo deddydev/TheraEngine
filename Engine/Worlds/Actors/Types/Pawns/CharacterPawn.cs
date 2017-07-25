@@ -65,8 +65,8 @@ namespace TheraEngine.Worlds.Actors
         float _keyboardMovementInputMultiplier = 51.0f;
         float _mouseXLookInputMultiplier = 0.5f;
         float _mouseYLookInputMultiplier = 0.5f;
-        float _gamePadXLookInputMultiplier = 0.7f;
-        float _gamePadYLookInputMultiplier = 0.5f;
+        float _gamePadXLookInputMultiplier = 1.0f;
+        float _gamePadYLookInputMultiplier = 1.0f;
         protected Vec2 _keyboardMovementInput = Vec2.Zero;
         protected Vec2 _gamepadMovementInput = Vec2.Zero;
 

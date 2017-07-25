@@ -143,11 +143,7 @@ namespace System
             }
 
             public void ItemMoved(I3DBoundable item) => ItemMoved(item as T);
-            public async void ItemMoved(T item)
-            {
-                await Task.Run(() => Test(item));
-            }
-            private void Test(T item)
+            public void ItemMoved(T item)
             {
                 //TODO: if the item is the only item within its volume, no need to subdivide more!!!
                 //However, if the item is inserted into a volume with at least one other item in it, 

@@ -22,8 +22,8 @@ namespace TheraEngine.Rendering.Models
             if (shell._assets.Count > 0)
             {
                 AssetEntry e = shell._assets[0];
-                //baseTransform = Matrix4.CreateScale(e._scale);
-                if (e._upAxis == UpAxis.Z)
+                baseTransform = baseTransform * Matrix4.CreateScale(e._meter);
+                if (e._upAxis == EUpAxis.Z)
                     baseTransform = Matrix4.ZupToYup * baseTransform;
             }
 
@@ -85,14 +85,14 @@ namespace TheraEngine.Rendering.Models
                 foreach (VisualSceneEntry s in shell._visualScenes)
                     foreach (NodeEntry node in s._nodes)
                     {
-                        Bone b = EnumNode(null, node, s._nodes, shell, objects, baseTransform, Matrix4.Identity);
+                        Bone b = EnumNode(null, node, s._nodes, shell, objects, Matrix4.Identity, Matrix4.Identity, baseTransform);
                         if (b != null)
                             rootBones.Add(b);
                     }
 
                 foreach (NodeEntry node in shell._nodes)
                 {
-                    Bone b = EnumNode(null, node, shell._nodes, shell, objects, baseTransform, Matrix4.Identity);
+                    Bone b = EnumNode(null, node, shell._nodes, shell, objects, Matrix4.Identity, Matrix4.Identity, baseTransform);
                     if (b != null)
                         rootBones.Add(b);
                 }
@@ -230,14 +230,15 @@ namespace TheraEngine.Rendering.Models
             DecoderShell shell,
             List<ObjectInfo> objects,
             Matrix4 bindMatrix,
-            Matrix4 invParent)
+            Matrix4 invParent,
+            Matrix4 rootMatrix)
         {
             Bone rootBone = null;
-            bindMatrix = bindMatrix * node._matrix;
+            bindMatrix = rootMatrix * bindMatrix * node._matrix;
 
             if (node._type == NodeType.JOINT)
             {
-                Bone bone = new Bone(node._name ?? node._id, FrameState.DeriveTRS(invParent * bindMatrix));
+                Bone bone = new Bone(node._name ?? node._id, FrameState.DeriveTRS(rootMatrix * node._matrix/*invParent * bindMatrix*/));
                 node._node = bone;
 
                 if (parent == null)
@@ -250,7 +251,7 @@ namespace TheraEngine.Rendering.Models
 
             Matrix4 inv = bindMatrix.Inverted();
             foreach (NodeEntry e in node._children)
-                EnumNode(parent, e, nodes, shell, objects, bindMatrix, inv);
+                EnumNode(parent, e, nodes, shell, objects, bindMatrix, inv, Matrix4.Identity);
 
             foreach (InstanceEntry inst in node._instances)
             {
@@ -280,7 +281,7 @@ namespace TheraEngine.Rendering.Models
                 else
                     foreach (NodeEntry e in shell._nodes)
                         if (e._id == inst._url)
-                            EnumNode(parent, e, nodes, shell, objects, bindMatrix, inv);
+                            EnumNode(parent, e, nodes, shell, objects, bindMatrix, inv, Matrix4.Identity);
             }
             return rootBone;
         }

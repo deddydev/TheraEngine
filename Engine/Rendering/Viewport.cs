@@ -24,7 +24,11 @@ namespace TheraEngine.Rendering
         private BoundingRectangle _region;
         private Camera _worldCamera;
         private RenderPanel _owningPanel;
-        private GBuffer _gBuffer;
+        private GBuffer _deferredGBuffer;
+        private GBuffer _forwardGBuffer;
+        private GBuffer _SSAOGBuffer;
+        private GBuffer _postProcessGBuffer;
+
         private BoundingRectangle _internalResolution = new BoundingRectangle();
 
         private float _leftPercentage = 0.0f;
@@ -146,74 +150,17 @@ namespace TheraEngine.Rendering
             Resize(panel.Width, panel.Height);
             UpdateRender();
         }
-
-        private class SSAOInfo
-        {
-            Vec3[] _noise, _kernel;
-            public const int Samples = 64;
-            const int NoiseWidth = 4, NoiseHeight = 4;
-            const float MinSampleDist = 0.1f, MaxSampleDist = 1.0f;
-            
-            public Vec3[] Noise => _noise;
-            public Vec3[] Kernel => _kernel;
-            
-            public void Generate(
-                int samples = Samples,
-                int noiseWidth = NoiseWidth,
-                int noiseHeight = NoiseHeight,
-                float minSampleDist = MinSampleDist,
-                float maxSampleDist = MaxSampleDist)
-            {
-                Random r = new Random();
-
-                _kernel = new Vec3[samples];
-                _noise = new Vec3[noiseWidth * noiseHeight];
-
-                float scale;
-                Vec3 sample, noise;
-
-                for (int i = 0; i < _kernel.Length; ++i)
-                {
-                    sample = new Vec3(
-                        (float)r.NextDouble() * 2.0f - 1.0f,
-                        (float)r.NextDouble() * 2.0f - 1.0f,
-                        (float)r.NextDouble());
-                    sample.NormalizeFast();
-                    scale = i / (float)samples;
-                    scale = CustomMath.Lerp(minSampleDist, maxSampleDist, scale * scale);
-                    _kernel[i] = sample * scale;
-                }
-
-                for (int i = 0; i < _noise.Length; ++i)
-                {
-                    noise = new Vec3(
-                        (float)r.NextDouble() * 2.0f - 1.0f,
-                        (float)r.NextDouble() * 2.0f - 1.0f,
-                        0.0f);
-                    noise.Normalize();
-                    _noise[i] = noise;
-                }
-
-                TextureReference noiseRef = new TextureReference("SSAONoise", noiseWidth, noiseHeight, EPixelInternalFormat.Rgb16f, EPixelFormat.Rgb, EPixelType.Float)
-                {
-                    MinFilter = ETexMinFilter.Nearest,
-                    MagFilter = ETexMagFilter.Nearest,
-                    UWrap = ETexWrapMode.Repeat,
-                    VWrap = ETexWrapMode.Repeat,
-                };
-            }
-        }
-
+        
         internal void UpdateRender()
         {
             if (Engine.Settings.ShadingStyle == ShadingStyle.Deferred)
             {
-                _gBuffer = new GBuffer(this, false);
+                _deferredGBuffer = new GBuffer(this, false);
                 Render = RenderDeferred;
             }
             else
             {
-                _gBuffer = new GBuffer(this, true);
+                _deferredGBuffer = new GBuffer(this, true);
                 Render = RenderForward;
             }
             _ssaoInfo.Generate();
@@ -228,7 +175,7 @@ namespace TheraEngine.Rendering
             if (_worldCamera is PerspectiveCamera p)
                 p.Aspect = Width / Height;
 
-            _gBuffer?.ResizeTextures(_internalResolution.IntWidth, _internalResolution.IntHeight);
+            _deferredGBuffer?.ResizeTextures(_internalResolution.IntWidth, _internalResolution.IntHeight);
         }
         internal void Resize(float parentWidth, float parentHeight, bool setInternalResolution = true)
         {
@@ -256,7 +203,7 @@ namespace TheraEngine.Rendering
             if (Camera != null)
             {
                 //We want to render to GBuffer textures
-                _gBuffer.Bind(EFramebufferTarget.Framebuffer);
+                _deferredGBuffer.Bind(EFramebufferTarget.Framebuffer);
                 Engine.Renderer.PushRenderArea(_internalResolution);
 
                 //Clear color and depth and allow writing to depth
@@ -271,22 +218,22 @@ namespace TheraEngine.Rendering
 
                 //We want to render to back buffer now
                 Engine.Renderer.PopRenderArea();
-                _gBuffer.Unbind(EFramebufferTarget.Framebuffer);
+                _deferredGBuffer.Unbind(EFramebufferTarget.Framebuffer);
 
                 //Render deferred pass to quad
-                _gBuffer.Render();
+                _deferredGBuffer.Render();
 
                 Engine.Renderer.Clear(EBufferClear.Depth);
 
                 //Copy depth from GBuffer to main frame buffer
-                _gBuffer.Bind(EFramebufferTarget.ReadFramebuffer);
+                _deferredGBuffer.Bind(EFramebufferTarget.ReadFramebuffer);
                 Engine.Renderer.BindFrameBuffer(EFramebufferTarget.DrawFramebuffer, 0);
                 Engine.Renderer.BlitFrameBuffer(
                     0, 0, Region.IntWidth, Region.IntHeight,
                     0, 0, Region.IntWidth, Region.IntHeight,
                     EClearBufferMask.DepthBufferBit,
                     EBlitFramebufferFilter.Nearest);
-                _gBuffer.Unbind(EFramebufferTarget.ReadFramebuffer);
+                _deferredGBuffer.Unbind(EFramebufferTarget.ReadFramebuffer);
                 Engine.Renderer.BindFrameBuffer(EFramebufferTarget.Framebuffer, 0);
 
                 //Render other passes
@@ -312,7 +259,7 @@ namespace TheraEngine.Rendering
             if (Camera != null)
             {
                 //We want to render to GBuffer textures
-                _gBuffer.Bind(EFramebufferTarget.Framebuffer);
+                _deferredGBuffer.Bind(EFramebufferTarget.Framebuffer);
                 Engine.Renderer.PushRenderArea(_internalResolution);
 
                 //Clear color and depth and allow writing to depth
@@ -328,10 +275,10 @@ namespace TheraEngine.Rendering
 
                 //We want to render to back buffer now
                 Engine.Renderer.PopRenderArea();
-                _gBuffer.Unbind(EFramebufferTarget.Framebuffer);
+                _deferredGBuffer.Unbind(EFramebufferTarget.Framebuffer);
 
                 //Render quad
-                _gBuffer.Render();
+                _deferredGBuffer.Render();
 
                 scene.PostRender();
             }
@@ -366,7 +313,7 @@ namespace TheraEngine.Rendering
         {
             throw new NotImplementedException();
             Vec2 absolutePoint = viewportPoint;//RelativeToAbsolute(viewportPoint);
-            _gBuffer.Bind(EFramebufferTarget.Framebuffer);
+            _deferredGBuffer.Bind(EFramebufferTarget.Framebuffer);
             Engine.Renderer.SetReadBuffer(EDrawBuffersAttachment.None);
             //var depthTex = _gBuffer.Textures[4];
             //depthTex.Bind();
@@ -376,7 +323,7 @@ namespace TheraEngine.Rendering
             //float depth = *(float*)((byte*)bmd.Scan0 + ((int)viewportPoint.Y * bmd.Stride + (int)viewportPoint.X * 4));
             //depthTex.UnlockBits(bmd);
             float depth = Engine.Renderer.GetDepth(absolutePoint.X, absolutePoint.Y);
-            _gBuffer.Unbind(EFramebufferTarget.Framebuffer);
+            _deferredGBuffer.Unbind(EFramebufferTarget.Framebuffer);
             return depth;
         }
 
@@ -625,6 +572,63 @@ namespace TheraEngine.Rendering
         {
             _leftPercentage = _bottomPercentage = 0.0f;
             _rightPercentage = _topPercentage = 1.0f;
+        }
+        private class SSAOInfo
+        {
+            Vec3[] _noise, _kernel;
+            public const int Samples = 64;
+            const int NoiseWidth = 4, NoiseHeight = 4;
+            const float MinSampleDist = 0.1f, MaxSampleDist = 1.0f;
+            
+
+            public Vec3[] Noise => _noise;
+            public Vec3[] Kernel => _kernel;
+
+            public void Generate(
+                int samples = Samples,
+                int noiseWidth = NoiseWidth,
+                int noiseHeight = NoiseHeight,
+                float minSampleDist = MinSampleDist,
+                float maxSampleDist = MaxSampleDist)
+            {
+                Random r = new Random();
+
+                _kernel = new Vec3[samples];
+                _noise = new Vec3[noiseWidth * noiseHeight];
+
+                float scale;
+                Vec3 sample, noise;
+
+                for (int i = 0; i < _kernel.Length; ++i)
+                {
+                    sample = new Vec3(
+                        (float)r.NextDouble() * 2.0f - 1.0f,
+                        (float)r.NextDouble() * 2.0f - 1.0f,
+                        (float)r.NextDouble());
+                    sample.NormalizeFast();
+                    scale = i / (float)samples;
+                    scale = CustomMath.Lerp(minSampleDist, maxSampleDist, scale * scale);
+                    _kernel[i] = sample * scale;
+                }
+
+                for (int i = 0; i < _noise.Length; ++i)
+                {
+                    noise = new Vec3(
+                        (float)r.NextDouble() * 2.0f - 1.0f,
+                        (float)r.NextDouble() * 2.0f - 1.0f,
+                        0.0f);
+                    noise.Normalize();
+                    _noise[i] = noise;
+                }
+
+                TextureReference noiseRef = new TextureReference("SSAONoise", noiseWidth, noiseHeight, EPixelInternalFormat.Rgb16f, EPixelFormat.Rgb, EPixelType.Float)
+                {
+                    MinFilter = ETexMinFilter.Nearest,
+                    MagFilter = ETexMagFilter.Nearest,
+                    UWrap = ETexWrapMode.Repeat,
+                    VWrap = ETexWrapMode.Repeat,
+                };
+            }
         }
     }
 }

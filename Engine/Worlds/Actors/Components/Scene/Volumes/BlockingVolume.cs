@@ -8,7 +8,7 @@ namespace TheraEngine.Worlds.Actors
         public BlockingVolumeComponent(Vec3 halfExtents, Vec3 translation, Rotator rotation, CustomCollisionGroup collisionGroup, CustomCollisionGroup collidesWith)
             : base(halfExtents, new PhysicsConstructionInfo()
             {
-                Mass = 1.0f,
+                Mass = 0.0f,
                 CollisionEnabled = true,
                 SimulatePhysics = false,
                 CollisionGroup = collisionGroup,

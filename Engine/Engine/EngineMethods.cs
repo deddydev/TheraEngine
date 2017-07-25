@@ -230,13 +230,13 @@ namespace TheraEngine
         {
             float delta = (float)(e.Time * TimeDilation);
             TickGroup(ETickGroup.PrePhysics, delta);
-            using (Task task = new Task(() => TickGroup(ETickGroup.DuringPhysics, delta)))
-            {
-                task.Start();
+            //using (Task task = new Task(() => TickGroup(ETickGroup.DuringPhysics, delta)))
+            //{
+                //task.Start();
                 if (!_isPaused && World != null)
                     World.StepSimulation(delta);
-                task.Wait();
-            }
+                //task.Wait();
+            //}
             TickGroup(ETickGroup.PostPhysics, delta);
         }
         /// <summary>
@@ -249,11 +249,13 @@ namespace TheraEngine
             int start = (int)group;
             for (int i = start; i < start + 15; i += 3)
             {
-                Parallel.For(0, 3, (int j) => 
+                for (int j = 0; j < 3; ++j)
+                //Parallel.For(0, 3, (int j) => 
                 {
                     if (j == 0 || (j == 1 && !IsPaused) || (j == 2 && IsPaused))
                         TickList(i + j, delta);
-                });
+                }
+                //);
             }
         }
         /// <summary>
@@ -263,8 +265,9 @@ namespace TheraEngine
         {
             ThreadSafeList<DelTick> currentList = _tickLists[_currentTickList = index];
 
-            Parallel.ForEach(currentList, currentFunc => currentFunc(delta));
-            
+            //Parallel.ForEach(currentList, currentFunc => currentFunc(delta));
+            currentList.ForEach(x => x(delta));
+
             _currentTickList = -1;
 
             //Add or remove the list of methods that tried to register to or unregister from this group while it was ticking.

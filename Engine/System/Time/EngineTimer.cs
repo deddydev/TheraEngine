@@ -41,33 +41,33 @@ namespace TheraEngine.Timers
             if (_running) return;
             _runningTask = Task.Run(() => RunUpdateInternal());
         }
-        private async void RunUpdateInternal()
+        private /*async*/ void RunUpdateInternal()
         {
             Debug.WriteLine("Started game loop on thread " + Thread.CurrentThread.ManagedThreadId);
             //RenderContext.Current.CreateContextForThread(Thread.CurrentThread);
             _running = true;
             _watch.Start();
 
-            //Initial update before first render
-            Task updateFrameTask = Task.Run(() => DispatchUpdate());
-
-            while (_running)
-            {
-                //Wait for update to finish.
-                await updateFrameTask;
-                //Render.
-                Task renderFrameTask = Task.Run(() => DispatchRender());
-                //Update.
-                updateFrameTask = Task.Run(() => DispatchUpdate());
-                //Wait for render to finish.
-                await renderFrameTask;
-            }
+            ////Initial update before first render
+            //Task updateFrameTask = Task.Run(() => DispatchUpdate());
 
             //while (_running)
             //{
-            //    DispatchUpdate();
-            //    DispatchRender();
+            //    //Wait for update to finish.
+            //    await updateFrameTask;
+            //    //Render.
+            //    Task renderFrameTask = Task.Run(() => DispatchRender());
+            //    //Update.
+            //    updateFrameTask = Task.Run(() => DispatchUpdate());
+            //    //Wait for render to finish.
+            //    await renderFrameTask;
             //}
+
+            while (_running)
+            {
+                DispatchUpdate();
+                DispatchRender();
+            }
 
             Debug.WriteLine("Game loop ended.");
         }

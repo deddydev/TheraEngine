@@ -11,7 +11,12 @@ namespace TheraEngine.Rendering
     internal class GBuffer : MaterialFrameBuffer
     {
         OrthographicCamera _quadCamera;
+
+        //One giant triangle is better than a quad with two triangles. 
+        //Using two triangles may introduce tearing on the line through the screen,
+        //because the two triangles may not be rasterized at the exact same time.
         PrimitiveManager _fullScreenTriangle;
+
         Viewport _parent;
 
         const bool CalculateFragPos = true;

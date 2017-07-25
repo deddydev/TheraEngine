@@ -156,6 +156,8 @@ namespace TheraEngine.Rendering
                     if (wasInWorld && Engine.World != null)
                         Engine.World.PhysicsScene.RemoveRigidBody(_collision);
                     _collision.UserObject = null;
+                    //_collision.CollisionFlags &= ~CollisionFlags.StaticObject;
+                    //_collision.CollisionFlags &= ~CollisionFlags.KinematicObject;
                 }
                 _collision = value;
                 if (_collision != null)
@@ -171,12 +173,14 @@ namespace TheraEngine.Rendering
 
                     if (!_simulatingPhysics)
                     {
+                        //_collision.CollisionFlags |= CollisionFlags.StaticObject;
                         _collision.LinearFactor = new Vector3(0.0f);
                         _collision.AngularFactor = new Vector3(0.0f);
                         _collision.ForceActivationState(ActivationState.DisableSimulation);
                     }
                     else
                     {
+                        //_collision.CollisionFlags &= ~CollisionFlags.StaticObject;
                         _collision.LinearFactor = _previousLinearFactor;
                         _collision.AngularFactor = _previousAngularFactor;
                         _collision.ForceActivationState(ActivationState.ActiveTag);
@@ -199,18 +203,18 @@ namespace TheraEngine.Rendering
                 {
                     if (!_simulatingPhysics)
                     {
+                        //_collision.CollisionFlags |= CollisionFlags.StaticObject;
                         _collision.LinearFactor = new Vector3(0.0f);
                         _collision.AngularFactor = new Vector3(0.0f);
-                        _collision.CollisionFlags |= CollisionFlags.StaticObject;
                         _collision.ForceActivationState(ActivationState.DisableSimulation);
                         if (_isSpawned)
                             UnregisterTick(ETickGroup.PostPhysics, ETickOrder.Scene, Tick);
                     }
                     else
                     {
+                        //_collision.CollisionFlags &= ~CollisionFlags.StaticObject;
                         _collision.LinearFactor = _previousLinearFactor;
                         _collision.AngularFactor = _previousAngularFactor;
-                        _collision.CollisionFlags &= ~CollisionFlags.StaticObject;
                         SetPhysicsTransform(_owner.WorldMatrix);
                         _collision.ForceActivationState(ActivationState.DisableDeactivation);
                         if (_isSpawned)
@@ -325,10 +329,10 @@ namespace TheraEngine.Rendering
             //_collision.CenterOfMassTransform = newTransform;
             //Engine.World?.PhysicsScene.UpdateAabbs();
         }
-        protected internal async void Tick(float delta)
+        protected internal /*async*/ void Tick(float delta)
         {
             _collision.GetWorldTransform(out Matrix transform);
-            await Task.Run(() => TransformChanged?.Invoke(transform));
+            /*await Task.Run(() => */TransformChanged?.Invoke(transform)/*)*/;
         }
 
         internal void InvokeHit(IPhysicsDrivable other, ManifoldPoint cp)

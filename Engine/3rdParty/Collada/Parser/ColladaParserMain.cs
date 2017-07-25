@@ -14,6 +14,16 @@ namespace TheraEngine.Rendering.Models
             internal List<VisualSceneEntry> _visualScenes = new List<VisualSceneEntry>();
             internal XMLReader _reader;
             internal int _v1, _v2, _v3;
+            internal Dictionary<string, List<ColladaEntry>> _sidEntries = new Dictionary<string, List<ColladaEntry>>();
+            internal Dictionary<string, ColladaEntry> _idEntries = new Dictionary<string, ColladaEntry>();
+
+            private void AddSidEntry(string sid, ColladaEntry entry)
+            {
+                if (_sidEntries.ContainsKey(sid))
+                    _sidEntries[sid].Add(entry);
+                else
+                    _sidEntries.Add(sid, new List<ColladaEntry>() { entry });
+            }
 
             public static DecoderShell Import(string path)
             {
@@ -28,58 +38,69 @@ namespace TheraEngine.Rendering.Models
             private DecoderShell(XMLReader reader)
             {
                 _reader = reader;
-
                 while (reader.BeginElement())
                 {
                     if (reader.Name.Equals("COLLADA", true))
                         ParseMain();
-
                     reader.EndElement();
                 }
-
                 _reader = null;
             }
 
             private void ParseMain()
             {
                 while (_reader.ReadAttribute())
-                    if (_reader.Name.Equals("version", true))
+                {
+                    switch (_reader.Name.ToString().ToLower())
                     {
-                        string v = _reader.Value;
-                        string[] s = v.Split('.');
-                        int.TryParse(s[0], NumberStyles.Number, CultureInfo.InvariantCulture.NumberFormat, out _v1);
-                        int.TryParse(s[1], NumberStyles.Number, CultureInfo.InvariantCulture.NumberFormat, out _v2);
-                        int.TryParse(s[2], NumberStyles.Number, CultureInfo.InvariantCulture.NumberFormat, out _v3);
+                        case "version":
+                            string v = _reader.Value;
+                            string[] s = v.Split('.');
+                            int.TryParse(s[0], NumberStyles.Number, CultureInfo.InvariantCulture.NumberFormat, out _v1);
+                            int.TryParse(s[1], NumberStyles.Number, CultureInfo.InvariantCulture.NumberFormat, out _v2);
+                            int.TryParse(s[2], NumberStyles.Number, CultureInfo.InvariantCulture.NumberFormat, out _v3);
+                            break;
                     }
+                }
+
                 while (_reader.BeginElement())
                 {
-                    if (_reader.Name.Equals("asset", true))
-                        ParseAsset();
-                    else if (_reader.Name.Equals("library_cameras", true))
-                        ParseLibCameras();
-                    else if (_reader.Name.Equals("library_images", true))
-                        ParseLibImages();
-                    else if (_reader.Name.Equals("library_materials", true))
-                        ParseLibMaterials();
-                    else if (_reader.Name.Equals("library_effects", true))
-                        ParseLibEffects();
-                    else if (_reader.Name.Equals("library_geometries", true))
-                        ParseLibGeometry();
-                    else if (_reader.Name.Equals("library_controllers", true))
-                        ParseLibControllers();
-                    else if (_reader.Name.Equals("library_visual_scenes", true))
-                        ParseLibVisualScenes();
-                    //else if (_reader.Name.Equals("library_physics_scenes", true))
-                    //    ParseLibPhysicsScenes();
-                    //else if (_reader.Name.Equals("library_kinematics_scenes", true))
-                    //    ParseLibKinematicsScenes();
-                    else if (_reader.Name.Equals("library_nodes", true))
-                        ParseLibNodes();
-                    else if (_reader.Name.Equals("library_animation_clips", true))
-                        ParseLibAnimationClips();
-                    else if (_reader.Name.Equals("library_animations", true))
-                        ParseLibAnimations();
-
+                    switch (_reader.Name.ToString().ToLower())
+                    {
+                        case "asset":
+                            ParseAsset();
+                            break;
+                        case "library_cameras":
+                            ParseLibCameras();
+                            break;
+                        case "library_images":
+                            ParseLibImages();
+                            break;
+                        case "library_materials":
+                            ParseLibMaterials();
+                            break;
+                        case "library_effects":
+                            ParseLibEffects();
+                            break;
+                        case "library_geometries":
+                            ParseLibGeometry();
+                            break;
+                        case "library_controllers":
+                            ParseLibControllers();
+                            break;
+                        case "library_visual_scenes":
+                            ParseLibVisualScenes();
+                            break;
+                        case "library_nodes":
+                            ParseLibNodes();
+                            break;
+                        case "library_animation_clips":
+                            ParseLibAnimationClips();
+                            break;
+                        case "library_animations":
+                            ParseLibAnimations();
+                            break;
+                    }
                     _reader.EndElement();
                 }
             }
@@ -132,12 +153,12 @@ namespace TheraEngine.Rendering.Models
                     {
                         while (_reader.ReadAttribute())
                             if (_reader.Name.Equals("meter", true))
-                                float.TryParse(_reader.Value, NumberStyles.Any, CultureInfo.InvariantCulture.NumberFormat, out entry._scale);
+                                float.TryParse(_reader.Value, NumberStyles.Any, CultureInfo.InvariantCulture.NumberFormat, out entry._meter);
                     }
                     else if (_reader.Name.Equals("up_axis", true))
                     {
                         string axis = ((string)_reader.Value).ToLower();
-                        entry._upAxis = axis.Contains("y") ? UpAxis.Y : axis.Contains("x") ? UpAxis.X : UpAxis.Z;
+                        entry._upAxis = axis.Contains("y") ? EUpAxis.Y : axis.Contains("x") ? EUpAxis.X : EUpAxis.Z;
                     }
                     _reader.EndElement();
                 }
@@ -276,7 +297,8 @@ namespace TheraEngine.Rendering.Models
 
                 return src;
             }
-            
+
+            #region Primitives
             private Matrix4 ParseMatrix()
             {
                 Matrix4 m;
@@ -292,12 +314,7 @@ namespace TheraEngine.Rendering.Models
                 ColorF4 c;
                 float* p = (float*)&c;
                 for (int i = 0; i < 4; i++)
-                {
-                    if (!_reader.ReadValue(&f))
-                        p[i] = 1.0f;
-                    else
-                        p[i] = f;
-                }
+                    p[i] = _reader.ReadValue(&f) ? f : 1.0f;
                 return c;
             }
             private Vec3 ParseVec3()
@@ -306,12 +323,7 @@ namespace TheraEngine.Rendering.Models
                 Vec3 c;
                 float* p = (float*)&c;
                 for (int i = 0; i < 3; i++)
-                {
-                    if (!_reader.ReadValue(&f))
-                        p[i] = 0.0f;
-                    else
-                        p[i] = f;
-                }
+                    p[i] = _reader.ReadValue(&f) ? f : 0.0f;
                 return c;
             }
             private Vec4 ParseVec4()
@@ -320,14 +332,10 @@ namespace TheraEngine.Rendering.Models
                 Vec4 c;
                 float* p = (float*)&c;
                 for (int i = 0; i < 4; i++)
-                {
-                    if (!_reader.ReadValue(&f))
-                        p[i] = 0.0f;
-                    else
-                        p[i] = f;
-                }
+                    p[i] = _reader.ReadValue(&f) ? f : 0.0f;
                 return c;
             }
+            #endregion
         }
         private class ColladaLibrary
         {
@@ -338,18 +346,18 @@ namespace TheraEngine.Rendering.Models
             internal string _id, _name, _sid;
             internal object _node;
         }
-        public enum UpAxis
+        public enum EUpAxis
         {
                 //Coordinate systems for each up axis:
                 //Right,    Up,    Toward Camera
             X,  //  -Y,     +X,     +Z
-            Y,  //  +X,     +Y,     +Z
+            Y,  //  +X,     +Y,     +Z <-- TheraEngine's coordinate system
             Z,  //  +X      +Z,     -Y
         }
         private class AssetEntry : ColladaEntry
         {
-            internal UpAxis _upAxis = UpAxis.Y;
-            internal float _scale = 1.0f;
+            internal EUpAxis _upAxis = EUpAxis.Y;
+            internal float _meter = 1.0f;
         }
         private class SourceEntry : ColladaEntry
         {
@@ -401,7 +409,10 @@ namespace TheraEngine.Rendering.Models
             None,
             Float,
             Int,
-            Name
+            Name,
+            IdRef,
+            SidRef,
+            Token,
         }
     }
 }

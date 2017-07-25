@@ -294,7 +294,7 @@ float ReadShadowMap(in vec3 fragPos, in vec3 normal, in float diffuseFactor, in 
             shadow += fragCoord.z - bias > pcfDepth ? 0.0 : 1.0;        
         }    
     }
-    shadow /= 9.0;
+    shadow *= 0.111111111; //divided by 9
     return shadow;
 }
 

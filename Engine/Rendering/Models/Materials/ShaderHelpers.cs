@@ -29,7 +29,7 @@ vec3 WorldPosFromDepth(float depth, vec2 uv)
     return worldSpacePosition.xyz;
 }";
         public static readonly string Func_ViewPosFromDepth = @"
-vec3 WorldPosFromDepth(float depth, vec2 uv)
+vec3 ViewPosFromDepth(float depth, vec2 uv)
 {
     float z = depth * 2.0 - 1.0;
     vec4 clipSpacePosition = vec4(uv * 2.0 - 1.0, z, 1.0);
@@ -93,10 +93,11 @@ void main()
 {
     vec3 normal = normalize(FragNorm);
     vec4 texColor = texture(Texture0, FragUV0);
+    float AmbientOcclusion = 1.0f;
 
-    " + LightingCalc("totalLight", "vec3(0.0)", "normal", "FragPos", "texColor.rgb", "MatSpecularIntensity") + @"
+    " + LightingCalc("totalLight", "vec3(0.0f)", "normal", "FragPos", "texColor.rgb", "MatSpecularIntensity", "AmbientOcclusion") + @"
 
-    OutColor = texColor * vec4(totalLight, 1.0);
+    OutColor = texColor * vec4(totalLight, 1.0f);
 }
 ";
             return new Shader(ShaderMode.Fragment, source);
@@ -212,27 +213,28 @@ void main()
             return new Shader(ShaderMode.Fragment, source);
         }
         public static string LightingCalcForward()
-            => LightingCalc("totalLight", "GlobalAmbient", "normal", "FragPos", "MatColor.rgb", "MatSpecularIntensity");
+            => LightingCalc("totalLight", "GlobalAmbient", "normal", "FragPos", "MatColor.rgb", "MatSpecularIntensity", ", AmbientOcclusion");
         public static string LightingCalc(
             string lightVarName,
             string baseLightVec3,
             string normalNameVec3,
             string fragPosNameVec3,
             string albedoNameRGB,
-            string specNameIntensity)
+            string specNameIntensity,
+            string ambientOcclusionFloat)
         {
             return string.Format(@"
     vec3 {0} = {1};
 
     for (int i = 0; i < DirLightCount; ++i)
-        {0} += CalcDirLight(DirectionalLights[i], {2}, {3}, {4}, {5});
+        {0} += CalcDirLight(DirectionalLights[i], {2}, {3}, {4}, {5}, {6});
 
     for (int i = 0; i < PointLightCount; ++i)
-        {0} += CalcPointLight(PointLights[i], {2}, {3}, {4}, {5});
+        {0} += CalcPointLight(PointLights[i], {2}, {3}, {4}, {5}, {6});
 
     for (int i = 0; i < SpotLightCount; ++i)
-        {0} += CalcSpotLight(SpotLights[i], {2}, {3}, {4}, {5});",
-        lightVarName, baseLightVec3, normalNameVec3, fragPosNameVec3, albedoNameRGB, specNameIntensity);
+        {0} += CalcSpotLight(SpotLights[i], {2}, {3}, {4}, {5}, {6});",
+        lightVarName, baseLightVec3, normalNameVec3, fragPosNameVec3, albedoNameRGB, specNameIntensity, ambientOcclusionFloat);
         }
         public static string LightingSetupBasic()
         {
@@ -303,9 +305,9 @@ float Attenuate(in float dist, in float radius)
     return " + GetLightFalloff("radius", "dist") + @"
 }
 
-vec3 CalcColor(BaseLight light, vec3 lightDirection, vec3 normal, vec3 fragPos, vec3 albedo, float spec)
+vec3 CalcColor(BaseLight light, vec3 lightDirection, vec3 normal, vec3 fragPos, vec3 albedo, float spec, float ambientOcclusion)
 {
-    vec3 AmbientColor = vec3(light.Color * light.AmbientIntensity);
+    vec3 AmbientColor = vec3(light.Color * light.AmbientIntensity) * ambientOcclusion;
     vec3 DiffuseColor = vec3(0.0);
     vec3 SpecularColor = vec3(0.0);
 
@@ -327,18 +329,18 @@ vec3 CalcColor(BaseLight light, vec3 lightDirection, vec3 normal, vec3 fragPos, 
     return AmbientColor + (DiffuseColor + SpecularColor) * shadow;
 }
 
-vec3 CalcDirLight(DirLight light, vec3 normal, vec3 fragPos, vec3 albedo, float spec)
+vec3 CalcDirLight(DirLight light, vec3 normal, vec3 fragPos, vec3 albedo, float spec, float ambientOcclusion)
 {
-    return CalcColor(light.Base, light.Direction, normal, fragPos, albedo, spec);
+    return CalcColor(light.Base, light.Direction, normal, fragPos, albedo, spec, ambientOcclusion);
 }
 
-vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 albedo, float spec)
+vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 albedo, float spec, float ambientOcclusion)
 {
     vec3 lightToPos = fragPos - light.Position;
-    return Attenuate(length(lightToPos), light.Radius) * CalcColor(light.Base, normalize(lightToPos), normal, fragPos, albedo, spec);
+    return Attenuate(length(lightToPos), light.Radius) * CalcColor(light.Base, normalize(lightToPos), normal, fragPos, albedo, spec, ambientOcclusion);
 } 
 
-vec3 CalcSpotLight(SpotLight light, vec3 normal, vec3 fragPos, vec3 albedo, float spec)
+vec3 CalcSpotLight(SpotLight light, vec3 normal, vec3 fragPos, vec3 albedo, float spec, float ambientOcclusion)
 {
     if (light.Cutoff <= 1.5707) //~90 degrees in radians
     {
@@ -349,7 +351,7 @@ vec3 CalcSpotLight(SpotLight light, vec3 normal, vec3 fragPos, vec3 albedo, floa
             vec3 lightToPos = fragPos - light.Base.Position;
             float spotAttn = pow(clampedCosine, light.Exponent);
             float distAttn = Attenuate(length(lightToPos), light.Base.Radius);
-            vec3 color = CalcColor(light.Base.Base, normalize(lightToPos), normal, fragPos, albedo, spec);
+            vec3 color = CalcColor(light.Base.Base, normalize(lightToPos), normal, fragPos, albedo, spec, ambientOcclusion);
             return spotAttn * distAttn * color;
         }
     }

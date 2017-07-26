@@ -83,6 +83,41 @@ namespace TheraEngine.Rendering.Models.Materials
                 return;
             foreach (var tref in _mipmaps)
                 tref.GetInstance();
+            if (_mipmaps.Length > 0)
+            {
+                var tref = _mipmaps[0];
+                if (tref.File != null)
+                {
+                    var t = tref.File;
+                    if (t.Bitmaps.Length > 0)
+                    {
+                        var b = t.Bitmaps[0];
+                        if (b != null)
+                        {
+                            switch (b.PixelFormat)
+                            {
+                                case PixelFormat.Format32bppArgb:
+                                case PixelFormat.Format32bppPArgb:
+                                    _internalFormat = EPixelInternalFormat.Rgba8;
+                                    _pixelFormat = EPixelFormat.Bgra;
+                                    _pixelType = EPixelType.UnsignedByte;
+                                    break;
+                                case PixelFormat.Format24bppRgb:
+                                    _internalFormat = EPixelInternalFormat.Rgb8;
+                                    _pixelFormat = EPixelFormat.Bgr;
+                                    _pixelType = EPixelType.UnsignedByte;
+                                    break;
+                                case PixelFormat.Format64bppArgb:
+                                case PixelFormat.Format64bppPArgb:
+                                    _internalFormat = EPixelInternalFormat.Rgba16;
+                                    _pixelFormat = EPixelFormat.Bgra;
+                                    _pixelType = EPixelType.UnsignedShort;
+                                    break;
+                            }
+                        }
+                    }
+                }
+            }
         }
 
         private Texture2D _texture;
@@ -156,8 +191,9 @@ namespace TheraEngine.Rendering.Models.Materials
             {
                 if (_texture != null)
                     return _texture;
+                LoadMipmaps();
                 if (_mipmaps != null && _mipmaps.Length > 0)
-                    _texture = new Texture2D(_mipmaps.SelectMany(x => x.File == null || x.File.Bitmaps == null ? new Bitmap[0] : x.File.Bitmaps).ToArray());
+                    _texture = new Texture2D(_internalFormat, _pixelFormat, _pixelType, _mipmaps.SelectMany(x => x.File == null || x.File.Bitmaps == null ? new Bitmap[0] : x.File.Bitmaps).ToArray());
                 else
                     _texture = new Texture2D(_width, _height, _internalFormat, _pixelFormat, _pixelType);
                 _texture.PostPushData += SetParameters;

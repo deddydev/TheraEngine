@@ -168,28 +168,28 @@ namespace TheraEngine.Rendering
                 VWrap = ETexWrapMode.Clamp,
                 FrameBufferAttachment = EFramebufferAttachment.DepthAttachment,
             };
-            TextureReference ssaoNoise = new TextureReference("SSAONoise", 
-                _ssaoInfo.NoiseWidth, _ssaoInfo.NoiseHeight,
-                EPixelInternalFormat.Rgba16f, EPixelFormat.Rgba, EPixelType.UnsignedShort,
-                PixelFormat.Format64bppArgb)
-            {
-                MinFilter = ETexMinFilter.Nearest,
-                MagFilter = ETexMagFilter.Nearest,
-                UWrap = ETexWrapMode.Repeat,
-                VWrap = ETexWrapMode.Repeat,
-            };
-            Bitmap bmp = ssaoNoise.Mipmaps[0].File.Bitmaps[0];
-            BitmapData data = bmp.LockBits(new Rectangle(0, 0, _ssaoInfo.NoiseWidth, _ssaoInfo.NoiseHeight), ImageLockMode.WriteOnly, bmp.PixelFormat);
-            ushort* values = (ushort*)data.Scan0;
-            Vec3[] noise = _ssaoInfo.Noise;
-            foreach (Vec3 v in noise)
-            {
-                *values++ = (ushort)(v.X * ushort.MaxValue);
-                *values++ = (ushort)(v.Y * ushort.MaxValue);
-                *values++ = (ushort)(v.Z * ushort.MaxValue);
-                *values++ = 0;
-            }
-            bmp.UnlockBits(data);
+            //TextureReference ssaoNoise = new TextureReference("SSAONoise", 
+            //    _ssaoInfo.NoiseWidth, _ssaoInfo.NoiseHeight,
+            //    EPixelInternalFormat.Rgba16, EPixelFormat.Bgra, EPixelType.UnsignedShort,
+            //    PixelFormat.Format64bppArgb)
+            //{
+            //    MinFilter = ETexMinFilter.Nearest,
+            //    MagFilter = ETexMagFilter.Nearest,
+            //    UWrap = ETexWrapMode.Repeat,
+            //    VWrap = ETexWrapMode.Repeat,
+            //};
+            //Bitmap bmp = ssaoNoise.Mipmaps[0].File.Bitmaps[0];
+            //BitmapData data = bmp.LockBits(new Rectangle(0, 0, _ssaoInfo.NoiseWidth, _ssaoInfo.NoiseHeight), ImageLockMode.WriteOnly, bmp.PixelFormat);
+            //ushort* values = (ushort*)data.Scan0;
+            //Vec3[] noise = _ssaoInfo.Noise;
+            //foreach (Vec3 v in noise)
+            //{
+            //    *values++ = (ushort)(v.X * ushort.MaxValue);
+            //    *values++ = (ushort)(v.Y * ushort.MaxValue);
+            //    *values++ = (ushort)(v.Z * ushort.MaxValue);
+            //    *values++ = 0;
+            //}
+            //bmp.UnlockBits(data);
             TextureReference[] deferredRefs = new TextureReference[]
             {
                 new TextureReference("AlbedoSpec", width, height,
@@ -210,7 +210,7 @@ namespace TheraEngine.Rendering
                     VWrap = ETexWrapMode.Clamp,
                     FrameBufferAttachment = EFramebufferAttachment.ColorAttachment1,
                 },
-                ssaoNoise,
+                //ssaoNoise,
                 depthTexture,
             };
             TextureReference[] postProcessRefs = new TextureReference[]
@@ -281,7 +281,7 @@ namespace TheraEngine.Rendering
         private void _deferredGBuffer_SettingUniforms(int programBindingId)
         {
             _worldCamera?.SetUniforms(programBindingId);
-            Engine.Renderer.ProgramUniform(programBindingId, "SSAOSamples", _ssaoInfo.Kernel.Select(x => (IUniformable3Float)x).ToArray());
+            //Engine.Renderer.ProgramUniform(programBindingId, "SSAOSamples", _ssaoInfo.Kernel.Select(x => (IUniformable3Float)x).ToArray());
         }
 
         public void SetInternalResolution(float width, float height)
@@ -787,14 +787,14 @@ in vec3 FragPos;
 
 uniform sampler2D Texture0; //AlbedoSpec
 uniform sampler2D Texture1; //Normal
-uniform sampler2D Texture2; //SSAO Noise
-uniform sampler2D Texture3; //Depth
+//uniform sampler2D Texture2; //SSAO Noise
+uniform sampler2D Texture2; //Depth
 
-uniform vec3 SSAOSamples[64];
+//uniform vec3 SSAOSamples[64];
 
 " + Camera.ShaderSetup() + @"
 " + ShaderHelpers.LightingSetupBasic() + @"
-" + ShaderHelpers.Func_ViewPosFromDepth + @"
+" + ShaderHelpers.Func_WorldPosFromDepth + @"
 
 void main()
 {
@@ -804,41 +804,41 @@ void main()
 
     vec4 AlbedoSpec = texture(Texture0, uv);
     vec3 Normal = texture(Texture1, uv).rgb;
-    float Depth = texture(Texture3, uv).r;
-    vec3 FragPosWS = (CameraToWorldSpaceMatrix * vec4(ViewPosFromDepth(Depth, uv), 1.0f)).xyz;
+    float Depth = texture(Texture2, uv).r;
+    vec3 FragPosWS = WorldPosFromDepth(Depth, uv);
 
-    ivec2 res = textureSize(Texture0, 0);
-    vec2 noiseScale = vec2(res.x * 0.25f, res.y * 0.25f);
-    vec3 randomVec = vec3(texture(Texture2, uv * noiseScale).rg * 2.0f - 1.0f, 0.0f);
-    vec3 tangent = normalize(randomVec - Normal * dot(randomVec, Normal));
-    vec3 bitangent = cross(Normal, tangent);
-    mat3 TBN = mat3(tangent, bitangent, Normal); 
+    //ivec2 res = textureSize(Texture0, 0);
+    //vec2 noiseScale = vec2(res.x * 0.25f, res.y * 0.25f);
+    //vec3 randomVec = vec3(texture(Texture2, uv * noiseScale).rg * 2.0f - 1.0f, 0.0f);
+    //vec3 tangent = normalize(randomVec - Normal * dot(randomVec, Normal));
+    //vec3 bitangent = cross(Normal, tangent);
+    //mat3 TBN = mat3(tangent, bitangent, Normal); 
 
-    int kernelSize = 64;
-    float radius = 0.5f;
-    float bias = 0.025f;
+    //int kernelSize = 64;
+    //float radius = 0.5f;
+    //float bias = 0.025f;
 
-    float occlusion = 0.0f;
-    for (int i = 0; i < kernelSize; ++i)
-    {
-        // get sample position
-        vec3 noiseSample = TBN * SSAOSamples[i];   // From tangent to world-space
+    //float occlusion = 0.0f;
+    //for (int i = 0; i < kernelSize; ++i)
+    //{
+    //    // get sample position
+    //    vec3 noiseSample = TBN * SSAOSamples[i];   // From tangent to world-space
 
-        //from world to view space
-        noiseSample = (WorldToCameraSpaceMatrix * vec4(FragPosWS + noiseSample * radius, 1.0)).xyz;
+    //    //from world to view space
+    //    noiseSample = (WorldToCameraSpaceMatrix * vec4(FragPosWS + noiseSample * radius, 1.0)).xyz;
 
-        vec4 offset = vec4(noiseSample, 1.0f);
-        offset = ProjMatrix * offset;         // from view to clip-space
-        offset.xyz /= offset.w;               // perspective divide
-        offset.xyz = offset.xyz * 0.5 + 0.5;  // transform to range 0.0 - 1.0
+    //    vec4 offset = vec4(noiseSample, 1.0f);
+    //    offset = ProjMatrix * offset;         // from view to clip-space
+    //    offset.xyz /= offset.w;               // perspective divide
+    //    offset.xyz = offset.xyz * 0.5f + 0.5f;  // transform to range 0.0 - 1.0
 
-        float sampleDepth = ViewPosFromDepth(Depth, offset.xy).z;
-        occlusion += (sampleDepth >= noiseSample.z + bias ? 1.0 : 0.0);  
-    } 
+    //    float sampleDepth = ViewPosFromDepth(Depth, offset.xy).z;
+    //    occlusion += (sampleDepth >= noiseSample.z + bias ? 1.0 : 0.0);  
+    //} 
 
-    occlusion = 1.0f - (occlusion / kernelSize);
+    //occlusion = 1.0f - (occlusion / kernelSize);
 
-    " + ShaderHelpers.LightingCalc("totalLight", "GlobalAmbient", "Normal", "FragPosWS", "AlbedoSpec.rgb", "AlbedoSpec.a", "occlusion") + @"
+    " + ShaderHelpers.LightingCalc("totalLight", "GlobalAmbient", "Normal", "FragPosWS", "AlbedoSpec.rgb", "AlbedoSpec.a", "1.0") + @"
 
     OutColor = vec4(AlbedoSpec.rgb * totalLight, 1.0);
 }";

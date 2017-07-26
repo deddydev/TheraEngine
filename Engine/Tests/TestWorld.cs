@@ -141,14 +141,14 @@ namespace TheraEngine.Tests
             StaticMesh testModel = OBJ.Import(/*"E:\\Documents\\StationSquare\\main\\landtable.obj"*/desktop + "test.obj", objOptions);
             Actor<StaticMeshComponent> testActor = new Actor<StaticMeshComponent>(new StaticMeshComponent(testModel, null)) { Name = "MapActor" };
 
-            ModelImportOptions options = new ModelImportOptions()
-            {
-                ImportAnimations = true,
-                ImportModels = true,
-                InitialTransform = new FrameState(Vec3.Zero, Quat.Identity, new Vec3(1.0f.InchesToMeters()), TransformOrder.TRS),
-            };
+            //ModelImportOptions options = new ModelImportOptions()
+            //{
+            //    ImportAnimations = true,
+            //    ImportModels = true,
+            //    InitialTransform = new FrameState(Vec3.Zero, Quat.Identity, new Vec3(1.0f), TransformOrder.TRS),
+            //};
 
-            ModelScene m = Collada.Import(googleDrive + "Assets\\Characters\\Carly\\Animations\\Carly_Idle.dae", options);
+            //ModelScene m = Collada.Import(googleDrive + "Assets\\Characters\\Carly\\Animations\\Carly_Idle.dae", options);
 
             //ColladaScene = Collada.Import(desktop + "carly\\carly.dae", options, false, true);
             //ColladaScene = Collada.Import(desktop + "TEST.DAE", options, false, true);

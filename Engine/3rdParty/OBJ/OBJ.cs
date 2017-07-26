@@ -142,9 +142,8 @@ void main()
 {
     vec3 normal = normalize(FragNorm);
     vec3 diffuseColor = texture(Texture0, FragUV0).rgb * Diffuse;
-    float AmbientOcclusion = 0.0f;
 
-    " + ShaderHelpers.LightingCalc("totalLight", "vec3(0.0)", "normal", "FragPos", "diffuseColor", "0.0", "AmbientOcclusion") + @"
+    " + ShaderHelpers.LightingCalc("totalLight", "vec3(0.0)", "normal", "FragPos", "diffuseColor", "0.0", "1.0") + @"
     OutColor = vec4(diffuseColor * totalLight, 1.0);
 }");
             else

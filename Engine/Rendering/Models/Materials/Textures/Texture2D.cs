@@ -15,6 +15,17 @@ namespace TheraEngine.Rendering.Textures
         public Texture2D() : this(null) { }
         public Texture2D(int bindingId) : base(EObjectType.Texture, bindingId) => Init(null);
         public Texture2D(params Bitmap[] mipmaps) : base(EObjectType.Texture) => Init(mipmaps);
+        public Texture2D(
+            EPixelInternalFormat internalFormat,
+            EPixelFormat pixelFormat,
+            EPixelType pixelType,
+            params Bitmap[] mipmaps)
+            : this(mipmaps)
+        {
+            InternalFormat = internalFormat;
+            PixelFormat = pixelFormat;
+            PixelType = pixelType;
+        }
         public Texture2D(int bindingId, params Bitmap[] mipmaps) : base(EObjectType.Texture, bindingId) => Init(mipmaps);
         /// <summary>
         /// Initializes the texture as an unallocated texture to be filled by a framebuffer.

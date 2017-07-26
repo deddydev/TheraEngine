@@ -93,11 +93,11 @@ void main()
 {
     vec3 normal = normalize(FragNorm);
     vec4 texColor = texture(Texture0, FragUV0);
-    float AmbientOcclusion = 1.0f;
+    float AmbientOcclusion = 1.0;
 
     " + LightingCalc("totalLight", "vec3(0.0f)", "normal", "FragPos", "texColor.rgb", "MatSpecularIntensity", "AmbientOcclusion") + @"
 
-    OutColor = texColor * vec4(totalLight, 1.0f);
+    OutColor = texColor * vec4(totalLight, 1.0);
 }
 ";
             return new Shader(ShaderMode.Fragment, source);
@@ -213,7 +213,7 @@ void main()
             return new Shader(ShaderMode.Fragment, source);
         }
         public static string LightingCalcForward()
-            => LightingCalc("totalLight", "GlobalAmbient", "normal", "FragPos", "MatColor.rgb", "MatSpecularIntensity", ", AmbientOcclusion");
+            => LightingCalc("totalLight", "GlobalAmbient", "normal", "FragPos", "MatColor.rgb", "MatSpecularIntensity", "1.0");
         public static string LightingCalc(
             string lightVarName,
             string baseLightVec3,
@@ -307,7 +307,7 @@ float Attenuate(in float dist, in float radius)
 
 vec3 CalcColor(BaseLight light, vec3 lightDirection, vec3 normal, vec3 fragPos, vec3 albedo, float spec, float ambientOcclusion)
 {
-    vec3 AmbientColor = vec3(light.Color * light.AmbientIntensity) * ambientOcclusion;
+    vec3 AmbientColor = vec3(light.Color * light.AmbientIntensity);
     vec3 DiffuseColor = vec3(0.0);
     vec3 SpecularColor = vec3(0.0);
 

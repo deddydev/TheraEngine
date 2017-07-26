@@ -17,7 +17,7 @@ namespace TheraEngine.Rendering
     {
         void PreRender();
     }
-    public enum RenderPassType3D
+    public enum ERenderPassType3D
     {
         /// <summary>
         /// Use for any fully opaque objects that are always lit.
@@ -72,7 +72,7 @@ namespace TheraEngine.Rendering
             }
         }
 
-        public void Render(RenderPassType3D pass)
+        public void Render(ERenderPassType3D pass)
         {
             var list = _passes[(int)pass];
             foreach (I3DRenderable r in list/*.OrderBy(x => x, _sorter)*/)
@@ -121,7 +121,7 @@ namespace TheraEngine.Rendering
             foreach (IPreRenderNeeded p in _preRenderList)
                 p.PreRender();
         }
-        internal void Render(RenderPassType3D pass)
+        internal void Render(ERenderPassType3D pass)
         {
             if (_renderTree == null)
                 return;

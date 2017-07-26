@@ -8,7 +8,7 @@ namespace TheraEngine.Rendering.Models
     [FileClass("OBJ", "Static Soft Sub Mesh")]
     public class StaticSoftSubMesh : FileObject, IStaticSubMesh
     {
-        public RenderInfo3D RenderInfo { get; set; } = new RenderInfo3D(RenderPassType3D.OpaqueDeferredLit, null);
+        public RenderInfo3D RenderInfo { get; set; } = new RenderInfo3D(ERenderPassType3D.OpaqueDeferredLit, null);
 
         public StaticSoftSubMesh()
         {

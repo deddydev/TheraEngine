@@ -5,7 +5,7 @@ namespace TheraEngine.Rendering.Models
 {
     public class SkeletalSoftSubMesh : FileObject, ISkeletalSubMesh
     {
-        public RenderInfo3D RenderInfo { get; set; } = new RenderInfo3D(RenderPassType3D.OpaqueDeferredLit, null);
+        public RenderInfo3D RenderInfo { get; set; } = new RenderInfo3D(ERenderPassType3D.OpaqueDeferredLit, null);
 
         public SkeletalSoftSubMesh() { }
         public SkeletalSoftSubMesh(PrimitiveData data, string name)

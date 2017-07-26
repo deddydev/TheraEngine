@@ -92,23 +92,7 @@ namespace TheraEngine.Rendering.Textures
                     if (bmp != null)
                     {
                         BitmapData data = bmp.LockBits(new Rectangle(0, 0, _width, _height), ImageLockMode.ReadOnly, bmp.PixelFormat);
-                        EPixelInternalFormat internalFormat;
-                        EPixelFormat pixelFormat;
-                        EPixelType pixelType = EPixelType.UnsignedByte;
-                        switch (bmp.PixelFormat)
-                        {
-                            case System.Drawing.Imaging.PixelFormat.Format32bppArgb:
-                                internalFormat = EPixelInternalFormat.Rgba8;
-                                pixelFormat = EPixelFormat.Bgra;
-                                break;
-                            case System.Drawing.Imaging.PixelFormat.Format24bppRgb:
-                                internalFormat = EPixelInternalFormat.Rgb8;
-                                pixelFormat = EPixelFormat.Bgr;
-                                break;
-                            default:
-                                throw new Exception("Unsupported bitmap format: " + bmp.PixelFormat.ToString());
-                        }
-                        Engine.Renderer.PushTextureData(_textureTarget, i, internalFormat, _width, _height, pixelFormat, pixelType, data.Scan0);
+                        Engine.Renderer.PushTextureData(_textureTarget, i, InternalFormat, _width, _height, PixelFormat, PixelType, data.Scan0);
                         bmp.UnlockBits(data);
                     }
                     else

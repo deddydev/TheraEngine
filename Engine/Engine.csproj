@@ -629,12 +629,13 @@
     <Compile Include="Rendering\Models\Materials\Material Functions\Results\ResultBasic.cs" />
     <Compile Include="Rendering\Models\Materials\Material Functions\Results\ResultPBR.cs" />
     <Compile Include="Rendering\Models\Materials\MaterialRenderParams.cs" />
+    <Compile Include="Rendering\Models\Materials\Textures\TextureData.cs" />
     <Compile Include="Rendering\Shader Generator\FragmentShaderGenerator.cs" />
     <Compile Include="Rendering\Shader Generator\GeometryShaderGenerator.cs" />
     <Compile Include="Rendering\Shader Generator\ShaderGenerator.cs" />
     <Compile Include="Rendering\Shader Generator\VertexShaderGenerator.cs" />
     <Compile Include="Rendering\Models\Materials\ShaderHelpers.cs" />
-    <Compile Include="Rendering\Models\Materials\TextureReference.cs" />
+    <Compile Include="Rendering\Models\Materials\Textures\TextureReference.cs" />
     <Compile Include="Rendering\Models\Materials\Uniform.cs" />
     <Compile Include="Rendering\Models\Meshes\Primitives\Faces\Vertex\VertexLineStrip.cs" />
     <Compile Include="Rendering\Models\Meshes\Primitives\Faces\Vertex\VertexLine.cs" />
@@ -708,9 +709,9 @@
     <Compile Include="Rendering\Text\VariableStringTable.cs" />
     <Compile Include="Rendering\Text\LocalizedStringTable.cs" />
     <Compile Include="Rendering\Text\Text.cs" />
-    <Compile Include="Rendering\Textures\PixelTypes.cs" />
-    <Compile Include="Rendering\Textures\TextureConverter.cs" />
-    <Compile Include="Rendering\Textures\TextureFile.cs" />
+    <Compile Include="Rendering\Models\Materials\Textures\PixelTypes.cs" />
+    <Compile Include="Rendering\Models\Materials\Textures\TextureConverter.cs" />
+    <Compile Include="Rendering\Models\Materials\Textures\TextureFile.cs" />
     <Compile Include="Settings.cs" />
     <Compile Include="System\CommonDelegates.cs" />
     <Compile Include="System\ComputerInfo.cs" />
@@ -910,7 +911,7 @@
     <Compile Include="System\Extensions\Numbers\UInt64Extension.cs" />
     <Compile Include="System\Memory\BigEndianTypes.cs" />
     <Compile Include="System\Memory\Memory.cs" />
-    <Compile Include="Rendering\Textures\Color.cs" />
+    <Compile Include="Rendering\Models\Materials\Textures\Color.cs" />
     <Compile Include="System\Extensions\Numbers\Int32Extension.cs" />
     <Compile Include="System\Extensions\Numbers\UInt32Extension.cs" />
     <Compile Include="System\Extensions\Numbers\SingleExtension.cs" />
@@ -959,7 +960,7 @@
     <Compile Include="Rendering\Models\Meshes\Skeletal\SkeletalMesh.cs" />
     <Compile Include="Rendering\Models\Meshes\Skeletal\SkeletalSoftSubMesh.cs" />
     <Compile Include="Rendering\Models\Meshes\Skeletal\Skeleton\Skeleton.cs" />
-    <Compile Include="Rendering\Renderer\States\Texture.cs" />
+    <Compile Include="Rendering\Models\Materials\Textures\Texture2D.cs" />
     <Compile Include="Worlds\WorldDebugDrawer.cs" />
     <Compile Include="Worlds\WorldSettings.cs" />
     <Compile Include="Worlds\WorldState.cs" />

@@ -64,7 +64,7 @@ namespace TheraEngine
         /// <summary>
         /// Used by the engine for proper order of rendering.
         /// </summary> 
-        public RenderPassType3D RenderPass;
+        public ERenderPassType3D RenderPass;
         /// <summary>
         /// Used to render objects in the same pass in a certain order.
         /// Smaller value means rendered sooner, zero (exactly) means it doesn't matter.
@@ -73,7 +73,7 @@ namespace TheraEngine
 
         public Func<float> RenderOrderFunc;
 
-        public RenderInfo3D(RenderPassType3D pass, Func<float> renderOrderFunc, bool castsShadows = true, bool receivesShadows = true)
+        public RenderInfo3D(ERenderPassType3D pass, Func<float> renderOrderFunc, bool castsShadows = true, bool receivesShadows = true)
         {
             RenderPass = pass;
             RenderOrderFunc = renderOrderFunc;

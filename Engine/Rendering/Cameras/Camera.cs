@@ -11,7 +11,7 @@ namespace TheraEngine.Rendering.Cameras
     public delegate void OwningComponentChange(CameraComponent previous, CameraComponent current);
     public abstract class Camera : FileObject, I3DRenderable
     {
-        private RenderInfo3D _renderInfo = new RenderInfo3D(RenderPassType3D.OpaqueForward, null, false);
+        private RenderInfo3D _renderInfo = new RenderInfo3D(ERenderPassType3D.OpaqueForward, null, false);
         public RenderInfo3D RenderInfo => _renderInfo;
         [Browsable(false)]
         public Shape CullingVolume => _transformedFrustum.CullingVolume;
@@ -208,7 +208,7 @@ namespace TheraEngine.Rendering.Cameras
         }
 
         [Browsable(false)]
-        public RenderPassType3D RenderPass => throw new NotImplementedException();
+        public ERenderPassType3D RenderPass => throw new NotImplementedException();
         [Browsable(false)]
         public float RenderOrder => throw new NotImplementedException();
 

@@ -48,8 +48,10 @@ namespace TheraEditor
                     UserSettings = new UserSettings(),
                     EngineSettings = new EngineSettings()
                     {
-                        CapFPS = false,
+                        CapFPS = true,
                         TargetFPS = 60.0f,
+                        CapUPS = true,
+                        TargetUPS = 30.0f,
                     }
                 };
             }
@@ -194,6 +196,7 @@ namespace TheraEditor
             OnRedrawn = Redraw;
             Engine.RegisterRenderTick(RenderTick);
             actorPropertyGrid.SelectedObject = Engine.World?.Settings;
+            Engine.SetPaused(true, PlayerIndex.One, true);
             Engine.Run();
 
             _editorCameraPawn = new FlyingCameraPawn(PlayerIndex.One)

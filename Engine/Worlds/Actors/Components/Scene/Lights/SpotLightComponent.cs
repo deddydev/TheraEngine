@@ -8,7 +8,7 @@ namespace TheraEngine.Worlds.Actors
 {
     public class SpotLightComponent : LightComponent, I3DRenderable
     {
-        private RenderInfo3D _renderInfo = new RenderInfo3D(RenderPassType3D.OpaqueForward, null, false);
+        private RenderInfo3D _renderInfo = new RenderInfo3D(ERenderPassType3D.OpaqueForward, null, false);
         public RenderInfo3D RenderInfo => _renderInfo;
         [Browsable(false)]
         public Shape CullingVolume => _cullingVolume;
@@ -178,10 +178,10 @@ namespace TheraEngine.Worlds.Actors
             Engine.Renderer.AllowDepthWrite(true);
 
             scene.PreRender(_shadowCamera);
-            scene.Render(RenderPassType3D.OpaqueDeferredLit);
-            scene.Render(RenderPassType3D.OpaqueForward);
-            scene.Render(RenderPassType3D.TransparentForward);
-            scene.Render(RenderPassType3D.OnTopForward);
+            scene.Render(ERenderPassType3D.OpaqueDeferredLit);
+            scene.Render(ERenderPassType3D.OpaqueForward);
+            scene.Render(ERenderPassType3D.TransparentForward);
+            scene.Render(ERenderPassType3D.OnTopForward);
             scene.PostRender();
 
             Engine.Renderer.PopRenderArea();

@@ -171,10 +171,10 @@ namespace TheraEngine.Worlds.Actors
             Engine.Renderer.AllowDepthWrite(true);
             
             scene.PreRender(_shadowCamera);
-            scene.Render(RenderPassType3D.OpaqueDeferredLit);
-            scene.Render(RenderPassType3D.OpaqueForward);
-            scene.Render(RenderPassType3D.TransparentForward);
-            scene.Render(RenderPassType3D.OnTopForward);
+            scene.Render(ERenderPassType3D.OpaqueDeferredLit);
+            scene.Render(ERenderPassType3D.OpaqueForward);
+            scene.Render(ERenderPassType3D.TransparentForward);
+            scene.Render(ERenderPassType3D.OnTopForward);
             scene.PostRender();
 
             Engine.Renderer.PopRenderArea();

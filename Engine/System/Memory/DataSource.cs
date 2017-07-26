@@ -23,13 +23,22 @@ namespace System
             set => _address = value;
         }
 
-        public DataSource(VoidPtr address, int length)
+        public DataSource(VoidPtr address, int length, bool copyInternal = false)
         {
             if (length < 0)
                 throw new Exception("Cannot have a source with a negative size.");
             _length = length;
-            _address = address;
-            _external = true;
+            if (copyInternal)
+            {
+                _address = Marshal.AllocHGlobal(_length);
+                Memory.Move(_address, address, (uint)length);
+                _external = false;
+            }
+            else
+            {
+                _address = address;
+                _external = true;
+            }
         }
         public DataSource(int length)
         {
@@ -40,9 +49,11 @@ namespace System
             _external = false;
         }
 
-        public static DataSource Allocate(int size) { return new DataSource(size); }
+        public static DataSource Allocate(int size)
+            => new DataSource(size);
  
-        public void NotifyModified() { Modified?.Invoke(); }
+        public void NotifyModified()
+            => Modified?.Invoke();
 
         #region IDisposable Support
         private bool _disposedValue = false;

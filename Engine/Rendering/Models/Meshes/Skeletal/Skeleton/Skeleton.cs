@@ -14,7 +14,7 @@ namespace TheraEngine.Rendering.Models
     [TypeConverter(typeof(ExpandableObjectConverter))]
     public class Skeleton : FileObject, IEnumerable<Bone>, I3DRenderable
     {
-        private RenderInfo3D _renderInfo = new RenderInfo3D(RenderPassType3D.OpaqueForward, null, false);
+        private RenderInfo3D _renderInfo = new RenderInfo3D(ERenderPassType3D.OpaqueForward, null, false);
         public RenderInfo3D RenderInfo => _renderInfo;
         [Browsable(false)]
         public Shape CullingVolume => null;

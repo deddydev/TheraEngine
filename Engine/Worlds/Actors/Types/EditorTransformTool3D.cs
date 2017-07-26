@@ -81,25 +81,25 @@ namespace TheraEngine.Worlds.Actors.Types
             zRotPrim.SingleBindBone = rootBoneName;
 
             mesh.RigidChildren.Add(new SkeletalRigidSubMesh("XAxis", xAxisPrim, _xAxisMat, true)
-            { RenderInfo = new RenderInfo3D(Rendering.RenderPassType3D.OnTopForward, null, false, false) });
+            { RenderInfo = new RenderInfo3D(Rendering.ERenderPassType3D.OnTopForward, null, false, false) });
 
             mesh.RigidChildren.Add(new SkeletalRigidSubMesh("YAxis", yAxisPrim, _yAxisMat, true)
-            { RenderInfo = new RenderInfo3D(Rendering.RenderPassType3D.OnTopForward, null, false, false) });
+            { RenderInfo = new RenderInfo3D(Rendering.ERenderPassType3D.OnTopForward, null, false, false) });
 
             mesh.RigidChildren.Add(new SkeletalRigidSubMesh("ZAxis", zAxisPrim, _zAxisMat, true)
-            { RenderInfo = new RenderInfo3D(Rendering.RenderPassType3D.OnTopForward, null, false, false) });
+            { RenderInfo = new RenderInfo3D(Rendering.ERenderPassType3D.OnTopForward, null, false, false) });
 
             mesh.RigidChildren.Add(new SkeletalRigidSubMesh("XRotation", xRotPrim, _xAxisMat, true)
-            { RenderInfo = new RenderInfo3D(Rendering.RenderPassType3D.OnTopForward, null, false, false) });
+            { RenderInfo = new RenderInfo3D(Rendering.ERenderPassType3D.OnTopForward, null, false, false) });
 
             mesh.RigidChildren.Add(new SkeletalRigidSubMesh("YRotation", yRotPrim, _yAxisMat, true)
-            { RenderInfo = new RenderInfo3D(Rendering.RenderPassType3D.OnTopForward, null, false, false) });
+            { RenderInfo = new RenderInfo3D(Rendering.ERenderPassType3D.OnTopForward, null, false, false) });
             
             mesh.RigidChildren.Add(new SkeletalRigidSubMesh("ZRotation", zRotPrim, _zAxisMat, true)
-            { RenderInfo = new RenderInfo3D(Rendering.RenderPassType3D.OnTopForward, null, false, false) });
+            { RenderInfo = new RenderInfo3D(Rendering.ERenderPassType3D.OnTopForward, null, false, false) });
 
             mesh.RigidChildren.Add(new SkeletalRigidSubMesh("ScreenRotation", screenRotPrim, _screenRotMat, true)
-            { RenderInfo = new RenderInfo3D(Rendering.RenderPassType3D.OnTopForward, null, false, false) });
+            { RenderInfo = new RenderInfo3D(Rendering.ERenderPassType3D.OnTopForward, null, false, false) });
 
             //mesh.RigidChildren.Add(new SkeletalRigidSubMesh(Circle3D.WireframeMesh(1.0f, Vec3.UnitZ, Vec3.Zero, 30), Material.GetUnlitColorMaterial(Color.Gray), "ScreenTranslation"));
             SkeletalMeshComponent meshComp = new SkeletalMeshComponent(mesh, skel);

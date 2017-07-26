@@ -8,7 +8,7 @@ namespace TheraEngine.Worlds.Actors
 {
     public class PositionLagComponent : SceneComponent, I3DRenderable
     {
-        private RenderInfo3D _renderInfo = new RenderInfo3D(RenderPassType3D.OpaqueForward, null, false);
+        private RenderInfo3D _renderInfo = new RenderInfo3D(ERenderPassType3D.OpaqueForward, null, false);
         public RenderInfo3D RenderInfo => _renderInfo;
 
         public PositionLagComponent() : this(20.0f, 2.0f) { }
@@ -33,7 +33,7 @@ namespace TheraEngine.Worlds.Actors
         [Browsable(false)]
         public IOctreeNode OctreeNode { get; set; }
         [Browsable(false)]
-        public RenderPassType3D RenderPass => RenderPassType3D.OpaqueForward;
+        public ERenderPassType3D RenderPass => ERenderPassType3D.OpaqueForward;
         [Browsable(false)]
         public float RenderOrder => 0.0f;
 

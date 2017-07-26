@@ -312,9 +312,9 @@ namespace TheraEngine
         /// </summary>
         /// <param name="wantsPause">The desired pause state.</param>
         /// <param name="toggler">The player that's pausing the game.</param>
-        public static void SetPaused(bool wantsPause, PlayerIndex toggler)
+        public static void SetPaused(bool wantsPause, PlayerIndex toggler, bool force = false)
         {
-            if (wantsPause && World.Settings.GameMode.File.DisallowPausing)
+            if (!force && wantsPause && World.Settings.GameMode.File.DisallowPausing)
                 return;
             _isPaused = wantsPause;
             Paused?.Invoke(_isPaused, toggler);

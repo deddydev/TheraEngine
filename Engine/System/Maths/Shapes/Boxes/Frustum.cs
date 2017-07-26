@@ -14,7 +14,7 @@ namespace System
     [TypeConverter(typeof(ExpandableObjectConverter))]
     public class Frustum : I3DRenderable, IEnumerable<Plane>
     {
-        private RenderInfo3D _renderInfo = new RenderInfo3D(RenderPassType3D.OpaqueForward, null, false);
+        private RenderInfo3D _renderInfo = new RenderInfo3D(ERenderPassType3D.OpaqueForward, null, false);
         public RenderInfo3D RenderInfo => _renderInfo;
 
         [Serialize("Points")]
@@ -206,7 +206,7 @@ namespace System
         public Plane[] Planes => _planes;
 
         [Browsable(false)]
-        public RenderPassType3D RenderPass => RenderPassType3D.OpaqueForward;
+        public ERenderPassType3D RenderPass => ERenderPassType3D.OpaqueForward;
         [Browsable(false)]
         public float RenderOrder => 0.0f;
 

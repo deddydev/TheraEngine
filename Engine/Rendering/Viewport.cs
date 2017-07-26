@@ -154,6 +154,8 @@ namespace TheraEngine.Rendering
             int width = InternalResolution.IntWidth;
             int height = InternalResolution.IntHeight;
 
+            _ssaoInfo.Generate();
+
             TextureReference depthTexture = new TextureReference("Depth", width, height,
                 EPixelInternalFormat.DepthComponent32f, EPixelFormat.DepthComponent, EPixelType.Float)
             {
@@ -162,20 +164,6 @@ namespace TheraEngine.Rendering
                 UWrap = ETexWrapMode.Clamp,
                 VWrap = ETexWrapMode.Clamp,
                 FrameBufferAttachment = EFramebufferAttachment.DepthAttachment,
-            };
-
-            TextureReference[] postProcessRefs = new TextureReference[]
-            {
-                new TextureReference("OutputColor", width, height,
-                    EPixelInternalFormat.Rgba8, EPixelFormat.Bgra, EPixelType.UnsignedByte)
-                {
-                    MinFilter = ETexMinFilter.Nearest,
-                    MagFilter = ETexMagFilter.Nearest,
-                    UWrap = ETexWrapMode.Clamp,
-                    VWrap = ETexWrapMode.Clamp,
-                    FrameBufferAttachment = EFramebufferAttachment.ColorAttachment0,
-                },
-                depthTexture,
             };
             TextureReference[] deferredRefs = new TextureReference[]
             {
@@ -197,9 +185,30 @@ namespace TheraEngine.Rendering
                     VWrap = ETexWrapMode.Clamp,
                     FrameBufferAttachment = EFramebufferAttachment.ColorAttachment1,
                 },
+                new TextureReference("SSAONoise", _ssaoInfo.NoiseWidth * 3, _ssaoInfo.NoiseHeight,
+                    EPixelInternalFormat.Rgb16f, EPixelFormat.Rgb, EPixelType.UnsignedShort, System.Drawing.Imaging.PixelFormat.Format64bppArgb)
+                {
+                    MinFilter = ETexMinFilter.Nearest,
+                    MagFilter = ETexMagFilter.Nearest,
+                    UWrap = ETexWrapMode.Repeat,
+                    VWrap = ETexWrapMode.Repeat,
+                },
                 depthTexture,
             };
-            
+            TextureReference[] postProcessRefs = new TextureReference[]
+            {
+                new TextureReference("OutputColor", width, height,
+                    EPixelInternalFormat.Rgba8, EPixelFormat.Bgra, EPixelType.UnsignedByte)
+                {
+                    MinFilter = ETexMinFilter.Nearest,
+                    MagFilter = ETexMagFilter.Nearest,
+                    UWrap = ETexWrapMode.Clamp,
+                    VWrap = ETexWrapMode.Clamp,
+                    FrameBufferAttachment = EFramebufferAttachment.ColorAttachment0,
+                },
+                depthTexture,
+            };
+
             ShaderVar[] postProcessParameters = new ShaderVar[]
             {
 
@@ -244,7 +253,6 @@ namespace TheraEngine.Rendering
             {
                 Render = RenderForward;
             }
-            _ssaoInfo.Generate(width, height);
         }
 
         private void _postProcessGBuffer_SettingUniforms(int programBindingId)
@@ -299,7 +307,7 @@ namespace TheraEngine.Rendering
                 Engine.Renderer.Clear(EBufferClear.Color | EBufferClear.Depth);
                 Engine.Renderer.AllowDepthWrite(true);
                 
-                scene.Render(RenderPassType3D.OpaqueDeferredLit);
+                scene.Render(ERenderPassType3D.OpaqueDeferredLit);
                 
                 _deferredGBuffer.Unbind(EFramebufferTarget.Framebuffer);
                 _postProcessFrameBuffer.Bind(EFramebufferTarget.Framebuffer);
@@ -308,9 +316,12 @@ namespace TheraEngine.Rendering
                 _deferredGBuffer.Render();
                 Engine.Renderer.AllowDepthWrite(true);
 
-                scene.Render(RenderPassType3D.OpaqueForward);
-                scene.Render(RenderPassType3D.TransparentForward);
-                scene.Render(RenderPassType3D.OnTopForward);
+                scene.Render(ERenderPassType3D.OpaqueForward);
+                scene.Render(ERenderPassType3D.TransparentForward);
+
+                Engine.Renderer.DepthFunc(EComparison.Always);
+
+                scene.Render(ERenderPassType3D.OnTopForward);
                 
                 _pawnHUD.Render();
 
@@ -342,9 +353,9 @@ namespace TheraEngine.Rendering
                 
                 scene.PreRender(Camera);
 
-                scene.Render(RenderPassType3D.OpaqueForward);
-                scene.Render(RenderPassType3D.TransparentForward);
-                scene.Render(RenderPassType3D.OnTopForward);
+                scene.Render(ERenderPassType3D.OpaqueForward);
+                scene.Render(ERenderPassType3D.TransparentForward);
+                scene.Render(ERenderPassType3D.OnTopForward);
                 
                 Engine.Renderer.PopRenderArea();
 
@@ -648,23 +659,35 @@ namespace TheraEngine.Rendering
         private class SSAOInfo
         {
             Vec3[] _noise, _kernel;
-            public const int Samples = 64;
-            const int NoiseWidth = 4, NoiseHeight = 4;
-            const float MinSampleDist = 0.1f, MaxSampleDist = 1.0f;
+            public const int DefaultSamples = 64;
+            const int DefaultNoiseWidth = 4, DefaultNoiseHeight = 4;
+            const float DefaultMinSampleDist = 0.1f, DefaultMaxSampleDist = 1.0f;
 
             QuadFrameBuffer _ssaoGBuffer;
 
             public Vec3[] Noise => _noise;
             public Vec3[] Kernel => _kernel;
 
+            public int Samples { get; private set; }
+            public int NoiseWidth { get; private set; }
+            public int NoiseHeight { get; private set; }
+            public float MinSampleDist { get; private set; }
+            public float MaxSampleDist { get; private set; }
+            
             public void Generate(
-                int width, int height,
-                int samples = Samples,
-                int noiseWidth = NoiseWidth,
-                int noiseHeight = NoiseHeight,
-                float minSampleDist = MinSampleDist,
-                float maxSampleDist = MaxSampleDist)
+                //int width, int height,
+                int samples = DefaultSamples,
+                int noiseWidth = DefaultNoiseWidth,
+                int noiseHeight = DefaultNoiseHeight,
+                float minSampleDist = DefaultMinSampleDist,
+                float maxSampleDist = DefaultMaxSampleDist)
             {
+                Samples = samples;
+                NoiseWidth = noiseWidth;
+                NoiseHeight = noiseHeight;
+                MinSampleDist = minSampleDist;
+                MaxSampleDist = maxSampleDist;
+
                 Random r = new Random();
 
                 _kernel = new Vec3[samples];
@@ -695,33 +718,33 @@ namespace TheraEngine.Rendering
                     _noise[i] = noise;
                 }
 
-                ShaderVar[] vars = new ShaderVar[]
-                {
+                //ShaderVar[] vars = new ShaderVar[]
+                //{
 
-                };
-                TextureReference[] refs = new TextureReference[]
-                {
-                    new TextureReference("OutputColor", width, height,
-                        EPixelInternalFormat.Rgba8, EPixelFormat.Bgra, EPixelType.UnsignedByte)
-                    {
-                        MinFilter = ETexMinFilter.Nearest,
-                        MagFilter = ETexMagFilter.Nearest,
-                        UWrap = ETexWrapMode.Clamp,
-                        VWrap = ETexWrapMode.Clamp,
-                        FrameBufferAttachment = EFramebufferAttachment.ColorAttachment0,
-                    },
-                    new TextureReference("SSAONoise", noiseWidth, noiseHeight, EPixelInternalFormat.Rgb16f, EPixelFormat.Rgb, EPixelType.Float)
-                    {
-                        MinFilter = ETexMinFilter.Nearest,
-                        MagFilter = ETexMagFilter.Nearest,
-                        UWrap = ETexWrapMode.Repeat,
-                        VWrap = ETexWrapMode.Repeat,
-                    },
-                };
+                //};
+                //TextureReference[] refs = new TextureReference[]
+                //{
+                //    new TextureReference("OutputColor", width, height,
+                //        EPixelInternalFormat.Rgba8, EPixelFormat.Bgra, EPixelType.UnsignedByte)
+                //    {
+                //        MinFilter = ETexMinFilter.Nearest,
+                //        MagFilter = ETexMagFilter.Nearest,
+                //        UWrap = ETexWrapMode.Clamp,
+                //        VWrap = ETexWrapMode.Clamp,
+                //        FrameBufferAttachment = EFramebufferAttachment.ColorAttachment0,
+                //    },
+                //    new TextureReference("SSAONoise", noiseWidth, noiseHeight, EPixelInternalFormat.Rgb16f, EPixelFormat.Rgb, EPixelType.Float, System.Drawing.Imaging.PixelFormat.Alpha)
+                //    {
+                //        MinFilter = ETexMinFilter.Nearest,
+                //        MagFilter = ETexMagFilter.Nearest,
+                //        UWrap = ETexWrapMode.Repeat,
+                //        VWrap = ETexWrapMode.Repeat,
+                //    },
+                //};
 
-                Material ssaoMat = new Material("SSAOMat", vars, refs, null);
+                //Material ssaoMat = new Material("SSAOMat", vars, refs, null);
 
-                _ssaoGBuffer = new QuadFrameBuffer(ssaoMat);
+                //_ssaoGBuffer = new QuadFrameBuffer(ssaoMat);
             }
         }
         public enum DepthStencilUse

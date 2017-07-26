@@ -206,7 +206,7 @@ namespace TheraEditor
         }
         public class HighlightPoint : I3DRenderable
         {
-            private RenderInfo3D _renderInfo = new RenderInfo3D(RenderPassType3D.OnTopForward, null, false, false);
+            private RenderInfo3D _renderInfo = new RenderInfo3D(ERenderPassType3D.OnTopForward, null, false, false);
             public RenderInfo3D RenderInfo => _renderInfo;
             public Shape CullingVolume => null;
             public IOctreeNode OctreeNode { get; set; }

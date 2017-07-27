@@ -326,7 +326,7 @@ vec3 CalcColor(BaseLight light, vec3 lightDirection, vec3 normal, vec3 fragPos, 
     }
 
     float shadow = ReadShadowMap(fragPos, normal, DiffuseFactor, light);
-    return AmbientColor + (DiffuseColor + SpecularColor) * shadow;
+    return (AmbientColor + (DiffuseColor + SpecularColor) * shadow) * ambientOcclusion;
 }
 
 vec3 CalcDirLight(DirLight light, vec3 normal, vec3 fragPos, vec3 albedo, float spec, float ambientOcclusion)

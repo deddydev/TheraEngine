@@ -3,6 +3,7 @@ using System.Xml;
 using System.Xml.Serialization;
 using System.IO;
 using System.Diagnostics;
+using TheraEngine;
 
 namespace grendgine_collada
 {
@@ -106,7 +107,7 @@ namespace grendgine_collada
             }
             catch (Exception ex)
             {
-                Debug.WriteLine(ex.ToString());
+                Engine.DebugPrint(ex.ToString());
 				return null;
             }			
 		}			

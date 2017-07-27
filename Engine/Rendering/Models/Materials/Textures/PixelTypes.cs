@@ -5,31 +5,31 @@ using System.Runtime.InteropServices;
 namespace TheraEngine.Rendering.Textures
 {
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    public struct wRGBXPixel
+    public struct RGBXPixel
     {
         public byte R, G, B, X;
 
-        public static explicit operator wRGBXPixel(ARGBPixel p) { return new wRGBXPixel() { R = p.R, G = p.G, B = p.B, X = 0 }; }
-        public static explicit operator ARGBPixel(wRGBXPixel p) { return new ARGBPixel() { A = 0xFF, R = p.R, G = p.G, B = p.B }; }
+        public static explicit operator RGBXPixel(ARGBPixel p) { return new RGBXPixel() { R = p.R, G = p.G, B = p.B, X = 0 }; }
+        public static explicit operator ARGBPixel(RGBXPixel p) { return new ARGBPixel() { A = 0xFF, R = p.R, G = p.G, B = p.B }; }
     }
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    public struct wRGBPixel
+    public struct RGBPixel
     {
         public byte R, G, B;
 
-        public static explicit operator wRGBPixel(ARGBPixel p) { return new wRGBPixel() { R = p.R, G = p.G, B = p.B }; }
-        public static explicit operator ARGBPixel(wRGBPixel p) { return new ARGBPixel() { A = 0xFF, R = p.R, G = p.G, B = p.B }; }
+        public static explicit operator RGBPixel(ARGBPixel p) { return new RGBPixel() { R = p.R, G = p.G, B = p.B }; }
+        public static explicit operator ARGBPixel(RGBPixel p) { return new ARGBPixel() { A = 0xFF, R = p.R, G = p.G, B = p.B }; }
     }
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    public struct wRGBAPixel
+    public struct RGBAPixel
     {
         public byte R, G, B, A;
 
-        public static explicit operator wRGBAPixel(ARGBPixel p) { return new wRGBAPixel() { A = p.A, R = p.R, G = p.G, B = p.B }; }
-        public static explicit operator ARGBPixel(wRGBAPixel p) { return new ARGBPixel() { A = p.A, R = p.R, G = p.G, B = p.B }; }
+        public static explicit operator RGBAPixel(ARGBPixel p) { return new RGBAPixel() { A = p.A, R = p.R, G = p.G, B = p.B }; }
+        public static explicit operator ARGBPixel(RGBAPixel p) { return new ARGBPixel() { A = p.A, R = p.R, G = p.G, B = p.B }; }
     }
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    public struct wRGBA4Pixel
+    public struct RGBA4Pixel
     {
         //1111 0000 0000 0000 half R
         //0000 1111 0000 0000 half G       
@@ -40,7 +40,7 @@ namespace TheraEngine.Rendering.Textures
 
         bushort _data;
 
-        public static explicit operator ARGBPixel(wRGBA4Pixel p)
+        public static explicit operator ARGBPixel(RGBA4Pixel p)
         {
             int val = p._data;
             int r = val & 0xF000;
@@ -55,11 +55,11 @@ namespace TheraEngine.Rendering.Textures
         }
     }
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    public struct wRGBA6Pixel
+    public struct RGBA6Pixel
     {
         byte _b1, _b2, _b3;
 
-        public static explicit operator ARGBPixel(wRGBA6Pixel p)
+        public static explicit operator ARGBPixel(RGBA6Pixel p)
         {
             int val = (p._b1 << 16) | (p._b2 << 8) | p._b3;
             int r = val & 0xFC0000;
@@ -74,12 +74,12 @@ namespace TheraEngine.Rendering.Textures
         }
     }
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    public struct wRGB565Pixel
+    public struct RGB565Pixel
     {
         public bushort _data;
 
-        public wRGB565Pixel(bushort data) { _data = data; }
-        public wRGB565Pixel(int r, int g, int b)
+        public RGB565Pixel(bushort data) { _data = data; }
+        public RGB565Pixel(int r, int g, int b)
         {
             r = Convert.ToInt32(r * (31.0 / 255.0));
             g = Convert.ToInt32(g * (63.0 / 255.0));
@@ -87,14 +87,14 @@ namespace TheraEngine.Rendering.Textures
             _data = (ushort)((r << 11) | (g << 5) | b);
         }
 
-        public static bool operator >(wRGB565Pixel p1, wRGB565Pixel p2) { return (ushort)p1._data > (ushort)p2._data; }
-        public static bool operator <(wRGB565Pixel p1, wRGB565Pixel p2) { return (ushort)p1._data < (ushort)p2._data; }
-        public static bool operator >=(wRGB565Pixel p1, wRGB565Pixel p2) { return (ushort)p1._data >= (ushort)p2._data; }
-        public static bool operator <=(wRGB565Pixel p1, wRGB565Pixel p2) { return (ushort)p1._data <= (ushort)p2._data; }
-        public static bool operator ==(wRGB565Pixel p1, wRGB565Pixel p2) { return p1.Equals(p2); }
-        public static bool operator !=(wRGB565Pixel p1, wRGB565Pixel p2) { return !p1.Equals(p2); }
+        public static bool operator >(RGB565Pixel p1, RGB565Pixel p2) { return (ushort)p1._data > (ushort)p2._data; }
+        public static bool operator <(RGB565Pixel p1, RGB565Pixel p2) { return (ushort)p1._data < (ushort)p2._data; }
+        public static bool operator >=(RGB565Pixel p1, RGB565Pixel p2) { return (ushort)p1._data >= (ushort)p2._data; }
+        public static bool operator <=(RGB565Pixel p1, RGB565Pixel p2) { return (ushort)p1._data <= (ushort)p2._data; }
+        public static bool operator ==(RGB565Pixel p1, RGB565Pixel p2) { return p1.Equals(p2); }
+        public static bool operator !=(RGB565Pixel p1, RGB565Pixel p2) { return !p1.Equals(p2); }
 
-        public static explicit operator ARGBPixel(wRGB565Pixel p)
+        public static explicit operator ARGBPixel(RGB565Pixel p)
         {
             int r, g, b;
             ushort val = p._data;
@@ -106,7 +106,7 @@ namespace TheraEngine.Rendering.Textures
             b = Convert.ToInt32(b * (255.0 / 31.0));
             return new ARGBPixel(0xFF, (byte)r, (byte)g, (byte)b);
         }
-        public static explicit operator RGBPixel(wRGB565Pixel p)
+        public static explicit operator RGBPixel(RGB565Pixel p)
         {
             int r, g, b;
             ushort val = p._data;
@@ -118,7 +118,7 @@ namespace TheraEngine.Rendering.Textures
             b = Convert.ToInt32(b * (255.0 / 31.0));
             return new RGBPixel() { R = (byte)r, G = (byte)g, B = (byte)b };
         }
-        public static explicit operator Color(wRGB565Pixel p)
+        public static explicit operator Color(RGB565Pixel p)
         {
             int r, g, b;
             ushort val = p._data;
@@ -130,23 +130,23 @@ namespace TheraEngine.Rendering.Textures
             b = Convert.ToInt32(b * (255.0 / 31.0));
             return Color.FromArgb(0xFF, r, g, b);
         }
-        public static explicit operator wRGB565Pixel(ARGBPixel p) { return new wRGB565Pixel(p.R, p.G, p.B); }
-        public static explicit operator wRGB565Pixel(RGBPixel p) { return new wRGB565Pixel(p.R, p.G, p.B); }
-        public static explicit operator wRGB565Pixel(Color p) { return new wRGB565Pixel(p.R, p.G, p.B); }
+        public static explicit operator RGB565Pixel(ARGBPixel p) { return new RGB565Pixel(p.R, p.G, p.B); }
+        public static explicit operator RGB565Pixel(System.RGBPixel p) { return new RGB565Pixel(p.R, p.G, p.B); }
+        public static explicit operator RGB565Pixel(Color p) { return new RGB565Pixel(p.R, p.G, p.B); }
 
-        public static explicit operator wRGB565Pixel(Vec3 v)
+        public static explicit operator RGB565Pixel(Vec3 v)
         {
             int r = Math.Max(Math.Min(Convert.ToInt32(v.X * 31.0f), 31), 0);
             int g = Math.Max(Math.Min(Convert.ToInt32(v.Y * 63.0f), 63), 0);
             int b = Math.Max(Math.Min(Convert.ToInt32(v.Z * 31.0f), 31), 0);
-            return new wRGB565Pixel((ushort)((r << 11) | (g << 5) | b));
+            return new RGB565Pixel((ushort)((r << 11) | (g << 5) | b));
         }
 
         public override bool Equals(object obj)
         {
-            if (!(obj is wRGB565Pixel))
+            if (!(obj is RGB565Pixel))
                 return false;
-            wRGB565Pixel p = (wRGB565Pixel)obj;
+            RGB565Pixel p = (RGB565Pixel)obj;
             return _data._data == p._data._data;
         }
 
@@ -157,11 +157,11 @@ namespace TheraEngine.Rendering.Textures
     }
 
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    public struct wRGB5A3Pixel
+    public struct RGB5A3Pixel
     {
         public bushort _data;
 
-        public wRGB5A3Pixel(int a, int r, int g, int b)
+        public RGB5A3Pixel(int a, int r, int g, int b)
         {
             a = Convert.ToInt32(a * (7.0 / 255.0));
             if (a == 7)
@@ -180,7 +180,7 @@ namespace TheraEngine.Rendering.Textures
             }
         }
 
-        public static explicit operator ARGBPixel(wRGB5A3Pixel p)
+        public static explicit operator ARGBPixel(RGB5A3Pixel p)
         {
             int a, r, g, b;
             ushort val = p._data;
@@ -207,12 +207,12 @@ namespace TheraEngine.Rendering.Textures
             }
             return new ARGBPixel() { A = (byte)a, R = (byte)r, G = (byte)g, B = (byte)b };
         }
-        public static explicit operator wRGB5A3Pixel(ARGBPixel p)
+        public static explicit operator RGB5A3Pixel(ARGBPixel p)
         {
-            return new wRGB5A3Pixel(p.A, p.R, p.G, p.B);
+            return new RGB5A3Pixel(p.A, p.R, p.G, p.B);
         }
 
-        public static explicit operator Color(wRGB5A3Pixel p)
+        public static explicit operator Color(RGB5A3Pixel p)
         {
             int a, r, g, b;
             ushort val = p._data;
@@ -239,9 +239,9 @@ namespace TheraEngine.Rendering.Textures
             }
             return Color.FromArgb((byte)a, (byte)r, (byte)g, (byte)b);
         }
-        public static explicit operator wRGB5A3Pixel(Color p)
+        public static explicit operator RGB5A3Pixel(Color p)
         {
-            return new wRGB5A3Pixel(p.A, p.R, p.G, p.B);
+            return new RGB5A3Pixel(p.A, p.R, p.G, p.B);
         }
     }
 }

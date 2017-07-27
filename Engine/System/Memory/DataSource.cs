@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using System.Runtime.InteropServices;
+using TheraEngine;
 
 namespace System
 {
@@ -76,7 +77,7 @@ namespace System
                 }
                 catch (Exception e)
                 {
-                    Debug.WriteLine(e.ToString());
+                    Engine.DebugPrint(e.ToString());
                 }
 
                 _disposedValue = true;

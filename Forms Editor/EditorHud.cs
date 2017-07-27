@@ -57,7 +57,7 @@ namespace TheraEditor
                 _highlightPoint.HighlightedComponent = value;
                 if (HighlightedComponent != null)
                 {
-                    //Debug.WriteLine(_highlightedComponent.OwningActor.Name);
+                    //Engine.DebugPrint(_highlightedComponent.OwningActor.Name);
                     EditorState state = HighlightedComponent.OwningActor.EditorState;
                     state.Highlighted = true;
                 }
@@ -211,16 +211,21 @@ namespace TheraEditor
             public Shape CullingVolume => null;
             public IOctreeNode OctreeNode { get; set; }
 
+            private Material _material;
+
             public const int CirclePrecision = 10;
             public static readonly Color Color = Color.LimeGreen;
 
-            private PrimitiveManager _circlePrimitive = new PrimitiveManager(
-                Circle3D.WireframeMesh(1.0f, Vec3.Forward, Vec3.Zero, CirclePrecision), 
-                Material.GetUnlitColorMaterialForward(Color));
+            private PrimitiveManager _circlePrimitive;
+            private PrimitiveManager _normalPrimitive;
 
-            private PrimitiveManager _normalPrimitive = new PrimitiveManager(
-                Segment.Mesh(Vec3.Zero, Vec3.Forward), 
-                Material.GetUnlitColorMaterialForward(Color));
+            public HighlightPoint()
+            {
+                _material = Material.GetUnlitColorMaterialForward(Color);
+                _material.RenderParams.DepthTest.Enabled = false;
+                _normalPrimitive = new PrimitiveManager(Segment.Mesh(Vec3.Zero, Vec3.Forward), _material);
+                _circlePrimitive = new PrimitiveManager(Circle3D.WireframeMesh(1.0f, Vec3.Forward, Vec3.Zero, CirclePrecision), _material);
+            }
             
             public SceneComponent HighlightedComponent { get; set; }
             public Matrix4 Transform { get; set; } = Matrix4.Identity;

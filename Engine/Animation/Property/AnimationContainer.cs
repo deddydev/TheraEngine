@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.ComponentModel;
+using TheraEngine.Input.Devices;
 
 namespace TheraEngine.Animation
 {
@@ -146,6 +147,23 @@ namespace TheraEngine.Animation
         private bool _isPlaying;
         [Serialize("RootFolder")]
         private AnimFolder _root;
+        [Serialize("TickGroup")]
+        private ETickGroup _group;
+        [Serialize("TickOrder")]
+        private ETickOrder _order;
+        [Serialize("TickPausedBehavior")]
+        private InputPauseType _pausedBehavior;
+
+        [PostDeserialize]
+        private void PostDeserialize()
+        {
+            if (_isPlaying)
+            {
+                _isPlaying = false;
+                Start(_group, _order, _pausedBehavior);
+            }
+        }
+
         public MonitoredList<ObjectBase> _owners = new MonitoredList<ObjectBase>();
 
         //public AnimationContainer(Action<bool> func, PropAnimBool anim) : this()
@@ -197,14 +215,14 @@ namespace TheraEngine.Animation
         private void OwnersModified()
         {
             if (_owners.Count == 0 && IsTicking)
-                UnregisterTick(ETickGroup.PostPhysics, ETickOrder.Animation, Tick);
-            else if (_owners.Count != 0 && !IsTicking)
-                RegisterTick(ETickGroup.PostPhysics, ETickOrder.Animation, Tick);
+                UnregisterTick(_group, _order, Tick, _pausedBehavior);
+            else if (_isPlaying && _owners.Count != 0 && !IsTicking)
+                RegisterTick(_group, _order, Tick, _pausedBehavior);
         }
 
         public AnimFolder RootFolder
         {
-            get { return _root; }
+            get => _root;
             set
             {
                 _root = value;
@@ -215,7 +233,7 @@ namespace TheraEngine.Animation
         internal void AnimationHasEnded()
         {
             if (++_endedAnimations >= _totalAnimCount)
-                Stop(true);
+                Stop();
         }
         public Dictionary<string, BasePropertyAnimation> GetAllAnimations()
         {
@@ -223,26 +241,34 @@ namespace TheraEngine.Animation
             _root.CollectAnimations("", anims);
             return anims;
         }
-        public void Start()
+        public void Start(ETickGroup group, ETickOrder order, InputPauseType pausedBehavior)
         {
             if (_isPlaying)
                 return;
 
             _root?.StartAnimations();
+            _group = group;
+            _order = order;
+            _pausedBehavior = pausedBehavior;
 
             _isPlaying = true;
             AnimationStarted?.Invoke(this);
+
+            RegisterTick(_group, _order, Tick, _pausedBehavior);
         }
-        public void Stop() => Stop(false);
-        private void Stop(bool animationsAllEnded)
+        /// <summary>
+        /// Stops the animation in its entirety.
+        /// </summary>
+        private void Stop()
         {
             if (!_isPlaying)
                 return;
 
-            if (!animationsAllEnded)
+            if (_endedAnimations < _totalAnimCount)
                 _root?.StopAnimations();
 
             _isPlaying = false;
+            UnregisterTick(_group, _order, Tick, _pausedBehavior);
             AnimationEnded?.Invoke(this);
         }
         protected internal void Tick(float delta)

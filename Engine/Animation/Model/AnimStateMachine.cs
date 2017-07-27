@@ -113,13 +113,13 @@ namespace TheraEngine.Animation
         {
             _currentState = new AnimBlendState(_initialState);
             if (_initialState != null)
-                RegisterTick(ETickGroup.PrePhysics, ETickOrder.Animation, Tick);
+                RegisterTick(ETickGroup.PrePhysics, ETickOrder.BoneAnimation, Tick);
             base.OnSpawned();
         }
         public override void OnDespawned()
         {
             if (_initialState != null)
-                UnregisterTick(ETickGroup.PrePhysics, ETickOrder.Animation, Tick);
+                UnregisterTick(ETickGroup.PrePhysics, ETickOrder.BoneAnimation, Tick);
             _currentState = null;
             base.OnDespawned();
         }

@@ -150,7 +150,6 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
-    <None Include="theradevkey.pfx" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

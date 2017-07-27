@@ -105,7 +105,7 @@ namespace TheraEngine.Files.Serialization
                 string attribName = reader.Name;
                 string attribValue = reader.Value;
 
-                Debug.WriteLine("Attribute \"{0}\" = \"{1}\"", attribName, attribValue);
+                Engine.DebugPrint("Attribute \"{0}\" = \"{1}\"", -1, attribName, attribValue);
 
                 //Look for matching attribute member with the same name
                 VarInfo attrib = attribs.FirstOrDefault(x => string.Equals(attribName, x.Name, StringComparison.InvariantCultureIgnoreCase));
@@ -120,7 +120,7 @@ namespace TheraEngine.Files.Serialization
             {
                 string elemName = reader.Name;
 
-                Debug.WriteLine("Reading element \"{0}\"", elemName);
+                Engine.DebugPrint("Reading element \"{0}\"", -1, elemName);
 
                 var category = categorized?.Where(x => string.Equals(elemName, x.Key, StringComparison.InvariantCultureIgnoreCase)).SelectMany(x => x);
                 if (category != null)

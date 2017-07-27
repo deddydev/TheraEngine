@@ -53,7 +53,12 @@ namespace TheraEditor.Wrappers
         protected FileObject _file;
         protected bool _discovered = false;
 
-        public string FilePath { get => _filePath; internal set => _filePath = value; }
+        public string FilePath
+        {
+            get => _filePath;
+            internal set => _filePath = value;
+        }
+
         public FileObject Resource => _file;
 
         protected BaseWrapper() { }
@@ -237,7 +242,7 @@ namespace TheraEditor.Wrappers
                 {
                     Nodes.Clear();
 
-                    string path = Tag.ToString();
+                    string path = FilePath.ToString();
                     string[] dirs = Directory.GetDirectories(path);
                     foreach (string dir in dirs)
                     {
@@ -245,9 +250,6 @@ namespace TheraEditor.Wrappers
                         BaseWrapper node = Wrap(dir);
                         try
                         {
-                            //Keep the directory's full path in the tag for use later
-                            node.Tag = dir;
-
                             //If the directory has sub directories, add the placeholder
                             if (di.GetDirectories().Length > 0)
                                 node.Nodes.Add(null, "...", 0, 0);
@@ -291,16 +293,22 @@ namespace TheraEditor.Wrappers
             if (attr.HasFlag(FileAttributes.Directory))
             {
                 w = new FolderWrapper();
+                if (Directory.GetFiles(path).Length > 0 ||
+                    Directory.GetDirectories(path).Length > 0)
+                {
+                    w.Nodes.Add("...");
+                }
             }
             else
             {
                 Type type = FileObject.DetermineType(path);
                 if (type != null && NodeWrapperAttribute.Wrappers.ContainsKey(type))
-                    w = Activator.CreateInstance(NodeWrapperAttribute.Wrappers[type], path) as BaseWrapper;
+                    w = Activator.CreateInstance(NodeWrapperAttribute.Wrappers[type]) as BaseWrapper;
                 else
                     w = new FileWrapper();
             }
-            w.FilePath = path;
+            w.Text = Path.GetFileNameWithoutExtension(path);
+            w.FilePath = w.Name = path;
             return w;
         }
     }

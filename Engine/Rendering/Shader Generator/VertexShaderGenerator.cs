@@ -79,7 +79,7 @@ namespace TheraEngine.Rendering
                 WriteLine("{0} = {2}{1};", string.Format(FragUVName, i), i, BufferType.TexCoord.ToString());
 
             string source = _generator.Finish();
-            //Debug.WriteLine(source);
+            //Engine.DebugPrint(source);
             return new Shader(ShaderMode.Vertex, source);
         }
         private static void WriteBuffers(bool allowMorphs)

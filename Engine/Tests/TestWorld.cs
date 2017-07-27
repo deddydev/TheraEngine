@@ -3,6 +3,7 @@ using System;
 using System.Drawing;
 using System.IO;
 using TheraEngine.Animation;
+using TheraEngine.Input.Devices;
 using TheraEngine.Rendering;
 using TheraEngine.Rendering.Models;
 using TheraEngine.Rendering.Models.Materials;
@@ -121,7 +122,7 @@ namespace TheraEngine.Tests
             lightAnim.Keyframes.Add(last2);
             AnimationContainer lightAnimContainer = new AnimationContainer("Translation.Y", false, lightAnim);
             //dirLightComp.AddAnimation(lightAnimContainer, true);
-            floorActor1.RootComponent.AddAnimation(lightAnimContainer, true);
+            floorActor1.RootComponent.AddAnimation(lightAnimContainer, true, ETickGroup.PostPhysics, ETickOrder.BoneAnimation, InputPauseType.TickOnlyWhenUnpaused);
 
             Actor<DirectionalLightComponent> dirLightActor = new Actor<DirectionalLightComponent>(dirLightComp) { Name = "SunLight" };
 

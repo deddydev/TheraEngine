@@ -43,7 +43,7 @@ namespace TheraEngine.Timers
         }
         private /*async*/ void RunUpdateInternal()
         {
-            Debug.WriteLine("Started game loop on thread " + Thread.CurrentThread.ManagedThreadId);
+            Engine.DebugPrint("Started game loop on thread " + Thread.CurrentThread.ManagedThreadId);
             //RenderContext.Current.CreateContextForThread(Thread.CurrentThread);
             _running = true;
             _watch.Start();
@@ -69,7 +69,7 @@ namespace TheraEngine.Timers
                 DispatchRender();
             }
 
-            Debug.WriteLine("Game loop ended.");
+            Engine.DebugPrint("Game loop ended.");
         }
         public void Stop()
         {

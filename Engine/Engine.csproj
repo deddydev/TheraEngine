@@ -646,7 +646,6 @@
     <Compile Include="Rendering\Models\Meshes\Static\StaticMesh.cs" />
     <Compile Include="Rendering\Models\ModelScene.cs" />
     <Compile Include="Rendering\PhysicsDriver.cs" />
-    <Compile Include="Rendering\GBuffer.cs" />
     <Compile Include="Rendering\Renderer\RenderEnums.cs" />
     <Compile Include="Engine\UserSettings.cs" />
     <Compile Include="Engine\EngineSettings.cs" />
@@ -869,7 +868,6 @@
     <Compile Include="Worlds\Actors\Components\Logic\MovementComponents\CharacterMovementComponent.cs" />
     <Compile Include="Worlds\Actors\Components\SceneComponent.cs" />
     <Compile Include="Worlds\Actors\Components\Scene\Shapes\Cylindrical\YAligned\BasicConeYComponent.cs" />
-    <None Include="theradevkey.pfx" />
     <None Include="Worlds\Actors\Components\Scene\Shapes\Cylindrical\Complex\ComplexConeComponent.cs" />
     <Compile Include="Worlds\Actors\Components\Scene\Shapes\SphereComponent.cs" />
     <Compile Include="Worlds\Actors\Components\Scene\Shapes\ShapeComponent.cs" />

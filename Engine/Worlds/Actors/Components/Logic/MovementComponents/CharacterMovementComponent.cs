@@ -258,7 +258,7 @@ namespace TheraEngine.Worlds.Actors
             _velocity = (_position - _prevPosition) / delta;
             _acceleration = (_velocity - _prevVelocity) / delta;
 
-            //Debug.WriteLine(_velocity.Xz.LengthFast);
+            //Engine.DebugPrint(_velocity.Xz.LengthFast);
 
             body.LinearVelocity = _velocity;
         }
@@ -266,7 +266,7 @@ namespace TheraEngine.Worlds.Actors
         {
             CapsuleComponent root = OwningActor.RootComponent as CapsuleComponent;
             Vec3 v = root.PhysicsDriver.CollisionObject.LinearVelocity;
-            //Debug.WriteLine(v.Xz.LengthFast);
+            //Engine.DebugPrint(v.Xz.LengthFast);
             if (v.Xz.LengthFast < 8.667842f)
                 root.PhysicsDriver.CollisionObject.ApplyCentralForce(((1.0f / root.PhysicsDriver.CollisionObject.InvMass) * _fallingMovementSpeed) * movementInput);
         }

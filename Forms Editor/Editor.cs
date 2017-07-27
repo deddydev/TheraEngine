@@ -50,7 +50,7 @@ namespace TheraEditor
                     {
                         CapFPS = true,
                         TargetFPS = 60.0f,
-                        CapUPS = true,
+                        CapUPS = false,
                         TargetUPS = 30.0f,
                     }
                 };

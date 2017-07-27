@@ -168,28 +168,28 @@ namespace TheraEngine.Rendering
                 VWrap = ETexWrapMode.Clamp,
                 FrameBufferAttachment = EFramebufferAttachment.DepthAttachment,
             };
-            //TextureReference ssaoNoise = new TextureReference("SSAONoise", 
-            //    _ssaoInfo.NoiseWidth, _ssaoInfo.NoiseHeight,
-            //    EPixelInternalFormat.Rgba16, EPixelFormat.Bgra, EPixelType.UnsignedShort,
-            //    PixelFormat.Format64bppArgb)
-            //{
-            //    MinFilter = ETexMinFilter.Nearest,
-            //    MagFilter = ETexMagFilter.Nearest,
-            //    UWrap = ETexWrapMode.Repeat,
-            //    VWrap = ETexWrapMode.Repeat,
-            //};
-            //Bitmap bmp = ssaoNoise.Mipmaps[0].File.Bitmaps[0];
-            //BitmapData data = bmp.LockBits(new Rectangle(0, 0, _ssaoInfo.NoiseWidth, _ssaoInfo.NoiseHeight), ImageLockMode.WriteOnly, bmp.PixelFormat);
-            //ushort* values = (ushort*)data.Scan0;
-            //Vec3[] noise = _ssaoInfo.Noise;
-            //foreach (Vec3 v in noise)
-            //{
-            //    *values++ = (ushort)(v.X * ushort.MaxValue);
-            //    *values++ = (ushort)(v.Y * ushort.MaxValue);
-            //    *values++ = (ushort)(v.Z * ushort.MaxValue);
-            //    *values++ = 0;
-            //}
-            //bmp.UnlockBits(data);
+            TextureReference ssaoNoise = new TextureReference("SSAONoise",
+                _ssaoInfo.NoiseWidth, _ssaoInfo.NoiseHeight,
+                EPixelInternalFormat.Rgba16, EPixelFormat.Bgra, EPixelType.UnsignedShort,
+                PixelFormat.Format64bppArgb)
+            {
+                MinFilter = ETexMinFilter.Nearest,
+                MagFilter = ETexMagFilter.Nearest,
+                UWrap = ETexWrapMode.Repeat,
+                VWrap = ETexWrapMode.Repeat,
+            };
+            Bitmap bmp = ssaoNoise.Mipmaps[0].File.Bitmaps[0];
+            BitmapData data = bmp.LockBits(new Rectangle(0, 0, _ssaoInfo.NoiseWidth, _ssaoInfo.NoiseHeight), ImageLockMode.WriteOnly, bmp.PixelFormat);
+            ushort* values = (ushort*)data.Scan0;
+            Vec3[] noise = _ssaoInfo.Noise;
+            foreach (Vec3 v in noise)
+            {
+                *values++ = (ushort)(v.X * ushort.MaxValue);
+                *values++ = (ushort)(v.Y * ushort.MaxValue);
+                *values++ = (ushort)(v.Z * ushort.MaxValue);
+                *values++ = 0;
+            }
+            bmp.UnlockBits(data);
             TextureReference[] deferredRefs = new TextureReference[]
             {
                 new TextureReference("AlbedoSpec", width, height,
@@ -210,7 +210,7 @@ namespace TheraEngine.Rendering
                     VWrap = ETexWrapMode.Clamp,
                     FrameBufferAttachment = EFramebufferAttachment.ColorAttachment1,
                 },
-                //ssaoNoise,
+                ssaoNoise,
                 depthTexture,
             };
             TextureReference[] postProcessRefs = new TextureReference[]
@@ -236,7 +236,7 @@ namespace TheraEngine.Rendering
 
             };
 
-            //Debug.WriteLine(shader._source);
+            //Engine.DebugPrint(shader._source);
             Material postProcessMat =  new Material("GBufferPostProcessMaterial", postProcessParameters, postProcessRefs, GBufferShaderPostProcess())
             {
                 Requirements = Material.UniformRequirements.None
@@ -281,7 +281,7 @@ namespace TheraEngine.Rendering
         private void _deferredGBuffer_SettingUniforms(int programBindingId)
         {
             _worldCamera?.SetUniforms(programBindingId);
-            //Engine.Renderer.ProgramUniform(programBindingId, "SSAOSamples", _ssaoInfo.Kernel.Select(x => (IUniformable3Float)x).ToArray());
+            Engine.Renderer.ProgramUniform(programBindingId, "SSAOSamples", _ssaoInfo.Kernel.Select(x => (IUniformable3Float)x).ToArray());
         }
 
         public void SetInternalResolution(float width, float height)
@@ -314,81 +314,115 @@ namespace TheraEngine.Rendering
         public void RenderDeferred(SceneProcessor scene)
         {
             _currentlyRendering = this;
-            Engine.Renderer.PushRenderArea(Region);
-            Engine.Renderer.CropRenderArea(Region);
 
             if (Camera != null)
             {
-                scene.PreRender(Camera);
+                scene.PreRender(Camera, false);
+
+                //Enable internal resolution
                 Engine.Renderer.PushRenderArea(_internalResolution);
+                {
+                    _deferredGBuffer.Bind(EFramebufferTarget.Framebuffer);
+                    {
+                        //Initial scene setup
+                        Engine.Renderer.Clear(EBufferClear.Color | EBufferClear.Depth);
+                        Engine.Renderer.AllowDepthWrite(true);
 
-                _deferredGBuffer.Bind(EFramebufferTarget.Framebuffer);
-                Engine.Renderer.Clear(EBufferClear.Color | EBufferClear.Depth);
-                Engine.Renderer.AllowDepthWrite(true);
-                
-                scene.Render(ERenderPassType3D.OpaqueDeferredLit);
-                
-                _deferredGBuffer.Unbind(EFramebufferTarget.Framebuffer);
-                _postProcessFrameBuffer.Bind(EFramebufferTarget.Framebuffer);
-                //Engine.Renderer.Clear(EBufferClear.Color);
+                        //Render deferred objects
+                        scene.Render(ERenderPassType3D.OpaqueDeferredLit);
+                    }
+                    _deferredGBuffer.Unbind(EFramebufferTarget.Framebuffer);
 
-                _deferredGBuffer.Render();
-                Engine.Renderer.AllowDepthWrite(true);
+                    _postProcessFrameBuffer.Bind(EFramebufferTarget.Framebuffer);
+                    {
+                        //No need to clear anything, 
+                        //color will be fully overwritten by the previous pass, 
+                        //and we need depth from the previous pass
 
-                scene.Render(ERenderPassType3D.OpaqueForward);
-                scene.Render(ERenderPassType3D.TransparentForward);
+                        //Render the previous pass
+                        _deferredGBuffer.Render();
 
-                Engine.Renderer.DepthFunc(EComparison.Always);
+                        Engine.Renderer.AllowDepthWrite(true);
 
-                scene.Render(ERenderPassType3D.OnTopForward);
-                
-                _pawnHUD.Render();
+                        //Render forward opaque objects first
+                        scene.Render(ERenderPassType3D.OpaqueForward);
+                        //Render forward transparent objects next
+                        scene.Render(ERenderPassType3D.TransparentForward);
+                        //Render forward on-top objects last
+                        scene.Render(ERenderPassType3D.OnTopForward);
 
-                _postProcessFrameBuffer.Unbind(EFramebufferTarget.Framebuffer);
+                        //Now render the hud over everything
+                        _pawnHUD.Render();
+                    }
+                    _postProcessFrameBuffer.Unbind(EFramebufferTarget.Framebuffer);
+                }
+
+                //Disable internal resolution
                 Engine.Renderer.PopRenderArea();
 
                 //Render the last pass to the actual screen resolution
+                Engine.Renderer.PushRenderArea(Region);
+                Engine.Renderer.CropRenderArea(Region);
                 _postProcessFrameBuffer.Render();
+                Engine.Renderer.PopRenderArea();
 
                 scene.PostRender();
             }
+            else
+            {
+                Engine.Renderer.PushRenderArea(_internalResolution);
+                _postProcessFrameBuffer.Bind(EFramebufferTarget.Framebuffer);
+                Engine.Renderer.Clear(EBufferClear.Color | EBufferClear.Depth);
+                Engine.Renderer.AllowDepthWrite(true);
+                _pawnHUD.Render();
+                _postProcessFrameBuffer.Unbind(EFramebufferTarget.Framebuffer);
+                Engine.Renderer.PopRenderArea();
+                _postProcessFrameBuffer.Render();
+            }
 
-            Engine.Renderer.PopRenderArea();
             _currentlyRendering = null;
         }
         public void RenderForward(SceneProcessor scene)
         {
             _currentlyRendering = this;
-            Engine.Renderer.PushRenderArea(Region);
-            Engine.Renderer.CropRenderArea(Region);
 
             if (Camera != null)
             {
-                _postProcessFrameBuffer.Bind(EFramebufferTarget.Framebuffer);
+                scene.PreRender(Camera, false);
                 Engine.Renderer.PushRenderArea(_internalResolution);
-                
-                Engine.Renderer.Clear(EBufferClear.Color | EBufferClear.Depth);
-                Engine.Renderer.AllowDepthWrite(true);
-                
-                scene.PreRender(Camera);
 
-                scene.Render(ERenderPassType3D.OpaqueForward);
-                scene.Render(ERenderPassType3D.TransparentForward);
-                scene.Render(ERenderPassType3D.OnTopForward);
-                
-                Engine.Renderer.PopRenderArea();
+                _postProcessFrameBuffer.Bind(EFramebufferTarget.Framebuffer);
+                {
+                    //Initial scene setup
+                    Engine.Renderer.Clear(EBufferClear.Color | EBufferClear.Depth);
+                    Engine.Renderer.AllowDepthWrite(true);
 
+                    //Render forward opaque objects first
+                    scene.Render(ERenderPassType3D.OpaqueForward);
+                    //Render forward transparent objects next
+                    scene.Render(ERenderPassType3D.TransparentForward);
+
+                    //Disable depth fail for objects on top
+                    Engine.Renderer.DepthFunc(EComparison.Always);
+
+                    //Render forward on-top objects last
+                    scene.Render(ERenderPassType3D.OnTopForward);
+
+                    _pawnHUD.Render();
+                }
                 _postProcessFrameBuffer.Unbind(EFramebufferTarget.Framebuffer);
 
-                //Render quad
-                _postProcessFrameBuffer.Render();
+                Engine.Renderer.PopRenderArea();
 
-                _pawnHUD.Render();
+                //Render quad
+                Engine.Renderer.PushRenderArea(Region);
+                Engine.Renderer.CropRenderArea(Region);
+                _postProcessFrameBuffer.Render();
+                Engine.Renderer.PopRenderArea();
 
                 scene.PostRender();
             }
             
-            Engine.Renderer.PopRenderArea();
             _currentlyRendering = null;
         }
         public Vec3 ScreenToWorld(Vec2 viewportPoint, float depth)
@@ -733,6 +767,7 @@ namespace TheraEngine.Rendering
                         (float)r.NextDouble(),
                         (float)r.NextDouble(),
                         0.0f);
+
                     noise.Normalize();
                     _noise[i] = noise;
                 }
@@ -783,18 +818,19 @@ namespace TheraEngine.Rendering
 //GBUFFER FRAG SHADER
 
 layout (location = 0) out vec4 OutColor;
+layout (location = 1) out vec4 SSAO_Occlusion;
 in vec3 FragPos;
 
 uniform sampler2D Texture0; //AlbedoSpec
 uniform sampler2D Texture1; //Normal
-//uniform sampler2D Texture2; //SSAO Noise
-uniform sampler2D Texture2; //Depth
+uniform sampler2D Texture2; //SSAO Noise
+uniform sampler2D Texture3; //Depth
 
-//uniform vec3 SSAOSamples[64];
+uniform vec3 SSAOSamples[64];
 
 " + Camera.ShaderSetup() + @"
 " + ShaderHelpers.LightingSetupBasic() + @"
-" + ShaderHelpers.Func_WorldPosFromDepth + @"
+" + ShaderHelpers.Func_ViewPosFromDepth + @"
 
 void main()
 {
@@ -804,41 +840,45 @@ void main()
 
     vec4 AlbedoSpec = texture(Texture0, uv);
     vec3 Normal = texture(Texture1, uv).rgb;
-    float Depth = texture(Texture2, uv).r;
-    vec3 FragPosWS = WorldPosFromDepth(Depth, uv);
+    float Depth = texture(Texture3, uv).r;
 
-    //ivec2 res = textureSize(Texture0, 0);
-    //vec2 noiseScale = vec2(res.x * 0.25f, res.y * 0.25f);
-    //vec3 randomVec = vec3(texture(Texture2, uv * noiseScale).rg * 2.0f - 1.0f, 0.0f);
-    //vec3 tangent = normalize(randomVec - Normal * dot(randomVec, Normal));
-    //vec3 bitangent = cross(Normal, tangent);
-    //mat3 TBN = mat3(tangent, bitangent, Normal); 
+    vec3 FragPosVS = ViewPosFromDepth(Depth, uv);
+    vec3 FragPosWS = (CameraToWorldSpaceMatrix * vec4(FragPosVS, 1.0)).xyz;
 
-    //int kernelSize = 64;
-    //float radius = 0.5f;
-    //float bias = 0.025f;
+    ivec2 res = textureSize(Texture0, 0);
+    vec2 noiseScale = vec2(res.x * 0.25f, res.y * 0.25f);
 
-    //float occlusion = 0.0f;
-    //for (int i = 0; i < kernelSize; ++i)
-    //{
-    //    // get sample position
-    //    vec3 noiseSample = TBN * SSAOSamples[i];   // From tangent to world-space
+    vec3 randomVec = vec3(texture(Texture2, uv * noiseScale).rg * 2.0f - 1.0f, 0.0f);
+    vec3 n = normalize(vec3(WorldToCameraSpaceMatrix * vec4(Normal, 0.0)));
+    vec3 tangent = normalize(randomVec - n * dot(randomVec, n));
+    vec3 bitangent = cross(n, tangent);
+    mat3 TBN = mat3(tangent, bitangent, n); 
 
-    //    //from world to view space
-    //    noiseSample = (WorldToCameraSpaceMatrix * vec4(FragPosWS + noiseSample * radius, 1.0)).xyz;
+    int kernelSize = 64;
+    float radius = 1.0f;
+    float bias = 0.025;
+    float power = 2.0;
 
-    //    vec4 offset = vec4(noiseSample, 1.0f);
-    //    offset = ProjMatrix * offset;         // from view to clip-space
-    //    offset.xyz /= offset.w;               // perspective divide
-    //    offset.xyz = offset.xyz * 0.5f + 0.5f;  // transform to range 0.0 - 1.0
+    float occlusion = 0.0f;
+    for (int i = 0; i < kernelSize; ++i)
+    {
+        vec3 noiseSample = TBN * SSAOSamples[i]; //tangent to view-space
 
-    //    float sampleDepth = ViewPosFromDepth(Depth, offset.xy).z;
-    //    occlusion += (sampleDepth >= noiseSample.z + bias ? 1.0 : 0.0);  
-    //} 
+        noiseSample = FragPosVS + noiseSample * radius;
 
-    //occlusion = 1.0f - (occlusion / kernelSize);
+        vec4 offset = ProjMatrix * vec4(noiseSample, 1.0f);
+        offset.xyz /= offset.w;                 // perspective divide
+        offset.xyz = offset.xyz * 0.5f + 0.5f;  // transform to range 0.0 - 1.0
 
-    " + ShaderHelpers.LightingCalc("totalLight", "GlobalAmbient", "Normal", "FragPosWS", "AlbedoSpec.rgb", "AlbedoSpec.a", "1.0") + @"
+        float sampleDepth = ViewPosFromDepth(texture(Texture3, offset.xy).r, offset.xy).z;
+
+        float rangeCheck = smoothstep(0.0, 1.0, radius / abs(FragPosVS.z - sampleDepth));
+        occlusion += (sampleDepth >= noiseSample.z + bias ? 1.0 : 0.0) * rangeCheck;  
+    } 
+
+    occlusion = pow(1.0 - (occlusion / kernelSize), power);
+
+    " + ShaderHelpers.LightingCalc("totalLight", "GlobalAmbient", "Normal", "FragPosWS", "AlbedoSpec.rgb", "AlbedoSpec.a", "occlusion") + @"
 
     OutColor = vec4(AlbedoSpec.rgb * totalLight, 1.0);
 }";
@@ -866,7 +906,7 @@ void main()
     float Depth = texture(Texture1, uv).r;
 
     //Color grading
-    hdrSceneColor *= ColorGrade.Tint;
+    //hdrSceneColor *= ColorGrade.Tint;
 
     //Tone mapping
     vec3 ldrSceneColor = vec3(1.0) - exp(-hdrSceneColor * ColorGrade.Exposure);

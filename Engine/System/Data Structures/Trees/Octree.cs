@@ -76,8 +76,8 @@ namespace System
             return list;
         }
 
-        public void CollectVisible(Frustum frustum, RenderPasses passes)
-            => _head.CollectVisible(frustum, passes);
+        public void CollectVisible(Frustum frustum, RenderPasses passes, bool shadowPass)
+            => _head.CollectVisible(frustum, passes, shadowPass);
         
         public void DebugRender(Frustum f)
             => _head.DebugRender(true, f);
@@ -210,38 +210,42 @@ namespace System
                 }
                 Engine.Renderer.RenderAABB(_bounds.HalfExtents, _bounds.Translation, false, clr, 5.0f);
             }
-            public void CollectVisible(Frustum frustum, RenderPasses passes)
+            public void CollectVisible(Frustum frustum, RenderPasses passes, bool shadowPass)
             {
                 EContainment c = frustum.Contains(_bounds);
                 if (c != EContainment.Disjoint)
                 {
                     if (c == EContainment.Contains)
-                        CollectAll(passes);
+                        CollectAll(passes, shadowPass);
                     else
                     {
                         IsLoopingItems = true;
-                        foreach (I3DRenderable r in _items)
-                            if (r.CullingVolume == null || (c = r.CullingVolume.ContainedWithin(frustum)) != EContainment.Disjoint)
+                        for (int i = 0; i < _items.Count; ++i)
+                        {
+                            I3DRenderable r = _items[i] as I3DRenderable;
+                            bool render = (shadowPass && r.RenderInfo.CastsShadows) || !shadowPass;
+                            if (render && (r.CullingVolume == null || (c = r.CullingVolume.ContainedWithin(frustum)) != EContainment.Disjoint))
                                 passes.Add(r);
+                        }
                         IsLoopingItems = false;
 
                         IsLoopingSubNodes = true;
-                        foreach (var s in _subNodes)
-                            s?.CollectVisible(frustum, passes);
+                        for (int i = 0; i < 8; ++i)
+                            _subNodes[i]?.CollectVisible(frustum, passes, shadowPass);
                         IsLoopingSubNodes = false;
                     }
                 }
             }
-            private void CollectAll(RenderPasses passes)
+            private void CollectAll(RenderPasses passes, bool shadowPass)
             {
                 IsLoopingItems = true;
-                foreach (I3DRenderable r in _items)
-                    passes.Add(r);
+                for (int i = 0; i < _items.Count; ++i)
+                    passes.Add(_items[i] as I3DRenderable);
                 IsLoopingItems = false;
 
                 IsLoopingSubNodes = true;
-                foreach (var s in _subNodes)
-                    s?.CollectAll(passes);
+                for (int i = 0; i < 8; ++i)
+                    _subNodes[i]?.CollectAll(passes, shadowPass);
                 IsLoopingSubNodes = false;
             }
             internal bool Remove(T item)

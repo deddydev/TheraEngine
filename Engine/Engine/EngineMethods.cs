@@ -359,12 +359,10 @@ namespace TheraEngine
         /// <summary>
         /// Prints a message to the top left of the screen, for debugging purposes.
         /// </summary>
-        /// <param name="message"></param>
-        /// <param name="viewport"></param>
-        public static void DebugPrint(string message, int viewport = -1)
+        public static void DebugPrint(string message, int viewport = -1, params string[] args)
         {
 #if DEBUG
-            Debug.WriteLine(message);
+            Debug.WriteLine(message, args);
             RenderPanel panel = RenderPanel.CapturedPanel;
             if (panel == null)
                 return;

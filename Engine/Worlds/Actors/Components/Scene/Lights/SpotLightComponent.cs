@@ -177,7 +177,7 @@ namespace TheraEngine.Worlds.Actors
             Engine.Renderer.Clear(EBufferClear.Color | EBufferClear.Depth);
             Engine.Renderer.AllowDepthWrite(true);
 
-            scene.PreRender(_shadowCamera);
+            scene.PreRender(_shadowCamera, true);
             scene.Render(ERenderPassType3D.OpaqueDeferredLit);
             scene.Render(ERenderPassType3D.OpaqueForward);
             scene.Render(ERenderPassType3D.TransparentForward);

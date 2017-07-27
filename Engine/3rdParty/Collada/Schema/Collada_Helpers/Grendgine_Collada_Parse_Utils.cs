@@ -1,5 +1,6 @@
 using System;
 using System.Diagnostics;
+using TheraEngine;
 
 namespace grendgine_collada
 {
@@ -18,9 +19,9 @@ namespace grendgine_collada
 			}
 			catch (Exception e)
 			{
-                Debug.WriteLine(e.ToString());
-                Debug.WriteLine("");
-                Debug.WriteLine(int_array);
+                Engine.DebugPrint(e.ToString());
+                Engine.DebugPrint("");
+                Engine.DebugPrint(int_array);
 			}
 			return array;
 		}
@@ -38,9 +39,9 @@ namespace grendgine_collada
 			}
 			catch (Exception e)
 			{
-                Debug.WriteLine(e.ToString());
-                Debug.WriteLine("");
-                Debug.WriteLine(float_array);
+                Engine.DebugPrint(e.ToString());
+                Engine.DebugPrint("");
+                Engine.DebugPrint(float_array);
 			}
 			return array;
 		}
@@ -58,9 +59,9 @@ namespace grendgine_collada
 			}
 			catch (Exception e)
 			{
-                Debug.WriteLine(e.ToString());
-                Debug.WriteLine("");
-                Debug.WriteLine(bool_array);
+                Engine.DebugPrint(e.ToString());
+                Engine.DebugPrint("");
+                Engine.DebugPrint(bool_array);
 			}
 			return array;
 		}

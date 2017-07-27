@@ -4,6 +4,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using TheraEngine;
+using TheraEngine.Files;
+using TheraEngine.Worlds;
 
 namespace ChromaCrossfire
 {
@@ -14,7 +16,7 @@ namespace ChromaCrossfire
         {
             Game game = new Game()
             {
-
+                OpeningWorld = new SingleFileRef<World>(""),
             };
             Engine.Run(game);
         }

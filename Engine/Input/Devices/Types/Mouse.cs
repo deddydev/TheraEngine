@@ -115,7 +115,7 @@ namespace TheraEngine.Input.Devices
                 for (int j = 0; j < i; ++j)
                     list[j](x, y);
             }
-            //Debug.WriteLine(_name + ": " + type.ToString());
+            //Engine.DebugPrint(_name + ": " + type.ToString());
         }
     }
     public class ScrollWheelManager

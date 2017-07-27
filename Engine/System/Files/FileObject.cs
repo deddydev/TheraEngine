@@ -285,6 +285,11 @@ namespace TheraEngine.Files
 
         public static Type DetermineType(string path)
         {
+            switch (Path.GetExtension(path).ToLower()[1])
+            {
+                case 'x':
+                    break;
+            }
             string typeName = "";
             return Type.GetType(typeName, false, false);
         }

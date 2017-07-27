@@ -68,7 +68,7 @@ namespace TheraEngine.Input.Devices
             int i = _onUpdate.Count;
             for (int x = 0; x < i; ++x)
                 _onUpdate[x](realValue);
-            //Debug.WriteLine(_name + ": " + realValue.ToString());
+            //Engine.DebugPrint(_name + ": " + realValue.ToString());
         }
         private void OnAxisValue(float realValue)
         {

@@ -8,6 +8,7 @@ using TheraEditor.Properties;
 using TheraEditor.Wrappers;
 using System.IO;
 using System.Collections.Generic;
+using TheraEngine;
 
 namespace TheraEditor
 {
@@ -29,7 +30,6 @@ namespace TheraEditor
     {
         private delegate void DelegateOpenFile(string s, TreeNode t);
         private DelegateOpenFile _openFileDelegate;
-        private Dictionary<string, TreeNode> _nodes;
         private FileSystemWatcher _contentWatcher;
         
         private static ImageList _imgList;
@@ -58,15 +58,13 @@ namespace TheraEditor
         }
         public BaseWrapper CreateNode(string path)
         {
-            BaseWrapper b = BaseWrapper.Wrap(path);
-            _nodes.Add(path, b);
-            return b;
+            return BaseWrapper.Wrap(path);
         }
         public void DisplayProject(Project p)
         {
-            _nodes = new Dictionary<string, TreeNode>();
-
-            Nodes.Add(CreateNode(p.FilePath));
+            string dir = Path.GetDirectoryName(p.FilePath);
+            
+            Nodes.Add(CreateNode(dir));
             
             _contentWatcher = new FileSystemWatcher(Path.GetDirectoryName(p.FilePath), "*.*")
             {
@@ -81,26 +79,46 @@ namespace TheraEditor
         }
         private void _contentWatcher_Renamed(object sender, RenamedEventArgs e)
         {
-            if (!_nodes.ContainsKey(e.OldFullPath))
+            TreeNode[] nodes = Nodes.Find(e.OldFullPath, true);
+            if (nodes.Length == 0)
                 return;
-            TreeNode node = _nodes[e.OldFullPath];
-            node.Name = e.Name;
-            _nodes.Remove(e.OldFullPath);
-            _nodes.Add(e.FullPath, node);
+            if (nodes.Length > 1)
+                Engine.DebugPrint("More than one node with the path " + e.OldFullPath);
+            TreeNode node = nodes[0];
+            node.Text = e.Name;
+            node.Name = e.FullPath;
         }
         private void _contentWatcher_Deleted(object sender, FileSystemEventArgs e)
         {
-            if (!_nodes.ContainsKey(e.FullPath))
+            TreeNode[] nodes = Nodes.Find(e.FullPath, true);
+            if (nodes.Length == 0)
                 return;
-            _nodes[e.FullPath].Remove();
-            _nodes.Remove(e.FullPath);
+            if (nodes.Length > 1)
+                Engine.DebugPrint("More than one node with the path " + e.FullPath);
+            TreeNode node = nodes[0];
+            node.Remove();
         }
         private void _contentWatcher_Created(object sender, FileSystemEventArgs e)
         {
-            _nodes.Add(e.FullPath, CreateNode(e.FullPath));
+            string relativePath = e.FullPath.MakePathRelativeTo(((BaseWrapper)Nodes[0]).FilePath);
+            string[] nodeNames = relativePath.Split('\\');
+            TreeNode current = null;
+            foreach (string name in nodeNames)
+            {
+                if (name == "..")
+                {
+                    if (current != null)
+                        current = current.Parent;
+                    
+                }
+            }
+            Nodes.Add(CreateNode(e.FullPath));
         }
         private void _contentWatcher_Changed(object sender, FileSystemEventArgs e)
         {
+            //The change of a file or folder. The types of changes include: 
+            //changes to size, attributes, security settings, last write, and last access time.
+
             if (!_nodes.ContainsKey(e.FullPath))
             {
                 return;

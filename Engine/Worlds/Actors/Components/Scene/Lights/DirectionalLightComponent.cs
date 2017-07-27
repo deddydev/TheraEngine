@@ -137,7 +137,7 @@ namespace TheraEngine.Worlds.Actors
             }
             return EPixelInternalFormat.DepthComponent32f;
         }
-        private static Material GetShadowMapMaterial(int width, int height, EDepthPrecision precision = EDepthPrecision.Int24)
+        private static Material GetShadowMapMaterial(int width, int height, EDepthPrecision precision = EDepthPrecision.Flt32)
         {
             //These are listed in order of appearance in the shader
             TextureReference[] refs = new TextureReference[]
@@ -170,7 +170,7 @@ namespace TheraEngine.Worlds.Actors
             Engine.Renderer.Clear(EBufferClear.Color | EBufferClear.Depth);
             Engine.Renderer.AllowDepthWrite(true);
             
-            scene.PreRender(_shadowCamera);
+            scene.PreRender(_shadowCamera, true);
             scene.Render(ERenderPassType3D.OpaqueDeferredLit);
             scene.Render(ERenderPassType3D.OpaqueForward);
             scene.Render(ERenderPassType3D.TransparentForward);

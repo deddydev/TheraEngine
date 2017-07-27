@@ -18,7 +18,7 @@ namespace TheraEngine
 #endif
         void RegisterTick(ETickGroup group, ETickOrder order, DelTick tickFunc, InputPauseType pausedBehavior = InputPauseType.TickAlways);
         void UnregisterTick(ETickGroup group, ETickOrder order, DelTick tickFunc, InputPauseType pausedBehavior = InputPauseType.TickAlways);
-        void AddAnimation(AnimationContainer anim, bool startNow = false);
+        void AddAnimation(AnimationContainer anim, bool startNow = false, ETickGroup group = ETickGroup.PostPhysics, ETickOrder order = ETickOrder.BoneAnimation, InputPauseType pausedBehavior = InputPauseType.TickAlways);
         void RemoveAnimation(AnimationContainer anim);
     }
     public class TickInfo : Tuple<ETickGroup, ETickOrder, DelTick>
@@ -38,11 +38,11 @@ namespace TheraEngine
     }
     public enum ETickOrder
     {
-        Timers      = 0, //Call timing events
-        Input       = 3, //Call input events
-        Animation   = 6, //Update animation positions
-        Logic       = 9, //Gameplay calculations
-        Scene       = 12, //Update scene
+        Timers          = 0, //Call timing events
+        Input           = 3, //Call input events
+        BoneAnimation   = 6, //Update model animation positions
+        Logic           = 9, //Gameplay calculations
+        Scene           = 12, //Update scene
     }
 
     public abstract class ObjectBase
@@ -123,7 +123,7 @@ namespace TheraEngine
                 return;
 
             string output = "Changed property " + info.Name + " in " + GetType().ToString() + " \"" + Name + "\"";
-            Debug.WriteLine(output);
+            Engine.DebugPrint(output);
 
             _changed = true;
 
@@ -137,7 +137,12 @@ namespace TheraEngine
         
         protected virtual void OnRenamed(string oldName) { Renamed?.Invoke(this, oldName); }
 
-        public void AddAnimation(AnimationContainer anim, bool startNow = false)
+        public void AddAnimation(
+            AnimationContainer anim,
+            bool startNow = false,
+            ETickGroup group = ETickGroup.PostPhysics,
+            ETickOrder order = ETickOrder.BoneAnimation,
+            InputPauseType pausedBehavior = InputPauseType.TickOnlyWhenUnpaused)
         {
             if (anim == null)
                 return;
@@ -147,7 +152,7 @@ namespace TheraEngine
             _animations.Add(anim);
             anim._owners.Add(this);
             if (startNow)
-                anim.Start();
+                anim.Start(group, order, pausedBehavior);
         }
         public void RemoveAnimation(AnimationContainer anim)
         {

@@ -20,6 +20,10 @@ namespace TheraEngine.Rendering
     public enum ERenderPassType3D
     {
         /// <summary>
+        /// Use for any objects that will ALWAYS be rendered behind the scene, even if they are outside of the viewing frustum.
+        /// </summary>
+        Skybox,
+        /// <summary>
         /// Use for any fully opaque objects that are always lit.
         /// </summary>
         OpaqueDeferredLit,
@@ -47,17 +51,19 @@ namespace TheraEngine.Rendering
                 new List<I3DRenderable>(),
                 new List<I3DRenderable>(),
                 new List<I3DRenderable>(),
+                new List<I3DRenderable>(),
             };
         }
 
         private RenderSort _sorter;
         private List<I3DRenderable>[] _passes;
         private List<LightComponent> _lights = new List<LightComponent>();
-
-        public List<I3DRenderable> OpaqueDeferredLit => _passes[0];
-        public List<I3DRenderable> OpaqueForward => _passes[1];
-        public List<I3DRenderable> TransparentForward => _passes[2];
-        public List<I3DRenderable> OnTopForward => _passes[3];
+        
+        public List<I3DRenderable> Skybox => _passes[0];
+        public List<I3DRenderable> OpaqueDeferredLit => _passes[1];
+        public List<I3DRenderable> OpaqueForward => _passes[2];
+        public List<I3DRenderable> TransparentForward => _passes[3];
+        public List<I3DRenderable> OnTopForward => _passes[4];
         public List<LightComponent> Lights => _lights;
 
         private class RenderSort : IComparer<I3DRenderable>
@@ -109,15 +115,11 @@ namespace TheraEngine.Rendering
         /// <summary>
         /// Call this to only enable visibility for items visible from the given camera.
         /// </summary>
-        /// <param name="camera">The camera viewpoint.</param>
-        /// <param name="resetVisibility">If true, changes all visible objects back to invisible before testing for visibility again.</param>
-        /// <param name="cullOffscreen">If true, will set all offscreen items to invisible.</param>
-        /// <param name="renderOctree">If true, will render the subdivisions of the octree.</param>
-        internal void PreRender(Camera camera, bool resetVisibility = true, bool cullOffscreen = true, bool renderOctree = false)
+        internal void PreRender(Camera camera, bool shadowPass)
         {
             AbstractRenderer.PushCurrentCamera(camera);
             //_renderTree.Cull(camera.GetFrustum(), resetVisibility, cullOffscreen, Engine.Settings.RenderOctree);
-            _renderTree.CollectVisible(camera.GetFrustum(), _passes);
+            _renderTree.CollectVisible(camera.GetFrustum(), _passes, shadowPass);
             foreach (IPreRenderNeeded p in _preRenderList)
                 p.PreRender();
         }

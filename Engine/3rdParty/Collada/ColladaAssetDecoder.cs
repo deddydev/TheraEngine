@@ -13,7 +13,7 @@ namespace TheraEngine.Rendering.Models
             SkinEntry skin,
             List<NodeEntry> nodes)
         {
-            //Debug.WriteLine("Weighted: " + geo._id);
+            //Engine.DebugPrint("Weighted: " + geo._id);
 
             Bone[] boneList;
             Bone bone = null;
@@ -74,7 +74,7 @@ namespace TheraEngine.Rendering.Models
                     //Couldn't find the bone
                     if (boneList[i] == null)
                     {
-                        Debug.WriteLine("Could not find bone \"" + name + "\"");
+                        Engine.DebugPrint("Could not find bone \"" + name + "\"");
                         boneList[i] = new Bone(name, FrameState.Identity);
                     }
                 }
@@ -154,7 +154,7 @@ namespace TheraEngine.Rendering.Models
 
         static PrimitiveData DecodePrimitivesUnweighted(Matrix4 bindMatrix, GeometryEntry geo)
         {
-            //Debug.WriteLine("Unweighted: " + geo._id);
+            //Engine.DebugPrint("Unweighted: " + geo._id);
             return DecodePrimitives(geo, bindMatrix, null);
         }
         static PrimitiveData DecodePrimitives(GeometryEntry geo, Matrix4 bindMatrix, Influence[] infList)

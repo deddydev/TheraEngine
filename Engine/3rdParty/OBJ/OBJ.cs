@@ -31,7 +31,13 @@ namespace TheraEngine.Rendering.Models
             return m;
         }
 
-        private static VertexTriangle[] CreateTriangles(Face face, LoadResult result, bool swapWinding, Matrix4 modelTransform, Matrix4 normalTransform, BoundingBox bounds)
+        private static VertexTriangle[] CreateTriangles(
+            Face face, 
+            LoadResult result, 
+            bool swapWinding,
+            Matrix4 modelTransform,
+            Matrix4 normalTransform,
+            BoundingBox bounds)
         {
             //First convert obj face points to vertex points
             Vertex[] vertices = new Vertex[face.Count];

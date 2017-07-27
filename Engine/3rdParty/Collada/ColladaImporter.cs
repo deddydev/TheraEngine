@@ -13,7 +13,7 @@ namespace TheraEngine.Rendering.Models
     {
         public static ModelScene Import(string filePath, ModelImportOptions options)
         {
-            Debug.WriteLine("Importing Collada scene on " + Thread.CurrentThread.Name + " thread.");
+            Engine.DebugPrint("Importing Collada scene on " + Thread.CurrentThread.Name + " thread.");
 
             DecoderShell shell = DecoderShell.Import(filePath);
             ModelScene scene = new ModelScene();

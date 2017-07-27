@@ -373,7 +373,7 @@ namespace TheraEngine.Rendering.Models
             else
                 throw new InvalidOperationException("Not a proper numeric data type.");
 
-            //Debug.WriteLine("\nSetting numeric vertex data for buffer " + Index + " - " + Name);
+            //Engine.DebugPrint("\nSetting numeric vertex data for buffer " + Index + " - " + Name);
 
             _componentCount = 1;
             _normalize = false;
@@ -392,7 +392,7 @@ namespace TheraEngine.Rendering.Models
                     //Debug.Write(value.ToString() + " ");
                     Marshal.StructureToPtr(value, addr, true);
                 }
-                //Debug.WriteLine();
+                //Engine.DebugPrint();
                 return remapper;
             }
             else
@@ -408,13 +408,13 @@ namespace TheraEngine.Rendering.Models
                     //Debug.Write(value.ToString() + " ");
                     Marshal.StructureToPtr(value, addr, true);
                 }
-                //Debug.WriteLine("\n");
+                //Engine.DebugPrint("\n");
                 return null;
             }
         }
         public Remapper SetData<T>(IList<T> list, bool remap = false) where T : IBufferable
         {
-            //Debug.WriteLine("\nSetting vertex data for buffer " + Index + " - " + Name);
+            //Engine.DebugPrint("\nSetting vertex data for buffer " + Index + " - " + Name);
 
             IBufferable d = default(T);
             _componentType = d.ComponentType;
@@ -431,7 +431,7 @@ namespace TheraEngine.Rendering.Models
                 for (int i = 0; i < remapper.ImplementationLength; ++i)
                 {
                     IBufferable b = list[remapper.ImplementationTable[i]];
-                    //Debug.WriteLine(b.ToString());
+                    //Engine.DebugPrint(b.ToString());
                     b.Write(_data.Address[i, stride]);
                 }
                 return remapper;
@@ -443,7 +443,7 @@ namespace TheraEngine.Rendering.Models
                 int stride = Stride;
                 for (int i = 0; i < list.Count; ++i)
                 {
-                    //Debug.WriteLine(list[i].ToString());
+                    //Engine.DebugPrint(list[i].ToString());
                     list[i].Write(_data.Address[i, stride]);
                 }
                 return null;
@@ -451,7 +451,7 @@ namespace TheraEngine.Rendering.Models
         }
         public Remapper GetData<T>(out T[] array, bool remap = true) where T : IBufferable
         {
-            //Debug.WriteLine("\nGetting vertex data from buffer " + Index + " - " + Name);
+            //Engine.DebugPrint("\nGetting vertex data from buffer " + Index + " - " + Name);
 
             IBufferable d = default(T);
             _componentType = d.ComponentType;
@@ -496,7 +496,7 @@ namespace TheraEngine.Rendering.Models
                     Destroy();
                 }
 
-                //Debug.WriteLine("Disposing of " + BufferType + " buffer");
+                //Engine.DebugPrint("Disposing of " + BufferType + " buffer");
                 if (_data != null)
                 {
                     _data.Dispose();

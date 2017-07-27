@@ -15,6 +15,8 @@ namespace TheraEngine.Worlds.Actors.Types
     }
     public class EditorTransformTool3D : Actor<SkeletalMeshComponent>
     {
+        public const float ScreenSize = 3.0f;
+
         public EditorTransformTool3D(ISocket modified)
         {
             TargetSocket = modified;
@@ -32,7 +34,7 @@ namespace TheraEngine.Worlds.Actors.Types
             _rootBone = new Bone(rootBoneName)
             {
                 ScaleByDistance = true,
-                DistanceScaleScreenSize = 4.0f,
+                DistanceScaleScreenSize = ScreenSize,
             };
             Bone screen = new Bone(screenBoneName)
             {
@@ -351,7 +353,7 @@ namespace TheraEngine.Worlds.Actors.Types
 
             Vec3 worldPoint = RootComponent.WorldMatrix.GetPoint();
             Ray localRay = cursor.TransformedBy(_rootBone.InverseWorldMatrix);
-            float radius = camera.DistanceScale(worldPoint, 1.0f);
+            float radius = camera.DistanceScale(worldPoint, ScreenSize);
 
             _highlightMode(camera, worldPoint, localRay, radius, clamp, ref snapFound);
 

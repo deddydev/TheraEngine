@@ -220,7 +220,7 @@ namespace TheraEngine.Worlds.Actors
         }
         protected void OnHit(IPhysicsDrivable me, IPhysicsDrivable other, ManifoldPoint point)
         {
-            //Debug.WriteLine(((ObjectBase)other).Name + " collided with " + Name);
+            //Engine.DebugPrint(((ObjectBase)other).Name + " collided with " + Name);
             _movement.OnHit(other, point);
         }
         protected override void PreConstruct()

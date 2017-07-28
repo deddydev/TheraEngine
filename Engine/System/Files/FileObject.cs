@@ -139,6 +139,13 @@ namespace TheraEngine.Files
             GetDirNameFmt(_filePath, out string dir, out string name, out FileFormat fmt);
             Export(dir, name, fmt);
         }
+        public void Export(string path)
+        {
+            if (string.IsNullOrEmpty(path))
+                throw new Exception("File path is not valid.");
+            GetDirNameFmt(path, out string dir, out string name, out FileFormat fmt);
+            Export(dir, name, fmt);
+        }
         public void Export(string directory, string fileName, FileFormat format)
         {
             switch (format)
@@ -149,6 +156,8 @@ namespace TheraEngine.Files
                 case FileFormat.Binary:
                     ToBinary(directory, fileName);
                     break;
+                default:
+                    throw new InvalidOperationException("Not a valid file format.");
             }
         }
 

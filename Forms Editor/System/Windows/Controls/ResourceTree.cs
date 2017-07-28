@@ -31,7 +31,8 @@ namespace TheraEditor
         private delegate void DelegateOpenFile(string s, TreeNode t);
         private DelegateOpenFile _openFileDelegate;
         private FileSystemWatcher _contentWatcher;
-        
+        private Dictionary<string, BaseWrapper> _externallyModifiedNodes = new Dictionary<string, BaseWrapper>();
+
         private static ImageList _imgList;
         public static ImageList Images
         {
@@ -102,14 +103,24 @@ namespace TheraEditor
         {
             string relativePath = e.FullPath.MakePathRelativeTo(((BaseWrapper)Nodes[0]).FilePath);
             string[] nodeNames = relativePath.Split('\\');
-            TreeNode current = null;
+            BaseWrapper current = null;
             foreach (string name in nodeNames)
             {
                 if (name == "..")
                 {
                     if (current != null)
-                        current = current.Parent;
-                    
+                        current = (BaseWrapper)current.Parent;
+                    else
+                        return; //Not a valid path.
+                }
+                else
+                {
+                    foreach (BaseWrapper b in Nodes)
+                        if (b.Text == name)
+                        {
+                            current = b;
+                            continue;
+                        }
                 }
             }
             Nodes.Add(CreateNode(e.FullPath));
@@ -118,11 +129,68 @@ namespace TheraEditor
         {
             //The change of a file or folder. The types of changes include: 
             //changes to size, attributes, security settings, last write, and last access time.
-
-            if (!_nodes.ContainsKey(e.FullPath))
-            {
+            TreeNode[] nodes = Nodes.Find(e.FullPath, true);
+            if (nodes.Length == 0)
                 return;
+            if (nodes.Length > 1)
+                Engine.DebugPrint("More than one node with the path " + e.FullPath);
+            BaseWrapper b = (BaseWrapper)nodes[0];
+            if (b.IsLoaded)
+            {
+                if (b.AlwaysReload)
+                    b.Reload();
+                else
+                {
+                    string message = "The file " + e.FullPath + " has been externally modified.\nDo you want to reload it?";
+                    if (b.Resource.EditorState.HasChanges)
+                        message += "\nYou will have the option to save your in-editor changes elsewhere if so.";
+                    Form f = Parent.FindForm();
+                    if (MessageBox.Show(f, message, "Externally modified file", MessageBoxButtons.YesNo, MessageBoxIcon.Hand) == DialogResult.Yes)
+                    {
+                        message = "Save your changes elsewhere before reloading?";
+                        DialogResult d = MessageBox.Show(f, message, "Save changes?", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question);
+                        if (d == DialogResult.Cancel)
+                            AddExternallyModifiedNode(b);
+                        else
+                        {
+                            if (d == DialogResult.Yes)
+                            {
+                                SaveFileDialog sfd = new SaveFileDialog()
+                                {
+                                    Filter = b.Resource.FileHeader.GetFilter()
+                                };
+                                if (sfd.ShowDialog(f) == DialogResult.OK)
+                                {
+                                    b.Resource.Export(sfd.FileName);
+                                }
+                            }
+                            b.Reload();
+                        }
+                    }
+                    else
+                        AddExternallyModifiedNode(b);
+                }
             }
+        }
+        private void AddExternallyModifiedNode(BaseWrapper n)
+        {
+            n.ExternallyModified = true;
+            _externallyModifiedNodes.Add(n.FullPath, n);
+        }
+        protected override void OnAfterLabelEdit(NodeLabelEditEventArgs e)
+        {
+            if (string.IsNullOrWhiteSpace(e.Label))
+            {
+                e.CancelEdit = true;
+                MessageBox.Show("Name cannot be empty.");
+                e.Node.BeginEdit();
+            }
+            else
+            {
+                e.Node.EndEdit(false);
+            }
+            
+            base.OnAfterLabelEdit(e);
         }
         protected override void OnBeforeExpand(TreeViewCancelEventArgs e)
         {
@@ -203,26 +271,7 @@ namespace TheraEditor
             //    Nodes.Add(rootNode);
             //}
         }
-
-        private void GetDirectories(DirectoryInfo[] subDirs, TreeNode nodeToAddTo)
-        {
-            TreeNode aNode;
-            DirectoryInfo[] subSubDirs;
-            foreach (DirectoryInfo subDir in subDirs)
-            {
-                aNode = new TreeNode(subDir.Name, 0, 0)
-                {
-                    Tag = subDir,
-                    ImageKey = "folder"
-                };
-                subSubDirs = subDir.GetDirectories();
-                if (subSubDirs.Length != 0)
-                {
-                    GetDirectories(subSubDirs, aNode);
-                }
-                nodeToAddTo.Nodes.Add(aNode);
-            }
-        }
+        
         protected override void WndProc(ref Message m)
         {
             if (m.Msg == 0x204)

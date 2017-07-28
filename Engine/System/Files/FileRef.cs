@@ -70,6 +70,14 @@ namespace TheraEngine.Files
                 }
             }
         }
+        public override string ReferencePath
+        {
+            get => base.ReferencePath;
+            set => base.ReferencePath = value;
+        }
+
+        public bool IsLoaded => _file != null;
+
         public void ExportReference()
         {
             _file.Export();
@@ -139,6 +147,9 @@ namespace TheraEngine.Files
                                 break;
                             case FileFormat.Binary:
                                 File = FromBinary(_subType, absolutePath) as T;
+                                break;
+                            default:
+                                Engine.DebugPrint(string.Format("Could not load file at \"{0}\". Invalid file format.", absolutePath));
                                 break;
                         }
                 }
@@ -222,7 +233,7 @@ namespace TheraEngine.Files
         }
         public FileRef(Type type)
         {
-            if (type.IsSubclassOf(typeof(T)))
+            if (typeof(T).IsAssignableFrom(type))
                 _subType = type;
             else
                 throw new Exception(type.ToString() + " does not inherit " + typeof(T).ToString());
@@ -256,7 +267,7 @@ namespace TheraEngine.Files
             set => _storeInternally = value;
         }
         [Serialize(IsXmlAttribute = true)]
-        public string ReferencePath
+        public virtual string ReferencePath
         {
             get
             {

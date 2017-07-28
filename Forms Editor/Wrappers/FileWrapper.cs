@@ -10,7 +10,6 @@ namespace TheraEditor.Wrappers
     {
         #region Menu
 
-        protected static ContextMenuStrip _menu;
         static FileWrapper()
         {
             _menu = new ContextMenuStrip();
@@ -159,6 +158,8 @@ namespace TheraEditor.Wrappers
 
         public void Rename()
         {
+            TreeView.LabelEdit = true;
+            BeginEdit();
             //using (RenameDialog dlg = new RenameDialog()) { dlg.ShowDialog(MainForm.Instance, _resource); }
         }
     }

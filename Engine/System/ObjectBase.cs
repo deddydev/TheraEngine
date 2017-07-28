@@ -95,6 +95,13 @@ namespace TheraEngine
             get => _editorState;
             set => _editorState = value;
         }
+
+        public List<AnimationContainer> Animations
+        {
+            get => _animations;
+            set => _animations = value;
+        }
+
 #endif
 
         [Serialize]
@@ -116,7 +123,7 @@ namespace TheraEngine
                 OnRenamed(oldName);
             }
         }
-        
+
         protected internal void OnPropertyChanged(PropertyInfo info, object previousValue)
         {
             if (info.Name == "_changed")

@@ -14,7 +14,11 @@ namespace TheraEditor.Wrappers
     {
         #region Menu
         private static ContextMenuStrip _menu;
-        public FolderWrapper() : base(_menu) { ImageIndex = 1; SelectedImageIndex = 2; }
+        public FolderWrapper() : base(_menu)
+        {
+            ImageIndex = 1;
+            SelectedImageIndex = 2;
+        }
         static FolderWrapper()
         {
             _menu = new ContextMenuStrip();

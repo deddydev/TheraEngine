@@ -712,141 +712,141 @@
     <Compile Include="Rendering\Models\Materials\Textures\TextureConverter.cs" />
     <Compile Include="Rendering\Models\Materials\Textures\TextureFile.cs" />
     <Compile Include="Settings.cs" />
-    <Compile Include="System\CommonDelegates.cs" />
-    <Compile Include="System\ComputerInfo.cs" />
-    <Compile Include="System\Data Structures\Lists\HashedStack.cs" />
-    <Compile Include="System\Data Structures\Lists\HashedQueue.cs" />
-    <Compile Include="System\Data Structures\Trees\Octree.cs" />
-    <Compile Include="System\Data Structures\ThreadSafeHashSet.cs" />
-    <Compile Include="System\Data Structures\Lists\ThreadSafeList.cs" />
-    <Compile Include="System\Data Structures\Trees\Quadtree.cs" />
-    <Compile Include="System\Extensions\EnumerableExtension.cs" />
-    <Compile Include="System\Extensions\EnumExtension.cs" />
-    <Compile Include="System\Extensions\GraphicsExtension.cs" />
-    <Compile Include="System\Extensions\ListExtension.cs" />
-    <Compile Include="System\Extensions\ReaderWriterLockSlimExtension.cs" />
-    <Compile Include="System\Extensions\StringExtension.cs" />
-    <Compile Include="System\Extensions\ArrayExtension.cs" />
-    <Compile Include="System\Extensions\XmlExtension.cs" />
-    <Compile Include="System\Files\Serialization\Binary\CustomBinaryDeserializer.cs" />
-    <Compile Include="System\Files\Serialization\Binary\CustomBinarySerializer.cs" />
-    <Compile Include="System\Files\Serialization\SerializationCommon.cs" />
-    <Compile Include="System\Files\Serialization\XML\CustomXmlDeserializer.cs" />
-    <Compile Include="System\Files\Serialization\XML\CustomXmlSerializer.cs" />
-    <Compile Include="System\Files\FileRef.cs" />
-    <Compile Include="System\Files\StringTable.cs" />
-    <Compile Include="System\Files\XMLReader.cs" />
-    <Compile Include="System\Maths\Collision\Collision.cs" />
-    <Compile Include="System\Maths\Collision\Tracing.cs" />
-    <Compile Include="System\Maths\Enums.cs" />
-    <Compile Include="System\Maths\Miniball.cs" />
-    <Compile Include="System\Maths\Shapes\BoundingRectangle.cs" />
-    <Compile Include="System\Maths\Shapes\Cylindrical\BaseCone.cs" />
-    <Compile Include="System\Maths\Transforms\Vectors\Vectors.cs" />
-    <Compile Include="System\Maths\Shapes\Cylindrical\BaseCapsule.cs" />
-    <Compile Include="System\Maths\Shapes\Cylindrical\Complex\ComplexCapsule.cs" />
-    <Compile Include="System\Maths\Shapes\Cylindrical\BaseCylinder.cs" />
-    <Compile Include="System\Maths\Shapes\Cylindrical\YAligned\CylinderY.cs" />
-    <Compile Include="System\Maths\Shapes\Cylindrical\YAligned\ConeY.cs" />
-    <Compile Include="System\Maths\Shapes\Boxes\Box.cs" />
-    <Compile Include="System\Maths\Shapes\Boxes\Frustum.cs" />
-    <Compile Include="System\Maths\Shapes\Planar\Plane.cs" />
-    <Compile Include="System\Maths\Shapes\Planar\Circle.cs" />
-    <Compile Include="System\Maths\Shapes\Planar\Segment.cs" />
-    <Compile Include="System\Maths\Shapes\Planar\Ray.cs" />
-    <Compile Include="System\Maths\Shapes\Shape.cs" />
-    <Compile Include="System\Maths\Shapes\Cylindrical\Sphere.cs" />
-    <Compile Include="System\Maths\Transforms\Matrix3.cs" />
-    <Compile Include="System\Maths\Transforms\Matrix4.cs" />
-    <Compile Include="System\Maths\Transforms\Quaternion.cs" />
-    <Compile Include="System\Maths\Transforms\Vectors\EventVec2.cs" />
-    <Compile Include="System\Maths\Transforms\Vectors\Vec2.cs" />
-    <Compile Include="System\Maths\Transforms\Rotator.cs" />
-    <Compile Include="System\Maths\Transforms\Vectors\EventVec3.cs" />
-    <Compile Include="System\Maths\Transforms\Vectors\Vec3.cs" />
-    <Compile Include="System\Maths\Transforms\Vectors\EventVec4.cs" />
-    <Compile Include="System\Maths\Transforms\Vectors\Vec4.cs" />
-    <Compile Include="System\Measurement.cs" />
-    <Compile Include="System\Memory\Bin64.cs" />
-    <Compile Include="System\Memory\Bin8.cs" />
-    <Compile Include="System\Memory\Bin16.cs" />
-    <Compile Include="System\Memory\Bin24.cs" />
-    <Compile Include="System\Memory\Bin32.cs" />
-    <Compile Include="System\Data Structures\Lists\MonitoredList.cs" />
-    <Compile Include="System\Memory\PString.cs" />
-    <Compile Include="System\Memory\FloatQuantizer.cs" />
-    <Compile Include="System\Memory\VQuant.cs" />
-    <Compile Include="System\Platform\Linux.cs" />
-    <Compile Include="System\Platform\OSX.cs" />
-    <Compile Include="System\Platform\Win32.cs" />
-    <Compile Include="System\PropertyGrid\BufferedPanel.cs">
+    <Compile Include="Core\CommonDelegates.cs" />
+    <Compile Include="Core\ComputerInfo.cs" />
+    <Compile Include="Core\Data Structures\Lists\HashedStack.cs" />
+    <Compile Include="Core\Data Structures\Lists\HashedQueue.cs" />
+    <Compile Include="Core\Data Structures\Trees\Octree.cs" />
+    <Compile Include="Core\Data Structures\ThreadSafeHashSet.cs" />
+    <Compile Include="Core\Data Structures\Lists\ThreadSafeList.cs" />
+    <Compile Include="Core\Data Structures\Trees\Quadtree.cs" />
+    <Compile Include="Core\Extensions\EnumerableExtension.cs" />
+    <Compile Include="Core\Extensions\EnumExtension.cs" />
+    <Compile Include="Core\Extensions\GraphicsExtension.cs" />
+    <Compile Include="Core\Extensions\ListExtension.cs" />
+    <Compile Include="Core\Extensions\ReaderWriterLockSlimExtension.cs" />
+    <Compile Include="Core\Extensions\StringExtension.cs" />
+    <Compile Include="Core\Extensions\ArrayExtension.cs" />
+    <Compile Include="Core\Extensions\XmlExtension.cs" />
+    <Compile Include="Core\Files\Serialization\Binary\CustomBinaryDeserializer.cs" />
+    <Compile Include="Core\Files\Serialization\Binary\CustomBinarySerializer.cs" />
+    <Compile Include="Core\Files\Serialization\SerializationCommon.cs" />
+    <Compile Include="Core\Files\Serialization\XML\CustomXmlDeserializer.cs" />
+    <Compile Include="Core\Files\Serialization\XML\CustomXmlSerializer.cs" />
+    <Compile Include="Core\Files\FileRef.cs" />
+    <Compile Include="Core\Files\StringTable.cs" />
+    <Compile Include="Core\Files\XMLReader.cs" />
+    <Compile Include="Core\Maths\Collision\Collision.cs" />
+    <Compile Include="Core\Maths\Collision\Tracing.cs" />
+    <Compile Include="Core\Maths\Enums.cs" />
+    <Compile Include="Core\Maths\Miniball.cs" />
+    <Compile Include="Core\Maths\Shapes\BoundingRectangle.cs" />
+    <Compile Include="Core\Maths\Shapes\Cylindrical\BaseCone.cs" />
+    <Compile Include="Core\Maths\Transforms\Vectors\Vectors.cs" />
+    <Compile Include="Core\Maths\Shapes\Cylindrical\BaseCapsule.cs" />
+    <Compile Include="Core\Maths\Shapes\Cylindrical\Complex\ComplexCapsule.cs" />
+    <Compile Include="Core\Maths\Shapes\Cylindrical\BaseCylinder.cs" />
+    <Compile Include="Core\Maths\Shapes\Cylindrical\YAligned\CylinderY.cs" />
+    <Compile Include="Core\Maths\Shapes\Cylindrical\YAligned\ConeY.cs" />
+    <Compile Include="Core\Maths\Shapes\Boxes\Box.cs" />
+    <Compile Include="Core\Maths\Shapes\Boxes\Frustum.cs" />
+    <Compile Include="Core\Maths\Shapes\Planar\Plane.cs" />
+    <Compile Include="Core\Maths\Shapes\Planar\Circle.cs" />
+    <Compile Include="Core\Maths\Shapes\Planar\Segment.cs" />
+    <Compile Include="Core\Maths\Shapes\Planar\Ray.cs" />
+    <Compile Include="Core\Maths\Shapes\Shape.cs" />
+    <Compile Include="Core\Maths\Shapes\Cylindrical\Sphere.cs" />
+    <Compile Include="Core\Maths\Transforms\Matrix3.cs" />
+    <Compile Include="Core\Maths\Transforms\Matrix4.cs" />
+    <Compile Include="Core\Maths\Transforms\Quaternion.cs" />
+    <Compile Include="Core\Maths\Transforms\Vectors\EventVec2.cs" />
+    <Compile Include="Core\Maths\Transforms\Vectors\Vec2.cs" />
+    <Compile Include="Core\Maths\Transforms\Rotator.cs" />
+    <Compile Include="Core\Maths\Transforms\Vectors\EventVec3.cs" />
+    <Compile Include="Core\Maths\Transforms\Vectors\Vec3.cs" />
+    <Compile Include="Core\Maths\Transforms\Vectors\EventVec4.cs" />
+    <Compile Include="Core\Maths\Transforms\Vectors\Vec4.cs" />
+    <Compile Include="Core\Measurement.cs" />
+    <Compile Include="Core\Memory\Bin64.cs" />
+    <Compile Include="Core\Memory\Bin8.cs" />
+    <Compile Include="Core\Memory\Bin16.cs" />
+    <Compile Include="Core\Memory\Bin24.cs" />
+    <Compile Include="Core\Memory\Bin32.cs" />
+    <Compile Include="Core\Data Structures\Lists\MonitoredList.cs" />
+    <Compile Include="Core\Memory\PString.cs" />
+    <Compile Include="Core\Memory\FloatQuantizer.cs" />
+    <Compile Include="Core\Memory\VQuant.cs" />
+    <Compile Include="Core\Platform\Linux.cs" />
+    <Compile Include="Core\Platform\OSX.cs" />
+    <Compile Include="Core\Platform\Win32.cs" />
+    <Compile Include="Core\PropertyGrid\BufferedPanel.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="System\PropertyGrid\ColorControl.cs">
+    <Compile Include="Core\PropertyGrid\ColorControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="System\PropertyGrid\ColorControl.Designer.cs">
+    <Compile Include="Core\PropertyGrid\ColorControl.Designer.cs">
       <DependentUpon>ColorControl.cs</DependentUpon>
     </Compile>
-    <Compile Include="System\PropertyGrid\ColorDialog.cs">
+    <Compile Include="Core\PropertyGrid\ColorDialog.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="System\PropertyGrid\ColorDialog.Designer.cs">
+    <Compile Include="Core\PropertyGrid\ColorDialog.Designer.cs">
       <DependentUpon>ColorDialog.cs</DependentUpon>
     </Compile>
-    <Compile Include="System\PropertyGrid\ColorPicker.cs">
+    <Compile Include="Core\PropertyGrid\ColorPicker.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="System\PropertyGrid\ColorPicker.Designer.cs">
+    <Compile Include="Core\PropertyGrid\ColorPicker.Designer.cs">
       <DependentUpon>ColorPicker.cs</DependentUpon>
     </Compile>
-    <Compile Include="System\PropertyGrid\MinMaxControl.cs">
+    <Compile Include="Core\PropertyGrid\MinMaxControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="System\PropertyGrid\MinMaxControl.Designer.cs">
+    <Compile Include="Core\PropertyGrid\MinMaxControl.Designer.cs">
       <DependentUpon>MinMaxControl.cs</DependentUpon>
     </Compile>
-    <Compile Include="System\PropertyGrid\MinMaxEditor.cs" />
-    <Compile Include="System\Reflection\Attributes\Serialization\CustomSerializeMethodAttribute.cs" />
-    <Compile Include="System\Reflection\Attributes\Serialization\FileClassAttribute.cs" />
-    <Compile Include="System\Reflection\Attributes\Serialization\PrePostDeserializeAttributes.cs" />
-    <Compile Include="System\Reflection\Attributes\PropertyChangedEventAttribute.cs" />
-    <Compile Include="System\Reflection\Attributes\Serialization\SerializeAttribute.cs" />
-    <Compile Include="System\Reflection\CustomPropertyCollection.cs" />
-    <Compile Include="System\Files\FileObject.cs" />
-    <Compile Include="System\PropertyGrid\StringConverters.cs" />
-    <Compile Include="System\Time\EngineTimer.cs" />
-    <Compile Include="System\RenderPanel.cs" />
-    <Compile Include="System\RenderForm.cs">
+    <Compile Include="Core\PropertyGrid\MinMaxEditor.cs" />
+    <Compile Include="Core\Reflection\Attributes\Serialization\CustomSerializeMethodAttribute.cs" />
+    <Compile Include="Core\Reflection\Attributes\Serialization\FileClassAttribute.cs" />
+    <Compile Include="Core\Reflection\Attributes\Serialization\PrePostDeserializeAttributes.cs" />
+    <Compile Include="Core\Reflection\Attributes\PropertyChangedEventAttribute.cs" />
+    <Compile Include="Core\Reflection\Attributes\Serialization\SerializeAttribute.cs" />
+    <Compile Include="Core\Reflection\CustomPropertyCollection.cs" />
+    <Compile Include="Core\Files\FileObject.cs" />
+    <Compile Include="Core\PropertyGrid\StringConverters.cs" />
+    <Compile Include="Core\Time\EngineTimer.cs" />
+    <Compile Include="Core\RenderPanel.cs" />
+    <Compile Include="Core\RenderForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="System\RenderForm.Designer.cs">
+    <Compile Include="Core\RenderForm.Designer.cs">
       <DependentUpon>RenderForm.cs</DependentUpon>
     </Compile>
-    <None Include="System\Files\FileManager.cs" />
-    <Compile Include="System\Tools\ExpressionParser.cs" />
-    <Compile Include="System\Tools\Remapper.cs" />
-    <Compile Include="System\Tools\Triangle Converter\CacheSimulator.cs" />
-    <Compile Include="System\Data Structures\Lists\Deque\Deque.cs" />
-    <Compile Include="System\Data Structures\Lists\Deque\GenericDeque.cs" />
-    <Compile Include="System\Data Structures\Lists\Deque\GenericDeque.Enumerator.cs" />
-    <Compile Include="System\Data Structures\Lists\Deque\GenericDeque.Node.cs" />
-    <Compile Include="System\Data Structures\Lists\Deque\GenericDeque.Synchronized.cs" />
-    <Compile Include="System\Data Structures\Lists\Deque\GenericTester.cs" />
-    <Compile Include="System\Data Structures\Lists\Deque\Tester.cs" />
-    <Compile Include="System\Tools\Triangle Converter\GraphArray.cs" />
-    <Compile Include="System\Tools\Triangle Converter\HeapArray.cs" />
-    <Compile Include="System\Tools\Triangle Converter\Policy.cs" />
-    <Compile Include="System\Tools\Triangle Converter\TriangleConverter.cs" />
-    <Compile Include="System\Tools\Triangle Converter\TriStripper.cs" />
-    <Compile Include="System\Tools\Triangle Converter\Types.cs" />
-    <Compile Include="System\Memory\UInt24.cs" />
-    <None Include="System\Tools\V-HACD\ConvexHullComputer.cs" />
-    <None Include="System\Tools\V-HACD\ICHull.cs" />
-    <None Include="System\Tools\V-HACD\ManifoldMesh.cs" />
-    <None Include="System\Tools\V-HACD\Mesh.cs" />
-    <None Include="System\Tools\V-HACD\VHACD.cs" />
-    <None Include="System\Tools\V-HACD\Volume.cs" />
+    <None Include="Core\Files\FileManager.cs" />
+    <Compile Include="Core\Tools\ExpressionParser.cs" />
+    <Compile Include="Core\Tools\Remapper.cs" />
+    <Compile Include="Core\Tools\Triangle Converter\CacheSimulator.cs" />
+    <Compile Include="Core\Data Structures\Lists\Deque\Deque.cs" />
+    <Compile Include="Core\Data Structures\Lists\Deque\GenericDeque.cs" />
+    <Compile Include="Core\Data Structures\Lists\Deque\GenericDeque.Enumerator.cs" />
+    <Compile Include="Core\Data Structures\Lists\Deque\GenericDeque.Node.cs" />
+    <Compile Include="Core\Data Structures\Lists\Deque\GenericDeque.Synchronized.cs" />
+    <Compile Include="Core\Data Structures\Lists\Deque\GenericTester.cs" />
+    <Compile Include="Core\Data Structures\Lists\Deque\Tester.cs" />
+    <Compile Include="Core\Tools\Triangle Converter\GraphArray.cs" />
+    <Compile Include="Core\Tools\Triangle Converter\HeapArray.cs" />
+    <Compile Include="Core\Tools\Triangle Converter\Policy.cs" />
+    <Compile Include="Core\Tools\Triangle Converter\TriangleConverter.cs" />
+    <Compile Include="Core\Tools\Triangle Converter\TriStripper.cs" />
+    <Compile Include="Core\Tools\Triangle Converter\Types.cs" />
+    <Compile Include="Core\Memory\UInt24.cs" />
+    <None Include="Core\Tools\V-HACD\ConvexHullComputer.cs" />
+    <None Include="Core\Tools\V-HACD\ICHull.cs" />
+    <None Include="Core\Tools\V-HACD\ManifoldMesh.cs" />
+    <None Include="Core\Tools\V-HACD\Mesh.cs" />
+    <None Include="Core\Tools\V-HACD\VHACD.cs" />
+    <None Include="Core\Tools\V-HACD\Volume.cs" />
     <Compile Include="Tests\TestCharacter.cs" />
     <Compile Include="Worlds\Actors\Components\Scene\Volumes\Blocking.cs" />
     <Compile Include="Worlds\GameModes\CharacterGameMode.cs" />
@@ -889,7 +889,7 @@
     <Compile Include="Animation\Property\AnimationContainer.cs" />
     <Compile Include="Animation\KeyframeTrack.cs" />
     <Compile Include="Rendering\HUD\HudComponent.cs" />
-    <Compile Include="System\Interfaces.cs" />
+    <Compile Include="Core\Interfaces.cs" />
     <Compile Include="Engine\PlayerInfo.cs" />
     <Compile Include="Rendering\Renderer\DirectX\DXRenderer.cs" />
     <Compile Include="Rendering\Renderer\DirectX\DXWindowContext.cs" />
@@ -906,29 +906,29 @@
     <Compile Include="Animation\Property\PropAnimFloat.cs" />
     <Compile Include="Rendering\Models\Meshes\Skeletal\Skeleton\BoneWeight.cs" />
     <Compile Include="Rendering\Models\Meshes\Skeletal\Skeleton\Influence.cs" />
-    <Compile Include="System\Extensions\BitmapExtension.cs" />
-    <Compile Include="System\Extensions\Numbers\SByteExtension.cs" />
-    <Compile Include="System\Extensions\Numbers\DoubleExtension.cs" />
-    <Compile Include="System\Extensions\Numbers\ByteExtension.cs" />
-    <Compile Include="System\Extensions\Numbers\UInt16Extension.cs" />
-    <Compile Include="System\Extensions\Numbers\Int16Extension.cs" />
-    <Compile Include="System\Extensions\Numbers\Int64Extension.cs" />
-    <Compile Include="System\Extensions\Numbers\UInt64Extension.cs" />
-    <Compile Include="System\Memory\BigEndianTypes.cs" />
-    <Compile Include="System\Memory\Memory.cs" />
+    <Compile Include="Core\Extensions\BitmapExtension.cs" />
+    <Compile Include="Core\Extensions\Numbers\SByteExtension.cs" />
+    <Compile Include="Core\Extensions\Numbers\DoubleExtension.cs" />
+    <Compile Include="Core\Extensions\Numbers\ByteExtension.cs" />
+    <Compile Include="Core\Extensions\Numbers\UInt16Extension.cs" />
+    <Compile Include="Core\Extensions\Numbers\Int16Extension.cs" />
+    <Compile Include="Core\Extensions\Numbers\Int64Extension.cs" />
+    <Compile Include="Core\Extensions\Numbers\UInt64Extension.cs" />
+    <Compile Include="Core\Memory\BigEndianTypes.cs" />
+    <Compile Include="Core\Memory\Memory.cs" />
     <Compile Include="Rendering\Models\Materials\Textures\Color.cs" />
-    <Compile Include="System\Extensions\Numbers\Int32Extension.cs" />
-    <Compile Include="System\Extensions\Numbers\UInt32Extension.cs" />
-    <Compile Include="System\Extensions\Numbers\SingleExtension.cs" />
-    <Compile Include="System\ObjectBase.cs" />
-    <Compile Include="System\Reflection\Attributes\EngineFlagsAttribute.cs" />
-    <Compile Include="System\Maths\Shapes\Cylindrical\YAligned\CapsuleY.cs" />
-    <Compile Include="System\Maths\Shapes\Boxes\BoundingBox.cs" />
-    <Compile Include="System\Memory\DataSource.cs" />
-    <Compile Include="System\Files\FileMap.cs" />
-    <Compile Include="System\Time\GameTimer.cs" />
+    <Compile Include="Core\Extensions\Numbers\Int32Extension.cs" />
+    <Compile Include="Core\Extensions\Numbers\UInt32Extension.cs" />
+    <Compile Include="Core\Extensions\Numbers\SingleExtension.cs" />
+    <Compile Include="Core\ObjectBase.cs" />
+    <Compile Include="Core\Reflection\Attributes\EngineFlagsAttribute.cs" />
+    <Compile Include="Core\Maths\Shapes\Cylindrical\YAligned\CapsuleY.cs" />
+    <Compile Include="Core\Maths\Shapes\Boxes\BoundingBox.cs" />
+    <Compile Include="Core\Memory\DataSource.cs" />
+    <Compile Include="Core\Files\FileMap.cs" />
+    <Compile Include="Core\Time\GameTimer.cs" />
     <Compile Include="Rendering\Viewport.cs" />
-    <Compile Include="System\Memory\VoidPtr.cs" />
+    <Compile Include="Core\Memory\VoidPtr.cs" />
     <Compile Include="Worlds\Actors\Actor.cs" />
     <Compile Include="Worlds\Actors\Types\ComponentActors\SplineActor.cs" />
     <Compile Include="Worlds\Actors\Types\ComponentActors\SoundActor.cs" />
@@ -949,7 +949,7 @@
     <Compile Include="Input\AIController.cs" />
     <Compile Include="Input\PawnController.cs" />
     <Compile Include="Input\PlayerController.cs" />
-    <Compile Include="System\Maths\CustomMath.cs" />
+    <Compile Include="Core\Maths\CustomMath.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Worlds\Maps\Map.cs" />
     <Compile Include="Worlds\Maps\MapSettings.cs" />
@@ -958,7 +958,7 @@
     <Compile Include="Tests\TestWorld.cs" />
     <Compile Include="Worlds\World.cs" />
     <Compile Include="Animation\Property\PropertyAnimation.cs" />
-    <Compile Include="System\Maths\Transforms\FrameState.cs" />
+    <Compile Include="Core\Maths\Transforms\FrameState.cs" />
     <Compile Include="Rendering\Models\Meshes\Primitives\Faces\Index\IndexTriangle.cs" />
     <Compile Include="Rendering\Models\Meshes\Primitives\FacePoint.cs" />
     <Compile Include="Rendering\Models\Meshes\Skeletal\Skeleton\Bone.cs" />
@@ -979,10 +979,10 @@
       <DependentUpon>Resources.resx</DependentUpon>
       <DesignTime>True</DesignTime>
     </Compile>
-    <EmbeddedResource Include="System\PropertyGrid\MinMaxControl.resx">
+    <EmbeddedResource Include="Core\PropertyGrid\MinMaxControl.resx">
       <DependentUpon>MinMaxControl.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="System\RenderForm.resx">
+    <EmbeddedResource Include="Core\RenderForm.resx">
       <DependentUpon>RenderForm.cs</DependentUpon>
     </EmbeddedResource>
     <None Include="packages.config" />
@@ -1001,9 +1001,9 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="AI\" />
-    <Folder Include="System\Files\Serialization\JSON\" />
-    <Folder Include="System\Maths\Shapes\Cylindrical\XAligned\" />
-    <Folder Include="System\Maths\Shapes\Cylindrical\ZAligned\" />
+    <Folder Include="Core\Files\Serialization\JSON\" />
+    <Folder Include="Core\Maths\Shapes\Cylindrical\XAligned\" />
+    <Folder Include="Core\Maths\Shapes\Cylindrical\ZAligned\" />
     <Folder Include="Worlds\Actors\Components\Scene\Shapes\Cylindrical\XAligned\" />
     <Folder Include="Worlds\Actors\Components\Scene\Shapes\Cylindrical\ZAligned\" />
   </ItemGroup>

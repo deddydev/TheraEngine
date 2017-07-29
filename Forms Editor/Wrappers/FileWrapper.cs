@@ -11,7 +11,11 @@ namespace TheraEditor.Wrappers
     {
         #region Menu
         private static ContextMenuStrip _menu;
-        public FileWrapper() : base(_menu) { }
+        public FileWrapper() : base(_menu)
+        {
+            ImageIndex = 0;
+            SelectedImageIndex = 0;
+        }
         static FileWrapper()
         {
             _menu = new ContextMenuStrip();
@@ -37,7 +41,8 @@ namespace TheraEditor.Wrappers
         private static void MenuOpening(object sender, CancelEventArgs e)
         {
             FileWrapper w = GetInstance<FileWrapper>();
-            //_menu.Items[1].Enabled = _menu.Items[8].Enabled = w.Parent != null;
+            _menu.Items[3].Enabled = _menu.Items[6].Enabled = w.Parent != null;
+            _menu.Items[4].Enabled = w.Resource.IsLoaded && w.Resource.File.EditorState.HasChanges;
             //_menu.Items[2].Enabled = ((w._resource.IsDirty) || (w._resource.IsBranch));
             //_menu.Items[4].Enabled = w.PrevNode != null;
             //_menu.Items[5].Enabled = w.NextNode != null;

@@ -46,7 +46,11 @@ namespace TheraEngine.Worlds.Actors
             set => _box.HalfExtents = value;
         }
 
-        public override void Render() => Engine.Renderer.RenderBox(HalfExtents, WorldMatrix, false, Color.Lavender);
+        public override void Render()
+        {
+            Engine.Renderer.ApplyRenderParams(RenderParams);
+            Engine.Renderer.RenderBox(HalfExtents, WorldMatrix, false, Color.Lavender);
+        }
         protected override CollisionShape GetCollisionShape() => _box.GetCollisionShape();
 
         public bool Contains(Vec3 point) => _box.Contains(point);

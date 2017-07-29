@@ -31,7 +31,7 @@ namespace TheraEditor
         private delegate void DelegateOpenFile(string s, TreeNode t);
         private DelegateOpenFile _openFileDelegate;
         private FileSystemWatcher _contentWatcher;
-        private Dictionary<string, BaseWrapper> _externallyModifiedNodes = new Dictionary<string, BaseWrapper>();
+        private Dictionary<string, FileWrapper> _externallyModifiedNodes = new Dictionary<string, FileWrapper>();
 
         private static ImageList _imgList;
         public static ImageList Images
@@ -61,25 +61,45 @@ namespace TheraEditor
         {
             return BaseWrapper.Wrap(path);
         }
+
+        public bool WatchProjectDirectory
+        {
+            get => _contentWatcher.EnableRaisingEvents;
+            set => _contentWatcher.EnableRaisingEvents = value;
+        }
+
         public void DisplayProject(Project p)
         {
+            ShowIcons = true;
+            AllowContextMenus = true;
+
             string dir = Path.GetDirectoryName(p.FilePath);
-            
-            Nodes.Add(CreateNode(dir));
-            
+
+            BaseWrapper b = CreateNode(dir);
+            Nodes.Add(b);
+            b.Expand();
+
             _contentWatcher = new FileSystemWatcher(Path.GetDirectoryName(p.FilePath), "*.*")
             {
                 EnableRaisingEvents = true,
                 IncludeSubdirectories = true,
-                NotifyFilter = NotifyFilters.LastWrite,
+                NotifyFilter =
+                NotifyFilters.FileName |
+                NotifyFilters.DirectoryName |
+                NotifyFilters.Size |
+                NotifyFilters.CreationTime |
+                NotifyFilters.LastAccess | 
+                NotifyFilters.LastWrite
             };
-            _contentWatcher.Changed += _contentWatcher_Changed;
-            _contentWatcher.Created += _contentWatcher_Created;
-            _contentWatcher.Deleted += _contentWatcher_Deleted;
-            _contentWatcher.Renamed += _contentWatcher_Renamed;
+            _contentWatcher.Changed += ContentWatcherUpdate;
+            _contentWatcher.Created += ContentWatcherUpdate;
+            _contentWatcher.Deleted += ContentWatcherUpdate;
+            _contentWatcher.Renamed += ContentWatcherRename;
         }
-        private void _contentWatcher_Renamed(object sender, RenamedEventArgs e)
+        private void ContentWatcherRename(object sender, RenamedEventArgs e)
         {
+            Engine.DebugPrint("File renamed: " + e.FullPath);
+
             TreeNode[] nodes = Nodes.Find(e.OldFullPath, true);
             if (nodes.Length == 0)
                 return;
@@ -89,112 +109,153 @@ namespace TheraEditor
             node.Text = e.Name;
             node.Name = e.FullPath;
         }
-        private void _contentWatcher_Deleted(object sender, FileSystemEventArgs e)
+        private void ContentWatcherUpdate(object sender, FileSystemEventArgs e)
         {
-            TreeNode[] nodes = Nodes.Find(e.FullPath, true);
-            if (nodes.Length == 0)
-                return;
-            if (nodes.Length > 1)
-                Engine.DebugPrint("More than one node with the path " + e.FullPath);
-            TreeNode node = nodes[0];
-            node.Remove();
-        }
-        private void _contentWatcher_Created(object sender, FileSystemEventArgs e)
-        {
-            string relativePath = e.FullPath.MakePathRelativeTo(((BaseWrapper)Nodes[0]).FilePath);
-            string[] nodeNames = relativePath.Split('\\');
-            BaseWrapper current = null;
-            foreach (string name in nodeNames)
+            switch (e.ChangeType)
             {
-                if (name == "..")
-                {
-                    if (current != null)
-                        current = (BaseWrapper)current.Parent;
-                    else
-                        return; //Not a valid path.
-                }
-                else
-                {
-                    foreach (BaseWrapper b in Nodes)
-                        if (b.Text == name)
-                        {
-                            current = b;
-                            continue;
-                        }
-                }
-            }
-            Nodes.Add(CreateNode(e.FullPath));
-        }
-        private void _contentWatcher_Changed(object sender, FileSystemEventArgs e)
-        {
-            //The change of a file or folder. The types of changes include: 
-            //changes to size, attributes, security settings, last write, and last access time.
-            TreeNode[] nodes = Nodes.Find(e.FullPath, true);
-            if (nodes.Length == 0)
-                return;
-            if (nodes.Length > 1)
-                Engine.DebugPrint("More than one node with the path " + e.FullPath);
-            BaseWrapper b = (BaseWrapper)nodes[0];
-            if (b.IsLoaded)
-            {
-                if (b.AlwaysReload)
-                    b.Reload();
-                else
-                {
-                    string message = "The file " + e.FullPath + " has been externally modified.\nDo you want to reload it?";
-                    if (b.Resource.EditorState.HasChanges)
-                        message += "\nYou will have the option to save your in-editor changes elsewhere if so.";
-                    Form f = Parent.FindForm();
-                    if (MessageBox.Show(f, message, "Externally modified file", MessageBoxButtons.YesNo, MessageBoxIcon.Hand) == DialogResult.Yes)
+                case WatcherChangeTypes.Changed:
+                    Engine.DebugPrint("File changed: " + e.FullPath);
+
+                    //The change of a file or folder. The types of changes include: 
+                    //changes to size, attributes, security settings, last write, and last access time.
+                    TreeNode[] nodes = Nodes.Find(e.FullPath, true);
+                    if (nodes.Length == 0)
+                        return;
+                    if (nodes.Length > 1)
+                        Engine.DebugPrint("More than one node with the path " + e.FullPath);
+                    if (nodes[0] is FileWrapper b)
                     {
-                        message = "Save your changes elsewhere before reloading?";
-                        DialogResult d = MessageBox.Show(f, message, "Save changes?", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question);
-                        if (d == DialogResult.Cancel)
-                            AddExternallyModifiedNode(b);
-                        else
+                        if (b.IsLoaded)
                         {
-                            if (d == DialogResult.Yes)
+                            if (b.AlwaysReload)
+                                b.Reload();
+                            else
                             {
-                                SaveFileDialog sfd = new SaveFileDialog()
+                                string message = "The file " + e.FullPath + " has been externally modified.\nDo you want to reload it?";
+                                if (b.Resource.EditorState.HasChanges)
+                                    message += "\nYou will have the option to save your in-editor changes elsewhere if so.";
+                                Form f = Parent.FindForm();
+                                if (MessageBox.Show(f, message, "Externally modified file", MessageBoxButtons.YesNo, MessageBoxIcon.Hand) == DialogResult.Yes)
                                 {
-                                    Filter = b.Resource.FileHeader.GetFilter()
-                                };
-                                if (sfd.ShowDialog(f) == DialogResult.OK)
-                                {
-                                    b.Resource.Export(sfd.FileName);
+                                    message = "Save your changes elsewhere before reloading?";
+                                    DialogResult d = MessageBox.Show(f, message, "Save changes?", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question);
+                                    if (d == DialogResult.Cancel)
+                                        AddExternallyModifiedNode(b);
+                                    else
+                                    {
+                                        if (d == DialogResult.Yes)
+                                        {
+                                            SaveFileDialog sfd = new SaveFileDialog()
+                                            {
+                                                Filter = b.Resource.FileHeader.GetFilter()
+                                            };
+                                            if (sfd.ShowDialog(f) == DialogResult.OK)
+                                            {
+                                                b.Resource.Export(sfd.FileName);
+                                            }
+                                        }
+                                        b.Reload();
+                                    }
                                 }
+                                else
+                                    AddExternallyModifiedNode(b);
                             }
-                            b.Reload();
                         }
                     }
+                    break;
+                case WatcherChangeTypes.Deleted:
+                    Engine.DebugPrint("File deleted: " + e.FullPath);
+
+                    TreeNode[] nodes2 = Nodes.Find(e.FullPath, true);
+                    if (nodes2.Length == 0)
+                        return;
+                    if (nodes2.Length > 1)
+                        Engine.DebugPrint("More than one node with the path " + e.FullPath);
+                    TreeNode node = nodes2[0];
+
+                    if (InvokeRequired)
+                        Invoke(new Action(() => node.Remove()));
                     else
-                        AddExternallyModifiedNode(b);
-                }
+                        node.Remove();
+                    break;
+                case WatcherChangeTypes.Created:
+                    Engine.DebugPrint("File created: " + e.FullPath);
+
+                    string relativePath = e.FullPath.MakePathRelativeTo(((BaseWrapper)Nodes[0]).FilePath);
+                    string[] nodeNames = relativePath.Split('\\');
+                    BaseWrapper current = null;
+                    foreach (string name in nodeNames)
+                    {
+                        if (name == "..")
+                        {
+                            if (current != null)
+                                current = current.Parent;
+                            else
+                                return; //Not a valid path.
+                        }
+                        else
+                        {
+                            foreach (BaseWrapper b2 in Nodes)
+                                if (b2.Text == name)
+                                {
+                                    current = b2;
+                                    continue;
+                                }
+                        }
+                    }
+
+                    BaseWrapper newNode = CreateNode(e.FullPath);
+                    if (InvokeRequired)
+                        Invoke(new Action(() => Nodes.Add(newNode)));
+                    else
+                        Nodes.Add(newNode);
+                    break;
+                case WatcherChangeTypes.Renamed:
+                    throw new Exception();
             }
+            
         }
-        private void AddExternallyModifiedNode(BaseWrapper n)
+        private void AddExternallyModifiedNode(FileWrapper n)
         {
             n.ExternallyModified = true;
             _externallyModifiedNodes.Add(n.FullPath, n);
         }
         protected override void OnAfterLabelEdit(NodeLabelEditEventArgs e)
         {
-            if (string.IsNullOrWhiteSpace(e.Label))
+            if (e.Label != null)
             {
-                e.CancelEdit = true;
-                MessageBox.Show("Name cannot be empty.");
-                e.Node.BeginEdit();
+                if (string.IsNullOrWhiteSpace(e.Label))
+                {
+                    e.CancelEdit = true;
+                    MessageBox.Show("Name cannot be empty.");
+                    e.Node.BeginEdit();
+                }
+                else
+                {
+                    e.Node.EndEdit(false);
+                    WatchProjectDirectory = false;
+                    string dir = Path.GetDirectoryName(e.Node.Name);
+                    string newName = e.Label;
+                    string newPath = dir + "\\" + e.Label;
+                    if (e.Node is FolderWrapper)
+                        Directory.Move(e.Node.Name, newPath);
+                    else
+                        File.Move(e.Node.Name, newPath);
+                    e.Node.Name = newPath;
+                    WatchProjectDirectory = true;
+                }
             }
-            else
-            {
-                e.Node.EndEdit(false);
-            }
-            
             base.OnAfterLabelEdit(e);
         }
         protected override void OnBeforeExpand(TreeViewCancelEventArgs e)
         {
             ((BaseWrapper)e.Node).OnExpand();
+        }
+
+        protected override void OnNodeMouseDoubleClick(TreeNodeMouseClickEventArgs e)
+        {
+            if (e.Node is FileWrapper f)
+                f.EditResource();
         }
 
         public event EventHandler SelectionChanged;
@@ -207,8 +268,8 @@ namespace TheraEditor
             set => _allowContextMenus = value;
         }
 
-        private bool _allowIcons = true;
-        [DefaultValue(true)]
+        private bool _allowIcons = false;
+        [DefaultValue(false)]
         public bool ShowIcons
         {
             get => _allowIcons;
@@ -294,7 +355,7 @@ namespace TheraEditor
             {
                 int x = (int)m.LParam & 0xFFFF, y = (int)m.LParam >> 16;
 
-                if ((_allowContextMenus) && (_selected != null) && (_selected.ContextMenuStrip != null))
+                if (_allowContextMenus && _selected != null && _selected.ContextMenuStrip != null)
                 {
                     Rectangle r = _selected.Bounds;
                     r.X -= 25; r.Width += 25;
@@ -351,7 +412,7 @@ namespace TheraEditor
 
             Graphics gfx = Graphics.FromImage(bmp);
 
-            gfx.DrawImage(Images.Images[SelectedNode.ImageIndex], 0, 0);
+            gfx.DrawImage(Images.Images[SelectedNode.ImageIndex < 0 ? 0 : SelectedNode.ImageIndex], 0, 0);
             gfx.DrawString(_dragNode.Text, Font, new SolidBrush(ForeColor), Indent + 7.0f, 4.0f);
 
             imageListDrag.Images.Add(bmp);

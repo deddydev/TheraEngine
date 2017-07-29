@@ -27,6 +27,7 @@ namespace TheraEngine.Rendering
         private BoundingRectangle _region;
         private Camera _worldCamera;
         private RenderPanel _owningPanel;
+        private QuadFrameBuffer _skyBoxBuffer;
         private QuadFrameBuffer _deferredGBuffer;
         private QuadFrameBuffer _postProcessFrameBuffer;
 
@@ -315,6 +316,14 @@ namespace TheraEngine.Rendering
         {
             _currentlyRendering = this;
 
+            //_skyBoxBuffer.Bind(EFramebufferTarget.Framebuffer);
+            //{
+            //    //Render skybox objects
+            //    scene.Render(ERenderPassType3D.Skybox);
+            //}
+            //_skyBoxBuffer.Unbind(EFramebufferTarget.Framebuffer);
+            //_skyBoxBuffer.Render();
+
             if (Camera != null)
             {
                 scene.PreRender(Camera, false);
@@ -322,24 +331,26 @@ namespace TheraEngine.Rendering
                 //Enable internal resolution
                 Engine.Renderer.PushRenderArea(_internalResolution);
                 {
+                    //Render to deferred framebuffer.
                     _deferredGBuffer.Bind(EFramebufferTarget.Framebuffer);
                     {
                         //Initial scene setup
                         Engine.Renderer.Clear(EBufferClear.Color | EBufferClear.Depth);
                         Engine.Renderer.AllowDepthWrite(true);
-
+                        
                         //Render deferred objects
                         scene.Render(ERenderPassType3D.OpaqueDeferredLit);
                     }
                     _deferredGBuffer.Unbind(EFramebufferTarget.Framebuffer);
 
+                    //Now render to final post process framebuffer.
                     _postProcessFrameBuffer.Bind(EFramebufferTarget.Framebuffer);
                     {
                         //No need to clear anything, 
                         //color will be fully overwritten by the previous pass, 
                         //and we need depth from the previous pass
 
-                        //Render the previous pass
+                        //Render the deferred pass result
                         _deferredGBuffer.Render();
 
                         Engine.Renderer.AllowDepthWrite(true);
@@ -898,6 +909,8 @@ uniform sampler2D Texture0; //HDR Scene Color
 uniform sampler2D Texture1; //Depth
 
 " + PostProcessSettings.ShaderSetup() + @"
+" + ShaderHelpers.Func_RGBtoHSV + @"
+" + ShaderHelpers.Func_HSVtoRGB + @"
 
 void main()
 {
@@ -906,10 +919,18 @@ void main()
     float Depth = texture(Texture1, uv).r;
 
     //Color grading
-    //hdrSceneColor *= ColorGrade.Tint;
+    hdrSceneColor *= ColorGrade.Tint;
+
+    vec3 hsv = RGBtoHSV(hdrSceneColor);
+    hsv.x *= ColorGrade.Hue;
+    hsv.y *= ColorGrade.Saturation;
+    hsv.z *= ColorGrade.Brightness;
+    hdrSceneColor = HSVtoRGB(hsv);
 
     //Tone mapping
     vec3 ldrSceneColor = vec3(1.0) - exp(-hdrSceneColor * ColorGrade.Exposure);
+
+    ldrSceneColor = clamp((ldrSceneColor - 0.5) * ColorGrade.Contrast + 0.5, 0.0, 1.0);
     
     //Vignette
     //float alpha = clamp(pow(distance(uv, vec2(0.5)), Vignette.Intensity), 0.0, 1.0);

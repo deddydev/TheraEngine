@@ -2,6 +2,7 @@
 using System;
 using System.ComponentModel;
 using TheraEngine.Rendering;
+using TheraEngine.Rendering.Models.Materials;
 
 namespace TheraEngine.Worlds.Actors
 {
@@ -13,6 +14,16 @@ namespace TheraEngine.Worlds.Actors
         public abstract Shape CullingVolume { get; }
         [Browsable(false)]
         public IOctreeNode OctreeNode { get; set; }
+
+        public RenderingParameters RenderParams
+        {
+            get => _renderParams;
+            set
+            {
+                if (value != null)
+                    _renderParams = value;
+            }
+        }
 
         public void InitPhysics(PhysicsConstructionInfo info)
         {
@@ -53,7 +64,8 @@ namespace TheraEngine.Worlds.Actors
             _physicsDriver?.OnDespawned();
             base.OnDespawned();
         }
-        
+
+        private RenderingParameters _renderParams = new RenderingParameters();
         protected PhysicsDriver _physicsDriver;
         protected bool
             _isVisible,

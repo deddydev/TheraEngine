@@ -52,8 +52,8 @@ namespace TheraEngine.Rendering.Models.Materials
         private float _constantAlphaValue;
         private bool _useAlphaToCoverage;
         private float _ref0, _ref1;
-        private EComparison _comp0, _comp1;
-        private ELogicGate _logicGate;
+        private EComparison _comp0 = EComparison.Always, _comp1 = EComparison.Always;
+        private ELogicGate _logicGate = ELogicGate.And;
 
         public bool Enabled { get => _enabled; set => _enabled = value; }
         public bool UseConstantAlpha { get => _useConstantAlpha; set => _useConstantAlpha = value; }
@@ -68,7 +68,7 @@ namespace TheraEngine.Rendering.Models.Materials
     [TypeConverter(typeof(ExpandableObjectConverter))]
     public class StencilFace
     {
-        private EComparison _func;
+        private EComparison _func = EComparison.Always;
         private int _ref;
         private int _mask;
 
@@ -79,8 +79,8 @@ namespace TheraEngine.Rendering.Models.Materials
     [TypeConverter(typeof(ExpandableObjectConverter))]
     public class StencilTest
     {
-        private bool _enableStencilFunc;
-        private StencilFace _frontFace, _backFace;
+        private bool _enableStencilFunc = false;
+        private StencilFace _frontFace = new StencilFace(), _backFace = new StencilFace();
 
         public bool EnableStencilFunc { get => _enableStencilFunc; set => _enableStencilFunc = value; }
 
@@ -119,9 +119,17 @@ namespace TheraEngine.Rendering.Models.Materials
     [TypeConverter(typeof(ExpandableObjectConverter))]
     public class Blend
     {
-        private bool _enabled;
-        private EBlendEquationMode _rgbEquation, _alphaEquation;
-        private EBlendingFactor _rgbSrcFactor, _alphaSrcFactor, _rgbDstFactor, _alphaDstFactor;
+        private bool _enabled = false;
+
+        private EBlendEquationMode 
+            _rgbEquation = EBlendEquationMode.FuncAdd, 
+            _alphaEquation = EBlendEquationMode.FuncAdd;
+
+        private EBlendingFactor 
+            _rgbSrcFactor = EBlendingFactor.ConstantColor,
+            _alphaSrcFactor = EBlendingFactor.ConstantAlpha,
+            _rgbDstFactor = EBlendingFactor.ConstantColor,
+            _alphaDstFactor = EBlendingFactor.ConstantAlpha;
 
         [Serialize]
         public bool Enabled { get => _enabled; set => _enabled = value; }

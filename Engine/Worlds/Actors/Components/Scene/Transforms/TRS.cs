@@ -26,8 +26,7 @@ namespace TheraEngine.Worlds.Actors
         }
 
         protected EventVec3 _scale;
-
-        [TypeConverter(typeof(ExpandableObjectConverter))]
+        
         public EventVec3 Scale
         {
             get => _scale;

@@ -800,6 +800,13 @@
     <Compile Include="System\PropertyGrid\ColorPicker.Designer.cs">
       <DependentUpon>ColorPicker.cs</DependentUpon>
     </Compile>
+    <Compile Include="System\PropertyGrid\MinMaxControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="System\PropertyGrid\MinMaxControl.Designer.cs">
+      <DependentUpon>MinMaxControl.cs</DependentUpon>
+    </Compile>
+    <Compile Include="System\PropertyGrid\MinMaxEditor.cs" />
     <Compile Include="System\Reflection\Attributes\Serialization\CustomSerializeMethodAttribute.cs" />
     <Compile Include="System\Reflection\Attributes\Serialization\FileClassAttribute.cs" />
     <Compile Include="System\Reflection\Attributes\Serialization\PrePostDeserializeAttributes.cs" />
@@ -841,7 +848,7 @@
     <None Include="System\Tools\V-HACD\VHACD.cs" />
     <None Include="System\Tools\V-HACD\Volume.cs" />
     <Compile Include="Tests\TestCharacter.cs" />
-    <Compile Include="Worlds\Actors\Components\Scene\Volumes\BlockingVolume.cs" />
+    <Compile Include="Worlds\Actors\Components\Scene\Volumes\Blocking.cs" />
     <Compile Include="Worlds\GameModes\CharacterGameMode.cs" />
     <Compile Include="Worlds\Actors\ActorState.cs" />
     <Compile Include="Worlds\Actors\Components\ComponentState.cs" />
@@ -851,17 +858,17 @@
     <Compile Include="Worlds\Actors\Components\Scene\Lights\DirectionalLightComponent.cs" />
     <Compile Include="Worlds\Actors\Components\Scene\Mesh\SkeletalMeshComponent.RenderableMesh.cs" />
     <Compile Include="Worlds\Actors\Components\Scene\Mesh\StaticMeshComponent.RenderableMesh.cs" />
-    <Compile Include="Worlds\Actors\Components\Scene\Transforms\PositionLagComponent.cs" />
+    <Compile Include="Worlds\Actors\Components\Scene\Transforms\PositionLag.cs" />
     <Compile Include="Worlds\Actors\Components\Scene\SplineComponent.cs" />
     <Compile Include="Worlds\Actors\Components\Scene\SoundComponent.cs" />
-    <Compile Include="Worlds\Actors\Components\Scene\Transforms\NoisePositionComponent.cs" />
-    <Compile Include="Worlds\Actors\Components\Scene\Transforms\RotationComponent.cs" />
-    <Compile Include="Worlds\Actors\Components\Scene\Transforms\RTComponent.cs" />
-    <Compile Include="Worlds\Actors\Components\Scene\Transforms\TRComponent.cs" />
-    <Compile Include="Worlds\Actors\Components\Scene\Transforms\PositionComponent.cs" />
-    <Compile Include="Worlds\Actors\Components\Scene\Transforms\TRSComponent.cs" />
+    <Compile Include="Worlds\Actors\Components\Scene\Transforms\NoisePosition.cs" />
+    <Compile Include="Worlds\Actors\Components\Scene\Transforms\Rotation.cs" />
+    <Compile Include="Worlds\Actors\Components\Scene\Transforms\RT.cs" />
+    <Compile Include="Worlds\Actors\Components\Scene\Transforms\TR.cs" />
+    <Compile Include="Worlds\Actors\Components\Scene\Transforms\Position.cs" />
+    <Compile Include="Worlds\Actors\Components\Scene\Transforms\TRS.cs" />
     <Compile Include="Worlds\Actors\Components\LogicComponent.cs" />
-    <Compile Include="Worlds\Actors\Components\Scene\Transforms\BoomComponent.cs" />
+    <Compile Include="Worlds\Actors\Components\Scene\Transforms\Boom.cs" />
     <Compile Include="Worlds\Actors\Components\Scene\CameraComponent.cs" />
     <Compile Include="Worlds\Actors\Components\Scene\DecalComponent.cs" />
     <Compile Include="Worlds\Actors\Components\Logic\MovementComponents\TransformMovementComponent.cs" />
@@ -873,8 +880,8 @@
     <Compile Include="Worlds\Actors\Components\Scene\Shapes\ShapeComponent.cs" />
     <Compile Include="Worlds\Actors\Components\Scene\Shapes\BoxComponent.cs" />
     <Compile Include="Worlds\Actors\Components\Scene\Mesh\StaticMeshComponent.cs" />
-    <Compile Include="Worlds\Actors\Components\Scene\Volumes\GravityVolumeComponent.cs" />
-    <Compile Include="Worlds\Actors\Components\Scene\Volumes\TriggerVolumeComponent.cs" />
+    <Compile Include="Worlds\Actors\Components\Scene\Volumes\Gravity.cs" />
+    <Compile Include="Worlds\Actors\Components\Scene\Volumes\Trigger.cs" />
     <Compile Include="Worlds\Actors\Components\Scene\PrimitiveComponent.cs" />
     <Compile Include="Worlds\Actors\Components\Scene\Shapes\Cylindrical\CapsuleComponent.cs" />
     <Compile Include="Engine\EngineProperties.cs" />
@@ -972,6 +979,9 @@
       <DependentUpon>Resources.resx</DependentUpon>
       <DesignTime>True</DesignTime>
     </Compile>
+    <EmbeddedResource Include="System\PropertyGrid\MinMaxControl.resx">
+      <DependentUpon>MinMaxControl.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="System\RenderForm.resx">
       <DependentUpon>RenderForm.cs</DependentUpon>
     </EmbeddedResource>

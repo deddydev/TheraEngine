@@ -7,6 +7,8 @@ namespace TheraEditor.Wrappers
     [NodeWrapper(typeof(World), SystemImages.GenericFile)]
     public class WorldWrapper : FileWrapper
     {
+        #region Menu
+        private static ContextMenuStrip _menu;
         static WorldWrapper()
         {
             _menu = new ContextMenuStrip();
@@ -21,7 +23,8 @@ namespace TheraEditor.Wrappers
         {
             WorldWrapper w = GetInstance<WorldWrapper>();
         }
-        
+        #endregion
+
         public WorldWrapper() : base() { }
     }
 }

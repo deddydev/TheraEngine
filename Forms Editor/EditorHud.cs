@@ -41,12 +41,26 @@ namespace TheraEditor
                 if (value == null && HighlightedComponent != null)
                 {
                     Engine.Scene.Remove(_highlightPoint);
-                    RenderPanel.CheckedInvoke(new Action(() => RenderPanel.CapturedPanel.Cursor = Cursors.Default), RenderPanel.PanelType.Captured);
+                    RenderPanel.CheckedInvoke(new Action(() => 
+                    {
+                        if (RenderPanel.CapturedPanel != null)
+                        {
+                            RenderPanel.CapturedPanel.Cursor = Cursors.Default;
+                        }
+                    }),
+                    RenderPanel.PanelType.Captured);
                 }
                 else if (value != null && HighlightedComponent == null)
                 {
                     Engine.Scene.Add(_highlightPoint);
-                    RenderPanel.CheckedInvoke(new Action(() => RenderPanel.CapturedPanel.Cursor = Cursors.Hand), RenderPanel.PanelType.Captured);
+                    RenderPanel.CheckedInvoke(new Action(() =>
+                    {
+                        if (RenderPanel.CapturedPanel != null)
+                        {
+                            RenderPanel.CapturedPanel.Cursor = Cursors.Hand;
+                        }
+                    }),
+                    RenderPanel.PanelType.Captured);
                 }
 
                 if (HighlightedComponent != null)
@@ -213,7 +227,7 @@ namespace TheraEditor
 
             private Material _material;
 
-            public const int CirclePrecision = 10;
+            public const int CirclePrecision = 30;
             public static readonly Color Color = Color.LimeGreen;
 
             private PrimitiveManager _circlePrimitive;

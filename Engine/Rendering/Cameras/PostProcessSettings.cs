@@ -1,6 +1,8 @@
 ﻿using TheraEngine.Files;
 using System;
 using System.ComponentModel;
+using System.Drawing.Design;
+using System.Windows.Forms;
 
 namespace TheraEngine.Rendering.Cameras
 {
@@ -127,30 +129,66 @@ uniform VignetteStruct Vignette;";
     }
     public class ColorGradeSettings : PostSettings
     {
+        public ColorGradeSettings()
+        {
+            Contrast = 0.0f;
+        }
+
         private EventColorF3 _tint = new ColorF3(1.0f, 1.0f, 1.0f);
+
         private float _exposure = 1.0f;
-        private float _saturation = 1.0f;
-        private float _contrast = 1.0f;
+        private float _contrast;
         private float _gamma = 2.2f;
+
+        private float _hue = 1.0f;
+        private float _saturation = 1.0f;
+        private float _brightness = 1.0f;
+
+        private float _contrastUniformValue;
 
         [Category("Color Grade Settings")]
         public EventColorF3 Tint { get => _tint; set => _tint = value; }
+
+        [Editor(typeof(MinMaxEditor), typeof(UITypeEditor))]
         [Category("Color Grade Settings")]
         public float Exposure { get => _exposure; set => _exposure = value; }
+        [Editor(typeof(MinMaxEditor), typeof(UITypeEditor))]
         [Category("Color Grade Settings")]
-        public float Saturation { get => _saturation; set => _saturation = value; }
-        [Category("Color Grade Settings")]
-        public float Contrast { get => _contrast; set => _contrast = value; }
+        public float Contrast
+        {
+            get => _contrast;
+            set
+            {
+                _contrast = value;
+                _contrastUniformValue = (100.0f + _contrast) / 100.0f;
+                _contrastUniformValue *= _contrastUniformValue;
+            }
+        }
+        [Editor(typeof(MinMaxEditor), typeof(UITypeEditor))]
         [Category("Color Grade Settings")]
         public float Gamma { get => _gamma; set => _gamma = value; }
+
+        [Editor(typeof(MinMaxEditor), typeof(UITypeEditor))]
+        [Category("Color Grade Settings")]
+        public float Hue { get => _hue; set => _hue = value; }
+        [Editor(typeof(MinMaxEditor), typeof(UITypeEditor))]
+        [Category("Color Grade Settings")]
+        public float Saturation { get => _saturation; set => _saturation = value; }
+        [Editor(typeof(MinMaxEditor), typeof(UITypeEditor))]
+        [Category("Color Grade Settings")]
+        public float Brightness { get => _brightness; set => _brightness = value; }
 
         internal void SetUniforms(int programBindingId)
         {
             Engine.Renderer.ProgramUniform(programBindingId, "ColorGrade.Tint", Tint.Raw);
+
             Engine.Renderer.ProgramUniform(programBindingId, "ColorGrade.Exposure", Exposure);
-            Engine.Renderer.ProgramUniform(programBindingId, "ColorGrade.Saturation", Saturation);
-            Engine.Renderer.ProgramUniform(programBindingId, "ColorGrade.Contrast", Contrast);
+            Engine.Renderer.ProgramUniform(programBindingId, "ColorGrade.Contrast", _contrastUniformValue);
             Engine.Renderer.ProgramUniform(programBindingId, "ColorGrade.Gamma", Gamma);
+
+            Engine.Renderer.ProgramUniform(programBindingId, "ColorGrade.Hue", Hue);
+            Engine.Renderer.ProgramUniform(programBindingId, "ColorGrade.Saturation", Saturation);
+            Engine.Renderer.ProgramUniform(programBindingId, "ColorGrade.Brightness", Brightness);
         }
 
         internal static string WriteShaderSetup()
@@ -159,10 +197,14 @@ uniform VignetteStruct Vignette;";
 struct ColorGradeStruct
 {
     vec3 Tint;
+
     float Exposure;
-    float Saturation;
     float Contrast;
     float Gamma;
+
+    float Hue;
+    float Saturation;
+    float Brightness;
 };
 uniform ColorGradeStruct ColorGrade;";
         }

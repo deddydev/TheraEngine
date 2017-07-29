@@ -362,7 +362,9 @@ namespace TheraEngine
         public static void DebugPrint(string message, int viewport = -1, params string[] args)
         {
 #if DEBUG
-            Debug.WriteLine(message, args);
+            if (args.Length != 0)
+                message = string.Format(message, args);
+            Debug.WriteLine(message);
             RenderPanel panel = RenderPanel.CapturedPanel;
             if (panel == null)
                 return;

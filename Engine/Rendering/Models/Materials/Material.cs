@@ -36,11 +36,7 @@ namespace TheraEngine.Rendering.Models.Materials
         public RenderingParameters RenderParams
         {
             get => _renderParams;
-            set
-            {
-                if (value != null)
-                    _renderParams = value;
-            }
+            set => _renderParams = value;
         }
         /// <summary>
         /// Retrieves the material's uniform parameter at the given index.
@@ -173,7 +169,9 @@ namespace TheraEngine.Rendering.Models.Materials
             foreach (ShaderVar v in _parameters)
                 v.SetProgramUniform(programBindingId);
 
-            Engine.Renderer.ApplyRenderParams(RenderParams);
+            if (RenderParams != null)
+                Engine.Renderer.ApplyRenderParams(RenderParams);
+
             SetTextureUniforms(programBindingId);
 
             SettingUniforms?.Invoke();

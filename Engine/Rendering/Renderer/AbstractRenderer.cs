@@ -120,11 +120,15 @@ namespace TheraEngine.Rendering
 
         public IPrimitiveManager GetDebugPrimitive(DebugPrimitiveType type)
         {
-            IPrimitiveManager m = _debugPrims[(int)type];
-            if (m != null)
-                return m;
+            IPrimitiveManager mesh = _debugPrims[(int)type];
+            if (mesh != null)
+                return mesh;
             else
-                return _debugPrims[(int)type] = new PrimitiveManager(GetPrimData(type), Material.GetUnlitColorMaterialForward());
+            {
+                Material mat = Material.GetUnlitColorMaterialForward();
+                mat.RenderParams = null;
+                return _debugPrims[(int)type] = new PrimitiveManager(GetPrimData(type), mat);
+            }
         }
         private PrimitiveData GetPrimData(DebugPrimitiveType type)
         {
@@ -238,11 +242,11 @@ namespace TheraEngine.Rendering
         public virtual void RenderBox(Vec3 halfExtents, Matrix4 transform, bool solid, ColorF4 color, float lineWidth = DefaultLineSize)
         {
             SetLineSize(lineWidth);
-            IPrimitiveManager m = GetDebugPrimitive(solid ? DebugPrimitiveType.SolidBox : DebugPrimitiveType.WireBox);
-            m.Parameter<ShaderVec4>(0).Value = color;
+            IPrimitiveManager mesh = GetDebugPrimitive(solid ? DebugPrimitiveType.SolidBox : DebugPrimitiveType.WireBox);
+            mesh.Parameter<ShaderVec4>(0).Value = color;
             //halfExtents doesn't need to be multiplied by 2.0f; the box is already 1.0f in each direction of each dimension (2.0f extents)
             transform = transform * halfExtents.AsScaleMatrix();
-            m.Render(transform, transform.Inverted().Transposed().GetRotationMatrix3());
+            mesh.Render(transform, transform.Inverted().Transposed().GetRotationMatrix3());
         }
         public void RenderCapsule(Matrix4 transform, Vec3 localUpAxis, float radius, float halfHeight, bool solid, ColorF4 color, float lineWidth = DefaultLineSize)
         {

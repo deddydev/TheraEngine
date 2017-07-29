@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using System.Reflection;
 using TheraEngine.Files;
 using System.IO;
+using System.Linq;
+using System.Diagnostics;
 
 namespace TheraEditor.Wrappers
 {
@@ -49,31 +51,25 @@ namespace TheraEditor.Wrappers
     }
     public abstract class BaseWrapper : TreeNode
     {
-        protected SingleFileRef<FileObject> _fileRef = new SingleFileRef<FileObject>();
         protected bool _discovered = false;
-        protected static ContextMenuStrip _menu;
 
+        public new ResourceTree TreeView => (ResourceTree)base.TreeView;
         public new BaseWrapper Parent => (BaseWrapper)base.Parent;
-        public string FilePath
+        public abstract string FilePath { get; internal set; }
+        
+        public BaseWrapper(ContextMenuStrip menu)
         {
-            get => _fileRef.ReferencePath;
-            internal set => _fileRef.ReferencePath = value;
+            menu.Tag = this;
+            ContextMenuStrip = menu;
         }
-
-        public SingleFileRef<FileObject> Resource => _fileRef;
-
-        public bool IsLoaded => _fileRef.IsLoaded;
-        public bool AlwaysReload { get; internal set; } = false;
-        public bool ExternallyModified { get; internal set; } = false;
-
-        protected BaseWrapper() { }
 
         protected static T GetInstance<T>() where T : BaseWrapper
             => Editor.Instance.ContentTree.SelectedNode as T;
-        
-        internal void Reload()
-        {
 
+        public void OpenInExplorer()
+        {
+            if (!string.IsNullOrEmpty(FilePath))
+                Process.Start("explorer.exe", FilePath);
         }
         
         internal protected virtual void OnExpand()
@@ -150,8 +146,27 @@ namespace TheraEditor.Wrappers
                 else
                     w = new FileWrapper();
             }
-            w.Text = Path.GetFileNameWithoutExtension(path);
+            w.Text = Path.GetFileName(path);
             w.FilePath = w.Name = path;
+            return w;
+        }
+        public static FileWrapper Wrap(FileObject file)
+        {
+            if (file == null)
+                return null;
+
+            FileWrapper w = null;
+
+            Type type = file.GetType();
+            if (type != null && NodeWrapperAttribute.Wrappers.ContainsKey(type))
+                w = Activator.CreateInstance(NodeWrapperAttribute.Wrappers[type]) as FileWrapper;
+            else
+                w = new FileWrapper();
+
+            FileObject.GetDirNameFmt(file.FilePath, out string dir, out string name, out FileFormat fmt);
+            w.Text = name + "." + file.FileHeader.GetProperExtension(fmt);
+            w.Name = file.FilePath;
+            w.Resource.File = file;
             return w;
         }
     }

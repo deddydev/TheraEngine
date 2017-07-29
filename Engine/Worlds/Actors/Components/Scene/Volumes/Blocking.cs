@@ -15,6 +15,11 @@ namespace TheraEngine.Worlds.Actors
                 CollidesWith = collidesWith,
             })
         {
+            RenderInfo.CastsShadows = false;
+            RenderInfo.ReceivesShadows = false;
+            RenderInfo.RenderPass = ERenderPassType3D.OnTopForward;
+            RenderParams.DepthTest.Enabled = false;
+
             Translation.Raw = translation;
             Rotation.SetRotations(rotation);
         }

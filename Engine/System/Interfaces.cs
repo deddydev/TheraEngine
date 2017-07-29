@@ -3,6 +3,7 @@ using TheraEngine.Rendering.Models;
 using TheraEngine.Rendering.Models.Materials;
 using System;
 using TheraEngine.Rendering;
+using System.ComponentModel;
 
 namespace TheraEngine
 {
@@ -37,6 +38,7 @@ namespace TheraEngine
         Material Material { get; set; }
         RenderInfo3D RenderInfo { get; }
     }
+    [TypeConverter(typeof(ExpandableObjectConverter))]
     public class RenderInfo2D
     {
         /// <summary>
@@ -57,19 +59,17 @@ namespace TheraEngine
             OrderInLayer = orderInLayer;
         }
     }
+    [TypeConverter(typeof(ExpandableObjectConverter))]
     public class RenderInfo3D
     {
-        public bool ReceivesShadows;
-        public bool CastsShadows;
-        /// <summary>
-        /// Used by the engine for proper order of rendering.
-        /// </summary> 
-        public ERenderPassType3D RenderPass;
         /// <summary>
         /// Used to render objects in the same pass in a certain order.
         /// Smaller value means rendered sooner, zero (exactly) means it doesn't matter.
         /// </summary>
         public float RenderOrder => RenderOrderFunc == null ? 0.0f : RenderOrderFunc();
+        public bool ReceivesShadows { get; set; } = true;
+        public bool CastsShadows { get; set; } = true;
+        public ERenderPassType3D RenderPass { get; set; } = ERenderPassType3D.OpaqueDeferredLit;
 
         public Func<float> RenderOrderFunc;
 

@@ -27,6 +27,8 @@ namespace System.Windows.Forms
             trackBar1.LargeChange = (int)invPrecision;
             trackBar1.Value = (int)(current * invPrecision);
             trackBar1.ValueChanged += TrackBar1_ValueChanged;
+            lblMinvalue.Text = min.ToString();
+            lblMaxValue.Text = max.ToString();
         }
 
         private void TrackBar1_ValueChanged(object sender, EventArgs e)

@@ -29,8 +29,8 @@
         private void InitializeComponent()
         {
             this.trackBar1 = new System.Windows.Forms.TrackBar();
-            this.label1 = new System.Windows.Forms.Label();
-            this.label2 = new System.Windows.Forms.Label();
+            this.lblMinvalue = new System.Windows.Forms.Label();
+            this.lblMaxValue = new System.Windows.Forms.Label();
             this.button1 = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.trackBar1)).BeginInit();
             this.SuspendLayout();
@@ -46,27 +46,27 @@
             this.trackBar1.Size = new System.Drawing.Size(658, 69);
             this.trackBar1.TabIndex = 0;
             // 
-            // label1
+            // lblMinvalue
             // 
-            this.label1.AutoSize = true;
-            this.label1.Dock = System.Windows.Forms.DockStyle.Left;
-            this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label1.Location = new System.Drawing.Point(5, 74);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(95, 25);
-            this.label1.TabIndex = 0;
-            this.label1.Text = "MinValue";
+            this.lblMinvalue.AutoSize = true;
+            this.lblMinvalue.Dock = System.Windows.Forms.DockStyle.Left;
+            this.lblMinvalue.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblMinvalue.Location = new System.Drawing.Point(5, 74);
+            this.lblMinvalue.Name = "lblMinvalue";
+            this.lblMinvalue.Size = new System.Drawing.Size(95, 25);
+            this.lblMinvalue.TabIndex = 0;
+            this.lblMinvalue.Text = "MinValue";
             // 
-            // label2
+            // lblMaxValue
             // 
-            this.label2.AutoSize = true;
-            this.label2.Dock = System.Windows.Forms.DockStyle.Right;
-            this.label2.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label2.Location = new System.Drawing.Point(562, 74);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(101, 25);
-            this.label2.TabIndex = 1;
-            this.label2.Text = "MaxValue";
+            this.lblMaxValue.AutoSize = true;
+            this.lblMaxValue.Dock = System.Windows.Forms.DockStyle.Right;
+            this.lblMaxValue.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblMaxValue.Location = new System.Drawing.Point(562, 74);
+            this.lblMaxValue.Name = "lblMaxValue";
+            this.lblMaxValue.Size = new System.Drawing.Size(101, 25);
+            this.lblMaxValue.TabIndex = 1;
+            this.lblMaxValue.Text = "MaxValue";
             // 
             // button1
             // 
@@ -87,8 +87,8 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.Controls.Add(this.button1);
-            this.Controls.Add(this.label2);
-            this.Controls.Add(this.label1);
+            this.Controls.Add(this.lblMaxValue);
+            this.Controls.Add(this.lblMinvalue);
             this.Controls.Add(this.trackBar1);
             this.Name = "MinMaxControl";
             this.Padding = new System.Windows.Forms.Padding(5);
@@ -102,8 +102,8 @@
         #endregion
 
         private TrackBar trackBar1;
-        private Label label1;
-        private Label label2;
+        private Label lblMinvalue;
+        private Label lblMaxValue;
         private Button button1;
     }
 }

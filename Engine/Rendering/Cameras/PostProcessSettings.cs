@@ -149,9 +149,12 @@ uniform VignetteStruct Vignette;";
         [Category("Color Grade Settings")]
         public EventColorF3 Tint { get => _tint; set => _tint = value; }
 
+        [MinMax(0.0f, 100.0f)]
         [Editor(typeof(MinMaxEditor), typeof(UITypeEditor))]
         [Category("Color Grade Settings")]
         public float Exposure { get => _exposure; set => _exposure = value; }
+
+        [MinMax(-100.0f, 100.0f)]
         [Editor(typeof(MinMaxEditor), typeof(UITypeEditor))]
         [Category("Color Grade Settings")]
         public float Contrast
@@ -164,16 +167,23 @@ uniform VignetteStruct Vignette;";
                 _contrastUniformValue *= _contrastUniformValue;
             }
         }
+
+        [MinMax(0.0f, 50.0f)]
         [Editor(typeof(MinMaxEditor), typeof(UITypeEditor))]
         [Category("Color Grade Settings")]
         public float Gamma { get => _gamma; set => _gamma = value; }
 
+        [MinMax(0.0f, 1.0f)]
         [Editor(typeof(MinMaxEditor), typeof(UITypeEditor))]
         [Category("Color Grade Settings")]
         public float Hue { get => _hue; set => _hue = value; }
+
+        [MinMax(-100.0f, 100.0f)]
         [Editor(typeof(MinMaxEditor), typeof(UITypeEditor))]
         [Category("Color Grade Settings")]
         public float Saturation { get => _saturation; set => _saturation = value; }
+
+        [MinMax(0.0f, 100.0f)]
         [Editor(typeof(MinMaxEditor), typeof(UITypeEditor))]
         [Category("Color Grade Settings")]
         public float Brightness { get => _brightness; set => _brightness = value; }

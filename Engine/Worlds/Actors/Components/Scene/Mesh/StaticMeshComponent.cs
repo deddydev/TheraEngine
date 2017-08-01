@@ -71,7 +71,7 @@ namespace TheraEngine.Worlds.Actors
 
         public void HandleTranslation(Vec3 delta)
         {
-
+            _transform.Translation += delta;
         }
         public void HandleScale(Vec3 delta)
         {

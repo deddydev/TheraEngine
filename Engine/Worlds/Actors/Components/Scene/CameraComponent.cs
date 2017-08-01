@@ -139,6 +139,21 @@ namespace TheraEngine.Worlds.Actors
             _inverseWorldTransform = InverseLocalMatrix * GetInverseParentMatrix();
             OnWorldTransformChanged();
         }
+
+        public override void HandleTranslation(Vec3 delta)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void HandleScale(Vec3 delta)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void HandleRotation(Quat delta)
+        {
+            throw new NotImplementedException();
+        }
         #endregion
     }
 }

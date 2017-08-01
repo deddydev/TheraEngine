@@ -6,13 +6,6 @@ using TheraEngine.Rendering;
 
 namespace TheraEngine.Worlds.Actors
 {
-    public enum ESpace
-    {
-        World,
-        Parent,
-        Local,
-        Screen,
-    }
     public interface ISocket
     {
         Matrix4 WorldMatrix { get; }

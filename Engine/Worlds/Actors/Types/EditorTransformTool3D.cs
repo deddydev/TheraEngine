@@ -8,6 +8,13 @@ using System.Linq;
 
 namespace TheraEngine.Worlds.Actors.Types
 {
+    public enum ESpace
+    {
+        World,
+        Parent,
+        Local,
+        Screen,
+    }
     public enum TransformType
     {
         Scale,
@@ -24,6 +31,7 @@ namespace TheraEngine.Worlds.Actors.Types
         private Material[] _axisMat = new Material[3];
         private Material _screenMat;
         private Bone _rootBone;
+        private ESpace _transformSpace = ESpace.Local;
         protected override SkeletalMeshComponent OnConstruct()
         {
             SkeletalMesh mesh = new SkeletalMesh("TransformTool");
@@ -42,21 +50,25 @@ namespace TheraEngine.Worlds.Actors.Types
             };
             _rootBone.ChildBones.Add(screen);
             Skeleton skel = new Skeleton(_rootBone);
-            
-            _axisMat[0] = Material.GetUnlitColorMaterialForward(Color.Red);
-            _axisMat[1] = Material.GetUnlitColorMaterialForward(Color.Green);
-            _axisMat[2] = Material.GetUnlitColorMaterialForward(Color.Blue);
-            _screenMat = Material.GetUnlitColorMaterialForward(Color.LightGray);
-            foreach (Material m in _axisMat)
+
+            Color[] axisColors = new Color[]
             {
-                m.RenderParams.DepthTest.Enabled = false;
-                m.RenderParams.LineWidth = 2.0f;
-            }
+                Color.Red,
+                Color.Green,
+                Color.Blue
+            };
+            
+            _screenMat = Material.GetUnlitColorMaterialForward(Color.LightGray);
             _screenMat.RenderParams.DepthTest.Enabled = false;
             _screenMat.RenderParams.LineWidth = 2.0f;
 
             for (int normalAxis = 0; normalAxis < 3; ++normalAxis)
             {
+                Material m = Material.GetUnlitColorMaterialForward(axisColors[normalAxis]);
+                m.RenderParams.DepthTest.Enabled = false;
+                m.RenderParams.LineWidth = 2.0f;
+                _axisMat[normalAxis] = m;
+
                 int planeAxis1 = normalAxis + 1 - (normalAxis >> 1) * 3; //0 = 1, 1 = 2, 2 = 0
                 int planeAxis2 = planeAxis1 + 1 - (normalAxis  & 1) * 3; //0 = 2, 1 = 0, 2 = 1
 
@@ -73,6 +85,9 @@ namespace TheraEngine.Worlds.Actors.Types
                 Vec3 halfUnit = unit * _axisHalfLength;
                 VertexLine transLine1 = new VertexLine(halfUnit, halfUnit + unit1 * _axisHalfLength);
                 VertexLine transLine2 = new VertexLine(halfUnit, halfUnit + unit2 * _axisHalfLength);
+                
+                VertexLine scaleLine1 = new VertexLine(unit1 * _scaleHalf1LDist, unit2 * _scaleHalf1LDist);
+                VertexLine scaleLine2 = new VertexLine(unit1 * _scaleHalf2LDist, unit2 * _scaleHalf2LDist);
 
                 string axis = ((char)('X' + normalAxis)).ToString();
                 Material axisMat = _axisMat[normalAxis];
@@ -85,14 +100,6 @@ namespace TheraEngine.Worlds.Actors.Types
                     VisibleByDefault = TransformMode != TransformType.Rotate
                 });
 
-                PrimitiveData transPrim = PrimitiveData.FromLines(VertexShaderDesc.JustPositions(), transLine1, transLine2);
-                transPrim.SingleBindBone = rootBoneName;
-                mesh.RigidChildren.Add(new SkeletalRigidSubMesh(axis + "Plane", transPrim, axisMat, true)
-                {
-                    RenderInfo = new RenderInfo3D(Rendering.ERenderPassType3D.OnTopForward, null, false, false),
-                    VisibleByDefault = TransformMode == TransformType.Translate
-                });
-
                 float coneHeight = _axisLength - _coneDistance;
                 PrimitiveData arrowPrim = BaseCone.SolidMesh(unit * (_coneDistance + coneHeight / 2.0f), unit, coneHeight, _coneRadius, 6, false);
                 arrowPrim.SingleBindBone = rootBoneName;
@@ -100,6 +107,22 @@ namespace TheraEngine.Worlds.Actors.Types
                 {
                     RenderInfo = new RenderInfo3D(Rendering.ERenderPassType3D.OnTopForward, null, false, false),
                     VisibleByDefault = TransformMode != TransformType.Rotate
+                });
+
+                PrimitiveData transPrim = PrimitiveData.FromLines(VertexShaderDesc.JustPositions(), transLine1, transLine2);
+                transPrim.SingleBindBone = rootBoneName;
+                mesh.RigidChildren.Add(new SkeletalRigidSubMesh(axis + "TransPlane", transPrim, axisMat, true)
+                {
+                    RenderInfo = new RenderInfo3D(Rendering.ERenderPassType3D.OnTopForward, null, false, false),
+                    VisibleByDefault = TransformMode == TransformType.Translate
+                });
+                
+                PrimitiveData scalePrim = PrimitiveData.FromLines(VertexShaderDesc.JustPositions(), scaleLine1, scaleLine2);
+                scalePrim.SingleBindBone = rootBoneName;
+                mesh.RigidChildren.Add(new SkeletalRigidSubMesh(axis + "ScalePlane", scalePrim, axisMat, true)
+                {
+                    RenderInfo = new RenderInfo3D(Rendering.ERenderPassType3D.OnTopForward, null, false, false),
+                    VisibleByDefault = TransformMode == TransformType.Scale
                 });
 
                 PrimitiveData rotPrim = Circle3D.WireframeMesh(_orbRadius, unit, Vec3.Zero, _circlePrecision);
@@ -170,6 +193,8 @@ namespace TheraEngine.Worlds.Actors.Types
                 {
                     RootComponent.Meshes[x++].Visible = _mode != TransformType.Rotate;
                     RootComponent.Meshes[x++].Visible = _mode != TransformType.Rotate;
+                    RootComponent.Meshes[x++].Visible = _mode == TransformType.Translate;
+                    RootComponent.Meshes[x++].Visible = _mode == TransformType.Scale;
                     RootComponent.Meshes[x++].Visible = _mode == TransformType.Rotate;
                 }
                 RootComponent.Meshes[x++].Visible = _mode == TransformType.Rotate;
@@ -246,48 +271,31 @@ namespace TheraEngine.Worlds.Actors.Types
         private const float _scaleHalf2LDist = _orbRadius * 1.2f;
         private List<Vec3> _intersectionPoints = new List<Vec3>(3);
         
-        private DelHighlight _drag;
+        private DelDrag _drag;
         private DelHighlight _highlight;
         private delegate bool DelHighlight(Camera camera, Ray localRay);
+        private delegate void DelDrag(Vec3 dragPoint);
 
         #region Drag
-        private bool DragRotation(Camera camera, Ray cursor)
+        private void DragRotation(Vec3 dragPoint)
         {
-
-            return false;
+            
         }
-        private bool DragTranslation(Camera camera, Ray cursor)
+        private void DragTranslation(Vec3 dragPoint)
         {
-            if (_hiCam)
-            {
-                Vec3 point = RootComponent.GetWorldPoint();
-                Collision.RayIntersectsPlane(cursor.StartPoint, cursor.Direction, point, camera.WorldPoint - point, out Vec3 screenPoint);
-            }
-            else if (_hiAxis.X)
-            {
-
-            }
-            else if (_hiAxis.Y)
-            {
-
-            }
-            else if (_hiAxis.Z)
-            {
-
-            }
-            return false;
+            Vec3 diff = dragPoint - _lastPoint;
+            _targetSocket.HandleTranslation(diff);
         }
-        private bool DragScale(Camera camera, Ray cursor)
+        private void DragScale(Vec3 dragPoint)
         {
-            return false;
+            
         }
         #endregion
 
         #region Highlighting
-        private bool HighlightRotation(Camera camera, Ray cursor)
+        private bool HighlightRotation(Camera camera, Ray localRay)
         {
             Vec3 worldPoint = RootComponent.GetWorldPoint();
-            Ray localRay = cursor.TransformedBy(RootComponent.InverseWorldMatrix);
             float radius = camera.DistanceScale(worldPoint, _orbRadius);
 
             if (!Collision.RayIntersectsSphere(localRay.StartPoint, localRay.Direction, Vec3.Zero, radius, out Vec3 point))
@@ -309,7 +317,7 @@ namespace TheraEngine.Worlds.Actors.Types
                 _hiSphere = true;
 
                 //Determine axis snapping
-                Vec3 angles = CustomMath.RadToDeg(point.GetAngles());
+                Vec3 angles = point.GetAngles();
                 angles.X = Math.Abs(angles.X);
                 angles.Y = Math.Abs(angles.Y);
                 angles.Z = Math.Abs(angles.Z);
@@ -387,10 +395,9 @@ namespace TheraEngine.Worlds.Actors.Types
 
             return snapFound;
         }
-        private bool HighlightScale(Camera camera, Ray cursor)
+        private bool HighlightScale(Camera camera, Ray localRay)
         {
             Vec3 worldPoint = RootComponent.GetWorldPoint();
-            Ray localRay = cursor.TransformedBy(RootComponent.InverseWorldMatrix);
             float radius = camera.DistanceScale(worldPoint, _orbRadius);
 
             _intersectionPoints.Clear();
@@ -457,31 +464,121 @@ namespace TheraEngine.Worlds.Actors.Types
         }
         #endregion
 
+        Vec3 _lastPoint;
+        Vec3 _dragPlaneNormal;
+
+        private Vec3 GetDragPoint(Camera camera, Ray localRay)
+        {
+            Vec3 point = RootComponent.GetWorldPoint();
+            Vec3 cameraPoint = camera.WorldPoint;
+            Vec3 dragPoint, unit;
+            if (_hiCam)
+            {
+                _dragPlaneNormal = cameraPoint - point;
+                _dragPlaneNormal.NormalizeFast();
+            }
+            else if (_hiAxis.X)
+            {
+                if (_hiAxis.Y)
+                {
+                    _dragPlaneNormal = Vec3.UnitZ;
+                }
+                if (_hiAxis.Z)
+                {
+                    _dragPlaneNormal = Vec3.UnitY;
+                }
+                else
+                {
+                    unit = Vec3.UnitX;
+                    Vec3 perpPoint = Ray.GetClosestColinearPoint(point, unit, cameraPoint);
+                    _dragPlaneNormal = cameraPoint - perpPoint;
+                    _dragPlaneNormal.NormalizeFast();
+
+                    if (!Collision.RayIntersectsPlane(localRay.StartPoint, localRay.Direction, point, _dragPlaneNormal, out dragPoint))
+                        return _lastPoint;
+
+                    return Ray.GetClosestColinearPoint(point, unit, dragPoint);
+                }
+            }
+            else if (_hiAxis.Y)
+            {
+                if (_hiAxis.X)
+                {
+                    _dragPlaneNormal = Vec3.UnitZ;
+                }
+                if (_hiAxis.Z)
+                {
+                    _dragPlaneNormal = Vec3.UnitX;
+                }
+                else
+                {
+                    unit = Vec3.UnitY;
+                    Vec3 perpPoint = Ray.GetClosestColinearPoint(point, unit, cameraPoint);
+                    _dragPlaneNormal = cameraPoint - perpPoint;
+                    _dragPlaneNormal.NormalizeFast();
+
+                    if (!Collision.RayIntersectsPlane(localRay.StartPoint, localRay.Direction, point, _dragPlaneNormal, out dragPoint))
+                        return _lastPoint;
+
+                    return Ray.GetClosestColinearPoint(point, unit, dragPoint);
+                }
+            }
+            else if (_hiAxis.Z)
+            {
+                if (_hiAxis.X)
+                {
+                    _dragPlaneNormal = Vec3.UnitY;
+                }
+                if (_hiAxis.Y)
+                {
+                    _dragPlaneNormal = Vec3.UnitX;
+                }
+                else
+                {
+                    unit = Vec3.UnitZ;
+                    Vec3 perpPoint = Ray.GetClosestColinearPoint(point, unit, cameraPoint);
+                    _dragPlaneNormal = cameraPoint - perpPoint;
+                    _dragPlaneNormal.NormalizeFast();
+
+                    if (!Collision.RayIntersectsPlane(localRay.StartPoint, localRay.Direction, point, _dragPlaneNormal, out dragPoint))
+                        return _lastPoint;
+
+                    return Ray.GetClosestColinearPoint(point, unit, dragPoint);
+                }
+            }
+
+            if (Collision.RayIntersectsPlane(localRay.StartPoint, localRay.Direction, point, _dragPlaneNormal, out dragPoint))
+                return dragPoint;
+
+            return _lastPoint;
+        }
+
         /// <summary>
         /// Returns true if intersecting one of the transform tool's various parts.
         /// </summary>
         public bool MouseMove(Ray cursor, Camera camera, bool pressed)
         {
             bool snapFound = true;
+            Ray localRay = cursor.TransformedBy(RootComponent.InverseWorldMatrix);
             if (pressed)
             {
-                Vec3 worldPoint = RootComponent.GetWorldPoint();
-                Ray localRay = cursor.TransformedBy(RootComponent.InverseWorldMatrix);
-                float radius = camera.DistanceScale(worldPoint, _orbRadius);
-                _drag(camera, cursor);
+                Vec3 dragPoint = GetDragPoint(camera, localRay);
+                _drag(dragPoint);
+                _lastPoint = dragPoint;
             }
             else
             {
-
                 _hiAxis.X = _hiAxis.Y = _hiAxis.Z = false;
                 _hiCam = _hiSphere = false;
 
-                snapFound = _highlight(camera, cursor);
+                snapFound = _highlight(camera, localRay);
 
                 _axisMat[0].Parameter<ShaderVec4>(0).Value = _hiAxis.X ? (ColorF4)Color.Yellow : Color.Red;
                 _axisMat[1].Parameter<ShaderVec4>(0).Value = _hiAxis.Y ? (ColorF4)Color.Yellow : Color.Green;
                 _axisMat[2].Parameter<ShaderVec4>(0).Value = _hiAxis.Z ? (ColorF4)Color.Yellow : Color.Blue;
                 _screenMat.Parameter<ShaderVec4>(0).Value = _hiCam ? (ColorF4)Color.Yellow : Color.LightGray;
+
+                _lastPoint = GetDragPoint(camera, localRay);
             }
             return snapFound;
         }

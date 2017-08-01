@@ -43,5 +43,20 @@ namespace TheraEngine.Worlds.Actors
             inverseLocalTransform = _rotation.GetInverseMatrix();
         }
         protected internal override void OriginRebased(Vec3 newOrigin) { }
+
+        public override void HandleTranslation(Vec3 delta)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void HandleScale(Vec3 delta)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void HandleRotation(Quat delta)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

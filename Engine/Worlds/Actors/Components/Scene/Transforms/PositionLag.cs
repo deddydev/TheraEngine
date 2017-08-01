@@ -106,5 +106,20 @@ namespace TheraEngine.Worlds.Actors
             //Engine.Renderer.RenderSphere(_interpPoint, 10.0f, false, Color.Pink);
             //Engine.Renderer.RenderSphere(_destPoint, 10.0f, false, Color.White);
         }
+
+        public override void HandleTranslation(Vec3 delta)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void HandleScale(Vec3 delta)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void HandleRotation(Quat delta)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

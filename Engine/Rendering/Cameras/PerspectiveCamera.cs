@@ -131,9 +131,9 @@ namespace TheraEngine.Rendering.Cameras
                 transformed ? GetUpVector() : Vec3.Up,
                 transformed ? _localPoint.Raw : Vec3.Zero);
         }
-        public override float DistanceScale(Vec3 point, float radius)
+        public override float DistanceScale(Vec3 point, float radius = 1.0f)
         {
-            return WorldPoint.DistanceToFast(point) * radius / (_fovX / 90.0f) * 0.1f;
+            return WorldPoint.DistanceToFast(point) * radius * Vec3.Dot(GetForwardVector(), (point - WorldPoint).NormalizedFast()) * 0.1f;
         }
         public float FrustumHeightAtDistance(float distance)
         {

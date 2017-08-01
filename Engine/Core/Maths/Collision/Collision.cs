@@ -483,8 +483,7 @@
         /// <returns>Whether the two objects intersected.</returns>
         public static bool RayIntersectsTriangle(Ray ray, Vec3 vertex1, Vec3 vertex2, Vec3 vertex3, out Vec3 point)
         {
-            float distance;
-            if (!RayIntersectsTriangle(ray, vertex1, vertex2, vertex3, out distance))
+            if (!RayIntersectsTriangle(ray, vertex1, vertex2, vertex3, out float distance))
             {
                 point = Vec3.Zero;
                 return false;
@@ -631,8 +630,7 @@
         }
         public static bool RayIntersectsBox(Vec3 rayStartPoint, Vec3 rayDirection, Vec3 boxHalfExtents, Matrix4 boxInverseTransform, out Vec3 point)
         {
-            float distance;
-            if (!RayIntersectsBoxDistance(rayStartPoint, rayDirection, boxHalfExtents, boxInverseTransform, out distance))
+            if (!RayIntersectsBoxDistance(rayStartPoint, rayDirection, boxHalfExtents, boxInverseTransform, out float distance))
             {
                 point = Vec3.Zero;
                 return false;
@@ -650,15 +648,17 @@
         /// <param name="distance">When the method completes, contains the distance of the intersection,
         /// or 0 if there was no intersection.</param>
         /// <returns>Whether the two objects intersected.</returns>
-        public static bool RayIntersectsSphere(Ray ray, Sphere sphere, out float distance)
+        public static bool RayIntersectsSphere(Vec3 rayStart, Vec3 rayDir, Vec3 sphereCenter, float sphereRadius, out float distance)
         {
             //Source: Real-Time Collision Detection by Christer Ericson
             //Reference: Page 177
 
-            Vec3 m = ray.StartPoint - sphere.Center;
+            rayDir.NormalizeFast();
 
-            float b = Vec3.Dot(m, ray.Direction);
-            float c = Vec3.Dot(m, m) - (sphere.Radius * sphere.Radius);
+            Vec3 m = rayStart - sphereCenter;
+
+            float b = Vec3.Dot(m, rayDir);
+            float c = Vec3.Dot(m, m) - (sphereRadius * sphereRadius);
 
             if (c > 0f && b > 0f)
             {
@@ -690,16 +690,15 @@
         /// <param name="point">When the method completes, contains the point of intersection,
         /// or <see cref="Vec3.Zero"/> if there was no intersection.</param>
         /// <returns>Whether the two objects intersected.</returns>
-        public static bool RayIntersectsSphere(Ray ray, Sphere sphere, out Vec3 point)
+        public static bool RayIntersectsSphere(Vec3 rayStart, Vec3 rayDir, Vec3 sphereCenter, float sphereRadius, out Vec3 point)
         {
-            float distance;
-            if (!RayIntersectsSphere(ray, sphere, out distance))
+            if (!RayIntersectsSphere(rayStart, rayDir, sphereCenter, sphereRadius, out float distance))
             {
                 point = Vec3.Zero;
                 return false;
             }
 
-            point = ray.StartPoint + (ray.Direction * distance);
+            point = rayStart + (rayDir * distance);
             return true;
         }
 

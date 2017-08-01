@@ -68,6 +68,19 @@ namespace TheraEngine.Worlds.Actors
             item.RecalcGlobalTransform();
             //_owner?.GenerateSceneComponentCache();
         }
+
+        public void HandleTranslation(Vec3 delta)
+        {
+
+        }
+        public void HandleScale(Vec3 delta)
+        {
+
+        }
+        public void HandleRotation(Quat delta)
+        {
+
+        }
     }
     public partial class StaticMeshComponent : TRSComponent, IPhysicsDrivable
     {

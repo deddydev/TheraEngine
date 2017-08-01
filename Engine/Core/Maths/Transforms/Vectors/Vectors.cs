@@ -35,6 +35,22 @@ namespace System
                 Data[i] = *data++ != 0;
         }
 
+        public bool this[int index]
+        {
+            get
+            {
+                if (index < 0 || index > 1)
+                    throw new IndexOutOfRangeException("Cannot access vector at index " + index);
+                return Data[index];
+            }
+            set
+            {
+                if (index < 0 || index > 1)
+                    throw new IndexOutOfRangeException("Cannot access vector at index " + index);
+                Data[index] = value;
+            }
+        }
+
         public BoolVec2(bool x, bool y)
         {
             _x = x;
@@ -68,6 +84,22 @@ namespace System
             int* data = (int*)address;
             for (int i = 0; i < ComponentCount; ++i)
                 Data[i] = *data++;
+        }
+
+        public int this[int index]
+        {
+            get
+            {
+                if (index < 0 || index > 1)
+                    throw new IndexOutOfRangeException("Cannot access vector at index " + index);
+                return Data[index];
+            }
+            set
+            {
+                if (index < 0 || index > 1)
+                    throw new IndexOutOfRangeException("Cannot access vector at index " + index);
+                Data[index] = value;
+            }
         }
 
         public IVec2(int x, int y)
@@ -147,6 +179,22 @@ namespace System
                 Data[i] = *data++;
         }
 
+        public uint this[int index]
+        {
+            get
+            {
+                if (index < 0 || index > 1)
+                    throw new IndexOutOfRangeException("Cannot access vector at index " + index);
+                return Data[index];
+            }
+            set
+            {
+                if (index < 0 || index > 1)
+                    throw new IndexOutOfRangeException("Cannot access vector at index " + index);
+                Data[index] = value;
+            }
+        }
+
         public UVec2(uint x, uint y)
         {
             _x = x;
@@ -180,6 +228,22 @@ namespace System
             double* data = (double*)address;
             for (int i = 0; i < ComponentCount; ++i)
                 Data[i] = *data++;
+        }
+
+        public double this[int index]
+        {
+            get
+            {
+                if (index < 0 || index > 1)
+                    throw new IndexOutOfRangeException("Cannot access vector at index " + index);
+                return Data[index];
+            }
+            set
+            {
+                if (index < 0 || index > 1)
+                    throw new IndexOutOfRangeException("Cannot access vector at index " + index);
+                Data[index] = value;
+            }
         }
 
         public DVec2(double x, double y)
@@ -216,6 +280,26 @@ namespace System
             byte* data = (byte*)address;
             for (int i = 0; i < ComponentCount; ++i)
                 Data[i] = *data++ != 0;
+        }
+
+        public bool None => !Any;
+        public bool Any => X || Y || Z;
+        public bool All => X && Y && Z;
+
+        public bool this[int index]
+        {
+            get
+            {
+                if (index < 0 || index > 2)
+                    throw new IndexOutOfRangeException("Cannot access vector at index " + index);
+                return Data[index];
+            }
+            set
+            {
+                if (index < 0 || index > 2)
+                    throw new IndexOutOfRangeException("Cannot access vector at index " + index);
+                Data[index] = value;
+            }
         }
 
         public BoolVec3(bool x, bool y, bool z)
@@ -255,6 +339,22 @@ namespace System
                 Data[i] = *data++;
         }
 
+        public int this[int index]
+        {
+            get
+            {
+                if (index < 0 || index > 2)
+                    throw new IndexOutOfRangeException("Cannot access vector at index " + index);
+                return Data[index];
+            }
+            set
+            {
+                if (index < 0 || index > 2)
+                    throw new IndexOutOfRangeException("Cannot access vector at index " + index);
+                Data[index] = value;
+            }
+        }
+
         public IVec3(int x, int y, int z)
         {
             _x = x;
@@ -292,6 +392,22 @@ namespace System
                 Data[i] = *data++;
         }
 
+        public uint this[int index]
+        {
+            get
+            {
+                if (index < 0 || index > 2)
+                    throw new IndexOutOfRangeException("Cannot access vector at index " + index);
+                return Data[index];
+            }
+            set
+            {
+                if (index < 0 || index > 2)
+                    throw new IndexOutOfRangeException("Cannot access vector at index " + index);
+                Data[index] = value;
+            }
+        }
+
         public UVec3(uint x, uint y, uint z)
         {
             _x = x;
@@ -327,6 +443,22 @@ namespace System
             double* data = (double*)address;
             for (int i = 0; i < ComponentCount; ++i)
                 Data[i] = *data++;
+        }
+
+        public double this[int index]
+        {
+            get
+            {
+                if (index < 0 || index > 2)
+                    throw new IndexOutOfRangeException("Cannot access vector at index " + index);
+                return Data[index];
+            }
+            set
+            {
+                if (index < 0 || index > 2)
+                    throw new IndexOutOfRangeException("Cannot access vector at index " + index);
+                Data[index] = value;
+            }
         }
 
         public DVec3(double x, double y, double z)

@@ -1,6 +1,8 @@
 ﻿using TheraEngine;
 using System.Drawing;
 using System.ComponentModel;
+using TheraEngine.Rendering.Models;
+using System.Collections.Generic;
 
 namespace System
 {
@@ -64,6 +66,43 @@ namespace System
 
         public override void Render()
             => Engine.Renderer.RenderCone(_state.Matrix, _localUpAxis, _radius, _height, _renderSolid, Color.Black);
+
+        public static PrimitiveData SolidMesh(Vec3 center, Vec3 up, float height, float radius, int sides, bool closeBottom)
+        {
+            up.NormalizeFast();
+
+            List<VertexTriangle> tris = new List<VertexTriangle>((sides * 3) * (closeBottom ? 2 : 1));
+            
+            Vec3 topPoint = center + (up * (height / 2.0f));
+            Vec3 bottomPoint = center - (up * (height / 2.0f));
+
+            Vertex[] sidePoints = Circle3D.Points(radius, up, bottomPoint, sides);
+
+            for (int i = 0; i < sides; ++i)
+            {
+                Vec3 diff = topPoint - sidePoints[i]._position;
+                diff.NormalizeFast();
+                Vec3 normal = diff ^ (up ^ diff);
+                sidePoints[i]._normal = normal;
+
+                Vertex topVertex = new Vertex(topPoint, normal, new Vec2(0.5f));
+                tris.Add(new VertexTriangle(sidePoints[i + 1 == sides ? 0 : i + 1], sidePoints[i], topVertex));
+            }
+
+            if (closeBottom)
+            {
+                List<Vertex> list = new List<Vertex>(sidePoints.Length + 1) { new Vertex(topPoint, -up, new Vec2(0.5f)) };
+                foreach (Vertex v in sidePoints)
+                {
+                    Vertex v2 = v.HardCopy();
+                    v2._normal = -up;
+                    list.Add(v2);
+                }
+                tris.AddRange(new VertexTriangleFan(list).ToTriangles());
+            }
+
+            return PrimitiveData.FromTriangleList(Culling.Back, VertexShaderDesc.PosNormTex(), tris);
+        }
 
         public override bool Contains(Vec3 point)
         {

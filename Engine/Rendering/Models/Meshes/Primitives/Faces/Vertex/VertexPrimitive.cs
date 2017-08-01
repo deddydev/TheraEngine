@@ -12,7 +12,8 @@ namespace TheraEngine.Rendering.Models
         public ReadOnlyCollection<Vertex> Vertices { get { return _vertices.AsReadOnly(); } }
 
         protected List<Vertex> _vertices = new List<Vertex>();
-
+        
+        public VertexPrimitive(IEnumerable<Vertex> vertices) { _vertices = vertices.ToList(); }
         public VertexPrimitive(params Vertex[] vertices) { _vertices = vertices.ToList(); }
 
         public BoundingBox GetCullingVolume()
@@ -29,6 +30,11 @@ namespace TheraEngine.Rendering.Models
         public VertexPolygon(params Vertex[] vertices) : base(vertices)
         {
             if (vertices.Length < 3)
+                throw new InvalidOperationException("Not enough vertices for a polygon.");
+        }
+        public VertexPolygon(IEnumerable<Vertex> vertices) : base(vertices)
+        {
+            if (Vertices.Count < 3)
                 throw new InvalidOperationException("Not enough vertices for a polygon.");
         }
         public abstract VertexTriangle[] ToTriangles();

@@ -306,6 +306,7 @@ namespace TheraEngine.Rendering
             _region.Height =  _topPercentage * parentHeight - _region.Y;
             
             if (setInternalResolution)
+                //SetInternalResolution(1280, 720);
                 SetInternalResolution(parentWidth, parentHeight);
         }
         public void DebugPrint(string message)
@@ -726,9 +727,7 @@ namespace TheraEngine.Rendering
             public const int DefaultSamples = 64;
             const int DefaultNoiseWidth = 4, DefaultNoiseHeight = 4;
             const float DefaultMinSampleDist = 0.1f, DefaultMaxSampleDist = 1.0f;
-
-            QuadFrameBuffer _ssaoGBuffer;
-
+            
             public Vec3[] Noise => _noise;
             public Vec3[] Kernel => _kernel;
 
@@ -873,13 +872,12 @@ void main()
     float occlusion = 0.0f;
     for (int i = 0; i < kernelSize; ++i)
     {
-        vec3 noiseSample = TBN * SSAOSamples[i]; //tangent to view-space
-
+        vec3 noiseSample = TBN * SSAOSamples[i];
         noiseSample = FragPosVS + noiseSample * radius;
 
         vec4 offset = ProjMatrix * vec4(noiseSample, 1.0f);
-        offset.xyz /= offset.w;                 // perspective divide
-        offset.xyz = offset.xyz * 0.5f + 0.5f;  // transform to range 0.0 - 1.0
+        offset.xyz /= offset.w;
+        offset.xyz = offset.xyz * 0.5f + 0.5f;
 
         float sampleDepth = ViewPosFromDepth(texture(Texture3, offset.xy).r, offset.xy).z;
 

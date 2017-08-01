@@ -12,37 +12,31 @@ namespace TheraEngine.Rendering.Models.Materials
     [TypeConverter(typeof(ExpandableObjectConverter))]
     public class RenderingParameters : FileObject
     {
-        private AlphaTest _alpha = new AlphaTest();
-        private DepthTest _depth = new DepthTest();
-        private StencilTest _stencil = new StencilTest();
-        private Blend _blend = new Blend();
-        private bool _writeAlpha = true;
-        private bool _writeRed = true;
-        private bool _writeGreen = true;
-        private bool _writeBlue = true;
-        private Culling _cullMode = Culling.Back;
-
         [Browsable(false)]
         public bool HasTransparency => Blend.Enabled || AlphaTest.Enabled;
 
         [Serialize]
-        public bool WriteRed { get => _writeRed; set => _writeRed = value; }
+        public bool WriteRed { get; set; } = true;
         [Serialize]
-        public bool WriteGreen { get => _writeGreen; set => _writeGreen = value; }
+        public bool WriteGreen { get; set; } = true;
         [Serialize]
-        public bool WriteBlue { get => _writeBlue; set => _writeBlue = value; }
+        public bool WriteBlue { get; set; } = true;
         [Serialize]
-        public bool WriteAlpha { get => _writeAlpha; set => _writeAlpha = value; }
+        public bool WriteAlpha { get; set; } = true;
         [Serialize]
-        public Culling CullMode { get => _cullMode; set => _cullMode = value; }
+        public Culling CullMode { get; set; } = Culling.Back;
         [Serialize]
-        public AlphaTest AlphaTest { get => _alpha; set => _alpha = value; }
+        public AlphaTest AlphaTest { get; set; } = new AlphaTest();
         [Serialize]
-        public DepthTest DepthTest { get => _depth; set => _depth = value; }
+        public DepthTest DepthTest { get; set; } = new DepthTest();
         [Serialize]
-        public StencilTest StencilTest { get => _stencil; set => _stencil = value; }
+        public StencilTest StencilTest { get; set; } = new StencilTest();
         [Serialize]
-        public Blend Blend { get => _blend; set => _blend = value; }
+        public Blend Blend { get; set; } = new Blend();
+        [Serialize]
+        public float PointSize { get; set; } = AbstractRenderer.DefaultPointSize;
+        [Serialize]
+        public float LineWidth { get; set; } = AbstractRenderer.DefaultLineSize;
     }
     [TypeConverter(typeof(ExpandableObjectConverter))]
     public class AlphaTest

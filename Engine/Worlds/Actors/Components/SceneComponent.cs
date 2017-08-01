@@ -6,11 +6,22 @@ using TheraEngine.Rendering;
 
 namespace TheraEngine.Worlds.Actors
 {
+    public enum ESpace
+    {
+        World,
+        Parent,
+        Local,
+        Screen,
+    }
     public interface ISocket
     {
         Matrix4 WorldMatrix { get; }
         Matrix4 InverseWorldMatrix { get; }
         MonitoredList<SceneComponent> ChildComponents { get; }
+
+        void HandleTranslation(Vec3 delta);
+        void HandleScale(Vec3 delta);
+        void HandleRotation(Quat delta);
     }
     public abstract class SceneComponent : Component, ISocket
     {
@@ -389,5 +400,9 @@ namespace TheraEngine.Worlds.Actors
         {
             component.ChildComponents.Add(this);
         }
+
+        public abstract void HandleTranslation(Vec3 delta);
+        public abstract void HandleScale(Vec3 delta);
+        public abstract void HandleRotation(Quat delta);
     }
 }

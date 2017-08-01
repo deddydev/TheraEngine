@@ -33,5 +33,12 @@ namespace TheraEngine.Worlds.Actors
         
         protected internal override void OriginRebased(Vec3 newOrigin)
             => Translation -= newOrigin;
+
+        public override void HandleTranslation(Vec3 delta)
+        {
+
+        }
+        public override void HandleScale(Vec3 delta) { }
+        public override void HandleRotation(Quat delta) { }
     }
 }

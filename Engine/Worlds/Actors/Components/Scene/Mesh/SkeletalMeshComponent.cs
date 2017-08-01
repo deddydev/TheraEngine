@@ -82,7 +82,7 @@ namespace TheraEngine.Worlds.Actors
         {
             if (_meshes != null)
                 foreach (RenderableMesh m in _meshes)
-                m.Visible = false;
+                    m.Visible = false;
 
             base.OnDespawned();
 

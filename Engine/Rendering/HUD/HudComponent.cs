@@ -284,7 +284,7 @@ namespace TheraEngine.Rendering.HUD
         }
         public bool ContainsPoint(Vec2 viewportPoint)
         {
-            Vec2 localPoint = (Vec2)(_inverseWorldTransform * new Vec3(viewportPoint, 0.0f));
+            Vec2 localPoint = (Vec2)(new Vec3(viewportPoint, 0.0f) * _inverseWorldTransform);
             return Region.Bounds.Contains(viewportPoint);
         }
         
@@ -292,5 +292,20 @@ namespace TheraEngine.Rendering.HUD
 
         public IEnumerator<HudComponent> GetEnumerator() => ((IEnumerable<HudComponent>)_children).GetEnumerator();
         IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable<HudComponent>)_children).GetEnumerator();
+
+        public override void HandleTranslation(Vec3 delta)
+        {
+
+        }
+
+        public override void HandleScale(Vec3 delta)
+        {
+
+        }
+
+        public override void HandleRotation(Quat delta)
+        {
+
+        }
     }
 }

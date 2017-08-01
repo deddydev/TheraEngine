@@ -261,7 +261,7 @@ namespace TheraEngine.Rendering.Cameras
         /// Returns an X, Y coordinate relative to the camera's Origin, with Z being the normalized depth from NearDepth to FarDepth.
         /// </summary>
         public Vec3 WorldToScreen(Vec3 point)
-            => _projectionRange * ((((ProjectionMatrix * WorldToCameraSpaceMatrix) * point) + 1.0f) / 2.0f);
+            => _projectionRange * (((point * (ProjectionMatrix * WorldToCameraSpaceMatrix)) + 1.0f) / 2.0f);
         public Vec3 ScreenToWorld(Vec2 point, float depth)
             => ScreenToWorld(point.X, point.Y, depth);
         public Vec3 ScreenToWorld(float x, float y, float depth)

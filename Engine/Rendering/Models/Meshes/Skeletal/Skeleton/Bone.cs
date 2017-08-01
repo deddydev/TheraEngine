@@ -157,7 +157,16 @@ namespace TheraEngine.Rendering.Models
                 CalcBindMatrix(false);
             }
         }
-        public Matrix4 WorldMatrix => OwningComponent != null ? OwningComponent.WorldMatrix * FrameMatrix : FrameMatrix;
+        public Matrix4 WorldMatrix
+        {
+            get => OwningComponent != null ? OwningComponent.WorldMatrix * FrameMatrix : FrameMatrix;
+            set
+            {
+                Matrix4 frameMatrix = OwningComponent.InverseWorldMatrix * value;
+                Matrix4 localMatrix = Parent == null ? frameMatrix : Parent.InverseFrameMatrix * frameMatrix;
+                _frameState.Matrix = localMatrix;
+            }
+        }
         public Matrix4 InverseWorldMatrix => OwningComponent != null ? OwningComponent.InverseWorldMatrix * InverseFrameMatrix : InverseFrameMatrix;
         public Matrix4 FrameMatrix => _frameMatrix;
         public Matrix4 BindMatrix => _bindMatrix;
@@ -217,7 +226,20 @@ namespace TheraEngine.Rendering.Models
 
         public bool FrameMatrixChanged => _frameMatrixChanged;
         public bool ChildFrameMatrixChanged => _childFrameMatrixChanged;
-        
+
+        public void HandleTranslation(Vec3 delta)
+        {
+
+        }
+        public void HandleScale(Vec3 delta)
+        {
+
+        }
+        public void HandleRotation(Quat delta)
+        {
+
+        }
+
         public void AddPrimitiveManager(IPrimitiveManager m)
         {
             if (!_influencedVertices.ContainsKey(m.BindingId))
@@ -243,13 +265,23 @@ namespace TheraEngine.Rendering.Models
                 {
                     if (BillboardType != BillboardType.None)
                     {
-                        Matrix4 invView = Matrix4.Identity;
-                        Matrix4 view = Matrix4.Identity;
+                        Vec3 componentPoint = c.WorldPoint * OwningComponent.InverseWorldMatrix;
+
+                        Matrix4 frameTrans = (parentMatrix * _frameState.Translation.Raw.AsTranslationMatrix()).GetPoint().AsTranslationMatrix();
+                        Matrix4 invFramTrans = ((-_frameState.Translation.Raw).AsTranslationMatrix() * inverseParentMatrix).GetPoint().AsTranslationMatrix();
+
+                        Matrix4 angles = Matrix4.Identity, invAngles = Matrix4.Identity;
+
                         switch (BillboardType)
                         {
                             case BillboardType.PerspectiveXYZ:
-                                invView = c.CameraToWorldSpaceMatrix.GetRotationMatrix4();
-                                view = c.WorldToCameraSpaceMatrix.GetRotationMatrix4();
+
+                                Vec3 diff = frameTrans.GetPoint() - componentPoint;
+                                Rotator r = diff.LookatAngles();
+
+                                angles = r.GetMatrix();
+                                invAngles = r.GetInverseMatrix();
+
                                 break;
                             case BillboardType.PerspectiveXY:
 
@@ -258,8 +290,7 @@ namespace TheraEngine.Rendering.Models
 
                                 break;
                             case BillboardType.RotationXYZ:
-                                invView = c.CameraToWorldSpaceMatrix.GetRotationMatrix4();
-                                view = c.WorldToCameraSpaceMatrix.GetRotationMatrix4();
+
                                 break;
                             case BillboardType.RotationXY:
 
@@ -268,8 +299,9 @@ namespace TheraEngine.Rendering.Models
 
                                 break;
                         }
-                        _frameMatrix = parentMatrix * _frameState.Translation.Raw.AsTranslationMatrix() * invView * _frameState.Scale.Raw.AsScaleMatrix();
-                        _inverseFrameMatrix = (1.0f / _frameState.Scale).AsScaleMatrix() * view * (1.0f / _frameState.Translation).AsTranslationMatrix() * inverseParentMatrix;
+
+                        _frameMatrix = frameTrans * angles * _frameState.Scale.Raw.AsScaleMatrix();
+                        _inverseFrameMatrix = (1.0f / _frameState.Scale).AsScaleMatrix() * invAngles * invFramTrans;
                     }
                     else
                     {
@@ -309,10 +341,10 @@ namespace TheraEngine.Rendering.Models
                     comp.RecalcGlobalTransform();
             }
 
-            if (_childFrameMatrixChanged || _frameMatrixChanged)
+            if (_childFrameMatrixChanged || _frameMatrixChanged || usesCamera || force)
             {
                 foreach (Bone b in _childBones)
-                    b.CalcFrameMatrix(c, _frameMatrix, _inverseFrameMatrix, force || _frameMatrixChanged);
+                    b.CalcFrameMatrix(c, _frameMatrix, _inverseFrameMatrix, force || _frameMatrixChanged || usesCamera);
             }
 
             _childFrameMatrixChanged = false;
@@ -356,8 +388,8 @@ namespace TheraEngine.Rendering.Models
         /// </summary>
         private void TriggerChildFrameMatrixUpdate()
         {
-            if (_childFrameMatrixChanged)
-                return;
+            //if (_childFrameMatrixChanged)
+            //    return;
             _childFrameMatrixChanged = true;
             if (_parent != null)
                 _parent.TriggerChildFrameMatrixUpdate();
@@ -369,8 +401,8 @@ namespace TheraEngine.Rendering.Models
         /// </summary>
         public void TriggerFrameMatrixUpdate()
         {
-            if (_frameMatrixChanged)
-                return;
+            //if (_frameMatrixChanged)
+            //    return;
             _frameMatrixChanged = true;
             if (_parent != null)
                 _parent.TriggerChildFrameMatrixUpdate();

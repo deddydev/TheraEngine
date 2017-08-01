@@ -347,6 +347,9 @@ namespace TheraEngine.Rendering.OpenGL
             }
             else
                 GL.Disable(EnableCap.Blend);
+
+            GL.PointSize(r.PointSize);
+            GL.LineWidth(r.LineWidth);
         }
 
         public override int GetAttribLocation(int programBindingId, string name)

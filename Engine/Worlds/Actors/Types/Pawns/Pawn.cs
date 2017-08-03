@@ -94,6 +94,18 @@ namespace TheraEngine.Worlds.Actors
             }
         }
 
+        public override void OnSpawnedPreComponentSetup(World world)
+        {
+            Hud?.Spawned(world);
+            base.OnSpawnedPreComponentSetup(world);
+        }
+
+        public override void OnDespawned()
+        {
+            Hud?.Despawned();
+            base.OnDespawned();
+        }
+
         public Pawn(bool deferInitialization = false) : base(deferInitialization) { }
         public Pawn(bool deferInitialization, PlayerIndex possessor) : base(deferInitialization) { QueuePossession(possessor); }
         public Pawn(T root, params LogicComponent[] logicComponents)

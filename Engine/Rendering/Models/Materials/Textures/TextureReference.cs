@@ -181,7 +181,7 @@ namespace TheraEngine.Rendering.Models.Materials
             Engine.Renderer.TexParameter(ETexTarget.Texture2D, ETexParamName.TextureMinFilter, (int)_minFilter);
             Engine.Renderer.TexParameter(ETexTarget.Texture2D, ETexParamName.TextureWrapS, (int)_uWrapMode);
             Engine.Renderer.TexParameter(ETexTarget.Texture2D, ETexParamName.TextureWrapT, (int)_vWrapMode);
-            if (_frameBufferAttachment.HasValue)
+            if (_frameBufferAttachment.HasValue && Material != null && Material.HasAttachment(_frameBufferAttachment.Value))
                 Engine.Renderer.AttachTextureToFrameBuffer(EFramebufferTarget.Framebuffer, _frameBufferAttachment.Value, ETexTarget.Texture2D, _texture.BindingId, 0);
         }
 
@@ -200,6 +200,8 @@ namespace TheraEngine.Rendering.Models.Materials
                 return _texture;
             }
         }
+
+        public Material Material { get; internal set; }
 
         /// <summary>
         /// Resizes the textures stored in memory.

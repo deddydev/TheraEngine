@@ -8,9 +8,11 @@ namespace TheraEngine.Rendering.HUD
 {
     public partial class HudManager : Pawn<DockableHudComponent>
     {
-        protected Vec2 _cursorPos = Vec2.Zero;
+        private Vec2 _cursorPos = Vec2.Zero;
         private HudComponent _focusedComponent;
-        
+
+        public Vec2 CursorPosition => _cursorPos;
+
         protected override DockableHudComponent OnConstruct()
         {
             return new DockableHudComponent();

@@ -12,9 +12,12 @@ namespace TheraEngine.Worlds.Actors
         Matrix4 InverseWorldMatrix { get; }
         MonitoredList<SceneComponent> ChildComponents { get; }
 
+#if EDITOR
+        bool Selected { get; set; }
         void HandleTranslation(Vec3 delta);
         void HandleScale(Vec3 delta);
         void HandleRotation(Quat delta);
+#endif
     }
     public abstract class SceneComponent : Component, ISocket
     {
@@ -273,6 +276,21 @@ namespace TheraEngine.Worlds.Actors
         [Browsable(false)]
         public Matrix4 PreviousInverseWorldTransform { get => _previousInverseWorldTransform; set => _previousInverseWorldTransform = value; }
 
+        private bool _selected;
+        public bool Selected
+        {
+            get => _selected;
+            set
+            {
+                _selected = value;
+                //if (this is IPhysicsDrivable p && p.PhysicsDriver != null)
+                //    p.PhysicsDriver.SimulatingPhysics = false;
+            }
+        }
+        public abstract void HandleTranslation(Vec3 delta);
+        public abstract void HandleScale(Vec3 delta);
+        public abstract void HandleRotation(Quat delta);
+
         protected internal abstract void OriginRebased(Vec3 newOrigin);
         public override void OnSpawned()
         {
@@ -393,9 +411,5 @@ namespace TheraEngine.Worlds.Actors
         {
             component.ChildComponents.Add(this);
         }
-
-        public abstract void HandleTranslation(Vec3 delta);
-        public abstract void HandleScale(Vec3 delta);
-        public abstract void HandleRotation(Quat delta);
     }
 }

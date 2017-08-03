@@ -36,7 +36,7 @@ namespace TheraEngine.Worlds.Actors
 
         public override void HandleTranslation(Vec3 delta)
         {
-
+            Translation.Raw += delta;
         }
         public override void HandleScale(Vec3 delta) { }
         public override void HandleRotation(Quat delta) { }

@@ -65,6 +65,22 @@ namespace System
         }
 
         public ColorF4(float r, float g, float b, float a) { R = r; G = g; B = b; A = a; }
+        public ColorF4(string s)
+        {
+            R = G = B = 0.0f;
+            A = 1.0f;
+
+            char[] delims = new char[] { ',', 'R', 'G', 'B', 'A', ':', ' ', '[', ']' };
+            string[] arr = s.Split(delims, StringSplitOptions.RemoveEmptyEntries);
+
+            if (arr.Length >= 4)
+            {
+                float.TryParse(arr[0], NumberStyles.Any, CultureInfo.InvariantCulture, out R);
+                float.TryParse(arr[1], NumberStyles.Any, CultureInfo.InvariantCulture, out G);
+                float.TryParse(arr[2], NumberStyles.Any, CultureInfo.InvariantCulture, out B);
+                float.TryParse(arr[3], NumberStyles.Any, CultureInfo.InvariantCulture, out A);
+            }
+        }
 
         [Browsable(false)]
         public float* Data { get { return (float*)Address; } }

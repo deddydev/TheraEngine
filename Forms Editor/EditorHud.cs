@@ -11,6 +11,7 @@ using TheraEngine.Rendering.Models.Materials;
 using System.Drawing;
 using System.Windows.Forms;
 using System.ComponentModel;
+using TheraEngine.Worlds;
 
 namespace TheraEditor
 {
@@ -122,8 +123,8 @@ namespace TheraEditor
         protected override void OnMouseMove(float x, float y)
         {
             base.OnMouseMove(x, y);
-            HighlightScene(false);
         }
+
         protected void OnMouseDown()
         {
             if (!_mouseDown)
@@ -141,12 +142,26 @@ namespace TheraEditor
             else
                 MouseDown();
         }
+        public override void OnSpawnedPostComponentSetup(World world)
+        {
+            base.OnSpawnedPostComponentSetup(world);
+            RegisterTick(ETickGroup.PostPhysics, ETickOrder.Scene, HighlightScene);
+        }
+        public override void OnDespawned()
+        {
+            base.OnDespawned();
+            UnregisterTick(ETickGroup.PostPhysics, ETickOrder.Scene, HighlightScene);
+        }
+        private void HighlightScene(float delta)
+        {
+            HighlightScene(false);
+        }
         private void HighlightScene(bool gamepad)
         {
             Viewport v = OwningPawn?.LocalPlayerController?.Viewport;
             if (v != null)
             {
-                Vec2 viewportPoint = /*gamepad ? v.Center : */v.AbsoluteToRelative(_cursorPos);
+                Vec2 viewportPoint = /*gamepad ? v.Center : */v.AbsoluteToRelative(CursorPosition);
                 HighlightScene(v, viewportPoint);
             }
         }
@@ -155,7 +170,14 @@ namespace TheraEditor
             if (_selectedComponent != null)
             {
                 Ray cursor = v.GetWorldRay(viewportPoint);
-                if (_currentConstraint != null)
+                if (EditorTransformTool3D.Instance != null)
+                {
+                    if (EditorTransformTool3D.Instance.MouseMove(cursor, v.Camera, _mouseDown))
+                    {
+                        return;
+                    }
+                }
+                else if (_currentConstraint != null)
                     _currentConstraint.PivotInB = cursor.StartPoint + cursor.Direction * _hitDistance;
             }
             else
@@ -252,7 +274,7 @@ namespace TheraEditor
 
             private Material _material;
 
-            public const int CirclePrecision = 30;
+            public const int CirclePrecision = 20;
             public static readonly Color Color = Color.LimeGreen;
 
             private PrimitiveManager _circlePrimitive;

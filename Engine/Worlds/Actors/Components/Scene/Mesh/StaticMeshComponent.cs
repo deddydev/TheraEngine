@@ -68,18 +68,26 @@ namespace TheraEngine.Worlds.Actors
             item.RecalcGlobalTransform();
             //_owner?.GenerateSceneComponentCache();
         }
-
+        private bool _selected;
+        public bool Selected
+        {
+            get => _selected;
+            set
+            {
+                _selected = value;
+            }
+        }
         public void HandleTranslation(Vec3 delta)
         {
             _transform.Translation += delta;
         }
         public void HandleScale(Vec3 delta)
         {
-
+            _transform.Scale += delta;
         }
         public void HandleRotation(Quat delta)
         {
-
+            _transform.Quaternion *= delta;
         }
     }
     public partial class StaticMeshComponent : TRSComponent, IPhysicsDrivable
@@ -180,7 +188,7 @@ namespace TheraEngine.Worlds.Actors
         }
         protected internal override void OriginRebased(Vec3 newOrigin)
         {
-            Translation -= newOrigin;
+            Translation.Raw -= newOrigin;
         }
     }
 }

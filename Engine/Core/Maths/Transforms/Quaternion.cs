@@ -173,6 +173,13 @@ namespace System
             return q;
         }
         /// <summary>
+        /// Returns a quat that rotates from the first quat to the second quat: from * returned = to
+        /// </summary>
+        public static Quat DeltaRotation(Quat from, Quat to)
+        {
+            return from.Inverted() * to;
+        }
+        /// <summary>
         /// Returns a quaternion containing the rotation from one vector direction to another.
         /// </summary>
         /// <param name="initialVector">The starting vector</param>

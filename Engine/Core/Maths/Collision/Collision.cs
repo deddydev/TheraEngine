@@ -1152,6 +1152,14 @@
         }
         public static EContainment FrustumContainsSphere(Frustum frustum, Vec3 center, float radius)
         {
+            //if (frustum.UseBoundingSphere)
+            //{
+            //    EContainment c = SphereContainsSphere(frustum.BoundingSphere.Center, frustum.BoundingSphere.Radius, center, radius);
+            //    if (c == EContainment.Disjoint)
+            //        return EContainment.Disjoint;
+            //    //If the bounding sphere intersects, could intersect the frustum or be disjoint with the frustum, so more checks needed
+            //}
+
             float distance;
             EContainment type = EContainment.Contains;
             foreach (Plane p in frustum)
@@ -1166,6 +1174,14 @@
         }
         public static EContainment FrustumContainsBox1(Frustum frustum, Vec3 boxHalfExtents, Matrix4 boxTransform)
         {
+            //if (frustum.UseBoundingSphere)
+            //{
+            //    EContainment c = SphereContainsBox(frustum.BoundingSphere.Center, frustum.BoundingSphere.Radius, boxHalfExtents, boxTransform);
+            //    if (c == EContainment.Disjoint)
+            //        return EContainment.Disjoint;
+            //    //If the bounding sphere intersects, could intersect the frustum or be disjoint with the frustum, so more checks needed
+            //}
+
             EContainment result = EContainment.Contains;
             int numOut, numIn;
             Vec3[] corners = BoundingBox.GetCorners(boxHalfExtents, boxTransform);
@@ -1187,6 +1203,14 @@
         }
         public static EContainment AABBContainsFrustum(Vec3 boxMin, Vec3 boxMax, Frustum frustum)
         {
+            //if (frustum.UseBoundingSphere)
+            //{
+            //    EContainment c = AABBContainsSphere(boxMin, boxMax, frustum.BoundingSphere.Center, frustum.BoundingSphere.Radius);
+            //    if (c == EContainment.Disjoint)
+            //        return EContainment.Disjoint;
+            //    //If the bounding sphere intersects, could intersect the frustum or be disjoint with the frustum, so more checks needed
+            //}
+
             int numIn = 0, numOut = 0;
             foreach (Vec3 v in frustum.Points)
                 if (AABBContainsPoint(boxMin, boxMax, v))

@@ -2,6 +2,9 @@
 using TheraEngine.Input.Devices;
 using System;
 using System.ComponentModel;
+using TheraEngine.Rendering;
+using BulletSharp;
+using TheraEngine.Rendering.Cameras;
 
 namespace TheraEngine.Worlds.Actors
 {
@@ -58,7 +61,6 @@ namespace TheraEngine.Worlds.Actors
         float _pitch = 0.0f, _yaw = 0.0f;
 
         bool _ctrl = false, _alt = false, _shift = false, _rightClickPressed = false;
-        Vec2 _cursorPos = Vec2.Zero;
 
         [Browsable(false)]
         bool Rotating => _rightClickPressed && _ctrl;
@@ -178,9 +180,20 @@ namespace TheraEngine.Worlds.Actors
                 Camera_TransformChanged();
             }
         }
-        
+
+        Vec3? _hitPoint;
+
         private void OnRightClick(bool pressed)
-            => _rightClickPressed = pressed;
+        {
+            _rightClickPressed = pressed;
+            Viewport v = LocalPlayerController.Viewport;
+            Vec2 viewportPoint = v.AbsoluteToRelative(Hud.CursorPosition);
+            ClosestRayResultCallback c = Engine.RaycastClosest(v.GetWorldSegment(viewportPoint));
+            if (c.HasHit)
+                _hitPoint = c.HitPointWorld;
+            else
+                _hitPoint = null;
+        }
         
         //private void ExecuteCombo(EMouseButton button, bool pressed)
         //{
@@ -198,7 +211,18 @@ namespace TheraEngine.Worlds.Actors
             }
             else if (Translating)
             {
-                RootComponent.Camera.TranslateRelative(new Vec3(-x * MouseTranslateSpeed, y * MouseTranslateSpeed, 0.0f));
+                if (_hitPoint != null)
+                {
+                    PerspectiveCamera c = RootComponent.Camera as PerspectiveCamera;
+                    Vec3 v = c._projectionRange * (((_hitPoint.Value * (c.ProjectionMatrix * c.WorldToCameraSpaceMatrix)) + 1.0f) / 2.0f);
+                    v.X += -x;
+                    v.Y += y;
+                    Vec3 newPoint = ((v / c._projectionRange) * 2.0f - 1.0f) * (c.CameraToWorldSpaceMatrix * c.InverseProjectionMatrix);
+                    Vec3 diff = newPoint - _hitPoint.Value;
+                    RootComponent.Camera.TranslateAbsolute(diff);
+                }
+                else
+                    RootComponent.Camera.TranslateRelative(new Vec3(-x * MouseTranslateSpeed, y * MouseTranslateSpeed, 0.0f));
                 Camera_TransformChanged();
             }
         }

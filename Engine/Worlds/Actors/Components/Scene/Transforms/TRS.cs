@@ -54,5 +54,9 @@ namespace TheraEngine.Worlds.Actors
             localTransform = t * r * s;
             inverseLocalTransform = iS * ir * it;
         }
+        public override void HandleScale(Vec3 delta)
+        {
+            _scale.Raw += delta;
+        }
     }
 }

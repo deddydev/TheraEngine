@@ -8,9 +8,9 @@ namespace TheraEngine.Rendering.Cameras
 {
     public class PostSettings
     {
-        private bool _enabled;
+        //private bool _enabled;
 
-        public bool Enabled { get => _enabled; set => _enabled = value; }
+        //public bool Enabled { get => _enabled; set => _enabled = value; }
     }
     [FileClass("POSTP", "Camera Post-Processing Settings")]
     [TypeConverter(typeof(ExpandableObjectConverter))]
@@ -91,15 +91,18 @@ namespace TheraEngine.Rendering.Cameras
     public class VignetteSettings : PostSettings
     {
         private ColorF4 _color = System.Drawing.Color.Black;
-        private float _intensity = 1.0f;
+        private float _intensity = 15.0f;
+        private float _power = 0.0f;
 
         public ColorF4 Color { get => _color; set => _color = value; }
         public float Intensity { get => _intensity; set => _intensity = value; }
-
+        public float Power { get => _power; set => _power = value; }
+        
         internal void SetUniforms(int programBindingId)
         {
             Engine.Renderer.ProgramUniform(programBindingId, "Vignette.Color", Color);
             Engine.Renderer.ProgramUniform(programBindingId, "Vignette.Intensity", Intensity);
+            Engine.Renderer.ProgramUniform(programBindingId, "Vignette.Power", Power);
         }
 
         internal static string WriteShaderSetup()
@@ -109,6 +112,7 @@ struct VignetteStruct
 {
     vec4 Color;
     float Intensity;
+    float Power;
 };
 uniform VignetteStruct Vignette;";
         }

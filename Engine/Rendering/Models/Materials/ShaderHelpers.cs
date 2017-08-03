@@ -281,10 +281,13 @@ uniform SpotLight SpotLights[16];
 //0 is fully in shadow, 1 is fully lit
 float ReadShadowMap(in vec3 fragPos, in vec3 normal, in float diffuseFactor, in BaseLight light)
 {
+    float maxBias = 0.05;
+    float minBias = 0.004;
+
     vec4 fragPosLightSpace = light.WorldToLightSpaceProjMatrix * vec4(fragPos, 1.0);
     vec3 fragCoord = fragPosLightSpace.xyz / fragPosLightSpace.w;
     fragCoord = fragCoord * vec3(0.5) + vec3(0.5);
-    float bias = max(0.08 * -diffuseFactor, 0.0004);
+    float bias = max(maxBias * -diffuseFactor, minBias);
 
     float shadow = 0.0;
     vec2 texelSize = 1.0 / textureSize(light.ShadowMap, 0);

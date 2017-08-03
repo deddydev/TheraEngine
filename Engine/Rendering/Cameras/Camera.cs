@@ -266,6 +266,9 @@ namespace TheraEngine.Rendering.Cameras
             => ScreenToWorld(point.X, point.Y, depth);
         public Vec3 ScreenToWorld(float x, float y, float depth)
             => ScreenToWorld(new Vec3(x, y, depth));
+        /// <summary>
+        /// Takes an X, Y coordinate relative to the camera's Origin, with Z being the normalized depth from NearDepth to FarDepth, and returns a position in the world.
+        /// </summary>
         public Vec3 ScreenToWorld(Vec3 screenPoint)
             => ((screenPoint / _projectionRange) * 2.0f - 1.0f) * (CameraToWorldSpaceMatrix * InverseProjectionMatrix);
         

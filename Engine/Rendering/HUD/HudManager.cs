@@ -26,9 +26,20 @@ namespace TheraEngine.Rendering.HUD
             set => _visible = value;
         }
 
-        public IPawn OwningPawn { get => _owningPawn; internal set => _owningPawn = value; }
+        public IPawn OwningPawn
+        {
+            get => _owningPawn;
+            set
+            {
+                if (_owningPawn != null && _owningPawn.IsSpawned)
+                    Despawned();
+                _owningPawn = value;
+                if (_owningPawn != null && _owningPawn.IsSpawned)
+                    Spawned(Engine.World);
+            }
+        }
 
-        public HudManager()
+        public HudManager() : base()
         {
             _camera = new OrthographicCamera();
             _childComponentTree = new Quadtree(Vec2.Zero);

@@ -358,6 +358,7 @@ namespace TheraEngine.Rendering
 
                         //Render forward opaque objects first
                         scene.Render(ERenderPassType3D.OpaqueForward);
+                        Engine.World.PhysicsScene.DebugDrawWorld();
                         //Render forward transparent objects next
                         scene.Render(ERenderPassType3D.TransparentForward);
                         //Render forward on-top objects last
@@ -531,6 +532,8 @@ namespace TheraEngine.Rendering
             distance = 0.0f;
             return null;
         }
+
+        #region Viewport Resizing
         /// <summary>
         /// Viewport layout preference for when only two people are playing.
         /// </summary>
@@ -721,6 +724,8 @@ namespace TheraEngine.Rendering
             _leftPercentage = _bottomPercentage = 0.0f;
             _rightPercentage = _topPercentage = 1.0f;
         }
+        #endregion
+
         private class SSAOInfo
         {
             Vec3[] _noise, _kernel;
@@ -781,34 +786,6 @@ namespace TheraEngine.Rendering
                     noise.Normalize();
                     _noise[i] = noise;
                 }
-
-                //ShaderVar[] vars = new ShaderVar[]
-                //{
-
-                //};
-                //TextureReference[] refs = new TextureReference[]
-                //{
-                //    new TextureReference("OutputColor", width, height,
-                //        EPixelInternalFormat.Rgba8, EPixelFormat.Bgra, EPixelType.UnsignedByte)
-                //    {
-                //        MinFilter = ETexMinFilter.Nearest,
-                //        MagFilter = ETexMagFilter.Nearest,
-                //        UWrap = ETexWrapMode.Clamp,
-                //        VWrap = ETexWrapMode.Clamp,
-                //        FrameBufferAttachment = EFramebufferAttachment.ColorAttachment0,
-                //    },
-                //    new TextureReference("SSAONoise", noiseWidth, noiseHeight, EPixelInternalFormat.Rgb16f, EPixelFormat.Rgb, EPixelType.Float, System.Drawing.Imaging.PixelFormat.Alpha)
-                //    {
-                //        MinFilter = ETexMinFilter.Nearest,
-                //        MagFilter = ETexMagFilter.Nearest,
-                //        UWrap = ETexWrapMode.Repeat,
-                //        VWrap = ETexWrapMode.Repeat,
-                //    },
-                //};
-
-                //Material ssaoMat = new Material("SSAOMat", vars, refs, null);
-
-                //_ssaoGBuffer = new QuadFrameBuffer(ssaoMat);
             }
         }
         public enum DepthStencilUse
@@ -828,7 +805,6 @@ namespace TheraEngine.Rendering
 //GBUFFER FRAG SHADER
 
 layout (location = 0) out vec4 OutColor;
-layout (location = 1) out vec4 SSAO_Occlusion;
 in vec3 FragPos;
 
 uniform sampler2D Texture0; //AlbedoSpec
@@ -865,9 +841,9 @@ void main()
     mat3 TBN = mat3(tangent, bitangent, n); 
 
     int kernelSize = 64;
-    float radius = 1.0f;
+    float radius = 0.75f;
     float bias = 0.025;
-    float power = 2.0;
+    float power = 4.0;
 
     float occlusion = 0.0f;
     for (int i = 0; i < kernelSize; ++i)
@@ -918,22 +894,19 @@ void main()
 
     //Color grading
     hdrSceneColor *= ColorGrade.Tint;
-
     vec3 hsv = RGBtoHSV(hdrSceneColor);
     hsv.x *= ColorGrade.Hue;
     hsv.y *= ColorGrade.Saturation;
     hsv.z *= ColorGrade.Brightness;
     hdrSceneColor = HSVtoRGB(hsv);
-
+    hdrSceneColor = (hdrSceneColor - 0.5) * ColorGrade.Contrast + 0.5;
     //Tone mapping
     vec3 ldrSceneColor = vec3(1.0) - exp(-hdrSceneColor * ColorGrade.Exposure);
-
-    ldrSceneColor = clamp((ldrSceneColor - 0.5) * ColorGrade.Contrast + 0.5, 0.0, 1.0);
     
     //Vignette
-    //float alpha = clamp(pow(distance(uv, vec2(0.5)), Vignette.Intensity), 0.0, 1.0);
-    //vec4 smoothed = smoothstep(vec4(1.0), Vignette.Color, Vignette.Color * vec4(alpha));
-    //ldrSceneColor = mix(ldrSceneColor, smoothed.rgb, alpha * smoothed.a);
+    uv *= 1.0 - uv.yx;
+    float vig = uv.x * uv.y * Vignette.Intensity;
+    ldrSceneColor *= pow(vig, Vignette.Power);
 
     //Gamma-correct
     vec3 gammaCorrected = pow(ldrSceneColor, vec3(1.0 / ColorGrade.Gamma));

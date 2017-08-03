@@ -31,7 +31,7 @@ namespace TheraEngine.Worlds.Actors.Types
         private Material[] _axisMat = new Material[3];
         private Material _screenMat;
         private Bone _rootBone;
-        private ESpace _transformSpace = ESpace.Local;
+        private ESpace _transformSpace = ESpace.World;
         protected override SkeletalMeshComponent OnConstruct()
         {
             SkeletalMesh mesh = new SkeletalMesh("TransformTool");
@@ -46,7 +46,7 @@ namespace TheraEngine.Worlds.Actors.Types
             };
             Bone screen = new Bone(screenBoneName)
             {
-                BillboardType = BillboardType.PerspectiveXYZ
+                BillboardType = BillboardType.RotationXYZ
             };
             _rootBone.ChildBones.Add(screen);
             Skeleton skel = new Skeleton(_rootBone);
@@ -164,7 +164,7 @@ namespace TheraEngine.Worlds.Actors.Types
             return new SkeletalMeshComponent(mesh, skel);
         }
         
-        private TransformType _mode;
+        private TransformType _mode = TransformType.Translate;
         private ISocket _targetSocket = null;
 
         public TransformType TransformMode
@@ -209,12 +209,26 @@ namespace TheraEngine.Worlds.Actors.Types
             get => _targetSocket;
             set
             {
+                if (_targetSocket != null)
+                    _targetSocket.Selected = false;
                 _targetSocket = value;
                 if (_targetSocket != null)
-                    RootComponent.WorldMatrix = _targetSocket.WorldMatrix;
+                {
+                    _targetSocket.Selected = true;
+                    RootComponent.WorldMatrix = GetWorldMatrix();
+                }
                 else
                     RootComponent.WorldMatrix = Matrix4.Identity;
             }
+        }
+
+        private Matrix4 GetWorldMatrix()
+        {
+            return _targetSocket.WorldMatrix.GetPoint().AsTranslationMatrix();
+        }
+        private Matrix4 GetLocalMatrix()
+        {
+            return _targetSocket.WorldMatrix;
         }
         
         public static EditorTransformTool3D Instance => _currentInstance;
@@ -271,24 +285,121 @@ namespace TheraEngine.Worlds.Actors.Types
         private const float _scaleHalf2LDist = _orbRadius * 1.2f;
         private List<Vec3> _intersectionPoints = new List<Vec3>(3);
         
+        Vec3 _lastPoint;
+        Vec3 _dragPlaneNormal;
+
         private DelDrag _drag;
         private DelHighlight _highlight;
         private delegate bool DelHighlight(Camera camera, Ray localRay);
         private delegate void DelDrag(Vec3 dragPoint);
+        private delegate void DelDragRot(Quat dragPoint);
 
         #region Drag
         private void DragRotation(Vec3 dragPoint)
         {
-            
+            Quat delta = Quat.BetweenVectors(_lastPoint, dragPoint);
+            _targetSocket.HandleRotation(delta);
         }
         private void DragTranslation(Vec3 dragPoint)
         {
-            Vec3 diff = dragPoint - _lastPoint;
-            _targetSocket.HandleTranslation(diff);
+            Vec3 delta = dragPoint - _lastPoint;
+            _targetSocket.HandleTranslation(delta);
         }
         private void DragScale(Vec3 dragPoint)
         {
-            
+            Vec3 delta = dragPoint - _lastPoint;
+            _targetSocket.HandleScale(delta);
+        }
+        /// <summary>
+        /// Returns a point relative to the local space of the target socket (origin at 0,0,0), clamped to the highlighted drag plane.
+        /// </summary>
+        /// <param name="camera">The camera viewing this tool, used for camera space drag clamping.</param>
+        /// <param name="localRay">The mouse ray, transformed into the socket's local space.</param>
+        /// <returns></returns>
+        private Vec3 GetDragPoint(Camera camera, Ray localRay)
+        {
+            Vec3 point = RootComponent.GetWorldPoint();
+            Vec3 cameraPoint = camera.WorldPoint;
+            Vec3 dragPoint, unit;
+            if (_hiCam)
+            {
+                _dragPlaneNormal = cameraPoint - point;
+                _dragPlaneNormal.NormalizeFast();
+            }
+            else if (_hiAxis.X)
+            {
+                if (_hiAxis.Y)
+                {
+                    _dragPlaneNormal = Vec3.UnitZ;
+                }
+                else if (_hiAxis.Z)
+                {
+                    _dragPlaneNormal = Vec3.UnitY;
+                }
+                else
+                {
+                    unit = Vec3.UnitX;
+                    Vec3 perpPoint = Ray.GetClosestColinearPoint(point, unit, cameraPoint);
+                    _dragPlaneNormal = cameraPoint - perpPoint;
+                    _dragPlaneNormal.NormalizeFast();
+
+                    if (!Collision.RayIntersectsPlane(localRay.StartPoint, localRay.Direction, point, _dragPlaneNormal, out dragPoint))
+                        return _lastPoint;
+
+                    return Ray.GetClosestColinearPoint(point, unit, dragPoint);
+                }
+            }
+            else if (_hiAxis.Y)
+            {
+                if (_hiAxis.X)
+                {
+                    _dragPlaneNormal = Vec3.UnitZ;
+                }
+                else if (_hiAxis.Z)
+                {
+                    _dragPlaneNormal = Vec3.UnitX;
+                }
+                else
+                {
+                    unit = Vec3.UnitY;
+                    Vec3 perpPoint = Ray.GetClosestColinearPoint(point, unit, cameraPoint);
+                    _dragPlaneNormal = cameraPoint - perpPoint;
+                    _dragPlaneNormal.NormalizeFast();
+
+                    if (!Collision.RayIntersectsPlane(localRay.StartPoint, localRay.Direction, point, _dragPlaneNormal, out dragPoint))
+                        return _lastPoint;
+
+                    return Ray.GetClosestColinearPoint(point, unit, dragPoint);
+                }
+            }
+            else if (_hiAxis.Z)
+            {
+                if (_hiAxis.X)
+                {
+                    _dragPlaneNormal = Vec3.UnitY;
+                }
+                else if (_hiAxis.Y)
+                {
+                    _dragPlaneNormal = Vec3.UnitX;
+                }
+                else
+                {
+                    unit = Vec3.UnitZ;
+                    Vec3 perpPoint = Ray.GetClosestColinearPoint(point, unit, cameraPoint);
+                    _dragPlaneNormal = cameraPoint - perpPoint;
+                    _dragPlaneNormal.NormalizeFast();
+
+                    if (!Collision.RayIntersectsPlane(localRay.StartPoint, localRay.Direction, point, _dragPlaneNormal, out dragPoint))
+                        return _lastPoint;
+
+                    return Ray.GetClosestColinearPoint(point, unit, dragPoint);
+                }
+            }
+
+            if (Collision.RayIntersectsPlane(localRay.StartPoint, localRay.Direction, point, _dragPlaneNormal, out dragPoint))
+                return dragPoint;
+
+            return _lastPoint;
         }
         #endregion
 
@@ -335,10 +446,9 @@ namespace TheraEngine.Worlds.Actors.Types
 
             return _hiAxis.Any || _hiCam || _hiSphere;
         }
-        private bool HighlightTranslation(Camera camera, Ray cursor)
+        private bool HighlightTranslation(Camera camera, Ray localRay)
         {
             Vec3 worldPoint = RootComponent.GetWorldPoint();
-            Ray localRay = cursor.TransformedBy(RootComponent.InverseWorldMatrix);
             float radius = camera.DistanceScale(worldPoint, _orbRadius);
 
             _intersectionPoints.Clear();
@@ -386,10 +496,8 @@ namespace TheraEngine.Worlds.Actors.Types
                         _hiCam = _hiAxis.None;
 
                         snapFound = true;
-                    }
-
-                    if (snapFound)
                         break;
+                    }
                 }
             }
 
@@ -464,110 +572,25 @@ namespace TheraEngine.Worlds.Actors.Types
         }
         #endregion
 
-        Vec3 _lastPoint;
-        Vec3 _dragPlaneNormal;
-
-        private Vec3 GetDragPoint(Camera camera, Ray localRay)
-        {
-            Vec3 point = RootComponent.GetWorldPoint();
-            Vec3 cameraPoint = camera.WorldPoint;
-            Vec3 dragPoint, unit;
-            if (_hiCam)
-            {
-                _dragPlaneNormal = cameraPoint - point;
-                _dragPlaneNormal.NormalizeFast();
-            }
-            else if (_hiAxis.X)
-            {
-                if (_hiAxis.Y)
-                {
-                    _dragPlaneNormal = Vec3.UnitZ;
-                }
-                if (_hiAxis.Z)
-                {
-                    _dragPlaneNormal = Vec3.UnitY;
-                }
-                else
-                {
-                    unit = Vec3.UnitX;
-                    Vec3 perpPoint = Ray.GetClosestColinearPoint(point, unit, cameraPoint);
-                    _dragPlaneNormal = cameraPoint - perpPoint;
-                    _dragPlaneNormal.NormalizeFast();
-
-                    if (!Collision.RayIntersectsPlane(localRay.StartPoint, localRay.Direction, point, _dragPlaneNormal, out dragPoint))
-                        return _lastPoint;
-
-                    return Ray.GetClosestColinearPoint(point, unit, dragPoint);
-                }
-            }
-            else if (_hiAxis.Y)
-            {
-                if (_hiAxis.X)
-                {
-                    _dragPlaneNormal = Vec3.UnitZ;
-                }
-                if (_hiAxis.Z)
-                {
-                    _dragPlaneNormal = Vec3.UnitX;
-                }
-                else
-                {
-                    unit = Vec3.UnitY;
-                    Vec3 perpPoint = Ray.GetClosestColinearPoint(point, unit, cameraPoint);
-                    _dragPlaneNormal = cameraPoint - perpPoint;
-                    _dragPlaneNormal.NormalizeFast();
-
-                    if (!Collision.RayIntersectsPlane(localRay.StartPoint, localRay.Direction, point, _dragPlaneNormal, out dragPoint))
-                        return _lastPoint;
-
-                    return Ray.GetClosestColinearPoint(point, unit, dragPoint);
-                }
-            }
-            else if (_hiAxis.Z)
-            {
-                if (_hiAxis.X)
-                {
-                    _dragPlaneNormal = Vec3.UnitY;
-                }
-                if (_hiAxis.Y)
-                {
-                    _dragPlaneNormal = Vec3.UnitX;
-                }
-                else
-                {
-                    unit = Vec3.UnitZ;
-                    Vec3 perpPoint = Ray.GetClosestColinearPoint(point, unit, cameraPoint);
-                    _dragPlaneNormal = cameraPoint - perpPoint;
-                    _dragPlaneNormal.NormalizeFast();
-
-                    if (!Collision.RayIntersectsPlane(localRay.StartPoint, localRay.Direction, point, _dragPlaneNormal, out dragPoint))
-                        return _lastPoint;
-
-                    return Ray.GetClosestColinearPoint(point, unit, dragPoint);
-                }
-            }
-
-            if (Collision.RayIntersectsPlane(localRay.StartPoint, localRay.Direction, point, _dragPlaneNormal, out dragPoint))
-                return dragPoint;
-
-            return _lastPoint;
-        }
-
         /// <summary>
         /// Returns true if intersecting one of the transform tool's various parts.
         /// </summary>
         public bool MouseMove(Ray cursor, Camera camera, bool pressed)
         {
             bool snapFound = true;
-            Ray localRay = cursor.TransformedBy(RootComponent.InverseWorldMatrix);
             if (pressed)
             {
+                if (_hiAxis.None && !_hiCam && !_hiSphere)
+                    return false;
+                Ray localRay = cursor.TransformedBy(RootComponent.InverseWorldMatrix);
                 Vec3 dragPoint = GetDragPoint(camera, localRay);
                 _drag(dragPoint);
                 _lastPoint = dragPoint;
             }
             else
             {
+                Ray localRay = cursor.TransformedBy(RootComponent.InverseWorldMatrix);
+
                 _hiAxis.X = _hiAxis.Y = _hiAxis.Z = false;
                 _hiCam = _hiSphere = false;
 

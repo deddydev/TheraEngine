@@ -91,13 +91,17 @@ namespace TheraEngine.Rendering
         public void ResizeTextures(int width, int height) => Material?.ResizeTextures(width, height);
         public void Compile()
         {
+            Compile(Material.FboAttachments);
+        }
+        public void Compile(EDrawBuffersAttachment[] attachments)
+        {
             if (Material == null)
                 return;
             if (RenderPanel.NeedsInvoke(Compile, RenderPanel.PanelType.Game))
                 return;
             Engine.Renderer.BindFrameBuffer(EFramebufferTarget.Framebuffer, BindingId);
             Material.GenerateTextures();
-            Engine.Renderer.SetDrawBuffers(Material.FboAttachments);
+            Engine.Renderer.SetDrawBuffers(attachments);
             CheckErrors();
             Engine.Renderer.BindFrameBuffer(EFramebufferTarget.Framebuffer, 0);
             _compiled = true;

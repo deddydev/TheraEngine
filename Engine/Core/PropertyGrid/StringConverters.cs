@@ -57,13 +57,13 @@ namespace System
     public class ColorF4StringConverter : TypeConverter
     {
         public override bool CanConvertTo(ITypeDescriptorContext context, Type destinationType)
-            => destinationType == typeof(ColorF3);
+            => destinationType == typeof(ColorF4);
         public override object ConvertTo(ITypeDescriptorContext context, CultureInfo culture, object value, Type destinationType)
             => value.ToString();
 
         public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType)
             => sourceType == typeof(string);
         public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value)
-            => new ColorF3(value.ToString());
+            => new ColorF4(value.ToString());
     }
 }

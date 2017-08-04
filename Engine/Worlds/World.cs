@@ -131,9 +131,9 @@ namespace TheraEngine.Worlds
                 //DebugDrawModes.DrawAabb | 
                 DebugDrawModes.DrawConstraints | 
                 DebugDrawModes.DrawConstraintLimits | 
-                DebugDrawModes.DrawContactPoints | 
+                DebugDrawModes.DrawContactPoints// | 
                 //DebugDrawModes.DrawWireframe |
-                DebugDrawModes.FastWireframe
+                //DebugDrawModes.FastWireframe
             };
             //_physicsScene.DispatchInfo.UseContinuous = true;
             //_physicsScene.DispatchInfo.AllowedCcdPenetration = 0.1f;

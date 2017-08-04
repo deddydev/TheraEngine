@@ -64,8 +64,8 @@ namespace TheraEngine.Worlds.Actors
                 _worldTransform = value;
                 _inverseWorldTransform = _worldTransform.Inverted();
 
-                _localTransform = GetInverseParentMatrix() * WorldMatrix;
-                _inverseLocalTransform = InverseWorldMatrix * GetParentMatrix();
+                _localTransform = WorldMatrix * GetInverseParentMatrix();
+                _inverseLocalTransform = GetParentMatrix() * InverseWorldMatrix;
                 
                 OnWorldTransformChanged();
             }

@@ -202,12 +202,15 @@ namespace TheraEngine.Rendering.Models.Materials
         }
 
         public Material Material { get; internal set; }
+        public bool DoNotResize { get; internal set; }
 
         /// <summary>
         /// Resizes the textures stored in memory.
         /// </summary>
         public void Resize(int width, int height)
         {
+            if (DoNotResize)
+                return;
             _width = width;
             _height = height;
             Texture?.Resize(width, height);

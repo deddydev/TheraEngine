@@ -272,7 +272,6 @@ namespace TheraEngine.Worlds.Actors.Types
                 {
                     _targetSocket.Selected = true;
                     RootComponent.WorldMatrix = GetWorldMatrix();
-
                 }
                 else
                     RootComponent.WorldMatrix = Matrix4.Identity;
@@ -284,6 +283,10 @@ namespace TheraEngine.Worlds.Actors.Types
         private Matrix4 GetWorldMatrix()
         {
             return _targetSocket.WorldMatrix.GetPoint().AsTranslationMatrix();
+        }
+        private Matrix4 GetInvWorldMatrix()
+        {
+            return _targetSocket.InverseWorldMatrix.GetPoint().AsTranslationMatrix();
         }
         private Matrix4 GetLocalMatrix()
         {
@@ -307,11 +310,11 @@ namespace TheraEngine.Worlds.Actors.Types
         public override void OnSpawnedPreComponentSetup(World world)
         {
             _currentInstance = this;
-            //Engine.Scene.Add(this);
+            Engine.Scene.Add(this);
         }
         public override void OnDespawned()
         {
-            //Engine.Scene.Remove(this);
+            Engine.Scene.Remove(this);
             base.OnDespawned();
             _currentInstance = null;
         }
@@ -371,12 +374,13 @@ namespace TheraEngine.Worlds.Actors.Types
         /// <returns></returns>
         private Vec3 GetDragPoint(Camera camera, Ray localRay)
         {
-            Vec3 point = _dragMatrix.GetPoint();
-            Vec3 cameraPoint = camera.WorldPoint;
+            //Convert all coordinates to local space
+
+            Vec3 localCamPoint = camera.WorldPoint * _invDragMatrix;
             Vec3 dragPoint, unit;
             if (_hiCam)
             {
-                _dragPlaneNormal = cameraPoint - point;
+                _dragPlaneNormal = localCamPoint;
                 _dragPlaneNormal.NormalizeFast();
             }
             else if (_hiAxis.X)
@@ -392,14 +396,14 @@ namespace TheraEngine.Worlds.Actors.Types
                 else
                 {
                     unit = Vec3.UnitX;
-                    Vec3 perpPoint = Ray.GetClosestColinearPoint(point, unit, cameraPoint);
-                    _dragPlaneNormal = cameraPoint - perpPoint;
+                    Vec3 perpPoint = Ray.GetClosestColinearPoint(Vec3.Zero, unit, localCamPoint);
+                    _dragPlaneNormal = localCamPoint - perpPoint;
                     _dragPlaneNormal.NormalizeFast();
 
-                    if (!Collision.RayIntersectsPlane(localRay.StartPoint, localRay.Direction, point, _dragPlaneNormal, out dragPoint))
+                    if (!Collision.RayIntersectsPlane(localRay.StartPoint, localRay.Direction, Vec3.Zero, _dragPlaneNormal, out dragPoint))
                         return _lastPoint;
 
-                    return Ray.GetClosestColinearPoint(point, unit, dragPoint);
+                    return Ray.GetClosestColinearPoint(Vec3.Zero, unit, dragPoint);
                 }
             }
             else if (_hiAxis.Y)
@@ -415,14 +419,14 @@ namespace TheraEngine.Worlds.Actors.Types
                 else
                 {
                     unit = Vec3.UnitY;
-                    Vec3 perpPoint = Ray.GetClosestColinearPoint(point, unit, cameraPoint);
-                    _dragPlaneNormal = cameraPoint - perpPoint;
+                    Vec3 perpPoint = Ray.GetClosestColinearPoint(Vec3.Zero, unit, localCamPoint);
+                    _dragPlaneNormal = localCamPoint - perpPoint;
                     _dragPlaneNormal.NormalizeFast();
 
-                    if (!Collision.RayIntersectsPlane(localRay.StartPoint, localRay.Direction, point, _dragPlaneNormal, out dragPoint))
+                    if (!Collision.RayIntersectsPlane(localRay.StartPoint, localRay.Direction, Vec3.Zero, _dragPlaneNormal, out dragPoint))
                         return _lastPoint;
 
-                    return Ray.GetClosestColinearPoint(point, unit, dragPoint);
+                    return Ray.GetClosestColinearPoint(Vec3.Zero, unit, dragPoint);
                 }
             }
             else if (_hiAxis.Z)
@@ -438,18 +442,18 @@ namespace TheraEngine.Worlds.Actors.Types
                 else
                 {
                     unit = Vec3.UnitZ;
-                    Vec3 perpPoint = Ray.GetClosestColinearPoint(point, unit, cameraPoint);
-                    _dragPlaneNormal = cameraPoint - perpPoint;
+                    Vec3 perpPoint = Ray.GetClosestColinearPoint(Vec3.Zero, unit, localCamPoint);
+                    _dragPlaneNormal = localCamPoint - perpPoint;
                     _dragPlaneNormal.NormalizeFast();
 
-                    if (!Collision.RayIntersectsPlane(localRay.StartPoint, localRay.Direction, point, _dragPlaneNormal, out dragPoint))
+                    if (!Collision.RayIntersectsPlane(localRay.StartPoint, localRay.Direction, Vec3.Zero, _dragPlaneNormal, out dragPoint))
                         return _lastPoint;
 
-                    return Ray.GetClosestColinearPoint(point, unit, dragPoint);
+                    return Ray.GetClosestColinearPoint(Vec3.Zero, unit, dragPoint);
                 }
             }
 
-            if (Collision.RayIntersectsPlane(localRay.StartPoint, localRay.Direction, point, _dragPlaneNormal, out dragPoint))
+            if (Collision.RayIntersectsPlane(localRay.StartPoint, localRay.Direction, Vec3.Zero, _dragPlaneNormal, out dragPoint))
                 return dragPoint;
 
             return _lastPoint;
@@ -517,7 +521,7 @@ namespace TheraEngine.Worlds.Actors.Types
                     _intersectionPoints.Add(point);
             }
 
-            _intersectionPoints.Sort((l, r) => l.DistanceToSquared(camera.WorldPoint).CompareTo(r.DistanceToSquared(camera.WorldPoint)));
+            //_intersectionPoints.Sort((l, r) => l.DistanceToSquared(camera.WorldPoint).CompareTo(r.DistanceToSquared(camera.WorldPoint)));
 
             foreach (Vec3 v in _intersectionPoints)
             {
@@ -574,7 +578,7 @@ namespace TheraEngine.Worlds.Actors.Types
                     _intersectionPoints.Add(point);
             }
 
-            _intersectionPoints.Sort((l, r) => l.DistanceToSquared(camera.WorldPoint).CompareTo(r.DistanceToSquared(camera.WorldPoint)));
+            //_intersectionPoints.Sort((l, r) => l.DistanceToSquared(camera.WorldPoint).CompareTo(r.DistanceToSquared(camera.WorldPoint)));
             
             foreach (Vec3 v in _intersectionPoints)
             {
@@ -703,7 +707,10 @@ namespace TheraEngine.Worlds.Actors.Types
         public void Render()
         {
             foreach (Vec3 v in _intersectionPoints)
-                Engine.Renderer.RenderPoint(v * RootComponent.WorldMatrix, Color.Orange);
+                Engine.Renderer.RenderPoint(v * _dragMatrix, Color.Orange);
+            Vec3 dragPoint = _dragMatrix.GetPoint();
+            Engine.Renderer.RenderLine(dragPoint, dragPoint + _dragPlaneNormal * 10.0f, Color.White);
+            Engine.Renderer.RenderPoint(_lastPoint * _dragMatrix, Color.Magenta);
         }
     }
 }

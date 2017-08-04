@@ -178,6 +178,7 @@ namespace TheraEngine.Rendering
                 MagFilter = ETexMagFilter.Nearest,
                 UWrap = ETexWrapMode.Repeat,
                 VWrap = ETexWrapMode.Repeat,
+                DoNotResize = true,
             };
             Bitmap bmp = ssaoNoise.Mipmaps[0].File.Bitmaps[0];
             BitmapData data = bmp.LockBits(new Rectangle(0, 0, _ssaoInfo.NoiseWidth, _ssaoInfo.NoiseHeight), ImageLockMode.WriteOnly, bmp.PixelFormat);

@@ -128,10 +128,12 @@ namespace TheraEngine.Worlds
             {
                 DebugMode = 
                 DebugDrawModes.DrawNormals | 
-                DebugDrawModes.DrawAabb | 
+                //DebugDrawModes.DrawAabb | 
                 DebugDrawModes.DrawConstraints | 
                 DebugDrawModes.DrawConstraintLimits | 
-                DebugDrawModes.DrawContactPoints,
+                DebugDrawModes.DrawContactPoints | 
+                //DebugDrawModes.DrawWireframe |
+                DebugDrawModes.FastWireframe
             };
             //_physicsScene.DispatchInfo.UseContinuous = true;
             //_physicsScene.DispatchInfo.AllowedCcdPenetration = 0.1f;

@@ -83,15 +83,15 @@ namespace System
         }
 
         [Browsable(false)]
-        public float* Data { get { return (float*)Address; } }
+        public float* Data => (float*)Address;
         [Browsable(false)]
         public VoidPtr Address { get { fixed (void* p = &this) return p; } }
         [Browsable(false)]
-        public VertexBuffer.ComponentType ComponentType { get { return VertexBuffer.ComponentType.Float; } }
+        public VertexBuffer.ComponentType ComponentType => VertexBuffer.ComponentType.Float;
         [Browsable(false)]
-        public int ComponentCount { get { return 4; } }
+        public int ComponentCount => 4;
         [Browsable(false)]
-        bool IBufferable.Normalize { get { return false; } }
+        bool IBufferable.Normalize => false;
 
         [Browsable(false)]
         public Color Color { get => (Color)this; set => this = value; }

@@ -7,12 +7,12 @@ namespace TheraEngine.Rendering
 {
     public static class VertexShaderGenerator
     {
-        public const string FragPosName = "FragPos_geom";
-        public const string FragNormName = "FragNorm_geom";
-        public const string FragBinormName = "FragBinorm_geom";
-        public const string FragTanName = "FragTan_geom";
-        public const string FragColorName = "FragColor{0}_geom";
-        public const string FragUVName = "FragUV{0}_geom";
+        public const string FragPosName = "FragPos";
+        public const string FragNormName = "FragNorm";
+        public const string FragBinormName = "FragBinorm";
+        public const string FragTanName = "FragTan";
+        public const string FragColorName = "FragColor{0}";
+        public const string FragUVName = "FragUV{0}";
 
         private static ShaderGenerator _generator = new ShaderGenerator();
         private static VertexShaderDesc _info;
@@ -79,7 +79,6 @@ namespace TheraEngine.Rendering
                 WriteLine("{0} = {2}{1};", string.Format(FragUVName, i), i, BufferType.TexCoord.ToString());
 
             string source = _generator.Finish();
-            //Engine.DebugPrint(source);
             return new Shader(ShaderMode.Vertex, source);
         }
         private static void WriteBuffers(bool allowMorphs)

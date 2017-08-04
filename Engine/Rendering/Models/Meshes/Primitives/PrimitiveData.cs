@@ -57,7 +57,11 @@ namespace TheraEngine.Rendering.Models
         public bool HasColors => _colorCount > 0;
 
         private VertexShaderDesc() { }
-        
+
+        public static VertexShaderDesc PosColor(int colorCount = 1)
+        {
+            return new VertexShaderDesc() { _colorCount = colorCount };
+        }
         public static VertexShaderDesc PosTex(int texCoordCount = 1)
         {
             return new VertexShaderDesc() { _texcoordCount = texCoordCount };

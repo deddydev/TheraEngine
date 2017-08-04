@@ -326,8 +326,7 @@ namespace TheraEngine.Rendering
         internal virtual void SetPhysicsTransform(Matrix4 newTransform)
         {
             _collision.WorldTransform = newTransform;
-            //_collision.CenterOfMassTransform = newTransform;
-            //Engine.World?.PhysicsScene.UpdateAabbs();
+            _collision.CenterOfMassTransform = newTransform;
         }
         protected internal /*async*/ void Tick(float delta)
         {

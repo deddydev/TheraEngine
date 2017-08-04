@@ -327,7 +327,7 @@ namespace TheraEngine.Rendering.Models
                                 break;
                             case BillboardType.RotationY:
 
-                                Vec3 up3 = Vec3.UnitY;
+                                Vec3 up3 = Vec3.TransformNormalInverse(Vec3.UnitY, inverseParentMatrix); //Up is related to parent
                                 Vec3 forward3 = c.GetForwardVector();
                                 forward3.Y = 0.0f;
 

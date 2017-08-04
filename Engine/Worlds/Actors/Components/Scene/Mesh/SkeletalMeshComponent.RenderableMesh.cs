@@ -35,7 +35,7 @@ namespace TheraEngine.Worlds.Actors
 
             private PrimitiveManager _manager;
             private bool 
-                _isVisible, 
+                _isVisible = false, 
                 _visibleInEditorOnly = false,
                 _hiddenFromOwner = false,
                 _visibleToOwnerOnly = false;
@@ -51,6 +51,8 @@ namespace TheraEngine.Worlds.Actors
                 get => _isVisible;
                 set
                 {
+                    if (_isVisible == value)
+                        return;
                     _isVisible = value;
                     if (_isVisible)
                         Engine.Scene.Add(this);

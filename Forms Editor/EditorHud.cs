@@ -248,7 +248,7 @@ namespace TheraEditor
                     }
                     else
                     {
-                        EditorTransformTool3D.GetCurrentInstance(_selectedComponent, _transformType);
+                        EditorTransformTool3D.GetInstance(_selectedComponent, _transformType);
                     }
                     TreeNode t = _selectedComponent.OwningActor.EditorState.TreeNode;
                     if (t != null)

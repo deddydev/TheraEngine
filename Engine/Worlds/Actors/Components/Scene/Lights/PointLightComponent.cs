@@ -42,11 +42,11 @@ namespace TheraEngine.Worlds.Actors
         public override void SetUniforms(int programBindingId)
         {
             string indexer = Uniform.PointLightsName + "[" + _lightIndex + "].";
-            Engine.Renderer.ProgramUniform(programBindingId, indexer + "Base.Color", _color.Raw);
-            Engine.Renderer.ProgramUniform(programBindingId, indexer + "Base.AmbientIntensity", _ambientIntensity);
-            Engine.Renderer.ProgramUniform(programBindingId, indexer + "Base.DiffuseIntensity", _diffuseIntensity);
-            Engine.Renderer.ProgramUniform(programBindingId, indexer + "Position", _cullingVolume.Center);
-            Engine.Renderer.ProgramUniform(programBindingId, indexer + "Radius", Radius);
+            Engine.Renderer.Uniform(programBindingId, indexer + "Base.Color", _color.Raw);
+            Engine.Renderer.Uniform(programBindingId, indexer + "Base.AmbientIntensity", _ambientIntensity);
+            Engine.Renderer.Uniform(programBindingId, indexer + "Base.DiffuseIntensity", _diffuseIntensity);
+            Engine.Renderer.Uniform(programBindingId, indexer + "Position", _cullingVolume.Center);
+            Engine.Renderer.Uniform(programBindingId, indexer + "Radius", Radius);
         }
 
         public override void RenderShadowMap(SceneProcessor scene)

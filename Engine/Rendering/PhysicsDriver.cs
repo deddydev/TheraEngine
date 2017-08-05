@@ -154,10 +154,12 @@ namespace TheraEngine.Rendering
                 {
                     wasInWorld = _collision.IsInWorld;
                     if (wasInWorld && Engine.World != null)
+                    {
                         Engine.World.PhysicsScene.RemoveRigidBody(_collision);
+                        if (_simulatingPhysics)
+                            UnregisterTick(ETickGroup.PostPhysics, ETickOrder.Scene, Tick);
+                    }
                     _collision.UserObject = null;
-                    //_collision.CollisionFlags &= ~CollisionFlags.StaticObject;
-                    //_collision.CollisionFlags &= ~CollisionFlags.KinematicObject;
                 }
                 _collision = value;
                 if (_collision != null)
@@ -173,21 +175,23 @@ namespace TheraEngine.Rendering
 
                     if (!_simulatingPhysics)
                     {
-                        _collision.CollisionFlags |= CollisionFlags.StaticObject;
-                        //_collision.LinearFactor = new Vector3(0.0f);
-                        //_collision.AngularFactor = new Vector3(0.0f);
-                        //_collision.ForceActivationState(ActivationState.DisableSimulation);
+                        _collision.LinearFactor = new Vector3(0.0f);
+                        _collision.AngularFactor = new Vector3(0.0f);
+                        _collision.ForceActivationState(ActivationState.DisableSimulation);
                     }
                     else
                     {
-                        _collision.CollisionFlags &= ~CollisionFlags.StaticObject;
-                        //_collision.LinearFactor = _previousLinearFactor;
-                        //_collision.AngularFactor = _previousAngularFactor;
+                        _collision.LinearFactor = _previousLinearFactor;
+                        _collision.AngularFactor = _previousAngularFactor;
                         _collision.ForceActivationState(ActivationState.ActiveTag);
                     }
 
                     if (wasInWorld && _isSpawned && Engine.World != null)
+                    {
                         Engine.World.PhysicsScene.AddRigidBody(_collision, (short)CollisionGroup, (short)CollidesWith);
+                        if (_simulatingPhysics)
+                            RegisterTick(ETickGroup.PostPhysics, ETickOrder.Scene, Tick);
+                    }
                 }
             }
         }
@@ -203,18 +207,16 @@ namespace TheraEngine.Rendering
                 {
                     if (!_simulatingPhysics)
                     {
-                        _collision.CollisionFlags |= CollisionFlags.StaticObject;
-                        //_collision.LinearFactor = new Vector3(0.0f);
-                        //_collision.AngularFactor = new Vector3(0.0f);
-                        //_collision.ForceActivationState(ActivationState.DisableSimulation);
+                        _collision.LinearFactor = new Vector3(0.0f);
+                        _collision.AngularFactor = new Vector3(0.0f);
+                        _collision.ForceActivationState(ActivationState.DisableSimulation);
                         if (_isSpawned)
                             UnregisterTick(ETickGroup.PostPhysics, ETickOrder.Scene, Tick);
                     }
                     else
                     {
-                        _collision.CollisionFlags &= ~CollisionFlags.StaticObject;
-                        //_collision.LinearFactor = _previousLinearFactor;
-                        //_collision.AngularFactor = _previousAngularFactor;
+                        _collision.LinearFactor = _previousLinearFactor;
+                        _collision.AngularFactor = _previousAngularFactor;
                         SetPhysicsTransform(_owner.WorldMatrix);
                         _collision.ForceActivationState(ActivationState.ActiveTag);
                         if (_isSpawned)
@@ -254,6 +256,20 @@ namespace TheraEngine.Rendering
                     _collision.CollisionFlags &= ~CollisionFlags.KinematicObject;
                 else
                     _collision.CollisionFlags |= CollisionFlags.KinematicObject;
+            }
+        }
+        public bool Static
+        {
+            get => _collision == null ? false : _collision.CollisionFlags.HasFlag(CollisionFlags.StaticObject);
+            set
+            {
+                if (_collision == null)
+                    return;
+
+                if (value)
+                    _collision.CollisionFlags &= ~CollisionFlags.StaticObject;
+                else
+                    _collision.CollisionFlags |= CollisionFlags.StaticObject;
             }
         }
         public CustomCollisionGroup CollisionGroup

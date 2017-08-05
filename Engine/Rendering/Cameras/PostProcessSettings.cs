@@ -3,6 +3,7 @@ using System;
 using System.ComponentModel;
 using System.Drawing.Design;
 using System.Windows.Forms;
+using System.Drawing;
 
 namespace TheraEngine.Rendering.Cameras
 {
@@ -24,6 +25,7 @@ namespace TheraEngine.Rendering.Cameras
             _bloomSettings = new BloomSettings();
             _lensFlareSettings = new LensFlareSettings();
             _antiAliasSettings = new AntiAliasSettings();
+            _ambientOcclusionSettings = new AmbientOcclusionSettings();
         }
 
         [Serialize("Vignette")]
@@ -38,32 +40,38 @@ namespace TheraEngine.Rendering.Cameras
         LensFlareSettings _lensFlareSettings;
         [Serialize("Anti-Alias")]
         AntiAliasSettings _antiAliasSettings;
+        [Serialize("SSAO")]
+        AmbientOcclusionSettings _ambientOcclusionSettings;
 
-        [DisplayName("Anti-Alias Settings")]
+        [DisplayName("Anti-Aliasing")]
         [Category("Post-Process Settings")]
         [TypeConverter(typeof(ExpandableObjectConverter))]
-        public AntiAliasSettings AntiAliasSettings { get => _antiAliasSettings; set => _antiAliasSettings = value; }
-        [DisplayName("Lens Flare Settings")]
+        public AntiAliasSettings AntiAliasing { get => _antiAliasSettings; set => _antiAliasSettings = value; }
+        [DisplayName("Lens Flare")]
         [Category("Post-Process Settings")]
         [TypeConverter(typeof(ExpandableObjectConverter))]
-        public LensFlareSettings LensFlareSettings { get => _lensFlareSettings; set => _lensFlareSettings = value; }
-        [DisplayName("Bloom Settings")]
+        public LensFlareSettings LensFlare { get => _lensFlareSettings; set => _lensFlareSettings = value; }
+        [DisplayName("Bloom")]
         [Category("Post-Process Settings")]
         [TypeConverter(typeof(ExpandableObjectConverter))]
-        public BloomSettings BloomSettings { get => _bloomSettings; set => _bloomSettings = value; }
-        [DisplayName("Color Grade Settings")]
+        public BloomSettings Bloom { get => _bloomSettings; set => _bloomSettings = value; }
+        [DisplayName("Color Grading")]
         [Category("Post-Process Settings")]
         [TypeConverter(typeof(ExpandableObjectConverter))]
-        public ColorGradeSettings ColorGradeSettings { get => _colorGradeSettings; set => _colorGradeSettings = value; }
-        [DisplayName("Depth Of Field Settings")]
+        public ColorGradeSettings ColorGrading { get => _colorGradeSettings; set => _colorGradeSettings = value; }
+        [DisplayName("Depth Of Field")]
         [Category("Post-Process Settings")]
         [TypeConverter(typeof(ExpandableObjectConverter))]
-        public DepthOfFieldSettings DepthOfFieldSettings { get => _depthOfFieldSettings; set => _depthOfFieldSettings = value; }
-        [DisplayName("Vignette Settings")]
+        public DepthOfFieldSettings DepthOfField { get => _depthOfFieldSettings; set => _depthOfFieldSettings = value; }
+        [DisplayName("Vignette")]
         [Category("Post-Process Settings")]
         [TypeConverter(typeof(ExpandableObjectConverter))]
-        public VignetteSettings VignetteSettings { get => _vignetteSettings; set => _vignetteSettings = value; }
-
+        public VignetteSettings Vignette { get => _vignetteSettings; set => _vignetteSettings = value; }
+        [DisplayName("Ambient Occlusion")]
+        [Category("Post-Process Settings")]
+        [TypeConverter(typeof(ExpandableObjectConverter))]
+        public AmbientOcclusionSettings AmbientOcclusion { get => _ambientOcclusionSettings; set => _ambientOcclusionSettings = value; }
+        
         internal void SetUniforms(int programBindingId)
         {
             _vignetteSettings.SetUniforms(programBindingId);
@@ -88,21 +96,35 @@ namespace TheraEngine.Rendering.Cameras
                 "\n" + dof;
         }
     }
+    public class AmbientOcclusionSettings : PostSettings
+    {
+        private float _radius = 0.75f;
+        private float _power = 4.0f;
+        
+        public float Radius { get => _radius; set => _radius = value; }
+        public float Power { get => _power; set => _power = value; }
+
+        internal void SetUniforms(int programBindingId)
+        {
+            Engine.Renderer.Uniform(programBindingId, "SSAORadius", Radius);
+            Engine.Renderer.Uniform(programBindingId, "SSAOPower", Power);
+        }
+    }
     public class VignetteSettings : PostSettings
     {
-        private ColorF4 _color = System.Drawing.Color.Black;
+        private ColorF3 _color = new ColorF3(0.0f, 0.0f, 0.0f);
         private float _intensity = 15.0f;
         private float _power = 0.0f;
 
-        public ColorF4 Color { get => _color; set => _color = value; }
+        public ColorF3 Color { get => _color; set => _color = value; }
         public float Intensity { get => _intensity; set => _intensity = value; }
         public float Power { get => _power; set => _power = value; }
         
         internal void SetUniforms(int programBindingId)
         {
-            Engine.Renderer.ProgramUniform(programBindingId, "Vignette.Color", Color);
-            Engine.Renderer.ProgramUniform(programBindingId, "Vignette.Intensity", Intensity);
-            Engine.Renderer.ProgramUniform(programBindingId, "Vignette.Power", Power);
+            Engine.Renderer.Uniform(programBindingId, "Vignette.Color", Color);
+            Engine.Renderer.Uniform(programBindingId, "Vignette.Intensity", Intensity);
+            Engine.Renderer.Uniform(programBindingId, "Vignette.Power", Power);
         }
 
         internal static string WriteShaderSetup()
@@ -110,7 +132,7 @@ namespace TheraEngine.Rendering.Cameras
             return @"
 struct VignetteStruct
 {
-    vec4 Color;
+    vec3 Color;
     float Intensity;
     float Power;
 };
@@ -194,15 +216,15 @@ uniform VignetteStruct Vignette;";
 
         internal void SetUniforms(int programBindingId)
         {
-            Engine.Renderer.ProgramUniform(programBindingId, "ColorGrade.Tint", Tint.Raw);
+            Engine.Renderer.Uniform(programBindingId, "ColorGrade.Tint", Tint.Raw);
 
-            Engine.Renderer.ProgramUniform(programBindingId, "ColorGrade.Exposure", Exposure);
-            Engine.Renderer.ProgramUniform(programBindingId, "ColorGrade.Contrast", _contrastUniformValue);
-            Engine.Renderer.ProgramUniform(programBindingId, "ColorGrade.Gamma", Gamma);
+            Engine.Renderer.Uniform(programBindingId, "ColorGrade.Exposure", Exposure);
+            Engine.Renderer.Uniform(programBindingId, "ColorGrade.Contrast", _contrastUniformValue);
+            Engine.Renderer.Uniform(programBindingId, "ColorGrade.Gamma", Gamma);
 
-            Engine.Renderer.ProgramUniform(programBindingId, "ColorGrade.Hue", Hue);
-            Engine.Renderer.ProgramUniform(programBindingId, "ColorGrade.Saturation", Saturation);
-            Engine.Renderer.ProgramUniform(programBindingId, "ColorGrade.Brightness", Brightness);
+            Engine.Renderer.Uniform(programBindingId, "ColorGrade.Hue", Hue);
+            Engine.Renderer.Uniform(programBindingId, "ColorGrade.Saturation", Saturation);
+            Engine.Renderer.Uniform(programBindingId, "ColorGrade.Brightness", Brightness);
         }
 
         internal static string WriteShaderSetup()

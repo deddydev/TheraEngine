@@ -35,7 +35,7 @@ namespace System
         private RenderInfo3D _renderInfo = new RenderInfo3D(ERenderPassType3D.OpaqueForward, null, false);
         public RenderInfo3D RenderInfo => _renderInfo;
         [Browsable(false)]
-        public Shape CullingVolume => this;
+        public virtual Shape CullingVolume => this;
         [Browsable(false)]
         public IOctreeNode OctreeNode { get; set; }
 

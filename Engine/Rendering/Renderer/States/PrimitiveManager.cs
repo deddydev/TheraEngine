@@ -348,8 +348,8 @@ namespace TheraEngine.Rendering.Models
 
                 var pos = _modifiedBoneIndices.Select(x => _utilizedBones[_boneRemap[x]].VertexMatrix).ToArray();
                 var nrm = _modifiedBoneIndices.Select(x => _utilizedBones[_boneRemap[x]].NormalMatrix).ToArray();
-                Engine.Renderer.ProgramUniform(programBindingId, Uniform.BonePosMtxName, pos);
-                Engine.Renderer.ProgramUniform(programBindingId, Uniform.BoneNrmMtxName, nrm);
+                Engine.Renderer.Uniform(programBindingId, Uniform.BonePosMtxName, pos);
+                Engine.Renderer.Uniform(programBindingId, Uniform.BoneNrmMtxName, nrm);
 
                 //Update modified bone matrix uniforms
                 //foreach (int index in _modifiedBoneIndices)
@@ -411,8 +411,8 @@ namespace TheraEngine.Rendering.Models
             
             if (_singleBind != null)
             {
-                modelMatrix = modelMatrix * _singleBind.FrameMatrix;
-                normalMatrix = normalMatrix * _singleBind.FrameMatrix.GetRotationMatrix3();
+                modelMatrix = modelMatrix * _singleBind.VertexMatrix;
+                normalMatrix = normalMatrix * _singleBind.NormalMatrix.GetRotationMatrix3();
             }
 
             Material m;
@@ -433,10 +433,10 @@ namespace TheraEngine.Rendering.Models
             }
             
             SetSkinningUniforms(vtxId);
-            Engine.Renderer.ProgramUniform(vtxId, Uniform.GetLocation(vtxId, ECommonUniform.ModelMatrix), modelMatrix);
-            Engine.Renderer.ProgramUniform(vtxId, Uniform.GetLocation(vtxId, ECommonUniform.NormalMatrix), normalMatrix);
-            Engine.Renderer.ProgramUniform(vtxId, Uniform.GetLocation(vtxId, ECommonUniform.WorldToCameraSpaceMatrix), AbstractRenderer.CurrentCamera.WorldToCameraSpaceMatrix);
-            Engine.Renderer.ProgramUniform(vtxId, Uniform.GetLocation(vtxId, ECommonUniform.ProjMatrix), AbstractRenderer.CurrentCamera.ProjectionMatrix);
+            Engine.Renderer.Uniform(vtxId, Uniform.GetLocation(vtxId, ECommonUniform.ModelMatrix), modelMatrix);
+            Engine.Renderer.Uniform(vtxId, Uniform.GetLocation(vtxId, ECommonUniform.NormalMatrix), normalMatrix);
+            Engine.Renderer.Uniform(vtxId, Uniform.GetLocation(vtxId, ECommonUniform.WorldToCameraSpaceMatrix), AbstractRenderer.CurrentCamera.WorldToCameraSpaceMatrix);
+            Engine.Renderer.Uniform(vtxId, Uniform.GetLocation(vtxId, ECommonUniform.ProjMatrix), AbstractRenderer.CurrentCamera.ProjectionMatrix);
 
             m.SetUniforms(fragId);
 

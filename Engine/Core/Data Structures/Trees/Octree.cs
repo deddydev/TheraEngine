@@ -223,8 +223,8 @@ namespace System
                         for (int i = 0; i < _items.Count; ++i)
                         {
                             I3DRenderable r = _items[i] as I3DRenderable;
-                            bool render = (shadowPass && r.RenderInfo.CastsShadows) || !shadowPass;
-                            if (render && (r.CullingVolume == null || (c = r.CullingVolume.ContainedWithin(frustum)) != EContainment.Disjoint))
+                            bool allowRender = (shadowPass && r.RenderInfo.CastsShadows) || !shadowPass;
+                            if (allowRender && (r.CullingVolume == null || (c = r.CullingVolume.ContainedWithin(frustum)) != EContainment.Disjoint))
                                 passes.Add(r);
                         }
                         IsLoopingItems = false;
@@ -240,7 +240,12 @@ namespace System
             {
                 IsLoopingItems = true;
                 for (int i = 0; i < _items.Count; ++i)
-                    passes.Add(_items[i] as I3DRenderable);
+                {
+                    I3DRenderable r = _items[i] as I3DRenderable;
+                    bool allowRender = (shadowPass && r.RenderInfo.CastsShadows) || !shadowPass;
+                    if (allowRender)
+                        passes.Add(r);
+                }
                 IsLoopingItems = false;
 
                 IsLoopingSubNodes = true;

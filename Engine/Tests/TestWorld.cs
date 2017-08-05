@@ -107,7 +107,7 @@ namespace TheraEngine.Tests
             //    new Rotator(30.0f, 00.0f, 0.0f, Rotator.Order.YPR),
             //    Material.GetLitColorMaterial(Color.Green));
 
-            _settings.GlobalAmbient = new ColorF3(0.01f, 0.01f, 0.01f);
+            //_settings.GlobalAmbient = new ColorF3(0.01f, 0.01f, 0.01f);
 
             DirectionalLightComponent dirLightComp = new DirectionalLightComponent(
                 (ColorF3)Color.Beige, 1.0f, 0.1f, new Rotator(-35.0f, 30.0f, 0.0f, RotationOrder.YPR));
@@ -167,7 +167,7 @@ namespace TheraEngine.Tests
 
             //Collada.Scene anims = Collada.Import(googleDrive + "Thera Assets\\Characters\\Temp\\Carly_Idle.dae", options, true, false);
             //anims.CleanAnimations(scene._skeletalModel, scene._skeleton);
-            
+
             //IActor importedActor;
             //if (ColladaScene.SkeletalModel != null)
             //{
@@ -199,7 +199,7 @@ namespace TheraEngine.Tests
 
             //Actor<SplineComponent> splineActor = new Actor<SplineComponent>();
             //PropAnimVec3 spline = new PropAnimVec3(frames, true, true);
-            
+
             //float dist = 200.0f;
             //Vec3 front = center - Vec3.Forward * dist - Vec3.Up * 10.0f;
             //Vec3 right = center + Vec3.Right * dist + Vec3.Up * 10.0f;
@@ -208,7 +208,7 @@ namespace TheraEngine.Tests
 
             //Vec3 rightTan = Vec3.Right * 100.0f;
             //Vec3 forwardTan = Vec3.Forward * 100.0f;
-            
+
             //spline.Keyframes.Add(new Vec3Keyframe(0.0f, front, front, -rightTan, rightTan, PlanarInterpType.CubicBezier));
             //spline.Keyframes.Add(new Vec3Keyframe(frames / 4.0f, right, right, -forwardTan, forwardTan, PlanarInterpType.CubicBezier));
             //spline.Keyframes.Add(new Vec3Keyframe(frames / 2.0f, back, back, rightTan, -rightTan, PlanarInterpType.CubicBezier));
@@ -234,6 +234,10 @@ namespace TheraEngine.Tests
             //Engine.TimeDilation = 0.3f;
             //cam.RootComponent.SetCurrentForPlayer(PlayerIndex.One);
 
+            SpotLightComponent spotLightComp = new SpotLightComponent(200.0f, new ColorF3(0.7f, 0.9f, 0.9f), 1.0f, 0.3f, new Rotator(-70.0f, 0.0f, 0.0f, RotationOrder.YPR), 30.0f, 10.0f, 40.0f, 100.0f);
+            spotLightComp.Translation.Y = 50.0f;
+            Actor<SpotLightComponent> spotlight = new Actor<SpotLightComponent>(spotLightComp) { Name = "SpotLight" };
+
             CharacterSpawnPointActor spawn = new CharacterSpawnPointActor();
             spawn.RootComponent.Translation.Raw = Vec3.Up * 100.0f;
 
@@ -246,6 +250,7 @@ namespace TheraEngine.Tests
 
             IActor[] actors = new IActor[]
             {
+                //spotlight,
                 block,
                 testActor,
                 floorActor1,

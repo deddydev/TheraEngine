@@ -185,18 +185,29 @@ namespace TheraEngine.Worlds.Actors
 
                     if (callback.HasHit)
                     {
-                        //Something is in the way
-                        root.Translation.Raw += finalInput * callback.ClosestHitFraction;
+                        //if (callback.ClosestHitFraction.IsZero())
+                        //    break;
 
+                        float hitF = callback.ClosestHitFraction;
+
+                        //Something is in the way
+                        root.Translation.Raw += finalInput * hitF;
+                        
                         Vec3 normal = callback.HitNormalWorld;
                         if (IsSurfaceNormalWalkable(normal))
                         {
                             GroundNormal = normal;
-                            CurrentWalkingSurface = (PhysicsDriver)callback.HitCollisionObject.UserObject;
+                            groundRot = _upToGroundNormalRotation;
 
-                            if (callback.ClosestHitFraction < 1.0f)
+                            PhysicsDriver d = (PhysicsDriver)callback.HitCollisionObject.UserObject;
+                            //if (CurrentWalkingSurface == d)
+                            //    break;
+
+                            CurrentWalkingSurface = d;
+                            if (!(hitF - 1.0f).IsZero())
                             {
-                                movementInput = finalInput * (1.0f - callback.ClosestHitFraction);
+                                float invHitF = 1.0f - hitF;
+                                movementInput = movementInput * invHitF;
                                 continue;
                             }
                         }

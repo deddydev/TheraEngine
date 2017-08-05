@@ -22,6 +22,7 @@ namespace TheraEngine.Files
     /// Allows only one loaded instance of this file
     /// </summary>
     [FileClass("SREF", "Single File Reference")]
+    [TypeConverter(typeof(ExpandableObjectConverter))]
     public class SingleFileRef<T> : FileRef<T>, ISingleFileRef where T : FileObject
     {
         T _file;

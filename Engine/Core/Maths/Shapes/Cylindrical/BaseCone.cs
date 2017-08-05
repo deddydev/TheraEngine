@@ -10,15 +10,20 @@ namespace System
     [TypeConverter(typeof(ExpandableObjectConverter))]
     public abstract class BaseCone : Shape
     {
+        public override Shape CullingVolume => null;
+
         public BaseCone(Vec3 center, Rotator rotation, Vec3 scale, Vec3 upAxis, float radius, float height)
         {
             _radius = Math.Abs(radius);
             _height = Math.Abs(height);
+
             _localUpAxis = upAxis;
             _localUpAxis.NormalizeFast();
-            _state.Translation = center;
-            _state.Rotation = rotation;
-            _state.Scale = scale;
+
+            _state.Translation.SetRawNoUpdate(center);
+            _state.Rotation.SetRotationsNoUpdate(rotation);
+            _state.Scale.SetRawNoUpdate(scale);
+            _state.CreateTransform();
         }
 
         public FrameState State
@@ -41,8 +46,8 @@ namespace System
         
         public Vec3 Center
         {
-            get => _state.Translation;
-            set => _state.Translation = value;
+            get => _state.Translation.Raw;
+            set => _state.Translation.Raw = value;
         }
         public float Radius
         {
@@ -67,6 +72,25 @@ namespace System
         public override void Render()
             => Engine.Renderer.RenderCone(_state.Matrix, _localUpAxis, _radius, _height, _renderSolid, Color.Black);
 
+        public static PrimitiveData WireMesh(Vec3 center, Vec3 up, float height, float radius, int sides)
+        {
+            up.NormalizeFast();
+
+            VertexLine[] lines = new VertexLine[sides * 2];
+
+            Vec3 topPoint = center + (up * (height / 2.0f));
+            Vec3 bottomPoint = center - (up * (height / 2.0f));
+
+            Vertex[] sidePoints = Circle3D.Points(radius, up, bottomPoint, sides);
+
+            for (int i = 0, x = 0; i < sides; ++i)
+            {
+                lines[x++] = new VertexLine(topPoint, sidePoints[i]._position);
+                lines[x++] = new VertexLine(sidePoints[i + 1 == sides ? 0 : i + 1], sidePoints[i]);
+            }
+
+            return PrimitiveData.FromLines(VertexShaderDesc.JustPositions(), lines);
+        }
         public static PrimitiveData SolidMesh(Vec3 center, Vec3 up, float height, float radius, int sides, bool closeBottom)
         {
             up.NormalizeFast();

@@ -1,9 +1,12 @@
 ﻿using System;
+using System.ComponentModel;
 
 namespace TheraEngine.Rendering.Models.Materials
 {
+    [TypeConverter(typeof(ExpandableObjectConverter))]
     public class ShaderArray<T> : ShaderVar where T : ShaderVar
     {
+        [Browsable(false)]
         public override ShaderVarType TypeName { get { return _elementTypeName; } }
         public ArrayHandler<T> Value { get { return _value; } set { _value = value; } }
         public int Length { get { return _value.Length; } }

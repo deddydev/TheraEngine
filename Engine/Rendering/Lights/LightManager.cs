@@ -16,13 +16,13 @@ namespace TheraEngine.Rendering
         private HashSet<PointLightComponent> _pointLights = new HashSet<PointLightComponent>();
 
         public HashSet<DirectionalLightComponent> DirectionalLights => _directionalLights;
-
+        
         internal void SetUniforms(int programBindingId)
         {
-            Engine.Renderer.ProgramUniform(programBindingId, "GlobalAmbient", Engine.World.Settings.GlobalAmbient);
-            Engine.Renderer.ProgramUniform(programBindingId, "DirLightCount", _directionalLights.Count.Clamp(0, MaxDirectionalLights));
-            Engine.Renderer.ProgramUniform(programBindingId, "PointLightCount", _pointLights.Count.Clamp(0, MaxPointLights));
-            Engine.Renderer.ProgramUniform(programBindingId, "SpotLightCount", _spotLights.Count.Clamp(0, MaxSpotLights));
+            Engine.Renderer.Uniform(programBindingId, "GlobalAmbient", Engine.World.Settings.GlobalAmbient);
+            Engine.Renderer.Uniform(programBindingId, "DirLightCount", _directionalLights.Count.Clamp(0, MaxDirectionalLights));
+            Engine.Renderer.Uniform(programBindingId, "PointLightCount", _pointLights.Count.Clamp(0, MaxPointLights));
+            Engine.Renderer.Uniform(programBindingId, "SpotLightCount", _spotLights.Count.Clamp(0, MaxSpotLights));
 
             foreach (DirectionalLightComponent l in _directionalLights)
                 l.SetUniforms(programBindingId);

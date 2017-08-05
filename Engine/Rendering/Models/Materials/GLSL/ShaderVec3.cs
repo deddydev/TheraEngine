@@ -1,9 +1,12 @@
 ﻿using System;
+using System.ComponentModel;
 
 namespace TheraEngine.Rendering.Models.Materials
 {
+    [TypeConverter(typeof(ExpandableObjectConverter))]
     public class ShaderBVec3 : ShaderVar
     {
+        [Browsable(false)]
         public override ShaderVarType TypeName { get { return ShaderVarType._bvec3; } }
         public BoolVec3 Value { get { return _value; } set { _value = value; } }
         internal override void SetProgramUniform(int programBindingId, int location) => Engine.Renderer.ProgramUniform(programBindingId, location, _value);
@@ -22,11 +25,13 @@ namespace TheraEngine.Rendering.Models.Materials
             _fields.Add("z", new ShaderBool(defaultValue.Z, "Z", this));
         }
     }
+    [TypeConverter(typeof(ExpandableObjectConverter))]
     public class ShaderVec3 : ShaderVar
     {
+        [Browsable(false)]
         public override ShaderVarType TypeName { get { return ShaderVarType._vec3; } }
         public Vec3 Value { get { return _value; } set { _value = value; } }
-        internal override void SetProgramUniform(int programBindingId, int location) => Engine.Renderer.ProgramUniform(programBindingId, location, _value);
+        internal override void SetProgramUniform(int programBindingId, int location) => Engine.Renderer.Uniform(programBindingId, location, _value);
         internal override string GetValueString() { return _value.ToString(); }
 
         private Vec3 _value;
@@ -42,8 +47,10 @@ namespace TheraEngine.Rendering.Models.Materials
             _fields.Add("z", new ShaderFloat(defaultValue.Z, "Z", this));
         }
     }
+    [TypeConverter(typeof(ExpandableObjectConverter))]
     public class ShaderDVec3 : ShaderVar
     {
+        [Browsable(false)]
         public override ShaderVarType TypeName { get { return ShaderVarType._dvec3; } }
         public DVec3 Value { get { return _value; } set { _value = value; } }
         internal override void SetProgramUniform(int programBindingId, int location) => Engine.Renderer.ProgramUniform(programBindingId, location, _value);
@@ -62,11 +69,13 @@ namespace TheraEngine.Rendering.Models.Materials
             _fields.Add("z", new ShaderDouble(defaultValue.Z, "Z", this));
         }
     }
+    [TypeConverter(typeof(ExpandableObjectConverter))]
     public class ShaderIVec3 : ShaderVar
     {
+        [Browsable(false)]
         public override ShaderVarType TypeName { get { return ShaderVarType._ivec3; } }
         public IVec3 Value { get { return _value; } set { _value = value; } }
-        internal override void SetProgramUniform(int programBindingId, int location) => Engine.Renderer.ProgramUniform(programBindingId, location, _value);
+        internal override void SetProgramUniform(int programBindingId, int location) => Engine.Renderer.Uniform(programBindingId, location, _value);
         internal override string GetValueString() { return _value.ToString(); }
 
         private IVec3 _value;
@@ -82,8 +91,10 @@ namespace TheraEngine.Rendering.Models.Materials
             _fields.Add("z", new ShaderDouble(defaultValue.Z, "Z", this));
         }
     }
+    [TypeConverter(typeof(ExpandableObjectConverter))]
     public class ShaderUVec3 : ShaderVar
     {
+        [Browsable(false)]
         public override ShaderVarType TypeName { get { return ShaderVarType._uvec3; } }
         public UVec3 Value { get { return _value; } set { _value = value; } }
         internal override void SetProgramUniform(int programBindingId, int location) => Engine.Renderer.ProgramUniform(programBindingId, location, _value);

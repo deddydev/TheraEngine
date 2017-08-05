@@ -9,7 +9,7 @@
             => string.Format(LightFalloff, radiusName, distanceName);
 
         public static readonly string Frag_Nothing = @"
-#version 450
+#version 100
 void main() { }";
         public static readonly string Frag_DepthOutput = @"
 #version 450
@@ -258,25 +258,27 @@ struct PointLight
     BaseLight Base;
     vec3 Position;
     float Radius;
+    float Brightness;
 };
 struct SpotLight
 {
     PointLight Base;
     vec3 Direction;
-    float Cutoff;
+    float InnerCutoff;
+    float OuterCutoff;
     float Exponent;
 };
 
 uniform vec3 GlobalAmbient;
-
-uniform int PointLightCount;
-uniform PointLight PointLights[16];
 
 uniform int DirLightCount; 
 uniform DirLight DirectionalLights[2];
 
 uniform int SpotLightCount;
 uniform SpotLight SpotLights[16];
+
+uniform int PointLightCount;
+uniform PointLight PointLights[16];
 
 //0 is fully in shadow, 1 is fully lit
 float ReadShadowMap(in vec3 fragPos, in vec3 normal, in float diffuseFactor, in BaseLight light)
@@ -345,17 +347,18 @@ vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 albedo, fl
 
 vec3 CalcSpotLight(SpotLight light, vec3 normal, vec3 fragPos, vec3 albedo, float spec, float ambientOcclusion)
 {
-    if (light.Cutoff <= 1.5707) //~90 degrees in radians
+    //if (light.OuterCutoff <= 1.5707) //~90 degrees in radians
     {
         vec3 lightToPos = normalize(fragPos - light.Base.Position);
         float clampedCosine = max(0.0, dot(lightToPos, normalize(light.Direction)));
-	    if (clampedCosine >= cos(light.Cutoff))
+        float spotEffect = smoothstep(light.OuterCutoff, light.InnerCutoff, clampedCosine);
+	    //if (clampedCosine >= light.OuterCutoff)
         {
             vec3 lightToPos = fragPos - light.Base.Position;
             float spotAttn = pow(clampedCosine, light.Exponent);
-            float distAttn = Attenuate(length(lightToPos), light.Base.Radius);
+            float distAttn = Attenuate(length(lightToPos) / light.Base.Brightness, light.Base.Radius);
             vec3 color = CalcColor(light.Base.Base, normalize(lightToPos), normal, fragPos, albedo, spec, ambientOcclusion);
-            return spotAttn * distAttn * color;
+            return spotEffect * spotAttn * distAttn * color;
         }
     }
     return vec3(0.0);

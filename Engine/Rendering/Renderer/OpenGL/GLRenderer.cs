@@ -507,49 +507,49 @@ namespace TheraEngine.Rendering.OpenGL
         #endregion
 
         #region Program Uniform
-        public override void ProgramUniform(int programBindingId, int location, params IUniformable4Int[] p)
+        public override void Uniform(int programBindingId, int location, params IUniformable4Int[] p)
         {
             if (location < 0)
                 return;
             int[] values = p.SelectMany(x => new[] { x.Data[0], x.Data[1], x.Data[2], x.Data[3] }).ToArray();
             GL.ProgramUniform4(programBindingId, location, p.Length, values);
         }
-        public override void ProgramUniform(int programBindingId, int location, params IUniformable4Float[] p)
+        public override void Uniform(int programBindingId, int location, params IUniformable4Float[] p)
         {
             if (location < 0)
                 return;
             float[] values = p.SelectMany(x => new[] { x.Data[0], x.Data[1], x.Data[2], x.Data[3] }).ToArray();
             GL.ProgramUniform4(programBindingId, location, p.Length, values);
         }
-        public override void ProgramUniform(int programBindingId, int location, params IUniformable3Int[] p)
+        public override void Uniform(int programBindingId, int location, params IUniformable3Int[] p)
         {
             if (location < 0)
                 return;
             int[] values = p.SelectMany(x => new[] { x.Data[0], x.Data[1], x.Data[2] }).ToArray();
             GL.ProgramUniform3(programBindingId, location, p.Length, values);
         }
-        public override void ProgramUniform(int programBindingId, int location, params IUniformable3Float[] p)
+        public override void Uniform(int programBindingId, int location, params IUniformable3Float[] p)
         {
             if (location < 0)
                 return;
             float[] values = p.SelectMany(x => new[] { x.Data[0], x.Data[1], x.Data[2] }).ToArray();
             GL.ProgramUniform3(programBindingId, location, p.Length, values);
         }
-        public override void ProgramUniform(int programBindingId, int location, params IUniformable2Int[] p)
+        public override void Uniform(int programBindingId, int location, params IUniformable2Int[] p)
         {
             if (location < 0)
                 return;
             int[] values = p.SelectMany(x => new[] { x.Data[0], x.Data[1] }).ToArray();
             GL.ProgramUniform2(programBindingId, location, p.Length, values);
         }
-        public override void ProgramUniform(int programBindingId, int location, params IUniformable2Float[] p)
+        public override void Uniform(int programBindingId, int location, params IUniformable2Float[] p)
         {
             if (location < 0)
                 return;
             float[] values = p.SelectMany(x => new[] { x.Data[0], x.Data[1] }).ToArray();
             GL.ProgramUniform2(programBindingId, location, p.Length, values);
         }
-        public override void ProgramUniform(int programBindingId, int location, params IUniformable1Int[] p)
+        public override void Uniform(int programBindingId, int location, params IUniformable1Int[] p)
         {
             if (location < 0)
                 return;
@@ -557,7 +557,7 @@ namespace TheraEngine.Rendering.OpenGL
             fixed (int* first = &r[0])
                 GL.ProgramUniform1(programBindingId, location, p.Length, first);
         }
-        public override void ProgramUniform(int programBindingId, int location, params IUniformable1Float[] p)
+        public override void Uniform(int programBindingId, int location, params IUniformable1Float[] p)
         {
             if (location < 0)
                 return;
@@ -565,24 +565,24 @@ namespace TheraEngine.Rendering.OpenGL
             fixed (float* first = &r[0])
                 GL.ProgramUniform1(programBindingId, location, p.Length, first);
         }
-        public override void ProgramUniform(int programBindingId, int location, params int[] p)
+        public override void Uniform(int programBindingId, int location, params int[] p)
         {
             if (location >= 0)
                 fixed (int* first = &p[0])
                     GL.ProgramUniform1(programBindingId, location, p.Length, first);
         }
-        public override void ProgramUniform(int programBindingId, int location, params float[] p)
+        public override void Uniform(int programBindingId, int location, params float[] p)
         {
             if (location >= 0)
                 fixed (float* first = &p[0])
                     GL.ProgramUniform1(programBindingId, location, p.Length, first);
         }
-        public override void ProgramUniform(int programBindingId, int location, Matrix4 p)
+        public override void Uniform(int programBindingId, int location, Matrix4 p)
         {
             if (location >= 0)
                 GL.ProgramUniformMatrix4(programBindingId, location, 1, false, p.Data);
         }
-        public override void ProgramUniform(int programBindingId, int location, params Matrix4[] p)
+        public override void Uniform(int programBindingId, int location, params Matrix4[] p)
         {
             if (location >= 0)
             {
@@ -593,12 +593,12 @@ namespace TheraEngine.Rendering.OpenGL
                 GL.ProgramUniformMatrix4(programBindingId, location, p.Length, false, values);
             }
         }
-        public override void ProgramUniform(int programBindingId, int location, Matrix3 p)
+        public override void Uniform(int programBindingId, int location, Matrix3 p)
         {
             if (location >= 0)
                 GL.ProgramUniformMatrix3(programBindingId, location, 1, false, p.Data);
         }
-        public override void ProgramUniform(int programBindingId, int location, params Matrix3[] p)
+        public override void Uniform(int programBindingId, int location, params Matrix3[] p)
         {
             if (location >= 0)
             {

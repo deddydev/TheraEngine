@@ -233,7 +233,7 @@ namespace TheraEngine.Rendering.Models.Materials
         public void SetTextureUniform(int textureIndex, int textureUnit, string varName, int programBindingId)
         {
             Engine.Renderer.SetActiveTexture(textureUnit);
-            Engine.Renderer.ProgramUniform(programBindingId, varName, textureUnit);
+            Engine.Renderer.Uniform(programBindingId, varName, textureUnit);
             TexRefs[textureIndex].Texture.Bind();
         }
 
@@ -342,7 +342,7 @@ namespace TheraEngine.Rendering.Models.Materials
                 new ShaderFloat(20.0f, "MatSpecularIntensity"),
                 new ShaderFloat(128.0f, "MatShininess"),
             };
-            return new Material("TestMaterial", parameters, 
+            return new Material("LitColorMaterial", parameters, 
                 deferred ? ShaderHelpers.LitColorFragDeferred() : ShaderHelpers.LitColorFragForward())
             {
                 Requirements = deferred ? UniformRequirements.None : UniformRequirements.NeedsLightsAndCamera

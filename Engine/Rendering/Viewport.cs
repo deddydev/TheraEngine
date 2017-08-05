@@ -136,6 +136,8 @@ namespace TheraEngine.Rendering
 
         public BoundingRectangle InternalResolution => _internalResolution;
 
+        public const int GBufferTextureCount = 4;
+
         public Viewport(RenderPanel panel, int index)
         {
             if (index == 0)
@@ -195,7 +197,7 @@ namespace TheraEngine.Rendering
             TextureReference[] deferredRefs = new TextureReference[]
             {
                 new TextureReference("AlbedoSpec", width, height,
-                    EPixelInternalFormat.Rgba8, EPixelFormat.Bgra, EPixelType.UnsignedByte)
+                    EPixelInternalFormat.Rgba16f, EPixelFormat.Rgba, EPixelType.HalfFloat)
                 {
                     MinFilter = ETexMinFilter.Nearest,
                     MagFilter = ETexMagFilter.Nearest,
@@ -204,7 +206,7 @@ namespace TheraEngine.Rendering
                     FrameBufferAttachment = EFramebufferAttachment.ColorAttachment0,
                 },
                 new TextureReference("Normal", width, height,
-                    EPixelInternalFormat.Rgb32f, EPixelFormat.Rgb, EPixelType.Float)
+                    EPixelInternalFormat.Rgb16f, EPixelFormat.Rgb, EPixelType.HalfFloat)
                 {
                     MinFilter = ETexMinFilter.Nearest,
                     MagFilter = ETexMagFilter.Nearest,
@@ -218,7 +220,7 @@ namespace TheraEngine.Rendering
             TextureReference[] postProcessRefs = new TextureReference[]
             {
                 new TextureReference("OutputColor", width, height,
-                    EPixelInternalFormat.Rgba8, EPixelFormat.Bgra, EPixelType.UnsignedByte)
+                    EPixelInternalFormat.Rgba16f, EPixelFormat.Rgba, EPixelType.HalfFloat)
                 {
                     MinFilter = ETexMinFilter.Nearest,
                     MagFilter = ETexMagFilter.Nearest,
@@ -266,7 +268,7 @@ namespace TheraEngine.Rendering
             {
                 _deferredGBuffer = new QuadFrameBuffer(deferredMat);
                 _deferredGBuffer.SettingUniforms += _deferredGBuffer_SettingUniforms;
-                
+
                 Render = RenderDeferred;
             }
             else
@@ -282,8 +284,11 @@ namespace TheraEngine.Rendering
 
         private void _deferredGBuffer_SettingUniforms(int programBindingId)
         {
-            _worldCamera?.SetUniforms(programBindingId);
-            Engine.Renderer.ProgramUniform(programBindingId, "SSAOSamples", _ssaoInfo.Kernel.Select(x => (IUniformable3Float)x).ToArray());
+            if (_worldCamera == null)
+                return;
+            Engine.Renderer.Uniform(programBindingId, "SSAOSamples", _ssaoInfo.Kernel.Select(x => (IUniformable3Float)x).ToArray());
+            _worldCamera.SetUniforms(programBindingId);
+            _worldCamera.PostProcessSettings.AmbientOcclusion.SetUniforms(programBindingId);
         }
 
         public void SetInternalResolution(float width, float height)
@@ -328,6 +333,10 @@ namespace TheraEngine.Rendering
 
             if (Camera != null)
             {
+                //AbstractRenderer.PushCurrentCamera(Camera);
+                //Engine.Scene?.RenderShadowMaps();
+                //AbstractRenderer.PopCurrentCamera();
+
                 scene.PreRender(Camera, false);
 
                 //Enable internal resolution
@@ -814,6 +823,8 @@ uniform sampler2D Texture2; //SSAO Noise
 uniform sampler2D Texture3; //Depth
 
 uniform vec3 SSAOSamples[64];
+uniform float SSAORadius = 0.75;
+uniform float SSAOPower = 4.0;
 
 " + Camera.ShaderSetup() + @"
 " + ShaderHelpers.LightingSetupBasic() + @"
@@ -842,15 +853,13 @@ void main()
     mat3 TBN = mat3(tangent, bitangent, n); 
 
     int kernelSize = 64;
-    float radius = 0.75f;
     float bias = 0.025;
-    float power = 4.0;
 
     float occlusion = 0.0f;
     for (int i = 0; i < kernelSize; ++i)
     {
         vec3 noiseSample = TBN * SSAOSamples[i];
-        noiseSample = FragPosVS + noiseSample * radius;
+        noiseSample = FragPosVS + noiseSample * SSAORadius;
 
         vec4 offset = ProjMatrix * vec4(noiseSample, 1.0f);
         offset.xyz /= offset.w;
@@ -858,11 +867,11 @@ void main()
 
         float sampleDepth = ViewPosFromDepth(texture(Texture3, offset.xy).r, offset.xy).z;
 
-        float rangeCheck = smoothstep(0.0, 1.0, radius / abs(FragPosVS.z - sampleDepth));
+        float rangeCheck = smoothstep(0.0, 1.0, SSAORadius / abs(FragPosVS.z - sampleDepth));
         occlusion += (sampleDepth >= noiseSample.z + bias ? 1.0 : 0.0) * rangeCheck;  
     } 
 
-    occlusion = pow(1.0 - (occlusion / kernelSize), power);
+    occlusion = pow(1.0 - (occlusion / kernelSize), SSAOPower);
 
     " + ShaderHelpers.LightingCalc("totalLight", "GlobalAmbient", "Normal", "FragPosWS", "AlbedoSpec.rgb", "AlbedoSpec.a", "occlusion") + @"
 
@@ -887,6 +896,11 @@ uniform sampler2D Texture1; //Depth
 " + ShaderHelpers.Func_RGBtoHSV + @"
 " + ShaderHelpers.Func_HSVtoRGB + @"
 
+float rand(vec2 co)
+{
+    return fract(sin(dot(co.xy, vec2(12.9898,78.233))) * 43758.5453);
+}
+
 void main()
 {
     vec2 uv = FragPos.xy;
@@ -901,16 +915,20 @@ void main()
     hsv.z *= ColorGrade.Brightness;
     hdrSceneColor = HSVtoRGB(hsv);
     hdrSceneColor = (hdrSceneColor - 0.5) * ColorGrade.Contrast + 0.5;
+
     //Tone mapping
     vec3 ldrSceneColor = vec3(1.0) - exp(-hdrSceneColor * ColorGrade.Exposure);
     
     //Vignette
     uv *= 1.0 - uv.yx;
-    float vig = uv.x * uv.y * Vignette.Intensity;
-    ldrSceneColor *= pow(vig, Vignette.Power);
+    float vig = pow(uv.x * uv.y * Vignette.Intensity, Vignette.Power);
+    ldrSceneColor = mix(Vignette.Color, ldrSceneColor, vig);
 
     //Gamma-correct
     vec3 gammaCorrected = pow(ldrSceneColor, vec3(1.0 / ColorGrade.Gamma));
+
+    //Fix subtle banding by applying fine noise
+    gammaCorrected += mix(-0.5/255.0, 0.5/255.0, rand(uv));
 
     OutColor = vec4(gammaCorrected, 1.0);
 }";

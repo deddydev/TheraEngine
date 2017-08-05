@@ -98,6 +98,104 @@ namespace System
             _data.Read(address);
             EndUpdate();
         }
+
+        private EventVec3 _syncX, _syncY, _syncZ, _syncAll;
+        public void SyncXFrom(EventVec3 other)
+        {
+            if (_syncAll != null)
+            {
+                _syncAll.Changed -= Other_Changed;
+                _syncAll = null;
+            }
+            other.XValueChanged += Other_XChanged;
+            _syncX = other;
+            X = other.X;
+        }
+        public void SyncYFrom(EventVec3 other)
+        {
+            if (_syncAll != null)
+            {
+                _syncAll.Changed -= Other_Changed;
+                _syncAll = null;
+            }
+            other.YValueChanged += Other_YChanged;
+            _syncY = other;
+            Y = other.Y;
+        }
+        public void SyncRollFrom(EventVec3 other)
+        {
+            if (_syncAll != null)
+            {
+                _syncAll.Changed -= Other_Changed;
+                _syncAll = null;
+            }
+            other.ZValueChanged += Other_ZChanged;
+            _syncZ = other;
+            Z = other.Z;
+        }
+        public void SyncFrom(EventVec3 other)
+        {
+            if (_syncX != null)
+            {
+                _syncX.XValueChanged -= Other_XChanged;
+                _syncX = null;
+            }
+            if (_syncY != null)
+            {
+                _syncY.YValueChanged -= Other_YChanged;
+                _syncY = null;
+            }
+            if (_syncZ != null)
+            {
+                _syncZ.ZValueChanged -= Other_ZChanged;
+                _syncZ = null;
+            }
+            other.Changed += Other_Changed;
+            _syncAll = other;
+            Xyz = other.Raw;
+        }
+        public void StopSynchronization()
+        {
+            if (_syncAll != null)
+            {
+                _syncAll.Changed -= Other_Changed;
+                _syncAll = null;
+            }
+            if (_syncX != null)
+            {
+                _syncX.XValueChanged -= Other_XChanged;
+                _syncX = null;
+            }
+            if (_syncY != null)
+            {
+                _syncY.YValueChanged -= Other_YChanged;
+                _syncY = null;
+            }
+            if (_syncZ != null)
+            {
+                _syncZ.ZValueChanged -= Other_ZChanged;
+                _syncZ = null;
+            }
+        }
+
+        private void Other_Changed()
+        {
+            Xyz = _syncAll.Raw;
+        }
+        private void Other_XChanged(float newValue, float oldValue)
+        {
+            X = newValue;
+        }
+        private void Other_YChanged(float newValue, float oldValue)
+        {
+            Y = newValue;
+        }
+        private void Other_ZChanged(float newValue, float oldValue)
+        {
+            Z = newValue;
+        }
+
+
         public EventVec3() { }
         public EventVec3(float x, float y, float z)
         {
@@ -408,42 +506,42 @@ namespace System
         public EventVec3 Xzy
         {
             get { return new EventVec3(X, Z, Y); }
-            set { SetXyz(X, Z, Y); }
+            set { SetXyz(value.X, value.Z, value.Y); }
         }
         [Browsable(false)]
         [XmlIgnore]
         public EventVec3 Yxz
         {
             get { return new EventVec3(Y, X, Z); }
-            set { SetXyz(Y, X, Z); }
+            set { SetXyz(value.Y, value.X, value.Z); }
         }
         [Browsable(false)]
         [XmlIgnore]
         public EventVec3 Yzx
         {
             get { return new EventVec3(Y, Z, X); }
-            set { SetXyz(Y, Z, X); }
+            set { SetXyz(value.Y, value.Z, value.X); }
         }
         [Browsable(false)]
         [XmlIgnore]
         public EventVec3 Zxy
         {
             get { return new EventVec3(Z, X, Y); }
-            set { SetXyz(Z, X, Y); }
+            set { SetXyz(value.Z, value.X, value.Y); }
         }
         [Browsable(false)]
         [XmlIgnore]
         public EventVec3 Zyx
         {
             get { return new EventVec3(Z, Y, X); }
-            set { SetXyz(Z, Y, X); }
+            set { SetXyz(value.Z, value.Y, value.X); }
         }
         [Browsable(false)]
         [XmlIgnore]
         public EventVec3 Xyz
         {
             get { return new EventVec3(X, Y, Z); }
-            set { SetXyz(X, Y, Z); }
+            set { SetXyz(value.X, value.Y, value.Z); }
         }
 
         public static Vec3 operator +(float left, EventVec3 right) { return left + right._data; }

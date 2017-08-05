@@ -205,6 +205,7 @@
     <Compile Include="Audio\AudioParameters.cs" />
     <Compile Include="Audio\SoundFile.cs" />
     <Compile Include="Audio\WaveFile.cs" />
+    <Compile Include="Core\Maths\Shapes\Cylindrical\ZAligned\ConeZ.cs" />
     <Compile Include="Cutscenes\Cutscene.cs" />
     <Compile Include="EditorState.cs" />
     <Compile Include="Engine\EngineMethods.cs" />
@@ -1003,7 +1004,6 @@
     <Folder Include="AI\" />
     <Folder Include="Core\Files\Serialization\JSON\" />
     <Folder Include="Core\Maths\Shapes\Cylindrical\XAligned\" />
-    <Folder Include="Core\Maths\Shapes\Cylindrical\ZAligned\" />
     <Folder Include="Worlds\Actors\Components\Scene\Shapes\Cylindrical\XAligned\" />
     <Folder Include="Worlds\Actors\Components\Scene\Shapes\Cylindrical\ZAligned\" />
   </ItemGroup>

@@ -6,25 +6,18 @@ using TheraEngine.Rendering.Models.Materials;
 
 namespace TheraEngine.Worlds.Actors
 {
-    public class SpotLightComponent : LightComponent, I3DRenderable
+    public class SpotLightComponent : LightComponent
     {
-        private RenderInfo3D _renderInfo = new RenderInfo3D(ERenderPassType3D.OpaqueForward, null, false);
-        public RenderInfo3D RenderInfo => _renderInfo;
-        [Browsable(false)]
-        public Shape CullingVolume => _cullingVolume;
-        [Browsable(false)]
-        public IOctreeNode OctreeNode { get; set; }
-
-        private float _cutoff, _exponent, _distance;
+        private float _outerCutoff, _innerCutoff, _exponent, _brightness, _distance;
         private Vec3 _direction;
 
-        [Category("Spot Light Component")]
+        [Category("Spotlight Component")]
         public float Distance
         {
             get => _distance;
             set => _distance = value;
         }
-        [Category("Spot Light Component")]
+        [Category("Spotlight Component")]
         public Vec3 Direction
         {
             get => _direction;
@@ -34,44 +27,67 @@ namespace TheraEngine.Worlds.Actors
                 _rotation.SetDirection(_direction);
             }
         }
-        [Category("Spot Light Component")]
+        [Category("Spotlight Component")]
         public float Exponent
         {
             get => _exponent;
             set => _exponent = value;
         }
-        [Category("Spot Light Component")]
-        public float CutoffAngleDegrees
+        [Category("Spotlight Component")]
+        public float Brightness
         {
-            get => CustomMath.RadToDeg(_cutoff);
-            set => _cutoff = CustomMath.DegToRad(value);
+            get => _brightness;
+            set => _brightness = value;
+        }
+        [Category("Spotlight Component")]
+        public float OuterCutoffAngleDegrees
+        {
+            get => CustomMath.RadToDeg((float)Math.Acos(_outerCutoff));
+            set => _outerCutoff = (float)Math.Cos(CustomMath.DegToRad(value));
+        }
+        [Category("Spotlight Component")]
+        public float InnerCutoffAngleDegrees
+        {
+            get => CustomMath.RadToDeg((float)Math.Acos(_innerCutoff));
+            set => _innerCutoff = (float)Math.Cos(CustomMath.DegToRad(value));
         }
 
         public SpotLightComponent(
             float distance, ColorF3 color, float diffuseIntensity, float ambientIntensity,
-            Vec3 direction, float cutoffAngleDegrees, float exponent) 
+            Vec3 direction, float outerCutoffDeg, float innerCutoffDeg, float brightness, float exponent) 
             : base(color, diffuseIntensity, ambientIntensity)
         {
-            Direction = direction;
+            OuterCutoffAngleDegrees = outerCutoffDeg;
+            InnerCutoffAngleDegrees = innerCutoffDeg;
             _distance = distance;
-            _cutoff = CustomMath.DegToRad(cutoffAngleDegrees);
+            _brightness = brightness;
+            _cullingVolume = new ConeZ((float)Math.Tan(CustomMath.DegToRad(outerCutoffDeg)) * _distance, _distance);
+            Direction = direction;
             _exponent = exponent;
-            _cullingVolume = new ConeY(0.0f, 0.0f);
+            //_cullingVolume.State.Rotation.SyncFrom(_rotation);
+            //_cullingVolume.State.Translation.SyncFrom(_translation);
         }
         public SpotLightComponent(
             float distance, ColorF3 color, float diffuseIntensity, float ambientIntensity,
-            Rotator rotation, float cutoffAngleDegrees, float exponent)
+            Rotator rotation, float outerCutoffDeg, float innerCutoffDeg, float brightness, float exponent)
             : base(color, diffuseIntensity, ambientIntensity)
         {
+            OuterCutoffAngleDegrees = outerCutoffDeg;
+            InnerCutoffAngleDegrees = innerCutoffDeg;
             _distance = distance;
+            _brightness = brightness;
+            _cullingVolume = new ConeZ((float)Math.Tan(CustomMath.DegToRad(outerCutoffDeg)) * _distance, _distance);
             _rotation.SetRotations(rotation);
-            _cutoff = CustomMath.DegToRad(cutoffAngleDegrees);
             _exponent = exponent;
+            //_cullingVolume.State.Rotation.SyncFrom(_rotation);
+            //_cullingVolume.State.Translation.SyncFrom(_translation);
         }
 
         protected override void OnRecalcLocalTransform(out Matrix4 localTransform, out Matrix4 inverseLocalTransform)
         {
             _direction = _rotation.GetDirection();
+            _cullingVolume.State.Rotation.SetDirection(-_direction);
+            _cullingVolume.State.Translation.Raw = _translation + _direction * (_distance / 2.0f);
             base.OnRecalcLocalTransform(out localTransform, out inverseLocalTransform);
         }
 
@@ -79,32 +95,50 @@ namespace TheraEngine.Worlds.Actors
         private PerspectiveCamera _shadowCamera;
         private int _shadowWidth, _shadowHeight;
         private Matrix4 _worldToLightSpaceProjMatrix;
-        internal protected ConeY _cullingVolume;
+        internal protected ConeZ _cullingVolume;
 
         public override void OnSpawned()
         {
             if (_type == LightType.Dynamic)
+            {
                 Engine.Scene.Lights.Add(this);
+                
+                SetShadowMapResolution(2048, 2048);
+
+                if (Engine.Settings.RenderCameraFrustums)
+                    Engine.Scene.Add(_shadowCamera);
+            }
         }
         public override void OnDespawned()
         {
             if (_type == LightType.Dynamic)
+            {
                 Engine.Scene.Lights.Remove(this);
+                if (Engine.Settings.RenderCameraFrustums)
+                    Engine.Scene.Remove(_shadowCamera);
+            }
         }
-
         public override void SetUniforms(int programBindingId)
         {
             Vec3 point = WorldMatrix.GetPoint();
 
             string indexer = Uniform.SpotLightsName + "[" + _lightIndex + "].";
-            Engine.Renderer.ProgramUniform(programBindingId, indexer + "Base.Base.Color", _color.Raw);
-            Engine.Renderer.ProgramUniform(programBindingId, indexer + "Base.Base.AmbientIntensity", _ambientIntensity);
-            Engine.Renderer.ProgramUniform(programBindingId, indexer + "Base.Base.DiffuseIntensity", _diffuseIntensity);
-            Engine.Renderer.ProgramUniform(programBindingId, indexer + "Base.Position", point);
-            Engine.Renderer.ProgramUniform(programBindingId, indexer + "Base.Radius", _cullingVolume.Radius);
-            Engine.Renderer.ProgramUniform(programBindingId, indexer + "Direction", _direction);
-            Engine.Renderer.ProgramUniform(programBindingId, indexer + "Cutoff", _cutoff);
-            Engine.Renderer.ProgramUniform(programBindingId, indexer + "Exponent", _exponent);
+
+            Engine.Renderer.Uniform(programBindingId, indexer + "Direction", _direction);
+            Engine.Renderer.Uniform(programBindingId, indexer + "OuterCutoff", _outerCutoff);
+            Engine.Renderer.Uniform(programBindingId, indexer + "InnerCutoff", _innerCutoff);
+            Engine.Renderer.Uniform(programBindingId, indexer + "Exponent", _exponent);
+
+            Engine.Renderer.Uniform(programBindingId, indexer + "Base.Position", point);
+            Engine.Renderer.Uniform(programBindingId, indexer + "Base.Radius", _distance);
+            Engine.Renderer.Uniform(programBindingId, indexer + "Base.Brightness", _brightness);
+
+            Engine.Renderer.Uniform(programBindingId, indexer + "Base.Base.Color", _color.Raw);
+            Engine.Renderer.Uniform(programBindingId, indexer + "Base.Base.AmbientIntensity", _ambientIntensity);
+            Engine.Renderer.Uniform(programBindingId, indexer + "Base.Base.DiffuseIntensity", _diffuseIntensity);
+            Engine.Renderer.Uniform(programBindingId, indexer + "Base.Base.WorldToLightSpaceProjMatrix", _worldToLightSpaceProjMatrix);
+
+            _shadowMap.Material.SetTextureUniform(0, Viewport.GBufferTextureCount + Engine.Scene.Lights.DirectionalLights.Count + LightIndex, indexer + "Base.Base.ShadowMap", programBindingId);
         }
         public void SetShadowMapResolution(int width, int height)
         {
@@ -117,19 +151,13 @@ namespace TheraEngine.Worlds.Actors
 
             if (_shadowCamera == null)
             {
-                _shadowCamera = new PerspectiveCamera()
-                {
-                    NearZ = 0.0f,
-                    FarZ = _distance,
-                };
-                _shadowCamera.Resize(1.0f, 1.0f);
+                _shadowCamera = new PerspectiveCamera(0.1f, _distance - 0.1f, OuterCutoffAngleDegrees * 2.0f, 1.0f);
                 _shadowCamera.LocalRotation.SyncFrom(_rotation);
+                _shadowCamera.LocalPoint.SyncFrom(_translation);
                 _shadowCamera.ProjectionChanged += UpdateMatrix;
                 _shadowCamera.TransformChanged += UpdateMatrix;
                 UpdateMatrix();
             }
-            else
-                _shadowCamera.Resize(width, height);
         }
         private void UpdateMatrix()
             => _worldToLightSpaceProjMatrix = _shadowCamera.ProjectionMatrix * _shadowCamera.WorldToCameraSpaceMatrix;
@@ -144,12 +172,12 @@ namespace TheraEngine.Worlds.Actors
             }
             return EPixelInternalFormat.DepthComponent32f;
         }
-        private static Material GetShadowMapMaterial(int width, int height, EDepthPrecision precision = EDepthPrecision.Int24)
+        private static Material GetShadowMapMaterial(int width, int height, EDepthPrecision precision = EDepthPrecision.Flt32)
         {
             //These are listed in order of appearance in the shader
             TextureReference[] refs = new TextureReference[]
             {
-                new TextureReference("Depth", width, height,
+                new TextureReference("SpotDepth", width, height,
                     GetFormat(precision), EPixelFormat.DepthComponent, EPixelType.Float)
                 {
                     MinFilter = ETexMinFilter.Nearest,
@@ -159,13 +187,8 @@ namespace TheraEngine.Worlds.Actors
                     FrameBufferAttachment = EFramebufferAttachment.DepthAttachment,
                 },
             };
-            Shader shader = new Shader(ShaderMode.Fragment, ShaderHelpers.Frag_DepthOutput);
-            Material m = new Material("SpotLightShadowMat", new ShaderVar[0], refs, shader)
-            {
-                Requirements = Material.UniformRequirements.None,
-                //CullMode = Culling.Front,
-            };
-            return m;
+            Shader shader = new Shader(ShaderMode.Fragment, ShaderHelpers.Frag_Nothing);
+            return new Material("SpotLightShadowMat", new ShaderVar[0], refs, shader);
         }
         public override void RenderShadowMap(SceneProcessor scene)
         {
@@ -193,11 +216,6 @@ namespace TheraEngine.Worlds.Actors
         public override void BakeShadowMaps()
         {
 
-        }
-
-        public void Render()
-        {
-            throw new NotImplementedException();
         }
     }
 }

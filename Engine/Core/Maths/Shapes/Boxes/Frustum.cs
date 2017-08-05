@@ -315,7 +315,10 @@ namespace System
         public void TransformedVersionOf(Frustum other, Matrix4 transform)
         {
             if (_boundingSphere != null)
-                _boundingSphere.Center = _boundingSphere.Center * transform;
+            {
+                _boundingSphere.Center = other._boundingSphere.Center * transform;
+                _boundingSphere.Radius = other._boundingSphere.Radius;
+            }
             for (int i = 0; i < 8; ++i)
                 _points[i] = other._points[i] * transform;
             for (int i = 0; i < 6; ++i)
@@ -333,15 +336,16 @@ namespace System
         }
 
         public Frustum TransformedBy(Matrix4 transform)
-            => new Frustum(
-                FarBottomLeft * transform,
-                FarBottomRight * transform,
-                FarTopLeft * transform,
-                FarTopRight * transform,
-                NearBottomLeft * transform,
-                NearBottomRight * transform,
-                NearTopLeft * transform,
-                NearTopRight * transform);
+        {
+            Frustum f = new Frustum();
+            if (_boundingSphere != null)
+                f._boundingSphere = new Sphere(_boundingSphere.Radius, _boundingSphere.Center * transform);
+            for (int i = 0; i < 8; ++i)
+                f._points[i] = _points[i] * transform;
+            for (int i = 0; i < 6; ++i)
+                f._planes[i] = _planes[i].TransformedBy(transform);
+            return f;
+        }
         
         public EContainment Contains(Box box) 
             => Collision.FrustumContainsBox1(this, box.HalfExtents, box.WorldMatrix);

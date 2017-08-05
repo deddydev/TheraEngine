@@ -3,24 +3,26 @@ using System.ComponentModel;
 
 namespace TheraEngine.Rendering.Cameras
 {
+    [TypeConverter(typeof(ExpandableObjectConverter))]
     public class OrthographicCamera : Camera
     {
         public OrthographicCamera() : base()
         {
             _scale.Changed += CreateTransform;
+            _originPercentages.Changed += _originPercentages_Changed;
         }
         public OrthographicCamera(Vec3 scale, Vec3 point, Rotator rotation, Vec2 originPercentages, float nearZ, float farZ)
             : base(16.0f, 9.0f, nearZ, farZ, point, rotation)
         {
             _scale.SetRawNoUpdate(scale);
             _scale.Changed += CreateTransform;
-            _originPercentages.Raw = originPercentages;
             _originPercentages.Changed += _originPercentages_Changed;
+            _originPercentages.Raw = originPercentages;
         }
 
         private void _originPercentages_Changed()
         {
-
+            SetOriginPercentages(_originPercentages);
         }
 
         public override float Width

@@ -23,7 +23,7 @@ namespace TheraEngine.Worlds.Actors
         }
 
         private IActor _owner;
-        private FrameState _transform = FrameState.Identity;
+        private FrameState _transform = FrameState.GetIdentity();
         private MonitoredList<SceneComponent> _childComponents;
 
         public Matrix4 WorldMatrix => _transform.Matrix;

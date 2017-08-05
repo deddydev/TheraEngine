@@ -236,25 +236,7 @@ namespace TheraEngine.Worlds.Actors.Types
                 RootComponent.Meshes[x++].Visible = _mode == TransformType.Rotate;
                 RootComponent.Meshes[x++].Visible = _mode == TransformType.Translate;
 
-                if (TransformMode != TransformType.Rotate)
-                {
-                    if (TransformMode == TransformType.Translate)
-                    {
-                        _transPlaneMat[0].Parameter<ShaderVec4>(0).Value = _hiAxis.X && _hiAxis.Y ? (ColorF4)Color.Yellow : Color.Red;
-                        _transPlaneMat[1].Parameter<ShaderVec4>(0).Value = _hiAxis.X && _hiAxis.Z ? (ColorF4)Color.Yellow : Color.Red;
-                        _transPlaneMat[2].Parameter<ShaderVec4>(0).Value = _hiAxis.Y && _hiAxis.Z ? (ColorF4)Color.Yellow : Color.Green;
-                        _transPlaneMat[3].Parameter<ShaderVec4>(0).Value = _hiAxis.Y && _hiAxis.X ? (ColorF4)Color.Yellow : Color.Green;
-                        _transPlaneMat[4].Parameter<ShaderVec4>(0).Value = _hiAxis.Z && _hiAxis.X ? (ColorF4)Color.Yellow : Color.Blue;
-                        _transPlaneMat[5].Parameter<ShaderVec4>(0).Value = _hiAxis.Z && _hiAxis.Y ? (ColorF4)Color.Yellow : Color.Blue;
-                    }
-                    else
-                    {
-                        _scalePlaneMat[0].Parameter<ShaderVec4>(0).Value = _hiAxis.Y && _hiAxis.Z ? (ColorF4)Color.Yellow : Color.Red;
-                        _scalePlaneMat[1].Parameter<ShaderVec4>(0).Value = _hiAxis.X && _hiAxis.Z ? (ColorF4)Color.Yellow : Color.Green;
-                        _scalePlaneMat[2].Parameter<ShaderVec4>(0).Value = _hiAxis.X && _hiAxis.Y ? (ColorF4)Color.Yellow : Color.Blue;
-                    }
-                }
-
+                GetDependentColors();
             }
         }
         /// <summary>
@@ -295,7 +277,10 @@ namespace TheraEngine.Worlds.Actors.Types
         public static EditorTransformTool3D GetInstance(ISocket comp, TransformType transformType)
         {
             if (_currentInstance == null)
-                Engine.World.SpawnActor(new EditorTransformTool3D());
+                _currentInstance = new EditorTransformTool3D();
+
+            if (!_currentInstance.IsSpawned)
+                Engine.World.SpawnActor(_currentInstance);
 
             _currentInstance.TargetSocket = comp;
             _currentInstance.TransformMode = transformType;
@@ -305,18 +290,15 @@ namespace TheraEngine.Worlds.Actors.Types
         public static void DestroyInstance()
         {
             _currentInstance?.Despawn();
-            _currentInstance = null;
         }
         public override void OnSpawnedPreComponentSetup(World world)
         {
-            _currentInstance = this;
-            Engine.Scene.Add(this);
+            //Engine.Scene.Add(this);
         }
         public override void OnDespawned()
         {
-            Engine.Scene.Remove(this);
+            //Engine.Scene.Remove(this);
             base.OnDespawned();
-            _currentInstance = null;
         }
 
         private BoolVec3 _hiAxis;
@@ -669,28 +651,32 @@ namespace TheraEngine.Worlds.Actors.Types
                 _axisMat[2].Parameter<ShaderVec4>(0).Value = _hiAxis.Z ? (ColorF4)Color.Yellow : Color.Blue;
                 _screenMat.Parameter<ShaderVec4>(0).Value = _hiCam ? (ColorF4)Color.Yellow : Color.LightGray;
 
-                if (TransformMode != TransformType.Rotate)
-                {
-                    if (TransformMode == TransformType.Translate)
-                    {
-                        _transPlaneMat[0].Parameter<ShaderVec4>(0).Value = _hiAxis.X && _hiAxis.Y ? (ColorF4)Color.Yellow : Color.Red;
-                        _transPlaneMat[1].Parameter<ShaderVec4>(0).Value = _hiAxis.X && _hiAxis.Z ? (ColorF4)Color.Yellow : Color.Red;
-                        _transPlaneMat[2].Parameter<ShaderVec4>(0).Value = _hiAxis.Y && _hiAxis.Z ? (ColorF4)Color.Yellow : Color.Green;
-                        _transPlaneMat[3].Parameter<ShaderVec4>(0).Value = _hiAxis.Y && _hiAxis.X ? (ColorF4)Color.Yellow : Color.Green;
-                        _transPlaneMat[4].Parameter<ShaderVec4>(0).Value = _hiAxis.Z && _hiAxis.X ? (ColorF4)Color.Yellow : Color.Blue;
-                        _transPlaneMat[5].Parameter<ShaderVec4>(0).Value = _hiAxis.Z && _hiAxis.Y ? (ColorF4)Color.Yellow : Color.Blue;
-                    }
-                    else
-                    {
-                        _scalePlaneMat[0].Parameter<ShaderVec4>(0).Value = _hiAxis.Y && _hiAxis.Z ? (ColorF4)Color.Yellow : Color.Red;
-                        _scalePlaneMat[1].Parameter<ShaderVec4>(0).Value = _hiAxis.X && _hiAxis.Z ? (ColorF4)Color.Yellow : Color.Green;
-                        _scalePlaneMat[2].Parameter<ShaderVec4>(0).Value = _hiAxis.X && _hiAxis.Y ? (ColorF4)Color.Yellow : Color.Blue;
-                    }
-                }
+                GetDependentColors();
 
                 _lastPoint = GetDragPoint(camera, localRay);
             }
             return snapFound;
+        }
+        private void GetDependentColors()
+        {
+            if (TransformMode != TransformType.Rotate)
+            {
+                if (TransformMode == TransformType.Translate)
+                {
+                    _transPlaneMat[0].Parameter<ShaderVec4>(0).Value = _hiAxis.X && _hiAxis.Y ? (ColorF4)Color.Yellow : Color.Red;
+                    _transPlaneMat[1].Parameter<ShaderVec4>(0).Value = _hiAxis.X && _hiAxis.Z ? (ColorF4)Color.Yellow : Color.Red;
+                    _transPlaneMat[2].Parameter<ShaderVec4>(0).Value = _hiAxis.Y && _hiAxis.Z ? (ColorF4)Color.Yellow : Color.Green;
+                    _transPlaneMat[3].Parameter<ShaderVec4>(0).Value = _hiAxis.Y && _hiAxis.X ? (ColorF4)Color.Yellow : Color.Green;
+                    _transPlaneMat[4].Parameter<ShaderVec4>(0).Value = _hiAxis.Z && _hiAxis.X ? (ColorF4)Color.Yellow : Color.Blue;
+                    _transPlaneMat[5].Parameter<ShaderVec4>(0).Value = _hiAxis.Z && _hiAxis.Y ? (ColorF4)Color.Yellow : Color.Blue;
+                }
+                else
+                {
+                    _scalePlaneMat[0].Parameter<ShaderVec4>(0).Value = _hiAxis.Y && _hiAxis.Z ? (ColorF4)Color.Yellow : Color.Red;
+                    _scalePlaneMat[1].Parameter<ShaderVec4>(0).Value = _hiAxis.X && _hiAxis.Z ? (ColorF4)Color.Yellow : Color.Green;
+                    _scalePlaneMat[2].Parameter<ShaderVec4>(0).Value = _hiAxis.X && _hiAxis.Y ? (ColorF4)Color.Yellow : Color.Blue;
+                }
+            }
         }
         private void OnPressed()
         {

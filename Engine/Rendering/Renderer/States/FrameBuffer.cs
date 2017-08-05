@@ -38,8 +38,7 @@ namespace TheraEngine.Rendering
             _fullScreenTriangle = new PrimitiveManager(PrimitiveData.FromTriangles(Culling.None, VertexShaderDesc.JustPositions(), triangle), Material);
             _fullScreenTriangle.SettingUniforms += SetUniforms;
 
-            _quadCamera = new OrthographicCamera() { NearZ = -0.5f, FarZ = 0.5f };
-            _quadCamera.SetGraphStyle();
+            _quadCamera = new OrthographicCamera(Vec3.One, Vec3.Zero, Rotator.GetZero(), Vec2.Zero, -0.5f, 0.5f);
             _quadCamera.Resize(1.0f, 1.0f);
         }
 

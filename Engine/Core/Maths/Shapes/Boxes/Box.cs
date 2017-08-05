@@ -42,7 +42,7 @@ namespace System
         public Box(BoundingBox aabb)
             : this(aabb.HalfExtents, new FrameState(aabb.Translation, Quat.Identity, Vec3.One)) { }
         public Box(float halfExtentX, float halfExtentY, float halfExtentZ) 
-            : this(halfExtentX, halfExtentY, halfExtentZ, FrameState.Identity) { }
+            : this(halfExtentX, halfExtentY, halfExtentZ, FrameState.GetIdentity()) { }
         public Box(float halfExtentX, float halfExtentY, float halfExtentZ, FrameState transform)
             : this()
         {
@@ -50,7 +50,7 @@ namespace System
             _transform = transform;
         }
         public Box(Vec3 halfExtents) 
-            : this(halfExtents, FrameState.Identity) { }
+            : this(halfExtents, FrameState.GetIdentity()) { }
         public Box(Vec3 halfExtents, FrameState transform)
             : this()
         {
@@ -58,7 +58,7 @@ namespace System
             _transform = transform;
         }
         public Box(float uniformHalfExtents) 
-            : this(uniformHalfExtents, FrameState.Identity) { }
+            : this(uniformHalfExtents, FrameState.GetIdentity()) { }
         public Box(float uniformHalfExtents, FrameState transform) 
             : this()
         {
@@ -68,7 +68,7 @@ namespace System
         public Box()
         {
             _halfExtents = Vec3.Half;
-            _transform = FrameState.Identity;
+            _transform = FrameState.GetIdentity();
         }
 
         /// <summary>

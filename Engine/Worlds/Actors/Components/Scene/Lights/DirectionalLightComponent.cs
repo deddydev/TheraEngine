@@ -58,8 +58,7 @@ namespace TheraEngine.Worlds.Actors
                 _rotation.SetDirection(_direction);
             }
         }
-
-        [TypeConverter(typeof(ExpandableObjectConverter))]
+        
         public OrthographicCamera ShadowCamera => _shadowCamera;
 
         public override void OnSpawned()
@@ -90,12 +89,14 @@ namespace TheraEngine.Worlds.Actors
         public override void SetUniforms(int programBindingId)
         {
             string indexer = Uniform.DirectionalLightsName + "[" + _lightIndex + "].";
-            Engine.Renderer.ProgramUniform(programBindingId, indexer + "Base.Color", _color.Raw);
-            Engine.Renderer.ProgramUniform(programBindingId, indexer + "Base.AmbientIntensity", _ambientIntensity);
-            Engine.Renderer.ProgramUniform(programBindingId, indexer + "Base.DiffuseIntensity", _diffuseIntensity);
-            Engine.Renderer.ProgramUniform(programBindingId, indexer + "Base.WorldToLightSpaceProjMatrix", _worldToLightSpaceProjMatrix);
-            Engine.Renderer.ProgramUniform(programBindingId, indexer + "Direction", _direction);
-            _shadowMap.Material.SetTextureUniform(0, 4 + LightIndex, indexer + "Base.ShadowMap", programBindingId);
+
+            Engine.Renderer.Uniform(programBindingId, indexer + "Direction", _direction);
+
+            Engine.Renderer.Uniform(programBindingId, indexer + "Base.Color", _color.Raw);
+            Engine.Renderer.Uniform(programBindingId, indexer + "Base.AmbientIntensity", _ambientIntensity);
+            Engine.Renderer.Uniform(programBindingId, indexer + "Base.DiffuseIntensity", _diffuseIntensity);
+            Engine.Renderer.Uniform(programBindingId, indexer + "Base.WorldToLightSpaceProjMatrix", _worldToLightSpaceProjMatrix);
+            _shadowMap.Material.SetTextureUniform(0, Viewport.GBufferTextureCount + LightIndex, indexer + "Base.ShadowMap", programBindingId);
         }
         public void SetShadowMapResolution(int width, int height)
         {
@@ -108,12 +109,7 @@ namespace TheraEngine.Worlds.Actors
 
             if (_shadowCamera == null)
             {
-                _shadowCamera = new OrthographicCamera()
-                {
-                    NearZ = 1.0f,
-                    FarZ = _worldRadius * 2.0f + 1.0f,
-                };
-                _shadowCamera.SetCenteredStyle();
+                _shadowCamera = new OrthographicCamera(Vec3.One, Vec3.Zero, Rotator.GetZero(), Vec2.Half, 1.0f, _worldRadius * 2.0f + 1.0f);
                 _shadowCamera.Resize(_worldRadius, _worldRadius);
                 _shadowCamera.LocalRotation.SyncFrom(_rotation);
                 _shadowCamera.ProjectionChanged += UpdateMatrix;
@@ -121,7 +117,7 @@ namespace TheraEngine.Worlds.Actors
                 UpdateMatrix();
             }
             else
-                _shadowCamera.Resize(width, height);
+                _shadowCamera.Resize(_worldRadius, _worldRadius);
         }
 
         private void UpdateMatrix()

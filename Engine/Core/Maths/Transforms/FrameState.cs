@@ -25,12 +25,12 @@ namespace System
             TransformOrder transformationOrder = TransformOrder.TRS,
             RotationOrder rotationOrder = RotationOrder.YPR)
         {
-            FrameState identity = Identity;
+            FrameState identity = GetIdentity();
             identity._transformOrder = transformationOrder;
             identity.RotationOrder = rotationOrder;
             return identity;
         }
-        public static readonly FrameState Identity = new FrameState(Vec3.Zero, Rotator.GetZero(), Vec3.One);
+        public static FrameState GetIdentity() => new FrameState(Vec3.Zero, Rotator.GetZero(), Vec3.One);
         public FrameState()
         {
             _translation = Vec3.Zero;

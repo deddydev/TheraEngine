@@ -50,6 +50,9 @@ namespace TheraEngine.Rendering.Models
 
         //Note: if there's only one bone, we can just multiply the model matrix by the bone's frame matrix. No need for weighting.
         public bool IsWeighted => _boneCount > 1;
+        public bool IsSingleBound => _boneCount == 1;
+        public bool HasSkinning => _boneCount > 0;
+
         public bool HasNormals => _hasNormals;
         public bool HasBinormals => _hasBinormals;
         public bool HasTangents => _hasTangents;
@@ -94,39 +97,48 @@ namespace TheraEngine.Rendering.Models
         [Browsable(false)]
         public VertexShaderDesc BufferInfo => _bufferInfo;
 
+        public List<VertexBuffer> Buffers { get => _buffers; set => _buffers = value; }
+        public Influence[] Influences { get => _influences; set => _influences = value; }
+        public string[] UtilizedBones { get => _utilizedBones; set => _utilizedBones = value; }
+        public List<FacePoint> FacePoints { get => _facePoints; set => _facePoints = value; }
+        public List<IndexTriangle> Triangles { get => _triangles; set => _triangles = value; }
+        public List<IndexLine> Lines { get => _lines; set => _lines = value; }
+        public List<IndexPoint> Points { get => _points; set => _points = value; }
+        public EPrimitiveType Type { get => _type; set => _type = value; }
+
         //Faces have indices that refer to face points.
         //These may contain repeat vertex indices but each triangle is unique.
         [Serialize("Triangles", Order = 7)]
-        public List<IndexTriangle> _triangles = null;
+        internal List<IndexTriangle> _triangles = null;
         [Serialize("Lines", Order = 6)]
-        public List<IndexLine> _lines = null;
+        internal List<IndexLine> _lines = null;
         [Serialize("Points", Order = 5)]
-        public List<IndexPoint> _points = null;
-        public EPrimitiveType _type;
-        
+        internal List<IndexPoint> _points = null;
+        internal EPrimitiveType _type;
+
         //Influence per raw vertex.
         //Count is same as _facePoints.Count
         [Serialize("Influences", Order = 2)]
-        public Influence[] _influences;
+        internal Influence[] _influences;
         [Serialize("UtilizedBones", Order = 1)]
-        public string[] _utilizedBones;
+        internal string[] _utilizedBones;
         [Serialize("SingleBindBone", Order = 0)]
-        private string _singleBindBone;
+        internal string _singleBindBone;
 
         //Face points have indices that refer to each buffer.
         //These may contain repeat buffer indices but each point is unique.
         [Serialize("FacePoints", Order = 4)]
-        public List<FacePoint> _facePoints = null;
+        internal List<FacePoint> _facePoints = null;
 
         //This is the array data that will be passed through the shader.
         //Each buffer may have repeated values, as there must be a value for each remapped face point.
         [Serialize("VertexBuffers", Order = 3)]
-        private List<VertexBuffer> _buffers = null;
+        internal List<VertexBuffer> _buffers = null;
 
         [Serialize("Culling", IsXmlAttribute = true)]
-        private Culling _culling = Culling.Back;
+        internal Culling _culling = Culling.Back;
 
-        private VertexShaderDesc _bufferInfo;
+        internal VertexShaderDesc _bufferInfo;
 
         public VertexBuffer this[BufferType type]
         {
@@ -631,7 +643,7 @@ namespace TheraEngine.Rendering.Models
 
             CreateFacePoints(firstAppearanceArray.Length);
 
-            if (info.IsWeighted)
+            if (info.HasSkinning)
                 SetInfluences(firstAppearanceArray.Select(x => vertices[x]._influence).ToArray());
 
             for (int i = 0; i < info._morphCount + 1; ++i)

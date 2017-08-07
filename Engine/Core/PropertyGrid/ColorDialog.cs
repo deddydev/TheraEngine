@@ -17,9 +17,9 @@ namespace System.Windows.Forms
             set
             {
                 if (goodColorControl21.EditAlpha = value)
-                    this.Height = 287;
+                    Height = 287;
                 else
-                    this.Height = 267;
+                    Height = 267;
             }
         }
         public bool ShowOldColor

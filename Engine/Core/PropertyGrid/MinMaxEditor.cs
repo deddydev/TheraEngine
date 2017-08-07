@@ -6,20 +6,21 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms.Design;
+using TheraEngine;
 
 namespace System.Windows.Forms
 {
-    public class MinMaxAttribute : Attribute
+    public class DragRangeAttribute : Attribute
     {
         public float Minimum { get; set; }
         public float Maximum { get; set; }
-        public MinMaxAttribute(float min, float max)
+        public DragRangeAttribute(float min, float max)
         {
             Minimum = min;
             Maximum = max;
         }
     }
-    internal class MinMaxEditor : UITypeEditor
+    internal class FloatDragEditor : UITypeEditor
     {
         public override UITypeEditorEditStyle GetEditStyle(ITypeDescriptorContext context)
         {
@@ -40,27 +41,24 @@ namespace System.Windows.Forms
 
             if (_service != null)
             {
-                _owner = context.Instance;
                 _property = context.PropertyDescriptor;
-                if (_property.Attributes[typeof(MinMaxAttribute)] is MinMaxAttribute attrib)
+                if (_property.Attributes[typeof(DragRangeAttribute)] is DragRangeAttribute attrib)
                 {
+                    _owner = context.Instance;
+
                     MinMaxControl control = new MinMaxControl(attrib.Minimum, attrib.Maximum, (float)value);
                     control.ValueChanged += Control_ValueChanged;
                     control.Closed += ControlClosed;
-
+                    
                     _service.DropDownControl(control);
-
-                    if (control.DialogResult == DialogResult.OK)
-                    {
-                        value = control.Value;
-                    }
-
+                    value = control.Value;
+                    
                     control.ValueChanged -= Control_ValueChanged;
                     control.Closed -= ControlClosed;
+                    _owner = null;
                 }
-                _service = null;
                 _property = null;
-                _owner = null;
+                _service = null;
             }
 
             return value;
@@ -69,6 +67,7 @@ namespace System.Windows.Forms
         private void Control_ValueChanged(float value)
         {
             _property.SetValue(_owner, value);
+            RenderPanel.GamePanel.Invalidate();
         }
 
         void ControlClosed(object sender, EventArgs e)

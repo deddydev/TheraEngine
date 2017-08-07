@@ -100,8 +100,15 @@ namespace TheraEngine.Rendering.Cameras
     {
         private float _radius = 0.75f;
         private float _power = 4.0f;
-        
+
+        [DragRange(0.0f, 100.0f)]
+        [Editor(typeof(FloatDragEditor), typeof(UITypeEditor))]
+        [Category("Ambient Occlusion Settings")]
         public float Radius { get => _radius; set => _radius = value; }
+
+        [DragRange(0.0f, 100.0f)]
+        [Editor(typeof(FloatDragEditor), typeof(UITypeEditor))]
+        [Category("Ambient Occlusion Settings")]
         public float Power { get => _power; set => _power = value; }
 
         internal void SetUniforms(int programBindingId)
@@ -116,8 +123,17 @@ namespace TheraEngine.Rendering.Cameras
         private float _intensity = 15.0f;
         private float _power = 0.0f;
 
+        [Category("Vignette Settings")]
         public ColorF3 Color { get => _color; set => _color = value; }
+
+        [DragRange(0.0f, 100.0f)]
+        [Editor(typeof(FloatDragEditor), typeof(UITypeEditor))]
+        [Category("Vignette Settings")]
         public float Intensity { get => _intensity; set => _intensity = value; }
+
+        [DragRange(0.0f, 100.0f)]
+        [Editor(typeof(FloatDragEditor), typeof(UITypeEditor))]
+        [Category("Vignette Settings")]
         public float Power { get => _power; set => _power = value; }
         
         internal void SetUniforms(int programBindingId)
@@ -175,13 +191,13 @@ uniform VignetteStruct Vignette;";
         [Category("Color Grade Settings")]
         public EventColorF3 Tint { get => _tint; set => _tint = value; }
 
-        [MinMax(0.0f, 100.0f)]
-        [Editor(typeof(MinMaxEditor), typeof(UITypeEditor))]
+        [DragRange(0.0f, 100.0f)]
+        [Editor(typeof(FloatDragEditor), typeof(UITypeEditor))]
         [Category("Color Grade Settings")]
         public float Exposure { get => _exposure; set => _exposure = value; }
 
-        [MinMax(-100.0f, 100.0f)]
-        [Editor(typeof(MinMaxEditor), typeof(UITypeEditor))]
+        [DragRange(-100.0f, 100.0f)]
+        [Editor(typeof(FloatDragEditor), typeof(UITypeEditor))]
         [Category("Color Grade Settings")]
         public float Contrast
         {
@@ -194,23 +210,23 @@ uniform VignetteStruct Vignette;";
             }
         }
 
-        [MinMax(0.0f, 50.0f)]
-        [Editor(typeof(MinMaxEditor), typeof(UITypeEditor))]
+        [DragRange(0.0f, 50.0f)]
+        [Editor(typeof(FloatDragEditor), typeof(UITypeEditor))]
         [Category("Color Grade Settings")]
         public float Gamma { get => _gamma; set => _gamma = value; }
 
-        [MinMax(0.0f, 1.0f)]
-        [Editor(typeof(MinMaxEditor), typeof(UITypeEditor))]
+        [DragRange(0.0f, 1.0f)]
+        [Editor(typeof(FloatDragEditor), typeof(UITypeEditor))]
         [Category("Color Grade Settings")]
         public float Hue { get => _hue; set => _hue = value; }
 
-        [MinMax(-100.0f, 100.0f)]
-        [Editor(typeof(MinMaxEditor), typeof(UITypeEditor))]
+        [DragRange(0.0f, 2.0f)]
+        [Editor(typeof(FloatDragEditor), typeof(UITypeEditor))]
         [Category("Color Grade Settings")]
         public float Saturation { get => _saturation; set => _saturation = value; }
 
-        [MinMax(0.0f, 100.0f)]
-        [Editor(typeof(MinMaxEditor), typeof(UITypeEditor))]
+        [DragRange(0.0f, 100.0f)]
+        [Editor(typeof(FloatDragEditor), typeof(UITypeEditor))]
         [Category("Color Grade Settings")]
         public float Brightness { get => _brightness; set => _brightness = value; }
 

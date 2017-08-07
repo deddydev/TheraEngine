@@ -38,12 +38,11 @@ namespace System.Windows.Forms
 
         public float Value => trackBar1.Value * Precision;
 
-        public DialogResult DialogResult;
+        public DialogResult DialogResult = DialogResult.OK;
         public event EventHandler Closed;
 
         private void button1_Click(object sender, EventArgs e)
         {
-            DialogResult = DialogResult.OK;
             Closed?.Invoke(this, null);
         }
     }

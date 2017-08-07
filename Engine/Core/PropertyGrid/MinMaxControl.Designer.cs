@@ -31,7 +31,6 @@
             this.trackBar1 = new System.Windows.Forms.TrackBar();
             this.lblMinvalue = new System.Windows.Forms.Label();
             this.lblMaxValue = new System.Windows.Forms.Label();
-            this.button1 = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.trackBar1)).BeginInit();
             this.SuspendLayout();
             // 
@@ -68,25 +67,10 @@
             this.lblMaxValue.TabIndex = 1;
             this.lblMaxValue.Text = "MaxValue";
             // 
-            // button1
-            // 
-            this.button1.AutoSize = true;
-            this.button1.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.button1.Dock = System.Windows.Forms.DockStyle.Top;
-            this.button1.Location = new System.Drawing.Point(100, 74);
-            this.button1.Margin = new System.Windows.Forms.Padding(0);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(462, 30);
-            this.button1.TabIndex = 2;
-            this.button1.Text = "Ok";
-            this.button1.UseVisualStyleBackColor = true;
-            this.button1.Click += new System.EventHandler(this.button1_Click);
-            // 
             // MinMaxControl
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.Controls.Add(this.button1);
             this.Controls.Add(this.lblMaxValue);
             this.Controls.Add(this.lblMinvalue);
             this.Controls.Add(this.trackBar1);
@@ -104,6 +88,5 @@
         private TrackBar trackBar1;
         private Label lblMinvalue;
         private Label lblMaxValue;
-        private Button button1;
     }
 }

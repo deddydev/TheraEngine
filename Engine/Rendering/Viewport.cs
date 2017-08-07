@@ -312,8 +312,8 @@ namespace TheraEngine.Rendering
             _region.Height =  _topPercentage * parentHeight - _region.Y;
             
             if (setInternalResolution)
-                //SetInternalResolution(1280, 720);
-                SetInternalResolution(parentWidth, parentHeight);
+                SetInternalResolution(1920, 1080);
+                //SetInternalResolution(parentWidth, parentHeight);
         }
         public void DebugPrint(string message)
         {
@@ -921,7 +921,7 @@ void main()
     
     //Vignette
     uv *= 1.0 - uv.yx;
-    float vig = pow(uv.x * uv.y * Vignette.Intensity, Vignette.Power);
+    float vig = clamp(pow(uv.x * uv.y * Vignette.Intensity, Vignette.Power), 0.0, 1.0);
     ldrSceneColor = mix(Vignette.Color, ldrSceneColor, vig);
 
     //Gamma-correct

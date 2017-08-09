@@ -62,6 +62,8 @@ namespace TheraEditor
             return BaseWrapper.Wrap(path);
         }
 
+        [Browsable(false)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool WatchProjectDirectory
         {
             get => _contentWatcher.EnableRaisingEvents;

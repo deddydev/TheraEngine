@@ -247,12 +247,16 @@ namespace TheraEngine.Worlds.Actors.Types
             get => _targetSocket;
             set
             {
+#if EDITOR
                 if (_targetSocket != null)
                     _targetSocket.Selected = false;
+#endif
                 _targetSocket = value;
                 if (_targetSocket != null)
                 {
+#if EDITOR
                     _targetSocket.Selected = true;
+#endif
                     RootComponent.WorldMatrix = GetWorldMatrix();
                 }
                 else
@@ -329,7 +333,7 @@ namespace TheraEngine.Worlds.Actors.Types
         private delegate void DelDrag(Vec3 dragPoint);
         private delegate void DelDragRot(Quat dragPoint);
 
-        #region Drag
+#region Drag
         private void DragRotation(Vec3 dragPoint)
         {
             Quat delta = Quat.BetweenVectors(_lastPoint, dragPoint);
@@ -440,9 +444,9 @@ namespace TheraEngine.Worlds.Actors.Types
 
             return _lastPoint;
         }
-        #endregion
+#endregion
 
-        #region Highlighting
+#region Highlighting
         private bool HighlightRotation(Camera camera, Ray localRay)
         {
             Vec3 worldPoint = _dragMatrix.GetPoint();
@@ -609,7 +613,7 @@ namespace TheraEngine.Worlds.Actors.Types
 
             return snapFound;
         }
-        #endregion
+#endregion
 
         private bool _pressed = false;
         private Matrix4 _dragMatrix, _invDragMatrix;

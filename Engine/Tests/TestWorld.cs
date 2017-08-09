@@ -126,12 +126,12 @@ namespace TheraEngine.Tests
 
             Actor<DirectionalLightComponent> dirLightActor = new Actor<DirectionalLightComponent>(dirLightComp) { Name = "SunLight" };
 
-            string desktop = Environment.MachineName == "DAVID-DESKTOP" ?
-                "X:\\Desktop\\" :
-                "C:\\Users\\David\\Desktop\\";
-            string googleDrive = Environment.MachineName == "DAVID-DESKTOP" ?
-                "X:\\Cloud Storage\\Google Drive\\THERA\\" :
-                "C:\\Users\\David\\Google Drive\\THERA\\";
+            //string desktop = Environment.MachineName == "DAVID-DESKTOP" ?
+            //    "X:\\Desktop\\" :
+            //    "C:\\Users\\David\\Desktop\\";
+            //string googleDrive = Environment.MachineName == "DAVID-DESKTOP" ?
+            //    "X:\\Cloud Storage\\Google Drive\\THERA\\" :
+            //    "C:\\Users\\David\\Google Drive\\THERA\\";
 
             ModelImportOptions objOptions = new ModelImportOptions()
             {
@@ -139,7 +139,7 @@ namespace TheraEngine.Tests
                 InitialTransform = new FrameState(Vec3.Zero, Quat.Identity, 0.1f, TransformOrder.TRS),
                 //InitialTransform = new FrameState(new Vec3(-100.0f, -100.0f, -1700.0f), Quat.Identity, Vec3.One, TransformOrder.TRS),
             };
-            StaticMesh testModel = OBJ.Import(/*"E:\\Documents\\StationSquare\\main\\landtable.obj"*/desktop + "test.obj", objOptions);
+            StaticMesh testModel = OBJ.Import(/*"E:\\Documents\\StationSquare\\main\\landtable.obj"*/Engine.StartupPath + "..\\..\\..\\test\\test.obj", objOptions);
             Actor<StaticMeshComponent> testActor = new Actor<StaticMeshComponent>(new StaticMeshComponent(testModel, null)) { Name = "MapActor" };
 
             //ModelImportOptions options = new ModelImportOptions()

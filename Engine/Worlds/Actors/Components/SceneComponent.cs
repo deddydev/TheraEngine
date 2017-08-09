@@ -14,10 +14,11 @@ namespace TheraEngine.Worlds.Actors
 
 #if EDITOR
         bool Selected { get; set; }
+#endif
+
         void HandleTranslation(Vec3 delta);
         void HandleScale(Vec3 delta);
         void HandleRotation(Quat delta);
-#endif
     }
     public abstract class SceneComponent : Component, ISocket
     {

@@ -93,6 +93,16 @@ namespace TheraEditor.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap LogoImage {
+            get {
+                object obj = ResourceManager.GetObject("LogoImage", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap OpenFolder {
             get {
                 object obj = ResourceManager.GetObject("OpenFolder", resourceCulture);

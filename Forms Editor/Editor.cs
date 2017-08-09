@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Diagnostics;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -59,6 +60,7 @@ namespace TheraEditor
             Engine.EditorState.InGameMode = false;
             Engine.SetGame(Project);
             InitializeComponent();
+            menuStrip1.Renderer = new ToolStripRenderer();
             DoubleBuffered = false;
             Engine.Initialize(renderPanel1, true);
 
@@ -105,6 +107,251 @@ namespace TheraEditor
                     return;
                 }
                 actorTree.Nodes.Remove(item.EditorState.TreeNode);
+            }
+        }
+        class ToolStripRenderer : ToolStripProfessionalRenderer
+        {
+            public ToolStripRenderer() : base(new clr())
+            {
+                RoundedEdges = true;
+            }
+        }
+        class MenuColorTable : ProfessionalColorTable
+        {
+            public MenuColorTable() => UseSystemColors = false;
+            public override Color MenuBorder => Color.FromArgb(255, 62, 63, 70);
+            public override Color MenuItemBorder => Color.DarkViolet;
+            public override Color MenuItemSelected => Color.Cornsilk;
+            public override Color MenuItemSelectedGradientBegin => Color.FromArgb(255, 102, 103, 110);
+            public override Color MenuItemSelectedGradientEnd => Color.FromArgb(255, 95, 96, 103);
+            public override Color MenuStripGradientBegin => Color.AliceBlue;
+            public override Color MenuStripGradientEnd => Color.DodgerBlue;
+        }
+        class clr : ProfessionalColorTable
+        {
+            public override Color ButtonSelectedHighlight
+            {
+                get { return ButtonSelectedGradientMiddle; }
+            }
+            public override Color ButtonSelectedHighlightBorder
+            {
+                get { return ButtonSelectedBorder; }
+            }
+            public override Color ButtonPressedHighlight
+            {
+                get { return ButtonPressedGradientMiddle; }
+            }
+            public override Color ButtonPressedHighlightBorder
+            {
+                get { return ButtonPressedBorder; }
+            }
+            public override Color ButtonCheckedHighlight
+            {
+                get { return ButtonCheckedGradientMiddle; }
+            }
+            public override Color ButtonCheckedHighlightBorder
+            {
+                get { return ButtonSelectedBorder; }
+            }
+            public override Color ButtonPressedBorder
+            {
+                get { return ButtonSelectedBorder; }
+            }
+            public override Color ButtonSelectedBorder
+            {
+                get { return Color.FromArgb(255, 98, 98, 98); }
+            }
+            public override Color ButtonCheckedGradientBegin
+            {
+                get { return Color.FromArgb(255, 144, 144, 144); }
+            }
+            public override Color ButtonCheckedGradientMiddle
+            {
+                get { return Color.FromArgb(255, 170, 170, 170); }
+            }
+            public override Color ButtonCheckedGradientEnd
+            {
+                get { return Color.FromArgb(255, 170, 170, 170); }
+            }
+            public override Color ButtonSelectedGradientBegin
+            {
+                get { return Color.FromArgb(255, 170, 170, 170); }
+            }
+            public override Color ButtonSelectedGradientMiddle
+            {
+                get { return Color.FromArgb(255, 170, 170, 170); }
+            }
+            public override Color ButtonSelectedGradientEnd
+            {
+                get { return Color.FromArgb(255, 170, 170, 170); }
+            }
+            public override Color ButtonPressedGradientBegin
+            {
+                get { return Color.FromArgb(255, 170, 170, 170); }
+            }
+            public override Color ButtonPressedGradientMiddle
+            {
+                get { return Color.FromArgb(255, 170, 170, 170); }
+            }
+            public override Color ButtonPressedGradientEnd
+            {
+                get { return Color.FromArgb(255, 170, 170, 170); }
+            }
+            public override Color CheckBackground
+            {
+                get { return Color.FromArgb(255, 173, 173, 173); }
+            }
+            public override Color CheckSelectedBackground
+            {
+                get { return Color.FromArgb(255, 173, 173, 173); }
+            }
+            public override Color CheckPressedBackground
+            {
+                get { return Color.FromArgb(255, 140, 140, 140); }
+            }
+            public override Color GripDark
+            {
+                get { return Color.FromArgb(255, 22, 22, 22); }
+            }
+            public override Color GripLight
+            {
+                get { return Color.FromArgb(255, 83, 83, 83); }
+            }
+            public override Color ImageMarginGradientBegin
+            {
+                get { return Color.FromArgb(255, 85, 85, 85); }
+            }
+            public override Color ImageMarginGradientMiddle
+            {
+                get { return Color.FromArgb(255, 68, 68, 68); }
+            }
+            public override Color ImageMarginGradientEnd
+            {
+                get { return Color.FromArgb(255, 68, 68, 68); }
+            }
+            public override Color ImageMarginRevealedGradientBegin
+            {
+                get { return Color.FromArgb(255, 68, 68, 68); }
+            }
+            public override Color ImageMarginRevealedGradientMiddle
+            {
+                get { return Color.FromArgb(255, 68, 68, 68); }
+            }
+            public override Color ImageMarginRevealedGradientEnd
+            {
+                get { return Color.FromArgb(255, 68, 68, 68); }
+            }
+            public override Color MenuStripGradientBegin
+            {
+                get { return Color.FromArgb(255, 138, 138, 138); }
+            }
+            public override Color MenuStripGradientEnd
+            {
+                get { return Color.FromArgb(255, 103, 103, 103); }
+            }
+            public override Color MenuItemSelected
+            {
+                get { return Color.FromArgb(255, 170, 170, 170); }
+            }
+            public override Color MenuItemBorder
+            {
+                get { return Color.FromArgb(255, 170, 170, 170); }
+            }
+            public override Color MenuBorder
+            {
+                get { return Color.FromArgb(255, 22, 22, 22); }
+            }
+            public override Color MenuItemSelectedGradientBegin
+            {
+                get { return Color.FromArgb(255, 170, 170, 170); }
+            }
+            public override Color MenuItemSelectedGradientEnd
+            {
+                get { return Color.FromArgb(255, 170, 170, 170); }
+            }
+            public override Color MenuItemPressedGradientBegin
+            {
+                get { return Color.FromArgb(255, 125, 125, 125); }
+            }
+            public override Color MenuItemPressedGradientMiddle
+            {
+                get { return Color.FromArgb(255, 125, 125, 125); }
+            }
+            public override Color MenuItemPressedGradientEnd
+            {
+                get { return Color.FromArgb(255, 125, 125, 125); }
+            }
+            public override Color RaftingContainerGradientBegin
+            {
+                get { return Color.FromArgb(255, 170, 170, 170); }
+            }
+            public override Color RaftingContainerGradientEnd
+            {
+                get { return Color.FromArgb(255, 170, 170, 170); }
+            }
+            public override Color SeparatorDark
+            {
+                get { return Color.FromArgb(255, 22, 22, 22); }
+            }
+            public override Color SeparatorLight
+            {
+                get { return Color.FromArgb(255, 62, 62, 62); }
+            }
+            public override Color StatusStripGradientBegin
+            {
+                get { return Color.FromArgb(255, 112, 112, 112); }
+            }
+            public override Color StatusStripGradientEnd
+            {
+                get { return Color.FromArgb(255, 97, 97, 97); }
+            }
+            public override Color ToolStripBorder
+            {
+                get { return Color.FromArgb(255, 22, 22, 22); }
+            }
+            public override Color ToolStripDropDownBackground
+            {
+                get { return Color.FromArgb(255, 125, 125, 125); }
+            }
+            public override Color ToolStripGradientBegin
+            {
+                get { return Color.FromName("DimGray"); }
+            }
+            public override Color ToolStripGradientMiddle
+            {
+                get { return Color.FromArgb(255, 89, 89, 89); }
+            }
+            public override Color ToolStripGradientEnd
+            {
+                get { return Color.FromArgb(255, 88, 88, 88); }
+            }
+            public override Color ToolStripContentPanelGradientBegin
+            {
+                get { return Color.FromArgb(255, 68, 68, 68); }
+            }
+            public override Color ToolStripContentPanelGradientEnd
+            {
+                get { return Color.FromArgb(255, 68, 68, 68); }
+            }
+            public override Color ToolStripPanelGradientBegin
+            {
+                get { return Color.FromArgb(255, 103, 103, 103); }
+            }
+            public override Color ToolStripPanelGradientEnd
+            {
+                get { return Color.FromArgb(255, 103, 103, 103); }
+            }
+            public override Color OverflowButtonGradientBegin
+            {
+                get { return Color.FromArgb(255, 103, 103, 103); }
+            }
+            public override Color OverflowButtonGradientMiddle
+            {
+                get { return Color.FromArgb(255, 103, 103, 103); }
+            }
+            public override Color OverflowButtonGradientEnd
+            {
+                get { return Color.FromArgb(255, 79, 79, 79); }
             }
         }
         protected override void OnLoad(EventArgs e)
@@ -231,7 +478,7 @@ namespace TheraEditor
 
             contentTree.DisplayProject(p);
         }
-        private void btnNewProject_Click(object sender, EventArgs e)
+        private void BtnNewProject_Click(object sender, EventArgs e)
         {
             if (CloseProject())
             {
@@ -252,7 +499,7 @@ namespace TheraEditor
             btnUserSettings.Enabled = projectOpened;
         }
 
-        private void btnOpenProject_Click(object sender, EventArgs e)
+        private void BtnOpenProject_Click(object sender, EventArgs e)
         {
             OpenFileDialog ofd = new OpenFileDialog()
             {
@@ -268,17 +515,17 @@ namespace TheraEditor
             btnUserSettings.Enabled = projectOpened;
         }
 
-        private void btnSaveProject_Click(object sender, EventArgs e)
+        private void BtnSaveProject_Click(object sender, EventArgs e)
         {
             if (string.IsNullOrEmpty(_project.ReferencePath))
             {
-                btnSaveProjectAs_Click(sender, e);
+                BtnSaveProjectAs_Click(sender, e);
                 return;
             }
             _project.ExportReference();
         }
 
-        private void btnSaveProjectAs_Click(object sender, EventArgs e)
+        private void BtnSaveProjectAs_Click(object sender, EventArgs e)
         {
             SaveFileDialog sfd = new SaveFileDialog()
             {
@@ -291,37 +538,37 @@ namespace TheraEditor
             }
         }
 
-        private void btnProjectSettings_Click(object sender, EventArgs e)
+        private void BtnProjectSettings_Click(object sender, EventArgs e)
         {
             actorPropertyGrid.SelectedObject = Project;
         }
 
-        private void btnEngineSettings_Click(object sender, EventArgs e)
+        private void BtnEngineSettings_Click(object sender, EventArgs e)
         {
             actorPropertyGrid.SelectedObject = Project?.EngineSettings;
         }
 
-        private void btnEditorSettings_Click(object sender, EventArgs e)
+        private void BtnEditorSettings_Click(object sender, EventArgs e)
         {
 
         }
 
-        private void btnUserSettings_Click(object sender, EventArgs e)
+        private void BtnUserSettings_Click(object sender, EventArgs e)
         {
             actorPropertyGrid.SelectedObject = Project?.UserSettings;
         }
 
-        private void btnWorldSettings_Click(object sender, EventArgs e)
+        private void BtnWorldSettings_Click(object sender, EventArgs e)
         {
             actorPropertyGrid.SelectedObject = Engine.World?.Settings;
         }
 
-        private void cboContentViewTypes_SelectedIndexChanged(object sender, EventArgs e)
+        private void CboContentViewTypes_SelectedIndexChanged(object sender, EventArgs e)
         {
 
         }
 
-        private void btPlay_Click(object sender, EventArgs e)
+        private void BtPlay_Click(object sender, EventArgs e)
         {
             renderPanel1.Focus();
             renderPanel1.Capture = true;
@@ -344,6 +591,11 @@ namespace TheraEditor
             InputInterface.GlobalRegisters.Remove(RegisterInput);
             Engine.World.SpawnActor(_editorCameraPawn);
             Engine.World.EndPlay();
+        }
+
+        private void BtnExit_Click(object sender, EventArgs e)
+        {
+            Engine.CloseApplication();
         }
     }
 }

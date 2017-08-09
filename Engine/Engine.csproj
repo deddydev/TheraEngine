@@ -105,19 +105,99 @@
   <PropertyGroup>
     <SignAssembly>false</SignAssembly>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'DebugEditorObfuscated|x64'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>..\Build\Debug\Editor\x64\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;EDITOR</DefineConstants>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'DebugEditorObfuscated|x86'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>..\Build\Debug\Editor\x86\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;EDITOR</DefineConstants>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'DebugGameObfuscated|x64'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>..\Build\Debug\Game\x64\</OutputPath>
+    <DefineConstants>TRACE;DEBUG</DefineConstants>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'DebugGameObfuscated|x86'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>..\Build\Debug\Game\x86\</OutputPath>
+    <DefineConstants>TRACE;DEBUG</DefineConstants>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'ReleaseEditorObfuscated|x64'">
+    <OutputPath>..\Build\Release\Editor\x64\</OutputPath>
+    <DefineConstants>TRACE;EDITOR</DefineConstants>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'ReleaseEditorObfuscated|x86'">
+    <OutputPath>..\Build\Release\Editor\x86\</OutputPath>
+    <DefineConstants>TRACE;EDITOR</DefineConstants>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'ReleaseGameObfuscated|x64'">
+    <OutputPath>..\Build\Release\Game\x64\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'ReleaseGameObfuscated|x86'">
+    <OutputPath>..\Build\Release\Game\x86\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="BulletSharp">
-      <HintPath>$(SolutionDir)\Libraries\$(Platform)\BulletSharp.dll</HintPath>
+      <HintPath>$(SolutionDir)Libraries\$(Platform)\BulletSharp.dll</HintPath>
     </Reference>
     <Reference Include="FreeImageNET">
-      <HintPath>$(SolutionDir)\Libraries\$(Platform)\FreeImageNET.dll</HintPath>
+      <HintPath>$(SolutionDir)Libraries\$(Platform)\FreeImageNET.dll</HintPath>
     </Reference>
     <Reference Include="Steamworks.NET">
-      <HintPath>$(SolutionDir)\Libraries\$(Platform)\Steamworks\Steamworks.NET.dll</HintPath>
+      <HintPath>$(SolutionDir)Libraries\$(Platform)\Steamworks\Steamworks.NET.dll</HintPath>
     </Reference>
     <Reference Include="SlimDX, Version=4.0.13.43, Culture=neutral, PublicKeyToken=b1b0c32fd1ffe4f9, processorArchitecture=AMD64">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>$(SolutionDir)\Libraries\SlimDX.dll</HintPath>
+      <HintPath>$(SolutionDir)Libraries\SlimDX.dll</HintPath>
     </Reference>
     <Reference Include="OpenTK, Version=2.0.0.0, Culture=neutral, PublicKeyToken=bad199fe84eb3df4, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -1021,6 +1101,6 @@
   <Target Name="BeforeBuild">
   </Target>
   <Target Name="AfterBuild">
-    <Exec Condition="'$(Configuration)'=='ReleaseEditorObfuscated' Or '$(Configuration)'=='ReleaseGameObfuscated' Or '$(Configuration)'=='DebugEditorObfuscated' Or '$(Configuration)'=='DebugGameObfuscated'" Command="&quot;C:\Program Files (x86)\PreEmptive Solutions\Dotfuscator Professional Edition Evaluation 4.9\dotfuscator.exe&quot; &quot;$(TargetDir)obf_config.xml&quot;" />
+    <Exec Condition="$(Configuration.EndsWith('Obfuscated'))" Command="&quot;C:\Program Files (x86)\PreEmptive Solutions\Dotfuscator Professional Edition Evaluation 4.9\dotfuscator.exe&quot; &quot;$(TargetDir)obf_config.xml&quot;" />
   </Target>
 </Project>

@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26403.7
+VisualStudioVersion = 15.0.26430.16
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Engine", "Engine\Engine.csproj", "{3BA74071-A8FB-473A-9388-0C8F75872F41}"
 EndProject
@@ -37,34 +37,34 @@ Global
 		{3BA74071-A8FB-473A-9388-0C8F75872F41}.DebugEditor|x64.Build.0 = DebugEditor|x64
 		{3BA74071-A8FB-473A-9388-0C8F75872F41}.DebugEditor|x86.ActiveCfg = DebugEditor|x86
 		{3BA74071-A8FB-473A-9388-0C8F75872F41}.DebugEditor|x86.Build.0 = DebugEditor|x86
-		{3BA74071-A8FB-473A-9388-0C8F75872F41}.DebugEditorObfuscated|x64.ActiveCfg = DebugEditor|x64
-		{3BA74071-A8FB-473A-9388-0C8F75872F41}.DebugEditorObfuscated|x64.Build.0 = DebugEditor|x64
-		{3BA74071-A8FB-473A-9388-0C8F75872F41}.DebugEditorObfuscated|x86.ActiveCfg = DebugEditor|x86
-		{3BA74071-A8FB-473A-9388-0C8F75872F41}.DebugEditorObfuscated|x86.Build.0 = DebugEditor|x86
+		{3BA74071-A8FB-473A-9388-0C8F75872F41}.DebugEditorObfuscated|x64.ActiveCfg = DebugEditorObfuscated|x64
+		{3BA74071-A8FB-473A-9388-0C8F75872F41}.DebugEditorObfuscated|x64.Build.0 = DebugEditorObfuscated|x64
+		{3BA74071-A8FB-473A-9388-0C8F75872F41}.DebugEditorObfuscated|x86.ActiveCfg = DebugEditorObfuscated|x86
+		{3BA74071-A8FB-473A-9388-0C8F75872F41}.DebugEditorObfuscated|x86.Build.0 = DebugEditorObfuscated|x86
 		{3BA74071-A8FB-473A-9388-0C8F75872F41}.DebugGame|x64.ActiveCfg = DebugGame|x64
 		{3BA74071-A8FB-473A-9388-0C8F75872F41}.DebugGame|x64.Build.0 = DebugGame|x64
 		{3BA74071-A8FB-473A-9388-0C8F75872F41}.DebugGame|x86.ActiveCfg = DebugGame|x86
 		{3BA74071-A8FB-473A-9388-0C8F75872F41}.DebugGame|x86.Build.0 = DebugGame|x86
-		{3BA74071-A8FB-473A-9388-0C8F75872F41}.DebugGameObfuscated|x64.ActiveCfg = DebugGame|x64
-		{3BA74071-A8FB-473A-9388-0C8F75872F41}.DebugGameObfuscated|x64.Build.0 = DebugGame|x64
-		{3BA74071-A8FB-473A-9388-0C8F75872F41}.DebugGameObfuscated|x86.ActiveCfg = DebugGame|x86
-		{3BA74071-A8FB-473A-9388-0C8F75872F41}.DebugGameObfuscated|x86.Build.0 = DebugGame|x86
+		{3BA74071-A8FB-473A-9388-0C8F75872F41}.DebugGameObfuscated|x64.ActiveCfg = DebugGameObfuscated|x64
+		{3BA74071-A8FB-473A-9388-0C8F75872F41}.DebugGameObfuscated|x64.Build.0 = DebugGameObfuscated|x64
+		{3BA74071-A8FB-473A-9388-0C8F75872F41}.DebugGameObfuscated|x86.ActiveCfg = DebugGameObfuscated|x86
+		{3BA74071-A8FB-473A-9388-0C8F75872F41}.DebugGameObfuscated|x86.Build.0 = DebugGameObfuscated|x86
 		{3BA74071-A8FB-473A-9388-0C8F75872F41}.ReleaseEditor|x64.ActiveCfg = ReleaseEditor|x64
 		{3BA74071-A8FB-473A-9388-0C8F75872F41}.ReleaseEditor|x64.Build.0 = ReleaseEditor|x64
 		{3BA74071-A8FB-473A-9388-0C8F75872F41}.ReleaseEditor|x86.ActiveCfg = ReleaseEditor|x86
 		{3BA74071-A8FB-473A-9388-0C8F75872F41}.ReleaseEditor|x86.Build.0 = ReleaseEditor|x86
-		{3BA74071-A8FB-473A-9388-0C8F75872F41}.ReleaseEditorObfuscated|x64.ActiveCfg = ReleaseEditor|x64
-		{3BA74071-A8FB-473A-9388-0C8F75872F41}.ReleaseEditorObfuscated|x64.Build.0 = ReleaseEditor|x64
-		{3BA74071-A8FB-473A-9388-0C8F75872F41}.ReleaseEditorObfuscated|x86.ActiveCfg = ReleaseEditor|x86
-		{3BA74071-A8FB-473A-9388-0C8F75872F41}.ReleaseEditorObfuscated|x86.Build.0 = ReleaseEditor|x86
+		{3BA74071-A8FB-473A-9388-0C8F75872F41}.ReleaseEditorObfuscated|x64.ActiveCfg = ReleaseEditorObfuscated|x64
+		{3BA74071-A8FB-473A-9388-0C8F75872F41}.ReleaseEditorObfuscated|x64.Build.0 = ReleaseEditorObfuscated|x64
+		{3BA74071-A8FB-473A-9388-0C8F75872F41}.ReleaseEditorObfuscated|x86.ActiveCfg = ReleaseEditorObfuscated|x86
+		{3BA74071-A8FB-473A-9388-0C8F75872F41}.ReleaseEditorObfuscated|x86.Build.0 = ReleaseEditorObfuscated|x86
 		{3BA74071-A8FB-473A-9388-0C8F75872F41}.ReleaseGame|x64.ActiveCfg = ReleaseGame|x64
 		{3BA74071-A8FB-473A-9388-0C8F75872F41}.ReleaseGame|x64.Build.0 = ReleaseGame|x64
 		{3BA74071-A8FB-473A-9388-0C8F75872F41}.ReleaseGame|x86.ActiveCfg = ReleaseGame|x86
 		{3BA74071-A8FB-473A-9388-0C8F75872F41}.ReleaseGame|x86.Build.0 = ReleaseGame|x86
-		{3BA74071-A8FB-473A-9388-0C8F75872F41}.ReleaseGameObfuscated|x64.ActiveCfg = ReleaseGame|x64
-		{3BA74071-A8FB-473A-9388-0C8F75872F41}.ReleaseGameObfuscated|x64.Build.0 = ReleaseGame|x64
-		{3BA74071-A8FB-473A-9388-0C8F75872F41}.ReleaseGameObfuscated|x86.ActiveCfg = ReleaseGame|x86
-		{3BA74071-A8FB-473A-9388-0C8F75872F41}.ReleaseGameObfuscated|x86.Build.0 = ReleaseGame|x86
+		{3BA74071-A8FB-473A-9388-0C8F75872F41}.ReleaseGameObfuscated|x64.ActiveCfg = ReleaseGameObfuscated|x64
+		{3BA74071-A8FB-473A-9388-0C8F75872F41}.ReleaseGameObfuscated|x64.Build.0 = ReleaseGameObfuscated|x64
+		{3BA74071-A8FB-473A-9388-0C8F75872F41}.ReleaseGameObfuscated|x86.ActiveCfg = ReleaseGameObfuscated|x86
+		{3BA74071-A8FB-473A-9388-0C8F75872F41}.ReleaseGameObfuscated|x86.Build.0 = ReleaseGameObfuscated|x86
 		{9F363CE1-89EB-46E4-9274-48D58F337377}.DebugEditor|x64.ActiveCfg = Debug|x64
 		{9F363CE1-89EB-46E4-9274-48D58F337377}.DebugEditor|x86.ActiveCfg = Debug|x86
 		{9F363CE1-89EB-46E4-9274-48D58F337377}.DebugEditorObfuscated|x64.ActiveCfg = Debug|x64

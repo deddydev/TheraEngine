@@ -297,9 +297,7 @@ namespace TheraEngine.Rendering
             _internalResolution.Height = height;
 
             _worldCamera?.Resize(_internalResolution.Width, _internalResolution.Height);
-            if (_worldCamera is PerspectiveCamera p)
-                p.Aspect = Width / Height;
-            
+
             _pawnHUD.Resize(_internalResolution.Bounds);
             _deferredGBuffer?.ResizeTextures(_internalResolution.IntWidth, _internalResolution.IntHeight);
             _postProcessFrameBuffer?.ResizeTextures(_internalResolution.IntWidth, _internalResolution.IntHeight);
@@ -313,7 +311,11 @@ namespace TheraEngine.Rendering
             
             if (setInternalResolution)
                 SetInternalResolution(1920, 1080);
-                //SetInternalResolution(parentWidth, parentHeight);
+                //SetInternalResolution(parentWidth, parentHeight); 
+
+            if (_worldCamera is PerspectiveCamera p)
+                p.Aspect = Width / Height;
+
         }
         public void DebugPrint(string message)
         {

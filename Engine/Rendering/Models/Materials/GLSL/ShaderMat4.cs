@@ -8,7 +8,7 @@ namespace TheraEngine.Rendering.Models.Materials
     {
         [Browsable(false)]
         public override ShaderVarType TypeName => ShaderVarType._mat4;
-        public Matrix4 Value { get => _value; set => _value = value; }
+        public Matrix4 Value { get => _value; set { _value = value; OnValueChanged(); } }
         internal override void SetProgramUniform(int programBindingId, int location) => Engine.Renderer.Uniform(programBindingId, location, _value);
         internal override string GetValueString() => _value.ToString();
 
@@ -30,7 +30,7 @@ namespace TheraEngine.Rendering.Models.Materials
     {
         [Browsable(false)]
         public override ShaderVarType TypeName => ShaderVarType._mat3;
-        public Matrix3 Value { get => _value; set => _value = value; }
+        public Matrix3 Value { get => _value; set { _value = value; OnValueChanged(); } }
         internal override void SetProgramUniform(int programBindingId, int location) => Engine.Renderer.Uniform(programBindingId, location, _value);
         internal override string GetValueString() => _value.ToString();
         

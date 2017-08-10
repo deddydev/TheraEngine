@@ -8,7 +8,7 @@ namespace TheraEngine
         Forward = 0,
         Deferred = 1,
     }
-    [FileClass("ESET", "Engine Settings")]
+    [FileClass("ENSET", "Engine Settings")]
     public class EngineSettings : FileObject
     {
         [Category("Performance")]

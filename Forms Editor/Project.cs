@@ -31,8 +31,8 @@ namespace TheraEditor
                 directory += "\\";
             FilePath = GetFilePath(directory, Name, FileFormat.XML, typeof(Project));
             _state.ReferencePath = GetFilePath(ConfigDirName, Name, FileFormat.XML, typeof(ProjectState));
-            _userSettings.ReferencePath = GetFilePath(ConfigDirName, Name, FileFormat.XML, typeof(UserSettings));
-            _engineSettings.ReferencePath = GetFilePath(ConfigDirName, Name, FileFormat.XML, typeof(EngineSettings));
+            UserSettings.ReferencePath = GetFilePath(ConfigDirName, Name, FileFormat.XML, typeof(UserSettings));
+            EngineSettings.ReferencePath = GetFilePath(ConfigDirName, Name, FileFormat.XML, typeof(EngineSettings));
         }
         public static Project Create(string name)
         {
@@ -64,9 +64,9 @@ namespace TheraEditor
             {
                 Name = name,
                 FilePath = GetFilePath(directory, name, FileFormat.XML, typeof(Project)),
-                State = new SingleFileRef<ProjectState>(state, directory, name, FileFormat.XML, true),
-                UserSettings = new SingleFileRef<UserSettings>(userSettings, directory, name, FileFormat.XML, true),
-                EngineSettings = new SingleFileRef<EngineSettings>(engineSettings, directory, name, FileFormat.XML, true),
+                State = new SingleFileRef<ProjectState>(directory, name, FileFormat.XML, state, true),
+                UserSettings = new SingleFileRef<UserSettings>(directory, name, FileFormat.XML, userSettings, true),
+                EngineSettings = new SingleFileRef<EngineSettings>(directory, name, FileFormat.XML, engineSettings, true),
             };
             p.Export();
             return p;

@@ -192,6 +192,9 @@
     <Reference Include="FreeImageNET">
       <HintPath>$(SolutionDir)Libraries\$(Platform)\FreeImageNET.dll</HintPath>
     </Reference>
+    <Reference Include="NetworkCommsDotNetComplete">
+      <HintPath>..\Libraries\NetworkCommsDotNetComplete.dll</HintPath>
+    </Reference>
     <Reference Include="Steamworks.NET">
       <HintPath>$(SolutionDir)Libraries\$(Platform)\Steamworks\Steamworks.NET.dll</HintPath>
     </Reference>
@@ -303,6 +306,7 @@
     <Compile Include="Animation\Model\BlendSpace1D.cs" />
     <Compile Include="Animation\Model\ModelAnimation.cs" />
     <Compile Include="Engine\Game.cs" />
+    <Compile Include="Networking\Network.cs" />
     <Compile Include="Rendering\HUD\Text\DebugPrintHudComponent.cs" />
     <Compile Include="Animation\Functions\AnimationFunction.cs" />
     <Compile Include="Animation\Functions\AnimFuncExecInput.cs" />

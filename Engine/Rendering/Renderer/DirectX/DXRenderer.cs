@@ -508,5 +508,20 @@ namespace TheraEngine.Rendering.DirectX
         {
             throw new NotImplementedException();
         }
+
+        public override void Uniform(int programBindingId, int location, params IUniformable4Double[] p)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void Uniform(int programBindingId, int location, params IUniformable4UInt[] p)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void Uniform(int programBindingId, int location, params IUniformable4Bool[] p)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

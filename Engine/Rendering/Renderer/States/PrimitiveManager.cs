@@ -133,7 +133,7 @@ namespace TheraEngine.Rendering.Models
         public Material Material
         {
             get => _material;
-            set { _material = value; }
+            set => _material = value;
         }
 
         public RenderProgram VertexProgram

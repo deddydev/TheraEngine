@@ -31,13 +31,16 @@ namespace TheraEngine.Files
         public SingleFileRef(Type type) : base(type) { }
         public SingleFileRef(string filePath) : base(filePath) { }
         public SingleFileRef(string filePath, Type type) : base(filePath, type) { }
-        public SingleFileRef(T file, string filePath) : base(filePath)
+        public SingleFileRef(string filePath, T file, bool exportNow) : base(filePath)
         {
             if (file != null)
-                file.FilePath = filePath;
+                file.FilePath = ReferencePath;
             File = file;
+            if (exportNow && File != null)
+                ExportReference();
         }
-        public SingleFileRef(T file, string dir, string name, FileFormat format, bool exportNow) : base(GetFilePath(dir, name, format, typeof(T)))
+        public SingleFileRef(string dir, string name, FileFormat format) : base(GetFilePath(dir, name, format, typeof(T))) { }
+        public SingleFileRef(string dir, string name, FileFormat format, T file, bool exportNow) : this(dir, name, format)
         {
             if (file != null)
                 file.FilePath = ReferencePath;

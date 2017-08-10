@@ -87,8 +87,7 @@ namespace TheraEngine
             SetStyle(
                 ControlStyles.UserPaint |
                 ControlStyles.AllPaintingInWmPaint |
-                ControlStyles.Opaque |
-                ControlStyles.ResizeRedraw,
+                ControlStyles.Opaque,
                 true);
 
             _globalHud = new HudManager();
@@ -222,23 +221,25 @@ namespace TheraEngine
         #region Resizing
         public void BeginResize()
         {
+            Visible = false;
             _resizing = true;
         }
         public void EndResize()
         {
+            Visible = true;
             _resizing = false;
-            //foreach (Viewport v in _viewports)
-            //    v.ResizeGBuffer();
+            foreach (Viewport v in _viewports)
+                v.SetInternalResolution(v.Width, v.Height);
         }
         protected override void OnResize(EventArgs e)
         {
-            base.OnResize(e);
             int w = Width.ClampMin(1);
             int h = Height.ClampMin(1);
-            _globalHud?.Resize(new Vec2(w, h));
+            //_globalHud?.Resize(new Vec2(w, h));
             foreach (Viewport v in _viewports)
-                v.Resize(w, h/*, !_resizing*/);
-            _context?.Update();
+                v.Resize(w, h, !_resizing);
+            base.OnResize(e);
+            //_context?.Update();
         }
         #endregion
 

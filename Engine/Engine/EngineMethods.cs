@@ -113,9 +113,9 @@ namespace TheraEngine
             //Analyze computer and determine if it can run what the game wants.
             _computerInfo = ComputerInfo.Analyze();
             
-            RenderLibrary = _game.UserSettings.RenderLibrary;
-            AudioLibrary = _game.UserSettings.AudioLibrary;
-            InputLibrary = _game.UserSettings.InputLibrary;
+            RenderLibrary = _game.UserSettings.File.RenderLibrary;
+            AudioLibrary = _game.UserSettings.File.AudioLibrary;
+            InputLibrary = _game.UserSettings.File.InputLibrary;
 
             //if (Renderer == null)
             //    throw new Exception("Unable to create renderer.");

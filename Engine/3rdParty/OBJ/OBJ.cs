@@ -87,11 +87,11 @@ namespace TheraEngine.Rendering.Models
             {
                 ShaderVar[] parameters = new ShaderVar[]
                 {
-                    new ShaderVec3(Vec3.Zero, "Ambient"),
+                    //new ShaderVec3(Vec3.Zero, "Ambient"),
                     new ShaderVec3(Vec3.Zero, "Diffuse"),
-                    new ShaderVec3(Vec3.Zero, "Specular"),
-                    new ShaderFloat(0.0f, "SpecularCoef"),
-                    new ShaderFloat(0.0f, "Transparency"),
+                    //new ShaderVec3(Vec3.Zero, "Specular"),
+                    //new ShaderFloat(0.0f, "SpecularCoef"),
+                    //new ShaderFloat(0.0f, "Transparency"),
                 };
                 return new Material("UnnamedMaterial", parameters, new TextureReference[0], shader)
                 {
@@ -102,11 +102,11 @@ namespace TheraEngine.Rendering.Models
             {
                 ShaderVar[] parameters = new ShaderVar[]
                 {
-                    new ShaderVec3(objMat.AmbientColor, "Ambient"),
+                    //new ShaderVec3(objMat.AmbientColor, "Ambient"),
                     new ShaderVec3(objMat.DiffuseColor, "Diffuse"),
-                    new ShaderVec3(objMat.SpecularColor, "Specular"),
-                    new ShaderFloat(objMat.SpecularCoefficient, "SpecularCoef"),
-                    new ShaderFloat(objMat.Transparency, "Transparency"),
+                    //new ShaderVec3(objMat.SpecularColor, "Specular"),
+                    //new ShaderFloat(objMat.SpecularCoefficient, "SpecularCoef"),
+                    //new ShaderFloat(objMat.Transparency, "Transparency"),
                 };
                 string mapPath = objMat.DiffuseTextureMap;
                 TextureReference[] textures = new TextureReference[]
@@ -163,11 +163,11 @@ in vec3 FragPos;
 in vec3 FragNorm;
 in vec2 FragUV0;
 
-uniform vec3 Ambient;
+//uniform vec3 Ambient;
 uniform vec3 Diffuse;
-uniform vec3 Specular;
-uniform vec3 SpecularCoef;
-uniform vec3 Transparency;
+//uniform vec3 Specular;
+//uniform vec3 SpecularCoef;
+//uniform vec3 Transparency;
 
 uniform sampler2D Texture0;
 

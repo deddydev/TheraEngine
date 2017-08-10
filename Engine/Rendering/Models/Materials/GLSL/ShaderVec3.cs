@@ -8,7 +8,7 @@ namespace TheraEngine.Rendering.Models.Materials
     {
         [Browsable(false)]
         public override ShaderVarType TypeName { get { return ShaderVarType._bvec3; } }
-        public BoolVec3 Value { get { return _value; } set { _value = value; } }
+        public BoolVec3 Value { get => _value; set { _value = value; OnValueChanged(); } }
         internal override void SetProgramUniform(int programBindingId, int location) => Engine.Renderer.ProgramUniform(programBindingId, location, _value);
         internal override string GetValueString() { return _value.ToString(); }
 
@@ -30,7 +30,7 @@ namespace TheraEngine.Rendering.Models.Materials
     {
         [Browsable(false)]
         public override ShaderVarType TypeName { get { return ShaderVarType._vec3; } }
-        public Vec3 Value { get { return _value; } set { _value = value; } }
+        public Vec3 Value { get => _value; set { _value = value; OnValueChanged(); } }
         internal override void SetProgramUniform(int programBindingId, int location) => Engine.Renderer.Uniform(programBindingId, location, _value);
         internal override string GetValueString() { return _value.ToString(); }
 
@@ -52,7 +52,7 @@ namespace TheraEngine.Rendering.Models.Materials
     {
         [Browsable(false)]
         public override ShaderVarType TypeName { get { return ShaderVarType._dvec3; } }
-        public DVec3 Value { get { return _value; } set { _value = value; } }
+        public DVec3 Value { get => _value; set { _value = value; OnValueChanged(); } }
         internal override void SetProgramUniform(int programBindingId, int location) => Engine.Renderer.ProgramUniform(programBindingId, location, _value);
         internal override string GetValueString() { return _value.ToString(); }
 
@@ -74,7 +74,7 @@ namespace TheraEngine.Rendering.Models.Materials
     {
         [Browsable(false)]
         public override ShaderVarType TypeName { get { return ShaderVarType._ivec3; } }
-        public IVec3 Value { get { return _value; } set { _value = value; } }
+        public IVec3 Value { get => _value; set { _value = value; OnValueChanged(); } }
         internal override void SetProgramUniform(int programBindingId, int location) => Engine.Renderer.Uniform(programBindingId, location, _value);
         internal override string GetValueString() { return _value.ToString(); }
 
@@ -96,7 +96,7 @@ namespace TheraEngine.Rendering.Models.Materials
     {
         [Browsable(false)]
         public override ShaderVarType TypeName { get { return ShaderVarType._uvec3; } }
-        public UVec3 Value { get { return _value; } set { _value = value; } }
+        public UVec3 Value { get => _value; set { _value = value; OnValueChanged(); } }
         internal override void SetProgramUniform(int programBindingId, int location) => Engine.Renderer.ProgramUniform(programBindingId, location, _value);
         internal override string GetValueString() { return _value.ToString(); }
 

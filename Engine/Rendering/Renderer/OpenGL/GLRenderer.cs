@@ -521,6 +521,29 @@ namespace TheraEngine.Rendering.OpenGL
             float[] values = p.SelectMany(x => new[] { x.Data[0], x.Data[1], x.Data[2], x.Data[3] }).ToArray();
             GL.ProgramUniform4(programBindingId, location, p.Length, values);
         }
+        public override void Uniform(int programBindingId, int location, params IUniformable4UInt[] p)
+        {
+            throw new NotImplementedException();
+            //if (location < 0)
+            //    return;
+            //uint[] values = p.SelectMany(x => new[] { x.Data[0], x.Data[1], x.Data[2], x.Data[3] }).ToArray();
+            //GL.ProgramUniform4(programBindingId, location, p.Length, values);
+        }
+        public override void Uniform(int programBindingId, int location, params IUniformable4Double[] p)
+        {
+            if (location < 0)
+                return;
+            double[] values = p.SelectMany(x => new[] { x.Data[0], x.Data[1], x.Data[2], x.Data[3] }).ToArray();
+            GL.ProgramUniform4(programBindingId, location, p.Length, values);
+        }
+        public override void Uniform(int programBindingId, int location, params IUniformable4Bool[] p)
+        {
+            throw new NotImplementedException();
+            //if (location < 0)
+            //    return;
+            //bool[] values = p.SelectMany(x => new[] { x.Data[0], x.Data[1], x.Data[2], x.Data[3] }).ToArray();
+            //GL.ProgramUniform4(programBindingId, location, p.Length, values);
+        }
         public override void Uniform(int programBindingId, int location, params IUniformable3Int[] p)
         {
             if (location < 0)

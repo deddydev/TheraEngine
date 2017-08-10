@@ -98,6 +98,11 @@
       <DependentUpon>Editor.cs</DependentUpon>
     </Compile>
     <Compile Include="EditorHud.cs" />
+    <Compile Include="EditorSettings.cs" />
+    <Compile Include="System\BorderlessForm\FormBase.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="System\BorderlessForm\Native.cs" />
     <Compile Include="System\Extensions\ToolStripItemExtension.cs" />
     <Compile Include="System\Windows\Controls\MaterialEditor.cs">
       <SubType>UserControl</SubType>
@@ -123,6 +128,12 @@
     <Compile Include="Wrappers\WorldWrapper.cs" />
     <Compile Include="Wrappers\FolderWrapper.cs" />
     <Compile Include="Wrappers\FileWrapper.cs" />
+    <EmbeddedResource Include="Editor.es.resx">
+      <DependentUpon>Editor.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Editor.ja.resx">
+      <DependentUpon>Editor.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Editor.resx">
       <DependentUpon>Editor.cs</DependentUpon>
     </EmbeddedResource>
@@ -183,6 +194,7 @@
   <ItemGroup>
     <None Include="Resources\website favecon.png" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>

@@ -86,7 +86,9 @@ namespace TheraEngine.Rendering
         /// The last context that this object has been bound to or called the binding id from.
         /// </summary>
         private ContextBind _currentBind = null;
-        
+
+        public event Action Generated;
+
         public BaseRenderState(EObjectType type) { _type = type; }
         public BaseRenderState(EObjectType type, int bindingId)
         {
@@ -142,6 +144,7 @@ namespace TheraEngine.Rendering
             int id = CreateObject();
             CurrentBind.BindingId = id;
             OnGenerated();
+            Generated?.Invoke();
             return id;
         }
         /// <summary>

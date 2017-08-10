@@ -508,9 +508,9 @@ namespace TheraEngine.Rendering
 
         public abstract void Uniform(int programBindingId, int location, params IUniformable4Int[] p);
         public abstract void Uniform(int programBindingId, int location, params IUniformable4Float[] p);
-        public void ProgramUniform(int programBindingId, int location, params IUniformable4Double[] p) { throw new NotImplementedException(); }
-        public void ProgramUniform(int programBindingId, int location, params IUniformable4UInt[] p) { throw new NotImplementedException(); }
-        public void ProgramUniform(int programBindingId, int location, params IUniformable4Bool[] p) { throw new NotImplementedException(); }
+        public abstract void Uniform(int programBindingId, int location, params IUniformable4Double[] p);
+        public abstract void Uniform(int programBindingId, int location, params IUniformable4UInt[] p);
+        public abstract void Uniform(int programBindingId, int location, params IUniformable4Bool[] p);
 
         public abstract void Uniform(int programBindingId, int location, params IUniformable3Int[] p);
         public abstract void Uniform(int programBindingId, int location, params IUniformable3Float[] p);

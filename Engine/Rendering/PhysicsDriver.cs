@@ -253,9 +253,9 @@ namespace TheraEngine.Rendering
                     return;
 
                 if (value)
-                    _collision.CollisionFlags &= ~CollisionFlags.KinematicObject;
-                else
                     _collision.CollisionFlags |= CollisionFlags.KinematicObject;
+                else
+                    _collision.CollisionFlags &= ~CollisionFlags.KinematicObject;
             }
         }
         public bool Static
@@ -267,9 +267,9 @@ namespace TheraEngine.Rendering
                     return;
 
                 if (value)
-                    _collision.CollisionFlags &= ~CollisionFlags.StaticObject;
-                else
                     _collision.CollisionFlags |= CollisionFlags.StaticObject;
+                else
+                    _collision.CollisionFlags &= ~CollisionFlags.StaticObject;
             }
         }
         public CustomCollisionGroup CollisionGroup

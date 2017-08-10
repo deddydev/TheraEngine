@@ -17,7 +17,7 @@ namespace TheraEngine
             if (!string.IsNullOrEmpty(game.IconPath) && File.Exists(game.IconPath))
                 Icon = new Icon(game.IconPath);
             
-            switch (game.UserSettings.WindowBorderStyle)
+            switch (game.UserSettings.File.WindowBorderStyle)
             {
                 case WindowBorderStyle.None:
                     FormBorderStyle = FormBorderStyle.None;
@@ -30,7 +30,7 @@ namespace TheraEngine
                     break;
             }
 
-            if (game.UserSettings.FullScreen)
+            if (game.UserSettings.File.FullScreen)
                 WindowState = FormWindowState.Maximized;
             
             Application.ApplicationExit += Application_ApplicationExit;

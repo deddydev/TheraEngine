@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 
 namespace TheraEngine.Rendering.Models.Materials
 {
@@ -36,6 +37,7 @@ namespace TheraEngine.Rendering.Models.Materials
         _mat3,
         _mat4,
     }
+    [TypeConverter(typeof(ExpandableObjectConverter))]
     public abstract class ShaderVar : IShaderVarOwner
     {
         internal static Dictionary<Type, ShaderVarType> TypeAssociations = new Dictionary<Type, ShaderVarType>()
@@ -89,6 +91,8 @@ namespace TheraEngine.Rendering.Models.Materials
             { ShaderVarType._bvec4,  typeof(ShaderBVec4)  },
         };
 
+        public event Action<ShaderVar> ValueChanged;
+
         protected bool _canSwizzle = true;
         protected IShaderVarOwner _owner;
         protected string _name;
@@ -107,8 +111,13 @@ namespace TheraEngine.Rendering.Models.Materials
             }
         }
 
-        internal void SetProgramUniform(int programBindingId, string name) 
-            => SetProgramUniform(programBindingId, Engine.Renderer.GetUniformLocation(programBindingId, name));
+        internal void SetProgramUniform(int programBindingId, string name)
+        {
+            int loc = Engine.Renderer.GetUniformLocation(programBindingId, name);
+            if (loc < 0)
+                throw new Exception();
+            SetProgramUniform(programBindingId, loc);
+        }
 
         internal void SetProgramUniform(int programBindingId) 
             => SetProgramUniform(programBindingId, Name);
@@ -122,6 +131,11 @@ namespace TheraEngine.Rendering.Models.Materials
         {
             _owner = owner;
             Name = userName;
+        }
+
+        protected void OnValueChanged()
+        {
+            ValueChanged?.Invoke(this);
         }
 
         /// <summary>

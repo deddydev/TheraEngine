@@ -1,4 +1,5 @@
-﻿using System;
+﻿using OpenTK.Graphics.OpenGL;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
@@ -204,11 +205,11 @@ namespace TheraEngine.Rendering.Models.Materials
             else if (Requirements == UniformRequirements.NeedsCamera)
                 AbstractRenderer.CurrentCamera.SetUniforms(programBindingId);
             
-            foreach (ShaderVar v in _parameters)
-                v.SetProgramUniform(programBindingId);
-
             if (RenderParams != null)
                 Engine.Renderer.ApplyRenderParams(RenderParams);
+
+            foreach (ShaderVar v in _parameters)
+                v.SetProgramUniform(_program.BindingId);
 
             SetTextureUniforms(programBindingId);
 
@@ -281,7 +282,27 @@ namespace TheraEngine.Rendering.Models.Materials
                 }
 
             if (Engine.Settings.AllowShaderPipelines)
+            {
                 _program = new RenderProgram(_shaders);
+                _program.Generated += _program_Generated;
+            }
+        }
+
+        private void _program_Generated()
+        {
+            foreach (ShaderVar v in _parameters)
+            {
+                v.SetProgramUniform(_program.BindingId);
+                v.ValueChanged += V_ValueChanged;
+            }
+        }
+
+        private void V_ValueChanged(ShaderVar v)
+        {
+            v.SetProgramUniform(_program.BindingId);
+            ErrorCode r = GL.GetError();
+            if (r != ErrorCode.NoError)
+                Engine.DebugPrint(r.ToString());
         }
 
         public static Material GetUnlitTextureMaterialForward(TextureReference texture)
@@ -340,7 +361,7 @@ namespace TheraEngine.Rendering.Models.Materials
             {
                 new ShaderVec4(color, "MatColor"),
                 new ShaderFloat(20.0f, "MatSpecularIntensity"),
-                new ShaderFloat(128.0f, "MatShininess"),
+                // ShaderFloat(128.0f, "MatShininess"),
             };
             return new Material("LitColorMaterial", parameters, 
                 deferred ? ShaderHelpers.LitColorFragDeferred() : ShaderHelpers.LitColorFragForward())

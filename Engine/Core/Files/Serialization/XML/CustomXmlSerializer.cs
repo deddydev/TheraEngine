@@ -49,10 +49,11 @@ namespace TheraEngine.Files.Serialization
 
             Type objType = obj.GetType();
 
+            //Get members categorized together
             var categorized = members.
                 Where(x => x.Category != null).
                 GroupBy(x => x.Category).ToList();
-
+            //Remove categorized members from original list
             foreach (var grouping in categorized)
                 foreach (VarInfo p in grouping)
                     members.Remove(p);
@@ -61,9 +62,11 @@ namespace TheraEngine.Files.Serialization
             if (string.IsNullOrEmpty(name))
                 name = SerializationCommon.GetTypeName(objType);
 
+            //Get custom serialize methods
             var customMethods = objType.GetMethods(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public).
                 Where(x => x.GetCustomAttribute<CustomXMLSerializeMethod>() != null);
 
+            //Write the element for this object
             writer.WriteStartElement(name);
             {
                 if (rootElement)
@@ -107,16 +110,13 @@ namespace TheraEngine.Files.Serialization
             if (info.Attrib.SerializeIf != null &&
                 !ExpressionParser.Evaluate<bool>(info.Attrib.SerializeIf, obj))
                 return;
+
             Type t = info.VariableType;
             if (info.Attrib.IsXmlAttribute)
             {
                 object value = info.GetValue(obj);
-                if (t.Name == "String" && value == null)
-                {
-                    //writer.WriteAttributeString(p._name, "");
-                }
-                else
-                    writer.WriteAttributeString(info.Name, info.GetValue(obj).ToString());
+                if (value != null)
+                    writer.WriteAttributeString(info.Name, value.ToString());
             }
             else
             {
@@ -131,14 +131,20 @@ namespace TheraEngine.Files.Serialization
                     writer.WriteAttributeString("Count", array.Count.ToString());
                     if (array.Count > 0)
                     {
-                        Type elementType = array[0].GetType();
-                        if (elementType.IsEnum || array[0] is string)
+                        Type elementType = t.GetElementType();
+                        if (elementType.IsEnum || elementType == typeof(string))
+                        {
                             WriteStringArray(array, writer);
+                        }
                         else if (elementType.IsValueType)
+                        {
                             WriteStructArray(array, writer);
+                        }
                         else
+                        {
                             foreach (object o in array)
                                 WriteObject(o, "Item", writer, false);
+                        }
                     }
                     writer.WriteEndElement();
                     return;

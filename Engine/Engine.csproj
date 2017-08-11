@@ -288,6 +288,7 @@
     <Compile Include="Audio\AudioParameters.cs" />
     <Compile Include="Audio\SoundFile.cs" />
     <Compile Include="Audio\WaveFile.cs" />
+    <Compile Include="Core\Extensions\TypeExtension.cs" />
     <Compile Include="Core\Maths\Shapes\Cylindrical\ZAligned\ConeZ.cs" />
     <Compile Include="Cutscenes\Cutscene.cs" />
     <Compile Include="EditorState.cs" />

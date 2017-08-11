@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -65,7 +66,7 @@ namespace TheraEngine.Files.Serialization
                     postMethods.Add(m);
             }
 
-            //Run pre-deserialize method
+            //Run pre-deserialization methods
             foreach (MethodInfo m in preMethods.OrderBy(x => x.GetCustomAttribute<PreDeserialize>().Order))
                 m.Invoke(obj, m.GetCustomAttribute<PreDeserialize>().Arguments);
 
@@ -73,17 +74,19 @@ namespace TheraEngine.Files.Serialization
             IEnumerable<IGrouping<string, VarInfo>> categorized = members.
                 Where(x => x.Category != null).
                 GroupBy(x => x.Category);
-
             //Remove categorized members from original list
             foreach (var grouping in categorized)
                 foreach (VarInfo p in grouping)
                     members.Remove(p);
 
+            //Get custom deserialize methods
             var customMethods = objType.GetMethods(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public).
                 Where(x => x.GetCustomAttribute<CustomXMLDeserializeMethod>() != null);
 
+            //Read the element for this object
             ReadElement(obj, reader, members, categorized, customMethods);
 
+            //Run post-deserialization methods
             foreach (MethodInfo m in postMethods.OrderBy(x => x.GetCustomAttribute<PostDeserialize>().Order))
                 m.Invoke(obj, m.GetCustomAttribute<PostDeserialize>().Arguments);
 
@@ -112,9 +115,21 @@ namespace TheraEngine.Files.Serialization
                 if (attrib != null)
                 {
                     attribs.Remove(attrib);
-                    attrib.SetValue(obj, ParseString(attrib.VariableType, attribValue));
+
+                    MethodInfo customMethod = customMethods.FirstOrDefault(
+                        x => string.Equals(attrib.Name, x.GetCustomAttribute<CustomXMLDeserializeMethod>().Name));
+
+                    if (customMethod != null)
+                        customMethod.Invoke(obj, new object[] { reader });
+                    else
+                        attrib.SetValue(obj, ParseString(attrib.VariableType, attribValue));
                 }
             }
+
+            //For all unwritten remaining attributes, set them to default (null for non-primitive types)
+            foreach (VarInfo attrib in attribs)
+                attrib.SetValue(obj, attrib.VariableType.GetDefaultValue());
+
             //Now read elements
             while (reader.BeginElement())
             {
@@ -131,11 +146,105 @@ namespace TheraEngine.Files.Serialization
                     if (element != null)
                     {
                         elements.Remove(element);
-                        element.SetValue(obj, ReadObject(element.VariableType, reader));
+
+                        MethodInfo customMethod = customMethods.FirstOrDefault(
+                            x => string.Equals(element.Name, x.GetCustomAttribute<CustomXMLDeserializeMethod>().Name));
+
+                        if (customMethod != null)
+                            customMethod.Invoke(obj, new object[] { reader });
+                        else
+                        {
+                            object value = null;
+                            Type t = element.VariableType;
+                            if (t.GetInterface("IList") != null)
+                            {
+                                if (reader.BeginElement())
+                                {
+                                    reader.ReadAttribute();
+                                    int num = int.Parse(reader.Value);
+                                    if (num > 0)
+                                    {
+                                        IList list = Activator.CreateInstance(t, num) as IList;
+                                        Type elementType = t.GetElementType();
+                                        if (elementType.IsEnum || elementType == typeof(string))
+                                            ReadStringArray(list, reader);
+                                        else if (elementType.IsValueType)
+                                            ReadStructArray(list, reader);
+                                        else
+                                            for (int i = 0; i < num; ++i)
+                                            {
+                                                if (reader.BeginElement())
+                                                {
+                                                    list[i] = ReadObject(elementType, reader);
+                                                    reader.EndElement();
+                                                }
+                                                else
+                                                    throw new Exception();
+                                            }
+                                    }
+                                    reader.EndElement();
+                                }
+                            }
+                            else
+                            {
+                                //if (t.GetInterface("IParsable") != null)
+                                //    writer.WriteElementString(info.Name, ((IParsable)value).WriteToString());
+                                //else if (t.IsEnum || value is string)
+                                //    writer.WriteElementString(info.Name, value.ToString());
+                                //else if (t.IsValueType)
+                                //{
+                                //    List<VarInfo> structFields = SerializationCommon.CollectSerializedMembers(info.VariableType);
+                                //    if (structFields.Count > 0)
+                                //        WriteObject(value, structFields, info.Name, writer, false);
+                                //    else
+                                //        writer.WriteElementString(info.Name, value.ToString());
+                                //    return;
+                                //}
+                                //else
+                                    value = ReadObject(element.VariableType, reader);
+                            }
+                            element.SetValue(obj, value);
+                        }
                     }
                 }
                 reader.EndElement();
             }
+
+            //For all unwritten remaining elements, set them to default (null for non-primitive types)
+            foreach (VarInfo element in elements)
+                element.SetValue(obj, element.VariableType.GetDefaultValue());
+        }
+        private static void ReadStructArray(IList array, XMLReader reader)
+        {
+            //List<VarInfo> structFields = SerializationCommon.CollectSerializedMembers(array[0].GetType());
+            ////Struct has serialized members within it?
+            ////Needs a full element
+            //if (structFields.Count > 0)
+            //    foreach (object o in array)
+            //        ReadObject(o, structFields, "Item", writer, false);
+            //else
+            //{
+            //    //Write each struct as a string
+            //    string output = array[0].ToString();
+            //    for (int i = 1; i < array.Count; ++i)
+            //        output += " " + array[i].ToString();
+            //    writer.WriteString(output);
+            //}
+        }
+
+        private static void ReadStringArray(IList array, XMLReader reader)
+        {
+            //string output = array[0].ToString();
+            //if (output.Contains(" "))
+            //    output = "\"" + output + "\"";
+            //for (int i = 1; i < array.Count; ++i)
+            //{
+            //    string s = array[i].ToString();
+            //    if (s.Contains(" "))
+            //        s = "\"" + s + "\"";
+            //    output += " " + s;
+            //}
+            //writer.WriteString(output);
         }
         private static object ParseString(Type t, string value)
         {

@@ -1,5 +1,4 @@
-﻿using OpenTK.Graphics.OpenGL;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
@@ -290,20 +289,20 @@ namespace TheraEngine.Rendering.Models.Materials
 
         private void _program_Generated()
         {
-            foreach (ShaderVar v in _parameters)
-            {
-                v.SetProgramUniform(_program.BindingId);
-                v.ValueChanged += V_ValueChanged;
-            }
+            //foreach (ShaderVar v in _parameters)
+            //{
+            //    v.SetProgramUniform(_program.BindingId);
+            //    v.ValueChanged += V_ValueChanged;
+            //}
         }
 
-        private void V_ValueChanged(ShaderVar v)
-        {
-            v.SetProgramUniform(_program.BindingId);
-            ErrorCode r = GL.GetError();
-            if (r != ErrorCode.NoError)
-                Engine.DebugPrint(r.ToString());
-        }
+        //private void V_ValueChanged(ShaderVar v)
+        //{
+        //    v.SetProgramUniform(_program.BindingId);
+        //    ErrorCode r = GL.GetError();
+        //    if (r != ErrorCode.NoError)
+        //        Engine.DebugPrint(r.ToString());
+        //}
 
         public static Material GetUnlitTextureMaterialForward(TextureReference texture)
         {

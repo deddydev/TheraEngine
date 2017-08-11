@@ -1,4 +1,5 @@
-﻿using TheraEngine.Files;
+﻿using System.ComponentModel;
+using TheraEngine.Files;
 
 namespace TheraEngine.Worlds.Actors
 {
@@ -7,6 +8,7 @@ namespace TheraEngine.Worlds.Actors
         /// <summary>
         /// Determines if this component was constructed by code and cannot be removed.
         /// </summary>
+        [Browsable(false)]
         public bool Locked => _locked;
         public virtual IActor OwningActor
         {

@@ -12,8 +12,8 @@ namespace TheraEngine.Tests
         public const string SkelName = "TESTSKEL";
         protected override void PreConstruct()
         {
-            //string desktop = Environment.MachineName == "DAVID-DESKTOP" ? "X:\\Desktop\\" : "C:\\Users\\David\\Desktop\\";
-            string desktop = Engine.StartupPath;
+            string desktop = Environment.MachineName == "DAVID-DESKTOP" ? "X:\\Desktop\\" : "C:\\Users\\David\\Desktop\\";
+            //string desktop = Engine.StartupPath;
             ModelImportOptions options = new ModelImportOptions()
             {
                 ImportAnimations = false,
@@ -48,6 +48,9 @@ namespace TheraEngine.Tests
                 kneeAnim.Keyframes.Add(s3);
                 kneeAnim.Keyframes.Add(l3);
                 scene.Skeleton["LKnee"]?.FrameState.AddAnimation(new AnimationContainer("Pitch", false, kneeAnim), true);
+                
+                scene.Skeleton.Export(desktop, "TESTSKEL", FileFormat.XML);
+                Skeleton newSkel = Import<Skeleton>(scene.Skeleton.FilePath);
 
                 Mesh = scene.SkeletalModel;
                 //Mesh = new SingleFileRef<SkeletalMesh>(Engine.ContentFolderAbs + MeshName + "." + GetFileHeader(typeof(SkeletalMesh)).GetProperExtension(FileFormat.XML));

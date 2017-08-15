@@ -1,4 +1,4 @@
-﻿namespace TheraEditor.Editors
+﻿namespace TheraEditor.Windows.Forms
 {
     partial class MaterialEditorForm
     {
@@ -28,7 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.materialEditor1 = new TheraEditor.Editors.MaterialEditor();
+            this.materialEditor1 = new MaterialEditor();
             this.SuspendLayout();
             // 
             // materialEditor1

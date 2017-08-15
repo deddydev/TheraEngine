@@ -8,7 +8,6 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
-using TheraEditor.Editors;
 using TheraEngine;
 using TheraEngine.Files;
 using TheraEngine.Input.Devices;
@@ -17,7 +16,7 @@ using TheraEngine.Timers;
 using TheraEngine.Worlds;
 using TheraEngine.Worlds.Actors;
 
-namespace TheraEditor
+namespace TheraEditor.Windows.Forms
 {
     public partial class Editor : FormBase
     {
@@ -52,7 +51,7 @@ namespace TheraEditor
             _instance = this;
             string lastOpened = Properties.Settings.Default.LastOpened;
             if (!string.IsNullOrEmpty(lastOpened))
-                Project = FileObject.Import<Project>(lastOpened);
+                Project = FileObject.FromFile<Project>(lastOpened);
             else
             {
                 Project = new Project()
@@ -174,7 +173,7 @@ namespace TheraEditor
             };
             if (ofd.ShowDialog() == DialogResult.OK)
             {
-                World world = FileObject.Import<World>(ofd.FileName);
+                World world = FileObject.FromFile<World>(ofd.FileName);
                 CurrentWorld = world;
             }
         }
@@ -258,7 +257,7 @@ namespace TheraEditor
             };
 
             if (ofd.ShowDialog() == DialogResult.OK && CloseProject())
-                Project = FileObject.Import<Project>(ofd.FileName);
+                Project = FileObject.FromFile<Project>(ofd.FileName);
 
             bool projectOpened = Project != null;
             btnEngineSettings.Enabled = projectOpened;

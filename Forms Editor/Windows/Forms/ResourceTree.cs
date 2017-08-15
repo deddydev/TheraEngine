@@ -9,8 +9,9 @@ using TheraEditor.Wrappers;
 using System.IO;
 using System.Collections.Generic;
 using TheraEngine;
+using Microsoft.VisualBasic.FileIO;
 
-namespace TheraEditor
+namespace TheraEditor.Windows.Forms
 {
     public enum SystemImages
     {
@@ -31,8 +32,34 @@ namespace TheraEditor
         private delegate void DelegateOpenFile(string s, TreeNode t);
         private DelegateOpenFile _openFileDelegate;
         private FileSystemWatcher _contentWatcher;
-        private Dictionary<string, FileWrapper> _externallyModifiedNodes = new Dictionary<string, FileWrapper>();
+        private bool _allowIcons = false;
+        private TreeNode _selected;
+        private Dictionary<string, BaseFileWrapper> _externallyModifiedNodes = new Dictionary<string, BaseFileWrapper>();
 
+        public event EventHandler SelectionChanged;
+
+        [DefaultValue(true)]
+        public bool AllowContextMenus { get; set; } = true;
+
+        [DefaultValue(false)]
+        public bool ShowIcons
+        {
+            get => _allowIcons;
+            set => ImageList = (_allowIcons = value) ? Images : null;
+        }
+
+        public new TreeNode SelectedNode
+        {
+            get => base.SelectedNode;
+            set
+            {
+                if (_selected == value)
+                    return;
+
+                _selected = base.SelectedNode = value;
+                SelectionChanged?.Invoke(this, null);
+            }
+        }
         private static ImageList _imgList;
         public static ImageList Images
         {
@@ -57,19 +84,31 @@ namespace TheraEditor
                 return _imgList;
             }
         }
+
+        public ResourceTree()
+        {
+            SetStyle(ControlStyles.UserMouse, true);
+
+            _timer.Interval = 200;
+            _timer.Tick += new EventHandler(Timer_Tick);
+
+            AllowDrop = true;
+
+            ItemDrag += new ItemDragEventHandler(TreeView_ItemDrag);
+            DragOver += new DragEventHandler(TreeView1_DragOver);
+            DragDrop += new DragEventHandler(TreeView1_DragDrop);
+            DragEnter += new DragEventHandler(TreeView1_DragEnter);
+            DragLeave += new EventHandler(TreeView1_DragLeave);
+            GiveFeedback += new GiveFeedbackEventHandler(TreeView1_GiveFeedback);
+
+            _openFileDelegate = new DelegateOpenFile(ImportFile);
+        }
+        
         public BaseWrapper CreateNode(string path)
         {
             return BaseWrapper.Wrap(path);
         }
-
-        [Browsable(false)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public bool WatchProjectDirectory
-        {
-            get => _contentWatcher.EnableRaisingEvents;
-            set => _contentWatcher.EnableRaisingEvents = value;
-        }
-
+        
         public void DisplayProject(Project p)
         {
             ShowIcons = true;
@@ -98,6 +137,82 @@ namespace TheraEditor
             _contentWatcher.Deleted += ContentWatcherUpdate;
             _contentWatcher.Renamed += ContentWatcherRename;
         }
+
+        #region Copy Cut Paste
+        public static void CopyMultiple()
+        {
+
+        }
+        public static void CutMultiple()
+        {
+
+        }
+        public static void SetClipboard(string[] paths, bool cut)
+        {
+            if (paths == null || paths.Length == 0)
+                return;
+
+            DataObject data = new DataObject(DataFormats.FileDrop, paths);
+            MemoryStream stream = new MemoryStream(4);
+            byte[] bytes = new byte[] { (byte)(cut ? 2 : 5), 0, 0, 0 };
+            stream.Write(bytes, 0, bytes.Length);
+            data.SetData("Preferred DropEffect", stream);
+            Clipboard.SetDataObject(data);
+        }
+        public static void Paste(string filePath)
+        {
+            string copyPath = null;
+            bool cut = false;
+            string[] paths = null;
+
+            IDataObject data = Clipboard.GetDataObject();
+            if (data.GetDataPresent(DataFormats.FileDrop))
+            {
+                paths = data.GetData(DataFormats.FileDrop) as string[];
+                MemoryStream stream = data.GetData("Preferred DropEffect", true) as MemoryStream;
+                int flag = stream.ReadByte();
+                cut = flag == 2;
+                if ((!cut && flag != 5) || paths == null || paths.Length == 0)
+                    return;
+            }
+
+            string destFolder = filePath;
+            bool? isDestDir = destFolder.IsDirectory();
+            if (isDestDir.HasValue && !isDestDir.Value)
+                destFolder = Path.GetDirectoryName(destFolder);
+
+            foreach (string path in paths)
+            {
+                bool? isDir = copyPath.IsDirectory();
+                if (isDir == null)
+                    continue;
+
+                if (isDir.Value)
+                {
+                    if (cut)
+                        FileSystem.MoveDirectory(copyPath, destFolder, UIOption.AllDialogs, UICancelOption.DoNothing);
+                    else
+                        FileSystem.CopyDirectory(copyPath, destFolder, UIOption.AllDialogs, UICancelOption.DoNothing);
+                }
+                else
+                {
+                    if (cut)
+                        FileSystem.MoveFile(copyPath, destFolder, UIOption.AllDialogs, UICancelOption.DoNothing);
+                    else
+                        FileSystem.CopyFile(copyPath, destFolder, UIOption.AllDialogs, UICancelOption.DoNothing);
+                }
+            }
+        }
+        #endregion
+
+        #region Content Watcher
+        [Browsable(false)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public bool WatchProjectDirectory
+        {
+            get => _contentWatcher.EnableRaisingEvents;
+            set => _contentWatcher.EnableRaisingEvents = value;
+        }
         private void ContentWatcherRename(object sender, RenamedEventArgs e)
         {
             Engine.DebugPrint("File renamed: " + e.FullPath);
@@ -125,7 +240,7 @@ namespace TheraEditor
                         return;
                     if (nodes.Length > 1)
                         Engine.DebugPrint("More than one node with the path " + e.FullPath);
-                    if (nodes[0] is FileWrapper b)
+                    if (nodes[0] is BaseFileWrapper b)
                     {
                         if (b.IsLoaded)
                         {
@@ -134,7 +249,7 @@ namespace TheraEditor
                             else
                             {
                                 string message = "The file " + e.FullPath + " has been externally modified.\nDo you want to reload it?";
-                                if (b.Resource.EditorState.HasChanges)
+                                if (b.FileObject.EditorState.HasChanges)
                                     message += "\nYou will have the option to save your in-editor changes elsewhere if so.";
                                 Form f = Parent.FindForm();
                                 if (MessageBox.Show(f, message, "Externally modified file", MessageBoxButtons.YesNo, MessageBoxIcon.Hand) == DialogResult.Yes)
@@ -149,11 +264,11 @@ namespace TheraEditor
                                         {
                                             SaveFileDialog sfd = new SaveFileDialog()
                                             {
-                                                Filter = b.Resource.FileHeader.GetFilter()
+                                                Filter = b.FileObject.FileHeader.GetFilter()
                                             };
                                             if (sfd.ShowDialog(f) == DialogResult.OK)
                                             {
-                                                b.Resource.Export(sfd.FileName);
+                                                b.FileObject.Export(sfd.FileName);
                                             }
                                         }
                                         b.Reload();
@@ -217,7 +332,7 @@ namespace TheraEditor
             }
             
         }
-        private void AddExternallyModifiedNode(FileWrapper n)
+        private void AddExternallyModifiedNode(BaseFileWrapper n)
         {
             n.ExternallyModified = true;
             _externallyModifiedNodes.Add(n.FullPath, n);
@@ -249,6 +364,8 @@ namespace TheraEditor
             }
             base.OnAfterLabelEdit(e);
         }
+        #endregion
+
         protected override void OnBeforeExpand(TreeViewCancelEventArgs e)
         {
             ((BaseWrapper)e.Node).OnExpand();
@@ -256,83 +373,8 @@ namespace TheraEditor
 
         protected override void OnNodeMouseDoubleClick(TreeNodeMouseClickEventArgs e)
         {
-            if (e.Node is FileWrapper f)
+            if (e.Node is BaseFileWrapper f)
                 f.EditResource();
-        }
-
-        public event EventHandler SelectionChanged;
-
-        private bool _allowContextMenus = true;
-        [DefaultValue(true)]
-        public bool AllowContextMenus
-        {
-            get => _allowContextMenus;
-            set => _allowContextMenus = value;
-        }
-
-        private bool _allowIcons = false;
-        [DefaultValue(false)]
-        public bool ShowIcons
-        {
-            get => _allowIcons;
-            set => ImageList = (_allowIcons = value) ? Images : null;
-        }
-
-        private TreeNode _selected;
-        new public TreeNode SelectedNode
-        {
-            get => base.SelectedNode;
-            set
-            {
-                if (_selected == value)
-                    return;
-
-                _selected = base.SelectedNode = value;
-                SelectionChanged?.Invoke(this, null);
-            }
-        }
-        public ResourceTree()
-        {
-            SetStyle(ControlStyles.UserMouse, true);
-
-            _timer.Interval = 200;
-            _timer.Tick += new EventHandler(Timer_Tick);
-
-            AllowDrop = true;
-
-            ItemDrag += new ItemDragEventHandler(TreeView_ItemDrag);
-            DragOver += new DragEventHandler(TreeView1_DragOver);
-            DragDrop += new DragEventHandler(TreeView1_DragDrop);
-            DragEnter += new DragEventHandler(TreeView1_DragEnter);
-            DragLeave += new EventHandler(TreeView1_DragLeave);
-            GiveFeedback += new GiveFeedbackEventHandler(TreeView1_GiveFeedback);
-
-            _openFileDelegate = new DelegateOpenFile(ImportFile);
-        }
-        
-        //private TreeNode CreateFolder(string path)
-        //{
-        //    TreeNode t = new TreeNode(Path.GetFileNameWithoutExtension(path));
-        //    string parentFolder = Path.GetDirectoryName(path);
-        //    if (_nodes.ContainsKey(parentFolder))
-        //}
-        //private TreeNode CreateFile(string path)
-        //{
-        //    TreeNode t = new TreeNode(Path.GetFileNameWithoutExtension(path));
-        //}
-
-        private void Populate()
-        {
-            //TreeNode rootNode;
-
-            //DirectoryInfo info = new DirectoryInfo(_contentPath);
-            //if (info.Exists)
-            //{
-            //    rootNode = BaseWrapper.Wrap(_contentPath);
-            //    rootNode.Tag = info;
-            //    GetDirectories(info.GetDirectories(), rootNode);
-            //    Nodes.Add(rootNode);
-            //}
         }
         
         protected override void WndProc(ref Message m)
@@ -357,7 +399,7 @@ namespace TheraEditor
             {
                 int x = (int)m.LParam & 0xFFFF, y = (int)m.LParam >> 16;
 
-                if (_allowContextMenus && _selected != null && _selected.ContextMenuStrip != null)
+                if (AllowContextMenus && _selected != null && _selected.ContextMenuStrip != null)
                 {
                     Rectangle r = _selected.Bounds;
                     r.X -= 25; r.Width += 25;
@@ -382,6 +424,7 @@ namespace TheraEditor
         {
             SelectedNode = e.Node;
             base.OnAfterSelect(e);
+            OnAfterSelectMultiselect(e);
         }
 
         protected override void OnMouseDoubleClick(MouseEventArgs e)
@@ -392,12 +435,16 @@ namespace TheraEditor
                 base.OnMouseDoubleClick(e);
         }
 
-        protected override void Dispose(bool disposing) { Clear(); base.Dispose(disposing); }
+        protected override void Dispose(bool disposing)
+        {
+            Clear();
+            base.Dispose(disposing);
+        }
 
+        #region Dragging
         private TreeNode _dragNode = null;
         private TreeNode _tempDropNode = null;
         private Timer _timer = new Timer();
-
         private ImageList imageListDrag = new ImageList();
 
         private void TreeView_ItemDrag(object sender, ItemDragEventArgs e)
@@ -684,16 +731,196 @@ namespace TheraEditor
                 }
             }
         }
+        #endregion
+
+        #region Multiselect
+        protected List<TreeNode> m_coll = new List<TreeNode>();
+        protected TreeNode m_lastNode, m_firstNode;
+        protected override void OnPaint(PaintEventArgs pe)
+        {
+            // TODO: Add custom paint code here
+
+            // Calling the base class OnPaint
+            base.OnPaint(pe);
+        }
+        public List<TreeNode> SelectedNodes
+        {
+            get => m_coll;
+            set
+            {
+                UnhighlightSelectedNodes();
+                m_coll.Clear();
+                m_coll = value;
+                HighlightSelectedNodes();
+            }
+        }
+        protected override void OnBeforeSelect(TreeViewCancelEventArgs e)
+        {
+            base.OnBeforeSelect(e);
+
+            bool bControl = (ModifierKeys == Keys.Control);
+            bool bShift = (ModifierKeys == Keys.Shift);
+
+            // selecting twice the node while pressing CTRL ?
+            if (bControl && m_coll.Contains(e.Node))
+            {
+                // unselect it (let framework know we don't want selection this time)
+                e.Cancel = true;
+
+                // update nodes
+                UnhighlightSelectedNodes();
+                m_coll.Remove(e.Node);
+                HighlightSelectedNodes();
+                return;
+            }
+
+            m_lastNode = e.Node;
+            if (!bShift) m_firstNode = e.Node; // store begin of shift sequence
+        }
+        private void OnAfterSelectMultiselect(TreeViewEventArgs e)
+        {
+            bool bControl = (ModifierKeys == Keys.Control);
+            bool bShift = (ModifierKeys == Keys.Shift);
+
+            if (bControl)
+            {
+                if (!m_coll.Contains(e.Node)) // new node ?
+                {
+                    m_coll.Add(e.Node);
+                }
+                else  // not new, remove it from the collection
+                {
+                    UnhighlightSelectedNodes();
+                    m_coll.Remove(e.Node);
+                }
+                HighlightSelectedNodes();
+            }
+            else
+            {
+                // SHIFT is pressed
+                if (bShift)
+                {
+                    Queue<TreeNode> myQueue = new Queue<TreeNode>();
+
+                    TreeNode uppernode = m_firstNode;
+                    TreeNode bottomnode = e.Node;
+                    // case 1 : begin and end nodes are parent
+                    bool bParent = IsAncestor(m_firstNode, e.Node); // is m_firstNode parent (direct or not) of e.Node
+                    if (!bParent)
+                    {
+                        bParent = IsAncestor(bottomnode, uppernode);
+                        if (bParent) // swap nodes
+                        {
+                            TreeNode t = uppernode;
+                            uppernode = bottomnode;
+                            bottomnode = t;
+                        }
+                    }
+
+                    //bParent may have been modifed under !bParent
+                    if (bParent)
+                    {
+                        TreeNode n = bottomnode;
+                        while (n != uppernode.Parent)
+                        {
+                            if (!m_coll.Contains(n)) // new node ?
+                                myQueue.Enqueue(n);
+
+                            n = n.Parent;
+                        }
+                    }
+                    // case 2 : nor the begin nor the end node are descendant one another
+                    else
+                    {
+                        if ((uppernode.Parent == null && bottomnode.Parent == null) || (uppernode.Parent != null && uppernode.Parent.Nodes.Contains(bottomnode))) // are they siblings ?
+                        {
+                            int nIndexUpper = uppernode.Index;
+                            int nIndexBottom = bottomnode.Index;
+                            if (nIndexBottom < nIndexUpper) // reversed?
+                            {
+                                TreeNode t = uppernode;
+                                uppernode = bottomnode;
+                                bottomnode = t;
+                                nIndexUpper = uppernode.Index;
+                                nIndexBottom = bottomnode.Index;
+                            }
+
+                            TreeNode n = uppernode;
+                            while (nIndexUpper <= nIndexBottom)
+                            {
+                                if (!m_coll.Contains(n)) // new node ?
+                                    myQueue.Enqueue(n);
+
+                                n = n.NextNode;
+
+                                nIndexUpper++;
+                            } // end while
+
+                        }
+                        else
+                        {
+                            if (!m_coll.Contains(uppernode)) myQueue.Enqueue(uppernode);
+                            if (!m_coll.Contains(bottomnode)) myQueue.Enqueue(bottomnode);
+                        }
+                    }
+
+                    m_coll.AddRange(myQueue);
+
+                    HighlightSelectedNodes();
+                    m_firstNode = e.Node; // let us chain several SHIFTs if we like it
+                } // end if m_bShift
+                else
+                {
+                    // in the case of a simple click, just add this item
+                    if (m_coll != null && m_coll.Count > 0)
+                    {
+                        UnhighlightSelectedNodes();
+                        m_coll.Clear();
+                    }
+                    m_coll.Add(e.Node);
+                }
+            }
+        }
+        protected bool IsAncestor(TreeNode ancestorNode, TreeNode descendantNode)
+        {
+            if (ancestorNode == descendantNode)
+                return true;
+
+            TreeNode n = descendantNode;
+            bool bFound = false;
+            while (!bFound && n != null)
+            {
+                n = n.Parent;
+                bFound = (n == ancestorNode);
+            }
+            return bFound;
+        }
+        private void HighlightNode(TreeNode node)
+        {
+            node.BackColor = SystemColors.Highlight;
+            node.ForeColor = SystemColors.HighlightText;
+        }
+        private void UnhighlightNode(TreeNode node)
+        {
+            node.BackColor = BackColor;
+            node.ForeColor = ForeColor;
+        }
+        protected void HighlightSelectedNodes()
+            => m_coll.ForEach(x => HighlightNode(x));
+        protected void UnhighlightSelectedNodes()
+            => m_coll.ForEach(x => UnhighlightNode(x));
+        #endregion
     }
 
     public class DragHelper
     {
+        static DragHelper() => InitCommonControls();
+
         [DllImport("comctl32.dll")]
         public static extern bool InitCommonControls();
 
         [DllImport("comctl32.dll", CharSet = CharSet.Auto)]
-        public static extern bool ImageList_BeginDrag(IntPtr himlTrack, int
-            iTrack, int dxHotspot, int dyHotspot);
+        public static extern bool ImageList_BeginDrag(IntPtr himlTrack, int iTrack, int dxHotspot, int dyHotspot);
 
         [DllImport("comctl32.dll", CharSet = CharSet.Auto)]
         public static extern bool ImageList_DragMove(int x, int y);
@@ -709,10 +936,5 @@ namespace TheraEditor
 
         [DllImport("comctl32.dll", CharSet = CharSet.Auto)]
         public static extern bool ImageList_DragShowNolock(bool fShow);
-
-        static DragHelper()
-        {
-            InitCommonControls();
-        }
     }
 }

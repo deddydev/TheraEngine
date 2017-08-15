@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Diagnostics;
 
-namespace Editor.TriangleConverter
+namespace TheraEngine.TriangleConverter
 {
     public enum PrimType
     {

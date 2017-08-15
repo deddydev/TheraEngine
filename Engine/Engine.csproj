@@ -242,7 +242,6 @@
     <Compile Include="3rdParty\7zip\Compress\RangeCoder\RangeCoderBit.cs" />
     <Compile Include="3rdParty\7zip\Compress\RangeCoder\RangeCoderBitTree.cs" />
     <Compile Include="3rdParty\7zip\ICoder.cs" />
-    <Compile Include="3rdParty\OBJ\Common\StringExtensions.cs" />
     <Compile Include="3rdParty\OBJ\Data\DataStore\DataStore.cs" />
     <Compile Include="3rdParty\OBJ\Data\DataStore\IDataStore.cs" />
     <Compile Include="3rdParty\OBJ\Data\DataStore\IElementGroup.cs" />
@@ -290,6 +289,7 @@
     <Compile Include="Audio\WaveFile.cs" />
     <Compile Include="Core\Extensions\TypeExtension.cs" />
     <Compile Include="Core\Maths\Shapes\Cylindrical\ZAligned\ConeZ.cs" />
+    <Compile Include="Core\Tools\ObjectComparer.cs" />
     <Compile Include="Cutscenes\Cutscene.cs" />
     <Compile Include="EditorState.cs" />
     <Compile Include="Engine\EngineMethods.cs" />

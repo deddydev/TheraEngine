@@ -2,7 +2,7 @@
 using System.IO;
 using System.Xml.Serialization;
 
-namespace Editor
+namespace TheraEditor
 {
     [Serializable]
     public class EditorSettings

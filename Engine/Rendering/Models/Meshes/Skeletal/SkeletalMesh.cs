@@ -4,7 +4,7 @@ using System.ComponentModel;
 
 namespace TheraEngine.Rendering.Models
 {
-    [FileClass("SKMDL", "Skeletal Mesh")]
+    [FileClass("SKMDL", "Skeletal Mesh", ImportableExtensions = new string[] { "DAE", "OBJ" })]
     [TypeConverter(typeof(ExpandableObjectConverter))]
     public class SkeletalMesh : FileObject, IModelFile
     {

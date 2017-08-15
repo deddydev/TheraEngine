@@ -203,5 +203,67 @@ namespace TheraEngine.Files.Serialization
             //return FormatterServices.GetUninitializedObject(t);
             return Activator.CreateInstance(t);
         }
+        public enum ValueType
+        {
+            Array,
+            Parsable,
+            Enum,
+            String,
+            Struct,
+            Pointer
+        }
+        public static ValueType GetValueType(Type t)
+        {
+            if (t.GetInterface("IParsable") != null)
+            {
+                return ValueType.Parsable;
+            }
+            else if (t.GetInterface("IList") != null)
+            {
+                return ValueType.Array;
+            }
+            else if (t.IsEnum)
+            {
+                return ValueType.Enum;
+            }
+            else if (t == typeof(string))
+            {
+                return ValueType.String;
+            }
+            else if (t.IsValueType)
+            {
+                return ValueType.Struct;
+            }
+            else
+            {
+                return ValueType.Pointer;
+            }
+        }
+        public static bool IsEnum(Type t)
+        {
+            return string.Equals(t.BaseType.Name, "Enum", StringComparison.InvariantCulture);
+        }
+        public static bool IsPrimitiveType(Type t)
+        {
+            switch (t.Name)
+            {
+                case "Boolean":
+                case "SByte":
+                case "Byte":
+                case "Char":
+                case "Int16":
+                case "UInt16":
+                case "Int32":
+                case "UInt32":
+                case "Int64":
+                case "UInt64":
+                case "Single":
+                case "Double":
+                case "Decimal":
+                case "String":
+                    return true;
+            }
+            return false;
+        }
     }
 }

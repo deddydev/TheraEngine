@@ -49,9 +49,6 @@ namespace TheraEngine.Tests
                 kneeAnim.Keyframes.Add(l3);
                 scene.Skeleton["LKnee"]?.FrameState.AddAnimation(new AnimationContainer("Pitch", false, kneeAnim), true);
                 
-                scene.Skeleton.Export(desktop, "TESTSKEL", FileFormat.XML);
-                Skeleton newSkel = Import<Skeleton>(scene.Skeleton.FilePath);
-
                 Mesh = scene.SkeletalModel;
                 //Mesh = new SingleFileRef<SkeletalMesh>(Engine.ContentFolderAbs + MeshName + "." + GetFileHeader(typeof(SkeletalMesh)).GetProperExtension(FileFormat.XML));
                 Skeleton = scene.Skeleton;

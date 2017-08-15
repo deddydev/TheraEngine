@@ -5,7 +5,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Editor.TriangleConverter
+namespace TheraEngine.TriangleConverter
 {
     class CacheSimulator
     {

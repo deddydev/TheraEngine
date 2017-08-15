@@ -173,9 +173,5 @@ namespace TheraEngine.Worlds
         {
             _originRebaseBounds = new BoundingBox(distance);
         }
-        public static WorldSettings FromXML(string filePath)
-        {
-            return FromXML<WorldSettings>(filePath);
-        }
     }
 }

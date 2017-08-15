@@ -1,6 +1,6 @@
 ﻿using System.Windows;
 
-namespace Editor
+namespace TheraEditor
 {
     /// <summary>
     /// Interaction logic for SettingsWindow.xaml

@@ -13,7 +13,7 @@ namespace TheraEditor
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(true);
-            Application.Run(new Editor());
+            Application.Run(new Windows.Forms.Editor());
         }
     }
 }

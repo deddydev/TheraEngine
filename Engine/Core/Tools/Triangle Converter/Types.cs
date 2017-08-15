@@ -4,7 +4,7 @@
 
 using System;
 
-namespace Editor.TriangleConverter
+namespace TheraEngine.TriangleConverter
 {
     public class Triangle
     {

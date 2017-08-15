@@ -70,6 +70,17 @@ namespace TheraEngine.Files.Serialization
         {
             return Serialize(obj, filePath, order, true, false, encryptionPassword, out encryptionSalt, out integrityHash, null);
         }
+
+        public static unsafe Type DetermineType(string filePath)
+        {
+            Type t = null;
+            using (FileMap map = FileMap.FromFile(filePath, FileMapProtect.Read, 0, 0x100))
+            {
+
+            }
+            return t;
+        }
+
         /// <summary>
         /// Writes the given object to the path as binary.
         /// </summary>

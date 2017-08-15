@@ -19,68 +19,36 @@ namespace System.ComponentModel
 #endif
             )
         {
-            _extension = extension.ToLower();
-            _manualBinSerialize = manualBinSerialize;
-            _manualXmlSerialize = manualXmlSerialize;
-            _userFriendlyName = userFriendlyName;
-            _preferredFormat = preferredFormat;
-            _isSpecialDeserialize = isSpecialDeserialize;
+            UserFriendlyName = userFriendlyName;
+            Extension = extension.ToLower();
+            ManualBinSerialize = manualBinSerialize;
+            ManualXmlSerialize = manualXmlSerialize;
+            PreferredFormat = preferredFormat;
+            IsSpecialDeserialize = isSpecialDeserialize;
         }
         
-        //TODO: add importable and exportable 3rd party extensions
-
-        private string _userFriendlyName;
-        private string _extension;
-        private bool _manualXmlSerialize = false;
-        private bool _manualBinSerialize = false;
-        private SerializeFormat _preferredFormat =
+        public string UserFriendlyName { get; set; }
+        public string Extension { get; set; }
+        public bool ManualXmlSerialize { get; set; } = false;
+        public bool ManualBinSerialize { get; set; } = false;
+        public bool IsSpecialDeserialize { get; set; } = false;
+        public string[] ImportableExtensions { get; set; } = null;
+        public string[] ExportableExtensions { get; set; } = null;
 #if DEBUG
-            SerializeFormat.XML;
+        public SerializeFormat PreferredFormat { get; set; } = SerializeFormat.XML;
 #else
-            SerializeFormat.Binary;
+        public SerializeFormat PreferredFormat { get; set; } = SerializeFormat.Binary;
 #endif
-        private bool _isSpecialDeserialize = false;
-
-        public SerializeFormat PreferredFormat
-        {
-            get => _preferredFormat;
-            set => _preferredFormat = value;
-        }
-        public bool ManualXmlSerialize
-        {
-            get => _manualXmlSerialize;
-            set => _manualXmlSerialize = value;
-        }
-        public bool ManualBinSerialize
-        {
-            get => _manualBinSerialize;
-            set => _manualBinSerialize = value;
-        }
-        public string UserFriendlyName
-        {
-            get => _userFriendlyName;
-            set => _userFriendlyName = value;
-        }
-        public string Extension
-        {
-            get => _extension;
-            set => _extension = value;
-        }
-        public bool IsSpecialDeserialize
-        {
-            get => _isSpecialDeserialize;
-            set => _isSpecialDeserialize = value;
-        }
 
         public string GetProperExtension(FileFormat format)
         {
-            return format.ToString().ToLower()[0] + _extension;
+            return format.ToString().ToLower()[0] + Extension;
         }
         public string GetFilter()
         {
             string allTypes = "";
             string eachType = "";
-            string ext = _extension;
+            string ext = Extension;
             bool first = true;
             foreach (string type in Enum.GetNames(typeof(FileFormat)))
             {

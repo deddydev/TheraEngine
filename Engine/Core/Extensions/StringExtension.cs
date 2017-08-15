@@ -1,9 +1,65 @@
-﻿using System.Text.RegularExpressions;
+﻿using System.Globalization;
+using System.IO;
+using System.Text.RegularExpressions;
 
 namespace System
 {
     public static unsafe class StringExtension
     {
+        public static bool? IsDirectory(this string path)
+        {
+            if (Directory.Exists(path)) return true; //Is a folder 
+            else if (File.Exists(path)) return false; //Is a file
+            else return null; //Path is invalid
+        }
+        public static decimal ParseInvariantDecimal(this string str)
+        {
+            return decimal.Parse(str, CultureInfo.InvariantCulture.NumberFormat);
+        }
+        public static float ParseInvariantFloat(this string str)
+        {
+            return float.Parse(str, CultureInfo.InvariantCulture.NumberFormat);
+        }
+        public static double ParseInvariantDouble(this string str)
+        {
+            return double.Parse(str, CultureInfo.InvariantCulture.NumberFormat);
+        }
+        public static sbyte ParseInvariantSByte(this string str)
+        {
+            return sbyte.Parse(str, CultureInfo.InvariantCulture.NumberFormat);
+        }
+        public static byte ParseInvariantByte(this string str)
+        {
+            return byte.Parse(str, CultureInfo.InvariantCulture.NumberFormat);
+        }
+        public static short ParseInvariantShort(this string str)
+        {
+            return short.Parse(str, CultureInfo.InvariantCulture.NumberFormat);
+        }
+        public static ushort ParseInvariantUShort(this string str)
+        {
+            return ushort.Parse(str, CultureInfo.InvariantCulture.NumberFormat);
+        }
+        public static int ParseInvariantInt(this string str)
+        {
+            return int.Parse(str, CultureInfo.InvariantCulture.NumberFormat);
+        }
+        public static uint ParseInvariantUInt(this string str)
+        {
+            return uint.Parse(str, CultureInfo.InvariantCulture.NumberFormat);
+        }
+        public static bool EqualsOrdinalIgnoreCase(this string str, string other)
+        {
+            return str.Equals(other, StringComparison.OrdinalIgnoreCase);
+        }
+        public static bool EqualsOrdinal(this string str, string other)
+        {
+            return str.Equals(other, StringComparison.Ordinal);
+        }
+        //public static bool IsNullOrEmpty(this string str)
+        //{
+        //    return string.IsNullOrEmpty(str);
+        //}
         public static string MakePathRelativeTo(this string absolutePath, string relativePath)
         {
             string[] relParts = relativePath.Split('\\');

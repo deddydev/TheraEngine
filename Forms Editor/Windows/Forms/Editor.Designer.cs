@@ -1,4 +1,4 @@
-﻿namespace TheraEditor
+﻿namespace TheraEditor.Windows.Forms
 {
     partial class Editor
     {
@@ -48,7 +48,7 @@
             this.btnCompile = new System.Windows.Forms.ToolStripMenuItem();
             this.leftPanel = new System.Windows.Forms.Panel();
             this.panel4 = new System.Windows.Forms.Panel();
-            this.contentTree = new TheraEditor.ResourceTree();
+            this.contentTree = new TheraEditor.Windows.Forms.ResourceTree();
             this.ctxContentTree = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.BtnImportFile = new System.Windows.Forms.ToolStripMenuItem();
             this.btnImportModel = new System.Windows.Forms.ToolStripMenuItem();
@@ -251,8 +251,10 @@
             // 
             this.contentTree.AllowDrop = true;
             this.contentTree.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(55)))), ((int)(((byte)(55)))), ((int)(((byte)(60)))));
+            this.contentTree.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.contentTree.ContextMenuStrip = this.ctxContentTree;
             resources.ApplyResources(this.contentTree, "contentTree");
+            this.contentTree.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(170)))), ((int)(((byte)(170)))), ((int)(((byte)(170)))));
             this.contentTree.Name = "contentTree";
             // 
             // ctxContentTree
@@ -398,6 +400,7 @@
             // actorTree
             // 
             this.actorTree.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(55)))), ((int)(((byte)(55)))), ((int)(((byte)(60)))));
+            this.actorTree.BorderStyle = System.Windows.Forms.BorderStyle.None;
             resources.ApplyResources(this.actorTree, "actorTree");
             this.actorTree.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(170)))), ((int)(((byte)(170)))), ((int)(((byte)(170)))));
             this.actorTree.Name = "actorTree";
@@ -459,7 +462,7 @@
             this.actorPropertyGrid.HelpBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(82)))), ((int)(((byte)(83)))), ((int)(((byte)(90)))));
             this.actorPropertyGrid.HelpBorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(150)))), ((int)(((byte)(192)))), ((int)(((byte)(192)))));
             this.actorPropertyGrid.HelpForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(170)))), ((int)(((byte)(170)))), ((int)(((byte)(170)))));
-            this.actorPropertyGrid.LineColor = System.Drawing.Color.Empty;
+            this.actorPropertyGrid.LineColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
             this.actorPropertyGrid.Name = "actorPropertyGrid";
             this.actorPropertyGrid.SelectedItemWithFocusBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(150)))), ((int)(((byte)(192)))), ((int)(((byte)(192)))));
             this.actorPropertyGrid.ToolbarVisible = false;

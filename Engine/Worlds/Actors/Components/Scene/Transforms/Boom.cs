@@ -16,24 +16,20 @@ namespace TheraEngine.Worlds.Actors
         public event LengthChange CurrentDistanceChanged;
 
         private SphereShape _traceShape = new SphereShape(0.3f);
-        private float _maxLength = 300.0f;
         private float _currentLength = 0.0f;
-        private Vec3 _currentEndPoint = Vec3.Zero;
         private Vec3 _startPoint = Vec3.Zero;
+        private CollisionObject _ignoreCast = null;
 
         [Browsable(false)]
         public Shape CullingVolume => null;
         [Browsable(false)]
         public IOctreeNode OctreeNode { get; set; }
 
-        private CollisionObject _ignoreCast = null;
+        [DefaultValue(300.0f)]
+        [Serialize]
+        public float MaxLength { get; set; } = 300.0f;
 
-        public float MaxLength
-        {
-            get => _maxLength;
-            set => _maxLength = value;
-        }
-        public CollisionObject IgnoreCast { get => _ignoreCast; set => _ignoreCast = value; }
+        public CollisionObject IgnoreCast { get; set; } = null;
 
         public BoomComponent() : base() { }
         
@@ -57,7 +53,7 @@ namespace TheraEngine.Worlds.Actors
         {
             Matrix4 startMatrix = GetParentMatrix() * Rotation.GetMatrix() * Translation.GetTranslationMatrix();
             _startPoint = startMatrix.GetPoint();
-            Matrix4 endMatrix = startMatrix * Matrix4.CreateTranslation(new Vec3(0.0f, 0.0f, _maxLength));
+            Matrix4 endMatrix = startMatrix * Matrix4.CreateTranslation(new Vec3(0.0f, 0.0f, MaxLength));
             Vec3 testEnd = endMatrix.GetPoint();
 
             ClosestNotMeConvexResultCallback result = new ClosestNotMeConvexResultCallback(IgnoreCast)
@@ -72,11 +68,14 @@ namespace TheraEngine.Worlds.Actors
                 newEndPoint = result.HitPointWorld;
             else
                 newEndPoint = testEnd;
-            float length = (newEndPoint - _startPoint).LengthFast;
-            if (!length.EqualTo(_currentLength, 0.001f))
+            float newLength = (newEndPoint - _startPoint).LengthFast;
+            if (!newLength.EqualTo(_currentLength, 0.001f))
             {
-                _currentEndPoint = newEndPoint;
-                _currentLength = length;
+                if (newLength < _currentLength)
+                    _currentLength = newLength; //Moving closer to the character, meaning something is obscuring the view. Need to jump to the right position.
+                else //Nothing is now obscuring the view, so we can lerp out quickly to give the appearance of a clean camera zoom out
+                    _currentLength = CustomMath.InterpLinearTo(_currentLength, newLength, delta, 15.0f);
+
                 RecalcLocalTransform();
                 CurrentDistanceChanged?.Invoke(_currentLength);
             }
@@ -97,7 +96,7 @@ namespace TheraEngine.Worlds.Actors
 
         public void Render()
         {
-            Engine.Renderer.RenderLine(_startPoint, _currentEndPoint, Color.LightYellow);
+            //Engine.Renderer.RenderLine(_startPoint, _currentEndPoint, Color.LightYellow);
         }
     }
 }

@@ -2,7 +2,7 @@
 using TheraEngine.Rendering.Models.Materials;
 using System;
 
-namespace TheraEditor.Editors
+namespace TheraEditor.Windows.Forms
 {
     public class MaterialEditorHud : HudManager
     {

@@ -1,4 +1,4 @@
-﻿namespace TheraEditor.Editors
+﻿namespace TheraEditor.Windows.Forms
 {
     partial class MaterialEditor
     {

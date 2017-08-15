@@ -1,4 +1,3 @@
-using ObjLoader.Loader.Common;
 using ObjLoader.Loader.Data;
 using ObjLoader.Loader.Data.DataStore;
 using ObjLoader.Loader.TypeParsers.Interfaces;

@@ -3,7 +3,7 @@
 //http://users.telenet.be/tfautre/softdev/tristripper/
 
 
-namespace Editor.TriangleConverter
+namespace TheraEngine.TriangleConverter
 {
     public class Policy
     {

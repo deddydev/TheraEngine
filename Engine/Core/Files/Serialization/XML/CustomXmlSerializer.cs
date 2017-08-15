@@ -11,6 +11,14 @@ namespace TheraEngine.Files.Serialization
 {
     public static partial class CustomXmlSerializer
     {
+        private static readonly XmlWriterSettings _writerSettings = new XmlWriterSettings()
+        {
+            Indent = true,
+            IndentChars = "\t",
+            NewLineChars = "\r\n",
+            NewLineHandling = NewLineHandling.Replace
+        };
+
         /// <summary>
         /// Writes the given object to the path as xml.
         /// </summary>
@@ -26,20 +34,12 @@ namespace TheraEngine.Files.Serialization
                 writer.WriteEndDocument();
             }
         }
-        private static readonly XmlWriterSettings _writerSettings = new XmlWriterSettings()
-        {
-            Indent = true,
-            IndentChars = "\t",
-            NewLineChars = "\r\n",
-            NewLineHandling = NewLineHandling.Replace
-        };
         private static void WriteObject(object obj, string name, XmlWriter writer, bool rootElement)
         {
             if (obj == null)
                 return;
-
-            Type t = obj.GetType();
-            List<VarInfo> fields = SerializationCommon.CollectSerializedMembers(t);
+            
+            List<VarInfo> fields = SerializationCommon.CollectSerializedMembers(obj.GetType());
             WriteObject(obj, fields, name, writer, rootElement);
         }
         private static void WriteObject(object obj, List<VarInfo> members, string name, XmlWriter writer, bool rootElement)
@@ -48,6 +48,20 @@ namespace TheraEngine.Files.Serialization
                 return;
 
             Type objType = obj.GetType();
+
+            #region Methods
+
+            //Get custom serialize methods
+            var customMethods = objType.GetMethods(
+                BindingFlags.NonPublic |
+                BindingFlags.Instance |
+                BindingFlags.Public |
+                BindingFlags.FlattenHierarchy).
+                Where(x => x.GetCustomAttribute<CustomXMLSerializeMethod>() != null);
+
+            #endregion
+
+            #region Categories
 
             //Get members categorized together
             var categorized = members.
@@ -58,145 +72,191 @@ namespace TheraEngine.Files.Serialization
                 foreach (VarInfo p in grouping)
                     members.Remove(p);
 
-            //Write start tag for this object
-            if (string.IsNullOrEmpty(name))
-                name = SerializationCommon.GetTypeName(objType);
-
-            //Get custom serialize methods
-            var customMethods = objType.GetMethods(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public).
-                Where(x => x.GetCustomAttribute<CustomXMLSerializeMethod>() != null);
+            #endregion
 
             //Write the element for this object
-            writer.WriteStartElement(name);
+            writer.WriteStartElement(string.IsNullOrEmpty(name) ? SerializationCommon.GetTypeName(objType) : name);
             {
                 if (rootElement)
                     writer.WriteAttributeString("Type", objType.AssemblyQualifiedName);
+                
+                //Attributes are already sorted to come first, then elements
+                WriteMembers(obj, members, customMethods, writer);
 
-                //Write attributes and then elements
-                foreach (VarInfo p in members)
-                {
-                    MethodInfo customMethod = customMethods.FirstOrDefault(
-                        x => string.Equals(p.Name, x.GetCustomAttribute<CustomXMLSerializeMethod>().Name));
-                    if (customMethod != null)
-                        customMethod.Invoke(obj, new object[] { writer });
-                    else
-                        WriteMember(obj, p, writer);
-                }
                 //Write categorized elements
                 foreach (var grouping in categorized)
                 {
                     //Write category element
                     writer.WriteStartElement(grouping.Key);
                     {
-                        //Write fields on this element
-                        foreach (VarInfo p in grouping.OrderBy(x => !x.Attrib.IsXmlAttribute))
-                        {
-                            MethodInfo customMethod = customMethods.FirstOrDefault(
-                                x => string.Equals(p.Name, x.GetCustomAttribute<CustomXMLSerializeMethod>().Name));
-                            if (customMethod != null)
-                                customMethod.Invoke(obj, new object[] { writer });
-                            else
-                                WriteMember(obj, p, writer);
-                        }
+                        //Write members for this category
+                        WriteMembers(obj, grouping.OrderBy(x => !x.Attrib.IsXmlAttribute), customMethods, writer);
                     }
                     writer.WriteEndElement();
                 }
             }
             writer.WriteEndElement();
         }
-
-        private static void WriteMember(object obj, VarInfo info, XmlWriter writer)
+        private static void WriteMembers(object obj, IEnumerable<VarInfo> members, IEnumerable<MethodInfo> customMethods, XmlWriter writer)
         {
-            if (info.Attrib.SerializeIf != null &&
-                !ExpressionParser.Evaluate<bool>(info.Attrib.SerializeIf, obj))
-                return;
-
-            Type t = info.VariableType;
-            if (info.Attrib.IsXmlAttribute)
+            foreach (VarInfo member in members)
             {
-                object value = info.GetValue(obj);
-                if (value != null)
-                    writer.WriteAttributeString(info.Name, value.ToString());
+                MethodInfo customMethod = customMethods.FirstOrDefault(
+                    x => string.Equals(member.Name, x.GetCustomAttribute<CustomXMLSerializeMethod>().Name));
+                if (customMethod != null)
+                    customMethod.Invoke(obj, new object[] { writer });
+                else
+                    WriteMember(obj, member, writer);
             }
-            else
+        }
+        private static void WriteMember(object obj, VarInfo member, XmlWriter writer)
+        {
+            if (member.Attrib.SerializeIf != null &&
+                !ExpressionParser.Evaluate<bool>(member.Attrib.SerializeIf, obj))
+                return;
+            
+            object value = member.GetValue(obj);
+            if (value != null)
+                if (member.Attrib.IsXmlAttribute)
+                    writer.WriteAttributeString(member.Name, GetString(value, member.VariableType));
+                else
+                    WriteElement(value, member, writer);
+        }
+        private static string GetString(object value, Type t)
+        {
+            if (t.GetInterface("IParsable") != null)
+                return ((IParsable)value).WriteToString();
+            else if (SerializationCommon.IsPrimitiveType(t))
+                return value.ToString();
+            else if (SerializationCommon.IsEnum(t))
+                return value.ToString().Replace(", ", "|");
+            throw new InvalidOperationException(t.Name + " cannot be written as a string.");
+        }
+        private static void WriteElement(object value, VarInfo member, XmlWriter writer)
+        {
+            switch (SerializationCommon.GetValueType(member.VariableType))
             {
-                object value = info.GetValue(obj);
-                if (value == null)
-                    return;
-                
-                if (t.GetInterface("IList") != null && 
-                    info.GetValue(obj) is IList array)
-                {
-                    writer.WriteStartElement(info.Name);
-                    writer.WriteAttributeString("Count", array.Count.ToString());
-                    if (array.Count > 0)
+                case SerializationCommon.ValueType.Parsable:
+                    writer.WriteElementString(member.Name, ((IParsable)value).WriteToString());
+                    break;
+                case SerializationCommon.ValueType.Array:
+                    WriteArray(value as IList, member, writer);
+                    break;
+                case SerializationCommon.ValueType.Enum:
+                case SerializationCommon.ValueType.String:
+                    writer.WriteElementString(member.Name, value.ToString());
+                    break;
+                case SerializationCommon.ValueType.Struct:
+                    List<VarInfo> structFields = SerializationCommon.CollectSerializedMembers(member.VariableType);
+                    if (structFields.Count > 0)
+                        WriteObject(value, structFields, member.Name, writer, false);
+                    else
                     {
-                        Type elementType = t.GetElementType();
-                        if (elementType.IsEnum || elementType == typeof(string))
-                        {
-                            WriteStringArray(array, writer);
-                        }
-                        else if (elementType.IsValueType)
-                        {
-                            WriteStructArray(array, writer);
-                        }
+                        if (SerializationCommon.IsPrimitiveType(member.VariableType))
+                            writer.WriteElementString(member.Name, value.ToString());
                         else
                         {
-                            foreach (object o in array)
-                                WriteObject(o, "Item", writer, false);
+                            //Custom struct with no members marked as serializable
+                            //Serialize all members
+                            FieldInfo[] members = member.VariableType.GetFields(
+                                BindingFlags.NonPublic |
+                                BindingFlags.Instance |
+                                BindingFlags.Public |
+                                BindingFlags.FlattenHierarchy);
+                            WriteStruct(value, members, writer);
                         }
                     }
-                    writer.WriteEndElement();
-                    return;
-                }
-
-                if (value is IParsable)
-                    writer.WriteElementString(info.Name, ((IParsable)value).WriteToString());
-                else if (t.IsEnum || value is string)
-                    writer.WriteElementString(info.Name, value.ToString());
-                else if (t.IsValueType)
-                {
-                    List<VarInfo> structFields = SerializationCommon.CollectSerializedMembers(info.VariableType);
-                    if (structFields.Count > 0)
-                        WriteObject(value, structFields, info.Name, writer, false);
-                    else
-                        writer.WriteElementString(info.Name, value.ToString());
-                    return;
-                }
-                else
-                    WriteObject(value, info.Name, writer, false);
+                    break;
+                case SerializationCommon.ValueType.Pointer:
+                    WriteObject(value, member.Name, writer, false);
+                    break;
             }
         }
-
-        private static void WriteStructArray(IList array, XmlWriter writer)
+        private static void WriteArray(IList array, VarInfo member, XmlWriter writer)
         {
-            List<VarInfo> structFields = SerializationCommon.CollectSerializedMembers(array[0].GetType());
+            writer.WriteStartElement(member.Name);
+            writer.WriteAttributeString("Count", array.Count.ToString());
+            if (array.Count > 0)
+            {
+                Type elementType = member.VariableType.GetElementType() ?? member.VariableType.GenericTypeArguments[0];
+                string elementName = member.VariableType.Name;
+                SerializationCommon.ValueType type = SerializationCommon.GetValueType(elementType);
+                switch (type)
+                {
+                    case SerializationCommon.ValueType.Parsable:
+                        WriteStringArray(array, writer, true, false);
+                        break;
+                    case SerializationCommon.ValueType.Array:
+
+                        break;
+                    case SerializationCommon.ValueType.Enum:
+                        WriteStringArray(array, writer, false, true);
+                        break;
+                    case SerializationCommon.ValueType.String:
+                        WriteStringArray(array, writer, false, false);
+                        break;
+                    case SerializationCommon.ValueType.Struct:
+                        WriteStructArray(array, elementType, writer);
+                        break;
+                    case SerializationCommon.ValueType.Pointer:
+                        foreach (object o in array)
+                            WriteObject(o, elementName, writer, false);
+                        break;
+                }
+            }
+            writer.WriteEndElement();
+        }
+        private static void WriteStructArray(IList array, Type elementType, XmlWriter writer)
+        {
+            string elementName = elementType.Name;
+            List<VarInfo> fields = SerializationCommon.CollectSerializedMembers(elementType);
             //Struct has serialized members within it?
             //Needs a full element
-            if (structFields.Count > 0)
+            if (fields.Count > 0)
                 foreach (object o in array)
-                    WriteObject(o, structFields, "Item", writer, false);
+                    WriteObject(o, fields, elementName, writer, false);
             else
             {
-                //Write each struct as a string
-                string output = array[0].ToString();
-                for (int i = 1; i < array.Count; ++i)
-                    output += " " + array[i].ToString();
-                writer.WriteString(output);
+                if (SerializationCommon.IsPrimitiveType(elementType))
+                    WriteStringArray(array, writer, false, false);
+                else
+                {
+                    var members = elementType.GetFields(
+                        BindingFlags.NonPublic | 
+                        BindingFlags.Instance |
+                        BindingFlags.Public | 
+                        BindingFlags.FlattenHierarchy);
+                    foreach (object o in array)
+                        WriteStruct(o, members, writer);
+                }
             }
         }
-
-        private static void WriteStringArray(IList array, XmlWriter writer)
+        private static void WriteStruct(object structObj, FieldInfo[] structMembers, XmlWriter writer)
         {
-            string output = array[0].ToString();
-            if (output.Contains(" "))
-                output = "\"" + output + "\"";
-            for (int i = 1; i < array.Count; ++i)
+            foreach (FieldInfo member in structMembers)
             {
-                string s = array[i].ToString();
+                object value = member.GetValue(structObj);
+            }
+        }
+        private static void WriteStringArray(IList array, XmlWriter writer, bool parsable, bool enums)
+        {
+            string output = "";
+            for (int i = 0; i < array.Count; ++i)
+            {
+                string s = parsable ? ((IParsable)array[i]).WriteToString() : array[i].ToString();
+
+                if (enums)
+                    s = s.Replace(", ", "|");
+
+                if (s.Contains("\\"))
+                    s = s.Replace("\\", "\\\\");
                 if (s.Contains(" "))
-                    s = "\"" + s + "\"";
-                output += " " + s;
+                    s = s.Replace(" ", "\\ ");
+
+                if (i == 0)
+                    output = s;
+                else
+                    output += " " + s;
             }
             writer.WriteString(output);
         }

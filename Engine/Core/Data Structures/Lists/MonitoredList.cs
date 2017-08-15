@@ -37,6 +37,7 @@ namespace System.Collections.Generic
         public MonitoredList(bool allowDuplicates) => _allowDuplicates = allowDuplicates;
         public MonitoredList(IEnumerable<T> list) => AddRange(list);
         public MonitoredList(IEnumerable<T> list, bool allowDuplicates) : this(allowDuplicates) => AddRange(list);
+        public MonitoredList(int capacity) : base(capacity) { }
 
         public new void Add(T item) => Add(item, true, true);
         public void Add(T item, bool reportAdded, bool reportModified)

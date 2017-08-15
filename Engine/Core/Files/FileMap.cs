@@ -91,6 +91,8 @@ namespace System
 
             if (length == 0)
                 length = (int)stream.Length;
+            else
+                length = length.ClampMax((int)stream.Length);
 
             switch (Environment.OSVersion.Platform)
             {
@@ -105,6 +107,10 @@ namespace System
         {
             if (length == 0)
                 length = (int)stream.Length;
+            else
+                length = length.ClampMax((int)stream.Length);
+
+            length = length.ClampMin((int)stream.Length);
 
             switch (Environment.OSVersion.Platform)
             {

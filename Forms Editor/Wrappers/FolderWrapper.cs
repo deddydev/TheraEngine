@@ -7,6 +7,7 @@ using TheraEngine.Files;
 using System.IO;
 using System.Diagnostics;
 using Microsoft.VisualBasic.FileIO;
+using TheraEditor.Windows.Forms;
 
 namespace TheraEditor.Wrappers
 {
@@ -22,42 +23,54 @@ namespace TheraEditor.Wrappers
         static FolderWrapper()
         {
             _menu = new ContextMenuStrip();
-            _menu.Items.Add(new ToolStripMenuItem("Re&name", null, RenameAction, Keys.Control | Keys.N)); //0
-            _menu.Items.Add(new ToolStripSeparator());
-            _menu.Items.Add(new ToolStripMenuItem("&Import File", null, null, Keys.Control | Keys.I)); //2
-            _menu.Items.Add(new ToolStripMenuItem("New &File", null, null, Keys.Control | Keys.F)); //3
-            _menu.Items.Add(new ToolStripMenuItem("New F&older", null, FolderAction, Keys.Control | Keys.O)); //4
-            _menu.Items.Add(new ToolStripSeparator());
-            _menu.Items.Add(new ToolStripMenuItem("Compile To &Archive", null, ArchiveAction, Keys.Control | Keys.A));  //6
-            _menu.Items.Add(new ToolStripMenuItem("Open In &Explorer", null, ExplorerAction, Keys.Control | Keys.E)); //7
-            _menu.Items.Add(new ToolStripSeparator());
-            _menu.Items.Add(new ToolStripMenuItem("&Delete", null, DeleteAction, Keys.Control | Keys.Delete)); //9
+            _menu.Items.Add(new ToolStripMenuItem("Rename", null, RenameAction, Keys.F2));                              //0
+            _menu.Items.Add(new ToolStripMenuItem("&Open In Explorer", null, ExplorerAction, Keys.Control | Keys.E));   //1
+            _menu.Items.Add(new ToolStripSeparator());                                                                  //2
+            _menu.Items.Add(new ToolStripMenuItem("&Import File", null, null, Keys.Control | Keys.I));                  //3
+            _menu.Items.Add(new ToolStripMenuItem("&New File", null, null, Keys.Control | Keys.N));                     //4
+            _menu.Items.Add(new ToolStripMenuItem("New &Folder", null, FolderAction, Keys.Control | Keys.F));           //5
+            _menu.Items.Add(new ToolStripSeparator());                                                                  //6
+            _menu.Items.Add(new ToolStripMenuItem("Compile To &Archive", null, ArchiveAction, Keys.Control | Keys.A));  //7
+            _menu.Items.Add(new ToolStripSeparator());                                                                  //8
+            _menu.Items.Add(new ToolStripMenuItem("&Cut", null, CutAction, Keys.Control | Keys.X));                     //9
+            _menu.Items.Add(new ToolStripMenuItem("&Copy", null, CopyAction, Keys.Control | Keys.C));                   //10
+            _menu.Items.Add(new ToolStripMenuItem("&Paste", null, PasteAction, Keys.Control | Keys.V));                 //11
+            _menu.Items.Add(new ToolStripMenuItem("&Delete", null, DeleteAction, Keys.Control | Keys.Delete));          //12
             _menu.Opening += MenuOpening;
             _menu.Closing += MenuClosing;
 
             LoadFileTypes();
         }
 
-        protected static void FolderAction(object sender, EventArgs e)
-            => GetInstance<FolderWrapper>().NewFolder();
-        protected static void RenameAction(object sender, EventArgs e)
-            => GetInstance<FolderWrapper>().Rename();
-        protected static void DeleteAction(object sender, EventArgs e)
-            => GetInstance<FolderWrapper>().Delete();
-        protected static void ArchiveAction(object sender, EventArgs e)
-            => GetInstance<FolderWrapper>().ToArchive();
-        protected static void ExplorerAction(object sender, EventArgs e)
-            => GetInstance<FolderWrapper>().OpenInExplorer();
+        protected static void FolderAction(object sender, EventArgs e) => GetInstance<FolderWrapper>().NewFolder();
+        protected static void RenameAction(object sender, EventArgs e) => GetInstance<FolderWrapper>().Rename();
+        protected static void DeleteAction(object sender, EventArgs e) => GetInstance<FolderWrapper>().Delete();
+        protected static void CutAction(object sender, EventArgs e) => GetInstance<FolderWrapper>().Cut();
+        protected static void CopyAction(object sender, EventArgs e) => GetInstance<FolderWrapper>().Copy();
+        protected static void PasteAction(object sender, EventArgs e) => GetInstance<FolderWrapper>().Paste();
+        protected static void ArchiveAction(object sender, EventArgs e) => GetInstance<FolderWrapper>().ToArchive();
+        protected static void ExplorerAction(object sender, EventArgs e) => GetInstance<FolderWrapper>().OpenInExplorer();
 
         private static void MenuClosing(object sender, ToolStripDropDownClosingEventArgs e)
         {
-            _menu.Items[7].Enabled = _menu.Items[9].Enabled = true;
+            //_menu.Items[7].Enabled = _menu.Items[12].Enabled = true;
         }
         private static void MenuOpening(object sender, CancelEventArgs e)
         {
             FolderWrapper w = GetInstance<FolderWrapper>();
-            _menu.Items[7].Enabled = !string.IsNullOrEmpty(w.FilePath) && Directory.Exists(w.FilePath);
-            _menu.Items[9].Enabled = w.Parent != null;
+            _menu.Items[0].Enabled = !w.TreeView.LabelEdit;
+            _menu.Items[1].Enabled = !string.IsNullOrEmpty(w.FilePath) && Directory.Exists(w.FilePath);
+
+            bool paste = false;
+            IDataObject data = Clipboard.GetDataObject();
+            if (data.GetDataPresent(DataFormats.FileDrop))
+            {
+                MemoryStream stream = (MemoryStream)data.GetData("Preferred DropEffect", true);
+                int flag = stream.ReadByte();
+                paste = flag == 2 || flag == 5;
+            }
+            _menu.Items[11].Enabled = paste;
+            _menu.Items[9].Enabled = _menu.Items[12].Enabled = w.Parent != null;
         }
         #endregion
 
@@ -66,9 +79,9 @@ namespace TheraEditor.Wrappers
         public override string FilePath
         {
             get => _path;
-            internal set => _path = value;
+            set => _path = value;
         }
-
+        
         public void ToArchive()
         {
 
@@ -96,7 +109,10 @@ namespace TheraEditor.Wrappers
             try
             {
                 tree.WatchProjectDirectory = false;
-                FileSystem.DeleteDirectory(FilePath, UIOption.AllDialogs, RecycleOption.SendToRecycleBin, UICancelOption.ThrowException);
+                if (Directory.GetDirectories(FilePath).Length > 0 || Directory.GetFiles(FilePath).Length > 0)
+                    FileSystem.DeleteDirectory(FilePath, UIOption.AllDialogs, RecycleOption.SendToRecycleBin, UICancelOption.ThrowException);
+                else
+                    Directory.Delete(FilePath);
                 Remove();
                 ContextMenuStrip.Close();
             }
@@ -124,18 +140,18 @@ namespace TheraEditor.Wrappers
                 from assemblyType in domainAssembly.GetExportedTypes()
                 where assemblyType.IsSubclassOf(typeof(FileObject)) && !assemblyType.IsAbstract
                 select assemblyType;
-            Dictionary<string, NamespaceNode> nodes = new Dictionary<string, NamespaceNode>();
+            Dictionary<string, NamespaceNode> nodeCache = new Dictionary<string, NamespaceNode>();
             foreach (Type t in fileObjectTypes)
             {
                 string path = t.Namespace;
                 int dotIndex = path.IndexOf(".");
                 string name = dotIndex > 0 ? path.Substring(0, dotIndex) : path;
-                if (nodes.ContainsKey(name))
-                    nodes[name].Add(dotIndex > 0 ? path.Substring(dotIndex + 1) : null, t);
+                if (nodeCache.ContainsKey(name))
+                    nodeCache[name].Add(dotIndex > 0 ? path.Substring(dotIndex + 1) : null, t);
                 else
                 {
                     NamespaceNode node = new NamespaceNode(name);
-                    nodes.Add(name, node);
+                    nodeCache.Add(name, node);
                     ((ToolStripDropDownItem)_menu.Items[3]).DropDownItems.Add(node.Button);
                 }
             }
@@ -195,7 +211,7 @@ namespace TheraEditor.Wrappers
                 b.TreeView.WatchProjectDirectory = false;
                 file.Export(dir, file.Name, FileFormat.XML);
                 b.TreeView.WatchProjectDirectory = true;
-                b.Nodes.Add(Wrap(file));
+                b.Nodes.Add(Wrap(file) as BaseWrapper);
             }
         }
         #endregion

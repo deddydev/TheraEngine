@@ -1,4 +1,4 @@
-﻿namespace Editor.TriangleConverter
+﻿namespace TheraEngine.TriangleConverter
 {
     public class TriangleConverter
     {

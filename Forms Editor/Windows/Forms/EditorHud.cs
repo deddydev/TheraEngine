@@ -13,7 +13,7 @@ using System.Windows.Forms;
 using System.ComponentModel;
 using TheraEngine.Worlds;
 
-namespace TheraEditor
+namespace TheraEditor.Windows.Forms
 {
     public class EditorHud : HudManager
     {

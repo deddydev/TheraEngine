@@ -5,7 +5,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 
-namespace Editor.TriangleConverter
+namespace TheraEngine.TriangleConverter
 {
     enum CompareType
     {

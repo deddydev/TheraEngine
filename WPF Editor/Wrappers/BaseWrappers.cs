@@ -3,7 +3,7 @@ using System.Windows.Controls;
 using TheraEngine;
 using System.ComponentModel;
 
-namespace Editor.Wrappers
+namespace TheraEditor.Wrappers
 {
     [AttributeUsage(AttributeTargets.Class, Inherited = false, AllowMultiple = true)]
     sealed class NodeWrapperAttribute : Attribute

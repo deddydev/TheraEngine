@@ -58,9 +58,9 @@ namespace TheraEngine.Rendering.Models
         private SkeletalMeshComponent _owningComponent;
         private bool _childMatrixModified = false;
 
-        [Serialize("RootBones")]
         private Bone[] _rootBones;
 
+        [Serialize]
         public Bone[] RootBones
         {
             get => _rootBones;

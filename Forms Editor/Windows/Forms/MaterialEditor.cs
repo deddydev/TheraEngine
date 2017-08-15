@@ -1,6 +1,6 @@
 ﻿using System.Windows.Forms;
 
-namespace TheraEditor.Editors
+namespace TheraEditor.Windows.Forms
 {
     public partial class MaterialEditor : UserControl
     {

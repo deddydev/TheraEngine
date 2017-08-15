@@ -4,7 +4,7 @@ using System.Windows;
 using System.IO;
 using TheraEngine.Files;
 
-namespace Editor.Wrappers
+namespace TheraEditor.Wrappers
 {
     //Contains generic members inherited by all sub-classed nodes
     class GenericWrapper : BaseWrapper

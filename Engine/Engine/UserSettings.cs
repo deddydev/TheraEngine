@@ -72,10 +72,5 @@ namespace TheraEngine
         public WindowBorderStyle WindowBorderStyle { get => _windowBorderStyle; set => _windowBorderStyle = value; }
         [Serialize]
         public bool FullScreen { get => _fullscreen; set => _fullscreen = value; }
-        
-        public static UserSettings FromXML(string filePath)
-        {
-            return FromXML<UserSettings>(filePath);
-        }
     }
 }

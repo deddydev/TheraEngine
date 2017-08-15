@@ -4,10 +4,33 @@ using System.IO;
 using System.ComponentModel;
 using TheraEngine.Files;
 using Microsoft.VisualBasic.FileIO;
+using TheraEditor.Windows.Forms;
 
 namespace TheraEditor.Wrappers
 {
-    public class FileWrapper : BaseWrapper
+    public abstract class BaseFileWrapper : BaseWrapper
+    {
+        public abstract bool IsLoaded { get; }
+        public bool AlwaysReload { get; set; } = false;
+        public bool ExternallyModified { get; set; } = false;
+        public abstract FileObject FileObject { get; set; }
+
+        public void Reload()
+        {
+
+        }
+
+        public void EditResource()
+        {
+            
+        }
+
+        public BaseFileWrapper(ContextMenuStrip menu) : base(menu)
+        {
+
+        }
+    }
+    public class FileWrapper<T> : BaseFileWrapper where T : FileObject
     {
         #region Menu
         private static ContextMenuStrip _menu;
@@ -19,58 +42,58 @@ namespace TheraEditor.Wrappers
         static FileWrapper()
         {
             _menu = new ContextMenuStrip();
-            _menu.Items.Add(new ToolStripMenuItem("Re&name", null, RenameAction, Keys.Control | Keys.N));
-            _menu.Items.Add(new ToolStripSeparator());
-            _menu.Items.Add(new ToolStripMenuItem("&Export", null, ExportAction, Keys.Control | Keys.E));
-            _menu.Items.Add(new ToolStripMenuItem("&Replace", null, ReplaceAction, Keys.Control | Keys.R));
-            _menu.Items.Add(new ToolStripMenuItem("Re&load", null, RestoreAction, Keys.Control | Keys.L));
-            _menu.Items.Add(new ToolStripSeparator());
-            _menu.Items.Add(new ToolStripMenuItem("&Delete", null, DeleteAction, Keys.Control | Keys.Delete));
+            _menu.Items.Add(new ToolStripMenuItem("Rename", null, RenameAction, Keys.F2));                              //0
+            _menu.Items.Add(new ToolStripMenuItem("&Open In Explorer", null, ExplorerAction, Keys.Control | Keys.O));   //1
+            _menu.Items.Add(new ToolStripMenuItem("Edit File", null, EditAction, Keys.F1));                             //2
+            _menu.Items.Add(new ToolStripSeparator());                                                                  //3
+            _menu.Items.Add(new ToolStripMenuItem("&Export", null, ExportAction, Keys.Control | Keys.E));               //4
+            _menu.Items.Add(new ToolStripMenuItem("&Replace", null, ReplaceAction, Keys.Control | Keys.R));             //5
+            _menu.Items.Add(new ToolStripMenuItem("Re&load", null, RestoreAction, Keys.Control | Keys.L));              //6
+            _menu.Items.Add(new ToolStripSeparator());                                                                  //7
+            _menu.Items.Add(new ToolStripMenuItem("&Cut", null, CutAction, Keys.Control | Keys.X));                     //8
+            _menu.Items.Add(new ToolStripMenuItem("&Copy", null, CopyAction, Keys.Control | Keys.C));                   //9
+            _menu.Items.Add(new ToolStripMenuItem("&Paste", null, PasteAction, Keys.Control | Keys.V));                 //10
+            _menu.Items.Add(new ToolStripMenuItem("&Delete", null, DeleteAction, Keys.Control | Keys.Delete));          //11
             _menu.Opening += MenuOpening;
             _menu.Closing += MenuClosing;
         }
-        protected static void ExportAction(object sender, EventArgs e) { GetInstance<FileWrapper>().Export(); }
-        protected static void ReplaceAction(object sender, EventArgs e) { GetInstance<FileWrapper>().Replace(); }
-        protected static void RestoreAction(object sender, EventArgs e) { GetInstance<FileWrapper>().Restore(); }
-        protected static void DeleteAction(object sender, EventArgs e) { GetInstance<FileWrapper>().Delete(); }
-        protected static void RenameAction(object sender, EventArgs e) { GetInstance<FileWrapper>().Rename(); }
+        protected static void ExportAction(object sender, EventArgs e) { GetInstance<FileWrapper<T>>().Export(); }
+        protected static void ReplaceAction(object sender, EventArgs e) { GetInstance<FileWrapper<T>>().Replace(); }
+        protected static void RestoreAction(object sender, EventArgs e) { GetInstance<FileWrapper<T>>().Restore(); }
+        protected static void DeleteAction(object sender, EventArgs e) { GetInstance<FileWrapper<T>>().Delete(); }
+        protected static void RenameAction(object sender, EventArgs e) { GetInstance<FileWrapper<T>>().Rename(); }
+        protected static void ExplorerAction(object sender, EventArgs e) => GetInstance<FileWrapper<T>>().OpenInExplorer();
+        protected static void EditAction(object sender, EventArgs e) => GetInstance<FileWrapper<T>>().EditResource();
+        protected static void CutAction(object sender, EventArgs e) => GetInstance<FileWrapper<T>>().Cut();
+        protected static void CopyAction(object sender, EventArgs e) => GetInstance<FileWrapper<T>>().Copy();
+        protected static void PasteAction(object sender, EventArgs e) => GetInstance<FileWrapper<T>>().Paste();
         private static void MenuClosing(object sender, ToolStripDropDownClosingEventArgs e)
         {
             //_menu.Items[1].Enabled = _menu.Items[2].Enabled = _menu.Items[4].Enabled = _menu.Items[5].Enabled = _menu.Items[8].Enabled = true;
         }
         private static void MenuOpening(object sender, CancelEventArgs e)
         {
-            FileWrapper w = GetInstance<FileWrapper>();
-            _menu.Items[3].Enabled = _menu.Items[6].Enabled = w.Parent != null;
-            _menu.Items[4].Enabled = w.Resource.IsLoaded && w.Resource.File.EditorState.HasChanges;
+            FileWrapper<T> w = GetInstance<FileWrapper<T>>();
+            _menu.Items[0].Enabled = !w.TreeView.LabelEdit;
+            _menu.Items[1].Enabled = !string.IsNullOrEmpty(w.FilePath) && File.Exists(w.FilePath);
+            _menu.Items[5].Enabled = _menu.Items[8].Enabled = w.Parent != null;
+            _menu.Items[6].Enabled = w.Resource.IsLoaded && w.Resource.File.EditorState.HasChanges;
             //_menu.Items[2].Enabled = ((w._resource.IsDirty) || (w._resource.IsBranch));
             //_menu.Items[4].Enabled = w.PrevNode != null;
             //_menu.Items[5].Enabled = w.NextNode != null;
         }
         #endregion
 
-        protected SingleFileRef<FileObject> _fileRef = new SingleFileRef<FileObject>();
+        protected SingleFileRef<T> _fileRef = new SingleFileRef<T>();
 
+        public SingleFileRef<T> Resource => _fileRef;
+        public override bool IsLoaded => Resource.IsLoaded;
         public override string FilePath
         {
-            get => _fileRef.ReferencePath;
-            internal set => _fileRef.ReferencePath = value;
+            get => Resource.ReferencePath;
+            set => Resource.ReferencePath = value;
         }
-
-        public SingleFileRef<FileObject> Resource => _fileRef;
-        public bool IsLoaded => _fileRef.IsLoaded;
-        public bool AlwaysReload { get; internal set; } = false;
-        public bool ExternallyModified { get; internal set; } = false;
-
-        internal void Reload()
-        {
-
-        }
-
-        public void EditResource()
-        {
-
-        }
+        public override FileObject FileObject { get => Resource.File; set => Resource.File = value as T; }
         
         public virtual string Export()
         {
@@ -122,7 +145,10 @@ namespace TheraEditor.Wrappers
             try
             {
                 tree.WatchProjectDirectory = false;
-                FileSystem.DeleteFile(FilePath, UIOption.AllDialogs, RecycleOption.SendToRecycleBin, UICancelOption.ThrowException);
+                if (new FileInfo(FilePath).Length > 0)
+                    FileSystem.DeleteFile(FilePath, UIOption.AllDialogs, RecycleOption.SendToRecycleBin, UICancelOption.ThrowException);
+                else
+                    File.Delete(FilePath);
                 Remove();
             }
             catch (OperationCanceledException e)

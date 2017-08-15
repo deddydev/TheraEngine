@@ -126,6 +126,7 @@ namespace TheraEngine.Rendering
         private Vec3
             _previousLinearFactor = Vec3.One,
             _previousAngularFactor = Vec3.One;
+        bool _enableSleeping = true;
 
         [Serialize("CollisionEnabled")]
         private bool _collisionEnabled;
@@ -183,7 +184,7 @@ namespace TheraEngine.Rendering
                     {
                         _collision.LinearFactor = _previousLinearFactor;
                         _collision.AngularFactor = _previousAngularFactor;
-                        _collision.ForceActivationState(ActivationState.ActiveTag);
+                        _collision.ForceActivationState(_enableSleeping ? ActivationState.ActiveTag : ActivationState.DisableDeactivation);
                     }
 
                     if (wasInWorld && _isSpawned && Engine.World != null)
@@ -218,7 +219,7 @@ namespace TheraEngine.Rendering
                         _collision.LinearFactor = _previousLinearFactor;
                         _collision.AngularFactor = _previousAngularFactor;
                         SetPhysicsTransform(_owner.WorldMatrix);
-                        _collision.ForceActivationState(ActivationState.ActiveTag);
+                        _collision.ForceActivationState(_enableSleeping ? ActivationState.ActiveTag : ActivationState.DisableDeactivation);
                         if (_isSpawned)
                             RegisterTick(ETickGroup.PostPhysics, ETickOrder.Scene, Tick);
                     }
@@ -306,6 +307,28 @@ namespace TheraEngine.Rendering
         {
             get => _previousAngularFactor;
             set => _previousAngularFactor = value;
+        }
+        public bool EnableSleeping
+        {
+            get => _enableSleeping;
+            set
+            {
+                _enableSleeping = value;
+                if (_collision.ActivationState != ActivationState.DisableSimulation)
+                {
+                    if (_enableSleeping)
+                    {
+                        if (_collision.ActivationState == ActivationState.DisableDeactivation)
+                        {
+                            _collision.ActivationState = ActivationState.ActiveTag;
+                        }
+                    }
+                    else
+                    {
+                        _collision.ActivationState = ActivationState.DisableDeactivation;
+                    }
+                }
+            }
         }
 
         public void OnSpawned()

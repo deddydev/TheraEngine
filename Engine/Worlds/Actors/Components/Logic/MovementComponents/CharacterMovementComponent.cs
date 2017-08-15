@@ -120,6 +120,7 @@ namespace TheraEngine.Worlds.Actors
             if (OwningActor.RootComponent is IPhysicsDrivable root)
             {
                 //root.PhysicsDriver.Kinematic = false;
+                root.PhysicsDriver.EnableSleeping = false;
                 root.PhysicsDriver.SimulatingPhysics = true;
                 root.PhysicsDriver.CollisionObject.LinearVelocity = Vec3.Zero;
             }

@@ -99,6 +99,7 @@
             this.BottomBorderPanel = new System.Windows.Forms.Panel();
             this.LeftBorderPanel = new System.Windows.Forms.Panel();
             this.RightBorderPanel = new System.Windows.Forms.Panel();
+            this.dockPanel1 = new WeifenLuo.WinFormsUI.Docking.DockPanel();
             this.menuStrip1.SuspendLayout();
             this.leftPanel.SuspendLayout();
             this.panel4.SuspendLayout();
@@ -256,6 +257,7 @@
             resources.ApplyResources(this.contentTree, "contentTree");
             this.contentTree.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(170)))), ((int)(((byte)(170)))), ((int)(((byte)(170)))));
             this.contentTree.Name = "contentTree";
+            this.contentTree.SelectedNodes = ((System.Collections.Generic.List<System.Windows.Forms.TreeNode>)(resources.GetObject("contentTree.SelectedNodes")));
             // 
             // ctxContentTree
             // 
@@ -543,6 +545,7 @@
             // 
             resources.ApplyResources(this.MainPanel, "MainPanel");
             this.MainPanel.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(82)))), ((int)(((byte)(83)))), ((int)(((byte)(90)))));
+            this.MainPanel.Controls.Add(this.dockPanel1);
             this.MainPanel.Controls.Add(this.BodyPanel);
             this.MainPanel.Controls.Add(this.TitlePadding);
             this.MainPanel.Controls.Add(this.TitlePanel);
@@ -595,6 +598,11 @@
             resources.ApplyResources(this.RightBorderPanel, "RightBorderPanel");
             this.RightBorderPanel.Cursor = System.Windows.Forms.Cursors.SizeWE;
             this.RightBorderPanel.Name = "RightBorderPanel";
+            // 
+            // dockPanel1
+            // 
+            resources.ApplyResources(this.dockPanel1, "dockPanel1");
+            this.dockPanel1.Name = "dockPanel1";
             // 
             // Editor
             // 
@@ -707,6 +715,7 @@
         private System.Windows.Forms.Panel RightBorderPanel;
         private System.Windows.Forms.Label FormTitle;
         private System.Windows.Forms.Label label3;
+        private WeifenLuo.WinFormsUI.Docking.DockPanel dockPanel1;
         //private TheraEngine.RenderPanel renderPanel1;
         //private ResourceTree resourceTree1;
     }

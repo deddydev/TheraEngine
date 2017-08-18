@@ -65,7 +65,7 @@ namespace TheraEngine.Files
             {
                 case 'x': return CustomXmlSerializer.DetermineType(path);
                 case 'b': return CustomBinarySerializer.DetermineType(path);
-                default: throw new Exception();
+                default: return null;
             }
         }
         public static FileFormat GetFormat(string path)

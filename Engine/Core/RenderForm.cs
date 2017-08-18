@@ -32,7 +32,10 @@ namespace TheraEngine
 
             if (game.UserSettings.File.FullScreen)
                 WindowState = FormWindowState.Maximized;
-            
+
+            Cursor.Clip = renderPanel1.RectangleToScreen(renderPanel1.ClientRectangle);
+            Cursor.Hide();
+
             Application.ApplicationExit += Application_ApplicationExit;
         }
         private void Application_ApplicationExit(object sender, EventArgs e)

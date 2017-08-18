@@ -99,7 +99,7 @@
             this.BottomBorderPanel = new System.Windows.Forms.Panel();
             this.LeftBorderPanel = new System.Windows.Forms.Panel();
             this.RightBorderPanel = new System.Windows.Forms.Panel();
-            this.dockPanel1 = new WeifenLuo.WinFormsUI.Docking.DockPanel();
+            this.vS2005Theme1 = new WeifenLuo.WinFormsUI.Docking.VS2005Theme();
             this.menuStrip1.SuspendLayout();
             this.leftPanel.SuspendLayout();
             this.panel4.SuspendLayout();
@@ -256,8 +256,10 @@
             this.contentTree.ContextMenuStrip = this.ctxContentTree;
             resources.ApplyResources(this.contentTree, "contentTree");
             this.contentTree.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(170)))), ((int)(((byte)(170)))), ((int)(((byte)(170)))));
+            this.contentTree.LabelEdit = true;
             this.contentTree.Name = "contentTree";
-            this.contentTree.SelectedNodes = ((System.Collections.Generic.List<System.Windows.Forms.TreeNode>)(resources.GetObject("contentTree.SelectedNodes")));
+            this.contentTree.SelectedNode = null;
+            this.contentTree.Sorted = true;
             // 
             // ctxContentTree
             // 
@@ -398,6 +400,11 @@
             resources.ApplyResources(this.renderPanel1, "renderPanel1");
             this.renderPanel1.Name = "renderPanel1";
             this.renderPanel1.VsyncMode = TheraEngine.VSyncMode.Adaptive;
+            this.renderPanel1.DragDrop += new System.Windows.Forms.DragEventHandler(this.renderPanel1_DragDrop);
+            this.renderPanel1.DragEnter += new System.Windows.Forms.DragEventHandler(this.renderPanel1_DragEnter);
+            this.renderPanel1.DragOver += new System.Windows.Forms.DragEventHandler(this.renderPanel1_DragOver);
+            this.renderPanel1.DragLeave += new System.EventHandler(this.renderPanel1_DragLeave);
+            this.renderPanel1.GiveFeedback += new System.Windows.Forms.GiveFeedbackEventHandler(this.renderPanel1_GiveFeedback);
             // 
             // actorTree
             // 
@@ -545,7 +552,6 @@
             // 
             resources.ApplyResources(this.MainPanel, "MainPanel");
             this.MainPanel.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(82)))), ((int)(((byte)(83)))), ((int)(((byte)(90)))));
-            this.MainPanel.Controls.Add(this.dockPanel1);
             this.MainPanel.Controls.Add(this.BodyPanel);
             this.MainPanel.Controls.Add(this.TitlePadding);
             this.MainPanel.Controls.Add(this.TitlePanel);
@@ -598,11 +604,6 @@
             resources.ApplyResources(this.RightBorderPanel, "RightBorderPanel");
             this.RightBorderPanel.Cursor = System.Windows.Forms.Cursors.SizeWE;
             this.RightBorderPanel.Name = "RightBorderPanel";
-            // 
-            // dockPanel1
-            // 
-            resources.ApplyResources(this.dockPanel1, "dockPanel1");
-            this.dockPanel1.Name = "dockPanel1";
             // 
             // Editor
             // 
@@ -664,7 +665,7 @@
         private System.Windows.Forms.Splitter splitter3;
         private System.Windows.Forms.Panel panel1;
         private System.Windows.Forms.Panel panel3;
-        private System.Windows.Forms.PropertyGrid actorPropertyGrid;
+        public System.Windows.Forms.PropertyGrid actorPropertyGrid;
         private System.Windows.Forms.ContextMenuStrip ctxContentTree;
         private System.Windows.Forms.ToolStripMenuItem BtnImportFile;
         private System.Windows.Forms.ToolStripMenuItem btnImportModel;
@@ -715,7 +716,7 @@
         private System.Windows.Forms.Panel RightBorderPanel;
         private System.Windows.Forms.Label FormTitle;
         private System.Windows.Forms.Label label3;
-        private WeifenLuo.WinFormsUI.Docking.DockPanel dockPanel1;
+        private WeifenLuo.WinFormsUI.Docking.VS2005Theme vS2005Theme1;
         //private TheraEngine.RenderPanel renderPanel1;
         //private ResourceTree resourceTree1;
     }

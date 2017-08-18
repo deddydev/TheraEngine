@@ -199,17 +199,17 @@ namespace TheraEngine.Timers
                 if (value < 1.0)
                 {
                     _targetRenderPeriod = 0.0;
-                    Debug.Print("Target render frequency set to unrestricted speed.");
+                    Engine.DebugPrint("Target render frequency set to unrestricted.");
                 }
                 else if (value < MaxFrequency)
                 {
                     _targetRenderPeriod = 1.0 / value;
-                    Debug.Print("Target render frequency set to {0}Hz.", value);
+                    Engine.DebugPrint("Target render frequency set to {0}Hz.", -1, value.ToString());
                 }
                 else
                 {
                     _targetRenderPeriod = 1.0 / MaxFrequency;
-                    Debug.Print("Target render frequency clamped to {0}Hz.", MaxFrequency);
+                    Engine.DebugPrint("Target render frequency clamped to {0}Hz.", -1, MaxFrequency.ToString());
                 }
             }
         }
@@ -229,17 +229,17 @@ namespace TheraEngine.Timers
                 if (value < 1.0 / MaxFrequency)
                 {
                     _targetRenderPeriod = 0.0;
-                    Debug.Print("Target render frequency set to unrestricted speed.");
+                    Engine.DebugPrint("Target render frequency set to unrestricted.");
                 }
                 else if (value < 1.0)
                 {
                     _targetRenderPeriod = value;
-                    Debug.Print("Target render frequency set to {0}Hz.", TargetRenderFrequency);
+                    Engine.DebugPrint("Target render frequency set to {0}Hz.", -1, TargetRenderFrequency.ToString());
                 }
                 else
                 {
                     _targetRenderPeriod = 1.0;
-                    Debug.Print("Target render frequency clamped to 1Hz.");
+                    Engine.DebugPrint("Target render frequency clamped to 1Hz.");
                 }
             }
         }
@@ -264,7 +264,7 @@ namespace TheraEngine.Timers
                 if (value < 1.0)
                 {
                     _targetUpdatePeriod = 0.0;
-                    Debug.Print("Target update frequency set to unrestricted speed.");
+                    Debug.Print("Target update frequency set to unrestricted.");
                 }
                 else if (value < MaxFrequency)
                 {
@@ -294,7 +294,7 @@ namespace TheraEngine.Timers
                 if (value < 1.0 / MaxFrequency)
                 {
                     _targetUpdatePeriod = 0.0;
-                    Debug.Print("Target update frequency set to unrestricted speed.");
+                    Debug.Print("Target update frequency set to unrestricted.");
                 }
                 else if (value < 1.0)
                 {

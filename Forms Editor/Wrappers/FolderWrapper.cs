@@ -58,7 +58,7 @@ namespace TheraEditor.Wrappers
         private static void MenuOpening(object sender, CancelEventArgs e)
         {
             FolderWrapper w = GetInstance<FolderWrapper>();
-            _menu.Items[0].Enabled = !w.TreeView.LabelEdit;
+            _menu.Items[0].Enabled = w.TreeView.LabelEdit;
             _menu.Items[1].Enabled = !string.IsNullOrEmpty(w.FilePath) && Directory.Exists(w.FilePath);
 
             bool paste = false;
@@ -73,13 +73,11 @@ namespace TheraEditor.Wrappers
             _menu.Items[9].Enabled = _menu.Items[12].Enabled = w.Parent != null;
         }
         #endregion
-
-        private string _path;
-
+        
         public override string FilePath
         {
-            get => _path;
-            set => _path = value;
+            get => Name;
+            set => Name = value;
         }
         
         public void ToArchive()
@@ -109,7 +107,7 @@ namespace TheraEditor.Wrappers
             try
             {
                 tree.WatchProjectDirectory = false;
-                if (Directory.GetDirectories(FilePath).Length > 0 || Directory.GetFiles(FilePath).Length > 0)
+                if (Directory.GetFileSystemEntries(FilePath).Length > 0)
                     FileSystem.DeleteDirectory(FilePath, UIOption.AllDialogs, RecycleOption.SendToRecycleBin, UICancelOption.ThrowException);
                 else
                     Directory.Delete(FilePath);
@@ -126,10 +124,59 @@ namespace TheraEditor.Wrappers
             }
         }
 
-        public void Rename()
+        public void CheckNodes()
         {
-            TreeView.LabelEdit = true;
-            BeginEdit();
+
+        }
+
+        internal protected override void OnExpand()
+        {
+            if (!_isPopulated)
+            {
+                if (Nodes.Count > 0 && Nodes[0].Text == "..." && Nodes[0].Tag == null)
+                {
+                    Nodes.Clear();
+
+                    string path = FilePath.ToString();
+                    string[] subDirs = Directory.GetDirectories(path);
+                    foreach (string subDir in subDirs)
+                    {
+                        DirectoryInfo subDirInfo = new DirectoryInfo(subDir);
+                        BaseWrapper node = Wrap(subDir);
+                        if (node == null)
+                            continue;
+                        try
+                        {
+                            //If the directory has sub folders/files, add the placeholder
+                            if (subDirInfo.GetFileSystemInfos().Length > 0)
+                                node.Nodes.Add(null, "...", 0, 0);
+                        }
+                        catch (UnauthorizedAccessException)
+                        {
+                            //display a locked folder icon
+                            node.ImageIndex = 2;
+                            node.SelectedImageIndex = 2;
+                        }
+                        catch (Exception ex)
+                        {
+                            MessageBox.Show(ex.Message, "DirectoryReader", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        }
+                        finally
+                        {
+                            Nodes.Add(node);
+                        }
+                    }
+
+                    string[] files = Directory.GetFiles(path);
+                    foreach (string file in files)
+                    {
+                        BaseWrapper node = Wrap(file);
+                        if (node != null)
+                            Nodes.Add(node);
+                    }
+                }
+                _isPopulated = true;
+            }
         }
 
         #region File Type Loading
@@ -152,7 +199,7 @@ namespace TheraEditor.Wrappers
                 {
                     NamespaceNode node = new NamespaceNode(name);
                     nodeCache.Add(name, node);
-                    ((ToolStripDropDownItem)_menu.Items[3]).DropDownItems.Add(node.Button);
+                    ((ToolStripDropDownItem)_menu.Items[4]).DropDownItems.Add(node.Button);
                 }
             }
         }
@@ -205,15 +252,96 @@ namespace TheraEditor.Wrappers
             {
                 Type fileType = button.Tag as Type;
                 FileObject file = (FileObject)Activator.CreateInstance(fileType);
+
                 ContextMenuStrip ctx = button.GetContextMenuStrip();
-                FolderWrapper b = ctx.Tag as FolderWrapper;
-                string dir = b.FilePath as string;
-                b.TreeView.WatchProjectDirectory = false;
+                FolderWrapper folderNode = ctx.Tag as FolderWrapper;
+                string dir = folderNode.FilePath as string;
+
+                folderNode.TreeView.WatchProjectDirectory = false;
                 file.Export(dir, file.Name, FileFormat.XML);
-                b.TreeView.WatchProjectDirectory = true;
-                b.Nodes.Add(Wrap(file) as BaseWrapper);
+                folderNode.TreeView.WatchProjectDirectory = true;
+
+                folderNode.Nodes.Add(Wrap(file) as BaseWrapper);
             }
         }
         #endregion
+
+        internal protected override void HandlePathDrop(string path, bool copy)
+        {
+            bool? isDir = path.IsDirectory();
+            if (isDir == null)
+                return;
+            TreeView.WatchProjectDirectory = false;
+            string newPath;
+            try
+            {
+                if (isDir.Value)
+                {
+                    newPath = FilePath;
+                    if (copy)
+                        FileSystem.CopyDirectory(path, newPath, UIOption.AllDialogs, UICancelOption.ThrowException);
+                    else
+                        FileSystem.MoveDirectory(path, newPath, UIOption.AllDialogs, UICancelOption.ThrowException);
+                }
+                else
+                {
+                    string name = Path.GetFileName(path);
+                    newPath = FilePath + name;
+                    if (copy)
+                        FileSystem.CopyFile(path, newPath, UIOption.AllDialogs, UICancelOption.ThrowException);
+                    else
+                        FileSystem.MoveFile(path, newPath, UIOption.AllDialogs, UICancelOption.ThrowException);
+                }
+            }
+            catch (OperationCanceledException e)
+            {
+                //finally block is called before returning, despite appearing after
+                return;
+            }
+            finally
+            {
+                TreeView.WatchProjectDirectory = true;
+            }
+            
+            BaseWrapper child = Wrap(newPath);
+            if (child != null)
+                Nodes.Add(child);
+            else
+                throw new Exception();
+        }
+
+        internal protected override void HandleNodeDrop(BaseWrapper node, bool copy)
+        {
+            if (node is BaseFileWrapper fileNode)
+            {
+                try
+                {
+                    string name = Path.GetFileName(fileNode.FilePath);
+                    if (copy)
+                        FileSystem.CopyFile(fileNode.FilePath, FilePath + name, UIOption.AllDialogs, UICancelOption.ThrowException);
+                    else
+                        FileSystem.MoveFile(fileNode.FilePath, FilePath + name, UIOption.AllDialogs, UICancelOption.ThrowException);
+                }
+                catch (OperationCanceledException e)
+                {
+                    return;
+                }
+            }
+            else if (node is FolderWrapper folderNode)
+            {
+                try
+                {
+                    if (copy)
+                        FileSystem.CopyDirectory(folderNode.FilePath, FilePath, UIOption.AllDialogs, UICancelOption.ThrowException);
+                    else
+                        FileSystem.MoveDirectory(folderNode.FilePath, FilePath, UIOption.AllDialogs, UICancelOption.ThrowException);
+                }
+                catch (OperationCanceledException e)
+                {
+                    return;
+                }
+
+            }
+        }
     }
 }

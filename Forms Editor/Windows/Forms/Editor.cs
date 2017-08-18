@@ -68,6 +68,7 @@ namespace TheraEditor.Windows.Forms
             menuStrip1.Renderer = new ToolStripRenderer();
             DoubleBuffered = false;
             Engine.Initialize(renderPanel1, true);
+            renderPanel1.AllowDrop = true;
 
             GenerateInitialActorList();
             if (Engine.World != null)
@@ -341,6 +342,37 @@ namespace TheraEditor.Windows.Forms
             InputInterface.GlobalRegisters.Remove(RegisterInput);
             Engine.World.SpawnActor(_editorCameraPawn);
             Engine.World.EndPlay();
+        }
+
+        private void toolStripTextBox1_TextChanged(object sender, EventArgs e)
+        {
+            //if (float.TryParse(toolStripTextBox1.Text, out float fps))
+            //    Engine.TargetRenderFreq = fps;
+        }
+
+        private void renderPanel1_DragDrop(object sender, DragEventArgs e)
+        {
+            return;
+        }
+
+        private void renderPanel1_DragEnter(object sender, DragEventArgs e)
+        {
+            return;
+        }
+
+        private void renderPanel1_DragLeave(object sender, EventArgs e)
+        {
+            return;
+        }
+
+        private void renderPanel1_DragOver(object sender, DragEventArgs e)
+        {
+            return;
+        }
+
+        private void renderPanel1_GiveFeedback(object sender, GiveFeedbackEventArgs e)
+        {
+            return;
         }
 
         //private void BtnMaximize_Click(object sender, EventArgs e)
@@ -876,12 +908,6 @@ namespace TheraEditor.Windows.Forms
             {
                 get { return Color.FromArgb(255, 79, 79, 79); }
             }
-        }
-
-        private void toolStripTextBox1_TextChanged(object sender, EventArgs e)
-        {
-            //if (float.TryParse(toolStripTextBox1.Text, out float fps))
-            //    Engine.TargetRenderFreq = fps;
         }
     }
 }

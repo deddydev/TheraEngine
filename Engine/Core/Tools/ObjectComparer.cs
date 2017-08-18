@@ -44,7 +44,11 @@ namespace TheraEngine.Core.Tools
 
             CompareEquality(r, left, right);
 
-            MemberInfo[] members = type.GetMembers(BindingFlags.FlattenHierarchy | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+            MemberInfo[] members = type.GetMembers(
+                BindingFlags.FlattenHierarchy | 
+                BindingFlags.Public | 
+                BindingFlags.NonPublic | 
+                BindingFlags.Instance);
 
             Type memberType;
             object leftValue, rightValue;

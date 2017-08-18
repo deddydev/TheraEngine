@@ -22,10 +22,24 @@ namespace TheraEditor.Wrappers
 
         public void EditResource()
         {
-            
+            Editor.Instance.actorPropertyGrid.SelectedObject = FileObject;
         }
 
         public BaseFileWrapper(ContextMenuStrip menu) : base(menu)
+        {
+
+        }
+
+        internal protected override void OnExpand()
+        {
+
+        }
+
+        protected internal override void HandlePathDrop(string path, bool copy)
+        {
+
+        }
+        protected internal override void HandleNodeDrop(BaseWrapper node, bool copy)
         {
 
         }
@@ -74,7 +88,7 @@ namespace TheraEditor.Wrappers
         private static void MenuOpening(object sender, CancelEventArgs e)
         {
             FileWrapper<T> w = GetInstance<FileWrapper<T>>();
-            _menu.Items[0].Enabled = !w.TreeView.LabelEdit;
+            _menu.Items[0].Enabled = w.TreeView.LabelEdit;
             _menu.Items[1].Enabled = !string.IsNullOrEmpty(w.FilePath) && File.Exists(w.FilePath);
             _menu.Items[5].Enabled = _menu.Items[8].Enabled = w.Parent != null;
             _menu.Items[6].Enabled = w.Resource.IsLoaded && w.Resource.File.EditorState.HasChanges;
@@ -91,9 +105,22 @@ namespace TheraEditor.Wrappers
         public override string FilePath
         {
             get => Resource.ReferencePath;
-            set => Resource.ReferencePath = value;
+            set
+            {
+                Resource.ReferencePath = value;
+                Name = value;
+            }
         }
-        public override FileObject FileObject { get => Resource.File; set => Resource.File = value as T; }
+        public override FileObject FileObject
+        {
+            get => Resource.File;
+            set
+            {
+                T obj = value as T;
+                Resource.File = obj;
+                Name = FilePath;
+            }
+        }
         
         public virtual string Export()
         {
@@ -159,12 +186,6 @@ namespace TheraEditor.Wrappers
             {
                 tree.WatchProjectDirectory = true;
             }
-        }
-
-        public void Rename()
-        {
-            TreeView.LabelEdit = true;
-            BeginEdit();
         }
     }
 }

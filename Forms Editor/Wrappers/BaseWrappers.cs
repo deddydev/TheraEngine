@@ -8,6 +8,7 @@ using System.Linq;
 using System.Diagnostics;
 using TheraEditor.Windows.Forms;
 using Microsoft.VisualBasic.FileIO;
+using System.ComponentModel;
 
 namespace TheraEditor.Wrappers
 {
@@ -53,12 +54,13 @@ namespace TheraEditor.Wrappers
     }
     public abstract class BaseWrapper : TreeNode
     {
-        protected bool _discovered = false;
+        protected bool _isPopulated = false;
 
         public new ResourceTree TreeView => (ResourceTree)base.TreeView;
-        public new BaseWrapper Parent => (BaseWrapper)base.Parent;
+        public new BaseWrapper Parent => base.Parent as BaseWrapper; //Parent may be null
         public abstract string FilePath { get; set; }
-        
+        public bool IsPopulated => _isPopulated;
+
         public BaseWrapper(ContextMenuStrip menu)
         {
             menu.Tag = this;
@@ -75,91 +77,58 @@ namespace TheraEditor.Wrappers
             if (!string.IsNullOrEmpty(FilePath))
                 Process.Start("explorer.exe", FilePath);
         }
-
+        public void Rename()
+        {
+            if (!IsEditing)
+            {
+                if (this is BaseFileWrapper)
+                {
+                    if (!string.IsNullOrEmpty(Text))
+                    {
+                        int i = Text.LastIndexOf('.');
+                        if (i >= 0)
+                            Text = Text.Substring(0, i);
+                    }
+                }
+                BeginEdit();
+            }
+        }
         public void Cut() => SetClipboard(true);
         public void Copy() => SetClipboard(false);
         private void SetClipboard(bool cut)
         {
-            string path = FilePath;
-            bool? dir = path.IsDirectory();
-            if (dir == null)
-                return;
-            string[] paths = Directory.GetFileSystemEntries(path, "*.*", System.IO.SearchOption.TopDirectoryOnly);
+            string[] paths = new string[] { FilePath };//Directory.GetFileSystemEntries(path, "*.*", System.IO.SearchOption.TopDirectoryOnly);
             ResourceTree.SetClipboard(paths, cut);
         }
-        public void Paste() => ResourceTree.Paste(FilePath);
-        
-        internal protected virtual void OnExpand()
-        {
-            if (!_discovered)
-            {
-                if (Nodes.Count > 0 && Nodes[0].Text == "..." && Nodes[0].Tag == null)
-                {
-                    Nodes.Clear();
+        public void Paste() => TreeView.Paste(FilePath);
 
-                    string path = FilePath.ToString();
-                    string[] dirs = Directory.GetDirectories(path);
-                    foreach (string dir in dirs)
-                    {
-                        DirectoryInfo di = new DirectoryInfo(dir);
-                        BaseWrapper node = Wrap(dir);
-                        try
-                        {
-                            //If the directory has sub directories, add the placeholder
-                            if (di.GetDirectories().Length > 0)
-                                node.Nodes.Add(null, "...", 0, 0);
-                        }
-                        catch (UnauthorizedAccessException)
-                        {
-                            //display a locked folder icon
-                            node.ImageIndex = 2;
-                            node.SelectedImageIndex = 2;
-                        }
-                        catch (Exception ex)
-                        {
-                            MessageBox.Show(ex.Message, "DirectoryReader", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                        }
-                        finally
-                        {
-                            Nodes.Add(node);
-                        }
-                    }
+        //public new void Remove()
+        //{
+        //    base.Remove();
+        //}
 
-                    string[] files = Directory.GetFiles(path);
-                    foreach (string file in files)
-                    {
-                        FileInfo fi = new FileInfo(file);
-                        BaseWrapper node = Wrap(file);
-                        Nodes.Add(node);
-                    }
-                }
-                _discovered = true;
-            }
-        }
-        public new void Remove()
-        {
-            base.Remove();
-        }
         public static BaseWrapper Wrap(string path)
         {
             BaseWrapper w = null;
-            FileAttributes attr = File.GetAttributes(path);
-            if (attr.HasFlag(FileAttributes.Directory))
+            bool? isDir = path.IsDirectory();
+            if (isDir == null)
+                return null;
+            if (isDir.Value)
             {
                 w = new FolderWrapper();
-                if (Directory.GetFiles(path).Length > 0 ||
-                    Directory.GetDirectories(path).Length > 0)
-                {
+                if (Directory.GetFileSystemEntries(path).Length > 0)
                     w.Nodes.Add("...");
-                }
             }
             else
             {
                 Type type = FileObject.DetermineType(path);
                 if (type != null && NodeWrapperAttribute.Wrappers.ContainsKey(type))
                     w = Activator.CreateInstance(NodeWrapperAttribute.Wrappers[type]) as BaseWrapper;
-                else
-                    w = Activator.CreateInstance(typeof(FileWrapper<FileObject>)) as BaseFileWrapper;
+                else //Make wrapper for whatever file type this is
+                {
+                    Type genericFileWrapper = typeof(FileWrapper<>).MakeGenericType(type);
+                    w = Activator.CreateInstance(genericFileWrapper) as BaseFileWrapper;
+                }
             }
             w.Text = Path.GetFileName(path);
             w.FilePath = w.Name = path;
@@ -173,10 +142,13 @@ namespace TheraEditor.Wrappers
             BaseFileWrapper w = null;
 
             Type type = file.GetType();
-            if (type != null && NodeWrapperAttribute.Wrappers.ContainsKey(type))
+            if (NodeWrapperAttribute.Wrappers.ContainsKey(type))
                 w = Activator.CreateInstance(NodeWrapperAttribute.Wrappers[type]) as BaseFileWrapper;
             else
-                w = Activator.CreateInstance(typeof(FileWrapper<FileObject>)) as BaseFileWrapper;
+            {
+                Type genericFileWrapper = typeof(FileWrapper<>).MakeGenericType(type);
+                w = Activator.CreateInstance(genericFileWrapper) as BaseFileWrapper;
+            }
 
             FileObject.GetDirNameFmt(file.FilePath, out string dir, out string name, out FileFormat fmt);
             w.Text = name + "." + file.FileHeader.GetProperExtension(fmt);
@@ -184,5 +156,9 @@ namespace TheraEditor.Wrappers
             w.FileObject = file;
             return w;
         }
+
+        internal protected abstract void OnExpand();
+        internal protected abstract void HandlePathDrop(string path, bool copy);
+        internal protected abstract void HandleNodeDrop(BaseWrapper node, bool copy);
     }
 }

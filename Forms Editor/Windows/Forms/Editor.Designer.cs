@@ -155,14 +155,14 @@
             // 
             // btnSaveProject
             // 
-            this.btnSaveProject.Name = "btnSaveProject";
             resources.ApplyResources(this.btnSaveProject, "btnSaveProject");
+            this.btnSaveProject.Name = "btnSaveProject";
             this.btnSaveProject.Click += new System.EventHandler(this.BtnSaveProject_Click);
             // 
             // btnSaveProjectAs
             // 
-            this.btnSaveProjectAs.Name = "btnSaveProjectAs";
             resources.ApplyResources(this.btnSaveProjectAs, "btnSaveProjectAs");
+            this.btnSaveProjectAs.Name = "btnSaveProjectAs";
             this.btnSaveProjectAs.Click += new System.EventHandler(this.BtnSaveProjectAs_Click);
             // 
             // editToolStripMenuItem
@@ -400,11 +400,11 @@
             resources.ApplyResources(this.renderPanel1, "renderPanel1");
             this.renderPanel1.Name = "renderPanel1";
             this.renderPanel1.VsyncMode = TheraEngine.VSyncMode.Adaptive;
-            this.renderPanel1.DragDrop += new System.Windows.Forms.DragEventHandler(this.renderPanel1_DragDrop);
-            this.renderPanel1.DragEnter += new System.Windows.Forms.DragEventHandler(this.renderPanel1_DragEnter);
-            this.renderPanel1.DragOver += new System.Windows.Forms.DragEventHandler(this.renderPanel1_DragOver);
-            this.renderPanel1.DragLeave += new System.EventHandler(this.renderPanel1_DragLeave);
-            this.renderPanel1.GiveFeedback += new System.Windows.Forms.GiveFeedbackEventHandler(this.renderPanel1_GiveFeedback);
+            this.renderPanel1.DragDrop += new System.Windows.Forms.DragEventHandler(this.RenderPanel1_DragDrop);
+            this.renderPanel1.DragEnter += new System.Windows.Forms.DragEventHandler(this.RenderPanel1_DragEnter);
+            this.renderPanel1.DragOver += new System.Windows.Forms.DragEventHandler(this.RenderPanel1_DragOver);
+            this.renderPanel1.DragLeave += new System.EventHandler(this.RenderPanel1_DragLeave);
+            this.renderPanel1.GiveFeedback += new System.Windows.Forms.GiveFeedbackEventHandler(this.RenderPanel1_GiveFeedback);
             // 
             // actorTree
             // 
@@ -477,6 +477,7 @@
             this.actorPropertyGrid.ToolbarVisible = false;
             this.actorPropertyGrid.ViewBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(55)))), ((int)(((byte)(55)))), ((int)(((byte)(60)))));
             this.actorPropertyGrid.ViewForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(170)))), ((int)(((byte)(170)))), ((int)(((byte)(170)))));
+            this.actorPropertyGrid.PropertyValueChanged += new System.Windows.Forms.PropertyValueChangedEventHandler(this.ActorPropertyGrid_PropertyValueChanged);
             // 
             // label3
             // 

@@ -94,6 +94,12 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Windows\BorderlessForm\TheraForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Windows\BorderlessForm\TheraForm.Designer.cs">
+      <DependentUpon>TheraForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="Windows\Forms\Editor.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -102,7 +108,7 @@
     </Compile>
     <Compile Include="Windows\Forms\EditorHud.cs" />
     <Compile Include="EditorSettings.cs" />
-    <Compile Include="Windows\BorderlessForm\FormBase.cs">
+    <Compile Include="Windows\BorderlessForm\BorderlessFormBase.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Windows\BorderlessForm\Native.cs" />
@@ -131,6 +137,15 @@
     <Compile Include="Wrappers\WorldWrapper.cs" />
     <Compile Include="Wrappers\FolderWrapper.cs" />
     <Compile Include="Wrappers\FileWrapper.cs" />
+    <EmbeddedResource Include="Windows\BorderlessForm\TheraForm.es.resx">
+      <DependentUpon>TheraForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Windows\BorderlessForm\TheraForm.ja.resx">
+      <DependentUpon>TheraForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Windows\BorderlessForm\TheraForm.resx">
+      <DependentUpon>TheraForm.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Windows\Forms\Editor.es.resx">
       <DependentUpon>Editor.cs</DependentUpon>
     </EmbeddedResource>

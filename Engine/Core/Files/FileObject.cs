@@ -24,8 +24,7 @@ namespace TheraEngine.Files
         public FileClass FileHeader => GetFileHeader(GetType());
         public static FileClass GetFileHeader(Type t)
         {
-            if (Attribute.GetCustomAttribute(t, typeof(FileClass)) is FileClass f && f != null)
-                return f;
+            if (Attribute.GetCustomAttribute(t, typeof(FileClass)) is FileClass f) return f;
             throw new Exception("No FileClass attribute specified for " + t.ToString());
         }
 

@@ -8,6 +8,7 @@ using System.IO;
 using System.Diagnostics;
 using Microsoft.VisualBasic.FileIO;
 using TheraEditor.Windows.Forms;
+using System.Reflection;
 
 namespace TheraEditor.Wrappers
 {
@@ -73,13 +74,13 @@ namespace TheraEditor.Wrappers
             _menu.Items[9].Enabled = _menu.Items[12].Enabled = w.Parent != null;
         }
         #endregion
-        
+
         public override string FilePath
         {
             get => Name;
             set => Name = value;
         }
-        
+
         public void ToArchive()
         {
 
@@ -246,15 +247,76 @@ namespace TheraEditor.Wrappers
                 }
             }
         }
+        public enum GenericVarianceFlag
+        {
+            None,
+            CovariantOut,
+            ContravariantIn,
+        }
+        public enum TypeConstraintFlag
+        {
+            None,
+            Struct,             //struct
+            Class,              //class
+            NewClass,           //class, new()
+            NewStructOrClass,   //new()
+        }
+        private static void ListGenericParameterAttributes(Type t, out GenericVarianceFlag gvf, out TypeConstraintFlag tcf)
+        {
+            GenericParameterAttributes gpa = t.GenericParameterAttributes;
+            GenericParameterAttributes variance = gpa & GenericParameterAttributes.VarianceMask;
+            GenericParameterAttributes constraints = gpa & GenericParameterAttributes.SpecialConstraintMask;
+
+            gvf = GenericVarianceFlag.None;
+            tcf = TypeConstraintFlag.None;
+
+            if (variance != GenericParameterAttributes.None)
+            {
+                if ((variance & GenericParameterAttributes.Covariant) != 0)
+                    gvf = GenericVarianceFlag.CovariantOut;
+                else
+                    gvf = GenericVarianceFlag.ContravariantIn;
+            }
+            
+            if (constraints != GenericParameterAttributes.None)
+            {
+                if ((constraints & GenericParameterAttributes.NotNullableValueTypeConstraint) != 0)
+                    tcf = TypeConstraintFlag.Struct;
+                else
+                {
+                    if ((constraints & GenericParameterAttributes.DefaultConstructorConstraint) != 0)
+                        tcf = TypeConstraintFlag.NewStructOrClass;
+                    if ((constraints & GenericParameterAttributes.ReferenceTypeConstraint) != 0)
+                    {
+                        if (tcf == TypeConstraintFlag.NewStructOrClass)
+                            tcf = TypeConstraintFlag.NewClass;
+                        else
+                            tcf = TypeConstraintFlag.Class;
+                    }
+                }
+            }
+        }
         private static void OnNewClick(object sender, EventArgs e)
         {
             if (sender is ToolStripDropDownButton button)
             {
+                FileObject file;
                 Type fileType = button.Tag as Type;
-                FileObject file = (FileObject)Activator.CreateInstance(fileType);
+                if (fileType.ContainsGenericParameters)
+                {
+                    Type[] args = fileType.GetGenericArguments();
+                    foreach (Type genArg in args)
+                    {
+
+                    }
+                    Type genericFileWrapper = fileType.MakeGenericType(args);
+                    file = Activator.CreateInstance(genericFileWrapper) as FileObject;
+                }
+                else
+                    file = Activator.CreateInstance(fileType) as FileObject;
 
                 ContextMenuStrip ctx = button.GetContextMenuStrip();
-                FolderWrapper folderNode = ctx.Tag as FolderWrapper;
+                FolderWrapper folderNode = GetInstance<FolderWrapper>();
                 string dir = folderNode.FilePath as string;
 
                 folderNode.TreeView.WatchProjectDirectory = false;

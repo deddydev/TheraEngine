@@ -14,7 +14,8 @@ namespace TheraEditor.Wrappers
         public bool AlwaysReload { get; set; } = false;
         public bool ExternallyModified { get; set; } = false;
         public abstract FileObject FileObject { get; set; }
-
+        public abstract FileObject GetNewInstance();
+        
         public void Reload()
         {
 
@@ -22,7 +23,7 @@ namespace TheraEditor.Wrappers
 
         public void EditResource()
         {
-            Editor.Instance.actorPropertyGrid.SelectedObject = FileObject;
+            Editor.Instance.actorPropertyGrid.SelectedObject = GetNewInstance();
         }
 
         public BaseFileWrapper(ContextMenuStrip menu) : base(menu)
@@ -110,6 +111,10 @@ namespace TheraEditor.Wrappers
                 Resource.ReferencePath = value;
                 Name = value;
             }
+        }
+        public override FileObject GetNewInstance()
+        {
+            return _fileRef.LoadNewInstance();
         }
         public override FileObject FileObject
         {

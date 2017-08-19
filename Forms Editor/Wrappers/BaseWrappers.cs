@@ -63,7 +63,6 @@ namespace TheraEditor.Wrappers
 
         public BaseWrapper(ContextMenuStrip menu)
         {
-            menu.Tag = this;
             ContextMenuStrip = menu;
         }
 
@@ -79,20 +78,10 @@ namespace TheraEditor.Wrappers
         }
         public void Rename()
         {
-            if (!IsEditing)
-            {
-                if (this is BaseFileWrapper)
-                {
-                    if (!string.IsNullOrEmpty(Text))
-                    {
-                        int i = Text.LastIndexOf('.');
-                        if (i >= 0)
-                            Text = Text.Substring(0, i);
-                    }
-                }
+            if (!IsEditing && TreeView.LabelEdit)
                 BeginEdit();
-            }
         }
+
         public void Cut() => SetClipboard(true);
         public void Copy() => SetClipboard(false);
         private void SetClipboard(bool cut)
@@ -152,7 +141,6 @@ namespace TheraEditor.Wrappers
 
             FileObject.GetDirNameFmt(file.FilePath, out string dir, out string name, out FileFormat fmt);
             w.Text = name + "." + file.FileHeader.GetProperExtension(fmt);
-            w.Name = file.FilePath;
             w.FileObject = file;
             return w;
         }

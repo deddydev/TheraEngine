@@ -29,7 +29,7 @@ namespace TheraEditor.Windows.Forms
         private float _hitDistance;
         private Vec3 _hitPoint;
         private float _toolSize = 2.0f;
-        private SceneComponent _selectedComponent;
+        private SceneComponent _selectedComponent, _dragComponent;
         private bool _mouseDown;
 
         [Browsable(false)]
@@ -167,7 +167,14 @@ namespace TheraEditor.Windows.Forms
         }
         public void HighlightScene(Viewport v, Vec2 viewportPoint)
         {
-            if (_selectedComponent != null)
+            if (_dragComponent != null)
+            {
+                SceneComponent comp = v.PickScene(viewportPoint, true, true, out Vec3 hitNormal, out _hitPoint, out _hitDistance);
+                Vec3 right = v.Camera.GetForwardVector() ^ hitNormal, up = hitNormal, forward = up ^ right, translation = _hitPoint;
+                Matrix4 m = new Matrix4(new Vec4(right, 0.0f), new Vec4(up, 0.0f), new Vec4(forward, 0.0f), new Vec4(translation, 1.0f));
+                _dragComponent.WorldMatrix = m;
+            }
+            else if (_selectedComponent != null)
             {
                 Ray cursor = v.GetWorldRay(viewportPoint);
                 if (EditorTransformTool3D.Instance != null)
@@ -209,11 +216,15 @@ namespace TheraEditor.Windows.Forms
                 _pickedBody = null;
             }
             _selectedComponent = null;
+            _dragComponent = null;
             if (HighlightedComponent != null)
             {
                 Engine.Scene.Add(_highlightPoint);
             }
         }
+        public bool UseTransformTool { get; set; } = false;
+        public SceneComponent DragComponent { get => _dragComponent; set => _dragComponent = value; }
+
         public void MouseDown()
         {
             _mouseDown = true;
@@ -236,7 +247,6 @@ namespace TheraEditor.Windows.Forms
                     {
                         _pickedBody = d.PhysicsDriver.CollisionObject;
                         _pickedBody.ForceActivationState(ActivationState.DisableDeactivation);
-                        _pickedBody.Activate();
 
                         Vec3 localPivot = Vector3.TransformCoordinate(_hitPoint, Matrix.Invert(_pickedBody.CenterOfMassTransform));
                         Point2PointConstraint p2p = new Point2PointConstraint(_pickedBody, localPivot);
@@ -248,8 +258,12 @@ namespace TheraEditor.Windows.Forms
                     }
                     else
                     {
-                        EditorTransformTool3D.GetInstance(_selectedComponent, _transformType);
+                        if (UseTransformTool)
+                            EditorTransformTool3D.GetInstance(_selectedComponent, _transformType);
+                        else
+                           _dragComponent = _selectedComponent;
                     }
+
                     TreeNode t = _selectedComponent.OwningActor.EditorState.TreeNode;
                     if (t != null)
                     {

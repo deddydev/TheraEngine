@@ -243,9 +243,11 @@ namespace TheraEditor.Windows.Forms
                 MemoryStream stream = data.GetData("Preferred DropEffect", true) as MemoryStream;
                 int flag = stream.ReadByte();
                 cut = flag == 2;
-                if ((!cut && flag != 5) || pastedPaths == null || pastedPaths.Length == 0)
+                if (!cut && flag != 5)
                     return;
             }
+            if (pastedPaths == null || pastedPaths.Length == 0)
+                return;
             
             bool? isDestDir = destPath.IsDirectory();
             if (isDestDir.HasValue && !isDestDir.Value)
@@ -459,6 +461,22 @@ namespace TheraEditor.Windows.Forms
             n.ExternallyModified = true;
             _externallyModifiedNodes.Add(n.FullPath, n);
         }
+        #endregion
+
+        protected override void OnBeforeLabelEdit(NodeLabelEditEventArgs e)
+        {
+            if (e.Node is BaseFileWrapper)
+            {
+                if (!string.IsNullOrEmpty(e.Node.Text))
+                {
+                    int i = e.Node.Text.LastIndexOf('.');
+                    if (i >= 0)
+                        e.Node.Text = e.Node.Text.Substring(0, i);
+                }
+            }
+            base.OnBeforeLabelEdit(e);
+        }
+
         protected override void OnAfterLabelEdit(NodeLabelEditEventArgs e)
         {
             if (e.Label != null)
@@ -472,26 +490,37 @@ namespace TheraEditor.Windows.Forms
                 else
                 {
                     e.Node.EndEdit(false);
-                    e.Node.Text = e.Label;
+
+                    BaseWrapper b = e.Node as BaseWrapper;
+                    bool isFile = b is BaseFileWrapper;
+
+                    if (isFile)
+                        b.Text = e.Label + Path.GetExtension(b.FilePath);
+                    else
+                        b.Text = e.Label;
+
                     Sort();
 
                     //Rename actual file/folder
                     //TODO: correct file name extension
                     WatchProjectDirectory = false;
-                    string dir = Path.GetDirectoryName(e.Node.Name);
-                    string newName = e.Label;
-                    string newPath = dir + "\\" + e.Label;
-                    if (e.Node is FolderWrapper)
-                        Directory.Move(e.Node.Name, newPath);
+
+                    string dir = Path.GetDirectoryName(b.FilePath);
+                    string newName = b.Text;
+                    string newPath = dir + "\\" + b.Text;
+
+                    if (isFile)
+                        File.Move(b.FilePath, newPath);
                     else
-                        File.Move(e.Node.Name, newPath);
-                    e.Node.Name = newPath;
+                        Directory.Move(b.FilePath, newPath);
+
+                    b.FilePath = newPath;
+
                     WatchProjectDirectory = true;
                 }
             }
             base.OnAfterLabelEdit(e);
         }
-        #endregion
 
         protected override void OnBeforeExpand(TreeViewCancelEventArgs e)
         {
@@ -568,6 +597,7 @@ namespace TheraEditor.Windows.Forms
         }
 
         #region Dragging
+        public BaseWrapper DragNode => _dragNode;
         private BaseWrapper _dragNode = null, _dropNode = null;
         private BaseWrapper[] _draggedNodes;
         private BaseWrapper _tempDropNode = null;
@@ -625,7 +655,6 @@ namespace TheraEditor.Windows.Forms
         }
         private void TreeView1_DragOver(object sender, DragEventArgs e)
         {
-
             Point formP = PointToClient(new Point(e.X, e.Y));
             DragHelper.ImageList_DragMove(formP.X - Left, formP.Y - Top);
 
@@ -638,6 +667,20 @@ namespace TheraEditor.Windows.Forms
                 return;
             }
 
+            //Can't drag parent node into child node!!!
+            TreeNode tmpNode = _dropNode;
+            if (tmpNode != null)
+                while (tmpNode.Parent != null)
+                {
+                    if (tmpNode.Parent == _dragNode)
+                    {
+                        e.Effect = DragDropEffects.None;
+                        return;
+                    }
+
+                    tmpNode = tmpNode.Parent;
+                }
+
             e.Effect = (e.KeyState & CTRL_BIT) == 0 ? DragDropEffects.Move : DragDropEffects.Copy;
 
             if (_tempDropNode != _dropNode)
@@ -647,20 +690,6 @@ namespace TheraEditor.Windows.Forms
                 DragHelper.ImageList_DragShowNolock(true);
                 _tempDropNode = _dropNode;
             }
-
-            //Can't drag parent node into child node!!!
-            TreeNode tmpNode = _dropNode;
-            if (tmpNode != null)
-                while (tmpNode.Parent != null)
-                {
-                    if (tmpNode.Parent == _dragNode)
-                    {
-                        e.Effect = DragDropEffects.None;
-                        break;
-                    }
-
-                    tmpNode = tmpNode.Parent;
-                }
         }
         private static bool CompareToType(Type compared, Type to)
         {
@@ -882,6 +911,7 @@ namespace TheraEditor.Windows.Forms
                 HighlightSelectedNodes();
             }
         }
+        
         protected override void OnBeforeSelect(TreeViewCancelEventArgs e)
         {
             base.OnBeforeSelect(e);

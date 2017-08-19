@@ -56,8 +56,8 @@ namespace TheraEngine.Worlds.Actors
         [Browsable(false)]
         public virtual Matrix4 WorldMatrix
         {
-            get { return _worldTransform; }
-            protected internal set
+            get => _worldTransform;
+            set
             {
                 _previousWorldTransform = _worldTransform;
                 _previousInverseWorldTransform = _inverseWorldTransform;

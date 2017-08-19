@@ -45,7 +45,7 @@ namespace TheraEngine
         Scene           = 12, //Update scene
     }
 
-    public abstract class ObjectBase
+    public abstract class ObjectBase : INotifyPropertyChanged
     {
         public static event Action<ObjectBase> OnConstructed;
 
@@ -60,15 +60,14 @@ namespace TheraEngine
         public event RenamedEventHandler Renamed;
 
         [Serialize("Name", IsXmlAttribute = true)]
-        protected string _name;
-        private object _userData;
+        protected string _name = null;
+        private object _userData = null;
 #if EDITOR
         private EditorState _editorState = new EditorState();
 #endif
-        protected bool _changed;
+
         private ThreadSafeList<TickInfo> _tickFunctions = new ThreadSafeList<TickInfo>();
-        [Serialize("Animations")]
-        private List<AnimationContainer> _animations;
+        private List<AnimationContainer> _animations = null;
 
         [Browsable(false)]
         public bool IsTicking => _tickFunctions.Count > 0;
@@ -86,22 +85,24 @@ namespace TheraEngine
             Engine.UnregisterTick(group, order, tickFunc, pausedBehavior);
         }
 
-
 #if EDITOR
         [Serialize]
         [Browsable(false)]
+        [Category("Object")]
         public EditorState EditorState
         {
             get => _editorState;
             set => _editorState = value;
         }
 
+        [Serialize]
+        [Browsable(true)]
+        [Category("Object")]
         public List<AnimationContainer> Animations
         {
             get => _animations;
             set => _animations = value;
         }
-
 #endif
 
         [Serialize]
@@ -124,16 +125,14 @@ namespace TheraEngine
             }
         }
 
-        protected internal void OnPropertyChanged(PropertyInfo info, object previousValue)
+        public void OnPropertyChanged(object previousValue, [System.Runtime.CompilerServices.CallerMemberName] string propertyName = "")
         {
-            if (info.Name == "_changed")
+            PropertyInfo info = GetType().GetProperty(propertyName, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+            if (info == null)
                 return;
-
-            string output = "Changed property " + info.Name + " in " + GetType().ToString() + " \"" + Name + "\"";
-            Engine.DebugPrint(output);
-
-            _changed = true;
-
+            
+            Engine.DebugPrint("Changed property {0} in {1} \"{2}\"", -1, info.Name, GetType().ToString(), ToString());
+            
 #if EDITOR
             if (_editorState != null)
                 _editorState.ChangedProperties.Add(info);

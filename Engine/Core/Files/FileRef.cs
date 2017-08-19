@@ -74,102 +74,33 @@ namespace TheraEngine.Files
                 }
             }
         }
-        public override string ReferencePath
-        {
-            get => base.ReferencePath;
-            set => base.ReferencePath = value;
-        }
 
         public bool IsLoaded => _file != null;
-
-        public void ExportReference()
-        {
-            _file.Export();
-        }
+        public void ExportReference() => _file?.Export();
         public void ExportReference(string dir, string name, FileFormat format, bool setPath = true)
         {
-            //if (_file == null || string.IsNullOrEmpty(_refPath))
-            //    return;
-            //string dir = Path.GetDirectoryName(RefPathAbsolute);
-            //string name = Path.GetFileNameWithoutExtension(RefPathAbsolute);
+            if (_file == null)
+                return;
             _file.Export(dir, name, format);
             if (setPath)
                 ReferencePath = _file.FilePath;
         }
         /// <summary>
-        /// Loads or retrieves the previously loaded instance of this file.
+        /// Loads or retrieves the singular instance of this file.
         /// </summary>
         public override T GetInstance()
         {
             if (_file != null)
                 return _file;
-
-            if (string.IsNullOrEmpty(_refPath))
-                _file = Activator.CreateInstance(_subType) as T;
             else
-            {
-                if (Engine.LoadedFiles.ContainsKey(_refPath))
-                {
-                    List<FileObject> files = Engine.LoadedFiles[_refPath];
-                    if (files.Count > 0)
-                        _file = files[0] as T;
-                    else
-                        GetFile();
-                }
-                else
-                    GetFile();
-            }
-
-            if (_file != null)
-            {
-                _file.FilePath = ReferencePath;
-                _file.References.Add(this);
-            }
-
+                File = LoadNewInstance();
             return _file;
         }
-        private void GetFile()
-        {
-            string absolutePath = ReferencePath;
-            bool fileExists = System.IO.File.Exists(absolutePath);
-            if (!fileExists)
-            {
-                //File = Activator.CreateInstance(_subType) as T;
-                Engine.DebugPrint(string.Format("Could not load file at \"{0}\".", absolutePath));
-            }
-            else
-            {
-                try
-                {
-                    if (IsSpecial())
-                        File = Activator.CreateInstance(_subType, absolutePath) as T;
-                    else
-                        switch (GetFormat())
-                        {
-                            case FileFormat.XML:
-                                File = FromXML(_subType, absolutePath) as T;
-                                break;
-                            case FileFormat.Binary:
-                                File = FromBinary(_subType, absolutePath) as T;
-                                break;
-                            default:
-                                Engine.DebugPrint(string.Format("Could not load file at \"{0}\". Invalid file format.", absolutePath));
-                                break;
-                        }
-                }
-                catch (Exception e)
-                {
-                    Engine.DebugPrint(string.Format("Could not load file at \"{0}\".\nException:\n\n{1}", absolutePath, e.ToString()));
-                }
-            }
-        }
+        /// <summary>
+        /// Loads a new completely new and unique instance of this file.
+        /// </summary>
+        public T LoadNewInstance() => base.GetInstance();
 
-        private bool IsSpecial()
-        {
-            FileClass header = GetFileHeader(_subType);
-            return header == null ? false : header.IsSpecialDeserialize;
-        }
-        
         public void UnloadReference()
         {
             if (_file != null)
@@ -188,48 +119,11 @@ namespace TheraEngine.Files
         public static implicit operator SingleFileRef<T>(Type type) { return new SingleFileRef<T>(type); }
         public static implicit operator SingleFileRef<T>(string relativePath) { return new SingleFileRef<T>(relativePath); }
     }
-    [FileClass("MREF", "Multi File Reference")]
-    public class MultiFileRef<T> : FileRef<T>, IMultiFileRef where T : FileObject
-    {
-        public MultiFileRef(Type type) : base(type) { }
-        public MultiFileRef(string filePath) : base(filePath) { }
-        public MultiFileRef(string filePath, Type type) : base(filePath, type) { }
-        public MultiFileRef(T file) : base(file.FilePath)
-        {
-            //SetFile(file, !string.IsNullOrEmpty(file._filePath));
-        }
-        
-        public override T GetInstance()
-        {
-            if (string.IsNullOrEmpty(_refPath))
-                return Activator.CreateInstance(_subType) as T;
-
-            string absolutePath = ReferencePath;
-            if (!File.Exists(absolutePath))
-                throw new FileNotFoundException();
-
-            T file;
-            //if (IsSpecial())
-            //    file = Activator.CreateInstance(_subType, absolutePath) as T;
-            //else
-            if (GetFormat() == FileFormat.XML)
-                file = FromXML(_subType, absolutePath) as T;
-            else
-                file = FromBinary(_subType, absolutePath) as T;
-
-            file.References.Add(this);
-            return file;
-        }
-
-        public static implicit operator T(MultiFileRef<T> fileRef) { return fileRef?.GetInstance(); }
-        public static implicit operator MultiFileRef<T>(T file) { return new MultiFileRef<T>(file); }
-        public static implicit operator MultiFileRef<T>(Type type) { return new MultiFileRef<T>(type); }
-        public static implicit operator MultiFileRef<T>(string relativePath) { return new MultiFileRef<T>(relativePath); }
-    }
     /// <summary>
     /// Indicates that this variable references a file that must be loaded.
     /// </summary>
-    public abstract class FileRef<T> : FileObject where T : FileObject
+    [FileClass("REF", "File Reference")]
+    public class FileRef<T> : FileObject, IFileRef where T : FileObject
     {
         public FileRef()
         {
@@ -292,6 +186,40 @@ namespace TheraEngine.Files
                 }
             }
         }
+        private T GetFile()
+        {
+            string absolutePath = ReferencePath;
+            bool fileExists = System.IO.File.Exists(absolutePath);
+            if (!fileExists)
+            {
+                //File = Activator.CreateInstance(_subType) as T;
+                Engine.DebugPrint(string.Format("Could not load file at \"{0}\".", absolutePath));
+            }
+            else
+            {
+                try
+                {
+                    if (IsSpecial())
+                        return Activator.CreateInstance(_subType, absolutePath) as T;
+                    else
+                        switch (GetFormat())
+                        {
+                            case FileFormat.XML:
+                                return FromXML(_subType, absolutePath) as T;
+                            case FileFormat.Binary:
+                                return FromBinary(_subType, absolutePath) as T;
+                            default:
+                                Engine.DebugPrint(string.Format("Could not load file at \"{0}\". Invalid file format.", absolutePath));
+                                break;
+                        }
+                }
+                catch (Exception e)
+                {
+                    Engine.DebugPrint(string.Format("Could not load file at \"{0}\".\nException:\n\n{1}", absolutePath, e.ToString()));
+                }
+            }
+            return null;
+        }
 
         public string Extension()
         {
@@ -308,12 +236,46 @@ namespace TheraEngine.Files
                 return FileFormat.XML;
             return FileFormat.Binary;
         }
-        //public bool IsSpecial()
-        //{
-        //    string ext = Extension();
-        //    return FileManager.IsSpecial(ext);
-        //}
-        public Task GetInstanceAsync() => Task.Run(() => GetInstance());
-        public abstract T GetInstance();
+        public void GetInstanceAsync() => Task.Run(() => GetInstance());
+        public virtual T GetInstance()
+        {
+            T file = null;
+            if (string.IsNullOrEmpty(_refPath))
+                file = Activator.CreateInstance(_subType) as T;
+            else
+            {
+                if (Engine.LoadedFiles.ContainsKey(_refPath))
+                {
+                    List<FileObject> files = Engine.LoadedFiles[_refPath];
+                    if (files.Count > 0)
+                        file = files[0] as T;
+                    else
+                        file = GetFile();
+                }
+                else
+                    file = GetFile();
+            }
+
+            if (file != null)
+            {
+                file.FilePath = ReferencePath;
+                file.References.Add(this);
+            }
+
+            return file;
+        }
+        /// <summary>
+        /// Returns true if the file needs special deserialization handling.
+        /// If so, the class needs a constructor that takes the file's absolute path (string) as its only argument.
+        /// </summary>
+        private bool IsSpecial()
+        {
+            FileClass header = GetFileHeader(_subType);
+            return header == null ? false : header.IsSpecialDeserialize;
+        }
+        public override string ToString()
+        {
+            return ReferencePath;
+        }
     }
 }

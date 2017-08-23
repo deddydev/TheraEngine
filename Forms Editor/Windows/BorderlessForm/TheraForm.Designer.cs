@@ -43,13 +43,13 @@
             this.btnNewMaterial = new System.Windows.Forms.ToolStripMenuItem();
             this.BodyPanel = new System.Windows.Forms.Panel();
             this.TitlePanel = new System.Windows.Forms.Panel();
-            this.TheraEngineText = new System.Windows.Forms.Label();
-            this.Logo = new System.Windows.Forms.PictureBox();
             this.FormTitle = new System.Windows.Forms.Label();
+            this.WindowButtonsPanel = new System.Windows.Forms.Panel();
             this.MinimizeLabel = new System.Windows.Forms.Label();
             this.MaximizeLabel = new System.Windows.Forms.Label();
             this.CloseLabel = new System.Windows.Forms.Label();
-            this.TitlePadding = new System.Windows.Forms.Panel();
+            this.LogoPanel = new System.Windows.Forms.Panel();
+            this.Logo = new System.Windows.Forms.PictureBox();
             this.MainPanel = new System.Windows.Forms.Panel();
             this.DecorationToolTip = new System.Windows.Forms.ToolTip(this.components);
             this.TopLeftBorderPanel = new System.Windows.Forms.Panel();
@@ -60,11 +60,16 @@
             this.BottomBorderPanel = new System.Windows.Forms.Panel();
             this.LeftBorderPanel = new System.Windows.Forms.Panel();
             this.RightBorderPanel = new System.Windows.Forms.Panel();
-            this.vS2005Theme1 = new WeifenLuo.WinFormsUI.Docking.VS2005Theme();
+            this.MiddlePanel = new System.Windows.Forms.Panel();
             this.ctxContentTree.SuspendLayout();
             this.TitlePanel.SuspendLayout();
+            this.WindowButtonsPanel.SuspendLayout();
+            this.LogoPanel.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.Logo)).BeginInit();
             this.MainPanel.SuspendLayout();
+            this.LeftBorderPanel.SuspendLayout();
+            this.RightBorderPanel.SuspendLayout();
+            this.MiddlePanel.SuspendLayout();
             this.SuspendLayout();
             // 
             // ctxContentTree
@@ -143,25 +148,12 @@
             // 
             // TitlePanel
             // 
-            this.TitlePanel.Controls.Add(this.TheraEngineText);
-            this.TitlePanel.Controls.Add(this.Logo);
+            this.TitlePanel.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(92)))), ((int)(((byte)(93)))), ((int)(((byte)(100)))));
             this.TitlePanel.Controls.Add(this.FormTitle);
+            this.TitlePanel.Controls.Add(this.WindowButtonsPanel);
+            this.TitlePanel.Controls.Add(this.LogoPanel);
             resources.ApplyResources(this.TitlePanel, "TitlePanel");
             this.TitlePanel.Name = "TitlePanel";
-            // 
-            // TheraEngineText
-            // 
-            resources.ApplyResources(this.TheraEngineText, "TheraEngineText");
-            this.TheraEngineText.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(150)))), ((int)(((byte)(192)))), ((int)(((byte)(192)))));
-            this.TheraEngineText.Name = "TheraEngineText";
-            // 
-            // Logo
-            // 
-            this.Logo.BackgroundImage = global::TheraEditor.Properties.Resources.LogoImage;
-            resources.ApplyResources(this.Logo, "Logo");
-            this.Logo.Image = global::TheraEditor.Properties.Resources.LogoImage;
-            this.Logo.Name = "Logo";
-            this.Logo.TabStop = false;
             // 
             // FormTitle
             // 
@@ -169,37 +161,54 @@
             this.FormTitle.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
             this.FormTitle.Name = "FormTitle";
             // 
+            // WindowButtonsPanel
+            // 
+            this.WindowButtonsPanel.Controls.Add(this.MinimizeLabel);
+            this.WindowButtonsPanel.Controls.Add(this.MaximizeLabel);
+            this.WindowButtonsPanel.Controls.Add(this.CloseLabel);
+            resources.ApplyResources(this.WindowButtonsPanel, "WindowButtonsPanel");
+            this.WindowButtonsPanel.Name = "WindowButtonsPanel";
+            // 
             // MinimizeLabel
             // 
+            this.MinimizeLabel.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(150)))), ((int)(((byte)(192)))), ((int)(((byte)(192)))));
             resources.ApplyResources(this.MinimizeLabel, "MinimizeLabel");
             this.MinimizeLabel.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
             this.MinimizeLabel.Name = "MinimizeLabel";
             // 
             // MaximizeLabel
             // 
+            this.MaximizeLabel.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(150)))), ((int)(((byte)(192)))), ((int)(((byte)(192)))));
             resources.ApplyResources(this.MaximizeLabel, "MaximizeLabel");
             this.MaximizeLabel.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
             this.MaximizeLabel.Name = "MaximizeLabel";
             // 
             // CloseLabel
             // 
+            this.CloseLabel.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(150)))), ((int)(((byte)(192)))), ((int)(((byte)(192)))));
             resources.ApplyResources(this.CloseLabel, "CloseLabel");
             this.CloseLabel.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
             this.CloseLabel.Name = "CloseLabel";
             // 
-            // TitlePadding
+            // LogoPanel
             // 
-            this.TitlePadding.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(72)))), ((int)(((byte)(73)))), ((int)(((byte)(80)))));
-            resources.ApplyResources(this.TitlePadding, "TitlePadding");
-            this.TitlePadding.Name = "TitlePadding";
+            this.LogoPanel.Controls.Add(this.Logo);
+            resources.ApplyResources(this.LogoPanel, "LogoPanel");
+            this.LogoPanel.Name = "LogoPanel";
+            // 
+            // Logo
+            // 
+            this.Logo.BackgroundImage = global::TheraEditor.Properties.Resources.LogoImage;
+            resources.ApplyResources(this.Logo, "Logo");
+            this.Logo.Name = "Logo";
+            this.Logo.TabStop = false;
             // 
             // MainPanel
             // 
-            resources.ApplyResources(this.MainPanel, "MainPanel");
             this.MainPanel.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(82)))), ((int)(((byte)(83)))), ((int)(((byte)(90)))));
             this.MainPanel.Controls.Add(this.BodyPanel);
-            this.MainPanel.Controls.Add(this.TitlePadding);
             this.MainPanel.Controls.Add(this.TitlePanel);
+            resources.ApplyResources(this.MainPanel, "MainPanel");
             this.MainPanel.Name = "MainPanel";
             // 
             // TopLeftBorderPanel
@@ -210,69 +219,77 @@
             // 
             // TopRightBorderPanel
             // 
-            resources.ApplyResources(this.TopRightBorderPanel, "TopRightBorderPanel");
             this.TopRightBorderPanel.Cursor = System.Windows.Forms.Cursors.SizeNESW;
+            resources.ApplyResources(this.TopRightBorderPanel, "TopRightBorderPanel");
             this.TopRightBorderPanel.Name = "TopRightBorderPanel";
             // 
             // BottomRightBorderPanel
             // 
-            resources.ApplyResources(this.BottomRightBorderPanel, "BottomRightBorderPanel");
             this.BottomRightBorderPanel.Cursor = System.Windows.Forms.Cursors.SizeNWSE;
+            resources.ApplyResources(this.BottomRightBorderPanel, "BottomRightBorderPanel");
             this.BottomRightBorderPanel.Name = "BottomRightBorderPanel";
             // 
             // BottomLeftBorderPanel
             // 
-            resources.ApplyResources(this.BottomLeftBorderPanel, "BottomLeftBorderPanel");
             this.BottomLeftBorderPanel.Cursor = System.Windows.Forms.Cursors.SizeNESW;
+            resources.ApplyResources(this.BottomLeftBorderPanel, "BottomLeftBorderPanel");
             this.BottomLeftBorderPanel.Name = "BottomLeftBorderPanel";
             // 
             // TopBorderPanel
             // 
-            resources.ApplyResources(this.TopBorderPanel, "TopBorderPanel");
             this.TopBorderPanel.Cursor = System.Windows.Forms.Cursors.SizeNS;
+            resources.ApplyResources(this.TopBorderPanel, "TopBorderPanel");
             this.TopBorderPanel.Name = "TopBorderPanel";
             // 
             // BottomBorderPanel
             // 
-            resources.ApplyResources(this.BottomBorderPanel, "BottomBorderPanel");
             this.BottomBorderPanel.Cursor = System.Windows.Forms.Cursors.SizeNS;
+            resources.ApplyResources(this.BottomBorderPanel, "BottomBorderPanel");
             this.BottomBorderPanel.Name = "BottomBorderPanel";
             // 
             // LeftBorderPanel
             // 
-            resources.ApplyResources(this.LeftBorderPanel, "LeftBorderPanel");
+            this.LeftBorderPanel.Controls.Add(this.TopLeftBorderPanel);
+            this.LeftBorderPanel.Controls.Add(this.BottomLeftBorderPanel);
             this.LeftBorderPanel.Cursor = System.Windows.Forms.Cursors.SizeWE;
+            resources.ApplyResources(this.LeftBorderPanel, "LeftBorderPanel");
             this.LeftBorderPanel.Name = "LeftBorderPanel";
             // 
             // RightBorderPanel
             // 
-            resources.ApplyResources(this.RightBorderPanel, "RightBorderPanel");
+            this.RightBorderPanel.Controls.Add(this.TopRightBorderPanel);
+            this.RightBorderPanel.Controls.Add(this.BottomRightBorderPanel);
             this.RightBorderPanel.Cursor = System.Windows.Forms.Cursors.SizeWE;
+            resources.ApplyResources(this.RightBorderPanel, "RightBorderPanel");
             this.RightBorderPanel.Name = "RightBorderPanel";
+            // 
+            // MiddlePanel
+            // 
+            this.MiddlePanel.Controls.Add(this.MainPanel);
+            this.MiddlePanel.Controls.Add(this.TopBorderPanel);
+            this.MiddlePanel.Controls.Add(this.BottomBorderPanel);
+            resources.ApplyResources(this.MiddlePanel, "MiddlePanel");
+            this.MiddlePanel.Name = "MiddlePanel";
             // 
             // TheraForm
             // 
             resources.ApplyResources(this, "$this");
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(150)))), ((int)(((byte)(192)))), ((int)(((byte)(192)))));
-            this.Controls.Add(this.MinimizeLabel);
-            this.Controls.Add(this.MaximizeLabel);
-            this.Controls.Add(this.CloseLabel);
+            this.Controls.Add(this.MiddlePanel);
             this.Controls.Add(this.RightBorderPanel);
             this.Controls.Add(this.LeftBorderPanel);
-            this.Controls.Add(this.BottomBorderPanel);
-            this.Controls.Add(this.TopBorderPanel);
-            this.Controls.Add(this.BottomLeftBorderPanel);
-            this.Controls.Add(this.BottomRightBorderPanel);
-            this.Controls.Add(this.TopRightBorderPanel);
-            this.Controls.Add(this.TopLeftBorderPanel);
-            this.Controls.Add(this.MainPanel);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
             this.Name = "TheraForm";
             this.ctxContentTree.ResumeLayout(false);
             this.TitlePanel.ResumeLayout(false);
+            this.WindowButtonsPanel.ResumeLayout(false);
+            this.LogoPanel.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.Logo)).EndInit();
             this.MainPanel.ResumeLayout(false);
+            this.LeftBorderPanel.ResumeLayout(false);
+            this.RightBorderPanel.ResumeLayout(false);
+            this.MiddlePanel.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
@@ -289,16 +306,11 @@
         private System.Windows.Forms.ToolStripMenuItem btnNewSceneComponent;
         private System.Windows.Forms.ToolStripMenuItem btnNewLogicComponent;
         private System.Windows.Forms.ToolStripMenuItem btnNewMaterial;
-        private System.Windows.Forms.Panel TitlePanel;
-        private System.Windows.Forms.Label TheraEngineText;
         private System.Windows.Forms.PictureBox Logo;
-        private System.Windows.Forms.Panel TitlePadding;
-        private System.Windows.Forms.Panel MainPanel;
         private System.Windows.Forms.Label CloseLabel;
         private System.Windows.Forms.Label MaximizeLabel;
         private System.Windows.Forms.Label MinimizeLabel;
         private System.Windows.Forms.ToolTip DecorationToolTip;
-        private System.Windows.Forms.Panel BodyPanel;
         private System.Windows.Forms.Panel TopLeftBorderPanel;
         private System.Windows.Forms.Panel TopRightBorderPanel;
         private System.Windows.Forms.Panel BottomRightBorderPanel;
@@ -307,8 +319,13 @@
         private System.Windows.Forms.Panel BottomBorderPanel;
         private System.Windows.Forms.Panel LeftBorderPanel;
         private System.Windows.Forms.Panel RightBorderPanel;
-        private System.Windows.Forms.Label FormTitle;
-        private WeifenLuo.WinFormsUI.Docking.VS2005Theme vS2005Theme1;
+        public System.Windows.Forms.Panel BodyPanel;
+        public System.Windows.Forms.Panel MainPanel;
+        public System.Windows.Forms.Panel TitlePanel;
+        public System.Windows.Forms.Label FormTitle;
+        private System.Windows.Forms.Panel LogoPanel;
+        private System.Windows.Forms.Panel WindowButtonsPanel;
+        public System.Windows.Forms.Panel MiddlePanel;
         //private TheraEngine.RenderPanel renderPanel1;
         //private ResourceTree resourceTree1;
     }

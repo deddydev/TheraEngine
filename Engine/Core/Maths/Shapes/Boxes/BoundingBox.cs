@@ -91,9 +91,17 @@ namespace System
         public static BoundingBox FromHalfExtentsTranslation(Vec3 halfExtents, Vec3 translation)
             => new BoundingBox(halfExtents, translation);
 
-        public override CollisionShape GetCollisionShape()
-            => new BoxShape(HalfExtents);
-        
+        public override CollisionShape GetCollisionShape() => new BoxShape(HalfExtents);
+
+        //Half extents is one of 8 octants that make up the box, so multiply half extent volume by 8
+        public float GetVolume() =>
+            _halfExtents.X * _halfExtents.Y * _halfExtents.Z * 8.0f;
+        //Each half extent side is one of 4 quadrants on both sides of the box, so multiply each side area by 8
+        public float GetSurfaceArea() =>
+            _halfExtents.X * _halfExtents.Y * 8.0f +
+            _halfExtents.Y * _halfExtents.Z * 8.0f +
+            _halfExtents.Z * _halfExtents.X * 8.0f;
+
         /// <summary>
         /// [T = top, B = bottom] 
         /// [B = back, F = front] 

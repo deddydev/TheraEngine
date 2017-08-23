@@ -14,10 +14,7 @@ namespace TheraEngine
     [FileClass("TGAME", "Game Info")]
     public class Game : FileObject
     {
-        public Game()
-        {
-
-        }
+        public Game() { }
         
         protected LocalizedStringTable _localizedStringTable;
         protected VariableStringTable _variableStringTable;

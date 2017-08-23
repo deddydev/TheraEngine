@@ -44,8 +44,7 @@ namespace TheraEngine.Worlds
         {
             public override bool NeedBroadphaseCollision(BroadphaseProxy proxy0, BroadphaseProxy proxy1)
             {
-                if (proxy0 == null ||
-                    proxy1 == null)
+                if (proxy0 == null || proxy1 == null)
                     return false;
 
                 bool collides =
@@ -55,10 +54,11 @@ namespace TheraEngine.Worlds
                 return collides;
             }
         }
+
         public BaseGameMode GetGameMode()
-            => Settings?.GameMode.File;
+            => Settings?.GameMode?.File;
         public T GetGameMode<T>() where T : class, IGameMode
-            => Settings?.GameMode.File as T;
+            => Settings?.GameMode?.File as T;
 
         public int SpawnedActorCount => _settings.State.SpawnedActors.Count;
         public WorldState State => _settings.State;

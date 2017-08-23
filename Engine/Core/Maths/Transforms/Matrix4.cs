@@ -475,6 +475,22 @@ namespace System
             result.Row1.Y = cos;
             return result;
         }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="translation"></param>
+        /// <param name="rightDir"></param>
+        /// <param name="upDir"></param>
+        /// <param name="forwardDir"></param>
+        /// <returns></returns>
+        public static Matrix4 CreateSpacialTransform(Vec3 translation, Vec3 rightDir, Vec3 upDir, Vec3 forwardDir)
+            => new Matrix4(
+                    new Vec4(rightDir, 0.0f),
+                    new Vec4(upDir, 0.0f),
+                    new Vec4(forwardDir, 0.0f),
+                    new Vec4(translation, 1.0f));
+        
         public static Matrix4 CreateTranslation(float x, float y, float z)
         {
             Matrix4 result = Identity;

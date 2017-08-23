@@ -3,6 +3,7 @@ using TheraEngine.Worlds.Actors;
 using TheraEngine.Input;
 using TheraEngine.Worlds.Actors.Types;
 using TheraEngine.Worlds;
+using TheraEngine.Rendering;
 
 namespace TheraEngine.GameModes
 {
@@ -28,6 +29,14 @@ namespace TheraEngine.GameModes
         }
         protected internal override void HandleLocalPlayerJoined(LocalPlayerController item)
         {
+            RenderPanel p = RenderPanel.GamePanel;
+            if (p != null)
+            {
+                Viewport v = p.GetViewport((int)item.LocalPlayerIndex) ?? p.AddViewport();
+                if (v != null)
+                    v.Owner = item;
+            }
+            
             PawnType pawn = _pawnClass.CreateNew();
             if (item.ControlledPawn == null)
                 item.ControlledPawn = pawn;

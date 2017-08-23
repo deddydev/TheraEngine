@@ -11,7 +11,8 @@ namespace TheraEngine
         {
             Engine.SetGame(game);
             InitializeComponent();
-            Engine.Initialize(renderPanel1);
+            Engine.SetGamePanel(renderPanel1);
+            Engine.Initialize();
 
             Text = game.Name;
             if (!string.IsNullOrEmpty(game.IconPath) && File.Exists(game.IconPath))

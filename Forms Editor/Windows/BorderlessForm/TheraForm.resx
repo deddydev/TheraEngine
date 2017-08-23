@@ -195,13 +195,13 @@
     <value>Fill</value>
   </data>
   <data name="BodyPanel.Location" type="System.Drawing.Point, System.Drawing">
-    <value>0, 55</value>
+    <value>0, 50</value>
   </data>
   <data name="BodyPanel.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
-    <value>3, 2, 3, 2</value>
+    <value>0, 0, 0, 0</value>
   </data>
   <data name="BodyPanel.Size" type="System.Drawing.Size, System.Drawing">
-    <value>1116, 560</value>
+    <value>1541, 944</value>
   </data>
   <assembly alias="mscorlib" name="mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
   <data name="BodyPanel.TabIndex" type="System.Int32, mscorlib">
@@ -219,86 +219,29 @@
   <data name="&gt;&gt;BodyPanel.ZOrder" xml:space="preserve">
     <value>0</value>
   </data>
-  <data name="TheraEngineText.Dock" type="System.Windows.Forms.DockStyle, System.Windows.Forms">
-    <value>Left</value>
-  </data>
-  <data name="TheraEngineText.Font" type="System.Drawing.Font, System.Drawing">
-    <value>Origicide, 10pt</value>
-  </data>
-  <data name="TheraEngineText.Location" type="System.Drawing.Point, System.Drawing">
-    <value>44, 5</value>
-  </data>
-  <data name="TheraEngineText.Padding" type="System.Windows.Forms.Padding, System.Windows.Forms">
-    <value>4, 0, 0, 0</value>
-  </data>
-  <data name="TheraEngineText.Size" type="System.Drawing.Size, System.Drawing">
-    <value>159, 40</value>
-  </data>
-  <data name="TheraEngineText.TabIndex" type="System.Int32, mscorlib">
-    <value>1</value>
-  </data>
-  <data name="TheraEngineText.Text" xml:space="preserve">
-    <value>Thera Engine</value>
-  </data>
-  <data name="TheraEngineText.TextAlign" type="System.Drawing.ContentAlignment, System.Drawing">
-    <value>MiddleLeft</value>
-  </data>
-  <data name="&gt;&gt;TheraEngineText.Name" xml:space="preserve">
-    <value>TheraEngineText</value>
-  </data>
-  <data name="&gt;&gt;TheraEngineText.Type" xml:space="preserve">
-    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;TheraEngineText.Parent" xml:space="preserve">
-    <value>TitlePanel</value>
-  </data>
-  <data name="&gt;&gt;TheraEngineText.ZOrder" xml:space="preserve">
-    <value>0</value>
-  </data>
-  <data name="Logo.BackgroundImageLayout" type="System.Windows.Forms.ImageLayout, System.Windows.Forms">
-    <value>Stretch</value>
-  </data>
-  <data name="Logo.Dock" type="System.Windows.Forms.DockStyle, System.Windows.Forms">
-    <value>Left</value>
-  </data>
-  <data name="Logo.Location" type="System.Drawing.Point, System.Drawing">
-    <value>4, 5</value>
-  </data>
-  <data name="Logo.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
-    <value>3, 2, 3, 2</value>
-  </data>
-  <data name="Logo.Size" type="System.Drawing.Size, System.Drawing">
-    <value>40, 40</value>
-  </data>
-  <data name="Logo.TabIndex" type="System.Int32, mscorlib">
-    <value>2</value>
-  </data>
-  <data name="&gt;&gt;Logo.Name" xml:space="preserve">
-    <value>Logo</value>
-  </data>
-  <data name="&gt;&gt;Logo.Type" xml:space="preserve">
-    <value>System.Windows.Forms.PictureBox, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;Logo.Parent" xml:space="preserve">
-    <value>TitlePanel</value>
-  </data>
-  <data name="&gt;&gt;Logo.ZOrder" xml:space="preserve">
-    <value>1</value>
-  </data>
   <data name="FormTitle.Dock" type="System.Windows.Forms.DockStyle, System.Windows.Forms">
     <value>Fill</value>
   </data>
+  <data name="FormTitle.Font" type="System.Drawing.Font, System.Drawing">
+    <value>Segoe UI, 9pt</value>
+  </data>
   <data name="FormTitle.Location" type="System.Drawing.Point, System.Drawing">
-    <value>4, 5</value>
+    <value>50, 0</value>
+  </data>
+  <data name="FormTitle.Padding" type="System.Windows.Forms.Padding, System.Windows.Forms">
+    <value>10, 0, 10, 0</value>
   </data>
   <data name="FormTitle.Size" type="System.Drawing.Size, System.Drawing">
-    <value>1108, 40</value>
+    <value>1348, 50</value>
   </data>
   <data name="FormTitle.TabIndex" type="System.Int32, mscorlib">
     <value>6</value>
   </data>
+  <data name="FormTitle.Text" xml:space="preserve">
+    <value>Thera Editor Form</value>
+  </data>
   <data name="FormTitle.TextAlign" type="System.Drawing.ContentAlignment, System.Drawing">
-    <value>MiddleCenter</value>
+    <value>MiddleLeft</value>
   </data>
   <data name="&gt;&gt;FormTitle.Name" xml:space="preserve">
     <value>FormTitle</value>
@@ -310,43 +253,13 @@
     <value>TitlePanel</value>
   </data>
   <data name="&gt;&gt;FormTitle.ZOrder" xml:space="preserve">
-    <value>2</value>
-  </data>
-  <data name="TitlePanel.Dock" type="System.Windows.Forms.DockStyle, System.Windows.Forms">
-    <value>Top</value>
-  </data>
-  <data name="TitlePanel.Location" type="System.Drawing.Point, System.Drawing">
-    <value>0, 0</value>
-  </data>
-  <data name="TitlePanel.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
-    <value>3, 2, 3, 2</value>
-  </data>
-  <data name="TitlePanel.Padding" type="System.Windows.Forms.Padding, System.Windows.Forms">
-    <value>4, 5, 4, 5</value>
-  </data>
-  <data name="TitlePanel.Size" type="System.Drawing.Size, System.Drawing">
-    <value>1116, 50</value>
-  </data>
-  <data name="TitlePanel.TabIndex" type="System.Int32, mscorlib">
     <value>0</value>
   </data>
-  <data name="&gt;&gt;TitlePanel.Name" xml:space="preserve">
-    <value>TitlePanel</value>
-  </data>
-  <data name="&gt;&gt;TitlePanel.Type" xml:space="preserve">
-    <value>System.Windows.Forms.Panel, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;TitlePanel.Parent" xml:space="preserve">
-    <value>MainPanel</value>
-  </data>
-  <data name="&gt;&gt;TitlePanel.ZOrder" xml:space="preserve">
-    <value>2</value>
-  </data>
-  <data name="MinimizeLabel.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
-    <value>Top, Right</value>
+  <data name="MinimizeLabel.Dock" type="System.Windows.Forms.DockStyle, System.Windows.Forms">
+    <value>Right</value>
   </data>
   <data name="MinimizeLabel.Location" type="System.Drawing.Point, System.Drawing">
-    <value>987, 5</value>
+    <value>8, 0</value>
   </data>
   <data name="MinimizeLabel.Size" type="System.Drawing.Size, System.Drawing">
     <value>45, 40</value>
@@ -367,16 +280,16 @@
     <value>System.Windows.Forms.Label, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="&gt;&gt;MinimizeLabel.Parent" xml:space="preserve">
-    <value>$this</value>
+    <value>WindowButtonsPanel</value>
   </data>
   <data name="&gt;&gt;MinimizeLabel.ZOrder" xml:space="preserve">
-    <value>1</value>
+    <value>0</value>
   </data>
-  <data name="MaximizeLabel.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
-    <value>Top, Right</value>
+  <data name="MaximizeLabel.Dock" type="System.Windows.Forms.DockStyle, System.Windows.Forms">
+    <value>Right</value>
   </data>
   <data name="MaximizeLabel.Location" type="System.Drawing.Point, System.Drawing">
-    <value>1031, 5</value>
+    <value>53, 0</value>
   </data>
   <data name="MaximizeLabel.Size" type="System.Drawing.Size, System.Drawing">
     <value>45, 40</value>
@@ -397,16 +310,16 @@
     <value>System.Windows.Forms.Label, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="&gt;&gt;MaximizeLabel.Parent" xml:space="preserve">
-    <value>$this</value>
+    <value>WindowButtonsPanel</value>
   </data>
   <data name="&gt;&gt;MaximizeLabel.ZOrder" xml:space="preserve">
-    <value>2</value>
+    <value>1</value>
   </data>
-  <data name="CloseLabel.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
-    <value>Top, Right</value>
+  <data name="CloseLabel.Dock" type="System.Windows.Forms.DockStyle, System.Windows.Forms">
+    <value>Right</value>
   </data>
   <data name="CloseLabel.Location" type="System.Drawing.Point, System.Drawing">
-    <value>1076, 5</value>
+    <value>98, 0</value>
   </data>
   <data name="CloseLabel.Size" type="System.Drawing.Size, System.Drawing">
     <value>45, 40</value>
@@ -427,49 +340,133 @@
     <value>System.Windows.Forms.Label, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="&gt;&gt;CloseLabel.Parent" xml:space="preserve">
-    <value>$this</value>
+    <value>WindowButtonsPanel</value>
   </data>
   <data name="&gt;&gt;CloseLabel.ZOrder" xml:space="preserve">
-    <value>3</value>
+    <value>2</value>
   </data>
-  <data name="TitlePadding.Dock" type="System.Windows.Forms.DockStyle, System.Windows.Forms">
-    <value>Top</value>
+  <data name="WindowButtonsPanel.Dock" type="System.Windows.Forms.DockStyle, System.Windows.Forms">
+    <value>Right</value>
   </data>
-  <data name="TitlePadding.Location" type="System.Drawing.Point, System.Drawing">
-    <value>0, 50</value>
+  <data name="WindowButtonsPanel.Location" type="System.Drawing.Point, System.Drawing">
+    <value>1398, 0</value>
   </data>
-  <data name="TitlePadding.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
-    <value>3, 2, 3, 2</value>
+  <data name="WindowButtonsPanel.Padding" type="System.Windows.Forms.Padding, System.Windows.Forms">
+    <value>0, 0, 0, 10</value>
   </data>
-  <data name="TitlePadding.Size" type="System.Drawing.Size, System.Drawing">
-    <value>1116, 5</value>
+  <data name="WindowButtonsPanel.Size" type="System.Drawing.Size, System.Drawing">
+    <value>143, 50</value>
   </data>
-  <data name="TitlePadding.TabIndex" type="System.Int32, mscorlib">
-    <value>3</value>
+  <data name="WindowButtonsPanel.TabIndex" type="System.Int32, mscorlib">
+    <value>8</value>
   </data>
-  <data name="&gt;&gt;TitlePadding.Name" xml:space="preserve">
-    <value>TitlePadding</value>
+  <data name="&gt;&gt;WindowButtonsPanel.Name" xml:space="preserve">
+    <value>WindowButtonsPanel</value>
   </data>
-  <data name="&gt;&gt;TitlePadding.Type" xml:space="preserve">
+  <data name="&gt;&gt;WindowButtonsPanel.Type" xml:space="preserve">
     <value>System.Windows.Forms.Panel, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
-  <data name="&gt;&gt;TitlePadding.Parent" xml:space="preserve">
-    <value>MainPanel</value>
+  <data name="&gt;&gt;WindowButtonsPanel.Parent" xml:space="preserve">
+    <value>TitlePanel</value>
   </data>
-  <data name="&gt;&gt;TitlePadding.ZOrder" xml:space="preserve">
+  <data name="&gt;&gt;WindowButtonsPanel.ZOrder" xml:space="preserve">
     <value>1</value>
   </data>
-  <data name="MainPanel.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
-    <value>Top, Bottom, Left, Right</value>
+  <data name="Logo.BackgroundImageLayout" type="System.Windows.Forms.ImageLayout, System.Windows.Forms">
+    <value>Stretch</value>
+  </data>
+  <data name="Logo.Dock" type="System.Windows.Forms.DockStyle, System.Windows.Forms">
+    <value>Left</value>
+  </data>
+  <data name="Logo.Location" type="System.Drawing.Point, System.Drawing">
+    <value>5, 5</value>
+  </data>
+  <data name="Logo.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
+    <value>0, 0, 0, 0</value>
+  </data>
+  <data name="Logo.Size" type="System.Drawing.Size, System.Drawing">
+    <value>40, 40</value>
+  </data>
+  <data name="Logo.TabIndex" type="System.Int32, mscorlib">
+    <value>2</value>
+  </data>
+  <data name="&gt;&gt;Logo.Name" xml:space="preserve">
+    <value>Logo</value>
+  </data>
+  <data name="&gt;&gt;Logo.Type" xml:space="preserve">
+    <value>System.Windows.Forms.PictureBox, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;Logo.Parent" xml:space="preserve">
+    <value>LogoPanel</value>
+  </data>
+  <data name="&gt;&gt;Logo.ZOrder" xml:space="preserve">
+    <value>0</value>
+  </data>
+  <data name="LogoPanel.Dock" type="System.Windows.Forms.DockStyle, System.Windows.Forms">
+    <value>Left</value>
+  </data>
+  <data name="LogoPanel.Location" type="System.Drawing.Point, System.Drawing">
+    <value>0, 0</value>
+  </data>
+  <data name="LogoPanel.Padding" type="System.Windows.Forms.Padding, System.Windows.Forms">
+    <value>5, 5, 5, 5</value>
+  </data>
+  <data name="LogoPanel.Size" type="System.Drawing.Size, System.Drawing">
+    <value>50, 50</value>
+  </data>
+  <data name="LogoPanel.TabIndex" type="System.Int32, mscorlib">
+    <value>7</value>
+  </data>
+  <data name="&gt;&gt;LogoPanel.Name" xml:space="preserve">
+    <value>LogoPanel</value>
+  </data>
+  <data name="&gt;&gt;LogoPanel.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Panel, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;LogoPanel.Parent" xml:space="preserve">
+    <value>TitlePanel</value>
+  </data>
+  <data name="&gt;&gt;LogoPanel.ZOrder" xml:space="preserve">
+    <value>2</value>
+  </data>
+  <data name="TitlePanel.Dock" type="System.Windows.Forms.DockStyle, System.Windows.Forms">
+    <value>Top</value>
+  </data>
+  <data name="TitlePanel.Location" type="System.Drawing.Point, System.Drawing">
+    <value>0, 0</value>
+  </data>
+  <data name="TitlePanel.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
+    <value>0, 0, 0, 0</value>
+  </data>
+  <data name="TitlePanel.Size" type="System.Drawing.Size, System.Drawing">
+    <value>1541, 50</value>
+  </data>
+  <data name="TitlePanel.TabIndex" type="System.Int32, mscorlib">
+    <value>0</value>
+  </data>
+  <data name="&gt;&gt;TitlePanel.Name" xml:space="preserve">
+    <value>TitlePanel</value>
+  </data>
+  <data name="&gt;&gt;TitlePanel.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Panel, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;TitlePanel.Parent" xml:space="preserve">
+    <value>MainPanel</value>
+  </data>
+  <data name="&gt;&gt;TitlePanel.ZOrder" xml:space="preserve">
+    <value>1</value>
+  </data>
+  <data name="MainPanel.Dock" type="System.Windows.Forms.DockStyle, System.Windows.Forms">
+    <value>Fill</value>
   </data>
   <data name="MainPanel.Location" type="System.Drawing.Point, System.Drawing">
-    <value>4, 5</value>
+    <value>0, 5</value>
   </data>
   <data name="MainPanel.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
     <value>0, 0, 0, 0</value>
   </data>
   <data name="MainPanel.Size" type="System.Drawing.Size, System.Drawing">
-    <value>1116, 615</value>
+    <value>1541, 994</value>
   </data>
   <data name="MainPanel.TabIndex" type="System.Int32, mscorlib">
     <value>7</value>
@@ -481,14 +478,17 @@
     <value>System.Windows.Forms.Panel, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="&gt;&gt;MainPanel.Parent" xml:space="preserve">
-    <value>$this</value>
+    <value>MiddlePanel</value>
   </data>
   <data name="&gt;&gt;MainPanel.ZOrder" xml:space="preserve">
-    <value>12</value>
+    <value>0</value>
   </data>
   <metadata name="DecorationToolTip.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>359, 17</value>
   </metadata>
+  <data name="TopLeftBorderPanel.Dock" type="System.Windows.Forms.DockStyle, System.Windows.Forms">
+    <value>Top</value>
+  </data>
   <data name="TopLeftBorderPanel.Location" type="System.Drawing.Point, System.Drawing">
     <value>0, 0</value>
   </data>
@@ -496,7 +496,7 @@
     <value>3, 2, 3, 2</value>
   </data>
   <data name="TopLeftBorderPanel.Size" type="System.Drawing.Size, System.Drawing">
-    <value>4, 5</value>
+    <value>5, 5</value>
   </data>
   <data name="TopLeftBorderPanel.TabIndex" type="System.Int32, mscorlib">
     <value>8</value>
@@ -508,22 +508,22 @@
     <value>System.Windows.Forms.Panel, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="&gt;&gt;TopLeftBorderPanel.Parent" xml:space="preserve">
-    <value>$this</value>
+    <value>LeftBorderPanel</value>
   </data>
   <data name="&gt;&gt;TopLeftBorderPanel.ZOrder" xml:space="preserve">
-    <value>11</value>
+    <value>0</value>
   </data>
-  <data name="TopRightBorderPanel.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
-    <value>Top, Right</value>
+  <data name="TopRightBorderPanel.Dock" type="System.Windows.Forms.DockStyle, System.Windows.Forms">
+    <value>Top</value>
   </data>
   <data name="TopRightBorderPanel.Location" type="System.Drawing.Point, System.Drawing">
-    <value>1120, 0</value>
+    <value>0, 0</value>
   </data>
   <data name="TopRightBorderPanel.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
     <value>3, 2, 3, 2</value>
   </data>
   <data name="TopRightBorderPanel.Size" type="System.Drawing.Size, System.Drawing">
-    <value>4, 5</value>
+    <value>5, 5</value>
   </data>
   <data name="TopRightBorderPanel.TabIndex" type="System.Int32, mscorlib">
     <value>9</value>
@@ -535,22 +535,22 @@
     <value>System.Windows.Forms.Panel, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="&gt;&gt;TopRightBorderPanel.Parent" xml:space="preserve">
-    <value>$this</value>
+    <value>RightBorderPanel</value>
   </data>
   <data name="&gt;&gt;TopRightBorderPanel.ZOrder" xml:space="preserve">
-    <value>10</value>
+    <value>0</value>
   </data>
-  <data name="BottomRightBorderPanel.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
-    <value>Bottom, Right</value>
+  <data name="BottomRightBorderPanel.Dock" type="System.Windows.Forms.DockStyle, System.Windows.Forms">
+    <value>Bottom</value>
   </data>
   <data name="BottomRightBorderPanel.Location" type="System.Drawing.Point, System.Drawing">
-    <value>1120, 620</value>
+    <value>0, 999</value>
   </data>
   <data name="BottomRightBorderPanel.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
     <value>3, 2, 3, 2</value>
   </data>
   <data name="BottomRightBorderPanel.Size" type="System.Drawing.Size, System.Drawing">
-    <value>4, 5</value>
+    <value>5, 5</value>
   </data>
   <data name="BottomRightBorderPanel.TabIndex" type="System.Int32, mscorlib">
     <value>9</value>
@@ -562,22 +562,22 @@
     <value>System.Windows.Forms.Panel, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="&gt;&gt;BottomRightBorderPanel.Parent" xml:space="preserve">
-    <value>$this</value>
+    <value>RightBorderPanel</value>
   </data>
   <data name="&gt;&gt;BottomRightBorderPanel.ZOrder" xml:space="preserve">
-    <value>9</value>
+    <value>1</value>
   </data>
-  <data name="BottomLeftBorderPanel.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
-    <value>Bottom, Left</value>
+  <data name="BottomLeftBorderPanel.Dock" type="System.Windows.Forms.DockStyle, System.Windows.Forms">
+    <value>Bottom</value>
   </data>
   <data name="BottomLeftBorderPanel.Location" type="System.Drawing.Point, System.Drawing">
-    <value>0, 620</value>
+    <value>0, 999</value>
   </data>
   <data name="BottomLeftBorderPanel.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
     <value>3, 2, 3, 2</value>
   </data>
   <data name="BottomLeftBorderPanel.Size" type="System.Drawing.Size, System.Drawing">
-    <value>4, 5</value>
+    <value>5, 5</value>
   </data>
   <data name="BottomLeftBorderPanel.TabIndex" type="System.Int32, mscorlib">
     <value>10</value>
@@ -589,22 +589,22 @@
     <value>System.Windows.Forms.Panel, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="&gt;&gt;BottomLeftBorderPanel.Parent" xml:space="preserve">
-    <value>$this</value>
+    <value>LeftBorderPanel</value>
   </data>
   <data name="&gt;&gt;BottomLeftBorderPanel.ZOrder" xml:space="preserve">
-    <value>8</value>
+    <value>1</value>
   </data>
-  <data name="TopBorderPanel.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
-    <value>Top, Left, Right</value>
+  <data name="TopBorderPanel.Dock" type="System.Windows.Forms.DockStyle, System.Windows.Forms">
+    <value>Top</value>
   </data>
   <data name="TopBorderPanel.Location" type="System.Drawing.Point, System.Drawing">
-    <value>4, 0</value>
+    <value>0, 0</value>
   </data>
   <data name="TopBorderPanel.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
-    <value>3, 2, 3, 2</value>
+    <value>0, 0, 0, 0</value>
   </data>
   <data name="TopBorderPanel.Size" type="System.Drawing.Size, System.Drawing">
-    <value>1116, 5</value>
+    <value>1541, 5</value>
   </data>
   <data name="TopBorderPanel.TabIndex" type="System.Int32, mscorlib">
     <value>11</value>
@@ -616,22 +616,22 @@
     <value>System.Windows.Forms.Panel, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="&gt;&gt;TopBorderPanel.Parent" xml:space="preserve">
-    <value>$this</value>
+    <value>MiddlePanel</value>
   </data>
   <data name="&gt;&gt;TopBorderPanel.ZOrder" xml:space="preserve">
-    <value>7</value>
+    <value>1</value>
   </data>
-  <data name="BottomBorderPanel.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
-    <value>Bottom, Left, Right</value>
+  <data name="BottomBorderPanel.Dock" type="System.Windows.Forms.DockStyle, System.Windows.Forms">
+    <value>Bottom</value>
   </data>
   <data name="BottomBorderPanel.Location" type="System.Drawing.Point, System.Drawing">
-    <value>4, 620</value>
+    <value>0, 999</value>
   </data>
   <data name="BottomBorderPanel.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
-    <value>3, 2, 3, 2</value>
+    <value>0, 0, 0, 0</value>
   </data>
   <data name="BottomBorderPanel.Size" type="System.Drawing.Size, System.Drawing">
-    <value>1116, 5</value>
+    <value>1541, 5</value>
   </data>
   <data name="BottomBorderPanel.TabIndex" type="System.Int32, mscorlib">
     <value>12</value>
@@ -643,22 +643,22 @@
     <value>System.Windows.Forms.Panel, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="&gt;&gt;BottomBorderPanel.Parent" xml:space="preserve">
-    <value>$this</value>
+    <value>MiddlePanel</value>
   </data>
   <data name="&gt;&gt;BottomBorderPanel.ZOrder" xml:space="preserve">
-    <value>6</value>
+    <value>2</value>
   </data>
-  <data name="LeftBorderPanel.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
-    <value>Top, Bottom, Left</value>
+  <data name="LeftBorderPanel.Dock" type="System.Windows.Forms.DockStyle, System.Windows.Forms">
+    <value>Left</value>
   </data>
   <data name="LeftBorderPanel.Location" type="System.Drawing.Point, System.Drawing">
-    <value>0, 5</value>
+    <value>0, 0</value>
   </data>
   <data name="LeftBorderPanel.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
-    <value>3, 2, 3, 2</value>
+    <value>0, 0, 0, 0</value>
   </data>
   <data name="LeftBorderPanel.Size" type="System.Drawing.Size, System.Drawing">
-    <value>4, 615</value>
+    <value>5, 1004</value>
   </data>
   <data name="LeftBorderPanel.TabIndex" type="System.Int32, mscorlib">
     <value>13</value>
@@ -673,19 +673,19 @@
     <value>$this</value>
   </data>
   <data name="&gt;&gt;LeftBorderPanel.ZOrder" xml:space="preserve">
-    <value>5</value>
+    <value>3</value>
   </data>
-  <data name="RightBorderPanel.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
-    <value>Top, Bottom, Right</value>
+  <data name="RightBorderPanel.Dock" type="System.Windows.Forms.DockStyle, System.Windows.Forms">
+    <value>Right</value>
   </data>
   <data name="RightBorderPanel.Location" type="System.Drawing.Point, System.Drawing">
-    <value>1120, 5</value>
+    <value>1546, 0</value>
   </data>
   <data name="RightBorderPanel.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
     <value>3, 2, 3, 2</value>
   </data>
   <data name="RightBorderPanel.Size" type="System.Drawing.Size, System.Drawing">
-    <value>4, 615</value>
+    <value>5, 1004</value>
   </data>
   <data name="RightBorderPanel.TabIndex" type="System.Int32, mscorlib">
     <value>14</value>
@@ -700,11 +700,35 @@
     <value>$this</value>
   </data>
   <data name="&gt;&gt;RightBorderPanel.ZOrder" xml:space="preserve">
-    <value>4</value>
+    <value>2</value>
   </data>
-  <metadata name="vS2005Theme1.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>572, 17</value>
-  </metadata>
+  <data name="MiddlePanel.Dock" type="System.Windows.Forms.DockStyle, System.Windows.Forms">
+    <value>Fill</value>
+  </data>
+  <data name="MiddlePanel.Location" type="System.Drawing.Point, System.Drawing">
+    <value>5, 0</value>
+  </data>
+  <data name="MiddlePanel.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
+    <value>0, 0, 0, 0</value>
+  </data>
+  <data name="MiddlePanel.Size" type="System.Drawing.Size, System.Drawing">
+    <value>1541, 1004</value>
+  </data>
+  <data name="MiddlePanel.TabIndex" type="System.Int32, mscorlib">
+    <value>0</value>
+  </data>
+  <data name="&gt;&gt;MiddlePanel.Name" xml:space="preserve">
+    <value>MiddlePanel</value>
+  </data>
+  <data name="&gt;&gt;MiddlePanel.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Panel, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;MiddlePanel.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;MiddlePanel.ZOrder" xml:space="preserve">
+    <value>1</value>
+  </data>
   <metadata name="$this.Localizable" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
     <value>True</value>
   </metadata>
@@ -712,7 +736,7 @@
     <value>9, 20</value>
   </data>
   <data name="$this.ClientSize" type="System.Drawing.Size, System.Drawing">
-    <value>1125, 625</value>
+    <value>1551, 1004</value>
   </data>
   <data name="$this.Location" type="System.Drawing.Point, System.Drawing">
     <value>0, 0</value>
@@ -721,7 +745,7 @@
     <value>3, 2, 3, 2</value>
   </data>
   <data name="$this.MinimumSize" type="System.Drawing.Size, System.Drawing">
-    <value>1125, 625</value>
+    <value>400, 60</value>
   </data>
   <data name="$this.StartPosition" type="System.Windows.Forms.FormStartPosition, System.Windows.Forms">
     <value>CenterScreen</value>
@@ -794,12 +818,6 @@
   </data>
   <data name="&gt;&gt;DecorationToolTip.Type" xml:space="preserve">
     <value>System.Windows.Forms.ToolTip, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;vS2005Theme1.Name" xml:space="preserve">
-    <value>vS2005Theme1</value>
-  </data>
-  <data name="&gt;&gt;vS2005Theme1.Type" xml:space="preserve">
-    <value>WeifenLuo.WinFormsUI.Docking.VS2005Theme, WeifenLuo.WinFormsUI.Docking, Version=2.16.0.0, Culture=neutral, PublicKeyToken=5cded1a1a0a7b481</value>
   </data>
   <data name="&gt;&gt;$this.Name" xml:space="preserve">
     <value>TheraForm</value>

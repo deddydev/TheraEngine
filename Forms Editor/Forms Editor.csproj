@@ -92,13 +92,44 @@
     <Reference Include="WeifenLuo.WinFormsUI.Docking, Version=2.16.0.0, Culture=neutral, PublicKeyToken=5cded1a1a0a7b481, processorArchitecture=MSIL">
       <HintPath>..\packages\DockPanelSuite.2.16.1\lib\net40\WeifenLuo.WinFormsUI.Docking.dll</HintPath>
     </Reference>
+    <Reference Include="WeifenLuo.WinFormsUI.Docking.ThemeVS2015">
+      <HintPath>..\Libraries\WeifenLuo.WinFormsUI.Docking.ThemeVS2015.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="EditorGameMode.cs" />
     <Compile Include="Windows\BorderlessForm\TheraForm.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Windows\BorderlessForm\TheraForm.Designer.cs">
       <DependentUpon>TheraForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\Forms\Editor Forms\DockablePropertyGrid.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Windows\Forms\Editor Forms\DockablePropertyGrid.Designer.cs">
+      <DependentUpon>DockablePropertyGrid.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\Forms\Editor Forms\DockableFileTree.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Windows\Forms\Editor Forms\DockableFileTree.Designer.cs">
+      <DependentUpon>DockableFileTree.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\Forms\Editor Forms\DockableActorTree.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Windows\Forms\Editor Forms\DockableActorTree.Designer.cs">
+      <DependentUpon>DockableActorTree.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\Forms\Editor Forms\DockableRenderForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Windows\Forms\Editor Forms\DockableRenderForm.Designer.cs">
+      <DependentUpon>DockableRenderForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\Forms\Editor Forms\TheraEditorTheme.cs">
+      <SubType>Component</SubType>
     </Compile>
     <Compile Include="Windows\Forms\Editor.cs">
       <SubType>Form</SubType>
@@ -113,6 +144,12 @@
     </Compile>
     <Compile Include="Windows\BorderlessForm\Native.cs" />
     <Compile Include="Core\Extensions\ToolStripItemExtension.cs" />
+    <Compile Include="Windows\Forms\GenericSelector.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Windows\Forms\GenericSelector.Designer.cs">
+      <DependentUpon>GenericSelector.cs</DependentUpon>
+    </Compile>
     <Compile Include="Windows\Forms\MaterialEditor.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -146,6 +183,18 @@
     <EmbeddedResource Include="Windows\BorderlessForm\TheraForm.resx">
       <DependentUpon>TheraForm.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Windows\Forms\Editor Forms\DockablePropertyGrid.resx">
+      <DependentUpon>DockablePropertyGrid.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Windows\Forms\Editor Forms\DockableFileTree.resx">
+      <DependentUpon>DockableFileTree.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Windows\Forms\Editor Forms\DockableActorTree.resx">
+      <DependentUpon>DockableActorTree.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Windows\Forms\Editor Forms\DockableRenderForm.resx">
+      <DependentUpon>DockableRenderForm.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Windows\Forms\Editor.es.resx">
       <DependentUpon>Editor.cs</DependentUpon>
     </EmbeddedResource>
@@ -154,6 +203,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Windows\Forms\Editor.resx">
       <DependentUpon>Editor.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Windows\Forms\GenericSelector.resx">
+      <DependentUpon>GenericSelector.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Windows\Forms\MaterialEditor.resx">
       <DependentUpon>MaterialEditor.cs</DependentUpon>

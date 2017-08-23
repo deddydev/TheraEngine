@@ -1,21 +1,9 @@
 ﻿using BorderlessForm;
 using System;
 using System.ComponentModel;
-using System.Data;
 using System.Drawing;
-using System.IO;
-using System.Linq;
-using System.Reflection;
-using System.Runtime.InteropServices;
 using System.Windows.Forms;
-using TheraEditor.Wrappers;
 using TheraEngine;
-using TheraEngine.Files;
-using TheraEngine.Input.Devices;
-using TheraEngine.Tests;
-using TheraEngine.Timers;
-using TheraEngine.Worlds;
-using TheraEngine.Worlds.Actors;
 
 namespace TheraEditor.Windows.Forms
 {
@@ -27,49 +15,45 @@ namespace TheraEditor.Windows.Forms
             InitBorderless();
         }
         
-        #region Borderless Form
+        private FormWindowState _previousWindowState;
+        
+        [Category("Appearance")]
+        [Description("")]
+        [Browsable(true), EditorBrowsable]
+        public Color HoverTextColor { get; set; } = Color.FromArgb(62, 109, 181);
+        [Category("Appearance")]
+        [Description("")]
+        [Browsable(true), EditorBrowsable]
+        public Color DownTextColor { get; set; } = Color.FromArgb(25, 71, 138);
+        [Category("Appearance")]
+        [Description("")]
+        [Browsable(true), EditorBrowsable]
+        public Color HoverBackColor { get; set; } = Color.FromArgb(213, 225, 242);
+        [Category("Appearance")]
+        [Description("")]
+        [Browsable(true), EditorBrowsable]
+        public Color DownBackColor { get; set; } = Color.FromArgb(163, 189, 227);
+        [Category("Appearance")]
+        [Description("")]
+        [Browsable(true), EditorBrowsable]
+        public Color NormalWindowBackColor { get; set; } = Color.Transparent;
 
-        private FormWindowState previousWindowState;
-
-        private Color hoverTextColor = Color.FromArgb(62, 109, 181);
-
-        public Color HoverTextColor
-        {
-            get { return hoverTextColor; }
-            set { hoverTextColor = value; }
-        }
-
-        private Color downTextColor = Color.FromArgb(25, 71, 138);
-
-        public Color DownTextColor
-        {
-            get { return downTextColor; }
-            set { downTextColor = value; }
-        }
-
-        private Color hoverBackColor = Color.FromArgb(213, 225, 242);
-
-        public Color HoverBackColor
-        {
-            get { return hoverBackColor; }
-            set { hoverBackColor = value; }
-        }
-
-        private Color downBackColor = Color.FromArgb(163, 189, 227);
-
-        public Color DownBackColor
-        {
-            get { return downBackColor; }
-            set { downBackColor = value; }
-        }
-
-        private Color normalBackColor = Color.White;
-
-        public Color NormalBackColor
-        {
-            get { return normalBackColor; }
-            set { normalBackColor = value; }
-        }
+        [Category("Appearance")]
+        [Description("")]
+        [Browsable(true), EditorBrowsable]
+        public Color ActiveBorderColor { get; set; } = Color.FromArgb(150, 192, 192);
+        [Category("Appearance")]
+        [Description("")]
+        [Browsable(true), EditorBrowsable]
+        public Color InactiveBorderColor { get; set; } = Color.FromArgb(131, 131, 131);
+        [Category("Appearance")]
+        [Description("")]
+        [Browsable(true), EditorBrowsable]
+        public Color ActiveTextColor { get; set; } = Color.FromArgb(224, 224, 224);
+        [Category("Appearance")]
+        [Description("")]
+        [Browsable(true), EditorBrowsable]
+        public Color InactiveTextColor { get; set; } = Color.FromArgb(177, 177, 177);
 
         public enum MouseState
         {
@@ -78,20 +62,20 @@ namespace TheraEditor.Windows.Forms
             Down
         }
 
-        protected void SetLabelColors(Control control, MouseState state)
+        protected virtual void SetLabelColors(Control control, MouseState state)
         {
             if (!ContainsFocus) return;
 
             var textColor = ActiveTextColor;
-            var backColor = NormalBackColor;
+            var backColor = Color.FromArgb(150, 192, 192);
 
             switch (state)
             {
-                case MouseState.Normal:
-                    textColor = Color.FromArgb(224, 224, 224);
-                    backColor = Color.Transparent;
-                    //Cursor = Cursors.Default;
-                    break;
+                //case MouseState.Normal:
+                //    textColor = ActiveTextColor;
+                //    backColor = Color.Transparent;
+                //    //Cursor = Cursors.Default;
+                //    break;
                 case MouseState.Hover:
                     textColor = HoverTextColor;
                     backColor = HoverBackColor;
@@ -107,12 +91,8 @@ namespace TheraEditor.Windows.Forms
             control.ForeColor = textColor;
             control.BackColor = backColor;
         }
-
-        public void InitBorderless()
+        private void InitBorderless()
         {
-            Activated += MainForm_Activated;
-            Deactivate += MainForm_Deactivate;
-
             foreach (var control in new[] { MinimizeLabel, MaximizeLabel, CloseLabel })
             {
                 control.MouseEnter += (s, e) => SetLabelColors((Control)s, MouseState.Hover);
@@ -143,70 +123,37 @@ namespace TheraEditor.Windows.Forms
             
             MinimizeLabel.MouseClick += (s, e) => { if (e.Button == MouseButtons.Left) WindowState = FormWindowState.Minimized; };
             MaximizeLabel.MouseClick += (s, e) => { if (e.Button == MouseButtons.Left) ToggleMaximize(); };
-            previousWindowState = MinMaxState;
-            SizeChanged += MainForm_SizeChanged;
+            _previousWindowState = MinMaxState;
+            SizeChanged += FormSizeChanged;
             CloseLabel.MouseClick += (s, e) => Close(e);
         }
-        
-        void Close(MouseEventArgs e)
+
+        protected virtual void Close(MouseEventArgs e)
         {
             if (e.Button == MouseButtons.Left) Close();
         }
 
-        void DecorationMouseDown(MouseEventArgs e, HitTestValues h)
+        protected virtual void DecorationMouseDown(MouseEventArgs e, HitTestValues h)
         {
             if (e.Button == MouseButtons.Left) DecorationMouseDown(h);
         }
 
-        private Color activeBorderColor = Color.FromArgb(150, 192, 192);
-
-        public Color ActiveBorderColor
+        protected override void OnDeactivate(EventArgs e)
         {
-            get { return activeBorderColor; }
-            set { activeBorderColor = value; }
-        }
-
-        private Color inactiveBorderColor = Color.FromArgb(131, 131, 131);
-
-        public Color InactiveBorderColor
-        {
-            get { return inactiveBorderColor; }
-            set { inactiveBorderColor = value; }
-        }
-
-        void MainForm_Deactivate(object sender, EventArgs e)
-        {
+            Program.FocusChanged();
             SetBorderColor(InactiveBorderColor);
             SetTextColor(InactiveTextColor);
-            Engine.TargetRenderFreq = 3.0f;
-            Engine.TargetUpdateFreq = 3.0f;
-            //MainPanel.Enabled = false;
+            base.OnDeactivate(e);
         }
-
-        void MainForm_Activated(object sender, EventArgs e)
+        protected override void OnActivated(EventArgs e)
         {
+            Program.FocusChanged();
             SetBorderColor(ActiveBorderColor);
             SetTextColor(ActiveTextColor);
-            //MainPanel.Enabled = true;
+            base.OnActivated(e);
         }
-
-        private Color activeTextColor = Color.FromArgb(224, 224, 224);
-
-        public Color ActiveTextColor
-        {
-            get { return activeTextColor; }
-            set { activeTextColor = value; }
-        }
-
-        private Color inactiveTextColor = Color.FromArgb(177, 177, 177);
-
-        public Color InactiveTextColor
-        {
-            get { return inactiveTextColor; }
-            set { inactiveTextColor = value; }
-        }
-
-        protected void SetBorderColor(Color color)
+        
+        protected virtual void SetBorderColor(Color color)
         {
             TopLeftBorderPanel.BackColor = color;
             TopBorderPanel.BackColor = color;
@@ -221,7 +168,7 @@ namespace TheraEditor.Windows.Forms
             CloseLabel.BackColor = color;
         }
 
-        protected void SetTextColor(Color color)
+        protected virtual void SetTextColor(Color color)
         {
             //SystemLabel.ForeColor = color;
             FormTitle.ForeColor = color;
@@ -230,53 +177,24 @@ namespace TheraEditor.Windows.Forms
             CloseLabel.ForeColor = color;
         }
 
-        void MainForm_SizeChanged(object sender, EventArgs e)
+        protected virtual void FormSizeChanged(object sender, EventArgs e)
         {
             var maximized = MinMaxState == FormWindowState.Maximized;
             MaximizeLabel.Text = maximized ? "2" : "1";
 
-            var panels = new[] { TopLeftBorderPanel, TopRightBorderPanel, BottomLeftBorderPanel, BottomRightBorderPanel,
-                TopBorderPanel, LeftBorderPanel, RightBorderPanel, BottomBorderPanel };
+            var panels = new[]
+            {
+                TopLeftBorderPanel, TopRightBorderPanel, BottomLeftBorderPanel, BottomRightBorderPanel,
+                TopBorderPanel, LeftBorderPanel, RightBorderPanel, BottomBorderPanel
+            };
 
             foreach (var panel in panels)
-            {
                 panel.Visible = !maximized;
-            }
 
-            if (previousWindowState != MinMaxState)
-            {
-                //if (maximized)
-                //{
-                //    CloseLabel.Left += RightBorderPanel.Width;
-                //    CloseLabel.Top = 0;
-                //    MaximizeLabel.Left += RightBorderPanel.Width;
-                //    MaximizeLabel.Top = 0;
-                //    MinimizeLabel.Left += RightBorderPanel.Width;
-                //    MinimizeLabel.Top = 0;
-                //    //FormTitle.Left -= LeftBorderPanel.Width;
-                //    //FormTitle.Width += LeftBorderPanel.Width + RightBorderPanel.Width;
-                //    //FormTitle.Top = 0;
-                //}
-                //else if (previousWindowState == FormWindowState.Maximized)
-                //{
-                //    //SystemLabel.Left = LeftBorderPanel.Width;
-                //    //SystemLabel.Top = TopBorderPanel.Height;
-                //    CloseLabel.Left -= RightBorderPanel.Width;
-                //    CloseLabel.Top = TopBorderPanel.Height;
-                //    MaximizeLabel.Left -= RightBorderPanel.Width;
-                //    MaximizeLabel.Top = TopBorderPanel.Height;
-                //    MinimizeLabel.Left -= RightBorderPanel.Width;
-                //    MinimizeLabel.Top = TopBorderPanel.Height;
-                //    //FormTitle.Left += LeftBorderPanel.Width;
-                //    //FormTitle.Width -= LeftBorderPanel.Width + RightBorderPanel.Width;
-                //    //FormTitle.Top = TopBorderPanel.Height;
-                //}
-
-                previousWindowState = MinMaxState;
-            }
+            _previousWindowState = MinMaxState;
         }
 
-        private FormWindowState ToggleMaximize()
+        public FormWindowState ToggleMaximize()
         {
             return WindowState = WindowState == FormWindowState.Maximized ? FormWindowState.Normal : FormWindowState.Maximized;
         }
@@ -284,7 +202,7 @@ namespace TheraEditor.Windows.Forms
         private DateTime titleClickTime = DateTime.MinValue;
         private Point titleClickPosition = Point.Empty;
 
-        void TitleLabel_MouseDown(object sender, MouseEventArgs e)
+        protected virtual void TitleLabel_MouseDown(object sender, MouseEventArgs e)
         {
             if (e.Button == MouseButtons.Left)
             {
@@ -299,14 +217,17 @@ namespace TheraEditor.Windows.Forms
                 }
             }
         }
-
-        #endregion
-
+        
         protected class TheraToolstripRenderer : ToolStripProfessionalRenderer
         {
             public TheraToolstripRenderer() : base(new TheraColorTable())
             {
                 RoundedEdges = false;
+            }
+            protected override void OnRenderItemText(ToolStripItemTextRenderEventArgs e)
+            {
+                e.TextColor = Color.FromArgb(224, 224, 224);
+                base.OnRenderItemText(e);
             }
         }
         public class TheraColorTable : ProfessionalColorTable

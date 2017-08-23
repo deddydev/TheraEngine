@@ -19,6 +19,7 @@ namespace TheraEditor.Controls
             Engine.SetGame(game);
             InitializeComponent();
             FormsHost.Child = _panel = new RenderPanel();
+            Engine.SetGamePanel(RenderPanel, false);
             Engine.Initialize(_panel);
             Engine.Run();
         }

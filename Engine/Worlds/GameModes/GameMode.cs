@@ -5,6 +5,8 @@ using System;
 using System.Collections.Generic;
 using TheraEngine.Input.Devices;
 using System.Linq;
+using TheraEngine.Rendering;
+using System.ComponentModel;
 
 namespace TheraEngine.GameModes
 {
@@ -89,6 +91,7 @@ namespace TheraEngine.GameModes
         void EndGameplay();
         void AbortGameplay();
     }
+    [FileClass("MODE", "World Game Mode")]
     public abstract class BaseGameMode : FileObject, IGameMode
     {
         private bool _disallowPausing = false;
@@ -169,10 +172,18 @@ namespace TheraEngine.GameModes
         }
         protected internal override void HandleLocalPlayerLeft(LocalPlayerController item)
         {
-
+            RenderPanel.GamePanel?.RemoveViewport(item);
         }
         protected internal override void HandleLocalPlayerJoined(LocalPlayerController item)
         {
+            RenderPanel p = RenderPanel.GamePanel;
+            if (p != null)
+            {
+                Viewport v = p.GetViewport((int)item.LocalPlayerIndex) ?? p.AddViewport();
+                if (v != null)
+                    v.Owner = item;
+            }
+
             PawnType pawn = _pawnClass.CreateNew();
             if (item.ControlledPawn == null)
                 item.ControlledPawn = pawn;

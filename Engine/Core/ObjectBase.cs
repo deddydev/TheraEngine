@@ -94,19 +94,20 @@ namespace TheraEngine
             get => _editorState;
             set => _editorState = value;
         }
+#endif
 
         [Serialize]
-        [Browsable(true)]
+        [Browsable(false)]
         [Category("Object")]
         public List<AnimationContainer> Animations
         {
             get => _animations;
             set => _animations = value;
         }
-#endif
 
         [Serialize]
         [Browsable(false)]
+        [Category("Object")]
         public object UserData
         {
             get => _userData;

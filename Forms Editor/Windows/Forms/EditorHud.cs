@@ -17,12 +17,11 @@ namespace TheraEditor.Windows.Forms
 {
     public class EditorHud : HudManager
     {
-        public EditorHud(Vec2 bounds, Editor owner) : base(bounds)
+        public EditorHud(Vec2 bounds) : base(bounds)
         {
-            _editor = owner;
-        }
 
-        private Editor _editor;
+        }
+        
         private HighlightPoint _highlightPoint;
         RigidBody _pickedBody;
         Point2PointConstraint _currentConstraint;
@@ -31,9 +30,7 @@ namespace TheraEditor.Windows.Forms
         private float _toolSize = 2.0f;
         private SceneComponent _selectedComponent, _dragComponent;
         private bool _mouseDown;
-
-        [Browsable(false)]
-        public Editor Editor => _editor;
+        
         public SceneComponent HighlightedComponent
         {
             get => _highlightPoint.HighlightedComponent;
@@ -169,10 +166,42 @@ namespace TheraEditor.Windows.Forms
         {
             if (_dragComponent != null)
             {
-                SceneComponent comp = v.PickScene(viewportPoint, true, true, out Vec3 hitNormal, out _hitPoint, out _hitDistance);
-                Vec3 right = v.Camera.GetForwardVector() ^ hitNormal, up = hitNormal, forward = up ^ right, translation = _hitPoint;
-                Matrix4 m = new Matrix4(new Vec4(right, 0.0f), new Vec4(up, 0.0f), new Vec4(forward, 0.0f), new Vec4(translation, 1.0f));
-                _dragComponent.WorldMatrix = m;
+                Vec3 hitNormal;
+                SceneComponent comp;
+
+                float prevHitDist = _hitDistance;
+                IPhysicsDrivable p = _dragComponent as IPhysicsDrivable;
+                if (p != null)
+                    comp = v.PickScene(viewportPoint, true, true, out hitNormal, out _hitPoint, out _hitDistance, p.PhysicsDriver.CollisionObject);
+                else
+                    comp = v.PickScene(viewportPoint, true, true, out hitNormal, out _hitPoint, out _hitDistance);
+
+                float upDist = 0.0f;
+                Vec3 forwardCameraVector = v.Camera.GetForwardVector();
+                if (comp == null)
+                {
+                    hitNormal = Vec3.Up;// v.Camera.GetUpVector();
+                    _hitDistance = prevHitDist;
+                    _hitPoint = v.Camera.WorldPoint + forwardCameraVector * _hitDistance;
+                }
+                else if (p != null)
+                {
+                    
+                }
+
+                Vec3 
+                    right = forwardCameraVector ^ hitNormal, 
+                    up = hitNormal,
+                    forward = right ^ up,
+                    translation = _hitPoint;
+
+                right.NormalizeFast();
+                up.NormalizeFast();
+                forward.NormalizeFast();
+
+                translation += up * upDist;
+
+                _dragComponent.WorldMatrix = Matrix4.CreateSpacialTransform(translation, right, up, forward);
             }
             else if (_selectedComponent != null)
             {
@@ -261,7 +290,10 @@ namespace TheraEditor.Windows.Forms
                         if (UseTransformTool)
                             EditorTransformTool3D.GetInstance(_selectedComponent, _transformType);
                         else
-                           _dragComponent = _selectedComponent;
+                        {
+                            _dragComponent = _selectedComponent;
+                            _hitDistance = 20.0f;
+                        }
                     }
 
                     TreeNode t = _selectedComponent.OwningActor.EditorState.TreeNode;

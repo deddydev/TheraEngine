@@ -7,13 +7,14 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Windows.Forms;
+using WeifenLuo.WinFormsUI.Docking;
 
 namespace BorderlessForm
 {
     /// <summary>
     /// Based on http://customerborderform.codeplex.com/
     /// </summary>
-    public class BorderlessFormBase : Form
+    public class BorderlessFormBase : DockContent
     {
         public void DecorationMouseDown(HitTestValues hit, Point p)
         {
@@ -170,8 +171,10 @@ namespace BorderlessForm
                 r.right -= w;
                 r.bottom -= h;
 
-                var appBarData = new APPBARDATA();
-                appBarData.cbSize = Marshal.SizeOf(typeof(APPBARDATA));
+                var appBarData = new APPBARDATA()
+                {
+                    cbSize = Marshal.SizeOf(typeof(APPBARDATA))
+                };
                 var autohide = (NativeMethods.SHAppBarMessage(NativeConstants.ABM_GETSTATE, ref appBarData) & NativeConstants.ABS_AUTOHIDE) != 0;
                 if (autohide) r.bottom -= 1;
 

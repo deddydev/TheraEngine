@@ -43,12 +43,14 @@
             this.btnUserSettings = new System.Windows.Forms.ToolStripMenuItem();
             this.btnWorldSettings = new System.Windows.Forms.ToolStripMenuItem();
             this.viewToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.btnViewViewport = new System.Windows.Forms.ToolStripMenuItem();
+            this.btnViewActorTree = new System.Windows.Forms.ToolStripMenuItem();
+            this.btnViewFileTree = new System.Windows.Forms.ToolStripMenuItem();
+            this.btnViewTools = new System.Windows.Forms.ToolStripMenuItem();
+            this.btnViewPropertyGrid = new System.Windows.Forms.ToolStripMenuItem();
             this.gameToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.btPlay = new System.Windows.Forms.ToolStripMenuItem();
             this.btnCompile = new System.Windows.Forms.ToolStripMenuItem();
-            this.leftPanel = new System.Windows.Forms.Panel();
-            this.panel4 = new System.Windows.Forms.Panel();
-            this.contentTree = new TheraEditor.Windows.Forms.ResourceTree();
             this.ctxContentTree = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.BtnImportFile = new System.Windows.Forms.ToolStripMenuItem();
             this.btnImportModel = new System.Windows.Forms.ToolStripMenuItem();
@@ -60,73 +62,58 @@
             this.btnNewSceneComponent = new System.Windows.Forms.ToolStripMenuItem();
             this.btnNewLogicComponent = new System.Windows.Forms.ToolStripMenuItem();
             this.btnNewMaterial = new System.Windows.Forms.ToolStripMenuItem();
-            this.label1 = new System.Windows.Forms.Label();
-            this.splitter4 = new System.Windows.Forms.Splitter();
-            this.panel2 = new System.Windows.Forms.Panel();
-            this.tabControl1 = new System.Windows.Forms.TabControl();
-            this.tabPage1 = new System.Windows.Forms.TabPage();
-            this.bspItems = new System.Windows.Forms.FlowLayoutPanel();
-            this.tabPage2 = new System.Windows.Forms.TabPage();
-            this.button2 = new System.Windows.Forms.Button();
-            this.button1 = new System.Windows.Forms.Button();
-            this.rightSplitter = new System.Windows.Forms.Splitter();
-            this.renderPanel1 = new TheraEngine.RenderPanel();
-            this.actorTree = new System.Windows.Forms.TreeView();
-            this.leftSplitter = new System.Windows.Forms.Splitter();
-            this.rightPanel = new System.Windows.Forms.Panel();
-            this.panel3 = new System.Windows.Forms.Panel();
-            this.label2 = new System.Windows.Forms.Label();
-            this.splitter3 = new System.Windows.Forms.Splitter();
-            this.panel1 = new System.Windows.Forms.Panel();
-            this.actorPropertyGrid = new System.Windows.Forms.PropertyGrid();
-            this.label3 = new System.Windows.Forms.Label();
-            this.BodyPanel = new System.Windows.Forms.Panel();
-            this.TitlePanel = new System.Windows.Forms.Panel();
             this.TheraEngineText = new System.Windows.Forms.Label();
-            this.pictureBox1 = new System.Windows.Forms.PictureBox();
-            this.FormTitle = new System.Windows.Forms.Label();
-            this.MinimizeLabel = new System.Windows.Forms.Label();
-            this.MaximizeLabel = new System.Windows.Forms.Label();
-            this.CloseLabel = new System.Windows.Forms.Label();
-            this.TitlePadding = new System.Windows.Forms.Panel();
-            this.MainPanel = new System.Windows.Forms.Panel();
             this.DecorationToolTip = new System.Windows.Forms.ToolTip(this.components);
-            this.TopLeftBorderPanel = new System.Windows.Forms.Panel();
-            this.TopRightBorderPanel = new System.Windows.Forms.Panel();
-            this.BottomRightBorderPanel = new System.Windows.Forms.Panel();
-            this.BottomLeftBorderPanel = new System.Windows.Forms.Panel();
-            this.TopBorderPanel = new System.Windows.Forms.Panel();
-            this.BottomBorderPanel = new System.Windows.Forms.Panel();
-            this.LeftBorderPanel = new System.Windows.Forms.Panel();
-            this.RightBorderPanel = new System.Windows.Forms.Panel();
-            this.vS2005Theme1 = new WeifenLuo.WinFormsUI.Docking.VS2005Theme();
-            this.menuStrip1.SuspendLayout();
-            this.leftPanel.SuspendLayout();
-            this.panel4.SuspendLayout();
-            this.ctxContentTree.SuspendLayout();
-            this.panel2.SuspendLayout();
-            this.tabControl1.SuspendLayout();
-            this.tabPage1.SuspendLayout();
-            this.tabPage2.SuspendLayout();
-            this.rightPanel.SuspendLayout();
-            this.panel3.SuspendLayout();
-            this.panel1.SuspendLayout();
+            this.DockPanel = new WeifenLuo.WinFormsUI.Docking.DockPanel();
+            this.viewport1ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.viewport2ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.viewport3ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.viewport4ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.BodyPanel.SuspendLayout();
-            this.TitlePanel.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.MainPanel.SuspendLayout();
+            this.TitlePanel.SuspendLayout();
+            this.MiddlePanel.SuspendLayout();
+            this.menuStrip1.SuspendLayout();
+            this.ctxContentTree.SuspendLayout();
             this.SuspendLayout();
+            // 
+            // BodyPanel
+            // 
+            this.BodyPanel.Controls.Add(this.DockPanel);
+            resources.ApplyResources(this.BodyPanel, "BodyPanel");
+            // 
+            // MainPanel
+            // 
+            resources.ApplyResources(this.MainPanel, "MainPanel");
+            // 
+            // TitlePanel
+            // 
+            this.TitlePanel.Controls.Add(this.menuStrip1);
+            this.TitlePanel.Controls.Add(this.TheraEngineText);
+            resources.ApplyResources(this.TitlePanel, "TitlePanel");
+            this.TitlePanel.Controls.SetChildIndex(this.TheraEngineText, 0);
+            this.TitlePanel.Controls.SetChildIndex(this.menuStrip1, 0);
+            this.TitlePanel.Controls.SetChildIndex(this.FormTitle, 0);
+            // 
+            // FormTitle
+            // 
+            resources.ApplyResources(this.FormTitle, "FormTitle");
+            // 
+            // MiddlePanel
+            // 
+            resources.ApplyResources(this.MiddlePanel, "MiddlePanel");
             // 
             // menuStrip1
             // 
-            resources.ApplyResources(this.menuStrip1, "menuStrip1");
             this.menuStrip1.BackColor = System.Drawing.Color.Transparent;
+            resources.ApplyResources(this.menuStrip1, "menuStrip1");
             this.menuStrip1.ImageScalingSize = new System.Drawing.Size(24, 24);
             this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.fileToolStripMenuItem,
             this.editToolStripMenuItem,
             this.viewToolStripMenuItem,
             this.gameToolStripMenuItem});
+            this.menuStrip1.LayoutStyle = System.Windows.Forms.ToolStripLayoutStyle.Flow;
             this.menuStrip1.Name = "menuStrip1";
             this.menuStrip1.RenderMode = System.Windows.Forms.ToolStripRenderMode.Professional;
             // 
@@ -209,9 +196,48 @@
             // 
             // viewToolStripMenuItem
             // 
+            this.viewToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.btnViewViewport,
+            this.btnViewActorTree,
+            this.btnViewFileTree,
+            this.btnViewTools,
+            this.btnViewPropertyGrid});
             this.viewToolStripMenuItem.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
             this.viewToolStripMenuItem.Name = "viewToolStripMenuItem";
             resources.ApplyResources(this.viewToolStripMenuItem, "viewToolStripMenuItem");
+            // 
+            // btnViewViewport
+            // 
+            this.btnViewViewport.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.viewport1ToolStripMenuItem,
+            this.viewport2ToolStripMenuItem,
+            this.viewport3ToolStripMenuItem,
+            this.viewport4ToolStripMenuItem});
+            this.btnViewViewport.Name = "btnViewViewport";
+            resources.ApplyResources(this.btnViewViewport, "btnViewViewport");
+            // 
+            // btnViewActorTree
+            // 
+            this.btnViewActorTree.Name = "btnViewActorTree";
+            resources.ApplyResources(this.btnViewActorTree, "btnViewActorTree");
+            this.btnViewActorTree.Click += new System.EventHandler(this.btnViewActorTree_Click);
+            // 
+            // btnViewFileTree
+            // 
+            this.btnViewFileTree.Name = "btnViewFileTree";
+            resources.ApplyResources(this.btnViewFileTree, "btnViewFileTree");
+            this.btnViewFileTree.Click += new System.EventHandler(this.btnViewFileTree_Click);
+            // 
+            // btnViewTools
+            // 
+            this.btnViewTools.Name = "btnViewTools";
+            resources.ApplyResources(this.btnViewTools, "btnViewTools");
+            // 
+            // btnViewPropertyGrid
+            // 
+            this.btnViewPropertyGrid.Name = "btnViewPropertyGrid";
+            resources.ApplyResources(this.btnViewPropertyGrid, "btnViewPropertyGrid");
+            this.btnViewPropertyGrid.Click += new System.EventHandler(this.btnViewPropertyGrid_Click);
             // 
             // gameToolStripMenuItem
             // 
@@ -232,34 +258,6 @@
             // 
             this.btnCompile.Name = "btnCompile";
             resources.ApplyResources(this.btnCompile, "btnCompile");
-            // 
-            // leftPanel
-            // 
-            this.leftPanel.Controls.Add(this.panel4);
-            this.leftPanel.Controls.Add(this.splitter4);
-            this.leftPanel.Controls.Add(this.panel2);
-            resources.ApplyResources(this.leftPanel, "leftPanel");
-            this.leftPanel.Name = "leftPanel";
-            // 
-            // panel4
-            // 
-            this.panel4.Controls.Add(this.contentTree);
-            this.panel4.Controls.Add(this.label1);
-            resources.ApplyResources(this.panel4, "panel4");
-            this.panel4.Name = "panel4";
-            // 
-            // contentTree
-            // 
-            this.contentTree.AllowDrop = true;
-            this.contentTree.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(55)))), ((int)(((byte)(55)))), ((int)(((byte)(60)))));
-            this.contentTree.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.contentTree.ContextMenuStrip = this.ctxContentTree;
-            resources.ApplyResources(this.contentTree, "contentTree");
-            this.contentTree.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(170)))), ((int)(((byte)(170)))), ((int)(((byte)(170)))));
-            this.contentTree.LabelEdit = true;
-            this.contentTree.Name = "contentTree";
-            this.contentTree.SelectedNode = null;
-            this.contentTree.Sorted = true;
             // 
             // ctxContentTree
             // 
@@ -330,318 +328,58 @@
             this.btnNewMaterial.Name = "btnNewMaterial";
             resources.ApplyResources(this.btnNewMaterial, "btnNewMaterial");
             // 
-            // label1
-            // 
-            resources.ApplyResources(this.label1, "label1");
-            this.label1.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
-            this.label1.Name = "label1";
-            // 
-            // splitter4
-            // 
-            resources.ApplyResources(this.splitter4, "splitter4");
-            this.splitter4.Name = "splitter4";
-            this.splitter4.TabStop = false;
-            // 
-            // panel2
-            // 
-            this.panel2.Controls.Add(this.tabControl1);
-            resources.ApplyResources(this.panel2, "panel2");
-            this.panel2.Name = "panel2";
-            // 
-            // tabControl1
-            // 
-            this.tabControl1.Controls.Add(this.tabPage1);
-            this.tabControl1.Controls.Add(this.tabPage2);
-            resources.ApplyResources(this.tabControl1, "tabControl1");
-            this.tabControl1.Name = "tabControl1";
-            this.tabControl1.SelectedIndex = 0;
-            // 
-            // tabPage1
-            // 
-            this.tabPage1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(55)))), ((int)(((byte)(55)))), ((int)(((byte)(60)))));
-            this.tabPage1.Controls.Add(this.bspItems);
-            resources.ApplyResources(this.tabPage1, "tabPage1");
-            this.tabPage1.Name = "tabPage1";
-            // 
-            // bspItems
-            // 
-            resources.ApplyResources(this.bspItems, "bspItems");
-            this.bspItems.Name = "bspItems";
-            // 
-            // tabPage2
-            // 
-            this.tabPage2.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(55)))), ((int)(((byte)(55)))), ((int)(((byte)(60)))));
-            this.tabPage2.Controls.Add(this.button2);
-            this.tabPage2.Controls.Add(this.button1);
-            resources.ApplyResources(this.tabPage2, "tabPage2");
-            this.tabPage2.Name = "tabPage2";
-            // 
-            // button2
-            // 
-            resources.ApplyResources(this.button2, "button2");
-            this.button2.Name = "button2";
-            this.button2.UseVisualStyleBackColor = true;
-            // 
-            // button1
-            // 
-            resources.ApplyResources(this.button1, "button1");
-            this.button1.Name = "button1";
-            this.button1.UseVisualStyleBackColor = true;
-            // 
-            // rightSplitter
-            // 
-            this.rightSplitter.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(72)))), ((int)(((byte)(73)))), ((int)(((byte)(80)))));
-            resources.ApplyResources(this.rightSplitter, "rightSplitter");
-            this.rightSplitter.Name = "rightSplitter";
-            this.rightSplitter.TabStop = false;
-            // 
-            // renderPanel1
-            // 
-            resources.ApplyResources(this.renderPanel1, "renderPanel1");
-            this.renderPanel1.Name = "renderPanel1";
-            this.renderPanel1.VsyncMode = TheraEngine.VSyncMode.Adaptive;
-            this.renderPanel1.DragDrop += new System.Windows.Forms.DragEventHandler(this.RenderPanel1_DragDrop);
-            this.renderPanel1.DragEnter += new System.Windows.Forms.DragEventHandler(this.RenderPanel1_DragEnter);
-            this.renderPanel1.DragOver += new System.Windows.Forms.DragEventHandler(this.RenderPanel1_DragOver);
-            this.renderPanel1.DragLeave += new System.EventHandler(this.RenderPanel1_DragLeave);
-            this.renderPanel1.GiveFeedback += new System.Windows.Forms.GiveFeedbackEventHandler(this.RenderPanel1_GiveFeedback);
-            // 
-            // actorTree
-            // 
-            this.actorTree.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(55)))), ((int)(((byte)(55)))), ((int)(((byte)(60)))));
-            this.actorTree.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            resources.ApplyResources(this.actorTree, "actorTree");
-            this.actorTree.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(170)))), ((int)(((byte)(170)))), ((int)(((byte)(170)))));
-            this.actorTree.Name = "actorTree";
-            this.actorTree.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.ActorTree_AfterSelect);
-            // 
-            // leftSplitter
-            // 
-            this.leftSplitter.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(72)))), ((int)(((byte)(73)))), ((int)(((byte)(80)))));
-            resources.ApplyResources(this.leftSplitter, "leftSplitter");
-            this.leftSplitter.Name = "leftSplitter";
-            this.leftSplitter.TabStop = false;
-            // 
-            // rightPanel
-            // 
-            this.rightPanel.Controls.Add(this.panel3);
-            this.rightPanel.Controls.Add(this.splitter3);
-            this.rightPanel.Controls.Add(this.panel1);
-            resources.ApplyResources(this.rightPanel, "rightPanel");
-            this.rightPanel.Name = "rightPanel";
-            // 
-            // panel3
-            // 
-            this.panel3.Controls.Add(this.actorTree);
-            this.panel3.Controls.Add(this.label2);
-            resources.ApplyResources(this.panel3, "panel3");
-            this.panel3.Name = "panel3";
-            // 
-            // label2
-            // 
-            this.label2.BackColor = System.Drawing.Color.Transparent;
-            resources.ApplyResources(this.label2, "label2");
-            this.label2.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
-            this.label2.Name = "label2";
-            // 
-            // splitter3
-            // 
-            this.splitter3.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(72)))), ((int)(((byte)(73)))), ((int)(((byte)(80)))));
-            resources.ApplyResources(this.splitter3, "splitter3");
-            this.splitter3.Name = "splitter3";
-            this.splitter3.TabStop = false;
-            // 
-            // panel1
-            // 
-            this.panel1.Controls.Add(this.actorPropertyGrid);
-            this.panel1.Controls.Add(this.label3);
-            resources.ApplyResources(this.panel1, "panel1");
-            this.panel1.Name = "panel1";
-            // 
-            // actorPropertyGrid
-            // 
-            this.actorPropertyGrid.CategoryForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(170)))), ((int)(((byte)(170)))), ((int)(((byte)(170)))));
-            this.actorPropertyGrid.CategorySplitterColor = System.Drawing.Color.FromArgb(((int)(((byte)(150)))), ((int)(((byte)(192)))), ((int)(((byte)(192)))));
-            this.actorPropertyGrid.CommandsBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(192)))), ((int)(((byte)(255)))), ((int)(((byte)(255)))));
-            this.actorPropertyGrid.CommandsBorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(192)))), ((int)(((byte)(0)))), ((int)(((byte)(192)))));
-            this.actorPropertyGrid.CommandsDisabledLinkColor = System.Drawing.Color.FromArgb(((int)(((byte)(128)))), ((int)(((byte)(255)))), ((int)(((byte)(128)))));
-            this.actorPropertyGrid.CommandsForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(170)))), ((int)(((byte)(170)))), ((int)(((byte)(170)))));
-            this.actorPropertyGrid.DisabledItemForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(120)))), ((int)(((byte)(120)))), ((int)(((byte)(120)))));
-            resources.ApplyResources(this.actorPropertyGrid, "actorPropertyGrid");
-            this.actorPropertyGrid.HelpBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(82)))), ((int)(((byte)(83)))), ((int)(((byte)(90)))));
-            this.actorPropertyGrid.HelpBorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(150)))), ((int)(((byte)(192)))), ((int)(((byte)(192)))));
-            this.actorPropertyGrid.HelpForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(170)))), ((int)(((byte)(170)))), ((int)(((byte)(170)))));
-            this.actorPropertyGrid.LineColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
-            this.actorPropertyGrid.Name = "actorPropertyGrid";
-            this.actorPropertyGrid.SelectedItemWithFocusBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(150)))), ((int)(((byte)(192)))), ((int)(((byte)(192)))));
-            this.actorPropertyGrid.ToolbarVisible = false;
-            this.actorPropertyGrid.ViewBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(55)))), ((int)(((byte)(55)))), ((int)(((byte)(60)))));
-            this.actorPropertyGrid.ViewForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(170)))), ((int)(((byte)(170)))), ((int)(((byte)(170)))));
-            this.actorPropertyGrid.PropertyValueChanged += new System.Windows.Forms.PropertyValueChangedEventHandler(this.ActorPropertyGrid_PropertyValueChanged);
-            // 
-            // label3
-            // 
-            this.label3.BackColor = System.Drawing.Color.Transparent;
-            resources.ApplyResources(this.label3, "label3");
-            this.label3.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
-            this.label3.Name = "label3";
-            // 
-            // BodyPanel
-            // 
-            this.BodyPanel.Controls.Add(this.renderPanel1);
-            this.BodyPanel.Controls.Add(this.rightSplitter);
-            this.BodyPanel.Controls.Add(this.rightPanel);
-            this.BodyPanel.Controls.Add(this.leftSplitter);
-            this.BodyPanel.Controls.Add(this.leftPanel);
-            resources.ApplyResources(this.BodyPanel, "BodyPanel");
-            this.BodyPanel.Name = "BodyPanel";
-            // 
-            // TitlePanel
-            // 
-            this.TitlePanel.Controls.Add(this.menuStrip1);
-            this.TitlePanel.Controls.Add(this.TheraEngineText);
-            this.TitlePanel.Controls.Add(this.pictureBox1);
-            this.TitlePanel.Controls.Add(this.FormTitle);
-            resources.ApplyResources(this.TitlePanel, "TitlePanel");
-            this.TitlePanel.Name = "TitlePanel";
-            // 
             // TheraEngineText
             // 
             resources.ApplyResources(this.TheraEngineText, "TheraEngineText");
             this.TheraEngineText.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(150)))), ((int)(((byte)(192)))), ((int)(((byte)(192)))));
             this.TheraEngineText.Name = "TheraEngineText";
             // 
-            // pictureBox1
+            // DockPanel
             // 
-            this.pictureBox1.BackgroundImage = global::TheraEditor.Properties.Resources.LogoImage;
-            resources.ApplyResources(this.pictureBox1, "pictureBox1");
-            this.pictureBox1.Image = global::TheraEditor.Properties.Resources.LogoImage;
-            this.pictureBox1.Name = "pictureBox1";
-            this.pictureBox1.TabStop = false;
+            resources.ApplyResources(this.DockPanel, "DockPanel");
+            this.DockPanel.DocumentStyle = WeifenLuo.WinFormsUI.Docking.DocumentStyle.DockingWindow;
+            this.DockPanel.Name = "DockPanel";
             // 
-            // FormTitle
+            // viewport1ToolStripMenuItem
             // 
-            resources.ApplyResources(this.FormTitle, "FormTitle");
-            this.FormTitle.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
-            this.FormTitle.Name = "FormTitle";
+            this.viewport1ToolStripMenuItem.Name = "viewport1ToolStripMenuItem";
+            resources.ApplyResources(this.viewport1ToolStripMenuItem, "viewport1ToolStripMenuItem");
+            this.viewport1ToolStripMenuItem.Click += new System.EventHandler(this.viewport1ToolStripMenuItem_Click);
             // 
-            // MinimizeLabel
+            // viewport2ToolStripMenuItem
             // 
-            resources.ApplyResources(this.MinimizeLabel, "MinimizeLabel");
-            this.MinimizeLabel.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
-            this.MinimizeLabel.Name = "MinimizeLabel";
+            this.viewport2ToolStripMenuItem.Name = "viewport2ToolStripMenuItem";
+            resources.ApplyResources(this.viewport2ToolStripMenuItem, "viewport2ToolStripMenuItem");
+            this.viewport2ToolStripMenuItem.Click += new System.EventHandler(this.viewport2ToolStripMenuItem_Click);
             // 
-            // MaximizeLabel
+            // viewport3ToolStripMenuItem
             // 
-            resources.ApplyResources(this.MaximizeLabel, "MaximizeLabel");
-            this.MaximizeLabel.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
-            this.MaximizeLabel.Name = "MaximizeLabel";
+            this.viewport3ToolStripMenuItem.Name = "viewport3ToolStripMenuItem";
+            resources.ApplyResources(this.viewport3ToolStripMenuItem, "viewport3ToolStripMenuItem");
+            this.viewport3ToolStripMenuItem.Click += new System.EventHandler(this.viewport3ToolStripMenuItem_Click);
             // 
-            // CloseLabel
+            // viewport4ToolStripMenuItem
             // 
-            resources.ApplyResources(this.CloseLabel, "CloseLabel");
-            this.CloseLabel.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
-            this.CloseLabel.Name = "CloseLabel";
-            // 
-            // TitlePadding
-            // 
-            this.TitlePadding.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(72)))), ((int)(((byte)(73)))), ((int)(((byte)(80)))));
-            resources.ApplyResources(this.TitlePadding, "TitlePadding");
-            this.TitlePadding.Name = "TitlePadding";
-            // 
-            // MainPanel
-            // 
-            resources.ApplyResources(this.MainPanel, "MainPanel");
-            this.MainPanel.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(82)))), ((int)(((byte)(83)))), ((int)(((byte)(90)))));
-            this.MainPanel.Controls.Add(this.BodyPanel);
-            this.MainPanel.Controls.Add(this.TitlePadding);
-            this.MainPanel.Controls.Add(this.TitlePanel);
-            this.MainPanel.Name = "MainPanel";
-            // 
-            // TopLeftBorderPanel
-            // 
-            this.TopLeftBorderPanel.Cursor = System.Windows.Forms.Cursors.SizeNWSE;
-            resources.ApplyResources(this.TopLeftBorderPanel, "TopLeftBorderPanel");
-            this.TopLeftBorderPanel.Name = "TopLeftBorderPanel";
-            // 
-            // TopRightBorderPanel
-            // 
-            resources.ApplyResources(this.TopRightBorderPanel, "TopRightBorderPanel");
-            this.TopRightBorderPanel.Cursor = System.Windows.Forms.Cursors.SizeNESW;
-            this.TopRightBorderPanel.Name = "TopRightBorderPanel";
-            // 
-            // BottomRightBorderPanel
-            // 
-            resources.ApplyResources(this.BottomRightBorderPanel, "BottomRightBorderPanel");
-            this.BottomRightBorderPanel.Cursor = System.Windows.Forms.Cursors.SizeNWSE;
-            this.BottomRightBorderPanel.Name = "BottomRightBorderPanel";
-            // 
-            // BottomLeftBorderPanel
-            // 
-            resources.ApplyResources(this.BottomLeftBorderPanel, "BottomLeftBorderPanel");
-            this.BottomLeftBorderPanel.Cursor = System.Windows.Forms.Cursors.SizeNESW;
-            this.BottomLeftBorderPanel.Name = "BottomLeftBorderPanel";
-            // 
-            // TopBorderPanel
-            // 
-            resources.ApplyResources(this.TopBorderPanel, "TopBorderPanel");
-            this.TopBorderPanel.Cursor = System.Windows.Forms.Cursors.SizeNS;
-            this.TopBorderPanel.Name = "TopBorderPanel";
-            // 
-            // BottomBorderPanel
-            // 
-            resources.ApplyResources(this.BottomBorderPanel, "BottomBorderPanel");
-            this.BottomBorderPanel.Cursor = System.Windows.Forms.Cursors.SizeNS;
-            this.BottomBorderPanel.Name = "BottomBorderPanel";
-            // 
-            // LeftBorderPanel
-            // 
-            resources.ApplyResources(this.LeftBorderPanel, "LeftBorderPanel");
-            this.LeftBorderPanel.Cursor = System.Windows.Forms.Cursors.SizeWE;
-            this.LeftBorderPanel.Name = "LeftBorderPanel";
-            // 
-            // RightBorderPanel
-            // 
-            resources.ApplyResources(this.RightBorderPanel, "RightBorderPanel");
-            this.RightBorderPanel.Cursor = System.Windows.Forms.Cursors.SizeWE;
-            this.RightBorderPanel.Name = "RightBorderPanel";
+            this.viewport4ToolStripMenuItem.Name = "viewport4ToolStripMenuItem";
+            resources.ApplyResources(this.viewport4ToolStripMenuItem, "viewport4ToolStripMenuItem");
+            this.viewport4ToolStripMenuItem.Click += new System.EventHandler(this.viewport4ToolStripMenuItem_Click);
             // 
             // Editor
             // 
             resources.ApplyResources(this, "$this");
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(150)))), ((int)(((byte)(192)))), ((int)(((byte)(192)))));
-            this.Controls.Add(this.MinimizeLabel);
-            this.Controls.Add(this.MaximizeLabel);
-            this.Controls.Add(this.CloseLabel);
-            this.Controls.Add(this.RightBorderPanel);
-            this.Controls.Add(this.LeftBorderPanel);
-            this.Controls.Add(this.BottomBorderPanel);
-            this.Controls.Add(this.TopBorderPanel);
-            this.Controls.Add(this.BottomLeftBorderPanel);
-            this.Controls.Add(this.BottomRightBorderPanel);
-            this.Controls.Add(this.TopRightBorderPanel);
-            this.Controls.Add(this.TopLeftBorderPanel);
-            this.Controls.Add(this.MainPanel);
-            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
             this.MainMenuStrip = this.menuStrip1;
             this.Name = "Editor";
+            this.Controls.SetChildIndex(this.MiddlePanel, 0);
+            this.BodyPanel.ResumeLayout(false);
+            this.MainPanel.ResumeLayout(false);
+            this.TitlePanel.ResumeLayout(false);
+            this.TitlePanel.PerformLayout();
+            this.MiddlePanel.ResumeLayout(false);
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
-            this.leftPanel.ResumeLayout(false);
-            this.panel4.ResumeLayout(false);
             this.ctxContentTree.ResumeLayout(false);
-            this.panel2.ResumeLayout(false);
-            this.tabControl1.ResumeLayout(false);
-            this.tabPage1.ResumeLayout(false);
-            this.tabPage2.ResumeLayout(false);
-            this.rightPanel.ResumeLayout(false);
-            this.panel3.ResumeLayout(false);
-            this.panel1.ResumeLayout(false);
-            this.BodyPanel.ResumeLayout(false);
-            this.TitlePanel.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
-            this.MainPanel.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
@@ -652,21 +390,9 @@
         private System.Windows.Forms.ToolStripMenuItem fileToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem editToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem viewToolStripMenuItem;
-        private System.Windows.Forms.Panel leftPanel;
-        private System.Windows.Forms.Splitter rightSplitter;
-        private ResourceTree contentTree;
-        private TheraEngine.RenderPanel renderPanel1;
-        private System.Windows.Forms.TreeView actorTree;
-        private System.Windows.Forms.Splitter leftSplitter;
-        private System.Windows.Forms.Panel rightPanel;
-        private System.Windows.Forms.Label label2;
         private System.Windows.Forms.ToolStripMenuItem btnEditorSettings;
         private System.Windows.Forms.ToolStripMenuItem btnEngineSettings;
         private System.Windows.Forms.ToolStripMenuItem btnProjectSettings;
-        private System.Windows.Forms.Splitter splitter3;
-        private System.Windows.Forms.Panel panel1;
-        private System.Windows.Forms.Panel panel3;
-        public System.Windows.Forms.PropertyGrid actorPropertyGrid;
         private System.Windows.Forms.ContextMenuStrip ctxContentTree;
         private System.Windows.Forms.ToolStripMenuItem BtnImportFile;
         private System.Windows.Forms.ToolStripMenuItem btnImportModel;
@@ -687,37 +413,18 @@
         private System.Windows.Forms.ToolStripMenuItem gameToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem btPlay;
         private System.Windows.Forms.ToolStripMenuItem btnCompile;
-        private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.Panel panel4;
-        private System.Windows.Forms.Splitter splitter4;
-        private System.Windows.Forms.Panel panel2;
-        private System.Windows.Forms.TabControl tabControl1;
-        private System.Windows.Forms.TabPage tabPage1;
-        private System.Windows.Forms.TabPage tabPage2;
-        private System.Windows.Forms.Panel TitlePanel;
         private System.Windows.Forms.Label TheraEngineText;
-        private System.Windows.Forms.PictureBox pictureBox1;
-        private System.Windows.Forms.Panel TitlePadding;
-        private System.Windows.Forms.Panel MainPanel;
-        private System.Windows.Forms.Label CloseLabel;
-        private System.Windows.Forms.Label MaximizeLabel;
-        private System.Windows.Forms.Label MinimizeLabel;
         private System.Windows.Forms.ToolTip DecorationToolTip;
-        private System.Windows.Forms.Panel BodyPanel;
-        private System.Windows.Forms.Panel TopLeftBorderPanel;
-        private System.Windows.Forms.Panel TopRightBorderPanel;
-        private System.Windows.Forms.FlowLayoutPanel bspItems;
-        private System.Windows.Forms.Button button2;
-        private System.Windows.Forms.Button button1;
-        private System.Windows.Forms.Panel BottomRightBorderPanel;
-        private System.Windows.Forms.Panel BottomLeftBorderPanel;
-        private System.Windows.Forms.Panel TopBorderPanel;
-        private System.Windows.Forms.Panel BottomBorderPanel;
-        private System.Windows.Forms.Panel LeftBorderPanel;
-        private System.Windows.Forms.Panel RightBorderPanel;
-        private System.Windows.Forms.Label FormTitle;
-        private System.Windows.Forms.Label label3;
-        private WeifenLuo.WinFormsUI.Docking.VS2005Theme vS2005Theme1;
+        private WeifenLuo.WinFormsUI.Docking.DockPanel DockPanel;
+        private System.Windows.Forms.ToolStripMenuItem btnViewViewport;
+        private System.Windows.Forms.ToolStripMenuItem btnViewActorTree;
+        private System.Windows.Forms.ToolStripMenuItem btnViewFileTree;
+        private System.Windows.Forms.ToolStripMenuItem btnViewTools;
+        private System.Windows.Forms.ToolStripMenuItem btnViewPropertyGrid;
+        private System.Windows.Forms.ToolStripMenuItem viewport1ToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem viewport2ToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem viewport3ToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem viewport4ToolStripMenuItem;
         //private TheraEngine.RenderPanel renderPanel1;
         //private ResourceTree resourceTree1;
     }

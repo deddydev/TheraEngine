@@ -40,7 +40,7 @@ namespace TheraEditor.Wrappers
             _menu.Opening += MenuOpening;
             _menu.Closing += MenuClosing;
 
-            LoadFileTypes();
+            LoadFileTypes(IsFileObject);
         }
 
         protected static void FolderAction(object sender, EventArgs e) => GetInstance<FolderWrapper>().NewFolder();
@@ -180,122 +180,14 @@ namespace TheraEditor.Wrappers
             }
         }
 
+        private static bool IsFileObject(Type t)
+        {
+            return t.IsSubclassOf(typeof(FileObject));
+        }
+
         #region File Type Loading
-        private static void LoadFileTypes()
-        {
-            var fileObjectTypes =
-                from domainAssembly in AppDomain.CurrentDomain.GetAssemblies()
-                from assemblyType in domainAssembly.GetExportedTypes()
-                where assemblyType.IsSubclassOf(typeof(FileObject)) && !assemblyType.IsAbstract
-                select assemblyType;
-            Dictionary<string, NamespaceNode> nodeCache = new Dictionary<string, NamespaceNode>();
-            foreach (Type t in fileObjectTypes)
-            {
-                string path = t.Namespace;
-                int dotIndex = path.IndexOf(".");
-                string name = dotIndex > 0 ? path.Substring(0, dotIndex) : path;
-                if (nodeCache.ContainsKey(name))
-                    nodeCache[name].Add(dotIndex > 0 ? path.Substring(dotIndex + 1) : null, t);
-                else
-                {
-                    NamespaceNode node = new NamespaceNode(name);
-                    nodeCache.Add(name, node);
-                    ((ToolStripDropDownItem)_menu.Items[4]).DropDownItems.Add(node.Button);
-                }
-            }
-        }
-
-        private class NamespaceNode
-        {
-            public NamespaceNode(string name)
-            {
-                _name = name;
-                _children = new Dictionary<string, NamespaceNode>();
-                Button = new ToolStripDropDownButton(_name) { ShowDropDownArrow = true };
-            }
-
-            string _name;
-            Dictionary<string, NamespaceNode> _children;
-            ToolStripDropDownButton _button;
-
-            public string Name { get => _name; set => _name = value; }
-            private Dictionary<string, NamespaceNode> Children { get => _children; set => _children = value; }
-            public ToolStripDropDownButton Button { get => _button; set => _button = value; }
-
-            public void Add(string path, Type t)
-            {
-                if (string.IsNullOrEmpty(path))
-                {
-                    ToolStripDropDownButton btn = new ToolStripDropDownButton(t.Name)
-                    {
-                        ShowDropDownArrow = false,
-                        Tag = t,
-                    };
-                    btn.Click += OnNewClick;
-                    _button.DropDownItems.Add(btn);
-                    return;
-                }
-                int dotIndex = path.IndexOf(".");
-                string name = dotIndex > 0 ? path.Substring(0, dotIndex) : path;
-                if (_children.ContainsKey(name))
-                    _children[name].Add(dotIndex > 0 ? path.Substring(dotIndex + 1) : null, t);
-                else
-                {
-                    NamespaceNode node = new NamespaceNode(name);
-                    _children.Add(name, node);
-                    Button.DropDownItems.Add(node.Button);
-                }
-            }
-        }
-        public enum GenericVarianceFlag
-        {
-            None,
-            CovariantOut,
-            ContravariantIn,
-        }
-        public enum TypeConstraintFlag
-        {
-            None,
-            Struct,             //struct
-            Class,              //class
-            NewClass,           //class, new()
-            NewStructOrClass,   //new()
-        }
-        private static void ListGenericParameterAttributes(Type t, out GenericVarianceFlag gvf, out TypeConstraintFlag tcf)
-        {
-            GenericParameterAttributes gpa = t.GenericParameterAttributes;
-            GenericParameterAttributes variance = gpa & GenericParameterAttributes.VarianceMask;
-            GenericParameterAttributes constraints = gpa & GenericParameterAttributes.SpecialConstraintMask;
-
-            gvf = GenericVarianceFlag.None;
-            tcf = TypeConstraintFlag.None;
-
-            if (variance != GenericParameterAttributes.None)
-            {
-                if ((variance & GenericParameterAttributes.Covariant) != 0)
-                    gvf = GenericVarianceFlag.CovariantOut;
-                else
-                    gvf = GenericVarianceFlag.ContravariantIn;
-            }
-            
-            if (constraints != GenericParameterAttributes.None)
-            {
-                if ((constraints & GenericParameterAttributes.NotNullableValueTypeConstraint) != 0)
-                    tcf = TypeConstraintFlag.Struct;
-                else
-                {
-                    if ((constraints & GenericParameterAttributes.DefaultConstructorConstraint) != 0)
-                        tcf = TypeConstraintFlag.NewStructOrClass;
-                    if ((constraints & GenericParameterAttributes.ReferenceTypeConstraint) != 0)
-                    {
-                        if (tcf == TypeConstraintFlag.NewStructOrClass)
-                            tcf = TypeConstraintFlag.NewClass;
-                        else
-                            tcf = TypeConstraintFlag.Class;
-                    }
-                }
-            }
-        }
+        private static void LoadFileTypes(Predicate<Type> match)
+            => Program.PopulateMenuDropDown((ToolStripDropDownItem)_menu.Items[4], OnNewClick, match);
         private static void OnNewClick(object sender, EventArgs e)
         {
             if (sender is ToolStripDropDownButton button)
@@ -304,18 +196,15 @@ namespace TheraEditor.Wrappers
                 Type fileType = button.Tag as Type;
                 if (fileType.ContainsGenericParameters)
                 {
-                    Type[] args = fileType.GetGenericArguments();
-                    foreach (Type genArg in args)
-                    {
-
-                    }
-                    Type genericFileWrapper = fileType.MakeGenericType(args);
-                    file = Activator.CreateInstance(genericFileWrapper) as FileObject;
+                    GenericsSelector gs = new GenericsSelector(fileType);
+                    if (gs.ShowDialog() == DialogResult.OK)
+                        file = Activator.CreateInstance(gs.FinalType) as FileObject;
+                    else
+                        return;
                 }
                 else
                     file = Activator.CreateInstance(fileType) as FileObject;
-
-                ContextMenuStrip ctx = button.GetContextMenuStrip();
+                
                 FolderWrapper folderNode = GetInstance<FolderWrapper>();
                 string dir = folderNode.FilePath as string;
 

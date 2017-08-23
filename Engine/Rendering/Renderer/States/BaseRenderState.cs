@@ -142,6 +142,9 @@ namespace TheraEngine.Rendering
                 return BindingId;
 
             int id = CreateObject();
+            if (id == 0)
+                throw new Exception("Unable to create render object.");
+
             CurrentBind.BindingId = id;
             OnGenerated();
             Generated?.Invoke();

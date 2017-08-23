@@ -147,7 +147,7 @@ namespace TheraEngine.Worlds.Actors
         }
         protected virtual void TickWalking(float delta, Vec3 movementInput)
         {
-            ClosestNotMeConvexResultCallback callback;
+            ClosestConvexResultExceptCallback callback;
             Matrix4 inputTransform;
             CapsuleComponent root = OwningActor.RootComponent as CapsuleComponent;
             ConvexShape shape = (ConvexShape)root.CullingVolume.GetCollisionShape();
@@ -176,7 +176,7 @@ namespace TheraEngine.Worlds.Actors
                     groundRot = Quat.Identity;
                     inputTransform = finalInput.AsTranslationMatrix();
 
-                    callback = new ClosestNotMeConvexResultCallback(body)
+                    callback = new ClosestConvexResultExceptCallback(body)
                     {
                         CollisionFilterMask = (CollisionFilterGroups)(short)(CustomCollisionGroup.StaticWorld | CustomCollisionGroup.DynamicWorld),
                         CollisionFilterGroup = (CollisionFilterGroups)(short)CustomCollisionGroup.Characters,
@@ -238,7 +238,7 @@ namespace TheraEngine.Worlds.Actors
             float groundTestDist = CurrentWalkingSurface.CollisionObject.CollisionShape.Margin + body.CollisionShape.Margin + 0.01f;
             down *= groundTestDist;
             inputTransform = down.AsTranslationMatrix();
-            callback = new ClosestNotMeConvexResultCallback(body)
+            callback = new ClosestConvexResultExceptCallback(body)
             {
                 CollisionFilterMask = (CollisionFilterGroups)(short)(CustomCollisionGroup.StaticWorld | CustomCollisionGroup.DynamicWorld),
                 CollisionFilterGroup = (CollisionFilterGroups)(short)CustomCollisionGroup.Characters,

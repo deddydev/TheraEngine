@@ -56,7 +56,7 @@ namespace TheraEngine.Worlds.Actors
             Matrix4 endMatrix = startMatrix * Matrix4.CreateTranslation(new Vec3(0.0f, 0.0f, MaxLength));
             Vec3 testEnd = endMatrix.GetPoint();
 
-            ClosestNotMeConvexResultCallback result = new ClosestNotMeConvexResultCallback(IgnoreCast)
+            ClosestConvexResultExceptCallback result = new ClosestConvexResultExceptCallback(IgnoreCast)
             {
                 CollisionFilterGroup = (CollisionFilterGroups)(short)CustomCollisionGroup.All,
                 CollisionFilterMask = (CollisionFilterGroups)(short)CustomCollisionGroup.All,

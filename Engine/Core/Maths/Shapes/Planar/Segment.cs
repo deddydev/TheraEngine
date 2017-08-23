@@ -24,7 +24,7 @@ namespace System
             get => _endPoint;
             set => _endPoint = value;
         }
-        public Vec3 Direction
+        public Vec3 DirectionVector
         {
             get => _endPoint - _startPoint;
             set => _endPoint = _startPoint + value;

@@ -506,7 +506,8 @@ namespace TheraEngine.Rendering
             bool testWorld,
             out Vec3 hitNormal,
             out Vec3 hitPoint,
-            out float distance)
+            out float distance,
+            params CollisionObject[] ignored)
         {
             if (testHud)
             {
@@ -522,8 +523,9 @@ namespace TheraEngine.Rendering
             if (testWorld)
             {
                 Segment cursor = GetWorldSegment(viewportPoint);
-                
-                ClosestRayResultCallback c = Engine.RaycastClosest(cursor);
+                ClosestRayResultCallback c = ignored != null && ignored.Length > 0 ?
+                    Engine.RaycastClosestExcept(cursor, ignored) :
+                    Engine.RaycastClosest(cursor);
                 if (c.HasHit)
                 {
                     hitNormal = c.HitNormalWorld;

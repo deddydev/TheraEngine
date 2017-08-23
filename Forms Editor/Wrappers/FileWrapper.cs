@@ -23,7 +23,7 @@ namespace TheraEditor.Wrappers
 
         public void EditResource()
         {
-            Editor.Instance.actorPropertyGrid.SelectedObject = GetNewInstance();
+            Editor.Instance.PropForm.PropertyGrid.SelectedObject = GetNewInstance();
         }
 
         public BaseFileWrapper(ContextMenuStrip menu) : base(menu)

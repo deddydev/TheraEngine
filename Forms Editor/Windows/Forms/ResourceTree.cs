@@ -146,14 +146,27 @@ namespace TheraEditor.Windows.Forms
         
         public void DisplayProject(Project p)
         {
+            SuspendLayout();
+
+            _contentWatcher = null;
+            Nodes.Clear();
+
+            if (p == null || string.IsNullOrEmpty(p.FilePath))
+                return;
+
             ShowIcons = true;
             AllowContextMenus = true;
 
             string dir = Path.GetDirectoryName(p.FilePath);
 
             BaseWrapper b = CreateNode(dir);
-            Nodes.Add(b);
-            b.Expand();
+            if (b != null)
+            {
+                Nodes.Add(b);
+                b.Expand();
+            }
+
+            ResumeLayout(true);
 
             _contentWatcher = new FileSystemWatcher(Path.GetDirectoryName(p.FilePath), "*.*")
             {

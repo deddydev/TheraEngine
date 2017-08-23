@@ -17,6 +17,7 @@ using System.Diagnostics;
 using System.Drawing.Text;
 using System.Drawing;
 using System.Text;
+using TheraEngine.GameModes;
 
 namespace TheraEngine
 {
@@ -101,24 +102,24 @@ namespace TheraEngine
             MainThreadID = Thread.CurrentThread.ManagedThreadId;
             _game = game;
         }
+        public static void SetGamePanel(RenderPanel panel, bool registerTickNow = true)
+        {
+            RenderPanel.GamePanel = panel;
+            if (registerTickNow)
+                panel?.RegisterTick();
+        }
         /// <summary>
         /// Initializes the engine to its beginning state.
         /// Call AFTER SetGame is called and all initial render panels are created and ready.
         /// </summary>
-        public static void Initialize(RenderPanel gamePanel, bool deferOpeningWorldPlay = false)
+        public static void Initialize(bool deferOpeningWorldPlay = false)
         {
-            RenderPanel.GamePanel = gamePanel;
-            gamePanel?.RegisterTick();
-
             //Analyze computer and determine if it can run what the game wants.
             _computerInfo = ComputerInfo.Analyze();
             
             RenderLibrary = _game.UserSettings.File.RenderLibrary;
             AudioLibrary = _game.UserSettings.File.AudioLibrary;
             InputLibrary = _game.UserSettings.File.InputLibrary;
-
-            //if (Renderer == null)
-            //    throw new Exception("Unable to create renderer.");
 
             //Set initial world (this would generally be a world for opening videos or the main menu)
             SetCurrentWorld(Game.OpeningWorld, true, deferOpeningWorldPlay);
@@ -149,18 +150,10 @@ namespace TheraEngine
         private static void ActivePlayers_Removed(LocalPlayerController item)
         {
             World?.GetGameMode()?.HandleLocalPlayerLeft(item);
-            RenderPanel.GamePanel?.RemoveViewport(item);
         }
 
         private static void ActivePlayers_Added(LocalPlayerController item)
         {
-            RenderPanel p = RenderPanel.GamePanel;
-            if (p != null)
-            {
-                Viewport v = p.GetViewport((int)item.LocalPlayerIndex) ?? p.AddViewport();
-                if (v != null)
-                    v.Owner = item;
-            }
             World?.GetGameMode()?.HandleLocalPlayerJoined(item);
         }
         
@@ -314,7 +307,7 @@ namespace TheraEngine
         /// <param name="toggler">The player that's pausing the game.</param>
         public static void SetPaused(bool wantsPause, PlayerIndex toggler, bool force = false)
         {
-            if (!force && wantsPause && World.Settings.GameMode.File.DisallowPausing)
+            if (!force && wantsPause && GetGameMode().DisallowPausing)
                 return;
             _isPaused = wantsPause;
             Paused?.Invoke(_isPaused, toggler);
@@ -411,6 +404,10 @@ namespace TheraEngine
                 controller.Destroy();
             ActivePlayers.Clear();
         }
+        public static BaseGameMode GetGameMode()
+            => World?.GetGameMode();
+        public static T GetGameMode<T>() where T : BaseGameMode
+            => World?.GetGameMode<T>();
         /// <summary>
         /// Enqueues a pawn to be possessed by the given local player as soon as its current controlled pawn is set to null.
         /// </summary>
@@ -448,14 +445,15 @@ namespace TheraEngine
                 {
                     LocalPlayerController controller;
                     PlayerIndex index = PlayerIndex.One;
+                    BaseGameMode mode = GetGameMode();
                     if (_possessionQueues.ContainsKey(index))
                     {
                         //Transfer possession queue to the controller itself
-                        controller = World.Settings.GameMode.File?.CreateLocalController(index, _possessionQueues[index]);
+                        controller = mode?.CreateLocalController(index, _possessionQueues[index]);
                         _possessionQueues.Remove(controller.LocalPlayerIndex);
                     }
                     else
-                        controller = World.Settings.GameMode.File?.CreateLocalController(index);
+                        controller = mode?.CreateLocalController(index);
                     ActivePlayers.Add(controller);
                 }
                 else
@@ -467,14 +465,15 @@ namespace TheraEngine
                 {
                     LocalPlayerController controller;
                     PlayerIndex index = (PlayerIndex)ActivePlayers.Count;
+                    BaseGameMode mode = GetGameMode();
                     if (_possessionQueues.ContainsKey(index))
                     {
                         //Transfer possession queue to the controller itself
-                        controller = World.Settings.GameMode.File?.CreateLocalController(index, _possessionQueues[index]);
+                        controller = mode?.CreateLocalController(index, _possessionQueues[index]);
                         _possessionQueues.Remove(controller.LocalPlayerIndex);
                     }
                     else
-                        controller = World.Settings.GameMode.File?.CreateLocalController(index);
+                        controller = mode?.CreateLocalController(index);
                     ActivePlayers.Add(controller);
                 }
                 else
@@ -503,6 +502,22 @@ namespace TheraEngine
             World.PhysicsScene.RayTest(from, to, callback);
             return callback;
         }
+        public static ClosestRayResultExceptCallback RaycastClosestExcept(Segment ray, params CollisionObject[] ignore)
+            => RaycastClosestExcept(ray.StartPoint, ray.EndPoint, ignore);
+        public static ClosestRayResultExceptCallback RaycastClosestExcept(Vec3 from, Vec3 to, params CollisionObject[] ignore)
+        {
+            if (World == null)
+                return null;
+            Vector3 fromRef = from;
+            Vector3 toRef = to;
+            ClosestRayResultExceptCallback callback = new ClosestRayResultExceptCallback(ref fromRef, ref toRef, ignore)
+            {
+                CollisionFilterMask = (CollisionFilterGroups)(short)CustomCollisionGroup.All,
+                CollisionFilterGroup = (CollisionFilterGroups)(short)CustomCollisionGroup.All,
+            };
+            World.PhysicsScene.RayTest(from, to, callback);
+            return callback;
+        }
         public static AllHitsRayResultCallback RaycastMultiple(Segment ray)
             => RaycastMultiple(ray.StartPoint, ray.EndPoint);
         public static AllHitsRayResultCallback RaycastMultiple(Vec3 from, Vec3 to)
@@ -520,63 +535,80 @@ namespace TheraEngine
         }
         #endregion
     }
-    public class ClosestNotMeConvexResultCallback : ClosestConvexResultCallback
+    public class ClosestConvexResultExceptCallback : ClosestConvexResultCallback
     {
-        CollisionObject _me;
-        public ClosestNotMeConvexResultCallback(CollisionObject me) : base() => _me = me;
+        CollisionObject[] _ignore;
+        public ClosestConvexResultExceptCallback(params CollisionObject[] ignore) : base()
+            => _ignore = ignore;
+        public ClosestConvexResultExceptCallback(ref Vector3 from, ref Vector3 to, params CollisionObject[] ignore) : base(ref from, ref to) 
+            => _ignore = ignore;
         public override float AddSingleResult(LocalConvexResult convexResult, bool normalInWorldSpace)
         {
-            if (convexResult.HitCollisionObject == _me)
+            if (_ignore.Any(x => x == convexResult.HitCollisionObject))
                 return 1.0f;
             return base.AddSingleResult(convexResult, normalInWorldSpace);
         }
     }
-    public class CustomClosestRayResultCallback : RayResultCallback
+    public class ClosestRayResultExceptCallback : ClosestRayResultCallback
     {
-        public CustomClosestRayResultCallback() : base()
-        {
-
-        }
-        public CustomClosestRayResultCallback(Vec3 rayFromWorld, Vec3 rayToWorld) : base()
-        {
-
-        }
-
-        private Vec3 _rayStartWorld;
-        private Vec3 _rayEndWorld;
-        private Vec3 _hitPointWorld;
-        private Vec3 _hitNormalWorld;
-        private float _hitFraction = 1.0f;
-        private CustomCollisionGroup
-            _collidesWith = CustomCollisionGroup.All,
-            //_group = CustomCollisionGroup.All,
-            _ignore = CustomCollisionGroup.None;
-
-        public Vec3 RayStartWorld { get => _rayStartWorld; set => _rayStartWorld = value; }
-        public Vec3 RayEndWorld { get => _rayEndWorld; set => _rayEndWorld = value; }
-        public Vec3 HitPointWorld { get => _hitPointWorld; }
-        public Vec3 HitNormalWorld { get => _hitNormalWorld; }
-        public CustomCollisionGroup CollidesWith { get => _collidesWith; set => _collidesWith = value; }
-        public CustomCollisionGroup Ignore { get => _ignore; set => _ignore = value; }
-
+        CollisionObject[] _ignore;
+        public ClosestRayResultExceptCallback(params CollisionObject[] ignore) : base()
+            => _ignore = ignore;
+        public ClosestRayResultExceptCallback(ref Vector3 from, ref Vector3 to, params CollisionObject[] ignore) : base(ref from, ref to) 
+            => _ignore = ignore;
         public override float AddSingleResult(LocalRayResult rayResult, bool normalInWorldSpace)
         {
-            if (rayResult.HitFraction < _hitFraction)
-            {
-                CollisionObject = rayResult.CollisionObject;
-                _hitFraction = rayResult.HitFraction;
-                _hitNormalWorld = normalInWorldSpace ? (Vec3)rayResult.HitNormalLocal : Vec3.TransformNormal(rayResult.HitNormalLocal, rayResult.CollisionObject.WorldTransform).NormalizedFast();
-                _hitPointWorld = Vec3.Lerp(_rayStartWorld, _rayEndWorld, _hitFraction);
-            }
-
-            return rayResult.HitFraction;
-        }
-        public override bool NeedsCollision(BroadphaseProxy proxy0)
-        {
-            CustomCollisionGroup g = (CustomCollisionGroup)(short)proxy0.CollisionFilterGroup;
-            if ((_collidesWith & g) != 0 && (_ignore & g) == 0)
-                return Collision.SegmentIntersectsAABB(RayStartWorld, RayEndWorld, proxy0.AabbMin, proxy0.AabbMax, out Vec3 enterPoint, out Vec3 exitPoint);
-            return false;
+            if (_ignore.Any(x => x == rayResult.CollisionObject))
+                return 1.0f;
+            return base.AddSingleResult(rayResult, normalInWorldSpace);
         }
     }
+    //public class CustomClosestRayResultCallback : RayResultCallback
+    //{
+    //    public CustomClosestRayResultCallback() : base()
+    //    {
+
+    //    }
+    //    public CustomClosestRayResultCallback(Vec3 rayFromWorld, Vec3 rayToWorld) : base()
+    //    {
+
+    //    }
+
+    //    private Vec3 _rayStartWorld;
+    //    private Vec3 _rayEndWorld;
+    //    private Vec3 _hitPointWorld;
+    //    private Vec3 _hitNormalWorld;
+    //    private float _hitFraction = 1.0f;
+    //    private CustomCollisionGroup
+    //        _collidesWith = CustomCollisionGroup.All,
+    //        //_group = CustomCollisionGroup.All,
+    //        _ignore = CustomCollisionGroup.None;
+
+    //    public Vec3 RayStartWorld { get => _rayStartWorld; set => _rayStartWorld = value; }
+    //    public Vec3 RayEndWorld { get => _rayEndWorld; set => _rayEndWorld = value; }
+    //    public Vec3 HitPointWorld { get => _hitPointWorld; }
+    //    public Vec3 HitNormalWorld { get => _hitNormalWorld; }
+    //    public CustomCollisionGroup CollidesWith { get => _collidesWith; set => _collidesWith = value; }
+    //    public CustomCollisionGroup Ignore { get => _ignore; set => _ignore = value; }
+
+    //    public override float AddSingleResult(LocalRayResult rayResult, bool normalInWorldSpace)
+    //    {
+    //        if (rayResult.HitFraction < _hitFraction)
+    //        {
+    //            CollisionObject = rayResult.CollisionObject;
+    //            _hitFraction = rayResult.HitFraction;
+    //            _hitNormalWorld = normalInWorldSpace ? (Vec3)rayResult.HitNormalLocal : Vec3.TransformNormal(rayResult.HitNormalLocal, rayResult.CollisionObject.WorldTransform).NormalizedFast();
+    //            _hitPointWorld = Vec3.Lerp(_rayStartWorld, _rayEndWorld, _hitFraction);
+    //        }
+
+    //        return rayResult.HitFraction;
+    //    }
+    //    public override bool NeedsCollision(BroadphaseProxy proxy0)
+    //    {
+    //        CustomCollisionGroup g = (CustomCollisionGroup)(short)proxy0.CollisionFilterGroup;
+    //        if ((_collidesWith & g) != 0 && (_ignore & g) == 0)
+    //            return Collision.SegmentIntersectsAABB(RayStartWorld, RayEndWorld, proxy0.AabbMin, proxy0.AabbMax, out Vec3 enterPoint, out Vec3 exitPoint);
+    //        return false;
+    //    }
+    //}
 }

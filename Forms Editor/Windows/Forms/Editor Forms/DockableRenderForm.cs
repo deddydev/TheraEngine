@@ -55,7 +55,9 @@ namespace TheraEditor.Windows.Forms
             if (Engine.ActivePlayers.Count == 0)
                 return;
             LocalPlayerController c = Engine.ActivePlayers[0];
-            RenderPanel.GetViewport(0).Owner = c;
+            Viewport v = RenderPanel?.GetViewport(0);
+            if (v != null)
+                v.Owner = c;
             c.ControlledPawn = EditorPawn;
             base.OnGotFocus(e);
         }

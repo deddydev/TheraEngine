@@ -14,22 +14,22 @@ namespace TheraEditor.Windows.Forms
     {
         public TheraEditorTheme() : base()
         {
-            Extender.FloatWindowFactory = new TheraEditorFloatWindowFactory();
+            //Extender.FloatWindowFactory = new TheraEditorFloatWindowFactory();
         }
     }
 
-    internal class TheraEditorFloatWindowFactory : DockPanelExtender.IFloatWindowFactory
-    {
-        public FloatWindow CreateFloatWindow(DockPanel dockPanel, DockPane pane)
-        {
-            return new TheraFloatWindow(dockPanel, pane);
-        }
+    //internal class TheraEditorFloatWindowFactory : DockPanelExtender.IFloatWindowFactory
+    //{
+    //    public FloatWindow CreateFloatWindow(DockPanel dockPanel, DockPane pane)
+    //    {
+    //        return new TheraFloatWindow(dockPanel, pane);
+    //    }
 
-        public FloatWindow CreateFloatWindow(DockPanel dockPanel, DockPane pane, Rectangle bounds)
-        {
-            return new TheraFloatWindow(dockPanel, pane, bounds);
-        }
-    }
+    //    public FloatWindow CreateFloatWindow(DockPanel dockPanel, DockPane pane, Rectangle bounds)
+    //    {
+    //        return new TheraFloatWindow(dockPanel, pane, bounds);
+    //    }
+    //}
 
     public class TheraFloatWindow : FloatWindow
     {

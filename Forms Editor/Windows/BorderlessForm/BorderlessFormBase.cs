@@ -20,7 +20,7 @@ namespace BorderlessForm
         {
             NativeMethods.ReleaseCapture();
             var pt = new POINTS { X = (short)p.X, Y = (short)p.Y };
-            NativeMethods.SendMessage(Handle, (int)WindowMessages.WM_NCLBUTTONDOWN, (int)hit, pt);
+            NativeMethods.SendMessage(FindForm().Handle, (int)WindowMessages.WM_NCLBUTTONDOWN, (int)hit, pt);
         }
 
         public void DecorationMouseDown(HitTestValues hit)
@@ -32,7 +32,7 @@ namespace BorderlessForm
         {
             NativeMethods.ReleaseCapture();
             var pt = new POINTS { X = (short)p.X, Y = (short)p.Y };
-            NativeMethods.SendMessage(Handle, (int)WindowMessages.WM_NCLBUTTONUP, (int)hit, pt);
+            NativeMethods.SendMessage(FindForm().Handle, (int)WindowMessages.WM_NCLBUTTONUP, (int)hit, pt);
         }
 
         public void DecorationMouseUp(HitTestValues hit)
@@ -122,7 +122,7 @@ namespace BorderlessForm
             NativeMethods.GetRgnBox(hrg.Handle, out RECT box);
             if (box.left != left || box.top != top || box.right != right || box.bottom != bottom)
             {
-                var hr = new HandleRef(this, NativeMethods.CreateRectRgn(left, top, right, bottom));
+                var hr = new HandleRef(FindForm(), NativeMethods.CreateRectRgn(left, top, right, bottom));
                 NativeMethods.SetWindowRgn(hwnd, hr.Handle, NativeMethods.IsWindowVisible(hwnd));
             }
         }
@@ -146,7 +146,7 @@ namespace BorderlessForm
             DefWndProc(ref m);
             UpdateBounds();
             var pos = (WINDOWPOS)Marshal.PtrToStructure(m.LParam, typeof(WINDOWPOS));
-            SetWindowRegion(m.HWnd, 0, 0, pos.cx, pos.cy);
+            SetWindowRegion(FindForm().Handle, 0, 0, pos.cx, pos.cy);
             m.Result = NativeConstants.TRUE;
         }
 

@@ -11,7 +11,7 @@ using WeifenLuo.WinFormsUI.Docking;
 
 namespace TheraEditor.Windows.Forms
 {
-    public partial class DockableActorTree : TheraForm
+    public partial class DockableActorTree : DockContent
     {
         public DockableActorTree()
         {

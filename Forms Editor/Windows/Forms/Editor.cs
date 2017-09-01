@@ -49,11 +49,17 @@ namespace TheraEditor.Windows.Forms
                 if (_project != null && !CloseProject())
                     return;
                 _project = value;
+                ContentTree?.DisplayProject(_project);
                 if (_project != null)
                 {
                     _project.EditorState = new EditorState();
-                    ContentTree?.DisplayProject(_project);
+                    if (string.IsNullOrEmpty(_project.FilePath))
+                        Text = "Thera Editor";
+                    else
+                        Text = "Thera Editor - " + _project.FilePath;
                 }
+                else
+                    Text = "Thera Editor";
             }
         }
         

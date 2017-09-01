@@ -39,7 +39,7 @@ namespace TheraEditor.Windows.Forms
         const int ALT_BIT = 32;
 
         private FileSystemWatcher _contentWatcher;
-        private bool _allowIcons = false;
+        private bool _allowIcons = true;
         private Dictionary<string, BaseFileWrapper> _externallyModifiedNodes = new Dictionary<string, BaseFileWrapper>();
 
         public event EventHandler SelectionChanged;
@@ -47,7 +47,7 @@ namespace TheraEditor.Windows.Forms
         [DefaultValue(true)]
         public bool AllowContextMenus { get; set; } = true;
 
-        [DefaultValue(false)]
+        [DefaultValue(true)]
         public bool ShowIcons
         {
             get => _allowIcons;
@@ -150,12 +150,13 @@ namespace TheraEditor.Windows.Forms
 
             _contentWatcher = null;
             Nodes.Clear();
+            ShowIcons = true;
 
             if (p == null || string.IsNullOrEmpty(p.FilePath))
+            {
+                ResumeLayout(true);
                 return;
-
-            ShowIcons = true;
-            AllowContextMenus = true;
+            }
 
             string dir = Path.GetDirectoryName(p.FilePath);
 
@@ -516,9 +517,10 @@ namespace TheraEditor.Windows.Forms
 
         protected override void OnAfterLabelEdit(NodeLabelEditEventArgs e)
         {
-            if (e.Label != null)
+            string text = e.Label ?? e.Node?.Text;
+            if (text != null)
             {
-                if (string.IsNullOrWhiteSpace(e.Label))
+                if (string.IsNullOrWhiteSpace(text))
                 {
                     e.CancelEdit = true;
                     MessageBox.Show("Name cannot be empty.");
@@ -526,34 +528,39 @@ namespace TheraEditor.Windows.Forms
                 }
                 else
                 {
+                    if (!e.Node.IsEditing)
+                        return;
                     e.Node.EndEdit(false);
+                    if (e.Node is BaseWrapper b)
+                    {
+                        bool isFile = b is BaseFileWrapper;
 
-                    BaseWrapper b = e.Node as BaseWrapper;
-                    bool isFile = b is BaseFileWrapper;
+                        if (isFile)
+                            b.Text = text + Path.GetExtension(b.FilePath);
+                        else
+                            b.Text = text;
 
-                    if (isFile)
-                        b.Text = e.Label + Path.GetExtension(b.FilePath);
-                    else
-                        b.Text = e.Label;
+                        Sort();
 
-                    Sort();
+                        //Rename actual file/folder
+                        //TODO: correct file name extension
+                        WatchProjectDirectory = false;
 
-                    //Rename actual file/folder
-                    //TODO: correct file name extension
-                    WatchProjectDirectory = false;
+                        string dir = Path.GetDirectoryName(b.FilePath);
+                        string newName = b.Text;
+                        string newPath = dir + "\\" + b.Text;
 
-                    string dir = Path.GetDirectoryName(b.FilePath);
-                    string newName = b.Text;
-                    string newPath = dir + "\\" + b.Text;
+                        if (!string.Equals(b.FilePath, newPath, StringComparison.InvariantCulture))
+                        {
+                            if (isFile)
+                                File.Move(b.FilePath, newPath);
+                            else
+                                Directory.Move(b.FilePath, newPath);
+                            b.FilePath = newPath;
+                        }
 
-                    if (isFile)
-                        File.Move(b.FilePath, newPath);
-                    else
-                        Directory.Move(b.FilePath, newPath);
-
-                    b.FilePath = newPath;
-
-                    WatchProjectDirectory = true;
+                        WatchProjectDirectory = true;
+                    }
                 }
             }
             base.OnAfterLabelEdit(e);

@@ -245,22 +245,13 @@
     <None Include="Resources\ClosedFolder.png" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\ClosedFolder1.png" />
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\Engine\Engine.csproj">
       <Project>{3ba74071-a8fb-473a-9388-0c8f75872f41}</Project>
       <Name>Engine</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\ClosedFolder2.png" />
-  </ItemGroup>
-  <ItemGroup>
     <None Include="Resources\ClosedFolder21.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\Logo.png" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\website favecon.png" />

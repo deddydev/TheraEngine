@@ -209,5 +209,12 @@ namespace TheraEditor.Wrappers
                 Process.Start("explorer.exe", dir);
             }
         }
+        protected internal override void FixPath(string parentFolderPath)
+        {
+            string fileName = Text;
+            if (!parentFolderPath.EndsWith("\\"))
+                parentFolderPath += "\\";
+            FilePath = parentFolderPath + fileName;
+        }
     }
 }

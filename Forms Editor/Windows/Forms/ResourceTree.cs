@@ -517,7 +517,7 @@ namespace TheraEditor.Windows.Forms
 
         protected override void OnAfterLabelEdit(NodeLabelEditEventArgs e)
         {
-            string text = e.Label ?? e.Node?.Text;
+            string text = e.Label;
             if (text != null)
             {
                 if (string.IsNullOrWhiteSpace(text))
@@ -528,8 +528,8 @@ namespace TheraEditor.Windows.Forms
                 }
                 else
                 {
-                    if (!e.Node.IsEditing)
-                        return;
+                    //if (!e.Node.IsEditing)
+                    //    return;
                     e.Node.EndEdit(false);
                     if (e.Node is BaseWrapper b)
                     {
@@ -561,6 +561,13 @@ namespace TheraEditor.Windows.Forms
 
                         WatchProjectDirectory = true;
                     }
+                }
+            }
+            else
+            {
+                if (e.Node is BaseFileWrapper f)
+                {
+                    f.Text += Path.GetExtension(f.FilePath);
                 }
             }
             base.OnAfterLabelEdit(e);

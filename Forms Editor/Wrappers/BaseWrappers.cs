@@ -91,11 +91,6 @@ namespace TheraEditor.Wrappers
         //    base.Remove();
         //}
 
-        public new void EndEdit(bool cancel)
-        {
-            base.EndEdit(cancel);
-        }
-
         public static BaseWrapper Wrap(string path)
         {
             BaseWrapper w = null;

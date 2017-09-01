@@ -143,5 +143,6 @@ namespace TheraEditor.Wrappers
         internal protected abstract void OnExpand();
         internal protected abstract void HandlePathDrop(string path, bool copy);
         internal protected abstract void HandleNodeDrop(BaseWrapper node, bool copy);
+        internal protected abstract void FixPath(string parentFolderPath);
     }
 }

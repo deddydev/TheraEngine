@@ -274,8 +274,11 @@ namespace TheraEditor.Wrappers
                 {
                     string name = Path.GetFileName(fileNode.FilePath);
                     string destPath = FilePath;
+                    if (string.IsNullOrEmpty(destPath))
+                        return;
                     if (!destPath.EndsWith("\\"))
                         destPath += "\\";
+                    TreeView.WatchProjectDirectory = false;
                     if (copy)
                         FileSystem.CopyFile(fileNode.FilePath, destPath + name, UIOption.AllDialogs, UICancelOption.ThrowException);
                     else
@@ -285,34 +288,65 @@ namespace TheraEditor.Wrappers
                 {
                     return;
                 }
+                finally
+                {
+                    TreeView.WatchProjectDirectory = true;
+                }
             }
             else if (node is FolderWrapper folderNode)
             {
                 try
                 {
                     string destPath = FilePath;
+                    if (string.IsNullOrEmpty(destPath))
+                        return;
                     if (!destPath.EndsWith("\\"))
                         destPath += "\\";
                     string folderName = Path.GetFileName(folderNode.FilePath);
                     destPath += folderName;
                     if (!Directory.Exists(destPath))
                         Directory.CreateDirectory(destPath);
+                    TreeView.WatchProjectDirectory = false;
                     if (copy)
+                    {
                         FileSystem.CopyDirectory(folderNode.FilePath, destPath, UIOption.AllDialogs, UICancelOption.ThrowException);
+                        Nodes.Add(Wrap(destPath));
+                    }
                     else
                     {
                         FileSystem.MoveDirectory(folderNode.FilePath, destPath, UIOption.AllDialogs, UICancelOption.ThrowException);
                         folderNode.FilePath = destPath;
                         folderNode.Remove();
-                        
+                        if (_isPopulated)
+                        {
+                            Nodes.Add(folderNode);
+                            folderNode.EnsureVisible();
+                            foreach (BaseWrapper b in Nodes)
+                                b.FixPath(destPath);
+                        }
+                        else
+                            Expand();
                     }
                 }
                 catch (OperationCanceledException e)
                 {
                     return;
                 }
-
+                finally
+                {
+                    TreeView.WatchProjectDirectory = true;
+                }
             }
+        }
+        protected internal override void FixPath(string parentFolderPath)
+        {
+            string folderName = Text;
+            if (!parentFolderPath.EndsWith("\\"))
+                parentFolderPath += "\\";
+            FilePath = parentFolderPath + folderName;
+            if (_isPopulated)
+                foreach (BaseWrapper b in Nodes)
+                    b.FixPath(FilePath + "\\");
         }
     }
 }

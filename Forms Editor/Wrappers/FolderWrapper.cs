@@ -260,7 +260,12 @@ namespace TheraEditor.Wrappers
             else
                 throw new Exception();
         }
-
+        public void OpenInExplorer()
+        {
+            string path = FilePath;
+            if (!string.IsNullOrEmpty(path))
+                Process.Start("explorer.exe", path);
+        }
         internal protected override void HandleNodeDrop(BaseWrapper node, bool copy)
         {
             if (node is BaseFileWrapper fileNode)
@@ -268,10 +273,13 @@ namespace TheraEditor.Wrappers
                 try
                 {
                     string name = Path.GetFileName(fileNode.FilePath);
+                    string destPath = FilePath;
+                    if (!destPath.EndsWith("\\"))
+                        destPath += "\\";
                     if (copy)
-                        FileSystem.CopyFile(fileNode.FilePath, FilePath + name, UIOption.AllDialogs, UICancelOption.ThrowException);
+                        FileSystem.CopyFile(fileNode.FilePath, destPath + name, UIOption.AllDialogs, UICancelOption.ThrowException);
                     else
-                        FileSystem.MoveFile(fileNode.FilePath, FilePath + name, UIOption.AllDialogs, UICancelOption.ThrowException);
+                        FileSystem.MoveFile(fileNode.FilePath, destPath + name, UIOption.AllDialogs, UICancelOption.ThrowException);
                 }
                 catch (OperationCanceledException e)
                 {
@@ -282,10 +290,22 @@ namespace TheraEditor.Wrappers
             {
                 try
                 {
+                    string destPath = FilePath;
+                    if (!destPath.EndsWith("\\"))
+                        destPath += "\\";
+                    string folderName = Path.GetFileName(folderNode.FilePath);
+                    destPath += folderName;
+                    if (!Directory.Exists(destPath))
+                        Directory.CreateDirectory(destPath);
                     if (copy)
-                        FileSystem.CopyDirectory(folderNode.FilePath, FilePath, UIOption.AllDialogs, UICancelOption.ThrowException);
+                        FileSystem.CopyDirectory(folderNode.FilePath, destPath, UIOption.AllDialogs, UICancelOption.ThrowException);
                     else
-                        FileSystem.MoveDirectory(folderNode.FilePath, FilePath, UIOption.AllDialogs, UICancelOption.ThrowException);
+                    {
+                        FileSystem.MoveDirectory(folderNode.FilePath, destPath, UIOption.AllDialogs, UICancelOption.ThrowException);
+                        folderNode.FilePath = destPath;
+                        folderNode.Remove();
+                        
+                    }
                 }
                 catch (OperationCanceledException e)
                 {

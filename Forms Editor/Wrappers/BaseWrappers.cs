@@ -71,11 +71,6 @@ namespace TheraEditor.Wrappers
         protected static T GetInstance<T>() where T : BaseWrapper
             => GetTree().SelectedNode as T;
 
-        public void OpenInExplorer()
-        {
-            if (!string.IsNullOrEmpty(FilePath))
-                Process.Start("explorer.exe", FilePath);
-        }
         public void Rename()
         {
             if (!IsEditing && TreeView.LabelEdit)

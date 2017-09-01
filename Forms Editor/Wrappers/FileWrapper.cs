@@ -5,6 +5,7 @@ using System.ComponentModel;
 using TheraEngine.Files;
 using Microsoft.VisualBasic.FileIO;
 using TheraEditor.Windows.Forms;
+using System.Diagnostics;
 
 namespace TheraEditor.Wrappers
 {
@@ -77,7 +78,8 @@ namespace TheraEditor.Wrappers
         protected static void RestoreAction(object sender, EventArgs e) { GetInstance<FileWrapper<T>>().Restore(); }
         protected static void DeleteAction(object sender, EventArgs e) { GetInstance<FileWrapper<T>>().Delete(); }
         protected static void RenameAction(object sender, EventArgs e) { GetInstance<FileWrapper<T>>().Rename(); }
-        protected static void ExplorerAction(object sender, EventArgs e) => GetInstance<FileWrapper<T>>().OpenInExplorer();
+        protected static void EditExternalAction(object sender, EventArgs e) { GetInstance<FileWrapper<T>>().OpenInExplorer(true); }
+        protected static void ExplorerAction(object sender, EventArgs e) => GetInstance<FileWrapper<T>>().OpenInExplorer(false);
         protected static void EditAction(object sender, EventArgs e) => GetInstance<FileWrapper<T>>().EditResource();
         protected static void CutAction(object sender, EventArgs e) => GetInstance<FileWrapper<T>>().Cut();
         protected static void CopyAction(object sender, EventArgs e) => GetInstance<FileWrapper<T>>().Copy();
@@ -190,6 +192,21 @@ namespace TheraEditor.Wrappers
             finally
             {
                 tree.WatchProjectDirectory = true;
+            }
+        }
+        public void OpenInExplorer(bool editFileExternally)
+        {
+            string path = FilePath;
+            if (string.IsNullOrEmpty(path))
+                return;
+            if (editFileExternally)
+                Process.Start("explorer.exe", path);
+            else
+            {
+                string dir = Path.GetDirectoryName(path);
+                if (string.IsNullOrEmpty(dir))
+                    return;
+                Process.Start("explorer.exe", dir);
             }
         }
     }

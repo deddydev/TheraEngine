@@ -188,22 +188,46 @@ namespace TheraEditor.Windows.Forms
 
         protected override void OnKeyDown(KeyEventArgs e)
         {
-            if (e.Modifiers == Keys.Control)
-                switch (e.KeyCode)
-                {
-                    case Keys.C:
+            switch (e.KeyCode)
+            {
+                case Keys.C:
+                    if (e.Modifiers == Keys.Control)
+                    {
                         e.SuppressKeyPress = true;
                         e.Handled = CopySelectedNodes();
                         return;
-                    case Keys.X:
+                    }
+                    break;
+                case Keys.X:
+                    if (e.Modifiers == Keys.Control)
+                    {
                         e.SuppressKeyPress = true;
                         e.Handled = CutSelectedNodes();
                         return;
-                    case Keys.V:
+                    }
+                    break;
+                case Keys.V:
+                    if (e.Modifiers == Keys.Control)
+                    {
                         e.SuppressKeyPress = true;
                         e.Handled = Paste();
                         return;
-                }
+                    }
+                    break;
+                case Keys.A:
+                    e.SuppressKeyPress = true;
+                    e.Handled = true;
+                    if (e.Modifiers == Keys.Control)
+                    {
+
+                        return;
+                    }
+                    else
+                    {
+
+                        return;
+                    }
+            }
 
             base.OnKeyDown(e);
         }

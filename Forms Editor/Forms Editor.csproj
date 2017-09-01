@@ -266,12 +266,6 @@
     <None Include="Resources\website favecon.png" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="open folder.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="closed folder.png" />
-  </ItemGroup>
-  <ItemGroup>
     <None Include="Resources\LockedFolder.png" />
   </ItemGroup>
   <ItemGroup>

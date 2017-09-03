@@ -189,8 +189,14 @@
     <Reference Include="BulletSharp">
       <HintPath>$(SolutionDir)Libraries\$(Platform)\BulletSharp.dll</HintPath>
     </Reference>
+    <Reference Include="DiffSharp">
+      <HintPath>..\packages\DiffSharp.0.7.7\lib\net46\DiffSharp.dll</HintPath>
+    </Reference>
     <Reference Include="FreeImageNET">
       <HintPath>$(SolutionDir)Libraries\$(Platform)\FreeImageNET.dll</HintPath>
+    </Reference>
+    <Reference Include="FSharp.Core">
+      <HintPath>..\packages\FSharp.Core.4.2.3\lib\net45\FSharp.Core.dll</HintPath>
     </Reference>
     <Reference Include="NetworkCommsDotNetComplete">
       <HintPath>..\Libraries\NetworkCommsDotNetComplete.dll</HintPath>

@@ -501,7 +501,65 @@ namespace TheraEditor.Windows.Forms
         }
         #endregion
 
+        #region Node Text Editing
+        [DllImport("USER32", EntryPoint = "SendMessage", CharSet = CharSet.Auto, SetLastError = true)]
+        public static extern IntPtr SendMessage(IntPtr hWnd, int msg, IntPtr wParam, string lParam);
+
+        public const int WM_SETTEXT = 0xC;
+        public const int TVM_GETEDITCONTROL = 0x110F;
+
+        public class NodeRequestTextEventArgs : CancelEventArgs
+        {
+            public NodeRequestTextEventArgs(TreeNode node, string label) : this()
+            {
+                Node = node;
+                Label = label;
+            }
+
+            protected NodeRequestTextEventArgs() { }
+
+            public TreeNode Node { get; protected set; }
+            public string Label { get; set; }
+        }
         protected override void OnBeforeLabelEdit(NodeLabelEditEventArgs e)
+        {
+            NodeRequestTextEventArgs editTextArgs;
+
+            // get the text to apply to the label
+            editTextArgs = new NodeRequestTextEventArgs(e.Node, _postEditText ?? e.Node.Text);
+            if (_postEditText == null)
+                OnRequestEditText(editTextArgs);
+            _postEditText = null;
+            
+            // cancel the edit if required
+            if (editTextArgs.Cancel)
+                e.CancelEdit = true;
+
+            // apply the text to the EDIT control
+            if (!e.CancelEdit)
+            {
+                IntPtr editHandle;
+
+                editHandle = SendMessage(Handle, TVM_GETEDITCONTROL, IntPtr.Zero, null); // Get the handle of the EDIT control
+                if (editHandle != IntPtr.Zero)
+                    SendMessage(editHandle, WM_SETTEXT, IntPtr.Zero, editTextArgs.Label); // And apply the text. Simples.
+            }
+            
+            base.OnBeforeLabelEdit(e);
+        }
+
+        [Category("Behavior")]
+        public event EventHandler<NodeLabelEditEventArgs> ValidateLabelEdit;
+        [Category("Behavior")]
+        public event EventHandler<NodeRequestTextEventArgs> RequestEditText;
+        [Category("Behavior")]
+        public event EventHandler<NodeRequestTextEventArgs> RequestDisplayText;
+        
+        protected virtual void OnRequestDisplayText(NodeRequestTextEventArgs e)
+        {
+            RequestDisplayText?.Invoke(this, e);
+        }
+        protected virtual void OnRequestEditText(NodeRequestTextEventArgs e)
         {
             if (e.Node is BaseFileWrapper)
             {
@@ -509,60 +567,88 @@ namespace TheraEditor.Windows.Forms
                 {
                     int i = e.Node.Text.LastIndexOf('.');
                     if (i >= 0)
-                        e.Node.Text = e.Node.Text.Substring(0, i);
+                        e.Label = e.Node.Text.Substring(0, i);
                 }
             }
-            base.OnBeforeLabelEdit(e);
+            RequestEditText?.Invoke(this, e);
+        }
+        protected virtual void OnValidateLabelEdit(NodeLabelEditEventArgs e)
+        {
+            if (string.IsNullOrWhiteSpace(e.Label))
+            {
+                e.CancelEdit = true;
+                MessageBox.Show("Name cannot be empty.");
+            }
+            ValidateLabelEdit?.Invoke(this, e);
         }
 
+        private string _postEditText;
         protected override void OnAfterLabelEdit(NodeLabelEditEventArgs e)
         {
-            string text = e.Label;
-            if (text != null)
+            if (e.Label != null) // if the user cancelled the edit this event is still raised, just with a null label
             {
-                if (string.IsNullOrWhiteSpace(text))
+                NodeLabelEditEventArgs validateEventArgs;
+
+                e.CancelEdit = true; // cancel the built in operation so we can substitute our own
+
+                validateEventArgs = new NodeLabelEditEventArgs(e.Node, e.Label);
+
+                OnValidateLabelEdit(validateEventArgs); // validate the users input
+
+                if (validateEventArgs.CancelEdit)
                 {
-                    e.CancelEdit = true;
-                    MessageBox.Show("Name cannot be empty.");
+                    // if the users input was invalid, enter edit mode again using the previously entered text to give them the chance to correct it
+                    _postEditText = e.Label;
                     e.Node.BeginEdit();
                 }
                 else
                 {
-                    //if (!e.Node.IsEditing)
-                    //    return;
-                    e.Node.EndEdit(false);
-                    if (e.Node is BaseWrapper b)
+                    NodeRequestTextEventArgs displayTextArgs;
+
+                    displayTextArgs = new NodeRequestTextEventArgs(e.Node, e.Label);
+                    OnRequestDisplayText(displayTextArgs);
+
+                    if (!displayTextArgs.Cancel)
                     {
-                        bool isFile = b is BaseFileWrapper;
-
-                        if (isFile)
-                            b.Text = text + Path.GetExtension(b.FilePath);
-                        else
-                            b.Text = text;
-
-                        Sort();
-
-                        //Rename actual file/folder
-                        //TODO: correct file name extension
-                        WatchProjectDirectory = false;
-
-                        string dir = Path.GetDirectoryName(b.FilePath);
-                        string newName = b.Text;
-                        string newPath = dir + "\\" + b.Text;
-
-                        if (!string.Equals(b.FilePath, newPath, StringComparison.InvariantCulture))
+                        string text = displayTextArgs.Label;
+                        if (e.Node is BaseWrapper b)
                         {
-                            if (isFile)
-                                File.Move(b.FilePath, newPath);
-                            else
-                                Directory.Move(b.FilePath, newPath);
-                            b.FilePath = newPath;
-                        }
+                            bool isFile = b is BaseFileWrapper;
 
-                        WatchProjectDirectory = true;
+                            if (isFile)
+                                b.Text = text + Path.GetExtension(b.FilePath);
+                            else
+                                b.Text = text;
+
+                            Sort();
+
+                            //Rename actual file/folder
+                            //TODO: correct file name extension
+                            WatchProjectDirectory = false;
+
+                            string dir = Path.GetDirectoryName(b.FilePath);
+                            string newName = b.Text;
+                            string newPath = dir + "\\" + b.Text;
+
+                            if (!string.Equals(b.FilePath, newPath, StringComparison.InvariantCulture))
+                            {
+                                if (isFile)
+                                    File.Move(b.FilePath, newPath);
+                                else
+                                    Directory.Move(b.FilePath, newPath);
+                                b.FilePath = newPath;
+                            }
+
+                            WatchProjectDirectory = true;
+                        }
+                        else
+                            e.Node.Text = text;
                     }
                 }
             }
+
+            base.OnAfterLabelEdit(e);
+            
             //else
             //{
             //    if (e.Node is BaseFileWrapper f)
@@ -570,8 +656,8 @@ namespace TheraEditor.Windows.Forms
             //        f.Text += Path.GetExtension(f.FilePath);
             //    }
             //}
-            base.OnAfterLabelEdit(e);
         }
+        #endregion
 
         protected override void OnBeforeExpand(TreeViewCancelEventArgs e)
         {

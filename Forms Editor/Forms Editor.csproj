@@ -13,6 +13,8 @@
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <TargetFrameworkProfile />
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
     <DebugSymbols>true</DebugSymbols>
@@ -75,6 +77,15 @@
       <HintPath Condition="'$(Platform)'=='x64'">$(SolutionDir)\Libraries\x64\BulletSharp.dll</HintPath>
       <HintPath Condition="'$(Platform)'=='AnyCPU'">$(SolutionDir)\Libraries\AnyCPU\BulletSharp.dll</HintPath>
     </Reference>
+    <Reference Include="DiffSharp, Version=0.7.7.0, Culture=neutral, processorArchitecture=AMD64">
+      <HintPath>..\packages\DiffSharp.0.7.7\lib\net46\DiffSharp.dll</HintPath>
+    </Reference>
+    <Reference Include="FSharp.Core, Version=4.4.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\FSharp.Core.4.2.3\lib\net45\FSharp.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="FSharp.Quotations.Evaluator, Version=1.0.6.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\FSharp.Quotations.Evaluator.1.0.6\lib\net40\FSharp.Quotations.Evaluator.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.Build" />
     <Reference Include="Microsoft.VisualBasic" />
     <Reference Include="System" />
@@ -108,6 +119,9 @@
     </Compile>
     <Compile Include="Windows\BorderlessForm\TheraForm.Designer.cs">
       <DependentUpon>TheraForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\Forms\BetterTreeView.cs">
+      <SubType>Component</SubType>
     </Compile>
     <Compile Include="Windows\Forms\Editor Forms\DockablePropertyGrid.cs">
       <SubType>Form</SubType>
@@ -267,6 +281,13 @@
     <PostBuildEvent>
     </PostBuildEvent>
   </PropertyGroup>
+  <Import Project="..\packages\DiffSharp.0.7.7\build\DiffSharp.targets" Condition="Exists('..\packages\DiffSharp.0.7.7\build\DiffSharp.targets')" />
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\packages\DiffSharp.0.7.7\build\DiffSharp.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\DiffSharp.0.7.7\build\DiffSharp.targets'))" />
+  </Target>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

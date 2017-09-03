@@ -378,8 +378,26 @@ namespace BorderlessForm
 
         [DllImport("shell32.dll")]
         public static extern int SHAppBarMessage(uint dwMessage, [In] ref APPBARDATA pData);
-    }
+        
+        [DllImport("user32.dll")]
+        public static extern bool AnimateWindow(IntPtr handle, int time, AnimateWindowFlags dwFlags);
 
+        [DllImport("user32.dll")]
+        public static extern bool SystemParametersInfo(uint uiAction, uint uiParam, IntPtr pvParam, uint fWinIni);
+    }
+    [Flags]
+    public enum AnimateWindowFlags : uint
+    {
+        AW_HOR_POSITIVE = 0x00000001,
+        AW_HOR_NEGATIVE = 0x00000002,
+        AW_VER_POSITIVE = 0x00000004,
+        AW_VER_NEGATIVE = 0x00000008,
+        AW_CENTER = 0x00000010,
+        AW_HIDE = 0x00010000,
+        AW_ACTIVATE = 0x00020000,
+        AW_SLIDE = 0x00040000,
+        AW_BLEND = 0x00080000
+    }
     public static class NativeConstants
     {
         public const int SM_CXSIZEFRAME = 32;
@@ -402,5 +420,12 @@ namespace BorderlessForm
 
         public const uint ABM_GETSTATE = 0x4;
         public const int ABS_AUTOHIDE = 0x1;
+
+        public const int AW_VER_POSITIVE = 0x00000004;
+        public const int AW_VER_NEGATIVE = 0x00000008;
+        public const int AW_SLIDE = 0x00040000;
+        public const int AW_HIDE = 0x00010000;
+
+        public const int SPI_GETWORKAREA = 0x0030;
     }
 }

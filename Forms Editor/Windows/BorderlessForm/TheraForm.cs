@@ -198,7 +198,7 @@ namespace TheraEditor.Windows.Forms
         {
             return WindowState = WindowState == FormWindowState.Maximized ? FormWindowState.Normal : FormWindowState.Maximized;
         }
-
+        
         private DateTime titleClickTime = DateTime.MinValue;
         private Point titleClickPosition = Point.Empty;
 

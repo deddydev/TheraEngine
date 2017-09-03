@@ -563,13 +563,13 @@ namespace TheraEditor.Windows.Forms
                     }
                 }
             }
-            else
-            {
-                if (e.Node is BaseFileWrapper f)
-                {
-                    f.Text += Path.GetExtension(f.FilePath);
-                }
-            }
+            //else
+            //{
+            //    if (e.Node is BaseFileWrapper f)
+            //    {
+            //        f.Text += Path.GetExtension(f.FilePath);
+            //    }
+            //}
             base.OnAfterLabelEdit(e);
         }
 

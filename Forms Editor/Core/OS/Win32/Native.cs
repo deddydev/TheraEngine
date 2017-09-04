@@ -4,7 +4,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 
-namespace BorderlessForm
+namespace Core.Win32.Native
 {
     public enum GetWindow_Cmd : uint
     {
@@ -330,10 +330,13 @@ namespace BorderlessForm
            IntPtr hwnd, IntPtr lptpm);
 
         [DllImport("user32.dll")]
-        public static extern int SendMessage(IntPtr hwnd, int wMsg, IntPtr wParam, IntPtr lParam);
+        public static extern IntPtr SendMessage(IntPtr hwnd, int wMsg, IntPtr wParam, string lParam);
 
         [DllImport("user32.dll")]
-        public static extern int SendMessage(IntPtr hwnd, int msg, int wparam, POINTS pos);
+        public static extern IntPtr SendMessage(IntPtr hwnd, int wMsg, IntPtr wParam, IntPtr lParam);
+
+        [DllImport("user32.dll")]
+        public static extern IntPtr SendMessage(IntPtr hwnd, int msg, int wparam, POINTS pos);
 
         [DllImport("user32.dll")]
         public static extern int PostMessage(IntPtr hwnd, int wMsg, IntPtr wParam, IntPtr lParam);
@@ -408,6 +411,7 @@ namespace BorderlessForm
         public const int GWL_STYLE = (-16);
         public const int GWL_EXSTYLE = (-20);
 
+        public const int WM_SETTEXT = 0xC;
         public const int WM_NCLBUTTONDOWN = 0x00A1;
         public const int WM_NCRBUTTONUP = 0x00A5;
 
@@ -427,5 +431,7 @@ namespace BorderlessForm
         public const int AW_HIDE = 0x00010000;
 
         public const int SPI_GETWORKAREA = 0x0030;
+
+        public const int TVM_GETEDITCONTROL = 0x110F;
     }
 }

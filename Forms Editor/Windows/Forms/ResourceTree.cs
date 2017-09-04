@@ -504,6 +504,8 @@ namespace TheraEditor.Windows.Forms
         #region Node Text Editing
         [DllImport("USER32", EntryPoint = "SendMessage", CharSet = CharSet.Auto, SetLastError = true)]
         public static extern IntPtr SendMessage(IntPtr hWnd, int msg, IntPtr wParam, string lParam);
+        [DllImport("USER32", EntryPoint = "SendMessage", CharSet = CharSet.Auto, SetLastError = true)]
+        public static extern IntPtr SendMessage(IntPtr hWnd, int msg, IntPtr wParam, IntPtr lParam);
 
         public const int WM_SETTEXT = 0xC;
         public const int TVM_GETEDITCONTROL = 0x110F;
@@ -540,7 +542,7 @@ namespace TheraEditor.Windows.Forms
             {
                 IntPtr editHandle;
 
-                editHandle = SendMessage(Handle, TVM_GETEDITCONTROL, IntPtr.Zero, null); // Get the handle of the EDIT control
+                editHandle = SendMessage(Handle, TVM_GETEDITCONTROL, IntPtr.Zero, IntPtr.Zero); // Get the handle of the EDIT control
                 if (editHandle != IntPtr.Zero)
                     SendMessage(editHandle, WM_SETTEXT, IntPtr.Zero, editTextArgs.Label); // And apply the text. Simples.
             }
@@ -610,6 +612,7 @@ namespace TheraEditor.Windows.Forms
 
                     if (!displayTextArgs.Cancel)
                     {
+                        e.Node.EndEdit(true);
                         string text = displayTextArgs.Label;
                         if (e.Node is BaseWrapper b)
                         {

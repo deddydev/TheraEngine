@@ -315,6 +315,12 @@
   <data name="btnViewPropertyGrid.Text" xml:space="preserve">
     <value>Property Grid</value>
   </data>
+  <data name="btnViewOutput.Size" type="System.Drawing.Size, System.Drawing">
+    <value>234, 30</value>
+  </data>
+  <data name="btnViewOutput.Text" xml:space="preserve">
+    <value>Output</value>
+  </data>
   <data name="viewToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
     <value>61, 29</value>
   </data>
@@ -322,13 +328,13 @@
     <value>View</value>
   </data>
   <data name="btPlay.Size" type="System.Drawing.Size, System.Drawing">
-    <value>162, 30</value>
+    <value>210, 30</value>
   </data>
   <data name="btPlay.Text" xml:space="preserve">
     <value>Play</value>
   </data>
   <data name="btnCompile.Size" type="System.Drawing.Size, System.Drawing">
-    <value>162, 30</value>
+    <value>210, 30</value>
   </data>
   <data name="btnCompile.Text" xml:space="preserve">
     <value>Compile</value>
@@ -346,7 +352,7 @@
     <value>10, 10, 10, 10</value>
   </data>
   <data name="menuStrip1.Size" type="System.Drawing.Size, System.Drawing">
-    <value>255, 50</value>
+    <value>393, 50</value>
   </data>
   <data name="menuStrip1.TabIndex" type="System.Int32, mscorlib">
     <value>0</value>
@@ -418,10 +424,10 @@
     <value>1</value>
   </data>
   <data name="FormTitle.Location" type="System.Drawing.Point, System.Drawing">
-    <value>464, 0</value>
+    <value>602, 0</value>
   </data>
   <data name="FormTitle.Size" type="System.Drawing.Size, System.Drawing">
-    <value>633, 50</value>
+    <value>495, 50</value>
   </data>
   <data name="&gt;&gt;FormTitle.Name" xml:space="preserve">
     <value>FormTitle</value>
@@ -749,6 +755,12 @@
   </data>
   <data name="&gt;&gt;DecorationToolTip.Type" xml:space="preserve">
     <value>System.Windows.Forms.ToolTip, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;btnViewOutput.Name" xml:space="preserve">
+    <value>btnViewOutput</value>
+  </data>
+  <data name="&gt;&gt;btnViewOutput.Type" xml:space="preserve">
+    <value>System.Windows.Forms.ToolStripMenuItem, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="&gt;&gt;$this.Name" xml:space="preserve">
     <value>Editor</value>

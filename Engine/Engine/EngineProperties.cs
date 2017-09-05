@@ -30,6 +30,7 @@ namespace TheraEngine
         public static string UserSettingsPathRel = ConfigFolderRel + "User.xuset";
 
         public static event Action<bool, PlayerIndex> Paused;
+        public static event Action<string> DebugOutput;
 
         public static Dictionary<string, List<FileObject>> LoadedFiles = new Dictionary<string, List<FileObject>>();
         public static MonitoredList<LocalPlayerController> ActivePlayers = new MonitoredList<LocalPlayerController>();

@@ -69,6 +69,7 @@
             this.TheraEngineText = new System.Windows.Forms.Label();
             this.DecorationToolTip = new System.Windows.Forms.ToolTip(this.components);
             this.DockPanel = new WeifenLuo.WinFormsUI.Docking.DockPanel();
+            this.btnViewOutput = new System.Windows.Forms.ToolStripMenuItem();
             this.BodyPanel.SuspendLayout();
             this.MainPanel.SuspendLayout();
             this.TitlePanel.SuspendLayout();
@@ -201,7 +202,8 @@
             this.btnViewActorTree,
             this.btnViewFileTree,
             this.btnViewTools,
-            this.btnViewPropertyGrid});
+            this.btnViewPropertyGrid,
+            this.btnViewOutput});
             this.viewToolStripMenuItem.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
             this.viewToolStripMenuItem.Name = "viewToolStripMenuItem";
             resources.ApplyResources(this.viewToolStripMenuItem, "viewToolStripMenuItem");
@@ -364,6 +366,12 @@
             this.DockPanel.DocumentStyle = WeifenLuo.WinFormsUI.Docking.DocumentStyle.DockingWindow;
             this.DockPanel.Name = "DockPanel";
             // 
+            // btnViewOutput
+            // 
+            this.btnViewOutput.Name = "btnViewOutput";
+            resources.ApplyResources(this.btnViewOutput, "btnViewOutput");
+            this.btnViewOutput.Click += new System.EventHandler(this.btnViewOutput_Click);
+            // 
             // Editor
             // 
             resources.ApplyResources(this, "$this");
@@ -425,6 +433,7 @@
         private System.Windows.Forms.ToolStripMenuItem viewport2ToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem viewport3ToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem viewport4ToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem btnViewOutput;
         //private TheraEngine.RenderPanel renderPanel1;
         //private ResourceTree resourceTree1;
     }

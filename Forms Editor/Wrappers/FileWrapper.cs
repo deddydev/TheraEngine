@@ -82,7 +82,7 @@ namespace TheraEditor.Wrappers
         private static void MenuOpening(object sender, CancelEventArgs e)
         {
             FileWrapper<T> w = GetInstance<FileWrapper<T>>();
-            _menu.Items[0].Enabled = w.TreeView.LabelEdit;
+            //_menu.Items[0].Enabled = w.TreeView.LabelEdit;
             _menu.Items[1].Enabled = !string.IsNullOrEmpty(w.FilePath) && File.Exists(w.FilePath);
             _menu.Items[5].Enabled = _menu.Items[8].Enabled = w.Parent != null;
             _menu.Items[6].Enabled = w.Resource.IsLoaded && w.Resource.File.EditorState.HasChanges;

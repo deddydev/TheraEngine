@@ -115,6 +115,12 @@
     <Compile Include="Windows\BorderlessForm\TheraForm.Designer.cs">
       <DependentUpon>TheraForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="Windows\Forms\Editor Forms\DockableOutputWindow.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Windows\Forms\Editor Forms\DockableOutputWindow.Designer.cs">
+      <DependentUpon>DockableOutputWindow.cs</DependentUpon>
+    </Compile>
     <Compile Include="Windows\Forms\TreeViewEx.cs" />
     <Compile Include="Windows\Forms\Editor Forms\DockablePropertyGrid.cs">
       <SubType>Form</SubType>
@@ -194,6 +200,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Windows\BorderlessForm\TheraForm.resx">
       <DependentUpon>TheraForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Windows\Forms\Editor Forms\DockableOutputWindow.resx">
+      <DependentUpon>DockableOutputWindow.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Windows\Forms\Editor Forms\DockablePropertyGrid.resx">
       <DependentUpon>DockablePropertyGrid.cs</DependentUpon>

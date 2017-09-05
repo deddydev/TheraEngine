@@ -98,7 +98,7 @@ namespace TheraEditor.Windows.Forms
             _dragTimer.Interval = 200;
             _dragTimer.Tick += new EventHandler(Timer_Tick);
 
-            LabelEdit = true;
+            LabelEdit = false;
             AllowDrop = true;
             Sorted = true;
             TreeViewNodeSorter = new NodeComparer();
@@ -357,23 +357,6 @@ namespace TheraEditor.Windows.Forms
             get => _contentWatcher.EnableRaisingEvents;
             set => _contentWatcher.EnableRaisingEvents = value;
         }
-        private void ContentWatcherRename(object sender, RenamedEventArgs e)
-        {
-            if (InvokeRequired)
-            {
-                Invoke(new Action<object, RenamedEventArgs>(ContentWatcherRename), sender, e);
-                return;
-            }
-
-            Engine.DebugPrint("Externally renamed '{0}' to '{1}'", -1, e.OldFullPath, e.FullPath);
-
-            BaseWrapper node = GetNode(e.OldFullPath);
-            if (node != null)
-            {
-                node.Text = Path.GetFileName(e.FullPath);
-                node.FilePath = e.FullPath;
-            }
-        }
         public BaseWrapper GetNode(string path)
         {
             TreeNode[] changedNodes = Nodes.Find(path, true);
@@ -429,6 +412,26 @@ namespace TheraEditor.Windows.Forms
                 }
             }
             return current;
+        }
+        private void ContentWatcherRename(object sender, RenamedEventArgs e)
+        {
+            if (InvokeRequired)
+            {
+                Invoke(new Action<object, RenamedEventArgs>(ContentWatcherRename), sender, e);
+                return;
+            }
+
+            Engine.DebugPrint("Externally renamed '{0}' to '{1}'", -1, e.OldFullPath, e.FullPath);
+
+            BaseWrapper node = GetNode(e.OldFullPath);
+            if (node != null)
+            {
+                node.Text = Path.GetFileName(e.FullPath);
+                node.FilePath = e.FullPath;
+                if (node is FolderWrapper f && f.IsPopulated)
+                    foreach (BaseWrapper b in f.Nodes)
+                        b.FixPath(f.FilePath);
+            }
         }
         private void ContentWatcherUpdate(object sender, FileSystemEventArgs e)
         {
@@ -549,14 +552,46 @@ namespace TheraEditor.Windows.Forms
                 {
                     WatchProjectDirectory = false;
                     Sort();
+
+                    //Windows is case-sensitive, but file/directory move isn't. Pretty dumb.
+                    bool caseChange = string.Equals(b.FilePath, newPath, StringComparison.InvariantCultureIgnoreCase);
                     if (isFile)
-                        File.Move(b.FilePath, newPath);
+                    {
+                        if (caseChange)
+                        {
+                            string[] names = Directory.GetFiles(dir);
+                            string name = "temp";
+                            int i = 0;
+                            while (names.Contains(name + (i++).ToString())) ;
+                            string tempPath = dir + "\\" + name + i.ToString();
+                            File.Move(b.FilePath, tempPath);
+                            File.Move(tempPath, newPath);
+                        }
+                        else
+                            File.Move(b.FilePath, newPath);
+                    }
                     else
-                        Directory.Move(b.FilePath, newPath);
+                    {
+                        if (caseChange)
+                        {
+                            string[] names = Directory.GetDirectories(dir);
+                            string name = "temp";
+                            int i = 0;
+                            while (names.Contains(name + (i++).ToString())) ;
+                            string tempPath = dir + "\\" + name + i.ToString();
+                            Directory.Move(b.FilePath, tempPath);
+                            Directory.Move(tempPath, newPath);
+                        }
+                        else
+                            Directory.Move(b.FilePath, newPath);
+                    }
+
                     b.FilePath = newPath;
                     WatchProjectDirectory = true;
                 }
             }
+
+            LabelEdit = false;
         }
 
         protected override void OnBeforeExpand(TreeViewCancelEventArgs e)

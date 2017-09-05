@@ -71,8 +71,11 @@ namespace TheraEditor.Wrappers
 
         public void Rename()
         {
-            if (!IsEditing && TreeView.LabelEdit)
+            if (!IsEditing)
+            {
+                TreeView.LabelEdit = true;
                 BeginEdit();
+            }
         }
 
         public void Paste() => TreeView.Paste(FilePath);
@@ -173,7 +176,8 @@ namespace TheraEditor.Wrappers
         }
         internal void HandleNodeDrop(BaseWrapper node, bool copy)
         {
-            string destPath = this is BaseFileWrapper ? Path.GetDirectoryName(FilePath) : FilePath;
+            bool isFileNode = this is BaseFileWrapper;
+            string destPath = isFileNode ? Path.GetDirectoryName(FilePath) : FilePath;
 
             if (string.IsNullOrEmpty(destPath))
                 return;

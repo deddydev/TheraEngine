@@ -32,6 +32,7 @@ namespace TheraEditor.Windows.Forms
         public DockableRenderForm RenderForm2;
         public DockableRenderForm RenderForm3;
         public DockableRenderForm RenderForm4;
+        public DockableOutputWindow OutputForm;
         public DockableActorTree ActorsForm = new DockableActorTree();
         public DockableFileTree FileForm = new DockableFileTree();
         public DockablePropertyGrid PropForm = new DockablePropertyGrid();
@@ -475,6 +476,14 @@ namespace TheraEditor.Windows.Forms
                 PropForm.Focus();
             else
                 (PropForm = new DockablePropertyGrid()).Show(DockPanel);
+        }
+
+        private void btnViewOutput_Click(object sender, EventArgs e)
+        {
+            if (OutputForm != null && !OutputForm.IsDisposed)
+                OutputForm.Focus();
+            else
+                (OutputForm = new DockableOutputWindow()).Show(DockPanel);
         }
     }
 }

@@ -358,6 +358,7 @@ namespace TheraEngine
             if (args.Length != 0)
                 message = string.Format(message, args);
             Debug.WriteLine(message);
+            DebugOutput?.Invoke(message);
             RenderPanel panel = RenderPanel.CapturedPanel;
             if (panel == null)
                 return;

@@ -59,7 +59,7 @@ namespace TheraEditor.Wrappers
         private static void MenuOpening(object sender, CancelEventArgs e)
         {
             FolderWrapper w = GetInstance<FolderWrapper>();
-            _menu.Items[0].Enabled = w.TreeView.LabelEdit;
+            //_menu.Items[0].Enabled = w.TreeView.LabelEdit;
             _menu.Items[1].Enabled = !string.IsNullOrEmpty(w.FilePath) && Directory.Exists(w.FilePath);
 
             bool paste = false;

@@ -216,126 +216,25 @@ namespace TheraEditor.Wrappers
             }
         }
         #endregion
-
-        internal protected override void HandlePathDrop(string path, bool copy)
-        {
-            bool? isDir = path.IsDirectory();
-            if (isDir == null)
-                return;
-            TreeView.WatchProjectDirectory = false;
-            string newPath;
-            try
-            {
-                if (isDir.Value)
-                {
-                    newPath = FilePath;
-                    if (copy)
-                        FileSystem.CopyDirectory(path, newPath, UIOption.AllDialogs, UICancelOption.ThrowException);
-                    else
-                        FileSystem.MoveDirectory(path, newPath, UIOption.AllDialogs, UICancelOption.ThrowException);
-                }
-                else
-                {
-                    string name = Path.GetFileName(path);
-                    newPath = FilePath + name;
-                    if (copy)
-                        FileSystem.CopyFile(path, newPath, UIOption.AllDialogs, UICancelOption.ThrowException);
-                    else
-                        FileSystem.MoveFile(path, newPath, UIOption.AllDialogs, UICancelOption.ThrowException);
-                }
-            }
-            catch (OperationCanceledException e)
-            {
-                //finally block is called before returning, despite appearing after
-                return;
-            }
-            finally
-            {
-                TreeView.WatchProjectDirectory = true;
-            }
-            
-            BaseWrapper child = Wrap(newPath);
-            if (child != null)
-                Nodes.Add(child);
-            else
-                throw new Exception();
-        }
+        
         public void OpenInExplorer()
         {
             string path = FilePath;
             if (!string.IsNullOrEmpty(path))
                 Process.Start("explorer.exe", path);
         }
-        internal protected override void HandleNodeDrop(BaseWrapper node, bool copy)
+        
+        [Localizable(true)]
+        public new string Text
         {
-            if (node is BaseFileWrapper fileNode)
+            get => base.Text;
+            set
             {
-                try
-                {
-                    string name = Path.GetFileName(fileNode.FilePath);
-                    string destPath = FilePath;
-                    if (string.IsNullOrEmpty(destPath))
-                        return;
-                    if (!destPath.EndsWith("\\"))
-                        destPath += "\\";
-                    TreeView.WatchProjectDirectory = false;
-                    if (copy)
-                        FileSystem.CopyFile(fileNode.FilePath, destPath + name, UIOption.AllDialogs, UICancelOption.ThrowException);
-                    else
-                        FileSystem.MoveFile(fileNode.FilePath, destPath + name, UIOption.AllDialogs, UICancelOption.ThrowException);
-                }
-                catch (OperationCanceledException e)
-                {
-                    return;
-                }
-                finally
-                {
-                    TreeView.WatchProjectDirectory = true;
-                }
-            }
-            else if (node is FolderWrapper folderNode)
-            {
-                try
-                {
-                    string destPath = FilePath;
-                    if (string.IsNullOrEmpty(destPath))
-                        return;
-                    if (!destPath.EndsWith("\\"))
-                        destPath += "\\";
-                    string folderName = Path.GetFileName(folderNode.FilePath);
-                    destPath += folderName;
-                    if (!Directory.Exists(destPath))
-                        Directory.CreateDirectory(destPath);
-                    TreeView.WatchProjectDirectory = false;
-                    if (copy)
-                    {
-                        FileSystem.CopyDirectory(folderNode.FilePath, destPath, UIOption.AllDialogs, UICancelOption.ThrowException);
-                        Nodes.Add(Wrap(destPath));
-                    }
-                    else
-                    {
-                        FileSystem.MoveDirectory(folderNode.FilePath, destPath, UIOption.AllDialogs, UICancelOption.ThrowException);
-                        folderNode.FilePath = destPath;
-                        folderNode.Remove();
-                        if (_isPopulated)
-                        {
-                            Nodes.Add(folderNode);
-                            folderNode.EnsureVisible();
-                            foreach (BaseWrapper b in Nodes)
-                                b.FixPath(destPath);
-                        }
-                        else
-                            Expand();
-                    }
-                }
-                catch (OperationCanceledException e)
-                {
-                    return;
-                }
-                finally
-                {
-                    TreeView.WatchProjectDirectory = true;
-                }
+                base.Text = value;
+                FilePath = Path.GetDirectoryName(FilePath) + "\\" + value;
+                if (_isPopulated)
+                    foreach (BaseWrapper b in Nodes)
+                        b.FixPath(FilePath + "\\");
             }
         }
         protected internal override void FixPath(string parentFolderPath)

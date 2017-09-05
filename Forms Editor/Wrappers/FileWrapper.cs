@@ -36,15 +36,6 @@ namespace TheraEditor.Wrappers
         {
 
         }
-
-        protected internal override void HandlePathDrop(string path, bool copy)
-        {
-
-        }
-        protected internal override void HandleNodeDrop(BaseWrapper node, bool copy)
-        {
-
-        }
     }
     public class FileWrapper<T> : BaseFileWrapper where T : FileObject
     {

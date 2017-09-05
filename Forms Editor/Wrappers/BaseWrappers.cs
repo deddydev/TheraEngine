@@ -62,10 +62,8 @@ namespace TheraEditor.Wrappers
         public bool IsPopulated => _isPopulated;
 
         public BaseWrapper(ContextMenuStrip menu)
-        {
-            ContextMenuStrip = menu;
-        }
-
+            => ContextMenuStrip = menu;
+        
         protected static ResourceTree GetTree()
             => Editor.Instance.ContentTree;
         protected static T GetInstance<T>() where T : BaseWrapper
@@ -77,6 +75,7 @@ namespace TheraEditor.Wrappers
                 BeginEdit();
         }
 
+        public void Paste() => TreeView.Paste(FilePath);
         public void Cut() => SetClipboard(true);
         public void Copy() => SetClipboard(false);
         private void SetClipboard(bool cut)
@@ -84,13 +83,7 @@ namespace TheraEditor.Wrappers
             string[] paths = new string[] { FilePath };//Directory.GetFileSystemEntries(path, "*.*", System.IO.SearchOption.TopDirectoryOnly);
             ResourceTree.SetClipboard(paths, cut);
         }
-        public void Paste() => TreeView.Paste(FilePath);
-
-        //public new void Remove()
-        //{
-        //    base.Remove();
-        //}
-
+        
         public static BaseWrapper Wrap(string path)
         {
             BaseWrapper w = null;
@@ -141,8 +134,113 @@ namespace TheraEditor.Wrappers
         }
 
         internal protected abstract void OnExpand();
-        internal protected abstract void HandlePathDrop(string path, bool copy);
-        internal protected abstract void HandleNodeDrop(BaseWrapper node, bool copy);
         internal protected abstract void FixPath(string parentFolderPath);
+
+        internal void HandlePathDrop(string path, bool copy)
+        {
+            bool? isDir = path.IsDirectory();
+            if (isDir == null)
+                return;
+            string newPath = this is BaseFileWrapper ? Path.GetDirectoryName(FilePath) : FilePath;
+            try
+            {
+                if (isDir.Value)
+                {
+                    if (copy)
+                        FileSystem.CopyDirectory(path, newPath, UIOption.AllDialogs, UICancelOption.ThrowException);
+                    else
+                        FileSystem.MoveDirectory(path, newPath, UIOption.AllDialogs, UICancelOption.ThrowException);
+                }
+                else
+                {
+                    newPath += Path.GetFileName(path);
+                    if (copy)
+                        FileSystem.CopyFile(path, newPath, UIOption.AllDialogs, UICancelOption.ThrowException);
+                    else
+                        FileSystem.MoveFile(path, newPath, UIOption.AllDialogs, UICancelOption.ThrowException);
+                }
+            }
+            catch (OperationCanceledException e)
+            {
+                return;
+            }
+
+            BaseWrapper child = Wrap(newPath);
+            if (child != null)
+                Nodes.Add(child);
+            else
+                throw new Exception();
+        }
+        internal void HandleNodeDrop(BaseWrapper node, bool copy)
+        {
+            string destPath = this is BaseFileWrapper ? Path.GetDirectoryName(FilePath) : FilePath;
+
+            if (string.IsNullOrEmpty(destPath))
+                return;
+
+            if (!destPath.EndsWith("\\"))
+                destPath += "\\";
+
+            string fileName = Path.GetFileName(node.FilePath);
+            destPath += fileName;
+
+            if (string.Equals(node.FilePath, destPath, StringComparison.InvariantCulture))
+                return;
+
+            if (node is BaseFileWrapper fileNode)
+            {
+                try
+                {
+                    //Let the content watcher handle the node creation
+                    if (copy)
+                        FileSystem.CopyFile(fileNode.FilePath, destPath, UIOption.AllDialogs, UICancelOption.ThrowException);
+                    else
+                    {
+                        FileSystem.MoveFile(fileNode.FilePath, destPath, UIOption.AllDialogs, UICancelOption.ThrowException);
+                        fileNode.Remove();
+                    }
+                }
+                catch (OperationCanceledException e) { }
+            }
+            else if (node is FolderWrapper folderNode)
+            {
+                try
+                {
+                    if (!Directory.Exists(destPath))
+                        Directory.CreateDirectory(destPath);
+
+                    //Let the content watcher handle the node creation
+                    if (copy)
+                    {
+                        FileSystem.CopyDirectory(folderNode.FilePath, destPath, UIOption.AllDialogs, UICancelOption.ThrowException);
+                        //if (_isPopulated)
+                        //{
+                        //    BaseWrapper newFolderNode = Wrap(destPath);
+                        //    Nodes.Add(newFolderNode);
+                        //    newFolderNode.EnsureVisible();
+                        //    TreeView.SelectedNode = newFolderNode;
+                        //}
+                    }
+                    else
+                    {
+                        FileSystem.MoveDirectory(folderNode.FilePath, destPath, UIOption.AllDialogs, UICancelOption.ThrowException);
+                        //folderNode.FilePath = destPath;
+                        folderNode.Remove();
+                        //if (_isPopulated)
+                        //{
+                        //    Nodes.Add(folderNode);
+                        //    folderNode.EnsureVisible();
+                        //    TreeView.SelectedNode = folderNode;
+                        //    if (folderNode.IsPopulated)
+                        //        foreach (BaseWrapper b in folderNode.Nodes)
+                        //            b.FixPath(destPath);
+                        //}
+                        //else
+                        //    Expand();
+                    }
+                }
+                catch (OperationCanceledException e) { }
+            }
+        }
     }
 }

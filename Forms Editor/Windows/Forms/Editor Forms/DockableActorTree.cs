@@ -17,5 +17,10 @@ namespace TheraEditor.Windows.Forms
         {
             InitializeComponent();
         }
+
+        private void ActorTree_AfterSelect(object sender, TreeViewEventArgs e)
+        {
+            Editor.Instance.PropForm.PropertyGrid.SelectedObject = e.Node.Tag;
+        }
     }
 }

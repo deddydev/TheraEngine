@@ -44,6 +44,10 @@
             this.btnWorldSettings = new System.Windows.Forms.ToolStripMenuItem();
             this.viewToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.btnViewViewport = new System.Windows.Forms.ToolStripMenuItem();
+            this.viewport1ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.viewport2ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.viewport3ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.viewport4ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.btnViewActorTree = new System.Windows.Forms.ToolStripMenuItem();
             this.btnViewFileTree = new System.Windows.Forms.ToolStripMenuItem();
             this.btnViewTools = new System.Windows.Forms.ToolStripMenuItem();
@@ -65,10 +69,6 @@
             this.TheraEngineText = new System.Windows.Forms.Label();
             this.DecorationToolTip = new System.Windows.Forms.ToolTip(this.components);
             this.DockPanel = new WeifenLuo.WinFormsUI.Docking.DockPanel();
-            this.viewport1ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.viewport2ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.viewport3ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.viewport4ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.BodyPanel.SuspendLayout();
             this.MainPanel.SuspendLayout();
             this.TitlePanel.SuspendLayout();
@@ -216,11 +216,35 @@
             this.btnViewViewport.Name = "btnViewViewport";
             resources.ApplyResources(this.btnViewViewport, "btnViewViewport");
             // 
+            // viewport1ToolStripMenuItem
+            // 
+            this.viewport1ToolStripMenuItem.Name = "viewport1ToolStripMenuItem";
+            resources.ApplyResources(this.viewport1ToolStripMenuItem, "viewport1ToolStripMenuItem");
+            this.viewport1ToolStripMenuItem.Click += new System.EventHandler(this.Viewport1ToolStripMenuItem_Click);
+            // 
+            // viewport2ToolStripMenuItem
+            // 
+            this.viewport2ToolStripMenuItem.Name = "viewport2ToolStripMenuItem";
+            resources.ApplyResources(this.viewport2ToolStripMenuItem, "viewport2ToolStripMenuItem");
+            this.viewport2ToolStripMenuItem.Click += new System.EventHandler(this.viewport2ToolStripMenuItem_Click);
+            // 
+            // viewport3ToolStripMenuItem
+            // 
+            this.viewport3ToolStripMenuItem.Name = "viewport3ToolStripMenuItem";
+            resources.ApplyResources(this.viewport3ToolStripMenuItem, "viewport3ToolStripMenuItem");
+            this.viewport3ToolStripMenuItem.Click += new System.EventHandler(this.viewport3ToolStripMenuItem_Click);
+            // 
+            // viewport4ToolStripMenuItem
+            // 
+            this.viewport4ToolStripMenuItem.Name = "viewport4ToolStripMenuItem";
+            resources.ApplyResources(this.viewport4ToolStripMenuItem, "viewport4ToolStripMenuItem");
+            this.viewport4ToolStripMenuItem.Click += new System.EventHandler(this.viewport4ToolStripMenuItem_Click);
+            // 
             // btnViewActorTree
             // 
             this.btnViewActorTree.Name = "btnViewActorTree";
             resources.ApplyResources(this.btnViewActorTree, "btnViewActorTree");
-            this.btnViewActorTree.Click += new System.EventHandler(this.btnViewActorTree_Click);
+            this.btnViewActorTree.Click += new System.EventHandler(this.BtnViewActorTree_Click);
             // 
             // btnViewFileTree
             // 
@@ -339,30 +363,6 @@
             resources.ApplyResources(this.DockPanel, "DockPanel");
             this.DockPanel.DocumentStyle = WeifenLuo.WinFormsUI.Docking.DocumentStyle.DockingWindow;
             this.DockPanel.Name = "DockPanel";
-            // 
-            // viewport1ToolStripMenuItem
-            // 
-            this.viewport1ToolStripMenuItem.Name = "viewport1ToolStripMenuItem";
-            resources.ApplyResources(this.viewport1ToolStripMenuItem, "viewport1ToolStripMenuItem");
-            this.viewport1ToolStripMenuItem.Click += new System.EventHandler(this.viewport1ToolStripMenuItem_Click);
-            // 
-            // viewport2ToolStripMenuItem
-            // 
-            this.viewport2ToolStripMenuItem.Name = "viewport2ToolStripMenuItem";
-            resources.ApplyResources(this.viewport2ToolStripMenuItem, "viewport2ToolStripMenuItem");
-            this.viewport2ToolStripMenuItem.Click += new System.EventHandler(this.viewport2ToolStripMenuItem_Click);
-            // 
-            // viewport3ToolStripMenuItem
-            // 
-            this.viewport3ToolStripMenuItem.Name = "viewport3ToolStripMenuItem";
-            resources.ApplyResources(this.viewport3ToolStripMenuItem, "viewport3ToolStripMenuItem");
-            this.viewport3ToolStripMenuItem.Click += new System.EventHandler(this.viewport3ToolStripMenuItem_Click);
-            // 
-            // viewport4ToolStripMenuItem
-            // 
-            this.viewport4ToolStripMenuItem.Name = "viewport4ToolStripMenuItem";
-            resources.ApplyResources(this.viewport4ToolStripMenuItem, "viewport4ToolStripMenuItem");
-            this.viewport4ToolStripMenuItem.Click += new System.EventHandler(this.viewport4ToolStripMenuItem_Click);
             // 
             // Editor
             // 

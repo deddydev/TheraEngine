@@ -125,11 +125,13 @@ namespace System
         {
 
         }
+
         public Vec3 GetForwardVector() => _quaternion * Vec3.Forward;
         public Vec3 GetUpVector() => _quaternion * Vec3.Up;
         public Vec3 GetRightVector() => _quaternion * Vec3.Right;
         public Matrix4 GetRotationMatrix() => _rotation.GetMatrix();
 
+        [Browsable(false)]
         public Matrix4 Matrix
         {
             get => _transform;
@@ -143,7 +145,17 @@ namespace System
                 //Quaternion = r;
             }
         }
-        public Matrix4 InverseMatrix => _inverseTransform;
+
+        [Browsable(false)]
+        public Matrix4 InverseMatrix
+        {
+            get => _inverseTransform;
+            set
+            {
+                _inverseTransform = value;
+                _transform = _inverseTransform.Inverted();
+            }
+        }
 
         public EventVec3 Translation
         {
@@ -154,16 +166,19 @@ namespace System
                 _translation.Changed += CreateTransform;
             }
         }
+        [Browsable(false)]
         public float Yaw
         {
             get => _rotation.Yaw;
             set => _rotation.Yaw = value;
         }
+        [Browsable(false)]
         public float Pitch
         {
             get => _rotation.Pitch;
             set => _rotation.Pitch = value;
         }
+        [Browsable(false)]
         public float Roll
         {
             get => _rotation.Roll;

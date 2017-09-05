@@ -43,6 +43,7 @@
             this.ActorTree.Name = "ActorTree";
             this.ActorTree.Size = new System.Drawing.Size(728, 585);
             this.ActorTree.TabIndex = 2;
+            this.ActorTree.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.ActorTree_AfterSelect);
             // 
             // DockableActorTree
             // 

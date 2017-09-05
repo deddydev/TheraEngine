@@ -29,9 +29,9 @@ namespace TheraEditor.Windows.Forms
         private Assembly _gameProgram;
         
         public DockableRenderForm RenderForm1 = new DockableRenderForm(PlayerIndex.One);
-        public DockableRenderForm RenderForm2 = new DockableRenderForm(PlayerIndex.Two);
-        public DockableRenderForm RenderForm3 = new DockableRenderForm(PlayerIndex.Three);
-        public DockableRenderForm RenderForm4 = new DockableRenderForm(PlayerIndex.Four);
+        public DockableRenderForm RenderForm2;
+        public DockableRenderForm RenderForm3;
+        public DockableRenderForm RenderForm4;
         public DockableActorTree ActorsForm = new DockableActorTree();
         public DockableFileTree FileForm = new DockableFileTree();
         public DockablePropertyGrid PropForm = new DockablePropertyGrid();
@@ -170,13 +170,13 @@ namespace TheraEditor.Windows.Forms
         public Action OnRedrawn;
         private void Redraw()
         {
-            if (RenderForm1.Visible)
+            if (!RenderForm1.IsDisposed)
                 RenderForm1.RenderPanel.Invalidate();
-            if (RenderForm2.Visible)
+            if (RenderForm2 != null && !RenderForm2.IsDisposed)
                 RenderForm2.RenderPanel.Invalidate();
-            if (RenderForm3.Visible)
+            if (RenderForm3 != null && !RenderForm3.IsDisposed)
                 RenderForm3.RenderPanel.Invalidate();
-            if (RenderForm4.Visible)
+            if (RenderForm4 != null && !RenderForm4.IsDisposed)
                 RenderForm4.RenderPanel.Invalidate();
             Application.DoEvents();
         }
@@ -421,60 +421,60 @@ namespace TheraEditor.Windows.Forms
             base.OnActivated(e);
         }
 
-        private void btnViewActorTree_Click(object sender, EventArgs e)
+        private void BtnViewActorTree_Click(object sender, EventArgs e)
         {
-            if (ActorsForm.Visible)
+            if (!ActorsForm.IsDisposed)
                 ActorsForm.Focus();
             else
-                ActorsForm.Show(DockPanel);
+                (ActorsForm = new DockableActorTree()).Show(DockPanel);
         }
 
-        private void viewport1ToolStripMenuItem_Click(object sender, EventArgs e)
+        private void Viewport1ToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (RenderForm1.Visible)
+            if (RenderForm1 != null && !RenderForm1.IsDisposed)
                 RenderForm1.Focus();
             else
-                RenderForm1.Show(DockPanel);
+                (RenderForm1 = new DockableRenderForm(PlayerIndex.One)).Show(DockPanel);
         }
 
         private void viewport2ToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (RenderForm2.Visible)
+            if (RenderForm2 != null && !RenderForm2.IsDisposed)
                 RenderForm2.Focus();
             else
-                RenderForm2.Show(DockPanel);
+                (RenderForm2 = new DockableRenderForm(PlayerIndex.One)).Show(DockPanel);
         }
 
         private void viewport3ToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (RenderForm3.Visible)
+            if (RenderForm3 != null && !RenderForm3.IsDisposed)
                 RenderForm3.Focus();
             else
-                RenderForm3.Show(DockPanel);
+                (RenderForm3 = new DockableRenderForm(PlayerIndex.One)).Show(DockPanel);
         }
 
         private void viewport4ToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (RenderForm4.Visible)
+            if (RenderForm4 != null && !RenderForm4.IsDisposed)
                 RenderForm4.Focus();
             else
-                RenderForm4.Show(DockPanel);
+                (RenderForm4 = new DockableRenderForm(PlayerIndex.One)).Show(DockPanel);
         }
 
         private void btnViewFileTree_Click(object sender, EventArgs e)
         {
-            if (FileForm.Visible)
+            if (!FileForm.IsDisposed)
                 FileForm.Focus();
             else
-                FileForm.Show(DockPanel);
+                (FileForm = new DockableFileTree()).Show(DockPanel);
         }
 
         private void btnViewPropertyGrid_Click(object sender, EventArgs e)
         {
-            if (PropForm.Visible)
+            if (!PropForm.IsDisposed)
                 PropForm.Focus();
             else
-                PropForm.Show(DockPanel);
+                (PropForm = new DockablePropertyGrid()).Show(DockPanel);
         }
     }
 }

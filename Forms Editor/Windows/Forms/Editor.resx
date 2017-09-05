@@ -136,7 +136,7 @@
     <value>DockPanel</value>
   </data>
   <data name="&gt;&gt;DockPanel.Type" xml:space="preserve">
-    <value>WeifenLuo.WinFormsUI.Docking.DockPanel, WeifenLuo.WinFormsUI.Docking, Version=2.16.0.0, Culture=neutral, PublicKeyToken=5cded1a1a0a7b481</value>
+    <value>WeifenLuo.WinFormsUI.Docking.DockPanel, WeifenLuo.WinFormsUI.Docking, Version=3.0.0.0, Culture=neutral, PublicKeyToken=5cded1a1a0a7b481</value>
   </data>
   <data name="&gt;&gt;DockPanel.Parent" xml:space="preserve">
     <value>BodyPanel</value>
@@ -262,25 +262,25 @@
     <value>Edit</value>
   </data>
   <data name="viewport1ToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
-    <value>210, 30</value>
+    <value>182, 30</value>
   </data>
   <data name="viewport1ToolStripMenuItem.Text" xml:space="preserve">
     <value>Viewport 1</value>
   </data>
   <data name="viewport2ToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
-    <value>210, 30</value>
+    <value>182, 30</value>
   </data>
   <data name="viewport2ToolStripMenuItem.Text" xml:space="preserve">
     <value>Viewport 2</value>
   </data>
   <data name="viewport3ToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
-    <value>210, 30</value>
+    <value>182, 30</value>
   </data>
   <data name="viewport3ToolStripMenuItem.Text" xml:space="preserve">
     <value>Viewport 3</value>
   </data>
   <data name="viewport4ToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
-    <value>210, 30</value>
+    <value>182, 30</value>
   </data>
   <data name="viewport4ToolStripMenuItem.Text" xml:space="preserve">
     <value>Viewport 4</value>
@@ -322,13 +322,13 @@
     <value>View</value>
   </data>
   <data name="btPlay.Size" type="System.Drawing.Size, System.Drawing">
-    <value>210, 30</value>
+    <value>162, 30</value>
   </data>
   <data name="btPlay.Text" xml:space="preserve">
     <value>Play</value>
   </data>
   <data name="btnCompile.Size" type="System.Drawing.Size, System.Drawing">
-    <value>210, 30</value>
+    <value>162, 30</value>
   </data>
   <data name="btnCompile.Text" xml:space="preserve">
     <value>Compile</value>
@@ -618,6 +618,30 @@
   <data name="&gt;&gt;btnViewViewport.Type" xml:space="preserve">
     <value>System.Windows.Forms.ToolStripMenuItem, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
+  <data name="&gt;&gt;viewport1ToolStripMenuItem.Name" xml:space="preserve">
+    <value>viewport1ToolStripMenuItem</value>
+  </data>
+  <data name="&gt;&gt;viewport1ToolStripMenuItem.Type" xml:space="preserve">
+    <value>System.Windows.Forms.ToolStripMenuItem, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;viewport2ToolStripMenuItem.Name" xml:space="preserve">
+    <value>viewport2ToolStripMenuItem</value>
+  </data>
+  <data name="&gt;&gt;viewport2ToolStripMenuItem.Type" xml:space="preserve">
+    <value>System.Windows.Forms.ToolStripMenuItem, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;viewport3ToolStripMenuItem.Name" xml:space="preserve">
+    <value>viewport3ToolStripMenuItem</value>
+  </data>
+  <data name="&gt;&gt;viewport3ToolStripMenuItem.Type" xml:space="preserve">
+    <value>System.Windows.Forms.ToolStripMenuItem, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;viewport4ToolStripMenuItem.Name" xml:space="preserve">
+    <value>viewport4ToolStripMenuItem</value>
+  </data>
+  <data name="&gt;&gt;viewport4ToolStripMenuItem.Type" xml:space="preserve">
+    <value>System.Windows.Forms.ToolStripMenuItem, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
   <data name="&gt;&gt;btnViewActorTree.Name" xml:space="preserve">
     <value>btnViewActorTree</value>
   </data>
@@ -725,30 +749,6 @@
   </data>
   <data name="&gt;&gt;DecorationToolTip.Type" xml:space="preserve">
     <value>System.Windows.Forms.ToolTip, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;viewport1ToolStripMenuItem.Name" xml:space="preserve">
-    <value>viewport1ToolStripMenuItem</value>
-  </data>
-  <data name="&gt;&gt;viewport1ToolStripMenuItem.Type" xml:space="preserve">
-    <value>System.Windows.Forms.ToolStripMenuItem, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;viewport2ToolStripMenuItem.Name" xml:space="preserve">
-    <value>viewport2ToolStripMenuItem</value>
-  </data>
-  <data name="&gt;&gt;viewport2ToolStripMenuItem.Type" xml:space="preserve">
-    <value>System.Windows.Forms.ToolStripMenuItem, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;viewport3ToolStripMenuItem.Name" xml:space="preserve">
-    <value>viewport3ToolStripMenuItem</value>
-  </data>
-  <data name="&gt;&gt;viewport3ToolStripMenuItem.Type" xml:space="preserve">
-    <value>System.Windows.Forms.ToolStripMenuItem, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;viewport4ToolStripMenuItem.Name" xml:space="preserve">
-    <value>viewport4ToolStripMenuItem</value>
-  </data>
-  <data name="&gt;&gt;viewport4ToolStripMenuItem.Type" xml:space="preserve">
-    <value>System.Windows.Forms.ToolStripMenuItem, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="&gt;&gt;$this.Name" xml:space="preserve">
     <value>Editor</value>

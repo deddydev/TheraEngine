@@ -126,7 +126,7 @@
     <value>0, 0</value>
   </data>
   <data name="DockPanel.Size" type="System.Drawing.Size, System.Drawing">
-    <value>1103, 701</value>
+    <value>1240, 887</value>
   </data>
   <assembly alias="mscorlib" name="mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
   <data name="DockPanel.TabIndex" type="System.Int32, mscorlib">
@@ -148,7 +148,7 @@
     <value>0, 45</value>
   </data>
   <data name="BodyPanel.Size" type="System.Drawing.Size, System.Drawing">
-    <value>1103, 701</value>
+    <value>1240, 887</value>
   </data>
   <data name="&gt;&gt;BodyPanel.Name" xml:space="preserve">
     <value>BodyPanel</value>
@@ -163,7 +163,7 @@
     <value>0</value>
   </data>
   <data name="MainPanel.Size" type="System.Drawing.Size, System.Drawing">
-    <value>1103, 746</value>
+    <value>1240, 932</value>
   </data>
   <data name="&gt;&gt;MainPanel.Name" xml:space="preserve">
     <value>MainPanel</value>
@@ -184,13 +184,13 @@
     <value>Left</value>
   </data>
   <data name="btnNewProject.Size" type="System.Drawing.Size, System.Drawing">
-    <value>185, 26</value>
+    <value>217, 30</value>
   </data>
   <data name="btnNewProject.Text" xml:space="preserve">
     <value>New Project</value>
   </data>
   <data name="btnOpenProject.Size" type="System.Drawing.Size, System.Drawing">
-    <value>185, 26</value>
+    <value>217, 30</value>
   </data>
   <data name="btnOpenProject.Text" xml:space="preserve">
     <value>Open Project</value>
@@ -199,7 +199,7 @@
     <value>False</value>
   </data>
   <data name="btnSaveProject.Size" type="System.Drawing.Size, System.Drawing">
-    <value>185, 26</value>
+    <value>217, 30</value>
   </data>
   <data name="btnSaveProject.Text" xml:space="preserve">
     <value>Save Project</value>
@@ -208,19 +208,19 @@
     <value>False</value>
   </data>
   <data name="btnSaveProjectAs.Size" type="System.Drawing.Size, System.Drawing">
-    <value>185, 26</value>
+    <value>217, 30</value>
   </data>
   <data name="btnSaveProjectAs.Text" xml:space="preserve">
     <value>Save Project As</value>
   </data>
   <data name="fileToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
-    <value>44, 24</value>
+    <value>50, 29</value>
   </data>
   <data name="fileToolStripMenuItem.Text" xml:space="preserve">
     <value>File</value>
   </data>
   <data name="btnEditorSettings.Size" type="System.Drawing.Size, System.Drawing">
-    <value>187, 26</value>
+    <value>219, 30</value>
   </data>
   <data name="btnEditorSettings.Text" xml:space="preserve">
     <value>Editor Settings</value>
@@ -229,7 +229,7 @@
     <value>False</value>
   </data>
   <data name="btnProjectSettings.Size" type="System.Drawing.Size, System.Drawing">
-    <value>187, 26</value>
+    <value>219, 30</value>
   </data>
   <data name="btnProjectSettings.Text" xml:space="preserve">
     <value>Project Settings</value>
@@ -238,7 +238,7 @@
     <value>False</value>
   </data>
   <data name="btnEngineSettings.Size" type="System.Drawing.Size, System.Drawing">
-    <value>187, 26</value>
+    <value>219, 30</value>
   </data>
   <data name="btnEngineSettings.Text" xml:space="preserve">
     <value>Engine Settings</value>
@@ -247,115 +247,115 @@
     <value>False</value>
   </data>
   <data name="btnUserSettings.Size" type="System.Drawing.Size, System.Drawing">
-    <value>187, 26</value>
+    <value>219, 30</value>
   </data>
   <data name="btnUserSettings.Text" xml:space="preserve">
     <value>User Settings</value>
   </data>
   <data name="btnWorldSettings.Size" type="System.Drawing.Size, System.Drawing">
-    <value>187, 26</value>
+    <value>219, 30</value>
   </data>
   <data name="btnWorldSettings.Text" xml:space="preserve">
     <value>World Settings</value>
   </data>
   <data name="editToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
-    <value>47, 24</value>
+    <value>54, 29</value>
   </data>
   <data name="editToolStripMenuItem.Text" xml:space="preserve">
     <value>Edit</value>
   </data>
   <data name="viewport1ToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
-    <value>156, 26</value>
+    <value>182, 30</value>
   </data>
   <data name="viewport1ToolStripMenuItem.Text" xml:space="preserve">
     <value>Viewport 1</value>
   </data>
   <data name="viewport2ToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
-    <value>156, 26</value>
+    <value>182, 30</value>
   </data>
   <data name="viewport2ToolStripMenuItem.Text" xml:space="preserve">
     <value>Viewport 2</value>
   </data>
   <data name="viewport3ToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
-    <value>156, 26</value>
+    <value>182, 30</value>
   </data>
   <data name="viewport3ToolStripMenuItem.Text" xml:space="preserve">
     <value>Viewport 3</value>
   </data>
   <data name="viewport4ToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
-    <value>156, 26</value>
+    <value>182, 30</value>
   </data>
   <data name="viewport4ToolStripMenuItem.Text" xml:space="preserve">
     <value>Viewport 4</value>
   </data>
   <data name="btnViewViewport.Size" type="System.Drawing.Size, System.Drawing">
-    <value>201, 26</value>
+    <value>234, 30</value>
   </data>
   <data name="btnViewViewport.Text" xml:space="preserve">
     <value>Viewport</value>
   </data>
   <data name="btnViewActorTree.Size" type="System.Drawing.Size, System.Drawing">
-    <value>201, 26</value>
+    <value>234, 30</value>
   </data>
   <data name="btnViewActorTree.Text" xml:space="preserve">
     <value>Scene Actors Tree</value>
   </data>
   <data name="btnViewFileTree.Size" type="System.Drawing.Size, System.Drawing">
-    <value>201, 26</value>
+    <value>234, 30</value>
   </data>
   <data name="btnViewFileTree.Text" xml:space="preserve">
     <value>Project Files Tree</value>
   </data>
   <data name="btnViewTools.Size" type="System.Drawing.Size, System.Drawing">
-    <value>201, 26</value>
+    <value>234, 30</value>
   </data>
   <data name="btnViewTools.Text" xml:space="preserve">
     <value>Tools</value>
   </data>
   <data name="btnViewPropertyGrid.Size" type="System.Drawing.Size, System.Drawing">
-    <value>201, 26</value>
+    <value>234, 30</value>
   </data>
   <data name="btnViewPropertyGrid.Text" xml:space="preserve">
     <value>Property Grid</value>
   </data>
   <data name="btnViewOutput.Size" type="System.Drawing.Size, System.Drawing">
-    <value>201, 26</value>
+    <value>234, 30</value>
   </data>
   <data name="btnViewOutput.Text" xml:space="preserve">
     <value>Output</value>
   </data>
   <data name="viewToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
-    <value>53, 24</value>
+    <value>61, 29</value>
   </data>
   <data name="viewToolStripMenuItem.Text" xml:space="preserve">
     <value>View</value>
   </data>
   <data name="btPlay.Size" type="System.Drawing.Size, System.Drawing">
-    <value>140, 26</value>
+    <value>210, 30</value>
   </data>
   <data name="btPlay.Text" xml:space="preserve">
     <value>Play</value>
   </data>
   <data name="btnCompile.Size" type="System.Drawing.Size, System.Drawing">
-    <value>140, 26</value>
+    <value>210, 30</value>
   </data>
   <data name="btnCompile.Text" xml:space="preserve">
     <value>Compile</value>
   </data>
   <data name="gameToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
-    <value>60, 24</value>
+    <value>70, 29</value>
   </data>
   <data name="gameToolStripMenuItem.Text" xml:space="preserve">
     <value>Game</value>
   </data>
   <data name="menuStrip1.Location" type="System.Drawing.Point, System.Drawing">
-    <value>175, 0</value>
+    <value>207, 0</value>
   </data>
   <data name="menuStrip1.Padding" type="System.Windows.Forms.Padding, System.Windows.Forms">
-    <value>10, 10, 10, 10</value>
+    <value>8, 8, 8, 8</value>
   </data>
   <data name="menuStrip1.Size" type="System.Drawing.Size, System.Drawing">
-    <value>224, 45</value>
+    <value>251, 45</value>
   </data>
   <data name="menuStrip1.TabIndex" type="System.Int32, mscorlib">
     <value>0</value>
@@ -381,14 +381,17 @@
   <data name="TheraEngineText.Font" type="System.Drawing.Font, System.Drawing">
     <value>Origicide, 10pt</value>
   </data>
+  <data name="TheraEngineText.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>NoControl</value>
+  </data>
   <data name="TheraEngineText.Location" type="System.Drawing.Point, System.Drawing">
-    <value>44, 0</value>
+    <value>50, 0</value>
   </data>
   <data name="TheraEngineText.Padding" type="System.Windows.Forms.Padding, System.Windows.Forms">
     <value>4, 0, 0, 0</value>
   </data>
   <data name="TheraEngineText.Size" type="System.Drawing.Size, System.Drawing">
-    <value>131, 45</value>
+    <value>157, 45</value>
   </data>
   <data name="TheraEngineText.TabIndex" type="System.Int32, mscorlib">
     <value>1</value>
@@ -412,7 +415,7 @@
     <value>2</value>
   </data>
   <data name="TitlePanel.Size" type="System.Drawing.Size, System.Drawing">
-    <value>1103, 45</value>
+    <value>1240, 45</value>
   </data>
   <data name="&gt;&gt;TitlePanel.Name" xml:space="preserve">
     <value>TitlePanel</value>
@@ -427,13 +430,13 @@
     <value>1</value>
   </data>
   <data name="FormTitle.Location" type="System.Drawing.Point, System.Drawing">
-    <value>399, 0</value>
+    <value>458, 0</value>
   </data>
   <data name="FormTitle.Padding" type="System.Windows.Forms.Padding, System.Windows.Forms">
-    <value>8, 0, 8, 0</value>
+    <value>8, 8, 8, 8</value>
   </data>
   <data name="FormTitle.Size" type="System.Drawing.Size, System.Drawing">
-    <value>577, 45</value>
+    <value>639, 45</value>
   </data>
   <data name="&gt;&gt;FormTitle.Name" xml:space="preserve">
     <value>FormTitle</value>
@@ -448,7 +451,7 @@
     <value>0</value>
   </data>
   <data name="MiddlePanel.Size" type="System.Drawing.Size, System.Drawing">
-    <value>1103, 754</value>
+    <value>1240, 942</value>
   </data>
   <data name="&gt;&gt;MiddlePanel.Name" xml:space="preserve">
     <value>MiddlePanel</value>
@@ -466,67 +469,67 @@
     <value>173, 17</value>
   </metadata>
   <data name="btnImportModel.Size" type="System.Drawing.Size, System.Drawing">
-    <value>132, 26</value>
+    <value>151, 30</value>
   </data>
   <data name="btnImportModel.Text" xml:space="preserve">
     <value>Model</value>
   </data>
   <data name="btnImportTexture.Size" type="System.Drawing.Size, System.Drawing">
-    <value>132, 26</value>
+    <value>151, 30</value>
   </data>
   <data name="btnImportTexture.Text" xml:space="preserve">
     <value>Texture</value>
   </data>
   <data name="BtnImportFile.Size" type="System.Drawing.Size, System.Drawing">
-    <value>123, 24</value>
+    <value>139, 30</value>
   </data>
   <data name="BtnImportFile.Text" xml:space="preserve">
     <value>Import</value>
   </data>
   <data name="btnNewWorld.Size" type="System.Drawing.Size, System.Drawing">
-    <value>205, 26</value>
+    <value>242, 30</value>
   </data>
   <data name="btnNewWorld.Text" xml:space="preserve">
     <value>World</value>
   </data>
   <data name="btnNewMap.Size" type="System.Drawing.Size, System.Drawing">
-    <value>205, 26</value>
+    <value>242, 30</value>
   </data>
   <data name="btnNewMap.Text" xml:space="preserve">
     <value>Map</value>
   </data>
   <data name="btnNewActor.Size" type="System.Drawing.Size, System.Drawing">
-    <value>205, 26</value>
+    <value>242, 30</value>
   </data>
   <data name="btnNewActor.Text" xml:space="preserve">
     <value>Actor</value>
   </data>
   <data name="btnNewSceneComponent.Size" type="System.Drawing.Size, System.Drawing">
-    <value>205, 26</value>
+    <value>242, 30</value>
   </data>
   <data name="btnNewSceneComponent.Text" xml:space="preserve">
     <value>Scene Component</value>
   </data>
   <data name="btnNewLogicComponent.Size" type="System.Drawing.Size, System.Drawing">
-    <value>205, 26</value>
+    <value>242, 30</value>
   </data>
   <data name="btnNewLogicComponent.Text" xml:space="preserve">
     <value>Logic Component</value>
   </data>
   <data name="btnNewMaterial.Size" type="System.Drawing.Size, System.Drawing">
-    <value>205, 26</value>
+    <value>242, 30</value>
   </data>
   <data name="btnNewMaterial.Text" xml:space="preserve">
     <value>Material</value>
   </data>
   <data name="BtnNewFile.Size" type="System.Drawing.Size, System.Drawing">
-    <value>123, 24</value>
+    <value>139, 30</value>
   </data>
   <data name="BtnNewFile.Text" xml:space="preserve">
     <value>New</value>
   </data>
   <data name="ctxContentTree.Size" type="System.Drawing.Size, System.Drawing">
-    <value>124, 52</value>
+    <value>140, 64</value>
   </data>
   <data name="&gt;&gt;ctxContentTree.Name" xml:space="preserve">
     <value>ctxContentTree</value>
@@ -541,16 +544,16 @@
     <value>True</value>
   </metadata>
   <data name="$this.AutoScaleDimensions" type="System.Drawing.SizeF, System.Drawing">
-    <value>8, 16</value>
+    <value>9, 20</value>
   </data>
   <data name="$this.ClientSize" type="System.Drawing.Size, System.Drawing">
-    <value>1111, 754</value>
+    <value>1250, 942</value>
   </data>
   <data name="$this.Location" type="System.Drawing.Point, System.Drawing">
     <value>0, 0</value>
   </data>
   <data name="$this.MinimumSize" type="System.Drawing.Size, System.Drawing">
-    <value>1000, 500</value>
+    <value>1125, 625</value>
   </data>
   <data name="&gt;&gt;fileToolStripMenuItem.Name" xml:space="preserve">
     <value>fileToolStripMenuItem</value>

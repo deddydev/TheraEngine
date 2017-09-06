@@ -124,11 +124,11 @@ namespace TheraEditor.Windows.Forms
 
             MappableActions = new Dictionary<Keys, Func<bool>>()
             {
-                { Keys.Delete, Shortcut_Delete },
-                { Keys.Control | Keys.C, Shortcut_Copy },
-                { Keys.Control | Keys.X, Shortcut_Cut },
-                { Keys.Control | Keys.V, Shortcut_Paste },
-                { Keys.Control | Keys.A, Shortcut_SelectAll },
+                { Keys.Delete,           DeleteSelectedNodes    },
+                { Keys.Control | Keys.C, CopySelectedNodes      },
+                { Keys.Control | Keys.X, CutSelectedNodes       },
+                { Keys.Control | Keys.V, Paste                  },
+                { Keys.Control | Keys.A, SelectAllVisibleNodes         },
             };
         }
 
@@ -205,6 +205,8 @@ namespace TheraEditor.Windows.Forms
         }
 
         #region Keys
+
+        public Dictionary<Keys, Func<bool>> MappableActions { get; private set; }
         protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
         {
             if (msg.Msg == NativeConstants.WM_KEYDOWN || 
@@ -238,10 +240,19 @@ namespace TheraEditor.Windows.Forms
             }
             return base.ProcessCmdKey(ref msg, keyData);
         }
+        protected override void OnKeyDown(KeyEventArgs e)
+        {
+            if (MappableActions.ContainsKey(e.KeyData))
+            {
+                e.SuppressKeyPress = true;
+                e.Handled = MappableActions[e.KeyData]();
+                return;
+            }
+            base.OnKeyDown(e);
+        }
 
-        public Dictionary<Keys, Func<bool>> MappableActions { get; private set; } 
-
-        private bool Shortcut_Delete()
+        #region Shortcuts
+        public bool DeleteSelectedNodes()
         {
             if (SelectedNodes.Count > 0)
             {
@@ -253,66 +264,20 @@ namespace TheraEditor.Windows.Forms
             }
             return false;
         }
-
-        protected override void OnKeyDown(KeyEventArgs e)
+        public bool SelectAllVisibleNodes()
         {
-            if (MappableActions.ContainsKey(e.KeyData))
+            List<BaseWrapper> nodes = new List<BaseWrapper>();
+            TreeNode node = Nodes[0];
+            while (node != null)
             {
-                e.SuppressKeyPress = true;
-                e.Handled = MappableActions[e.KeyData]();
-                return;
+                nodes.Add(node as BaseWrapper);
+                node = node.NextVisibleNode;
             }
-
-            switch (e.KeyCode)
-            {
-                case Keys.Delete:
-                    e.SuppressKeyPress = true;
-                    
-                    break;
-                case Keys.C:
-                    if (e.Control)
-                    {
-                        e.SuppressKeyPress = true;
-                        e.Handled = CopySelectedNodes();
-                        return;
-                    }
-                    break;
-                case Keys.X:
-                    if (e.Control)
-                    {
-                        e.SuppressKeyPress = true;
-                        e.Handled = CutSelectedNodes();
-                        return;
-                    }
-                    break;
-                case Keys.V:
-                    if (e.Control)
-                    {
-                        e.SuppressKeyPress = true;
-                        e.Handled = Paste();
-                        return;
-                    }
-                    break;
-                case Keys.A:
-                    if (e.Control)
-                    {
-                        e.SuppressKeyPress = true;
-                        e.Handled = true;
-                        if (e.Shift)
-                        {
-
-                        }
-                        else
-                        {
-
-                        }
-                        return;
-                    }
-                    break;
-            }
-
-            base.OnKeyDown(e);
+            SelectedNodes = nodes;
+            return true;
         }
+        #endregion
+
         #endregion
 
         #region Copy Cut Paste
@@ -370,12 +335,12 @@ namespace TheraEditor.Windows.Forms
                 return;
             
             bool? isDestDir = destPath.IsDirectory();
-            if (isDestDir.HasValue && !isDestDir.Value)
+            //if (isDestDir.HasValue && !isDestDir.Value)
                 destPath = Path.GetDirectoryName(destPath);
             if (!destPath.EndsWith("\\"))
                 destPath += "\\";
 
-            WatchProjectDirectory = false;
+            //WatchProjectDirectory = false;
             foreach (string pastedPath in pastedPaths)
             {
                 bool? isDir = pastedPath.IsDirectory();
@@ -383,32 +348,59 @@ namespace TheraEditor.Windows.Forms
                     continue;
 
                 string name = Path.GetFileName(pastedPath);
+
+                bool sameLocation = string.Equals(pastedPath, destPath + name, StringComparison.InvariantCulture);
+                if (sameLocation)
+                {
+                    if (cut)
+                        continue;
+                    //string[] names = isDir.Value ? Directory.GetDirectories(destPath) : Directory.GetFiles(destPath);
+                    //int i = 1;
+                    //while (names.Contains(string.Format("{0}({1})", name, i.ToString()))) ++i;
+                    //destPath += string.Format("{0}({1})", name, i.ToString());
+                    if (isDir.Value)
+                        name += " - Copy";
+                    else
+                        name = Path.GetFileNameWithoutExtension(pastedPath) + " - Copy" + Path.GetExtension(pastedPath);
+                }
+
                 destPath += name;
+
+                //bool caseChange = string.Equals(pastedPath, destPath, StringComparison.InvariantCultureIgnoreCase) && !sameLocation;
+
                 if (isDir.Value)
                 {
                     if (!Directory.Exists(destPath))
                         Directory.CreateDirectory(destPath);
                     if (cut)
+                    {
                         FileSystem.MoveDirectory(pastedPath, destPath, UIOption.AllDialogs, UICancelOption.DoNothing);
+                    }
                     else
+                    {
                         FileSystem.CopyDirectory(pastedPath, destPath, UIOption.AllDialogs, UICancelOption.DoNothing);
+                    }
                 }
                 else
                 {
                     if (cut)
+                    {
                         FileSystem.MoveFile(pastedPath, destPath, UIOption.AllDialogs, UICancelOption.DoNothing);
+                    }
                     else
+                    {
                         FileSystem.CopyFile(pastedPath, destPath, UIOption.AllDialogs, UICancelOption.DoNothing);
-                    FindOrCreatePath(destPath);
+                    }
+                    //FindOrCreatePath(destPath);
                 }
             }
-            WatchProjectDirectory = true;
+            //WatchProjectDirectory = true;
 
-            BaseWrapper node = FindOrCreatePath(destPath);
-            if (node != null && node.IsPopulated)
-            {
+            //BaseWrapper node = FindOrCreatePath(destPath);
+            //if (node != null && node.IsPopulated)
+            //{
 
-            }
+            //}
         }
         #endregion
 
@@ -647,7 +639,7 @@ namespace TheraEditor.Windows.Forms
                             string[] names = Directory.GetFiles(dir);
                             string name = "temp";
                             int i = 0;
-                            while (names.Contains(name + (i++).ToString())) ;
+                            while (names.Contains(name + i.ToString())) ++i;
                             string tempPath = dir + "\\" + name + i.ToString();
                             File.Move(b.FilePath, tempPath);
                             File.Move(tempPath, newPath);
@@ -662,7 +654,7 @@ namespace TheraEditor.Windows.Forms
                             string[] names = Directory.GetDirectories(dir);
                             string name = "temp";
                             int i = 0;
-                            while (names.Contains(name + (i++).ToString())) ;
+                            while (names.Contains(name + i.ToString())) ++i;
                             string tempPath = dir + "\\" + name + i.ToString();
                             Directory.Move(b.FilePath, tempPath);
                             Directory.Move(tempPath, newPath);

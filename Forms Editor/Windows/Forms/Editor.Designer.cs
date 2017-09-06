@@ -108,7 +108,7 @@
             // 
             this.menuStrip1.BackColor = System.Drawing.Color.Transparent;
             resources.ApplyResources(this.menuStrip1, "menuStrip1");
-            this.menuStrip1.GripMargin = new System.Windows.Forms.Padding(0, 0, 0, 0);
+            this.menuStrip1.GripMargin = new System.Windows.Forms.Padding(0);
             this.menuStrip1.ImageScalingSize = new System.Drawing.Size(24, 24);
             this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.fileToolStripMenuItem,

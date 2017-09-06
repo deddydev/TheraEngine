@@ -196,16 +196,12 @@ namespace TheraEditor.Wrappers
             {
                 try
                 {
-                    //Let the content watcher handle the node creation
                     if (copy)
                         FileSystem.CopyFile(fileNode.FilePath, destPath, UIOption.AllDialogs, UICancelOption.ThrowException);
                     else
-                    {
                         FileSystem.MoveFile(fileNode.FilePath, destPath, UIOption.AllDialogs, UICancelOption.ThrowException);
-                        fileNode.Remove();
-                    }
                 }
-                catch (OperationCanceledException e) { }
+                catch (OperationCanceledException e) { return; }
             }
             else if (node is FolderWrapper folderNode)
             {
@@ -213,38 +209,12 @@ namespace TheraEditor.Wrappers
                 {
                     if (!Directory.Exists(destPath))
                         Directory.CreateDirectory(destPath);
-
-                    //Let the content watcher handle the node creation
                     if (copy)
-                    {
                         FileSystem.CopyDirectory(folderNode.FilePath, destPath, UIOption.AllDialogs, UICancelOption.ThrowException);
-                        //if (_isPopulated)
-                        //{
-                        //    BaseWrapper newFolderNode = Wrap(destPath);
-                        //    Nodes.Add(newFolderNode);
-                        //    newFolderNode.EnsureVisible();
-                        //    TreeView.SelectedNode = newFolderNode;
-                        //}
-                    }
                     else
-                    {
                         FileSystem.MoveDirectory(folderNode.FilePath, destPath, UIOption.AllDialogs, UICancelOption.ThrowException);
-                        //folderNode.FilePath = destPath;
-                        folderNode.Remove();
-                        //if (_isPopulated)
-                        //{
-                        //    Nodes.Add(folderNode);
-                        //    folderNode.EnsureVisible();
-                        //    TreeView.SelectedNode = folderNode;
-                        //    if (folderNode.IsPopulated)
-                        //        foreach (BaseWrapper b in folderNode.Nodes)
-                        //            b.FixPath(destPath);
-                        //}
-                        //else
-                        //    Expand();
-                    }
                 }
-                catch (OperationCanceledException e) { }
+                catch (OperationCanceledException e) { return; }
             }
 
             if (!isFileNode && !IsPopulated && Nodes.Count == 0)

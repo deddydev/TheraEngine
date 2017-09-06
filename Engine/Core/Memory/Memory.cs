@@ -25,7 +25,7 @@ namespace System
                         Linux.memmove(dst, src, size);
                     break;
                 default:
-                    Engine.DebugPrint(Environment.OSVersion.Platform.ToString() + " not supported.");
+                    Engine.PrintLine(Environment.OSVersion.Platform.ToString() + " not supported.");
                     break;
             }
         }
@@ -50,7 +50,7 @@ namespace System
                             Linux.memset(dest, value, length);
                         break;
                 default:
-                    Engine.DebugPrint(Environment.OSVersion.Platform.ToString() + " not supported.");
+                    Engine.PrintLine(Environment.OSVersion.Platform.ToString() + " not supported.");
                     break;
             }
         }

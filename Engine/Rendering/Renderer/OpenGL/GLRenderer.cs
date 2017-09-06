@@ -239,7 +239,7 @@ namespace TheraEngine.Rendering.OpenGL
             int handle = GL.CreateShader(_currentShaderMode);
             if (handle == 0)
             {
-                Engine.DebugPrint("GL.CreateShader did not return a valid binding id.");
+                Engine.PrintLine("GL.CreateShader did not return a valid binding id.");
                 return 0;
             }
 
@@ -253,10 +253,10 @@ namespace TheraEngine.Rendering.OpenGL
                 GL.GetShaderInfoLog(handle, out string info);
 
                 if (string.IsNullOrEmpty(info) && status == 0)
-                    Engine.DebugPrint("Unable to compile shader, but no error was returned.");
+                    Engine.PrintLine("Unable to compile shader, but no error was returned.");
                 else
                 {
-                    Engine.DebugPrint(info + "\n\n");
+                    Engine.PrintLine(info + "\n\n");
 
                     //Split the source by new lines
                     string[] s = source.Split(new string[] { Environment.NewLine }, StringSplitOptions.None);
@@ -264,9 +264,9 @@ namespace TheraEngine.Rendering.OpenGL
                     //Add the line number to the source so we can go right to errors on specific lines
                     int lineNumber = 1;
                     foreach (string line in s)
-                        Engine.DebugPrint(string.Format("{0}: {1}", (lineNumber++).ToString().PadLeft(s.Length.ToString().Length, '0'), line));
+                        Engine.PrintLine(string.Format("{0}: {1}", (lineNumber++).ToString().PadLeft(s.Length.ToString().Length, '0'), line));
 
-                    Engine.DebugPrint("\n\n");
+                    Engine.PrintLine("\n\n");
                 }
             }
 #endif
@@ -300,9 +300,9 @@ namespace TheraEngine.Rendering.OpenGL
             {
                 GL.GetProgramInfoLog(handle, out string info);
                 if (string.IsNullOrEmpty(info))
-                    Engine.DebugPrint("Unable to link program, but no error was returned.");
+                    Engine.PrintLine("Unable to link program, but no error was returned.");
                 else
-                    Engine.DebugPrint(info);
+                    Engine.PrintLine(info);
             }
 
             //We don't need these anymore now that they're part of the program

@@ -27,18 +27,19 @@ namespace TheraEditor.Windows.Forms
         
         private Project _project;
         private Assembly _gameProgram;
-        
-        public DockableRenderForm RenderForm1 = new DockableRenderForm(PlayerIndex.One);
+        private DeserializeDockContent _deserializeDockContent;
+
+        public DockableRenderForm RenderForm1 = new DockableRenderForm(PlayerIndex.One, 0);
         public DockableRenderForm RenderForm2;
         public DockableRenderForm RenderForm3;
         public DockableRenderForm RenderForm4;
-        public DockableOutputWindow OutputForm;
-        public DockableActorTree ActorsForm = new DockableActorTree();
-        public DockableFileTree FileForm = new DockableFileTree();
-        public DockablePropertyGrid PropForm = new DockablePropertyGrid();
+        public DockableOutputWindow OutputForm = new DockableOutputWindow();
+        public DockableActorTree ActorTreeForm = new DockableActorTree();
+        public DockableFileTree FileTreeForm = new DockableFileTree();
+        public DockablePropertyGrid PropertyGridForm = new DockablePropertyGrid();
         
-        public ResourceTree ContentTree => FileForm.ContentTree;
-        public TreeView ActorTree => ActorsForm.ActorTree;
+        public ResourceTree ContentTree => FileTreeForm.ContentTree;
+        public TreeView ActorTree => ActorTreeForm.ActorTree;
         
         public Project Project
         {
@@ -50,7 +51,7 @@ namespace TheraEditor.Windows.Forms
                 if (_project != null && !CloseProject())
                     return;
                 _project = value;
-                ContentTree?.DisplayProject(_project);
+                ContentTree?.OpenPath(_project?.FilePath);
                 if (_project != null)
                 {
                     _project.EditorState = new EditorState();
@@ -84,13 +85,15 @@ namespace TheraEditor.Windows.Forms
             Engine.SetGame(Project);
             InitializeComponent();
             menuStrip1.Renderer = new TheraToolstripRenderer();
+            _deserializeDockContent = new DeserializeDockContent(GetContentFromPersistString);
 
             DockPanel.Theme = new TheraEditorTheme();
 
             DockPanel.SuspendLayout(true);
-            ActorsForm.Show(DockPanel, DockState.DockRight);
-            FileForm.Show(DockPanel, DockState.DockLeft);
-            PropForm.Show(ActorsForm.Pane, DockAlignment.Bottom, 0.5);
+            OutputForm.Show(DockPanel, DockState.DockBottom);
+            ActorTreeForm.Show(DockPanel, DockState.DockRight);
+            FileTreeForm.Show(DockPanel, DockState.DockLeft);
+            PropertyGridForm.Show(ActorTreeForm.Pane, DockAlignment.Bottom, 0.5);
             RenderForm1.Show(DockPanel, DockState.Document);
             DockPanel.ResumeLayout(true, true);
 
@@ -105,7 +108,38 @@ namespace TheraEditor.Windows.Forms
                 Engine.World.State.SpawnedActors.PostRemoved += SpawnedActors_PostRemoved;
             }
         }
-        
+        private IDockContent GetContentFromPersistString(string persistString)
+        {
+            if (persistString == typeof(DockableActorTree).ToString())
+                return ActorTreeForm;
+            else if (persistString == typeof(DockableFileTree).ToString())
+                return FileTreeForm;
+            else if (persistString == typeof(DockableOutputWindow).ToString())
+                return OutputForm;
+            else if (persistString == typeof(DockablePropertyGrid).ToString())
+                return PropertyGridForm;
+            else
+            {
+                string[] parsedStrings = persistString.Split(new char[] { ',' });
+                if (parsedStrings.Length == 0)
+                    return null;
+                string type = parsedStrings[0];
+                if (type == typeof(RenderForm).ToString())
+                {
+                    if (parsedStrings.Length < 2)
+                        return null;
+                    switch (parsedStrings[1])
+                    {
+                        case "0": return RenderForm1;
+                        case "1": return RenderForm2;
+                        case "2": return RenderForm3;
+                        case "3": return RenderForm4;
+                        default: return null;
+                    }
+                }
+                return null;
+            }
+        }
         private void GenerateInitialActorList()
         {
             if (InvokeRequired)
@@ -113,9 +147,9 @@ namespace TheraEditor.Windows.Forms
                 Invoke(new Action(GenerateInitialActorList));
                 return;
             }
-            ActorsForm.ActorTree.Nodes.Clear();
+            ActorTreeForm.ActorTree.Nodes.Clear();
             if (Engine.World != null)
-                ActorsForm.ActorTree.Nodes.AddRange(Engine.World.State.SpawnedActors.Select(x => x.EditorState.TreeNode = new TreeNode(x.ToString()) { Tag = x }).ToArray());
+                ActorTreeForm.ActorTree.Nodes.AddRange(Engine.World.State.SpawnedActors.Select(x => x.EditorState.TreeNode = new TreeNode(x.ToString()) { Tag = x }).ToArray());
         }
         private void SpawnedActors_PostAdded(IActor item)
         {
@@ -128,7 +162,7 @@ namespace TheraEditor.Windows.Forms
                 }
                 TreeNode t = new TreeNode(item.ToString()) { Tag = item };
                 item.EditorState.TreeNode = t;
-                ActorsForm.ActorTree.Nodes.Add(t);
+                ActorTreeForm.ActorTree.Nodes.Add(t);
             }
         }
         private void SpawnedActors_PostRemoved(IActor item)
@@ -140,7 +174,7 @@ namespace TheraEditor.Windows.Forms
                     Invoke(new Action<IActor>(SpawnedActors_PostRemoved), item);
                     return;
                 }
-                ActorsForm.ActorTree.Nodes.Remove(item.EditorState.TreeNode);
+                ActorTreeForm.ActorTree.Nodes.Remove(item.EditorState.TreeNode);
             }
         }
         protected override void OnLoad(EventArgs e)
@@ -152,7 +186,7 @@ namespace TheraEditor.Windows.Forms
 
             OnRedrawn = Redraw;
             Engine.RegisterRenderTick(RenderTick);
-            PropForm.PropertyGrid.SelectedObject = Engine.World?.Settings;
+            PropertyGridForm.PropertyGrid.SelectedObject = Engine.World?.Settings;
             //Engine.SetPaused(true, PlayerIndex.One, true);
             Engine.Run();
         }
@@ -160,11 +194,16 @@ namespace TheraEditor.Windows.Forms
         protected override void OnClosing(CancelEventArgs e)
         {
             Engine.UnregisterRenderTick(RenderTick);
+
+            string configFile = Path.Combine(Path.GetDirectoryName(Application.ExecutablePath), "DockPanel.config");
+            DockPanel.SaveAsXml(configFile);
+
             foreach (IDockContent document in DockPanel.DocumentsToArray())
             {
                 document.DockHandler.DockPanel = null;
                 document.DockHandler.Close();
             }
+
             Engine.ShutDown();
             base.OnClosing(e);
         }
@@ -240,7 +279,7 @@ namespace TheraEditor.Windows.Forms
         
         private void ActorTree_AfterSelect(object sender, TreeViewEventArgs e)
         {
-            PropForm.PropertyGrid.SelectedObject = ActorsForm.ActorTree.SelectedNode == null ? Engine.World.Settings : ActorsForm.ActorTree.SelectedNode.Tag;
+            PropertyGridForm.PropertyGrid.SelectedObject = ActorTreeForm.ActorTree.SelectedNode == null ? Engine.World.Settings : ActorTreeForm.ActorTree.SelectedNode.Tag;
         }
 
         private bool CloseProject()
@@ -321,12 +360,12 @@ namespace TheraEditor.Windows.Forms
 
         private void BtnProjectSettings_Click(object sender, EventArgs e)
         {
-            PropForm.PropertyGrid.SelectedObject = Project;
+            PropertyGridForm.PropertyGrid.SelectedObject = Project;
         }
 
         private void BtnEngineSettings_Click(object sender, EventArgs e)
         {
-            PropForm.PropertyGrid.SelectedObject = Project?.EngineSettings;
+            PropertyGridForm.PropertyGrid.SelectedObject = Project?.EngineSettings;
         }
 
         private void BtnEditorSettings_Click(object sender, EventArgs e)
@@ -336,12 +375,12 @@ namespace TheraEditor.Windows.Forms
 
         private void BtnUserSettings_Click(object sender, EventArgs e)
         {
-            PropForm.PropertyGrid.SelectedObject = Project?.UserSettings;
+            PropertyGridForm.PropertyGrid.SelectedObject = Project?.UserSettings;
         }
 
         private void BtnWorldSettings_Click(object sender, EventArgs e)
         {
-            PropForm.PropertyGrid.SelectedObject = Engine.World?.Settings;
+            PropertyGridForm.PropertyGrid.SelectedObject = Engine.World?.Settings;
         }
 
         private void CboContentViewTypes_SelectedIndexChanged(object sender, EventArgs e)
@@ -405,7 +444,7 @@ namespace TheraEditor.Windows.Forms
 
         private void ActorPropertyGrid_PropertyValueChanged(object s, PropertyValueChangedEventArgs e)
         {
-            if (PropForm.PropertyGrid.SelectedObject is ObjectBase obj)
+            if (PropertyGridForm.PropertyGrid.SelectedObject is ObjectBase obj)
             {
                 obj.OnPropertyChanged(e.OldValue, e.ChangedItem.PropertyDescriptor.Name);
             }
@@ -424,10 +463,10 @@ namespace TheraEditor.Windows.Forms
 
         private void BtnViewActorTree_Click(object sender, EventArgs e)
         {
-            if (!ActorsForm.IsDisposed)
-                ActorsForm.Focus();
+            if (!ActorTreeForm.IsDisposed)
+                ActorTreeForm.Focus();
             else
-                (ActorsForm = new DockableActorTree()).Show(DockPanel);
+                (ActorTreeForm = new DockableActorTree()).Show(DockPanel);
         }
 
         private void Viewport1ToolStripMenuItem_Click(object sender, EventArgs e)
@@ -435,7 +474,7 @@ namespace TheraEditor.Windows.Forms
             if (RenderForm1 != null && !RenderForm1.IsDisposed)
                 RenderForm1.Focus();
             else
-                (RenderForm1 = new DockableRenderForm(PlayerIndex.One)).Show(DockPanel);
+                (RenderForm1 = new DockableRenderForm(PlayerIndex.One, 0)).Show(DockPanel);
         }
 
         private void viewport2ToolStripMenuItem_Click(object sender, EventArgs e)
@@ -443,7 +482,7 @@ namespace TheraEditor.Windows.Forms
             if (RenderForm2 != null && !RenderForm2.IsDisposed)
                 RenderForm2.Focus();
             else
-                (RenderForm2 = new DockableRenderForm(PlayerIndex.One)).Show(DockPanel);
+                (RenderForm2 = new DockableRenderForm(PlayerIndex.One, 1)).Show(DockPanel);
         }
 
         private void viewport3ToolStripMenuItem_Click(object sender, EventArgs e)
@@ -451,7 +490,7 @@ namespace TheraEditor.Windows.Forms
             if (RenderForm3 != null && !RenderForm3.IsDisposed)
                 RenderForm3.Focus();
             else
-                (RenderForm3 = new DockableRenderForm(PlayerIndex.One)).Show(DockPanel);
+                (RenderForm3 = new DockableRenderForm(PlayerIndex.One, 2)).Show(DockPanel);
         }
 
         private void viewport4ToolStripMenuItem_Click(object sender, EventArgs e)
@@ -459,23 +498,23 @@ namespace TheraEditor.Windows.Forms
             if (RenderForm4 != null && !RenderForm4.IsDisposed)
                 RenderForm4.Focus();
             else
-                (RenderForm4 = new DockableRenderForm(PlayerIndex.One)).Show(DockPanel);
+                (RenderForm4 = new DockableRenderForm(PlayerIndex.One, 3)).Show(DockPanel);
         }
 
         private void btnViewFileTree_Click(object sender, EventArgs e)
         {
-            if (!FileForm.IsDisposed)
-                FileForm.Focus();
+            if (!FileTreeForm.IsDisposed)
+                FileTreeForm.Focus();
             else
-                (FileForm = new DockableFileTree()).Show(DockPanel);
+                (FileTreeForm = new DockableFileTree()).Show(DockPanel);
         }
 
         private void btnViewPropertyGrid_Click(object sender, EventArgs e)
         {
-            if (!PropForm.IsDisposed)
-                PropForm.Focus();
+            if (!PropertyGridForm.IsDisposed)
+                PropertyGridForm.Focus();
             else
-                (PropForm = new DockablePropertyGrid()).Show(DockPanel);
+                (PropertyGridForm = new DockablePropertyGrid()).Show(DockPanel);
         }
 
         private void btnViewOutput_Click(object sender, EventArgs e)

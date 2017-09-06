@@ -88,7 +88,7 @@ namespace TheraEditor.Windows.Forms
         }
         public override void RegisterInput(InputInterface input)
         {
-            input.RegisterMouseMove(OnMouseMove, false, InputPauseType.TickAlways);
+            //input.RegisterMouseMove(OnMouseMove, false, InputPauseType.TickAlways);
             input.RegisterButtonEvent(EMouseButton.LeftClick, ButtonInputType.Pressed, OnMouseDown, InputPauseType.TickAlways);
             input.RegisterButtonEvent(EMouseButton.LeftClick, ButtonInputType.Released, OnMouseUp, InputPauseType.TickAlways);
 
@@ -156,7 +156,7 @@ namespace TheraEditor.Windows.Forms
         private void HighlightScene(bool gamepad)
         {
             Viewport v = OwningPawn?.LocalPlayerController?.Viewport;
-            if (v != null)
+            if (v != null && RenderPanel.HoveredPanel != null)
             {
                 Vec2 viewportPoint = /*gamepad ? v.Center : */v.AbsoluteToRelative(CursorPosition);
                 HighlightScene(v, viewportPoint);

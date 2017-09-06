@@ -34,6 +34,8 @@ namespace TheraEditor.Windows.Forms
         [Category("Behavior")]
         public event EventHandler<NodeLabelEditEventArgs> ValidateLabelEdit;
 
+        public T EditingLabelNode { get; private set; } = null;
+
         protected override void OnBeforeLabelEdit(NodeLabelEditEventArgs e)
         {
             NodeRequestTextEventArgs editTextArgs = new NodeRequestTextEventArgs(e.Node, _postEditText ?? e.Node.Text);
@@ -44,6 +46,7 @@ namespace TheraEditor.Windows.Forms
                 e.CancelEdit = true;
             else
             {
+                EditingLabelNode = e.Node as T;
                 IntPtr editHandle = NativeMethods.SendMessage(Handle, NativeConstants.TVM_GETEDITCONTROL, IntPtr.Zero, IntPtr.Zero);
                 if (editHandle != IntPtr.Zero)
                     NativeMethods.SendMessage(editHandle, NativeConstants.WM_SETTEXT, IntPtr.Zero, editTextArgs.Label);
@@ -61,6 +64,7 @@ namespace TheraEditor.Windows.Forms
                 if (validateEventArgs.CancelEdit)
                 {
                     _postEditText = e.Label;
+                    LabelEdit = true;
                     e.Node.BeginEdit();
                 }
                 else
@@ -69,6 +73,7 @@ namespace TheraEditor.Windows.Forms
                     OnRequestDisplayText(displayTextArgs);
                     if (!displayTextArgs.Cancel)
                         e.Node.Text = displayTextArgs.Label;
+                    EditingLabelNode = null;
                 }
             }
             base.OnAfterLabelEdit(e);

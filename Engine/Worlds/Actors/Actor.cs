@@ -33,7 +33,8 @@ namespace TheraEngine.Worlds
     [FileClass("ACTOR", "Actor")]
     public class Actor<T> : FileObject, IActor where T : SceneComponent
     {
-        public Actor(bool deferInitialization = false)
+        public Actor() : this(false) { }
+        public Actor(bool deferInitialization)
         {
             _logicComponents = new MonitoredList<LogicComponent>();
             _logicComponents.PostAdded += _logicComponents_Added;

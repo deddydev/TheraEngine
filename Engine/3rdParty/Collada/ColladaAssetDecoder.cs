@@ -74,7 +74,7 @@ namespace TheraEngine.Rendering.Models
                     //Couldn't find the bone
                     if (boneList[i] == null)
                     {
-                        Engine.DebugPrint("Could not find bone \"" + name + "\"");
+                        Engine.PrintLine("Could not find bone \"" + name + "\"");
                         boneList[i] = new Bone(name, FrameState.GetIdentity());
                     }
                 }

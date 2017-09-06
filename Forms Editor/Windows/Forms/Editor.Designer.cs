@@ -52,6 +52,7 @@
             this.btnViewFileTree = new System.Windows.Forms.ToolStripMenuItem();
             this.btnViewTools = new System.Windows.Forms.ToolStripMenuItem();
             this.btnViewPropertyGrid = new System.Windows.Forms.ToolStripMenuItem();
+            this.btnViewOutput = new System.Windows.Forms.ToolStripMenuItem();
             this.gameToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.btPlay = new System.Windows.Forms.ToolStripMenuItem();
             this.btnCompile = new System.Windows.Forms.ToolStripMenuItem();
@@ -69,7 +70,6 @@
             this.TheraEngineText = new System.Windows.Forms.Label();
             this.DecorationToolTip = new System.Windows.Forms.ToolTip(this.components);
             this.DockPanel = new WeifenLuo.WinFormsUI.Docking.DockPanel();
-            this.btnViewOutput = new System.Windows.Forms.ToolStripMenuItem();
             this.BodyPanel.SuspendLayout();
             this.MainPanel.SuspendLayout();
             this.TitlePanel.SuspendLayout();
@@ -108,6 +108,7 @@
             // 
             this.menuStrip1.BackColor = System.Drawing.Color.Transparent;
             resources.ApplyResources(this.menuStrip1, "menuStrip1");
+            this.menuStrip1.GripMargin = new System.Windows.Forms.Padding(0, 0, 0, 0);
             this.menuStrip1.ImageScalingSize = new System.Drawing.Size(24, 24);
             this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.fileToolStripMenuItem,
@@ -265,6 +266,12 @@
             resources.ApplyResources(this.btnViewPropertyGrid, "btnViewPropertyGrid");
             this.btnViewPropertyGrid.Click += new System.EventHandler(this.btnViewPropertyGrid_Click);
             // 
+            // btnViewOutput
+            // 
+            this.btnViewOutput.Name = "btnViewOutput";
+            resources.ApplyResources(this.btnViewOutput, "btnViewOutput");
+            this.btnViewOutput.Click += new System.EventHandler(this.btnViewOutput_Click);
+            // 
             // gameToolStripMenuItem
             // 
             this.gameToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
@@ -360,17 +367,16 @@
             this.TheraEngineText.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(150)))), ((int)(((byte)(192)))), ((int)(((byte)(192)))));
             this.TheraEngineText.Name = "TheraEngineText";
             // 
+            // DecorationToolTip
+            // 
+            this.DecorationToolTip.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(92)))), ((int)(((byte)(93)))), ((int)(((byte)(100)))));
+            this.DecorationToolTip.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
+            // 
             // DockPanel
             // 
             resources.ApplyResources(this.DockPanel, "DockPanel");
             this.DockPanel.DocumentStyle = WeifenLuo.WinFormsUI.Docking.DocumentStyle.DockingWindow;
             this.DockPanel.Name = "DockPanel";
-            // 
-            // btnViewOutput
-            // 
-            this.btnViewOutput.Name = "btnViewOutput";
-            resources.ApplyResources(this.btnViewOutput, "btnViewOutput");
-            this.btnViewOutput.Click += new System.EventHandler(this.btnViewOutput_Click);
             // 
             // Editor
             // 
@@ -422,7 +428,6 @@
         private System.Windows.Forms.ToolStripMenuItem btPlay;
         private System.Windows.Forms.ToolStripMenuItem btnCompile;
         private System.Windows.Forms.Label TheraEngineText;
-        private System.Windows.Forms.ToolTip DecorationToolTip;
         private WeifenLuo.WinFormsUI.Docking.DockPanel DockPanel;
         private System.Windows.Forms.ToolStripMenuItem btnViewViewport;
         private System.Windows.Forms.ToolStripMenuItem btnViewActorTree;
@@ -434,6 +439,7 @@
         private System.Windows.Forms.ToolStripMenuItem viewport3ToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem viewport4ToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem btnViewOutput;
+        public System.Windows.Forms.ToolTip DecorationToolTip;
         //private TheraEngine.RenderPanel renderPanel1;
         //private ResourceTree resourceTree1;
     }

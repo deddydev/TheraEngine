@@ -39,7 +39,6 @@
             this.ContentTree.Dock = System.Windows.Forms.DockStyle.Fill;
             this.ContentTree.Font = new System.Drawing.Font("Segoe UI", 9F);
             this.ContentTree.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(170)))), ((int)(((byte)(170)))), ((int)(((byte)(170)))));
-            this.ContentTree.LabelEdit = true;
             this.ContentTree.Location = new System.Drawing.Point(0, 0);
             this.ContentTree.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.ContentTree.Name = "ContentTree";

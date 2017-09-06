@@ -19,7 +19,7 @@ namespace TheraEditor.Wrappers
         public FolderWrapper() : base(_menu)
         {
             ImageIndex = 1;
-            SelectedImageIndex = 2;
+            SelectedImageIndex = 1;
         }
         static FolderWrapper()
         {
@@ -43,12 +43,13 @@ namespace TheraEditor.Wrappers
             LoadFileTypes(IsFileObject);
         }
 
+        protected static void RenameAction(object sender, EventArgs e) => GetInstance<BaseWrapper>().Rename();
+        protected static void DeleteAction(object sender, EventArgs e) => GetInstance<BaseWrapper>().Delete();
+        protected static void CutAction(object sender, EventArgs e) => GetInstance<BaseWrapper>().Cut();
+        protected static void CopyAction(object sender, EventArgs e) => GetInstance<BaseWrapper>().Copy();
+        protected static void PasteAction(object sender, EventArgs e) => GetInstance<BaseWrapper>().Paste();
+
         protected static void FolderAction(object sender, EventArgs e) => GetInstance<FolderWrapper>().NewFolder();
-        protected static void RenameAction(object sender, EventArgs e) => GetInstance<FolderWrapper>().Rename();
-        protected static void DeleteAction(object sender, EventArgs e) => GetInstance<FolderWrapper>().Delete();
-        protected static void CutAction(object sender, EventArgs e) => GetInstance<FolderWrapper>().Cut();
-        protected static void CopyAction(object sender, EventArgs e) => GetInstance<FolderWrapper>().Copy();
-        protected static void PasteAction(object sender, EventArgs e) => GetInstance<FolderWrapper>().Paste();
         protected static void ArchiveAction(object sender, EventArgs e) => GetInstance<FolderWrapper>().ToArchive();
         protected static void ExplorerAction(object sender, EventArgs e) => GetInstance<FolderWrapper>().OpenInExplorer();
 
@@ -99,7 +100,7 @@ namespace TheraEditor.Wrappers
             b.Rename();
         }
 
-        public void Delete()
+        public override void Delete()
         {
             if (Parent == null)
                 return;

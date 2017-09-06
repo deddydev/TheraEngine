@@ -69,6 +69,7 @@ namespace TheraEditor.Wrappers
         protected static T GetInstance<T>() where T : BaseWrapper
             => GetTree().SelectedNode as T;
 
+        public abstract void Delete();
         public void Rename()
         {
             if (!IsEditing)
@@ -244,6 +245,12 @@ namespace TheraEditor.Wrappers
                     }
                 }
                 catch (OperationCanceledException e) { }
+            }
+
+            if (!isFileNode && !IsPopulated && Nodes.Count == 0)
+            {
+                if (Directory.GetFileSystemEntries(FilePath).Length > 0)
+                    Nodes.Add("...");
             }
         }
     }

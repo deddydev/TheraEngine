@@ -242,34 +242,34 @@ namespace TheraEngine.Rendering.Models
             VertexBuffer[] pBuffs = GetAllBuffersOfType(BufferType.Position);
             if (pBuffs.Length == 0)
             {
-                Engine.DebugPrint("No position buffers found.");
+                Engine.PrintLine("No position buffers found.");
                 return;
             }
             if (!pBuffs.IndexInRange(positionIndex))
             {
-                Engine.DebugPrint("Position index out of range of available position buffers.");
+                Engine.PrintLine("Position index out of range of available position buffers.");
                 return;
             }
             VertexBuffer[] nBuffs = GetAllBuffersOfType(BufferType.Normal);
             if (nBuffs.Length == 0)
             {
-                Engine.DebugPrint("No normal buffers found.");
+                Engine.PrintLine("No normal buffers found.");
                 return;
             }
             if (!nBuffs.IndexInRange(normalIndex))
             {
-                Engine.DebugPrint("Normal index out of range of available normal buffers.");
+                Engine.PrintLine("Normal index out of range of available normal buffers.");
                 return;
             }
             VertexBuffer[] tBuffs = GetAllBuffersOfType(BufferType.TexCoord);
             if (tBuffs.Length == 0)
             {
-                Engine.DebugPrint("No texcoord buffers found.");
+                Engine.PrintLine("No texcoord buffers found.");
                 return;
             }
             if (!tBuffs.IndexInRange(uvIndex))
             {
-                Engine.DebugPrint("UV index out of range of available texcoord buffers.");
+                Engine.PrintLine("UV index out of range of available texcoord buffers.");
                 return;
             }
 

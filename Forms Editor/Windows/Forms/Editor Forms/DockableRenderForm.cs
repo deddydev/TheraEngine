@@ -20,13 +20,15 @@ namespace TheraEditor.Windows.Forms
 {
     public partial class DockableRenderForm : DockContent
     {
-        public DockableRenderForm(PlayerIndex playerIndex)
+        public DockableRenderForm(PlayerIndex playerIndex, int formIndex)
         {
+            FormIndex = formIndex;
             PlayerIndex = playerIndex;
             InitializeComponent();
             RenderPanel.AllowDrop = true;
         }
 
+        public int FormIndex { get; private set; }
         public PlayerIndex PlayerIndex { get; private set; }
         public FlyingCameraPawn EditorPawn { get; private set; }
 
@@ -78,20 +80,20 @@ namespace TheraEditor.Windows.Forms
 
         private void RenderPanel_DragEnter(object sender, DragEventArgs e)
         {
-            BaseFileWrapper file = Editor.Instance.ContentTree.DragNode as BaseFileWrapper;
-            if (file == null)
+            BaseWrapper[] dragNodes = Editor.Instance.ContentTree.DraggedNodes;
+            if (dragNodes.Length != 1)
+                return;
+            BaseFileWrapper wrapper = dragNodes[0] as BaseFileWrapper;
+            if (wrapper == null)
                 return;
 
-            FileObject instance = file.FileObject;
+            FileObject instance = wrapper.GetNewInstance();
             if (instance is IActor actor)
             {
-                if (!actor.IsSpawned)
-                {
-                    Engine.World.SpawnActor(actor);
-                    EditorHud hud = EditorPawn.Hud as EditorHud;
-                    hud.HighlightedComponent = actor.RootComponent;
-                    hud.MouseDown();
-                }
+                Engine.World.SpawnActor(actor);
+                EditorHud hud = EditorPawn.Hud as EditorHud;
+                hud.HighlightedComponent = actor.RootComponent;
+                hud.MouseDown();
             }
         }
 
@@ -104,6 +106,11 @@ namespace TheraEditor.Windows.Forms
                 hud.DragComponent = null;
                 hud.MouseUp();
             }
+        }
+
+        protected override string GetPersistString()
+        {
+            return GetType().ToString() + "," + FormIndex;
         }
     }
 }

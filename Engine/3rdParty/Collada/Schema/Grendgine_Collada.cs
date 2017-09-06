@@ -107,7 +107,7 @@ namespace grendgine_collada
             }
             catch (Exception ex)
             {
-                Engine.DebugPrint(ex.ToString());
+                Engine.PrintLine(ex.ToString());
 				return null;
             }			
 		}			

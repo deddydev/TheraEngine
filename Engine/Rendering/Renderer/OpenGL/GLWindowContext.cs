@@ -41,12 +41,12 @@ namespace TheraEngine.Rendering.OpenGL
                 GL.GetInteger(GetPName.MaxCombinedTextureImageUnits, out int units);
                 Engine.MaxTextureUnits = units;
 
-                Engine.DebugPrint("Generated OpenGL context on " + _thread.Name + " thread.");
-                Engine.DebugPrint("OPENGL VENDOR: " + vendor);
-                Engine.DebugPrint("OPENGL VERSION: " + version);
-                Engine.DebugPrint("OPENGL RENDERER: " + renderer);
-                Engine.DebugPrint("OPENGL SHADER LANGUAGE VERSION: " + shaderVersion);
-                Engine.DebugPrint("MAX TEXTURE UNITS: " + units);
+                Engine.PrintLine("Generated OpenGL context on " + _thread.Name + " thread.");
+                Engine.PrintLine("OPENGL VENDOR: " + vendor);
+                Engine.PrintLine("OPENGL VERSION: " + version);
+                Engine.PrintLine("OPENGL RENDERER: " + renderer);
+                Engine.PrintLine("OPENGL SHADER LANGUAGE VERSION: " + shaderVersion);
+                Engine.PrintLine("MAX TEXTURE UNITS: " + units);
                 //Engine.DebugPrint("OPENGL EXTENSIONS:\n" + string.Join("\n", extensions.Split(' ')));
 
                 _versionMax = version[0] - 0x30;

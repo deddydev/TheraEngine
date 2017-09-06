@@ -181,7 +181,7 @@ namespace TheraEngine.Files.Serialization
             catch (Exception ex)
             {
                 integrityHash = new byte[0x20];
-                Engine.DebugPrint("Error serializing binary file to " + filePath + ".\n\nException:\n" + ex.ToString());
+                Engine.PrintLine("Error serializing binary file to " + filePath + ".\n\nException:\n" + ex.ToString());
                 return false;
             }
         }

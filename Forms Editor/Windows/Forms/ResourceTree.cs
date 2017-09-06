@@ -12,9 +12,14 @@ using TheraEngine;
 using Microsoft.VisualBasic.FileIO;
 using System.Collections;
 using System.Linq;
+using Core.Win32.Native;
 
 namespace TheraEditor.Windows.Forms
 {
+    public interface IMappableShortcutControl
+    {
+        Dictionary<Keys, Func<bool>> MappableActions { get; }
+    }
     public enum SystemImages
     {
         GenericFile,
@@ -29,7 +34,7 @@ namespace TheraEditor.Windows.Forms
         LogicComponent,
         Settings,
     }
-    public class ResourceTree : TreeViewEx<BaseWrapper>
+    public class ResourceTree : TreeViewEx<BaseWrapper>, IMappableShortcutControl
     {
         const int LEFT_MOUSE_BIT = 1;
         const int RIGHT_MOUSE_BIT = 2;
@@ -38,6 +43,7 @@ namespace TheraEditor.Windows.Forms
         const int MIDDLE_MOUSE_BIT = 16;
         const int ALT_BIT = 32;
 
+        private ToolTip _labelToolTip;
         private FileSystemWatcher _contentWatcher;
         private bool _allowIcons = true;
         private Dictionary<string, BaseFileWrapper> _externallyModifiedNodes = new Dictionary<string, BaseFileWrapper>();
@@ -103,12 +109,27 @@ namespace TheraEditor.Windows.Forms
             Sorted = true;
             TreeViewNodeSorter = new NodeComparer();
 
+            _labelToolTip = new ToolTip()
+            {
+                BackColor = Color.FromArgb(92, 93, 100),
+                ForeColor = Color.FromArgb(224, 224, 224)
+            };
+
             ItemDrag += new ItemDragEventHandler(TreeView_ItemDrag);
             DragOver += new DragEventHandler(TreeView1_DragOver);
             DragDrop += new DragEventHandler(TreeView1_DragDrop);
             DragEnter += new DragEventHandler(TreeView1_DragEnter);
             DragLeave += new EventHandler(TreeView1_DragLeave);
             GiveFeedback += new GiveFeedbackEventHandler(TreeView1_GiveFeedback);
+
+            MappableActions = new Dictionary<Keys, Func<bool>>()
+            {
+                { Keys.Delete, Shortcut_Delete },
+                { Keys.Control | Keys.C, Shortcut_Copy },
+                { Keys.Control | Keys.X, Shortcut_Cut },
+                { Keys.Control | Keys.V, Shortcut_Paste },
+                { Keys.Control | Keys.A, Shortcut_SelectAll },
+            };
         }
 
         private class NodeComparer : IComparer<TreeNode>, IComparer
@@ -138,13 +159,8 @@ namespace TheraEditor.Windows.Forms
             public int Compare(object x, object y)
                 => Compare(x as TreeNode, y as TreeNode);
         }
-
-        public BaseWrapper CreateNode(string path)
-        {
-            return BaseWrapper.Wrap(path);
-        }
         
-        public void DisplayProject(Project p)
+        public void OpenPath(string path)
         {
             SuspendLayout();
 
@@ -152,15 +168,16 @@ namespace TheraEditor.Windows.Forms
             Nodes.Clear();
             ShowIcons = true;
 
-            if (p == null || string.IsNullOrEmpty(p.FilePath))
+            bool? isDir = path?.IsDirectory();
+            if (isDir == null)
             {
                 ResumeLayout(true);
                 return;
             }
 
-            string dir = Path.GetDirectoryName(p.FilePath);
+            string dir = isDir.Value ? path : Path.GetDirectoryName(path);
 
-            BaseWrapper b = CreateNode(dir);
+            BaseWrapper b = BaseWrapper.Wrap(dir);
             if (b != null)
             {
                 Nodes.Add(b);
@@ -169,7 +186,7 @@ namespace TheraEditor.Windows.Forms
 
             ResumeLayout(true);
 
-            _contentWatcher = new FileSystemWatcher(Path.GetDirectoryName(p.FilePath), "*.*")
+            _contentWatcher = new FileSystemWatcher(dir, "*.*")
             {
                 EnableRaisingEvents = true,
                 IncludeSubdirectories = true,
@@ -187,12 +204,73 @@ namespace TheraEditor.Windows.Forms
             _contentWatcher.Renamed += ContentWatcherRename;
         }
 
+        #region Keys
+        protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
+        {
+            if (msg.Msg == NativeConstants.WM_KEYDOWN || 
+                msg.Msg == NativeConstants.WM_SYSKEYDOWN)
+            {
+                if (EditingLabelNode != null)
+                {
+                    switch (keyData)
+                    {
+                        case Keys.OemQuestion:              // /
+                        case Keys.OemQuestion | Keys.Shift: // ?
+                        case Keys.D8 | Keys.Shift:          // *
+                        case Keys.Oem5:                     // \
+                        case Keys.Oem5 | Keys.Shift:        // |
+                        case Keys.Oemcomma | Keys.Shift:    // <
+                        case Keys.OemPeriod | Keys.Shift:   // >
+                        case Keys.Oem7 | Keys.Shift:        // "
+                        case Keys.Oem1 | Keys.Shift:        // :
+                            IntPtr editHandle = NativeMethods.SendMessage(Handle, NativeConstants.TVM_GETEDITCONTROL, IntPtr.Zero, IntPtr.Zero);
+                            string message = "A file name can't contain any of the following characters:\n\\ / : * ? \" < > |";
+                            NativeMethods.GetWindowRect(editHandle, out RECT r);
+                            Point clientPoint = PointToClient(new Point(r.left, r.bottom));
+                            _labelToolTip.Show(message, this, clientPoint.X, clientPoint.Y);
+                            return true;
+                        default:
+                            if (_labelToolTip.Active)
+                                _labelToolTip.Hide(this);
+                            break;
+                    }
+                }
+            }
+            return base.ProcessCmdKey(ref msg, keyData);
+        }
+
+        public Dictionary<Keys, Func<bool>> MappableActions { get; private set; } 
+
+        private bool Shortcut_Delete()
+        {
+            if (SelectedNodes.Count > 0)
+            {
+                BeginUpdate();
+                foreach (BaseWrapper b in new List<BaseWrapper>(SelectedNodes))
+                    b.Delete();
+                EndUpdate();
+                return true;
+            }
+            return false;
+        }
+
         protected override void OnKeyDown(KeyEventArgs e)
         {
+            if (MappableActions.ContainsKey(e.KeyData))
+            {
+                e.SuppressKeyPress = true;
+                e.Handled = MappableActions[e.KeyData]();
+                return;
+            }
+
             switch (e.KeyCode)
             {
+                case Keys.Delete:
+                    e.SuppressKeyPress = true;
+                    
+                    break;
                 case Keys.C:
-                    if (e.Modifiers == Keys.Control)
+                    if (e.Control)
                     {
                         e.SuppressKeyPress = true;
                         e.Handled = CopySelectedNodes();
@@ -200,7 +278,7 @@ namespace TheraEditor.Windows.Forms
                     }
                     break;
                 case Keys.X:
-                    if (e.Modifiers == Keys.Control)
+                    if (e.Control)
                     {
                         e.SuppressKeyPress = true;
                         e.Handled = CutSelectedNodes();
@@ -208,7 +286,7 @@ namespace TheraEditor.Windows.Forms
                     }
                     break;
                 case Keys.V:
-                    if (e.Modifiers == Keys.Control)
+                    if (e.Control)
                     {
                         e.SuppressKeyPress = true;
                         e.Handled = Paste();
@@ -216,22 +294,26 @@ namespace TheraEditor.Windows.Forms
                     }
                     break;
                 case Keys.A:
-                    e.SuppressKeyPress = true;
-                    e.Handled = true;
-                    if (e.Modifiers == Keys.Control)
+                    if (e.Control)
                     {
+                        e.SuppressKeyPress = true;
+                        e.Handled = true;
+                        if (e.Shift)
+                        {
 
+                        }
+                        else
+                        {
+
+                        }
                         return;
                     }
-                    else
-                    {
-
-                        return;
-                    }
+                    break;
             }
 
             base.OnKeyDown(e);
         }
+        #endregion
 
         #region Copy Cut Paste
         public static void SetClipboard(string[] paths, bool cut)
@@ -330,25 +412,6 @@ namespace TheraEditor.Windows.Forms
         }
         #endregion
 
-        //private ContextMenuStrip GetMultiSelectMenuStrip()
-        //{
-        //    var nodes = SelectedNodes;
-        //    var singleNode = SelectedNode as IMultiSelectableWrapper;
-        //    if (singleNode == null) return null;
-
-        //    foreach (var node in nodes)
-        //    {
-        //        var type = node.GetType();
-        //        if (!type.IsAssignableFrom(singleNode.GetType()))
-        //        {
-        //            More than one type of node is selected
-        //            return null;
-        //        }
-        //    }
-
-        //    return singleNode.MultiSelectMenuStrip;
-        //}
-
         #region Content Watcher
         [Browsable(false)]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
@@ -363,7 +426,7 @@ namespace TheraEditor.Windows.Forms
             if (changedNodes.Length == 0)
                 return null;
             if (changedNodes.Length > 1)
-                Engine.DebugPrint("More than one node with the path " + path);
+                Engine.PrintLine("More than one node with the path " + path);
             return changedNodes[0] as BaseWrapper;
         }
         private BaseWrapper FindOrCreatePath(string path)
@@ -405,7 +468,7 @@ namespace TheraEditor.Windows.Forms
                         continue;
 
                     //Folder or file not found. Add it.
-                    BaseWrapper n = CreateNode(currentPath);
+                    BaseWrapper n = BaseWrapper.Wrap(currentPath);
                     current.Nodes.Add(n);
                     n.EnsureVisible();
                     current = n;
@@ -421,7 +484,7 @@ namespace TheraEditor.Windows.Forms
                 return;
             }
 
-            Engine.DebugPrint("Externally renamed '{0}' to '{1}'", -1, e.OldFullPath, e.FullPath);
+            Engine.PrintLine("Externally renamed '{0}' to '{1}'", e.OldFullPath, e.FullPath);
 
             BaseWrapper node = GetNode(e.OldFullPath);
             if (node != null)
@@ -441,7 +504,7 @@ namespace TheraEditor.Windows.Forms
                 return;
             }
 
-            Engine.DebugPrint("Externally {0} '{1}'", -1, e.ChangeType.ToString().ToLower(), e.FullPath);
+            Engine.PrintLine("Externally {0} '{1}'", e.ChangeType.ToString().ToLower(), e.FullPath);
 
             switch (e.ChangeType)
             {
@@ -455,43 +518,40 @@ namespace TheraEditor.Windows.Forms
                     //The change of a file or folder. The types of changes include: 
                     //changes to size, attributes, security settings, last write, and last access time.
                     BaseWrapper changedNode = GetNode(e.FullPath);
-                    if (changedNode is BaseFileWrapper b)
+                    if (changedNode is BaseFileWrapper b && b.IsLoaded)
                     {
-                        if (b.IsLoaded)
+                        if (b.AlwaysReload)
+                            b.Reload();
+                        else
                         {
-                            if (b.AlwaysReload)
-                                b.Reload();
-                            else
+                            string message = "The file " + e.FullPath + " has been externally modified.\nDo you want to reload it?";
+                            if (b.FileObject.EditorState.HasChanges)
+                                message += "\nYou will have the option to save your in-editor changes elsewhere if so.";
+                            Form f = Parent.FindForm();
+                            if (MessageBox.Show(f, message, "Externally modified file", MessageBoxButtons.YesNo, MessageBoxIcon.Exclamation) == DialogResult.Yes)
                             {
-                                string message = "The file " + e.FullPath + " has been externally modified.\nDo you want to reload it?";
-                                if (b.FileObject.EditorState.HasChanges)
-                                    message += "\nYou will have the option to save your in-editor changes elsewhere if so.";
-                                Form f = Parent.FindForm();
-                                if (MessageBox.Show(f, message, "Externally modified file", MessageBoxButtons.YesNo, MessageBoxIcon.Hand) == DialogResult.Yes)
-                                {
-                                    message = "Save your changes elsewhere before reloading?";
-                                    DialogResult d = MessageBox.Show(f, message, "Save changes?", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question);
-                                    if (d == DialogResult.Cancel)
-                                        AddExternallyModifiedNode(b);
-                                    else
-                                    {
-                                        if (d == DialogResult.Yes)
-                                        {
-                                            SaveFileDialog sfd = new SaveFileDialog()
-                                            {
-                                                Filter = b.FileObject.FileHeader.GetFilter()
-                                            };
-                                            if (sfd.ShowDialog(f) == DialogResult.OK)
-                                            {
-                                                b.FileObject.Export(sfd.FileName);
-                                            }
-                                        }
-                                        b.Reload();
-                                    }
-                                }
-                                else
+                                message = "Save your changes elsewhere before reloading?";
+                                DialogResult d = MessageBox.Show(f, message, "Save changes?", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question);
+                                if (d == DialogResult.Cancel)
                                     AddExternallyModifiedNode(b);
+                                else
+                                {
+                                    if (d == DialogResult.Yes)
+                                    {
+                                        SaveFileDialog sfd = new SaveFileDialog()
+                                        {
+                                            Filter = b.FileObject.FileHeader.GetFilter()
+                                        };
+                                        if (sfd.ShowDialog(f) == DialogResult.OK)
+                                        {
+                                            b.FileObject.Export(sfd.FileName);
+                                        }
+                                    }
+                                    b.Reload();
+                                }
                             }
+                            else
+                                AddExternallyModifiedNode(b);
                         }
                     }
                     break;
@@ -511,7 +571,27 @@ namespace TheraEditor.Windows.Forms
             _externallyModifiedNodes.Add(n.FullPath, n);
         }
         #endregion
-        
+
+        //private ContextMenuStrip GetMultiSelectMenuStrip()
+        //{
+        //    var nodes = SelectedNodes;
+        //    var singleNode = SelectedNode as IMultiSelectableWrapper;
+        //    if (singleNode == null) return null;
+
+        //    foreach (var node in nodes)
+        //    {
+        //        var type = node.GetType();
+        //        if (!type.IsAssignableFrom(singleNode.GetType()))
+        //        {
+        //            More than one type of node is selected
+        //            return null;
+        //        }
+        //    }
+
+        //    return singleNode.MultiSelectMenuStrip;
+        //}
+
+        #region Label Edit
         protected override void OnRequestDisplayText(NodeRequestTextEventArgs e)
         {
             if (e.Node is BaseFileWrapper b)
@@ -536,8 +616,12 @@ namespace TheraEditor.Windows.Forms
                 e.CancelEdit = true;
                 MessageBox.Show("Name cannot be empty.");
             }
+            else if (e.Label.IndexOfAny(new[] { '\\', '/', ':', '*', '?', '"', '<', '>', '|' }) >= 0)
+            {
+                e.CancelEdit = true;
+                MessageBox.Show("A file name can't contain any of the following characters:\n\\ / : * ? \" < > |");
+            }
         }
-        
         protected override void OnAfterLabelEdit(NodeLabelEditEventArgs e)
         {
             base.OnAfterLabelEdit(e);
@@ -550,6 +634,7 @@ namespace TheraEditor.Windows.Forms
                 string newPath = dir + "\\" + b.Text;
                 if (!string.Equals(b.FilePath, newPath, StringComparison.InvariantCulture))
                 {
+                    LabelEdit = false;
                     WatchProjectDirectory = false;
                     Sort();
 
@@ -591,8 +676,10 @@ namespace TheraEditor.Windows.Forms
                 }
             }
 
-            LabelEdit = false;
+            if (EditingLabelNode == null && _labelToolTip.Active)
+                _labelToolTip.Hide(this);
         }
+        #endregion
 
         protected override void OnBeforeExpand(TreeViewCancelEventArgs e)
         {
@@ -641,11 +728,11 @@ namespace TheraEditor.Windows.Forms
 
         public void Clear()
         {
-            //BeginUpdate();
+            BeginUpdate();
             //foreach (BaseWrapper n in Nodes)
             //    n.Unlink();
-            //Nodes.Clear();
-            //EndUpdate();
+            Nodes.Clear();
+            EndUpdate();
         }
 
         protected override void OnAfterSelect(TreeViewEventArgs e)
@@ -654,14 +741,6 @@ namespace TheraEditor.Windows.Forms
             OnAfterSelectMultiselect(e);
         }
 
-        //protected override void OnMouseDoubleClick(MouseEventArgs e)
-        //{
-        //    //if ((e.Button == MouseButtons.Left) && (SelectedNode is BaseWrapper))
-        //    //    ((BaseWrapper)SelectedNode).OnDoubleClick();
-        //    //else
-        //        base.OnMouseDoubleClick(e);
-        //}
-
         protected override void Dispose(bool disposing)
         {
             Clear();
@@ -669,59 +748,56 @@ namespace TheraEditor.Windows.Forms
         }
 
         #region Dragging
-        public BaseWrapper DragNode => _dragNode;
-        private BaseWrapper _dragNode = null, _dropNode = null;
+
+        public BaseWrapper[] DraggedNodes => _draggedNodes;
+
+        private BaseWrapper _dropNode = null;
         private BaseWrapper[] _draggedNodes;
-        private BaseWrapper _tempDropNode = null;
+        private BaseWrapper _previousDropNode = null;
         private Timer _dragTimer = new Timer();
         private ImageList _draggingImageList = new ImageList();
         
         private void TreeView_ItemDrag(object sender, ItemDragEventArgs e)
         {
             _draggingImageList.Images.Clear();
+            if (SelectedNodes.Count == 0)
+                return;
+            
+            _draggedNodes = new BaseWrapper[SelectedNodes.Count];
+            SelectedNodes.CopyTo(_draggedNodes);
+            SelectedNodes.Clear();
+
+            string text;
             Bitmap bmp;
-            if (SelectedNodes.Count > 1)
+            if (_draggedNodes.Length == 1)
             {
-                _draggedNodes = new BaseWrapper[SelectedNodes.Count];
-                SelectedNodes.CopyTo(_draggedNodes);
-
-                string count = _draggedNodes.Length.ToString() + " items";
-                Size size = TextRenderer.MeasureText(count, Font);
-                
-                _draggingImageList.ImageSize = size;
-                bmp = new Bitmap(size.Width, size.Height);
-                Graphics gfx = Graphics.FromImage(bmp);
-                
-                gfx.DrawString(count, Font, new SolidBrush(ForeColor), 0.0f, 0.0f);
-
-                _draggingImageList.Images.Add(bmp);
+                int w = (_draggedNodes[0].Bounds.Size.Width + Indent).ClampMin(1);
+                int h = _draggedNodes[0].Bounds.Height.ClampMin(1);
+                text = _draggedNodes[0].Text;
+                _draggingImageList.ImageSize = new Size(w, h);
+                bmp = new Bitmap(w, h);
             }
             else
             {
-                SelectedNode = _dragNode = e.Item as BaseWrapper;
-
-                int w = (_dragNode.Bounds.Size.Width + Indent).ClampMin(1);
-                int h = _dragNode.Bounds.Height.ClampMin(1);
-
-                _draggingImageList.ImageSize = new Size(w, h);
-                bmp = new Bitmap(w, h);
-
-                Graphics gfx = Graphics.FromImage(bmp);
-
-                gfx.DrawImage(Images.Images[SelectedNode.ImageIndex < 0 ? 0 : SelectedNode.ImageIndex], 0, 0);
-                gfx.DrawString(_dragNode.Text, Font, new SolidBrush(ForeColor), Indent, 0.0f);
-
-                _draggingImageList.Images.Add(bmp);
+                text = _draggedNodes.Length.ToString() + " items";
+                Size size = TextRenderer.MeasureText(text, Font);
+                _draggingImageList.ImageSize = size;
+                bmp = new Bitmap(size.Width, size.Height);
             }
 
-            Point p = PointToClient(MousePosition);
+            Graphics gfx = Graphics.FromImage(bmp);
+                
+            gfx.DrawString(text, Font, new SolidBrush(ForeColor), Indent, 0.0f);
 
-            int dx = p.X + Indent - _dragNode.Bounds.Left;
-            int dy = p.Y - _dragNode.Bounds.Top;
+            _draggingImageList.Images.Add(bmp);
+
+            Point p = PointToClient(MousePosition);
+            int dx = p.X + Indent - _draggedNodes[0].Bounds.Left;
+            int dy = p.Y - _draggedNodes[0].Bounds.Top;
 
             if (DragHelper.ImageList_BeginDrag(_draggingImageList.Handle, 0, dx, dy))
             {
-                DoDragDrop(bmp, DragDropEffects.Move);
+                DoDragDrop(bmp, DragDropEffects.Move | DragDropEffects.Copy);
                 DragHelper.ImageList_EndDrag();
             }
         }
@@ -729,38 +805,42 @@ namespace TheraEditor.Windows.Forms
         {
             Point formP = PointToClient(new Point(e.X, e.Y));
             DragHelper.ImageList_DragMove(formP.X - Left, formP.Y - Top);
-
+            
             _dropNode = GetNodeAt(PointToClient(new Point(e.X, e.Y))) as BaseWrapper;
 
             string[] paths = e.Data.GetData(DataFormats.FileDrop) as string[];
             if (_dropNode == null && (paths == null || paths.Length == 0))
             {
+                _dropNode = null;
+                SelectedNode = null;
                 e.Effect = DragDropEffects.None;
                 return;
             }
 
-            //Can't drag parent node into child node!!!
+            //Can't drag a node into itself or a child node!
             TreeNode tmpNode = _dropNode;
-            if (tmpNode != null)
-                while (tmpNode.Parent != null)
+            while (tmpNode != null)
+            {
+                if (_draggedNodes.Any(x => x == tmpNode))
                 {
-                    if (tmpNode.Parent == _dragNode)
-                    {
-                        e.Effect = DragDropEffects.None;
-                        return;
-                    }
-
-                    tmpNode = tmpNode.Parent;
+                    _dropNode = null;
+                    SelectedNode = null;
+                    e.Effect = DragDropEffects.None;
+                    return;
                 }
+                tmpNode = tmpNode.Parent;
+            }
 
-            e.Effect = (e.KeyState & CTRL_BIT) == 0 ? DragDropEffects.Move : DragDropEffects.Copy;
+            e.Effect = (e.KeyState & CTRL_BIT) == 0 ? 
+                DragDropEffects.Move : 
+                DragDropEffects.Copy;
 
-            if (_tempDropNode != _dropNode)
+            if (_previousDropNode != _dropNode)
             {
                 DragHelper.ImageList_DragShowNolock(false);
                 SelectedNode = _dropNode;
                 DragHelper.ImageList_DragShowNolock(true);
-                _tempDropNode = _dropNode;
+                _previousDropNode = _dropNode;
             }
         }
         private static bool CompareToType(Type compared, Type to)
@@ -894,15 +974,18 @@ namespace TheraEditor.Windows.Forms
                 }
                 else
                 {
-                    if (_dragNode != _dropNode)
-                        _dropNode.HandleNodeDrop(_dragNode, copy);
+                    SuspendLayout();
+                    foreach (BaseWrapper draggedNode in _draggedNodes)
+                        if (draggedNode != _dropNode)
+                            _dropNode.HandleNodeDrop(draggedNode, copy);
+                    ResumeLayout();
                 }
             }
 
             _dragTimer.Enabled = false;
             _dropNode = null;
-            _dragNode = null;
-            _tempDropNode = null;
+            _draggedNodes = null;
+            _previousDropNode = null;
         }
 
         private void TreeView1_DragEnter(object sender, DragEventArgs e)
@@ -919,13 +1002,14 @@ namespace TheraEditor.Windows.Forms
 
         private void TreeView1_GiveFeedback(object sender, GiveFeedbackEventArgs e)
         {
-            if (e.Effect == DragDropEffects.Move)
-            {
-                e.UseDefaultCursors = false;
-                Cursor = Cursors.Default;
-            }
-            else
-                e.UseDefaultCursors = true;
+            //if (e.Effect == DragDropEffects.Move || 
+            //    e.Effect == DragDropEffects.Copy)
+            //{
+            //    e.UseDefaultCursors = false;
+            //    Cursor = Cursors.Default;
+            //}
+            //else
+            //    e.UseDefaultCursors = true;
         }
 
         private void Timer_Tick(object sender, EventArgs e)
@@ -983,13 +1067,12 @@ namespace TheraEditor.Windows.Forms
                 HighlightSelectedNodes();
             }
         }
-        
         protected override void OnBeforeSelect(TreeViewCancelEventArgs e)
         {
             base.OnBeforeSelect(e);
-
-            bool bControl = (ModifierKeys == Keys.Control);
-            bool bShift = (ModifierKeys == Keys.Shift);
+            
+            bool bControl = (ModifierKeys == Keys.Control && DraggedNodes == null);
+            bool bShift = (ModifierKeys == Keys.Shift && DraggedNodes == null);
             BaseWrapper node = e.Node as BaseWrapper;
 
             // selecting twice the node while pressing CTRL ?
@@ -1009,10 +1092,11 @@ namespace TheraEditor.Windows.Forms
         }
         private void OnAfterSelectMultiselect(TreeViewEventArgs e)
         {
-            bool bControl = (ModifierKeys == Keys.Control);
-            bool bShift = (ModifierKeys == Keys.Shift);
+            bool bControl = (ModifierKeys == Keys.Control && DraggedNodes == null);
+            bool bShift = (ModifierKeys == Keys.Shift && DraggedNodes == null);
             BaseWrapper node = (BaseWrapper)e.Node;
 
+            SuspendLayout();
             if (bControl)
             {
                 if (!_selectedNodes.Contains(node)) // new node ?
@@ -1111,6 +1195,7 @@ namespace TheraEditor.Windows.Forms
                     _selectedNodes.Add(node);
                 }
             }
+            ResumeLayout();
         }
         protected bool IsAncestor(TreeNode ancestorNode, TreeNode descendantNode)
         {
@@ -1128,13 +1213,19 @@ namespace TheraEditor.Windows.Forms
         }
         private void HighlightNode(TreeNode node)
         {
-            node.BackColor = SystemColors.Highlight;
-            node.ForeColor = SystemColors.HighlightText;
+            if (node != null)
+            {
+                node.BackColor = SystemColors.Highlight;
+                node.ForeColor = SystemColors.HighlightText;
+            }
         }
         private void UnhighlightNode(TreeNode node)
         {
-            node.BackColor = BackColor;
-            node.ForeColor = ForeColor;
+            if (node != null)
+            {
+                node.BackColor = BackColor;
+                node.ForeColor = ForeColor;
+            }
         }
         protected void HighlightSelectedNodes()
             => _selectedNodes.ForEach(x => HighlightNode(x));

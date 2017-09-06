@@ -95,7 +95,7 @@ namespace TheraEngine.Rendering.Models
             }
             catch
             {
-                Engine.DebugPrint("Modified vertex indices was modified while being evaluated; could not finish updating buffers.");
+                Engine.PrintLine("Modified vertex indices was modified while being evaluated; could not finish updating buffers.");
             }
         }
     }

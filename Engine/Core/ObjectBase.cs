@@ -117,7 +117,7 @@ namespace TheraEngine
         [Category("Object")]
         public string Name
         {
-            get => string.IsNullOrEmpty(_name) ? GetType().Name : _name;
+            get => string.IsNullOrEmpty(_name) ? GetType().GetFriendlyName().Replace("<", "[").Replace(">", "]") : _name;
             set
             {
                 string oldName = _name;
@@ -132,7 +132,7 @@ namespace TheraEngine
             if (info == null)
                 return;
             
-            Engine.DebugPrint("Changed property {0} in {1} \"{2}\"", -1, info.Name, GetType().ToString(), ToString());
+            Engine.PrintLine("Changed property {0} in {1} \"{2}\"", info.Name, GetType().ToString(), ToString());
             
 #if EDITOR
             if (_editorState != null)

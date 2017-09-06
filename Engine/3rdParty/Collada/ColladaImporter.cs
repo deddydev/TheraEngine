@@ -16,7 +16,7 @@ namespace TheraEngine.Rendering.Models
             if (!File.Exists(filePath))
                 return null;
 
-            Engine.DebugPrint("Importing Collada scene on " + Thread.CurrentThread.Name + " thread.");
+            Engine.PrintLine("Importing Collada scene on " + Thread.CurrentThread.Name + " thread.");
 
             DecoderShell shell = DecoderShell.Import(filePath);
             ModelScene scene = new ModelScene();

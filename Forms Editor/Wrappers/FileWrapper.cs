@@ -24,7 +24,7 @@ namespace TheraEditor.Wrappers
 
         public void EditResource()
         {
-            Editor.Instance.PropForm.PropertyGrid.SelectedObject = GetNewInstance();
+            Editor.Instance.PropertyGridForm.PropertyGrid.SelectedObject = GetNewInstance();
         }
 
         public BaseFileWrapper(ContextMenuStrip menu) : base(menu)
@@ -56,25 +56,36 @@ namespace TheraEditor.Wrappers
             _menu.Items.Add(new ToolStripMenuItem("&Export", null, ExportAction, Keys.Control | Keys.E));               //4
             _menu.Items.Add(new ToolStripMenuItem("&Replace", null, ReplaceAction, Keys.Control | Keys.R));             //5
             _menu.Items.Add(new ToolStripMenuItem("Re&load", null, RestoreAction, Keys.Control | Keys.L));              //6
-            _menu.Items.Add(new ToolStripSeparator());                                                                  //7
-            _menu.Items.Add(new ToolStripMenuItem("&Cut", null, CutAction, Keys.Control | Keys.X));                     //8
-            _menu.Items.Add(new ToolStripMenuItem("&Copy", null, CopyAction, Keys.Control | Keys.C));                   //9
-            _menu.Items.Add(new ToolStripMenuItem("&Paste", null, PasteAction, Keys.Control | Keys.V));                 //10
-            _menu.Items.Add(new ToolStripMenuItem("&Delete", null, DeleteAction, Keys.Control | Keys.Delete));          //11
+            ToolStripMenuItem alwaysReload = new ToolStripMenuItem("Reload Automatically") { CheckOnClick = true };
+            alwaysReload.CheckedChanged += AlwaysReload_CheckedChanged;
+            _menu.Items.Add(alwaysReload); //7
+            _menu.Items.Add(new ToolStripSeparator());                                                                  //8
+            _menu.Items.Add(new ToolStripMenuItem("&Cut", null, CutAction, Keys.Control | Keys.X));                     //9
+            _menu.Items.Add(new ToolStripMenuItem("&Copy", null, CopyAction, Keys.Control | Keys.C));                   //10
+            _menu.Items.Add(new ToolStripMenuItem("&Paste", null, PasteAction, Keys.Control | Keys.V));                 //11
+            _menu.Items.Add(new ToolStripMenuItem("&Delete", null, DeleteAction, Keys.Control | Keys.Delete));          //12
             _menu.Opening += MenuOpening;
             _menu.Closing += MenuClosing;
         }
+
+        private static void AlwaysReload_CheckedChanged(object sender, EventArgs e)
+        {
+            GetInstance<BaseFileWrapper>().AlwaysReload = ((ToolStripMenuItem)sender).Checked;
+        }
+
+        protected static void DeleteAction(object sender, EventArgs e) => GetInstance<BaseWrapper>().Delete();
+        protected static void RenameAction(object sender, EventArgs e) => GetInstance<BaseWrapper>().Rename();
+        protected static void CutAction(object sender, EventArgs e) => GetInstance<BaseWrapper>().Cut();
+        protected static void CopyAction(object sender, EventArgs e) => GetInstance<BaseWrapper>().Copy();
+        protected static void PasteAction(object sender, EventArgs e) => GetInstance<BaseWrapper>().Paste();
+
         protected static void ExportAction(object sender, EventArgs e) { GetInstance<FileWrapper<T>>().Export(); }
         protected static void ReplaceAction(object sender, EventArgs e) { GetInstance<FileWrapper<T>>().Replace(); }
         protected static void RestoreAction(object sender, EventArgs e) { GetInstance<FileWrapper<T>>().Restore(); }
-        protected static void DeleteAction(object sender, EventArgs e) { GetInstance<FileWrapper<T>>().Delete(); }
-        protected static void RenameAction(object sender, EventArgs e) { GetInstance<FileWrapper<T>>().Rename(); }
         protected static void EditExternalAction(object sender, EventArgs e) { GetInstance<FileWrapper<T>>().OpenInExplorer(true); }
         protected static void ExplorerAction(object sender, EventArgs e) => GetInstance<FileWrapper<T>>().OpenInExplorer(false);
         protected static void EditAction(object sender, EventArgs e) => GetInstance<FileWrapper<T>>().EditResource();
-        protected static void CutAction(object sender, EventArgs e) => GetInstance<FileWrapper<T>>().Cut();
-        protected static void CopyAction(object sender, EventArgs e) => GetInstance<FileWrapper<T>>().Copy();
-        protected static void PasteAction(object sender, EventArgs e) => GetInstance<FileWrapper<T>>().Paste();
+
         private static void MenuClosing(object sender, ToolStripDropDownClosingEventArgs e)
         {
             //_menu.Items[1].Enabled = _menu.Items[2].Enabled = _menu.Items[4].Enabled = _menu.Items[5].Enabled = _menu.Items[8].Enabled = true;
@@ -86,6 +97,7 @@ namespace TheraEditor.Wrappers
             _menu.Items[1].Enabled = !string.IsNullOrEmpty(w.FilePath) && File.Exists(w.FilePath);
             _menu.Items[5].Enabled = _menu.Items[8].Enabled = w.Parent != null;
             _menu.Items[6].Enabled = w.Resource.IsLoaded && w.Resource.File.EditorState.HasChanges;
+            ((ToolStripMenuItem)_menu.Items[7]).Checked = w.AlwaysReload;
             //_menu.Items[2].Enabled = ((w._resource.IsDirty) || (w._resource.IsBranch));
             //_menu.Items[4].Enabled = w.PrevNode != null;
             //_menu.Items[5].Enabled = w.NextNode != null;
@@ -161,7 +173,7 @@ namespace TheraEditor.Wrappers
             //_resource.Restore();
         }
 
-        public void Delete()
+        public override void Delete()
         {
             if (Parent == null)
                 return;

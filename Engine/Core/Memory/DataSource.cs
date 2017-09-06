@@ -77,7 +77,7 @@ namespace System
                 }
                 catch (Exception e)
                 {
-                    Engine.DebugPrint(e.ToString());
+                    Engine.PrintLine(e.ToString());
                 }
 
                 _disposedValue = true;

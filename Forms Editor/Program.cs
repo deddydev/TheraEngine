@@ -102,14 +102,15 @@ namespace TheraEditor
             {
                 if (string.IsNullOrEmpty(path))
                 {
-                    ToolStripDropDownButton btn = new ToolStripDropDownButton(t.Name)
+                    string typeName = t.GetFriendlyName();
+                    ToolStripDropDownButton btn = new ToolStripDropDownButton(typeName)
                     {
                         AutoSize = false,
                         ShowDropDownArrow = false,
                         TextAlign = ContentAlignment.MiddleLeft,
                         Tag = t,
                     };
-                    Size s = TextRenderer.MeasureText(t.Name, btn.Font);
+                    Size s = TextRenderer.MeasureText(typeName, btn.Font);
                     btn.Width = s.Width;
                     btn.Height = s.Height + 10;
                     btn.Click += onClick;

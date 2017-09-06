@@ -350,28 +350,41 @@ namespace TheraEngine
             => RenderPanel.GamePanel?.GetViewport(index);
         
         /// <summary>
-        /// Prints a message to the top left of the screen, for debugging purposes.
+        /// Prints a message for debugging purposes.
         /// </summary>
-        public static void DebugPrint(string message, int viewport = -1, params string[] args)
+        public static void Print(string message, params string[] args)
+        {
+#if DEBUG
+            if (args.Length != 0)
+                message = string.Format(message, args);
+            Debug.Write(message);
+            DebugOutput?.Invoke(message);
+#endif
+        }
+        /// <summary>
+        /// Prints a message for debugging purposes.
+        /// </summary>
+        public static void PrintLine(string message, params string[] args)
         {
 #if DEBUG
             if (args.Length != 0)
                 message = string.Format(message, args);
             Debug.WriteLine(message);
-            DebugOutput?.Invoke(message);
-            RenderPanel panel = RenderPanel.CapturedPanel;
-            if (panel == null)
-                return;
-            if (viewport >= 0)
-            {
-                Viewport v = panel.GetViewport(viewport);
-                if (v != null)
-                {
-                    v.DebugPrint(message);
-                    return;
-                }
-            }
-            panel.GlobalHud.DebugPrint(message);
+            DebugOutput?.Invoke(message + Environment.NewLine);
+            //RenderPanel panel = RenderPanel.CapturedPanel;
+            //if (panel == null)
+            //    return;
+            //if (viewport >= 0)
+            //{
+            //    Viewport v = panel.GetViewport(viewport);
+            //    if (v != null)
+            //    {
+            //        v.DebugPrint(message);
+            //        return;
+            //    }
+            //}
+            //else
+            //    panel.GlobalHud.DebugPrint(message);
 #endif
         }
         /// <summary>

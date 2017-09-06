@@ -19,9 +19,9 @@ namespace grendgine_collada
 			}
 			catch (Exception e)
 			{
-                Engine.DebugPrint(e.ToString());
-                Engine.DebugPrint("");
-                Engine.DebugPrint(int_array);
+                Engine.PrintLine(e.ToString());
+                Engine.PrintLine("");
+                Engine.PrintLine(int_array);
 			}
 			return array;
 		}
@@ -39,9 +39,9 @@ namespace grendgine_collada
 			}
 			catch (Exception e)
 			{
-                Engine.DebugPrint(e.ToString());
-                Engine.DebugPrint("");
-                Engine.DebugPrint(float_array);
+                Engine.PrintLine(e.ToString());
+                Engine.PrintLine("");
+                Engine.PrintLine(float_array);
 			}
 			return array;
 		}
@@ -59,9 +59,9 @@ namespace grendgine_collada
 			}
 			catch (Exception e)
 			{
-                Engine.DebugPrint(e.ToString());
-                Engine.DebugPrint("");
-                Engine.DebugPrint(bool_array);
+                Engine.PrintLine(e.ToString());
+                Engine.PrintLine("");
+                Engine.PrintLine(bool_array);
 			}
 			return array;
 		}

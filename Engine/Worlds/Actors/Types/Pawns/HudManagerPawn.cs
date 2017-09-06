@@ -3,6 +3,8 @@ using TheraEngine.Worlds.Actors;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Drawing;
+using System.Windows.Forms;
 
 namespace TheraEngine.Rendering.HUD
 {
@@ -11,7 +13,16 @@ namespace TheraEngine.Rendering.HUD
         private Vec2 _cursorPos = Vec2.Zero;
         private HudComponent _focusedComponent;
 
-        public Vec2 CursorPosition => _cursorPos;
+        public Vec2 CursorPosition //=> _cursorPos;
+        {
+            get
+            {
+                Point absolute = Cursor.Position;
+                if (RenderPanel.HoveredPanel != null)
+                    absolute = (Point)RenderPanel.HoveredPanel.Invoke(RenderPanel.HoveredPanel.PointToClientDelegate, absolute);
+                return new Vec2(absolute.X, absolute.Y);
+            }
+        }
 
         protected override DockableHudComponent OnConstruct()
         {

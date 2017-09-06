@@ -193,7 +193,7 @@ namespace TheraEngine.Files
             if (!fileExists)
             {
                 //File = Activator.CreateInstance(_subType) as T;
-                Engine.DebugPrint(string.Format("Could not load file at \"{0}\".", absolutePath));
+                Engine.PrintLine(string.Format("Could not load file at \"{0}\".", absolutePath));
             }
             else
             {
@@ -209,13 +209,13 @@ namespace TheraEngine.Files
                             case FileFormat.Binary:
                                 return FromBinary(_subType, absolutePath) as T;
                             default:
-                                Engine.DebugPrint(string.Format("Could not load file at \"{0}\". Invalid file format.", absolutePath));
+                                Engine.PrintLine(string.Format("Could not load file at \"{0}\". Invalid file format.", absolutePath));
                                 break;
                         }
                 }
                 catch (Exception e)
                 {
-                    Engine.DebugPrint(string.Format("Could not load file at \"{0}\".\nException:\n\n{1}", absolutePath, e.ToString()));
+                    Engine.PrintLine(string.Format("Could not load file at \"{0}\".\nException:\n\n{1}", absolutePath, e.ToString()));
                 }
             }
             return null;

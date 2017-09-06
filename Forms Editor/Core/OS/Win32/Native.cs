@@ -301,6 +301,9 @@ namespace Core.Win32.Native
     public static class NativeMethods
     {
         [DllImport("user32.dll")]
+        public static extern int MapVirtualKey(uint uCode, uint uMapType);
+
+        [DllImport("user32.dll")]
         public static extern bool ReleaseCapture();
 
         [DllImport("user32.dll")]
@@ -367,6 +370,10 @@ namespace Core.Win32.Native
         [DllImport("user32.dll")]
         public static extern int GetWindowRgn(IntPtr hWnd, IntPtr hRgn);
 
+        [DllImport("user32.dll", SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        public static extern bool GetWindowRect(IntPtr hWnd, out RECT lpRect);
+
         [DllImport("gdi32.dll")]
         public static extern int GetRgnBox(IntPtr hrgn, out RECT lprc);
 
@@ -407,13 +414,16 @@ namespace Core.Win32.Native
         public const int SM_CYSIZEFRAME = 33;
         public const int SM_CXPADDEDBORDER = 92;
         
-        public const int GWL_ID = (-12);
-        public const int GWL_STYLE = (-16);
-        public const int GWL_EXSTYLE = (-20);
+        public const int GWL_ID = -12;
+        public const int GWL_STYLE = -16;
+        public const int GWL_EXSTYLE = -20;
 
         public const int WM_SETTEXT = 0xC;
         public const int WM_NCLBUTTONDOWN = 0x00A1;
         public const int WM_NCRBUTTONUP = 0x00A5;
+        public const int WM_KEYDOWN = 0x100;
+        public const int WM_KEYUP = 0x101;
+        public const int WM_SYSKEYDOWN = 0x104;
 
         public const uint TPM_LEFTBUTTON = 0x0000;
         public const uint TPM_RIGHTBUTTON = 0x0002;

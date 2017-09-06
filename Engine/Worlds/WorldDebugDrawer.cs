@@ -27,7 +27,7 @@ namespace TheraEngine.Worlds
         }
         public override void ReportErrorWarning(string warningString)
         {
-            Engine.DebugPrint(warningString);
+            Engine.PrintLine(warningString);
         }
         public override void DrawAabb(ref Vector3 from, ref Vector3 to, Color color)
         {

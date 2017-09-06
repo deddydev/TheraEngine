@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -96,9 +97,17 @@ namespace TheraEditor.Windows.Forms
 
                 Predicate<Type> test = type => 
                 {
-                    if ((baseType != null && !baseType.IsAssignableFrom(type)) || !TypeFitsConstraints(type, gvf, tcf))
-                       return false;
-                    return true;
+                    return !(
+
+                    //Base type isn't requested base type?
+                    (baseType != null && !baseType.IsAssignableFrom(type)) || 
+
+                    //Doesn't fit constraints?
+                    !TypeFitsConstraints(type, gvf, tcf)// ||
+
+                    //Has no default constructor?
+                    //type.GetConstructor(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic, null, Type.EmptyTypes, null) == null
+                    );
                 };
 
                 EventHandler onClick = (sender, e) =>

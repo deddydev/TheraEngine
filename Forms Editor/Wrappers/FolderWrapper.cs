@@ -135,7 +135,7 @@ namespace TheraEditor.Wrappers
         {
             if (!_isPopulated)
             {
-                if (Nodes.Count > 0 && Nodes[0].Text == "..." && Nodes[0].Tag == null)
+                if (Nodes.Count > 0 && Nodes[0].Text == "...")
                 {
                     Nodes.Clear();
 
@@ -156,8 +156,8 @@ namespace TheraEditor.Wrappers
                         catch (UnauthorizedAccessException)
                         {
                             //display a locked folder icon
-                            node.ImageIndex = 2;
-                            node.SelectedImageIndex = 2;
+                            node.ImageIndex = 3;
+                            node.SelectedImageIndex = 3;
                         }
                         catch (Exception ex)
                         {
@@ -178,6 +178,21 @@ namespace TheraEditor.Wrappers
                     }
                 }
                 _isPopulated = true;
+            }
+
+            if (Nodes.Count > 0)
+            {
+                ImageIndex = 2;
+                SelectedImageIndex = 2;
+            }
+        }
+
+        protected internal override void OnCollapse()
+        {
+            if (Nodes.Count > 0)
+            {
+                ImageIndex = 1;
+                SelectedImageIndex = 1;
             }
         }
 

@@ -162,46 +162,43 @@ namespace TheraEditor.Windows.Forms
         
         public void OpenPath(string path)
         {
-            SuspendLayout();
+            BeginUpdate();
 
             _contentWatcher = null;
             Nodes.Clear();
             ShowIcons = true;
 
             bool? isDir = path?.IsDirectory();
-            if (isDir == null)
+            if (isDir != null)
             {
-                ResumeLayout(true);
-                return;
+                string dir = isDir.Value ? path : Path.GetDirectoryName(path);
+
+                BaseWrapper b = BaseWrapper.Wrap(dir);
+                if (b != null)
+                {
+                    Nodes.Add(b);
+                    b.Expand();
+                }
+
+                _contentWatcher = new FileSystemWatcher(dir, "*.*")
+                {
+                    EnableRaisingEvents = true,
+                    IncludeSubdirectories = true,
+                    NotifyFilter =
+                    NotifyFilters.FileName |
+                    NotifyFilters.DirectoryName |
+                    NotifyFilters.Size |
+                    NotifyFilters.CreationTime |
+                    NotifyFilters.LastAccess |
+                    NotifyFilters.LastWrite
+                };
+                _contentWatcher.Changed += ContentWatcherUpdate;
+                _contentWatcher.Created += ContentWatcherUpdate;
+                _contentWatcher.Deleted += ContentWatcherUpdate;
+                _contentWatcher.Renamed += ContentWatcherRename;
             }
 
-            string dir = isDir.Value ? path : Path.GetDirectoryName(path);
-
-            BaseWrapper b = BaseWrapper.Wrap(dir);
-            if (b != null)
-            {
-                Nodes.Add(b);
-                b.Expand();
-            }
-
-            ResumeLayout(true);
-
-            _contentWatcher = new FileSystemWatcher(dir, "*.*")
-            {
-                EnableRaisingEvents = true,
-                IncludeSubdirectories = true,
-                NotifyFilter =
-                NotifyFilters.FileName |
-                NotifyFilters.DirectoryName |
-                NotifyFilters.Size |
-                NotifyFilters.CreationTime |
-                NotifyFilters.LastAccess | 
-                NotifyFilters.LastWrite
-            };
-            _contentWatcher.Changed += ContentWatcherUpdate;
-            _contentWatcher.Created += ContentWatcherUpdate;
-            _contentWatcher.Deleted += ContentWatcherUpdate;
-            _contentWatcher.Renamed += ContentWatcherRename;
+            EndUpdate();
         }
 
         #region Keys
@@ -564,25 +561,6 @@ namespace TheraEditor.Windows.Forms
         }
         #endregion
 
-        //private ContextMenuStrip GetMultiSelectMenuStrip()
-        //{
-        //    var nodes = SelectedNodes;
-        //    var singleNode = SelectedNode as IMultiSelectableWrapper;
-        //    if (singleNode == null) return null;
-
-        //    foreach (var node in nodes)
-        //    {
-        //        var type = node.GetType();
-        //        if (!type.IsAssignableFrom(singleNode.GetType()))
-        //        {
-        //            More than one type of node is selected
-        //            return null;
-        //        }
-        //    }
-
-        //    return singleNode.MultiSelectMenuStrip;
-        //}
-
         #region Label Edit
         protected override void OnRequestDisplayText(NodeRequestTextEventArgs e)
         {
@@ -672,73 +650,7 @@ namespace TheraEditor.Windows.Forms
                 _labelToolTip.Hide(this);
         }
         #endregion
-
-        protected override void OnBeforeExpand(TreeViewCancelEventArgs e)
-        {
-            ((BaseWrapper)e.Node).OnExpand();
-        }
-
-        protected override void OnNodeMouseDoubleClick(TreeNodeMouseClickEventArgs e)
-        {
-            if (e.Node is BaseFileWrapper f)
-                f.EditResource();
-        }
         
-        protected override void WndProc(ref Message m)
-        {
-            if (m.Msg == 0x204)
-            {
-                int x = (int)m.LParam & 0xFFFF, y = (int)m.LParam >> 16;
-
-                if (GetNodeAt(x, y) is BaseWrapper n)
-                {
-                    Rectangle r = n.Bounds;
-                    r.X -= 25; r.Width += 25;
-                    if (r.Contains(x, y))
-                        SelectedNode = n;
-                }
-
-                m.Result = IntPtr.Zero;
-                return;
-            }
-            else if (m.Msg == 0x205)
-            {
-                int x = (int)m.LParam & 0xFFFF, y = (int)m.LParam >> 16;
-
-                BaseWrapper selected = SelectedNode;
-                if (AllowContextMenus && selected != null && selected.ContextMenuStrip != null)
-                {
-                    Rectangle r = selected.Bounds;
-                    r.X -= 25; r.Width += 25;
-                    if (r.Contains(x, y))
-                        selected.ContextMenuStrip.Show(this, x, y);
-                }
-            }
-
-            base.WndProc(ref m);
-        }
-
-        public void Clear()
-        {
-            BeginUpdate();
-            //foreach (BaseWrapper n in Nodes)
-            //    n.Unlink();
-            Nodes.Clear();
-            EndUpdate();
-        }
-
-        protected override void OnAfterSelect(TreeViewEventArgs e)
-        {
-            base.OnAfterSelect(e);
-            OnAfterSelectMultiselect(e);
-        }
-
-        protected override void Dispose(bool disposing)
-        {
-            Clear();
-            base.Dispose(disposing);
-        }
-
         #region Dragging
 
         public BaseWrapper[] DraggedNodes => _draggedNodes;
@@ -1223,7 +1135,94 @@ namespace TheraEditor.Windows.Forms
             => _selectedNodes.ForEach(x => HighlightNode(x));
         protected void UnhighlightSelectedNodes()
             => _selectedNodes.ForEach(x => UnhighlightNode(x));
+        //private ContextMenuStrip GetMultiSelectMenuStrip()
+        //{
+        //    var nodes = SelectedNodes;
+        //    var singleNode = SelectedNode as IMultiSelectableWrapper;
+        //    if (singleNode == null) return null;
+
+        //    foreach (var node in nodes)
+        //    {
+        //        var type = node.GetType();
+        //        if (!type.IsAssignableFrom(singleNode.GetType()))
+        //        {
+        //            More than one type of node is selected
+        //            return null;
+        //        }
+        //    }
+
+        //    return singleNode.MultiSelectMenuStrip;
+        //}
         #endregion
+
+        protected override void OnBeforeExpand(TreeViewCancelEventArgs e)
+        {
+            ((BaseWrapper)e.Node).OnExpand();
+            base.OnBeforeExpand(e);
+        }
+        protected override void OnBeforeCollapse(TreeViewCancelEventArgs e)
+        {
+            ((BaseWrapper)e.Node).OnCollapse();
+            base.OnBeforeCollapse(e);
+        }
+        protected override void OnNodeMouseDoubleClick(TreeNodeMouseClickEventArgs e)
+        {
+            if (e.Node is BaseFileWrapper f)
+                f.EditResource();
+        }
+        protected override void WndProc(ref Message m)
+        {
+            if (m.Msg == 0x204)
+            {
+                int x = (int)m.LParam & 0xFFFF, y = (int)m.LParam >> 16;
+
+                if (GetNodeAt(x, y) is BaseWrapper n)
+                {
+                    Rectangle r = n.Bounds;
+                    r.X -= 25; r.Width += 25;
+                    if (r.Contains(x, y))
+                        SelectedNode = n;
+                }
+
+                m.Result = IntPtr.Zero;
+                return;
+            }
+            else if (m.Msg == 0x205)
+            {
+                int x = (int)m.LParam & 0xFFFF, y = (int)m.LParam >> 16;
+
+                BaseWrapper selected = SelectedNode;
+                if (AllowContextMenus && selected != null && selected.ContextMenuStrip != null)
+                {
+                    Rectangle r = selected.Bounds;
+                    r.X -= 25; r.Width += 25;
+                    if (r.Contains(x, y))
+                        selected.ContextMenuStrip.Show(this, x, y);
+                }
+            }
+            base.WndProc(ref m);
+        }
+
+        public void Clear()
+        {
+            BeginUpdate();
+            //foreach (BaseWrapper n in Nodes)
+            //    n.Unlink();
+            Nodes.Clear();
+            EndUpdate();
+        }
+
+        protected override void OnAfterSelect(TreeViewEventArgs e)
+        {
+            base.OnAfterSelect(e);
+            OnAfterSelectMultiselect(e);
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            Clear();
+            base.Dispose(disposing);
+        }
     }
 
     public class DragHelper

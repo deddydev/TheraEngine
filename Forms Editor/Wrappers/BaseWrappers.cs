@@ -130,7 +130,6 @@ namespace TheraEditor.Wrappers
                 Type genericFileWrapper = typeof(FileWrapper<>).MakeGenericType(type);
                 w = Activator.CreateInstance(genericFileWrapper) as BaseFileWrapper;
             }
-
             FileObject.GetDirNameFmt(file.FilePath, out string dir, out string name, out FileFormat fmt);
             w.Text = name + "." + file.FileHeader.GetProperExtension(fmt);
             w.FileObject = file;
@@ -138,6 +137,7 @@ namespace TheraEditor.Wrappers
         }
 
         internal protected abstract void OnExpand();
+        internal protected abstract void OnCollapse();
         internal protected abstract void FixPath(string parentFolderPath);
 
         internal void HandlePathDrop(string path, bool copy)

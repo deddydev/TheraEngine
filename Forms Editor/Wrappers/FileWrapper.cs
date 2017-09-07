@@ -36,6 +36,10 @@ namespace TheraEditor.Wrappers
         {
 
         }
+        protected internal override void OnCollapse()
+        {
+
+        }
     }
     public class FileWrapper<T> : BaseFileWrapper where T : FileObject
     {

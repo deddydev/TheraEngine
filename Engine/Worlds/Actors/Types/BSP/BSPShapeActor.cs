@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TheraEngine.Core.Shapes;
 using TheraEngine.Rendering.Models;
 
 namespace TheraEngine.Worlds.Actors.Types.BSP

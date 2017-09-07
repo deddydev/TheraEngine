@@ -1,7 +1,8 @@
 ﻿using TheraEngine.Rendering.Models;
 using System.ComponentModel;
+using System;
 
-namespace System
+namespace TheraEngine.Core.Shapes
 {
     [FileClass("SHAPE", "Segment")]
     [TypeConverter(typeof(ExpandableObjectConverter))]

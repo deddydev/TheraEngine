@@ -1,6 +1,7 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.ComponentModel;
 
-namespace System
+namespace TheraEngine.Core.Shapes
 {
     [FileClass("SHAPE", "Ray")]
     [TypeConverter(typeof(ExpandableObjectConverter))]

@@ -6,6 +6,7 @@ using TheraEngine.Rendering.Models.Materials;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using TheraEngine.Core.Shapes;
 
 namespace TheraEngine.Rendering.Models
 {

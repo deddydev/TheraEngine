@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using TheraEngine.Worlds.Actors;
 using System.ComponentModel;
 using System.Drawing;
+using TheraEngine.Core.Shapes;
 
 namespace TheraEngine.Rendering.Cameras
 {

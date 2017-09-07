@@ -1,4 +1,6 @@
-﻿namespace System
+﻿using TheraEngine.Core.Shapes;
+
+namespace System
 {
     public static class Collision
     {

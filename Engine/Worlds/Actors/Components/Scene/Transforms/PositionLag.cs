@@ -2,6 +2,7 @@
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Drawing;
+using TheraEngine.Core.Shapes;
 using TheraEngine.Rendering;
 
 namespace TheraEngine.Worlds.Actors

@@ -12,6 +12,7 @@ using System.Drawing;
 using System.Windows.Forms;
 using System.ComponentModel;
 using TheraEngine.Worlds;
+using TheraEngine.Core.Shapes;
 
 namespace TheraEditor.Windows.Forms
 {

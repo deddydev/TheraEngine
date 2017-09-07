@@ -1,7 +1,8 @@
 ﻿using BulletSharp;
+using System;
 using System.ComponentModel;
 
-namespace System
+namespace TheraEngine.Core.Shapes
 {
     [FileClass("SHAPE", "Y-Aligned Capsule")]
     [TypeConverter(typeof(ExpandableObjectConverter))]

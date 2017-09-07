@@ -4,8 +4,9 @@ using System.Globalization;
 using BulletSharp;
 using System.Drawing;
 using System.ComponentModel;
+using System;
 
-namespace System
+namespace TheraEngine.Core.Shapes
 {
     [FileClass("SHAPE", "Box")]
     [TypeConverter(typeof(ExpandableObjectConverter))]

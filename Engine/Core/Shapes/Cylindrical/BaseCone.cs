@@ -3,8 +3,9 @@ using System.Drawing;
 using System.ComponentModel;
 using TheraEngine.Rendering.Models;
 using System.Collections.Generic;
+using System;
 
-namespace System
+namespace TheraEngine.Core.Shapes
 {
     [FileClass("SHAPE", "Cone")]
     [TypeConverter(typeof(ExpandableObjectConverter))]

@@ -1,8 +1,9 @@
 ﻿using static System.Math;
 using BulletSharp;
 using System.ComponentModel;
+using System;
 
-namespace System
+namespace TheraEngine.Core.Shapes
 {
     [FileClass("SHAPE", "Y-Aligned Cone")]
     [TypeConverter(typeof(ExpandableObjectConverter))]

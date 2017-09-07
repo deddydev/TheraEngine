@@ -2,6 +2,7 @@
 using TheraEngine.Rendering.Models.Materials;
 using TheraEngine.Files;
 using System.ComponentModel;
+using TheraEngine.Core.Shapes;
 
 namespace TheraEngine.Rendering.Models
 {

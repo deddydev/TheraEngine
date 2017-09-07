@@ -3,6 +3,7 @@ using TheraEngine.Rendering;
 using TheraEngine.Rendering.Models;
 using TheraEngine.Rendering.Models.Materials;
 using System;
+using TheraEngine.Core.Shapes;
 
 namespace TheraEngine.Worlds.Actors
 {

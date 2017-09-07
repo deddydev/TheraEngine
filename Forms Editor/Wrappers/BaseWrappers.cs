@@ -103,13 +103,19 @@ namespace TheraEditor.Wrappers
             else
             {
                 Type type = FileObject.DetermineType(path);
-                if (type != null && NodeWrapperAttribute.Wrappers.ContainsKey(type))
-                    w = Activator.CreateInstance(NodeWrapperAttribute.Wrappers[type]) as BaseWrapper;
-                else //Make wrapper for whatever file type this is
+                if (type != null)
                 {
-                    Type genericFileWrapper = typeof(FileWrapper<>).MakeGenericType(type);
-                    w = Activator.CreateInstance(genericFileWrapper) as BaseFileWrapper;
+                    if (NodeWrapperAttribute.Wrappers.ContainsKey(type))
+                        w = Activator.CreateInstance(NodeWrapperAttribute.Wrappers[type]) as BaseWrapper;
+                    else
+                    {
+                        //Make wrapper for whatever file type this is
+                        Type genericFileWrapper = typeof(FileWrapper<>).MakeGenericType(type);
+                        w = Activator.CreateInstance(genericFileWrapper) as BaseFileWrapper;
+                    }
                 }
+                else
+                    w = new UnidentifiedFileWrapper();
             }
             w.Text = Path.GetFileName(path);
             w.FilePath = w.Name = path;
@@ -132,7 +138,7 @@ namespace TheraEditor.Wrappers
             }
             FileObject.GetDirNameFmt(file.FilePath, out string dir, out string name, out FileFormat fmt);
             w.Text = name + "." + file.FileHeader.GetProperExtension(fmt);
-            w.FileObject = file;
+            w.SingleInstance = file;
             return w;
         }
 

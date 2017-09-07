@@ -150,55 +150,7 @@ namespace BorderlessForm
             SetWindowRegion(FindForm().Handle, 0, 0, pos.cx, pos.cy);
             m.Result = NativeConstants.TRUE;
         }
-
-        //
-        // Summary:
-        //     Gets or sets a value that indicates whether form is minimized, maximized, or
-        //     normal.
-        //
-        // Returns:
-        //     A System.Windows.Forms.FormWindowState that represents whether form is minimized,
-        //     maximized, or normal. The default is FormWindowState.Normal.
-        //
-        // Exceptions:
-        //   T:System.ComponentModel.InvalidEnumArgumentException:
-        //     The value specified is outside the range of valid values.
-        [DefaultValue(FormWindowState.Normal)]
-        public new FormWindowState WindowState
-        {
-            get => base.WindowState;
-            set
-            {
-                if (value == WindowState)
-                    return;
-                if (value != FormWindowState.Normal)
-                {
-                    IntPtr handle = FindForm().Handle;
-                    AnimateWindowFlags slideYFlags = AnimateWindowFlags.AW_SLIDE | AnimateWindowFlags.AW_VER_POSITIVE;
-                    AnimateWindowFlags slideXFlags = AnimateWindowFlags.AW_SLIDE | AnimateWindowFlags.AW_HOR_POSITIVE;
-                    AnimateWindowFlags scaleFlags = AnimateWindowFlags.AW_CENTER;
-                    AnimateWindowFlags opacityFlags = AnimateWindowFlags.AW_BLEND;
-                    switch (value)
-                    {
-                        case FormWindowState.Minimized:
-                            break;
-                        case FormWindowState.Maximized:
-                            slideYFlags |= AnimateWindowFlags.AW_HIDE;
-                            slideXFlags |= AnimateWindowFlags.AW_HIDE;
-                            scaleFlags |= AnimateWindowFlags.AW_HIDE;
-                            opacityFlags |= AnimateWindowFlags.AW_HIDE;
-                            MaximizedBounds = Screen.FromHandle(Handle).WorkingArea;
-                            break;
-                    }
-                    //NativeMethods.AnimateWindow(handle, 100, slideXFlags);
-                    //NativeMethods.AnimateWindow(handle, 100, slideYFlags);
-                    //NativeMethods.AnimateWindow(handle, 100, scaleFlags);
-                    NativeMethods.AnimateWindow(handle, 100, opacityFlags);
-                }
-                base.WindowState = value;
-            }
-        }
-
+        
         private void WmNCCalcSize(ref Message m)
         {
             // http://msdn.microsoft.com/library/default.asp?url=/library/en-us/winui/winui/windowsuserinterface/windowing/windows/windowreference/windowmessages/wm_nccalcsize.asp
@@ -208,32 +160,31 @@ namespace BorderlessForm
 
             if (max)
             {
-                //var x = NativeMethods.GetSystemMetrics(NativeConstants.SM_CXSIZEFRAME);
-                //var y = NativeMethods.GetSystemMetrics(NativeConstants.SM_CYSIZEFRAME);
-                //var p = NativeMethods.GetSystemMetrics(NativeConstants.SM_CXPADDEDBORDER);
-                //var w = x + p;
-                //var h = y + p;
+                var x = NativeMethods.GetSystemMetrics(NativeConstants.SM_CXSIZEFRAME);
+                var y = NativeMethods.GetSystemMetrics(NativeConstants.SM_CYSIZEFRAME);
+                var p = NativeMethods.GetSystemMetrics(NativeConstants.SM_CXPADDEDBORDER);
+                var w = x + p;
+                var h = y + p;
 
-                //r.left += w;
-                //r.top += h;
-                //r.right -= w;
-                //r.bottom -= h;
-                
-                //NativeMethods.SystemParametersInfo(NativeConstants.SPI_GETWORKAREA, 0, m.LParam, 0);
-                
-                //var r = (RECT)Marshal.PtrToStructure(m.LParam, typeof(RECT));
+                var r = (RECT)Marshal.PtrToStructure(m.LParam, typeof(RECT));
+                r.left += w;
+                r.top += h;
+                r.right -= w;
+                r.bottom -= h;
 
-                //var appBarData = new APPBARDATA()
-                //{
-                //    cbSize = Marshal.SizeOf(typeof(APPBARDATA))
-                //};
-                //var autohide = (NativeMethods.SHAppBarMessage(NativeConstants.ABM_GETSTATE, ref appBarData) & NativeConstants.ABS_AUTOHIDE) != 0;
-                //if (autohide)
-                //{
+                NativeMethods.SystemParametersInfo(NativeConstants.SPI_GETWORKAREA, 0, m.LParam, 0);
 
-                //}
+                var appBarData = new APPBARDATA()
+                {
+                    cbSize = Marshal.SizeOf(typeof(APPBARDATA))
+                };
+                var autohide = (NativeMethods.SHAppBarMessage(NativeConstants.ABM_GETSTATE, ref appBarData) & NativeConstants.ABS_AUTOHIDE) != 0;
+                if (autohide)
+                {
 
-                //Marshal.StructureToPtr(r, m.LParam, true);
+                }
+
+                Marshal.StructureToPtr(r, m.LParam, true);
             }
 
             m.Result = IntPtr.Zero;

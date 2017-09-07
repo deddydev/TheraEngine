@@ -9,6 +9,7 @@ using TheraEngine.Rendering.Models.Materials;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Linq;
+using TheraEngine.Core.Shapes;
 
 namespace TheraEngine.Rendering
 {

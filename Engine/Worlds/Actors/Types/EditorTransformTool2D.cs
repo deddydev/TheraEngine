@@ -2,6 +2,7 @@
 using TheraEngine.Rendering.HUD;
 using System;
 using System.Collections.Generic;
+using TheraEngine.Core.Shapes;
 
 namespace TheraEngine.Worlds.Actors.Types
 {

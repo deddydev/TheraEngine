@@ -1,6 +1,7 @@
 ﻿using BulletSharp;
+using System;
 
-namespace System
+namespace TheraEngine.Core.Shapes
 {
     public class ComplexCapsule : Shape
     {

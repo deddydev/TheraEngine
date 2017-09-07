@@ -227,7 +227,7 @@ namespace TheraEditor.Windows.Forms
             }
             protected override void OnRenderItemText(ToolStripItemTextRenderEventArgs e)
             {
-                e.TextColor = Color.FromArgb(224, 224, 224);
+                e.TextColor = e.Item.Selected ? SystemColors.HighlightText : Editor.TextColor;
                 base.OnRenderItemText(e);
             }
         }
@@ -313,26 +313,14 @@ namespace TheraEditor.Windows.Forms
             {
                 get { return Color.FromArgb(255, 140, 140, 140); }
             }
-            public override Color GripDark
-            {
-                get { return Color.FromArgb(255, 22, 22, 22); }
-            }
-            public override Color GripLight
-            {
-                get { return Color.FromArgb(255, 83, 83, 83); }
-            }
-            public override Color ImageMarginGradientBegin
-            {
-                get { return Color.FromArgb(255, 85, 85, 85); }
-            }
-            public override Color ImageMarginGradientMiddle
-            {
-                get { return Color.FromArgb(255, 68, 68, 68); }
-            }
-            public override Color ImageMarginGradientEnd
-            {
-                get { return Color.FromArgb(255, 68, 68, 68); }
-            }
+
+            public override Color GripDark => Color.FromArgb(22, 22, 22);
+            public override Color GripLight => Color.FromArgb(83, 83, 83);
+
+            public override Color ImageMarginGradientBegin  => Editor.TitleBarColor;
+            public override Color ImageMarginGradientMiddle => Editor.TitleBarColor;
+            public override Color ImageMarginGradientEnd    => Editor.TitleBarColor;
+
             public override Color ImageMarginRevealedGradientBegin
             {
                 get { return Color.FromArgb(255, 68, 68, 68); }
@@ -345,6 +333,7 @@ namespace TheraEditor.Windows.Forms
             {
                 get { return Color.FromArgb(255, 68, 68, 68); }
             }
+
             public override Color MenuStripGradientBegin
             {
                 get { return Color.FromArgb(255, 138, 138, 138); }
@@ -353,18 +342,11 @@ namespace TheraEditor.Windows.Forms
             {
                 get { return Color.FromArgb(255, 103, 103, 103); }
             }
-            public override Color MenuItemSelected
-            {
-                get { return Color.FromArgb(255, 170, 170, 170); }
-            }
-            public override Color MenuItemBorder
-            {
-                get { return Color.FromArgb(255, 170, 170, 170); }
-            }
-            public override Color MenuBorder
-            {
-                get { return Color.FromArgb(255, 22, 22, 22); }
-            }
+
+            public override Color MenuItemSelected => Editor.TurquoiseColor;
+            public override Color MenuItemBorder => Editor.TurquoiseColor;
+            public override Color MenuBorder => Color.Transparent;
+
             public override Color MenuItemSelectedGradientBegin
             {
                 get { return Color.FromArgb(255, 170, 170, 170); }
@@ -413,10 +395,7 @@ namespace TheraEditor.Windows.Forms
             {
                 get { return Color.FromArgb(255, 22, 22, 22); }
             }
-            public override Color ToolStripDropDownBackground
-            {
-                get { return Color.FromArgb(255, 125, 125, 125); }
-            }
+            public override Color ToolStripDropDownBackground => Color.FromArgb(55, 55, 60);
             public override Color ToolStripGradientBegin
             {
                 get { return Color.FromName("DimGray"); }

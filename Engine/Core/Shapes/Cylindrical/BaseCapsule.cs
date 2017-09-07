@@ -3,8 +3,9 @@ using TheraEngine.Rendering.Models;
 using System.Drawing;
 using static System.Math;
 using System.ComponentModel;
+using System;
 
-namespace System
+namespace TheraEngine.Core.Shapes
 {
     [FileClass("SHAPE", "Capsule")]
     [TypeConverter(typeof(ExpandableObjectConverter))]

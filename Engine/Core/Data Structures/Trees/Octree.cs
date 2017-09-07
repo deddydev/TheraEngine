@@ -5,6 +5,7 @@ using System.Drawing;
 using TheraEngine.Rendering;
 using System.Threading.Tasks;
 using System.Threading;
+using TheraEngine.Core.Shapes;
 
 namespace System
 {

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections;
 using System.ComponentModel;
 using TheraEngine.Worlds.Actors;
+using TheraEngine.Core.Shapes;
 
 namespace TheraEngine.Rendering.HUD
 {

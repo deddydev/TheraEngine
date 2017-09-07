@@ -2,6 +2,7 @@
 using System;
 using System.ComponentModel;
 using TheraEngine.Rendering;
+using TheraEngine.Core.Shapes;
 
 namespace TheraEngine.Worlds.Actors
 {

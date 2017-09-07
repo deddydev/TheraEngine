@@ -78,6 +78,13 @@ namespace TheraEditor.Windows.Forms
             base.OnResizeEnd(e);
         }
 
+        protected override string GetPersistString()
+        {
+            return GetType().ToString() + "," + FormIndex;
+        }
+
+        BaseFileWrapper _lastDraggedNode = null;
+        FileObject _dragInstance = null;
         private void RenderPanel_DragEnter(object sender, DragEventArgs e)
         {
             BaseWrapper[] dragNodes = Editor.Instance.ContentTree.DraggedNodes;
@@ -86,8 +93,12 @@ namespace TheraEditor.Windows.Forms
             BaseFileWrapper wrapper = dragNodes[0] as BaseFileWrapper;
             if (wrapper == null)
                 return;
-
-            FileObject instance = wrapper.GetNewInstance();
+            if (_lastDraggedNode != wrapper)
+            {
+                _lastDraggedNode = wrapper;
+                _dragInstance = null;
+            }
+            FileObject instance = _dragInstance ?? (_dragInstance = wrapper.GetNewInstance());
             if (instance is IActor actor)
             {
                 Engine.World.SpawnActor(actor);
@@ -108,9 +119,15 @@ namespace TheraEditor.Windows.Forms
             }
         }
 
-        protected override string GetPersistString()
+        private void RenderPanel_DragOver(object sender, DragEventArgs e)
         {
-            return GetType().ToString() + "," + FormIndex;
+            e.Effect = DragDropEffects.Move;
+        }
+
+        private void RenderPanel_DragDrop(object sender, DragEventArgs e)
+        {
+            _dragInstance = null;
+            _lastDraggedNode = null;
         }
     }
 }

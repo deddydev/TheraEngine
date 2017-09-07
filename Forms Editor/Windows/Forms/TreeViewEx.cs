@@ -32,8 +32,10 @@ namespace TheraEditor.Windows.Forms
         [Category("Behavior")]
         public event EventHandler<NodeRequestTextEventArgs> RequestEditText;
         [Category("Behavior")]
-        public event EventHandler<NodeLabelEditEventArgs> ValidateLabelEdit;
+        public event EventHandler<NodeRequestTextEventArgs> ValidateLabelEdit;
 
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        [Browsable(false)]
         public T EditingLabelNode { get; private set; } = null;
 
         protected override void OnBeforeLabelEdit(NodeLabelEditEventArgs e)
@@ -56,20 +58,22 @@ namespace TheraEditor.Windows.Forms
 
         protected override void OnAfterLabelEdit(NodeLabelEditEventArgs e)
         {
-            if (e.Label != null)
+            string label = e.Label;
+            if (label != null)
             {
                 e.CancelEdit = true;
-                NodeLabelEditEventArgs validateEventArgs = new NodeLabelEditEventArgs(e.Node, e.Label);
+                NodeRequestTextEventArgs validateEventArgs = new NodeRequestTextEventArgs(e.Node, label);
                 OnValidateLabelEdit(validateEventArgs);
-                if (validateEventArgs.CancelEdit)
+                if (validateEventArgs.Cancel)
                 {
-                    _postEditText = e.Label;
+                    _postEditText = label;
                     LabelEdit = true;
                     e.Node.BeginEdit();
                 }
                 else
                 {
-                    NodeRequestTextEventArgs displayTextArgs = new NodeRequestTextEventArgs(e.Node, e.Label);
+                    label = validateEventArgs.Label;
+                    NodeRequestTextEventArgs displayTextArgs = new NodeRequestTextEventArgs(e.Node, label);
                     OnRequestDisplayText(displayTextArgs);
                     if (!displayTextArgs.Cancel)
                         e.Node.Text = displayTextArgs.Label;
@@ -92,7 +96,7 @@ namespace TheraEditor.Windows.Forms
         /// <summary>
         /// Use to validate text submitted by the user.
         /// </summary>
-        protected virtual void OnValidateLabelEdit(NodeLabelEditEventArgs e)
+        protected virtual void OnValidateLabelEdit(NodeRequestTextEventArgs e)
             => ValidateLabelEdit?.Invoke(this, e);
 
         #endregion

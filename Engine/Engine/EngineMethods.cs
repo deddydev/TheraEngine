@@ -18,6 +18,7 @@ using System.Drawing.Text;
 using System.Drawing;
 using System.Text;
 using TheraEngine.GameModes;
+using TheraEngine.Core.Shapes;
 
 namespace TheraEngine
 {

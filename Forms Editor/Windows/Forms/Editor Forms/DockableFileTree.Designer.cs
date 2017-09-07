@@ -39,10 +39,11 @@
             this.ContentTree.Dock = System.Windows.Forms.DockStyle.Fill;
             this.ContentTree.Font = new System.Drawing.Font("Segoe UI", 9F);
             this.ContentTree.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(170)))), ((int)(((byte)(170)))), ((int)(((byte)(170)))));
+            this.ContentTree.HighlightBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(150)))), ((int)(((byte)(192)))), ((int)(((byte)(192)))));
+            this.ContentTree.HighlightTextColor = System.Drawing.SystemColors.HighlightText;
             this.ContentTree.Location = new System.Drawing.Point(0, 0);
-            this.ContentTree.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.ContentTree.Margin = new System.Windows.Forms.Padding(0);
             this.ContentTree.Name = "ContentTree";
-            this.ContentTree.SelectedNode = null;
             this.ContentTree.Size = new System.Drawing.Size(728, 585);
             this.ContentTree.Sorted = true;
             this.ContentTree.TabIndex = 4;

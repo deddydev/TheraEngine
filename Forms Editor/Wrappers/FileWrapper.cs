@@ -11,46 +11,14 @@ namespace TheraEditor.Wrappers
 {
     public abstract class BaseFileWrapper : BaseWrapper
     {
-        public abstract bool IsLoaded { get; }
-        public bool AlwaysReload { get; set; } = false;
-        public bool ExternallyModified { get; set; } = false;
-        public abstract FileObject FileObject { get; set; }
-        public abstract FileObject GetNewInstance();
-        
-        public void Reload()
-        {
-
-        }
-
-        public void EditResource()
-        {
-            Editor.Instance.PropertyGridForm.PropertyGrid.SelectedObject = GetNewInstance();
-        }
-
-        public BaseFileWrapper(ContextMenuStrip menu) : base(menu)
-        {
-
-        }
-
-        internal protected override void OnExpand()
-        {
-
-        }
-        protected internal override void OnCollapse()
-        {
-
-        }
-    }
-    public class FileWrapper<T> : BaseFileWrapper where T : FileObject
-    {
         #region Menu
         private static ContextMenuStrip _menu;
-        public FileWrapper() : base(_menu)
+        public BaseFileWrapper() : base(_menu)
         {
             ImageIndex = 0;
             SelectedImageIndex = 0;
         }
-        static FileWrapper()
+        static BaseFileWrapper()
         {
             _menu = new ContextMenuStrip();
             _menu.Items.Add(new ToolStripMenuItem("Rename", null, RenameAction, Keys.F2));                              //0
@@ -83,12 +51,32 @@ namespace TheraEditor.Wrappers
         protected static void CopyAction(object sender, EventArgs e) => GetInstance<BaseWrapper>().Copy();
         protected static void PasteAction(object sender, EventArgs e) => GetInstance<BaseWrapper>().Paste();
 
-        protected static void ExportAction(object sender, EventArgs e) { GetInstance<FileWrapper<T>>().Export(); }
-        protected static void ReplaceAction(object sender, EventArgs e) { GetInstance<FileWrapper<T>>().Replace(); }
-        protected static void RestoreAction(object sender, EventArgs e) { GetInstance<FileWrapper<T>>().Restore(); }
-        protected static void EditExternalAction(object sender, EventArgs e) { GetInstance<FileWrapper<T>>().OpenInExplorer(true); }
-        protected static void ExplorerAction(object sender, EventArgs e) => GetInstance<FileWrapper<T>>().OpenInExplorer(false);
-        protected static void EditAction(object sender, EventArgs e) => GetInstance<FileWrapper<T>>().EditResource();
+        protected static void ExportAction(object sender, EventArgs e) { GetInstance<BaseFileWrapper>().Export(); }
+        protected static void ReplaceAction(object sender, EventArgs e) { GetInstance<BaseFileWrapper>().Replace(); }
+        protected static void RestoreAction(object sender, EventArgs e) { GetInstance<BaseFileWrapper>().Restore(); }
+        protected static void EditExternalAction(object sender, EventArgs e) { GetInstance<BaseFileWrapper>().OpenInExplorer(true); }
+        protected static void ExplorerAction(object sender, EventArgs e) => GetInstance<BaseFileWrapper>().OpenInExplorer(false);
+        protected static void EditAction(object sender, EventArgs e) => GetInstance<BaseFileWrapper>().EditResource();
+
+        public void Export() { }
+        public void Replace() { }
+        public void Restore() { }
+
+        public void OpenInExplorer(bool editFileExternally)
+        {
+            string path = FilePath;
+            if (string.IsNullOrEmpty(path))
+                return;
+            if (editFileExternally)
+                Process.Start("explorer.exe", path);
+            else
+            {
+                string dir = Path.GetDirectoryName(path);
+                if (string.IsNullOrEmpty(dir))
+                    return;
+                Process.Start("explorer.exe", dir);
+            }
+        }
 
         private static void MenuClosing(object sender, ToolStripDropDownClosingEventArgs e)
         {
@@ -96,11 +84,11 @@ namespace TheraEditor.Wrappers
         }
         private static void MenuOpening(object sender, CancelEventArgs e)
         {
-            FileWrapper<T> w = GetInstance<FileWrapper<T>>();
+            BaseFileWrapper w = GetInstance<BaseFileWrapper>();
             //_menu.Items[0].Enabled = w.TreeView.LabelEdit;
             _menu.Items[1].Enabled = !string.IsNullOrEmpty(w.FilePath) && File.Exists(w.FilePath);
             _menu.Items[5].Enabled = _menu.Items[8].Enabled = w.Parent != null;
-            _menu.Items[6].Enabled = w.Resource.IsLoaded && w.Resource.File.EditorState.HasChanges;
+            _menu.Items[6].Enabled = w.IsLoaded && w.SingleInstance.EditorState.HasChanges;
             ((ToolStripMenuItem)_menu.Items[7]).Checked = w.AlwaysReload;
             //_menu.Items[2].Enabled = ((w._resource.IsDirty) || (w._resource.IsBranch));
             //_menu.Items[4].Enabled = w.PrevNode != null;
@@ -108,80 +96,40 @@ namespace TheraEditor.Wrappers
         }
         #endregion
 
-        protected SingleFileRef<T> _fileRef = new SingleFileRef<T>();
-
-        public SingleFileRef<T> Resource => _fileRef;
-        public override bool IsLoaded => Resource.IsLoaded;
-        public override string FilePath
-        {
-            get => Resource.ReferencePath;
-            set
-            {
-                Resource.ReferencePath = value;
-                Name = value;
-            }
-        }
-        public override FileObject GetNewInstance()
-        {
-            return _fileRef.LoadNewInstance();
-        }
-        public override FileObject FileObject
-        {
-            get => Resource.File;
-            set
-            {
-                T obj = value as T;
-                Resource.File = obj;
-                Name = FilePath;
-            }
-        }
+        public abstract bool IsLoaded { get; }
+        public bool AlwaysReload { get; set; } = false;
+        public bool ExternallyModified { get; set; } = false;
+        public abstract FileObject SingleInstance { get; set; }
+        public abstract FileObject GetNewInstance();
         
-        public virtual string Export()
+        public void Reload()
         {
-            string outPath = "";
-            //int index = Program.SaveFile(ExportFilter, Text, out outPath);
-            //if (index != 0)
-            //{
-            //    if (Parent == null)
-            //        _resource.Merge(Control.ModifierKeys == (Keys.Control | Keys.Shift));
-            //    OnExport(outPath, index);
-            //}
-            return outPath;
-        }
-        public virtual void OnExport(string outPath, int filterIndex)
-        {
-            //_resource.Export(outPath);
+
         }
 
-        public virtual void Replace()
+        public void EditResource()
         {
-            if (Parent == null)
-                return;
-
-            //string inPath;
-            //int index = Program.OpenFile(ReplaceFilter, out inPath);
-            //if (index != 0)
-            //{
-            //    OnReplace(inPath, index);
-            //    this.Link(_resource);
-            //}
+            Editor.Instance.PropertyGridForm.PropertyGrid.SelectedObject = GetNewInstance();
         }
 
-        public virtual void OnReplace(string inStream, int filterIndex)
-        {
-            //_resource.Replace(inStream);
-        }
+        //public BaseFileWrapper(ContextMenuStrip menu) : base(menu)
+        //{
 
-        public void Restore()
-        {
-            //_resource.Restore();
-        }
+        //}
 
+        internal protected override void OnExpand()
+        {
+
+        }
+        protected internal override void OnCollapse()
+        {
+
+        }
         public override void Delete()
         {
             if (Parent == null)
                 return;
-            
+
             ResourceTree tree = TreeView;
             try
             {
@@ -201,19 +149,66 @@ namespace TheraEditor.Wrappers
                 tree.WatchProjectDirectory = true;
             }
         }
-        public void OpenInExplorer(bool editFileExternally)
+    }
+    public class UnidentifiedFileWrapper : BaseFileWrapper
+    {
+        public UnidentifiedFileWrapper() : base()
         {
-            string path = FilePath;
-            if (string.IsNullOrEmpty(path))
-                return;
-            if (editFileExternally)
-                Process.Start("explorer.exe", path);
-            else
+
+        }
+        
+        public override bool IsLoaded => false;
+
+        public override FileObject SingleInstance
+        {
+            get => null;
+            set
             {
-                string dir = Path.GetDirectoryName(path);
-                if (string.IsNullOrEmpty(dir))
-                    return;
-                Process.Start("explorer.exe", dir);
+
+            }
+        }
+        public override string FilePath
+        {
+            get => Name;
+            set => Name = value;
+        }
+        
+        public override FileObject GetNewInstance()
+        {
+            return null;
+        }
+
+        protected internal override void FixPath(string parentFolderPath)
+        {
+        }
+    }
+    public class FileWrapper<T> : BaseFileWrapper where T : FileObject
+    {
+        protected SingleFileRef<T> _fileRef = new SingleFileRef<T>();
+
+        public SingleFileRef<T> Resource => _fileRef;
+        public override bool IsLoaded => Resource.IsLoaded;
+        public override string FilePath
+        {
+            get => Resource.ReferencePath;
+            set
+            {
+                Resource.ReferencePath = value;
+                Name = value;
+            }
+        }
+        public override FileObject GetNewInstance()
+        {
+            return _fileRef.LoadNewInstance();
+        }
+        public override FileObject SingleInstance
+        {
+            get => Resource.File;
+            set
+            {
+                T obj = value as T;
+                Resource.File = obj;
+                Name = FilePath;
             }
         }
         protected internal override void FixPath(string parentFolderPath)

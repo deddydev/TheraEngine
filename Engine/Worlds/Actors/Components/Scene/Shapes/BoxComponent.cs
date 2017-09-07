@@ -2,6 +2,7 @@
 using BulletSharp;
 using TheraEngine.Rendering;
 using System.Drawing;
+using TheraEngine.Core.Shapes;
 
 namespace TheraEngine.Worlds.Actors
 {

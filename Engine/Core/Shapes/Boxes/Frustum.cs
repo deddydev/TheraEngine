@@ -7,8 +7,9 @@ using TheraEngine.Rendering;
 using TheraEngine.Maths;
 using System.Xml;
 using System.IO;
+using System;
 
-namespace System
+namespace TheraEngine.Core.Shapes
 {
     [FileClass("SHAPE", "Camera View Frustum")]
     [TypeConverter(typeof(ExpandableObjectConverter))]

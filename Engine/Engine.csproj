@@ -307,7 +307,7 @@
     <Compile Include="Audio\SoundFile.cs" />
     <Compile Include="Audio\WaveFile.cs" />
     <Compile Include="Core\Extensions\TypeExtension.cs" />
-    <Compile Include="Core\Maths\Shapes\Cylindrical\ZAligned\ConeZ.cs" />
+    <Compile Include="Core\Shapes\Cylindrical\ZAligned\ConeZ.cs" />
     <Compile Include="Core\Tools\ObjectComparer.cs" />
     <Compile Include="Cutscenes\Cutscene.cs" />
     <Compile Include="EditorState.cs" />
@@ -845,22 +845,22 @@
     <Compile Include="Core\Maths\Collision\Tracing.cs" />
     <Compile Include="Core\Maths\Enums.cs" />
     <Compile Include="Core\Maths\Miniball.cs" />
-    <Compile Include="Core\Maths\Shapes\BoundingRectangle.cs" />
-    <Compile Include="Core\Maths\Shapes\Cylindrical\BaseCone.cs" />
+    <Compile Include="Core\Shapes\BoundingRectangle.cs" />
+    <Compile Include="Core\Shapes\Cylindrical\BaseCone.cs" />
     <Compile Include="Core\Maths\Transforms\Vectors\Vectors.cs" />
-    <Compile Include="Core\Maths\Shapes\Cylindrical\BaseCapsule.cs" />
-    <Compile Include="Core\Maths\Shapes\Cylindrical\Complex\ComplexCapsule.cs" />
-    <Compile Include="Core\Maths\Shapes\Cylindrical\BaseCylinder.cs" />
-    <Compile Include="Core\Maths\Shapes\Cylindrical\YAligned\CylinderY.cs" />
-    <Compile Include="Core\Maths\Shapes\Cylindrical\YAligned\ConeY.cs" />
-    <Compile Include="Core\Maths\Shapes\Boxes\Box.cs" />
-    <Compile Include="Core\Maths\Shapes\Boxes\Frustum.cs" />
-    <Compile Include="Core\Maths\Shapes\Planar\Plane.cs" />
-    <Compile Include="Core\Maths\Shapes\Planar\Circle.cs" />
-    <Compile Include="Core\Maths\Shapes\Planar\Segment.cs" />
-    <Compile Include="Core\Maths\Shapes\Planar\Ray.cs" />
-    <Compile Include="Core\Maths\Shapes\Shape.cs" />
-    <Compile Include="Core\Maths\Shapes\Cylindrical\Sphere.cs" />
+    <Compile Include="Core\Shapes\Cylindrical\BaseCapsule.cs" />
+    <Compile Include="Core\Shapes\Cylindrical\Complex\ComplexCapsule.cs" />
+    <Compile Include="Core\Shapes\Cylindrical\BaseCylinder.cs" />
+    <Compile Include="Core\Shapes\Cylindrical\YAligned\CylinderY.cs" />
+    <Compile Include="Core\Shapes\Cylindrical\YAligned\ConeY.cs" />
+    <Compile Include="Core\Shapes\Boxes\Box.cs" />
+    <Compile Include="Core\Shapes\Boxes\Frustum.cs" />
+    <Compile Include="Core\Shapes\Planar\Plane.cs" />
+    <Compile Include="Core\Shapes\Planar\Circle.cs" />
+    <Compile Include="Core\Shapes\Planar\Segment.cs" />
+    <Compile Include="Core\Shapes\Planar\Ray.cs" />
+    <Compile Include="Core\Shapes\Shape.cs" />
+    <Compile Include="Core\Shapes\Cylindrical\Sphere.cs" />
     <Compile Include="Core\Maths\Transforms\Matrix3.cs" />
     <Compile Include="Core\Maths\Transforms\Matrix4.cs" />
     <Compile Include="Core\Maths\Transforms\Quaternion.cs" />
@@ -1030,8 +1030,8 @@
     <Compile Include="Core\Extensions\Numbers\SingleExtension.cs" />
     <Compile Include="Core\ObjectBase.cs" />
     <Compile Include="Core\Reflection\Attributes\EngineFlagsAttribute.cs" />
-    <Compile Include="Core\Maths\Shapes\Cylindrical\YAligned\CapsuleY.cs" />
-    <Compile Include="Core\Maths\Shapes\Boxes\BoundingBox.cs" />
+    <Compile Include="Core\Shapes\Cylindrical\YAligned\CapsuleY.cs" />
+    <Compile Include="Core\Shapes\Boxes\BoundingBox.cs" />
     <Compile Include="Core\Memory\DataSource.cs" />
     <Compile Include="Core\Files\FileMap.cs" />
     <Compile Include="Core\Time\GameTimer.cs" />
@@ -1110,7 +1110,7 @@
   <ItemGroup>
     <Folder Include="AI\" />
     <Folder Include="Core\Files\Serialization\JSON\" />
-    <Folder Include="Core\Maths\Shapes\Cylindrical\XAligned\" />
+    <Folder Include="Core\Shapes\Cylindrical\XAligned\" />
     <Folder Include="Worlds\Actors\Components\Scene\Shapes\Cylindrical\XAligned\" />
     <Folder Include="Worlds\Actors\Components\Scene\Shapes\Cylindrical\ZAligned\" />
   </ItemGroup>

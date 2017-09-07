@@ -3,6 +3,7 @@ using System;
 using System.Drawing;
 using System.IO;
 using TheraEngine.Animation;
+using TheraEngine.Core.Shapes;
 using TheraEngine.Input.Devices;
 using TheraEngine.Rendering;
 using TheraEngine.Rendering.Models;

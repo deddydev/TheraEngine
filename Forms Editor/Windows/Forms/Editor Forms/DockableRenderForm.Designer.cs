@@ -39,7 +39,9 @@
             this.RenderPanel.Size = new System.Drawing.Size(740, 573);
             this.RenderPanel.TabIndex = 0;
             this.RenderPanel.VsyncMode = TheraEngine.VSyncMode.Disabled;
+            this.RenderPanel.DragDrop += new System.Windows.Forms.DragEventHandler(this.RenderPanel_DragDrop);
             this.RenderPanel.DragEnter += new System.Windows.Forms.DragEventHandler(this.RenderPanel_DragEnter);
+            this.RenderPanel.DragOver += new System.Windows.Forms.DragEventHandler(this.RenderPanel_DragOver);
             this.RenderPanel.DragLeave += new System.EventHandler(this.RenderPanel_DragLeave);
             // 
             // DockableRenderForm

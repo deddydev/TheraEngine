@@ -5,6 +5,7 @@ using System;
 using System.Drawing;
 using System.ComponentModel;
 using TheraEngine.Rendering;
+using TheraEngine.Core.Shapes;
 
 namespace TheraEngine.Worlds.Actors
 {
@@ -27,7 +28,7 @@ namespace TheraEngine.Worlds.Actors
             _renderTangents = false, 
             _renderKeyframeTangentPoints = true, 
             _renderKeyframePoints = true;
-
+        
         public PropAnimVec3 Spline
         {
             get => _spline;

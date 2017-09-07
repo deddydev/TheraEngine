@@ -1,8 +1,9 @@
 ﻿using TheraEngine;
 using System.Drawing;
 using System.ComponentModel;
+using System;
 
-namespace System
+namespace TheraEngine.Core.Shapes
 {
     [FileClass("SHAPE", "Cylinder")]
     [TypeConverter(typeof(ExpandableObjectConverter))]

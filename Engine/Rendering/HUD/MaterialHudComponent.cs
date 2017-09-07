@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using TheraEngine.Rendering.Models.Materials;
 using TheraEngine.Rendering.Models;
 using TheraEngine.Rendering.Textures;
+using TheraEngine.Core.Shapes;
 
 namespace TheraEngine.Rendering.HUD
 {

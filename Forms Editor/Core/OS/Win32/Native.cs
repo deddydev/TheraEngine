@@ -216,12 +216,7 @@ namespace Core.Win32.Native
         }
 
         public static RECT FromXYWH(int x, int y, int width, int height)
-        {
-            return new RECT(x,
-                            y,
-                            x + width,
-                            y + height);
-        }
+            => new RECT(x, y, x + width, y + height);
     }
 
     [StructLayout(LayoutKind.Sequential)]

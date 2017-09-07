@@ -1,6 +1,7 @@
 ﻿using BulletSharp;
 using System;
 using System.ComponentModel;
+using TheraEngine.Core.Shapes;
 using TheraEngine.Rendering;
 using TheraEngine.Rendering.Models.Materials;
 

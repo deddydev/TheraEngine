@@ -22,6 +22,11 @@ namespace TheraEditor.Windows.Forms
 {
     public partial class Editor : TheraForm
     {
+        public static Color BackgroundColor => Color.FromArgb(92, 93, 100);
+        public static Color TitleBarColor => Color.FromArgb(92, 93, 100);
+        public static Color TurquoiseColor => Color.FromArgb(150, 192, 192);
+        public static Color TextColor => Color.FromArgb(224, 224, 224);
+
         private static Editor _instance;
         public static Editor Instance => _instance ?? (_instance = new Editor());
         

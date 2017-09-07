@@ -1,8 +1,9 @@
 ﻿using TheraEngine.Files;
 using TheraEngine.Rendering.Models;
 using System.ComponentModel;
+using System;
 
-namespace System
+namespace TheraEngine.Core.Shapes
 {
     /// <summary>
     /// Represents a plane in 3D space using a normal and distance to the origin (0,0,0).

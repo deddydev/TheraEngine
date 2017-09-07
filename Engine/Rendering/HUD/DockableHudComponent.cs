@@ -1,4 +1,5 @@
 ﻿using System;
+using TheraEngine.Core.Shapes;
 
 namespace TheraEngine.Rendering.HUD
 {

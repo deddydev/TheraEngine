@@ -4,6 +4,7 @@ using TheraEngine.Rendering.Models.Materials;
 using System;
 using TheraEngine.Rendering;
 using System.ComponentModel;
+using TheraEngine.Core.Shapes;
 
 namespace TheraEngine
 {

@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
+using TheraEngine.Core.Shapes;
 
 namespace TheraEngine.Worlds.Actors.Types
 {

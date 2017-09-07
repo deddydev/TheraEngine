@@ -2,8 +2,9 @@
 using System.Linq;
 using System.ComponentModel;
 using System.Collections.Generic;
+using System;
 
-namespace System
+namespace TheraEngine.Core.Shapes
 {
     /// <summary>
     /// Represents a circle in 3D space.

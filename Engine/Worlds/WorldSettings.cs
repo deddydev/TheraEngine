@@ -7,6 +7,7 @@ using System.Linq;
 using TheraEngine.Audio;
 using TheraEngine.Rendering.HUD;
 using System.ComponentModel;
+using TheraEngine.Core.Shapes;
 
 namespace TheraEngine.Worlds
 {

@@ -3,8 +3,9 @@ using TheraEngine;
 using TheraEngine.Files;
 using System.ComponentModel;
 using TheraEngine.Rendering;
+using System;
 
-namespace System
+namespace TheraEngine.Core.Shapes
 {
     public enum ShapeType
     {

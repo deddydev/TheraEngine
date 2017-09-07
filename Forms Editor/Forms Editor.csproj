@@ -267,7 +267,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\ClosedFolder21.png" />
+    <None Include="Resources\ProjectFile.png" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\website favecon.png" />
@@ -277,6 +277,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\OpenFolder.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\ClosedFolder21.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

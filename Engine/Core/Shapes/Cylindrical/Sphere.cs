@@ -7,8 +7,9 @@ using System.Linq;
 using System.Drawing;
 using System.ComponentModel;
 using TheraEngine.Maths;
+using System;
 
-namespace System
+namespace TheraEngine.Core.Shapes
 {
     [FileClass("SHAPE", "Sphere")]
     [TypeConverter(typeof(ExpandableObjectConverter))]

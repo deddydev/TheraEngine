@@ -41,7 +41,7 @@ namespace TheraEngine.Rendering.OpenGL
                 GL.GetInteger(GetPName.MaxCombinedTextureImageUnits, out int units);
                 Engine.MaxTextureUnits = units;
 
-                Engine.PrintLine("Generated OpenGL context on " + _thread.Name + " thread.");
+                Engine.PrintLine("Generated OpenGL context on thread " + _thread.ManagedThreadId + ".");
                 Engine.PrintLine("OPENGL VENDOR: " + vendor);
                 Engine.PrintLine("OPENGL VERSION: " + version);
                 Engine.PrintLine("OPENGL RENDERER: " + renderer);

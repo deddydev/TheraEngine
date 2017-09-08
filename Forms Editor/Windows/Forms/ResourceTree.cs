@@ -247,7 +247,12 @@ namespace TheraEditor.Windows.Forms
             if (MappableActions.ContainsKey(e.KeyData))
             {
                 e.SuppressKeyPress = true;
-                e.Handled = MappableActions[e.KeyData]();
+                var func = MappableActions[e.KeyData];
+                e.Handled = func();
+                if (e.Handled)
+                {
+                    Engine.PrintLine(e.KeyData.ToString() + ": " + func.Method.Name);
+                }
                 return;
             }
             base.OnKeyDown(e);
@@ -385,32 +390,32 @@ namespace TheraEditor.Windows.Forms
                     }
                 }
 
-                destPath += name;
+                string tempDestPath = destPath + name;
 
                 //bool caseChange = string.Equals(pastedPath, destPath, StringComparison.InvariantCultureIgnoreCase) && !sameLocation;
 
                 if (isDir.Value)
                 {
-                    if (!Directory.Exists(destPath))
-                        Directory.CreateDirectory(destPath);
+                    if (!Directory.Exists(tempDestPath))
+                        Directory.CreateDirectory(tempDestPath);
                     if (cut)
                     {
-                        FileSystem.MoveDirectory(pastedPath, destPath, UIOption.AllDialogs, UICancelOption.DoNothing);
+                        FileSystem.MoveDirectory(pastedPath, tempDestPath, UIOption.AllDialogs, UICancelOption.DoNothing);
                     }
                     else
                     {
-                        FileSystem.CopyDirectory(pastedPath, destPath, UIOption.AllDialogs, UICancelOption.DoNothing);
+                        FileSystem.CopyDirectory(pastedPath, tempDestPath, UIOption.AllDialogs, UICancelOption.DoNothing);
                     }
                 }
                 else
                 {
                     if (cut)
                     {
-                        FileSystem.MoveFile(pastedPath, destPath, UIOption.AllDialogs, UICancelOption.DoNothing);
+                        FileSystem.MoveFile(pastedPath, tempDestPath, UIOption.AllDialogs, UICancelOption.DoNothing);
                     }
                     else
                     {
-                        FileSystem.CopyFile(pastedPath, destPath, UIOption.AllDialogs, UICancelOption.DoNothing);
+                        FileSystem.CopyFile(pastedPath, tempDestPath, UIOption.AllDialogs, UICancelOption.DoNothing);
                     }
                     //FindOrCreatePath(destPath);
                 }
@@ -467,6 +472,9 @@ namespace TheraEditor.Windows.Forms
                         //The rest of the path will be populated when the user expands this node.
                         //Just end now instead of expanding and continuing
                         //current.Expand();
+                        //bool? isDir = currentPath.IsDirectory();
+                        if (current is FolderWrapper && current.Nodes.Count == 0 && Directory.GetFileSystemEntries(current.FilePath).Length > 0)
+                            current.Nodes.Add("...");
                         break;
                     }
 
@@ -483,7 +491,6 @@ namespace TheraEditor.Windows.Forms
                     //Folder or file not found. Add it.
                     BaseWrapper n = BaseWrapper.Wrap(currentPath);
                     current.Nodes.Add(n);
-                    n.EnsureVisible();
                     current = n;
                 }
             }
@@ -531,7 +538,7 @@ namespace TheraEditor.Windows.Forms
                     if (bw != null)
                     {
                         bw.EnsureVisible();
-                        SelectedNodes = new List<BaseWrapper>() { bw };
+                        SelectedNode = bw;
                     }
                     break;
                 case WatcherChangeTypes.Changed:
@@ -613,6 +620,7 @@ namespace TheraEditor.Windows.Forms
                 //e.CancelEdit = true;
                 //MessageBox.Show("Name cannot be empty.");
             }
+            e.Label.Trim();
             //else if (e.Label.IndexOfAny(new[] { '\\', '/', ':', '*', '?', '"', '<', '>', '|' }) >= 0)
             //{
             //    e.CancelEdit = true;
@@ -635,40 +643,47 @@ namespace TheraEditor.Windows.Forms
                     WatchProjectDirectory = false;
                     Sort();
 
-                    //Windows is case-sensitive, but file/directory move isn't. Pretty dumb.
-                    bool caseChange = string.Equals(b.FilePath, newPath, StringComparison.InvariantCultureIgnoreCase);
-                    if (isFile)
+                    try
                     {
-                        if (caseChange)
+                        //Windows is case-sensitive, but file/directory move isn't. Pretty dumb.
+                        bool caseChange = string.Equals(b.FilePath, newPath, StringComparison.InvariantCultureIgnoreCase);
+                        if (isFile)
                         {
-                            string[] names = Directory.GetFiles(dir);
-                            string name = "temp";
-                            int i = 0;
-                            while (names.Contains(name + i.ToString())) ++i;
-                            string tempPath = dir + "\\" + name + i.ToString();
-                            File.Move(b.FilePath, tempPath);
-                            File.Move(tempPath, newPath);
+                            if (caseChange)
+                            {
+                                string[] names = Directory.GetFiles(dir);
+                                string name = "temp";
+                                int i = 0;
+                                while (names.Contains(name + i.ToString())) ++i;
+                                string tempPath = dir + "\\" + name + i.ToString();
+                                File.Move(b.FilePath, tempPath);
+                                File.Move(tempPath, newPath);
+                            }
+                            else
+                                File.Move(b.FilePath, newPath);
                         }
                         else
-                            File.Move(b.FilePath, newPath);
+                        {
+                            if (caseChange)
+                            {
+                                string[] names = Directory.GetDirectories(dir);
+                                string name = "temp";
+                                int i = 0;
+                                while (names.Contains(name + i.ToString())) ++i;
+                                string tempPath = dir + "\\" + name + i.ToString();
+                                Directory.Move(b.FilePath, tempPath);
+                                Directory.Move(tempPath, newPath);
+                            }
+                            else
+                                Directory.Move(b.FilePath, newPath);
+                        }
+                        b.FilePath = newPath;
                     }
-                    else
+                    catch (Exception ex)
                     {
-                        if (caseChange)
-                        {
-                            string[] names = Directory.GetDirectories(dir);
-                            string name = "temp";
-                            int i = 0;
-                            while (names.Contains(name + i.ToString())) ++i;
-                            string tempPath = dir + "\\" + name + i.ToString();
-                            Directory.Move(b.FilePath, tempPath);
-                            Directory.Move(tempPath, newPath);
-                        }
-                        else
-                            Directory.Move(b.FilePath, newPath);
+                        MessageBox.Show(ex.ToString());
                     }
 
-                    b.FilePath = newPath;
                     WatchProjectDirectory = true;
                 }
             }
@@ -1004,6 +1019,7 @@ namespace TheraEditor.Windows.Forms
                 _selectedNodes.Clear();
                 _selectedNodes = value;
                 HighlightSelectedNodes();
+                Refresh();
                 SelectionChanged?.Invoke(this, null);
             }
         }

@@ -36,8 +36,8 @@ namespace TheraEditor.Windows.Forms
         {
             EditorPawn = new FlyingCameraPawn(PlayerIndex) { Hud = new EditorHud(RenderPanel.ClientSize) };
             Engine.World.SpawnActor(EditorPawn);
-            Viewport v = RenderPanel.AddViewport();
-            v.Camera = EditorPawn.CurrentCameraComponent.Camera;
+            //Viewport v = RenderPanel.AddViewport();
+            //v.Camera = EditorPawn.CurrentCameraComponent.Camera;
             base.OnShown(e);
         }
         protected override void OnClosed(EventArgs e)

@@ -14,26 +14,26 @@ namespace TheraEditor.Windows.Forms
     {
         public TheraEditorTheme() : base()
         {
-            ColorPalette.TabButtonSelectedInactiveHovered.Background = Color.Orange;
-            ColorPalette.TabButtonSelectedInactiveHovered.Border = Color.Orange;
-            ColorPalette.TabButtonSelectedInactiveHovered.Glyph = Color.Orange;
-            ColorPalette.TabButtonSelectedInactivePressed.Background = Color.Orange;
-            ColorPalette.TabButtonSelectedInactivePressed.Border = Color.Orange;
-            ColorPalette.TabButtonSelectedInactivePressed.Glyph = Color.Orange;
+            ColorPalette.TabButtonSelectedInactiveHovered.Background = Color.Red;
+            ColorPalette.TabButtonSelectedInactiveHovered.Border = Color.Red;
+            ColorPalette.TabButtonSelectedInactiveHovered.Glyph = Color.Red;
+            ColorPalette.TabButtonSelectedInactivePressed.Background = Color.Red;
+            ColorPalette.TabButtonSelectedInactivePressed.Border = Color.Red;
+            ColorPalette.TabButtonSelectedInactivePressed.Glyph = Color.Red;
 
-            ColorPalette.TabButtonSelectedActiveHovered.Background = Color.Orange;
-            ColorPalette.TabButtonSelectedActiveHovered.Border = Color.Orange;
-            ColorPalette.TabButtonSelectedActiveHovered.Glyph = Color.Orange;
-            ColorPalette.TabButtonSelectedActivePressed.Background = Color.Orange;
-            ColorPalette.TabButtonSelectedActivePressed.Border = Color.Orange;
-            ColorPalette.TabButtonSelectedActivePressed.Glyph = Color.Orange;
+            ColorPalette.TabButtonSelectedActiveHovered.Background = Color.Red;
+            ColorPalette.TabButtonSelectedActiveHovered.Border = Color.Red;
+            ColorPalette.TabButtonSelectedActiveHovered.Glyph = Color.Red;
+            ColorPalette.TabButtonSelectedActivePressed.Background = Color.Red;
+            ColorPalette.TabButtonSelectedActivePressed.Border = Color.Red;
+            ColorPalette.TabButtonSelectedActivePressed.Glyph = Color.Red;
 
-            ColorPalette.TabButtonUnselectedTabHoveredButtonHovered.Background = Color.Orange;
-            ColorPalette.TabButtonUnselectedTabHoveredButtonHovered.Border = Color.Orange;
-            ColorPalette.TabButtonUnselectedTabHoveredButtonHovered.Glyph = Color.Orange;
-            ColorPalette.TabButtonUnselectedTabHoveredButtonPressed.Background = Color.Orange;
-            ColorPalette.TabButtonUnselectedTabHoveredButtonPressed.Border = Color.Orange;
-            ColorPalette.TabButtonUnselectedTabHoveredButtonPressed.Glyph = Color.Orange;
+            ColorPalette.TabButtonUnselectedTabHoveredButtonHovered.Background = Color.Red;
+            ColorPalette.TabButtonUnselectedTabHoveredButtonHovered.Border = Color.Red;
+            ColorPalette.TabButtonUnselectedTabHoveredButtonHovered.Glyph = Color.Red;
+            ColorPalette.TabButtonUnselectedTabHoveredButtonPressed.Background = Color.Red;
+            ColorPalette.TabButtonUnselectedTabHoveredButtonPressed.Border = Color.Red;
+            ColorPalette.TabButtonUnselectedTabHoveredButtonPressed.Glyph = Color.Red;
 
             ColorPalette.TabSelectedActive.Background = Editor.TurquoiseColor;
             ColorPalette.TabSelectedActive.Button = Editor.TurquoiseColor;
@@ -49,15 +49,15 @@ namespace TheraEditor.Windows.Forms
 
             //ColorPalette.MainWindowActive.Background = Editor.TurquoiseColor;
 
-            ColorPalette.ToolWindowCaptionButtonActiveHovered.Background = Color.Orange;
-            ColorPalette.ToolWindowCaptionButtonActiveHovered.Border = Color.Orange;
-            ColorPalette.ToolWindowCaptionButtonActiveHovered.Glyph = Color.Orange;
-            ColorPalette.ToolWindowCaptionButtonInactiveHovered.Background = Color.Orange;
-            ColorPalette.ToolWindowCaptionButtonInactiveHovered.Border = Color.Orange;
-            ColorPalette.ToolWindowCaptionButtonInactiveHovered.Glyph = Color.Orange;
-            ColorPalette.ToolWindowCaptionButtonPressed.Background = Color.Orange;
-            ColorPalette.ToolWindowCaptionButtonPressed.Border = Color.Orange;
-            ColorPalette.ToolWindowCaptionButtonPressed.Glyph = Color.Orange;
+            ColorPalette.ToolWindowCaptionButtonActiveHovered.Background = Color.Red;
+            ColorPalette.ToolWindowCaptionButtonActiveHovered.Border = Color.Red;
+            ColorPalette.ToolWindowCaptionButtonActiveHovered.Glyph = Color.Red;
+            ColorPalette.ToolWindowCaptionButtonInactiveHovered.Background = Color.Red;
+            ColorPalette.ToolWindowCaptionButtonInactiveHovered.Border = Color.Red;
+            ColorPalette.ToolWindowCaptionButtonInactiveHovered.Glyph = Color.Red;
+            ColorPalette.ToolWindowCaptionButtonPressed.Background = Color.Red;
+            ColorPalette.ToolWindowCaptionButtonPressed.Border = Color.Red;
+            ColorPalette.ToolWindowCaptionButtonPressed.Glyph = Color.Red;
 
             ColorPalette.ToolWindowCaptionActive.Background = Editor.TurquoiseColor;
             ColorPalette.ToolWindowCaptionActive.Button = Color.Orange;

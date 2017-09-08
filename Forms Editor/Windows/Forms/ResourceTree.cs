@@ -342,7 +342,7 @@ namespace TheraEditor.Windows.Forms
                 return;
             
             bool? isDestDir = destPath.IsDirectory();
-            //if (isDestDir.HasValue && !isDestDir.Value)
+            if (isDestDir.HasValue && !isDestDir.Value)
                 destPath = Path.GetDirectoryName(destPath);
             if (!destPath.EndsWith("\\"))
                 destPath += "\\";
@@ -379,7 +379,7 @@ namespace TheraEditor.Windows.Forms
                         string fileName = Path.GetFileNameWithoutExtension(pastedPath);
                         string ext = Path.GetExtension(pastedPath);
                         name = fileName + " - Copy" + ext;
-                        var names = Directory.GetFiles(destPath).Select(x => Path.GetFileNameWithoutExtension(x));
+                        var names = Directory.GetFiles(destPath).Select(x => Path.GetFileName(x));
                         if (names.Contains(name))
                         {
                             int i = 2;

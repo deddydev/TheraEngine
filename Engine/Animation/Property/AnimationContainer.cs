@@ -152,6 +152,7 @@ namespace TheraEngine.Animation
         /// </summary>
         Playing,
     }
+    [FileClass("TANIM", "Property Animation Tree")]
     public class AnimationContainer : FileObject, IComponent
     {
         public event Action<AnimationContainer> AnimationStarted;

@@ -3,6 +3,7 @@ using System.Reflection;
 
 namespace TheraEngine.Animation
 {
+    [FileClass("PANIM", "Property Animation")]
     public abstract class BasePropertyAnimation : BaseAnimation
     {
         /// <summary>

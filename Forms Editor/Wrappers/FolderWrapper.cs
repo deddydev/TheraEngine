@@ -40,7 +40,7 @@ namespace TheraEditor.Wrappers
             _menu.Opening += MenuOpening;
             _menu.Closing += MenuClosing;
 
-            LoadFileTypes(IsFileObject);
+            LoadFileTypes();
         }
 
         protected static void RenameAction(object sender, EventArgs e) => GetInstance<BaseWrapper>().Rename();
@@ -195,15 +195,63 @@ namespace TheraEditor.Wrappers
                 SelectedImageIndex = 1;
             }
         }
+        #region File Type Loading
 
         private static bool IsFileObject(Type t)
         {
             return t.IsSubclassOf(typeof(FileObject));
         }
 
-        #region File Type Loading
-        private static void LoadFileTypes(Predicate<Type> match)
-            => Program.PopulateMenuDropDown((ToolStripDropDownItem)_menu.Items[4], OnNewClick, match);
+        private static bool Is3rdPartyImportable(Type t)
+        {
+            if (!t.IsSubclassOf(typeof(FileObject)))
+                return false;
+            string[] ext = FileObject.GetFileHeader(t).ImportableExtensions;
+            return ext != null && ext.Length > 0;
+        }
+
+        private static void LoadFileTypes()
+        {
+            Program.PopulateMenuDropDown((ToolStripDropDownItem)_menu.Items[3], OnImportClick, Is3rdPartyImportable);
+            Program.PopulateMenuDropDown((ToolStripDropDownItem)_menu.Items[4], OnNewClick, IsFileObject);
+        }
+        private static void OnImportClick(object sender, EventArgs e)
+        {
+            if (sender is ToolStripDropDownButton button)
+            {
+                Type fileType = button.Tag as Type;
+                if (fileType.ContainsGenericParameters)
+                {
+                    GenericsSelector gs = new GenericsSelector(fileType);
+                    if (gs.ShowDialog() == DialogResult.OK)
+                        fileType = gs.FinalType;
+                    else
+                        return;
+                }
+
+                FileClass fileInfo = FileObject.GetFileHeader(fileType);
+
+                OpenFileDialog ofd = new OpenFileDialog()
+                {
+                    Filter = fileInfo.GetFilter(true, true, false),
+                    Title = "Import File"
+                };
+                DialogResult r = ofd.ShowDialog(Editor.Instance);
+                if (r == DialogResult.OK)
+                {
+                    FileObject file = FileObject.FromFile(fileType, ofd.FileName);
+
+                    FolderWrapper folderNode = GetInstance<FolderWrapper>();
+                    string dir = folderNode.FilePath as string;
+
+                    folderNode.TreeView.WatchProjectDirectory = false;
+                    file.Export(dir, file.Name, FileFormat.XML);
+                    folderNode.TreeView.WatchProjectDirectory = true;
+
+                    folderNode.Nodes.Add(Wrap(file));
+                }
+            }
+        }
         private static void OnNewClick(object sender, EventArgs e)
         {
             if (sender is ToolStripDropDownButton button)

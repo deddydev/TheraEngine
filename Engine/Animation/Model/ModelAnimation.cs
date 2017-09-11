@@ -6,6 +6,8 @@ using System.Linq;
 
 namespace TheraEngine.Animation
 {
+    [FileClass("MANIM", "Model Animation", 
+        ImportableExtensions = new[] { "DAE" })]
     public class ModelAnimation : BaseAnimation
     {
         [Serialize("BoneAnimations")]

@@ -192,12 +192,6 @@
     <Compile Include="Wrappers\WorldWrapper.cs" />
     <Compile Include="Wrappers\FolderWrapper.cs" />
     <Compile Include="Wrappers\FileWrapper.cs" />
-    <EmbeddedResource Include="Windows\BorderlessForm\TheraForm.es.resx">
-      <DependentUpon>TheraForm.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Windows\BorderlessForm\TheraForm.ja.resx">
-      <DependentUpon>TheraForm.cs</DependentUpon>
-    </EmbeddedResource>
     <EmbeddedResource Include="Windows\BorderlessForm\TheraForm.resx">
       <DependentUpon>TheraForm.cs</DependentUpon>
     </EmbeddedResource>
@@ -215,12 +209,6 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Windows\Forms\Editor Forms\DockableRenderForm.resx">
       <DependentUpon>DockableRenderForm.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Windows\Forms\Editor.es.resx">
-      <DependentUpon>Editor.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Windows\Forms\Editor.ja.resx">
-      <DependentUpon>Editor.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Windows\Forms\Editor.resx">
       <DependentUpon>Editor.cs</DependentUpon>

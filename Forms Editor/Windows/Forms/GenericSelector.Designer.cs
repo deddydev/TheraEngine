@@ -119,7 +119,10 @@ namespace TheraEditor.Windows.Forms
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(434, 407);
             this.Location = new System.Drawing.Point(0, 0);
+            this.MaximizeBox = false;
+            this.MinimizeBox = false;
             this.Name = "GenericsSelector";
+            this.ShowInTaskbar = false;
             this.Text = "Class Generics Selector";
             this.BodyPanel.ResumeLayout(false);
             this.MainPanel.ResumeLayout(false);

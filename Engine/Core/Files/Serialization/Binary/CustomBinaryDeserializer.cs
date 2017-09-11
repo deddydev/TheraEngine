@@ -64,7 +64,7 @@ namespace TheraEngine.Files.Serialization
             //Get members categorized together
             List<IGrouping<string, VarInfo>> categorized = serializedMembers.
                 Where(x => x.Category != null).
-                GroupBy(x => x.Category).ToList();
+                GroupBy(x => SerializationCommon.FixElementName(x.Category)).ToList();
 
             //Remove categorized members from original list
             foreach (IGrouping<string, VarInfo> grouping in categorized)

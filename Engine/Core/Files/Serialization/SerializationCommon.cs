@@ -33,7 +33,7 @@ namespace TheraEngine.Files.Serialization
                 Select(x => new MemberTreeNode(obj == null ? null : x.GetValue(obj), x)).
                 ToList();
 
-            CategorizedMembers = Members.Where(x => x.Info.Category != null).GroupBy(x => x.Info.Category).ToList();
+            CategorizedMembers = Members.Where(x => x.Info.Category != null).GroupBy(x => SerializationCommon.FixElementName(x.Info.Category)).ToList();
             foreach (var grouping in CategorizedMembers)
                 foreach (MemberTreeNode p in grouping)
                     Members.Remove(p);
@@ -264,6 +264,21 @@ namespace TheraEngine.Files.Serialization
                     return true;
             }
             return false;
+        }
+
+        public static string FixElementName(string name)
+        {
+            //Element names are case-sensitive
+            //Element names must start with a letter or underscore
+            //Element names cannot start with the letters xml(or XML, or Xml, etc)
+            //Element names can contain letters, digits, hyphens, underscores, and periods
+            //Element names cannot contain spaces
+
+            name = name.Replace(" ", "");
+            if (name.ToLower().StartsWith("xml"))
+                name = name.Substring(3);
+
+            return name;
         }
     }
 }

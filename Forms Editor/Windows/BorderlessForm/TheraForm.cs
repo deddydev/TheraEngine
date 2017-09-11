@@ -129,6 +129,20 @@ namespace TheraEditor.Windows.Forms
             CloseLabel.MouseClick += (s, e) => Close(e);
         }
 
+        protected override void OnLoad(EventArgs e)
+        {
+            base.OnLoad(e);
+            LogoPanel.Visible = ShowIcon;
+            if (!MaximizeBox || !MinimizeBox)
+            {
+                if (MinimizeLabel.Visible = MaximizeLabel.Visible = MaximizeBox || MinimizeBox)
+                {
+                    MinimizeLabel.Enabled = MinimizeBox;
+                    MaximizeLabel.Enabled = MaximizeBox;
+                }
+            }
+        }
+
         protected virtual void Close(MouseEventArgs e)
         {
             if (e.Button == MouseButtons.Left) Close();

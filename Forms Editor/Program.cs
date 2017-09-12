@@ -63,14 +63,16 @@ namespace TheraEditor
                 string path = t.Namespace;
                 int dotIndex = path.IndexOf(".");
                 string name = dotIndex > 0 ? path.Substring(0, dotIndex) : path;
+                NamespaceNode node;
                 if (nodeCache.ContainsKey(name))
-                    nodeCache[name].Add(dotIndex > 0 ? path.Substring(dotIndex + 1) : null, t, onClick);
+                    node = nodeCache[name];
                 else
                 {
-                    NamespaceNode node = new NamespaceNode(name);
+                    node = new NamespaceNode(name);
                     nodeCache.Add(name, node);
                     button.DropDownItems.Add(node.Button);
                 }
+                node.Add(dotIndex > 0 ? path.Substring(dotIndex + 1) : null, t, onClick);
             }
         }
         private class NamespaceNode
@@ -119,14 +121,16 @@ namespace TheraEditor
                 }
                 int dotIndex = path.IndexOf(".");
                 string name = dotIndex > 0 ? path.Substring(0, dotIndex) : path;
+                NamespaceNode node;
                 if (_children.ContainsKey(name))
-                    _children[name].Add(dotIndex > 0 ? path.Substring(dotIndex + 1) : null, t, onClick);
+                    node = _children[name];
                 else
                 {
-                    NamespaceNode node = new NamespaceNode(name);
+                    node = new NamespaceNode(name);
                     _children.Add(name, node);
                     Button.DropDownItems.Add(node.Button);
                 }
+                node.Add(dotIndex > 0 ? path.Substring(dotIndex + 1) : null, t, onClick);
             }
         }
 

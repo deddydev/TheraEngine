@@ -308,6 +308,7 @@
     <Compile Include="Audio\WaveFile.cs" />
     <Compile Include="Core\Extensions\TypeExtension.cs" />
     <Compile Include="Core\Shapes\Cylindrical\ZAligned\ConeZ.cs" />
+    <Compile Include="Core\Tools\DelegateBuilder.cs" />
     <Compile Include="Core\Tools\ObjectComparer.cs" />
     <Compile Include="Cutscenes\Cutscene.cs" />
     <Compile Include="EditorState.cs" />

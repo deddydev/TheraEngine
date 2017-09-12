@@ -206,7 +206,7 @@ namespace TheraEditor.Wrappers
         {
             if (!t.IsSubclassOf(typeof(FileObject)))
                 return false;
-            string[] ext = FileObject.GetFileHeader(t).ImportableExtensions;
+            string[] ext = FileObject.GetFileHeader(t)?.ImportableExtensions;
             return ext != null && ext.Length > 0;
         }
 

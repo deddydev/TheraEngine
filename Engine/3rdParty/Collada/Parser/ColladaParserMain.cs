@@ -51,7 +51,7 @@ namespace TheraEngine.Rendering.Models
             {
                 while (_reader.ReadAttribute())
                 {
-                    switch (_reader.Name.ToString().ToLower())
+                    switch (_reader.Name.ToString().ToLowerInvariant())
                     {
                         case "version":
                             string v = _reader.Value;
@@ -65,7 +65,7 @@ namespace TheraEngine.Rendering.Models
 
                 while (_reader.BeginElement())
                 {
-                    switch (_reader.Name.ToString().ToLower())
+                    switch (_reader.Name.ToString().ToLowerInvariant())
                     {
                         case "asset":
                             ParseAsset();
@@ -157,7 +157,7 @@ namespace TheraEngine.Rendering.Models
                     }
                     else if (_reader.Name.Equals("up_axis", true))
                     {
-                        string axis = ((string)_reader.Value).ToLower();
+                        string axis = ((string)_reader.Value).ToLowerInvariant();
                         entry._upAxis = axis.Contains("y") ? EUpAxis.Y : axis.Contains("x") ? EUpAxis.X : EUpAxis.Z;
                     }
                     _reader.EndElement();

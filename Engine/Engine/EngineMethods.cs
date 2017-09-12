@@ -326,7 +326,7 @@ namespace TheraEngine
         {
             if (!File.Exists(path))
                 return;
-            string ext = Path.GetExtension(path).ToLower().Substring(1);
+            string ext = Path.GetExtension(path).ToLowerInvariant().Substring(1);
             if (!(ext.Equals("ttf") || ext.Equals("otf")))
                 return;
             _fontIndexMatching[fontFamilyName] = _fontCollection.Families.Length;

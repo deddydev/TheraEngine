@@ -29,10 +29,10 @@ namespace TheraEditor
         {
             if (!directory.EndsWith("\\"))
                 directory += "\\";
-            FilePath = GetFilePath(directory, Name, FileFormat.XML, typeof(Project));
-            _state.ReferencePath = GetFilePath(ConfigDirName, Name, FileFormat.XML, typeof(ProjectState));
-            UserSettings.ReferencePath = GetFilePath(ConfigDirName, Name, FileFormat.XML, typeof(UserSettings));
-            EngineSettings.ReferencePath = GetFilePath(ConfigDirName, Name, FileFormat.XML, typeof(EngineSettings));
+            FilePath = GetFilePath(directory, Name, ProprietaryFileFormat.XML, typeof(Project));
+            _state.ReferencePath = GetFilePath(ConfigDirName, Name, ProprietaryFileFormat.XML, typeof(ProjectState));
+            UserSettings.ReferencePath = GetFilePath(ConfigDirName, Name, ProprietaryFileFormat.XML, typeof(UserSettings));
+            EngineSettings.ReferencePath = GetFilePath(ConfigDirName, Name, ProprietaryFileFormat.XML, typeof(EngineSettings));
         }
         public static Project Create(string name)
         {
@@ -63,10 +63,10 @@ namespace TheraEditor
             Project p = new Project()
             {
                 Name = name,
-                FilePath = GetFilePath(directory, name, FileFormat.XML, typeof(Project)),
-                State = new SingleFileRef<ProjectState>(directory, name, FileFormat.XML, state, true),
-                UserSettings = new SingleFileRef<UserSettings>(directory, name, FileFormat.XML, userSettings, true),
-                EngineSettings = new SingleFileRef<EngineSettings>(directory, name, FileFormat.XML, engineSettings, true),
+                FilePath = GetFilePath(directory, name, ProprietaryFileFormat.XML, typeof(Project)),
+                State = new SingleFileRef<ProjectState>(directory, name, ProprietaryFileFormat.XML, state, true),
+                UserSettings = new SingleFileRef<UserSettings>(directory, name, ProprietaryFileFormat.XML, userSettings, true),
+                EngineSettings = new SingleFileRef<EngineSettings>(directory, name, ProprietaryFileFormat.XML, engineSettings, true),
             };
             p.Export();
             return p;

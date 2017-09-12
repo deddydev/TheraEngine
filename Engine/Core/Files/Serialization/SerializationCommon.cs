@@ -275,7 +275,7 @@ namespace TheraEngine.Files.Serialization
             //Element names cannot contain spaces
 
             name = name.Replace(" ", "");
-            if (name.ToLower().StartsWith("xml"))
+            if (name.ToLowerInvariant().StartsWith("xml"))
                 name = name.Substring(3);
 
             return name;

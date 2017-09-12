@@ -124,7 +124,7 @@ namespace TheraEngine.Tools
                     return value;
                 }
 
-            token = token.ToLower();
+            token = token.ToLowerInvariant();
 
             //Handle boolean literals
             if (token.Equals("true") || token.Equals("false"))

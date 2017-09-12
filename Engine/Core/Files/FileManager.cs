@@ -32,7 +32,7 @@ namespace TheraEngine.Files
         {
             if (ext.StartsWith("."))
                 ext = ext.Substring(1);
-            ext = ext.ToLower();
+            ext = ext.ToLowerInvariant();
             return Filters.FirstOrDefault(x => x.Value._extensions[0] == ext).Key;
         }
         //public static ResourceType? GetResourceTypeWithExtension(string ext)
@@ -146,7 +146,7 @@ namespace TheraEngine.Files
 
         //public static bool IsSpecial(string ext)
         //{
-        //    return GenericInfo.Select(x => x._tag).Contains(ext.ToLower());
+        //    return GenericInfo.Select(x => x._tag).Contains(ext.ToLowerInvariant());
         //}
 
         public static string CompleteExportFilter { get { return GetAllSupportedFilter() + "|" + GetListFilter(); } }
@@ -228,7 +228,7 @@ namespace TheraEngine.Files
         //    string s;
         //    for (int i = 0; i < extensions.Length; i++)
         //        if (!String.IsNullOrEmpty(s = extensions[i]))
-        //            infoArray[i] = new FilterInfo(String.Format("{0} File", s.ToUpper()), s);
+        //            infoArray[i] = new FilterInfo(String.Format("{0} File", s.ToUpperInvariant()), s);
 
         //    return infoArray;
         //}

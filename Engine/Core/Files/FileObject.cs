@@ -4,14 +4,23 @@ using System.ComponentModel;
 using System.Xml;
 using System.IO;
 using System;
+using System.Linq;
+using System.Reflection;
+using System.Linq.Expressions;
+using TheraEngine.Core.Tools;
 
 namespace TheraEngine.Files
 {
+    public enum ProprietaryFileFormat
+    {
+        Binary = 0,
+        XML = 1,
+    }
     public enum FileFormat
     {
         Binary      = 0,
         XML         = 1,
-        //ThirdParty  = 2,
+        ThirdParty  = 2,
         //Programatic = 3,
     }
     public interface IFileObject : IObjectBase
@@ -20,18 +29,68 @@ namespace TheraEngine.Files
     }
     public abstract class FileObject : ObjectBase, IFileObject, INotifyPropertyChanged
     {
+        [AttributeUsage(AttributeTargets.Method, AllowMultiple = false, Inherited = true)]
+        public class ThirdPartyLoader : Attribute
+        {
+            public string Extension { get; private set; }
+            public ThirdPartyLoader(string extension)
+            {
+                Extension = extension;
+            }
+        }
+
         [Browsable(false)]
         public FileClass FileHeader => GetFileHeader(GetType());
         public static FileClass GetFileHeader(Type t)
         {
-            if (Attribute.GetCustomAttribute(t, typeof(FileClass)) is FileClass f) return f;
-            throw new Exception("No FileClass attribute specified for " + t.ToString());
+            return Attribute.GetCustomAttribute(t, typeof(FileClass)) as FileClass;
+            //throw new Exception("No FileClass attribute specified for " + t.ToString());
         }
 
         private List<IFileRef> _references = new List<IFileRef>();
         private string _filePath;
         private int _calculatedSize;
 
+        static FileObject()
+        {
+            _thirdPartyLoaders = new Dictionary<string, Dictionary<Type, Func<string, FileObject>>>();
+            var types = (from domainAssembly in AppDomain.CurrentDomain.GetAssemblies()
+             from assemblyType in domainAssembly.GetExportedTypes()
+             where assemblyType.IsSubclassOf(typeof(FileObject)) && !assemblyType.IsAbstract
+             select assemblyType).ToArray();
+            foreach (Type t in types)
+            {
+                FileClass c = GetFileHeader(t);
+                if (c != null && c.ImportableExtensions != null)
+                {
+                    foreach (string ext3rd in c.ImportableExtensions)
+                    {
+                        string extLower = ext3rd.ToLowerInvariant();
+                        Dictionary<Type, Func<string, FileObject>> d;
+                        if (_thirdPartyLoaders.ContainsKey(extLower))
+                            d = _thirdPartyLoaders[extLower];
+                        else
+                            _thirdPartyLoaders.Add(extLower, d = new Dictionary<Type, Func<string, FileObject>>());
+                        if (!d.ContainsKey(t))
+                        {
+                            var methods = t.GetMethods(
+                                BindingFlags.NonPublic |
+                                BindingFlags.Public | 
+                                BindingFlags.Static)
+                                .Where(x => string.Equals(x.GetCustomAttribute<ThirdPartyLoader>()?.Extension, extLower, StringComparison.InvariantCultureIgnoreCase))
+                                .ToArray();
+                            if (methods.Length > 0)
+                            {
+                                var result = DelegateBuilder.BuildDelegate<Func<string, FileObject>>(methods[0]);
+                                d.Add(t, result);
+                            }
+                        }
+                        else
+                            throw new Exception(t.GetFriendlyName() + " has already been added to the third party loader list for " + extLower);
+                    }
+                }
+            }
+        }
         public FileObject() { OnLoaded(); }
         protected virtual void OnLoaded() { }
 
@@ -60,21 +119,30 @@ namespace TheraEngine.Files
 
         public static Type DetermineType(string path)
         {
-            switch (Path.GetExtension(path).ToLower()[1])
+            FileFormat f = GetFormat(path);
+            switch (f)
             {
-                case 'x': return CustomXmlSerializer.DetermineType(path);
-                case 'b': return CustomBinarySerializer.DetermineType(path);
-                default: return null;
+                case FileFormat.XML:
+                    return CustomXmlSerializer.DetermineType(path);
+                case FileFormat.Binary:
+                    return CustomBinarySerializer.DetermineType(path);
+                default:
+                    return null;
             }
         }
         public static FileFormat GetFormat(string path)
         {
-            string ext = Path.GetExtension(path).ToLower();
-            switch (ext[1])
+            string ext = Path.GetExtension(path).Substring(1);
+            if (FileClass.Has3rdPartyExtension(ext))
+                return FileFormat.ThirdParty;
+            switch (ext.ToLowerInvariant()[1])
             {
                 default:
-                case 'b': return FileFormat.Binary;
-                case 'x': return FileFormat.XML;
+                    return FileFormat.ThirdParty;
+                case 'b':
+                    return FileFormat.Binary;
+                case 'x':
+                    return FileFormat.XML;
             }
         }
         public static void GetDirNameFmt(string path, out string dir, out string name, out FileFormat fmt)
@@ -83,7 +151,7 @@ namespace TheraEngine.Files
             name = Path.GetFileNameWithoutExtension(path);
             fmt = GetFormat(path);
         }
-        public static string GetFilePath(string dir, string name, FileFormat format, Type fileType)
+        public static string GetFilePath(string dir, string name, ProprietaryFileFormat format, Type fileType)
         {
             if (!dir.EndsWith("\\"))
                 dir += "\\";
@@ -95,6 +163,8 @@ namespace TheraEngine.Files
         {
             switch (GetFormat(fileName))
             {
+                case FileFormat.ThirdParty:
+                    return FromThirdParty<T>(fileName);
                 case FileFormat.Binary:
                     return FromBinary<T>(fileName);
                 case FileFormat.XML:
@@ -106,6 +176,8 @@ namespace TheraEngine.Files
         {
             switch (GetFormat(fileName))
             {
+                case FileFormat.ThirdParty:
+                    return FromThirdParty(type, fileName);
                 case FileFormat.Binary:
                     return FromBinary(type, fileName);
                 case FileFormat.XML:
@@ -194,7 +266,7 @@ namespace TheraEngine.Files
             if (!directory.EndsWith("\\"))
                 directory += "\\";
 
-            _filePath = directory + fileName + "." + FileHeader.GetProperExtension(FileFormat.XML);
+            _filePath = directory + fileName + "." + FileHeader.GetProperExtension(ProprietaryFileFormat.XML);
 
             if (FileHeader.ManualXmlSerialize)
             {
@@ -256,7 +328,7 @@ namespace TheraEngine.Files
             if (!directory.EndsWith("\\"))
                 directory += "\\";
 
-            _filePath = directory + fileName + "." + FileHeader.GetProperExtension(FileFormat.Binary);
+            _filePath = directory + fileName + "." + FileHeader.GetProperExtension(ProprietaryFileFormat.Binary);
 
             if (FileHeader.ManualBinSerialize)
             {
@@ -334,6 +406,47 @@ namespace TheraEngine.Files
         /// <param name="reader">The xml reader to read the file with.</param>
         internal protected virtual void Read(XMLReader reader) => throw new NotImplementedException();
 
+        #endregion
+
+        #region 3rd Party
+        internal unsafe static T FromThirdParty<T>(string filePath) where T : FileObject
+            => FromThirdParty(typeof(T), filePath) as T;
+        internal unsafe static FileObject FromThirdParty(Type t, string filePath)
+        {
+            string ext = Path.GetExtension(filePath).Substring(1);
+            return GetThirdPartyLoader(t, ext)?.Invoke(filePath);
+        }
+        private static Dictionary<string, Dictionary<Type, Func<string, FileObject>>> _thirdPartyLoaders;
+        public static Func<string, FileObject> GetThirdPartyLoader(Type fileType, string extension)
+        {
+            extension = extension.ToLowerInvariant();
+            if (_thirdPartyLoaders != null && _thirdPartyLoaders.ContainsKey(extension))
+            {
+                var t = _thirdPartyLoaders[extension];
+                if (t.ContainsKey(fileType))
+                    return t[fileType];
+            }
+            return null;
+        }
+        public static void RegisterThirdPartyLoader<T>(string extension, Func<string, FileObject> loaderMethod) where T : FileObject
+        {
+            extension = extension.ToLowerInvariant();
+
+            if (_thirdPartyLoaders == null)
+                _thirdPartyLoaders = new Dictionary<string, Dictionary<Type, Func<string, FileObject>>>();
+
+            Dictionary<Type, Func<string, FileObject>> typesforExt;
+            if (!_thirdPartyLoaders.ContainsKey(extension))
+                _thirdPartyLoaders.Add(extension, typesforExt = new Dictionary<Type, Func<string, FileObject>>());
+            else
+                typesforExt = _thirdPartyLoaders[extension];
+
+            Type fileType = typeof(T);
+            if (!typesforExt.ContainsKey(fileType))
+                typesforExt.Add(fileType, loaderMethod);
+            else
+                throw new Exception("Registered " + extension + " for " + fileType.GetFriendlyName() + " too many times.");
+        }
         #endregion
     }
 }

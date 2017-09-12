@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using TheraEngine.Files;
 
 namespace TheraEngine.Animation
 {
@@ -10,6 +11,18 @@ namespace TheraEngine.Animation
         ImportableExtensions = new[] { "DAE" })]
     public class ModelAnimation : BaseAnimation
     {
+        [ThirdPartyLoader("DAE")]
+        public static FileObject LoadDAE(string path)
+        {
+            ModelImportOptions o = new ModelImportOptions()
+            {
+                ImportAnimations = true,
+                ImportModels = false
+            };
+            ModelScene scene = Collada.Import(path, o);
+            return scene.Animation;
+        }
+
         [Serialize("BoneAnimations")]
         public Dictionary<string, BoneAnimation> _boneAnimations
             = new Dictionary<string, BoneAnimation>();

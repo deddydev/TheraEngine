@@ -618,7 +618,7 @@ namespace TheraEngine.Rendering.Models
 
                 while (_reader.ReadAttribute())
                 {
-                    switch (_reader.Name.ToString().ToLower())
+                    switch (_reader.Name.ToString().ToLowerInvariant())
                     {
                         case "id":
                             node._id = _reader.Value;
@@ -641,7 +641,7 @@ namespace TheraEngine.Rendering.Models
                 Matrix4 mInv = Matrix4.Identity;
                 while (_reader.BeginElement())
                 {
-                    switch (_reader.Name.ToString().ToLower())
+                    switch (_reader.Name.ToString().ToLowerInvariant())
                     {
                         case "matrix":
                             Matrix4 matrix = ParseMatrix();

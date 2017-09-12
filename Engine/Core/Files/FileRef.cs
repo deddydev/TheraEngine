@@ -39,8 +39,8 @@ namespace TheraEngine.Files
             if (exportNow && File != null)
                 ExportReference();
         }
-        public SingleFileRef(string dir, string name, FileFormat format) : base(GetFilePath(dir, name, format, typeof(T))) { }
-        public SingleFileRef(string dir, string name, FileFormat format, T file, bool exportNow) : this(dir, name, format)
+        public SingleFileRef(string dir, string name, ProprietaryFileFormat format) : base(GetFilePath(dir, name, format, typeof(T))) { }
+        public SingleFileRef(string dir, string name, ProprietaryFileFormat format, T file, bool exportNow) : this(dir, name, format)
         {
             if (file != null)
                 file.FilePath = ReferencePath;
@@ -189,8 +189,7 @@ namespace TheraEngine.Files
         private T GetFile()
         {
             string absolutePath = ReferencePath;
-            bool fileExists = System.IO.File.Exists(absolutePath);
-            if (!fileExists)
+            if (!File.Exists(absolutePath))
             {
                 //File = Activator.CreateInstance(_subType) as T;
                 Engine.PrintLine(string.Format("Could not load file at \"{0}\".", absolutePath));
@@ -225,14 +224,14 @@ namespace TheraEngine.Files
         {
             if (_refPath == null)
                 return null;
-            return Path.GetExtension(_refPath).ToLower().Substring(1);
+            return Path.GetExtension(_refPath).ToLowerInvariant().Substring(1);
         }
         public FileFormat GetFormat()
         {
             string ext = Extension();
             if (string.IsNullOrEmpty(ext))
                 return FileFormat.Binary;
-            if (ext == "xml" || ext.StartsWith("x"))
+            if (ext.StartsWith("x"))
                 return FileFormat.XML;
             return FileFormat.Binary;
         }

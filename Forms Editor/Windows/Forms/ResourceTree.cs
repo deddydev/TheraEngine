@@ -524,7 +524,7 @@ namespace TheraEditor.Windows.Forms
                 return;
             }
 
-            Engine.PrintLine("Externally {0} '{1}'", e.ChangeType.ToString().ToLower(), e.FullPath);
+            Engine.PrintLine("Externally {0} '{1}'", e.ChangeType.ToString().ToLowerInvariant(), e.FullPath);
 
             switch (e.ChangeType)
             {

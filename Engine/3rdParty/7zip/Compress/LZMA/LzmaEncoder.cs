@@ -1398,7 +1398,7 @@ namespace SevenZip.Compression.LZMA
 						if (!(prop is String))
 							throw new InvalidParamException();
 						EMatchFinderType matchFinderIndexPrev = _matchFinderType;
-						int m = FindMatchFinder(((string)prop).ToUpper());
+						int m = FindMatchFinder(((string)prop).ToUpperInvariant());
 						if (m < 0)
 							throw new InvalidParamException();
 						_matchFinderType = (EMatchFinderType)m;

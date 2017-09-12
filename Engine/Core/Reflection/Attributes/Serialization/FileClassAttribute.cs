@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using TheraEngine.Files;
 
 namespace System.ComponentModel
@@ -21,30 +22,43 @@ namespace System.ComponentModel
             )
         {
             UserFriendlyName = userFriendlyName;
-            Extension = extension.ToLower();
+            Extension = extension;
             ManualBinSerialize = manualBinSerialize;
             ManualXmlSerialize = manualXmlSerialize;
             PreferredFormat = preferredFormat;
             IsSpecialDeserialize = isSpecialDeserialize;
         }
-        
+
+        private string _extension;
+
         public string UserFriendlyName { get; set; }
-        public string Extension { get; set; }
+        public string Extension { get => _extension; set => _extension = value.ToLowerInvariant(); }
         public bool ManualXmlSerialize { get; set; } = false;
         public bool ManualBinSerialize { get; set; } = false;
         public bool IsSpecialDeserialize { get; set; } = false;
         public string[] ImportableExtensions { get; set; } = null;
         public string[] ExportableExtensions { get; set; } = null;
+
 #if DEBUG
         public SerializeFormat PreferredFormat { get; set; } = SerializeFormat.XML;
 #else
         public SerializeFormat PreferredFormat { get; set; } = SerializeFormat.Binary;
 #endif
 
-        public string GetProperExtension(FileFormat format)
+        /// <summary>
+        /// Converts the desired format into the actual extension for this file in that format.
+        /// </summary>
+        public string GetProperExtension(ProprietaryFileFormat format)
         {
-            return format.ToString().ToLower()[0] + Extension;
+            return format.ToString().ToLowerInvariant()[0] + Extension;
         }
+        /// <summary>
+        /// Returns the filter for all extensions related to this format.
+        /// </summary>
+        /// <param name="proprietary">Add the TheraEngine proprietary formats (binary, xml, etc)</param>
+        /// <param name="import3rdParty">Add any importable 3rd party file formats</param>
+        /// <param name="export3rdParty">Add any exportable 3rd party file formats</param>
+        /// <returns>The filter to be used in open file dialog, save file dialog, etc</returns>
         public string GetFilter(bool proprietary = true, bool import3rdParty = false, bool export3rdParty = false)
         {
             string allTypes = "";
@@ -52,7 +66,7 @@ namespace System.ComponentModel
             string ext = Extension;
             bool first = true;
             if (proprietary)
-                foreach (string type in Enum.GetNames(typeof(FileFormat)))
+                foreach (string type in Enum.GetNames(typeof(ProprietaryFileFormat)))
                 {
                     if (first)
                         first = false;
@@ -61,13 +75,14 @@ namespace System.ComponentModel
                         allTypes += ";";
                         eachType += "|";
                     }
-                    string fmt = String.Format("*.{0}{1}", type.Substring(0, 1).ToLower(), ext);
+                    string fmt = String.Format("*.{0}{1}", type.Substring(0, 1).ToLowerInvariant(), ext);
                     eachType += String.Format("{0} [{2}] ({1})|{1}", UserFriendlyName, fmt, type);
                     allTypes += fmt;
                 }
             if (import3rdParty)
                 foreach (string ext3rd in ImportableExtensions)
                 {
+                    string extLower = ext3rd.ToLowerInvariant();
                     if (first)
                         first = false;
                     else
@@ -75,16 +90,21 @@ namespace System.ComponentModel
                         allTypes += ";";
                         eachType += "|";
                     }
-                    string fmt = String.Format("*.{0}", ext3rd);
-                    if (ExtensionNames3rdParty.ContainsKey(ext3rd.ToUpper()))
-                        eachType += String.Format("{0} ({1})|{1}", ExtensionNames3rdParty[ext3rd.ToUpper()], fmt);
+                    string fmt = String.Format("*.{0}", extLower);
+                    if (ExtensionNames3rdParty.ContainsKey(extLower))
+                        eachType += String.Format("{0} ({1})|{1}", ExtensionNames3rdParty[extLower], fmt);
                     else
-                        eachType += String.Format("{0} file ({1})|{1}", fmt, ext3rd);
+                        eachType += String.Format("{0} file ({1})|{1}", extLower, fmt);
                     allTypes += fmt;
                 }
             if (export3rdParty)
                 foreach (string ext3rd in ExportableExtensions)
                 {
+                    if (import3rdParty && ImportableExtensions != null && ImportableExtensions.Contains(ext3rd, StringComparer.InvariantCultureIgnoreCase))
+                        continue;
+
+                    string extLower = ext3rd.ToLowerInvariant();
+
                     if (first)
                         first = false;
                     else
@@ -92,11 +112,11 @@ namespace System.ComponentModel
                         allTypes += ";";
                         eachType += "|";
                     }
-                    string fmt = String.Format("*.{0}", ext3rd);
-                    if (ExtensionNames3rdParty.ContainsKey(ext3rd.ToUpper()))
-                        eachType += String.Format("{0} ({1})|{1}", ExtensionNames3rdParty[ext3rd.ToUpper()], fmt);
+                    string fmt = String.Format("*.{0}", extLower);
+                    if (ExtensionNames3rdParty.ContainsKey(extLower))
+                        eachType += String.Format("{0} ({1})|{1}", ExtensionNames3rdParty[extLower], fmt);
                     else
-                        eachType += String.Format("{0} file ({1})|{1}", fmt, ext3rd);
+                        eachType += String.Format("{0} file ({1})|{1}", extLower, fmt);
                     allTypes += fmt;
                 }
 
@@ -104,13 +124,17 @@ namespace System.ComponentModel
             return allTypesFull + "|" + eachType;
         }
 
+        public static bool Has3rdPartyExtension(string ext)
+            => ExtensionNames3rdParty.ContainsKey(ext.ToLowerInvariant());       
+
         private static Dictionary<string, string> ExtensionNames3rdParty = new Dictionary<string, string>()
         {
-            { "DAE", "Collada Scene" }
+            { "dae", "Collada Scene" }
         };
 
         public static void Register3rdPartyExtension(string extension, string userFriendlyName)
         {
+            extension = extension.ToLowerInvariant();
             if (!ExtensionNames3rdParty.ContainsKey(extension))
                 ExtensionNames3rdParty.Add(extension, userFriendlyName);
             else

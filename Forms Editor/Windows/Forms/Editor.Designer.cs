@@ -99,9 +99,10 @@
             // 
             // FormTitle
             // 
-            this.FormTitle.Location = new System.Drawing.Point(596, 0);
+            this.FormTitle.Location = new System.Drawing.Point(458, 0);
             this.FormTitle.Padding = new System.Windows.Forms.Padding(8);
-            this.FormTitle.Size = new System.Drawing.Size(501, 45);
+            this.FormTitle.Size = new System.Drawing.Size(639, 45);
+            this.FormTitle.Text = "";
             // 
             // MiddlePanel
             // 
@@ -123,7 +124,7 @@
             this.menuStrip1.Name = "menuStrip1";
             this.menuStrip1.Padding = new System.Windows.Forms.Padding(8);
             this.menuStrip1.RenderMode = System.Windows.Forms.ToolStripRenderMode.Professional;
-            this.menuStrip1.Size = new System.Drawing.Size(389, 45);
+            this.menuStrip1.Size = new System.Drawing.Size(251, 45);
             this.menuStrip1.TabIndex = 0;
             this.menuStrip1.Text = "menuStrip1";
             // 
@@ -251,28 +252,28 @@
             // viewport1ToolStripMenuItem
             // 
             this.viewport1ToolStripMenuItem.Name = "viewport1ToolStripMenuItem";
-            this.viewport1ToolStripMenuItem.Size = new System.Drawing.Size(210, 30);
+            this.viewport1ToolStripMenuItem.Size = new System.Drawing.Size(182, 30);
             this.viewport1ToolStripMenuItem.Text = "Viewport 1";
             this.viewport1ToolStripMenuItem.Click += new System.EventHandler(this.Viewport1ToolStripMenuItem_Click);
             // 
             // viewport2ToolStripMenuItem
             // 
             this.viewport2ToolStripMenuItem.Name = "viewport2ToolStripMenuItem";
-            this.viewport2ToolStripMenuItem.Size = new System.Drawing.Size(210, 30);
+            this.viewport2ToolStripMenuItem.Size = new System.Drawing.Size(182, 30);
             this.viewport2ToolStripMenuItem.Text = "Viewport 2";
             this.viewport2ToolStripMenuItem.Click += new System.EventHandler(this.viewport2ToolStripMenuItem_Click);
             // 
             // viewport3ToolStripMenuItem
             // 
             this.viewport3ToolStripMenuItem.Name = "viewport3ToolStripMenuItem";
-            this.viewport3ToolStripMenuItem.Size = new System.Drawing.Size(210, 30);
+            this.viewport3ToolStripMenuItem.Size = new System.Drawing.Size(182, 30);
             this.viewport3ToolStripMenuItem.Text = "Viewport 3";
             this.viewport3ToolStripMenuItem.Click += new System.EventHandler(this.viewport3ToolStripMenuItem_Click);
             // 
             // viewport4ToolStripMenuItem
             // 
             this.viewport4ToolStripMenuItem.Name = "viewport4ToolStripMenuItem";
-            this.viewport4ToolStripMenuItem.Size = new System.Drawing.Size(210, 30);
+            this.viewport4ToolStripMenuItem.Size = new System.Drawing.Size(182, 30);
             this.viewport4ToolStripMenuItem.Text = "Viewport 4";
             this.viewport4ToolStripMenuItem.Click += new System.EventHandler(this.viewport4ToolStripMenuItem_Click);
             // 
@@ -328,14 +329,14 @@
             // btPlay
             // 
             this.btPlay.Name = "btPlay";
-            this.btPlay.Size = new System.Drawing.Size(210, 30);
+            this.btPlay.Size = new System.Drawing.Size(162, 30);
             this.btPlay.Text = "Play";
             this.btPlay.Click += new System.EventHandler(this.BtPlay_Click);
             // 
             // btnCompile
             // 
             this.btnCompile.Name = "btnCompile";
-            this.btnCompile.Size = new System.Drawing.Size(210, 30);
+            this.btnCompile.Size = new System.Drawing.Size(162, 30);
             this.btnCompile.Text = "Compile";
             // 
             // ctxContentTree
@@ -428,7 +429,7 @@
             this.TheraEngineText.Padding = new System.Windows.Forms.Padding(4, 0, 0, 0);
             this.TheraEngineText.Size = new System.Drawing.Size(157, 45);
             this.TheraEngineText.TabIndex = 1;
-            this.TheraEngineText.Text = "Thera Engine";
+            this.TheraEngineText.Text = "Thera Editor";
             this.TheraEngineText.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // DecorationToolTip

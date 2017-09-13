@@ -61,15 +61,16 @@ namespace TheraEditor.Windows.Forms
                 {
                     _project.EditorState = new EditorState();
                     if (string.IsNullOrEmpty(_project.FilePath))
-                        Text = "Thera Editor";
+                        Text = "";
                     else
-                        Text = "Thera Editor - " + _project.FilePath;
+                        Text = _project.FilePath;
                 }
                 else
-                    Text = "Thera Editor";
+                    Text = "";
             }
         }
-        
+
+        private EditorGameMode _gameMode = new EditorGameMode();
         public Editor() : base()
         {
             _instance = this;
@@ -105,6 +106,7 @@ namespace TheraEditor.Windows.Forms
             DoubleBuffered = false;
             Engine.SetGamePanel(RenderForm1.RenderPanel, false);
             Engine.Initialize(true);
+            Engine.ActiveGameMode = _gameMode;
 
             GenerateInitialActorList();
             if (Engine.World != null)
@@ -112,6 +114,19 @@ namespace TheraEditor.Windows.Forms
                 Engine.World.State.SpawnedActors.PostAdded += SpawnedActors_PostAdded;
                 Engine.World.State.SpawnedActors.PostRemoved += SpawnedActors_PostRemoved;
             }
+        }
+        protected override void OnLoad(EventArgs e)
+        {
+            base.OnLoad(e);
+
+            if (DesignMode)
+                return;
+
+            OnRedrawn = Redraw;
+            Engine.RegisterRenderTick(RenderTick);
+            PropertyGridForm.PropertyGrid.SelectedObject = Engine.World?.Settings;
+            //Engine.SetPaused(true, PlayerIndex.One, true);
+            Engine.Run();
         }
         private IDockContent GetContentFromPersistString(string persistString)
         {
@@ -181,19 +196,6 @@ namespace TheraEditor.Windows.Forms
                 }
                 ActorTreeForm.ActorTree.Nodes.Remove(item.EditorState.TreeNode);
             }
-        }
-        protected override void OnLoad(EventArgs e)
-        {
-            base.OnLoad(e);
-
-            if (DesignMode)
-                return;
-
-            OnRedrawn = Redraw;
-            Engine.RegisterRenderTick(RenderTick);
-            PropertyGridForm.PropertyGrid.SelectedObject = Engine.World?.Settings;
-            //Engine.SetPaused(true, PlayerIndex.One, true);
-            Engine.Run();
         }
         
         protected override void OnClosing(CancelEventArgs e)

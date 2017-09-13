@@ -47,7 +47,6 @@ namespace TheraEngine.Worlds.Actors
         [Browsable(false)]
         public float LaggingDistance => _laggingDistance;
 
-
         protected internal override void OriginRebased(Vec3 newOrigin)
         {
             _currentPoint -= newOrigin;

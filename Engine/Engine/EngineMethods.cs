@@ -308,7 +308,7 @@ namespace TheraEngine
         /// <param name="toggler">The player that's pausing the game.</param>
         public static void SetPaused(bool wantsPause, PlayerIndex toggler, bool force = false)
         {
-            if (!force && wantsPause && GetGameMode().DisallowPausing)
+            if (!force && wantsPause && ActiveGameMode.DisallowPausing)
                 return;
             _isPaused = wantsPause;
             Paused?.Invoke(_isPaused, toggler);
@@ -393,13 +393,16 @@ namespace TheraEngine
         /// </summary>
         /// <param name="world">The world to play in.</param>
         /// <param name="unloadPrevious">Whether or not the engine should deallocate all resources utilized by the current world before loading the new one.</param>
-        public static void SetCurrentWorld(World world, bool unloadPrevious = true, bool deferBeginPlay = false)
+        public static void SetCurrentWorld(World world, bool unloadPrevious = true, bool deferBeginPlay = false, bool loadDefaultGameMode = true)
         {
             bool wasRunning = _timer.IsRunning;
             World previous = World;
+
             DestroyLocalPlayerControllers();
+            ActiveGameMode?.EndGameplay();
             World?.EndPlay();
             Stop();
+
             _currentWorld = world;
             Scene.WorldChanged();
             if (World != null)
@@ -408,8 +411,12 @@ namespace TheraEngine
                 if (!deferBeginPlay)
                     World.BeginPlay();
             }
+            if (loadDefaultGameMode)
+                ActiveGameMode = World?.GetGameMode();
+            ActiveGameMode?.BeginGameplay();
             if (wasRunning)
                 Run();
+
             if (unloadPrevious)
                 previous?.Unload();
         }
@@ -419,10 +426,11 @@ namespace TheraEngine
                 controller.Destroy();
             ActivePlayers.Clear();
         }
-        public static BaseGameMode GetGameMode()
-            => World?.GetGameMode();
-        public static T GetGameMode<T>() where T : BaseGameMode
-            => World?.GetGameMode<T>();
+
+        public static BaseGameMode ActiveGameMode { get; set; }
+        public static T ActiveGameModeAs<T>() where T : BaseGameMode
+            => ActiveGameMode as T;
+
         /// <summary>
         /// Enqueues a pawn to be possessed by the given local player as soon as its current controlled pawn is set to null.
         /// </summary>
@@ -460,15 +468,14 @@ namespace TheraEngine
                 {
                     LocalPlayerController controller;
                     PlayerIndex index = PlayerIndex.One;
-                    BaseGameMode mode = GetGameMode();
                     if (_possessionQueues.ContainsKey(index))
                     {
                         //Transfer possession queue to the controller itself
-                        controller = mode?.CreateLocalController(index, _possessionQueues[index]);
+                        controller = ActiveGameMode?.CreateLocalController(index, _possessionQueues[index]);
                         _possessionQueues.Remove(controller.LocalPlayerIndex);
                     }
                     else
-                        controller = mode?.CreateLocalController(index);
+                        controller = ActiveGameMode?.CreateLocalController(index);
                     ActivePlayers.Add(controller);
                 }
                 else
@@ -480,15 +487,14 @@ namespace TheraEngine
                 {
                     LocalPlayerController controller;
                     PlayerIndex index = (PlayerIndex)ActivePlayers.Count;
-                    BaseGameMode mode = GetGameMode();
                     if (_possessionQueues.ContainsKey(index))
                     {
                         //Transfer possession queue to the controller itself
-                        controller = mode?.CreateLocalController(index, _possessionQueues[index]);
+                        controller = ActiveGameMode?.CreateLocalController(index, _possessionQueues[index]);
                         _possessionQueues.Remove(controller.LocalPlayerIndex);
                     }
                     else
-                        controller = mode?.CreateLocalController(index);
+                        controller = ActiveGameMode?.CreateLocalController(index);
                     ActivePlayers.Add(controller);
                 }
                 else

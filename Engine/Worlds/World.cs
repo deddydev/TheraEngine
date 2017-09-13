@@ -189,7 +189,6 @@ namespace TheraEngine.Worlds
         protected override void OnUnload() => Dispose();
         public virtual void EndPlay()
         {
-            _settings.GameMode.File?.EndGameplay();
             foreach (Map m in _settings.Maps)
                 m.EndPlay();
         }
@@ -197,7 +196,6 @@ namespace TheraEngine.Worlds
         {
             foreach (Map m in _settings.Maps)
                 m.BeginPlay();
-            _settings.GameMode.File?.BeginGameplay();
         }
         internal protected virtual void Initialize()
         {

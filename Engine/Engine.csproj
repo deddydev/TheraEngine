@@ -301,6 +301,7 @@
     <Compile Include="3rdParty\OBJ\TypeParsers\TypeParserBase.cs" />
     <Compile Include="3rdParty\OBJ\TypeParsers\UseMaterialParser.cs" />
     <Compile Include="3rdParty\OBJ\TypeParsers\VertexParser.cs" />
+    <None Include="Animation\Property\PropAnimMatrix4.cs" />
     <Compile Include="Audio\AbstractAudioManager.cs" />
     <Compile Include="Audio\ALAudioManager.cs" />
     <Compile Include="Audio\AudioParameters.cs" />

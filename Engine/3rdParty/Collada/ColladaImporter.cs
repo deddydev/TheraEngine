@@ -150,12 +150,21 @@ namespace TheraEngine.Rendering.Models
 
                 string[] sidRef = channel._target.Split('/');
                 string targetId = sidRef[0];
-                if (skel[targetId] == null)
+                if (targetId == ".")
                     continue;
+
+                BoneAnimation b;
+                if (c._boneAnimations.ContainsKey(targetId))
+                    b = c._boneAnimations[targetId];
+                else
+                    b = c.CreateBoneAnimation(targetId);
+
+                //if (skel[targetId] == null)
+                //    continue;
 
                 string targetSID = sidRef[1];
                 
-                float[] timeData = null, outputData = null;
+                float[] timeData = null, outputData = null, inTanData = null, outTanData = null;
                 string[] interpData = null;
                 foreach (InputEntry input in sampler._inputs)
                 {
@@ -173,49 +182,41 @@ namespace TheraEngine.Rendering.Models
                             interpData = (string[])source._arrayData;
                             break;
                         case SemanticType.IN_TANGENT:
-
+                            inTanData = (float[])source._arrayData;
                             break;
                         case SemanticType.OUT_TANGENT:
-
+                            outTanData = (float[])source._arrayData;
                             break;
                     }
                 }
-                //if (targetName == TargetType.matrix)
-                //{
-                //    int x = 0;
-                //    for (int i = 0; i < timeData.Length; ++i, x += 16)
-                //    {
-                //        float second = timeData[i];
-                //        InterpType type = interpData[i].AsEnum<InterpType>();
-                //        Matrix4 matrix = new Matrix4(
-                //                outputData[x + 0],
-                //                outputData[x + 1],
-                //                outputData[x + 2],
-                //                outputData[x + 3],
-                //                outputData[x + 4],
-                //                outputData[x + 5],
-                //                outputData[x + 6],
-                //                outputData[x + 7],
-                //                outputData[x + 8],
-                //                outputData[x + 9],
-                //                outputData[x + 10],
-                //                outputData[x + 11],
-                //                outputData[x + 12],
-                //                outputData[x + 13],
-                //                outputData[x + 14],
-                //                outputData[x + 15]);
-                //        FrameState transform = FrameState.DeriveTRS(matrix);
-                //    }
-                //}
-                //else if (targetName == TargetType.visibility)
-                //{
-                //    for (int i = 0; i < timeData.Length; ++i)
-                //    {
-                //        float second = timeData[i];
-                //        float vis = outputData[i];
-                //        InterpType type = interpData[i].AsEnum<InterpType>();
-                //    }
-                //}
+                if (targetId == "matrix")
+                {
+                    int x = 0;
+                    for (int i = 0; i < timeData.Length; ++i, x += 16)
+                    {
+                        float second = timeData[i];
+                        InterpType type = interpData[i].AsEnum<InterpType>();
+                        PlanarInterpType pType = (PlanarInterpType)type;
+                        Matrix4 matrix = new Matrix4(
+                                outputData[x + 00], outputData[x + 01], outputData[x + 02], outputData[x + 03],
+                                outputData[x + 04], outputData[x + 05], outputData[x + 06], outputData[x + 07],
+                                outputData[x + 08], outputData[x + 09], outputData[x + 10], outputData[x + 11],
+                                outputData[x + 12], outputData[x + 13], outputData[x + 14], outputData[x + 15]);
+                        FrameState transform = FrameState.DeriveTRS(matrix);
+                        b._translation.Add(new Vec3Keyframe(second, transform.Translation, pType));
+                        b._scale.Add(new Vec3Keyframe(second, transform.Scale, pType));
+                        b._rotation.Add(new QuatKeyframe(second, transform.Quaternion, RadialInterpType.Linear));
+                    }
+                }
+                else if (targetId == "visibility")
+                {
+                    for (int i = 0; i < timeData.Length; ++i)
+                    {
+                        float second = timeData[i];
+                        float vis = outputData[i];
+                        InterpType type = interpData[i].AsEnum<InterpType>();
+                    }
+                }
             }
         }
         private enum InterpType

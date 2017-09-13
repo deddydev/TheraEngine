@@ -74,7 +74,7 @@ namespace TheraEditor.Windows.Forms
         public Editor() : base()
         {
             _instance = this;
-            string lastOpened = Properties.Settings.Default.LastOpened;
+            string lastOpened = Properties.Settings.Default.LastOpened;//"C:\\Users\\David\\Desktop\\test project\\NewProject.xtproj";
             if (!string.IsNullOrEmpty(lastOpened))
                 Project = FileObject.FromFile<Project>(lastOpened);
             else

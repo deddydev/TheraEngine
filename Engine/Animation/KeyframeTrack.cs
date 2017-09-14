@@ -37,17 +37,49 @@ namespace TheraEngine.Animation
 
         public abstract void SetFrameCount(int frameCount, bool stretchAnimation);
     }
-    public class KeyframeTrack<T> : BaseKeyframeTrack, IEnumerable<T> where T : Keyframe
+    public class KeyframeTrack<T> : 
+        BaseKeyframeTrack, IList, IList<T>, IEnumerable<T> where T : Keyframe
     {
-        BaseAnimation _owner;
-        
+        BaseAnimation _owner = null;
         private T _first = null;
+        private object _syncRoot = null;
+        private bool _isSynchronized = false;
+        private int _count = 0;
 
         public T First => _first;
         public T Last => (T)_first.Prev;
 
         public override BaseAnimation Owner => _owner;
         protected override Keyframe FirstKey => First;
+
+        public bool IsReadOnly => false;
+        public bool IsFixedSize => false;
+        public int Count => _count;
+        public object SyncRoot => _syncRoot;
+        public bool IsSynchronized => _isSynchronized;
+
+        T IList<T>.this[int index]
+        {
+            get
+            {
+
+            }
+            set
+            {
+
+            }
+        }
+        public object this[int index]
+        {
+            get
+            {
+
+            }
+            set
+            {
+
+            }
+        }
 
         public KeyframeTrack(BaseAnimation node)
         {
@@ -188,6 +220,81 @@ namespace TheraEngine.Animation
         {
             throw new NotImplementedException();
         }
+
+        public int Add(object value)
+        {
+            if (value is T key)
+            {
+                Add(key);
+                return key.TrackIndex;
+            }
+            return -1;
+        }
+
+        public bool Contains(object value)
+        {
+            if (value is T keyValue)
+                foreach (T key in this)
+                    if (key == keyValue)
+                        return true;
+            return false;
+        }
+
+        public void Clear()
+        {
+            _first = null;
+            _count = 0;
+        }
+
+        public int IndexOf(object value)
+        {
+            if (value is T keyValue)
+                foreach (T key in this)
+                    if (key == keyValue)
+                        return key.TrackIndex;
+
+            return -1;
+        }
+
+        public void Insert(int index, object value)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Remove(object value)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void RemoveAt(int index)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void CopyTo(Array array, int index)
+        {
+            throw new NotImplementedException();
+        }
+
+        public int IndexOf(T item)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Insert(int index, T item)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool Contains(T item)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void CopyTo(T[] array, int arrayIndex)
+        {
+            throw new NotImplementedException();
+        }
     }
     public enum RadialInterpType
     {
@@ -222,6 +329,9 @@ namespace TheraEngine.Animation
             get => _prev;
             set => _prev = value;
         }
+
+        public int TrackIndex { get; internal set; }
+
         internal void Unlink()
         {
             _next.Prev = Prev;

@@ -140,7 +140,10 @@ namespace TheraEngine.Files.Serialization
                     writer.WriteElementString(member.Name, ((IParsable)value).WriteToString());
                     break;
                 case SerializationCommon.ValueType.Array:
-                    WriteArray(value as IList, member, writer);
+                    WriteArray(value as IList, member.Name, member.VariableType, writer);
+                    break;
+                case SerializationCommon.ValueType.Dictionary:
+                    WriteDictionary(value as IDictionary, member, writer);
                     break;
                 case SerializationCommon.ValueType.Enum:
                 case SerializationCommon.ValueType.String:
@@ -172,14 +175,42 @@ namespace TheraEngine.Files.Serialization
                     break;
             }
         }
-        private static void WriteArray(IList array, VarInfo member, XmlWriter writer)
+        private static void WriteDictionary(IDictionary dic, VarInfo member, XmlWriter writer)
         {
             writer.WriteStartElement(member.Name);
+            writer.WriteAttributeString("Count", dic.Count.ToString());
+            if (dic.Count > 0)
+            {
+                var args = member.VariableType.GetGenericArguments();
+                Type keyType = args[0];
+                Type valueType = args[1];
+
+                object[] dicKeys = new object[dic.Count];
+                object[] dicVals = new object[dic.Count];
+                dic.Keys.CopyTo(dicKeys, 0);
+                dic.Values.CopyTo(dicVals, 0);
+
+                VarInfo vKeys = new VarInfo(keyType, "Key");
+                VarInfo vVals = new VarInfo(valueType, "Value");
+                for (int i = 0; i < dic.Count; ++i)
+                {
+                    writer.WriteStartElement("KeyValuePair");
+                    writer.WriteAttributeString("Index", i.ToString());
+                    WriteElement(dicKeys[i], vKeys, writer);
+                    WriteElement(dicVals[i], vVals, writer);
+                    writer.WriteEndElement();
+                }
+            }
+            writer.WriteEndElement();
+        }
+        private static void WriteArray(IList array, string name, Type arrayType, XmlWriter writer)
+        {
+            writer.WriteStartElement(name);
             writer.WriteAttributeString("Count", array.Count.ToString());
             if (array.Count > 0)
             {
-                Type elementType = member.VariableType.GetElementType() ?? member.VariableType.GenericTypeArguments[0];
-                string elementName = member.VariableType.Name;
+                Type elementType = arrayType.GetElementType() ?? arrayType.GenericTypeArguments[0];
+                string elementName = elementType.GetFriendlyName("[", "]");
                 SerializationCommon.ValueType type = SerializationCommon.GetValueType(elementType);
                 switch (type)
                 {
@@ -187,7 +218,8 @@ namespace TheraEngine.Files.Serialization
                         WriteStringArray(array, writer, true, false);
                         break;
                     case SerializationCommon.ValueType.Array:
-
+                        for (int i = 0; i < array.Count; ++i)
+                            WriteArray(array, "Item", elementType, writer);
                         break;
                     case SerializationCommon.ValueType.Enum:
                         WriteStringArray(array, writer, false, true);

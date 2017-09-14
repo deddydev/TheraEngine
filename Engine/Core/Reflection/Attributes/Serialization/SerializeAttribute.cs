@@ -28,7 +28,7 @@
         private bool _isXmlAttribute = false;
         private string _xmlCategoryGrouping = null;
         private string _serializeIf = null;
-        private bool _useCategory = true;
+        private bool _useCategory = false;
         private bool _ignoreIfNull = true;
         private bool _ignoreIfDefault = true;
         private bool _external = false;

@@ -192,6 +192,8 @@ namespace TheraEngine.Files.Serialization
             {
                 case SerializationCommon.ValueType.Array:
                     return ReadArray(member.VariableType, reader);
+                case SerializationCommon.ValueType.Dictionary:
+                    return ReadDictionary(member.VariableType, reader);
                 case SerializationCommon.ValueType.Enum:
                 case SerializationCommon.ValueType.String:
                 case SerializationCommon.ValueType.Parsable:
@@ -223,7 +225,41 @@ namespace TheraEngine.Files.Serialization
             }
             return null;
         }
-        
+
+        private static IDictionary ReadDictionary(Type dicType, XMLReader reader)
+        {
+            reader.ReadAttribute();
+            int num = int.Parse(reader.Value.ToString());
+
+            IDictionary dic = Activator.CreateInstance(dicType) as IDictionary;
+
+            //if (num > 0)
+            //{
+            //    Type elementType = dicType.GetElementType() ?? dicType.GenericTypeArguments[0];
+            //    SerializationCommon.ValueType type = SerializationCommon.GetValueType(elementType);
+            //    switch (type)
+            //    {
+            //        case SerializationCommon.ValueType.Array:
+            //            ReadArrayArray(list, num, elementType, reader);
+            //            break;
+            //        case SerializationCommon.ValueType.Enum:
+            //        case SerializationCommon.ValueType.String:
+            //            ReadStringArray(list, num, elementType, reader, false);
+            //            break;
+            //        case SerializationCommon.ValueType.Parsable:
+            //            ReadStringArray(list, num, elementType, reader, true);
+            //            break;
+            //        case SerializationCommon.ValueType.Struct:
+            //            ReadStructArray(list, num, elementType, reader);
+            //            break;
+            //        case SerializationCommon.ValueType.Pointer:
+            //            ReadObjectArray(list, num, elementType, reader);
+            //            break;
+            //    }
+            //}
+            return dic;
+        }
+
         private static IList ReadArray(Type arrayType, XMLReader reader)
         {
             reader.ReadAttribute();

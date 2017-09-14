@@ -43,7 +43,7 @@ namespace System
             { typeof(void), "void" }
         };
 
-        public static string GetFriendlyName(this Type type)
+        public static string GetFriendlyName(this Type type, string openBracket = "<", string closeBracket = ">")
         {
             if (_typeToFriendlyName.TryGetValue(type, out string friendlyName))
                 return friendlyName;
@@ -56,14 +56,14 @@ namespace System
                 {
                     friendlyName = friendlyName.Remove(backtick);
                 }
-                friendlyName += "<";
+                friendlyName += openBracket;
                 Type[] typeParameters = type.GetGenericArguments();
                 for (int i = 0; i < typeParameters.Length; i++)
                 {
-                    string typeParamName = typeParameters[i].GetFriendlyName();
+                    string typeParamName = typeParameters[i].GetFriendlyName(openBracket, closeBracket);
                     friendlyName += (i == 0 ? typeParamName : ", " + typeParamName);
                 }
-                friendlyName += ">";
+                friendlyName += closeBracket;
             }
 
             if (type.IsArray)

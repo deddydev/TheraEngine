@@ -169,11 +169,15 @@ namespace TheraEngine.Animation
 
         internal ModelAnimation Parent { get; set; }
 
+        [Category("Bone Animation"), Serialize("Name")]
         public string _name;
         private bool _useKeyframes = true;
         //public KeyframeTrack<Matrix4Keyframe> _matrix;
+        [Category("Bone Animation"), Serialize("TranslationKeys")]
         public KeyframeTrack<Vec3Keyframe> _translation;
+        [Category("Bone Animation"), Serialize("RotationKeys")]
         public KeyframeTrack<QuatKeyframe> _rotation;
+        [Category("Bone Animation"), Serialize("ScaleKeys")]
         public KeyframeTrack<Vec3Keyframe> _scale;
 
         public BoneFrame GetFrame()

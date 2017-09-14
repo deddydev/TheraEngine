@@ -94,6 +94,14 @@ namespace TheraEngine.Files.Serialization
                 return ((PropertyInfo)_info).GetValue(obj);
             return null;
         }
+        public VarInfo(Type type, string name)
+        {
+            _info = null;
+            _attrib = null;
+            _variableType = type;
+            _name = name;
+            _category = null;
+        }
         public VarInfo(Type type)
         {
             _info = null;
@@ -206,6 +214,7 @@ namespace TheraEngine.Files.Serialization
         public enum ValueType
         {
             Array,
+            Dictionary,
             Parsable,
             Enum,
             String,
@@ -221,6 +230,10 @@ namespace TheraEngine.Files.Serialization
             else if (t.GetInterface("IList") != null)
             {
                 return ValueType.Array;
+            }
+            else if (t.GetInterface("IDictionary") != null)
+            {
+                return ValueType.Dictionary;
             }
             else if (t.IsEnum)
             {

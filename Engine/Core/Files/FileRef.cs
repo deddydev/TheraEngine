@@ -25,8 +25,22 @@ namespace TheraEngine.Files
     [TypeConverter(typeof(ExpandableObjectConverter))]
     public class SingleFileRef<T> : FileRef<T>, ISingleFileRef where T : FileObject
     {
-        T _file;
-        
+        [Serialize("File", Condition = "StoreInternally")]
+        private T _file;
+
+        [Serialize(Condition = "!StoreInternally", IsXmlAttribute = true)]
+        public override string ReferencePath
+        {
+            get => base.ReferencePath;
+            set => base.ReferencePath = value;
+        }
+        /// <summary>
+        /// If true, the referenced file will be written within the parent file's data
+        /// and loaded with the parent file instead of being loaded on demand from the external file.
+        /// </summary>
+        [Serialize]
+        public bool StoreInternally { get; set; } = false;
+
         public SingleFileRef() : base(typeof(T)) { }
         public SingleFileRef(Type type) : base(type) { }
         public SingleFileRef(string filePath) : base(filePath) { }
@@ -76,6 +90,9 @@ namespace TheraEngine.Files
         }
 
         public bool IsLoaded => _file != null;
+
+        public event Action Loaded;
+
         public void ExportReference() => _file?.Export();
         public void ExportReference(string dir, string name, FileFormat format, bool setPath = true)
         {
@@ -86,7 +103,7 @@ namespace TheraEngine.Files
                 ReferencePath = _file.FilePath;
         }
         /// <summary>
-        /// Loads or retrieves the singular instance of this file.
+        /// Loads or retrieves the single instance of this file.
         /// </summary>
         public override T GetInstance()
         {
@@ -96,8 +113,10 @@ namespace TheraEngine.Files
                 File = LoadNewInstance();
             return _file;
         }
+
         /// <summary>
         /// Loads a new completely new and unique instance of this file.
+        /// Must be called explicitly and does not store the returned reference.
         /// </summary>
         public T LoadNewInstance() => base.GetInstance();
 
@@ -157,13 +176,7 @@ namespace TheraEngine.Files
         protected string _refPath = null;
         private string _absolutePath = null;
         protected Type _subType = null;
-        private bool _storeInternally = false;
 
-        protected bool StoreInternally
-        {
-            get => _storeInternally;
-            set => _storeInternally = value;
-        }
         [Serialize(IsXmlAttribute = true)]
         public virtual string ReferencePath
         {

@@ -82,6 +82,45 @@ namespace TheraEngine.Animation
             }
             return blendedFrame;
         }
+
+        public void BlendWith(ModelAnimationFrame other, float otherWeight)
+        {
+            foreach (string name in GetAllNames(other))
+            {
+                if (_boneFrames.ContainsKey(name))
+                {
+                    if (other._boneFrames.ContainsKey(name))
+                        _boneFrames[name].BlendWith(other._boneFrames[name], otherWeight);
+                    else
+                        _boneFrames[name].BlendWith(null, otherWeight);
+                }
+                else
+                {
+                    if (other._boneFrames.ContainsKey(name))
+                        AddBoneFrame(other._boneFrames[name].BlendedWith(null, 1.0f - otherWeight));
+
+                    //else, neither has a bone with this name, ignore it
+                }
+            }
+        }
+        public void BlendWith(ModelAnimation other, float frameIndex, float otherWeight)
+        {
+            foreach (string name in GetAllNames(other))
+            {
+                if (_boneFrames.ContainsKey(name))
+                {
+                    if (other._boneAnimations.ContainsKey(name))
+                        _boneFrames[name].BlendedWith(other._boneAnimations[name], frameIndex, otherWeight);
+                    else
+                        _boneFrames[name].BlendedWith(null, otherWeight);
+                }
+                else
+                {
+                    if (other._boneAnimations.ContainsKey(name))
+                        other._boneAnimations[name].BlendedWith(frameIndex, null, 1.0f - otherWeight);
+                }
+            }
+        }
     }
     public class BoneFrame
     {
@@ -194,6 +233,32 @@ namespace TheraEngine.Animation
         public BoneFrame BlendedWith(BoneAnimation other, float frameIndex, float otherWeight)
         {
             return BlendedWith(other.GetFrame(frameIndex), otherWeight);
+        }
+
+        public void BlendWith(BoneFrame otherBoneFrame, float otherWeight)
+        {
+            Vec3 t1 = _translation;
+            Vec3 t2 = otherBoneFrame._translation;
+            Vec3 t = Vec3.Lerp(t1, t2, otherWeight);
+
+            Quat r1 = _rotation;
+            Quat r2 = otherBoneFrame._rotation;
+            Quat r = Quat.Slerp(r1, r2, otherWeight);
+
+            Vec3 s1 = _scale;
+            Vec3 s2 = otherBoneFrame._scale;
+            Vec3 s = Vec3.Lerp(s1, s2, otherWeight);
+
+            _translation = t;
+            _translationWeight = _translationWeight * otherBoneFrame._translationWeight;
+            _rotation = r;
+            _rotationWeight = _rotationWeight * otherBoneFrame._rotationWeight;
+            _scale = s;
+            _scaleWeight = _scaleWeight * otherBoneFrame._scaleWeight;
+        }
+        public void BlendWith(BoneAnimation other, float frameIndex, float otherWeight)
+        {
+            BlendWith(other.GetFrame(frameIndex), otherWeight);
         }
     }
 }

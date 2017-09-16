@@ -9,10 +9,12 @@ namespace TheraEngine.Animation
     public class PropAnimQuat : PropertyAnimation<QuatKeyframe>, IEnumerable<QuatKeyframe>
     {
         private Quat _defaultValue = Quat.Identity;
-        private Quat[] _baked;
         private QuatGetValue _getValue;
 
-        [Serialize]
+        [Serialize(Condition = "!UseKeyframes")]
+        private Quat[] _baked;
+
+        [Serialize(Condition = "UseKeyframes")]
         public Quat DefaultValue
         {
             get => _defaultValue;
@@ -81,21 +83,25 @@ namespace TheraEngine.Animation
         protected Quat _outValue;
         protected Quat _outTangent;
 
+        [Serialize(IsXmlAttribute = true)]
         public Quat InValue
         {
             get => _inValue;
             set => _inValue = value;
         }
+        [Serialize(IsXmlAttribute = true)]
         public Quat OutValue
         {
             get => _outValue;
             set => _outValue = value;
         }
-        public Quat InTanget
+        [Serialize(IsXmlAttribute = true)]
+        public Quat InTangent
         {
             get => _inTangent;
             set => _inTangent = value;
         }
+        [Serialize(IsXmlAttribute = true)]
         public Quat OutTangent
         {
             get => _outTangent;
@@ -111,6 +117,7 @@ namespace TheraEngine.Animation
             get => _prev as QuatKeyframe;
             set => _prev = value;
         }
+        [Serialize(IsXmlAttribute = true)]
         public RadialInterpType InterpolationType
         {
             get => _interpolationType;
@@ -155,6 +162,22 @@ namespace TheraEngine.Animation
         public static Quat Linear(QuatKeyframe key1, QuatKeyframe key2, float time)
             => Quat.Slerp(key1.OutValue, key2.InValue, time);
         public static Quat CubicBezier(QuatKeyframe key1, QuatKeyframe key2, float time)
-            => Quat.Scubic(key1.OutValue, key1.OutTangent, key2.InTanget, key2.InValue, time);
+            => Quat.Scubic(key1.OutValue, key1.OutTangent, key2.InTangent, key2.InValue, time);
+
+        public override string WriteToString()
+        {
+            return string.Format("{0} {1} {2} {3} {4} {5}", _frameIndex, InValue.WriteToString(), OutValue.WriteToString(), InTangent.WriteToString(), OutTangent.WriteToString(), InterpolationType);
+        }
+
+        public override void ReadFromString(string str)
+        {
+            string[] parts = str.Split(' ');
+            _frameIndex = float.Parse(parts[0]);
+            InValue = new Quat(float.Parse(parts[1]), float.Parse(parts[2]), float.Parse(parts[3]), float.Parse(parts[4]));
+            OutValue = new Quat(float.Parse(parts[5]), float.Parse(parts[6]), float.Parse(parts[7]), float.Parse(parts[8]));
+            InTangent = new Quat(float.Parse(parts[9]), float.Parse(parts[10]), float.Parse(parts[11]), float.Parse(parts[12]));
+            OutTangent = new Quat(float.Parse(parts[13]), float.Parse(parts[14]), float.Parse(parts[15]), float.Parse(parts[16]));
+            InterpolationType = parts[17].AsEnum<RadialInterpType>();
+        }
     }
 }

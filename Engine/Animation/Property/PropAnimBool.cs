@@ -9,10 +9,12 @@ namespace TheraEngine.Animation
     public class PropAnimBool : PropertyAnimation<BoolKeyframe>, IEnumerable<BoolKeyframe>
     {
         private bool _defaultValue = false;
-        private bool[] _baked;
         private BoolGetValue _getValue;
 
-        [Serialize]
+        [Serialize(Condition = "!UseKeyframes")]
+        private bool[] _baked;
+
+        [Serialize(Condition = "UseKeyframes")]
         public bool DefaultValue
         {
             get => _defaultValue;
@@ -65,11 +67,14 @@ namespace TheraEngine.Animation
     public class BoolKeyframe : Keyframe
     {
         protected bool _value;
+
+        [Serialize(IsXmlAttribute = true)]
         public bool Value
         {
             get => _value;
             set => _value = value;
         }
+
         public new BoolKeyframe Next
         {
             get => _next as BoolKeyframe;
@@ -79,6 +84,17 @@ namespace TheraEngine.Animation
         {
             get => _prev as BoolKeyframe;
             set => _prev = value;
+        }
+
+        public override void ReadFromString(string str)
+        {
+            int spaceIndex = str.IndexOf(' ');
+            _frameIndex = float.Parse(str.Substring(0, spaceIndex));
+            Value = bool.Parse(str.Substring(spaceIndex + 1));
+        }
+        public override string WriteToString()
+        {
+            return string.Format("{0} {1}", _frameIndex, Value);
         }
     }
 }

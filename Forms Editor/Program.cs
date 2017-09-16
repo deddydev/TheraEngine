@@ -145,8 +145,10 @@ namespace TheraEditor
                 {
                     IsFocused = true;
                     Project p = Editor.Instance.Project;
-                    Engine.TargetRenderFreq = p != null && p.EngineSettings.File.CapFPS ? p.EngineSettings.File.TargetFPS : 0.0f;
-                    Engine.TargetUpdateFreq = p != null && p.EngineSettings.File.CapUPS ? p.EngineSettings.File.TargetUPS : 0.0f;
+                    bool? capFPS = p.EngineSettings?.File?.CapFPS;
+                    bool? capUPS = p.EngineSettings?.File?.CapUPS;
+                    Engine.TargetRenderFreq = p != null && capFPS != null && capFPS.Value ? p.EngineSettings.File.TargetFPS : 0.0f;
+                    Engine.TargetUpdateFreq = p != null && capUPS != null && capUPS.Value ? p.EngineSettings.File.TargetUPS : 0.0f;
                     GotFocus?.Invoke();
                 }
             }

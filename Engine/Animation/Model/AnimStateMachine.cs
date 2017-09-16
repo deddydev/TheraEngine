@@ -3,148 +3,88 @@ using TheraEngine.Worlds.Actors;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using TheraEngine.Files;
 
 namespace TheraEngine.Animation
 {
-    public class AnimBlendState
-    {
-        public event Action DoneBlending;
-
-        public AnimBlendState(AnimState state)
-        {
-            _current = state;
-            _previous = null;
-            _remainingBlendTime = 0.0f;
-        }
-        public AnimBlendState(AnimState state, AnimBlendState prevState)
-        {
-            _current = state;
-            _previous = prevState;
-            _remainingBlendTime = 0.0f;
-        }
-        public AnimBlendState(
-            AnimState state,
-            AnimBlendState prevState,
-            float blendTime,
-            AnimBlendType type,
-            KeyframeTrack<FloatKeyframe> customBlendMethod)
-        {
-            _current = state;
-            _previous = prevState;
-            _remainingBlendTime = _totalBlendTime = blendTime;
-            _type = type;
-            _customBlendMethod = customBlendMethod;
-        }
-
-        public AnimBlendState _previous;
-        public AnimState _current;
-        public float _totalBlendTime;
-        public float _remainingBlendTime;
-        public AnimBlendType _type;
-        public KeyframeTrack<FloatKeyframe> _customBlendMethod;
-
-        public ModelAnimationFrame GetFrame()
-        {
-            if (_previous == null)
-                return _current._animation.GetFrame();
-            else
-                return _previous.GetFrame().BlendedWith(_current._animation.GetFrame(), GetBlendTime());
-        }
-
-        public float GetBlendTime()
-        {
-            float funcTime = 1.0f - (_remainingBlendTime / _totalBlendTime);
-            switch (_type)
-            {
-                default:
-                case AnimBlendType.Linear:
-                    return CustomMath.Lerp(0.0f, 1.0f, funcTime);
-                case AnimBlendType.CosineEaseInOut:
-                    return CustomMath.InterpCosineTo(0.0f, 1.0f, funcTime);
-                case AnimBlendType.QuadraticEaseStart:
-                    return CustomMath.InterpQuadraticEaseStart(0.0f, 1.0f, funcTime);
-                case AnimBlendType.QuadraticEaseEnd:
-                    return CustomMath.InterpQuadraticEaseEnd(0.0f, 1.0f, funcTime);
-                case AnimBlendType.Custom:
-                    return _customBlendMethod.First.Interpolate(funcTime);
-            }
-        }
-
-        public void Apply(Skeleton skeleton)
-        {
-            GetFrame().UpdateSkeleton(skeleton);
-        }
-
-        /// <summary>
-        /// Returns true if done blending.
-        /// </summary>
-        public bool TickBlendTime(float delta)
-        {
-            _previous?.TickBlendTime(delta);
-            if (_remainingBlendTime <= 0.0f)
-                return true;
-            _remainingBlendTime -= delta;
-            bool done = _remainingBlendTime <= 0.0f;
-            if (done)
-            {
-                _previous = null;
-                DoneBlending?.Invoke();
-            }
-            return done;
-        }
-    }
-    
     [FileClass("CSTM", "Animation State Machine Component")]
     public class AnimStateMachineComponent : LogicComponent
     {
-        private AnimState _initialState;
-        private Dictionary<string, AnimState> _states;
-        private AnimBlendState _currentState;
-        private Skeleton _skeleton;
-        private float _remainingBlendTime;
+        [Serialize("InitialStateIndex", true)]
+        private int _initialStateIndex;
+        [Serialize("States", true)]
+        private List<AnimState> _states;
+        [Serialize("SkeletonRef", true)]
+        private SingleFileRef<Skeleton> _skeleton;
         
+        [State]
+        private BlendManager _blendManager;
+        [State]
+        private AnimState _currentState;
+
+        public AnimStateMachineComponent()
+        {
+
+        }
+
         public AnimState InitialState
         {
-            get => _initialState;
-            set => _initialState = value;
+            get => _initialStateIndex >= 0 ? _states[_initialStateIndex] : null;
+            set
+            {
+                int index = _states.IndexOf(value);
+                if (index >= 0)
+                    _initialStateIndex = index;
+                else
+                {
+                    _initialStateIndex = _states.Count;
+                    _states.Add(value);
+                }
+            }
+        }
+        public SingleFileRef<Skeleton> Skeleton
+        {
+            get => _skeleton;
+            set => _skeleton = value;
         }
 
         public override void OnSpawned()
         {
-            _currentState = new AnimBlendState(_initialState);
-            if (_initialState != null)
+            if (_initialStateIndex >= 0)
+            {
+                _blendManager = new BlendManager(this, InitialState.Animation);
                 RegisterTick(ETickGroup.PrePhysics, ETickOrder.BoneAnimation, Tick);
-            base.OnSpawned();
+            }
         }
         public override void OnDespawned()
         {
-            if (_initialState != null)
+            if (_initialStateIndex >= 0)
+            {
                 UnregisterTick(ETickGroup.PrePhysics, ETickOrder.BoneAnimation, Tick);
-            _currentState = null;
-            base.OnDespawned();
+                _blendManager = null;
+            }
         }
         protected internal void Tick(float delta)
         {
-            _currentState._current.TryTransition(this);
+            _currentState.TryTransition(this);
+            _blendManager.Tick(delta, Skeleton.File);
         }
         public void SetCurrentState(AnimState destinationState, float blendDuration, AnimBlendType type, KeyframeTrack<FloatKeyframe> customBlendMethod)
         {
-            _currentState = new AnimBlendState(destinationState, _currentState, blendDuration, type, customBlendMethod);
+            _currentState = destinationState;
+            _blendManager.QueueState(destinationState.Animation, blendDuration, type, customBlendMethod);
         }
     }
     public class AnimState
     {
-        public ModelAnimation _animation;
-        public List<AnimStateTransition> _transitions = new List<AnimStateTransition>();
+        public List<AnimStateTransition> Transitions { get; set; } = new List<AnimStateTransition>();
+        public ModelAnimation Animation { get; set; }
+
         public void TryTransition(AnimStateMachineComponent machine)
         {
-            foreach (AnimStateTransition t in _transitions)
+            foreach (AnimStateTransition t in Transitions)
                 if (t.TryTransition(machine))
-                    return;
-        }
-        public void Tick(Skeleton skel)
-        {
-
+                    break;
         }
     }
     public enum AnimBlendType
@@ -155,24 +95,116 @@ namespace TheraEngine.Animation
         QuadraticEaseEnd,   //start + (end - start) * (1.0f - (1.0f - x)^power)
         Custom,             //start + (end - start) * customInterp(time)
     }
+    public class BlendManager
+    {
+        private class BlendInfo
+        {
+            /// <summary>
+            /// How long the blend lasts in seconds.
+            /// </summary>
+            public float BlendDuration { get; set; }
+            /// <summary>
+            /// How long until the blend is done in seconds.
+            /// </summary>
+            public float ElapsedBlendTime { get; private set; }
+            /// <summary>
+            /// The blending method to use.
+            /// </summary>
+            public AnimBlendType Type { get; set; }
+
+            public BlendInfo(float blendDuration, AnimBlendType type)
+            {
+                BlendDuration = blendDuration;
+                ElapsedBlendTime = 0.0f;
+                Type = type;
+            }
+
+            internal void Tick(float delta)
+            {
+                ElapsedBlendTime = (ElapsedBlendTime + delta).ClampMax(BlendDuration);
+            }
+        }
+
+        private LinkedList<ModelAnimation> _stateQueue;
+        private LinkedList<BlendInfo> _blendQueue;
+        private LinkedList<KeyframeTrack<FloatKeyframe>> _blendMethodQueue;
+        private AnimStateMachineComponent _machine;
+
+        public BlendManager(AnimStateMachineComponent machine, ModelAnimation initialState)
+        {
+            _stateQueue = new LinkedList<ModelAnimation>();
+            _blendQueue = new LinkedList<BlendInfo>();
+            _blendMethodQueue = new LinkedList<KeyframeTrack<FloatKeyframe>>();
+            _stateQueue.AddFirst(initialState);
+            _machine = machine;
+        }
+        public void QueueState(
+            ModelAnimation destinationState,
+            float blendDuration,
+            AnimBlendType type,
+            KeyframeTrack<FloatKeyframe> customBlendMethod)
+        {
+            _stateQueue.AddLast(destinationState);
+            if (type == AnimBlendType.Custom)
+                if (customBlendMethod != null)
+                    _blendMethodQueue.AddLast(customBlendMethod);
+                else
+                    type = AnimBlendType.Linear;
+
+            _blendQueue.AddLast(new BlendInfo(blendDuration, type));
+        }
+        
+        internal void Tick(float delta, Skeleton skeleton)
+        {
+            var stateNode = _stateQueue.First;
+            var blendMethodNode = _blendMethodQueue.First;
+            stateNode.Value.Tick(delta);
+            ModelAnimationFrame frame = stateNode.Value.GetFrame();
+            foreach (BlendInfo blendInfo in _blendQueue)
+            {
+                stateNode = stateNode.Next;
+
+                blendInfo.Tick(delta);
+                float funcTime = blendInfo.ElapsedBlendTime / blendInfo.BlendDuration;
+                switch (blendInfo.Type)
+                {
+                    default:
+                    case AnimBlendType.Linear:
+                        break;
+                    case AnimBlendType.CosineEaseInOut:
+                        funcTime = CustomMath.InterpCosineTo(0.0f, 1.0f, funcTime);
+                        break;
+                    case AnimBlendType.QuadraticEaseStart:
+                        funcTime = CustomMath.InterpQuadraticEaseStart(0.0f, 1.0f, funcTime);
+                        break;
+                    case AnimBlendType.QuadraticEaseEnd:
+                        funcTime = CustomMath.InterpQuadraticEaseEnd(0.0f, 1.0f, funcTime);
+                        break;
+                    case AnimBlendType.Custom:
+                        funcTime = blendMethodNode.Value.First.Interpolate(funcTime);
+                        blendMethodNode = blendMethodNode.Next;
+                        break;
+                }
+
+                stateNode.Value.Tick(delta);
+                frame.BlendWith(stateNode.Value.GetFrame(), funcTime);
+            }
+            frame.UpdateSkeleton(skeleton);
+        }
+    }
     public class AnimStateTransition
     {
-        AnimState _destinationState;
-        Func<bool> _transitionMethod;
-        float _blendDuration;
-        AnimBlendType _type;
-        KeyframeTrack<FloatKeyframe> _customBlendMethod;
-
-        public AnimStateTransition()
-        {
-
-        }
+        public AnimState DestinationState { get; set; }
+        public Func<bool> ConditionMethod { get; set; }
+        public float BlendDuration { get; set; }
+        public AnimBlendType BlendType { get; set; }
+        public KeyframeTrack<FloatKeyframe> CustomBlendFunction { get; set; }
 
         public bool TryTransition(AnimStateMachineComponent machine)
         {
-            bool canTransition = _transitionMethod();
+            bool canTransition = ConditionMethod();
             if (canTransition)
-                machine.SetCurrentState(_destinationState, _blendDuration, _type, _customBlendMethod);
+                machine.SetCurrentState(DestinationState, BlendDuration, BlendType, CustomBlendFunction);
             return canTransition;
         }
     }

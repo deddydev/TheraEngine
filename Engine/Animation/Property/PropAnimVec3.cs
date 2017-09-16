@@ -9,10 +9,12 @@ namespace TheraEngine.Animation
     public class PropAnimVec3 : PropertyAnimation<Vec3Keyframe>, IEnumerable<Vec3Keyframe>
     {
         private Vec3 _defaultValue = Vec3.Zero;
-        private Vec3[] _baked;
         private Vec3GetValue _getValue;
 
-        [Serialize]
+        [Serialize(Condition = "!UseKeyframes")]
+        private Vec3[] _baked;
+
+        [Serialize(Condition = "UseKeyframes")]
         public Vec3 DefaultValue
         {
             get => _defaultValue;
@@ -89,31 +91,40 @@ namespace TheraEngine.Animation
         protected DelInterpolate _interpolate = CubicHermite;
         protected DelInterpolate _interpolateVelocity = CubicHermiteVelocity;
         protected DelInterpolate _interpolateAcceleration = CubicHermiteAcceleration;
+
         protected Vec3 _inValue;
         protected Vec3 _inTangent;
         protected Vec3 _outValue;
         protected Vec3 _outTangent;
 
+        [Serialize(IsXmlAttribute = true)]
         public Vec3 InValue
         {
             get => _inValue;
             set => _inValue = value;
         }
+
+        [Serialize(IsXmlAttribute = true)]
         public Vec3 OutValue
         {
             get => _outValue;
             set => _outValue = value;
         }
+
+        [Serialize(IsXmlAttribute = true)]
         public Vec3 InTangent
         {
             get => _inTangent;
             set => _inTangent = value;
         }
+
+        [Serialize(IsXmlAttribute = true)]
         public Vec3 OutTangent
         {
             get => _outTangent;
             set => _outTangent = value;
         }
+
         public new Vec3Keyframe Next
         {
             get => _next as Vec3Keyframe;
@@ -124,6 +135,8 @@ namespace TheraEngine.Animation
             get => _prev as Vec3Keyframe;
             set => _prev = value;
         }
+
+        [Serialize(IsXmlAttribute = true)]
         public PlanarInterpType InterpolationType
         {
             get => _interpolationType;
@@ -238,5 +251,21 @@ namespace TheraEngine.Animation
             => _outTangent = (Next.InValue - OutValue) / (Next._frameIndex - _frameIndex);
         public void MakeInLinear()
             => _inTangent = (InValue - Prev.OutValue) / (_frameIndex - Prev._frameIndex);
+
+        public override string WriteToString()
+        {
+            return string.Format("{0} {1} {2} {3} {4} {5}", _frameIndex, InValue.WriteToString(), OutValue.WriteToString(), InTangent.WriteToString(), OutTangent.WriteToString(), InterpolationType);
+        }
+
+        public override void ReadFromString(string str)
+        {
+            string[] parts = str.Split(' ');
+            _frameIndex = float.Parse(parts[0]);
+            InValue = new Vec3(float.Parse(parts[1]), float.Parse(parts[2]), float.Parse(parts[3]));
+            OutValue = new Vec3(float.Parse(parts[4]), float.Parse(parts[5]), float.Parse(parts[6]));
+            InTangent = new Vec3(float.Parse(parts[7]), float.Parse(parts[8]), float.Parse(parts[9]));
+            OutTangent = new Vec3(float.Parse(parts[10]), float.Parse(parts[11]), float.Parse(parts[12]));
+            InterpolationType = parts[13].AsEnum<PlanarInterpType>();
+        }
     }
 }

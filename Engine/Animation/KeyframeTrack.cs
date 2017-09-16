@@ -2,6 +2,7 @@
 using System.Collections;
 using System;
 using TheraEngine.Files;
+using System.ComponentModel;
 
 namespace TheraEngine.Animation
 {
@@ -44,9 +45,19 @@ namespace TheraEngine.Animation
         private T _first = null;
         private object _syncRoot = null;
         private bool _isSynchronized = false;
-        private int _count = 0;
 
-        public T First => _first;
+        public T First
+        {
+            get => _first;
+            set
+            {
+                if (_first != null)
+                    _first.IsFirst = false;
+                _first = value;
+                if (_first != null)
+                    _first.IsFirst = true;
+            }
+        }
         public T Last => (T)_first.Prev;
 
         public override BaseAnimation Owner => _owner;
@@ -54,7 +65,7 @@ namespace TheraEngine.Animation
 
         public bool IsReadOnly => false;
         public bool IsFixedSize => false;
-        public int Count => _count;
+        public int Count => KeyCount;
         public object SyncRoot => _syncRoot;
         public bool IsSynchronized => _isSynchronized;
 
@@ -62,22 +73,40 @@ namespace TheraEngine.Animation
         {
             get
             {
-
+                if (index >= 0 && index < Count)
+                    foreach (T key in this)
+                        if (key.TrackIndex == index)
+                            return key;
+                return null;
             }
             set
             {
-
+                if (index >= 0 && index <= Count)
+                    foreach (T key in this)
+                        if (key.TrackIndex == index - 1)
+                            key.LinkNext(value);
             }
         }
         public object this[int index]
         {
             get
             {
-
+                if (index >= 0 && index < Count)
+                    foreach (T key in this)
+                        if (key.TrackIndex == index)
+                            return key;
+                return null;
             }
             set
             {
-
+                if (value is T keyValue && index >= 0 && index <= Count)
+                    foreach (T key in this)
+                        if (key.TrackIndex == index)
+                        {
+                            Keyframe prev = key.Prev;
+                            key.Unlink();
+                            prev.LinkNext(keyValue);
+                        }
             }
         }
 
@@ -97,37 +126,37 @@ namespace TheraEngine.Animation
             if (key._frameIndex >= FrameCount || key._frameIndex < 0)
                 return false;
 
-            if (_first == null)
+            if (First == null)
             {
-                _first = key;
+                First = key;
                 ++_keyCount;
                 OnChanged();
                 return true;
             }
             else
             {
-                Keyframe node = _first;
+                Keyframe node = First;
                 do
                 {
                     if (key._frameIndex >= node._frameIndex)
                     {
-                        node.Link(key);
+                        node.LinkNext(key);
                         ++_keyCount;
                         OnChanged();
                         return true;
                     }
                     node = node.Next;
                 }
-                while (node != _first);
+                while (node != First);
             }
             return false;
         }
         public bool Remove(T key)
         {
-            if (_first == null)
+            if (First == null)
                 return false;
 
-            Keyframe node = _first;
+            Keyframe node = First;
             do
             {
                 if (key == node)
@@ -139,16 +168,16 @@ namespace TheraEngine.Animation
                 }
                 node = node.Next;
             }
-            while (node != _first);
+            while (node != First);
             return false;
         }
         public void RemoveLast()
         {
-            if (_first == null)
+            if (First == null)
                 return;
 
             if (First == Last)
-                _first = null;
+                First = null;
             else
                 Last.Unlink();
             --_keyCount;
@@ -156,31 +185,31 @@ namespace TheraEngine.Animation
         }
         public void RemoveFirst()
         {
-            if (_first == null)
+            if (First == null)
                 return;
 
             if (First.Next == First)
-                _first = null;
+                First = null;
             else
             {
                 Keyframe newFirst = First.Next;
                 First.Unlink();
-                _first = (T)newFirst;
+                First = (T)newFirst;
             }
             --_keyCount;
             OnChanged();
         }
         public void Add(T key)
         {
-            if (_first == null)
-                _first = key;
-            else if (key._frameIndex < _first._frameIndex)
+            if (First == null)
+                First = key;
+            else if (key._frameIndex < First._frameIndex)
             {
-                _first.Link(key);
-                _first = key;
+                First.LinkNext(key);
+                First = key;
             }
             else
-                _first.Link(key);
+                First.LinkNext(key);
             ++_keyCount;
             OnChanged();
         }
@@ -193,7 +222,7 @@ namespace TheraEngine.Animation
         }
         public IEnumerator GetEnumerator()
         {
-            Keyframe node = _first;
+            Keyframe node = First;
             do
             {
                 if (node == null)
@@ -201,11 +230,11 @@ namespace TheraEngine.Animation
                 yield return node;
                 node = node.Next;
             }
-            while (node != _first);
+            while (node != First);
         }
         IEnumerator<T> IEnumerable<T>.GetEnumerator()
         {
-            Keyframe node = _first;
+            Keyframe node = First;
             do
             {
                 if (node == null)
@@ -213,7 +242,7 @@ namespace TheraEngine.Animation
                 yield return (T)node;
                 node = node.Next;
             }
-            while (node != _first);
+            while (node != First);
         }
 
         public override void SetFrameCount(int frameCount, bool stretchAnimation)
@@ -243,7 +272,7 @@ namespace TheraEngine.Animation
         public void Clear()
         {
             _first = null;
-            _count = 0;
+            _keyCount = 0;
         }
 
         public int IndexOf(object value)
@@ -258,42 +287,42 @@ namespace TheraEngine.Animation
 
         public void Insert(int index, object value)
         {
-            throw new NotImplementedException();
+
         }
 
         public void Remove(object value)
         {
-            throw new NotImplementedException();
+
         }
 
         public void RemoveAt(int index)
         {
-            throw new NotImplementedException();
+
         }
 
         public void CopyTo(Array array, int index)
         {
-            throw new NotImplementedException();
+
         }
 
         public int IndexOf(T item)
         {
-            throw new NotImplementedException();
+            return -1;
         }
 
         public void Insert(int index, T item)
         {
-            throw new NotImplementedException();
+            
         }
 
         public bool Contains(T item)
         {
-            throw new NotImplementedException();
+            return false;
         }
 
         public void CopyTo(T[] array, int arrayIndex)
         {
-            throw new NotImplementedException();
+
         }
     }
     public enum RadialInterpType
@@ -309,52 +338,89 @@ namespace TheraEngine.Animation
         CubicHermite,
         CubicBezier
     }
-    public abstract class Keyframe
+    public abstract class Keyframe : IParsable
     {
+        [Serialize("FrameIndex", IsXmlAttribute = true)]
         public float _frameIndex;
         protected Keyframe _next, _prev;
+        private bool _isFirst;
+        private int _trackIndex;
 
         public Keyframe()
         {
             _next = this;
             _prev = this;
+            TrackIndex = 0;
+            _isFirst = false;
         }
         public Keyframe Next
         {
             get => _next;
-            set => _next = value;
+            set
+            {
+                _next = value;
+            }
         }
         public Keyframe Prev
         {
             get => _prev;
-            set => _prev = value;
+            set
+            {
+                _prev = value;
+            }
         }
 
-        public int TrackIndex { get; internal set; }
+        public int TrackIndex
+        {
+            get => _trackIndex;
+            private set
+            {
+                _trackIndex = value;
+                if (Prev != this && Prev.TrackIndex != _trackIndex - 1 && !IsFirst)
+                    Prev.TrackIndex = TrackIndex - 1;
+                if (Next != this && Next.TrackIndex != _trackIndex + 1 && !Next.IsFirst)
+                    Next.TrackIndex = TrackIndex + 1;
+            }
+        }
+        public bool IsFirst
+        {
+            get => _isFirst;
+            internal set
+            {
+                _isFirst = value;
+                TrackIndex = 0;
+            }
+        }
 
         internal void Unlink()
         {
+            TrackIndex = 0;
             _next.Prev = Prev;
             _prev.Next = Next;
             _next = _prev = this;
         }
-        internal Keyframe Link(Keyframe key)
+        internal Keyframe LinkNext(Keyframe key)
         {
             if (key._frameIndex > _next._frameIndex && 
                 _next._frameIndex > _frameIndex)
-                return _next.Link(key);
+                return _next.LinkNext(key);
 
-            if (key._frameIndex < _prev._frameIndex && 
+            if (key._frameIndex < _frameIndex && 
                 _prev._frameIndex < _frameIndex)
-                return _prev.Link(key);
+                return _prev.LinkNext(key);
 
             key.Next = _next;
             key.Prev = this;
 
-            _next._prev = key;
-            _next = key;
+            _next.Prev = key;
+            Next = key;
+
+            key.TrackIndex = key.Prev.TrackIndex + 1;
 
             return key;
         }
+
+        public abstract string WriteToString();
+        public abstract void ReadFromString(string str);
     }
 }

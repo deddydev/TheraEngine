@@ -111,8 +111,8 @@ namespace TheraEngine.Files.Serialization
         }
         private static void WriteMember(object obj, VarInfo member, XmlWriter writer)
         {
-            if (member.Attrib.SerializeIf != null &&
-                !ExpressionParser.Evaluate<bool>(member.Attrib.SerializeIf, obj))
+            if (member.Attrib.Condition != null &&
+                !ExpressionParser.Evaluate<bool>(member.Attrib.Condition, obj))
                 return;
             
             object value = member.GetValue(obj);

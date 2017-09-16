@@ -189,7 +189,7 @@ namespace TheraEngine.Rendering.Models
                             break;
                     }
                 }
-                if (targetId == "matrix")
+                if (targetSID == "matrix")
                 {
                     int x = 0;
                     for (int i = 0; i < timeData.Length; ++i, x += 16)
@@ -208,7 +208,7 @@ namespace TheraEngine.Rendering.Models
                         b._rotation.Add(new QuatKeyframe(second, transform.Quaternion, RadialInterpType.Linear));
                     }
                 }
-                else if (targetId == "visibility")
+                else if (targetSID == "visibility")
                 {
                     for (int i = 0; i < timeData.Length; ++i)
                     {

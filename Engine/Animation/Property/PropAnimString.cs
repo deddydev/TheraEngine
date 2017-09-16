@@ -9,10 +9,12 @@ namespace TheraEngine.Animation
     public class PropAnimString : PropertyAnimation<StringKeyframe>, IEnumerable<StringKeyframe>
     {
         private string _defaultValue = "";
-        private string[] _baked;
         private StringGetValue _getValue;
 
-        [Serialize]
+        [Serialize(Condition = "!UseKeyframes")]
+        private string[] _baked;
+
+        [Serialize(Condition = "UseKeyframes")]
         public string DefaultValue
         {
             get => _defaultValue;
@@ -67,6 +69,7 @@ namespace TheraEngine.Animation
     public class StringKeyframe : Keyframe
     {
         protected string _value;
+        [Serialize(IsXmlAttribute = true)]
         public string Value
         {
             get => _value;
@@ -81,6 +84,17 @@ namespace TheraEngine.Animation
         {
             get => _prev as StringKeyframe;
             set => _prev = value;
+        }
+
+        public override void ReadFromString(string str)
+        {
+            int spaceIndex = str.IndexOf(' ');
+            _frameIndex = float.Parse(str.Substring(0, spaceIndex));
+            Value = str.Substring(spaceIndex + 1);
+        }
+        public override string WriteToString()
+        {
+            return string.Format("{0} {1}", _frameIndex, Value);
         }
     }
 }

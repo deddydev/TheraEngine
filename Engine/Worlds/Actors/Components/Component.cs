@@ -16,6 +16,8 @@ namespace TheraEngine.Worlds.Actors
             set => _owner = value;
         }
 
+        public bool IsSpawned => OwningActor == null ? false : OwningActor.IsSpawned;
+
         private IActor _owner;
         public bool _locked = true;
 

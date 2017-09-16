@@ -29,7 +29,7 @@ namespace TheraEngine.Files.Serialization
             List<VarInfo> members = SerializationCommon.CollectSerializedMembers(info.VariableType);
 
             Members = members.
-                Where(x => (x.Attrib == null || x.Attrib.SerializeIf == null) ? true : ExpressionParser.Evaluate<bool>(x.Attrib.SerializeIf, obj)).
+                Where(x => (x.Attrib == null || x.Attrib.Condition == null) ? true : ExpressionParser.Evaluate<bool>(x.Attrib.Condition, obj)).
                 Select(x => new MemberTreeNode(obj == null ? null : x.GetValue(obj), x)).
                 ToList();
 

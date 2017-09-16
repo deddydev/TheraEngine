@@ -9,10 +9,12 @@ namespace TheraEngine.Animation
     public class PropAnimMatrix4 : PropertyAnimation<Matrix4Keyframe>, IEnumerable<Matrix4Keyframe>
     {
         private Matrix4 _defaultValue = Matrix4.Identity;
-        private Matrix4[] _baked;
         private Matrix4GetValue _getValue;
-        
-        [Serialize]
+
+        [Serialize(Condition = "!UseKeyframes")]
+        private Matrix4[] _baked;
+
+        [Serialize(Condition = "UseKeyframes")]
         public Matrix4 DefaultValue
         {
             get => _defaultValue;
@@ -67,18 +69,20 @@ namespace TheraEngine.Animation
         public Matrix4Keyframe(float frameIndex, Matrix4 outValue) : base()
         {
             _frameIndex = frameIndex;
-            _outValue = outValue;
+            _value = outValue;
         }
 
         protected delegate Matrix4 DelInterpolate(Matrix4Keyframe key1, Matrix4Keyframe key2, float time);
         
-        protected Matrix4 _outValue;
-        
-        public Matrix4 OutValue
+        protected Matrix4 _value;
+
+        [Serialize(IsXmlAttribute = true)]
+        public Matrix4 Value
         {
-            get => _outValue;
-            set => _outValue = value;
+            get => _value;
+            set => _value = value;
         }
+
         public new Matrix4Keyframe Next
         {
             get => _next as Matrix4Keyframe;
@@ -92,7 +96,7 @@ namespace TheraEngine.Animation
         public Matrix4 Interpolate(float frameIndex)
         {
             if (_prev == this || _next == this)
-                return _outValue;
+                return _value;
 
             if (frameIndex < _frameIndex && _prev._frameIndex > _frameIndex)
                 return Prev.Interpolate(frameIndex);
@@ -102,9 +106,21 @@ namespace TheraEngine.Animation
 
             //float t = (frameIndex - _frameIndex) / (_next._frameIndex - _frameIndex);
 
-            return _outValue;
+            return _value;
 
             //return _interpolate(this, Next, t);
+        }
+
+        public override void ReadFromString(string str)
+        {
+            int spaceIndex = str.IndexOf(' ');
+            _frameIndex = float.Parse(str.Substring(0, spaceIndex));
+            Value = new Matrix4();
+            Value.ReadFromString(str.Substring(spaceIndex + 1));
+        }
+        public override string WriteToString()
+        {
+            return string.Format("{0} {1}", _frameIndex, Value.WriteToString());
         }
     }
 }

@@ -182,46 +182,46 @@ namespace TheraEngine.Files.Serialization
             {
                 object value = isAttribute ? 
                     ParseString(reader.Value.ToString(), member.VariableType) : 
-                    ReadMemberElement(member, reader);
+                    ReadMemberElement(member.VariableType, reader);
                 member.SetValue(obj, value);
             }
         }
-        private static object ReadMemberElement(VarInfo member, XMLReader reader)
+        private static object ReadMemberElement(Type memberType, XMLReader reader)
         {
-            switch (SerializationCommon.GetValueType(member.VariableType))
+            switch (SerializationCommon.GetValueType(memberType))
             {
                 case SerializationCommon.ValueType.Array:
-                    return ReadArray(member.VariableType, reader);
+                    return ReadArray(memberType, reader);
                 case SerializationCommon.ValueType.Dictionary:
-                    return ReadDictionary(member.VariableType, reader);
+                    return ReadDictionary(memberType, reader);
                 case SerializationCommon.ValueType.Enum:
                 case SerializationCommon.ValueType.String:
                 case SerializationCommon.ValueType.Parsable:
-                    return ParseString(reader.ReadElementString(), member.VariableType);
+                    return ParseString(reader.ReadElementString(), memberType);
                 case SerializationCommon.ValueType.Struct:
-                    List<VarInfo> structFields = SerializationCommon.CollectSerializedMembers(member.VariableType);
+                    List<VarInfo> structFields = SerializationCommon.CollectSerializedMembers(memberType);
                     if (structFields.Count > 0)
-                        return ReadObject(member.VariableType, structFields, reader);
+                        return ReadObject(memberType, structFields, reader);
                     else
                     {
                         //Enums and parsables have already been handled above
                         //This leaves only primitive types to check
-                        if (SerializationCommon.IsPrimitiveType(member.VariableType))
-                            return ParseString(reader.ReadElementString(), member.VariableType);
+                        if (SerializationCommon.IsPrimitiveType(memberType))
+                            return ParseString(reader.ReadElementString(), memberType);
                         else
                         {
                             //Custom struct with no members marked as serializable
                             //Serialize all members
-                            var members = member.VariableType.GetFields(
+                            var members = memberType.GetFields(
                                 BindingFlags.NonPublic |
                                 BindingFlags.Instance |
                                 BindingFlags.Public |
                                 BindingFlags.FlattenHierarchy);
-                            return ReadStruct(member.VariableType, members, reader);
+                            return ReadStruct(memberType, members, reader);
                         }
                     }
                 case SerializationCommon.ValueType.Pointer:
-                    return ReadObject(member.VariableType, reader);
+                    return ReadObject(memberType, reader);
             }
             return null;
         }
@@ -232,31 +232,23 @@ namespace TheraEngine.Files.Serialization
             int num = int.Parse(reader.Value.ToString());
 
             IDictionary dic = Activator.CreateInstance(dicType) as IDictionary;
-
-            //if (num > 0)
-            //{
-            //    Type elementType = dicType.GetElementType() ?? dicType.GenericTypeArguments[0];
-            //    SerializationCommon.ValueType type = SerializationCommon.GetValueType(elementType);
-            //    switch (type)
-            //    {
-            //        case SerializationCommon.ValueType.Array:
-            //            ReadArrayArray(list, num, elementType, reader);
-            //            break;
-            //        case SerializationCommon.ValueType.Enum:
-            //        case SerializationCommon.ValueType.String:
-            //            ReadStringArray(list, num, elementType, reader, false);
-            //            break;
-            //        case SerializationCommon.ValueType.Parsable:
-            //            ReadStringArray(list, num, elementType, reader, true);
-            //            break;
-            //        case SerializationCommon.ValueType.Struct:
-            //            ReadStructArray(list, num, elementType, reader);
-            //            break;
-            //        case SerializationCommon.ValueType.Pointer:
-            //            ReadObjectArray(list, num, elementType, reader);
-            //            break;
-            //    }
-            //}
+            if (num > 0)
+            {
+                var args = dicType.GetGenericArguments();
+                Type keyType = args[0];
+                Type valueType = args[1];
+                while (reader.BeginElement())
+                {
+                    reader.BeginElement();
+                    object keyObj = ReadMemberElement(keyType, reader);
+                    reader.EndElement();
+                    reader.BeginElement();
+                    object valueObj = ReadMemberElement(valueType, reader);
+                    reader.EndElement();
+                    dic.Add(keyObj, valueObj);
+                    reader.EndElement();
+                }
+            }
             return dic;
         }
 

@@ -54,7 +54,7 @@
         /// <summary>
         /// Determines if the field should be serialized using an expression using information from other fields.
         /// </summary>
-        public string SerializeIf { get => _serializeIf; set => _serializeIf = value; }
+        public string Condition { get => _serializeIf; set => _serializeIf = value; }
         /// <summary>
         /// Determines if the element should be grouped into a category,
         /// either using the category attribute or the OverrideXmlCategory property.
@@ -79,6 +79,17 @@
         }
         public Serialize(string nameOverride, int order)
         {
+            _order = order;
+            _nameOverride = nameOverride;
+        }
+        public Serialize(string nameOverride, bool isXMLAttribute)
+        {
+            _isXmlAttribute = isXMLAttribute;
+            _nameOverride = nameOverride;
+        }
+        public Serialize(string nameOverride, bool isXMLAttribute, int order)
+        {
+            _isXmlAttribute = isXMLAttribute;
             _order = order;
             _nameOverride = nameOverride;
         }

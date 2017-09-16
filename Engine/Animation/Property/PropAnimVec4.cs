@@ -9,10 +9,12 @@ namespace TheraEngine.Animation
     public class PropAnimVec4 : PropertyAnimation<Vec4Keyframe>, IEnumerable<Vec4Keyframe>
     {
         private Vec4 _defaultValue = Vec4.Zero;
-        private Vec4[] _baked;
         private Vec4GetValue _getValue;
 
-        [Serialize]
+        [Serialize(Condition = "!UseKeyframes")]
+        private Vec4[] _baked;
+
+        [Serialize(Condition = "UseKeyframes")]
         public Vec4 DefaultValue
         {
             get => _defaultValue;
@@ -76,21 +78,25 @@ namespace TheraEngine.Animation
         protected Vec4 _outTangent;
         protected PlanarInterpType _interpolationType;
 
+        [Serialize(IsXmlAttribute = true)]
         public Vec4 InValue
         {
             get => _inValue;
             set => _inValue = value;
         }
+        [Serialize(IsXmlAttribute = true)]
         public Vec4 OutValue
         {
             get => _outValue;
             set => _outValue = value;
         }
+        [Serialize(IsXmlAttribute = true)]
         public Vec4 InTangent
         {
             get => _inTangent;
             set => _inTangent = value;
         }
+        [Serialize(IsXmlAttribute = true)]
         public Vec4 OutTangent
         {
             get => _outTangent;
@@ -106,6 +112,7 @@ namespace TheraEngine.Animation
             get => _prev as Vec4Keyframe;
             set => _prev = value;
         }
+        [Serialize(IsXmlAttribute = true)]
         public PlanarInterpType InterpolationType
         {
             get => _interpolationType;
@@ -172,5 +179,21 @@ namespace TheraEngine.Animation
             => _outTangent = (Next.InValue - OutValue) / (Next._frameIndex - _frameIndex);
         public void MakeInLinear()
             => _inTangent = (InValue - Prev.OutValue) / (_frameIndex - Prev._frameIndex);
+
+        public override string WriteToString()
+        {
+            return string.Format("{0} {1} {2} {3} {4} {5}", _frameIndex, InValue.WriteToString(), OutValue.WriteToString(), InTangent.WriteToString(), OutTangent.WriteToString(), InterpolationType);
+        }
+
+        public override void ReadFromString(string str)
+        {
+            string[] parts = str.Split(' ');
+            _frameIndex = float.Parse(parts[0]);
+            InValue = new Vec4(float.Parse(parts[1]), float.Parse(parts[2]), float.Parse(parts[3]), float.Parse(parts[4]));
+            OutValue = new Vec4(float.Parse(parts[5]), float.Parse(parts[6]), float.Parse(parts[7]), float.Parse(parts[8]));
+            InTangent = new Vec4(float.Parse(parts[9]), float.Parse(parts[10]), float.Parse(parts[11]), float.Parse(parts[12]));
+            OutTangent = new Vec4(float.Parse(parts[13]), float.Parse(parts[14]), float.Parse(parts[15]), float.Parse(parts[16]));
+            InterpolationType = parts[17].AsEnum<PlanarInterpType>();
+        }
     }
 }

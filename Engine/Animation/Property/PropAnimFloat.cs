@@ -9,10 +9,12 @@ namespace TheraEngine.Animation
     public class PropAnimFloat : PropertyAnimation<FloatKeyframe>, IEnumerable<FloatKeyframe>
     {
         private float _defaultValue = 0.0f;
-        private float[] _baked;
         private FloatGetValue _getValue;
 
-        [Serialize]
+        [Serialize(Condition = "!UseKeyframes")]
+        private float[] _baked;
+
+        [Serialize(Condition = "UseKeyframes")]
         public float DefaultValue
         {
             get => _defaultValue;
@@ -84,21 +86,25 @@ namespace TheraEngine.Animation
         protected float _outValue;
         protected float _outTangent;
 
+        [Serialize(IsXmlAttribute = true)]
         public float InValue
         {
             get => _inValue;
             set => _inValue = value;
         }
+        [Serialize(IsXmlAttribute = true)]
         public float OutValue
         {
             get => _outValue;
             set => _outValue = value;
         }
+        [Serialize(IsXmlAttribute = true)]
         public float InTangent
         {
             get => _inTangent;
             set => _inTangent = value;
         }
+        [Serialize(IsXmlAttribute = true)]
         public float OutTangent
         {
             get => _outTangent;
@@ -114,6 +120,7 @@ namespace TheraEngine.Animation
             get => _prev as FloatKeyframe;
             set => _prev = value;
         }
+        [Serialize(IsXmlAttribute = true)]
         public PlanarInterpType InterpolationType
         {
             get => _interpolationType;
@@ -179,5 +186,21 @@ namespace TheraEngine.Animation
             => _outTangent = (Next.InValue - OutValue) / (Next._frameIndex - _frameIndex);
         public void MakeInLinear()
             => _inTangent = (InValue - Prev.OutValue) / (_frameIndex - Prev._frameIndex);
+
+        public override string WriteToString()
+        {
+            return string.Format("{0} {1} {2} {3} {4} {5}", _frameIndex, InValue, OutValue, InTangent, OutTangent, InterpolationType);
+        }
+
+        public override void ReadFromString(string str)
+        {
+            string[] parts = str.Split(' ');
+            _frameIndex = float.Parse(parts[0]);
+            InValue = float.Parse(parts[1]);
+            OutValue = float.Parse(parts[2]);
+            InTangent = float.Parse(parts[3]);
+            OutTangent = float.Parse(parts[4]);
+            InterpolationType = parts[5].AsEnum<PlanarInterpType>();
+        }
     }
 }

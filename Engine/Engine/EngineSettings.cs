@@ -58,7 +58,7 @@ namespace TheraEngine
         /// </summary>
         [Description("How many frames are expected to be rendered per second.")]
         [Category("Frames Per Second")]
-        [Serialize("Target", OverrideXmlCategory = "FramesPerSecond", SerializeIf = "CapFPS")]
+        [Serialize("Target", OverrideXmlCategory = "FramesPerSecond", Condition = "CapFPS")]
         public float TargetFPS { get; set; }
 
         /// <summary>
@@ -73,7 +73,7 @@ namespace TheraEngine
         /// </summary>
         [Description("How many internal engine tick update calls are made per second. This is not the same as the render frequency.")]
         [Category("Updates Per Second")]
-        [Serialize("Target", OverrideXmlCategory = "UpdatesPerSecond", SerializeIf = "CapUPS")]
+        [Serialize("Target", OverrideXmlCategory = "UpdatesPerSecond", Condition = "CapUPS")]
         public float TargetUPS { get; set; }
 
         /// <summary>

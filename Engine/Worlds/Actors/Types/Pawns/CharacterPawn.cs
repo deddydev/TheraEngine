@@ -82,6 +82,7 @@ namespace TheraEngine.Worlds.Actors
             get => _skeleton;
             set => _skeleton = value;
         }
+        
         public bool FirstPerson
         {
             get => _firstPerson;
@@ -226,8 +227,9 @@ namespace TheraEngine.Worlds.Actors
         protected override void PreConstruct()
         {
             _movement = Activator.CreateInstance<MovementClass>();
+            _animationStateMachine = new AnimStateMachineComponent(Skeleton);
             LogicComponents.Add(_movement);
-            LogicComponents.Add(_animationStateMachine = new AnimStateMachineComponent());
+            LogicComponents.Add(_animationStateMachine);
         }
         protected override CapsuleComponent OnConstruct()
         {

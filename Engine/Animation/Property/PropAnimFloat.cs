@@ -34,7 +34,7 @@ namespace TheraEngine.Animation
         protected override object GetValue(float frame)
             => _getValue(frame);
         public float GetValueBaked(float frameIndex)
-            => _baked[(int)(frameIndex / Engine.TargetUpdateFreq * FramesPerSecond)];
+            => _baked[(int)(frameIndex / Engine.TargetUpdateFreq * BakedFramesPerSecond)];
         public float GetValueKeyframed(float frameIndex)
             => _keyframes.KeyCount == 0 ? _defaultValue : _keyframes.First.Interpolate(frameIndex);
 
@@ -44,7 +44,7 @@ namespace TheraEngine.Animation
         public override void Bake()
         {
             float oneOverFPS = 1.0f / _keyframes.FramesPerSecond;
-            int totalFrames = FrameCount;
+            int totalFrames = BakedFrameCount;
             _baked = new float[totalFrames];
             for (int i = 0; i < totalFrames; ++i)
                 _baked[i] = GetValueKeyframed(i * oneOverFPS);
@@ -70,7 +70,7 @@ namespace TheraEngine.Animation
             : this(frameIndex, inoutValue, inoutValue, inoutTangent, inoutTangent, type) { }
         public FloatKeyframe(float frameIndex, float inValue, float outValue, float inTangent, float outTangent, PlanarInterpType type) : base()
         {
-            _frameIndex = frameIndex;
+            Second = frameIndex;
             _inValue = inValue;
             _outValue = outValue;
             _inTangent = inTangent;
@@ -146,7 +146,7 @@ namespace TheraEngine.Animation
         }
         public float Interpolate(float frameIndex)
         {
-            if (frameIndex < _frameIndex && _prev._frameIndex > _frameIndex)
+            if (frameIndex < Second && _prev.Second > Second)
             {
                 if (_prev == this)
                     return _inValue;
@@ -157,10 +157,10 @@ namespace TheraEngine.Animation
             if (_next == this)
                 return _outValue;
 
-            if (frameIndex > _next._frameIndex && _next._frameIndex > _frameIndex)
+            if (frameIndex > _next.Second && _next.Second > Second)
                 return Next.Interpolate(frameIndex);
 
-            float t = (frameIndex - _frameIndex) / (_next._frameIndex - _frameIndex);
+            float t = (frameIndex - Second) / (_next.Second - Second);
             return _interpolate(this, Next, t);
         }
 
@@ -183,19 +183,19 @@ namespace TheraEngine.Animation
         public void AverageValues()
             => _inValue = _outValue = (_inValue + _outValue) / 2.0f;
         public void MakeOutLinear()
-            => _outTangent = (Next.InValue - OutValue) / (Next._frameIndex - _frameIndex);
+            => _outTangent = (Next.InValue - OutValue) / (Next.Second - Second);
         public void MakeInLinear()
-            => _inTangent = (InValue - Prev.OutValue) / (_frameIndex - Prev._frameIndex);
+            => _inTangent = (InValue - Prev.OutValue) / (Second - Prev.Second);
 
         public override string WriteToString()
         {
-            return string.Format("{0} {1} {2} {3} {4} {5}", _frameIndex, InValue, OutValue, InTangent, OutTangent, InterpolationType);
+            return string.Format("{0} {1} {2} {3} {4} {5}", Second, InValue, OutValue, InTangent, OutTangent, InterpolationType);
         }
 
         public override void ReadFromString(string str)
         {
             string[] parts = str.Split(' ');
-            _frameIndex = float.Parse(parts[0]);
+            Second = float.Parse(parts[0]);
             InValue = float.Parse(parts[1]);
             OutValue = float.Parse(parts[2]);
             InTangent = float.Parse(parts[3]);

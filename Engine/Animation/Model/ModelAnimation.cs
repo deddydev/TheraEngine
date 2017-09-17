@@ -26,11 +26,11 @@ namespace TheraEngine.Animation
         [Serialize("BoneAnimations")]
         public Dictionary<string, BoneAnimation> _boneAnimations = new Dictionary<string, BoneAnimation>();
 
-        public override void SetFrameCount(int frameCount, bool stretchAnimation)
+        public override void SetLength(float seconds, bool stretchAnimation)
         {
             foreach (BoneAnimation b in _boneAnimations.Values)
-                b.SetFrameCount(frameCount, stretchAnimation);
-            base.SetFrameCount(frameCount, stretchAnimation);
+                b.SetLength(seconds, stretchAnimation);
+            base.SetFrameCount(seconds, stretchAnimation);
         }
 
         protected internal void Tick(float delta)
@@ -136,9 +136,9 @@ namespace TheraEngine.Animation
         {
             _name = name;
             Parent = parent;
-            _translation = new KeyframeTrack<Vec3Keyframe>(parent);
-            _rotation = new KeyframeTrack<QuatKeyframe>(parent);
-            _scale = new KeyframeTrack<Vec3Keyframe>(parent);
+            _translation = new KeyframeTrack<Vec3Keyframe>();
+            _rotation = new KeyframeTrack<QuatKeyframe>();
+            _scale = new KeyframeTrack<Vec3Keyframe>();
         }
 
         public BoneFrame BlendedWith(float frameIndex, BoneFrame other, float otherWeight)
@@ -160,11 +160,11 @@ namespace TheraEngine.Animation
 
         protected virtual void UseKeyframesChanged() { }
 
-        public void SetFrameCount(int frameCount, bool stretchAnimation)
+        public void SetLength(float seconds, bool stretchAnimation)
         {
-            _translation.SetFrameCount(frameCount, stretchAnimation);
-            _rotation.SetFrameCount(frameCount, stretchAnimation);
-            _scale.SetFrameCount(frameCount, stretchAnimation);
+            _translation.SetLength(seconds, stretchAnimation);
+            _rotation.SetLength(seconds, stretchAnimation);
+            _scale.SetLength(seconds, stretchAnimation);
         }
 
         internal ModelAnimation Parent { get; set; }
@@ -181,7 +181,7 @@ namespace TheraEngine.Animation
         public KeyframeTrack<Vec3Keyframe> _scale;
 
         public BoneFrame GetFrame()
-            => GetFrame(Parent.CurrentFrame);
+            => GetFrame(Parent.CurrentTime);
         public BoneFrame GetFrame(float frameIndex)
         {
             Vec3? t = null;
@@ -216,7 +216,7 @@ namespace TheraEngine.Animation
                 UpdateState(bone.FrameState, bone.BindState);
         }
         public void UpdateState(FrameState frameState, FrameState bindState)
-            => UpdateState(frameState, bindState, Parent.CurrentFrame);
+            => UpdateState(frameState, bindState, Parent.CurrentTime);
         public void UpdateState(FrameState frameState, FrameState bindState, float frameIndex)
         {
             Vec3 t = _translation.First == null ?
@@ -231,7 +231,7 @@ namespace TheraEngine.Animation
             frameState.SetAll(t, r, s);
         }
         public void UpdateStateBlended(FrameState frameState, FrameState bindState, BoneAnimation otherBoneAnim, float otherWeight, AnimBlendType blendType)
-            => UpdateStateBlended(frameState, bindState, otherBoneAnim, Parent.CurrentFrame, otherBoneAnim.Parent.CurrentFrame, otherWeight, blendType);
+            => UpdateStateBlended(frameState, bindState, otherBoneAnim, Parent.CurrentTime, otherBoneAnim.Parent.CurrentTime, otherWeight, blendType);
         public void UpdateStateBlended(
             FrameState frameState,
             FrameState bindState, 

@@ -34,7 +34,7 @@ namespace TheraEngine.Animation
         protected override object GetValue(float frame)
             => _getValue(frame);
         public Vec2 GetValueBaked(float frameIndex)
-            => _baked[(int)(frameIndex / Engine.TargetUpdateFreq * FramesPerSecond)];
+            => _baked[(int)(frameIndex / Engine.TargetUpdateFreq * BakedFramesPerSecond)];
         public Vec2 GetValueKeyframed(float frameIndex)
             => _keyframes.KeyCount == 0 ? _defaultValue : _keyframes.First.Interpolate(frameIndex);
 
@@ -44,8 +44,8 @@ namespace TheraEngine.Animation
         /// </summary>
         public override void Bake()
         {
-            _baked = new Vec2[FrameCount];
-            for (int i = 0; i < FrameCount; ++i)
+            _baked = new Vec2[BakedFrameCount];
+            for (int i = 0; i < BakedFrameCount; ++i)
                 _baked[i] = GetValueKeyframed(i);
         }
         public override void Resize(int newSize)
@@ -67,7 +67,7 @@ namespace TheraEngine.Animation
     {
         public Vec2Keyframe(float frameIndex, Vec2 inValue, Vec2 outValue) : base()
         {
-            _frameIndex = frameIndex;
+            Second = frameIndex;
             _inValue = inValue;
             _outValue = outValue;
         }
@@ -140,7 +140,7 @@ namespace TheraEngine.Animation
         private DelInterpolate _interpolate = CubicHermite;
         public Vec2 Interpolate(float frameIndex)
         {
-            if (frameIndex < _frameIndex)
+            if (frameIndex < Second && _prev.Second > Second)
             {
                 if (_prev == this)
                     return _inValue;
@@ -151,10 +151,10 @@ namespace TheraEngine.Animation
             if (_next == this)
                 return _outValue;
 
-            if (frameIndex > _next._frameIndex)
+            if (frameIndex > _next.Second && _next.Second > Second)
                 return Next.Interpolate(frameIndex);
 
-            float t = (frameIndex - _frameIndex) / (_next._frameIndex - _frameIndex);
+            float t = (frameIndex - Second) / (_next.Second - Second);
             return _interpolate(this, Next, t);
         }
         public static Vec2 Step(Vec2Keyframe key1, Vec2Keyframe key2, float time)
@@ -176,19 +176,19 @@ namespace TheraEngine.Animation
         public void AverageValues()
             => _inValue = _outValue = (_inValue + _outValue) / 2.0f;
         public void MakeOutLinear()
-            => _outTangent = (Next.InValue - OutValue) / (Next._frameIndex - _frameIndex);
+            => _outTangent = (Next.InValue - OutValue) / (Next.Second - Second);
         public void MakeInLinear()
-            => _inTangent = (InValue - Prev.OutValue) / (_frameIndex - Prev._frameIndex);
+            => _inTangent = (InValue - Prev.OutValue) / (Second - Prev.Second);
 
         public override string WriteToString()
         {
-            return string.Format("{0} {1} {2} {3} {4} {5}", _frameIndex, InValue.WriteToString(), OutValue.WriteToString(), InTangent.WriteToString(), OutTangent.WriteToString(), InterpolationType);
+            return string.Format("{0} {1} {2} {3} {4} {5}", Second, InValue.WriteToString(), OutValue.WriteToString(), InTangent.WriteToString(), OutTangent.WriteToString(), InterpolationType);
         }
 
         public override void ReadFromString(string str)
         {
             string[] parts = str.Split(' ');
-            _frameIndex = float.Parse(parts[0]);
+            Second = float.Parse(parts[0]);
             InValue = new Vec2(float.Parse(parts[1]), float.Parse(parts[2]));
             OutValue = new Vec2(float.Parse(parts[3]), float.Parse(parts[4]));
             InTangent = new Vec2(float.Parse(parts[5]), float.Parse(parts[6]));

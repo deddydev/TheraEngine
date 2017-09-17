@@ -133,16 +133,16 @@ namespace TheraEngine.Rendering.Models
                     //RootFolder = new AnimFolder("Skeleton"),
                 };
                 foreach (AnimationEntry e in shell._animations)
-                    ParseAnimation(e, scene.Animation, scene.Skeleton);
+                    ParseAnimation(shell, e, scene.Animation, scene.Skeleton);
             }
 
             return scene;
         }
 
-        private static void ParseAnimation(AnimationEntry e, ModelAnimation c, Skeleton skel)
+        private static void ParseAnimation(DecoderShell shell, AnimationEntry e, ModelAnimation c, Skeleton skel)
         {
             foreach (AnimationEntry e2 in e._animations)
-                ParseAnimation(e2, c, skel);
+                ParseAnimation(shell, e2, c, skel);
 
             foreach (ChannelEntry channel in e._channels)
             {
@@ -153,17 +153,24 @@ namespace TheraEngine.Rendering.Models
                 if (targetId == ".")
                     continue;
 
+                ColladaEntry entry = shell._idEntries.ContainsKey(targetId) ? shell._idEntries[targetId] : null;
+                if (entry == null)
+                    continue;
+
+                string targetName = entry._name ?? entry._id;
+
                 BoneAnimation b;
-                if (c._boneAnimations.ContainsKey(targetId))
-                    b = c._boneAnimations[targetId];
+                if (c._boneAnimations.ContainsKey(targetName))
+                    b = c._boneAnimations[targetName];
                 else
-                    b = c.CreateBoneAnimation(targetId);
+                    b = c.CreateBoneAnimation(targetName);
 
                 //if (skel[targetId] == null)
                 //    continue;
 
                 string targetSID = sidRef[1];
-                
+                List<ColladaEntry> sidEntry = shell._sidEntries.ContainsKey(targetSID) ? shell._sidEntries[targetSID] : null;
+
                 float[] timeData = null, outputData = null, inTanData = null, outTanData = null;
                 string[] interpData = null;
                 foreach (InputEntry input in sampler._inputs)

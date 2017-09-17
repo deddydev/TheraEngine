@@ -12,33 +12,27 @@ namespace TheraEngine.Animation
         public event Action FramesPerSecondChanged;
         public event Action SpeedChanged;
         public event Action LoopChanged;
-        public event Action FrameCountChanged;
+        public event Action LengthChanged;
         
-        protected int _frameCount;
-        protected float _fps = 60.0f;
+        protected int _bakedFrameCount = 0;
+        protected float _bakedFPS = 0.0f;
+
+        protected float _lengthInSeconds = 0.0f;
         protected float _speed = 1.0f;
-        protected float _currentFrame = 0.0f;
+        protected float _currentTime = 0.0f;
         protected bool _looped = false;
         protected bool _isPlaying = false;
         protected bool _useKeyframes = true;
 
-        /// <summary>
-        /// Sets this animation to use a new number of frames.
-        /// </summary>
-        /// <param name="frameCount">The new number of frames (independent of speed or frames per second)</param>
-        /// <param name="stretchAnimation">If true, will compress or expand all keyframes to match the new length.</param>
-        public virtual void SetFrameCount(int frameCount, bool stretchAnimation)
+        public virtual void SetLength(float seconds, bool stretchAnimation)
         {
-            _frameCount = frameCount;
-            FrameCountChanged?.Invoke();
+            _lengthInSeconds = seconds;
+            LengthChanged?.Invoke();
         }
 
         [Category("Animation")]
-        public float LengthInSeconds
-        {
-            get => FrameCount / FramesPerSecond / Speed;
-            set => SetFrameCount((int)(value * Speed * FramesPerSecond), true);
-        }
+        public float LengthInSeconds => _lengthInSeconds;
+        
         /// <summary>
         /// How fast the animation plays back.
         /// A speed of 2.0f would shorten the animation to play in half the time, where 0.5f would be lengthen the animation to play two times slower.
@@ -60,23 +54,14 @@ namespace TheraEngine.Animation
         /// Only one frame of this animation will show for every two game frames (the animation won't be sped up).
         /// </summary>
         [Category("Animation"), Serialize]
-        public float FramesPerSecond
-        {
-            get => _fps;
-            set
-            {
-                _fps = value;
-                FramesPerSecondChanged?.Invoke();
-            }
-        }
+        public float BakedFramesPerSecond => _bakedFPS;
+        
         /// <summary>
         /// How many frames this animation contains.
         /// </summary>
         [Category("Animation"), Serialize]
-        public int FrameCount
-        {
-            get => _frameCount;
-        }
+        public int BakedFrameCount => _bakedFrameCount;
+        
         [Category("Animation"), Serialize]
         public bool Looped
         {
@@ -88,21 +73,18 @@ namespace TheraEngine.Animation
             }
         }
         [Category("Animation"), Serialize]
-        public float CurrentFrame
+        public float CurrentTime
         {
-            get => _currentFrame;
+            get => _currentTime;
             set
             {
-                _currentFrame = value;
-                if (_currentFrame > _frameCount - 1 || _currentFrame < 0.0f)
+                _currentTime = value;
+                if (_isPlaying && (_currentTime > _lengthInSeconds || _currentTime < 0.0f))
                 {
-                    if (_isPlaying)
-                    {
-                        if (_looped)
-                            _currentFrame = _currentFrame.RemapToRange(0.0f, _frameCount - 1);
-                        else
-                            Stop();
-                    }
+                    if (_looped)
+                        _currentTime = _currentTime.RemapToRange(0.0f, _lengthInSeconds);
+                    else
+                        Stop();
                 }
                 OnCurrentFrameChanged();
             }
@@ -134,7 +116,7 @@ namespace TheraEngine.Animation
                 return;
             _isPlaying = true;
             AnimationStarted?.Invoke();
-            CurrentFrame = 0.0f;
+            CurrentTime = 0.0f;
             RegisterTick(ETickGroup.PostPhysics, ETickOrder.BoneAnimation, Progress);
         }
         public void Stop()
@@ -145,7 +127,7 @@ namespace TheraEngine.Animation
             AnimationEnded?.Invoke();
             UnregisterTick(ETickGroup.PostPhysics, ETickOrder.BoneAnimation, Progress);
         }
-        public void Progress(float delta) => CurrentFrame += delta * _fps * _speed;
+        public void Progress(float delta) => CurrentTime += delta * _speed;
         protected virtual void OnCurrentFrameChanged() => CurrentFrameChanged?.Invoke();
     }
 }

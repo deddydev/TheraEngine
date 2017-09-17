@@ -131,8 +131,8 @@ namespace TheraEngine.Tests
                 "X:\\Desktop\\" :
                 "C:\\Users\\David\\Desktop\\";
             string googleDrive = Environment.MachineName == "DAVID-DESKTOP" ?
-                "X:\\Cloud Storage\\Google Drive\\THERA\\" :
-                "C:\\Users\\David\\Google Drive\\THERA\\";
+                "X:\\Cloud Storage\\Google Drive\\TheraDev\\" :
+                "C:\\Users\\David\\Google Drive\\TheraDev\\";
 
             ModelImportOptions objOptions = new ModelImportOptions()
             {

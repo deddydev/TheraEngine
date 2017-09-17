@@ -17,12 +17,19 @@ namespace TheraEngine.Rendering.Models
             internal Dictionary<string, List<ColladaEntry>> _sidEntries = new Dictionary<string, List<ColladaEntry>>();
             internal Dictionary<string, ColladaEntry> _idEntries = new Dictionary<string, ColladaEntry>();
 
-            private void AddSidEntry(string sid, ColladaEntry entry)
+            private void AddSidEntry(ColladaEntry entry)
             {
-                if (_sidEntries.ContainsKey(sid))
-                    _sidEntries[sid].Add(entry);
+                if (_sidEntries.ContainsKey(entry._sid))
+                    _sidEntries[entry._sid].Add(entry);
                 else
-                    _sidEntries.Add(sid, new List<ColladaEntry>() { entry });
+                    _sidEntries.Add(entry._sid, new List<ColladaEntry>() { entry });
+            }
+            private void AddIdEntry(ColladaEntry entry)
+            {
+                if (_idEntries.ContainsKey(entry._id))
+                    throw new Exception("More than one id specified in file: " + entry._id);
+                else
+                    _idEntries.Add(entry._id, entry);
             }
 
             public static DecoderShell Import(string path)
@@ -170,7 +177,10 @@ namespace TheraEngine.Rendering.Models
 
                 while (_reader.ReadAttribute())
                     if (_reader.Name.Equals("id", true))
+                    {
                         inp._id = _reader.Value;
+                        AddIdEntry(inp);
+                    }
                     else if (_reader.Name.Equals("name", true))
                         inp._name = _reader.Value;
                     else if (_reader.Name.Equals("semantic", true))
@@ -190,7 +200,10 @@ namespace TheraEngine.Rendering.Models
 
                 while (_reader.ReadAttribute())
                     if (_reader.Name.Equals("id", true))
+                    {
                         src._id = _reader.Value;
+                        AddIdEntry(src);
+                    }
 
                 while (_reader.BeginElement())
                 {

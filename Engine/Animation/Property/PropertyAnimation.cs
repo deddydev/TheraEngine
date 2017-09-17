@@ -28,14 +28,14 @@ namespace TheraEngine.Animation
         {
             if (!_isPlaying)
                 return;
-            property.SetValue(obj, GetValue(_currentFrame));
+            property.SetValue(obj, GetValue(_currentTime));
             Progress(delta);
         }
         public void Tick(object obj, MethodInfo method, float delta)
         {
             if (!_isPlaying)
                 return;
-            method.Invoke(obj, new object[] { GetValue(_currentFrame) });
+            method.Invoke(obj, new object[] { GetValue(_currentTime) });
             Progress(delta);
         }
 
@@ -54,7 +54,7 @@ namespace TheraEngine.Animation
 
         public PropertyAnimation(int frameCount, bool looped, bool useKeyframes)
         {
-            _frameCount = frameCount;
+            _bakedFrameCount = frameCount;
             _keyframes = new KeyframeTrack<T>(this);
             Looped = looped;
             UseKeyframes = useKeyframes;

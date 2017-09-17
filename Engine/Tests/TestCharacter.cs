@@ -12,7 +12,13 @@ namespace TheraEngine.Tests
         public const string SkelName = "TESTSKEL";
         protected override void PreConstruct()
         {
-            string desktop = Environment.MachineName == "DAVID-DESKTOP" ? "X:\\Desktop\\" : "C:\\Users\\David\\Desktop\\";
+            string desktop = Environment.MachineName == "DAVID-DESKTOP" ? 
+                "X:\\Desktop\\" : 
+                "C:\\Users\\David\\Desktop\\";
+            string googleDrive = Environment.MachineName == "DAVID-DESKTOP" ?
+                "X:\\Cloud Storage\\Google Drive\\TheraDev\\" :
+                "C:\\Users\\David\\Google Drive\\TheraDev\\";
+
             //string desktop = Engine.StartupPath;
             ModelImportOptions options = new ModelImportOptions()
             {
@@ -55,9 +61,13 @@ namespace TheraEngine.Tests
                 //Skeleton = new SingleFileRef<Skeleton>(Engine.ContentFolderAbs + SkelName + "." + GetFileHeader(typeof(Skeleton)).GetProperExtension(FileFormat.XML));
             }
 
-            ModelAnimation m = FromThirdParty<ModelAnimation>("C:\\Users\\David\\Google Drive\\TheraDev\\Thera\\Assets\\Characters\\Carly\\Animations\\Carly_Idle.dae");
-
             base.PreConstruct();
+
+            string animPath = desktop + "test_anim.dae";//googleDrive + "Thera\\Assets\\Characters\\Carly\\Animations\\Carly_Idle.dae";
+
+            ModelAnimation m = FromThirdParty<ModelAnimation>(animPath);
+            _animationStateMachine.Skeleton = Skeleton;
+            _animationStateMachine.InitialState = new AnimState(m);
         }
     }
 }

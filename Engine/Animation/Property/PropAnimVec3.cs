@@ -34,7 +34,7 @@ namespace TheraEngine.Animation
         protected override object GetValue(float frame)
             => _getValue(frame);
         public Vec3 GetValueBaked(float frameIndex)
-            => _baked[(int)(frameIndex / Engine.TargetUpdateFreq * FramesPerSecond)];
+            => _baked[(int)(frameIndex / Engine.TargetUpdateFreq * BakedFramesPerSecond)];
         public Vec3 GetValueKeyframed(float frameIndex)
             => _keyframes.KeyCount == 0 ? _defaultValue : _keyframes.First.Interpolate(frameIndex);
         public Vec3 GetVelocityKeyframed(float frameIndex)
@@ -48,8 +48,8 @@ namespace TheraEngine.Animation
         /// </summary>
         public override void Bake()
         {
-            _baked = new Vec3[FrameCount];
-            for (int i = 0; i < FrameCount; ++i)
+            _baked = new Vec3[BakedFrameCount];
+            for (int i = 0; i < BakedFrameCount; ++i)
                 _baked[i] = GetValueKeyframed(i);
         }
         public override void Resize(int newSize)
@@ -78,7 +78,7 @@ namespace TheraEngine.Animation
 
         public Vec3Keyframe(float frameIndex, Vec3 inValue, Vec3 outValue, Vec3 inTangent, Vec3 outTangent, PlanarInterpType type = PlanarInterpType.Linear) : base()
         {
-            _frameIndex = frameIndex;
+            Second = frameIndex;
             _inValue = inValue;
             _outValue = outValue;
             _inTangent = inTangent;
@@ -170,7 +170,7 @@ namespace TheraEngine.Animation
         }
         public Vec3 Interpolate(float frameIndex)
         {
-            if (frameIndex < _frameIndex && _prev._frameIndex > _frameIndex)
+            if (frameIndex < Second && _prev.Second > Second)
             {
                 if (_prev == this)
                     return _inValue;
@@ -181,32 +181,32 @@ namespace TheraEngine.Animation
             if (_next == this)
                 return _outValue;
 
-            if (frameIndex > _next._frameIndex && _next._frameIndex > _frameIndex)
+            if (frameIndex > _next.Second && _next.Second > Second)
                 return Next.Interpolate(frameIndex);
 
-            float t = (frameIndex - _frameIndex) / (_next._frameIndex - _frameIndex);
+            float t = (frameIndex - Second) / (_next.Second - Second);
             return _interpolate(this, Next, t);
         }
         public Vec3 InterpolateVelocity(float frameIndex)
         {
-            if (frameIndex < _frameIndex && _prev._frameIndex > _frameIndex)
+            if (frameIndex < Second && _prev.Second > Second)
                 return Prev.InterpolateVelocity(frameIndex);
             
-            if (frameIndex > _next._frameIndex && _next._frameIndex > _frameIndex)
+            if (frameIndex > _next.Second && _next.Second > Second)
                 return Next.InterpolateVelocity(frameIndex);
 
-            float t = (frameIndex - _frameIndex) / (_next._frameIndex - _frameIndex);
+            float t = (frameIndex - Second) / (_next.Second - Second);
             return _interpolateVelocity(this, Next, t);
         }
         public Vec3 InterpolateAcceleration(float frameIndex)
         {
-            if (frameIndex < _frameIndex && _prev._frameIndex > _frameIndex)
+            if (frameIndex < Second && _prev.Second > Second)
                 return Prev.InterpolateAcceleration(frameIndex);
             
-            if (frameIndex > _next._frameIndex && _next._frameIndex > _frameIndex)
+            if (frameIndex > _next.Second && _next.Second > Second)
                 return Next.InterpolateAcceleration(frameIndex);
 
-            float t = (frameIndex - _frameIndex) / (_next._frameIndex - _frameIndex);
+            float t = (frameIndex - Second) / (_next.Second - Second);
             return _interpolateAcceleration(this, Next, t);
         }
 
@@ -248,19 +248,19 @@ namespace TheraEngine.Animation
         public void AverageValues()
             => _inValue = _outValue = (_inValue + _outValue) / 2.0f;
         public void MakeOutLinear()
-            => _outTangent = (Next.InValue - OutValue) / (Next._frameIndex - _frameIndex);
+            => _outTangent = (Next.InValue - OutValue) / (Next.Second - Second);
         public void MakeInLinear()
-            => _inTangent = (InValue - Prev.OutValue) / (_frameIndex - Prev._frameIndex);
+            => _inTangent = (InValue - Prev.OutValue) / (Second - Prev.Second);
 
         public override string WriteToString()
         {
-            return string.Format("{0} {1} {2} {3} {4} {5}", _frameIndex, InValue.WriteToString(), OutValue.WriteToString(), InTangent.WriteToString(), OutTangent.WriteToString(), InterpolationType);
+            return string.Format("{0} {1} {2} {3} {4} {5}", Second, InValue.WriteToString(), OutValue.WriteToString(), InTangent.WriteToString(), OutTangent.WriteToString(), InterpolationType);
         }
 
         public override void ReadFromString(string str)
         {
             string[] parts = str.Split(' ');
-            _frameIndex = float.Parse(parts[0]);
+            Second = float.Parse(parts[0]);
             InValue = new Vec3(float.Parse(parts[1]), float.Parse(parts[2]), float.Parse(parts[3]));
             OutValue = new Vec3(float.Parse(parts[4]), float.Parse(parts[5]), float.Parse(parts[6]));
             InTangent = new Vec3(float.Parse(parts[7]), float.Parse(parts[8]), float.Parse(parts[9]));

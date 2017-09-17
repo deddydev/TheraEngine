@@ -34,7 +34,7 @@ namespace TheraEngine.Animation
         protected override object GetValue(float frame)
             => _getValue(frame);
         public Matrix4 GetValueBaked(float frameIndex)
-            => _baked[(int)(frameIndex / Engine.TargetUpdateFreq * FramesPerSecond)];
+            => _baked[(int)(frameIndex / Engine.TargetUpdateFreq * BakedFramesPerSecond)];
         public Matrix4 GetValueKeyframed(float frameIndex)
             => _keyframes.KeyCount == 0 ? _defaultValue : _keyframes.First.Interpolate(frameIndex);
 
@@ -44,8 +44,8 @@ namespace TheraEngine.Animation
         /// </summary>
         public override void Bake()
         {
-            _baked = new Matrix4[FrameCount];
-            for (int i = 0; i < FrameCount; ++i)
+            _baked = new Matrix4[BakedFrameCount];
+            for (int i = 0; i < BakedFrameCount; ++i)
                 _baked[i] = GetValueKeyframed(i);
         }
         public override void Resize(int newSize)
@@ -68,7 +68,7 @@ namespace TheraEngine.Animation
     {
         public Matrix4Keyframe(float frameIndex, Matrix4 outValue) : base()
         {
-            _frameIndex = frameIndex;
+            Second = frameIndex;
             _value = outValue;
         }
 
@@ -98,10 +98,10 @@ namespace TheraEngine.Animation
             if (_prev == this || _next == this)
                 return _value;
 
-            if (frameIndex < _frameIndex && _prev._frameIndex > _frameIndex)
+            if (frameIndex < Second && _prev.Second > Second)
                 return Prev.Interpolate(frameIndex);
 
-            if (frameIndex > _next._frameIndex && _next._frameIndex > _frameIndex)
+            if (frameIndex > _next.Second && _next.Second > Second)
                 return Next.Interpolate(frameIndex);
 
             //float t = (frameIndex - _frameIndex) / (_next._frameIndex - _frameIndex);
@@ -114,13 +114,13 @@ namespace TheraEngine.Animation
         public override void ReadFromString(string str)
         {
             int spaceIndex = str.IndexOf(' ');
-            _frameIndex = float.Parse(str.Substring(0, spaceIndex));
+            Second = float.Parse(str.Substring(0, spaceIndex));
             Value = new Matrix4();
             Value.ReadFromString(str.Substring(spaceIndex + 1));
         }
         public override string WriteToString()
         {
-            return string.Format("{0} {1}", _frameIndex, Value.WriteToString());
+            return string.Format("{0} {1}", Second, Value.WriteToString());
         }
     }
 }

@@ -49,7 +49,7 @@ namespace TheraEngine.Rendering.Models
                             if (_reader.Name.Equals("id", true))
                             {
                                 img._id = _reader.Value;
-                                _idEntries.Add(img._id, img);
+                                AddIdEntry(img);
                             }
                             else if (_reader.Name.Equals("name", true))
                                 img._name = _reader.Value;
@@ -92,7 +92,7 @@ namespace TheraEngine.Rendering.Models
                             if (_reader.Name.Equals("id", true))
                             {
                                 mat._id = _reader.Value;
-                                _idEntries.Add(mat._id, mat);
+                                AddIdEntry(mat);
                             }
                             else if (_reader.Name.Equals("name", true))
                                 mat._name = _reader.Value;
@@ -129,7 +129,7 @@ namespace TheraEngine.Rendering.Models
                     if (_reader.Name.Equals("id", true))
                     {
                         eff._id = _reader.Value;
-                        _idEntries.Add(eff._id, eff);
+                        AddIdEntry(eff);
                     }
                     else if (_reader.Name.Equals("name", true))
                         eff._name = _reader.Value;
@@ -150,7 +150,7 @@ namespace TheraEngine.Rendering.Models
                                     if (_reader.Name.Equals("sid", true))
                                     {
                                         eff._techniqueSid = _reader.Value;
-                                        AddSidEntry(eff._techniqueSid, eff);
+                                        AddSidEntry(eff);
                                     }
                                     else if (_reader.Name.Equals("name", true))
                                         eff._name = _reader.Value;
@@ -183,10 +183,13 @@ namespace TheraEngine.Rendering.Models
                     if (_reader.Name.Equals("sid", true))
                     {
                         p._sid = _reader.Value;
-                        AddSidEntry(p._sid, p);
+                        AddSidEntry(p);
                     }
                     else if (_reader.Name.Equals("id", true))
+                    {
                         p._id = _reader.Value;
+                        AddIdEntry(p);
+                    }
                 }
                 while (_reader.BeginElement())
                 {
@@ -339,7 +342,10 @@ namespace TheraEngine.Rendering.Models
                         while (_reader.ReadAttribute())
                         {
                             if (_reader.Name.Equals("id", true))
+                            {
                                 geo._id = _reader.Value;
+                                AddIdEntry(geo);
+                            }
                             else if (_reader.Name.Equals("name", true))
                                 geo._name = _reader.Value;
                         }
@@ -417,7 +423,7 @@ namespace TheraEngine.Rendering.Models
 
                 while (_reader.ReadAttribute())
                     if (_reader.Name.Equals("material", true))
-                        prim._material = (string)_reader.Value;
+                        prim._material = _reader.Value;
                     else if (_reader.Name.Equals("count", true))
                         prim._entryCount = int.Parse((string)_reader.Value);
 
@@ -506,6 +512,8 @@ namespace TheraEngine.Rendering.Models
                 {
                     _id = id
                 };
+                AddIdEntry(skin);
+
                 while (_reader.ReadAttribute())
                     if (_reader.Name.Equals("source", false))
                         skin._skinSource = _reader.Value[0] == '#' ? (string)(_reader.Value + 1) : (string)_reader.Value;
@@ -528,7 +536,7 @@ namespace TheraEngine.Rendering.Models
                     {
                         while (_reader.ReadAttribute())
                             if (_reader.Name.Equals("count", false))
-                                skin._weightCount = int.Parse((string)_reader.Value);
+                                skin._weightCount = int.Parse(_reader.Value);
 
                         skin._weights = new int[skin._weightCount][];
 
@@ -595,7 +603,10 @@ namespace TheraEngine.Rendering.Models
 
                 while (_reader.ReadAttribute())
                     if (_reader.Name.Equals("id", true))
+                    {
                         sc._id = _reader.Value;
+                        AddIdEntry(sc);
+                    }
 
                 while (_reader.ReadAttribute())
                     if (_reader.Name.Equals("name", true))
@@ -622,11 +633,11 @@ namespace TheraEngine.Rendering.Models
                     {
                         case "id":
                             node._id = _reader.Value;
-                            _idEntries.Add(node._id, node);
+                            AddIdEntry(node);
                             break;
                         case "sid":
                             node._sid = _reader.Value;
-                            AddSidEntry(node._sid, node);
+                            AddSidEntry(node);
                             break;
                         case "name":
                             node._name = _reader.Value;

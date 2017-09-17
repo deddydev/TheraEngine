@@ -227,7 +227,7 @@ namespace TheraEngine.Worlds.Actors
         protected override void PreConstruct()
         {
             _movement = Activator.CreateInstance<MovementClass>();
-            _animationStateMachine = new AnimStateMachineComponent(Skeleton);
+            _animationStateMachine = new AnimStateMachineComponent();
             LogicComponents.Add(_movement);
             LogicComponents.Add(_animationStateMachine);
         }

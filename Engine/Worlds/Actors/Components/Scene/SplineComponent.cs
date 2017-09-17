@@ -102,8 +102,8 @@ namespace TheraEngine.Worlds.Actors
                 _splinePrimitive = null;
             else
             {
-                Vertex[] splinePoints = new Vertex[_spline.FrameCount];
-                VertexLine[] velocity = new VertexLine[_spline.FrameCount];
+                Vertex[] splinePoints = new Vertex[_spline.BakedFrameCount];
+                VertexLine[] velocity = new VertexLine[_spline.BakedFrameCount];
                 Vec3[] keyframePositions = new Vec3[_spline.Keyframes.KeyCount << 1];
                 Vec3[] tangentPositions = new Vec3[_spline.Keyframes.KeyCount << 1];
 

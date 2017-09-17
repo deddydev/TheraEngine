@@ -33,7 +33,7 @@ namespace TheraEngine.Animation
                 _getValue = GetValueBaked;
         }
         public bool GetValueBaked(float frameIndex)
-            => _baked[(int)(frameIndex / Engine.TargetUpdateFreq * FramesPerSecond)];
+            => _baked[(int)(frameIndex / Engine.TargetUpdateFreq * BakedFramesPerSecond)];
         public bool GetValueKeyframed(float frameIndex)
         {
             BoolKeyframe key = _keyframes.GetKeyBefore(frameIndex);
@@ -43,8 +43,8 @@ namespace TheraEngine.Animation
         }
         public override void Bake()
         {
-            _baked = new bool[FrameCount];
-            for (int i = 0; i < FrameCount; ++i)
+            _baked = new bool[BakedFrameCount];
+            for (int i = 0; i < BakedFrameCount; ++i)
                 _baked[i] = GetValueKeyframed(i);
         }
         public override void Resize(int newSize)
@@ -89,12 +89,12 @@ namespace TheraEngine.Animation
         public override void ReadFromString(string str)
         {
             int spaceIndex = str.IndexOf(' ');
-            _frameIndex = float.Parse(str.Substring(0, spaceIndex));
+            Second = float.Parse(str.Substring(0, spaceIndex));
             Value = bool.Parse(str.Substring(spaceIndex + 1));
         }
         public override string WriteToString()
         {
-            return string.Format("{0} {1}", _frameIndex, Value);
+            return string.Format("{0} {1}", Second, Value);
         }
     }
 }

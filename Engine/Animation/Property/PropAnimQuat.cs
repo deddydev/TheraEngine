@@ -34,7 +34,7 @@ namespace TheraEngine.Animation
         protected override object GetValue(float frame)
             => _getValue(frame);
         public Quat GetValueBaked(float frameIndex)
-            => _baked[(int)(frameIndex / Engine.TargetUpdateFreq * FramesPerSecond)];
+            => _baked[(int)(frameIndex / Engine.TargetUpdateFreq * BakedFramesPerSecond)];
         public Quat GetValueKeyframed(float frameIndex)
             => _keyframes.KeyCount == 0 ? _defaultValue : _keyframes.First.Interpolate(frameIndex);
 
@@ -44,8 +44,8 @@ namespace TheraEngine.Animation
         /// </summary>
         public override void Bake()
         {
-            _baked = new Quat[FrameCount];
-            for (int i = 0; i < FrameCount; ++i)
+            _baked = new Quat[BakedFrameCount];
+            for (int i = 0; i < BakedFrameCount; ++i)
                 _baked[i] = GetValueKeyframed(i);
         }
         public override void Resize(int newSize)
@@ -69,7 +69,7 @@ namespace TheraEngine.Animation
             : this(frameIndex, value, value, type) { }
         public QuatKeyframe(float frameIndex, Quat inValue, Quat outValue, RadialInterpType type) : base()
         {
-            _frameIndex = frameIndex;
+            Second = frameIndex;
             _inValue = inValue;
             _outValue = outValue;
             InterpolationType = type;
@@ -140,7 +140,7 @@ namespace TheraEngine.Animation
         }
         public Quat Interpolate(float frameIndex)
         {
-            if (frameIndex < _frameIndex)
+            if (frameIndex < Second && _prev.Second > Second)
             {
                 if (_prev == this)
                     return _inValue;
@@ -151,10 +151,10 @@ namespace TheraEngine.Animation
             if (_next == this)
                 return _outValue;
 
-            if (frameIndex > _next._frameIndex)
+            if (frameIndex > _next.Second && _next.Second > Second)
                 return Next.Interpolate(frameIndex);
 
-            float t = (frameIndex - _frameIndex) / (_next._frameIndex - _frameIndex);
+            float t = (frameIndex - Second) / (_next.Second - Second);
             return _interpolate(this, Next, t);
         }
         public static Quat Step(QuatKeyframe key1, QuatKeyframe key2, float time)
@@ -166,13 +166,13 @@ namespace TheraEngine.Animation
 
         public override string WriteToString()
         {
-            return string.Format("{0} {1} {2} {3} {4} {5}", _frameIndex, InValue.WriteToString(), OutValue.WriteToString(), InTangent.WriteToString(), OutTangent.WriteToString(), InterpolationType);
+            return string.Format("{0} {1} {2} {3} {4} {5}", Second, InValue.WriteToString(), OutValue.WriteToString(), InTangent.WriteToString(), OutTangent.WriteToString(), InterpolationType);
         }
 
         public override void ReadFromString(string str)
         {
             string[] parts = str.Split(' ');
-            _frameIndex = float.Parse(parts[0]);
+            Second = float.Parse(parts[0]);
             InValue = new Quat(float.Parse(parts[1]), float.Parse(parts[2]), float.Parse(parts[3]), float.Parse(parts[4]));
             OutValue = new Quat(float.Parse(parts[5]), float.Parse(parts[6]), float.Parse(parts[7]), float.Parse(parts[8]));
             InTangent = new Quat(float.Parse(parts[9]), float.Parse(parts[10]), float.Parse(parts[11]), float.Parse(parts[12]));

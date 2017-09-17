@@ -27,7 +27,10 @@ namespace TheraEngine.Rendering.Models
                 while (_reader.ReadAttribute())
                 {
                     if (_reader.Name.Equals("id", true))
+                    {
                         clip._id = _reader.Value;
+                        AddIdEntry(clip);
+                    }
                     else if (_reader.Name.Equals("name", true))
                         clip._name = _reader.Value;
                     else if (_reader.Name.Equals("start", true))
@@ -55,7 +58,10 @@ namespace TheraEngine.Rendering.Models
                 while (_reader.ReadAttribute())
                 {
                     if (_reader.Name.Equals("id", true))
+                    {
                         anim._id = _reader.Value;
+                        AddIdEntry(anim);
+                    }
                     else if (_reader.Name.Equals("name", true))
                         anim._name = _reader.Value;
                 }
@@ -91,7 +97,10 @@ namespace TheraEngine.Rendering.Models
                 while (_reader.ReadAttribute())
                 {
                     if (_reader.Name.Equals("id", true))
+                    {
                         entry._id = _reader.Value;
+                        AddIdEntry(entry);
+                    }
                     else if (_reader.Name.Equals("pre_behavior", true))
                         entry._preBehavior = (SamplerBehavior)Enum.Parse(typeof(SamplerBehavior), _reader.Value);
                     else if (_reader.Name.Equals("post_behavior", true))

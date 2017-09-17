@@ -26,7 +26,7 @@ namespace TheraEngine.Rendering.Models
             {
                 AssetEntry e = shell._assets[0];
                 baseTransform = baseTransform * Matrix4.CreateScale(e._meter);
-                if (e._upAxis == EUpAxis.Z)
+                if (e._upAxis == EUpAxis.Z_UP)
                     baseTransform = Matrix4.ZupToYup * baseTransform;
             }
 
@@ -153,7 +153,7 @@ namespace TheraEngine.Rendering.Models
                 if (targetId == ".")
                     continue;
 
-                ColladaEntry entry = shell._idEntries.ContainsKey(targetId) ? shell._idEntries[targetId] : null;
+                BaseColladaElement entry = shell._idEntries.ContainsKey(targetId) ? shell._idEntries[targetId] : null;
                 if (entry == null)
                     continue;
 
@@ -167,9 +167,13 @@ namespace TheraEngine.Rendering.Models
 
                 //if (skel[targetId] == null)
                 //    continue;
-
+                
                 string targetSID = sidRef[1];
-                List<ColladaEntry> sidEntry = shell._sidEntries.ContainsKey(targetSID) ? shell._sidEntries[targetSID] : null;
+                List<BaseColladaElement> sidEntries = shell._sidEntries.ContainsKey(targetSID) ? shell._sidEntries[targetSID] : null;
+                if (sidEntries.Count == 0)
+                {
+                    throw new Exception("No sid found: " + targetSID);
+                }
 
                 float[] timeData = null, outputData = null, inTanData = null, outTanData = null;
                 string[] interpData = null;

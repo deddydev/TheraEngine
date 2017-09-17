@@ -115,12 +115,12 @@ namespace TheraEngine.Rendering.Models
                 return entry;
             }
         }
-        private class AnimationClipEntry : ColladaEntry
+        private class AnimationClipEntry : BaseColladaElement
         {
             public float _start, _end;
             public List<InstanceEntry> _animationInstances = new List<InstanceEntry>();
         }
-        private class AnimationEntry : ColladaEntry
+        private class AnimationEntry : BaseColladaElement
         {
             public List<SourceEntry> _sources = new List<SourceEntry>();
             public List<SamplerEntry> _samplers = new List<SamplerEntry>();
@@ -136,12 +136,12 @@ namespace TheraEngine.Rendering.Models
             OSCILLATE, //The key is mapped in the [first_key, last_key] interval so that the animation oscillates.
             CYCLE_RELATIVE, //The animation continues indefinitely.
         }
-        private class SamplerEntry : ColladaEntry
+        private class SamplerEntry : BaseColladaElement
         {
             public SamplerBehavior _preBehavior, _postBehavior;
             public List<InputEntry> _inputs = new List<InputEntry>();
         }
-        private class ChannelEntry : ColladaEntry
+        private class ChannelEntry : BaseColladaElement
         {
             public string _source, _target;
         }

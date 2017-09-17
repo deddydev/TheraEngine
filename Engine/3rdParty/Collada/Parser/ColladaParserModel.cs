@@ -779,21 +779,22 @@ namespace TheraEngine.Rendering.Models
                 return v;
             }
         }
-        private class ImageEntry : ColladaEntry
+        private class ImageEntry : BaseColladaElement
         {
             internal string _path;
         }
-        private class MaterialEntry : ColladaEntry
+        private class MaterialEntry : BaseColladaElement
         {
             internal string _effect;
         }
-        private class EffectEntry : ColladaEntry
+        private class EffectEntry : BaseColladaElement
         {
             internal string _techniqueSid;
             internal EffectShaderEntry _shader;
             internal List<EffectNewParam> _newParams = new List<EffectNewParam>();
         }
-        private class GeometryEntry : ColladaEntry
+        [Name("library_geometries")]
+        private class GeometryEntry : LibraryEntry
         {
             internal List<SourceEntry> _sources = new List<SourceEntry>();
             internal List<PrimitiveEntry> _primitives = new List<PrimitiveEntry>();
@@ -821,7 +822,7 @@ namespace TheraEngine.Rendering.Models
             internal int _faceCount;
             internal int[] _pointIndices;
         }
-        private class SkinEntry : ColladaEntry
+        private class SkinEntry : BaseColladaElement
         {
             internal string _skinSource;
             internal Matrix4 _bindMatrix = Matrix4.Identity;
@@ -833,7 +834,7 @@ namespace TheraEngine.Rendering.Models
             internal int _weightCount;
             internal int[][] _weights;
         }
-        private class VisualSceneEntry : ColladaEntry
+        private class VisualSceneEntry : BaseColladaElement
         {
             internal List<NodeEntry> _nodes = new List<NodeEntry>();
 
@@ -846,7 +847,7 @@ namespace TheraEngine.Rendering.Models
                 return null;
             }
         }
-        private class NodeEntry : ColladaEntry
+        private class NodeEntry : BaseColladaElement
         {
             internal NodeType _type = NodeType.NODE;
             internal Matrix4 _matrix = Matrix4.Identity;
@@ -854,12 +855,12 @@ namespace TheraEngine.Rendering.Models
             internal List<NodeEntry> _children = new List<NodeEntry>();
             internal List<InstanceEntry> _instances = new List<InstanceEntry>();
         }
-        private class InstanceMaterial : ColladaEntry
+        private class InstanceMaterial : BaseColladaElement
         {
             internal string _symbol, _target;
             internal List<VertexBind> _vertexBinds = new List<VertexBind>();
         }
-        private class VertexBind : ColladaEntry
+        private class VertexBind : BaseColladaElement
         {
             internal string _semantic;
             internal string _inputSemantic;
@@ -872,18 +873,18 @@ namespace TheraEngine.Rendering.Models
             public string _wrapS, _wrapT;
             public string _minFilter, _magFilter;
         }
-        private class EffectNewParam : ColladaEntry
+        private class EffectNewParam : BaseColladaElement
         {
             public string _path;
             public EffectSampler2D _sampler2D;
         }
-        private class EffectShaderEntry : ColladaEntry
+        private class EffectShaderEntry : BaseColladaElement
         {
             internal ShaderType _type;
             internal float _shininess, _reflectivity, _transparency;
             internal List<LightEffectEntry> _effects = new List<LightEffectEntry>();
         }
-        private class LightEffectEntry : ColladaEntry
+        private class LightEffectEntry : BaseColladaElement
         {
             internal LightEffectType _type;
             internal ColorF4 _color;

@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using System.Windows.Forms;
 using System.Globalization;
 using System.IO;
+using System.Linq;
+using System.Xml.Serialization;
+using System.ComponentModel;
 
 namespace TheraEngine.Rendering.Models
 {
@@ -14,17 +17,17 @@ namespace TheraEngine.Rendering.Models
             internal List<VisualSceneEntry> _visualScenes = new List<VisualSceneEntry>();
             internal XMLReader _reader;
             internal int _v1, _v2, _v3;
-            internal Dictionary<string, List<ColladaEntry>> _sidEntries = new Dictionary<string, List<ColladaEntry>>();
-            internal Dictionary<string, ColladaEntry> _idEntries = new Dictionary<string, ColladaEntry>();
+            internal Dictionary<string, List<BaseColladaElement>> _sidEntries = new Dictionary<string, List<BaseColladaElement>>();
+            internal Dictionary<string, BaseColladaElement> _idEntries = new Dictionary<string, BaseColladaElement>();
 
-            private void AddSidEntry(ColladaEntry entry)
+            private void AddSidEntry(BaseColladaElement entry)
             {
                 if (_sidEntries.ContainsKey(entry._sid))
                     _sidEntries[entry._sid].Add(entry);
                 else
-                    _sidEntries.Add(entry._sid, new List<ColladaEntry>() { entry });
+                    _sidEntries.Add(entry._sid, new List<BaseColladaElement>() { entry });
             }
-            private void AddIdEntry(ColladaEntry entry)
+            private void AddIdEntry(BaseColladaElement entry)
             {
                 if (_idEntries.ContainsKey(entry._id))
                     throw new Exception("More than one id specified in file: " + entry._id);
@@ -48,14 +51,16 @@ namespace TheraEngine.Rendering.Models
                 while (reader.BeginElement())
                 {
                     if (reader.Name.Equals("COLLADA", true))
-                        ParseMain();
+                        ParseElement(typeof(ColladaEntry), null);
                     reader.EndElement();
                 }
                 _reader = null;
             }
-
-            private void ParseMain()
+            
+            private void ParseElement(Type elementType, IColladaElement parent)
             {
+                object[] attribs = elementType.GetCustomAttributes(typeof(Child), true);
+
                 while (_reader.ReadAttribute())
                 {
                     switch (_reader.Name.ToString().ToLowerInvariant())
@@ -165,7 +170,7 @@ namespace TheraEngine.Rendering.Models
                     else if (_reader.Name.Equals("up_axis", true))
                     {
                         string axis = ((string)_reader.Value).ToLowerInvariant();
-                        entry._upAxis = axis.Contains("y") ? EUpAxis.Y : axis.Contains("x") ? EUpAxis.X : EUpAxis.Z;
+                        entry._upAxis = axis.Contains("y") ? EUpAxis.Y_UP : axis.Contains("x") ? EUpAxis.X_UP : EUpAxis.Z_UP;
                     }
                     _reader.EndElement();
                 }
@@ -350,29 +355,257 @@ namespace TheraEngine.Rendering.Models
             }
             #endregion
         }
-        private class ColladaLibrary
+        [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
+        private class Name : Attribute
+        {
+            public string ElementName { get; private set; }
+            public Name(string elementName)
+            {
+                ElementName = elementName;
+            }
+        }
+        [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field, AllowMultiple = false, Inherited = true)]
+        private class Attr : Attribute
+        {
+            public string AttributeName { get; private set; }
+            public bool Required { get; private set; }
+            public Attr(string attributeName, bool required = true)
+            {
+                AttributeName = attributeName;
+                Required = required;
+            }
+        }
+        [AttributeUsage(AttributeTargets.Class, AllowMultiple = true, Inherited = false)]
+        private class Child : Attribute
+        {
+            public Type ChildEntryType { get; private set; }
+            public int MinCount { get; private set; }
+            public int MaxCount { get; private set; }
+            public Child(Type childEntryType, int requiredCount)
+            {
+                ChildEntryType = childEntryType;
+                MaxCount = MinCount = requiredCount;
+            }
+            public Child(Type childEntryType, int minCount, int maxCount)
+            {
+                ChildEntryType = childEntryType;
+                MinCount = minCount;
+                MaxCount = maxCount;
+            }
+        }
+        private interface IColladaStringElement<T> : IColladaElement
+        {
+            T Value { get; set; }
+        }
+        private abstract class ColladaStringElement<T, T1> : BaseColladaElement<T>, IColladaStringElement<T1> where T : class, IColladaElement
+        {
+            public T1 Value { get; set; }
+        }
+        private interface IColladaElement
+        {
+            string ElementName { get; }
+            T2[] GetChildren<T2>() where T2 : class, IColladaElement;
+            object Node { get; set; }
+            IColladaElement GenericParent { get; set; }
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="T">The type of the parent element.</typeparam>
+        private abstract class BaseColladaElement<T> : IColladaElement where T : class, IColladaElement
+        {
+            public int ElementIndex { get; set; } = -1;
+            public string ElementName
+            {
+                get
+                {
+                    Name name = Attribute.GetCustomAttribute(GetType(), typeof(Name)) as Name;
+                    if (name == null)
+                        throw new Exception("ColladaName attribute not specified for " + GetType().ToString());
+                    return name.ElementName;
+                }
+            }
+
+            public object Node { get; set; }
+
+            public IColladaElement GenericParent
+            {
+                get => ParentElement;
+                set => ParentElement = value as T;
+            }
+            internal T ParentElement { get; private set; }
+            
+            //public bool GetAttr<T2>(string name, out T2 outValue)
+            //{
+            //    Type t = typeof(T2);
+            //    if (_attributes.ContainsKey(name))
+            //    {
+            //        object value = _attributes[name];
+            //        if (value is T2 genericValue)
+            //        {
+            //            outValue = genericValue;
+            //            return true;
+            //        }
+            //    }
+            //    outValue = default(T2);
+            //    return false;
+            //}
+            public T2[] GetChildren<T2>() where T2 : class, IColladaElement
+            {
+                Type t = typeof(T2);
+                List<T2> types = new List<T2>();
+                while (t != null)
+                {
+                    if (_childElements.ContainsKey(t))
+                        types.AddRange(_childElements[t].Where(x => x is T2).Select(x => (T2)x));
+                    t = t.BaseType;
+                }
+                return types.ToArray();
+            }
+
+            internal Dictionary<string, object> _attributes = new Dictionary<string, object>();
+            internal Dictionary<Type, List<IColladaElement>> _childElements = new Dictionary<Type, List<IColladaElement>>();
+        }
+        [Name("COLLADA")]
+        [Child(typeof(AssetEntry), 1)]
+        [Child(typeof(LibraryEntry), 0, -1)]
+        [Child(typeof(SceneEntry), 0, 1)]
+        [Child(typeof(ExtraEntry), 0, -1)]
+        private class ColladaEntry : BaseColladaElement<IColladaElement>, IExtraOwner, IAssetOwner
+        {
+            [Attr("version")]
+            [DefaultValue("1.5.0")]
+            public string Version { get; set; }
+            [Attr("schema")]
+            [DefaultValue("https://collada.org/2008/03/COLLADASchema/")]
+            public string Schema { get; set; }
+            [Attr("base", false)]
+            public string Base { get; set; }
+        }
+
+        #region Asset
+        private interface IAssetOwner : IColladaElement { }
+        [Name("asset")]
+        [Child(typeof(Contributor), 0, -1)]
+        [Child(typeof(Coverage), 0, 1)]
+        [Child(typeof(Created), 1)]
+        [Child(typeof(Keywords), 0, 1)]
+        [Child(typeof(Modified), 1)]
+        [Child(typeof(Revision), 0, 1)]
+        [Child(typeof(Subject), 0, 1)]
+        [Child(typeof(Title), 0, 1)]
+        [Child(typeof(Unit), 0, 1)]
+        [Child(typeof(UpAxis), 0, 1)]
+        [Child(typeof(ExtraEntry), 0, -1)]
+        private class AssetEntry : BaseColladaElement<IAssetOwner>, IExtraOwner
+        {
+            [Name("contributor")]
+            [Child(typeof(Author), 0, 1)]
+            [Child(typeof(AuthorEmail), 0, 1)]
+            [Child(typeof(AuthorWebsite), 0, 1)]
+            [Child(typeof(AuthoringTool), 0, 1)]
+            [Child(typeof(Comments), 0, 1)]
+            [Child(typeof(Copyright), 0, 1)]
+            [Child(typeof(SourceData), 0, 1)]
+            public class Contributor : BaseColladaElement<AssetEntry>
+            {
+                [Name("author")]
+                public class Author : ColladaStringElement<Contributor, string> { }
+                [Name("author_email")]
+                public class AuthorEmail : ColladaStringElement<Contributor, string> { }
+                [Name("author_website")]
+                public class AuthorWebsite : ColladaStringElement<Contributor, string> { }
+                [Name("authoring_tool")]
+                public class AuthoringTool : ColladaStringElement<Contributor, string> { }
+                [Name("comments")]
+                public class Comments : ColladaStringElement<Contributor, string> { }
+                [Name("copyright")]
+                public class Copyright : ColladaStringElement<Contributor, string> { }
+                [Name("source_data")]
+                public class SourceData : ColladaStringElement<Contributor, string> { }
+            }
+            [Name("coverage")]
+            [Child(typeof(GeographicLocation), 1)]
+            public class Coverage : BaseColladaElement<AssetEntry>
+            {
+                [Name("geographic_location")]
+                [Child(typeof(Longitude), 1)]
+                [Child(typeof(Latitude), 1)]
+                [Child(typeof(Altitude), 1)]
+                public class GeographicLocation : BaseColladaElement<Coverage>
+                {
+                    /// <summary>
+                    /// -180.0f to 180.0f
+                    /// </summary>
+                    [Name("longitude")]
+                    public class Longitude : ColladaStringElement<GeographicLocation, float> { }
+                    /// <summary>
+                    /// -90.0f to 90.0f
+                    /// </summary>
+                    [Name("latitude")]
+                    public class Latitude : ColladaStringElement<GeographicLocation, float> { }
+                    [Name("altitude")]
+                    public class Altitude : ColladaStringElement<GeographicLocation, float>
+                    {
+                        public enum EMode
+                        {
+                            relativeToGround,
+                            absolute,
+                        }
+                        [Attr("mode")]
+                        public EMode Mode { get; set; }
+                    }
+                }
+            }
+            [Name("created")]
+            public class Created : ColladaStringElement<AssetEntry, string> { }
+            [Name("keywords")]
+            public class Keywords : ColladaStringElement<AssetEntry, string> { }
+            [Name("modified")]
+            public class Modified : ColladaStringElement<AssetEntry, string> { }
+            [Name("revision")]
+            public class Revision : ColladaStringElement<AssetEntry, string> { }
+            [Name("subject")]
+            public class Subject : ColladaStringElement<AssetEntry, string> { }
+            [Name("title")]
+            public class Title : ColladaStringElement<AssetEntry, string> { }
+            [Name("unit")]
+            public class Unit : BaseColladaElement<AssetEntry>
+            {
+                [Attr("meter")]
+                [DefaultValue("1.0")]
+                public Single Meter { get; set; }
+
+                [Attr("name")]
+                [DefaultValue("meter")]
+                public String Name { get; set; }
+            }
+            public enum EUpAxis
+            {
+                //Coordinate systems for each up axis:
+                //Right,    Up,    Toward Camera
+                X_UP,   //  -Y,     +X,     +Z
+                Y_UP,   //  +X,     +Y,     +Z <-- TheraEngine's coordinate system
+                Z_UP,   //  +X      +Z,     -Y
+            }
+            public class UpAxis : ColladaStringElement<AssetEntry, EUpAxis> { }
+        }
+        #endregion
+
+        private class SceneEntry : BaseColladaElement<ColladaEntry>
+        {
+            
+        }
+        private class LibraryEntry : BaseColladaElement<ColladaEntry>
+        {
+            
+        }
+        private interface IExtraOwner : IColladaElement { }
+        private class ExtraEntry : BaseColladaElement<IExtraOwner>
         {
 
         }
-        private class ColladaEntry
-        {
-            internal string _id, _name, _sid;
-            internal object _node;
-        }
-        public enum EUpAxis
-        {
-                //Coordinate systems for each up axis:
-                //Right,    Up,    Toward Camera
-            X,  //  -Y,     +X,     +Z
-            Y,  //  +X,     +Y,     +Z <-- TheraEngine's coordinate system
-            Z,  //  +X      +Z,     -Y
-        }
-        private class AssetEntry : ColladaEntry
-        {
-            internal EUpAxis _upAxis = EUpAxis.Y;
-            internal float _meter = 1.0f;
-        }
-        private class SourceEntry : ColladaEntry
+        private class SourceEntry : BaseColladaElement
         {
             internal SourceType _arrayType;
             internal string _arrayId;
@@ -384,7 +617,7 @@ namespace TheraEngine.Rendering.Models
             internal int _accessorCount;
             internal int _accessorStride;
         }
-        private class InputEntry : ColladaEntry
+        private class InputEntry : BaseColladaElement
         {
             internal SemanticType _semantic;
             internal int _set = 0;
@@ -410,7 +643,7 @@ namespace TheraEngine.Rendering.Models
             RigidBody,
 
         }
-        private class InstanceEntry : ColladaEntry
+        private class InstanceEntry : BaseColladaElement
         {
             internal InstanceType _type;
             internal string _url;

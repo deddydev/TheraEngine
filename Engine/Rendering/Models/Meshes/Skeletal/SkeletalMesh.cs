@@ -8,6 +8,18 @@ namespace TheraEngine.Rendering.Models
     [TypeConverter(typeof(ExpandableObjectConverter))]
     public class SkeletalMesh : FileObject, IModelFile
     {
+        [ThirdPartyLoader("DAE")]
+        public FileObject LoadDAE(string path)
+        {
+            ModelImportOptions o = new ModelImportOptions()
+            {
+                ImportAnimations = false,
+                ImportModels = true
+            };
+            ModelScene scene = Collada.Import(path, o);
+            return scene.SkeletalModel;
+        }
+
         public SkeletalMesh() : base() { }
         public SkeletalMesh(string name) : this() { _name = name; }
 

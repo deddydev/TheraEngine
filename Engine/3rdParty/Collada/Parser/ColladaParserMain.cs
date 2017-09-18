@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Xml.Serialization;
 using System.ComponentModel;
+using System.Reflection;
 
 namespace TheraEngine.Rendering.Models
 {
@@ -59,25 +60,70 @@ namespace TheraEngine.Rendering.Models
             
             private void ParseElement(Type elementType, IColladaElement parent)
             {
-                object[] attribs = elementType.GetCustomAttributes(typeof(Child), true);
-
+                IColladaElement entry = Activator.CreateInstance(elementType) as IColladaElement;
+                entry.GenericParent = parent;
+                
+                MemberInfo[] members = elementType.GetMembers(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
                 while (_reader.ReadAttribute())
                 {
-                    switch (_reader.Name.ToString().ToLowerInvariant())
+                    string name = _reader.Name.ToString();
+                    string value = _reader.Value.ToString();
+                    MemberInfo info = members.FirstOrDefault(x =>
                     {
-                        case "version":
-                            string v = _reader.Value;
-                            string[] s = v.Split('.');
-                            int.TryParse(s[0], NumberStyles.Number, CultureInfo.InvariantCulture.NumberFormat, out _v1);
-                            int.TryParse(s[1], NumberStyles.Number, CultureInfo.InvariantCulture.NumberFormat, out _v2);
-                            int.TryParse(s[2], NumberStyles.Number, CultureInfo.InvariantCulture.NumberFormat, out _v3);
-                            break;
-                    }
+                        var a = x.GetCustomAttribute<Attr>();
+                        if (a != null)
+                            return string.Equals(a.AttributeName, name, StringComparison.InvariantCultureIgnoreCase);
+                        return false;
+                    });
+                    if (info is FieldInfo field)
+                        field.SetValue(entry, ParseString(value, field.FieldType));
+                    else if (info is PropertyInfo property)
+                        property.SetValue(entry, ParseString(value, property.PropertyType));
                 }
 
+                Child[] elems = Attribute.GetCustomAttributes(elementType, typeof(Child), false).Select(x => (Child)x).ToArray();
                 while (_reader.BeginElement())
                 {
-                    switch (_reader.Name.ToString().ToLowerInvariant())
+                    string name = _reader.Name.ToString();
+                    Child matchingChild = elems.FirstOrDefault(x => string.Equals(x.ChildEntryType.GetCustomAttribute<Name>().ElementName, name, StringComparison.InvariantCultureIgnoreCase);
+                    ParseElement(matchingChild.ChildEntryType, entry);
+                    _reader.EndElement();
+                }
+            }
+            private static object ParseString(string value, Type t)
+            {
+                if (t.GetInterface("IParsable") != null)
+                {
+                    IParsable o = (IParsable)Activator.CreateInstance(t);
+                    o.ReadFromString(value);
+                    return o;
+                }
+                if (string.Equals(t.BaseType.Name, "Enum", StringComparison.InvariantCulture))
+                {
+                    return Enum.Parse(t, value);
+                }
+                switch (t.Name)
+                {
+                    case "Boolean": return Boolean.Parse(value);
+                    case "SByte": return SByte.Parse(value);
+                    case "Byte": return Byte.Parse(value);
+                    case "Char": return Char.Parse(value);
+                    case "Int16": return Int16.Parse(value);
+                    case "UInt16": return UInt16.Parse(value);
+                    case "Int32": return Int32.Parse(value);
+                    case "UInt32": return UInt32.Parse(value);
+                    case "Int64": return Int64.Parse(value);
+                    case "UInt64": return UInt64.Parse(value);
+                    case "Single": return Single.Parse(value);
+                    case "Double": return Double.Parse(value);
+                    case "Decimal": return Decimal.Parse(value);
+                    case "String": return value;
+                }
+                throw new InvalidOperationException(t.ToString() + " is not parsable");
+            }
+            /*
+             * 
+                    switch (.ToLowerInvariant())
                     {
                         case "asset":
                             ParseAsset();
@@ -112,10 +158,7 @@ namespace TheraEngine.Rendering.Models
                         case "library_animations":
                             ParseLibAnimations();
                             break;
-                    }
-                    _reader.EndElement();
-                }
-            }
+                    }*/
             private void ParseLibCameras()
             {
                 //CameraEntry cam;

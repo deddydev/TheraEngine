@@ -1,12 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Windows.Forms;
-using System.Globalization;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
-using System.Xml.Serialization;
-using System.ComponentModel;
 using System.Reflection;
+using System.Windows.Forms;
 
 namespace TheraEngine.Rendering.Models
 {
@@ -14,27 +12,29 @@ namespace TheraEngine.Rendering.Models
     {
         private partial class DecoderShell
         {
-            internal List<AssetEntry> _assets = new List<AssetEntry>();
-            internal List<VisualSceneEntry> _visualScenes = new List<VisualSceneEntry>();
-            internal XMLReader _reader;
-            internal int _v1, _v2, _v3;
-            internal Dictionary<string, List<BaseColladaElement>> _sidEntries = new Dictionary<string, List<BaseColladaElement>>();
-            internal Dictionary<string, BaseColladaElement> _idEntries = new Dictionary<string, BaseColladaElement>();
+            internal ColladaEntry Root { get; set; }
 
-            private void AddSidEntry(BaseColladaElement entry)
-            {
-                if (_sidEntries.ContainsKey(entry._sid))
-                    _sidEntries[entry._sid].Add(entry);
-                else
-                    _sidEntries.Add(entry._sid, new List<BaseColladaElement>() { entry });
-            }
-            private void AddIdEntry(BaseColladaElement entry)
-            {
-                if (_idEntries.ContainsKey(entry._id))
-                    throw new Exception("More than one id specified in file: " + entry._id);
-                else
-                    _idEntries.Add(entry._id, entry);
-            }
+            //internal List<AssetEntry> _assets = new List<AssetEntry>();
+            //internal List<VisualSceneEntry> _visualScenes = new List<VisualSceneEntry>();
+            internal XMLReader _reader;
+            //internal int _v1, _v2, _v3;
+            //internal Dictionary<string, List<BaseColladaElement>> _sidEntries = new Dictionary<string, List<BaseColladaElement>>();
+            //internal Dictionary<string, BaseColladaElement> _idEntries = new Dictionary<string, BaseColladaElement>();
+
+            //private void AddSidEntry(BaseColladaElement entry)
+            //{
+            //    if (_sidEntries.ContainsKey(entry._sid))
+            //        _sidEntries[entry._sid].Add(entry);
+            //    else
+            //        _sidEntries.Add(entry._sid, new List<BaseColladaElement>() { entry });
+            //}
+            //private void AddIdEntry(BaseColladaElement entry)
+            //{
+            //    if (_idEntries.ContainsKey(entry._id))
+            //        throw new Exception("More than one id specified in file: " + entry._id);
+            //    else
+            //        _idEntries.Add(entry._id, entry);
+            //}
 
             public static DecoderShell Import(string path)
             {
@@ -52,13 +52,13 @@ namespace TheraEngine.Rendering.Models
                 while (reader.BeginElement())
                 {
                     if (reader.Name.Equals("COLLADA", true))
-                        ParseElement(typeof(ColladaEntry), null);
+                        Root = ParseElement(typeof(ColladaEntry), null) as ColladaEntry;
                     reader.EndElement();
                 }
                 _reader = null;
             }
             
-            private void ParseElement(Type elementType, IColladaElement parent)
+            private IColladaElement ParseElement(Type elementType, IColladaElement parent)
             {
                 IColladaElement entry = Activator.CreateInstance(elementType) as IColladaElement;
                 entry.GenericParent = parent;
@@ -85,10 +85,14 @@ namespace TheraEngine.Rendering.Models
                 while (_reader.BeginElement())
                 {
                     string name = _reader.Name.ToString();
-                    Child matchingChild = elems.FirstOrDefault(x => string.Equals(x.ChildEntryType.GetCustomAttribute<Name>().ElementName, name, StringComparison.InvariantCultureIgnoreCase);
+                    Child matchingChild = elems.FirstOrDefault(x => string.Equals(x.ChildEntryType.GetCustomAttribute<Name>().ElementName, name, StringComparison.InvariantCultureIgnoreCase));
+                    if (matchingChild == null)
+                        throw new Exception("No child " + name + " specified for " + elementType.GetFriendlyName());
                     ParseElement(matchingChild.ChildEntryType, entry);
                     _reader.EndElement();
                 }
+
+                return entry;
             }
             private static object ParseString(string value, Type t)
             {
@@ -99,9 +103,7 @@ namespace TheraEngine.Rendering.Models
                     return o;
                 }
                 if (string.Equals(t.BaseType.Name, "Enum", StringComparison.InvariantCulture))
-                {
                     return Enum.Parse(t, value);
-                }
                 switch (t.Name)
                 {
                     case "Boolean": return Boolean.Parse(value);
@@ -201,163 +203,163 @@ namespace TheraEngine.Rendering.Models
             }
             private void ParseAsset()
             {
-                AssetEntry entry = new AssetEntry();
-                while (_reader.BeginElement())
-                {
-                    if (_reader.Name.Equals("unit", true))
-                    {
-                        while (_reader.ReadAttribute())
-                            if (_reader.Name.Equals("meter", true))
-                                float.TryParse(_reader.Value, NumberStyles.Any, CultureInfo.InvariantCulture.NumberFormat, out entry._meter);
-                    }
-                    else if (_reader.Name.Equals("up_axis", true))
-                    {
-                        string axis = ((string)_reader.Value).ToLowerInvariant();
-                        entry._upAxis = axis.Contains("y") ? EUpAxis.Y_UP : axis.Contains("x") ? EUpAxis.X_UP : EUpAxis.Z_UP;
-                    }
-                    _reader.EndElement();
-                }
-                _assets.Add(entry);
+                //AssetEntry entry = new AssetEntry();
+                //while (_reader.BeginElement())
+                //{
+                //    if (_reader.Name.Equals("unit", true))
+                //    {
+                //        while (_reader.ReadAttribute())
+                //            if (_reader.Name.Equals("meter", true))
+                //                float.TryParse(_reader.Value, NumberStyles.Any, CultureInfo.InvariantCulture.NumberFormat, out entry._meter);
+                //    }
+                //    else if (_reader.Name.Equals("up_axis", true))
+                //    {
+                //        string axis = ((string)_reader.Value).ToLowerInvariant();
+                //        entry._upAxis = axis.Contains("y") ? EUpAxis.Y_UP : axis.Contains("x") ? EUpAxis.X_UP : EUpAxis.Z_UP;
+                //    }
+                //    _reader.EndElement();
+                //}
+                //_assets.Add(entry);
             }
-            private InputEntry ParseInput()
-            {
-                InputEntry inp = new InputEntry();
+            //private InputEntry ParseInput()
+            //{
+            //    InputEntry inp = new InputEntry();
 
-                while (_reader.ReadAttribute())
-                    if (_reader.Name.Equals("id", true))
-                    {
-                        inp._id = _reader.Value;
-                        AddIdEntry(inp);
-                    }
-                    else if (_reader.Name.Equals("name", true))
-                        inp._name = _reader.Value;
-                    else if (_reader.Name.Equals("semantic", true))
-                        inp._semantic = ((string)_reader.Value).AsEnum<SemanticType>();
-                    else if (_reader.Name.Equals("set", true))
-                        inp._set = int.Parse(_reader.Value);
-                    else if (_reader.Name.Equals("offset", true))
-                        inp._offset = int.Parse(_reader.Value);
-                    else if (_reader.Name.Equals("source", true))
-                        inp._source = _reader.Value[0] == '#' ? (_reader.Value + 1) : (string)_reader.Value;
+            //    while (_reader.ReadAttribute())
+            //        if (_reader.Name.Equals("id", true))
+            //        {
+            //            inp._id = _reader.Value;
+            //            AddIdEntry(inp);
+            //        }
+            //        else if (_reader.Name.Equals("name", true))
+            //            inp._name = _reader.Value;
+            //        else if (_reader.Name.Equals("semantic", true))
+            //            inp._semantic = ((string)_reader.Value).AsEnum<SemanticType>();
+            //        else if (_reader.Name.Equals("set", true))
+            //            inp._set = int.Parse(_reader.Value);
+            //        else if (_reader.Name.Equals("offset", true))
+            //            inp._offset = int.Parse(_reader.Value);
+            //        else if (_reader.Name.Equals("source", true))
+            //            inp._source = _reader.Value[0] == '#' ? (_reader.Value + 1) : (string)_reader.Value;
 
-                return inp;
-            }
-            private SourceEntry ParseSource()
-            {
-                SourceEntry src = new SourceEntry();
+            //    return inp;
+            //}
+            //private SourceEntry ParseSource()
+            //{
+            //    SourceEntry src = new SourceEntry();
 
-                while (_reader.ReadAttribute())
-                    if (_reader.Name.Equals("id", true))
-                    {
-                        src._id = _reader.Value;
-                        AddIdEntry(src);
-                    }
+            //    while (_reader.ReadAttribute())
+            //        if (_reader.Name.Equals("id", true))
+            //        {
+            //            src._id = _reader.Value;
+            //            AddIdEntry(src);
+            //        }
 
-                while (_reader.BeginElement())
-                {
-                    if (_reader.Name.Equals("float_array", true))
-                    {
-                        if (src._arrayType == SourceType.None)
-                        {
-                            src._arrayType = SourceType.Float;
+            //    while (_reader.BeginElement())
+            //    {
+            //        if (_reader.Name.Equals("float_array", true))
+            //        {
+            //            if (src._arrayType == SourceType.None)
+            //            {
+            //                src._arrayType = SourceType.Float;
 
-                            while (_reader.ReadAttribute())
-                                if (_reader.Name.Equals("id", true))
-                                    src._arrayId = _reader.Value;
-                                else if (_reader.Name.Equals("count", true))
-                                {
-                                    string c = _reader.Value.ToString();
-                                    src._arrayCount = int.Parse(c);
-                                }
+            //                while (_reader.ReadAttribute())
+            //                    if (_reader.Name.Equals("id", true))
+            //                        src._arrayId = _reader.Value;
+            //                    else if (_reader.Name.Equals("count", true))
+            //                    {
+            //                        string c = _reader.Value.ToString();
+            //                        src._arrayCount = int.Parse(c);
+            //                    }
 
-                            float[] list = new float[src._arrayCount];
-                            src._arrayData = list;
+            //                float[] list = new float[src._arrayCount];
+            //                src._arrayData = list;
                             
-                            for (int i = 0; i < src._arrayCount; i++)
-                                if (!_reader.ReadValue(ref list[i]))
-                                    break;
-                        }
-                    }
-                    else if (_reader.Name.Equals("int_array", true))
-                    {
-                        if (src._arrayType == SourceType.None)
-                        {
-                            src._arrayType = SourceType.Int;
+            //                for (int i = 0; i < src._arrayCount; i++)
+            //                    if (!_reader.ReadValue(ref list[i]))
+            //                        break;
+            //            }
+            //        }
+            //        else if (_reader.Name.Equals("int_array", true))
+            //        {
+            //            if (src._arrayType == SourceType.None)
+            //            {
+            //                src._arrayType = SourceType.Int;
 
-                            while (_reader.ReadAttribute())
-                                if (_reader.Name.Equals("id", true))
-                                    src._arrayId = _reader.Value;
-                                else if (_reader.Name.Equals("count", true))
-                                {
-                                    string c = _reader.Value;
-                                    src._arrayCount = int.Parse(c);
-                                }
+            //                while (_reader.ReadAttribute())
+            //                    if (_reader.Name.Equals("id", true))
+            //                        src._arrayId = _reader.Value;
+            //                    else if (_reader.Name.Equals("count", true))
+            //                    {
+            //                        string c = _reader.Value;
+            //                        src._arrayCount = int.Parse(c);
+            //                    }
 
-                            int[] list = new int[src._arrayCount];
-                            src._arrayData = list;
+            //                int[] list = new int[src._arrayCount];
+            //                src._arrayData = list;
 
-                            for (int i = 0; i < src._arrayCount; i++)
-                                if (!_reader.ReadValue(ref list[i]))
-                                    break;
-                        }
-                    }
-                    else if (_reader.Name.Equals("Name_array", true))
-                    {
-                        if (src._arrayType == SourceType.None)
-                        {
-                            src._arrayType = SourceType.Name;
+            //                for (int i = 0; i < src._arrayCount; i++)
+            //                    if (!_reader.ReadValue(ref list[i]))
+            //                        break;
+            //            }
+            //        }
+            //        else if (_reader.Name.Equals("Name_array", true))
+            //        {
+            //            if (src._arrayType == SourceType.None)
+            //            {
+            //                src._arrayType = SourceType.Name;
 
-                            while (_reader.ReadAttribute())
-                                if (_reader.Name.Equals("id", true))
-                                    src._arrayId = _reader.Value;
-                                else if (_reader.Name.Equals("count", true))
-                                {
-                                    string c = _reader.Value;
-                                    src._arrayCount = int.Parse(c);
-                                }
+            //                while (_reader.ReadAttribute())
+            //                    if (_reader.Name.Equals("id", true))
+            //                        src._arrayId = _reader.Value;
+            //                    else if (_reader.Name.Equals("count", true))
+            //                    {
+            //                        string c = _reader.Value;
+            //                        src._arrayCount = int.Parse(c);
+            //                    }
 
-                            string[] list = new string[src._arrayCount];
-                            src._arrayData = list;
+            //                string[] list = new string[src._arrayCount];
+            //                src._arrayData = list;
 
-                            byte* tempPtr = _reader._ptr;
-                            bool tempInTag = _reader._inTag;
-                            src._arrayDataString = _reader.ReadElementString();
-                            _reader._ptr = tempPtr;
-                            _reader._inTag = tempInTag;
+            //                byte* tempPtr = _reader._ptr;
+            //                bool tempInTag = _reader._inTag;
+            //                src._arrayDataString = _reader.ReadElementString();
+            //                _reader._ptr = tempPtr;
+            //                _reader._inTag = tempInTag;
 
-                            for (int i = 0; i < src._arrayCount; i++)
-                                if (!_reader.ReadStringSingle())
-                                    break;
-                                else
-                                    list[i] = _reader.Value;
-                        }
-                    }
-                    else if (_reader.Name.Equals("technique_common", true))
-                    {
-                        while (_reader.BeginElement())
-                        {
-                            if (_reader.Name.Equals("accessor", true))
-                            {
-                                while (_reader.ReadAttribute())
-                                    if (_reader.Name.Equals("source", true))
-                                        src._accessorSource = _reader.Value[0] == '#' ? (_reader.Value + 1) : (string)_reader.Value;
-                                    else if (_reader.Name.Equals("count", true))
-                                        src._accessorCount = int.Parse(_reader.Value);
-                                    else if (_reader.Name.Equals("stride", true))
-                                        src._accessorStride = int.Parse(_reader.Value);
+            //                for (int i = 0; i < src._arrayCount; i++)
+            //                    if (!_reader.ReadStringSingle())
+            //                        break;
+            //                    else
+            //                        list[i] = _reader.Value;
+            //            }
+            //        }
+            //        else if (_reader.Name.Equals("technique_common", true))
+            //        {
+            //            while (_reader.BeginElement())
+            //            {
+            //                if (_reader.Name.Equals("accessor", true))
+            //                {
+            //                    while (_reader.ReadAttribute())
+            //                        if (_reader.Name.Equals("source", true))
+            //                            src._accessorSource = _reader.Value[0] == '#' ? (_reader.Value + 1) : (string)_reader.Value;
+            //                        else if (_reader.Name.Equals("count", true))
+            //                            src._accessorCount = int.Parse(_reader.Value);
+            //                        else if (_reader.Name.Equals("stride", true))
+            //                            src._accessorStride = int.Parse(_reader.Value);
 
-                                //Ignore params
-                            }
+            //                    //Ignore params
+            //                }
 
-                            _reader.EndElement();
-                        }
-                    }
+            //                _reader.EndElement();
+            //            }
+            //        }
 
-                    _reader.EndElement();
-                }
+            //        _reader.EndElement();
+            //    }
 
-                return src;
-            }
+            //    return src;
+            //}
 
             #region Primitives
             private Matrix4 ParseMatrix()
@@ -402,9 +404,11 @@ namespace TheraEngine.Rendering.Models
         private class Name : Attribute
         {
             public string ElementName { get; private set; }
-            public Name(string elementName)
+            public string Version { get; private set; }
+            public Name(string elementName, string version = "1.5.1")
             {
                 ElementName = elementName;
+                Version = version;
             }
         }
         [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field, AllowMultiple = false, Inherited = true)]
@@ -514,7 +518,7 @@ namespace TheraEngine.Rendering.Models
         [Child(typeof(LibraryEntry), 0, -1)]
         [Child(typeof(SceneEntry), 0, 1)]
         [Child(typeof(ExtraEntry), 0, -1)]
-        private class ColladaEntry : BaseColladaElement<IColladaElement>, IExtraOwner, IAssetOwner
+        private class ColladaEntry : BaseColladaElement<IColladaElement>, IExtra, IAsset
         {
             [Attr("version")]
             [DefaultValue("1.5.0")]
@@ -527,7 +531,7 @@ namespace TheraEngine.Rendering.Models
         }
 
         #region Asset
-        private interface IAssetOwner : IColladaElement { }
+        private interface IAsset : IColladaElement { }
         [Name("asset")]
         [Child(typeof(Contributor), 0, -1)]
         [Child(typeof(Coverage), 0, 1)]
@@ -540,7 +544,7 @@ namespace TheraEngine.Rendering.Models
         [Child(typeof(Unit), 0, 1)]
         [Child(typeof(UpAxis), 0, 1)]
         [Child(typeof(ExtraEntry), 0, -1)]
-        private class AssetEntry : BaseColladaElement<IAssetOwner>, IExtraOwner
+        private class AssetEntry : BaseColladaElement<IAsset>, IExtra
         {
             [Name("contributor")]
             [Child(typeof(Author), 0, 1)]
@@ -639,34 +643,116 @@ namespace TheraEngine.Rendering.Models
         {
             
         }
-        private class LibraryEntry : BaseColladaElement<ColladaEntry>
-        {
-            
-        }
-        private interface IExtraOwner : IColladaElement { }
-        private class ExtraEntry : BaseColladaElement<IExtraOwner>
+        private interface IExtra : IColladaElement { }
+        private class ExtraEntry : BaseColladaElement<IExtra>
         {
 
         }
-        private class SourceEntry : BaseColladaElement
-        {
-            internal SourceType _arrayType;
-            internal string _arrayId;
-            internal int _arrayCount;
-            internal object _arrayData;
-            internal string _arrayDataString;
 
-            internal string _accessorSource;
-            internal int _accessorCount;
-            internal int _accessorStride;
-        }
-        private class InputEntry : BaseColladaElement
+        private interface IID { string ID { get; set; } }
+        private interface ISID { string SID { get; set; } }
+        private interface IName { string Name { get; set; } }
+
+        #region Libraries
+        [Child(typeof(AssetEntry), 0, 1)]
+        [Child(typeof(ExtraEntry), 0, -1)]
+        private class LibraryEntry : BaseColladaElement<ColladaEntry>, IID, IName
         {
-            internal SemanticType _semantic;
-            internal int _set = 0;
-            internal int _offset;
-            internal string _source;
+            [Attr("id", false)]
+            public string ID { get; set; }
+            [Attr("name", false)]
+            public string Name { get; set; }
         }
+
+        #region Images
+        [Name("library_images")]
+        [Child(typeof(ImageEntry), 1, -1)]
+        private class LibraryImages : LibraryEntry, IAsset, IExtra
+        {
+            [Name("image")]
+            [Child(typeof(AssetEntry), 0, 1)]
+            [Child(typeof(RenderableEntry), 0, 1)]
+            [Child(typeof(InitFromImageEntry151), 0, 1)]
+            [Child(typeof(InitFromImageEntry141), 0, 1)]
+            [Child(typeof(Create2DEntry), 0, 1)]
+            [Child(typeof(Create3DEntry), 0, 1)]
+            [Child(typeof(CreateCubeEntry), 0, 1)]
+            [Child(typeof(ExtraEntry), 0, -1)]
+            private class ImageEntry : BaseColladaElement<LibraryImages>, IID, ISID, IName
+            {
+                [Attr("id", false)]
+                public string ID { get; set; }
+                [Attr("sid", false)]
+                public string SID { get; set; }
+                [Attr("name", false)]
+                public string Name { get; set; }
+
+                [Name("renderable")]
+                private class RenderableEntry : BaseColladaElement<ImageEntry>
+                {
+
+                }
+                [Name("init_from")]
+                private class InitFromImageEntry151 : BaseColladaElement<ImageEntry>
+                {
+                    [Attr("mips_generate", false)]
+                    [DefaultValue("true")]
+                    public bool GenerateMipmaps { get; set; } = true;
+                }
+                [Name("init_from", "1.4.1")]
+                private class InitFromImageEntry141 : ColladaStringElement<ImageEntry, string>
+                {
+
+                }
+
+                #region Create
+                [Name("init_from")]
+                private class InitFromCreateEntry : BaseColladaElement<ICreateEntry>
+                {
+                    [Attr("mips_generate", false)]
+                    [DefaultValue("true")]
+                    public bool GenerateMipmaps { get; set; } = true;
+                }
+                private interface ICreateEntry : IColladaElement { }
+                [Name("create_2d")]
+                private class Create2DEntry : BaseColladaElement<ImageEntry>, ICreateEntry
+                {
+
+                }
+                [Name("create_3d")]
+                private class Create3DEntry : BaseColladaElement<ImageEntry>, ICreateEntry
+                {
+                    
+                }
+                [Name("create_cube")]
+                private class CreateCubeEntry : BaseColladaElement<ImageEntry>, ICreateEntry
+                {
+
+                }
+                #endregion
+            }
+        }
+        #endregion
+        #endregion
+        //private class SourceEntry : BaseColladaElement
+        //{
+        //    internal SourceType _arrayType;
+        //    internal string _arrayId;
+        //    internal int _arrayCount;
+        //    internal object _arrayData;
+        //    internal string _arrayDataString;
+
+        //    internal string _accessorSource;
+        //    internal int _accessorCount;
+        //    internal int _accessorStride;
+        //}
+        //private class InputEntry : BaseColladaElement
+        //{
+        //    internal SemanticType _semantic;
+        //    internal int _set = 0;
+        //    internal int _offset;
+        //    internal string _source;
+        //}
         private enum InstanceType
         {
             PhysicsScene,
@@ -686,13 +772,13 @@ namespace TheraEngine.Rendering.Models
             RigidBody,
 
         }
-        private class InstanceEntry : BaseColladaElement
-        {
-            internal InstanceType _type;
-            internal string _url;
-            internal InstanceMaterial _material;
-            internal List<string> _skeletons = new List<string>();
-        }
+        //private class InstanceEntry : BaseColladaElement
+        //{
+        //    internal InstanceType _type;
+        //    internal string _url;
+        //    internal InstanceMaterial _material;
+        //    internal List<string> _skeletons = new List<string>();
+        //}
         private enum SourceType
         {
             None,

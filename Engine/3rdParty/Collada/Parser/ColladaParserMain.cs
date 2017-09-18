@@ -94,7 +94,7 @@ namespace TheraEngine.Rendering.Models
 
                 return entry;
             }
-            private static object ParseString(string value, Type t)
+            public static object ParseString(string value, Type t)
             {
                 if (t.GetInterface("IParsable") != null)
                 {
@@ -405,7 +405,7 @@ namespace TheraEngine.Rendering.Models
         {
             public string ElementName { get; private set; }
             public string Version { get; private set; }
-            public Name(string elementName, string version = "1.5.1")
+            public Name(string elementName, string version = "1.*.*")
             {
                 ElementName = elementName;
                 Version = version;
@@ -444,9 +444,11 @@ namespace TheraEngine.Rendering.Models
         {
             T Value { get; set; }
         }
-        private abstract class ColladaStringElement<T, T1> : BaseColladaElement<T>, IColladaStringElement<T1> where T : class, IColladaElement
+        private abstract class ColladaStringElement<T1, T2> : BaseElement<T1>, IColladaStringElement<T2> 
+            where T1 : class, IColladaElement
+            where T2 : ElementStringData
         {
-            public T1 Value { get; set; }
+            public T2 Value { get; set; }
         }
         private interface IColladaElement
         {
@@ -459,7 +461,7 @@ namespace TheraEngine.Rendering.Models
         /// 
         /// </summary>
         /// <typeparam name="T">The type of the parent element.</typeparam>
-        private abstract class BaseColladaElement<T> : IColladaElement where T : class, IColladaElement
+        private abstract class BaseElement<T> : IColladaElement where T : class, IColladaElement
         {
             public int ElementIndex { get; set; } = -1;
             public string ElementName
@@ -510,15 +512,22 @@ namespace TheraEngine.Rendering.Models
                 return types.ToArray();
             }
 
+            public IID GetIDEntry(string id)
+            {
+                return null; //TODO
+            }
+
             internal Dictionary<string, object> _attributes = new Dictionary<string, object>();
             internal Dictionary<Type, List<IColladaElement>> _childElements = new Dictionary<Type, List<IColladaElement>>();
         }
+
+        #region Root
         [Name("COLLADA")]
         [Child(typeof(AssetEntry), 1)]
         [Child(typeof(LibraryEntry), 0, -1)]
         [Child(typeof(SceneEntry), 0, 1)]
         [Child(typeof(ExtraEntry), 0, -1)]
-        private class ColladaEntry : BaseColladaElement<IColladaElement>, IExtra, IAsset
+        private class ColladaEntry : BaseElement<IColladaElement>, IExtra, IAsset
         {
             [Attr("version")]
             [DefaultValue("1.5.0")]
@@ -529,6 +538,7 @@ namespace TheraEngine.Rendering.Models
             [Attr("base", false)]
             public string Base { get; set; }
         }
+        #endregion
 
         #region Asset
         private interface IAsset : IColladaElement { }
@@ -544,7 +554,7 @@ namespace TheraEngine.Rendering.Models
         [Child(typeof(Unit), 0, 1)]
         [Child(typeof(UpAxis), 0, 1)]
         [Child(typeof(ExtraEntry), 0, -1)]
-        private class AssetEntry : BaseColladaElement<IAsset>, IExtra
+        private class AssetEntry : BaseElement<IAsset>, IExtra
         {
             [Name("contributor")]
             [Child(typeof(Author), 0, 1)]
@@ -554,45 +564,45 @@ namespace TheraEngine.Rendering.Models
             [Child(typeof(Comments), 0, 1)]
             [Child(typeof(Copyright), 0, 1)]
             [Child(typeof(SourceData), 0, 1)]
-            public class Contributor : BaseColladaElement<AssetEntry>
+            public class Contributor : BaseElement<AssetEntry>
             {
                 [Name("author")]
-                public class Author : ColladaStringElement<Contributor, string> { }
+                public class Author : ColladaStringElement<Contributor, ElementString> { }
                 [Name("author_email")]
-                public class AuthorEmail : ColladaStringElement<Contributor, string> { }
+                public class AuthorEmail : ColladaStringElement<Contributor, ElementString> { }
                 [Name("author_website")]
-                public class AuthorWebsite : ColladaStringElement<Contributor, string> { }
+                public class AuthorWebsite : ColladaStringElement<Contributor, ElementString> { }
                 [Name("authoring_tool")]
-                public class AuthoringTool : ColladaStringElement<Contributor, string> { }
+                public class AuthoringTool : ColladaStringElement<Contributor, ElementString> { }
                 [Name("comments")]
-                public class Comments : ColladaStringElement<Contributor, string> { }
+                public class Comments : ColladaStringElement<Contributor, ElementString> { }
                 [Name("copyright")]
-                public class Copyright : ColladaStringElement<Contributor, string> { }
+                public class Copyright : ColladaStringElement<Contributor, ElementString> { }
                 [Name("source_data")]
-                public class SourceData : ColladaStringElement<Contributor, string> { }
+                public class SourceData : ColladaStringElement<Contributor, ElementString> { }
             }
             [Name("coverage")]
             [Child(typeof(GeographicLocation), 1)]
-            public class Coverage : BaseColladaElement<AssetEntry>
+            public class Coverage : BaseElement<AssetEntry>
             {
                 [Name("geographic_location")]
                 [Child(typeof(Longitude), 1)]
                 [Child(typeof(Latitude), 1)]
                 [Child(typeof(Altitude), 1)]
-                public class GeographicLocation : BaseColladaElement<Coverage>
+                public class GeographicLocation : BaseElement<Coverage>
                 {
                     /// <summary>
                     /// -180.0f to 180.0f
                     /// </summary>
                     [Name("longitude")]
-                    public class Longitude : ColladaStringElement<GeographicLocation, float> { }
+                    public class Longitude : ColladaStringElement<GeographicLocation, ElementNumeric<float>> { }
                     /// <summary>
                     /// -90.0f to 90.0f
                     /// </summary>
                     [Name("latitude")]
-                    public class Latitude : ColladaStringElement<GeographicLocation, float> { }
+                    public class Latitude : ColladaStringElement<GeographicLocation, ElementNumeric<float>> { }
                     [Name("altitude")]
-                    public class Altitude : ColladaStringElement<GeographicLocation, float>
+                    public class Altitude : ColladaStringElement<GeographicLocation, ElementNumeric<float>>
                     {
                         public enum EMode
                         {
@@ -605,19 +615,19 @@ namespace TheraEngine.Rendering.Models
                 }
             }
             [Name("created")]
-            public class Created : ColladaStringElement<AssetEntry, string> { }
+            public class Created : ColladaStringElement<AssetEntry, ElementString> { }
             [Name("keywords")]
-            public class Keywords : ColladaStringElement<AssetEntry, string> { }
+            public class Keywords : ColladaStringElement<AssetEntry, ElementString> { }
             [Name("modified")]
-            public class Modified : ColladaStringElement<AssetEntry, string> { }
+            public class Modified : ColladaStringElement<AssetEntry, ElementString> { }
             [Name("revision")]
-            public class Revision : ColladaStringElement<AssetEntry, string> { }
+            public class Revision : ColladaStringElement<AssetEntry, ElementString> { }
             [Name("subject")]
-            public class Subject : ColladaStringElement<AssetEntry, string> { }
+            public class Subject : ColladaStringElement<AssetEntry, ElementString> { }
             [Name("title")]
-            public class Title : ColladaStringElement<AssetEntry, string> { }
+            public class Title : ColladaStringElement<AssetEntry, ElementString> { }
             [Name("unit")]
-            public class Unit : BaseColladaElement<AssetEntry>
+            public class Unit : BaseElement<AssetEntry>
             {
                 [Attr("meter")]
                 [DefaultValue("1.0")]
@@ -635,16 +645,99 @@ namespace TheraEngine.Rendering.Models
                 Y_UP,   //  +X,     +Y,     +Z <-- TheraEngine's coordinate system
                 Z_UP,   //  +X      +Z,     -Y
             }
-            public class UpAxis : ColladaStringElement<AssetEntry, EUpAxis> { }
+            public class UpAxis : ColladaStringElement<AssetEntry, ElementNumeric<EUpAxis>> { }
         }
         #endregion
 
-        private class SceneEntry : BaseColladaElement<ColladaEntry>
+        private interface IUrl
         {
-            
+            string Url { get; set; }
+            bool IsLocal { get; }
+            IID GetElement();
         }
+
+        [Name("scene")]
+        [Child(typeof(InstancePhysicsScene), 0, -1)]
+        [Child(typeof(InstanceVisualScene), 0, 1)]
+        [Child(typeof(InstanceKinematicsScene), 0, 1)]
+        [Child(typeof(ExtraEntry), 0, -1)]
+        private class SceneEntry : BaseElement<ColladaEntry>, IExtra
+        {
+            [Name("instance_physics_scene")]
+            [Child(typeof(ExtraEntry), 0, -1)]
+            private class InstancePhysicsScene : BaseElement<SceneEntry>, IUrl, ISID, IName, IExtra
+            {
+                [Attr("sid", false)]
+                public string SID { get; set; } = null;
+                [Attr("name", false)]
+                public string Name { get; set; } = null;
+                [Attr("url", true)]
+                public string Url { get; set; } = null;
+                public bool IsLocal => Url != null && Url.StartsWith("#");
+                public IID GetElement() => IsLocal ? GetIDEntry(Url.Substring(1)) : null;
+            }
+            [Name("instance_visual_scene")]
+            [Child(typeof(ExtraEntry), 0, -1)]
+            private class InstanceVisualScene : BaseElement<SceneEntry>, IUrl, ISID, IName, IExtra
+            {
+                [Attr("sid", false)]
+                public string SID { get; set; } = null;
+                [Attr("name", false)]
+                public string Name { get; set; } = null;
+                [Attr("url", true)]
+                public string Url { get; set; } = null;
+                public bool IsLocal => Url != null && Url.StartsWith("#");
+                public IID GetElement() => IsLocal ? GetIDEntry(Url.Substring(1)) : null;
+            }
+            [Name("instance_kinematics_scene")]
+            [Child(typeof(AssetEntry), 0, 1)]
+            [Child(typeof(NewParamEntry), 0, -1)]
+            [Child(typeof(SetParamEntry), 0, -1)]
+            //[Child(typeof(BindKinematicsModel), 0, -1)]
+            //[Child(typeof(BindJointAxis), 0, -1)]
+            [Child(typeof(ExtraEntry), 0, -1)]
+            private class InstanceKinematicsScene : BaseElement<SceneEntry>, IUrl, ISID, IName, IExtra
+            {
+                [Attr("sid", false)]
+                public string SID { get; set; } = null;
+                [Attr("name", false)]
+                public string Name { get; set; } = null;
+                [Attr("url", true)]
+                public string Url { get; set; } = null;
+                public bool IsLocal => Url != null && Url.StartsWith("#");
+                public IID GetElement() => IsLocal ? GetIDEntry(Url.Substring(1)) : null;
+
+                //TODO: BindKinematicsModel, BindJointAxis
+            }
+        }
+
         private interface IExtra : IColladaElement { }
-        private class ExtraEntry : BaseColladaElement<IExtra>
+        [Name("extra")]
+        private class ExtraEntry : BaseElement<IExtra>
+        {
+
+        }
+
+        //TODO: newparam and setparam
+        //private interface INewParam : IColladaElement { }
+        //[Name("newparam")]
+        //private class NewParamEntry : BaseElement<INewParam>, ISID
+        //{
+        //    [Attr("sid")]
+        //    public string SID { get; set; }
+        //}
+        //private interface ISetParam : IColladaElement { }
+        //[Name("setparam")]
+        //private class SetParamEntry : BaseElement<ISetParam>
+        //{
+        //    [Attr("ref")]
+        //    public string ReferenceID { get; set; }
+        //    public IID GetElement() => GetIDEntry(ReferenceID);
+        //}
+
+        private interface IParam : IColladaElement { }
+        [Name("param")]
+        private class ParamEntry : BaseElement<IParam>
         {
 
         }
@@ -653,87 +746,260 @@ namespace TheraEngine.Rendering.Models
         private interface ISID { string SID { get; set; } }
         private interface IName { string Name { get; set; } }
 
+        #region String Elements
+        private abstract class ElementStringData : IParsable
+        {
+            public abstract void ReadFromString(string str);      
+            public abstract string WriteToString();
+        }
+        private class ElementNumeric<T> : ElementStringData where T : struct
+        {
+            public T Value { get; set; }
+            public override void ReadFromString(string str)
+                => Value = (T)DecoderShell.ParseString(str, typeof(T));
+            public override string WriteToString()
+                => Value.ToString();
+        }
+        private class ElementHex : ElementStringData
+        {
+            public string Value { get; set; }
+            public override void ReadFromString(string str)
+                => Value = str;
+            public override string WriteToString()
+                => Value;
+        }
+        private class ElementString : ElementStringData
+        {
+            public string Value { get; set; }
+            public override void ReadFromString(string str)
+                => Value = str;
+            public override string WriteToString()
+                => Value;
+        }
+        private class ElementURI : ElementStringData
+        {
+            public Uri Value { get; set; }
+            public override void ReadFromString(string str)
+                => Value = new Uri(str);
+            public override string WriteToString()
+                => Value.ToString();
+        }
+        private class ElementStringArray : ElementStringData
+        {
+            public string[] Values { get; set; }
+            public override void ReadFromString(string str)
+                => Values = str.Split(' ');
+            public override string WriteToString()
+                => string.Join(" ", Values);
+        }
+        private class ElementIntArray : ElementStringData
+        {
+            public int[] Values { get; set; }
+            public override void ReadFromString(string str)
+                => Values = str.Split(' ').Select(x => int.Parse(x)).ToArray();
+            public override string WriteToString()
+                => string.Join(" ", Values);
+        }
+        private class ElementFloatArray : ElementStringData
+        {
+            public float[] Values { get; set; }
+            public override void ReadFromString(string str)
+                => Values = str.Split(' ').Select(x => float.Parse(x)).ToArray();
+            public override string WriteToString()
+                => string.Join(" ", Values);
+        }
+        #endregion
+
         #region Libraries
         [Child(typeof(AssetEntry), 0, 1)]
         [Child(typeof(ExtraEntry), 0, -1)]
-        private class LibraryEntry : BaseColladaElement<ColladaEntry>, IID, IName
+        private class LibraryEntry : BaseElement<ColladaEntry>, IID, IName
         {
             [Attr("id", false)]
-            public string ID { get; set; }
+            public string ID { get; set; } = null;
             [Attr("name", false)]
-            public string Name { get; set; }
+            public string Name { get; set; } = null;
         }
 
         #region Images
         [Name("library_images")]
-        [Child(typeof(ImageEntry), 1, -1)]
+        [Child(typeof(ImageEntry15X), 1, -1)]
+        [Child(typeof(ImageEntry14X), 1, -1)]
         private class LibraryImages : LibraryEntry, IAsset, IExtra
         {
-            [Name("image")]
+            #region Image 1.5.*
+            /// <summary>
+            /// The <image> element best describes raster image data, but can conceivably handle other forms of
+            /// imagery. Raster imagery data is typically organized in n-dimensional arrays. This array organization can be
+            /// leveraged by texture look-up functions to access noncolor values such as displacement, normal, or height
+            /// field values.
+            /// </summary>
+            [Name("image", "1.5.*")]
             [Child(typeof(AssetEntry), 0, 1)]
             [Child(typeof(RenderableEntry), 0, 1)]
-            [Child(typeof(InitFromImageEntry151), 0, 1)]
-            [Child(typeof(InitFromImageEntry141), 0, 1)]
-            [Child(typeof(Create2DEntry), 0, 1)]
-            [Child(typeof(Create3DEntry), 0, 1)]
-            [Child(typeof(CreateCubeEntry), 0, 1)]
+            [Child(typeof(InitFromEntry), 0, 1)]
+            //[Child(typeof(Create2DEntry), 0, 1)]
+            //[Child(typeof(Create3DEntry), 0, 1)]
+            //[Child(typeof(CreateCubeEntry), 0, 1)]
             [Child(typeof(ExtraEntry), 0, -1)]
-            private class ImageEntry : BaseColladaElement<LibraryImages>, IID, ISID, IName
+            private class ImageEntry15X : BaseElement<LibraryImages>, IID, ISID, IName
             {
                 [Attr("id", false)]
-                public string ID { get; set; }
+                public string ID { get; set; } = null;
                 [Attr("sid", false)]
-                public string SID { get; set; }
+                public string SID { get; set; } = null;
                 [Attr("name", false)]
-                public string Name { get; set; }
+                public string Name { get; set; } = null;
 
+                /// <summary>
+                /// Defines the image as a render target. If this element
+                /// exists then the image can be rendered to. 
+                /// This element contains no data. 
+                /// </summary>
                 [Name("renderable")]
-                private class RenderableEntry : BaseColladaElement<ImageEntry>
+                private class RenderableEntry : BaseElement<ImageEntry15X>
                 {
-
+                    /// <summary>
+                    /// Set the required Boolean attribute share to true if,
+                    /// when instantiated, the render target is to be shared
+                    /// among all instances instead of being cloned.
+                    /// </summary>
+                    [Attr("share", false)]
+                    [DefaultValue("true")]
+                    public bool Share { get; set; } = true;
                 }
+
+                #region Init From
+                /// <summary>
+                /// Initializes the image from a URL (for example, a file) or a
+                /// list of hexadecimal values. Initialize the whole image
+                /// structure and data from formats such as DDS.
+                /// </summary>
                 [Name("init_from")]
-                private class InitFromImageEntry151 : BaseColladaElement<ImageEntry>
+                [Child(typeof(ImageRefEntry), 0, 1)]
+                [Child(typeof(EmbeddedImageEntry), 0, 1)]
+                private class InitFromEntry : BaseElement<ImageEntry15X>
                 {
+                    /// <summary>
+                    ///  Initializes higher MIP levels if data does not exist in a file. Defaults to true. 
+                    /// </summary>
                     [Attr("mips_generate", false)]
                     [DefaultValue("true")]
                     public bool GenerateMipmaps { get; set; } = true;
-                }
-                [Name("init_from", "1.4.1")]
-                private class InitFromImageEntry141 : ColladaStringElement<ImageEntry, string>
-                {
 
-                }
-
-                #region Create
-                [Name("init_from")]
-                private class InitFromCreateEntry : BaseColladaElement<ICreateEntry>
-                {
-                    [Attr("mips_generate", false)]
-                    [DefaultValue("true")]
-                    public bool GenerateMipmaps { get; set; } = true;
-                }
-                private interface ICreateEntry : IColladaElement { }
-                [Name("create_2d")]
-                private class Create2DEntry : BaseColladaElement<ImageEntry>, ICreateEntry
-                {
-
-                }
-                [Name("create_3d")]
-                private class Create3DEntry : BaseColladaElement<ImageEntry>, ICreateEntry
-                {
-                    
-                }
-                [Name("create_cube")]
-                private class CreateCubeEntry : BaseColladaElement<ImageEntry>, ICreateEntry
-                {
-
+                    /// <summary>
+                    /// Contains the URL (xs:anyURI) of a file from which to take
+                    /// initialization data.Assumes the characteristics of the file.If it
+                    /// is a complex format such as DDS, this might include cube
+                    /// maps, volumes, MIPs, and so on.
+                    /// </summary>
+                    [Name("ref")]
+                    private class ImageRefEntry : ColladaStringElement<InitFromEntry, ElementURI> { }
+                    /// <summary>
+                    /// Contains the embedded image data as a sequence of
+                    /// hexadecimal-encoded binary octets. The data typically
+                    /// contains all the necessary information including header info
+                    /// such as data width and height.
+                    /// </summary>
+                    [Name("hex")]
+                    private class EmbeddedImageEntry : ColladaStringElement<InitFromEntry, ElementHex>
+                    {
+                        /// <summary>
+                        /// Use the required format attribute(xs:token) to specify which codec decodes the
+                        /// image’s descriptions and data. This is usually its typical file
+                        /// extension, such as BMP, JPG, DDS, TGA.
+                        /// </summary>
+                        [Attr("format", true)]
+                        public string Format { get; set; }
+                    }
                 }
                 #endregion
+
+                //TODO: finish create entries
+                #region Create
+                //[Name("create_2d")]
+                //private class Create2DEntry : BaseColladaElement<ImageEntry15X>
+                //{
+
+                //}
+                //[Name("create_3d")]
+                //private class Create3DEntry : BaseColladaElement<ImageEntry15X>
+                //{
+                //    [Name("init_from")]
+                //    private class InitFromCreate3DEntry : BaseColladaElement<Create3DEntry>
+                //    {
+                //        /// <summary>
+                //        /// Specifies which array element in the image to initialize (fill).
+                //        /// The default is 0. 
+                //        /// </summary>
+                //        [Attr("array_index", false)]
+                //        [DefaultValue("0")]
+                //        public uint ArrayIndex { get; set; } = 0u;
+
+                //        /// <summary>
+                //        /// Specifies which MIP level in the image to initialize. 
+                //        /// </summary>
+                //        [Attr("mip_index", true)]
+                //        public uint MipmapIndex { get; set; }
+
+                //        /// <summary>
+                //        /// Required in <create_3d>; not valid in <create_2d> or <create_cube>. 
+                //        /// </summary>
+                //        [Attr("depth", true)]
+                //        public uint Depth { get; set; }
+                //    }
+                //}
+                //[Name("create_cube")]
+                //private class CreateCubeEntry : BaseColladaElement<ImageEntry15X>
+                //{
+
+                //}
+                #endregion
             }
+            #endregion
+
+            #region Image 1.4.*
+            /// <summary>
+            /// The <image> element best describes raster image data, but can conceivably handle other forms of
+            /// imagery. Raster imagery data is typically organized in n-dimensional arrays. This array organization can be
+            /// leveraged by texture look-up functions to access noncolor values such as displacement, normal, or height
+            /// field values.
+            /// </summary>
+            [Name("image", "1.4.*")]
+            [Child(typeof(AssetEntry), 0, 1)]
+            [Child(typeof(ISourceEntry), 1)]
+            [Child(typeof(ExtraEntry), 0, -1)]
+            private class ImageEntry14X : BaseElement<LibraryImages>, IID, ISID, IName
+            {
+                [Attr("id", false)]
+                public string ID { get; set; } = null;
+                [Attr("sid", false)]
+                public string SID { get; set; } = null;
+                [Attr("name", false)]
+                public string Name { get; set; } = null;
+
+                [Attr("format", false)]
+                public string Format { get; set; } = null;
+                [Attr("height", false)]
+                public uint? Height { get; set; } = null;
+                [Attr("width", false)]
+                public uint? Width { get; set; } = null;
+                [Attr("depth", false)]
+                public uint? Depth { get; set; } = null;
+                
+                private interface ISourceEntry { }
+
+                [Name("init_from")]
+                private class InitFromEntry : ColladaStringElement<ImageEntry14X, ElementURI>, ISourceEntry { }
+                [Name("data")]
+                private class DataEntry : ColladaStringElement<ImageEntry14X, ElementHex>, ISourceEntry { }
+            }
+            #endregion
         }
         #endregion
+
         #endregion
+
         //private class SourceEntry : BaseColladaElement
         //{
         //    internal SourceType _arrayType;
